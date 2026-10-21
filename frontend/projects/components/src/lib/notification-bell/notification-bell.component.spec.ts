@@ -79,6 +79,22 @@ describe('NotificationBellComponent', () => {
     expect(document.activeElement!.id).toBe('first');
   });
 
+  it('points aria-controls at the open panel and drops it when closed', async () => {
+    const { fixture, trigger, panel } = setup();
+    expect(trigger().hasAttribute('aria-controls')).toBe(false);
+    trigger().click();
+    fixture.detectChanges();
+    await fixture.whenStable();
+    const id = trigger().getAttribute('aria-controls');
+    expect(id).toBeTruthy();
+    const controlled = document.getElementById(id!);
+    expect(controlled).not.toBeNull();
+    expect(controlled!.contains(panel())).toBe(true);
+    trigger().click();
+    fixture.detectChanges();
+    expect(trigger().hasAttribute('aria-controls')).toBe(false);
+  });
+
   it('closes on Escape and returns focus to the bell', async () => {
     const { fixture, cmp, trigger, panel, press } = setup();
     trigger().click();

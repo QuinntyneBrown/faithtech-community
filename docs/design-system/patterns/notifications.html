@@ -146,10 +146,10 @@
         </div>
         <div class="ds-example__caption"><span>notifications/bell/unread: three unread items and one read item. The bell button is labelled "Notifications, 3 unread".</span></div>
         <details class="ds-example__code"><summary>HTML</summary><pre><code>&lt;div class="bell-anchor"&gt;
-  &lt;button class="btn btn--ghost btn--icon" type="button" aria-label="Notifications, 3 unread" aria-expanded="true" aria-controls="bell"&gt;
+  &lt;button class="btn btn--ghost btn--icon" type="button" aria-label="Notifications, 3 unread" aria-haspopup="dialog" aria-expanded="true" aria-controls="bell-panel"&gt;
     &lt;svg class="icon" aria-hidden="true"&gt;…&lt;/svg&gt;&lt;span class="badge badge--count" aria-hidden="true"&gt;3&lt;/span&gt;
   &lt;/button&gt;
-  &lt;div class="bell-panel" id="bell" role="dialog" aria-label="Notifications"&gt;
+  &lt;div class="bell-panel" id="bell-panel" role="dialog" aria-label="Notifications"&gt;
     &lt;div class="bell-panel__header"&gt;&lt;strong&gt;Notifications&lt;/strong&gt;&lt;button class="btn btn--sm btn--ghost" type="button"&gt;Mark all read&lt;/button&gt;&lt;/div&gt;
     &lt;ul class="notice-list"&gt;
       &lt;li class="notice notice--unread"&gt;
@@ -339,7 +339,7 @@
       </ul>
       <p>Drift noticed in the mocks:</p>
       <ul>
-        <li>The bell button is an <code>&lt;a&gt;</code> with <code>aria-expanded</code>. It should be a <code>&lt;button&gt;</code> with <code>aria-controls</code> that toggles the panel.</li>
+        
         <li>The empty bell still shows "Mark all read".</li>
         <li>The email mocks use raw hex colours, px sizes and a system font stack in inline styles. Email clients need this, but the values should come from the token build, not be typed by hand.</li>
       </ul>

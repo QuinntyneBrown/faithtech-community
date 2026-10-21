@@ -7,6 +7,7 @@
   aria-haspopup="dialog"
   [attr.aria-label]="label()"
   [attr.aria-expanded]="open()"
+  [attr.aria-controls]="open() ? panelId : null"
   (click)="toggle()"
 >
   <ft-icon name="notifications" />
@@ -27,5 +28,5 @@
   (overlayOutsideClick)="onOutsideClick($event)"
   (overlayKeydown)="onKeydown($event)"
 >
-  <ng-content />
+  <div [id]="panelId"><ng-content /></div>
 </ng-template>
