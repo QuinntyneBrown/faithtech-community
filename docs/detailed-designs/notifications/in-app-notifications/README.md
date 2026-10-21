@@ -13,11 +13,11 @@ Other features create notifications through one Application service, so every so
 ## Description
 
 - **`NotificationBellComponent`** — component in the `components` library that renders the bell button (a `<button aria-haspopup="dialog">`, never a link, with `aria-expanded` and, while open, `aria-controls` naming the panel), the unread badge and the panel shell. It receives items and the count through inputs and emits `open` and `markAllRead` events; it makes no HTTP calls.
-- **`NotificationsPage`** — page in the `notifications` feature library (mock `pages/notifications`). It lists notifications newest first, shows the empty state when none exist, and offers "Mark all as read".
+- **`NotificationsPage`** — page in the `notifications` feature library (mock `pages/notifications`). It lists notifications newest first, 50 at a time with a **Show older notifications** button, filters to **All** or **Unread** (mock `pages/notifications/unread`), shows the empty state when none exist, and offers "Mark all as read".
 - **`NotificationsBellContainer`** — glue in the `notifications` library that the shell renders. It reads from `NotificationsService` and feeds `NotificationBellComponent`.
 - **`NotificationsService`** / **`NOTIFICATIONS_SERVICE`** / **`HttpNotificationsService`** — API client contract, injection token and HTTP implementation in the `api` library.
-- **`NotificationsEndpoints`** — minimal API mapping in `FaithTech.Community.Api` for `GET /notifications`, `GET /notifications/unread-count`, `POST /notifications/{id}/read` and `POST /notifications/read-all`.
-- **`ListNotificationsQuery`** / **`ListNotificationsHandler`** — returns a page of the caller's notifications ordered by `CreatedAt` descending, filtered by recipient in the database query.
+- **`NotificationsEndpoints`** — minimal API mapping in `FaithTech.Community.Api` for `GET /notifications?unreadOnly=&page=`, `GET /notifications/unread-count`, `POST /notifications/{id}/read` and `POST /notifications/read-all`.
+- **`ListNotificationsQuery`** / **`ListNotificationsHandler`** — returns a page of 50 of the caller's notifications ordered by `CreatedAt` descending, filtered by recipient (and, with `unreadOnly`, by a null `ReadAt`) in the database query.
 - **`MarkNotificationReadCommand`** / **`MarkNotificationReadHandler`** and **`MarkAllNotificationsReadCommand`** / **`MarkAllNotificationsReadHandler`** — set `ReadAt` on one or all of the caller's unread notifications.
 - **`INotificationPublisher`** — Application service other features call to create a notification and, when the notification kind has an email form, enqueue the email.
 - **`Notification`** — Domain entity with `RecipientId`, `Kind`, `Title` (required), `LinkPath` (required), `CreatedAt` and `ReadAt`. `MarkRead(at)` keeps the first read time.
@@ -42,6 +42,8 @@ The feature realizes the following level-2 (L2) requirements. Each L2 requiremen
 2. Given the panel, when the user opens a notification, then it is marked read and they are taken to the related item.
 3. Given unread notifications, when the user chooses "Mark all as read", then the count clears.
 4. Given the notifications page, when there are none, then an empty state is shown.
+5. Given the notifications page, when the user chooses "Unread", then only unread notifications are listed, and "All" lists every notification again.
+6. Given more than 50 notifications, when the page loads, then the newest 50 are listed with "Show older notifications", which appends the next 50 and disappears when none are left.
 
 ## Diagrams
 
