@@ -7,8 +7,8 @@
 <meta name="mock:kind" content="page">
 <meta name="mock:screen" content="settings">
 <meta name="mock:state" content="invalid">
-<meta name="mock:requirements" content="L2-052 L2-030">
-<meta name="description" content="Account and notification settings.">
+<meta name="mock:requirements" content="L2-052 L2-030 L2-045">
+<meta name="description" content="Account, appearance and notification settings.">
 <link rel="stylesheet" href="../../../design-system/tokens/tokens.css">
 <link rel="stylesheet" href="../../../design-system/assets/components.css">
 <link rel="stylesheet" href="../../assets/mock.css">
@@ -36,6 +36,7 @@
 <div class="field"><label class="field__label" for="st-email">Email</label><input class="input" id="st-email" name="st-email" type="email" value="grace.okonkwo@example.org" autocomplete="email" required aria-describedby="st-email-help"><div class="field__help" id="st-email-help">Changing it sends a verification link to the new address.</div></div>
 <div class="field"><label class="field__label" for="st-current">Current password</label><input class="input" id="st-current" name="st-current" type="password" autocomplete="current-password" required aria-invalid="true" aria-describedby="st-current-error"><div class="field__error" id="st-current-error">Enter your current password to change it.</div></div>
 <div class="field"><label class="field__label" for="st-new">New password <span class="optional">(optional)</span></label><input class="input" id="st-new" name="st-new" type="password" value="kestrel-labs" autocomplete="new-password" aria-describedby="st-new-help"><div class="field__help" id="st-new-help">At least 12 characters.</div></div></section>
+<section class="card stack" aria-labelledby="ap"><h2 class="card__title" id="ap">Appearance</h2><fieldset class="stack"><legend class="field__label">Theme</legend><label class="choice"><input type="radio" name="theme" value="light"><span class="choice__text">Light</span></label><label class="choice"><input type="radio" name="theme" value="dark"><span class="choice__text">Dark</span></label><label class="choice"><input type="radio" name="theme" value="system" checked><span class="choice__text">Match my device<small>Follows your device’s light or dark setting</small></span></label></fieldset><p class="text-caption">Changes straight away and is remembered on this device.</p></section>
 <section class="card stack" aria-labelledby="em"><h2 class="card__title" id="em">Email me when</h2>
 <label class="switch"><input type="checkbox" name="n3"><span class="switch__text">Email me announcements</span></label>
 <p class="text-caption">You’ll always get account emails like password resets.</p></section>

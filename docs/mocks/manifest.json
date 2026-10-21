@@ -516,7 +516,8 @@
       "route": "/settings",
       "requirements": [
         "L2-030",
-        "L2-052"
+        "L2-052",
+        "L2-045"
       ],
       "states": [
         "default",

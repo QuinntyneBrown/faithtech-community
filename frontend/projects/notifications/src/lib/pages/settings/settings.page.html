@@ -1,7 +1,21 @@
-<!--
-  SCAFFOLD: placeholder, not the implementation.
-  Generated from AGENTS.md and:
-    - docs/detailed-designs/notifications/email-notifications
-    - docs/detailed-designs/announcements/read-announcements-and-opt-out
-  Overwrite this template with the expected implementation, then delete this comment.
--->
+<ft-page-header title="Settings" />
+
+<ft-stack width="md">
+  <ft-card heading="Appearance">
+    <ft-stack gap="3">
+      <ft-radio-group
+        legend="Theme"
+        name="theme"
+        [ngModel]="preference()"
+        (ngModelChange)="choose($event)"
+      >
+        <ft-radio value="light">Light</ft-radio>
+        <ft-radio value="dark">Dark</ft-radio>
+        <ft-radio value="system" description="Follows your device’s light or dark setting">
+          Match my device
+        </ft-radio>
+      </ft-radio-group>
+      <p class="caption">Changes straight away and is remembered on this device.</p>
+    </ft-stack>
+  </ft-card>
+</ft-stack>

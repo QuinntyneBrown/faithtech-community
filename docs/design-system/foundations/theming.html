@@ -98,7 +98,7 @@
     </header>
 
     <section class="ds-section" id="overview"><h2><a href="#overview">Overview</a></h2>
-      <p>FaithTech Community ships a light and a dark theme. Both are the same components reading the same token names; only the semantic colour and shadow values change. The violet brand and both themes are inherited from Shelfie until FaithTech brand colours are supplied; a FaithTech brand will arrive as a new semantic block, not as component changes. By default the theme follows the device (<code>prefers-color-scheme</code>); no FaithTech mock offers an in-app Appearance setting yet (drift), so <code>data-theme</code> is set only by the preview toggle in the mocks and these docs.</p>
+      <p>FaithTech Community ships a light and a dark theme. Both are the same components reading the same token names; only the semantic colour and shadow values change. The violet brand and both themes are inherited from Shelfie until FaithTech brand colours are supplied; a FaithTech brand will arrive as a new semantic block, not as component changes. By default the theme follows the device (<code>prefers-color-scheme</code>); a member can override it under <b>Appearance</b> in <a href="../../mocks/pages/settings/default.html">Settings</a> (Light, Dark or Match my device), which sets <code>data-theme</code> at once and remembers the choice on that device. Resolved drift: before, only the preview toggle in the mocks and these docs set <code>data-theme</code>.</p>
       <div class="ds-themes">
         <div data-theme="light"><ul class="list card card--flush"><li class="list__item event-card"><span class="date-badge" aria-hidden="true"><span class="date-badge__month">Nov</span><span class="date-badge__day">6</span></span><div class="event-card__body"><a class="event-card__title" href="../../mocks/pages/event/default.html">Toronto Builders Night</a><span class="event-card__meta">Thu 6 Nov · 6:30 pm · Toronto</span></div><span class="avatar avatar--sm avatar--sky" aria-hidden="true">GO</span><a class="btn btn--primary btn--sm" href="../../mocks/pages/event/default.html">RSVP</a></li></ul></div>
         <div data-theme="dark"><ul class="list card card--flush"><li class="list__item event-card"><span class="date-badge" aria-hidden="true"><span class="date-badge__month">Nov</span><span class="date-badge__day">6</span></span><div class="event-card__body"><a class="event-card__title" href="../../mocks/pages/event/default.html?theme=dark">Toronto Builders Night</a><span class="event-card__meta">Thu 6 Nov · 6:30 pm · Toronto</span></div><span class="avatar avatar--sm avatar--sky" aria-hidden="true">GO</span><a class="btn btn--primary btn--sm" href="../../mocks/pages/event/default.html?theme=dark">RSVP</a></li></ul></div>
@@ -110,7 +110,7 @@
         <thead><tr><th scope="col">Mechanism</th><th scope="col">What it does</th></tr></thead>
         <tbody>
           <tr><td><code>:root</code></td><td>Light values; the default.</td></tr>
-          <tr><td><code>[data-theme="dark"]</code></td><td>Dark values on any element and everything inside it. Set on <code>&lt;html&gt;</code> when a member forces Dark (today only the docs and mocks preview toggle does).</td></tr>
+          <tr><td><code>[data-theme="dark"]</code></td><td>Dark values on any element and everything inside it. Set on <code>&lt;html&gt;</code> when a member chooses Dark under Appearance in Settings (and by the docs and mocks preview toggle).</td></tr>
           <tr><td><code>@media (prefers-color-scheme: dark)</code> on <code>:root:not([data-theme="light"])</code></td><td>The default: dark when the OS is dark, unless Light is forced.</td></tr>
           <tr><td><code>color-scheme: light | dark</code></td><td>Set inside each theme so scrollbars, form controls and the default canvas match.</td></tr>
           <tr><td><code>@media (prefers-contrast: more)</code></td><td>Decorative borders become strong; muted and subtle text become default.</td></tr>
@@ -120,7 +120,7 @@
       <pre><code>&lt;!-- Match device: no attribute --&gt;
 &lt;html lang="en"&gt;
 
-&lt;!-- Forced Dark or Light (preview toggle; a future Appearance setting) --&gt;
+&lt;!-- Forced Dark or Light (Appearance in Settings, or the preview toggle) --&gt;
 &lt;html lang="en" data-theme="dark"&gt;
 &lt;html lang="en" data-theme="light"&gt;</code></pre>
       <p>The app sets the attribute before first paint (from a stored preference, when one exists) so there is no flash of the wrong theme. These docs and the mocks also accept <code>?theme=dark</code> and the <kbd>t</kbd> key to preview.</p>
@@ -145,7 +145,7 @@
         <li>Set <code>color-scheme</code> and, for a dark-based theme, <code>--shadow-color</code> and the four shadows.</li>
         <li>Keep the avatar pastels (<code>--color-cover-*</code>) and <code>--color-fg-on-cover</code> as they are; Grace’s sky avatar looks the same in every theme.</li>
         <li>Run <code>python3 .claude/skills/extracting-design-systems/scripts/check_contrast.py docs/design-system</code>; every pair in <code>contrast-pairs.json</code> must pass in the new theme.</li>
-        <li>Add the theme to the docs' theme previews, and to an Appearance setting once settings offers one.</li>
+        <li>Add the theme to the docs' theme previews, and as an option of the Appearance setting in Settings.</li>
       </ol>
     </section>
 
