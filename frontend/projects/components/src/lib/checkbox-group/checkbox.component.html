@@ -5,6 +5,7 @@
     [value]="value()"
     [checked]="checked()"
     [disabled]="isDisabled()"
+    [attr.aria-invalid]="group.error() ? 'true' : null"
     (change)="onChange($event)"
     (blur)="group.touch()"
   />

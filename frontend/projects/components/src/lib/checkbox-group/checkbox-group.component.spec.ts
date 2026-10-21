@@ -88,4 +88,13 @@ describe('CheckboxGroupComponent', () => {
     expect(fs.getAttribute('aria-describedby')).toBe(`${hint.id} ${msg.id}`);
     expect(fs.getAttribute('aria-invalid')).toBe('true');
   });
+
+  it('marks every checkbox invalid while the group shows an error', () => {
+    const { fixture, cmp, boxes } = setup();
+    expect(boxes().some((b) => b.hasAttribute('aria-invalid'))).toBe(false);
+    cmp.error = 'Choose at least one member.';
+    fixture.changeDetectorRef.markForCheck();
+    fixture.detectChanges();
+    expect(boxes().every((b) => b.getAttribute('aria-invalid') === 'true')).toBe(true);
+  });
 });
