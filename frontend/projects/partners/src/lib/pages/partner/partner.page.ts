@@ -16,6 +16,7 @@ import {
   CardComponent,
   DescriptionListComponent,
   DescriptionListItemComponent,
+  DialogService,
   EmptyStateComponent,
   FeedComponent,
   FeedItemComponent,
@@ -27,6 +28,8 @@ import {
   formatDay,
 } from '@faithtech-community/components';
 import { firstValueFrom } from 'rxjs';
+
+import { MovePartnerData, MovePartnerDialog } from '../../dialogs';
 
 type State = 'loading' | 'loaded' | 'not-found' | 'error';
 
@@ -63,6 +66,7 @@ export const STAGE_BADGES: Record<PartnerStage, BadgeVariant> = {
 })
 export class PartnerPage {
   private readonly partners = inject(PARTNERS_SERVICE);
+  private readonly dialogs = inject(DialogService);
 
   /** Route parameter. */
   readonly id = input.required<string>();
@@ -83,6 +87,14 @@ export class PartnerPage {
 
   protected day(value: string): string {
     return formatDay(value);
+  }
+
+  protected async move(partner: PartnerDto): Promise<void> {
+    const ref = this.dialogs.open<PartnerDto, MovePartnerData>(MovePartnerDialog, {
+      data: { partnerId: partner.id, name: partner.name, stage: partner.stage },
+    });
+    const moved = await firstValueFrom(ref.closed);
+    if (moved) this.partner.set(moved);
   }
 
   protected retry(): void {

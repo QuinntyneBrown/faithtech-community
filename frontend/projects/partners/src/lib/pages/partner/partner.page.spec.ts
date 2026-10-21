@@ -5,6 +5,7 @@ import { PARTNERS_SERVICE, PartnerDto } from '@faithtech-community/api';
 import { DialogService, ToastService } from '@faithtech-community/components';
 import { Observable, of, throwError } from 'rxjs';
 
+import { MovePartnerDialog } from '../../dialogs';
 import { partnerDto } from '../../testing';
 import { PartnerPage } from './partner.page';
 
@@ -91,5 +92,33 @@ describe('PartnerPage', () => {
     const { text } = await setup(() => throwError(() => new HttpErrorResponse({ status: 404 })));
 
     expect(text()).toContain('We couldn’t find that partner');
+  });
+
+  it('moves the partner from its page and shows the new stage and history', async () => {
+    const moved = partnerDto({
+      stage: 'Confirmed',
+      history: [
+        {
+          from: 'InFunnel',
+          to: 'Confirmed',
+          movedById: 'p1',
+          movedByName: 'Grace Okonkwo',
+          movedAtUtc: '2026-10-21T12:00:00Z',
+          note: null,
+        },
+      ],
+    });
+    const { host, dialogs, settle } = await setup(() => of(partnerDto()), moved);
+
+    Array.from(host.querySelectorAll('button'))
+      .find((b) => b.textContent?.trim() === 'Move stage')!
+      .click();
+    await settle();
+
+    expect(dialogs.open).toHaveBeenCalledWith(MovePartnerDialog, {
+      data: { partnerId: 'x1', name: 'Kestrel Labs', stage: 'InFunnel' },
+    });
+    expect(host.querySelector('ft-page-header ft-badge')!.textContent).toContain('Confirmed');
+    expect(host.querySelectorAll('ft-feed-item')).toHaveLength(1);
   });
 });

@@ -35,6 +35,13 @@ public static class PartnersEndpoints
             })
             .Validate<PartnerCommand>();
 
+        partners.MapPost("/{id:guid}/stage", async (Guid id, MovePartnerCommand command, MovePartnerHandler handler, CancellationToken cancellationToken) =>
+            {
+                var (result, partner) = await handler.MoveAsync(id, command, cancellationToken);
+                return result.ToHttp(() => Results.Ok(partner));
+            })
+            .Validate<MovePartnerCommand>();
+
         return app;
     }
 }

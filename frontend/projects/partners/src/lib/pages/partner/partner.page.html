@@ -55,6 +55,12 @@
           }
         </span>
         @if (p.canEdit) {
+          <ft-button ftPageHeaderActions (click)="move(p)">
+            <ft-icon name="move" /> Move stage
+          </ft-button>
+        }
+        <!-- One root node per @if, so each button is projected into the actions slot. -->
+        @if (p.canEdit) {
           <ft-button ftPageHeaderActions variant="ghost" [href]="'/partners/' + p.id + '/edit'">
             <ft-icon name="edit" /> Edit
           </ft-button>

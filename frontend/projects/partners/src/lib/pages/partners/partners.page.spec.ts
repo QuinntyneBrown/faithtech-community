@@ -6,7 +6,7 @@ import { BreakpointService, DialogService, ToastService } from '@faithtech-commu
 import { signal } from '@angular/core';
 import { Observable, of, throwError } from 'rxjs';
 
-import { AddPartnerDialog } from '../../dialogs';
+import { AddPartnerDialog, MovePartnerDialog } from '../../dialogs';
 import { partnerDto } from '../../testing';
 import { PartnersPage } from './partners.page';
 
@@ -148,5 +148,87 @@ describe('PartnersPage', () => {
     );
 
     expect(text()).toContain('We couldn’t load the partner pipeline');
+  });
+
+  it('moves a partner with the Move dialog and announces it', async () => {
+    const moved = partnerDto({ id: 'x2', name: 'Maple Street Church', stage: 'Confirmed' });
+    const { dialogs, button, columns, settle, host } = await setupBoard(
+      () => of(structuredClone(board)),
+      {
+        dialogResult: moved,
+      },
+    );
+
+    button('Move Maple Street Church to another stage')!.click();
+    await settle();
+
+    expect(dialogs.open).toHaveBeenCalledWith(MovePartnerDialog, {
+      data: { partnerId: 'x2', name: 'Maple Street Church', stage: 'Lead' },
+    });
+    expect(columns()).toEqual([
+      'Lead 0: ',
+      'In funnel 1: Kestrel Labs',
+      'Confirmed 1: Maple Street Church',
+    ]);
+    expect(host.querySelector('[aria-live="polite"]')!.textContent).toContain(
+      'Maple Street Church moved to Confirmed',
+    );
+  });
+
+  it('moves a partner dropped on another column', async () => {
+    const { service, columns, settle, fixture } = await setupBoard(
+      () => of(structuredClone(board)),
+      {
+        move: () => of(partnerDto({ id: 'x1', stage: 'Lead' })),
+      },
+    );
+
+    const column = fixture.debugElement.queryAll((d) => d.name === 'ft-kanban-column')[0];
+    column.componentInstance.cardDropped.emit({
+      cardId: 'x1',
+      from: 'InFunnel',
+      to: 'Lead',
+      index: 0,
+    });
+    await settle();
+
+    expect(service.move).toHaveBeenCalledWith('x1', 'Lead');
+    expect(columns()[0]).toBe('Lead 2: Kestrel Labs, Maple Street Church');
+  });
+
+  it('leaves the card where it was when a drop fails', async () => {
+    const { columns, settle, fixture, toasts } = await setupBoard(
+      () => of(structuredClone(board)),
+      {
+        move: () => throwError(() => new HttpErrorResponse({ status: 503 })),
+      },
+    );
+
+    const column = fixture.debugElement.queryAll((d) => d.name === 'ft-kanban-column')[0];
+    column.componentInstance.cardDropped.emit({
+      cardId: 'x1',
+      from: 'InFunnel',
+      to: 'Lead',
+      index: 0,
+    });
+    await settle();
+
+    expect(columns()[1]).toBe('In funnel 1: Kestrel Labs');
+    expect(toasts.show).toHaveBeenCalledWith(expect.objectContaining({ variant: 'danger' }));
+  });
+
+  it('shows the stages as tabs with one column at a time on a phone', async () => {
+    const { host, columns, settle } = await setupBoard(() => of(board), { breakpoint: 'base' });
+
+    const tabs = Array.from(host.querySelectorAll('[role="tab"]')).map((t) =>
+      t.textContent!.trim(),
+    );
+    expect(tabs).toEqual(['Lead (1)', 'In funnel (1)', 'Confirmed (0)']);
+    expect(columns()).toEqual(['Lead 1: Maple Street Church']);
+
+    host.querySelectorAll<HTMLButtonElement>('[role="tab"]')[1].click();
+    await settle();
+
+    expect(columns()).toEqual(['In funnel 1: Kestrel Labs']);
   });
 });

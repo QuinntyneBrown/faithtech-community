@@ -35,6 +35,8 @@ public class CommunityDbContext(DbContextOptions<CommunityDbContext> options)
 
     public DbSet<Partner> Partners => Set<Partner>();
 
+    public DbSet<PartnerStageChange> PartnerStageChanges => Set<PartnerStageChange>();
+
     protected override void OnModelCreating(ModelBuilder builder)
     {
         base.OnModelCreating(builder);

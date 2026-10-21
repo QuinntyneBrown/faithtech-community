@@ -27,5 +27,7 @@ public interface IApplicationDbContext
 
     DbSet<Partner> Partners { get; }
 
+    DbSet<PartnerStageChange> PartnerStageChanges { get; }
+
     Task<int> SaveChangesAsync(CancellationToken cancellationToken = default);
 }

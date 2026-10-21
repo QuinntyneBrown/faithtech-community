@@ -1,6 +1,40 @@
-<!--
-  SCAFFOLD: placeholder, not the implementation.
-  Generated from AGENTS.md and:
-    - docs/detailed-designs/partners/partner-kanban-board
-  Overwrite this template with the expected implementation, then delete this comment.
--->
+<ft-dialog
+  [heading]="'Move ' + data.name"
+  description="Every lead sees the change on the board."
+  icon="move"
+  [busy]="busy()"
+  (closed)="ref.close()"
+>
+  <form (submit)="$event.preventDefault(); move()">
+    <ft-stack>
+      @if (failed()) {
+        <ft-alert status="danger" heading="That didn’t work">
+          We couldn’t reach FaithTech. Nothing was changed — try again.
+        </ft-alert>
+      }
+      <ft-radio-group legend="Stage" [formControl]="to">
+        @for (stage of stages; track stage) {
+          <ft-radio
+            [value]="stage"
+            [description]="stage === data.stage ? 'Current stage' : ''"
+            [disabled]="busy()"
+            >{{ label(stage) }}</ft-radio
+          >
+        }
+      </ft-radio-group>
+      <ft-form-field label="Note for the history" [optional]="true">
+        <ft-textarea [formControl]="note" [rows]="2" />
+      </ft-form-field>
+    </ft-stack>
+  </form>
+  <ft-button ftDialogFooter [disabled]="busy()" (click)="ref.close()">Cancel</ft-button>
+  <ft-button
+    ftDialogFooter
+    variant="primary"
+    [disabled]="unchanged()"
+    [loading]="busy()"
+    (click)="move()"
+  >
+    Move to {{ label(to.value) }}
+  </ft-button>
+</ft-dialog>

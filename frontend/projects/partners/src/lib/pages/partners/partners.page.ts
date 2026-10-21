@@ -1,3 +1,4 @@
+import { NgTemplateOutlet } from '@angular/common';
 import { HttpErrorResponse } from '@angular/common/http';
 import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
 import {
@@ -6,9 +7,11 @@ import {
   PartnerBoardDto,
   PartnerCardDto,
   PartnerDto,
+  PartnerStage,
 } from '@faithtech-community/api';
 import {
   AlertComponent,
+  BreakpointService,
   ButtonComponent,
   CardComponent,
   DialogService,
@@ -16,15 +19,18 @@ import {
   IconComponent,
   KanbanBoardComponent,
   KanbanCardComponent,
+  KanbanCardDrop,
   KanbanColumnComponent,
   PageHeaderComponent,
   SkeletonComponent,
   StackComponent,
+  TabComponent,
+  TabsComponent,
   ToastService,
 } from '@faithtech-community/components';
 import { firstValueFrom } from 'rxjs';
 
-import { AddPartnerDialog } from '../../dialogs';
+import { AddPartnerDialog, MovePartnerData, MovePartnerDialog } from '../../dialogs';
 
 type State = 'loading' | 'loaded' | 'error' | 'forbidden';
 
@@ -32,6 +38,7 @@ type State = 'loading' | 'loaded' | 'error' | 'forbidden';
 @Component({
   selector: 'ft-partners-page',
   imports: [
+    NgTemplateOutlet,
     AlertComponent,
     ButtonComponent,
     CardComponent,
@@ -43,6 +50,8 @@ type State = 'loading' | 'loaded' | 'error' | 'forbidden';
     PageHeaderComponent,
     SkeletonComponent,
     StackComponent,
+    TabComponent,
+    TabsComponent,
   ],
   templateUrl: './partners.page.html',
   styleUrl: './partners.page.scss',
@@ -52,10 +61,16 @@ export class PartnersPage {
   private readonly partners = inject(PARTNERS_SERVICE);
   private readonly dialogs = inject(DialogService);
   private readonly toasts = inject(ToastService);
+  private readonly breakpoint = inject(BreakpointService);
 
   protected readonly state = signal<State>('loading');
   protected readonly board = signal<PartnerBoardDto | null>(null);
   protected readonly labels = PARTNER_STAGE_LABELS;
+  /** Read out after each move (L2-018 AC3). */
+  protected readonly announcement = signal('');
+  /** On phones the stages become tabs with one column at a time (L2-018 AC4). */
+  protected readonly phone = computed(() => this.breakpoint.current() === 'base');
+  protected readonly selectedStage = signal(0);
 
   protected readonly total = computed(
     () => this.board()?.columns.reduce((sum, c) => sum + c.count, 0) ?? 0,
@@ -68,6 +83,10 @@ export class PartnersPage {
 
   constructor() {
     void this.load();
+  }
+
+  protected stageLabel(stage: PartnerStage): string {
+    return this.labels[stage];
   }
 
   protected caption(card: PartnerCardDto): string {
@@ -101,6 +120,49 @@ export class PartnersPage {
         : board,
     );
     this.toasts.show({ variant: 'success', heading: `${created.name} added to the pipeline` });
+  }
+
+  /** The Move button: the keyboard and screen-reader path (WCAG 2.5.7). */
+  protected async moveWithDialog(card: PartnerCardDto, stage: PartnerStage): Promise<void> {
+    const ref = this.dialogs.open<PartnerDto, MovePartnerData>(MovePartnerDialog, {
+      data: { partnerId: card.id, name: card.name, stage },
+    });
+    const moved = await firstValueFrom(ref.closed);
+    if (moved) this.place(moved);
+  }
+
+  /** A card dragged to another column moves at once; on failure it stays where it was. */
+  protected async dropped(drop: KanbanCardDrop): Promise<void> {
+    const id = drop.cardId as string;
+    try {
+      this.place(await firstValueFrom(this.partners.move(id, drop.to as PartnerStage)));
+    } catch {
+      this.toasts.show({
+        variant: 'danger',
+        heading: 'That didn’t work',
+        text: 'We couldn’t move that partner. Try again.',
+      });
+    }
+  }
+
+  /** Puts a moved partner in its new column and announces the move. */
+  private place(moved: PartnerDto): void {
+    this.board.update((board) =>
+      board
+        ? {
+            ...board,
+            columns: board.columns.map((column) => {
+              const cards = column.cards.filter((c) => c.id !== moved.id);
+              if (column.stage === moved.stage) {
+                cards.push(toCard(moved));
+                cards.sort((a, b) => a.name.localeCompare(b.name));
+              }
+              return { ...column, count: cards.length, cards };
+            }),
+          }
+        : board,
+    );
+    this.announcement.set(`${moved.name} moved to ${this.labels[moved.stage]}`);
   }
 
   private async load(): Promise<void> {

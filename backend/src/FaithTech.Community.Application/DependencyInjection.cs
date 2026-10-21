@@ -51,6 +51,7 @@ public static class DependencyInjection
         services.AddScoped<PartnerAccess>();
         services.AddScoped<PartnerViews>();
         services.AddScoped<ManagePartnersHandler>();
+        services.AddScoped<MovePartnerHandler>();
         services.TryAddSingleton(TimeProvider.System);
         return services;
     }

@@ -58,13 +58,15 @@
           }
         </ft-empty-state>
       } @else {
-        <ft-kanban-board label="Partner pipeline">
-          @for (column of b.columns; track column.stage) {
+        <ft-kanban-board label="Partner pipeline" [announcement]="announcement()">
+          <!-- Declared inside the board so every column joins its drop-list group. -->
+          <ng-template #columnTemplate let-column>
             <ft-kanban-column
-              [title]="labels[column.stage]"
+              [title]="stageLabel(column.stage)"
               [stage]="column.stage"
               [count]="column.count"
               emptyText="No partners at this stage yet"
+              (cardDropped)="dropped($event)"
             >
               @for (card of column.cards; track card.id) {
                 <ft-kanban-card
@@ -72,10 +74,26 @@
                   [title]="card.name"
                   [href]="'/partners/' + card.id"
                   [caption]="caption(card)"
-                  [movable]="false"
+                  [movable]="b.canEdit"
+                  (moveRequested)="moveWithDialog(card, column.stage)"
                 />
               }
             </ft-kanban-column>
+          </ng-template>
+          @if (phone()) {
+            <ft-tabs label="Stages" [(selectedIndex)]="selectedStage">
+              @for (column of b.columns; track column.stage) {
+                <ft-tab [label]="labels[column.stage] + ' (' + column.count + ')'">
+                  <ng-container
+                    *ngTemplateOutlet="columnTemplate; context: { $implicit: column }"
+                  />
+                </ft-tab>
+              }
+            </ft-tabs>
+          } @else {
+            @for (column of b.columns; track column.stage) {
+              <ng-container *ngTemplateOutlet="columnTemplate; context: { $implicit: column }" />
+            }
           }
         </ft-kanban-board>
       }
