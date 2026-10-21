@@ -14,7 +14,7 @@ export class RoleDialog {
     this.dialog = page.getByRole('dialog', { name: heading });
     this.options = this.dialog.getByRole('radio');
     this.caption = this.dialog.getByText('can only be granted by a System Admin');
-    this.confirm = this.dialog.getByRole('button', { name: /^(Add|Remove) role/ });
+    this.confirm = this.dialog.getByRole('button', { name: /^(Add|Adding|Remove|Removing) role/ });
     this.cancel = this.dialog.getByRole('button', { name: 'Cancel' });
     this.choiceError = this.dialog.getByText('Choose a role to add.');
     this.refusal = this.dialog.locator('ft-alert');

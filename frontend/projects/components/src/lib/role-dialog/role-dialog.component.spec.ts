@@ -124,4 +124,27 @@ describe('RoleDialogComponent', () => {
     await settle();
     expect(data.submit).toHaveBeenCalledWith('Volunteer');
   });
+
+  it('reads Adding role… while an addition is in flight', async () => {
+    const adding = setup({ submit: () => new Promise(() => undefined) });
+    adding.choose('Attendee');
+    adding.button('Add role').click();
+    adding.fixture.detectChanges();
+    expect(adding.host.querySelector('button[aria-busy="true"]')!.textContent!.trim()).toBe(
+      'Adding role…',
+    );
+  });
+
+  it('reads Removing role… while a removal is in flight', () => {
+    const removing = setup({
+      mode: 'remove',
+      name: 'Ruth Alvarez',
+      submit: () => new Promise(() => undefined),
+    });
+    removing.button('Remove role').click();
+    removing.fixture.detectChanges();
+    expect(removing.host.querySelector('button[aria-busy="true"]')!.textContent!.trim()).toBe(
+      'Removing role…',
+    );
+  });
 });

@@ -244,7 +244,7 @@
               <div class="dialog__body stack">
                 <div class="field"><label class="field__label" for="dlg-busy-email">Email</label><input class="input" id="dlg-busy-email" type="email" value="nate.oyelaran@example.org" readonly></div>
               </div>
-              <div class="dialog__footer"><button class="btn" type="button" disabled>Cancel</button><button class="btn btn--primary" type="button" aria-busy="true" aria-disabled="true">Send invite…</button></div>
+              <div class="dialog__footer"><button class="btn" type="button" disabled>Cancel</button><button class="btn btn--primary" type="button" aria-busy="true" aria-disabled="true">Sending invite…</button></div>
             </div>
           </div>
         </div>
@@ -255,7 +255,7 @@
               <div class="dialog__body stack">
                 <div class="field"><label class="field__label" for="dlg-busy-d-email">Email</label><input class="input" id="dlg-busy-d-email" type="email" value="nate.oyelaran@example.org" readonly></div>
               </div>
-              <div class="dialog__footer"><button class="btn" type="button" disabled>Cancel</button><button class="btn btn--primary" type="button" aria-busy="true" aria-disabled="true">Send invite…</button></div>
+              <div class="dialog__footer"><button class="btn" type="button" disabled>Cancel</button><button class="btn btn--primary" type="button" aria-busy="true" aria-disabled="true">Sending invite…</button></div>
             </div>
           </div>
         </div>
@@ -285,7 +285,7 @@
       </div>
       <ul>
         <li><b>Default</b>: focus on the first field (form dialogs) or on Cancel (confirmations).</li>
-        <li><b>Busy</b>: Cancel and Close take native <code>disabled</code> (focus is not on them, so they leave the tab order); the pressed button keeps focus with <code>aria-busy="true"</code> and <code>aria-disabled="true"</code>, always both, a pulsing dot and an ellipsis ("Send invite…"). Text fields and textareas become <code>readonly</code> (they keep their value and stay readable); selects, radios and checkboxes, which have no read-only state, become <code>disabled</code>. Escape does nothing until it settles.</li>
+        <li><b>Busy</b>: Cancel and Close take native <code>disabled</code> (focus is not on them, so they leave the tab order); the pressed button keeps focus with <code>aria-busy="true"</code> and <code>aria-disabled="true"</code>, always both, and a spinner over its busy label ("Sending invite…"). Text fields and textareas become <code>readonly</code> (they keep their value and stay readable); selects, radios and checkboxes, which have no read-only state, become <code>disabled</code>. Escape does nothing until it settles.</li>
         <li><b>Invalid</b>: the field gets <code>aria-invalid="true"</code> and a <code>.field__error</code> linked with <code>aria-describedby</code>; focus moves to it. The dialog stays open. Examples: "Enter an email like name@example.org.", "Give a reason so other admins understand."</li>
         <li><b>Failed</b>: a danger <a href="alert.html">alert</a> with <code>role="alert"</code> at the top of the body; everything typed stays. The title names what was not saved, in the form "Thing not done" ("Invite not sent", "Role not removed", "Contact not deleted", "Account not suspended"); the text says why and what to do: "We couldn’t reach FaithTech. Nothing was changed — try again." Never a generic "That didn’t work".</li>
       </ul>

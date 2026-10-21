@@ -72,8 +72,8 @@ export class RoleDialogComponent {
     this.submitted() && !this.chosen() ? 'Choose a role to add.' : '',
   );
   protected readonly confirmLabel = computed(() => {
-    const label = this.adding ? 'Add role' : 'Remove role';
-    return this.busy() ? `${label}…` : label;
+    if (this.busy()) return this.adding ? 'Adding role…' : 'Removing role…';
+    return this.adding ? 'Add role' : 'Remove role';
   });
 
   protected async confirm(): Promise<void> {

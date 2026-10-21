@@ -43,6 +43,7 @@ describe('SuspendUserDialog', () => {
     button('Suspend').click();
     fixture.detectChanges();
     expect(host.querySelector('textarea')!.readOnly).toBe(true);
+    expect(host.querySelector('button[aria-busy="true"]')!.textContent!.trim()).toBe('Suspending…');
 
     pending.error(new Error('offline'));
     await settle();

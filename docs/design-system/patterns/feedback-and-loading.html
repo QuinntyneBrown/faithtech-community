@@ -113,7 +113,7 @@
         <thead><tr><th scope="col">Moment</th><th scope="col">Use</th><th scope="col">Example</th></tr></thead>
         <tbody>
           <tr><td>A page or region is fetching data</td><td>Skeleton in the region, with the page header and actions already shown</td><td>contacts/loading, profile/loading</td></tr>
-          <tr><td>A form or dialog is saving</td><td>Busy button. In a dialog the text fields become <code>readonly</code> and selects and choices <code>disabled</code>; pressing again does nothing</td><td>"Saving…", "Delete permanently…"</td></tr>
+          <tr><td>A form or dialog is saving</td><td>Busy button. In a dialog the text fields become <code>readonly</code> and selects and choices <code>disabled</code>; pressing again does nothing</td><td>"Saving…", "Deleting…"</td></tr>
           <tr><td>A file is uploading</td><td>Progress on the tile, with a percentage as text</td><td>edit-profile/uploading</td></tr>
           <tr><td>Saved, and the person stays on the page</td><td>Success alert at the top of the form, <code>role="status"</code></td><td>"Profile saved · Everyone signed in can now see your changes."</td></tr>
           <tr><td>Saved, and the person moves to the item</td><td>Toast on the next page</td><td>"Invite sent", "Contact restored"</td></tr>
@@ -144,7 +144,7 @@
       <h3>Busy button and results in place</h3>
       <div class="ds-example">
         <div class="ds-example__canvas ds-example__canvas--stack">
-          <div class="cluster"><button class="btn btn--primary" type="button" aria-busy="true" aria-disabled="true">Saving…</button><button class="btn btn--danger" type="button" aria-busy="true" aria-disabled="true">Delete permanently…</button></div>
+          <div class="cluster"><button class="btn btn--primary" type="button" aria-busy="true" aria-disabled="true">Saving…</button><button class="btn btn--danger" type="button" aria-busy="true" aria-disabled="true">Deleting…</button></div>
           <div class="alert alert--success" role="status" style="width: 100%;"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="m8 12 3 3 5-6"/></svg><div class="alert__body"><div class="alert__title">Profile saved</div><div class="alert__text">Everyone signed in can now see your changes.</div></div></div>
           <div class="alert alert--danger" role="alert" style="width: 100%;"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 8v4M12 16h.01"/></svg><div class="alert__body"><div class="alert__title">Contact not saved</div><div class="alert__text">We couldn’t reach FaithTech. Nothing was changed — try again.</div></div></div>
         </div>
@@ -218,7 +218,7 @@
 
     <section class="ds-section" id="content"><h2><a href="#content">Content</a></h2>
       <ul>
-        <li><b>Busy labels on page forms use the "-ing" form</b>: Saving…, Sending…, Publishing…, Creating account…, Signing in…. <b>Dialog buttons keep their label and add an ellipsis</b>: Delete permanently…, Suspend…, Move to Confirmed…. Use a real ellipsis character.</li>
+        <li><b>Every busy label uses the "-ing" form of the action plus an ellipsis</b>, on pages and in dialogs alike: Saving…, Publishing…, Signing in…, Sending invite…, Suspending…, Deleting photo…, Moving to Confirmed…. Use a real ellipsis character.</li>
         <li><b>Success says what is now true for others</b>: "Everyone signed in can now see your changes." or "Your notification preferences take effect straight away."</li>
         <li><b>Failure says that nothing was changed or lost</b>: "Nothing was changed — try again." or "Anything you were typing is still here."</li>
         <li><b>Limits give the actual numbers</b>: "team.jpg is 9.4 MB. Photos can be up to 5 MB — try a smaller one."</li>
@@ -243,7 +243,6 @@
       </ul>
       <p>Drift noticed in the mocks:</p>
       <ul>
-        <li>Busy labels mix two styles across the mocks ("Saving…" on pages, "Send invite…" in dialogs). This page records that split as the rule.</li>
         <li>The skeleton list rows use an inline <code>style="flex:1;"</code> on <code>.list__body</code>.</li>
       </ul>
     </section>

@@ -171,7 +171,7 @@ describe('AuditLogPage', () => {
     await settle();
 
     expect(exportButton().getAttribute('aria-busy')).toBe('true');
-    expect(exportButton().textContent!.trim()).toBe('Export CSV…');
+    expect(exportButton().textContent!.trim()).toBe('Exporting…');
 
     file.next(new Blob(['x']));
     file.complete();
