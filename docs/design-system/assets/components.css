@@ -137,6 +137,11 @@ a:hover, a[data-state="hover"] { color: var(--color-fg-link-hover); text-decorat
 
 /* ---------- Form field, text field, textarea -------------------------------- */
 .field { display: flex; flex-direction: column; gap: var(--space-1); }
+/* Filter field widths: a select in a filter row keeps one width instead of an inline wrapper. */
+.field--sm, .field--md, .field--lg { max-width: 100%; }
+.field--sm { width: 12rem; }
+.field--md { width: 14rem; }
+.field--lg { width: 16rem; }
 .field__label { font: var(--text-label); color: var(--color-fg-default); display: flex; gap: var(--space-1); }
 .field__label .optional { color: var(--color-fg-subtle); font-weight: var(--font-weight-regular); }
 .field__help { font: var(--text-body-sm); color: var(--color-fg-muted); }
