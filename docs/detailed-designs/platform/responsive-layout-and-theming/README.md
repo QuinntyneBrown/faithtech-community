@@ -11,7 +11,7 @@ FaithTech Community runs on phones and desktops and in light and dark themes. Th
 ## Description
 
 - **Layout tokens** — breakpoint, gutter, margin and spacing custom properties in `components` (from `docs/design-system/`).
-- **`AppShellComponent`** — shell in the `faithtech-community` app. At XS it collapses navigation into a menu button that opens `NavDrawerComponent` from `components`; above XS it shows the full navigation.
+- **`AppShellComponent`** — shell in the `faithtech-community` app. Under 768px the tab bar's More opens `NavDrawerComponent` from `components`; from 768px to 1023px `TopBarComponent`'s More (`moreLabel`, `more`) opens the same drawer while the secondary links are hidden; from 1024px the top bar shows every section.
 - **Navigation by role** — `shell/navigation.ts` in the app holds the ordered sections and the roles that may open each; `sectionsFor(roles)` feeds the top bar and the menu, `tabsFor(roles)` the phone tab bar's links, followed by `TabBarComponent`'s More button that opens `NavDrawerComponent` and is current (`aria-current="true"`) when no link tab is (ADR 0009). The API still enforces every permission.
 - **`BreakpointService`** — `components` wrapper over CDK `BreakpointObserver` exposing the current named breakpoint as a signal.
 - **`ThemeService`** — `components` service that applies `data-theme="light|dark"` on `<html>`. With preference `system` it follows `matchMedia('(prefers-color-scheme: dark)')`.
@@ -35,6 +35,7 @@ The feature realizes the following level-2 (L2) requirements. Each L2 requiremen
 2. Given an XS viewport, when the app shell renders, then the navigation collapses into a menu.
 3. Given the operating system prefers a dark theme, when the app loads, then the dark theme is used. The user can override the theme in settings.
 4. Given a signed-in member, when the app shell renders, then the top bar, the phone tab bar and the menu list only the sections the member's roles may open, from one rule: Home, Events, Team and Announcements for everyone; Contacts for leads and System Admin; Partners for leads, Staff and System Admin; People for City Lead, Staff and System Admin; Admin for System Admin. The tab bar is Home, Events, Search, the member's next section and More, which opens the menu of every section and is the current tab whenever the page is outside the other four.
+5. Given an MD viewport (768px to 1023px), when the app shell renders, then the secondary sections are hidden from the top bar and a "More" button at the end of the top-bar nav opens the menu of every section, so no section is reachable only from Home.
 
 ## Diagrams
 

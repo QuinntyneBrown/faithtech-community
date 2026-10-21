@@ -8,6 +8,8 @@ export class AppShell {
   readonly primaryNav: Locator;
   /** The tab bar's last tab, a button that opens the menu of every section. */
   readonly moreTab: Locator;
+  /** The top bar's More, shown between 768px and 1023px where the secondary links hide. */
+  readonly moreLink: Locator;
   readonly drawer: Locator;
   readonly closeDrawer: Locator;
   readonly tabBar: Locator;
@@ -22,6 +24,7 @@ export class AppShell {
     this.closeDrawer = this.drawer.getByRole('button', { name: 'Close menu' });
     this.tabBar = page.getByRole('navigation', { name: 'Primary, phone' });
     this.moreTab = this.tabBar.getByRole('button', { name: 'More' });
+    this.moreLink = this.primaryNav.getByRole('button', { name: 'More' });
   }
 
   /** The top bar's avatar, a menu button named "Account menu for {name}". */
