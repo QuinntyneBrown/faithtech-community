@@ -2,7 +2,10 @@ namespace FaithTech.Community.Domain.Profiles;
 
 public class Profile
 {
+    public const int MaxPhotos = 10;
+
     private readonly List<ProfileRole> _roles = [];
+    private readonly List<ProfilePhoto> _photos = [];
     private readonly List<object> _domainEvents = [];
 
     private Profile() { }
@@ -19,6 +22,8 @@ public class Profile
     public string Name { get; private set; } = string.Empty;
 
     public IReadOnlyCollection<ProfileRole> Roles => _roles;
+
+    public IReadOnlyCollection<ProfilePhoto> Photos => _photos;
 
     public string? HomeCity { get; private set; }
 
@@ -69,6 +74,36 @@ public class Profile
 
     public void SetAnnouncementEmailOptOut(bool optedOut) => AnnouncementEmailsOptedOut = optedOut;
 
+    public void AddPhoto(ProfilePhoto photo)
+    {
+        if (_photos.Count >= MaxPhotos)
+        {
+            throw new InvalidOperationException($"A profile holds at most {MaxPhotos} photos.");
+        }
+
+        photo.SetFeatured(_photos.Count == 0);
+        _photos.Add(photo);
+    }
+
+    public void Feature(Guid photoId)
+    {
+        var featured = FindPhoto(photoId);
+        foreach (var photo in _photos)
+        {
+            photo.SetFeatured(photo == featured);
+        }
+    }
+
+    public void RemovePhoto(Guid photoId)
+    {
+        var removed = FindPhoto(photoId);
+        _photos.Remove(removed);
+        if (removed.IsFeatured && _photos.Count > 0)
+        {
+            Feature(_photos.MaxBy(p => p.UploadedAt)!.Id);
+        }
+    }
+
     public bool HasRole(Role role) => _roles.Any(r => r.Role == role);
 
     public void AddRole(Role role, Guid grantedBy, DateTime nowUtc)
@@ -94,4 +129,8 @@ public class Profile
     }
 
     public void ClearDomainEvents() => _domainEvents.Clear();
+
+    private ProfilePhoto FindPhoto(Guid photoId) =>
+        _photos.FirstOrDefault(p => p.Id == photoId)
+            ?? throw new InvalidOperationException("The profile has no such photo.");
 }

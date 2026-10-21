@@ -37,6 +37,15 @@ public class CommunityDbContext(DbContextOptions<CommunityDbContext> options)
                 role.HasKey(r => new { r.ProfileId, r.Role });
                 role.Property(r => r.Role).HasConversion<string>().HasMaxLength(32);
             });
+            profile.OwnsMany(p => p.Photos, photo =>
+            {
+                photo.ToTable("ProfilePhotos");
+                photo.WithOwner().HasForeignKey("ProfileId");
+                photo.HasKey(p => p.Id);
+                photo.Property(p => p.Id).ValueGeneratedNever();
+                photo.Property(p => p.BlobName).HasMaxLength(200);
+                photo.Property(p => p.AltText).HasMaxLength(300);
+            });
         });
 
         builder.Entity<VerificationResend>(resend =>

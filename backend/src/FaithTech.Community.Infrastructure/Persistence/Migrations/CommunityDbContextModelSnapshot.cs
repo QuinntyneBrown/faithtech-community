@@ -545,6 +545,40 @@ namespace FaithTech.Community.Infrastructure.Persistence.Migrations
 
             modelBuilder.Entity("FaithTech.Community.Domain.Profiles.Profile", b =>
                 {
+                    b.OwnsMany("FaithTech.Community.Domain.Profiles.ProfilePhoto", "Photos", b1 =>
+                        {
+                            b1.Property<Guid>("Id")
+                                .HasColumnType("uuid");
+
+                            b1.Property<string>("AltText")
+                                .IsRequired()
+                                .HasMaxLength(300)
+                                .HasColumnType("character varying(300)");
+
+                            b1.Property<string>("BlobName")
+                                .IsRequired()
+                                .HasMaxLength(200)
+                                .HasColumnType("character varying(200)");
+
+                            b1.Property<bool>("IsFeatured")
+                                .HasColumnType("boolean");
+
+                            b1.Property<Guid>("ProfileId")
+                                .HasColumnType("uuid");
+
+                            b1.Property<DateTimeOffset>("UploadedAt")
+                                .HasColumnType("timestamp with time zone");
+
+                            b1.HasKey("Id");
+
+                            b1.HasIndex("ProfileId");
+
+                            b1.ToTable("ProfilePhotos", (string)null);
+
+                            b1.WithOwner()
+                                .HasForeignKey("ProfileId");
+                        });
+
                     b.OwnsMany("FaithTech.Community.Domain.Profiles.ProfileRole", "Roles", b1 =>
                         {
                             b1.Property<Guid>("ProfileId")
@@ -567,6 +601,8 @@ namespace FaithTech.Community.Infrastructure.Persistence.Migrations
                             b1.WithOwner()
                                 .HasForeignKey("ProfileId");
                         });
+
+                    b.Navigation("Photos");
 
                     b.Navigation("Roles");
                 });
