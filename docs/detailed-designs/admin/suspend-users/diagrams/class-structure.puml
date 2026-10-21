@@ -10,11 +10,11 @@ skinparam class {
   BackgroundColor #F9FAFB
 }
 title Class structure — Suspend users
-class UserAccount {
+class Profile {
   +Guid Id
-  +string Email
+  +string Name
   +bool IsSuspended
-  +string SuspendedReason
+  +string? SuspendedReason
   +DateTime? SuspendedAtUtc
   +Suspend(reason: string, nowUtc: DateTime): void
   +Reinstate(): void
@@ -48,8 +48,8 @@ interface ICurrentUser {
 SuspendUserValidator ..> SuspendUserCommand : validates
 SuspendUserHandler ..> SuspendUserCommand : handles
 ReinstateUserHandler ..> ReinstateUserCommand : handles
-SuspendUserHandler --> UserAccount : mutates
-ReinstateUserHandler --> UserAccount : mutates
+SuspendUserHandler --> Profile : mutates
+ReinstateUserHandler --> Profile : mutates
 SuspendUserHandler ..> ITokenRevocation
 SuspendUserHandler ..> IAuditLog
 ReinstateUserHandler ..> IAuditLog

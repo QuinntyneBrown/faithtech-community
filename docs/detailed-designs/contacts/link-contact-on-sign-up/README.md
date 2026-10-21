@@ -13,7 +13,7 @@ The trigger is email verification, not sign-up. Once a new account verifies an e
 - **`INotificationService`** — writes the in-app notification and sends email through the email provider.
 - **`LinkContactDialog`** — CDK dialog in the `contacts` feature library, opened from the notification or from `ContactPage`, that confirms "Link contact".
 - **`ContactsService.link(contactId, profileId)`** — calls `POST /api/contacts/{id}/link`.
-- **`LinkContactCommand`** / **`LinkContactHandler`** — check ownership through `ContactAccessPolicy`, call `Contact.LinkTo(profileId)` and save. Notes are untouched.
+- **`LinkContactCommand`** / **`LinkContactHandler`** — check ownership through `ContactAccessPolicy`, call `Contact.LinkTo(profileId, discardNotes)` and save. Notes are kept unless the lead chose to discard them (`L2-015` AC5).
 - **`ContactDto`** — when `LinkedProfileId` is set, the name and featured photo come from the profile.
 
 Behaviour when two accounts share one contact email over time, or when a linked profile is deleted: `<TO SUPPLY>`.
@@ -73,3 +73,9 @@ Only a verified email triggers matching, so unverified sign-ups notify no one (`
 The lead confirms from the notification or later from the contact page; the link keeps notes and shows the profile's name and photo (`L2-015` AC2, AC4).
 
 ![Sequence diagram for link a contact](diagrams/sequence-link-contact.png)
+
+## Open questions
+
+Decisions recorded while building the Domain layer (`FaithTech.Community.Domain`):
+
+- `L2-015` AC5 lets the lead discard notes while linking; `LinkTo` takes a `discardNotes` flag. A contact links once: linking an already-linked contact is rejected. Resolved.

@@ -19,12 +19,12 @@ The workspace owner starts and closes sprints; at most one sprint is active at a
 - **`CloseSprintDialog`** — CDK Dialog that confirms closing and states how many stories return to the backlog (mock `docs/mocks/dialogs/close-sprint`).
 - **`AgileService`** — `api` contract (`AGILE_SERVICE`, `HttpAgileService`).
 - **`SprintsEndpoints`** — minimal API mapping for `/workspaces/{id}/sprints`.
-- **`StartSprintCommand`** / **`StartSprintHandler`** — owner only; validates dates and rejects a second active sprint.
-- **`MoveStoriesToSprintCommand`** / **`MoveStoriesToSprintHandler`** — any member; assigns stories to the planned or active sprint.
+- **`StartSprintCommand`** / **`StartSprintHandler`** — owner only; calls `Workspace.StartSprint(sprint, sprints, stories)`, which runs only in a Scrum workspace and closes the active sprint first, so no second sprint is ever active (`L2-035` AC1, AC5).
+- **`MoveStoriesToSprintCommand`** / **`MoveStoriesToSprintHandler`** — any member; assigns stories to the planned or active sprint through `WorkItem.MoveToSprint`, which takes only stories of the same workspace and refuses a closed sprint.
 - **`CloseSprintCommand`** / **`CloseSprintHandler`** — owner only; returns unfinished stories to the backlog and records completed points.
 - **`GetSprintHistoryQuery`** — lists closed sprints with completed points.
 - **`WorkspaceAccessPolicy`** — Application service shared by every agile handler. It resolves the caller from `ICurrentUser` and classifies the caller as owner, member, Staff, System Admin or outsider for a workspace. Outsiders receive 404, Staff and non-owner members receive 403 on writes they lack, and System Admin actions pass and are written to the audit log (`L2-031`, `L2-042`).
-- **`Sprint`** — Domain entity with `Name`, `Goal`, `StartDate`, `EndDate`, `State` and `CompletedPoints`.
+- **`Sprint`** — Domain entity with `Name`, `Goal`, `StartDate`, `EndDate`, `State` and `CompletedPoints`. The constructor requires a name, a goal and an end date after the start date; `Close(stories)` sums the points of its Done stories and returns the rest to the backlog.
 - **`SprintState`** — enumeration `Planned`, `Active`, `Closed`.
 - A partial unique index on `(WorkspaceId) WHERE State = 'Active'` in `CommunityDbContext` backs the one-active-sprint rule.
 
@@ -90,3 +90,9 @@ Any member moves stories from the backlog into the planned or active sprint (`L2
 Closing returns unfinished stories to the backlog and records the completed points shown in sprint history (`L2-035`).
 
 ![Sequence diagram: close a sprint](diagrams/sequence-close-sprint.png)
+
+## Open questions
+
+Decisions recorded while building the Domain layer (`FaithTech.Community.Domain`):
+
+- Starting a sprint is a `Workspace` operation so the one-active-sprint rule holds in the Domain as well as in the partial unique index. A planned sprint may also be closed (used by a switch to Kanban). Domain rule violations throw `InvalidOperationException` (a broken rule) or `ArgumentException` (invalid input); there is no shared domain exception type. Handlers check permissions and preconditions first and map any remaining violation to a `400` or `409` result.

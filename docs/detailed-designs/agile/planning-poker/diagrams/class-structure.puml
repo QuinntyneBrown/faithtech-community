@@ -23,11 +23,16 @@ enum DeckValue {
 }
 class PokerSession {
   +Guid Id
-  +Guid StoryId
+  +Guid WorkspaceId
+  +List<Guid> StoryIds
+  +Guid? CurrentStoryId
   +Guid FacilitatorId
   +int Round
   +bool IsRevealed
+  +bool IsComplete
   +List<Guid> InvitedIds
+  +PokerSession(workspace: Workspace, stories: IReadOnlyList<WorkItem>, facilitatorId: Guid, invitedIds: IEnumerable<Guid>)
+  +CurrentVoteOf(profileId: Guid): DeckValue?
   +CastVote(profileId: Guid, value: DeckValue): void
   +Reveal(by: Guid): void
   +Revote(by: Guid): void

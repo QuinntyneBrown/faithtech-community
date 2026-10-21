@@ -15,10 +15,10 @@ Because the invite reached the invited address, signing up with that address cou
 - **`AcceptInvitePage`** — page in the `invites` feature library, matching the `accept-invite` mock. It shows the sign-up form pre-filled with the invited email, the accept action for a signed-in account, and the invalid-invite error with a sign-up link.
 - **`InvitesService`** — contract in the `api` library, provided through the `INVITES_SERVICE` injection token and implemented by `HttpInvitesService`.
 - **`InvitesEndpoints`** — minimal API route group in `FaithTech.Community.Api` under `/api/invites`. It holds no business logic.
-- **`Invite`** — Domain entity holding `Email`, `TokenHash`, optional `PreassignedRole`, `InvitedBy`, `CreatedAt`, `ExpiresAt` (14 days after creation), `AcceptedAt`, `RevokedAt` and a derived `Status`.
+- **`Invite`** — Domain entity holding `Email`, `TokenHash`, optional `PreassignedRole`, `InvitedBy`, `CreatedAt`, `ExpiresAt` (14 days after creation), `AcceptedAt`, `AcceptedBy`, `RevokedAt` and a derived `Status(now)`. `MarkAccepted(by, now)` and `Revoke(now)` act only on a pending invite.
 - **`InviteStatus`** — `Pending`, `Accepted`, `Expired`, `Revoked`.
 - **`GetInviteByTokenQuery`** / **`GetInviteByTokenHandler`** — anonymous lookup that returns the invite's email and status for display.
-- **`AcceptInviteCommand`** / **`AcceptInviteHandler`** — Application request and handler. For a new account, it creates the user with the invited email marked verified; for a signed-in account, it uses that account. It then grants the pre-assigned role and marks the invite accepted in one unit of work.
+- **`AcceptInviteCommand`** / **`AcceptInviteHandler`** — Application request and handler. For a new account, it creates the user with the invited email marked verified; for a signed-in account, it uses that account. It then grants the pre-assigned role through `Profile.AddRole` and marks the invite accepted in one unit of work.
 - **Email mismatch** — behaviour when a signed-in account's email differs from the invited email is `<TO SUPPLY>`.
 - **Role grant audit** — whether a role granted through an invite writes an audit entry is `<TO SUPPLY>`.
 
@@ -70,3 +70,9 @@ The web app sends the token to the Community API, which reads and updates invite
 A stale invite shows an error with a sign-up link. A pending invite either creates a verified account or attaches to the signed-in account, then grants the pre-assigned role and marks the invite used (`L2-011`).
 
 ![Sequence diagram for accept an invite](diagrams/sequence-accept-invite.png)
+
+## Open questions
+
+Decisions recorded while building the Domain layer (`FaithTech.Community.Domain`):
+
+- `Invite.Status(now)` is derived, never stored: revoked wins over accepted, accepted over expired, and an invite is expired from exactly 14 days after creation. Domain rule violations throw `InvalidOperationException` (a broken rule) or `ArgumentException` (invalid input); there is no shared domain exception type. Handlers check permissions and preconditions first and map any remaining violation to a `400` or `409` result.

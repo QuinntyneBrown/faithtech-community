@@ -25,7 +25,7 @@ box "Backend — FaithTech.Community.Api" #D1FADF
 end box
 box "Backend — FaithTech.Community.Application and Domain" #ECFDF3
   participant "SuspendUserHandler" as h
-  participant "UserAccount" as acct
+  participant "Profile" as acct
 end box
 box "Backend — FaithTech.Community.Infrastructure" #FFF4E5
   participant "TokenRevocation" as rev
@@ -42,7 +42,7 @@ alt caller is not System Admin
   h --> ep : Forbidden (L2-039 AC3)
   ep --> svc : 403 ProblemDetails
 else System Admin
-  h -> db : Load UserAccount
+  h -> db : Load Profile
   h -> acct : Suspend(reason)
   h -> rev : RevokeAll(userId) (L2-039 AC1)
   h -> audit : Write audit entry (L2-041)

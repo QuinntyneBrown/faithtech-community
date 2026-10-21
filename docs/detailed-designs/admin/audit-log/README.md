@@ -14,7 +14,7 @@ This feature covers both writing entries, which other features trigger through `
 - **`GetAuditEntriesQuery`** and **`GetAuditEntriesHandler`** — Application `Admin/` query; requires System Admin and pages 50 at a time.
 - **`IAuditLog`** — Application abstraction with a single `Write(AuditEntry)` method, called by role, suspension, override and other admin handlers in the same unit of work as the change.
 - **`AuditLog`** — Infrastructure implementation that inserts into the `audit_entries` table. The table grants the application role insert and select only. Retention period: `<TO SUPPLY>`.
-- **`AuditEntry`** — Domain record with `Id`, `ActorId`, `Action`, `TargetType`, `TargetId`, `Before` (JSON), `After` (JSON), `OccurredAtUtc` and `IpAddress`.
+- **`AuditEntry`** — Domain record with `Id`, `ActorId`, `Action`, `TargetType`, `TargetId`, `BeforeJson`, `AfterJson`, `OccurredAtUtc` and `IpAddress`. Its constructor requires an action, a target type and a target id and a UTC time; it has no mutators, so an entry cannot change after it is written.
 - **`ICurrentUser`** — supplies `ProfileId` and `IpAddress` for the entry.
 
 ## Requirements
@@ -72,3 +72,9 @@ An admin or role-changing handler writes the entry in the same unit of work as t
 Only System Admins may read entries, filtered by actor, action and date range and paged 50 at a time (`L2-041` AC2, AC4).
 
 ![Sequence diagram for view the audit log](diagrams/sequence-view-audit-log.png)
+
+## Open questions
+
+Decisions recorded while building the Domain layer (`FaithTech.Community.Domain`):
+
+- Filter categories (`L2-041` AC2) map onto the `Action` values written by each feature; the Domain does not add a separate category field.

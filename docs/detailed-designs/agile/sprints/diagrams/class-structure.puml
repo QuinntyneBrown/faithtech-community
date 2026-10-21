@@ -25,13 +25,14 @@ class Sprint {
   +DateOnly EndDate
   +SprintState State
   +int? CompletedPoints
-  +Start(): void
+  ~Start(): void
   +Close(stories: IEnumerable<WorkItem>): void
 }
 class WorkItem {
   +Guid? SprintId
   +WorkItemStatus Status
   +int? StoryPoints
+  +MoveToSprint(sprint: Sprint): void
 }
 class StartSprintCommand {
   +Guid WorkspaceId
@@ -50,7 +51,9 @@ class MoveStoriesToSprintCommand {
 class StartSprintHandler
 class CloseSprintHandler
 class MoveStoriesToSprintHandler
-class Workspace
+class Workspace {
+  +StartSprint(sprint: Sprint, sprints: IEnumerable<Sprint>, stories: IEnumerable<WorkItem>): void
+}
 Workspace "1" *-- "*" Sprint
 Sprint "0..1" o-- "*" WorkItem : stories
 Sprint --> SprintState

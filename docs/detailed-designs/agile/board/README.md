@@ -80,3 +80,9 @@ A drag or keyboard move changes the story's status and pushes the change to othe
 The board query returns the three fixed columns, filtered to the active sprint in a Scrum workspace (`L2-034`).
 
 ![Sequence diagram: load the board](diagrams/sequence-load-board.png)
+
+## Open questions
+
+Decisions recorded while building the Domain layer (`FaithTech.Community.Domain`):
+
+- `MoveCardHandler` changes the status through `WorkItem.SetStatus`, which a task refuses (tasks have a done flag).

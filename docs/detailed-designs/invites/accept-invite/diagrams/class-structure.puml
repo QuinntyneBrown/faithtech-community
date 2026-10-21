@@ -22,6 +22,7 @@ class AcceptInviteHandler {
 class Invite {
   +string Email
   +Role? PreassignedRole
+  +Guid? AcceptedBy
   +Status(now: DateTimeOffset): InviteStatus
   +MarkAccepted(by: Guid, now: DateTimeOffset): void
 }
@@ -32,7 +33,7 @@ class CommunityUser {
 }
 class Profile {
   +Guid Id
-  +Grant(role: Role): void
+  +AddRole(role: Role, grantedBy: Guid, nowUtc: DateTime): void
 }
 AcceptInviteHandler ..> AcceptInviteCommand : handles
 AcceptInviteHandler --> Invite : accepts

@@ -80,3 +80,10 @@ The page blocks missing alt text and the eleventh photo. The handler re-checks e
 Featuring clears every other featured flag. Deleting the featured photo after confirmation promotes the most recently uploaded remaining photo (`L2-007`).
 
 ![Sequence diagram for feature and delete photos](diagrams/sequence-feature-and-delete.png)
+
+## Open questions
+
+Decisions recorded while building the Domain layer (`FaithTech.Community.Domain`):
+
+- `ProfilePhoto` rejects empty alt text; `Profile.AddPhoto` rejects an eleventh photo and features the first; `Profile.Feature` and `Profile.RemovePhoto` reject an unknown photo id. Domain rule violations throw `InvalidOperationException` (a broken rule) or `ArgumentException` (invalid input); there is no shared domain exception type. Handlers check permissions and preconditions first and map any remaining violation to a `400` or `409` result.
+- Photos persist in a `ProfilePhotos` table owned by `Profiles`.

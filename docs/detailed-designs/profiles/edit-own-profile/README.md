@@ -2,13 +2,13 @@
 
 ## Overview
 
-Each member maintains the name on their own profile. *Edit own profile* covers changing that name and the rule that only the owner, or a System Admin, may change a profile.
+Each member maintains the name, home city and bio on their own profile. *Edit own profile* covers changing them and the rule that only the owner, or a System Admin, may change a profile.
 
 **owner** — the account whose `ProfileId` matches the profile
 
 **System Admin override** — the System Admin's permission to change any profile, recorded in the audit log
 
-The edit happens on the dedicated `edit-profile` screen, not inline, in line with the frontend conventions. A name is required and shall not exceed 100 characters.
+The edit happens on the dedicated `edit-profile` screen, not inline, in line with the frontend conventions. A name is required and shall not exceed 100 characters; a bio shall not exceed 400 characters.
 
 ## Description
 
@@ -18,8 +18,9 @@ The edit happens on the dedicated `edit-profile` screen, not inline, in line wit
 - **`ICurrentUser`** — Application abstraction exposing the caller's user id, profile id and roles.
 - **`Profile`** — Domain entity holding `Name`, `Roles` and the `Photos` collection.
 - **`UpdateProfileCommand`** — request carrying `ProfileId` and `Name`.
-- **`UpdateProfileValidator`** — rejects an empty name or a name longer than 100 characters.
-- **`UpdateProfileHandler`** — Application handler. It returns forbidden unless the caller owns the profile or is System Admin, calls `Profile.Rename`, saves, and writes an audit entry through `IAuditLog` when the caller is a System Admin editing another profile.
+- **`UpdateProfileCommand`** carries `ProfileId`, `Name`, `HomeCity` and `Bio`.
+- **`UpdateProfileValidator`** — rejects an empty name, a name longer than 100 characters or a bio longer than 400 characters.
+- **`UpdateProfileHandler`** — Application handler. It returns forbidden unless the caller owns the profile or is System Admin, calls `Profile.Update(name, homeCity, bio)`, saves, and writes an audit entry through `IAuditLog` when the caller is a System Admin editing another profile.
 - **`IAuditLog`** — Infrastructure audit writer.
 
 ## Requirements
@@ -61,7 +62,7 @@ The web app sends the update to the Community API, which writes the profile and 
 
 ### Class structure
 
-`UpdateProfileHandler` depends on the command, its validator, `ICurrentUser` and `IAuditLog`, and mutates `Profile` through `Rename`.
+`UpdateProfileHandler` depends on the command, its validator, `ICurrentUser` and `IAuditLog`, and mutates `Profile` through `Update`.
 
 ![Class diagram for editing one's own profile](diagrams/class-structure.png)
 
@@ -70,3 +71,9 @@ The web app sends the update to the Community API, which writes the profile and 
 The page and the validator reject invalid names. The handler returns 403 to any caller who is neither the owner nor System Admin, and otherwise saves and confirms with a toast (`L2-006`).
 
 ![Sequence diagram for update the profile name](diagrams/sequence-update-name.png)
+
+## Open questions
+
+Decisions recorded while building the Domain layer (`FaithTech.Community.Domain`):
+
+- `L2-006` covers name, home city and bio while this design covered only the name. `Profile.Update(name, homeCity, bio)` replaces `Rename`; it rejects a blank name, and length limits stay in the validator. Resolved.

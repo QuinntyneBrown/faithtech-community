@@ -36,6 +36,8 @@ faithtech-community/
 │   ├── deploy/                       # Dockerfiles and container config
 │   ├── src/
 │   │   ├── FaithTech.Community.Domain/          # Entities, value objects, roles. Zero dependencies.
+│   │   │                                        # One folder per feature, named as in Application/,
+│   │   │                                        # plus Agile/ for the agile workspace designs
 │   │   ├── FaithTech.Community.Application/     # Handlers, validators, DTO contracts, permission
 │   │   │                                        # checks; one folder per feature (Identity/,
 │   │   │                                        # Profiles/, Contacts/, Partners/, Team/, Events/, Search/,

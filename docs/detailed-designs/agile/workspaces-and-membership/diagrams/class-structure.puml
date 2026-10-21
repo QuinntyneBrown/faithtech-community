@@ -28,8 +28,10 @@ class Workspace {
   +WorkspaceMethod Method
   +Guid OwnerId
   +bool IsArchived
-  +AddMember(profileId: Guid): void
-  +RemoveMember(profileId: Guid): void
+  +Rename(name: string): void
+  +IsMember(profileId: Guid): bool
+  +AddMember(profile: Profile, now: DateTimeOffset): void
+  +RemoveMember(profileId: Guid, items: IEnumerable<WorkItem>): void
 }
 class WorkspaceMember {
   +Guid WorkspaceId

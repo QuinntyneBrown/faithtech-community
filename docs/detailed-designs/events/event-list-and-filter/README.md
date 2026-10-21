@@ -72,3 +72,9 @@ The `EventsPage` calls the Community API, which reads events and RSVP counts fro
 The handler orders upcoming events soonest first and applies the city filter on the server. The page shows an empty state when nothing matches and marks cancelled events (`L2-021`).
 
 ![Sequence diagram: list and filter events](diagrams/sequence-list-events.png)
+
+## Open questions
+
+Decisions recorded while building the Domain layer (`FaithTech.Community.Domain`):
+
+- `Event.RsvpCount` counts member and guest RSVPs; the list query computes the same count in the database.

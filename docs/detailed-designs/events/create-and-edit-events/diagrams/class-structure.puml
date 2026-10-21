@@ -12,8 +12,11 @@ skinparam class {
 title Class structure — Create and edit events
 
 enum EventType {
-  Standard
+  Gathering
+  BuildersNight
   Hackathon
+  PrayerAndPlanning
+  Panel
 }
 
 enum EventFormat {
@@ -37,11 +40,20 @@ class Event <<Domain entity>> {
   +EventFormat Format
   +string? Venue
   +string? OnlineLink
+  +int? Capacity
   +EventVisibility Visibility
   +bool IsCancelled
   +string? CancellationReason
   +int Sequence
   +Guid CreatedById
+  +int RsvpCount
+  +bool IsFull
+  +Update(title, description, type, startsAt, endsAt, city, format, venue, onlineLink, capacity, visibility): void
+  +Cancel(reason: string): void
+  +Rsvp(profileId: Guid, now: DateTimeOffset): Rsvp
+  +GuestRsvp(name: string, email: string, now: DateTimeOffset): Rsvp
+  +CancelRsvp(profileId: Guid): void
+  +CancelGuestRsvp(rsvpId: Guid): void
 }
 Event --> EventType
 Event --> EventFormat
@@ -80,6 +92,7 @@ class CreateEventCommand {
   +EventFormat Format
   +string? Venue
   +string? OnlineLink
+  +int? Capacity
   +EventVisibility Visibility
 }
 class UpdateEventCommand {

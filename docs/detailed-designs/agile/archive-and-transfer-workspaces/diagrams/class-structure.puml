@@ -16,12 +16,12 @@ class Workspace {
   +bool IsArchived
   +Archive(): void
   +Restore(): void
-  +ReassignOwner(newOwnerId: Guid): void
+  +ReassignOwner(newOwner: Profile): void
 }
 class WorkItem {
   +bool IsArchived
-  +Archive(): void
-  +Restore(): void
+  +Archive(children: IEnumerable<WorkItem>): void
+  +Restore(children: IEnumerable<WorkItem>): void
 }
 class ArchiveWorkspaceCommand {
   +Guid WorkspaceId

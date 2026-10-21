@@ -33,12 +33,20 @@ class WorkItem {
   +Guid? ParentId
   +int? StoryPoints
   +bool IsDone
+  +Guid? SprintId
   +bool IsArchived
+  +Edit(title: string, description: string): void
   +SetParent(parent: WorkItem): void
-  +Assign(profileId: Guid?): void
+  +Assign(profileId: Guid?, workspace: Workspace): void
+  +SetStatus(status: WorkItemStatus): void
+  +SetDone(done: bool): void
+  +SetStoryPoints(points: int?): void
+  +AddComment(authorId: Guid, body: string, now: DateTimeOffset): Comment
+  +MoveToSprint(sprint: Sprint): void
 }
 class Comment {
   +Guid Id
+  +Guid WorkItemId
   +Guid AuthorId
   +string Body
   +DateTimeOffset CreatedAt

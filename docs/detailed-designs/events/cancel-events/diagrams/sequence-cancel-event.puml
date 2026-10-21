@@ -36,7 +36,7 @@ end box
 
 actor -> page : Select cancel event
 page -> dlg : Open dialog
-actor -> dlg : Enter optional reason, confirm
+actor -> dlg : Enter required reason, confirm
 dlg -> dlg : Busy state
 dlg -> svc : cancelEvent(id, reason)
 svc -> ep : POST /api/events/{id}/cancel

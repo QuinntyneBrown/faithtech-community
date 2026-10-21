@@ -14,7 +14,7 @@ Community data is global, but workspace access comes from membership. Members cr
 
 This feature is the entry point of the agile subsystem. Every other agile feature (work items, board, sprints, switch method, archive and transfer, Planning Poker) relies on the membership model and the access policy defined here.
 
-The repository layout in `AGENTS.md` does not yet list an `Agile/` feature folder in `FaithTech.Community.Application` or an `agile` library in `frontend/projects/`; the layout requires an approved update to include them before implementation.
+The repository layout in `AGENTS.md` lists the `Agile/` folder in `FaithTech.Community.Domain`. It does not yet list an `Agile/` feature folder in `FaithTech.Community.Application` or an `agile` library in `frontend/projects/`; the layout requires an approved update to include them before those layers are implemented.
 
 ## Description
 
@@ -31,7 +31,7 @@ The slice runs from the workspaces pages in the `agile` feature library to the C
 - **`RemoveWorkspaceMemberCommand`** / **`RemoveWorkspaceMemberHandler`** — removes a member and clears that member as assignee from every item in the workspace.
 - **`GetWorkspaceQuery`** / **`ListWorkspacesQuery`** — read the workspace and the caller's visible workspaces.
 - **`WorkspaceAccessPolicy`** — Application service shared by every agile handler. It resolves the caller from `ICurrentUser` and classifies the caller as owner, member, Staff, System Admin or outsider for a workspace. Outsiders receive 404, Staff and non-owner members receive 403 on writes they lack, and System Admin actions pass and are written to the audit log (`L2-031`, `L2-042`).
-- **`Workspace`** — Domain entity with `Name`, `Method`, `OwnerId`, `IsArchived` and a `Members` collection of `WorkspaceMember`.
+- **`Workspace`** — Domain entity with `Name`, `Method`, `OwnerId`, `IsArchived` and a `Members` collection of `WorkspaceMember`. `AddMember(profile, now)` accepts only a profile on the team (`TeamRoles.IsTeamMember`) and rejects a duplicate; `RemoveMember(profileId, items)` unassigns that member's items (`L2-031` AC8); `IsMember` counts the owner as a member.
 - **`WorkspaceMethod`** — enumeration `Scrum`, `Kanban`.
 - **`INotificationService`** and **`IAuditLog`** — Application abstractions implemented in Infrastructure for in-app plus email notification and the audit log.
 - **`CommunityDbContext`** — EF Core context in Infrastructure that persists workspaces and members to PostgreSQL.
@@ -106,3 +106,11 @@ Removing a member clears that member as assignee from every item in the workspac
 Reads resolve the caller's access first; outsiders receive 404 so the workspace's existence is not revealed (`L2-031`).
 
 ![Sequence diagram: open a workspace](diagrams/sequence-open-workspace.png)
+
+## Open questions
+
+Decisions recorded while building the Domain layer (`FaithTech.Community.Domain`):
+
+- Domain types for the agile subsystem live in `FaithTech.Community.Domain/Agile/`, the folder name these designs use; `AGENTS.md` lists it.
+- `AddMember` takes the `Profile` so the Domain enforces the lead-or-volunteer rule itself; the owner cannot be removed as a member.
+- Domain rule violations throw `InvalidOperationException` (a broken rule) or `ArgumentException` (invalid input); there is no shared domain exception type. Handlers check permissions and preconditions first and map any remaining violation to a `400` or `409` result.

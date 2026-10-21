@@ -9,13 +9,13 @@ This feature covers creating, viewing and editing partner records. A new partner
 ## Description
 
 - **`PartnersPage`** — the board page in the `partners` feature library (see `partners/partner-kanban-board`); it hosts the Add partner action.
-- **`AddPartnerDialog`** — CDK dialog collecting name (required), contact name, email, phone and notes.
+- **`AddPartnerDialog`** — CDK dialog collecting name (required), website, offering, owner (a lead), contact name, email, phone, notes and stage (Lead by default).
 - **`PartnerPage`** — partner detail page; Edit navigates to an edit screen. Write actions are hidden for Staff.
 - **`PartnersService`** / **`PARTNERS_SERVICE`** / **`HttpPartnersService`** — API client for `GET /api/partners`, `GET /api/partners/{id}`, `POST /api/partners` and `PUT /api/partners/{id}`.
 - **`PartnersEndpoints`** — minimal API mapping.
 - **`CreatePartnerCommand`**, **`UpdatePartnerCommand`**, **`GetPartnerQuery`** and handlers in Application `Partners/`, with **`PartnerValidator`** requiring a name and a valid email when present.
 - **`PartnerAccessPolicy`** — read: any lead role, Staff or System Admin; write: any lead role or System Admin. Others receive `403`.
-- **`Partner`** — Domain entity; new partners start at `PartnerStage.Lead`.
+- **`Partner`** — Domain entity; new partners start at `PartnerStage.Lead` unless another stage is chosen. `Update(...)` edits the details but never the stage.
 
 Which lead roles may write partners: `decisions.txt` lists partners under City Lead, while `L2-017` says "a lead" and refuses only users "without a lead role, Staff or System Admin". The design grants writes to any lead role and System Admin through `PartnerAccessPolicy`; confirmation of the role set is `<TO SUPPLY>`.
 
@@ -73,3 +73,10 @@ A permitted lead creates a partner that enters the Lead stage; Staff and other c
 Every permitted reader sees the same shared record (`L2-017` AC2).
 
 ![Sequence diagram for view a partner](diagrams/sequence-view-partner.png)
+
+## Open questions
+
+Decisions recorded while building the Domain layer (`FaithTech.Community.Domain`):
+
+- `L2-017` adds website, offering and an owner (a lead) to a partner; `Partner` carries `Website`, `Offering` and `OwnerId`. Resolved.
+- Domain rule violations throw `InvalidOperationException` (a broken rule) or `ArgumentException` (invalid input); there is no shared domain exception type. Handlers check permissions and preconditions first and map any remaining violation to a `400` or `409` result.

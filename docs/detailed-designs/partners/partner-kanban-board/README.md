@@ -14,7 +14,7 @@ At extra-small viewports the board shows the stages as tabs with one column visi
 - **`PartnersService`** — `list()` and `move(id, stage)` calling `GET /api/partners` and `POST /api/partners/{id}/stage`.
 - **`PartnersEndpoints`** — maps the board routes.
 - **`ListPartnersQuery`** / **`ListPartnersHandler`** — returns partners with counts per stage; requires `PartnerAccessPolicy.CanRead`.
-- **`MovePartnerCommand`** / **`MovePartnerHandler`** — requires `CanWrite`, calls `Partner.MoveTo`, which appends a `PartnerStageChange` with `MovedBy` and `MovedAtUtc`.
+- **`MovePartnerCommand`** / **`MovePartnerHandler`** — requires `CanWrite`, calls `Partner.MoveTo`, which appends a `PartnerStageChange` with `From`, `To`, `MovedBy`, `MovedAtUtc` and the optional `Note` (`L2-018` AC2).
 - Stage moves are not restricted to adjacent stages; any stage may move to any other.
 
 Behaviour when two leads move the same card at the same time: last write wins; an optimistic concurrency token is `<TO SUPPLY>`.
@@ -73,3 +73,9 @@ The board loads three columns with counts; at XS the page renders tabs (`L2-018`
 Drag, the Move to dialog and the keyboard path all send the same command; the move is recorded with actor and time (`L2-018` AC2, AC3).
 
 ![Sequence diagram for move a partner](diagrams/sequence-move-partner.png)
+
+## Open questions
+
+Decisions recorded while building the Domain layer (`FaithTech.Community.Domain`):
+
+- Moving a partner to the stage it is already in is rejected and records no history. Domain rule violations throw `InvalidOperationException` (a broken rule) or `ArgumentException` (invalid input); there is no shared domain exception type. Handlers check permissions and preconditions first and map any remaining violation to a `400` or `409` result.

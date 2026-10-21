@@ -19,7 +19,7 @@ The anonymous endpoints are opted in explicitly. A members-only event requested 
 - **`EventsEndpoints`** — maps `GET /api/public/events/{id}` and `POST /api/public/events/{id}/rsvps`, each with explicit `AllowAnonymous`. The guest RSVP endpoint applies the `guest-rsvp` rate-limit policy: 10 requests per IP address per hour (`L2-023`).
 - **`GetPublicEventHandler`** — returns the event only when its visibility is `Public`; otherwise returns a not-public result that the web app turns into a sign-in redirect.
 - **`GuestRsvpCommand` / `GuestRsvpValidator`** — name and email, with email format validation.
-- **`GuestRsvpHandler`** — refuses cancelled events, keeps a single RSVP per event and normalized email, and sends the confirmation email with the `.ics`. No account is created.
+- **`GuestRsvpHandler`** — calls `Event.GuestRsvp(name, email, now)`, which refuses cancelled, full or started events and keeps a single RSVP per event and case-insensitive email; the handler then sends the confirmation email with the `.ics`. No account is created.
 - **`IIcsCalendarWriter`** and **`IEmailSender`** — Infrastructure services for the attachment and delivery.
 
 Email normalization rules beyond case folding are `<TO SUPPLY>`.
@@ -80,3 +80,9 @@ A public event renders without sign-in. A members-only event returns not-public,
 The rate limiter rejects the eleventh guest RSVP from one IP address within an hour. A second RSVP with the same email keeps the single existing record (`L2-023`).
 
 ![Sequence diagram: rSVP as a guest](diagrams/sequence-guest-rsvp.png)
+
+## Open questions
+
+Decisions recorded while building the Domain layer (`FaithTech.Community.Domain`):
+
+- The guest cancel link (`L2-023` AC6) removes the RSVP through `Event.CancelGuestRsvp(rsvpId)`, which only removes guest RSVPs.

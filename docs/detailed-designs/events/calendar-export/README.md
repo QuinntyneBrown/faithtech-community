@@ -70,3 +70,9 @@ The browser fetches the `.ics` file from the Community API, which reads the even
 The handler checks visibility before writing the file. The writer emits a stable UID, UTC times, the current SEQUENCE and, for cancelled events, STATUS:CANCELLED (`L2-024`).
 
 ![Sequence diagram: download an event's .ics file](diagrams/sequence-download-ics.png)
+
+## Open questions
+
+Decisions recorded while building the Domain layer (`FaithTech.Community.Domain`):
+
+- `Event.Update` and `Event.Cancel` each increment `Sequence` once; the writer reads it unchanged.

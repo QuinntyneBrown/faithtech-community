@@ -10,13 +10,13 @@ This feature covers listing, creating, editing and searching contacts, and the v
 
 - **`ContactsPage`** — page in the `contacts` feature library. It shows the caller's active contacts in a table, or as a single column of cards at XS widths, with a search box and an empty state that invites the lead to add one.
 - **`ContactPage`** — detail page for one contact.
-- **`ContactFormPage`** — create and edit screen with name (required), email, phone, organization and initial notes. Inline errors appear on invalid fields. Editing navigates to this screen rather than editing inline.
+- **`ContactFormPage`** — create and edit screen with name (required), email, phone, organization, city and initial notes. Inline errors appear on invalid fields. Editing navigates to this screen rather than editing inline.
 - **`ContactsService`** / **`CONTACTS_SERVICE`** / **`HttpContactsService`** — API client for `GET /api/contacts?q=`, `GET /api/contacts/{id}`, `POST /api/contacts` and `PUT /api/contacts/{id}`.
 - **`ContactsEndpoints`** — minimal API mapping.
 - **`CreateContactCommand`**, **`UpdateContactCommand`**, **`GetContactQuery`**, **`ListContactsQuery`** and their handlers in Application `Contacts/`.
 - **`ContactValidator`** — requires a name and validates email format.
 - **`ContactAccessPolicy`** — returns `Owner`, `AdminOverride` or `NotFound`. A non-owner, non-admin caller receives `404`, never `403`, so existence is not revealed. `AdminOverride` access writes an audit entry (`L2-012` AC2).
-- **`Contact`** — Domain entity owned by `OwnerId`.
+- **`Contact`** — Domain entity owned by `OwnerId`, with `Name` (required), `Email`, `Phone`, `Organization` and `City`; `Update(...)` edits the details but never the owner.
 - **`ContactSearch`** — Infrastructure query filtering on name, email or organization with a `WHERE owner_id = caller` predicate, meeting the 500 ms target. The same owner predicate applies to global search results.
 
 Which lead roles may own contacts: `decisions.txt` assigns contacts to City Lead, while `L2-012` to `L2-016` say "lead". The design reads `ICurrentUser.HoldsLeadRole`; the exact role set is `<TO SUPPLY>`.
@@ -90,3 +90,10 @@ Listing is always scoped to the caller, so other leads' contacts never appear (`
 A direct request from a non-owner returns `404`. A System Admin is granted access and audited.
 
 ![Sequence diagram for get a contact](diagrams/sequence-get-contact.png)
+
+## Open questions
+
+Decisions recorded while building the Domain layer (`FaithTech.Community.Domain`):
+
+- `L2-013` adds a city to a contact; `Contact.City` is added to match. Resolved.
+- Domain rule violations throw `InvalidOperationException` (a broken rule) or `ArgumentException` (invalid input); there is no shared domain exception type. Handlers check permissions and preconditions first and map any remaining violation to a `400` or `409` result.

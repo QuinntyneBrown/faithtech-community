@@ -18,7 +18,7 @@ The slice runs from the profile page in the web app to the `ProfileRole` rows in
 - **`AssignRoleCommand`** / **`RemoveRoleCommand`** — request objects carrying `ProfileId` and `Role`.
 - **`AssignRoleHandler`** / **`RemoveRoleHandler`** — Application handlers in `Admin/`. Each asks `RoleAssignmentPolicy` whether the caller may change the role, applies the change, writes an audit entry and, when the caller is a City Lead, notifies the profile owner.
 - **`RoleAssignmentPolicy`** — Application permission check. It maps each `Role` to the authority required to change it and refuses removal of the last System Admin role.
-- **`Role`** — Domain enumeration of the nine global roles. **`Profile`** — Domain entity that owns a set of `ProfileRole` entries and enforces no duplicates.
+- **`Role`** — Domain enumeration of the nine global roles. **`Profile`** — Domain entity that owns a set of `ProfileRole` entries (role, who granted it, when) and enforces no duplicates: `AddRole(role, grantedBy, nowUtc)` rejects a role already held and `RemoveRole(role)` rejects one not held. Removing City Lead raises the **`CityLeadRoleRemoved`** domain event in `Profile.DomainEvents` (`L2-037`).
 - **`ICurrentUser`** — caller identity and roles, read from the access token.
 - **`IAuditLog`** — records actor, action, target, before and after role sets, UTC time and IP address (`L2-041`).
 - **`INotificationService`** — raises the in-app and email notification to the profile owner.
@@ -87,3 +87,12 @@ The handler checks `L2-009` limits before any write. A permitted change is persi
 Removal follows the same checks and additionally refuses removal of the last System Admin role (`L2-009` AC6).
 
 ![Sequence diagram for remove a role](diagrams/sequence-remove-role.png)
+
+## Open questions
+
+Decisions recorded while building the Domain layer (`FaithTech.Community.Domain`):
+
+- Role count: `L2-008` lists nine roles and the Domain `Role` enumeration holds exactly those nine. The earlier single `Lead` value is replaced by City Lead, Event Lead, Create Lead and Communications Lead. Resolved.
+- Roles persist as `ProfileRole` rows (table `ProfileRoles`, key profile and role), replacing the earlier text-array column.
+- Domain events: `Profile` collects `CityLeadRoleRemoved` in `DomainEvents`; the handler that saves the profile dispatches and clears them. A shared domain-event base type is deferred until a second aggregate raises events.
+- Domain rule violations throw `InvalidOperationException` (a broken rule) or `ArgumentException` (invalid input); there is no shared domain exception type. Handlers check permissions and preconditions first and map any remaining violation to a `400` or `409` result.

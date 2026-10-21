@@ -16,7 +16,7 @@ Any lead or System Admin may send invites. A City Lead may pre-assign only the r
 - **`SendInviteDialog`** — Angular CDK dialog matching the `send-invite` mock. It offers only the roles the caller may grant.
 - **`InvitesService`** — contract in the `api` library, provided through the `INVITES_SERVICE` injection token and implemented by `HttpInvitesService`.
 - **`InvitesEndpoints`** — minimal API route group in `FaithTech.Community.Api` under `/api/invites`. It holds no business logic.
-- **`Invite`** — Domain entity holding `Email`, `TokenHash`, optional `PreassignedRole`, `InvitedBy`, `CreatedAt`, `ExpiresAt` (14 days after creation), `AcceptedAt`, `RevokedAt` and a derived `Status`.
+- **`Invite`** — Domain entity holding `Email`, `TokenHash`, optional `PreassignedRole`, `InvitedBy`, `CreatedAt`, `ExpiresAt` (14 days after creation), `AcceptedAt`, `AcceptedBy`, `RevokedAt` and a derived `Status(now)`. `MarkAccepted(by, now)` and `Revoke(now)` act only on a pending invite.
 - **`InviteStatus`** — `Pending`, `Accepted`, `Expired`, `Revoked`.
 - **`SendInviteCommand`** / **`SendInviteHandler`** — Application request and handler. The handler requires a lead role or System Admin, checks the pre-assigned role against `IRoleAssignmentPolicy`, enforces the 50-per-24-hours limit, creates the `Invite` with a random token, stores only its hash and sends the email.
 - **`RevokeInviteCommand`** / **`RevokeInviteHandler`** — mark a pending invite revoked so its link stops working.
@@ -79,3 +79,9 @@ The handler refuses non-leads, refuses roles the caller may not grant, rate-limi
 The invites page shows each invite's status. Revoking a pending invite marks it revoked so its link no longer works (`L2-010`).
 
 ![Sequence diagram for list and revoke invites](diagrams/sequence-list-and-revoke.png)
+
+## Open questions
+
+Decisions recorded while building the Domain layer (`FaithTech.Community.Domain`):
+
+- `Invite.Status(now)` is derived, never stored: revoked wins over accepted, accepted over expired, and an invite is expired from exactly 14 days after creation. Domain rule violations throw `InvalidOperationException` (a broken rule) or `ArgumentException` (invalid input); there is no shared domain exception type. Handlers check permissions and preconditions first and map any remaining violation to a `400` or `409` result.
