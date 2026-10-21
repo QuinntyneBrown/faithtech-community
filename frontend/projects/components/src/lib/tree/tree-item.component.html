@@ -1,4 +1,14 @@
-<ng-template #row>
+<div class="ft-tree-item__row">
+  @if (hasChildren()) {
+    <button
+      class="ft-tree-item__toggle"
+      type="button"
+      [attr.aria-expanded]="open()"
+      [attr.aria-controls]="childrenId"
+      [attr.aria-label]="'Contents of ' + label()"
+      (click)="open.set(!open())"
+    ></button>
+  }
   @if (kind(); as k) {
     <ft-badge [variant]="kindVariant()">{{ k }}</ft-badge>
   }
@@ -10,14 +20,9 @@
   @if (meta(); as m) {
     <span class="ft-tree-item__meta">{{ m }}</span>
   }
-</ng-template>
+</div>
 @if (hasChildren()) {
-  <details [attr.open]="expanded() ? '' : null">
-    <summary class="ft-tree-item__row"><ng-container [ngTemplateOutlet]="row" /></summary>
-    <ul class="ft-tree-item__children" role="list">
-      <ng-content />
-    </ul>
-  </details>
-} @else {
-  <div class="ft-tree-item__row"><ng-container [ngTemplateOutlet]="row" /></div>
+  <ul class="ft-tree-item__children" role="list" [id]="childrenId" [hidden]="!open()">
+    <ng-content />
+  </ul>
 }

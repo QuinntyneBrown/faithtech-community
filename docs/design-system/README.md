@@ -143,7 +143,7 @@ Each component page documents variants, sizes and the full state matrix in both 
 | assets/components.css | `.kanban--4` and `.kanban__empty` unused by any mock | `.kanban--4` removed from the CSS and `ft-kanban-board` (every workflow has three stages); `team-board/kanban` shows an empty Done column with `.kanban__empty` |
 | pages/partners | Move is a link; dragging uses deprecated `aria-grabbed` with no live region | Fixed: Move is a `<button type="button">` naming the dialog in `data-href`; `aria-grabbed` removed from the mocks and CSS (`data-state="dragging"` only); `partners/default` and `dragging` carry the polite live region |
 | dialogs/move-partner, move-story | Radios have no `value` | Fixed: each radio carries the API value (`Lead`, `InFunnel`, `Confirmed`; `ToDo`, `InProgress`, `Done`) |
-| pages/backlog | Title link nested inside `<summary>`; no collapsed branch mocked | Documented on Backlog tree |
+| pages/backlog | Title link nested inside `<summary>`; no collapsed branch mocked | Nesting fixed: branches use a `.tree__toggle` disclosure button beside the title link (mocks, CSS and `ft-tree-item`) |
 | pages/* tabs | 36 tab rows carry inline `margin-bottom` | Logged |
 | pages/* filters | Selects wrapped in inline `width: 12rem`; select disabled/hover hooks missing | Hooks added to components.css |
 | dialogs/new-work-item/invalid | Parent select has no `<label for>` | Documented on Select |
