@@ -103,7 +103,7 @@
 
     <section class="ds-section" id="mobile-first"><h2><a href="#mobile-first">Mobile-first rules</a></h2>
       <ul>
-        <li>Base CSS is the phone layout. Add to it with <code>@media (min-width: 40rem | 48rem | 64rem)</code>; never undo a desktop layout with <code>max-width</code>. Drift: the secondary nav-link rule in <code>components.css</code> still uses a <code>max-width: 63.99rem</code> range.</li>
+        <li>Base CSS is the phone layout. Add to it with <code>@media (min-width: 40rem | 48rem | 64rem)</code>; never undo a desktop layout with <code>max-width</code>. Resolved drift: the secondary nav-link rule in <code>components.css</code> used a <code>max-width: 63.99rem</code> range; it now uses <code>min-width</code> only, like the Angular top bar.</li>
         <li>Prefer intrinsic layouts that need no query: <code>.cluster</code> wraps, <code>.grid--auto</code> fills, <code>flex-wrap</code> on button rows.</li>
         <li>Spacing and type do not scale with the viewport; only <code>--layout-gutter</code>, <code>--layout-margin</code> and <code>--layout-columns</code> change.</li>
         <li>Use <code>100dvh</code> for full-height screens and <code>env(safe-area-inset-bottom)</code> for anything fixed to the bottom.</li>
