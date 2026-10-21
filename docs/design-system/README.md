@@ -152,7 +152,7 @@ Each component page documents variants, sizes and the full state matrix in both 
 | dialogs/* busy | Busy buttons hold a hidden `dot--pulse`; `aria-disabled` beside `disabled` | Documented on Button: spinner + `aria-busy`, siblings `disabled` |
 | pages/* forms vs dialogs | Primary before Cancel on pages, after Cancel in dialogs | Documented: primary last (right) everywhere |
 | pages/* forms | Error summary is a `ul` with inline padding; CSS styles `.form-summary ol` | Documented: `ol` |
-| pages/* forms | Optional marker is `span.text-muted`, not `.optional` | Documented: `.optional` |
+| pages/* forms | Optional marker was `span.text-muted`, not `.optional` | Fixed: mocks and `ft-form-field` use `.optional` (`--color-fg-subtle`) |
 | pages/compose-announcement | Only field labelled "(optional)"; `rows="2"` overridden | Logged |
 | pages/edit-profile | 400-character bio limit has no counter; show-password never pressed | Documented on Textarea and Text field |
 | pages/event-form | Visibility legend visually hidden | Documented: visible legend |
