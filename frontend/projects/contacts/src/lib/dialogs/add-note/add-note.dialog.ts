@@ -17,7 +17,7 @@ export interface AddNoteData {
   contactName: string;
 }
 
-// Mirrors the server's note rule (ADR 0009).
+// Mirrors the server's note rule (ADR 0010).
 const MAX_NOTE = 2000;
 
 /**

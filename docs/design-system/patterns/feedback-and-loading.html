@@ -101,8 +101,8 @@
       <ul>
         <li><b><a href="../components/skeleton.html">Skeleton</a></b>: grey blocks shaped like the rows, cards or profile that are loading. Every screen with data has a <code>loading</code> state.</li>
         <li><b>Busy button</b>: the pressed button swaps its label for a spinner (the label stays in the markup as its accessible name) and sets <code>aria-busy</code> and <code>aria-disabled</code>. Used in every form and dialog.</li>
-        <li><b><a href="../components/picture-list.html">Upload progress</a></b>: a photo tile with <code>aria-busy</code>, a <a href="../components/progress.html">progress</a> bar when the percentage is known, and a status line ("Uploading… 60%"). If the upload fails, the tile shows the error.</li>
-        <li><b><a href="../components/alert.html">Inline alert</a></b>: the result in context. "Profile saved", "Settings saved", "That didn’t work".</li>
+        <li><b><a href="../components/picture-list.html">Upload progress</a></b>: a photo item with <code>aria-busy</code> (on the item that holds the status line, not the thumbnail), a <a href="../components/progress.html">progress</a> bar when the percentage is known, and a status line ("Uploading… 60%"). If the upload fails, the tile shows the error.</li>
+        <li><b><a href="../components/alert.html">Inline alert</a></b>: the result in context. "Profile saved", "Settings saved", "Invite not sent".</li>
         <li><b>Success card</b> (<code>.card--success</code>): replaces a form after a send that can't be undone, such as "Sent to 41 Product Engineers".</li>
       </ul>
       <p>Toasts, banners and the bell are on <a href="notifications.html">notifications</a>. Screens that are empty or failed are on <a href="empty-and-error-states.html">empty and error states</a>.</p>
@@ -113,12 +113,12 @@
         <thead><tr><th scope="col">Moment</th><th scope="col">Use</th><th scope="col">Example</th></tr></thead>
         <tbody>
           <tr><td>A page or region is fetching data</td><td>Skeleton in the region, with the page header and actions already shown</td><td>contacts/loading, profile/loading</td></tr>
-          <tr><td>A form or dialog is saving</td><td>Busy button. The fields stay editable, but pressing again does nothing</td><td>"Saving…", "Delete permanently…"</td></tr>
+          <tr><td>A form or dialog is saving</td><td>Busy button. In a dialog the text fields become <code>readonly</code> and selects and choices <code>disabled</code>; pressing again does nothing</td><td>"Saving…", "Delete permanently…"</td></tr>
           <tr><td>A file is uploading</td><td>Progress on the tile, with a percentage as text</td><td>edit-profile/uploading</td></tr>
           <tr><td>Saved, and the person stays on the page</td><td>Success alert at the top of the form, <code>role="status"</code></td><td>"Profile saved · Everyone signed in can now see your changes."</td></tr>
           <tr><td>Saved, and the person moves to the item</td><td>Toast on the next page</td><td>"Invite sent", "Contact restored"</td></tr>
           <tr><td>Sent, and it can't be undone</td><td>Success card with what happened and what to do next</td><td>compose-announcement/success</td></tr>
-          <tr><td>The save failed</td><td>Danger alert in context. Nothing typed is lost</td><td>"That didn’t work · Nothing was changed — try again."</td></tr>
+          <tr><td>The save failed</td><td>Danger alert in context. Nothing typed is lost</td><td>"Invite not sent · Nothing was changed — try again." The title names what was not saved.</td></tr>
         </tbody>
       </table></div>
       <p>If loading takes less than about 300ms, don't show a skeleton at all. That avoids a flash.</p>
@@ -146,7 +146,7 @@
         <div class="ds-example__canvas ds-example__canvas--stack">
           <div class="cluster"><button class="btn btn--primary" type="button" aria-busy="true" aria-disabled="true">Saving…</button><button class="btn btn--danger" type="button" aria-busy="true" aria-disabled="true">Delete permanently…</button></div>
           <div class="alert alert--success" role="status" style="width: 100%;"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="m8 12 3 3 5-6"/></svg><div class="alert__body"><div class="alert__title">Profile saved</div><div class="alert__text">Everyone signed in can now see your changes.</div></div></div>
-          <div class="alert alert--danger" role="alert" style="width: 100%;"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 8v4M12 16h.01"/></svg><div class="alert__body"><div class="alert__title">That didn’t work</div><div class="alert__text">We couldn’t reach FaithTech. Nothing was changed — try again.</div></div></div>
+          <div class="alert alert--danger" role="alert" style="width: 100%;"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 8v4M12 16h.01"/></svg><div class="alert__body"><div class="alert__title">Contact not saved</div><div class="alert__text">We couldn’t reach FaithTech. Nothing was changed — try again.</div></div></div>
         </div>
         <div class="ds-example__caption"><span>contact-form/busy, delete-contact/busy, edit-profile/success and delete-contact/failed.</span></div>
       </div>
@@ -154,7 +154,7 @@
       <div class="ds-example">
         <div class="ds-example__canvas ds-example__canvas--stack">
           <ul class="picture-list__grid" style="width: 100%; list-style: none; margin: 0; padding: 0;">
-            <li class="picture-list__item"><div class="picture-list__thumb" aria-busy="true"><img src="../assets/photos/team.svg" alt="The Toronto city team gathered around a whiteboard"></div><div class="progress" role="progressbar" aria-valuenow="60" aria-valuemin="0" aria-valuemax="100" aria-label="Uploading photo 4"><div class="progress__bar" style="--value: 60%;"></div></div><p class="picture-list__note" role="status">Uploading… 60%</p></li>
+            <li class="picture-list__item" aria-busy="true"><div class="picture-list__thumb"><img src="../assets/photos/team.svg" alt="The Toronto city team gathered around a whiteboard"></div><div class="progress" role="progressbar" aria-valuenow="60" aria-valuemin="0" aria-valuemax="100" aria-label="Uploading photo 4"><div class="progress__bar" style="--value: 60%;"></div></div><p class="picture-list__note" role="status">Uploading… 60%</p></li>
             <li class="picture-list__item picture-list__item--failed"><div class="picture-list__thumb"><img src="../assets/photos/hackathon.svg" alt="Teams working on laptops at the spring hackathon"></div><p class="picture-list__note">hackathon.jpg is 9.4 MB. Photos can be up to 5 MB — try a smaller one.</p></li>
           </ul>
         </div>
@@ -163,7 +163,7 @@
       <h3>Success card</h3>
       <div class="ds-example">
         <div class="ds-example__canvas ds-example__canvas--stack">
-          <div class="card card--success stack" role="status" style="width: 100%; max-width: 44rem;"><h4 style="font: var(--text-h4);"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="m8 12 3 3 5-6"/></svg> Sent to 41 Product Engineers</h4><p>It’s in their notifications now. 38 will also get it by email — 3 have opted out of announcement emails.</p><div class="cluster"><a class="btn btn--primary" href="../../mocks/pages/announcements/default.html">Back to announcements</a><a class="btn btn--ghost" href="../../mocks/pages/compose-announcement/default.html">Write another</a></div></div>
+          <div class="card card--success stack" role="status" style="width: 100%; max-width: 44rem;"><h4 class="card__title"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="m8 12 3 3 5-6"/></svg> Sent to 41 Product Engineers</h4><p>It’s in their notifications now. 38 will also get it by email — 3 have opted out of announcement emails.</p><div class="cluster"><a class="btn btn--primary" href="../../mocks/pages/announcements/default.html">Back to announcements</a><a class="btn btn--ghost" href="../../mocks/pages/compose-announcement/default.html">Write another</a></div></div>
         </div>
         <div class="ds-example__caption"><span>pages/compose-announcement/success.</span></div>
       </div>
@@ -245,9 +245,6 @@
       <ul>
         <li>Busy labels mix two styles across the mocks ("Saving…" on pages, "Send invite…" in dialogs). This page records that split as the rule.</li>
         <li>The skeleton list rows use an inline <code>style="flex:1;"</code> on <code>.list__body</code>.</li>
-        <li>The uploading tile puts <code>aria-busy</code> on the thumbnail, not on the item that holds the status line.</li>
-        <li>The success card heading uses an inline <code>style="font: var(--text-h4);"</code>.</li>
-        <li>The danger toast in the mocks has a timer bar, although failures should stay until dismissed.</li>
       </ul>
     </section>
 

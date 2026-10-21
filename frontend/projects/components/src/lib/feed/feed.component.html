@@ -1,1 +1,26 @@
-<ng-content />
+@switch (state()) {
+  @case ('loading') {
+    @for (row of skeletonRows; track row) {
+      <div class="ft-feed__skeleton-row" role="listitem">
+        <ft-skeleton shape="avatar" />
+        <div class="ft-feed__skeleton-body">
+          <ft-skeleton />
+          <ft-skeleton />
+        </div>
+      </div>
+    }
+  }
+  @case ('empty') {
+    <p class="ft-feed__empty">{{ emptyText() }}</p>
+  }
+  @case ('error') {
+    <ft-alert status="danger" [heading]="errorHeading()">
+      <ft-button ftAlertActions size="sm" [loading]="retrying()" (click)="onRetry()">
+        <ft-icon name="try-again" size="sm" /> Try again
+      </ft-button>
+    </ft-alert>
+  }
+  @default {
+    <ng-content />
+  }
+}

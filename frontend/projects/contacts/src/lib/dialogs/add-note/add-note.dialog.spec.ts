@@ -91,6 +91,7 @@ describe('AddNoteDialog', () => {
 
     expect(ref.close).not.toHaveBeenCalled();
     expect(host.textContent).toContain('We couldn’t save your note. It’s still here — try again.');
+    expect(host.textContent).toContain('Note not saved');
     expect(textarea().value).toBe('Called about the hackathon.');
   });
 });

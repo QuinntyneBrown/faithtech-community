@@ -109,6 +109,6 @@ describe('AddPartnerDialog', () => {
     await add();
 
     expect(ref.close).not.toHaveBeenCalled();
-    expect(text()).toContain('That didn’t work');
+    expect(text()).toContain('Partner not added');
   });
 });

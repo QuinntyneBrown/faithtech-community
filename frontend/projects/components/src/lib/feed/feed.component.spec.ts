@@ -1,6 +1,6 @@
-import { Component } from '@angular/core';
+import { Component, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
-import { FeedComponent } from './feed.component';
+import { FeedComponent, FeedState } from './feed.component';
 import { FeedItemComponent } from './feed-item.component';
 
 @Component({
@@ -48,5 +48,84 @@ describe('FeedItemComponent', () => {
   it('omits meta when none is given', () => {
     const el = setup();
     expect(el.querySelectorAll('ft-feed-item')[1].querySelector('.ft-feed-item__meta')).toBeNull();
+  });
+});
+
+@Component({
+  imports: [FeedComponent, FeedItemComponent],
+  template: `<ft-feed
+    label="Recent activity"
+    [state]="state()"
+    [retrying]="retrying()"
+    (retry)="retried = retried + 1"
+  >
+    <ft-feed-item actor="Marcus Lee">Marcus Lee published Builders Night</ft-feed-item>
+  </ft-feed>`,
+})
+class StateHostComponent {
+  readonly state = signal<FeedState>('ready');
+  readonly retrying = signal(false);
+  retried = 0;
+}
+
+function setupState(state: FeedState) {
+  const fixture = TestBed.createComponent(StateHostComponent);
+  fixture.componentInstance.state.set(state);
+  fixture.detectChanges();
+  const el = fixture.nativeElement as HTMLElement;
+  const feed = el.querySelector('ft-feed') as HTMLElement;
+  return { fixture, cmp: fixture.componentInstance, feed };
+}
+
+describe('FeedComponent states', () => {
+  // Given the feed is loading, then it is a busy, labelled list of skeleton rows and no items.
+  it('loading: a busy list of skeleton rows in place of the items', () => {
+    const { feed } = setupState('loading');
+    expect(feed.getAttribute('role')).toBe('list');
+    expect(feed.getAttribute('aria-busy')).toBe('true');
+    expect(feed.getAttribute('aria-label')).toBe('Loading recent activity');
+    const rows = feed.querySelectorAll('.ft-feed__skeleton-row');
+    expect(rows.length).toBe(3);
+    rows.forEach((row) => expect(row.querySelector('.ft-skeleton--avatar')).not.toBeNull());
+    expect(feed.querySelector('ft-feed-item')).toBeNull();
+  });
+
+  // Given there is no activity, then the card keeps its heading and says so in plain text.
+  it('empty: plain text instead of a list', () => {
+    const { feed } = setupState('empty');
+    expect(feed.getAttribute('role')).toBeNull();
+    expect(feed.getAttribute('aria-busy')).toBeNull();
+    expect(feed.querySelector('.ft-feed__empty')?.textContent).toContain('No activity yet');
+    expect(feed.querySelector('ft-feed-item')).toBeNull();
+  });
+
+  // Given the feed failed to load, then a danger alert offers a Try again button that retries.
+  it('error: a danger alert with a Try again button that emits retry', () => {
+    const { feed, cmp } = setupState('error');
+    expect(feed.getAttribute('role')).toBeNull();
+    expect(feed.querySelector('[role="alert"]')?.textContent).toContain(
+      'We couldn’t load recent activity',
+    );
+    const button = feed.querySelector('ft-alert button') as HTMLButtonElement;
+    expect(button.textContent).toContain('Try again');
+    button.click();
+    expect(cmp.retried).toBe(1);
+    expect(feed.querySelector('ft-feed-item')).toBeNull();
+  });
+
+  it('error: does not retry again while retrying', () => {
+    const { fixture, feed, cmp } = setupState('error');
+    cmp.retrying.set(true);
+    fixture.detectChanges();
+    const button = feed.querySelector('ft-alert button') as HTMLButtonElement;
+    expect(button.getAttribute('aria-busy')).toBe('true');
+    button.click();
+    expect(cmp.retried).toBe(0);
+  });
+
+  it('ready: shows the projected items', () => {
+    const { feed } = setupState('ready');
+    expect(feed.getAttribute('aria-busy')).toBeNull();
+    expect(feed.querySelectorAll('ft-feed-item').length).toBe(1);
   });
 });

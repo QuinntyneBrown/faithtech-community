@@ -7,7 +7,7 @@ using Microsoft.EntityFrameworkCore;
 namespace FaithTech.Community.Application.Partners;
 
 /// <summary>
-/// The shared partner pipeline (L2-017, ADR 0009): lead roles, Staff and System Admin read it; lead
+/// The shared partner pipeline (L2-017, ADR 0010): lead roles, Staff and System Admin read it; lead
 /// roles and System Admin change it. Everyone else gets 403.
 /// </summary>
 public class PartnerAccess(IApplicationDbContext db, ICurrentUser current, IAuditLog audit)

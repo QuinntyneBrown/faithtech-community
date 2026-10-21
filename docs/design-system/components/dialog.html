@@ -132,7 +132,7 @@
           <li><div><b>Icon</b><small><code>.dialog__icon</code>: 40px neutral circle naming the task (send, trash, archive). <code>.dialog__icon--danger</code> tints it for every destructive confirmation, the ones whose main button is danger (Delete contact, Delete photo, Suspend user, Cancel event, Archive workspace, Remove member). Reversible confirmations keep the neutral icon.</small></div></li>
           <li><div><b>Title and description</b><small><code>h2.dialog__title</code> via <code>aria-labelledby</code>; the muted description via <code>aria-describedby</code>. <code>--text-h4</code> on phones, <code>--text-h3</code> from 640px.</small></div></li>
           <li><div><b>Close</b><small>Ghost icon button, <code>aria-label="Close"</code>.</small></div></li>
-          <li><div><b>Body</b><small><code>.dialog__body</code>, usually a <code>.stack</code> of fields; scrolls inside the panel when tall.</small></div></li>
+          <li><div><b>Body</b><small><code>.dialog__body</code>, usually a <code>.stack</code> of fields; scrolls inside the panel when tall. Optional: a confirmation whose title and description say everything (Archive contact, Archive workspace, Cancel RSVP) leaves it out, and <code>.dialog__header + .dialog__footer</code> keeps the gap. Never fill it with placeholder or visually hidden text.</small></div></li>
           <li><div><b>Footer</b><small><code>.dialog__footer</code>: sticky, right-aligned, Cancel first, primary or danger last.</small></div></li>
         </ol>
       </div>
@@ -160,7 +160,7 @@
             </div>
           </div>
         </div>
-        <div class="ds-example__caption"><span>Focus starts in "Email". Neutral icon, title plus description (<code>aria-describedby</code>).</span></div>
+        <div class="ds-example__caption"><span>Focus starts in "Email". Neutral icon, title plus description (<code>aria-describedby</code>). The role list offers only what the sender may grant (L2-009): for a City Lead, No role, Attendee, Volunteer, Product Engineer, Event Lead, Create Lead and Communications Lead (all L2-008 roles); City Lead, Staff and System Admin appear only for a System Admin.</span></div>
         <details class="ds-example__code"><summary>HTML</summary><pre><code>&lt;div class="backdrop"&gt;&lt;/div&gt;
 &lt;div class="dialog" role="dialog" aria-modal="true" aria-labelledby="dlg-title" aria-describedby="dlg-desc"&gt;
   &lt;div class="dialog__panel"&gt;
@@ -276,7 +276,7 @@
             <div class="dialog__panel">
               <div class="dialog__header"><div style="flex: 1;"><h2 class="dialog__title" id="dlg-fail-title">Failed</h2></div><button class="btn btn--ghost btn--icon" type="button" aria-label="Close"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18"/></svg></button></div>
               <div class="dialog__body stack">
-                <div class="alert alert--danger" role="alert"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 8v4M12 16h.01"/></svg><div class="alert__body"><div class="alert__title">That didn’t work</div><div class="alert__text">We couldn’t reach FaithTech. Nothing was changed — try again.</div></div></div>
+                <div class="alert alert--danger" role="alert"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 8v4M12 16h.01"/></svg><div class="alert__body"><div class="alert__title">Invite not sent</div><div class="alert__text">We couldn’t reach FaithTech. Nothing was changed — try again.</div></div></div>
                 <div class="field"><label class="field__label" for="dlg-fail-email">Email</label><input class="input" id="dlg-fail-email" type="email" value="nate.oyelaran@example.org"></div>
               </div>
               <div class="dialog__footer"><button class="btn" type="button">Cancel</button><button class="btn btn--primary" type="button">Send invite</button></div>
@@ -286,9 +286,9 @@
       </div>
       <ul>
         <li><b>Default</b>: focus on the first field (form dialogs) or on Cancel (confirmations).</li>
-        <li><b>Busy</b>: Cancel and Close take native <code>disabled</code> (focus is not on them, so they leave the tab order); the pressed button keeps focus with <code>aria-busy="true"</code> and <code>aria-disabled="true"</code>, always both, a pulsing dot and an ellipsis ("Send invite…"). Fields become <code>readonly</code>. Escape does nothing until it settles.</li>
+        <li><b>Busy</b>: Cancel and Close take native <code>disabled</code> (focus is not on them, so they leave the tab order); the pressed button keeps focus with <code>aria-busy="true"</code> and <code>aria-disabled="true"</code>, always both, a pulsing dot and an ellipsis ("Send invite…"). Text fields and textareas become <code>readonly</code> (they keep their value and stay readable); selects, radios and checkboxes, which have no read-only state, become <code>disabled</code>. Escape does nothing until it settles.</li>
         <li><b>Invalid</b>: the field gets <code>aria-invalid="true"</code> and a <code>.field__error</code> linked with <code>aria-describedby</code>; focus moves to it. The dialog stays open. Examples: "Enter an email like name@example.org.", "Give a reason so other admins understand."</li>
-        <li><b>Failed</b>: a danger <a href="alert.html">alert</a> with <code>role="alert"</code> at the top of the body; everything typed stays. Copy: "That didn’t work · We couldn’t reach FaithTech. Nothing was changed — try again."</li>
+        <li><b>Failed</b>: a danger <a href="alert.html">alert</a> with <code>role="alert"</code> at the top of the body; everything typed stays. The title names what was not saved, in the form "Thing not done" ("Invite not sent", "Role not removed", "Contact not deleted", "Account not suspended"); the text says why and what to do: "We couldn’t reach FaithTech. Nothing was changed — try again." Never a generic "That didn’t work".</li>
       </ul>
     </section>
 
@@ -302,9 +302,9 @@
         <div class="ds-example__canvas ds-example__canvas--canvas" style="display: block;">
           <div class="dialog dialog--static" role="dialog" aria-labelledby="dlg-sheet-title" style="max-width: 22.5rem; margin-inline: auto;">
             <div class="dialog__panel" style="border-radius: var(--radius-xl) var(--radius-xl) 0 0;">
-              <div class="dialog__header"><div style="flex: 1;"><h2 class="dialog__title" id="dlg-sheet-title" style="font: var(--text-h4);">Cancel your RSVP?</h2></div><button class="btn btn--ghost btn--icon" type="button" aria-label="Close"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18"/></svg></button></div>
+              <div class="dialog__header"><div style="flex: 1;"><h2 class="dialog__title" id="dlg-sheet-title">Cancel your RSVP?</h2></div><button class="btn btn--ghost btn--icon" type="button" aria-label="Close"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18"/></svg></button></div>
               <div class="dialog__body stack"><p>Your spot at Toronto Builders Night on Thu 23 Oct goes to the next person on the waitlist.</p></div>
-              <div class="dialog__footer"><button class="btn" type="button">Keep my spot</button><button class="btn btn--danger" type="button">Cancel RSVP</button></div>
+              <div class="dialog__footer"><button class="btn" type="button">Keep my RSVP</button><button class="btn btn--danger" type="button">Cancel my RSVP</button></div>
             </div>
           </div>
         </div>
@@ -406,7 +406,8 @@
         <tr><td><code>.backdrop</code></td><td>Fixed dimmer behind the dialog.</td></tr>
         <tr><td><code>.dialog</code></td><td>Fixed frame: bottom sheet below 640px, centred above.</td></tr>
         <tr><td><code>.dialog__panel</code></td><td>The raised panel, max 32rem, scrolls when tall.</td></tr>
-        <tr><td><code>.dialog__header</code> / <code>__title</code> / <code>__body</code> / <code>__footer</code></td><td>Parts; the footer is sticky.</td></tr>
+        <tr><td><code>.dialog__header</code> / <code>__title</code> / <code>__body</code> / <code>__footer</code></td><td>Parts; the footer is sticky and the body is optional.</td></tr>
+        <tr><td><code>.dialog__header + .dialog__footer</code></td><td>Keeps the gap above the footer when a confirmation has no body.</td></tr>
         <tr><td><code>.dialog__icon</code></td><td>Neutral icon circle naming the task.</td></tr>
         <tr><td><code>.dialog__icon--danger</code></td><td>Danger tint for every confirmation whose main button is danger.</td></tr>
         <tr><td><code>.dialog--static</code></td><td>Documentation only: renders in flow.</td></tr>
@@ -429,11 +430,6 @@
       </ul>
       <p>Drift noticed in the mocks:</p>
       <ul>
-        <li>Busy states leave fields editable (no <code>readonly</code>).</li>
-        <li>Cancel event and Cancel RSVP pair "Cancel" with "Cancel event" / "Cancel RSVP".</li>
-        <li>Archive workspace has an empty body holding only a <code>visually-hidden</code> "No further options".</li>
-        <li>Every failed state uses the same generic "That didn’t work" title rather than naming what was not saved.</li>
-        <li>Send invite's role list has "Create Lead" and offers lead roles beyond those a City Lead may grant.</li>
         <li>Inline styles: the header wraps title and description in <code>&lt;div style="flex: 1;"&gt;</code> and the description uses <code>style="margin-top: var(--space-1)"</code>; there is no class for either yet.</li>
       </ul>
     </section>

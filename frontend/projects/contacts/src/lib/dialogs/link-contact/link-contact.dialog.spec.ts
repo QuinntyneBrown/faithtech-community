@@ -83,5 +83,6 @@ describe('LinkContactDialog', () => {
 
     expect(ref.close).not.toHaveBeenCalled();
     expect(text()).toContain('We couldn’t link the profile. Nothing was changed — try again.');
+    expect(text()).toContain('Profile not linked');
   });
 });

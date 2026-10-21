@@ -133,6 +133,7 @@
         "loading",
         "empty",
         "error",
+        "activity-error",
         "staff"
       ],
       "not_applicable": {}
@@ -518,6 +519,7 @@
       ],
       "states": [
         "default",
+        "unread",
         "loading",
         "empty",
         "error"
@@ -579,7 +581,10 @@
         "loading",
         "empty",
         "error",
-        "no-results"
+        "no-results",
+        "exporting",
+        "exported",
+        "export-failed"
       ],
       "not_applicable": {}
     },
@@ -767,11 +772,14 @@
         "revealed",
         "facilitator",
         "agreed",
+        "withdrawn",
         "loading",
         "empty",
         "error",
         "forbidden",
-        "staff"
+        "staff",
+        "invalid",
+        "vote-failed"
       ],
       "not_applicable": {}
     },

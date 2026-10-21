@@ -17,7 +17,7 @@ On phones (below the 640px `sm` breakpoint, which covers XS) the board shows the
 - **`MovePartnerCommand`** (`To`, `Note`) / **`MovePartnerValidator`** / **`MovePartnerHandler`** — the validator requires a known stage and a note of at most 500 characters. `MoveAsync` requires `CanWrite`, answers `404` for an unknown partner and `409` for the current stage, calls `Partner.MoveTo`, which appends a `PartnerStageChange` with `From`, `To`, `MovedBy`, `MovedAtUtc` and the optional `Note` (`L2-018` AC2), audits `partner.moved` for a System Admin without a lead role, and returns the `PartnerDto`.
 - Stage moves are not restricted to adjacent stages; any stage may move to any other.
 
-Behaviour when two leads move the same card at the same time: last write wins, with no concurrency token ([ADR 0009](../../../adr/0009-contacts-and-partners-access-and-open-questions.md)).
+Behaviour when two leads move the same card at the same time: last write wins, with no concurrency token ([ADR 0010](../../../adr/0010-contacts-and-partners-access-and-open-questions.md)).
 
 ## Requirements
 

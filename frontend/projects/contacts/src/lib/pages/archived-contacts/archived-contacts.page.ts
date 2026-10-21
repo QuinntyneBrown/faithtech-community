@@ -79,8 +79,8 @@ export class ArchivedContactsPage {
     } catch {
       this.toasts.show({
         variant: 'danger',
-        heading: 'That didn’t work',
-        text: `We couldn’t restore ${contact.name}. Try again.`,
+        heading: 'Contact not restored',
+        text: `We couldn’t reach FaithTech, so ${contact.name} is still archived. Try again.`,
       });
     } finally {
       this.restoring.set(null);

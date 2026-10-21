@@ -139,8 +139,8 @@ export class PartnersPage {
     } catch {
       this.toasts.show({
         variant: 'danger',
-        heading: 'That didn’t work',
-        text: 'We couldn’t move that partner. Try again.',
+        heading: 'Partner not moved',
+        text: 'We couldn’t reach FaithTech, so the partner stays where it was. Try again.',
       });
     }
   }

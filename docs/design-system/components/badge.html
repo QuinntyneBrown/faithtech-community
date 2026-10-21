@@ -154,22 +154,23 @@
           <div class="cluster"><span class="badge badge--role">City Lead</span><span class="badge badge--role">Event Lead</span><span class="badge badge--role">Communications Lead</span><span class="badge badge--role">Create Lead</span><span class="badge badge--role">Staff</span><span class="badge badge--role">Volunteer</span><span class="badge badge--role">Product Engineer</span><span class="badge badge--role">Attendee</span></div>
           <div class="cluster"><span class="badge badge--role badge--info">Initiative</span><span class="badge badge--role badge--warning">Epic</span><span class="badge badge--role badge--success">Story</span><span class="badge badge--role">Task</span></div>
         </div>
-        <div class="ds-example__caption"><span>Top: member roles, always neutral so no role looks more important. Bottom: work-item types, tinted by level of the Initiative → Epic → Story → Task hierarchy.</span></div>
+        <div class="ds-example__caption"><span>Top: member roles, always neutral so no role looks more important. Bottom: work-item types, tinted by level of the Initiative → Epic → Story → Task hierarchy. Task, the leaf, takes no tone modifier: it is <code>class="badge badge--role"</code>, the neutral role badge (<code>&lt;ft-badge variant="role"&gt;Task&lt;/ft-badge&gt;</code> in Angular).</span></div>
         <details class="ds-example__code"><summary>HTML</summary><pre><code>&lt;span class="badge badge--role"&gt;City Lead&lt;/span&gt;
-&lt;span class="badge badge--role badge--success"&gt;Story&lt;/span&gt;</code></pre></details>
+&lt;span class="badge badge--role badge--success"&gt;Story&lt;/span&gt;
+&lt;span class="badge badge--role"&gt;Task&lt;/span&gt;</code></pre></details>
       </div>
       <h3>Count and tally</h3>
       <div class="ds-example">
         <div class="ds-example__canvas">
-          <a class="btn btn--ghost btn--icon" href="../../mocks/pages/notifications/default.html" aria-label="Notifications, 3 unread"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><path d="M6 16V11a6 6 0 0 1 12 0v5l2 2H4zM10 20a2 2 0 0 0 4 0"/></svg><span class="badge badge--count" aria-hidden="true">3</span></a>
+          <button class="btn btn--ghost btn--icon" type="button" data-href="../../mocks/pages/notifications/default.html" aria-label="Notifications, 3 unread" aria-haspopup="dialog" aria-expanded="false"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><path d="M6 16V11a6 6 0 0 1 12 0v5l2 2H4zM10 20a2 2 0 0 0 4 0"/></svg><span class="badge badge--count" aria-hidden="true">3</span></button>
           <span class="cluster"><b>To Do</b><span class="badge">2</span></span>
           <span class="cluster"><b>Photos</b><span class="badge">4 of 10</span></span>
         </div>
-        <div class="ds-example__caption"><span>The red count sits on the bell; the bell link's own label says "3 unread". Neutral tallies head Kanban columns and the photo section.</span></div>
-        <details class="ds-example__code"><summary>HTML</summary><pre><code>&lt;a class="btn btn--ghost btn--icon" href="…/notifications/" aria-label="Notifications, 3 unread"&gt;
+        <div class="ds-example__caption"><span>The red count sits on the bell; the bell button's own label says "3 unread". Neutral tallies head Kanban columns and the photo section.</span></div>
+        <details class="ds-example__code"><summary>HTML</summary><pre><code>&lt;button class="btn btn--ghost btn--icon" type="button" aria-label="Notifications, 3 unread" aria-haspopup="dialog" aria-expanded="false"&gt;
   &lt;svg class="icon" aria-hidden="true" …&gt;&lt;/svg&gt;
   &lt;span class="badge badge--count" aria-hidden="true"&gt;3&lt;/span&gt;
-&lt;/a&gt;</code></pre></details>
+&lt;/button&gt;</code></pre></details>
       </div>
     </section>
 
@@ -285,7 +286,7 @@
         <li><a href="../../mocks/pages/team-board/default.html">pages/team-board/default</a> (column tallies, "Story")</li>
         <li><a href="../../mocks/pages/backlog/default.html">pages/backlog/default</a> (Initiative, Epic, Story, Task)</li>
       </ul>
-      <p>The base, tint and count rules are inherited from Shelfie; <code>badge--role</code> and <code>badge--danger</code> are FaithTech additions. Drift: the Task type badge is written <code>class="badge badge--role "</code> with a trailing space in about 65 places; harmless but untidy. Some mocks put a badge inside an <code>&lt;h2&gt;</code> whose font is set inline (<code>style="font: var(--text-h4)"</code>), which is a heading-level shortcut rather than a badge issue.</p>
+      <p>The base, tint and count rules are inherited from Shelfie; <code>badge--role</code> and <code>badge--danger</code> are FaithTech additions. A badge beside a heading sits in the heading's row, not inside it; the heading takes <code>.card__title</code> or <code>.section-title</code>.</p>
     </section>
     <footer class="ds-footer"><span>FaithTech Community design system · extracted from <a href="../../mocks/index.html">docs/mocks</a> on 2026-10-21</span><a href="#top">Back to top</a></footer>
   </main>

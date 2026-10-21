@@ -132,4 +132,18 @@ describe('ArchivedContactsPage', () => {
 
     expect(text()).toContain('We couldn’t load archived contacts');
   });
+
+  it('keeps the contact and says so when restoring fails', async () => {
+    const { button, rows, settle, toasts } = await setup(() => of([ben]), {
+      restore: () => throwError(() => new HttpErrorResponse({ status: 503 })),
+    });
+
+    button('Restore Ben Carter').click();
+    await settle();
+
+    expect(rows()).toHaveLength(1);
+    expect(toasts.show).toHaveBeenCalledWith(
+      expect.objectContaining({ variant: 'danger', heading: 'Contact not restored' }),
+    );
+  });
 });

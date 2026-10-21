@@ -104,9 +104,9 @@ export class MockApi {
   private uploads = 0;
   /** The stored URL of an uploaded photo; the journey videos swap in the image that was chosen. */
   uploadedPhotoUrl: (file: string) => string = () => photoUrl();
-  /** Private contacts (ADR 0009). */
+  /** Private contacts (ADR 0010). */
   readonly contacts = new MockContacts(this);
-  /** The shared partner pipeline (ADR 0009). */
+  /** The shared partner pipeline (ADR 0010). */
   readonly partners = new MockPartners(this);
 
   constructor(private readonly page: Page) {}

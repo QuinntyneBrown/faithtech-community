@@ -41,7 +41,7 @@ const EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 /**
  * ContactsEndpoints in the browser (backend/src/FaithTech.Community.Api/Endpoints/ContactsEndpoints.cs):
- * lead roles and System Admin only, another lead's contact is 404 (ADR 0009).
+ * lead roles and System Admin only, another lead's contact is 404 (ADR 0010).
  */
 export class MockContacts {
   readonly contacts: MockContact[] = [];
@@ -219,7 +219,7 @@ export class MockContacts {
     };
   }
 
-  /** The verified member who uses this email (ADR 0009). */
+  /** The verified member who uses this email (ADR 0010). */
   private member(email: string | null) {
     if (!email) return null;
     const account = this.context.accounts.get(email.toLowerCase());

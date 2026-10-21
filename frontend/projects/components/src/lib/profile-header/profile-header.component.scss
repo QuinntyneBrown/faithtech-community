@@ -63,7 +63,8 @@
 
 .ft-profile-header__photos-title {
   margin: 0 0 var(--space-3);
-  font: var(--text-h3);
+  /* The section-title role (docs/design-system/foundations/typography.html). */
+  font: var(--text-h4);
 }
 
 .ft-profile-header__strip {

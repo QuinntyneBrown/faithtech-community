@@ -88,6 +88,6 @@ describe('DeleteContactDialog', () => {
     await confirm();
 
     expect(ref.close).not.toHaveBeenCalled();
-    expect(host.textContent).toContain('That didn’t work');
+    expect(host.textContent).toContain('Contact not deleted');
   });
 });

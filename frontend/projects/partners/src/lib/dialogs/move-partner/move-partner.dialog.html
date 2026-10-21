@@ -8,7 +8,7 @@
   <form (submit)="$event.preventDefault(); move()">
     <ft-stack>
       @if (failed()) {
-        <ft-alert status="danger" heading="That didn’t work">
+        <ft-alert status="danger" heading="Partner not moved">
           We couldn’t reach FaithTech. Nothing was changed — try again.
         </ft-alert>
       }

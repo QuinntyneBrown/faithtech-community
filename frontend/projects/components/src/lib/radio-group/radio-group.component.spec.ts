@@ -66,4 +66,13 @@ describe('RadioGroupComponent', () => {
     expect(fs.getAttribute('aria-describedby')).toBe(msg.id);
     expect(fs.getAttribute('aria-invalid')).toBe('true');
   });
+
+  it('marks every radio invalid while the group shows an error', () => {
+    const { fixture, cmp, radios } = setup();
+    expect(radios().some((r) => r.hasAttribute('aria-invalid'))).toBe(false);
+    cmp.error = 'Choose a role to add.';
+    fixture.changeDetectorRef.markForCheck();
+    fixture.detectChanges();
+    expect(radios().every((r) => r.getAttribute('aria-invalid') === 'true')).toBe(true);
+  });
 });

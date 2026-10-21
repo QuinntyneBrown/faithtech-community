@@ -119,4 +119,30 @@ describe('SearchResultsComponent', () => {
     expect(avatar.getAttribute('aria-hidden')).toBe('true');
     expect(host.querySelector('.ft-badge--info')!.textContent!.trim()).toBe('Public');
   });
+
+  // Given a work-item result, when it is shown, then it leads with a decorative icon tile (not a
+  // planning-poker estimate card), so it reads as an object rather than a person.
+  it('leads a result with a decorative icon tile when it has an icon', () => {
+    const { fixture, cmp, host } = setup();
+    cmp.groups.set([
+      {
+        id: 'work',
+        title: 'Work items in your workspaces',
+        items: [
+          {
+            title: 'Shelter problem briefs for teams',
+            href: '/work-items/42',
+            meta: 'Story · Toronto team · In Progress',
+            icon: 'workspaces',
+          },
+        ],
+      },
+    ]);
+    fixture.detectChanges();
+    const tile = host.querySelector('.ft-search-group__item .ft-search-group__icon') as HTMLElement;
+    expect(tile).not.toBeNull();
+    expect(tile.getAttribute('aria-hidden')).toBe('true');
+    expect(tile.querySelector('ft-icon')).not.toBeNull();
+    expect(host.querySelector('.ft-avatar')).toBeNull();
+  });
 });

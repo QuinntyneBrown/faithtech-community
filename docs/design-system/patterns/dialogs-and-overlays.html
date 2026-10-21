@@ -240,7 +240,7 @@
           <div class="dialog dialog--static" role="dialog" aria-modal="false" aria-labelledby="dx-fail-title" style="width: 100%;">
             <div class="dialog__panel">
               <div class="dialog__header"><div style="flex: 1;"><h3 class="dialog__title" id="dx-fail-title">Delete Ben Carter for good? (failed)</h3></div><button class="btn btn--ghost btn--icon" type="button" aria-label="Close"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18"/></svg></button></div>
-              <div class="dialog__body stack"><div class="alert alert--danger" role="alert"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 8v4M12 16h.01"/></svg><div class="alert__body"><div class="alert__title">That didn’t work</div><div class="alert__text">We couldn’t reach FaithTech. Nothing was changed — try again.</div></div></div></div>
+              <div class="dialog__body stack"><div class="alert alert--danger" role="alert"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 8v4M12 16h.01"/></svg><div class="alert__body"><div class="alert__title">Contact not deleted</div><div class="alert__text">We couldn’t reach FaithTech. Nothing was changed — try again.</div></div></div></div>
               <div class="dialog__footer"><button class="btn" type="button">Cancel</button><button class="btn btn--danger" type="button">Delete permanently</button></div>
             </div>
           </div>
@@ -253,7 +253,7 @@
           <tr><td>Default</td><td>Focus is on the first field. In a confirmation with no fields, focus is on Cancel.</td></tr>
           <tr><td>Invalid</td><td>The error appears under the field and focus moves to the field. The dialog stays open.</td></tr>
           <tr><td>Busy</td><td>The main button shows a pulsing dot, an ellipsis and <code>aria-busy</code>. Cancel and Close are disabled. Esc does nothing.</td></tr>
-          <tr><td>Failed</td><td>A danger alert at the top of the body says that nothing changed. What the person typed is kept. Focus moves to the alert.</td></tr>
+          <tr><td>Failed</td><td>A danger alert at the top of the body names what was not saved ("Invite not sent", "Contact not deleted") and says that nothing changed. What the person typed is kept. Focus moves to the alert.</td></tr>
           <tr><td>Success</td><td>The dialog closes, focus returns to the button that opened it, and a toast confirms: "Contact archived · Undo", "Invite sent".</td></tr>
         </tbody>
       </table></div>
@@ -315,8 +315,6 @@
       <p>Drift noticed in the mocks:</p>
       <ul>
         <li>The title wrapper uses an inline <code>style="flex: 1;"</code> and the description an inline <code>margin-top</code>. There is no class for either.</li>
-        <li><code>archive-contact</code> has an empty body that only holds a visually hidden "No further options".</li>
-        <li><code>cancel-event</code> and <code>cancel-rsvp</code> put "Cancel" next to "Cancel event" and "Cancel my RSVP". The safe button should say "Keep event" or "Keep my RSVP".</li>
         <li>The busy state changes the main button to <code>type="submit"</code> while the default state uses <code>type="button"</code>.</li>
       </ul>
     </section>

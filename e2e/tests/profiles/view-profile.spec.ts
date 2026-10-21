@@ -5,6 +5,7 @@ import { AppShell } from '../../pages/app-shell.page';
 import { avatarColour, plainAvatarColour } from '../../pages/avatar';
 import { ProfilePage } from '../../pages/profile.page';
 import { SignInPage } from '../../pages/sign-in.page';
+import { fontSize, roleFontSize } from '../../pages/type-role';
 import { BREAKPOINTS } from '../../pages/viewport';
 
 test.describe('View a profile', () => {
@@ -48,6 +49,24 @@ test.describe('View a profile', () => {
     );
     await expect(profile.editProfile).toHaveCount(0);
     await axe.check();
+  });
+
+  test('the Photos heading uses the section-title type role, as in the mock', async ({
+    page,
+    api,
+  }) => {
+    const grace = api.addAccount({ email: 'grace@example.org', roles: ['CityLead'] });
+    api.addProfile({
+      id: 'samuel',
+      name: 'Samuel Mensah',
+      roles: [],
+      photos: [photo('p1', 'Samuel speaking at Builders Night', true, '2026-10-01')],
+    });
+    const profile = new ProfilePage(page);
+    await api.signInAs(grace, '/people/samuel');
+
+    await expect(profile.photosHeading).toBeVisible();
+    expect(await fontSize(profile.photosHeading)).toBe(await roleFontSize(page, '--text-h4'));
   });
 
   test('your own profile offers Edit profile and asks for photos when there are none', async ({

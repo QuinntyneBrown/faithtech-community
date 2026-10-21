@@ -8,7 +8,7 @@
   <form [formGroup]="form" (submit)="$event.preventDefault(); send()">
     <ft-stack>
       @if (failed()) {
-        <ft-alert status="danger" heading="That didn’t work">
+        <ft-alert status="danger" heading="Invite not sent">
           We couldn’t reach FaithTech. Nothing was changed — try again.
         </ft-alert>
       }
@@ -16,7 +16,12 @@
         <ft-alert status="danger" heading="You can’t send this invite">{{ message }}</ft-alert>
       }
       <ft-form-field label="Email" [error]="emailError()">
-        <ft-text-field type="email" formControlName="email" autocomplete="off" />
+        <ft-text-field
+          type="email"
+          formControlName="email"
+          autocomplete="off"
+          [readonly]="busy()"
+        />
       </ft-form-field>
       @if (roleOptions().length > 1) {
         <ft-form-field label="Join with role">
@@ -24,7 +29,7 @@
         </ft-form-field>
       }
       <ft-form-field label="Personal note" [optional]="true" [error]="noteError()">
-        <ft-textarea formControlName="note" [rows]="2" />
+        <ft-textarea formControlName="note" [rows]="2" [readonly]="busy()" />
       </ft-form-field>
       <p class="text-caption">The invite link lasts 14 days.</p>
     </ft-stack>

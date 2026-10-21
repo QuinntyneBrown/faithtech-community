@@ -98,6 +98,17 @@ describe('RoleDialogComponent', () => {
     button('Add role').click();
     await settle();
     expect(ref.close).not.toHaveBeenCalled();
-    expect(host.textContent).toContain('That didn’t work');
+    expect(host.querySelector('ft-alert')!.textContent).toContain('Role not added');
+  });
+
+  it('names the role that was not removed when the request fails', async () => {
+    const { host, button, settle } = setup({
+      mode: 'remove',
+      name: 'Ruth Alvarez',
+      submit: () => Promise.reject(new Error('offline')),
+    });
+    button('Remove role').click();
+    await settle();
+    expect(host.querySelector('ft-alert')!.textContent).toContain('Role not removed');
   });
 });

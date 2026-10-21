@@ -8,7 +8,7 @@
   <form [formGroup]="form" (submit)="$event.preventDefault(); add()">
     <ft-stack>
       @if (failed()) {
-        <ft-alert status="danger" heading="That didn’t work">
+        <ft-alert status="danger" heading="Partner not added">
           We couldn’t reach FaithTech. Nothing was saved — try again.
         </ft-alert>
       }

@@ -49,6 +49,16 @@ export class AppShell {
     return this.accountMenu(name).locator('.ft-avatar');
   }
 
+  /** The tab bar's labels, in order. */
+  async tabLabels(): Promise<string[]> {
+    return (await this.tabBar.getByRole('link').allTextContents()).map((t) => t.trim());
+  }
+
+  /** The top bar's section links, in order (including those hidden at the current width). */
+  async navLabels(): Promise<string[]> {
+    return (await this.primaryNav.getByRole('link').allTextContents()).map((t) => t.trim());
+  }
+
   navLink(name: string): Locator {
     return this.primaryNav.getByRole('link', { name, exact: true });
   }

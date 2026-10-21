@@ -10,7 +10,7 @@ Coverage: the profiles screens (`profile`, `edit-profile`, `delete-photo`), the 
 
 | Part | Library | Local |
 |---|---|---|
-| App shell around `/people/**`, `/team`, `/admin/**`, `/invites`, `/contacts/**`, `/partners/**` | `TopBarComponent` with the account menu (`MenuComponent` "Account menu for {name}" whose face is an `AvatarComponent`: *Your profile* → `/people/me`, *Settings* → `/settings`, *Sign out*), `NavDrawerComponent`, `TabBarComponent`, `SkipLinkComponent`, `ToastRegionComponent` (in `AppShellComponent`). System Admins get an **Admin** link (secondary) to `/admin`. | — |
+| App shell around `/people/**`, `/team`, `/admin/**`, `/invites`, `/contacts/**`, `/partners/**` | `TopBarComponent` with the account menu (`MenuComponent` "Account menu for {name}" whose face is an `AvatarComponent`: *Your profile* → `/people/me`, *Settings* → `/settings`, *Sign out*), `NavDrawerComponent`, `TabBarComponent` (top bar, tab bar and menu all from `shell/navigation.ts`, one rule by role, ADR 0009), `SkipLinkComponent`, `ToastRegionComponent` (in `AppShellComponent`). System Admins get an **Admin** link (secondary) to `/admin`. | — |
 
 ## Pages
 
@@ -34,9 +34,9 @@ Coverage: the profiles screens (`profile`, `edit-profile`, `delete-photo`), the 
 - Opens `SuspendUserDialog` through `DialogService`.
 - Local: the search `<form role="search">`. The mock's workspace-owner alert belongs to the Agile design and is not built.
 
-### Audit log — `/admin/audit-log` (`pages/audit-log`: default, loading, empty, error, no-results)
+### Audit log — `/admin/audit-log` (`pages/audit-log`: default, loading, empty, error, no-results, exporting, exported, export-failed)
 
-- Library: `PageHeaderComponent` with *Export CSV* (`ButtonComponent`, `IconComponent` `export`), `TabsComponent` + `TabComponent`, `FormFieldComponent` + `SelectComponent` "Action" (all, role changes, suspensions, private contact access, deletions), `TableComponent` (When monospaced, Who, What; `loading` shows skeleton rows under the headers), `EmptyStateComponent` (empty; no-results "No {category} in the last 90 days" with *Show all actions*; error; forbidden as on admin users), `ButtonComponent` *Show older entries* when more than 50.
+- Library: `PageHeaderComponent` with *Export CSV* (`ButtonComponent` with `loading` while exporting, `IconComponent` `export`; `ToastService` "Audit log exported" or a danger toast with *Try again*), `TabsComponent` + `TabComponent`, `FormFieldComponent` + `SelectComponent` "Action" (all, role changes, suspensions, private contact access, deletions), `TableComponent` (When monospaced, Who, What; `loading` shows skeleton rows under the headers), `EmptyStateComponent` (empty; no-results "No {category} in the last 90 days" with *Show all actions*; error; forbidden as on admin users), `ButtonComponent` *Show older entries* when more than 50.
 - Local: the CSV download glue (object URL and a temporary link).
 
 ### Invites — `/invites` (`pages/invites`: default, loading, empty, error)
@@ -58,7 +58,7 @@ Coverage: the profiles screens (`profile`, `edit-profile`, `delete-photo`), the 
 ### Contacts — `/contacts` (`pages/contacts`: default, loading, empty, error, no-results, forbidden)
 
 - Library: `PageHeaderComponent` ("Private to you · {n} contacts") with ghost *Archived* and primary *Add contact* (`ButtonComponent` `href`, `IconComponent` `archive`, `add`), `AlertComponent` info ("{name} just joined FaithTech" with *Review*), `TextFieldComponent` `type="search"` labelled "Search contacts", `CardComponent` `flush` + `ListComponent` + `ListItemComponent` (link to the contact, "{organisation} · {city}" meta, leading `AvatarComponent`, trailing `BadgeComponent` — Private `neutral` with `locked` icon, Signed up `success`, Member `info`), `ListSkeletonComponent`, `EmptyStateComponent` (empty with *Add your first contact*; no-results "No contacts match “{term}”" with *View archived contacts*; error with *Try again*; forbidden "Contacts are private to each lead" with *Back to home*).
-- The list is cards at every width; there is no table (ADR 0009).
+- The list is cards at every width; there is no table (ADR 0010).
 - Local: the search `<form role="search">`; the visually hidden `h1` of the forbidden state.
 
 ### Contact — `/contacts/:id` (`pages/contact`: default, loading, error, match, linked)

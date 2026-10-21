@@ -11,13 +11,15 @@ import {
 import { BadgeComponent } from '../badge/badge.component';
 import { IconComponent } from '../icon/icon.component';
 
+let nextId = 0;
+
 const FOCUSABLE =
   'a[href], button:not([disabled]), input, select, textarea, [tabindex]:not([tabindex="-1"])';
 
 /**
- * Top-bar bell with an unread count. A button (not a link) with `aria-expanded` and
- * `aria-haspopup="dialog"` that toggles a non-modal panel on the CDK Overlay; project the
- * ft-notification-panel as content. Escape closes and returns focus to the bell, a click outside
+ * Top-bar bell with an unread count. A button (not a link) with `aria-expanded`,
+ * `aria-haspopup="dialog"` and, while open, `aria-controls` naming the panel. It toggles a
+ * non-modal panel on the CDK Overlay; project the ft-notification-panel as content. Escape closes and returns focus to the bell, a click outside
  * closes, and opening moves focus to the panel's first control.
  */
 @Component({
@@ -30,6 +32,8 @@ const FOCUSABLE =
 export class NotificationBellComponent {
   readonly unread = input(0);
   readonly open = model(false);
+
+  protected readonly panelId = `ft-notification-bell-panel-${nextId++}`;
 
   private readonly trigger = viewChild.required<ElementRef<HTMLButtonElement>>('trigger');
   private readonly overlay = viewChild(CdkConnectedOverlay);

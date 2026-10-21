@@ -15,7 +15,7 @@ Attendees see only the RSVP count. Leads, Staff and System Admin see the full RS
 ## Description
 
 - **`EventPage`** — routed event detail page in the `events` library (mock: `docs/mocks/pages/event/`, states `default`, `rsvped`, `lead`, `cancelled`). It offers RSVP and cancel-RSVP actions and renders either the RSVP count or the RSVP list.
-- **`CancelRsvpDialog`** — Angular CDK Dialog in the `events` library (mock: `docs/mocks/dialogs/cancel-rsvp/`) that confirms cancellation.
+- **`CancelRsvpDialog`** — Angular CDK Dialog in the `events` library (mock: `docs/mocks/dialogs/cancel-rsvp/`) that confirms cancellation with a safe *Keep my RSVP* button and a danger *Cancel my RSVP* button.
 - **`EventsService` / `EVENTS_SERVICE`** — `getEvent(id)`, `rsvp(id)` and `cancelRsvp(id)`, implemented by `HttpEventsService`.
 - **`EventsEndpoints`** — maps `GET /api/events/{id}`, `POST /api/events/{id}/rsvps` and `DELETE /api/events/{id}/rsvps/me`.
 - **`GetEventHandler`** — returns `EventDetailDto`. It includes `Rsvps` only when `EventPermissions.CanSeeRsvpList` is true, and includes guest emails only when `CanSeeGuestEmails` is true (`L2-022`).

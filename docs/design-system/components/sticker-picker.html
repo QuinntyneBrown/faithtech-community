@@ -137,13 +137,13 @@
           <tr><th scope="row">Active</th><td><button class="sticker-choice" type="button" aria-pressed="false" data-state="active"><span>5</span>points</button></td></tr>
           <tr><th scope="row">Pressed (your vote)</th><td><button class="sticker-choice" type="button" aria-pressed="true"><span>8</span>points</button></td></tr>
           <tr><th scope="row">Disabled (revealed)</th><td><button class="sticker-choice" type="button" aria-pressed="true" disabled><span>8</span>points</button> <button class="sticker-choice" type="button" aria-pressed="false" disabled><span>13</span>points</button></td></tr>
-          <tr><th scope="row">Invalid</th><td><button class="sticker-choice" type="button" aria-pressed="false" aria-invalid="true"><span>?</span>Unsure</button></td></tr>
+          <tr><th scope="row">Invalid (vote refused)</th><td><div class="cluster" role="group" aria-label="Invalid example" aria-invalid="true" aria-describedby="st-inv-err"><button class="sticker-choice" type="button" aria-pressed="false"><span>8</span>points</button><button class="sticker-choice" type="button" aria-pressed="false"><span>13</span>points</button></div><p class="field__error" id="st-inv-err">Voting has closed on this story. Your vote wasn’t counted.</p></td></tr><tr><th scope="row">Withdrawn</th><td><button class="sticker-choice" type="button" aria-pressed="false"><span>8</span>points</button> <span class="text-caption">Pressed again: no card pressed, status “You withdrew your vote.”</span></td></tr><tr><th scope="row">Failed to send</th><td><div class="alert alert--danger" role="alert"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 8v4M12 16h.01"/></svg><div class="alert__body"><div class="alert__title">We couldn’t save your vote</div><div class="alert__text">Your vote is still 8 points. Check your connection and try again.</div></div></div></td></tr>
         </tbody>
       </table></div>
       <ul>
-        <li><b>Pressed</b>: pressing a card presses it and releases the others; pressing it again withdraws the vote. Members can change their vote until the reveal.</li>
+        <li><b>Pressed</b>: pressing a card presses it and releases the others; pressing it again withdraws the vote (<i>planning-poker/withdrawn</i>): no card stays pressed, the status line says “You withdrew your vote” and the member shows as still choosing. Members can change or withdraw their vote until the reveal.</li>
         <li><b>Disabled</b>: after Reveal votes the deck locks, keeping your card pressed, through Re-vote or Set points.</li>
-        <li><b>Invalid</b> is defined in the component for a vote the server refuses (for example, the session ended), shown with an inline message; no FaithTech mock uses it yet.</li>
+        <li><b>Invalid</b> (<i>planning-poker/invalid</i>): the server refused the vote because the votes were already revealed. No card is pressed, the group is <code>aria-invalid="true"</code> (every card takes the danger border) and the <code>.field__error</code> under the deck, which describes the group, says why. In Angular set <code>error</code> on <code>ft-estimate-picker</code>.</li><li><b>Failed to send</b> (<i>planning-poker/vote-failed</i>): the vote never reached the server. The deck goes back to the saved vote and a danger alert above it says so (“Your vote is still 8 points”); pressing the card again retries.</li>
         <li>The page’s loading, empty ("Start a session"), error and forbidden states replace the whole session, so the picker is not shown.</li>
       </ul>
     </section>
@@ -209,7 +209,8 @@
     <section class="ds-section" id="code"><h2><a href="#code">Code</a></h2>
       <pre><code>&lt;!-- Angular (components library) --&gt;
 &lt;ft-estimate-picker label="Your vote" [options]="[1, 2, 3, 5, 8, 13, 21, '?']"
-                    [value]="myVote" [disabled]="revealed" (valueChange)="vote($event)" /&gt;
+                    [value]="myVote" [disabled]="revealed" [error]="refusal"
+                    (valueChange)="vote($event)" /&gt;
 
 &lt;!-- HTML --&gt;
 &lt;div class="cluster" role="group" aria-labelledby="deck"&gt;
@@ -218,16 +219,16 @@
 &lt;/div&gt;</code></pre>
       <table class="ds-table"><thead><tr><th scope="col">Class / input</th><th scope="col">Effect</th></tr></thead><tbody>
         <tr><td><code>.sticker-choice</code></td><td>One card. <code>[aria-pressed="true"]</code> is the vote; <code>[aria-invalid]</code> and <code>:disabled</code> are the other states.</td></tr>
-        <tr><td><code>options</code>, <code>value</code>, <code>disabled</code></td><td>The scale, the current vote (or none) and the lock after reveal.</td></tr>
+        <tr><td><code>options</code>, <code>value</code>, <code>disabled</code></td><td>The scale, the current vote (or none) and the lock after reveal.</td></tr><tr><td><code>error</code></td><td>Why the server refused the vote; shown under the deck, describing the group, which is marked invalid.</td></tr>
         <tr><td><code>valueChange</code></td><td>Emits the new vote, or <code>null</code> when it is withdrawn.</td></tr>
       </tbody></table>
     </section>
 
     <section class="ds-section" id="sources"><h2><a href="#sources">Sources</a></h2>
       <ul>
-        <li><a href="../../mocks/pages/planning-poker/default.html">pages/planning-poker</a>: default, <a href="../../mocks/pages/planning-poker/revealed.html">revealed</a>, <a href="../../mocks/pages/planning-poker/facilitator.html">facilitator</a>, <a href="../../mocks/pages/planning-poker/agreed.html">agreed</a>, <a href="../../mocks/pages/planning-poker/staff.html">staff</a></li>
+        <li><a href="../../mocks/pages/planning-poker/default.html">pages/planning-poker</a>: default, <a href="../../mocks/pages/planning-poker/revealed.html">revealed</a>, <a href="../../mocks/pages/planning-poker/facilitator.html">facilitator</a>, <a href="../../mocks/pages/planning-poker/agreed.html">agreed</a>, <a href="../../mocks/pages/planning-poker/staff.html">staff</a>, <a href="../../mocks/pages/planning-poker/withdrawn.html">withdrawn</a>, <a href="../../mocks/pages/planning-poker/invalid.html">invalid</a>, <a href="../../mocks/pages/planning-poker/vote-failed.html">vote-failed</a></li>
       </ul>
-      <p>Drift: the "Your vote" heading uses an inline <code>style="font: var(--text-h4)"</code>; the invalid state, withdrawing a vote and a failed vote are not mocked; the class names still carry the inherited "sticker" name.</p>
+      <p>The "Your vote" heading is <code>.card__title</code>. Drift: the class names still carry the inherited "sticker" name.</p>
     </section>
 
     <footer class="ds-footer"><span>FaithTech Community design system · extracted from <a href="../../mocks/index.html">docs/mocks</a> on 2026-10-21</span><a href="#top">Back to top</a></footer>

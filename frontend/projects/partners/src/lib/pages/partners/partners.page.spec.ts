@@ -214,7 +214,9 @@ describe('PartnersPage', () => {
     await settle();
 
     expect(columns()[1]).toBe('In funnel 1: Kestrel Labs');
-    expect(toasts.show).toHaveBeenCalledWith(expect.objectContaining({ variant: 'danger' }));
+    expect(toasts.show).toHaveBeenCalledWith(
+      expect.objectContaining({ variant: 'danger', heading: 'Partner not moved' }),
+    );
   });
 
   it('shows the stages as tabs with one column at a time on a phone', async () => {

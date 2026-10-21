@@ -3,8 +3,9 @@
   [class.ft-photo--featured]="featured()"
   [class.ft-photo--failed]="state() === 'failed'"
   [class.ft-photo--uploading]="state() === 'uploading'"
+  [attr.aria-busy]="state() === 'uploading' ? 'true' : null"
 >
-  <div class="ft-photo__thumb" [attr.aria-busy]="state() === 'uploading' ? 'true' : null">
+  <div class="ft-photo__thumb">
     @if (src(); as url) {
       <img class="ft-photo__img" [src]="url" [alt]="alt()" />
     } @else {

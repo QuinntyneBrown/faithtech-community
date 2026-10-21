@@ -63,4 +63,16 @@ describe('SelectComponent', () => {
     fixture.detectChanges();
     expect(el().disabled).toBe(true);
   });
+
+  // Given the control is disabled, when the select renders, then it looks disabled the way a text
+  // input does (subtle fill, disabled text) and shows a not-allowed cursor.
+  it('styles a disabled select like a disabled input', () => {
+    const { fixture, cmp, el } = setup();
+    cmp.ctrl.disable();
+    fixture.detectChanges();
+    const style = getComputedStyle(el());
+    expect(style.cursor).toBe('not-allowed');
+    expect(style.backgroundColor).toBe('var(--color-bg-subtle)');
+    expect(style.color).toBe('var(--color-fg-disabled)');
+  });
 });

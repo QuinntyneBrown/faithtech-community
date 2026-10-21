@@ -37,6 +37,8 @@ test.describe('Audit log', () => {
     await audit.exportCsv.click();
     const csv = await readFile((await (await download).path())!, 'utf8');
     expect(csv).toContain('Granted Staff to Daniel Reyes');
+    await expect(audit.exportedToast).toBeVisible();
+    await expect(audit.exportCsv).not.toHaveAttribute('aria-busy');
 
     await audit.category.selectOption({ label: 'Suspensions' });
     await expect(audit.noResults('suspensions')).toBeVisible();
