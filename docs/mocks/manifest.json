@@ -134,6 +134,8 @@
         "empty",
         "error",
         "activity-error",
+        "pipeline-zero",
+        "pipeline-error",
         "staff"
       ],
       "not_applicable": {}

@@ -413,6 +413,8 @@ body:has(.tabbar:not(.tabbar--static)) .toast-region { bottom: calc(var(--layout
 .skeleton--text:last-child { width: 60%; }
 .skeleton--title { height: 1.5em; width: 40%; }
 .skeleton--rect { border-radius: var(--radius-md); }
+/* Stands in for a stat value (a count) while it loads; the stat label stays. */
+.skeleton--stat { width: var(--size-avatar-md); height: var(--size-avatar-sm); border-radius: var(--radius-md); }
 /* Square placeholder the size of .date-badge, leading an event row while it loads. */
 .skeleton--date-badge { flex: none; width: var(--size-avatar-lg); height: var(--size-avatar-lg); border-radius: var(--radius-md); }
 .skeleton--square { aspect-ratio: 1; border-radius: var(--radius-md); }
