@@ -4,6 +4,24 @@
   gap: var(--space-1);
 }
 
+:host(.ft-form-field--sm),
+:host(.ft-form-field--md),
+:host(.ft-form-field--lg) {
+  max-inline-size: 100%;
+}
+
+:host(.ft-form-field--sm) {
+  inline-size: 12rem;
+}
+
+:host(.ft-form-field--md) {
+  inline-size: 14rem;
+}
+
+:host(.ft-form-field--lg) {
+  inline-size: 16rem;
+}
+
 .label {
   font: var(--text-label);
   color: var(--color-fg-default);

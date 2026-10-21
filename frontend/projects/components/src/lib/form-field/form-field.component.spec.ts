@@ -2,7 +2,7 @@ import { Component, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
 import { TextFieldComponent } from '../text-field/text-field.component';
-import { FormFieldComponent } from './form-field.component';
+import { FormFieldComponent, FormFieldWidth } from './form-field.component';
 
 @Component({
   imports: [FormFieldComponent, TextFieldComponent, ReactiveFormsModule],
@@ -11,6 +11,7 @@ import { FormFieldComponent } from './form-field.component';
     [optional]="optional()"
     [help]="help()"
     [error]="error()"
+    [width]="width()"
   >
     <ft-text-field [formControl]="ctrl" />
   </ft-form-field>`,
@@ -20,6 +21,7 @@ class HostComponent {
   readonly optional = signal(false);
   readonly help = signal('');
   readonly error = signal('');
+  readonly width = signal<FormFieldWidth>('auto');
   readonly ctrl = new FormControl('');
 }
 
@@ -75,5 +77,21 @@ describe('FormFieldComponent', () => {
   it('is not invalid without an error', () => {
     const { q } = setup();
     expect(q('input')!.getAttribute('aria-invalid')).toBeNull();
+  });
+
+  // Given a filter select in a filter row, when it takes a filter width, then the field is held to
+  // that width (sm 12rem, md 14rem, lg 16rem) by a class, never by an inline wrapper.
+  it.each(['sm', 'md', 'lg'] as const)('holds a filter field to the %s width', (w) => {
+    const { fixture, cmp } = setup();
+    cmp.width.set(w);
+    fixture.detectChanges();
+    const field = fixture.nativeElement.querySelector('ft-form-field') as HTMLElement;
+    expect(field.classList.contains(`ft-form-field--${w}`)).toBe(true);
+  });
+
+  it('takes the width of its container by default', () => {
+    const { fixture } = setup();
+    const field = fixture.nativeElement.querySelector('ft-form-field') as HTMLElement;
+    expect(field.className).not.toMatch(/ft-form-field--/);
   });
 });
