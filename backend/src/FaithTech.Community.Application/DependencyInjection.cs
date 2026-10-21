@@ -33,6 +33,7 @@ public static class DependencyInjection
         services.AddScoped<RoleAssignmentPolicy>();
         services.AddScoped<RoleChangeNotifier>();
         services.AddScoped<ChangeRolesHandler>();
+        services.AddScoped<SuspensionHandler>();
         services.TryAddSingleton(TimeProvider.System);
         return services;
     }

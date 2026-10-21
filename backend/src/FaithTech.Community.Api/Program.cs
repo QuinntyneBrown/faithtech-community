@@ -42,6 +42,7 @@ app.MapMeEndpoints();
 app.MapProfilesEndpoints();
 app.MapAuditLogEndpoints();
 app.MapRolesEndpoints();
+app.MapAdminUsersEndpoints();
 app.MapAccountEndpoints();
 app.MapAuthorizationEndpoints();
 
