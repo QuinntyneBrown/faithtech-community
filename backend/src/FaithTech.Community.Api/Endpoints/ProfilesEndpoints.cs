@@ -15,6 +15,10 @@ public static class ProfilesEndpoints
         profiles.MapGet("/{id:guid}", async (Guid id, GetProfileHandler handler, CancellationToken cancellationToken) =>
             await handler.HandleAsync(id, cancellationToken) is { } profile ? Results.Ok(profile) : Results.NotFound());
 
+        profiles.MapPut("/{id:guid}", async (Guid id, UpdateProfileCommand command, UpdateProfileHandler handler, CancellationToken cancellationToken) =>
+            (await handler.HandleAsync(id, command, cancellationToken)).ToHttp(Results.NoContent))
+            .Validate<UpdateProfileCommand>();
+
         return app;
     }
 }

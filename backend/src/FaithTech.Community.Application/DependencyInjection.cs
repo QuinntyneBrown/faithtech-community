@@ -22,6 +22,7 @@ public static class DependencyInjection
         services.AddScoped<ResetPasswordHandler>();
         services.AddScoped<ProfileAccess>();
         services.AddScoped<GetProfileHandler>();
+        services.AddScoped<UpdateProfileHandler>();
         services.TryAddSingleton(TimeProvider.System);
         return services;
     }
