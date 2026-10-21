@@ -68,6 +68,29 @@ export class SignalRAgileLiveService implements AgileLiveService {
     });
   }
 
+  watchPokerSession(sessionId: string): Observable<void> {
+    return new Observable<void>((subscriber) => {
+      const connection = this.hub();
+      const changed = (id: string) => {
+        if (id === sessionId) subscriber.next();
+      };
+      const rejoin = () =>
+        void connection
+          .invoke('WatchPokerSession', sessionId)
+          .then(() => subscriber.next())
+          .catch((error: unknown) => subscriber.error(error));
+      connection.on('PokerChanged', changed);
+      this.reconnectHandlers.add(rejoin);
+      this.start()
+        .then(() => connection.invoke('WatchPokerSession', sessionId))
+        .catch((error: unknown) => subscriber.error(error));
+      return () => {
+        connection.off('PokerChanged', changed);
+        this.reconnectHandlers.delete(rejoin);
+      };
+    });
+  }
+
   private hub(): AgileHubConnection {
     if (!this.connection) {
       this.connection = this.create();

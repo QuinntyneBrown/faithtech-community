@@ -33,6 +33,8 @@ export interface WorkspaceMemberDto {
   /** Stories and tasks assigned to them, which removing them unassigns (L2-031 AC8). */
   assignedStories: number;
   assignedTasks: number;
+  /** The caller, as "(you)" in lists and left out of Planning Poker invites. */
+  isYou: boolean;
 }
 
 export interface WorkspaceDto {
@@ -244,6 +246,46 @@ export interface ArchivedItemDto {
   archivedByName: string;
 }
 
+/** A card of the Planning Poker deck (L2-038 AC2). */
+export type PokerCard = '1' | '2' | '3' | '5' | '8' | '13' | '21' | '?';
+
+export interface PokerParticipantDto {
+  profileId: string;
+  name: string;
+  isFacilitator: boolean;
+  hasVoted: boolean;
+  /** Hidden (null) until the reveal, except the caller's own vote. */
+  vote: PokerCard | null;
+}
+
+/** The open Planning Poker session as the caller sees it (L2-038). */
+export interface PokerSessionDto {
+  id: string;
+  workspaceId: string;
+  facilitatorId: string;
+  facilitatorName: string;
+  isFacilitator: boolean;
+  /** Invited (or facilitating) and not Staff. */
+  canVote: boolean;
+  /** 1-based position of the story being estimated. */
+  storyNumber: number;
+  storyCount: number;
+  story: { id: string; title: string; description: string; storyPoints: number | null };
+  nextStoryTitle: string | null;
+  round: number;
+  isRevealed: boolean;
+  myVote: PokerCard | null;
+  participants: PokerParticipantDto[];
+  /** The story whose points the facilitator set last, and those points. */
+  lastStoryTitle: string | null;
+  lastPoints: number | null;
+}
+
+export interface StartPokerRequest {
+  storyIds: string[];
+  invitedIds: string[];
+}
+
 export interface CreateWorkspaceRequest {
   name: string;
   method: WorkspaceMethod;
@@ -301,6 +343,20 @@ export interface AgileService {
   archiveWorkItem(id: string): Observable<void>;
   /** Brings back the item and what was archived with it. */
   restoreWorkItem(id: string): Observable<void>;
+  /** Any member; they facilitate. 400 (StoryIds, InvitedIds), 409 when a session is already running. */
+  startPokerSession(workspaceId: string, request: StartPokerRequest): Observable<PokerSessionDto>;
+  /** The running session, or null when none is. Staff may watch. */
+  getCurrentPokerSession(workspaceId: string): Observable<PokerSessionDto | null>;
+  getPokerSession(id: string): Observable<PokerSessionDto>;
+  /** Invited participants; null withdraws the vote. 409 once revealed. */
+  vote(sessionId: string, value: PokerCard | null): Observable<void>;
+  /** Facilitator only (403 otherwise), as are re-vote, final points and end. */
+  revealVotes(sessionId: string): Observable<void>;
+  revote(sessionId: string): Observable<void>;
+  /** Saves the points on the current story and moves to the next. */
+  setFinalPoints(sessionId: string, points: number): Observable<void>;
+  endPokerSession(sessionId: string): Observable<void>;
+
   /** City Leads who could own the workspace. System Admin only. */
   listOwnerCandidates(workspaceId: string): Observable<MemberCandidateDto[]>;
   /** System Admin only, audited. 400 (OwnerId) when the profile isn't a City Lead. */

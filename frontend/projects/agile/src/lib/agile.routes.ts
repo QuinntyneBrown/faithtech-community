@@ -3,6 +3,7 @@ import { Routes } from '@angular/router';
 import {
   BacklogPage,
   BoardPage,
+  PlanningPokerPage,
   WorkItemPage,
   WorkspaceSettingsPage,
   WorkspacesPage,
@@ -13,5 +14,6 @@ export const AGILE_ROUTES: Routes = [
   { path: ':id', pathMatch: 'full', component: BoardPage },
   { path: ':id/backlog', component: BacklogPage },
   { path: ':id/items/:itemId', component: WorkItemPage },
+  { path: ':id/poker', component: PlanningPokerPage },
   { path: ':id/settings', component: WorkspaceSettingsPage },
 ];

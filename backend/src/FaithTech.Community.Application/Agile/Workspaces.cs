@@ -121,7 +121,8 @@ public class WorkspacesHandler(
                 profiles.GetValueOrDefault(pid) is { } p ? [.. p.Roles.Select(r => r.Role).Order().Select(r => r.ToString())] : [],
                 pid == workspace.OwnerId,
                 Count(pid, tasks: false),
-                Count(pid, tasks: true)))
+                Count(pid, tasks: true),
+                pid == caller.ProfileId))
             .OrderByDescending(m => m.IsOwner)
             .ThenBy(m => m.Name)
             .ToList();

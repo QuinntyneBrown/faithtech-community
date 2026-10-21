@@ -1,0 +1,49 @@
+<ft-dialog
+  heading="Start a Planning Poker session"
+  description="Deck: 1, 2, 3, 5, 8, 13, 21 and ?."
+  icon="team"
+  [busy]="busy()"
+  (closed)="ref.close()"
+>
+  <form [formGroup]="form" (submit)="$event.preventDefault(); start()" ftFormErrorFocus>
+    <ft-stack>
+      @if (failed()) {
+        <ft-alert status="danger" heading="That didn’t work">
+          We couldn’t reach FaithTech. Nothing was changed — try again.
+        </ft-alert>
+      }
+      <ft-checkbox-group
+        legend="Stories to estimate"
+        [hint]="data.stories.length ? '' : 'Every story is done. Add stories to the backlog first.'"
+        formControlName="storyIds"
+        [error]="storyError()"
+      >
+        @for (story of data.stories; track story.id) {
+          <ft-checkbox [value]="story.id" [description]="estimate(story)">{{
+            story.title
+          }}</ft-checkbox>
+        }
+      </ft-checkbox-group>
+      <ft-checkbox-group
+        legend="Members"
+        hint="Only members of this workspace can be invited."
+        formControlName="invitedIds"
+        [error]="inviteError()"
+      >
+        @for (member of members; track member.profileId) {
+          <ft-checkbox [value]="member.profileId" [description]="roles(member)">{{
+            member.name
+          }}</ft-checkbox>
+        }
+      </ft-checkbox-group>
+      <p class="text-caption">
+        You’ll be the facilitator. Invited members get an in-app notification and an email with a
+        link to join.
+      </p>
+    </ft-stack>
+  </form>
+  <ft-button ftDialogFooter [disabled]="busy()" (click)="ref.close()">Cancel</ft-button>
+  <ft-button ftDialogFooter variant="primary" [loading]="busy()" (click)="start()">
+    {{ busy() ? 'Start and invite…' : 'Start and invite' }}
+  </ft-button>
+</ft-dialog>

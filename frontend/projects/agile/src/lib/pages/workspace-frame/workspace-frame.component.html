@@ -39,7 +39,7 @@
       />
     }
   </ft-tabs>
-  @if (workspace()?.access === 'Staff') {
+  @if (workspace()?.access === 'Staff' && section() !== 'poker') {
     <ft-alert status="info" heading="Read-only for Staff">
       You can see every workspace, item and sprint but can’t change them.
     </ft-alert>

@@ -6,6 +6,9 @@ import { API_BASE_URL } from '../config';
 import {
   AgileService,
   ArchivedItemDto,
+  PokerCard,
+  PokerSessionDto,
+  StartPokerRequest,
   BacklogFilter,
   BacklogNodeDto,
   BoardDto,
@@ -147,6 +150,47 @@ export class HttpAgileService implements AgileService {
 
   reassignOwner(workspaceId: string, ownerId: string): Observable<void> {
     return this.http.put<void>(`${this.workspace(workspaceId)}/owner`, { ownerId });
+  }
+
+  startPokerSession(workspaceId: string, request: StartPokerRequest): Observable<PokerSessionDto> {
+    return this.http.post<PokerSessionDto>(
+      `${this.workspace(workspaceId)}/poker-sessions`,
+      request,
+    );
+  }
+
+  getCurrentPokerSession(workspaceId: string): Observable<PokerSessionDto | null> {
+    return this.http.get<PokerSessionDto | null>(
+      `${this.workspace(workspaceId)}/poker-sessions/current`,
+    );
+  }
+
+  getPokerSession(id: string): Observable<PokerSessionDto> {
+    return this.http.get<PokerSessionDto>(this.poker(id));
+  }
+
+  vote(sessionId: string, value: PokerCard | null): Observable<void> {
+    return this.http.put<void>(`${this.poker(sessionId)}/vote`, { value });
+  }
+
+  revealVotes(sessionId: string): Observable<void> {
+    return this.http.post<void>(`${this.poker(sessionId)}/reveal`, null);
+  }
+
+  revote(sessionId: string): Observable<void> {
+    return this.http.post<void>(`${this.poker(sessionId)}/revote`, null);
+  }
+
+  setFinalPoints(sessionId: string, points: number): Observable<void> {
+    return this.http.post<void>(`${this.poker(sessionId)}/points`, { points });
+  }
+
+  endPokerSession(sessionId: string): Observable<void> {
+    return this.http.post<void>(`${this.poker(sessionId)}/end`, null);
+  }
+
+  private poker(id: string): string {
+    return `${this.base}/poker-sessions/${encodeURIComponent(id)}`;
   }
 
   private item(id: string): string {

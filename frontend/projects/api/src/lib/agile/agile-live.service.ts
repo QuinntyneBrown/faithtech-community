@@ -17,6 +17,11 @@ export type BoardEvent =
 export interface AgileLiveService {
   /** Board events while subscribed. Errors when the caller may not watch the board. */
   watchBoard(workspaceId: string): Observable<BoardEvent>;
+  /**
+   * Emits whenever the session changed, or the connection came back, so the page re-reads it through
+   * AGILE_SERVICE (L2-038 AC2, AC8). Errors when the caller may not watch.
+   */
+  watchPokerSession(sessionId: string): Observable<void>;
 }
 
 export const AGILE_LIVE_SERVICE = new InjectionToken<AgileLiveService>('AGILE_LIVE_SERVICE');

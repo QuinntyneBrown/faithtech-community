@@ -81,4 +81,27 @@ describe('SignalRAgileLiveService', () => {
     await new Promise((r) => setTimeout(r));
     expect(errors).toHaveLength(1);
   });
+
+  it('joins a poker session and emits each PokerChanged for it', async () => {
+    const { fake, live } = setup();
+    let changes = 0;
+    live.watchPokerSession('s1').subscribe(() => changes++);
+    await Promise.resolve();
+    await Promise.resolve();
+    expect(fake.connection.invoke).toHaveBeenCalledWith('WatchPokerSession', 's1');
+    fake.push('PokerChanged', 's1');
+    fake.push('PokerChanged', 'other');
+    expect(changes).toBe(1);
+  });
+
+  it('rejoins a poker session after a reconnect and asks the page to re-read it', async () => {
+    const { fake, live } = setup();
+    let changes = 0;
+    live.watchPokerSession('s1').subscribe(() => changes++);
+    fake.reconnect();
+    await Promise.resolve();
+    await Promise.resolve();
+    expect(fake.connection.invoke).toHaveBeenCalledTimes(2);
+    expect(changes).toBe(1);
+  });
 });

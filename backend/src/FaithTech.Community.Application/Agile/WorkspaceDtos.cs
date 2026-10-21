@@ -14,7 +14,7 @@ public record WorkspaceSummaryDto(
     bool NeedsNewOwner);
 
 /// <summary>A workspace member with the work assigned to them, which a removal unassigns (L2-031 AC8).</summary>
-public record WorkspaceMemberDto(Guid ProfileId, string Name, IReadOnlyList<string> Roles, bool IsOwner, int AssignedStories, int AssignedTasks);
+public record WorkspaceMemberDto(Guid ProfileId, string Name, IReadOnlyList<string> Roles, bool IsOwner, int AssignedStories, int AssignedTasks, bool IsYou);
 
 /// <summary>
 /// One workspace as the caller may see it. <see cref="Access"/> is Owner, Member, Admin or Staff (ADR 0008);

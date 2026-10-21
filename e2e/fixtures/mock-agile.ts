@@ -54,6 +54,24 @@ export interface MockItem {
   comments: MockComment[];
 }
 
+export type MockCard = '1' | '2' | '3' | '5' | '8' | '13' | '21' | '?';
+const DECK: MockCard[] = ['1', '2', '3', '5', '8', '13', '21', '?'];
+
+export interface MockPokerSession {
+  id: string;
+  workspaceId: string;
+  storyIds: string[];
+  index: number;
+  facilitatorId: string;
+  invitedIds: string[];
+  round: number;
+  isRevealed: boolean;
+  votes: Map<string, MockCard>;
+  isClosed: boolean;
+  lastStoryId: string | null;
+  lastPoints: number | null;
+}
+
 const PARENT_OF: Record<MockKind, MockKind | null> = {
   Initiative: null,
   Epic: 'Initiative',
@@ -88,6 +106,7 @@ export class MockAgile {
   readonly workspaces: MockWorkspace[] = [];
   readonly sprints: MockSprint[] = [];
   readonly items: MockItem[] = [];
+  readonly pokerSessions: MockPokerSession[] = [];
   private comments = 0;
 
   /** Open hub connections and the groups each joined, as AgileHub keeps them. */
@@ -142,10 +161,12 @@ export class MockAgile {
         }
         if (message.type !== 1) continue;
         const [id] = (message.arguments ?? []) as string[];
-        const workspace = this.workspaces.find((w) => w.id === id && !w.isArchived);
+        const poker = message.target === 'WatchPokerSession';
+        const workspaceId = poker ? this.pokerSessions.find((p) => p.id === id)?.workspaceId : id;
+        const workspace = this.workspaces.find((w) => w.id === workspaceId && !w.isArchived);
         const allowed = workspace && this.access(workspace, caller) !== 'Outsider';
-        if (message.target === 'WatchBoard' && allowed) {
-          connection.groups.add(`board:${id}`);
+        if ((message.target === 'WatchBoard' || poker) && allowed) {
+          connection.groups.add(poker ? `poker:${id}` : `board:${id}`);
           ws.send(
             JSON.stringify({ type: 3, invocationId: message.invocationId, result: null }) +
               '\u001e',
@@ -161,6 +182,41 @@ export class MockAgile {
         }
       }
     });
+  }
+
+  /** How many open connections watch a Planning Poker session. */
+  pokerWatchers(sessionId: string): number {
+    return [...this.sockets].filter((c) => c.groups.has(`poker:${sessionId}`)).length;
+  }
+
+  /** A session already running, as another member started it. */
+  addPokerSession(
+    session: Partial<MockPokerSession> & {
+      workspaceId: string;
+      storyIds: string[];
+      facilitatorId: string;
+    },
+  ): MockPokerSession {
+    const full: MockPokerSession = {
+      id: `poker-${this.pokerSessions.length + 1}`,
+      index: 0,
+      invitedIds: [],
+      round: 1,
+      isRevealed: false,
+      votes: new Map(),
+      isClosed: false,
+      lastStoryId: null,
+      lastPoints: null,
+      ...session,
+    };
+    this.pokerSessions.push(full);
+    return full;
+  }
+
+  /** Someone else acted in the session: tell its watchers, as SignalRAgileNotifier does. */
+  pokerChanged(session: MockPokerSession, change: (s: MockPokerSession) => void): void {
+    change(session);
+    this.push(`poker:${session.id}`, 'PokerChanged', [session.id]);
   }
 
   /** How many open connections watch a workspace's board. */
@@ -241,12 +297,19 @@ export class MockAgile {
 
   /** Answers the request when it is an Agile route; returns false otherwise. */
   handles(path: string): boolean {
-    return path.startsWith('/api/workspaces') || path.startsWith('/api/items');
+    return (
+      path.startsWith('/api/workspaces') ||
+      path.startsWith('/api/items') ||
+      path.startsWith('/api/poker-sessions')
+    );
   }
 
   async handle(request: AgileRequest): Promise<void> {
     const { route, method, path, caller } = request;
     if (!caller) return route.fulfill({ status: 401 });
+
+    const pokerRoute = /^\/api\/poker-sessions\/([^/]+)(\/.*)?$/.exec(path);
+    if (pokerRoute) return this.pokerRequest(request, pokerRoute[1], pokerRoute[2] ?? '');
 
     const itemRoute = /^\/api\/items\/([^/]+)(\/.*)?$/.exec(path);
     if (itemRoute) return this.itemRequest(request, itemRoute[1], itemRoute[2] ?? '');
@@ -330,6 +393,14 @@ export class MockAgile {
         return this.startSprint(request, workspace, manage);
       case 'POST /items':
         return this.createItem(request, workspace, access);
+      case 'POST /poker-sessions':
+        return this.startPoker(request, workspace, access);
+      case 'GET /poker-sessions/current': {
+        const open = this.openSession(workspace.id);
+        return open
+          ? route.fulfill({ status: 200, json: this.pokerDto(open, caller) })
+          : route.fulfill({ status: 204 });
+      }
       case 'POST /archive':
         if (!manage) return route.fulfill({ status: 403 });
         workspace.isArchived = true;
@@ -500,6 +571,138 @@ export class MockAgile {
       }
     }
     return this.unknown(request);
+  }
+
+  private openSession(workspaceId: string): MockPokerSession | undefined {
+    return this.pokerSessions.find((p) => p.workspaceId === workspaceId && !p.isClosed);
+  }
+
+  private startPoker(
+    { route, body, caller }: AgileRequest,
+    workspace: MockWorkspace,
+    access: MockAccess,
+  ) {
+    if (access === 'Staff') return route.fulfill({ status: 403 });
+    if (!this.isMember(workspace, caller!.profileId)) return route.fulfill({ status: 403 });
+    const storyIds = (body['storyIds'] as string[] | undefined) ?? [];
+    if (!storyIds.length)
+      return invalid(route, 'StoryIds', 'Choose at least one story to estimate.');
+    const invitedIds = ((body['invitedIds'] as string[] | undefined) ?? []).filter(
+      (id) => id !== caller!.profileId,
+    );
+    if (!invitedIds.every((id) => this.isMember(workspace, id)))
+      return invalid(route, 'InvitedIds', 'Only members of this workspace can be invited.');
+    if (this.openSession(workspace.id))
+      return problem(route, 409, 'A Planning Poker session is already running in this workspace.');
+    const session = this.addPokerSession({
+      workspaceId: workspace.id,
+      storyIds,
+      facilitatorId: caller!.profileId,
+      invitedIds,
+    });
+    return route.fulfill({ status: 201, json: this.pokerDto(session, caller!) });
+  }
+
+  private pokerRequest(request: AgileRequest, id: string, rest: string) {
+    const { route, method, body, caller } = request;
+    const session = this.pokerSessions.find((p) => p.id === id);
+    const workspace =
+      session && this.workspaces.find((w) => w.id === session.workspaceId && !w.isArchived);
+    const access = workspace ? this.access(workspace, caller!) : 'Outsider';
+    if (!session || access === 'Outsider') return route.fulfill({ status: 404 });
+    if (method === 'GET' && rest === '') {
+      return session.isClosed
+        ? route.fulfill({ status: 404 })
+        : route.fulfill({ status: 200, json: this.pokerDto(session, caller!) });
+    }
+    if (access === 'Staff') return route.fulfill({ status: 403 });
+    if (session.isClosed) return problem(route, 409, 'This session has ended.');
+    const me = caller!.profileId;
+    const facilitator = me === session.facilitatorId;
+    const done = () => {
+      this.push(`poker:${session.id}`, 'PokerChanged', [session.id]);
+      return route.fulfill({ status: 204 });
+    };
+    if (method === 'PUT' && rest === '/vote') {
+      if (!facilitator && !session.invitedIds.includes(me)) return route.fulfill({ status: 403 });
+      if (session.isRevealed) return problem(route, 409, 'Votes are already revealed.');
+      const value = body['value'] as MockCard | null;
+      if (value !== null && !DECK.includes(value))
+        return invalid(route, 'Value', 'Choose a card from the deck.');
+      if (value === null) session.votes.delete(me);
+      else session.votes.set(me, value);
+      return done();
+    }
+    if (method !== 'POST') return this.unknown(request);
+    if (!facilitator) return route.fulfill({ status: 403 });
+    switch (rest) {
+      case '/reveal':
+        session.isRevealed = true;
+        return done();
+      case '/revote':
+        session.votes.clear();
+        session.isRevealed = false;
+        session.round++;
+        return done();
+      case '/points': {
+        const points = Number(body['points']);
+        const story = this.items.find((i) => i.id === session.storyIds[session.index])!;
+        story.storyPoints = points;
+        session.lastStoryId = story.id;
+        session.lastPoints = points;
+        session.index++;
+        session.isClosed = session.index >= session.storyIds.length;
+        session.votes.clear();
+        session.isRevealed = false;
+        session.round = 1;
+        return done();
+      }
+      case '/end':
+        session.isClosed = true;
+        return done();
+    }
+    return this.unknown(request);
+  }
+
+  pokerDto(session: MockPokerSession, caller: MockAccount) {
+    const workspace = this.workspaces.find((w) => w.id === session.workspaceId)!;
+    const access = this.access(workspace, caller);
+    const story = this.items.find((i) => i.id === session.storyIds[session.index])!;
+    const next = this.items.find((i) => i.id === session.storyIds[session.index + 1]);
+    const ids = [
+      session.facilitatorId,
+      ...[...session.invitedIds].sort((a, b) => this.nameOf(a).localeCompare(this.nameOf(b))),
+    ];
+    const me = caller.profileId;
+    return {
+      id: session.id,
+      workspaceId: session.workspaceId,
+      facilitatorId: session.facilitatorId,
+      facilitatorName: this.nameOf(session.facilitatorId),
+      isFacilitator: me === session.facilitatorId,
+      canVote: access !== 'Staff' && ids.includes(me),
+      storyNumber: session.index + 1,
+      storyCount: session.storyIds.length,
+      story: {
+        id: story.id,
+        title: story.title,
+        description: story.description,
+        storyPoints: story.storyPoints,
+      },
+      nextStoryTitle: next?.title ?? null,
+      round: session.round,
+      isRevealed: session.isRevealed,
+      myVote: session.votes.get(me) ?? null,
+      participants: ids.map((id) => ({
+        profileId: id,
+        name: this.nameOf(id),
+        isFacilitator: id === session.facilitatorId,
+        hasVoted: session.votes.has(id),
+        vote: session.isRevealed || id === me ? (session.votes.get(id) ?? null) : null,
+      })),
+      lastStoryTitle: this.items.find((i) => i.id === session.lastStoryId)?.title ?? null,
+      lastPoints: session.lastPoints,
+    };
   }
 
   /** Only the owner and System Admin know an archived workspace exists; they may only restore it. */
@@ -857,6 +1060,7 @@ export class MockAgile {
         isOwner: id === workspace.ownerId,
         assignedStories: this.assigned(workspace, id, false),
         assignedTasks: this.assigned(workspace, id, true),
+        isYou: id === caller.profileId,
       }))
       .sort((a, b) => Number(b.isOwner) - Number(a.isOwner) || a.name.localeCompare(b.name));
     const summary = this.summary(workspace, caller);

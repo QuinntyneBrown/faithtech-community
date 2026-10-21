@@ -14,18 +14,18 @@ Any workspace member starts a session for a story and becomes its facilitator; i
 
 ## Description
 
-- **`PlanningPokerPage`** — session view with the story, deck, participant list with voted markers, and facilitator controls (mock `docs/mocks/pages/planning-poker`). The deck is the components library `EstimatePickerComponent`: pressing the pressed card withdraws the vote (mock `withdrawn`); a refused vote sets its `error` (mock `invalid`); a vote that fails to send restores the saved vote and shows a danger alert above the deck (mock `vote-failed`).
+- **`PlanningPokerPage`** — session view at `/workspaces/{id}/poker` with the story, deck (`ft-estimate-picker`), participant list with voted markers (`ft-estimate-card`), and facilitator controls: Reveal votes, End session, and after the reveal Final points, Set points and Re-vote (mock `docs/mocks/pages/planning-poker`). Pressing the pressed card withdraws the vote (mock `withdrawn`); a refused vote sets its `error` (mock `invalid`); a vote that fails to send restores the saved vote and shows a danger alert above the deck (mock `vote-failed`).
 - **`StartPokerDialog`** — CDK Dialog that picks the story and the members to invite (mock `docs/mocks/dialogs/start-poker`).
-- **`AgileService`** — `api` contract (`AGILE_SERVICE`, `HttpAgileService`) with `startPokerSession`.
-- **`PlanningPokerService`** — `api` contract behind `PLANNING_POKER_SERVICE`, implemented by `SignalRPlanningPokerService` over `@microsoft/signalr`, with automatic reconnect.
-- **`PokerEndpoints`** — minimal API mapping `POST /items/{id}/poker-sessions`.
-- **`PlanningPokerHub`** — SignalR hub in `FaithTech.Community.Api`. It authenticates the connection and forwards `Join`, `Vote`, `Reveal`, `Revote` and `SetPoints` to Application handlers; it holds no business logic.
-- **`StartPokerSessionHandler`**, **`CastVoteHandler`**, **`RevealVotesHandler`**, **`RevoteHandler`**, **`SetFinalPointsHandler`**, **`JoinPokerSessionHandler`** — Application handlers. Facilitator-only actions are refused for others; vote values are withheld from broadcasts until reveal.
+- **`AgileService`** — `api` contract (`AGILE_SERVICE`, `HttpAgileService`) with `startPokerSession`, `getCurrentPokerSession`, `getPokerSession`, `vote`, `revealVotes`, `revote`, `setFinalPoints` and `endPokerSession`. Every change goes over HTTP (ADR 0009).
+- **`AgileLiveService`** — `api` contract behind `AGILE_LIVE_SERVICE`, implemented by `SignalRAgileLiveService` over `@microsoft/signalr` with automatic reconnect. `watchPokerSession(id)` emits on each `PokerChanged` and after a reconnect, and the page re-reads the session.
+- **`WorkItemsEndpoints`** — maps `POST /workspaces/{id}/poker-sessions`, `GET /workspaces/{id}/poker-sessions/current` (204 when none is running), `GET /poker-sessions/{id}`, `PUT /poker-sessions/{id}/vote` (a null value withdraws the vote) and `POST /poker-sessions/{id}/reveal`, `/revote`, `/points` and `/end`.
+- **`AgileHub`** — the one SignalR hub (ADR 0009). `WatchPokerSession(sessionId)` joins `poker:{sessionId}` after `WorkspaceAccessPolicy` allows the caller; it holds no business logic.
+- **`PlanningPokerHandler`** — Application handler for start, current, get, vote, reveal, re-vote, final points and end. Facilitator-only actions are refused with 403 for others, Staff writes with 403 and outsiders with 404. Reads withhold other participants' vote values until the reveal and always return the caller's own vote.
 - **`WorkspaceAccessPolicy`** — Application service shared by every agile handler. It resolves the caller from `ICurrentUser` and classifies the caller as owner, member, Staff, System Admin or outsider for a workspace. Outsiders receive 404, Staff and non-owner members receive 403 on writes they lack, and System Admin actions pass and are written to the audit log (`L2-031`, `L2-042`).
 - **`PokerSession`** — Domain entity with `StoryIds`, `CurrentStoryId`, `FacilitatorId`, `Round`, `IsRevealed`, `InvitedIds` and `Votes`. Its constructor takes the workspace and refuses non-story items, items of another workspace and a facilitator or invitee who is not a member. Only the facilitator and invitees vote; `WithdrawVote` removes a participant's vote before the reveal; votes are fixed once revealed, so a late `CastVote` or `WithdrawVote` is refused; `Revote` clears them; `SetFinalPoints` updates the current story and moves to the next; persisting votes lets a reconnecting participant recover the current vote.
 - **`PokerVote`** — value of one participant in one round; `DeckValue` restricts the value to the deck.
-- **`IPokerBroadcaster`** — Application abstraction, implemented by `SignalRPokerBroadcaster`, that sends `VoteCast(profileId)`, `VotesRevealed(votes)`, `RevoteStarted` and `PointsSet` to the session group.
-- Session end and expiry rules are `<TO SUPPLY>`.
+- **`IPokerBroadcaster`** — Application abstraction, implemented by `SignalRAgileNotifier`, that sends `PokerChanged(sessionId)` to the session group after each saved change. It carries no votes.
+- A workspace has at most one open session (`409` otherwise). A session closes after its last story gets its points or when the facilitator ends it; there is no automatic expiry in v1. Only the facilitator and invitees vote; other members, Staff and System Admin watch.
 
 ## Requirements
 
@@ -99,5 +99,6 @@ Joining checks membership; Staff join as watchers and non-members are refused. A
 Decisions recorded while building the Domain layer (`FaithTech.Community.Domain`):
 
 - `L2-038` AC1 starts a session for one or more stories estimated one at a time; the session holds `StoryIds` and a current story instead of a single `StoryId`, and is complete after the last story. Resolved.
+- `PokerSession` also keeps `IsClosed`, `LastStoryId` and `LastPoints` so everyone sees the agreed estimate, and offers `WithdrawVote` (pressing the chosen card again) and `End`.
 - `DeckValue.Points()` maps each card to its points; `?` (`Unknown`) has none.
 - Domain rule violations throw `InvalidOperationException` (a broken rule) or `ArgumentException` (invalid input); there is no shared domain exception type. Handlers check permissions and preconditions first and map any remaining violation to a `400` or `409` result.
