@@ -10,7 +10,7 @@
  */
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { Injectable, computed, inject, signal } from '@angular/core';
-import { Observable, catchError, map, of, tap, throwError } from 'rxjs';
+import { Observable, catchError, firstValueFrom, map, of, switchMap, tap, throwError } from 'rxjs';
 
 import { API_BASE_URL } from '../config';
 import {
@@ -63,6 +63,16 @@ export class HttpAuthService implements AuthService {
 
   signOut(): Observable<void> {
     return this.oidc.signOut().pipe(tap(() => this.user.set(null)));
+  }
+
+  restoreSession(): Promise<boolean> {
+    return firstValueFrom(
+      this.oidc.refresh().pipe(
+        switchMap(() => this.loadCurrentUser()),
+        map(() => true),
+        catchError(() => of(false)),
+      ),
+    );
   }
 
   loadCurrentUser(): Observable<CurrentUser> {

@@ -1,4 +1,8 @@
-<div [class]="'alert alert--' + status()" [attr.role]="role()">
+<div
+  [class]="'alert alert--' + status()"
+  [attr.role]="role()"
+  [attr.tabindex]="focusable() ? -1 : null"
+>
   <ft-icon class="alert__icon" [name]="icon()" />
   <div class="alert__body">
     <div class="alert__title">{{ heading() }}</div>

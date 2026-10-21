@@ -96,6 +96,32 @@ describe('HttpAuthService', () => {
     },
   );
 
+  it('restores a stored session by refreshing and loading the current user', async () => {
+    sessionStorage.setItem('ft.oidc.refresh', 'r1');
+
+    const restored = service.restoreSession();
+    controller
+      .expectOne('https://app.test/connect/token')
+      .flush({ access_token: 'a1', refresh_token: 'r2', expires_in: 900 });
+    await vi.waitFor(() =>
+      controller
+        .expectOne('/api/me')
+        .flush({ id: 'u1', name: 'Ada', email: 'a@b.c', emailVerified: true, roles: [] }),
+    );
+
+    await expect(restored).resolves.toBe(true);
+    expect(service.isAuthenticated()).toBe(true);
+    expect(service.currentUser()?.name).toBe('Ada');
+    sessionStorage.clear();
+  });
+
+  it('reports no session when nothing is stored', async () => {
+    sessionStorage.clear();
+    localStorage.clear();
+
+    await expect(service.restoreSession()).resolves.toBe(false);
+  });
+
   it('loads the current user and exposes the roles', () => {
     const me = {
       id: 'u1',

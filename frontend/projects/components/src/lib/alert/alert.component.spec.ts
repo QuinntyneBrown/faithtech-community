@@ -9,6 +9,7 @@ import { AlertComponent, AlertStatus } from './alert.component';
       [status]="status()"
       heading="That did not work"
       [dismissible]="dismissible()"
+      [focusable]="focusable()"
       (dismissed)="dismissals = dismissals + 1"
     >
       We could not reach FaithTech.
@@ -19,6 +20,7 @@ import { AlertComponent, AlertStatus } from './alert.component';
 class HostComponent {
   status = signal<AlertStatus>('danger');
   dismissible = signal(false);
+  focusable = signal(false);
   dismissals = 0;
 }
 
@@ -55,6 +57,16 @@ describe('AlertComponent', () => {
   it('hides the status icon from assistive technology', () => {
     const { host } = setup();
     expect(host.querySelector('ft-icon svg')?.getAttribute('aria-hidden')).toBe('true');
+  });
+
+  it('can take programmatic focus as a form error summary', () => {
+    const { fixture, alert } = setup();
+    expect(alert().hasAttribute('tabindex')).toBe(false);
+
+    fixture.componentInstance.focusable.set(true);
+    fixture.detectChanges();
+
+    expect(alert().getAttribute('tabindex')).toBe('-1');
   });
 
   it('has no dismiss button unless dismissible', () => {

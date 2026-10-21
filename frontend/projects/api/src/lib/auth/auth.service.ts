@@ -47,6 +47,8 @@ export interface AuthService {
   signInWithPassword(email: string, password: string): Observable<SignInOutcome>;
   signOut(): Observable<void>;
   loadCurrentUser(): Observable<CurrentUser>;
+  /** On app start: exchanges a stored refresh token and loads the member; false when there is no session. */
+  restoreSession(): Promise<boolean>;
 
   signUp(request: SignUpRequest): Observable<void>;
   confirmEmail(userId: string, token: string): Observable<void>;

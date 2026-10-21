@@ -1,11 +1,11 @@
-/*
- * SCAFFOLD: placeholder, not the implementation.
- * Generated from AGENTS.md and:
- *   - docs/detailed-designs/identity/sign-in-and-sign-out
- *   - docs/detailed-designs/profiles/view-profile
- * Overwrite this file with the expected implementation (implementing-incrementally
- * skill + ATDD), then delete this comment.
- */
-import { CanActivateFn } from '@angular/router';
+import { inject } from '@angular/core';
+import { CanActivateFn, Router } from '@angular/router';
+import { AUTH_SERVICE } from '@faithtech-community/api';
 
-export const authGuard: CanActivateFn = () => true;
+/** Sends a signed-out visitor to sign in, remembering the page they asked for (L2-003 AC1). */
+export const authGuard: CanActivateFn = (_route, state) => {
+  const auth = inject(AUTH_SERVICE);
+  return auth.isAuthenticated()
+    ? true
+    : inject(Router).createUrlTree(['/sign-in'], { queryParams: { returnUrl: state.url } });
+};
