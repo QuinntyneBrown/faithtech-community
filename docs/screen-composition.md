@@ -36,7 +36,7 @@ Coverage: the profiles screens (`profile`, `edit-profile`, `delete-photo`), the 
 
 ### Audit log — `/admin/audit-log` (`pages/audit-log`: default, loading, empty, error, no-results)
 
-- Library: `PageHeaderComponent` with *Export CSV* (`ButtonComponent`, `IconComponent` `export`), `TabsComponent` + `TabComponent`, `FormFieldComponent` + `SelectComponent` "Action" (all, role changes, suspensions, private contact access, deletions), `TableComponent` (When monospaced, Who, What), `ListSkeletonComponent`, `EmptyStateComponent` (empty; no-results "No {category} in the last 90 days" with *Show all actions*; error; forbidden as on admin users), `ButtonComponent` *Show older entries* when more than 50.
+- Library: `PageHeaderComponent` with *Export CSV* (`ButtonComponent`, `IconComponent` `export`), `TabsComponent` + `TabComponent`, `FormFieldComponent` + `SelectComponent` "Action" (all, role changes, suspensions, private contact access, deletions), `TableComponent` (When monospaced, Who, What; `loading` shows skeleton rows under the headers), `EmptyStateComponent` (empty; no-results "No {category} in the last 90 days" with *Show all actions*; error; forbidden as on admin users), `ButtonComponent` *Show older entries* when more than 50.
 - Local: the CSV download glue (object URL and a temporary link).
 
 ### Invites — `/invites` (`pages/invites`: default, loading, empty, error)
