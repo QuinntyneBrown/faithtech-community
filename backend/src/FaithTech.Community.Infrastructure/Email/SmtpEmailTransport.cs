@@ -7,7 +7,7 @@ using MimeKit;
 namespace FaithTech.Community.Infrastructure.Email;
 
 /// <summary>Sends through SMTP, which also covers the SendGrid SMTP relay.</summary>
-public class SmtpEmailSender(IOptions<SmtpOptions> options) : IEmailSender
+public class SmtpEmailTransport(IOptions<SmtpOptions> options) : IEmailTransport
 {
     public async Task SendAsync(EmailMessage message, CancellationToken cancellationToken = default)
     {

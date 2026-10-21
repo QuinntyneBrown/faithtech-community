@@ -56,7 +56,10 @@ public static class DependencyInjection
         services.AddScoped<IVerificationResendLog, VerificationResendLog>();
         services.AddScoped<ITokenRevocation, TokenRevocation>();
         services.Configure<SmtpOptions>(configuration.GetSection(SmtpOptions.Section));
-        services.AddScoped<IEmailSender, SmtpEmailSender>();
+        services.AddScoped<IEmailSender, OutboxEmailSender>();
+        services.AddScoped<IEmailTransport, SmtpEmailTransport>();
+        services.AddScoped<EmailOutboxDispatcher>();
+        services.AddHostedService<EmailOutboxWorker>();
 
         services.AddSingleton(_ => new BlobServiceClient(configuration.GetConnectionString("Blobs")));
 

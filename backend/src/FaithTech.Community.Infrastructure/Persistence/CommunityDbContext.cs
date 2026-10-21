@@ -1,6 +1,7 @@
 using FaithTech.Community.Application.Common;
 using FaithTech.Community.Application.Identity;
 using FaithTech.Community.Domain.Profiles;
+using FaithTech.Community.Infrastructure.Email;
 using FaithTech.Community.Infrastructure.Identity;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
@@ -14,6 +15,8 @@ public class CommunityDbContext(DbContextOptions<CommunityDbContext> options)
     public DbSet<Profile> Profiles => Set<Profile>();
 
     public DbSet<VerificationResend> VerificationResends => Set<VerificationResend>();
+
+    public DbSet<OutboxMessage> OutboxMessages => Set<OutboxMessage>();
 
     protected override void OnModelCreating(ModelBuilder builder)
     {
@@ -30,6 +33,14 @@ public class CommunityDbContext(DbContextOptions<CommunityDbContext> options)
         {
             resend.Property(r => r.NormalizedEmail).HasMaxLength(256);
             resend.HasIndex(r => new { r.NormalizedEmail, r.RequestedAt });
+        });
+
+        builder.Entity<OutboxMessage>(message =>
+        {
+            message.Property(m => m.To).HasMaxLength(256);
+            message.Property(m => m.Subject).HasMaxLength(300);
+            message.Property(m => m.LastError).HasMaxLength(500);
+            message.HasIndex(m => new { m.SentAt, m.NextAttemptAt });
         });
 
         builder.Entity<CommunityUser>()

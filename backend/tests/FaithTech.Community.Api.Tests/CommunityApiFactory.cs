@@ -44,6 +44,8 @@ public class CommunityApiFactory : WebApplicationFactory<Program>, IAsyncLifetim
         builder.UseSetting("WebApp:Origin", WebAppOrigin);
         // Tests share one client address; the rate-limit tests restore the production limit explicitly.
         builder.UseSetting("RateLimits:AuthPerMinute", "100000");
+        // Tests dispatch the outbox explicitly.
+        builder.UseSetting("Outbox:Enabled", "false");
         builder.ConfigureTestServices(services =>
         {
             services.RemoveAll<IDbContextOptionsConfiguration<CommunityDbContext>>();
