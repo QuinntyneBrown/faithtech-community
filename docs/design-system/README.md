@@ -116,7 +116,7 @@ Each component page documents variants, sizes and the full state matrix in both 
 | pages/events, pages/search (loading) | Round avatar skeletons where rows have square date badges | Documented on Event card and Search results |
 | pages/profile | Samuel's photos copied from Grace's, with alt text describing her (fixed, #76); loading uses text skeletons for square tiles (fixed, #77) | Fixed in the mocks |
 | pages/public-event/cancelled | Says "FaithTech Toronto" and Kestrel Labs for the Austin panel | Flagged for the mocks |
-| pages/search | Work-item rows borrow `.sticker` as an icon tile | Documented: use an icon tile, not the estimate card |
+| pages/search, invites, announcements, workspaces | Rows borrow `.sticker` as an icon tile | Fixed: `.icon-tile`; the estimate card and picker are `.estimate-card` and `.estimate-choice`, and the unused `.sticker__img`, `--xl` and `--bob` are removed |
 | pages/contact | Gap between note text and date relies on default paragraph margins | `.note__meta` owns the gap |
 | assets/ui-extra.css | `.event-card__title` had no `data-state="hover"` hook | Added in components.css |
 | notifications/toast (rsvp failed) | "Retry" where every other failure says "Try again" | Content page: always "Try again" |

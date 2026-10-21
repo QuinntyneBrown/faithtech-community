@@ -19,11 +19,7 @@
 } @else {
   <div class="ft-profile-header">
     <div class="ft-profile-header__head">
-      @if (photoUrl(); as url) {
-        <ft-sticker size="xl" [src]="url" />
-      } @else {
-        <ft-avatar size="xl" [name]="name()" [color]="avatarColor()" />
-      }
+      <ft-avatar size="xl" [name]="name()" [color]="avatarColor()" [src]="photoUrl()" />
       <div class="ft-profile-header__body">
         <h1 class="ft-profile-header__name">{{ name() }}</h1>
         <div class="ft-profile-header__roles">

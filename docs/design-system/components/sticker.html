@@ -90,7 +90,7 @@
     <header class="ds-header">
       <p class="ds-kicker">Component · Workspaces</p>
       <h1>Estimate card</h1>
-      <p class="ds-lead">A small round card at the end of a row in the Planning Poker votes list. Before the reveal it shows only whether someone has voted (✓ or …); after the reveal it shows their points. Class names (<code>.sticker</code>) are inherited from Shelfie and kept unchanged.</p>
+      <p class="ds-lead">A small round card at the end of a row in the Planning Poker votes list. Before the reveal it shows only whether someone has voted (✓ or …); after the reveal it shows their points. Its class is <code>.estimate-card</code>.</p>
       <div class="ds-meta"><span class="ds-pill ds-pill--ok">WCAG 2.2 AA</span><span class="ds-pill">Status: stable</span><span class="ds-pill"><code>&lt;ft-estimate-card&gt;</code></span></div>
       <ul class="ds-toc">
         <li><a href="#overview">Overview</a></li><li><a href="#anatomy">Anatomy</a></li><li><a href="#variants">Variants</a></li><li><a href="#sizes">Sizes</a></li><li><a href="#states">States</a></li><li><a href="#responsive">Responsive</a></li><li><a href="#theming">Theming</a></li><li><a href="#accessibility">Accessibility</a></li><li><a href="#content">Content</a></li><li><a href="#do-dont">Do and don't</a></li><li><a href="#tokens">Tokens</a></li><li><a href="#code">Code</a></li><li><a href="#sources">Sources</a></li>
@@ -103,9 +103,9 @@
 
     <section class="ds-section" id="anatomy"><h2><a href="#anatomy">Anatomy</a></h2>
       <div class="ds-anatomy">
-        <figure class="ds-anatomy__figure" style="max-width: 24rem;"><div class="card card--flush"><ul class="list"><li class="list__item"><span class="avatar avatar--sm avatar--sun" aria-hidden="true">ML</span><div class="list__body"><div class="list__title">Marcus Lee · facilitator</div></div><span class="sticker" role="img" aria-label="Marcus Lee: 8 points">8</span></li><li class="list__item"><span class="avatar avatar--sm avatar--sky" aria-hidden="true">GO</span><div class="list__body"><div class="list__title">Grace Okonkwo</div></div><span class="sticker" role="img" aria-label="Grace Okonkwo: 8 points">8</span></li></ul></div></figure>
+        <figure class="ds-anatomy__figure" style="max-width: 24rem;"><div class="card card--flush"><ul class="list"><li class="list__item"><span class="avatar avatar--sm avatar--sun" aria-hidden="true">ML</span><div class="list__body"><div class="list__title">Marcus Lee · facilitator</div></div><span class="estimate-card" role="img" aria-label="Marcus Lee: 8 points">8</span></li><li class="list__item"><span class="avatar avatar--sm avatar--sky" aria-hidden="true">GO</span><div class="list__body"><div class="list__title">Grace Okonkwo</div></div><span class="estimate-card" role="img" aria-label="Grace Okonkwo: 8 points">8</span></li></ul></div></figure>
         <ol class="ds-anatomy__list">
-          <li><div><b>Circle</b><small>Accent-subtle background, <code>--radius-full</code>, sized by <code>--sticker-size</code>.</small></div></li>
+          <li><div><b>Circle</b><small>Accent-subtle background, <code>--radius-full</code>, sized by <code>--estimate-card-size</code>.</small></div></li>
           <li><div><b>Value</b><small>The points, or ✓ / … before the reveal.</small></div></li>
           <li><div><b>Name</b><small><code>role="img"</code> with an <code>aria-label</code> that says who and what: "Grace Okonkwo: 8 points".</small></div></li>
         </ol>
@@ -113,7 +113,7 @@
     </section>
 
     <section class="ds-section" id="variants"><h2><a href="#variants">Variants</a></h2>
-      <div class="ds-example"><div class="ds-example__canvas"><span class="sticker" role="img" aria-label="Grace Okonkwo: voted">✓</span> <span class="sticker" role="img" aria-label="Samuel Mensah: still choosing">…</span> <span class="sticker" role="img" aria-label="Grace Okonkwo: 8 points">8</span> <span class="sticker" role="img" aria-label="Samuel Mensah: 13 points">13</span> <span class="sticker" role="img" aria-label="Ruth Alvarez: unsure">?</span></div></div>
+      <div class="ds-example"><div class="ds-example__canvas"><span class="estimate-card" role="img" aria-label="Grace Okonkwo: voted">✓</span> <span class="estimate-card" role="img" aria-label="Samuel Mensah: still choosing">…</span> <span class="estimate-card" role="img" aria-label="Grace Okonkwo: 8 points">8</span> <span class="estimate-card" role="img" aria-label="Samuel Mensah: 13 points">13</span> <span class="estimate-card" role="img" aria-label="Ruth Alvarez: unsure">?</span></div></div>
       <ul>
         <li><b>Voted</b> (✓) and <b>still choosing</b> (…) before the reveal, so nobody is anchored by another vote.</li>
         <li><b>Points</b> after the reveal, including "?" for Unsure.</li>
@@ -121,17 +121,17 @@
     </section>
 
     <section class="ds-section" id="sizes"><h2><a href="#sizes">Sizes</a></h2>
-      <div class="ds-example"><div class="ds-example__canvas"><span class="sticker" role="img" aria-label="Medium: 8 points">8</span> <span class="sticker sticker--lg" role="img" aria-label="Large: 8 points">8</span></div></div>
-      <p>The votes list uses the default size (<code>--size-avatar-md</code>). <code>.sticker--lg</code> is available for a summary such as "Marcus set 8 points" but no mock uses it yet; <code>--xl</code> and <code>--bob</code> are inherited and unused.</p>
+      <div class="ds-example"><div class="ds-example__canvas"><span class="estimate-card" role="img" aria-label="Medium: 8 points">8</span> <span class="estimate-card estimate-card--lg" role="img" aria-label="Large: 8 points">8</span></div></div>
+      <p>The votes list uses the default size (<code>--size-avatar-md</code>). <code>.estimate-card--lg</code> is for a summary such as "Marcus set 8 points". There are no other sizes; the inherited <code>--xl</code>, <code>--bob</code> and picture overlay were removed.</p>
     </section>
 
     <section class="ds-section" id="states"><h2><a href="#states">States</a></h2>
       <div class="ds-matrix"><table>
         <thead><tr><th scope="col">State</th><th scope="col">Example</th></tr></thead>
         <tbody>
-          <tr><th scope="row">Hidden: still choosing</th><td><span class="sticker" role="img" aria-label="Samuel Mensah: still choosing">…</span></td></tr>
-          <tr><th scope="row">Hidden: voted</th><td><span class="sticker" role="img" aria-label="Grace Okonkwo: voted">✓</span></td></tr>
-          <tr><th scope="row">Revealed</th><td><span class="sticker" role="img" aria-label="Samuel Mensah: 13 points">13</span></td></tr>
+          <tr><th scope="row">Hidden: still choosing</th><td><span class="estimate-card" role="img" aria-label="Samuel Mensah: still choosing">…</span></td></tr>
+          <tr><th scope="row">Hidden: voted</th><td><span class="estimate-card" role="img" aria-label="Grace Okonkwo: voted">✓</span></td></tr>
+          <tr><th scope="row">Revealed</th><td><span class="estimate-card" role="img" aria-label="Samuel Mensah: 13 points">13</span></td></tr>
         </tbody>
       </table></div>
       <p>The card is not interactive, so it has no hover, focus, active or disabled state. Loading, error and empty belong to the Planning Poker page, which replaces the whole session.</p>
@@ -142,7 +142,7 @@
     </section>
 
     <section class="ds-section" id="theming"><h2><a href="#theming">Theming</a></h2>
-      <div class="ds-themes"><div data-theme="light"><div class="card card--flush"><ul class="list"><li class="list__item"><span class="avatar avatar--sm avatar--sun" aria-hidden="true">ML</span><div class="list__body"><div class="list__title">Marcus Lee · facilitator</div></div><span class="sticker" role="img" aria-label="Marcus Lee: 8 points">8</span></li><li class="list__item"><span class="avatar avatar--sm avatar--sky" aria-hidden="true">GO</span><div class="list__body"><div class="list__title">Grace Okonkwo</div></div><span class="sticker" role="img" aria-label="Grace Okonkwo: 8 points">8</span></li></ul></div></div><div data-theme="dark"><div class="card card--flush"><ul class="list"><li class="list__item"><span class="avatar avatar--sm avatar--sun" aria-hidden="true">ML</span><div class="list__body"><div class="list__title">Marcus Lee · facilitator</div></div><span class="sticker" role="img" aria-label="Marcus Lee: voted">✓</span></li><li class="list__item"><span class="avatar avatar--sm avatar--sky" aria-hidden="true">GO</span><div class="list__body"><div class="list__title">Grace Okonkwo</div></div><span class="sticker" role="img" aria-label="Grace Okonkwo: voted">✓</span></li></ul></div></div></div>
+      <div class="ds-themes"><div data-theme="light"><div class="card card--flush"><ul class="list"><li class="list__item"><span class="avatar avatar--sm avatar--sun" aria-hidden="true">ML</span><div class="list__body"><div class="list__title">Marcus Lee · facilitator</div></div><span class="estimate-card" role="img" aria-label="Marcus Lee: 8 points">8</span></li><li class="list__item"><span class="avatar avatar--sm avatar--sky" aria-hidden="true">GO</span><div class="list__body"><div class="list__title">Grace Okonkwo</div></div><span class="estimate-card" role="img" aria-label="Grace Okonkwo: 8 points">8</span></li></ul></div></div><div data-theme="dark"><div class="card card--flush"><ul class="list"><li class="list__item"><span class="avatar avatar--sm avatar--sun" aria-hidden="true">ML</span><div class="list__body"><div class="list__title">Marcus Lee · facilitator</div></div><span class="estimate-card" role="img" aria-label="Marcus Lee: voted">✓</span></li><li class="list__item"><span class="avatar avatar--sm avatar--sky" aria-hidden="true">GO</span><div class="list__body"><div class="list__title">Grace Okonkwo</div></div><span class="estimate-card" role="img" aria-label="Grace Okonkwo: voted">✓</span></li></ul></div></div></div>
       <p>Role tokens only: <code>--color-accent-subtle</code> behind default text.</p>
     </section>
 
@@ -163,10 +163,10 @@
 
     <section class="ds-section" id="do-dont"><h2><a href="#do-dont">Do and don't</a></h2>
       <div class="ds-dodont">
-        <figure class="ds-do"><div class="ds-example__canvas"><span class="sticker" role="img" aria-label="Grace Okonkwo: voted">✓</span></div><figcaption>Hide the value until the facilitator reveals votes.</figcaption></figure>
-        <figure class="ds-dont"><div class="ds-example__canvas"><span class="sticker" role="img" aria-label="Grace Okonkwo: 8 points">8</span> <span class="text-muted">before reveal</span></div><figcaption>Showing points early anchors everyone else.</figcaption></figure>
-        <figure class="ds-do"><div class="ds-example__canvas"><span class="sticker" role="img" aria-label="Hannah Kim: 5 points">5</span></div><figcaption>Name the person and the points.</figcaption></figure>
-        <figure class="ds-dont"><div class="ds-example__canvas"><span class="sticker" aria-hidden="true">5</span></div><figcaption>Hidden from assistive tech, the vote is lost.</figcaption></figure>
+        <figure class="ds-do"><div class="ds-example__canvas"><span class="estimate-card" role="img" aria-label="Grace Okonkwo: voted">✓</span></div><figcaption>Hide the value until the facilitator reveals votes.</figcaption></figure>
+        <figure class="ds-dont"><div class="ds-example__canvas"><span class="estimate-card" role="img" aria-label="Grace Okonkwo: 8 points">8</span> <span class="text-muted">before reveal</span></div><figcaption>Showing points early anchors everyone else.</figcaption></figure>
+        <figure class="ds-do"><div class="ds-example__canvas"><span class="estimate-card" role="img" aria-label="Hannah Kim: 5 points">5</span></div><figcaption>Name the person and the points.</figcaption></figure>
+        <figure class="ds-dont"><div class="ds-example__canvas"><span class="estimate-card" aria-hidden="true">5</span></div><figcaption>Hidden from assistive tech, the vote is lost.</figcaption></figure>
       </div>
     </section>
 
@@ -186,9 +186,9 @@
 &lt;ft-estimate-card [person]="'Grace Okonkwo'" [vote]="vote" [revealed]="revealed" /&gt;
 
 &lt;!-- HTML --&gt;
-&lt;span class="sticker" role="img" aria-label="Grace Okonkwo: 8 points"&gt;8&lt;/span&gt;</code></pre>
+&lt;span class="estimate-card" role="img" aria-label="Grace Okonkwo: 8 points"&gt;8&lt;/span&gt;</code></pre>
       <table class="ds-table"><thead><tr><th scope="col">Class / input</th><th scope="col">Effect</th></tr></thead><tbody>
-        <tr><td><code>.sticker</code>, <code>.sticker--lg</code></td><td>The round card, and its larger size.</td></tr>
+        <tr><td><code>.estimate-card</code>, <code>.estimate-card--lg</code></td><td>The round card, and its larger size.</td></tr>
         <tr><td><code>person</code>, <code>vote</code>, <code>revealed</code></td><td>Builds the label; shows ✓ / … until <code>revealed</code>, then the points.</td></tr>
       </tbody></table>
     </section>
@@ -197,7 +197,7 @@
       <ul>
         <li><a href="../../mocks/pages/planning-poker/default.html">pages/planning-poker</a>: default, <a href="../../mocks/pages/planning-poker/staff.html">staff</a> (hidden votes); <a href="../../mocks/pages/planning-poker/revealed.html">revealed</a>, <a href="../../mocks/pages/planning-poker/facilitator.html">facilitator</a>, <a href="../../mocks/pages/planning-poker/agreed.html">agreed</a> (points)</li>
       </ul>
-      <p>Drift: an Unsure ("?") vote is never shown revealed in the mocks; the class name still carries the inherited "sticker" name, and the inherited picture overlay (<code>.sticker__img</code>) is unused.</p>
+      <p>Drift: an Unsure ("?") vote is never shown revealed in the mocks.</p>
     </section>
 
     <footer class="ds-footer"><span>FaithTech Community design system · extracted from <a href="../../mocks/index.html">docs/mocks</a> on 2026-10-21</span><a href="#top">Back to top</a></footer>
