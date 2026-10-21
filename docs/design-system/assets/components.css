@@ -292,6 +292,12 @@ button.avatar:hover, button.avatar[data-state="hover"] { box-shadow: 0 0 0 var(-
 .menu__item:focus-visible, .menu__item[data-state="focus"] { outline-offset: calc(-1 * var(--focus-ring-width)); }
 .menu__item[aria-disabled="true"] { color: var(--color-fg-disabled); cursor: not-allowed; }
 .menu__divider { border-top: var(--border-width-hairline) solid var(--color-border-default); margin: var(--space-1) 0; }
+/* Identity header: who is signed in. Not an item, never focused. */
+.menu__header { display: flex; flex-direction: column; padding: var(--space-2) var(--space-3); }
+.menu__title { font: var(--text-label); color: var(--color-fg-default); }
+/* Account menu: opened from the top-bar avatar (a popover in the mocks), pinned under the bar's end edge. */
+.menu--account { position: fixed; inset: calc(var(--space-2) + var(--layout-topbar-height)) var(--layout-margin) auto auto; margin: var(--space-1) 0 0; color: var(--color-fg-default); }
+
 
 /* ---------- Dialog ------------------------------------------------------------ */
 .backdrop { position: fixed; inset: 0; background: var(--color-bg-backdrop); z-index: var(--z-overlay); animation: fade-in var(--duration-base) var(--ease-enter); }

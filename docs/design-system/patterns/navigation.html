@@ -133,7 +133,7 @@
             <span class="topbar__spacer"></span>
             <form class="topbar__search" role="search" action="../../mocks/pages/search/default.html"><label class="visually-hidden" for="nv-q">Search FaithTech</label><input class="input input--sm" id="nv-q" name="q" type="search" placeholder="Search people, events, partners"></form>
             <div class="bell-anchor"><button class="btn btn--ghost btn--icon" type="button" aria-label="Notifications, 3 unread" aria-expanded="false"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><path d="M6 16V11a6 6 0 0 1 12 0v5l2 2H4zM10 20a2 2 0 0 0 4 0"/></svg><span class="badge badge--count" aria-hidden="true">3</span></button></div>
-            <a class="avatar-trigger" href="../../mocks/pages/profile/own.html" aria-label="Your profile, Grace Okonkwo"><span class="avatar avatar--sm avatar--sky" aria-hidden="true">GO</span></a>
+            <button class="avatar-trigger" type="button" aria-haspopup="menu" aria-label="Account menu for Grace Okonkwo"><span class="avatar avatar--sm avatar--sky" aria-hidden="true">GO</span></button>
           </header>
         </div>
         <div class="ds-example__caption"><span>The top bar on pages/contacts/default. Between 768px and 1023px, Team, Announcements and People (<code>.nav-link--secondary</code>) are hidden. Search appears from 1024px.</span></div>
@@ -150,7 +150,7 @@
     &lt;input class="input input--sm" id="global-q" name="q" type="search"&gt;
   &lt;/form&gt;
   &lt;div class="bell-anchor"&gt;&lt;button … aria-label="Notifications, 3 unread"&gt;…&lt;/button&gt;&lt;/div&gt;
-  &lt;a class="avatar-trigger" href="/profile" aria-label="Your profile, Grace Okonkwo"&gt;…&lt;/a&gt;
+  &lt;button class="avatar-trigger" type="button" aria-haspopup="menu" aria-label="Account menu for Grace Okonkwo"&gt;…&lt;/button&gt;
 &lt;/header&gt;</code></pre></details>
       </div>
       <h3>Tab bar (phones)</h3>
@@ -211,7 +211,7 @@
         <li>Each navigation region is a labelled <code>&lt;nav&gt;</code>: "Primary", "Primary, phone", "Breadcrumb" and "Admin sections" or "Workspace sections".</li>
         <li>The current page is marked with <code>aria-current="page"</code> on nav links, tab bar items, tabs and the last breadcrumb item. Tabs that lead to other URLs are links in a <code>nav</code>, not ARIA <code>tablist</code> widgets.</li>
         <li>The search form has <code>role="search"</code> and a visually hidden label, "Search FaithTech".</li>
-        <li>The avatar link's name is "Your profile, Grace Okonkwo". The bell's name includes the unread count.</li>
+        <li>The avatar is a menu button named "Account menu for Grace Okonkwo"; its menu holds Your profile, Settings and Sign out. The bell's name includes the unread count.</li>
         <li>"Skip to content" is the first element you can tab to, and it becomes visible on focus.</li>
         <li>Tab bar targets are at least 44px tall (<code>--target-comfortable</code>).</li>
       </ul>

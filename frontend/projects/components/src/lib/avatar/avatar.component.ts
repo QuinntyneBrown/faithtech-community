@@ -26,7 +26,11 @@ export class AvatarComponent {
   /** URL of the member's featured photo; initials show without one. */
   readonly src = input<string | null>(null);
 
-  protected readonly failedSrc = signal<string | null>(null);
+  /**
+   * Draws the initials with CSS instead of writing them, for an avatar that is the face of another
+   * control (the account menu button), so that control's name is only its label (WCAG 2.5.3).
+   */
+  readonly drawn = input(false);
 
   protected readonly initials = computed(() => {
     const parts = this.name().trim().split(/\s+/).filter(Boolean);

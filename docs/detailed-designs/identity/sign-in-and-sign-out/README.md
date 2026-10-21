@@ -15,6 +15,7 @@ The web app redirects to the sign-in page, which posts credentials to the identi
 ## Description
 
 - **`SignInPage`** — Angular page in the app shell, matching the `sign-in` mock. It posts credentials, shows a generic "email or password is incorrect" error, the lockout message, the suspended-account message and the unverified-email notice.
+- **`AppShellComponent` account menu** — the top-bar avatar in the app shell is an `ft-menu` (`MenuComponent` from `components`) named "Account menu for {name}" at every width, holding *Your profile* (`/people/me`), *Settings* (`/settings`) and *Sign out*, which calls `AUTH_SERVICE.signOut()` (mock: every signed-in page, design system `components/menu`).
 - **`authGuard`** — Angular route guard in the app shell. It stores the requested URL and starts the authorization code + PKCE flow when no valid session exists.
 - **`OidcAuthClient`** — `api` library class behind `AUTH_SERVICE`. It generates the code verifier and challenge, exchanges the code, stores tokens, refreshes silently on 401 or expiry and calls the revocation endpoint on sign-out.
 - **`authInterceptor`** — `api` library HTTP interceptor. It attaches the access token and triggers a silent refresh.
@@ -43,6 +44,7 @@ The feature realizes the following level-2 (L2) requirements. Each L2 requiremen
 6. Given a signed-in user, when they sign out, then their tokens are revoked, and any further API call with those tokens returns 401.
 7. Given an expired access token and a valid refresh token, when the app calls the API, then the token is refreshed silently.
 8. Given "Keep me signed in on this device" is not ticked, when the browser session ends, then the refresh token is discarded and the user must sign in again.
+9. Given a signed-in user on any page and at any width, when they open the account menu from their avatar in the top bar, then it offers "Your profile", "Settings" and "Sign out", and "Sign out" ends the session on this device as in criterion 6.
 
 ## Diagrams
 
