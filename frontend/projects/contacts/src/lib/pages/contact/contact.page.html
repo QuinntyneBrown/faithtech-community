@@ -5,20 +5,21 @@
       <ft-breadcrumb-item>Contact</ft-breadcrumb-item>
     </ft-breadcrumb>
     <ft-page-header title="Contact" />
-    <ft-split aria-busy="true" aria-label="Loading contact">
-      <ft-card ftSplitMain>
+    <ft-split>
+      <ft-card ftSplitMain heading="Your notes" aria-busy="true" aria-label="Loading notes">
         <ft-stack>
-          <ft-skeleton shape="title" />
-          <ft-skeleton />
-          <ft-skeleton />
+          <ft-note [loading]="true" />
+          <ft-note [loading]="true" />
         </ft-stack>
       </ft-card>
-      <ft-card ftSplitAside>
-        <ft-stack>
-          <ft-skeleton shape="title" />
-          <ft-skeleton />
-          <ft-skeleton />
-        </ft-stack>
+      <ft-card ftSplitAside heading="Details">
+        <ft-description-list [loading]="true">
+          <ft-description-list-item label="Email" />
+          <ft-description-list-item label="Phone" />
+          <ft-description-list-item label="Organisation" />
+          <ft-description-list-item label="City" />
+          <ft-description-list-item label="Added" />
+        </ft-description-list>
       </ft-card>
     </ft-split>
   }
@@ -89,7 +90,7 @@
               @for (note of notes(); track note.id) {
                 <ft-note [date]="day(note.createdAtUtc)">{{ note.body }}</ft-note>
               } @empty {
-                <p class="text-muted">No notes yet. Add what you’d like to remember about them.</p>
+                <p class="text-muted">No notes yet. Only you will see what you write here.</p>
               }
             </ft-stack>
           </ft-card>
@@ -100,16 +101,19 @@
               <ft-photo class="photo" [src]="c.photoUrl" [alt]="c.photoAltText ?? c.name" />
             }
             <ft-description-list>
-              <ft-description-list-item label="Email">{{
-                c.email ?? '—'
+              <ft-description-list-item label="Email" [missing]="!c.email">
+                <ft-link [href]="'mailto:' + c.email">{{ c.email }}</ft-link>
+              </ft-description-list-item>
+              <ft-description-list-item label="Phone" [missing]="!c.phone">{{
+                c.phone
               }}</ft-description-list-item>
-              <ft-description-list-item label="Phone">{{
-                c.phone ?? '—'
+              <ft-description-list-item label="Organisation" [missing]="!c.organization">{{
+                c.organization
               }}</ft-description-list-item>
-              <ft-description-list-item label="Organisation">{{
-                c.organization ?? '—'
+              <ft-description-list-item label="City" [missing]="!c.city">{{
+                c.city
               }}</ft-description-list-item>
-              <ft-description-list-item label="City">{{ c.city ?? '—' }}</ft-description-list-item>
+              <ft-description-list-item label="Added">{{ added(c) }}</ft-description-list-item>
             </ft-description-list>
             @if (c.linkedProfileId; as profileId) {
               <ft-link [href]="'/people/' + profileId">View their profile</ft-link>

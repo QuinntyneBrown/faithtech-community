@@ -24,6 +24,7 @@ function contactDto(overrides: Partial<ContactDto> = {}): ContactDto {
     archivedAtUtc: null,
     noteCount: 0,
     isOwn: true,
+    createdAtUtc: '2026-10-02T12:00:00Z',
     ...overrides,
   };
 }
@@ -81,7 +82,11 @@ describe('ContactPage', () => {
       'Phone: 416-555-0142',
       'Organisation: Harbour Light Shelter',
       'City: Toronto',
+      'Added: Fri 2 Oct by you',
     ]);
+    expect(host.querySelector('dd a')!.getAttribute('href')).toBe(
+      'mailto:tomas.ortega@example.org',
+    );
     expect(button('Edit')!.getAttribute('href')).toBe('/contacts/c1/edit');
   });
 
@@ -160,7 +165,7 @@ describe('ContactPage', () => {
   it('invites the lead to add a first note', async () => {
     const { text } = await setupContactPage(() => of(contactDto()));
 
-    expect(text()).toContain('No notes yet');
+    expect(text()).toContain('No notes yet. Only you will see what you write here.');
   });
 
   it('archives the contact after the dialog confirms and returns to the list', async () => {
@@ -220,5 +225,12 @@ describe('ContactPage', () => {
     await settle();
 
     expect(text()).not.toContain('has joined FaithTech');
+  });
+
+  it('keeps a missing fact’s row and says it was not added', async () => {
+    const { host } = await setupContactPage(() => of(contactDto({ phone: null, email: null })));
+
+    const values = Array.from(host.querySelectorAll('dd')).map((d) => d.textContent!.trim());
+    expect(values.slice(0, 2)).toEqual(['Not added', 'Not added']);
   });
 });

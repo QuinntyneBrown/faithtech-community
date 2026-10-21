@@ -83,21 +83,27 @@
         </ft-card>
         <ft-card ftSplitAside heading="Details">
           <ft-description-list>
-            <ft-description-list-item label="Contact">{{
-              p.contactName ?? '—'
+            <ft-description-list-item label="Contact" [missing]="!p.contactName">{{
+              p.contactName
             }}</ft-description-list-item>
-            <ft-description-list-item label="Email">{{ p.email ?? '—' }}</ft-description-list-item>
-            <ft-description-list-item label="Phone">{{ p.phone ?? '—' }}</ft-description-list-item>
-            <ft-description-list-item label="Website">{{
-              p.website ?? '—'
+            <ft-description-list-item label="Email" [missing]="!p.email">
+              <ft-link [href]="'mailto:' + p.email">{{ p.email }}</ft-link>
+            </ft-description-list-item>
+            <ft-description-list-item label="Phone" [missing]="!p.phone">{{
+              p.phone
             }}</ft-description-list-item>
-            <ft-description-list-item label="Offering">{{
-              p.offering ?? '—'
+            <ft-description-list-item label="Website" [missing]="!p.website">{{
+              p.website
             }}</ft-description-list-item>
-            <ft-description-list-item label="Owner">{{
-              p.ownerName ?? '—'
+            <ft-description-list-item label="Offering" [missing]="!p.offering">{{
+              p.offering
             }}</ft-description-list-item>
-            <ft-description-list-item label="Notes">{{ p.notes ?? '—' }}</ft-description-list-item>
+            <ft-description-list-item label="Owner" [missing]="!p.ownerName">{{
+              p.ownerName
+            }}</ft-description-list-item>
+            <ft-description-list-item label="Notes" [missing]="!p.notes">{{
+              p.notes
+            }}</ft-description-list-item>
           </ft-description-list>
         </ft-card>
       </ft-split>

@@ -14,7 +14,12 @@
         </ft-alert>
       }
       <ft-form-field label="Type DELETE to confirm" [error]="error()">
-        <ft-text-field [formControl]="confirmation" autocomplete="off" (focusout)="blurred()" />
+        <ft-text-field
+          [formControl]="confirmation"
+          autocomplete="off"
+          initialFocus
+          (focusout)="blurred()"
+        />
       </ft-form-field>
     </ft-stack>
   </form>

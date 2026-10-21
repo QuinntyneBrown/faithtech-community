@@ -32,6 +32,7 @@ export interface MockContact {
   city: string | null;
   linkedProfileId: string | null;
   archivedAtUtc: string | null;
+  createdAtUtc: string;
   notes: MockNote[];
 }
 
@@ -57,6 +58,7 @@ export class MockContacts {
       city: null,
       linkedProfileId: null,
       archivedAtUtc: null,
+      createdAtUtc: this.context.now.toISOString(),
       notes: [],
       ...contact,
     };
@@ -263,6 +265,7 @@ export class MockContacts {
       archivedAtUtc: contact.archivedAtUtc,
       noteCount: contact.notes.length,
       isOwn: contact.ownerId === caller.profileId,
+      createdAtUtc: contact.createdAtUtc,
     };
   }
 

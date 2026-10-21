@@ -52,6 +52,8 @@ describe('LinkContactDialog', () => {
     expect(text()).toContain('Link to Tomás Ortega’s profile?');
     expect(text()).toContain('Member · tomas.ortega@example.org');
     expect(text()).toContain('Removes your 2 notes after linking');
+    expect(host.querySelector('[cdkFocusInitial]')!.tagName.toLowerCase()).toBe('button');
+    expect(host.querySelector('[cdkFocusInitial]')!.textContent!.trim()).toBe('Link profile');
     const keep = Array.from(host.querySelectorAll<HTMLInputElement>('input[type="radio"]'))[0];
     expect(keep.checked).toBe(true);
   });

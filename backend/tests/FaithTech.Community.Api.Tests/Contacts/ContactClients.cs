@@ -25,7 +25,8 @@ public static class ContactClients
         ContactMatch? Match,
         DateTime? ArchivedAtUtc,
         int NoteCount,
-        bool IsOwn);
+        bool IsOwn,
+        DateTime CreatedAtUtc);
 
     public sealed record Note(Guid Id, string Body, DateTime CreatedAtUtc);
 

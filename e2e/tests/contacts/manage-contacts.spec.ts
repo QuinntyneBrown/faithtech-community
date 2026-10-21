@@ -28,6 +28,8 @@ test.describe('Manage private contacts', () => {
     await expect(contact.heading).toHaveText('Kwame Asante');
     await expect(contact.subtitle).toHaveText('Private contact · only you can see this');
     await expect(contact.detail('Organisation')).toHaveText('Maple Street Church');
+    await expect(contact.detail('Phone')).toHaveText('Not added');
+    await expect(contact.detail('Added')).toHaveText('Wed 21 Oct by you');
     await axe.check();
 
     await contacts.open();

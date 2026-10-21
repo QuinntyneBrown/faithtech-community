@@ -48,6 +48,7 @@ describe('AddNoteDialog', () => {
 
     expect(host.textContent).toContain('Add a note about Tomás Ortega');
     expect(host.textContent).toContain('Only you can see your notes, even after they join.');
+    expect(host.querySelector('[cdkFocusInitial]')!.tagName.toLowerCase()).toBe('textarea');
   });
 
   it('saves the trimmed note and closes with it', async () => {

@@ -10,6 +10,7 @@ import { TextFieldComponent } from './text-field.component';
     [type]="type"
     [action]="action"
     [readonly]="readonly"
+    [initialFocus]="initialFocus"
     label="Field"
     (actionClick)="clicks = clicks + 1"
   />`,
@@ -19,6 +20,7 @@ class HostComponent {
   type = 'text';
   action: 'reveal' | 'copy' | null = null;
   readonly = false;
+  initialFocus = false;
   clicks = 0;
 }
 
@@ -85,5 +87,10 @@ describe('TextFieldComponent', () => {
     expect(button()!.getAttribute('aria-label')).toBe('Copy link');
     button()!.click();
     expect(cmp.clicks).toBe(1);
+  });
+
+  it('marks the native input as the dialog’s first focus when initialFocus is set', () => {
+    expect(setup().input().hasAttribute('cdkFocusInitial')).toBe(false);
+    expect(setup({ initialFocus: true }).input().hasAttribute('cdkFocusInitial')).toBe(true);
   });
 });

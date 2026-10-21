@@ -43,14 +43,14 @@
               <ft-avatar leading size="sm" [name]="contact.name" />
               <ft-cluster trailing gap="2">
                 <ft-button
-                  [label]="'Restore ' + contact.name"
+                  [object]="contact.name"
                   [loading]="restoring() === contact.id"
                   (click)="restore(contact)"
                   >Restore</ft-button
                 >
                 <ft-button
                   variant="ghost"
-                  [label]="'Delete ' + contact.name + ' permanently'"
+                  [object]="contact.name + ' permanently'"
                   (click)="delete(contact)"
                   >Delete</ft-button
                 >

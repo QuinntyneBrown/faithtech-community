@@ -37,6 +37,8 @@ describe('ArchiveContactDialog', () => {
 
     expect(host.textContent).toContain('Archive Tomás Ortega?');
     expect(host.textContent).toContain('You can restore them whenever you like.');
+    expect(host.querySelector('[cdkFocusInitial]')!.tagName.toLowerCase()).toBe('button');
+    expect(host.querySelector('[cdkFocusInitial]')!.textContent!.trim()).toBe('Archive');
   });
 
   it('archives the contact and closes with true', async () => {

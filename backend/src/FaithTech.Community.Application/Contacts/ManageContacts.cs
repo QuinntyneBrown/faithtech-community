@@ -80,7 +80,8 @@ public class ManageContactsHandler(IApplicationDbContext db, ContactAccess acces
             ContactRules.Blank(command.Email),
             ContactRules.Blank(command.Phone),
             ContactRules.Blank(command.Organization),
-            ContactRules.Blank(command.City));
+            ContactRules.Blank(command.City),
+            time.GetUtcNow().UtcDateTime);
         if (member is not null)
         {
             contact.LinkTo(member.ProfileId);

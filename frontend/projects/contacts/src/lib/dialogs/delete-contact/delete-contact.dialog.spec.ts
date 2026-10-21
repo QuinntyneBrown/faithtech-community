@@ -47,6 +47,7 @@ describe('DeleteContactDialog', () => {
 
     expect(host.textContent).toContain('Delete Ben Carter for good?');
     expect(host.textContent).toContain('This removes the contact and all your notes.');
+    expect(host.querySelector('[cdkFocusInitial]')!.tagName.toLowerCase()).toBe('input');
   });
 
   it.each(['', 'delete', 'DELETE ', 'DELET'])(

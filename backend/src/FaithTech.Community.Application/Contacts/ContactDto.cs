@@ -27,7 +27,8 @@ public record ContactDto(
     ContactMatchDto? Match,
     DateTime? ArchivedAtUtc,
     int NoteCount,
-    bool IsOwn);
+    bool IsOwn,
+    DateTime CreatedAtUtc);
 
 /// <summary>Builds contact DTOs: the linked profile's name and photo, and any verified member with the same email.</summary>
 public class ContactViews(IApplicationDbContext db, IPhotoStorage storage)
@@ -53,7 +54,8 @@ public class ContactViews(IApplicationDbContext db, IPhotoStorage storage)
             match,
             contact.ArchivedAtUtc,
             noteCount,
-            isOwn);
+            isOwn,
+            contact.CreatedAtUtc);
     }
 
     /// <summary>The verified member whose account uses this email, compared case-insensitively.</summary>

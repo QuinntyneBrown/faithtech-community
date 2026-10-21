@@ -21,6 +21,7 @@ const saved: ContactDto = {
   archivedAtUtc: null,
   noteCount: 1,
   isOwn: true,
+  createdAtUtc: '2026-10-21T12:00:00Z',
 };
 
 async function setup(
@@ -200,5 +201,14 @@ describe('ContactFormPage', () => {
       expect.objectContaining({ linkToMember: true }),
     );
     expect(router.navigateByUrl).toHaveBeenCalledWith('/contacts/c9');
+  });
+
+  it('puts Cancel before the primary Save', async () => {
+    const { host } = await setup();
+
+    const actions = Array.from(host.querySelectorAll('ft-form-actions ft-button')).map((b) =>
+      b.textContent!.trim(),
+    );
+    expect(actions).toEqual(['Cancel', 'Save contact']);
   });
 });

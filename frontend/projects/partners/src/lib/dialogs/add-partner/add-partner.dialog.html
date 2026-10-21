@@ -42,7 +42,7 @@
     </ft-stack>
   </form>
   <ft-button ftDialogFooter [disabled]="busy()" (click)="ref.close()">Cancel</ft-button>
-  <ft-button ftDialogFooter variant="primary" [loading]="busy()" (click)="add()">
+  <ft-button ftDialogFooter variant="primary" initialFocus [loading]="busy()" (click)="add()">
     {{ busy() ? 'Add partner…' : 'Add partner' }}
   </ft-button>
 </ft-dialog>

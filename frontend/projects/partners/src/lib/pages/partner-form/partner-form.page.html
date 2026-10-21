@@ -86,10 +86,10 @@
             <ft-textarea formControlName="notes" [rows]="3" />
           </ft-form-field>
           <ft-form-actions>
+            <ft-button variant="ghost" [href]="'/partners/' + id()">Cancel</ft-button>
             <ft-button type="submit" variant="primary" [loading]="busy()">
               {{ busy() ? 'Saving…' : 'Save partner' }}
             </ft-button>
-            <ft-button variant="ghost" [href]="'/partners/' + id()">Cancel</ft-button>
           </ft-form-actions>
         </ft-stack>
       </ft-card>

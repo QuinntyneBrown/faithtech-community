@@ -61,7 +61,7 @@ async function setup(
     );
   const button = (label: string) =>
     Array.from(host.querySelectorAll<HTMLButtonElement>('button')).find(
-      (b) => b.getAttribute('aria-label') === label,
+      (b) => b.textContent!.replace(/\s+/g, ' ').trim() === label,
     )!;
   const text = () => host.textContent!.replace(/\s+/g, ' ');
   return { host, service, dialogs, toasts, rows, button, text, settle };

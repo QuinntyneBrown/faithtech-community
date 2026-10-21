@@ -11,7 +11,7 @@
     </ft-alert>
   }
   <ft-button ftDialogFooter [disabled]="busy()" (click)="ref.close(false)">Cancel</ft-button>
-  <ft-button ftDialogFooter variant="primary" [loading]="busy()" (click)="confirm()">
+  <ft-button ftDialogFooter variant="primary" initialFocus [loading]="busy()" (click)="confirm()">
     {{ busy() ? 'Archive…' : 'Archive' }}
   </ft-button>
 </ft-dialog>

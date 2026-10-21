@@ -54,6 +54,9 @@ describe('PartnerPage', () => {
       'Notes: Studio of 12 developers.',
     ]);
     expect(link('Edit')!.getAttribute('href')).toBe('/partners/x1/edit');
+    expect(link('nadia@kestrel.example')!.getAttribute('href')).toBe(
+      'mailto:nadia@kestrel.example',
+    );
     expect(text()).toContain('No stage changes yet');
   });
 
@@ -120,5 +123,12 @@ describe('PartnerPage', () => {
     });
     expect(host.querySelector('ft-page-header ft-badge')!.textContent).toContain('Confirmed');
     expect(host.querySelectorAll('ft-feed-item')).toHaveLength(1);
+  });
+
+  it('says which details were not added', async () => {
+    const { host } = await setup(() => of(partnerDto({ phone: null, website: null })));
+
+    const values = Array.from(host.querySelectorAll('dd')).map((d) => d.textContent!.trim());
+    expect([values[2], values[3]]).toEqual(['Not added', 'Not added']);
   });
 });

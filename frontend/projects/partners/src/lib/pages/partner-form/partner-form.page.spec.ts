@@ -113,4 +113,13 @@ describe('PartnerFormPage', () => {
 
     expect(text()).toContain('We couldn’t load this partner');
   });
+
+  it('puts Cancel before the primary Save', async () => {
+    const { host } = await setup();
+
+    const actions = Array.from(host.querySelectorAll('ft-form-actions ft-button')).map((b) =>
+      b.textContent!.trim(),
+    );
+    expect(actions).toEqual(['Cancel', 'Save partner']);
+  });
 });

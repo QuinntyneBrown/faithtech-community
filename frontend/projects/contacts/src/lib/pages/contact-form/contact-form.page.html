@@ -74,10 +74,10 @@
             </ft-form-field>
           }
           <ft-form-actions>
+            <ft-button variant="ghost" [href]="cancelHref()">Cancel</ft-button>
             <ft-button type="submit" variant="primary" [loading]="busy()">
               {{ busy() ? 'Saving…' : member() ? 'Save and link' : 'Save contact' }}
             </ft-button>
-            <ft-button variant="ghost" [href]="cancelHref()">Cancel</ft-button>
           </ft-form-actions>
         </ft-stack>
       </ft-card>

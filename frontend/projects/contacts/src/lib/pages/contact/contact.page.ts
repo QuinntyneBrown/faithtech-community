@@ -26,7 +26,6 @@ import {
   NoteComponent,
   PageHeaderComponent,
   PhotoComponent,
-  SkeletonComponent,
   SplitComponent,
   StackComponent,
   ToastService,
@@ -66,7 +65,6 @@ type State = 'loading' | 'loaded' | 'not-found' | 'error';
     NoteComponent,
     PageHeaderComponent,
     PhotoComponent,
-    SkeletonComponent,
     SplitComponent,
     StackComponent,
   ],
@@ -106,6 +104,10 @@ export class ContactPage {
 
   protected day(value: string): string {
     return formatDay(value);
+  }
+
+  protected added(contact: ContactDto): string {
+    return `${formatDay(contact.createdAtUtc)}${contact.isOwn ? ' by you' : ''}`;
   }
 
   protected async addNote(contact: ContactDto): Promise<void> {

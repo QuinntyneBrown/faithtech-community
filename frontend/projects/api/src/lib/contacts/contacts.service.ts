@@ -53,6 +53,7 @@ export interface ContactDto {
   noteCount: number;
   /** False when a System Admin opens another lead's contact (audited). */
   isOwn: boolean;
+  createdAtUtc: string;
 }
 
 export interface ContactNoteDto {

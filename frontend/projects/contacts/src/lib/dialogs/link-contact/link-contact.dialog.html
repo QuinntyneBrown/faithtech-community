@@ -31,7 +31,7 @@
     </ft-radio-group>
   </ft-stack>
   <ft-button ftDialogFooter [disabled]="busy()" (click)="ref.close()">Cancel</ft-button>
-  <ft-button ftDialogFooter variant="primary" [loading]="busy()" (click)="link()">
+  <ft-button ftDialogFooter variant="primary" initialFocus [loading]="busy()" (click)="link()">
     {{ busy() ? 'Link profile…' : 'Link profile' }}
   </ft-button>
 </ft-dialog>

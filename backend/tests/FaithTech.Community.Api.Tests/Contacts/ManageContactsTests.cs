@@ -37,6 +37,7 @@ public class ManageContactsTests(CommunityApiFactory factory) : IClassFixture<Co
         Assert.Equal(
             ("Kwame Asante", "kwame.asante@example.org", "416-555-0101", "Maple Street Church", "Toronto", 1, true),
             (created.Name, created.Email, created.Phone, created.Organization, created.City, created.NoteCount, created.IsOwn));
+        Assert.Equal(factory.Time.GetUtcNow().UtcDateTime, created.CreatedAtUtc);
         var listed = Assert.Single(await client.ListContactsAsync());
         Assert.Equal((created.Id, "Kwame Asante", "Private"), (listed.Id, listed.Name, listed.Status));
     }

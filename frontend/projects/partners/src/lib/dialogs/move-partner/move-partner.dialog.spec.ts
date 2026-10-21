@@ -52,6 +52,8 @@ describe('MovePartnerDialog', () => {
 
     expect(host.textContent).toContain('Move Kestrel Labs');
     expect(host.textContent).toContain('Current stage');
+    expect(host.querySelector('[cdkFocusInitial]')!.tagName.toLowerCase()).toBe('button');
+    expect(host.querySelector('[cdkFocusInitial]')!.textContent!.trim()).toBe('Move to Confirmed');
     expect(radios().map((r) => r.checked)).toEqual([false, false, true]);
     expect(primary().textContent).toContain('Move to Confirmed');
   });
