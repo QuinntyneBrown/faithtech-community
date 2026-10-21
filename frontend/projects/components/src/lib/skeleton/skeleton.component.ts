@@ -1,7 +1,10 @@
 import { ChangeDetectionStrategy, Component, input } from '@angular/core';
 
-/** `date-badge` is the square placeholder for an event row's date badge. */
-export type SkeletonShape = 'text' | 'title' | 'rect' | 'square' | 'avatar' | 'date-badge';
+/**
+ * `date-badge` is the square placeholder for an event row's date badge; `card` is a Kanban card
+ * still loading.
+ */
+export type SkeletonShape = 'text' | 'title' | 'rect' | 'square' | 'avatar' | 'date-badge' | 'card';
 export type SkeletonAvatarSize = 'sm' | 'md' | 'lg' | 'xl';
 
 /**
