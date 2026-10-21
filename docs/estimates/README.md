@@ -1,7 +1,7 @@
 # Estimates
 
 - Overall effort: 181 days
-- Complete: 39%
+- Complete: 58%
 
 | Subsystem | Effort | Complete |
 |---|---|---|
@@ -17,7 +17,7 @@
 | [notifications](notifications.md) | 9 days | 0% |
 | [announcements](announcements.md) | 8 days | 0% |
 | [search](search.md) | 4 days | 0% |
-| [agile](agile.md) | 36 days | 0% |
+| [agile](agile.md) | 36 days | 99% |
 
 ## Roadmap
 
