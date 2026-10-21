@@ -16,7 +16,7 @@
       <ft-alert status="danger" heading="That didn’t work">{{ message }}</ft-alert>
     }
     <ft-form-field label="Reason (recorded in the audit log)" [error]="error()">
-      <ft-textarea [formControl]="reason" [rows]="3" initialFocus />
+      <ft-textarea [formControl]="reason" [rows]="3" initialFocus [readonly]="busy()" />
     </ft-form-field>
   </ft-stack>
   <ft-button ftDialogFooter [disabled]="busy()" (click)="ref.close(false)">Cancel</ft-button>
