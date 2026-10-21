@@ -156,7 +156,7 @@
       <h3>New member with no role</h3>
 <div class="ds-example"><div class="ds-example__canvas ds-example__canvas--stack ds-example__canvas--canvas"><div class="card stack"><div class="profile-head"><span class="avatar avatar--xl avatar--sun" aria-hidden="true">LT</span><div class="profile-head__body"><h3>Leah Thompson</h3><div class="cluster" style="gap: var(--space-2);"><span class="text-muted">No role yet</span></div><p class="text-muted"><svg class="icon icon--sm" aria-hidden="true" viewBox="0 0 24 24"><path d="M12 21s-7-6.2-7-11a7 7 0 0 1 14 0c0 4.8-7 11-7 11z"/><circle cx="12" cy="10" r="2.5"/></svg> Toronto · Member since March 2024</p></div><div class="cluster"><a class="btn btn--ghost" href="mailto:leah.thompson@example.org"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="m3 7 9 6 9-6"/></svg>Message by email</a></div></div><p>New to FaithTech Toronto.</p></div></div><div class="ds-example__caption"><span>Leah Thompson has no role yet; say so in words rather than leaving an empty row. A member without lead rights sees only Message by email.</span></div></div>
       <h3>Photo strip</h3>
-<div class="ds-example"><div class="ds-example__canvas ds-example__canvas--stack ds-example__canvas--canvas"><ul class="photo-strip" aria-label="Photos"><li><img src="../assets/photos/builders-night.svg" alt="Grace speaking at Builders Night in front of a full room" width="160" height="160"></li><li><img src="../assets/photos/hackathon.svg" alt="Teams working on laptops at the spring hackathon" width="160" height="160"></li><li><img src="../assets/photos/city.svg" alt="The Toronto skyline at dusk from the waterfront" width="160" height="160"></li><li><img src="../assets/photos/team.svg" alt="The Toronto city team gathered around a whiteboard" width="160" height="160"></li><li><span class="photo-ph" role="img" aria-label="Photo still processing"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-5-5L5 21"/></svg></span></li></ul></div><div class="ds-example__caption"><span>Square tiles, auto-filling columns of at least 7rem. <code>.photo-ph</code> is a placeholder tile for a photo that has not loaded or is still processing.</span></div></div>
+<div class="ds-example"><div class="ds-example__canvas ds-example__canvas--stack ds-example__canvas--canvas"><ul class="photo-strip" aria-label="Photos"><li><img src="../assets/photos/builders-night.svg" alt="Grace speaking at Builders Night in front of a full room" width="160" height="160"></li><li><img src="../assets/photos/hackathon.svg" alt="Teams working on laptops at the spring hackathon" width="160" height="160"></li><li><img src="../assets/photos/city.svg" alt="The Toronto skyline at dusk from the waterfront" width="160" height="160"></li><li><img src="../assets/photos/team.svg" alt="The Toronto city team gathered around a whiteboard" width="160" height="160"></li></ul></div><div class="ds-example__caption"><span>Square tiles, auto-filling columns of at least 7rem. Every tile is a saved photo with its alt text; photos upload when the profile is saved, so the strip has no processing placeholder.</span></div></div>
     </section>
 
     <section class="ds-section" id="sizes" data-na="one size; avatar is always XL and tiles have a fixed minimum"><h2><a href="#sizes">Sizes</a></h2>
@@ -189,12 +189,12 @@
     </section>
 
     <section class="ds-section" id="theming"><h2><a href="#theming">Theming</a></h2>
-      <p>Everything comes from semantic tokens: the card surface, muted text, the role badge and the placeholder tile (<code>--color-bg-subtle</code> with <code>--color-fg-muted</code> icon). Avatar initials use the avatar's own colour pairs, which switch per theme.</p>
+      <p>Everything comes from semantic tokens: the card surface, muted text, and the role badge. Avatar initials use the avatar's own colour pairs, which switch per theme.</p>
     </section>
 
     <section class="ds-section" id="accessibility"><h2><a href="#accessibility">Accessibility</a></h2>
       <h3>Role and pattern</h3>
-      <p>The name is the page's only <code>&lt;h1&gt;</code>. Photos are a <code>&lt;ul&gt;</code> under an <code>&lt;h2&gt;</code> "Photos", each <code>&lt;img&gt;</code> with the alt text the member wrote (required on upload). A placeholder tile has <code>role="img"</code> and a label.</p>
+      <p>The name is the page's only <code>&lt;h1&gt;</code>. Photos are a <code>&lt;ul&gt;</code> under an <code>&lt;h2&gt;</code> "Photos", each <code>&lt;img&gt;</code> with the alt text the member wrote (required on upload).</p>
       <h3>Keyboard</h3>
       <table class="ds-table ds-keys"><thead><tr><th scope="col">Key</th><th scope="col">Action</th></tr></thead><tbody>
         <tr><td><kbd>Tab</kbd></td><td>Moves through the actions in order (Add a role, then Message by email). Photos are not focus stops.</td></tr>
@@ -205,7 +205,6 @@
       <h3>Contrast</h3>
       <div class="ds-example__canvas ds-example__canvas--stack" style="padding: 0; gap: var(--space-2);">
         <div class="ds-pair"><span>Location line on surface</span><span class="ds-pair__ratio" data-contrast="--color-fg-muted|--color-bg-surface" data-min="4.5"></span></div>
-        <div class="ds-pair"><span>Placeholder icon on tile</span><span class="ds-pair__ratio" data-contrast="--color-fg-muted|--color-bg-subtle" data-min="3"></span></div>
         <div class="ds-pair"><span>Name on surface</span><span class="ds-pair__ratio" data-contrast="--color-fg-default|--color-bg-surface" data-min="4.5"></span></div>
       </div>
       <h3>Motion</h3>
@@ -236,13 +235,11 @@
 <tr><td>Card surface</td><td><code>--color-bg-surface</code></td><td><span class="ds-swatch-cell" data-theme="light"><i data-token="--color-bg-surface" data-swatch></i><span data-token="--color-bg-surface"></span></span></td><td><span class="ds-swatch-cell" data-theme="dark"><i data-token="--color-bg-surface" data-swatch></i><span data-token="--color-bg-surface"></span></span></td></tr>
 <tr><td>Name</td><td><code>--color-fg-default</code></td><td><span class="ds-swatch-cell" data-theme="light"><i data-token="--color-fg-default" data-swatch></i><span data-token="--color-fg-default"></span></span></td><td><span class="ds-swatch-cell" data-theme="dark"><i data-token="--color-fg-default" data-swatch></i><span data-token="--color-fg-default"></span></span></td></tr>
 <tr><td>Location line</td><td><code>--color-fg-muted</code></td><td><span class="ds-swatch-cell" data-theme="light"><i data-token="--color-fg-muted" data-swatch></i><span data-token="--color-fg-muted"></span></span></td><td><span class="ds-swatch-cell" data-theme="dark"><i data-token="--color-fg-muted" data-swatch></i><span data-token="--color-fg-muted"></span></span></td></tr>
-<tr><td>Placeholder tile</td><td><code>--color-bg-subtle</code></td><td><span class="ds-swatch-cell" data-theme="light"><i data-token="--color-bg-subtle" data-swatch></i><span data-token="--color-bg-subtle"></span></span></td><td><span class="ds-swatch-cell" data-theme="dark"><i data-token="--color-bg-subtle" data-swatch></i><span data-token="--color-bg-subtle"></span></span></td></tr>
 <tr><td>Head gap</td><td><code>--space-4</code></td><td colspan="2"><span data-token="--space-4"></span></td></tr>
 <tr><td>Body gap</td><td><code>--space-2</code></td><td colspan="2"><span data-token="--space-2"></span></td></tr>
 <tr><td>Avatar size</td><td><code>--size-avatar-xl</code></td><td colspan="2"><span data-token="--size-avatar-xl"></span></td></tr>
 <tr><td>Strip gap</td><td><code>--space-2</code></td><td colspan="2"><span data-token="--space-2"></span></td></tr>
 <tr><td>Tile radius</td><td><code>--radius-md</code></td><td colspan="2"><span data-token="--radius-md"></span></td></tr>
-<tr><td>Placeholder icon size</td><td><code>--font-size-3xl</code></td><td colspan="2"><span data-token="--font-size-3xl"></span></td></tr>
 </tbody></table></div>
     </section>
 
@@ -273,7 +270,6 @@
         <tr><td><code>.profile-head</code></td><td>Wrapping row: avatar, body, actions.</td></tr>
         <tr><td><code>.profile-head__body</code></td><td>Name, roles and location column; 12rem minimum.</td></tr>
         <tr><td><code>.photo-strip</code></td><td>Auto-fill grid of square photos on a bare <code>&lt;ul&gt;</code>.</td></tr>
-        <tr><td><code>.photo-ph</code></td><td>Placeholder tile inside the strip; give it <code>role="img"</code> and <code>aria-label</code>.</td></tr>
         <tr><td><code>emptyBio</code> (Angular input)</td><td>Muted text when there is no bio, "You haven’t written a bio yet." by default. Pass <code>null</code> on someone else’s profile to show nothing.</td></tr>
       </tbody></table>
     </section>
@@ -285,7 +281,7 @@
         <li><a href="../../mocks/pages/profile/own.html">pages/profile/own</a> (Grace, owner)</li>
         <li><a href="../../mocks/pages/profile/empty.html">pages/profile/empty</a>, <a href="../../mocks/pages/profile/loading.html">pages/profile/loading</a>, <a href="../../mocks/pages/profile/error.html">pages/profile/error</a></li>
       </ul>
-      <p>Drift: <code>.photo-ph</code> is defined with <code>display: grid !important</code> but no mock uses it, so its markup here is inferred; the card uses an inline <code>style="margin-top: var(--space-6)"</code> and the "Photos" heading an inline font; Samuel's profile shows Grace's photos and alt text ("Grace speaking at Builders Night"), copied from her own profile; the loading state shows the photo area as two text-card skeletons instead of square tiles; there is no no-role mock (Leah's head above is inferred from the "new users start with no role" rule).</p>
+      <p>Drift: the card uses an inline <code>style="margin-top: var(--space-6)"</code> and the "Photos" heading an inline font; Samuel's profile shows Grace's photos and alt text ("Grace speaking at Builders Night"), copied from her own profile; the loading state shows the photo area as two text-card skeletons instead of square tiles; there is no no-role mock (Leah's head above is inferred from the "new users start with no role" rule).</p>
     </section>
 
     <footer class="ds-footer"><span>FaithTech Community design system · extracted from <a href="../../mocks/index.html">docs/mocks</a> on 2026-10-21</span><a href="#top">Back to top</a></footer>
