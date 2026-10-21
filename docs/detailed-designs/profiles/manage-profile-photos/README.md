@@ -94,6 +94,6 @@ Decisions recorded while implementing the feature:
 
 - The edit-profile mock lets every photo's description be edited, which L2-007 did not cover. AC7 is added to L2-007 and `PUT /api/profiles/{id}/photos/{photoId}` implements it. Resolved.
 - Image processing uses SkiaSharp, 1600 px maximum (ADR 0001); storage, keys and SAS read URLs follow ADR 0002. Resolved.
-- Uploads are sent when the member saves, one request per pending photo, so alt text is always present at upload (AC3). Progress percentages are not reported, so the photo shows "Uploading…" with no bar. `PhotoComponent` shows a `ProgressComponent` bar ("Uploading photo N") above the status line whenever a percentage is supplied, so reporting one later needs no UI change. Resolved.
+- Uploads are sent when the member saves, one request per pending photo, so alt text is always present at upload (AC3). Progress percentages are not reported, so the photo shows "Uploading…" with no bar. `PhotoComponent` shows a `ProgressComponent` bar ("Uploading photo N") above the status line whenever a percentage is supplied, so reporting one later needs no UI change. Resolved. While a photo uploads, `aria-busy` sits on the `PhotoComponent` item that holds the thumbnail and its status line, not on the thumbnail alone. Resolved.
 - Requests up to 10 MB are read so that a too-large photo gets the inline `400` error rather than a bare `413`. Resolved.
 - Reordering photos is not in L2-007 and is not built.
