@@ -103,7 +103,7 @@
         <li><b>Not found</b> (search icon): a link is old, or the event or contact was removed.</li>
         <li><b>Forbidden</b> (lock icon): the page needs a role the member doesn't have, such as a Volunteer opening People and roles or the admin audit log.</li>
         <li><b>Server error</b> (alert icon): the server failed. Shows a reference to quote to support.</li>
-        <li><b>Offline</b> (no-signal icon): no connection; unsaved typing is kept.</li>
+        <li><b>Offline</b> (no-signal icon): no connection; unsaved typing is kept. The “No connection” warning banner sits above it.</li>
       </ul>
       <p>The page keeps the normal top bar (brand, primary navigation, search, bell), so navigation still works. Private contacts that belong to another lead also answer with Not found, not Forbidden, so their existence is not revealed.</p>
     </section>
@@ -277,7 +277,7 @@
         <li><a href="../../mocks/pages/server-error/default.html">pages/server-error/default</a></li>
         <li><a href="../../mocks/pages/offline/default.html">pages/offline/default</a></li>
       </ul>
-      <p>The top offset is the <code>.error-page</code> wrapper class (<code>padding-top: var(--space-12)</code>) on every page. Drift noticed: the offline page has no offline banner even though the banner exists in notifications/banner. The Shelfie sticker variant was dropped; FaithTech uses the plain empty-state icon.</p>
+      <p>The top offset is the <code>.error-page</code> wrapper class (<code>padding-top: var(--space-12)</code>) on every page. The offline page also shows the “No connection” warning <a href="alert.html">banner</a> between the top bar and <code>main</code>, as every page does while offline. The Shelfie sticker variant was dropped; FaithTech uses the plain empty-state icon.</p>
     </section>
 
     <footer class="ds-footer"><span>FaithTech Community design system · extracted from <a href="../../mocks/index.html">docs/mocks</a> on 2026-10-21</span><a href="#top">Back to top</a></footer>
