@@ -6,12 +6,19 @@ import { TableColumn, TableComponent } from './table.component';
   imports: [TableComponent],
   template: `
     <ng-template #status let-row>[{{ row.status }}]</ng-template>
-    <ft-table caption="Audit log" [columns]="columns()" [rows]="rows()" [busy]="busy()" />
+    <ft-table
+      caption="Audit log"
+      [columns]="columns()"
+      [rows]="rows()"
+      [busy]="busy()"
+      [loading]="loading()"
+    />
   `,
 })
 class HostComponent {
   status = viewChild.required<TemplateRef<unknown>>('status');
   busy = signal(false);
+  loading = signal(false);
   rows = signal<Record<string, unknown>[]>([
     { when: '2026-10-21 10:05', who: 'Priya Shah', status: 'ok' },
     { when: '2026-10-20 16:44', who: 'Priya Shah', status: 'bad' },
@@ -76,6 +83,26 @@ describe('TableComponent', () => {
     cmp.busy.set(true);
     fixture.detectChanges();
     expect(el.querySelector('table')?.getAttribute('aria-busy')).toBe('true');
+  });
+
+  it('shows skeleton rows under the real headers while loading', () => {
+    const { fixture, cmp, el } = setup();
+    cmp.loading.set(true);
+    fixture.detectChanges();
+    expect(el.querySelector('table')?.getAttribute('aria-busy')).toBe('true');
+    expect(Array.from(el.querySelectorAll('th')).map((th) => th.textContent?.trim())).toEqual([
+      'When',
+      'Who',
+      'Status',
+    ]);
+    const rows = el.querySelectorAll('tbody tr');
+    expect(rows.length).toBe(5);
+    rows.forEach((tr) => {
+      const cells = tr.querySelectorAll('td');
+      expect(cells.length).toBe(3);
+      cells.forEach((td) => expect(td.querySelector('ft-skeleton')).not.toBeNull());
+    });
+    expect(el.textContent).not.toContain('Priya Shah');
   });
 
   it('lets a wide table scroll inside its wrapper', () => {

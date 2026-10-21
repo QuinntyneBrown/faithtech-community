@@ -25,7 +25,7 @@
 
   @switch (state()) {
     @case ('loading') {
-      <ft-list-skeleton label="Loading audit log" />
+      <ft-table caption="Audit log" [columns]="columns" [loading]="true" />
     }
     @case ('error') {
       <ft-empty-state

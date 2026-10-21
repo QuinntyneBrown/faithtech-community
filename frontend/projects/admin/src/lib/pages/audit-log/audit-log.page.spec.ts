@@ -7,7 +7,7 @@ import {
   AuditLogService,
   PagedResult,
 } from '@faithtech-community/api';
-import { Observable, of, throwError } from 'rxjs';
+import { NEVER, Observable, of, throwError } from 'rxjs';
 
 import { AuditLogPage } from './audit-log.page';
 
@@ -80,6 +80,18 @@ describe('AuditLogPage', () => {
     expect(service.getEntries).toHaveBeenLastCalledWith({ category: 'suspensions' }, 1);
     expect(host.textContent).toContain('No suspensions in the last 90 days');
     expect(host.textContent).toContain('Show all actions');
+  });
+
+  it('shows skeleton table rows under the When, Who and What headers while loading', async () => {
+    const { host } = await setup(() => NEVER);
+
+    const table = host.querySelector('table')!;
+    expect(table.getAttribute('aria-busy')).toBe('true');
+    expect(table.querySelector('caption')!.textContent).toBe('Audit log');
+    const headers = Array.from(table.querySelectorAll('th')).map((th) => th.textContent!.trim());
+    expect(headers).toEqual(['When', 'Who', 'What']);
+    expect(table.querySelectorAll('tbody tr ft-skeleton').length).toBeGreaterThan(0);
+    expect(host.querySelector('ft-list-skeleton')).toBeNull();
   });
 
   it('shows the empty state when nothing has been recorded', async () => {
