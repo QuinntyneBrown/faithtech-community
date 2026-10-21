@@ -1,5 +1,10 @@
 using Azure.Storage.Blobs;
+using FaithTech.Community.Application.Common;
+using FaithTech.Community.Application.Identity;
+using FaithTech.Community.Infrastructure.Email;
+using FaithTech.Community.Infrastructure.Identity;
 using FaithTech.Community.Infrastructure.Persistence;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -17,6 +22,30 @@ public static class DependencyInjection
             options.UseNpgsql(configuration.GetConnectionString("Community"));
             options.UseOpenIddict();
         });
+        services.AddScoped<IApplicationDbContext>(sp => sp.GetRequiredService<CommunityDbContext>());
+
+        services.AddIdentityCore<CommunityUser>(options =>
+            {
+                options.User.RequireUniqueEmail = true;
+                options.Password.RequiredLength = PasswordRules.MinimumLength;
+                options.Password.RequireDigit = false;
+                options.Password.RequireLowercase = false;
+                options.Password.RequireUppercase = false;
+                options.Password.RequireNonAlphanumeric = false;
+            })
+            .AddEntityFrameworkStores<CommunityDbContext>()
+            .AddDefaultTokenProviders();
+        services.Configure<DataProtectionTokenProviderOptions>(options => options.TokenLifespan = TimeSpan.FromHours(24));
+
+        services.AddHttpClient<IBreachedPasswordChecker, HibpBreachedPasswordChecker>(client =>
+        {
+            client.BaseAddress = new Uri("https://api.pwnedpasswords.com/");
+            client.Timeout = TimeSpan.FromSeconds(3);
+            client.DefaultRequestHeaders.Add("Add-Padding", "true");
+        });
+        services.Configure<SmtpOptions>(configuration.GetSection(SmtpOptions.Section));
+        services.AddScoped<IEmailSender, SmtpEmailSender>();
+
         services.AddSingleton(_ => new BlobServiceClient(configuration.GetConnectionString("Blobs")));
 
         services.AddHealthChecks()

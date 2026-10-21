@@ -1,12 +1,19 @@
-using FaithTech.Community.Cli;
 using Microsoft.Extensions.Configuration;
 
-var configuration = new ConfigurationBuilder()
-    .AddJsonFile("appsettings.json", optional: true)
-    .AddEnvironmentVariables()
-    .Build();
+namespace FaithTech.Community.Cli;
 
-var connectionString = configuration.GetConnectionString("Community")
-    ?? throw new InvalidOperationException("ConnectionStrings:Community is not configured.");
+internal static class Program
+{
+    private static async Task<int> Main(string[] args)
+    {
+        var configuration = new ConfigurationBuilder()
+            .AddJsonFile("appsettings.json", optional: true)
+            .AddEnvironmentVariables()
+            .Build();
 
-return await CliApp.RunAsync(args, connectionString);
+        var connectionString = configuration.GetConnectionString("Community")
+            ?? throw new InvalidOperationException("ConnectionStrings:Community is not configured.");
+
+        return await CliApp.RunAsync(args, connectionString);
+    }
+}

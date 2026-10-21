@@ -34,7 +34,7 @@ public class CommunityApiFactory : WebApplicationFactory<Program>, IAsyncLifetim
     {
         builder.UseEnvironment("Testing");
         builder.UseSetting("ConnectionStrings:Community", _postgres.GetConnectionString());
-        builder.UseSetting("Cors:WebAppOrigin", WebAppOrigin);
+        builder.UseSetting("WebApp:Origin", WebAppOrigin);
         builder.UseSetting("ConnectionStrings:Blobs", _azurite.GetConnectionString());
         builder.ConfigureTestServices(services =>
         {

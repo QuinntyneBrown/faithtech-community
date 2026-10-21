@@ -25,7 +25,7 @@ public class SmtpEmailSender(IOptions<SmtpOptions> options) : IEmailSender
         await client.ConnectAsync(smtp.Host, smtp.Port, security, cancellationToken);
         if (!string.IsNullOrEmpty(smtp.UserName))
         {
-            await client.AuthenticateAsync(smtp.UserName, smtp.Password, cancellationToken);
+            await client.AuthenticateAsync(smtp.UserName, smtp.Password ?? string.Empty, cancellationToken);
         }
 
         await client.SendAsync(mime, cancellationToken);

@@ -11,7 +11,7 @@ public static class WebProtectionSetup
     public static IServiceCollection AddWebProtections(this IServiceCollection services, IConfiguration configuration)
     {
         services.AddCors(options => options.AddPolicy(WebAppCorsPolicy, policy => policy
-            .WithOrigins(configuration["Cors:WebAppOrigin"] ?? throw new InvalidOperationException("Cors:WebAppOrigin is not configured."))
+            .WithOrigins(configuration["WebApp:Origin"] ?? throw new InvalidOperationException("WebApp:Origin is not configured."))
             .AllowAnyHeader()
             .AllowAnyMethod()));
 

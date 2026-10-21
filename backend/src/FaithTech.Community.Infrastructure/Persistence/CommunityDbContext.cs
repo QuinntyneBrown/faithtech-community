@@ -1,3 +1,4 @@
+using FaithTech.Community.Application.Common;
 using FaithTech.Community.Application.Identity;
 using FaithTech.Community.Domain.Profiles;
 using Microsoft.AspNetCore.Identity;
@@ -7,7 +8,7 @@ using Microsoft.EntityFrameworkCore;
 namespace FaithTech.Community.Infrastructure.Persistence;
 
 public class CommunityDbContext(DbContextOptions<CommunityDbContext> options)
-    : IdentityDbContext<CommunityUser, IdentityRole<Guid>, Guid>(options)
+    : IdentityDbContext<CommunityUser, IdentityRole<Guid>, Guid>(options), IApplicationDbContext
 {
     public DbSet<Profile> Profiles => Set<Profile>();
 
