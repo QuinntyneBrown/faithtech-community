@@ -282,7 +282,7 @@
 <li><a href="../../mocks/pages/profile/no-role.html">pages/profile/no-role</a> (Leah, a new member with no role, lead's view)</li>
         <li><a href="../../mocks/pages/profile/empty.html">pages/profile/empty</a>, <a href="../../mocks/pages/profile/loading.html">pages/profile/loading</a>, <a href="../../mocks/pages/profile/error.html">pages/profile/error</a></li>
       </ul>
-      <p>Drift: the card uses an inline <code>style="margin-top: var(--space-6)"</code> and the "Photos" heading an inline font.</p>
+      <p>The head card is <code>.card.stack.page-start</code>, 24px below the top bar because a profile has no page header; the "Photos" heading is <code>.section-title</code>. In Angular, the profile page gives <code>&lt;ft-profile-header&gt;</code> the same 24px.</p>
     </section>
 
     <footer class="ds-footer"><span>FaithTech Community design system · extracted from <a href="../../mocks/index.html">docs/mocks</a> on 2026-10-21</span><a href="#top">Back to top</a></footer>

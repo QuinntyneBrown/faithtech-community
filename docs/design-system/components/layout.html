@@ -104,7 +104,8 @@
         <li><b><code>.stack</code></b>: children in a column, 16px apart. Cards, forms, dialog bodies.</li>
         <li><b><code>.cluster</code></b>: children in a wrapping row, 12px apart, vertically centred. Button rows, role badges, stats. <b><code>.cluster--between</code></b> pushes the ends apart (a card title with an "Open board" link). <b><code>.cluster--tight</code></b> closes the gap to 4px for a run of role badges in a list row's meta line (<code>&lt;ft-cluster gap="1"&gt;</code> in Angular). <b><code>.cluster--snug</code></b> sets it to 8px for an avatar beside a name, or a row of actions, in a table cell (<code>&lt;ft-cluster gap="2"&gt;</code>).</li>
         <li><b><code>.grid</code></b>: the token column grid; a form can set <code>--layout-columns: 2</code> for a Starts/Ends pair. <b><code>.grid--auto</code></b> fills with 18rem-minimum cards instead.</li>
-        <li><b><code>.split</code></b>: one column on phones, main and aside at 2:1 from 1024px. Home, event, contact and partner pages.</li>
+        <li><b><code>.split</code></b>: one column on phones, main and aside at 2:1 from 1024px. Home, event, contact and partner pages. It keeps 16px from a banner or alert above it; after a page header the margins collapse to the header's 24px.</li>
+        <li><b><code>.page-start</code></b>: the first block of a page with no page header, such as the profile head card, starts 24px below the top bar, where a page header would.</li>
         <li><b><code>.page-header</code></b> (title, subtitle, actions) and <b><code>.section</code></b> (vertical rhythm between page sections).</li>
         <li><b><code>.auth-layout</code></b> + <b><code>.auth-card</code></b>: the centred card on sign in, sign up, accept invite, verify email, forgot and reset password, with the <a href="logo-mark.html">logo mark</a> above it.</li>
       </ul>
@@ -273,7 +274,7 @@
         <figure class="ds-do"><div class="ds-example__canvas"><code>&lt;div class="split"&gt;</code></div><figcaption>Use <code>.split</code> for main and aside; it is one column on phones.</figcaption></figure>
         <figure class="ds-dont"><div class="ds-example__canvas"><code>&lt;div class="split" style="margin-top: var(--space-4);"&gt;</code></div><figcaption>Don't add one-off margins; the page header already spaces what follows it.</figcaption></figure>
         <figure class="ds-do"><div class="ds-example__canvas"><code>&lt;section class="section"&gt;</code></div><figcaption>Use <code>.section</code> to space page sections.</figcaption></figure>
-        <figure class="ds-dont"><div class="ds-example__canvas"><code>&lt;div class="card stack" style="margin-top: var(--space-6);"&gt;</code></div><figcaption>Inline margins to push a card down, as on the profile page.</figcaption></figure>
+        <figure class="ds-dont"><div class="ds-example__canvas"><code>&lt;div class="card stack" style="margin-top: var(--space-6);"&gt;</code></div><figcaption>Inline margins to push a card down; a page with no header starts with <code>.page-start</code>.</figcaption></figure>
       </div>
     </section>
 
@@ -312,7 +313,8 @@
         <tr><td><code>.cluster</code> / <code>.cluster--between</code></td><td>Wrapping row, 12px gap / ends apart.</td></tr>
         <tr><td><code>.cluster--tight</code> / <code>.cluster--snug</code></td><td>4px gap (role badges in a meta line) / 8px gap (avatar and name, or actions, in a table cell).</td></tr>
         <tr><td><code>.grid</code> / <code>.grid--auto</code></td><td>Token column grid (override with <code>--layout-columns</code>) / auto-fill 18rem columns.</td></tr>
-        <tr><td><code>.split</code></td><td>One column, then 2fr / 1fr from 1024px.</td></tr>
+        <tr><td><code>.split</code></td><td>One column, then 2fr / 1fr from 1024px; 16px above.</td></tr>
+        <tr><td><code>.page-start</code></td><td>24px above the first block of a page with no page header.</td></tr>
         <tr><td><code>.page-header</code> (+ <code>.subtitle</code>)</td><td>Title block and actions, wraps.</td></tr>
         <tr><td><code>.section</code></td><td><code>--space-8</code> above and below.</td></tr>
         <tr><td><code>.auth-layout</code> / <code>.auth-card</code> (+ <code>.logo</code>)</td><td>Full-height centring / 26rem card column.</td></tr>
@@ -331,7 +333,6 @@
       </ul>
       <p>Drift noticed in the mocks:</p>
       <ul>
-        <li>Inline spacing on layout wrappers: <code>.split</code> with <code>style="margin-top: var(--space-4);"</code> on Home, a profile card with <code>margin-top: var(--space-6)</code>.</li>
         <li>The two-column form grid overrides <code>--layout-columns: 2</code> inline in four event-form mocks; it should be a named modifier.</li>
         <li>Auth pages centre text with inline <code>style="text-align: center;"</code> on the heading and footer links.</li>
         <li>Loading skeletons size themselves inline (<code>style="width: 12rem; display: inline-block;"</code>, <code>style="flex:1;"</code>).</li>
