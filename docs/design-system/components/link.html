@@ -257,7 +257,8 @@ a:hover { color: var(--color-fg-link-hover); text-decoration-thickness: var(--bo
         <li><a href="../../mocks/pages/settings/invalid.html">pages/settings/invalid</a> (error-summary links)</li>
         <li><a href="../../mocks/pages/partners/default.html">pages/partners/default</a>, <a href="../../mocks/pages/people/default.html">pages/people/default</a> and <a href="../../mocks/pages/invites/default.html">pages/invites/default</a> (repeated row links "Move", "Add role", "Resend" with a visually hidden object)</li>
       </ul>
-      <p>Drift noticed in the mocks: centred standalone links use an inline <code>style="text-align: center;"</code> on their paragraph; the home card footer link ("All events") sets raw padding with an inline style.</p>
+      <p>Drift noticed in the mocks: centred standalone links use an inline <code>style="text-align: center;"</code> on their paragraph.</p>
+      <p>A link that closes a flush card ("All events" on Home) sits in <code>.card__footer</code> (<code>&lt;ft-card-footer&gt;</code> in Angular), which pads it to line up with the list rows.</p>
     </section>
 
     <footer class="ds-footer"><span>FaithTech Community design system · extracted from <a href="../../mocks/index.html">docs/mocks</a> on 2026-10-21</span><a href="#top">Back to top</a></footer>

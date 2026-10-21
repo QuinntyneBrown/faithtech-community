@@ -200,6 +200,8 @@ fieldset.card > legend { display: contents; }
 .section-title { font: var(--text-h4); }
 .stack > .card__title { margin-bottom: 0; }
 .card--flush > .card__title { padding: var(--space-4) var(--space-4) 0; margin-bottom: 0; }
+/* Last row of a flush card ("All events", a caption under a list), lined up with the list rows. */
+.card__footer { padding: var(--space-3) var(--space-4); }
 .stat { display: flex; flex-direction: column; gap: var(--space-1); }
 .stat__label { font: var(--text-label); color: var(--color-fg-muted); }
 .stat__value { font: var(--text-h2); font-variant-numeric: tabular-nums; }
