@@ -18,7 +18,10 @@ public static class DependencyInjection
 {
     public static IServiceCollection AddApplication(this IServiceCollection services, IConfiguration configuration)
     {
-        services.Configure<Common.WebAppOptions>(configuration.GetSection(Common.WebAppOptions.Section));
+        services.AddOptions<Common.WebAppOptions>()
+            .Bind(configuration.GetSection(Common.WebAppOptions.Section))
+            .Validate(o => Common.WebAppOptions.IsSafeLinkOrigin(o.Origin), "WebApp:Origin must be an https URL (or http on localhost).")
+            .ValidateOnStart();
         services.AddValidatorsFromAssemblyContaining<SignUpValidator>();
         services.AddScoped<VerificationEmails>();
         services.AddScoped<SignUpHandler>();
@@ -40,7 +43,6 @@ public static class DependencyInjection
         services.AddScoped<PhotoStorageRetryHandler>();
         services.AddScoped<GetAuditEntriesHandler>();
         services.AddScoped<RoleAssignmentPolicy>();
-        services.AddScoped<RoleChangeNotifier>();
         services.AddScoped<ChangeRolesHandler>();
         services.AddScoped<SuspensionHandler>();
         services.AddScoped<SearchUsersHandler>();
@@ -71,6 +73,7 @@ public static class DependencyInjection
         services.AddScoped<CityLeadRoleRemovedHandler>();
         services.AddScoped<PlanningPokerHandler>();
         services.AddScoped<ManageNotificationsHandler>();
+        services.AddScoped<INotificationPublisher, NotificationPublisher>();
         services.TryAddSingleton(TimeProvider.System);
         return services;
     }

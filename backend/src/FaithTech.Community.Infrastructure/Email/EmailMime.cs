@@ -1,0 +1,39 @@
+using System.Net;
+using System.Text.RegularExpressions;
+using FaithTech.Community.Application.Common;
+using MimeKit;
+
+namespace FaithTech.Community.Infrastructure.Email;
+
+/// <summary>Builds the message the provider receives: the plain-text body and an HTML alternative derived from it (L2-028 AC2).</summary>
+public static partial class EmailMime
+{
+    public static MimeMessage Build(EmailMessage message, string from)
+    {
+        var mime = new MimeMessage
+        {
+            Subject = message.Subject,
+            Body = new MultipartAlternative
+            {
+                new TextPart("plain") { Text = message.Body },
+                new TextPart("html") { Text = Html(message.Body) },
+            },
+        };
+        mime.From.Add(MailboxAddress.Parse(from));
+        mime.To.Add(MailboxAddress.Parse(message.To));
+        return mime;
+    }
+
+    // Paragraphs from blank lines, everything escaped, and links made clickable.
+    private static string Html(string text)
+    {
+        var paragraphs = text.Replace("\r\n", "\n")
+            .Split("\n\n", StringSplitOptions.RemoveEmptyEntries)
+            .Select(p => Links().Replace(WebUtility.HtmlEncode(p.Trim()), m => $"<a href=\"{m.Value}\">{m.Value}</a>").Replace("\n", "<br>"))
+            .Select(p => $"<p>{p}</p>");
+        return $"<!doctype html><html><body>{string.Concat(paragraphs)}</body></html>";
+    }
+
+    [GeneratedRegex(@"https?://[^\s<>""]+")]
+    private static partial Regex Links();
+}

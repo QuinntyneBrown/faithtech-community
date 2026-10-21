@@ -1,9 +1,12 @@
 using FaithTech.Community.Application.Agile;
 using FaithTech.Community.Application.Common;
+using FaithTech.Community.Application.Notifications;
 using FaithTech.Community.Application.Profiles;
 using FaithTech.Community.Domain.Admin;
+using FaithTech.Community.Domain.Notifications;
 using FaithTech.Community.Domain.Profiles;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
 
 namespace FaithTech.Community.Application.Admin;
 
@@ -15,8 +18,9 @@ public class ChangeRolesHandler(
     RoleAssignmentPolicy policy,
     ProfileAccess access,
     IAuditLog audit,
-    RoleChangeNotifier notifier,
     CityLeadRoleRemovedHandler cityLeadRemoved,
+    INotificationPublisher notifications,
+    IOptions<WebAppOptions> webApp,
     TimeProvider time)
 {
     public const string LastSystemAdminMessage = "There must always be at least one System Admin.";
@@ -93,13 +97,13 @@ public class ChangeRolesHandler(
         audit.Record(actor, add ? "role.granted" : "role.removed", "Profile", profileId.ToString(), new { Roles = before }, new { Roles = after });
 
         string? title = null;
+        string? actorName = null;
         if (policy.NotifiesOwner && actor != profileId)
         {
-            var actorName = await db.Profiles.Where(p => p.Id == actor).Select(p => p.Name).SingleOrDefaultAsync(cancellationToken) ?? "A City Lead";
+            actorName = await db.Profiles.Where(p => p.Id == actor).Select(p => p.Name).SingleOrDefaultAsync(cancellationToken) ?? "A City Lead";
             title = add
                 ? $"{actorName} added the {RoleLabels.Of(role)} role to your profile"
                 : $"{actorName} removed the {RoleLabels.Of(role)} role from your profile";
-            notifier.Notify(profileId, title);
         }
 
         foreach (var removed in profile.DomainEvents.OfType<CityLeadRoleRemoved>())
@@ -113,7 +117,15 @@ public class ChangeRolesHandler(
         await cityLeadRemoved.SendEmailsAsync(cancellationToken);
         if (title is not null)
         {
-            await notifier.EmailAsync(profileId, title, cancellationToken);
+            // The owner hears about it in the app and by email (L2-009 AC1).
+            await notifications.PublishAsync(
+                [profileId],
+                NotificationKind.RoleChanged,
+                title,
+                "/people/me",
+                actorName,
+                new NotificationEmail("Your FaithTech Community roles changed", $"{title}.\n\nSee your profile: {webApp.Value.Origin}/people/me"),
+                cancellationToken);
         }
 
         return (Result.Ok(), after);
