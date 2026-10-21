@@ -24,6 +24,10 @@ public static class DependencyInjection
         services.AddScoped<GetProfileHandler>();
         services.AddScoped<UpdateProfileHandler>();
         services.AddScoped<UploadPhotoHandler>();
+        services.AddScoped<PhotoAccess>();
+        services.AddScoped<DescribePhotoHandler>();
+        services.AddScoped<SetFeaturedPhotoHandler>();
+        services.AddScoped<DeletePhotoHandler>();
         services.TryAddSingleton(TimeProvider.System);
         return services;
     }

@@ -24,5 +24,11 @@ public class ProfilePhoto
 
     public DateTimeOffset UploadedAt { get; private set; }
 
+    public void Describe(string altText)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(altText);
+        AltText = altText;
+    }
+
     internal void SetFeatured(bool featured) => IsFeatured = featured;
 }

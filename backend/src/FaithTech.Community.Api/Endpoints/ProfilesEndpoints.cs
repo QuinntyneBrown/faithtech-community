@@ -39,6 +39,18 @@ public static class ProfilesEndpoints
             .DisableAntiforgery()
             .WithMetadata(new RequestSizeLimitAttribute(PhotoRequestLimit), new RequestFormLimitsAttribute { MultipartBodyLengthLimit = PhotoRequestLimit });
 
+        profiles.MapPut("/{id:guid}/photos/{photoId:guid}", async (
+                Guid id, Guid photoId, DescribePhotoCommand command, DescribePhotoHandler handler, CancellationToken cancellationToken) =>
+            (await handler.HandleAsync(id, photoId, command, cancellationToken)).ToHttp(Results.NoContent));
+
+        profiles.MapPut("/{id:guid}/photos/{photoId:guid}/featured", async (
+                Guid id, Guid photoId, SetFeaturedPhotoHandler handler, CancellationToken cancellationToken) =>
+            (await handler.HandleAsync(id, photoId, cancellationToken)).ToHttp(Results.NoContent));
+
+        profiles.MapDelete("/{id:guid}/photos/{photoId:guid}", async (
+                Guid id, Guid photoId, DeletePhotoHandler handler, CancellationToken cancellationToken) =>
+            (await handler.HandleAsync(id, photoId, cancellationToken)).ToHttp(Results.NoContent));
+
         return app;
     }
 }
