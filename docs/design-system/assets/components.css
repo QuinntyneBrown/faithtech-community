@@ -156,7 +156,7 @@ a:hover, a[data-state="hover"] { color: var(--color-fg-link-hover); text-decorat
   border: var(--border-width-hairline) solid var(--field-border); border-radius: var(--radius-md);
   transition: border-color var(--duration-fast) var(--ease-standard), box-shadow var(--duration-fast) var(--ease-standard);
 }
-.textarea { min-height: calc(var(--control-height-md) * 2.5); resize: vertical; line-height: var(--line-height-relaxed); }
+.textarea { resize: vertical; line-height: var(--line-height-relaxed); }
 .input::placeholder, .textarea::placeholder { color: var(--color-fg-subtle); }
 .input:hover, .textarea:hover, .input[data-state="hover"], .textarea[data-state="hover"] { --field-border: var(--color-fg-muted); }
 .input:focus-visible, .textarea:focus-visible, .input[data-state="focus"], .textarea[data-state="focus"] { outline: var(--focus-ring-width) solid var(--color-focus-ring); outline-offset: 0; --field-border: var(--color-focus-ring); }
