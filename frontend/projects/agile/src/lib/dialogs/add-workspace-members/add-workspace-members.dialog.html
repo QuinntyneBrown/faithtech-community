@@ -1,0 +1,33 @@
+<ft-dialog
+  [heading]="'Add members to ' + workspace.name"
+  description="They’ll get an in-app notification and an email."
+  icon="invite"
+  [busy]="busy()"
+  (closed)="ref.close()"
+>
+  @if (failed()) {
+    <ft-alert status="danger" heading="That didn’t work">
+      We couldn’t reach FaithTech. Nothing was changed — try again.
+    </ft-alert>
+  }
+  <ft-checkbox-group
+    legend="Members"
+    [hint]="
+      candidates()?.length === 0
+        ? 'Everyone with a lead or volunteer role is already in this workspace.'
+        : 'Only people with a lead or volunteer role can be added.'
+    "
+    [formControl]="chosen"
+    [error]="error()"
+  >
+    @for (candidate of candidates() ?? []; track candidate.profileId) {
+      <ft-checkbox [value]="candidate.profileId" [description]="roles(candidate)">{{
+        candidate.name
+      }}</ft-checkbox>
+    }
+  </ft-checkbox-group>
+  <ft-button ftDialogFooter [disabled]="busy()" (click)="ref.close()">Cancel</ft-button>
+  <ft-button ftDialogFooter variant="primary" [loading]="busy()" (click)="add()">
+    {{ busy() ? 'Add members…' : 'Add members' }}
+  </ft-button>
+</ft-dialog>

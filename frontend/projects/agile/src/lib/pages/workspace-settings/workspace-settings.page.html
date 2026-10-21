@@ -1,0 +1,80 @@
+<ft-workspace-frame
+  [workspaceId]="id()"
+  [workspace]="workspace()"
+  section="settings"
+  [subtitle]="subtitle()"
+  [notFound]="state() === 'not-found'"
+>
+  @switch (state()) {
+    @case ('loading') {
+      <ft-list-skeleton label="Loading settings" [rows]="3" />
+    }
+    @case ('error') {
+      <ft-empty-state
+        variant="error"
+        heading="We couldn’t load workspace settings"
+        text="Check your connection and try again. If it keeps happening, we’ve already been told about it."
+      >
+        <ft-button actions variant="primary" (click)="retry()">Try again</ft-button>
+      </ft-empty-state>
+    }
+    @case ('loaded') {
+      @if (workspace(); as ws) {
+        @if (!ws.canManage) {
+          <ft-empty-state
+            heading="Only the owner changes settings"
+            [text]="
+              ws.ownerName +
+              ' owns this workspace. You can still add stories, move cards and vote in Planning Poker.'
+            "
+          >
+            <ft-button actions variant="primary" [href]="'/workspaces/' + ws.id"
+              >Back to the board</ft-button
+            >
+          </ft-empty-state>
+        } @else {
+          <ft-stack>
+            <ft-card heading="Workspace" [headingLevel]="2">
+              <form [formGroup]="form" (ngSubmit)="save()" ftFormErrorFocus novalidate>
+                <ft-stack>
+                  <ft-error-summary [errors]="summary()" action="save" />
+                  @if (saveFailed()) {
+                    <ft-alert status="danger" heading="We couldn’t save the settings">
+                      Something went wrong on our side. Your changes are still here — try again.
+                    </ft-alert>
+                  }
+                  <ft-form-field #nameField label="Name" [error]="nameError()">
+                    <ft-text-field formControlName="name" autocomplete="off" />
+                  </ft-form-field>
+                  <div>
+                    <ft-button type="submit" variant="primary" [loading]="saving()">Save</ft-button>
+                  </div>
+                </ft-stack>
+              </form>
+            </ft-card>
+
+            <ft-card variant="flush" [heading]="'Members (' + ws.members.length + ')'">
+              <ft-button ftCardActions (click)="addMembers()">Add members</ft-button>
+              <ft-list label="Members">
+                @for (member of ws.members; track member.profileId) {
+                  <ft-list-item [label]="title(member)" [meta]="roles(member)">
+                    <ft-avatar leading size="sm" [name]="member.name" />
+                    @if (!member.isOwner) {
+                      <ft-button
+                        trailing
+                        variant="ghost"
+                        [label]="'Remove ' + member.name + ' from the workspace'"
+                        (click)="remove(member)"
+                        >Remove</ft-button
+                      >
+                    }
+                  </ft-list-item>
+                }
+              </ft-list>
+            </ft-card>
+          </ft-stack>
+        }
+      }
+    }
+  }
+</ft-workspace-frame>
