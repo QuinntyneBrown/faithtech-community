@@ -1,6 +1,7 @@
 using FaithTech.Community.Application.Common;
 using FaithTech.Community.Application.Identity;
 using FaithTech.Community.Domain.Admin;
+using FaithTech.Community.Domain.Notifications;
 using FaithTech.Community.Domain.Profiles;
 using FaithTech.Community.Infrastructure.Email;
 using FaithTech.Community.Infrastructure.Identity;
@@ -20,6 +21,8 @@ public class CommunityDbContext(DbContextOptions<CommunityDbContext> options)
     public DbSet<OutboxMessage> OutboxMessages => Set<OutboxMessage>();
 
     public DbSet<AuditEntry> AuditEntries => Set<AuditEntry>();
+
+    public DbSet<Notification> Notifications => Set<Notification>();
 
     protected override void OnModelCreating(ModelBuilder builder)
     {
@@ -73,6 +76,16 @@ public class CommunityDbContext(DbContextOptions<CommunityDbContext> options)
             entry.Property(e => e.TargetId).HasMaxLength(100);
             entry.Property(e => e.IpAddress).HasMaxLength(45);
             entry.HasIndex(e => e.OccurredAtUtc);
+        });
+
+        builder.Entity<Notification>(notification =>
+        {
+            notification.Property(n => n.Id).ValueGeneratedNever();
+            notification.Property(n => n.Kind).HasConversion<string>().HasMaxLength(48);
+            notification.Property(n => n.Title).HasMaxLength(300);
+            notification.Property(n => n.LinkPath).HasMaxLength(300);
+            notification.Ignore(n => n.IsRead);
+            notification.HasIndex(n => new { n.RecipientId, n.CreatedAt });
         });
 
         builder.Entity<CommunityUser>()

@@ -35,6 +35,7 @@ export * from './picture-list';
 export * from './profile-header';
 export * from './progress';
 export * from './radio-group';
+export * from './role-dialog';
 export * from './search-results';
 export * from './select';
 export * from './skeleton';

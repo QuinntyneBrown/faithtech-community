@@ -30,6 +30,9 @@ public static class DependencyInjection
         services.AddScoped<SetFeaturedPhotoHandler>();
         services.AddScoped<DeletePhotoHandler>();
         services.AddScoped<GetAuditEntriesHandler>();
+        services.AddScoped<RoleAssignmentPolicy>();
+        services.AddScoped<RoleChangeNotifier>();
+        services.AddScoped<ChangeRolesHandler>();
         services.TryAddSingleton(TimeProvider.System);
         return services;
     }

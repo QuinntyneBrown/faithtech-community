@@ -38,6 +38,12 @@
             <ft-icon name="edit" /> Edit profile
           </ft-button>
         }
+        @if (canAdd().length) {
+          <ft-button actions (click)="addRole()"><ft-icon name="add" /> Add a role</ft-button>
+        }
+        @if (canRemove().length) {
+          <ft-button actions (click)="removeRole()">Remove a role</ft-button>
+        }
       </ft-profile-header>
       @if (p.isOwn && p.photos.length === 0) {
         <div class="photos-empty">

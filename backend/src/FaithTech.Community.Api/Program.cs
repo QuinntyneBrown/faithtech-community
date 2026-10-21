@@ -41,6 +41,7 @@ app.MapHealthChecks("/health/ready", new HealthCheckOptions
 app.MapMeEndpoints();
 app.MapProfilesEndpoints();
 app.MapAuditLogEndpoints();
+app.MapRolesEndpoints();
 app.MapAccountEndpoints();
 app.MapAuthorizationEndpoints();
 
