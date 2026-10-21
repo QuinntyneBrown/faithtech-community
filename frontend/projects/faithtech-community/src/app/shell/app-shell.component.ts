@@ -21,29 +21,7 @@ import {
 } from '@faithtech-community/components';
 import { filter, firstValueFrom, map } from 'rxjs';
 
-interface Section {
-  label: string;
-  href: string;
-  icon: string;
-  /** Hidden from the top bar between 768px and 1023px (design system, top bar). */
-  secondary?: boolean;
-  /** One of the five phone tab bar items (design system, navigation pattern). */
-  tab?: boolean;
-}
-
-// The mock's Workspaces link joins when the Agile feature has a route.
-const SECTIONS: Section[] = [
-  { label: 'Home', href: '/', icon: 'home', tab: true },
-  { label: 'Events', href: '/events', icon: 'events', tab: true },
-  { label: 'Contacts', href: '/contacts', icon: 'contacts', tab: true },
-  { label: 'Partners', href: '/partners', icon: 'partners', tab: true },
-  { label: 'Team', href: '/team', icon: 'team', secondary: true },
-  { label: 'Announcements', href: '/announcements', icon: 'announcements', secondary: true },
-  { label: 'People', href: '/people', icon: 'team', secondary: true },
-];
-/** Only System Admins see the admin area (L2-040); the API refuses everyone else regardless. */
-const ADMIN_SECTION: Section = { label: 'Admin', href: '/admin', icon: 'admin', secondary: true };
-const SEARCH_TAB: TabBarItem = { label: 'Search', href: '/search', icon: 'search' };
+import { Section, sectionsFor, tabsFor } from './navigation';
 
 /** The signed-in chrome around every member page (docs/design-system/patterns/navigation.html). */
 @Component({
@@ -86,9 +64,8 @@ export class AppShellComponent {
     { initialValue: this.router.url.split(/[?#]/)[0] },
   );
 
-  private readonly sections = computed(() =>
-    this.auth.roles().includes('SystemAdmin') ? [...SECTIONS, ADMIN_SECTION] : SECTIONS,
-  );
+  /** One rule for every role builds the top bar, the tab bar and the menu (ADR 0008). */
+  private readonly sections = computed(() => sectionsFor(this.auth.roles()));
 
   protected readonly topLinks = computed<TopBarLink[]>(() =>
     this.sections().map((s) => ({ ...this.link(s), secondary: s.secondary })),
@@ -113,15 +90,9 @@ export class AppShellComponent {
     { kind: 'divider' },
     { kind: 'item', id: 'sign-out', label: 'Sign out', icon: 'sign-out' },
   ]);
-  protected readonly tabs = computed<TabBarItem[]>(() => [
-    ...SECTIONS.filter((s) => s.tab)
-      .slice(0, 2)
-      .map((s) => ({ ...this.link(s), icon: s.icon })),
-    { ...SEARCH_TAB, current: this.isCurrent(SEARCH_TAB.href) },
-    ...SECTIONS.filter((s) => s.tab)
-      .slice(2)
-      .map((s) => ({ ...this.link(s), icon: s.icon })),
-  ]);
+  protected readonly tabs = computed<TabBarItem[]>(() =>
+    tabsFor(this.auth.roles()).map((s) => ({ ...this.link(s), icon: s.icon })),
+  );
 
   protected search(query: string): void {
     void this.router.navigate(['/search'], { queryParams: query ? { q: query } : {} });

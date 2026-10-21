@@ -9,7 +9,7 @@ test.describe('App shell', () => {
     await page.setViewportSize(BREAKPOINTS.xl);
     const shell = new AppShell(page);
 
-    await api.signInAs(api.addAccount({ email: 'grace@example.org' }));
+    await api.signInAs(api.addAccount({ email: 'grace@example.org', roles: ['CityLead'] }));
 
     for (const name of ['Home', 'Events', 'Contacts', 'Partners', 'Team', 'People']) {
       await expect(shell.navLink(name)).toBeVisible();
@@ -20,6 +20,52 @@ test.describe('App shell', () => {
     await axe.check();
   });
 
+  // One rule for every role (docs/adr/0008-shell-navigation-by-role.md).
+  const byRole: { roles: string[]; nav: string[]; tabs: string[] }[] = [
+    {
+      roles: ['CityLead'],
+      nav: ['Home', 'Events', 'Contacts', 'Partners', 'Team', 'Announcements', 'People'],
+      tabs: ['Home', 'Events', 'Search', 'Contacts', 'Partners'],
+    },
+    {
+      roles: ['Staff'],
+      nav: ['Home', 'Events', 'Partners', 'Team', 'Announcements', 'People'],
+      tabs: ['Home', 'Events', 'Search', 'Partners', 'Team'],
+    },
+    {
+      roles: ['EventLead'],
+      nav: ['Home', 'Events', 'Contacts', 'Partners', 'Team', 'Announcements'],
+      tabs: ['Home', 'Events', 'Search', 'Contacts', 'Partners'],
+    },
+    {
+      roles: ['SystemAdmin'],
+      nav: ['Home', 'Events', 'Contacts', 'Partners', 'Team', 'Announcements', 'People', 'Admin'],
+      tabs: ['Home', 'Events', 'Search', 'Contacts', 'Partners'],
+    },
+    {
+      roles: [],
+      nav: ['Home', 'Events', 'Team', 'Announcements'],
+      tabs: ['Home', 'Events', 'Search', 'Team', 'Announcements'],
+    },
+  ];
+  for (const { roles, nav, tabs } of byRole) {
+    test(`the sections and tabs follow the roles: ${roles.join(', ') || 'no role'}`, async ({
+      page,
+      api,
+    }) => {
+      const shell = new AppShell(page);
+      await page.setViewportSize(BREAKPOINTS.xl);
+      await api.signInAs(api.addAccount({ email: 'grace@example.org', roles }));
+
+      await expect(shell.navLink('Home')).toBeVisible();
+      expect(await shell.navLabels()).toEqual(nav);
+
+      await page.setViewportSize(BREAKPOINTS.xs);
+      await expect(shell.tabBar).toBeVisible();
+      expect(await shell.tabLabels()).toEqual(tabs);
+    });
+  }
+
   test('at XS the navigation collapses into a menu that traps and returns focus', async ({
     page,
     api,
@@ -27,7 +73,7 @@ test.describe('App shell', () => {
   }) => {
     await page.setViewportSize(BREAKPOINTS.xs);
     const shell = new AppShell(page);
-    await api.signInAs(api.addAccount({ email: 'grace@example.org' }));
+    await api.signInAs(api.addAccount({ email: 'grace@example.org', roles: ['CityLead'] }));
 
     await expect(shell.navLink('Events')).toBeHidden();
     await expect(shell.tabBar).toBeVisible();
