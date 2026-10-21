@@ -93,6 +93,8 @@ export class AppShellComponent {
   protected readonly tabs = computed<TabBarItem[]>(() =>
     tabsFor(this.auth.roles()).map((s) => ({ ...this.link(s), icon: s.icon })),
   );
+  /** More is the current tab while the page is outside the link tabs (design system, tab bar). */
+  protected readonly moreCurrent = computed(() => !this.tabs().some((t) => t.current));
 
   protected search(query: string): void {
     void this.router.navigate(['/search'], { queryParams: query ? { q: query } : {} });

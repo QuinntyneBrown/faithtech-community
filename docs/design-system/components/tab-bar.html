@@ -98,7 +98,7 @@
     </header>
 
     <section class="ds-section" id="overview"><h2><a href="#overview">Overview</a></h2>
-      <p>Use the tab bar on every signed-in page. It is the phone form of the <a href="top-bar.html">top bar</a>: the five places a member goes most, built by one rule from their roles. Search takes a tab because the top bar search field only appears from 1024px. Workspaces, Team, Announcements and People are reached from Home and the top bar on wider screens. The auth pages and the public event page have no tab bar.</p>
+      <p>Use the tab bar on every signed-in page. It is the phone form of the <a href="top-bar.html">top bar</a>: the five places a member goes most, built by one rule from their roles. Search takes a tab because the top bar search field only appears from 1024px. The last tab, <b>More</b>, is a button that opens the <b>Main menu</b> drawer (<code>.nav-drawer</code>) listing every section the member may open, so Partners, Workspaces, Team, Announcements, People and Admin stay one tap away. The auth pages and the public event page have no tab bar.</p>
       <ul>
         <li>Tabs are links, not ARIA tabs: each one goes to a different page.</li>
         <li>The page wrapper gets <code>.has-tabbar</code> so the last content is not hidden behind the bar.</li>
@@ -129,7 +129,7 @@
     </section>
 
     <section class="ds-section" id="variants"><h2><a href="#variants">Variants</a></h2>
-      <p>One rule for every role (<a href="../../adr/0009-shell-navigation-by-role.md">ADR 0009</a>): Home, Events, Search, then the first two of the member's other sections in the order Contacts, Partners, Workspaces, Team, Announcements, People, Admin. Contacts are for leads and System Admin; Partners for leads, Staff and System Admin; Workspaces for leads, Volunteers, Staff and System Admin; Team and Announcements for everyone. So a lead or System Admin gets Contacts and Partners, Staff get Partners and Workspaces, a Volunteer gets Workspaces and Team, and a member with no role gets Team and Announcements. The app builds the bar once, in <code>AppShellComponent</code>.</p>
+      <p>One rule for every role (<a href="../../adr/0009-shell-navigation-by-role.md">ADR 0009</a>): Home, Events, Search, the first of the member's other sections, then More, in the order Contacts, Partners, Workspaces, Team, Announcements, People, Admin. Contacts are for leads and System Admin; Partners for leads, Staff and System Admin; Workspaces for leads, Volunteers, Staff and System Admin; Team and Announcements for everyone. So a lead or System Admin gets Contacts, Staff get Partners, a Volunteer gets Workspaces, and a member with no role gets Team. Every other section is in More. The app builds the bar once, in <code>AppShellComponent</code>.</p>
       <h3>Member</h3>
       <div class="ds-example">
         <div class="ds-example__canvas ds-example__canvas--stack ds-example__canvas--canvas">
@@ -138,7 +138,7 @@
             <a href="../../mocks/pages/events/default.html"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/></svg>Events</a>
             <a href="../../mocks/pages/search/default.html"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>Search</a>
             <a href="../../mocks/pages/contacts/default.html" aria-current="page"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="2"/><circle cx="9" cy="11" r="2.5"/><path d="M5.5 17a3.5 3.5 0 0 1 7 0M15 9h3M15 13h3"/></svg>Contacts</a>
-            <a href="../../mocks/pages/partners/default.html"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><path d="M2 12l4-4 4 2 4-4 4 4 4 2M6 8v7l4 4 2-2 2 2 4-4v-5"/></svg>Partners</a>
+            <button type="button" aria-haspopup="dialog"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><circle cx="5" cy="12" r="1.5"/><circle cx="12" cy="12" r="1.5"/><circle cx="19" cy="12" r="1.5"/></svg>More</button>
           </nav>
         </div>
         <div class="ds-example__caption"><span>Grace on Archived contacts: second-level pages keep their section's tab current.</span></div>
@@ -147,7 +147,7 @@
   &lt;a href="/events"&gt;&lt;svg class="icon" aria-hidden="true" …&gt;&lt;/svg&gt;Events&lt;/a&gt;
   &lt;a href="/search"&gt;&lt;svg class="icon" aria-hidden="true" …&gt;&lt;/svg&gt;Search&lt;/a&gt;
   &lt;a href="/contacts" aria-current="page"&gt;&lt;svg class="icon" aria-hidden="true" …&gt;&lt;/svg&gt;Contacts&lt;/a&gt;
-  &lt;a href="/partners"&gt;&lt;svg class="icon" aria-hidden="true" …&gt;&lt;/svg&gt;Partners&lt;/a&gt;
+  &lt;button type="button" aria-haspopup="dialog"&gt;&lt;svg class="icon" aria-hidden="true" …&gt;&lt;/svg&gt;More&lt;/button&gt;
 &lt;/nav&gt;</code></pre></details>
       </div>
       <h3>Staff</h3>
@@ -158,10 +158,17 @@
             <a href="../../mocks/pages/events/default.html"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/></svg>Events</a>
             <a href="../../mocks/pages/search/default.html"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>Search</a>
             <a href="../../mocks/pages/partners/default.html"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><path d="M2 12l4-4 4 2 4-4 4 4 4 2M6 8v7l4 4 2-2 2 2 4-4v-5"/></svg>Partners</a>
-            <a href="../../mocks/pages/workspaces/default.html"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"/></svg>Workspaces</a>
+            <button type="button" aria-haspopup="dialog"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><circle cx="5" cy="12" r="1.5"/><circle cx="12" cy="12" r="1.5"/><circle cx="19" cy="12" r="1.5"/></svg>More</button>
           </nav>
         </div>
-        <div class="ds-example__caption"><span>Daniel (Staff) on Home: Home, Events, Search, Partners, Workspaces.</span></div>
+        <div class="ds-example__caption"><span>Daniel (Staff) on Home: Home, Events, Search, Partners, More.</span></div>
+      </div>
+      <h3>Outside the tabs</h3>
+      <div class="ds-example">
+        <div class="ds-example__canvas ds-example__canvas--stack ds-example__canvas--canvas">
+          <nav class="tabbar tabbar--static" aria-label="Primary, phone (More current)"><a href="../../mocks/pages/home/default.html"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><path d="M3 12 12 3l9 9M5 10v10h14V10"/></svg>Home</a><a href="../../mocks/pages/events/default.html"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/></svg>Events</a><a href="../../mocks/pages/search/default.html"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>Search</a><a href="../../mocks/pages/contacts/default.html"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="2"/><circle cx="9" cy="11" r="2.5"/><path d="M5.5 17a3.5 3.5 0 0 1 7 0M15 9h3M15 13h3"/></svg>Contacts</a><button type="button" aria-haspopup="dialog" aria-current="true"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><circle cx="5" cy="12" r="1.5"/><circle cx="12" cy="12" r="1.5"/><circle cx="19" cy="12" r="1.5"/></svg>More</button></nav>
+        </div>
+        <div class="ds-example__caption"><span>Grace on Team: no link tab is the page, so More is current (<code>aria-current="true"</code>). More opens the Main menu drawer, where Team is marked current.</span></div>
       </div>
     </section>
 
@@ -270,6 +277,8 @@
         <tr><td><code>aria-current="page"</code></td><td>Current tab in the accent colour.</td></tr>
         <tr><td><code>.has-tabbar</code></td><td>On the page wrapper: bottom padding for the bar below 768px.</td></tr>
         <tr><td><code>.tabbar--static</code></td><td>Documentation only: renders the bar in flow at any width.</td></tr>
+        <tr><td><code>.tabbar button</code></td><td>The More tab: opens the Main menu (<code>popovertarget="nav-drawer"</code> in the mocks); <code>aria-current="true"</code> marks it current outside the link tabs.</td></tr>
+        <tr><td><code>.nav-drawer</code>, <code>__header</code>, <code>__title</code>, <code>__nav</code>, <code>__link</code></td><td>The Main menu drawer: a panel from the start edge over <code>--color-bg-backdrop</code>, listing every section the member may open; the current section has <code>aria-current="page"</code>. A popover in the mocks, <code>NavDrawerComponent</code> (CDK Overlay, focus trap) in the app.</td></tr>
         <tr><td><code>data-state="hover|focus"</code></td><td>Documentation only: forces a state.</td></tr>
       </tbody></table>
     </section>
@@ -282,7 +291,7 @@
         <li><a href="../../mocks/pages/home/staff.html">pages/home/staff</a> (Staff)</li>
         <li><a href="../../mocks/pages/team-board/default.html">pages/team-board/default</a> (no current tab)</li>
       </ul>
-      <p>Resolved drift: the tab set used to differ by persona with no rule (Staff, Communications Lead and System Admin each had their own) and was hand-copied per mock. Every mock now follows the one rule above, and the app renders it from one shell component. Pages outside the five sections show no current tab, which can leave phone users unsure where they are; the page header carries that instead.</p>
+      <p>Resolved drift: the tab set used to differ by persona with no rule (Staff, Communications Lead and System Admin each had their own) and was hand-copied per mock. Every mock now follows the one rule above, and the app renders it from one shell component. Resolved drift: pages outside the tab sections used to show no current tab. More is now current (<code>aria-current="true"</code>, accent colour) on every page outside the four link tabs, and the drawer marks the page's own section.</p>
     </section>
 
     <footer class="ds-footer"><span>FaithTech Community design system · extracted from <a href="../../mocks/index.html">docs/mocks</a> on 2026-10-21</span><a href="#top">Back to top</a></footer>

@@ -6,7 +6,8 @@ export class AppShell {
   readonly sendVerificationAgain: Locator;
   readonly skipLink: Locator;
   readonly primaryNav: Locator;
-  readonly menuButton: Locator;
+  /** The tab bar's last tab, a button that opens the menu of every section. */
+  readonly moreTab: Locator;
   readonly drawer: Locator;
   readonly closeDrawer: Locator;
   readonly tabBar: Locator;
@@ -16,10 +17,11 @@ export class AppShell {
     this.sendVerificationAgain = this.verifyBanner.getByRole('button', { name: 'Send again' });
     this.skipLink = page.getByRole('link', { name: 'Skip to content' });
     this.primaryNav = page.locator('header').getByRole('navigation', { name: 'Primary' });
-    this.menuButton = page.getByRole('button', { name: 'Open menu' });
+
     this.drawer = page.getByRole('dialog', { name: 'Main menu' });
     this.closeDrawer = this.drawer.getByRole('button', { name: 'Close menu' });
     this.tabBar = page.getByRole('navigation', { name: 'Primary, phone' });
+    this.moreTab = this.tabBar.getByRole('button', { name: 'More' });
   }
 
   /** The top bar's avatar, a menu button named "Account menu for {name}". */
@@ -57,6 +59,11 @@ export class AppShell {
   /** The top bar's section links, in order (including those hidden at the current width). */
   async navLabels(): Promise<string[]> {
     return (await this.primaryNav.getByRole('link').allTextContents()).map((t) => t.trim());
+  }
+
+  /** A link tab of the tab bar. */
+  tab(name: string): Locator {
+    return this.tabBar.getByRole('link', { name, exact: true });
   }
 
   navLink(name: string): Locator {

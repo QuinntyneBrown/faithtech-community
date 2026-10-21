@@ -9,6 +9,7 @@ export const ICONS: Readonly<Record<string, string>> = {
   contacts:
     "<rect x='3' y='4' width='18' height='16' rx='2'/><circle cx='9' cy='11' r='2.5'/><path d='M5.5 17a3.5 3.5 0 0 1 7 0M15 9h3M15 13h3'/>",
   partners: "<path d='M2 12l4-4 4 2 4-4 4 4 4 2M6 8v7l4 4 2-2 2 2 4-4v-5'/>",
+  more: "<circle cx='5' cy='12' r='1.5'/><circle cx='12' cy='12' r='1.5'/><circle cx='19' cy='12' r='1.5'/>",
   close: "<path d='M6 6l12 12M18 6 6 18'/>",
   error: "<circle cx='12' cy='12' r='9'/><path d='M12 8v4M12 16h.01'/>",
   add: "<path d='M12 5v14M5 12h14'/>",
