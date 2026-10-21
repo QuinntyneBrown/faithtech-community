@@ -1,10 +1,14 @@
 import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
-import { BannerComponent, ConnectivityService } from '@faithtech-community/components';
+import {
+  BannerComponent,
+  ConnectivityService,
+  ToastRegionComponent,
+} from '@faithtech-community/components';
 
 @Component({
   selector: 'ft-root',
-  imports: [RouterOutlet, BannerComponent],
+  imports: [RouterOutlet, BannerComponent, ToastRegionComponent],
   templateUrl: './app.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })

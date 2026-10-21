@@ -1,8 +1,10 @@
-/*
- * SCAFFOLD: placeholder, not the implementation.
- * Generated from AGENTS.md and:
- *   - docs/detailed-designs/profiles/edit-own-profile
- *   - docs/detailed-designs/profiles/manage-profile-photos
- * Overwrite with the encapsulated styles for this component. Read tokens by role
- * (var(--color-...)), never hex values. Delete this comment when implemented.
- */
+:host {
+  display: block;
+  max-inline-size: 48rem;
+}
+
+.loading {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 16rem), 1fr));
+  gap: var(--space-4);
+}

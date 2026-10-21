@@ -26,10 +26,19 @@ export interface ProfileDto {
   canEdit: boolean;
 }
 
+/** The details a member edits on their own profile (L2-006). Blank home city or bio clears it. */
+export interface ProfileDetails {
+  name: string;
+  homeCity: string;
+  bio: string;
+}
+
 /** Contract for the profiles API. Pages depend on PROFILES_SERVICE, never on HttpProfilesService. */
 export interface ProfilesService {
   /** A profile by id, or the caller's own with "me". 404 when there is no such profile. */
   getProfile(id: string): Observable<ProfileDto>;
+  /** 400 with per-field errors, 403 unless the caller owns the profile or is a System Admin. */
+  updateProfile(id: string, details: ProfileDetails): Observable<void>;
 }
 
 export const PROFILES_SERVICE = new InjectionToken<ProfilesService>('PROFILES_SERVICE');

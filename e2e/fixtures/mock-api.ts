@@ -127,8 +127,12 @@ export class MockApi {
 
     const authorization = request.headers()['authorization'];
     const profileRoute = /^\/api\/profiles\/([^/]+)$/.exec(url.pathname);
-    if (method === 'GET' && profileRoute)
+    if (method === 'GET' && profileRoute) {
       return this.getProfile(route, profileRoute[1], authorization);
+    }
+    if (method === 'PUT' && profileRoute) {
+      return this.updateProfile(route, profileRoute[1], body, authorization);
+    }
 
     switch (`${method} ${url.pathname}`) {
       case 'POST /api/account/sign-in':
@@ -236,6 +240,34 @@ export class MockApi {
     const profile = this.profiles.get(id === 'me' ? caller.profileId : id);
     if (!profile) return route.fulfill({ status: 404 });
     return route.fulfill({ status: 200, json: this.profileDto(profile, caller) });
+  }
+
+  /** PUT /api/profiles/{id}: owner or System Admin, same rules as UpdateProfileValidator (L2-006). */
+  private updateProfile(
+    route: Route,
+    id: string,
+    body: Record<string, unknown>,
+    authorization: string | undefined,
+  ) {
+    const caller = this.caller(authorization);
+    if (!caller) return route.fulfill({ status: 401 });
+    if (id !== caller.profileId && !caller.roles.includes('SystemAdmin')) {
+      return route.fulfill({ status: 403 });
+    }
+    const profile = this.profiles.get(id);
+    if (!profile) return route.fulfill({ status: 404 });
+    const name = String(body['name'] ?? '').trim();
+    const bio = String(body['bio'] ?? '').trim();
+    const errors: Record<string, string[]> = {};
+    if (!name) errors['Name'] = ['Enter your name as you’d like people to see it.'];
+    else if (name.length > 100) errors['Name'] = ['Use 100 characters or fewer for your name.'];
+    if (bio.length > 400) errors['Bio'] = ['Use 400 characters or fewer for your bio.'];
+    if (Object.keys(errors).length)
+      return route.fulfill({ status: 400, json: { status: 400, errors } });
+    profile.name = name;
+    profile.homeCity = String(body['homeCity'] ?? '').trim() || null;
+    profile.bio = bio || null;
+    return route.fulfill({ status: 204 });
   }
 
   private profileDto(profile: MockProfile, caller: MockAccount) {
