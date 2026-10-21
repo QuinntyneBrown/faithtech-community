@@ -5,7 +5,7 @@ import { ContainerComponent } from './container.component';
 import { GridComponent } from './grid.component';
 import { PageHeaderComponent } from './page-header.component';
 import { SplitComponent } from './split.component';
-import { StackComponent } from './stack.component';
+import { StackComponent, StackWidth } from './stack.component';
 
 @Component({
   imports: [
@@ -18,7 +18,7 @@ import { StackComponent } from './stack.component';
   ],
   template: `
     <ft-container><i class="c">c</i></ft-container>
-    <ft-stack [gap]="gap()"><i class="s">s</i></ft-stack>
+    <ft-stack [gap]="gap()" [width]="width()"><i class="s">s</i></ft-stack>
     <ft-cluster [between]="between()"><i>x</i></ft-cluster>
     <ft-grid [columns]="columns()" [auto]="auto()"><i>g</i></ft-grid>
     <ft-split
@@ -32,6 +32,7 @@ import { StackComponent } from './stack.component';
 })
 class HostComponent {
   gap = signal('4');
+  width = signal<StackWidth | null>(null);
   between = signal(false);
   columns = signal<number | null>(null);
   auto = signal(false);
@@ -58,6 +59,17 @@ describe('layout primitives', () => {
     cmp.gap.set('8');
     fixture.detectChanges();
     expect(stack.style.getPropertyValue('--ft-stack-gap')).toBe('var(--space-8)');
+  });
+
+  it('stack caps its width at a form width only when asked (.form-width--sm/md/lg)', () => {
+    const { fixture, cmp, host } = setup();
+    const stack = host.querySelector('ft-stack') as HTMLElement;
+    expect([...stack.classList].some((c) => c.startsWith('ft-stack--width'))).toBe(false);
+    for (const w of ['sm', 'md', 'lg'] as const) {
+      cmp.width.set(w);
+      fixture.detectChanges();
+      expect(stack.classList).toContain(`ft-stack--width-${w}`);
+    }
   });
 
   it('cluster toggles the between modifier', () => {

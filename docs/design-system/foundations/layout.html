@@ -143,7 +143,7 @@
       <ul>
         <li><code>.container</code> is full width, capped at <code>--layout-container-max</code> (1280px), centred, with <code>--layout-margin</code> on both sides.</li>
         <li>Prose stops at <code>--layout-measure</code> (65ch); every <code>&lt;p&gt;</code> has it as a <code>max-width</code>.</li>
-        <li>The auth card is 26rem wide and centred in the viewport (<code>.auth-layout</code>, <code>.auth-card</code>); a dialog panel is 32rem; forms (settings, edit profile, new contact, new event) cap at 48rem with an inline style, which is drift.</li>
+        <li>The auth card is 26rem wide and centred in the viewport (<code>.auth-layout</code>, <code>.auth-card</code>); a dialog panel is 32rem; page forms cap with <code>.form-width--sm</code> (40rem: new contact), <code>--md</code> (44rem: settings, compose announcement, its success card and the danger zone) or <code>--lg</code> (48rem: edit profile, the event form, workspace settings); <code>&lt;ft-stack width="sm|md|lg"&gt;</code> in Angular.</li>
       </ul>
     </section>
 
@@ -174,7 +174,7 @@
         <tbody>
           <tr><td>Member shell</td><td>Sticky top bar (brand, primary nav from 768px, search from 1024px, bell, avatar); one <code>main.container</code> with a <code>.page-header</code> (h1, subtitle, actions); fixed tab bar below 768px with <code>.has-tabbar</code> on the wrapper. Home splits into a main column and an “Activity” aside with <code>.split</code> (2fr + 1fr from 1024px).</td><td><a href="../../mocks/pages/home/default.html">pages/home/default</a></td></tr>
           <tr><td>Auth</td><td>No chrome; <code>main.auth-layout</code> centres a 26rem <code>.auth-card</code> with the logo above one card (sign in, sign up, forgot and reset password, accept invite, verify email).</td><td><a href="../../mocks/pages/sign-in/default.html">pages/sign-in/default</a></td></tr>
-          <tr><td>Settings and forms</td><td>Member shell; a single column of <code>.card.stack</code> sections (Account, Email me when, Sign out everywhere) capped at 48rem; form actions at the end of each card.</td><td><a href="../../mocks/pages/settings/default.html">pages/settings/default</a></td></tr>
+          <tr><td>Settings and forms</td><td>Member shell; a single column of <code>.card.stack</code> sections (Account, Email me when, Sign out everywhere) capped at 44rem (<code>.form-width--md</code>); form actions at the end of each card.</td><td><a href="../../mocks/pages/settings/default.html">pages/settings/default</a></td></tr>
           <tr><td>Detail: profile</td><td>Member shell; <code>.profile-head</code> (avatar, name, role badges, actions), a <code>.photo-strip</code> and a <code>.facts</code> card in one column.</td><td><a href="../../mocks/pages/profile/default.html">pages/profile/default</a></td></tr>
           <tr><td>Detail: event</td><td>Member shell; breadcrumb, page header, then <code>.split</code>: “About this event” and “When and where” in the main column, the RSVP card in the aside.</td><td><a href="../../mocks/pages/event/default.html">pages/event/default</a></td></tr>
           <tr><td>Board</td><td>Member shell; page header, then <code>.kanban</code>: one column per stage, stacked on phones, side by side from 768px. Partners (Lead, In funnel, Confirmed) and the Sprint 7 team board (To Do, In Progress, Done, under workspace <code>.tabs</code>).</td><td><a href="../../mocks/pages/partners/default.html">pages/partners/default</a>, <a href="../../mocks/pages/team-board/default.html">pages/team-board/default</a></td></tr>
