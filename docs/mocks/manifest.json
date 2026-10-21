@@ -312,6 +312,7 @@
         "default",
         "match",
         "linked",
+        "missing",
         "loading",
         "error"
       ],

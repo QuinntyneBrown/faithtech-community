@@ -17,3 +17,7 @@
   color: var(--color-fg-default);
   overflow-wrap: anywhere;
 }
+
+.ft-dl__missing {
+  color: var(--color-fg-muted);
+}
