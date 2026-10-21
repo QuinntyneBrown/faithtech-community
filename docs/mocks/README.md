@@ -7,6 +7,7 @@ Static HTML mocks for every page, dialog and notification, built from [`idea.txt
 - Open [`index.html`](index.html) from disk in Chrome. It is the gallery of every screen and state.
 - `?theme=dark` / `?theme=light` forces a theme; `t` toggles it. `?chrome=0` hides the mock bar and notes.
 - Each mock's bottom bar links its sibling states.
+- A button that opens another mock (Remove photo opens Delete photo, say) stays a `<button type="button">` and names its target in `data-href`; `mock.js` follows it. Never turn a button into a link to make it navigate.
 
 ## Assets
 
