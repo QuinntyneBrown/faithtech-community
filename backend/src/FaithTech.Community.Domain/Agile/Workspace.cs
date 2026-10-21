@@ -52,6 +52,18 @@ public class Workspace
         _members.Add(new WorkspaceMember(Id, profile.Id, now));
     }
 
+    public void RemoveMember(Guid profileId, IEnumerable<WorkItem> items)
+    {
+        var member = _members.FirstOrDefault(m => m.ProfileId == profileId)
+            ?? throw new InvalidOperationException("The profile is not a removable member of the workspace.");
+
+        _members.Remove(member);
+        foreach (var item in items.Where(i => i.WorkspaceId == Id && i.AssigneeId == profileId))
+        {
+            item.Unassign();
+        }
+    }
+
     public void Archive()
     {
         if (IsArchived)
