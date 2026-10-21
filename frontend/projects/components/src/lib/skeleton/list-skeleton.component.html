@@ -1,6 +1,6 @@
 @for (item of items(); track item) {
   <div class="ft-list-skeleton__row">
-    <ft-skeleton shape="avatar" />
+    <ft-skeleton [shape]="leading()" />
     <div class="ft-list-skeleton__body">
       <ft-skeleton shape="title" />
       <ft-skeleton />

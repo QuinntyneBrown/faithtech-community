@@ -33,6 +33,13 @@
   block-size: var(--size-avatar-sm);
 }
 
+:host(.ft-skeleton--date-badge) {
+  flex: none;
+  border-radius: var(--radius-md);
+  inline-size: var(--size-avatar-lg);
+  block-size: var(--size-avatar-lg);
+}
+
 :host(.ft-skeleton--avatar-md) {
   inline-size: var(--size-avatar-md);
   block-size: var(--size-avatar-md);
