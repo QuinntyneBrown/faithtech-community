@@ -1,0 +1,11 @@
+<ft-auth-layout>
+  @if (failed()) {
+    <h1 class="text-center">Sign in didn’t finish</h1>
+    <ft-alert status="danger" heading="We couldn’t complete sign in">
+      The sign-in link was interrupted or has expired.
+      <ft-link ftAlertActions href="/sign-in">Sign in again</ft-link>
+    </ft-alert>
+  } @else {
+    <h1 class="text-center" aria-live="polite">Signing you in…</h1>
+  }
+</ft-auth-layout>

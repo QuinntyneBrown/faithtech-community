@@ -12,8 +12,7 @@ import { HttpClient } from '@angular/common/http';
 import { Injectable, computed, inject, signal } from '@angular/core';
 import { Observable, finalize, map, of, shareReplay, tap } from 'rxjs';
 
-import { AUTH_CONFIG } from '../config';
-import { ROLES, Role } from '../shared';
+import { API_BASE_URL, AUTH_CONFIG } from '../config';
 import { BROWSER_REDIRECT } from './browser-redirect';
 
 interface TokenResponse {
@@ -27,12 +26,13 @@ const REFRESH_KEY = 'ft.oidc.refresh';
 
 /**
  * Owns the OAuth2 authorization-code + PKCE flow against the identity server.
- * TODO(slice): token lifetimes, the sign-in credentials POST and /connect/logout are unspecified in the designs.
+ * Access tokens are encrypted by the server, so member details come from /api/me, never the token.
  */
 @Injectable({ providedIn: 'root' })
 export class OidcAuthClient {
   private readonly http = inject(HttpClient);
   private readonly config = inject(AUTH_CONFIG);
+  private readonly base = inject(API_BASE_URL);
   private readonly redirect = inject(BROWSER_REDIRECT);
 
   private readonly token = signal<string | null>(null);
@@ -40,7 +40,6 @@ export class OidcAuthClient {
 
   readonly accessToken = this.token.asReadonly();
   readonly isAuthenticated = computed(() => this.token() !== null);
-  readonly roles = computed<Role[]>(() => rolesFromToken(this.token()));
 
   /** Starts the flow; the browser leaves the app. The user returns to returnUrl after the callback. */
   async signIn(returnUrl = '/', keepSignedIn = false): Promise<void> {
@@ -113,25 +112,23 @@ export class OidcAuthClient {
     return this.inFlightRefresh;
   }
 
-  /** Revokes the refresh token, clears the session and returns to the post-logout url. */
+  /** Revokes every token on the server, clears the session and returns to the post-logout url. */
   signOut(): Observable<void> {
-    const refreshToken = this.readRefreshToken();
+    const accessToken = this.token();
     const clearAndLeave = () => {
       this.token.set(null);
       sessionStorage.removeItem(REFRESH_KEY);
       localStorage.removeItem(REFRESH_KEY);
       this.redirect(this.config.postLogoutRedirectUri);
     };
-    if (!refreshToken) {
+    if (!accessToken) {
       clearAndLeave();
       return of(undefined);
     }
     return this.http
-      .post(
-        `${this.config.authority}/connect/revoke`,
-        new URLSearchParams({ token: refreshToken, client_id: this.config.clientId }).toString(),
-        { headers: { 'Content-Type': 'application/x-www-form-urlencoded' } },
-      )
+      .post(`${this.base}/account/sign-out`, null, {
+        headers: { Authorization: `Bearer ${accessToken}` },
+      })
       .pipe(
         map(() => undefined),
         finalize(clearAndLeave),
@@ -175,17 +172,4 @@ function base64Url(bytes: Uint8Array): string {
     .replace(/\+/g, '-')
     .replace(/\//g, '_')
     .replace(/=+$/, '');
-}
-
-function rolesFromToken(token: string | null): Role[] {
-  if (!token) return [];
-  try {
-    const claim =
-      (JSON.parse(atob(token.split('.')[1])) as { role?: string | string[] }).role ?? [];
-    return ([] as string[])
-      .concat(claim)
-      .filter((r): r is Role => (ROLES as readonly string[]).includes(r));
-  } catch {
-    return [];
-  }
 }

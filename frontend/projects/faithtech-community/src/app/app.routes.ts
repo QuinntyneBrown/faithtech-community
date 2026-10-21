@@ -1,15 +1,8 @@
-/*
- * SCAFFOLD: placeholder, not the implementation.
- * Generated from AGENTS.md and the detailed designs under docs/detailed-designs/.
- * Route paths are provisional: confirm them against the mocks (docs/mocks/pages) and the
- * designs before implementing. Anonymous routes (identity, public event, accept invite,
- * error pages) sit outside the authGuard; everything else is behind it in the shell.
- * Overwrite with the expected implementation, then delete this comment.
- */
 import { Routes } from '@angular/router';
 
 import { authGuard } from './guards';
 import {
+  AuthCallbackPage,
   ForbiddenPage,
   ForgotPasswordPage,
   HomePage,
@@ -24,6 +17,7 @@ import { AppShellComponent } from './shell';
 
 export const routes: Routes = [
   { path: 'sign-in', component: SignInPage },
+  { path: 'auth/callback', component: AuthCallbackPage },
   { path: 'sign-up', component: SignUpPage },
   { path: 'verify-email', component: VerifyEmailPage },
   { path: 'forgot-password', component: ForgotPasswordPage },

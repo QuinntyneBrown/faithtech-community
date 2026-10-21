@@ -54,12 +54,26 @@ describe('authInterceptor', () => {
     '/api/public/events/1',
     '/api/invites/by-token?token=x',
     '/api/announcements/unsubscribe',
+    '/api/account/sign-in',
+    '/api/account/sign-up',
+    '/api/account/verify-email',
+    '/api/account/resend-verification',
+    '/api/account/forgot-password',
+    '/api/account/reset-password',
   ])('does not add a token to anonymous endpoint %s', (url) => {
     http.get(url).subscribe();
 
     const req = controller.expectOne(url);
     expect(req.request.headers.has('Authorization')).toBe(false);
     req.flush({});
+  });
+
+  it('adds the bearer token to sign-out so the server can revoke the session', () => {
+    http.post('/api/account/sign-out', null).subscribe();
+
+    const req = controller.expectOne('/api/account/sign-out');
+    expect(req.request.headers.get('Authorization')).toBe('Bearer t1');
+    req.flush(null);
   });
 
   it('does not add a token to requests outside the API', () => {

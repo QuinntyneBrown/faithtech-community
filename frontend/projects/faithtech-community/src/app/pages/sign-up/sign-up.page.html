@@ -1,6 +1,71 @@
-<!--
-  SCAFFOLD: placeholder, not the implementation.
-  Generated from AGENTS.md and:
-    - docs/detailed-designs/identity/sign-up
-  Overwrite this template with the expected implementation, then delete this comment.
--->
+<ft-auth-layout>
+  @if (sentTo(); as email) {
+    <ft-card>
+      <ft-stack>
+        <h1 class="text-center">Check your inbox</h1>
+        <p class="text-center">We sent a link to {{ email }}</p>
+        <p class="text-center">
+          <ft-link href="/sign-in">I’ve verified my email</ft-link>
+        </p>
+      </ft-stack>
+    </ft-card>
+    <p class="text-caption text-center">
+      Didn’t get it? Check spam, or
+      <ft-link [href]="verifyEmailLink(email)">send it again</ft-link>
+    </p>
+  } @else {
+    <ft-card>
+      <ft-stack>
+        <h1 class="text-center">Join FaithTech</h1>
+        <p class="text-center text-muted">
+          Builders, leads, volunteers, partners and anyone curious about faith and technology.
+        </p>
+
+        <form [formGroup]="form" (ngSubmit)="submit()" ftFormErrorFocus novalidate>
+          <ft-stack>
+            @if (unreachable()) {
+              <ft-alert status="danger" heading="We couldn’t create your account">
+                Something went wrong on our side. Nothing was saved — try again in a moment.
+              </ft-alert>
+            } @else if (errors().length) {
+              <ft-alert status="danger" [heading]="summaryHeading()">
+                <ul>
+                  @for (e of errors(); track e.field) {
+                    <li>{{ e.message }}</li>
+                  }
+                </ul>
+              </ft-alert>
+            }
+            <ft-form-field label="Full name" [error]="error('name')">
+              <ft-text-field formControlName="name" autocomplete="name" />
+            </ft-form-field>
+            <ft-form-field label="Email" [error]="error('email')">
+              <ft-text-field formControlName="email" type="email" autocomplete="email" />
+            </ft-form-field>
+            <ft-form-field
+              label="Password"
+              help="At least 12 characters."
+              [error]="error('password')"
+            >
+              <ft-text-field
+                formControlName="password"
+                type="password"
+                autocomplete="new-password"
+                action="reveal"
+              />
+            </ft-form-field>
+            <ft-button type="submit" variant="primary" size="lg" [block]="true" [loading]="busy()">
+              {{ busy() ? 'Creating account…' : 'Create account' }}
+            </ft-button>
+            <p class="text-caption text-center">
+              By creating an account you agree to our community guidelines and privacy notice.
+            </p>
+          </ft-stack>
+        </form>
+      </ft-stack>
+    </ft-card>
+    <p class="text-caption text-center">
+      Already a member? <ft-link href="/sign-in">Sign in</ft-link>
+    </p>
+  }
+</ft-auth-layout>

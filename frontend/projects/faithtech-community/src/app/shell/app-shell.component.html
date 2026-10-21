@@ -1,8 +1,55 @@
-<!--
-  SCAFFOLD: placeholder, not the implementation.
-  Generated from AGENTS.md and:
-    - docs/detailed-designs/platform/responsive-layout-and-theming
-    - docs/design-system/patterns/navigation.html
-  Overwrite this template with the expected implementation, then delete this comment.
--->
-<router-outlet />
+<ft-skip-link />
+<ft-top-bar [links]="topLinks()" (searchSubmit)="search($event)">
+  <div ftTopBarActions class="actions">
+    @if (phone()) {
+      <ft-button
+        variant="ghost"
+        size="sm"
+        label="Open menu"
+        [attr.aria-expanded]="menuOpen()"
+        (click)="menuOpen.set(true)"
+      >
+        Menu
+      </ft-button>
+    }
+    <ft-button variant="ghost" size="sm" (click)="signOut()">
+      <ft-icon name="sign-out" size="sm" /> Sign out
+    </ft-button>
+  </div>
+</ft-top-bar>
+
+@if (unverified()) {
+  <ft-banner status="warning" heading="Verify your email to RSVP">
+    @switch (resend()) {
+      @case ('sent') {
+        We sent a new link to {{ user()?.email }}.
+      }
+      @case ('limited') {
+        We’ve sent several links in the last hour. Please try again later.
+      }
+      @default {
+        We sent a link to {{ user()?.email }}.
+      }
+    }
+    @if (resend() !== 'sent') {
+      <ft-button
+        ftAlertActions
+        variant="ghost"
+        size="sm"
+        [loading]="resend() === 'sending'"
+        (click)="sendAgain()"
+      >
+        Send again
+      </ft-button>
+    }
+  </ft-banner>
+}
+
+<main id="main" tabindex="-1" [class.with-tab-bar]="phone()">
+  <router-outlet />
+</main>
+
+@if (phone()) {
+  <ft-tab-bar [items]="tabs()" />
+  <ft-nav-drawer [(open)]="menuOpen" [links]="drawerLinks()" />
+}

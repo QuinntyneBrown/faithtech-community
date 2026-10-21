@@ -1,4 +1,4 @@
-import { Component, signal } from '@angular/core';
+import { Component, signal, viewChild } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { FormErrorFocusDirective } from './form-error-focus.directive';
 
@@ -13,6 +13,7 @@ import { FormErrorFocusDirective } from './form-error-focus.directive';
   </form>`,
 })
 class HostComponent {
+  focus = viewChild.required(FormErrorFocusDirective);
   summary = signal(false);
   bad = signal(false);
 }
@@ -33,6 +34,19 @@ describe('FormErrorFocusDirective', () => {
 
   it('focuses the error summary after a failed submit', async () => {
     expect(await submit({ summary: true, bad: true })).toBe('sum');
+  });
+
+  it('focuses an error summary that appears after a server response', async () => {
+    const f = TestBed.createComponent(HostComponent);
+    document.body.appendChild(f.nativeElement);
+    f.detectChanges();
+
+    f.componentInstance.summary.set(true);
+    f.componentInstance.focus().focusFirstError();
+    f.detectChanges();
+    await f.whenStable();
+
+    expect(document.activeElement?.id).toBe('sum');
   });
 
   it('falls back to the first invalid control', async () => {

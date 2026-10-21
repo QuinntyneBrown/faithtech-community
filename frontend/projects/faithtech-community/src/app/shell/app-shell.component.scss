@@ -1,8 +1,14 @@
-/*
- * SCAFFOLD: placeholder, not the implementation.
- * Generated from AGENTS.md and:
- *   - docs/detailed-designs/platform/responsive-layout-and-theming
- *   - docs/design-system/patterns/navigation.html
- * Overwrite with the encapsulated styles for this component. Read tokens by role
- * (var(--color-...)), never hex values. Delete this comment when implemented.
- */
+main {
+  outline: none;
+}
+
+// Keeps the last content clear of the fixed phone tab bar.
+main.with-tab-bar {
+  padding-block-end: calc(var(--target-comfortable) * 2);
+}
+
+.actions {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}

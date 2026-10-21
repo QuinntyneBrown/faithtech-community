@@ -25,6 +25,8 @@ export class AlertComponent {
   readonly status = input<AlertStatus>('info');
   readonly heading = input.required<string>();
   readonly dismissible = input(false);
+  /** Lets the alert take focus as a form's error summary (see FormErrorFocusDirective). */
+  readonly focusable = input(false);
   readonly dismissed = output<void>();
 
   protected readonly role = computed(() => (this.status() === 'danger' ? 'alert' : 'status'));

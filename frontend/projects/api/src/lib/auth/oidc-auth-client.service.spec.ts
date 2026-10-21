@@ -39,10 +39,12 @@ describe('OidcAuthClient', () => {
     expect(url.searchParams.get('code_challenge')).toMatch(/^[A-Za-z0-9_-]{43}$/);
     expect(url.searchParams.get('redirect_uri')).toBe(`${TEST_ORIGIN}/auth/callback`);
     expect(url.searchParams.get('state')).toBeTruthy();
+    expect(url.searchParams.get('client_id')).toBe('web');
+    expect(url.searchParams.get('scope')).toBe('openid profile email roles offline_access');
   });
 
   it('exchanges the code with the verifier, stores the token and returns the original url', async () => {
-    const access = fakeJwt({ role: ['Volunteer', 'EventLead'] });
+    const access = fakeJwt({});
     await client.signIn('/events');
     const state = new URL(redirect.mock.calls[0][0]).searchParams.get('state');
 
@@ -58,7 +60,6 @@ describe('OidcAuthClient', () => {
     await expect(done).resolves.toBe('/events');
     expect(client.isAuthenticated()).toBe(true);
     expect(client.accessToken()).toBe(access);
-    expect(client.roles()).toEqual(['Volunteer', 'EventLead']);
   });
 
   it('rejects a callback whose state does not match', async () => {
@@ -99,13 +100,16 @@ describe('OidcAuthClient', () => {
     expect(first).not.toBe(next);
   });
 
-  it('signs out by revoking the refresh token and clearing the session', async () => {
-    await startSession('r1');
+  it('signs out by revoking every token on the server and clearing the session', async () => {
+    const access = await startSession('r1');
 
     client.signOut().subscribe();
-    const req = controller.expectOne(`${TEST_ORIGIN}/connect/revoke`);
-    expect(new URLSearchParams(req.request.body as string).get('token')).toBe('r1');
-    req.flush({});
+    const req = controller.expectOne('/api/account/sign-out');
+    expect(req.request.method).toBe('POST');
+    expect(req.request.headers.get('Authorization')).toBe(`Bearer ${access}`);
+    req.flush(null, { status: 204, statusText: 'No Content' });
+
+    expect(sessionStorage.length + localStorage.length).toBe(0);
 
     expect(client.isAuthenticated()).toBe(false);
     expect(redirect).toHaveBeenLastCalledWith(TEST_ORIGIN);

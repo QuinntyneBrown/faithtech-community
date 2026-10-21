@@ -13,6 +13,12 @@ export class FormErrorFocusDirective {
   private readonly injector = inject(Injector);
 
   protected onSubmit(): void {
+    this.focusFirstError();
+  }
+
+  /** Focuses the error summary, or the first invalid control, after the next render. Call it when
+   * errors arrive later than the submit, such as from a server response. */
+  focusFirstError(): void {
     afterNextRender(
       () => {
         const target =

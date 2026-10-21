@@ -1,0 +1,14 @@
+{
+  "name": "faithtech-community-e2e",
+  "private": true,
+  "scripts": {
+    "test": "playwright test",
+    "install:browser": "playwright install chromium"
+  },
+  "devDependencies": {
+    "@axe-core/playwright": "^4.10.2",
+    "@playwright/test": "^1.56.1",
+    "@types/node": "^22.10.0",
+    "typescript": "~5.9.2"
+  }
+}
