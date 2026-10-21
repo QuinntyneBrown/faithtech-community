@@ -70,6 +70,8 @@ const CITY_LEAD_ROLES = [
   'Attendee',
 ];
 const LEAD_ROLES = ['CityLead', 'EventLead', 'CreateLead', 'CommunicationsLead', 'SystemAdmin'];
+const TEAM_LEAD_ROLES = ['CityLead', 'EventLead', 'CreateLead', 'CommunicationsLead'];
+const TEAM_ROLES = [...TEAM_LEAD_ROLES, 'Volunteer'];
 const DAY = 24 * 60 * 60 * 1000;
 
 type Handler = (route: Route, body: Record<string, unknown>) => Promise<void> | void;
@@ -242,6 +244,8 @@ export class MockApi {
         return this.auditLog(route, url, authorization);
       case 'GET /api/admin/audit/export':
         return this.auditExport(route, url, authorization);
+      case 'GET /api/team':
+        return this.listTeam(route, url, authorization);
       case 'GET /api/invites':
         return this.listInvites(route, authorization);
       case 'POST /api/invites':
@@ -599,6 +603,38 @@ export class MockApi {
   }
 
   /** InvitesEndpoints: leads and System Admins see every invite, newest first. */
+  /** TeamEndpoints: GET /api/team?role=&city=, derived from current roles (L2-019, ADR 0007). */
+  private listTeam(route: Route, url: URL, authorization: string | undefined) {
+    if (!this.caller(authorization)) return route.fulfill({ status: 401 });
+    const role = url.searchParams.get('role')?.toLowerCase();
+    if (role && role !== 'leads' && role !== 'volunteers') return route.fulfill({ status: 400 });
+    const city = url.searchParams.get('city')?.trim().toLowerCase();
+    const team = [...this.profiles.values()].filter((p) =>
+      p.roles.some((r) => TEAM_ROLES.includes(r)),
+    );
+    const members = team
+      .filter((p) =>
+        role === 'leads'
+          ? p.roles.some((r) => TEAM_LEAD_ROLES.includes(r))
+          : role === 'volunteers'
+            ? p.roles.includes('Volunteer')
+            : true,
+      )
+      .filter((p) => !city || p.homeCity?.trim().toLowerCase() === city)
+      .sort((a, b) => a.name.localeCompare(b.name, undefined, { sensitivity: 'base' }))
+      .map((p) => ({
+        profileId: p.id,
+        name: p.name,
+        homeCity: p.homeCity,
+        photoUrl: p.photos.find((photo) => photo.isFeatured)?.url ?? null,
+        roles: p.roles,
+      }));
+    const cities = [
+      ...new Set(team.map((p) => p.homeCity?.trim()).filter((c): c is string => !!c)),
+    ].sort((a, b) => a.localeCompare(b));
+    return route.fulfill({ status: 200, json: { members, cities } });
+  }
+
   private listInvites(route: Route, authorization: string | undefined) {
     const caller = this.caller(authorization);
     if (!caller) return route.fulfill({ status: 401 });
