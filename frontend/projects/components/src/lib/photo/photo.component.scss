@@ -51,6 +51,10 @@
   font: var(--text-caption);
 }
 
+.ft-photo__progress {
+  margin-block-start: var(--space-2);
+}
+
 .ft-photo--uploading .ft-photo__status {
   margin-block-start: var(--space-1);
 }
