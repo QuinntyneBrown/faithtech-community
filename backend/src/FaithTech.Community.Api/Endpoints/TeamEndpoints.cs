@@ -7,8 +7,22 @@ public static class TeamEndpoints
 {
     public static IEndpointRouteBuilder MapTeamEndpoints(this IEndpointRouteBuilder app)
     {
-        app.MapGet("/api/team", async (ListTeamHandler handler, CancellationToken cancellationToken) =>
-            Results.Ok(await handler.HandleAsync(new ListTeamQuery(), cancellationToken)));
+        app.MapGet("/api/team", async (string? role, string? city, ListTeamHandler handler, CancellationToken cancellationToken) =>
+        {
+            TeamRoleFilter? filter = null;
+            if (!string.IsNullOrEmpty(role))
+            {
+                // Names only: Enum.TryParse would also accept numbers such as "7".
+                if (!Enum.GetNames<TeamRoleFilter>().Contains(role, StringComparer.OrdinalIgnoreCase))
+                {
+                    return Results.ValidationProblem(new Dictionary<string, string[]> { ["role"] = ["Filter by Leads or Volunteers."] });
+                }
+
+                filter = Enum.Parse<TeamRoleFilter>(role, ignoreCase: true);
+            }
+
+            return Results.Ok(await handler.HandleAsync(new ListTeamQuery(filter, city), cancellationToken));
+        });
 
         return app;
     }

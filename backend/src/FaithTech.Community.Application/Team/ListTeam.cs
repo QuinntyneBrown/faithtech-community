@@ -6,7 +6,14 @@ using Microsoft.EntityFrameworkCore;
 
 namespace FaithTech.Community.Application.Team;
 
-public record ListTeamQuery;
+public enum TeamRoleFilter
+{
+    Leads,
+    Volunteers,
+}
+
+/// <summary>Optional filters; the city is a filter on home city, never a permission boundary (ADR 0007).</summary>
+public record ListTeamQuery(TeamRoleFilter? Role = null, string? City = null);
 
 /// <summary>Derives the team from current roles on every request, so role changes show at once (L2-019).</summary>
 public class ListTeamHandler(IApplicationDbContext db, IPhotoStorage storage)
@@ -18,11 +25,26 @@ public class ListTeamHandler(IApplicationDbContext db, IPhotoStorage storage)
             .Where(p => p.Roles.Any(r => teamRoles.Contains(r.Role)))
             .ToListAsync(cancellationToken);
 
+        var city = query.City?.Trim();
         var members = team
+            .Where(p => query.Role switch
+            {
+                TeamRoleFilter.Leads => p.Roles.Any(r => TeamRoles.Leads.Contains(r.Role)),
+                TeamRoleFilter.Volunteers => p.HasRole(Domain.Profiles.Role.Volunteer),
+                _ => true,
+            })
+            .Where(p => string.IsNullOrEmpty(city) || string.Equals(p.HomeCity?.Trim(), city, StringComparison.OrdinalIgnoreCase))
             .OrderBy(p => p.Name, StringComparer.OrdinalIgnoreCase)
             .Select(ToDto)
             .ToList();
-        return new TeamListDto(members, []);
+        var cities = team
+            .Select(p => p.HomeCity?.Trim())
+            .OfType<string>()
+            .Where(c => c.Length > 0)
+            .Distinct(StringComparer.OrdinalIgnoreCase)
+            .Order(StringComparer.OrdinalIgnoreCase)
+            .ToList();
+        return new TeamListDto(members, cities);
     }
 
     private TeamMemberDto ToDto(Profile profile) => new(
