@@ -121,6 +121,24 @@
       }
     },
     {
+      "id": "unsubscribe",
+      "kind": "page",
+      "title": "Unsubscribe",
+      "route": "/unsubscribe?token=",
+      "requirements": [
+        "L2-030"
+      ],
+      "states": [
+        "default",
+        "busy",
+        "error"
+      ],
+      "not_applicable": {
+        "loading": "The page posts the token at once; busy covers the wait.",
+        "empty": "This screen has no collection that could be empty."
+      }
+    },
+    {
       "id": "home",
       "kind": "page",
       "title": "Home",
@@ -203,6 +221,7 @@
         "member",
         "loading",
         "empty",
+        "short",
         "error",
         "no-results"
       ],

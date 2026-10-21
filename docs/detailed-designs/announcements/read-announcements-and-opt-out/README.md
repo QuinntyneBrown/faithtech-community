@@ -12,15 +12,16 @@ The unsubscribe endpoint is one of the anonymous endpoints listed in `L2-042`.
 ## Description
 
 - **`AnnouncementsPage`** — page in the `announcements` library (mock `pages/announcements`) listing the caller's announcements newest first.
-- **`SettingsPage`** toggle — the "Announcement emails" switch on the settings screen (mock `pages/settings`) calls `AnnouncementsService.setEmailOptOut`. The `components` library provides the switch.
+- **`SettingsPage`** — page in the `announcements` library at `/settings` (mock `pages/settings`). Its "Email me announcements" switch reads `AnnouncementsService.emailOptOut` and saves through `setEmailOptOut` as soon as it changes. The Account section belongs to account settings (`L2-052`) and is not built yet (ADR 0016).
+- **`UnsubscribePage`** — anonymous page in the `announcements` library at `/unsubscribe?token=` (mock `pages/unsubscribe`: default, busy, error). It posts the token on load.
 - **`AnnouncementsService`** / **`ANNOUNCEMENTS_SERVICE`** / **`HttpAnnouncementsService`** — client contract, token and implementation in the `api` library.
-- **`AnnouncementsEndpoints`** — maps `GET /announcements`, `PUT /me/announcement-email-opt-out` and the anonymous `POST /announcements/unsubscribe`.
+- **`AnnouncementsEndpoints`** — maps `GET /announcements`, `GET` and `PUT /me/announcement-email-opt-out` and the anonymous, rate-limited `POST /announcements/unsubscribe`.
 - **`ListMyAnnouncementsQuery`** / **`ListMyAnnouncementsHandler`** — joins `AnnouncementRecipient` on the caller and orders by `SentAt` descending.
 - **`SetAnnouncementEmailOptOutCommand`** / **`SetAnnouncementEmailOptOutHandler`** — sets `Profile.AnnouncementEmailsOptedOut` for the caller.
 - **`UnsubscribeFromAnnouncementsCommand`** / **`UnsubscribeFromAnnouncementsHandler`** — validates the token through `IUnsubscribeTokenService` and sets the opt-out for the profile it names.
-- **`IUnsubscribeTokenService`** — Infrastructure service that issues and verifies tokens with ASP.NET Data Protection.
+- **`IUnsubscribeTokens`** — Application contract; its Infrastructure implementation issues and verifies tokens with ASP.NET Data Protection.
 
-Token lifetime is `<TO SUPPLY>`. The landing page shown after an unsubscribe is `<TO SUPPLY>`; no mock exists for it.
+Tokens last 365 days and carry only the profile id under the purpose `Announcements.Unsubscribe`; a bad or expired token answers `400` and the landing page offers settings instead (ADR 0016). `GET /announcements` lists what the caller received or sent, newest first.
 
 ## Requirements
 

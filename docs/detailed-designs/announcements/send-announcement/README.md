@@ -20,7 +20,7 @@ Each recipient receives an in-app notification and, unless the recipient opted o
 - **`Announcement`** — Domain entity with `Subject`, `Body`, `Audience`, `SenderId`, `SentAt` and `AlsoEmail`, plus `AnnouncementRecipient` rows, added once each through `AddRecipients`, that record who received it.
 - **`INotificationPublisher`** — creates the in-app notification and enqueues the email, honouring the opt-out (`L2-028`).
 
-Sends to large audiences run in one request; whether delivery fans out in a background job is `<TO SUPPLY>`.
+Sends to large audiences run in one request; a background fan-out is deferred (ADR 0016). `Everyone` and `Roles` resolve to non-suspended profiles. The event RSVP audience answers `400` until the events feature stores RSVPs, and the compose page does not offer it yet. Only Communications Lead and System Admin may preview the count or send. Subject is limited to 150 characters and body to 5,000.
 
 ## Requirements
 

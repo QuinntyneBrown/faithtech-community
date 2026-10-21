@@ -12,12 +12,13 @@ The outbox decouples the triggering action from delivery. The triggering action 
 
 ## Description
 
-- **`IEmailQueue`** — Application abstraction. `EnqueueAsync(EmailMessage)` adds a message to the outbox inside the caller's unit of work.
+- **`IEmailQueue`** — the role is played by `IEmailSender`, whose Infrastructure implementation `OutboxEmailSender` writes an outbox row, so the triggering action succeeds while the provider is down (ADR 0015).
 - **`EmailMessage`** — value object with `To`, `Subject`, `HtmlBody`, `TextBody`, `Kind` and `CorrelationId`.
 - **`EmailTemplateRenderer`** — Infrastructure service that renders each `NotificationKind` template into HTML and plain-text parts and builds every link from the configured HTTPS base URL. Templates use the design system's `.email` classes (`docs/design-system/patterns/notifications.html`); the HTML part is produced by inlining those rules with the light-theme token values from `tokens.css`, so no colour, size or font is typed into a template.
 - **`OutboxEmail`** — Infrastructure persistence entity (`OutboxMessage`) with `Attempts`, `NextAttemptAt`, `SentAt`, `FailedAt` (terminal: the retry budget is spent) and `LastError`.
 - **`EmailDeliveryWorker`** — hosted background service in Infrastructure. It polls due outbox rows, calls `IEmailSender`, and on failure schedules a retry with backoff, up to 5 attempts in all including the first send, after which the row is marked failed.
-- **`IEmailSender`** / **`SmtpEmailSender`** — Infrastructure sender that delivers through SMTP or SendGrid, chosen by configuration.
+- **`IEmailTransport`** / **`SmtpEmailTransport`** — Infrastructure transport that delivers through SMTP (which covers the SendGrid relay) as `multipart/alternative`: the plain-text body and an HTML part derived from it (`EmailMime`). Branded templates through `EmailTemplateRenderer` are not built yet.
+- **`WebApp:Origin`** — every link is built from it; startup fails unless it is `https` (plain `http` only on localhost).
 - **`INotificationPublisher`** — Application service that writes the in-app `Notification` and, for kinds with an email form, calls `IEmailQueue`. For `NotificationKind.Announcement` it skips recipients whose `AnnouncementEmailsOptedOut` flag is set.
 - **`CommunityDbContext`** — holds the `email_outbox` table.
 

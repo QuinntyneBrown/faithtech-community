@@ -21,10 +21,18 @@ Search never widens what a user may open. The server filters every group by perm
 - **`GlobalSearchValidator`** — rejects terms shorter than 2 characters, so no search runs (`L2-026`).
 - **`GlobalSearchHandler`** — Application handler that resolves the caller's permissions from `ICurrentUser` into a `SearchScope` and asks `ISearchIndex` for each permitted group.
 - **`SearchScope`** — value object stating which groups the caller may see and the owner filter for contacts and the workspace filter for work items.
-- **`ISearchIndex`** — Application contract for searching. **`PostgresSearchIndex`** in Infrastructure implements it with `websearch_to_tsquery`, `ts_rank` and GIN-indexed `tsvector` columns on each searchable table, applying the scope filters inside the SQL.
+- **`ISearchSource`** — Application contract, one per result kind (ADR 0017). **`PostgresPeopleSearch`** in Infrastructure implements the people source with a prefix `to_tsquery('simple', …)`, `ts_rank` and a GIN expression index on the profile's name, home city and bio. Events, partners, contacts and work items register their sources when those features are built, applying the scope filters inside their SQL.
 - **`SearchResultsDto`** — grouped results, each item carrying kind, id, title, snippet and route.
 
-The p95 target is under 500 ms with 100,000 indexed records. The per-group result limit is `<TO SUPPLY>`.
+Each group returns at most 10 results. The p95 target is under 500 ms with 100,000 indexed records. It is verified outside the test suite, because backend tests use an in-memory source: seed a local database with
+
+```sql
+INSERT INTO "Profiles" ("Id", "Name", "HomeCity", "Bio", "IsSuspended", "AnnouncementEmailsOptedOut")
+SELECT gen_random_uuid(), 'Member ' || g, 'City ' || (g % 50), 'Builder number ' || g, false, false
+FROM generate_series(1, 100000) g;
+```
+
+then run `k6 run -e SCENARIO=search eng/load-test.js`, whose `search` threshold is p95 under 500 ms.
 
 ## Requirements
 
