@@ -39,6 +39,8 @@ const SECTIONS: Section[] = [
   { label: 'Announcements', href: '/announcements', icon: 'announcements', secondary: true },
   { label: 'People', href: '/people', icon: 'team', secondary: true },
 ];
+/** Only System Admins see the admin area (L2-040); the API refuses everyone else regardless. */
+const ADMIN_SECTION: Section = { label: 'Admin', href: '/admin', icon: 'admin', secondary: true };
 const PROFILE_SECTION: Section = { label: 'Your profile', href: '/people/me', icon: 'team' };
 const SEARCH_TAB: TabBarItem = { label: 'Search', href: '/search', icon: 'search' };
 
@@ -82,12 +84,16 @@ export class AppShellComponent {
     { initialValue: this.router.url.split(/[?#]/)[0] },
   );
 
+  private readonly sections = computed(() =>
+    this.auth.roles().includes('SystemAdmin') ? [...SECTIONS, ADMIN_SECTION] : SECTIONS,
+  );
+
   protected readonly topLinks = computed<TopBarLink[]>(() =>
-    SECTIONS.map((s) => ({ ...this.link(s), secondary: s.secondary })),
+    this.sections().map((s) => ({ ...this.link(s), secondary: s.secondary })),
   );
   /** On phones the top bar has no room for the avatar, so the menu links to your profile. */
   protected readonly drawerLinks = computed<NavDrawerLink[]>(() => [
-    ...SECTIONS.map((s) => ({ ...this.link(s), icon: s.icon })),
+    ...this.sections().map((s) => ({ ...this.link(s), icon: s.icon })),
     { ...this.link(PROFILE_SECTION), icon: PROFILE_SECTION.icon },
   ]);
   protected readonly tabs = computed<TabBarItem[]>(() => [

@@ -9,6 +9,9 @@ public static class AdminUsersEndpoints
     {
         var users = app.MapGroup("/api/admin/users");
 
+        users.MapGet("", async (string? q, int? page, SearchUsersHandler handler, CancellationToken cancellationToken) =>
+            await handler.HandleAsync(q, page ?? 1, cancellationToken) is { } result ? Results.Ok(result) : Results.Forbid());
+
         users.MapPost("/{id:guid}/suspension", async (Guid id, SuspendUserCommand command, SuspensionHandler handler, CancellationToken cancellationToken) =>
                 (await handler.SuspendAsync(id, command, cancellationToken)).ToHttp(Results.NoContent))
             .Validate<SuspendUserCommand>();
