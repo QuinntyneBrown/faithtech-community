@@ -88,7 +88,8 @@ faithtech-community/
     ├── estimates/                    # Effort and percent-complete per design
     ├── videos/
     │   └── journeys/                 # Narrated demo videos (WebM, poster, captions, narration text)
-    └── adr/                          # Architecture decision records (NNNN-title.md)
+    ├── adr/                          # Architecture decision records (NNNN-title.md)
+    └── prompts/                      # Ready-to-run implementation prompts for features
 ```
 
 Rules (MUST be followed):
