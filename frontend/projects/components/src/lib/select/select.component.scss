@@ -28,10 +28,15 @@
     outline-offset: var(--focus-ring-offset);
   }
 
+  &:hover:not(:disabled) {
+    border-color: var(--color-fg-muted);
+  }
+
   &:disabled {
     color: var(--color-fg-disabled);
-    background-color: var(--color-bg-surface-sunken);
+    background-color: var(--color-bg-subtle);
     border-color: var(--color-border-default);
+    cursor: not-allowed;
   }
 
   &[aria-invalid='true'] {
