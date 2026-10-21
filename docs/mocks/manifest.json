@@ -561,7 +561,10 @@
         "loading",
         "empty",
         "error",
-        "no-results"
+        "no-results",
+        "exporting",
+        "exported",
+        "export-failed"
       ],
       "not_applicable": {}
     },
