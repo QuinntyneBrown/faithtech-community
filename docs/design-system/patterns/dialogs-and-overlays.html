@@ -252,7 +252,7 @@
         <tbody>
           <tr><td>Default</td><td>Focus is on the first field. In a confirmation with no fields, focus is on Cancel.</td></tr>
           <tr><td>Invalid</td><td>The error appears under the field and focus moves to the field. The dialog stays open.</td></tr>
-          <tr><td>Busy</td><td>The main button shows a pulsing dot, an ellipsis and <code>aria-busy</code>. Cancel and Close are disabled. Esc does nothing.</td></tr>
+          <tr><td>Busy</td><td>The pressed button shows the spinner and keeps its <code>type</code>: a button that is <code>type="button"</code> in the default state stays <code>type="button"</code> while busy. Cancel and Close are disabled. Esc does nothing.</td></tr>
           <tr><td>Failed</td><td>A danger alert at the top of the body names what was not saved ("Invite not sent", "Contact not deleted") and says that nothing changed. What the person typed is kept. Focus moves to the alert.</td></tr>
           <tr><td>Success</td><td>The dialog closes, focus returns to the button that opened it, and a toast confirms: "Contact archived · Undo", "Invite sent".</td></tr>
         </tbody>
@@ -314,7 +314,6 @@
       </ul>
       <p>Drift noticed in the mocks:</p>
       <ul>
-        <li>The busy state changes the main button to <code>type="submit"</code> while the default state uses <code>type="button"</code>.</li>
       </ul>
     </section>
 
