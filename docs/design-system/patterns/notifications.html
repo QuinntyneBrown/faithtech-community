@@ -121,7 +121,7 @@
       <div class="ds-table-wrap"><table class="ds-table">
         <thead><tr><th scope="col">Tone</th><th scope="col">Means</th><th scope="col">Toast</th><th scope="col">Banner</th><th scope="col">Announced</th></tr></thead>
         <tbody>
-          <tr><td>Danger</td><td>Something failed or access is blocked</td><td>Your RSVP wasn’t saved · Retry</td><td>This account is suspended</td><td>Assertive (<code>role="alert"</code>)</td></tr>
+          <tr><td>Danger</td><td>Something failed or access is blocked</td><td>Your RSVP wasn’t saved · Try again</td><td>This account is suspended</td><td>Assertive (<code>role="alert"</code>)</td></tr>
           <tr><td>Warning</td><td>It worked, but with a limit</td><td>Saved, but email is paused</td><td>Verify your email to RSVP · Send again</td><td>Polite</td></tr>
           <tr><td>Success</td><td>It worked</td><td>You’re going · Undo</td><td>Your email is verified</td><td>Polite</td></tr>
           <tr><td>Info</td><td>Something is worth knowing</td><td>Contact restored · Undo</td><td>You’re viewing as Staff</td><td>Polite</td></tr>
@@ -189,7 +189,7 @@
         <div class="ds-example__canvas ds-example__canvas--stack">
           <div class="toast-region toast-region--static" style="width: 100%; max-width: 24rem; margin-inline: auto;">
             <div class="toast toast--warning"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><path d="M12 3 2 20h20zM12 10v4M12 17h.01"/></svg><div class="toast__body"><div class="toast__title">Saved, but email is paused</div><div class="toast__text">Your announcement is in the app. Email will send when our provider recovers.</div></div><button class="close" type="button" aria-label="Dismiss"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18"/></svg></button></div>
-            <div class="toast toast--danger" role="alert"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 8v4M12 16h.01"/></svg><div class="toast__body"><div class="toast__title">Your RSVP wasn’t saved</div><div class="toast__text">We couldn’t reach FaithTech. Try again.</div><button class="toast__action" type="button">Retry</button></div><button class="close" type="button" aria-label="Dismiss"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18"/></svg></button></div>
+            <div class="toast toast--danger" role="alert"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 8v4M12 16h.01"/></svg><div class="toast__body"><div class="toast__title">Your RSVP wasn’t saved</div><div class="toast__text">We couldn’t reach FaithTech.</div><button class="toast__action" type="button">Try again</button></div><button class="close" type="button" aria-label="Dismiss"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18"/></svg></button></div>
           </div>
         </div>
         <div class="ds-example__caption"><span>notifications/toast/warning and danger. These have no timer bar and stay until dismissed.</span></div>
@@ -292,7 +292,7 @@
         <tr><td><kbd>Enter</kbd> / <kbd>Space</kbd> on the bell</td><td>Opens the panel and moves focus to its first link.</td></tr>
         <tr><td><kbd>Tab</kbd></td><td>Moves through Mark all read, each notice link and See all.</td></tr>
         <tr><td><kbd>Esc</kbd></td><td>Closes the panel and returns focus to the bell.</td></tr>
-        <tr><td><kbd>Tab</kbd> to a toast</td><td>Pauses its timer. Enter runs Undo or Retry.</td></tr>
+        <tr><td><kbd>Tab</kbd> to a toast</td><td>Pauses its timer. Enter runs Undo or Try again.</td></tr>
       </tbody></table>
       <h3>Focus and timing</h3>
       <p>A toast never takes focus. The 8-second minimum and the pause on hover or focus meet WCAG 2.2.1, Timing Adjustable. When a focused toast closes, focus returns to the element that was focused before it.</p>
@@ -323,7 +323,7 @@
 
     <section class="ds-section" id="do-dont"><h2><a href="#do-dont">Do and don't</a></h2>
       <div class="ds-dodont">
-        <figure class="ds-do"><div class="ds-example__canvas"><div class="toast toast--danger" role="note" style="width: 100%;"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 8v4M12 16h.01"/></svg><div class="toast__body"><div class="toast__title">Your RSVP wasn’t saved</div><button class="toast__action" type="button">Retry</button></div><button class="close" type="button" aria-label="Dismiss"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18"/></svg></button></div></div><figcaption>Keep a failed toast on screen until it is dismissed or the retry works.</figcaption></figure>
+        <figure class="ds-do"><div class="ds-example__canvas"><div class="toast toast--danger" role="note" style="width: 100%;"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 8v4M12 16h.01"/></svg><div class="toast__body"><div class="toast__title">Your RSVP wasn’t saved</div><button class="toast__action" type="button">Try again</button></div><button class="close" type="button" aria-label="Dismiss"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18"/></svg></button></div></div><figcaption>Keep a failed toast on screen until it is dismissed or the retry works.</figcaption></figure>
         <figure class="ds-dont"><div class="ds-example__canvas"><div class="toast toast--danger" role="note" style="width: 100%;"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 8v4M12 16h.01"/></svg><div class="toast__body"><div class="toast__title">Your RSVP wasn’t saved</div></div><span class="toast__progress" style="--value: 40%;" aria-hidden="true"></span></div></div><figcaption>Don't put a timer on a failure. Jonah may look away and think he is going.</figcaption></figure>
         <figure class="ds-do"><div class="ds-example__canvas"><ul class="notice-list" style="width: 100%;"><li class="notice notice--unread"><span class="avatar avatar--sm avatar--sun" aria-hidden="true">TO</span><div class="notice__body">Tomás Ortega signed up — he’s one of your contacts. <a href="../../mocks/pages/contact/match.html">Link his profile</a><div class="notice__meta">Today · Unread</div></div></li></ul></div><figcaption>Send private-contact notices only to the lead who owns the contact.</figcaption></figure>
         <figure class="ds-dont"><div class="ds-example__canvas"><div class="alert alert--info" style="width: 100%;"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 8h.01"/></svg><div class="alert__body"><div class="alert__title">Ruth Alvarez accepted your invite</div></div></div></div><figcaption>Don't use a banner for something another person did. Put it in the bell.</figcaption></figure>
