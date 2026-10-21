@@ -17,7 +17,9 @@ skinparam package {
 actor "Invitee" as actor
 box "Frontend — FaithTech Community web app (invites library)" #E0F2FE
   participant "AcceptInvitePage" as page
-  participant "InvitesService" as client
+end box
+box "Frontend — FaithTech Community web app (api library)" #E0F2FE
+  participant "HttpInvitesService" as client
 end box
 box "Backend — FaithTech.Community.Api" #D1FADF
   participant "InvitesEndpoints" as ep
@@ -26,33 +28,46 @@ box "Backend — FaithTech.Community.Application and Domain" #ECFDF3
   participant "AcceptInviteHandler" as h
 end box
 box "Backend — FaithTech.Community.Infrastructure" #FFF4E5
+  participant "AuditLog" as audit
   database "Community database" as db
 end box
-actor -> page : Open invite link
+actor -> page : Open /accept-invite/{token}
 page -> client : getInvite(token)
-client -> ep : GET /api/invites/by-token
-ep -> db : Find invite by token hash
-alt expired, revoked or used
-  ep --> page : Invalid invite
-  page --> actor : Error with link to normal sign-up (L2-011)
-else pending
-  ep --> page : Invited email
-  alt no account
-    actor -> page : Sign up with invited email
-    page -> client : acceptInvite(token, name, password)
-    client -> ep : POST /api/invites/accept
-    ep -> h : Send AcceptInviteCommand
-    h -> db : Create user with EmailConfirmed = true (L2-011)
-  else existing signed-in account
+client -> ep : GET /api/invites/by-token/{token} (anonymous)
+ep -> h : LookUpAsync(token)
+h -> db : Find invite by InviteTokens.Hash(token)
+alt unknown token
+  h --> ep : null
+  ep --> client : 404
+  page --> actor : "This invite link isn’t valid" with link to sign-up (L2-011 AC2)
+else invite found
+  h --> ep : InviteLookupDto (status, email, inviter, role, hasAccount)
+  ep --> client : 200 OK
+  alt status is Expired, Revoked or Accepted
+    page --> actor : Matching error with link to normal sign-up (L2-011 AC2)
+  else Pending, not signed in, no account uses the email
+    actor -> page : Enter name and password
+    page -> client : acceptInvite(token, { name, password })
+    client -> ep : POST /api/invites/accept (anonymous)
+    ep -> ep : AcceptInviteValidator
+    ep -> h : AcceptAsync(command)
+    h -> db : Create profile and user with EmailConfirmed = true (L2-011 AC1)
+  else Pending, signed in with the invited email
     actor -> page : Accept invite
     page -> client : acceptInvite(token)
     client -> ep : POST /api/invites/accept
-    ep -> h : Send AcceptInviteCommand
-    h -> db : Load caller's account (L2-011)
+    ep -> h : AcceptAsync(command)
+    h -> db : Load caller's account; email must match (else 409) (L2-011 AC3)
   end
-  h -> db : Grant pre-assigned role, mark invite accepted (L2-011)
-  h --> ep : Accepted
-  ep --> page : 200
-  page --> actor : Continue into the app
+  h -> audit : Record(inviter, "role.granted", ...) when a role is pre-assigned (L2-041)
+  h -> db : Grant role, mark invite accepted, add InviteAccepted notification (L2-011 AC4)
+  h -> db : SaveChanges in one unit of work
+  h --> ep : Ok
+  ep --> client : 204 No Content
+  page --> actor : Sign in if new, then go to /people/me
 end
+note over page
+  Signed in with another email: wrong-account.
+  An account already uses the email: Sign in to accept.
+end note
 @enduml

@@ -15,48 +15,63 @@ skinparam package {
   BackgroundColor #F9FAFB
 }
 actor "City Lead or System Admin" as actor
-box "Frontend — FaithTech Community web app (admin library)" #E0F2FE
-  participant "RemoveRoleDialog" as dlg
+box "Frontend — FaithTech Community web app (profiles and components libraries)" #E0F2FE
+  participant "ProfilePage" as page
+  participant "RoleDialogComponent" as dlg
+end box
+box "Frontend — FaithTech Community web app (api library)" #E0F2FE
   participant "HttpRolesService" as svc
 end box
 box "Backend — FaithTech.Community.Api" #D1FADF
   participant "RolesEndpoints" as ep
 end box
 box "Backend — FaithTech.Community.Application and Domain" #ECFDF3
-  participant "RemoveRoleHandler" as h
+  participant "ChangeRolesHandler" as h
   participant "RoleAssignmentPolicy" as pol
   participant "Profile" as prof
+  participant "RoleChangeNotifier" as notify
 end box
 box "Backend — FaithTech.Community.Infrastructure" #FFF4E5
   participant "AuditLog" as audit
-  participant "NotificationDispatcher" as notify
   database "Community database" as db
 end box
+actor -> page : Choose "Remove a role"
+page -> dlg : Open in remove mode with held, assignable roles
 actor -> dlg : Confirm removal
-dlg -> svc : removeRole(profileId, role)
-svc -> ep : DELETE /api/profiles/{id}/roles/{role}
-ep -> h : Send RemoveRoleCommand
-h -> pol : CanChange(caller, role) per L2-009
+dlg -> page : submit(role)
+page -> svc : removeRole(profileId, role)
+svc -> ep : DELETE /api/profiles/{id}/roles/{role} (HANDLES_FORBIDDEN)
+ep -> h : RemoveAsync(id, role)
+h -> pol : CanChangeRoles and CanChange(role) per L2-009
 alt not permitted
   h --> ep : Forbidden
   ep --> svc : 403 ProblemDetails
-else role is SystemAdmin
-  h -> pol : IsLastSystemAdmin(profileId)
-  alt last System Admin
-    h --> ep : Conflict (L2-009 AC6)
-    ep --> svc : 409 ProblemDetails
-    svc --> dlg : Error
-    dlg --> actor : Show "last System Admin cannot be removed"
+  svc --> page : Error
+  page --> dlg : Refusal message
+  dlg --> actor : Show the refusal
+else role is SystemAdmin and only one profile holds it
+  h -> db : Load Profile, count System Admin profiles
+  h --> ep : Conflict (L2-009 AC6)
+  ep --> svc : 409 "There must always be at least one System Admin."
+  svc --> page : Error
+  page --> dlg : Refusal message
+  dlg --> actor : Show the message; dialog stays open
+else permitted
+  h -> db : Load Profile with roles
+  h -> prof : RemoveRole(role)
+  h -> audit : Record(actor, "role.removed", "Profile", id, before roles, after roles) (L2-041)
+  opt pol.NotifiesOwner and caller is not the owner
+    h -> notify : Notify(owner, title)
   end
+  h -> prof : ClearDomainEvents()
+  h -> db : Save changes in one unit of work
+  opt owner notified
+    h -> notify : EmailAsync(owner, title)
+  end
+  h --> ep : Updated role set
+  ep --> svc : 200 OK
+  svc --> page : Roles
+  page --> dlg : null
+  dlg --> actor : Close dialog, badges update without reload
 end
-h -> prof : RemoveRole(role)
-h -> audit : Write audit entry (L2-041)
-h -> db : Save changes
-opt caller is City Lead
-  h -> notify : Notify profile owner
-end
-h --> ep : Updated role set
-ep --> svc : 200 OK
-svc --> dlg : Roles
-dlg --> actor : Badges update without reload
 @enduml

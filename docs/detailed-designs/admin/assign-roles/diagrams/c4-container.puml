@@ -6,7 +6,7 @@ Person(lead, "City Lead", "Lead who owns contacts, partners and team roles")
 Person(admin, "System Admin", "Holds full override across the site")
 Person(member, "Member", "Signed-in profile holder")
 System_Boundary(community, "FaithTech Community") {
-  Container(web, "Web app", "Angular", "Shell, admin feature library, api and components libraries")
+  Container(web, "Web app", "Angular", "Shell, profiles feature library, api and components libraries")
   Container(api, "Community API", "ASP.NET Core", "FaithTech.Community.Api with Application, Domain and Infrastructure")
   ContainerDb(db, "Community database", "PostgreSQL", "Profiles, roles, contacts, partners and audit log")
 }

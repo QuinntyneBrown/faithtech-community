@@ -15,31 +15,44 @@ enum UserStatus {
   Suspended
   Unverified
 }
-class SearchUsersQuery {
-  +string Term
-  +int Page
-  +int PageSize
-}
-class AdminUserSummary {
-  +Guid ProfileId
+class AdminUserSummary <<record>> {
+  +Guid Id
   +string Name
   +string Email
-  +IReadOnlyList<Role> Roles
-  +UserStatus Status
+  +IReadOnlyList<string> Roles
+  +string Status
 }
 class SearchUsersHandler {
-  +Handle(query: SearchUsersQuery): Task<PagedResult<AdminUserSummary>>
+  +PageSize: int = 25
+  +HandleAsync(term: string?, page: int): Task<PagedResult<AdminUserSummary>?>
 }
-class AdminOverridePolicy {
-  +IsSystemAdmin(caller: ICurrentUser): bool
-  +AuditOverride(caller: ICurrentUser, action: string, target: string): Task
+interface ICurrentUser {
+  +Guid? UserId
+  +IReadOnlyCollection<Role> Roles
+  +bool IsAuthenticated
+  +HasRole(role: Role): bool
+}
+enum EditAccess {
+  Owner
+  AdminOverride
+  Forbidden
+}
+class ProfileAccess {
+  +CallerProfileIdAsync(): Task<Guid?>
+  +CanEdit(profileId: Guid, callerProfileId: Guid?): bool
+  +AuthorizeEditAsync(profileId: Guid): Task<(EditAccess, Guid Actor)>
+}
+class UpdateProfileHandler {
+  +HandleAsync(profileId: Guid, command: UpdateProfileCommand): Task<Result>
 }
 interface IAuditLog {
-  +Write(entry: AuditEntry): Task
+  +Record(actorId: Guid, action: string, targetType: string, targetId: string, before: object?, after: object?): void
 }
-SearchUsersHandler ..> SearchUsersQuery : handles
-SearchUsersHandler --> AdminOverridePolicy
+SearchUsersHandler ..> ICurrentUser : requires System Admin
 SearchUsersHandler ..> AdminUserSummary : returns
-AdminUserSummary --> UserStatus
-AdminOverridePolicy ..> IAuditLog
+AdminUserSummary ..> UserStatus : Status name
+ProfileAccess ..> ICurrentUser
+ProfileAccess ..> EditAccess : returns
+UpdateProfileHandler --> ProfileAccess
+UpdateProfileHandler ..> IAuditLog : Record() when AdminOverride
 @enduml

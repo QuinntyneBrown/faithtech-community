@@ -1,5 +1,5 @@
 @startuml
-title UML sequence behaviour — list and revoke invites
+title UML sequence behaviour — list, resend and revoke invites
 skinparam backgroundColor #FFFFFF
 skinparam shadowing false
 skinparam roundcorner 12
@@ -17,13 +17,16 @@ skinparam package {
 actor "Lead" as actor
 box "Frontend — FaithTech Community web app (invites library)" #E0F2FE
   participant "InvitesPage" as page
-  participant "InvitesService" as client
+end box
+box "Frontend — FaithTech Community web app (api library)" #E0F2FE
+  participant "HttpInvitesService" as client
 end box
 box "Backend — FaithTech.Community.Api" #D1FADF
   participant "InvitesEndpoints" as ep
 end box
 box "Backend — FaithTech.Community.Application and Domain" #ECFDF3
-  participant "RevokeInviteHandler" as h
+  participant "ManageInvitesHandler" as h
+  participant "InviteSender" as sender
   participant "Invite" as ent
 end box
 box "Backend — FaithTech.Community.Infrastructure" #FFF4E5
@@ -33,15 +36,39 @@ participant "Email provider" as mail
 actor -> page : Open invites page
 page -> client : listInvites()
 client -> ep : GET /api/invites
-ep -> db : Load caller's invites
-ep --> page : Invites with Pending, Accepted, Expired or Revoked status (L2-010)
-actor -> page : Revoke a pending invite
-page -> client : revokeInvite(id)
-client -> ep : POST /api/invites/{id}/revoke
-ep -> h : Send RevokeInviteCommand
-h -> db : Load invite
-h -> ent : Revoke(now)
-h -> db : Save; link stops working (L2-010)
-h --> ep : Revoked
-ep --> page : 204
+ep -> h : ListAsync()
+h -> sender : CanInvite
+alt not a lead or System Admin
+  h --> ep : null
+  ep --> client : 403
+else permitted
+  h -> db : Load every inviter's invites, newest first (L2-010 AC4)
+  h --> ep : InviteDto list
+  ep --> client : 200 OK
+  client --> page : Invites
+  page --> actor : Pending, Accepted, Expired or Withdrawn badges
+end
+opt Resend an expired invite
+  actor -> page : Choose Resend
+  page -> client : resendInvite(id)
+  client -> ep : POST /api/invites/{id}/resend (HANDLES_FORBIDDEN)
+  ep -> h : ResendAsync(id)
+  h -> db : Load invite; require Expired (else 409)
+  h -> sender : CreateAsync(email, role, note) (L2-010 AC5)
+  sender -> db : Save new invite, new token hash, 14 days
+  sender -> mail : Send new single-use link
+  h --> ep : InviteDto
+  ep --> client : 201 Created
+  client --> page : New invite
+  page --> actor : Add to top of list; toast "Invite sent again"
+end
+opt Revoke a pending invite (API only in v1)
+  client -> ep : POST /api/invites/{id}/revoke
+  ep -> h : RevokeAsync(id)
+  h -> db : Load invite; require Pending (else 409)
+  h -> ent : Revoke(now)
+  h -> db : Save; link stops working
+  h --> ep : Ok
+  ep --> client : 204 No Content
+end
 @enduml

@@ -16,34 +16,59 @@ class AuditEntry {
   +string Action
   +string TargetType
   +string TargetId
-  +string BeforeJson
-  +string AfterJson
+  +string? BeforeJson
+  +string? AfterJson
   +DateTime OccurredAtUtc
   +string IpAddress
 }
 interface IAuditLog {
-  +Write(entry: AuditEntry): Task
+  +Record(actorId: Guid, action: string, targetType: string, targetId: string, before: object?, after: object?): void
 }
 class AuditLog {
-  +Write(entry: AuditEntry): Task
+  +Record(actorId: Guid, action: string, targetType: string, targetId: string, before: object?, after: object?): void
 }
-class GetAuditEntriesQuery {
-  +Guid? ActorId
-  +string Action
-  +DateTime? FromUtc
-  +DateTime? ToUtc
+class GetAuditEntriesQuery <<record>> {
+  +string? Category
+  +Guid? Actor
+  +DateTime? From
+  +DateTime? To
   +int Page
+}
+class AuditEntryDto <<record>> {
+  +Guid Id
+  +DateTime OccurredAtUtc
+  +Guid ActorId
+  +string ActorName
+  +string Action
+  +string TargetType
+  +string TargetId
+  +string Summary
+  +string? Before
+  +string? After
+  +string IpAddress
 }
 class GetAuditEntriesHandler {
   +PageSize: int = 50
-  +Handle(query: GetAuditEntriesQuery): Task<PagedResult<AuditEntry>>
+  +MaxExportRows: int = 10000
+  +DefaultRange: TimeSpan = 90 days
+  +HandleAsync(query: GetAuditEntriesQuery): Task<PagedResult<AuditEntryDto>?>
+  +HandleAllAsync(query: GetAuditEntriesQuery): Task<IReadOnlyList<AuditEntryDto>?>
+}
+interface ICurrentUser {
+  +HasRole(role: Role): bool
+}
+interface IApplicationDbContext {
+  +DbSet<AuditEntry> AuditEntries
 }
 class CommunityDbContext {
   +DbSet<AuditEntry> AuditEntries
 }
 AuditLog ..|> IAuditLog
 AuditLog --> CommunityDbContext
+CommunityDbContext ..|> IApplicationDbContext
 GetAuditEntriesHandler ..> GetAuditEntriesQuery : handles
-GetAuditEntriesHandler --> CommunityDbContext
+GetAuditEntriesHandler ..> AuditEntryDto : returns
+GetAuditEntriesHandler --> IApplicationDbContext
+GetAuditEntriesHandler ..> ICurrentUser : requires System Admin
 CommunityDbContext "1" o-- "*" AuditEntry
 @enduml

@@ -17,6 +17,8 @@ skinparam package {
 actor "System Admin" as actor
 box "Frontend — FaithTech Community web app (admin library)" #E0F2FE
   participant "AdminUsersPage" as page
+end box
+box "Frontend — FaithTech Community web app (api library)" #E0F2FE
   participant "HttpAdminUsersService" as svc
 end box
 box "Backend — FaithTech.Community.Api" #D1FADF
@@ -24,27 +26,27 @@ box "Backend — FaithTech.Community.Api" #D1FADF
 end box
 box "Backend — FaithTech.Community.Application and Domain" #ECFDF3
   participant "SearchUsersHandler" as h
-  participant "AdminOverridePolicy" as pol
+  participant "ICurrentUser" as cur
 end box
 box "Backend — FaithTech.Community.Infrastructure" #FFF4E5
   database "Community database" as db
 end box
 actor -> page : Enter search term
 page -> svc : search(term, page)
-svc -> ep : GET /api/admin/users?q=term&page=n
-ep -> h : Send SearchUsersQuery
-h -> pol : IsSystemAdmin(caller)
+svc -> ep : GET /api/admin/users?q=term&page=n (HANDLES_FORBIDDEN)
+ep -> h : HandleAsync(term, page)
+h -> cur : HasRole(SystemAdmin)
 alt not System Admin
-  h --> ep : Forbidden
-  ep --> svc : 403 ProblemDetails
-  svc --> page : Error
-  page --> actor : Show forbidden page
+  h --> ep : null
+  ep --> svc : 403
+  svc --> page : HttpErrorResponse 403
+  page --> actor : Show the page's forbidden state
 else System Admin
-  h -> db : Query accounts with roles and status (L2-040 AC1)
-  db --> h : Rows
+  h -> db : Match name or email, order by name, take 25 (L2-040 AC1)
+  db --> h : Accounts with roles, suspension and email confirmation
   h --> ep : PagedResult<AdminUserSummary>
   ep --> svc : 200 OK
   svc --> page : Users
-  page --> actor : Show users, roles and status
+  page --> actor : Show users, roles and status; Show more users when more remain
 end
 @enduml
