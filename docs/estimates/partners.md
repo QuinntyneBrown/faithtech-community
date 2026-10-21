@@ -2,5 +2,5 @@
 
 | Design | Effort | Complete |
 |---|---|---|
-| manage-partners | 4 days | 0% |
-| partner-kanban-board | 4 days | 0% |
+| manage-partners | 4 days | 100% |
+| partner-kanban-board | 4 days | 100% |

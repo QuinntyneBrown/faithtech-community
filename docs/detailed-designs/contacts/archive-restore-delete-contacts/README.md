@@ -78,3 +78,9 @@ The dialog keeps Delete disabled until the input is exactly `DELETE`; the server
 Decisions recorded while building the Domain layer (`FaithTech.Community.Domain`):
 
 - Domain rule violations throw `InvalidOperationException` (a broken rule) or `ArgumentException` (invalid input); there is no shared domain exception type. Handlers check permissions and preconditions first and map any remaining violation to a `400` or `409` result.
+
+Decisions recorded while building the feature ([ADR 0007](../../../adr/0007-contacts-and-partners-access-and-open-questions.md)):
+
+- Restoring shows the "Contact restored" toast without the mock's Undo action; archiving again from the contact page undoes a restore.
+- Archive is offered from the contact page; the contacts list has no per-row archive action.
+- A System Admin's archive, restore and delete of another lead's contact are audited (`contact.archived`, `contact.restored`, `contact.deleted`).

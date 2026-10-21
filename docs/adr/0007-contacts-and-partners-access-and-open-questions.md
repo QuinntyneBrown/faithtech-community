@@ -37,7 +37,7 @@ Partners
 - Add partner is a dialog with every L2-017 field; **Edit** navigates to a new partner form page, `/partners/:id/edit` (mock `pages/partner-form`). The stage is not edited there; it changes only by a move.
 - The partner page shows the stage history, newest first, with who moved it, from and to, and the note. Its partner notes are the `Notes` field, edited on the form; the mock's inline note form is removed.
 - Moves go from any stage to any other; moving to the current stage is `409`. Two leads moving at once: last write wins, with no concurrency token.
-- Below 576px the board shows the stages as tabs with one column at a time (L2-018 AC4, mock `pages/partners/tabs`), composed from the library's tabs and Kanban components.
+- On phones, below the design system's `sm` breakpoint (640px, which covers XS), the board shows the stages as tabs with one column at a time (L2-018 AC4, mock `pages/partners/tabs`), composed from the library's tabs and Kanban components.
 
 Mocks
 

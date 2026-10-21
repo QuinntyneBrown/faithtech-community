@@ -8,7 +8,7 @@ At extra-small viewports the board shows the stages as tabs with one column visi
 
 ## Description
 
-- **`PartnersPage`** — board page in the `partners` feature library. It groups partners by stage and renders one Kanban column per stage, or, below 576px, stage tabs (`TabsComponent`) with one column visible at a time (mock `pages/partners/tabs`).
+- **`PartnersPage`** — board page in the `partners` feature library. It groups partners by stage and renders one Kanban column per stage, or, on phones (below the 640px `sm` breakpoint, which covers XS), stage tabs (`TabsComponent`) with one column visible at a time (mock `pages/partners/tabs`).
 - **Kanban column and card components** — from the `components` library, built on Angular CDK drag and drop. A focused card exposes a Move action reachable by keyboard.
 - **`MovePartnerDialog`** — CDK dialog listing the other stages; used from the card's Move to action and as the keyboard path.
 - **`PartnersService`** — `list()` and `move(id, stage)` calling `GET /api/partners` and `POST /api/partners/{id}/stage`.
