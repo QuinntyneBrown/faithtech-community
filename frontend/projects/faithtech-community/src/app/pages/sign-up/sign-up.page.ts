@@ -77,6 +77,10 @@ export class SignUpPage {
     return this.errors().find((e) => e.field === field)?.message ?? '';
   }
 
+  protected verifyEmailLink(email: string): string {
+    return `/verify-email?email=${encodeURIComponent(email)}`;
+  }
+
   protected summaryHeading(): string {
     const count = this.errors().length;
     return `Fix ${count} ${count === 1 ? 'thing' : 'things'} to create your account`;

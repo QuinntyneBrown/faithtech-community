@@ -1,6 +1,73 @@
-<!--
-  SCAFFOLD: placeholder, not the implementation.
-  Generated from AGENTS.md and:
-    - docs/detailed-designs/identity/email-verification
-  Overwrite this template with the expected implementation, then delete this comment.
--->
+<ft-auth-layout>
+  <ft-card>
+    <ft-stack>
+      @switch (state()) {
+        @case ('verifying') {
+          <h1 class="text-center" aria-live="polite">Checking your link…</h1>
+        }
+        @case ('verified') {
+          <h1 class="text-center">You’re in{{ firstName() ? ', ' + firstName() : '' }}</h1>
+          <p class="text-center">
+            Your email is verified. Next, add a photo and a few words about yourself so your city
+            team can find you.
+          </p>
+          <ft-button href="/people/me" variant="primary" size="lg" [block]="true">
+            Set up my profile
+          </ft-button>
+          <p class="text-center"><ft-link href="/">Skip for now</ft-link></p>
+        }
+        @default {
+          @if (state() === 'expired') {
+            <h1 class="text-center">This link has expired</h1>
+            <p class="text-center">
+              Verification links work for 24 hours. We can send you a fresh one right now.
+            </p>
+          } @else {
+            <h1 class="text-center">Verify your email</h1>
+            @if (knownEmail(); as email) {
+              <p class="text-center">Open the link we sent to {{ email }}</p>
+            } @else {
+              <p class="text-center">Open the link we sent to your email address.</p>
+            }
+          }
+
+          @switch (resend()?.kind) {
+            @case ('sent') {
+              <ft-alert status="success" heading="Check your inbox">
+                We sent a new link to {{ $any(resend()).email }}.
+              </ft-alert>
+            }
+            @case ('limited') {
+              <ft-alert status="warning" heading="Too many requests">
+                We’ve sent several links in the last hour. Please try again later.
+              </ft-alert>
+            }
+            @case ('failed') {
+              <ft-alert status="danger" heading="We couldn’t send a new link">
+                Something went wrong on our side. Try again in a moment.
+              </ft-alert>
+            }
+          }
+
+          @if (!knownEmail()) {
+            <ft-form-field label="Email" [error]="emailError()">
+              <ft-text-field [formControl]="emailControl" type="email" autocomplete="email" />
+            </ft-form-field>
+          }
+          <ft-button
+            variant="primary"
+            size="lg"
+            [block]="true"
+            [loading]="sending()"
+            (click)="sendNewLink()"
+          >
+            {{ sending() ? 'Sending…' : 'Send a new link' }}
+          </ft-button>
+          @if (state() === 'pending') {
+            <p class="text-center"><ft-link href="/sign-up">Use a different email</ft-link></p>
+          }
+        }
+      }
+    </ft-stack>
+  </ft-card>
+</ft-auth-layout>

@@ -11,7 +11,7 @@
     </ft-card>
     <p class="text-caption text-center">
       Didn’t get it? Check spam, or
-      <ft-link href="/verify-email">send it again</ft-link>
+      <ft-link [href]="verifyEmailLink(email)">send it again</ft-link>
     </p>
   } @else {
     <ft-card>
