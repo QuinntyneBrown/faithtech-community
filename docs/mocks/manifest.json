@@ -889,6 +889,23 @@
       }
     },
     {
+      "id": "move-story",
+      "kind": "dialog",
+      "title": "Move story",
+      "opens_from": "team-board",
+      "requirements": [
+        "L2-034"
+      ],
+      "states": [
+        "default",
+        "busy",
+        "failed"
+      ],
+      "not_applicable": {
+        "invalid": "A status is always selected."
+      }
+    },
+    {
       "id": "switch-method",
       "kind": "dialog",
       "title": "Switch Scrum / Kanban",
