@@ -1,2 +1,4 @@
 <span class="ft-stat__label" [id]="labelId">{{ label() }}</span>
-<span class="ft-stat__value">{{ value() }}</span>
+<span class="ft-stat__value" [class.ft-stat__value--text]="variant() === 'text'">{{
+  value()
+}}</span>
