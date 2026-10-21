@@ -98,11 +98,11 @@
     </header>
 
     <section class="ds-section" id="overview"><h2><a href="#overview">Overview</a></h2>
-      <p>Use a toast for news about an action that just finished or an event that just arrived, when the person can carry on without reading it. Use an <a href="alert.html">alert or banner</a> when the message must stay on the page, and a <a href="dialog.html">dialog</a> when they must decide before going on.</p>
+      <p>Use a toast for news about an action that just finished or an event that just arrived, when the person can carry on without reading it. Use an <a href="alert.html">alert or banner</a> when the message must stay on the page (a dropped connection is the “No connection” banner, not a toast), and a <a href="dialog.html">dialog</a> when they must decide before going on.</p>
       <ul>
         <li><b>Info</b>: a neutral result, often reversible ("Contact restored", with Undo).</li>
         <li><b>Success</b>: the member’s action worked ("You’re going", "Invite sent"). Often carries Undo or a next step.</li>
-        <li><b>Warning</b>: it worked, but not fully ("Saved, but email is paused"), or the connection dropped ("No connection").</li>
+        <li><b>Warning</b>: it worked, but not fully ("Saved, but email is paused").</li>
         <li><b>Danger</b>: it failed and nothing was lost ("Your RSVP wasn’t saved"), with Retry.</li>
       </ul>
     </section>
@@ -314,7 +314,6 @@
         <li><a href="../../mocks/notifications/toast/warning.html">notifications/toast/warning</a> (Saved, but email is paused)</li>
         <li><a href="../../mocks/notifications/toast/danger.html">notifications/toast/danger</a> (Your RSVP wasn’t saved, Retry)</li>
         <li><a href="../../mocks/notifications/toast/stacked.html">notifications/toast/stacked</a> (three at once)</li>
-        <li><a href="../../mocks/pages/offline/default.html">pages/offline/default</a> (No connection warning)</li>
       </ul>
       <p>Inherited from Shelfie unchanged. Drift in the FaithTech mocks: the warning and danger toasts carry a timer bar although they never dismiss themselves (the system drops it); the danger mock puts <code>role="alert"</code> and <code>aria-live="assertive"</code> on the region instead of the toast; the success mock places its note with an inline <code>style="bottom: 9rem; right: 1rem;"</code> in raw rem; the warning icon path differs slightly from the shared triangle icon.</p>
     </section>
