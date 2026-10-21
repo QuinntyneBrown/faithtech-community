@@ -59,12 +59,12 @@ public partial class ServerAuthorizationTests(CommunityApiFactory factory) : ICl
             .AddAuthentication(TestAuthHandler.SchemeName)
             .AddScheme<AuthenticationSchemeOptions, TestAuthHandler>(TestAuthHandler.SchemeName, null))).CreateClient();
         var userId = Guid.NewGuid();
-        client.DefaultRequestHeaders.Add(TestAuthHandler.Header, $"{userId};Lead,Staff");
+        client.DefaultRequestHeaders.Add(TestAuthHandler.Header, $"{userId};CityLead,Staff");
 
         var me = await client.GetFromJsonAsync<MeResponse>("/api/me");
 
         Assert.Equal(userId, me!.Id);
-        Assert.Equal(["Lead", "Staff"], me.Roles);
+        Assert.Equal(["CityLead", "Staff"], me.Roles);
     }
 
     private sealed record MeResponse(Guid Id, string[] Roles);

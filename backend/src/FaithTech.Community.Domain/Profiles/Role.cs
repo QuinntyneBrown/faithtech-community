@@ -2,11 +2,13 @@ namespace FaithTech.Community.Domain.Profiles;
 
 public enum Role
 {
-    Attendee,
+    CityLead,
+    EventLead,
+    CreateLead,
+    CommunicationsLead,
+    Staff,
     Volunteer,
     ProductEngineer,
-    Lead,
-    CityLead,
-    Staff,
+    Attendee,
     SystemAdmin,
 }

@@ -107,10 +107,6 @@ namespace FaithTech.Community.Infrastructure.Persistence.Migrations
                         .HasMaxLength(200)
                         .HasColumnType("character varying(200)");
 
-                    b.PrimitiveCollection<string[]>("Roles")
-                        .IsRequired()
-                        .HasColumnType("text[]");
-
                     b.HasKey("Id");
 
                     b.ToTable("Profiles");
@@ -527,6 +523,34 @@ namespace FaithTech.Community.Infrastructure.Persistence.Migrations
                         .HasForeignKey("FaithTech.Community.Application.Identity.CommunityUser", "ProfileId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+                });
+
+            modelBuilder.Entity("FaithTech.Community.Domain.Profiles.Profile", b =>
+                {
+                    b.OwnsMany("FaithTech.Community.Domain.Profiles.ProfileRole", "Roles", b1 =>
+                        {
+                            b1.Property<Guid>("ProfileId")
+                                .HasColumnType("uuid");
+
+                            b1.Property<string>("Role")
+                                .HasMaxLength(32)
+                                .HasColumnType("character varying(32)");
+
+                            b1.Property<DateTime>("GrantedAtUtc")
+                                .HasColumnType("timestamp with time zone");
+
+                            b1.Property<Guid>("GrantedBy")
+                                .HasColumnType("uuid");
+
+                            b1.HasKey("ProfileId", "Role");
+
+                            b1.ToTable("ProfileRoles", (string)null);
+
+                            b1.WithOwner()
+                                .HasForeignKey("ProfileId");
+                        });
+
+                    b.Navigation("Roles");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<System.Guid>", b =>

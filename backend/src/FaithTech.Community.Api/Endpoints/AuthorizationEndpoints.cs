@@ -48,7 +48,7 @@ public static class AuthorizationEndpoints
             .SetClaim(Claims.Email, user.Email)
             .SetClaim(Claims.EmailVerified, user.EmailConfirmed)
             .SetClaim(Claims.Name, profile.Name)
-            .SetClaims(Claims.Role, [.. profile.Roles.Select(r => r.ToString())]);
+            .SetClaims(Claims.Role, [.. profile.Roles.Select(r => r.Role.ToString())]);
         identity.SetScopes(request.GetScopes());
         identity.SetDestinations(_ => [Destinations.AccessToken, Destinations.IdentityToken]);
 

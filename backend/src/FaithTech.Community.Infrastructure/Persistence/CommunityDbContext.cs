@@ -26,7 +26,14 @@ public class CommunityDbContext(DbContextOptions<CommunityDbContext> options)
         builder.Entity<Profile>(profile =>
         {
             profile.Property(p => p.Name).HasMaxLength(200);
-            profile.PrimitiveCollection(p => p.Roles).ElementType().HasConversion<string>();
+            profile.Ignore(p => p.DomainEvents);
+            profile.OwnsMany(p => p.Roles, role =>
+            {
+                role.ToTable("ProfileRoles");
+                role.WithOwner().HasForeignKey(r => r.ProfileId);
+                role.HasKey(r => new { r.ProfileId, r.Role });
+                role.Property(r => r.Role).HasConversion<string>().HasMaxLength(32);
+            });
         });
 
         builder.Entity<VerificationResend>(resend =>
