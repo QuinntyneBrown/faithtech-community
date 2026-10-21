@@ -1,6 +1,6 @@
 <ng-template #nameCell let-user>
   <ft-cluster gap="2">
-    <ft-avatar size="sm" [name]="user.name" />
+    <ft-avatar size="sm" [name]="user.name" [color]="avatarColor(user)" />
     <ft-link [href]="'/people/' + user.id">{{ user.name }}</ft-link>
   </ft-cluster>
 </ng-template>

@@ -4,6 +4,7 @@ import { toSignal } from '@angular/core/rxjs-interop';
 import { NavigationEnd, Router, RouterOutlet } from '@angular/router';
 import { AUTH_SERVICE, ROLE_LABELS } from '@faithtech-community/api';
 import {
+  avatarColorFor,
   AvatarComponent,
   BannerComponent,
   BreakpointService,
@@ -68,6 +69,7 @@ export class AppShellComponent {
   private readonly breakpoint = inject(BreakpointService);
 
   protected readonly user = this.auth.currentUser;
+  protected readonly avatarColor = computed(() => avatarColorFor(this.user()?.profileId));
   /** Unverified members can browse but must verify to RSVP, create content or invite (L2-002 AC3). */
   protected readonly unverified = computed(() => this.user()?.emailVerified === false);
   protected readonly resend = signal<'idle' | 'sending' | 'sent' | 'limited'>('idle');

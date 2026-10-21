@@ -337,6 +337,7 @@ export class MockApi {
       status: 200,
       json: {
         id: '00000000-0000-0000-0000-000000000001',
+        profileId: account.profileId,
         name: account.name,
         email: account.email,
         emailVerified: account.verified,

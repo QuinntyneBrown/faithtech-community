@@ -15,6 +15,8 @@ import { Role } from '../shared';
 
 export interface CurrentUser {
   id: string;
+  /** The caller's profile id; their avatar colour is derived from it (ADR 0007). */
+  profileId: string | null;
   name: string | null;
   email: string | null;
   emailVerified: boolean;

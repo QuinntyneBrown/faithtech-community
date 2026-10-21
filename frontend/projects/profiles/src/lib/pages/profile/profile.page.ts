@@ -21,6 +21,7 @@ import {
   problemDetails,
 } from '@faithtech-community/api';
 import {
+  avatarColorFor,
   ButtonComponent,
   DialogService,
   EmptyStateComponent,
@@ -56,6 +57,7 @@ export class ProfilePage {
   protected readonly state = signal<State>('loading');
   protected readonly profile = signal<ProfileDto | null>(null);
 
+  protected readonly avatarColor = computed(() => avatarColorFor(this.profile()?.id));
   protected readonly roles = computed(() => this.profile()?.roles.map((r) => ROLE_LABELS[r]) ?? []);
   protected readonly photos = computed<ProfilePhoto[]>(
     () => this.profile()?.photos.map((p) => ({ url: p.url, alt: p.altText })) ?? [],

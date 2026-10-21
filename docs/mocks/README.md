@@ -21,20 +21,21 @@ Static HTML mocks for every page, dialog and notification, built from [`idea.txt
 
 "Today" is **Tuesday 21 October 2026**.
 
-| Person | Roles | City | Used as |
-|---|---|---|---|
-| Grace Okonkwo | City Lead | Toronto | Default signed-in user |
-| Marcus Lee | Event Lead | Toronto | Lead on Grace's team workspace |
-| Hannah Kim | Communications Lead | Toronto | Sends announcements |
-| Samuel Mensah | Create Lead, Product Engineer | Toronto | Profile being viewed |
-| Ruth Alvarez | Volunteer | Toronto | Team member; can't open the workspace |
-| Jonah Bell | Product Engineer, Attendee | Toronto | Member view of events and search |
-| Leah Thompson | — | Toronto | New member with no role |
-| Daniel Reyes | Staff | Austin | Read-only oversight |
-| Priya Shah | System Admin | Vancouver | Admin and audit log |
-| Esther Nakamura | City Lead | Austin | Cancelled the Austin panel |
-| Tomás Ortega | — (private contact) | Toronto | Grace's contact who just signed up |
+| Person | Roles | City | Avatar | Used as |
+|---|---|---|---|---|
+| Grace Okonkwo | City Lead | Toronto | sky | Default signed-in user |
+| Marcus Lee | Event Lead | Toronto | sun | Lead on Grace's team workspace |
+| Hannah Kim | Communications Lead | Toronto | lilac | Sends announcements |
+| Samuel Mensah | Create Lead, Product Engineer | Toronto | mint | Profile being viewed |
+| Ruth Alvarez | Volunteer | Toronto | rose | Team member; can't open the workspace |
+| Jonah Bell | Product Engineer, Attendee | Toronto | sage | Member view of events and search |
+| Leah Thompson | — | Toronto | peach | New member with no role |
+| Daniel Reyes | Staff | Austin | sage | Read-only oversight |
+| Priya Shah | System Admin | Vancouver | lilac | Admin and audit log |
+| Esther Nakamura | City Lead | Austin | mint | Cancelled the Austin panel |
+| Tomás Ortega | — (private contact) | Toronto | sun | Grace's contact who just signed up |
 
+- **Avatar colours** come from each member's profile id (ADR 0007), so a person keeps one colour on every screen. Seven colours serve every member, so colours repeat (Marcus and Tomás are both sun); the printed name, never the colour, identifies a person. Private contacts who have not signed up, and suspended accounts, use the plain avatar.
 - **Events:** Toronto Builders Night (public, Thu 6 Nov), City Team Prayer & Planning (members only, Tue 28 Oct), Hackathon: Tech for Shelters (public, 14–15 Nov), Austin Faith & AI Panel (cancelled).
 - **Partners:**
   - Lead: Maple Street Church, Northgate Credit Union, Ellis Design Studio, St. Brigid's Parish

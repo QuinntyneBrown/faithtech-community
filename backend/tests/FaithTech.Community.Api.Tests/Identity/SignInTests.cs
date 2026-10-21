@@ -63,6 +63,19 @@ public class SignInTests(CommunityApiFactory factory) : IClassFixture<CommunityA
     }
 
     [Fact]
+    public async Task Me_returns_the_callers_profile_id_so_the_top_bar_avatar_matches_their_profile()
+    {
+        var email = await _flow.CreateAccountAsync();
+        var api = _flow.Api((await _flow.SignInAndGetTokensAsync(email)).AccessToken);
+        var profileId = await factory.WithDbAsync(db =>
+            db.Users.Where(u => u.Email == email).Select(u => u.ProfileId).SingleAsync());
+
+        var me = await api.GetFromJsonAsync<JsonElement>("/api/me");
+
+        Assert.Equal(profileId, me.GetProperty("profileId").GetGuid());
+    }
+
+    [Fact]
     public async Task Wrong_password_and_unknown_email_get_the_same_generic_error()
     {
         var email = await _flow.CreateAccountAsync();

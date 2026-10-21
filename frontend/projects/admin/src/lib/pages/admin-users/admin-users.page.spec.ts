@@ -6,7 +6,7 @@ import {
   AdminUsersService,
   PagedResult,
 } from '@faithtech-community/api';
-import { DialogService } from '@faithtech-community/components';
+import { avatarColorFor, DialogService } from '@faithtech-community/components';
 import { Observable, of, throwError } from 'rxjs';
 
 import { SuspendUserDialog } from '../../dialogs';
@@ -77,6 +77,13 @@ describe('AdminUsersPage', () => {
     expect(row('Grace Okonkwo').querySelector('a')!.getAttribute('href')).toBe('/people/p1');
     expect(row('Victor Kane').textContent).toContain('No role');
     expect(row('Victor Kane').textContent).toContain('Suspended');
+  });
+
+  it('colours each member’s avatar by their profile id, and a suspended account’s plain', async () => {
+    const { row } = await setup(() => of(page([grace, victor])));
+    const avatar = (name: string) => row(name).querySelector('.ft-avatar')!;
+    expect(avatar('Grace Okonkwo').classList).toContain(`ft-avatar--${avatarColorFor('p1')}`);
+    expect(avatar('Victor Kane').classList).toContain('ft-avatar--plain');
   });
 
   it('searches by name or email and offers to clear an empty search', async () => {

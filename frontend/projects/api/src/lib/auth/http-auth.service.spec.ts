@@ -125,6 +125,7 @@ describe('HttpAuthService', () => {
   it('loads the current user and exposes the roles', () => {
     const me = {
       id: 'u1',
+      profileId: 'p1',
       name: 'Ada',
       email: 'a@b.c',
       emailVerified: false,
