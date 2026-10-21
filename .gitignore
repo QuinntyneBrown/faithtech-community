@@ -4,3 +4,6 @@ docs/mocks/.cache/
 [Bb]in/
 [Oo]bj/
 __pycache__/
+
+# Journey video recording runs (eng/videos/Record-JourneyVideos.ps1)
+eng/videos/.run/

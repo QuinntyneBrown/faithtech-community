@@ -1,0 +1,23 @@
+WEBVTT
+
+00:00:00.000 --> 00:00:10.000
+In this video you see what the app shows when something goes wrong. The app is real; the server is a local stand-in, and the failures are staged on purpose.
+
+00:00:10.000 --> 00:00:18.000
+If you follow a broken link, you get a friendly page-not-found screen, with a way home and a way to search.
+
+00:00:18.000 --> 00:00:25.000
+If you open something you are not allowed to see, the page says you do not have access, without revealing what the thing was.
+
+00:00:25.000 --> 00:00:35.000
+When the server fails, the page says it is not your fault, and shows a reference code. If you contact support, that code lets them find exactly what happened.
+
+00:00:35.000 --> 00:00:40.000
+If your connection drops, a banner tells you right away that you are offline.
+
+00:00:40.000 --> 00:00:46.000
+When the connection returns, the banner clears by itself, and you carry on.
+
+00:00:46.000 --> 00:00:54.000
+That is how the app handles trouble: clear words, a way forward, and nothing hidden from you or exposed to others.
+
