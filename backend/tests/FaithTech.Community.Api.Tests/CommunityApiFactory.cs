@@ -8,6 +8,8 @@ namespace FaithTech.Community.Api.Tests;
 
 public class CommunityApiFactory : WebApplicationFactory<Program>, IAsyncLifetime
 {
+    public const string WebAppOrigin = "https://app.faithtech.test";
+
     private readonly PostgreSqlContainer _postgres =
         new PostgreSqlBuilder("postgres:17-alpine").WithDatabase("faithtech_community").Build();
 
@@ -24,6 +26,7 @@ public class CommunityApiFactory : WebApplicationFactory<Program>, IAsyncLifetim
     {
         builder.UseEnvironment("Testing");
         builder.UseSetting("ConnectionStrings:Community", _postgres.GetConnectionString());
+        builder.UseSetting("Cors:WebAppOrigin", WebAppOrigin);
         builder.UseSetting("ConnectionStrings:Blobs", _azurite.GetConnectionString());
     }
 
