@@ -103,7 +103,7 @@
         <li><b><code>.container</code></b>: the page width (max 1280px) and side margins. <code>main</code> on every signed-in page.</li>
         <li><b><code>.stack</code></b>: children in a column, 16px apart. Cards, forms, dialog bodies.</li>
         <li><b><code>.cluster</code></b>: children in a wrapping row, 12px apart, vertically centred. Button rows, role badges, stats. <b><code>.cluster--between</code></b> pushes the ends apart (a card title with an "Open board" link). <b><code>.cluster--tight</code></b> closes the gap to 4px for a run of role badges in a list row's meta line (<code>&lt;ft-cluster gap="1"&gt;</code> in Angular). <b><code>.cluster--snug</code></b> sets it to 8px for an avatar beside a name, or a row of actions, in a table cell (<code>&lt;ft-cluster gap="2"&gt;</code>).</li>
-        <li><b><code>.grid</code></b>: the token column grid; a form can set <code>--layout-columns: 2</code> for a Starts/Ends pair. <b><code>.grid--auto</code></b> fills with 18rem-minimum cards instead.</li>
+        <li><b><code>.grid</code></b>: the token column grid. <b><code>.grid--pair</code></b> gives two equal columns at every width for a Starts/Ends pair in a form (<code>&lt;ft-grid [columns]="2"&gt;</code> in Angular). <b><code>.grid--auto</code></b> fills with 18rem-minimum cards instead.</li>
         <li><b><code>.split</code></b>: one column on phones, main and aside at 2:1 from 1024px. Home, event, contact and partner pages. It keeps 16px from a banner or alert above it; after a page header the margins collapse to the header's 24px.</li>
         <li><b><code>.page-start</code></b>: the first block of a page with no page header, such as the profile head card, starts 24px below the top bar, where a page header would.</li>
         <li><b><code>.page-header</code></b> (title, subtitle, actions) and <b><code>.section</code></b> (vertical rhythm between page sections).</li>
@@ -172,13 +172,13 @@
       <h3>Grid</h3>
       <div class="ds-example">
         <div class="ds-example__canvas ds-example__canvas--stack ds-example__canvas--canvas">
-          <div class="grid" style="--layout-columns: 2;"><div class="field"><label class="field__label" for="lay-start">Starts</label><input class="input" id="lay-start" type="datetime-local" value="2026-11-06T18:30"></div><div class="field"><label class="field__label" for="lay-end">Ends</label><input class="input" id="lay-end" type="datetime-local" value="2026-11-06T21:00"></div></div>
+          <div class="grid grid--pair"><div class="field"><label class="field__label" for="lay-start">Starts</label><input class="input" id="lay-start" type="datetime-local" value="2026-11-06T18:30"></div><div class="field"><label class="field__label" for="lay-end">Ends</label><input class="input" id="lay-end" type="datetime-local" value="2026-11-06T21:00"></div></div>
           <div class="grid grid--auto">
             <div class="card stack"><span class="skeleton skeleton--title" aria-hidden="true"></span><span class="skeleton skeleton--text" aria-hidden="true"></span></div>
             <div class="card stack"><span class="skeleton skeleton--title" aria-hidden="true"></span><span class="skeleton skeleton--text" aria-hidden="true"></span></div>
           </div>
         </div>
-        <div class="ds-example__caption"><span><code>.grid</code> with two columns (event form, Starts and Ends) and <code>.grid--auto</code>, as many 18rem cards as fit (loading states for profile, event and partner).</span></div>
+        <div class="ds-example__caption"><span><code>.grid.grid--pair</code> (event form, Starts and Ends) and <code>.grid--auto</code>, as many 18rem cards as fit (loading states for profile, event and partner).</span></div>
       </div>
       <h3>Page header and section</h3>
       <div class="ds-example">
@@ -312,7 +312,7 @@
         <tr><td><code>.stack</code></td><td>Column, 16px gap.</td></tr>
         <tr><td><code>.cluster</code> / <code>.cluster--between</code></td><td>Wrapping row, 12px gap / ends apart.</td></tr>
         <tr><td><code>.cluster--tight</code> / <code>.cluster--snug</code></td><td>4px gap (role badges in a meta line) / 8px gap (avatar and name, or actions, in a table cell).</td></tr>
-        <tr><td><code>.grid</code> / <code>.grid--auto</code></td><td>Token column grid (override with <code>--layout-columns</code>) / auto-fill 18rem columns.</td></tr>
+        <tr><td><code>.grid</code> / <code>.grid--auto</code> / <code>.grid--pair</code></td><td>Token column grid / auto-fill 18rem columns / two equal columns for a form pair.</td></tr>
         <tr><td><code>.split</code></td><td>One column, then 2fr / 1fr from 1024px; 16px above.</td></tr>
         <tr><td><code>.page-start</code></td><td>24px above the first block of a page with no page header.</td></tr>
         <tr><td><code>.page-header</code> (+ <code>.subtitle</code>)</td><td>Title block and actions, wraps.</td></tr>
@@ -333,7 +333,6 @@
       </ul>
       <p>Drift noticed in the mocks:</p>
       <ul>
-        <li>The two-column form grid overrides <code>--layout-columns: 2</code> inline in four event-form mocks; it should be a named modifier.</li>
         <li>Auth pages centre text with inline <code>style="text-align: center;"</code> on the heading and footer links.</li>
         <li>Loading skeletons size themselves inline (<code>style="width: 12rem; display: inline-block;"</code>, <code>style="flex:1;"</code>).</li>
       </ul>
