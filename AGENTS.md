@@ -145,6 +145,8 @@ Non-obvious rules:
 
 Backend behavior is covered by integration tests against the API. Write tests for authorization rules alongside each feature, especially private-contact visibility and role-assignment limits.
 
+All backend tests MUST use a fake database: the EF Core in-memory provider, with a uniquely named database per test fixture. Tests MUST NOT depend on Docker, Testcontainers, a running PostgreSQL or any other external service; fake external dependencies (blob storage, email, breached-password checks, time) behind their abstractions.
+
 ## Frontend architecture
 
 ### Conventions enforced across the codebase

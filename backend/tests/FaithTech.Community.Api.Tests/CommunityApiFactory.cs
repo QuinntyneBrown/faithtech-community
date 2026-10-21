@@ -1,48 +1,58 @@
+using Azure.Storage.Blobs;
 using FaithTech.Community.Api.Tests.Fakes;
 using FaithTech.Community.Application.Common;
 using FaithTech.Community.Application.Identity;
-using FaithTech.Community.Cli;
 using FaithTech.Community.Infrastructure.Persistence;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.AspNetCore.TestHost;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Time.Testing;
-using Testcontainers.Azurite;
-using Testcontainers.PostgreSql;
 
 namespace FaithTech.Community.Api.Tests;
 
+/// <summary>Runs the API against an in-memory database and fakes for every external service.</summary>
 public class CommunityApiFactory : WebApplicationFactory<Program>, IAsyncLifetime
 {
     public const string WebAppOrigin = "https://app.faithtech.test";
+
+    // Shared by servers derived with WithWebHostBuilder, so they see the same data.
+    private readonly InMemoryDatabaseRoot _databaseRoot = new();
+    private readonly string _databaseName = Guid.NewGuid().ToString();
 
     public FakeEmailSender Emails { get; } = new();
 
     public FakeTimeProvider Time { get; } = new(DateTimeOffset.UtcNow);
 
-    private readonly PostgreSqlContainer _postgres =
-        new PostgreSqlBuilder("postgres:17-alpine").WithDatabase("faithtech_community").Build();
-
-    private readonly AzuriteContainer _azurite =
-        new AzuriteBuilder("mcr.microsoft.com/azure-storage/azurite:3.37.0").WithInMemoryPersistence().WithCommand("--skipApiVersionCheck").Build();
+    public FakeBlobServiceClient Blobs { get; } = new();
 
     public async Task InitializeAsync()
     {
-        await Task.WhenAll(_postgres.StartAsync(), _azurite.StartAsync());
-        await CliApp.RunAsync(["migrate"], _postgres.GetConnectionString());
+        await using var scope = Services.CreateAsyncScope();
+        await scope.ServiceProvider.GetRequiredService<CommunitySeeder>().SeedAsync(WebAppOrigin);
     }
 
     protected override void ConfigureWebHost(IWebHostBuilder builder)
     {
         builder.UseEnvironment("Testing");
-        builder.UseSetting("ConnectionStrings:Community", _postgres.GetConnectionString());
+        builder.UseSetting("ConnectionStrings:Community", "Host=unused");
+        builder.UseSetting("ConnectionStrings:Blobs", "UseDevelopmentStorage=true");
         builder.UseSetting("WebApp:Origin", WebAppOrigin);
         // Tests share one client address; the rate-limit tests restore the production limit explicitly.
         builder.UseSetting("RateLimits:AuthPerMinute", "100000");
-        builder.UseSetting("ConnectionStrings:Blobs", _azurite.GetConnectionString());
         builder.ConfigureTestServices(services =>
         {
+            services.RemoveAll<IDbContextOptionsConfiguration<CommunityDbContext>>();
+            services.RemoveAll<DbContextOptions<CommunityDbContext>>();
+            services.AddDbContext<CommunityDbContext>(options => options
+                .UseInMemoryDatabase(_databaseName, _databaseRoot)
+                .UseOpenIddict());
+
+            services.AddSingleton<BlobServiceClient>(Blobs);
             services.AddSingleton<IEmailSender>(Emails);
             services.AddSingleton<TimeProvider>(Time);
             services.AddSingleton<IBreachedPasswordChecker, FakeBreachedPasswordChecker>();
@@ -55,10 +65,5 @@ public class CommunityApiFactory : WebApplicationFactory<Program>, IAsyncLifetim
         return await query(scope.ServiceProvider.GetRequiredService<CommunityDbContext>());
     }
 
-    public new async Task DisposeAsync()
-    {
-        await base.DisposeAsync();
-        await _postgres.DisposeAsync();
-        await _azurite.DisposeAsync();
-    }
+    public new Task DisposeAsync() => base.DisposeAsync().AsTask();
 }

@@ -2,25 +2,21 @@ using FaithTech.Community.Application.Common;
 using FaithTech.Community.Domain.Profiles;
 using FaithTech.Community.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
-using Testcontainers.PostgreSql;
 
 namespace FaithTech.Community.Infrastructure.Tests.Persistence;
 
 public class PagingTests : IAsyncLifetime
 {
-    private readonly PostgreSqlContainer _postgres =
-        new PostgreSqlBuilder("postgres:17-alpine").WithDatabase("faithtech_community").Build();
+    private readonly string _database = Guid.NewGuid().ToString();
 
     public async Task InitializeAsync()
     {
-        await _postgres.StartAsync();
         await using var db = CreateContext();
-        await db.Database.MigrateAsync();
         db.Profiles.AddRange(Enumerable.Range(1, 130).Select(i => new Profile($"Member {i:000}")));
         await db.SaveChangesAsync();
     }
 
-    public Task DisposeAsync() => _postgres.DisposeAsync().AsTask();
+    public Task DisposeAsync() => Task.CompletedTask;
 
     [Fact]
     public async Task Returns_the_requested_page_and_the_total_count()
@@ -46,5 +42,5 @@ public class PagingTests : IAsyncLifetime
     }
 
     private CommunityDbContext CreateContext() =>
-        new(new DbContextOptionsBuilder<CommunityDbContext>().UseNpgsql(_postgres.GetConnectionString()).UseOpenIddict().Options);
+        new(new DbContextOptionsBuilder<CommunityDbContext>().UseInMemoryDatabase(_database).UseOpenIddict().Options);
 }

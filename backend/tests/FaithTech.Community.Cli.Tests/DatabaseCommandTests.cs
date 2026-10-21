@@ -1,45 +1,51 @@
 using FaithTech.Community.Domain.Profiles;
 using FaithTech.Community.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Storage;
 
 namespace FaithTech.Community.Cli.Tests;
 
-public class DatabaseCommandTests(PostgresFixture postgres) : IClassFixture<PostgresFixture>
+public class DatabaseCommandTests
 {
-    [Fact]
-    public async Task Migrate_applies_every_pending_migration()
-    {
-        var exitCode = await CliApp.RunAsync(["migrate"], postgres.ConnectionString);
+    private const string Origin = "https://app.faithtech.test";
+    private readonly InMemoryDatabaseRoot _root = new();
+    private readonly string _name = Guid.NewGuid().ToString();
 
-        Assert.Equal(0, exitCode);
+    [Fact]
+    public async Task Migrate_creates_a_usable_schema()
+    {
+        Assert.Equal(0, await Run("migrate"));
+
         await using var db = CreateContext();
-        Assert.Empty(await db.Database.GetPendingMigrationsAsync());
+        db.Profiles.Add(new Profile("Ada"));
+        Assert.Equal(1, await db.SaveChangesAsync());
     }
 
     [Fact]
-    public async Task Reset_drops_data_and_recreates_the_schema()
+    public async Task Reset_drops_existing_data()
     {
-        await CliApp.RunAsync(["migrate"], postgres.ConnectionString);
+        await Run("migrate");
         await using (var db = CreateContext())
         {
             db.Profiles.Add(new Profile("Ada"));
             await db.SaveChangesAsync();
         }
 
-        var exitCode = await CliApp.RunAsync(["reset"], postgres.ConnectionString);
+        Assert.Equal(0, await Run("reset"));
 
-        Assert.Equal(0, exitCode);
         await using var after = CreateContext();
-        Assert.Empty(await after.Database.GetPendingMigrationsAsync());
         Assert.Empty(await after.Profiles.ToListAsync());
     }
 
     [Fact]
     public async Task Unknown_command_returns_a_usage_error()
     {
-        Assert.Equal(1, await CliApp.RunAsync(["bogus"], postgres.ConnectionString));
+        Assert.Equal(1, await Run("bogus"));
     }
 
+    private Task<int> Run(string command) =>
+        CliApp.RunAsync([command], options => options.UseInMemoryDatabase(_name, _root), Origin);
+
     private CommunityDbContext CreateContext() =>
-        new(new DbContextOptionsBuilder<CommunityDbContext>().UseNpgsql(postgres.ConnectionString).UseOpenIddict().Options);
+        new(new DbContextOptionsBuilder<CommunityDbContext>().UseInMemoryDatabase(_name, _root).UseOpenIddict().Options);
 }

@@ -7,10 +7,10 @@ namespace FaithTech.Community.Cli;
 
 public static class CliApp
 {
-    public static async Task<int> RunAsync(string[] args, string connectionString, string webAppOrigin = "http://localhost:4200")
+    public static async Task<int> RunAsync(string[] args, Action<DbContextOptionsBuilder> configureDatabase, string webAppOrigin)
     {
         await using var services = new ServiceCollection()
-            .AddDbContext<CommunityDbContext>(options => options.UseNpgsql(connectionString).UseOpenIddict())
+            .AddDbContext<CommunityDbContext>(options => configureDatabase(options.UseOpenIddict()))
             .AddScoped<CommunitySeeder>()
             .AddOpenIddict().AddCore(options => options.UseEntityFrameworkCore().UseDbContext<CommunityDbContext>()).Services
             .BuildServiceProvider();
@@ -20,7 +20,7 @@ public static class CliApp
         switch (args.FirstOrDefault())
         {
             case "migrate":
-                await db.Database.MigrateAsync();
+                await CreateSchemaAsync(db);
                 return 0;
             case "seed":
                 await scope.ServiceProvider.GetRequiredService<CommunitySeeder>().SeedAsync(webAppOrigin);
@@ -28,11 +28,15 @@ public static class CliApp
             case "reset":
                 NpgsqlConnection.ClearAllPools();
                 await db.Database.EnsureDeletedAsync();
-                await db.Database.MigrateAsync();
+                await CreateSchemaAsync(db);
                 return 0;
             default:
                 Console.Error.WriteLine("Usage: faithtech-community <migrate|seed|reset>");
                 return 1;
         }
     }
+
+    // Relational databases get the EF migrations; the in-memory test database has no migrations.
+    private static Task CreateSchemaAsync(CommunityDbContext db) =>
+        db.Database.IsRelational() ? db.Database.MigrateAsync() : db.Database.EnsureCreatedAsync();
 }

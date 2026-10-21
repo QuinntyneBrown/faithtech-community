@@ -17,4 +17,6 @@ public class Profile
     public List<Role> Roles { get; private set; } = [];
 
     public bool IsSuspended { get; private set; }
+
+    public void Suspend() => IsSuspended = true;
 }

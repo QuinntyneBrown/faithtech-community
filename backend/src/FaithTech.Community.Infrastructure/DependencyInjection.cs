@@ -4,6 +4,7 @@ using FaithTech.Community.Application.Identity;
 using FaithTech.Community.Infrastructure.Email;
 using FaithTech.Community.Infrastructure.Identity;
 using FaithTech.Community.Infrastructure.Persistence;
+using FaithTech.Community.Infrastructure.Storage;
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -53,9 +54,11 @@ public static class DependencyInjection
 
         services.AddSingleton(_ => new BlobServiceClient(configuration.GetConnectionString("Blobs")));
 
+        services.AddScoped<CommunitySeeder>();
+
         services.AddHealthChecks()
-            .AddNpgSql(_ => configuration.GetConnectionString("Community")!, name: "postgres", tags: [ReadyTag])
-            .AddAzureBlobStorage(name: "blobs", tags: [ReadyTag]);
+            .AddDbContextCheck<CommunityDbContext>("database", tags: [ReadyTag])
+            .AddCheck<BlobStorageHealthCheck>("blobs", tags: [ReadyTag]);
         return services;
     }
 }

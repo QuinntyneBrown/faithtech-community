@@ -22,15 +22,21 @@ public class ReliabilityTests(CommunityApiFactory factory) : IClassFixture<Commu
     }
 
     [Fact]
-    public async Task Readiness_reports_unhealthy_when_the_database_is_unreachable()
+    public async Task Readiness_reports_unhealthy_when_blob_storage_is_unreachable()
     {
-        var client = factory.WithWebHostBuilder(b =>
-            b.UseSetting("ConnectionStrings:Community", "Host=127.0.0.1;Port=1;Database=x;Timeout=2")).CreateClient();
+        var client = factory.CreateClient();
+        factory.Blobs.Reachable = false;
+        try
+        {
+            var response = await client.GetAsync("/health/ready");
 
-        var response = await client.GetAsync("/health/ready");
-
-        Assert.Equal(HttpStatusCode.ServiceUnavailable, response.StatusCode);
-        Assert.Equal(HttpStatusCode.OK, (await client.GetAsync("/health/live")).StatusCode);
+            Assert.Equal(HttpStatusCode.ServiceUnavailable, response.StatusCode);
+            Assert.Equal(HttpStatusCode.OK, (await client.GetAsync("/health/live")).StatusCode);
+        }
+        finally
+        {
+            factory.Blobs.Reachable = true;
+        }
     }
 
     [Fact]
