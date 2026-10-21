@@ -12,7 +12,7 @@ Profiles are visible to signed-in members only. An anonymous visitor who request
 
 ## Description
 
-- **`ProfilePage`** — page in the `profiles` feature library at `/people/:id` (and `/people/me` for the caller's own profile), matching the `profile` mock. It composes `ProfileHeaderComponent` (featured photo or initials, name, role badges, home city, bio, photo strip), `EmptyStateComponent` for the no-photos and load-error states and `ButtonComponent` for *Edit profile* on the caller's own profile.
+- **`ProfilePage`** — page in the `profiles` feature library at `/people/:id` (and `/people/me` for the caller's own profile), matching the `profile` mock. It composes `ProfileHeaderComponent` (featured photo or initials, name, role badges, home city, bio, photo strip), `EmptyStateComponent` for the no-photos and load-error states and `ButtonComponent` for *Edit profile* on the caller's own profile. While the profile loads, `ProfileHeaderComponent` shows a busy skeleton head (avatar, title and text) followed by a photo strip of four square `SkeletonComponent` tiles (`shape="square"`), so the photo area keeps the shape of the photos it is waiting for (`profile/loading` mock).
 - **`authGuard`** — app-shell route guard that redirects anonymous visitors to sign in before the `profiles` library loads.
 - **`ProfilesService`** — contract in the `api` library, provided through the `PROFILES_SERVICE` injection token and implemented by `HttpProfilesService`.
 - **`ProfilesEndpoints`** — minimal API route group in `FaithTech.Community.Api` under `/api/profiles`. Its endpoints require authentication by default and hold no business logic.

@@ -124,18 +124,20 @@
     </section>
 
     <section class="ds-section" id="variants"><h2><a href="#variants">Variants</a></h2>
-      <p>The mocks use six shapes. Pick the one that matches what will replace it.</p>
+      <p>The mocks use seven shapes. Pick the one that matches what will replace it.</p>
       <div class="ds-example">
         <div class="ds-example__canvas ds-example__canvas--stack" aria-busy="true" aria-label="Skeleton shapes">
           <span class="skeleton skeleton--title" aria-hidden="true"></span>
           <div><span class="skeleton skeleton--text" aria-hidden="true"></span><span class="skeleton skeleton--text" aria-hidden="true"></span></div>
           <span class="skeleton skeleton--rect" style="height: 4rem;" aria-hidden="true"></span>
+          <ul class="photo-strip" aria-hidden="true"><li><span class="skeleton skeleton--square" aria-hidden="true"></span></li><li><span class="skeleton skeleton--square" aria-hidden="true"></span></li><li><span class="skeleton skeleton--square" aria-hidden="true"></span></li></ul>
           <div class="cluster"><span class="skeleton avatar avatar--sm" aria-hidden="true"></span><span class="skeleton avatar avatar--xl" aria-hidden="true"></span><span class="skeleton skeleton--date-badge" aria-hidden="true"></span></div>
         </div>
-        <div class="ds-example__caption"><span>Title, text lines, block (a Kanban card), avatar small (list rows) and extra large (profile header), and the square date badge (event rows).</span></div>
+        <div class="ds-example__caption"><span>Title, text lines, block (a Kanban card), avatar small (list rows) and extra large (profile header), the square date badge (event rows), and square tiles (profile photos).</span></div>
         <details class="ds-example__code"><summary>HTML</summary><pre><code>&lt;span class="skeleton skeleton--title" aria-hidden="true"&gt;&lt;/span&gt;
 &lt;span class="skeleton skeleton--text" aria-hidden="true"&gt;&lt;/span&gt;
 &lt;span class="skeleton skeleton--rect" style="height: 4rem;" aria-hidden="true"&gt;&lt;/span&gt;
+&lt;span class="skeleton skeleton--square" aria-hidden="true"&gt;&lt;/span&gt;
 &lt;span class="skeleton avatar avatar--sm" aria-hidden="true"&gt;&lt;/span&gt;
 &lt;span class="skeleton avatar avatar--xl" aria-hidden="true"&gt;&lt;/span&gt;
 &lt;span class="skeleton skeleton--date-badge" aria-hidden="true"&gt;&lt;/span&gt;</code></pre></details>
@@ -258,6 +260,7 @@
         <tr><td><code>.skeleton--text</code></td><td>One line; the last in a group is 60% wide.</td></tr>
         <tr><td><code>.skeleton--title</code></td><td>Heading bar, 1.5em × 40%.</td></tr>
         <tr><td><code>.skeleton--rect</code></td><td>Block with medium radius; set its height.</td></tr>
+        <tr><td><code>.skeleton--square</code></td><td>Square tile with medium radius that fills its grid cell; stands for a profile photo in <code>.photo-strip</code>. Angular: <code>&lt;ft-skeleton shape="square"&gt;</code>.</td></tr>
         <tr><td><code>.avatar.skeleton</code></td><td>Round placeholder at the avatar's size (<code>--sm</code>, <code>--xl</code>).</td></tr>
         <tr><td><code>.skeleton--date-badge</code></td><td>Square placeholder the size and radius of <code>.date-badge</code>; leads every event row (events list, Home "Your events", the Events group in search) so the row keeps its shape when it loads.</td></tr>
         <tr><td><code>aria-busy="true"</code> + <code>aria-label</code></td><td>On the loading container.</td></tr>

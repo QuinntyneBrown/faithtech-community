@@ -26,6 +26,12 @@
   border-radius: var(--radius-md);
 }
 
+/* A square tile that fills its grid cell: a profile photo still loading. */
+:host(.ft-skeleton--square) {
+  aspect-ratio: 1;
+  border-radius: var(--radius-md);
+}
+
 :host(.ft-skeleton--avatar) {
   flex: none;
   border-radius: var(--radius-full);

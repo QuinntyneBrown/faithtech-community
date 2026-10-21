@@ -123,4 +123,17 @@ describe('ProfileHeaderComponent', () => {
     expect(host.querySelector('ft-skeleton')).not.toBeNull();
     expect(host.querySelector('h1')).toBeNull();
   });
+
+  it('holds the photo area with square tile skeletons while loading', () => {
+    const { fixture, cmp, host } = setup();
+    cmp.loading.set(true);
+    fixture.detectChanges();
+    const tiles = host.querySelectorAll(
+      '.ft-profile-header__strip li ft-skeleton.ft-skeleton--square',
+    );
+    expect(tiles).toHaveLength(4);
+    expect(host.querySelector('.ft-profile-header__strip')!.getAttribute('aria-hidden')).toBe(
+      'true',
+    );
+  });
 });
