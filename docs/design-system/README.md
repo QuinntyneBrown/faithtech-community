@@ -148,7 +148,7 @@ Each component page documents variants, sizes and the full state matrix in both 
 | pages/* filters | Selects wrapped in inline `width: 12rem`; select disabled/hover hooks missing | Hooks added to components.css |
 | dialogs/new-work-item/invalid | Parent select has no `<label for>` | Documented on Select |
 | pages/profile, pages/contact | Emails not `mailto:` links | Documented on Description list |
-| dialogs/add-workspace-member, create-workspace, start-poker | Checkboxes in `.choice` rows drew as round radios | Square checkbox rule added to components.css |
+| dialogs/add-workspace-member, create-workspace, start-poker | Checkboxes in `.choice` rows drew as round radios | Square checkbox rule added to components.css, documented on Radio group; `ft-checkbox-group` + `ft-checkbox` added to the components library |
 | dialogs/* busy | Busy buttons hold a hidden `dot--pulse`; `aria-disabled` beside `disabled` | Documented on Button: spinner + `aria-busy`, siblings `disabled` |
 | pages/* forms vs dialogs | Primary before Cancel on pages, after Cancel in dialogs | Documented: primary last (right) everywhere |
 | pages/* forms | Error summary is a `ul` with inline padding; CSS styles `.form-summary ol` | Documented: `ol` |

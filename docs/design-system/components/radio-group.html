@@ -103,7 +103,7 @@
         <li><b>Use it</b> for two to six options where the difference matters enough to read: Public vs Members only, Scrum vs Kanban.</li>
         <li><b>Use a select</b> for a long or familiar list (event type, city).</li>
         <li><b>Use a <a href="switch.html">switch</a></b> for one on/off setting.</li>
-        <li>The same <code>.choice</code> row also carries checkboxes in the member pickers (add workspace member, create workspace, start poker); see the drift note in Sources.</li>
+        <li><b>Use a checkbox group</b> when several options can be chosen at once, such as the member pickers (add workspace member, create workspace, start poker). It is the same <code>.choice</code> row with a square checkbox; see <a href="#variants">Variants</a>.</li>
       </ul>
     </section>
 
@@ -146,6 +146,14 @@
         </div>
         <div class="ds-example__caption"><span>In a dialog, with a note under the group about the options that are left out (add role). City Leads only see the roles they are allowed to grant.</span></div>
         <details class="ds-example__code"><summary>HTML</summary><pre><code>&lt;fieldset class="stack"&gt;&lt;legend class="field__label"&gt;Role&lt;/legend&gt;&lt;label class="choice"&gt;&lt;input type="radio" name="role"&gt;&lt;span class="choice__text"&gt;Event Lead&lt;small&gt;Creates and manages events&lt;/small&gt;&lt;/span&gt;&lt;/label&gt;&lt;label class="choice"&gt;&lt;input type="radio" name="role"&gt;&lt;span class="choice__text"&gt;Volunteer&lt;small&gt;Joins the city team&lt;/small&gt;&lt;/span&gt;&lt;/label&gt;&lt;label class="choice"&gt;&lt;input type="radio" name="role"&gt;&lt;span class="choice__text"&gt;Product Engineer&lt;small&gt;Builds at hackathons&lt;/small&gt;&lt;/span&gt;&lt;/label&gt;&lt;label class="choice"&gt;&lt;input type="radio" name="role"&gt;&lt;span class="choice__text"&gt;Attendee&lt;small&gt;Comes to events&lt;/small&gt;&lt;/span&gt;&lt;/label&gt;&lt;/fieldset&gt;&lt;p class="text-caption"&gt;City Lead, Staff and System Admin can only be granted by a System Admin.&lt;/p&gt;</code></pre></details>
+      </div>
+      <h3>Checkbox group (several choices)</h3>
+      <div class="ds-example">
+        <div class="ds-example__canvas ds-example__canvas--stack" style="max-width: 30rem;">
+          <fieldset class="stack"><legend class="field__label">Members</legend><p class="text-caption">Only people with a lead or volunteer role can be added.</p><label class="choice"><input type="checkbox" name="wm-ex" value="marcus" checked><span class="choice__text">Marcus Lee<small>Event Lead</small></span></label><label class="choice"><input type="checkbox" name="wm-ex" value="hannah"><span class="choice__text">Hannah Kim<small>Communications Lead</small></span></label><label class="choice"><input type="checkbox" name="wm-ex" value="ruth" checked><span class="choice__text">Ruth Alvarez<small>Volunteer</small></span></label></fieldset>
+        </div>
+        <div class="ds-example__caption"><span>The member pickers (add workspace member, create workspace, start poker) use the same <code>.choice</code> row around a native checkbox. <code>.choice input[type="checkbox"]</code> draws a square box (<code>--radius-xs</code>) with a check mark, so a multi-select never looks like the round single-select radio. In Angular: <code>ft-checkbox-group</code> with <code>ft-checkbox</code> children; its value is the list of checked values.</span></div>
+        <details class="ds-example__code"><summary>HTML</summary><pre><code>&lt;fieldset class="stack"&gt;&lt;legend class="field__label"&gt;Members&lt;/legend&gt;&lt;p class="text-caption"&gt;Only people with a lead or volunteer role can be added.&lt;/p&gt;&lt;label class="choice"&gt;&lt;input type="checkbox" name="wm" value="marcus" checked&gt;&lt;span class="choice__text"&gt;Marcus Lee&lt;small&gt;Event Lead&lt;/small&gt;&lt;/span&gt;&lt;/label&gt;&lt;label class="choice"&gt;&lt;input type="checkbox" name="wm" value="hannah"&gt;&lt;span class="choice__text"&gt;Hannah Kim&lt;small&gt;Communications Lead&lt;/small&gt;&lt;/span&gt;&lt;/label&gt;&lt;/fieldset&gt;</code></pre></details>
       </div>
     </section>
 
@@ -251,6 +259,7 @@
       <table class="ds-table"><thead><tr><th scope="col">Class / attribute</th><th scope="col">Effect</th></tr></thead><tbody>
         <tr><td><code>.choice</code></td><td>Row: radio plus label, at least <code>--target-min</code> tall.</td></tr>
         <tr><td><code>.choice__text</code></td><td>Label, with an optional <code>small</code> description.</td></tr>
+        <tr><td><code>.choice input[type="checkbox"]</code></td><td>Square box (<code>--radius-xs</code>) with a check mark in <code>--color-fg-on-accent</code> on <code>--color-accent</code> when checked.</td></tr>
         <tr><td><code>aria-invalid="true"</code> on each radio</td><td>Danger border.</td></tr>
         <tr><td><code>data-state="hover|focus|checked|disabled"</code></td><td>Documentation only.</td></tr>
       </tbody></table>
@@ -265,7 +274,7 @@
         <li><a href="../../mocks/dialogs/switch-method/default.html">dialogs/switch-method/default</a>, <a href="../../mocks/dialogs/move-partner/default.html">dialogs/move-partner/default</a> and <a href="../../mocks/dialogs/new-work-item/default.html">dialogs/new-work-item/default</a></li>
         <li><a href="../../mocks/dialogs/add-workspace-member/default.html">dialogs/add-workspace-member/default</a> (checkboxes in <code>.choice</code> rows)</li>
       </ul>
-      <p>Drift noticed in the mocks: the member pickers (add workspace member, create workspace, start poker) put checkboxes in <code>.choice</code>, which draws every input as a round radio, so a multi-select looks single-select; a checkbox style (square box, check mark) is needed. The "Visibility" legend is visually hidden with no visible heading. No group shows a disabled option. The remove-role dialog has a group with a single, pre-checked radio, which offers no choice.</p>
+      <p>Drift noticed in the mocks: the "Visibility" legend is visually hidden with no visible heading. No group shows a disabled option. The remove-role dialog has a group with a single, pre-checked radio, which offers no choice.</p>
     </section>
 
     <footer class="ds-footer"><span>FaithTech Community design system · extracted from <a href="../../mocks/index.html">docs/mocks</a> on 2026-10-21</span><a href="#top">Back to top</a></footer>

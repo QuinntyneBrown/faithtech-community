@@ -1,0 +1,17 @@
+<label class="choice">
+  <input
+    type="checkbox"
+    [name]="group.groupName()"
+    [value]="value()"
+    [checked]="checked()"
+    [disabled]="isDisabled()"
+    (change)="onChange($event)"
+    (blur)="group.touch()"
+  />
+  <span class="text">
+    <ng-content />
+    @if (description()) {
+      <small>{{ description() }}</small>
+    }
+  </span>
+</label>

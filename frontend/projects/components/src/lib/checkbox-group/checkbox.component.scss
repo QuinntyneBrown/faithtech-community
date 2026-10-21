@@ -1,0 +1,62 @@
+:host {
+  display: block;
+}
+
+.choice {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-3);
+  font: var(--text-body);
+  color: var(--color-fg-default);
+  cursor: pointer;
+}
+
+/* Square box with a check mark, so a multi-select never reads as the round single-select radio. */
+input {
+  display: grid;
+  flex: none;
+  place-content: center;
+  inline-size: var(--size-icon-md);
+  block-size: var(--size-icon-md);
+  margin: 0;
+  background: var(--color-bg-surface);
+  border: var(--border-width-hairline) solid var(--color-border-strong);
+  border-radius: var(--radius-xs);
+  appearance: none;
+  cursor: inherit;
+
+  &:checked {
+    background: var(--color-accent);
+    border-color: var(--color-accent);
+
+    &::before {
+      content: '';
+      inline-size: var(--space-2);
+      block-size: var(--space-1);
+      border: solid var(--color-fg-on-accent);
+      border-width: 0 0 var(--border-width-thick) var(--border-width-thick);
+      rotate: -45deg;
+      translate: 0 -10%;
+    }
+  }
+
+  &:focus-visible {
+    outline: var(--focus-ring-width) solid var(--color-accent);
+    outline-offset: var(--focus-ring-offset);
+  }
+
+  &:disabled {
+    border-color: var(--color-border-default);
+    cursor: not-allowed;
+
+    & + .text {
+      color: var(--color-fg-disabled);
+    }
+  }
+}
+
+small {
+  display: block;
+  font: var(--text-body-sm);
+  color: var(--color-fg-muted);
+}
