@@ -109,7 +109,7 @@
     <section class="ds-section" id="anatomy"><h2><a href="#anatomy">Anatomy</a></h2>
       <div class="ds-anatomy">
         <figure class="ds-anatomy__figure" style="max-width: 32rem;">
-          <div class="field"><label class="field__label" for="an-bio">Bio <span class="text-muted">(optional)</span></label><textarea class="textarea" id="an-bio" name="an-bio" rows="4" aria-describedby="an-bio-help">City Lead for FaithTech Toronto. Product manager by day, convener of builders by night. Ask me about our shelter-tech hackathon.</textarea><div class="field__help" id="an-bio-help">Up to 400 characters.</div></div>
+          <div class="field"><label class="field__label" for="an-bio">Bio <span class="optional">(optional)</span></label><textarea class="textarea" id="an-bio" name="an-bio" rows="4" aria-describedby="an-bio-help">City Lead for FaithTech Toronto. Product manager by day, convener of builders by night. Ask me about our shelter-tech hackathon.</textarea><div class="field__help" id="an-bio-help">Up to 400 characters.</div></div>
           <span class="ds-callout" style="left: 2%; top: 2%;" aria-hidden="true">1</span>
           <span class="ds-callout" style="left: 50%; top: 40%;" aria-hidden="true">2</span>
           <span class="ds-callout" style="right: 2%; top: 74%;" aria-hidden="true">3</span>
@@ -127,10 +127,10 @@
     <section class="ds-section" id="variants"><h2><a href="#variants">Variants</a></h2>
       <div class="ds-example">
         <div class="ds-example__canvas ds-example__canvas--stack" style="max-width: 32rem;">
-          <div class="field"><label class="field__label" for="v-desc">Description <span class="text-muted">(optional)</span></label><textarea class="textarea" id="v-desc" name="v-desc" rows="4">An evening for Christians who build: developers, designers, product people and the curious.</textarea></div>
+          <div class="field"><label class="field__label" for="v-desc">Description <span class="optional">(optional)</span></label><textarea class="textarea" id="v-desc" name="v-desc" rows="4">An evening for Christians who build: developers, designers, product people and the curious.</textarea></div>
         </div>
         <div class="ds-example__caption"><span>Free text: the event description, optional and prefilled when editing.</span></div>
-        <details class="ds-example__code"><summary>HTML</summary><pre><code>&lt;div class="field"&gt;&lt;label class="field__label" for="v-desc"&gt;Description &lt;span class="text-muted"&gt;(optional)&lt;/span&gt;&lt;/label&gt;&lt;textarea class="textarea" id="v-desc" name="v-desc" rows="4"&gt;An evening for Christians who build: developers, designers, product people and the curious.&lt;/textarea&gt;&lt;/div&gt;</code></pre></details>
+        <details class="ds-example__code"><summary>HTML</summary><pre><code>&lt;div class="field"&gt;&lt;label class="field__label" for="v-desc"&gt;Description &lt;span class="optional"&gt;(optional)&lt;/span&gt;&lt;/label&gt;&lt;textarea class="textarea" id="v-desc" name="v-desc" rows="4"&gt;An evening for Christians who build: developers, designers, product people and the curious.&lt;/textarea&gt;&lt;/div&gt;</code></pre></details>
       </div>
       <div class="ds-example">
         <div class="ds-example__canvas ds-example__canvas--stack" style="max-width: 32rem;">
@@ -152,7 +152,7 @@
       <p>The height is set by <code>rows</code>, with a floor of 2.5 control heights. The mocks use 2 rows for composers and short notes (invite "Personal note", "Add a comment"), 3 for dialog messages and first notes, 4 for bio and descriptions, 6 for the announcement message. People can drag it taller.</p>
       <div class="ds-example">
         <div class="ds-example__canvas ds-example__canvas--stack" style="max-width: 32rem;">
-          <div class="field"><label class="field__label" for="sz-2">Personal note <span class="text-muted">(optional)</span></label><textarea class="textarea" id="sz-2" name="sz-2" rows="2"></textarea></div>
+          <div class="field"><label class="field__label" for="sz-2">Personal note <span class="optional">(optional)</span></label><textarea class="textarea" id="sz-2" name="sz-2" rows="2"></textarea></div>
           <div class="field"><label class="field__label" for="sz-6">Message</label><textarea class="textarea" id="sz-6" name="sz-6" rows="6" required>Toronto Builders Night is on Thu 6 Nov at Kestrel Labs. Bring a laptop and a friend.</textarea></div>
         </div>
         <div class="ds-example__caption"><span>2 rows (send invite) and 6 rows (compose announcement).</span></div>
@@ -231,7 +231,7 @@
       <div class="ds-dodont">
         <figure class="ds-do"><div class="ds-example__canvas"><div class="field"><label class="field__label" for="dd-1">Message to attendees</label><textarea class="textarea" id="dd-1" name="dd-1" rows="3" required>Our venue fell through. We’ll reschedule for January — watch your inbox.</textarea></div></div><figcaption>The label says who will read it.</figcaption></figure>
         <figure class="ds-dont"><div class="ds-example__canvas"><textarea class="textarea" rows="3" aria-label="Message" placeholder="Type your message here…"></textarea></div><figcaption>A placeholder instead of a label, and no hint of who receives it.</figcaption></figure>
-        <figure class="ds-do"><div class="ds-example__canvas"><div class="field"><label class="field__label" for="dd-2">Bio <span class="text-muted">(optional)</span></label><textarea class="textarea" id="dd-2" name="dd-2" rows="4" aria-describedby="dd-2-help">City Lead for FaithTech Toronto. Product manager by day, convener of builders by night. Ask me about our shelter-tech hackathon.</textarea><div class="field__help" id="dd-2-help">Up to 400 characters.</div></div></div><figcaption>The limit is known before typing.</figcaption></figure>
+        <figure class="ds-do"><div class="ds-example__canvas"><div class="field"><label class="field__label" for="dd-2">Bio <span class="optional">(optional)</span></label><textarea class="textarea" id="dd-2" name="dd-2" rows="4" aria-describedby="dd-2-help">City Lead for FaithTech Toronto. Product manager by day, convener of builders by night. Ask me about our shelter-tech hackathon.</textarea><div class="field__help" id="dd-2-help">Up to 400 characters.</div></div></div><figcaption>The limit is known before typing.</figcaption></figure>
         <figure class="ds-dont"><div class="ds-example__canvas"><input class="input" type="text" aria-label="Bio" value="City Lead for FaithTech Toronto. Product manager by day, convener of builders by night. Ask me about our shelter-tech hackathon."></div><figcaption>A one-line input for a bio hides most of what Grace wrote.</figcaption></figure>
       </div>
     </section>

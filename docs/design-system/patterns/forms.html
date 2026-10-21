@@ -119,22 +119,22 @@
     </section>
 
     <section class="ds-section" id="structure"><h2><a href="#structure">Structure</a></h2>
-      <p>Each field has a label, then help text if needed, then the control, then the error. Optional fields say "(optional)" in muted text. Required fields have no marker, because most fields are required. Actions sit in <code>.form-actions</code>: the primary button first, then Cancel as a ghost link.</p>
+      <p>Each field has a label, then help text if needed, then the control, then the error. Optional fields say "(optional)" in the label, in a <code>.optional</code> span (<code>--color-fg-subtle</code>). Required fields have no marker, because most fields are required. Actions sit in <code>.form-actions</code>: the primary button first, then Cancel as a ghost link.</p>
       <div class="ds-example">
         <div class="ds-example__canvas ds-example__canvas--stack">
           <form class="card stack" action="#structure" novalidate style="width: 100%; max-width: 40rem;" aria-labelledby="fm-new-title">
             <h3 id="fm-new-title" style="font: var(--text-h4);">New contact</h3>
             <div class="field"><label class="field__label" for="fm-name">Name</label><input class="input" id="fm-name" type="text" value="Kwame Asante" autocomplete="off" required></div>
-            <div class="field"><label class="field__label" for="fm-email">Email <span class="text-muted">(optional)</span></label><input class="input" id="fm-email" type="email" value="kwame.asante@example.org" aria-describedby="fm-email-help"><div class="field__help" id="fm-email-help">If they ever sign up with this email, we’ll let you know.</div></div>
-            <div class="field"><label class="field__label" for="fm-org">Organisation <span class="text-muted">(optional)</span></label><input class="input" id="fm-org" type="text" value="Maple Street Church"></div>
-            <div class="field"><label class="field__label" for="fm-note">First note <span class="text-muted">(optional)</span></label><textarea class="textarea" id="fm-note" rows="3">Pastor. Interested in hosting a builders night in the spring.</textarea></div>
+            <div class="field"><label class="field__label" for="fm-email">Email <span class="optional">(optional)</span></label><input class="input" id="fm-email" type="email" value="kwame.asante@example.org" aria-describedby="fm-email-help"><div class="field__help" id="fm-email-help">If they ever sign up with this email, we’ll let you know.</div></div>
+            <div class="field"><label class="field__label" for="fm-org">Organisation <span class="optional">(optional)</span></label><input class="input" id="fm-org" type="text" value="Maple Street Church"></div>
+            <div class="field"><label class="field__label" for="fm-note">First note <span class="optional">(optional)</span></label><textarea class="textarea" id="fm-note" rows="3">Pastor. Interested in hosting a builders night in the spring.</textarea></div>
             <div class="form-actions cluster"><button class="btn btn--primary" type="button">Save contact</button><a class="btn btn--ghost" href="../../mocks/pages/contacts/default.html">Cancel</a></div>
           </form>
         </div>
         <div class="ds-example__caption"><span>pages/contact-form/default. The subtitle on the page says "Only you can see this contact and your notes."</span></div>
         <details class="ds-example__code"><summary>HTML</summary><pre><code>&lt;form class="card stack" novalidate&gt;
   &lt;div class="field"&gt;
-    &lt;label class="field__label" for="cf-email"&gt;Email &lt;span class="text-muted"&gt;(optional)&lt;/span&gt;&lt;/label&gt;
+    &lt;label class="field__label" for="cf-email"&gt;Email &lt;span class="optional"&gt;(optional)&lt;/span&gt;&lt;/label&gt;
     &lt;input class="input" id="cf-email" type="email" aria-describedby="cf-email-help"&gt;
     &lt;div class="field__help" id="cf-email-help"&gt;If they ever sign up with this email, we’ll let you know.&lt;/div&gt;
   &lt;/div&gt;
@@ -149,7 +149,7 @@
         <div class="ds-example__canvas ds-example__canvas--stack">
           <div class="card stack" style="width: 100%; max-width: 40rem;">
             <div class="field"><label class="field__label" for="fm-type">Type</label><select class="select" id="fm-type"><option>Gathering</option><option selected>Builders night</option><option>Hackathon</option><option>Prayer &amp; planning</option><option>Panel</option></select></div>
-            <div class="field"><label class="field__label" for="fm-cap">Capacity <span class="text-muted">(optional)</span></label><input class="input" id="fm-cap" type="number" value="60" aria-describedby="fm-cap-help"><div class="field__help" id="fm-cap-help">Leave empty for no limit.</div></div>
+            <div class="field"><label class="field__label" for="fm-cap">Capacity <span class="optional">(optional)</span></label><input class="input" id="fm-cap" type="number" value="60" aria-describedby="fm-cap-help"><div class="field__help" id="fm-cap-help">Leave empty for no limit.</div></div>
             <label class="switch"><input type="checkbox" checked><span class="switch__text">Email me announcements</span></label>
             <p class="text-caption">You’ll always get account emails like password resets.</p>
           </div>
@@ -166,7 +166,7 @@
           <form class="card stack" action="#states" novalidate style="width: 100%; max-width: 40rem;" aria-label="New contact, with errors">
             <div class="alert alert--danger form-summary" role="alert" tabindex="-1"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 8v4M12 16h.01"/></svg><div class="alert__body"><div class="alert__title">Fix 2 things to save</div><ol><li><a href="#fm-x-name">Enter a name</a></li><li><a href="#fm-x-email">Enter a valid email</a></li></ol></div></div>
             <div class="field"><label class="field__label" for="fm-x-name">Name</label><input class="input" id="fm-x-name" type="text" required aria-invalid="true" aria-describedby="fm-x-name-error"><div class="field__error" id="fm-x-name-error">Enter at least a first name.</div></div>
-            <div class="field"><label class="field__label" for="fm-x-email">Email <span class="text-muted">(optional)</span></label><input class="input" id="fm-x-email" type="email" value="kwame@" aria-invalid="true" aria-describedby="fm-x-email-help fm-x-email-error"><div class="field__help" id="fm-x-email-help">If they ever sign up with this email, we’ll let you know.</div><div class="field__error" id="fm-x-email-error">Enter an email like name@example.org, or leave it empty.</div></div>
+            <div class="field"><label class="field__label" for="fm-x-email">Email <span class="optional">(optional)</span></label><input class="input" id="fm-x-email" type="email" value="kwame@" aria-invalid="true" aria-describedby="fm-x-email-help fm-x-email-error"><div class="field__help" id="fm-x-email-help">If they ever sign up with this email, we’ll let you know.</div><div class="field__error" id="fm-x-email-error">Enter an email like name@example.org, or leave it empty.</div></div>
             <div class="form-actions cluster"><button class="btn btn--primary" type="button">Save contact</button><a class="btn btn--ghost" href="../../mocks/pages/contacts/default.html">Cancel</a></div>
           </form>
         </div>
@@ -234,7 +234,7 @@
       <div class="ds-dodont">
         <figure class="ds-do"><div class="ds-example__canvas"><div class="field" style="width: 100%;"><label class="field__label" for="fm-d1">Venue address</label><input class="input" id="fm-d1" type="text" aria-invalid="true" aria-describedby="fm-d1-e"><div class="field__error" id="fm-d1-e">Enter a venue address, or choose Online.</div></div></div><figcaption>Say how to fix it, and offer the other option.</figcaption></figure>
         <figure class="ds-dont"><div class="ds-example__canvas"><div class="field" style="width: 100%;"><label class="field__label" for="fm-d2">Venue address</label><input class="input" id="fm-d2" type="text" aria-invalid="true" aria-describedby="fm-d2-e"><div class="field__error" id="fm-d2-e">Invalid input.</div></div></div><figcaption>Don't name the failure without saying how to fix it.</figcaption></figure>
-        <figure class="ds-do"><div class="ds-example__canvas"><div class="field" style="width: 100%;"><label class="field__label" for="fm-d3">Phone <span class="text-muted">(optional)</span></label><input class="input" id="fm-d3" type="tel"></div></div><figcaption>Mark the few optional fields, and leave required fields unmarked.</figcaption></figure>
+        <figure class="ds-do"><div class="ds-example__canvas"><div class="field" style="width: 100%;"><label class="field__label" for="fm-d3">Phone <span class="optional">(optional)</span></label><input class="input" id="fm-d3" type="tel"></div></div><figcaption>Mark the few optional fields, and leave required fields unmarked.</figcaption></figure>
         <figure class="ds-dont"><div class="ds-example__canvas"><div class="field" style="width: 100%;"><input class="input" id="fm-d4" type="tel" placeholder="Phone" aria-label="Phone"></div></div><figcaption>Don't use a placeholder instead of a label. It disappears when the person starts typing.</figcaption></figure>
       </div>
     </section>
