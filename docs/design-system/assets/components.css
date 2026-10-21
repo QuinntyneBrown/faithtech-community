@@ -258,6 +258,8 @@ button.avatar:hover, button.avatar[data-state="hover"] { box-shadow: 0 0 0 var(-
 /* R2: the top bar is a floating capsule. Sticky keeps it in flow, so nothing is ever hidden under it. */
 .topbar { position: sticky; top: var(--space-2); z-index: var(--z-sticky); display: flex; align-items: center; gap: var(--space-4); min-height: var(--layout-topbar-height); width: calc(min(var(--layout-container-max), 100%) - 2 * var(--layout-margin)); margin: var(--space-2) auto 0; padding-inline: var(--space-3) var(--space-2); background: color-mix(in srgb, var(--color-bg-surface) 90%, transparent); backdrop-filter: blur(12px); border: var(--border-width-hairline) solid var(--color-border-default); border-radius: var(--radius-full); box-shadow: var(--shadow-2); }
 .topbar__brand { font: var(--text-h4); color: var(--color-fg-default); text-decoration: none; display: inline-flex; align-items: center; gap: var(--space-2); }
+/* The brand mark is the logo artwork (assets/logo.svg), decorative because "FaithTech" names the link. */
+.topbar__mark { display: block; width: var(--size-avatar-sm); height: var(--size-avatar-sm); border-radius: var(--radius-md); }
 .topbar__nav { display: none; gap: var(--space-1); margin-left: var(--space-4); }
 .topbar__spacer { flex: 1; }
 @media (min-width: 48rem) { .topbar__nav { display: flex; } }
