@@ -103,7 +103,7 @@
         <li><b>Member</b>: brand (back to Home), <code>.topbar__nav</code> with Home, Events, Contacts, Partners, Workspaces and the secondary links Team, Announcements, People; then <code>.topbar__search</code>, the <code>.bell-anchor</code> and the <code>.avatar-trigger</code>.</li>
         <li><b>Staff</b>: the same bar without Contacts, because private contacts are visible only to the lead who created them and to System Admin.</li>
         <li><b>Anonymous</b> (public event): brand and a "Sign in" button only.</li>
-        <li>The avatar is a link to your own profile (<code>a.avatar-trigger</code>), not a menu.</li>
+        <li>The avatar opens the <a href="menu.html">account menu</a> (<code>button.avatar-trigger</code>): Your profile, Settings and Sign out. It is the one way to sign out of this device.</li>
       </ul>
     </section>
 
@@ -116,7 +116,7 @@
             <span class="topbar__spacer"></span>
             <form class="topbar__search" role="search" action="../../mocks/pages/search/default.html"><label class="visually-hidden" for="tb-q-anatomy">Search FaithTech (anatomy)</label><input class="input input--sm" id="tb-q-anatomy" name="q" type="search" placeholder="Search people, events, partners"></form>
             <div class="bell-anchor"><a class="btn btn--ghost btn--icon" href="../../mocks/pages/notifications/default.html" aria-label="Notifications, 3 unread (anatomy)" aria-expanded="false"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><path d="M6 16V11a6 6 0 0 1 12 0v5l2 2H4zM10 20a2 2 0 0 0 4 0"/></svg><span class="badge badge--count" aria-hidden="true">3</span></a></div>
-            <a class="avatar-trigger" href="../../mocks/pages/profile/own.html" aria-label="Your profile, Grace Okonkwo (anatomy)"><span class="avatar avatar--sm avatar--sky" aria-hidden="true">GO</span></a>
+            <button class="avatar-trigger" type="button" aria-haspopup="menu" aria-label="Account menu for Grace Okonkwo (anatomy)"><span class="avatar avatar--sm avatar--sky" aria-hidden="true">GO</span></button>
           </header>
           <span class="ds-callout" style="left: 4%; top: 14%;" aria-hidden="true">1</span>
           <span class="ds-callout" style="left: 24%; top: 14%;" aria-hidden="true">2</span>
@@ -130,7 +130,7 @@
           <li><div><b>Nav</b><small><code>nav.topbar__nav</code> of <code>.nav-link</code>s; the current page has <code>aria-current="page"</code>. <code>.nav-link--secondary</code> (Team, Announcements, People) hides between 768px and 1023px. The whole nav hides below 768px.</small></div></li>
           <li><div><b>Search</b><small><code>form.topbar__search[role=search]</code> with a visually hidden label and an <code>.input--sm</code>; 14rem wide, shown from 1024px.</small></div></li>
           <li><div><b>Bell</b><small><code>.bell-anchor</code> holds a ghost icon button with a <code>.badge--count</code>; the anchor positions the <code>.bell-panel</code> when it opens.</small></div></li>
-          <li><div><b>Avatar</b><small><code>a.avatar-trigger</code> wrapping a small <code>.avatar</code> with initials; links to your own profile.</small></div></li>
+          <li><div><b>Avatar</b><small><code>button.avatar-trigger</code> wrapping a small <code>.avatar</code> with initials; opens the account menu.</small></div></li>
           <li><div><b>Capsule</b><small><code>header.topbar</code>: a pill (<code>--radius-full</code>) floating <code>--space-2</code> below the top, container-wide, translucent blurred surface, hairline border and <code>--shadow-2</code>. Inherited from Shelfie unchanged.</small></div></li>
         </ol>
       </div>
@@ -146,7 +146,7 @@
             <span class="topbar__spacer"></span>
             <form class="topbar__search" role="search" action="../../mocks/pages/search/default.html"><label class="visually-hidden" for="tb-q-member">Search FaithTech (member example)</label><input class="input input--sm" id="tb-q-member" name="q" type="search" placeholder="Search people, events, partners"></form>
             <div class="bell-anchor"><a class="btn btn--ghost btn--icon" href="../../mocks/pages/notifications/default.html" aria-label="Notifications, 3 unread" aria-expanded="false"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><path d="M6 16V11a6 6 0 0 1 12 0v5l2 2H4zM10 20a2 2 0 0 0 4 0"/></svg><span class="badge badge--count" aria-hidden="true">3</span></a></div>
-            <a class="avatar-trigger" href="../../mocks/pages/profile/own.html" aria-label="Your profile, Grace Okonkwo"><span class="avatar avatar--sm avatar--sky" aria-hidden="true">GO</span></a>
+            <button class="avatar-trigger" type="button" aria-haspopup="menu" aria-label="Account menu for Grace Okonkwo"><span class="avatar avatar--sm avatar--sky" aria-hidden="true">GO</span></button>
           </header>
         </div>
         <div class="ds-example__caption"><span>Grace on Home with three unread notifications. Narrow the window: search goes below 1024px, the secondary links go below 1024px, the nav goes below 768px.</span></div>
@@ -166,8 +166,9 @@
     &lt;a class="btn btn--ghost btn--icon" href="/notifications" aria-label="Notifications, 3 unread" aria-expanded="false"&gt;
       &lt;svg class="icon" aria-hidden="true" …&gt;&lt;/svg&gt;&lt;span class="badge badge--count" aria-hidden="true"&gt;3&lt;/span&gt;&lt;/a&gt;
   &lt;/div&gt;
-  &lt;a class="avatar-trigger" href="/profile" aria-label="Your profile, Grace Okonkwo"&gt;
-    &lt;span class="avatar avatar--sm avatar--sky" aria-hidden="true"&gt;GO&lt;/span&gt;&lt;/a&gt;
+  &lt;button class="avatar-trigger" type="button" aria-haspopup="menu" aria-label="Account menu for Grace Okonkwo"&gt;
+    &lt;span class="avatar avatar--sm avatar--sky" aria-hidden="true"&gt;GO&lt;/span&gt;&lt;/button&gt;
+  &lt;ul class="menu menu--account" id="account-menu" role="menu" aria-label="Account menu for Grace Okonkwo" popover&gt;…&lt;/ul&gt;
 &lt;/header&gt;</code></pre></details>
       </div>
       <h3>Staff</h3>
@@ -178,7 +179,7 @@
             <nav class="topbar__nav" aria-label="Primary (staff example)"><a class="nav-link" href="../../mocks/pages/home/staff.html" aria-current="page">Home</a><a class="nav-link" href="../../mocks/pages/events/default.html">Events</a><a class="nav-link" href="../../mocks/pages/partners/default.html">Partners</a><a class="nav-link" href="../../mocks/pages/workspaces/default.html">Workspaces</a><a class="nav-link nav-link--secondary" href="../../mocks/pages/team/default.html">Team</a><a class="nav-link nav-link--secondary" href="../../mocks/pages/announcements/default.html">Announcements</a><a class="nav-link nav-link--secondary" href="../../mocks/pages/people/default.html">People</a></nav>
             <span class="topbar__spacer"></span>
             <div class="bell-anchor"><a class="btn btn--ghost btn--icon" href="../../mocks/pages/notifications/default.html" aria-label="Notifications" aria-expanded="false"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><path d="M6 16V11a6 6 0 0 1 12 0v5l2 2H4zM10 20a2 2 0 0 0 4 0"/></svg></a></div>
-            <a class="avatar-trigger" href="../../mocks/pages/profile/own.html" aria-label="Your profile, Daniel Reyes"><span class="avatar avatar--sm avatar--sage" aria-hidden="true">DR</span></a>
+            <button class="avatar-trigger" type="button" aria-haspopup="menu" aria-label="Account menu for Daniel Reyes"><span class="avatar avatar--sm avatar--sage" aria-hidden="true">DR</span></button>
           </header>
         </div>
         <div class="ds-example__caption"><span>Daniel (Staff) has no Contacts link and nothing unread, so the bell has no badge and is named just "Notifications".</span></div>
@@ -216,9 +217,9 @@
             <td><a class="btn btn--ghost btn--icon" href="../../mocks/pages/notifications/default.html" aria-label="Notifications, 3 unread, focus" aria-expanded="false" data-state="focus"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><path d="M6 16V11a6 6 0 0 1 12 0v5l2 2H4zM10 20a2 2 0 0 0 4 0"/></svg><span class="badge badge--count" aria-hidden="true">3</span></a></td>
             <td><a class="btn btn--ghost btn--icon" href="../../mocks/notifications/bell/unread.html" aria-label="Notifications, 3 unread, open" aria-expanded="true" data-state="hover"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><path d="M6 16V11a6 6 0 0 1 12 0v5l2 2H4zM10 20a2 2 0 0 0 4 0"/></svg><span class="badge badge--count" aria-hidden="true">3</span></a></td></tr>
           <tr><th scope="row">Avatar</th>
-            <td><a class="avatar-trigger" href="../../mocks/pages/profile/own.html" aria-label="Your profile, Grace Okonkwo, default"><span class="avatar avatar--sm avatar--sky" aria-hidden="true">GO</span></a></td>
-            <td><a class="avatar-trigger" href="../../mocks/pages/profile/own.html" aria-label="Your profile, Grace Okonkwo, hover" data-state="hover"><span class="avatar avatar--sm avatar--sky" aria-hidden="true">GO</span></a></td>
-            <td><a class="avatar-trigger" href="../../mocks/pages/profile/own.html" aria-label="Your profile, Grace Okonkwo, focus" data-state="focus"><span class="avatar avatar--sm avatar--sky" aria-hidden="true">GO</span></a></td>
+            <td><button class="avatar-trigger" type="button" aria-haspopup="menu" aria-label="Account menu for Grace Okonkwo, default"><span class="avatar avatar--sm avatar--sky" aria-hidden="true">GO</span></button></td>
+            <td><button class="avatar-trigger" type="button" aria-haspopup="menu" aria-label="Account menu for Grace Okonkwo, hover" data-state="hover"><span class="avatar avatar--sm avatar--sky" aria-hidden="true">GO</span></button></td>
+            <td><button class="avatar-trigger" type="button" aria-haspopup="menu" aria-label="Account menu for Grace Okonkwo, focus" data-state="focus"><span class="avatar avatar--sm avatar--sky" aria-hidden="true">GO</span></button></td>
             <td><span class="text-caption">Not applicable (a link)</span></td></tr>
           <tr><th scope="row">Search</th>
             <td><label class="visually-hidden" for="tb-s1">Search, default</label><input class="input input--sm" id="tb-s1" type="search" placeholder="Search people, events, partners"></td>
@@ -229,8 +230,8 @@
       </table></div>
       <h3>Both themes</h3>
       <div class="ds-themes">
-        <div data-theme="light"><header class="topbar" style="position: relative; top: 0; width: 100%; margin: 0;"><a class="topbar__brand" href="../../mocks/pages/home/default.html"><svg class="icon icon--lg" aria-hidden="true" viewBox="0 0 24 24"><path d="M12 2v20M5 8h14"/><circle cx="12" cy="8" r="9" fill="none" opacity=".35"/></svg> FaithTech</a><span class="topbar__spacer"></span><div class="bell-anchor"><a class="btn btn--ghost btn--icon" href="../../mocks/pages/notifications/default.html" aria-label="Notifications, 3 unread, light theme"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><path d="M6 16V11a6 6 0 0 1 12 0v5l2 2H4zM10 20a2 2 0 0 0 4 0"/></svg><span class="badge badge--count" aria-hidden="true">3</span></a></div><a class="avatar-trigger" href="../../mocks/pages/profile/own.html" aria-label="Your profile, Grace Okonkwo, light theme"><span class="avatar avatar--sm avatar--sky" aria-hidden="true">GO</span></a></header></div>
-        <div data-theme="dark"><header class="topbar" style="position: relative; top: 0; width: 100%; margin: 0;"><a class="topbar__brand" href="../../mocks/pages/home/default.html"><svg class="icon icon--lg" aria-hidden="true" viewBox="0 0 24 24"><path d="M12 2v20M5 8h14"/><circle cx="12" cy="8" r="9" fill="none" opacity=".35"/></svg> FaithTech</a><span class="topbar__spacer"></span><div class="bell-anchor"><a class="btn btn--ghost btn--icon" href="../../mocks/pages/notifications/default.html" aria-label="Notifications, 3 unread, dark theme"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><path d="M6 16V11a6 6 0 0 1 12 0v5l2 2H4zM10 20a2 2 0 0 0 4 0"/></svg><span class="badge badge--count" aria-hidden="true">3</span></a></div><a class="avatar-trigger" href="../../mocks/pages/profile/own.html" aria-label="Your profile, Grace Okonkwo, dark theme"><span class="avatar avatar--sm avatar--sky" aria-hidden="true">GO</span></a></header></div>
+        <div data-theme="light"><header class="topbar" style="position: relative; top: 0; width: 100%; margin: 0;"><a class="topbar__brand" href="../../mocks/pages/home/default.html"><svg class="icon icon--lg" aria-hidden="true" viewBox="0 0 24 24"><path d="M12 2v20M5 8h14"/><circle cx="12" cy="8" r="9" fill="none" opacity=".35"/></svg> FaithTech</a><span class="topbar__spacer"></span><div class="bell-anchor"><a class="btn btn--ghost btn--icon" href="../../mocks/pages/notifications/default.html" aria-label="Notifications, 3 unread, light theme"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><path d="M6 16V11a6 6 0 0 1 12 0v5l2 2H4zM10 20a2 2 0 0 0 4 0"/></svg><span class="badge badge--count" aria-hidden="true">3</span></a></div><button class="avatar-trigger" type="button" aria-haspopup="menu" aria-label="Account menu for Grace Okonkwo, light theme"><span class="avatar avatar--sm avatar--sky" aria-hidden="true">GO</span></button></header></div>
+        <div data-theme="dark"><header class="topbar" style="position: relative; top: 0; width: 100%; margin: 0;"><a class="topbar__brand" href="../../mocks/pages/home/default.html"><svg class="icon icon--lg" aria-hidden="true" viewBox="0 0 24 24"><path d="M12 2v20M5 8h14"/><circle cx="12" cy="8" r="9" fill="none" opacity=".35"/></svg> FaithTech</a><span class="topbar__spacer"></span><div class="bell-anchor"><a class="btn btn--ghost btn--icon" href="../../mocks/pages/notifications/default.html" aria-label="Notifications, 3 unread, dark theme"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><path d="M6 16V11a6 6 0 0 1 12 0v5l2 2H4zM10 20a2 2 0 0 0 4 0"/></svg><span class="badge badge--count" aria-hidden="true">3</span></a></div><button class="avatar-trigger" type="button" aria-haspopup="menu" aria-label="Account menu for Grace Okonkwo, dark theme"><span class="avatar avatar--sm avatar--sky" aria-hidden="true">GO</span></button></header></div>
       </div>
       <ul>
         <li><b>Current</b> nav link: <code>--color-accent-subtle</code> fill and <code>--color-fg-accent</code> text, plus <code>aria-current="page"</code>.</li>
@@ -265,7 +266,7 @@
       <h3>Focus</h3>
       <p>The shared 2px <code>--color-focus-ring</code> with 2px offset on every link, the search input, the bell and the avatar. <code>scroll-padding-top</code> reserves the bar's height (WCAG 2.4.11).</p>
       <h3>Labelling</h3>
-      <p>The search input has a visually hidden label, "Search FaithTech"; the placeholder is a hint, not the label. The bell's name includes the count ("Notifications, 3 unread") and the visible badge is <code>aria-hidden</code>. The avatar link says whose profile it is: "Your profile, Grace Okonkwo". The brand mark is <code>aria-hidden</code>; "FaithTech" names the link.</p>
+      <p>The search input has a visually hidden label, "Search FaithTech"; the placeholder is a hint, not the label. The bell's name includes the count ("Notifications, 3 unread") and the visible badge is <code>aria-hidden</code>. The avatar is a menu button that says whose account it is: "Account menu for Grace Okonkwo". The brand mark is <code>aria-hidden</code>; "FaithTech" names the link.</p>
       <h3>Contrast</h3>
       <div class="ds-example__canvas ds-example__canvas--stack" style="padding: 0; gap: var(--space-2);">
         <div class="ds-pair"><span>Brand on surface</span><span class="ds-pair__ratio" data-contrast="--color-fg-default|--color-bg-surface" data-min="4.5"></span></div>
@@ -339,7 +340,7 @@
         <tr><td><code>.topbar__spacer</code></td><td>Pushes search, bell and avatar right.</td></tr>
         <tr><td><code>.topbar__search</code></td><td>Global search form; 14rem, shown from 1024px.</td></tr>
         <tr><td><code>.bell-anchor</code></td><td>Positioning context for the bell and its <code>.bell-panel</code>.</td></tr>
-        <tr><td><code>.avatar-trigger</code></td><td>Profile link wrapping the avatar; removes the underline.</td></tr>
+        <tr><td><code>.avatar-trigger</code></td><td>Account menu button wrapping the avatar; see <a href="menu.html">menu</a>.</td></tr>
         <tr><td><code>data-state="hover|focus"</code></td><td>Documentation only: forces a state.</td></tr>
       </tbody></table>
     </section>

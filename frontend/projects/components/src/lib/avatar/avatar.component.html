@@ -18,5 +18,5 @@
     <ng-container [ngTemplateOutlet]="circle" [ngTemplateOutletContext]="{ $implicit: true }" />
   </a>
 } @else {
-  <ng-container [ngTemplateOutlet]="circle" [ngTemplateOutletContext]="{ $implicit: false }" />
+  <ng-container [ngTemplateOutlet]="circle" [ngTemplateOutletContext]="{ $implicit: drawn() }" />
 }

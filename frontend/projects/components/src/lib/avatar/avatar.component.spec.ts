@@ -11,6 +11,7 @@ import { AvatarColor, AvatarComponent, AvatarSize } from './avatar.component';
     [href]="href()"
     [label]="label()"
     [src]="src()"
+    [drawn]="drawn()"
   />`,
 })
 class HostComponent {
@@ -20,6 +21,7 @@ class HostComponent {
   href = signal<string | null>(null);
   label = signal<string | null>(null);
   src = signal<string | null>(null);
+  drawn = signal(false);
 }
 
 function setup() {
@@ -113,6 +115,16 @@ describe('AvatarComponent', () => {
     const circle = q('a .ft-avatar');
     expect(circle.textContent?.trim()).toBe('');
     expect(circle.getAttribute('data-initials')).toBe('GO');
+  });
+
+  it('draws its initials when it is the face of another control, such as a menu button', () => {
+    const { fixture, cmp, q } = setup();
+    cmp.drawn.set(true);
+    fixture.detectChanges();
+    const circle = q('.ft-avatar');
+    expect(circle.textContent?.trim()).toBe('');
+    expect(circle.getAttribute('data-initials')).toBe('GO');
+    expect(q('a')).toBeNull();
   });
 
   it('is not a link without href', () => {

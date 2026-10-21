@@ -3,7 +3,7 @@ import { AppShell } from '../../pages/app-shell.page';
 import { SignInPage } from '../../pages/sign-in.page';
 import { BREAKPOINTS } from '../../pages/viewport';
 
-// L2-045 AC2 and L2-003 AC6 (docs/detailed-designs/platform/responsive-layout-and-theming).
+// L2-045 AC2, L2-003 AC6 and AC9 (docs/detailed-designs/platform/responsive-layout-and-theming).
 test.describe('App shell', () => {
   test('above XS the top bar shows the sections', async ({ page, api, axe }) => {
     await page.setViewportSize(BREAKPOINTS.xl);
@@ -62,11 +62,41 @@ test.describe('App shell', () => {
     await expect(new AppShell(page).skipLink).toBeFocused();
   });
 
+  test('the account menu offers your profile, settings and sign out', async ({
+    page,
+    api,
+    axe,
+  }) => {
+    const shell = new AppShell(page);
+    await api.signInAs(api.addAccount({ email: 'grace@example.org', name: 'Grace Okonkwo' }));
+
+    await shell.accountMenu('Grace Okonkwo').click();
+
+    await expect(shell.menuItem('Your profile')).toHaveAttribute('href', '/people/me');
+    await expect(shell.menuItem('Settings')).toHaveAttribute('href', '/settings');
+    await expect(shell.menuItem('Sign out')).toBeVisible();
+    await axe.check();
+    await page.keyboard.press('Escape');
+    await expect(shell.menuItem('Sign out')).toBeHidden();
+    await expect(shell.accountMenu('Grace Okonkwo')).toBeFocused();
+  });
+
+  test('on a phone the account menu still offers sign out', async ({ page, api }) => {
+    await page.setViewportSize(BREAKPOINTS.xs);
+    const shell = new AppShell(page);
+    await api.signInAs(api.addAccount({ email: 'grace@example.org', name: 'Grace Okonkwo' }));
+
+    await shell.signOut('Grace Okonkwo');
+
+    await expect(new SignInPage(page).heading).toBeVisible();
+    expect(api.callsTo('POST', '/api/account/sign-out')[0]).toBeTruthy();
+  });
+
   test('signing out revokes the session and returns to sign in', async ({ page, api }) => {
     const shell = new AppShell(page);
-    await api.signInAs(api.addAccount({ email: 'grace@example.org' }));
+    await api.signInAs(api.addAccount({ email: 'grace@example.org', name: 'Grace Okonkwo' }));
 
-    await shell.signOut.click();
+    await shell.signOut('Grace Okonkwo');
 
     await expect(new SignInPage(page).heading).toBeVisible();
     expect(api.callsTo('POST', '/api/account/sign-out')[0]).toBeTruthy();
