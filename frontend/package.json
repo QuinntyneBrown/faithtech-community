@@ -1,0 +1,52 @@
+{
+  "name": "faithtech-community-frontend",
+  "version": "0.0.0",
+  "scripts": {
+    "ng": "ng",
+    "start": "ng serve faithtech-community",
+    "build": "ng build faithtech-community",
+    "build:libs": "ng build components && ng build api && ng build profiles && ng build contacts && ng build partners && ng build team && ng build events && ng build search && ng build notifications && ng build announcements && ng build invites && ng build admin",
+    "watch": "ng build faithtech-community --watch --configuration development",
+    "test": "ng test faithtech-community --watch=false && ng test components --watch=false && ng test api --watch=false && ng test profiles --watch=false && ng test contacts --watch=false && ng test partners --watch=false && ng test team --watch=false && ng test events --watch=false && ng test search --watch=false && ng test notifications --watch=false && ng test announcements --watch=false && ng test invites --watch=false && ng test admin --watch=false",
+    "lint": "ng lint",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "prepare": "cd .. && husky frontend/.husky"
+  },
+  "private": true,
+  "packageManager": "npm@10.9.4",
+  "dependencies": {
+    "@angular/cdk": "^21.2.14",
+    "@angular/common": "^21.2.0",
+    "@angular/compiler": "^21.2.0",
+    "@angular/core": "^21.2.0",
+    "@angular/forms": "^21.2.0",
+    "@angular/platform-browser": "^21.2.0",
+    "@angular/router": "^21.2.0",
+    "rxjs": "~7.8.0",
+    "tslib": "^2.3.0"
+  },
+  "devDependencies": {
+    "@angular/build": "^21.2.27",
+    "@angular/cli": "^21.2.27",
+    "@angular/compiler-cli": "^21.2.0",
+    "angular-eslint": "^21.4.0",
+    "eslint": "^9.39.5",
+    "eslint-config-prettier": "^10.1.8",
+    "husky": "^9.1.7",
+    "jsdom": "^28.0.0",
+    "lint-staged": "^16.4.0",
+    "ng-packagr": "^21.2.0",
+    "prettier": "^3.8.1",
+    "typescript": "~5.9.2",
+    "typescript-eslint": "^8.72.0",
+    "vitest": "^4.0.8"
+  },
+  "lint-staged": {
+    "*.{ts,html}": [
+      "eslint --fix",
+      "prettier --write"
+    ],
+    "*.{scss,css,json,md}": "prettier --write"
+  }
+}

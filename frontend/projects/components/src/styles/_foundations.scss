@@ -1,0 +1,99 @@
+/*
+ * SCAFFOLD: global foundations (base, link, focus ring) copied from the design system. Component styles stay encapsulated in each component.
+ * Generated from AGENTS.md and:
+ *   - docs/design-system/assets/components.css (Base, Link, Focus)
+ * Re-check against the source (it wins), overwrite with the expected implementation,
+ * then delete this comment.
+ */
+
+/* ---------- Base --------------------------------------------------------- */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+html {
+  -webkit-text-size-adjust: 100%;
+  scroll-behavior: smooth;
+  scroll-padding-top: calc(var(--layout-topbar-height) + var(--space-4));
+}
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+}
+body {
+  margin: 0;
+  font: var(--text-body);
+  color: var(--color-fg-default);
+  background: var(--color-bg-canvas);
+  -webkit-font-smoothing: antialiased;
+  min-height: 100dvh;
+}
+h1,
+h2,
+h3,
+h4,
+p,
+ul,
+ol,
+figure,
+blockquote {
+  margin: 0;
+}
+h1 {
+  font: var(--text-h1);
+  letter-spacing: var(--letter-spacing-tight);
+  text-wrap: balance;
+}
+h2 {
+  font: var(--text-h2);
+  letter-spacing: var(--letter-spacing-tight);
+  text-wrap: balance;
+}
+h3 {
+  font: var(--text-h3);
+  text-wrap: balance;
+}
+h4 {
+  font: var(--text-h4);
+}
+p {
+  max-width: var(--layout-measure);
+  text-wrap: pretty;
+}
+code,
+kbd,
+pre {
+  font: var(--text-code);
+}
+img,
+svg,
+video {
+  max-width: 100%;
+  height: auto;
+  display: block;
+}
+::selection {
+  background: var(--color-accent-subtle-hover);
+}
+
+/* ---------- Link --------------------------------------------------------- */
+a {
+  color: var(--color-fg-link);
+  text-decoration: underline;
+  text-underline-offset: 0.15em;
+  text-decoration-thickness: var(--border-width-hairline);
+}
+a:hover,
+a[data-state='hover'] {
+  color: var(--color-fg-link-hover);
+  text-decoration-thickness: var(--border-width-thick);
+}
+
+/* ---------- Focus (one ring everywhere; WCAG 2.4.7, 2.4.11) -------------- */
+:focus-visible,
+[data-state='focus'] {
+  outline: var(--focus-ring-width) solid var(--color-focus-ring);
+  outline-offset: var(--focus-ring-offset);
+}

@@ -1,0 +1,119 @@
+/* SCAFFOLD: the app and unit tests resolve @faithtech-community/* to library sources.
+   Library builds override these paths to ./dist in their tsconfig.lib.json. */
+{
+  "compileOnSave": false,
+  "compilerOptions": {
+    "paths": {
+      "@faithtech-community/components": ["./projects/components/src/public-api.ts"],
+      "@faithtech-community/api": ["./projects/api/src/public-api.ts"],
+      "@faithtech-community/profiles": ["./projects/profiles/src/public-api.ts"],
+      "@faithtech-community/contacts": ["./projects/contacts/src/public-api.ts"],
+      "@faithtech-community/partners": ["./projects/partners/src/public-api.ts"],
+      "@faithtech-community/team": ["./projects/team/src/public-api.ts"],
+      "@faithtech-community/events": ["./projects/events/src/public-api.ts"],
+      "@faithtech-community/search": ["./projects/search/src/public-api.ts"],
+      "@faithtech-community/notifications": ["./projects/notifications/src/public-api.ts"],
+      "@faithtech-community/announcements": ["./projects/announcements/src/public-api.ts"],
+      "@faithtech-community/invites": ["./projects/invites/src/public-api.ts"],
+      "@faithtech-community/admin": ["./projects/admin/src/public-api.ts"]
+    },
+    "strict": true,
+    "noImplicitOverride": true,
+    "noPropertyAccessFromIndexSignature": true,
+    "noImplicitReturns": true,
+    "noFallthroughCasesInSwitch": true,
+    "skipLibCheck": true,
+    "isolatedModules": true,
+    "experimentalDecorators": true,
+    "importHelpers": true,
+    "target": "ES2022",
+    "module": "preserve"
+  },
+  "angularCompilerOptions": {
+    "enableI18nLegacyMessageIdFormat": false,
+    "strictInjectionParameters": true,
+    "strictInputAccessModifiers": true,
+    "strictTemplates": true
+  },
+  "files": [],
+  "references": [
+    {
+      "path": "./projects/faithtech-community/tsconfig.app.json"
+    },
+    {
+      "path": "./projects/faithtech-community/tsconfig.spec.json"
+    },
+    {
+      "path": "./projects/components/tsconfig.lib.json"
+    },
+    {
+      "path": "./projects/components/tsconfig.spec.json"
+    },
+    {
+      "path": "./projects/api/tsconfig.lib.json"
+    },
+    {
+      "path": "./projects/api/tsconfig.spec.json"
+    },
+    {
+      "path": "./projects/profiles/tsconfig.lib.json"
+    },
+    {
+      "path": "./projects/profiles/tsconfig.spec.json"
+    },
+    {
+      "path": "./projects/contacts/tsconfig.lib.json"
+    },
+    {
+      "path": "./projects/contacts/tsconfig.spec.json"
+    },
+    {
+      "path": "./projects/partners/tsconfig.lib.json"
+    },
+    {
+      "path": "./projects/partners/tsconfig.spec.json"
+    },
+    {
+      "path": "./projects/team/tsconfig.lib.json"
+    },
+    {
+      "path": "./projects/team/tsconfig.spec.json"
+    },
+    {
+      "path": "./projects/events/tsconfig.lib.json"
+    },
+    {
+      "path": "./projects/events/tsconfig.spec.json"
+    },
+    {
+      "path": "./projects/search/tsconfig.lib.json"
+    },
+    {
+      "path": "./projects/search/tsconfig.spec.json"
+    },
+    {
+      "path": "./projects/notifications/tsconfig.lib.json"
+    },
+    {
+      "path": "./projects/notifications/tsconfig.spec.json"
+    },
+    {
+      "path": "./projects/announcements/tsconfig.lib.json"
+    },
+    {
+      "path": "./projects/announcements/tsconfig.spec.json"
+    },
+    {
+      "path": "./projects/invites/tsconfig.lib.json"
+    },
+    {
+      "path": "./projects/invites/tsconfig.spec.json"
+    },
+    {
+      "path": "./projects/admin/tsconfig.lib.json"
+    },
+    {
+      "path": "./projects/admin/tsconfig.spec.json"
+    }
+  ]
+}

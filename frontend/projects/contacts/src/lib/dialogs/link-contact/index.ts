@@ -1,0 +1,8 @@
+/*
+ * SCAFFOLD: placeholder, not the implementation.
+ * Generated from AGENTS.md and:
+ *   - docs/detailed-designs/contacts/link-contact-on-sign-up
+ * Overwrite this file with the expected implementation (implementing-incrementally
+ * skill + ATDD), then delete this comment.
+ */
+export * from './link-contact.dialog';
