@@ -1,3 +1,5 @@
+@use '../../styles/breakpoints' as bp;
+
 :host {
   display: block;
   position: sticky;
@@ -85,7 +87,7 @@
 
 .top-bar__search {
   display: none;
-  inline-size: 14rem;
+  inline-size: var(--layout-topbar-search-width);
 }
 
 .top-bar__input {
@@ -125,7 +127,7 @@ a:focus-visible,
   box-shadow: var(--shadow-focus);
 }
 
-@media (min-width: 48rem) {
+@include bp.up(md) {
   .top-bar__nav {
     display: flex;
   }
@@ -136,7 +138,7 @@ a:focus-visible,
   }
 }
 
-@media (min-width: 64rem) {
+@include bp.up(lg) {
   .top-bar__link--secondary {
     display: inline-flex;
   }
