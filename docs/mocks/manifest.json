@@ -310,6 +310,7 @@
       ],
       "states": [
         "default",
+        "no-notes",
         "match",
         "linked",
         "missing",
