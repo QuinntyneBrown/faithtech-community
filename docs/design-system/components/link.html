@@ -240,7 +240,8 @@ a:hover { color: var(--color-fg-link-hover); text-decoration-thickness: var(--bo
       <table class="ds-table"><thead><tr><th scope="col">Selector / attribute</th><th scope="col">Effect</th></tr></thead><tbody>
         <tr><td><code>a</code></td><td>Link colour, hairline underline offset 0.15em.</td></tr>
         <tr><td><code>a:hover</code></td><td>Hover colour, thick underline.</td></tr>
-        <tr><td><code>.visually-hidden</code> inside the link</td><td>Adds context for assistive technology only.</td></tr>
+        <tr><td><code>.visually-hidden</code> inside the link</td><td>Adds context for assistive technology only. Use it, not <code>aria-label</code>, where list links repeat, so the visible text stays the start of the accessible name.</td></tr>
+        <tr><td><code>&lt;ft-link [object]&gt;</code> / <code>&lt;ft-button [object]&gt;</code></td><td>Angular: renders the visually hidden object after the projected text.</td></tr>
         <tr><td><code>data-state="hover|focus"</code></td><td>Documentation only: forces a state in static pages.</td></tr>
       </tbody></table>
     </section>
@@ -254,8 +255,9 @@ a:hover { color: var(--color-fg-link-hover); text-decoration-thickness: var(--bo
         <li><a href="../../mocks/pages/work-item/default.html">pages/work-item/default</a> (epic link in a facts list)</li>
         <li><a href="../../mocks/pages/event/lead.html">pages/event/lead</a> ("Preview public page")</li>
         <li><a href="../../mocks/pages/settings/invalid.html">pages/settings/invalid</a> (error-summary links)</li>
+        <li><a href="../../mocks/pages/partners/default.html">pages/partners/default</a>, <a href="../../mocks/pages/people/default.html">pages/people/default</a> and <a href="../../mocks/pages/invites/default.html">pages/invites/default</a> (repeated row links "Move", "Add role", "Resend" with a visually hidden object)</li>
       </ul>
-      <p>Drift noticed in the mocks: centred standalone links use an inline <code>style="text-align: center;"</code> on their paragraph; the home card footer link ("All events") sets raw padding with an inline style. No link has a visually hidden object where list links repeat.</p>
+      <p>Drift noticed in the mocks: centred standalone links use an inline <code>style="text-align: center;"</code> on their paragraph; the home card footer link ("All events") sets raw padding with an inline style.</p>
     </section>
 
     <footer class="ds-footer"><span>FaithTech Community design system · extracted from <a href="../../mocks/index.html">docs/mocks</a> on 2026-10-21</span><a href="#top">Back to top</a></footer>

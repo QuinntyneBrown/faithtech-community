@@ -39,7 +39,7 @@
                 @if (invite.status === 'Expired') {
                   <ft-button
                     variant="ghost"
-                    [label]="'Resend invite to ' + invite.email"
+                    [object]="'invite to ' + invite.email"
                     [loading]="resending() === invite.id"
                     (click)="resend(invite)"
                     >Resend</ft-button
