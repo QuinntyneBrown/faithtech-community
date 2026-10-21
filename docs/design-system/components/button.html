@@ -186,6 +186,7 @@
       <ul>
         <li>On the auth screens (sign in, sign up, forgot and reset password, accept invite) the primary is <code>.btn--lg.btn--block</code> at every width; the card itself is capped at 26rem.</li>
         <li>In <a href="form-layout.html">form actions</a> and dialog footers buttons sit end-aligned on one row and wrap when the row is too narrow.</li>
+        <li>One button order everywhere: the way out (Cancel) first, the primary or danger action last, end-aligned. Page forms (<code>.form-actions</code>) and dialog footers (<code>.dialog__footer</code>) follow the same order, so the main action is always in the same place and last in the tab order.</li>
         <li>Under 640px dialogs become bottom sheets; their footer buttons keep the same order.</li>
         <li>Every size is at least 36px tall and medium is 44px, so no button needs extra hit area on touch screens.</li>
         <li>Labels never truncate (<code>white-space: nowrap</code>). A label that does not fit at 360px is too long; shorten the verb phrase.</li>
@@ -232,7 +233,7 @@
 
     <section class="ds-section" id="do-dont"><h2><a href="#do-dont">Do and don't</a></h2>
       <div class="ds-dodont">
-        <figure class="ds-do"><div class="ds-example__canvas"><button class="btn btn--primary" type="button">Publish event</button><button class="btn btn--ghost" type="button">Cancel</button></div><figcaption>One primary action per form, with the way out beside it as a ghost button.</figcaption></figure>
+        <figure class="ds-do"><div class="ds-example__canvas"><button class="btn btn--ghost" type="button">Cancel</button><button class="btn btn--primary" type="button">Publish event</button></div><figcaption>One primary action per form, last, with the way out before it as a ghost button.</figcaption></figure>
         <figure class="ds-dont"><div class="ds-example__canvas"><button class="btn btn--primary" type="button">Save draft</button><button class="btn btn--primary" type="button">Publish event</button></div><figcaption>Two primaries make Marcus choose. Keep one.</figcaption></figure>
         <figure class="ds-do"><div class="ds-example__canvas"><button class="btn" type="button">Cancel</button><button class="btn btn--danger" type="button">Delete permanently</button></div><figcaption>The danger button says what happens, and Cancel stays the safe secondary.</figcaption></figure>
         <figure class="ds-dont"><div class="ds-example__canvas"><button class="btn" type="button">No</button><button class="btn btn--danger" type="button">Yes</button></div><figcaption>"Yes" and "No" force a reread of the question; a misread here deletes a contact and every note.</figcaption></figure>
@@ -300,7 +301,7 @@
         <li><a href="../../mocks/dialogs/add-role/default.html">dialogs/add-role/default</a> and <a href="../../mocks/dialogs/add-role/busy.html">busy</a> (secondary plus primary footer)</li>
         <li><a href="../../mocks/pages/event/default.html">pages/event/default</a> (large "I’m going")</li>
       </ul>
-      <p>Drift noticed in the mocks: page forms put the primary first and the ghost Cancel after it, while dialog footers put Cancel first and the primary last. Inherited from Shelfie unchanged: the spinner at <code>--duration-loop</code>/2 and the 1.25em icon.</p>
+      <p>Inherited from Shelfie unchanged: the spinner at <code>--duration-loop</code>/2 and the 1.25em icon.</p>
     </section>
 
     <footer class="ds-footer"><span>FaithTech Community design system · extracted from <a href="../../mocks/index.html">docs/mocks</a> on 2026-10-21</span><a href="#top">Back to top</a></footer>

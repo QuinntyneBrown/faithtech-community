@@ -128,7 +128,7 @@
             <div class="field"><label class="field__label" for="fm-email">Email <span class="optional">(optional)</span></label><input class="input" id="fm-email" type="email" value="kwame.asante@example.org" aria-describedby="fm-email-help"><div class="field__help" id="fm-email-help">If they ever sign up with this email, we’ll let you know.</div></div>
             <div class="field"><label class="field__label" for="fm-org">Organisation <span class="optional">(optional)</span></label><input class="input" id="fm-org" type="text" value="Maple Street Church"></div>
             <div class="field"><label class="field__label" for="fm-note">First note <span class="optional">(optional)</span></label><textarea class="textarea" id="fm-note" rows="3">Pastor. Interested in hosting a builders night in the spring.</textarea></div>
-            <div class="form-actions cluster"><button class="btn btn--primary" type="button">Save contact</button><a class="btn btn--ghost" href="../../mocks/pages/contacts/default.html">Cancel</a></div>
+            <div class="form-actions cluster"><a class="btn btn--ghost" href="../../mocks/pages/contacts/default.html">Cancel</a><button class="btn btn--primary" type="button">Save contact</button></div>
           </form>
         </div>
         <div class="ds-example__caption"><span>pages/contact-form/default. The subtitle on the page says "Only you can see this contact and your notes."</span></div>
@@ -167,7 +167,7 @@
             <div class="alert alert--danger form-summary" role="alert" tabindex="-1"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 8v4M12 16h.01"/></svg><div class="alert__body"><div class="alert__title">Fix 2 things to save</div><ol><li><a href="#fm-x-name">Enter a name</a></li><li><a href="#fm-x-email">Enter a valid email</a></li></ol></div></div>
             <div class="field"><label class="field__label" for="fm-x-name">Name</label><input class="input" id="fm-x-name" type="text" required aria-invalid="true" aria-describedby="fm-x-name-error"><div class="field__error" id="fm-x-name-error">Enter at least a first name.</div></div>
             <div class="field"><label class="field__label" for="fm-x-email">Email <span class="optional">(optional)</span></label><input class="input" id="fm-x-email" type="email" value="kwame@" aria-invalid="true" aria-describedby="fm-x-email-help fm-x-email-error"><div class="field__help" id="fm-x-email-help">If they ever sign up with this email, we’ll let you know.</div><div class="field__error" id="fm-x-email-error">Enter an email like name@example.org, or leave it empty.</div></div>
-            <div class="form-actions cluster"><button class="btn btn--primary" type="button">Save contact</button><a class="btn btn--ghost" href="../../mocks/pages/contacts/default.html">Cancel</a></div>
+            <div class="form-actions cluster"><a class="btn btn--ghost" href="../../mocks/pages/contacts/default.html">Cancel</a><button class="btn btn--primary" type="button">Save contact</button></div>
           </form>
         </div>
         <div class="ds-example__caption"><span>pages/contact-form/invalid.</span></div>
@@ -175,7 +175,7 @@
       <h3>Busy, duplicate and success</h3>
       <div class="ds-example">
         <div class="ds-example__canvas ds-example__canvas--stack">
-          <div class="form-actions cluster"><button class="btn btn--primary" type="button" aria-busy="true" aria-disabled="true">Saving…</button><a class="btn btn--ghost" href="../../mocks/pages/contacts/default.html">Cancel</a></div>
+          <div class="form-actions cluster"><a class="btn btn--ghost" href="../../mocks/pages/contacts/default.html">Cancel</a><button class="btn btn--primary" type="button" aria-busy="true" aria-disabled="true">Saving…</button></div>
           <div class="alert alert--info" style="width: 100%; max-width: 40rem;"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 8h.01"/></svg><div class="alert__body"><div class="alert__title">Kwame Asante is already a member</div><div class="alert__text">This email belongs to an existing profile. Save the contact linked to his profile, and your notes will stay private to you.</div></div></div>
           <div class="card card--success stack" role="status" style="width: 100%; max-width: 40rem;"><h4 style="font: var(--text-h4);"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="m8 12 3 3 5-6"/></svg> Sent to 41 Product Engineers</h4><p>It’s in their notifications now. 38 will also get it by email — 3 have opted out of announcement emails.</p><div class="cluster"><a class="btn btn--primary" href="../../mocks/pages/announcements/default.html">Back to announcements</a><a class="btn btn--ghost" href="../../mocks/pages/compose-announcement/default.html">Write another</a></div></div>
         </div>
