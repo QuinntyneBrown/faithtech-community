@@ -139,7 +139,7 @@ export class AuditLogPage {
     } catch {
       this.toasts.show({
         variant: 'danger',
-        heading: 'We couldn’t export the audit log',
+        heading: 'We couldnâ€™t export the audit log',
         text: 'Check your connection and try again.',
         actionLabel: 'Try again',
         onAction: () => void this.exportCsv(),
