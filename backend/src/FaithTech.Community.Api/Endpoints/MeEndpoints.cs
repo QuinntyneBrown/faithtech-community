@@ -1,5 +1,8 @@
 using System.Security.Claims;
 using FaithTech.Community.Application.Common;
+using FaithTech.Community.Application.Identity;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 using OpenIddict.Abstractions;
 
 namespace FaithTech.Community.Api.Endpoints;
@@ -8,14 +11,23 @@ public static class MeEndpoints
 {
     public static IEndpointRouteBuilder MapMeEndpoints(this IEndpointRouteBuilder app)
     {
-        app.MapGet("/api/me", (ICurrentUser user, ClaimsPrincipal principal) => Results.Ok(new
+        // Name, email and verification come from the database so they stay current for the token's lifetime.
+        app.MapGet("/api/me", async (ICurrentUser current, ClaimsPrincipal principal, UserManager<CommunityUser> users, IApplicationDbContext db) =>
         {
-            Id = user.UserId,
-            Name = principal.FindFirst(OpenIddictConstants.Claims.Name)?.Value,
-            Email = principal.FindFirst(OpenIddictConstants.Claims.Email)?.Value,
-            EmailVerified = principal.FindFirst(OpenIddictConstants.Claims.EmailVerified)?.Value == "true",
-            Roles = user.Roles.Select(r => r.ToString()),
-        }));
+            var user = current.UserId is { } id ? await users.FindByIdAsync(id.ToString()) : null;
+            var name = user is null
+                ? principal.FindFirst(OpenIddictConstants.Claims.Name)?.Value
+                : await db.Profiles.Where(p => p.Id == user.ProfileId).Select(p => p.Name).SingleOrDefaultAsync();
+
+            return Results.Ok(new
+            {
+                Id = current.UserId,
+                Name = name,
+                Email = user?.Email ?? principal.FindFirst(OpenIddictConstants.Claims.Email)?.Value,
+                EmailVerified = user?.EmailConfirmed ?? false,
+                Roles = current.Roles.Select(r => r.ToString()),
+            });
+        });
         return app;
     }
 }
