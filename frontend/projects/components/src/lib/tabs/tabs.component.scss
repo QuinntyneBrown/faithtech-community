@@ -1,5 +1,7 @@
 :host {
   display: block;
+  /* The content under a tab row always starts --space-4 below it (design system: tabs). */
+  margin-block-end: var(--space-4);
 }
 
 .tabs {
