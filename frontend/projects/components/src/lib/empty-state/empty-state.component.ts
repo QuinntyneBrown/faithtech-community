@@ -22,7 +22,8 @@ export class EmptyStateComponent {
   readonly variant = input<EmptyStateVariant>('empty');
   readonly heading = input.required<string>();
   readonly text = input<string | null>(null);
-  readonly headingLevel = input<2 | 3>(2);
+  /** 1 when the empty state is the whole page, as on an invalid invite link. */
+  readonly headingLevel = input<1 | 2 | 3>(2);
   /** Icon name; defaults to info (empty) or error. */
   readonly icon = input<string | null>(null);
 

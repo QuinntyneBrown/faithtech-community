@@ -1,0 +1,40 @@
+<ft-dialog
+  [heading]="heading()"
+  [description]="data.description"
+  [icon]="adding ? 'add' : null"
+  [busy]="busy()"
+  (closed)="ref.close()"
+>
+  <ft-stack>
+    @if (failed()) {
+      <ft-alert status="danger" heading="That didn’t work">
+        We couldn’t reach FaithTech. Nothing was changed — try again.
+      </ft-alert>
+    }
+    @if (refusal(); as message) {
+      <ft-alert status="danger" heading="That change isn’t allowed">{{ message }}</ft-alert>
+    }
+    <ft-radio-group legend="Role" [formControl]="role" [error]="error()">
+      @for (option of data.options; track option.value) {
+        <ft-radio
+          [value]="option.value"
+          [description]="option.description ?? ''"
+          [disabled]="busy()"
+          >{{ option.label }}</ft-radio
+        >
+      }
+    </ft-radio-group>
+    @if (data.caption) {
+      <p class="caption">{{ data.caption }}</p>
+    }
+  </ft-stack>
+  <ft-button ftDialogFooter [disabled]="busy()" (click)="ref.close()">Cancel</ft-button>
+  <ft-button
+    ftDialogFooter
+    [variant]="adding ? 'primary' : 'danger'"
+    [loading]="busy()"
+    (click)="confirm()"
+  >
+    {{ confirmLabel() }}
+  </ft-button>
+</ft-dialog>

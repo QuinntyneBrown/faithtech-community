@@ -6,15 +6,22 @@ public enum ResultStatus
     Invalid,
     NotFound,
     Forbidden,
+    Conflict,
+    TooManyRequests,
 }
 
-public record Result(ResultStatus Status, IReadOnlyDictionary<string, string[]>? Errors = null)
+/// <summary>A handler's outcome. <see cref="Detail"/> is a message for the person, shown by the web app.</summary>
+public record Result(ResultStatus Status, IReadOnlyDictionary<string, string[]>? Errors = null, string? Detail = null)
 {
     public static Result Ok() => new(ResultStatus.Ok);
 
     public static Result NotFound() => new(ResultStatus.NotFound);
 
-    public static Result Forbidden() => new(ResultStatus.Forbidden);
+    public static Result Forbidden(string? detail = null) => new(ResultStatus.Forbidden, Detail: detail);
+
+    public static Result Conflict(string detail) => new(ResultStatus.Conflict, Detail: detail);
+
+    public static Result TooManyRequests(string detail) => new(ResultStatus.TooManyRequests, Detail: detail);
 
     public static Result Invalid(string field, string message) =>
         new(ResultStatus.Invalid, new Dictionary<string, string[]> { [field] = [message] });

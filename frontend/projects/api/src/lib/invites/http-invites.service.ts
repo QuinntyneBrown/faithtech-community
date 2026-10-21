@@ -1,40 +1,44 @@
-/*
- * EARLY IMPLEMENTATION: written ahead of the vertical slices to get a head start.
- * Contracts and DTOs follow docs/detailed-designs/ but may change as each feature is
- * implemented end to end (spec -> design -> mock -> ATDD slice).
- * Sources:
- *   - docs/detailed-designs/invites/send-invite
- *   - docs/detailed-designs/invites/accept-invite
- */
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpContext } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
 import { Observable } from 'rxjs';
 
 import { API_BASE_URL } from '../config';
-import { Role, toHttpParams } from '../shared';
-import { InviteDto, InviteLookupDto, InvitesService, NewAccount } from './invites.service';
+import { HANDLES_FORBIDDEN } from '../errors';
+import {
+  InviteDto,
+  InviteLookupDto,
+  InvitesService,
+  NewAccount,
+  SendInviteRequest,
+} from './invites.service';
 
 @Injectable()
 export class HttpInvitesService implements InvitesService {
   private readonly http = inject(HttpClient);
   private readonly base = `${inject(API_BASE_URL)}/invites`;
+  // The send dialog shows a 403 refusal (role, unverified email) itself.
+  private readonly context = new HttpContext().set(HANDLES_FORBIDDEN, true);
 
-  sendInvite(email: string, preassignedRole: Role | null = null): Observable<InviteDto> {
-    return this.http.post<InviteDto>(this.base, { email, preassignedRole });
+  sendInvite(request: SendInviteRequest): Observable<InviteDto> {
+    return this.http.post<InviteDto>(this.base, request, { context: this.context });
   }
 
   listInvites(): Observable<InviteDto[]> {
     return this.http.get<InviteDto[]>(this.base);
   }
 
+  resendInvite(id: string): Observable<InviteDto> {
+    return this.http.post<InviteDto>(`${this.base}/${encodeURIComponent(id)}/resend`, null, {
+      context: this.context,
+    });
+  }
+
   revokeInvite(id: string): Observable<void> {
-    return this.http.post<void>(`${this.base}/${id}/revoke`, null);
+    return this.http.post<void>(`${this.base}/${encodeURIComponent(id)}/revoke`, null);
   }
 
   getInvite(token: string): Observable<InviteLookupDto> {
-    return this.http.get<InviteLookupDto>(`${this.base}/by-token`, {
-      params: toHttpParams({ token }),
-    });
+    return this.http.get<InviteLookupDto>(`${this.base}/by-token/${encodeURIComponent(token)}`);
   }
 
   acceptInvite(token: string, account?: NewAccount): Observable<void> {

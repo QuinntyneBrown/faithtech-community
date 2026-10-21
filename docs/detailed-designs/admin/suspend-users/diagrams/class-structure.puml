@@ -19,40 +19,38 @@ class Profile {
   +Suspend(reason: string, nowUtc: DateTime): void
   +Reinstate(): void
 }
-class SuspendUserCommand {
-  +Guid UserId
-  +string Reason
-}
-class ReinstateUserCommand {
-  +Guid UserId
+class SuspendUserCommand <<record>> {
+  +string? Reason
 }
 class SuspendUserValidator {
-  +Validate(command: SuspendUserCommand): ValidationResult
+  +MaxReason: int = 500
 }
-class SuspendUserHandler {
-  +Handle(command: SuspendUserCommand): Task<Result>
-}
-class ReinstateUserHandler {
-  +Handle(command: ReinstateUserCommand): Task<Result>
+class SuspensionHandler {
+  +SuspendAsync(profileId: Guid, command: SuspendUserCommand): Task<Result>
+  +ReinstateAsync(profileId: Guid): Task<Result>
 }
 interface ITokenRevocation {
-  +RevokeAll(userId: Guid): Task
+  +RevokeAllAsync(userId: Guid): Task
+}
+class TokenRevocation {
+  +RevokeAllAsync(userId: Guid): Task
 }
 interface IAuditLog {
-  +Write(entry: AuditEntry): Task
+  +Record(actorId: Guid, action: string, targetType: string, targetId: string, before: object?, after: object?): void
 }
 interface ICurrentUser {
-  +Guid ProfileId
-  +bool IsSystemAdmin
+  +Guid? UserId
+  +HasRole(role: Role): bool
+}
+class ProfileAccess {
+  +CallerProfileIdAsync(): Task<Guid?>
 }
 SuspendUserValidator ..> SuspendUserCommand : validates
-SuspendUserHandler ..> SuspendUserCommand : handles
-ReinstateUserHandler ..> ReinstateUserCommand : handles
-SuspendUserHandler --> Profile : mutates
-ReinstateUserHandler --> Profile : mutates
-SuspendUserHandler ..> ITokenRevocation
-SuspendUserHandler ..> IAuditLog
-ReinstateUserHandler ..> IAuditLog
-SuspendUserHandler ..> ICurrentUser
-ReinstateUserHandler ..> ICurrentUser
+SuspensionHandler ..> SuspendUserCommand : handles
+SuspensionHandler --> Profile : mutates
+SuspensionHandler ..> ITokenRevocation
+SuspensionHandler ..> IAuditLog
+SuspensionHandler ..> ICurrentUser : requires System Admin
+SuspensionHandler ..> ProfileAccess : actor id
+TokenRevocation ..|> ITokenRevocation
 @enduml

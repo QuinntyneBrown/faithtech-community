@@ -147,6 +147,9 @@ docker compose -f backend/deploy/docker-compose.yml up -d
 dotnet run --project backend/src/FaithTech.Community.Cli -- migrate
 dotnet run --project backend/src/FaithTech.Community.Cli -- seed
 
+# Make an account that has signed up the first System Admin (idempotent, audited)
+dotnet run --project backend/src/FaithTech.Community.Cli -- grant-admin you@example.org
+
 # Run the API
 dotnet run --project backend/src/FaithTech.Community.Api
 

@@ -40,47 +40,47 @@ class ProfileRole {
   +DateTime GrantedAtUtc
   +Guid GrantedBy
 }
-class AssignRoleCommand {
-  +Guid ProfileId
-  +Role Role
-}
-class RemoveRoleCommand {
-  +Guid ProfileId
-  +Role Role
+class AssignRoleCommand <<record>> {
+  +string? Role
 }
 class RoleAssignmentPolicy {
-  +CanChange(caller: ICurrentUser, role: Role): bool
-  +IsLastSystemAdmin(profileId: Guid): Task<bool>
+  +{static} CityLeadRoles: IReadOnlyList<Role>
+  +bool CanChangeRoles
+  +bool NotifiesOwner
+  +CanChange(role: Role): bool
 }
-class AssignRoleHandler {
-  +Handle(command: AssignRoleCommand): Task<Result>
+class ChangeRolesHandler {
+  +LastSystemAdminMessage: string
+  +AssignAsync(profileId: Guid, role: string?): Task<(Result, IReadOnlyList<string>?)>
+  +RemoveAsync(profileId: Guid, role: string?): Task<(Result, IReadOnlyList<string>?)>
 }
-class RemoveRoleHandler {
-  +Handle(command: RemoveRoleCommand): Task<Result>
+class RoleChangeNotifier {
+  +Notify(ownerProfileId: Guid, title: string): void
+  +EmailAsync(ownerProfileId: Guid, title: string): Task
+}
+class ProfileAccess {
+  +CallerProfileIdAsync(): Task<Guid?>
 }
 interface ICurrentUser {
-  +Guid ProfileId
-  +IReadOnlySet<Role> Roles
-  +string IpAddress
+  +Guid? UserId
+  +IReadOnlyCollection<Role> Roles
+  +HasRole(role: Role): bool
 }
 interface IAuditLog {
-  +Write(entry: AuditEntry): Task
+  +Record(actorId: Guid, action: string, targetType: string, targetId: string, before: object?, after: object?): void
 }
-interface INotificationService {
-  +Notify(profileId: Guid, notification: Notification): Task
+interface IEmailSender {
+  +SendAsync(message: EmailMessage): Task
 }
 Profile "1" *-- "*" ProfileRole
 ProfileRole --> Role
 Profile ..> CityLeadRoleRemoved : raises
-AssignRoleHandler ..> AssignRoleCommand : handles
-RemoveRoleHandler ..> RemoveRoleCommand : handles
-AssignRoleHandler --> RoleAssignmentPolicy
-RemoveRoleHandler --> RoleAssignmentPolicy
-AssignRoleHandler --> Profile : mutates
-RemoveRoleHandler --> Profile : mutates
-AssignRoleHandler ..> ICurrentUser
-AssignRoleHandler ..> IAuditLog
-AssignRoleHandler ..> INotificationService
-RemoveRoleHandler ..> IAuditLog
-RemoveRoleHandler ..> INotificationService
+ChangeRolesHandler ..> AssignRoleCommand : role from body
+ChangeRolesHandler --> RoleAssignmentPolicy
+ChangeRolesHandler --> Profile : mutates
+ChangeRolesHandler ..> ProfileAccess : actor id
+ChangeRolesHandler ..> IAuditLog
+ChangeRolesHandler ..> RoleChangeNotifier
+RoleAssignmentPolicy ..> ICurrentUser
+RoleChangeNotifier ..> IEmailSender
 @enduml

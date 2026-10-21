@@ -1,10 +1,143 @@
-/*
- * SCAFFOLD: placeholder, not the implementation.
- * Generated from AGENTS.md and:
- *   - docs/detailed-designs/admin/admin-users-and-override
- *   - docs/detailed-designs/admin/suspend-users
- * Overwrite this file with the expected implementation (implementing-incrementally
- * skill + ATDD), then delete this comment.
- */
+import { HttpErrorResponse } from '@angular/common/http';
+import { TestBed } from '@angular/core/testing';
+import {
+  ADMIN_USERS_SERVICE,
+  AdminUserSummary,
+  AdminUsersService,
+  PagedResult,
+} from '@faithtech-community/api';
+import { DialogService } from '@faithtech-community/components';
+import { Observable, of, throwError } from 'rxjs';
 
-describe.todo('AdminUsersPage');
+import { SuspendUserDialog } from '../../dialogs';
+import { AdminUsersPage } from './admin-users.page';
+
+const grace: AdminUserSummary = {
+  id: 'p1',
+  name: 'Grace Okonkwo',
+  email: 'grace@example.org',
+  roles: ['CityLead'],
+  status: 'Active',
+};
+const victor: AdminUserSummary = {
+  id: 'p2',
+  name: 'Victor Kane',
+  email: 'victor@example.org',
+  roles: [],
+  status: 'Suspended',
+};
+
+function page(items: AdminUserSummary[], totalCount = items.length): PagedResult<AdminUserSummary> {
+  return { items, page: 1, pageSize: 25, totalCount };
+}
+
+async function setup(
+  search: (term: string, page?: number) => Observable<PagedResult<AdminUserSummary>>,
+  dialogResult: boolean | undefined = true,
+) {
+  const service = {
+    search: vi.fn(search),
+    suspend: vi.fn(() => of(undefined)),
+    reinstate: vi.fn(() => of(undefined)),
+  } satisfies AdminUsersService;
+  const dialogs = { open: vi.fn(() => ({ closed: of(dialogResult) })) };
+  TestBed.configureTestingModule({
+    providers: [
+      { provide: ADMIN_USERS_SERVICE, useValue: service },
+      { provide: DialogService, useValue: dialogs },
+    ],
+  });
+  const fixture = TestBed.createComponent(AdminUsersPage);
+  const settle = async () => {
+    fixture.detectChanges();
+    await fixture.whenStable();
+    fixture.detectChanges();
+  };
+  await settle();
+  const host = fixture.nativeElement as HTMLElement;
+  const button = (label: string) =>
+    Array.from(host.querySelectorAll('button')).find(
+      (b) => b.getAttribute('aria-label') === label || b.textContent?.trim() === label,
+    );
+  const row = (name: string) =>
+    Array.from(host.querySelectorAll('tbody tr')).find((r) => r.textContent?.includes(name))!;
+  return { fixture, host, service, dialogs, button, row, settle };
+}
+
+describe('AdminUsersPage', () => {
+  it('lists users with their roles and status, linking each to the profile', async () => {
+    const { host, row } = await setup(() => of(page([grace, victor])));
+
+    expect(host.querySelector('h1')!.textContent).toContain('Admin');
+    const cells = Array.from(row('Grace Okonkwo').querySelectorAll('td')).map((c) =>
+      c.textContent!.trim(),
+    );
+    expect(cells[0]).toContain('Grace Okonkwo');
+    expect(cells.slice(1, 4)).toEqual(['grace@example.org', 'City Lead', 'Active']);
+    expect(row('Grace Okonkwo').querySelector('a')!.getAttribute('href')).toBe('/people/p1');
+    expect(row('Victor Kane').textContent).toContain('No role');
+    expect(row('Victor Kane').textContent).toContain('Suspended');
+  });
+
+  it('searches by name or email and offers to clear an empty search', async () => {
+    const { host, service, button, settle } = await setup((term) => of(page(term ? [] : [grace])));
+    const input = host.querySelector<HTMLInputElement>('input[type="search"]')!;
+    input.value = 'qwerty';
+    input.dispatchEvent(new Event('input'));
+    host.querySelector('form')!.dispatchEvent(new Event('submit'));
+    await settle();
+
+    expect(service.search).toHaveBeenLastCalledWith('qwerty', 1);
+    expect(host.textContent).toContain('No users match “qwerty”');
+
+    button('Clear search')!.click();
+    await settle();
+    expect(service.search).toHaveBeenLastCalledWith('', 1);
+    expect(host.textContent).toContain('Grace Okonkwo');
+  });
+
+  it('suspends through the dialog and shows the new status', async () => {
+    const { dialogs, button, row, settle } = await setup(() => of(page([grace])));
+
+    button('Suspend Grace Okonkwo')!.click();
+    await settle();
+
+    expect(dialogs.open).toHaveBeenCalledWith(SuspendUserDialog, {
+      data: { id: 'p1', name: 'Grace Okonkwo' },
+    });
+    expect(row('Grace Okonkwo').textContent).toContain('Suspended');
+    expect(button('Reinstate Grace Okonkwo')).toBeDefined();
+  });
+
+  it('reinstates a suspended user', async () => {
+    const { service, button, row, settle } = await setup(() => of(page([victor])));
+
+    button('Reinstate Victor Kane')!.click();
+    await settle();
+
+    expect(service.reinstate).toHaveBeenCalledWith('p2');
+    expect(row('Victor Kane').textContent).toContain('Active');
+  });
+
+  it('loads more users 25 at a time', async () => {
+    const many = Array.from({ length: 25 }, (_, i) => ({ ...grace, id: `p${i}`, name: `M ${i}` }));
+    const { host, service, button, settle } = await setup((_t, p = 1) =>
+      of(p === 1 ? page(many, 26) : { ...page([victor], 26), page: 2 }),
+    );
+
+    button('Show more users')!.click();
+    await settle();
+
+    expect(service.search).toHaveBeenLastCalledWith('', 2);
+    expect(host.querySelectorAll('tbody tr').length).toBe(26);
+  });
+
+  it('tells a failure apart from a forbidden caller', async () => {
+    const failed = await setup(() => throwError(() => new HttpErrorResponse({ status: 500 })));
+    expect(failed.host.textContent).toContain('We couldn’t load users');
+    TestBed.resetTestingModule();
+
+    const forbidden = await setup(() => throwError(() => new HttpErrorResponse({ status: 403 })));
+    expect(forbidden.host.textContent).toContain('This area is for System Admins');
+  });
+});

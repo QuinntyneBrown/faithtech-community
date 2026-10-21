@@ -1,5 +1,5 @@
 @startuml
-title UML sequence behaviour — View the audit log
+title UML sequence behaviour — View and export the audit log
 skinparam backgroundColor #FFFFFF
 skinparam shadowing false
 skinparam roundcorner 12
@@ -17,6 +17,8 @@ skinparam package {
 actor "System Admin" as actor
 box "Frontend — FaithTech Community web app (admin library)" #E0F2FE
   participant "AuditLogPage" as page
+end box
+box "Frontend — FaithTech Community web app (api library)" #E0F2FE
   participant "HttpAuditLogService" as svc
 end box
 box "Backend — FaithTech.Community.Api" #D1FADF
@@ -28,19 +30,33 @@ end box
 box "Backend — FaithTech.Community.Infrastructure" #FFF4E5
   database "Community database" as db
 end box
-actor -> page : Set filters
-page -> svc : getEntries(filters, page)
-svc -> ep : GET /api/admin/audit?actor&action&from&to&page
-ep -> q : Send GetAuditEntriesQuery
+actor -> page : Choose a category
+page -> svc : getEntries({ category }, page)
+svc -> ep : GET /api/admin/audit?category&actor&from&to&page (HANDLES_FORBIDDEN)
+ep -> q : HandleAsync(GetAuditEntriesQuery)
 alt not System Admin
-  q --> ep : Forbidden (L2-041 AC4)
-  ep --> svc : 403 ProblemDetails
+  q --> ep : null
+  ep --> svc : 403 (L2-041 AC4)
+  svc --> page : HttpErrorResponse 403
+  page --> actor : Show the page's forbidden state
 else System Admin
-  q -> db : Filter and take 50 ordered by OccurredAtUtc desc (L2-041 AC2)
+  q -> db : Filter from 90 days ago by default, order by OccurredAtUtc desc, take 50 (L2-041 AC2)
   db --> q : Entries
-  q --> ep : PagedResult<AuditEntry>
+  q -> db : Load actor and target profile names
+  q --> ep : PagedResult<AuditEntryDto> with summaries
   ep --> svc : 200 OK
   svc --> page : Entries
-  page --> actor : Show entries and pager
+  page --> actor : Show When, Who, What; Show older entries when more remain
+end
+opt Export CSV
+  actor -> page : Choose Export CSV
+  page -> svc : exportCsv({ category })
+  svc -> ep : GET /api/admin/audit/export?category
+  ep -> q : HandleAllAsync(GetAuditEntriesQuery)
+  q -> db : Same filters, up to 10,000 rows
+  q --> ep : AuditEntryDto list
+  ep --> svc : 200 text/csv audit-log.csv (L2-041 AC5)
+  svc --> page : Blob
+  page --> actor : Download audit-log.csv
 end
 @enduml

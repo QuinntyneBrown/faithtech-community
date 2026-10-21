@@ -2,5 +2,5 @@
 
 | Design | Effort | Complete |
 |---|---|---|
-| accept-invite | 3 days | 0% |
-| send-invite | 5 days | 0% |
+| accept-invite | 3 days | 100% |
+| send-invite | 5 days | 100% |

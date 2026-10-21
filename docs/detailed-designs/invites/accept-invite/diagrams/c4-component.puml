@@ -3,16 +3,21 @@
 LAYOUT_WITH_LEGEND()
 title Components — Accept an invite
 
-Container(spa, "Web app", "Angular", "invites feature library and api client")
+Container(spa, "Web app", "Angular", "AcceptInvitePage (invites library); HttpInvitesService (api library)")
 Container_Boundary(api, "Community API") {
-  Component(ep, "InvitesEndpoints", "Minimal API", "GET /api/invites/by-token, POST /api/invites/accept (anonymous opt-in)")
-  Component(gh, "GetInviteByTokenHandler", "Application handler", "Validates token for display")
-  Component(ah, "AcceptInviteHandler", "Application handler", "Creates account, grants role")
-  ComponentDb(db, "CommunityDbContext", "EF Core / PostgreSQL", "Invites, users, profiles")
+  Component(ep, "InvitesEndpoints", "Minimal API", "GET /api/invites/by-token/{token}, POST /api/invites/accept (anonymous opt-in)")
+  Component(val, "AcceptInviteValidator", "FluentValidation validator", "Token; name and password for a new account")
+  Component(ah, "AcceptInviteHandler", "Application handler", "LookUpAsync and AcceptAsync")
+  Component(tok, "InviteTokens", "Application helper", "SHA-256 hash of the token")
+  Component(um, "UserManager<CommunityUser>", "ASP.NET Identity", "Creates and finds accounts")
+  Component(audit, "AuditLog", "Infrastructure service", "Implements IAuditLog")
+  ComponentDb(db, "CommunityDbContext", "EF Core / PostgreSQL", "Invites, users, profiles, notifications, audit entries")
 }
-Rel(spa, ep, "Calls")
-Rel(ep, gh, "Sends GetInviteByTokenQuery")
-Rel(ep, ah, "Sends AcceptInviteCommand")
-Rel(gh, db, "Reads invite")
-Rel(ah, db, "Writes user, role and invite")
+Rel(spa, ep, "Calls", "JSON/HTTPS")
+Rel(ep, val, "Validates AcceptInviteCommand")
+Rel(ep, ah, "LookUpAsync(token) / AcceptAsync(command)")
+Rel(ah, tok, "Hashes token")
+Rel(ah, um, "Creates or loads account")
+Rel(ah, audit, "Records role.granted")
+Rel(ah, db, "Reads invite; writes profile, role, invite, notification")
 @enduml

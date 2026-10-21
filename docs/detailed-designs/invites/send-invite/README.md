@@ -12,16 +12,18 @@ Any lead or System Admin may send invites. A City Lead may pre-assign only the r
 
 ## Description
 
-- **`InvitesPage`** — page in the `invites` feature library, matching the `invites` mock. It lists the inviter's invites with status badges from `components`.
-- **`SendInviteDialog`** — Angular CDK dialog matching the `send-invite` mock. It offers only the roles the caller may grant.
-- **`InvitesService`** — contract in the `api` library, provided through the `INVITES_SERVICE` injection token and implemented by `HttpInvitesService`.
-- **`InvitesEndpoints`** — minimal API route group in `FaithTech.Community.Api` under `/api/invites`. It holds no business logic.
-- **`Invite`** — Domain entity holding `Email`, `TokenHash`, optional `PreassignedRole`, `InvitedBy`, `CreatedAt`, `ExpiresAt` (14 days after creation), `AcceptedAt`, `AcceptedBy`, `RevokedAt` and a derived `Status(now)`. `MarkAccepted(by, now)` and `Revoke(now)` act only on a pending invite.
+- **`InvitesPage`** — page in the `invites` feature library at `/invites`, matching the `invites` mock. It lists every lead's invites, newest first, with status badges from `components` (Pending, Accepted, Expired, and Revoked shown as "Withdrawn"), opens `SendInviteDialog`, and offers **Resend** on an expired invite. `ListSkeletonComponent` shows the loading state. A sent or resent invite is added to the top of the list with a success toast.
+- **`SendInviteDialog`** — Angular CDK dialog in the `invites` library, matching the `send-invite` mock. It collects an email, an optional role and an optional note, and offers only the roles `assignableRoles(callerRoles)` returns. A `403` or `429` refusal (role not allowed, unverified sender, rate limit) shows the server's `detail` in the dialog. It closes with the new `InviteDto`.
+- **`InvitesService`** — contract in the `api` library, provided through the `INVITES_SERVICE` injection token and implemented by `HttpInvitesService`. `sendInvite`, `listInvites`, `resendInvite` and `revokeInvite` call the four routes below. Send and resend carry the `HANDLES_FORBIDDEN` `HttpContextToken`, so a `403` reaches the dialog or page instead of the global `/forbidden` redirect.
+- **`InvitesEndpoints`** — minimal API route group in `FaithTech.Community.Api` under `/api/invites`: `POST /api/invites`, `GET /api/invites`, `POST /api/invites/{id}/resend` and `POST /api/invites/{id}/revoke`. It validates the send body with `SendInviteValidator` and holds no business logic.
+- **`Invite`** — Domain entity holding `Email`, `TokenHash`, optional `PreassignedRole`, `InvitedBy`, `CreatedAt`, `ExpiresAt` (14 days after creation), optional `Note`, `AcceptedAt`, `AcceptedBy`, `RevokedAt` and a derived `Status(now)`. `MarkAccepted(by, now)` and `Revoke(now)` act only on a pending invite.
 - **`InviteStatus`** — `Pending`, `Accepted`, `Expired`, `Revoked`.
-- **`SendInviteCommand`** / **`SendInviteHandler`** — Application request and handler. The handler requires a lead role or System Admin, checks the pre-assigned role against `IRoleAssignmentPolicy`, enforces the 50-per-24-hours limit, creates the `Invite` with a random token, stores only its hash and sends the email.
-- **`RevokeInviteCommand`** / **`RevokeInviteHandler`** — mark a pending invite revoked so its link stops working.
-- **`ListInvitesQuery`** / **`ListInvitesHandler`** — return the caller's invites with status. Whether System Admin sees every inviter's invites is `<TO SUPPLY>`.
-- **`IRoleAssignmentPolicy`** — Application service shared with role assignment; it answers which roles a caller may grant.
+- **`SendInviteCommand`** (`Email`, `PreassignedRole`, `Note`) and **`SendInviteValidator`** — the request and its checks: a valid email up to 256 characters and a note up to 500 characters.
+- **`InviteSender`** — Application service. `CanInvite` is true for any lead role or System Admin. `SendAsync(command)` parses the role and calls `CreateAsync(email, role, note)`, which resend also uses. `CreateAsync` requires `CanInvite` and a verified sender email, checks the pre-assigned role with `RoleAssignmentPolicy.CanChange`, enforces the 50-per-24-hours limit, stores the `Invite` with only the token hash, and then sends the email through `IEmailSender`.
+- **`InviteTokens`** — `New()` creates 32 random bytes encoded as base64url; `Hash(token)` returns the SHA-256 hash stored as `TokenHash` (ADR 0006).
+- **`ManageInvitesHandler`** — Application handler with `ListAsync()`, `ResendAsync(id)` and `RevokeAsync(id)`, each allowed only when `InviteSender.CanInvite`. `ListAsync` returns every inviter's invites as `InviteDto`, newest first (L2-010 AC4, ADR 0006). `ResendAsync` accepts only an expired invite and creates a new one through `InviteSender.CreateAsync` with the same email, role and note. `RevokeAsync` accepts only a pending invite.
+- **`InviteDto`** — `Id`, `Email`, `PreassignedRole`, `Status`, `InvitedByName`, `CreatedAt`, `ExpiresAt`, `AcceptedAt`, `RevokedAt`.
+- **`RoleAssignmentPolicy`** — concrete Application class shared with role assignment (`admin/assign-roles`); `CanChange(role)` answers which roles the caller may grant.
 
 ## Requirements
 
@@ -58,30 +60,33 @@ The web app sends invite commands to the Community API, which stores invites in 
 
 ### Components
 
-`InvitesEndpoints` dispatches send, revoke and list requests. `SendInviteHandler` consults `IRoleAssignmentPolicy` and sends through `IEmailSender`.
+`InvitesEndpoints` calls `InviteSender` to send and `ManageInvitesHandler` to list, resend and revoke. `InviteSender` consults `RoleAssignmentPolicy` and sends through `IEmailSender`.
 
 ![C4 component view for sending an invite](diagrams/c4-component.png)
 
 ### Class structure
 
-`SendInviteHandler` creates `Invite` entities and depends on `IRoleAssignmentPolicy`, `ICurrentUser` and `IEmailSender`. `Invite` derives its `InviteStatus`.
+`InviteSender` creates `Invite` entities and depends on `RoleAssignmentPolicy`, `ICurrentUser` and `IEmailSender`. `ManageInvitesHandler` reuses `InviteSender` for its permission check and for resend. `Invite` derives its `InviteStatus`.
 
 ![Class diagram for sending an invite](diagrams/class-structure.png)
 
 ### Behaviour — send an invite
 
-The handler refuses non-leads, refuses roles the caller may not grant, rate-limits at 50 per 24 hours, and otherwise stores the invite and sends a single-use link that expires after 14 days (`L2-010`).
+`InviteSender` refuses non-leads, unverified senders and roles the caller may not grant, rate-limits at 50 per 24 hours, and otherwise stores the invite and sends a single-use link that expires after 14 days (`L2-010`).
 
 ![Sequence diagram for send an invite](diagrams/sequence-send-invite.png)
 
-### Behaviour — list and revoke invites
+### Behaviour — list, resend and revoke invites
 
-The invites page shows each invite's status. Revoking a pending invite marks it revoked so its link no longer works (`L2-010`).
+The invites page shows each invite's status and resends an expired invite as a new one (`L2-010` AC4, AC5). Revoke is API-only in v1: revoking a pending invite marks it revoked so its link no longer works.
 
-![Sequence diagram for list and revoke invites](diagrams/sequence-list-and-revoke.png)
+![Sequence diagram for list, resend and revoke invites](diagrams/sequence-list-and-revoke.png)
 
 ## Open questions
 
 Decisions recorded while building the Domain layer (`FaithTech.Community.Domain`):
 
 - `Invite.Status(now)` is derived, never stored: revoked wins over accepted, accepted over expired, and an invite is expired from exactly 14 days after creation. Domain rule violations throw `InvalidOperationException` (a broken rule) or `ArgumentException` (invalid input); there is no shared domain exception type. Handlers check permissions and preconditions first and map any remaining violation to a `400` or `409` result.
+- Routes: `POST /api/invites` (`Email`, optional `PreassignedRole`, optional `Note` up to 500 characters), `GET /api/invites`, `POST /api/invites/{id}/resend`, `POST /api/invites/{id}/revoke`. Revoke is API-only in v1; the invites mock has no revoke control.
+- `Invite` gains an optional `Note`, kept so a resend repeats it.
+- A refused send (rate limit, unverified sender, role not allowed) shows the dialog's `limited` state, an alert headed "You can’t send this invite", with the server's message. Resend and revoke answer `409` for an invite in the wrong state ("Only an expired invite can be resent.", "Only a pending invite can be withdrawn.").

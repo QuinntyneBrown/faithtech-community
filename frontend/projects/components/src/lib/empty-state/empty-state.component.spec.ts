@@ -14,7 +14,7 @@ import { EmptyStateComponent, EmptyStateVariant } from './empty-state.component'
 })
 class HostComponent {
   variant = signal<EmptyStateVariant>('empty');
-  level = signal<2 | 3>(2);
+  level = signal<1 | 2 | 3>(2);
 }
 
 function setup() {
@@ -50,6 +50,14 @@ describe('EmptyStateComponent', () => {
     const host = el.querySelector('ft-empty-state') as HTMLElement;
     expect(host.getAttribute('role')).toBe('alert');
     expect(host.classList.contains('ft-empty--error')).toBe(true);
+  });
+
+  it('can be the page heading when the empty state is the whole page', () => {
+    const { fixture, cmp, el } = setup();
+    cmp.level.set(1);
+    fixture.detectChanges();
+    expect(el.querySelector('h1')?.textContent).toBe('No contacts yet');
+    expect(el.querySelector('h2')).toBeNull();
   });
 
   it('honours the heading level', () => {

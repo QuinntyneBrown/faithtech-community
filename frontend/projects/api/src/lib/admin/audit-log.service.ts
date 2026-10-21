@@ -1,41 +1,40 @@
-/*
- * EARLY IMPLEMENTATION: written ahead of the vertical slices to get a head start.
- * Contracts and DTOs follow docs/detailed-designs/ but may change as each feature is
- * implemented end to end (spec -> design -> mock -> ATDD slice).
- * Sources:
- *   - docs/detailed-designs/admin/audit-log
- */
 import { InjectionToken } from '@angular/core';
 import { Observable } from 'rxjs';
 
 import { PagedResult } from '../shared';
 
+/** Audit log categories (L2-041 AC2); each maps onto a set of actions on the server. */
+export type AuditCategory = 'roles' | 'suspensions' | 'contacts' | 'deletions';
+
 export interface AuditEntry {
   id: string;
+  occurredAtUtc: string;
   actorId: string;
+  actorName: string;
   action: string;
   targetType: string;
   targetId: string;
-  beforeJson: string;
-  afterJson: string;
-  occurredAt: string;
+  /** One line saying what happened, e.g. "Granted City Lead to Esther Nakamura". */
+  summary: string;
+  before: string | null;
+  after: string | null;
   ipAddress: string;
 }
 
 export interface AuditFilters {
+  category?: AuditCategory | null;
   actor?: string;
-  action?: string;
+  /** ISO dates; without `from` the server shows the last 90 days. */
   from?: string;
   to?: string;
 }
 
-/**
- * Contract for the read-only audit log. Pages depend on AUDIT_LOG_SERVICE, never on HttpAuditLogService.
- * 50 entries per page, newest first. TODO(slice): L2-041 also wants a category filter, a 90-day default
- * range and CSV export, none of which the design covers.
- */
+/** Contract for the read-only audit log. Pages depend on AUDIT_LOG_SERVICE, never on HttpAuditLogService. */
 export interface AuditLogService {
+  /** 50 entries per page, newest first. 403 unless the caller is a System Admin. */
   getEntries(filters: AuditFilters, page?: number): Observable<PagedResult<AuditEntry>>;
+  /** Every filtered entry as CSV (L2-041 AC5). */
+  exportCsv(filters: AuditFilters): Observable<Blob>;
 }
 
 export const AUDIT_LOG_SERVICE = new InjectionToken<AuditLogService>('AUDIT_LOG_SERVICE');

@@ -17,30 +17,40 @@ skinparam package {
 actor "System Admin" as actor
 box "Frontend — FaithTech Community web app (admin library)" #E0F2FE
   participant "AdminUsersPage" as page
+end box
+box "Frontend — FaithTech Community web app (api library)" #E0F2FE
   participant "HttpAdminUsersService" as svc
 end box
 box "Backend — FaithTech.Community.Api" #D1FADF
   participant "AdminUsersEndpoints" as ep
 end box
 box "Backend — FaithTech.Community.Application and Domain" #ECFDF3
-  participant "ReinstateUserHandler" as h
+  participant "SuspensionHandler" as h
   participant "Profile" as acct
 end box
 box "Backend — FaithTech.Community.Infrastructure" #FFF4E5
   participant "AuditLog" as audit
   database "Community database" as db
 end box
-actor -> page : Choose Reinstate
-page -> svc : reinstate(userId)
-svc -> ep : DELETE /api/admin/users/{id}/suspension
-ep -> h : Send ReinstateUserCommand
-h -> h : Require System Admin (L2-039 AC3)
-h -> db : Load Profile
-h -> acct : Reinstate() (L2-039 AC2)
-h -> audit : Write audit entry (L2-041)
-h -> db : Save changes
-h --> ep : Success
-ep --> svc : 204 No Content
-svc --> page : Done
-page --> actor : Row shows Active status
+actor -> page : Choose Reinstate on a suspended user
+page -> svc : reinstate(profileId)
+svc -> ep : DELETE /api/admin/users/{id}/suspension (HANDLES_FORBIDDEN)
+ep -> h : ReinstateAsync(id)
+alt caller is not System Admin
+  h --> ep : Forbidden (L2-039 AC3)
+  ep --> svc : 403 ProblemDetails
+else profile is not suspended
+  h -> db : Load Profile
+  h --> ep : Conflict
+  ep --> svc : 409 "This account isn’t suspended."
+else System Admin and profile suspended
+  h -> db : Load Profile
+  h -> acct : Reinstate() (L2-039 AC2)
+  h -> audit : Record(actor, "user.reinstated", "Profile", id, before, after) (L2-041)
+  h -> db : Save changes in one unit of work
+  h --> ep : Ok
+  ep --> svc : 204 No Content
+  svc --> page : Done
+  page --> actor : Row shows Active status
+end
 @enduml

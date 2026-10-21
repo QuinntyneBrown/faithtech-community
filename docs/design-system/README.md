@@ -44,7 +44,7 @@ The mocks were styled with the Shelfie design system unchanged plus FaithTech ad
 | [Skip link](components/skip-link.html) | First stop for keyboard users. |
 | [Layout primitives](components/layout.html) | Container, stack, cluster, grid, split, page header. |
 | [Card](components/card.html) | Surfaces for grouped content. |
-| [Dialog](components/dialog.html) | CDK dialogs: default, destructive, form, busy, failed. |
+| [Dialog](components/dialog.html) | CDK dialogs: default, destructive, form, busy, failed; the shared role dialog. |
 | [Notification panel](components/notification-panel.html) | Bell panel with unread notices. |
 | [List](components/list.html) | People, contacts and invites lists. |
 | [Table](components/table.html) | Audit log and admin tables. |
@@ -66,8 +66,8 @@ The mocks were styled with the Shelfie design system unchanged plus FaithTech ad
 | [Alert and banner](components/alert.html) | Inline alerts and page banners. |
 | [Inline message](components/inline-message.html) | Field errors and save status. |
 | [Progress](components/progress.html) | Determinate progress. |
-| [Skeleton](components/skeleton.html) | Loading placeholders. |
-| [Empty state](components/empty-state.html) | First-run, no results, error. |
+| [Skeleton](components/skeleton.html) | Loading placeholders, including the loading list. |
+| [Empty state](components/empty-state.html) | First-run, no results, error; page-level heading for full-page errors. |
 | [Error page](components/error-page.html) | 404, 403, 500, offline. |
 
 Each component page documents variants, sizes and the full state matrix in both themes, and its Sources section lists the mocks it came from.

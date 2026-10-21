@@ -8,14 +8,15 @@ This feature covers both writing entries, which other features trigger through `
 
 ## Description
 
-- **`AuditLogPage`** — page in the `admin` feature library with filters for actor, action and date range, and paging at 50 entries per page.
-- **`AuditLogService`** / **`AUDIT_LOG_SERVICE`** / **`HttpAuditLogService`** — API client calling `GET /api/admin/audit?actor=&action=&from=&to=&page=`.
-- **`AuditLogEndpoints`** — maps only the `GET` query. No `PUT`, `PATCH` or `DELETE` route exists.
-- **`GetAuditEntriesQuery`** and **`GetAuditEntriesHandler`** — Application `Admin/` query; requires System Admin and pages 50 at a time.
-- **`IAuditLog`** — Application abstraction with a single `Write(AuditEntry)` method, called by role, suspension, override and other admin handlers in the same unit of work as the change.
-- **`AuditLog`** — Infrastructure implementation that inserts into the `audit_entries` table. The table grants the application role insert and select only. Retention period: `<TO SUPPLY>`.
-- **`AuditEntry`** — Domain record with `Id`, `ActorId`, `Action`, `TargetType`, `TargetId`, `BeforeJson`, `AfterJson`, `OccurredAtUtc` and `IpAddress`. Its constructor requires an action, a target type and a target id and a UTC time; it has no mutators, so an entry cannot change after it is written.
-- **`ICurrentUser`** — supplies `ProfileId` and `IpAddress` for the entry.
+- **`AuditLogPage`** — page in the `admin` feature library at `/admin/audit-log` with a category filter (all, role changes, suspensions, private contact access, deletions), the last 90 days by default, 50 entries at a time with a **Show older entries** button, and an **Export CSV** button. It shows When, Who and What (the entry summary). `ListSkeletonComponent` from `components` shows the loading state, and a `403` shows the page's own forbidden state.
+- **`AuditLogService`** / **`AUDIT_LOG_SERVICE`** / **`HttpAuditLogService`** — API client in the `api` library. `getEntries(filters, page)` calls `GET /api/admin/audit?category=&actor=&from=&to=&page=` and `exportCsv(filters)` calls `GET /api/admin/audit/export?category=&actor=&from=&to=` for a CSV blob. Both requests carry the `HANDLES_FORBIDDEN` `HttpContextToken`, so a `403` reaches the page instead of the global `/forbidden` redirect. The page sends only the category; the API also accepts `actor`, `from` and `to`.
+- **`AuditLogEndpoints`** — maps only the two `GET` routes. No `PUT`, `PATCH` or `DELETE` route exists. The export route writes the CSV with the columns When (UTC), Who, Action, Summary, Target type, Target id and IP address, and prefixes a cell that starts with `=`, `+`, `-` or `@` with `'`. Dates without an offset are read as UTC.
+- **`GetAuditEntriesQuery`** (`Category`, `Actor`, `From`, `To`, `Page`) and **`GetAuditEntriesHandler`** — Application `Admin/` query. `HandleAsync` requires System Admin, defaults `From` to 90 days ago, pages 50 at a time newest first and returns `AuditEntryDto` items with the actor's name, the target's name and a one-line summary ("Granted City Lead to Esther Nakamura"). `HandleAllAsync` applies the same filters unpaged, up to 10,000 rows, for the CSV export. Both return `null` to any other caller, which the endpoint answers with `403`.
+- **`IAuditLog`** — Application abstraction with a single `Record(actorId, action, targetType, targetId, before, after)` method, called by the role, suspension, invite-acceptance and profile-override handlers. It adds the entry to the current unit of work, so the entry is saved with the change it records.
+- **`AuditLog`** — Infrastructure implementation in `Infrastructure/Admin/`. It serializes before and after to JSON, stamps the UTC time and takes the IP address from the current HTTP request (`unknown` when there is none), and adds the entry to the `AuditEntries` table. Retention: entries are kept indefinitely in v1; a purge job is deferred.
+- **`AuditEntry`** — Domain record with `Id`, `ActorId`, `Action`, `TargetType`, `TargetId`, `BeforeJson`, `AfterJson`, `OccurredAtUtc` and `IpAddress`. Its constructor requires an action, a target type, a target id and a UTC time; it has no mutators, so an entry cannot change after it is written.
+- **`ICurrentUser`** — supplies the caller's user id and roles; handlers resolve the actor's profile id from it.
+- **`CommunitySeeder.GrantSystemAdminAsync`** — writes the one entry made outside a request: the Cli `grant-admin` command's `role.granted`, with an empty actor id (shown as "System") and IP address `cli`.
 
 ## Requirements
 
@@ -51,13 +52,13 @@ The `admin` feature library in the Angular web app calls the Community API over 
 
 ### Components
 
-Writers reach the log only through `IAuditLog`, implemented by `AuditLog`. Readers reach it only through `GetAuditEntriesHandler`.
+Writers reach the log through `IAuditLog`, implemented by `AuditLog`; the Cli first-admin grant is the one exception. Readers reach it only through `GetAuditEntriesHandler`.
 
 ![C4 component view for audit log](diagrams/c4-component.png)
 
 ### Class structure
 
-`AuditLog` realizes `IAuditLog` and persists `AuditEntry`. `GetAuditEntriesHandler` reads entries through `CommunityDbContext`.
+`AuditLog` realizes `IAuditLog` and adds `AuditEntry` rows. `GetAuditEntriesHandler` handles `GetAuditEntriesQuery`, reads entries through `IApplicationDbContext` and returns `AuditEntryDto` items.
 
 ![Class diagram for audit log](diagrams/class-structure.png)
 
@@ -69,7 +70,7 @@ An admin or role-changing handler writes the entry in the same unit of work as t
 
 ### Behaviour — view the audit log
 
-Only System Admins may read entries, filtered by actor, action and date range and paged 50 at a time (`L2-041` AC2, AC4).
+Only System Admins may read entries, filtered by category, actor and date range and paged 50 at a time (`L2-041` AC2, AC4). The export uses the same filters (`L2-041` AC5).
 
 ![Sequence diagram for view the audit log](diagrams/sequence-view-audit-log.png)
 
@@ -78,3 +79,7 @@ Only System Admins may read entries, filtered by actor, action and date range an
 Decisions recorded while building the Domain layer (`FaithTech.Community.Domain`):
 
 - Filter categories (`L2-041` AC2) map onto the `Action` values written by each feature; the Domain does not add a separate category field.
+- Categories: `roles` → actions starting `role.`; `suspensions` → `user.suspended`, `user.reinstated`; `contacts` → actions starting `contact.`; `deletions` → actions ending `.deleted`.
+- Actions written so far: `role.granted`, `role.removed` (before and after hold the role sets), `user.suspended` (after holds the reason), `user.reinstated`, and the profile actions of ADR 0004. Accepting an invite with a pre-assigned role writes `role.granted` with the inviter as actor (ADR 0006).
+- The CSV export holds at most 10,000 rows; columns are When (UTC), Who, Action, Summary, Target type, Target id, IP address.
+- Immutability rests on the entity having no mutators and the API having no edit or delete route. The migrations do not restrict the database role to insert and select on `AuditEntries`; a database-level insert-and-select grant is deferred to the deployment design (`eng/infra`), since the role the API connects as is created there.

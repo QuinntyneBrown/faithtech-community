@@ -1,5 +1,7 @@
 <span class="ft-empty__icon" aria-hidden="true"><ft-icon [name]="iconName()" size="lg" /></span>
-@if (headingLevel() === 3) {
+@if (headingLevel() === 1) {
+  <h1 class="ft-empty__title">{{ heading() }}</h1>
+} @else if (headingLevel() === 3) {
   <h3 class="ft-empty__title">{{ heading() }}</h3>
 } @else {
   <h2 class="ft-empty__title">{{ heading() }}</h2>

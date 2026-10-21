@@ -5,12 +5,12 @@
  * Sources:
  *   - docs/detailed-designs/platform/error-and-system-pages
  */
-import { HttpClient, provideHttpClient, withInterceptors } from '@angular/common/http';
+import { HttpClient, HttpContext, provideHttpClient, withInterceptors } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { TestBed } from '@angular/core/testing';
 import { Router } from '@angular/router';
 
-import { httpErrorInterceptor } from './http-error.interceptor';
+import { HANDLES_FORBIDDEN, httpErrorInterceptor } from './http-error.interceptor';
 import { problemDetails } from './problem-details';
 
 describe('httpErrorInterceptor', () => {
@@ -38,6 +38,18 @@ describe('httpErrorInterceptor', () => {
     controller.expectOne('/api/x').flush({}, { status: 403, statusText: 'Forbidden' });
 
     expect(navigate).toHaveBeenCalledWith(['/forbidden']);
+    expect(status).toBe(403);
+  });
+
+  it('leaves 403 to a caller that shows its own forbidden state', () => {
+    let status = 0;
+    http
+      .get('/api/x', { context: new HttpContext().set(HANDLES_FORBIDDEN, true) })
+      .subscribe({ error: (e) => (status = e.status) });
+
+    controller.expectOne('/api/x').flush({}, { status: 403, statusText: 'Forbidden' });
+
+    expect(navigate).not.toHaveBeenCalled();
     expect(status).toBe(403);
   });
 

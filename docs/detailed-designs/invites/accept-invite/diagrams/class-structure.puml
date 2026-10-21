@@ -11,17 +11,34 @@ skinparam class {
 }
 title Class structure — Accept an invite
 
-class AcceptInviteCommand {
-  +string Token
+class AcceptInviteCommand <<record>> {
+  +string? Token
   +string? Name
   +string? Password
+  +bool IsNewAccount
+}
+class AcceptInviteValidator {
+}
+class InviteLookupDto <<record>> {
+  +string Status
+  +string Email
+  +string InviterName
+  +string? InviterCity
+  +string? PreassignedRole
+  +bool HasAccount
 }
 class AcceptInviteHandler {
-  +Handle(command: AcceptInviteCommand): Task<Result>
+  +LookUpAsync(token: string): Task<InviteLookupDto?>
+  +AcceptAsync(command: AcceptInviteCommand): Task<Result>
+}
+class InviteTokens <<static>> {
+  +Hash(token: string): string
 }
 class Invite {
   +string Email
+  +string TokenHash
   +Role? PreassignedRole
+  +Guid InvitedBy
   +Guid? AcceptedBy
   +Status(now: DateTimeOffset): InviteStatus
   +MarkAccepted(by: Guid, now: DateTimeOffset): void
@@ -30,14 +47,36 @@ class CommunityUser {
   +Guid Id
   +string Email
   +bool EmailConfirmed
+  +Guid ProfileId
 }
 class Profile {
   +Guid Id
+  +string Name
+  +HasRole(role: Role): bool
   +AddRole(role: Role, grantedBy: Guid, nowUtc: DateTime): void
 }
+class Notification {
+  +Guid RecipientId
+  +NotificationKind Kind
+  +string Title
+  +string LinkPath
+}
+interface IAuditLog {
+  +Record(actorId: Guid, action: string, targetType: string, targetId: string, before: object?, after: object?): void
+}
+interface ICurrentUser {
+  +Guid? UserId
+  +bool IsAuthenticated
+}
+AcceptInviteValidator ..> AcceptInviteCommand : validates
 AcceptInviteHandler ..> AcceptInviteCommand : handles
+AcceptInviteHandler ..> InviteLookupDto : returns
+AcceptInviteHandler ..> InviteTokens : hashes token
 AcceptInviteHandler --> Invite : accepts
 AcceptInviteHandler --> CommunityUser : creates or loads
 AcceptInviteHandler --> Profile : grants role
+AcceptInviteHandler ..> IAuditLog : role.granted, inviter as actor
+AcceptInviteHandler ..> Notification : InviteAccepted for inviter
+AcceptInviteHandler ..> ICurrentUser
 CommunityUser "1" --> "1" Profile
 @enduml

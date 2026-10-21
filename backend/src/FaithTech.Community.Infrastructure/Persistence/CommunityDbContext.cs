@@ -1,6 +1,8 @@
 using FaithTech.Community.Application.Common;
 using FaithTech.Community.Application.Identity;
 using FaithTech.Community.Domain.Admin;
+using FaithTech.Community.Domain.Invites;
+using FaithTech.Community.Domain.Notifications;
 using FaithTech.Community.Domain.Profiles;
 using FaithTech.Community.Infrastructure.Email;
 using FaithTech.Community.Infrastructure.Identity;
@@ -20,6 +22,10 @@ public class CommunityDbContext(DbContextOptions<CommunityDbContext> options)
     public DbSet<OutboxMessage> OutboxMessages => Set<OutboxMessage>();
 
     public DbSet<AuditEntry> AuditEntries => Set<AuditEntry>();
+
+    public DbSet<Notification> Notifications => Set<Notification>();
+
+    public DbSet<Invite> Invites => Set<Invite>();
 
     protected override void OnModelCreating(ModelBuilder builder)
     {
@@ -73,6 +79,27 @@ public class CommunityDbContext(DbContextOptions<CommunityDbContext> options)
             entry.Property(e => e.TargetId).HasMaxLength(100);
             entry.Property(e => e.IpAddress).HasMaxLength(45);
             entry.HasIndex(e => e.OccurredAtUtc);
+        });
+
+        builder.Entity<Notification>(notification =>
+        {
+            notification.Property(n => n.Id).ValueGeneratedNever();
+            notification.Property(n => n.Kind).HasConversion<string>().HasMaxLength(48);
+            notification.Property(n => n.Title).HasMaxLength(300);
+            notification.Property(n => n.LinkPath).HasMaxLength(300);
+            notification.Ignore(n => n.IsRead);
+            notification.HasIndex(n => new { n.RecipientId, n.CreatedAt });
+        });
+
+        builder.Entity<Invite>(invite =>
+        {
+            invite.Property(i => i.Id).ValueGeneratedNever();
+            invite.Property(i => i.Email).HasMaxLength(256);
+            invite.Property(i => i.TokenHash).HasMaxLength(64);
+            invite.HasIndex(i => i.TokenHash).IsUnique();
+            invite.Property(i => i.PreassignedRole).HasConversion<string>().HasMaxLength(32);
+            invite.Property(i => i.Note).HasMaxLength(500);
+            invite.HasIndex(i => new { i.InvitedBy, i.CreatedAt });
         });
 
         builder.Entity<CommunityUser>()

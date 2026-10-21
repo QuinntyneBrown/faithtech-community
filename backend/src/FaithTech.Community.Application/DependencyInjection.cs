@@ -1,4 +1,6 @@
+using FaithTech.Community.Application.Admin;
 using FaithTech.Community.Application.Identity;
+using FaithTech.Community.Application.Invites;
 using FaithTech.Community.Application.Profiles;
 using FluentValidation;
 using Microsoft.Extensions.Configuration;
@@ -28,6 +30,15 @@ public static class DependencyInjection
         services.AddScoped<DescribePhotoHandler>();
         services.AddScoped<SetFeaturedPhotoHandler>();
         services.AddScoped<DeletePhotoHandler>();
+        services.AddScoped<GetAuditEntriesHandler>();
+        services.AddScoped<RoleAssignmentPolicy>();
+        services.AddScoped<RoleChangeNotifier>();
+        services.AddScoped<ChangeRolesHandler>();
+        services.AddScoped<SuspensionHandler>();
+        services.AddScoped<SearchUsersHandler>();
+        services.AddScoped<InviteSender>();
+        services.AddScoped<ManageInvitesHandler>();
+        services.AddScoped<AcceptInviteHandler>();
         services.TryAddSingleton(TimeProvider.System);
         return services;
     }

@@ -19,6 +19,7 @@ class Invite {
   +Guid InvitedBy
   +DateTimeOffset CreatedAt
   +DateTimeOffset ExpiresAt
+  +string? Note
   +DateTimeOffset? AcceptedAt
   +Guid? AcceptedBy
   +DateTimeOffset? RevokedAt
@@ -32,28 +33,60 @@ enum InviteStatus {
   Expired
   Revoked
 }
-class SendInviteCommand {
+class SendInviteCommand <<record>> {
+  +string? Email
+  +string? PreassignedRole
+  +string? Note
+}
+class SendInviteValidator {
+  +MaxNote: int = 500
+}
+class InviteSender {
+  +MaxPerDay: int = 50
+  +bool CanInvite
+  +SendAsync(command: SendInviteCommand): Task<(Result, InviteDto?)>
+  +CreateAsync(address: string, role: Role?, note: string?): Task<(Result, InviteDto?)>
+}
+class ManageInvitesHandler {
+  +ListAsync(): Task<IReadOnlyList<InviteDto>?>
+  +ResendAsync(id: Guid): Task<(Result, InviteDto?)>
+  +RevokeAsync(id: Guid): Task<Result>
+}
+class InviteDto <<record>> {
+  +Guid Id
   +string Email
-  +Role? PreassignedRole
+  +string? PreassignedRole
+  +string Status
+  +string InvitedByName
+  +DateTimeOffset CreatedAt
+  +DateTimeOffset ExpiresAt
+  +DateTimeOffset? AcceptedAt
+  +DateTimeOffset? RevokedAt
 }
-class SendInviteHandler {
-  +int MaxPer24Hours = 50
-  +TimeSpan Lifetime = 14 days
-  +Handle(command: SendInviteCommand): Task<InviteDto>
+class InviteTokens <<static>> {
+  +New(): string
+  +Hash(token: string): string
 }
-class RevokeInviteHandler {
-  +Handle(command: RevokeInviteCommand): Task
+class RoleAssignmentPolicy {
+  +CanChange(role: Role): bool
 }
-interface IRoleAssignmentPolicy {
-  +CanGrant(caller: ICurrentUser, role: Role): bool
+interface ICurrentUser {
+  +Guid? UserId
+  +HasRole(role: Role): bool
 }
 interface IEmailSender {
   +SendAsync(message: EmailMessage): Task
 }
-SendInviteHandler ..> SendInviteCommand : handles
-SendInviteHandler ..> IRoleAssignmentPolicy : uses
-SendInviteHandler ..> IEmailSender : uses
-SendInviteHandler --> Invite : creates
-RevokeInviteHandler --> Invite : revokes
+SendInviteValidator ..> SendInviteCommand : validates
+InviteSender ..> SendInviteCommand : handles
+InviteSender --> RoleAssignmentPolicy : uses
+InviteSender ..> ICurrentUser : uses
+InviteSender ..> IEmailSender : uses
+InviteSender ..> InviteTokens : uses
+InviteSender --> Invite : creates
+InviteSender ..> InviteDto : returns
+ManageInvitesHandler --> InviteSender : CanInvite, CreateAsync
+ManageInvitesHandler --> Invite : revokes
+ManageInvitesHandler ..> InviteDto : returns
 Invite --> InviteStatus : derives
 @enduml

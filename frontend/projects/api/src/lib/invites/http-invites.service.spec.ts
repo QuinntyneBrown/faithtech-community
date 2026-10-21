@@ -1,15 +1,9 @@
-/*
- * EARLY IMPLEMENTATION: written ahead of the vertical slices to get a head start.
- * Contracts and DTOs follow docs/detailed-designs/ but may change as each feature is
- * implemented end to end (spec -> design -> mock -> ATDD slice).
- * Sources:
- *   - docs/detailed-designs/invites/send-invite
- *   - docs/detailed-designs/invites/accept-invite
- */
+import { HttpContext } from '@angular/common/http';
 import { HttpTestingController } from '@angular/common/http/testing';
 import { TestBed } from '@angular/core/testing';
 import { Observable } from 'rxjs';
 
+import { HANDLES_FORBIDDEN } from '../errors';
 import { apiTestProviders } from '../shared/api-test-providers';
 import { HttpInvitesService } from './http-invites.service';
 import { INVITES_SERVICE } from './invites.service';
@@ -29,30 +23,20 @@ describe('HttpInvitesService', () => {
     controller = TestBed.inject(HttpTestingController);
   });
 
+  afterEach(() => controller.verify());
+
   it.each([
     [
-      'sendInvite with a role',
-      () => service.sendInvite('a@b.c', 'Volunteer'),
+      'sendInvite with a role and note',
+      () => service.sendInvite({ email: 'a@b.c', preassignedRole: 'Volunteer', note: 'Hi' }),
       'POST',
       '/api/invites',
-      { email: 'a@b.c', preassignedRole: 'Volunteer' },
-    ],
-    [
-      'sendInvite without a role',
-      () => service.sendInvite('a@b.c'),
-      'POST',
-      '/api/invites',
-      { email: 'a@b.c', preassignedRole: null },
+      { email: 'a@b.c', preassignedRole: 'Volunteer', note: 'Hi' },
     ],
     ['listInvites', () => service.listInvites(), 'GET', '/api/invites', undefined],
-    ['revokeInvite', () => service.revokeInvite('i1'), 'POST', '/api/invites/i1/revoke', undefined],
-    [
-      'getInvite',
-      () => service.getInvite('tok'),
-      'GET',
-      '/api/invites/by-token?token=tok',
-      undefined,
-    ],
+    ['resendInvite', () => service.resendInvite('i1'), 'POST', '/api/invites/i1/resend', null],
+    ['revokeInvite', () => service.revokeInvite('i1'), 'POST', '/api/invites/i1/revoke', null],
+    ['getInvite', () => service.getInvite('t-k'), 'GET', '/api/invites/by-token/t-k', undefined],
     [
       'accept as a new account',
       () => service.acceptInvite('tok', { name: 'Ada', password: 'pw' }),
@@ -61,7 +45,7 @@ describe('HttpInvitesService', () => {
       { token: 'tok', name: 'Ada', password: 'pw' },
     ],
     [
-      'accept as a signed-in account',
+      'accept as the signed-in account',
       () => service.acceptInvite('tok'),
       'POST',
       '/api/invites/accept',
@@ -74,5 +58,17 @@ describe('HttpInvitesService', () => {
     expect(req.request.method).toBe(method);
     if (body !== undefined) expect(req.request.body).toEqual(body);
     req.flush(null);
+  });
+
+  it('lets the send dialog show a refusal itself', () => {
+    service.sendInvite({ email: 'a@b.c' }).subscribe({ error: () => undefined });
+    service.resendInvite('i1').subscribe({ error: () => undefined });
+
+    const send = controller.expectOne('/api/invites');
+    const resend = controller.expectOne('/api/invites/i1/resend');
+    for (const req of [send, resend]) {
+      expect((req.request.context as HttpContext).get(HANDLES_FORBIDDEN)).toBe(true);
+      req.flush(null);
+    }
   });
 });
