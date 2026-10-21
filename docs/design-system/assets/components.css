@@ -160,6 +160,9 @@ a:hover, a[data-state="hover"] { color: var(--color-fg-link-hover); text-decorat
 .field__label { font: var(--text-label); color: var(--color-fg-default); display: flex; gap: var(--space-1); }
 .field__label .optional { color: var(--color-fg-subtle); font-weight: var(--font-weight-regular); }
 .field__help { font: var(--text-body-sm); color: var(--color-fg-muted); }
+/* Character counter under a textarea with a limit (bio): characters left, or how many too many. */
+.field__count { font: var(--text-body-sm); color: var(--color-fg-muted); font-variant-numeric: tabular-nums; }
+.field__count--over { color: var(--color-danger-fg); font-weight: var(--font-weight-semibold); }
 .field__error { font: var(--text-body-sm); color: var(--color-danger-fg); display: flex; gap: var(--space-1); align-items: flex-start; }
 .field__error::before { content: "⚠"; flex: none; }
 .input, .textarea {
