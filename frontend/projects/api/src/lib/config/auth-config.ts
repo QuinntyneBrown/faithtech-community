@@ -14,12 +14,12 @@ export interface AuthConfig {
   postLogoutRedirectUri: string;
 }
 
-// TODO(slice): the designs give no client id, scopes or redirect URIs; these defaults are placeholders.
+// Matches the public client seeded by the Cli (CommunitySeeder).
 export function defaultAuthConfig(origin: string): AuthConfig {
   return {
     authority: origin,
-    clientId: 'faithtech-community-web',
-    scope: 'openid profile offline_access',
+    clientId: 'web',
+    scope: 'openid profile email roles offline_access',
     redirectUri: `${origin}/auth/callback`,
     postLogoutRedirectUri: origin,
   };

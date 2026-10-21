@@ -16,7 +16,17 @@ import { API_BASE_URL } from '../config';
 import { OidcAuthClient } from './oidc-auth-client.service';
 
 // Anonymous endpoints never carry a token (L2-042).
-const ANONYMOUS = ['/public/', '/invites/by-token', '/announcements/unsubscribe', '/account/'];
+const ANONYMOUS = [
+  '/public/',
+  '/invites/by-token',
+  '/announcements/unsubscribe',
+  '/account/sign-in',
+  '/account/sign-up',
+  '/account/verify-email',
+  '/account/resend-verification',
+  '/account/forgot-password',
+  '/account/reset-password',
+];
 
 /**
  * Adds the bearer token to API requests. On 401 it refreshes once and retries; if that fails the

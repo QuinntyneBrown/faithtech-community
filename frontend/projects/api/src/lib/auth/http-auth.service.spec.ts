@@ -40,7 +40,7 @@ describe('HttpAuthService', () => {
     [
       'confirmEmail',
       () => service.confirmEmail('u1', 'tok'),
-      '/api/account/confirm-email',
+      '/api/account/verify-email',
       { userId: 'u1', token: 'tok' },
     ],
     [
@@ -57,9 +57,9 @@ describe('HttpAuthService', () => {
     ],
     [
       'resetPassword',
-      () => service.resetPassword('a@b.c', 'tok', 'newpw'),
+      () => service.resetPassword('u1', 'tok', 'newpw'),
       '/api/account/reset-password',
-      { email: 'a@b.c', token: 'tok', newPassword: 'newpw' },
+      { userId: 'u1', token: 'tok', password: 'newpw' },
     ],
   ])('%s posts to the account endpoint', (_name, call, url, body) => {
     call().subscribe();
@@ -68,5 +68,47 @@ describe('HttpAuthService', () => {
     expect(req.request.method).toBe('POST');
     expect(req.request.body).toEqual(body);
     req.flush(null);
+  });
+
+  it('signs in with a password and reports whether the email is verified', () => {
+    let outcome: unknown;
+    service.signInWithPassword('a@b.c', 'pw').subscribe((o) => (outcome = o));
+
+    const req = controller.expectOne('/api/account/sign-in');
+    expect(req.request.body).toEqual({ email: 'a@b.c', password: 'pw' });
+    expect(req.request.withCredentials).toBe(true);
+    req.flush({ emailVerified: false });
+
+    expect(outcome).toEqual({ succeeded: true, emailVerified: false });
+  });
+
+  it.each(['invalid_credentials', 'locked_out', 'suspended'])(
+    'reports the %s sign-in error code',
+    (code) => {
+      let outcome: unknown;
+      service.signInWithPassword('a@b.c', 'pw').subscribe((o) => (outcome = o));
+
+      controller
+        .expectOne('/api/account/sign-in')
+        .flush({ code }, { status: 400, statusText: 'Bad Request' });
+
+      expect(outcome).toEqual({ succeeded: false, error: code });
+    },
+  );
+
+  it('loads the current user and exposes the roles', () => {
+    const me = {
+      id: 'u1',
+      name: 'Ada',
+      email: 'a@b.c',
+      emailVerified: false,
+      roles: ['Lead', 'Volunteer'],
+    };
+    service.loadCurrentUser().subscribe();
+
+    controller.expectOne('/api/me').flush(me);
+
+    expect(service.currentUser()).toEqual(me);
+    expect(service.roles()).toEqual(['Lead', 'Volunteer']);
   });
 });
