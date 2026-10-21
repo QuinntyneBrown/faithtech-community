@@ -149,7 +149,24 @@ public class WorkItem
         SetArchived(children, false);
     }
 
+    public void MoveToSprint(Sprint sprint)
+    {
+        if (Kind != WorkItemKind.Story || sprint.WorkspaceId != WorkspaceId)
+        {
+            throw new InvalidOperationException("Only a story of the same workspace can join a sprint.");
+        }
+
+        if (sprint.State == SprintState.Closed)
+        {
+            throw new InvalidOperationException("A closed sprint takes no more stories.");
+        }
+
+        SprintId = sprint.Id;
+    }
+
     internal void Unassign() => AssigneeId = null;
+
+    internal void ReturnToBacklog() => SprintId = null;
 
     private void SetArchived(IEnumerable<WorkItem> children, bool archived)
     {

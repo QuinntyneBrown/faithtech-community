@@ -64,6 +64,53 @@ public class Workspace
         }
     }
 
+    public void StartSprint(Sprint sprint, IEnumerable<Sprint> sprints, IEnumerable<WorkItem> stories)
+    {
+        if (Method != WorkspaceMethod.Scrum)
+        {
+            throw new InvalidOperationException("Sprints run only in a Scrum workspace.");
+        }
+
+        if (sprint.WorkspaceId != Id || sprint.State != SprintState.Planned)
+        {
+            throw new InvalidOperationException("Only a planned sprint of this workspace can start.");
+        }
+
+        var storyList = stories.ToList();
+        foreach (var active in sprints.Where(s => s.WorkspaceId == Id && s.State == SprintState.Active))
+        {
+            active.Close(storyList);
+        }
+
+        sprint.Start();
+    }
+
+    public void SwitchMethod(WorkspaceMethod target, IEnumerable<Sprint> sprints, IEnumerable<WorkItem> stories)
+    {
+        if (target == Method)
+        {
+            throw new InvalidOperationException($"The workspace already uses {target}.");
+        }
+
+        var storyList = stories.Where(s => s.WorkspaceId == Id).ToList();
+        if (target == WorkspaceMethod.Kanban)
+        {
+            foreach (var open in sprints.Where(s => s.WorkspaceId == Id && s.State != SprintState.Closed))
+            {
+                open.Close(storyList);
+            }
+        }
+        else
+        {
+            foreach (var story in storyList.Where(s => s.Kind == WorkItemKind.Story && s.Status != WorkItemStatus.Done))
+            {
+                story.ReturnToBacklog();
+            }
+        }
+
+        Method = target;
+    }
+
     public void Archive()
     {
         if (IsArchived)
