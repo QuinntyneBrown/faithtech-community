@@ -160,7 +160,7 @@
             </div>
           </div>
         </div>
-        <div class="ds-example__caption"><span>Focus starts in "Email". Neutral icon, title plus description (<code>aria-describedby</code>).</span></div>
+        <div class="ds-example__caption"><span>Focus starts in "Email". Neutral icon, title plus description (<code>aria-describedby</code>). The role list offers only what the sender may grant (L2-009): for a City Lead, No role, Attendee, Volunteer, Product Engineer, Event Lead, Create Lead and Communications Lead (all L2-008 roles); City Lead, Staff and System Admin appear only for a System Admin.</span></div>
         <details class="ds-example__code"><summary>HTML</summary><pre><code>&lt;div class="backdrop"&gt;&lt;/div&gt;
 &lt;div class="dialog" role="dialog" aria-modal="true" aria-labelledby="dlg-title" aria-describedby="dlg-desc"&gt;
   &lt;div class="dialog__panel"&gt;
@@ -430,7 +430,6 @@
       </ul>
       <p>Drift noticed in the mocks:</p>
       <ul>
-        <li>Send invite's role list has "Create Lead" and offers lead roles beyond those a City Lead may grant.</li>
         <li>Inline styles: the header wraps title and description in <code>&lt;div style="flex: 1;"&gt;</code> and the description uses <code>style="margin-top: var(--space-1)"</code>; there is no class for either yet.</li>
       </ul>
     </section>
