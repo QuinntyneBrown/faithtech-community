@@ -1,12 +1,18 @@
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
 import { Observable } from 'rxjs';
 
 import { API_BASE_URL } from '../config';
 import {
   AgileService,
+  BacklogFilter,
+  BacklogNodeDto,
+  CommentDto,
+  CreateWorkItemRequest,
   CreateWorkspaceRequest,
   MemberCandidateDto,
+  UpdateWorkItemRequest,
+  WorkItemDto,
   WorkspaceDto,
   WorkspaceSummaryDto,
 } from './agile.service';
@@ -47,6 +53,35 @@ export class HttpAgileService implements AgileService {
     return this.http.delete<void>(
       `${this.workspace(workspaceId)}/members/${encodeURIComponent(profileId)}`,
     );
+  }
+
+  getBacklog(workspaceId: string, filter: BacklogFilter = {}): Observable<BacklogNodeDto[]> {
+    const params = new HttpParams({ fromObject: filter as Record<string, string | boolean> });
+    return this.http.get<BacklogNodeDto[]>(`${this.workspace(workspaceId)}/backlog`, { params });
+  }
+
+  createWorkItem(workspaceId: string, request: CreateWorkItemRequest): Observable<WorkItemDto> {
+    return this.http.post<WorkItemDto>(`${this.workspace(workspaceId)}/items`, request);
+  }
+
+  getWorkItem(id: string): Observable<WorkItemDto> {
+    return this.http.get<WorkItemDto>(this.item(id));
+  }
+
+  updateWorkItem(id: string, request: UpdateWorkItemRequest): Observable<void> {
+    return this.http.put<void>(this.item(id), request);
+  }
+
+  setTaskDone(id: string, done: boolean): Observable<void> {
+    return this.http.put<void>(`${this.item(id)}/done`, { done });
+  }
+
+  addComment(itemId: string, body: string): Observable<CommentDto> {
+    return this.http.post<CommentDto>(`${this.item(itemId)}/comments`, { body });
+  }
+
+  private item(id: string): string {
+    return `${this.base}/items/${encodeURIComponent(id)}`;
   }
 
   private workspace(id: string): string {

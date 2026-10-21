@@ -65,10 +65,69 @@ describe('HttpAgileService', () => {
       '/api/workspaces/w1/members/p1',
       undefined,
     ],
+    ['getBacklog', () => service.getBacklog('w1'), 'GET', '/api/workspaces/w1/backlog', undefined],
+    [
+      'getBacklog for an epic',
+      () => service.getBacklog('w1', { epicId: 'e1' }),
+      'GET',
+      '/api/workspaces/w1/backlog?epicId=e1',
+      undefined,
+    ],
+    [
+      'createWorkItem',
+      () =>
+        service.createWorkItem('w1', {
+          kind: 'Task',
+          title: 'Buy tablets',
+          description: '',
+          parentId: 's1',
+          assigneeId: null,
+          storyPoints: null,
+        }),
+      'POST',
+      '/api/workspaces/w1/items',
+      {
+        kind: 'Task',
+        title: 'Buy tablets',
+        description: '',
+        parentId: 's1',
+        assigneeId: null,
+        storyPoints: null,
+      },
+    ],
+    ['getWorkItem', () => service.getWorkItem('i1'), 'GET', '/api/items/i1', undefined],
+    [
+      'updateWorkItem',
+      () =>
+        service.updateWorkItem('i1', {
+          title: 'T',
+          description: '',
+          assigneeId: null,
+          storyPoints: 3,
+          status: 'Done',
+        }),
+      'PUT',
+      '/api/items/i1',
+      { title: 'T', description: '', assigneeId: null, storyPoints: 3, status: 'Done' },
+    ],
+    [
+      'setTaskDone',
+      () => service.setTaskDone('t1', true),
+      'PUT',
+      '/api/items/t1/done',
+      { done: true },
+    ],
+    [
+      'addComment',
+      () => service.addComment('i1', 'Hello'),
+      'POST',
+      '/api/items/i1/comments',
+      { body: 'Hello' },
+    ],
   ])('%s', (_name, call, method, url, body) => {
     (call() as Observable<unknown>).subscribe();
 
-    const req = controller.expectOne(url);
+    const req = controller.expectOne((r) => r.urlWithParams === url);
     expect(req.request.method).toBe(method);
     if (body !== undefined) expect(req.request.body).toEqual(body);
     req.flush(null);

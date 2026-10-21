@@ -59,6 +59,102 @@ export interface MemberCandidateDto {
   roles: Role[];
 }
 
+export type WorkItemKind = 'Initiative' | 'Epic' | 'Story' | 'Task';
+export type WorkItemStatus = 'ToDo' | 'InProgress' | 'Done';
+
+export interface WorkItemRefDto {
+  id: string;
+  kind: WorkItemKind;
+  title: string;
+}
+
+export interface TaskDto {
+  id: string;
+  title: string;
+  isDone: boolean;
+  assigneeId: string | null;
+  assigneeName: string | null;
+}
+
+export interface CommentDto {
+  id: string;
+  authorId: string;
+  authorName: string;
+  body: string;
+  createdAt: string;
+}
+
+export interface SprintRefDto {
+  id: string;
+  name: string;
+  state: 'Planned' | 'Active' | 'Closed';
+}
+
+/** One work item on its page (L2-033). */
+export interface WorkItemDto {
+  id: string;
+  workspaceId: string;
+  workspaceName: string;
+  kind: WorkItemKind;
+  title: string;
+  description: string;
+  /** Initiatives, epics and stories; tasks use `isDone`. */
+  status: WorkItemStatus;
+  isDone: boolean;
+  assigneeId: string | null;
+  assigneeName: string | null;
+  /** Stories only. */
+  storyPoints: number | null;
+  /** A story's epic, an epic's initiative, a task's story. */
+  parent: WorkItemRefDto | null;
+  /** A story's initiative, a task's epic. */
+  grandparent: WorkItemRefDto | null;
+  sprint: SprintRefDto | null;
+  /** A story's tasks. */
+  tasks: TaskDto[];
+  /** Newest first. */
+  comments: CommentDto[];
+  /** May change this item's fields (members; only the owner for initiatives and epics). */
+  canEdit: boolean;
+  /** Owner or System Admin: archive. */
+  canManage: boolean;
+}
+
+/** A node of the backlog tree (L2-032 AC4). */
+export interface BacklogNodeDto {
+  id: string;
+  kind: WorkItemKind;
+  title: string;
+  status: WorkItemStatus;
+  isDone: boolean;
+  storyPoints: number | null;
+  assigneeId: string | null;
+  assigneeName: string | null;
+  sprintId: string | null;
+  children: BacklogNodeDto[];
+}
+
+/** One initiative's or epic's subtree, or the stories with no epic. */
+export type BacklogFilter =
+  { initiativeId: string } | { epicId: string } | { noEpic: true } | Record<string, never>;
+
+export interface CreateWorkItemRequest {
+  kind: WorkItemKind;
+  title: string;
+  description: string;
+  parentId: string | null;
+  assigneeId: string | null;
+  storyPoints: number | null;
+}
+
+export interface UpdateWorkItemRequest {
+  title: string;
+  description: string;
+  assigneeId: string | null;
+  storyPoints: number | null;
+  status: WorkItemStatus | null;
+}
+
 export interface CreateWorkspaceRequest {
   name: string;
   method: WorkspaceMethod;
@@ -81,6 +177,15 @@ export interface AgileService {
   listMemberCandidates(workspaceId?: string): Observable<MemberCandidateDto[]>;
   addMembers(workspaceId: string, profileIds: string[]): Observable<void>;
   removeMember(workspaceId: string, profileId: string): Observable<void>;
+
+  getBacklog(workspaceId: string, filter?: BacklogFilter): Observable<BacklogNodeDto[]>;
+  /** 400 per field (Title, ParentId, AssigneeId); 403 when a member creates an initiative or epic. */
+  createWorkItem(workspaceId: string, request: CreateWorkItemRequest): Observable<WorkItemDto>;
+  getWorkItem(id: string): Observable<WorkItemDto>;
+  updateWorkItem(id: string, request: UpdateWorkItemRequest): Observable<void>;
+  /** Tasks only. */
+  setTaskDone(id: string, done: boolean): Observable<void>;
+  addComment(itemId: string, body: string): Observable<CommentDto>;
 }
 
 export const AGILE_SERVICE = new InjectionToken<AgileService>('AGILE_SERVICE');

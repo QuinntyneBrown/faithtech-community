@@ -865,7 +865,9 @@
         "task",
         "invalid",
         "busy",
-        "failed"
+        "failed",
+        "invalid-title",
+        "edit"
       ],
       "not_applicable": {}
     },

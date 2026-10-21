@@ -25,6 +25,46 @@ export interface MockSprint {
   completedPoints: number | null;
 }
 
+export type MockKind = 'Initiative' | 'Epic' | 'Story' | 'Task';
+export type MockStatus = 'ToDo' | 'InProgress' | 'Done';
+
+export interface MockComment {
+  id: string;
+  authorId: string;
+  body: string;
+  createdAt: string;
+}
+
+export interface MockItem {
+  id: string;
+  workspaceId: string;
+  kind: MockKind;
+  title: string;
+  description: string;
+  status: MockStatus;
+  isDone: boolean;
+  assigneeId: string | null;
+  parentId: string | null;
+  sprintId: string | null;
+  storyPoints: number | null;
+  isArchived: boolean;
+  comments: MockComment[];
+}
+
+const PARENT_OF: Record<MockKind, MockKind | null> = {
+  Initiative: null,
+  Epic: 'Initiative',
+  Story: 'Epic',
+  Task: 'Story',
+};
+const PARENT_PROBLEM: Record<MockKind, string> = {
+  Initiative: 'An initiative has no parent.',
+  Epic: 'An epic sits only under an initiative.',
+  Story: 'A story sits only under an epic.',
+  Task: 'A task must belong to a story.',
+};
+const KIND_ORDER: MockKind[] = ['Initiative', 'Epic', 'Story', 'Task'];
+
 const TEAM_ROLES = ['CityLead', 'EventLead', 'CreateLead', 'CommunicationsLead', 'Volunteer'];
 
 /** The request the agile fake answers, already parsed by MockApi. */
@@ -44,6 +84,8 @@ export interface AgileRequest {
 export class MockAgile {
   readonly workspaces: MockWorkspace[] = [];
   readonly sprints: MockSprint[] = [];
+  readonly items: MockItem[] = [];
+  private comments = 0;
 
   constructor(
     private readonly profiles: Map<string, MockProfile>,
@@ -79,14 +121,43 @@ export class MockAgile {
     return full;
   }
 
+  addItem(
+    item: Partial<MockItem> & { workspaceId: string; kind: MockKind; title: string },
+  ): MockItem {
+    const full: MockItem = {
+      id: `item-${this.items.length + 1}`,
+      description: '',
+      status: 'ToDo',
+      isDone: false,
+      assigneeId: null,
+      parentId: null,
+      sprintId: null,
+      storyPoints: null,
+      isArchived: false,
+      comments: [],
+      ...item,
+    };
+    this.items.push(full);
+    return full;
+  }
+
+  addComment(itemId: string, authorId: string, body: string, createdAt: string): void {
+    this.items
+      .find((i) => i.id === itemId)!
+      .comments.push({ id: `comment-${++this.comments}`, authorId, body, createdAt });
+  }
+
   /** Answers the request when it is an Agile route; returns false otherwise. */
   handles(path: string): boolean {
-    return path.startsWith('/api/workspaces');
+    return path.startsWith('/api/workspaces') || path.startsWith('/api/items');
   }
 
   async handle(request: AgileRequest): Promise<void> {
     const { route, method, path, caller } = request;
     if (!caller) return route.fulfill({ status: 401 });
+
+    const itemRoute = /^\/api\/items\/([^/]+)(\/.*)?$/.exec(path);
+    if (itemRoute) return this.itemRequest(request, itemRoute[1], itemRoute[2] ?? '');
 
     if (path === '/api/workspaces') {
       if (method === 'GET') return this.list(request);
@@ -136,6 +207,10 @@ export class MockAgile {
         workspace.memberIds.push(...ids.filter((id) => !workspace.memberIds.includes(id)));
         return route.fulfill({ status: 204 });
       }
+      case 'GET /backlog':
+        return route.fulfill({ status: 200, json: this.backlog(workspace, request.url) });
+      case 'POST /items':
+        return this.createItem(request, workspace, access);
     }
 
     const member = /^\/members\/([^/]+)$/.exec(rest);
@@ -145,9 +220,202 @@ export class MockAgile {
         return problem(route, 409, 'The owner can’t be removed from their workspace.');
       }
       workspace.memberIds = workspace.memberIds.filter((id) => id !== member[1]);
+      for (const item of this.items.filter(
+        (i) => i.workspaceId === workspace.id && i.assigneeId === member[1],
+      )) {
+        item.assigneeId = null;
+      }
       return route.fulfill({ status: 204 });
     }
     return this.unknown(request);
+  }
+
+  private createItem(
+    { route, body, caller }: AgileRequest,
+    workspace: MockWorkspace,
+    access: MockAccess,
+  ) {
+    const kind = body['kind'] as MockKind;
+    const planning = kind === 'Initiative' || kind === 'Epic';
+    if (access === 'Staff' || (planning && access === 'Member'))
+      return route.fulfill({ status: 403 });
+    const title = String(body['title'] ?? '').trim();
+    if (!title) return invalid(route, 'Title', 'Give it a title.');
+    if (title.length > 200)
+      return invalid(route, 'Title', 'Use 200 characters or fewer for the title.');
+    const parentId = (body['parentId'] as string | null) ?? null;
+    const parent = this.live(parentId);
+    const wanted = PARENT_OF[kind];
+    if (
+      (kind === 'Task' && !parent) ||
+      (parent && (parent.kind !== wanted || parent.workspaceId !== workspace.id))
+    ) {
+      return invalid(route, 'ParentId', PARENT_PROBLEM[kind]);
+    }
+    const assigneeId = (body['assigneeId'] as string | null) ?? null;
+    if (assigneeId && !this.isMember(workspace, assigneeId)) {
+      return invalid(route, 'AssigneeId', 'Choose someone in this workspace.');
+    }
+    const item = this.addItem({
+      workspaceId: workspace.id,
+      kind,
+      title,
+      description: String(body['description'] ?? '').trim(),
+      parentId,
+      assigneeId,
+      storyPoints: kind === 'Story' ? ((body['storyPoints'] as number | null) ?? null) : null,
+    });
+    return route.fulfill({ status: 201, json: this.itemDto(item, caller!) });
+  }
+
+  private async itemRequest(request: AgileRequest, id: string, rest: string) {
+    const { route, method, body, caller } = request;
+    const item = this.live(id);
+    const workspace =
+      item && this.workspaces.find((w) => w.id === item.workspaceId && !w.isArchived);
+    const access = workspace ? this.access(workspace, caller!) : 'Outsider';
+    if (!item || !workspace || access === 'Outsider') return route.fulfill({ status: 404 });
+    const planning = item.kind === 'Initiative' || item.kind === 'Epic';
+    const canEdit = access !== 'Staff' && !(planning && access === 'Member');
+
+    switch (`${method} ${rest}`) {
+      case 'GET ':
+        return route.fulfill({ status: 200, json: this.itemDto(item, caller!) });
+      case 'PUT ': {
+        if (!canEdit) return route.fulfill({ status: 403 });
+        const title = String(body['title'] ?? '').trim();
+        if (!title) return invalid(route, 'Title', 'Give it a title.');
+        const assigneeId = (body['assigneeId'] as string | null) ?? null;
+        if (assigneeId && !this.isMember(workspace, assigneeId)) {
+          return invalid(route, 'AssigneeId', 'Choose someone in this workspace.');
+        }
+        item.title = title;
+        item.description = String(body['description'] ?? '').trim();
+        item.assigneeId = assigneeId;
+        if (item.kind === 'Story')
+          item.storyPoints = (body['storyPoints'] as number | null) ?? null;
+        if (item.kind !== 'Task' && body['status']) item.status = body['status'] as MockStatus;
+        return route.fulfill({ status: 204 });
+      }
+      case 'PUT /done':
+        if (access === 'Staff') return route.fulfill({ status: 403 });
+        item.isDone = Boolean(body['done']);
+        return route.fulfill({ status: 204 });
+      case 'POST /comments': {
+        if (access === 'Staff') return route.fulfill({ status: 403 });
+        const text = String(body['body'] ?? '').trim();
+        if (!text) return invalid(route, 'Body', 'Write a comment first.');
+        const createdAt = new Date(Date.UTC(2026, 9, 21, 12, ++this.comments)).toISOString();
+        item.comments.push({
+          id: `comment-${this.comments}`,
+          authorId: caller!.profileId,
+          body: text,
+          createdAt,
+        });
+        return route.fulfill({
+          status: 201,
+          json: {
+            id: `comment-${this.comments}`,
+            authorId: caller!.profileId,
+            authorName: this.nameOf(caller!.profileId),
+            body: text,
+            createdAt,
+          },
+        });
+      }
+    }
+    return this.unknown(request);
+  }
+
+  itemDto(item: MockItem, caller: MockAccount) {
+    const workspace = this.workspaces.find((w) => w.id === item.workspaceId)!;
+    const access = this.access(workspace, caller);
+    const planning = item.kind === 'Initiative' || item.kind === 'Epic';
+    const parent = this.live(item.parentId);
+    const grandparent = this.live(parent?.parentId ?? null);
+    const ref = (i: MockItem | undefined) =>
+      i ? { id: i.id, kind: i.kind, title: i.title } : null;
+    const sprint = this.sprints.find((s) => s.id === item.sprintId);
+    return {
+      id: item.id,
+      workspaceId: workspace.id,
+      workspaceName: workspace.name,
+      kind: item.kind,
+      title: item.title,
+      description: item.description,
+      status: item.status,
+      isDone: item.isDone,
+      assigneeId: item.assigneeId,
+      assigneeName: item.assigneeId ? this.nameOf(item.assigneeId) : null,
+      storyPoints: item.storyPoints,
+      parent: ref(parent),
+      grandparent: ref(grandparent),
+      sprint: sprint ? { id: sprint.id, name: sprint.name, state: sprint.state } : null,
+      tasks: this.children(item.id)
+        .filter((t) => t.kind === 'Task')
+        .sort((a, b) => a.title.localeCompare(b.title))
+        .map((t) => ({
+          id: t.id,
+          title: t.title,
+          isDone: t.isDone,
+          assigneeId: t.assigneeId,
+          assigneeName: t.assigneeId ? this.nameOf(t.assigneeId) : null,
+        })),
+      comments: [...item.comments]
+        .sort((a, b) => b.createdAt.localeCompare(a.createdAt))
+        .map((c) => ({ ...c, authorName: this.nameOf(c.authorId) })),
+      canEdit: access !== 'Staff' && !(planning && access === 'Member'),
+      canManage: access === 'Owner' || access === 'Admin',
+    };
+  }
+
+  private backlog(workspace: MockWorkspace, url: URL) {
+    const items = this.items.filter((i) => i.workspaceId === workspace.id && !i.isArchived);
+    const node = (i: MockItem): unknown => ({
+      id: i.id,
+      kind: i.kind,
+      title: i.title,
+      status: i.status,
+      isDone: i.isDone,
+      storyPoints: i.storyPoints,
+      assigneeId: i.assigneeId,
+      assigneeName: i.assigneeId ? this.nameOf(i.assigneeId) : null,
+      sprintId: i.sprintId,
+      children: ordered(this.children(i.id)).map(node),
+    });
+    let roots = items.filter((i) => !i.parentId || !this.live(i.parentId));
+    const initiativeId = url.searchParams.get('initiativeId');
+    const epicId = url.searchParams.get('epicId');
+    if (initiativeId) roots = items.filter((i) => i.id === initiativeId);
+    else if (epicId) roots = items.filter((i) => i.id === epicId);
+    else if (url.searchParams.get('noEpic') === 'true')
+      roots = roots.filter((i) => i.kind === 'Story');
+    return ordered(roots.filter((i) => i.kind !== 'Task')).map(node);
+  }
+
+  private assigned(workspace: MockWorkspace, profileId: string, tasks: boolean): number {
+    return this.items.filter(
+      (i) =>
+        i.workspaceId === workspace.id &&
+        i.assigneeId === profileId &&
+        (i.kind === 'Task') === tasks,
+    ).length;
+  }
+
+  private children(id: string): MockItem[] {
+    return this.items.filter((i) => i.parentId === id && !i.isArchived);
+  }
+
+  private live(id: string | null): MockItem | undefined {
+    return id ? this.items.find((i) => i.id === id && !i.isArchived) : undefined;
+  }
+
+  private isMember(workspace: MockWorkspace, profileId: string): boolean {
+    return workspace.ownerId === profileId || workspace.memberIds.includes(profileId);
+  }
+
+  private nameOf(profileId: string): string {
+    return this.profiles.get(profileId)?.name ?? 'A former member';
   }
 
   access(workspace: MockWorkspace, caller: MockAccount): MockAccess {
@@ -217,8 +485,8 @@ export class MockAgile {
         name: this.profiles.get(id)?.name ?? 'A former member',
         roles: this.profiles.get(id)?.roles ?? [],
         isOwner: id === workspace.ownerId,
-        assignedStories: 0,
-        assignedTasks: 0,
+        assignedStories: this.assigned(workspace, id, false),
+        assignedTasks: this.assigned(workspace, id, true),
       }))
       .sort((a, b) => Number(b.isOwner) - Number(a.isOwner) || a.name.localeCompare(b.name));
     const summary = this.summary(workspace, caller);
@@ -256,6 +524,13 @@ export class MockAgile {
     this.unrecognised.push(`${method} ${path}`);
     return route.abort('failed');
   }
+}
+
+function ordered(items: MockItem[]): MockItem[] {
+  return [...items].sort(
+    (a, b) =>
+      KIND_ORDER.indexOf(a.kind) - KIND_ORDER.indexOf(b.kind) || a.title.localeCompare(b.title),
+  );
 }
 
 function invalid(route: Route, field: string, message: string) {

@@ -1,0 +1,175 @@
+@switch (state()) {
+  @case ('loading') {
+    <h1 class="visually-hidden">Work item</h1>
+    <ft-stack>
+      <ft-skeleton shape="title" />
+      <ft-skeleton shape="rect" />
+    </ft-stack>
+  }
+  @case ('not-found') {
+    <h1 class="visually-hidden">Workspace</h1>
+    <ft-empty-state
+      icon="workspaces"
+      heading="You’re not a member of this workspace"
+      text="Workspaces are for the leads and volunteers their owner adds. Ask the workspace owner if you’d like to join."
+    >
+      <ft-button actions variant="primary" href="/">Back to home</ft-button>
+    </ft-empty-state>
+  }
+  @case ('error') {
+    <h1 class="visually-hidden">Work item</h1>
+    <ft-empty-state
+      variant="error"
+      heading="We couldn’t load this item"
+      text="Check your connection and try again. If it keeps happening, we’ve already been told about it."
+    >
+      <ft-button actions variant="primary" (click)="retry()">Try again</ft-button>
+    </ft-empty-state>
+  }
+  @case ('loaded') {
+    @if (item(); as item) {
+      <ft-stack class="page">
+        <ft-breadcrumb>
+          <ft-breadcrumb-item href="/workspaces">Workspaces</ft-breadcrumb-item>
+          <ft-breadcrumb-item [href]="'/workspaces/' + item.workspaceId">{{
+            item.workspaceName
+          }}</ft-breadcrumb-item>
+          <ft-breadcrumb-item>{{ item.title }}</ft-breadcrumb-item>
+        </ft-breadcrumb>
+        <ft-page-header [title]="item.title" [subtitle]="subtitle()">
+          <div ftPageHeaderActions class="actions">
+            @if (item.canEdit) {
+              <ft-button (click)="edit()">Edit</ft-button>
+            }
+          </div>
+        </ft-page-header>
+        @if (readOnly()) {
+          <ft-alert status="info" heading="Read-only for Staff">
+            You can see every workspace, item and sprint but can’t change them.
+          </ft-alert>
+        }
+        <ft-split>
+          <ft-stack ftSplitMain>
+            <ft-card heading="Description">
+              <p class="description">{{ item.description || 'No description yet.' }}</p>
+            </ft-card>
+
+            @if (item.kind === 'Story') {
+              <section class="tasks" aria-labelledby="tasks-heading">
+                <h2 id="tasks-heading">
+                  Tasks
+                  @if (item.tasks.length) {
+                    <ft-badge>{{ doneCount() }} of {{ item.tasks.length }} done</ft-badge>
+                  }
+                </h2>
+                @if (item.tasks.length === 0) {
+                  <ft-empty-state
+                    heading="No tasks yet"
+                    text="Break this story into tasks so people can pick them up. Every task belongs to a story."
+                    [headingLevel]="3"
+                  >
+                    @if (canWork()) {
+                      <ft-button actions variant="primary" (click)="addTaskWithDialog()"
+                        >Add task</ft-button
+                      >
+                    }
+                  </ft-empty-state>
+                } @else {
+                  <ft-card>
+                    <ft-checkbox-group legend="Tasks" [legendHidden]="true" [formControl]="done">
+                      @for (task of item.tasks; track task.id) {
+                        <ft-checkbox [value]="task.id" [description]="task.assigneeName ?? ''">{{
+                          task.title
+                        }}</ft-checkbox>
+                      }
+                    </ft-checkbox-group>
+                    @if (canWork()) {
+                      <form class="add-task" (submit)="$event.preventDefault(); addTask()">
+                        <ft-text-field
+                          label="New task"
+                          placeholder="Add a task"
+                          [formControl]="newTask"
+                        />
+                        <ft-button type="submit" size="sm" [loading]="addingTask()">Add</ft-button>
+                      </form>
+                    }
+                  </ft-card>
+                }
+              </section>
+            }
+
+            <ft-card [heading]="'Comments (' + item.comments.length + ')'">
+              @if (canWork()) {
+                <form class="comment-form" (submit)="$event.preventDefault(); comment()">
+                  <ft-stack>
+                    <ft-form-field label="Add a comment" [optional]="true" [error]="commentError()">
+                      <ft-textarea [formControl]="commentBody" [rows]="2" />
+                    </ft-form-field>
+                    <div>
+                      <ft-button type="submit" variant="primary" size="sm" [loading]="commenting()"
+                        >Comment</ft-button
+                      >
+                    </div>
+                  </ft-stack>
+                </form>
+              }
+              <ft-feed label="Comments">
+                @for (c of item.comments; track c.id) {
+                  <ft-feed-item
+                    [actor]="c.authorName"
+                    [meta]="c.authorName + ' · ' + day(c.createdAt)"
+                  >
+                    {{ c.body }}
+                  </ft-feed-item>
+                }
+              </ft-feed>
+            </ft-card>
+          </ft-stack>
+
+          <ft-card ftSplitAside heading="Details">
+            <ft-description-list>
+              @if (item.kind === 'Task') {
+                <ft-description-list-item label="Done">{{
+                  item.isDone ? 'Yes' : 'No'
+                }}</ft-description-list-item>
+              } @else {
+                <ft-description-list-item label="Status">
+                  @if (item.canEdit) {
+                    <ft-select label="Status" [formControl]="status" [options]="statusOptions" />
+                  } @else {
+                    {{ statusLabels[item.status] }}
+                  }
+                </ft-description-list-item>
+              }
+              @if (item.kind === 'Story') {
+                <ft-description-list-item label="Story points">{{
+                  item.storyPoints ?? 'Not estimated'
+                }}</ft-description-list-item>
+              }
+              <ft-description-list-item label="Assignee">{{
+                item.assigneeName ?? 'Unassigned'
+              }}</ft-description-list-item>
+              @if (item.parent; as parent) {
+                <ft-description-list-item [label]="parent.kind">
+                  <ft-link [href]="'/workspaces/' + item.workspaceId + '/items/' + parent.id">{{
+                    parent.title
+                  }}</ft-link>
+                </ft-description-list-item>
+              }
+              @if (item.grandparent; as grandparent) {
+                <ft-description-list-item [label]="grandparent.kind">{{
+                  grandparent.title
+                }}</ft-description-list-item>
+              }
+              @if (item.sprint; as sprint) {
+                <ft-description-list-item label="Sprint">{{
+                  sprint.name
+                }}</ft-description-list-item>
+              }
+            </ft-description-list>
+          </ft-card>
+        </ft-split>
+      </ft-stack>
+    }
+  }
+}
