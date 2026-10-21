@@ -10,6 +10,10 @@
   border-block-end: 0;
 }
 
+:host(.ft-list-item--link:hover) {
+  background: var(--color-bg-subtle);
+}
+
 .ft-list-item__leading:empty,
 .ft-list-item__meta-slot:empty,
 .ft-list-item__trailing:empty {

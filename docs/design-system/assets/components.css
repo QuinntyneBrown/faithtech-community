@@ -256,6 +256,8 @@ button.avatar:hover, button.avatar[data-state="hover"] { box-shadow: 0 0 0 var(-
 .list { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; }
 .list__item { display: flex; align-items: center; gap: var(--space-3); padding: var(--space-3) var(--space-4); border-bottom: var(--border-width-hairline) solid var(--color-border-default); }
 .list__item:last-child { border-bottom: 0; }
+/* Rows whose title is a link tint on hover; the row itself never takes focus, the title link does. */
+.list__item:has(.list__title[href]):hover, .list__item[data-state="hover"] { background: var(--color-bg-subtle); }
 .list__body { flex: 1; min-width: 0; }
 .list__title { font: var(--text-label); }
 .list__meta { font: var(--text-body-sm); color: var(--color-fg-muted); }
