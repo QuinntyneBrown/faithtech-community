@@ -218,4 +218,73 @@ test.describe('Planning Poker', () => {
 
     await expect(poker.frame.notMember).toBeVisible();
   });
+
+  test('pressing the chosen card again withdraws the vote', async ({ page, api, axe }) => {
+    const { grace, marcus, ws, briefs } = team(api);
+    const session = api.agile.addPokerSession({
+      workspaceId: ws.id,
+      storyIds: [briefs.id],
+      facilitatorId: marcus.profileId,
+      invitedIds: [grace.profileId],
+      votes: new Map([[grace.profileId, '8']]),
+    });
+    const poker = new PlanningPokerPage(page);
+    await api.signInAs(grace, `/workspaces/${ws.id}/poker`);
+    await expect(poker.card('8')).toHaveAttribute('aria-pressed', 'true');
+
+    await poker.card('8').click();
+
+    await expect(poker.status).toContainText('You withdrew your vote.');
+    await expect(poker.status).toContainText('0 of 2 have voted.');
+    await expect(poker.card('8')).toHaveAttribute('aria-pressed', 'false');
+    expect(session.votes.has(grace.profileId)).toBe(false);
+    await axe.check();
+  });
+
+  test('a vote that fails to send keeps the saved vote and says so', async ({ page, api, axe }) => {
+    const { grace, marcus, ws, briefs } = team(api);
+    const session = api.agile.addPokerSession({
+      workspaceId: ws.id,
+      storyIds: [briefs.id],
+      facilitatorId: marcus.profileId,
+      invitedIds: [grace.profileId],
+      votes: new Map([[grace.profileId, '8']]),
+    });
+    api.on('PUT', `/api/poker-sessions/${session.id}/vote`, (route) =>
+      route.fulfill({ status: 503 }),
+    );
+    const poker = new PlanningPokerPage(page);
+    await api.signInAs(grace, `/workspaces/${ws.id}/poker`);
+
+    await poker.card('13').click();
+
+    await expect(poker.voteFailed).toContainText(
+      'Your vote is still 8 points. Check your connection and try again.',
+    );
+    await expect(poker.card('8')).toHaveAttribute('aria-pressed', 'true');
+    await expect(poker.card('13')).toHaveAttribute('aria-pressed', 'false');
+    await axe.check();
+  });
+
+  test('a vote refused because voting closed is not counted', async ({ page, api, axe }) => {
+    const { grace, marcus, ws, briefs } = team(api);
+    const session = api.agile.addPokerSession({
+      workspaceId: ws.id,
+      storyIds: [briefs.id],
+      facilitatorId: marcus.profileId,
+      invitedIds: [grace.profileId],
+    });
+    api.on('PUT', `/api/poker-sessions/${session.id}/vote`, (route) =>
+      route.fulfill({ status: 409, json: { detail: 'Votes are already revealed.' } }),
+    );
+    const poker = new PlanningPokerPage(page);
+    await api.signInAs(grace, `/workspaces/${ws.id}/poker`);
+
+    await poker.card('5').click();
+
+    await expect(poker.deckError).toBeVisible();
+    await expect(poker.status).toContainText('Voting on this story has closed.');
+    await expect(poker.card('5')).toHaveAttribute('aria-pressed', 'false');
+    await axe.check();
+  });
 });

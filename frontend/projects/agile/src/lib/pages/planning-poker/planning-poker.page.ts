@@ -122,13 +122,31 @@ export class PlanningPokerPage {
       ? `Planning Poker · live · facilitator: ${session.facilitatorName}`
       : 'Planning Poker';
   });
-  protected readonly myVote = computed<EstimateOption | null>(() => card(this.session()?.myVote));
+  /** The card shown as chosen; follows the saved vote, and returns to it when a vote fails. */
+  protected readonly chosen = signal<EstimateOption | null>(null);
+  /** The caller just withdrew their vote (mock withdrawn). */
+  protected readonly withdrew = signal(false);
+  /** The saved vote, shown after a vote failed to send (mock vote-failed). */
+  protected readonly voteFailed = signal<string | null>(null);
+  /** The server refused the vote because voting closed (mock invalid). */
+  protected readonly voteError = signal('');
   protected readonly status = computed<Status | null>(() => {
     const session = this.session();
     if (!session) return null;
     const facilitator = this.facilitatorFirstName();
     const voted = session.participants.filter((p) => p.hasVoted).length;
     if (!session.isRevealed) {
+      const counted = `${voted} of ${session.participants.length} have voted.`;
+      if (this.voteError()) {
+        return { status: 'info', heading: counted, text: 'Voting on this story has closed.' };
+      }
+      if (this.withdrew()) {
+        return {
+          status: 'info',
+          heading: 'You withdrew your vote.',
+          text: `${counted} Votes stay hidden until ${facilitator} reveals them.`,
+        };
+      }
       if (session.lastPoints !== null && voted === 0) {
         return {
           status: 'success',
@@ -138,7 +156,7 @@ export class PlanningPokerPage {
       }
       return {
         status: 'info',
-        heading: `${voted} of ${session.participants.length} have voted.`,
+        heading: counted,
         text: `Votes stay hidden until ${facilitator} reveals them.`,
       };
     }
@@ -212,10 +230,36 @@ export class PlanningPokerPage {
     this.show(session);
   }
 
-  protected vote(option: EstimateOption | null): void {
-    void this.act((s) =>
-      this.agile.vote(s.id, option === null ? null : (String(option) as PokerCard)),
-    );
+  /** Pressing the chosen card again withdraws the vote (L2-038 AC2). */
+  protected async vote(option: EstimateOption | null): Promise<void> {
+    const session = this.session();
+    if (!session || this.busy()) return;
+    const saved = card(session.myVote);
+    this.withdrew.set(false);
+    this.voteFailed.set(null);
+    this.voteError.set('');
+    this.busy.set(true);
+    try {
+      await firstValueFrom(
+        this.agile.vote(session.id, option === null ? null : (String(option) as PokerCard)),
+      );
+      this.withdrew.set(option === null);
+      await this.refresh();
+    } catch (error) {
+      this.chosen.set(saved);
+      if (error instanceof HttpErrorResponse && error.status === 409) {
+        this.voteError.set('Voting has closed on this story. Your vote wasn’t counted.');
+        await this.refresh();
+      } else {
+        this.voteFailed.set(
+          saved === null
+            ? 'You haven’t voted yet. Check your connection and try again.'
+            : `Your vote is still ${saved === '?' ? 'unsure' : `${saved} points`}. Check your connection and try again.`,
+        );
+      }
+    } finally {
+      this.busy.set(false);
+    }
   }
 
   protected reveal(): void {
@@ -284,6 +328,11 @@ export class PlanningPokerPage {
   private show(session: PokerSessionDto | null): void {
     const previous = this.session();
     this.session.set(session);
+    this.chosen.set(card(session?.myVote));
+    if (session?.round !== previous?.round || session?.storyNumber !== previous?.storyNumber) {
+      this.withdrew.set(false);
+      this.voteError.set('');
+    }
     if (session?.isRevealed && (!previous?.isRevealed || previous.round !== session.round)) {
       this.finalPoints.setValue(String(mostCommon(session) ?? POINTS[0]));
     }

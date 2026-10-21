@@ -19,6 +19,8 @@ export class PlanningPokerPage {
   readonly setPoints: Locator;
   readonly end: Locator;
   readonly toast: Locator;
+  readonly voteFailed: Locator;
+  readonly deckError: Locator;
 
   constructor(private readonly page: Page) {
     this.frame = new WorkspaceFrame(page);
@@ -36,6 +38,8 @@ export class PlanningPokerPage {
     this.setPoints = page.getByRole('button', { name: 'Set points' });
     this.end = page.getByRole('button', { name: 'End session' });
     this.toast = page.locator('ft-toast');
+    this.voteFailed = page.locator('ft-alert').filter({ hasText: 'We couldn’t save your vote' });
+    this.deckError = page.getByText('Voting has closed on this story. Your vote wasn’t counted.');
   }
 
   async open(workspaceId: string): Promise<void> {
