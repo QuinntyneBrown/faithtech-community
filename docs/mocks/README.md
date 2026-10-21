@@ -149,6 +149,7 @@ Legend: ✅ mock exists · ➖ not applicable (reason in manifest) · ❌ missin
 | Reassign workspace owner (`reassign-owner`) | [✅](dialogs/reassign-owner/default.html) | [✅](dialogs/reassign-owner/busy.html) | [✅](dialogs/reassign-owner/invalid.html) | [✅](dialogs/reassign-owner/failed.html) |  |  |  |  | `L2-037` |
 | Cancel event (`cancel-event`) | [✅](dialogs/cancel-event/default.html) | [✅](dialogs/cancel-event/busy.html) | [✅](dialogs/cancel-event/invalid.html) | [✅](dialogs/cancel-event/failed.html) |  |  |  |  | `L2-025` |
 | Cancel RSVP (`cancel-rsvp`) | [✅](dialogs/cancel-rsvp/default.html) | [✅](dialogs/cancel-rsvp/busy.html) | ➖ | [✅](dialogs/cancel-rsvp/failed.html) |  |  |  |  | `L2-022` |
+| Sign out everywhere (`sign-out-everywhere`) | [✅](dialogs/sign-out-everywhere/default.html) | [✅](dialogs/sign-out-everywhere/busy.html) | ➖ | [✅](dialogs/sign-out-everywhere/failed.html) |  |  |  |  | `L2-052` |
 | Archive contact (`archive-contact`) | [✅](dialogs/archive-contact/default.html) | [✅](dialogs/archive-contact/busy.html) | ➖ | [✅](dialogs/archive-contact/failed.html) |  |  |  |  | `L2-016` |
 | Delete contact permanently (`delete-contact`) | [✅](dialogs/delete-contact/default.html) | [✅](dialogs/delete-contact/busy.html) | [✅](dialogs/delete-contact/invalid.html) | [✅](dialogs/delete-contact/failed.html) |  |  |  |  | `L2-016` |
 | Link contact to profile (`link-contact`) | [✅](dialogs/link-contact/default.html) | [✅](dialogs/link-contact/busy.html) | ➖ | [✅](dialogs/link-contact/failed.html) |  |  |  |  | `L2-015` |
