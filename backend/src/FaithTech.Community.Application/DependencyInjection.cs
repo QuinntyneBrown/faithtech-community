@@ -2,6 +2,7 @@ using FaithTech.Community.Application.Admin;
 using FaithTech.Community.Application.Identity;
 using FaithTech.Community.Application.Invites;
 using FaithTech.Community.Application.Profiles;
+using FaithTech.Community.Application.Team;
 using FluentValidation;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -39,6 +40,7 @@ public static class DependencyInjection
         services.AddScoped<InviteSender>();
         services.AddScoped<ManageInvitesHandler>();
         services.AddScoped<AcceptInviteHandler>();
+        services.AddScoped<ListTeamHandler>();
         services.TryAddSingleton(TimeProvider.System);
         return services;
     }

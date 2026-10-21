@@ -11,6 +11,7 @@
 }
 
 .ft-list-item__leading:empty,
+.ft-list-item__meta-slot:empty,
 .ft-list-item__trailing:empty {
   display: none;
 }
@@ -43,4 +44,8 @@ a.ft-list-item__title {
 .ft-list-item__meta {
   font: var(--text-body-sm);
   color: var(--color-fg-muted);
+}
+
+.ft-list-item__meta-slot {
+  margin-block-start: var(--space-1);
 }

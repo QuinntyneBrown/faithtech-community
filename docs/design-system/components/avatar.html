@@ -105,7 +105,7 @@
         <li><b>Plain</b> (no colour modifier): private contacts who have not signed up, such as Abby Brooks and Kwame Asante, and suspended accounts such as Victor Kane.</li>
         <li>In Angular, use <code>&lt;ft-avatar&gt;</code> from the components library.</li>
       </ul>
-      <p>The mocks show initials only; no member photo is used as an avatar in v1 (profile photos live in the <a href="picture-list.html">picture list</a>). Do not use an avatar for status (use a <a href="badge.html">badge</a>) or for a partner organisation.</p>
+      <p>An avatar shows initials, or the member’s featured photo where a screen promises a photo, such as the <a href="../../mocks/pages/team/default.html">team list</a> (<code>.avatar__img</code>, <code>alt=""</code>, initials stay behind it as the fallback). Do not use an avatar for status (use a <a href="badge.html">badge</a>) or for a partner organisation.</p>
     </section>
 
     <section class="ds-section" id="anatomy"><h2><a href="#anatomy">Anatomy</a></h2>
@@ -130,6 +130,12 @@
         <details class="ds-example__code"><summary>HTML</summary><pre><code>&lt;span class="avatar avatar--sky" aria-hidden="true"&gt;GO&lt;/span&gt;
 &lt;span class="avatar avatar--mint" aria-hidden="true"&gt;SM&lt;/span&gt;
 &lt;span class="avatar" aria-hidden="true"&gt;KA&lt;/span&gt;</code></pre></details>
+      </div>
+      <h3>Photo</h3>
+      <div class="ds-example">
+        <div class="ds-example__canvas"><span class="avatar avatar--sky" aria-hidden="true">GO<img class="avatar__img" src="../../mocks/assets/photos/builders-night.svg" alt=""></span><span class="avatar avatar--sm avatar--sky" aria-hidden="true">GO<img class="avatar__img" src="../../mocks/assets/photos/builders-night.svg" alt=""></span></div>
+        <div class="ds-example__caption"><span>Grace’s featured photo covers her initials. The image is decorative (<code>alt=""</code>) because her name is printed beside it; without a photo the initials show.</span></div>
+        <details class="ds-example__code"><summary>HTML</summary><pre><code>&lt;span class="avatar avatar--sm avatar--sky" aria-hidden="true"&gt;GO&lt;img class="avatar__img" src="…" alt=""&gt;&lt;/span&gt;</code></pre></details>
       </div>
       <h3>Avatar trigger</h3>
       <div class="ds-example">
@@ -253,7 +259,8 @@
 &lt;span class="avatar avatar--xl avatar--mint" aria-hidden="true"&gt;SM&lt;/span&gt;
 
 &lt;!-- Angular (components library) --&gt;
-&lt;ft-avatar [name]="member.displayName" [color]="member.color" size="sm" /&gt;</code></pre>
+&lt;ft-avatar [name]="member.displayName" [color]="member.color" size="sm" /&gt;
+&lt;ft-avatar [name]="member.name" [src]="member.photoUrl" size="sm" /&gt;</code></pre>
       <table class="ds-table"><thead><tr><th scope="col">Class / attribute</th><th scope="col">Effect</th></tr></thead><tbody>
         <tr><td><code>.avatar</code></td><td>Medium circle, accent tint, centred initials.</td></tr>
         <tr><td><code>.avatar--sm</code> <code>.avatar--lg</code> <code>.avatar--xl</code></td><td>Small, large or extra large; omit for medium.</td></tr>

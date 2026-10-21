@@ -8,14 +8,15 @@ The team page lets any signed-in member see who the team is, with name, photo an
 
 ## Description
 
-- **`TeamPage`** — page in the `team` feature library. It lists team members as cards with avatar (featured photo), name and role badges, and offers a role filter.
-- **`TeamService`** / **`TEAM_SERVICE`** / **`HttpTeamService`** — API client calling `GET /api/team?role=`.
-- **`TeamEndpoints`** — minimal API mapping requiring an authenticated caller.
-- **`ListTeamQuery`** (`Role?`) and **`ListTeamHandler`** in Application `Team/`. The handler selects profiles whose roles intersect `TeamRoles`, optionally narrowed to the filtered role.
-- **`TeamRoles`** — Domain constant set: City Lead, Event Lead, Create Lead, Communications Lead, Volunteer. `TeamRoles.IsTeamMember(profile)` is true while the profile holds one of them; the Agile workspace membership rule reuses it.
-- **`TeamMemberDto`** — `ProfileId`, `Name`, `PhotoUrl`, `Roles`.
+- **`TeamPage`** — page at `/team` in the `team` feature library. It lists team members in a list card with avatar (featured photo, initials without one), name linking to the profile and role badges, and offers role chips (All, Leads, Volunteers) and a city select. Leads and System Admins see **Invite someone**, a link to `/invites`.
+- **`TeamService`** / **`TEAM_SERVICE`** / **`HttpTeamService`** — API client calling `GET /api/team?role=&city=`.
+- **`TeamEndpoints`** — minimal API mapping requiring an authenticated caller (`401` anonymous).
+- **`ListTeamQuery`** (`TeamRoleFilter?` Leads or Volunteers, `City?`) and **`ListTeamHandler`** in Application `Team/`. The handler selects profiles whose roles intersect `TeamRoles`, narrowed to `TeamRoles.Leads` or Volunteer and to a home city (case-insensitive), sorted by name.
+- **`TeamRoles`** — Domain constant sets: `All` (City Lead, Event Lead, Create Lead, Communications Lead, Volunteer) and `Leads` (the four lead roles). `TeamRoles.IsTeamMember(profile)` is true while the profile holds one of them; the Agile workspace membership rule reuses it.
+- **`TeamListDto`** — `Members` (`TeamMemberDto`) and `Cities`, every team member's distinct home city whatever the filters.
+- **`TeamMemberDto`** — `ProfileId`, `Name`, `HomeCity`, `PhotoUrl` (featured photo or `null`), `Roles` (every role held).
 
-Sort order and paging of the team list: `<TO SUPPLY>`.
+Sorted by name, no paging, opening on All and All cities ([ADR 0007](../../../adr/0007-team-list-filters-and-photos.md)).
 
 ## Requirements
 
@@ -70,3 +71,5 @@ Membership is computed from current roles, so a profile that loses its last team
 Decisions recorded while building the Domain layer (`FaithTech.Community.Domain`):
 
 - Team membership stays derived from roles through `TeamRoles.IsTeamMember`; nothing is stored. Resolved.
+- Sort order, paging, filter values, the default city and the photo avatar: resolved in [ADR 0007](../../../adr/0007-team-list-filters-and-photos.md).
+- Hiding suspended profiles from the team: deferred to the admin subsystem.

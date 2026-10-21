@@ -10,6 +10,7 @@ import { AvatarColor, AvatarComponent, AvatarSize } from './avatar.component';
     [size]="size()"
     [href]="href()"
     [label]="label()"
+    [src]="src()"
   />`,
 })
 class HostComponent {
@@ -18,6 +19,7 @@ class HostComponent {
   size = signal<AvatarSize>('md');
   href = signal<string | null>(null);
   label = signal<string | null>(null);
+  src = signal<string | null>(null);
 }
 
 function setup() {
@@ -28,6 +30,31 @@ function setup() {
 }
 
 describe('AvatarComponent', () => {
+  it('shows a decorative photo over the initials when src is set', () => {
+    const { fixture, cmp, q } = setup();
+    expect(q('.ft-avatar img')).toBeNull();
+
+    cmp.src.set('https://photos.example/grace.jpg');
+    fixture.detectChanges();
+
+    const img = q<HTMLImageElement>('.ft-avatar img.ft-avatar__img');
+    expect(img.getAttribute('src')).toBe('https://photos.example/grace.jpg');
+    expect(img.getAttribute('alt')).toBe('');
+    expect(q('.ft-avatar').textContent?.trim()).toBe('GO');
+  });
+
+  it('falls back to the initials when the photo fails to load', () => {
+    const { fixture, cmp, q } = setup();
+    cmp.src.set('https://photos.example/missing.jpg');
+    fixture.detectChanges();
+
+    q('.ft-avatar img').dispatchEvent(new Event('error'));
+    fixture.detectChanges();
+
+    expect(q('.ft-avatar img')).toBeNull();
+    expect(q('.ft-avatar').textContent?.trim()).toBe('GO');
+  });
+
   it('shows first and last initials in capitals', () => {
     const { q } = setup();
     expect(q('.ft-avatar').textContent?.trim()).toBe('GO');

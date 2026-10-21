@@ -1,16 +1,140 @@
-/*
- * SCAFFOLD: placeholder, not the implementation.
- * Generated from AGENTS.md and:
- *   - docs/detailed-designs/team/team-list
- * Overwrite this file with the expected implementation (implementing-incrementally
- * skill + ATDD), then delete this comment.
- */
-import { ChangeDetectionStrategy, Component } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
+import { FormControl, ReactiveFormsModule } from '@angular/forms';
+import {
+  AUTH_SERVICE,
+  ROLE_LABELS,
+  Role,
+  TEAM_SERVICE,
+  TeamMemberDto,
+  TeamRoleFilter,
+  isLead,
+} from '@faithtech-community/api';
+import {
+  AvatarComponent,
+  BadgeComponent,
+  ButtonComponent,
+  CardComponent,
+  ChipComponent,
+  ClusterComponent,
+  EmptyStateComponent,
+  FormFieldComponent,
+  IconComponent,
+  ListComponent,
+  ListItemComponent,
+  ListSkeletonComponent,
+  PageHeaderComponent,
+  SelectComponent,
+  SelectOption,
+} from '@faithtech-community/components';
+import { firstValueFrom } from 'rxjs';
 
+type State = 'loading' | 'loaded' | 'error';
+
+const ROLE_CHIPS: { label: string; value: TeamRoleFilter | null }[] = [
+  { label: 'All', value: null },
+  { label: 'Leads', value: 'Leads' },
+  { label: 'Volunteers', value: 'Volunteers' },
+];
+
+/** Everyone with a lead or volunteer role (L2-019), matching docs/mocks/pages/team. */
 @Component({
   selector: 'ft-team-page',
+  imports: [
+    ReactiveFormsModule,
+    AvatarComponent,
+    BadgeComponent,
+    ButtonComponent,
+    CardComponent,
+    ChipComponent,
+    ClusterComponent,
+    EmptyStateComponent,
+    FormFieldComponent,
+    IconComponent,
+    ListComponent,
+    ListItemComponent,
+    ListSkeletonComponent,
+    PageHeaderComponent,
+    SelectComponent,
+  ],
   templateUrl: './team.page.html',
   styleUrl: './team.page.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class TeamPage {}
+export class TeamPage {
+  private readonly team = inject(TEAM_SERVICE);
+  private readonly callerRoles = inject(AUTH_SERVICE).roles;
+
+  protected readonly roleChips = ROLE_CHIPS;
+  protected readonly city = new FormControl('', { nonNullable: true });
+
+  protected readonly state = signal<State>('loading');
+  protected readonly members = signal<TeamMemberDto[]>([]);
+  protected readonly role = signal<TeamRoleFilter | null>(null);
+  private readonly cities = signal<string[]>([]);
+  private readonly selectedCity = signal<string | null>(null);
+  private request = 0;
+
+  protected readonly canInvite = computed(() => isLead(this.callerRoles()));
+  protected readonly cityOptions = computed<SelectOption[]>(() => [
+    { value: '', label: 'All cities' },
+    ...this.cities().map((c) => ({ value: c, label: c })),
+  ]);
+  protected readonly filtered = computed(
+    () => this.role() !== null || this.selectedCity() !== null,
+  );
+  /** "No volunteers in Vancouver yet", worded as the no-results mock words it. */
+  protected readonly noResultsHeading = computed(() => {
+    const role = this.role();
+    const who = role ? role.toLowerCase() : 'team members';
+    const city = this.selectedCity();
+    return city ? `No ${who} in ${city} yet` : `No ${who} yet`;
+  });
+
+  constructor() {
+    this.city.valueChanges.subscribe((value) => {
+      this.selectedCity.set(value || null);
+      void this.load();
+    });
+    void this.load();
+  }
+
+  protected labels(roles: Role[]): string[] {
+    return roles.map((r) => ROLE_LABELS[r]);
+  }
+
+  protected chooseRole(value: TeamRoleFilter | null): void {
+    if (this.role() === value) return;
+    this.role.set(value);
+    void this.load();
+  }
+
+  protected showEveryone(): void {
+    this.role.set(null);
+    if (this.city.value) {
+      this.city.setValue('');
+    } else {
+      void this.load();
+    }
+  }
+
+  protected retry(): void {
+    void this.load();
+  }
+
+  private async load(): Promise<void> {
+    // Only the latest request may update the page, so a slow answer never overwrites a newer filter.
+    const request = ++this.request;
+    this.state.set('loading');
+    try {
+      const list = await firstValueFrom(
+        this.team.list({ role: this.role(), city: this.selectedCity() }),
+      );
+      if (request !== this.request) return;
+      this.members.set(list.members);
+      this.cities.set(list.cities);
+      this.state.set('loaded');
+    } catch {
+      if (request === this.request) this.state.set('error');
+    }
+  }
+}

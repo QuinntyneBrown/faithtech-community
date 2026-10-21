@@ -1,16 +1,10 @@
-/*
- * EARLY IMPLEMENTATION: written ahead of the vertical slices to get a head start.
- * Contracts and DTOs follow docs/detailed-designs/ but may change as each feature is
- * implemented end to end (spec -> design -> mock -> ATDD slice).
- * Sources:
- *   - docs/detailed-designs/team/team-list
- */
+// Traces to: L2-019
 import { HttpTestingController } from '@angular/common/http/testing';
 import { TestBed } from '@angular/core/testing';
 
 import { apiTestProviders } from '../shared/api-test-providers';
 import { HttpTeamService } from './http-team.service';
-import { TEAM_SERVICE } from './team.service';
+import { TEAM_SERVICE, TeamListDto } from './team.service';
 
 describe('HttpTeamService', () => {
   let service: HttpTeamService;
@@ -24,17 +18,28 @@ describe('HttpTeamService', () => {
     controller = TestBed.inject(HttpTestingController);
   });
 
-  it('lists the whole team without a role filter', () => {
-    service.list().subscribe();
+  it('lists the whole team without filters', () => {
+    const body: TeamListDto = { members: [], cities: ['Toronto'] };
+    let result: TeamListDto | undefined;
+    service.list().subscribe((r) => (result = r));
 
     const req = controller.expectOne('/api/team');
     expect(req.request.method).toBe('GET');
-    req.flush([]);
+    req.flush(body);
+    expect(result).toEqual(body);
   });
 
-  it('filters by role', () => {
-    service.list('Volunteer').subscribe();
+  it('filters by role group and city', () => {
+    service.list({ role: 'Volunteers', city: 'Toronto' }).subscribe();
 
-    controller.expectOne('/api/team?role=Volunteer').flush([]);
+    controller
+      .expectOne('/api/team?role=Volunteers&city=Toronto')
+      .flush({ members: [], cities: [] });
+  });
+
+  it('leaves out an empty city', () => {
+    service.list({ role: 'Leads', city: '' }).subscribe();
+
+    controller.expectOne('/api/team?role=Leads').flush({ members: [], cities: [] });
   });
 });

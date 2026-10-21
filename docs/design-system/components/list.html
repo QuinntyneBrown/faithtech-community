@@ -257,7 +257,12 @@
 
 &lt;!-- Angular --&gt;
 &lt;ft-list&gt;
-  &lt;ft-list-item [title]="c.name" [link]="['/contacts', c.id]" [meta]="c.summary"&gt;…&lt;/ft-list-item&gt;
+  &lt;ft-list-item [label]="c.name" [href]="'/contacts/' + c.id" [meta]="c.summary"&gt;…&lt;/ft-list-item&gt;
+  &lt;!-- Role badges in the meta line: project them into the [meta] slot --&gt;
+  &lt;ft-list-item [label]="m.name" [href]="'/people/' + m.profileId"&gt;
+    &lt;ft-avatar leading [name]="m.name" [src]="m.photoUrl" size="sm" /&gt;
+    &lt;ft-cluster meta&gt;&lt;ft-badge variant="role"&gt;City Lead&lt;/ft-badge&gt;&lt;/ft-cluster&gt;
+  &lt;/ft-list-item&gt;
 &lt;/ft-list&gt;</code></pre>
       <table class="ds-table"><thead><tr><th scope="col">Class / attribute</th><th scope="col">Effect</th></tr></thead><tbody>
         <tr><td><code>.list</code></td><td>Unstyled vertical list.</td></tr>
