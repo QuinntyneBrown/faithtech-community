@@ -140,7 +140,7 @@ Each component page documents variants, sizes and the full state matrix in both 
 | notifications/bell (empty) | "Mark all read" shown with nothing unread; inline padding | Documented on Notification panel |
 | pages/notifications | Notices out of time order | Documented: newest first |
 | pages/team-board | Cards draggable with no Move action | Fixed: every movable story card has Move, opening the new `dialogs/move-story` |
-| pages/partners | Move is a link; dragging uses deprecated `aria-grabbed` with no live region | Documented: button, `data-state="dragging"`, polite announcement |
+| pages/partners | Move is a link; dragging uses deprecated `aria-grabbed` with no live region | Move fixed: a `<button type="button">` naming the dialog in `data-href` on every board; `data-state="dragging"` and a polite announcement documented |
 | dialogs/move-partner | Radios have no `value` | Logged |
 | pages/backlog | Title link nested inside `<summary>`; no collapsed branch mocked | Documented on Backlog tree |
 | pages/* tabs | 36 tab rows carry inline `margin-bottom` | Logged |
