@@ -129,7 +129,7 @@
         </figure>
         <ol class="ds-anatomy__list">
           <li><div><b>Backdrop and frame</b><small><code>.backdrop</code> dims the page with <code>--color-bg-backdrop</code> at <code>--z-overlay</code>; <code>.dialog</code> (<code>role="dialog"</code>, <code>aria-modal="true"</code>) centres the panel at <code>--z-modal</code>.</small></div></li>
-          <li><div><b>Icon</b><small><code>.dialog__icon</code>: 40px neutral circle naming the task (send, trash, archive). <code>.dialog__icon--danger</code> tints it for destructive confirmations.</small></div></li>
+          <li><div><b>Icon</b><small><code>.dialog__icon</code>: 40px neutral circle naming the task (send, trash, archive). <code>.dialog__icon--danger</code> tints it for every destructive confirmation, the ones whose main button is danger (Delete contact, Delete photo, Suspend user, Cancel event, Archive workspace, Remove member). Reversible confirmations keep the neutral icon.</small></div></li>
           <li><div><b>Title and description</b><small><code>h2.dialog__title</code> via <code>aria-labelledby</code>; the muted description via <code>aria-describedby</code>. <code>--text-h4</code> on phones, <code>--text-h3</code> from 640px.</small></div></li>
           <li><div><b>Close</b><small>Ghost icon button, <code>aria-label="Close"</code>.</small></div></li>
           <li><div><b>Body</b><small><code>.dialog__body</code>, usually a <code>.stack</code> of fields; scrolls inside the panel when tall.</small></div></li>
@@ -153,7 +153,7 @@
               <div class="dialog__body stack">
                 <div class="field"><label class="field__label" for="dlg-si-email">Email</label><input class="input" id="dlg-si-email" type="email" autocomplete="off" required></div>
                 <div class="field"><label class="field__label" for="dlg-si-role">Join with role</label><select class="select" id="dlg-si-role"><option>No role</option><option>Attendee</option><option>Volunteer</option><option selected>Product Engineer</option></select></div>
-                <div class="field"><label class="field__label" for="dlg-si-msg">Personal note <span class="text-muted">(optional)</span></label><textarea class="textarea" id="dlg-si-msg" rows="2"></textarea></div>
+                <div class="field"><label class="field__label" for="dlg-si-msg">Personal note <span class="optional">(optional)</span></label><textarea class="textarea" id="dlg-si-msg" rows="2"></textarea></div>
                 <p class="text-caption">The invite link lasts 14 days.</p>
               </div>
               <div class="dialog__footer"><button class="btn" type="button">Cancel</button><button class="btn btn--primary" type="button">Send invite</button></div>
@@ -210,7 +210,7 @@
             </div>
           </div>
         </div>
-        <div class="ds-example__caption"><span><code>.dialog__icon--danger</code> marks the confirmations that take access away (Archive workspace, Remove member).</span></div>
+        <div class="ds-example__caption"><span><code>.dialog__icon--danger</code> marks every confirmation whose main button is danger: here Remove member; also Delete contact, Delete photo, Suspend user, Cancel event and Archive workspace.</span></div>
       </div>
       <h3>Confirmation with a typed check: delete a contact</h3>
       <div class="ds-example">
@@ -245,7 +245,7 @@
               <div class="dialog__body stack">
                 <div class="field"><label class="field__label" for="dlg-busy-email">Email</label><input class="input" id="dlg-busy-email" type="email" value="nate.oyelaran@example.org" readonly></div>
               </div>
-              <div class="dialog__footer"><button class="btn" type="button" disabled>Cancel</button><button class="btn btn--primary" type="submit" aria-busy="true" aria-disabled="true"><span class="dot dot--pulse" aria-hidden="true"></span>Send invite…</button></div>
+              <div class="dialog__footer"><button class="btn" type="button" disabled>Cancel</button><button class="btn btn--primary" type="submit" aria-busy="true" aria-disabled="true">Send invite…</button></div>
             </div>
           </div>
         </div>
@@ -256,7 +256,7 @@
               <div class="dialog__body stack">
                 <div class="field"><label class="field__label" for="dlg-busy-d-email">Email</label><input class="input" id="dlg-busy-d-email" type="email" value="nate.oyelaran@example.org" readonly></div>
               </div>
-              <div class="dialog__footer"><button class="btn" type="button" disabled>Cancel</button><button class="btn btn--primary" type="submit" aria-busy="true" aria-disabled="true"><span class="dot dot--pulse" aria-hidden="true"></span>Send invite…</button></div>
+              <div class="dialog__footer"><button class="btn" type="button" disabled>Cancel</button><button class="btn btn--primary" type="submit" aria-busy="true" aria-disabled="true">Send invite…</button></div>
             </div>
           </div>
         </div>
@@ -286,7 +286,7 @@
       </div>
       <ul>
         <li><b>Default</b>: focus on the first field (form dialogs) or on Cancel (confirmations).</li>
-        <li><b>Busy</b>: Cancel and Close <code>disabled</code>; the pressed button keeps focus with <code>aria-busy="true"</code>, <code>aria-disabled="true"</code>, a pulsing dot and an ellipsis ("Send invite…"). Fields become <code>readonly</code>. Escape does nothing until it settles.</li>
+        <li><b>Busy</b>: Cancel and Close take native <code>disabled</code> (focus is not on them, so they leave the tab order); the pressed button keeps focus with <code>aria-busy="true"</code> and <code>aria-disabled="true"</code>, always both, a pulsing dot and an ellipsis ("Send invite…"). Fields become <code>readonly</code>. Escape does nothing until it settles.</li>
         <li><b>Invalid</b>: the field gets <code>aria-invalid="true"</code> and a <code>.field__error</code> linked with <code>aria-describedby</code>; focus moves to it. The dialog stays open. Examples: "Enter an email like name@example.org.", "Give a reason so other admins understand."</li>
         <li><b>Failed</b>: a danger <a href="alert.html">alert</a> with <code>role="alert"</code> at the top of the body; everything typed stays. Copy: "That didn’t work · We couldn’t reach FaithTech. Nothing was changed — try again."</li>
       </ul>
@@ -327,7 +327,7 @@
         <tr><td><kbd>↑</kbd> <kbd>↓</kbd></td><td>Moves between radios (Remove role, Move partner, Start a sprint) and select options.</td></tr>
       </tbody></table>
       <h3>Focus</h3>
-      <p>On open, focus goes to the first field (Email, Reason, Message to attendees) or, for confirmations, to Cancel so a stray Enter is safe. On close, focus returns to the button that opened it (Invite, Remove role, Archive). On invalid, focus moves to the first invalid field; on failed, the alert is announced and focus stays where it was.</p>
+      <p>On open, focus goes to the first field (Email, Reason, Message to attendees) or, for confirmations, to Cancel so a stray Enter is safe. Mocks mark it with <code>autofocus</code>; in the app, set <code>initialFocus</code> on that <code>ft-button</code> or <code>ft-textarea</code>. On close, focus returns to the button that opened it (Invite, Remove role, Archive). On invalid, focus moves to the first invalid field; on failed, the alert is announced and focus stays where it was.</p>
       <h3>Labelling</h3>
       <p>The title names the dialog and the subject: "Invite someone to FaithTech", "Suspend Leah Thompson?". The close button is <code>aria-label="Close"</code>. Icons are <code>aria-hidden</code>; the title and the danger button's words carry the warning.</p>
       <h3>Contrast</h3>
@@ -408,7 +408,7 @@
         <tr><td><code>.dialog__panel</code></td><td>The raised panel, max 32rem, scrolls when tall.</td></tr>
         <tr><td><code>.dialog__header</code> / <code>__title</code> / <code>__body</code> / <code>__footer</code></td><td>Parts; the footer is sticky.</td></tr>
         <tr><td><code>.dialog__icon</code></td><td>Neutral icon circle naming the task.</td></tr>
-        <tr><td><code>.dialog__icon--danger</code></td><td>Danger tint for destructive confirmations.</td></tr>
+        <tr><td><code>.dialog__icon--danger</code></td><td>Danger tint for every confirmation whose main button is danger.</td></tr>
         <tr><td><code>.dialog--static</code></td><td>Documentation only: renders in flow.</td></tr>
         <tr><td><code>role="dialog"</code> <code>aria-modal="true"</code> <code>aria-labelledby</code> <code>aria-describedby</code></td><td>Required in the product.</td></tr>
       </tbody></table>
@@ -429,9 +429,7 @@
       </ul>
       <p>Drift noticed in the mocks:</p>
       <ul>
-        <li>Destructive confirmations put <code>autofocus</code> on the danger button (Delete permanently, Suspend, Remove role, Cancel event); this page specifies focus on Cancel instead.</li>
-        <li><code>.dialog__icon--danger</code> is used only by Archive workspace and Remove member; other destructive dialogs (Delete contact, Suspend user, Cancel event) use the neutral icon.</li>
-        <li>Busy states leave fields editable (no <code>readonly</code>) and mix <code>disabled</code> on Cancel with <code>aria-disabled</code> on the primary.</li>
+        <li>Busy states leave fields editable (no <code>readonly</code>).</li>
         <li>Cancel event and Cancel RSVP pair "Cancel" with "Cancel event" / "Cancel RSVP".</li>
         <li>Archive workspace has an empty body holding only a <code>visually-hidden</code> "No further options".</li>
         <li>Every failed state uses the same generic "That didn’t work" title rather than naming what was not saved.</li>

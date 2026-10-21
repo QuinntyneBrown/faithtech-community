@@ -10,7 +10,6 @@ export class AppShell {
   readonly drawer: Locator;
   readonly closeDrawer: Locator;
   readonly tabBar: Locator;
-  readonly signOut: Locator;
 
   constructor(private readonly page: Page) {
     this.verifyBanner = page.locator('ft-banner').filter({ hasText: 'Verify your email' });
@@ -21,12 +20,33 @@ export class AppShell {
     this.drawer = page.getByRole('dialog', { name: 'Main menu' });
     this.closeDrawer = this.drawer.getByRole('button', { name: 'Close menu' });
     this.tabBar = page.getByRole('navigation', { name: 'Primary, phone' });
-    this.signOut = page.getByRole('button', { name: 'Sign out' });
   }
 
-  /** The top bar's avatar link, named "Your profile, {name}". */
-  yourProfile(name: string): Locator {
-    return this.page.getByRole('link', { name: `Your profile, ${name}` });
+  /** The top bar's avatar, a menu button named "Account menu for {name}". */
+  accountMenu(name: string): Locator {
+    return this.page.getByRole('button', { name: `Account menu for ${name}` });
+  }
+
+  /** An item of the open account menu, such as "Your profile", "Settings" or "Sign out". */
+  menuItem(name: string): Locator {
+    return this.page.getByRole('menu').getByRole('menuitem', { name, exact: true });
+  }
+
+  /** Opens the account menu and follows "Your profile". */
+  async openYourProfile(name: string): Promise<void> {
+    await this.accountMenu(name).click();
+    await this.menuItem('Your profile').click();
+  }
+
+  /** Opens the account menu and chooses "Sign out". */
+  async signOut(name: string): Promise<void> {
+    await this.accountMenu(name).click();
+    await this.menuItem('Sign out').click();
+  }
+
+  /** The initials circle on the top bar's account menu button. */
+  yourAvatar(name: string): Locator {
+    return this.accountMenu(name).locator('.ft-avatar');
   }
 
   navLink(name: string): Locator {

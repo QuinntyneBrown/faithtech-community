@@ -5,6 +5,7 @@ export * from './breadcrumb';
 export * from './breakpoint';
 export * from './button';
 export * from './card';
+export * from './checkbox-group';
 export * from './chip';
 export * from './connectivity';
 export * from './description-list';

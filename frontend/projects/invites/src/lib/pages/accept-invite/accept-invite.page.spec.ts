@@ -22,7 +22,7 @@ const invite: InviteLookupDto = {
 };
 
 function user(email: string): CurrentUser {
-  return { id: 'u1', name: 'Jonah Bell', email, emailVerified: true, roles: [] };
+  return { id: 'u1', profileId: 'p1', name: 'Jonah Bell', email, emailVerified: true, roles: [] };
 }
 
 async function setup(

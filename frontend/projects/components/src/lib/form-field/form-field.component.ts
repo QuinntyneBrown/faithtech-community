@@ -3,10 +3,14 @@ import { InlineMessageComponent } from '../inline-message/inline-message.compone
 
 let nextId = 0;
 
+/** Fixed widths for a filter field in a filter row: sm 12rem, md 14rem, lg 16rem. */
+export type FormFieldWidth = 'auto' | 'sm' | 'md' | 'lg';
+
 /**
  * Label, control, help and error stacked in one block. The projected control
  * (ft-text-field, ft-textarea, ft-select) reads its id, aria-describedby and
- * aria-invalid from this component.
+ * aria-invalid from this component. `width` holds a filter field (a select in a filter row) to a
+ * fixed width; by default the field takes the width of its container.
  */
 @Component({
   selector: 'ft-form-field',
@@ -14,6 +18,9 @@ let nextId = 0;
   templateUrl: './form-field.component.html',
   styleUrl: './form-field.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
+  host: {
+    '[class]': 'width() === "auto" ? "" : "ft-form-field--" + width()',
+  },
 })
 export class FormFieldComponent {
   private readonly uid = `ft-field-${nextId++}`;
@@ -23,6 +30,7 @@ export class FormFieldComponent {
   readonly optional = input(false);
   readonly help = input('');
   readonly error = input('');
+  readonly width = input<FormFieldWidth>('auto');
 
   readonly controlId = computed(() => `${this.uid}-control`);
   readonly helpId = computed(() => `${this.uid}-help`);

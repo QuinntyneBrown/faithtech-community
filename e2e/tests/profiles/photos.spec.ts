@@ -158,7 +158,7 @@ test.describe('Manage profile photos', () => {
     await edit.remove(2).click();
     await expect(dialog.dialog).toBeVisible();
     await expect(dialog.description).toHaveText('“Photo a” will be removed from your profile.');
-    await expect(dialog.confirm).toBeFocused();
+    await expect(dialog.cancel).toBeFocused();
     await axe.check();
     await dialog.confirm.click();
 

@@ -3,7 +3,7 @@ using FaithTech.Community.Application.Contacts;
 namespace FaithTech.Community.Api.Endpoints;
 
 /// <summary>
-/// Private contacts (L2-012 to L2-016). Lead roles and System Admin only; another lead's contact answers 404 (ADR 0007).
+/// Private contacts (L2-012 to L2-016). Lead roles and System Admin only; another lead's contact answers 404 (ADR 0009).
 /// </summary>
 public static class ContactsEndpoints
 {

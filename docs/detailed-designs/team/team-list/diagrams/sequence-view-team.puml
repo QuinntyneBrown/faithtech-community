@@ -28,18 +28,18 @@ end box
 box "Backend — FaithTech.Community.Infrastructure" #FFF4E5
   database "Community database" as db
 end box
-actor -> page : Open team, optionally choose a role filter
-page -> svc : list(role?)
-svc -> ep : GET /api/team?role=
-ep -> ep : Require signed-in member
+actor -> page : Open team, optionally choose a role or city filter
+page -> svc : list({ role?, city? })
+svc -> ep : GET /api/team?role=&city=
+ep -> ep : Require signed-in member (401 anonymous)
 ep -> h : Send ListTeamQuery
 h -> db : Select profiles with any TeamRoles role (L2-019 AC1, AC3)
-opt role filter
-  h -> h : Narrow to profiles holding the role (L2-019 AC2)
+db --> h : Profiles with roles and photos
+opt role or city filter
+  h -> h : Narrow to Leads or Volunteers and to the home city (L2-019 AC2)
 end
-db --> h : Profiles
-h --> ep : TeamMemberDto list with name, photo, roles
+h --> ep : TeamListDto: members by name with photo and roles, all cities
 ep --> svc : 200 OK
-svc --> page : Members
-page --> actor : Team cards
+svc --> page : Team list
+page --> actor : Team list rows, or the empty or no-results state
 @enduml

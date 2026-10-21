@@ -149,6 +149,7 @@
       "states": [
         "default",
         "own",
+        "no-role",
         "loading",
         "empty",
         "error",
@@ -174,12 +175,11 @@
         "success",
         "uploading",
         "too-large",
+        "wrong-type",
         "pending",
-        "full"
-      ],
-      "not_applicable": {
-        "empty": "The form always shows your name; the photo empty state is shown on the profile page."
-      }
+        "full",
+        "empty"
+      ]
     },
     {
       "id": "search",
@@ -311,8 +311,10 @@
       ],
       "states": [
         "default",
+        "no-notes",
         "match",
         "linked",
+        "missing",
         "loading",
         "error"
       ],
@@ -909,6 +911,23 @@
       }
     },
     {
+      "id": "move-story",
+      "kind": "dialog",
+      "title": "Move story",
+      "opens_from": "team-board",
+      "requirements": [
+        "L2-034"
+      ],
+      "states": [
+        "default",
+        "busy",
+        "failed"
+      ],
+      "not_applicable": {
+        "invalid": "A status is always selected."
+      }
+    },
+    {
       "id": "switch-method",
       "kind": "dialog",
       "title": "Switch Scrum / Kanban",
@@ -981,6 +1000,23 @@
       "opens_from": "event",
       "requirements": [
         "L2-022"
+      ],
+      "states": [
+        "default",
+        "busy",
+        "failed"
+      ],
+      "not_applicable": {
+        "invalid": "A confirmation with no input to validate."
+      }
+    },
+    {
+      "id": "sign-out-everywhere",
+      "kind": "dialog",
+      "title": "Sign out everywhere",
+      "opens_from": "settings",
+      "requirements": [
+        "L2-052"
       ],
       "states": [
         "default",

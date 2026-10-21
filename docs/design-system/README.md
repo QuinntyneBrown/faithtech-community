@@ -108,13 +108,13 @@ Each component page documents variants, sizes and the full state matrix in both 
 | dialogs/send-invite | Typo "Create Lead"; offers roles a City Lead may not grant | Flagged for the mocks |
 | pages/* | About 110 card headings use inline `font` instead of `.card__title`; inline padding and widths | Use `.card__title` and layout primitives |
 | notifications/bell | Bell is a link with `aria-expanded` | Documented: a `<button>` when it opens the panel |
-| assets/ui-extra.css | Raw `14rem`, `12rem`, `24rem`, `9rem`, `7rem` sizes, `63.99rem` breakpoint, `!important` on `.photo-ph`, raw `#888` chevron | Chevron redrawn with `currentColor`; sizes logged for a later token pass |
-| pages/edit-profile | Remove is a link; Feature buttons not named per photo; grid not wrapped in `.picture-list`; empty, full, wrong-type states missing | Documented on Picture list |
+| assets/ui-extra.css | Raw `14rem`, `12rem`, `24rem`, `9rem`, `7rem` sizes, `63.99rem` breakpoint, `!important` on `.photo-ph`, raw `#888` chevron | Chevron redrawn with `currentColor`; the unused `.photo-ph` removed; sizes logged for a later token pass |
+| pages/edit-profile | Remove is a link; Feature buttons not named per photo; grid not wrapped in `.picture-list`; empty, full, wrong-type states missing | Fixed in the mocks (#70 to #74) |
 | pages/planning-poker | No invalid, withdrawn or failed vote states; revealed "?" never shown | Documented on Estimate card |
 | pages/* breadcrumbs | Some state mocks label the current crumb generically ("Event") | Documented: the current crumb is the record name |
 | pages/* | Top bar and tab bar copied by hand into every mock, varying by role | One shell component in the app |
 | pages/events, pages/search (loading) | Round avatar skeletons where rows have square date badges | Documented on Event card and Search results |
-| pages/profile | Samuel's photos copied from Grace's, with alt text describing her; loading uses text skeletons for square tiles | Flagged for the mocks |
+| pages/profile | Samuel's photos copied from Grace's, with alt text describing her (fixed, #76); loading uses text skeletons for square tiles (fixed, #77) | Fixed in the mocks |
 | pages/public-event/cancelled | Says "FaithTech Toronto" and Kestrel Labs for the Austin panel | Flagged for the mocks |
 | pages/search | Work-item rows borrow `.sticker` as an icon tile | Documented: use an icon tile, not the estimate card |
 | pages/contact | Gap between note text and date relies on default paragraph margins | `.note__meta` owns the gap |
@@ -123,14 +123,14 @@ Each component page documents variants, sizes and the full state matrix in both 
 | pages/* tab bar | No Workspaces, Team, Announcements or People; Team, Announcements, People also hidden in the top bar at 768–1023px | Flagged: those pages need a route at tablet width |
 | assets/ui-extra.css | Secondary nav hidden with a min/max range query | Logged; system rule is min-width queries only |
 | pages/* | Bell panel uses `--z-dropdown`; `--color-tint-*`, `--size-cover-*`, `avatar--lg` unused | Logged; panels move to `--z-popover` in the app |
-| pages/* | Inline raw sizes: Kanban skeleton `4rem`, action filter `14rem`, toast note `9rem`, form-summary `padding-left: 1.2em` | Logged; use spacing tokens and layout primitives |
+| pages/* | Inline raw sizes: Kanban skeleton `4rem`, action filter `14rem`, toast note `9rem` | Logged; use spacing tokens and layout primitives |
 | pages/not-found, server-error, offline | "Try again" is an `<a href>` styled as a button | Documented: a `<button>` |
 | pages/backlog | View chips are links with `aria-pressed` | Documented: links use `aria-current` |
 | pages/* | About 65 Task badges have a trailing space in `class` | Logged |
 | pages/events, pages/team | Filter rows have no group or label | Documented: `role="group"` with `aria-label` |
 | dialogs/start-poker/invalid | Group error not linked to the fieldset; no `aria-invalid` | Documented on Form field |
 | notifications/toast/danger | `role="alert"` on the region instead of the toast | Documented on Toast |
-| notifications/banner | Only the danger banner has a role | Documented on Alert and banner |
+| notifications/banner | Only the danger banner had a role | Fixed: info, success and warning banners use `role="status"` |
 | pages/* | No loading, empty or error states for feed or stats; no row hover/focus; no busy Export CSV; offline page has no banner | Documented as system states |
 | pages/* | Avatar colours chosen by hand, some people share one | Documented: colour derived from the person id |
 | pages/event-form | Summary wording differs from the field error | Documented: the summary repeats the field error |
@@ -139,22 +139,23 @@ Each component page documents variants, sizes and the full state matrix in both 
 | assets/logo.svg | Hard-coded colours | Logged; brand asset |
 | notifications/bell (empty) | "Mark all read" shown with nothing unread; inline padding | Documented on Notification panel |
 | pages/notifications | Notices out of time order | Documented: newest first |
-| pages/team-board | Cards draggable with no Move action | Documented: every card has a Move button opening the Move dialog |
-| pages/partners | Move is a link; dragging uses deprecated `aria-grabbed` with no live region | Documented: button, `data-state="dragging"`, polite announcement |
-| dialogs/move-partner | Radios have no `value` | Logged |
+| pages/team-board | Cards draggable with no Move action | Fixed: every movable story card has Move, opening the new `dialogs/move-story` |
+| assets/components.css | `.kanban--4` and `.kanban__empty` unused by any mock | `.kanban--4` removed from the CSS and `ft-kanban-board` (every workflow has three stages); `team-board/kanban` shows an empty Done column with `.kanban__empty` |
+| pages/partners | Move is a link; dragging uses deprecated `aria-grabbed` with no live region | Fixed: Move is a `<button type="button">` naming the dialog in `data-href`; `aria-grabbed` removed from the mocks and CSS (`data-state="dragging"` only); `partners/default` and `dragging` carry the polite live region |
+| dialogs/move-partner, move-story | Radios have no `value` | Fixed: each radio carries the API value (`Lead`, `InFunnel`, `Confirmed`; `ToDo`, `InProgress`, `Done`) |
 | pages/backlog | Title link nested inside `<summary>`; no collapsed branch mocked | Documented on Backlog tree |
 | pages/* tabs | 36 tab rows carry inline `margin-bottom` | Logged |
 | pages/* filters | Selects wrapped in inline `width: 12rem`; select disabled/hover hooks missing | Hooks added to components.css |
 | dialogs/new-work-item/invalid | Parent select has no `<label for>` | Documented on Select |
 | pages/profile, pages/contact | Emails not `mailto:` links | Documented on Description list |
-| dialogs/add-workspace-member, create-workspace, start-poker | Checkboxes in `.choice` rows drew as round radios | Square checkbox rule added to components.css |
+| dialogs/add-workspace-member, create-workspace, start-poker | Checkboxes in `.choice` rows drew as round radios | Square checkbox rule added to components.css, documented on Radio group; `ft-checkbox-group` + `ft-checkbox` added to the components library |
 | dialogs/* busy | Busy buttons hold a hidden `dot--pulse`; `aria-disabled` beside `disabled` | Documented on Button: spinner + `aria-busy`, siblings `disabled` |
 | pages/* forms vs dialogs | Primary before Cancel on pages, after Cancel in dialogs | Documented: primary last (right) everywhere |
 | pages/* forms | Error summary is a `ul` with inline padding; CSS styles `.form-summary ol` | Documented: `ol` |
-| pages/* forms | Optional marker is `span.text-muted`, not `.optional` | Documented: `.optional` |
+| pages/* forms | Optional marker was `span.text-muted`, not `.optional` | Fixed: mocks and `ft-form-field` use `.optional` (`--color-fg-subtle`) |
 | pages/compose-announcement | Only field labelled "(optional)"; `rows="2"` overridden | Logged |
 | pages/edit-profile | 400-character bio limit has no counter; show-password never pressed | Documented on Textarea and Text field |
-| pages/event-form | Visibility legend visually hidden | Documented: visible legend |
+| pages/event-form | Visibility legend was visually hidden | Fixed: the legend is visible (`legend.field__label`) |
 | pages/settings | Email switch caption not joined with `aria-describedby`; only "Sign out everywhere" | Documented on Switch and Menu |
 | dialogs/remove-role | A single pre-checked radio | Logged |
 

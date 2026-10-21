@@ -9,6 +9,13 @@
     </div>
     <ft-skeleton shape="text" />
   </div>
+  <div class="ft-profile-header__photos">
+    <ul class="ft-profile-header__strip" aria-hidden="true">
+      @for (tile of [1, 2, 3, 4]; track tile) {
+        <li><ft-skeleton shape="square" /></li>
+      }
+    </ul>
+  </div>
 } @else {
   <div class="ft-profile-header">
     <div class="ft-profile-header__head">

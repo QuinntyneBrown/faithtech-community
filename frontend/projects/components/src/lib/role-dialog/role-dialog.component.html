@@ -28,7 +28,9 @@
       <p class="caption">{{ data.caption }}</p>
     }
   </ft-stack>
-  <ft-button ftDialogFooter [disabled]="busy()" (click)="ref.close()">Cancel</ft-button>
+  <ft-button ftDialogFooter [initialFocus]="!adding" [disabled]="busy()" (click)="ref.close()"
+    >Cancel</ft-button
+  >
   <ft-button
     ftDialogFooter
     [variant]="adding ? 'primary' : 'danger'"

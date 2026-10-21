@@ -1,0 +1,10 @@
+<fieldset [attr.aria-describedby]="describedBy()" [attr.aria-invalid]="error() ? 'true' : null">
+  <legend>{{ legend() }}</legend>
+  @if (hint()) {
+    <p class="ft-checkbox-group__hint" [id]="hintId">{{ hint() }}</p>
+  }
+  <ng-content />
+  @if (error()) {
+    <ft-inline-message [id]="errorId">{{ error() }}</ft-inline-message>
+  }
+</fieldset>

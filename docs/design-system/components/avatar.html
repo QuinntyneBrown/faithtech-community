@@ -101,11 +101,11 @@
       <p>Use an avatar wherever a row, card or header is about one person: a member, a private contact or whoever did something in a feed. It always sits next to the printed name, so it helps scanning; it is never the name itself.</p>
       <ul>
         <li><b>Static</b> (<code>span.avatar</code>, <code>aria-hidden="true"</code>): beside a name in <a href="list.html">lists</a>, <a href="feed.html">feeds</a>, <a href="table.html">tables</a> and the profile head.</li>
-        <li><b>Trigger</b> (<code>a.avatar-trigger</code> around a small avatar): the last item in the <a href="top-bar.html">top bar</a>, a link to your own profile.</li>
+        <li><b>Trigger</b> (<code>button.avatar-trigger</code> around a small avatar): the last item in the <a href="top-bar.html">top bar</a>, opening the <a href="menu.html">account menu</a>.</li>
         <li><b>Plain</b> (no colour modifier): private contacts who have not signed up, such as Abby Brooks and Kwame Asante, and suspended accounts such as Victor Kane.</li>
-        <li>In Angular, use <code>&lt;ft-avatar&gt;</code> from the components library.</li>
+        <li>In Angular, use <code>&lt;ft-avatar&gt;</code> from the components library and pass <code>[color]="avatarColorFor(profileId)"</code> for a member; leave the colour unset (plain) for an unlinked contact or a suspended account.</li>
       </ul>
-      <p>The mocks show initials only; no member photo is used as an avatar in v1 (profile photos live in the <a href="picture-list.html">picture list</a>). Do not use an avatar for status (use a <a href="badge.html">badge</a>) or for a partner organisation.</p>
+      <p>An avatar shows initials, or the member’s featured photo where a screen promises a photo, such as the <a href="../../mocks/pages/team/default.html">team list</a> (<code>.avatar__img</code>, <code>alt=""</code>, initials stay behind it as the fallback). Do not use an avatar for status (use a <a href="badge.html">badge</a>) or for a partner organisation.</p>
     </section>
 
     <section class="ds-section" id="anatomy"><h2><a href="#anatomy">Anatomy</a></h2>
@@ -123,7 +123,7 @@
     </section>
 
     <section class="ds-section" id="variants"><h2><a href="#variants">Variants</a></h2>
-      <p>Seven colours (sky, sun, lilac, sage, rose, mint, peach) plus the plain accent tint. A person keeps one colour on every screen.</p>
+      <p>Seven colours (sky, sun, lilac, sage, rose, mint, peach) plus the plain accent tint. A person keeps one colour on every screen: the colour is not picked per screen but derived from the member's profile id (<code>avatarColorFor(profileId)</code> in the components library, ADR 0008), so every screen that shows them computes the same one. With seven colours, people share colours (Marcus Lee and Tom&aacute;s Ortega are both sun); the printed name, never the colour, tells them apart. The cast's colours are listed in <code>docs/mocks/README.md</code>.</p>
       <div class="ds-example">
         <div class="ds-example__canvas"><span class="avatar avatar--sky" aria-hidden="true">GO</span><span class="avatar avatar--sun" aria-hidden="true">ML</span><span class="avatar avatar--lilac" aria-hidden="true">HK</span><span class="avatar avatar--sage" aria-hidden="true">JB</span><span class="avatar avatar--rose" aria-hidden="true">RA</span><span class="avatar avatar--mint" aria-hidden="true">SM</span><span class="avatar avatar--peach" aria-hidden="true">LT</span><span class="avatar" aria-hidden="true">KA</span></div>
         <div class="ds-example__caption"><span>Grace, Marcus, Hannah, Jonah, Ruth, Samuel, Leah, and the plain avatar for Kwame Asante, a private contact.</span></div>
@@ -131,13 +131,19 @@
 &lt;span class="avatar avatar--mint" aria-hidden="true"&gt;SM&lt;/span&gt;
 &lt;span class="avatar" aria-hidden="true"&gt;KA&lt;/span&gt;</code></pre></details>
       </div>
+      <h3>Photo</h3>
+      <div class="ds-example">
+        <div class="ds-example__canvas"><span class="avatar avatar--sky" aria-hidden="true">GO<img class="avatar__img" src="../../mocks/assets/photos/builders-night.svg" alt=""></span><span class="avatar avatar--sm avatar--sky" aria-hidden="true">GO<img class="avatar__img" src="../../mocks/assets/photos/builders-night.svg" alt=""></span></div>
+        <div class="ds-example__caption"><span>Grace’s featured photo covers her initials. The image is decorative (<code>alt=""</code>) because her name is printed beside it; without a photo the initials show.</span></div>
+        <details class="ds-example__code"><summary>HTML</summary><pre><code>&lt;span class="avatar avatar--sm avatar--sky" aria-hidden="true"&gt;GO&lt;img class="avatar__img" src="…" alt=""&gt;&lt;/span&gt;</code></pre></details>
+      </div>
       <h3>Avatar trigger</h3>
       <div class="ds-example">
-        <div class="ds-example__canvas"><a class="avatar-trigger" href="../../mocks/pages/profile/own.html" aria-label="Your profile, Grace Okonkwo"><span class="avatar avatar--sm avatar--sky" aria-hidden="true">GO</span></a></div>
-        <div class="ds-example__caption"><span>The top-bar link to your own profile. <code>.avatar-trigger</code> removes the underline and gives the avatar inside a hover ring. In the Angular component the trigger draws its initials with CSS (<code>data-initials</code>), so the link’s only text is its label (WCAG 2.5.3, label in name).</span></div>
-        <details class="ds-example__code"><summary>HTML</summary><pre><code>&lt;a class="avatar-trigger" href="/profile/me" aria-label="Your profile, Grace Okonkwo"&gt;
+        <div class="ds-example__canvas"><button class="avatar-trigger" type="button" aria-haspopup="menu" aria-label="Account menu for Grace Okonkwo"><span class="avatar avatar--sm avatar--sky" aria-hidden="true">GO</span></button></div>
+        <div class="ds-example__caption"><span>The top-bar account menu button. <code>.avatar-trigger</code> removes the underline and gives the avatar inside a hover ring. In the Angular component the trigger draws its initials with CSS (<code>data-initials</code>), so the button’s only text is its label (WCAG 2.5.3, label in name).</span></div>
+        <details class="ds-example__code"><summary>HTML</summary><pre><code>&lt;button class="avatar-trigger" type="button" aria-haspopup="menu" aria-label="Account menu for Grace Okonkwo"&gt;
   &lt;span class="avatar avatar--sm avatar--sky" aria-hidden="true"&gt;GO&lt;/span&gt;
-&lt;/a&gt;</code></pre></details>
+&lt;/button&gt;</code></pre></details>
       </div>
     </section>
 
@@ -159,12 +165,12 @@
       <div class="ds-matrix"><table>
         <thead><tr><th scope="col">Element</th><th scope="col">Default</th><th scope="col">Hover</th><th scope="col">Focus</th><th scope="col">Loading</th></tr></thead>
         <tbody>
-          <tr><th scope="row">Trigger</th><td><a class="avatar-trigger" href="../../mocks/pages/profile/own.html" aria-label="Your profile, Grace Okonkwo"><span class="avatar avatar--sm avatar--sky" aria-hidden="true">GO</span></a></td><td><a class="avatar-trigger" href="../../mocks/pages/profile/own.html" aria-label="Your profile, Grace Okonkwo" data-state="hover"><span class="avatar avatar--sm avatar--sky" aria-hidden="true">GO</span></a></td><td><a class="avatar-trigger" href="../../mocks/pages/profile/own.html" aria-label="Your profile, Grace Okonkwo" data-state="focus"><span class="avatar avatar--sm avatar--sky" aria-hidden="true">GO</span></a></td><td><span class="skeleton avatar avatar--sm" aria-hidden="true"></span></td></tr>
+          <tr><th scope="row">Trigger</th><td><button class="avatar-trigger" type="button" aria-haspopup="menu" aria-label="Account menu for Grace Okonkwo"><span class="avatar avatar--sm avatar--sky" aria-hidden="true">GO</span></button></td><td><button class="avatar-trigger" type="button" aria-haspopup="menu" aria-label="Account menu for Grace Okonkwo" data-state="hover"><span class="avatar avatar--sm avatar--sky" aria-hidden="true">GO</span></button></td><td><button class="avatar-trigger" type="button" aria-haspopup="menu" aria-label="Account menu for Grace Okonkwo" data-state="focus"><span class="avatar avatar--sm avatar--sky" aria-hidden="true">GO</span></button></td><td><span class="skeleton avatar avatar--sm" aria-hidden="true"></span></td></tr>
           <tr><th scope="row">Profile head</th><td><span class="avatar avatar--xl avatar--sky" aria-hidden="true">GO</span></td><td>None</td><td>None</td><td><span class="skeleton avatar avatar--xl" aria-hidden="true"></span></td></tr>
         </tbody>
       </table></div>
       <h3>Both themes</h3>
-      <div class="ds-themes"><div data-theme="light"><div class="cluster"><span class="avatar avatar--sky" aria-hidden="true">GO</span><span class="avatar avatar--mint" aria-hidden="true">SM</span><span class="avatar" aria-hidden="true">AB</span><a class="avatar-trigger" href="../../mocks/pages/profile/own.html" aria-label="Your profile, Grace Okonkwo" data-state="hover"><span class="avatar avatar--sm avatar--sky" aria-hidden="true">GO</span></a></div></div><div data-theme="dark"><div class="cluster"><span class="avatar avatar--sky" aria-hidden="true">GO</span><span class="avatar avatar--mint" aria-hidden="true">SM</span><span class="avatar" aria-hidden="true">AB</span><a class="avatar-trigger" href="../../mocks/pages/profile/own.html" aria-label="Your profile, Grace Okonkwo" data-state="hover"><span class="avatar avatar--sm avatar--sky" aria-hidden="true">GO</span></a></div></div></div>
+      <div class="ds-themes"><div data-theme="light"><div class="cluster"><span class="avatar avatar--sky" aria-hidden="true">GO</span><span class="avatar avatar--mint" aria-hidden="true">SM</span><span class="avatar" aria-hidden="true">AB</span><button class="avatar-trigger" type="button" aria-haspopup="menu" aria-label="Account menu for Grace Okonkwo" data-state="hover"><span class="avatar avatar--sm avatar--sky" aria-hidden="true">GO</span></button></div></div><div data-theme="dark"><div class="cluster"><span class="avatar avatar--sky" aria-hidden="true">GO</span><span class="avatar avatar--mint" aria-hidden="true">SM</span><span class="avatar" aria-hidden="true">AB</span><button class="avatar-trigger" type="button" aria-haspopup="menu" aria-label="Account menu for Grace Okonkwo" data-state="hover"><span class="avatar avatar--sm avatar--sky" aria-hidden="true">GO</span></button></div></div></div>
       <ul>
         <li><b>Hover</b> draws a 2px ring in <code>--color-border-strong</code> around the avatar.</li>
         <li><b>Focus</b> uses the shared focus ring on the round link.</li>
@@ -195,7 +201,7 @@
       <h3>Focus</h3>
       <p>The shared 2px ring with a 2px offset on <code>:focus-visible</code>, following the circle.</p>
       <h3>Labelling</h3>
-      <p>Initials are not a name. The trigger carries <code>aria-label="Your profile, Grace Okonkwo"</code>.</p>
+      <p>Initials are not a name. The trigger carries <code>aria-label="Account menu for Grace Okonkwo"</code>.</p>
       <h3>Contrast</h3>
       <div class="ds-themes"><div data-theme="light"><div class="ds-example__canvas ds-example__canvas--stack" style="padding: 0; gap: var(--space-2);"><div class="ds-pair"><span>Initials on sky</span><span class="ds-pair__ratio" data-contrast="--color-fg-on-cover|--color-cover-sky" data-min="4.5"></span></div><div class="ds-pair"><span>Initials on sun</span><span class="ds-pair__ratio" data-contrast="--color-fg-on-cover|--color-cover-sun" data-min="4.5"></span></div><div class="ds-pair"><span>Initials on lilac</span><span class="ds-pair__ratio" data-contrast="--color-fg-on-cover|--color-cover-lilac" data-min="4.5"></span></div><div class="ds-pair"><span>Initials on sage</span><span class="ds-pair__ratio" data-contrast="--color-fg-on-cover|--color-cover-sage" data-min="4.5"></span></div><div class="ds-pair"><span>Initials on rose</span><span class="ds-pair__ratio" data-contrast="--color-fg-on-cover|--color-cover-rose" data-min="4.5"></span></div><div class="ds-pair"><span>Initials on mint</span><span class="ds-pair__ratio" data-contrast="--color-fg-on-cover|--color-cover-mint" data-min="4.5"></span></div><div class="ds-pair"><span>Initials on peach</span><span class="ds-pair__ratio" data-contrast="--color-fg-on-cover|--color-cover-peach" data-min="4.5"></span></div><div class="ds-pair"><span>Initials on plain avatar</span><span class="ds-pair__ratio" data-contrast="--color-fg-accent|--color-accent-subtle" data-min="4.5"></span></div><div class="ds-pair"><span>Hover ring on top bar</span><span class="ds-pair__ratio" data-contrast="--color-border-strong|--color-bg-surface" data-min="3"></span></div><div class="ds-pair"><span>Focus ring on top bar</span><span class="ds-pair__ratio" data-contrast="--color-focus-ring|--color-bg-surface" data-min="3"></span></div></div></div><div data-theme="dark"><div class="ds-example__canvas ds-example__canvas--stack" style="padding: 0; gap: var(--space-2);"><div class="ds-pair"><span>Initials on sky</span><span class="ds-pair__ratio" data-contrast="--color-fg-on-cover|--color-cover-sky" data-min="4.5"></span></div><div class="ds-pair"><span>Initials on sun</span><span class="ds-pair__ratio" data-contrast="--color-fg-on-cover|--color-cover-sun" data-min="4.5"></span></div><div class="ds-pair"><span>Initials on lilac</span><span class="ds-pair__ratio" data-contrast="--color-fg-on-cover|--color-cover-lilac" data-min="4.5"></span></div><div class="ds-pair"><span>Initials on sage</span><span class="ds-pair__ratio" data-contrast="--color-fg-on-cover|--color-cover-sage" data-min="4.5"></span></div><div class="ds-pair"><span>Initials on rose</span><span class="ds-pair__ratio" data-contrast="--color-fg-on-cover|--color-cover-rose" data-min="4.5"></span></div><div class="ds-pair"><span>Initials on mint</span><span class="ds-pair__ratio" data-contrast="--color-fg-on-cover|--color-cover-mint" data-min="4.5"></span></div><div class="ds-pair"><span>Initials on peach</span><span class="ds-pair__ratio" data-contrast="--color-fg-on-cover|--color-cover-peach" data-min="4.5"></span></div><div class="ds-pair"><span>Initials on plain avatar</span><span class="ds-pair__ratio" data-contrast="--color-fg-accent|--color-accent-subtle" data-min="4.5"></span></div><div class="ds-pair"><span>Hover ring on top bar</span><span class="ds-pair__ratio" data-contrast="--color-border-strong|--color-bg-surface" data-min="3"></span></div><div class="ds-pair"><span>Focus ring on top bar</span><span class="ds-pair__ratio" data-contrast="--color-focus-ring|--color-bg-surface" data-min="3"></span></div></div></div></div>
       <h3>Motion</h3>
@@ -208,7 +214,7 @@
       <ul>
         <li>Initials are the first letters of the first and last name, in capitals: "GO" for Grace Okonkwo, "TO" for Tomás Ortega.</li>
         <li>A private contact gets initials the same way ("AB" for Abby Brooks) on the plain avatar until they sign up.</li>
-        <li>The trigger's label says where it goes and whose it is: "Your profile, Grace Okonkwo".</li>
+        <li>The trigger's label says what it opens and whose it is: "Account menu for Grace Okonkwo".</li>
       </ul>
     </section>
 
@@ -245,20 +251,21 @@
 
     <section class="ds-section" id="code"><h2><a href="#code">Code</a></h2>
       <pre><code>&lt;!-- Top bar --&gt;
-&lt;a class="avatar-trigger" href="/profile/me" aria-label="Your profile, Grace Okonkwo"&gt;
+&lt;button class="avatar-trigger" type="button" aria-haspopup="menu" aria-label="Account menu for Grace Okonkwo"&gt;
   &lt;span class="avatar avatar--sm avatar--sky" aria-hidden="true"&gt;GO&lt;/span&gt;
-&lt;/a&gt;
+&lt;/button&gt;
 
 &lt;!-- Profile head --&gt;
 &lt;span class="avatar avatar--xl avatar--mint" aria-hidden="true"&gt;SM&lt;/span&gt;
 
 &lt;!-- Angular (components library) --&gt;
-&lt;ft-avatar [name]="member.displayName" [color]="member.color" size="sm" /&gt;</code></pre>
+&lt;ft-avatar [name]="member.displayName" [color]="member.color" size="sm" /&gt;
+&lt;ft-avatar [name]="member.name" [src]="member.photoUrl" size="sm" /&gt;</code></pre>
       <table class="ds-table"><thead><tr><th scope="col">Class / attribute</th><th scope="col">Effect</th></tr></thead><tbody>
         <tr><td><code>.avatar</code></td><td>Medium circle, accent tint, centred initials.</td></tr>
         <tr><td><code>.avatar--sm</code> <code>.avatar--lg</code> <code>.avatar--xl</code></td><td>Small, large or extra large; omit for medium.</td></tr>
         <tr><td><code>.avatar--sky</code> <code>--sun</code> <code>--lilac</code> <code>--sage</code> <code>--rose</code> <code>--mint</code> <code>--peach</code></td><td>Person colour with dark initials.</td></tr>
-        <tr><td><code>a.avatar-trigger</code></td><td>Round, unstyled link around a small avatar; hover ring on the avatar.</td></tr>
+        <tr><td><code>button.avatar-trigger</code></td><td>Round, unstyled button around a small avatar; hover ring on the avatar.</td></tr>
         <tr><td><code>.skeleton.avatar</code></td><td>Loading placeholder of the same size.</td></tr>
         <tr><td><code>data-state="hover|focus"</code></td><td>Documentation only.</td></tr>
       </tbody></table>
@@ -273,7 +280,7 @@
         <li><a href="../../mocks/pages/contacts/default.html">pages/contacts/default</a> (plain avatars for private contacts)</li>
         <li><a href="../../mocks/pages/team/default.html">pages/team/default</a> and <a href="../../mocks/pages/admin-users/default.html">pages/admin-users/default</a> (colours)</li>
       </ul>
-      <p>Drift: colours are hand-picked per mock rather than stored per member, and two people share some colours (Marcus Lee and Tomás Ortega are both sun). One mock renders a plain avatar with no initials. The profile head card uses an inline <code>style="margin-top: var(--space-6);"</code>, and admin table cells wrap the avatar in an inline-styled cluster (<code>style="gap: var(--space-2);"</code>).</p>
+      <p>Drift: one mock renders a plain avatar with no initials. The profile head card uses an inline <code>style="margin-top: var(--space-6);"</code>, and admin table cells wrap the avatar in an inline-styled cluster (<code>style="gap: var(--space-2);"</code>).</p>
     </section>
 
     <footer class="ds-footer"><span>FaithTech Community design system · extracted from <a href="../../mocks/index.html">docs/mocks</a> on 2026-10-21</span><a href="#top">Back to top</a></footer>

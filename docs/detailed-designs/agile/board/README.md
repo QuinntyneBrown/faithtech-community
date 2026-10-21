@@ -16,7 +16,7 @@ The live transport for board updates is not fixed by the specifications; `decisi
 
 ## Description
 
-- **`TeamBoardPage`** — renders the three columns and cards, supports drag and keyboard moves, and switches to tabs at XS (mock `docs/mocks/pages/team-board`). Column and card UI comes from the `components` library Kanban column and card components.
+- **`TeamBoardPage`** — renders the three columns and cards, supports drag and keyboard moves, and switches to tabs at XS (mock `docs/mocks/pages/team-board`). The keyboard path is each card's Move button, which opens a CDK dialog with a To Do / In Progress / Done radio group (mock `docs/mocks/dialogs/move-story`). Column and card UI comes from the `components` library Kanban column and card components.
 - **`AgileService`** — `api` contract (`AGILE_SERVICE`, `HttpAgileService`) with `getBoard` and `moveCard`.
 - **`AgileLiveService`** — `api` contract for live updates (`AGILE_LIVE_SERVICE`), implemented over SignalR; name and transport `<TO SUPPLY>`.
 - **`BoardEndpoints`** — minimal API mapping for `GET /workspaces/{id}/board` and `PUT /items/{id}/status`.

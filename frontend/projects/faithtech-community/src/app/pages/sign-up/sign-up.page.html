@@ -29,11 +29,11 @@
               </ft-alert>
             } @else if (errors().length) {
               <ft-alert status="danger" [heading]="summaryHeading()">
-                <ul>
+                <ol>
                   @for (e of errors(); track e.field) {
                     <li>{{ e.message }}</li>
                   }
-                </ul>
+                </ol>
               </ft-alert>
             }
             <ft-form-field label="Full name" [error]="error('name')">

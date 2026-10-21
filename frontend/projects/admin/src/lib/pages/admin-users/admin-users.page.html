@@ -1,6 +1,6 @@
 <ng-template #nameCell let-user>
   <ft-cluster gap="2">
-    <ft-avatar size="sm" [name]="user.name" />
+    <ft-avatar size="sm" [name]="user.name" [color]="avatarColor(user)" />
     <ft-link [href]="'/people/' + user.id">{{ user.name }}</ft-link>
   </ft-cluster>
 </ng-template>
@@ -20,15 +20,13 @@
   @if (user.status === 'Suspended') {
     <ft-button
       variant="ghost"
-      [label]="'Reinstate ' + user.name"
+      [object]="user.name"
       [loading]="working() === user.id"
       (click)="reinstate(user)"
       >Reinstate</ft-button
     >
   } @else {
-    <ft-button variant="ghost" [label]="'Suspend ' + user.name" (click)="suspend(user)"
-      >Suspend</ft-button
-    >
+    <ft-button variant="ghost" [object]="user.name" (click)="suspend(user)">Suspend</ft-button>
   }
 </ng-template>
 

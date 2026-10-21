@@ -221,7 +221,7 @@ function blank(value: string): string | null {
   return value.trim() || null;
 }
 
-/** The member named by a 409 from create: the email belongs to them (ADR 0007). */
+/** The member named by a 409 from create: the email belongs to them (ADR 0009). */
 function memberName(error: unknown): string | null {
   if (!(error instanceof HttpErrorResponse) || error.status !== 409) return null;
   const name = (error.error as { memberName?: unknown } | null)?.memberName;

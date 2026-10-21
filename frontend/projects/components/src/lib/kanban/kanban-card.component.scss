@@ -45,6 +45,7 @@
 
 :host(.cdk-drag-preview) .ft-kanban__card {
   box-shadow: var(--shadow-3);
+  outline: var(--focus-ring-width) solid var(--color-focus-ring);
   cursor: grabbing;
 }
 

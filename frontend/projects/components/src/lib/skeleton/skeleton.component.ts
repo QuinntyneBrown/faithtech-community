@@ -1,6 +1,7 @@
 import { ChangeDetectionStrategy, Component, input } from '@angular/core';
 
-export type SkeletonShape = 'text' | 'title' | 'rect' | 'avatar';
+/** `date-badge` is the square placeholder for an event row's date badge. */
+export type SkeletonShape = 'text' | 'title' | 'rect' | 'square' | 'avatar' | 'date-badge';
 export type SkeletonAvatarSize = 'sm' | 'md' | 'lg' | 'xl';
 
 /**

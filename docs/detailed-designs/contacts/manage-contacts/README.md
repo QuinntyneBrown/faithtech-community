@@ -11,7 +11,7 @@ This feature covers listing, creating, editing and searching contacts, and the v
 The slice runs from the contacts pages in the web app to the `Contacts` and `ContactNotes` tables in the Community database.
 
 - **`ContactsPage`** — page in the `contacts` feature library at `/contacts`. It shows the caller's active contacts as a list of cards at every width (avatar, name, organisation and city, and a Private, Signed up or Member badge), with a search field, an alert for the first contact who signed up, an empty state that invites the lead to add one, and a forbidden state when the API answers `403`. It links to Add contact (`/contacts/new`) and Archived contacts (`/contacts/archived`).
-- **`ContactPage`** — detail page at `/contacts/:id`. It loads the contact and its notes together and shows a not-found state on `404`. When `isOwn` is false (a System Admin opening another lead's contact) the subtitle says the access is recorded.
+- **`ContactPage`** — detail page at `/contacts/:id`. It loads the contact and its notes together and shows a not-found state on `404`. When `isOwn` is false (a System Admin opening another lead's contact) the subtitle says the access is recorded. Its Details card is an `ft-description-list`; the email is a `mailto:` link, and an optional fact with no value (email, phone, organisation, city) keeps its row and reads "Not added" through `ft-description-list-item [missing]` (mock `pages/contact/missing`). While the contact loads, the card keeps its terms and shows skeleton values through `ft-description-list [loading]` (mock `pages/contact/loading`).
 - **`ContactFormPage`** — create and edit screen at `/contacts/new` and `/contacts/:id/edit` with name (required), email, phone, organisation, city and a first note (create only). Client checks mirror the validator; inline errors, an error summary and focus on the first invalid field follow both client and `400` errors. A `409` that carries `memberName` turns the save into "Save and link": the next save sends `linkToMember: true`, and changing the email clears it. Editing navigates to this screen rather than editing inline.
 - **`ContactsService`** / **`CONTACTS_SERVICE`** / **`HttpContactsService`** — API client contract, injection token and HTTP implementation in `api/src/lib/contacts`. `list(term)`, `get(id)`, `create(contact)` and `update(id, contact)` call `GET /api/contacts?q=`, `GET /api/contacts/{id}`, `POST /api/contacts` and `PUT /api/contacts/{id}`.
 - **`ContactsEndpoints`** — minimal API mapping in `FaithTech.Community.Api`; it holds no business logic. The list answers `200` or `403`; create answers `201`, `400`, `403` or `409` with `memberName`; get answers `200` or `404`; update answers `200`, `400` or `404`. Request bodies are validated by the `Validate<T>()` endpoint filter before the handler runs.
@@ -26,7 +26,7 @@ The slice runs from the contacts pages in the web app to the `Contacts` and `Con
 - **`Contact`** — Domain entity owned by `OwnerId`, with `Name` (required), `Email`, `Phone`, `Organization` and `City`; `Update(...)` edits the details but never the owner. `CommunityDbContext` maps it to `Contacts` with an index on owner and archive time.
 - **List and search** — `ManageContactsHandler.ListAsync` filters, case-insensitively, on name, email, organisation or note text with an `OwnerId = caller` and `ArchivedAtUtc IS NULL` predicate in the database query, meeting the 500 ms target. Global search, when built, must apply the same owner predicate.
 
-Which lead roles may own contacts: any lead role (City, Event, Create or Communications Lead) or System Admin; everyone else gets `403` for the list and create, and `404` for a single contact ([ADR 0007](../../../adr/0007-contacts-and-partners-access-and-open-questions.md)).
+Which lead roles may own contacts: any lead role (City, Event, Create or Communications Lead) or System Admin; everyone else gets `403` for the list and create, and `404` for a single contact ([ADR 0009](../../../adr/0009-contacts-and-partners-access-and-open-questions.md)).
 
 ## Requirements
 
@@ -105,7 +105,7 @@ Decisions recorded while building the Domain layer (`FaithTech.Community.Domain`
 - `L2-013` adds a city to a contact; `Contact.City` is added to match. Resolved.
 - Domain rule violations throw `InvalidOperationException` (a broken rule) or `ArgumentException` (invalid input); there is no shared domain exception type. Handlers check permissions and preconditions first and map any remaining violation to a `400` or `409` result.
 
-Decisions recorded while building the feature ([ADR 0007](../../../adr/0007-contacts-and-partners-access-and-open-questions.md)):
+Decisions recorded while building the feature ([ADR 0009](../../../adr/0009-contacts-and-partners-access-and-open-questions.md)):
 
 - The contacts list is a list of cards at every width, as the mock shows, rather than a table that turns into cards at XS (`L2-013` AC5).
 - The list and search return only the caller's own contacts, System Admin included; every System Admin access to another lead's contact is audited.

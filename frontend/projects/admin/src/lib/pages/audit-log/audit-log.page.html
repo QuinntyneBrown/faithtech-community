@@ -18,14 +18,14 @@
     <ft-tab label="Roles" href="/people" />
   </ft-tabs>
   <div class="filters">
-    <ft-form-field label="Action">
+    <ft-form-field label="Action" width="md">
       <ft-select [options]="categories" [formControl]="category" />
     </ft-form-field>
   </div>
 
   @switch (state()) {
     @case ('loading') {
-      <ft-list-skeleton label="Loading audit log" />
+      <ft-table caption="Audit log" [columns]="columns" [loading]="true" />
     }
     @case ('error') {
       <ft-empty-state

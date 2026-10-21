@@ -129,13 +129,13 @@
       <div class="ds-example">
         <div class="ds-example__canvas ds-example__canvas--stack" style="max-width: 28rem;">
           <div class="field"><label class="field__label" for="vf-name">Name</label><input class="input" id="vf-name" name="vf-name" type="text" value="Kwame Asante" required></div>
-          <div class="field"><label class="field__label" for="vf-phone">Phone <span class="text-muted">(optional)</span></label><input class="input" id="vf-phone" name="vf-phone" type="tel"></div>
-          <div class="field"><label class="field__label" for="vf-cap">Capacity <span class="text-muted">(optional)</span></label><input class="input" id="vf-cap" name="vf-cap" type="number" value="60" aria-describedby="vf-cap-help"><div class="field__help" id="vf-cap-help">Leave empty for no limit.</div></div>
+          <div class="field"><label class="field__label" for="vf-phone">Phone <span class="optional">(optional)</span></label><input class="input" id="vf-phone" name="vf-phone" type="tel"></div>
+          <div class="field"><label class="field__label" for="vf-cap">Capacity <span class="optional">(optional)</span></label><input class="input" id="vf-cap" name="vf-cap" type="number" value="60" aria-describedby="vf-cap-help"><div class="field__help" id="vf-cap-help">Leave empty for no limit.</div></div>
         </div>
         <div class="ds-example__caption"><span>Required with no marker, optional with "(optional)" in the label, and a field with help.</span></div>
         <details class="ds-example__code"><summary>HTML</summary><pre><code>&lt;div class="field"&gt;&lt;label class="field__label" for="vf-name"&gt;Name&lt;/label&gt;&lt;input class="input" id="vf-name" name="vf-name" type="text" value="Kwame Asante" required&gt;&lt;/div&gt;
-          &lt;div class="field"&gt;&lt;label class="field__label" for="vf-phone"&gt;Phone &lt;span class="text-muted"&gt;(optional)&lt;/span&gt;&lt;/label&gt;&lt;input class="input" id="vf-phone" name="vf-phone" type="tel"&gt;&lt;/div&gt;
-          &lt;div class="field"&gt;&lt;label class="field__label" for="vf-cap"&gt;Capacity &lt;span class="text-muted"&gt;(optional)&lt;/span&gt;&lt;/label&gt;&lt;input class="input" id="vf-cap" name="vf-cap" type="number" value="60" aria-describedby="vf-cap-help"&gt;&lt;div class="field__help" id="vf-cap-help"&gt;Leave empty for no limit.&lt;/div&gt;&lt;/div&gt;</code></pre></details>
+          &lt;div class="field"&gt;&lt;label class="field__label" for="vf-phone"&gt;Phone &lt;span class="optional"&gt;(optional)&lt;/span&gt;&lt;/label&gt;&lt;input class="input" id="vf-phone" name="vf-phone" type="tel"&gt;&lt;/div&gt;
+          &lt;div class="field"&gt;&lt;label class="field__label" for="vf-cap"&gt;Capacity &lt;span class="optional"&gt;(optional)&lt;/span&gt;&lt;/label&gt;&lt;input class="input" id="vf-cap" name="vf-cap" type="number" value="60" aria-describedby="vf-cap-help"&gt;&lt;div class="field__help" id="vf-cap-help"&gt;Leave empty for no limit.&lt;/div&gt;&lt;/div&gt;</code></pre></details>
       </div>
       <div class="ds-example">
         <div class="ds-example__canvas ds-example__canvas--stack" style="max-width: 28rem;">
@@ -158,7 +158,7 @@
         <thead><tr><th scope="col">State</th><th scope="col">Example</th></tr></thead>
         <tbody>
           <tr><th scope="row">Default</th><td style="min-width: 18rem;"><div class="field"><label class="field__label" for="sf-1">Venue address</label><input class="input" id="sf-1" name="sf-1" type="text" value="Kestrel Labs, 220 King St W"></div></td></tr>
-          <tr><th scope="row">With help</th><td style="min-width: 18rem;"><div class="field"><label class="field__label" for="sf-2">New password <span class="text-muted">(optional)</span></label><input class="input" id="sf-2" name="sf-2" type="password" aria-describedby="sf-2-help"><div class="field__help" id="sf-2-help">At least 12 characters.</div></div></td></tr>
+          <tr><th scope="row">With help</th><td style="min-width: 18rem;"><div class="field"><label class="field__label" for="sf-2">New password <span class="optional">(optional)</span></label><input class="input" id="sf-2" name="sf-2" type="password" aria-describedby="sf-2-help"><div class="field__help" id="sf-2-help">At least 12 characters.</div></div></td></tr>
           <tr><th scope="row">Invalid</th><td style="min-width: 18rem;"><div class="field"><label class="field__label" for="sf-3">Title</label><input class="input" id="sf-3" name="sf-3" type="text" required aria-invalid="true" aria-describedby="sf-3-error"><div class="field__error" id="sf-3-error">Give the event a title people will recognise.</div></div></td></tr>
           <tr><th scope="row">Read-only</th><td style="min-width: 18rem;"><div class="field"><label class="field__label" for="sf-4">Email</label><input class="input" id="sf-4" name="sf-4" type="email" value="ruth.alvarez@example.org" readonly aria-describedby="sf-4-help"><div class="field__help" id="sf-4-help">The invite was sent to this address.</div></div></td></tr>
           <tr><th scope="row">Disabled</th><td style="min-width: 18rem;"><div class="field"><label class="field__label" for="sf-5">City</label><select class="select" id="sf-5" name="sf-5" disabled><option selected>Toronto</option></select></div></td></tr>
@@ -172,7 +172,7 @@
       <ul>
         <li><b>Invalid</b> sets <code>aria-invalid="true"</code> on the control, adds <code>.field__error</code> and points <code>aria-describedby</code> at it. If the field also has help, the help stays and the error is added below it, and <code>aria-describedby</code> lists both (sign up: "At least 12 characters." then "Use at least 12 characters. A short phrase is easiest to remember.").</li>
         <li><b>Read-only</b> is used once: the invite email on Accept invite, which the person cannot change.</li>
-        <li><b>Disabled</b> is not used in the mocks; it is shown for completeness. Prefer leaving a field out.</li>
+        <li><b>Disabled</b> is deliberately absent from the mocks: a field the person cannot use is left out, and while a form submits its fields stay editable. The state exists so a control disabled through Angular forms still reads as unavailable (<code>--color-bg-subtle</code>, <code>--color-fg-disabled</code>).</li>
         <li>Errors appear on submit, never while typing. A form with errors also shows the <a href="form-layout.html">error summary</a>.</li>
       </ul>
     </section>
@@ -200,7 +200,7 @@
       <h3>Focus</h3>
       <p>The focus ring is drawn by the control. After a failed submit, focus moves to the error summary, whose links move focus to each field.</p>
       <h3>Labelling</h3>
-      <p>Every control has a visible label; placeholders are never labels. "(optional)" is part of the label text, so it is announced. A visually hidden legend is allowed only where a heading already names the group (event form "Visibility").</p>
+      <p>Every control has a visible label; placeholders are never labels. "(optional)" is part of the label text, so it is announced. Every legend is visible and uses <code>.field__label</code>, even under a section heading: the event form shows "Visibility" below "Who can see and RSVP".</p>
       <h3>Contrast</h3>
       <div class="ds-example__canvas ds-example__canvas--stack" style="padding: 0; gap: var(--space-2);"><div class="ds-pair"><span>Label on surface</span><span class="ds-pair__ratio" data-contrast="--color-fg-default|--color-bg-surface" data-min="4.5"></span></div><div class="ds-pair"><span>Help on surface</span><span class="ds-pair__ratio" data-contrast="--color-fg-muted|--color-bg-surface" data-min="4.5"></span></div><div class="ds-pair"><span>Error on surface</span><span class="ds-pair__ratio" data-contrast="--color-danger-fg|--color-bg-surface" data-min="4.5"></span></div><div class="ds-pair"><span>Help on page</span><span class="ds-pair__ratio" data-contrast="--color-fg-muted|--color-bg-page" data-min="4.5"></span></div><div class="ds-pair"><span>Error on page</span><span class="ds-pair__ratio" data-contrast="--color-danger-fg|--color-bg-page" data-min="4.5"></span></div></div>
       <p>The error is not shown by colour alone: it has a warning sign, text, and a thicker red border on the control.</p>
@@ -251,7 +251,7 @@
   &lt;div class="field__error" id="ef-venue-error"&gt;Enter a venue address, or choose Online.&lt;/div&gt;
 &lt;/div&gt;
 
-&lt;label class="field__label" for="cf-phone"&gt;Phone &lt;span class="text-muted"&gt;(optional)&lt;/span&gt;&lt;/label&gt;</code></pre>
+&lt;label class="field__label" for="cf-phone"&gt;Phone &lt;span class="optional"&gt;(optional)&lt;/span&gt;&lt;/label&gt;</code></pre>
       <table class="ds-table"><thead><tr><th scope="col">Class / attribute</th><th scope="col">Effect</th></tr></thead><tbody>
         <tr><td><code>.field</code></td><td>Stacks label, control, help and error with <code>--space-1</code>.</td></tr>
         <tr><td><code>.field__label</code></td><td>Label or legend text.</td></tr>
@@ -270,8 +270,7 @@
         <li><a href="../../mocks/pages/sign-up/invalid.html">pages/sign-up/invalid</a> (help and error together)</li>
         <li><a href="../../mocks/pages/accept-invite/default.html">pages/accept-invite/default</a> (read-only email)</li>
         <li><a href="../../mocks/dialogs/add-role/invalid.html">dialogs/add-role/invalid</a> (fieldset with <code>aria-describedby</code> error)</li>
-      </ul>
-      <p>Drift noticed in the mocks: the optional marker is written as <code>span.text-muted</code> although components.css defines <code>.field__label .optional</code>, which no mock uses; the visually hidden "Visibility" legend on the event form has no visible heading naming the group; no mock shows a disabled field.</p>
+      </ul>
     </section>
 
     <footer class="ds-footer"><span>FaithTech Community design system · extracted from <a href="../../mocks/index.html">docs/mocks</a> on 2026-10-21</span><a href="#top">Back to top</a></footer>

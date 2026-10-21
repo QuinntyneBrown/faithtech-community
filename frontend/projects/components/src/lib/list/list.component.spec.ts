@@ -11,6 +11,7 @@ import { ListItemComponent } from './list-item.component';
       <span trailing class="trail">Signed up</span>
     </ft-list-item>
     <ft-list-item label="nate@example.org" />
+    <ft-list-item label="Grace Okonkwo"><span meta class="role">City Lead</span></ft-list-item>
   </ft-list>`,
 })
 class HostComponent {
@@ -30,7 +31,7 @@ describe('ListComponent', () => {
     expect(list.getAttribute('role')).toBe('list');
     expect(list.getAttribute('aria-label')).toBe('Contacts');
     const items = el.querySelectorAll('ft-list-item');
-    expect(items.length).toBe(2);
+    expect(items.length).toBe(3);
     expect(items[0].getAttribute('role')).toBe('listitem');
   });
 
@@ -63,8 +64,23 @@ describe('ListItemComponent', () => {
     expect(item.querySelector('.ft-list-item__trailing .trail')).not.toBeNull();
   });
 
+  it('projects rich meta, such as role badges, into the meta line', () => {
+    const { el } = setup();
+    const item = el.querySelectorAll('ft-list-item')[2];
+    expect(item.querySelector('.ft-list-item__meta-slot .role')?.textContent).toBe('City Lead');
+  });
+
+  it('marks rows with a title link as interactive so they tint on hover', () => {
+    const { el } = setup();
+    const items = el.querySelectorAll('ft-list-item');
+    expect(items[0].classList.contains('ft-list-item--link')).toBe(true);
+    expect(items[1].classList.contains('ft-list-item--link')).toBe(false);
+  });
+
   it('omits meta when not given', () => {
     const { el } = setup();
-    expect(el.querySelectorAll('ft-list-item')[1].querySelector('.ft-list-item__meta')).toBeNull();
+    const item = el.querySelectorAll('ft-list-item')[1];
+    expect(item.querySelector('.ft-list-item__meta:not(.ft-list-item__meta-slot)')).toBeNull();
+    expect(item.querySelector('.ft-list-item__meta-slot')?.childNodes.length).toBe(0);
   });
 });

@@ -4,13 +4,13 @@ Which `@faithtech-community/components` parts build each screen, and what is bui
 
 **Local UI** is markup a feature library writes itself. It is limited to page composition: headings that belong to the page, sections and the glue between `api` services and components. Anything reusable goes into `components` first (`AGENTS.md`).
 
-Coverage: the profiles screens (`profile`, `edit-profile`, `delete-photo`), the admin screens (`admin-users`, `audit-log`, `add-role`, `remove-role`, `suspend-user`), the invites screens (`invites`, `accept-invite`, `send-invite`), the contacts screens (`contacts`, `contact`, `contact-form`, `archived-contacts`, `add-note`, `archive-contact`, `delete-contact`, `link-contact`) and the partners screens (`partners`, `partner`, `partner-form`, `add-partner`, `move-partner`). Other screens are added here as their features are built.
+Coverage: the profiles screens (`profile`, `edit-profile`, `delete-photo`), the admin screens (`admin-users`, `audit-log`, `add-role`, `remove-role`, `suspend-user`), the invites screens (`invites`, `accept-invite`, `send-invite`), the team list (`team`), the contacts screens (`contacts`, `contact`, `contact-form`, `archived-contacts`, `add-note`, `archive-contact`, `delete-contact`, `link-contact`) and the partners screens (`partners`, `partner`, `partner-form`, `add-partner`, `move-partner`). Other screens are added here as their features are built.
 
 ## Shell
 
 | Part | Library | Local |
 |---|---|---|
-| App shell around `/people/**`, `/admin/**`, `/invites`, `/contacts/**`, `/partners/**` | `TopBarComponent` with an `AvatarComponent` link "Your profile, {name}" to `/people/me`, `NavDrawerComponent`, `TabBarComponent`, `SkipLinkComponent`, `ToastRegionComponent` (in `AppShellComponent`). System Admins get an **Admin** link (secondary) to `/admin`. | — |
+| App shell around `/people/**`, `/team`, `/admin/**`, `/invites`, `/contacts/**`, `/partners/**` | `TopBarComponent` with the account menu (`MenuComponent` "Account menu for {name}" whose face is an `AvatarComponent`: *Your profile* → `/people/me`, *Settings* → `/settings`, *Sign out*), `NavDrawerComponent`, `TabBarComponent`, `SkipLinkComponent`, `ToastRegionComponent` (in `AppShellComponent`). System Admins get an **Admin** link (secondary) to `/admin`. | — |
 
 ## Pages
 
@@ -36,7 +36,7 @@ Coverage: the profiles screens (`profile`, `edit-profile`, `delete-photo`), the 
 
 ### Audit log — `/admin/audit-log` (`pages/audit-log`: default, loading, empty, error, no-results)
 
-- Library: `PageHeaderComponent` with *Export CSV* (`ButtonComponent`, `IconComponent` `export`), `TabsComponent` + `TabComponent`, `FormFieldComponent` + `SelectComponent` "Action" (all, role changes, suspensions, private contact access, deletions), `TableComponent` (When monospaced, Who, What), `ListSkeletonComponent`, `EmptyStateComponent` (empty; no-results "No {category} in the last 90 days" with *Show all actions*; error; forbidden as on admin users), `ButtonComponent` *Show older entries* when more than 50.
+- Library: `PageHeaderComponent` with *Export CSV* (`ButtonComponent`, `IconComponent` `export`), `TabsComponent` + `TabComponent`, `FormFieldComponent` + `SelectComponent` "Action" (all, role changes, suspensions, private contact access, deletions), `TableComponent` (When monospaced, Who, What; `loading` shows skeleton rows under the headers), `EmptyStateComponent` (empty; no-results "No {category} in the last 90 days" with *Show all actions*; error; forbidden as on admin users), `ButtonComponent` *Show older entries* when more than 50.
 - Local: the CSV download glue (object URL and a temporary link).
 
 ### Invites — `/invites` (`pages/invites`: default, loading, empty, error)
@@ -50,10 +50,15 @@ Coverage: the profiles screens (`profile`, `edit-profile`, `delete-photo`), the 
 - Library: `AuthLayoutComponent`, `CardComponent`, `StackComponent`, `ClusterComponent` + `AvatarComponent` + `BadgeComponent` `role` (the invitation line), `AlertComponent` (error summary "Fix N things to accept the invite"; unreachable), `FormFieldComponent` + `TextFieldComponent` (Full name; Email read-only with help; Create a password with `reveal`), `FormErrorFocusDirective`, `ButtonComponent` (*Accept and join*, *Accept invite*, *Sign in to accept*, *Create an account*, *Go home*), `EmptyStateComponent` error variant with `headingLevel` 1 (expired, used, withdrawn, unknown link, wrong account), `SkeletonComponent` while the token is checked.
 - Local: the `<form>` element and the `h1` "You’re invited".
 
+### Team — `/team` (`pages/team`: default, member, loading, empty, no-results, error)
+
+- Library: `PageHeaderComponent` ("Team", "Everyone with a lead or volunteer role") with *Invite someone* (`ButtonComponent` `primary` link to `/invites`, leads and System Admins only; `member` hides it), `ClusterComponent` of `ChipComponent` toggles (All, Leads, Volunteers; one pressed) and `FormFieldComponent` + `SelectComponent` (City: All cities and every team member's home city), `CardComponent` `flush` + `ListComponent` + `ListItemComponent` (name linking to `/people/:id`, leading `AvatarComponent` `sm` with the featured photo through `src`, `[meta]` slot holding a `BadgeComponent` `role` per role), `ListSkeletonComponent` (5 rows), `EmptyStateComponent` (empty with *Invite someone* for leads; no-results "No {volunteers|leads|team members} in {city} yet" with *Show everyone*; error with *Try again*).
+- Local: none beyond composition.
+
 ### Contacts — `/contacts` (`pages/contacts`: default, loading, empty, error, no-results, forbidden)
 
 - Library: `PageHeaderComponent` ("Private to you · {n} contacts") with ghost *Archived* and primary *Add contact* (`ButtonComponent` `href`, `IconComponent` `archive`, `add`), `AlertComponent` info ("{name} just joined FaithTech" with *Review*), `TextFieldComponent` `type="search"` labelled "Search contacts", `CardComponent` `flush` + `ListComponent` + `ListItemComponent` (link to the contact, "{organisation} · {city}" meta, leading `AvatarComponent`, trailing `BadgeComponent` — Private `neutral` with `locked` icon, Signed up `success`, Member `info`), `ListSkeletonComponent`, `EmptyStateComponent` (empty with *Add your first contact*; no-results "No contacts match “{term}”" with *View archived contacts*; error with *Try again*; forbidden "Contacts are private to each lead" with *Back to home*).
-- The list is cards at every width; there is no table (ADR 0007).
+- The list is cards at every width; there is no table (ADR 0009).
 - Local: the search `<form role="search">`; the visually hidden `h1` of the forbidden state.
 
 ### Contact — `/contacts/:id` (`pages/contact`: default, loading, error, match, linked)
@@ -112,5 +117,6 @@ None for profiles. Admin and invites use `ToastService` success toasts on the in
 ## Summary of local UI to build
 
 1. Admin and invites added to the library rather than building locally: `RoleDialogComponent` (shared by `profiles` and later `admin` screens, ADR 0005), `ListSkeletonComponent` (loading lists and tables), `EmptyStateComponent` `headingLevel` 1 (full-page errors on the accept-invite page), `TableComponent` now contains its visually hidden headers so tables scroll inside their frame on phones, and `formatDay` / `formatTimestamp` give the mocks' date formats from the browser's `Intl` (keeping Angular's locale data out of the initial bundle).
-2. Nothing reusable: every profiles screen is composed from the library. `PictureListComponent` gained a per-photo `pending` flag for photos chosen but not saved yet (design system: `components/picture-list.html`).
-3. Contacts and partners added to the library rather than building locally: `PageHeaderComponent` gained an `ftPageHeaderSubtitle` slot for rich subtitles such as the partner's stage badge. Everything else is composed from existing components; the add-partner dialog and the partner form share their field rules in the feature's `partner-fields.ts`.
+2. Team added to the library: `AvatarComponent` `src` shows a member's featured photo over the initials (ADR 0007), and `ListItemComponent` gained a `[meta]` slot for the role-badge meta line (`components/list.html`).
+3. Nothing reusable: every profiles screen is composed from the library. `PictureListComponent` gained a per-photo `pending` flag for photos chosen but not saved yet (design system: `components/picture-list.html`).
+4. Contacts and partners added to the library rather than building locally: `PageHeaderComponent` gained an `ftPageHeaderSubtitle` slot for rich subtitles such as the partner's stage badge. Everything else is composed from existing components; the add-partner dialog and the partner form share their field rules in the feature's `partner-fields.ts`.

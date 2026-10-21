@@ -117,7 +117,7 @@
         <ol class="ds-anatomy__list">
           <li><div><b>Leading</b><small>A small <a href="avatar.html">avatar</a> for a person, a <code>sticker</code> icon for an invite, or a date badge for an event.</small></div></li>
           <li><div><b>Title</b> (<code>.list__title</code>)<small>The name, as a link when the row opens a detail page.</small></div></li>
-          <li><div><b>Meta</b> (<code>.list__meta</code>)<small>One muted line of context, parts joined with " · ". <code>.list__meta.cluster</code> holds role badges.</small></div></li>
+          <li><div><b>Meta</b> (<code>.list__meta</code>)<small>One muted line of context, parts joined with " · ". <code>.list__meta.cluster.cluster--tight</code> holds role badges 4px apart.</small></div></li>
           <li><div><b>Trailing</b> (optional)<small>A status <a href="badge.html">badge</a> or a button.</small></div></li>
         </ol>
       </div>
@@ -133,9 +133,9 @@
 
       <h3>Role rows (team)</h3>
       <div class="ds-example">
-        <div class="ds-example__canvas ds-example__canvas--stack"><ul class="list card card--flush"><li class="list__item"><span class="avatar avatar--sm avatar--sky" aria-hidden="true">GO</span><div class="list__body"><a class="list__title" href="../../mocks/pages/profile/default.html">Grace Okonkwo</a><div class="list__meta cluster"><span class="badge badge--role">City Lead</span></div></div></li><li class="list__item"><span class="avatar avatar--sm avatar--sun" aria-hidden="true">ML</span><div class="list__body"><a class="list__title" href="../../mocks/pages/profile/default.html">Marcus Lee</a><div class="list__meta cluster"><span class="badge badge--role">Event Lead</span></div></div></li><li class="list__item"><span class="avatar avatar--sm avatar--rose" aria-hidden="true">RA</span><div class="list__body"><a class="list__title" href="../../mocks/pages/profile/default.html">Ruth Alvarez</a><div class="list__meta cluster"><span class="badge badge--role">Volunteer</span></div></div></li></ul></div>
+        <div class="ds-example__canvas ds-example__canvas--stack"><ul class="list card card--flush"><li class="list__item"><span class="avatar avatar--sm avatar--sky" aria-hidden="true">GO</span><div class="list__body"><a class="list__title" href="../../mocks/pages/profile/default.html">Grace Okonkwo</a><div class="list__meta cluster cluster--tight"><span class="badge badge--role">City Lead</span></div></div></li><li class="list__item"><span class="avatar avatar--sm avatar--sun" aria-hidden="true">ML</span><div class="list__body"><a class="list__title" href="../../mocks/pages/profile/default.html">Marcus Lee</a><div class="list__meta cluster cluster--tight"><span class="badge badge--role">Event Lead</span></div></div></li><li class="list__item"><span class="avatar avatar--sm avatar--rose" aria-hidden="true">RA</span><div class="list__body"><a class="list__title" href="../../mocks/pages/profile/default.html">Ruth Alvarez</a><div class="list__meta cluster cluster--tight"><span class="badge badge--role">Volunteer</span></div></div></li></ul></div>
         <div class="ds-example__caption"><span>From Team: the meta line is a cluster of role badges.</span></div>
-        <details class="ds-example__code"><summary>HTML</summary><pre><code>&lt;ul class="list card card--flush"&gt;&lt;li class="list__item"&gt;&lt;span class="avatar avatar--sm avatar--sky" aria-hidden="true"&gt;GO&lt;/span&gt;&lt;div class="list__body"&gt;&lt;a class="list__title" href="../../mocks/pages/profile/default.html"&gt;Grace Okonkwo&lt;/a&gt;&lt;div class="list__meta cluster"&gt;&lt;span class="badge badge--role"&gt;City Lead&lt;/span&gt;&lt;/div&gt;&lt;/div&gt;&lt;/li&gt;&lt;li class="list__item"&gt;&lt;span class="avatar avatar--sm avatar--sun" aria-hidden="true"&gt;ML&lt;/span&gt;&lt;div class="list__body"&gt;&lt;a class="list__title" href="../../mocks/pages/profile/default.html"&gt;Marcus Lee&lt;/a&gt;&lt;div class="list__meta cluster"&gt;&lt;span class="badge badge--role"&gt;Event Lead&lt;/span&gt;&lt;/div&gt;&lt;/div&gt;&lt;/li&gt;&lt;li class="list__item"&gt;&lt;span class="avatar avatar--sm avatar--rose" aria-hidden="true"&gt;RA&lt;/span&gt;&lt;div class="list__body"&gt;&lt;a class="list__title" href="../../mocks/pages/profile/default.html"&gt;Ruth Alvarez&lt;/a&gt;&lt;div class="list__meta cluster"&gt;&lt;span class="badge badge--role"&gt;Volunteer&lt;/span&gt;&lt;/div&gt;&lt;/div&gt;&lt;/li&gt;&lt;/ul&gt;</code></pre></details>
+        <details class="ds-example__code"><summary>HTML</summary><pre><code>&lt;ul class="list card card--flush"&gt;&lt;li class="list__item"&gt;&lt;span class="avatar avatar--sm avatar--sky" aria-hidden="true"&gt;GO&lt;/span&gt;&lt;div class="list__body"&gt;&lt;a class="list__title" href="../../mocks/pages/profile/default.html"&gt;Grace Okonkwo&lt;/a&gt;&lt;div class="list__meta cluster cluster--tight"&gt;&lt;span class="badge badge--role"&gt;City Lead&lt;/span&gt;&lt;/div&gt;&lt;/div&gt;&lt;/li&gt;&lt;li class="list__item"&gt;&lt;span class="avatar avatar--sm avatar--sun" aria-hidden="true"&gt;ML&lt;/span&gt;&lt;div class="list__body"&gt;&lt;a class="list__title" href="../../mocks/pages/profile/default.html"&gt;Marcus Lee&lt;/a&gt;&lt;div class="list__meta cluster cluster--tight"&gt;&lt;span class="badge badge--role"&gt;Event Lead&lt;/span&gt;&lt;/div&gt;&lt;/div&gt;&lt;/li&gt;&lt;li class="list__item"&gt;&lt;span class="avatar avatar--sm avatar--rose" aria-hidden="true"&gt;RA&lt;/span&gt;&lt;div class="list__body"&gt;&lt;a class="list__title" href="../../mocks/pages/profile/default.html"&gt;Ruth Alvarez&lt;/a&gt;&lt;div class="list__meta cluster cluster--tight"&gt;&lt;span class="badge badge--role"&gt;Volunteer&lt;/span&gt;&lt;/div&gt;&lt;/div&gt;&lt;/li&gt;&lt;/ul&gt;</code></pre></details>
       </div>
 
       <h3>Icon rows (invites)</h3>
@@ -173,6 +173,8 @@
       <ul>
         <li><b>Loading</b>: skeleton rows of the same shape, the container marked <code>aria-busy="true"</code> with a label such as "Loading contacts".</li>
         <li><b>Empty</b>, <b>no results</b> and <b>error</b> replace the list with an <a href="empty-state.html">empty state</a> ("No contacts yet", "No contacts match “harbour”", "We couldn’t load your contacts").</li>
+        <li><b>Hover</b>: a row whose title is a link tints to <code>--color-bg-subtle</code>; rows without a link do not change.</li>
+        <li><b>Focus</b>: the row is never focusable. Focus lands on the title link (or a trailing button), which shows the shared focus ring; the row does not tint on focus.</li>
         <li>Rows have no selected or disabled state; archived contacts move to their own list.</li>
       </ul>
       <h3>Both themes</h3>
@@ -187,7 +189,7 @@
     </section>
 
     <section class="ds-section" id="theming"><h2><a href="#theming">Theming</a></h2>
-      <p>Rows sit on the card surface; dividers use <code>--color-border-default</code>, the meta line <code>--color-fg-muted</code>. Both follow the theme with no list-specific tokens.</p>
+      <p>Rows sit on the card surface; dividers use <code>--color-border-default</code>, the meta line <code>--color-fg-muted</code>, a hovered link row <code>--color-bg-subtle</code>. Both follow the theme with no list-specific tokens.</p>
     </section>
 
     <section class="ds-section" id="accessibility"><h2><a href="#accessibility">Accessibility</a></h2>
@@ -221,7 +223,7 @@
       <div class="ds-dodont">
         <figure class="ds-do"><div class="ds-example__canvas ds-example__canvas--stack"><ul class="list card card--flush"><li class="list__item"><span class="avatar avatar--sm" aria-hidden="true">KA</span><div class="list__body"><a class="list__title" href="../../mocks/pages/contact/default.html">Kwame Asante</a><div class="list__meta">Pastor at Maple Street Church · interested in hosting</div></div></li></ul></div><figcaption>One link per row, on the name.</figcaption></figure>
         <figure class="ds-dont"><div class="ds-example__canvas ds-example__canvas--stack"><ul class="list card card--flush"><li class="list__item"><span class="avatar avatar--sm" aria-hidden="true">KA</span><div class="list__body"><div class="list__title">Kwame Asante</div><div class="list__meta">Pastor at Maple Street Church</div></div><a class="btn btn--sm" href="../../mocks/pages/contact/default.html">Open</a></li></ul></div><figcaption>A vague "Open" button; the link text must name the contact.</figcaption></figure>
-        <figure class="ds-do"><div class="ds-example__canvas ds-example__canvas--stack"><ul class="list card card--flush"><li class="list__item"><span class="avatar avatar--sm avatar--sky" aria-hidden="true">GO</span><div class="list__body"><a class="list__title" href="../../mocks/pages/profile/default.html">Grace Okonkwo</a><div class="list__meta cluster"><span class="badge badge--role">City Lead</span></div></div></li><li class="list__item"><span class="avatar avatar--sm avatar--sun" aria-hidden="true">ML</span><div class="list__body"><a class="list__title" href="../../mocks/pages/profile/default.html">Marcus Lee</a><div class="list__meta cluster"><span class="badge badge--role">Event Lead</span></div></div></li><li class="list__item"><span class="avatar avatar--sm avatar--rose" aria-hidden="true">RA</span><div class="list__body"><a class="list__title" href="../../mocks/pages/profile/default.html">Ruth Alvarez</a><div class="list__meta cluster"><span class="badge badge--role">Volunteer</span></div></div></li></ul></div><figcaption>Role badges in the meta cluster.</figcaption></figure>
+        <figure class="ds-do"><div class="ds-example__canvas ds-example__canvas--stack"><ul class="list card card--flush"><li class="list__item"><span class="avatar avatar--sm avatar--sky" aria-hidden="true">GO</span><div class="list__body"><a class="list__title" href="../../mocks/pages/profile/default.html">Grace Okonkwo</a><div class="list__meta cluster cluster--tight"><span class="badge badge--role">City Lead</span></div></div></li><li class="list__item"><span class="avatar avatar--sm avatar--sun" aria-hidden="true">ML</span><div class="list__body"><a class="list__title" href="../../mocks/pages/profile/default.html">Marcus Lee</a><div class="list__meta cluster cluster--tight"><span class="badge badge--role">Event Lead</span></div></div></li><li class="list__item"><span class="avatar avatar--sm avatar--rose" aria-hidden="true">RA</span><div class="list__body"><a class="list__title" href="../../mocks/pages/profile/default.html">Ruth Alvarez</a><div class="list__meta cluster cluster--tight"><span class="badge badge--role">Volunteer</span></div></div></li></ul></div><figcaption>Role badges in the meta cluster.</figcaption></figure>
         <figure class="ds-dont"><div class="ds-example__canvas ds-example__canvas--stack"><ul class="list card card--flush"><li class="list__item"><span class="avatar avatar--sm avatar--sky" aria-hidden="true">GO</span><div class="list__body"><a class="list__title" href="../../mocks/pages/profile/default.html">Grace Okonkwo</a><div class="list__meta">City Lead, Toronto, 12 contacts, 3 events, 2 workspaces, member since March 2024</div></div></li></ul></div><figcaption>A meta line crammed with every fact; that belongs in a table or the profile.</figcaption></figure>
       </div>
     </section>
@@ -233,6 +235,7 @@
           <tr><td>Row divider</td><td><code>--color-border-default</code></td><td><span class="ds-swatch-cell" data-theme="light"><i data-token="--color-border-default" data-swatch></i><span data-token="--color-border-default"></span></span></td><td><span class="ds-swatch-cell" data-theme="dark"><i data-token="--color-border-default" data-swatch></i><span data-token="--color-border-default"></span></span></td></tr>
           <tr><td>Card surface</td><td><code>--color-bg-surface</code></td><td><span class="ds-swatch-cell" data-theme="light"><i data-token="--color-bg-surface" data-swatch></i><span data-token="--color-bg-surface"></span></span></td><td><span class="ds-swatch-cell" data-theme="dark"><i data-token="--color-bg-surface" data-swatch></i><span data-token="--color-bg-surface"></span></span></td></tr>
           <tr><td>Title</td><td><code>--color-fg-default</code></td><td><span class="ds-swatch-cell" data-theme="light"><i data-token="--color-fg-default" data-swatch></i><span data-token="--color-fg-default"></span></span></td><td><span class="ds-swatch-cell" data-theme="dark"><i data-token="--color-fg-default" data-swatch></i><span data-token="--color-fg-default"></span></span></td></tr>
+          <tr><td>Row, hover (link rows)</td><td><code>--color-bg-subtle</code></td><td><span class="ds-swatch-cell" data-theme="light"><i data-token="--color-bg-subtle" data-swatch></i><span data-token="--color-bg-subtle"></span></span></td><td><span class="ds-swatch-cell" data-theme="dark"><i data-token="--color-bg-subtle" data-swatch></i><span data-token="--color-bg-subtle"></span></span></td></tr>
           <tr><td>Meta line</td><td><code>--color-fg-muted</code></td><td><span class="ds-swatch-cell" data-theme="light"><i data-token="--color-fg-muted" data-swatch></i><span data-token="--color-fg-muted"></span></span></td><td><span class="ds-swatch-cell" data-theme="dark"><i data-token="--color-fg-muted" data-swatch></i><span data-token="--color-fg-muted"></span></span></td></tr>
           <tr><td>Row padding (block)</td><td><code>--space-3</code></td><td colspan="2"><span data-token="--space-3"></span></td></tr>
           <tr><td>Row padding (inline)</td><td><code>--space-4</code></td><td colspan="2"><span data-token="--space-4"></span></td></tr>
@@ -257,7 +260,12 @@
 
 &lt;!-- Angular --&gt;
 &lt;ft-list&gt;
-  &lt;ft-list-item [title]="c.name" [link]="['/contacts', c.id]" [meta]="c.summary"&gt;…&lt;/ft-list-item&gt;
+  &lt;ft-list-item [label]="c.name" [href]="'/contacts/' + c.id" [meta]="c.summary"&gt;…&lt;/ft-list-item&gt;
+  &lt;!-- Role badges in the meta line: project them into the [meta] slot --&gt;
+  &lt;ft-list-item [label]="m.name" [href]="'/people/' + m.profileId"&gt;
+    &lt;ft-avatar leading [name]="m.name" [src]="m.photoUrl" size="sm" /&gt;
+    &lt;ft-cluster meta gap="1"&gt;&lt;ft-badge variant="role"&gt;City Lead&lt;/ft-badge&gt;&lt;/ft-cluster&gt;
+  &lt;/ft-list-item&gt;
 &lt;/ft-list&gt;</code></pre>
       <table class="ds-table"><thead><tr><th scope="col">Class / attribute</th><th scope="col">Effect</th></tr></thead><tbody>
         <tr><td><code>.list</code></td><td>Unstyled vertical list.</td></tr>
@@ -265,6 +273,7 @@
         <tr><td><code>.list__item</code></td><td>Padded row with a divider; flex, centred.</td></tr>
         <tr><td><code>.list__body</code>, <code>.list__title</code>, <code>.list__meta</code></td><td>Growing body, label-weight title, muted meta.</td></tr>
         <tr><td><code>.list__meta.cluster</code></td><td>Meta line of badges.</td></tr>
+        <tr><td><code>.list__item:has(.list__title[href]):hover</code></td><td>Tints a link row; <code>data-state="hover"</code> forces it in static pages. <code>&lt;ft-list-item [href]&gt;</code> does the same through <code>.ft-list-item--link</code>.</td></tr>
         <tr><td><code>aria-busy="true"</code></td><td>On the container while skeleton rows show.</td></tr>
       </tbody></table>
     </section>
@@ -278,7 +287,7 @@
         <li><a href="../../mocks/pages/home/default.html">pages/home/default</a> and <a href="../../mocks/pages/events/default.html">pages/events/default</a> (event rows)</li>
         <li><a href="../../mocks/pages/archived-contacts/default.html">pages/archived-contacts/default</a> and <a href="../../mocks/pages/search/default.html">pages/search/default</a></li>
       </ul>
-      <p>Drift: Team rows put an inline <code>style="gap: var(--space-1);"</code> on the meta cluster; skeleton rows repeat <code>style="flex:1;"</code> on <code>.list__body</code>, which already grows. No mock shows a hover or focus state for rows.</p>
+      <p>Drift: skeleton rows repeat <code>style="flex:1;"</code> on <code>.list__body</code>, which already grows.</p>
     </section>
 
     <footer class="ds-footer"><span>FaithTech Community design system · extracted from <a href="../../mocks/index.html">docs/mocks</a> on 2026-10-21</span><a href="#top">Back to top</a></footer>

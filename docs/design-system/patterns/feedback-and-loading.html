@@ -100,8 +100,8 @@
     <section class="ds-section" id="overview"><h2><a href="#overview">Overview</a></h2>
       <ul>
         <li><b><a href="../components/skeleton.html">Skeleton</a></b>: grey blocks shaped like the rows, cards or profile that are loading. Every screen with data has a <code>loading</code> state.</li>
-        <li><b>Busy button</b>: the pressed button shows a pulsing dot, an "-ing…" label, <code>aria-busy</code> and <code>aria-disabled</code>. Used in every form and dialog.</li>
-        <li><b><a href="../components/picture-list.html">Upload progress</a></b>: a photo tile with <code>aria-busy</code> and a status line ("Uploading… 60%"). If the upload fails, the tile shows the error.</li>
+        <li><b>Busy button</b>: the pressed button swaps its label for a spinner (the label stays in the markup as its accessible name) and sets <code>aria-busy</code> and <code>aria-disabled</code>. Used in every form and dialog.</li>
+        <li><b><a href="../components/picture-list.html">Upload progress</a></b>: a photo tile with <code>aria-busy</code>, a <a href="../components/progress.html">progress</a> bar when the percentage is known, and a status line ("Uploading… 60%"). If the upload fails, the tile shows the error.</li>
         <li><b><a href="../components/alert.html">Inline alert</a></b>: the result in context. "Profile saved", "Settings saved", "That didn’t work".</li>
         <li><b>Success card</b> (<code>.card--success</code>): replaces a form after a send that can't be undone, such as "Sent to 41 Product Engineers".</li>
       </ul>
@@ -144,7 +144,7 @@
       <h3>Busy button and results in place</h3>
       <div class="ds-example">
         <div class="ds-example__canvas ds-example__canvas--stack">
-          <div class="cluster"><button class="btn btn--primary" type="button" aria-busy="true" aria-disabled="true"><span class="dot dot--pulse" aria-hidden="true"></span>Saving…</button><button class="btn btn--danger" type="button" aria-busy="true" aria-disabled="true"><span class="dot dot--pulse" aria-hidden="true"></span>Delete permanently…</button></div>
+          <div class="cluster"><button class="btn btn--primary" type="button" aria-busy="true" aria-disabled="true">Saving…</button><button class="btn btn--danger" type="button" aria-busy="true" aria-disabled="true">Delete permanently…</button></div>
           <div class="alert alert--success" role="status" style="width: 100%;"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="m8 12 3 3 5-6"/></svg><div class="alert__body"><div class="alert__title">Profile saved</div><div class="alert__text">Everyone signed in can now see your changes.</div></div></div>
           <div class="alert alert--danger" role="alert" style="width: 100%;"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 8v4M12 16h.01"/></svg><div class="alert__body"><div class="alert__title">That didn’t work</div><div class="alert__text">We couldn’t reach FaithTech. Nothing was changed — try again.</div></div></div>
         </div>
@@ -154,7 +154,7 @@
       <div class="ds-example">
         <div class="ds-example__canvas ds-example__canvas--stack">
           <ul class="picture-list__grid" style="width: 100%; list-style: none; margin: 0; padding: 0;">
-            <li class="picture-list__item"><div class="picture-list__thumb" aria-busy="true"><img src="../assets/photos/team.svg" alt="The Toronto city team gathered around a whiteboard"></div><p class="picture-list__note" role="status">Uploading… 60%</p></li>
+            <li class="picture-list__item"><div class="picture-list__thumb" aria-busy="true"><img src="../assets/photos/team.svg" alt="The Toronto city team gathered around a whiteboard"></div><div class="progress" role="progressbar" aria-valuenow="60" aria-valuemin="0" aria-valuemax="100" aria-label="Uploading photo 4"><div class="progress__bar" style="--value: 60%;"></div></div><p class="picture-list__note" role="status">Uploading… 60%</p></li>
             <li class="picture-list__item picture-list__item--failed"><div class="picture-list__thumb"><img src="../assets/photos/hackathon.svg" alt="Teams working on laptops at the spring hackathon"></div><p class="picture-list__note">hackathon.jpg is 9.4 MB. Photos can be up to 5 MB — try a smaller one.</p></li>
           </ul>
         </div>
@@ -175,20 +175,20 @@
         <tbody>
           <tr><th scope="row">Save button</th>
             <td><button class="btn btn--primary" type="button">Save settings</button></td>
-            <td><button class="btn btn--primary" type="button" aria-busy="true" aria-disabled="true"><span class="dot dot--pulse" aria-hidden="true"></span>Saving…</button></td>
+            <td><button class="btn btn--primary" type="button" aria-busy="true" aria-disabled="true">Saving…</button></td>
             <td><span class="text-caption">Success alert: "Settings saved"</span></td>
             <td><span class="text-caption">Danger alert above the form; values kept</span></td></tr>
           <tr><th scope="row">RSVP</th>
             <td><button class="btn btn--primary" type="button">RSVP</button></td>
-            <td><button class="btn btn--primary" type="button" aria-busy="true" aria-disabled="true"><span class="dot dot--pulse" aria-hidden="true"></span>Saving…</button></td>
+            <td><button class="btn btn--primary" type="button" aria-busy="true" aria-disabled="true">Saving…</button></td>
             <td><span class="badge badge--success">You’re going</span></td>
             <td><span class="text-caption">Danger toast: "Your RSVP wasn’t saved" · Retry</span></td></tr>
         </tbody>
       </table></div>
       <h3>Both themes</h3>
       <div class="ds-themes">
-        <div data-theme="light"><div class="stack"><span class="skeleton skeleton--title" aria-hidden="true"></span><span class="skeleton skeleton--text" aria-hidden="true"></span><button class="btn btn--primary" type="button" aria-busy="true" aria-disabled="true"><span class="dot dot--pulse" aria-hidden="true"></span>Sending…</button></div></div>
-        <div data-theme="dark"><div class="stack"><span class="skeleton skeleton--title" aria-hidden="true"></span><span class="skeleton skeleton--text" aria-hidden="true"></span><button class="btn btn--primary" type="button" aria-busy="true" aria-disabled="true"><span class="dot dot--pulse" aria-hidden="true"></span>Sending…</button></div></div>
+        <div data-theme="light"><div class="stack"><span class="skeleton skeleton--title" aria-hidden="true"></span><span class="skeleton skeleton--text" aria-hidden="true"></span><button class="btn btn--primary" type="button" aria-busy="true" aria-disabled="true">Sending…</button></div></div>
+        <div data-theme="dark"><div class="stack"><span class="skeleton skeleton--title" aria-hidden="true"></span><span class="skeleton skeleton--text" aria-hidden="true"></span><button class="btn btn--primary" type="button" aria-busy="true" aria-disabled="true">Sending…</button></div></div>
       </div>
     </section>
 
@@ -203,9 +203,9 @@
     <section class="ds-section" id="accessibility"><h2><a href="#accessibility">Accessibility</a></h2>
       <ul>
         <li>A loading region has <code>aria-busy="true"</code> and a label ("Loading contacts"). The skeleton blocks are <code>aria-hidden</code>. When the data arrives, <code>aria-busy</code> is removed and focus stays where it was.</li>
-        <li>Busy buttons use <code>aria-disabled</code>, not <code>disabled</code>, so they keep focus and the screen reader reads the new label.</li>
+        <li>The pressed busy button uses <code>aria-busy</code> plus <code>aria-disabled</code>, not <code>disabled</code>, so it keeps focus and the screen reader reads the new label. The other buttons in a busy dialog (Cancel, Close) use native <code>disabled</code>.</li>
         <li>Success results use <code>role="status"</code>. Failures use <code>role="alert"</code>, and in a dialog focus moves to the alert. Upload progress is a <code>role="status"</code> line with the percentage written out.</li>
-        <li>The pulsing dot and the skeleton shimmer stop with reduced motion (<code>prefers-reduced-motion</code>). The text still shows the state.</li>
+        <li>The skeleton shimmer stops with reduced motion (<code>prefers-reduced-motion</code>). The text still shows the state.</li>
         <li>A result never relies on colour alone. It has a title and an icon.</li>
       </ul>
       <h3>Contrast</h3>
@@ -227,8 +227,8 @@
 
     <section class="ds-section" id="do-dont"><h2><a href="#do-dont">Do and don't</a></h2>
       <div class="ds-dodont">
-        <figure class="ds-do"><div class="ds-example__canvas"><button class="btn btn--primary" type="button" aria-busy="true" aria-disabled="true"><span class="dot dot--pulse" aria-hidden="true"></span>Sending…</button></div><figcaption>Show the wait on the button that was pressed, and keep the label meaningful.</figcaption></figure>
-        <figure class="ds-dont"><div class="ds-example__canvas"><button class="btn btn--primary" type="button" disabled aria-label="Sending"><span class="dot dot--pulse" aria-hidden="true"></span></button></div><figcaption>Don't use a disabled button with only a spinner. It loses focus and says nothing.</figcaption></figure>
+        <figure class="ds-do"><div class="ds-example__canvas"><button class="btn btn--primary" type="button" aria-busy="true" aria-disabled="true">Sending…</button></div><figcaption>Show the wait on the button that was pressed, and keep the label meaningful.</figcaption></figure>
+        <figure class="ds-dont"><div class="ds-example__canvas"><button class="btn btn--primary" type="button" disabled aria-label="Sending"></button></div><figcaption>Don't use a disabled button with only a spinner. It loses focus and says nothing.</figcaption></figure>
         <figure class="ds-do"><div class="ds-example__canvas"><div class="stack" style="width: 100%;"><span class="skeleton skeleton--title" aria-hidden="true"></span><span class="skeleton skeleton--text" aria-hidden="true"></span></div></div><figcaption>Make the skeleton the shape of the rows that are coming.</figcaption></figure>
         <figure class="ds-dont"><div class="ds-example__canvas"><p class="text-muted">Loading…</p></div><figcaption>Don't put a bare "Loading…" in place of the whole page, header and actions included.</figcaption></figure>
       </div>

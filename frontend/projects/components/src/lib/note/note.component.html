@@ -1,4 +1,10 @@
-<div class="ft-note__body"><ng-content /></div>
-@if (date(); as d) {
-  <p class="ft-note__meta">{{ d }}</p>
+@if (loading()) {
+  <ft-skeleton shape="text" />
+  <ft-skeleton shape="text" width="60%" />
+  <ft-skeleton class="ft-note__meta-skeleton" shape="text" width="6em" />
+} @else {
+  <div class="ft-note__body"><ng-content /></div>
+  @if (date(); as d) {
+    <p class="ft-note__meta">{{ d }}</p>
+  }
 }

@@ -209,7 +209,7 @@
               <div class="dialog__body stack">
                 <div class="field"><label class="field__label" for="dx-inv-email">Email</label><input class="input" id="dx-inv-email" type="email" value="nate.oyelaran@example.org" autocomplete="off" required></div>
                 <div class="field"><label class="field__label" for="dx-inv-role">Join with role</label><select class="select" id="dx-inv-role"><option>No role</option><option>Attendee</option><option>Volunteer</option><option selected>Product Engineer</option><option>Event Lead</option></select></div>
-                <div class="field"><label class="field__label" for="dx-inv-msg">Personal note <span class="text-muted">(optional)</span></label><textarea class="textarea" id="dx-inv-msg" rows="2">Loved your demo at Builders Night — come build with us in November!</textarea></div>
+                <div class="field"><label class="field__label" for="dx-inv-msg">Personal note <span class="optional">(optional)</span></label><textarea class="textarea" id="dx-inv-msg" rows="2">Loved your demo at Builders Night — come build with us in November!</textarea></div>
                 <p class="text-caption">The invite link lasts 14 days.</p>
               </div>
               <div class="dialog__footer"><button class="btn" type="button">Cancel</button><button class="btn btn--primary" type="button">Send invite</button></div>
@@ -234,7 +234,7 @@
           <div class="dialog dialog--static" role="dialog" aria-modal="false" aria-labelledby="dx-busy-title" style="width: 100%;">
             <div class="dialog__panel">
               <div class="dialog__header"><div style="flex: 1;"><h3 class="dialog__title" id="dx-busy-title">Delete Ben Carter for good? (busy)</h3></div></div>
-              <div class="dialog__footer"><button class="btn" type="button" disabled>Cancel</button><button class="btn btn--danger" type="button" aria-busy="true" aria-disabled="true"><span class="dot dot--pulse" aria-hidden="true"></span>Delete permanently…</button></div>
+              <div class="dialog__footer"><button class="btn" type="button" disabled>Cancel</button><button class="btn btn--danger" type="button" aria-busy="true" aria-disabled="true">Delete permanently…</button></div>
             </div>
           </div>
           <div class="dialog dialog--static" role="dialog" aria-modal="false" aria-labelledby="dx-fail-title" style="width: 100%;">
@@ -276,8 +276,9 @@
         <tr><td><kbd>Esc</kbd></td><td>Closes the dialog, the same as Cancel. It does nothing while the dialog is busy.</td></tr>
         <tr><td><kbd>Enter</kbd> in a field</td><td>Submits the dialog form.</td></tr>
       </tbody></table>
+      <p>A destructive dialog (its main button is danger) tints its icon with <code>.dialog__icon--danger</code>; dialogs that can be undone keep the neutral icon. In the app this is <code>ft-dialog tone="danger"</code>.</p>
       <h3>Focus</h3>
-      <p>In a destructive dialog, focus starts on the DELETE field or the reason field, never on the danger button. A dialog with no fields puts focus on Cancel. The mocks put <code>autofocus</code> on the danger button; that is drift. Clicking the backdrop does nothing in destructive dialogs, so a stray click can't throw away a typed reason.</p>
+      <p>In a destructive dialog, focus starts on the DELETE field or the reason field, never on the danger button. A dialog with no fields puts focus on Cancel. The mocks mark that start with <code>autofocus</code>; the app marks it with <code>cdkFocusInitial</code>. Clicking the backdrop does nothing in destructive dialogs, so a stray click can't throw away a typed reason.</p>
       <h3>Contrast</h3>
       <div class="ds-example__canvas ds-example__canvas--stack" style="padding: 0; gap: var(--space-2);">
         <div class="ds-pair"><span>Danger button text</span><span class="ds-pair__ratio" data-contrast="--color-fg-on-danger|--color-danger-solid" data-min="4.5"></span></div>
@@ -313,8 +314,6 @@
       </ul>
       <p>Drift noticed in the mocks:</p>
       <ul>
-        <li>Every destructive dialog uses the neutral <code>.dialog__icon</code>, not <code>.dialog__icon--danger</code>.</li>
-        <li><code>autofocus</code> is on the main (danger) button, not on the first field or Cancel.</li>
         <li>The title wrapper uses an inline <code>style="flex: 1;"</code> and the description an inline <code>margin-top</code>. There is no class for either.</li>
         <li><code>archive-contact</code> has an empty body that only holds a visually hidden "No further options".</li>
         <li><code>cancel-event</code> and <code>cancel-rsvp</code> put "Cancel" next to "Cancel event" and "Cancel my RSVP". The safe button should say "Keep event" or "Keep my RSVP".</li>

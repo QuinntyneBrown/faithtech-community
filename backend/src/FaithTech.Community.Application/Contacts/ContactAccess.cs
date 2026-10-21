@@ -15,7 +15,7 @@ public enum ContactAccessKind
     NotFound,
 }
 
-/// <summary>Private contact visibility (L2-012, ADR 0007): the owning lead and System Admin, nobody else.</summary>
+/// <summary>Private contact visibility (L2-012, ADR 0009): the owning lead and System Admin, nobody else.</summary>
 public class ContactAccess(IApplicationDbContext db, ICurrentUser current, IAuditLog audit)
 {
     /// <summary>Lead roles and System Admin keep contacts; everyone else gets 403 for the list and create.</summary>

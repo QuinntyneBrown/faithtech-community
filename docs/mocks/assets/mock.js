@@ -2,6 +2,7 @@
    - theme: ?theme=light|dark, localStorage, the mock bar toggle, or the `t` key
    - chrome: ?chrome=0 hides the mock bar and notes (used for screenshots)
    - data-state links: elements with [data-set-state] swap data-state on a target
+   - data-href buttons: a <button data-href> opens that mock (a dialog, say) while staying a button
    Everything degrades gracefully when JavaScript is off. */
 (function () {
   var root = document.documentElement;
@@ -36,6 +37,8 @@
     if (toggle) { applyTheme(currentTheme() === 'dark' ? 'light' : 'dark', true); return; }
     var chrome = event.target.closest('[data-chrome-toggle]');
     if (chrome) { root.dataset.chrome = root.dataset.chrome === 'off' ? 'on' : 'off'; return; }
+    var opener = event.target.closest('button[data-href]');
+    if (opener) { location.href = opener.getAttribute('data-href'); return; }
     var setter = event.target.closest('[data-set-state]');
     if (setter) {
       var target = document.querySelector(setter.getAttribute('data-target') || 'body');

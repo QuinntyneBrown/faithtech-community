@@ -2,4 +2,4 @@
 
 | Design | Effort | Complete |
 |---|---|---|
-| team-list | 2 days | 0% |
+| team-list | 2 days | 100% |

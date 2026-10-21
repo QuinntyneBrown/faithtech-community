@@ -5,11 +5,12 @@ import { TextareaComponent } from './textarea.component';
 
 @Component({
   imports: [TextareaComponent, ReactiveFormsModule],
-  template: `<ft-textarea [formControl]="ctrl" [rows]="rows" />`,
+  template: `<ft-textarea [formControl]="ctrl" [rows]="rows" [initialFocus]="initialFocus" />`,
 })
 class HostComponent {
   ctrl = new FormControl('note');
   rows = 4;
+  initialFocus = false;
 }
 
 describe('TextareaComponent', () => {
@@ -32,6 +33,14 @@ describe('TextareaComponent', () => {
     const { cmp, el } = setup();
     el().dispatchEvent(new Event('blur'));
     expect(cmp.ctrl.touched).toBe(true);
+  });
+
+  it('marks the native textarea as the dialog’s first focus when initialFocus is set', () => {
+    const fixture = TestBed.createComponent(HostComponent);
+    fixture.componentInstance.initialFocus = true;
+    fixture.detectChanges();
+    const el = (fixture.nativeElement as HTMLElement).querySelector('textarea')!;
+    expect(el.hasAttribute('cdkFocusInitial')).toBe(true);
   });
 
   it('sets rows from the input', () => {

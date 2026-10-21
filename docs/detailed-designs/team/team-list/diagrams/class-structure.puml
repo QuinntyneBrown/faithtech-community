@@ -12,27 +12,42 @@ skinparam class {
 title Class structure — Team list
 class TeamRoles {
   +{static} IReadOnlySet<Role> All
+  +{static} IReadOnlySet<Role> Leads
   +{static} IsTeamMember(profile: Profile): bool
 }
+enum TeamRoleFilter {
+  Leads
+  Volunteers
+}
 class ListTeamQuery {
-  +Role? Role
+  +TeamRoleFilter? Role
+  +string? City
 }
 class ListTeamHandler {
-  +Handle(query: ListTeamQuery): Task<IReadOnlyList<TeamMemberDto>>
+  +HandleAsync(query: ListTeamQuery): Task<TeamListDto>
+}
+class TeamListDto {
+  +IReadOnlyList<TeamMemberDto> Members
+  +IReadOnlyList<string> Cities
 }
 class TeamMemberDto {
   +Guid ProfileId
   +string Name
-  +string PhotoUrl
-  +IReadOnlyList<Role> Roles
+  +string? HomeCity
+  +string? PhotoUrl
+  +IReadOnlyList<string> Roles
 }
 class Profile {
   +Guid Id
   +string Name
+  +string? HomeCity
+  +IReadOnlyCollection<ProfilePhoto> Photos
   +IReadOnlyCollection<ProfileRole> Roles
 }
 ListTeamHandler ..> ListTeamQuery : handles
 ListTeamHandler --> TeamRoles
 ListTeamHandler --> Profile : reads
-ListTeamHandler ..> TeamMemberDto : returns
+ListTeamHandler ..> TeamListDto : returns
+ListTeamQuery --> TeamRoleFilter
+TeamListDto *-- TeamMemberDto
 @enduml

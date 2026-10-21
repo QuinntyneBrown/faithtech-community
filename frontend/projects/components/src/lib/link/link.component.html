@@ -3,5 +3,8 @@
   [attr.href]="href()"
   [attr.target]="external() ? '_blank' : null"
   [attr.rel]="external() ? 'noopener noreferrer' : null"
-  ><ng-content
-/></a>
+  ><ng-content />
+  @if (object(); as obj) {
+    <span class="ft-link__object"> {{ obj }}</span>
+  }
+</a>

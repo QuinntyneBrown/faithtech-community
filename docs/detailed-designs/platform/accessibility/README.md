@@ -15,7 +15,7 @@ Design tokens carry contrast: colour tokens are chosen and verified for 4.5:1 te
 - **`components` library** — buttons, form fields, dialogs, toasts, avatars and the remaining design-system components. Each exposes labelled controls, visible `:focus-visible` outlines from the focus token, and keyboard handling.
 - **`FormFieldComponent`** — associates label, hint and error via `aria-describedby`, sets `aria-invalid`, and renders errors inside a polite live region.
 - **`FormErrorFocus`** — directive in `components` that moves focus to the first invalid field on submit.
-- **`DialogService`** — wrapper over Angular CDK `Dialog` in `components`. CDK `FocusTrap` holds focus; `restoreFocus` returns it to the opening control.
+- **`DialogService`** — wrapper over Angular CDK `Dialog` in `components`. CDK `FocusTrap` holds focus; `restoreFocus` returns it to the opening control. A dialog picks its first focus by setting `initialFocus` on an `ft-button` or `ft-textarea`, which renders CDK `cdkFocusInitial` on the native control; destructive dialogs set it on the reason field or on Cancel.
 - **`ToastService`** / **`ToastComponent`** — announce through CDK `LiveAnnouncer`.
 - **`AvatarComponent`** / **`PhotoComponent`** — require an `alt` input; profile photos pass the uploader's alt text.
 - **Design tokens** — role-named CSS custom properties such as `--color-text-primary`; components read tokens by role, never hex values.
@@ -38,6 +38,7 @@ The feature realizes the following level-2 (L2) requirements. Each L2 requiremen
 3. Given any form error or toast, when it appears, then it is announced through a live region.
 4. Given any text or control, when it is checked, then text contrast is at least 4.5:1 and contrast for UI components is at least 3:1, in light and dark themes.
 5. Given an image, when it is rendered, then it has alt text. Profile photos use the alt text the uploader supplied.
+6. Given a destructive dialog (delete, suspend, remove, cancel), when it opens, then focus starts on its DELETE or reason field, or on Cancel when it has no field, never on the destructive button.
 
 ## Diagrams
 

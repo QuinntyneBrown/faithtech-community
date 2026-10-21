@@ -1,4 +1,9 @@
-<ng-template #content><ng-content /></ng-template>
+<ng-template #content
+  ><ng-content />
+  @if (object(); as obj) {
+    <span class="ft-button__object"> {{ obj }}</span>
+  }
+</ng-template>
 @if (href(); as url) {
   <a
     [class]="classes()"
@@ -21,6 +26,7 @@
     [disabled]="disabled()"
     [attr.aria-disabled]="loading() ? 'true' : null"
     [attr.aria-busy]="loading() ? 'true' : null"
+    [attr.cdkFocusInitial]="initialFocus() ? '' : null"
   >
     <ng-container [ngTemplateOutlet]="content" />
   </button>

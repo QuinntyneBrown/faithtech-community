@@ -100,9 +100,9 @@
     <section class="ds-section" id="overview"><h2><a href="#overview">Overview</a></h2>
       <p>Form layout is the frame around a form's <a href="form-field.html">fields</a>: the row of buttons at the end, the error summary at the top after a failed submit, and the danger zone below the form for actions that cannot be undone casually.</p>
       <ul>
-        <li><b>Form actions</b> (<code>.form-actions</code>): the primary submit and a way out, at the end of every page form (event form, contact form, settings, compose announcement, edit profile).</li>
+        <li><b>Form actions</b> (<code>.form-actions</code>): a way out (ghost Cancel) then the primary submit, end-aligned in the same order as a dialog footer, at the end of every page form (event form, contact form, settings, compose announcement, edit profile).</li>
         <li><b>Error summary</b> (<code>.form-summary</code>): a danger alert listing every problem as a link to its field, shown and focused when a submit fails.</li>
-        <li><b>Danger zone</b> (<code>.danger-zone</code>): a red-bordered section after the form for one destructive action: "Sign out everywhere" in Settings, "Archive workspace" in workspace settings.</li>
+        <li><b>Danger zone</b> (<code>.danger-zone</code>): a red-bordered section after the form for one destructive action: "Sign out everywhere" in Settings, "Archive workspace" in workspace settings. Its button opens a confirmation <a href="dialog.html">dialog</a>; it never acts at once.</li>
       </ul>
       <p>A page form is a <code>form.stack</code> capped at 44 to 48rem; long forms group fields in <code>section.card</code> blocks with an <code>h2</code> ("Account", "Email me when").</p>
     </section>
@@ -114,7 +114,7 @@
             <div class="alert alert--danger form-summary" role="alert" tabindex="-1" id="an-summary"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 8v4M12 16h.01"/></svg><div class="alert__body"><div class="alert__title">Fix 1 thing to save</div><ul style="margin: 0; padding-left: var(--space-5);"><li><a href="#st-current">Enter your current password</a></li></ul></div></div>
             <div class="field"><label class="field__label" for="st-current">Current password</label><input class="input" id="st-current" type="password" aria-invalid="true" aria-describedby="st-current-error"><div class="field__error" id="st-current-error">Enter your current password to change it.</div></div>
             <div class="form-actions cluster"><button class="btn btn--primary" type="submit">Save settings</button></div>
-            <section class="danger-zone" aria-labelledby="dz-sign"><div><h3 id="dz-sign" style="font: var(--text-h4); margin: 0;">Sign out everywhere</h3><p class="text-muted">Ends every session on every device, including this one.</p></div><a class="btn btn--danger" href="../../mocks/pages/sign-in/default.html"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><path d="M15 4h4v16h-4M10 17l5-5-5-5M15 12H3"/></svg>Sign out everywhere</a></section>
+            <section class="danger-zone" aria-labelledby="dz-sign"><div><h3 id="dz-sign" style="font: var(--text-h4); margin: 0;">Sign out everywhere</h3><p class="text-muted">Ends every session on every device, including this one.</p></div><a class="btn btn--danger" href="../../mocks/dialogs/sign-out-everywhere/default.html"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><path d="M15 4h4v16h-4M10 17l5-5-5-5M15 12H3"/></svg>Sign out everywhere</a></section>
           </div>
           <span class="ds-callout" style="left: 2%; top: 2%;" aria-hidden="true">1</span>
           <span class="ds-callout" style="left: 2%; top: 58%;" aria-hidden="true">2</span>
@@ -132,10 +132,10 @@
       <h3>Form actions</h3>
       <div class="ds-example">
         <div class="ds-example__canvas ds-example__canvas--stack">
-          <div class="form-actions cluster"><button class="btn btn--primary" type="submit">Publish event</button><a class="btn btn--ghost" href="../../mocks/pages/events/default.html">Cancel</a></div>
+          <div class="form-actions cluster"><a class="btn btn--ghost" href="../../mocks/pages/events/default.html">Cancel</a><button class="btn btn--primary" type="submit">Publish event</button></div>
         </div>
         <div class="ds-example__caption"><span>Primary submit and a ghost "Cancel" link back to where the person came from (event form, contact form, compose announcement).</span></div>
-        <details class="ds-example__code"><summary>HTML</summary><pre><code>&lt;div class="form-actions cluster"&gt;&lt;button class="btn btn--primary" type="submit"&gt;Publish event&lt;/button&gt;&lt;a class="btn btn--ghost" href="../../mocks/pages/events/default.html"&gt;Cancel&lt;/a&gt;&lt;/div&gt;</code></pre></details>
+        <details class="ds-example__code"><summary>HTML</summary><pre><code>&lt;div class="form-actions cluster"&gt;&lt;a class="btn btn--ghost" href="../../mocks/pages/events/default.html"&gt;Cancel&lt;/a&gt;&lt;button class="btn btn--primary" type="submit"&gt;Publish event&lt;/button&gt;&lt;/div&gt;</code></pre></details>
       </div>
       <div class="ds-example">
         <div class="ds-example__canvas ds-example__canvas--stack">
@@ -155,7 +155,7 @@
       <h3>Danger zone</h3>
       <div class="ds-example">
         <div class="ds-example__canvas ds-example__canvas--stack">
-          <section class="danger-zone" aria-labelledby="dz-sign"><div><h3 id="dz-sign" style="font: var(--text-h4); margin: 0;">Sign out everywhere</h3><p class="text-muted">Ends every session on every device, including this one.</p></div><a class="btn btn--danger" href="../../mocks/pages/sign-in/default.html"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><path d="M15 4h4v16h-4M10 17l5-5-5-5M15 12H3"/></svg>Sign out everywhere</a></section>
+          <section class="danger-zone" aria-labelledby="dz-sign"><div><h3 id="dz-sign" style="font: var(--text-h4); margin: 0;">Sign out everywhere</h3><p class="text-muted">Ends every session on every device, including this one.</p></div><a class="btn btn--danger" href="../../mocks/dialogs/sign-out-everywhere/default.html"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><path d="M15 4h4v16h-4M10 17l5-5-5-5M15 12H3"/></svg>Sign out everywhere</a></section>
           <section class="danger-zone" aria-labelledby="dz-arch"><div><h3 id="dz-arch" style="font: var(--text-h4); margin: 0;">Archive this workspace</h3><p class="text-muted">Members lose access. You can restore it from Workspaces.</p></div><a class="btn btn--danger" href="../../mocks/dialogs/archive-workspace/default.html"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><path d="M3 4h18v4H3zM5 8v12h14V8M10 12h4"/></svg>Archive workspace</a></section>
         </div>
         <div class="ds-example__caption"><span>The heading names the action, the line under it says the consequence. The button acts at once only when nothing is lost (sign out); otherwise it opens a confirmation dialog (archive workspace).</span></div>
@@ -172,16 +172,16 @@
       <div class="ds-matrix"><table>
         <thead><tr><th scope="col">State</th><th scope="col">Example</th></tr></thead>
         <tbody>
-          <tr><th scope="row">Default</th><td><div class="form-actions cluster"><button class="btn btn--primary" type="submit">Save contact</button><a class="btn btn--ghost" href="../../mocks/pages/events/default.html">Cancel</a></div></td></tr>
+          <tr><th scope="row">Default</th><td><div class="form-actions cluster"><a class="btn btn--ghost" href="../../mocks/pages/events/default.html">Cancel</a><button class="btn btn--primary" type="submit">Save contact</button></div></td></tr>
           <tr><th scope="row">Invalid</th><td><div class="alert alert--danger form-summary" role="alert" tabindex="-1" id="st-sum"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 8v4M12 16h.01"/></svg><div class="alert__body"><div class="alert__title">Fix 2 things to save</div><ul style="margin: 0; padding-left: var(--space-5);"><li><a href="../../mocks/pages/contact-form/invalid.html#cf-name">Enter a name</a></li><li><a href="../../mocks/pages/contact-form/invalid.html#cf-email">Enter an email like name@example.org</a></li></ul></div></div></td></tr>
-          <tr><th scope="row">Busy</th><td><div class="form-actions cluster"><button class="btn btn--primary" type="submit" aria-busy="true" aria-disabled="true">Saving…</button><a class="btn btn--ghost" href="../../mocks/pages/events/default.html">Cancel</a></div></td></tr>
+          <tr><th scope="row">Busy</th><td><div class="form-actions cluster"><a class="btn btn--ghost" href="../../mocks/pages/events/default.html">Cancel</a><button class="btn btn--primary" type="submit" aria-busy="true" aria-disabled="true">Saving…</button></div></td></tr>
           <tr><th scope="row">Success</th><td><div class="alert alert--success" role="status"><div class="alert__body"><div class="alert__title">Settings saved</div><div class="alert__text">Your notification preferences take effect straight away.</div></div></div></td></tr>
         </tbody>
       </table></div>
       <h3>Both themes</h3>
       <div class="ds-themes">
-        <div data-theme="light"><div class="ds-example__canvas ds-example__canvas--stack" style="padding: 0; gap: var(--space-2);"><div class="alert alert--danger form-summary" role="alert" tabindex="-1" id="summary"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 8v4M12 16h.01"/></svg><div class="alert__body"><div class="alert__title">Fix 3 things to publish</div><ul style="margin: 0; padding-left: var(--space-5);"><li><a href="../../mocks/pages/event-form/invalid.html#ef-title">Enter a title</a></li><li><a href="../../mocks/pages/event-form/invalid.html#ef-end">End must be after start</a></li><li><a href="../../mocks/pages/event-form/invalid.html#ef-venue">Enter a venue or switch to online</a></li></ul></div></div><div class="form-actions cluster"><button class="btn btn--primary" type="submit">Publish event</button><a class="btn btn--ghost" href="../../mocks/pages/events/default.html">Cancel</a></div><section class="danger-zone" aria-labelledby="dz-th"><div><h3 id="dz-th" style="font: var(--text-h4); margin: 0;">Archive this workspace</h3><p class="text-muted">Members lose access. You can restore it from Workspaces.</p></div><a class="btn btn--danger" href="../../mocks/dialogs/archive-workspace/default.html"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><path d="M3 4h18v4H3zM5 8v12h14V8M10 12h4"/></svg>Archive workspace</a></section></div></div>
-        <div data-theme="dark"><div class="ds-example__canvas ds-example__canvas--stack" style="padding: 0; gap: var(--space-2);"><div class="alert alert--danger form-summary" role="alert" tabindex="-1" id="summary"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 8v4M12 16h.01"/></svg><div class="alert__body"><div class="alert__title">Fix 3 things to publish</div><ul style="margin: 0; padding-left: var(--space-5);"><li><a href="../../mocks/pages/event-form/invalid.html#ef-title">Enter a title</a></li><li><a href="../../mocks/pages/event-form/invalid.html#ef-end">End must be after start</a></li><li><a href="../../mocks/pages/event-form/invalid.html#ef-venue">Enter a venue or switch to online</a></li></ul></div></div><div class="form-actions cluster"><button class="btn btn--primary" type="submit">Publish event</button><a class="btn btn--ghost" href="../../mocks/pages/events/default.html">Cancel</a></div><section class="danger-zone" aria-labelledby="dz-th"><div><h3 id="dz-th" style="font: var(--text-h4); margin: 0;">Archive this workspace</h3><p class="text-muted">Members lose access. You can restore it from Workspaces.</p></div><a class="btn btn--danger" href="../../mocks/dialogs/archive-workspace/default.html"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><path d="M3 4h18v4H3zM5 8v12h14V8M10 12h4"/></svg>Archive workspace</a></section></div></div>
+        <div data-theme="light"><div class="ds-example__canvas ds-example__canvas--stack" style="padding: 0; gap: var(--space-2);"><div class="alert alert--danger form-summary" role="alert" tabindex="-1" id="summary"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 8v4M12 16h.01"/></svg><div class="alert__body"><div class="alert__title">Fix 3 things to publish</div><ul style="margin: 0; padding-left: var(--space-5);"><li><a href="../../mocks/pages/event-form/invalid.html#ef-title">Enter a title</a></li><li><a href="../../mocks/pages/event-form/invalid.html#ef-end">End must be after start</a></li><li><a href="../../mocks/pages/event-form/invalid.html#ef-venue">Enter a venue or switch to online</a></li></ul></div></div><div class="form-actions cluster"><a class="btn btn--ghost" href="../../mocks/pages/events/default.html">Cancel</a><button class="btn btn--primary" type="submit">Publish event</button></div><section class="danger-zone" aria-labelledby="dz-th"><div><h3 id="dz-th" style="font: var(--text-h4); margin: 0;">Archive this workspace</h3><p class="text-muted">Members lose access. You can restore it from Workspaces.</p></div><a class="btn btn--danger" href="../../mocks/dialogs/archive-workspace/default.html"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><path d="M3 4h18v4H3zM5 8v12h14V8M10 12h4"/></svg>Archive workspace</a></section></div></div>
+        <div data-theme="dark"><div class="ds-example__canvas ds-example__canvas--stack" style="padding: 0; gap: var(--space-2);"><div class="alert alert--danger form-summary" role="alert" tabindex="-1" id="summary"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 8v4M12 16h.01"/></svg><div class="alert__body"><div class="alert__title">Fix 3 things to publish</div><ul style="margin: 0; padding-left: var(--space-5);"><li><a href="../../mocks/pages/event-form/invalid.html#ef-title">Enter a title</a></li><li><a href="../../mocks/pages/event-form/invalid.html#ef-end">End must be after start</a></li><li><a href="../../mocks/pages/event-form/invalid.html#ef-venue">Enter a venue or switch to online</a></li></ul></div></div><div class="form-actions cluster"><a class="btn btn--ghost" href="../../mocks/pages/events/default.html">Cancel</a><button class="btn btn--primary" type="submit">Publish event</button></div><section class="danger-zone" aria-labelledby="dz-th"><div><h3 id="dz-th" style="font: var(--text-h4); margin: 0;">Archive this workspace</h3><p class="text-muted">Members lose access. You can restore it from Workspaces.</p></div><a class="btn btn--danger" href="../../mocks/dialogs/archive-workspace/default.html"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><path d="M3 4h18v4H3zM5 8v12h14V8M10 12h4"/></svg>Archive workspace</a></section></div></div>
       </div>
       <ul>
         <li><b>Invalid</b>: on submit the summary appears above the first field, takes focus (<code>tabindex="-1"</code>, <code>role="alert"</code>) and each field shows its own error.</li>
@@ -264,7 +264,7 @@
     &lt;svg class="icon" aria-hidden="true" …&gt;&lt;/svg&gt;
     &lt;div class="alert__body"&gt;
       &lt;div class="alert__title"&gt;Fix 1 thing to save&lt;/div&gt;
-      &lt;ul&gt;&lt;li&gt;&lt;a href="#st-current"&gt;Enter your current password&lt;/a&gt;&lt;/li&gt;&lt;/ul&gt;
+      &lt;ol&gt;&lt;li&gt;&lt;a href="#st-current"&gt;Enter your current password&lt;/a&gt;&lt;/li&gt;&lt;/ol&gt;
     &lt;/div&gt;
   &lt;/div&gt;
   …fields…
@@ -272,7 +272,7 @@
 &lt;/form&gt;
 &lt;section class="danger-zone" aria-labelledby="dz"&gt;
   &lt;div&gt;&lt;h2 id="dz"&gt;Sign out everywhere&lt;/h2&gt;&lt;p class="text-muted"&gt;Ends every session on every device, including this one.&lt;/p&gt;&lt;/div&gt;
-  &lt;a class="btn btn--danger" href="/sign-out-everywhere"&gt;Sign out everywhere&lt;/a&gt;
+  &lt;button class="btn btn--danger" type="button" aria-haspopup="dialog"&gt;Sign out everywhere&lt;/button&gt;
 &lt;/section&gt;</code></pre>
       <table class="ds-table"><thead><tr><th scope="col">Class</th><th scope="col">Effect</th></tr></thead><tbody>
         <tr><td><code>.form-actions</code></td><td>End-of-form button row; wraps.</td></tr>
@@ -290,7 +290,7 @@
         <li><a href="../../mocks/pages/workspace-settings/default.html">pages/workspace-settings/default</a> (archive danger zone)</li>
         <li><a href="../../mocks/pages/sign-in/invalid.html">pages/sign-in/invalid</a> (single-problem summary)</li>
       </ul>
-      <p>Drift noticed in the mocks: summary lists use a raw <code>padding-left: 1.2em</code> inline style and a <code>ul</code>, though components.css styles <code>.form-summary ol</code>; page forms put the primary before Cancel while <code>.form-actions</code> is end-aligned and dialog footers put Cancel first; the danger zone headings and Settings card headings set <code>font: var(--text-h4)</code> inline; the Settings danger zone sets <code>max-width</code> and <code>margin-block</code> inline.</p>
+      <p>Drift noticed in the mocks: the danger zone headings and Settings card headings set <code>font: var(--text-h4)</code> inline; the Settings danger zone sets <code>max-width</code> and <code>margin-block</code> inline.</p>
     </section>
 
     <footer class="ds-footer"><span>FaithTech Community design system · extracted from <a href="../../mocks/index.html">docs/mocks</a> on 2026-10-21</span><a href="#top">Back to top</a></footer>

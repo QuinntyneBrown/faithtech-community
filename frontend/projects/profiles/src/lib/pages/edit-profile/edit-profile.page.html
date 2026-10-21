@@ -78,10 +78,10 @@
           />
         </ft-card>
         <ft-form-actions>
+          <ft-button variant="ghost" href="/people/me">Cancel</ft-button>
           <ft-button type="submit" variant="primary" [loading]="busy()">
             {{ busy() ? 'Saving…' : 'Save profile' }}
           </ft-button>
-          <ft-button variant="ghost" href="/people/me">Cancel</ft-button>
         </ft-form-actions>
       </ft-stack>
     </form>

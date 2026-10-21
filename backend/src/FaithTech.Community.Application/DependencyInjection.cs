@@ -4,6 +4,7 @@ using FaithTech.Community.Application.Identity;
 using FaithTech.Community.Application.Invites;
 using FaithTech.Community.Application.Partners;
 using FaithTech.Community.Application.Profiles;
+using FaithTech.Community.Application.Team;
 using FluentValidation;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -52,6 +53,7 @@ public static class DependencyInjection
         services.AddScoped<PartnerViews>();
         services.AddScoped<ManagePartnersHandler>();
         services.AddScoped<MovePartnerHandler>();
+        services.AddScoped<ListTeamHandler>();
         services.TryAddSingleton(TimeProvider.System);
         return services;
     }

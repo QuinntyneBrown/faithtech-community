@@ -159,6 +159,16 @@ describe('PictureListComponent', () => {
     expect(host.textContent).toContain('Uploading… 60%');
   });
 
+  it('names the upload progress bar after its photo', async () => {
+    const { fixture, cmp, q } = await setup();
+    cmp.photos.update((p) => [
+      ...p,
+      { url: '/3.jpg', alt: 'New', featured: false, state: 'uploading', progress: 60 },
+    ]);
+    fixture.detectChanges();
+    expect(q('[role="progressbar"]')!.getAttribute('aria-label')).toBe('Uploading photo 3');
+  });
+
   it('shows a photo-level error note', async () => {
     const { fixture, cmp, host } = await setup();
     cmp.photos.set([

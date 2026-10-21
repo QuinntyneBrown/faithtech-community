@@ -15,6 +15,9 @@
     }
     <ng-content />
   </div>
+  @if (state() === 'uploading' && progress() !== null) {
+    <ft-progress class="ft-photo__progress" [value]="progress()!" [label]="uploadLabel()" />
+  }
   <p class="ft-photo__status" role="status">
     @if (state() === 'uploading') {
       Uploading…{{ progress() === null ? '' : ' ' + progress() + '%' }}

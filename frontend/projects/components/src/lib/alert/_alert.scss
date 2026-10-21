@@ -57,6 +57,11 @@
     font: var(--text-label);
   }
 
+  /* A form summary lists its problems as an ordered list (.form-summary ol). */
+  .alert__text ::ng-deep ol {
+    padding-inline-start: var(--space-5);
+  }
+
   .alert__text:empty,
   .alert__actions:empty {
     display: none;

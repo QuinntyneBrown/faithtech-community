@@ -10,6 +10,8 @@ export class EditProfilePage {
   readonly bio: Locator;
   readonly save: Locator;
   readonly cancel: Locator;
+  /** The buttons and links at the end of the form, in DOM (and tab) order. */
+  readonly actions: Locator;
   readonly summary: Locator;
   readonly nameError: Locator;
   readonly bioError: Locator;
@@ -30,6 +32,7 @@ export class EditProfilePage {
     this.bio = page.getByRole('textbox', { name: /Bio/ });
     this.save = page.getByRole('button', { name: /Save profile|Saving/ });
     this.cancel = page.getByRole('link', { name: 'Cancel' });
+    this.actions = page.locator('ft-form-actions').locator('a, button');
     this.summary = page.locator('ft-error-summary [role=alert]');
     this.nameError = fieldError(page, 'Name');
     this.bioError = page

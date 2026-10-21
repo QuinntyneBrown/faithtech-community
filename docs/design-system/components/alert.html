@@ -196,7 +196,7 @@
       </div>
       <ul>
         <li><b>Dismissible</b>: only alerts that are pure news ("Your email is verified", "Tomás Ortega just joined") get a close button. Alerts about a problem or a restriction go away when it does.</li>
-        <li><b>Persistent</b>: the Staff banner shows on every page of a Staff session; the verify-email banner stays until the address is verified; the suspended banner stays for the whole session.</li>
+        <li><b>Persistent</b>: the Staff banner shows on every page of a Staff session; the “No connection” warning banner shows on every page, the offline page included, while the browser is offline and clears when it reconnects; the verify-email banner stays until the address is verified; the suspended banner stays for the whole session.</li>
       </ul>
     </section>
 
@@ -258,7 +258,7 @@
     <section class="ds-section" id="do-dont"><h2><a href="#do-dont">Do and don't</a></h2>
       <div class="ds-dodont">
         <figure class="ds-do"><div class="ds-example__canvas ds-example__canvas--stack"><div class="alert alert--danger form-summary"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 8v4M12 16h.01"/></svg><div class="alert__body"><div class="alert__title">Fix 1 thing to save</div><ol><li><a href="#al-title">Enter your current password</a></li></ol></div></div></div><figcaption>Let <code>.form-summary ol</code> set the list indent.</figcaption></figure>
-        <figure class="ds-dont"><div class="ds-example__canvas ds-example__canvas--stack"><div class="alert alert--danger form-summary"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 8v4M12 16h.01"/></svg><div class="alert__body"><div class="alert__title">Fix 1 thing to save</div><ul style="margin: 0; padding-left: 1.2em;"><li><a href="#al-title">Enter your current password</a></li></ul></div></div></div><figcaption>Patch the indent inline with <code>padding-left: 1.2em</code>, as the twelve invalid-state mocks do.</figcaption></figure>
+        <figure class="ds-dont"><div class="ds-example__canvas ds-example__canvas--stack"><div class="alert alert--danger form-summary"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 8v4M12 16h.01"/></svg><div class="alert__body"><div class="alert__title">Fix 1 thing to save</div><ul style="margin: 0; padding-left: 1.2em;"><li><a href="#al-title">Enter your current password</a></li></ul></div></div></div><figcaption>Patch the indent inline with <code>padding-left: 1.2em</code> on a <code>&lt;ul&gt;</code>; use <code>.form-summary ol</code>.</figcaption></figure>
         <figure class="ds-do"><div class="ds-example__canvas ds-example__canvas--stack"><div class="alert alert--danger"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 8v4M12 16h.01"/></svg><div class="alert__body"><div class="alert__title">That didn’t work</div><div class="alert__text">We couldn’t reach FaithTech. Nothing was changed — try again.</div></div></div></div><figcaption>A failure stays until it is fixed; no dismiss button.</figcaption></figure>
         <figure class="ds-dont"><div class="ds-example__canvas ds-example__canvas--stack"><div class="alert alert--danger"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 8v4M12 16h.01"/></svg><div class="alert__body"><div class="alert__title">Something went wrong</div></div><button class="close" type="button" aria-label="Dismiss"><svg class="icon icon--sm" aria-hidden="true" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18"/></svg></button></div></div><figcaption>A vague error that can be closed while the problem is still there.</figcaption></figure>
       </div>
@@ -299,7 +299,7 @@
         <tr><td><code>.alert--info</code> <code>--success</code> <code>--warning</code> <code>--danger</code></td><td>Status.</td></tr>
         <tr><td><code>.alert__body</code>, <code>__title</code>, <code>__text</code>, <code>__actions</code></td><td>Content column, title, text, action row.</td></tr>
         <tr><td><code>.close</code></td><td>24px dismiss; needs <code>aria-label</code>.</td></tr>
-        <tr><td><code>.banner</code></td><td>Full width, square, one row from 640px. Replaces the mocks’ <code>.banner-wrap</code> with inline padding.</td></tr>
+        <tr><td><code>.banner</code></td><td>Full width, square, one row from 640px. Sits directly between the top bar and main, with no wrapper.</td></tr>
         <tr><td><code>.form-summary</code></td><td>Error list for a form; add <code>tabindex="-1"</code>.</td></tr>
         <tr><td><code>role="status"</code> / <code>role="alert"</code></td><td>Polite for info, success, warning; assertive for danger.</td></tr>
       </tbody></table>
@@ -309,14 +309,14 @@
       <p>Inherited from Shelfie; examples extracted from these FaithTech mocks:</p>
       <ul>
         <li><a href="../../mocks/notifications/banner/info.html">notifications/banner/info</a>, <a href="../../mocks/notifications/banner/success.html">success</a>, <a href="../../mocks/notifications/banner/warning.html">warning</a>, <a href="../../mocks/notifications/banner/danger.html">danger</a></li>
+        <li><a href="../../mocks/pages/offline/default.html">pages/offline/default</a> (No connection, warning banner)</li>
         <li><a href="../../mocks/pages/partners/read-only.html">pages/partners/read-only</a>, <a href="../../mocks/pages/workspaces/staff.html">pages/workspaces/staff</a> (Read-only for Staff)</li>
         <li><a href="../../mocks/pages/contacts/default.html">pages/contacts/default</a> (Tomás Ortega just joined, Review)</li>
         <li><a href="../../mocks/pages/admin-users/default.html">pages/admin-users/default</a> (A workspace needs a new owner)</li>
         <li><a href="../../mocks/pages/edit-profile/success.html">pages/edit-profile/success</a>, <a href="../../mocks/pages/event/cancelled.html">pages/event/cancelled</a></li>
         <li><a href="../../mocks/pages/event-form/invalid.html">pages/event-form/invalid</a>, <a href="../../mocks/pages/settings/invalid.html">pages/settings/invalid</a> (form summary)</li>
         <li><a href="../../mocks/dialogs/add-role/failed.html">dialogs/add-role/failed</a> (alert inside a dialog)</li>
-      </ul>
-      <p>Drift in the mocks: all twelve form summaries indent their list with inline <code>style="margin: 0; padding-left: 1.2em;"</code> on a <code>&lt;ul&gt;</code>; the system uses <code>.form-summary ol</code>. The banner mocks wrap a plain <code>.alert</code> in <code>.banner-wrap</code> with inline <code>style="padding: var(--space-2) var(--layout-margin);"</code> instead of using <code>.banner</code>, and only the danger banner sets a role. The contacts page spaces its search form with inline <code>style="margin-bottom: var(--space-4);"</code>.</p>
+      </ul>
     </section>
 
     <footer class="ds-footer"><span>FaithTech Community design system · extracted from <a href="../../mocks/index.html">docs/mocks</a> on 2026-10-21</span><a href="#top">Back to top</a></footer>

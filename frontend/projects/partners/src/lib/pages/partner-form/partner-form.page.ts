@@ -54,7 +54,7 @@ const SUMMARY: Record<string, string> = {
 };
 
 /**
- * Edit a partner's details (L2-017, ADR 0007), matching docs/mocks/pages/partner-form. The stage
+ * Edit a partner's details (L2-017, ADR 0009), matching docs/mocks/pages/partner-form. The stage
  * is not edited here; it changes only by a move.
  */
 @Component({

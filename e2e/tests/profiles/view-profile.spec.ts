@@ -2,6 +2,7 @@
 import { expect, test } from '../../fixtures/app';
 import { photoUrl } from '../../fixtures/mock-api';
 import { AppShell } from '../../pages/app-shell.page';
+import { avatarColour, plainAvatarColour } from '../../pages/avatar';
 import { ProfilePage } from '../../pages/profile.page';
 import { SignInPage } from '../../pages/sign-in.page';
 import { BREAKPOINTS } from '../../pages/viewport';
@@ -66,24 +67,38 @@ test.describe('View a profile', () => {
     await axe.check();
   });
 
-  test('the top bar links to your own profile', async ({ page, api }) => {
+  test('the account menu links to your own profile', async ({ page, api }) => {
     const grace = api.addAccount({ email: 'grace@example.org', name: 'Grace Okonkwo' });
     const profile = new ProfilePage(page);
     await api.signInAs(grace);
 
-    await new AppShell(page).yourProfile('Grace Okonkwo').click();
+    await new AppShell(page).openYourProfile('Grace Okonkwo');
 
     await expect(page).toHaveURL(/\/people\/me$/);
     await expect(profile.heading).toHaveText('Grace Okonkwo');
   });
 
-  test('on a phone the menu links to your own profile', async ({ page, api }) => {
+  test('your avatar keeps the same colour in the top bar and on your profile', async ({
+    page,
+    api,
+  }) => {
+    const grace = api.addAccount({ email: 'grace@example.org', name: 'Grace Okonkwo' });
+    const shell = new AppShell(page);
+    const profile = new ProfilePage(page);
+    await api.signInAs(grace, '/people/me');
+    await expect(profile.heading).toHaveText('Grace Okonkwo');
+
+    const onProfile = await avatarColour(profile.avatar);
+    expect(onProfile).not.toBe(await plainAvatarColour(page));
+    expect(await avatarColour(shell.yourAvatar('Grace Okonkwo'))).toBe(onProfile);
+  });
+
+  test('on a phone the account menu links to your own profile', async ({ page, api }) => {
     await page.setViewportSize(BREAKPOINTS.xs);
     const shell = new AppShell(page);
     await api.signInAs(api.addAccount({ email: 'grace@example.org', name: 'Grace Okonkwo' }));
 
-    await shell.menuButton.click();
-    await shell.drawerLink('Your profile').click();
+    await shell.openYourProfile('Grace Okonkwo');
 
     await expect(new ProfilePage(page).heading).toHaveText('Grace Okonkwo');
   });

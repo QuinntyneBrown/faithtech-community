@@ -10,6 +10,8 @@ import { AvatarColor, AvatarComponent, AvatarSize } from './avatar.component';
     [size]="size()"
     [href]="href()"
     [label]="label()"
+    [src]="src()"
+    [drawn]="drawn()"
   />`,
 })
 class HostComponent {
@@ -18,6 +20,8 @@ class HostComponent {
   size = signal<AvatarSize>('md');
   href = signal<string | null>(null);
   label = signal<string | null>(null);
+  src = signal<string | null>(null);
+  drawn = signal(false);
 }
 
 function setup() {
@@ -28,6 +32,31 @@ function setup() {
 }
 
 describe('AvatarComponent', () => {
+  it('shows a decorative photo over the initials when src is set', () => {
+    const { fixture, cmp, q } = setup();
+    expect(q('.ft-avatar img')).toBeNull();
+
+    cmp.src.set('https://photos.example/grace.jpg');
+    fixture.detectChanges();
+
+    const img = q<HTMLImageElement>('.ft-avatar img.ft-avatar__img');
+    expect(img.getAttribute('src')).toBe('https://photos.example/grace.jpg');
+    expect(img.getAttribute('alt')).toBe('');
+    expect(q('.ft-avatar').textContent?.trim()).toBe('GO');
+  });
+
+  it('falls back to the initials when the photo fails to load', () => {
+    const { fixture, cmp, q } = setup();
+    cmp.src.set('https://photos.example/missing.jpg');
+    fixture.detectChanges();
+
+    q('.ft-avatar img').dispatchEvent(new Event('error'));
+    fixture.detectChanges();
+
+    expect(q('.ft-avatar img')).toBeNull();
+    expect(q('.ft-avatar').textContent?.trim()).toBe('GO');
+  });
+
   it('shows first and last initials in capitals', () => {
     const { q } = setup();
     expect(q('.ft-avatar').textContent?.trim()).toBe('GO');
@@ -86,6 +115,16 @@ describe('AvatarComponent', () => {
     const circle = q('a .ft-avatar');
     expect(circle.textContent?.trim()).toBe('');
     expect(circle.getAttribute('data-initials')).toBe('GO');
+  });
+
+  it('draws its initials when it is the face of another control, such as a menu button', () => {
+    const { fixture, cmp, q } = setup();
+    cmp.drawn.set(true);
+    fixture.detectChanges();
+    const circle = q('.ft-avatar');
+    expect(circle.textContent?.trim()).toBe('');
+    expect(circle.getAttribute('data-initials')).toBe('GO');
+    expect(q('a')).toBeNull();
   });
 
   it('is not a link without href', () => {

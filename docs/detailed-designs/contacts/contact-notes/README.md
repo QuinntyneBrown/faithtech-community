@@ -17,7 +17,7 @@ Notes remain private even after the contact is linked to the person's real profi
 - **`ContactNoteDto`** — `Id`, `Body` and `CreatedAtUtc`.
 - **`ContactNote`** — Domain entity with `Body` (required) and `CreatedAtUtc`, composed by `Contact` and created only through `Contact.AddNote(body, nowUtc)`. `CommunityDbContext` maps it to `ContactNotes` (body at most 2,000 characters) with an index on contact and time.
 
-Notes cannot be edited or deleted after creation; `L2-014` defines only adding and reading ([ADR 0007](../../../adr/0007-contacts-and-partners-access-and-open-questions.md)).
+Notes cannot be edited or deleted after creation; `L2-014` defines only adding and reading ([ADR 0009](../../../adr/0009-contacts-and-partners-access-and-open-questions.md)).
 
 ## Requirements
 

@@ -39,7 +39,7 @@ const EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 /**
  * PartnersEndpoints in the browser (backend/src/FaithTech.Community.Api/Endpoints/PartnersEndpoints.cs):
- * lead roles, Staff and System Admin read; Staff never write; everyone else gets 403 (ADR 0007).
+ * lead roles, Staff and System Admin read; Staff never write; everyone else gets 403 (ADR 0009).
  */
 export class MockPartners {
   readonly partners: MockPartner[] = [];

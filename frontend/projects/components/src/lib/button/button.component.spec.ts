@@ -14,6 +14,8 @@ import { ButtonComponent } from './button.component';
     [iconOnly]="iconOnly()"
     [label]="label()"
     [href]="href()"
+    [object]="object()"
+    [initialFocus]="initialFocus()"
     >Publish event</ft-button
   >`,
 })
@@ -27,6 +29,8 @@ class HostComponent {
   iconOnly = signal(false);
   label = signal<string | null>(null);
   href = signal<string | null>(null);
+  object = signal<string | null>(null);
+  initialFocus = signal(false);
 }
 
 function setup() {
@@ -104,6 +108,24 @@ describe('ButtonComponent', () => {
     expect(btn.getAttribute('aria-label')).toBe('Close');
   });
 
+  it('names a repeated row action with a visually hidden object, not aria-label', () => {
+    const { fixture, cmp, q } = setup();
+    cmp.object.set('Toronto Builders Night');
+    fixture.detectChanges();
+    const btn = q('button');
+    expect(btn.querySelector('.ft-button__object')!.textContent).toBe(' Toronto Builders Night');
+    expect(btn.textContent!.trim()).toBe('Publish event Toronto Builders Night');
+    expect(btn.getAttribute('aria-label')).toBeNull();
+  });
+
+  it('keeps the visually hidden object on a link styled as a button', () => {
+    const { fixture, cmp, q } = setup();
+    cmp.href.set('/events');
+    cmp.object.set('Toronto Builders Night');
+    fixture.detectChanges();
+    expect(q('a').querySelector('.ft-button__object')!.textContent).toBe(' Toronto Builders Night');
+  });
+
   it('renders a link styled as a button when href is set', () => {
     const { fixture, cmp, q } = setup();
     cmp.href.set('/events');
@@ -123,6 +145,14 @@ describe('ButtonComponent', () => {
     const a = q('a');
     expect(a.getAttribute('aria-disabled')).toBe('true');
     expect(a.getAttribute('tabindex')).toBe('-1');
+  });
+
+  it('marks the native button as the dialog’s first focus when initialFocus is set', () => {
+    const { fixture, cmp, q } = setup();
+    expect(q('button').hasAttribute('cdkFocusInitial')).toBe(false);
+    cmp.initialFocus.set(true);
+    fixture.detectChanges();
+    expect(q('button').hasAttribute('cdkFocusInitial')).toBe(true);
   });
 
   it('lets clicks reach the host listener', () => {

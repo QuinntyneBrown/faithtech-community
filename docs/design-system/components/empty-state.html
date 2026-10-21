@@ -122,7 +122,7 @@
           <span class="ds-callout" style="left: 80%; top: 86%;" aria-hidden="true">4</span>
         </figure>
         <ol class="ds-anatomy__list">
-          <li><div><b>Icon</b><small><code>.empty__icon</code>: 64px circle, accent-subtle (danger-bg for errors), 32px line icon, <code>aria-hidden</code>.</small></div></li>
+          <li><div><b>Icon</b><small><code>&lt;span class="empty__icon"&gt;</code>: 64px circle, accent-subtle (danger-bg for errors), 32px line icon, <code>aria-hidden</code>.</small></div></li>
           <li><div><b>Title</b><small><code>.empty__title</code>: an <code>&lt;h2&gt;</code> in the h3 style; says what is (not) here.</small></div></li>
           <li><div><b>Text</b><small><code>.empty__text</code>: one or two sentences, muted, 36ch max.</small></div></li>
           <li><div><b>Actions</b><small><code>.empty__actions</code>: one primary action, optionally one secondary. Left out when there is nothing the viewer can do (audit log, notifications).</small></div></li>
@@ -251,7 +251,7 @@
     <section class="ds-section" id="do-dont"><h2><a href="#do-dont">Do and don't</a></h2>
       <div class="ds-dodont">
         <figure class="ds-do"><div class="ds-example__canvas" style="justify-content: center;"><button class="btn btn--primary" type="button"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><path d="M21 12a9 9 0 1 1-3-6.7L21 8M21 3v5h-5"/></svg>Try again</button></div><figcaption>Try again is a button: it runs the request again.</figcaption></figure>
-        <figure class="ds-dont"><div class="ds-example__canvas" style="justify-content: center;"><a class="btn btn--primary" href="../../mocks/pages/contacts/default.html"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><path d="M21 12a9 9 0 1 1-3-6.7L21 8M21 3v5h-5"/></svg>Try again</a></div><figcaption>A link dressed as a button, as the error mocks do; it is announced as a link and reloads the whole page.</figcaption></figure>
+        <figure class="ds-dont"><div class="ds-example__canvas" style="justify-content: center;"><a class="btn btn--primary" href="../../mocks/pages/contacts/default.html"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><path d="M21 12a9 9 0 1 1-3-6.7L21 8M21 3v5h-5"/></svg>Try again</a></div><figcaption>A link dressed as a button; it is announced as a link and reloads the whole page.</figcaption></figure>
         <figure class="ds-do"><div class="ds-example__canvas ds-example__canvas--canvas"><div class="empty" style="padding: var(--space-4);"><span class="empty__icon" aria-hidden="true"><svg class="icon icon--lg" aria-hidden="true" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="2"/><circle cx="9" cy="11" r="2.5"/><path d="M5.5 17a3.5 3.5 0 0 1 7 0M15 9h3M15 13h3"/></svg></span><h3 class="empty__title">No contacts yet</h3><div class="empty__actions"><a class="btn btn--primary" href="../../mocks/pages/contact-form/default.html"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>Add your first contact</a></div></div></div><figcaption>One clear next step.</figcaption></figure>
         <figure class="ds-dont"><div class="ds-example__canvas ds-example__canvas--canvas"><div class="empty" style="padding: var(--space-4);"><span class="empty__icon" aria-hidden="true"><svg class="icon icon--lg" aria-hidden="true" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="2"/></svg></span><h3 class="empty__title">No data</h3></div></div><figcaption>A dead end: a technical title and nothing to do.</figcaption></figure>
       </div>
@@ -301,7 +301,7 @@
         <li>Error: <a href="../../mocks/pages/contacts/error.html">pages/contacts/error</a>, <a href="../../mocks/pages/home/error.html">home/error</a>, <a href="../../mocks/pages/events/error.html">events/error</a>, <a href="../../mocks/pages/partners/error.html">partners/error</a>, <a href="../../mocks/pages/audit-log/error.html">audit-log/error</a></li>
         <li><a href="../../mocks/notifications/bell/empty.html">notifications/bell/empty</a></li>
       </ul>
-      <p>Drift noticed: every error mock makes Try again an <code>&lt;a href="default.html"&gt;</code> styled as a button; the system makes it a <code>&lt;button&gt;</code>. The icon wrapper is a <code>&lt;span&gt;</code> in the mocks (a <code>&lt;div&gt;</code> in the inherited Shelfie pages); both work. The component is inherited from Shelfie unchanged.</p>
+      <p>Try again is a <code>&lt;button type="button"&gt;</code> in every error mock and in the system. The icon wrapper is always a <code>&lt;span class="empty__icon" aria-hidden="true"&gt;</code>, in every mock, on this page and in <code>ft-empty-state</code>; do not use a <code>&lt;div&gt;</code> (the inherited Shelfie pages did). The component is inherited from Shelfie unchanged.</p>
     </section>
 
     <footer class="ds-footer"><span>FaithTech Community design system · extracted from <a href="../../mocks/index.html">docs/mocks</a> on 2026-10-21</span><a href="#top">Back to top</a></footer>

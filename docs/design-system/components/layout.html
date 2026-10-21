@@ -102,7 +102,7 @@
       <ul>
         <li><b><code>.container</code></b>: the page width (max 1280px) and side margins. <code>main</code> on every signed-in page.</li>
         <li><b><code>.stack</code></b>: children in a column, 16px apart. Cards, forms, dialog bodies.</li>
-        <li><b><code>.cluster</code></b>: children in a wrapping row, 12px apart, vertically centred. Button rows, role badges, stats. <b><code>.cluster--between</code></b> pushes the ends apart (a card title with an "Open board" link).</li>
+        <li><b><code>.cluster</code></b>: children in a wrapping row, 12px apart, vertically centred. Button rows, role badges, stats. <b><code>.cluster--between</code></b> pushes the ends apart (a card title with an "Open board" link). <b><code>.cluster--tight</code></b> closes the gap to 4px for a run of role badges in a list row's meta line (<code>&lt;ft-cluster gap="1"&gt;</code> in Angular).</li>
         <li><b><code>.grid</code></b>: the token column grid; a form can set <code>--layout-columns: 2</code> for a Starts/Ends pair. <b><code>.grid--auto</code></b> fills with 18rem-minimum cards instead.</li>
         <li><b><code>.split</code></b>: one column on phones, main and aside at 2:1 from 1024px. Home, event, contact and partner pages.</li>
         <li><b><code>.page-header</code></b> (title, subtitle, actions) and <b><code>.section</code></b> (vertical rhythm between page sections).</li>

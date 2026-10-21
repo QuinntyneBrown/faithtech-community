@@ -26,6 +26,7 @@
     @if (profile(); as p) {
       <ft-profile-header
         [name]="p.name"
+        [avatarColor]="avatarColor()"
         [roles]="roles()"
         [location]="p.homeCity ?? ''"
         [bio]="p.bio ?? ''"

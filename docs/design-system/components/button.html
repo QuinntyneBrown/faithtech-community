@@ -176,7 +176,7 @@
         <div data-theme="dark"><div class="ds-example__canvas" style="padding: 0;"><button class="btn btn--primary" type="button">Save profile</button> <button class="btn" type="button">Cancel</button> <button class="btn btn--ghost" type="button">Skip for now</button> <button class="btn btn--danger" type="button">Suspend</button> <button class="btn btn--primary" type="button" aria-busy="true" aria-disabled="true">Saving…</button></div></div>
       </div>
       <ul>
-        <li><b>Loading</b> keeps the button's width, hides the label behind a spinner and ignores clicks. The mocks set <code>aria-busy="true" aria-disabled="true"</code> on the pressed button ("Saving…", "Send invite…", "Cancel event…") and <code>disabled</code> on the dialog's Cancel, so nothing is sent twice. <code>aria-disabled</code> keeps focus on the button; the page then moves focus to the result: the toast, the error summary or the next page.</li>
+        <li><b>Loading</b> keeps the button's width, hides the label behind a spinner and ignores clicks. The spinner is drawn by <code>.btn[aria-busy="true"]::after</code>; put nothing else inside the button (no dot or icon), only its label. One rule for every busy form and dialog: the pressed button takes <code>aria-busy="true"</code> and <code>aria-disabled="true"</code>, always both (<code>aria-busy</code> draws the spinner and says work is under way; <code>aria-disabled</code> says it can't be pressed while keeping focus on it, which native <code>disabled</code> would drop). Every other button in a busy dialog (Cancel and Close) takes native <code>disabled</code>, because focus is not on it and it should leave the tab order. A page form's ghost Cancel link stays a working link: leaving the page is always allowed. Nothing is sent twice. Focus stays on the pressed button; the page then moves focus to the result: the toast, the error summary or the next page.</li>
         <li><b>Disabled</b> uses the native attribute: not focusable, 50% opacity. It is used for the other buttons in a form or dialog while a submit is in flight, and for nothing else.</li>
         <li><b>Pressed</b> applies only to the show-password button in an input group, which sets <code>aria-pressed</code>; toggle choices are <a href="switch.html">switches</a> and <a href="chip.html">chips</a>.</li>
       </ul>
@@ -186,6 +186,7 @@
       <ul>
         <li>On the auth screens (sign in, sign up, forgot and reset password, accept invite) the primary is <code>.btn--lg.btn--block</code> at every width; the card itself is capped at 26rem.</li>
         <li>In <a href="form-layout.html">form actions</a> and dialog footers buttons sit end-aligned on one row and wrap when the row is too narrow.</li>
+        <li>One button order everywhere: the way out (Cancel) first, the primary or danger action last, end-aligned. Page forms (<code>.form-actions</code>) and dialog footers (<code>.dialog__footer</code>) follow the same order, so the main action is always in the same place and last in the tab order.</li>
         <li>Under 640px dialogs become bottom sheets; their footer buttons keep the same order.</li>
         <li>Every size is at least 36px tall and medium is 44px, so no button needs extra hit area on touch screens.</li>
         <li>Labels never truncate (<code>white-space: nowrap</code>). A label that does not fit at 360px is too long; shorten the verb phrase.</li>
@@ -209,7 +210,7 @@
         <tr><td><kbd>Enter</kbd> in a text field</td><td>Submits the form through its <code>type="submit"</code> button ("Sign in", "Save settings").</td></tr>
       </tbody></table>
       <h3>Focus</h3>
-      <p>One shared ring (<code>--focus-ring-width</code> of <code>--color-focus-ring</code>, offset by <code>--focus-ring-offset</code>) on <code>:focus-visible</code> only, so taps and clicks do not show it. The offset gap shows the surface colour, which keeps the ring visible against the primary fill. When a dialog opens, focus starts on its primary action when that is safe ("Add role"); in destructive dialogs (cancel event, delete contact, suspend user) it starts on Cancel, never on the danger button.</p>
+      <p>One shared ring (<code>--focus-ring-width</code> of <code>--color-focus-ring</code>, offset by <code>--focus-ring-offset</code>) on <code>:focus-visible</code> only, so taps and clicks do not show it. The offset gap shows the surface colour, which keeps the ring visible against the primary fill. When a dialog opens, focus starts on its primary action when that is safe ("Add role"); in destructive dialogs it starts on the DELETE or reason field (delete contact, suspend user, cancel event), or on Cancel when there is no field (delete photo, remove role, cancel RSVP), never on the danger button.</p>
       <h3>Labelling</h3>
       <p>The visible label is the accessible name. Icon-only buttons set <code>aria-label</code> with the verb and, where several share a view, the object: "Close", "Copy link", "Show password", "Remove photo 3", "Edit note". A loading button keeps its name.</p>
       <h3>Contrast</h3>
@@ -232,7 +233,7 @@
 
     <section class="ds-section" id="do-dont"><h2><a href="#do-dont">Do and don't</a></h2>
       <div class="ds-dodont">
-        <figure class="ds-do"><div class="ds-example__canvas"><button class="btn btn--primary" type="button">Publish event</button><button class="btn btn--ghost" type="button">Cancel</button></div><figcaption>One primary action per form, with the way out beside it as a ghost button.</figcaption></figure>
+        <figure class="ds-do"><div class="ds-example__canvas"><button class="btn btn--ghost" type="button">Cancel</button><button class="btn btn--primary" type="button">Publish event</button></div><figcaption>One primary action per form, last, with the way out before it as a ghost button.</figcaption></figure>
         <figure class="ds-dont"><div class="ds-example__canvas"><button class="btn btn--primary" type="button">Save draft</button><button class="btn btn--primary" type="button">Publish event</button></div><figcaption>Two primaries make Marcus choose. Keep one.</figcaption></figure>
         <figure class="ds-do"><div class="ds-example__canvas"><button class="btn" type="button">Cancel</button><button class="btn btn--danger" type="button">Delete permanently</button></div><figcaption>The danger button says what happens, and Cancel stays the safe secondary.</figcaption></figure>
         <figure class="ds-dont"><div class="ds-example__canvas"><button class="btn" type="button">No</button><button class="btn btn--danger" type="button">Yes</button></div><figcaption>"Yes" and "No" force a reread of the question; a misread here deletes a contact and every note.</figcaption></figure>
@@ -300,7 +301,7 @@
         <li><a href="../../mocks/dialogs/add-role/default.html">dialogs/add-role/default</a> and <a href="../../mocks/dialogs/add-role/busy.html">busy</a> (secondary plus primary footer)</li>
         <li><a href="../../mocks/pages/event/default.html">pages/event/default</a> (large "I’m going")</li>
       </ul>
-      <p>Drift noticed in the mocks: busy buttons put a <code>span.dot.dot--pulse</code> and a changed "…" label inside the button, both hidden by the spinner rule, so the dot is dead markup; destructive dialogs (cancel-event, delete-contact, suspend-user) put <code>autofocus</code> on the danger button instead of Cancel; busy buttons use <code>aria-disabled</code> while their neighbours use <code>disabled</code>; page forms put the primary first and the ghost Cancel after it, while dialog footers put Cancel first and the primary last. Inherited from Shelfie unchanged: the spinner at <code>--duration-loop</code>/2 and the 1.25em icon.</p>
+      <p>Inherited from Shelfie unchanged: the spinner at <code>--duration-loop</code>/2 and the 1.25em icon.</p>
     </section>
 
     <footer class="ds-footer"><span>FaithTech Community design system · extracted from <a href="../../mocks/index.html">docs/mocks</a> on 2026-10-21</span><a href="#top">Back to top</a></footer>

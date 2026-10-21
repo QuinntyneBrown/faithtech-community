@@ -2,13 +2,15 @@ import { HttpErrorResponse } from '@angular/common/http';
 import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { NavigationEnd, Router, RouterOutlet } from '@angular/router';
-import { AUTH_SERVICE } from '@faithtech-community/api';
+import { AUTH_SERVICE, ROLE_LABELS } from '@faithtech-community/api';
 import {
+  avatarColorFor,
   AvatarComponent,
   BannerComponent,
   BreakpointService,
   ButtonComponent,
-  IconComponent,
+  MenuComponent,
+  MenuEntry,
   NavDrawerComponent,
   NavDrawerLink,
   SkipLinkComponent,
@@ -41,7 +43,6 @@ const SECTIONS: Section[] = [
 ];
 /** Only System Admins see the admin area (L2-040); the API refuses everyone else regardless. */
 const ADMIN_SECTION: Section = { label: 'Admin', href: '/admin', icon: 'admin', secondary: true };
-const PROFILE_SECTION: Section = { label: 'Your profile', href: '/people/me', icon: 'team' };
 const SEARCH_TAB: TabBarItem = { label: 'Search', href: '/search', icon: 'search' };
 
 /** The signed-in chrome around every member page (docs/design-system/patterns/navigation.html). */
@@ -56,7 +57,7 @@ const SEARCH_TAB: TabBarItem = { label: 'Search', href: '/search', icon: 'search
     TabBarComponent,
     BannerComponent,
     ButtonComponent,
-    IconComponent,
+    MenuComponent,
   ],
   templateUrl: './app-shell.component.html',
   styleUrl: './app-shell.component.scss',
@@ -68,6 +69,7 @@ export class AppShellComponent {
   private readonly breakpoint = inject(BreakpointService);
 
   protected readonly user = this.auth.currentUser;
+  protected readonly avatarColor = computed(() => avatarColorFor(this.user()?.profileId));
   /** Unverified members can browse but must verify to RSVP, create content or invite (L2-002 AC3). */
   protected readonly unverified = computed(() => this.user()?.emailVerified === false);
   protected readonly resend = signal<'idle' | 'sending' | 'sent' | 'limited'>('idle');
@@ -91,10 +93,25 @@ export class AppShellComponent {
   protected readonly topLinks = computed<TopBarLink[]>(() =>
     this.sections().map((s) => ({ ...this.link(s), secondary: s.secondary })),
   );
-  /** On phones the top bar has no room for the avatar, so the menu links to your profile. */
-  protected readonly drawerLinks = computed<NavDrawerLink[]>(() => [
-    ...this.sections().map((s) => ({ ...this.link(s), icon: s.icon })),
-    { ...this.link(PROFILE_SECTION), icon: PROFILE_SECTION.icon },
+  protected readonly drawerLinks = computed<NavDrawerLink[]>(() =>
+    this.sections().map((s) => ({ ...this.link(s), icon: s.icon })),
+  );
+  /** The avatar's account menu, at every width (L2-003 AC9, design system components/menu). */
+  protected readonly accountEntries = computed<MenuEntry[]>(() => [
+    {
+      kind: 'header',
+      title: this.user()?.name ?? '',
+      caption:
+        this.auth
+          .roles()
+          .map((r) => ROLE_LABELS[r] ?? r)
+          .join(', ') || 'No role yet',
+    },
+    { kind: 'divider' },
+    { kind: 'item', id: 'profile', label: 'Your profile', icon: 'team', href: '/people/me' },
+    { kind: 'item', id: 'settings', label: 'Settings', icon: 'settings', href: '/settings' },
+    { kind: 'divider' },
+    { kind: 'item', id: 'sign-out', label: 'Sign out', icon: 'sign-out' },
   ]);
   protected readonly tabs = computed<TabBarItem[]>(() => [
     ...SECTIONS.filter((s) => s.tab)
@@ -110,8 +127,8 @@ export class AppShellComponent {
     void this.router.navigate(['/search'], { queryParams: query ? { q: query } : {} });
   }
 
-  protected async signOut(): Promise<void> {
-    await firstValueFrom(this.auth.signOut());
+  protected async accountAction(id: string): Promise<void> {
+    if (id === 'sign-out') await firstValueFrom(this.auth.signOut());
   }
 
   protected async sendAgain(): Promise<void> {

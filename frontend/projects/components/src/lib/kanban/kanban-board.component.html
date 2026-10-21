@@ -1,9 +1,4 @@
-<div
-  class="ft-kanban"
-  [class.ft-kanban--4]="columns() === 4"
-  role="region"
-  [attr.aria-label]="label()"
->
+<div class="ft-kanban" role="region" [attr.aria-label]="label()">
   <ng-content />
 </div>
 <div class="visually-hidden" aria-live="polite">{{ announcement() }}</div>

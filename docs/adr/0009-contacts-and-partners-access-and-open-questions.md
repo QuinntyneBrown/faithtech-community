@@ -1,4 +1,4 @@
-# 0007. Contacts and partners: access, matching and the open questions
+# 0009. Contacts and partners: access, matching and the open questions
 
 - Status: Accepted
 - Date: 2026-10-21

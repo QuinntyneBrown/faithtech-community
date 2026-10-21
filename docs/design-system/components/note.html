@@ -122,7 +122,7 @@
 
     <section class="ds-section" id="variants"><h2><a href="#variants">Variants</a></h2>
       <p>One variant. The surrounding section always says the notes are private.</p>
-<div class="ds-example"><div class="ds-example__canvas ds-example__canvas--stack ds-example__canvas--canvas"><section class="card stack" aria-labelledby="v-notes"><h3 id="v-notes" style="font: var(--text-h4);">Your notes <span class="badge"><svg class="icon icon--sm" aria-hidden="true" viewBox="0 0 24 24"><rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>Private</span></h3><form class="stack" action="../../mocks/pages/contact/default.html"><div class="field"><label class="field__label" for="v-notes-new">Add a note <span class="text-muted">(optional)</span></label><textarea class="textarea" id="v-notes-new" name="new-note" rows="2"></textarea></div><div><button class="btn btn--primary btn--sm" type="submit">Add note</button></div></form><div class="note"><p>Runs IT at Harbour Light Shelter. Wants to bring two staff to the November hackathon as problem owners.</p><p class="note__meta">Thu 16 Oct</p></div><div class="note"><p>Met at Builders Night. Interested in a data dashboard for bed availability.</p><p class="note__meta">Thu 18 Sep</p></div></section></div><div class="ds-example__caption"><span>The notes card from <code>pages/contact/default</code>: Private badge in the heading, the add form, then notes newest first.</span></div><details class="ds-example__code"><summary>HTML</summary><pre><code>&lt;section class="card stack" aria-labelledby="notes"&gt;
+<div class="ds-example"><div class="ds-example__canvas ds-example__canvas--stack ds-example__canvas--canvas"><section class="card stack" aria-labelledby="v-notes"><h3 id="v-notes" style="font: var(--text-h4);">Your notes <span class="badge"><svg class="icon icon--sm" aria-hidden="true" viewBox="0 0 24 24"><rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>Private</span></h3><form class="stack" action="../../mocks/pages/contact/default.html"><div class="field"><label class="field__label" for="v-notes-new">Add a note <span class="optional">(optional)</span></label><textarea class="textarea" id="v-notes-new" name="new-note" rows="2"></textarea></div><div><button class="btn btn--primary btn--sm" type="submit">Add note</button></div></form><div class="note"><p>Runs IT at Harbour Light Shelter. Wants to bring two staff to the November hackathon as problem owners.</p><p class="note__meta">Thu 16 Oct</p></div><div class="note"><p>Met at Builders Night. Interested in a data dashboard for bed availability.</p><p class="note__meta">Thu 18 Sep</p></div></section></div><div class="ds-example__caption"><span>The notes card from <code>pages/contact/default</code>: Private badge in the heading, the add form, then notes newest first.</span></div><details class="ds-example__code"><summary>HTML</summary><pre><code>&lt;section class="card stack" aria-labelledby="notes"&gt;
   &lt;h2 id="notes"&gt;Your notes &lt;span class="badge"&gt;&lt;svg class="icon icon--sm" aria-hidden="true"&gt;…&lt;/svg&gt;Private&lt;/span&gt;&lt;/h2&gt;
   &lt;form class="stack" action="/contacts/tomas-ortega/notes" method="post"&gt;…&lt;/form&gt;
   &lt;div class="note"&gt;
@@ -142,8 +142,8 @@
         <thead><tr><th scope="col">State</th><th scope="col">Example</th></tr></thead>
         <tbody>
           <tr><th scope="row">Default</th><td><div class="note"><p>Met at Builders Night. Interested in a data dashboard for bed availability.</p><p class="note__meta">Thu 18 Sep</p></div></td></tr>
-          <tr><th scope="row">Empty</th><td><p class="text-muted">No notes yet. Only you will see what you write here.</p></td></tr>
-          <tr><th scope="row">Loading</th><td><div class="card stack" aria-busy="true" aria-label="Loading notes"><span class="skeleton skeleton--title" aria-hidden="true"></span><span class="skeleton skeleton--text" aria-hidden="true"></span><span class="skeleton skeleton--text" aria-hidden="true"></span></div></td></tr>
+          <tr><th scope="row">Empty (<a href="../../mocks/pages/contact/no-notes.html">pages/contact/no-notes</a>)</th><td><p class="text-muted">No notes yet. Only you will see what you write here.</p></td></tr>
+          <tr><th scope="row">Loading</th><td><div class="card stack" aria-busy="true" aria-label="Loading notes"><span class="skeleton skeleton--title" aria-hidden="true"></span><div class="note note--skeleton" aria-hidden="true"><span class="skeleton skeleton--text"></span><span class="skeleton skeleton--text"></span><span class="skeleton skeleton--caption"></span></div><div class="note note--skeleton" aria-hidden="true"><span class="skeleton skeleton--text"></span><span class="skeleton skeleton--text"></span><span class="skeleton skeleton--caption"></span></div></div></td></tr>
         </tbody>
       </table></div>
       <h3>Linked contact</h3>
@@ -210,6 +210,7 @@
 <tr><td>Padding</td><td><code>--space-3</code></td><td colspan="2"><span data-token="--space-3"></span></td></tr>
 <tr><td>Rule width</td><td><code>--space-1</code></td><td colspan="2"><span data-token="--space-1"></span></td></tr>
 <tr><td>Radius</td><td><code>--radius-sm</code></td><td colspan="2"><span data-token="--radius-sm"></span></td></tr>
+<tr><td>Paragraph and meta spacing</td><td><code>--space-2</code></td><td colspan="2"><span data-token="--space-2"></span></td></tr>
 <tr><td>Meta font</td><td><code>--text-caption</code></td><td colspan="2"><span data-token="--text-caption"></span></td></tr>
 </tbody></table></div>
     </section>
@@ -226,6 +227,8 @@
       <table class="ds-table"><thead><tr><th scope="col">Class</th><th scope="col">Effect</th></tr></thead><tbody>
         <tr><td><code>.note</code></td><td>Subtle panel with an accent left rule.</td></tr>
         <tr><td><code>.note__meta</code></td><td>Caption-size muted date.</td></tr>
+        <tr><td><code>.note.note--skeleton</code></td><td>Loading note: two <code>.skeleton--text</code> lines and a <code>.skeleton--caption</code> date on the surface, <code>aria-hidden</code>; the notes card carries <code>aria-busy="true"</code>. <code>&lt;ft-note [loading]="true"&gt;</code> in Angular.</td></tr>
+        <tr><td><code>.note p</code></td><td>No browser margins; consecutive paragraphs, and the meta line after the body, sit <code>--space-2</code> apart (as <code>&lt;ft-note&gt;</code> does).</td></tr>
       </tbody></table>
     </section>
 
@@ -235,9 +238,10 @@
         <li><a href="../../mocks/pages/contact/default.html">pages/contact/default</a> (notes card, add form)</li>
         <li><a href="../../mocks/pages/contact/linked.html">pages/contact/linked</a> (notes after linking)</li>
         <li><a href="../../mocks/pages/contact/match.html">pages/contact/match</a></li>
+        <li><a href="../../mocks/pages/contact/no-notes.html">pages/contact/no-notes</a> (empty notes: "No notes yet. Only you will see what you write here.")</li>
         <li><a href="../../mocks/pages/contact/loading.html">pages/contact/loading</a>, <a href="../../mocks/pages/contact/error.html">pages/contact/error</a></li>
       </ul>
-      <p>Drift: the "Your notes" heading uses an inline <code>style="font: var(--text-h4)"</code>; there is no empty-notes mock (the copy above is inferred); <code>.note p</code> margins rely on the browser default between body and meta; the loading state shows generic card skeletons rather than note-shaped ones.</p>
+      <p>Drift: the "Your notes" heading uses an inline <code>style="font: var(--text-h4)"</code>.</p>
     </section>
 
     <footer class="ds-footer"><span>FaithTech Community design system · extracted from <a href="../../mocks/index.html">docs/mocks</a> on 2026-10-21</span><a href="#top">Back to top</a></footer>
