@@ -17,3 +17,8 @@
 .ft-stat__value--text {
   font: var(--text-h4);
 }
+
+.ft-stat__skeleton {
+  inline-size: var(--size-avatar-md);
+  block-size: var(--size-avatar-sm);
+}

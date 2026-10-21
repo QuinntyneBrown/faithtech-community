@@ -139,15 +139,15 @@
     </section>
 
     <section class="ds-section" id="sizes"><h2><a href="#sizes">Sizes</a></h2>
-      <p>One size for numbers: <code>--text-h2</code>. Sentence values (sprint goal) and dates step down to body semibold and <code>--text-h4</code> so they do not shout.</p>
+      <p>One size for numbers: <code>--text-h2</code>. Values in words (sprint goal, end date) step down to <code>--text-h4</code> with <code>.stat__value--text</code> so they do not shout.</p>
     </section>
 
     <section class="ds-section" id="states"><h2><a href="#states">States</a></h2>
       <p>Not interactive, so there is no hover, focus or disabled state. Data states:</p>
       <ul>
-        <li><b>Loading</b>: the card shows a <a href="skeleton.html">skeleton</a> block where the values go.</li>
-        <li><b>Zero</b>: shown as "0", not hidden. An empty pipeline reads Lead 0, In funnel 0, Confirmed 0.</li>
-        <li><b>Error</b>: the card shows an <a href="inline-message.html">inline message</a> instead of the row, never a dash that looks like a number.</li>
+        <li><b>Loading</b>: the card keeps its heading and the stat labels; a <code>.skeleton--stat</code> <a href="skeleton.html">skeleton</a> stands in for each value, and the row is <code>aria-busy="true"</code> (<code>pages/home/loading</code>). In Angular, <code>&lt;ft-stat [loading]="true"&gt;</code>.</li>
+        <li><b>Zero</b>: shown as "0", not hidden. An empty pipeline reads Lead 0, In funnel 0, Confirmed 0, with a muted line under the row: "No partners yet. Add the first one from the board." (<code>pages/home/pipeline-zero</code>).</li>
+        <li><b>Error</b>: the card keeps its heading and shows a danger <a href="alert.html">alert</a>, "We couldn’t load the partner pipeline", with a Try again button instead of the row, never a dash that looks like a number. The rest of Home stays (<code>pages/home/pipeline-error</code>).</li>
       </ul>
       <h3>Both themes</h3>
       <div class="ds-themes">
@@ -226,11 +226,12 @@
       <ul>
         <li><a href="../../mocks/pages/home/default.html">pages/home/default</a> (partner pipeline)</li>
         <li><a href="../../mocks/pages/home/staff.html">pages/home/staff</a></li>
+        <li><a href="../../mocks/pages/home/loading.html">pages/home/loading</a>, <a href="../../mocks/pages/home/pipeline-zero.html">pipeline-zero</a> and <a href="../../mocks/pages/home/pipeline-error.html">pipeline-error</a> (stat row loading, zero and error)</li>
         <li><a href="../../mocks/pages/team-board/default.html">pages/team-board/default</a> (sprint strip)</li>
         <li><a href="../../mocks/pages/team-board/member.html">pages/team-board/member</a></li>
         <li><a href="../../mocks/pages/team-board/staff.html">pages/team-board/staff</a></li>
       </ul>
-      <p>The stat rule is inherited from Shelfie unchanged. Text values take <code>.stat__value--text</code> and rows take <code>.cluster.stat-row</code>; nothing is overridden inline. Drift: no loading, zero or error state for the stat row is mocked on Home.</p>
+      <p>The stat rule is inherited from Shelfie unchanged. Text values take <code>.stat__value--text</code> and rows take <code>.cluster.stat-row</code>; nothing is overridden inline.</p>
     </section>
     <footer class="ds-footer"><span>FaithTech Community design system · extracted from <a href="../../mocks/index.html">docs/mocks</a> on 2026-10-21</span><a href="#top">Back to top</a></footer>
   </main>
