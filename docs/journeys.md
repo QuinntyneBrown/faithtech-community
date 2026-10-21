@@ -1,0 +1,37 @@
+# User journeys
+
+Ordered by value to the user. Effort and completion come from [estimates](estimates/README.md).
+
+| # | Name | Description | Effort (days) | Completion (%) |
+|---|---|---|---|---|
+| 1 | Sign up | Create an account with email and password to join the community. | 4 | 100 |
+| 2 | Sign in and out | Securely enter and leave the community with your account. | 5 | 100 |
+| 3 | Verify email | Confirm your email address so your account is trusted. | 4 | 90 |
+| 4 | Reset password | Regain access to your account when you forget your password. | 4 | 100 |
+| 5 | View profiles | Browse member profiles to learn who is in the community. | 2 | 0 |
+| 6 | Edit own profile | Keep your details current so others can find and know you. | 3 | 0 |
+| 7 | Manage profile photos | Upload up to ten photos, choose a featured one, add alt text. | 5 | 0 |
+| 8 | Find events | Browse and filter upcoming events across the community. | 3 | 0 |
+| 9 | RSVP to events | Tell organizers you are coming to an event. | 5 | 0 |
+| 10 | Search everything | Find people, events and partners from one global search box. | 4 | 0 |
+| 11 | Public events and guest RSVP | Share event pages with anyone; guests RSVP without an account. | 4 | 0 |
+| 12 | Add events to calendar | Download an .ics file to put an event in your calendar. | 3 | 0 |
+| 13 | Receive in-app notifications | See what needs your attention in the bell, and set preferences. | 5 | 0 |
+| 14 | Receive email notifications | Get important updates by email, controlled by your preferences. | 4 | 0 |
+| 15 | Read announcements | Read leadership announcements and opt out of announcement emails. | 4 | 0 |
+| 16 | Accept an invite | Join the community through an invitation within fourteen days. | 3 | 0 |
+| 17 | Browse the team | See the city team members and their roles. | 2 | 0 |
+| 18 | Create and edit events | Leads publish and update events, including hackathons. | 4 | 0 |
+| 19 | Cancel events | Leads cancel an event and attendees are told. | 4 | 0 |
+| 20 | Send invites | Leads invite people to sign up and track invitations. | 5 | 0 |
+| 21 | Send announcements | Leads write announcements and send them to chosen audiences. | 4 | 0 |
+| 22 | Manage private contacts | Leads keep private contacts and notes, visible only to them. | 14 | 0 |
+| 23 | Archive and restore contacts | Remove contacts safely, restore them, or delete permanently. | 4 | 0 |
+| 24 | Link contact on sign-up | Connect a private contact to their profile when they join. | 4 | 0 |
+| 25 | Run the partner pipeline | Move partners across a Lead, In Funnel and Confirmed Kanban board. | 8 | 0 |
+| 26 | Assign roles | Leads and admins grant or remove roles within permitted limits. | 5 | 0 |
+| 27 | Suspend users | Admins suspend and reinstate accounts that break community rules. | 4 | 0 |
+| 28 | Administer users and override | Admins manage users and override anything, with every action recorded. | 4 | 0 |
+| 29 | Review the audit log | Admins review who did what, and when. | 4 | 0 |
+| 30 | Use a fast, accessible, secure site | Responsive, themed, accessible, validated and reliable on every screen. | 21 | 78 |
+| 31 | Plan work in the agile workspace | Organize and track team work in a shared agile workspace. | 36 | 0 |
