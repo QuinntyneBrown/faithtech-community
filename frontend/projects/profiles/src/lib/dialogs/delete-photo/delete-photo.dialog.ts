@@ -26,9 +26,6 @@ export interface DeletePhotoData {
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class DeletePhotoDialog {
-  /** Focus the destructive action on open, as the mock does. */
-  static readonly autoFocus = '[data-autofocus] button';
-
   protected readonly ref = inject<DialogRef<boolean>>(DialogRef);
   protected readonly data = inject<DeletePhotoData>(DIALOG_DATA);
   private readonly profiles = inject(PROFILES_SERVICE);

@@ -277,7 +277,7 @@
         <tr><td><kbd>Enter</kbd> in a field</td><td>Submits the dialog form.</td></tr>
       </tbody></table>
       <h3>Focus</h3>
-      <p>In a destructive dialog, focus starts on the DELETE field or the reason field, never on the danger button. A dialog with no fields puts focus on Cancel. The mocks put <code>autofocus</code> on the danger button; that is drift. Clicking the backdrop does nothing in destructive dialogs, so a stray click can't throw away a typed reason.</p>
+      <p>In a destructive dialog, focus starts on the DELETE field or the reason field, never on the danger button. A dialog with no fields puts focus on Cancel. The mocks mark that start with <code>autofocus</code>; the app marks it with <code>cdkFocusInitial</code>. Clicking the backdrop does nothing in destructive dialogs, so a stray click can't throw away a typed reason.</p>
       <h3>Contrast</h3>
       <div class="ds-example__canvas ds-example__canvas--stack" style="padding: 0; gap: var(--space-2);">
         <div class="ds-pair"><span>Danger button text</span><span class="ds-pair__ratio" data-contrast="--color-fg-on-danger|--color-danger-solid" data-min="4.5"></span></div>
@@ -314,7 +314,6 @@
       <p>Drift noticed in the mocks:</p>
       <ul>
         <li>Every destructive dialog uses the neutral <code>.dialog__icon</code>, not <code>.dialog__icon--danger</code>.</li>
-        <li><code>autofocus</code> is on the main (danger) button, not on the first field or Cancel.</li>
         <li>The title wrapper uses an inline <code>style="flex: 1;"</code> and the description an inline <code>margin-top</code>. There is no class for either.</li>
         <li><code>archive-contact</code> has an empty body that only holds a visually hidden "No further options".</li>
         <li><code>cancel-event</code> and <code>cancel-rsvp</code> put "Cancel" next to "Cancel event" and "Cancel my RSVP". The safe button should say "Keep event" or "Keep my RSVP".</li>

@@ -26,6 +26,7 @@
     [disabled]="disabled()"
     [attr.aria-disabled]="loading() ? 'true' : null"
     [attr.aria-busy]="loading() ? 'true' : null"
+    [attr.cdkFocusInitial]="initialFocus() ? '' : null"
   >
     <ng-container [ngTemplateOutlet]="content" />
   </button>

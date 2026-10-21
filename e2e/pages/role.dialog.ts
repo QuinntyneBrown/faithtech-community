@@ -6,6 +6,7 @@ export class RoleDialog {
   readonly options: Locator;
   readonly caption: Locator;
   readonly confirm: Locator;
+  readonly cancel: Locator;
   readonly choiceError: Locator;
   readonly refusal: Locator;
 
@@ -14,6 +15,7 @@ export class RoleDialog {
     this.options = this.dialog.getByRole('radio');
     this.caption = this.dialog.getByText('can only be granted by a System Admin');
     this.confirm = this.dialog.getByRole('button', { name: /^(Add|Remove) role/ });
+    this.cancel = this.dialog.getByRole('button', { name: 'Cancel' });
     this.choiceError = this.dialog.getByText('Choose a role to add.');
     this.refusal = this.dialog.locator('ft-alert');
   }

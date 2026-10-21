@@ -237,7 +237,6 @@ export class EditProfilePage {
     };
     const ref = this.dialogs.open<boolean, DeletePhotoData>(DeletePhotoDialog, {
       data,
-      autoFocus: DeletePhotoDialog.autoFocus,
     });
     ref.closed.subscribe((deleted) => {
       if (deleted) this.photos.update((list) => withoutPhoto(list, photo));

@@ -1,4 +1,10 @@
-import { ChangeDetectionStrategy, Component, computed, input } from '@angular/core';
+import {
+  booleanAttribute,
+  ChangeDetectionStrategy,
+  Component,
+  computed,
+  input,
+} from '@angular/core';
 import { NgTemplateOutlet } from '@angular/common';
 
 export type ButtonVariant = 'primary' | 'secondary' | 'ghost' | 'danger';
@@ -38,6 +44,8 @@ export class ButtonComponent {
   readonly object = input<string | null>(null);
   /** Id of text that explains the button, such as why it is disabled. */
   readonly describedBy = input<string | null>(null);
+  /** Takes focus when the dialog that holds it opens (CDK `cdkFocusInitial`). */
+  readonly initialFocus = input(false, { transform: booleanAttribute });
 
   protected readonly classes = computed(() => ({
     'ft-button': true,
