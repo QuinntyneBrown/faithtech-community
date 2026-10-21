@@ -139,7 +139,7 @@
 
     <section class="ds-section" id="structure"><h2><a href="#structure">Structure</a></h2>
       <h3>Bell panel</h3>
-      <p>The panel has a header with the title and "Mark all read", a list of <code>.notice</code> rows (avatar initials, a sentence that links to the item, and a meta line with the time and "Unread"), and a footer with "See all". The example below is shown in place, so it uses <code>position: static</code>.</p>
+      <p>The panel has a header with the title and, while anything is unread, "Mark all read" (the empty panel drops it), a list of <code>.notice</code> rows (avatar initials, a sentence that links to the item, and a meta line with the time and "Unread"), and a footer with "See all". The example below is shown in place, so it uses <code>position: static</code>.</p>
       <div class="ds-example">
         <div class="ds-example__canvas ds-example__canvas--stack">
           <div class="bell-panel" role="region" aria-label="Notifications (example)" style="position: static; width: 100%; max-width: 24rem; margin-inline: auto;"><div class="bell-panel__header"><strong>Notifications</strong><button class="btn btn--sm btn--ghost" type="button">Mark all read</button></div><ul class="notice-list"><li class="notice notice--unread"><span class="avatar avatar--sm avatar--sun" aria-hidden="true">TO</span><div class="notice__body">Tomás Ortega signed up — he’s one of your contacts. <a href="../../mocks/pages/contact/match.html">Link his profile</a><div class="notice__meta">Today, 11:42 am · Unread</div></div></li><li class="notice notice--unread"><span class="avatar avatar--sm avatar--mint" aria-hidden="true">EN</span><div class="notice__body">Esther Nakamura cancelled <a href="../../mocks/pages/event/cancelled.html">Austin Faith &amp; AI Panel</a><div class="notice__meta">Mon 20 Oct · Unread</div></div></li><li class="notice notice--unread"><span class="avatar avatar--sm avatar--rose" aria-hidden="true">RA</span><div class="notice__body">Ruth Alvarez accepted your invite and joined as Volunteer<div class="notice__meta">Sat 18 Oct · Unread</div></div></li><li class="notice"><span class="avatar avatar--sm avatar--lilac" aria-hidden="true">HK</span><div class="notice__body">Hannah Kim sent “Builders Night moves to Kestrel Labs”<div class="notice__meta">Fri 17 Oct</div></div></li></ul><div class="bell-panel__footer"><a href="../../mocks/pages/notifications/default.html">See all</a></div></div>
@@ -340,7 +340,6 @@
       <p>Drift noticed in the mocks:</p>
       <ul>
         
-        <li>The empty bell still shows "Mark all read".</li>
         <li>The email mocks use raw hex colours, px sizes and a system font stack in inline styles. Email clients need this, but the values should come from the token build, not be typed by hand.</li>
       </ul>
     </section>
