@@ -132,7 +132,7 @@
             <nav class="topbar__nav" aria-label="Primary (example)"><a class="nav-link" href="../../mocks/pages/home/default.html">Home</a><a class="nav-link" href="../../mocks/pages/events/default.html">Events</a><a class="nav-link" href="../../mocks/pages/contacts/default.html" aria-current="page">Contacts</a><a class="nav-link" href="../../mocks/pages/partners/default.html">Partners</a><a class="nav-link" href="../../mocks/pages/workspaces/default.html">Workspaces</a><a class="nav-link nav-link--secondary" href="../../mocks/pages/team/default.html">Team</a><a class="nav-link nav-link--secondary" href="../../mocks/pages/announcements/default.html">Announcements</a><a class="nav-link nav-link--secondary" href="../../mocks/pages/people/default.html">People</a></nav>
             <span class="topbar__spacer"></span>
             <form class="topbar__search" role="search" action="../../mocks/pages/search/default.html"><label class="visually-hidden" for="nv-q">Search FaithTech</label><input class="input input--sm" id="nv-q" name="q" type="search" placeholder="Search people, events, partners"></form>
-            <div class="bell-anchor"><button class="btn btn--ghost btn--icon" type="button" aria-label="Notifications, 3 unread" aria-expanded="false"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><path d="M6 16V11a6 6 0 0 1 12 0v5l2 2H4zM10 20a2 2 0 0 0 4 0"/></svg><span class="badge badge--count" aria-hidden="true">3</span></button></div>
+            <div class="bell-anchor"><button class="btn btn--ghost btn--icon" type="button" aria-label="Notifications, 3 unread" aria-haspopup="dialog" aria-expanded="false"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><path d="M6 16V11a6 6 0 0 1 12 0v5l2 2H4zM10 20a2 2 0 0 0 4 0"/></svg><span class="badge badge--count" aria-hidden="true">3</span></button></div>
             <button class="avatar-trigger" type="button" aria-haspopup="menu" aria-label="Account menu for Grace Okonkwo"><span class="avatar avatar--sm avatar--sky" aria-hidden="true">GO</span></button>
           </header>
         </div>
@@ -252,7 +252,6 @@
       <ul>
         <li>Between 768px and 1023px, the secondary sections are hidden with no "More" menu, so Team, Announcements and People can't be reached from the top bar.</li>
         <li>The tab bar has no Workspaces, Team or People, and there is no other way to reach them on phones except from Home.</li>
-        <li>The bell is a link with <code>aria-expanded</code>. It should be a button.</li>
         <li>The tab rows use an inline <code>style="margin-bottom: var(--space-4);"</code>.</li>
         <li>The brand mark is an inline SVG with <code>opacity=".35"</code> in every mock, not <code>../assets/logo.svg</code>.</li>
       </ul>

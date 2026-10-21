@@ -12,7 +12,7 @@ Other features create notifications through one Application service, so every so
 
 ## Description
 
-- **`NotificationBellComponent`** — component in the `components` library that renders the bell button, the unread badge and the panel shell. It receives items and the count through inputs and emits `open` and `markAllRead` events; it makes no HTTP calls.
+- **`NotificationBellComponent`** — component in the `components` library that renders the bell button (a `<button aria-haspopup="dialog">`, never a link, with `aria-expanded` and, while open, `aria-controls` naming the panel), the unread badge and the panel shell. It receives items and the count through inputs and emits `open` and `markAllRead` events; it makes no HTTP calls.
 - **`NotificationsPage`** — page in the `notifications` feature library (mock `pages/notifications`). It lists notifications newest first, shows the empty state when none exist, and offers "Mark all as read".
 - **`NotificationsBellContainer`** — glue in the `notifications` library that the shell renders. It reads from `NotificationsService` and feeds `NotificationBellComponent`.
 - **`NotificationsService`** / **`NOTIFICATIONS_SERVICE`** / **`HttpNotificationsService`** — API client contract, injection token and HTTP implementation in the `api` library.
