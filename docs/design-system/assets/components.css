@@ -317,6 +317,8 @@ button.avatar:hover, button.avatar[data-state="hover"] { box-shadow: 0 0 0 var(-
 .dialog__header { display: flex; align-items: flex-start; gap: var(--space-4); padding: var(--space-6) var(--space-6) 0; }
 .dialog__title { font: var(--text-h4); flex: 1; }
 .dialog__body { padding: var(--space-4) var(--space-6); flex: 1; }
+/* A confirmation whose title and description say everything has no body; keep the gap above the footer. */
+.dialog__header + .dialog__footer { margin-top: var(--space-4); }
 .dialog__footer { display: flex; flex-wrap: wrap; gap: var(--space-3); justify-content: flex-end; padding: var(--space-4) var(--space-6) var(--space-6); border-top: var(--border-width-hairline) solid var(--color-border-default); position: sticky; bottom: 0; background: var(--color-bg-surface-raised); }
 .dialog__icon { display: grid; place-items: center; width: var(--size-avatar-md); height: var(--size-avatar-md); border-radius: var(--radius-full); flex: none; }
 .dialog__icon--danger { background: var(--color-danger-bg); color: var(--color-danger-icon); }

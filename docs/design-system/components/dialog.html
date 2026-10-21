@@ -132,7 +132,7 @@
           <li><div><b>Icon</b><small><code>.dialog__icon</code>: 40px neutral circle naming the task (send, trash, archive). <code>.dialog__icon--danger</code> tints it for every destructive confirmation, the ones whose main button is danger (Delete contact, Delete photo, Suspend user, Cancel event, Archive workspace, Remove member). Reversible confirmations keep the neutral icon.</small></div></li>
           <li><div><b>Title and description</b><small><code>h2.dialog__title</code> via <code>aria-labelledby</code>; the muted description via <code>aria-describedby</code>. <code>--text-h4</code> on phones, <code>--text-h3</code> from 640px.</small></div></li>
           <li><div><b>Close</b><small>Ghost icon button, <code>aria-label="Close"</code>.</small></div></li>
-          <li><div><b>Body</b><small><code>.dialog__body</code>, usually a <code>.stack</code> of fields; scrolls inside the panel when tall.</small></div></li>
+          <li><div><b>Body</b><small><code>.dialog__body</code>, usually a <code>.stack</code> of fields; scrolls inside the panel when tall. Optional: a confirmation whose title and description say everything (Archive contact, Archive workspace, Cancel RSVP) leaves it out, and <code>.dialog__header + .dialog__footer</code> keeps the gap. Never fill it with placeholder or visually hidden text.</small></div></li>
           <li><div><b>Footer</b><small><code>.dialog__footer</code>: sticky, right-aligned, Cancel first, primary or danger last.</small></div></li>
         </ol>
       </div>
@@ -406,7 +406,8 @@
         <tr><td><code>.backdrop</code></td><td>Fixed dimmer behind the dialog.</td></tr>
         <tr><td><code>.dialog</code></td><td>Fixed frame: bottom sheet below 640px, centred above.</td></tr>
         <tr><td><code>.dialog__panel</code></td><td>The raised panel, max 32rem, scrolls when tall.</td></tr>
-        <tr><td><code>.dialog__header</code> / <code>__title</code> / <code>__body</code> / <code>__footer</code></td><td>Parts; the footer is sticky.</td></tr>
+        <tr><td><code>.dialog__header</code> / <code>__title</code> / <code>__body</code> / <code>__footer</code></td><td>Parts; the footer is sticky and the body is optional.</td></tr>
+        <tr><td><code>.dialog__header + .dialog__footer</code></td><td>Keeps the gap above the footer when a confirmation has no body.</td></tr>
         <tr><td><code>.dialog__icon</code></td><td>Neutral icon circle naming the task.</td></tr>
         <tr><td><code>.dialog__icon--danger</code></td><td>Danger tint for every confirmation whose main button is danger.</td></tr>
         <tr><td><code>.dialog--static</code></td><td>Documentation only: renders in flow.</td></tr>
@@ -429,7 +430,6 @@
       </ul>
       <p>Drift noticed in the mocks:</p>
       <ul>
-        <li>Archive workspace has an empty body holding only a <code>visually-hidden</code> "No further options".</li>
         <li>Every failed state uses the same generic "That didn’t work" title rather than naming what was not saved.</li>
         <li>Send invite's role list has "Create Lead" and offers lead roles beyond those a City Lead may grant.</li>
         <li>Inline styles: the header wraps title and description in <code>&lt;div style="flex: 1;"&gt;</code> and the description uses <code>style="margin-top: var(--space-1)"</code>; there is no class for either yet.</li>
