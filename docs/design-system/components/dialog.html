@@ -286,7 +286,7 @@
       </div>
       <ul>
         <li><b>Default</b>: focus on the first field (form dialogs) or on Cancel (confirmations).</li>
-        <li><b>Busy</b>: Cancel and Close take native <code>disabled</code> (focus is not on them, so they leave the tab order); the pressed button keeps focus with <code>aria-busy="true"</code> and <code>aria-disabled="true"</code>, always both, a pulsing dot and an ellipsis ("Send invite…"). Fields become <code>readonly</code>. Escape does nothing until it settles.</li>
+        <li><b>Busy</b>: Cancel and Close take native <code>disabled</code> (focus is not on them, so they leave the tab order); the pressed button keeps focus with <code>aria-busy="true"</code> and <code>aria-disabled="true"</code>, always both, a pulsing dot and an ellipsis ("Send invite…"). Text fields and textareas become <code>readonly</code> (they keep their value and stay readable); selects, radios and checkboxes, which have no read-only state, become <code>disabled</code>. Escape does nothing until it settles.</li>
         <li><b>Invalid</b>: the field gets <code>aria-invalid="true"</code> and a <code>.field__error</code> linked with <code>aria-describedby</code>; focus moves to it. The dialog stays open. Examples: "Enter an email like name@example.org.", "Give a reason so other admins understand."</li>
         <li><b>Failed</b>: a danger <a href="alert.html">alert</a> with <code>role="alert"</code> at the top of the body; everything typed stays. Copy: "That didn’t work · We couldn’t reach FaithTech. Nothing was changed — try again."</li>
       </ul>
@@ -429,7 +429,6 @@
       </ul>
       <p>Drift noticed in the mocks:</p>
       <ul>
-        <li>Busy states leave fields editable (no <code>readonly</code>).</li>
         <li>Cancel event and Cancel RSVP pair "Cancel" with "Cancel event" / "Cancel RSVP".</li>
         <li>Archive workspace has an empty body holding only a <code>visually-hidden</code> "No further options".</li>
         <li>Every failed state uses the same generic "That didn’t work" title rather than naming what was not saved.</li>

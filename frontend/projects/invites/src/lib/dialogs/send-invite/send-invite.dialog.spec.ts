@@ -9,7 +9,7 @@ import {
   Role,
   SendInviteRequest,
 } from '@faithtech-community/api';
-import { Observable, of, throwError } from 'rxjs';
+import { Observable, Subject, of, throwError } from 'rxjs';
 
 import { SendInviteDialog } from './send-invite.dialog';
 
@@ -58,6 +58,26 @@ function setup(
 }
 
 describe('SendInviteDialog', () => {
+  it('makes the fields read-only and the role choice disabled while sending, and restores them', async () => {
+    const pending = new Subject<InviteDto>();
+    const { fixture, host, set } = setup(() => pending);
+    set('input[type=email]', 'nate.oyelaran@example.org');
+    Array.from(host.querySelectorAll('button'))
+      .find((b) => b.textContent?.trim() === 'Send invite')!
+      .click();
+    fixture.detectChanges();
+    expect(host.querySelector<HTMLInputElement>('input[type=email]')!.readOnly).toBe(true);
+    expect(host.querySelector('textarea')!.readOnly).toBe(true);
+    expect(host.querySelector('select')!.disabled).toBe(true);
+
+    pending.error(new Error('offline'));
+    await fixture.whenStable();
+    fixture.detectChanges();
+    expect(host.querySelector<HTMLInputElement>('input[type=email]')!.readOnly).toBe(false);
+    expect(host.querySelector('textarea')!.readOnly).toBe(false);
+    expect(host.querySelector('select')!.disabled).toBe(false);
+  });
+
   it('offers only the roles a City Lead may grant', () => {
     const { host } = setup(() => of(sent));
     const options = Array.from(host.querySelectorAll('select option')).map((o) =>

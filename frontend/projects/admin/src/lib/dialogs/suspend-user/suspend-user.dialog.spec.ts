@@ -2,7 +2,7 @@ import { DIALOG_DATA, DialogRef } from '@angular/cdk/dialog';
 import { HttpErrorResponse } from '@angular/common/http';
 import { TestBed } from '@angular/core/testing';
 import { ADMIN_USERS_SERVICE } from '@faithtech-community/api';
-import { Observable, of, throwError } from 'rxjs';
+import { Observable, Subject, of, throwError } from 'rxjs';
 
 import { SuspendUserData, SuspendUserDialog } from './suspend-user.dialog';
 
@@ -36,6 +36,19 @@ function setup(suspend: (id: string, reason: string) => Observable<void>) {
 }
 
 describe('SuspendUserDialog', () => {
+  it('makes the reason read-only while suspending', async () => {
+    const pending = new Subject<void>();
+    const { fixture, host, button, type, settle } = setup(() => pending);
+    type('Repeated spam event listings after a warning.');
+    button('Suspend').click();
+    fixture.detectChanges();
+    expect(host.querySelector('textarea')!.readOnly).toBe(true);
+
+    pending.error(new Error('offline'));
+    await settle();
+    expect(host.querySelector('textarea')!.readOnly).toBe(false);
+  });
+
   it('asks to confirm and explains what suspension does', () => {
     const { host } = setup(() => of(undefined));
     expect(host.querySelector('h2')!.textContent).toContain('Suspend Leah Thompson?');

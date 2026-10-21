@@ -113,7 +113,7 @@
         <thead><tr><th scope="col">Moment</th><th scope="col">Use</th><th scope="col">Example</th></tr></thead>
         <tbody>
           <tr><td>A page or region is fetching data</td><td>Skeleton in the region, with the page header and actions already shown</td><td>contacts/loading, profile/loading</td></tr>
-          <tr><td>A form or dialog is saving</td><td>Busy button. The fields stay editable, but pressing again does nothing</td><td>"Saving…", "Delete permanently…"</td></tr>
+          <tr><td>A form or dialog is saving</td><td>Busy button. In a dialog the text fields become <code>readonly</code> and selects and choices <code>disabled</code>; pressing again does nothing</td><td>"Saving…", "Delete permanently…"</td></tr>
           <tr><td>A file is uploading</td><td>Progress on the tile, with a percentage as text</td><td>edit-profile/uploading</td></tr>
           <tr><td>Saved, and the person stays on the page</td><td>Success alert at the top of the form, <code>role="status"</code></td><td>"Profile saved · Everyone signed in can now see your changes."</td></tr>
           <tr><td>Saved, and the person moves to the item</td><td>Toast on the next page</td><td>"Invite sent", "Contact restored"</td></tr>

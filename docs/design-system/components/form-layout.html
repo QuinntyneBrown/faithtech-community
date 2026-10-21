@@ -185,7 +185,7 @@
       </div>
       <ul>
         <li><b>Invalid</b>: on submit the summary appears above the first field, takes focus (<code>tabindex="-1"</code>, <code>role="alert"</code>) and each field shows its own error.</li>
-        <li><b>Busy</b>: the primary shows the loading state; Cancel stays a link. Fields stay editable.</li>
+        <li><b>Busy</b>: the primary shows the loading state; Cancel stays a link. Page-form fields stay editable; in a busy dialog they become read-only (see the dialog page).</li>
         <li><b>Success</b>: the page either navigates to the result (the new event, the contact) or, in Settings, shows a success alert at the top.</li>
         <li><b>Error</b> (the server failed) uses a danger alert in the same place as the summary, without field links: see <a href="alert.html">alert</a>.</li>
       </ul>

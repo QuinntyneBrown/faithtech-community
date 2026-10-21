@@ -95,6 +95,8 @@ export class SendInviteDialog {
     if (this.emailError() || this.noteError()) return;
 
     this.busy.set(true);
+    // A select has no read-only state, so it is disabled while sending (docs/design-system dialog).
+    this.form.controls.role.disable();
     this.failed.set(false);
     this.refusal.set(null);
     try {
@@ -116,6 +118,7 @@ export class SendInviteDialog {
         this.failed.set(true);
       }
     } finally {
+      this.form.controls.role.enable();
       this.busy.set(false);
     }
   }
