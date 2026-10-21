@@ -209,7 +209,7 @@
         <tr><td><kbd>Enter</kbd> in a text field</td><td>Submits the form through its <code>type="submit"</code> button ("Sign in", "Save settings").</td></tr>
       </tbody></table>
       <h3>Focus</h3>
-      <p>One shared ring (<code>--focus-ring-width</code> of <code>--color-focus-ring</code>, offset by <code>--focus-ring-offset</code>) on <code>:focus-visible</code> only, so taps and clicks do not show it. The offset gap shows the surface colour, which keeps the ring visible against the primary fill. When a dialog opens, focus starts on its primary action when that is safe ("Add role"); in destructive dialogs (cancel event, delete contact, suspend user) it starts on Cancel, never on the danger button.</p>
+      <p>One shared ring (<code>--focus-ring-width</code> of <code>--color-focus-ring</code>, offset by <code>--focus-ring-offset</code>) on <code>:focus-visible</code> only, so taps and clicks do not show it. The offset gap shows the surface colour, which keeps the ring visible against the primary fill. When a dialog opens, focus starts on its primary action when that is safe ("Add role"); in destructive dialogs it starts on the DELETE or reason field (delete contact, suspend user, cancel event), or on Cancel when there is no field (delete photo, remove role, cancel RSVP), never on the danger button.</p>
       <h3>Labelling</h3>
       <p>The visible label is the accessible name. Icon-only buttons set <code>aria-label</code> with the verb and, where several share a view, the object: "Close", "Copy link", "Show password", "Remove photo 3", "Edit note". A loading button keeps its name.</p>
       <h3>Contrast</h3>
@@ -300,7 +300,7 @@
         <li><a href="../../mocks/dialogs/add-role/default.html">dialogs/add-role/default</a> and <a href="../../mocks/dialogs/add-role/busy.html">busy</a> (secondary plus primary footer)</li>
         <li><a href="../../mocks/pages/event/default.html">pages/event/default</a> (large "I’m going")</li>
       </ul>
-      <p>Drift noticed in the mocks: destructive dialogs (cancel-event, delete-contact, suspend-user) put <code>autofocus</code> on the danger button instead of Cancel; busy buttons use <code>aria-disabled</code> while their neighbours use <code>disabled</code>; page forms put the primary first and the ghost Cancel after it, while dialog footers put Cancel first and the primary last. Inherited from Shelfie unchanged: the spinner at <code>--duration-loop</code>/2 and the 1.25em icon.</p>
+      <p>Drift noticed in the mocks: busy buttons use <code>aria-disabled</code> while their neighbours use <code>disabled</code>; page forms put the primary first and the ghost Cancel after it, while dialog footers put Cancel first and the primary last. Inherited from Shelfie unchanged: the spinner at <code>--duration-loop</code>/2 and the 1.25em icon.</p>
     </section>
 
     <footer class="ds-footer"><span>FaithTech Community design system · extracted from <a href="../../mocks/index.html">docs/mocks</a> on 2026-10-21</span><a href="#top">Back to top</a></footer>

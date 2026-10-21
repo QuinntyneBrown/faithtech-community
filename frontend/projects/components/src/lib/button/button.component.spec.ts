@@ -15,6 +15,7 @@ import { ButtonComponent } from './button.component';
     [label]="label()"
     [href]="href()"
     [object]="object()"
+    [initialFocus]="initialFocus()"
     >Publish event</ft-button
   >`,
 })
@@ -29,6 +30,7 @@ class HostComponent {
   label = signal<string | null>(null);
   href = signal<string | null>(null);
   object = signal<string | null>(null);
+  initialFocus = signal(false);
 }
 
 function setup() {
@@ -143,6 +145,14 @@ describe('ButtonComponent', () => {
     const a = q('a');
     expect(a.getAttribute('aria-disabled')).toBe('true');
     expect(a.getAttribute('tabindex')).toBe('-1');
+  });
+
+  it('marks the native button as the dialog’s first focus when initialFocus is set', () => {
+    const { fixture, cmp, q } = setup();
+    expect(q('button').hasAttribute('cdkFocusInitial')).toBe(false);
+    cmp.initialFocus.set(true);
+    fixture.detectChanges();
+    expect(q('button').hasAttribute('cdkFocusInitial')).toBe(true);
   });
 
   it('lets clicks reach the host listener', () => {

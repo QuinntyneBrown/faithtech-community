@@ -55,6 +55,7 @@ test.describe('Admin users', () => {
     await users.suspend('Leah Thompson').click();
     const dialog = new SuspendUserDialog(page, 'Leah Thompson');
     await expect(dialog.dialog).toBeVisible();
+    await expect(dialog.reason).toBeFocused();
     await axe.check();
     await dialog.confirm.click();
     await expect(dialog.reasonError).toBeVisible();

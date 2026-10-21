@@ -14,8 +14,10 @@
   <div class="photo">
     <ft-photo [src]="data.photo.url" [alt]="data.photo.altText" />
   </div>
-  <ft-button ftDialogFooter [disabled]="busy()" (click)="ref.close(false)">Cancel</ft-button>
-  <ft-button ftDialogFooter data-autofocus variant="danger" [loading]="busy()" (click)="confirm()">
+  <ft-button ftDialogFooter initialFocus [disabled]="busy()" (click)="ref.close(false)"
+    >Cancel</ft-button
+  >
+  <ft-button ftDialogFooter variant="danger" [loading]="busy()" (click)="confirm()">
     {{ busy() ? 'Delete photo…' : 'Delete photo' }}
   </ft-button>
 </ft-dialog>
