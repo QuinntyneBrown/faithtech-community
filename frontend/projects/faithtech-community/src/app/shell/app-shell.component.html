@@ -18,7 +18,7 @@
         [entries]="accountEntries()"
         (itemSelected)="accountAction($event)"
       >
-        <ft-avatar size="sm" [drawn]="true" [name]="me.name ?? ''" />
+        <ft-avatar size="sm" [drawn]="true" [name]="me.name ?? ''" [color]="avatarColor()" />
       </ft-menu>
     }
   </div>

@@ -22,6 +22,8 @@ public static class MeEndpoints
             return Results.Ok(new
             {
                 Id = current.UserId,
+                // The top-bar avatar's colour comes from the profile id, as on every other screen (ADR 0008).
+                ProfileId = user?.ProfileId,
                 Name = name,
                 Email = user?.Email ?? principal.FindFirst(OpenIddictConstants.Claims.Email)?.Value,
                 EmailVerified = user?.EmailConfirmed ?? false,

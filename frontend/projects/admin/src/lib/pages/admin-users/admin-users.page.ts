@@ -17,6 +17,8 @@ import {
   UserStatus,
 } from '@faithtech-community/api';
 import {
+  AvatarColor,
+  avatarColorFor,
   AvatarComponent,
   BadgeComponent,
   BadgeVariant,
@@ -98,6 +100,11 @@ export class AdminUsersPage {
 
   constructor() {
     void this.load();
+  }
+
+  /** A suspended account shows the plain avatar (ADR 0008). */
+  protected avatarColor(user: AdminUserSummary): AvatarColor {
+    return user.status === 'Suspended' ? 'plain' : avatarColorFor(user.id);
   }
 
   protected roleLabel(role: Role): string {

@@ -9,7 +9,7 @@ import {
   ROLES_SERVICE,
   Role,
 } from '@faithtech-community/api';
-import { DialogService, RoleDialogData } from '@faithtech-community/components';
+import { avatarColorFor, DialogService, RoleDialogData } from '@faithtech-community/components';
 import { Observable, of, throwError } from 'rxjs';
 
 import { ProfilePage } from './profile.page';
@@ -66,6 +66,15 @@ describe('ProfilePage', () => {
     expect(host.textContent).toContain('Create Lead');
     expect(host.textContent).not.toContain('You haven’t written a bio yet.');
     expect(host.textContent).not.toContain('Edit profile');
+  });
+
+  it('draws the avatar in the colour that belongs to the member’s profile id', async () => {
+    const { fixture, host } = setup(() => of(samuel));
+    await fixture.whenStable();
+    fixture.detectChanges();
+    const avatar = host.querySelector('.ft-avatar')!;
+    expect(avatar.classList.contains(`ft-avatar--${avatarColorFor('p1')}`)).toBe(true);
+    expect(avatar.classList.contains('ft-avatar--plain')).toBe(false);
   });
 
   it('tells a 404 apart from a failure', async () => {

@@ -103,7 +103,7 @@
         <li><b>Static</b> (<code>span.avatar</code>, <code>aria-hidden="true"</code>): beside a name in <a href="list.html">lists</a>, <a href="feed.html">feeds</a>, <a href="table.html">tables</a> and the profile head.</li>
         <li><b>Trigger</b> (<code>button.avatar-trigger</code> around a small avatar): the last item in the <a href="top-bar.html">top bar</a>, opening the <a href="menu.html">account menu</a>.</li>
         <li><b>Plain</b> (no colour modifier): private contacts who have not signed up, such as Abby Brooks and Kwame Asante, and suspended accounts such as Victor Kane.</li>
-        <li>In Angular, use <code>&lt;ft-avatar&gt;</code> from the components library.</li>
+        <li>In Angular, use <code>&lt;ft-avatar&gt;</code> from the components library and pass <code>[color]="avatarColorFor(profileId)"</code> for a member; leave the colour unset (plain) for an unlinked contact or a suspended account.</li>
       </ul>
       <p>An avatar shows initials, or the member’s featured photo where a screen promises a photo, such as the <a href="../../mocks/pages/team/default.html">team list</a> (<code>.avatar__img</code>, <code>alt=""</code>, initials stay behind it as the fallback). Do not use an avatar for status (use a <a href="badge.html">badge</a>) or for a partner organisation.</p>
     </section>
@@ -123,7 +123,7 @@
     </section>
 
     <section class="ds-section" id="variants"><h2><a href="#variants">Variants</a></h2>
-      <p>Seven colours (sky, sun, lilac, sage, rose, mint, peach) plus the plain accent tint. A person keeps one colour on every screen.</p>
+      <p>Seven colours (sky, sun, lilac, sage, rose, mint, peach) plus the plain accent tint. A person keeps one colour on every screen: the colour is not picked per screen but derived from the member's profile id (<code>avatarColorFor(profileId)</code> in the components library, ADR 0008), so every screen that shows them computes the same one. With seven colours, people share colours (Marcus Lee and Tom&aacute;s Ortega are both sun); the printed name, never the colour, tells them apart. The cast's colours are listed in <code>docs/mocks/README.md</code>.</p>
       <div class="ds-example">
         <div class="ds-example__canvas"><span class="avatar avatar--sky" aria-hidden="true">GO</span><span class="avatar avatar--sun" aria-hidden="true">ML</span><span class="avatar avatar--lilac" aria-hidden="true">HK</span><span class="avatar avatar--sage" aria-hidden="true">JB</span><span class="avatar avatar--rose" aria-hidden="true">RA</span><span class="avatar avatar--mint" aria-hidden="true">SM</span><span class="avatar avatar--peach" aria-hidden="true">LT</span><span class="avatar" aria-hidden="true">KA</span></div>
         <div class="ds-example__caption"><span>Grace, Marcus, Hannah, Jonah, Ruth, Samuel, Leah, and the plain avatar for Kwame Asante, a private contact.</span></div>
@@ -280,7 +280,7 @@
         <li><a href="../../mocks/pages/contacts/default.html">pages/contacts/default</a> (plain avatars for private contacts)</li>
         <li><a href="../../mocks/pages/team/default.html">pages/team/default</a> and <a href="../../mocks/pages/admin-users/default.html">pages/admin-users/default</a> (colours)</li>
       </ul>
-      <p>Drift: colours are hand-picked per mock rather than stored per member, and two people share some colours (Marcus Lee and Tomás Ortega are both sun). One mock renders a plain avatar with no initials. The profile head card uses an inline <code>style="margin-top: var(--space-6);"</code>, and admin table cells wrap the avatar in an inline-styled cluster (<code>style="gap: var(--space-2);"</code>).</p>
+      <p>Drift: one mock renders a plain avatar with no initials. The profile head card uses an inline <code>style="margin-top: var(--space-6);"</code>, and admin table cells wrap the avatar in an inline-styled cluster (<code>style="gap: var(--space-2);"</code>).</p>
     </section>
 
     <footer class="ds-footer"><span>FaithTech Community design system · extracted from <a href="../../mocks/index.html">docs/mocks</a> on 2026-10-21</span><a href="#top">Back to top</a></footer>

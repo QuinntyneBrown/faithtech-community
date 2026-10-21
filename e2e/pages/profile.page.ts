@@ -7,6 +7,8 @@ export class ProfilePage {
   readonly bio: Locator;
   readonly photos: Locator;
   readonly avatarPhoto: Locator;
+  /** The initials circle shown when there is no featured photo. */
+  readonly avatar: Locator;
   readonly editProfile: Locator;
   readonly noPhotos: Locator;
   readonly addPhotos: Locator;
@@ -23,6 +25,7 @@ export class ProfilePage {
     this.bio = page.locator('.ft-profile-header__bio');
     this.photos = page.getByRole('region', { name: 'Photos' }).getByRole('img');
     this.avatarPhoto = page.locator('.ft-profile-header__head ft-sticker img');
+    this.avatar = page.locator('.ft-profile-header__head .ft-avatar');
     this.editProfile = page.getByRole('link', { name: 'Edit profile' });
     this.noPhotos = page.getByRole('heading', { name: 'No photos yet' });
     this.addPhotos = page.getByRole('link', { name: 'Add photos' });

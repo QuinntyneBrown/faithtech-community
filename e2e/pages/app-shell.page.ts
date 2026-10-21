@@ -44,6 +44,11 @@ export class AppShell {
     await this.menuItem('Sign out').click();
   }
 
+  /** The initials circle on the top bar's account menu button. */
+  yourAvatar(name: string): Locator {
+    return this.accountMenu(name).locator('.ft-avatar');
+  }
+
   navLink(name: string): Locator {
     return this.primaryNav.getByRole('link', { name, exact: true });
   }
