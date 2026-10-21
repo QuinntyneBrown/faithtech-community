@@ -234,6 +234,7 @@
         "default",
         "rsvped",
         "lead",
+        "link-copied",
         "cancelled",
         "loading",
         "error"
