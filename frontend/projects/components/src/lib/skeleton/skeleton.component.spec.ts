@@ -31,12 +31,15 @@ describe('SkeletonComponent', () => {
     expect(el().getAttribute('aria-hidden')).toBe('true');
   });
 
-  it.each(['text', 'title', 'rect', 'avatar'] as const)('renders the %s shape', (s) => {
-    const { fixture, cmp, el } = setup();
-    cmp.shape.set(s);
-    fixture.detectChanges();
-    expect(el().classList.contains(`ft-skeleton--${s}`)).toBe(true);
-  });
+  it.each(['text', 'title', 'rect', 'avatar', 'date-badge'] as const)(
+    'renders the %s shape',
+    (s) => {
+      const { fixture, cmp, el } = setup();
+      cmp.shape.set(s);
+      fixture.detectChanges();
+      expect(el().classList.contains(`ft-skeleton--${s}`)).toBe(true);
+    },
+  );
 
   it.each(['sm', 'md', 'lg', 'xl'] as const)('sizes the avatar shape as %s', (s) => {
     const { fixture, cmp, el } = setup();
