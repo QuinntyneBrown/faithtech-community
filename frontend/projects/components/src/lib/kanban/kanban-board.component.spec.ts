@@ -8,11 +8,7 @@ import { KanbanColumnComponent, KanbanCardDrop } from './kanban-column.component
 
 @Component({
   imports: [KanbanBoardComponent, KanbanColumnComponent, KanbanCardComponent],
-  template: `<ft-kanban-board
-    label="Partner pipeline"
-    [columns]="columns()"
-    [announcement]="announcement()"
-  >
+  template: `<ft-kanban-board label="Partner pipeline" [announcement]="announcement()">
     <ft-kanban-column title="Lead" stage="lead" [count]="1" (cardDropped)="drops.push($event)">
       <ft-kanban-card
         cardId="maple"
@@ -38,7 +34,6 @@ import { KanbanColumnComponent, KanbanCardDrop } from './kanban-column.component
   </ft-kanban-board>`,
 })
 class HostComponent {
-  columns = signal<3 | 4>(3);
   announcement = signal('');
   drops: KanbanCardDrop[] = [];
   moves: unknown[] = [];
@@ -56,15 +51,6 @@ describe('KanbanBoardComponent', () => {
     const { host } = setup();
     const region = host.querySelector('[role="region"]')!;
     expect(region.getAttribute('aria-label')).toBe('Partner pipeline');
-  });
-
-  it('defaults to three columns and supports four', () => {
-    const { fixture, cmp, host } = setup();
-    const board = host.querySelector('.ft-kanban')!;
-    expect(board.classList.contains('ft-kanban--4')).toBe(false);
-    cmp.columns.set(4);
-    fixture.detectChanges();
-    expect(board.classList.contains('ft-kanban--4')).toBe(true);
   });
 
   it('announces a move politely in a visually hidden live region', () => {
