@@ -11,6 +11,7 @@ import {
 import { Router } from '@angular/router';
 import { CONTACTS_SERVICE, ContactDto, ContactNoteDto } from '@faithtech-community/api';
 import {
+  AlertComponent,
   BadgeComponent,
   BreadcrumbComponent,
   BreadcrumbItemComponent,
@@ -24,6 +25,7 @@ import {
   LinkComponent,
   NoteComponent,
   PageHeaderComponent,
+  PhotoComponent,
   SkeletonComponent,
   SplitComponent,
   StackComponent,
@@ -32,14 +34,25 @@ import {
 } from '@faithtech-community/components';
 import { firstValueFrom } from 'rxjs';
 
-import { AddNoteData, AddNoteDialog, ArchiveContactDialog, ContactRef } from '../../dialogs';
+import {
+  AddNoteData,
+  AddNoteDialog,
+  ArchiveContactDialog,
+  ContactRef,
+  LinkContactData,
+  LinkContactDialog,
+} from '../../dialogs';
 
 type State = 'loading' | 'loaded' | 'not-found' | 'error';
 
-/** One private contact and its private notes (L2-012 to L2-014), matching docs/mocks/pages/contact. */
+/**
+ * One private contact and its private notes (L2-012 to L2-015), matching docs/mocks/pages/contact:
+ * a contact whose email a new member verified offers Link to their profile.
+ */
 @Component({
   selector: 'ft-contact-page',
   imports: [
+    AlertComponent,
     BadgeComponent,
     BreadcrumbComponent,
     BreadcrumbItemComponent,
@@ -52,6 +65,7 @@ type State = 'loading' | 'loaded' | 'not-found' | 'error';
     LinkComponent,
     NoteComponent,
     PageHeaderComponent,
+    PhotoComponent,
     SkeletonComponent,
     SplitComponent,
     StackComponent,
@@ -72,6 +86,10 @@ export class ContactPage {
   protected readonly state = signal<State>('loading');
   protected readonly contact = signal<ContactDto | null>(null);
   protected readonly notes = signal<ContactNoteDto[]>([]);
+  /** "Not them" hides the match on this visit only; nothing is stored (ADR 0007). */
+  protected readonly dismissed = signal(false);
+  protected readonly justLinked = signal(false);
+  protected readonly match = computed(() => (this.dismissed() ? null : this.contact()?.match));
 
   protected readonly subtitle = computed(() => {
     const contact = this.contact();
@@ -96,6 +114,27 @@ export class ContactPage {
     });
     const note = await firstValueFrom(ref.closed);
     if (note) this.notes.update((notes) => [note, ...notes]);
+  }
+
+  protected async link(contact: ContactDto): Promise<void> {
+    if (!contact.match) return;
+    const ref = this.dialogs.open<ContactDto, LinkContactData>(LinkContactDialog, {
+      data: {
+        contactId: contact.id,
+        email: contact.email,
+        noteCount: contact.noteCount,
+        member: contact.match,
+      },
+    });
+    const linked = await firstValueFrom(ref.closed);
+    if (!linked) return;
+    this.contact.set(linked);
+    this.justLinked.set(true);
+    this.notes.set(await firstValueFrom(this.contacts.getNotes(contact.id)));
+  }
+
+  protected dismiss(): void {
+    this.dismissed.set(true);
   }
 
   protected async archive(contact: ContactDto): Promise<void> {

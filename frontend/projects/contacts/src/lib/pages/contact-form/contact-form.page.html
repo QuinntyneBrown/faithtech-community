@@ -36,6 +36,12 @@
       <ft-card class="form">
         <ft-stack>
           <ft-error-summary [errors]="summary()" action="save" />
+          @if (member(); as name) {
+            <ft-alert status="info" [heading]="name + ' is already a member'">
+              This email belongs to an existing profile. Save the contact linked to their profile,
+              and your notes will stay private to you.
+            </ft-alert>
+          }
           @if (failed()) {
             <ft-alert status="danger" heading="We couldn’t save this contact">
               Something went wrong on our side. Your details are still here — try again.
@@ -69,7 +75,7 @@
           }
           <ft-form-actions>
             <ft-button type="submit" variant="primary" [loading]="busy()">
-              {{ busy() ? 'Saving…' : 'Save contact' }}
+              {{ busy() ? 'Saving…' : member() ? 'Save and link' : 'Save contact' }}
             </ft-button>
             <ft-button variant="ghost" [href]="cancelHref()">Cancel</ft-button>
           </ft-form-actions>

@@ -53,6 +53,12 @@ public static class ContactsEndpoints
         contacts.MapDelete("/{id:guid}", async (Guid id, ArchiveContactsHandler handler, CancellationToken cancellationToken) =>
             (await handler.DeleteAsync(id, cancellationToken)).ToHttp(Results.NoContent));
 
+        contacts.MapPost("/{id:guid}/link", async (Guid id, LinkContactCommand command, LinkContactHandler handler, CancellationToken cancellationToken) =>
+        {
+            var (result, contact) = await handler.LinkAsync(id, command, cancellationToken);
+            return result.ToHttp(() => Results.Ok(contact));
+        });
+
         return app;
     }
 }

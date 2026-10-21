@@ -167,4 +167,38 @@ describe('ContactFormPage', () => {
 
     expect(text()).toContain('We couldn’t load this contact');
   });
+
+  it('offers Save and link when the email belongs to a member', async () => {
+    let calls = 0;
+    const { service, router, type, save, text, host } = await setup({
+      create: () =>
+        ++calls === 1
+          ? throwError(
+              () =>
+                new HttpErrorResponse({
+                  status: 409,
+                  error: {
+                    detail: 'Kwame Asante is already a member.',
+                    memberName: 'Kwame Asante',
+                  },
+                }),
+            )
+          : of(saved),
+    });
+
+    type('Name', 'Kwame');
+    type('Email', 'kwame.asante@example.org');
+    await save();
+
+    expect(text()).toContain('Kwame Asante is already a member');
+    expect(host.querySelector('button[type="submit"]')!.textContent).toContain('Save and link');
+    expect(router.navigateByUrl).not.toHaveBeenCalled();
+
+    await save();
+
+    expect(service.create).toHaveBeenLastCalledWith(
+      expect.objectContaining({ linkToMember: true }),
+    );
+    expect(router.navigateByUrl).toHaveBeenCalledWith('/contacts/c9');
+  });
 });

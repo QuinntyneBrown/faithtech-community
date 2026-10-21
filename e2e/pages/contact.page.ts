@@ -9,6 +9,10 @@ export class ContactPage {
   readonly notFound: Locator;
   readonly addNote: Locator;
   readonly archive: Locator;
+  readonly matchAlert: Locator;
+  readonly linkToProfile: Locator;
+  readonly notThem: Locator;
+  readonly linkedAlert: Locator;
   readonly notes: Locator;
 
   constructor(private readonly page: Page) {
@@ -19,6 +23,10 @@ export class ContactPage {
     this.notFound = page.getByRole('heading', { name: 'We couldn’t find that contact' });
     this.addNote = page.getByRole('button', { name: 'Add note' });
     this.archive = page.getByRole('button', { name: 'Archive' });
+    this.matchAlert = page.locator('ft-alert', { hasText: 'has joined FaithTech' });
+    this.linkToProfile = page.getByRole('button', { name: 'Link to their profile' });
+    this.notThem = page.getByRole('button', { name: 'Not them' });
+    this.linkedAlert = page.locator('ft-alert', { hasText: 'member profile' });
     this.notes = page.locator('ft-note');
   }
 

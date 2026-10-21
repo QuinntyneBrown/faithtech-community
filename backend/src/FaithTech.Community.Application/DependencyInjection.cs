@@ -45,6 +45,8 @@ public static class DependencyInjection
         services.AddScoped<ManageContactsHandler>();
         services.AddScoped<ContactNotesHandler>();
         services.AddScoped<ArchiveContactsHandler>();
+        services.AddScoped<ContactSignedUpHandler>();
+        services.AddScoped<LinkContactHandler>();
         services.TryAddSingleton(TimeProvider.System);
         return services;
     }

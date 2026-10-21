@@ -58,6 +58,22 @@
         }
       </ft-page-header>
 
+      @if (match(); as member) {
+        <ft-alert status="info" [heading]="member.name + ' has joined FaithTech'">
+          Their new profile uses the same email as this contact. Link them to see their profile and
+          keep your private notes.
+          <ft-button ftAlertActions variant="primary" (click)="link(c)"
+            >Link to their profile</ft-button
+          >
+          <ft-button ftAlertActions variant="ghost" (click)="dismiss()">Not them</ft-button>
+        </ft-alert>
+      }
+      @if (justLinked()) {
+        <ft-alert status="success" [heading]="'Linked to ' + c.name + '’s member profile'">
+          Name and photos now come from their profile. Your notes are still only visible to you.
+        </ft-alert>
+      }
+
       <ft-split>
         <section ftSplitMain class="notes" aria-labelledby="notes-heading">
           <ft-card>
@@ -80,6 +96,9 @@
         </section>
         <ft-card ftSplitAside heading="Details">
           <ft-stack>
+            @if (c.photoUrl) {
+              <ft-photo class="photo" [src]="c.photoUrl" [alt]="c.photoAltText ?? c.name" />
+            }
             <ft-description-list>
               <ft-description-list-item label="Email">{{
                 c.email ?? '—'

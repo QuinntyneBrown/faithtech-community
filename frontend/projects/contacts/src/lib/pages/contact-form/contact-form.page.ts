@@ -48,7 +48,8 @@ const SUMMARY: Record<string, string> = {
 
 /**
  * Add or edit a private contact (L2-013), matching docs/mocks/pages/contact-form. Without `id` it
- * creates a contact with an optional first note; with `id` it edits that contact.
+ * creates a contact with an optional first note, offering "Save and link" when the email belongs to
+ * a member; with `id` it edits that contact.
  */
 @Component({
   selector: 'ft-contact-form-page',
@@ -97,6 +98,8 @@ export class ContactFormPage {
   protected readonly busy = signal(false);
   protected readonly failed = signal(false);
   protected readonly contact = signal<ContactDto | null>(null);
+  /** The member who already uses the email; saving then links the contact to them (L2-013 AC6). */
+  protected readonly member = signal<string | null>(null);
   private readonly submitted = signal(false);
   private readonly serverErrors = signal<Partial<Record<Field, string>>>({});
   // Re-evaluated on submit; the form's own state is not a signal.
@@ -125,6 +128,8 @@ export class ContactFormPage {
       const id = this.id();
       if (id) void this.load(id);
     });
+    // A different email may not belong to that member, so ask again.
+    this.form.controls.email.valueChanges.subscribe(() => this.member.set(null));
   }
 
   protected error(field: Field): string {
@@ -160,14 +165,20 @@ export class ContactFormPage {
       const saved = await firstValueFrom(
         id
           ? this.contacts.update(id, details)
-          : this.contacts.create({ ...details, notes: blank(value.notes), linkToMember: false }),
+          : this.contacts.create({
+              ...details,
+              notes: blank(value.notes),
+              linkToMember: this.member() !== null,
+            }),
       );
       await this.router.navigateByUrl(`/contacts/${saved.id}`);
     } catch (error) {
+      const member = memberName(error);
       const fieldErrors = validationErrors(error);
-      if (fieldErrors) this.serverErrors.set(fieldErrors);
+      if (member) this.member.set(member);
+      else if (fieldErrors) this.serverErrors.set(fieldErrors);
       else this.failed.set(true);
-      this.errorFocus()?.focusFirstError();
+      if (!member) this.errorFocus()?.focusFirstError();
     } finally {
       this.busy.set(false);
     }
@@ -208,6 +219,13 @@ export class ContactFormPage {
 
 function blank(value: string): string | null {
   return value.trim() || null;
+}
+
+/** The member named by a 409 from create: the email belongs to them (ADR 0007). */
+function memberName(error: unknown): string | null {
+  if (!(error instanceof HttpErrorResponse) || error.status !== 409) return null;
+  const name = (error.error as { memberName?: unknown } | null)?.memberName;
+  return typeof name === 'string' ? name : null;
 }
 
 /** Maps the API's validation problem details (PascalCase keys) onto the form's fields. */

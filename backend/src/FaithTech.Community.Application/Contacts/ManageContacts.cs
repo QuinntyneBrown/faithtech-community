@@ -67,6 +67,13 @@ public class ManageContactsHandler(IApplicationDbContext db, ContactAccess acces
             return (Result.Forbidden(), null);
         }
 
+        // "Save and link" (L2-013 AC6): a verified member already uses this email.
+        var member = await views.MatchAsync(command.Email, cancellationToken);
+        if (member is not null && !command.LinkToMember)
+        {
+            return (Result.Conflict($"{member.Name} is already a member.", new Dictionary<string, object?> { ["memberName"] = member.Name }), null);
+        }
+
         var contact = new Contact(
             owner,
             command.Name!.Trim(),
@@ -74,6 +81,11 @@ public class ManageContactsHandler(IApplicationDbContext db, ContactAccess acces
             ContactRules.Blank(command.Phone),
             ContactRules.Blank(command.Organization),
             ContactRules.Blank(command.City));
+        if (member is not null)
+        {
+            contact.LinkTo(member.ProfileId);
+        }
+
         if (ContactRules.Blank(command.Notes) is { } note)
         {
             contact.AddNote(note, time.GetUtcNow().UtcDateTime);

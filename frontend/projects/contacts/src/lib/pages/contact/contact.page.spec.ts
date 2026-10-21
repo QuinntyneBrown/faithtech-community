@@ -6,7 +6,7 @@ import { Router } from '@angular/router';
 import { DialogService, ToastService } from '@faithtech-community/components';
 import { Observable, of, throwError } from 'rxjs';
 
-import { AddNoteDialog, ArchiveContactDialog } from '../../dialogs';
+import { AddNoteDialog, ArchiveContactDialog, LinkContactDialog } from '../../dialogs';
 import { ContactPage } from './contact.page';
 
 function contactDto(overrides: Partial<ContactDto> = {}): ContactDto {
@@ -187,5 +187,38 @@ describe('ContactPage', () => {
     );
 
     expect(button('Archive')).toBeUndefined();
+  });
+
+  it('offers to link a contact whose email a new member verified', async () => {
+    const match = { profileId: 'p7', name: 'Tomás Ortega' };
+    const linked = contactDto({
+      linkedProfileId: 'p7',
+      photoUrl: '/p7.webp',
+      photoAltText: 'Tomás',
+    });
+    const { text, button, dialogs, settle } = await setupContactPage(
+      () => of(contactDto({ match, noteCount: 2 })),
+      { dialogResult: linked },
+    );
+    expect(text()).toContain('Tomás Ortega has joined FaithTech');
+
+    button('Link to their profile')!.click();
+    await settle();
+
+    expect(dialogs.open).toHaveBeenCalledWith(LinkContactDialog, {
+      data: { contactId: 'c1', email: 'tomas.ortega@example.org', noteCount: 2, member: match },
+    });
+    expect(text()).toContain('Linked to Tomás Ortega’s member profile');
+    expect(text()).toContain('Member · linked profile');
+  });
+
+  it('hides the match when the lead says it is not them', async () => {
+    const match = { profileId: 'p7', name: 'Tomás Ortega' };
+    const { text, button, settle } = await setupContactPage(() => of(contactDto({ match })));
+
+    button('Not them')!.click();
+    await settle();
+
+    expect(text()).not.toContain('has joined FaithTech');
   });
 });
