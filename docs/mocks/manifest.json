@@ -991,6 +991,23 @@
       }
     },
     {
+      "id": "sign-out-everywhere",
+      "kind": "dialog",
+      "title": "Sign out everywhere",
+      "opens_from": "settings",
+      "requirements": [
+        "L2-052"
+      ],
+      "states": [
+        "default",
+        "busy",
+        "failed"
+      ],
+      "not_applicable": {
+        "invalid": "A confirmation with no input to validate."
+      }
+    },
+    {
       "id": "archive-contact",
       "kind": "dialog",
       "title": "Archive contact",
