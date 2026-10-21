@@ -93,7 +93,7 @@ public class SignInTests(CommunityApiFactory factory) : IClassFixture<CommunityA
         await factory.WithDbAsync(async db =>
         {
             var profileId = await db.Users.Where(u => u.Email == email).Select(u => u.ProfileId).SingleAsync();
-            (await db.Profiles.SingleAsync(p => p.Id == profileId)).Suspend();
+            (await db.Profiles.SingleAsync(p => p.Id == profileId)).Suspend("Misuse", DateTime.UtcNow);
             return await db.SaveChangesAsync();
         });
 

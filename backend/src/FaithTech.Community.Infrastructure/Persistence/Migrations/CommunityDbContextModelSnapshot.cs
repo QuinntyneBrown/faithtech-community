@@ -99,6 +99,17 @@ namespace FaithTech.Community.Infrastructure.Persistence.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
+                    b.Property<bool>("AnnouncementEmailsOptedOut")
+                        .HasColumnType("boolean");
+
+                    b.Property<string>("Bio")
+                        .HasMaxLength(400)
+                        .HasColumnType("character varying(400)");
+
+                    b.Property<string>("HomeCity")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
                     b.Property<bool>("IsSuspended")
                         .HasColumnType("boolean");
 
@@ -106,6 +117,13 @@ namespace FaithTech.Community.Infrastructure.Persistence.Migrations
                         .IsRequired()
                         .HasMaxLength(200)
                         .HasColumnType("character varying(200)");
+
+                    b.Property<DateTime?>("SuspendedAtUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("SuspendedReason")
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)");
 
                     b.HasKey("Id");
 

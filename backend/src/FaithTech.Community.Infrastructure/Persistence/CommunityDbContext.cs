@@ -26,6 +26,9 @@ public class CommunityDbContext(DbContextOptions<CommunityDbContext> options)
         builder.Entity<Profile>(profile =>
         {
             profile.Property(p => p.Name).HasMaxLength(200);
+            profile.Property(p => p.HomeCity).HasMaxLength(100);
+            profile.Property(p => p.Bio).HasMaxLength(400);
+            profile.Property(p => p.SuspendedReason).HasMaxLength(500);
             profile.Ignore(p => p.DomainEvents);
             profile.OwnsMany(p => p.Roles, role =>
             {

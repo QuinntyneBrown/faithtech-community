@@ -9,6 +9,7 @@ public class Profile
 
     public Profile(string name)
     {
+        ArgumentException.ThrowIfNullOrWhiteSpace(name);
         Id = Guid.NewGuid();
         Name = name;
     }
@@ -19,11 +20,54 @@ public class Profile
 
     public IReadOnlyCollection<ProfileRole> Roles => _roles;
 
+    public string? HomeCity { get; private set; }
+
+    public string? Bio { get; private set; }
+
     public bool IsSuspended { get; private set; }
+
+    public string? SuspendedReason { get; private set; }
+
+    public DateTime? SuspendedAtUtc { get; private set; }
+
+    public bool AnnouncementEmailsOptedOut { get; private set; }
 
     public IReadOnlyList<object> DomainEvents => _domainEvents;
 
-    public void Suspend() => IsSuspended = true;
+    public void Update(string name, string? homeCity, string? bio)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(name);
+        Name = name;
+        HomeCity = homeCity;
+        Bio = bio;
+    }
+
+    public void Suspend(string reason, DateTime nowUtc)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(reason);
+        if (IsSuspended)
+        {
+            throw new InvalidOperationException("The profile is already suspended.");
+        }
+
+        IsSuspended = true;
+        SuspendedReason = reason;
+        SuspendedAtUtc = nowUtc;
+    }
+
+    public void Reinstate()
+    {
+        if (!IsSuspended)
+        {
+            throw new InvalidOperationException("The profile is not suspended.");
+        }
+
+        IsSuspended = false;
+        SuspendedReason = null;
+        SuspendedAtUtc = null;
+    }
+
+    public void SetAnnouncementEmailOptOut(bool optedOut) => AnnouncementEmailsOptedOut = optedOut;
 
     public bool HasRole(Role role) => _roles.Any(r => r.Role == role);
 
