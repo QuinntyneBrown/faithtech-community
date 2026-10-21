@@ -198,12 +198,12 @@
             <div class="auth-card stack">
               <div class="logo"><span class="logo-mark"><img src="../assets/logo.svg" alt="FaithTech" width="64" height="64"></span></div>
               <div class="card stack">
-                <span class="hero__title" style="text-align: center;">Welcome back</span>
+                <span class="hero__title text-center">Welcome back</span>
                 <div class="field"><label class="field__label" for="lay-email">Email</label><input class="input" id="lay-email" type="email" autocomplete="email" value="grace.okonkwo@example.org"></div>
                 <button class="btn btn--primary btn--lg btn--block" type="button">Sign in</button>
-                <p style="text-align: center;"><a href="../../mocks/pages/forgot-password/default.html">Forgot your password?</a></p>
+                <p class="text-center"><a href="../../mocks/pages/forgot-password/default.html">Forgot your password?</a></p>
               </div>
-              <p class="text-caption" style="text-align: center;">New to FaithTech? <a href="../../mocks/pages/sign-up/default.html">Create an account</a></p>
+              <p class="text-caption text-center">New to FaithTech? <a href="../../mocks/pages/sign-up/default.html">Create an account</a></p>
             </div>
           </div>
         </div>
@@ -317,7 +317,7 @@
         <tr><td><code>.page-start</code></td><td>24px above the first block of a page with no page header.</td></tr>
         <tr><td><code>.page-header</code> (+ <code>.subtitle</code>)</td><td>Title block and actions, wraps.</td></tr>
         <tr><td><code>.section</code></td><td><code>--space-8</code> above and below.</td></tr>
-        <tr><td><code>.auth-layout</code> / <code>.auth-card</code> (+ <code>.logo</code>)</td><td>Full-height centring / 26rem card column.</td></tr>
+        <tr><td><code>.auth-layout</code> / <code>.auth-card</code> (+ <code>.logo</code>)</td><td>Full-height centring / 26rem card column. Its heading and footer links take <code>.text-center</code>.</td></tr>
       </tbody></table>
       <p><code>.span-*</code>, <code>.sticky-aside</code> and <code>.divider</code> are still in <code>components.css</code> (inherited from Shelfie) but no FaithTech mock uses them.</p>
     </section>
@@ -333,7 +333,6 @@
       </ul>
       <p>Drift noticed in the mocks:</p>
       <ul>
-        <li>Auth pages centre text with inline <code>style="text-align: center;"</code> on the heading and footer links.</li>
         <li>Loading skeletons size themselves inline (<code>style="width: 12rem; display: inline-block;"</code>, <code>style="flex:1;"</code>).</li>
       </ul>
     </section>
