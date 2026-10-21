@@ -32,7 +32,7 @@
   }
 
   &[aria-current='page'],
-  &[aria-selected='true'] {
+  &[role='tab'][aria-selected='true'] {
     border-block-end-color: var(--color-accent);
     color: var(--color-fg-accent);
   }
