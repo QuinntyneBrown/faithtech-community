@@ -101,7 +101,7 @@
       <ul>
         <li><b><a href="../components/top-bar.html">Top bar</a></b>: FaithTech brand, then Home, Events, Contacts, Partners, Workspaces, Team, Announcements and People. Then search ("Search people, events, partners"), the <a href="../components/notification-panel.html">bell</a> and the avatar, which links to your profile.</li>
         <li><b><a href="../components/tab-bar.html">Tab bar</a></b> (under 768px): Home, Events, Search, Contacts, Partners.</li>
-        <li><b><a href="../components/tabs.html">Tabs</a></b> (<code>nav.tabs</code> with <code>aria-current</code>): views inside one area. Admin has Users, Audit log and Roles. A workspace has Board, Backlog, Planning Poker and Settings.</li>
+        <li><b><a href="../components/tabs.html">Tabs</a></b> (<code>nav.tabs</code> with <code>aria-current</code>): views inside one area. Admin has Users and Audit log; roles are assigned from People, which has its own top-bar link. A workspace has Board, Backlog, Planning Poker and Settings.</li>
         <li><b><a href="../components/breadcrumb.html">Breadcrumb</a></b>: a way back up from detail and form pages, such as Contacts › New contact or Workspaces › Toronto team.</li>
         <li><b><a href="../components/skip-link.html">Skip link</a></b>: "Skip to content", the first focusable element on every page.</li>
       </ul>
@@ -234,7 +234,7 @@
 
     <section class="ds-section" id="do-dont"><h2><a href="#do-dont">Do and don't</a></h2>
       <div class="ds-dodont">
-        <figure class="ds-do"><div class="ds-example__canvas"><nav class="tabs" aria-label="Admin sections (do)" style="width: 100%;"><a class="tab" href="#do-dont">Users</a><a class="tab" href="#do-dont" aria-current="page">Audit log</a><a class="tab" href="#do-dont">Roles</a></nav></div><figcaption>Make each tab a link to its own URL, so a view can be bookmarked and shared.</figcaption></figure>
+        <figure class="ds-do"><div class="ds-example__canvas"><nav class="tabs" aria-label="Admin sections (do)" style="width: 100%;"><a class="tab" href="#do-dont">Users</a><a class="tab" href="#do-dont" aria-current="page">Audit log</a></nav></div><figcaption>Make each tab a link to its own URL, so a view can be bookmarked and shared.</figcaption></figure>
         <figure class="ds-dont"><div class="ds-example__canvas"><div class="cluster"><button class="chip" type="button" aria-pressed="false">Users</button><button class="chip" type="button" aria-pressed="true">Audit log</button></div></div><figcaption>Don't use chips for separate areas of the app. Chips switch modes of one list.</figcaption></figure>
         <figure class="ds-do"><div class="ds-example__canvas"><nav aria-label="Breadcrumb (do)"><ol class="breadcrumb"><li><a href="#do-dont">Contacts</a></li><li aria-current="page">New contact</li></ol></nav></div><figcaption>Give form and detail pages a breadcrumb back to their list.</figcaption></figure>
         <figure class="ds-dont"><div class="ds-example__canvas"><a class="nav-link" href="#do-dont">Admin</a></div><figcaption>Don't hide a link in the UI as the only protection. The server must refuse the page.</figcaption></figure>
