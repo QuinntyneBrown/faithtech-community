@@ -664,7 +664,7 @@ label.bubble__text { cursor: pointer; }
 .picture-list__remove { position: absolute; top: var(--space-1); right: var(--space-1); background: var(--color-bg-surface); box-shadow: var(--shadow-1); }
 .picture-list__actions { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-1); }
 .picture-list__note { font: var(--text-caption); color: var(--color-fg-muted); }
-.picture-list__item--failed .picture-list__note { color: var(--color-danger-fg); }
+.picture-list__item--failed .picture-list__note, .picture-list__note--error { color: var(--color-danger-fg); }
 .picture-list__add { display: flex; flex-wrap: wrap; gap: var(--space-2); }
 .picture-list__library { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(5.5rem, 1fr)); gap: var(--space-2); }
 .picture-list__choice { display: flex; flex-direction: column; align-items: center; gap: var(--space-1); width: 100%; padding: var(--space-1); border: var(--border-width-hairline) solid var(--color-border-default); border-radius: var(--radius-md); background: var(--color-bg-surface); color: var(--color-fg-default); font: var(--text-caption); cursor: pointer; }
