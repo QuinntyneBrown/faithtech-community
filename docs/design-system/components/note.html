@@ -210,6 +210,7 @@
 <tr><td>Padding</td><td><code>--space-3</code></td><td colspan="2"><span data-token="--space-3"></span></td></tr>
 <tr><td>Rule width</td><td><code>--space-1</code></td><td colspan="2"><span data-token="--space-1"></span></td></tr>
 <tr><td>Radius</td><td><code>--radius-sm</code></td><td colspan="2"><span data-token="--radius-sm"></span></td></tr>
+<tr><td>Paragraph and meta spacing</td><td><code>--space-2</code></td><td colspan="2"><span data-token="--space-2"></span></td></tr>
 <tr><td>Meta font</td><td><code>--text-caption</code></td><td colspan="2"><span data-token="--text-caption"></span></td></tr>
 </tbody></table></div>
     </section>
@@ -226,6 +227,7 @@
       <table class="ds-table"><thead><tr><th scope="col">Class</th><th scope="col">Effect</th></tr></thead><tbody>
         <tr><td><code>.note</code></td><td>Subtle panel with an accent left rule.</td></tr>
         <tr><td><code>.note__meta</code></td><td>Caption-size muted date.</td></tr>
+        <tr><td><code>.note p</code></td><td>No browser margins; consecutive paragraphs, and the meta line after the body, sit <code>--space-2</code> apart (as <code>&lt;ft-note&gt;</code> does).</td></tr>
       </tbody></table>
     </section>
 
@@ -238,7 +240,7 @@
         <li><a href="../../mocks/pages/contact/no-notes.html">pages/contact/no-notes</a> (empty notes: "No notes yet. Only you will see what you write here.")</li>
         <li><a href="../../mocks/pages/contact/loading.html">pages/contact/loading</a>, <a href="../../mocks/pages/contact/error.html">pages/contact/error</a></li>
       </ul>
-      <p>Drift: the "Your notes" heading uses an inline <code>style="font: var(--text-h4)"</code>; <code>.note p</code> margins rely on the browser default between body and meta; the loading state shows generic card skeletons rather than note-shaped ones.</p>
+      <p>Drift: the "Your notes" heading uses an inline <code>style="font: var(--text-h4)"</code>; the loading state shows generic card skeletons rather than note-shaped ones.</p>
     </section>
 
     <footer class="ds-footer"><span>FaithTech Community design system · extracted from <a href="../../mocks/index.html">docs/mocks</a> on 2026-10-21</span><a href="#top">Back to top</a></footer>

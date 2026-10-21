@@ -807,7 +807,9 @@ mark { background: var(--color-warning-bg); color: inherit; border-radius: var(-
 
 /* ---------- Note (private annotation on a contact) ---------------------------- */
 .note { padding: var(--space-3) var(--space-4); border-left: var(--space-1) solid var(--color-accent); border-radius: var(--radius-sm); background: var(--color-bg-subtle); }
-.note__meta { color: var(--color-fg-muted); font: var(--text-caption); margin-top: var(--space-1); }
+.note p { margin: 0; }
+.note p + p { margin-top: var(--space-2); }
+.note__meta { color: var(--color-fg-muted); font: var(--text-caption); }
 
 /* ---------- Profile header ---------------------------------------------------- */
 .profile-head { display: flex; flex-wrap: wrap; gap: var(--space-4); align-items: center; }
