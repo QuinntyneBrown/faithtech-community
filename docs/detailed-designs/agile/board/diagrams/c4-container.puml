@@ -14,6 +14,6 @@ System_Boundary(ftc, "FaithTech Community") {
 Rel(member, web, "Uses", "HTTPS")
 Rel(staff, web, "Uses", "HTTPS")
 Rel(web, api, "Calls", "JSON/HTTPS")
-Rel(api, web, "Pushes live updates to", "SignalR (<TO SUPPLY>)")
+Rel(api, web, "Pushes live updates to", "SignalR (AgileHub, ADR 0009)")
 Rel(api, db, "Reads and writes", "EF Core")
 @enduml
