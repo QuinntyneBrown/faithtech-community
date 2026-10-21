@@ -7,12 +7,14 @@ import {
   AgileService,
   BacklogFilter,
   BacklogNodeDto,
+  BoardDto,
   CommentDto,
   CreateWorkItemRequest,
   CreateWorkspaceRequest,
   MemberCandidateDto,
   UpdateWorkItemRequest,
   WorkItemDto,
+  WorkItemStatus,
   WorkspaceDto,
   WorkspaceSummaryDto,
 } from './agile.service';
@@ -78,6 +80,15 @@ export class HttpAgileService implements AgileService {
 
   addComment(itemId: string, body: string): Observable<CommentDto> {
     return this.http.post<CommentDto>(`${this.item(itemId)}/comments`, { body });
+  }
+
+  getBoard(workspaceId: string, filter: BacklogFilter = {}): Observable<BoardDto> {
+    const params = new HttpParams({ fromObject: filter as Record<string, string | boolean> });
+    return this.http.get<BoardDto>(`${this.workspace(workspaceId)}/board`, { params });
+  }
+
+  moveCard(itemId: string, status: WorkItemStatus): Observable<void> {
+    return this.http.put<void>(`${this.item(itemId)}/status`, { status });
   }
 
   private item(id: string): string {

@@ -22,6 +22,22 @@ class HostComponent {
   moves: unknown[] = [];
 }
 
+@Component({
+  imports: [KanbanCardComponent],
+  template: `<ul>
+    <ft-kanban-card
+      cardId="kiosk"
+      title="Volunteer check-in kiosk"
+      href="/workspaces/w1/items/kiosk"
+      caption="Samuel · 5 pts · 0/3 tasks"
+      kind="Story"
+      kindVariant="success"
+      moveTarget="another column"
+    />
+  </ul>`,
+})
+class BoardCardHostComponent {}
+
 function setup() {
   const fixture = TestBed.createComponent(HostComponent);
   fixture.detectChanges();
@@ -55,6 +71,16 @@ describe('KanbanCardComponent', () => {
     fixture.componentInstance.movable.set(false);
     fixture.detectChanges();
     expect(drag.disabled).toBe(true);
+  });
+
+  it('shows an optional kind badge and names the move target', () => {
+    const fixture = TestBed.createComponent(BoardCardHostComponent);
+    fixture.detectChanges();
+    const host: HTMLElement = fixture.nativeElement;
+    expect(host.querySelector('ft-badge')!.textContent!.trim()).toBe('Story');
+    expect(host.querySelector('button')!.getAttribute('aria-label')).toBe(
+      'Move Volunteer check-in kiosk to another column',
+    );
   });
 
   it('has no Move button for read-only viewers', () => {

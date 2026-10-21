@@ -1,0 +1,94 @@
+<ft-workspace-frame
+  [workspaceId]="id()"
+  [workspace]="workspace()"
+  section="board"
+  [subtitle]="subtitle()"
+  [notFound]="state() === 'not-found'"
+>
+  @if (workspace()?.canEdit) {
+    <ft-button ftWorkspaceActions variant="primary" (click)="newStory()">
+      <ft-icon name="add" /> New story
+    </ft-button>
+  }
+  @if (isMember()) {
+    <ft-alert status="info" [heading]="'You’re a member of ' + ownerFirstName() + '’s workspace'">
+      You can add and edit stories and tasks, move cards, comment and vote.
+      {{ ownerFirstName() }} manages members, sprints and settings.
+    </ft-alert>
+  }
+  @switch (state()) {
+    @case ('loading') {
+      <div class="loading" aria-busy="true" aria-label="Loading board">
+        <ft-skeleton shape="rect" />
+        <ft-skeleton shape="rect" />
+        <ft-skeleton shape="rect" />
+      </div>
+    }
+    @case ('error') {
+      <ft-empty-state
+        variant="error"
+        heading="We couldn’t load the board"
+        text="Check your connection and try again. If it keeps happening, we’ve already been told about it."
+      >
+        <ft-button actions variant="primary" (click)="retry()">Try again</ft-button>
+      </ft-empty-state>
+    }
+    @case ('loaded') {
+      @if (board(); as board) {
+        @if (scrum() && !board.sprint) {
+          <ft-empty-state
+            heading="No sprint running"
+            text="Move stories from the backlog into a new sprint with a name, a goal and dates."
+          >
+            <ft-button actions [href]="'/workspaces/' + id() + '/backlog'">Open backlog</ft-button>
+          </ft-empty-state>
+        } @else {
+          @if (board.sprint; as sprint) {
+            <ft-card variant="strip">
+              <ft-stat label="Sprint goal" [value]="sprint.goal" />
+              <ft-stat
+                label="Completed points"
+                [value]="sprint.completedPoints + ' of ' + sprint.totalPoints"
+              />
+              <ft-stat label="Ends" [value]="day(sprint.endDate)" />
+            </ft-card>
+          } @else {
+            <div class="filter">
+              <ft-form-field label="Show stories from">
+                <ft-select [formControl]="filter" [options]="filterOptions()" />
+              </ft-form-field>
+            </div>
+          }
+          <ft-kanban-board
+            [label]="(workspace()?.name ?? 'Workspace') + ' board'"
+            [announcement]="announcement()"
+          >
+            @for (column of board.columns; track column.status) {
+              <ft-kanban-column
+                [title]="labels[column.status]"
+                [stage]="column.status"
+                [count]="column.cards.length"
+                emptyText="No stories here yet"
+                (cardDropped)="dropped($event)"
+              >
+                @for (card of column.cards; track card.id) {
+                  <ft-kanban-card
+                    [cardId]="card.id"
+                    [title]="card.title"
+                    [href]="href(card)"
+                    [caption]="caption(card)"
+                    kind="Story"
+                    kindVariant="success"
+                    moveTarget="another column"
+                    [movable]="workspace()?.canEdit ?? false"
+                    (moveRequested)="moveWithDialog($event)"
+                  />
+                }
+              </ft-kanban-column>
+            }
+          </ft-kanban-board>
+        }
+      }
+    }
+  }
+</ft-workspace-frame>

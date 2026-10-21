@@ -19,7 +19,12 @@ import { SEARCH_SERVICE, HttpSearchService } from './search';
 import { NOTIFICATIONS_SERVICE, HttpNotificationsService } from './notifications';
 import { ANNOUNCEMENTS_SERVICE, HttpAnnouncementsService } from './announcements';
 import { INVITES_SERVICE, HttpInvitesService } from './invites';
-import { AGILE_SERVICE, HttpAgileService } from './agile';
+import {
+  AGILE_LIVE_SERVICE,
+  AGILE_SERVICE,
+  HttpAgileService,
+  SignalRAgileLiveService,
+} from './agile';
 import {
   ADMIN_USERS_SERVICE,
   HttpAdminUsersService,
@@ -54,6 +59,7 @@ export function provideApi(baseUrl: string, auth: Partial<AuthConfig> = {}): Env
     { provide: AUDIT_LOG_SERVICE, useClass: HttpAuditLogService },
     { provide: ROLES_SERVICE, useClass: HttpRolesService },
     { provide: AGILE_SERVICE, useClass: HttpAgileService },
+    { provide: AGILE_LIVE_SERVICE, useClass: SignalRAgileLiveService },
   ];
   return makeEnvironmentProviders([
     provideHttpClient(withInterceptors([authInterceptor, httpErrorInterceptor])),

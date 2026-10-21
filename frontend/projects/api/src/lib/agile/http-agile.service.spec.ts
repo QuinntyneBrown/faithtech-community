@@ -124,6 +124,21 @@ describe('HttpAgileService', () => {
       '/api/items/i1/comments',
       { body: 'Hello' },
     ],
+    ['getBoard', () => service.getBoard('w1'), 'GET', '/api/workspaces/w1/board', undefined],
+    [
+      'getBoard with no epic',
+      () => service.getBoard('w1', { noEpic: true }),
+      'GET',
+      '/api/workspaces/w1/board?noEpic=true',
+      undefined,
+    ],
+    [
+      'moveCard',
+      () => service.moveCard('i1', 'InProgress'),
+      'PUT',
+      '/api/items/i1/status',
+      { status: 'InProgress' },
+    ],
   ])('%s', (_name, call, method, url, body) => {
     (call() as Observable<unknown>).subscribe();
 

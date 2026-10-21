@@ -97,7 +97,7 @@ export class MockApi {
   /** Requests the fake does not implement. The fixture fails the test if any arrive (AGENTS.md). */
   readonly unrecognised: string[] = [];
   /** The Agile workspaces API: add workspaces, items and sprints through it. */
-  readonly agile = new MockAgile(this.profiles, this.unrecognised);
+  readonly agile = new MockAgile(this.profiles, this.unrecognised, () => this.signedIn);
   private readonly overrides = new Map<string, Handler>();
   private session: MockAccount | null = null;
   private signedIn: MockAccount | null = null;
@@ -195,6 +195,8 @@ export class MockApi {
 
   async install(): Promise<void> {
     await this.page.route(/\/(api|connect)\//, (route) => this.handle(route));
+    await this.page.route(/\/hubs\/agile\/negotiate/, (route) => this.agile.negotiate(route));
+    await this.page.routeWebSocket(/\/hubs\/agile/, (ws) => this.agile.hub(ws));
   }
 
   /** From inside an override: answer as the fake backend normally would. */

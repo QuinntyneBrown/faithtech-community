@@ -1,4 +1,4 @@
-import { Route } from '@playwright/test';
+import { Route, WebSocketRoute } from '@playwright/test';
 
 import type { MockAccount, MockProfile } from './mock-api';
 
@@ -87,11 +87,97 @@ export class MockAgile {
   readonly items: MockItem[] = [];
   private comments = 0;
 
+  /** Open hub connections and the groups each joined, as AgileHub keeps them. */
+  private readonly sockets = new Set<{
+    ws: WebSocketRoute;
+    caller: MockAccount;
+    groups: Set<string>;
+  }>();
+
   constructor(
     private readonly profiles: Map<string, MockProfile>,
     /** MockApi's list of requests nobody implements; the fixture fails the test on any. */
     private readonly unrecognised: string[],
+    /** Who the hub connection belongs to: the account signed in when it opens. */
+    private readonly signedIn: () => MockAccount | null,
   ) {}
+
+  /** POST /hubs/agile/negotiate: offer WebSockets only, as the SignalR client asks. */
+  negotiate(route: Route) {
+    return route.fulfill({
+      status: 200,
+      json: {
+        negotiateVersion: 1,
+        connectionId: `connection-${this.sockets.size + 1}`,
+        connectionToken: `token-${this.sockets.size + 1}`,
+        availableTransports: [{ transport: 'WebSockets', transferFormats: ['Text', 'Binary'] }],
+      },
+    });
+  }
+
+  /** Plays AgileHub over the SignalR JSON protocol: the handshake, WatchBoard, and pushes to groups. */
+  hub(ws: WebSocketRoute): void {
+    const caller = this.signedIn();
+    if (!caller) {
+      void ws.close({ code: 1008 });
+      return;
+    }
+    const connection = { ws, caller, groups: new Set<string>() };
+    this.sockets.add(connection);
+    ws.onClose(() => this.sockets.delete(connection));
+    ws.onMessage((raw) => {
+      for (const frame of String(raw).split('\u001e').filter(Boolean)) {
+        const message = JSON.parse(frame) as {
+          type?: number;
+          invocationId?: string;
+          target?: string;
+          arguments?: unknown[];
+        };
+        if (message.type === undefined) {
+          ws.send('{}\u001e');
+          continue;
+        }
+        if (message.type !== 1) continue;
+        const [id] = (message.arguments ?? []) as string[];
+        const workspace = this.workspaces.find((w) => w.id === id && !w.isArchived);
+        const allowed = workspace && this.access(workspace, caller) !== 'Outsider';
+        if (message.target === 'WatchBoard' && allowed) {
+          connection.groups.add(`board:${id}`);
+          ws.send(
+            JSON.stringify({ type: 3, invocationId: message.invocationId, result: null }) +
+              '\u001e',
+          );
+        } else {
+          ws.send(
+            JSON.stringify({
+              type: 3,
+              invocationId: message.invocationId,
+              error: 'You’re not a member of this workspace.',
+            }) + '\u001e',
+          );
+        }
+      }
+    });
+  }
+
+  /** How many open connections watch a workspace's board. */
+  boardWatchers(workspaceId: string): number {
+    return [...this.sockets].filter((c) => c.groups.has(`board:${workspaceId}`)).length;
+  }
+
+  /** Someone else moved a card: tell every board watching the workspace, as SignalRAgileNotifier does. */
+  cardMoved(itemId: string, status: MockStatus): void {
+    const item = this.items.find((i) => i.id === itemId)!;
+    item.status = status;
+    this.push(`board:${item.workspaceId}`, 'CardMoved', [itemId, status]);
+  }
+
+  private push(group: string, target: string, args: unknown[]): void {
+    for (const { ws, groups } of this.sockets) {
+      if (groups.has(group))
+        ws.send(JSON.stringify({ type: 1, target, arguments: args }) + '\u001e');
+    }
+  }
 
   addWorkspace(
     workspace: Partial<MockWorkspace> & { name: string; ownerId: string },
@@ -209,6 +295,8 @@ export class MockAgile {
       }
       case 'GET /backlog':
         return route.fulfill({ status: 200, json: this.backlog(workspace, request.url) });
+      case 'GET /board':
+        return route.fulfill({ status: 200, json: this.board(workspace, request.url) });
       case 'POST /items':
         return this.createItem(request, workspace, access);
     }
@@ -295,6 +383,14 @@ export class MockAgile {
         if (item.kind === 'Story')
           item.storyPoints = (body['storyPoints'] as number | null) ?? null;
         if (item.kind !== 'Task' && body['status']) item.status = body['status'] as MockStatus;
+        return route.fulfill({ status: 204 });
+      }
+      case 'PUT /status': {
+        if (!canEdit) return route.fulfill({ status: 403 });
+        if (item.kind === 'Task')
+          return problem(route, 409, 'A task is ticked off on its story, not moved on the board.');
+        item.status = body['status'] as MockStatus;
+        this.push(`board:${item.workspaceId}`, 'CardMoved', [item.id, item.status]);
         return route.fulfill({ status: 204 });
       }
       case 'PUT /done':
@@ -400,6 +496,57 @@ export class MockAgile {
         i.assigneeId === profileId &&
         (i.kind === 'Task') === tasks,
     ).length;
+  }
+
+  private board(workspace: MockWorkspace, url: URL) {
+    const sprint = this.sprints.find(
+      (sp) => sp.workspaceId === workspace.id && sp.state === 'Active',
+    );
+    let stories = this.items.filter(
+      (i) => i.workspaceId === workspace.id && i.kind === 'Story' && !i.isArchived,
+    );
+    if (workspace.method === 'Scrum') {
+      stories = sprint ? stories.filter((st) => st.sprintId === sprint.id) : [];
+    } else if (url.searchParams.get('epicId')) {
+      stories = stories.filter((st) => st.parentId === url.searchParams.get('epicId'));
+    } else if (url.searchParams.get('initiativeId')) {
+      const epics = this.children(url.searchParams.get('initiativeId')!).map((e) => e.id);
+      stories = stories.filter((st) => st.parentId && epics.includes(st.parentId));
+    } else if (url.searchParams.get('noEpic') === 'true') {
+      stories = stories.filter((st) => !st.parentId);
+    }
+    stories.sort((a, b) => a.title.localeCompare(b.title));
+    const card = (st: MockItem) => {
+      const tasks = this.children(st.id).filter((t) => t.kind === 'Task');
+      return {
+        id: st.id,
+        title: st.title,
+        assigneeId: st.assigneeId,
+        assigneeName: st.assigneeId ? this.nameOf(st.assigneeId) : null,
+        storyPoints: st.storyPoints,
+        tasksDone: tasks.filter((t) => t.isDone).length,
+        tasksTotal: tasks.length,
+      };
+    };
+    const points = (list: MockItem[]) => list.reduce((n, st) => n + (st.storyPoints ?? 0), 0);
+    return {
+      method: workspace.method,
+      sprint: sprint
+        ? {
+            id: sprint.id,
+            name: sprint.name,
+            goal: sprint.goal,
+            startDate: sprint.startDate,
+            endDate: sprint.endDate,
+            completedPoints: points(stories.filter((st) => st.status === 'Done')),
+            totalPoints: points(stories),
+          }
+        : null,
+      columns: (['ToDo', 'InProgress', 'Done'] as MockStatus[]).map((status) => ({
+        status,
+        cards: stories.filter((st) => st.status === status).map(card),
+      })),
+    };
   }
 
   private children(id: string): MockItem[] {

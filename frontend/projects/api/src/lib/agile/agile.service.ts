@@ -155,6 +155,41 @@ export interface UpdateWorkItemRequest {
   status: WorkItemStatus | null;
 }
 
+export interface BoardCardDto {
+  id: string;
+  title: string;
+  assigneeId: string | null;
+  assigneeName: string | null;
+  storyPoints: number | null;
+  tasksDone: number;
+  tasksTotal: number;
+}
+
+export interface BoardColumnDto {
+  status: WorkItemStatus;
+  cards: BoardCardDto[];
+}
+
+/** The active sprint of a Scrum board; completed points count its Done stories so far. */
+export interface BoardSprintDto {
+  id: string;
+  name: string;
+  goal: string;
+  /** ISO dates, e.g. 2026-10-20. */
+  startDate: string;
+  endDate: string;
+  completedPoints: number;
+  totalPoints: number;
+}
+
+/** The board (L2-034): To Do, In Progress and Done. A Scrum board shows only the active sprint. */
+export interface BoardDto {
+  method: WorkspaceMethod;
+  /** Null for Kanban, or for Scrum with no sprint running. */
+  sprint: BoardSprintDto | null;
+  columns: BoardColumnDto[];
+}
+
 export interface CreateWorkspaceRequest {
   name: string;
   method: WorkspaceMethod;
@@ -186,6 +221,11 @@ export interface AgileService {
   /** Tasks only. */
   setTaskDone(id: string, done: boolean): Observable<void>;
   addComment(itemId: string, body: string): Observable<CommentDto>;
+
+  /** A Kanban board can be narrowed like the backlog; a Scrum board ignores the filter. */
+  getBoard(workspaceId: string, filter?: BacklogFilter): Observable<BoardDto>;
+  /** Moves a story to a column; open viewers hear of it through AGILE_LIVE_SERVICE. */
+  moveCard(itemId: string, status: WorkItemStatus): Observable<void>;
 }
 
 export const AGILE_SERVICE = new InjectionToken<AgileService>('AGILE_SERVICE');
