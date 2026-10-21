@@ -1,0 +1,275 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Chip — FaithTech Community design system</title>
+<meta name="description" content="Chips are pill toggles that filter a list in place: Upcoming, Past, Hackathons and Online on Events; All, Leads and Volunteers on Team.">
+<link rel="stylesheet" href="../tokens/tokens.css">
+<link rel="stylesheet" href="../assets/components.css">
+<link rel="stylesheet" href="../assets/ds.css">
+</head>
+<body id="top">
+<a class="skip-link" href="#main">Skip to content</a>
+<div class="ds-shell">
+  <nav class="ds-nav" aria-label="Design system">
+    <div class="ds-nav__brand"><a href="../index.html">FaithTech DS</a><button class="ds-theme-toggle" type="button" aria-pressed="false">☾ Dark</button></div>
+    <details open><summary>Foundations</summary><ul>
+      <li><a href="../foundations/color.html">Color</a></li>
+      <li><a href="../foundations/typography.html">Typography</a></li>
+      <li><a href="../foundations/spacing.html">Spacing</a></li>
+      <li><a href="../foundations/layout.html">Layout</a></li>
+      <li><a href="../foundations/elevation.html">Elevation</a></li>
+      <li><a href="../foundations/shape.html">Shape</a></li>
+      <li><a href="../foundations/motion.html">Motion</a></li>
+      <li><a href="../foundations/iconography.html">Iconography</a></li>
+      <li><a href="../foundations/theming.html">Theming</a></li>
+      <li><a href="../foundations/responsive.html">Responsive</a></li>
+      <li><a href="../foundations/accessibility.html">Accessibility</a></li>
+      <li><a href="../foundations/content.html">Content</a></li>
+    </ul></details>
+    <details open><summary>Components</summary><ul>
+      <li><a href="../components/button.html">Button</a></li>
+      <li><a href="../components/link.html">Link</a></li>
+      <li><a href="../components/menu.html">Menu</a></li>
+      <li><a href="../components/form-field.html">Form field</a></li>
+      <li><a href="../components/text-field.html">Text field</a></li>
+      <li><a href="../components/textarea.html">Textarea</a></li>
+      <li><a href="../components/select.html">Select</a></li>
+      <li><a href="../components/radio-group.html">Radio group</a></li>
+      <li><a href="../components/switch.html">Switch</a></li>
+      <li><a href="../components/form-layout.html">Form layout</a></li>
+      <li><a href="../components/picture-list.html">Picture list</a></li>
+      <li><a href="../components/sticker-picker.html">Estimate card picker</a></li>
+      <li><a href="../components/top-bar.html">Top bar</a></li>
+      <li><a href="../components/tab-bar.html">Tab bar</a></li>
+      <li><a href="../components/tabs.html">Tabs</a></li>
+      <li><a href="../components/breadcrumb.html">Breadcrumb</a></li>
+      <li><a href="../components/skip-link.html">Skip link</a></li>
+      <li><a href="../components/layout.html">Layout primitives</a></li>
+      <li><a href="../components/card.html">Card</a></li>
+      <li><a href="../components/dialog.html">Dialog</a></li>
+      <li><a href="../components/notification-panel.html">Notification panel</a></li>
+      <li><a href="../components/list.html">List</a></li>
+      <li><a href="../components/table.html">Table</a></li>
+      <li><a href="../components/description-list.html">Description list</a></li>
+      <li><a href="../components/feed.html">Activity feed</a></li>
+      <li><a href="../components/tree.html">Backlog tree</a></li>
+      <li><a href="../components/kanban.html">Kanban board</a></li>
+      <li><a href="../components/event-card.html">Event card</a></li>
+      <li><a href="../components/profile-header.html">Profile header</a></li>
+      <li><a href="../components/search-results.html">Search results</a></li>
+      <li><a href="../components/note.html">Note</a></li>
+      <li><a href="../components/avatar.html">Avatar</a></li>
+      <li><a href="../components/logo-mark.html">Logo mark</a></li>
+      <li><a href="../components/badge.html">Badge</a></li>
+      <li><a href="../components/chip.html">Chip</a></li>
+      <li><a href="../components/stat.html">Stat</a></li>
+      <li><a href="../components/sticker.html">Estimate card</a></li>
+      <li><a href="../components/toast.html">Toast</a></li>
+      <li><a href="../components/alert.html">Alert and banner</a></li>
+      <li><a href="../components/inline-message.html">Inline message</a></li>
+      <li><a href="../components/progress.html">Progress</a></li>
+      <li><a href="../components/skeleton.html">Skeleton</a></li>
+      <li><a href="../components/empty-state.html">Empty state</a></li>
+      <li><a href="../components/error-page.html">Error page</a></li>
+    </ul></details>
+    <details open><summary>Patterns</summary><ul>
+      <li><a href="../patterns/forms.html">Forms</a></li>
+      <li><a href="../patterns/feedback-and-loading.html">Feedback and loading</a></li>
+      <li><a href="../patterns/empty-and-error-states.html">Empty and error states</a></li>
+      <li><a href="../patterns/navigation.html">Navigation and page structure</a></li>
+      <li><a href="../patterns/dialogs-and-overlays.html">Dialogs and overlays</a></li>
+      <li><a href="../patterns/lists-and-tables.html">Lists and tables</a></li>
+      <li><a href="../patterns/notifications.html">Notifications</a></li>
+      <li><a href="../patterns/content-and-tone.html">Content and tone</a></li>
+    </ul></details>
+  </nav>
+
+  <main id="main" class="ds-main">
+    <header class="ds-header">
+      <p class="ds-kicker">Component · Actions</p>
+      <h1>Chip</h1>
+      <p class="ds-lead">A pill-shaped toggle for filtering a list in place: Upcoming, Past, Hackathons or Online on Events; All, Leads or Volunteers on Team.</p>
+      <div class="ds-meta"><span class="ds-pill ds-pill--ok">WCAG 2.2 AA</span><span class="ds-pill">Status: stable</span><span class="ds-pill">Native <code>&lt;button&gt;</code></span></div>
+      <ul class="ds-toc">
+        <li><a href="#overview">Overview</a></li><li><a href="#anatomy">Anatomy</a></li><li><a href="#variants">Variants</a></li><li><a href="#sizes">Sizes</a></li><li><a href="#states">States</a></li><li><a href="#responsive">Responsive</a></li><li><a href="#theming">Theming</a></li><li><a href="#accessibility">Accessibility</a></li><li><a href="#content">Content</a></li><li><a href="#do-dont">Do and don't</a></li><li><a href="#tokens">Tokens</a></li><li><a href="#code">Code</a></li><li><a href="#sources">Sources</a></li>
+      </ul>
+    </header>
+
+    <section class="ds-section" id="overview"><h2><a href="#overview">Overview</a></h2>
+      <p>Use chips for a short row of filters above a list, where one tap narrows what is shown and nothing is saved. Use <a href="tabs.html">tabs</a> to move between sections of a workspace, a <a href="select.html">select</a> when there are more than five options (the epic filter), and a <a href="button.html">button</a> for anything that changes data.</p>
+      <ul>
+        <li><b>Filter chip</b> (<code>button</code> with <code>aria-pressed</code>): one of a small set is on. Events and Team.</li>
+        <li><b>View chip</b> (<code>a</code> with <code>aria-current</code>): switches between two views that are separate URLs, Tree and Sprint history on the backlog.</li>
+      </ul>
+      <p>A pill that only labels something and cannot be pressed is a <a href="badge.html">badge</a>.</p>
+    </section>
+
+    <section class="ds-section" id="anatomy"><h2><a href="#anatomy">Anatomy</a></h2>
+      <div class="ds-anatomy">
+        <figure class="ds-anatomy__figure">
+          <button class="chip" type="button" aria-pressed="true">Upcoming</button>
+          <span class="ds-callout" style="left: 48%; top: 26%;" aria-hidden="true">1</span>
+          <span class="ds-callout" style="left: 64%; top: 68%;" aria-hidden="true">2</span>
+        </figure>
+        <ol class="ds-anatomy__list">
+          <li><div><b>Label</b><small><code>--text-label</code>, one or two words. The accessible name.</small></div></li>
+          <li><div><b>Pill</b><small>32px tall (<code>--control-height-sm</code>), 12px side padding, <code>--radius-full</code>, 1px <code>--color-border-strong</code>. Accent tint and border when pressed.</small></div></li>
+        </ol>
+      </div>
+    </section>
+
+    <section class="ds-section" id="variants"><h2><a href="#variants">Variants</a></h2>
+      <h3>Filter chips</h3>
+      <div class="ds-example">
+        <div class="ds-example__canvas ds-example__canvas--stack">
+          <div class="cluster" role="group" aria-label="Filter events"><button class="chip" type="button" aria-pressed="true">Upcoming</button><button class="chip" type="button" aria-pressed="false">Past</button><button class="chip" type="button" aria-pressed="false">Hackathons</button><button class="chip" type="button" aria-pressed="false">Online</button></div>
+          <div class="cluster" role="group" aria-label="Filter team"><button class="chip" type="button" aria-pressed="true">All</button><button class="chip" type="button" aria-pressed="false">Leads</button><button class="chip" type="button" aria-pressed="false">Volunteers</button></div>
+        </div>
+        <div class="ds-example__caption"><span>From Events and Team. Pressing one chip un-presses the others and refilters the list below; the result count is announced politely.</span></div>
+        <details class="ds-example__code"><summary>HTML</summary><pre><code>&lt;div class="cluster" role="group" aria-label="Filter events"&gt;
+  &lt;button class="chip" type="button" aria-pressed="true"&gt;Upcoming&lt;/button&gt;
+  &lt;button class="chip" type="button" aria-pressed="false"&gt;Past&lt;/button&gt;
+  &lt;button class="chip" type="button" aria-pressed="false"&gt;Hackathons&lt;/button&gt;
+  &lt;button class="chip" type="button" aria-pressed="false"&gt;Online&lt;/button&gt;
+&lt;/div&gt;</code></pre></details>
+      </div>
+      <h3>View chips</h3>
+      <div class="ds-example">
+        <div class="ds-example__canvas">
+          <nav class="cluster" aria-label="Backlog view"><a class="chip" href="../../mocks/pages/backlog/default.html" aria-current="page" aria-pressed="true">Tree</a><a class="chip" href="../../mocks/pages/backlog/sprints.html">Sprint history</a></nav>
+        </div>
+        <div class="ds-example__caption"><span>From Backlog. Each view is its own page, so these are links; the current one carries <code>aria-current="page"</code>. The pressed look comes from the <code>aria-pressed</code> selector, which is a styling hook only (see Sources).</span></div>
+        <details class="ds-example__code"><summary>HTML</summary><pre><code>&lt;nav class="cluster" aria-label="Backlog view"&gt;
+  &lt;a class="chip" href="default.html" aria-current="page" aria-pressed="true"&gt;Tree&lt;/a&gt;
+  &lt;a class="chip" href="sprints.html"&gt;Sprint history&lt;/a&gt;
+&lt;/nav&gt;</code></pre></details>
+      </div>
+    </section>
+
+    <section class="ds-section" id="sizes"><h2><a href="#sizes">Sizes</a></h2>
+      <p>One size, 32px tall. Chips sit in a <code>.cluster</code> with 12px between them, which keeps neighbouring targets apart.</p>
+    </section>
+
+    <section class="ds-section" id="states"><h2><a href="#states">States</a></h2>
+      <p>Pointer and focus states are forced with <code>data-state</code>; real pages get them from <code>:hover</code>, <code>:focus-visible</code>, <code>aria-pressed</code> and <code>disabled</code>.</p>
+      <div class="ds-matrix"><table>
+        <thead><tr><th scope="col">Chip</th><th scope="col">Default</th><th scope="col">Hover</th><th scope="col">Focus</th><th scope="col">Pressed</th><th scope="col">Pressed, focus</th><th scope="col">Disabled</th></tr></thead>
+        <tbody>
+          <tr><th scope="row">Filter</th><td><button class="chip" type="button" aria-pressed="false">Past</button></td><td><button class="chip" type="button" aria-pressed="false" data-state="hover">Past</button></td><td><button class="chip" type="button" aria-pressed="false" data-state="focus">Past</button></td><td><button class="chip" type="button" aria-pressed="true">Upcoming</button></td><td><button class="chip" type="button" aria-pressed="true" data-state="focus">Upcoming</button></td><td><button class="chip" type="button" aria-pressed="false" disabled>Online</button></td></tr>
+          <tr><th scope="row">View</th><td><a class="chip" href="../../mocks/pages/backlog/sprints.html">Sprint history</a></td><td><a class="chip" href="../../mocks/pages/backlog/sprints.html" data-state="hover">Sprint history</a></td><td><a class="chip" href="../../mocks/pages/backlog/sprints.html" data-state="focus">Sprint history</a></td><td><a class="chip" href="../../mocks/pages/backlog/default.html" aria-current="page" aria-pressed="true">Tree</a></td><td><a class="chip" href="../../mocks/pages/backlog/default.html" aria-current="page" aria-pressed="true" data-state="focus">Tree</a></td><td>Not used</td></tr>
+        </tbody>
+      </table></div>
+      <h3>Both themes</h3>
+      <div class="ds-themes">
+        <div data-theme="light"><div class="cluster"><button class="chip" type="button" aria-pressed="true">All</button><button class="chip" type="button" aria-pressed="false">Leads</button><button class="chip" type="button" data-state="hover">Volunteers</button><button class="chip" type="button" disabled>Online</button></div></div>
+        <div data-theme="dark"><div class="cluster"><button class="chip" type="button" aria-pressed="true">All</button><button class="chip" type="button" aria-pressed="false">Leads</button><button class="chip" type="button" data-state="hover">Volunteers</button><button class="chip" type="button" disabled>Online</button></div></div>
+      </div>
+      <ul>
+        <li><b>Pressed</b>: accent tint, accent border, accent label.</li>
+        <li><b>Disabled</b>: native attribute at 50% opacity, used only while the list is loading so a second filter cannot race the first.</li>
+        <li>A filter that matches nothing stays pressed; the list shows its no-results <a href="empty-state.html">empty state</a> ("No volunteers match").</li>
+      </ul>
+    </section>
+
+    <section class="ds-section" id="responsive"><h2><a href="#responsive">Responsive behaviour</a></h2>
+      <ul>
+        <li>Chips wrap onto new lines inside the <code>.cluster</code>; they never scroll sideways and never shrink.</li>
+        <li>Labels do not wrap inside a chip. At 360px the four event filters fit on one line or wrap to two.</li>
+      </ul>
+    </section>
+
+    <section class="ds-section" id="theming"><h2><a href="#theming">Theming</a></h2>
+      <p>Unpressed chips read <code>--color-bg-surface</code>, <code>--color-border-strong</code> and <code>--color-fg-default</code>; hover adds <code>--color-bg-subtle</code>. Pressed reads <code>--color-accent-subtle</code>, <code>--color-accent</code> and <code>--color-fg-accent</code>. All are semantic tokens, so both themes come for free.</p>
+    </section>
+
+    <section class="ds-section" id="accessibility"><h2><a href="#accessibility">Accessibility</a></h2>
+      <h3>Role and pattern</h3>
+      <p>Filter chips are native <code>&lt;button type="button"&gt;</code> with <code>aria-pressed</code> (APG toggle button), inside <code>role="group"</code> with an <code>aria-label</code> such as "Filter events". View chips are links inside a labelled <code>&lt;nav&gt;</code>, with <code>aria-current="page"</code> on the current view.</p>
+      <h3>Keyboard</h3>
+      <table class="ds-table ds-keys"><thead><tr><th scope="col">Key</th><th scope="col">Action</th></tr></thead><tbody>
+        <tr><td><kbd>Tab</kbd> / <kbd>Shift</kbd>+<kbd>Tab</kbd></td><td>Moves chip to chip; every chip is a tab stop.</td></tr>
+        <tr><td><kbd>Enter</kbd> / <kbd>Space</kbd></td><td>Presses a filter chip. <kbd>Enter</kbd> follows a view chip.</td></tr>
+      </tbody></table>
+      <h3>Focus</h3>
+      <p>The shared 2px focus ring with 2px offset, at least 3:1 on the pressed tint. After filtering, focus stays on the chip; the list updates below and a polite live region announces "4 upcoming events".</p>
+      <h3>Labelling</h3>
+      <p>The visible text is the name: "Hackathons, toggle button, not pressed". The group label gives the context.</p>
+      <h3>Contrast</h3>
+      <div class="ds-themes"><div data-theme="light"><div class="ds-example__canvas ds-example__canvas--stack" style="padding: 0; gap: var(--space-2);"><div class="ds-pair"><span>Label on chip</span><span class="ds-pair__ratio" data-contrast="--color-fg-default|--color-bg-surface" data-min="4.5"></span></div><div class="ds-pair"><span>Label on hovered chip</span><span class="ds-pair__ratio" data-contrast="--color-fg-default|--color-bg-subtle" data-min="4.5"></span></div><div class="ds-pair"><span>Pressed label</span><span class="ds-pair__ratio" data-contrast="--color-fg-accent|--color-accent-subtle" data-min="4.5"></span></div><div class="ds-pair"><span>Chip edge</span><span class="ds-pair__ratio" data-contrast="--color-border-strong|--color-bg-surface" data-min="3"></span></div><div class="ds-pair"><span>Focus ring on pressed chip</span><span class="ds-pair__ratio" data-contrast="--color-focus-ring|--color-accent-subtle" data-min="3"></span></div></div></div><div data-theme="dark"><div class="ds-example__canvas ds-example__canvas--stack" style="padding: 0; gap: var(--space-2);"><div class="ds-pair"><span>Label on chip</span><span class="ds-pair__ratio" data-contrast="--color-fg-default|--color-bg-surface" data-min="4.5"></span></div><div class="ds-pair"><span>Label on hovered chip</span><span class="ds-pair__ratio" data-contrast="--color-fg-default|--color-bg-subtle" data-min="4.5"></span></div><div class="ds-pair"><span>Pressed label</span><span class="ds-pair__ratio" data-contrast="--color-fg-accent|--color-accent-subtle" data-min="4.5"></span></div><div class="ds-pair"><span>Chip edge</span><span class="ds-pair__ratio" data-contrast="--color-border-strong|--color-bg-surface" data-min="3"></span></div><div class="ds-pair"><span>Focus ring on pressed chip</span><span class="ds-pair__ratio" data-contrast="--color-focus-ring|--color-accent-subtle" data-min="3"></span></div></div></div></div>
+      <h3>Motion</h3>
+      <p>Background colour fades over <code>--duration-fast</code>, zeroed under <code>prefers-reduced-motion</code>.</p>
+      <h3>Touch</h3>
+      <p>32px tall with 12px between chips: above the 24px minimum, and the gap keeps a thumb from pressing two.</p>
+    </section>
+
+    <section class="ds-section" id="content"><h2><a href="#content">Content</a></h2>
+      <ul>
+        <li>One or two words, sentence case, plural for groups: "Leads", "Volunteers", "Hackathons".</li>
+        <li>Put the default first ("Upcoming", "All") and keep it pressed on first load.</li>
+        <li>No more than five chips in a group; more than that is a select.</li>
+      </ul>
+    </section>
+
+    <section class="ds-section" id="do-dont"><h2><a href="#do-dont">Do and don't</a></h2>
+      <div class="ds-dodont">
+        <figure class="ds-do"><div class="ds-example__canvas"><div class="cluster" role="group" aria-label="Filter team, example"><button class="chip" type="button" aria-pressed="true">All</button><button class="chip" type="button" aria-pressed="false">Leads</button></div></div><figcaption>Expose the selected chip with <code>aria-pressed</code> and label the group.</figcaption></figure>
+        <figure class="ds-dont"><div class="ds-example__canvas"><div class="cluster"><button class="chip" type="button" data-state="selected">All</button><button class="chip" type="button">Leads</button></div></div><figcaption>A chip that only looks selected; a screen reader hears two identical buttons.</figcaption></figure>
+        <figure class="ds-do"><div class="ds-example__canvas"><button class="btn btn--primary" type="button">Send invite</button></div><figcaption>Use a button for actions that change data.</figcaption></figure>
+        <figure class="ds-dont"><div class="ds-example__canvas"><button class="chip" type="button">Send invite</button></div><figcaption>A chip that submits. Chips only filter or switch views.</figcaption></figure>
+      </div>
+    </section>
+
+    <section class="ds-section" id="tokens"><h2><a href="#tokens">Tokens</a></h2>
+      <div class="ds-table-wrap"><table class="ds-table">
+        <thead><tr><th scope="col">Part</th><th scope="col">Token</th><th scope="col">Light</th><th scope="col">Dark</th></tr></thead>
+        <tbody>
+          <tr><td>Background</td><td><code>--color-bg-surface</code></td><td><span class="ds-swatch-cell" data-theme="light"><i data-token="--color-bg-surface" data-swatch></i><span data-token="--color-bg-surface"></span></span></td><td><span class="ds-swatch-cell" data-theme="dark"><i data-token="--color-bg-surface" data-swatch></i><span data-token="--color-bg-surface"></span></span></td></tr>
+          <tr><td>Background, hover</td><td><code>--color-bg-subtle</code></td><td><span class="ds-swatch-cell" data-theme="light"><i data-token="--color-bg-subtle" data-swatch></i><span data-token="--color-bg-subtle"></span></span></td><td><span class="ds-swatch-cell" data-theme="dark"><i data-token="--color-bg-subtle" data-swatch></i><span data-token="--color-bg-subtle"></span></span></td></tr>
+          <tr><td>Border</td><td><code>--color-border-strong</code></td><td><span class="ds-swatch-cell" data-theme="light"><i data-token="--color-border-strong" data-swatch></i><span data-token="--color-border-strong"></span></span></td><td><span class="ds-swatch-cell" data-theme="dark"><i data-token="--color-border-strong" data-swatch></i><span data-token="--color-border-strong"></span></span></td></tr>
+          <tr><td>Label</td><td><code>--color-fg-default</code></td><td><span class="ds-swatch-cell" data-theme="light"><i data-token="--color-fg-default" data-swatch></i><span data-token="--color-fg-default"></span></span></td><td><span class="ds-swatch-cell" data-theme="dark"><i data-token="--color-fg-default" data-swatch></i><span data-token="--color-fg-default"></span></span></td></tr>
+          <tr><td>Pressed background</td><td><code>--color-accent-subtle</code></td><td><span class="ds-swatch-cell" data-theme="light"><i data-token="--color-accent-subtle" data-swatch></i><span data-token="--color-accent-subtle"></span></span></td><td><span class="ds-swatch-cell" data-theme="dark"><i data-token="--color-accent-subtle" data-swatch></i><span data-token="--color-accent-subtle"></span></span></td></tr>
+          <tr><td>Pressed border</td><td><code>--color-accent</code></td><td><span class="ds-swatch-cell" data-theme="light"><i data-token="--color-accent" data-swatch></i><span data-token="--color-accent"></span></span></td><td><span class="ds-swatch-cell" data-theme="dark"><i data-token="--color-accent" data-swatch></i><span data-token="--color-accent"></span></span></td></tr>
+          <tr><td>Pressed label</td><td><code>--color-fg-accent</code></td><td><span class="ds-swatch-cell" data-theme="light"><i data-token="--color-fg-accent" data-swatch></i><span data-token="--color-fg-accent"></span></span></td><td><span class="ds-swatch-cell" data-theme="dark"><i data-token="--color-fg-accent" data-swatch></i><span data-token="--color-fg-accent"></span></span></td></tr>
+          <tr><td>Height</td><td><code>--control-height-sm</code></td><td colspan="2"><span data-token="--control-height-sm"></span></td></tr>
+          <tr><td>Radius</td><td><code>--radius-full</code></td><td colspan="2"><span data-token="--radius-full"></span></td></tr>
+          <tr><td>Label font</td><td><code>--text-label</code></td><td colspan="2"><span data-token="--text-label"></span></td></tr>
+          <tr><td>Transition</td><td><code>--duration-fast</code></td><td colspan="2"><span data-token="--duration-fast"></span></td></tr>
+        </tbody>
+      </table></div>
+    </section>
+
+    <section class="ds-section" id="code"><h2><a href="#code">Code</a></h2>
+      <pre><code>&lt;div class="cluster" role="group" aria-label="Filter team"&gt;
+  &lt;button class="chip" type="button" aria-pressed="true"&gt;All&lt;/button&gt;
+  &lt;button class="chip" type="button" aria-pressed="false"&gt;Leads&lt;/button&gt;
+  &lt;button class="chip" type="button" aria-pressed="false"&gt;Volunteers&lt;/button&gt;
+&lt;/div&gt;</code></pre>
+      <table class="ds-table"><thead><tr><th scope="col">Class / attribute</th><th scope="col">Effect</th></tr></thead><tbody>
+        <tr><td><code>.chip</code></td><td>Pill button or link, 32px tall.</td></tr>
+        <tr><td><code>aria-pressed="true|false"</code></td><td>Filter chip state; <code>true</code> shows the accent style.</td></tr>
+        <tr><td><code>a.chip[aria-current="page"]</code></td><td>Current view chip. Needs <code>aria-pressed="true"</code> as a styling hook until the CSS also matches <code>aria-current</code>.</td></tr>
+        <tr><td><code>disabled</code></td><td>50% opacity, not focusable. Only while the list loads.</td></tr>
+        <tr><td><code>data-state="hover|focus|selected|disabled"</code></td><td>Documentation only.</td></tr>
+      </tbody></table>
+    </section>
+
+    <section class="ds-section" id="sources"><h2><a href="#sources">Sources</a></h2>
+      <p>Extracted from these mocks:</p>
+      <ul>
+        <li><a href="../../mocks/pages/events/default.html">pages/events/default</a> (Upcoming, Past, Hackathons, Online)</li>
+        <li><a href="../../mocks/pages/events/no-results.html">pages/events/no-results</a></li>
+        <li><a href="../../mocks/pages/team/default.html">pages/team/default</a> (All, Leads, Volunteers)</li>
+        <li><a href="../../mocks/pages/team/no-results.html">pages/team/no-results</a> (Volunteers pressed)</li>
+        <li><a href="../../mocks/pages/backlog/default.html">pages/backlog/default</a> (Tree view chip)</li>
+        <li><a href="../../mocks/pages/backlog/sprints.html">pages/backlog/sprints</a> (Sprint history view chip)</li>
+      </ul>
+      <p>The chip rule is inherited from Shelfie unchanged. Drift: the filter rows on Events and Team are a bare <code>.cluster</code> with no <code>role="group"</code> or label; the backlog view chips are links carrying <code>aria-pressed</code>, which is not valid on a link and is read by no screen reader, and they lack <code>aria-current</code>. Team sets the row's margin inline. The suggested fix is to add <code>.chip[aria-current="page"]</code> to the pressed selector in <code>components.css</code>: <code>.chip[aria-pressed="true"], .chip[aria-current="page"], .chip[data-state="selected"] { … }</code>.</p>
+    </section>
+    <footer class="ds-footer"><span>FaithTech Community design system · extracted from <a href="../../mocks/index.html">docs/mocks</a> on 2026-10-21</span><a href="#top">Back to top</a></footer>
+  </main>
+</div>
+<script src="../assets/ds.js"></script>
+</body>
+</html>

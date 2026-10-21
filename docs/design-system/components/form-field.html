@@ -1,0 +1,282 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Form field — FaithTech Community design system</title>
+<meta name="description" content="The FaithTech Community form field: label, control, help and error for every input, textarea and select, from Venue address to Message to attendees.">
+<link rel="stylesheet" href="../tokens/tokens.css">
+<link rel="stylesheet" href="../assets/components.css">
+<link rel="stylesheet" href="../assets/ds.css">
+</head>
+<body id="top">
+<a class="skip-link" href="#main">Skip to content</a>
+<div class="ds-shell">
+  <nav class="ds-nav" aria-label="Design system">
+    <div class="ds-nav__brand"><a href="../index.html">FaithTech DS</a><button class="ds-theme-toggle" type="button" aria-pressed="false">☾ Dark</button></div>
+    <details open><summary>Foundations</summary><ul>
+      <li><a href="../foundations/color.html">Color</a></li>
+      <li><a href="../foundations/typography.html">Typography</a></li>
+      <li><a href="../foundations/spacing.html">Spacing</a></li>
+      <li><a href="../foundations/layout.html">Layout</a></li>
+      <li><a href="../foundations/elevation.html">Elevation</a></li>
+      <li><a href="../foundations/shape.html">Shape</a></li>
+      <li><a href="../foundations/motion.html">Motion</a></li>
+      <li><a href="../foundations/iconography.html">Iconography</a></li>
+      <li><a href="../foundations/theming.html">Theming</a></li>
+      <li><a href="../foundations/responsive.html">Responsive</a></li>
+      <li><a href="../foundations/accessibility.html">Accessibility</a></li>
+      <li><a href="../foundations/content.html">Content</a></li>
+    </ul></details>
+    <details open><summary>Components</summary><ul>
+      <li><a href="../components/button.html">Button</a></li>
+      <li><a href="../components/link.html">Link</a></li>
+      <li><a href="../components/menu.html">Menu</a></li>
+      <li><a href="../components/form-field.html">Form field</a></li>
+      <li><a href="../components/text-field.html">Text field</a></li>
+      <li><a href="../components/textarea.html">Textarea</a></li>
+      <li><a href="../components/select.html">Select</a></li>
+      <li><a href="../components/radio-group.html">Radio group</a></li>
+      <li><a href="../components/switch.html">Switch</a></li>
+      <li><a href="../components/form-layout.html">Form layout</a></li>
+      <li><a href="../components/picture-list.html">Picture list</a></li>
+      <li><a href="../components/sticker-picker.html">Estimate card picker</a></li>
+      <li><a href="../components/top-bar.html">Top bar</a></li>
+      <li><a href="../components/tab-bar.html">Tab bar</a></li>
+      <li><a href="../components/tabs.html">Tabs</a></li>
+      <li><a href="../components/breadcrumb.html">Breadcrumb</a></li>
+      <li><a href="../components/skip-link.html">Skip link</a></li>
+      <li><a href="../components/layout.html">Layout primitives</a></li>
+      <li><a href="../components/card.html">Card</a></li>
+      <li><a href="../components/dialog.html">Dialog</a></li>
+      <li><a href="../components/notification-panel.html">Notification panel</a></li>
+      <li><a href="../components/list.html">List</a></li>
+      <li><a href="../components/table.html">Table</a></li>
+      <li><a href="../components/description-list.html">Description list</a></li>
+      <li><a href="../components/feed.html">Activity feed</a></li>
+      <li><a href="../components/tree.html">Backlog tree</a></li>
+      <li><a href="../components/kanban.html">Kanban board</a></li>
+      <li><a href="../components/event-card.html">Event card</a></li>
+      <li><a href="../components/profile-header.html">Profile header</a></li>
+      <li><a href="../components/search-results.html">Search results</a></li>
+      <li><a href="../components/note.html">Note</a></li>
+      <li><a href="../components/avatar.html">Avatar</a></li>
+      <li><a href="../components/logo-mark.html">Logo mark</a></li>
+      <li><a href="../components/badge.html">Badge</a></li>
+      <li><a href="../components/chip.html">Chip</a></li>
+      <li><a href="../components/stat.html">Stat</a></li>
+      <li><a href="../components/sticker.html">Estimate card</a></li>
+      <li><a href="../components/toast.html">Toast</a></li>
+      <li><a href="../components/alert.html">Alert and banner</a></li>
+      <li><a href="../components/inline-message.html">Inline message</a></li>
+      <li><a href="../components/progress.html">Progress</a></li>
+      <li><a href="../components/skeleton.html">Skeleton</a></li>
+      <li><a href="../components/empty-state.html">Empty state</a></li>
+      <li><a href="../components/error-page.html">Error page</a></li>
+    </ul></details>
+    <details open><summary>Patterns</summary><ul>
+      <li><a href="../patterns/forms.html">Forms</a></li>
+      <li><a href="../patterns/feedback-and-loading.html">Feedback and loading</a></li>
+      <li><a href="../patterns/empty-and-error-states.html">Empty and error states</a></li>
+      <li><a href="../patterns/navigation.html">Navigation and page structure</a></li>
+      <li><a href="../patterns/dialogs-and-overlays.html">Dialogs and overlays</a></li>
+      <li><a href="../patterns/lists-and-tables.html">Lists and tables</a></li>
+      <li><a href="../patterns/notifications.html">Notifications</a></li>
+      <li><a href="../patterns/content-and-tone.html">Content and tone</a></li>
+    </ul></details>
+  </nav>
+
+  <main id="main" class="ds-main">
+    <header class="ds-header">
+      <p class="ds-kicker">Component · Inputs</p>
+      <h1>Form field</h1>
+      <p class="ds-lead">Label, control, help and error, stacked in one block. Every input, textarea and select in FaithTech Community sits in a form field.</p>
+      <div class="ds-meta"><span class="ds-pill ds-pill--ok">WCAG 2.2 AA</span><span class="ds-pill">Status: stable</span><span class="ds-pill">Native <code>&lt;label&gt;</code></span></div>
+      <ul class="ds-toc">
+        <li><a href="#overview">Overview</a></li><li><a href="#anatomy">Anatomy</a></li><li><a href="#variants">Variants</a></li><li><a href="#sizes">Sizes</a></li><li><a href="#states">States</a></li><li><a href="#responsive">Responsive</a></li><li><a href="#theming">Theming</a></li><li><a href="#accessibility">Accessibility</a></li><li><a href="#content">Content</a></li><li><a href="#do-dont">Do and don't</a></li><li><a href="#tokens">Tokens</a></li><li><a href="#code">Code</a></li><li><a href="#sources">Sources</a></li>
+      </ul>
+    </header>
+
+    <section class="ds-section" id="overview"><h2><a href="#overview">Overview</a></h2>
+      <p>A form field wraps one control with its label and, when needed, a help line and an error line. Every <a href="text-field.html">text field</a>, <a href="textarea.html">textarea</a> and select in FaithTech Community sits inside one. Groups of <a href="radio-group.html">radios</a> or checkboxes use a <code>fieldset</code> with a <code>legend.field__label</code> instead.</p>
+      <ul>
+        <li><b>Label</b> is always visible, above the control, and names the value: "Email", "Venue address", "Message to attendees".</li>
+        <li><b>Optional</b> fields say so in the label: "Phone (optional)". Required fields carry no marker; most fields are required.</li>
+        <li><b>Help</b> says something the person needs before they type: "At least 12 characters.", "Leave empty for no limit."</li>
+        <li><b>Error</b> replaces nothing; it is added under the control and says how to fix the problem.</li>
+      </ul>
+    </section>
+
+    <section class="ds-section" id="anatomy"><h2><a href="#anatomy">Anatomy</a></h2>
+      <div class="ds-anatomy">
+        <figure class="ds-anatomy__figure" style="max-width: 28rem;">
+          <div class="field"><label class="field__label" for="an-a">Email</label><input class="input" id="an-a" name="an-a" type="email" value="grace.okonkwo@example.org" aria-describedby="an-a-help"><div class="field__help" id="an-a-help">Changing it sends a verification link to the new address.</div></div>
+          <span class="ds-callout" style="left: 2%; top: 2%;" aria-hidden="true">1</span>
+          <span class="ds-callout" style="left: 60%; top: 40%;" aria-hidden="true">2</span>
+          <span class="ds-callout" style="left: 2%; top: 82%;" aria-hidden="true">3</span>
+        </figure>
+        <ol class="ds-anatomy__list">
+          <li><div><b>Label</b><small><code>label.field__label</code>, <code>--text-label</code>, tied to the control by <code>for</code>.</small></div></li>
+          <li><div><b>Control</b><small>An <code>.input</code>, <code>.textarea</code> or <code>.select</code>.</small></div></li>
+          <li><div><b>Help or error</b><small><code>.field__help</code> in <code>--color-fg-muted</code>, or <code>.field__error</code> in <code>--color-danger-fg</code> with a warning sign; joined to the control with <code>aria-describedby</code>.</small></div></li>
+        </ol>
+        <p>The parts stack with a <code>--space-1</code> gap.</p>
+      </div>
+    </section>
+
+    <section class="ds-section" id="variants"><h2><a href="#variants">Variants</a></h2>
+      <p>The field's structure is the same for every control; what changes is the control and which optional parts it shows.</p>
+      <div class="ds-example">
+        <div class="ds-example__canvas ds-example__canvas--stack" style="max-width: 28rem;">
+          <div class="field"><label class="field__label" for="vf-name">Name</label><input class="input" id="vf-name" name="vf-name" type="text" value="Kwame Asante" required></div>
+          <div class="field"><label class="field__label" for="vf-phone">Phone <span class="text-muted">(optional)</span></label><input class="input" id="vf-phone" name="vf-phone" type="tel"></div>
+          <div class="field"><label class="field__label" for="vf-cap">Capacity <span class="text-muted">(optional)</span></label><input class="input" id="vf-cap" name="vf-cap" type="number" value="60" aria-describedby="vf-cap-help"><div class="field__help" id="vf-cap-help">Leave empty for no limit.</div></div>
+        </div>
+        <div class="ds-example__caption"><span>Required with no marker, optional with "(optional)" in the label, and a field with help.</span></div>
+        <details class="ds-example__code"><summary>HTML</summary><pre><code>&lt;div class="field"&gt;&lt;label class="field__label" for="vf-name"&gt;Name&lt;/label&gt;&lt;input class="input" id="vf-name" name="vf-name" type="text" value="Kwame Asante" required&gt;&lt;/div&gt;
+          &lt;div class="field"&gt;&lt;label class="field__label" for="vf-phone"&gt;Phone &lt;span class="text-muted"&gt;(optional)&lt;/span&gt;&lt;/label&gt;&lt;input class="input" id="vf-phone" name="vf-phone" type="tel"&gt;&lt;/div&gt;
+          &lt;div class="field"&gt;&lt;label class="field__label" for="vf-cap"&gt;Capacity &lt;span class="text-muted"&gt;(optional)&lt;/span&gt;&lt;/label&gt;&lt;input class="input" id="vf-cap" name="vf-cap" type="number" value="60" aria-describedby="vf-cap-help"&gt;&lt;div class="field__help" id="vf-cap-help"&gt;Leave empty for no limit.&lt;/div&gt;&lt;/div&gt;</code></pre></details>
+      </div>
+      <div class="ds-example">
+        <div class="ds-example__canvas ds-example__canvas--stack" style="max-width: 28rem;">
+          <div class="field"><label class="field__label" for="vf-type">Type</label><select class="select" id="vf-type" name="vf-type"><option>Gathering</option><option selected>Builders night</option><option>Hackathon</option><option>Prayer &amp; planning</option><option>Panel</option></select></div>
+          <fieldset class="stack"><legend class="field__label">Format</legend><label class="choice"><input type="radio" name="vf-fmt" checked><span class="choice__text">In person</span></label><label class="choice"><input type="radio" name="vf-fmt"><span class="choice__text">Online<small>We’ll show the joining link to people who RSVP</small></span></label></fieldset>
+        </div>
+        <div class="ds-example__caption"><span>A select in a field, and a radio group in a <code>fieldset</code> whose <code>legend</code> uses <code>.field__label</code> (event form "Format").</span></div>
+        <details class="ds-example__code"><summary>HTML</summary><pre><code>&lt;div class="field"&gt;&lt;label class="field__label" for="vf-type"&gt;Type&lt;/label&gt;&lt;select class="select" id="vf-type" name="vf-type"&gt;&lt;option&gt;Gathering&lt;/option&gt;&lt;option selected&gt;Builders night&lt;/option&gt;&lt;option&gt;Hackathon&lt;/option&gt;&lt;option&gt;Prayer &amp;amp; planning&lt;/option&gt;&lt;option&gt;Panel&lt;/option&gt;&lt;/select&gt;&lt;/div&gt;
+          &lt;fieldset class="stack"&gt;&lt;legend class="field__label"&gt;Format&lt;/legend&gt;&lt;label class="choice"&gt;&lt;input type="radio" name="vf-fmt" checked&gt;&lt;span class="choice__text"&gt;In person&lt;/span&gt;&lt;/label&gt;&lt;label class="choice"&gt;&lt;input type="radio" name="vf-fmt"&gt;&lt;span class="choice__text"&gt;Online&lt;small&gt;We’ll show the joining link to people who RSVP&lt;/small&gt;&lt;/span&gt;&lt;/label&gt;&lt;/fieldset&gt;</code></pre></details>
+      </div>
+    </section>
+
+    <section class="ds-section" id="sizes" data-na="The field takes its control's size; label, help and error text do not scale."><h2><a href="#sizes">Sizes</a></h2>
+      <p>Not applicable. The field takes its control's size.</p>
+    </section>
+
+    <section class="ds-section" id="states"><h2><a href="#states">States</a></h2>
+      <p>The field itself has two states, valid and invalid; the control inside carries hover, focus, read-only and disabled (see <a href="text-field.html">text field</a>).</p>
+      <div class="ds-matrix"><table>
+        <thead><tr><th scope="col">State</th><th scope="col">Example</th></tr></thead>
+        <tbody>
+          <tr><th scope="row">Default</th><td style="min-width: 18rem;"><div class="field"><label class="field__label" for="sf-1">Venue address</label><input class="input" id="sf-1" name="sf-1" type="text" value="Kestrel Labs, 220 King St W"></div></td></tr>
+          <tr><th scope="row">With help</th><td style="min-width: 18rem;"><div class="field"><label class="field__label" for="sf-2">New password <span class="text-muted">(optional)</span></label><input class="input" id="sf-2" name="sf-2" type="password" aria-describedby="sf-2-help"><div class="field__help" id="sf-2-help">At least 12 characters.</div></div></td></tr>
+          <tr><th scope="row">Invalid</th><td style="min-width: 18rem;"><div class="field"><label class="field__label" for="sf-3">Title</label><input class="input" id="sf-3" name="sf-3" type="text" required aria-invalid="true" aria-describedby="sf-3-error"><div class="field__error" id="sf-3-error">Give the event a title people will recognise.</div></div></td></tr>
+          <tr><th scope="row">Read-only</th><td style="min-width: 18rem;"><div class="field"><label class="field__label" for="sf-4">Email</label><input class="input" id="sf-4" name="sf-4" type="email" value="ruth.alvarez@example.org" readonly aria-describedby="sf-4-help"><div class="field__help" id="sf-4-help">The invite was sent to this address.</div></div></td></tr>
+          <tr><th scope="row">Disabled</th><td style="min-width: 18rem;"><div class="field"><label class="field__label" for="sf-5">City</label><select class="select" id="sf-5" name="sf-5" disabled><option selected>Toronto</option></select></div></td></tr>
+        </tbody>
+      </table></div>
+      <h3>Both themes</h3>
+      <div class="ds-themes">
+        <div data-theme="light"><div class="ds-example__canvas ds-example__canvas--stack" style="padding: 0; gap: var(--space-2);"><div class="field"><label class="field__label" for="tf-1">Email</label><input class="input" id="tf-1" name="tf-1" type="email" value="grace.okonkwo@example.org" aria-describedby="tf-1-help"><div class="field__help" id="tf-1-help">Changing it sends a verification link to the new address.</div></div><div class="field"><label class="field__label" for="tf-2">Current password</label><input class="input" id="tf-2" name="tf-2" type="password" aria-invalid="true" aria-describedby="tf-2-error"><div class="field__error" id="tf-2-error">Enter your current password to change it.</div></div></div></div>
+        <div data-theme="dark"><div class="ds-example__canvas ds-example__canvas--stack" style="padding: 0; gap: var(--space-2);"><div class="field"><label class="field__label" for="tf-1">Email</label><input class="input" id="tf-1" name="tf-1" type="email" value="grace.okonkwo@example.org" aria-describedby="tf-1-help"><div class="field__help" id="tf-1-help">Changing it sends a verification link to the new address.</div></div><div class="field"><label class="field__label" for="tf-2">Current password</label><input class="input" id="tf-2" name="tf-2" type="password" aria-invalid="true" aria-describedby="tf-2-error"><div class="field__error" id="tf-2-error">Enter your current password to change it.</div></div></div></div>
+      </div>
+      <ul>
+        <li><b>Invalid</b> sets <code>aria-invalid="true"</code> on the control, adds <code>.field__error</code> and points <code>aria-describedby</code> at it. If the field also has help, the help stays and the error is added below it, and <code>aria-describedby</code> lists both (sign up: "At least 12 characters." then "Use at least 12 characters. A short phrase is easiest to remember.").</li>
+        <li><b>Read-only</b> is used once: the invite email on Accept invite, which the person cannot change.</li>
+        <li><b>Disabled</b> is not used in the mocks; it is shown for completeness. Prefer leaving a field out.</li>
+        <li>Errors appear on submit, never while typing. A form with errors also shows the <a href="form-layout.html">error summary</a>.</li>
+      </ul>
+    </section>
+
+    <section class="ds-section" id="responsive"><h2><a href="#responsive">Responsive behaviour</a></h2>
+      <ul>
+        <li>Fields are full width of their form, and forms are capped (44rem in Settings, 48rem on the event form).</li>
+        <li>Two short fields can share a row in a <code>.grid</code> ("Starts" and "Ends"); under 640px they stack.</li>
+        <li>Label, help and error wrap; they never truncate.</li>
+      </ul>
+    </section>
+
+    <section class="ds-section" id="theming"><h2><a href="#theming">Theming</a></h2>
+      <p>The field reads <code>--color-fg-default</code> (label), <code>--color-fg-subtle</code> (optional marker), <code>--color-fg-muted</code> (help) and <code>--color-danger-fg</code> (error). All four are re-mapped by the dark theme; the field itself has no component tokens. The gap between parts is <code>--space-1</code>.</p>
+    </section>
+
+    <section class="ds-section" id="accessibility"><h2><a href="#accessibility">Accessibility</a></h2>
+      <h3>Role and pattern</h3>
+      <p>A native <code>&lt;label for&gt;</code> and control. Groups use <code>&lt;fieldset&gt;</code> and <code>&lt;legend&gt;</code>. Help and error are plain text referenced by <code>aria-describedby</code>, so they are read after the label.</p>
+      <h3>Keyboard</h3>
+      <table class="ds-table ds-keys"><thead><tr><th scope="col">Key</th><th scope="col">Action</th></tr></thead><tbody>
+        <tr><td><kbd>Tab</kbd></td><td>Moves to the control. The label, help and error are not focusable.</td></tr>
+        <tr><td>Click or tap the label</td><td>Focuses the control (or toggles a choice).</td></tr>
+      </tbody></table>
+      <h3>Focus</h3>
+      <p>The focus ring is drawn by the control. After a failed submit, focus moves to the error summary, whose links move focus to each field.</p>
+      <h3>Labelling</h3>
+      <p>Every control has a visible label; placeholders are never labels. "(optional)" is part of the label text, so it is announced. A visually hidden legend is allowed only where a heading already names the group (event form "Visibility").</p>
+      <h3>Contrast</h3>
+      <div class="ds-example__canvas ds-example__canvas--stack" style="padding: 0; gap: var(--space-2);"><div class="ds-pair"><span>Label on surface</span><span class="ds-pair__ratio" data-contrast="--color-fg-default|--color-bg-surface" data-min="4.5"></span></div><div class="ds-pair"><span>Help on surface</span><span class="ds-pair__ratio" data-contrast="--color-fg-muted|--color-bg-surface" data-min="4.5"></span></div><div class="ds-pair"><span>Error on surface</span><span class="ds-pair__ratio" data-contrast="--color-danger-fg|--color-bg-surface" data-min="4.5"></span></div><div class="ds-pair"><span>Help on page</span><span class="ds-pair__ratio" data-contrast="--color-fg-muted|--color-bg-page" data-min="4.5"></span></div><div class="ds-pair"><span>Error on page</span><span class="ds-pair__ratio" data-contrast="--color-danger-fg|--color-bg-page" data-min="4.5"></span></div></div>
+      <p>The error is not shown by colour alone: it has a warning sign, text, and a thicker red border on the control.</p>
+      <h3>Motion</h3>
+      <p>None. Errors appear without animation.</p>
+      <h3>Touch</h3>
+      <p>The label is part of the target, so tapping "Email" focuses the email field.</p>
+    </section>
+
+    <section class="ds-section" id="content"><h2><a href="#content">Content</a></h2>
+      <ul>
+        <li>Labels are nouns in sentence case, no colon: "Venue address", "Message to attendees", "First note".</li>
+        <li>Help is one short sentence ending in a full stop: "If they ever sign up with this email, we’ll let you know."</li>
+        <li>Errors say how to fix it, not what went wrong: "Enter a venue address, or choose Online.", "The end time must be after the start time."</li>
+        <li>The error-summary link uses the short form of the same error: "Enter a venue or switch to online".</li>
+      </ul>
+    </section>
+
+    <section class="ds-section" id="do-dont"><h2><a href="#do-dont">Do and don't</a></h2>
+      <div class="ds-dodont">
+        <figure class="ds-do"><div class="ds-example__canvas"><div class="field"><label class="field__label" for="dd-1">Email</label><input class="input" id="dd-1" name="dd-1" type="email" aria-describedby="dd-1-help"><div class="field__help" id="dd-1-help">We’ll send your confirmation and any changes here.</div></div></div><figcaption>A visible label, and help that says why it is asked for.</figcaption></figure>
+        <figure class="ds-dont"><div class="ds-example__canvas"><input class="input" type="email" placeholder="Email" aria-label="Email"></div><figcaption>A placeholder as the label disappears as soon as the guest types.</figcaption></figure>
+        <figure class="ds-do"><div class="ds-example__canvas"><div class="field"><label class="field__label" for="dd-2">Venue address</label><input class="input" id="dd-2" name="dd-2" type="text" aria-invalid="true" aria-describedby="dd-2-error"><div class="field__error" id="dd-2-error">Enter a venue address, or choose Online.</div></div></div><figcaption>The error says how to fix it.</figcaption></figure>
+        <figure class="ds-dont"><div class="ds-example__canvas"><div class="field"><label class="field__label" for="dd-3">Venue address</label><input class="input" id="dd-3" name="dd-3" type="text" aria-invalid="true" aria-describedby="dd-3-error"><div class="field__error" id="dd-3-error">Invalid input.</div></div></div><figcaption>"Invalid input" leaves Marcus guessing.</figcaption></figure>
+      </div>
+    </section>
+
+    <section class="ds-section" id="tokens"><h2><a href="#tokens">Tokens</a></h2>
+      <div class="ds-table-wrap"><table class="ds-table">
+        <thead><tr><th scope="col">Part</th><th scope="col">Token</th><th scope="col">Light</th><th scope="col">Dark</th></tr></thead>
+        <tbody>
+          <tr><td>Label</td><td><code>--color-fg-default</code></td><td><span class="ds-swatch-cell" data-theme="light"><i data-token="--color-fg-default" data-swatch></i><span data-token="--color-fg-default"></span></span></td><td><span class="ds-swatch-cell" data-theme="dark"><i data-token="--color-fg-default" data-swatch></i><span data-token="--color-fg-default"></span></span></td></tr>
+          <tr><td>Optional marker</td><td><code>--color-fg-subtle</code></td><td><span class="ds-swatch-cell" data-theme="light"><i data-token="--color-fg-subtle" data-swatch></i><span data-token="--color-fg-subtle"></span></span></td><td><span class="ds-swatch-cell" data-theme="dark"><i data-token="--color-fg-subtle" data-swatch></i><span data-token="--color-fg-subtle"></span></span></td></tr>
+          <tr><td>Help</td><td><code>--color-fg-muted</code></td><td><span class="ds-swatch-cell" data-theme="light"><i data-token="--color-fg-muted" data-swatch></i><span data-token="--color-fg-muted"></span></span></td><td><span class="ds-swatch-cell" data-theme="dark"><i data-token="--color-fg-muted" data-swatch></i><span data-token="--color-fg-muted"></span></span></td></tr>
+          <tr><td>Error</td><td><code>--color-danger-fg</code></td><td><span class="ds-swatch-cell" data-theme="light"><i data-token="--color-danger-fg" data-swatch></i><span data-token="--color-danger-fg"></span></span></td><td><span class="ds-swatch-cell" data-theme="dark"><i data-token="--color-danger-fg" data-swatch></i><span data-token="--color-danger-fg"></span></span></td></tr>
+          <tr><td>Label font</td><td><code>--text-label</code></td><td><span data-token="--text-label"></span></td><td><span data-theme="dark" data-token="--text-label"></span></td></tr>
+          <tr><td>Help and error font</td><td><code>--text-body-sm</code></td><td><span data-token="--text-body-sm"></span></td><td><span data-theme="dark" data-token="--text-body-sm"></span></td></tr>
+          <tr><td>Gap between parts</td><td><code>--space-1</code></td><td><span data-token="--space-1"></span></td><td><span data-theme="dark" data-token="--space-1"></span></td></tr>
+        </tbody>
+      </table></div>
+    </section>
+
+    <section class="ds-section" id="code"><h2><a href="#code">Code</a></h2>
+      <pre><code>&lt;div class="field"&gt;
+  &lt;label class="field__label" for="ef-venue"&gt;Venue address&lt;/label&gt;
+  &lt;input class="input" id="ef-venue" name="ef-venue" type="text" required
+         aria-invalid="true" aria-describedby="ef-venue-error"&gt;
+  &lt;div class="field__error" id="ef-venue-error"&gt;Enter a venue address, or choose Online.&lt;/div&gt;
+&lt;/div&gt;
+
+&lt;label class="field__label" for="cf-phone"&gt;Phone &lt;span class="text-muted"&gt;(optional)&lt;/span&gt;&lt;/label&gt;</code></pre>
+      <table class="ds-table"><thead><tr><th scope="col">Class / attribute</th><th scope="col">Effect</th></tr></thead><tbody>
+        <tr><td><code>.field</code></td><td>Stacks label, control, help and error with <code>--space-1</code>.</td></tr>
+        <tr><td><code>.field__label</code></td><td>Label or legend text.</td></tr>
+        <tr><td><code>.field__help</code></td><td>Muted help line.</td></tr>
+        <tr><td><code>.field__error</code></td><td>Danger text with a leading warning sign.</td></tr>
+        <tr><td><code>aria-invalid="true"</code> on the control</td><td>Red border on the control.</td></tr>
+      </tbody></table>
+    </section>
+
+    <section class="ds-section" id="sources"><h2><a href="#sources">Sources</a></h2>
+      <p>Extracted from these mocks:</p>
+      <ul>
+        <li><a href="../../mocks/pages/event-form/default.html">pages/event-form/default</a> and <a href="../../mocks/pages/event-form/invalid.html">invalid</a> (select, fieldset with legend, help, three errors)</li>
+        <li><a href="../../mocks/pages/contact-form/default.html">pages/contact-form/default</a> and <a href="../../mocks/pages/contact-form/invalid.html">invalid</a> (optional fields, help)</li>
+        <li><a href="../../mocks/pages/settings/default.html">pages/settings/default</a> and <a href="../../mocks/pages/settings/invalid.html">invalid</a> (help, error on a password field)</li>
+        <li><a href="../../mocks/pages/sign-up/invalid.html">pages/sign-up/invalid</a> (help and error together)</li>
+        <li><a href="../../mocks/pages/accept-invite/default.html">pages/accept-invite/default</a> (read-only email)</li>
+        <li><a href="../../mocks/dialogs/add-role/invalid.html">dialogs/add-role/invalid</a> (fieldset with <code>aria-describedby</code> error)</li>
+      </ul>
+      <p>Drift noticed in the mocks: the optional marker is written as <code>span.text-muted</code> although components.css defines <code>.field__label .optional</code>, which no mock uses; the visually hidden "Visibility" legend on the event form has no visible heading naming the group; no mock shows a disabled field.</p>
+    </section>
+
+    <footer class="ds-footer"><span>FaithTech Community design system · extracted from <a href="../../mocks/index.html">docs/mocks</a> on 2026-10-21</span><a href="#top">Back to top</a></footer>
+  </main>
+</div>
+<script src="../assets/ds.js"></script>
+</body>
+</html>

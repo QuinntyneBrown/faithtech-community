@@ -1,0 +1,310 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Empty state — FaithTech Community design system</title>
+<meta name="description" content="Empty, no-results and error states for FaithTech lists and sections: contacts, events, partners, search and the audit log. Anatomy, variants, role=alert, content and tokens.">
+<link rel="stylesheet" href="../tokens/tokens.css">
+<link rel="stylesheet" href="../assets/components.css">
+<link rel="stylesheet" href="../assets/ds.css">
+</head>
+<body id="top">
+<a class="skip-link" href="#main">Skip to content</a>
+<div class="ds-shell">
+  <nav class="ds-nav" aria-label="Design system">
+    <div class="ds-nav__brand"><a href="../index.html">FaithTech DS</a><button class="ds-theme-toggle" type="button" aria-pressed="false">☾ Dark</button></div>
+    <details open><summary>Foundations</summary><ul>
+      <li><a href="../foundations/color.html">Color</a></li>
+      <li><a href="../foundations/typography.html">Typography</a></li>
+      <li><a href="../foundations/spacing.html">Spacing</a></li>
+      <li><a href="../foundations/layout.html">Layout</a></li>
+      <li><a href="../foundations/elevation.html">Elevation</a></li>
+      <li><a href="../foundations/shape.html">Shape</a></li>
+      <li><a href="../foundations/motion.html">Motion</a></li>
+      <li><a href="../foundations/iconography.html">Iconography</a></li>
+      <li><a href="../foundations/theming.html">Theming</a></li>
+      <li><a href="../foundations/responsive.html">Responsive</a></li>
+      <li><a href="../foundations/accessibility.html">Accessibility</a></li>
+      <li><a href="../foundations/content.html">Content</a></li>
+    </ul></details>
+    <details open><summary>Components</summary><ul>
+      <li><a href="../components/button.html">Button</a></li>
+      <li><a href="../components/link.html">Link</a></li>
+      <li><a href="../components/menu.html">Menu</a></li>
+      <li><a href="../components/form-field.html">Form field</a></li>
+      <li><a href="../components/text-field.html">Text field</a></li>
+      <li><a href="../components/textarea.html">Textarea</a></li>
+      <li><a href="../components/select.html">Select</a></li>
+      <li><a href="../components/radio-group.html">Radio group</a></li>
+      <li><a href="../components/switch.html">Switch</a></li>
+      <li><a href="../components/form-layout.html">Form layout</a></li>
+      <li><a href="../components/picture-list.html">Picture list</a></li>
+      <li><a href="../components/sticker-picker.html">Estimate card picker</a></li>
+      <li><a href="../components/top-bar.html">Top bar</a></li>
+      <li><a href="../components/tab-bar.html">Tab bar</a></li>
+      <li><a href="../components/tabs.html">Tabs</a></li>
+      <li><a href="../components/breadcrumb.html">Breadcrumb</a></li>
+      <li><a href="../components/skip-link.html">Skip link</a></li>
+      <li><a href="../components/layout.html">Layout primitives</a></li>
+      <li><a href="../components/card.html">Card</a></li>
+      <li><a href="../components/dialog.html">Dialog</a></li>
+      <li><a href="../components/notification-panel.html">Notification panel</a></li>
+      <li><a href="../components/list.html">List</a></li>
+      <li><a href="../components/table.html">Table</a></li>
+      <li><a href="../components/description-list.html">Description list</a></li>
+      <li><a href="../components/feed.html">Activity feed</a></li>
+      <li><a href="../components/tree.html">Backlog tree</a></li>
+      <li><a href="../components/kanban.html">Kanban board</a></li>
+      <li><a href="../components/event-card.html">Event card</a></li>
+      <li><a href="../components/profile-header.html">Profile header</a></li>
+      <li><a href="../components/search-results.html">Search results</a></li>
+      <li><a href="../components/note.html">Note</a></li>
+      <li><a href="../components/avatar.html">Avatar</a></li>
+      <li><a href="../components/logo-mark.html">Logo mark</a></li>
+      <li><a href="../components/badge.html">Badge</a></li>
+      <li><a href="../components/chip.html">Chip</a></li>
+      <li><a href="../components/stat.html">Stat</a></li>
+      <li><a href="../components/sticker.html">Estimate card</a></li>
+      <li><a href="../components/toast.html">Toast</a></li>
+      <li><a href="../components/alert.html">Alert and banner</a></li>
+      <li><a href="../components/inline-message.html">Inline message</a></li>
+      <li><a href="../components/progress.html">Progress</a></li>
+      <li><a href="../components/skeleton.html">Skeleton</a></li>
+      <li><a href="../components/empty-state.html">Empty state</a></li>
+      <li><a href="../components/error-page.html">Error page</a></li>
+    </ul></details>
+    <details open><summary>Patterns</summary><ul>
+      <li><a href="../patterns/forms.html">Forms</a></li>
+      <li><a href="../patterns/feedback-and-loading.html">Feedback and loading</a></li>
+      <li><a href="../patterns/empty-and-error-states.html">Empty and error states</a></li>
+      <li><a href="../patterns/navigation.html">Navigation and page structure</a></li>
+      <li><a href="../patterns/dialogs-and-overlays.html">Dialogs and overlays</a></li>
+      <li><a href="../patterns/lists-and-tables.html">Lists and tables</a></li>
+      <li><a href="../patterns/notifications.html">Notifications</a></li>
+      <li><a href="../patterns/content-and-tone.html">Content and tone</a></li>
+    </ul></details>
+  </nav>
+
+  <main id="main" class="ds-main">
+    <header class="ds-header">
+      <p class="ds-kicker">Component · Feedback</p>
+      <h1>Empty state</h1>
+      <p class="ds-lead">What a page shows when there is nothing to list yet, when a search or filter finds nothing, or when its data could not load: a round icon, a short title, one sentence, and the one thing to do next.</p>
+      <div class="ds-meta"><span class="ds-pill ds-pill--ok">WCAG 2.2 AA</span><span class="ds-pill">Status: stable</span><span class="ds-pill">Composition</span></div>
+      <ul class="ds-toc">
+        <li><a href="#overview">Overview</a></li><li><a href="#anatomy">Anatomy</a></li><li><a href="#variants">Variants</a></li><li><a href="#sizes">Sizes</a></li><li><a href="#states">States</a></li><li><a href="#responsive">Responsive</a></li><li><a href="#theming">Theming</a></li><li><a href="#accessibility">Accessibility</a></li><li><a href="#content">Content</a></li><li><a href="#do-dont">Do and don't</a></li><li><a href="#tokens">Tokens</a></li><li><a href="#code">Code</a></li><li><a href="#sources">Sources</a></li>
+      </ul>
+    </header>
+
+    <section class="ds-section" id="overview"><h2><a href="#overview">Overview</a></h2>
+      <p>Use an empty state in place of a list or a page body that has no content: Grace's contacts before the first one, the partner pipeline before any partner, a search with no results, a section that failed to load. Every <code>empty</code>, <code>no-results</code> and <code>error</code> page state in the mocks uses it.</p>
+      <ul>
+        <li><b>Empty</b> (<code>.empty</code>): nothing here yet, or nothing matches. Accent icon.</li>
+        <li><b>Error</b> (<code>.empty.empty--error</code>, <code>role="alert"</code>): this part of the page didn't load. Danger icon and Try again.</li>
+        <li>Whole-page problems (not found, forbidden, server error, offline) use the same classes at page scale; see <a href="error-page.html">error page</a>.</li>
+        <li>For a failed action, not a failed load, use an <a href="alert.html">alert</a> or a <a href="toast.html">toast</a>.</li>
+      </ul>
+    </section>
+
+    <section class="ds-section" id="anatomy"><h2><a href="#anatomy">Anatomy</a></h2>
+      <div class="ds-anatomy">
+        <figure class="ds-anatomy__figure">
+          <div class="empty" style="padding: var(--space-4);">
+            <span class="empty__icon" aria-hidden="true"><svg class="icon icon--lg" aria-hidden="true" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="2"/><circle cx="9" cy="11" r="2.5"/><path d="M5.5 17a3.5 3.5 0 0 1 7 0M15 9h3M15 13h3"/></svg></span>
+            <h3 class="empty__title">No contacts yet</h3>
+            <p class="empty__text">Keep track of people you meet. Contacts and your notes on them are private to you until they join.</p>
+            <div class="empty__actions"><a class="btn btn--primary" href="../../mocks/pages/contact-form/default.html"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>Add your first contact</a></div>
+          </div>
+          <span class="ds-callout" style="left: 60%; top: 10%;" aria-hidden="true">1</span>
+          <span class="ds-callout" style="left: 80%; top: 36%;" aria-hidden="true">2</span>
+          <span class="ds-callout" style="left: 92%; top: 56%;" aria-hidden="true">3</span>
+          <span class="ds-callout" style="left: 80%; top: 86%;" aria-hidden="true">4</span>
+        </figure>
+        <ol class="ds-anatomy__list">
+          <li><div><b>Icon</b><small><code>.empty__icon</code>: 64px circle, accent-subtle (danger-bg for errors), 32px line icon, <code>aria-hidden</code>.</small></div></li>
+          <li><div><b>Title</b><small><code>.empty__title</code>: an <code>&lt;h2&gt;</code> in the h3 style; says what is (not) here.</small></div></li>
+          <li><div><b>Text</b><small><code>.empty__text</code>: one or two sentences, muted, 36ch max.</small></div></li>
+          <li><div><b>Actions</b><small><code>.empty__actions</code>: one primary action, optionally one secondary. Left out when there is nothing the viewer can do (audit log, notifications).</small></div></li>
+        </ol>
+      </div>
+    </section>
+
+    <section class="ds-section" id="variants"><h2><a href="#variants">Variants</a></h2>
+      <div class="ds-example">
+        <div class="ds-example__canvas ds-example__canvas--stack ds-example__canvas--canvas">
+          <div class="empty">
+            <span class="empty__icon" aria-hidden="true"><svg class="icon icon--lg" aria-hidden="true" viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/></svg></span>
+            <h3 class="empty__title">No events yet</h3>
+            <p class="empty__text">Create the first gathering for your city. Public events get a page anyone can RSVP to, even without an account.</p>
+            <div class="empty__actions"><a class="btn btn--primary" href="../../mocks/pages/event-form/default.html"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>New event</a></div>
+          </div>
+          <div class="empty empty--error" role="alert">
+            <span class="empty__icon" aria-hidden="true"><svg class="icon icon--lg" aria-hidden="true" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 8v4M12 16h.01"/></svg></span>
+            <h3 class="empty__title">We couldn’t load your contacts</h3>
+            <p class="empty__text">Check your connection and try again. If it keeps happening, we’ve already been told about it.</p>
+            <div class="empty__actions"><button class="btn btn--primary" type="button"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><path d="M21 12a9 9 0 1 1-3-6.7L21 8M21 3v5h-5"/></svg>Try again</button></div>
+          </div>
+        </div>
+        <div class="ds-example__caption"><span>Empty: no events yet. Error: the contacts list failed to load.</span></div>
+        <details class="ds-example__code"><summary>HTML</summary><pre><code>&lt;div class="empty empty--error" role="alert"&gt;
+  &lt;span class="empty__icon" aria-hidden="true"&gt;&lt;svg class="icon icon--lg" aria-hidden="true" viewBox="0 0 24 24"&gt;…&lt;/svg&gt;&lt;/span&gt;
+  &lt;h2 class="empty__title"&gt;We couldn’t load your contacts&lt;/h2&gt;
+  &lt;p class="empty__text"&gt;Check your connection and try again. If it keeps happening, we’ve already been told about it.&lt;/p&gt;
+  &lt;div class="empty__actions"&gt;
+    &lt;button class="btn btn--primary" type="button"&gt;…Try again&lt;/button&gt;
+  &lt;/div&gt;
+&lt;/div&gt;</code></pre></details>
+      </div>
+      <h3>Content variants of the plain empty state</h3>
+      <div class="ds-example">
+        <div class="ds-example__canvas ds-example__canvas--stack ds-example__canvas--canvas">
+          <div class="empty">
+            <span class="empty__icon" aria-hidden="true"><svg class="icon icon--lg" aria-hidden="true" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg></span>
+            <h3 class="empty__title">No results for “zebra crossing”</h3>
+            <p class="empty__text">Check the spelling, try fewer words, or search for a person’s first name.</p>
+            <div class="empty__actions"><a class="btn" href="../../mocks/pages/search/empty.html">Clear search</a></div>
+          </div>
+          <div class="empty">
+            <span class="empty__icon" aria-hidden="true"><svg class="icon icon--lg" aria-hidden="true" viewBox="0 0 24 24"><path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"/></svg></span>
+            <h3 class="empty__title">No admin actions yet</h3>
+            <p class="empty__text">When a System Admin changes roles, suspends a user or opens a private contact, it’s recorded here.</p>
+          </div>
+        </div>
+        <div class="ds-example__caption"><span>No results (search, contacts, team, people, admin users): a secondary Clear action. Informational (audit log, notifications "You’re all caught up"): no action.</span></div>
+      </div>
+    </section>
+
+    <section class="ds-section" id="sizes" data-na="One size in sections; page scale is the error page"><h2><a href="#sizes">Sizes</a></h2>
+      <p class="ds-na">One size inside a page. The page-scale version, with the page heading, is the <a href="error-page.html">error page</a>.</p>
+    </section>
+
+    <section class="ds-section" id="states"><h2><a href="#states">States</a></h2>
+      <p>The block itself is static; its buttons and links carry the interactive states (see <a href="button.html">button</a>). What changes is which variant shows and which actions it offers.</p>
+      <div class="ds-matrix"><table>
+        <thead><tr><th scope="col">State</th><th scope="col">Example</th></tr></thead>
+        <tbody>
+          <tr><th scope="row">Empty, first run</th><td><div class="empty" style="padding: var(--space-4);"><span class="empty__icon" aria-hidden="true"><svg class="icon icon--lg" aria-hidden="true" viewBox="0 0 24 24"><path d="M3 7h18M3 12h18M3 17h18"/></svg></span><h3 class="empty__title">Start your partner pipeline</h3><p class="empty__text">Add a church, business or foundation you’re talking to. Every lead can see and move partners.</p><div class="empty__actions"><a class="btn btn--primary" href="../../mocks/dialogs/add-partner/default.html"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>Add partner</a></div></div></td></tr>
+          <tr><th scope="row">No results</th><td><div class="empty" style="padding: var(--space-4);"><span class="empty__icon" aria-hidden="true"><svg class="icon icon--lg" aria-hidden="true" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg></span><h3 class="empty__title">No contacts match “harbour”</h3><div class="empty__actions"><a class="btn" href="../../mocks/pages/contacts/default.html">Clear search</a></div></div></td></tr>
+          <tr><th scope="row">Error</th><td><div class="empty empty--error" style="padding: var(--space-4);"><span class="empty__icon" aria-hidden="true"><svg class="icon icon--lg" aria-hidden="true" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 8v4M12 16h.01"/></svg></span><h3 class="empty__title">We couldn’t load the audit log</h3><p class="empty__text">Check your connection and try again.</p><div class="empty__actions"><button class="btn btn--primary" type="button"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><path d="M21 12a9 9 0 1 1-3-6.7L21 8M21 3v5h-5"/></svg>Try again</button></div></div></td></tr>
+          <tr><th scope="row">Retrying</th><td><div class="empty empty--error" style="padding: var(--space-4);"><span class="empty__icon" aria-hidden="true"><svg class="icon icon--lg" aria-hidden="true" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 8v4M12 16h.01"/></svg></span><h3 class="empty__title">We couldn’t load the audit log</h3><div class="empty__actions"><button class="btn btn--primary" type="button" aria-busy="true"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><path d="M21 12a9 9 0 1 1-3-6.7L21 8M21 3v5h-5"/></svg>Try again</button></div></div></td></tr>
+          <tr><th scope="row">Action focus</th><td><div class="empty" style="padding: var(--space-4);"><span class="empty__icon" aria-hidden="true"><svg class="icon icon--lg" aria-hidden="true" viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/></svg></span><h3 class="empty__title">No events yet</h3><div class="empty__actions"><a class="btn btn--primary" href="../../mocks/pages/event-form/default.html" data-state="focus">New event</a></div></div></td></tr>
+        </tbody>
+      </table></div>
+      <h3>Both themes</h3>
+      <div class="ds-themes">
+        <div data-theme="light"><div class="empty" style="padding: var(--space-4);"><span class="empty__icon" aria-hidden="true"><svg class="icon icon--lg" aria-hidden="true" viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/></svg></span><h3 class="empty__title">No events yet</h3><p class="empty__text">Create the first gathering for your city.</p></div><div class="empty empty--error" style="padding: var(--space-4);"><span class="empty__icon" aria-hidden="true"><svg class="icon icon--lg" aria-hidden="true" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 8v4M12 16h.01"/></svg></span><h3 class="empty__title">We couldn’t load your contacts</h3></div></div>
+        <div data-theme="dark"><div class="empty" style="padding: var(--space-4);"><span class="empty__icon" aria-hidden="true"><svg class="icon icon--lg" aria-hidden="true" viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/></svg></span><h3 class="empty__title">No events yet</h3><p class="empty__text">Create the first gathering for your city.</p></div><div class="empty empty--error" style="padding: var(--space-4);"><span class="empty__icon" aria-hidden="true"><svg class="icon icon--lg" aria-hidden="true" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 8v4M12 16h.01"/></svg></span><h3 class="empty__title">We couldn’t load your contacts</h3></div></div>
+      </div>
+      <ul>
+        <li><b>Retrying</b>: Try again becomes a busy button (<code>aria-busy="true"</code>); on success the real content replaces the whole block.</li>
+        <li>Examples here use <code>&lt;h3&gt;</code> because this page already has its headings; in the product the title is an <code>&lt;h2&gt;</code> under the page's <code>&lt;h1&gt;</code>.</li>
+      </ul>
+    </section>
+
+    <section class="ds-section" id="responsive"><h2><a href="#responsive">Responsive behaviour</a></h2>
+      <ul>
+        <li>Centred at every width, with 48px top and bottom and 24px sides.</li>
+        <li>Text stops at 36 characters wide so it never runs the width of a desktop.</li>
+        <li>Two actions sit side by side and wrap, centred, when they don't fit.</li>
+      </ul>
+    </section>
+
+    <section class="ds-section" id="theming"><h2><a href="#theming">Theming</a></h2>
+      <p>The empty icon reads <code>--color-accent-subtle</code> with <code>--color-fg-accent</code>; the error icon <code>--color-danger-bg</code> with <code>--color-danger-fg</code>. Title and text read <code>--color-fg-default</code> and <code>--color-fg-muted</code> on the page canvas. All are theme tokens; nothing in the component changes between themes.</p>
+    </section>
+
+    <section class="ds-section" id="accessibility"><h2><a href="#accessibility">Accessibility</a></h2>
+      <h3>Role and pattern</h3>
+      <p>Plain content: a heading, a paragraph and native buttons or links. The plain empty state has no ARIA role. The error variant carries <code>role="alert"</code> in the mocks so the failed load is announced when it replaces the skeletons.</p>
+      <h3>Keyboard</h3>
+      <table class="ds-table ds-keys"><thead><tr><th scope="col">Key</th><th scope="col">Action</th></tr></thead><tbody>
+        <tr><td><kbd>Tab</kbd></td><td>Moves to the primary action, then the secondary.</td></tr>
+        <tr><td><kbd>Enter</kbd> (and <kbd>Space</kbd> on buttons)</td><td>Runs the action.</td></tr>
+      </tbody></table>
+      <h3>Focus</h3>
+      <p>Focus does not jump to the empty state. After Try again fails, focus stays on the button.</p>
+      <h3>Labelling</h3>
+      <p>The icon is decorative. The title is a real heading, so it shows in the heading list. Try again is a <code>&lt;button&gt;</code> (it is an action); "New event" and "Clear search" are links (they go somewhere).</p>
+      <h3>Contrast</h3>
+      <div class="ds-example__canvas ds-example__canvas--stack" style="padding: 0; gap: var(--space-2);">
+        <div class="ds-pair"><span>Title on page</span><span class="ds-pair__ratio" data-contrast="--color-fg-default|--color-bg-canvas" data-min="4.5"></span></div>
+        <div class="ds-pair"><span>Text on page</span><span class="ds-pair__ratio" data-contrast="--color-fg-muted|--color-bg-canvas" data-min="4.5"></span></div>
+        <div class="ds-pair"><span>Empty icon</span><span class="ds-pair__ratio" data-contrast="--color-fg-accent|--color-accent-subtle" data-min="4.5"></span></div>
+        <div class="ds-pair"><span>Error icon</span><span class="ds-pair__ratio" data-contrast="--color-danger-fg|--color-danger-bg" data-min="4.5"></span></div>
+      </div>
+      <h3>Motion</h3>
+      <p>None.</p>
+      <h3>Touch</h3>
+      <p>Actions are medium buttons (40px) with 12px between them.</p>
+    </section>
+
+    <section class="ds-section" id="content"><h2><a href="#content">Content</a></h2>
+      <ul>
+        <li>Title says what is here: "No contacts yet", "No team yet in Toronto", "You’re all caught up". For no results, quote the query: "No one matches “xavier”".</li>
+        <li>Text says why it matters or what to try: "Contacts and your notes on them are private to you until they join." "Check the spelling, try fewer words."</li>
+        <li>The action is the next step as a verb: "Add your first contact", "New event", "Create your first workspace", "Clear search".</li>
+        <li>Errors start with "We couldn’t load…", never blame the member and never show codes in a section; the reference code belongs on the server error page.</li>
+      </ul>
+    </section>
+
+    <section class="ds-section" id="do-dont"><h2><a href="#do-dont">Do and don't</a></h2>
+      <div class="ds-dodont">
+        <figure class="ds-do"><div class="ds-example__canvas" style="justify-content: center;"><button class="btn btn--primary" type="button"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><path d="M21 12a9 9 0 1 1-3-6.7L21 8M21 3v5h-5"/></svg>Try again</button></div><figcaption>Try again is a button: it runs the request again.</figcaption></figure>
+        <figure class="ds-dont"><div class="ds-example__canvas" style="justify-content: center;"><a class="btn btn--primary" href="../../mocks/pages/contacts/default.html"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><path d="M21 12a9 9 0 1 1-3-6.7L21 8M21 3v5h-5"/></svg>Try again</a></div><figcaption>A link dressed as a button, as the error mocks do; it is announced as a link and reloads the whole page.</figcaption></figure>
+        <figure class="ds-do"><div class="ds-example__canvas ds-example__canvas--canvas"><div class="empty" style="padding: var(--space-4);"><span class="empty__icon" aria-hidden="true"><svg class="icon icon--lg" aria-hidden="true" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="2"/><circle cx="9" cy="11" r="2.5"/><path d="M5.5 17a3.5 3.5 0 0 1 7 0M15 9h3M15 13h3"/></svg></span><h3 class="empty__title">No contacts yet</h3><div class="empty__actions"><a class="btn btn--primary" href="../../mocks/pages/contact-form/default.html"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>Add your first contact</a></div></div></div><figcaption>One clear next step.</figcaption></figure>
+        <figure class="ds-dont"><div class="ds-example__canvas ds-example__canvas--canvas"><div class="empty" style="padding: var(--space-4);"><span class="empty__icon" aria-hidden="true"><svg class="icon icon--lg" aria-hidden="true" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="2"/></svg></span><h3 class="empty__title">No data</h3></div></div><figcaption>A dead end: a technical title and nothing to do.</figcaption></figure>
+      </div>
+    </section>
+
+    <section class="ds-section" id="tokens"><h2><a href="#tokens">Tokens</a></h2>
+      <div class="ds-table-wrap"><table class="ds-table">
+        <thead><tr><th scope="col">Part</th><th scope="col">Token</th><th scope="col">Light</th><th scope="col">Dark</th></tr></thead>
+        <tbody>
+          <tr><td>Icon background</td><td><code>--color-accent-subtle</code></td><td><span class="ds-swatch-cell" data-theme="light"><i data-token="--color-accent-subtle" data-swatch></i><span data-token="--color-accent-subtle"></span></span></td><td><span class="ds-swatch-cell" data-theme="dark"><i data-token="--color-accent-subtle" data-swatch></i><span data-token="--color-accent-subtle"></span></span></td></tr>
+          <tr><td>Icon</td><td><code>--color-fg-accent</code></td><td><span class="ds-swatch-cell" data-theme="light"><i data-token="--color-fg-accent" data-swatch></i><span data-token="--color-fg-accent"></span></span></td><td><span class="ds-swatch-cell" data-theme="dark"><i data-token="--color-fg-accent" data-swatch></i><span data-token="--color-fg-accent"></span></span></td></tr>
+          <tr><td>Error icon background</td><td><code>--color-danger-bg</code></td><td><span class="ds-swatch-cell" data-theme="light"><i data-token="--color-danger-bg" data-swatch></i><span data-token="--color-danger-bg"></span></span></td><td><span class="ds-swatch-cell" data-theme="dark"><i data-token="--color-danger-bg" data-swatch></i><span data-token="--color-danger-bg"></span></span></td></tr>
+          <tr><td>Error icon</td><td><code>--color-danger-fg</code></td><td><span class="ds-swatch-cell" data-theme="light"><i data-token="--color-danger-fg" data-swatch></i><span data-token="--color-danger-fg"></span></span></td><td><span class="ds-swatch-cell" data-theme="dark"><i data-token="--color-danger-fg" data-swatch></i><span data-token="--color-danger-fg"></span></span></td></tr>
+          <tr><td>Title</td><td><code>--color-fg-default</code>, <code>--text-h3</code></td><td><span class="ds-swatch-cell" data-theme="light"><i data-token="--color-fg-default" data-swatch></i><span data-token="--color-fg-default"></span></span></td><td><span class="ds-swatch-cell" data-theme="dark"><i data-token="--color-fg-default" data-swatch></i><span data-token="--color-fg-default"></span></span></td></tr>
+          <tr><td>Text</td><td><code>--color-fg-muted</code></td><td><span class="ds-swatch-cell" data-theme="light"><i data-token="--color-fg-muted" data-swatch></i><span data-token="--color-fg-muted"></span></span></td><td><span class="ds-swatch-cell" data-theme="dark"><i data-token="--color-fg-muted" data-swatch></i><span data-token="--color-fg-muted"></span></span></td></tr>
+          <tr><td>Icon circle</td><td><code>--size-avatar-xl</code></td><td colspan="2"><span data-token="--size-avatar-xl"></span></td></tr>
+          <tr><td>Padding</td><td><code>--space-12</code> / <code>--space-6</code></td><td colspan="2"><span data-token="--space-12"></span> / <span data-token="--space-6"></span></td></tr>
+          <tr><td>Gap</td><td><code>--space-3</code></td><td colspan="2"><span data-token="--space-3"></span></td></tr>
+        </tbody>
+      </table></div>
+    </section>
+
+    <section class="ds-section" id="code"><h2><a href="#code">Code</a></h2>
+      <pre><code>&lt;div class="empty"&gt;
+  &lt;span class="empty__icon" aria-hidden="true"&gt;&lt;svg class="icon icon--lg" aria-hidden="true" viewBox="0 0 24 24"&gt;…&lt;/svg&gt;&lt;/span&gt;
+  &lt;h2 class="empty__title"&gt;No contacts yet&lt;/h2&gt;
+  &lt;p class="empty__text"&gt;Keep track of people you meet. Contacts and your notes on them are private to you until they join.&lt;/p&gt;
+  &lt;div class="empty__actions"&gt;&lt;a class="btn btn--primary" href="/contacts/new"&gt;…Add your first contact&lt;/a&gt;&lt;/div&gt;
+&lt;/div&gt;</code></pre>
+      <table class="ds-table"><thead><tr><th scope="col">Class</th><th scope="col">Effect</th></tr></thead><tbody>
+        <tr><td><code>.empty</code></td><td>Centred column, 48 × 24px padding.</td></tr>
+        <tr><td><code>.empty--error</code></td><td>Danger-tinted icon; pair with <code>role="alert"</code>.</td></tr>
+        <tr><td><code>.empty__icon</code></td><td>64px circle around an <code>.icon--lg</code>.</td></tr>
+        <tr><td><code>.empty__title</code></td><td>h3 style; use the right heading level.</td></tr>
+        <tr><td><code>.empty__text</code></td><td>Muted, 36ch max.</td></tr>
+        <tr><td><code>.empty__actions</code></td><td>Centred, wrapping button row.</td></tr>
+      </tbody></table>
+    </section>
+
+    <section class="ds-section" id="sources"><h2><a href="#sources">Sources</a></h2>
+      <p>Extracted from these mocks:</p>
+      <ul>
+        <li>Empty: <a href="../../mocks/pages/contacts/empty.html">pages/contacts/empty</a>, <a href="../../mocks/pages/events/empty.html">events/empty</a>, <a href="../../mocks/pages/partners/empty.html">partners/empty</a>, <a href="../../mocks/pages/team/empty.html">team/empty</a>, <a href="../../mocks/pages/invites/empty.html">invites/empty</a>, <a href="../../mocks/pages/announcements/empty.html">announcements/empty</a>, <a href="../../mocks/pages/workspaces/empty.html">workspaces/empty</a>, <a href="../../mocks/pages/audit-log/empty.html">audit-log/empty</a>, <a href="../../mocks/pages/notifications/empty.html">notifications/empty</a>, <a href="../../mocks/pages/search/empty.html">search/empty</a></li>
+        <li>No results: <a href="../../mocks/pages/search/no-results.html">pages/search/no-results</a>, <a href="../../mocks/pages/contacts/no-results.html">contacts/no-results</a>, <a href="../../mocks/pages/people/no-results.html">people/no-results</a>, <a href="../../mocks/pages/admin-users/no-results.html">admin-users/no-results</a></li>
+        <li>Error: <a href="../../mocks/pages/contacts/error.html">pages/contacts/error</a>, <a href="../../mocks/pages/home/error.html">home/error</a>, <a href="../../mocks/pages/events/error.html">events/error</a>, <a href="../../mocks/pages/partners/error.html">partners/error</a>, <a href="../../mocks/pages/audit-log/error.html">audit-log/error</a></li>
+        <li><a href="../../mocks/notifications/bell/empty.html">notifications/bell/empty</a></li>
+      </ul>
+      <p>Drift noticed: every error mock makes Try again an <code>&lt;a href="default.html"&gt;</code> styled as a button; the system makes it a <code>&lt;button&gt;</code>. The icon wrapper is a <code>&lt;span&gt;</code> in the mocks (a <code>&lt;div&gt;</code> in the inherited Shelfie pages); both work. The component is inherited from Shelfie unchanged.</p>
+    </section>
+
+    <footer class="ds-footer"><span>FaithTech Community design system · extracted from <a href="../../mocks/index.html">docs/mocks</a> on 2026-10-21</span><a href="#top">Back to top</a></footer>
+  </main>
+</div>
+<script src="../assets/ds.js"></script>
+</body>
+</html>

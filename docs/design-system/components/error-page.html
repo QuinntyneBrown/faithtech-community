@@ -1,0 +1,288 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Error page — FaithTech Community design system</title>
+<meta name="description" content="The four FaithTech error pages (not found, forbidden, server error, offline): page-scale empty state, heading focus, HTTP status, content and tokens.">
+<link rel="stylesheet" href="../tokens/tokens.css">
+<link rel="stylesheet" href="../assets/components.css">
+<link rel="stylesheet" href="../assets/ds.css">
+</head>
+<body id="top">
+<a class="skip-link" href="#main">Skip to content</a>
+<div class="ds-shell">
+  <nav class="ds-nav" aria-label="Design system">
+    <div class="ds-nav__brand"><a href="../index.html">FaithTech DS</a><button class="ds-theme-toggle" type="button" aria-pressed="false">☾ Dark</button></div>
+    <details open><summary>Foundations</summary><ul>
+      <li><a href="../foundations/color.html">Color</a></li>
+      <li><a href="../foundations/typography.html">Typography</a></li>
+      <li><a href="../foundations/spacing.html">Spacing</a></li>
+      <li><a href="../foundations/layout.html">Layout</a></li>
+      <li><a href="../foundations/elevation.html">Elevation</a></li>
+      <li><a href="../foundations/shape.html">Shape</a></li>
+      <li><a href="../foundations/motion.html">Motion</a></li>
+      <li><a href="../foundations/iconography.html">Iconography</a></li>
+      <li><a href="../foundations/theming.html">Theming</a></li>
+      <li><a href="../foundations/responsive.html">Responsive</a></li>
+      <li><a href="../foundations/accessibility.html">Accessibility</a></li>
+      <li><a href="../foundations/content.html">Content</a></li>
+    </ul></details>
+    <details open><summary>Components</summary><ul>
+      <li><a href="../components/button.html">Button</a></li>
+      <li><a href="../components/link.html">Link</a></li>
+      <li><a href="../components/menu.html">Menu</a></li>
+      <li><a href="../components/form-field.html">Form field</a></li>
+      <li><a href="../components/text-field.html">Text field</a></li>
+      <li><a href="../components/textarea.html">Textarea</a></li>
+      <li><a href="../components/select.html">Select</a></li>
+      <li><a href="../components/radio-group.html">Radio group</a></li>
+      <li><a href="../components/switch.html">Switch</a></li>
+      <li><a href="../components/form-layout.html">Form layout</a></li>
+      <li><a href="../components/picture-list.html">Picture list</a></li>
+      <li><a href="../components/sticker-picker.html">Estimate card picker</a></li>
+      <li><a href="../components/top-bar.html">Top bar</a></li>
+      <li><a href="../components/tab-bar.html">Tab bar</a></li>
+      <li><a href="../components/tabs.html">Tabs</a></li>
+      <li><a href="../components/breadcrumb.html">Breadcrumb</a></li>
+      <li><a href="../components/skip-link.html">Skip link</a></li>
+      <li><a href="../components/layout.html">Layout primitives</a></li>
+      <li><a href="../components/card.html">Card</a></li>
+      <li><a href="../components/dialog.html">Dialog</a></li>
+      <li><a href="../components/notification-panel.html">Notification panel</a></li>
+      <li><a href="../components/list.html">List</a></li>
+      <li><a href="../components/table.html">Table</a></li>
+      <li><a href="../components/description-list.html">Description list</a></li>
+      <li><a href="../components/feed.html">Activity feed</a></li>
+      <li><a href="../components/tree.html">Backlog tree</a></li>
+      <li><a href="../components/kanban.html">Kanban board</a></li>
+      <li><a href="../components/event-card.html">Event card</a></li>
+      <li><a href="../components/profile-header.html">Profile header</a></li>
+      <li><a href="../components/search-results.html">Search results</a></li>
+      <li><a href="../components/note.html">Note</a></li>
+      <li><a href="../components/avatar.html">Avatar</a></li>
+      <li><a href="../components/logo-mark.html">Logo mark</a></li>
+      <li><a href="../components/badge.html">Badge</a></li>
+      <li><a href="../components/chip.html">Chip</a></li>
+      <li><a href="../components/stat.html">Stat</a></li>
+      <li><a href="../components/sticker.html">Estimate card</a></li>
+      <li><a href="../components/toast.html">Toast</a></li>
+      <li><a href="../components/alert.html">Alert and banner</a></li>
+      <li><a href="../components/inline-message.html">Inline message</a></li>
+      <li><a href="../components/progress.html">Progress</a></li>
+      <li><a href="../components/skeleton.html">Skeleton</a></li>
+      <li><a href="../components/empty-state.html">Empty state</a></li>
+      <li><a href="../components/error-page.html">Error page</a></li>
+    </ul></details>
+    <details open><summary>Patterns</summary><ul>
+      <li><a href="../patterns/forms.html">Forms</a></li>
+      <li><a href="../patterns/feedback-and-loading.html">Feedback and loading</a></li>
+      <li><a href="../patterns/empty-and-error-states.html">Empty and error states</a></li>
+      <li><a href="../patterns/navigation.html">Navigation and page structure</a></li>
+      <li><a href="../patterns/dialogs-and-overlays.html">Dialogs and overlays</a></li>
+      <li><a href="../patterns/lists-and-tables.html">Lists and tables</a></li>
+      <li><a href="../patterns/notifications.html">Notifications</a></li>
+      <li><a href="../patterns/content-and-tone.html">Content and tone</a></li>
+    </ul></details>
+  </nav>
+
+  <main id="main" class="ds-main">
+    <header class="ds-header">
+      <p class="ds-kicker">Component · Feedback</p>
+      <h1>Error page</h1>
+      <p class="ds-lead">When a whole page cannot be shown, FaithTech replaces its body with a round icon, a plain heading, one or two sentences and a way back to somewhere useful. Nobody should feel they broke something.</p>
+      <div class="ds-meta"><span class="ds-pill ds-pill--ok">WCAG 2.2 AA</span><span class="ds-pill">Status: stable</span><span class="ds-pill">Composition of <code>.empty</code></span></div>
+      <ul class="ds-toc">
+        <li><a href="#overview">Overview</a></li><li><a href="#anatomy">Anatomy</a></li><li><a href="#variants">Variants</a></li><li><a href="#sizes">Sizes</a></li><li><a href="#states">States</a></li><li><a href="#responsive">Responsive</a></li><li><a href="#theming">Theming</a></li><li><a href="#accessibility">Accessibility</a></li><li><a href="#content">Content</a></li><li><a href="#do-dont">Do and don't</a></li><li><a href="#tokens">Tokens</a></li><li><a href="#code">Code</a></li><li><a href="#sources">Sources</a></li>
+      </ul>
+    </header>
+
+    <section class="ds-section" id="overview"><h2><a href="#overview">Overview</a></h2>
+      <p>Use an error page when the route itself fails. There are exactly four (L2-048). When only one section of a page fails, keep the page and use an error <a href="empty-state.html">empty state</a> in that section instead.</p>
+      <ul>
+        <li><b>Not found</b> (search icon): a link is old, or the event or contact was removed.</li>
+        <li><b>Forbidden</b> (lock icon): the page needs a role the member doesn't have, such as a Volunteer opening People and roles or the admin audit log.</li>
+        <li><b>Server error</b> (alert icon): the server failed. Shows a reference to quote to support.</li>
+        <li><b>Offline</b> (no-signal icon): no connection; unsaved typing is kept.</li>
+      </ul>
+      <p>The page keeps the normal top bar (brand, primary navigation, search, bell), so navigation still works. Private contacts that belong to another lead also answer with Not found, not Forbidden, so their existence is not revealed.</p>
+    </section>
+
+    <section class="ds-section" id="anatomy"><h2><a href="#anatomy">Anatomy</a></h2>
+      <div class="ds-anatomy">
+        <figure class="ds-anatomy__figure">
+          <div class="empty" style="padding: var(--space-6) var(--space-4);">
+            <span class="empty__icon" aria-hidden="true"><svg class="icon icon--lg" aria-hidden="true" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg></span>
+            <h2 class="empty__title">We can’t find that page</h2>
+            <p class="empty__text">The link may be old, or the event or contact may have been removed.</p>
+            <div class="empty__actions"><a class="btn btn--primary" href="../../mocks/pages/home/default.html"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><path d="M3 12 12 3l9 9M5 10v10h14V10"/></svg>Go home</a></div>
+          </div>
+          <span class="ds-callout" style="left: 60%; top: 10%;" aria-hidden="true">1</span>
+          <span class="ds-callout" style="left: 88%; top: 40%;" aria-hidden="true">2</span>
+          <span class="ds-callout" style="left: 88%; top: 60%;" aria-hidden="true">3</span>
+          <span class="ds-callout" style="left: 72%; top: 86%;" aria-hidden="true">4</span>
+        </figure>
+        <ol class="ds-anatomy__list">
+          <li><div><b>Icon</b><small><code>.empty__icon</code>: 64px accent circle with a 32px line icon; decorative.</small></div></li>
+          <li><div><b>Heading</b><small>The page's <code>&lt;h1 class="empty__title"&gt;</code>.</small></div></li>
+          <li><div><b>Explanation</b><small><code>.empty__text</code>: what probably happened and what to do. The server error adds a <code>.text-caption</code> reference line.</small></div></li>
+          <li><div><b>Way back</b><small><code>.empty__actions</code>: Go home, or Try again for server error and offline.</small></div></li>
+        </ol>
+      </div>
+    </section>
+
+    <section class="ds-section" id="variants"><h2><a href="#variants">Variants</a></h2>
+      <p>Four pages, one layout. The examples use <code>&lt;h3&gt;</code>; in the product the heading is the page's <code>&lt;h1&gt;</code>.</p>
+      <div class="ds-example">
+        <div class="ds-example__canvas ds-example__canvas--canvas" style="justify-content: center;">
+          <div class="empty" style="padding: var(--space-6) var(--space-4);"><span class="empty__icon" aria-hidden="true"><svg class="icon icon--lg" aria-hidden="true" viewBox="0 0 24 24"><rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg></span><h3 class="empty__title">You don’t have access to this</h3><p class="empty__text">This page needs a role you don’t have. Your City Lead can add one if you need it.</p><div class="empty__actions"><a class="btn btn--primary" href="../../mocks/pages/home/default.html"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><path d="M3 12 12 3l9 9M5 10v10h14V10"/></svg>Go home</a></div></div>
+        </div>
+        <div class="ds-example__caption"><span>Forbidden, as Ruth Alvarez (Volunteer) sees it.</span></div>
+      </div>
+      <div class="ds-example">
+        <div class="ds-example__canvas ds-example__canvas--canvas" style="justify-content: center;">
+          <div class="empty" style="padding: var(--space-6) var(--space-4);"><span class="empty__icon" aria-hidden="true"><svg class="icon icon--lg" aria-hidden="true" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 8v4M12 16h.01"/></svg></span><h3 class="empty__title">Something went wrong on our side</h3><p class="empty__text">It’s not you. We’ve been told and are looking into it. Try again in a minute.</p><p class="text-caption">Reference: 7f3c-21a9-4b0e</p><div class="empty__actions"><button class="btn btn--primary" type="button"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><path d="M21 12a9 9 0 1 1-3-6.7L21 8M21 3v5h-5"/></svg>Try again</button></div></div>
+        </div>
+        <div class="ds-example__caption"><span>Server error with its reference.</span></div>
+      </div>
+      <div class="ds-example">
+        <div class="ds-example__canvas ds-example__canvas--canvas" style="justify-content: center;">
+          <div class="empty" style="padding: var(--space-6) var(--space-4);"><span class="empty__icon" aria-hidden="true"><svg class="icon icon--lg" aria-hidden="true" viewBox="0 0 24 24"><path d="M2 2l20 20M8.5 16.5a5 5 0 0 1 7 0M5 12.5a10 10 0 0 1 5-2.7M19 12.5a10 10 0 0 0-2.1-1.5M2 8.8a15 15 0 0 1 4.2-2.6M22 8.8A15 15 0 0 0 11 5M12 20h.01"/></svg></span><h3 class="empty__title">You’re offline</h3><p class="empty__text">Check your connection. Anything you were typing is still here and will save when you’re back online.</p><div class="empty__actions"><button class="btn btn--primary" type="button"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><path d="M21 12a9 9 0 1 1-3-6.7L21 8M21 3v5h-5"/></svg>Try again</button></div></div>
+        </div>
+        <div class="ds-example__caption"><span>Offline.</span></div>
+        <details class="ds-example__code"><summary>HTML</summary><pre><code>&lt;main id="main" class="container"&gt;
+  &lt;div style="padding-top: var(--space-12);"&gt;
+    &lt;div class="empty"&gt;
+      &lt;span class="empty__icon" aria-hidden="true"&gt;&lt;svg class="icon icon--lg" aria-hidden="true" viewBox="0 0 24 24"&gt;…&lt;/svg&gt;&lt;/span&gt;
+      &lt;h1 class="empty__title"&gt;You’re offline&lt;/h1&gt;
+      &lt;p class="empty__text"&gt;Check your connection. Anything you were typing is still here …&lt;/p&gt;
+      &lt;div class="empty__actions"&gt;&lt;button class="btn btn--primary" type="button"&gt;…Try again&lt;/button&gt;&lt;/div&gt;
+    &lt;/div&gt;
+  &lt;/div&gt;
+&lt;/main&gt;</code></pre></details>
+      </div>
+    </section>
+
+    <section class="ds-section" id="sizes" data-na="One size only"><h2><a href="#sizes">Sizes</a></h2>
+      <p class="ds-na">One size: the empty state with an extra 48px (<code>--space-12</code>) above it so the message sits in the upper middle of the screen.</p>
+    </section>
+
+    <section class="ds-section" id="states"><h2><a href="#states">States</a></h2>
+      <p>Each error page is a single state. Its buttons carry the interactive states; Try again becomes a busy button while it retries.</p>
+      <div class="ds-matrix"><table>
+        <thead><tr><th scope="col">Page</th><th scope="col">Default</th><th scope="col">Retrying</th></tr></thead>
+        <tbody>
+          <tr><th scope="row">Server error</th><td><div class="empty__actions"><button class="btn btn--primary" type="button"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><path d="M21 12a9 9 0 1 1-3-6.7L21 8M21 3v5h-5"/></svg>Try again</button></div></td><td><div class="empty__actions"><button class="btn btn--primary" type="button" aria-busy="true"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><path d="M21 12a9 9 0 1 1-3-6.7L21 8M21 3v5h-5"/></svg>Try again</button></div></td></tr>
+          <tr><th scope="row">Not found</th><td><div class="empty__actions"><a class="btn btn--primary" href="../../mocks/pages/home/default.html"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><path d="M3 12 12 3l9 9M5 10v10h14V10"/></svg>Go home</a></div></td><td>–</td></tr>
+        </tbody>
+      </table></div>
+      <h3>Both themes</h3>
+      <div class="ds-themes">
+        <div data-theme="light"><div class="empty" style="padding: var(--space-4);"><span class="empty__icon" aria-hidden="true"><svg class="icon icon--lg" aria-hidden="true" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg></span><h3 class="empty__title">We can’t find that page</h3><p class="empty__text">The link may be old, or the event or contact may have been removed.</p></div></div>
+        <div data-theme="dark"><div class="empty" style="padding: var(--space-4);"><span class="empty__icon" aria-hidden="true"><svg class="icon icon--lg" aria-hidden="true" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg></span><h3 class="empty__title">We can’t find that page</h3><p class="empty__text">The link may be old, or the event or contact may have been removed.</p></div></div>
+      </div>
+    </section>
+
+    <section class="ds-section" id="responsive"><h2><a href="#responsive">Responsive behaviour</a></h2>
+      <ul>
+        <li>Centred in <code>main</code> at every width; the text stops at 36ch.</li>
+        <li>On phones the top bar collapses as usual; the message and its single action stay centred.</li>
+      </ul>
+    </section>
+
+    <section class="ds-section" id="theming"><h2><a href="#theming">Theming</a></h2>
+      <p>Reads the same tokens as the <a href="empty-state.html">empty state</a>: <code>--color-accent-subtle</code> and <code>--color-fg-accent</code> for the icon, <code>--color-fg-default</code> and <code>--color-fg-muted</code> for the words. All four pages use the accent icon, not the danger one. Nothing is theme specific.</p>
+    </section>
+
+    <section class="ds-section" id="accessibility"><h2><a href="#accessibility">Accessibility</a></h2>
+      <h3>Role and pattern</h3>
+      <p>A normal page: skip link, top bar, <code>main</code> with one <code>&lt;h1&gt;</code>. The document <code>&lt;title&gt;</code> names the problem ("Not found · FaithTech") so it is announced on load. The server answers with the matching HTTP status (404, 403, 500).</p>
+      <h3>Keyboard</h3>
+      <table class="ds-table ds-keys"><thead><tr><th scope="col">Key</th><th scope="col">Action</th></tr></thead><tbody>
+        <tr><td><kbd>Tab</kbd></td><td>Skip link, top bar, then the page action.</td></tr>
+        <tr><td><kbd>Enter</kbd>, <kbd>Space</kbd></td><td>Runs Try again; follows Go home.</td></tr>
+      </tbody></table>
+      <h3>Focus</h3>
+      <p>On a client-side route change to an error page, focus moves to the <code>&lt;h1&gt;</code> (with <code>tabindex="-1"</code>) so the heading is read first.</p>
+      <h3>Labelling</h3>
+      <p>The icon is <code>aria-hidden</code>. The heading carries the whole message in words. The reference is plain text so it can be read out or copied.</p>
+      <h3>Contrast</h3>
+      <div class="ds-example__canvas ds-example__canvas--stack" style="padding: 0; gap: var(--space-2);">
+        <div class="ds-pair"><span>Heading on page</span><span class="ds-pair__ratio" data-contrast="--color-fg-default|--color-bg-canvas" data-min="4.5"></span></div>
+        <div class="ds-pair"><span>Text on page</span><span class="ds-pair__ratio" data-contrast="--color-fg-muted|--color-bg-canvas" data-min="4.5"></span></div>
+        <div class="ds-pair"><span>Primary action</span><span class="ds-pair__ratio" data-contrast="--color-fg-on-accent|--color-accent" data-min="4.5"></span></div>
+      </div>
+      <h3>Motion</h3>
+      <p>None.</p>
+      <h3>Touch</h3>
+      <p>The action is a 40px button in the middle of the screen.</p>
+    </section>
+
+    <section class="ds-section" id="content"><h2><a href="#content">Content</a></h2>
+      <ul>
+        <li>Headings are plain: "We can’t find that page", "You don’t have access to this", "Something went wrong on our side", "You’re offline".</li>
+        <li>Say it is not the member's fault and what is safe: "It’s not you." "Anything you were typing is still here."</li>
+        <li>Forbidden says who can help: "Your City Lead can add one if you need it." Never name the missing role's holders or reveal what the page contains.</li>
+        <li>Only the server error shows a code, labelled "Reference:".</li>
+      </ul>
+    </section>
+
+    <section class="ds-section" id="do-dont"><h2><a href="#do-dont">Do and don't</a></h2>
+      <div class="ds-dodont">
+        <figure class="ds-do"><div class="ds-example__canvas ds-example__canvas--canvas" style="justify-content: center;"><div class="empty" style="padding: var(--space-4);"><span class="empty__icon" aria-hidden="true"><svg class="icon icon--lg" aria-hidden="true" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg></span><h3 class="empty__title">We can’t find that page</h3><div class="empty__actions"><a class="btn btn--primary" href="../../mocks/pages/home/default.html"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><path d="M3 12 12 3l9 9M5 10v10h14V10"/></svg>Go home</a></div></div></div><figcaption>A plain message and a way home.</figcaption></figure>
+        <figure class="ds-dont"><div class="ds-example__canvas ds-example__canvas--canvas" style="justify-content: center;"><div class="empty empty--error" style="padding: var(--space-4);"><span class="empty__icon" aria-hidden="true"><svg class="icon icon--lg" aria-hidden="true" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 8v4M12 16h.01"/></svg></span><h3 class="empty__title">404 Not Found</h3></div></div><figcaption>A status code as the heading, a red warning and no way out.</figcaption></figure>
+        <figure class="ds-do"><div class="ds-example__canvas" style="justify-content: center;"><button class="btn btn--primary" type="button"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><path d="M21 12a9 9 0 1 1-3-6.7L21 8M21 3v5h-5"/></svg>Try again</button></div><figcaption>Try again is a button that retries.</figcaption></figure>
+        <figure class="ds-dont"><div class="ds-example__canvas ds-example__canvas--canvas" style="justify-content: center;"><div class="empty" style="padding: var(--space-4);"><h3 class="empty__title">This is Grace Okonkwo’s private contact</h3></div></div><figcaption>Revealing that a private contact exists; answer Not found instead.</figcaption></figure>
+      </div>
+    </section>
+
+    <section class="ds-section" id="tokens"><h2><a href="#tokens">Tokens</a></h2>
+      <div class="ds-table-wrap"><table class="ds-table">
+        <thead><tr><th scope="col">Part</th><th scope="col">Token</th><th scope="col">Light</th><th scope="col">Dark</th></tr></thead>
+        <tbody>
+          <tr><td>Icon background</td><td><code>--color-accent-subtle</code></td><td><span class="ds-swatch-cell" data-theme="light"><i data-token="--color-accent-subtle" data-swatch></i><span data-token="--color-accent-subtle"></span></span></td><td><span class="ds-swatch-cell" data-theme="dark"><i data-token="--color-accent-subtle" data-swatch></i><span data-token="--color-accent-subtle"></span></span></td></tr>
+          <tr><td>Icon</td><td><code>--color-fg-accent</code></td><td><span class="ds-swatch-cell" data-theme="light"><i data-token="--color-fg-accent" data-swatch></i><span data-token="--color-fg-accent"></span></span></td><td><span class="ds-swatch-cell" data-theme="dark"><i data-token="--color-fg-accent" data-swatch></i><span data-token="--color-fg-accent"></span></span></td></tr>
+          <tr><td>Heading</td><td><code>--color-fg-default</code></td><td><span class="ds-swatch-cell" data-theme="light"><i data-token="--color-fg-default" data-swatch></i><span data-token="--color-fg-default"></span></span></td><td><span class="ds-swatch-cell" data-theme="dark"><i data-token="--color-fg-default" data-swatch></i><span data-token="--color-fg-default"></span></span></td></tr>
+          <tr><td>Text, reference</td><td><code>--color-fg-muted</code></td><td><span class="ds-swatch-cell" data-theme="light"><i data-token="--color-fg-muted" data-swatch></i><span data-token="--color-fg-muted"></span></span></td><td><span class="ds-swatch-cell" data-theme="dark"><i data-token="--color-fg-muted" data-swatch></i><span data-token="--color-fg-muted"></span></span></td></tr>
+          <tr><td>Top offset</td><td><code>--space-12</code></td><td colspan="2"><span data-token="--space-12"></span></td></tr>
+        </tbody>
+      </table></div>
+    </section>
+
+    <section class="ds-section" id="code"><h2><a href="#code">Code</a></h2>
+      <pre><code>&lt;main id="main" class="container"&gt;
+  &lt;div style="padding-top: var(--space-12);"&gt;
+    &lt;div class="empty"&gt;
+      &lt;span class="empty__icon" aria-hidden="true"&gt;…&lt;/span&gt;
+      &lt;h1 class="empty__title" tabindex="-1"&gt;Something went wrong on our side&lt;/h1&gt;
+      &lt;p class="empty__text"&gt;It’s not you. We’ve been told and are looking into it. Try again in a minute.&lt;/p&gt;
+      &lt;p class="text-caption"&gt;Reference: 7f3c-21a9-4b0e&lt;/p&gt;
+      &lt;div class="empty__actions"&gt;&lt;button class="btn btn--primary" type="button"&gt;…Try again&lt;/button&gt;&lt;/div&gt;
+    &lt;/div&gt;
+  &lt;/div&gt;
+&lt;/main&gt;</code></pre>
+      <table class="ds-table"><thead><tr><th scope="col">Page</th><th scope="col">Status</th><th scope="col">Action</th></tr></thead><tbody>
+        <tr><td>Not found</td><td>404</td><td>Go home</td></tr>
+        <tr><td>Forbidden</td><td>403</td><td>Go home</td></tr>
+        <tr><td>Server error</td><td>500</td><td>Try again</td></tr>
+        <tr><td>Offline</td><td>none (client)</td><td>Try again</td></tr>
+      </tbody></table>
+    </section>
+
+    <section class="ds-section" id="sources"><h2><a href="#sources">Sources</a></h2>
+      <p>Extracted from these mocks:</p>
+      <ul>
+        <li><a href="../../mocks/pages/not-found/default.html">pages/not-found/default</a></li>
+        <li><a href="../../mocks/pages/forbidden/default.html">pages/forbidden/default</a></li>
+        <li><a href="../../mocks/pages/server-error/default.html">pages/server-error/default</a></li>
+        <li><a href="../../mocks/pages/offline/default.html">pages/offline/default</a></li>
+      </ul>
+      <p>Drift noticed: the top offset is an inline <code>style="padding-top: var(--space-12)"</code> wrapper on every page rather than a class; Try again on server error and offline is an <code>&lt;a href="default.html"&gt;</code> styled as a button (the system uses a <code>&lt;button&gt;</code>); the offline page has no offline banner even though the banner exists in notifications/banner. The Shelfie sticker variant was dropped; FaithTech uses the plain empty-state icon.</p>
+    </section>
+
+    <footer class="ds-footer"><span>FaithTech Community design system · extracted from <a href="../../mocks/index.html">docs/mocks</a> on 2026-10-21</span><a href="#top">Back to top</a></footer>
+  </main>
+</div>
+<script src="../assets/ds.js"></script>
+</body>
+</html>

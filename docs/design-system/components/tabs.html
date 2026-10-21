@@ -1,0 +1,181 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Tabs — FaithTech Community design system</title>
+<meta name="description" content="Tabs for sibling views: navigation tabs with aria-current for workspace and admin sections, and APG tabs with aria-selected for in-page panels. States and both themes.">
+<link rel="stylesheet" href="../tokens/tokens.css">
+<link rel="stylesheet" href="../assets/components.css">
+<link rel="stylesheet" href="../assets/ds.css">
+</head>
+<body id="top">
+<a class="skip-link" href="#main">Skip to content</a>
+<div class="ds-shell">
+  <nav class="ds-nav" aria-label="Design system">
+    <div class="ds-nav__brand"><a href="../index.html">FaithTech DS</a><button class="ds-theme-toggle" type="button" aria-pressed="false">☾ Dark</button></div>
+    <details open><summary>Foundations</summary><ul>
+      <li><a href="../foundations/color.html">Color</a></li>
+      <li><a href="../foundations/typography.html">Typography</a></li>
+      <li><a href="../foundations/spacing.html">Spacing</a></li>
+      <li><a href="../foundations/layout.html">Layout</a></li>
+      <li><a href="../foundations/elevation.html">Elevation</a></li>
+      <li><a href="../foundations/shape.html">Shape</a></li>
+      <li><a href="../foundations/motion.html">Motion</a></li>
+      <li><a href="../foundations/iconography.html">Iconography</a></li>
+      <li><a href="../foundations/theming.html">Theming</a></li>
+      <li><a href="../foundations/responsive.html">Responsive</a></li>
+      <li><a href="../foundations/accessibility.html">Accessibility</a></li>
+      <li><a href="../foundations/content.html">Content</a></li>
+    </ul></details>
+    <details open><summary>Components</summary><ul>
+      <li><a href="../components/button.html">Button</a></li>
+      <li><a href="../components/link.html">Link</a></li>
+      <li><a href="../components/menu.html">Menu</a></li>
+      <li><a href="../components/form-field.html">Form field</a></li>
+      <li><a href="../components/text-field.html">Text field</a></li>
+      <li><a href="../components/textarea.html">Textarea</a></li>
+      <li><a href="../components/select.html">Select</a></li>
+      <li><a href="../components/radio-group.html">Radio group</a></li>
+      <li><a href="../components/switch.html">Switch</a></li>
+      <li><a href="../components/form-layout.html">Form layout</a></li>
+      <li><a href="../components/picture-list.html">Picture list</a></li>
+      <li><a href="../components/sticker-picker.html">Estimate card picker</a></li>
+      <li><a href="../components/top-bar.html">Top bar</a></li>
+      <li><a href="../components/tab-bar.html">Tab bar</a></li>
+      <li><a href="../components/tabs.html">Tabs</a></li>
+      <li><a href="../components/breadcrumb.html">Breadcrumb</a></li>
+      <li><a href="../components/skip-link.html">Skip link</a></li>
+      <li><a href="../components/layout.html">Layout primitives</a></li>
+      <li><a href="../components/card.html">Card</a></li>
+      <li><a href="../components/dialog.html">Dialog</a></li>
+      <li><a href="../components/notification-panel.html">Notification panel</a></li>
+      <li><a href="../components/list.html">List</a></li>
+      <li><a href="../components/table.html">Table</a></li>
+      <li><a href="../components/description-list.html">Description list</a></li>
+      <li><a href="../components/feed.html">Activity feed</a></li>
+      <li><a href="../components/tree.html">Backlog tree</a></li>
+      <li><a href="../components/kanban.html">Kanban board</a></li>
+      <li><a href="../components/event-card.html">Event card</a></li>
+      <li><a href="../components/profile-header.html">Profile header</a></li>
+      <li><a href="../components/search-results.html">Search results</a></li>
+      <li><a href="../components/note.html">Note</a></li>
+      <li><a href="../components/avatar.html">Avatar</a></li>
+      <li><a href="../components/logo-mark.html">Logo mark</a></li>
+      <li><a href="../components/badge.html">Badge</a></li>
+      <li><a href="../components/chip.html">Chip</a></li>
+      <li><a href="../components/stat.html">Stat</a></li>
+      <li><a href="../components/sticker.html">Estimate card</a></li>
+      <li><a href="../components/toast.html">Toast</a></li>
+      <li><a href="../components/alert.html">Alert and banner</a></li>
+      <li><a href="../components/inline-message.html">Inline message</a></li>
+      <li><a href="../components/progress.html">Progress</a></li>
+      <li><a href="../components/skeleton.html">Skeleton</a></li>
+      <li><a href="../components/empty-state.html">Empty state</a></li>
+      <li><a href="../components/error-page.html">Error page</a></li>
+    </ul></details>
+    <details open><summary>Patterns</summary><ul>
+      <li><a href="../patterns/forms.html">Forms</a></li>
+      <li><a href="../patterns/feedback-and-loading.html">Feedback and loading</a></li>
+      <li><a href="../patterns/empty-and-error-states.html">Empty and error states</a></li>
+      <li><a href="../patterns/navigation.html">Navigation and page structure</a></li>
+      <li><a href="../patterns/dialogs-and-overlays.html">Dialogs and overlays</a></li>
+      <li><a href="../patterns/lists-and-tables.html">Lists and tables</a></li>
+      <li><a href="../patterns/notifications.html">Notifications</a></li>
+      <li><a href="../patterns/content-and-tone.html">Content and tone</a></li>
+    </ul></details>
+  </nav>
+
+  <main id="main" class="ds-main">
+    <header class="ds-header">
+      <p class="ds-kicker">Component · Navigation</p>
+      <h1>Tabs</h1>
+      <p class="ds-lead">Tabs switch between sibling views of one thing, like a workspace&rsquo;s Board, Backlog, Planning Poker and Settings. In FaithTech they are almost always links to separate pages.</p>
+      <div class="ds-meta"><span class="ds-pill ds-pill--ok">WCAG 2.2 AA</span><span class="ds-pill">Status: stable</span><span class="ds-pill"><code>&lt;nav&gt;</code> links or APG tabs</span></div>
+      <ul class="ds-toc">
+        <li><a href="#overview">Overview</a></li><li><a href="#anatomy">Anatomy</a></li><li><a href="#variants">Variants</a></li><li><a href="#sizes">Sizes</a></li><li><a href="#states">States</a></li><li><a href="#responsive">Responsive</a></li><li><a href="#theming">Theming</a></li><li><a href="#accessibility">Accessibility</a></li><li><a href="#content">Content</a></li><li><a href="#do-dont">Do and don't</a></li><li><a href="#tokens">Tokens</a></li><li><a href="#code">Code</a></li><li><a href="#sources">Sources</a></li>
+      </ul>
+    </header>
+
+    <section class="ds-section" id="overview"><h2><a href="#overview">Overview</a></h2>
+      <p>Tabs switch between sibling views of one thing: a workspace&rsquo;s Board, Backlog, Planning Poker and Settings, or the System Admin area&rsquo;s Users, Audit log and Roles. The same <code>.tabs</code> / <code>.tab</code> styles serve two different patterns, and choosing the right one is the main decision. Added for FaithTech Community.</p>      <ul><li><b>Navigation tabs</b> (<code>&lt;nav&gt;</code> of links with <code>aria-current="page"</code>): each tab is its own URL. This is the only pattern the mocks use, and the default for every new screen.</li><li><b>APG tabs</b> (<code>role="tablist"</code> of buttons with <code>aria-selected</code>): panels swap in place without changing the URL. Use only for a small in-page switch whose panels are not worth a route.</li><li>Use the <a href="tab-bar.html">tab bar</a> for the phone-wide primary navigation, and <a href="chip.html">chips</a> for filters.</li></ul>
+    </section>
+    <section class="ds-section" id="anatomy"><h2><a href="#anatomy">Anatomy</a></h2>
+      <div class="ds-anatomy">
+        <figure class="ds-anatomy__figure" style="position: relative;"><nav class="tabs" aria-label="Workspace sections"><a class="tab" href="../../mocks/pages/team-board/default.html" aria-current="page">Board</a><a class="tab" href="../../mocks/pages/backlog/default.html">Backlog</a><a class="tab" href="../../mocks/pages/planning-poker/default.html">Planning Poker</a><a class="tab" href="../../mocks/pages/workspace-settings/default.html">Settings</a></nav><span class="ds-callout" style="left: 4%; top: 8%;" aria-hidden="true">1</span><span class="ds-callout" style="left: 40%; top: 8%;" aria-hidden="true">2</span><span class="ds-callout" style="left: 8%; top: 78%;" aria-hidden="true">3</span></figure>
+        <ol class="ds-anatomy__list"><li><div><b>Tab list</b><small><code>.tabs</code>: a flex row with a 1px <code>--color-border-default</code> baseline; scrolls horizontally when it overflows.</small></div></li><li><div><b>Tab</b><small><code>.tab</code>: <code>--text-label</code>, <code>--color-fg-muted</code>, <code>--target-comfortable</code> tall, <code>--space-3</code> side padding.</small></div></li><li><div><b>Current indicator</b><small>A <code>--space-0-5</code> bottom border in <code>--color-accent</code> and <code>--color-fg-accent</code> text, set by <code>aria-current</code> or <code>aria-selected</code>.</small></div></li></ol>
+      </div>
+    </section>
+    <section class="ds-section" id="variants"><h2><a href="#variants">Variants</a></h2>
+      <h3>Navigation tabs (aria-current)</h3>      <div class="ds-example">
+        <div class="ds-example__canvas"><nav class="tabs" aria-label="Workspace sections"><a class="tab" href="../../mocks/pages/team-board/default.html" aria-current="page">Board</a><a class="tab" href="../../mocks/pages/backlog/default.html">Backlog</a><a class="tab" href="../../mocks/pages/planning-poker/default.html">Planning Poker</a><a class="tab" href="../../mocks/pages/workspace-settings/default.html">Settings</a></nav></div>
+        <div class="ds-example__caption"><span>Workspace sections on every workspace page. Each tab is a link; the current one has <code>aria-current="page"</code>.</span></div>
+        <details class="ds-example__code"><summary>HTML</summary><pre><code>&lt;nav class="tabs" aria-label="Workspace sections"&gt;&lt;a class="tab" href="../../mocks/pages/team-board/default.html" aria-current="page"&gt;Board&lt;/a&gt;&lt;a class="tab" href="../../mocks/pages/backlog/default.html"&gt;Backlog&lt;/a&gt;&lt;a class="tab" href="../../mocks/pages/planning-poker/default.html"&gt;Planning Poker&lt;/a&gt;&lt;a class="tab" href="../../mocks/pages/workspace-settings/default.html"&gt;Settings&lt;/a&gt;&lt;/nav&gt;</code></pre></details>
+      </div>      <div class="ds-example">
+        <div class="ds-example__canvas"><nav class="tabs" aria-label="Admin sections"><a class="tab" href="../../mocks/pages/admin-users/default.html">Users</a><a class="tab" href="../../mocks/pages/audit-log/default.html" aria-current="page">Audit log</a><a class="tab" href="../../mocks/pages/people/admin.html">Roles</a></nav></div>
+        <div class="ds-example__caption"><span>System Admin sections (Users, Audit log, Roles).</span></div>
+        
+      </div>      <h3>APG tabs (aria-selected)</h3>      <div class="ds-example">
+        <div class="ds-example__canvas"><div><div class="tabs" role="tablist" aria-label="RSVPs for Toronto Builders Night"><button class="tab" type="button" role="tab" id="rsvp-t0" aria-controls="rsvp-p0" aria-selected="true">Going</button><button class="tab" type="button" role="tab" id="rsvp-t1" aria-controls="rsvp-p1" aria-selected="false" tabindex="-1">Waitlist</button><button class="tab" type="button" role="tab" id="rsvp-t2" aria-controls="rsvp-p2" aria-selected="false" tabindex="-1">Cancelled</button></div><div role="tabpanel" id="rsvp-p0" aria-labelledby="rsvp-t0" tabindex="0"><p class="text-muted">Going: 34 people.</p></div><div role="tabpanel" id="rsvp-p1" aria-labelledby="rsvp-t1" tabindex="0" hidden><p class="text-muted">Waitlist: 34 people.</p></div><div role="tabpanel" id="rsvp-p2" aria-labelledby="rsvp-t2" tabindex="0" hidden><p class="text-muted">Cancelled: 34 people.</p></div></div></div>
+        <div class="ds-example__caption"><span>In-page panels with roving tabindex. Not used in the mocks; shown so the classes are used correctly if it is needed (an event&rsquo;s RSVP list split by status is a plausible case). Interaction needs script; this canvas is static.</span></div>
+        <details class="ds-example__code"><summary>HTML</summary><pre><code>&lt;div&gt;&lt;div class="tabs" role="tablist" aria-label="RSVPs for Toronto Builders Night"&gt;&lt;button class="tab" type="button" role="tab" id="code-t0" aria-controls="code-p0" aria-selected="true"&gt;Going&lt;/button&gt;&lt;button class="tab" type="button" role="tab" id="code-t1" aria-controls="code-p1" aria-selected="false" tabindex="-1"&gt;Waitlist&lt;/button&gt;&lt;button class="tab" type="button" role="tab" id="code-t2" aria-controls="code-p2" aria-selected="false" tabindex="-1"&gt;Cancelled&lt;/button&gt;&lt;/div&gt;&lt;div role="tabpanel" id="code-p0" aria-labelledby="code-t0" tabindex="0"&gt;&lt;p class="text-muted"&gt;Going: 34 people.&lt;/p&gt;&lt;/div&gt;&lt;div role="tabpanel" id="code-p1" aria-labelledby="code-t1" tabindex="0" hidden&gt;&lt;p class="text-muted"&gt;Waitlist: 34 people.&lt;/p&gt;&lt;/div&gt;&lt;div role="tabpanel" id="code-p2" aria-labelledby="code-t2" tabindex="0" hidden&gt;&lt;p class="text-muted"&gt;Cancelled: 34 people.&lt;/p&gt;&lt;/div&gt;&lt;/div&gt;</code></pre></details>
+      </div>
+    </section>
+    <section class="ds-section" id="sizes" data-na="One size: tabs are always --target-comfortable tall."><h2><a href="#sizes">Sizes</a></h2>
+      <p>Tabs have one size, <code>--target-comfortable</code> tall with <code>--text-label</code>. Do not shrink them in dense headers; there is never more than one tab row per page.</p>
+    </section>
+    <section class="ds-section" id="states"><h2><a href="#states">States</a></h2>
+      <p>Hover comes from <code>:hover</code> only (there is no <code>data-state="hover"</code> hook); focus is forced here with the global <code>data-state="focus"</code>.</p>      <div class="ds-matrix"><table><thead><tr><th scope="col">Pattern</th><th scope="col">Default</th><th scope="col">Focus</th><th scope="col">Current / selected</th></tr></thead><tbody><tr><th scope="row">Navigation</th><td><a class="tab" href="../../mocks/pages/backlog/default.html">Backlog</a></td><td><a class="tab" href="../../mocks/pages/backlog/default.html" data-state="focus">Backlog</a></td><td><a class="tab" href="../../mocks/pages/team-board/default.html" aria-current="page">Board</a></td></tr><tr><th scope="row">APG</th><td><button class="tab" type="button" role="tab" aria-selected="false">Waitlist</button></td><td><button class="tab" type="button" role="tab" aria-selected="false" data-state="focus">Waitlist</button></td><td><button class="tab" type="button" role="tab" aria-selected="true">Going</button></td></tr></tbody></table></div>      <h3>Both themes</h3>
+      <div class="ds-themes">
+        <div data-theme="light"><div class="ds-example__canvas ds-example__canvas--stack" style="padding: 0;"><nav class="tabs" aria-label="Workspace sections"><a class="tab" href="../../mocks/pages/team-board/default.html">Board</a><a class="tab" href="../../mocks/pages/backlog/default.html" aria-current="page">Backlog</a><a class="tab" href="../../mocks/pages/planning-poker/default.html">Planning Poker</a><a class="tab" href="../../mocks/pages/workspace-settings/default.html">Settings</a></nav><nav class="tabs" aria-label="Admin sections, dark"><a class="tab" href="../../mocks/pages/admin-users/default.html" aria-current="page">Users</a><a class="tab" href="../../mocks/pages/audit-log/default.html">Audit log</a><a class="tab" href="../../mocks/pages/people/admin.html">Roles</a></nav></div></div>
+        <div data-theme="dark"><div class="ds-example__canvas ds-example__canvas--stack" style="padding: 0;"><nav class="tabs" aria-label="Workspace sections"><a class="tab" href="../../mocks/pages/team-board/default.html">Board</a><a class="tab" href="../../mocks/pages/backlog/default.html" aria-current="page">Backlog</a><a class="tab" href="../../mocks/pages/planning-poker/default.html">Planning Poker</a><a class="tab" href="../../mocks/pages/workspace-settings/default.html">Settings</a></nav><nav class="tabs" aria-label="Admin sections, dark"><a class="tab" href="../../mocks/pages/admin-users/default.html" aria-current="page">Users</a><a class="tab" href="../../mocks/pages/audit-log/default.html">Audit log</a><a class="tab" href="../../mocks/pages/people/admin.html">Roles</a></nav></div></div>
+      </div>      <ul><li>Exactly one tab is current. A page reached outside the tab set (for example a work item) shows no tab row rather than a row with nothing current.</li><li>Forbidden: tabs the person cannot open are removed, not disabled. A Staff member sees Board and Backlog read-only; a disabled tab would hide its reason.</li><li>Loading and error states belong to the panel below the tabs; the tab row stays usable so people can leave a failing view.</li></ul>
+    </section>
+    <section class="ds-section" id="responsive"><h2><a href="#responsive">Responsive behaviour</a></h2>
+      <ul><li>The row scrolls horizontally (scrollbar hidden) when tabs overflow at 360px; it never wraps to two lines.</li><li>Keep labels short (one or two words) so four workspace tabs fit at 360px without scrolling.</li><li>The current tab should be scrolled into view on load if the row overflows.</li></ul>
+    </section>
+    <section class="ds-section" id="theming"><h2><a href="#theming">Theming</a></h2>
+      <p>Tabs read <code>--color-fg-muted</code>, <code>--color-fg-default</code> (hover), <code>--color-fg-accent</code> and <code>--color-accent</code> (current) and <code>--color-border-default</code>. The violet accent inherited from the Shelfie tokens lightens in dark mode so the current label stays above 4.5:1 on the page.</p>
+    </section>
+    <section class="ds-section" id="accessibility"><h2><a href="#accessibility">Accessibility</a></h2>
+      <h3>Role and pattern</h3>      <p><b>Navigation tabs</b> are a <code>&lt;nav aria-label&gt;</code> landmark of links; the current link has <code>aria-current="page"</code>. No tab roles. <b>APG tabs</b> follow the WAI-ARIA Tabs pattern: <code>role="tablist"</code> with a label, <code>role="tab"</code> buttons with <code>aria-selected</code> and <code>aria-controls</code>, and <code>role="tabpanel"</code> panels labelled by their tab. Never mix the two: links with <code>role="tab"</code> confuse both models.</p>      <h3>Keyboard</h3><table class="ds-table ds-keys"><thead><tr><th scope="col">Key</th><th scope="col">Action</th></tr></thead><tbody><tr><td><kbd>Tab</kbd> (navigation)</td><td>Moves through every tab link in order; <kbd>Enter</kbd> follows it.</td></tr><tr><td><kbd>Tab</kbd> (APG)</td><td>Enters the tab list on the selected tab, then moves to the panel.</td></tr><tr><td><kbd>&larr;</kbd> / <kbd>&rarr;</kbd> (APG)</td><td>Moves to and selects the previous / next tab, wrapping.</td></tr><tr><td><kbd>Home</kbd> / <kbd>End</kbd> (APG)</td><td>First / last tab.</td></tr></tbody></table>      <h3>Focus</h3>      <p>The global focus ring (2px <code>--color-focus-ring</code>, 2px offset) draws around the tab; it does not replace the current indicator.</p>      <h3>Labelling</h3>      <p>The nav or tablist has an <code>aria-label</code> (&ldquo;Workspace sections&rdquo;, &ldquo;Admin sections&rdquo;). Count badges inside a tab are part of its name; keep them short.</p>      <h3>Contrast</h3><div class="ds-example__canvas ds-example__canvas--stack" style="padding: 0; gap: var(--space-2);"><div class="ds-pair"><span>Tab label on page</span><span class="ds-pair__ratio" data-contrast="--color-fg-muted|--color-bg-canvas" data-min="4.5"></span></div><div class="ds-pair"><span>Current label on page</span><span class="ds-pair__ratio" data-contrast="--color-fg-accent|--color-bg-canvas" data-min="4.5"></span></div><div class="ds-pair"><span>Current indicator on page</span><span class="ds-pair__ratio" data-contrast="--color-accent|--color-bg-canvas" data-min="3"></span></div></div>      <h3>Touch</h3>      <p>Each tab is <code>--target-comfortable</code> (44px) tall with 4px between tabs.</p>
+    </section>
+    <section class="ds-section" id="content"><h2><a href="#content">Content</a></h2>
+      <ul><li>Tab labels are nouns in title or sentence case as the mocks use them: Board, Backlog, Planning Poker, Settings; Users, Audit log, Roles.</li><li>One or two words. No verbs, no icons without text.</li><li>Keep the same order on every page of the set so the current tab does not jump.</li></ul>
+    </section>
+    <section class="ds-section" id="do-dont"><h2><a href="#do-dont">Do and don't</a></h2>
+      <div class="ds-dodont"><figure class="ds-do"><div class="ds-example__canvas ds-example__canvas--stack"><nav class="tabs" aria-label="Workspace sections"><a class="tab" href="../../mocks/pages/team-board/default.html" aria-current="page">Board</a><a class="tab" href="../../mocks/pages/backlog/default.html">Backlog</a><a class="tab" href="../../mocks/pages/planning-poker/default.html">Planning Poker</a><a class="tab" href="../../mocks/pages/workspace-settings/default.html">Settings</a></nav></div><figcaption>Links in a labelled <code>&lt;nav&gt;</code> with <code>aria-current="page"</code>, because each section has its own URL.</figcaption></figure><figure class="ds-dont"><div class="ds-example__canvas ds-example__canvas--stack"><div class="tabs" role="tablist" aria-label="Workspace sections"><a class="tab" role="tab" aria-selected="true" href="../../mocks/pages/team-board/default.html">Board</a><a class="tab" role="tab" aria-selected="false" href="../../mocks/pages/backlog/default.html">Backlog</a></div></div><figcaption>Tab roles on links that navigate. Screen readers then announce arrow-key behaviour that does not exist.</figcaption></figure><figure class="ds-do"><div class="ds-example__canvas ds-example__canvas--stack"><nav class="tabs" aria-label="Workspace sections, Staff"><a class="tab" href="../../mocks/pages/team-board/default.html" aria-current="page">Board</a><a class="tab" href="../../mocks/pages/backlog/default.html">Backlog</a></nav></div><figcaption>Staff (read-only) see only the tabs they can open.</figcaption></figure><figure class="ds-dont"><div class="ds-example__canvas ds-example__canvas--stack"><nav class="tabs" aria-label="Workspace sections, inline spacing"><a class="tab" href="../../mocks/pages/team-board/default.html" aria-current="page">Board</a><a class="tab" href="../../mocks/pages/backlog/default.html">Backlog</a><a class="tab" href="../../mocks/pages/planning-poker/default.html">Planning Poker</a><a class="tab" href="../../mocks/pages/workspace-settings/default.html">Settings</a></nav></div><figcaption>Spacing set with an inline <code>style="margin-bottom: var(--space-4)"</code> on every page; the mocks repeat it 36 times. Use a layout utility or the page stack.</figcaption></figure></div>
+    </section>
+    <section class="ds-section" id="tokens"><h2><a href="#tokens">Tokens</a></h2>
+      <div class="ds-table-wrap"><table class="ds-table">
+        <thead><tr><th scope="col">Part</th><th scope="col">Token</th><th scope="col">Light</th><th scope="col">Dark</th></tr></thead>
+        <tbody><tr><td>Label</td><td><code>--color-fg-muted</code></td><td><span class="ds-swatch-cell" data-theme="light"><i data-token="--color-fg-muted" data-swatch></i><span data-token="--color-fg-muted"></span></span></td><td><span class="ds-swatch-cell" data-theme="dark"><i data-token="--color-fg-muted" data-swatch></i><span data-token="--color-fg-muted"></span></span></td></tr><tr><td>Label, hover</td><td><code>--color-fg-default</code></td><td><span class="ds-swatch-cell" data-theme="light"><i data-token="--color-fg-default" data-swatch></i><span data-token="--color-fg-default"></span></span></td><td><span class="ds-swatch-cell" data-theme="dark"><i data-token="--color-fg-default" data-swatch></i><span data-token="--color-fg-default"></span></span></td></tr><tr><td>Label, current</td><td><code>--color-fg-accent</code></td><td><span class="ds-swatch-cell" data-theme="light"><i data-token="--color-fg-accent" data-swatch></i><span data-token="--color-fg-accent"></span></span></td><td><span class="ds-swatch-cell" data-theme="dark"><i data-token="--color-fg-accent" data-swatch></i><span data-token="--color-fg-accent"></span></span></td></tr><tr><td>Indicator</td><td><code>--color-accent</code></td><td><span class="ds-swatch-cell" data-theme="light"><i data-token="--color-accent" data-swatch></i><span data-token="--color-accent"></span></span></td><td><span class="ds-swatch-cell" data-theme="dark"><i data-token="--color-accent" data-swatch></i><span data-token="--color-accent"></span></span></td></tr><tr><td>Baseline</td><td><code>--color-border-default</code></td><td><span class="ds-swatch-cell" data-theme="light"><i data-token="--color-border-default" data-swatch></i><span data-token="--color-border-default"></span></span></td><td><span class="ds-swatch-cell" data-theme="dark"><i data-token="--color-border-default" data-swatch></i><span data-token="--color-border-default"></span></span></td></tr><tr><td>Focus ring</td><td><code>--color-focus-ring</code></td><td><span class="ds-swatch-cell" data-theme="light"><i data-token="--color-focus-ring" data-swatch></i><span data-token="--color-focus-ring"></span></span></td><td><span class="ds-swatch-cell" data-theme="dark"><i data-token="--color-focus-ring" data-swatch></i><span data-token="--color-focus-ring"></span></span></td></tr><tr><td>Height</td><td><code>--target-comfortable</code></td><td colspan="2"><span data-token="--target-comfortable"></span></td></tr><tr><td>Padding / gap</td><td><code>--space-3</code> / <code>--space-1</code></td><td colspan="2"><span data-token="--space-3"></span> / <span data-token="--space-1"></span></td></tr><tr><td>Indicator width</td><td><code>--space-0-5</code></td><td colspan="2"><span data-token="--space-0-5"></span></td></tr><tr><td>Font</td><td><code>--text-label</code></td><td colspan="2"><span data-token="--text-label"></span></td></tr></tbody>
+      </table></div>
+    </section>
+    <section class="ds-section" id="code"><h2><a href="#code">Code</a></h2>
+      <pre><code>&lt;nav class="tabs" aria-label="Workspace sections"&gt;
+  &lt;a class="tab" href="/workspaces/toronto/board" aria-current="page"&gt;Board&lt;/a&gt;
+  &lt;a class="tab" href="/workspaces/toronto/backlog"&gt;Backlog&lt;/a&gt;
+  &lt;a class="tab" href="/workspaces/toronto/poker"&gt;Planning Poker&lt;/a&gt;
+  &lt;a class="tab" href="/workspaces/toronto/settings"&gt;Settings&lt;/a&gt;
+&lt;/nav&gt;
+
+&lt;div class="tabs" role="tablist" aria-label="RSVPs"&gt;
+  &lt;button class="tab" type="button" role="tab" id="t-going" aria-controls="p-going" aria-selected="true"&gt;Going&lt;/button&gt;
+  &lt;button class="tab" type="button" role="tab" id="t-wait" aria-controls="p-wait" aria-selected="false" tabindex="-1"&gt;Waitlist&lt;/button&gt;
+&lt;/div&gt;
+&lt;div role="tabpanel" id="p-going" aria-labelledby="t-going" tabindex="0"&gt;…&lt;/div&gt;</code></pre><table class="ds-table"><thead><tr><th scope="col">Class / attribute</th><th scope="col">Effect</th></tr></thead><tbody><tr><td><code>.tabs</code></td><td>Tab row with baseline; horizontal scroll on overflow.</td></tr><tr><td><code>.tab</code></td><td>One tab (link or button).</td></tr><tr><td><code>aria-current="page"</code></td><td>Current navigation tab.</td></tr><tr><td><code>aria-selected="true"</code></td><td>Selected APG tab.</td></tr><tr><td><code>data-state="focus"</code></td><td>Documentation only: forces the focus ring.</td></tr></tbody></table>
+    </section>
+    <section class="ds-section" id="sources"><h2><a href="#sources">Sources</a></h2>
+      <p>Extracted from these mocks:</p>
+      <ul><li><a href="../../mocks/pages/team-board/default.html">pages/team-board/default</a> (workspace sections, Board current)</li><li><a href="../../mocks/pages/backlog/default.html">pages/backlog/default</a> (Backlog current)</li><li><a href="../../mocks/pages/planning-poker/default.html">pages/planning-poker/default</a> (Planning Poker current)</li><li><a href="../../mocks/pages/workspace-settings/default.html">pages/workspace-settings/default</a> (Settings current)</li><li><a href="../../mocks/pages/admin-users/default.html">pages/admin-users/default</a> (Admin sections, Users current)</li><li><a href="../../mocks/pages/audit-log/default.html">pages/audit-log/default</a> (Audit log current)</li></ul>
+      <p>Drift noticed in those mocks:</p>
+      <ul><li>Every tab row carries <code>style="margin-bottom: var(--space-4);"</code> inline.</li><li>No mock uses the APG (<code>aria-selected</code>) pattern, yet the CSS supports it; documented here so it is not misused on links.</li><li><code>.tab</code> has no <code>[data-state="hover"]</code> hook, so hover cannot be shown in static matrices. Proposed CSS: <code>.tab[data-state="hover"] { color: var(--color-fg-default); }</code></li><li>The Admin &ldquo;Roles&rdquo; tab links to <code>people/admin</code>, a page without the same tab row, so the set is not consistent.</li></ul>
+    </section>
+
+    <footer class="ds-footer"><span>FaithTech Community design system · extracted from <a href="../../mocks/index.html">docs/mocks</a> on 2026-10-21</span><a href="#top">Back to top</a></footer>
+  </main>
+</div>
+<script src="../assets/ds.js"></script>
+</body>
+</html>

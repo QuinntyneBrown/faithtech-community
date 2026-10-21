@@ -1,0 +1,211 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Typography — FaithTech Community design system</title>
+<meta name="description" content="FaithTech Community typography: the rounded system face, nine-step rem scale, weights, line heights, letter spacing, role shorthands, measure and responsive type rules, with specimens from the community mocks.">
+<link rel="stylesheet" href="../tokens/tokens.css">
+<link rel="stylesheet" href="../assets/components.css">
+<link rel="stylesheet" href="../assets/ds.css">
+</head>
+<body id="top">
+<a class="skip-link" href="#main">Skip to content</a>
+<div class="ds-shell">
+  <nav class="ds-nav" aria-label="Design system">
+    <div class="ds-nav__brand"><a href="../index.html">FaithTech DS</a><button class="ds-theme-toggle" type="button" aria-pressed="false">☾ Dark</button></div>
+    <details open><summary>Foundations</summary><ul>
+      <li><a href="../foundations/color.html">Color</a></li>
+      <li><a href="../foundations/typography.html">Typography</a></li>
+      <li><a href="../foundations/spacing.html">Spacing</a></li>
+      <li><a href="../foundations/layout.html">Layout</a></li>
+      <li><a href="../foundations/elevation.html">Elevation</a></li>
+      <li><a href="../foundations/shape.html">Shape</a></li>
+      <li><a href="../foundations/motion.html">Motion</a></li>
+      <li><a href="../foundations/iconography.html">Iconography</a></li>
+      <li><a href="../foundations/theming.html">Theming</a></li>
+      <li><a href="../foundations/responsive.html">Responsive</a></li>
+      <li><a href="../foundations/accessibility.html">Accessibility</a></li>
+      <li><a href="../foundations/content.html">Content</a></li>
+    </ul></details>
+    <details open><summary>Components</summary><ul>
+      <li><a href="../components/button.html">Button</a></li>
+      <li><a href="../components/link.html">Link</a></li>
+      <li><a href="../components/menu.html">Menu</a></li>
+      <li><a href="../components/form-field.html">Form field</a></li>
+      <li><a href="../components/text-field.html">Text field</a></li>
+      <li><a href="../components/textarea.html">Textarea</a></li>
+      <li><a href="../components/select.html">Select</a></li>
+      <li><a href="../components/radio-group.html">Radio group</a></li>
+      <li><a href="../components/switch.html">Switch</a></li>
+      <li><a href="../components/form-layout.html">Form layout</a></li>
+      <li><a href="../components/picture-list.html">Picture list</a></li>
+      <li><a href="../components/sticker-picker.html">Estimate card picker</a></li>
+      <li><a href="../components/top-bar.html">Top bar</a></li>
+      <li><a href="../components/tab-bar.html">Tab bar</a></li>
+      <li><a href="../components/tabs.html">Tabs</a></li>
+      <li><a href="../components/breadcrumb.html">Breadcrumb</a></li>
+      <li><a href="../components/skip-link.html">Skip link</a></li>
+      <li><a href="../components/layout.html">Layout primitives</a></li>
+      <li><a href="../components/card.html">Card</a></li>
+      <li><a href="../components/dialog.html">Dialog</a></li>
+      <li><a href="../components/notification-panel.html">Notification panel</a></li>
+      <li><a href="../components/list.html">List</a></li>
+      <li><a href="../components/table.html">Table</a></li>
+      <li><a href="../components/description-list.html">Description list</a></li>
+      <li><a href="../components/feed.html">Activity feed</a></li>
+      <li><a href="../components/tree.html">Backlog tree</a></li>
+      <li><a href="../components/kanban.html">Kanban board</a></li>
+      <li><a href="../components/event-card.html">Event card</a></li>
+      <li><a href="../components/profile-header.html">Profile header</a></li>
+      <li><a href="../components/search-results.html">Search results</a></li>
+      <li><a href="../components/note.html">Note</a></li>
+      <li><a href="../components/avatar.html">Avatar</a></li>
+      <li><a href="../components/logo-mark.html">Logo mark</a></li>
+      <li><a href="../components/badge.html">Badge</a></li>
+      <li><a href="../components/chip.html">Chip</a></li>
+      <li><a href="../components/stat.html">Stat</a></li>
+      <li><a href="../components/sticker.html">Estimate card</a></li>
+      <li><a href="../components/toast.html">Toast</a></li>
+      <li><a href="../components/alert.html">Alert and banner</a></li>
+      <li><a href="../components/inline-message.html">Inline message</a></li>
+      <li><a href="../components/progress.html">Progress</a></li>
+      <li><a href="../components/skeleton.html">Skeleton</a></li>
+      <li><a href="../components/empty-state.html">Empty state</a></li>
+      <li><a href="../components/error-page.html">Error page</a></li>
+    </ul></details>
+    <details open><summary>Patterns</summary><ul>
+      <li><a href="../patterns/forms.html">Forms</a></li>
+      <li><a href="../patterns/feedback-and-loading.html">Feedback and loading</a></li>
+      <li><a href="../patterns/empty-and-error-states.html">Empty and error states</a></li>
+      <li><a href="../patterns/navigation.html">Navigation and page structure</a></li>
+      <li><a href="../patterns/dialogs-and-overlays.html">Dialogs and overlays</a></li>
+      <li><a href="../patterns/lists-and-tables.html">Lists and tables</a></li>
+      <li><a href="../patterns/notifications.html">Notifications</a></li>
+      <li><a href="../patterns/content-and-tone.html">Content and tone</a></li>
+    </ul></details>
+  </nav>
+
+  <main id="main" class="ds-main">
+    <header class="ds-header">
+      <p class="ds-kicker">Foundation · Typography</p>
+      <h1>Typography</h1>
+      <p class="ds-lead">One rounded system face, a nine-step scale in rem and twelve role shorthands, tuned so leads can scan a partner board and members can read an announcement comfortably.</p>
+      <div class="ds-meta"><span class="ds-pill ds-pill--ok">WCAG 2.2 AA</span><span class="ds-pill">Foundation</span></div>
+      <ul class="ds-toc">
+        <li><a href="#overview">Overview</a></li><li><a href="#families">Families</a></li><li><a href="#scale">Size scale</a></li><li><a href="#weights">Weights</a></li><li><a href="#line-height">Line height and tracking</a></li><li><a href="#roles">Role shorthands</a></li><li><a href="#measure">Measure and responsive type</a></li><li><a href="#usage">Usage</a></li><li><a href="#accessibility">Accessibility</a></li><li><a href="#tokens">Tokens</a></li>
+      </ul>
+    </header>
+
+    <section class="ds-section" id="overview"><h2><a href="#overview">Overview</a></h2>
+      <p>FaithTech Community uses the system's rounded face (SF Pro Rounded on Apple devices, Nunito or the platform UI font elsewhere), inherited from Shelfie unchanged: warm enough for a community site, clear in dense screens such as the partner Kanban and the people table, and free to load. One family does both display and body; the monospace face is only for audit-log timestamps and IDs. Sizes come from a fixed scale in <code>rem</code>, so the text grows with the browser's font setting.</p>
+      <ul>
+        <li>Set text with a <b>role</b> (<code>font: var(--text-body)</code>), not with loose sizes and weights.</li>
+        <li>Body text is 16px and never smaller than 12px; announcement bodies and contact notes use the relaxed line height.</li>
+        <li>Headings use <code>text-wrap: balance</code>; paragraphs use <code>text-wrap: pretty</code> and stop at the measure.</li>
+      </ul>
+    </section>
+
+    <section class="ds-section" id="families"><h2><a href="#families">Families</a></h2>
+      <div class="ds-example"><div class="ds-specimen"><div class="ds-specimen__meta"><code>--font-family-sans</code><br><span data-token="--font-family-sans"></span></div><p style="font-family: var(--font-family-sans); font-size: var(--font-size-xl);">Builders Night is where Toronto’s Christian technologists meet to build together.</p></div><div class="ds-specimen"><div class="ds-specimen__meta"><code>--font-family-display</code><br><span data-token="--font-family-display"></span></div><p style="font-family: var(--font-family-display); font-size: var(--font-size-3xl); font-weight: var(--font-weight-bold);">Good afternoon, Grace</p></div><div class="ds-specimen"><div class="ds-specimen__meta"><code>--font-family-mono</code><br><span data-token="--font-family-mono"></span></div><p style="font-family: var(--font-family-mono); font-size: var(--font-size-md);">2026-10-21 10:05</p></div></div>
+      <p>The stacks start with <code>ui-rounded</code>, which current Chrome on macOS resolves to SF Pro Rounded. No web font is downloaded; if a rounded face is missing the stack falls back to the platform UI font, which keeps the same metrics closely enough that nothing reflows.</p>
+    </section>
+
+    <section class="ds-section" id="scale"><h2><a href="#scale">Size scale</a></h2>
+      <p>Nine steps from 12px to 48px. Each step has one main job, written next to the token in <code>tokens.css</code>.</p>
+      <div class="ds-example"><div class="ds-specimen"><div class="ds-specimen__meta"><code>--font-size-xs</code><br><span data-token="--font-size-xs"></span></div><p style="font-size: var(--font-size-xs); line-height: var(--line-height-snug);">Today, 11:42 am</p></div><div class="ds-specimen"><div class="ds-specimen__meta"><code>--font-size-sm</code><br><span data-token="--font-size-sm"></span></div><p style="font-size: var(--font-size-sm); line-height: var(--line-height-snug);">Tue 28 Oct · 7:00 pm · Online</p></div><div class="ds-specimen"><div class="ds-specimen__meta"><code>--font-size-md</code><br><span data-token="--font-size-md"></span></div><p style="font-size: var(--font-size-md); line-height: var(--line-height-snug);">If they ever sign up with this email, we’ll let you know.</p></div><div class="ds-specimen"><div class="ds-specimen__meta"><code>--font-size-lg</code><br><span data-token="--font-size-lg"></span></div><p style="font-size: var(--font-size-lg); line-height: var(--line-height-snug);">Tuesday 21 October · 3 events coming up</p></div><div class="ds-specimen"><div class="ds-specimen__meta"><code>--font-size-xl</code><br><span data-token="--font-size-xl"></span></div><p style="font-size: var(--font-size-xl); line-height: var(--line-height-snug);">Partner pipeline</p></div><div class="ds-specimen"><div class="ds-specimen__meta"><code>--font-size-2xl</code><br><span data-token="--font-size-2xl"></span></div><p style="font-size: var(--font-size-2xl); line-height: var(--line-height-snug);">No contacts yet</p></div><div class="ds-specimen"><div class="ds-specimen__meta"><code>--font-size-3xl</code><br><span data-token="--font-size-3xl"></span></div><p style="font-size: var(--font-size-3xl); line-height: var(--line-height-snug);">Toronto Builders Night</p></div><div class="ds-specimen"><div class="ds-specimen__meta"><code>--font-size-4xl</code><br><span data-token="--font-size-4xl"></span></div><p style="font-size: var(--font-size-4xl); line-height: var(--line-height-snug);">Samuel Mensah</p></div><div class="ds-specimen"><div class="ds-specimen__meta"><code>--font-size-5xl</code><br><span data-token="--font-size-5xl"></span></div><p style="font-size: var(--font-size-5xl); line-height: var(--line-height-snug);">Good afternoon, Grace</p></div></div>
+    </section>
+
+    <section class="ds-section" id="weights"><h2><a href="#weights">Weights</a></h2>
+      <p>Four weights. Bold is for headings only; medium makes labels and buttons readable without shouting.</p>
+      <div class="ds-example"><div class="ds-specimen"><div class="ds-specimen__meta"><code>--font-weight-regular</code><br><span data-token="--font-weight-regular"></span></div><p style="font-weight: var(--font-weight-regular); font-size: var(--font-size-xl);">Kestrel Labs · Body text, notes, help text</p></div><div class="ds-specimen"><div class="ds-specimen__meta"><code>--font-weight-medium</code><br><span data-token="--font-weight-medium"></span></div><p style="font-weight: var(--font-weight-medium); font-size: var(--font-size-xl);">Kestrel Labs · Labels, buttons, nav links</p></div><div class="ds-specimen"><div class="ds-specimen__meta"><code>--font-weight-semibold</code><br><span data-token="--font-weight-semibold"></span></div><p style="font-weight: var(--font-weight-semibold); font-size: var(--font-size-xl);">Kestrel Labs · h4, Kanban titles, card links</p></div><div class="ds-specimen"><div class="ds-specimen__meta"><code>--font-weight-bold</code><br><span data-token="--font-weight-bold"></span></div><p style="font-weight: var(--font-weight-bold); font-size: var(--font-size-xl);">Kestrel Labs · h1 to h3</p></div></div>
+    </section>
+
+    <section class="ds-section" id="line-height"><h2><a href="#line-height">Line height and tracking</a></h2>
+      <h3>Line height</h3>
+      <div class="ds-example"><div class="ds-specimen"><div class="ds-specimen__meta"><code>--line-height-tight</code><br><span data-token="--line-height-tight"></span><br>Display, h1, h2</div><p style="font: var(--text-h2); line-height: var(--line-height-tight);">Hackathon: Tech for Shelters</p></div><div class="ds-specimen"><div class="ds-specimen__meta"><code>--line-height-snug</code><br><span data-token="--line-height-snug"></span><br>h3, h4, event-card titles</div><p style="font: var(--text-h4); line-height: var(--line-height-snug);">Shelter problem briefs for teams</p></div><div class="ds-specimen"><div class="ds-specimen__meta"><code>--line-height-normal</code><br><span data-token="--line-height-normal"></span><br>Body and UI text</div><p style="line-height: var(--line-height-normal); max-width: 40rem;">Edmund walked all the way to the Witch’s house in the snow and it was really scary. There were statues everywhere that used to be animals. A wolf called Maugrim stopped him and the Witch was angry because he came without the others.</p></div><div class="ds-specimen"><div class="ds-specimen__meta"><code>--line-height-relaxed</code><br><span data-token="--line-height-relaxed"></span><br>Announcement bodies, notes, textarea</div><p style="line-height: var(--line-height-relaxed); max-width: 40rem;">Edmund walked all the way to the Witch’s house in the snow and it was really scary. There were statues everywhere that used to be animals. A wolf called Maugrim stopped him and the Witch was angry because he came without the others.</p></div></div>
+      <h3>Letter spacing</h3>
+      <div class="ds-example"><div class="ds-specimen"><div class="ds-specimen__meta"><code>--letter-spacing-tight</code><br><span data-token="--letter-spacing-tight"></span><br>h1 and h2</div><p style="font: var(--text-h2); letter-spacing: var(--letter-spacing-tight);">Partners</p></div><div class="ds-specimen"><div class="ds-specimen__meta"><code>--letter-spacing-normal</code><br><span data-token="--letter-spacing-normal"></span><br>Everything else</div><p style="letter-spacing: var(--letter-spacing-normal);">Thu 6 Nov · 6:30 pm · Kestrel Labs, 220 King St W</p></div><div class="ds-specimen"><div class="ds-specimen__meta"><code>--letter-spacing-wide</code><br><span data-token="--letter-spacing-wide"></span><br>Uppercase overlines and badges only</div><p style="font: var(--text-overline); letter-spacing: var(--letter-spacing-wide); text-transform: uppercase;">People</p></div></div>
+    </section>
+
+    <section class="ds-section" id="roles"><h2><a href="#roles">Role shorthands</a></h2>
+      <p>Each <code>--text-*</code> token is a complete <code>font</code> shorthand: weight, size, line height and family. Components set <code>font: var(--text-label)</code> and override at most the size (buttons do, for sm and lg).</p>
+      <div class="ds-example"><div class="ds-specimen"><div class="ds-specimen__meta"><code>--text-display</code><br>Reserved; no FaithTech mock uses it yet</div><p style="font: var(--text-display);">Tech for Shelters</p></div><div class="ds-specimen"><div class="ds-specimen__meta"><code>--text-h1</code><br>One per page: greeting or page name</div><p style="font: var(--text-h1);">Good afternoon, Grace</p></div><div class="ds-specimen"><div class="ds-specimen__meta"><code>--text-h2</code><br>Page sections, empty and error titles</div><p style="font: var(--text-h2);">Notes and history</p></div><div class="ds-specimen"><div class="ds-specimen__meta"><code>--text-h3</code><br>Empty-state titles, dialog titles from 640px</div><p style="font: var(--text-h3);">Start your partner pipeline</p></div><div class="ds-specimen"><div class="ds-specimen__meta"><code>--text-h4</code><br>Card titles, event-card titles, dialog titles on phones</div><p style="font: var(--text-h4);">Coming up</p></div><div class="ds-specimen"><div class="ds-specimen__meta"><code>--text-body-lg</code><br>Lead paragraphs</div><p style="font: var(--text-body-lg);">Invite people to join FaithTech Toronto. Invites expire after 14 days.</p></div><div class="ds-specimen"><div class="ds-specimen__meta"><code>--text-body</code><br>Default text, notes, announcement bodies</div><p style="font: var(--text-body);">Met Tomás at Builders Night in September. He runs IT for a shelter network and wants to mentor a hackathon team.</p></div><div class="ds-specimen"><div class="ds-specimen__meta"><code>--text-body-sm</code><br>Metadata, help text, field errors, table cells</div><p style="font: var(--text-body-sm);">Use at least 12 characters.</p></div><div class="ds-specimen"><div class="ds-specimen__meta"><code>--text-caption</code><br>Timestamps, tab-bar labels, feed metadata</div><p style="font: var(--text-caption);">Mon 20 Oct · expires Mon 3 Nov</p></div><div class="ds-specimen"><div class="ds-specimen__meta"><code>--text-label</code><br>Field labels, buttons, Kanban column titles</div><p style="font: var(--text-label);">Email me when</p></div><div class="ds-specimen"><div class="ds-specimen__meta"><code>--text-overline</code><br>Eyebrows and badges, always uppercase with wide tracking</div><p style="font: var(--text-overline); letter-spacing: var(--letter-spacing-wide); text-transform: uppercase;">Events (1)</p></div><div class="ds-specimen"><div class="ds-specimen__meta"><code>--text-code</code><br>Audit-log timestamps (<code>.mono</code>) and the docs</div><p style="font: var(--text-code);">2026-10-21 10:05</p></div></div>
+    </section>
+
+    <section class="ds-section" id="measure"><h2><a href="#measure">Measure and responsive type</a></h2>
+      <ul>
+        <li><b>Measure:</b> paragraphs stop at <code>--layout-measure</code> (65 characters). Empty-state text stops at 36 characters so “Start your partner pipeline” and its hint read as one or two short lines.</li>
+        <li><b>Fixed steps, no viewport units.</b> Type does not scale with the window, so browser zoom and the user's font size always win. The one responsive change is the dialog title, which is <code>--text-h4</code> on a phone sheet and <code>--text-h3</code> from 640px.</li>
+        <li><b>Numbers</b> that change in place (pipeline stats, sprint points, the bell’s unread count, RSVP counts such as “34 going”) use <code>font-variant-numeric: tabular-nums</code> so they do not jitter.</li>
+        <li><b>Long titles</b> wrap; they truncate with an ellipsis and a <code>title</code> only in one-line rows such as Kanban card meta and <code>.table td.truncate</code> in the people and audit-log tables.</li>
+      </ul>
+    </section>
+
+    <section class="ds-section" id="usage"><h2><a href="#usage">Usage</a></h2>
+      <ul>
+        <li>One <code>&lt;h1&gt;</code> per page and headings in order; pick the role for its look, the element for its level (the home page’s “Coming up” card title is an <code>&lt;h2&gt;</code> set in <code>--text-h4</code>).</li>
+        <li>Uppercase only through <code>--text-overline</code> with <code>--letter-spacing-wide</code>; never type copy in capitals.</li>
+        <li>Do not set font sizes in <code>px</code> or add steps between the scale's steps. If a size is missing, the design is asking for a new role; raise it.</li>
+        <li>Drift in the mocks: card headings are restyled inline (<code>style="font: var(--text-h4);"</code> on <code>&lt;h2&gt;</code>s in home, event and settings) and auth pages centre the <code>&lt;h1&gt;</code> with inline <code>text-align</code>; components should carry the role instead.</li>
+      </ul>
+    </section>
+
+    <section class="ds-section" id="accessibility"><h2><a href="#accessibility">Accessibility</a></h2>
+      <ul>
+        <li><b>Resize text (1.4.4):</b> all sizes are <code>rem</code>; pages work at 200% zoom with no loss.</li>
+        <li><b>Text spacing (1.4.12):</b> nothing clips when line height is 1.5×, paragraph spacing 2×, letter spacing 0.12em and word spacing 0.16em; containers grow instead of fixing heights.</li>
+        <li><b>Contrast:</b> body and label text use default or muted colour (4.5:1 or more); large text (24px, or 18.7px bold) may use 3:1 but none currently needs to.</li>
+        <li><b>Minimum size:</b> 12px for captions and badges only, never for something a member has to act on.</li>
+      </ul>
+    </section>
+
+    <section class="ds-section" id="tokens"><h2><a href="#tokens">Tokens</a></h2>
+      <div class="ds-table-wrap"><table class="ds-table"><caption class="visually-hidden">Typography tokens</caption>
+        <thead><tr><th scope="col">Role</th><th scope="col">Token</th><th scope="col">Light</th><th scope="col">Dark</th></tr></thead>
+        <tbody>
+          <tr><td>&nbsp;</td><td><code>--font-family-sans</code></td><td colspan="2"><span data-token="--font-family-sans"></span></td></tr>
+          <tr><td>&nbsp;</td><td><code>--font-family-display</code></td><td colspan="2"><span data-token="--font-family-display"></span></td></tr>
+          <tr><td>&nbsp;</td><td><code>--font-family-mono</code></td><td colspan="2"><span data-token="--font-family-mono"></span></td></tr>
+          <tr><td>Captions, badges</td><td><code>--font-size-xs</code></td><td colspan="2"><span data-token="--font-size-xs"></span></td></tr>
+          <tr><td>Secondary text, table cells</td><td><code>--font-size-sm</code></td><td colspan="2"><span data-token="--font-size-sm"></span></td></tr>
+          <tr><td>Body</td><td><code>--font-size-md</code></td><td colspan="2"><span data-token="--font-size-md"></span></td></tr>
+          <tr><td>Lead paragraph, large body</td><td><code>--font-size-lg</code></td><td colspan="2"><span data-token="--font-size-lg"></span></td></tr>
+          <tr><td>H4</td><td><code>--font-size-xl</code></td><td colspan="2"><span data-token="--font-size-xl"></span></td></tr>
+          <tr><td>H3</td><td><code>--font-size-2xl</code></td><td colspan="2"><span data-token="--font-size-2xl"></span></td></tr>
+          <tr><td>H2</td><td><code>--font-size-3xl</code></td><td colspan="2"><span data-token="--font-size-3xl"></span></td></tr>
+          <tr><td>H1</td><td><code>--font-size-4xl</code></td><td colspan="2"><span data-token="--font-size-4xl"></span></td></tr>
+          <tr><td>Display</td><td><code>--font-size-5xl</code></td><td colspan="2"><span data-token="--font-size-5xl"></span></td></tr>
+          <tr><td>&nbsp;</td><td><code>--font-weight-regular</code></td><td colspan="2"><span data-token="--font-weight-regular"></span></td></tr>
+          <tr><td>&nbsp;</td><td><code>--font-weight-medium</code></td><td colspan="2"><span data-token="--font-weight-medium"></span></td></tr>
+          <tr><td>&nbsp;</td><td><code>--font-weight-semibold</code></td><td colspan="2"><span data-token="--font-weight-semibold"></span></td></tr>
+          <tr><td>&nbsp;</td><td><code>--font-weight-bold</code></td><td colspan="2"><span data-token="--font-weight-bold"></span></td></tr>
+          <tr><td>Display, h1-h2</td><td><code>--line-height-tight</code></td><td colspan="2"><span data-token="--line-height-tight"></span></td></tr>
+          <tr><td>H3-h4</td><td><code>--line-height-snug</code></td><td colspan="2"><span data-token="--line-height-snug"></span></td></tr>
+          <tr><td>Body</td><td><code>--line-height-normal</code></td><td colspan="2"><span data-token="--line-height-normal"></span></td></tr>
+          <tr><td>Announcements, notes</td><td><code>--line-height-relaxed</code></td><td colspan="2"><span data-token="--line-height-relaxed"></span></td></tr>
+          <tr><td>&nbsp;</td><td><code>--letter-spacing-tight</code></td><td colspan="2"><span data-token="--letter-spacing-tight"></span></td></tr>
+          <tr><td>&nbsp;</td><td><code>--letter-spacing-normal</code></td><td colspan="2"><span data-token="--letter-spacing-normal"></span></td></tr>
+          <tr><td>All-caps labels</td><td><code>--letter-spacing-wide</code></td><td colspan="2"><span data-token="--letter-spacing-wide"></span></td></tr>
+          <tr><td>&nbsp;</td><td><code>--text-display</code></td><td colspan="2"><span data-token="--text-display"></span></td></tr>
+          <tr><td>&nbsp;</td><td><code>--text-h1</code></td><td colspan="2"><span data-token="--text-h1"></span></td></tr>
+          <tr><td>&nbsp;</td><td><code>--text-h2</code></td><td colspan="2"><span data-token="--text-h2"></span></td></tr>
+          <tr><td>&nbsp;</td><td><code>--text-h3</code></td><td colspan="2"><span data-token="--text-h3"></span></td></tr>
+          <tr><td>&nbsp;</td><td><code>--text-h4</code></td><td colspan="2"><span data-token="--text-h4"></span></td></tr>
+          <tr><td>&nbsp;</td><td><code>--text-body-lg</code></td><td colspan="2"><span data-token="--text-body-lg"></span></td></tr>
+          <tr><td>&nbsp;</td><td><code>--text-body</code></td><td colspan="2"><span data-token="--text-body"></span></td></tr>
+          <tr><td>&nbsp;</td><td><code>--text-body-sm</code></td><td colspan="2"><span data-token="--text-body-sm"></span></td></tr>
+          <tr><td>&nbsp;</td><td><code>--text-caption</code></td><td colspan="2"><span data-token="--text-caption"></span></td></tr>
+          <tr><td>&nbsp;</td><td><code>--text-label</code></td><td colspan="2"><span data-token="--text-label"></span></td></tr>
+          <tr><td>&nbsp;</td><td><code>--text-overline</code></td><td colspan="2"><span data-token="--text-overline"></span></td></tr>
+          <tr><td>&nbsp;</td><td><code>--text-code</code></td><td colspan="2"><span data-token="--text-code"></span></td></tr>
+        </tbody>
+      </table></div>
+    </section>
+
+    <footer class="ds-footer"><span>FaithTech Community design system · extracted from <a href="../../mocks/index.html">docs/mocks</a> on 2026-10-21</span><a href="#top">Back to top</a></footer>
+  </main>
+</div>
+<script src="../assets/ds.js"></script>
+</body>
+</html>

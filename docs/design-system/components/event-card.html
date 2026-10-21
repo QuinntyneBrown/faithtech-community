@@ -1,0 +1,293 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Event card — FaithTech Community design system</title>
+<meta name="description" content="A list row for one event: calendar date badge, title link, when-and-where meta and a visibility badge, with a cancelled variant, in both themes.">
+<link rel="stylesheet" href="../tokens/tokens.css">
+<link rel="stylesheet" href="../assets/components.css">
+<link rel="stylesheet" href="../assets/ds.css">
+</head>
+<body id="top">
+<a class="skip-link" href="#main">Skip to content</a>
+<div class="ds-shell">
+  <nav class="ds-nav" aria-label="Design system">
+    <div class="ds-nav__brand"><a href="../index.html">FaithTech DS</a><button class="ds-theme-toggle" type="button" aria-pressed="false">☾ Dark</button></div>
+    <details open><summary>Foundations</summary><ul>
+      <li><a href="../foundations/color.html">Color</a></li>
+      <li><a href="../foundations/typography.html">Typography</a></li>
+      <li><a href="../foundations/spacing.html">Spacing</a></li>
+      <li><a href="../foundations/layout.html">Layout</a></li>
+      <li><a href="../foundations/elevation.html">Elevation</a></li>
+      <li><a href="../foundations/shape.html">Shape</a></li>
+      <li><a href="../foundations/motion.html">Motion</a></li>
+      <li><a href="../foundations/iconography.html">Iconography</a></li>
+      <li><a href="../foundations/theming.html">Theming</a></li>
+      <li><a href="../foundations/responsive.html">Responsive</a></li>
+      <li><a href="../foundations/accessibility.html">Accessibility</a></li>
+      <li><a href="../foundations/content.html">Content</a></li>
+    </ul></details>
+    <details open><summary>Components</summary><ul>
+      <li><a href="../components/button.html">Button</a></li>
+      <li><a href="../components/link.html">Link</a></li>
+      <li><a href="../components/menu.html">Menu</a></li>
+      <li><a href="../components/form-field.html">Form field</a></li>
+      <li><a href="../components/text-field.html">Text field</a></li>
+      <li><a href="../components/textarea.html">Textarea</a></li>
+      <li><a href="../components/select.html">Select</a></li>
+      <li><a href="../components/radio-group.html">Radio group</a></li>
+      <li><a href="../components/switch.html">Switch</a></li>
+      <li><a href="../components/form-layout.html">Form layout</a></li>
+      <li><a href="../components/picture-list.html">Picture list</a></li>
+      <li><a href="../components/sticker-picker.html">Estimate card picker</a></li>
+      <li><a href="../components/top-bar.html">Top bar</a></li>
+      <li><a href="../components/tab-bar.html">Tab bar</a></li>
+      <li><a href="../components/tabs.html">Tabs</a></li>
+      <li><a href="../components/breadcrumb.html">Breadcrumb</a></li>
+      <li><a href="../components/skip-link.html">Skip link</a></li>
+      <li><a href="../components/layout.html">Layout primitives</a></li>
+      <li><a href="../components/card.html">Card</a></li>
+      <li><a href="../components/dialog.html">Dialog</a></li>
+      <li><a href="../components/notification-panel.html">Notification panel</a></li>
+      <li><a href="../components/list.html">List</a></li>
+      <li><a href="../components/table.html">Table</a></li>
+      <li><a href="../components/description-list.html">Description list</a></li>
+      <li><a href="../components/feed.html">Activity feed</a></li>
+      <li><a href="../components/tree.html">Backlog tree</a></li>
+      <li><a href="../components/kanban.html">Kanban board</a></li>
+      <li><a href="../components/event-card.html">Event card</a></li>
+      <li><a href="../components/profile-header.html">Profile header</a></li>
+      <li><a href="../components/search-results.html">Search results</a></li>
+      <li><a href="../components/note.html">Note</a></li>
+      <li><a href="../components/avatar.html">Avatar</a></li>
+      <li><a href="../components/logo-mark.html">Logo mark</a></li>
+      <li><a href="../components/badge.html">Badge</a></li>
+      <li><a href="../components/chip.html">Chip</a></li>
+      <li><a href="../components/stat.html">Stat</a></li>
+      <li><a href="../components/sticker.html">Estimate card</a></li>
+      <li><a href="../components/toast.html">Toast</a></li>
+      <li><a href="../components/alert.html">Alert and banner</a></li>
+      <li><a href="../components/inline-message.html">Inline message</a></li>
+      <li><a href="../components/progress.html">Progress</a></li>
+      <li><a href="../components/skeleton.html">Skeleton</a></li>
+      <li><a href="../components/empty-state.html">Empty state</a></li>
+      <li><a href="../components/error-page.html">Error page</a></li>
+    </ul></details>
+    <details open><summary>Patterns</summary><ul>
+      <li><a href="../patterns/forms.html">Forms</a></li>
+      <li><a href="../patterns/feedback-and-loading.html">Feedback and loading</a></li>
+      <li><a href="../patterns/empty-and-error-states.html">Empty and error states</a></li>
+      <li><a href="../patterns/navigation.html">Navigation and page structure</a></li>
+      <li><a href="../patterns/dialogs-and-overlays.html">Dialogs and overlays</a></li>
+      <li><a href="../patterns/lists-and-tables.html">Lists and tables</a></li>
+      <li><a href="../patterns/notifications.html">Notifications</a></li>
+      <li><a href="../patterns/content-and-tone.html">Content and tone</a></li>
+    </ul></details>
+  </nav>
+
+  <main id="main" class="ds-main">
+    <header class="ds-header">
+      <p class="ds-kicker">Component · Data display</p>
+      <h1>Event card</h1>
+      <p class="ds-lead">An event card lists one gathering — a Builders Night, a prayer and planning evening, a hackathon — so people can scan the date, see who can come and open it.</p>
+      <div class="ds-meta"><span class="ds-pill ds-pill--ok">WCAG 2.2 AA</span><span class="ds-pill">Status: stable</span><span class="ds-pill">Native <code>&lt;li&gt;</code> + <code>&lt;a&gt;</code></span></div>
+      <ul class="ds-toc"><li><a href="#overview">Overview</a></li><li><a href="#anatomy">Anatomy</a></li><li><a href="#variants">Variants</a></li><li><a href="#sizes">Sizes</a></li><li><a href="#states">States</a></li><li><a href="#responsive">Responsive</a></li><li><a href="#theming">Theming</a></li><li><a href="#accessibility">Accessibility</a></li><li><a href="#content">Content</a></li><li><a href="#do-dont">Do and don't</a></li><li><a href="#tokens">Tokens</a></li><li><a href="#code">Code</a></li><li><a href="#sources">Sources</a></li></ul>
+    </header>
+
+    <section class="ds-section" id="overview"><h2><a href="#overview">Overview</a></h2>
+      <p>An event card is one row in a list of events: a calendar-leaf <b>date badge</b>, the event title as a link to its page, one line of when, where and how many are going, and a visibility badge. It appears on the Events page, the "Coming up" card on Home, and the Events group of global search.</p>
+      <ul>
+        <li>Use it wherever several events are listed and people choose one to open.</li>
+        <li>Do not use it on the event page itself (<code>pages/event</code>, <code>pages/public-event</code>): there the date is the page subtitle and the event is the page. Those screens use the page header and an <a href="alert.html">alert</a> when cancelled.</li>
+        <li>Hackathons are an event type, so they use the same card. Hackathon teams, projects and judging are v2 and not part of it.</li>
+      </ul>
+    </section>
+
+    <section class="ds-section" id="anatomy"><h2><a href="#anatomy">Anatomy</a></h2>
+      <div class="ds-anatomy">
+        <figure class="ds-anatomy__figure">
+          <ul class="list card card--flush" aria-label="Anatomy example"><li class="list__item event-card"><span class="date-badge" aria-hidden="true"><span class="date-badge__month">Nov</span><span class="date-badge__day">6</span></span><div class="event-card__body"><a class="event-card__title" href="../../mocks/pages/event/default.html">Toronto Builders Night</a><span class="event-card__meta">Thu 6 Nov · 6:30 pm · Kestrel Labs, 220 King St W · 34 going</span></div><span class="badge badge--info">Public</span></li></ul>
+          <span class="ds-callout" style="left: 9%; top: 22%;" aria-hidden="true">1</span>
+          <span class="ds-callout" style="left: 34%; top: 22%;" aria-hidden="true">2</span>
+          <span class="ds-callout" style="left: 46%; top: 72%;" aria-hidden="true">3</span>
+          <span class="ds-callout" style="left: 88%; top: 22%;" aria-hidden="true">4</span>
+          <span class="ds-callout" style="left: 4%; top: 80%;" aria-hidden="true">5</span>
+        </figure>
+        <ol class="ds-anatomy__list">
+          <li><div><b>Date badge</b><small><code>.date-badge</code>: month overline above the day number on an <code>--color-accent-subtle</code> leaf, 48px square. Decorative (<code>aria-hidden</code>); the date is repeated in the meta line.</small></div></li>
+          <li><div><b>Title link</b><small><code>.event-card__title</code>: <code>--text-h4</code>, default foreground, underline on hover. The only focus stop in the row.</small></div></li>
+          <li><div><b>Meta line</b><small><code>.event-card__meta</code>: weekday, date, time, place and attendance, separated by " · ".</small></div></li>
+          <li><div><b>Visibility badge</b><small><a href="badge.html">Badge</a>: Public (info), Members only (neutral) or Cancelled (danger).</small></div></li>
+          <li><div><b>Row</b><small><code>.list__item.event-card</code> inside a flush <a href="card.html">card</a> list; a flex row that wraps on narrow widths.</small></div></li>
+        </ol>
+      </div>
+    </section>
+
+    <section class="ds-section" id="variants"><h2><a href="#variants">Variants</a></h2>
+      <p>Two variants, decided by the event's status, and three visibility badges.</p>
+<div class="ds-example"><div class="ds-example__canvas ds-example__canvas--stack ds-example__canvas--canvas"><ul class="list card card--flush" aria-label="Upcoming events"><li class="list__item event-card"><span class="date-badge" aria-hidden="true"><span class="date-badge__month">Oct</span><span class="date-badge__day">28</span></span><div class="event-card__body"><a class="event-card__title" href="../../mocks/pages/event/default.html">City Team Prayer &amp; Planning</a><span class="event-card__meta">Tue 28 Oct · 7:00 pm · Online</span></div><span class="badge">Members only</span></li><li class="list__item event-card"><span class="date-badge" aria-hidden="true"><span class="date-badge__month">Nov</span><span class="date-badge__day">6</span></span><div class="event-card__body"><a class="event-card__title" href="../../mocks/pages/event/default.html">Toronto Builders Night</a><span class="event-card__meta">Thu 6 Nov · 6:30 pm · Kestrel Labs, 220 King St W · 34 going</span></div><span class="badge badge--info">Public</span></li><li class="list__item event-card"><span class="date-badge" aria-hidden="true"><span class="date-badge__month">Nov</span><span class="date-badge__day">14</span></span><div class="event-card__body"><a class="event-card__title" href="../../mocks/pages/event/default.html">Hackathon: Tech for Shelters</a><span class="event-card__meta">Sat 14 – Sun 15 Nov · Trinity Community Centre · 52 going</span></div><span class="badge badge--info">Public</span></li></ul></div><div class="ds-example__caption"><span>Default: members-only, public and a two-day hackathon. Multi-day events show the first day in the badge and the range in the meta line.</span></div><details class="ds-example__code"><summary>HTML</summary><pre><code>&lt;li class="list__item event-card"&gt;
+  &lt;span class="date-badge" aria-hidden="true"&gt;
+    &lt;span class="date-badge__month"&gt;Nov&lt;/span&gt;&lt;span class="date-badge__day"&gt;6&lt;/span&gt;
+  &lt;/span&gt;
+  &lt;div class="event-card__body"&gt;
+    &lt;a class="event-card__title" href="/events/toronto-builders-night"&gt;Toronto Builders Night&lt;/a&gt;
+    &lt;span class="event-card__meta"&gt;Thu 6 Nov · 6:30 pm · Kestrel Labs, 220 King St W · 34 going&lt;/span&gt;
+  &lt;/div&gt;
+  &lt;span class="badge badge--info"&gt;Public&lt;/span&gt;
+&lt;/li&gt;</code></pre></details></div>
+      <h3>Cancelled</h3>
+<div class="ds-example"><div class="ds-example__canvas ds-example__canvas--stack ds-example__canvas--canvas"><ul class="list card card--flush" aria-label="Cancelled event"><li class="list__item event-card event-card--cancelled"><span class="date-badge date-badge--cancelled" aria-hidden="true"><span class="date-badge__month">Oct</span><span class="date-badge__day">30</span></span><div class="event-card__body"><a class="event-card__title" href="../../mocks/pages/event/cancelled.html">Austin Faith &amp; AI Panel</a><span class="event-card__meta">Thu 30 Oct · Austin · Cancelled by Esther Nakamura</span></div><span class="badge badge--danger">Cancelled</span></li></ul></div><div class="ds-example__caption"><span><code>.event-card--cancelled</code> mutes the title, <code>.date-badge--cancelled</code> strikes the date and drops the accent, and the badge says Cancelled in words.</span></div><details class="ds-example__code"><summary>HTML</summary><pre><code>&lt;li class="list__item event-card event-card--cancelled"&gt;
+  &lt;span class="date-badge date-badge--cancelled" aria-hidden="true"&gt;…&lt;/span&gt;
+  &lt;div class="event-card__body"&gt;
+    &lt;a class="event-card__title" href="/events/austin-faith-ai-panel"&gt;Austin Faith &amp;amp; AI Panel&lt;/a&gt;
+    &lt;span class="event-card__meta"&gt;Thu 30 Oct · Austin · Cancelled by Esther Nakamura&lt;/span&gt;
+  &lt;/div&gt;
+  &lt;span class="badge badge--danger"&gt;Cancelled&lt;/span&gt;
+&lt;/li&gt;</code></pre></details></div>
+      <h3>Date badge on its own</h3>
+<div class="ds-example"><div class="ds-example__canvas"><span class="date-badge" aria-hidden="true"><span class="date-badge__month">Nov</span><span class="date-badge__day">14</span></span><span class="date-badge date-badge--cancelled" aria-hidden="true"><span class="date-badge__month">Oct</span><span class="date-badge__day">30</span></span></div><div class="ds-example__caption"><span>Default and cancelled leaves. Always pair the badge with a text date; it is hidden from assistive technology.</span></div></div>
+    </section>
+
+    <section class="ds-section" id="sizes" data-na="one size; the badge is fixed so titles align"><h2><a href="#sizes">Sizes</a></h2>
+      <p>One size. The badge is fixed at <code>--size-avatar-lg</code> (48px) so every title lines up; the body takes the rest of the row.</p>
+    </section>
+
+    <section class="ds-section" id="states"><h2><a href="#states">States</a></h2>
+      <p>Only the title link is interactive. Pointer and focus are forced here with <code>data-state</code>; real pages get them from <code>:hover</code> and <code>:focus-visible</code>.</p>
+      <div class="ds-matrix"><table>
+        <thead><tr><th scope="col">Variant</th><th scope="col">Default</th><th scope="col">Hover</th><th scope="col">Focus</th></tr></thead>
+        <tbody><tr><th scope="row">Default</th><td><ul class="list" aria-label="Default, default"><li class="list__item event-card"><span class="date-badge" aria-hidden="true"><span class="date-badge__month">Nov</span><span class="date-badge__day">6</span></span><div class="event-card__body"><a class="event-card__title" href="../../mocks/pages/event/default.html">Toronto Builders Night</a><span class="event-card__meta">Thu 6 Nov · 6:30 pm</span></div><span class="badge badge--info">Public</span></li></ul></td><td><ul class="list" aria-label="Default, hover"><li class="list__item event-card"><span class="date-badge" aria-hidden="true"><span class="date-badge__month">Nov</span><span class="date-badge__day">6</span></span><div class="event-card__body"><a class="event-card__title" href="../../mocks/pages/event/default.html" data-state="hover">Toronto Builders Night</a><span class="event-card__meta">Thu 6 Nov · 6:30 pm</span></div><span class="badge badge--info">Public</span></li></ul></td><td><ul class="list" aria-label="Default, focus"><li class="list__item event-card"><span class="date-badge" aria-hidden="true"><span class="date-badge__month">Nov</span><span class="date-badge__day">6</span></span><div class="event-card__body"><a class="event-card__title" href="../../mocks/pages/event/default.html" data-state="focus">Toronto Builders Night</a><span class="event-card__meta">Thu 6 Nov · 6:30 pm</span></div><span class="badge badge--info">Public</span></li></ul></td></tr><tr><th scope="row">Cancelled</th><td><ul class="list" aria-label="Cancelled, default"><li class="list__item event-card event-card--cancelled"><span class="date-badge date-badge--cancelled" aria-hidden="true"><span class="date-badge__month">Oct</span><span class="date-badge__day">30</span></span><div class="event-card__body"><a class="event-card__title" href="../../mocks/pages/event/cancelled.html">Austin Faith &amp; AI Panel</a><span class="event-card__meta">Thu 30 Oct · Cancelled</span></div><span class="badge badge--danger">Cancelled</span></li></ul></td><td><ul class="list" aria-label="Cancelled, hover"><li class="list__item event-card event-card--cancelled"><span class="date-badge date-badge--cancelled" aria-hidden="true"><span class="date-badge__month">Oct</span><span class="date-badge__day">30</span></span><div class="event-card__body"><a class="event-card__title" href="../../mocks/pages/event/cancelled.html" data-state="hover">Austin Faith &amp; AI Panel</a><span class="event-card__meta">Thu 30 Oct · Cancelled</span></div><span class="badge badge--danger">Cancelled</span></li></ul></td><td><ul class="list" aria-label="Cancelled, focus"><li class="list__item event-card event-card--cancelled"><span class="date-badge date-badge--cancelled" aria-hidden="true"><span class="date-badge__month">Oct</span><span class="date-badge__day">30</span></span><div class="event-card__body"><a class="event-card__title" href="../../mocks/pages/event/cancelled.html" data-state="focus">Austin Faith &amp; AI Panel</a><span class="event-card__meta">Thu 30 Oct · Cancelled</span></div><span class="badge badge--danger">Cancelled</span></li></ul></td></tr></tbody>
+      </table></div>
+      <h3>List states</h3>
+<div class="ds-example"><div class="ds-example__canvas ds-example__canvas--stack ds-example__canvas--canvas"><div class="card card--flush" aria-busy="true" aria-label="Loading events"><div class="list__item"><span class="skeleton avatar avatar--sm" aria-hidden="true"></span><div class="list__body" style="flex:1;"><span class="skeleton skeleton--title" aria-hidden="true"></span><span class="skeleton skeleton--text" aria-hidden="true"></span></div></div><div class="list__item"><span class="skeleton avatar avatar--sm" aria-hidden="true"></span><div class="list__body" style="flex:1;"><span class="skeleton skeleton--title" aria-hidden="true"></span><span class="skeleton skeleton--text" aria-hidden="true"></span></div></div></div></div><div class="ds-example__caption"><span>Loading (<code>pages/events/loading</code>): skeleton rows in the same flush card, <code>aria-busy="true"</code>.</span></div></div><div class="ds-example"><div class="ds-example__canvas ds-example__canvas--stack ds-example__canvas--canvas"><div class="empty"><span class="empty__icon" aria-hidden="true"><svg class="icon icon--lg" aria-hidden="true" viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/></svg></span><h3 class="empty__title">No upcoming events in Vancouver</h3><p class="empty__text">Try another city or include past events.</p><div class="empty__actions"><a class="btn" href="../../mocks/pages/events/default.html">Show all cities</a></div></div></div><div class="ds-example__caption"><span>No results for a filter (<code>pages/events/no-results</code>): an <a href="empty-state.html">empty state</a> replaces the list and offers a way back.</span></div></div>
+      <h3>Both themes</h3>
+<div class="ds-themes"><div data-theme="light"><ul class="list card card--flush" aria-label="Light theme events"><li class="list__item event-card"><span class="date-badge" aria-hidden="true"><span class="date-badge__month">Nov</span><span class="date-badge__day">6</span></span><div class="event-card__body"><a class="event-card__title" href="../../mocks/pages/event/default.html">Toronto Builders Night</a><span class="event-card__meta">Thu 6 Nov · 6:30 pm · Kestrel Labs, 220 King St W · 34 going</span></div><span class="badge badge--info">Public</span></li><li class="list__item event-card event-card--cancelled"><span class="date-badge date-badge--cancelled" aria-hidden="true"><span class="date-badge__month">Oct</span><span class="date-badge__day">30</span></span><div class="event-card__body"><a class="event-card__title" href="../../mocks/pages/event/cancelled.html">Austin Faith &amp; AI Panel</a><span class="event-card__meta">Thu 30 Oct · Austin · Cancelled by Esther Nakamura</span></div><span class="badge badge--danger">Cancelled</span></li></ul></div><div data-theme="dark"><ul class="list card card--flush" aria-label="Dark theme events"><li class="list__item event-card"><span class="date-badge" aria-hidden="true"><span class="date-badge__month">Nov</span><span class="date-badge__day">6</span></span><div class="event-card__body"><a class="event-card__title" href="../../mocks/pages/event/default.html">Toronto Builders Night</a><span class="event-card__meta">Thu 6 Nov · 6:30 pm · Kestrel Labs, 220 King St W · 34 going</span></div><span class="badge badge--info">Public</span></li><li class="list__item event-card event-card--cancelled"><span class="date-badge date-badge--cancelled" aria-hidden="true"><span class="date-badge__month">Oct</span><span class="date-badge__day">30</span></span><div class="event-card__body"><a class="event-card__title" href="../../mocks/pages/event/cancelled.html">Austin Faith &amp; AI Panel</a><span class="event-card__meta">Thu 30 Oct · Austin · Cancelled by Esther Nakamura</span></div><span class="badge badge--danger">Cancelled</span></li></ul></div></div>
+      <ul>
+        <li><b>Empty</b> (<code>pages/events/empty</code>): "No events yet" with a New event action for leads.</li>
+        <li><b>Error</b> (<code>pages/events/error</code>): the list is replaced by an error <a href="empty-state.html">empty state</a> with Try again.</li>
+        <li><b>Cancelled</b> is a content state, not a disabled one: the title stays a working link to the cancelled event page, which explains why.</li>
+      </ul>
+    </section>
+
+    <section class="ds-section" id="responsive"><h2><a href="#responsive">Responsive behaviour</a></h2>
+      <ul>
+        <li>The row is a wrapping flex row: on a phone the visibility badge drops under the body instead of squeezing the title.</li>
+        <li>The body has <code>min-width: 0</code> and <code>flex: 1 1 12rem</code>, so long titles wrap rather than overflow; they never truncate.</li>
+        <li>The date badge never shrinks (<code>flex: none</code>).</li>
+        <li>The row itself is not a link; the title is the target, so nested links (badge, meta) stay possible later without conflicts.</li>
+      </ul>
+    </section>
+
+    <section class="ds-section" id="theming"><h2><a href="#theming">Theming</a></h2>
+      <p>The card reads semantic tokens only. The leaf is <code>--color-accent-subtle</code> with <code>--color-fg-accent</code> text, so a brand change to the accent recolours every date badge. Cancelled swaps to <code>--color-bg-subtle</code> and <code>--color-fg-muted</code>. In the dark theme the leaf darkens and the accent text lightens; contrast is checked below.</p>
+    </section>
+
+    <section class="ds-section" id="accessibility"><h2><a href="#accessibility">Accessibility</a></h2>
+      <h3>Role and pattern</h3>
+      <p>A <code>&lt;ul&gt;</code> of <code>&lt;li&gt;</code> rows with a native <code>&lt;a href&gt;</code> title. The list sits in a section with a heading ("Coming up", or the search group title), so it is announced with its count.</p>
+      <h3>Keyboard</h3>
+      <table class="ds-table ds-keys"><thead><tr><th scope="col">Key</th><th scope="col">Action</th></tr></thead><tbody>
+        <tr><td><kbd>Tab</kbd> / <kbd>Shift</kbd>+<kbd>Tab</kbd></td><td>Moves between event titles, one stop per event.</td></tr>
+        <tr><td><kbd>Enter</kbd></td><td>Opens the event page.</td></tr>
+      </tbody></table>
+      <h3>Focus</h3>
+      <p>The shared ring wraps the title link on <code>:focus-visible</code>.</p>
+      <h3>Labelling</h3>
+      <p>The date badge is <code>aria-hidden</code> because "Nov 6" read before the title is noise; the meta line carries the full date. Cancelled is said in words by the badge and the meta line, never only by the strikethrough or the muted colour (WCAG 1.4.1).</p>
+      <h3>Contrast</h3>
+      <div class="ds-example__canvas ds-example__canvas--stack" style="padding: 0; gap: var(--space-2);">
+        <div class="ds-pair"><span>Badge text on leaf</span><span class="ds-pair__ratio" data-contrast="--color-fg-accent|--color-accent-subtle" data-min="4.5"></span></div>
+        <div class="ds-pair"><span>Cancelled badge text</span><span class="ds-pair__ratio" data-contrast="--color-fg-muted|--color-bg-subtle" data-min="4.5"></span></div>
+        <div class="ds-pair"><span>Meta on surface</span><span class="ds-pair__ratio" data-contrast="--color-fg-muted|--color-bg-surface" data-min="4.5"></span></div>
+        <div class="ds-pair"><span>Focus ring on surface</span><span class="ds-pair__ratio" data-contrast="--color-focus-ring|--color-bg-surface" data-min="3"></span></div>
+      </div>
+      <h3>Motion</h3>
+      <p>None. Hover only adds the underline.</p>
+      <h3>Touch</h3>
+      <p>The title's line box is well over the 24px minimum (WCAG 2.5.8) and rows are separated by the list dividers.</p>
+    </section>
+
+    <section class="ds-section" id="content"><h2><a href="#content">Content</a></h2>
+      <ul>
+        <li>Title is the event name as published: "Toronto Builders Night", "Hackathon: Tech for Shelters". No dates or city prefixes in the title.</li>
+        <li>Meta order: date, time, place, attendance — "Thu 6 Nov · 6:30 pm · Kestrel Labs, 220 King St W · 34 going". Dates use the "Tue 21 Oct" format.</li>
+        <li>Online events say "Online" in place of the venue.</li>
+        <li>Multi-day: "Sat 14 – Sun 15 Nov"; the badge shows the first day.</li>
+        <li>Cancelled rows replace time and attendance with who cancelled: "Cancelled by Esther Nakamura".</li>
+        <li>Type the month as "Oct"; the badge uppercases it with CSS.</li>
+      </ul>
+    </section>
+
+    <section class="ds-section" id="do-dont"><h2><a href="#do-dont">Do and don't</a></h2>
+      <div class="ds-dodont">
+        <figure class="ds-do"><div class="ds-example__canvas ds-example__canvas--stack"><ul class="list card card--flush" aria-label="Do example"><li class="list__item event-card event-card--cancelled"><span class="date-badge date-badge--cancelled" aria-hidden="true"><span class="date-badge__month">Oct</span><span class="date-badge__day">30</span></span><div class="event-card__body"><a class="event-card__title" href="../../mocks/pages/event/cancelled.html">Austin Faith &amp; AI Panel</a><span class="event-card__meta">Thu 30 Oct · Austin · Cancelled by Esther Nakamura</span></div><span class="badge badge--danger">Cancelled</span></li></ul></div><figcaption>Say Cancelled in a badge and the meta line; keep the title a link.</figcaption></figure>
+        <figure class="ds-dont"><div class="ds-example__canvas ds-example__canvas--stack"><ul class="list card card--flush" aria-label="Don't example"><li class="list__item event-card"><span class="date-badge date-badge--cancelled" aria-hidden="true"><span class="date-badge__month">Oct</span><span class="date-badge__day">30</span></span><div class="event-card__body"><a class="event-card__title" href="../../mocks/pages/event/cancelled.html">Austin Faith &amp; AI Panel</a><span class="event-card__meta">Thu 30 Oct · Austin</span></div></li></ul></div><figcaption>Relying on the struck-through date alone. The badge is hidden from screen readers, so nobody hears it was cancelled.</figcaption></figure>
+        <figure class="ds-do"><div class="ds-example__canvas ds-example__canvas--stack"><ul class="list card card--flush" aria-label="Do example 2"><li class="list__item event-card"><span class="date-badge" aria-hidden="true"><span class="date-badge__month">Nov</span><span class="date-badge__day">14</span></span><div class="event-card__body"><a class="event-card__title" href="../../mocks/pages/event/default.html">Hackathon: Tech for Shelters</a><span class="event-card__meta">Sat 14 – Sun 15 Nov · Trinity Community Centre · 52 going</span></div><span class="badge badge--info">Public</span></li></ul></div><figcaption>Long titles and meta wrap within the body.</figcaption></figure>
+        <figure class="ds-dont"><div class="ds-example__canvas ds-example__canvas--stack"><ul class="list card card--flush" aria-label="Don't example 2"><li class="list__item event-card"><span class="date-badge" aria-hidden="true"><span class="date-badge__month">Nov</span><span class="date-badge__day">6</span></span><div class="event-card__body"><a class="event-card__title" href="../../mocks/pages/event/default.html">Toronto Builders Night</a></div><span class="badge badge--info">Public</span></li></ul></div><figcaption>Dropping the meta line. The date badge is decorative, so the text date, time and place must still be there.</figcaption></figure>
+      </div>
+    </section>
+
+    <section class="ds-section" id="tokens"><h2><a href="#tokens">Tokens</a></h2>
+<div class="ds-table-wrap"><table class="ds-table"><thead><tr><th scope="col">Part</th><th scope="col">Token</th><th scope="col">Light</th><th scope="col">Dark</th></tr></thead><tbody>
+<tr><td>Badge background</td><td><code>--color-accent-subtle</code></td><td><span class="ds-swatch-cell" data-theme="light"><i data-token="--color-accent-subtle" data-swatch></i><span data-token="--color-accent-subtle"></span></span></td><td><span class="ds-swatch-cell" data-theme="dark"><i data-token="--color-accent-subtle" data-swatch></i><span data-token="--color-accent-subtle"></span></span></td></tr>
+<tr><td>Badge text</td><td><code>--color-fg-accent</code></td><td><span class="ds-swatch-cell" data-theme="light"><i data-token="--color-fg-accent" data-swatch></i><span data-token="--color-fg-accent"></span></span></td><td><span class="ds-swatch-cell" data-theme="dark"><i data-token="--color-fg-accent" data-swatch></i><span data-token="--color-fg-accent"></span></span></td></tr>
+<tr><td>Cancelled badge background</td><td><code>--color-bg-subtle</code></td><td><span class="ds-swatch-cell" data-theme="light"><i data-token="--color-bg-subtle" data-swatch></i><span data-token="--color-bg-subtle"></span></span></td><td><span class="ds-swatch-cell" data-theme="dark"><i data-token="--color-bg-subtle" data-swatch></i><span data-token="--color-bg-subtle"></span></span></td></tr>
+<tr><td>Cancelled text / meta</td><td><code>--color-fg-muted</code></td><td><span class="ds-swatch-cell" data-theme="light"><i data-token="--color-fg-muted" data-swatch></i><span data-token="--color-fg-muted"></span></span></td><td><span class="ds-swatch-cell" data-theme="dark"><i data-token="--color-fg-muted" data-swatch></i><span data-token="--color-fg-muted"></span></span></td></tr>
+<tr><td>Title</td><td><code>--color-fg-default</code></td><td><span class="ds-swatch-cell" data-theme="light"><i data-token="--color-fg-default" data-swatch></i><span data-token="--color-fg-default"></span></span></td><td><span class="ds-swatch-cell" data-theme="dark"><i data-token="--color-fg-default" data-swatch></i><span data-token="--color-fg-default"></span></span></td></tr>
+<tr><td>Row surface</td><td><code>--color-bg-surface</code></td><td><span class="ds-swatch-cell" data-theme="light"><i data-token="--color-bg-surface" data-swatch></i><span data-token="--color-bg-surface"></span></span></td><td><span class="ds-swatch-cell" data-theme="dark"><i data-token="--color-bg-surface" data-swatch></i><span data-token="--color-bg-surface"></span></span></td></tr>
+<tr><td>Badge size</td><td><code>--size-avatar-lg</code></td><td colspan="2"><span data-token="--size-avatar-lg"></span></td></tr>
+<tr><td>Badge radius</td><td><code>--radius-md</code></td><td colspan="2"><span data-token="--radius-md"></span></td></tr>
+<tr><td>Badge padding</td><td><code>--space-1</code></td><td colspan="2"><span data-token="--space-1"></span></td></tr>
+<tr><td>Row gap</td><td><code>--space-4</code></td><td colspan="2"><span data-token="--space-4"></span></td></tr>
+<tr><td>Body gap</td><td><code>--space-1</code></td><td colspan="2"><span data-token="--space-1"></span></td></tr>
+<tr><td>Month font</td><td><code>--text-overline</code></td><td colspan="2"><span data-token="--text-overline"></span></td></tr>
+<tr><td>Day and title font</td><td><code>--text-h4</code></td><td colspan="2"><span data-token="--text-h4"></span></td></tr>
+<tr><td>Meta font</td><td><code>--text-body-sm</code></td><td colspan="2"><span data-token="--text-body-sm"></span></td></tr>
+</tbody></table></div>
+    </section>
+
+    <section class="ds-section" id="code"><h2><a href="#code">Code</a></h2>
+      <pre><code>&lt;section class="card card--flush" aria-labelledby="up"&gt;
+  &lt;h2 id="up" class="card__title"&gt;Coming up&lt;/h2&gt;
+  &lt;ul class="list"&gt;
+    &lt;li class="list__item event-card"&gt;
+      &lt;span class="date-badge" aria-hidden="true"&gt;
+        &lt;span class="date-badge__month"&gt;Nov&lt;/span&gt;&lt;span class="date-badge__day"&gt;6&lt;/span&gt;
+      &lt;/span&gt;
+      &lt;div class="event-card__body"&gt;
+        &lt;a class="event-card__title" href="/events/toronto-builders-night"&gt;Toronto Builders Night&lt;/a&gt;
+        &lt;span class="event-card__meta"&gt;Thu 6 Nov · 6:30 pm · Kestrel Labs, 220 King St W · 34 going&lt;/span&gt;
+      &lt;/div&gt;
+      &lt;span class="badge badge--info"&gt;Public&lt;/span&gt;
+    &lt;/li&gt;
+  &lt;/ul&gt;
+&lt;/section&gt;</code></pre>
+      <table class="ds-table"><thead><tr><th scope="col">Class / attribute</th><th scope="col">Effect</th></tr></thead><tbody>
+        <tr><td><code>.event-card</code></td><td>On a <code>.list__item</code>: wrapping row of date badge, body and visibility badge.</td></tr>
+        <tr><td><code>.event-card__body</code> <code>__title</code> <code>__meta</code></td><td>Body column, title link, meta line.</td></tr>
+        <tr><td><code>.event-card--cancelled</code></td><td>Mutes the title.</td></tr>
+        <tr><td><code>.date-badge</code> <code>__month</code> <code>__day</code></td><td>Calendar leaf; always <code>aria-hidden="true"</code>.</td></tr>
+        <tr><td><code>.date-badge--cancelled</code></td><td>Neutral leaf, struck-through date.</td></tr>
+        <tr><td><code>data-state="hover|focus"</code></td><td>Documentation only.</td></tr>
+      </tbody></table>
+    </section>
+
+    <section class="ds-section" id="sources"><h2><a href="#sources">Sources</a></h2>
+      <p>Extracted from these mocks:</p>
+      <ul>
+        <li><a href="../../mocks/pages/events/default.html">pages/events/default</a> (all variants, cancelled row)</li>
+        <li><a href="../../mocks/pages/events/loading.html">pages/events/loading</a>, <a href="../../mocks/pages/events/empty.html">pages/events/empty</a>, <a href="../../mocks/pages/events/no-results.html">pages/events/no-results</a></li>
+        <li><a href="../../mocks/pages/home/default.html">pages/home/default</a> ("Coming up" card)</li>
+        <li><a href="../../mocks/pages/search/default.html">pages/search/default</a> (Events group, highlighted title)</li>
+        <li><a href="../../mocks/pages/event/default.html">pages/event/default</a>, <a href="../../mocks/pages/event/cancelled.html">pages/event/cancelled</a>, <a href="../../mocks/pages/public-event/default.html">pages/public-event/default</a>, <a href="../../mocks/pages/public-event/cancelled.html">pages/public-event/cancelled</a> (destination pages; they do not use the card)</li>
+      </ul>
+      <p>Drift: the loading skeleton uses a round avatar skeleton where the real row has a square date badge, so the row shape shifts on load; <code>.event-card__title</code> has no <code>data-state="hover"</code> hook, so the forced hover above shows only the generic link hover; the "Coming up" heading uses an inline <code>style="font: var(--text-h4)"</code>; the city filter is wrapped in an inline <code>style="width: 12rem"</code>; <code>pages/public-event/cancelled</code> says "FaithTech Toronto" and Kestrel Labs for the Austin panel (copy drift).</p>
+    </section>
+
+    <footer class="ds-footer"><span>FaithTech Community design system · extracted from <a href="../../mocks/index.html">docs/mocks</a> on 2026-10-21</span><a href="#top">Back to top</a></footer>
+  </main>
+</div>
+<script src="../assets/ds.js"></script>
+</body>
+</html>

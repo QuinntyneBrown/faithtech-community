@@ -1,0 +1,345 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Layout primitives — FaithTech Community design system</title>
+<meta name="description" content="Layout primitives for FaithTech Community: container, stack, cluster, grid, auto grid, the two-to-one split, page header, section and the centred auth card, with breakpoints and tokens.">
+<link rel="stylesheet" href="../tokens/tokens.css">
+<link rel="stylesheet" href="../assets/components.css">
+<link rel="stylesheet" href="../assets/ds.css">
+</head>
+<body id="top">
+<a class="skip-link" href="#main">Skip to content</a>
+<div class="ds-shell">
+  <nav class="ds-nav" aria-label="Design system">
+    <div class="ds-nav__brand"><a href="../index.html">FaithTech DS</a><button class="ds-theme-toggle" type="button" aria-pressed="false">☾ Dark</button></div>
+    <details open><summary>Foundations</summary><ul>
+      <li><a href="../foundations/color.html">Color</a></li>
+      <li><a href="../foundations/typography.html">Typography</a></li>
+      <li><a href="../foundations/spacing.html">Spacing</a></li>
+      <li><a href="../foundations/layout.html">Layout</a></li>
+      <li><a href="../foundations/elevation.html">Elevation</a></li>
+      <li><a href="../foundations/shape.html">Shape</a></li>
+      <li><a href="../foundations/motion.html">Motion</a></li>
+      <li><a href="../foundations/iconography.html">Iconography</a></li>
+      <li><a href="../foundations/theming.html">Theming</a></li>
+      <li><a href="../foundations/responsive.html">Responsive</a></li>
+      <li><a href="../foundations/accessibility.html">Accessibility</a></li>
+      <li><a href="../foundations/content.html">Content</a></li>
+    </ul></details>
+    <details open><summary>Components</summary><ul>
+      <li><a href="../components/button.html">Button</a></li>
+      <li><a href="../components/link.html">Link</a></li>
+      <li><a href="../components/menu.html">Menu</a></li>
+      <li><a href="../components/form-field.html">Form field</a></li>
+      <li><a href="../components/text-field.html">Text field</a></li>
+      <li><a href="../components/textarea.html">Textarea</a></li>
+      <li><a href="../components/select.html">Select</a></li>
+      <li><a href="../components/radio-group.html">Radio group</a></li>
+      <li><a href="../components/switch.html">Switch</a></li>
+      <li><a href="../components/form-layout.html">Form layout</a></li>
+      <li><a href="../components/picture-list.html">Picture list</a></li>
+      <li><a href="../components/sticker-picker.html">Estimate card picker</a></li>
+      <li><a href="../components/top-bar.html">Top bar</a></li>
+      <li><a href="../components/tab-bar.html">Tab bar</a></li>
+      <li><a href="../components/tabs.html">Tabs</a></li>
+      <li><a href="../components/breadcrumb.html">Breadcrumb</a></li>
+      <li><a href="../components/skip-link.html">Skip link</a></li>
+      <li><a href="../components/layout.html">Layout primitives</a></li>
+      <li><a href="../components/card.html">Card</a></li>
+      <li><a href="../components/dialog.html">Dialog</a></li>
+      <li><a href="../components/notification-panel.html">Notification panel</a></li>
+      <li><a href="../components/list.html">List</a></li>
+      <li><a href="../components/table.html">Table</a></li>
+      <li><a href="../components/description-list.html">Description list</a></li>
+      <li><a href="../components/feed.html">Activity feed</a></li>
+      <li><a href="../components/tree.html">Backlog tree</a></li>
+      <li><a href="../components/kanban.html">Kanban board</a></li>
+      <li><a href="../components/event-card.html">Event card</a></li>
+      <li><a href="../components/profile-header.html">Profile header</a></li>
+      <li><a href="../components/search-results.html">Search results</a></li>
+      <li><a href="../components/note.html">Note</a></li>
+      <li><a href="../components/avatar.html">Avatar</a></li>
+      <li><a href="../components/logo-mark.html">Logo mark</a></li>
+      <li><a href="../components/badge.html">Badge</a></li>
+      <li><a href="../components/chip.html">Chip</a></li>
+      <li><a href="../components/stat.html">Stat</a></li>
+      <li><a href="../components/sticker.html">Estimate card</a></li>
+      <li><a href="../components/toast.html">Toast</a></li>
+      <li><a href="../components/alert.html">Alert and banner</a></li>
+      <li><a href="../components/inline-message.html">Inline message</a></li>
+      <li><a href="../components/progress.html">Progress</a></li>
+      <li><a href="../components/skeleton.html">Skeleton</a></li>
+      <li><a href="../components/empty-state.html">Empty state</a></li>
+      <li><a href="../components/error-page.html">Error page</a></li>
+    </ul></details>
+    <details open><summary>Patterns</summary><ul>
+      <li><a href="../patterns/forms.html">Forms</a></li>
+      <li><a href="../patterns/feedback-and-loading.html">Feedback and loading</a></li>
+      <li><a href="../patterns/empty-and-error-states.html">Empty and error states</a></li>
+      <li><a href="../patterns/navigation.html">Navigation and page structure</a></li>
+      <li><a href="../patterns/dialogs-and-overlays.html">Dialogs and overlays</a></li>
+      <li><a href="../patterns/lists-and-tables.html">Lists and tables</a></li>
+      <li><a href="../patterns/notifications.html">Notifications</a></li>
+      <li><a href="../patterns/content-and-tone.html">Content and tone</a></li>
+    </ul></details>
+  </nav>
+
+  <main id="main" class="ds-main">
+    <header class="ds-header">
+      <p class="ds-kicker">Component · Layout</p>
+      <h1>Layout primitives</h1>
+      <p class="ds-lead">A small set of classes that place everything else: the page container, vertical stacks, wrapping rows, the column grid, the two-to-one split, the page header and the centred auth card.</p>
+      <div class="ds-meta"><span class="ds-pill ds-pill--ok">WCAG 2.2 AA</span><span class="ds-pill">Status: stable</span><span class="ds-pill">CSS only, no ARIA</span></div>
+      <ul class="ds-toc">
+        <li><a href="#overview">Overview</a></li><li><a href="#anatomy">Anatomy</a></li><li><a href="#variants">Variants</a></li><li><a href="#sizes">Sizes</a></li><li><a href="#states">States</a></li><li><a href="#responsive">Responsive</a></li><li><a href="#theming">Theming</a></li><li><a href="#accessibility">Accessibility</a></li><li><a href="#content">Content</a></li><li><a href="#do-dont">Do and don't</a></li><li><a href="#tokens">Tokens</a></li><li><a href="#code">Code</a></li><li><a href="#sources">Sources</a></li>
+      </ul>
+    </header>
+
+    <section class="ds-section" id="overview"><h2><a href="#overview">Overview</a></h2>
+      <p>Compose pages from these primitives instead of writing layout CSS. They read the layout tokens (<code>--layout-columns</code>, <code>--layout-gutter</code>, <code>--layout-margin</code>), which change at 768px and 1024px, so pages respond without their own media queries. Most are inherited from Shelfie; <code>.split</code> is FaithTech's own.</p>
+      <ul>
+        <li><b><code>.container</code></b>: the page width (max 1280px) and side margins. <code>main</code> on every signed-in page.</li>
+        <li><b><code>.stack</code></b>: children in a column, 16px apart. Cards, forms, dialog bodies.</li>
+        <li><b><code>.cluster</code></b>: children in a wrapping row, 12px apart, vertically centred. Button rows, role badges, stats. <b><code>.cluster--between</code></b> pushes the ends apart (a card title with an "Open board" link).</li>
+        <li><b><code>.grid</code></b>: the token column grid; a form can set <code>--layout-columns: 2</code> for a Starts/Ends pair. <b><code>.grid--auto</code></b> fills with 18rem-minimum cards instead.</li>
+        <li><b><code>.split</code></b>: one column on phones, main and aside at 2:1 from 1024px. Home, event, contact and partner pages.</li>
+        <li><b><code>.page-header</code></b> (title, subtitle, actions) and <b><code>.section</code></b> (vertical rhythm between page sections).</li>
+        <li><b><code>.auth-layout</code></b> + <b><code>.auth-card</code></b>: the centred card on sign in, sign up, accept invite, verify email, forgot and reset password, with the <a href="logo-mark.html">logo mark</a> above it.</li>
+      </ul>
+    </section>
+
+    <section class="ds-section" id="anatomy"><h2><a href="#anatomy">Anatomy</a></h2>
+      <p>Home for Grace Okonkwo, the page that uses the most primitives at once.</p>
+      <div class="ds-anatomy">
+        <figure class="ds-anatomy__figure" style="padding: var(--space-8) 0; place-items: stretch;">
+          <div class="container stack" style="padding-inline: var(--space-4);">
+            <div class="page-header" style="margin-block: 0;"><div><span class="hero__title">Good afternoon, Grace</span><p class="subtitle">Tuesday 21 October · 3 events coming up</p></div></div>
+            <div class="grid" style="grid-template-columns: minmax(0, 2fr) minmax(0, 1fr); gap: var(--space-4);">
+              <div class="card" style="padding: var(--space-4);"><span class="text-caption">.split main · Coming up, Partner pipeline</span></div>
+              <div class="card" style="padding: var(--space-4);"><span class="text-caption">.split aside · Recent activity</span></div>
+            </div>
+          </div>
+          <span class="ds-callout" style="left: 96%; top: 4%;" aria-hidden="true">1</span>
+          <span class="ds-callout" style="left: 70%; top: 24%;" aria-hidden="true">2</span>
+          <span class="ds-callout" style="left: 96%; top: 50%;" aria-hidden="true">3</span>
+          <span class="ds-callout" style="left: 50%; top: 66%;" aria-hidden="true">4</span>
+          <span class="ds-callout" style="left: 92%; top: 66%;" aria-hidden="true">5</span>
+        </figure>
+        <ol class="ds-anatomy__list">
+          <li><div><b>Container</b><small><code>main.container</code>: max <code>--layout-container-max</code>, side padding <code>--layout-margin</code>.</small></div></li>
+          <li><div><b>Page header</b><small><code>.page-header</code>: title block on the left, actions on the right ("New event", "Add contact"), wraps on phones.</small></div></li>
+          <li><div><b>Split</b><small><code>.split</code>: one column, then 2fr / 1fr from 1024px, <code>--layout-gutter</code> apart.</small></div></li>
+          <li><div><b>Main column</b><small>A <code>.stack</code> of cards.</small></div></li>
+          <li><div><b>Aside</b><small><code>&lt;aside class="stack" aria-label="Activity"&gt;</code>: under the main column on phones.</small></div></li>
+        </ol>
+      </div>
+      <p class="text-caption">The anatomy figure forces two columns so it reads at any window width; real pages let <code>.split</code> choose.</p>
+    </section>
+
+    <section class="ds-section" id="variants"><h2><a href="#variants">Variants</a></h2>
+      <h3>Stack and cluster</h3>
+      <div class="ds-example">
+        <div class="ds-example__canvas ds-example__canvas--stack">
+          <div class="stack">
+            <div class="card" style="padding: var(--space-3);">.stack child · About</div>
+            <div class="card" style="padding: var(--space-3);">.stack child · Photos</div>
+          </div>
+          <div class="cluster"><a class="btn btn--primary" href="../../mocks/pages/event-form/default.html">New event</a><a class="btn" href="../../mocks/pages/contact-form/default.html">Add contact</a></div>
+          <div class="cluster cluster--between"><span class="list__title">Partner pipeline</span><a href="../../mocks/pages/partners/default.html">Open board</a></div>
+        </div>
+        <div class="ds-example__caption"><span><code>.stack</code> (16px), <code>.cluster</code> (12px, wraps), <code>.cluster--between</code> (ends apart, as in the Home pipeline card).</span></div>
+        <details class="ds-example__code"><summary>HTML</summary><pre><code>&lt;div class="stack"&gt; … &lt;/div&gt;
+&lt;div class="cluster"&gt;&lt;a class="btn btn--primary" …&gt;New event&lt;/a&gt;&lt;a class="btn" …&gt;Add contact&lt;/a&gt;&lt;/div&gt;
+&lt;div class="cluster cluster--between"&gt;&lt;h2 …&gt;Partner pipeline&lt;/h2&gt;&lt;a …&gt;Open board&lt;/a&gt;&lt;/div&gt;</code></pre></details>
+      </div>
+      <h3>Split</h3>
+      <div class="ds-example">
+        <div class="ds-example__canvas ds-example__canvas--stack ds-example__canvas--canvas">
+          <div class="split">
+            <div class="card"><span class="card__title">Toronto Builders Night</span><p class="text-muted">Main column (2fr)</p></div>
+            <aside class="card" aria-label="RSVP (example)"><span class="card__title">Are you going?</span><p class="text-muted">Aside (1fr)</p></aside>
+          </div>
+        </div>
+        <div class="ds-example__caption"><span>Event page: details and the RSVP aside. Narrow the window below 1024px and the aside drops under the details.</span></div>
+        <details class="ds-example__code"><summary>HTML</summary><pre><code>&lt;div class="split"&gt;
+  &lt;div class="stack"&gt; … &lt;/div&gt;
+  &lt;aside class="stack" aria-label="Activity"&gt; … &lt;/aside&gt;
+&lt;/div&gt;</code></pre></details>
+      </div>
+      <h3>Grid</h3>
+      <div class="ds-example">
+        <div class="ds-example__canvas ds-example__canvas--stack ds-example__canvas--canvas">
+          <div class="grid" style="--layout-columns: 2;"><div class="field"><label class="field__label" for="lay-start">Starts</label><input class="input" id="lay-start" type="datetime-local" value="2026-11-06T18:30"></div><div class="field"><label class="field__label" for="lay-end">Ends</label><input class="input" id="lay-end" type="datetime-local" value="2026-11-06T21:00"></div></div>
+          <div class="grid grid--auto">
+            <div class="card stack"><span class="skeleton skeleton--title" aria-hidden="true"></span><span class="skeleton skeleton--text" aria-hidden="true"></span></div>
+            <div class="card stack"><span class="skeleton skeleton--title" aria-hidden="true"></span><span class="skeleton skeleton--text" aria-hidden="true"></span></div>
+          </div>
+        </div>
+        <div class="ds-example__caption"><span><code>.grid</code> with two columns (event form, Starts and Ends) and <code>.grid--auto</code>, as many 18rem cards as fit (loading states for profile, event and partner).</span></div>
+      </div>
+      <h3>Page header and section</h3>
+      <div class="ds-example">
+        <div class="ds-example__canvas ds-example__canvas--stack ds-example__canvas--canvas">
+          <div class="page-header" style="margin-block: 0;">
+            <div><span class="hero__title">Good afternoon, Grace</span><p class="subtitle">Tuesday 21 October · 3 events coming up</p></div>
+            <a class="btn btn--primary" href="../../mocks/pages/event-form/default.html"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>New event</a>
+          </div>
+          <div class="section" style="margin-block: 0;"><span class="list__title">Photos</span></div>
+        </div>
+        <div class="ds-example__caption"><span><code>.page-header</code> holds the page's <code>&lt;h1&gt;</code> and <code>.subtitle</code>; <code>.section</code> spaces the blocks below it by <code>--space-8</code> (profile Photos).</span></div>
+      </div>
+      <h3>Auth layout</h3>
+      <div class="ds-example">
+        <div class="ds-example__canvas ds-example__canvas--canvas" style="padding: 0; display: block;">
+          <div class="auth-layout" style="min-height: auto;">
+            <div class="auth-card stack">
+              <div class="logo"><span class="logo-mark"><img src="../assets/logo.svg" alt="FaithTech" width="64" height="64"></span></div>
+              <div class="card stack">
+                <span class="hero__title" style="text-align: center;">Welcome back</span>
+                <div class="field"><label class="field__label" for="lay-email">Email</label><input class="input" id="lay-email" type="email" autocomplete="email" value="grace.okonkwo@example.org"></div>
+                <button class="btn btn--primary btn--lg btn--block" type="button">Sign in</button>
+                <p style="text-align: center;"><a href="../../mocks/pages/forgot-password/default.html">Forgot your password?</a></p>
+              </div>
+              <p class="text-caption" style="text-align: center;">New to FaithTech? <a href="../../mocks/pages/sign-up/default.html">Create an account</a></p>
+            </div>
+          </div>
+        </div>
+        <div class="ds-example__caption"><span><code>main.auth-layout</code> centres a 26rem <code>.auth-card</code> in the viewport, with the logo mark above it (<code>min-height</code> is shortened here). FaithTech signs in by email and password only, so the inherited "or" divider and provider buttons are not used.</span></div>
+      </div>
+    </section>
+
+    <section class="ds-section" id="sizes" data-na="sizes come from layout tokens"><h2><a href="#sizes">Sizes</a></h2>
+      <p class="ds-na">Primitives have no size modifiers; gaps and widths come from the spacing and layout tokens listed below.</p>
+    </section>
+
+    <section class="ds-section" id="states" data-na="no interactive states"><h2><a href="#states">States</a></h2>
+      <p class="ds-na">Layout primitives are not interactive and have no states; the only change is responsive (see below). Loading pages mark the busy region with <code>aria-busy="true"</code> on the <code>.grid</code> or card, not on the primitive itself.</p>
+    </section>
+
+    <section class="ds-section" id="responsive"><h2><a href="#responsive">Responsive behaviour</a></h2>
+      <div class="ds-table-wrap"><table class="ds-table">
+        <thead><tr><th scope="col">Width</th><th scope="col">Columns</th><th scope="col">Gutter</th><th scope="col">Margin</th><th scope="col">Split</th></tr></thead>
+        <tbody>
+          <tr><td>Base (phones)</td><td>4</td><td><code>--space-4</code> (16px)</td><td><code>--space-4</code> (16px)</td><td>One column; aside under main.</td></tr>
+          <tr><td>768px (<code>--layout-breakpoint-md</code>)</td><td>8</td><td><code>--space-6</code> (24px)</td><td><code>--space-8</code> (32px)</td><td>Still one column.</td></tr>
+          <tr><td>1024px (<code>--layout-breakpoint-lg</code>)</td><td>12</td><td><code>--space-8</code> (32px)</td><td><code>--space-12</code> (48px)</td><td>2fr / 1fr.</td></tr>
+        </tbody>
+      </table></div>
+      <ul>
+        <li>Mobile first: base styles target 360px and only <code>min-width</code> queries add space.</li>
+        <li><code>.page-header</code> wraps: on phones the actions drop under the title. <code>.cluster</code> wraps its children; nothing scrolls sideways at 320px.</li>
+        <li>On phones <code>.has-tabbar</code> on <code>body</code> reserves space for the <a href="tab-bar.html">tab bar</a> under the container.</li>
+      </ul>
+    </section>
+
+    <section class="ds-section" id="theming" data-na="no colour"><h2><a href="#theming">Theming</a></h2>
+      <p class="ds-na">Primitives draw no colour; layout tokens change by breakpoint, not by theme.</p>
+    </section>
+
+    <section class="ds-section" id="accessibility"><h2><a href="#accessibility">Accessibility</a></h2>
+      <h3>Role and pattern</h3>
+      <p>No roles of their own. Put them on the right native element: <code>.container</code> on <code>&lt;main id="main"&gt;</code>, the split's aside on <code>&lt;aside aria-label&gt;</code> or a <code>&lt;section aria-labelledby&gt;</code>, <code>.auth-layout</code> on <code>&lt;main&gt;</code>.</p>
+      <h3>Keyboard</h3>
+      <table class="ds-table ds-keys"><thead><tr><th scope="col">Key</th><th scope="col">Action</th></tr></thead><tbody>
+        <tr><td><kbd>Tab</kbd> / <kbd>Shift</kbd>+<kbd>Tab</kbd></td><td>Follows DOM order. Primitives add no tab stops; never reorder columns visually with <code>order</code> or <code>grid-row</code>, so focus order matches reading order (main before aside).</td></tr>
+      </tbody></table>
+      <h3>Focus</h3>
+      <p><code>html</code> has <code>scroll-padding-top</code> equal to the top bar plus <code>--space-4</code>, and <code>.has-tabbar</code> reserves the tab bar, so focused content is never hidden under sticky bars.</p>
+      <h3>Labelling</h3>
+      <p>The page header holds the page's only <code>&lt;h1&gt;</code>. On auth pages the <code>&lt;h1&gt;</code> sits in the auth card. Sections and asides are named by their visible heading or an <code>aria-label</code>.</p>
+      <h3>Contrast</h3>
+      <p>Primitives draw no colour. Text in <code>.page-header .subtitle</code> uses <code>--color-fg-muted</code>:</p>
+      <div class="ds-example__canvas ds-example__canvas--stack" style="padding: 0; gap: var(--space-2);">
+        <div class="ds-pair"><span>Subtitle on canvas</span><span class="ds-pair__ratio" data-contrast="--color-fg-muted|--color-bg-canvas" data-min="4.5"></span></div>
+        <div class="ds-pair"><span>Page title on canvas</span><span class="ds-pair__ratio" data-contrast="--color-fg-default|--color-bg-canvas" data-min="4.5"></span></div>
+      </div>
+      <h3>Motion</h3>
+      <p>None. <code>html</code> uses smooth scrolling for in-page links, turned off under <code>prefers-reduced-motion</code>.</p>
+      <h3>Touch</h3>
+      <p><code>.cluster</code> puts 12px between neighbours, above the spacing needed for 24px targets. Content reflows at 320px CSS width (WCAG 1.4.10).</p>
+    </section>
+
+    <section class="ds-section" id="content"><h2><a href="#content">Content</a></h2>
+      <ul>
+        <li>Page header: the title says where you are ("Good afternoon, Grace", "Partners", "Samuel Mensah"); the subtitle gives today's context ("Tuesday 21 October · 3 events coming up").</li>
+        <li>Keep page header actions to the page's main tasks, primary first ("New event", then "Add contact").</li>
+      </ul>
+    </section>
+
+    <section class="ds-section" id="do-dont"><h2><a href="#do-dont">Do and don't</a></h2>
+      <div class="ds-dodont">
+        <figure class="ds-do"><div class="ds-example__canvas"><code>&lt;div class="split"&gt;</code></div><figcaption>Use <code>.split</code> for main and aside; it is one column on phones.</figcaption></figure>
+        <figure class="ds-dont"><div class="ds-example__canvas"><code>&lt;div class="split" style="margin-top: var(--space-4);"&gt;</code></div><figcaption>Don't add one-off margins; the page header already spaces what follows it.</figcaption></figure>
+        <figure class="ds-do"><div class="ds-example__canvas"><code>&lt;section class="section"&gt;</code></div><figcaption>Use <code>.section</code> to space page sections.</figcaption></figure>
+        <figure class="ds-dont"><div class="ds-example__canvas"><code>&lt;div class="card stack" style="margin-top: var(--space-6);"&gt;</code></div><figcaption>Inline margins to push a card down, as on the profile page.</figcaption></figure>
+      </div>
+    </section>
+
+    <section class="ds-section" id="tokens"><h2><a href="#tokens">Tokens</a></h2>
+      <div class="ds-table-wrap"><table class="ds-table">
+        <thead><tr><th scope="col">Part</th><th scope="col">Token</th><th scope="col">Light</th><th scope="col">Dark</th></tr></thead>
+        <tbody>
+          <tr><td>Container max</td><td><code>--layout-container-max</code></td><td colspan="2"><span data-token="--layout-container-max"></span></td></tr>
+          <tr><td>Columns (current width)</td><td><code>--layout-columns</code></td><td colspan="2"><span data-token="--layout-columns"></span></td></tr>
+          <tr><td>Gutter (current width)</td><td><code>--layout-gutter</code></td><td colspan="2"><span data-token="--layout-gutter"></span></td></tr>
+          <tr><td>Margin (current width)</td><td><code>--layout-margin</code></td><td colspan="2"><span data-token="--layout-margin"></span></td></tr>
+          <tr><td>Breakpoints md / lg</td><td><code>--layout-breakpoint-md</code> / <code>--layout-breakpoint-lg</code></td><td colspan="2"><span data-token="--layout-breakpoint-md"></span> / <span data-token="--layout-breakpoint-lg"></span></td></tr>
+          <tr><td>Stack gap</td><td><code>--space-4</code></td><td colspan="2"><span data-token="--space-4"></span></td></tr>
+          <tr><td>Cluster gap</td><td><code>--space-3</code></td><td colspan="2"><span data-token="--space-3"></span></td></tr>
+          <tr><td>Page header margin</td><td><code>--space-6</code></td><td colspan="2"><span data-token="--space-6"></span></td></tr>
+          <tr><td>Section margin</td><td><code>--space-8</code></td><td colspan="2"><span data-token="--space-8"></span></td></tr>
+          <tr><td>Top bar height (scroll padding)</td><td><code>--layout-topbar-height</code></td><td colspan="2"><span data-token="--layout-topbar-height"></span></td></tr>
+          <tr><td>Measure (prose)</td><td><code>--layout-measure</code></td><td colspan="2"><span data-token="--layout-measure"></span></td></tr>
+          <tr><td>Subtitle colour</td><td><code>--color-fg-muted</code></td><td><span class="ds-swatch-cell" data-theme="light"><i data-token="--color-fg-muted" data-swatch></i><span data-token="--color-fg-muted"></span></span></td><td><span class="ds-swatch-cell" data-theme="dark"><i data-token="--color-fg-muted" data-swatch></i><span data-token="--color-fg-muted"></span></span></td></tr>
+        </tbody>
+      </table></div>
+    </section>
+
+    <section class="ds-section" id="code"><h2><a href="#code">Code</a></h2>
+      <pre><code>&lt;main id="main" class="container"&gt;
+  &lt;div class="page-header"&gt;&lt;div&gt;&lt;h1&gt;Good afternoon, Grace&lt;/h1&gt;&lt;p class="subtitle"&gt;Tuesday 21 October · 3 events coming up&lt;/p&gt;&lt;/div&gt;
+    &lt;div class="cluster"&gt;&lt;a class="btn btn--primary" …&gt;New event&lt;/a&gt;&lt;a class="btn" …&gt;Add contact&lt;/a&gt;&lt;/div&gt;&lt;/div&gt;
+  &lt;div class="split"&gt;
+    &lt;div class="stack"&gt; … &lt;/div&gt;
+    &lt;aside class="stack" aria-label="Activity"&gt; … &lt;/aside&gt;
+  &lt;/div&gt;
+&lt;/main&gt;</code></pre>
+      <table class="ds-table"><thead><tr><th scope="col">Class</th><th scope="col">Effect</th></tr></thead><tbody>
+        <tr><td><code>.container</code></td><td>Max width, centred, side margins.</td></tr>
+        <tr><td><code>.stack</code></td><td>Column, 16px gap.</td></tr>
+        <tr><td><code>.cluster</code> / <code>.cluster--between</code></td><td>Wrapping row, 12px gap / ends apart.</td></tr>
+        <tr><td><code>.grid</code> / <code>.grid--auto</code></td><td>Token column grid (override with <code>--layout-columns</code>) / auto-fill 18rem columns.</td></tr>
+        <tr><td><code>.split</code></td><td>One column, then 2fr / 1fr from 1024px.</td></tr>
+        <tr><td><code>.page-header</code> (+ <code>.subtitle</code>)</td><td>Title block and actions, wraps.</td></tr>
+        <tr><td><code>.section</code></td><td><code>--space-8</code> above and below.</td></tr>
+        <tr><td><code>.auth-layout</code> / <code>.auth-card</code> (+ <code>.logo</code>)</td><td>Full-height centring / 26rem card column.</td></tr>
+      </tbody></table>
+      <p><code>.span-*</code>, <code>.sticky-aside</code> and <code>.divider</code> are still in <code>components.css</code> (inherited from Shelfie) but no FaithTech mock uses them.</p>
+    </section>
+
+    <section class="ds-section" id="sources"><h2><a href="#sources">Sources</a></h2>
+      <p>Extracted from these mocks:</p>
+      <ul>
+        <li><a href="../../mocks/pages/home/default.html">pages/home/default</a> (container, page header with actions, split, cluster--between)</li>
+        <li><a href="../../mocks/pages/home/loading.html">pages/home/loading</a> (split and auto grid while loading)</li>
+        <li><a href="../../mocks/pages/event-form/default.html">pages/event-form/default</a> (two-column grid)</li>
+        <li><a href="../../mocks/pages/profile/default.html">pages/profile/default</a> (section)</li>
+        <li><a href="../../mocks/pages/sign-in/default.html">pages/sign-in/default</a> (auth layout and card)</li>
+      </ul>
+      <p>Drift noticed in the mocks:</p>
+      <ul>
+        <li>Inline spacing on layout wrappers: <code>.split</code> with <code>style="margin-top: var(--space-4);"</code> on Home, a profile card with <code>margin-top: var(--space-6)</code>.</li>
+        <li>The two-column form grid overrides <code>--layout-columns: 2</code> inline in four event-form mocks; it should be a named modifier.</li>
+        <li>Auth pages centre text with inline <code>style="text-align: center;"</code> on the heading and footer links.</li>
+        <li>Loading skeletons size themselves inline (<code>style="width: 12rem; display: inline-block;"</code>, <code>style="flex:1;"</code>).</li>
+      </ul>
+    </section>
+
+    <footer class="ds-footer"><span>FaithTech Community design system · extracted from <a href="../../mocks/index.html">docs/mocks</a> on 2026-10-21</span><a href="#top">Back to top</a></footer>
+  </main>
+</div>
+<script src="../assets/ds.js"></script>
+</body>
+</html>

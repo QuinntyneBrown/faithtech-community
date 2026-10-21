@@ -1,0 +1,184 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Backlog tree — FaithTech Community design system</title>
+<meta name="description" content="The Initiative, Epic, Story, Task hierarchy built from nested lists and details/summary disclosures: expanded, collapsed, hover, focus, empty and loading, in both themes.">
+<link rel="stylesheet" href="../tokens/tokens.css">
+<link rel="stylesheet" href="../assets/components.css">
+<link rel="stylesheet" href="../assets/ds.css">
+</head>
+<body id="top">
+<a class="skip-link" href="#main">Skip to content</a>
+<div class="ds-shell">
+  <nav class="ds-nav" aria-label="Design system">
+    <div class="ds-nav__brand"><a href="../index.html">FaithTech DS</a><button class="ds-theme-toggle" type="button" aria-pressed="false">☾ Dark</button></div>
+    <details open><summary>Foundations</summary><ul>
+      <li><a href="../foundations/color.html">Color</a></li>
+      <li><a href="../foundations/typography.html">Typography</a></li>
+      <li><a href="../foundations/spacing.html">Spacing</a></li>
+      <li><a href="../foundations/layout.html">Layout</a></li>
+      <li><a href="../foundations/elevation.html">Elevation</a></li>
+      <li><a href="../foundations/shape.html">Shape</a></li>
+      <li><a href="../foundations/motion.html">Motion</a></li>
+      <li><a href="../foundations/iconography.html">Iconography</a></li>
+      <li><a href="../foundations/theming.html">Theming</a></li>
+      <li><a href="../foundations/responsive.html">Responsive</a></li>
+      <li><a href="../foundations/accessibility.html">Accessibility</a></li>
+      <li><a href="../foundations/content.html">Content</a></li>
+    </ul></details>
+    <details open><summary>Components</summary><ul>
+      <li><a href="../components/button.html">Button</a></li>
+      <li><a href="../components/link.html">Link</a></li>
+      <li><a href="../components/menu.html">Menu</a></li>
+      <li><a href="../components/form-field.html">Form field</a></li>
+      <li><a href="../components/text-field.html">Text field</a></li>
+      <li><a href="../components/textarea.html">Textarea</a></li>
+      <li><a href="../components/select.html">Select</a></li>
+      <li><a href="../components/radio-group.html">Radio group</a></li>
+      <li><a href="../components/switch.html">Switch</a></li>
+      <li><a href="../components/form-layout.html">Form layout</a></li>
+      <li><a href="../components/picture-list.html">Picture list</a></li>
+      <li><a href="../components/sticker-picker.html">Estimate card picker</a></li>
+      <li><a href="../components/top-bar.html">Top bar</a></li>
+      <li><a href="../components/tab-bar.html">Tab bar</a></li>
+      <li><a href="../components/tabs.html">Tabs</a></li>
+      <li><a href="../components/breadcrumb.html">Breadcrumb</a></li>
+      <li><a href="../components/skip-link.html">Skip link</a></li>
+      <li><a href="../components/layout.html">Layout primitives</a></li>
+      <li><a href="../components/card.html">Card</a></li>
+      <li><a href="../components/dialog.html">Dialog</a></li>
+      <li><a href="../components/notification-panel.html">Notification panel</a></li>
+      <li><a href="../components/list.html">List</a></li>
+      <li><a href="../components/table.html">Table</a></li>
+      <li><a href="../components/description-list.html">Description list</a></li>
+      <li><a href="../components/feed.html">Activity feed</a></li>
+      <li><a href="../components/tree.html">Backlog tree</a></li>
+      <li><a href="../components/kanban.html">Kanban board</a></li>
+      <li><a href="../components/event-card.html">Event card</a></li>
+      <li><a href="../components/profile-header.html">Profile header</a></li>
+      <li><a href="../components/search-results.html">Search results</a></li>
+      <li><a href="../components/note.html">Note</a></li>
+      <li><a href="../components/avatar.html">Avatar</a></li>
+      <li><a href="../components/logo-mark.html">Logo mark</a></li>
+      <li><a href="../components/badge.html">Badge</a></li>
+      <li><a href="../components/chip.html">Chip</a></li>
+      <li><a href="../components/stat.html">Stat</a></li>
+      <li><a href="../components/sticker.html">Estimate card</a></li>
+      <li><a href="../components/toast.html">Toast</a></li>
+      <li><a href="../components/alert.html">Alert and banner</a></li>
+      <li><a href="../components/inline-message.html">Inline message</a></li>
+      <li><a href="../components/progress.html">Progress</a></li>
+      <li><a href="../components/skeleton.html">Skeleton</a></li>
+      <li><a href="../components/empty-state.html">Empty state</a></li>
+      <li><a href="../components/error-page.html">Error page</a></li>
+    </ul></details>
+    <details open><summary>Patterns</summary><ul>
+      <li><a href="../patterns/forms.html">Forms</a></li>
+      <li><a href="../patterns/feedback-and-loading.html">Feedback and loading</a></li>
+      <li><a href="../patterns/empty-and-error-states.html">Empty and error states</a></li>
+      <li><a href="../patterns/navigation.html">Navigation and page structure</a></li>
+      <li><a href="../patterns/dialogs-and-overlays.html">Dialogs and overlays</a></li>
+      <li><a href="../patterns/lists-and-tables.html">Lists and tables</a></li>
+      <li><a href="../patterns/notifications.html">Notifications</a></li>
+      <li><a href="../patterns/content-and-tone.html">Content and tone</a></li>
+    </ul></details>
+  </nav>
+
+  <main id="main" class="ds-main">
+    <header class="ds-header">
+      <p class="ds-kicker">Component · Data display</p>
+      <h1>Backlog tree</h1>
+      <p class="ds-lead">The backlog tree shows a workspace&rsquo;s plan as Initiative, Epic, Story and Task, with each level folding open and closed.</p>
+      <div class="ds-meta"><span class="ds-pill ds-pill--ok">WCAG 2.2 AA</span><span class="ds-pill">Status: stable</span><span class="ds-pill">Nested lists + <code>&lt;details&gt;</code></span></div>
+      <ul class="ds-toc">
+        <li><a href="#overview">Overview</a></li><li><a href="#anatomy">Anatomy</a></li><li><a href="#variants">Variants</a></li><li><a href="#sizes">Sizes</a></li><li><a href="#states">States</a></li><li><a href="#responsive">Responsive</a></li><li><a href="#theming">Theming</a></li><li><a href="#accessibility">Accessibility</a></li><li><a href="#content">Content</a></li><li><a href="#do-dont">Do and don't</a></li><li><a href="#tokens">Tokens</a></li><li><a href="#code">Code</a></li><li><a href="#sources">Sources</a></li>
+      </ul>
+    </header>
+
+    <section class="ds-section" id="overview"><h2><a href="#overview">Overview</a></h2>
+      <p>The backlog tree shows a workspace&rsquo;s work as a hierarchy: Initiative &rarr; Epic &rarr; Story &rarr; Task. Each level is a disclosure (<code>&lt;details&gt;</code>/<code>&lt;summary&gt;</code>) so people can fold away what they are not planning, and each item links to its work-item page. It also appears in the <i>New work item</i> and <i>Start sprint</i> dialogs to show where an item will sit. Added for FaithTech Community.</p>      <ul><li>Use it for the Backlog view and for choosing a parent in context.</li><li>Use the <a href="kanban.html">Kanban board</a> for status (To Do, In Progress, Done) and a <a href="table.html">table</a> when people need to sort or compare fields.</li><li>It is a nested list of disclosures, not an ARIA <code>tree</code> widget; see Accessibility for why.</li></ul>
+    </section>
+    <section class="ds-section" id="anatomy"><h2><a href="#anatomy">Anatomy</a></h2>
+      <div class="ds-anatomy">
+        <figure class="ds-anatomy__figure" style="position: relative;"><ul class="tree" aria-label="Backlog hierarchy"><li><details open><summary class="tree__row"><span class="badge badge--role badge--warning">Epic</span> <a href="../../mocks/pages/work-item/default.html">Tech for Shelters hackathon</a> <span class="text-caption">2 stories · Nov 14–15</span></summary><ul class="tree"><li class="tree__row"><span class="badge badge--role badge--success">Story</span> <a href="../../mocks/pages/work-item/default.html">Hackathon registration page</a> <span class="text-caption">Done · 5 pts</span></li></ul></details></li></ul><span class="ds-callout" style="left: 1%; top: 8%;" aria-hidden="true">1</span><span class="ds-callout" style="left: 6%; top: 8%;" aria-hidden="true">2</span><span class="ds-callout" style="left: 38%; top: 8%;" aria-hidden="true">3</span><span class="ds-callout" style="left: 78%; top: 8%;" aria-hidden="true">4</span><span class="ds-callout" style="left: 8%; top: 70%;" aria-hidden="true">5</span></figure>
+        <ol class="ds-anatomy__list"><li><div><b>Disclosure row</b><small><code>summary.tree__row</code>: the native marker toggles the branch; <code>--target-comfortable</code> tall.</small></div></li><li><div><b>Type badge</b><small><code>.badge--role</code> coloured by level: info Initiative, warning Epic, success Story, neutral Task.</small></div></li><li><div><b>Title link</b><small>Opens the work item.</small></div></li><li><div><b>Meta</b><small><code>.text-caption</code>: child count, status, points or owner.</small></div></li><li><div><b>Nested level</b><small><code>.tree .tree</code>: <code>--space-6</code> indent with a 1px <code>--color-border-default</code> guide line.</small></div></li></ol>
+      </div>
+    </section>
+    <section class="ds-section" id="variants"><h2><a href="#variants">Variants</a></h2>
+      <h3>Full backlog</h3>      <div class="ds-example">
+        <div class="ds-example__canvas ds-example__canvas--stack"><ul class="tree" aria-label="Backlog hierarchy"><li><details open><summary class="tree__row"><span class="badge badge--role badge--info">Initiative</span> <a href="../../mocks/pages/work-item/default.html">Launch the hackathon season</a> <span class="text-caption">2 epics</span></summary><ul class="tree"><li><details open><summary class="tree__row"><span class="badge badge--role badge--warning">Epic</span> <a href="../../mocks/pages/work-item/default.html">Tech for Shelters hackathon</a> <span class="text-caption">2 stories · Nov 14–15</span></summary><ul class="tree"><li><details><summary class="tree__row"><span class="badge badge--role badge--success">Story</span> <a href="../../mocks/pages/work-item/default.html">Hackathon registration page</a> <span class="text-caption">Done · 5 pts</span></summary><ul class="tree"><li class="tree__row"><span class="badge badge--role">Task</span> <a href="../../mocks/pages/work-item/default.html">Write registration copy</a> <span class="text-caption">Done · Marcus</span></li></ul></details></li><li><details open><summary class="tree__row"><span class="badge badge--role badge--success">Story</span> <a href="../../mocks/pages/work-item/default.html">Shelter problem briefs for teams</a> <span class="text-caption">In Progress · 8 pts</span></summary><ul class="tree"><li class="tree__row"><span class="badge badge--role">Task</span> <a href="../../mocks/pages/work-item/default.html">Interview Harbour Light staff</a> <span class="text-caption">Done · Grace</span></li><li class="tree__row"><span class="badge badge--role">Task</span> <a href="../../mocks/pages/work-item/default.html">Edit six briefs</a> <span class="text-caption">To Do · Samuel</span></li><li class="tree__row"><span class="badge badge--role">Task</span> <a href="../../mocks/pages/work-item/default.html">Share briefs with teams</a> <span class="text-caption">To Do · Hannah</span></li></ul></details></li></ul></details></li><li><details open><summary class="tree__row"><span class="badge badge--role badge--warning">Epic</span> <a href="../../mocks/pages/work-item/default.html">Partner sponsorships</a> <span class="text-caption">1 story</span></summary><ul class="tree"><li class="tree__row"><span class="badge badge--role badge--success">Story</span> <a href="../../mocks/pages/work-item/default.html">Lantern Foundation grant proposal</a> <span class="text-caption">To Do · not estimated</span></li></ul></details></li></ul></details></li><li class="tree__row"><span class="badge badge--role badge--success">Story</span> <a href="../../mocks/pages/work-item/default.html">Update the city team photo</a> <span class="text-caption">No epic · To Do · 1 pt</span></li></ul></div>
+        <div class="ds-example__caption"><span>Toronto team backlog. Branches with children are disclosures; leaves (tasks, stories without tasks) are plain rows.</span></div>
+        <details class="ds-example__code"><summary>HTML</summary><pre><code>&lt;ul class="tree" aria-label="Backlog hierarchy"&gt;&lt;li&gt;&lt;details open&gt;&lt;summary class="tree__row"&gt;&lt;span class="badge badge--role badge--success"&gt;Story&lt;/span&gt; &lt;a href="../../mocks/pages/work-item/default.html"&gt;Shelter problem briefs for teams&lt;/a&gt; &lt;span class="text-caption"&gt;In Progress · 8 pts&lt;/span&gt;&lt;/summary&gt;&lt;ul class="tree"&gt;&lt;li class="tree__row"&gt;&lt;span class="badge badge--role"&gt;Task&lt;/span&gt; &lt;a href="../../mocks/pages/work-item/default.html"&gt;Interview Harbour Light staff&lt;/a&gt; &lt;span class="text-caption"&gt;Done · Grace&lt;/span&gt;&lt;/li&gt;&lt;li class="tree__row"&gt;&lt;span class="badge badge--role"&gt;Task&lt;/span&gt; &lt;a href="../../mocks/pages/work-item/default.html"&gt;Edit six briefs&lt;/a&gt; &lt;span class="text-caption"&gt;To Do · Samuel&lt;/span&gt;&lt;/li&gt;&lt;li class="tree__row"&gt;&lt;span class="badge badge--role"&gt;Task&lt;/span&gt; &lt;a href="../../mocks/pages/work-item/default.html"&gt;Share briefs with teams&lt;/a&gt; &lt;span class="text-caption"&gt;To Do · Hannah&lt;/span&gt;&lt;/li&gt;&lt;/ul&gt;&lt;/details&gt;&lt;/li&gt;&lt;/ul&gt;</code></pre></details>
+      </div>      <h3>Collapsed branch</h3>      <div class="ds-example">
+        <div class="ds-example__canvas"><ul class="tree" aria-label="Backlog hierarchy"><li><details><summary class="tree__row"><span class="badge badge--role badge--warning">Epic</span> <a href="../../mocks/pages/work-item/default.html">Monthly Builders Night</a> <span class="text-caption">No initiative · 1 story</span></summary><ul class="tree"><li class="tree__row"><span class="badge badge--role badge--success">Story</span> <a href="../../mocks/pages/work-item/default.html">Book AV for Builders Night</a> <span class="text-caption">To Do · 2 pts</span></li></ul></details></li></ul></div>
+        <div class="ds-example__caption"><span>Closed <code>&lt;details&gt;</code>; the meta still tells people what is inside.</span></div>
+        
+      </div>      <h3>Read-only (Staff, member)</h3>      <div class="ds-example">
+        <div class="ds-example__canvas"><ul class="tree" aria-label="Backlog hierarchy"><li><details open><summary class="tree__row"><span class="badge badge--role badge--success">Story</span> <a href="../../mocks/pages/work-item/default.html">Shelter problem briefs for teams</a> <span class="text-caption">In Progress · 8 pts</span></summary><ul class="tree"><li class="tree__row"><span class="badge badge--role">Task</span> <a href="../../mocks/pages/work-item/default.html">Interview Harbour Light staff</a> <span class="text-caption">Done · Grace</span></li><li class="tree__row"><span class="badge badge--role">Task</span> <a href="../../mocks/pages/work-item/default.html">Edit six briefs</a> <span class="text-caption">To Do · Samuel</span></li><li class="tree__row"><span class="badge badge--role">Task</span> <a href="../../mocks/pages/work-item/default.html">Share briefs with teams</a> <span class="text-caption">To Do · Hannah</span></li></ul></details></li></ul></div>
+        <div class="ds-example__caption"><span>The same tree; only the page actions (New item, Start sprint) change by role.</span></div>
+        
+      </div>
+    </section>
+    <section class="ds-section" id="sizes" data-na="One density: rows are --target-comfortable tall."><h2><a href="#sizes">Sizes</a></h2>
+      <p>Rows are <code>--target-comfortable</code> tall at every level. Depth is shown by indent only; deep levels never shrink the text.</p>
+    </section>
+    <section class="ds-section" id="states"><h2><a href="#states">States</a></h2>
+      <div class="ds-matrix"><table><thead><tr><th scope="col">State</th><th scope="col">Example</th></tr></thead><tbody><tr><th scope="row">Expanded</th><td><ul class="tree" aria-label="Backlog hierarchy"><li><details open><summary class="tree__row"><span class="badge badge--role badge--success">Story</span> <a href="../../mocks/pages/work-item/default.html">Hackathon registration page</a> <span class="text-caption">Done · 5 pts</span></summary><ul class="tree"><li class="tree__row"><span class="badge badge--role">Task</span> <a href="../../mocks/pages/work-item/default.html">Write registration copy</a> <span class="text-caption">Done · Marcus</span></li></ul></details></li></ul></td></tr><tr><th scope="row">Collapsed</th><td><ul class="tree" aria-label="Backlog hierarchy"><li><details><summary class="tree__row"><span class="badge badge--role badge--success">Story</span> <a href="../../mocks/pages/work-item/default.html">Hackathon registration page</a> <span class="text-caption">Done · 5 pts</span></summary><ul class="tree"><li class="tree__row"><span class="badge badge--role">Task</span> <a href="../../mocks/pages/work-item/default.html">Write registration copy</a> <span class="text-caption">Done · Marcus</span></li></ul></details></li></ul></td></tr><tr><th scope="row">Hover (forced)</th><td><ul class="tree" aria-label="Backlog hierarchy"><li class="tree__row" style="background: var(--color-bg-subtle);"><span class="badge badge--role badge--success">Story</span> <a href="../../mocks/pages/work-item/default.html">Book AV for Builders Night</a> <span class="text-caption">To Do · 2 pts</span></li></ul></td></tr><tr><th scope="row">Focus</th><td><ul class="tree" aria-label="Backlog hierarchy"><li><details><summary class="tree__row" data-state="focus"><span class="badge badge--role badge--warning">Epic</span> <a href="../../mocks/pages/work-item/default.html">Partner sponsorships</a> <span class="text-caption">1 story</span></summary><ul class="tree"><li class="tree__row"><span class="badge badge--role badge--success">Story</span> <a href="../../mocks/pages/work-item/default.html">Lantern Foundation grant proposal</a> <span class="text-caption">To Do</span></li></ul></details></li></ul></td></tr><tr><th scope="row">Empty backlog</th><td><div class="empty"><p class="empty__title">No work items yet</p><p class="empty__text">Add an initiative, epic or story to start planning.</p></div></td></tr><tr><th scope="row">Loading</th><td><div aria-busy="true" aria-label="Loading backlog"><span class="skeleton skeleton--text" aria-hidden="true"></span><span class="skeleton skeleton--text" aria-hidden="true"></span><span class="skeleton skeleton--text" aria-hidden="true"></span></div></td></tr></tbody></table></div>      <h3>Both themes</h3>
+      <div class="ds-themes">
+        <div data-theme="light"><div class="ds-example__canvas ds-example__canvas--stack" style="padding: 0;"><ul class="tree" aria-label="Backlog hierarchy"><li><details open><summary class="tree__row"><span class="badge badge--role badge--success">Story</span> <a href="../../mocks/pages/work-item/default.html">Shelter problem briefs for teams</a> <span class="text-caption">In Progress · 8 pts</span></summary><ul class="tree"><li class="tree__row"><span class="badge badge--role">Task</span> <a href="../../mocks/pages/work-item/default.html">Interview Harbour Light staff</a> <span class="text-caption">Done · Grace</span></li><li class="tree__row"><span class="badge badge--role">Task</span> <a href="../../mocks/pages/work-item/default.html">Edit six briefs</a> <span class="text-caption">To Do · Samuel</span></li><li class="tree__row"><span class="badge badge--role">Task</span> <a href="../../mocks/pages/work-item/default.html">Share briefs with teams</a> <span class="text-caption">To Do · Hannah</span></li></ul></details></li></ul></div></div>
+        <div data-theme="dark"><div class="ds-example__canvas ds-example__canvas--stack" style="padding: 0;"><ul class="tree" aria-label="Backlog hierarchy"><li><details open><summary class="tree__row"><span class="badge badge--role badge--success">Story</span> <a href="../../mocks/pages/work-item/default.html">Shelter problem briefs for teams</a> <span class="text-caption">In Progress · 8 pts</span></summary><ul class="tree"><li class="tree__row"><span class="badge badge--role">Task</span> <a href="../../mocks/pages/work-item/default.html">Interview Harbour Light staff</a> <span class="text-caption">Done · Grace</span></li><li class="tree__row"><span class="badge badge--role">Task</span> <a href="../../mocks/pages/work-item/default.html">Edit six briefs</a> <span class="text-caption">To Do · Samuel</span></li><li class="tree__row"><span class="badge badge--role">Task</span> <a href="../../mocks/pages/work-item/default.html">Share briefs with teams</a> <span class="text-caption">To Do · Hannah</span></li></ul></details></li></ul></div></div>
+      </div>      <ul><li>Expanded/collapsed comes from the native <code>open</code> attribute; the browser exposes it as expanded/collapsed to screen readers.</li><li>Error and forbidden states replace the tree with the shared empty/error state; the tabs stay usable.</li></ul>
+    </section>
+    <section class="ds-section" id="responsive"><h2><a href="#responsive">Responsive behaviour</a></h2>
+      <ul><li>Rows wrap (<code>flex-wrap</code>): at 360px the meta drops under the title instead of truncating it.</li><li>Indent is <code>--space-6</code> per level; four levels at 360px still leave room for titles. Do not add a fifth level.</li><li>Branches start open on wide screens and on the initial load of the Backlog; on phones consider opening only the first initiative.</li></ul>
+    </section>
+    <section class="ds-section" id="theming"><h2><a href="#theming">Theming</a></h2>
+      <p>Rows read <code>--color-fg-default</code> for titles, <code>--color-bg-subtle</code> for hover and <code>--color-border-default</code> for guide lines; badges bring their own status tokens. All are theme-aware.</p>
+    </section>
+    <section class="ds-section" id="accessibility"><h2><a href="#accessibility">Accessibility</a></h2>
+      <h3>Role and pattern</h3>      <p>Nested <code>&lt;ul&gt;</code> lists with native <code>&lt;details&gt;</code> disclosures, labelled <code>aria-label="Backlog hierarchy"</code>. The ARIA <code>tree</code> pattern is deliberately not used: its single tab stop and arrow-key model hides the links inside rows and needs heavy script. Lists announce nesting level and item count already.</p>      <h3>Keyboard</h3><table class="ds-table ds-keys"><thead><tr><th scope="col">Key</th><th scope="col">Action</th></tr></thead><tbody><tr><td><kbd>Tab</kbd></td><td>Moves through each summary, then the title link inside it, in order.</td></tr><tr><td><kbd>Enter</kbd> / <kbd>Space</kbd> on a summary</td><td>Expands or collapses the branch.</td></tr><tr><td><kbd>Enter</kbd> on a title</td><td>Opens the work item.</td></tr></tbody></table>      <h3>Nested interactive content</h3>      <p>The mocks put the title link inside <code>&lt;summary&gt;</code>. That is interactive content inside a button-like control: clicking the link also toggles in some browsers and screen readers may announce only the summary. In the component, the summary holds the badge, plain title text and meta, and the link sits next to it, or the title link is the row and a separate toggle button carries <code>aria-expanded</code>. See Do and don&rsquo;t.</p>      <h3>Contrast</h3><div class="ds-example__canvas ds-example__canvas--stack" style="padding: 0; gap: var(--space-2);"><div class="ds-pair"><span>Title on hover</span><span class="ds-pair__ratio" data-contrast="--color-fg-default|--color-bg-subtle" data-min="4.5"></span></div><div class="ds-pair"><span>Meta on surface</span><span class="ds-pair__ratio" data-contrast="--color-fg-muted|--color-bg-surface" data-min="4.5"></span></div><div class="ds-pair"><span>Guide line on surface</span><span class="ds-pair__ratio" data-contrast="--color-border-default|--color-bg-surface" data-min="1.2"></span></div></div>
+    </section>
+    <section class="ds-section" id="content"><h2><a href="#content">Content</a></h2>
+      <ul><li>Level names are fixed: Initiative, Epic, Story, Task. Never rename them per workspace.</li><li>Meta order: children count for branches (&ldquo;2 epics&rdquo;), else status &middot; points (&ldquo;In Progress &middot; 8 pts&rdquo;) or status &middot; owner&rsquo;s first name for tasks.</li><li>Orphans say so: &ldquo;No initiative&rdquo;, &ldquo;No epic&rdquo;. Unestimated stories say &ldquo;not estimated&rdquo;.</li></ul>
+    </section>
+    <section class="ds-section" id="do-dont"><h2><a href="#do-dont">Do and don't</a></h2>
+      <div class="ds-dodont"><figure class="ds-do"><div class="ds-example__canvas ds-example__canvas--stack"><ul class="tree" aria-label="Backlog, fixed"><li><details open><summary class="tree__row"><span class="badge badge--role badge--warning">Epic</span> Tech for Shelters hackathon <span class="text-caption">2 stories</span></summary><ul class="tree"><li class="tree__row"><a href="../../mocks/pages/work-item/default.html">Open epic</a></li></ul></details></li></ul></div><figcaption>Plain text in the summary; the link sits outside it.</figcaption></figure><figure class="ds-dont"><div class="ds-example__canvas ds-example__canvas--stack"><ul class="tree" aria-label="Backlog, as mocked"><li><details open><summary class="tree__row"><span class="badge badge--role badge--warning">Epic</span> <a href="../../mocks/pages/work-item/default.html">Tech for Shelters hackathon</a> <span class="text-caption">2 stories</span></summary><ul class="tree"></ul></details></li></ul></div><figcaption>A link inside <code>&lt;summary&gt;</code>, as in every backlog mock: nested interactive controls.</figcaption></figure><figure class="ds-do"><div class="ds-example__canvas ds-example__canvas--stack"><ul class="tree" aria-label="Orphan story"><li class="tree__row"><span class="badge badge--role badge--success">Story</span> <a href="../../mocks/pages/work-item/default.html">Update the city team photo</a> <span class="text-caption">No epic · To Do · 1 pt</span></li></ul></div><figcaption>Orphans stay in the tree at the top level and say they have no parent.</figcaption></figure><figure class="ds-dont"><div class="ds-example__canvas ds-example__canvas--stack"><ul class="tree" aria-label="Task without badge"><li class="tree__row"><span class="badge badge--role ">Task</span> <a href="../../mocks/pages/work-item/default.html">Edit six briefs</a></li></ul></div><figcaption>Task badges in the mocks have a stray trailing space in the class list and no variant; the neutral look is intended, the empty modifier is not.</figcaption></figure></div>
+    </section>
+    <section class="ds-section" id="tokens"><h2><a href="#tokens">Tokens</a></h2>
+      <div class="ds-table-wrap"><table class="ds-table">
+        <thead><tr><th scope="col">Part</th><th scope="col">Token</th><th scope="col">Light</th><th scope="col">Dark</th></tr></thead>
+        <tbody><tr><td>Title</td><td><code>--color-fg-default</code></td><td><span class="ds-swatch-cell" data-theme="light"><i data-token="--color-fg-default" data-swatch></i><span data-token="--color-fg-default"></span></span></td><td><span class="ds-swatch-cell" data-theme="dark"><i data-token="--color-fg-default" data-swatch></i><span data-token="--color-fg-default"></span></span></td></tr><tr><td>Row hover</td><td><code>--color-bg-subtle</code></td><td><span class="ds-swatch-cell" data-theme="light"><i data-token="--color-bg-subtle" data-swatch></i><span data-token="--color-bg-subtle"></span></span></td><td><span class="ds-swatch-cell" data-theme="dark"><i data-token="--color-bg-subtle" data-swatch></i><span data-token="--color-bg-subtle"></span></span></td></tr><tr><td>Guide line</td><td><code>--color-border-default</code></td><td><span class="ds-swatch-cell" data-theme="light"><i data-token="--color-border-default" data-swatch></i><span data-token="--color-border-default"></span></span></td><td><span class="ds-swatch-cell" data-theme="dark"><i data-token="--color-border-default" data-swatch></i><span data-token="--color-border-default"></span></span></td></tr><tr><td>Meta</td><td><code>--color-fg-muted</code></td><td><span class="ds-swatch-cell" data-theme="light"><i data-token="--color-fg-muted" data-swatch></i><span data-token="--color-fg-muted"></span></span></td><td><span class="ds-swatch-cell" data-theme="dark"><i data-token="--color-fg-muted" data-swatch></i><span data-token="--color-fg-muted"></span></span></td></tr><tr><td>Row height</td><td><code>--target-comfortable</code></td><td colspan="2"><span data-token="--target-comfortable"></span></td></tr><tr><td>Indent / guide offset</td><td><code>--space-6</code> / <code>--space-3</code></td><td colspan="2"><span data-token="--space-6"></span> / <span data-token="--space-3"></span></td></tr><tr><td>Row padding / gap</td><td><code>--space-1</code> / <code>--space-2</code></td><td colspan="2"><span data-token="--space-1"></span> / <span data-token="--space-2"></span></td></tr><tr><td>Row radius</td><td><code>--radius-sm</code></td><td colspan="2"><span data-token="--radius-sm"></span></td></tr></tbody>
+      </table></div>
+    </section>
+    <section class="ds-section" id="code"><h2><a href="#code">Code</a></h2>
+      <pre><code>&lt;ul class="tree" aria-label="Backlog hierarchy"&gt;
+  &lt;li&gt;&lt;details open&gt;
+    &lt;summary class="tree__row"&gt;
+      &lt;span class="badge badge--role badge--warning"&gt;Epic&lt;/span&gt;
+      Tech for Shelters hackathon &lt;span class="text-caption"&gt;2 stories · Nov 14–15&lt;/span&gt;
+    &lt;/summary&gt;
+    &lt;ul class="tree"&gt;
+      &lt;li class="tree__row"&gt;
+        &lt;span class="badge badge--role badge--success"&gt;Story&lt;/span&gt;
+        &lt;a href="/work-items/412"&gt;Hackathon registration page&lt;/a&gt;
+        &lt;span class="text-caption"&gt;Done · 5 pts&lt;/span&gt;
+      &lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/details&gt;&lt;/li&gt;
+&lt;/ul&gt;</code></pre><table class="ds-table"><thead><tr><th scope="col">Class / attribute</th><th scope="col">Effect</th></tr></thead><tbody><tr><td><code>.tree</code></td><td>List of rows; nested <code>.tree</code> gets the indent and guide line.</td></tr><tr><td><code>.tree__row</code></td><td>One row (on <code>li</code> for leaves, on <code>summary</code> for branches).</td></tr><tr><td><code>&lt;details open&gt;</code></td><td>Expanded branch.</td></tr><tr><td><code>data-state="focus"</code></td><td>Documentation only: forces the focus ring.</td></tr></tbody></table>
+    </section>
+    <section class="ds-section" id="sources"><h2><a href="#sources">Sources</a></h2>
+      <p>Extracted from these mocks:</p>
+      <ul><li><a href="../../mocks/pages/backlog/default.html">pages/backlog/default</a> (full tree)</li><li><a href="../../mocks/pages/backlog/member.html">pages/backlog/member</a> (member view)</li><li><a href="../../mocks/pages/backlog/staff.html">pages/backlog/staff</a> (Staff read-only)</li><li><a href="../../mocks/pages/backlog/empty.html">pages/backlog/empty</a> (empty backlog)</li><li><a href="../../mocks/pages/backlog/loading.html">pages/backlog/loading</a> (loading)</li><li><a href="../../mocks/dialogs/new-work-item/default.html">dialogs/new-work-item/default</a> (tree in a dialog)</li><li><a href="../../mocks/dialogs/start-sprint/default.html">dialogs/start-sprint/default</a> (tree in Start sprint)</li></ul>
+      <p>Drift noticed in those mocks:</p>
+      <ul><li>Title links inside <code>&lt;summary&gt;</code> in every backlog mock (nested interactive).</li><li>Task badges are <code>class="badge badge--role "</code> with a trailing space and no modifier.</li><li><code>.tree__row</code> has no <code>[data-state="hover"]</code> hook; the hover example uses an inline token background. Proposed CSS: <code>.tree__row[data-state="hover"] { background: var(--color-bg-subtle); }</code></li><li>No collapsed state appears in the mocks; everything renders open.</li></ul>
+    </section>
+
+    <footer class="ds-footer"><span>FaithTech Community design system · extracted from <a href="../../mocks/index.html">docs/mocks</a> on 2026-10-21</span><a href="#top">Back to top</a></footer>
+  </main>
+</div>
+<script src="../assets/ds.js"></script>
+</body>
+</html>

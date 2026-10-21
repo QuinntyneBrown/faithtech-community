@@ -1,0 +1,446 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Dialog — FaithTech Community design system</title>
+<meta name="description" content="Modal dialogs for FaithTech Community: form dialogs such as Send invite and confirmations such as Remove role and Archive workspace, with default, busy, invalid and failed states, centred on wider screens and a bottom sheet on phones.">
+<link rel="stylesheet" href="../tokens/tokens.css">
+<link rel="stylesheet" href="../assets/components.css">
+<link rel="stylesheet" href="../assets/ds.css">
+</head>
+<body id="top">
+<a class="skip-link" href="#main">Skip to content</a>
+<div class="ds-shell">
+  <nav class="ds-nav" aria-label="Design system">
+    <div class="ds-nav__brand"><a href="../index.html">FaithTech DS</a><button class="ds-theme-toggle" type="button" aria-pressed="false">☾ Dark</button></div>
+    <details open><summary>Foundations</summary><ul>
+      <li><a href="../foundations/color.html">Color</a></li>
+      <li><a href="../foundations/typography.html">Typography</a></li>
+      <li><a href="../foundations/spacing.html">Spacing</a></li>
+      <li><a href="../foundations/layout.html">Layout</a></li>
+      <li><a href="../foundations/elevation.html">Elevation</a></li>
+      <li><a href="../foundations/shape.html">Shape</a></li>
+      <li><a href="../foundations/motion.html">Motion</a></li>
+      <li><a href="../foundations/iconography.html">Iconography</a></li>
+      <li><a href="../foundations/theming.html">Theming</a></li>
+      <li><a href="../foundations/responsive.html">Responsive</a></li>
+      <li><a href="../foundations/accessibility.html">Accessibility</a></li>
+      <li><a href="../foundations/content.html">Content</a></li>
+    </ul></details>
+    <details open><summary>Components</summary><ul>
+      <li><a href="../components/button.html">Button</a></li>
+      <li><a href="../components/link.html">Link</a></li>
+      <li><a href="../components/menu.html">Menu</a></li>
+      <li><a href="../components/form-field.html">Form field</a></li>
+      <li><a href="../components/text-field.html">Text field</a></li>
+      <li><a href="../components/textarea.html">Textarea</a></li>
+      <li><a href="../components/select.html">Select</a></li>
+      <li><a href="../components/radio-group.html">Radio group</a></li>
+      <li><a href="../components/switch.html">Switch</a></li>
+      <li><a href="../components/form-layout.html">Form layout</a></li>
+      <li><a href="../components/picture-list.html">Picture list</a></li>
+      <li><a href="../components/sticker-picker.html">Estimate card picker</a></li>
+      <li><a href="../components/top-bar.html">Top bar</a></li>
+      <li><a href="../components/tab-bar.html">Tab bar</a></li>
+      <li><a href="../components/tabs.html">Tabs</a></li>
+      <li><a href="../components/breadcrumb.html">Breadcrumb</a></li>
+      <li><a href="../components/skip-link.html">Skip link</a></li>
+      <li><a href="../components/layout.html">Layout primitives</a></li>
+      <li><a href="../components/card.html">Card</a></li>
+      <li><a href="../components/dialog.html">Dialog</a></li>
+      <li><a href="../components/notification-panel.html">Notification panel</a></li>
+      <li><a href="../components/list.html">List</a></li>
+      <li><a href="../components/table.html">Table</a></li>
+      <li><a href="../components/description-list.html">Description list</a></li>
+      <li><a href="../components/feed.html">Activity feed</a></li>
+      <li><a href="../components/tree.html">Backlog tree</a></li>
+      <li><a href="../components/kanban.html">Kanban board</a></li>
+      <li><a href="../components/event-card.html">Event card</a></li>
+      <li><a href="../components/profile-header.html">Profile header</a></li>
+      <li><a href="../components/search-results.html">Search results</a></li>
+      <li><a href="../components/note.html">Note</a></li>
+      <li><a href="../components/avatar.html">Avatar</a></li>
+      <li><a href="../components/logo-mark.html">Logo mark</a></li>
+      <li><a href="../components/badge.html">Badge</a></li>
+      <li><a href="../components/chip.html">Chip</a></li>
+      <li><a href="../components/stat.html">Stat</a></li>
+      <li><a href="../components/sticker.html">Estimate card</a></li>
+      <li><a href="../components/toast.html">Toast</a></li>
+      <li><a href="../components/alert.html">Alert and banner</a></li>
+      <li><a href="../components/inline-message.html">Inline message</a></li>
+      <li><a href="../components/progress.html">Progress</a></li>
+      <li><a href="../components/skeleton.html">Skeleton</a></li>
+      <li><a href="../components/empty-state.html">Empty state</a></li>
+      <li><a href="../components/error-page.html">Error page</a></li>
+    </ul></details>
+    <details open><summary>Patterns</summary><ul>
+      <li><a href="../patterns/forms.html">Forms</a></li>
+      <li><a href="../patterns/feedback-and-loading.html">Feedback and loading</a></li>
+      <li><a href="../patterns/empty-and-error-states.html">Empty and error states</a></li>
+      <li><a href="../patterns/navigation.html">Navigation and page structure</a></li>
+      <li><a href="../patterns/dialogs-and-overlays.html">Dialogs and overlays</a></li>
+      <li><a href="../patterns/lists-and-tables.html">Lists and tables</a></li>
+      <li><a href="../patterns/notifications.html">Notifications</a></li>
+      <li><a href="../patterns/content-and-tone.html">Content and tone</a></li>
+    </ul></details>
+  </nav>
+
+  <main id="main" class="ds-main">
+    <header class="ds-header">
+      <p class="ds-kicker">Component · Overlays</p>
+      <h1>Dialog</h1>
+      <p class="ds-lead">A focused task on top of the page: send an invite, add a role, archive a contact, cancel an event. It holds focus until it is done or cancelled, and becomes a bottom sheet on phones.</p>
+      <div class="ds-meta"><span class="ds-pill ds-pill--ok">WCAG 2.2 AA</span><span class="ds-pill">Status: stable</span><span class="ds-pill">APG Dialog (Modal)</span></div>
+      <ul class="ds-toc">
+        <li><a href="#overview">Overview</a></li><li><a href="#anatomy">Anatomy</a></li><li><a href="#variants">Variants</a></li><li><a href="#sizes">Sizes</a></li><li><a href="#states">States</a></li><li><a href="#responsive">Responsive</a></li><li><a href="#theming">Theming</a></li><li><a href="#accessibility">Accessibility</a></li><li><a href="#content">Content</a></li><li><a href="#do-dont">Do and don't</a></li><li><a href="#tokens">Tokens</a></li><li><a href="#code">Code</a></li><li><a href="#sources">Sources</a></li>
+      </ul>
+    </header>
+
+    <section class="ds-section" id="overview"><h2><a href="#overview">Overview</a></h2>
+      <p>Use a dialog for a short task that belongs to the page underneath and must be finished or cancelled before going on. Button-triggered editing in FaithTech Community always opens a dialog or a new screen, never an inline form. The mocks have 23 dialogs in two kinds:</p>
+      <ul>
+        <li><b>Form dialogs</b>: Send invite, Add a role, Add a partner, Move partner, New workspace, Add members, New work item, Start a sprint, Start a Planning Poker session, Choose a new owner. A neutral icon, a title, a description and a few <a href="form-field.html">fields</a>.</li>
+        <li><b>Confirmations</b>: Archive contact, Delete contact, Delete photo, Remove role, Suspend user, Cancel event, Cancel RSVP, Archive workspace, Remove member, Archive work item, Close sprint, Switch method, Link contact. The title is a question; a <a href="button.html">danger button</a> confirms when something is removed or hidden. Archive workspace and Remove member add the <code>dialog__icon--danger</code> circle.</li>
+      </ul>
+      <p>Do not use a dialog for messages (use a <a href="toast.html">toast</a> or <a href="alert.html">alert</a>) or for navigation. The account <a href="menu.html">menu</a> is a menu, not a dialog.</p>
+    </section>
+
+    <section class="ds-section" id="anatomy"><h2><a href="#anatomy">Anatomy</a></h2>
+      <div class="ds-anatomy">
+        <figure class="ds-anatomy__figure" style="padding: var(--space-8) var(--space-4); place-items: stretch;">
+          <div class="dialog dialog--static" role="dialog" aria-labelledby="dlg-anat-title" aria-describedby="dlg-anat-desc">
+            <div class="dialog__panel" style="margin-inline: auto;">
+              <div class="dialog__header">
+                <div class="dialog__icon dialog__icon--danger" aria-hidden="true"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><path d="M3 4h18v4H3zM5 8v12h14V8M10 12h4"/></svg></div>
+                <div style="flex: 1;"><h2 class="dialog__title" id="dlg-anat-title">Archive Toronto team?</h2><p id="dlg-anat-desc" class="text-muted" style="margin-top: var(--space-1);">Members lose access. Everything is kept, and you can restore it from Workspaces.</p></div>
+                <button class="btn btn--ghost btn--icon" type="button" aria-label="Close (anatomy)"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18"/></svg></button>
+              </div>
+              <div class="dialog__body"><p>Toronto team has 9 members, 42 work items and an active sprint.</p></div>
+              <div class="dialog__footer"><button class="btn" type="button">Cancel</button><button class="btn btn--danger" type="button">Archive workspace</button></div>
+            </div>
+          </div>
+          <span class="ds-callout" style="left: 2%; top: 6%;" aria-hidden="true">1</span>
+          <span class="ds-callout" style="left: 8%; top: 20%;" aria-hidden="true">2</span>
+          <span class="ds-callout" style="left: 40%; top: 20%;" aria-hidden="true">3</span>
+          <span class="ds-callout" style="left: 92%; top: 20%;" aria-hidden="true">4</span>
+          <span class="ds-callout" style="left: 8%; top: 56%;" aria-hidden="true">5</span>
+          <span class="ds-callout" style="left: 92%; top: 82%;" aria-hidden="true">6</span>
+        </figure>
+        <ol class="ds-anatomy__list">
+          <li><div><b>Backdrop and frame</b><small><code>.backdrop</code> dims the page with <code>--color-bg-backdrop</code> at <code>--z-overlay</code>; <code>.dialog</code> (<code>role="dialog"</code>, <code>aria-modal="true"</code>) centres the panel at <code>--z-modal</code>.</small></div></li>
+          <li><div><b>Icon</b><small><code>.dialog__icon</code>: 40px neutral circle naming the task (send, trash, archive). <code>.dialog__icon--danger</code> tints it for destructive confirmations.</small></div></li>
+          <li><div><b>Title and description</b><small><code>h2.dialog__title</code> via <code>aria-labelledby</code>; the muted description via <code>aria-describedby</code>. <code>--text-h4</code> on phones, <code>--text-h3</code> from 640px.</small></div></li>
+          <li><div><b>Close</b><small>Ghost icon button, <code>aria-label="Close"</code>.</small></div></li>
+          <li><div><b>Body</b><small><code>.dialog__body</code>, usually a <code>.stack</code> of fields; scrolls inside the panel when tall.</small></div></li>
+          <li><div><b>Footer</b><small><code>.dialog__footer</code>: sticky, right-aligned, Cancel first, primary or danger last.</small></div></li>
+        </ol>
+      </div>
+    </section>
+
+    <section class="ds-section" id="variants"><h2><a href="#variants">Variants</a></h2>
+      <p>In-page examples use <code>.dialog--static</code>, a documentation hook that renders the dialog in flow. They carry <code>role="dialog"</code> but not <code>aria-modal</code>, so this page stays readable; the product sets both.</p>
+      <h3>Form: send an invite</h3>
+      <div class="ds-example">
+        <div class="ds-example__canvas ds-example__canvas--canvas" style="display: block;">
+          <div class="dialog dialog--static" role="dialog" aria-labelledby="dlg-si-title" aria-describedby="dlg-si-desc">
+            <div class="dialog__panel" style="margin-inline: auto;">
+              <div class="dialog__header">
+                <div class="dialog__icon" aria-hidden="true"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><path d="M22 2 11 13M22 2l-7 20-4-9-9-4z"/></svg></div>
+                <div style="flex: 1;"><h2 class="dialog__title" id="dlg-si-title">Invite someone to FaithTech</h2><p id="dlg-si-desc" class="text-muted" style="margin-top: var(--space-1);">They’ll get an email with a link to create their account.</p></div>
+                <button class="btn btn--ghost btn--icon" type="button" aria-label="Close"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18"/></svg></button>
+              </div>
+              <div class="dialog__body stack">
+                <div class="field"><label class="field__label" for="dlg-si-email">Email</label><input class="input" id="dlg-si-email" type="email" autocomplete="off" required></div>
+                <div class="field"><label class="field__label" for="dlg-si-role">Join with role</label><select class="select" id="dlg-si-role"><option>No role</option><option>Attendee</option><option>Volunteer</option><option selected>Product Engineer</option></select></div>
+                <div class="field"><label class="field__label" for="dlg-si-msg">Personal note <span class="text-muted">(optional)</span></label><textarea class="textarea" id="dlg-si-msg" rows="2"></textarea></div>
+                <p class="text-caption">The invite link lasts 14 days.</p>
+              </div>
+              <div class="dialog__footer"><button class="btn" type="button">Cancel</button><button class="btn btn--primary" type="button">Send invite</button></div>
+            </div>
+          </div>
+        </div>
+        <div class="ds-example__caption"><span>Focus starts in "Email". Neutral icon, title plus description (<code>aria-describedby</code>).</span></div>
+        <details class="ds-example__code"><summary>HTML</summary><pre><code>&lt;div class="backdrop"&gt;&lt;/div&gt;
+&lt;div class="dialog" role="dialog" aria-modal="true" aria-labelledby="dlg-title" aria-describedby="dlg-desc"&gt;
+  &lt;div class="dialog__panel"&gt;
+    &lt;div class="dialog__header"&gt;
+      &lt;div class="dialog__icon" aria-hidden="true"&gt;&lt;svg class="icon" …&gt;&lt;/svg&gt;&lt;/div&gt;
+      &lt;div style="flex: 1;"&gt;&lt;h2 class="dialog__title" id="dlg-title"&gt;Invite someone to FaithTech&lt;/h2&gt;
+        &lt;p id="dlg-desc" class="text-muted"&gt;They’ll get an email with a link to create their account.&lt;/p&gt;&lt;/div&gt;
+      &lt;button class="btn btn--ghost btn--icon" type="button" aria-label="Close"&gt;…&lt;/button&gt;
+    &lt;/div&gt;
+    &lt;div class="dialog__body stack"&gt; … &lt;input class="input" id="inv-email" type="email" autofocus …&gt; … &lt;/div&gt;
+    &lt;div class="dialog__footer"&gt;
+      &lt;button class="btn" type="button"&gt;Cancel&lt;/button&gt;
+      &lt;button class="btn btn--primary" type="submit"&gt;Send invite&lt;/button&gt;
+    &lt;/div&gt;
+  &lt;/div&gt;
+&lt;/div&gt;</code></pre></details>
+      </div>
+      <h3>Confirmation: remove a role</h3>
+      <div class="ds-example">
+        <div class="ds-example__canvas ds-example__canvas--canvas" style="display: block;">
+          <div class="dialog dialog--static" role="dialog" aria-labelledby="dlg-rr-title" aria-describedby="dlg-rr-desc">
+            <div class="dialog__panel" style="margin-inline: auto;">
+              <div class="dialog__header">
+                <div class="dialog__icon" aria-hidden="true"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><path d="M4 7h16M10 11v6M14 11v6M6 7l1 13h10l1-13M9 7V4h6v3"/></svg></div>
+                <div style="flex: 1;"><h2 class="dialog__title" id="dlg-rr-title">Remove Volunteer from Ruth Alvarez?</h2><p id="dlg-rr-desc" class="text-muted" style="margin-top: var(--space-1);">She keeps her profile and her other roles. The change is recorded in the audit log.</p></div>
+                <button class="btn btn--ghost btn--icon" type="button" aria-label="Close"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18"/></svg></button>
+              </div>
+              <div class="dialog__body stack"><label class="choice"><input type="radio" name="dlg-rr" checked><span class="choice__text">Volunteer</span></label></div>
+              <div class="dialog__footer"><button class="btn" type="button">Cancel</button><button class="btn btn--danger" type="button">Remove role</button></div>
+            </div>
+          </div>
+        </div>
+        <div class="ds-example__caption"><span>The title is a question naming the person and the thing; the danger button repeats the verb.</span></div>
+      </div>
+      <h3>Destructive with danger icon: remove a member</h3>
+      <div class="ds-example">
+        <div class="ds-example__canvas ds-example__canvas--canvas" style="display: block;">
+          <div class="dialog dialog--static" role="dialog" aria-labelledby="dlg-rm-title" aria-describedby="dlg-rm-desc">
+            <div class="dialog__panel" style="margin-inline: auto;">
+              <div class="dialog__header">
+                <div class="dialog__icon dialog__icon--danger" aria-hidden="true"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2M9 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8zM17 11h6"/></svg></div>
+                <div style="flex: 1;"><h2 class="dialog__title" id="dlg-rm-title">Remove Ruth Alvarez from Toronto team?</h2><p id="dlg-rm-desc" class="text-muted" style="margin-top: var(--space-1);">She loses access to the workspace. Work items assigned to her become unassigned.</p></div>
+                <button class="btn btn--ghost btn--icon" type="button" aria-label="Close"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18"/></svg></button>
+              </div>
+              <div class="dialog__body stack"><p>Ruth is assigned to <strong>3 work items</strong> in Sprint 7.</p></div>
+              <div class="dialog__footer"><button class="btn" type="button">Cancel</button><button class="btn btn--danger" type="button">Remove member</button></div>
+            </div>
+          </div>
+        </div>
+        <div class="ds-example__caption"><span><code>.dialog__icon--danger</code> marks the confirmations that take access away (Archive workspace, Remove member).</span></div>
+      </div>
+      <h3>Confirmation with a typed check: delete a contact</h3>
+      <div class="ds-example">
+        <div class="ds-example__canvas ds-example__canvas--canvas" style="display: block;">
+          <div class="dialog dialog--static" role="dialog" aria-labelledby="dlg-dc-title" aria-describedby="dlg-dc-desc">
+            <div class="dialog__panel" style="margin-inline: auto;">
+              <div class="dialog__header">
+                <div class="dialog__icon" aria-hidden="true"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><path d="M4 7h16M10 11v6M14 11v6M6 7l1 13h10l1-13M9 7V4h6v3"/></svg></div>
+                <div style="flex: 1;"><h2 class="dialog__title" id="dlg-dc-title">Delete Ben Carter for good?</h2><p id="dlg-dc-desc" class="text-muted" style="margin-top: var(--space-1);">This removes the contact and all 4 of your notes. It can’t be undone.</p></div>
+                <button class="btn btn--ghost btn--icon" type="button" aria-label="Close"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18"/></svg></button>
+              </div>
+              <div class="dialog__body stack"><div class="field"><label class="field__label" for="dlg-dc-confirm">Type DELETE to confirm</label><input class="input" id="dlg-dc-confirm" type="text" autocomplete="off" required></div></div>
+              <div class="dialog__footer"><button class="btn" type="button">Cancel</button><button class="btn btn--danger" type="button">Delete permanently</button></div>
+            </div>
+          </div>
+        </div>
+        <div class="ds-example__caption"><span>Only permanent deletes ask for a typed check; archiving is restorable and does not.</span></div>
+      </div>
+    </section>
+
+    <section class="ds-section" id="sizes" data-na="one width"><h2><a href="#sizes">Sizes</a></h2>
+      <p class="ds-na">One panel width, up to 32rem; height grows with content up to the viewport minus <code>--space-12</code>, then the body scrolls and the footer stays.</p>
+    </section>
+
+    <section class="ds-section" id="states"><h2><a href="#states">States</a></h2>
+      <p>The mocks give every dialog default, busy and failed; dialogs with input also have invalid. The controls inside use their own real attributes.</p>
+      <div class="ds-themes">
+        <div data-theme="light">
+          <div class="dialog dialog--static" role="dialog" aria-labelledby="dlg-busy-title">
+            <div class="dialog__panel">
+              <div class="dialog__header"><div style="flex: 1;"><h2 class="dialog__title" id="dlg-busy-title">Busy</h2></div><button class="btn btn--ghost btn--icon" type="button" aria-label="Close" disabled><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18"/></svg></button></div>
+              <div class="dialog__body stack">
+                <div class="field"><label class="field__label" for="dlg-busy-email">Email</label><input class="input" id="dlg-busy-email" type="email" value="nate.oyelaran@example.org" readonly></div>
+              </div>
+              <div class="dialog__footer"><button class="btn" type="button" disabled>Cancel</button><button class="btn btn--primary" type="submit" aria-busy="true" aria-disabled="true"><span class="dot dot--pulse" aria-hidden="true"></span>Send invite…</button></div>
+            </div>
+          </div>
+        </div>
+        <div data-theme="dark">
+          <div class="dialog dialog--static" role="dialog" aria-labelledby="dlg-busy-d-title">
+            <div class="dialog__panel">
+              <div class="dialog__header"><div style="flex: 1;"><h2 class="dialog__title" id="dlg-busy-d-title">Busy</h2></div><button class="btn btn--ghost btn--icon" type="button" aria-label="Close" disabled><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18"/></svg></button></div>
+              <div class="dialog__body stack">
+                <div class="field"><label class="field__label" for="dlg-busy-d-email">Email</label><input class="input" id="dlg-busy-d-email" type="email" value="nate.oyelaran@example.org" readonly></div>
+              </div>
+              <div class="dialog__footer"><button class="btn" type="button" disabled>Cancel</button><button class="btn btn--primary" type="submit" aria-busy="true" aria-disabled="true"><span class="dot dot--pulse" aria-hidden="true"></span>Send invite…</button></div>
+            </div>
+          </div>
+        </div>
+        <div data-theme="light">
+          <div class="dialog dialog--static" role="dialog" aria-labelledby="dlg-inv-title">
+            <div class="dialog__panel">
+              <div class="dialog__header"><div style="flex: 1;"><h2 class="dialog__title" id="dlg-inv-title">Invalid</h2></div><button class="btn btn--ghost btn--icon" type="button" aria-label="Close"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18"/></svg></button></div>
+              <div class="dialog__body stack">
+                <div class="field"><label class="field__label" for="dlg-inv-msg">Message to attendees</label><textarea class="textarea" id="dlg-inv-msg" rows="3" required aria-invalid="true" aria-describedby="dlg-inv-msg-error"></textarea><div class="field__error" id="dlg-inv-msg-error">Tell attendees why, so they aren’t left guessing.</div></div>
+              </div>
+              <div class="dialog__footer"><button class="btn" type="button">Keep event</button><button class="btn btn--danger" type="button">Cancel event</button></div>
+            </div>
+          </div>
+        </div>
+        <div data-theme="dark">
+          <div class="dialog dialog--static" role="dialog" aria-labelledby="dlg-fail-title">
+            <div class="dialog__panel">
+              <div class="dialog__header"><div style="flex: 1;"><h2 class="dialog__title" id="dlg-fail-title">Failed</h2></div><button class="btn btn--ghost btn--icon" type="button" aria-label="Close"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18"/></svg></button></div>
+              <div class="dialog__body stack">
+                <div class="alert alert--danger" role="alert"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 8v4M12 16h.01"/></svg><div class="alert__body"><div class="alert__title">That didn’t work</div><div class="alert__text">We couldn’t reach FaithTech. Nothing was changed — try again.</div></div></div>
+                <div class="field"><label class="field__label" for="dlg-fail-email">Email</label><input class="input" id="dlg-fail-email" type="email" value="nate.oyelaran@example.org"></div>
+              </div>
+              <div class="dialog__footer"><button class="btn" type="button">Cancel</button><button class="btn btn--primary" type="button">Send invite</button></div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <ul>
+        <li><b>Default</b>: focus on the first field (form dialogs) or on Cancel (confirmations).</li>
+        <li><b>Busy</b>: Cancel and Close <code>disabled</code>; the pressed button keeps focus with <code>aria-busy="true"</code>, <code>aria-disabled="true"</code>, a pulsing dot and an ellipsis ("Send invite…"). Fields become <code>readonly</code>. Escape does nothing until it settles.</li>
+        <li><b>Invalid</b>: the field gets <code>aria-invalid="true"</code> and a <code>.field__error</code> linked with <code>aria-describedby</code>; focus moves to it. The dialog stays open. Examples: "Enter an email like name@example.org.", "Give a reason so other admins understand."</li>
+        <li><b>Failed</b>: a danger <a href="alert.html">alert</a> with <code>role="alert"</code> at the top of the body; everything typed stays. Copy: "That didn’t work · We couldn’t reach FaithTech. Nothing was changed — try again."</li>
+      </ul>
+    </section>
+
+    <section class="ds-section" id="responsive"><h2><a href="#responsive">Responsive behaviour</a></h2>
+      <ul>
+        <li>Below 640px (<code>--layout-breakpoint-sm</code>) the panel is a <b>bottom sheet</b>: full width, pinned to the bottom, top corners <code>--radius-xl</code>, sliding up over <code>--duration-slow</code>.</li>
+        <li>From 640px it is centred with <code>--space-6</code> around it, all corners <code>--radius-lg</code>, scaling in; the title grows to <code>--text-h3</code>.</li>
+        <li>The footer is sticky, so the actions stay in reach when the body scrolls or the phone keyboard is up. Buttons wrap, primary last.</li>
+      </ul>
+      <div class="ds-example">
+        <div class="ds-example__canvas ds-example__canvas--canvas" style="display: block;">
+          <div class="dialog dialog--static" role="dialog" aria-labelledby="dlg-sheet-title" style="max-width: 22.5rem; margin-inline: auto;">
+            <div class="dialog__panel" style="border-radius: var(--radius-xl) var(--radius-xl) 0 0;">
+              <div class="dialog__header"><div style="flex: 1;"><h2 class="dialog__title" id="dlg-sheet-title" style="font: var(--text-h4);">Cancel your RSVP?</h2></div><button class="btn btn--ghost btn--icon" type="button" aria-label="Close"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18"/></svg></button></div>
+              <div class="dialog__body stack"><p>Your spot at Toronto Builders Night on Thu 23 Oct goes to the next person on the waitlist.</p></div>
+              <div class="dialog__footer"><button class="btn" type="button">Keep my spot</button><button class="btn btn--danger" type="button">Cancel RSVP</button></div>
+            </div>
+          </div>
+        </div>
+        <div class="ds-example__caption"><span>Bottom sheet at 360px: rounded top corners only, full width. Real pages get this from the base styles, no modifier needed.</span></div>
+      </div>
+    </section>
+
+    <section class="ds-section" id="theming"><h2><a href="#theming">Theming</a></h2>
+      <p>The panel is <code>--color-bg-surface-raised</code> with <code>--shadow-4</code>, over <code>--color-bg-backdrop</code>. In the dark theme the raised surface is lighter than the page, so the panel still lifts off a dark backdrop; the backdrop itself gets darker. The neutral icon reads the brand subtle tokens; the danger icon reads <code>--color-danger-bg</code> and <code>--color-danger-icon</code>.</p>
+    </section>
+
+    <section class="ds-section" id="accessibility"><h2><a href="#accessibility">Accessibility</a></h2>
+      <h3>Role and pattern</h3>
+      <p>The WAI-ARIA APG <a href="https://www.w3.org/WAI/ARIA/apg/patterns/dialog-modal/">Dialog (Modal)</a> pattern: <code>role="dialog"</code>, <code>aria-modal="true"</code>, <code>aria-labelledby</code> pointing at the title and <code>aria-describedby</code> at the description. The page behind is <code>inert</code> while it is open. In the app this is the Angular CDK Dialog; never hand-roll it.</p>
+      <h3>Keyboard</h3>
+      <table class="ds-table ds-keys"><thead><tr><th scope="col">Key</th><th scope="col">Action</th></tr></thead><tbody>
+        <tr><td><kbd>Tab</kbd> / <kbd>Shift</kbd>+<kbd>Tab</kbd></td><td>Moves through the controls inside and wraps from the last to the first; focus never leaves the dialog.</td></tr>
+        <tr><td><kbd>Esc</kbd></td><td>Cancels and closes (same as Cancel). Ignored while busy.</td></tr>
+        <tr><td><kbd>Enter</kbd>, <kbd>Space</kbd></td><td>Activates the focused button; Enter in a single-line field submits.</td></tr>
+        <tr><td><kbd>↑</kbd> <kbd>↓</kbd></td><td>Moves between radios (Remove role, Move partner, Start a sprint) and select options.</td></tr>
+      </tbody></table>
+      <h3>Focus</h3>
+      <p>On open, focus goes to the first field (Email, Reason, Message to attendees) or, for confirmations, to Cancel so a stray Enter is safe. On close, focus returns to the button that opened it (Invite, Remove role, Archive). On invalid, focus moves to the first invalid field; on failed, the alert is announced and focus stays where it was.</p>
+      <h3>Labelling</h3>
+      <p>The title names the dialog and the subject: "Invite someone to FaithTech", "Suspend Leah Thompson?". The close button is <code>aria-label="Close"</code>. Icons are <code>aria-hidden</code>; the title and the danger button's words carry the warning.</p>
+      <h3>Contrast</h3>
+      <div class="ds-example__canvas ds-example__canvas--stack" style="padding: 0; gap: var(--space-2);">
+        <div class="ds-pair"><span>Text on panel</span><span class="ds-pair__ratio" data-contrast="--color-fg-default|--color-bg-surface-raised" data-min="4.5"></span></div>
+        <div class="ds-pair"><span>Description and help on panel</span><span class="ds-pair__ratio" data-contrast="--color-fg-muted|--color-bg-surface-raised" data-min="4.5"></span></div>
+        <div class="ds-pair"><span>Field border on panel</span><span class="ds-pair__ratio" data-contrast="--color-border-strong|--color-bg-surface-raised" data-min="3"></span></div>
+        <div class="ds-pair"><span>Field error on panel</span><span class="ds-pair__ratio" data-contrast="--color-danger-fg|--color-bg-surface-raised" data-min="4.5"></span></div>
+        <div class="ds-pair"><span>Danger icon on its circle</span><span class="ds-pair__ratio" data-contrast="--color-danger-icon|--color-danger-bg" data-min="3"></span></div>
+        <div class="ds-pair"><span>Failed alert text</span><span class="ds-pair__ratio" data-contrast="--color-danger-fg|--color-danger-bg" data-min="4.5"></span></div>
+        <div class="ds-pair"><span>Danger button label</span><span class="ds-pair__ratio" data-contrast="--color-fg-on-danger|--color-danger-solid" data-min="4.5"></span></div>
+        <div class="ds-pair"><span>Focus ring on panel</span><span class="ds-pair__ratio" data-contrast="--color-focus-ring|--color-bg-surface-raised" data-min="3"></span></div>
+      </div>
+      <h3>Motion</h3>
+      <p>The backdrop fades in over <code>--duration-base</code>; the sheet slides up (phones) or the panel scales in from 96% (wider) over <code>--duration-slow</code> with <code>--ease-enter</code>. Reduced motion zeroes both, so it simply appears; the busy dot stops pulsing.</p>
+      <h3>Touch</h3>
+      <p>Footer buttons are 44px tall with 12px between them; the close button is 44px square. The sheet keeps the actions at the bottom, in thumb reach.</p>
+    </section>
+
+    <section class="ds-section" id="content"><h2><a href="#content">Content</a></h2>
+      <ul>
+        <li>Form titles say the task: "Invite someone to FaithTech", "Add a role for Jonah Bell", "Start a Planning Poker session".</li>
+        <li>Confirmation titles are a question naming the person or thing: "Archive Tomás Ortega?", "Cancel Toronto Builders Night?".</li>
+        <li>The description says what happens next and whether it can be undone: "You can restore him whenever you like." or "It can’t be undone."</li>
+        <li>Buttons are specific verbs: "Send invite", "Remove role", "Archive workspace", "Delete permanently". Never "OK" or "Yes". When the action itself is "Cancel …", name the safe button differently ("Keep event", "Keep my spot").</li>
+        <li>Admin actions that are audited say so in the label: "Reason (recorded in the audit log)".</li>
+      </ul>
+    </section>
+
+    <section class="ds-section" id="do-dont"><h2><a href="#do-dont">Do and don't</a></h2>
+      <div class="ds-dodont">
+        <figure class="ds-do"><div class="ds-example__canvas"><button class="btn" type="button">Keep event</button><button class="btn btn--danger" type="button">Cancel event</button></div><figcaption>Name both outcomes so they cannot be confused.</figcaption></figure>
+        <figure class="ds-dont"><div class="ds-example__canvas"><button class="btn" type="button">Cancel</button><button class="btn btn--danger" type="button">Cancel event</button></div><figcaption>"Cancel" next to "Cancel event": two buttons that both read as cancel.</figcaption></figure>
+        <figure class="ds-do"><div class="ds-example__canvas"><span class="text-caption">Failed: alert at the top, the email and note stay filled</span></div><figcaption>Keep the dialog open and the input intact when saving fails.</figcaption></figure>
+        <figure class="ds-dont"><div class="ds-example__canvas"><span class="text-caption">Close the dialog, then show an error toast</span></div><figcaption>Closing on failure throws away what the lead typed and hides the retry.</figcaption></figure>
+      </div>
+    </section>
+
+    <section class="ds-section" id="tokens"><h2><a href="#tokens">Tokens</a></h2>
+      <div class="ds-table-wrap"><table class="ds-table">
+        <thead><tr><th scope="col">Part</th><th scope="col">Token</th><th scope="col">Light</th><th scope="col">Dark</th></tr></thead>
+        <tbody>
+          <tr><td>Backdrop</td><td><code>--color-bg-backdrop</code></td><td><span class="ds-swatch-cell" data-theme="light"><i data-token="--color-bg-backdrop" data-swatch></i><span data-token="--color-bg-backdrop"></span></span></td><td><span class="ds-swatch-cell" data-theme="dark"><i data-token="--color-bg-backdrop" data-swatch></i><span data-token="--color-bg-backdrop"></span></span></td></tr>
+          <tr><td>Panel</td><td><code>--color-bg-surface-raised</code></td><td><span class="ds-swatch-cell" data-theme="light"><i data-token="--color-bg-surface-raised" data-swatch></i><span data-token="--color-bg-surface-raised"></span></span></td><td><span class="ds-swatch-cell" data-theme="dark"><i data-token="--color-bg-surface-raised" data-swatch></i><span data-token="--color-bg-surface-raised"></span></span></td></tr>
+          <tr><td>Footer divider</td><td><code>--color-border-default</code></td><td><span class="ds-swatch-cell" data-theme="light"><i data-token="--color-border-default" data-swatch></i><span data-token="--color-border-default"></span></span></td><td><span class="ds-swatch-cell" data-theme="dark"><i data-token="--color-border-default" data-swatch></i><span data-token="--color-border-default"></span></span></td></tr>
+          <tr><td>Danger icon circle / icon</td><td><code>--color-danger-bg</code> / <code>--color-danger-icon</code></td><td><span class="ds-swatch-cell" data-theme="light"><i data-token="--color-danger-icon" data-swatch></i><span data-token="--color-danger-icon"></span></span></td><td><span class="ds-swatch-cell" data-theme="dark"><i data-token="--color-danger-icon" data-swatch></i><span data-token="--color-danger-icon"></span></span></td></tr>
+          <tr><td>Shadow</td><td><code>--shadow-4</code></td><td><span data-token="--shadow-4"></span></td><td><span data-theme="dark" data-token="--shadow-4"></span></td></tr>
+          <tr><td>Radius: sheet / centred</td><td><code>--radius-xl</code> / <code>--radius-lg</code></td><td colspan="2"><span data-token="--radius-xl"></span> / <span data-token="--radius-lg"></span></td></tr>
+          <tr><td>Padding</td><td><code>--space-6</code>, <code>--space-4</code></td><td colspan="2"><span data-token="--space-6"></span> / <span data-token="--space-4"></span></td></tr>
+          <tr><td>Icon circle</td><td><code>--size-avatar-md</code></td><td colspan="2"><span data-token="--size-avatar-md"></span></td></tr>
+          <tr><td>Stacking</td><td><code>--z-overlay</code> / <code>--z-modal</code></td><td colspan="2"><span data-token="--z-overlay"></span> / <span data-token="--z-modal"></span></td></tr>
+          <tr><td>Breakpoint (sheet to centred)</td><td><code>--layout-breakpoint-sm</code></td><td colspan="2"><span data-token="--layout-breakpoint-sm"></span></td></tr>
+          <tr><td>Enter motion</td><td><code>--duration-slow</code>, <code>--duration-base</code>, <code>--ease-enter</code></td><td colspan="2"><span data-token="--duration-slow"></span> <span data-token="--ease-enter"></span></td></tr>
+        </tbody>
+      </table></div>
+    </section>
+
+    <section class="ds-section" id="code"><h2><a href="#code">Code</a></h2>
+      <pre><code>&lt;div class="backdrop"&gt;&lt;/div&gt;
+&lt;div class="dialog" role="dialog" aria-modal="true" aria-labelledby="dlg-title" aria-describedby="dlg-desc"&gt;
+  &lt;div class="dialog__panel"&gt;
+    &lt;div class="dialog__header"&gt;
+      &lt;div class="dialog__icon dialog__icon--danger" aria-hidden="true"&gt;&lt;svg class="icon" …&gt;&lt;/svg&gt;&lt;/div&gt;
+      &lt;div style="flex: 1;"&gt;&lt;h2 class="dialog__title" id="dlg-title"&gt;Archive Toronto team?&lt;/h2&gt;
+        &lt;p id="dlg-desc" class="text-muted"&gt;Members lose access. Everything is kept, and you can restore it from Workspaces.&lt;/p&gt;&lt;/div&gt;
+      &lt;button class="btn btn--ghost btn--icon" type="button" aria-label="Close"&gt;…&lt;/button&gt;
+    &lt;/div&gt;
+    &lt;div class="dialog__body stack"&gt; … &lt;/div&gt;
+    &lt;div class="dialog__footer"&gt;
+      &lt;button class="btn" type="button" autofocus&gt;Cancel&lt;/button&gt;
+      &lt;button class="btn btn--danger" type="button"&gt;Archive workspace&lt;/button&gt;
+    &lt;/div&gt;
+  &lt;/div&gt;
+&lt;/div&gt;</code></pre>
+      <table class="ds-table"><thead><tr><th scope="col">Class / attribute</th><th scope="col">Effect</th></tr></thead><tbody>
+        <tr><td><code>.backdrop</code></td><td>Fixed dimmer behind the dialog.</td></tr>
+        <tr><td><code>.dialog</code></td><td>Fixed frame: bottom sheet below 640px, centred above.</td></tr>
+        <tr><td><code>.dialog__panel</code></td><td>The raised panel, max 32rem, scrolls when tall.</td></tr>
+        <tr><td><code>.dialog__header</code> / <code>__title</code> / <code>__body</code> / <code>__footer</code></td><td>Parts; the footer is sticky.</td></tr>
+        <tr><td><code>.dialog__icon</code></td><td>Neutral icon circle naming the task.</td></tr>
+        <tr><td><code>.dialog__icon--danger</code></td><td>Danger tint for destructive confirmations.</td></tr>
+        <tr><td><code>.dialog--static</code></td><td>Documentation only: renders in flow.</td></tr>
+        <tr><td><code>role="dialog"</code> <code>aria-modal="true"</code> <code>aria-labelledby</code> <code>aria-describedby</code></td><td>Required in the product.</td></tr>
+      </tbody></table>
+    </section>
+
+    <section class="ds-section" id="sources"><h2><a href="#sources">Sources</a></h2>
+      <p>Extracted from these mocks (each has default, busy and failed; those listed with invalid have it too):</p>
+      <ul>
+        <li><a href="../../mocks/dialogs/send-invite/default.html">dialogs/send-invite/default</a>, <a href="../../mocks/dialogs/send-invite/busy.html">busy</a>, <a href="../../mocks/dialogs/send-invite/invalid.html">invalid</a>, <a href="../../mocks/dialogs/send-invite/failed.html">failed</a></li>
+        <li><a href="../../mocks/dialogs/add-role/default.html">dialogs/add-role/default</a>, <a href="../../mocks/dialogs/remove-role/default.html">dialogs/remove-role/default</a>, <a href="../../mocks/dialogs/suspend-user/default.html">dialogs/suspend-user/default</a>, <a href="../../mocks/dialogs/suspend-user/invalid.html">invalid</a></li>
+        <li><a href="../../mocks/dialogs/archive-contact/default.html">dialogs/archive-contact/default</a>, <a href="../../mocks/dialogs/delete-contact/default.html">dialogs/delete-contact/default</a>, <a href="../../mocks/dialogs/link-contact/default.html">dialogs/link-contact/default</a>, <a href="../../mocks/dialogs/delete-photo/default.html">dialogs/delete-photo/default</a></li>
+        <li><a href="../../mocks/dialogs/add-partner/default.html">dialogs/add-partner/default</a>, <a href="../../mocks/dialogs/move-partner/default.html">dialogs/move-partner/default</a></li>
+        <li><a href="../../mocks/dialogs/cancel-event/default.html">dialogs/cancel-event/default</a>, <a href="../../mocks/dialogs/cancel-event/invalid.html">invalid</a>, <a href="../../mocks/dialogs/cancel-rsvp/default.html">dialogs/cancel-rsvp/default</a></li>
+        <li><a href="../../mocks/dialogs/archive-workspace/default.html">dialogs/archive-workspace/default</a>, <a href="../../mocks/dialogs/remove-workspace-member/default.html">dialogs/remove-workspace-member/default</a>, <a href="../../mocks/dialogs/create-workspace/default.html">dialogs/create-workspace/default</a>, <a href="../../mocks/dialogs/add-workspace-member/default.html">dialogs/add-workspace-member/default</a>, <a href="../../mocks/dialogs/reassign-owner/default.html">dialogs/reassign-owner/default</a></li>
+        <li><a href="../../mocks/dialogs/new-work-item/default.html">dialogs/new-work-item/default</a>, <a href="../../mocks/dialogs/archive-work-item/default.html">dialogs/archive-work-item/default</a>, <a href="../../mocks/dialogs/start-sprint/default.html">dialogs/start-sprint/default</a>, <a href="../../mocks/dialogs/close-sprint/default.html">dialogs/close-sprint/default</a>, <a href="../../mocks/dialogs/start-poker/default.html">dialogs/start-poker/default</a>, <a href="../../mocks/dialogs/switch-method/default.html">dialogs/switch-method/default</a></li>
+      </ul>
+      <p>Drift noticed in the mocks:</p>
+      <ul>
+        <li>Destructive confirmations put <code>autofocus</code> on the danger button (Delete permanently, Suspend, Remove role, Cancel event); this page specifies focus on Cancel instead.</li>
+        <li><code>.dialog__icon--danger</code> is used only by Archive workspace and Remove member; other destructive dialogs (Delete contact, Suspend user, Cancel event) use the neutral icon.</li>
+        <li>Busy states leave fields editable (no <code>readonly</code>) and mix <code>disabled</code> on Cancel with <code>aria-disabled</code> on the primary.</li>
+        <li>Cancel event and Cancel RSVP pair "Cancel" with "Cancel event" / "Cancel RSVP".</li>
+        <li>Archive workspace has an empty body holding only a <code>visually-hidden</code> "No further options".</li>
+        <li>Every failed state uses the same generic "That didn’t work" title rather than naming what was not saved.</li>
+        <li>Send invite's role list has "Create Lead" and offers lead roles beyond those a City Lead may grant.</li>
+        <li>Inline styles: the header wraps title and description in <code>&lt;div style="flex: 1;"&gt;</code> and the description uses <code>style="margin-top: var(--space-1)"</code>; there is no class for either yet.</li>
+      </ul>
+    </section>
+
+    <footer class="ds-footer"><span>FaithTech Community design system · extracted from <a href="../../mocks/index.html">docs/mocks</a> on 2026-10-21</span><a href="#top">Back to top</a></footer>
+  </main>
+</div>
+<script src="../assets/ds.js"></script>
+</body>
+</html>

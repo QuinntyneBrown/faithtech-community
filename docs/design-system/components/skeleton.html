@@ -1,0 +1,280 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Skeleton — FaithTech Community design system</title>
+<meta name="description" content="Shimmering placeholders that hold the shape of a FaithTech page while its data loads: list rows with avatars, titles, text lines and Kanban cards. Shapes, aria-busy, reduced motion, both themes.">
+<link rel="stylesheet" href="../tokens/tokens.css">
+<link rel="stylesheet" href="../assets/components.css">
+<link rel="stylesheet" href="../assets/ds.css">
+</head>
+<body id="top">
+<a class="skip-link" href="#main">Skip to content</a>
+<div class="ds-shell">
+  <nav class="ds-nav" aria-label="Design system">
+    <div class="ds-nav__brand"><a href="../index.html">FaithTech DS</a><button class="ds-theme-toggle" type="button" aria-pressed="false">☾ Dark</button></div>
+    <details open><summary>Foundations</summary><ul>
+      <li><a href="../foundations/color.html">Color</a></li>
+      <li><a href="../foundations/typography.html">Typography</a></li>
+      <li><a href="../foundations/spacing.html">Spacing</a></li>
+      <li><a href="../foundations/layout.html">Layout</a></li>
+      <li><a href="../foundations/elevation.html">Elevation</a></li>
+      <li><a href="../foundations/shape.html">Shape</a></li>
+      <li><a href="../foundations/motion.html">Motion</a></li>
+      <li><a href="../foundations/iconography.html">Iconography</a></li>
+      <li><a href="../foundations/theming.html">Theming</a></li>
+      <li><a href="../foundations/responsive.html">Responsive</a></li>
+      <li><a href="../foundations/accessibility.html">Accessibility</a></li>
+      <li><a href="../foundations/content.html">Content</a></li>
+    </ul></details>
+    <details open><summary>Components</summary><ul>
+      <li><a href="../components/button.html">Button</a></li>
+      <li><a href="../components/link.html">Link</a></li>
+      <li><a href="../components/menu.html">Menu</a></li>
+      <li><a href="../components/form-field.html">Form field</a></li>
+      <li><a href="../components/text-field.html">Text field</a></li>
+      <li><a href="../components/textarea.html">Textarea</a></li>
+      <li><a href="../components/select.html">Select</a></li>
+      <li><a href="../components/radio-group.html">Radio group</a></li>
+      <li><a href="../components/switch.html">Switch</a></li>
+      <li><a href="../components/form-layout.html">Form layout</a></li>
+      <li><a href="../components/picture-list.html">Picture list</a></li>
+      <li><a href="../components/sticker-picker.html">Estimate card picker</a></li>
+      <li><a href="../components/top-bar.html">Top bar</a></li>
+      <li><a href="../components/tab-bar.html">Tab bar</a></li>
+      <li><a href="../components/tabs.html">Tabs</a></li>
+      <li><a href="../components/breadcrumb.html">Breadcrumb</a></li>
+      <li><a href="../components/skip-link.html">Skip link</a></li>
+      <li><a href="../components/layout.html">Layout primitives</a></li>
+      <li><a href="../components/card.html">Card</a></li>
+      <li><a href="../components/dialog.html">Dialog</a></li>
+      <li><a href="../components/notification-panel.html">Notification panel</a></li>
+      <li><a href="../components/list.html">List</a></li>
+      <li><a href="../components/table.html">Table</a></li>
+      <li><a href="../components/description-list.html">Description list</a></li>
+      <li><a href="../components/feed.html">Activity feed</a></li>
+      <li><a href="../components/tree.html">Backlog tree</a></li>
+      <li><a href="../components/kanban.html">Kanban board</a></li>
+      <li><a href="../components/event-card.html">Event card</a></li>
+      <li><a href="../components/profile-header.html">Profile header</a></li>
+      <li><a href="../components/search-results.html">Search results</a></li>
+      <li><a href="../components/note.html">Note</a></li>
+      <li><a href="../components/avatar.html">Avatar</a></li>
+      <li><a href="../components/logo-mark.html">Logo mark</a></li>
+      <li><a href="../components/badge.html">Badge</a></li>
+      <li><a href="../components/chip.html">Chip</a></li>
+      <li><a href="../components/stat.html">Stat</a></li>
+      <li><a href="../components/sticker.html">Estimate card</a></li>
+      <li><a href="../components/toast.html">Toast</a></li>
+      <li><a href="../components/alert.html">Alert and banner</a></li>
+      <li><a href="../components/inline-message.html">Inline message</a></li>
+      <li><a href="../components/progress.html">Progress</a></li>
+      <li><a href="../components/skeleton.html">Skeleton</a></li>
+      <li><a href="../components/empty-state.html">Empty state</a></li>
+      <li><a href="../components/error-page.html">Error page</a></li>
+    </ul></details>
+    <details open><summary>Patterns</summary><ul>
+      <li><a href="../patterns/forms.html">Forms</a></li>
+      <li><a href="../patterns/feedback-and-loading.html">Feedback and loading</a></li>
+      <li><a href="../patterns/empty-and-error-states.html">Empty and error states</a></li>
+      <li><a href="../patterns/navigation.html">Navigation and page structure</a></li>
+      <li><a href="../patterns/dialogs-and-overlays.html">Dialogs and overlays</a></li>
+      <li><a href="../patterns/lists-and-tables.html">Lists and tables</a></li>
+      <li><a href="../patterns/notifications.html">Notifications</a></li>
+      <li><a href="../patterns/content-and-tone.html">Content and tone</a></li>
+    </ul></details>
+  </nav>
+
+  <main id="main" class="ds-main">
+    <header class="ds-header">
+      <p class="ds-kicker">Component · Feedback</p>
+      <h1>Skeleton</h1>
+      <p class="ds-lead">Grey shapes in the layout of the page that is coming, with a soft shimmer. They show where contacts, events, partners and audit entries will appear, so the page does not jump when the data arrives.</p>
+      <div class="ds-meta"><span class="ds-pill ds-pill--ok">WCAG 2.2 AA</span><span class="ds-pill">Status: stable</span><span class="ds-pill"><code>aria-busy</code> on the container</span></div>
+      <ul class="ds-toc">
+        <li><a href="#overview">Overview</a></li><li><a href="#anatomy">Anatomy</a></li><li><a href="#variants">Variants</a></li><li><a href="#sizes">Sizes</a></li><li><a href="#states">States</a></li><li><a href="#responsive">Responsive</a></li><li><a href="#theming">Theming</a></li><li><a href="#accessibility">Accessibility</a></li><li><a href="#content">Content</a></li><li><a href="#do-dont">Do and don't</a></li><li><a href="#tokens">Tokens</a></li><li><a href="#code">Code</a></li><li><a href="#sources">Sources</a></li>
+      </ul>
+    </header>
+
+    <section class="ds-section" id="overview"><h2><a href="#overview">Overview</a></h2>
+      <p>Every FaithTech page with a <code>loading</code> state uses skeletons for its first load: Home, Contacts, Events, Partners, Team, People, the audit log, workspaces, the board and the backlog. Keep the real page chrome (top bar, page header and title, tabs, filters and buttons that work without data, such as Add contact or Export CSV) and swap only the data for skeletons.</p>
+      <ul>
+        <li>For an action in progress (Send invite, Save profile), use a busy <a href="button.html">button</a> or an <a href="inline-message.html">inline status</a>, not a skeleton.</li>
+        <li>If loading fails, replace the skeletons with an error <a href="empty-state.html">empty state</a> ("We couldn’t load your contacts").</li>
+      </ul>
+    </section>
+
+    <section class="ds-section" id="anatomy"><h2><a href="#anatomy">Anatomy</a></h2>
+      <div class="ds-anatomy">
+        <figure class="ds-anatomy__figure">
+          <div class="card card--flush" aria-busy="true" aria-label="Loading contacts" style="width: 100%; max-width: 24rem;"><div class="list__item"><span class="skeleton avatar avatar--sm" aria-hidden="true"></span><div class="list__body" style="flex:1;"><span class="skeleton skeleton--title" aria-hidden="true"></span><span class="skeleton skeleton--text" aria-hidden="true"></span></div></div></div>
+          <span class="ds-callout" style="left: 8%; top: 20%;" aria-hidden="true">1</span>
+          <span class="ds-callout" style="left: 40%; top: 14%;" aria-hidden="true">2</span>
+          <span class="ds-callout" style="left: 70%; top: 60%;" aria-hidden="true">3</span>
+          <span class="ds-callout" style="left: 94%; top: 84%;" aria-hidden="true">4</span>
+        </figure>
+        <ol class="ds-anatomy__list">
+          <li><div><b>Avatar circle</b><small><code>.skeleton.avatar.avatar--sm</code>: the avatar's exact size and round shape, shimmer instead of initials.</small></div></li>
+          <li><div><b>Title bar</b><small><code>.skeleton--title</code>: 1.5em tall, 40% wide; stands for the name.</small></div></li>
+          <li><div><b>Text line</b><small><code>.skeleton--text</code>: 1em tall; the last line is 60% wide; stands for the meta line.</small></div></li>
+          <li><div><b>Busy container</b><small>The real list card with <code>aria-busy="true"</code> and an <code>aria-label</code> that says what is loading.</small></div></li>
+        </ol>
+      </div>
+    </section>
+
+    <section class="ds-section" id="variants"><h2><a href="#variants">Variants</a></h2>
+      <p>The mocks use five shapes. Pick the one that matches what will replace it.</p>
+      <div class="ds-example">
+        <div class="ds-example__canvas ds-example__canvas--stack" aria-busy="true" aria-label="Skeleton shapes">
+          <span class="skeleton skeleton--title" aria-hidden="true"></span>
+          <div><span class="skeleton skeleton--text" aria-hidden="true"></span><span class="skeleton skeleton--text" aria-hidden="true"></span></div>
+          <span class="skeleton skeleton--rect" style="height: 4rem;" aria-hidden="true"></span>
+          <div class="cluster"><span class="skeleton avatar avatar--sm" aria-hidden="true"></span><span class="skeleton avatar avatar--xl" aria-hidden="true"></span></div>
+        </div>
+        <div class="ds-example__caption"><span>Title, text lines, block (a Kanban card), avatar small (list rows) and extra large (profile header).</span></div>
+        <details class="ds-example__code"><summary>HTML</summary><pre><code>&lt;span class="skeleton skeleton--title" aria-hidden="true"&gt;&lt;/span&gt;
+&lt;span class="skeleton skeleton--text" aria-hidden="true"&gt;&lt;/span&gt;
+&lt;span class="skeleton skeleton--rect" style="height: 4rem;" aria-hidden="true"&gt;&lt;/span&gt;
+&lt;span class="skeleton avatar avatar--sm" aria-hidden="true"&gt;&lt;/span&gt;
+&lt;span class="skeleton avatar avatar--xl" aria-hidden="true"&gt;&lt;/span&gt;</code></pre></details>
+      </div>
+      <div class="ds-example">
+        <div class="ds-example__canvas ds-example__canvas--stack">
+          <div class="kanban" aria-busy="true" aria-label="Loading partners"><div class="kanban__column"><span class="skeleton skeleton--title" aria-hidden="true"></span><span class="skeleton skeleton--rect" style="height: 4rem;" aria-hidden="true"></span><span class="skeleton skeleton--rect" style="height: 4rem;" aria-hidden="true"></span></div><div class="kanban__column"><span class="skeleton skeleton--title" aria-hidden="true"></span><span class="skeleton skeleton--rect" style="height: 4rem;" aria-hidden="true"></span></div><div class="kanban__column"><span class="skeleton skeleton--title" aria-hidden="true"></span><span class="skeleton skeleton--rect" style="height: 4rem;" aria-hidden="true"></span></div></div>
+        </div>
+        <div class="ds-example__caption"><span>The partner pipeline while it loads: one title and block cards per stage (Lead, In funnel, Confirmed).</span></div>
+      </div>
+      <div class="ds-example">
+        <div class="ds-example__canvas ds-example__canvas--stack">
+          <div class="card"><div class="profile-head" aria-busy="true" aria-label="Loading profile"><span class="skeleton avatar avatar--xl" aria-hidden="true"></span><div class="profile-head__body"><span class="skeleton skeleton--title" aria-hidden="true"></span><span class="skeleton skeleton--text" aria-hidden="true"></span></div></div></div>
+        </div>
+        <div class="ds-example__caption"><span>Samuel Mensah's profile header while it loads.</span></div>
+      </div>
+    </section>
+
+    <section class="ds-section" id="sizes"><h2><a href="#sizes">Sizes</a></h2>
+      <p>Text and title skeletons are sized in <code>em</code>, so they follow the font size of where they sit. Blocks take a height that matches the real content (4rem for a partner or story card). Avatar skeletons reuse <code>.avatar--sm</code> for list rows and <code>.avatar--xl</code> for the profile header. The Home subtitle uses an inline text skeleton 12rem wide.</p>
+    </section>
+
+    <section class="ds-section" id="states"><h2><a href="#states">States</a></h2>
+      <p>A skeleton has one state, loading. The container moves from loading to loaded (or to an error).</p>
+      <div class="ds-matrix"><table>
+        <thead><tr><th scope="col">Container</th><th scope="col">Loading</th><th scope="col">Loaded</th></tr></thead>
+        <tbody>
+          <tr><th scope="row">Contact row</th><td><div class="card card--flush" aria-busy="true" aria-label="Loading contacts"><div class="list__item"><span class="skeleton avatar avatar--sm" aria-hidden="true"></span><div class="list__body" style="flex:1;"><span class="skeleton skeleton--title" aria-hidden="true"></span><span class="skeleton skeleton--text" aria-hidden="true"></span></div></div></div></td><td><ul class="list card card--flush"><li class="list__item"><span class="avatar avatar--sm avatar--sun" aria-hidden="true">TO</span><div class="list__body"><a class="list__title" href="../../mocks/pages/contact/default.html">Tomás Ortega</a><div class="list__meta">Signed up today · runs IT at Harbour Light Shelter</div></div><span class="badge badge--success">Signed up</span></li></ul></td></tr>
+          <tr><th scope="row">Activity card</th><td><div class="card stack" aria-busy="true" aria-label="Loading activity"><span class="skeleton skeleton--title" aria-hidden="true"></span><span class="skeleton skeleton--text" aria-hidden="true"></span><span class="skeleton skeleton--text" aria-hidden="true"></span></div></td><td><div class="card stack"><b>Toronto Builders Night</b><span class="text-caption">Thu 6 Nov · 18 going</span></div></td></tr>
+        </tbody>
+      </table></div>
+      <h3>Both themes</h3>
+      <div class="ds-themes">
+        <div data-theme="light"><div class="card card--flush" aria-busy="true" aria-label="Loading contacts"><div class="list__item"><span class="skeleton avatar avatar--sm" aria-hidden="true"></span><div class="list__body" style="flex:1;"><span class="skeleton skeleton--title" aria-hidden="true"></span><span class="skeleton skeleton--text" aria-hidden="true"></span></div></div></div></div>
+        <div data-theme="dark"><div class="card card--flush" aria-busy="true" aria-label="Loading contacts"><div class="list__item"><span class="skeleton avatar avatar--sm" aria-hidden="true"></span><div class="list__body" style="flex:1;"><span class="skeleton skeleton--title" aria-hidden="true"></span><span class="skeleton skeleton--text" aria-hidden="true"></span></div></div></div></div>
+      </div>
+      <ul>
+        <li><b>Loaded</b>: remove <code>aria-busy</code> and the <code>aria-label</code>, and swap skeletons for content in one paint, so screen readers read the finished section once.</li>
+        <li><b>Failed</b>: replace the whole section with an error <a href="empty-state.html">empty state</a> ("We couldn’t load your contacts").</li>
+      </ul>
+    </section>
+
+    <section class="ds-section" id="responsive"><h2><a href="#responsive">Responsive behaviour</a></h2>
+      <ul>
+        <li>Skeletons live inside the real layout (list card, <code>.split</code>, <code>.grid--auto</code>, <code>.kanban</code>), so they reflow exactly as the content will. The Kanban skeleton scrolls sideways on phones like the real board.</li>
+        <li>Show the number of placeholders that fills the first screen: three or four list rows, two cards per Kanban column. Do not draw a whole list.</li>
+        <li>Fixed widths (the 12rem Home subtitle line) stay below 320px so they never overflow a phone.</li>
+      </ul>
+    </section>
+
+    <section class="ds-section" id="theming"><h2><a href="#theming">Theming</a></h2>
+      <p>The shimmer is a gradient between <code>--color-bg-subtle</code> and <code>--color-bg-subtle-hover</code>, both tuned per theme, so skeletons are quiet grey on light cards and a lifted grey on dark ones. <code>.avatar.skeleton</code> drops the avatar's colour and initials.</p>
+    </section>
+
+    <section class="ds-section" id="accessibility"><h2><a href="#accessibility">Accessibility</a></h2>
+      <h3>Role and pattern</h3>
+      <p>Every skeleton is <code>aria-hidden="true"</code>. The section that is loading carries <code>aria-busy="true"</code> and an <code>aria-label</code> ("Loading contacts", "Loading partners", "Loading audit log"), so assistive tech knows it is not ready and does not read half a page.</p>
+      <h3>Keyboard</h3>
+      <table class="ds-table ds-keys"><thead><tr><th scope="col">Key</th><th scope="col">Action</th></tr></thead><tbody>
+        <tr><td><kbd>Tab</kbd></td><td>Skips skeletons. Real controls in the chrome (Add contact, Archived, the search field, the audit-log Action filter) stay reachable while the data loads.</td></tr>
+      </tbody></table>
+      <h3>Focus</h3>
+      <p>Skeletons never take focus. When content arrives, focus stays where it was.</p>
+      <h3>Labelling</h3>
+      <p>The busy container says what is loading in words. Keep the page <code>&lt;h1&gt;</code> real ("Contacts", "Good afternoon"); where the heading itself is data, as on a profile, keep a visually hidden <code>&lt;h1&gt;</code> ("Profile") so the page is identified from the start.</p>
+      <h3>Contrast</h3>
+      <p>Skeletons are decorative placeholders and are exempt from 1.4.11. The real text that replaces them uses the normal pairs:</p>
+      <div class="ds-example__canvas ds-example__canvas--stack" style="padding: 0; gap: var(--space-2);">
+        <div class="ds-pair"><span>Loaded text on card</span><span class="ds-pair__ratio" data-contrast="--color-fg-default|--color-bg-surface" data-min="4.5"></span></div>
+        <div class="ds-pair"><span>Loaded meta on card</span><span class="ds-pair__ratio" data-contrast="--color-fg-muted|--color-bg-surface" data-min="4.5"></span></div>
+      </div>
+      <h3>Motion</h3>
+      <p>The shimmer runs once per <code>--duration-loop</code> (1.4 s). Under <code>prefers-reduced-motion</code> the animation is removed and the skeleton is a flat grey shape.</p>
+      <h3>Touch</h3>
+      <p>No targets.</p>
+    </section>
+
+    <section class="ds-section" id="content"><h2><a href="#content">Content</a></h2>
+      <ul>
+        <li>The busy label is "Loading" plus the thing: "Loading contacts", "Loading your events", "Loading profile", "Loading audit log".</li>
+        <li>Never put text inside a skeleton or show "Loading…" over it; the shapes are the message.</li>
+      </ul>
+    </section>
+
+    <section class="ds-section" id="do-dont"><h2><a href="#do-dont">Do and don't</a></h2>
+      <div class="ds-dodont">
+        <figure class="ds-do"><div class="ds-example__canvas ds-example__canvas--stack"><div class="card card--flush" aria-busy="true" aria-label="Loading team"><div class="list__item"><span class="skeleton avatar avatar--sm" aria-hidden="true"></span><div class="list__body" style="flex:1;"><span class="skeleton skeleton--title" aria-hidden="true"></span><span class="skeleton skeleton--text" aria-hidden="true"></span></div></div></div></div><figcaption>Mirror the real row: avatar, name, meta line.</figcaption></figure>
+        <figure class="ds-dont"><div class="ds-example__canvas ds-example__canvas--stack"><span class="skeleton skeleton--rect" style="height: 8rem;" aria-hidden="true"></span></div><figcaption>One big grey block that looks nothing like the team list that will load.</figcaption></figure>
+        <figure class="ds-do"><div class="ds-example__canvas ds-example__canvas--stack"><div class="stack" aria-busy="true" aria-label="Loading announcements"><span class="skeleton skeleton--title" aria-hidden="true"></span><span class="skeleton skeleton--text" aria-hidden="true"></span></div></div><figcaption>Hide skeletons; label the busy container.</figcaption></figure>
+        <figure class="ds-dont"><div class="ds-example__canvas ds-example__canvas--stack"><div class="stack"><span class="skeleton skeleton--title"></span><span class="skeleton skeleton--text"></span></div></div><figcaption>Unlabelled shapes with no <code>aria-busy</code>; a screen reader hears an empty section.</figcaption></figure>
+      </div>
+    </section>
+
+    <section class="ds-section" id="tokens"><h2><a href="#tokens">Tokens</a></h2>
+      <div class="ds-table-wrap"><table class="ds-table">
+        <thead><tr><th scope="col">Part</th><th scope="col">Token</th><th scope="col">Light</th><th scope="col">Dark</th></tr></thead>
+        <tbody>
+          <tr><td>Base</td><td><code>--color-bg-subtle</code></td><td><span class="ds-swatch-cell" data-theme="light"><i data-token="--color-bg-subtle" data-swatch></i><span data-token="--color-bg-subtle"></span></span></td><td><span class="ds-swatch-cell" data-theme="dark"><i data-token="--color-bg-subtle" data-swatch></i><span data-token="--color-bg-subtle"></span></span></td></tr>
+          <tr><td>Shimmer highlight</td><td><code>--color-bg-subtle-hover</code></td><td><span class="ds-swatch-cell" data-theme="light"><i data-token="--color-bg-subtle-hover" data-swatch></i><span data-token="--color-bg-subtle-hover"></span></span></td><td><span class="ds-swatch-cell" data-theme="dark"><i data-token="--color-bg-subtle-hover" data-swatch></i><span data-token="--color-bg-subtle-hover"></span></span></td></tr>
+          <tr><td>Radius, text / block</td><td><code>--radius-sm</code> / <code>--radius-md</code></td><td colspan="2"><span data-token="--radius-sm"></span> / <span data-token="--radius-md"></span></td></tr>
+          <tr><td>Shimmer cycle</td><td><code>--duration-loop</code>, <code>--ease-standard</code></td><td colspan="2"><span data-token="--duration-loop"></span> / <span data-token="--ease-standard"></span></td></tr>
+          <tr><td>Avatar sizes</td><td><code>--size-avatar-sm</code> / <code>--size-avatar-xl</code></td><td colspan="2"><span data-token="--size-avatar-sm"></span> / <span data-token="--size-avatar-xl"></span></td></tr>
+        </tbody>
+      </table></div>
+    </section>
+
+    <section class="ds-section" id="code"><h2><a href="#code">Code</a></h2>
+      <pre><code>&lt;div class="card card--flush" aria-busy="true" aria-label="Loading contacts"&gt;
+  &lt;div class="list__item"&gt;
+    &lt;span class="skeleton avatar avatar--sm" aria-hidden="true"&gt;&lt;/span&gt;
+    &lt;div class="list__body" style="flex: 1;"&gt;
+      &lt;span class="skeleton skeleton--title" aria-hidden="true"&gt;&lt;/span&gt;
+      &lt;span class="skeleton skeleton--text" aria-hidden="true"&gt;&lt;/span&gt;
+    &lt;/div&gt;
+  &lt;/div&gt;
+  …
+&lt;/div&gt;</code></pre>
+      <table class="ds-table"><thead><tr><th scope="col">Class / attribute</th><th scope="col">Effect</th></tr></thead><tbody>
+        <tr><td><code>.skeleton</code></td><td>Shimmering block, at least 1em tall.</td></tr>
+        <tr><td><code>.skeleton--text</code></td><td>One line; the last in a group is 60% wide.</td></tr>
+        <tr><td><code>.skeleton--title</code></td><td>Heading bar, 1.5em × 40%.</td></tr>
+        <tr><td><code>.skeleton--rect</code></td><td>Block with medium radius; set its height.</td></tr>
+        <tr><td><code>.avatar.skeleton</code></td><td>Round placeholder at the avatar's size (<code>--sm</code>, <code>--xl</code>).</td></tr>
+        <tr><td><code>aria-busy="true"</code> + <code>aria-label</code></td><td>On the loading container.</td></tr>
+      </tbody></table>
+    </section>
+
+    <section class="ds-section" id="sources"><h2><a href="#sources">Sources</a></h2>
+      <p>Extracted from these mocks:</p>
+      <ul>
+        <li><a href="../../mocks/pages/home/loading.html">pages/home/loading</a>, <a href="../../mocks/pages/profile/loading.html">profile/loading</a>, <a href="../../mocks/pages/contacts/loading.html">contacts/loading</a>, <a href="../../mocks/pages/archived-contacts/loading.html">archived-contacts/loading</a>, <a href="../../mocks/pages/contact/loading.html">contact/loading</a></li>
+        <li><a href="../../mocks/pages/partners/loading.html">pages/partners/loading</a>, <a href="../../mocks/pages/team-board/loading.html">team-board/loading</a>, <a href="../../mocks/pages/backlog/loading.html">backlog/loading</a>, <a href="../../mocks/pages/workspaces/loading.html">workspaces/loading</a></li>
+        <li><a href="../../mocks/pages/events/loading.html">pages/events/loading</a>, <a href="../../mocks/pages/team/loading.html">team/loading</a>, <a href="../../mocks/pages/people/loading.html">people/loading</a>, <a href="../../mocks/pages/audit-log/loading.html">audit-log/loading</a>, <a href="../../mocks/pages/admin-users/loading.html">admin-users/loading</a>, <a href="../../mocks/pages/announcements/loading.html">announcements/loading</a>, <a href="../../mocks/pages/notifications/loading.html">notifications/loading</a></li>
+      </ul>
+      <p>Drift noticed: the block height is a raw <code>4rem</code> inline on every Kanban skeleton; the Home subtitle line sets <code>width: 12rem; display: inline-block</code> inline; every list row skeleton sets <code>style="flex:1;"</code> on <code>.list__body</code> inline. These stay as layout nudges. The pattern is inherited from Shelfie unchanged.</p>
+    </section>
+
+    <footer class="ds-footer"><span>FaithTech Community design system · extracted from <a href="../../mocks/index.html">docs/mocks</a> on 2026-10-21</span><a href="#top">Back to top</a></footer>
+  </main>
+</div>
+<script src="../assets/ds.js"></script>
+</body>
+</html>

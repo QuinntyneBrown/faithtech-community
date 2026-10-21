@@ -1,0 +1,249 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Picture list — FaithTech Community design system</title>
+<meta name="description" content="The picture list shows a member’s profile photos, up to 10, with one featured and a required description for each, on Edit profile.">
+<link rel="stylesheet" href="../tokens/tokens.css">
+<link rel="stylesheet" href="../assets/components.css">
+<link rel="stylesheet" href="../assets/ds.css">
+</head>
+<body id="top">
+<a class="skip-link" href="#main">Skip to content</a>
+<div class="ds-shell">
+  <nav class="ds-nav" aria-label="Design system">
+    <div class="ds-nav__brand"><a href="../index.html">FaithTech DS</a><button class="ds-theme-toggle" type="button" aria-pressed="false">☾ Dark</button></div>
+    <details open><summary>Foundations</summary><ul>
+      <li><a href="../foundations/color.html">Color</a></li>
+      <li><a href="../foundations/typography.html">Typography</a></li>
+      <li><a href="../foundations/spacing.html">Spacing</a></li>
+      <li><a href="../foundations/layout.html">Layout</a></li>
+      <li><a href="../foundations/elevation.html">Elevation</a></li>
+      <li><a href="../foundations/shape.html">Shape</a></li>
+      <li><a href="../foundations/motion.html">Motion</a></li>
+      <li><a href="../foundations/iconography.html">Iconography</a></li>
+      <li><a href="../foundations/theming.html">Theming</a></li>
+      <li><a href="../foundations/responsive.html">Responsive</a></li>
+      <li><a href="../foundations/accessibility.html">Accessibility</a></li>
+      <li><a href="../foundations/content.html">Content</a></li>
+    </ul></details>
+    <details open><summary>Components</summary><ul>
+      <li><a href="../components/button.html">Button</a></li>
+      <li><a href="../components/link.html">Link</a></li>
+      <li><a href="../components/menu.html">Menu</a></li>
+      <li><a href="../components/form-field.html">Form field</a></li>
+      <li><a href="../components/text-field.html">Text field</a></li>
+      <li><a href="../components/textarea.html">Textarea</a></li>
+      <li><a href="../components/select.html">Select</a></li>
+      <li><a href="../components/radio-group.html">Radio group</a></li>
+      <li><a href="../components/switch.html">Switch</a></li>
+      <li><a href="../components/form-layout.html">Form layout</a></li>
+      <li><a href="../components/picture-list.html">Picture list</a></li>
+      <li><a href="../components/sticker-picker.html">Estimate card picker</a></li>
+      <li><a href="../components/top-bar.html">Top bar</a></li>
+      <li><a href="../components/tab-bar.html">Tab bar</a></li>
+      <li><a href="../components/tabs.html">Tabs</a></li>
+      <li><a href="../components/breadcrumb.html">Breadcrumb</a></li>
+      <li><a href="../components/skip-link.html">Skip link</a></li>
+      <li><a href="../components/layout.html">Layout primitives</a></li>
+      <li><a href="../components/card.html">Card</a></li>
+      <li><a href="../components/dialog.html">Dialog</a></li>
+      <li><a href="../components/notification-panel.html">Notification panel</a></li>
+      <li><a href="../components/list.html">List</a></li>
+      <li><a href="../components/table.html">Table</a></li>
+      <li><a href="../components/description-list.html">Description list</a></li>
+      <li><a href="../components/feed.html">Activity feed</a></li>
+      <li><a href="../components/tree.html">Backlog tree</a></li>
+      <li><a href="../components/kanban.html">Kanban board</a></li>
+      <li><a href="../components/event-card.html">Event card</a></li>
+      <li><a href="../components/profile-header.html">Profile header</a></li>
+      <li><a href="../components/search-results.html">Search results</a></li>
+      <li><a href="../components/note.html">Note</a></li>
+      <li><a href="../components/avatar.html">Avatar</a></li>
+      <li><a href="../components/logo-mark.html">Logo mark</a></li>
+      <li><a href="../components/badge.html">Badge</a></li>
+      <li><a href="../components/chip.html">Chip</a></li>
+      <li><a href="../components/stat.html">Stat</a></li>
+      <li><a href="../components/sticker.html">Estimate card</a></li>
+      <li><a href="../components/toast.html">Toast</a></li>
+      <li><a href="../components/alert.html">Alert and banner</a></li>
+      <li><a href="../components/inline-message.html">Inline message</a></li>
+      <li><a href="../components/progress.html">Progress</a></li>
+      <li><a href="../components/skeleton.html">Skeleton</a></li>
+      <li><a href="../components/empty-state.html">Empty state</a></li>
+      <li><a href="../components/error-page.html">Error page</a></li>
+    </ul></details>
+    <details open><summary>Patterns</summary><ul>
+      <li><a href="../patterns/forms.html">Forms</a></li>
+      <li><a href="../patterns/feedback-and-loading.html">Feedback and loading</a></li>
+      <li><a href="../patterns/empty-and-error-states.html">Empty and error states</a></li>
+      <li><a href="../patterns/navigation.html">Navigation and page structure</a></li>
+      <li><a href="../patterns/dialogs-and-overlays.html">Dialogs and overlays</a></li>
+      <li><a href="../patterns/lists-and-tables.html">Lists and tables</a></li>
+      <li><a href="../patterns/notifications.html">Notifications</a></li>
+      <li><a href="../patterns/content-and-tone.html">Content and tone</a></li>
+    </ul></details>
+  </nav>
+
+    <main id="main" class="ds-main">
+    <header class="ds-header">
+      <p class="ds-kicker">Component · Profiles</p>
+      <h1>Picture list</h1>
+      <p class="ds-lead">Shows a member’s profile photos as square thumbnails, up to 10. One is <b>featured</b> and becomes their picture everywhere on FaithTech, and every photo needs a description (alt text) before the profile saves. It lives in the Photos card of Edit profile.</p>
+      <div class="ds-meta"><span class="ds-pill ds-pill--ok">WCAG 2.2 AA</span><span class="ds-pill">Status: stable</span><span class="ds-pill"><code>&lt;ft-picture-list&gt;</code></span></div>
+      <ul class="ds-toc">
+        <li><a href="#overview">Overview</a></li><li><a href="#anatomy">Anatomy</a></li><li><a href="#variants">Variants</a></li><li><a href="#sizes">Sizes</a></li><li><a href="#states">States</a></li><li><a href="#responsive">Responsive</a></li><li><a href="#theming">Theming</a></li><li><a href="#accessibility">Accessibility</a></li><li><a href="#content">Content</a></li><li><a href="#do-dont">Do and don't</a></li><li><a href="#tokens">Tokens</a></li><li><a href="#code">Code</a></li><li><a href="#sources">Sources</a></li>
+      </ul>
+    </header>
+
+    <section class="ds-section" id="overview"><h2><a href="#overview">Overview</a></h2>
+      <p>Use the picture list wherever members manage their own photos. Today that is the Photos card on Edit profile: Grace Okonkwo has four photos, and the Builders Night one is featured, so it is her <a href="avatar.html">avatar</a> on her profile, in People and in search.</p>
+      <p>The list uploads nothing itself. It shows the photos it is given, checks each chosen file’s type and size, and emits what the member asked for: add, remove (through the <a href="../../mocks/dialogs/delete-photo/default.html">Delete photo</a> confirmation), feature, or a changed description. Descriptions are saved with the profile.</p>
+    </section>
+
+    <section class="ds-section" id="anatomy"><h2><a href="#anatomy">Anatomy</a></h2>
+      <div class="ds-anatomy">
+        <figure class="ds-anatomy__figure" style="max-width: 36rem;"><div class="picture-list" role="group" aria-labelledby="an-h"><div class="cluster cluster--between"><span class="field__label" id="an-h">Photos <span class="badge">2 of 10</span></span><label class="btn btn--sm"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>Add photos<input class="visually-hidden" type="file" accept="image/jpeg,image/png,image/webp" multiple></label></div><p class="picture-list__note">JPEG, PNG or WebP up to 5 MB. Your featured photo is your picture everywhere on FaithTech.</p><ul class="picture-list__grid" aria-label="Photos"><li class="picture-list__item picture-list__item--featured"><div class="picture-list__thumb"><img src="../assets/photos/builders-night.svg" alt="Grace speaking at Builders Night in front of a full room"><span class="badge badge--success">Featured</span><button class="btn btn--icon btn--sm picture-list__remove" type="button" aria-label="Remove photo 1"><svg class="icon icon--sm" aria-hidden="true" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18"/></svg></button></div><div class="field"><label class="field__label" for="an-p1">Photo 1 description</label><input class="input input--sm" id="an-p1" type="text" value="Grace speaking at Builders Night in front of a full room" required></div></li><li class="picture-list__item"><div class="picture-list__thumb"><img src="../assets/photos/hackathon.svg" alt="Teams working on laptops at the spring hackathon"><button class="btn btn--icon btn--sm picture-list__remove" type="button" aria-label="Remove photo 2"><svg class="icon icon--sm" aria-hidden="true" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18"/></svg></button></div><div class="field"><label class="field__label" for="an-p2">Photo 2 description</label><input class="input input--sm" id="an-p2" type="text" value="Teams working on laptops at the spring hackathon" required></div><div class="picture-list__actions"><button class="btn btn--sm btn--ghost" type="button" aria-label="Feature photo 2"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><path d="m12 3 2.8 5.7 6.2.9-4.5 4.4 1 6.2L12 17.3 6.5 20.2l1-6.2L3 9.6l6.2-.9z"/></svg>Feature</button></div></li></ul></div></figure>
+        <ol class="ds-anatomy__list">
+          <li><div><b>Heading and count</b><small>"Photos" with a neutral <a href="badge.html">badge</a>, "2 of 10".</small></div></li>
+          <li><div><b>Add photos</b><small>A <code>label.btn</code> around a visually hidden <code>input type="file" multiple</code>.</small></div></li>
+          <li><div><b>Help</b><small>The allowed types and size, and what featured means.</small></div></li>
+          <li><div><b>Thumbnail</b><small>A square <code>.picture-list__thumb</code>. Its <code>alt</code> is the member’s own description.</small></div></li>
+          <li><div><b>Featured mark</b><small>A success badge, "Featured", and an accent ring.</small></div></li>
+          <li><div><b>Remove</b><small>An icon button on the corner, named "Remove photo N". It opens the Delete photo dialog.</small></div></li>
+          <li><div><b>Description</b><small>A required small text field, "Photo N description".</small></div></li>
+          <li><div><b>Feature</b><small>A small ghost button under every photo that is not featured.</small></div></li>
+        </ol>
+      </div>
+    </section>
+
+    <section class="ds-section" id="variants"><h2><a href="#variants">Variants</a></h2>
+      <h3>With photos</h3>
+      <div class="ds-example"><div class="ds-example__canvas ds-example__canvas--stack" style="max-width: 36rem;"><div class="picture-list" role="group" aria-labelledby="v1-h"><div class="cluster cluster--between"><span class="field__label" id="v1-h">Photos <span class="badge">4 of 10</span></span><label class="btn btn--sm"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>Add photos<input class="visually-hidden" type="file" accept="image/jpeg,image/png,image/webp" multiple></label></div><p class="picture-list__note">JPEG, PNG or WebP up to 5 MB. Your featured photo is your picture everywhere on FaithTech.</p><ul class="picture-list__grid" aria-label="Photos"><li class="picture-list__item picture-list__item--featured"><div class="picture-list__thumb"><img src="../assets/photos/builders-night.svg" alt="Grace speaking at Builders Night in front of a full room"><span class="badge badge--success">Featured</span><button class="btn btn--icon btn--sm picture-list__remove" type="button" aria-label="Remove photo 1"><svg class="icon icon--sm" aria-hidden="true" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18"/></svg></button></div><div class="field"><label class="field__label" for="v1-p1">Photo 1 description</label><input class="input input--sm" id="v1-p1" type="text" value="Grace speaking at Builders Night in front of a full room" required></div></li><li class="picture-list__item"><div class="picture-list__thumb"><img src="../assets/photos/hackathon.svg" alt="Teams working on laptops at the spring hackathon"><button class="btn btn--icon btn--sm picture-list__remove" type="button" aria-label="Remove photo 2"><svg class="icon icon--sm" aria-hidden="true" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18"/></svg></button></div><div class="field"><label class="field__label" for="v1-p2">Photo 2 description</label><input class="input input--sm" id="v1-p2" type="text" value="Teams working on laptops at the spring hackathon" required></div><div class="picture-list__actions"><button class="btn btn--sm btn--ghost" type="button" aria-label="Feature photo 2"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><path d="m12 3 2.8 5.7 6.2.9-4.5 4.4 1 6.2L12 17.3 6.5 20.2l1-6.2L3 9.6l6.2-.9z"/></svg>Feature</button></div></li><li class="picture-list__item"><div class="picture-list__thumb"><img src="../assets/photos/city.svg" alt="The Toronto skyline at dusk from the waterfront"><button class="btn btn--icon btn--sm picture-list__remove" type="button" aria-label="Remove photo 3"><svg class="icon icon--sm" aria-hidden="true" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18"/></svg></button></div><div class="field"><label class="field__label" for="v1-p3">Photo 3 description</label><input class="input input--sm" id="v1-p3" type="text" value="The Toronto skyline at dusk from the waterfront" required></div><div class="picture-list__actions"><button class="btn btn--sm btn--ghost" type="button" aria-label="Feature photo 3"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><path d="m12 3 2.8 5.7 6.2.9-4.5 4.4 1 6.2L12 17.3 6.5 20.2l1-6.2L3 9.6l6.2-.9z"/></svg>Feature</button></div></li><li class="picture-list__item"><div class="picture-list__thumb"><img src="../assets/photos/team.svg" alt="The Toronto city team gathered around a whiteboard"><button class="btn btn--icon btn--sm picture-list__remove" type="button" aria-label="Remove photo 4"><svg class="icon icon--sm" aria-hidden="true" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18"/></svg></button></div><div class="field"><label class="field__label" for="v1-p4">Photo 4 description</label><input class="input input--sm" id="v1-p4" type="text" value="The Toronto city team gathered around a whiteboard" required></div><div class="picture-list__actions"><button class="btn btn--sm btn--ghost" type="button" aria-label="Feature photo 4"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><path d="m12 3 2.8 5.7 6.2.9-4.5 4.4 1 6.2L12 17.3 6.5 20.2l1-6.2L3 9.6l6.2-.9z"/></svg>Feature</button></div></li></ul></div></div></div>
+      <h3>Empty</h3>
+      <div class="ds-example"><div class="ds-example__canvas ds-example__canvas--stack" style="max-width: 36rem;"><div class="picture-list" role="group" aria-labelledby="v2-h"><div class="cluster cluster--between"><span class="field__label" id="v2-h">Photos <span class="badge">0 of 10</span></span><label class="btn btn--sm"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>Add photos<input class="visually-hidden" type="file" accept="image/jpeg,image/png,image/webp" multiple></label></div><p class="picture-list__note">No photos yet. Add one so people recognise you at events. JPEG, PNG or WebP up to 5 MB.</p></div></div></div>
+      <p>There are no other variants: the profile is the only owner of photos in v1.</p>
+    </section>
+
+    <section class="ds-section" id="sizes" data-na="One size: thumbnails fill a grid column of at least 8.5rem."><h2><a href="#sizes">Sizes</a></h2>
+      <p>One size. Each thumbnail fills a grid column at least 8.5rem wide: two across on a phone, four in the Edit profile form.</p>
+    </section>
+
+    <section class="ds-section" id="states"><h2><a href="#states">States</a></h2>
+      <div class="ds-matrix"><table>
+        <thead><tr><th scope="col">State</th><th scope="col">Example</th></tr></thead>
+        <tbody>
+          <tr><th scope="row">Hover on Feature</th><td style="max-width: 36rem;"><div class="picture-list" role="group" aria-labelledby="s1-h"><div class="cluster cluster--between"><span class="field__label" id="s1-h">Photos <span class="badge">2 of 10</span></span><label class="btn btn--sm"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>Add photos<input class="visually-hidden" type="file" accept="image/jpeg,image/png,image/webp" multiple></label></div><p class="picture-list__note">JPEG, PNG or WebP up to 5 MB. Your featured photo is your picture everywhere on FaithTech.</p><ul class="picture-list__grid" aria-label="Photos"><li class="picture-list__item picture-list__item--featured"><div class="picture-list__thumb"><img src="../assets/photos/builders-night.svg" alt="Grace speaking at Builders Night in front of a full room"><span class="badge badge--success">Featured</span><button class="btn btn--icon btn--sm picture-list__remove" type="button" aria-label="Remove photo 1"><svg class="icon icon--sm" aria-hidden="true" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18"/></svg></button></div><div class="field"><label class="field__label" for="s1-p1">Photo 1 description</label><input class="input input--sm" id="s1-p1" type="text" value="Grace speaking at Builders Night in front of a full room" required></div></li><li class="picture-list__item"><div class="picture-list__thumb"><img src="../assets/photos/hackathon.svg" alt="Teams working on laptops at the spring hackathon"><button class="btn btn--icon btn--sm picture-list__remove" type="button" aria-label="Remove photo 2"><svg class="icon icon--sm" aria-hidden="true" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18"/></svg></button></div><div class="field"><label class="field__label" for="s1-p2">Photo 2 description</label><input class="input input--sm" id="s1-p2" type="text" value="Teams working on laptops at the spring hackathon" required></div><div class="picture-list__actions"><button class="btn btn--sm btn--ghost" type="button" data-state="hover" aria-label="Feature photo 2"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><path d="m12 3 2.8 5.7 6.2.9-4.5 4.4 1 6.2L12 17.3 6.5 20.2l1-6.2L3 9.6l6.2-.9z"/></svg>Feature</button></div></li></ul></div></td></tr>
+          <tr><th scope="row">Focus on Feature</th><td style="max-width: 36rem;"><div class="picture-list" role="group" aria-labelledby="s2-h"><div class="cluster cluster--between"><span class="field__label" id="s2-h">Photos <span class="badge">2 of 10</span></span><label class="btn btn--sm"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>Add photos<input class="visually-hidden" type="file" accept="image/jpeg,image/png,image/webp" multiple></label></div><p class="picture-list__note">JPEG, PNG or WebP up to 5 MB. Your featured photo is your picture everywhere on FaithTech.</p><ul class="picture-list__grid" aria-label="Photos"><li class="picture-list__item picture-list__item--featured"><div class="picture-list__thumb"><img src="../assets/photos/builders-night.svg" alt="Grace speaking at Builders Night in front of a full room"><span class="badge badge--success">Featured</span><button class="btn btn--icon btn--sm picture-list__remove" type="button" aria-label="Remove photo 1"><svg class="icon icon--sm" aria-hidden="true" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18"/></svg></button></div><div class="field"><label class="field__label" for="s2-p1">Photo 1 description</label><input class="input input--sm" id="s2-p1" type="text" value="Grace speaking at Builders Night in front of a full room" required></div></li><li class="picture-list__item"><div class="picture-list__thumb"><img src="../assets/photos/hackathon.svg" alt="Teams working on laptops at the spring hackathon"><button class="btn btn--icon btn--sm picture-list__remove" type="button" aria-label="Remove photo 2"><svg class="icon icon--sm" aria-hidden="true" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18"/></svg></button></div><div class="field"><label class="field__label" for="s2-p2">Photo 2 description</label><input class="input input--sm" id="s2-p2" type="text" value="Teams working on laptops at the spring hackathon" required></div><div class="picture-list__actions"><button class="btn btn--sm btn--ghost" type="button" data-state="focus" aria-label="Feature photo 2"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><path d="m12 3 2.8 5.7 6.2.9-4.5 4.4 1 6.2L12 17.3 6.5 20.2l1-6.2L3 9.6l6.2-.9z"/></svg>Feature</button></div></li></ul></div></td></tr>
+          <tr><th scope="row">Uploading</th><td style="max-width: 36rem;"><div class="picture-list" role="group" aria-labelledby="s3-h"><div class="cluster cluster--between"><span class="field__label" id="s3-h">Photos <span class="badge">2 of 10</span></span><label class="btn btn--sm"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>Add photos<input class="visually-hidden" type="file" accept="image/jpeg,image/png,image/webp" multiple></label></div><p class="picture-list__note">JPEG, PNG or WebP up to 5 MB. Your featured photo is your picture everywhere on FaithTech.</p><ul class="picture-list__grid" aria-label="Photos"><li class="picture-list__item picture-list__item--featured"><div class="picture-list__thumb"><img src="../assets/photos/builders-night.svg" alt="Grace speaking at Builders Night in front of a full room"><span class="badge badge--success">Featured</span><button class="btn btn--icon btn--sm picture-list__remove" type="button" aria-label="Remove photo 1"><svg class="icon icon--sm" aria-hidden="true" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18"/></svg></button></div><div class="field"><label class="field__label" for="s3-p1">Photo 1 description</label><input class="input input--sm" id="s3-p1" type="text" value="Grace speaking at Builders Night in front of a full room" required></div></li><li class="picture-list__item"><div class="picture-list__thumb" aria-busy="true"><img src="../assets/photos/team.svg" alt="The Toronto city team gathered around a whiteboard"><button class="btn btn--icon btn--sm picture-list__remove" type="button" aria-label="Remove photo 4"><svg class="icon icon--sm" aria-hidden="true" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18"/></svg></button></div><div class="field"><label class="field__label" for="s3-p4">Photo 4 description</label><input class="input input--sm" id="s3-p4" type="text" value="The Toronto city team gathered around a whiteboard" required></div><div class="picture-list__actions"><button class="btn btn--sm btn--ghost" type="button" aria-label="Feature photo 4"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><path d="m12 3 2.8 5.7 6.2.9-4.5 4.4 1 6.2L12 17.3 6.5 20.2l1-6.2L3 9.6l6.2-.9z"/></svg>Feature</button></div><p class="picture-list__note" role="status">Uploading… 60%</p></li></ul></div></td></tr>
+          <tr><th scope="row">Too large</th><td style="max-width: 36rem;"><div class="picture-list" role="group" aria-labelledby="s4-h"><div class="cluster cluster--between"><span class="field__label" id="s4-h">Photos <span class="badge">2 of 10</span></span><label class="btn btn--sm"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>Add photos<input class="visually-hidden" type="file" accept="image/jpeg,image/png,image/webp" multiple></label></div><p class="picture-list__note">JPEG, PNG or WebP up to 5 MB. Your featured photo is your picture everywhere on FaithTech.</p><ul class="picture-list__grid" aria-label="Photos"><li class="picture-list__item picture-list__item--featured"><div class="picture-list__thumb"><img src="../assets/photos/builders-night.svg" alt="Grace speaking at Builders Night in front of a full room"><span class="badge badge--success">Featured</span><button class="btn btn--icon btn--sm picture-list__remove" type="button" aria-label="Remove photo 1"><svg class="icon icon--sm" aria-hidden="true" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18"/></svg></button></div><div class="field"><label class="field__label" for="s4-p1">Photo 1 description</label><input class="input input--sm" id="s4-p1" type="text" value="Grace speaking at Builders Night in front of a full room" required></div></li><li class="picture-list__item picture-list__item--failed"><div class="picture-list__thumb"><img src="../assets/photos/team.svg" alt="The Toronto city team gathered around a whiteboard"><button class="btn btn--icon btn--sm picture-list__remove" type="button" aria-label="Remove photo 4"><svg class="icon icon--sm" aria-hidden="true" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18"/></svg></button></div><div class="field"><label class="field__label" for="s4-p4">Photo 4 description</label><input class="input input--sm" id="s4-p4" type="text" value="The Toronto city team gathered around a whiteboard" required></div><div class="picture-list__actions"><button class="btn btn--sm btn--ghost" type="button" aria-label="Feature photo 4"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><path d="m12 3 2.8 5.7 6.2.9-4.5 4.4 1 6.2L12 17.3 6.5 20.2l1-6.2L3 9.6l6.2-.9z"/></svg>Feature</button></div><p class="picture-list__note">team.jpg is 9.4 MB. Photos can be up to 5 MB — try a smaller one.</p></li></ul></div></td></tr>
+          <tr><th scope="row">Description missing</th><td style="max-width: 36rem;"><div class="picture-list" role="group" aria-labelledby="s5-h"><div class="cluster cluster--between"><span class="field__label" id="s5-h">Photos <span class="badge">2 of 10</span></span><label class="btn btn--sm"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>Add photos<input class="visually-hidden" type="file" accept="image/jpeg,image/png,image/webp" multiple></label></div><p class="picture-list__note">JPEG, PNG or WebP up to 5 MB. Your featured photo is your picture everywhere on FaithTech.</p><ul class="picture-list__grid" aria-label="Photos"><li class="picture-list__item picture-list__item--featured"><div class="picture-list__thumb"><img src="../assets/photos/builders-night.svg" alt="Grace speaking at Builders Night in front of a full room"><span class="badge badge--success">Featured</span><button class="btn btn--icon btn--sm picture-list__remove" type="button" aria-label="Remove photo 1"><svg class="icon icon--sm" aria-hidden="true" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18"/></svg></button></div><div class="field"><label class="field__label" for="s5-p1">Photo 1 description</label><input class="input input--sm" id="s5-p1" type="text" value="Grace speaking at Builders Night in front of a full room" required></div></li><li class="picture-list__item"><div class="picture-list__thumb"><img src="../assets/photos/city.svg" alt="The Toronto skyline at dusk from the waterfront"><button class="btn btn--icon btn--sm picture-list__remove" type="button" aria-label="Remove photo 3"><svg class="icon icon--sm" aria-hidden="true" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18"/></svg></button></div><div class="field"><label class="field__label" for="s5-p3">Photo 3 description</label><input class="input input--sm" id="s5-p3" type="text" value="" required aria-invalid="true" aria-describedby="s5-p3-e"><div class="field__error" id="s5-p3-e">Describe what’s in the photo for people using screen readers.</div></div><div class="picture-list__actions"><button class="btn btn--sm btn--ghost" type="button" aria-label="Feature photo 3"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><path d="m12 3 2.8 5.7 6.2.9-4.5 4.4 1 6.2L12 17.3 6.5 20.2l1-6.2L3 9.6l6.2-.9z"/></svg>Feature</button></div></li></ul></div></td></tr>
+          <tr><th scope="row">Full (10 of 10)</th><td style="max-width: 36rem;"><div class="picture-list" role="group" aria-labelledby="s6-h"><div class="cluster cluster--between"><span class="field__label" id="s6-h">Photos <span class="badge">10 of 10</span></span><label class="btn btn--sm"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>Add photos<input class="visually-hidden" type="file" accept="image/jpeg,image/png,image/webp" multiple disabled></label></div><p class="picture-list__note">That’s 10 photos, the most a profile can have. Remove one to add another.</p><ul class="picture-list__grid" aria-label="Photos"><li class="picture-list__item picture-list__item--featured"><div class="picture-list__thumb"><img src="../assets/photos/builders-night.svg" alt="Grace speaking at Builders Night in front of a full room"><span class="badge badge--success">Featured</span><button class="btn btn--icon btn--sm picture-list__remove" type="button" aria-label="Remove photo 1"><svg class="icon icon--sm" aria-hidden="true" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18"/></svg></button></div><div class="field"><label class="field__label" for="s6-p1">Photo 1 description</label><input class="input input--sm" id="s6-p1" type="text" value="Grace speaking at Builders Night in front of a full room" required></div></li><li class="picture-list__item"><div class="picture-list__thumb"><img src="../assets/photos/hackathon.svg" alt="Teams working on laptops at the spring hackathon"><button class="btn btn--icon btn--sm picture-list__remove" type="button" aria-label="Remove photo 2"><svg class="icon icon--sm" aria-hidden="true" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18"/></svg></button></div><div class="field"><label class="field__label" for="s6-p2">Photo 2 description</label><input class="input input--sm" id="s6-p2" type="text" value="Teams working on laptops at the spring hackathon" required></div><div class="picture-list__actions"><button class="btn btn--sm btn--ghost" type="button" aria-label="Feature photo 2"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><path d="m12 3 2.8 5.7 6.2.9-4.5 4.4 1 6.2L12 17.3 6.5 20.2l1-6.2L3 9.6l6.2-.9z"/></svg>Feature</button></div></li></ul></div></td></tr>
+        </tbody>
+      </table></div>
+      <ul>
+        <li><b>Uploading</b> sets <code>aria-busy</code> on that thumbnail, spins over it and shows the percentage in a polite status line. The other photos stay usable.</li>
+        <li><b>Too large or wrong type</b> is checked in the browser and again on the server. The thumbnail keeps a danger border and the note names the file and the limit.</li>
+        <li><b>Description missing</b> blocks Save profile, and the form summary links to the field ("Describe the photo").</li>
+        <li><b>Removing</b> goes through the Delete photo dialog (default, busy, failed). Removing the featured photo features the oldest one left.</li>
+        <li><b>Saving</b> leaves the list unchanged; Save profile carries the busy state.</li>
+      </ul>
+    </section>
+
+    <section class="ds-section" id="responsive"><h2><a href="#responsive">Responsive behaviour</a></h2>
+      <ul>
+        <li>The grid is <code>repeat(auto-fill, minmax(8.5rem, 1fr))</code>: two columns at 360px, four in the desktop form. Nothing scrolls sideways.</li>
+        <li>The heading row is a wrapping <code>.cluster</code>, so Add photos drops under "Photos" when space runs out.</li>
+      </ul>
+    </section>
+
+    <section class="ds-section" id="theming"><h2><a href="#theming">Theming</a></h2>
+      <div class="ds-themes"><div data-theme="light"><div class="picture-list" role="group" aria-labelledby="t1-h"><div class="cluster cluster--between"><span class="field__label" id="t1-h">Photos <span class="badge">2 of 10</span></span><label class="btn btn--sm"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>Add photos<input class="visually-hidden" type="file" accept="image/jpeg,image/png,image/webp" multiple></label></div><p class="picture-list__note">JPEG, PNG or WebP up to 5 MB. Your featured photo is your picture everywhere on FaithTech.</p><ul class="picture-list__grid" aria-label="Photos"><li class="picture-list__item picture-list__item--featured"><div class="picture-list__thumb"><img src="../assets/photos/builders-night.svg" alt="Grace speaking at Builders Night in front of a full room"><span class="badge badge--success">Featured</span><button class="btn btn--icon btn--sm picture-list__remove" type="button" aria-label="Remove photo 1"><svg class="icon icon--sm" aria-hidden="true" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18"/></svg></button></div><div class="field"><label class="field__label" for="t1-p1">Photo 1 description</label><input class="input input--sm" id="t1-p1" type="text" value="Grace speaking at Builders Night in front of a full room" required></div></li><li class="picture-list__item"><div class="picture-list__thumb"><img src="../assets/photos/hackathon.svg" alt="Teams working on laptops at the spring hackathon"><button class="btn btn--icon btn--sm picture-list__remove" type="button" aria-label="Remove photo 2"><svg class="icon icon--sm" aria-hidden="true" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18"/></svg></button></div><div class="field"><label class="field__label" for="t1-p2">Photo 2 description</label><input class="input input--sm" id="t1-p2" type="text" value="Teams working on laptops at the spring hackathon" required></div><div class="picture-list__actions"><button class="btn btn--sm btn--ghost" type="button" aria-label="Feature photo 2"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><path d="m12 3 2.8 5.7 6.2.9-4.5 4.4 1 6.2L12 17.3 6.5 20.2l1-6.2L3 9.6l6.2-.9z"/></svg>Feature</button></div></li></ul></div></div><div data-theme="dark"><div class="picture-list" role="group" aria-labelledby="t2-h"><div class="cluster cluster--between"><span class="field__label" id="t2-h">Photos <span class="badge">2 of 10</span></span><label class="btn btn--sm"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>Add photos<input class="visually-hidden" type="file" accept="image/jpeg,image/png,image/webp" multiple></label></div><p class="picture-list__note">JPEG, PNG or WebP up to 5 MB. Your featured photo is your picture everywhere on FaithTech.</p><ul class="picture-list__grid" aria-label="Photos"><li class="picture-list__item picture-list__item--featured"><div class="picture-list__thumb"><img src="../assets/photos/builders-night.svg" alt="Grace speaking at Builders Night in front of a full room"><span class="badge badge--success">Featured</span><button class="btn btn--icon btn--sm picture-list__remove" type="button" aria-label="Remove photo 1"><svg class="icon icon--sm" aria-hidden="true" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18"/></svg></button></div><div class="field"><label class="field__label" for="t2-p1">Photo 1 description</label><input class="input input--sm" id="t2-p1" type="text" value="Grace speaking at Builders Night in front of a full room" required></div></li><li class="picture-list__item"><div class="picture-list__thumb"><img src="../assets/photos/hackathon.svg" alt="Teams working on laptops at the spring hackathon"><button class="btn btn--icon btn--sm picture-list__remove" type="button" aria-label="Remove photo 2"><svg class="icon icon--sm" aria-hidden="true" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18"/></svg></button></div><div class="field"><label class="field__label" for="t2-p2">Photo 2 description</label><input class="input input--sm" id="t2-p2" type="text" value="Teams working on laptops at the spring hackathon" required></div><div class="picture-list__actions"><button class="btn btn--sm btn--ghost" type="button" aria-label="Feature photo 2"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><path d="m12 3 2.8 5.7 6.2.9-4.5 4.4 1 6.2L12 17.3 6.5 20.2l1-6.2L3 9.6l6.2-.9z"/></svg>Feature</button></div></li></ul></div></div></div>
+      <p>Only role tokens are used. The Remove button keeps a surface background and a small shadow, so it reads over any photo in either theme.</p>
+    </section>
+
+    <section class="ds-section" id="accessibility"><h2><a href="#accessibility">Accessibility</a></h2>
+      <h3>Role and pattern</h3>
+      <p>A <code>role="group"</code> named "Photos", holding a list of thumbnails and a native file input inside a label, so "Add photos" is the input’s accessible name. Each thumbnail’s <code>alt</code> is the description the member typed. The description is required, so no photo reaches other members without alt text.</p>
+      <h3>Keyboard</h3>
+      <table class="ds-table ds-keys"><thead><tr><th scope="col">Key</th><th scope="col">Action</th></tr></thead><tbody>
+        <tr><td><kbd>Tab</kbd></td><td>Add photos, then for each photo: Remove, description, Feature.</td></tr>
+        <tr><td><kbd>Enter</kbd> / <kbd>Space</kbd></td><td>Presses the focused button, or opens the file chooser.</td></tr>
+      </tbody></table>
+      <h3>Names and announcements</h3>
+      <ul>
+        <li>Buttons name their photo: "Remove photo 2", "Feature photo 2". "Featured" is badge text, so the state never rests on the ring colour alone.</li>
+        <li>Upload progress is read from a <code>role="status"</code> line. Errors are tied to the description field with <code>aria-describedby</code>.</li>
+        <li>After a photo is removed, focus returns to Add photos.</li>
+      </ul>
+      <h3>Touch</h3>
+      <p>Every button meets the 44px target through its padding. On phones the file chooser offers the camera.</p>
+    </section>
+
+    <section class="ds-section" id="content"><h2><a href="#content">Content</a></h2>
+      <ul>
+        <li>Heading "Photos" with "N of 10". Help: "JPEG, PNG or WebP up to 5 MB. Your featured photo is your picture everywhere on FaithTech."</li>
+        <li>Description label "Photo N description". Say what is in the photo ("Grace speaking at Builders Night in front of a full room"), not the file name.</li>
+        <li>Errors: "Describe what’s in the photo for people using screen readers." and "team.jpg is 9.4 MB. Photos can be up to 5 MB — try a smaller one."</li>
+        <li>Full: "That’s 10 photos, the most a profile can have. Remove one to add another."</li>
+      </ul>
+    </section>
+
+    <section class="ds-section" id="do-dont"><h2><a href="#do-dont">Do and don't</a></h2>
+      <div class="ds-dodont">
+        <figure class="ds-do"><div class="ds-example__canvas"><div class="field"><label class="field__label" for="dd1">Photo 1 description</label><input class="input input--sm" id="dd1" type="text" value="Grace speaking at Builders Night in front of a full room"></div></div><figcaption>Describe the people and the moment.</figcaption></figure>
+        <figure class="ds-dont"><div class="ds-example__canvas"><div class="field"><label class="field__label" for="dd2">Photo 1 description</label><input class="input input--sm" id="dd2" type="text" value="IMG_2041.jpg"></div></div><figcaption>A file name tells a screen reader user nothing.</figcaption></figure>
+        <figure class="ds-do"><div class="ds-example__canvas"><span class="badge badge--success">Featured</span></div><figcaption>Mark the featured photo with text as well as the ring.</figcaption></figure>
+        <figure class="ds-dont"><div class="ds-example__canvas"><p class="field__error">Upload failed (413)</p></div><figcaption>A status code, without the file name or the limit.</figcaption></figure>
+      </div>
+    </section>
+
+    <section class="ds-section" id="tokens"><h2><a href="#tokens">Tokens</a></h2>
+      <div class="ds-table-wrap"><table class="ds-table">
+        <thead><tr><th scope="col">Part</th><th scope="col">Token</th><th scope="col">Value</th></tr></thead>
+        <tbody>
+          <tr><td>Grid gap</td><td><code>--space-3</code></td><td><span data-token="--space-3"></span></td></tr>
+          <tr><td>Thumbnail corner</td><td><code>--radius-md</code></td><td><span data-token="--radius-md"></span></td></tr>
+          <tr><td>Thumbnail backdrop</td><td><code>--color-bg-subtle</code></td><td><span data-token="--color-bg-subtle"></span></td></tr>
+          <tr><td>Featured ring</td><td><code>--color-accent</code>, <code>--border-width-thick</code></td><td><span data-token="--color-accent"></span></td></tr>
+          <tr><td>Failed border, note</td><td><code>--color-danger-solid</code>, <code>--color-danger-fg</code></td><td><span data-token="--color-danger-fg"></span></td></tr>
+          <tr><td>Remove button</td><td><code>--color-bg-surface</code>, <code>--shadow-1</code></td><td><span data-token="--color-bg-surface"></span></td></tr>
+          <tr><td>Note</td><td><code>--text-caption</code>, <code>--color-fg-muted</code></td><td><span data-token="--color-fg-muted"></span></td></tr>
+        </tbody>
+      </table></div>
+      <p>No new tokens.</p>
+    </section>
+
+    <section class="ds-section" id="code"><h2><a href="#code">Code</a></h2>
+      <pre><code>&lt;!-- Angular (components library) --&gt;
+&lt;ft-picture-list [photos]="photos" [max]="10"
+                 (picked)="upload($event)" (removed)="confirmDelete($event)"
+                 (featured)="feature($event)" (altChange)="describe($event)" /&gt;
+
+// photos: { url: string; alt: string; featured: boolean;
+//           state?: 'uploading' | 'failed'; progress?: number; error?: string }[]</code></pre>
+      <table class="ds-table"><thead><tr><th scope="col">Class / input</th><th scope="col">Effect</th></tr></thead><tbody>
+        <tr><td><code>.picture-list</code>, <code>.picture-list__grid</code></td><td>The group, and the auto-fill grid of thumbnails.</td></tr>
+        <tr><td><code>.picture-list__item--featured</code>, <code>--failed</code></td><td>Accent ring; danger border and dimmed photo.</td></tr>
+        <tr><td><code>.picture-list__thumb[aria-busy]</code></td><td>Spinner over a dimmed photo while it uploads.</td></tr>
+        <tr><td><code>.picture-list__remove</code>, <code>__actions</code>, <code>__note</code></td><td>The corner Remove button, the Feature row and the caption note.</td></tr>
+        <tr><td><code>photos</code>, <code>max</code></td><td>The items. Add photos is disabled at <code>max</code> (10).</td></tr>
+        <tr><td><code>picked</code>, <code>removed</code>, <code>featured</code>, <code>altChange</code></td><td>Emit the chosen files (after the type and size checks), or the photo’s index and new description.</td></tr>
+      </tbody></table>
+    </section>
+
+    <section class="ds-section" id="sources"><h2><a href="#sources">Sources</a></h2>
+      <ul>
+        <li><a href="../../mocks/pages/edit-profile/default.html">pages/edit-profile</a>: <a href="../../mocks/pages/edit-profile/uploading.html">uploading</a>, <a href="../../mocks/pages/edit-profile/too-large.html">too-large</a>, <a href="../../mocks/pages/edit-profile/invalid.html">invalid</a>, <a href="../../mocks/pages/edit-profile/busy.html">busy</a></li>
+        <li><a href="../../mocks/dialogs/delete-photo/default.html">dialogs/delete-photo</a>: <a href="../../mocks/dialogs/delete-photo/busy.html">busy</a>, <a href="../../mocks/dialogs/delete-photo/failed.html">failed</a></li>
+      </ul>
+      <p>Drift: the mocks render Remove as a link to the dialog rather than a button; the Photos heading uses an inline <code>style="font: var(--text-h4)"</code> and the form an inline <code>max-width: 48rem</code>; the empty, full (10 of 10) and wrong-type states are not mocked; the featured photo keeps an empty <code>.picture-list__actions</code> div; Feature buttons are not named per photo; the grid is not wrapped in the <code>.picture-list</code> group.</p>
+    </section>
+
+    <footer class="ds-footer"><span>FaithTech Community design system · extracted from <a href="../../mocks/index.html">docs/mocks</a> on 2026-10-21</span><a href="#top">Back to top</a></footer>
+  </main>
+</div>
+<script src="../assets/ds.js"></script>
+</body>
+</html>

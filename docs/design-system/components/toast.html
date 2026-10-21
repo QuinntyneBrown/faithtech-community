@@ -1,0 +1,327 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Toast — FaithTech Community design system</title>
+<meta name="description" content="Short-lived messages about something that just happened, such as an RSVP or a sent invite: info, success, warning and danger, with an optional action, timing and live-region rules.">
+<link rel="stylesheet" href="../tokens/tokens.css">
+<link rel="stylesheet" href="../assets/components.css">
+<link rel="stylesheet" href="../assets/ds.css">
+</head>
+<body id="top">
+<a class="skip-link" href="#main">Skip to content</a>
+<div class="ds-shell">
+  <nav class="ds-nav" aria-label="Design system">
+    <div class="ds-nav__brand"><a href="../index.html">FaithTech DS</a><button class="ds-theme-toggle" type="button" aria-pressed="false">☾ Dark</button></div>
+    <details open><summary>Foundations</summary><ul>
+      <li><a href="../foundations/color.html">Color</a></li>
+      <li><a href="../foundations/typography.html">Typography</a></li>
+      <li><a href="../foundations/spacing.html">Spacing</a></li>
+      <li><a href="../foundations/layout.html">Layout</a></li>
+      <li><a href="../foundations/elevation.html">Elevation</a></li>
+      <li><a href="../foundations/shape.html">Shape</a></li>
+      <li><a href="../foundations/motion.html">Motion</a></li>
+      <li><a href="../foundations/iconography.html">Iconography</a></li>
+      <li><a href="../foundations/theming.html">Theming</a></li>
+      <li><a href="../foundations/responsive.html">Responsive</a></li>
+      <li><a href="../foundations/accessibility.html">Accessibility</a></li>
+      <li><a href="../foundations/content.html">Content</a></li>
+    </ul></details>
+    <details open><summary>Components</summary><ul>
+      <li><a href="../components/button.html">Button</a></li>
+      <li><a href="../components/link.html">Link</a></li>
+      <li><a href="../components/menu.html">Menu</a></li>
+      <li><a href="../components/form-field.html">Form field</a></li>
+      <li><a href="../components/text-field.html">Text field</a></li>
+      <li><a href="../components/textarea.html">Textarea</a></li>
+      <li><a href="../components/select.html">Select</a></li>
+      <li><a href="../components/radio-group.html">Radio group</a></li>
+      <li><a href="../components/switch.html">Switch</a></li>
+      <li><a href="../components/form-layout.html">Form layout</a></li>
+      <li><a href="../components/picture-list.html">Picture list</a></li>
+      <li><a href="../components/sticker-picker.html">Estimate card picker</a></li>
+      <li><a href="../components/top-bar.html">Top bar</a></li>
+      <li><a href="../components/tab-bar.html">Tab bar</a></li>
+      <li><a href="../components/tabs.html">Tabs</a></li>
+      <li><a href="../components/breadcrumb.html">Breadcrumb</a></li>
+      <li><a href="../components/skip-link.html">Skip link</a></li>
+      <li><a href="../components/layout.html">Layout primitives</a></li>
+      <li><a href="../components/card.html">Card</a></li>
+      <li><a href="../components/dialog.html">Dialog</a></li>
+      <li><a href="../components/notification-panel.html">Notification panel</a></li>
+      <li><a href="../components/list.html">List</a></li>
+      <li><a href="../components/table.html">Table</a></li>
+      <li><a href="../components/description-list.html">Description list</a></li>
+      <li><a href="../components/feed.html">Activity feed</a></li>
+      <li><a href="../components/tree.html">Backlog tree</a></li>
+      <li><a href="../components/kanban.html">Kanban board</a></li>
+      <li><a href="../components/event-card.html">Event card</a></li>
+      <li><a href="../components/profile-header.html">Profile header</a></li>
+      <li><a href="../components/search-results.html">Search results</a></li>
+      <li><a href="../components/note.html">Note</a></li>
+      <li><a href="../components/avatar.html">Avatar</a></li>
+      <li><a href="../components/logo-mark.html">Logo mark</a></li>
+      <li><a href="../components/badge.html">Badge</a></li>
+      <li><a href="../components/chip.html">Chip</a></li>
+      <li><a href="../components/stat.html">Stat</a></li>
+      <li><a href="../components/sticker.html">Estimate card</a></li>
+      <li><a href="../components/toast.html">Toast</a></li>
+      <li><a href="../components/alert.html">Alert and banner</a></li>
+      <li><a href="../components/inline-message.html">Inline message</a></li>
+      <li><a href="../components/progress.html">Progress</a></li>
+      <li><a href="../components/skeleton.html">Skeleton</a></li>
+      <li><a href="../components/empty-state.html">Empty state</a></li>
+      <li><a href="../components/error-page.html">Error page</a></li>
+    </ul></details>
+    <details open><summary>Patterns</summary><ul>
+      <li><a href="../patterns/forms.html">Forms</a></li>
+      <li><a href="../patterns/feedback-and-loading.html">Feedback and loading</a></li>
+      <li><a href="../patterns/empty-and-error-states.html">Empty and error states</a></li>
+      <li><a href="../patterns/navigation.html">Navigation and page structure</a></li>
+      <li><a href="../patterns/dialogs-and-overlays.html">Dialogs and overlays</a></li>
+      <li><a href="../patterns/lists-and-tables.html">Lists and tables</a></li>
+      <li><a href="../patterns/notifications.html">Notifications</a></li>
+      <li><a href="../patterns/content-and-tone.html">Content and tone</a></li>
+    </ul></details>
+  </nav>
+
+  <main id="main" class="ds-main">
+    <header class="ds-header">
+      <p class="ds-kicker">Component · Feedback</p>
+      <h1>Toast</h1>
+      <p class="ds-lead">A small dark card that rises from the bottom of the screen to confirm something just happened ("You’re going", "Invite sent") or that something needs attention, then gets out of the way.</p>
+      <div class="ds-meta"><span class="ds-pill ds-pill--ok">WCAG 2.2 AA</span><span class="ds-pill">Status: stable</span><span class="ds-pill"><code>role="status"</code> / <code>role="alert"</code></span></div>
+      <ul class="ds-toc">
+        <li><a href="#overview">Overview</a></li><li><a href="#anatomy">Anatomy</a></li><li><a href="#variants">Variants</a></li><li><a href="#sizes">Sizes</a></li><li><a href="#states">States</a></li><li><a href="#responsive">Responsive</a></li><li><a href="#theming">Theming</a></li><li><a href="#accessibility">Accessibility</a></li><li><a href="#content">Content</a></li><li><a href="#do-dont">Do and don't</a></li><li><a href="#tokens">Tokens</a></li><li><a href="#code">Code</a></li><li><a href="#sources">Sources</a></li>
+      </ul>
+    </header>
+
+    <section class="ds-section" id="overview"><h2><a href="#overview">Overview</a></h2>
+      <p>Use a toast for news about an action that just finished or an event that just arrived, when the person can carry on without reading it. Use an <a href="alert.html">alert or banner</a> when the message must stay on the page, and a <a href="dialog.html">dialog</a> when they must decide before going on.</p>
+      <ul>
+        <li><b>Info</b>: a neutral result, often reversible ("Contact restored", with Undo).</li>
+        <li><b>Success</b>: the member’s action worked ("You’re going", "Invite sent"). Often carries Undo or a next step.</li>
+        <li><b>Warning</b>: it worked, but not fully ("Saved, but email is paused"), or the connection dropped ("No connection").</li>
+        <li><b>Danger</b>: it failed and nothing was lost ("Your RSVP wasn’t saved"), with Retry.</li>
+      </ul>
+    </section>
+
+    <section class="ds-section" id="anatomy"><h2><a href="#anatomy">Anatomy</a></h2>
+      <div class="ds-anatomy">
+        <figure class="ds-anatomy__figure">
+          <div class="toast-region toast-region--static" style="width: 100%; z-index: auto;"><div class="toast toast--success">
+            <svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="m8 12 3 3 5-6"/></svg>
+            <div class="toast__body"><div class="toast__title">You’re going</div><div class="toast__text">We emailed you a confirmation with a calendar invite.</div><button class="toast__action" type="button">Undo</button></div>
+            <button class="close" type="button" aria-label="Dismiss"><svg class="icon icon--sm" aria-hidden="true" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18"/></svg></button>
+            <span class="toast__progress" aria-hidden="true" style="--value: 60%;"></span>
+          </div></div>
+          <span class="ds-callout" style="left: 3%; top: 22%;" aria-hidden="true">1</span>
+          <span class="ds-callout" style="left: 32%; top: 22%;" aria-hidden="true">2</span>
+          <span class="ds-callout" style="left: 60%; top: 46%;" aria-hidden="true">3</span>
+          <span class="ds-callout" style="left: 24%; top: 70%;" aria-hidden="true">4</span>
+          <span class="ds-callout" style="left: 92%; top: 24%;" aria-hidden="true">5</span>
+          <span class="ds-callout" style="left: 50%; top: 80%;" aria-hidden="true">6</span>
+        </figure>
+        <ol class="ds-anatomy__list">
+          <li><div><b>Status icon</b><small>20px, coloured by <code>--color-*-icon-on-inverse</code>, <code>aria-hidden</code>.</small></div></li>
+          <li><div><b>Title</b><small><code>.toast__title</code>: what happened, in a few words.</small></div></li>
+          <li><div><b>Text (optional)</b><small><code>.toast__text</code>: what it means or what to do.</small></div></li>
+          <li><div><b>Action (optional)</b><small><code>.toast__action</code>: one underlined button, such as Undo or Retry.</small></div></li>
+          <li><div><b>Dismiss</b><small><code>.close</code>, 24px target, <code>aria-label="Dismiss"</code>.</small></div></li>
+          <li><div><b>Timer bar</b><small><code>.toast__progress</code>: shrinks over 6 s; only on toasts that dismiss themselves.</small></div></li>
+        </ol>
+      </div>
+    </section>
+
+    <section class="ds-section" id="variants"><h2><a href="#variants">Variants</a></h2>
+      <p>All toasts share the inverse surface; the variant only changes the icon and its colour, plus the timing rules below.</p>
+      <div class="ds-example">
+        <div class="ds-example__canvas ds-example__canvas--stack">
+          <div class="toast-region toast-region--static" style="max-width: 24rem;">
+            <div class="toast toast--info"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 8h.01"/></svg><div class="toast__body"><div class="toast__title">Contact restored</div><div class="toast__text">Ben Carter is back in your contacts.</div><button class="toast__action" type="button">Undo</button></div><button class="close" type="button" aria-label="Dismiss"><svg class="icon icon--sm" aria-hidden="true" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18"/></svg></button><span class="toast__progress" aria-hidden="true"></span></div>
+            <div class="toast toast--success"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="m8 12 3 3 5-6"/></svg><div class="toast__body"><div class="toast__title">Invite sent</div><div class="toast__text">Nate Oyelaran has 14 days to accept.</div><button class="toast__action" type="button">View invites</button></div><button class="close" type="button" aria-label="Dismiss"><svg class="icon icon--sm" aria-hidden="true" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18"/></svg></button><span class="toast__progress" aria-hidden="true"></span></div>
+            <div class="toast toast--warning"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><path d="M12 3 2 20h20L12 3zM12 10v4M12 17h.01"/></svg><div class="toast__body"><div class="toast__title">Saved, but email is paused</div><div class="toast__text">Your announcement is in the app. Email will send when our provider recovers.</div></div><button class="close" type="button" aria-label="Dismiss"><svg class="icon icon--sm" aria-hidden="true" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18"/></svg></button></div>
+            <div class="toast toast--danger"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 8v4M12 16h.01"/></svg><div class="toast__body"><div class="toast__title">Your RSVP wasn’t saved</div><div class="toast__text">We couldn’t reach FaithTech. Try again.</div><button class="toast__action" type="button">Retry</button></div><button class="close" type="button" aria-label="Dismiss"><svg class="icon icon--sm" aria-hidden="true" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18"/></svg></button></div>
+          </div>
+        </div>
+        <div class="ds-example__caption"><span>Info, success with action, warning, danger. Warning and danger have no timer bar: they stay until dismissed.</span></div>
+        <details class="ds-example__code"><summary>HTML</summary><pre><code>&lt;div class="toast toast--success"&gt;
+  &lt;svg class="icon" aria-hidden="true" viewBox="0 0 24 24"&gt;…&lt;/svg&gt;
+  &lt;div class="toast__body"&gt;
+    &lt;div class="toast__title"&gt;Invite sent&lt;/div&gt;
+    &lt;div class="toast__text"&gt;Nate Oyelaran has 14 days to accept.&lt;/div&gt;
+    &lt;button class="toast__action" type="button"&gt;View invites&lt;/button&gt;
+  &lt;/div&gt;
+  &lt;button class="close" type="button" aria-label="Dismiss"&gt;…&lt;/button&gt;
+  &lt;span class="toast__progress" aria-hidden="true"&gt;&lt;/span&gt;
+&lt;/div&gt;</code></pre></details>
+      </div>
+      <h3>Timing</h3>
+      <div class="ds-table-wrap"><table class="ds-table">
+        <thead><tr><th scope="col">Variant</th><th scope="col">Live region</th><th scope="col">Dismisses itself</th><th scope="col">Timer bar</th></tr></thead>
+        <tbody>
+          <tr><td>Info</td><td><code>role="status"</code> (polite)</td><td>After 6 s; pauses on hover or focus</td><td>Yes</td></tr>
+          <tr><td>Success</td><td><code>role="status"</code> (polite)</td><td>After 6 s; pauses on hover or focus. Undo works only while the toast is up.</td><td>Yes</td></tr>
+          <tr><td>Warning</td><td><code>role="status"</code> (polite)</td><td>No; stays until dismissed or the situation changes</td><td>No</td></tr>
+          <tr><td>Danger</td><td><code>role="alert"</code> (assertive)</td><td>Never; stays until dismissed or Retry succeeds</td><td>No</td></tr>
+        </tbody>
+      </table></div>
+    </section>
+
+    <section class="ds-section" id="sizes" data-na="One size only"><h2><a href="#sizes">Sizes</a></h2>
+      <p class="ds-na">One size. Width comes from the region (24rem from 640px, full width below); height from the content.</p>
+    </section>
+
+    <section class="ds-section" id="states"><h2><a href="#states">States</a></h2>
+      <p>The toast itself is not focusable; its action and dismiss buttons are. States are forced with <code>data-state</code> here.</p>
+      <div class="ds-matrix"><table>
+        <thead><tr><th scope="col">State</th><th scope="col">Example</th></tr></thead>
+        <tbody>
+          <tr><th scope="row">Default (entering)</th><td><div class="toast-region toast-region--static"><div class="toast toast--success"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="m8 12 3 3 5-6"/></svg><div class="toast__body"><div class="toast__title">You’re going</div><div class="toast__text">We emailed you a confirmation.</div><button class="toast__action" type="button">Undo</button></div><button class="close" type="button" aria-label="Dismiss"><svg class="icon icon--sm" aria-hidden="true" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18"/></svg></button><span class="toast__progress" aria-hidden="true"></span></div></div></td></tr>
+          <tr><th scope="row">Timer running</th><td><div class="toast-region toast-region--static"><div class="toast toast--success"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="m8 12 3 3 5-6"/></svg><div class="toast__body"><div class="toast__title">You’re going</div><div class="toast__text">We emailed you a confirmation.</div><button class="toast__action" type="button">Undo</button></div><button class="close" type="button" aria-label="Dismiss"><svg class="icon icon--sm" aria-hidden="true" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18"/></svg></button><span class="toast__progress" aria-hidden="true" style="--value: 35%;"></span></div></div></td></tr>
+          <tr><th scope="row">Dismiss hover</th><td><div class="toast-region toast-region--static"><div class="toast toast--info"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 8h.01"/></svg><div class="toast__body"><div class="toast__title">Contact restored</div></div><button class="close" type="button" aria-label="Dismiss" data-state="hover"><svg class="icon icon--sm" aria-hidden="true" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18"/></svg></button></div></div></td></tr>
+          <tr><th scope="row">Dismiss focus</th><td><div class="toast-region toast-region--static"><div class="toast toast--info"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 8h.01"/></svg><div class="toast__body"><div class="toast__title">Contact restored</div></div><button class="close" type="button" aria-label="Dismiss" data-state="focus"><svg class="icon icon--sm" aria-hidden="true" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18"/></svg></button></div></div></td></tr>
+          <tr><th scope="row">Action focus</th><td><div class="toast-region toast-region--static"><div class="toast toast--danger"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 8v4M12 16h.01"/></svg><div class="toast__body"><div class="toast__title">Your RSVP wasn’t saved</div><button class="toast__action" type="button" data-state="focus">Retry</button></div><button class="close" type="button" aria-label="Dismiss"><svg class="icon icon--sm" aria-hidden="true" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18"/></svg></button></div></div></td></tr>
+          <tr><th scope="row">Leaving</th><td><div class="toast-region toast-region--static"><div class="toast toast--success" data-state="leaving"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="m8 12 3 3 5-6"/></svg><div class="toast__body"><div class="toast__title">You’re going</div></div><button class="close" type="button" aria-label="Dismiss"><svg class="icon icon--sm" aria-hidden="true" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18"/></svg></button></div></div><small class="text-caption">Fades out and drops 8px over <code>--duration-base</code>, then is removed.</small></td></tr>
+          <tr><th scope="row">Stacked</th><td><div class="toast-region toast-region--static"><div class="toast toast--info"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 8h.01"/></svg><div class="toast__body"><div class="toast__title">Contact restored</div><div class="toast__text">Ben Carter is back in your contacts.</div></div><button class="close" type="button" aria-label="Dismiss"><svg class="icon icon--sm" aria-hidden="true" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18"/></svg></button><span class="toast__progress" aria-hidden="true"></span></div><div class="toast toast--success"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="m8 12 3 3 5-6"/></svg><div class="toast__body"><div class="toast__title">You’re going</div><div class="toast__text">We emailed you a confirmation.</div><button class="toast__action" type="button">Undo</button></div><button class="close" type="button" aria-label="Dismiss"><svg class="icon icon--sm" aria-hidden="true" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18"/></svg></button><span class="toast__progress" aria-hidden="true"></span></div></div></td></tr>
+        </tbody>
+      </table></div>
+      <h3>Both themes</h3>
+      <p>The toast inverts the page: near-black in the light theme, near-white in the dark theme. The status icons use their own on-inverse tokens so they stay visible on both.</p>
+      <div class="ds-themes">
+        <div data-theme="light"><div class="toast-region toast-region--static"><div class="toast toast--info"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 8h.01"/></svg><div class="toast__body"><div class="toast__title">Contact restored</div></div><button class="close" type="button" aria-label="Dismiss"><svg class="icon icon--sm" aria-hidden="true" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18"/></svg></button></div><div class="toast toast--success"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="m8 12 3 3 5-6"/></svg><div class="toast__body"><div class="toast__title">You’re going</div></div><button class="close" type="button" aria-label="Dismiss"><svg class="icon icon--sm" aria-hidden="true" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18"/></svg></button></div><div class="toast toast--warning"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><path d="M12 3 2 20h20L12 3zM12 10v4M12 17h.01"/></svg><div class="toast__body"><div class="toast__title">Saved, but email is paused</div></div><button class="close" type="button" aria-label="Dismiss"><svg class="icon icon--sm" aria-hidden="true" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18"/></svg></button></div><div class="toast toast--danger"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 8v4M12 16h.01"/></svg><div class="toast__body"><div class="toast__title">Your RSVP wasn’t saved</div></div><button class="close" type="button" aria-label="Dismiss"><svg class="icon icon--sm" aria-hidden="true" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18"/></svg></button></div></div></div>
+        <div data-theme="dark"><div class="toast-region toast-region--static"><div class="toast toast--info"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 8h.01"/></svg><div class="toast__body"><div class="toast__title">Contact restored</div></div><button class="close" type="button" aria-label="Dismiss"><svg class="icon icon--sm" aria-hidden="true" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18"/></svg></button></div><div class="toast toast--success"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="m8 12 3 3 5-6"/></svg><div class="toast__body"><div class="toast__title">You’re going</div></div><button class="close" type="button" aria-label="Dismiss"><svg class="icon icon--sm" aria-hidden="true" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18"/></svg></button></div><div class="toast toast--warning"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><path d="M12 3 2 20h20L12 3zM12 10v4M12 17h.01"/></svg><div class="toast__body"><div class="toast__title">Saved, but email is paused</div></div><button class="close" type="button" aria-label="Dismiss"><svg class="icon icon--sm" aria-hidden="true" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18"/></svg></button></div><div class="toast toast--danger"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 8v4M12 16h.01"/></svg><div class="toast__body"><div class="toast__title">Your RSVP wasn’t saved</div></div><button class="close" type="button" aria-label="Dismiss"><svg class="icon icon--sm" aria-hidden="true" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18"/></svg></button></div></div></div>
+      </div>
+      <ul>
+        <li><b>Stacked</b>: the newest toast enters at the bottom and older ones slide up; more than three collapse into a "+1 more" line.</li>
+        <li><b>Paused</b>: hovering or focusing inside a toast stops its timer and the bar; leaving starts it again.</li>
+      </ul>
+    </section>
+
+    <section class="ds-section" id="responsive"><h2><a href="#responsive">Responsive behaviour</a></h2>
+      <ul>
+        <li>Below 640px the region spans the screen with 16px on each side and sits 16px above the bottom; on phones it clears the bottom tab bar.</li>
+        <li>From 640px the region is 24rem wide, 24px from the bottom-right corner.</li>
+        <li>Text wraps; the toast grows taller rather than truncating.</li>
+        <li>Toasts never cover the focused element; the region ignores pointer events except on the toasts themselves.</li>
+      </ul>
+    </section>
+
+    <section class="ds-section" id="theming"><h2><a href="#theming">Theming</a></h2>
+      <p>The toast reads <code>--color-bg-inverse</code> and <code>--color-fg-inverse</code>, which swap between themes, and one component token, <code>--toast-icon</code>, that each variant sets from <code>--color-{info,success,warning,danger}-icon-on-inverse</code>. To re-theme, override <code>--toast-icon</code> or the inverse pair; do not restyle <code>.toast</code>.</p>
+      <pre><code>.toast--success { --toast-icon: var(--color-success-icon-on-inverse); }</code></pre>
+    </section>
+
+    <section class="ds-section" id="accessibility"><h2><a href="#accessibility">Accessibility</a></h2>
+      <h3>Role and pattern</h3>
+      <p>The region is a persistent live region, <code>&lt;div class="toast-region" role="status" aria-live="polite"&gt;</code>, present in the page from load so that toasts added to it are announced. A danger toast adds <code>role="alert"</code> so the failure is announced at once. Follows the WAI-ARIA status and alert roles; it is not a dialog and never traps focus.</p>
+      <h3>Keyboard</h3>
+      <table class="ds-table ds-keys"><thead><tr><th scope="col">Key</th><th scope="col">Action</th></tr></thead><tbody>
+        <tr><td><kbd>Tab</kbd></td><td>Reaches the action, then Dismiss, in DOM order after the page content. Focus inside pauses the timer.</td></tr>
+        <tr><td><kbd>Enter</kbd>, <kbd>Space</kbd></td><td>Runs the action (Undo, Retry, View invites) or dismisses.</td></tr>
+        <tr><td><kbd>Esc</kbd></td><td>Dismisses the toast that holds focus.</td></tr>
+      </tbody></table>
+      <h3>Focus</h3>
+      <p>Toasts never take focus when they appear. If the focused toast is dismissed or times out, focus returns to the element that triggered it (the RSVP button, say) or to <code>main</code>.</p>
+      <h3>Labelling</h3>
+      <p>The icon is <code>aria-hidden</code>; the title says the status in words. The dismiss button is named "Dismiss". The timer bar is <code>aria-hidden</code>. Action labels make sense alone: "View invites", not "Go".</p>
+      <h3>Contrast</h3>
+      <div class="ds-example__canvas ds-example__canvas--stack" style="padding: 0; gap: var(--space-2);">
+        <div class="ds-pair"><span>Text on toast</span><span class="ds-pair__ratio" data-contrast="--color-fg-inverse|--color-bg-inverse" data-min="4.5"></span></div>
+        <div class="ds-pair"><span>Info icon on toast</span><span class="ds-pair__ratio" data-contrast="--color-info-icon-on-inverse|--color-bg-inverse" data-min="3"></span></div>
+        <div class="ds-pair"><span>Success icon on toast</span><span class="ds-pair__ratio" data-contrast="--color-success-icon-on-inverse|--color-bg-inverse" data-min="3"></span></div>
+        <div class="ds-pair"><span>Warning icon on toast</span><span class="ds-pair__ratio" data-contrast="--color-warning-icon-on-inverse|--color-bg-inverse" data-min="3"></span></div>
+        <div class="ds-pair"><span>Danger icon on toast</span><span class="ds-pair__ratio" data-contrast="--color-danger-icon-on-inverse|--color-bg-inverse" data-min="3"></span></div>
+      </div>
+      <p><code>.toast__text</code> is drawn at 90% opacity; it stays above 4.5:1 because the inverse pair starts far higher.</p>
+      <h3>Motion</h3>
+      <p>Enters with <code>slide-up</code> over <code>--duration-base</code>; leaves with <code>fade-out</code> (<code>data-state="leaving"</code>). Reduced motion zeroes both, so toasts appear and disappear in place. The timer still runs; time limits are not motion.</p>
+      <h3>Touch</h3>
+      <p>Dismiss is a 24px target with 12px to the action; the action has 4px vertical padding on top of the label line. Nothing relies on hover; tapping the toast body does nothing.</p>
+    </section>
+
+    <section class="ds-section" id="content"><h2><a href="#content">Content</a></h2>
+      <ul>
+        <li>Title first, in a few words, past tense for something done: "Invite sent", "Contact restored", "You’re going".</li>
+        <li>Text says what it means next: "Nate Oyelaran has 14 days to accept."</li>
+        <li>Errors say what failed and what to do: "We couldn’t reach FaithTech. Try again."</li>
+        <li>One action at most, a verb: Undo, Retry, "View invites".</li>
+        <li>Match the variant to the news: "Back online" is good news, so it is success, not warning.</li>
+      </ul>
+    </section>
+
+    <section class="ds-section" id="do-dont"><h2><a href="#do-dont">Do and don't</a></h2>
+      <div class="ds-dodont">
+        <figure class="ds-do"><div class="ds-example__canvas"><div class="toast-region toast-region--static"><div class="toast toast--success"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="m8 12 3 3 5-6"/></svg><div class="toast__body"><div class="toast__title">Back online</div><div class="toast__text">Your changes are saved.</div></div><button class="close" type="button" aria-label="Dismiss"><svg class="icon icon--sm" aria-hidden="true" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18"/></svg></button><span class="toast__progress" aria-hidden="true"></span></div></div></div><figcaption>Good news is success.</figcaption></figure>
+        <figure class="ds-dont"><div class="ds-example__canvas"><div class="toast-region toast-region--static"><div class="toast toast--warning"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><path d="M12 3 2 20h20L12 3zM12 10v4M12 17h.01"/></svg><div class="toast__body"><div class="toast__title">Back online</div><div class="toast__text">Your changes are saved.</div></div><button class="close" type="button" aria-label="Dismiss"><svg class="icon icon--sm" aria-hidden="true" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18"/></svg></button></div></div></div><figcaption>A warning triangle on good news.</figcaption></figure>
+        <figure class="ds-do"><div class="ds-example__canvas"><div class="toast-region toast-region--static"><div class="toast toast--danger"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 8v4M12 16h.01"/></svg><div class="toast__body"><div class="toast__title">Your RSVP wasn’t saved</div><div class="toast__text">We couldn’t reach FaithTech. Try again.</div><button class="toast__action" type="button">Retry</button></div><button class="close" type="button" aria-label="Dismiss"><svg class="icon icon--sm" aria-hidden="true" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18"/></svg></button></div></div></div><figcaption>Errors stay until dismissed and offer Retry.</figcaption></figure>
+        <figure class="ds-dont"><div class="ds-example__canvas"><div class="toast-region toast-region--static"><div class="toast toast--danger"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 8v4M12 16h.01"/></svg><div class="toast__body"><div class="toast__title">Error</div></div><button class="close" type="button" aria-label="Dismiss"><svg class="icon icon--sm" aria-hidden="true" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18"/></svg></button><span class="toast__progress" aria-hidden="true" style="--value: 40%;"></span></div></div></div><figcaption>An error that times out and says nothing useful.</figcaption></figure>
+      </div>
+    </section>
+
+    <section class="ds-section" id="tokens"><h2><a href="#tokens">Tokens</a></h2>
+      <div class="ds-table-wrap"><table class="ds-table">
+        <thead><tr><th scope="col">Part</th><th scope="col">Token</th><th scope="col">Light</th><th scope="col">Dark</th></tr></thead>
+        <tbody>
+          <tr><td>Surface</td><td><code>--color-bg-inverse</code></td><td><span class="ds-swatch-cell" data-theme="light"><i data-token="--color-bg-inverse" data-swatch></i><span data-token="--color-bg-inverse"></span></span></td><td><span class="ds-swatch-cell" data-theme="dark"><i data-token="--color-bg-inverse" data-swatch></i><span data-token="--color-bg-inverse"></span></span></td></tr>
+          <tr><td>Text</td><td><code>--color-fg-inverse</code></td><td><span class="ds-swatch-cell" data-theme="light"><i data-token="--color-fg-inverse" data-swatch></i><span data-token="--color-fg-inverse"></span></span></td><td><span class="ds-swatch-cell" data-theme="dark"><i data-token="--color-fg-inverse" data-swatch></i><span data-token="--color-fg-inverse"></span></span></td></tr>
+          <tr><td>Info icon</td><td><code>--color-info-icon-on-inverse</code></td><td><span class="ds-swatch-cell" data-theme="light"><i data-token="--color-info-icon-on-inverse" data-swatch></i><span data-token="--color-info-icon-on-inverse"></span></span></td><td><span class="ds-swatch-cell" data-theme="dark"><i data-token="--color-info-icon-on-inverse" data-swatch></i><span data-token="--color-info-icon-on-inverse"></span></span></td></tr>
+          <tr><td>Success icon</td><td><code>--color-success-icon-on-inverse</code></td><td><span class="ds-swatch-cell" data-theme="light"><i data-token="--color-success-icon-on-inverse" data-swatch></i><span data-token="--color-success-icon-on-inverse"></span></span></td><td><span class="ds-swatch-cell" data-theme="dark"><i data-token="--color-success-icon-on-inverse" data-swatch></i><span data-token="--color-success-icon-on-inverse"></span></span></td></tr>
+          <tr><td>Warning icon</td><td><code>--color-warning-icon-on-inverse</code></td><td><span class="ds-swatch-cell" data-theme="light"><i data-token="--color-warning-icon-on-inverse" data-swatch></i><span data-token="--color-warning-icon-on-inverse"></span></span></td><td><span class="ds-swatch-cell" data-theme="dark"><i data-token="--color-warning-icon-on-inverse" data-swatch></i><span data-token="--color-warning-icon-on-inverse"></span></span></td></tr>
+          <tr><td>Danger icon</td><td><code>--color-danger-icon-on-inverse</code></td><td><span class="ds-swatch-cell" data-theme="light"><i data-token="--color-danger-icon-on-inverse" data-swatch></i><span data-token="--color-danger-icon-on-inverse"></span></span></td><td><span class="ds-swatch-cell" data-theme="dark"><i data-token="--color-danger-icon-on-inverse" data-swatch></i><span data-token="--color-danger-icon-on-inverse"></span></span></td></tr>
+          <tr><td>Padding / gap</td><td><code>--space-4</code> / <code>--space-3</code></td><td colspan="2"><span data-token="--space-4"></span> / <span data-token="--space-3"></span></td></tr>
+          <tr><td>Radius</td><td><code>--radius-md</code></td><td colspan="2"><span data-token="--radius-md"></span></td></tr>
+          <tr><td>Shadow</td><td><code>--shadow-3</code></td><td colspan="2"><span data-token="--shadow-3"></span></td></tr>
+          <tr><td>Layer</td><td><code>--z-toast</code></td><td colspan="2"><span data-token="--z-toast"></span></td></tr>
+          <tr><td>Timer bar height</td><td><code>--border-width-thick</code></td><td colspan="2"><span data-token="--border-width-thick"></span></td></tr>
+          <tr><td>Enter / leave</td><td><code>--duration-base</code>, <code>--ease-enter</code> / <code>--ease-exit</code></td><td colspan="2"><span data-token="--duration-base"></span> / <span data-token="--ease-enter"></span> / <span data-token="--ease-exit"></span></td></tr>
+        </tbody>
+      </table></div>
+    </section>
+
+    <section class="ds-section" id="code"><h2><a href="#code">Code</a></h2>
+      <pre><code>&lt;!-- Once per page, empty at load --&gt;
+&lt;div class="toast-region" role="status" aria-live="polite"&gt;
+  &lt;div class="toast toast--danger" role="alert"&gt;
+    &lt;svg class="icon" aria-hidden="true" viewBox="0 0 24 24"&gt;…&lt;/svg&gt;
+    &lt;div class="toast__body"&gt;
+      &lt;div class="toast__title"&gt;Your RSVP wasn’t saved&lt;/div&gt;
+      &lt;div class="toast__text"&gt;We couldn’t reach FaithTech. Try again.&lt;/div&gt;
+      &lt;button class="toast__action" type="button"&gt;Retry&lt;/button&gt;
+    &lt;/div&gt;
+    &lt;button class="close" type="button" aria-label="Dismiss"&gt;…&lt;/button&gt;
+  &lt;/div&gt;
+&lt;/div&gt;</code></pre>
+      <table class="ds-table"><thead><tr><th scope="col">Class / attribute</th><th scope="col">Effect</th></tr></thead><tbody>
+        <tr><td><code>.toast-region</code></td><td>Fixed stack, bottom of the screen (bottom-right from 640px).</td></tr>
+        <tr><td><code>.toast-region--static</code></td><td>Documentation only: renders the region in flow.</td></tr>
+        <tr><td><code>.toast</code> + <code>--info</code> <code>--success</code> <code>--warning</code> <code>--danger</code></td><td>Inverse card; the variant sets <code>--toast-icon</code>.</td></tr>
+        <tr><td><code>.toast__body</code>, <code>__title</code>, <code>__text</code></td><td>Content column.</td></tr>
+        <tr><td><code>.toast__action</code></td><td>One underlined text button.</td></tr>
+        <tr><td><code>.close</code></td><td>24px dismiss button; needs <code>aria-label</code>.</td></tr>
+        <tr><td><code>.toast__progress</code> with <code>--value</code></td><td>Timer bar; set <code>--value</code> from 100% to 0% over 6 s.</td></tr>
+        <tr><td><code>data-state="leaving"</code></td><td>Plays the exit animation; remove the node on <code>animationend</code>.</td></tr>
+        <tr><td><code>role="alert"</code></td><td>On danger toasts only.</td></tr>
+      </tbody></table>
+    </section>
+
+    <section class="ds-section" id="sources"><h2><a href="#sources">Sources</a></h2>
+      <p>Extracted from these mocks:</p>
+      <ul>
+        <li><a href="../../mocks/notifications/toast/info.html">notifications/toast/info</a> (Contact restored, Undo)</li>
+        <li><a href="../../mocks/notifications/toast/success.html">notifications/toast/success</a> (You’re going, Undo; 6 s, pauses on hover and focus)</li>
+        <li><a href="../../mocks/notifications/toast/warning.html">notifications/toast/warning</a> (Saved, but email is paused)</li>
+        <li><a href="../../mocks/notifications/toast/danger.html">notifications/toast/danger</a> (Your RSVP wasn’t saved, Retry)</li>
+        <li><a href="../../mocks/notifications/toast/stacked.html">notifications/toast/stacked</a> (three at once)</li>
+        <li><a href="../../mocks/pages/offline/default.html">pages/offline/default</a> (No connection warning)</li>
+      </ul>
+      <p>Inherited from Shelfie unchanged. Drift in the FaithTech mocks: the warning and danger toasts carry a timer bar although they never dismiss themselves (the system drops it); the danger mock puts <code>role="alert"</code> and <code>aria-live="assertive"</code> on the region instead of the toast; the success mock places its note with an inline <code>style="bottom: 9rem; right: 1rem;"</code> in raw rem; the warning icon path differs slightly from the shared triangle icon.</p>
+    </section>
+
+    <footer class="ds-footer"><span>FaithTech Community design system · extracted from <a href="../../mocks/index.html">docs/mocks</a> on 2026-10-21</span><a href="#top">Back to top</a></footer>
+  </main>
+</div>
+<script src="../assets/ds.js"></script>
+</body>
+</html>

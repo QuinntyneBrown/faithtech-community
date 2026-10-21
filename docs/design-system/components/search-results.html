@@ -1,0 +1,269 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Search results — FaithTech Community design system</title>
+<meta name="description" content="Global search results grouped by type with an overline group heading, count and highlighted matches, scoped by role, with empty, loading and no-results states in both themes.">
+<link rel="stylesheet" href="../tokens/tokens.css">
+<link rel="stylesheet" href="../assets/components.css">
+<link rel="stylesheet" href="../assets/ds.css">
+</head>
+<body id="top">
+<a class="skip-link" href="#main">Skip to content</a>
+<div class="ds-shell">
+  <nav class="ds-nav" aria-label="Design system">
+    <div class="ds-nav__brand"><a href="../index.html">FaithTech DS</a><button class="ds-theme-toggle" type="button" aria-pressed="false">☾ Dark</button></div>
+    <details open><summary>Foundations</summary><ul>
+      <li><a href="../foundations/color.html">Color</a></li>
+      <li><a href="../foundations/typography.html">Typography</a></li>
+      <li><a href="../foundations/spacing.html">Spacing</a></li>
+      <li><a href="../foundations/layout.html">Layout</a></li>
+      <li><a href="../foundations/elevation.html">Elevation</a></li>
+      <li><a href="../foundations/shape.html">Shape</a></li>
+      <li><a href="../foundations/motion.html">Motion</a></li>
+      <li><a href="../foundations/iconography.html">Iconography</a></li>
+      <li><a href="../foundations/theming.html">Theming</a></li>
+      <li><a href="../foundations/responsive.html">Responsive</a></li>
+      <li><a href="../foundations/accessibility.html">Accessibility</a></li>
+      <li><a href="../foundations/content.html">Content</a></li>
+    </ul></details>
+    <details open><summary>Components</summary><ul>
+      <li><a href="../components/button.html">Button</a></li>
+      <li><a href="../components/link.html">Link</a></li>
+      <li><a href="../components/menu.html">Menu</a></li>
+      <li><a href="../components/form-field.html">Form field</a></li>
+      <li><a href="../components/text-field.html">Text field</a></li>
+      <li><a href="../components/textarea.html">Textarea</a></li>
+      <li><a href="../components/select.html">Select</a></li>
+      <li><a href="../components/radio-group.html">Radio group</a></li>
+      <li><a href="../components/switch.html">Switch</a></li>
+      <li><a href="../components/form-layout.html">Form layout</a></li>
+      <li><a href="../components/picture-list.html">Picture list</a></li>
+      <li><a href="../components/sticker-picker.html">Estimate card picker</a></li>
+      <li><a href="../components/top-bar.html">Top bar</a></li>
+      <li><a href="../components/tab-bar.html">Tab bar</a></li>
+      <li><a href="../components/tabs.html">Tabs</a></li>
+      <li><a href="../components/breadcrumb.html">Breadcrumb</a></li>
+      <li><a href="../components/skip-link.html">Skip link</a></li>
+      <li><a href="../components/layout.html">Layout primitives</a></li>
+      <li><a href="../components/card.html">Card</a></li>
+      <li><a href="../components/dialog.html">Dialog</a></li>
+      <li><a href="../components/notification-panel.html">Notification panel</a></li>
+      <li><a href="../components/list.html">List</a></li>
+      <li><a href="../components/table.html">Table</a></li>
+      <li><a href="../components/description-list.html">Description list</a></li>
+      <li><a href="../components/feed.html">Activity feed</a></li>
+      <li><a href="../components/tree.html">Backlog tree</a></li>
+      <li><a href="../components/kanban.html">Kanban board</a></li>
+      <li><a href="../components/event-card.html">Event card</a></li>
+      <li><a href="../components/profile-header.html">Profile header</a></li>
+      <li><a href="../components/search-results.html">Search results</a></li>
+      <li><a href="../components/note.html">Note</a></li>
+      <li><a href="../components/avatar.html">Avatar</a></li>
+      <li><a href="../components/logo-mark.html">Logo mark</a></li>
+      <li><a href="../components/badge.html">Badge</a></li>
+      <li><a href="../components/chip.html">Chip</a></li>
+      <li><a href="../components/stat.html">Stat</a></li>
+      <li><a href="../components/sticker.html">Estimate card</a></li>
+      <li><a href="../components/toast.html">Toast</a></li>
+      <li><a href="../components/alert.html">Alert and banner</a></li>
+      <li><a href="../components/inline-message.html">Inline message</a></li>
+      <li><a href="../components/progress.html">Progress</a></li>
+      <li><a href="../components/skeleton.html">Skeleton</a></li>
+      <li><a href="../components/empty-state.html">Empty state</a></li>
+      <li><a href="../components/error-page.html">Error page</a></li>
+    </ul></details>
+    <details open><summary>Patterns</summary><ul>
+      <li><a href="../patterns/forms.html">Forms</a></li>
+      <li><a href="../patterns/feedback-and-loading.html">Feedback and loading</a></li>
+      <li><a href="../patterns/empty-and-error-states.html">Empty and error states</a></li>
+      <li><a href="../patterns/navigation.html">Navigation and page structure</a></li>
+      <li><a href="../patterns/dialogs-and-overlays.html">Dialogs and overlays</a></li>
+      <li><a href="../patterns/lists-and-tables.html">Lists and tables</a></li>
+      <li><a href="../patterns/notifications.html">Notifications</a></li>
+      <li><a href="../patterns/content-and-tone.html">Content and tone</a></li>
+    </ul></details>
+  </nav>
+
+  <main id="main" class="ds-main">
+    <header class="ds-header">
+      <p class="ds-kicker">Component · Data display</p>
+      <h1>Search results</h1>
+      <p class="ds-lead">Search results group what FaithTech search found — people, events, partners, work items and your own private contacts — and highlight why each one matched.</p>
+      <div class="ds-meta"><span class="ds-pill ds-pill--ok">WCAG 2.2 AA</span><span class="ds-pill">Status: stable</span><span class="ds-pill">Server-scoped groups</span></div>
+      <ul class="ds-toc"><li><a href="#overview">Overview</a></li><li><a href="#anatomy">Anatomy</a></li><li><a href="#variants">Variants</a></li><li><a href="#sizes">Sizes</a></li><li><a href="#states">States</a></li><li><a href="#responsive">Responsive</a></li><li><a href="#theming">Theming</a></li><li><a href="#accessibility">Accessibility</a></li><li><a href="#content">Content</a></li><li><a href="#do-dont">Do and don't</a></li><li><a href="#tokens">Tokens</a></li><li><a href="#code">Code</a></li><li><a href="#sources">Sources</a></li></ul>
+    </header>
+
+    <section class="ds-section" id="overview"><h2><a href="#overview">Overview</a></h2>
+      <p>Search results show what global search found, grouped by type: People, Events, Partners, Work items in your workspaces and Your private contacts. Each group is a <b>search group</b> — an overline heading with the count, above a flush list. The matched words are wrapped in <code>&lt;mark&gt;</code>.</p>
+      <ul>
+        <li>Use it only on <code>pages/search</code>. Rows reuse <a href="list.html">list</a> items and the <a href="event-card.html">event card</a>; the group is what this component adds.</li>
+        <li>The server decides which groups a person gets. A member sees People and Events; Grace, a City Lead, also sees her workspaces' items and her own private contacts. Never send a group and hide it in the UI.</li>
+        <li>Groups with no hits are left out, not shown empty. When every group is empty, show the no-results <a href="empty-state.html">empty state</a>.</li>
+      </ul>
+    </section>
+
+    <section class="ds-section" id="anatomy"><h2><a href="#anatomy">Anatomy</a></h2>
+      <div class="ds-anatomy">
+        <figure class="ds-anatomy__figure">
+          <section class="search-group" aria-labelledby="an-ppl"><h3 id="an-ppl" class="search-group__title">People (1)</h3><ul class="list card card--flush"><li class="list__item"><span class="avatar avatar--sm avatar--rose" aria-hidden="true">RA</span><div class="list__body"><a class="list__title" href="../../mocks/pages/profile/default.html">Ruth Alvarez</a><div class="list__meta">Volunteer · Toronto · led the <mark>shelter</mark> intake team</div></div></li></ul></section>
+          <span class="ds-callout" style="left: 2%; top: 6%;" aria-hidden="true">1</span>
+          <span class="ds-callout" style="left: 12%; top: 54%;" aria-hidden="true">2</span>
+          <span class="ds-callout" style="left: 62%; top: 74%;" aria-hidden="true">3</span>
+        </figure>
+        <ol class="ds-anatomy__list">
+          <li><div><b>Group title</b><small><code>.search-group__title</code>: an <code>&lt;h2&gt;</code> styled as an overline, type and count, labels the section.</small></div></li>
+          <li><div><b>Result row</b><small>A <code>.list__item</code> (or <code>.event-card</code>) in a flush card: avatar or badge, title link, meta, optional badge.</small></div></li>
+          <li><div><b>Highlight</b><small><code>&lt;mark&gt;</code> around the matched term, <code>--color-warning-bg</code> with inherited text colour.</small></div></li>
+        </ol>
+      </div>
+    </section>
+
+    <section class="ds-section" id="variants"><h2><a href="#variants">Variants</a></h2>
+      <p>The groups, in their fixed order. Rows keep the look of their own type.</p>
+<div class="ds-example"><div class="ds-example__canvas ds-example__canvas--stack ds-example__canvas--canvas"><p role="status" class="text-muted">5 results for “shelter”</p><div class="stack" style="gap: var(--space-6);"><section class="search-group" aria-labelledby="v-g-ppl"><h3 id="v-g-ppl" class="search-group__title">People (1)</h3><ul class="list card card--flush"><li class="list__item"><span class="avatar avatar--sm avatar--rose" aria-hidden="true">RA</span><div class="list__body"><a class="list__title" href="../../mocks/pages/profile/default.html">Ruth Alvarez</a><div class="list__meta">Volunteer · Toronto · led the <mark>shelter</mark> intake team</div></div></li></ul></section><section class="search-group" aria-labelledby="v-g-evt"><h3 id="v-g-evt" class="search-group__title">Events (1)</h3><ul class="list card card--flush"><li class="list__item event-card"><span class="date-badge" aria-hidden="true"><span class="date-badge__month">Nov</span><span class="date-badge__day">14</span></span><div class="event-card__body"><a class="event-card__title" href="../../mocks/pages/event/default.html">Hackathon: Tech for <mark>Shelters</mark></a><span class="event-card__meta">Sat 14 – Sun 15 Nov · Trinity Community Centre</span></div><span class="badge badge--info">Public</span></li></ul></section><section class="search-group" aria-labelledby="v-g-par"><h3 id="v-g-par" class="search-group__title">Partners (1)</h3><ul class="list card card--flush"><li class="list__item"><span class="avatar avatar--sm avatar--sage" aria-hidden="true">LF</span><div class="list__body"><a class="list__title" href="../../mocks/pages/partner/default.html">Lantern Foundation</a><div class="list__meta">Partner · In funnel · funds <mark>shelter</mark> technology</div></div><span class="badge badge--warning">In funnel</span></li></ul></section><section class="search-group" aria-labelledby="v-g-wrk"><h3 id="v-g-wrk" class="search-group__title">Work items in your workspaces (1)</h3><ul class="list card card--flush"><li class="list__item"><span class="sticker" aria-hidden="true"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"/></svg></span><div class="list__body"><a class="list__title" href="../../mocks/pages/work-item/default.html"><mark>Shelter</mark> problem briefs for teams</a><div class="list__meta">Story · Toronto team · In Progress</div></div></li></ul></section><section class="search-group" aria-labelledby="v-g-con"><h3 id="v-g-con" class="search-group__title">Your private contacts (1)</h3><ul class="list card card--flush"><li class="list__item"><span class="avatar avatar--sm avatar--sun" aria-hidden="true">TO</span><div class="list__body"><a class="list__title" href="../../mocks/pages/contact/default.html">Tomás Ortega</a><div class="list__meta">Note: runs IT at Harbour Light <mark>Shelter</mark></div></div><span class="badge"><svg class="icon icon--sm" aria-hidden="true" viewBox="0 0 24 24"><rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>Private</span></li></ul></section></div></div><div class="ds-example__caption"><span>City Lead view (<code>pages/search/default</code>): all five groups. Private contacts carry a Private badge with a lock.</span></div><details class="ds-example__code"><summary>HTML</summary><pre><code>&lt;p role="status" class="text-muted"&gt;5 results for “shelter”&lt;/p&gt;
+&lt;div class="stack"&gt;
+  &lt;section class="search-group" aria-labelledby="g-ppl"&gt;
+    &lt;h2 id="g-ppl" class="search-group__title"&gt;People (1)&lt;/h2&gt;
+    &lt;ul class="list card card--flush"&gt;
+      &lt;li class="list__item"&gt;
+        &lt;span class="avatar avatar--sm avatar--rose" aria-hidden="true"&gt;RA&lt;/span&gt;
+        &lt;div class="list__body"&gt;
+          &lt;a class="list__title" href="/profiles/ruth-alvarez"&gt;Ruth Alvarez&lt;/a&gt;
+          &lt;div class="list__meta"&gt;Volunteer · Toronto · led the &lt;mark&gt;shelter&lt;/mark&gt; intake team&lt;/div&gt;
+        &lt;/div&gt;
+      &lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/section&gt;
+  &lt;!-- Events, Partners, Work items in your workspaces, Your private contacts --&gt;
+&lt;/div&gt;</code></pre></details></div>
+      <h3>Member view</h3>
+<div class="ds-example"><div class="ds-example__canvas ds-example__canvas--stack ds-example__canvas--canvas"><p role="status" class="text-muted">2 results for “shelter”</p><div class="stack" style="gap: var(--space-6);"><section class="search-group" aria-labelledby="m-ppl"><h3 id="m-ppl" class="search-group__title">People (1)</h3><ul class="list card card--flush"><li class="list__item"><span class="avatar avatar--sm avatar--rose" aria-hidden="true">RA</span><div class="list__body"><a class="list__title" href="../../mocks/pages/profile/default.html">Ruth Alvarez</a><div class="list__meta">Volunteer · Toronto · led the <mark>shelter</mark> intake team</div></div></li></ul></section><section class="search-group" aria-labelledby="m-evt"><h3 id="m-evt" class="search-group__title">Events (1)</h3><ul class="list card card--flush"><li class="list__item event-card"><span class="date-badge" aria-hidden="true"><span class="date-badge__month">Nov</span><span class="date-badge__day">14</span></span><div class="event-card__body"><a class="event-card__title" href="../../mocks/pages/event/default.html">Hackathon: Tech for <mark>Shelters</mark></a><span class="event-card__meta">Sat 14 – Sun 15 Nov · Trinity Community Centre</span></div><span class="badge badge--info">Public</span></li></ul></section></div></div><div class="ds-example__caption"><span>Jonah, a member (<code>pages/search/member</code>): only People and Events. The count in the status line counts only what he can see.</span></div></div>
+      <h3>Highlight</h3>
+<div class="ds-example"><div class="ds-example__canvas"><p>Hackathon: Tech for <mark>Shelters</mark></p><p class="text-muted">Note: runs IT at Harbour Light <mark>Shelter</mark></p></div><div class="ds-example__caption"><span><code>&lt;mark&gt;</code> works in titles and meta; it inherits the text colour, including muted.</span></div><details class="ds-example__code"><summary>HTML</summary><pre><code>&lt;a class="list__title" href="…"&gt;Hackathon: Tech for &lt;mark&gt;Shelters&lt;/mark&gt;&lt;/a&gt;</code></pre></details></div>
+    </section>
+
+    <section class="ds-section" id="sizes" data-na="one size; rows use the list density"><h2><a href="#sizes">Sizes</a></h2>
+      <p>One size; rows follow the list's single density.</p>
+    </section>
+
+    <section class="ds-section" id="states"><h2><a href="#states">States</a></h2>
+      <p>Only the title links are interactive; they have the link states. Forced with <code>data-state</code> here.</p>
+      <div class="ds-matrix"><table>
+        <thead><tr><th scope="col">Part</th><th scope="col">Default</th><th scope="col">Hover</th><th scope="col">Focus</th></tr></thead>
+        <tbody><tr><th scope="row">Result row</th><td><ul class="list" aria-label="Result, default"><li class="list__item"><span class="avatar avatar--sm avatar--rose" aria-hidden="true">RA</span><div class="list__body"><a class="list__title" href="../../mocks/pages/profile/default.html">Ruth Alvarez</a><div class="list__meta">Volunteer · Toronto · led the <mark>shelter</mark> intake team</div></div></li></ul></td><td><ul class="list" aria-label="Result, hover"><li class="list__item"><span class="avatar avatar--sm avatar--rose" aria-hidden="true">RA</span><div class="list__body"><a class="list__title" href="../../mocks/pages/profile/default.html" data-state="hover">Ruth Alvarez</a><div class="list__meta">Volunteer · Toronto · led the <mark>shelter</mark> intake team</div></div></li></ul></td><td><ul class="list" aria-label="Result, focus"><li class="list__item"><span class="avatar avatar--sm avatar--rose" aria-hidden="true">RA</span><div class="list__body"><a class="list__title" href="../../mocks/pages/profile/default.html" data-state="focus">Ruth Alvarez</a><div class="list__meta">Volunteer · Toronto · led the <mark>shelter</mark> intake team</div></div></li></ul></td></tr></tbody>
+      </table></div>
+      <h3>Page states</h3>
+<div class="ds-example"><div class="ds-example__canvas ds-example__canvas--stack ds-example__canvas--canvas"><div class="empty"><span class="empty__icon" aria-hidden="true"><svg class="icon icon--lg" aria-hidden="true" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg></span><h3 class="empty__title">Search all of FaithTech</h3><p class="empty__text">Find people by name or role, events by title or city, and partners by organisation. Leads also see their own private contacts.</p></div></div><div class="ds-example__caption"><span>Empty (<code>pages/search/empty</code>): no query yet. Explain what can be searched.</span></div></div><div class="ds-example"><div class="ds-example__canvas ds-example__canvas--stack ds-example__canvas--canvas"><p class="visually-hidden" role="status">Searching…</p><div class="card card--flush" aria-busy="true" aria-label="Searching"><div class="list__item"><span class="skeleton avatar avatar--sm" aria-hidden="true"></span><div class="list__body" style="flex:1;"><span class="skeleton skeleton--title" aria-hidden="true"></span><span class="skeleton skeleton--text" aria-hidden="true"></span></div></div><div class="list__item"><span class="skeleton avatar avatar--sm" aria-hidden="true"></span><div class="list__body" style="flex:1;"><span class="skeleton skeleton--title" aria-hidden="true"></span><span class="skeleton skeleton--text" aria-hidden="true"></span></div></div><div class="list__item"><span class="skeleton avatar avatar--sm" aria-hidden="true"></span><div class="list__body" style="flex:1;"><span class="skeleton skeleton--title" aria-hidden="true"></span><span class="skeleton skeleton--text" aria-hidden="true"></span></div></div></div></div><div class="ds-example__caption"><span>Loading (<code>pages/search/loading</code>): skeleton rows, a visually hidden "Searching…" status, <code>aria-busy="true"</code>.</span></div></div><div class="ds-example"><div class="ds-example__canvas ds-example__canvas--stack ds-example__canvas--canvas"><div class="empty"><span class="empty__icon" aria-hidden="true"><svg class="icon icon--lg" aria-hidden="true" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg></span><h3 class="empty__title">No results for “zebra crossing”</h3><p class="empty__text">Check the spelling, try fewer words, or search for a person’s first name.</p><div class="empty__actions"><a class="btn" href="../../mocks/pages/search/empty.html">Clear search</a></div></div></div><div class="ds-example__caption"><span>No results (<code>pages/search/no-results</code>): repeat the query, suggest a fix, offer Clear search.</span></div></div>
+      <h3>Both themes</h3>
+<div class="ds-themes"><div data-theme="light"><div class="stack" style="gap: var(--space-6);"><section class="search-group" aria-labelledby="tl-ppl"><h3 id="tl-ppl" class="search-group__title">People (1)</h3><ul class="list card card--flush"><li class="list__item"><span class="avatar avatar--sm avatar--rose" aria-hidden="true">RA</span><div class="list__body"><a class="list__title" href="../../mocks/pages/profile/default.html">Ruth Alvarez</a><div class="list__meta">Volunteer · Toronto · led the <mark>shelter</mark> intake team</div></div></li></ul></section><section class="search-group" aria-labelledby="tl-evt"><h3 id="tl-evt" class="search-group__title">Events (1)</h3><ul class="list card card--flush"><li class="list__item event-card"><span class="date-badge" aria-hidden="true"><span class="date-badge__month">Nov</span><span class="date-badge__day">14</span></span><div class="event-card__body"><a class="event-card__title" href="../../mocks/pages/event/default.html">Hackathon: Tech for <mark>Shelters</mark></a><span class="event-card__meta">Sat 14 – Sun 15 Nov · Trinity Community Centre</span></div><span class="badge badge--info">Public</span></li></ul></section></div></div><div data-theme="dark"><div class="stack" style="gap: var(--space-6);"><section class="search-group" aria-labelledby="td-ppl"><h3 id="td-ppl" class="search-group__title">People (1)</h3><ul class="list card card--flush"><li class="list__item"><span class="avatar avatar--sm avatar--rose" aria-hidden="true">RA</span><div class="list__body"><a class="list__title" href="../../mocks/pages/profile/default.html">Ruth Alvarez</a><div class="list__meta">Volunteer · Toronto · led the <mark>shelter</mark> intake team</div></div></li></ul></section><section class="search-group" aria-labelledby="td-evt"><h3 id="td-evt" class="search-group__title">Events (1)</h3><ul class="list card card--flush"><li class="list__item event-card"><span class="date-badge" aria-hidden="true"><span class="date-badge__month">Nov</span><span class="date-badge__day">14</span></span><div class="event-card__body"><a class="event-card__title" href="../../mocks/pages/event/default.html">Hackathon: Tech for <mark>Shelters</mark></a><span class="event-card__meta">Sat 14 – Sun 15 Nov · Trinity Community Centre</span></div><span class="badge badge--info">Public</span></li></ul></section></div></div></div>
+      <ul>
+        <li><b>Error</b> (<code>pages/search/error</code>): "We couldn’t load search results" error empty state with Try again; the query stays in the field.</li>
+      </ul>
+    </section>
+
+    <section class="ds-section" id="responsive"><h2><a href="#responsive">Responsive behaviour</a></h2>
+      <ul>
+        <li>Groups stack in one column at every width, separated by <code>--space-6</code>.</li>
+        <li>Rows wrap: meta lines and badges drop below the title on a phone; nothing truncates, so the highlighted word is never cut off.</li>
+        <li>The search form above is a wrapping cluster; the field keeps a 12rem minimum.</li>
+      </ul>
+    </section>
+
+    <section class="ds-section" id="theming"><h2><a href="#theming">Theming</a></h2>
+      <p>The group title reads <code>--color-fg-muted</code>. <code>&lt;mark&gt;</code> is <code>--color-warning-bg</code> with inherited colour, so it stays readable on muted and default text in both themes. Rows inherit their own component tokens.</p>
+    </section>
+
+    <section class="ds-section" id="accessibility"><h2><a href="#accessibility">Accessibility</a></h2>
+      <h3>Role and pattern</h3>
+      <p>Each group is a <code>&lt;section aria-labelledby&gt;</code> with an <code>&lt;h2&gt;</code>, so screen reader users can jump between groups by heading or landmark. The result count is a <code>role="status"</code> paragraph, announced after each search.</p>
+      <h3>Keyboard</h3>
+      <table class="ds-table ds-keys"><thead><tr><th scope="col">Key</th><th scope="col">Action</th></tr></thead><tbody>
+        <tr><td><kbd>Tab</kbd></td><td>From the search field to the button, then through each result title in group order.</td></tr>
+        <tr><td><kbd>Enter</kbd></td><td>In the field, runs the search; on a title, opens the result.</td></tr>
+      </tbody></table>
+      <h3>Labelling</h3>
+      <p><code>&lt;mark&gt;</code> is not announced by most screen readers, which is fine: the match is in the text. Never use the highlight to carry meaning the text lacks. The Private badge says "Private" in words.</p>
+      <h3>Contrast</h3>
+      <div class="ds-example__canvas ds-example__canvas--stack" style="padding: 0; gap: var(--space-2);">
+        <div class="ds-pair"><span>Text on highlight</span><span class="ds-pair__ratio" data-contrast="--color-fg-default|--color-warning-bg" data-min="4.5"></span></div>
+        <div class="ds-pair"><span>Muted text on highlight</span><span class="ds-pair__ratio" data-contrast="--color-fg-muted|--color-warning-bg" data-min="4.5"></span></div>
+        <div class="ds-pair"><span>Group title on canvas</span><span class="ds-pair__ratio" data-contrast="--color-fg-muted|--color-bg-canvas" data-min="4.5"></span></div>
+      </div>
+      <h3>Motion</h3>
+      <p>None.</p>
+    </section>
+
+    <section class="ds-section" id="content"><h2><a href="#content">Content</a></h2>
+      <ul>
+        <li>Group titles name the type and the count: "People (1)", "Events (1)". Scope groups say whose they are: "Work items in your workspaces", "Your private contacts".</li>
+        <li>The status line repeats the query in curly quotes: "5 results for “shelter”".</li>
+        <li>Meta shows why it matched when the match is not in the title: "Note: runs IT at Harbour Light Shelter".</li>
+        <li>No results: "No results for “zebra crossing”" then one helpful suggestion.</li>
+      </ul>
+    </section>
+
+    <section class="ds-section" id="do-dont"><h2><a href="#do-dont">Do and don't</a></h2>
+      <div class="ds-dodont">
+        <figure class="ds-do"><div class="ds-example__canvas ds-example__canvas--stack"><section class="search-group" aria-labelledby="dd1"><h3 id="dd1" class="search-group__title">Your private contacts (1)</h3><ul class="list card card--flush"><li class="list__item"><span class="avatar avatar--sm avatar--sun" aria-hidden="true">TO</span><div class="list__body"><a class="list__title" href="../../mocks/pages/contact/default.html">Tomás Ortega</a><div class="list__meta">Note: runs IT at Harbour Light <mark>Shelter</mark></div></div><span class="badge"><svg class="icon icon--sm" aria-hidden="true" viewBox="0 0 24 24"><rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>Private</span></li></ul></section></div><figcaption>Private contacts come back only for the lead who owns them, labelled Private.</figcaption></figure>
+        <figure class="ds-dont"><div class="ds-example__canvas ds-example__canvas--stack"><section class="search-group" aria-labelledby="dd2"><h3 id="dd2" class="search-group__title">Contacts (1)</h3><ul class="list card card--flush"><li class="list__item"><span class="avatar avatar--sm avatar--sun" aria-hidden="true">TO</span><div class="list__body"><a class="list__title" href="../../mocks/pages/contact/default.html">Tomás Ortega</a><div class="list__meta">Note: runs IT at Harbour Light <mark>Shelter</mark></div></div></li></ul></section></div><figcaption>A generic "Contacts" group without the Private badge suggests anyone can see them. Name the scope.</figcaption></figure>
+        <figure class="ds-do"><div class="ds-example__canvas ds-example__canvas--stack"><div class="empty"><span class="empty__icon" aria-hidden="true"><svg class="icon icon--lg" aria-hidden="true" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg></span><h3 class="empty__title">No results for “zebra crossing”</h3><p class="empty__text">Check the spelling, try fewer words, or search for a person’s first name.</p><div class="empty__actions"><a class="btn" href="../../mocks/pages/search/empty.html">Clear search</a></div></div></div><figcaption>No hits at all: one empty state for the page.</figcaption></figure>
+        <figure class="ds-dont"><div class="ds-example__canvas ds-example__canvas--stack"><section class="search-group" aria-labelledby="dd3"><h3 id="dd3" class="search-group__title">Partners (0)</h3><p class="text-muted">Nothing here.</p></section></div><figcaption>Empty groups. Leave out groups with no hits.</figcaption></figure>
+      </div>
+    </section>
+
+    <section class="ds-section" id="tokens"><h2><a href="#tokens">Tokens</a></h2>
+<div class="ds-table-wrap"><table class="ds-table"><thead><tr><th scope="col">Part</th><th scope="col">Token</th><th scope="col">Light</th><th scope="col">Dark</th></tr></thead><tbody>
+<tr><td>Group title</td><td><code>--color-fg-muted</code></td><td><span class="ds-swatch-cell" data-theme="light"><i data-token="--color-fg-muted" data-swatch></i><span data-token="--color-fg-muted"></span></span></td><td><span class="ds-swatch-cell" data-theme="dark"><i data-token="--color-fg-muted" data-swatch></i><span data-token="--color-fg-muted"></span></span></td></tr>
+<tr><td>Highlight background</td><td><code>--color-warning-bg</code></td><td><span class="ds-swatch-cell" data-theme="light"><i data-token="--color-warning-bg" data-swatch></i><span data-token="--color-warning-bg"></span></span></td><td><span class="ds-swatch-cell" data-theme="dark"><i data-token="--color-warning-bg" data-swatch></i><span data-token="--color-warning-bg"></span></span></td></tr>
+<tr><td>Row surface</td><td><code>--color-bg-surface</code></td><td><span class="ds-swatch-cell" data-theme="light"><i data-token="--color-bg-surface" data-swatch></i><span data-token="--color-bg-surface"></span></span></td><td><span class="ds-swatch-cell" data-theme="dark"><i data-token="--color-bg-surface" data-swatch></i><span data-token="--color-bg-surface"></span></span></td></tr>
+<tr><td>Group title font</td><td><code>--text-overline</code></td><td colspan="2"><span data-token="--text-overline"></span></td></tr>
+<tr><td>Title letter spacing</td><td><code>--letter-spacing-wide</code></td><td colspan="2"><span data-token="--letter-spacing-wide"></span></td></tr>
+<tr><td>Group gap</td><td><code>--space-2</code></td><td colspan="2"><span data-token="--space-2"></span></td></tr>
+<tr><td>Between groups</td><td><code>--space-6</code></td><td colspan="2"><span data-token="--space-6"></span></td></tr>
+<tr><td>Highlight radius</td><td><code>--radius-sm</code></td><td colspan="2"><span data-token="--radius-sm"></span></td></tr>
+<tr><td>Highlight padding</td><td><code>--space-0-5</code></td><td colspan="2"><span data-token="--space-0-5"></span></td></tr>
+</tbody></table></div>
+    </section>
+
+    <section class="ds-section" id="code"><h2><a href="#code">Code</a></h2>
+      <pre><code>&lt;p role="status" class="text-muted"&gt;5 results for “shelter”&lt;/p&gt;
+&lt;div class="stack"&gt;
+  &lt;section class="search-group" aria-labelledby="g-ppl"&gt;
+    &lt;h2 id="g-ppl" class="search-group__title"&gt;People (1)&lt;/h2&gt;
+    &lt;ul class="list card card--flush"&gt;
+      &lt;li class="list__item"&gt;
+        &lt;span class="avatar avatar--sm avatar--rose" aria-hidden="true"&gt;RA&lt;/span&gt;
+        &lt;div class="list__body"&gt;
+          &lt;a class="list__title" href="/profiles/ruth-alvarez"&gt;Ruth Alvarez&lt;/a&gt;
+          &lt;div class="list__meta"&gt;Volunteer · Toronto · led the &lt;mark&gt;shelter&lt;/mark&gt; intake team&lt;/div&gt;
+        &lt;/div&gt;
+      &lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/section&gt;
+  &lt;!-- Events, Partners, Work items in your workspaces, Your private contacts --&gt;
+&lt;/div&gt;</code></pre>
+      <table class="ds-table"><thead><tr><th scope="col">Class / element</th><th scope="col">Effect</th></tr></thead><tbody>
+        <tr><td><code>.search-group</code></td><td>Column of title and list; put it on a <code>&lt;section aria-labelledby&gt;</code>.</td></tr>
+        <tr><td><code>.search-group__title</code></td><td>Overline heading with type and count.</td></tr>
+        <tr><td><code>mark</code></td><td>Global style: highlighted match, inherited text colour.</td></tr>
+      </tbody></table>
+    </section>
+
+    <section class="ds-section" id="sources"><h2><a href="#sources">Sources</a></h2>
+      <p>Extracted from these mocks:</p>
+      <ul>
+        <li><a href="../../mocks/pages/search/default.html">pages/search/default</a> (all five groups, highlights)</li>
+        <li><a href="../../mocks/pages/search/member.html">pages/search/member</a> (member scope)</li>
+        <li><a href="../../mocks/pages/search/empty.html">pages/search/empty</a>, <a href="../../mocks/pages/search/loading.html">pages/search/loading</a>, <a href="../../mocks/pages/search/no-results.html">pages/search/no-results</a>, <a href="../../mocks/pages/search/error.html">pages/search/error</a></li>
+      </ul>
+      <p>Drift: group spacing comes from an inline <code>style="gap: var(--space-6)"</code> on the wrapper, and the form from inline <code>margin-bottom</code> and <code>flex</code>/<code>min-width</code> styles; the work-item row uses <code>.sticker</code> as an icon tile; the loading skeletons are all round avatars even for event rows.</p>
+    </section>
+
+    <footer class="ds-footer"><span>FaithTech Community design system · extracted from <a href="../../mocks/index.html">docs/mocks</a> on 2026-10-21</span><a href="#top">Back to top</a></footer>
+  </main>
+</div>
+<script src="../assets/ds.js"></script>
+</body>
+</html>

@@ -1,0 +1,202 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Elevation — FaithTech Community design system</title>
+<meta name="description" content="FaithTech Community elevation: shadow levels in both themes, surface hierarchy, z-order and how the dark theme handles depth.">
+<link rel="stylesheet" href="../tokens/tokens.css">
+<link rel="stylesheet" href="../assets/components.css">
+<link rel="stylesheet" href="../assets/ds.css">
+</head>
+<body id="top">
+<a class="skip-link" href="#main">Skip to content</a>
+<div class="ds-shell">
+  <nav class="ds-nav" aria-label="Design system">
+    <div class="ds-nav__brand"><a href="../index.html">FaithTech DS</a><button class="ds-theme-toggle" type="button" aria-pressed="false">☾ Dark</button></div>
+    <details open><summary>Foundations</summary><ul>
+      <li><a href="../foundations/color.html">Color</a></li>
+      <li><a href="../foundations/typography.html">Typography</a></li>
+      <li><a href="../foundations/spacing.html">Spacing</a></li>
+      <li><a href="../foundations/layout.html">Layout</a></li>
+      <li><a href="../foundations/elevation.html">Elevation</a></li>
+      <li><a href="../foundations/shape.html">Shape</a></li>
+      <li><a href="../foundations/motion.html">Motion</a></li>
+      <li><a href="../foundations/iconography.html">Iconography</a></li>
+      <li><a href="../foundations/theming.html">Theming</a></li>
+      <li><a href="../foundations/responsive.html">Responsive</a></li>
+      <li><a href="../foundations/accessibility.html">Accessibility</a></li>
+      <li><a href="../foundations/content.html">Content</a></li>
+    </ul></details>
+    <details open><summary>Components</summary><ul>
+      <li><a href="../components/button.html">Button</a></li>
+      <li><a href="../components/link.html">Link</a></li>
+      <li><a href="../components/menu.html">Menu</a></li>
+      <li><a href="../components/form-field.html">Form field</a></li>
+      <li><a href="../components/text-field.html">Text field</a></li>
+      <li><a href="../components/textarea.html">Textarea</a></li>
+      <li><a href="../components/select.html">Select</a></li>
+      <li><a href="../components/radio-group.html">Radio group</a></li>
+      <li><a href="../components/switch.html">Switch</a></li>
+      <li><a href="../components/form-layout.html">Form layout</a></li>
+      <li><a href="../components/picture-list.html">Picture list</a></li>
+      <li><a href="../components/sticker-picker.html">Estimate card picker</a></li>
+      <li><a href="../components/top-bar.html">Top bar</a></li>
+      <li><a href="../components/tab-bar.html">Tab bar</a></li>
+      <li><a href="../components/tabs.html">Tabs</a></li>
+      <li><a href="../components/breadcrumb.html">Breadcrumb</a></li>
+      <li><a href="../components/skip-link.html">Skip link</a></li>
+      <li><a href="../components/layout.html">Layout primitives</a></li>
+      <li><a href="../components/card.html">Card</a></li>
+      <li><a href="../components/dialog.html">Dialog</a></li>
+      <li><a href="../components/notification-panel.html">Notification panel</a></li>
+      <li><a href="../components/list.html">List</a></li>
+      <li><a href="../components/table.html">Table</a></li>
+      <li><a href="../components/description-list.html">Description list</a></li>
+      <li><a href="../components/feed.html">Activity feed</a></li>
+      <li><a href="../components/tree.html">Backlog tree</a></li>
+      <li><a href="../components/kanban.html">Kanban board</a></li>
+      <li><a href="../components/event-card.html">Event card</a></li>
+      <li><a href="../components/profile-header.html">Profile header</a></li>
+      <li><a href="../components/search-results.html">Search results</a></li>
+      <li><a href="../components/note.html">Note</a></li>
+      <li><a href="../components/avatar.html">Avatar</a></li>
+      <li><a href="../components/logo-mark.html">Logo mark</a></li>
+      <li><a href="../components/badge.html">Badge</a></li>
+      <li><a href="../components/chip.html">Chip</a></li>
+      <li><a href="../components/stat.html">Stat</a></li>
+      <li><a href="../components/sticker.html">Estimate card</a></li>
+      <li><a href="../components/toast.html">Toast</a></li>
+      <li><a href="../components/alert.html">Alert and banner</a></li>
+      <li><a href="../components/inline-message.html">Inline message</a></li>
+      <li><a href="../components/progress.html">Progress</a></li>
+      <li><a href="../components/skeleton.html">Skeleton</a></li>
+      <li><a href="../components/empty-state.html">Empty state</a></li>
+      <li><a href="../components/error-page.html">Error page</a></li>
+    </ul></details>
+    <details open><summary>Patterns</summary><ul>
+      <li><a href="../patterns/forms.html">Forms</a></li>
+      <li><a href="../patterns/feedback-and-loading.html">Feedback and loading</a></li>
+      <li><a href="../patterns/empty-and-error-states.html">Empty and error states</a></li>
+      <li><a href="../patterns/navigation.html">Navigation and page structure</a></li>
+      <li><a href="../patterns/dialogs-and-overlays.html">Dialogs and overlays</a></li>
+      <li><a href="../patterns/lists-and-tables.html">Lists and tables</a></li>
+      <li><a href="../patterns/notifications.html">Notifications</a></li>
+      <li><a href="../patterns/content-and-tone.html">Content and tone</a></li>
+    </ul></details>
+  </nav>
+
+  <main id="main" class="ds-main">
+    <header class="ds-header">
+      <p class="ds-kicker">Foundation · Elevation</p>
+      <h1>Elevation</h1>
+      <p class="ds-lead">Four shadow levels, a matching surface ladder and a fixed z-order, so menus, dialogs and toasts always stack the same way in both themes.</p>
+      <div class="ds-meta"><span class="ds-pill ds-pill--ok">WCAG 2.2 AA</span><span class="ds-pill">Foundation</span></div>
+      <ul class="ds-toc">
+        <li><a href="#overview">Overview</a></li><li><a href="#shadows">Shadow levels</a></li><li><a href="#surfaces">Surface hierarchy</a></li><li><a href="#z-order">Z-order</a></li><li><a href="#dark">Elevation in the dark theme</a></li><li><a href="#usage">Usage</a></li><li><a href="#tokens">Tokens</a></li>
+      </ul>
+    </header>
+
+    <section class="ds-section" id="overview"><h2><a href="#overview">Overview</a></h2>
+      <p>Elevation tells the reader what sits on top of what. FaithTech Community uses the four shadow levels inherited from Shelfie and a matching set of surface colours: the page canvas, cards on it, raised surfaces (menus and dialogs) above them, and the inverse toast on top. Stacking order is fixed by <code>--z-*</code> tokens so a menu never slides under the top bar.</p>
+      <ul>
+        <li>Pair each shadow with its surface token; a raised surface is never just a darker shadow on a card colour.</li>
+        <li>Use the z-index tokens; never type a number.</li>
+      </ul>
+    </section>
+
+    <section class="ds-section" id="shadows"><h2><a href="#shadows">Shadow levels</a></h2>
+      <div class="ds-themes"><div data-theme="light"><div class="ds-shadow-grid"><div style="--shadow: var(--shadow-1);">--shadow-1 · cards, Kanban cards</div><div style="--shadow: var(--shadow-2);">--shadow-2 · hovered clickable cards</div><div style="--shadow: var(--shadow-3);">--shadow-3 · menus, toasts</div><div style="--shadow: var(--shadow-4);">--shadow-4 · dialogs</div><div style="--shadow: var(--shadow-focus);">--shadow-focus · focus halo</div></div></div><div data-theme="dark"><div class="ds-shadow-grid"><div style="--shadow: var(--shadow-1);">--shadow-1 · cards, Kanban cards</div><div style="--shadow: var(--shadow-2);">--shadow-2 · hovered clickable cards</div><div style="--shadow: var(--shadow-3);">--shadow-3 · menus, toasts</div><div style="--shadow: var(--shadow-4);">--shadow-4 · dialogs</div><div style="--shadow: var(--shadow-focus);">--shadow-focus · focus halo</div></div></div></div>
+      <p>Shadows are built from <code>--shadow-color</code> (an RGB triplet) at increasing opacity. The dark theme sets the triplet to pure darkness and raises the opacities, because a soft grey shadow disappears on a dark canvas.</p>
+    </section>
+
+    <section class="ds-section" id="surfaces"><h2><a href="#surfaces">Surface hierarchy</a></h2>
+      <div class="ds-themes"><div data-theme="light"><div class="ds-example__canvas ds-example__canvas--stack" style="padding: 0; gap: var(--space-4);">
+          <ul class="list card card--flush"><li class="list__item event-card"><span class="date-badge" aria-hidden="true"><span class="date-badge__month">Nov</span><span class="date-badge__day">6</span></span><div class="event-card__body"><a class="event-card__title" href="../../mocks/pages/event/default.html">Toronto Builders Night</a><span class="event-card__meta">Thu 6 Nov · 6:30 pm · Toronto</span></div><span class="badge badge--success">Public</span></li></ul>
+          <ul class="menu menu--static" aria-label="Account menu example">
+            <li><a class="menu__item" href="../../mocks/pages/sign-in/default.html"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><path d="M10 4H5v16h5M14 8l4 4-4 4M8 12h10"/></svg>Sign out</a></li>
+          </ul>
+          <div class="toast-region toast-region--static"><div class="toast toast--success"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="m8 12 3 3 5-6"/></svg><div class="toast__body"><div class="toast__title">Invite sent</div><div class="toast__text">Nate Oyelaran has 14 days to accept.</div></div></div></div>
+        </div></div><div data-theme="dark"><div class="ds-example__canvas ds-example__canvas--stack" style="padding: 0; gap: var(--space-4);">
+          <ul class="list card card--flush"><li class="list__item event-card"><span class="date-badge" aria-hidden="true"><span class="date-badge__month">Nov</span><span class="date-badge__day">6</span></span><div class="event-card__body"><a class="event-card__title" href="../../mocks/pages/event/default.html">Toronto Builders Night</a><span class="event-card__meta">Thu 6 Nov · 6:30 pm · Toronto</span></div><span class="badge badge--success">Public</span></li></ul>
+          <ul class="menu menu--static" aria-label="Account menu example">
+            <li><a class="menu__item" href="../../mocks/pages/sign-in/default.html"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><path d="M10 4H5v16h5M14 8l4 4-4 4M8 12h10"/></svg>Sign out</a></li>
+          </ul>
+          <div class="toast-region toast-region--static"><div class="toast toast--success"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="m8 12 3 3 5-6"/></svg><div class="toast__body"><div class="toast__title">Invite sent</div><div class="toast__text">Nate Oyelaran has 14 days to accept.</div></div></div></div>
+        </div></div></div>
+      <div class="ds-table-wrap"><table class="ds-table">
+        <thead><tr><th scope="col">Level</th><th scope="col">Surface</th><th scope="col">Shadow</th><th scope="col">Used by</th></tr></thead>
+        <tbody>
+          <tr><td>0 · page</td><td><code>--color-bg-canvas</code></td><td>none</td><td>Page background</td></tr>
+          <tr><td>0 · well</td><td><code>--color-bg-surface-sunken</code></td><td>none</td><td>Private contact notes, table headers, read-only fields</td></tr>
+          <tr><td>1 · surface</td><td><code>--color-bg-surface</code></td><td><code>--shadow-1</code></td><td>Cards, event lists, Kanban columns and cards, top bar and tab bar (border instead of shadow)</td></tr>
+          <tr><td>2 · lifted</td><td><code>--color-bg-surface</code></td><td><code>--shadow-2</code></td><td>Hovered clickable card; hovered primary button uses level 1. A dragged Kanban card uses level 3.</td></tr>
+          <tr><td>3 · raised</td><td><code>--color-bg-surface-raised</code> / <code>--color-bg-inverse</code></td><td><code>--shadow-3</code></td><td>Account menu, toasts, skip link</td></tr>
+          <tr><td>4 · modal</td><td><code>--color-bg-surface-raised</code> over <code>--color-bg-backdrop</code></td><td><code>--shadow-4</code></td><td>Send invite, RSVP, archive contact, compose announcement, create workspace</td></tr>
+        </tbody>
+      </table></div>
+    </section>
+
+    <section class="ds-section" id="z-order"><h2><a href="#z-order">Z-order</a></h2>
+      <div class="ds-table-wrap"><table class="ds-table">
+        <thead><tr><th scope="col">Token</th><th scope="col">Value</th><th scope="col">Used by</th></tr></thead>
+        <tbody>
+          <tr><td><code>--z-base</code></td><td><span data-token="--z-base"></span></td><td>Normal flow</td></tr>
+          <tr><td><code>--z-raised</code></td><td><span data-token="--z-raised"></span></td><td>An element lifted above its siblings (the sign-in card over the auth backdrop)</td></tr>
+          <tr><td><code>--z-sticky</code></td><td><span data-token="--z-sticky"></span></td><td>Top bar, tab bar</td></tr>
+          <tr><td><code>--z-dropdown</code></td><td><span data-token="--z-dropdown"></span></td><td>Account menu</td></tr>
+          <tr><td><code>--z-overlay</code></td><td><span data-token="--z-overlay"></span></td><td>Dialog backdrop</td></tr>
+          <tr><td><code>--z-modal</code></td><td><span data-token="--z-modal"></span></td><td>Dialog</td></tr>
+          <tr><td><code>--z-popover</code></td><td><span data-token="--z-popover"></span></td><td>Reserved in the order; the notification bell panel and select menus should use it</td></tr>
+          <tr><td><code>--z-toast</code></td><td><span data-token="--z-toast"></span></td><td>Toast region, above a dialog so "Invite sent" shows as the dialog closes</td></tr>
+          <tr><td><code>--z-tooltip</code></td><td><span data-token="--z-tooltip"></span></td><td>Skip link (no FaithTech mock uses tooltips)</td></tr>
+        </tbody>
+      </table></div>
+    </section>
+
+    <section class="ds-section" id="dark"><h2><a href="#dark">Elevation in the dark theme</a></h2>
+      <ul>
+        <li>Higher surfaces get <b>lighter</b>: canvas gray 950, surface gray 900, raised gray 800. The colour step does the work a shadow cannot.</li>
+        <li>Shadows stay, darker and more opaque, so edges still read on bright screens.</li>
+        <li>The inverse toast flips to a light surface, which is why its status icons have their own tokens (drift D2).</li>
+        <li>The backdrop darkens to 65% so the dialog stands clear of the page.</li>
+      </ul>
+    </section>
+
+    <section class="ds-section" id="usage"><h2><a href="#usage">Usage</a></h2>
+      <ul>
+        <li>Cards sit at level 1. Do not raise a card to level 2 to make it "important"; use the hero or <code>.card--success</code> / <code>.card--warning</code> (drift D7).</li>
+        <li>Only one modal at a time; a dialog never opens another dialog.</li>
+        <li>Hover lifts are for things that move you somewhere (people rows, partner cards, planning poker estimate cards), not for static cards.</li>
+      </ul>
+    </section>
+
+    <section class="ds-section" id="tokens"><h2><a href="#tokens">Tokens</a></h2>
+      <div class="ds-table-wrap"><table class="ds-table"><caption class="visually-hidden">Elevation tokens</caption>
+        <thead><tr><th scope="col">Role</th><th scope="col">Token</th><th scope="col">Light</th><th scope="col">Dark</th></tr></thead>
+        <tbody>
+          <tr><td>Shadow colour as an RGB triplet</td><td><code>--shadow-color</code></td><td><span data-theme="light" data-token="--shadow-color"></span></td><td><span data-theme="dark" data-token="--shadow-color"></span></td></tr>
+          <tr><td>Cards</td><td><code>--shadow-1</code></td><td><span data-theme="light" data-token="--shadow-1"></span></td><td><span data-theme="dark" data-token="--shadow-1"></span></td></tr>
+          <tr><td>Raised cards, dropdowns</td><td><code>--shadow-2</code></td><td><span data-theme="light" data-token="--shadow-2"></span></td><td><span data-theme="dark" data-token="--shadow-2"></span></td></tr>
+          <tr><td>Popovers, menus</td><td><code>--shadow-3</code></td><td><span data-theme="light" data-token="--shadow-3"></span></td><td><span data-theme="dark" data-token="--shadow-3"></span></td></tr>
+          <tr><td>Dialogs, sheets</td><td><code>--shadow-4</code></td><td><span data-theme="light" data-token="--shadow-4"></span></td><td><span data-theme="dark" data-token="--shadow-4"></span></td></tr>
+          <tr><td>Focus halo: offset gap plus ring</td><td><code>--shadow-focus</code></td><td colspan="2"><span data-token="--shadow-focus"></span></td></tr>
+          <tr><td>Normal flow</td><td><code>--z-base</code></td><td colspan="2"><span data-token="--z-base"></span></td></tr>
+          <tr><td>Lifted sibling</td><td><code>--z-raised</code></td><td colspan="2"><span data-token="--z-raised"></span></td></tr>
+          <tr><td>Top bar, tab bar</td><td><code>--z-sticky</code></td><td colspan="2"><span data-token="--z-sticky"></span></td></tr>
+          <tr><td>Account menu</td><td><code>--z-dropdown</code></td><td colspan="2"><span data-token="--z-dropdown"></span></td></tr>
+          <tr><td>Dialog backdrop</td><td><code>--z-overlay</code></td><td colspan="2"><span data-token="--z-overlay"></span></td></tr>
+          <tr><td>Dialog</td><td><code>--z-modal</code></td><td colspan="2"><span data-token="--z-modal"></span></td></tr>
+          <tr><td>Reserved</td><td><code>--z-popover</code></td><td colspan="2"><span data-token="--z-popover"></span></td></tr>
+          <tr><td>Toast region</td><td><code>--z-toast</code></td><td colspan="2"><span data-token="--z-toast"></span></td></tr>
+          <tr><td>Skip link</td><td><code>--z-tooltip</code></td><td colspan="2"><span data-token="--z-tooltip"></span></td></tr>
+        </tbody>
+      </table></div>
+    </section>
+
+    <footer class="ds-footer"><span>FaithTech Community design system · extracted from <a href="../../mocks/index.html">docs/mocks</a> on 2026-10-21</span><a href="#top">Back to top</a></footer>
+  </main>
+</div>
+<script src="../assets/ds.js"></script>
+</body>
+</html>

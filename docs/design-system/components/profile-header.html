@@ -1,0 +1,295 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Profile header — FaithTech Community design system</title>
+<meta name="description" content="The top of a member profile: avatar, name, global roles, city and viewer-specific actions, plus the square photo strip, with loading and empty states in both themes.">
+<link rel="stylesheet" href="../tokens/tokens.css">
+<link rel="stylesheet" href="../assets/components.css">
+<link rel="stylesheet" href="../assets/ds.css">
+</head>
+<body id="top">
+<a class="skip-link" href="#main">Skip to content</a>
+<div class="ds-shell">
+  <nav class="ds-nav" aria-label="Design system">
+    <div class="ds-nav__brand"><a href="../index.html">FaithTech DS</a><button class="ds-theme-toggle" type="button" aria-pressed="false">☾ Dark</button></div>
+    <details open><summary>Foundations</summary><ul>
+      <li><a href="../foundations/color.html">Color</a></li>
+      <li><a href="../foundations/typography.html">Typography</a></li>
+      <li><a href="../foundations/spacing.html">Spacing</a></li>
+      <li><a href="../foundations/layout.html">Layout</a></li>
+      <li><a href="../foundations/elevation.html">Elevation</a></li>
+      <li><a href="../foundations/shape.html">Shape</a></li>
+      <li><a href="../foundations/motion.html">Motion</a></li>
+      <li><a href="../foundations/iconography.html">Iconography</a></li>
+      <li><a href="../foundations/theming.html">Theming</a></li>
+      <li><a href="../foundations/responsive.html">Responsive</a></li>
+      <li><a href="../foundations/accessibility.html">Accessibility</a></li>
+      <li><a href="../foundations/content.html">Content</a></li>
+    </ul></details>
+    <details open><summary>Components</summary><ul>
+      <li><a href="../components/button.html">Button</a></li>
+      <li><a href="../components/link.html">Link</a></li>
+      <li><a href="../components/menu.html">Menu</a></li>
+      <li><a href="../components/form-field.html">Form field</a></li>
+      <li><a href="../components/text-field.html">Text field</a></li>
+      <li><a href="../components/textarea.html">Textarea</a></li>
+      <li><a href="../components/select.html">Select</a></li>
+      <li><a href="../components/radio-group.html">Radio group</a></li>
+      <li><a href="../components/switch.html">Switch</a></li>
+      <li><a href="../components/form-layout.html">Form layout</a></li>
+      <li><a href="../components/picture-list.html">Picture list</a></li>
+      <li><a href="../components/sticker-picker.html">Estimate card picker</a></li>
+      <li><a href="../components/top-bar.html">Top bar</a></li>
+      <li><a href="../components/tab-bar.html">Tab bar</a></li>
+      <li><a href="../components/tabs.html">Tabs</a></li>
+      <li><a href="../components/breadcrumb.html">Breadcrumb</a></li>
+      <li><a href="../components/skip-link.html">Skip link</a></li>
+      <li><a href="../components/layout.html">Layout primitives</a></li>
+      <li><a href="../components/card.html">Card</a></li>
+      <li><a href="../components/dialog.html">Dialog</a></li>
+      <li><a href="../components/notification-panel.html">Notification panel</a></li>
+      <li><a href="../components/list.html">List</a></li>
+      <li><a href="../components/table.html">Table</a></li>
+      <li><a href="../components/description-list.html">Description list</a></li>
+      <li><a href="../components/feed.html">Activity feed</a></li>
+      <li><a href="../components/tree.html">Backlog tree</a></li>
+      <li><a href="../components/kanban.html">Kanban board</a></li>
+      <li><a href="../components/event-card.html">Event card</a></li>
+      <li><a href="../components/profile-header.html">Profile header</a></li>
+      <li><a href="../components/search-results.html">Search results</a></li>
+      <li><a href="../components/note.html">Note</a></li>
+      <li><a href="../components/avatar.html">Avatar</a></li>
+      <li><a href="../components/logo-mark.html">Logo mark</a></li>
+      <li><a href="../components/badge.html">Badge</a></li>
+      <li><a href="../components/chip.html">Chip</a></li>
+      <li><a href="../components/stat.html">Stat</a></li>
+      <li><a href="../components/sticker.html">Estimate card</a></li>
+      <li><a href="../components/toast.html">Toast</a></li>
+      <li><a href="../components/alert.html">Alert and banner</a></li>
+      <li><a href="../components/inline-message.html">Inline message</a></li>
+      <li><a href="../components/progress.html">Progress</a></li>
+      <li><a href="../components/skeleton.html">Skeleton</a></li>
+      <li><a href="../components/empty-state.html">Empty state</a></li>
+      <li><a href="../components/error-page.html">Error page</a></li>
+    </ul></details>
+    <details open><summary>Patterns</summary><ul>
+      <li><a href="../patterns/forms.html">Forms</a></li>
+      <li><a href="../patterns/feedback-and-loading.html">Feedback and loading</a></li>
+      <li><a href="../patterns/empty-and-error-states.html">Empty and error states</a></li>
+      <li><a href="../patterns/navigation.html">Navigation and page structure</a></li>
+      <li><a href="../patterns/dialogs-and-overlays.html">Dialogs and overlays</a></li>
+      <li><a href="../patterns/lists-and-tables.html">Lists and tables</a></li>
+      <li><a href="../patterns/notifications.html">Notifications</a></li>
+      <li><a href="../patterns/content-and-tone.html">Content and tone</a></li>
+    </ul></details>
+  </nav>
+
+  <main id="main" class="ds-main">
+    <header class="ds-header">
+      <p class="ds-kicker">Component · Data display</p>
+      <h1>Profile header</h1>
+      <p class="ds-lead">The profile header tells members who someone is in FaithTech — name, roles, city — and gives the viewer exactly the actions they are allowed.</p>
+      <div class="ds-meta"><span class="ds-pill ds-pill--ok">WCAG 2.2 AA</span><span class="ds-pill">Status: stable</span><span class="ds-pill">Viewer-dependent actions</span></div>
+      <ul class="ds-toc"><li><a href="#overview">Overview</a></li><li><a href="#anatomy">Anatomy</a></li><li><a href="#variants">Variants</a></li><li><a href="#sizes">Sizes</a></li><li><a href="#states">States</a></li><li><a href="#responsive">Responsive</a></li><li><a href="#theming">Theming</a></li><li><a href="#accessibility">Accessibility</a></li><li><a href="#content">Content</a></li><li><a href="#do-dont">Do and don't</a></li><li><a href="#tokens">Tokens</a></li><li><a href="#code">Code</a></li><li><a href="#sources">Sources</a></li></ul>
+    </header>
+
+    <section class="ds-section" id="overview"><h2><a href="#overview">Overview</a></h2>
+      <p>The profile header opens a member's profile: their featured photo or initials, name, global roles, city and join date, and the actions the viewer may take. Below it sits the <b>photo strip</b>, a grid of up to 10 photos, each with alt text.</p>
+      <ul>
+        <li>Use it only on <code>pages/profile</code>. Profiles are visible to signed-in members only.</li>
+        <li>Actions depend on who is looking: the owner gets <b>Edit profile</b>; a City Lead viewing someone else gets <b>Add a role</b>; any member can <b>Message by email</b>.</li>
+        <li>Editing never happens inline: Edit profile navigates to <code>pages/edit-profile</code>, Add a role opens a dialog. Photo management (featured, reorder, alt text) is the <a href="picture-list.html">picture list</a>, not the strip.</li>
+      </ul>
+    </section>
+
+    <section class="ds-section" id="anatomy"><h2><a href="#anatomy">Anatomy</a></h2>
+      <div class="ds-anatomy">
+        <figure class="ds-anatomy__figure">
+          <div class="card stack"><div class="profile-head"><span class="avatar avatar--xl avatar--mint" aria-hidden="true">SM</span><div class="profile-head__body"><h3>Samuel Mensah</h3><div class="cluster" style="gap: var(--space-2);"><span class="badge badge--role">Create Lead</span> <span class="badge badge--role">Product Engineer</span></div><p class="text-muted"><svg class="icon icon--sm" aria-hidden="true" viewBox="0 0 24 24"><path d="M12 21s-7-6.2-7-11a7 7 0 0 1 14 0c0 4.8-7 11-7 11z"/><circle cx="12" cy="10" r="2.5"/></svg> Toronto · Member since March 2024</p></div><div class="cluster"><a class="btn" href="../../mocks/dialogs/add-role/default.html"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>Add a role</a><a class="btn btn--ghost" href="mailto:samuel.mensah@example.org"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="m3 7 9 6 9-6"/></svg>Message by email</a></div></div><p>Create Lead for Toronto and backend engineer at a health-tech start-up. I help hackathon teams turn ideas into working prototypes.</p></div>
+          <span class="ds-callout" style="left: 6%; top: 18%;" aria-hidden="true">1</span>
+          <span class="ds-callout" style="left: 30%; top: 14%;" aria-hidden="true">2</span>
+          <span class="ds-callout" style="left: 30%; top: 34%;" aria-hidden="true">3</span>
+          <span class="ds-callout" style="left: 30%; top: 50%;" aria-hidden="true">4</span>
+          <span class="ds-callout" style="left: 82%; top: 18%;" aria-hidden="true">5</span>
+          <span class="ds-callout" style="left: 6%; top: 82%;" aria-hidden="true">6</span>
+        </figure>
+        <ol class="ds-anatomy__list">
+          <li><div><b>Avatar</b><small>XL <a href="avatar.html">avatar</a>: featured photo, or initials on a colour when there is none. <code>aria-hidden</code>; the name follows.</small></div></li>
+          <li><div><b>Name</b><small>The page <code>&lt;h1&gt;</code>.</small></div></li>
+          <li><div><b>Roles</b><small><code>.badge--role</code> per global role, in a <code>.cluster</code>. A profile can hold several; new members have none.</small></div></li>
+          <li><div><b>Location line</b><small>Pin icon, city and "Member since", muted.</small></div></li>
+          <li><div><b>Actions</b><small>Buttons the viewer is allowed to use, decided by the server.</small></div></li>
+          <li><div><b>Bio</b><small>Free text below the head, inside the same card.</small></div></li>
+        </ol>
+      </div>
+    </section>
+
+    <section class="ds-section" id="variants"><h2><a href="#variants">Variants</a></h2>
+      <p>The head changes with the viewer, not with a modifier class.</p>
+      <h3>Someone else's profile, viewed by a City Lead</h3>
+<div class="ds-example"><div class="ds-example__canvas ds-example__canvas--stack ds-example__canvas--canvas"><div class="card stack"><div class="profile-head"><span class="avatar avatar--xl avatar--mint" aria-hidden="true">SM</span><div class="profile-head__body"><h3>Samuel Mensah</h3><div class="cluster" style="gap: var(--space-2);"><span class="badge badge--role">Create Lead</span> <span class="badge badge--role">Product Engineer</span></div><p class="text-muted"><svg class="icon icon--sm" aria-hidden="true" viewBox="0 0 24 24"><path d="M12 21s-7-6.2-7-11a7 7 0 0 1 14 0c0 4.8-7 11-7 11z"/><circle cx="12" cy="10" r="2.5"/></svg> Toronto · Member since March 2024</p></div><div class="cluster"><a class="btn" href="../../mocks/dialogs/add-role/default.html"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>Add a role</a><a class="btn btn--ghost" href="mailto:samuel.mensah@example.org"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="m3 7 9 6 9-6"/></svg>Message by email</a></div></div><p>Create Lead for Toronto and backend engineer at a health-tech start-up. I help hackathon teams turn ideas into working prototypes.</p></div></div><div class="ds-example__caption"><span>Samuel Mensah with two roles; Grace (City Lead) sees Add a role and Message by email.</span></div><details class="ds-example__code"><summary>HTML</summary><pre><code>&lt;div class="card stack"&gt;
+  &lt;div class="profile-head"&gt;
+    &lt;span class="avatar avatar--xl avatar--mint" aria-hidden="true"&gt;SM&lt;/span&gt;
+    &lt;div class="profile-head__body"&gt;
+      &lt;h1&gt;Samuel Mensah&lt;/h1&gt;
+      &lt;div class="cluster"&gt;&lt;span class="badge badge--role"&gt;Create Lead&lt;/span&gt; &lt;span class="badge badge--role"&gt;Product Engineer&lt;/span&gt;&lt;/div&gt;
+      &lt;p class="text-muted"&gt;&lt;svg class="icon icon--sm" aria-hidden="true"&gt;…&lt;/svg&gt; Toronto · Member since March 2024&lt;/p&gt;
+    &lt;/div&gt;
+    &lt;div class="cluster"&gt;
+      &lt;a class="btn" href="/profiles/samuel-mensah/roles/new"&gt;Add a role&lt;/a&gt;
+      &lt;a class="btn btn--ghost" href="mailto:samuel.mensah@example.org"&gt;Message by email&lt;/a&gt;
+    &lt;/div&gt;
+  &lt;/div&gt;
+  &lt;p&gt;Create Lead for Toronto and backend engineer at a health-tech start-up.&lt;/p&gt;
+&lt;/div&gt;
+
+&lt;section aria-labelledby="ph" class="stack"&gt;
+  &lt;h2 id="ph"&gt;Photos&lt;/h2&gt;
+  &lt;ul class="photo-strip"&gt;
+    &lt;li&gt;&lt;img src="builders-night.jpg" alt="Grace speaking at Builders Night in front of a full room" width="160" height="160"&gt;&lt;/li&gt;
+  &lt;/ul&gt;
+&lt;/section&gt;</code></pre></details></div>
+      <h3>Own profile</h3>
+<div class="ds-example"><div class="ds-example__canvas ds-example__canvas--stack ds-example__canvas--canvas"><div class="card stack"><div class="profile-head"><span class="avatar avatar--xl avatar--sky" aria-hidden="true">GO</span><div class="profile-head__body"><h3>Grace Okonkwo</h3><div class="cluster" style="gap: var(--space-2);"><span class="badge badge--role">City Lead</span></div><p class="text-muted"><svg class="icon icon--sm" aria-hidden="true" viewBox="0 0 24 24"><path d="M12 21s-7-6.2-7-11a7 7 0 0 1 14 0c0 4.8-7 11-7 11z"/><circle cx="12" cy="10" r="2.5"/></svg> Toronto · Member since March 2024</p></div><div class="cluster"><a class="btn btn--primary" href="../../mocks/pages/edit-profile/default.html"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><path d="M4 20h4L19 9l-4-4L4 16zM14 6l4 4"/></svg>Edit profile</a></div></div><p>City Lead for FaithTech Toronto. Product manager by day, convener of builders by night.</p></div></div><div class="ds-example__caption"><span>One primary action, Edit profile, which navigates to the edit screen.</span></div></div>
+      <h3>New member with no role</h3>
+<div class="ds-example"><div class="ds-example__canvas ds-example__canvas--stack ds-example__canvas--canvas"><div class="card stack"><div class="profile-head"><span class="avatar avatar--xl avatar--sun" aria-hidden="true">LT</span><div class="profile-head__body"><h3>Leah Thompson</h3><div class="cluster" style="gap: var(--space-2);"><span class="text-muted">No role yet</span></div><p class="text-muted"><svg class="icon icon--sm" aria-hidden="true" viewBox="0 0 24 24"><path d="M12 21s-7-6.2-7-11a7 7 0 0 1 14 0c0 4.8-7 11-7 11z"/><circle cx="12" cy="10" r="2.5"/></svg> Toronto · Member since March 2024</p></div><div class="cluster"><a class="btn btn--ghost" href="mailto:leah.thompson@example.org"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="m3 7 9 6 9-6"/></svg>Message by email</a></div></div><p>New to FaithTech Toronto.</p></div></div><div class="ds-example__caption"><span>Leah Thompson has no role yet; say so in words rather than leaving an empty row. A member without lead rights sees only Message by email.</span></div></div>
+      <h3>Photo strip</h3>
+<div class="ds-example"><div class="ds-example__canvas ds-example__canvas--stack ds-example__canvas--canvas"><ul class="photo-strip" aria-label="Photos"><li><img src="../assets/photos/builders-night.svg" alt="Grace speaking at Builders Night in front of a full room" width="160" height="160"></li><li><img src="../assets/photos/hackathon.svg" alt="Teams working on laptops at the spring hackathon" width="160" height="160"></li><li><img src="../assets/photos/city.svg" alt="The Toronto skyline at dusk from the waterfront" width="160" height="160"></li><li><img src="../assets/photos/team.svg" alt="The Toronto city team gathered around a whiteboard" width="160" height="160"></li><li><span class="photo-ph" role="img" aria-label="Photo still processing"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-5-5L5 21"/></svg></span></li></ul></div><div class="ds-example__caption"><span>Square tiles, auto-filling columns of at least 7rem. <code>.photo-ph</code> is a placeholder tile for a photo that has not loaded or is still processing.</span></div></div>
+    </section>
+
+    <section class="ds-section" id="sizes" data-na="one size; avatar is always XL and tiles have a fixed minimum"><h2><a href="#sizes">Sizes</a></h2>
+      <p>One size: the avatar is always XL and tiles are square with a 7rem minimum.</p>
+    </section>
+
+    <section class="ds-section" id="states"><h2><a href="#states">States</a></h2>
+      <p>The head itself is static; its actions are <a href="button.html">buttons</a> with the usual states, and photos are not interactive on the profile.</p>
+      <div class="ds-matrix"><table>
+        <thead><tr><th scope="col">Part</th><th scope="col">Default</th><th scope="col">Hover</th><th scope="col">Focus</th><th scope="col">Active</th></tr></thead>
+        <tbody><tr><th scope="row">Own profile action</th><td><a class="btn btn--primary" href="../../mocks/pages/edit-profile/default.html"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><path d="M4 20h4L19 9l-4-4L4 16zM14 6l4 4"/></svg>Edit profile</a></td><td><a class="btn btn--primary" href="../../mocks/pages/edit-profile/default.html" data-state="hover"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><path d="M4 20h4L19 9l-4-4L4 16zM14 6l4 4"/></svg>Edit profile</a></td><td><a class="btn btn--primary" href="../../mocks/pages/edit-profile/default.html" data-state="focus"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><path d="M4 20h4L19 9l-4-4L4 16zM14 6l4 4"/></svg>Edit profile</a></td><td><a class="btn btn--primary" href="../../mocks/pages/edit-profile/default.html" data-state="active"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><path d="M4 20h4L19 9l-4-4L4 16zM14 6l4 4"/></svg>Edit profile</a></td></tr></tbody>
+      </table></div>
+      <h3>Content states</h3>
+<div class="ds-example"><div class="ds-example__canvas ds-example__canvas--stack ds-example__canvas--canvas"><div class="card"><div class="profile-head" aria-busy="true" aria-label="Loading profile"><span class="skeleton avatar avatar--xl" aria-hidden="true"></span><div class="profile-head__body"><span class="skeleton skeleton--title" aria-hidden="true"></span><span class="skeleton skeleton--text" aria-hidden="true"></span></div></div></div></div><div class="ds-example__caption"><span>Loading (<code>pages/profile/loading</code>): skeleton avatar, title and text in the same head, <code>aria-busy="true"</code>.</span></div></div><div class="ds-example"><div class="ds-example__canvas ds-example__canvas--stack ds-example__canvas--canvas"><div class="empty"><span class="empty__icon" aria-hidden="true"><svg class="icon icon--lg" aria-hidden="true" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-5-5L5 21"/></svg></span><h3 class="empty__title">No photos yet</h3><p class="empty__text">Add up to 10 photos. The one you feature becomes your picture across FaithTech.</p><div class="empty__actions"><a class="btn btn--primary" href="../../mocks/pages/edit-profile/default.html"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>Add photos</a></div></div></div><div class="ds-example__caption"><span>No photos (<code>pages/profile/empty</code>): an <a href="empty-state.html">empty state</a> replaces the strip; the bio reads "You haven’t written a bio yet." in muted text.</span></div></div>
+      <h3>Both themes</h3>
+<div class="ds-themes"><div data-theme="light"><div class="card stack"><div class="profile-head"><span class="avatar avatar--xl avatar--mint" aria-hidden="true">SM</span><div class="profile-head__body"><h3>Samuel Mensah</h3><div class="cluster" style="gap: var(--space-2);"><span class="badge badge--role">Create Lead</span> <span class="badge badge--role">Product Engineer</span></div><p class="text-muted"><svg class="icon icon--sm" aria-hidden="true" viewBox="0 0 24 24"><path d="M12 21s-7-6.2-7-11a7 7 0 0 1 14 0c0 4.8-7 11-7 11z"/><circle cx="12" cy="10" r="2.5"/></svg> Toronto · Member since March 2024</p></div><div class="cluster"><a class="btn" href="../../mocks/dialogs/add-role/default.html"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>Add a role</a><a class="btn btn--ghost" href="mailto:samuel.mensah@example.org"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="m3 7 9 6 9-6"/></svg>Message by email</a></div></div><p>Create Lead for Toronto and backend engineer at a health-tech start-up. I help hackathon teams turn ideas into working prototypes.</p></div><ul class="photo-strip" aria-label="Photos"><li><img src="../assets/photos/builders-night.svg" alt="Grace speaking at Builders Night in front of a full room" width="160" height="160"></li><li><img src="../assets/photos/hackathon.svg" alt="Teams working on laptops at the spring hackathon" width="160" height="160"></li></ul></div><div data-theme="dark"><div class="card stack"><div class="profile-head"><span class="avatar avatar--xl avatar--mint" aria-hidden="true">SM</span><div class="profile-head__body"><h3>Samuel Mensah</h3><div class="cluster" style="gap: var(--space-2);"><span class="badge badge--role">Create Lead</span> <span class="badge badge--role">Product Engineer</span></div><p class="text-muted"><svg class="icon icon--sm" aria-hidden="true" viewBox="0 0 24 24"><path d="M12 21s-7-6.2-7-11a7 7 0 0 1 14 0c0 4.8-7 11-7 11z"/><circle cx="12" cy="10" r="2.5"/></svg> Toronto · Member since March 2024</p></div><div class="cluster"><a class="btn" href="../../mocks/dialogs/add-role/default.html"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>Add a role</a><a class="btn btn--ghost" href="mailto:samuel.mensah@example.org"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="m3 7 9 6 9-6"/></svg>Message by email</a></div></div><p>Create Lead for Toronto and backend engineer at a health-tech start-up. I help hackathon teams turn ideas into working prototypes.</p></div><ul class="photo-strip" aria-label="Photos"><li><img src="../assets/photos/builders-night.svg" alt="Grace speaking at Builders Night in front of a full room" width="160" height="160"></li><li><img src="../assets/photos/hackathon.svg" alt="Teams working on laptops at the spring hackathon" width="160" height="160"></li></ul></div></div>
+      <ul>
+        <li><b>Error</b> (<code>pages/profile/error</code>): the whole head is replaced by an error empty state, "We couldn’t load this profile", with Try again.</li>
+        <li><b>Forbidden</b>: anonymous visitors never see a profile; they are sent to sign in.</li>
+      </ul>
+    </section>
+
+    <section class="ds-section" id="responsive"><h2><a href="#responsive">Responsive behaviour</a></h2>
+      <ul>
+        <li><code>.profile-head</code> wraps: on a phone the actions drop under the name; the body keeps a 12rem minimum so the name never squeezes beside the avatar.</li>
+        <li>Role badges wrap in their cluster.</li>
+        <li>The photo strip is <code>repeat(auto-fill, minmax(min(100%, 7rem), 1fr))</code>: two or three columns on a phone, up to eight on a desktop, never horizontal scroll.</li>
+        <li>Images are square (<code>aspect-ratio: 1</code>, <code>object-fit: cover</code>) and carry width and height to avoid layout shift.</li>
+      </ul>
+    </section>
+
+    <section class="ds-section" id="theming"><h2><a href="#theming">Theming</a></h2>
+      <p>Everything comes from semantic tokens: the card surface, muted text, the role badge and the placeholder tile (<code>--color-bg-subtle</code> with <code>--color-fg-muted</code> icon). Avatar initials use the avatar's own colour pairs, which switch per theme.</p>
+    </section>
+
+    <section class="ds-section" id="accessibility"><h2><a href="#accessibility">Accessibility</a></h2>
+      <h3>Role and pattern</h3>
+      <p>The name is the page's only <code>&lt;h1&gt;</code>. Photos are a <code>&lt;ul&gt;</code> under an <code>&lt;h2&gt;</code> "Photos", each <code>&lt;img&gt;</code> with the alt text the member wrote (required on upload). A placeholder tile has <code>role="img"</code> and a label.</p>
+      <h3>Keyboard</h3>
+      <table class="ds-table ds-keys"><thead><tr><th scope="col">Key</th><th scope="col">Action</th></tr></thead><tbody>
+        <tr><td><kbd>Tab</kbd></td><td>Moves through the actions in order (Add a role, then Message by email). Photos are not focus stops.</td></tr>
+        <tr><td><kbd>Enter</kbd></td><td>Follows the action.</td></tr>
+      </tbody></table>
+      <h3>Labelling</h3>
+      <p>The avatar is <code>aria-hidden</code> because the name is right beside it. The pin icon is decorative; the city is text. Roles are text in badges, never colour only.</p>
+      <h3>Contrast</h3>
+      <div class="ds-example__canvas ds-example__canvas--stack" style="padding: 0; gap: var(--space-2);">
+        <div class="ds-pair"><span>Location line on surface</span><span class="ds-pair__ratio" data-contrast="--color-fg-muted|--color-bg-surface" data-min="4.5"></span></div>
+        <div class="ds-pair"><span>Placeholder icon on tile</span><span class="ds-pair__ratio" data-contrast="--color-fg-muted|--color-bg-subtle" data-min="3"></span></div>
+        <div class="ds-pair"><span>Name on surface</span><span class="ds-pair__ratio" data-contrast="--color-fg-default|--color-bg-surface" data-min="4.5"></span></div>
+      </div>
+      <h3>Motion</h3>
+      <p>None.</p>
+    </section>
+
+    <section class="ds-section" id="content"><h2><a href="#content">Content</a></h2>
+      <ul>
+        <li>Name as the member wrote it; no titles added.</li>
+        <li>Roles use the product names: City Lead, Staff, Volunteer, Product Engineer, Attendee, and lead titles such as Create Lead.</li>
+        <li>Location line: "Toronto · Member since March 2024".</li>
+        <li>Alt text describes the photo, not the file: "Teams working on laptops at the spring hackathon", not "IMG_2041".</li>
+        <li>Empty bio on your own profile: "You haven’t written a bio yet." Others see nothing.</li>
+      </ul>
+    </section>
+
+    <section class="ds-section" id="do-dont"><h2><a href="#do-dont">Do and don't</a></h2>
+      <div class="ds-dodont">
+        <figure class="ds-do"><div class="ds-example__canvas ds-example__canvas--stack"><ul class="photo-strip" aria-label="Photos"><li><img src="../assets/photos/builders-night.svg" alt="Grace speaking at Builders Night in front of a full room" width="160" height="160"></li><li><img src="../assets/photos/hackathon.svg" alt="Teams working on laptops at the spring hackathon" width="160" height="160"></li></ul></div><figcaption>Each photo has descriptive alt text from the member.</figcaption></figure>
+        <figure class="ds-dont"><div class="ds-example__canvas ds-example__canvas--stack"><ul class="photo-strip" aria-label="Photos"><li><img src="../assets/photos/hackathon.svg" alt="Photo 1" width="160" height="160"></li><li><img src="../assets/photos/team.svg" alt="Photo 2" width="160" height="160"></li></ul></div><figcaption>"Photo 1" is not alt text. Upload requires real alt text.</figcaption></figure>
+        <figure class="ds-do"><div class="ds-example__canvas ds-example__canvas--stack"><div class="card stack"><div class="profile-head"><span class="avatar avatar--xl avatar--sky" aria-hidden="true">GO</span><div class="profile-head__body"><h3>Grace Okonkwo</h3><div class="cluster" style="gap: var(--space-2);"><span class="badge badge--role">City Lead</span></div><p class="text-muted"><svg class="icon icon--sm" aria-hidden="true" viewBox="0 0 24 24"><path d="M12 21s-7-6.2-7-11a7 7 0 0 1 14 0c0 4.8-7 11-7 11z"/><circle cx="12" cy="10" r="2.5"/></svg> Toronto · Member since March 2024</p></div><div class="cluster"><a class="btn btn--primary" href="../../mocks/pages/edit-profile/default.html"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><path d="M4 20h4L19 9l-4-4L4 16zM14 6l4 4"/></svg>Edit profile</a></div></div><p>City Lead for FaithTech Toronto.</p></div></div><figcaption>Owner sees one primary action that navigates to the edit screen.</figcaption></figure>
+        <figure class="ds-dont"><div class="ds-example__canvas ds-example__canvas--stack"><div class="card stack"><div class="profile-head"><span class="avatar avatar--xl avatar--sky" aria-hidden="true">GO</span><div class="profile-head__body"><h3>Grace Okonkwo</h3><div class="cluster" style="gap: var(--space-2);"><span class="badge badge--role">City Lead</span></div><p class="text-muted"><svg class="icon icon--sm" aria-hidden="true" viewBox="0 0 24 24"><path d="M12 21s-7-6.2-7-11a7 7 0 0 1 14 0c0 4.8-7 11-7 11z"/><circle cx="12" cy="10" r="2.5"/></svg> Toronto · Member since March 2024</p></div><div class="cluster"><a class="btn btn--primary" href="../../mocks/pages/edit-profile/default.html"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><path d="M4 20h4L19 9l-4-4L4 16zM14 6l4 4"/></svg>Edit profile</a><a class="btn btn--primary" href="../../mocks/dialogs/add-role/default.html"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>Add a role</a></div></div><p>City Lead for FaithTech Toronto.</p></div></div><figcaption>Two primary buttons, and Add a role on your own profile. Only System Admin may change a City Lead's roles, so the server must not offer it.</figcaption></figure>
+      </div>
+    </section>
+
+    <section class="ds-section" id="tokens"><h2><a href="#tokens">Tokens</a></h2>
+<div class="ds-table-wrap"><table class="ds-table"><thead><tr><th scope="col">Part</th><th scope="col">Token</th><th scope="col">Light</th><th scope="col">Dark</th></tr></thead><tbody>
+<tr><td>Card surface</td><td><code>--color-bg-surface</code></td><td><span class="ds-swatch-cell" data-theme="light"><i data-token="--color-bg-surface" data-swatch></i><span data-token="--color-bg-surface"></span></span></td><td><span class="ds-swatch-cell" data-theme="dark"><i data-token="--color-bg-surface" data-swatch></i><span data-token="--color-bg-surface"></span></span></td></tr>
+<tr><td>Name</td><td><code>--color-fg-default</code></td><td><span class="ds-swatch-cell" data-theme="light"><i data-token="--color-fg-default" data-swatch></i><span data-token="--color-fg-default"></span></span></td><td><span class="ds-swatch-cell" data-theme="dark"><i data-token="--color-fg-default" data-swatch></i><span data-token="--color-fg-default"></span></span></td></tr>
+<tr><td>Location line</td><td><code>--color-fg-muted</code></td><td><span class="ds-swatch-cell" data-theme="light"><i data-token="--color-fg-muted" data-swatch></i><span data-token="--color-fg-muted"></span></span></td><td><span class="ds-swatch-cell" data-theme="dark"><i data-token="--color-fg-muted" data-swatch></i><span data-token="--color-fg-muted"></span></span></td></tr>
+<tr><td>Placeholder tile</td><td><code>--color-bg-subtle</code></td><td><span class="ds-swatch-cell" data-theme="light"><i data-token="--color-bg-subtle" data-swatch></i><span data-token="--color-bg-subtle"></span></span></td><td><span class="ds-swatch-cell" data-theme="dark"><i data-token="--color-bg-subtle" data-swatch></i><span data-token="--color-bg-subtle"></span></span></td></tr>
+<tr><td>Head gap</td><td><code>--space-4</code></td><td colspan="2"><span data-token="--space-4"></span></td></tr>
+<tr><td>Body gap</td><td><code>--space-2</code></td><td colspan="2"><span data-token="--space-2"></span></td></tr>
+<tr><td>Avatar size</td><td><code>--size-avatar-xl</code></td><td colspan="2"><span data-token="--size-avatar-xl"></span></td></tr>
+<tr><td>Strip gap</td><td><code>--space-2</code></td><td colspan="2"><span data-token="--space-2"></span></td></tr>
+<tr><td>Tile radius</td><td><code>--radius-md</code></td><td colspan="2"><span data-token="--radius-md"></span></td></tr>
+<tr><td>Placeholder icon size</td><td><code>--font-size-3xl</code></td><td colspan="2"><span data-token="--font-size-3xl"></span></td></tr>
+</tbody></table></div>
+    </section>
+
+    <section class="ds-section" id="code"><h2><a href="#code">Code</a></h2>
+      <pre><code>&lt;div class="card stack"&gt;
+  &lt;div class="profile-head"&gt;
+    &lt;span class="avatar avatar--xl avatar--mint" aria-hidden="true"&gt;SM&lt;/span&gt;
+    &lt;div class="profile-head__body"&gt;
+      &lt;h1&gt;Samuel Mensah&lt;/h1&gt;
+      &lt;div class="cluster"&gt;&lt;span class="badge badge--role"&gt;Create Lead&lt;/span&gt; &lt;span class="badge badge--role"&gt;Product Engineer&lt;/span&gt;&lt;/div&gt;
+      &lt;p class="text-muted"&gt;&lt;svg class="icon icon--sm" aria-hidden="true"&gt;…&lt;/svg&gt; Toronto · Member since March 2024&lt;/p&gt;
+    &lt;/div&gt;
+    &lt;div class="cluster"&gt;
+      &lt;a class="btn" href="/profiles/samuel-mensah/roles/new"&gt;Add a role&lt;/a&gt;
+      &lt;a class="btn btn--ghost" href="mailto:samuel.mensah@example.org"&gt;Message by email&lt;/a&gt;
+    &lt;/div&gt;
+  &lt;/div&gt;
+  &lt;p&gt;Create Lead for Toronto and backend engineer at a health-tech start-up.&lt;/p&gt;
+&lt;/div&gt;
+
+&lt;section aria-labelledby="ph" class="stack"&gt;
+  &lt;h2 id="ph"&gt;Photos&lt;/h2&gt;
+  &lt;ul class="photo-strip"&gt;
+    &lt;li&gt;&lt;img src="builders-night.jpg" alt="Grace speaking at Builders Night in front of a full room" width="160" height="160"&gt;&lt;/li&gt;
+  &lt;/ul&gt;
+&lt;/section&gt;</code></pre>
+      <table class="ds-table"><thead><tr><th scope="col">Class / attribute</th><th scope="col">Effect</th></tr></thead><tbody>
+        <tr><td><code>.profile-head</code></td><td>Wrapping row: avatar, body, actions.</td></tr>
+        <tr><td><code>.profile-head__body</code></td><td>Name, roles and location column; 12rem minimum.</td></tr>
+        <tr><td><code>.photo-strip</code></td><td>Auto-fill grid of square photos on a bare <code>&lt;ul&gt;</code>.</td></tr>
+        <tr><td><code>.photo-ph</code></td><td>Placeholder tile inside the strip; give it <code>role="img"</code> and <code>aria-label</code>.</td></tr>
+      </tbody></table>
+    </section>
+
+    <section class="ds-section" id="sources"><h2><a href="#sources">Sources</a></h2>
+      <p>Extracted from these mocks:</p>
+      <ul>
+        <li><a href="../../mocks/pages/profile/default.html">pages/profile/default</a> (Samuel, lead's view)</li>
+        <li><a href="../../mocks/pages/profile/own.html">pages/profile/own</a> (Grace, owner)</li>
+        <li><a href="../../mocks/pages/profile/empty.html">pages/profile/empty</a>, <a href="../../mocks/pages/profile/loading.html">pages/profile/loading</a>, <a href="../../mocks/pages/profile/error.html">pages/profile/error</a></li>
+      </ul>
+      <p>Drift: <code>.photo-ph</code> is defined with <code>display: grid !important</code> but no mock uses it, so its markup here is inferred; the card uses an inline <code>style="margin-top: var(--space-6)"</code> and the "Photos" heading an inline font; Samuel's profile shows Grace's photos and alt text ("Grace speaking at Builders Night"), copied from her own profile; the loading state shows the photo area as two text-card skeletons instead of square tiles; there is no no-role mock (Leah's head above is inferred from the "new users start with no role" rule).</p>
+    </section>
+
+    <footer class="ds-footer"><span>FaithTech Community design system · extracted from <a href="../../mocks/index.html">docs/mocks</a> on 2026-10-21</span><a href="#top">Back to top</a></footer>
+  </main>
+</div>
+<script src="../assets/ds.js"></script>
+</body>
+</html>

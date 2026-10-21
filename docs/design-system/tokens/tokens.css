@@ -16,10 +16,10 @@
    page has not forced [data-theme="light"]. High-contrast tweaks apply
    under prefers-contrast: more and forced-colors.
 
-   Shelfie: violet accent, rounded system fonts, 44px controls, pastel book
-   covers. Every pair in contrast-pairs.json passes WCAG 2.2 AA in both
+   FaithTech Community: violet accent (inherited from Shelfie until FaithTech brand colours are supplied), rounded system fonts, 44px controls, pastel
+   avatar and event tints. Every pair in contrast-pairs.json passes WCAG 2.2 AA in both
    themes (scripts/check_contrast.py). Extracted from docs/mocks on
-   2026-10-17; see docs/design-system/README.md for the drift log.
+   2026-10-21; see docs/design-system/README.md for the drift log.
    ========================================================================== */
 
 :root {
@@ -58,7 +58,7 @@
   --palette-blue-900: #1b2f7a;
   --palette-blue-950: #0f1f3d;
 
-  /* Shelfie brand hue: violet. Blue stays for informational messages. */
+  /* Brand hue: violet (Shelfie default, kept per docs/mocks/README.md). Blue stays for informational messages. */
   --palette-violet-50: #f5f3ff;
   --palette-violet-100: #ede9fe;
   --palette-violet-200: #ddd6fe;
@@ -71,7 +71,7 @@
   --palette-violet-900: #4c1d95;
   --palette-violet-950: #2e1065;
 
-  /* Book cover pastels. Always paired with --color-fg-on-cover (dark text) in both themes. */
+  /* Pastel tints for avatars, event and partner accents. Always paired with --color-fg-on-cover (dark text) in both themes. */
   --palette-cover-sage: #cfe8d5;
   --palette-cover-rose: #f9d5e0;
   --palette-cover-sky: #cfe6fb;

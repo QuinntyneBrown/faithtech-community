@@ -1,0 +1,261 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Activity feed — FaithTech Community design system</title>
+<meta name="description" content="Feeds show what happened, newest first: Recent activity on Home, comments on a story and partner history, each with the actor's avatar, a sentence and a time.">
+<link rel="stylesheet" href="../tokens/tokens.css">
+<link rel="stylesheet" href="../assets/components.css">
+<link rel="stylesheet" href="../assets/ds.css">
+</head>
+<body id="top">
+<a class="skip-link" href="#main">Skip to content</a>
+<div class="ds-shell">
+  <nav class="ds-nav" aria-label="Design system">
+    <div class="ds-nav__brand"><a href="../index.html">FaithTech DS</a><button class="ds-theme-toggle" type="button" aria-pressed="false">☾ Dark</button></div>
+    <details open><summary>Foundations</summary><ul>
+      <li><a href="../foundations/color.html">Color</a></li>
+      <li><a href="../foundations/typography.html">Typography</a></li>
+      <li><a href="../foundations/spacing.html">Spacing</a></li>
+      <li><a href="../foundations/layout.html">Layout</a></li>
+      <li><a href="../foundations/elevation.html">Elevation</a></li>
+      <li><a href="../foundations/shape.html">Shape</a></li>
+      <li><a href="../foundations/motion.html">Motion</a></li>
+      <li><a href="../foundations/iconography.html">Iconography</a></li>
+      <li><a href="../foundations/theming.html">Theming</a></li>
+      <li><a href="../foundations/responsive.html">Responsive</a></li>
+      <li><a href="../foundations/accessibility.html">Accessibility</a></li>
+      <li><a href="../foundations/content.html">Content</a></li>
+    </ul></details>
+    <details open><summary>Components</summary><ul>
+      <li><a href="../components/button.html">Button</a></li>
+      <li><a href="../components/link.html">Link</a></li>
+      <li><a href="../components/menu.html">Menu</a></li>
+      <li><a href="../components/form-field.html">Form field</a></li>
+      <li><a href="../components/text-field.html">Text field</a></li>
+      <li><a href="../components/textarea.html">Textarea</a></li>
+      <li><a href="../components/select.html">Select</a></li>
+      <li><a href="../components/radio-group.html">Radio group</a></li>
+      <li><a href="../components/switch.html">Switch</a></li>
+      <li><a href="../components/form-layout.html">Form layout</a></li>
+      <li><a href="../components/picture-list.html">Picture list</a></li>
+      <li><a href="../components/sticker-picker.html">Estimate card picker</a></li>
+      <li><a href="../components/top-bar.html">Top bar</a></li>
+      <li><a href="../components/tab-bar.html">Tab bar</a></li>
+      <li><a href="../components/tabs.html">Tabs</a></li>
+      <li><a href="../components/breadcrumb.html">Breadcrumb</a></li>
+      <li><a href="../components/skip-link.html">Skip link</a></li>
+      <li><a href="../components/layout.html">Layout primitives</a></li>
+      <li><a href="../components/card.html">Card</a></li>
+      <li><a href="../components/dialog.html">Dialog</a></li>
+      <li><a href="../components/notification-panel.html">Notification panel</a></li>
+      <li><a href="../components/list.html">List</a></li>
+      <li><a href="../components/table.html">Table</a></li>
+      <li><a href="../components/description-list.html">Description list</a></li>
+      <li><a href="../components/feed.html">Activity feed</a></li>
+      <li><a href="../components/tree.html">Backlog tree</a></li>
+      <li><a href="../components/kanban.html">Kanban board</a></li>
+      <li><a href="../components/event-card.html">Event card</a></li>
+      <li><a href="../components/profile-header.html">Profile header</a></li>
+      <li><a href="../components/search-results.html">Search results</a></li>
+      <li><a href="../components/note.html">Note</a></li>
+      <li><a href="../components/avatar.html">Avatar</a></li>
+      <li><a href="../components/logo-mark.html">Logo mark</a></li>
+      <li><a href="../components/badge.html">Badge</a></li>
+      <li><a href="../components/chip.html">Chip</a></li>
+      <li><a href="../components/stat.html">Stat</a></li>
+      <li><a href="../components/sticker.html">Estimate card</a></li>
+      <li><a href="../components/toast.html">Toast</a></li>
+      <li><a href="../components/alert.html">Alert and banner</a></li>
+      <li><a href="../components/inline-message.html">Inline message</a></li>
+      <li><a href="../components/progress.html">Progress</a></li>
+      <li><a href="../components/skeleton.html">Skeleton</a></li>
+      <li><a href="../components/empty-state.html">Empty state</a></li>
+      <li><a href="../components/error-page.html">Error page</a></li>
+    </ul></details>
+    <details open><summary>Patterns</summary><ul>
+      <li><a href="../patterns/forms.html">Forms</a></li>
+      <li><a href="../patterns/feedback-and-loading.html">Feedback and loading</a></li>
+      <li><a href="../patterns/empty-and-error-states.html">Empty and error states</a></li>
+      <li><a href="../patterns/navigation.html">Navigation and page structure</a></li>
+      <li><a href="../patterns/dialogs-and-overlays.html">Dialogs and overlays</a></li>
+      <li><a href="../patterns/lists-and-tables.html">Lists and tables</a></li>
+      <li><a href="../patterns/notifications.html">Notifications</a></li>
+      <li><a href="../patterns/content-and-tone.html">Content and tone</a></li>
+    </ul></details>
+  </nav>
+
+  <main id="main" class="ds-main">
+    <header class="ds-header">
+      <p class="ds-kicker">Component · Data display</p>
+      <h1>Activity feed</h1>
+      <p class="ds-lead">A newest-first stream of things that happened, each with the actor's avatar, a sentence and a time: Recent activity on Home, comments on a story, and the history on a partner.</p>
+      <div class="ds-meta"><span class="ds-pill ds-pill--ok">WCAG 2.2 AA</span><span class="ds-pill">Status: stable</span><span class="ds-pill"><code>&lt;ul class="feed"&gt;</code></span></div>
+      <ul class="ds-toc">
+        <li><a href="#overview">Overview</a></li><li><a href="#anatomy">Anatomy</a></li><li><a href="#variants">Variants</a></li><li><a href="#sizes">Sizes</a></li><li><a href="#states">States</a></li><li><a href="#responsive">Responsive</a></li><li><a href="#theming">Theming</a></li><li><a href="#accessibility">Accessibility</a></li><li><a href="#content">Content</a></li><li><a href="#do-dont">Do and don't</a></li><li><a href="#tokens">Tokens</a></li><li><a href="#code">Code</a></li><li><a href="#sources">Sources</a></li>
+      </ul>
+    </header>
+
+    <section class="ds-section" id="overview"><h2><a href="#overview">Overview</a></h2>
+      <p>Use a feed for events in time order where the reader wants to know who did what and when: Tomás Ortega signing up, Marcus Lee publishing Toronto Builders Night, a comment on the "Tech for Shelters hackathon" story.</p>
+      <ul>
+        <li>A feed sits inside a card with a heading ("Recent activity", "Comments (2)", "History").</li>
+        <li>Use a <a href="list.html">list</a> for things to open, and the notifications list for items with read and unread state.</li>
+        <li>In Angular, use <code>&lt;ft-feed&gt;</code> and <code>&lt;ft-feed-item&gt;</code>.</li>
+      </ul>
+    </section>
+
+    <section class="ds-section" id="anatomy"><h2><a href="#anatomy">Anatomy</a></h2>
+      <div class="ds-anatomy">
+        <figure class="ds-anatomy__figure"><ul class="feed"><li><span class="avatar avatar--sm avatar--sun" aria-hidden="true">ML</span><div class="feed__body">Marcus Lee published <a href="../../mocks/pages/event/default.html">Toronto Builders Night</a><div class="feed__meta">Yesterday, 4:10 pm</div></div></li></ul>
+          <span class="ds-callout" style="left: 2%; top: 10%;" aria-hidden="true">1</span>
+          <span class="ds-callout" style="left: 40%; top: 10%;" aria-hidden="true">2</span>
+          <span class="ds-callout" style="left: 20%; top: 70%;" aria-hidden="true">3</span>
+        </figure>
+        <ol class="ds-anatomy__list">
+          <li><div><b>Actor</b><small>Small <a href="avatar.html">avatar</a> of whoever acted, top-aligned.</small></div></li>
+          <li><div><b>Body</b> (<code>.feed__body</code>)<small>One sentence; the object is a link when it can be opened.</small></div></li>
+          <li><div><b>Meta</b> (<code>.feed__meta</code>)<small>Time in <code>--text-caption</code>, muted; on comments, "Author · date".</small></div></li>
+        </ol>
+      </div>
+    </section>
+
+    <section class="ds-section" id="variants"><h2><a href="#variants">Variants</a></h2>
+      <h3>Activity</h3>
+      <div class="ds-example">
+        <div class="ds-example__canvas ds-example__canvas--stack"><section class="card stack" aria-labelledby="act"><h3 id="act">Recent activity</h3><ul class="feed"><li><span class="avatar avatar--sm avatar--sun" aria-hidden="true">TO</span><div class="feed__body"><strong>Tomás Ortega</strong> signed up — he’s one of your contacts. <a href="../../mocks/pages/contact/match.html">Review</a><div class="feed__meta">Today, 11:42 am</div></div></li><li><span class="avatar avatar--sm avatar--sun" aria-hidden="true">ML</span><div class="feed__body">Marcus Lee published <a href="../../mocks/pages/event/default.html">Toronto Builders Night</a><div class="feed__meta">Yesterday, 4:10 pm</div></div></li><li><span class="avatar avatar--sm avatar--lilac" aria-hidden="true">HK</span><div class="feed__body">Hannah Kim sent “November hackathon: teams are forming”<div class="feed__meta">Mon 20 Oct</div></div></li><li><span class="avatar avatar--sm avatar--rose" aria-hidden="true">RA</span><div class="feed__body">Ruth Alvarez accepted your invite and joined as Volunteer<div class="feed__meta">Sat 18 Oct</div></div></li></ul></section></div>
+        <div class="ds-example__caption"><span>Home: the actor is named in the sentence; the most important actor can be <code>strong</code>, with a follow-up link ("Review").</span></div>
+        <details class="ds-example__code"><summary>HTML</summary><pre><code>&lt;section class="card stack" aria-labelledby="act"&gt;&lt;h3 id="act"&gt;Recent activity&lt;/h3&gt;&lt;ul class="feed"&gt;&lt;li&gt;&lt;span class="avatar avatar--sm avatar--sun" aria-hidden="true"&gt;TO&lt;/span&gt;&lt;div class="feed__body"&gt;&lt;strong&gt;Tomás Ortega&lt;/strong&gt; signed up — he’s one of your contacts. &lt;a href="../../mocks/pages/contact/match.html"&gt;Review&lt;/a&gt;&lt;div class="feed__meta"&gt;Today, 11:42 am&lt;/div&gt;&lt;/div&gt;&lt;/li&gt;&lt;li&gt;&lt;span class="avatar avatar--sm avatar--sun" aria-hidden="true"&gt;ML&lt;/span&gt;&lt;div class="feed__body"&gt;Marcus Lee published &lt;a href="../../mocks/pages/event/default.html"&gt;Toronto Builders Night&lt;/a&gt;&lt;div class="feed__meta"&gt;Yesterday, 4:10 pm&lt;/div&gt;&lt;/div&gt;&lt;/li&gt;&lt;li&gt;&lt;span class="avatar avatar--sm avatar--lilac" aria-hidden="true"&gt;HK&lt;/span&gt;&lt;div class="feed__body"&gt;Hannah Kim sent “November hackathon: teams are forming”&lt;div class="feed__meta"&gt;Mon 20 Oct&lt;/div&gt;&lt;/div&gt;&lt;/li&gt;&lt;li&gt;&lt;span class="avatar avatar--sm avatar--rose" aria-hidden="true"&gt;RA&lt;/span&gt;&lt;div class="feed__body"&gt;Ruth Alvarez accepted your invite and joined as Volunteer&lt;div class="feed__meta"&gt;Sat 18 Oct&lt;/div&gt;&lt;/div&gt;&lt;/li&gt;&lt;/ul&gt;&lt;/section&gt;</code></pre></details>
+      </div>
+
+      <h3>Comments</h3>
+      <div class="ds-example">
+        <div class="ds-example__canvas ds-example__canvas--stack"><section class="card stack" aria-labelledby="cm"><h3 id="cm">Comments (2)</h3><ul class="feed"><li><span class="avatar avatar--sm avatar--mint" aria-hidden="true">SM</span><div class="feed__body">Two shelters want to co-present their brief on Saturday morning.<div class="feed__meta">Samuel Mensah · Mon 20 Oct</div></div></li><li><span class="avatar avatar--sm avatar--sky" aria-hidden="true">GO</span><div class="feed__body">Harbour Light interview done. Notes are in the shared folder.<div class="feed__meta">Grace Okonkwo · Fri 17 Oct</div></div></li></ul></section></div>
+        <div class="ds-example__caption"><span>Story: the body is the comment and the author moves to the meta line.</span></div>
+        <details class="ds-example__code"><summary>HTML</summary><pre><code>&lt;section class="card stack" aria-labelledby="cm"&gt;&lt;h3 id="cm"&gt;Comments (2)&lt;/h3&gt;&lt;ul class="feed"&gt;&lt;li&gt;&lt;span class="avatar avatar--sm avatar--mint" aria-hidden="true"&gt;SM&lt;/span&gt;&lt;div class="feed__body"&gt;Two shelters want to co-present their brief on Saturday morning.&lt;div class="feed__meta"&gt;Samuel Mensah · Mon 20 Oct&lt;/div&gt;&lt;/div&gt;&lt;/li&gt;&lt;li&gt;&lt;span class="avatar avatar--sm avatar--sky" aria-hidden="true"&gt;GO&lt;/span&gt;&lt;div class="feed__body"&gt;Harbour Light interview done. Notes are in the shared folder.&lt;div class="feed__meta"&gt;Grace Okonkwo · Fri 17 Oct&lt;/div&gt;&lt;/div&gt;&lt;/li&gt;&lt;/ul&gt;&lt;/section&gt;</code></pre></details>
+      </div>
+
+      <h3>History</h3>
+      <div class="ds-example">
+        <div class="ds-example__canvas ds-example__canvas--stack"><section class="card stack" aria-labelledby="hi"><h3 id="hi">History</h3><ul class="feed"><li><span class="avatar avatar--sm avatar--sky" aria-hidden="true">GO</span><div class="feed__body">Grace moved Kestrel Labs from Lead to In funnel<div class="feed__meta">Tue 14 Oct</div></div></li><li><span class="avatar avatar--sm avatar--sun" aria-hidden="true">ML</span><div class="feed__body">Marcus: “They’ll host Builders Night for free if we credit them on the event page.”<div class="feed__meta">Fri 10 Oct</div></div></li><li><span class="avatar avatar--sm avatar--sky" aria-hidden="true">GO</span><div class="feed__body">Grace added Kestrel Labs<div class="feed__meta">Mon 29 Sep</div></div></li></ul></section></div>
+        <div class="ds-example__caption"><span>Partner: stage moves and notes on Kestrel Labs.</span></div>
+        <details class="ds-example__code"><summary>HTML</summary><pre><code>&lt;section class="card stack" aria-labelledby="hi"&gt;&lt;h3 id="hi"&gt;History&lt;/h3&gt;&lt;ul class="feed"&gt;&lt;li&gt;&lt;span class="avatar avatar--sm avatar--sky" aria-hidden="true"&gt;GO&lt;/span&gt;&lt;div class="feed__body"&gt;Grace moved Kestrel Labs from Lead to In funnel&lt;div class="feed__meta"&gt;Tue 14 Oct&lt;/div&gt;&lt;/div&gt;&lt;/li&gt;&lt;li&gt;&lt;span class="avatar avatar--sm avatar--sun" aria-hidden="true"&gt;ML&lt;/span&gt;&lt;div class="feed__body"&gt;Marcus: “They’ll host Builders Night for free if we credit them on the event page.”&lt;div class="feed__meta"&gt;Fri 10 Oct&lt;/div&gt;&lt;/div&gt;&lt;/li&gt;&lt;li&gt;&lt;span class="avatar avatar--sm avatar--sky" aria-hidden="true"&gt;GO&lt;/span&gt;&lt;div class="feed__body"&gt;Grace added Kestrel Labs&lt;div class="feed__meta"&gt;Mon 29 Sep&lt;/div&gt;&lt;/div&gt;&lt;/li&gt;&lt;/ul&gt;&lt;/section&gt;</code></pre></details>
+      </div>
+
+    </section>
+
+    <section class="ds-section" id="sizes" data-na="One size; feed items always use the small avatar."><h2><a href="#sizes">Sizes</a></h2>
+      <p>One size.</p>
+    </section>
+
+    <section class="ds-section" id="states"><h2><a href="#states">States</a></h2>
+      <div class="ds-matrix"><table>
+        <thead><tr><th scope="col">State</th><th scope="col">Example</th></tr></thead>
+        <tbody>
+          <tr><th scope="row">Default</th><td><ul class="feed"><li><span class="avatar avatar--sm avatar--mint" aria-hidden="true">SM</span><div class="feed__body">Two shelters want to co-present their brief on Saturday morning.<div class="feed__meta">Samuel Mensah · Mon 20 Oct</div></div></li><li><span class="avatar avatar--sm avatar--sky" aria-hidden="true">GO</span><div class="feed__body">Harbour Light interview done. Notes are in the shared folder.<div class="feed__meta">Grace Okonkwo · Fri 17 Oct</div></div></li></ul></td></tr>
+          <tr><th scope="row">Link focus</th><td><ul class="feed"><li><span class="avatar avatar--sm avatar--sun" aria-hidden="true">ML</span><div class="feed__body">Marcus Lee published <a href="../../mocks/pages/event/default.html" data-state="focus">Toronto Builders Night</a><div class="feed__meta">Yesterday, 4:10 pm</div></div></li></ul></td></tr>
+          <tr><th scope="row">Loading</th><td><ul class="feed" aria-busy="true" aria-label="Loading recent activity"><li><span class="skeleton avatar avatar--sm" aria-hidden="true"></span><div class="feed__body"><span class="skeleton skeleton--text" aria-hidden="true"></span><span class="skeleton skeleton--text" aria-hidden="true"></span></div></li><li><span class="skeleton avatar avatar--sm" aria-hidden="true"></span><div class="feed__body"><span class="skeleton skeleton--text" aria-hidden="true"></span><span class="skeleton skeleton--text" aria-hidden="true"></span></div></li></ul></td></tr>
+          <tr><th scope="row">Empty</th><td><p class="text-muted">No activity yet. New sign-ups, events and announcements show up here.</p></td></tr>
+          <tr><th scope="row">Error</th><td><div class="alert alert--danger" role="alert"><div class="alert__body"><p class="alert__title">We couldn’t load recent activity</p><p><a href="../../mocks/pages/home/default.html">Try again</a></p></div></div></td></tr>
+        </tbody>
+      </table></div>
+      <p>Items have no hover or selected state; only links inside them are interactive. Loading, empty and error are not mocked for feeds (see Sources); the rows above follow the patterns used for lists and alerts.</p>
+      <h3>Both themes</h3>
+      <div class="ds-themes"><div data-theme="light"><ul class="feed"><li><span class="avatar avatar--sm avatar--sun" aria-hidden="true">TO</span><div class="feed__body"><strong>Tomás Ortega</strong> signed up — he’s one of your contacts. <a href="../../mocks/pages/contact/match.html">Review</a><div class="feed__meta">Today, 11:42 am</div></div></li><li><span class="avatar avatar--sm avatar--sun" aria-hidden="true">ML</span><div class="feed__body">Marcus Lee published <a href="../../mocks/pages/event/default.html">Toronto Builders Night</a><div class="feed__meta">Yesterday, 4:10 pm</div></div></li><li><span class="avatar avatar--sm avatar--lilac" aria-hidden="true">HK</span><div class="feed__body">Hannah Kim sent “November hackathon: teams are forming”<div class="feed__meta">Mon 20 Oct</div></div></li><li><span class="avatar avatar--sm avatar--rose" aria-hidden="true">RA</span><div class="feed__body">Ruth Alvarez accepted your invite and joined as Volunteer<div class="feed__meta">Sat 18 Oct</div></div></li></ul></div><div data-theme="dark"><ul class="feed"><li><span class="avatar avatar--sm avatar--sun" aria-hidden="true">TO</span><div class="feed__body"><strong>Tomás Ortega</strong> signed up — he’s one of your contacts. <a href="../../mocks/pages/contact/match.html">Review</a><div class="feed__meta">Today, 11:42 am</div></div></li><li><span class="avatar avatar--sm avatar--sun" aria-hidden="true">ML</span><div class="feed__body">Marcus Lee published <a href="../../mocks/pages/event/default.html">Toronto Builders Night</a><div class="feed__meta">Yesterday, 4:10 pm</div></div></li><li><span class="avatar avatar--sm avatar--lilac" aria-hidden="true">HK</span><div class="feed__body">Hannah Kim sent “November hackathon: teams are forming”<div class="feed__meta">Mon 20 Oct</div></div></li><li><span class="avatar avatar--sm avatar--rose" aria-hidden="true">RA</span><div class="feed__body">Ruth Alvarez accepted your invite and joined as Volunteer<div class="feed__meta">Sat 18 Oct</div></div></li></ul></div></div>
+    </section>
+
+    <section class="ds-section" id="responsive"><h2><a href="#responsive">Responsive behaviour</a></h2>
+      <ul>
+        <li>On Home the feed is in the side column at desktop and drops below "Coming up" on a phone.</li>
+        <li>Sentences wrap beside the avatar, which stays top-aligned and never shrinks.</li>
+      </ul>
+    </section>
+
+    <section class="ds-section" id="theming"><h2><a href="#theming">Theming</a></h2>
+      <p>Dividers, body and meta use border and foreground tokens and follow the theme; avatars keep their person colours.</p>
+    </section>
+
+    <section class="ds-section" id="accessibility"><h2><a href="#accessibility">Accessibility</a></h2>
+      <h3>Role and pattern</h3>
+      <p>A native <code>&lt;ul&gt;</code> inside a section labelled by its heading (<code>aria-labelledby</code>). New items are not announced live; the feed refreshes on navigation.</p>
+      <h3>Keyboard</h3>
+      <table class="ds-table ds-keys"><thead><tr><th scope="col">Key</th><th scope="col">Action</th></tr></thead><tbody>
+        <tr><td><kbd>Tab</kbd></td><td>Moves between links in the items.</td></tr>
+        <tr><td><kbd>Enter</kbd></td><td>Opens the linked event, contact or story.</td></tr>
+      </tbody></table>
+      <h3>Focus</h3>
+      <p>The shared focus ring on inline links.</p>
+      <h3>Labelling</h3>
+      <p>Avatars are hidden; the sentence or meta names the actor. Link text names the object ("Toronto Builders Night"), and short follow-ups like "Review" sit right after the sentence that gives them context.</p>
+      <h3>Contrast</h3>
+      <div class="ds-themes"><div data-theme="light"><div class="ds-example__canvas ds-example__canvas--stack" style="padding: 0; gap: var(--space-2);"><div class="ds-pair"><span>Body on surface</span><span class="ds-pair__ratio" data-contrast="--color-fg-default|--color-bg-surface" data-min="4.5"></span></div><div class="ds-pair"><span>Meta on surface</span><span class="ds-pair__ratio" data-contrast="--color-fg-muted|--color-bg-surface" data-min="4.5"></span></div><div class="ds-pair"><span>Link on surface</span><span class="ds-pair__ratio" data-contrast="--color-fg-accent|--color-bg-surface" data-min="4.5"></span></div></div></div><div data-theme="dark"><div class="ds-example__canvas ds-example__canvas--stack" style="padding: 0; gap: var(--space-2);"><div class="ds-pair"><span>Body on surface</span><span class="ds-pair__ratio" data-contrast="--color-fg-default|--color-bg-surface" data-min="4.5"></span></div><div class="ds-pair"><span>Meta on surface</span><span class="ds-pair__ratio" data-contrast="--color-fg-muted|--color-bg-surface" data-min="4.5"></span></div><div class="ds-pair"><span>Link on surface</span><span class="ds-pair__ratio" data-contrast="--color-fg-accent|--color-bg-surface" data-min="4.5"></span></div></div></div></div>
+      <h3>Motion</h3>
+      <p>None.</p>
+    </section>
+
+    <section class="ds-section" id="content"><h2><a href="#content">Content</a></h2>
+      <ul>
+        <li>Sentence: actor, past-tense verb, object. "Hannah Kim sent “November hackathon: teams are forming”".</li>
+        <li>Times: "Today, 11:42 am", "Yesterday, 4:10 pm", then "Mon 20 Oct".</li>
+        <li>Respect visibility: for Staff, a private contact's sign-up reads "Tomás Ortega joined FaithTech Community." with no hint of the contact.</li>
+      </ul>
+    </section>
+
+    <section class="ds-section" id="do-dont"><h2><a href="#do-dont">Do and don't</a></h2>
+      <div class="ds-dodont">
+        <figure class="ds-do"><div class="ds-example__canvas ds-example__canvas--stack"><ul class="feed"><li><span class="avatar avatar--sm avatar--rose" aria-hidden="true">RA</span><div class="feed__body">Ruth Alvarez accepted your invite and joined as Volunteer<div class="feed__meta">Sat 18 Oct</div></div></li></ul></div><figcaption>Name the person and what changed.</figcaption></figure>
+        <figure class="ds-dont"><div class="ds-example__canvas ds-example__canvas--stack"><ul class="feed"><li><span class="avatar avatar--sm avatar--rose" aria-hidden="true">RA</span><div class="feed__body">Invite status updated<div class="feed__meta">Sat 18 Oct</div></div></li></ul></div><figcaption>A system message with no actor or object.</figcaption></figure>
+      </div>
+    </section>
+
+    <section class="ds-section" id="tokens"><h2><a href="#tokens">Tokens</a></h2>
+      <div class="ds-table-wrap"><table class="ds-table">
+        <thead><tr><th scope="col">Part</th><th scope="col">Token</th><th scope="col">Light</th><th scope="col">Dark</th></tr></thead>
+        <tbody>
+          <tr><td>Row divider</td><td><code>--color-border-default</code></td><td><span class="ds-swatch-cell" data-theme="light"><i data-token="--color-border-default" data-swatch></i><span data-token="--color-border-default"></span></span></td><td><span class="ds-swatch-cell" data-theme="dark"><i data-token="--color-border-default" data-swatch></i><span data-token="--color-border-default"></span></span></td></tr>
+          <tr><td>Body text</td><td><code>--color-fg-default</code></td><td><span class="ds-swatch-cell" data-theme="light"><i data-token="--color-fg-default" data-swatch></i><span data-token="--color-fg-default"></span></span></td><td><span class="ds-swatch-cell" data-theme="dark"><i data-token="--color-fg-default" data-swatch></i><span data-token="--color-fg-default"></span></span></td></tr>
+          <tr><td>Time and author</td><td><code>--color-fg-muted</code></td><td><span class="ds-swatch-cell" data-theme="light"><i data-token="--color-fg-muted" data-swatch></i><span data-token="--color-fg-muted"></span></span></td><td><span class="ds-swatch-cell" data-theme="dark"><i data-token="--color-fg-muted" data-swatch></i><span data-token="--color-fg-muted"></span></span></td></tr>
+          <tr><td>Inline link</td><td><code>--color-fg-accent</code></td><td><span class="ds-swatch-cell" data-theme="light"><i data-token="--color-fg-accent" data-swatch></i><span data-token="--color-fg-accent"></span></span></td><td><span class="ds-swatch-cell" data-theme="dark"><i data-token="--color-fg-accent" data-swatch></i><span data-token="--color-fg-accent"></span></span></td></tr>
+          <tr><td>Row padding</td><td><code>--space-3</code></td><td colspan="2"><span data-token="--space-3"></span></td></tr>
+          <tr><td>Avatar gap</td><td><code>--space-3</code></td><td colspan="2"><span data-token="--space-3"></span></td></tr>
+          <tr><td>Meta font</td><td><code>--text-caption</code></td><td colspan="2"><span data-token="--text-caption"></span></td></tr>
+        </tbody>
+      </table></div>
+    </section>
+
+    <section class="ds-section" id="code"><h2><a href="#code">Code</a></h2>
+      <pre><code>&lt;section class="card stack" aria-labelledby="act"&gt;
+  &lt;h2 id="act"&gt;Recent activity&lt;/h2&gt;
+  &lt;ul class="feed"&gt;
+    &lt;li&gt;
+      &lt;span class="avatar avatar--sm avatar--sun" aria-hidden="true"&gt;ML&lt;/span&gt;
+      &lt;div class="feed__body"&gt;Marcus Lee published &lt;a href="/events/toronto-builders-night"&gt;Toronto Builders Night&lt;/a&gt;
+        &lt;div class="feed__meta"&gt;Yesterday, 4:10 pm&lt;/div&gt;
+      &lt;/div&gt;
+    &lt;/li&gt;
+  &lt;/ul&gt;
+&lt;/section&gt;</code></pre>
+      <table class="ds-table"><thead><tr><th scope="col">Class</th><th scope="col">Effect</th></tr></thead><tbody>
+        <tr><td><code>.feed</code></td><td>Unstyled list; items are top-aligned flex rows with dividers.</td></tr>
+        <tr><td><code>.feed__body</code></td><td>Growing sentence column.</td></tr>
+        <tr><td><code>.feed__meta</code></td><td>Muted caption for time or author.</td></tr>
+      </tbody></table>
+    </section>
+
+    <section class="ds-section" id="sources"><h2><a href="#sources">Sources</a></h2>
+      <p>Extracted from these mocks:</p>
+      <ul>
+        <li><a href="../../mocks/pages/home/default.html">pages/home/default</a> and <a href="../../mocks/pages/home/staff.html">pages/home/staff</a> (Recent activity)</li>
+        <li><a href="../../mocks/pages/work-item/default.html">pages/work-item/default</a> (comments)</li>
+        <li><a href="../../mocks/pages/partner/default.html">pages/partner/default</a> (history)</li>
+      </ul>
+      <p>Drift: no mock shows a feed loading, empty or error state; Home's loading, empty and error states drop the activity card entirely. Feed headings set their size inline with <code>style="font: var(--text-h4);"</code>. Partner history writes the actor's first name only ("Grace moved…") while Home uses full names.</p>
+    </section>
+
+    <footer class="ds-footer"><span>FaithTech Community design system · extracted from <a href="../../mocks/index.html">docs/mocks</a> on 2026-10-21</span><a href="#top">Back to top</a></footer>
+  </main>
+</div>
+<script src="../assets/ds.js"></script>
+</body>
+</html>

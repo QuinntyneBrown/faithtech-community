@@ -1,0 +1,176 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Responsive — FaithTech Community design system</title>
+<meta name="description" content="FaithTech Community responsive rules: mobile first at 360px, behaviour per component (top bar, tab bar, Kanban boards, event cards, tables, dialogs), touch rules and the Chromium testing matrix.">
+<link rel="stylesheet" href="../tokens/tokens.css">
+<link rel="stylesheet" href="../assets/components.css">
+<link rel="stylesheet" href="../assets/ds.css">
+</head>
+<body id="top">
+<a class="skip-link" href="#main">Skip to content</a>
+<div class="ds-shell">
+  <nav class="ds-nav" aria-label="Design system">
+    <div class="ds-nav__brand"><a href="../index.html">FaithTech DS</a><button class="ds-theme-toggle" type="button" aria-pressed="false">☾ Dark</button></div>
+    <details open><summary>Foundations</summary><ul>
+      <li><a href="../foundations/color.html">Color</a></li>
+      <li><a href="../foundations/typography.html">Typography</a></li>
+      <li><a href="../foundations/spacing.html">Spacing</a></li>
+      <li><a href="../foundations/layout.html">Layout</a></li>
+      <li><a href="../foundations/elevation.html">Elevation</a></li>
+      <li><a href="../foundations/shape.html">Shape</a></li>
+      <li><a href="../foundations/motion.html">Motion</a></li>
+      <li><a href="../foundations/iconography.html">Iconography</a></li>
+      <li><a href="../foundations/theming.html">Theming</a></li>
+      <li><a href="../foundations/responsive.html">Responsive</a></li>
+      <li><a href="../foundations/accessibility.html">Accessibility</a></li>
+      <li><a href="../foundations/content.html">Content</a></li>
+    </ul></details>
+    <details open><summary>Components</summary><ul>
+      <li><a href="../components/button.html">Button</a></li>
+      <li><a href="../components/link.html">Link</a></li>
+      <li><a href="../components/menu.html">Menu</a></li>
+      <li><a href="../components/form-field.html">Form field</a></li>
+      <li><a href="../components/text-field.html">Text field</a></li>
+      <li><a href="../components/textarea.html">Textarea</a></li>
+      <li><a href="../components/select.html">Select</a></li>
+      <li><a href="../components/radio-group.html">Radio group</a></li>
+      <li><a href="../components/switch.html">Switch</a></li>
+      <li><a href="../components/form-layout.html">Form layout</a></li>
+      <li><a href="../components/picture-list.html">Picture list</a></li>
+      <li><a href="../components/sticker-picker.html">Estimate card picker</a></li>
+      <li><a href="../components/top-bar.html">Top bar</a></li>
+      <li><a href="../components/tab-bar.html">Tab bar</a></li>
+      <li><a href="../components/tabs.html">Tabs</a></li>
+      <li><a href="../components/breadcrumb.html">Breadcrumb</a></li>
+      <li><a href="../components/skip-link.html">Skip link</a></li>
+      <li><a href="../components/layout.html">Layout primitives</a></li>
+      <li><a href="../components/card.html">Card</a></li>
+      <li><a href="../components/dialog.html">Dialog</a></li>
+      <li><a href="../components/notification-panel.html">Notification panel</a></li>
+      <li><a href="../components/list.html">List</a></li>
+      <li><a href="../components/table.html">Table</a></li>
+      <li><a href="../components/description-list.html">Description list</a></li>
+      <li><a href="../components/feed.html">Activity feed</a></li>
+      <li><a href="../components/tree.html">Backlog tree</a></li>
+      <li><a href="../components/kanban.html">Kanban board</a></li>
+      <li><a href="../components/event-card.html">Event card</a></li>
+      <li><a href="../components/profile-header.html">Profile header</a></li>
+      <li><a href="../components/search-results.html">Search results</a></li>
+      <li><a href="../components/note.html">Note</a></li>
+      <li><a href="../components/avatar.html">Avatar</a></li>
+      <li><a href="../components/logo-mark.html">Logo mark</a></li>
+      <li><a href="../components/badge.html">Badge</a></li>
+      <li><a href="../components/chip.html">Chip</a></li>
+      <li><a href="../components/stat.html">Stat</a></li>
+      <li><a href="../components/sticker.html">Estimate card</a></li>
+      <li><a href="../components/toast.html">Toast</a></li>
+      <li><a href="../components/alert.html">Alert and banner</a></li>
+      <li><a href="../components/inline-message.html">Inline message</a></li>
+      <li><a href="../components/progress.html">Progress</a></li>
+      <li><a href="../components/skeleton.html">Skeleton</a></li>
+      <li><a href="../components/empty-state.html">Empty state</a></li>
+      <li><a href="../components/error-page.html">Error page</a></li>
+    </ul></details>
+    <details open><summary>Patterns</summary><ul>
+      <li><a href="../patterns/forms.html">Forms</a></li>
+      <li><a href="../patterns/feedback-and-loading.html">Feedback and loading</a></li>
+      <li><a href="../patterns/empty-and-error-states.html">Empty and error states</a></li>
+      <li><a href="../patterns/navigation.html">Navigation and page structure</a></li>
+      <li><a href="../patterns/dialogs-and-overlays.html">Dialogs and overlays</a></li>
+      <li><a href="../patterns/lists-and-tables.html">Lists and tables</a></li>
+      <li><a href="../patterns/notifications.html">Notifications</a></li>
+      <li><a href="../patterns/content-and-tone.html">Content and tone</a></li>
+    </ul></details>
+  </nav>
+
+  <main id="main" class="ds-main">
+    <header class="ds-header">
+      <p class="ds-kicker">Foundation · Responsive</p>
+      <h1>Responsive</h1>
+      <p class="ds-lead">Designed at 360px first, then given columns, navigation and room at 640, 768 and 1024px, with every control sized for a thumb.</p>
+      <div class="ds-meta"><span class="ds-pill ds-pill--ok">WCAG 2.2 AA</span><span class="ds-pill">Foundation</span></div>
+      <ul class="ds-toc">
+        <li><a href="#overview">Overview</a></li><li><a href="#mobile-first">Mobile-first rules</a></li><li><a href="#behaviours">Behaviour by component</a></li><li><a href="#touch">Touch and pointer</a></li><li><a href="#testing">Testing matrix</a></li><li><a href="#accessibility">Accessibility</a></li><li><a href="#tokens">Tokens</a></li>
+      </ul>
+    </header>
+
+    <section class="ds-section" id="overview"><h2><a href="#overview">Overview</a></h2>
+      <p>Leads like Grace Okonkwo move partners and check RSVPs on a phone at events and plan sprints on a laptop; members such as Samuel Mensah open a Builders Night invite or a public event link on whatever is in their hand. Every screen is designed at 360px first and gains space, columns and navigation as the window grows. Breakpoints and grid tokens are on <a href="layout.html#breakpoints">Layout</a>.</p>
+    </section>
+
+    <section class="ds-section" id="mobile-first"><h2><a href="#mobile-first">Mobile-first rules</a></h2>
+      <ul>
+        <li>Base CSS is the phone layout. Add to it with <code>@media (min-width: 40rem | 48rem | 64rem)</code>; never undo a desktop layout with <code>max-width</code>. Drift: the secondary nav-link rule in <code>components.css</code> still uses a <code>max-width: 63.99rem</code> range.</li>
+        <li>Prefer intrinsic layouts that need no query: <code>.cluster</code> wraps, <code>.grid--auto</code> fills, <code>flex-wrap</code> on button rows.</li>
+        <li>Spacing and type do not scale with the viewport; only <code>--layout-gutter</code>, <code>--layout-margin</code> and <code>--layout-columns</code> change.</li>
+        <li>Use <code>100dvh</code> for full-height screens and <code>env(safe-area-inset-bottom)</code> for anything fixed to the bottom.</li>
+      </ul>
+    </section>
+
+    <section class="ds-section" id="behaviours"><h2><a href="#behaviours">Behaviour by component</a></h2>
+      <div class="ds-table-wrap"><table class="ds-table">
+        <thead><tr><th scope="col">Component</th><th scope="col">Under the breakpoint</th><th scope="col">From the breakpoint</th></tr></thead>
+        <tbody>
+          <tr><td><a href="../components/top-bar.html">Top bar</a></td><td>Brand, bell and avatar only</td><td>768px: Home, Events, Contacts, Partners, Workspaces links; 1024px: Team, Announcements, People and the search field join them</td></tr>
+          <tr><td><a href="../components/tab-bar.html">Tab bar</a></td><td>Fixed to the bottom, 64px: Home, Events, Search, Contacts, Partners</td><td>768px: hidden; <code>.has-tabbar</code> drops its bottom padding</td></tr>
+          <tr><td><a href="../components/kanban.html">Kanban board</a></td><td>Partner stages (Lead, In funnel, Confirmed) and sprint columns (To Do, In Progress, Done) stack in one column; cards move with the “Move” menu, not drag</td><td>768px: three columns side by side; a four-column board (<code>.kanban--4</code>) goes 2 × 2 at 768px and 4 across at 1024px</td></tr>
+          <tr><td><a href="../components/event-card.html">Event card</a></td><td>Date badge beside a wrapping title and meta (“Thu 6 Nov · 6:30 pm · Kestrel Labs, 220 King St W · 34 going”); the Public or Members only badge wraps under it</td><td>One row: badge, body, status badge</td></tr>
+          <tr><td>Split (home, event detail)</td><td>Main column, then the aside (Recent activity, RSVP) below it</td><td>1024px: 2fr + 1fr side by side</td></tr>
+          <tr><td><a href="../components/table.html">Table</a></td><td>People, admin users, audit log and sprint history scroll sideways inside <code>.table-wrap</code></td><td>Fits</td></tr>
+          <tr><td><a href="../components/tabs.html">Tabs</a></td><td>Workspace sections scroll sideways with the scrollbar hidden</td><td>Fit in one row</td></tr>
+          <tr><td><a href="../components/dialog.html">Dialog</a></td><td>Bottom sheet, full width, sticky footer, h4 title</td><td>640px: centred panel up to 32rem, h3 title</td></tr>
+          <tr><td><a href="../components/notification-panel.html">Notification panel</a></td><td>Width is the viewport minus the page margins</td><td>24rem, anchored under the bell</td></tr>
+          <tr><td><a href="../components/toast.html">Toast</a></td><td>Full width at the bottom, above the tab bar</td><td>640px: 24rem at the bottom right</td></tr>
+          <tr><td><a href="../components/alert.html">Banner</a></td><td>Text and actions stacked, left aligned</td><td>640px: one centred row</td></tr>
+          <tr><td><a href="../components/profile-header.html">Profile header</a></td><td>Avatar above name and role badges; photos fill 7rem tiles</td><td>Avatar beside the body when it has 12rem</td></tr>
+          <tr><td>Page header</td><td>“New event” and “Add contact” wrap below the title</td><td>Actions sit at the right of the title</td></tr>
+          <tr><td>Form actions</td><td>Buttons wrap; the primary stays last</td><td>One row, right aligned</td></tr>
+        </tbody>
+      </table></div>
+    </section>
+
+    <section class="ds-section" id="touch"><h2><a href="#touch">Touch and pointer</a></h2>
+      <ul>
+        <li>Every control is at least 44px tall (<code>--control-height-md</code>); small buttons (36px) only appear in rows that are spaced 8px or more apart.</li>
+        <li>Nothing depends on hover. Hover lifts and row highlights are extras; the same information is visible without them.</li>
+        <li>No gesture is the only way: Kanban cards can be dragged on a pointer device (<a href="../../mocks/pages/partners/dragging.html">partners/dragging</a>) but every card also has a “Move” menu (2.5.7). There is no swipe-to-dismiss or long press; every toast and banner has a close button.</li>
+        <li>Planning Poker cards (1 to 21 and ?) are full-size buttons in a wrapping row so a vote can be cast with a thumb.</li>
+        <li><code>(pointer: coarse)</code> is not used to grow targets; they are already large. Small ghost buttons on Kanban cards (36px) sit in rows spaced 8px apart.</li>
+      </ul>
+    </section>
+
+    <section class="ds-section" id="testing"><h2><a href="#testing">Testing matrix</a></h2>
+      <div class="ds-table-wrap"><table class="ds-table">
+        <thead><tr><th scope="col">Viewport</th><th scope="col">Stands for</th><th scope="col">Check</th></tr></thead>
+        <tbody>
+          <tr><td>320 × 640</td><td>Smallest phone, 400% zoom</td><td>No sideways scroll, nothing clipped</td></tr>
+          <tr><td>360 × 800</td><td>Phone at an event; design width</td><td>Bottom sheets, tab bar, stacked Kanban columns, table scroll</td></tr>
+          <tr><td>768 × 1024</td><td>Tablet</td><td>8 columns, top-bar nav without secondary links, three Kanban columns, centred dialogs</td></tr>
+          <tr><td>1280 × 800</td><td>Laptop</td><td>12 columns, <code>.split</code> asides, top-bar search, container centred</td></tr>
+        </tbody>
+      </table></div>
+      <p>Each in light and dark, in Chromium only (the target browser is the latest Chrome). The mocks' <code>screenshot_mocks.py</code> captures 360, 768 and 1280 in both themes; it also works on this folder with <code>--out</code>.</p>
+    </section>
+
+    <section class="ds-section" id="accessibility"><h2><a href="#accessibility">Accessibility</a></h2>
+      <ul>
+        <li><b>Reflow (1.4.10)</b> at 320px; <b>orientation (1.3.4)</b> is never locked.</li>
+        <li><b>Target size (2.5.8):</b> 24px minimum everywhere, 44px for primary actions such as RSVP and “New event”.</li>
+        <li><b>Focus not obscured (2.4.11):</b> the fixed tab bar and sticky top bar are accounted for with padding and <code>scroll-padding-top</code>.</li>
+        <li><b>Consistent navigation (3.2.3):</b> destinations keep the same order at every width; the tab bar is a subset of the top-bar nav plus Search.</li>
+      </ul>
+    </section>
+
+    <section class="ds-section" id="tokens"><h2><a href="#tokens">Tokens</a></h2>
+      <p>This page owns no tokens. Colour tokens are on <a href="color.html#tokens">Color</a>, layout tokens on <a href="layout.html#tokens">Layout</a>, motion on <a href="motion.html#tokens">Motion</a>, and the interaction tokens (targets, control heights, focus ring) on <a href="accessibility.html#tokens">Accessibility</a>.</p>
+    </section>
+
+    <footer class="ds-footer"><span>FaithTech Community design system · extracted from <a href="../../mocks/index.html">docs/mocks</a> on 2026-10-21</span><a href="#top">Back to top</a></footer>
+  </main>
+</div>
+<script src="../assets/ds.js"></script>
+</body>
+</html>

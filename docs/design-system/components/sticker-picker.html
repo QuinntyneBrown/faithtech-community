@@ -1,0 +1,238 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Estimate card picker — FaithTech Community design system</title>
+<meta name="description" content="The estimate card picker is the planning-poker deck members vote with: 1 to 21 points or Unsure, one card pressed at a time.">
+<link rel="stylesheet" href="../tokens/tokens.css">
+<link rel="stylesheet" href="../assets/components.css">
+<link rel="stylesheet" href="../assets/ds.css">
+</head>
+<body id="top">
+<a class="skip-link" href="#main">Skip to content</a>
+<div class="ds-shell">
+  <nav class="ds-nav" aria-label="Design system">
+    <div class="ds-nav__brand"><a href="../index.html">FaithTech DS</a><button class="ds-theme-toggle" type="button" aria-pressed="false">☾ Dark</button></div>
+    <details open><summary>Foundations</summary><ul>
+      <li><a href="../foundations/color.html">Color</a></li>
+      <li><a href="../foundations/typography.html">Typography</a></li>
+      <li><a href="../foundations/spacing.html">Spacing</a></li>
+      <li><a href="../foundations/layout.html">Layout</a></li>
+      <li><a href="../foundations/elevation.html">Elevation</a></li>
+      <li><a href="../foundations/shape.html">Shape</a></li>
+      <li><a href="../foundations/motion.html">Motion</a></li>
+      <li><a href="../foundations/iconography.html">Iconography</a></li>
+      <li><a href="../foundations/theming.html">Theming</a></li>
+      <li><a href="../foundations/responsive.html">Responsive</a></li>
+      <li><a href="../foundations/accessibility.html">Accessibility</a></li>
+      <li><a href="../foundations/content.html">Content</a></li>
+    </ul></details>
+    <details open><summary>Components</summary><ul>
+      <li><a href="../components/button.html">Button</a></li>
+      <li><a href="../components/link.html">Link</a></li>
+      <li><a href="../components/menu.html">Menu</a></li>
+      <li><a href="../components/form-field.html">Form field</a></li>
+      <li><a href="../components/text-field.html">Text field</a></li>
+      <li><a href="../components/textarea.html">Textarea</a></li>
+      <li><a href="../components/select.html">Select</a></li>
+      <li><a href="../components/radio-group.html">Radio group</a></li>
+      <li><a href="../components/switch.html">Switch</a></li>
+      <li><a href="../components/form-layout.html">Form layout</a></li>
+      <li><a href="../components/picture-list.html">Picture list</a></li>
+      <li><a href="../components/sticker-picker.html">Estimate card picker</a></li>
+      <li><a href="../components/top-bar.html">Top bar</a></li>
+      <li><a href="../components/tab-bar.html">Tab bar</a></li>
+      <li><a href="../components/tabs.html">Tabs</a></li>
+      <li><a href="../components/breadcrumb.html">Breadcrumb</a></li>
+      <li><a href="../components/skip-link.html">Skip link</a></li>
+      <li><a href="../components/layout.html">Layout primitives</a></li>
+      <li><a href="../components/card.html">Card</a></li>
+      <li><a href="../components/dialog.html">Dialog</a></li>
+      <li><a href="../components/notification-panel.html">Notification panel</a></li>
+      <li><a href="../components/list.html">List</a></li>
+      <li><a href="../components/table.html">Table</a></li>
+      <li><a href="../components/description-list.html">Description list</a></li>
+      <li><a href="../components/feed.html">Activity feed</a></li>
+      <li><a href="../components/tree.html">Backlog tree</a></li>
+      <li><a href="../components/kanban.html">Kanban board</a></li>
+      <li><a href="../components/event-card.html">Event card</a></li>
+      <li><a href="../components/profile-header.html">Profile header</a></li>
+      <li><a href="../components/search-results.html">Search results</a></li>
+      <li><a href="../components/note.html">Note</a></li>
+      <li><a href="../components/avatar.html">Avatar</a></li>
+      <li><a href="../components/logo-mark.html">Logo mark</a></li>
+      <li><a href="../components/badge.html">Badge</a></li>
+      <li><a href="../components/chip.html">Chip</a></li>
+      <li><a href="../components/stat.html">Stat</a></li>
+      <li><a href="../components/sticker.html">Estimate card</a></li>
+      <li><a href="../components/toast.html">Toast</a></li>
+      <li><a href="../components/alert.html">Alert and banner</a></li>
+      <li><a href="../components/inline-message.html">Inline message</a></li>
+      <li><a href="../components/progress.html">Progress</a></li>
+      <li><a href="../components/skeleton.html">Skeleton</a></li>
+      <li><a href="../components/empty-state.html">Empty state</a></li>
+      <li><a href="../components/error-page.html">Error page</a></li>
+    </ul></details>
+    <details open><summary>Patterns</summary><ul>
+      <li><a href="../patterns/forms.html">Forms</a></li>
+      <li><a href="../patterns/feedback-and-loading.html">Feedback and loading</a></li>
+      <li><a href="../patterns/empty-and-error-states.html">Empty and error states</a></li>
+      <li><a href="../patterns/navigation.html">Navigation and page structure</a></li>
+      <li><a href="../patterns/dialogs-and-overlays.html">Dialogs and overlays</a></li>
+      <li><a href="../patterns/lists-and-tables.html">Lists and tables</a></li>
+      <li><a href="../patterns/notifications.html">Notifications</a></li>
+      <li><a href="../patterns/content-and-tone.html">Content and tone</a></li>
+    </ul></details>
+  </nav>
+
+    <main id="main" class="ds-main">
+    <header class="ds-header">
+      <p class="ds-kicker">Component · Workspaces</p>
+      <h1>Estimate card picker</h1>
+      <p class="ds-lead">The deck of planning-poker cards a workspace member votes with: 1, 2, 3, 5, 8, 13, 21 points, or ? for Unsure. Each card is a toggle button; one can be pressed at a time. Class names (<code>.sticker-choice</code>) are inherited from Shelfie and kept unchanged.</p>
+      <div class="ds-meta"><span class="ds-pill ds-pill--ok">WCAG 2.2 AA</span><span class="ds-pill">Status: stable</span><span class="ds-pill"><code>&lt;ft-estimate-picker&gt;</code></span></div>
+      <ul class="ds-toc">
+        <li><a href="#overview">Overview</a></li><li><a href="#anatomy">Anatomy</a></li><li><a href="#variants">Variants</a></li><li><a href="#sizes">Sizes</a></li><li><a href="#states">States</a></li><li><a href="#responsive">Responsive</a></li><li><a href="#theming">Theming</a></li><li><a href="#accessibility">Accessibility</a></li><li><a href="#content">Content</a></li><li><a href="#do-dont">Do and don't</a></li><li><a href="#tokens">Tokens</a></li><li><a href="#code">Code</a></li><li><a href="#sources">Sources</a></li>
+      </ul>
+    </header>
+
+    <section class="ds-section" id="overview"><h2><a href="#overview">Overview</a></h2>
+      <p>Use the estimate card picker for a single choice from a short, fixed scale where the choice should feel like laying down a card. Today it is the "Your vote" card on Planning Poker: while a story such as "Shelter problem briefs for teams" is being estimated, each member picks one card, and their vote stays hidden until the facilitator reveals it.</p>
+      <p>Once revealed, votes are shown as <a href="sticker.html">estimate cards</a> beside each name. For a long or open-ended list, use a <a href="radio-group.html">radio group</a> or a select (the facilitator’s "Final points" is a select).</p>
+    </section>
+
+    <section class="ds-section" id="anatomy"><h2><a href="#anatomy">Anatomy</a></h2>
+      <div class="ds-anatomy">
+        <figure class="ds-anatomy__figure"><h3 id="an-deck" class="field__label">Your vote</h3><div class="cluster" role="group" aria-labelledby="an-deck"><button class="sticker-choice" type="button" aria-pressed="false"><span>1</span>points</button><button class="sticker-choice" type="button" aria-pressed="false"><span>2</span>points</button><button class="sticker-choice" type="button" aria-pressed="false"><span>3</span>points</button><button class="sticker-choice" type="button" aria-pressed="false"><span>5</span>points</button><button class="sticker-choice" type="button" aria-pressed="true"><span>8</span>points</button><button class="sticker-choice" type="button" aria-pressed="false"><span>13</span>points</button><button class="sticker-choice" type="button" aria-pressed="false"><span>21</span>points</button><button class="sticker-choice" type="button" aria-pressed="false"><span>?</span>Unsure</button></div></figure>
+        <ol class="ds-anatomy__list">
+          <li><div><b>Group label</b><small>"Your vote"; it names the <code>role="group"</code>.</small></div></li>
+          <li><div><b>Card</b><small>A <code>button.sticker-choice</code> with <code>aria-pressed</code>.</small></div></li>
+          <li><div><b>Value</b><small>The first <code>span</code>: the number, or "?", set large.</small></div></li>
+          <li><div><b>Unit</b><small>"points", or "Unsure" for the ? card, in caption type.</small></div></li>
+          <li><div><b>Pressed mark</b><small>Accent-subtle fill, accent border and ring on the chosen card.</small></div></li>
+        </ol>
+      </div>
+    </section>
+
+    <section class="ds-section" id="variants"><h2><a href="#variants">Variants</a></h2>
+      <h3>Voting deck</h3>
+      <div class="ds-example"><div class="ds-example__canvas ds-example__canvas--stack"><h3 id="v-deck" class="field__label">Your vote</h3><div class="cluster" role="group" aria-labelledby="v-deck"><button class="sticker-choice" type="button" aria-pressed="false"><span>1</span>points</button><button class="sticker-choice" type="button" aria-pressed="false"><span>2</span>points</button><button class="sticker-choice" type="button" aria-pressed="false"><span>3</span>points</button><button class="sticker-choice" type="button" aria-pressed="false"><span>5</span>points</button><button class="sticker-choice" type="button" aria-pressed="false"><span>8</span>points</button><button class="sticker-choice" type="button" aria-pressed="false"><span>13</span>points</button><button class="sticker-choice" type="button" aria-pressed="false"><span>21</span>points</button><button class="sticker-choice" type="button" aria-pressed="false"><span>?</span>Unsure</button></div></div></div>
+      <h3>Locked after reveal</h3>
+      <div class="ds-example"><div class="ds-example__canvas ds-example__canvas--stack"><h3 id="v-lock" class="field__label">Your vote</h3><div class="cluster" role="group" aria-labelledby="v-lock"><button class="sticker-choice" type="button" aria-pressed="false" disabled><span>1</span>points</button><button class="sticker-choice" type="button" aria-pressed="false" disabled><span>2</span>points</button><button class="sticker-choice" type="button" aria-pressed="false" disabled><span>3</span>points</button><button class="sticker-choice" type="button" aria-pressed="false" disabled><span>5</span>points</button><button class="sticker-choice" type="button" aria-pressed="true" disabled><span>8</span>points</button><button class="sticker-choice" type="button" aria-pressed="false" disabled><span>13</span>points</button><button class="sticker-choice" type="button" aria-pressed="false" disabled><span>21</span>points</button><button class="sticker-choice" type="button" aria-pressed="false" disabled><span>?</span>Unsure</button></div></div></div>
+      <p>One scale only (a modified Fibonacci set plus Unsure). Staff watching a session see no picker at all: "Watching as Staff. You can follow the session live, but only workspace members vote."</p>
+    </section>
+
+    <section class="ds-section" id="sizes" data-na="One size: at least 4.5rem wide and the comfortable target tall."><h2><a href="#sizes">Sizes</a></h2>
+      <p>One size. Each card is at least 4.5rem wide and at least <code>--target-comfortable</code> tall; the value uses <code>--font-size-3xl</code>.</p>
+    </section>
+
+    <section class="ds-section" id="states"><h2><a href="#states">States</a></h2>
+      <div class="ds-matrix"><table>
+        <thead><tr><th scope="col">State</th><th scope="col">Example</th></tr></thead>
+        <tbody>
+          <tr><th scope="row">Default</th><td><button class="sticker-choice" type="button" aria-pressed="false"><span>5</span>points</button></td></tr>
+          <tr><th scope="row">Hover</th><td><button class="sticker-choice" type="button" aria-pressed="false" data-state="hover"><span>5</span>points</button></td></tr>
+          <tr><th scope="row">Focus</th><td><button class="sticker-choice" type="button" aria-pressed="false" data-state="focus"><span>5</span>points</button></td></tr>
+          <tr><th scope="row">Active</th><td><button class="sticker-choice" type="button" aria-pressed="false" data-state="active"><span>5</span>points</button></td></tr>
+          <tr><th scope="row">Pressed (your vote)</th><td><button class="sticker-choice" type="button" aria-pressed="true"><span>8</span>points</button></td></tr>
+          <tr><th scope="row">Disabled (revealed)</th><td><button class="sticker-choice" type="button" aria-pressed="true" disabled><span>8</span>points</button> <button class="sticker-choice" type="button" aria-pressed="false" disabled><span>13</span>points</button></td></tr>
+          <tr><th scope="row">Invalid</th><td><button class="sticker-choice" type="button" aria-pressed="false" aria-invalid="true"><span>?</span>Unsure</button></td></tr>
+        </tbody>
+      </table></div>
+      <ul>
+        <li><b>Pressed</b>: pressing a card presses it and releases the others; pressing it again withdraws the vote. Members can change their vote until the reveal.</li>
+        <li><b>Disabled</b>: after Reveal votes the deck locks, keeping your card pressed, through Re-vote or Set points.</li>
+        <li><b>Invalid</b> is defined in the component for a vote the server refuses (for example, the session ended), shown with an inline message; no FaithTech mock uses it yet.</li>
+        <li>The page’s loading, empty ("Start a session"), error and forbidden states replace the whole session, so the picker is not shown.</li>
+      </ul>
+    </section>
+
+    <section class="ds-section" id="responsive"><h2><a href="#responsive">Responsive behaviour</a></h2>
+      <ul>
+        <li>The deck is a wrapping <code>.cluster</code>: eight cards fit on one row on desktop and wrap to two rows of four at 360px. Nothing scrolls sideways.</li>
+        <li>On phones the "Votes" list moves below the deck.</li>
+      </ul>
+    </section>
+
+    <section class="ds-section" id="theming"><h2><a href="#theming">Theming</a></h2>
+      <div class="ds-themes"><div data-theme="light"><h3 id="t-l" class="field__label">Your vote</h3><div class="cluster" role="group" aria-labelledby="t-l"><button class="sticker-choice" type="button" aria-pressed="false"><span>1</span>points</button><button class="sticker-choice" type="button" aria-pressed="false"><span>2</span>points</button><button class="sticker-choice" type="button" aria-pressed="false"><span>3</span>points</button><button class="sticker-choice" type="button" aria-pressed="false"><span>5</span>points</button><button class="sticker-choice" type="button" aria-pressed="true"><span>8</span>points</button><button class="sticker-choice" type="button" aria-pressed="false"><span>13</span>points</button><button class="sticker-choice" type="button" aria-pressed="false"><span>21</span>points</button><button class="sticker-choice" type="button" aria-pressed="false"><span>?</span>Unsure</button></div></div><div data-theme="dark"><h3 id="t-d" class="field__label">Your vote</h3><div class="cluster" role="group" aria-labelledby="t-d"><button class="sticker-choice" type="button" aria-pressed="false"><span>1</span>points</button><button class="sticker-choice" type="button" aria-pressed="false"><span>2</span>points</button><button class="sticker-choice" type="button" aria-pressed="false"><span>3</span>points</button><button class="sticker-choice" type="button" aria-pressed="false"><span>5</span>points</button><button class="sticker-choice" type="button" aria-pressed="true"><span>8</span>points</button><button class="sticker-choice" type="button" aria-pressed="false"><span>13</span>points</button><button class="sticker-choice" type="button" aria-pressed="false"><span>21</span>points</button><button class="sticker-choice" type="button" aria-pressed="false"><span>?</span>Unsure</button></div></div></div>
+      <p>Role tokens only. In forced-colours mode the cards keep a system border, and the pressed card is still announced by <code>aria-pressed</code>.</p>
+    </section>
+
+    <section class="ds-section" id="accessibility"><h2><a href="#accessibility">Accessibility</a></h2>
+      <h3>Role and pattern</h3>
+      <p>Toggle buttons (<code>aria-pressed</code>) in a <code>role="group"</code> named by "Your vote". Each card’s name is its visible text, such as "8 points" or "? Unsure", so the value is never conveyed by colour alone.</p>
+      <h3>Keyboard</h3>
+      <table class="ds-table ds-keys"><thead><tr><th scope="col">Key</th><th scope="col">Action</th></tr></thead><tbody>
+        <tr><td><kbd>Tab</kbd></td><td>Moves through the cards in order.</td></tr>
+        <tr><td><kbd>Enter</kbd> / <kbd>Space</kbd></td><td>Presses or releases the focused card.</td></tr>
+      </tbody></table>
+      <h3>Announcements</h3>
+      <p>The polite status line above the deck, "3 of 5 have voted. Votes stay hidden until Marcus reveals them.", updates as votes arrive. The reveal is announced in the session’s alert.</p>
+      <h3>Motion and touch</h3>
+      <p>The hover lift is removed under <code>prefers-reduced-motion</code>. Every card meets the 44px target.</p>
+    </section>
+
+    <section class="ds-section" id="content"><h2><a href="#content">Content</a></h2>
+      <ul>
+        <li>Label "Your vote". Values 1, 2, 3, 5, 8, 13, 21 with "points" under each; "?" with "Unsure".</li>
+        <li>Status: "3 of 5 have voted. Votes stay hidden until Marcus reveals them."</li>
+        <li>Never put words on the number line ("Small", "Huge"): the scale is points.</li>
+      </ul>
+    </section>
+
+    <section class="ds-section" id="do-dont"><h2><a href="#do-dont">Do and don't</a></h2>
+      <div class="ds-dodont">
+        <figure class="ds-do"><div class="ds-example__canvas"><button class="sticker-choice" type="button" aria-pressed="true"><span>8</span>points</button></div><figcaption>Show the value and the unit, and use <code>aria-pressed</code> for the vote.</figcaption></figure>
+        <figure class="ds-dont"><div class="ds-example__canvas"><button class="sticker-choice" type="button" aria-label="Vote"><span>8</span></button></div><figcaption>A generic name hides the value from screen readers.</figcaption></figure>
+        <figure class="ds-do"><div class="ds-example__canvas"><button class="sticker-choice" type="button" aria-pressed="false"><span>?</span>Unsure</button></div><figcaption>Offer Unsure, so nobody has to guess.</figcaption></figure>
+        <figure class="ds-dont"><div class="ds-example__canvas"><button class="sticker-choice" type="button" aria-pressed="false"><span>40</span>points</button></div><figcaption>Don’t add values outside the team’s scale.</figcaption></figure>
+      </div>
+    </section>
+
+    <section class="ds-section" id="tokens"><h2><a href="#tokens">Tokens</a></h2>
+      <div class="ds-table-wrap"><table class="ds-table">
+        <thead><tr><th scope="col">Part</th><th scope="col">Token</th><th scope="col">Value</th></tr></thead>
+        <tbody>
+          <tr><td>Card surface, border</td><td><code>--color-bg-surface</code>, <code>--color-border-strong</code></td><td><span data-token="--color-border-strong"></span></td></tr>
+          <tr><td>Corner</td><td><code>--radius-md</code></td><td><span data-token="--radius-md"></span></td></tr>
+          <tr><td>Hover</td><td><code>--color-bg-subtle</code>, <code>--ease-spring</code></td><td><span data-token="--color-bg-subtle"></span></td></tr>
+          <tr><td>Pressed</td><td><code>--color-accent-subtle</code>, <code>--color-accent</code>, <code>--color-fg-accent</code></td><td><span data-token="--color-accent"></span></td></tr>
+          <tr><td>Invalid</td><td><code>--color-danger-solid</code></td><td><span data-token="--color-danger-solid"></span></td></tr>
+          <tr><td>Value / unit type</td><td><code>--font-size-3xl</code>, <code>--text-caption</code></td><td><span data-token="--font-size-3xl"></span></td></tr>
+          <tr><td>Target</td><td><code>--target-comfortable</code></td><td><span data-token="--target-comfortable"></span></td></tr>
+        </tbody>
+      </table></div>
+    </section>
+
+    <section class="ds-section" id="code"><h2><a href="#code">Code</a></h2>
+      <pre><code>&lt;!-- Angular (components library) --&gt;
+&lt;ft-estimate-picker label="Your vote" [options]="[1, 2, 3, 5, 8, 13, 21, '?']"
+                    [value]="myVote" [disabled]="revealed" (valueChange)="vote($event)" /&gt;
+
+&lt;!-- HTML --&gt;
+&lt;div class="cluster" role="group" aria-labelledby="deck"&gt;
+  &lt;button class="sticker-choice" type="button" aria-pressed="true"&gt;&lt;span&gt;8&lt;/span&gt;points&lt;/button&gt;
+  &lt;button class="sticker-choice" type="button" aria-pressed="false"&gt;&lt;span&gt;?&lt;/span&gt;Unsure&lt;/button&gt;
+&lt;/div&gt;</code></pre>
+      <table class="ds-table"><thead><tr><th scope="col">Class / input</th><th scope="col">Effect</th></tr></thead><tbody>
+        <tr><td><code>.sticker-choice</code></td><td>One card. <code>[aria-pressed="true"]</code> is the vote; <code>[aria-invalid]</code> and <code>:disabled</code> are the other states.</td></tr>
+        <tr><td><code>options</code>, <code>value</code>, <code>disabled</code></td><td>The scale, the current vote (or none) and the lock after reveal.</td></tr>
+        <tr><td><code>valueChange</code></td><td>Emits the new vote, or <code>null</code> when it is withdrawn.</td></tr>
+      </tbody></table>
+    </section>
+
+    <section class="ds-section" id="sources"><h2><a href="#sources">Sources</a></h2>
+      <ul>
+        <li><a href="../../mocks/pages/planning-poker/default.html">pages/planning-poker</a>: default, <a href="../../mocks/pages/planning-poker/revealed.html">revealed</a>, <a href="../../mocks/pages/planning-poker/facilitator.html">facilitator</a>, <a href="../../mocks/pages/planning-poker/agreed.html">agreed</a>, <a href="../../mocks/pages/planning-poker/staff.html">staff</a></li>
+      </ul>
+      <p>Drift: the "Your vote" heading uses an inline <code>style="font: var(--text-h4)"</code>; the invalid state, withdrawing a vote and a failed vote are not mocked; the class names still carry the inherited "sticker" name.</p>
+    </section>
+
+    <footer class="ds-footer"><span>FaithTech Community design system · extracted from <a href="../../mocks/index.html">docs/mocks</a> on 2026-10-21</span><a href="#top">Back to top</a></footer>
+  </main>
+</div>
+<script src="../assets/ds.js"></script>
+</body>
+</html>

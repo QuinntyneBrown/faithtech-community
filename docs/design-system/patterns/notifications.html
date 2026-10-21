@@ -1,0 +1,355 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Notifications — FaithTech Community design system</title>
+<meta name="description" content="How FaithTech Community tells people something happened: the in-app bell panel and notifications page, toasts, banners and email, with priority, timing, stacking and opt-out rules.">
+<link rel="stylesheet" href="../tokens/tokens.css">
+<link rel="stylesheet" href="../assets/components.css">
+<link rel="stylesheet" href="../assets/ds.css">
+</head>
+<body id="top">
+<a class="skip-link" href="#main">Skip to content</a>
+<div class="ds-shell">
+  <nav class="ds-nav" aria-label="Design system">
+    <div class="ds-nav__brand"><a href="../index.html">FaithTech DS</a><button class="ds-theme-toggle" type="button" aria-pressed="false">☾ Dark</button></div>
+    <details open><summary>Foundations</summary><ul>
+      <li><a href="../foundations/color.html">Color</a></li>
+      <li><a href="../foundations/typography.html">Typography</a></li>
+      <li><a href="../foundations/spacing.html">Spacing</a></li>
+      <li><a href="../foundations/layout.html">Layout</a></li>
+      <li><a href="../foundations/elevation.html">Elevation</a></li>
+      <li><a href="../foundations/shape.html">Shape</a></li>
+      <li><a href="../foundations/motion.html">Motion</a></li>
+      <li><a href="../foundations/iconography.html">Iconography</a></li>
+      <li><a href="../foundations/theming.html">Theming</a></li>
+      <li><a href="../foundations/responsive.html">Responsive</a></li>
+      <li><a href="../foundations/accessibility.html">Accessibility</a></li>
+      <li><a href="../foundations/content.html">Content</a></li>
+    </ul></details>
+    <details open><summary>Components</summary><ul>
+      <li><a href="../components/button.html">Button</a></li>
+      <li><a href="../components/link.html">Link</a></li>
+      <li><a href="../components/menu.html">Menu</a></li>
+      <li><a href="../components/form-field.html">Form field</a></li>
+      <li><a href="../components/text-field.html">Text field</a></li>
+      <li><a href="../components/textarea.html">Textarea</a></li>
+      <li><a href="../components/select.html">Select</a></li>
+      <li><a href="../components/radio-group.html">Radio group</a></li>
+      <li><a href="../components/switch.html">Switch</a></li>
+      <li><a href="../components/form-layout.html">Form layout</a></li>
+      <li><a href="../components/picture-list.html">Picture list</a></li>
+      <li><a href="../components/sticker-picker.html">Estimate card picker</a></li>
+      <li><a href="../components/top-bar.html">Top bar</a></li>
+      <li><a href="../components/tab-bar.html">Tab bar</a></li>
+      <li><a href="../components/tabs.html">Tabs</a></li>
+      <li><a href="../components/breadcrumb.html">Breadcrumb</a></li>
+      <li><a href="../components/skip-link.html">Skip link</a></li>
+      <li><a href="../components/layout.html">Layout primitives</a></li>
+      <li><a href="../components/card.html">Card</a></li>
+      <li><a href="../components/dialog.html">Dialog</a></li>
+      <li><a href="../components/notification-panel.html">Notification panel</a></li>
+      <li><a href="../components/list.html">List</a></li>
+      <li><a href="../components/table.html">Table</a></li>
+      <li><a href="../components/description-list.html">Description list</a></li>
+      <li><a href="../components/feed.html">Activity feed</a></li>
+      <li><a href="../components/tree.html">Backlog tree</a></li>
+      <li><a href="../components/kanban.html">Kanban board</a></li>
+      <li><a href="../components/event-card.html">Event card</a></li>
+      <li><a href="../components/profile-header.html">Profile header</a></li>
+      <li><a href="../components/search-results.html">Search results</a></li>
+      <li><a href="../components/note.html">Note</a></li>
+      <li><a href="../components/avatar.html">Avatar</a></li>
+      <li><a href="../components/logo-mark.html">Logo mark</a></li>
+      <li><a href="../components/badge.html">Badge</a></li>
+      <li><a href="../components/chip.html">Chip</a></li>
+      <li><a href="../components/stat.html">Stat</a></li>
+      <li><a href="../components/sticker.html">Estimate card</a></li>
+      <li><a href="../components/toast.html">Toast</a></li>
+      <li><a href="../components/alert.html">Alert and banner</a></li>
+      <li><a href="../components/inline-message.html">Inline message</a></li>
+      <li><a href="../components/progress.html">Progress</a></li>
+      <li><a href="../components/skeleton.html">Skeleton</a></li>
+      <li><a href="../components/empty-state.html">Empty state</a></li>
+      <li><a href="../components/error-page.html">Error page</a></li>
+    </ul></details>
+    <details open><summary>Patterns</summary><ul>
+      <li><a href="../patterns/forms.html">Forms</a></li>
+      <li><a href="../patterns/feedback-and-loading.html">Feedback and loading</a></li>
+      <li><a href="../patterns/empty-and-error-states.html">Empty and error states</a></li>
+      <li><a href="../patterns/navigation.html">Navigation and page structure</a></li>
+      <li><a href="../patterns/dialogs-and-overlays.html">Dialogs and overlays</a></li>
+      <li><a href="../patterns/lists-and-tables.html">Lists and tables</a></li>
+      <li><a href="../patterns/notifications.html">Notifications</a></li>
+      <li><a href="../patterns/content-and-tone.html">Content and tone</a></li>
+    </ul></details>
+  </nav>
+
+  <main id="main" class="ds-main">
+    <header class="ds-header">
+      <p class="ds-kicker">Pattern · Feedback</p>
+      <h1>Notifications</h1>
+      <p class="ds-lead">FaithTech Community reaches people four ways. The bell keeps a list of what happened to you. A toast confirms what you just did. A banner states something that is still true. An email reaches you when you are not in the app.</p>
+      <div class="ds-meta"><span class="ds-pill ds-pill--ok">WCAG 2.2 AA</span><span class="ds-pill">Status: stable</span><span class="ds-pill">Pattern</span></div>
+      <ul class="ds-toc">
+        <li><a href="#overview">Overview</a></li><li><a href="#when">When to use</a></li><li><a href="#structure">Structure</a></li><li><a href="#states">States</a></li><li><a href="#responsive">Responsive</a></li><li><a href="#accessibility">Accessibility</a></li><li><a href="#content">Content</a></li><li><a href="#do-dont">Do and don't</a></li><li><a href="#sources">Sources</a></li>
+      </ul>
+    </header>
+
+    <section class="ds-section" id="overview"><h2><a href="#overview">Overview</a></h2>
+      <ul>
+        <li><b><a href="../components/notification-panel.html">Bell panel</a></b> (<code>.bell-panel</code> with <code>.notice-list</code>): opens from the bell in the top bar and shows the latest four items. Unread items have a tinted row and a dot. "See all" opens the Notifications page, which uses the same <code>.notice</code> rows. Examples: "Tomás Ortega signed up — he’s one of your contacts", "Esther Nakamura cancelled Austin Faith &amp; AI Panel", "Samuel Mensah assigned you Shelter problem briefs for teams".</li>
+        <li><b><a href="../components/toast.html">Toast</a></b>: a dark card in the bottom-right corner that confirms an action the person just took, such as "Invite sent", "You’re going" or "Contact restored". It usually has one action, Undo or Retry.</li>
+        <li><b><a href="../components/alert.html">Banner</a></b> (an <code>.alert</code> under the top bar): states something about the account that stays true across pages, such as "You’re viewing as Staff", "Verify your email to RSVP", "This account is suspended" or "Your email is verified".</li>
+        <li><b>Email</b>: sent through SMTP or SendGrid for the same events as the bell (invites, RSVPs, cancellations, assignments, contacts who sign up, announcements). Announcement emails can be turned off. Account and activity emails are always sent.</li>
+      </ul>
+      <p>For feedback on a field, a form or a part of the page, see <a href="feedback-and-loading.html">feedback and loading</a>.</p>
+    </section>
+
+    <section class="ds-section" id="when"><h2><a href="#when">When to use</a></h2>
+      <div class="ds-table-wrap"><table class="ds-table">
+        <thead><tr><th scope="col">Question</th><th scope="col">Bell</th><th scope="col">Toast</th><th scope="col">Banner</th><th scope="col">Email</th></tr></thead>
+        <tbody>
+          <tr><td>Who caused it?</td><td>Someone else</td><td>The person reading it</td><td>The system or an admin</td><td>Someone else</td></tr>
+          <tr><td>Still true after they move on?</td><td>Kept in the list until read</td><td>No</td><td>Yes, on every page</td><td>Stays in their inbox</td></tr>
+          <tr><td>Needs the app open?</td><td>Yes</td><td>Yes</td><td>Yes</td><td>No</td></tr>
+          <tr><td>Example</td><td>Ruth Alvarez accepted your invite and joined as Volunteer</td><td>Invite sent · Nate Oyelaran has 14 days to accept</td><td>You’re viewing as Staff</td><td>Cancelled: Austin Faith &amp; AI Panel</td></tr>
+        </tbody>
+      </table></div>
+      <h3>Priority and tone</h3>
+      <div class="ds-table-wrap"><table class="ds-table">
+        <thead><tr><th scope="col">Tone</th><th scope="col">Means</th><th scope="col">Toast</th><th scope="col">Banner</th><th scope="col">Announced</th></tr></thead>
+        <tbody>
+          <tr><td>Danger</td><td>Something failed or access is blocked</td><td>Your RSVP wasn’t saved · Retry</td><td>This account is suspended</td><td>Assertive (<code>role="alert"</code>)</td></tr>
+          <tr><td>Warning</td><td>It worked, but with a limit</td><td>Saved, but email is paused</td><td>Verify your email to RSVP · Send again</td><td>Polite</td></tr>
+          <tr><td>Success</td><td>It worked</td><td>You’re going · Undo</td><td>Your email is verified</td><td>Polite</td></tr>
+          <tr><td>Info</td><td>Something is worth knowing</td><td>Contact restored · Undo</td><td>You’re viewing as Staff</td><td>Polite</td></tr>
+        </tbody>
+      </table></div>
+      <h3>Timing</h3>
+      <ul>
+        <li><b>Info and success toasts</b> stay for at least 8 seconds. The timer pauses while the pointer is over the toast or focus is inside it. Undo works for as long as the toast is on screen.</li>
+        <li><b>Warning and danger toasts</b> stay until they are dismissed or the retry works.</li>
+        <li><b>Banners</b> stay while the condition is true and have no close button: Staff view, unverified email, suspended account. The "Your email is verified" success banner shows once, on the first page after verification.</li>
+        <li><b>Bell items</b> stay unread until the person opens them or chooses "Mark all read". The badge counts unread items.</li>
+        <li><b>Only one banner shows at a time.</b> If two apply, the one with the higher tone shows.</li>
+      </ul>
+    </section>
+
+    <section class="ds-section" id="structure"><h2><a href="#structure">Structure</a></h2>
+      <h3>Bell panel</h3>
+      <p>The panel has a header with the title and "Mark all read", a list of <code>.notice</code> rows (avatar initials, a sentence that links to the item, and a meta line with the time and "Unread"), and a footer with "See all". The example below is shown in place, so it uses <code>position: static</code>.</p>
+      <div class="ds-example">
+        <div class="ds-example__canvas ds-example__canvas--stack">
+          <div class="bell-panel" role="region" aria-label="Notifications (example)" style="position: static; width: 100%; max-width: 24rem; margin-inline: auto;"><div class="bell-panel__header"><strong>Notifications</strong><button class="btn btn--sm btn--ghost" type="button">Mark all read</button></div><ul class="notice-list"><li class="notice notice--unread"><span class="avatar avatar--sm avatar--sun" aria-hidden="true">TO</span><div class="notice__body">Tomás Ortega signed up — he’s one of your contacts. <a href="../../mocks/pages/contact/match.html">Link his profile</a><div class="notice__meta">Today, 11:42 am · Unread</div></div></li><li class="notice notice--unread"><span class="avatar avatar--sm avatar--mint" aria-hidden="true">EN</span><div class="notice__body">Esther Nakamura cancelled <a href="../../mocks/pages/event/cancelled.html">Austin Faith &amp; AI Panel</a><div class="notice__meta">Mon 20 Oct · Unread</div></div></li><li class="notice notice--unread"><span class="avatar avatar--sm avatar--rose" aria-hidden="true">RA</span><div class="notice__body">Ruth Alvarez accepted your invite and joined as Volunteer<div class="notice__meta">Sat 18 Oct · Unread</div></div></li><li class="notice"><span class="avatar avatar--sm avatar--lilac" aria-hidden="true">HK</span><div class="notice__body">Hannah Kim sent “Builders Night moves to Kestrel Labs”<div class="notice__meta">Fri 17 Oct</div></div></li></ul><div class="bell-panel__footer"><a href="../../mocks/pages/notifications/default.html">See all</a></div></div>
+        </div>
+        <div class="ds-example__caption"><span>notifications/bell/unread: three unread items and one read item. The bell button is labelled "Notifications, 3 unread".</span></div>
+        <details class="ds-example__code"><summary>HTML</summary><pre><code>&lt;div class="bell-anchor"&gt;
+  &lt;button class="btn btn--ghost btn--icon" type="button" aria-label="Notifications, 3 unread" aria-expanded="true" aria-controls="bell"&gt;
+    &lt;svg class="icon" aria-hidden="true"&gt;…&lt;/svg&gt;&lt;span class="badge badge--count" aria-hidden="true"&gt;3&lt;/span&gt;
+  &lt;/button&gt;
+  &lt;div class="bell-panel" id="bell" role="dialog" aria-label="Notifications"&gt;
+    &lt;div class="bell-panel__header"&gt;&lt;strong&gt;Notifications&lt;/strong&gt;&lt;button class="btn btn--sm btn--ghost" type="button"&gt;Mark all read&lt;/button&gt;&lt;/div&gt;
+    &lt;ul class="notice-list"&gt;
+      &lt;li class="notice notice--unread"&gt;
+        &lt;span class="avatar avatar--sm avatar--rose" aria-hidden="true"&gt;RA&lt;/span&gt;
+        &lt;div class="notice__body"&gt;Ruth Alvarez accepted your invite and joined as Volunteer
+          &lt;div class="notice__meta"&gt;Sat 18 Oct · Unread&lt;/div&gt;&lt;/div&gt;
+      &lt;/li&gt;
+    &lt;/ul&gt;
+    &lt;div class="bell-panel__footer"&gt;&lt;a href="/notifications"&gt;See all&lt;/a&gt;&lt;/div&gt;
+  &lt;/div&gt;
+&lt;/div&gt;</code></pre></details>
+      </div>
+      <h3>Toasts</h3>
+      <p>All toasts appear in one region. The newest is added at the bottom. Each one has an icon, a title, one line of text, at most one action, a Dismiss button and a timer bar.</p>
+      <div class="ds-example">
+        <div class="ds-example__canvas ds-example__canvas--stack">
+          <div class="toast-region toast-region--static" role="region" aria-label="Toasts (example)" style="width: 100%; max-width: 24rem; margin-inline: auto;">
+            <div class="toast toast--success"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="m8 12 3 3 5-6"/></svg><div class="toast__body"><div class="toast__title">You’re going</div><div class="toast__text">We emailed you a confirmation with a calendar invite.</div><button class="toast__action" type="button">Undo</button></div><button class="close" type="button" aria-label="Dismiss"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18"/></svg></button><span class="toast__progress" style="--value: 30%;" aria-hidden="true"></span></div>
+            <div class="toast toast--info"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 8h.01"/></svg><div class="toast__body"><div class="toast__title">Contact restored</div><div class="toast__text">Ben Carter is back in your contacts.</div><button class="toast__action" type="button">Undo</button></div><button class="close" type="button" aria-label="Dismiss"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18"/></svg></button><span class="toast__progress" style="--value: 60%;" aria-hidden="true"></span></div>
+            <div class="toast toast--success"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="m8 12 3 3 5-6"/></svg><div class="toast__body"><div class="toast__title">Invite sent</div><div class="toast__text">Nate Oyelaran has 14 days to accept.</div></div><button class="close" type="button" aria-label="Dismiss"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18"/></svg></button><span class="toast__progress" style="--value: 85%;" aria-hidden="true"></span></div>
+          </div>
+        </div>
+        <div class="ds-example__caption"><span>notifications/toast/stacked, shown in place with <code>.toast-region--static</code>.</span></div>
+        <details class="ds-example__code"><summary>HTML</summary><pre><code>&lt;div class="toast-region" role="status" aria-live="polite"&gt;
+  &lt;div class="toast toast--success"&gt;
+    &lt;svg class="icon" aria-hidden="true"&gt;…&lt;/svg&gt;
+    &lt;div class="toast__body"&gt;
+      &lt;div class="toast__title"&gt;Invite sent&lt;/div&gt;
+      &lt;div class="toast__text"&gt;Nate Oyelaran has 14 days to accept.&lt;/div&gt;
+    &lt;/div&gt;
+    &lt;button class="close" type="button" aria-label="Dismiss"&gt;…&lt;/button&gt;
+    &lt;span class="toast__progress" aria-hidden="true"&gt;&lt;/span&gt;
+  &lt;/div&gt;
+&lt;/div&gt;</code></pre></details>
+      </div>
+      <div class="ds-example">
+        <div class="ds-example__canvas ds-example__canvas--stack">
+          <div class="toast-region toast-region--static" style="width: 100%; max-width: 24rem; margin-inline: auto;">
+            <div class="toast toast--warning"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><path d="M12 3 2 20h20zM12 10v4M12 17h.01"/></svg><div class="toast__body"><div class="toast__title">Saved, but email is paused</div><div class="toast__text">Your announcement is in the app. Email will send when our provider recovers.</div></div><button class="close" type="button" aria-label="Dismiss"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18"/></svg></button></div>
+            <div class="toast toast--danger" role="alert"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 8v4M12 16h.01"/></svg><div class="toast__body"><div class="toast__title">Your RSVP wasn’t saved</div><div class="toast__text">We couldn’t reach FaithTech. Try again.</div><button class="toast__action" type="button">Retry</button></div><button class="close" type="button" aria-label="Dismiss"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18"/></svg></button></div>
+          </div>
+        </div>
+        <div class="ds-example__caption"><span>notifications/toast/warning and danger. These have no timer bar and stay until dismissed.</span></div>
+      </div>
+      <h3>Banners</h3>
+      <div class="ds-example">
+        <div class="ds-example__canvas ds-example__canvas--stack">
+          <div class="alert alert--info" style="width: 100%;"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><path d="M2 12s3.5-6 10-6 10 6 10 6-3.5 6-10 6S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></svg><div class="alert__body"><div class="alert__title">You’re viewing as Staff</div><div class="alert__text">You can see everything but can’t make changes.</div></div></div>
+          <div class="alert alert--warning" style="width: 100%;"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><path d="M12 3 2 20h20zM12 10v4M12 17h.01"/></svg><div class="alert__body"><div class="alert__title">Verify your email to RSVP</div><div class="alert__text">We sent a link to leah.thompson@example.org.</div><div class="alert__actions"><button class="btn" type="button">Send again</button></div></div></div>
+          <div class="alert alert--success" style="width: 100%;"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="m8 12 3 3 5-6"/></svg><div class="alert__body"><div class="alert__title">Your email is verified</div><div class="alert__text">Welcome to FaithTech.</div></div></div>
+          <div class="alert alert--danger" role="alert" style="width: 100%;"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 8v4M12 16h.01"/></svg><div class="alert__body"><div class="alert__title">This account is suspended</div><div class="alert__text">Contact support@faithtech.example if you think this is a mistake.</div></div></div>
+        </div>
+        <div class="ds-example__caption"><span>notifications/banner/info, warning, success and danger. The banner sits under the top bar, inset by <code>--layout-margin</code>.</span></div>
+      </div>
+      <h3>Email</h3>
+      <p>Every email has the same layout: a heading that says what happened, one sentence with the details, one button and a footer. Announcement emails end with a one-click unsubscribe link that works without signing in. Other emails explain that account and activity emails are always sent. The email is always shown in the light theme, because email clients do not use our tokens.</p>
+      <div class="ds-example">
+        <div class="ds-example__canvas ds-example__canvas--stack">
+          <div data-theme="light" class="stack" style="width: 100%; max-width: 36rem; margin-inline: auto;">
+            <dl class="facts card"><div><dt>From</dt><dd>FaithTech Community &lt;hello@faithtech.example&gt;</dd></div><div><dt>To</dt><dd>samuel.mensah@example.org</dd></div><div><dt>Subject</dt><dd>Grace assigned you: Volunteer check-in kiosk</dd></div></dl>
+            <div class="card stack">
+              <p style="font: var(--text-h3); margin: 0;">You’ve been assigned a story</p>
+              <p>Grace Okonkwo assigned you “Volunteer check-in kiosk” (5 points) in the Toronto team workspace, Sprint 7.</p>
+              <p><a class="btn btn--primary" href="../../mocks/pages/work-item/default.html">Open the story</a></p>
+              <p class="text-caption">FaithTech Community · You can turn off announcement emails in Settings; account and activity emails are always sent.</p>
+            </div>
+          </div>
+        </div>
+        <div class="ds-example__caption"><span>notifications/email/assigned, rebuilt with tokens. The real email uses inline styles.</span></div>
+      </div>
+      <div class="ds-table-wrap"><table class="ds-table">
+        <thead><tr><th scope="col">Email</th><th scope="col">Subject</th><th scope="col">Button</th><th scope="col">Can opt out</th></tr></thead>
+        <tbody>
+          <tr><td>Invite</td><td>Grace invited you to FaithTech Toronto</td><td>Accept invite</td><td>No</td></tr>
+          <tr><td>RSVP confirmation</td><td>You’re going: Toronto Builders Night</td><td>View event (with <code>.ics</code>)</td><td>No</td></tr>
+          <tr><td>Contact signed up</td><td>Tomás Ortega just joined FaithTech</td><td>Review contact</td><td>No</td></tr>
+          <tr><td>Event cancelled</td><td>Cancelled: Austin Faith &amp; AI Panel</td><td>Find another event</td><td>No</td></tr>
+          <tr><td>Assigned</td><td>Grace assigned you: Volunteer check-in kiosk</td><td>Open the story</td><td>No</td></tr>
+          <tr><td>Added to a workspace</td><td>You’ve been added to Hackathon ops</td><td>Open the workspace</td><td>No</td></tr>
+          <tr><td>Planning Poker</td><td>Marcus invited you to Planning Poker</td><td>Join the session</td><td>No</td></tr>
+          <tr><td>Announcement</td><td>November hackathon: teams are forming</td><td>Read in FaithTech</td><td>Yes, one-click unsubscribe</td></tr>
+        </tbody>
+      </table></div>
+    </section>
+
+    <section class="ds-section" id="states"><h2><a href="#states">States</a></h2>
+      <div class="ds-matrix"><table>
+        <thead><tr><th scope="col">Part</th><th scope="col">Default</th><th scope="col">Hover</th><th scope="col">Focus</th><th scope="col">Unread</th></tr></thead>
+        <tbody>
+          <tr><th scope="row">Notice row</th>
+            <td><ul class="notice-list"><li class="notice"><span class="avatar avatar--sm avatar--lilac" aria-hidden="true">HK</span><div class="notice__body">Hannah Kim sent an announcement<div class="notice__meta">Fri 17 Oct</div></div></li></ul></td>
+            <td><ul class="notice-list"><li class="notice"><span class="avatar avatar--sm avatar--lilac" aria-hidden="true">HK</span><div class="notice__body"><a href="#states" data-state="hover">Builders Night moves</a><div class="notice__meta">Fri 17 Oct</div></div></li></ul></td>
+            <td><ul class="notice-list"><li class="notice"><span class="avatar avatar--sm avatar--lilac" aria-hidden="true">HK</span><div class="notice__body"><a href="#states" data-state="focus">Builders Night moves</a><div class="notice__meta">Fri 17 Oct</div></div></li></ul></td>
+            <td><ul class="notice-list"><li class="notice notice--unread"><span class="avatar avatar--sm avatar--rose" aria-hidden="true">RA</span><div class="notice__body">Ruth joined as Volunteer<div class="notice__meta">Sat 18 Oct · Unread</div></div></li></ul></td></tr>
+          <tr><th scope="row">Toast</th>
+            <td><div class="toast toast--success" style="min-width: 14rem;"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="m8 12 3 3 5-6"/></svg><div class="toast__body"><div class="toast__title">Invite sent</div></div></div></td>
+            <td><div class="toast toast--success" style="min-width: 14rem;"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="m8 12 3 3 5-6"/></svg><div class="toast__body"><div class="toast__title">Invite sent</div><div class="toast__text">Timer paused</div></div><button class="close" type="button" aria-label="Dismiss" data-state="hover"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18"/></svg></button></div></td>
+            <td><div class="toast toast--info" style="min-width: 14rem;"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 8h.01"/></svg><div class="toast__body"><div class="toast__title">Contact restored</div><button class="toast__action" type="button" data-state="focus">Undo</button></div></div></td>
+            <td><span class="text-caption">Not applicable</span></td></tr>
+        </tbody>
+      </table></div>
+      <h3>Empty bell</h3>
+      <div class="ds-example">
+        <div class="ds-example__canvas ds-example__canvas--stack">
+          <div class="bell-panel" role="region" aria-label="Notifications, empty (example)" style="position: static; width: 100%; max-width: 24rem; margin-inline: auto;"><div class="bell-panel__header"><strong>Notifications</strong></div><div style="padding: var(--space-6);"><div class="empty"><span class="empty__icon" aria-hidden="true"><svg class="icon icon--lg" aria-hidden="true" viewBox="0 0 24 24"><path d="M6 16V11a6 6 0 0 1 12 0v5l2 2H4zM10 20a2 2 0 0 0 4 0"/></svg></span><p class="empty__title">You’re all caught up</p><p class="empty__text">New notifications show up here.</p></div></div><div class="bell-panel__footer"><a href="../../mocks/pages/notifications/default.html">See all</a></div></div>
+        </div>
+        <div class="ds-example__caption"><span>notifications/bell/empty. The mock still shows "Mark all read" when there is nothing to mark; this page leaves it out.</span></div>
+      </div>
+      <h3>Both themes</h3>
+      <div class="ds-themes">
+        <div data-theme="light"><div class="toast-region toast-region--static">
+          <div class="toast toast--info"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 8h.01"/></svg><div class="toast__body"><div class="toast__title">Contact restored</div></div></div>
+          <div class="toast toast--success"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="m8 12 3 3 5-6"/></svg><div class="toast__body"><div class="toast__title">You’re going</div></div></div>
+          <div class="toast toast--warning"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><path d="M12 3 2 20h20zM12 10v4M12 17h.01"/></svg><div class="toast__body"><div class="toast__title">Email is paused</div></div></div>
+          <div class="toast toast--danger"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 8v4M12 16h.01"/></svg><div class="toast__body"><div class="toast__title">RSVP wasn’t saved</div></div></div>
+        </div></div>
+        <div data-theme="dark"><div class="toast-region toast-region--static">
+          <div class="toast toast--info"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 8h.01"/></svg><div class="toast__body"><div class="toast__title">Contact restored</div></div></div>
+          <div class="toast toast--success"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="m8 12 3 3 5-6"/></svg><div class="toast__body"><div class="toast__title">You’re going</div></div></div>
+          <div class="toast toast--warning"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><path d="M12 3 2 20h20zM12 10v4M12 17h.01"/></svg><div class="toast__body"><div class="toast__title">Email is paused</div></div></div>
+          <div class="toast toast--danger"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 8v4M12 16h.01"/></svg><div class="toast__body"><div class="toast__title">RSVP wasn’t saved</div></div></div>
+        </div></div>
+      </div>
+    </section>
+
+    <section class="ds-section" id="responsive"><h2><a href="#responsive">Responsive behaviour</a></h2>
+      <ul>
+        <li><b>Bell</b>: from 768px the panel drops down from the bell, up to 24rem wide (<code>min(24rem, 100vw − 2 × --layout-margin)</code>). On phones, the bell button goes straight to the Notifications page.</li>
+        <li><b>Toasts</b>: on wide screens the region sits in the bottom-right corner. On phones it spans the bottom of the screen and sits above the tab bar, so it never covers the navigation.</li>
+        <li><b>Banners</b>: full width under the top bar, inset by <code>--layout-margin</code>. On narrow screens the text and the action stack.</li>
+        <li><b>Email</b>: one column, at most 36rem wide, so it reads well on a phone.</li>
+      </ul>
+    </section>
+
+    <section class="ds-section" id="accessibility"><h2><a href="#accessibility">Accessibility</a></h2>
+      <h3>Roles</h3>
+      <p>The bell button has <code>aria-expanded</code> and <code>aria-controls</code>, and its label includes the unread count ("Notifications, 3 unread"). The visible count badge is <code>aria-hidden</code>. The panel is a non-modal <code>role="dialog"</code> labelled "Notifications". The toast region is a polite live region that is on the page from the start. Danger toasts and the suspended banner use <code>role="alert"</code>. "Unread" is written in the meta line, so the state does not depend on the tint or the dot.</p>
+      <h3>Keyboard</h3>
+      <table class="ds-table ds-keys"><thead><tr><th scope="col">Key</th><th scope="col">Action</th></tr></thead><tbody>
+        <tr><td><kbd>Enter</kbd> / <kbd>Space</kbd> on the bell</td><td>Opens the panel and moves focus to its first link.</td></tr>
+        <tr><td><kbd>Tab</kbd></td><td>Moves through Mark all read, each notice link and See all.</td></tr>
+        <tr><td><kbd>Esc</kbd></td><td>Closes the panel and returns focus to the bell.</td></tr>
+        <tr><td><kbd>Tab</kbd> to a toast</td><td>Pauses its timer. Enter runs Undo or Retry.</td></tr>
+      </tbody></table>
+      <h3>Focus and timing</h3>
+      <p>A toast never takes focus. The 8-second minimum and the pause on hover or focus meet WCAG 2.2.1, Timing Adjustable. When a focused toast closes, focus returns to the element that was focused before it.</p>
+      <h3>Contrast</h3>
+      <div class="ds-example__canvas ds-example__canvas--stack" style="padding: 0; gap: var(--space-2);">
+        <div class="ds-pair"><span>Unread notice text</span><span class="ds-pair__ratio" data-contrast="--color-fg-default|--color-accent-subtle" data-min="4.5"></span></div>
+        <div class="ds-pair"><span>Notice meta</span><span class="ds-pair__ratio" data-contrast="--color-fg-muted|--color-bg-surface-raised" data-min="4.5"></span></div>
+        <div class="ds-pair"><span>Toast text</span><span class="ds-pair__ratio" data-contrast="--color-fg-inverse|--color-bg-inverse" data-min="4.5"></span></div>
+        <div class="ds-pair"><span>Success icon on toast</span><span class="ds-pair__ratio" data-contrast="--color-success-icon-on-inverse|--color-bg-inverse" data-min="3"></span></div>
+        <div class="ds-pair"><span>Danger icon on toast</span><span class="ds-pair__ratio" data-contrast="--color-danger-icon-on-inverse|--color-bg-inverse" data-min="3"></span></div>
+        <div class="ds-pair"><span>Banner text, warning</span><span class="ds-pair__ratio" data-contrast="--color-warning-fg|--color-warning-bg" data-min="4.5"></span></div>
+        <div class="ds-pair"><span>Banner text, danger</span><span class="ds-pair__ratio" data-contrast="--color-danger-fg|--color-danger-bg" data-min="4.5"></span></div>
+      </div>
+      <h3>Motion</h3>
+      <p>Toasts slide up and fade in over <code>--duration-base</code>. With reduced motion turned on, they appear without moving. The bell panel appears without animation.</p>
+    </section>
+
+    <section class="ds-section" id="content"><h2><a href="#content">Content</a></h2>
+      <ul>
+        <li><b>Bell: name the person and the thing</b>, in the past tense: "Esther Nakamura cancelled Austin Faith &amp; AI Panel". Link the thing, not the whole sentence.</li>
+        <li><b>Toast title: what happened, in two or three words</b>: "Invite sent", "You’re going", "Contact restored". The text line says what happens next: "Nate Oyelaran has 14 days to accept."</li>
+        <li><b>Failures say that nothing was lost</b>: "Your announcement is in the app. Email will send when our provider recovers."</li>
+        <li><b>Banners say what is true and what to do</b>: "Verify your email to RSVP", then "Send again".</li>
+        <li><b>Email subjects work without opening the email</b>: "Cancelled: Austin Faith &amp; AI Panel", "You’re going: Toronto Builders Night".</li>
+        <li>Dates use the "Tue 21 Oct" format. Items from today show the time: "Today, 11:42 am".</li>
+      </ul>
+    </section>
+
+    <section class="ds-section" id="do-dont"><h2><a href="#do-dont">Do and don't</a></h2>
+      <div class="ds-dodont">
+        <figure class="ds-do"><div class="ds-example__canvas"><div class="toast toast--danger" role="note" style="width: 100%;"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 8v4M12 16h.01"/></svg><div class="toast__body"><div class="toast__title">Your RSVP wasn’t saved</div><button class="toast__action" type="button">Retry</button></div><button class="close" type="button" aria-label="Dismiss"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18"/></svg></button></div></div><figcaption>Keep a failed toast on screen until it is dismissed or the retry works.</figcaption></figure>
+        <figure class="ds-dont"><div class="ds-example__canvas"><div class="toast toast--danger" role="note" style="width: 100%;"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 8v4M12 16h.01"/></svg><div class="toast__body"><div class="toast__title">Your RSVP wasn’t saved</div></div><span class="toast__progress" style="--value: 40%;" aria-hidden="true"></span></div></div><figcaption>Don't put a timer on a failure. Jonah may look away and think he is going.</figcaption></figure>
+        <figure class="ds-do"><div class="ds-example__canvas"><ul class="notice-list" style="width: 100%;"><li class="notice notice--unread"><span class="avatar avatar--sm avatar--sun" aria-hidden="true">TO</span><div class="notice__body">Tomás Ortega signed up — he’s one of your contacts. <a href="../../mocks/pages/contact/match.html">Link his profile</a><div class="notice__meta">Today · Unread</div></div></li></ul></div><figcaption>Send private-contact notices only to the lead who owns the contact.</figcaption></figure>
+        <figure class="ds-dont"><div class="ds-example__canvas"><div class="alert alert--info" style="width: 100%;"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 8h.01"/></svg><div class="alert__body"><div class="alert__title">Ruth Alvarez accepted your invite</div></div></div></div><figcaption>Don't use a banner for something another person did. Put it in the bell.</figcaption></figure>
+      </div>
+    </section>
+
+    <section class="ds-section" id="sources"><h2><a href="#sources">Sources</a></h2>
+      <ul>
+        <li>Bell: <a href="../../mocks/notifications/bell/unread.html">unread</a>, <a href="../../mocks/notifications/bell/info.html">info</a>, <a href="../../mocks/notifications/bell/success.html">success</a>, <a href="../../mocks/notifications/bell/warning.html">warning</a>, <a href="../../mocks/notifications/bell/danger.html">danger</a>, <a href="../../mocks/notifications/bell/agile.html">agile</a>, <a href="../../mocks/notifications/bell/empty.html">empty</a>; <a href="../../mocks/pages/notifications/default.html">pages/notifications/default</a></li>
+        <li>Toasts: <a href="../../mocks/notifications/toast/info.html">info</a>, <a href="../../mocks/notifications/toast/success.html">success</a>, <a href="../../mocks/notifications/toast/warning.html">warning</a>, <a href="../../mocks/notifications/toast/danger.html">danger</a>, <a href="../../mocks/notifications/toast/stacked.html">stacked</a></li>
+        <li>Banners: <a href="../../mocks/notifications/banner/info.html">info</a>, <a href="../../mocks/notifications/banner/success.html">success</a>, <a href="../../mocks/notifications/banner/warning.html">warning</a>, <a href="../../mocks/notifications/banner/danger.html">danger</a></li>
+        <li>Email: <a href="../../mocks/notifications/email/info.html">info (invite)</a>, <a href="../../mocks/notifications/email/success.html">success (RSVP)</a>, <a href="../../mocks/notifications/email/warning.html">warning (contact signed up)</a>, <a href="../../mocks/notifications/email/danger.html">danger (cancelled)</a>, <a href="../../mocks/notifications/email/announcement.html">announcement</a>, <a href="../../mocks/notifications/email/assigned.html">assigned</a>, <a href="../../mocks/notifications/email/workspace-added.html">workspace-added</a>, <a href="../../mocks/notifications/email/poker-invite.html">poker-invite</a></li>
+      </ul>
+      <p>Drift noticed in the mocks:</p>
+      <ul>
+        <li>The bell button is an <code>&lt;a&gt;</code> with <code>aria-expanded</code>. It should be a <code>&lt;button&gt;</code> with <code>aria-controls</code> that toggles the panel.</li>
+        <li>The empty bell still shows "Mark all read".</li>
+        <li>The email mocks use raw hex colours, px sizes and a system font stack in inline styles. Email clients need this, but the values should come from the token build, not be typed by hand.</li>
+        <li>The mock banners are placed with an inline <code>padding: var(--space-2) var(--layout-margin)</code> on <code>.banner-wrap</code>, a class that is not in <code>components.css</code>.</li>
+        <li>In every toast mock the timer bar is shown, including the danger toast, which should have none.</li>
+      </ul>
+    </section>
+
+    <footer class="ds-footer"><span>FaithTech Community design system · extracted from <a href="../../mocks/index.html">docs/mocks</a> on 2026-10-21</span><a href="#top">Back to top</a></footer>
+  </main>
+</div>
+<script src="../assets/ds.js"></script>
+</body>
+</html>

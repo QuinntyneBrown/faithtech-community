@@ -1,0 +1,289 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Textarea — FaithTech Community design system</title>
+<meta name="description" content="Multi-line text in FaithTech Community: profile bio, event description, announcement message, contact notes, comments and the suspension reason.">
+<link rel="stylesheet" href="../tokens/tokens.css">
+<link rel="stylesheet" href="../assets/components.css">
+<link rel="stylesheet" href="../assets/ds.css">
+</head>
+<body id="top">
+<a class="skip-link" href="#main">Skip to content</a>
+<div class="ds-shell">
+  <nav class="ds-nav" aria-label="Design system">
+    <div class="ds-nav__brand"><a href="../index.html">FaithTech DS</a><button class="ds-theme-toggle" type="button" aria-pressed="false">☾ Dark</button></div>
+    <details open><summary>Foundations</summary><ul>
+      <li><a href="../foundations/color.html">Color</a></li>
+      <li><a href="../foundations/typography.html">Typography</a></li>
+      <li><a href="../foundations/spacing.html">Spacing</a></li>
+      <li><a href="../foundations/layout.html">Layout</a></li>
+      <li><a href="../foundations/elevation.html">Elevation</a></li>
+      <li><a href="../foundations/shape.html">Shape</a></li>
+      <li><a href="../foundations/motion.html">Motion</a></li>
+      <li><a href="../foundations/iconography.html">Iconography</a></li>
+      <li><a href="../foundations/theming.html">Theming</a></li>
+      <li><a href="../foundations/responsive.html">Responsive</a></li>
+      <li><a href="../foundations/accessibility.html">Accessibility</a></li>
+      <li><a href="../foundations/content.html">Content</a></li>
+    </ul></details>
+    <details open><summary>Components</summary><ul>
+      <li><a href="../components/button.html">Button</a></li>
+      <li><a href="../components/link.html">Link</a></li>
+      <li><a href="../components/menu.html">Menu</a></li>
+      <li><a href="../components/form-field.html">Form field</a></li>
+      <li><a href="../components/text-field.html">Text field</a></li>
+      <li><a href="../components/textarea.html">Textarea</a></li>
+      <li><a href="../components/select.html">Select</a></li>
+      <li><a href="../components/radio-group.html">Radio group</a></li>
+      <li><a href="../components/switch.html">Switch</a></li>
+      <li><a href="../components/form-layout.html">Form layout</a></li>
+      <li><a href="../components/picture-list.html">Picture list</a></li>
+      <li><a href="../components/sticker-picker.html">Estimate card picker</a></li>
+      <li><a href="../components/top-bar.html">Top bar</a></li>
+      <li><a href="../components/tab-bar.html">Tab bar</a></li>
+      <li><a href="../components/tabs.html">Tabs</a></li>
+      <li><a href="../components/breadcrumb.html">Breadcrumb</a></li>
+      <li><a href="../components/skip-link.html">Skip link</a></li>
+      <li><a href="../components/layout.html">Layout primitives</a></li>
+      <li><a href="../components/card.html">Card</a></li>
+      <li><a href="../components/dialog.html">Dialog</a></li>
+      <li><a href="../components/notification-panel.html">Notification panel</a></li>
+      <li><a href="../components/list.html">List</a></li>
+      <li><a href="../components/table.html">Table</a></li>
+      <li><a href="../components/description-list.html">Description list</a></li>
+      <li><a href="../components/feed.html">Activity feed</a></li>
+      <li><a href="../components/tree.html">Backlog tree</a></li>
+      <li><a href="../components/kanban.html">Kanban board</a></li>
+      <li><a href="../components/event-card.html">Event card</a></li>
+      <li><a href="../components/profile-header.html">Profile header</a></li>
+      <li><a href="../components/search-results.html">Search results</a></li>
+      <li><a href="../components/note.html">Note</a></li>
+      <li><a href="../components/avatar.html">Avatar</a></li>
+      <li><a href="../components/logo-mark.html">Logo mark</a></li>
+      <li><a href="../components/badge.html">Badge</a></li>
+      <li><a href="../components/chip.html">Chip</a></li>
+      <li><a href="../components/stat.html">Stat</a></li>
+      <li><a href="../components/sticker.html">Estimate card</a></li>
+      <li><a href="../components/toast.html">Toast</a></li>
+      <li><a href="../components/alert.html">Alert and banner</a></li>
+      <li><a href="../components/inline-message.html">Inline message</a></li>
+      <li><a href="../components/progress.html">Progress</a></li>
+      <li><a href="../components/skeleton.html">Skeleton</a></li>
+      <li><a href="../components/empty-state.html">Empty state</a></li>
+      <li><a href="../components/error-page.html">Error page</a></li>
+    </ul></details>
+    <details open><summary>Patterns</summary><ul>
+      <li><a href="../patterns/forms.html">Forms</a></li>
+      <li><a href="../patterns/feedback-and-loading.html">Feedback and loading</a></li>
+      <li><a href="../patterns/empty-and-error-states.html">Empty and error states</a></li>
+      <li><a href="../patterns/navigation.html">Navigation and page structure</a></li>
+      <li><a href="../patterns/dialogs-and-overlays.html">Dialogs and overlays</a></li>
+      <li><a href="../patterns/lists-and-tables.html">Lists and tables</a></li>
+      <li><a href="../patterns/notifications.html">Notifications</a></li>
+      <li><a href="../patterns/content-and-tone.html">Content and tone</a></li>
+    </ul></details>
+  </nav>
+
+  <main id="main" class="ds-main">
+    <header class="ds-header">
+      <p class="ds-kicker">Component · Inputs</p>
+      <h1>Textarea</h1>
+      <p class="ds-lead">Several lines of text: a bio, an event description, an announcement, a private note on a contact. Same look and states as the text field, taller.</p>
+      <div class="ds-meta"><span class="ds-pill ds-pill--ok">WCAG 2.2 AA</span><span class="ds-pill">Status: stable</span><span class="ds-pill">Native <code>&lt;textarea&gt;</code></span></div>
+      <ul class="ds-toc">
+        <li><a href="#overview">Overview</a></li><li><a href="#anatomy">Anatomy</a></li><li><a href="#variants">Variants</a></li><li><a href="#sizes">Sizes</a></li><li><a href="#states">States</a></li><li><a href="#responsive">Responsive</a></li><li><a href="#theming">Theming</a></li><li><a href="#accessibility">Accessibility</a></li><li><a href="#content">Content</a></li><li><a href="#do-dont">Do and don't</a></li><li><a href="#tokens">Tokens</a></li><li><a href="#code">Code</a></li><li><a href="#sources">Sources</a></li>
+      </ul>
+    </header>
+
+    <section class="ds-section" id="overview"><h2><a href="#overview">Overview</a></h2>
+      <p>A textarea takes text that can run to several lines: a profile bio, an event description, an announcement, a note on a contact, a comment on a work item, the reason for suspending someone. It is a <code>textarea.textarea</code> inside a <a href="form-field.html">form field</a>, and shares every state and token with the <a href="text-field.html">text field</a>.</p>
+      <ul>
+        <li><b>Free text</b> (most uses): optional, prefilled when editing ("Bio", "Description", "First note").</li>
+        <li><b>Required message</b>: the text is the point of the action and cannot be empty ("Message" on an announcement, "Message to attendees" when cancelling an event, "Reason (recorded in the audit log)" when suspending).</li>
+        <li><b>Inline composer</b>: a short textarea with a small primary button below it, on a contact ("Add a note") and a work item ("Add a comment").</li>
+      </ul>
+    </section>
+
+    <section class="ds-section" id="anatomy"><h2><a href="#anatomy">Anatomy</a></h2>
+      <div class="ds-anatomy">
+        <figure class="ds-anatomy__figure" style="max-width: 32rem;">
+          <div class="field"><label class="field__label" for="an-bio">Bio <span class="text-muted">(optional)</span></label><textarea class="textarea" id="an-bio" name="an-bio" rows="4" aria-describedby="an-bio-help">City Lead for FaithTech Toronto. Product manager by day, convener of builders by night. Ask me about our shelter-tech hackathon.</textarea><div class="field__help" id="an-bio-help">Up to 400 characters.</div></div>
+          <span class="ds-callout" style="left: 2%; top: 2%;" aria-hidden="true">1</span>
+          <span class="ds-callout" style="left: 50%; top: 40%;" aria-hidden="true">2</span>
+          <span class="ds-callout" style="right: 2%; top: 74%;" aria-hidden="true">3</span>
+          <span class="ds-callout" style="left: 2%; top: 88%;" aria-hidden="true">4</span>
+        </figure>
+        <ol class="ds-anatomy__list">
+          <li><div><b>Label</b><small>From the form field, with "(optional)" when it is.</small></div></li>
+          <li><div><b>Text area</b><small>At least 2.5 times <code>--control-height-md</code> tall, <code>--line-height-relaxed</code>, same border, radius and background as the text field.</small></div></li>
+          <li><div><b>Resize handle</b><small>Vertical only (<code>resize: vertical</code>), so the field never breaks the layout width.</small></div></li>
+          <li><div><b>Help or error</b><small>From the form field: the length limit, or how to fix the message.</small></div></li>
+        </ol>
+      </div>
+    </section>
+
+    <section class="ds-section" id="variants"><h2><a href="#variants">Variants</a></h2>
+      <div class="ds-example">
+        <div class="ds-example__canvas ds-example__canvas--stack" style="max-width: 32rem;">
+          <div class="field"><label class="field__label" for="v-desc">Description <span class="text-muted">(optional)</span></label><textarea class="textarea" id="v-desc" name="v-desc" rows="4">An evening for Christians who build: developers, designers, product people and the curious.</textarea></div>
+        </div>
+        <div class="ds-example__caption"><span>Free text: the event description, optional and prefilled when editing.</span></div>
+        <details class="ds-example__code"><summary>HTML</summary><pre><code>&lt;div class="field"&gt;&lt;label class="field__label" for="v-desc"&gt;Description &lt;span class="text-muted"&gt;(optional)&lt;/span&gt;&lt;/label&gt;&lt;textarea class="textarea" id="v-desc" name="v-desc" rows="4"&gt;An evening for Christians who build: developers, designers, product people and the curious.&lt;/textarea&gt;&lt;/div&gt;</code></pre></details>
+      </div>
+      <div class="ds-example">
+        <div class="ds-example__canvas ds-example__canvas--stack" style="max-width: 32rem;">
+          <div class="field"><label class="field__label" for="v-msg">Message to attendees</label><textarea class="textarea" id="v-msg" name="v-msg" rows="3" required>Our venue fell through. We’ll reschedule for January — watch your inbox.</textarea></div>
+        </div>
+        <div class="ds-example__caption"><span>Required message: the cancel-event dialog sends this to everyone who RSVP'd.</span></div>
+        <details class="ds-example__code"><summary>HTML</summary><pre><code>&lt;div class="field"&gt;&lt;label class="field__label" for="v-msg"&gt;Message to attendees&lt;/label&gt;&lt;textarea class="textarea" id="v-msg" name="v-msg" rows="3" required&gt;Our venue fell through. We’ll reschedule for January — watch your inbox.&lt;/textarea&gt;&lt;/div&gt;</code></pre></details>
+      </div>
+      <div class="ds-example">
+        <div class="ds-example__canvas ds-example__canvas--stack" style="max-width: 32rem;">
+          <div class="stack" style="width: 100%;"><div class="field"><label class="field__label" for="v-note">Add a note</label><textarea class="textarea" id="v-note" name="v-note" rows="2"></textarea></div><div><button class="btn btn--primary btn--sm" type="button">Add note</button></div></div>
+        </div>
+        <div class="ds-example__caption"><span>Inline composer on a contact: two rows and a small primary button. The note is private to Grace and System Admin.</span></div>
+        <details class="ds-example__code"><summary>HTML</summary><pre><code>&lt;div class="stack" style="width: 100%;"&gt;&lt;div class="field"&gt;&lt;label class="field__label" for="v-note"&gt;Add a note&lt;/label&gt;&lt;textarea class="textarea" id="v-note" name="v-note" rows="2"&gt;&lt;/textarea&gt;&lt;/div&gt;&lt;div&gt;&lt;button class="btn btn--primary btn--sm" type="button"&gt;Add note&lt;/button&gt;&lt;/div&gt;&lt;/div&gt;</code></pre></details>
+      </div>
+    </section>
+
+    <section class="ds-section" id="sizes"><h2><a href="#sizes">Sizes</a></h2>
+      <p>The height is set by <code>rows</code>, with a floor of 2.5 control heights. The mocks use 2 rows for composers and short notes (invite "Personal note", "Add a comment"), 3 for dialog messages and first notes, 4 for bio and descriptions, 6 for the announcement message. People can drag it taller.</p>
+      <div class="ds-example">
+        <div class="ds-example__canvas ds-example__canvas--stack" style="max-width: 32rem;">
+          <div class="field"><label class="field__label" for="sz-2">Personal note <span class="text-muted">(optional)</span></label><textarea class="textarea" id="sz-2" name="sz-2" rows="2"></textarea></div>
+          <div class="field"><label class="field__label" for="sz-6">Message</label><textarea class="textarea" id="sz-6" name="sz-6" rows="6" required>Toronto Builders Night is on Thu 6 Nov at Kestrel Labs. Bring a laptop and a friend.</textarea></div>
+        </div>
+        <div class="ds-example__caption"><span>2 rows (send invite) and 6 rows (compose announcement).</span></div>
+      </div>
+    </section>
+
+    <section class="ds-section" id="states"><h2><a href="#states">States</a></h2>
+      <div class="ds-matrix"><table>
+        <thead><tr><th scope="col">State</th><th scope="col">Example</th></tr></thead>
+        <tbody>
+          <tr><th scope="row">Default</th><td style="min-width: 18rem;"><textarea class="textarea" aria-label="Note" rows="2">Pastor. Interested in hosting a builders night in the spring.</textarea></td></tr>
+          <tr><th scope="row">Empty</th><td style="min-width: 18rem;"><textarea class="textarea" aria-label="Note" rows="2"></textarea></td></tr>
+          <tr><th scope="row">Hover</th><td style="min-width: 18rem;"><textarea class="textarea" aria-label="Note" rows="2" data-state="hover">Pastor. Interested in hosting a builders night in the spring.</textarea></td></tr>
+          <tr><th scope="row">Focus</th><td style="min-width: 18rem;"><textarea class="textarea" aria-label="Note" rows="2" data-state="focus">Pastor. Interested in hosting a builders night in the spring.</textarea></td></tr>
+          <tr><th scope="row">Invalid</th><td style="min-width: 18rem;"><textarea class="textarea" aria-label="Note" rows="2" aria-invalid="true"></textarea></td></tr>
+          <tr><th scope="row">Read-only</th><td style="min-width: 18rem;"><textarea class="textarea" aria-label="Note" rows="2" readonly>Pastor. Interested in hosting a builders night in the spring.</textarea></td></tr>
+          <tr><th scope="row">Disabled</th><td style="min-width: 18rem;"><textarea class="textarea" aria-label="Note" rows="2" disabled>Pastor. Interested in hosting a builders night in the spring.</textarea></td></tr>
+        </tbody>
+      </table></div>
+      <h3>Both themes</h3>
+      <div class="ds-themes">
+        <div data-theme="light"><div class="ds-example__canvas ds-example__canvas--stack" style="padding: 0; gap: var(--space-2);"><textarea class="textarea" aria-label="Note" rows="2">Pastor. Interested in hosting a builders night in the spring.</textarea><textarea class="textarea" aria-label="Note" rows="2" data-state="focus">Pastor. Interested in hosting a builders night in the spring.</textarea><textarea class="textarea" aria-label="Note" rows="2" aria-invalid="true"></textarea><textarea class="textarea" aria-label="Note" rows="2" disabled>Pastor. Interested in hosting a builders night in the spring.</textarea></div></div>
+        <div data-theme="dark"><div class="ds-example__canvas ds-example__canvas--stack" style="padding: 0; gap: var(--space-2);"><textarea class="textarea" aria-label="Note" rows="2">Pastor. Interested in hosting a builders night in the spring.</textarea><textarea class="textarea" aria-label="Note" rows="2" data-state="focus">Pastor. Interested in hosting a builders night in the spring.</textarea><textarea class="textarea" aria-label="Note" rows="2" aria-invalid="true"></textarea><textarea class="textarea" aria-label="Note" rows="2" disabled>Pastor. Interested in hosting a builders night in the spring.</textarea></div></div>
+      </div>
+      <ul>
+        <li><b>Invalid</b> appears on submit when a required message is empty: "Tell attendees why, so they aren’t left guessing.", "Give a reason so other admins understand.", "Write a message of at least one sentence."</li>
+        <li><b>Busy</b> is not a textarea state: while the form submits, the text stays editable and only the buttons lock.</li>
+        <li><b>Read-only</b> and <b>disabled</b> are not used in the mocks; shown for completeness.</li>
+      </ul>
+      <div class="field"><label class="field__label" for="st-inv">Reason (recorded in the audit log)</label><textarea class="textarea" id="st-inv" name="st-inv" rows="3" required aria-invalid="true" aria-describedby="st-inv-error"></textarea><div class="field__error" id="st-inv-error">Give a reason so other admins understand.</div></div>
+    </section>
+
+
+    <section class="ds-section" id="responsive"><h2><a href="#responsive">Responsive behaviour</a></h2>
+      <ul>
+        <li>Full width of its form or dialog; the height does not change with the viewport.</li>
+        <li>In a bottom-sheet dialog on a phone, the dialog body scrolls; the textarea does not grow past the sheet.</li>
+        <li>Text is 16px, so iOS does not zoom on focus.</li>
+      </ul>
+    </section>
+
+    <section class="ds-section" id="theming"><h2><a href="#theming">Theming</a></h2>
+      <p>Shares <code>--field-bg</code> and <code>--field-border</code> with <code>.input</code>, so every state and both themes match the text field exactly. The only textarea-specific values are the minimum height and <code>--line-height-relaxed</code>.</p>
+    </section>
+
+    <section class="ds-section" id="accessibility"><h2><a href="#accessibility">Accessibility</a></h2>
+      <h3>Role and pattern</h3>
+      <p>Native <code>&lt;textarea&gt;</code> with a <code>&lt;label for&gt;</code>. Help and errors are joined by <code>aria-describedby</code>; required messages use the native <code>required</code> attribute.</p>
+      <h3>Keyboard</h3>
+      <table class="ds-table ds-keys"><thead><tr><th scope="col">Key</th><th scope="col">Action</th></tr></thead><tbody>
+        <tr><td><kbd>Tab</kbd></td><td>Moves into the textarea. Tab never inserts a tab character.</td></tr>
+        <tr><td><kbd>Enter</kbd></td><td>Inserts a new line. It never submits; the composer submits with its button.</td></tr>
+      </tbody></table>
+      <h3>Focus</h3>
+      <p>The shared focus ring with no offset, and the border takes the ring colour.</p>
+      <h3>Labelling</h3>
+      <p>Every textarea has a visible label that says what to write: "Message to attendees", not "Message". A limit is in the help text, so it is read before typing.</p>
+      <h3>Contrast</h3>
+      <div class="ds-example__canvas ds-example__canvas--stack" style="padding: 0; gap: var(--space-2);"><div class="ds-pair"><span>Text on field</span><span class="ds-pair__ratio" data-contrast="--color-fg-default|--color-bg-surface" data-min="4.5"></span></div><div class="ds-pair"><span>Border on surface</span><span class="ds-pair__ratio" data-contrast="--color-border-strong|--color-bg-surface" data-min="3"></span></div><div class="ds-pair"><span>Invalid border on surface</span><span class="ds-pair__ratio" data-contrast="--color-danger-solid|--color-bg-surface" data-min="3"></span></div><div class="ds-pair"><span>Text in a dialog</span><span class="ds-pair__ratio" data-contrast="--color-fg-default|--color-bg-surface-raised" data-min="4.5"></span></div><div class="ds-pair"><span>Focus ring on surface</span><span class="ds-pair__ratio" data-contrast="--color-focus-ring|--color-bg-surface" data-min="3"></span></div></div>
+      <h3>Motion</h3>
+      <p>Border colour fades over <code>--duration-fast</code>; reduced motion makes it instant.</p>
+      <h3>Touch</h3>
+      <p>The text area is well over the target size. The resize handle is a convenience only; nothing depends on it.</p>
+    </section>
+
+    <section class="ds-section" id="content"><h2><a href="#content">Content</a></h2>
+      <ul>
+        <li>Label what to write and who reads it: "Message to attendees", "Note for the history", "Reason (recorded in the audit log)".</li>
+        <li>Say who can see private text in the help or nearby copy: contact notes are visible only to the lead who wrote them and System Admin.</li>
+        <li>State a limit in help ("Up to 400 characters.") rather than cutting text off.</li>
+        <li>Prefill with a useful draft only when the product knows one; never with placeholder filler.</li>
+      </ul>
+    </section>
+
+    <section class="ds-section" id="do-dont"><h2><a href="#do-dont">Do and don't</a></h2>
+      <div class="ds-dodont">
+        <figure class="ds-do"><div class="ds-example__canvas"><div class="field"><label class="field__label" for="dd-1">Message to attendees</label><textarea class="textarea" id="dd-1" name="dd-1" rows="3" required>Our venue fell through. We’ll reschedule for January — watch your inbox.</textarea></div></div><figcaption>The label says who will read it.</figcaption></figure>
+        <figure class="ds-dont"><div class="ds-example__canvas"><textarea class="textarea" rows="3" aria-label="Message" placeholder="Type your message here…"></textarea></div><figcaption>A placeholder instead of a label, and no hint of who receives it.</figcaption></figure>
+        <figure class="ds-do"><div class="ds-example__canvas"><div class="field"><label class="field__label" for="dd-2">Bio <span class="text-muted">(optional)</span></label><textarea class="textarea" id="dd-2" name="dd-2" rows="4" aria-describedby="dd-2-help">City Lead for FaithTech Toronto. Product manager by day, convener of builders by night. Ask me about our shelter-tech hackathon.</textarea><div class="field__help" id="dd-2-help">Up to 400 characters.</div></div></div><figcaption>The limit is known before typing.</figcaption></figure>
+        <figure class="ds-dont"><div class="ds-example__canvas"><input class="input" type="text" aria-label="Bio" value="City Lead for FaithTech Toronto. Product manager by day, convener of builders by night. Ask me about our shelter-tech hackathon."></div><figcaption>A one-line input for a bio hides most of what Grace wrote.</figcaption></figure>
+      </div>
+    </section>
+
+    <section class="ds-section" id="tokens"><h2><a href="#tokens">Tokens</a></h2>
+      <div class="ds-table-wrap"><table class="ds-table">
+        <thead><tr><th scope="col">Part</th><th scope="col">Token</th><th scope="col">Light</th><th scope="col">Dark</th></tr></thead>
+        <tbody>
+          <tr><td>Background</td><td><code>--color-bg-surface</code></td><td><span class="ds-swatch-cell" data-theme="light"><i data-token="--color-bg-surface" data-swatch></i><span data-token="--color-bg-surface"></span></span></td><td><span class="ds-swatch-cell" data-theme="dark"><i data-token="--color-bg-surface" data-swatch></i><span data-token="--color-bg-surface"></span></span></td></tr>
+          <tr><td>Background, read-only</td><td><code>--color-bg-surface-sunken</code></td><td><span class="ds-swatch-cell" data-theme="light"><i data-token="--color-bg-surface-sunken" data-swatch></i><span data-token="--color-bg-surface-sunken"></span></span></td><td><span class="ds-swatch-cell" data-theme="dark"><i data-token="--color-bg-surface-sunken" data-swatch></i><span data-token="--color-bg-surface-sunken"></span></span></td></tr>
+          <tr><td>Border</td><td><code>--color-border-strong</code></td><td><span class="ds-swatch-cell" data-theme="light"><i data-token="--color-border-strong" data-swatch></i><span data-token="--color-border-strong"></span></span></td><td><span class="ds-swatch-cell" data-theme="dark"><i data-token="--color-border-strong" data-swatch></i><span data-token="--color-border-strong"></span></span></td></tr>
+          <tr><td>Border, focus</td><td><code>--color-focus-ring</code></td><td><span class="ds-swatch-cell" data-theme="light"><i data-token="--color-focus-ring" data-swatch></i><span data-token="--color-focus-ring"></span></span></td><td><span class="ds-swatch-cell" data-theme="dark"><i data-token="--color-focus-ring" data-swatch></i><span data-token="--color-focus-ring"></span></span></td></tr>
+          <tr><td>Border, invalid</td><td><code>--color-danger-solid</code></td><td><span class="ds-swatch-cell" data-theme="light"><i data-token="--color-danger-solid" data-swatch></i><span data-token="--color-danger-solid"></span></span></td><td><span class="ds-swatch-cell" data-theme="dark"><i data-token="--color-danger-solid" data-swatch></i><span data-token="--color-danger-solid"></span></span></td></tr>
+          <tr><td>Question number</td><td><code>--color-fg-accent</code></td><td><span class="ds-swatch-cell" data-theme="light"><i data-token="--color-fg-accent" data-swatch></i><span data-token="--color-fg-accent"></span></span></td><td><span class="ds-swatch-cell" data-theme="dark"><i data-token="--color-fg-accent" data-swatch></i><span data-token="--color-fg-accent"></span></span></td></tr>
+          <tr><td>Minimum height</td><td><code>--control-height-md</code> × 2.5</td><td><span data-token="--control-height-md"></span> × 2.5</td><td><span data-theme="dark"><span data-token="--control-height-md"></span> × 2.5</span></td></tr>
+          <tr><td>Line height</td><td><code>--line-height-relaxed</code></td><td><span data-token="--line-height-relaxed"></span></td><td><span data-theme="dark" data-token="--line-height-relaxed"></span></td></tr>
+          <tr><td>Padding / radius</td><td><code>--space-2</code> <code>--space-3</code> / <code>--radius-md</code></td><td><span data-token="--space-2"></span> <span data-token="--space-3"></span> / <span data-token="--radius-md"></span></td><td><span data-theme="dark"><span data-token="--space-2"></span> <span data-token="--space-3"></span> / <span data-token="--radius-md"></span></span></td></tr>
+        </tbody>
+      </table></div>
+    </section>
+
+    <section class="ds-section" id="code"><h2><a href="#code">Code</a></h2>
+      <pre><code>&lt;div class="field"&gt;
+  &lt;label class="field__label" for="ce-msg"&gt;Message to attendees&lt;/label&gt;
+  &lt;textarea class="textarea" id="ce-msg" name="ce-msg" rows="3" required
+            aria-invalid="true" aria-describedby="ce-msg-error"&gt;&lt;/textarea&gt;
+  &lt;div class="field__error" id="ce-msg-error"&gt;Tell attendees why, so they aren’t left guessing.&lt;/div&gt;
+&lt;/div&gt;</code></pre>
+      <table class="ds-table"><thead><tr><th scope="col">Class / attribute</th><th scope="col">Effect</th></tr></thead><tbody>
+        <tr><td><code>.textarea</code></td><td>Multi-line field; shares tokens with <code>.input</code>.</td></tr>
+        <tr><td><code>rows</code></td><td>Initial height, with a 2.5-control-height minimum.</td></tr>
+        <tr><td><code>aria-invalid="true"</code>, <code>readonly</code>, <code>disabled</code></td><td>States.</td></tr>
+      </tbody></table>
+    </section>
+
+    <section class="ds-section" id="sources"><h2><a href="#sources">Sources</a></h2>
+      <p>Extracted from these mocks:</p>
+      <ul>
+        <li><a href="../../mocks/pages/edit-profile/default.html">pages/edit-profile/default</a> (bio with a length limit)</li>
+        <li><a href="../../mocks/pages/event-form/default.html">pages/event-form/default</a> (description)</li>
+        <li><a href="../../mocks/pages/compose-announcement/default.html">pages/compose-announcement/default</a> and <a href="../../mocks/pages/compose-announcement/invalid.html">invalid</a> (6-row required message)</li>
+        <li><a href="../../mocks/dialogs/cancel-event/default.html">dialogs/cancel-event/default</a> and <a href="../../mocks/dialogs/cancel-event/invalid.html">invalid</a> (required message to attendees)</li>
+        <li><a href="../../mocks/dialogs/suspend-user/invalid.html">dialogs/suspend-user/invalid</a> (required reason)</li>
+        <li><a href="../../mocks/pages/contact/default.html">pages/contact/default</a> (inline note composer)</li>
+        <li><a href="../../mocks/pages/work-item/default.html">pages/work-item/default</a> (comment composer)</li>
+      </ul>
+      <p>Drift noticed in the mocks: the composers label their only field "Add a note (optional)" and "Add a comment (optional)", though the button does nothing without text; <code>rows="2"</code> is overridden by the 2.5-control-height minimum, so 2 and 3 rows render the same; the 400-character bio limit has no counter or over-limit state.</p>
+    </section>
+
+    <footer class="ds-footer"><span>FaithTech Community design system · extracted from <a href="../../mocks/index.html">docs/mocks</a> on 2026-10-21</span><a href="#top">Back to top</a></footer>
+  </main>
+</div>
+<script src="../assets/ds.js"></script>
+</body>
+</html>

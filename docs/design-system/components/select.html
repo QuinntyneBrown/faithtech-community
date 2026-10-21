@@ -1,0 +1,176 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Select — FaithTech Community design system</title>
+<meta name="description" content="Native select for choosing one value from a short list: partner stage, invite role, city, status, story points. Default, focus, disabled and invalid, in both themes.">
+<link rel="stylesheet" href="../tokens/tokens.css">
+<link rel="stylesheet" href="../assets/components.css">
+<link rel="stylesheet" href="../assets/ds.css">
+</head>
+<body id="top">
+<a class="skip-link" href="#main">Skip to content</a>
+<div class="ds-shell">
+  <nav class="ds-nav" aria-label="Design system">
+    <div class="ds-nav__brand"><a href="../index.html">FaithTech DS</a><button class="ds-theme-toggle" type="button" aria-pressed="false">☾ Dark</button></div>
+    <details open><summary>Foundations</summary><ul>
+      <li><a href="../foundations/color.html">Color</a></li>
+      <li><a href="../foundations/typography.html">Typography</a></li>
+      <li><a href="../foundations/spacing.html">Spacing</a></li>
+      <li><a href="../foundations/layout.html">Layout</a></li>
+      <li><a href="../foundations/elevation.html">Elevation</a></li>
+      <li><a href="../foundations/shape.html">Shape</a></li>
+      <li><a href="../foundations/motion.html">Motion</a></li>
+      <li><a href="../foundations/iconography.html">Iconography</a></li>
+      <li><a href="../foundations/theming.html">Theming</a></li>
+      <li><a href="../foundations/responsive.html">Responsive</a></li>
+      <li><a href="../foundations/accessibility.html">Accessibility</a></li>
+      <li><a href="../foundations/content.html">Content</a></li>
+    </ul></details>
+    <details open><summary>Components</summary><ul>
+      <li><a href="../components/button.html">Button</a></li>
+      <li><a href="../components/link.html">Link</a></li>
+      <li><a href="../components/menu.html">Menu</a></li>
+      <li><a href="../components/form-field.html">Form field</a></li>
+      <li><a href="../components/text-field.html">Text field</a></li>
+      <li><a href="../components/textarea.html">Textarea</a></li>
+      <li><a href="../components/select.html">Select</a></li>
+      <li><a href="../components/radio-group.html">Radio group</a></li>
+      <li><a href="../components/switch.html">Switch</a></li>
+      <li><a href="../components/form-layout.html">Form layout</a></li>
+      <li><a href="../components/picture-list.html">Picture list</a></li>
+      <li><a href="../components/sticker-picker.html">Estimate card picker</a></li>
+      <li><a href="../components/top-bar.html">Top bar</a></li>
+      <li><a href="../components/tab-bar.html">Tab bar</a></li>
+      <li><a href="../components/tabs.html">Tabs</a></li>
+      <li><a href="../components/breadcrumb.html">Breadcrumb</a></li>
+      <li><a href="../components/skip-link.html">Skip link</a></li>
+      <li><a href="../components/layout.html">Layout primitives</a></li>
+      <li><a href="../components/card.html">Card</a></li>
+      <li><a href="../components/dialog.html">Dialog</a></li>
+      <li><a href="../components/notification-panel.html">Notification panel</a></li>
+      <li><a href="../components/list.html">List</a></li>
+      <li><a href="../components/table.html">Table</a></li>
+      <li><a href="../components/description-list.html">Description list</a></li>
+      <li><a href="../components/feed.html">Activity feed</a></li>
+      <li><a href="../components/tree.html">Backlog tree</a></li>
+      <li><a href="../components/kanban.html">Kanban board</a></li>
+      <li><a href="../components/event-card.html">Event card</a></li>
+      <li><a href="../components/profile-header.html">Profile header</a></li>
+      <li><a href="../components/search-results.html">Search results</a></li>
+      <li><a href="../components/note.html">Note</a></li>
+      <li><a href="../components/avatar.html">Avatar</a></li>
+      <li><a href="../components/logo-mark.html">Logo mark</a></li>
+      <li><a href="../components/badge.html">Badge</a></li>
+      <li><a href="../components/chip.html">Chip</a></li>
+      <li><a href="../components/stat.html">Stat</a></li>
+      <li><a href="../components/sticker.html">Estimate card</a></li>
+      <li><a href="../components/toast.html">Toast</a></li>
+      <li><a href="../components/alert.html">Alert and banner</a></li>
+      <li><a href="../components/inline-message.html">Inline message</a></li>
+      <li><a href="../components/progress.html">Progress</a></li>
+      <li><a href="../components/skeleton.html">Skeleton</a></li>
+      <li><a href="../components/empty-state.html">Empty state</a></li>
+      <li><a href="../components/error-page.html">Error page</a></li>
+    </ul></details>
+    <details open><summary>Patterns</summary><ul>
+      <li><a href="../patterns/forms.html">Forms</a></li>
+      <li><a href="../patterns/feedback-and-loading.html">Feedback and loading</a></li>
+      <li><a href="../patterns/empty-and-error-states.html">Empty and error states</a></li>
+      <li><a href="../patterns/navigation.html">Navigation and page structure</a></li>
+      <li><a href="../patterns/dialogs-and-overlays.html">Dialogs and overlays</a></li>
+      <li><a href="../patterns/lists-and-tables.html">Lists and tables</a></li>
+      <li><a href="../patterns/notifications.html">Notifications</a></li>
+      <li><a href="../patterns/content-and-tone.html">Content and tone</a></li>
+    </ul></details>
+  </nav>
+
+  <main id="main" class="ds-main">
+    <header class="ds-header">
+      <p class="ds-kicker">Component · Forms</p>
+      <h1>Select</h1>
+      <p class="ds-lead">A select picks one value from a short, known list, like a partner&rsquo;s stage or the role an invite joins with. It is always the native control, with a visible label.</p>
+      <div class="ds-meta"><span class="ds-pill ds-pill--ok">WCAG 2.2 AA</span><span class="ds-pill">Status: stable</span><span class="ds-pill">Native <code>&lt;select&gt;</code></span></div>
+      <ul class="ds-toc">
+        <li><a href="#overview">Overview</a></li><li><a href="#anatomy">Anatomy</a></li><li><a href="#variants">Variants</a></li><li><a href="#sizes">Sizes</a></li><li><a href="#states">States</a></li><li><a href="#responsive">Responsive</a></li><li><a href="#theming">Theming</a></li><li><a href="#accessibility">Accessibility</a></li><li><a href="#content">Content</a></li><li><a href="#do-dont">Do and don't</a></li><li><a href="#tokens">Tokens</a></li><li><a href="#code">Code</a></li><li><a href="#sources">Sources</a></li>
+      </ul>
+    </header>
+
+    <section class="ds-section" id="overview"><h2><a href="#overview">Overview</a></h2>
+      <p>A select lets someone pick one value from a short, known list: a partner&rsquo;s stage, the role an invite joins with, an event&rsquo;s city, a work item&rsquo;s status. It is the native <code>&lt;select&gt;</code>, restyled only on the closed control; the open list is the browser&rsquo;s own, so it is keyboard, screen reader and touch friendly for free. Added for FaithTech Community (not inherited from Shelfie).</p>      <ul><li><b>Use it</b> for 4 to roughly 15 options where the choice is not worth seeing all at once: city, role, assignee, story points, audit-log action.</li><li><b>Use a <a href="radio-group.html">radio group</a></b> for 2 or 3 options a person should compare, such as the stage choice in <i>Move partner</i>.</li><li><b>Use <a href="chip.html">chips</a></b> for filters that toggle independently (Upcoming, Past, Hackathons, Online on Events).</li><li><b>Use a search field</b> when the list is long or open-ended (people, contacts). A select never holds every member.</li></ul>
+    </section>
+    <section class="ds-section" id="anatomy"><h2><a href="#anatomy">Anatomy</a></h2>
+      <div class="ds-anatomy">
+        <figure class="ds-anatomy__figure" style="position: relative;"><div class="field" style="width: 16rem;"><label class="field__label" for="an-stage">Stage</label><select class="select" id="an-stage" name="an-stage"><option selected>Lead</option><option>In funnel</option><option>Confirmed</option></select></div><span class="ds-callout" style="left: 10%; top: 4%;" aria-hidden="true">1</span><span class="ds-callout" style="left: 40%; top: 62%;" aria-hidden="true">2</span><span class="ds-callout" style="left: 82%; top: 62%;" aria-hidden="true">3</span></figure>
+        <ol class="ds-anatomy__list"><li><div><b>Label</b><small><code>.field__label</code>, a real <code>&lt;label for&gt;</code>; it is the accessible name.</small></div></li><li><div><b>Control</b><small><code>.select</code>: <code>--control-height-md</code> tall, <code>--radius-md</code>, 1px <code>--color-border-strong</code> border, <code>--color-bg-surface</code> fill.</small></div></li><li><div><b>Chevron</b><small>Two <code>currentColor</code> gradients in the right padding, so it follows the text colour in both themes. Not a separate element.</small></div></li></ol>
+      </div>
+    </section>
+    <section class="ds-section" id="variants"><h2><a href="#variants">Variants</a></h2>
+      <p>One visual style. The variants FaithTech uses differ in what surrounds the control, not in the control itself.</p>      <div class="ds-example">
+        <div class="ds-example__canvas ds-example__canvas--stack" style="max-width: 22rem;"><div class="field"><label class="field__label" for="v-stage">Stage</label><select class="select" id="v-stage" name="v-stage"><option selected>Lead</option><option>In funnel</option><option>Confirmed</option></select></div><div class="field"><label class="field__label" for="v-role">Join with role</label><select class="select" id="v-role" name="v-role"><option>No role</option><option>Attendee</option><option>Volunteer</option><option selected>Product Engineer</option></select></div><div class="field"><label class="field__label" for="v-points">Story points</label><select class="select" id="v-points" name="v-points" aria-describedby="v-points-help"><option selected>Not estimated</option><option>1</option><option>2</option><option>3</option><option>5</option><option>8</option><option>13</option></select><div class="field__help" id="v-points-help">Leave as not estimated until the team plays Planning Poker.</div></div></div>
+        <div class="ds-example__caption"><span>In a form field (Add partner, Send invite), and with help text tied by <code>aria-describedby</code> (New work item).</span></div>
+        <details class="ds-example__code"><summary>HTML</summary><pre><code>&lt;div class="field"&gt;&lt;label class="field__label" for="ap-stage"&gt;Stage&lt;/label&gt;&lt;select class="select" id="ap-stage" name="ap-stage"&gt;&lt;option selected&gt;Lead&lt;/option&gt;&lt;option&gt;In funnel&lt;/option&gt;&lt;option&gt;Confirmed&lt;/option&gt;&lt;/select&gt;&lt;/div&gt;</code></pre></details>
+      </div>
+      <h3>As a filter</h3>
+      <div class="ds-example">
+        <div class="ds-example__canvas"><div class="cluster" style="align-items: flex-end;"><button class="chip" type="button" aria-pressed="true">Upcoming</button><button class="chip" type="button" aria-pressed="false">Past</button><div class="field" style="width: 12rem;"><label class="field__label" for="v-city">City</label><select class="select" id="v-city" name="v-city"><option selected>All cities</option><option>Toronto</option><option>Austin</option><option>Vancouver</option></select></div></div></div>
+        <div class="ds-example__caption"><span>Filter selects keep a visible label and start on an &ldquo;All &hellip;&rdquo; option (Events, Team, Audit log, Backlog). The list updates on change; there is no Apply button.</span></div>
+        
+      </div>
+    </section>
+    <section class="ds-section" id="sizes" data-na="One size only: the select is always --control-height-md, matching text fields in the same form."><h2><a href="#sizes">Sizes</a></h2>
+      <p>The select has one height, <code>--control-height-md</code>, so it lines up with <a href="text-field.html">text fields</a> on the same row. Width is set by its container: full width in forms and dialogs, a fixed column (about 12rem) in filter rows.</p>
+    </section>
+    <section class="ds-section" id="states"><h2><a href="#states">States</a></h2>
+      <p>States are forced here with <code>data-state</code> for review; real pages get them from <code>:focus-visible</code>, <code>disabled</code> and <code>aria-invalid</code>.</p>      <div class="ds-matrix"><table><thead><tr><th scope="col">Control</th><th scope="col">Default</th><th scope="col">Focus</th><th scope="col">Disabled</th><th scope="col">Invalid</th><th scope="col">Busy (form submitting)</th></tr></thead><tbody><tr><th scope="row">Select</th><td><div class="field"><label class="field__label" for="s1">City</label><select class="select" id="s1" name="s1"><option selected>Toronto</option><option>Austin</option></select></div></td><td><div class="field"><label class="field__label" for="s2">City</label><select class="select" id="s2" name="s2" data-state="focus"><option selected>Toronto</option><option>Austin</option></select></div></td><td><div class="field"><label class="field__label" for="s3">City</label><select class="select" id="s3" name="s3" disabled><option selected>Toronto</option><option>Austin</option></select></div></td><td><div class="field"><label class="field__label" for="s4">New owner</label><select class="select" id="s4" name="s4" aria-invalid="true" aria-describedby="s4-error"><option selected>Choose a City Lead</option><option>Grace Okonkwo (Toronto)</option><option>Joel Mbeki (Austin)</option></select><div class="field__error" id="s4-error">Choose who will own this workspace.</div></div></td><td><div class="field"><label class="field__label" for="s5">Stage</label><select class="select" id="s5" name="s5" disabled><option selected>Lead</option><option>In funnel</option><option>Confirmed</option></select></div></td></tr></tbody></table></div>      <h3>Both themes</h3>
+      <div class="ds-themes">
+        <div data-theme="light"><div class="ds-example__canvas ds-example__canvas--stack" style="padding: 0;"><div class="field"><label class="field__label" for="t-stage">Stage</label><select class="select" id="t-stage" name="t-stage"><option selected>Lead</option><option>In funnel</option><option>Confirmed</option></select></div><div class="field"><label class="field__label" for="t-owner">New owner</label><select class="select" id="t-owner" name="t-owner" aria-invalid="true" aria-describedby="t-owner-error"><option selected>Choose a City Lead</option><option>Grace Okonkwo (Toronto)</option></select><div class="field__error" id="t-owner-error">Choose who will own this workspace.</div></div></div></div>
+        <div data-theme="dark"><div class="ds-example__canvas ds-example__canvas--stack" style="padding: 0;"><div class="field"><label class="field__label" for="t-stage-dk">Stage</label><select class="select" id="t-stage-dk" name="t-stage"><option selected>Lead</option><option>In funnel</option><option>Confirmed</option></select></div><div class="field"><label class="field__label" for="t-owner-dk">New owner</label><select class="select" id="t-owner-dk" name="t-owner" aria-invalid="true" aria-describedby="t-owner-error-dk"><option selected>Choose a City Lead</option><option>Grace Okonkwo (Toronto)</option></select><div class="field__error" id="t-owner-error-dk">Choose who will own this workspace.</div></div></div></div>
+      </div>      <ul><li><b>Invalid</b> sets <code>aria-invalid="true"</code> (danger border) and a <code>.field__error</code> linked with <code>aria-describedby</code>, as in <i>Reassign owner</i> and <i>New work item</i>. The error appears after a submit attempt, never on first render.</li><li><b>Busy</b>: while a dialog submits, the mocks leave the select enabled; prefer disabling the whole form&rsquo;s controls so nothing changes mid-save, matching the disabled Cancel button.</li><li><b>Hover</b> has no style of its own yet (see Sources). <b>Disabled</b> falls back to the browser&rsquo;s dimmed rendering.</li></ul>
+    </section>
+    <section class="ds-section" id="responsive"><h2><a href="#responsive">Responsive behaviour</a></h2>
+      <ul><li>In forms and dialogs the select is full width at every breakpoint.</li><li>In filter rows it keeps a fixed width beside chips and wraps onto its own line below <code>--layout-breakpoint-md</code>; the <code>.cluster</code> wrapper handles the wrap.</li><li>On phones the open list is the platform picker (wheel on iOS, sheet on Android), which is why we keep the native element.</li><li>Option text never truncates in the closed control at 360px; keep options under about 30 characters (&ldquo;Grace Okonkwo (Toronto)&rdquo;).</li></ul>
+    </section>
+    <section class="ds-section" id="theming"><h2><a href="#theming">Theming</a></h2>
+      <p>The select reads only semantic tokens. The chevron uses <code>currentColor</code>, so it flips with <code>--color-fg-default</code> in dark mode without a second image. The open list inherits <code>color-scheme</code> from the theme, so the browser draws a dark list in dark mode.</p>
+    </section>
+    <section class="ds-section" id="accessibility"><h2><a href="#accessibility">Accessibility</a></h2>
+      <h3>Role and pattern</h3>      <p>Native <code>&lt;select&gt;</code>: role <i>combobox</i> (single-select, collapsed) is exposed by the browser. No ARIA is added except <code>aria-invalid</code> and <code>aria-describedby</code>.</p>      <h3>Keyboard</h3><table class="ds-table ds-keys"><thead><tr><th scope="col">Key</th><th scope="col">Action</th></tr></thead><tbody><tr><td><kbd>Tab</kbd></td><td>Moves focus to the select.</td></tr><tr><td><kbd>Space</kbd> / <kbd>Alt</kbd>+<kbd>&darr;</kbd></td><td>Opens the list.</td></tr><tr><td><kbd>&uarr;</kbd> / <kbd>&darr;</kbd></td><td>Changes the value (closed, on Windows) or moves through options (open).</td></tr><tr><td>Type a letter</td><td>Jumps to the next option starting with it (&ldquo;C&rdquo; for Confirmed).</td></tr><tr><td><kbd>Enter</kbd> / <kbd>Esc</kbd></td><td>Chooses / closes without changing.</td></tr></tbody></table>      <h3>Labelling</h3>      <p>Every select has a visible <code>&lt;label for&gt;</code>, including filters; a placeholder option (&ldquo;Choose a City Lead&rdquo;) is not a label. Help and error text are joined with <code>aria-describedby</code>.</p>      <h3>Focus</h3>      <p><code>:focus-visible</code> draws the shared 2px <code>--color-focus-ring</code> with no offset, the same as text fields.</p>      <h3>Contrast</h3><div class="ds-example__canvas ds-example__canvas--stack" style="padding: 0; gap: var(--space-2);"><div class="ds-pair"><span>Value text on surface</span><span class="ds-pair__ratio" data-contrast="--color-fg-default|--color-bg-surface" data-min="4.5"></span></div><div class="ds-pair"><span>Border on surface</span><span class="ds-pair__ratio" data-contrast="--color-border-strong|--color-bg-surface" data-min="3"></span></div><div class="ds-pair"><span>Invalid border on surface</span><span class="ds-pair__ratio" data-contrast="--color-danger-solid|--color-bg-surface" data-min="3"></span></div><div class="ds-pair"><span>Focus ring on surface</span><span class="ds-pair__ratio" data-contrast="--color-focus-ring|--color-bg-surface" data-min="3"></span></div></div>      <h3>Touch</h3>      <p><code>--control-height-md</code> (40px) clears the 24px minimum; the platform picker takes over on touch.</p>
+    </section>
+    <section class="ds-section" id="content"><h2><a href="#content">Content</a></h2>
+      <ul><li>Labels are nouns in sentence case: &ldquo;Stage&rdquo;, &ldquo;Home city&rdquo;, &ldquo;Join with role&rdquo;, &ldquo;Show stories from&rdquo;.</li><li>Use the product&rsquo;s exact terms for options: Lead, In funnel, Confirmed; City Lead, Staff, Volunteer, Product Engineer, Attendee.</li><li>A required select with no sensible default starts on an instruction option (&ldquo;Choose a City Lead&rdquo;) and errors if it is left there.</li><li>Filters start on &ldquo;All cities&rdquo; / &ldquo;All actions&rdquo;. Order options logically (pipeline order, Fibonacci points), else alphabetically.</li><li>Put the limit in the label when it matters: &ldquo;New owner (City Leads only)&rdquo;.</li></ul>
+    </section>
+    <section class="ds-section" id="do-dont"><h2><a href="#do-dont">Do and don't</a></h2>
+      <div class="ds-dodont"><figure class="ds-do"><div class="ds-example__canvas ds-example__canvas--stack"><div class="field"><label class="field__label" for="dd1">Stage</label><select class="select" id="dd1" name="dd1"><option selected>Lead</option><option>In funnel</option><option>Confirmed</option></select></div></div><figcaption>A visible label and the pipeline&rsquo;s own words, in pipeline order.</figcaption></figure><figure class="ds-dont"><div class="ds-example__canvas ds-example__canvas--stack"><select class="select" aria-label="Stage"><option>Select stage&hellip;</option><option>Lead</option></select></div><figcaption>Relying on a placeholder option as the label. The mocks never do this; keep it that way.</figcaption></figure><figure class="ds-do"><div class="ds-example__canvas ds-example__canvas--stack"><div class="field"><label class="field__label" for="dd2">New owner (City Leads only)</label><select class="select" id="dd2" name="dd2" aria-invalid="true" aria-describedby="dd2-error"><option selected>Choose a City Lead</option><option>Grace Okonkwo (Toronto)</option></select><div class="field__error" id="dd2-error">Choose who will own this workspace.</div></div></div><figcaption>Error tied with <code>aria-describedby</code>, shown after submit.</figcaption></figure><figure class="ds-dont"><div class="ds-example__canvas ds-example__canvas--stack"><div class="field"><label class="field__label" for="dd4">Epic (optional)</label><select class="select" id="dd4" aria-invalid="true"><option>Choose a story</option></select></div></div><figcaption>Label text that disagrees with the options (the <i>New work item</i> invalid mock labels the parent select &ldquo;Story&rdquo; for a task, but its error state lost the <code>&lt;label for&gt;</code>).</figcaption></figure></div>
+    </section>
+    <section class="ds-section" id="tokens"><h2><a href="#tokens">Tokens</a></h2>
+      <div class="ds-table-wrap"><table class="ds-table">
+        <thead><tr><th scope="col">Part</th><th scope="col">Token</th><th scope="col">Light</th><th scope="col">Dark</th></tr></thead>
+        <tbody><tr><td>Fill</td><td><code>--color-bg-surface</code></td><td><span class="ds-swatch-cell" data-theme="light"><i data-token="--color-bg-surface" data-swatch></i><span data-token="--color-bg-surface"></span></span></td><td><span class="ds-swatch-cell" data-theme="dark"><i data-token="--color-bg-surface" data-swatch></i><span data-token="--color-bg-surface"></span></span></td></tr><tr><td>Value and chevron</td><td><code>--color-fg-default</code></td><td><span class="ds-swatch-cell" data-theme="light"><i data-token="--color-fg-default" data-swatch></i><span data-token="--color-fg-default"></span></span></td><td><span class="ds-swatch-cell" data-theme="dark"><i data-token="--color-fg-default" data-swatch></i><span data-token="--color-fg-default"></span></span></td></tr><tr><td>Border</td><td><code>--color-border-strong</code></td><td><span class="ds-swatch-cell" data-theme="light"><i data-token="--color-border-strong" data-swatch></i><span data-token="--color-border-strong"></span></span></td><td><span class="ds-swatch-cell" data-theme="dark"><i data-token="--color-border-strong" data-swatch></i><span data-token="--color-border-strong"></span></span></td></tr><tr><td>Invalid border</td><td><code>--color-danger-solid</code></td><td><span class="ds-swatch-cell" data-theme="light"><i data-token="--color-danger-solid" data-swatch></i><span data-token="--color-danger-solid"></span></span></td><td><span class="ds-swatch-cell" data-theme="dark"><i data-token="--color-danger-solid" data-swatch></i><span data-token="--color-danger-solid"></span></span></td></tr><tr><td>Focus ring</td><td><code>--color-focus-ring</code></td><td><span class="ds-swatch-cell" data-theme="light"><i data-token="--color-focus-ring" data-swatch></i><span data-token="--color-focus-ring"></span></span></td><td><span class="ds-swatch-cell" data-theme="dark"><i data-token="--color-focus-ring" data-swatch></i><span data-token="--color-focus-ring"></span></span></td></tr><tr><td>Height</td><td><code>--control-height-md</code></td><td colspan="2"><span data-token="--control-height-md"></span></td></tr><tr><td>Padding / chevron box</td><td><code>--space-3</code> / <code>--space-2</code> / <code>--size-icon-sm</code></td><td colspan="2"><span data-token="--space-3"></span> / <span data-token="--space-2"></span> / <span data-token="--size-icon-sm"></span></td></tr><tr><td>Radius</td><td><code>--radius-md</code></td><td colspan="2"><span data-token="--radius-md"></span></td></tr><tr><td>Font</td><td><code>--text-body</code></td><td colspan="2"><span data-token="--text-body"></span></td></tr></tbody>
+      </table></div>
+    </section>
+    <section class="ds-section" id="code"><h2><a href="#code">Code</a></h2>
+      <pre><code>&lt;div class="field"&gt;
+  &lt;label class="field__label" for="ap-stage"&gt;Stage&lt;/label&gt;
+  &lt;select class="select" id="ap-stage" name="ap-stage"&gt;
+    &lt;option selected&gt;Lead&lt;/option&gt;&lt;option&gt;In funnel&lt;/option&gt;&lt;option&gt;Confirmed&lt;/option&gt;
+  &lt;/select&gt;
+&lt;/div&gt;
+
+&lt;select class="select" id="ro-owner" aria-invalid="true" aria-describedby="ro-owner-error"&gt;…&lt;/select&gt;
+&lt;div class="field__error" id="ro-owner-error"&gt;Choose who will own this workspace.&lt;/div&gt;</code></pre><table class="ds-table"><thead><tr><th scope="col">Class / attribute</th><th scope="col">Effect</th></tr></thead><tbody><tr><td><code>.select</code></td><td>Restyled native select, full width, medium height, chevron.</td></tr><tr><td><code>aria-invalid="true"</code></td><td>Danger border.</td></tr><tr><td><code>disabled</code></td><td>Native disabled (browser rendering).</td></tr><tr><td><code>data-state="focus"</code></td><td>Documentation only: forces the focus ring.</td></tr></tbody></table>
+    </section>
+    <section class="ds-section" id="sources"><h2><a href="#sources">Sources</a></h2>
+      <p>Extracted from these mocks:</p>
+      <ul><li><a href="../../mocks/dialogs/add-partner/default.html">dialogs/add-partner/default</a> (stage select in a dialog form)</li><li><a href="../../mocks/dialogs/send-invite/default.html">dialogs/send-invite/default</a> (role select)</li><li><a href="../../mocks/dialogs/new-work-item/default.html">dialogs/new-work-item/default</a> (parent, assignee, points with help text)</li><li><a href="../../mocks/dialogs/new-work-item/invalid.html">dialogs/new-work-item/invalid</a> (invalid parent select)</li><li><a href="../../mocks/dialogs/reassign-owner/invalid.html">dialogs/reassign-owner/invalid</a> (invalid owner select with error)</li><li><a href="../../mocks/pages/events/default.html">pages/events/default</a> (city filter beside chips)</li><li><a href="../../mocks/pages/audit-log/default.html">pages/audit-log/default</a> (action filter)</li><li><a href="../../mocks/pages/work-item/default.html">pages/work-item/default</a> (status select)</li></ul>
+      <p>Drift noticed in those mocks:</p>
+      <ul><li><code>.select</code> has no hover or disabled rule, unlike <code>.input</code> (<code>:hover</code> &rarr; <code>--color-fg-muted</code> border; <code>:disabled</code> &rarr; <code>--color-bg-subtle</code> fill, <code>--color-fg-disabled</code> text). Proposed CSS: <code>.select:hover, .select[data-state="hover"] { border-color: var(--color-fg-muted); } .select:disabled { background-color: var(--color-bg-subtle); border-color: var(--color-border-default); color: var(--color-fg-disabled); cursor: not-allowed; }</code></li><li>Filter selects are wrapped in <code>&lt;div style="width: 12rem;"&gt;</code> inline styles (events, team, audit log) instead of a layout class.</li><li>Invalid selects in <i>New work item</i> and <i>Reassign owner</i> lose the label/field structure in some states; the label must stay.</li><li>Busy dialogs leave selects enabled while Cancel is disabled.</li></ul>
+    </section>
+
+    <footer class="ds-footer"><span>FaithTech Community design system · extracted from <a href="../../mocks/index.html">docs/mocks</a> on 2026-10-21</span><a href="#top">Back to top</a></footer>
+  </main>
+</div>
+<script src="../assets/ds.js"></script>
+</body>
+</html>

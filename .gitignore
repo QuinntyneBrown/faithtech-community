@@ -1,1 +1,6 @@
 docs/mocks/.cache/
+
+# Build output
+[Bb]in/
+[Oo]bj/
+__pycache__/

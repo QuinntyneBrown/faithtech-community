@@ -1,0 +1,279 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Breadcrumb — FaithTech Community design system</title>
+<meta name="description" content="A short trail back to the parent pages (Contacts, Events, Workspaces), above the page header on every second-level FaithTech Community page. Links, separators and the current page in both themes.">
+<link rel="stylesheet" href="../tokens/tokens.css">
+<link rel="stylesheet" href="../assets/components.css">
+<link rel="stylesheet" href="../assets/ds.css">
+</head>
+<body id="top">
+<a class="skip-link" href="#main">Skip to content</a>
+<div class="ds-shell">
+  <nav class="ds-nav" aria-label="Design system">
+    <div class="ds-nav__brand"><a href="../index.html">FaithTech DS</a><button class="ds-theme-toggle" type="button" aria-pressed="false">☾ Dark</button></div>
+    <details open><summary>Foundations</summary><ul>
+      <li><a href="../foundations/color.html">Color</a></li>
+      <li><a href="../foundations/typography.html">Typography</a></li>
+      <li><a href="../foundations/spacing.html">Spacing</a></li>
+      <li><a href="../foundations/layout.html">Layout</a></li>
+      <li><a href="../foundations/elevation.html">Elevation</a></li>
+      <li><a href="../foundations/shape.html">Shape</a></li>
+      <li><a href="../foundations/motion.html">Motion</a></li>
+      <li><a href="../foundations/iconography.html">Iconography</a></li>
+      <li><a href="../foundations/theming.html">Theming</a></li>
+      <li><a href="../foundations/responsive.html">Responsive</a></li>
+      <li><a href="../foundations/accessibility.html">Accessibility</a></li>
+      <li><a href="../foundations/content.html">Content</a></li>
+    </ul></details>
+    <details open><summary>Components</summary><ul>
+      <li><a href="../components/button.html">Button</a></li>
+      <li><a href="../components/link.html">Link</a></li>
+      <li><a href="../components/menu.html">Menu</a></li>
+      <li><a href="../components/form-field.html">Form field</a></li>
+      <li><a href="../components/text-field.html">Text field</a></li>
+      <li><a href="../components/textarea.html">Textarea</a></li>
+      <li><a href="../components/select.html">Select</a></li>
+      <li><a href="../components/radio-group.html">Radio group</a></li>
+      <li><a href="../components/switch.html">Switch</a></li>
+      <li><a href="../components/form-layout.html">Form layout</a></li>
+      <li><a href="../components/picture-list.html">Picture list</a></li>
+      <li><a href="../components/sticker-picker.html">Estimate card picker</a></li>
+      <li><a href="../components/top-bar.html">Top bar</a></li>
+      <li><a href="../components/tab-bar.html">Tab bar</a></li>
+      <li><a href="../components/tabs.html">Tabs</a></li>
+      <li><a href="../components/breadcrumb.html">Breadcrumb</a></li>
+      <li><a href="../components/skip-link.html">Skip link</a></li>
+      <li><a href="../components/layout.html">Layout primitives</a></li>
+      <li><a href="../components/card.html">Card</a></li>
+      <li><a href="../components/dialog.html">Dialog</a></li>
+      <li><a href="../components/notification-panel.html">Notification panel</a></li>
+      <li><a href="../components/list.html">List</a></li>
+      <li><a href="../components/table.html">Table</a></li>
+      <li><a href="../components/description-list.html">Description list</a></li>
+      <li><a href="../components/feed.html">Activity feed</a></li>
+      <li><a href="../components/tree.html">Backlog tree</a></li>
+      <li><a href="../components/kanban.html">Kanban board</a></li>
+      <li><a href="../components/event-card.html">Event card</a></li>
+      <li><a href="../components/profile-header.html">Profile header</a></li>
+      <li><a href="../components/search-results.html">Search results</a></li>
+      <li><a href="../components/note.html">Note</a></li>
+      <li><a href="../components/avatar.html">Avatar</a></li>
+      <li><a href="../components/logo-mark.html">Logo mark</a></li>
+      <li><a href="../components/badge.html">Badge</a></li>
+      <li><a href="../components/chip.html">Chip</a></li>
+      <li><a href="../components/stat.html">Stat</a></li>
+      <li><a href="../components/sticker.html">Estimate card</a></li>
+      <li><a href="../components/toast.html">Toast</a></li>
+      <li><a href="../components/alert.html">Alert and banner</a></li>
+      <li><a href="../components/inline-message.html">Inline message</a></li>
+      <li><a href="../components/progress.html">Progress</a></li>
+      <li><a href="../components/skeleton.html">Skeleton</a></li>
+      <li><a href="../components/empty-state.html">Empty state</a></li>
+      <li><a href="../components/error-page.html">Error page</a></li>
+    </ul></details>
+    <details open><summary>Patterns</summary><ul>
+      <li><a href="../patterns/forms.html">Forms</a></li>
+      <li><a href="../patterns/feedback-and-loading.html">Feedback and loading</a></li>
+      <li><a href="../patterns/empty-and-error-states.html">Empty and error states</a></li>
+      <li><a href="../patterns/navigation.html">Navigation and page structure</a></li>
+      <li><a href="../patterns/dialogs-and-overlays.html">Dialogs and overlays</a></li>
+      <li><a href="../patterns/lists-and-tables.html">Lists and tables</a></li>
+      <li><a href="../patterns/notifications.html">Notifications</a></li>
+      <li><a href="../patterns/content-and-tone.html">Content and tone</a></li>
+    </ul></details>
+  </nav>
+
+  <main id="main" class="ds-main">
+    <header class="ds-header">
+      <p class="ds-kicker">Component · Navigation</p>
+      <h1>Breadcrumb</h1>
+      <p class="ds-lead">A short trail above the page title that says where you are and takes you back up: "Contacts / Archived contacts", "Workspaces / Toronto team / Shelter problem briefs for teams".</p>
+      <div class="ds-meta"><span class="ds-pill ds-pill--ok">WCAG 2.2 AA</span><span class="ds-pill">Status: stable</span><span class="ds-pill">Native <code>&lt;nav&gt;</code> + <code>&lt;ol&gt;</code></span></div>
+      <ul class="ds-toc">
+        <li><a href="#overview">Overview</a></li><li><a href="#anatomy">Anatomy</a></li><li><a href="#variants">Variants</a></li><li><a href="#sizes">Sizes</a></li><li><a href="#states">States</a></li><li><a href="#responsive">Responsive</a></li><li><a href="#theming">Theming</a></li><li><a href="#accessibility">Accessibility</a></li><li><a href="#content">Content</a></li><li><a href="#do-dont">Do and don't</a></li><li><a href="#tokens">Tokens</a></li><li><a href="#code">Code</a></li><li><a href="#sources">Sources</a></li>
+      </ul>
+    </header>
+
+    <section class="ds-section" id="overview"><h2><a href="#overview">Overview</a></h2>
+      <p>Use a breadcrumb at the top of <code>main</code> on every page that sits under another: a contact, new or edit contact, archived contacts, an event, new or edit event, a partner, edit profile, new announcement, invites, a workspace board or backlog, and a work item. FaithTech Community is at most three levels deep, so a trail has two or three items: the ancestors (links) and this page (plain text). Work items go through their workspace: Workspaces / Toronto team / Shelter problem briefs for teams. Top-level pages (Home, Events, Contacts, Partners, Workspaces, Team, Announcements, People) have no breadcrumb.</p>
+      <p>A breadcrumb is not the main way around; the <a href="top-bar.html">top bar</a> and <a href="tab-bar.html">tab bar</a> are. It is the quick "back" that survives a page reload.</p>
+    </section>
+
+    <section class="ds-section" id="anatomy"><h2><a href="#anatomy">Anatomy</a></h2>
+      <div class="ds-anatomy">
+        <figure class="ds-anatomy__figure">
+          <nav aria-label="Breadcrumb (anatomy)"><ol class="breadcrumb"><li><a href="../../mocks/pages/contacts/default.html">Contacts</a></li><li aria-current="page">Archived contacts</li></ol></nav>
+          <span class="ds-callout" style="left: 24%; top: 22%;" aria-hidden="true">1</span>
+          <span class="ds-callout" style="left: 44%; top: 22%;" aria-hidden="true">2</span>
+          <span class="ds-callout" style="left: 62%; top: 22%;" aria-hidden="true">3</span>
+        </figure>
+        <ol class="ds-anatomy__list">
+          <li><div><b>Parent link</b><small>An <code>&lt;a&gt;</code> in <code>--color-fg-muted</code>, no underline until hover.</small></div></li>
+          <li><div><b>Separator</b><small>A "/" drawn by CSS (<code>li + li::before</code>) in <code>--color-fg-subtle</code>; not read aloud.</small></div></li>
+          <li><div><b>Current page</b><small>Plain text in <code>--color-fg-default</code>, medium weight, with <code>aria-current="page"</code>.</small></div></li>
+        </ol>
+      </div>
+    </section>
+
+    <section class="ds-section" id="variants"><h2><a href="#variants">Variants</a></h2>
+      <p>One component; the root is the top-level section the page belongs to.</p>
+      <div class="ds-example">
+        <div class="ds-example__canvas ds-example__canvas--stack ds-example__canvas--canvas">
+          <nav aria-label="Breadcrumb, contact"><ol class="breadcrumb"><li><a href="../../mocks/pages/contacts/default.html">Contacts</a></li><li aria-current="page">Tomás Ortega</li></ol></nav>
+          <nav aria-label="Breadcrumb, work item"><ol class="breadcrumb"><li><a href="../../mocks/pages/workspaces/default.html">Workspaces</a></li><li><a href="../../mocks/pages/team-board/default.html">Toronto team</a></li><li aria-current="page">Shelter problem briefs for teams</li></ol></nav>
+          <nav aria-label="Breadcrumb, event"><ol class="breadcrumb"><li><a href="../../mocks/pages/events/default.html">Events</a></li><li aria-current="page">Toronto Builders Night</li></ol></nav>
+          <nav aria-label="Breadcrumb, invites"><ol class="breadcrumb"><li><a href="../../mocks/pages/people/default.html">People and roles</a></li><li aria-current="page">Invites</li></ol></nav>
+        </div>
+        <div class="ds-example__caption"><span>Two items for most pages; three for a work item, which goes through its workspace. The root is named as its page heading ("People and roles", not "People").</span></div>
+        <details class="ds-example__code"><summary>HTML</summary><pre><code>&lt;nav aria-label="Breadcrumb"&gt;
+  &lt;ol class="breadcrumb"&gt;
+    &lt;li&gt;&lt;a href="/contacts"&gt;Contacts&lt;/a&gt;&lt;/li&gt;
+    &lt;li aria-current="page"&gt;Archived contacts&lt;/li&gt;
+  &lt;/ol&gt;
+&lt;/nav&gt;</code></pre></details>
+      </div>
+    </section>
+
+    <section class="ds-section" id="sizes" data-na="one size"><h2><a href="#sizes">Sizes</a></h2>
+      <p class="ds-na">One size, <code>--text-body-sm</code> with <code>--space-2</code> between items.</p>
+    </section>
+
+    <section class="ds-section" id="states"><h2><a href="#states">States</a></h2>
+      <p>The parent link has default, hover and focus states, forced here with <code>data-state</code>. The current page is not interactive.</p>
+      <div class="ds-matrix"><table>
+        <thead><tr><th scope="col">Theme</th><th scope="col">Default</th><th scope="col">Hover</th><th scope="col">Focus</th><th scope="col">Current</th></tr></thead>
+        <tbody>
+          <tr><th scope="row">Light</th>
+            <td data-theme="light"><ol class="breadcrumb"><li><a href="../../mocks/pages/contacts/default.html">Contacts</a></li></ol></td>
+            <td data-theme="light"><ol class="breadcrumb"><li><a href="../../mocks/pages/contacts/default.html" data-state="hover">Contacts</a></li></ol></td>
+            <td data-theme="light"><ol class="breadcrumb"><li><a href="../../mocks/pages/contacts/default.html" data-state="focus">Contacts</a></li></ol></td>
+            <td data-theme="light"><ol class="breadcrumb"><li aria-current="page">The Wild Robot</li></ol></td></tr>
+          <tr><th scope="row">Dark</th>
+            <td data-theme="dark"><ol class="breadcrumb"><li><a href="../../mocks/pages/contacts/default.html">Contacts</a></li></ol></td>
+            <td data-theme="dark"><ol class="breadcrumb"><li><a href="../../mocks/pages/contacts/default.html" data-state="hover">Contacts</a></li></ol></td>
+            <td data-theme="dark"><ol class="breadcrumb"><li><a href="../../mocks/pages/contacts/default.html" data-state="focus">Contacts</a></li></ol></td>
+            <td data-theme="dark"><ol class="breadcrumb"><li aria-current="page">The Wild Robot</li></ol></td></tr>
+        </tbody>
+      </table></div>
+      <h3>Both themes</h3>
+      <div class="ds-themes">
+        <div data-theme="light"><nav aria-label="Breadcrumb, light theme"><ol class="breadcrumb"><li><a href="../../mocks/pages/events/default.html">Events</a></li><li aria-current="page">Toronto Builders Night</li></ol></nav></div>
+        <div data-theme="dark"><nav aria-label="Breadcrumb, dark theme"><ol class="breadcrumb"><li><a href="../../mocks/pages/events/default.html">Events</a></li><li aria-current="page">Toronto Builders Night</li></ol></nav></div>
+      </div>
+      <ul>
+        <li><b>Hover</b> darkens the link to <code>--color-fg-default</code> and underlines it, so it reads as a link even though it rests without an underline.</li>
+        <li><b>Loading</b> pages still show the full breadcrumb; the trail is known before the data arrives.</li>
+      </ul>
+    </section>
+
+    <section class="ds-section" id="responsive"><h2><a href="#responsive">Responsive behaviour</a></h2>
+      <ul>
+        <li>The list wraps (<code>flex-wrap</code>). A long current title ("Shelter problem briefs for teams") drops to a second line at 360px instead of truncating, so the full name is always visible.</li>
+        <li>No collapsing or "…" items: trails are never longer than three, and a three-item trail wraps cleanly at 360px.</li>
+      </ul>
+      <div class="ds-example">
+        <div class="ds-example__canvas ds-example__canvas--canvas" style="max-width: 22.5rem;">
+          <nav aria-label="Breadcrumb at 360px"><ol class="breadcrumb"><li><a href="../../mocks/pages/workspaces/default.html">Workspaces</a></li><li><a href="../../mocks/pages/team-board/default.html">Toronto team</a></li><li aria-current="page">Shelter problem briefs for teams</li></ol></nav>
+        </div>
+        <div class="ds-example__caption"><span>At 360px the current page wraps under the parent.</span></div>
+      </div>
+    </section>
+
+    <section class="ds-section" id="theming"><h2><a href="#theming">Theming</a></h2>
+      <p>Three text tokens and nothing else: <code>--color-fg-muted</code> for links, <code>--color-fg-default</code> for hover and the current page, <code>--color-fg-subtle</code> for separators. Each is defined for both themes, so the trail sits on <code>--color-bg-canvas</code> in either.</p>
+    </section>
+
+    <section class="ds-section" id="accessibility"><h2><a href="#accessibility">Accessibility</a></h2>
+      <h3>Role and pattern</h3>
+      <p>The WAI-ARIA APG <a href="https://www.w3.org/WAI/ARIA/apg/patterns/breadcrumb/">Breadcrumb</a> pattern: <code>&lt;nav aria-label="Breadcrumb"&gt;</code> containing an ordered list; the last item has <code>aria-current="page"</code>. Separators are CSS generated content, so they are not announced.</p>
+      <h3>Keyboard</h3>
+      <table class="ds-table ds-keys"><thead><tr><th scope="col">Key</th><th scope="col">Action</th></tr></thead><tbody>
+        <tr><td><kbd>Tab</kbd> / <kbd>Shift</kbd>+<kbd>Tab</kbd></td><td>Moves through the ancestor links in order. The current page is text, not a tab stop.</td></tr>
+        <tr><td><kbd>Enter</kbd></td><td>Follows the parent link.</td></tr>
+      </tbody></table>
+      <h3>Focus</h3>
+      <p>The shared 2px <code>--color-focus-ring</code> with 2px offset around the link.</p>
+      <h3>Labelling</h3>
+      <p>The landmark is labelled "Breadcrumb" so it is distinct from the "Primary" nav. Link text is the parent page's name exactly as its own heading says it.</p>
+      <h3>Contrast</h3>
+      <div class="ds-example__canvas ds-example__canvas--stack" style="padding: 0; gap: var(--space-2);">
+        <div class="ds-pair"><span>Link on canvas</span><span class="ds-pair__ratio" data-contrast="--color-fg-muted|--color-bg-canvas" data-min="4.5"></span></div>
+        <div class="ds-pair"><span>Current page on canvas</span><span class="ds-pair__ratio" data-contrast="--color-fg-default|--color-bg-canvas" data-min="4.5"></span></div>
+        <div class="ds-pair"><span>Separator on canvas</span><span class="ds-pair__ratio" data-contrast="--color-fg-subtle|--color-bg-canvas" data-min="4.5"></span></div>
+        <div class="ds-pair"><span>Focus ring on canvas</span><span class="ds-pair__ratio" data-contrast="--color-focus-ring|--color-bg-canvas" data-min="3"></span></div>
+      </div>
+      <h3>Motion</h3>
+      <p>None.</p>
+      <h3>Touch</h3>
+      <p>The link is inline text in <code>--text-body-sm</code>, so its hit area is close to the 24px minimum only by line height. It is a secondary route: the brand in the top bar and the tab bar are the 44px targets for the same destinations.</p>
+    </section>
+
+    <section class="ds-section" id="content"><h2><a href="#content">Content</a></h2>
+      <ul>
+        <li>Each ancestor is named as its page heading: "Contacts", "Events", "Partners", "Workspaces", "People and roles", "Profile", or the workspace name ("Toronto team").</li>
+        <li>The current item repeats this page's subject: the record name ("Tomás Ortega", "Kestrel Labs", "Toronto Builders Night") or the task ("New contact", "Edit event", "New announcement").</li>
+        <li>Never "Home" or "Back".</li>
+      </ul>
+    </section>
+
+    <section class="ds-section" id="do-dont"><h2><a href="#do-dont">Do and don't</a></h2>
+      <div class="ds-dodont">
+        <figure class="ds-do"><div class="ds-example__canvas"><nav aria-label="Do example"><ol class="breadcrumb"><li><a href="../../mocks/pages/contacts/default.html">Contacts</a></li><li aria-current="page">New contact</li></ol></nav></div><figcaption>Current page as plain text with <code>aria-current="page"</code>.</figcaption></figure>
+        <figure class="ds-dont"><div class="ds-example__canvas"><nav aria-label="Don't example"><ol class="breadcrumb"><li><a href="../../mocks/pages/contacts/default.html">Contacts</a></li><li><a href="../../mocks/pages/contact-form/default.html">New contact</a></li></ol></nav></div><figcaption>The current page as a link to itself: an extra tab stop that goes nowhere.</figcaption></figure>
+        <figure class="ds-do"><div class="ds-example__canvas"><nav aria-label="Do example, long title" style="max-width: 16rem;"><ol class="breadcrumb"><li><a href="../../mocks/pages/workspaces/default.html">Workspaces</a></li><li><a href="../../mocks/pages/team-board/default.html">Toronto team</a></li><li aria-current="page">Shelter problem briefs for teams</li></ol></nav></div><figcaption>Let a long title wrap.</figcaption></figure>
+        <figure class="ds-dont"><div class="ds-example__canvas"><span class="breadcrumb">Contacts &gt; Tomás Ortega</span></div><figcaption>Typed separators and no list: screen readers read "greater than" and the trail is not a landmark.</figcaption></figure>
+      </div>
+    </section>
+
+    <section class="ds-section" id="tokens"><h2><a href="#tokens">Tokens</a></h2>
+      <div class="ds-table-wrap"><table class="ds-table">
+        <thead><tr><th scope="col">Part</th><th scope="col">Token</th><th scope="col">Light</th><th scope="col">Dark</th></tr></thead>
+        <tbody>
+          <tr><td>Link</td><td><code>--color-fg-muted</code></td><td><span class="ds-swatch-cell" data-theme="light"><i data-token="--color-fg-muted" data-swatch></i><span data-token="--color-fg-muted"></span></span></td><td><span class="ds-swatch-cell" data-theme="dark"><i data-token="--color-fg-muted" data-swatch></i><span data-token="--color-fg-muted"></span></span></td></tr>
+          <tr><td>Hover, current page</td><td><code>--color-fg-default</code></td><td><span class="ds-swatch-cell" data-theme="light"><i data-token="--color-fg-default" data-swatch></i><span data-token="--color-fg-default"></span></span></td><td><span class="ds-swatch-cell" data-theme="dark"><i data-token="--color-fg-default" data-swatch></i><span data-token="--color-fg-default"></span></span></td></tr>
+          <tr><td>Separator</td><td><code>--color-fg-subtle</code></td><td><span class="ds-swatch-cell" data-theme="light"><i data-token="--color-fg-subtle" data-swatch></i><span data-token="--color-fg-subtle"></span></span></td><td><span class="ds-swatch-cell" data-theme="dark"><i data-token="--color-fg-subtle" data-swatch></i><span data-token="--color-fg-subtle"></span></span></td></tr>
+          <tr><td>Font</td><td><code>--text-body-sm</code></td><td colspan="2"><span data-token="--text-body-sm"></span></td></tr>
+          <tr><td>Current weight</td><td><code>--font-weight-medium</code></td><td colspan="2"><span data-token="--font-weight-medium"></span></td></tr>
+          <tr><td>Gap</td><td><code>--space-2</code></td><td colspan="2"><span data-token="--space-2"></span></td></tr>
+        </tbody>
+      </table></div>
+    </section>
+
+    <section class="ds-section" id="code"><h2><a href="#code">Code</a></h2>
+      <pre><code>&lt;main id="main" class="container"&gt;
+  &lt;nav aria-label="Breadcrumb"&gt;
+    &lt;ol class="breadcrumb"&gt;
+      &lt;li&gt;&lt;a href="/workspaces"&gt;Workspaces&lt;/a&gt;&lt;/li&gt;
+      &lt;li&gt;&lt;a href="/workspaces/toronto-team"&gt;Toronto team&lt;/a&gt;&lt;/li&gt;
+      &lt;li aria-current="page"&gt;Shelter problem briefs for teams&lt;/li&gt;
+    &lt;/ol&gt;
+  &lt;/nav&gt;
+  &lt;div class="page-header"&gt; … &lt;/div&gt;
+&lt;/main&gt;</code></pre>
+      <table class="ds-table"><thead><tr><th scope="col">Class / attribute</th><th scope="col">Effect</th></tr></thead><tbody>
+        <tr><td><code>.breadcrumb</code></td><td>On the <code>&lt;ol&gt;</code>: wrapping row, small muted text, "/" separators.</td></tr>
+        <tr><td><code>aria-current="page"</code></td><td>On the last <code>&lt;li&gt;</code>: default colour, medium weight.</td></tr>
+        <tr><td><code>data-state="hover|focus"</code></td><td>Documentation only: forces a link state.</td></tr>
+      </tbody></table>
+    </section>
+
+    <section class="ds-section" id="sources"><h2><a href="#sources">Sources</a></h2>
+      <p>Extracted from these mocks:</p>
+      <ul>
+        <li><a href="../../mocks/pages/archived-contacts/default.html">pages/archived-contacts/default</a>, <a href="../../mocks/pages/contact/default.html">pages/contact/default</a> and <a href="../../mocks/pages/contact-form/default.html">pages/contact-form/default</a> (Contacts root)</li>
+        <li><a href="../../mocks/pages/event/default.html">pages/event/default</a> and <a href="../../mocks/pages/event-form/default.html">pages/event-form/default</a> (Events root)</li>
+        <li><a href="../../mocks/pages/partner/default.html">pages/partner/default</a>, <a href="../../mocks/pages/edit-profile/default.html">pages/edit-profile/default</a>, <a href="../../mocks/pages/compose-announcement/default.html">pages/compose-announcement/default</a>, <a href="../../mocks/pages/invites/default.html">pages/invites/default</a></li>
+        <li><a href="../../mocks/pages/team-board/default.html">pages/team-board/default</a>, <a href="../../mocks/pages/backlog/default.html">pages/backlog/default</a> and <a href="../../mocks/pages/work-item/default.html">pages/work-item/default</a> (Workspaces root; three items, long current title)</li>
+      </ul>
+      <p>Drift noticed: every mock uses the same <code>nav aria-label="Breadcrumb"</code> + <code>ol.breadcrumb</code> markup. Some state mocks name the current page generically ("Event", "Contact", "Partner", "Story") instead of the record, because the record has not loaded or does not exist; once the record is known the trail should use its name.</p>
+    </section>
+
+    <footer class="ds-footer"><span>FaithTech Community design system · extracted from <a href="../../mocks/index.html">docs/mocks</a> on 2026-10-21</span><a href="#top">Back to top</a></footer>
+  </main>
+</div>
+<script src="../assets/ds.js"></script>
+</body>
+</html>

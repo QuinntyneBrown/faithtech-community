@@ -1,0 +1,276 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Radio group — FaithTech Community design system</title>
+<meta name="description" content="Radio groups in FaithTech Community: event format and visibility, who an announcement goes to, which role to add. Built on .choice rows in a fieldset.">
+<link rel="stylesheet" href="../tokens/tokens.css">
+<link rel="stylesheet" href="../assets/components.css">
+<link rel="stylesheet" href="../assets/ds.css">
+</head>
+<body id="top">
+<a class="skip-link" href="#main">Skip to content</a>
+<div class="ds-shell">
+  <nav class="ds-nav" aria-label="Design system">
+    <div class="ds-nav__brand"><a href="../index.html">FaithTech DS</a><button class="ds-theme-toggle" type="button" aria-pressed="false">☾ Dark</button></div>
+    <details open><summary>Foundations</summary><ul>
+      <li><a href="../foundations/color.html">Color</a></li>
+      <li><a href="../foundations/typography.html">Typography</a></li>
+      <li><a href="../foundations/spacing.html">Spacing</a></li>
+      <li><a href="../foundations/layout.html">Layout</a></li>
+      <li><a href="../foundations/elevation.html">Elevation</a></li>
+      <li><a href="../foundations/shape.html">Shape</a></li>
+      <li><a href="../foundations/motion.html">Motion</a></li>
+      <li><a href="../foundations/iconography.html">Iconography</a></li>
+      <li><a href="../foundations/theming.html">Theming</a></li>
+      <li><a href="../foundations/responsive.html">Responsive</a></li>
+      <li><a href="../foundations/accessibility.html">Accessibility</a></li>
+      <li><a href="../foundations/content.html">Content</a></li>
+    </ul></details>
+    <details open><summary>Components</summary><ul>
+      <li><a href="../components/button.html">Button</a></li>
+      <li><a href="../components/link.html">Link</a></li>
+      <li><a href="../components/menu.html">Menu</a></li>
+      <li><a href="../components/form-field.html">Form field</a></li>
+      <li><a href="../components/text-field.html">Text field</a></li>
+      <li><a href="../components/textarea.html">Textarea</a></li>
+      <li><a href="../components/select.html">Select</a></li>
+      <li><a href="../components/radio-group.html">Radio group</a></li>
+      <li><a href="../components/switch.html">Switch</a></li>
+      <li><a href="../components/form-layout.html">Form layout</a></li>
+      <li><a href="../components/picture-list.html">Picture list</a></li>
+      <li><a href="../components/sticker-picker.html">Estimate card picker</a></li>
+      <li><a href="../components/top-bar.html">Top bar</a></li>
+      <li><a href="../components/tab-bar.html">Tab bar</a></li>
+      <li><a href="../components/tabs.html">Tabs</a></li>
+      <li><a href="../components/breadcrumb.html">Breadcrumb</a></li>
+      <li><a href="../components/skip-link.html">Skip link</a></li>
+      <li><a href="../components/layout.html">Layout primitives</a></li>
+      <li><a href="../components/card.html">Card</a></li>
+      <li><a href="../components/dialog.html">Dialog</a></li>
+      <li><a href="../components/notification-panel.html">Notification panel</a></li>
+      <li><a href="../components/list.html">List</a></li>
+      <li><a href="../components/table.html">Table</a></li>
+      <li><a href="../components/description-list.html">Description list</a></li>
+      <li><a href="../components/feed.html">Activity feed</a></li>
+      <li><a href="../components/tree.html">Backlog tree</a></li>
+      <li><a href="../components/kanban.html">Kanban board</a></li>
+      <li><a href="../components/event-card.html">Event card</a></li>
+      <li><a href="../components/profile-header.html">Profile header</a></li>
+      <li><a href="../components/search-results.html">Search results</a></li>
+      <li><a href="../components/note.html">Note</a></li>
+      <li><a href="../components/avatar.html">Avatar</a></li>
+      <li><a href="../components/logo-mark.html">Logo mark</a></li>
+      <li><a href="../components/badge.html">Badge</a></li>
+      <li><a href="../components/chip.html">Chip</a></li>
+      <li><a href="../components/stat.html">Stat</a></li>
+      <li><a href="../components/sticker.html">Estimate card</a></li>
+      <li><a href="../components/toast.html">Toast</a></li>
+      <li><a href="../components/alert.html">Alert and banner</a></li>
+      <li><a href="../components/inline-message.html">Inline message</a></li>
+      <li><a href="../components/progress.html">Progress</a></li>
+      <li><a href="../components/skeleton.html">Skeleton</a></li>
+      <li><a href="../components/empty-state.html">Empty state</a></li>
+      <li><a href="../components/error-page.html">Error page</a></li>
+    </ul></details>
+    <details open><summary>Patterns</summary><ul>
+      <li><a href="../patterns/forms.html">Forms</a></li>
+      <li><a href="../patterns/feedback-and-loading.html">Feedback and loading</a></li>
+      <li><a href="../patterns/empty-and-error-states.html">Empty and error states</a></li>
+      <li><a href="../patterns/navigation.html">Navigation and page structure</a></li>
+      <li><a href="../patterns/dialogs-and-overlays.html">Dialogs and overlays</a></li>
+      <li><a href="../patterns/lists-and-tables.html">Lists and tables</a></li>
+      <li><a href="../patterns/notifications.html">Notifications</a></li>
+      <li><a href="../patterns/content-and-tone.html">Content and tone</a></li>
+    </ul></details>
+  </nav>
+
+  <main id="main" class="ds-main">
+    <header class="ds-header">
+      <p class="ds-kicker">Component · Inputs</p>
+      <h1>Radio group</h1>
+      <p class="ds-lead">One choice from a few visible options: Public or Members only, In person or Online, which role to add. Native radios in a fieldset, drawn with the .choice row.</p>
+      <div class="ds-meta"><span class="ds-pill ds-pill--ok">WCAG 2.2 AA</span><span class="ds-pill">Status: stable</span><span class="ds-pill">Native <code>&lt;input type="radio"&gt;</code></span></div>
+      <ul class="ds-toc">
+        <li><a href="#overview">Overview</a></li><li><a href="#anatomy">Anatomy</a></li><li><a href="#variants">Variants</a></li><li><a href="#sizes">Sizes</a></li><li><a href="#states">States</a></li><li><a href="#responsive">Responsive</a></li><li><a href="#theming">Theming</a></li><li><a href="#accessibility">Accessibility</a></li><li><a href="#content">Content</a></li><li><a href="#do-dont">Do and don't</a></li><li><a href="#tokens">Tokens</a></li><li><a href="#code">Code</a></li><li><a href="#sources">Sources</a></li>
+      </ul>
+    </header>
+
+    <section class="ds-section" id="overview"><h2><a href="#overview">Overview</a></h2>
+      <p>A radio group asks for exactly one of a few options that can all be seen at once: an event's format and visibility, who an announcement goes to, which role to add. Each option is a <code>label.choice</code> around a native radio, and the group is a <code>fieldset</code> with a <code>legend</code>.</p>
+      <ul>
+        <li><b>Use it</b> for two to six options where the difference matters enough to read: Public vs Members only, Scrum vs Kanban.</li>
+        <li><b>Use a select</b> for a long or familiar list (event type, city).</li>
+        <li><b>Use a <a href="switch.html">switch</a></b> for one on/off setting.</li>
+        <li>The same <code>.choice</code> row also carries checkboxes in the member pickers (add workspace member, create workspace, start poker); see the drift note in Sources.</li>
+      </ul>
+    </section>
+
+    <section class="ds-section" id="anatomy"><h2><a href="#anatomy">Anatomy</a></h2>
+      <div class="ds-anatomy">
+        <figure class="ds-anatomy__figure" style="max-width: 30rem;">
+          <fieldset class="stack"><legend class="field__label">Visibility</legend><label class="choice"><input type="radio" name="vis" checked><span class="choice__text">Public<small>Anyone with the link can see it and RSVP, even without an account</small></span></label><label class="choice"><input type="radio" name="vis"><span class="choice__text">Members only<small>Only people signed in to FaithTech can see and RSVP</small></span></label></fieldset>
+          <span class="ds-callout" style="left: 2%; top: 2%;" aria-hidden="true">1</span>
+          <span class="ds-callout" style="left: 2%; top: 32%;" aria-hidden="true">2</span>
+          <span class="ds-callout" style="left: 30%; top: 30%;" aria-hidden="true">3</span>
+          <span class="ds-callout" style="left: 40%; top: 50%;" aria-hidden="true">4</span>
+        </figure>
+        <ol class="ds-anatomy__list">
+          <li><div><b>Legend</b><small><code>legend.field__label</code>: names the question.</small></div></li>
+          <li><div><b>Radio</b><small>A native radio drawn with <code>appearance: none</code>: <code>--size-icon-md</code> circle, accent fill and on-accent dot when checked.</small></div></li>
+          <li><div><b>Label</b><small><code>.choice__text</code> in <code>--text-body</code>.</small></div></li>
+          <li><div><b>Description (optional)</b><small>A <code>small</code> line in <code>--color-fg-muted</code> that says what the option means.</small></div></li>
+        </ol>
+      </div>
+    </section>
+
+    <section class="ds-section" id="variants"><h2><a href="#variants">Variants</a></h2>
+      <div class="ds-example">
+        <div class="ds-example__canvas ds-example__canvas--stack" style="max-width: 30rem;">
+          <fieldset class="stack"><legend class="field__label">Format</legend><label class="choice"><input type="radio" name="fmt" checked><span class="choice__text">In person</span></label><label class="choice"><input type="radio" name="fmt"><span class="choice__text">Online<small>We’ll show the joining link to people who RSVP</small></span></label></fieldset>
+        </div>
+        <div class="ds-example__caption"><span>Label only, with a description where one option needs explaining (event form "Format").</span></div>
+        <details class="ds-example__code"><summary>HTML</summary><pre><code>&lt;fieldset class="stack"&gt;&lt;legend class="field__label"&gt;Format&lt;/legend&gt;&lt;label class="choice"&gt;&lt;input type="radio" name="fmt" checked&gt;&lt;span class="choice__text"&gt;In person&lt;/span&gt;&lt;/label&gt;&lt;label class="choice"&gt;&lt;input type="radio" name="fmt"&gt;&lt;span class="choice__text"&gt;Online&lt;small&gt;We’ll show the joining link to people who RSVP&lt;/small&gt;&lt;/span&gt;&lt;/label&gt;&lt;/fieldset&gt;</code></pre></details>
+      </div>
+      <div class="ds-example">
+        <div class="ds-example__canvas ds-example__canvas--stack" style="max-width: 30rem;">
+          <fieldset class="stack"><legend class="field__label">Send to</legend><label class="choice"><input type="radio" name="aud"><span class="choice__text">Everyone<small>612 members</small></span></label><label class="choice"><input type="radio" name="aud" checked><span class="choice__text">People with a role<small>Choose one or more roles below</small></span></label><label class="choice"><input type="radio" name="aud"><span class="choice__text">An event’s RSVP list</span></label></fieldset>
+        </div>
+        <div class="ds-example__caption"><span>With descriptions and counts (compose announcement "Send to").</span></div>
+        <details class="ds-example__code"><summary>HTML</summary><pre><code>&lt;fieldset class="stack"&gt;&lt;legend class="field__label"&gt;Send to&lt;/legend&gt;&lt;label class="choice"&gt;&lt;input type="radio" name="aud"&gt;&lt;span class="choice__text"&gt;Everyone&lt;small&gt;612 members&lt;/small&gt;&lt;/span&gt;&lt;/label&gt;&lt;label class="choice"&gt;&lt;input type="radio" name="aud" checked&gt;&lt;span class="choice__text"&gt;People with a role&lt;small&gt;Choose one or more roles below&lt;/small&gt;&lt;/span&gt;&lt;/label&gt;&lt;label class="choice"&gt;&lt;input type="radio" name="aud"&gt;&lt;span class="choice__text"&gt;An event’s RSVP list&lt;/span&gt;&lt;/label&gt;&lt;/fieldset&gt;</code></pre></details>
+      </div>
+      <div class="ds-example">
+        <div class="ds-example__canvas ds-example__canvas--stack" style="max-width: 30rem;">
+          <fieldset class="stack"><legend class="field__label">Role</legend><label class="choice"><input type="radio" name="role"><span class="choice__text">Event Lead<small>Creates and manages events</small></span></label><label class="choice"><input type="radio" name="role"><span class="choice__text">Volunteer<small>Joins the city team</small></span></label><label class="choice"><input type="radio" name="role"><span class="choice__text">Product Engineer<small>Builds at hackathons</small></span></label><label class="choice"><input type="radio" name="role"><span class="choice__text">Attendee<small>Comes to events</small></span></label></fieldset><p class="text-caption">City Lead, Staff and System Admin can only be granted by a System Admin.</p>
+        </div>
+        <div class="ds-example__caption"><span>In a dialog, with a note under the group about the options that are left out (add role). City Leads only see the roles they are allowed to grant.</span></div>
+        <details class="ds-example__code"><summary>HTML</summary><pre><code>&lt;fieldset class="stack"&gt;&lt;legend class="field__label"&gt;Role&lt;/legend&gt;&lt;label class="choice"&gt;&lt;input type="radio" name="role"&gt;&lt;span class="choice__text"&gt;Event Lead&lt;small&gt;Creates and manages events&lt;/small&gt;&lt;/span&gt;&lt;/label&gt;&lt;label class="choice"&gt;&lt;input type="radio" name="role"&gt;&lt;span class="choice__text"&gt;Volunteer&lt;small&gt;Joins the city team&lt;/small&gt;&lt;/span&gt;&lt;/label&gt;&lt;label class="choice"&gt;&lt;input type="radio" name="role"&gt;&lt;span class="choice__text"&gt;Product Engineer&lt;small&gt;Builds at hackathons&lt;/small&gt;&lt;/span&gt;&lt;/label&gt;&lt;label class="choice"&gt;&lt;input type="radio" name="role"&gt;&lt;span class="choice__text"&gt;Attendee&lt;small&gt;Comes to events&lt;/small&gt;&lt;/span&gt;&lt;/label&gt;&lt;/fieldset&gt;&lt;p class="text-caption"&gt;City Lead, Staff and System Admin can only be granted by a System Admin.&lt;/p&gt;</code></pre></details>
+      </div>
+    </section>
+
+    <section class="ds-section" id="sizes" data-na="One size: a 24px radio in a row at least --target-min tall."><h2><a href="#sizes">Sizes</a></h2>
+      <p>Not applicable. One size at every width.</p>
+    </section>
+
+    <section class="ds-section" id="states"><h2><a href="#states">States</a></h2>
+      <p>Hover and focus are forced with <code>data-state</code>.</p>
+      <div class="ds-matrix"><table>
+        <thead><tr><th scope="col">Unchecked</th><th scope="col">Checked</th><th scope="col">Hover</th><th scope="col">Focus</th><th scope="col">Disabled</th><th scope="col">Disabled checked</th><th scope="col">Invalid</th></tr></thead>
+        <tbody><tr><td><label class="choice"><input type="radio" name="st-u"><span class="choice__text">Members only</span></label></td><td><label class="choice"><input type="radio" name="st-c" checked><span class="choice__text">Members only</span></label></td><td><label class="choice"><input type="radio" name="st-hover" data-state="hover"><span class="choice__text">Members only</span></label></td><td><label class="choice"><input type="radio" name="st-focus" data-state="focus"><span class="choice__text">Members only</span></label></td><td><label class="choice"><input type="radio" name="st-disabled" disabled><span class="choice__text">Members only</span></label></td><td><label class="choice"><input type="radio" name="st-disabled" checked disabled><span class="choice__text">Members only</span></label></td><td><label class="choice"><input type="radio" name="st-aria-invalid" aria-invalid="true"><span class="choice__text">Members only</span></label></td></tr></tbody>
+      </table></div>
+      <h3>Both themes</h3>
+      <div class="ds-themes">
+        <div data-theme="light"><div class="ds-example__canvas ds-example__canvas--stack" style="padding: 0; gap: var(--space-2);"><label class="choice"><input type="radio" name="th" checked><span class="choice__text">In person</span></label><label class="choice"><input type="radio" name="th"><span class="choice__text">Online</span></label><label class="choice"><input type="radio" name="thf" data-state="focus"><span class="choice__text">Members only</span></label><label class="choice"><input type="radio" name="thi" aria-invalid="true"><span class="choice__text">Public</span></label></div></div>
+        <div data-theme="dark"><div class="ds-example__canvas ds-example__canvas--stack" style="padding: 0; gap: var(--space-2);"><label class="choice"><input type="radio" name="th" checked><span class="choice__text">In person</span></label><label class="choice"><input type="radio" name="th"><span class="choice__text">Online</span></label><label class="choice"><input type="radio" name="thf" data-state="focus"><span class="choice__text">Members only</span></label><label class="choice"><input type="radio" name="thi" aria-invalid="true"><span class="choice__text">Public</span></label></div></div>
+      </div>
+      <ul>
+        <li><b>Invalid</b>: when nothing is chosen on submit, every radio in the group gets <code>aria-invalid="true"</code>, the <code>fieldset</code> gets <code>aria-describedby</code> pointing at a <code>.field__error</code> ("Choose a role to add.").</li>
+        <li><b>Disabled</b> is not used in the mocks: options a person cannot choose are left out and explained in a caption.</li>
+        <li>Most groups have a default checked; only "Role" in add role starts empty, because there is no safe default.</li>
+      </ul>
+      <fieldset class="stack" aria-describedby="ri-error"><legend class="field__label">Role</legend><label class="choice"><input type="radio" name="ri" aria-invalid="true"><span class="choice__text">Volunteer<small>Joins the city team</small></span></label><label class="choice"><input type="radio" name="ri" aria-invalid="true"><span class="choice__text">Attendee<small>Comes to events</small></span></label></fieldset><div class="field__error" id="ri-error">Choose a role to add.</div>
+    </section>
+
+    <section class="ds-section" id="responsive"><h2><a href="#responsive">Responsive behaviour</a></h2>
+      <ul>
+        <li>Options always stack vertically; they never sit side by side, so long labels and descriptions wrap cleanly at 360px.</li>
+        <li>The radio does not shrink (<code>flex: none</code>) and stays aligned with the first line of the label.</li>
+      </ul>
+    </section>
+
+    <section class="ds-section" id="theming"><h2><a href="#theming">Theming</a></h2>
+      <p>The radio reads <code>--color-bg-surface</code> and <code>--color-border-strong</code> unchecked, <code>--color-fg-muted</code> for the hover border, <code>--color-accent</code> and <code>--color-fg-on-accent</code> checked, and <code>--color-bg-subtle</code> with <code>--color-border-default</code> disabled. In dark the checked fill becomes the light violet and the dot turns dark, so the checked mark keeps its contrast.</p>
+    </section>
+
+    <section class="ds-section" id="accessibility"><h2><a href="#accessibility">Accessibility</a></h2>
+      <h3>Role and pattern</h3>
+      <p>Native radios sharing a <code>name</code>, inside a <code>&lt;fieldset&gt;</code> with a <code>&lt;legend&gt;</code>. That gives the APG radio group behaviour for free. No ARIA roles.</p>
+      <h3>Keyboard</h3>
+      <table class="ds-table ds-keys"><thead><tr><th scope="col">Key</th><th scope="col">Action</th></tr></thead><tbody>
+        <tr><td><kbd>Tab</kbd></td><td>Moves into the group, onto the checked radio (or the first one), and out again.</td></tr>
+        <tr><td><kbd>↓</kbd> / <kbd>→</kbd></td><td>Checks the next option.</td></tr>
+        <tr><td><kbd>↑</kbd> / <kbd>←</kbd></td><td>Checks the previous option.</td></tr>
+        <tr><td><kbd>Space</kbd></td><td>Checks the focused option if none is checked.</td></tr>
+      </tbody></table>
+      <h3>Focus</h3>
+      <p>The shared focus ring around the radio circle.</p>
+      <h3>Labelling</h3>
+      <p>The legend is announced on entering the group; each option's label and description are its name, because the input sits inside the <code>label</code>. A visually hidden legend is allowed when a visible heading already names the group.</p>
+      <h3>Contrast</h3>
+      <div class="ds-example__canvas ds-example__canvas--stack" style="padding: 0; gap: var(--space-2);"><div class="ds-pair"><span>Radio border on surface</span><span class="ds-pair__ratio" data-contrast="--color-border-strong|--color-bg-surface" data-min="3"></span></div><div class="ds-pair"><span>Checked fill on surface</span><span class="ds-pair__ratio" data-contrast="--color-accent|--color-bg-surface" data-min="3"></span></div><div class="ds-pair"><span>Dot on checked fill</span><span class="ds-pair__ratio" data-contrast="--color-fg-on-accent|--color-accent" data-min="3"></span></div><div class="ds-pair"><span>Description on surface</span><span class="ds-pair__ratio" data-contrast="--color-fg-muted|--color-bg-surface" data-min="4.5"></span></div><div class="ds-pair"><span>Invalid border on surface</span><span class="ds-pair__ratio" data-contrast="--color-danger-solid|--color-bg-surface" data-min="3"></span></div><div class="ds-pair"><span>Focus ring on surface</span><span class="ds-pair__ratio" data-contrast="--color-focus-ring|--color-bg-surface" data-min="3"></span></div></div>
+      <h3>Motion</h3>
+      <p>Fill and border fade over <code>--duration-fast</code>; reduced motion makes it instant.</p>
+      <h3>Touch</h3>
+      <p>Each row is at least <code>--target-min</code> tall and the whole label is the target.</p>
+    </section>
+
+    <section class="ds-section" id="content"><h2><a href="#content">Content</a></h2>
+      <ul>
+        <li>The legend is a short noun: "Format", "Visibility", "Send to", "Role", "Method".</li>
+        <li>Option labels are short and parallel: "Public" / "Members only", "In person" / "Online".</li>
+        <li>Descriptions say the consequence: "Anyone with the link can see it and RSVP, even without an account".</li>
+        <li>Order options from most common to least, with the default first unless the order has meaning.</li>
+      </ul>
+    </section>
+
+    <section class="ds-section" id="do-dont"><h2><a href="#do-dont">Do and don't</a></h2>
+      <div class="ds-dodont">
+        <figure class="ds-do"><div class="ds-example__canvas"><fieldset class="stack"><legend class="field__label">Visibility</legend><label class="choice"><input type="radio" name="dd1" checked><span class="choice__text">Public<small>Anyone with the link can see it and RSVP, even without an account</small></span></label><label class="choice"><input type="radio" name="dd1"><span class="choice__text">Members only<small>Only people signed in to FaithTech can see and RSVP</small></span></label></fieldset></div><figcaption>Descriptions say what each choice means for who can see the event.</figcaption></figure>
+        <figure class="ds-dont"><div class="ds-example__canvas"><fieldset class="stack"><legend class="field__label">Visibility</legend><label class="choice"><input type="radio" name="dd2"><span class="choice__text">Public</span></label><label class="choice"><input type="radio" name="dd2"><span class="choice__text">Private</span></label><label class="choice"><input type="radio" name="dd2"><span class="choice__text">Unlisted</span></label></fieldset></div><figcaption>Labels with no explanation, and an option ("Unlisted") the product does not have.</figcaption></figure>
+        <figure class="ds-do"><div class="ds-example__canvas"><fieldset class="stack"><legend class="field__label">Role</legend><label class="choice"><input type="radio" name="dd3"><span class="choice__text">Volunteer<small>Joins the city team</small></span></label><label class="choice"><input type="radio" name="dd3"><span class="choice__text">Attendee<small>Comes to events</small></span></label></fieldset><p class="text-caption">City Lead, Staff and System Admin can only be granted by a System Admin.</p></div><figcaption>Leave out what a City Lead cannot grant, and say why.</figcaption></figure>
+        <figure class="ds-dont"><div class="ds-example__canvas"><fieldset class="stack"><legend class="field__label">Role</legend><label class="choice"><input type="radio" name="dd4" disabled><span class="choice__text">City Lead</span></label><label class="choice"><input type="radio" name="dd4" disabled><span class="choice__text">Staff</span></label><label class="choice"><input type="radio" name="dd4"><span class="choice__text">Volunteer</span></label></fieldset></div><figcaption>Greyed-out options with no reason.</figcaption></figure>
+      </div>
+    </section>
+
+    <section class="ds-section" id="tokens"><h2><a href="#tokens">Tokens</a></h2>
+      <div class="ds-table-wrap"><table class="ds-table">
+        <thead><tr><th scope="col">Part</th><th scope="col">Token</th><th scope="col">Light</th><th scope="col">Dark</th></tr></thead>
+        <tbody>
+          <tr><td>Radio background</td><td><code>--color-bg-surface</code></td><td><span class="ds-swatch-cell" data-theme="light"><i data-token="--color-bg-surface" data-swatch></i><span data-token="--color-bg-surface"></span></span></td><td><span class="ds-swatch-cell" data-theme="dark"><i data-token="--color-bg-surface" data-swatch></i><span data-token="--color-bg-surface"></span></span></td></tr>
+          <tr><td>Radio border</td><td><code>--color-border-strong</code></td><td><span class="ds-swatch-cell" data-theme="light"><i data-token="--color-border-strong" data-swatch></i><span data-token="--color-border-strong"></span></span></td><td><span class="ds-swatch-cell" data-theme="dark"><i data-token="--color-border-strong" data-swatch></i><span data-token="--color-border-strong"></span></span></td></tr>
+          <tr><td>Radio border, hover</td><td><code>--color-fg-muted</code></td><td><span class="ds-swatch-cell" data-theme="light"><i data-token="--color-fg-muted" data-swatch></i><span data-token="--color-fg-muted"></span></span></td><td><span class="ds-swatch-cell" data-theme="dark"><i data-token="--color-fg-muted" data-swatch></i><span data-token="--color-fg-muted"></span></span></td></tr>
+          <tr><td>Checked fill</td><td><code>--color-accent</code></td><td><span class="ds-swatch-cell" data-theme="light"><i data-token="--color-accent" data-swatch></i><span data-token="--color-accent"></span></span></td><td><span class="ds-swatch-cell" data-theme="dark"><i data-token="--color-accent" data-swatch></i><span data-token="--color-accent"></span></span></td></tr>
+          <tr><td>Checked dot</td><td><code>--color-fg-on-accent</code></td><td><span class="ds-swatch-cell" data-theme="light"><i data-token="--color-fg-on-accent" data-swatch></i><span data-token="--color-fg-on-accent"></span></span></td><td><span class="ds-swatch-cell" data-theme="dark"><i data-token="--color-fg-on-accent" data-swatch></i><span data-token="--color-fg-on-accent"></span></span></td></tr>
+          <tr><td>Disabled fill / label</td><td><code>--color-bg-subtle</code> / <code>--color-fg-disabled</code></td><td><span class="ds-swatch-cell" data-theme="light"><i data-token="--color-fg-disabled" data-swatch></i><span data-token="--color-fg-disabled"></span></span></td><td><span class="ds-swatch-cell" data-theme="dark"><i data-token="--color-fg-disabled" data-swatch></i><span data-token="--color-fg-disabled"></span></span></td></tr>
+          <tr><td>Radio size / dot size</td><td><code>--size-icon-md</code> / <code>--space-2</code></td><td><span data-token="--size-icon-md"></span> / <span data-token="--space-2"></span></td><td><span data-theme="dark"><span data-token="--size-icon-md"></span> / <span data-token="--space-2"></span></span></td></tr>
+          <tr><td>Row minimum height</td><td><code>--target-min</code></td><td><span data-token="--target-min"></span></td><td><span data-theme="dark" data-token="--target-min"></span></td></tr>
+          <tr><td>Gap radio to text</td><td><code>--space-3</code></td><td><span data-token="--space-3"></span></td><td><span data-theme="dark" data-token="--space-3"></span></td></tr>
+        </tbody>
+      </table></div>
+    </section>
+
+    <section class="ds-section" id="code"><h2><a href="#code">Code</a></h2>
+      <pre><code>&lt;fieldset class="stack"&gt;
+  &lt;legend class="field__label"&gt;Format&lt;/legend&gt;
+  &lt;label class="choice"&gt;&lt;input type="radio" name="fmt" checked&gt;&lt;span class="choice__text"&gt;In person&lt;/span&gt;&lt;/label&gt;
+  &lt;label class="choice"&gt;&lt;input type="radio" name="fmt"&gt;
+    &lt;span class="choice__text"&gt;Online&lt;small&gt;We’ll show the joining link to people who RSVP&lt;/small&gt;&lt;/span&gt;
+  &lt;/label&gt;
+&lt;/fieldset&gt;</code></pre>
+      <table class="ds-table"><thead><tr><th scope="col">Class / attribute</th><th scope="col">Effect</th></tr></thead><tbody>
+        <tr><td><code>.choice</code></td><td>Row: radio plus label, at least <code>--target-min</code> tall.</td></tr>
+        <tr><td><code>.choice__text</code></td><td>Label, with an optional <code>small</code> description.</td></tr>
+        <tr><td><code>aria-invalid="true"</code> on each radio</td><td>Danger border.</td></tr>
+        <tr><td><code>data-state="hover|focus|checked|disabled"</code></td><td>Documentation only.</td></tr>
+      </tbody></table>
+    </section>
+
+    <section class="ds-section" id="sources"><h2><a href="#sources">Sources</a></h2>
+      <p>Extracted from these mocks:</p>
+      <ul>
+        <li><a href="../../mocks/pages/event-form/default.html">pages/event-form/default</a> (Format and Visibility)</li>
+        <li><a href="../../mocks/pages/compose-announcement/default.html">pages/compose-announcement/default</a> (Send to)</li>
+        <li><a href="../../mocks/dialogs/add-role/default.html">dialogs/add-role/default</a> and <a href="../../mocks/dialogs/add-role/invalid.html">invalid</a> (Role, with error)</li>
+        <li><a href="../../mocks/dialogs/switch-method/default.html">dialogs/switch-method/default</a>, <a href="../../mocks/dialogs/move-partner/default.html">dialogs/move-partner/default</a> and <a href="../../mocks/dialogs/new-work-item/default.html">dialogs/new-work-item/default</a></li>
+        <li><a href="../../mocks/dialogs/add-workspace-member/default.html">dialogs/add-workspace-member/default</a> (checkboxes in <code>.choice</code> rows)</li>
+      </ul>
+      <p>Drift noticed in the mocks: the member pickers (add workspace member, create workspace, start poker) put checkboxes in <code>.choice</code>, which draws every input as a round radio, so a multi-select looks single-select; a checkbox style (square box, check mark) is needed. The "Visibility" legend is visually hidden with no visible heading. No group shows a disabled option. The remove-role dialog has a group with a single, pre-checked radio, which offers no choice.</p>
+    </section>
+
+    <footer class="ds-footer"><span>FaithTech Community design system · extracted from <a href="../../mocks/index.html">docs/mocks</a> on 2026-10-21</span><a href="#top">Back to top</a></footer>
+  </main>
+</div>
+<script src="../assets/ds.js"></script>
+</body>
+</html>

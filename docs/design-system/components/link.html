@@ -1,0 +1,266 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Link — FaithTech Community design system</title>
+<meta name="description" content="Links take FaithTech members to another page or place: Forgot your password?, Open board, View his profile. Inline and standalone, every state, both themes.">
+<link rel="stylesheet" href="../tokens/tokens.css">
+<link rel="stylesheet" href="../assets/components.css">
+<link rel="stylesheet" href="../assets/ds.css">
+</head>
+<body id="top">
+<a class="skip-link" href="#main">Skip to content</a>
+<div class="ds-shell">
+  <nav class="ds-nav" aria-label="Design system">
+    <div class="ds-nav__brand"><a href="../index.html">FaithTech DS</a><button class="ds-theme-toggle" type="button" aria-pressed="false">☾ Dark</button></div>
+    <details open><summary>Foundations</summary><ul>
+      <li><a href="../foundations/color.html">Color</a></li>
+      <li><a href="../foundations/typography.html">Typography</a></li>
+      <li><a href="../foundations/spacing.html">Spacing</a></li>
+      <li><a href="../foundations/layout.html">Layout</a></li>
+      <li><a href="../foundations/elevation.html">Elevation</a></li>
+      <li><a href="../foundations/shape.html">Shape</a></li>
+      <li><a href="../foundations/motion.html">Motion</a></li>
+      <li><a href="../foundations/iconography.html">Iconography</a></li>
+      <li><a href="../foundations/theming.html">Theming</a></li>
+      <li><a href="../foundations/responsive.html">Responsive</a></li>
+      <li><a href="../foundations/accessibility.html">Accessibility</a></li>
+      <li><a href="../foundations/content.html">Content</a></li>
+    </ul></details>
+    <details open><summary>Components</summary><ul>
+      <li><a href="../components/button.html">Button</a></li>
+      <li><a href="../components/link.html">Link</a></li>
+      <li><a href="../components/menu.html">Menu</a></li>
+      <li><a href="../components/form-field.html">Form field</a></li>
+      <li><a href="../components/text-field.html">Text field</a></li>
+      <li><a href="../components/textarea.html">Textarea</a></li>
+      <li><a href="../components/select.html">Select</a></li>
+      <li><a href="../components/radio-group.html">Radio group</a></li>
+      <li><a href="../components/switch.html">Switch</a></li>
+      <li><a href="../components/form-layout.html">Form layout</a></li>
+      <li><a href="../components/picture-list.html">Picture list</a></li>
+      <li><a href="../components/sticker-picker.html">Estimate card picker</a></li>
+      <li><a href="../components/top-bar.html">Top bar</a></li>
+      <li><a href="../components/tab-bar.html">Tab bar</a></li>
+      <li><a href="../components/tabs.html">Tabs</a></li>
+      <li><a href="../components/breadcrumb.html">Breadcrumb</a></li>
+      <li><a href="../components/skip-link.html">Skip link</a></li>
+      <li><a href="../components/layout.html">Layout primitives</a></li>
+      <li><a href="../components/card.html">Card</a></li>
+      <li><a href="../components/dialog.html">Dialog</a></li>
+      <li><a href="../components/notification-panel.html">Notification panel</a></li>
+      <li><a href="../components/list.html">List</a></li>
+      <li><a href="../components/table.html">Table</a></li>
+      <li><a href="../components/description-list.html">Description list</a></li>
+      <li><a href="../components/feed.html">Activity feed</a></li>
+      <li><a href="../components/tree.html">Backlog tree</a></li>
+      <li><a href="../components/kanban.html">Kanban board</a></li>
+      <li><a href="../components/event-card.html">Event card</a></li>
+      <li><a href="../components/profile-header.html">Profile header</a></li>
+      <li><a href="../components/search-results.html">Search results</a></li>
+      <li><a href="../components/note.html">Note</a></li>
+      <li><a href="../components/avatar.html">Avatar</a></li>
+      <li><a href="../components/logo-mark.html">Logo mark</a></li>
+      <li><a href="../components/badge.html">Badge</a></li>
+      <li><a href="../components/chip.html">Chip</a></li>
+      <li><a href="../components/stat.html">Stat</a></li>
+      <li><a href="../components/sticker.html">Estimate card</a></li>
+      <li><a href="../components/toast.html">Toast</a></li>
+      <li><a href="../components/alert.html">Alert and banner</a></li>
+      <li><a href="../components/inline-message.html">Inline message</a></li>
+      <li><a href="../components/progress.html">Progress</a></li>
+      <li><a href="../components/skeleton.html">Skeleton</a></li>
+      <li><a href="../components/empty-state.html">Empty state</a></li>
+      <li><a href="../components/error-page.html">Error page</a></li>
+    </ul></details>
+    <details open><summary>Patterns</summary><ul>
+      <li><a href="../patterns/forms.html">Forms</a></li>
+      <li><a href="../patterns/feedback-and-loading.html">Feedback and loading</a></li>
+      <li><a href="../patterns/empty-and-error-states.html">Empty and error states</a></li>
+      <li><a href="../patterns/navigation.html">Navigation and page structure</a></li>
+      <li><a href="../patterns/dialogs-and-overlays.html">Dialogs and overlays</a></li>
+      <li><a href="../patterns/lists-and-tables.html">Lists and tables</a></li>
+      <li><a href="../patterns/notifications.html">Notifications</a></li>
+      <li><a href="../patterns/content-and-tone.html">Content and tone</a></li>
+    </ul></details>
+  </nav>
+
+  <main id="main" class="ds-main">
+    <header class="ds-header">
+      <p class="ds-kicker">Component · Actions</p>
+      <h1>Link</h1>
+      <p class="ds-lead">Links take people somewhere: "Forgot your password?", "Open board", "View his profile". They are underlined, always, and never change data.</p>
+      <div class="ds-meta"><span class="ds-pill ds-pill--ok">WCAG 2.2 AA</span><span class="ds-pill">Status: stable</span><span class="ds-pill">Native <code>&lt;a href&gt;</code></span></div>
+      <ul class="ds-toc">
+        <li><a href="#overview">Overview</a></li><li><a href="#anatomy">Anatomy</a></li><li><a href="#variants">Variants</a></li><li><a href="#sizes">Sizes</a></li><li><a href="#states">States</a></li><li><a href="#responsive">Responsive</a></li><li><a href="#theming">Theming</a></li><li><a href="#accessibility">Accessibility</a></li><li><a href="#content">Content</a></li><li><a href="#do-dont">Do and don't</a></li><li><a href="#tokens">Tokens</a></li><li><a href="#code">Code</a></li><li><a href="#sources">Sources</a></li>
+      </ul>
+    </header>
+
+    <section class="ds-section" id="overview"><h2><a href="#overview">Overview</a></h2>
+      <p>A link goes to another page or another place on the page. If activating it changes data (saves, sends, archives), use a <a href="button.html">button</a> instead. Links are styled by the bare <code>a</code> selector, so any anchor in running text looks right with no class.</p>
+      <ul>
+        <li><b>Inline</b> links sit inside a sentence: "New to FaithTech? Create an account", and each line of an error summary ("Enter your current password") that jumps to its field.</li>
+        <li><b>Standalone</b> links stand on their own line, in a card header or in a facts list: "Forgot your password?", "Open board" on the Partner pipeline card, "View his profile" on a linked contact, the epic "Tech for Shelters hackathon" on a work item.</li>
+      </ul>
+      <p><b>Visited links are not styled separately.</b> Members come back to the same people, events and boards every week; a visited colour would turn most of the app a different colour for no useful reason. <code>:visited</code> keeps the default link colour (inherited from Shelfie).</p>
+      <p>Links with their own look have their own pages: the breadcrumb, top bar nav links and tab bar in <a href="../patterns/navigation.html">navigation</a>, menu items in <a href="menu.html">menu</a>, and anchors given <code>.btn</code> in <a href="button.html">button</a>.</p>
+    </section>
+
+    <section class="ds-section" id="anatomy"><h2><a href="#anatomy">Anatomy</a></h2>
+      <div class="ds-anatomy">
+        <figure class="ds-anatomy__figure">
+          <p style="font: var(--text-body-lg);"><a href="../../mocks/pages/forgot-password/default.html">Forgot your password?</a></p>
+          <span class="ds-callout" style="left: 40%; top: 18%;" aria-hidden="true">1</span>
+          <span class="ds-callout" style="left: 62%; top: 74%;" aria-hidden="true">2</span>
+        </figure>
+        <ol class="ds-anatomy__list">
+          <li><div><b>Text</b><small>Says where the link goes; it is the accessible name. <code>--color-fg-link</code>, inherits the surrounding font.</small></div></li>
+          <li><div><b>Underline</b><small>Always on. <code>--border-width-hairline</code> thick, offset 0.15em; thickens to <code>--border-width-thick</code> on hover.</small></div></li>
+        </ol>
+      </div>
+    </section>
+
+    <section class="ds-section" id="variants"><h2><a href="#variants">Variants</a></h2>
+      <p>Both variants use the same styles; they differ only in where they sit and how much the text has to carry.</p>
+      <div class="ds-example">
+        <div class="ds-example__canvas ds-example__canvas--stack">
+          <p class="text-caption">New to FaithTech? <a href="../../mocks/pages/sign-up/default.html">Create an account</a></p>
+          <p class="text-muted">Linked to Tomás’s member profile. <a href="../../mocks/pages/profile/default.html">View his profile</a></p>
+        </div>
+        <div class="ds-example__caption"><span>Inline: part of a sentence, in the sentence's own size and weight.</span></div>
+        <details class="ds-example__code"><summary>HTML</summary><pre><code>&lt;p class="text-caption"&gt;New to FaithTech? &lt;a href="/sign-up"&gt;Create an account&lt;/a&gt;&lt;/p&gt;</code></pre></details>
+      </div>
+      <div class="ds-example">
+        <div class="ds-example__canvas ds-example__canvas--stack">
+          <p style="text-align: center;"><a href="../../mocks/pages/forgot-password/default.html">Forgot your password?</a></p>
+          <div class="cluster cluster--between" style="width: 100%;"><h3 style="font: var(--text-h4); margin: 0;">Partner pipeline</h3><a href="../../mocks/pages/partners/default.html">Open board</a></div>
+          <dl class="facts"><div><dt>Epic</dt><dd><a href="../../mocks/pages/backlog/default.html">Tech for Shelters hackathon</a></dd></div><div><dt>Event</dt><dd><a href="../../mocks/pages/public-event/default.html">Preview public page</a></dd></div></dl>
+        </div>
+        <div class="ds-example__caption"><span>Standalone: on its own line under a form, at the end of a card header, or as the value in a facts list. The text must make sense out of context.</span></div>
+        <details class="ds-example__code"><summary>HTML</summary><pre><code>&lt;p style="text-align: center;"&gt;&lt;a href="/forgot-password"&gt;Forgot your password?&lt;/a&gt;&lt;/p&gt;
+&lt;div class="cluster cluster--between"&gt;&lt;h2&gt;Partner pipeline&lt;/h2&gt;&lt;a href="/partners"&gt;Open board&lt;/a&gt;&lt;/div&gt;
+&lt;dd&gt;&lt;a href="/workspaces/toronto-team/epics/tech-for-shelters"&gt;Tech for Shelters hackathon&lt;/a&gt;&lt;/dd&gt;</code></pre></details>
+      </div>
+      <p>Links inside alerts and the error summary take the alert's colour; see <a href="form-layout.html">form layout</a>.</p>
+    </section>
+
+    <section class="ds-section" id="sizes" data-na="Links take the size of the text around them; there is no size modifier."><h2><a href="#sizes">Sizes</a></h2>
+      <p class="ds-na">Links take the size of the text around them; there is no size modifier.</p>
+    </section>
+
+    <section class="ds-section" id="states"><h2><a href="#states">States</a></h2>
+      <p>Hover and focus are forced with <code>data-state</code>; real pages get them from <code>:hover</code> and <code>:focus-visible</code>. Visited and active look the same as default on purpose. Links are never disabled: if a destination is not available to this person (a Volunteer cannot open the workspace), do not render the link.</p>
+      <div class="ds-matrix"><table>
+        <thead><tr><th scope="col">Variant</th><th scope="col">Default</th><th scope="col">Hover</th><th scope="col">Focus</th><th scope="col">Visited</th></tr></thead>
+        <tbody>
+          <tr><th scope="row">Inline</th><td><p>New to FaithTech? <a href="../../mocks/pages/sign-up/default.html">Create an account</a></p></td><td><p>New to FaithTech? <a href="../../mocks/pages/sign-up/default.html" data-state="hover">Create an account</a></p></td><td><p>New to FaithTech? <a href="../../mocks/pages/sign-up/default.html" data-state="focus">Create an account</a></p></td><td><p>New to FaithTech? <a href="../../mocks/pages/sign-up/default.html">Create an account</a></p></td></tr>
+          <tr><th scope="row">Standalone</th><td><a href="../../mocks/pages/forgot-password/default.html">Forgot your password?</a></td><td><a href="../../mocks/pages/forgot-password/default.html" data-state="hover">Forgot your password?</a></td><td><a href="../../mocks/pages/forgot-password/default.html" data-state="focus">Forgot your password?</a></td><td><a href="../../mocks/pages/forgot-password/default.html">Forgot your password?</a></td></tr>
+        </tbody>
+      </table></div>
+      <h3>Both themes</h3>
+      <div class="ds-themes">
+        <div data-theme="light"><div class="ds-example__canvas ds-example__canvas--stack" style="padding: 0; gap: var(--space-2);"><p>New to FaithTech? <a href="../../mocks/pages/sign-up/default.html">Create an account</a></p><p><a href="../../mocks/pages/forgot-password/default.html" data-state="hover">Forgot your password?</a></p><p><a href="../../mocks/pages/forgot-password/default.html" data-state="focus">Forgot your password?</a></p></div></div>
+        <div data-theme="dark"><div class="ds-example__canvas ds-example__canvas--stack" style="padding: 0; gap: var(--space-2);"><p>New to FaithTech? <a href="../../mocks/pages/sign-up/default.html">Create an account</a></p><p><a href="../../mocks/pages/forgot-password/default.html" data-state="hover">Forgot your password?</a></p><p><a href="../../mocks/pages/forgot-password/default.html" data-state="focus">Forgot your password?</a></p></div></div>
+      </div>
+    </section>
+
+    <section class="ds-section" id="responsive"><h2><a href="#responsive">Responsive behaviour</a></h2>
+      <ul>
+        <li>Links wrap with the text around them; a long link breaks between words like any other text.</li>
+        <li>A standalone link in a card header ("Open board") stays on the same row as the heading and drops below it when the card is too narrow (<code>.cluster</code> wraps).</li>
+        <li>On touch screens a standalone link is given room by its own line; inline links rely on the 24px minimum spacing exception for text in a sentence.</li>
+      </ul>
+    </section>
+
+    <section class="ds-section" id="theming"><h2><a href="#theming">Theming</a></h2>
+      <p>Links read two semantic tokens: <code>--color-fg-link</code> and <code>--color-fg-link-hover</code>. In light they are deep violets on a pale page; in dark they switch to <code>--palette-violet-300</code> so they stay readable on the dark surfaces. Underline thickness comes from the border-width tokens, so a theme never needs to touch it.</p>
+      <pre><code>a { color: var(--color-fg-link); text-decoration-thickness: var(--border-width-hairline); }
+a:hover { color: var(--color-fg-link-hover); text-decoration-thickness: var(--border-width-thick); }</code></pre>
+    </section>
+
+    <section class="ds-section" id="accessibility"><h2><a href="#accessibility">Accessibility</a></h2>
+      <h3>Role and pattern</h3>
+      <p>Native <code>&lt;a href&gt;</code>. Never an anchor without <code>href</code>, never a <code>&lt;span&gt;</code> with a click handler, never <code>href="#"</code> to run script. Error-summary links point at the field's <code>id</code> (<code>href="#st-current"</code>) and move focus there.</p>
+      <h3>Keyboard</h3>
+      <table class="ds-table ds-keys"><thead><tr><th scope="col">Key</th><th scope="col">Action</th></tr></thead><tbody>
+        <tr><td><kbd>Tab</kbd> / <kbd>Shift</kbd>+<kbd>Tab</kbd></td><td>Moves focus to and from the link.</td></tr>
+        <tr><td><kbd>Enter</kbd></td><td>Follows the link. Space does not; it scrolls the page.</td></tr>
+      </tbody></table>
+      <h3>Focus</h3>
+      <p>The shared focus ring on <code>:focus-visible</code>, with a small radius so it hugs the text.</p>
+      <h3>Labelling</h3>
+      <p>The link text is the accessible name and must say where it goes out of context: "View his profile", not "here". Where several links share text in a list, add the object in a <code>.visually-hidden</code> span: "Open<span class="visually-hidden"> Toronto Builders Night</span>".</p>
+      <h3>Contrast</h3>
+      <div class="ds-example__canvas ds-example__canvas--stack" style="padding: 0; gap: var(--space-2);"><div class="ds-pair"><span>Link on page</span><span class="ds-pair__ratio" data-contrast="--color-fg-link|--color-bg-page" data-min="4.5"></span></div><div class="ds-pair"><span>Link on surface</span><span class="ds-pair__ratio" data-contrast="--color-fg-link|--color-bg-surface" data-min="4.5"></span></div><div class="ds-pair"><span>Link hover on surface</span><span class="ds-pair__ratio" data-contrast="--color-fg-link-hover|--color-bg-surface" data-min="4.5"></span></div><div class="ds-pair"><span>Focus ring on surface</span><span class="ds-pair__ratio" data-contrast="--color-focus-ring|--color-bg-surface" data-min="3"></span></div></div>
+      <p>The underline, not colour alone, tells a link from body text (WCAG 1.4.1), so the link-to-text ratio is not required to reach 3:1.</p>
+      <h3>Motion</h3>
+      <p>None. The hover change is instant.</p>
+      <h3>Touch</h3>
+      <p>Standalone links sit on their own line so the whole line height is the target. Inline links fall under the inline exception of WCAG 2.5.8.</p>
+    </section>
+
+    <section class="ds-section" id="content"><h2><a href="#content">Content</a></h2>
+      <ul>
+        <li>Say where it goes: "Forgot your password?", "Open board", "View his profile", "Preview public page".</li>
+        <li>Use the name of the thing when the link opens it: "Tech for Shelters hackathon", "Maple Street Church".</li>
+        <li>Error-summary links say what to fix, in the same words as the field error: "Enter a title", "End must be after start".</li>
+        <li>Sentence case, no trailing full stop on a standalone link, no "click here".</li>
+      </ul>
+    </section>
+
+    <section class="ds-section" id="do-dont"><h2><a href="#do-dont">Do and don't</a></h2>
+      <div class="ds-dodont">
+        <figure class="ds-do"><div class="ds-example__canvas"><p class="text-muted">Linked to Tomás’s member profile. <a href="../../mocks/pages/profile/default.html">View his profile</a></p></div><figcaption>The link text says where it goes.</figcaption></figure>
+        <figure class="ds-dont"><div class="ds-example__canvas"><p class="text-muted">Linked to Tomás’s member profile. <a href="../../mocks/pages/profile/default.html">Click here</a>.</p></div><figcaption>"Click here" means nothing in a list of links read out by a screen reader.</figcaption></figure>
+        <figure class="ds-do"><div class="ds-example__canvas"><a class="btn btn--danger" href="../../mocks/dialogs/archive-workspace/default.html">Archive workspace</a></div><figcaption>A link that opens a confirmation dialog can look like a danger button; nothing changes until the dialog is confirmed.</figcaption></figure>
+        <figure class="ds-dont"><div class="ds-example__canvas"><p><a href="../../mocks/pages/workspaces/default.html">Archive this workspace now</a></p></div><figcaption>A plain link that archives on click. Changing data needs a button.</figcaption></figure>
+      </div>
+    </section>
+
+    <section class="ds-section" id="tokens"><h2><a href="#tokens">Tokens</a></h2>
+      <div class="ds-table-wrap"><table class="ds-table">
+        <thead><tr><th scope="col">Part</th><th scope="col">Token</th><th scope="col">Light</th><th scope="col">Dark</th></tr></thead>
+        <tbody>
+          <tr><td>Text</td><td><code>--color-fg-link</code></td><td><span class="ds-swatch-cell" data-theme="light"><i data-token="--color-fg-link" data-swatch></i><span data-token="--color-fg-link"></span></span></td><td><span class="ds-swatch-cell" data-theme="dark"><i data-token="--color-fg-link" data-swatch></i><span data-token="--color-fg-link"></span></span></td></tr>
+          <tr><td>Text, hover</td><td><code>--color-fg-link-hover</code></td><td><span class="ds-swatch-cell" data-theme="light"><i data-token="--color-fg-link-hover" data-swatch></i><span data-token="--color-fg-link-hover"></span></span></td><td><span class="ds-swatch-cell" data-theme="dark"><i data-token="--color-fg-link-hover" data-swatch></i><span data-token="--color-fg-link-hover"></span></span></td></tr>
+          <tr><td>Focus ring</td><td><code>--color-focus-ring</code></td><td><span class="ds-swatch-cell" data-theme="light"><i data-token="--color-focus-ring" data-swatch></i><span data-token="--color-focus-ring"></span></span></td><td><span class="ds-swatch-cell" data-theme="dark"><i data-token="--color-focus-ring" data-swatch></i><span data-token="--color-focus-ring"></span></span></td></tr>
+          <tr><td>Underline / hover underline</td><td><code>--border-width-hairline</code> / <code>--border-width-thick</code></td><td><span data-token="--border-width-hairline"></span> / <span data-token="--border-width-thick"></span></td><td><span data-theme="dark"><span data-token="--border-width-hairline"></span> / <span data-token="--border-width-thick"></span></span></td></tr>
+        </tbody>
+      </table></div>
+    </section>
+
+    <section class="ds-section" id="code"><h2><a href="#code">Code</a></h2>
+      <pre><code>&lt;p class="text-caption"&gt;New to FaithTech? &lt;a href="/sign-up"&gt;Create an account&lt;/a&gt;&lt;/p&gt;
+
+&lt;div class="cluster cluster--between"&gt;
+  &lt;h2&gt;Partner pipeline&lt;/h2&gt;
+  &lt;a href="/partners"&gt;Open board&lt;/a&gt;
+&lt;/div&gt;</code></pre>
+      <table class="ds-table"><thead><tr><th scope="col">Selector / attribute</th><th scope="col">Effect</th></tr></thead><tbody>
+        <tr><td><code>a</code></td><td>Link colour, hairline underline offset 0.15em.</td></tr>
+        <tr><td><code>a:hover</code></td><td>Hover colour, thick underline.</td></tr>
+        <tr><td><code>.visually-hidden</code> inside the link</td><td>Adds context for assistive technology only.</td></tr>
+        <tr><td><code>data-state="hover|focus"</code></td><td>Documentation only: forces a state in static pages.</td></tr>
+      </tbody></table>
+    </section>
+
+    <section class="ds-section" id="sources"><h2><a href="#sources">Sources</a></h2>
+      <p>Extracted from these mocks:</p>
+      <ul>
+        <li><a href="../../mocks/pages/sign-in/default.html">pages/sign-in/default</a> ("Forgot your password?", "Create an account")</li>
+        <li><a href="../../mocks/pages/home/default.html">pages/home/default</a> ("Open board", "All events" in card headers and footers)</li>
+        <li><a href="../../mocks/pages/contact/linked.html">pages/contact/linked</a> ("View his profile")</li>
+        <li><a href="../../mocks/pages/work-item/default.html">pages/work-item/default</a> (epic link in a facts list)</li>
+        <li><a href="../../mocks/pages/event/lead.html">pages/event/lead</a> ("Preview public page")</li>
+        <li><a href="../../mocks/pages/settings/invalid.html">pages/settings/invalid</a> (error-summary links)</li>
+      </ul>
+      <p>Drift noticed in the mocks: centred standalone links use an inline <code>style="text-align: center;"</code> on their paragraph; the home card footer link ("All events") sets raw padding with an inline style. No link has a visually hidden object where list links repeat.</p>
+    </section>
+
+    <footer class="ds-footer"><span>FaithTech Community design system · extracted from <a href="../../mocks/index.html">docs/mocks</a> on 2026-10-21</span><a href="#top">Back to top</a></footer>
+  </main>
+</div>
+<script src="../assets/ds.js"></script>
+</body>
+</html>

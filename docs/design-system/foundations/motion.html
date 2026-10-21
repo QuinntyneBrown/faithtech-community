@@ -1,0 +1,187 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Motion — FaithTech Community design system</title>
+<meta name="description" content="FaithTech Community motion: duration and easing tokens with replayable demos, loading loops, choreography for dialogs, toasts, the bell panel, Kanban moves and skeletons, and reduced motion.">
+<link rel="stylesheet" href="../tokens/tokens.css">
+<link rel="stylesheet" href="../assets/components.css">
+<link rel="stylesheet" href="../assets/ds.css">
+</head>
+<body id="top">
+<a class="skip-link" href="#main">Skip to content</a>
+<div class="ds-shell">
+  <nav class="ds-nav" aria-label="Design system">
+    <div class="ds-nav__brand"><a href="../index.html">FaithTech DS</a><button class="ds-theme-toggle" type="button" aria-pressed="false">☾ Dark</button></div>
+    <details open><summary>Foundations</summary><ul>
+      <li><a href="../foundations/color.html">Color</a></li>
+      <li><a href="../foundations/typography.html">Typography</a></li>
+      <li><a href="../foundations/spacing.html">Spacing</a></li>
+      <li><a href="../foundations/layout.html">Layout</a></li>
+      <li><a href="../foundations/elevation.html">Elevation</a></li>
+      <li><a href="../foundations/shape.html">Shape</a></li>
+      <li><a href="../foundations/motion.html">Motion</a></li>
+      <li><a href="../foundations/iconography.html">Iconography</a></li>
+      <li><a href="../foundations/theming.html">Theming</a></li>
+      <li><a href="../foundations/responsive.html">Responsive</a></li>
+      <li><a href="../foundations/accessibility.html">Accessibility</a></li>
+      <li><a href="../foundations/content.html">Content</a></li>
+    </ul></details>
+    <details open><summary>Components</summary><ul>
+      <li><a href="../components/button.html">Button</a></li>
+      <li><a href="../components/link.html">Link</a></li>
+      <li><a href="../components/menu.html">Menu</a></li>
+      <li><a href="../components/form-field.html">Form field</a></li>
+      <li><a href="../components/text-field.html">Text field</a></li>
+      <li><a href="../components/textarea.html">Textarea</a></li>
+      <li><a href="../components/select.html">Select</a></li>
+      <li><a href="../components/radio-group.html">Radio group</a></li>
+      <li><a href="../components/switch.html">Switch</a></li>
+      <li><a href="../components/form-layout.html">Form layout</a></li>
+      <li><a href="../components/picture-list.html">Picture list</a></li>
+      <li><a href="../components/sticker-picker.html">Estimate card picker</a></li>
+      <li><a href="../components/top-bar.html">Top bar</a></li>
+      <li><a href="../components/tab-bar.html">Tab bar</a></li>
+      <li><a href="../components/tabs.html">Tabs</a></li>
+      <li><a href="../components/breadcrumb.html">Breadcrumb</a></li>
+      <li><a href="../components/skip-link.html">Skip link</a></li>
+      <li><a href="../components/layout.html">Layout primitives</a></li>
+      <li><a href="../components/card.html">Card</a></li>
+      <li><a href="../components/dialog.html">Dialog</a></li>
+      <li><a href="../components/notification-panel.html">Notification panel</a></li>
+      <li><a href="../components/list.html">List</a></li>
+      <li><a href="../components/table.html">Table</a></li>
+      <li><a href="../components/description-list.html">Description list</a></li>
+      <li><a href="../components/feed.html">Activity feed</a></li>
+      <li><a href="../components/tree.html">Backlog tree</a></li>
+      <li><a href="../components/kanban.html">Kanban board</a></li>
+      <li><a href="../components/event-card.html">Event card</a></li>
+      <li><a href="../components/profile-header.html">Profile header</a></li>
+      <li><a href="../components/search-results.html">Search results</a></li>
+      <li><a href="../components/note.html">Note</a></li>
+      <li><a href="../components/avatar.html">Avatar</a></li>
+      <li><a href="../components/logo-mark.html">Logo mark</a></li>
+      <li><a href="../components/badge.html">Badge</a></li>
+      <li><a href="../components/chip.html">Chip</a></li>
+      <li><a href="../components/stat.html">Stat</a></li>
+      <li><a href="../components/sticker.html">Estimate card</a></li>
+      <li><a href="../components/toast.html">Toast</a></li>
+      <li><a href="../components/alert.html">Alert and banner</a></li>
+      <li><a href="../components/inline-message.html">Inline message</a></li>
+      <li><a href="../components/progress.html">Progress</a></li>
+      <li><a href="../components/skeleton.html">Skeleton</a></li>
+      <li><a href="../components/empty-state.html">Empty state</a></li>
+      <li><a href="../components/error-page.html">Error page</a></li>
+    </ul></details>
+    <details open><summary>Patterns</summary><ul>
+      <li><a href="../patterns/forms.html">Forms</a></li>
+      <li><a href="../patterns/feedback-and-loading.html">Feedback and loading</a></li>
+      <li><a href="../patterns/empty-and-error-states.html">Empty and error states</a></li>
+      <li><a href="../patterns/navigation.html">Navigation and page structure</a></li>
+      <li><a href="../patterns/dialogs-and-overlays.html">Dialogs and overlays</a></li>
+      <li><a href="../patterns/lists-and-tables.html">Lists and tables</a></li>
+      <li><a href="../patterns/notifications.html">Notifications</a></li>
+      <li><a href="../patterns/content-and-tone.html">Content and tone</a></li>
+    </ul></details>
+  </nav>
+
+  <main id="main" class="ds-main">
+    <header class="ds-header">
+      <p class="ds-kicker">Foundation · Motion</p>
+      <h1>Motion</h1>
+      <p class="ds-lead">Quick, purposeful motion that explains what changed (a dialog arriving, a toast confirming, a partner card changing column), all of it switched off when the device asks for reduced motion.</p>
+      <div class="ds-meta"><span class="ds-pill ds-pill--ok">WCAG 2.2 AA</span><span class="ds-pill">Foundation</span></div>
+      <ul class="ds-toc">
+        <li><a href="#overview">Overview</a></li><li><a href="#durations">Durations</a></li><li><a href="#easing">Easing</a></li><li><a href="#loops">Loading loops</a></li><li><a href="#choreography">Choreography</a></li><li><a href="#accessibility">Reduced motion</a></li><li><a href="#usage">Usage</a></li><li><a href="#tokens">Tokens</a></li>
+      </ul>
+    </header>
+
+    <section class="ds-section" id="overview"><h2><a href="#overview">Overview</a></h2>
+      <p>Motion in FaithTech Community explains what changed: a dialog rises from where it will sit, a toast slides in to confirm “Invite sent”, skeletons shimmer while the partner pipeline loads. It is quick, never blocks input and switches off when the device asks for less motion. There are no celebrations or page-load effects; the timing tokens are inherited from Shelfie, and the FaithTech mocks use the calm end of them.</p>
+      <ul>
+        <li>Use a duration token and an easing token together; never a raw <code>ms</code> value or a named CSS easing.</li>
+        <li>No animation on page load except skeleton shimmer.</li>
+        <li>Animate <code>opacity</code>, <code>translate</code> and <code>scale</code>; avoid animating layout.</li>
+      </ul>
+    </section>
+
+    <section class="ds-section" id="durations"><h2><a href="#durations">Durations</a></h2>
+      <div class="ds-example"><div class="ds-example__canvas ds-example__canvas--stack"><div class="ds-motion-demo"><div class="ds-motion-demo" style="--demo-duration: var(--duration-fast); --demo-ease: var(--ease-standard); flex: 1 1 100%; align-items: center;"><button class="btn btn--sm" type="button" data-motion-run>Play fast</button><span class="dot" aria-hidden="true"></span></div><div class="ds-motion-demo" style="--demo-duration: var(--duration-base); --demo-ease: var(--ease-standard); flex: 1 1 100%; align-items: center;"><button class="btn btn--sm" type="button" data-motion-run>Play base</button><span class="dot" aria-hidden="true"></span></div><div class="ds-motion-demo" style="--demo-duration: var(--duration-slow); --demo-ease: var(--ease-standard); flex: 1 1 100%; align-items: center;"><button class="btn btn--sm" type="button" data-motion-run>Play slow</button><span class="dot" aria-hidden="true"></span></div><div class="ds-motion-demo" style="--demo-duration: var(--duration-deliberate); --demo-ease: var(--ease-standard); flex: 1 1 100%; align-items: center;"><button class="btn btn--sm" type="button" data-motion-run>Play deliberate</button><span class="dot" aria-hidden="true"></span></div></div></div><div class="ds-example__caption"><span>Each dot travels the same distance with <code>--ease-standard</code>; only the duration changes. Under reduced motion they jump.</span></div></div>
+      <div class="ds-table-wrap"><table class="ds-table">
+        <thead><tr><th scope="col">Token</th><th scope="col">Use</th></tr></thead>
+        <tbody><tr><td><code>--duration-instant</code></td><td>State changes that must not animate: a partner card landing in its new column, a role chip appearing</td></tr><tr><td><code>--duration-fast</code></td><td>Hover and colour changes, button press, estimate card selection, menu open</td></tr><tr><td><code>--duration-base</code></td><td>Toast enter and leave, backdrop fade</td></tr><tr><td><code>--duration-slow</code></td><td>Dialog enter (Move Kestrel Labs, Send invite)</td></tr><tr><td><code>--duration-deliberate</code></td><td>Reserved; no FaithTech mock uses it yet</td></tr><tr><td><code>--duration-loop</code></td><td>One cycle of a looping indicator: skeleton shimmer, the busy-button pulse</td></tr></tbody>
+      </table></div>
+    </section>
+
+    <section class="ds-section" id="easing"><h2><a href="#easing">Easing</a></h2>
+      <div class="ds-example"><div class="ds-example__canvas ds-example__canvas--stack"><div class="ds-motion-demo"><div class="ds-motion-demo" style="--demo-duration: var(--duration-slow); --demo-ease: var(--ease-standard); flex: 1 1 100%; align-items: center;"><button class="btn btn--sm" type="button" data-motion-run>Play standard</button><span class="dot" aria-hidden="true"></span></div><div class="ds-motion-demo" style="--demo-duration: var(--duration-slow); --demo-ease: var(--ease-enter); flex: 1 1 100%; align-items: center;"><button class="btn btn--sm" type="button" data-motion-run>Play enter</button><span class="dot" aria-hidden="true"></span></div><div class="ds-motion-demo" style="--demo-duration: var(--duration-slow); --demo-ease: var(--ease-exit); flex: 1 1 100%; align-items: center;"><button class="btn btn--sm" type="button" data-motion-run>Play exit</button><span class="dot" aria-hidden="true"></span></div><div class="ds-motion-demo" style="--demo-duration: var(--duration-slow); --demo-ease: var(--ease-spring); flex: 1 1 100%; align-items: center;"><button class="btn btn--sm" type="button" data-motion-run>Play spring</button><span class="dot" aria-hidden="true"></span></div></div></div><div class="ds-example__caption"><span>Same 320ms, four curves. Spring overshoots and settles.</span></div></div>
+      <ul>
+        <li><b>Standard</b> for things that change within the page: hover lifts on estimate cards, colour changes.</li>
+        <li><b>Enter</b> (decelerate) for things arriving: dialogs, menus, toasts.</li>
+        <li><b>Exit</b> (accelerate) for things leaving: a dismissed toast.</li>
+        <li><b>Spring</b> is inherited but has no FaithTech use; do not add one without a mock.</li>
+      </ul>
+    </section>
+
+    <section class="ds-section" id="loops"><h2><a href="#loops">Loading loops</a></h2>
+      <div class="ds-example"><div class="ds-example__canvas">
+        <button class="btn btn--primary" type="submit" aria-busy="true" aria-disabled="true"><span class="dot dot--pulse" aria-hidden="true"></span>Add partner…</button>
+        <div class="list__item" style="flex: 1 1 16rem;" aria-busy="true" aria-label="Loading contacts"><span class="skeleton avatar avatar--sm" aria-hidden="true"></span><div class="list__body" style="flex: 1;"><span class="skeleton skeleton--title" aria-hidden="true"></span><span class="skeleton skeleton--text" aria-hidden="true"></span></div></div>
+      </div><div class="ds-example__caption"><span>The busy submit button from <a href="../../mocks/dialogs/add-partner/busy.html">dialogs/add-partner/busy</a> and a skeleton row from <a href="../../mocks/pages/contacts/loading.html">pages/contacts/loading</a>. Pulse and shimmer each run one cycle per <code>--duration-loop</code>.</span></div></div>
+    </section>
+
+    <section class="ds-section" id="choreography"><h2><a href="#choreography">Choreography</a></h2>
+      <ul>
+        <li><b>Dialogs</b> (Move Kestrel Labs, Invite someone to FaithTech, Delete Ben Carter for good?) fade the backdrop (base) and slide the panel up from the bottom on phones or scale in from 96% from 640px (slow, enter). Closing is instant so focus returns to the trigger at once.</li>
+        <li><b>Toasts</b> (“Invite sent”, “Contact restored”, “Your RSVP wasn’t saved”) slide up into place (base, enter); the newest enters at the bottom of the region. Leaving, they fade (base, exit). The progress bar shows the time left and pauses on hover and focus.</li>
+        <li><b>Bell panel</b> opens and closes without animation, like a menu that is already anchored to the bell; only the unread count changes, instantly.</li>
+        <li><b>Kanban card move:</b> after the Move dialog saves, the card appears in its new column with no travel animation (instant) and keeps focus there; while dragging, the lifted card uses the hover lift (fast, standard). No card flies across the board.</li>
+        <li><b>Skeletons</b> shimmer in the shape of the content they replace (list rows on Contacts, columns on the partner pipeline, cards on Events) and are swapped for content in one step, never faded row by row.</li>
+        <li><b>Estimate cards</b> in Planning Poker lift slightly on hover and change colour when picked (fast, standard).</li>
+        <li>Nothing moves on its own after a page has settled except a loading indicator.</li>
+      </ul>
+    </section>
+
+    <section class="ds-section" id="accessibility"><h2><a href="#accessibility">Reduced motion</a></h2>
+      <p>Under <code>prefers-reduced-motion: reduce</code>, <code>tokens.css</code> sets every duration to 0.01ms, so transitions and entrances become instant without any component change. <code>components.css</code> also stops loops after one pass and turns off the skeleton shimmer. The busy-button dot still shows (static) because it tells the person their invite or RSVP is on its way.</p>
+      <ul>
+        <li>No animation flashes more than three times a second (2.3.1).</li>
+        <li>Smooth scrolling is turned off too.</li>
+        <li>Test with DevTools: Rendering → Emulate CSS media feature <code>prefers-reduced-motion</code>.</li>
+      </ul>
+    </section>
+
+    <section class="ds-section" id="usage"><h2><a href="#usage">Usage</a></h2>
+      <ul>
+        <li>If a motion does not explain a change, remove it.</li>
+        <li>Never delay input behind an animation; a dialog’s buttons work while it is still easing in.</li>
+        <li>Never animate a partner, contact or person moving between lists; show the result and move focus with it.</li>
+        <li>Use standard and enter for everything; exit only for things that leave on their own.</li>
+      </ul>
+    </section>
+
+    <section class="ds-section" id="tokens"><h2><a href="#tokens">Tokens</a></h2>
+      <div class="ds-table-wrap"><table class="ds-table"><caption class="visually-hidden">Motion tokens</caption>
+        <thead><tr><th scope="col">Role</th><th scope="col">Token</th><th scope="col">Light</th><th scope="col">Dark</th></tr></thead>
+        <tbody>
+          <tr><td>No animation: Kanban card landing, bell count</td><td><code>--duration-instant</code></td><td colspan="2"><span data-token="--duration-instant"></span></td></tr>
+          <tr><td>Hover, colour changes, estimate card pick</td><td><code>--duration-fast</code></td><td colspan="2"><span data-token="--duration-fast"></span></td></tr>
+          <tr><td>Toasts, backdrop</td><td><code>--duration-base</code></td><td colspan="2"><span data-token="--duration-base"></span></td></tr>
+          <tr><td>Dialogs</td><td><code>--duration-slow</code></td><td colspan="2"><span data-token="--duration-slow"></span></td></tr>
+          <tr><td>Reserved for longer transitions</td><td><code>--duration-deliberate</code></td><td colspan="2"><span data-token="--duration-deliberate"></span></td></tr>
+          <tr><td>One cycle of a looping indicator: shimmer, pulse</td><td><code>--duration-loop</code></td><td colspan="2"><span data-token="--duration-loop"></span></td></tr>
+          <tr><td>Changing within the page</td><td><code>--ease-standard</code></td><td colspan="2"><span data-token="--ease-standard"></span></td></tr>
+          <tr><td>Arriving (decelerate)</td><td><code>--ease-enter</code></td><td colspan="2"><span data-token="--ease-enter"></span></td></tr>
+          <tr><td>Leaving (accelerate)</td><td><code>--ease-exit</code></td><td colspan="2"><span data-token="--ease-exit"></span></td></tr>
+          <tr><td>Inherited overshoot, unused</td><td><code>--ease-spring</code></td><td colspan="2"><span data-token="--ease-spring"></span></td></tr>
+        </tbody>
+      </table></div>
+    </section>
+
+    <footer class="ds-footer"><span>FaithTech Community design system · extracted from <a href="../../mocks/index.html">docs/mocks</a> on 2026-10-21</span><a href="#top">Back to top</a></footer>
+  </main>
+</div>
+<script src="../assets/ds.js"></script>
+</body>
+</html>

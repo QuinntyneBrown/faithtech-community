@@ -1,0 +1,249 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Empty and error states — FaithTech Community design system</title>
+<meta name="description" content="What FaithTech Community shows when there is nothing yet, nothing matches, loading failed, access is denied, the page is missing, the server failed or the person is offline, with role-aware copy and one next step.">
+<link rel="stylesheet" href="../tokens/tokens.css">
+<link rel="stylesheet" href="../assets/components.css">
+<link rel="stylesheet" href="../assets/ds.css">
+</head>
+<body id="top">
+<a class="skip-link" href="#main">Skip to content</a>
+<div class="ds-shell">
+  <nav class="ds-nav" aria-label="Design system">
+    <div class="ds-nav__brand"><a href="../index.html">FaithTech DS</a><button class="ds-theme-toggle" type="button" aria-pressed="false">☾ Dark</button></div>
+    <details open><summary>Foundations</summary><ul>
+      <li><a href="../foundations/color.html">Color</a></li>
+      <li><a href="../foundations/typography.html">Typography</a></li>
+      <li><a href="../foundations/spacing.html">Spacing</a></li>
+      <li><a href="../foundations/layout.html">Layout</a></li>
+      <li><a href="../foundations/elevation.html">Elevation</a></li>
+      <li><a href="../foundations/shape.html">Shape</a></li>
+      <li><a href="../foundations/motion.html">Motion</a></li>
+      <li><a href="../foundations/iconography.html">Iconography</a></li>
+      <li><a href="../foundations/theming.html">Theming</a></li>
+      <li><a href="../foundations/responsive.html">Responsive</a></li>
+      <li><a href="../foundations/accessibility.html">Accessibility</a></li>
+      <li><a href="../foundations/content.html">Content</a></li>
+    </ul></details>
+    <details open><summary>Components</summary><ul>
+      <li><a href="../components/button.html">Button</a></li>
+      <li><a href="../components/link.html">Link</a></li>
+      <li><a href="../components/menu.html">Menu</a></li>
+      <li><a href="../components/form-field.html">Form field</a></li>
+      <li><a href="../components/text-field.html">Text field</a></li>
+      <li><a href="../components/textarea.html">Textarea</a></li>
+      <li><a href="../components/select.html">Select</a></li>
+      <li><a href="../components/radio-group.html">Radio group</a></li>
+      <li><a href="../components/switch.html">Switch</a></li>
+      <li><a href="../components/form-layout.html">Form layout</a></li>
+      <li><a href="../components/picture-list.html">Picture list</a></li>
+      <li><a href="../components/sticker-picker.html">Estimate card picker</a></li>
+      <li><a href="../components/top-bar.html">Top bar</a></li>
+      <li><a href="../components/tab-bar.html">Tab bar</a></li>
+      <li><a href="../components/tabs.html">Tabs</a></li>
+      <li><a href="../components/breadcrumb.html">Breadcrumb</a></li>
+      <li><a href="../components/skip-link.html">Skip link</a></li>
+      <li><a href="../components/layout.html">Layout primitives</a></li>
+      <li><a href="../components/card.html">Card</a></li>
+      <li><a href="../components/dialog.html">Dialog</a></li>
+      <li><a href="../components/notification-panel.html">Notification panel</a></li>
+      <li><a href="../components/list.html">List</a></li>
+      <li><a href="../components/table.html">Table</a></li>
+      <li><a href="../components/description-list.html">Description list</a></li>
+      <li><a href="../components/feed.html">Activity feed</a></li>
+      <li><a href="../components/tree.html">Backlog tree</a></li>
+      <li><a href="../components/kanban.html">Kanban board</a></li>
+      <li><a href="../components/event-card.html">Event card</a></li>
+      <li><a href="../components/profile-header.html">Profile header</a></li>
+      <li><a href="../components/search-results.html">Search results</a></li>
+      <li><a href="../components/note.html">Note</a></li>
+      <li><a href="../components/avatar.html">Avatar</a></li>
+      <li><a href="../components/logo-mark.html">Logo mark</a></li>
+      <li><a href="../components/badge.html">Badge</a></li>
+      <li><a href="../components/chip.html">Chip</a></li>
+      <li><a href="../components/stat.html">Stat</a></li>
+      <li><a href="../components/sticker.html">Estimate card</a></li>
+      <li><a href="../components/toast.html">Toast</a></li>
+      <li><a href="../components/alert.html">Alert and banner</a></li>
+      <li><a href="../components/inline-message.html">Inline message</a></li>
+      <li><a href="../components/progress.html">Progress</a></li>
+      <li><a href="../components/skeleton.html">Skeleton</a></li>
+      <li><a href="../components/empty-state.html">Empty state</a></li>
+      <li><a href="../components/error-page.html">Error page</a></li>
+    </ul></details>
+    <details open><summary>Patterns</summary><ul>
+      <li><a href="../patterns/forms.html">Forms</a></li>
+      <li><a href="../patterns/feedback-and-loading.html">Feedback and loading</a></li>
+      <li><a href="../patterns/empty-and-error-states.html">Empty and error states</a></li>
+      <li><a href="../patterns/navigation.html">Navigation and page structure</a></li>
+      <li><a href="../patterns/dialogs-and-overlays.html">Dialogs and overlays</a></li>
+      <li><a href="../patterns/lists-and-tables.html">Lists and tables</a></li>
+      <li><a href="../patterns/notifications.html">Notifications</a></li>
+      <li><a href="../patterns/content-and-tone.html">Content and tone</a></li>
+    </ul></details>
+  </nav>
+
+  <main id="main" class="ds-main">
+    <header class="ds-header">
+      <p class="ds-kicker">Pattern · Feedback</p>
+      <h1>Empty and error states</h1>
+      <p class="ds-lead">An empty or failed screen still does a job. It says why there is nothing here, and offers one useful next step: add the first contact, try another search, try again, or ask the right person.</p>
+      <div class="ds-meta"><span class="ds-pill ds-pill--ok">WCAG 2.2 AA</span><span class="ds-pill">Status: stable</span><span class="ds-pill">Pattern</span></div>
+      <ul class="ds-toc">
+        <li><a href="#overview">Overview</a></li><li><a href="#when">When to use</a></li><li><a href="#structure">Structure</a></li><li><a href="#states">States</a></li><li><a href="#responsive">Responsive</a></li><li><a href="#accessibility">Accessibility</a></li><li><a href="#content">Content</a></li><li><a href="#do-dont">Do and don't</a></li><li><a href="#sources">Sources</a></li>
+      </ul>
+    </header>
+
+    <section class="ds-section" id="overview"><h2><a href="#overview">Overview</a></h2>
+      <p>All of these use the <a href="../components/empty-state.html">empty state</a> block (<code>.empty</code>): an icon, a title, one or two sentences and the actions. Errors add <code>.empty--error</code> and <code>role="alert"</code>. Screens that replace the whole page (forbidden, not found, server error, offline) use the same block as the page's <code>&lt;h1&gt;</code>. See <a href="../components/error-page.html">error page</a>.</p>
+      <p>The mocks have seven kinds: first use (empty), no results, load failed (error), not allowed (forbidden), not found, server error and offline.</p>
+    </section>
+
+    <section class="ds-section" id="when"><h2><a href="#when">When to use</a></h2>
+      <div class="ds-table-wrap"><table class="ds-table">
+        <thead><tr><th scope="col">Kind</th><th scope="col">Means</th><th scope="col">Action</th><th scope="col">FaithTech example</th></tr></thead>
+        <tbody>
+          <tr><td>Empty</td><td>Nothing has been created yet</td><td>Create the first one (primary)</td><td>"No contacts yet" · Add your first contact</td></tr>
+          <tr><td>No results</td><td>A search or filter matched nothing</td><td>Widen the search, or go somewhere related</td><td>"No one matches “xavier”" · invite them by email</td></tr>
+          <tr><td>Error</td><td>The region failed to load</td><td>Try again</td><td>"We couldn’t load the partner pipeline"</td></tr>
+          <tr><td>Forbidden</td><td>The person's role doesn't allow it</td><td>Name who can help, or Go home</td><td>"Only City Leads manage roles · Ask Grace Okonkwo, your City Lead"</td></tr>
+          <tr><td>Not found</td><td>The link points to nothing</td><td>Go home</td><td>"We can’t find that page"</td></tr>
+          <tr><td>Server error</td><td>We failed</td><td>Try again, with a reference code</td><td>"Something went wrong on our side · Reference: 7f3c-21a9-4b0e"</td></tr>
+          <tr><td>Offline</td><td>The device has no connection</td><td>Try again. Typed work is kept</td><td>"You’re offline"</td></tr>
+          <tr><td>Expired link</td><td>An invite or reset link is too old</td><td>Ask for a new one</td><td>"This invite has expired · Invites last 14 days"</td></tr>
+        </tbody>
+      </table></div>
+      <h3>Forbidden is a permission rule</h3>
+      <p>Respond with forbidden, not an empty list, when the person's role can't see the data. Examples: Staff opening contacts ("Contacts are private to each lead"), a Volunteer opening a workspace they are not in ("You’re not a member of this workspace"), or a lead opening admin ("This area is for System Admins"). The server sends the refusal, so a page never shows an empty list that is only pretending to be empty.</p>
+    </section>
+
+    <section class="ds-section" id="structure"><h2><a href="#structure">Structure</a></h2>
+      <div class="ds-example">
+        <div class="ds-example__canvas ds-example__canvas--stack">
+          <div class="card" style="width: 100%;"><div class="empty"><span class="empty__icon" aria-hidden="true"><svg class="icon icon--lg" aria-hidden="true" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="2"/><circle cx="9" cy="11" r="2.5"/><path d="M5.5 17a3.5 3.5 0 0 1 7 0M15 9h3M15 13h3"/></svg></span><h3 class="empty__title">No contacts yet</h3><p class="empty__text">Keep track of people you meet. Contacts and your notes on them are private to you until they join.</p><div class="empty__actions"><a class="btn btn--primary" href="../../mocks/pages/contact-form/default.html"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>Add your first contact</a></div></div></div>
+        </div>
+        <div class="ds-example__caption"><span>pages/contacts/empty.</span></div>
+        <details class="ds-example__code"><summary>HTML</summary><pre><code>&lt;div class="empty"&gt;
+  &lt;span class="empty__icon" aria-hidden="true"&gt;&lt;svg class="icon icon--lg" aria-hidden="true"&gt;…&lt;/svg&gt;&lt;/span&gt;
+  &lt;h2 class="empty__title"&gt;No contacts yet&lt;/h2&gt;
+  &lt;p class="empty__text"&gt;Keep track of people you meet. Contacts and your notes on them are private to you until they join.&lt;/p&gt;
+  &lt;div class="empty__actions"&gt;&lt;a class="btn btn--primary" href="/contacts/new"&gt;Add your first contact&lt;/a&gt;&lt;/div&gt;
+&lt;/div&gt;</code></pre></details>
+      </div>
+      <div class="ds-example">
+        <div class="ds-example__canvas ds-example__canvas--stack">
+          <div class="card" style="width: 100%;"><div class="empty"><span class="empty__icon" aria-hidden="true"><svg class="icon icon--lg" aria-hidden="true" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg></span><h3 class="empty__title">No one matches “xavier”</h3><p class="empty__text">They may not have joined yet. You can invite them by email.</p><div class="empty__actions"><a class="btn btn--primary" href="../../mocks/dialogs/send-invite/default.html">Invite someone</a></div></div></div>
+          <div class="card" style="width: 100%;"><div class="empty empty--error" role="alert"><span class="empty__icon" aria-hidden="true"><svg class="icon icon--lg" aria-hidden="true" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 8v4M12 16h.01"/></svg></span><h3 class="empty__title">We couldn’t load the partner pipeline</h3><p class="empty__text">Check your connection and try again. If it keeps happening, we’ve already been told about it.</p><div class="empty__actions"><a class="btn btn--primary" href="../../mocks/pages/partners/default.html"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><path d="M21 12a9 9 0 1 1-3-6.7L21 8M21 3v5h-5"/></svg>Try again</a></div></div></div>
+          <div class="card" style="width: 100%;"><div class="empty"><span class="empty__icon" aria-hidden="true"><svg class="icon icon--lg" aria-hidden="true" viewBox="0 0 24 24"><rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg></span><h3 class="empty__title">Contacts are private to each lead</h3><p class="empty__text">Staff can see everything else read-only, but contacts and their notes belong to the lead who created them.</p></div></div>
+        </div>
+        <div class="ds-example__caption"><span>pages/people/no-results, pages/partners/error and pages/contacts/forbidden (Daniel Reyes, Staff).</span></div>
+      </div>
+      <h3>Full-page states</h3>
+      <div class="ds-example">
+        <div class="ds-example__canvas ds-example__canvas--stack">
+          <div class="card" style="width: 100%;"><div class="empty"><span class="empty__icon" aria-hidden="true"><svg class="icon icon--lg" aria-hidden="true" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 8v4M12 16h.01"/></svg></span><h3 class="empty__title">Something went wrong on our side</h3><p class="empty__text">It’s not you. We’ve been told and are looking into it. Try again in a minute.</p><p class="text-caption">Reference: 7f3c-21a9-4b0e</p><div class="empty__actions"><a class="btn btn--primary" href="../../mocks/pages/server-error/default.html"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><path d="M21 12a9 9 0 1 1-3-6.7L21 8M21 3v5h-5"/></svg>Try again</a></div></div></div>
+          <div class="card" style="width: 100%;"><div class="empty"><span class="empty__icon" aria-hidden="true"><svg class="icon icon--lg" aria-hidden="true" viewBox="0 0 24 24"><path d="M2 2l20 20M8.5 16.5a5 5 0 0 1 7 0M5 12.5a10 10 0 0 1 5-2.7M19 12.5a10 10 0 0 0-2.1-1.5M2 8.8a15 15 0 0 1 4.2-2.6M22 8.8A15 15 0 0 0 11 5M12 20h.01"/></svg></span><h3 class="empty__title">You’re offline</h3><p class="empty__text">Check your connection. Anything you were typing is still here and will save when you’re back online.</p><div class="empty__actions"><a class="btn btn--primary" href="../../mocks/pages/offline/default.html"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><path d="M21 12a9 9 0 1 1-3-6.7L21 8M21 3v5h-5"/></svg>Try again</a></div></div></div>
+        </div>
+        <div class="ds-example__caption"><span>pages/server-error/default and pages/offline/default. On the real pages the title is the <code>&lt;h1&gt;</code>.</span></div>
+      </div>
+    </section>
+
+    <section class="ds-section" id="states"><h2><a href="#states">States</a></h2>
+      <p>One area can show different kinds depending on who is looking and what they searched for:</p>
+      <div class="ds-table-wrap"><table class="ds-table">
+        <thead><tr><th scope="col">Screen</th><th scope="col">Empty</th><th scope="col">No results</th><th scope="col">Forbidden</th></tr></thead>
+        <tbody>
+          <tr><td>Contacts</td><td>No contacts yet · Add your first contact</td><td>No contacts match “harbour” · View archived contacts</td><td>Staff: Contacts are private to each lead</td></tr>
+          <tr><td>People</td><td>—</td><td>No one matches “xavier”</td><td>Volunteer: Only City Leads manage roles</td></tr>
+          <tr><td>Workspaces</td><td>Create your first workspace</td><td>—</td><td>Ruth: You’re not a member of this workspace</td></tr>
+          <tr><td>Audit log</td><td>No admin actions yet</td><td>No suspensions in the last 90 days</td><td>Lead: This area is for System Admins</td></tr>
+          <tr><td>Partners</td><td>Start your partner pipeline</td><td>—</td><td>—</td></tr>
+          <tr><td>Notifications</td><td>You’re all caught up</td><td>—</td><td>—</td></tr>
+        </tbody>
+      </table></div>
+      <h3>Interaction</h3>
+      <div class="ds-matrix"><table>
+        <thead><tr><th scope="col">Part</th><th scope="col">Default</th><th scope="col">Hover</th><th scope="col">Focus</th></tr></thead>
+        <tbody>
+          <tr><th scope="row">Action</th>
+            <td><a class="btn btn--primary" href="#states">Try again</a></td>
+            <td><a class="btn btn--primary" href="#states" data-state="hover">Try again</a></td>
+            <td><a class="btn btn--primary" href="#states" data-state="focus">Try again</a></td></tr>
+        </tbody>
+      </table></div>
+      <h3>Both themes</h3>
+      <div class="ds-themes">
+        <div data-theme="light"><div class="empty empty--error"><span class="empty__icon" aria-hidden="true"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 8v4M12 16h.01"/></svg></span><p class="empty__title">We couldn’t load events</p></div></div>
+        <div data-theme="dark"><div class="empty empty--error"><span class="empty__icon" aria-hidden="true"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 8v4M12 16h.01"/></svg></span><p class="empty__title">We couldn’t load events</p></div></div>
+      </div>
+    </section>
+
+    <section class="ds-section" id="responsive"><h2><a href="#responsive">Responsive behaviour</a></h2>
+      <ul>
+        <li>The block is centred, and its text is limited to about 36 characters per line for the title and 60 for the text.</li>
+        <li>Inside a region, the block replaces only that region. The page header and its actions stay, so "Add contact" is still at the top.</li>
+        <li>Full-page states have <code>--space-12</code> of padding above, and keep the top bar and tab bar, so the person can still go somewhere else.</li>
+        <li>Under 640px, buttons in <code>.empty__actions</code> fill the width.</li>
+      </ul>
+    </section>
+
+    <section class="ds-section" id="accessibility"><h2><a href="#accessibility">Accessibility</a></h2>
+      <ul>
+        <li>The title is a real heading. It is an <code>&lt;h2&gt;</code> inside a page and the <code>&lt;h1&gt;</code> on full-page states. The page <code>&lt;title&gt;</code> changes too (for example, "Page not found").</li>
+        <li>Load errors have <code>role="alert"</code>, so they are announced when they replace a skeleton. A no-results block that appears after a search is announced with a polite live region ("No one matches “xavier”").</li>
+        <li>Icons are <code>aria-hidden</code>. The title carries the meaning.</li>
+        <li>Pages that are not found or not allowed return the right HTTP status (404 or 403), not 200.</li>
+        <li>The forbidden copy never confirms that a private item exists. "You don’t have access to this" is used whether or not the contact exists.</li>
+      </ul>
+      <h3>Contrast</h3>
+      <div class="ds-example__canvas ds-example__canvas--stack" style="padding: 0; gap: var(--space-2);">
+        <div class="ds-pair"><span>Empty text</span><span class="ds-pair__ratio" data-contrast="--color-fg-muted|--color-bg-surface" data-min="4.5"></span></div>
+        <div class="ds-pair"><span>Error icon</span><span class="ds-pair__ratio" data-contrast="--color-danger-icon|--color-bg-surface" data-min="3"></span></div>
+      </div>
+    </section>
+
+    <section class="ds-section" id="content"><h2><a href="#content">Content</a></h2>
+      <ul>
+        <li><b>Empty: say what this place is for</b>, then invite the first step: "Track churches, companies and foundations from first conversation to confirmed. Every lead sees the same board."</li>
+        <li><b>No results: repeat the query in quotes</b> and say what search covers: "Search looks at names and your notes. Archived contacts aren’t included."</li>
+        <li><b>Error: "We couldn’t load …"</b> followed by the same reassurance every time: "Check your connection and try again. If it keeps happening, we’ve already been told about it."</li>
+        <li><b>Forbidden: name the person who can help</b>: "Ask Grace Okonkwo, your City Lead", or "contact Priya Shah".</li>
+        <li><b>Server error: take the blame</b>: "It’s not you." Give a reference code that support can look up.</li>
+      </ul>
+    </section>
+
+    <section class="ds-section" id="do-dont"><h2><a href="#do-dont">Do and don't</a></h2>
+      <div class="ds-dodont">
+        <figure class="ds-do"><div class="ds-example__canvas"><div class="empty"><p class="empty__title">Only City Leads manage roles</p><p class="empty__text">Ask Grace Okonkwo, your City Lead, if someone needs a role added or removed.</p></div></div><figcaption>Say who can help, by name.</figcaption></figure>
+        <figure class="ds-dont"><div class="ds-example__canvas"><div class="empty"><p class="empty__title">403 Forbidden</p></div></div><figcaption>Don't show a status code with no next step.</figcaption></figure>
+        <figure class="ds-do"><div class="ds-example__canvas"><div class="empty"><p class="empty__title">You’re not a member of this workspace</p></div></div><figcaption>Use forbidden when the role is the reason.</figcaption></figure>
+        <figure class="ds-dont"><div class="ds-example__canvas"><div class="empty"><p class="empty__title">Nothing in the backlog</p></div></div><figcaption>Don't show a non-member an empty backlog. It hides the real reason and suggests there is nothing there.</figcaption></figure>
+      </div>
+    </section>
+
+    <section class="ds-section" id="sources"><h2><a href="#sources">Sources</a></h2>
+      <ul>
+        <li>Empty: <a href="../../mocks/pages/contacts/empty.html">contacts</a>, <a href="../../mocks/pages/partners/empty.html">partners</a>, <a href="../../mocks/pages/workspaces/empty.html">workspaces</a>, <a href="../../mocks/pages/events/empty.html">events</a>, <a href="../../mocks/pages/announcements/empty.html">announcements</a>, <a href="../../mocks/pages/invites/empty.html">invites</a>, <a href="../../mocks/pages/archived-contacts/empty.html">archived-contacts</a>, <a href="../../mocks/pages/profile/empty.html">profile</a>, <a href="../../mocks/pages/notifications/empty.html">notifications</a>, <a href="../../mocks/pages/audit-log/empty.html">audit-log</a></li>
+        <li>No results: <a href="../../mocks/pages/contacts/no-results.html">contacts</a>, <a href="../../mocks/pages/people/no-results.html">people</a>, <a href="../../mocks/pages/search/no-results.html">search</a>, <a href="../../mocks/pages/events/no-results.html">events</a>, <a href="../../mocks/pages/team/no-results.html">team</a>, <a href="../../mocks/pages/admin-users/no-results.html">admin-users</a>, <a href="../../mocks/pages/audit-log/no-results.html">audit-log</a></li>
+        <li>Error: <a href="../../mocks/pages/partners/error.html">partners</a>, <a href="../../mocks/pages/audit-log/error.html">audit-log</a>, <a href="../../mocks/pages/contacts/error.html">contacts</a>, <a href="../../mocks/pages/events/error.html">events</a></li>
+        <li>Forbidden: <a href="../../mocks/pages/forbidden/default.html">forbidden</a>, <a href="../../mocks/pages/contacts/forbidden.html">contacts</a>, <a href="../../mocks/pages/people/forbidden.html">people</a>, <a href="../../mocks/pages/admin-users/forbidden.html">admin-users</a>, <a href="../../mocks/pages/backlog/forbidden.html">backlog</a>, <a href="../../mocks/pages/workspace-settings/forbidden.html">workspace-settings</a></li>
+        <li>Full page: <a href="../../mocks/pages/not-found/default.html">not-found</a>, <a href="../../mocks/pages/server-error/default.html">server-error</a>, <a href="../../mocks/pages/offline/default.html">offline</a>; expired: <a href="../../mocks/pages/accept-invite/error.html">accept-invite/error</a>, <a href="../../mocks/pages/reset-password/error.html">reset-password/error</a></li>
+      </ul>
+      <p>Drift noticed in the mocks:</p>
+      <ul>
+        <li>Full-page states put the block in a wrapper with an inline <code>style="padding-top: var(--space-12);"</code>. There is no class for it.</li>
+        <li>"Try again" is an <code>&lt;a&gt;</code> that links to the default state. In the app it should be a button that runs the request again.</li>
+        <li>Load-error copy is the same on 26 screens. That is deliberate, but it is not stored anywhere as one shared string.</li>
+        <li>The bell's empty state uses <code>&lt;p class="empty__title"&gt;</code> while the pages use headings.</li>
+      </ul>
+    </section>
+
+    <footer class="ds-footer"><span>FaithTech Community design system · extracted from <a href="../../mocks/index.html">docs/mocks</a> on 2026-10-21</span><a href="#top">Back to top</a></footer>
+  </main>
+</div>
+<script src="../assets/ds.js"></script>
+</body>
+</html>

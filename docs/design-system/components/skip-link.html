@@ -1,0 +1,245 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Skip link — FaithTech Community design system</title>
+<meta name="description" content="The first link on every page: hidden until it gets keyboard focus, then jumps past the FaithTech top bar (eight nav links, search, bell and avatar) to the main content.">
+<link rel="stylesheet" href="../tokens/tokens.css">
+<link rel="stylesheet" href="../assets/components.css">
+<link rel="stylesheet" href="../assets/ds.css">
+</head>
+<body id="top">
+<a class="skip-link" href="#main">Skip to content</a>
+<div class="ds-shell">
+  <nav class="ds-nav" aria-label="Design system">
+    <div class="ds-nav__brand"><a href="../index.html">FaithTech DS</a><button class="ds-theme-toggle" type="button" aria-pressed="false">☾ Dark</button></div>
+    <details open><summary>Foundations</summary><ul>
+      <li><a href="../foundations/color.html">Color</a></li>
+      <li><a href="../foundations/typography.html">Typography</a></li>
+      <li><a href="../foundations/spacing.html">Spacing</a></li>
+      <li><a href="../foundations/layout.html">Layout</a></li>
+      <li><a href="../foundations/elevation.html">Elevation</a></li>
+      <li><a href="../foundations/shape.html">Shape</a></li>
+      <li><a href="../foundations/motion.html">Motion</a></li>
+      <li><a href="../foundations/iconography.html">Iconography</a></li>
+      <li><a href="../foundations/theming.html">Theming</a></li>
+      <li><a href="../foundations/responsive.html">Responsive</a></li>
+      <li><a href="../foundations/accessibility.html">Accessibility</a></li>
+      <li><a href="../foundations/content.html">Content</a></li>
+    </ul></details>
+    <details open><summary>Components</summary><ul>
+      <li><a href="../components/button.html">Button</a></li>
+      <li><a href="../components/link.html">Link</a></li>
+      <li><a href="../components/menu.html">Menu</a></li>
+      <li><a href="../components/form-field.html">Form field</a></li>
+      <li><a href="../components/text-field.html">Text field</a></li>
+      <li><a href="../components/textarea.html">Textarea</a></li>
+      <li><a href="../components/select.html">Select</a></li>
+      <li><a href="../components/radio-group.html">Radio group</a></li>
+      <li><a href="../components/switch.html">Switch</a></li>
+      <li><a href="../components/form-layout.html">Form layout</a></li>
+      <li><a href="../components/picture-list.html">Picture list</a></li>
+      <li><a href="../components/sticker-picker.html">Estimate card picker</a></li>
+      <li><a href="../components/top-bar.html">Top bar</a></li>
+      <li><a href="../components/tab-bar.html">Tab bar</a></li>
+      <li><a href="../components/tabs.html">Tabs</a></li>
+      <li><a href="../components/breadcrumb.html">Breadcrumb</a></li>
+      <li><a href="../components/skip-link.html">Skip link</a></li>
+      <li><a href="../components/layout.html">Layout primitives</a></li>
+      <li><a href="../components/card.html">Card</a></li>
+      <li><a href="../components/dialog.html">Dialog</a></li>
+      <li><a href="../components/notification-panel.html">Notification panel</a></li>
+      <li><a href="../components/list.html">List</a></li>
+      <li><a href="../components/table.html">Table</a></li>
+      <li><a href="../components/description-list.html">Description list</a></li>
+      <li><a href="../components/feed.html">Activity feed</a></li>
+      <li><a href="../components/tree.html">Backlog tree</a></li>
+      <li><a href="../components/kanban.html">Kanban board</a></li>
+      <li><a href="../components/event-card.html">Event card</a></li>
+      <li><a href="../components/profile-header.html">Profile header</a></li>
+      <li><a href="../components/search-results.html">Search results</a></li>
+      <li><a href="../components/note.html">Note</a></li>
+      <li><a href="../components/avatar.html">Avatar</a></li>
+      <li><a href="../components/logo-mark.html">Logo mark</a></li>
+      <li><a href="../components/badge.html">Badge</a></li>
+      <li><a href="../components/chip.html">Chip</a></li>
+      <li><a href="../components/stat.html">Stat</a></li>
+      <li><a href="../components/sticker.html">Estimate card</a></li>
+      <li><a href="../components/toast.html">Toast</a></li>
+      <li><a href="../components/alert.html">Alert and banner</a></li>
+      <li><a href="../components/inline-message.html">Inline message</a></li>
+      <li><a href="../components/progress.html">Progress</a></li>
+      <li><a href="../components/skeleton.html">Skeleton</a></li>
+      <li><a href="../components/empty-state.html">Empty state</a></li>
+      <li><a href="../components/error-page.html">Error page</a></li>
+    </ul></details>
+    <details open><summary>Patterns</summary><ul>
+      <li><a href="../patterns/forms.html">Forms</a></li>
+      <li><a href="../patterns/feedback-and-loading.html">Feedback and loading</a></li>
+      <li><a href="../patterns/empty-and-error-states.html">Empty and error states</a></li>
+      <li><a href="../patterns/navigation.html">Navigation and page structure</a></li>
+      <li><a href="../patterns/dialogs-and-overlays.html">Dialogs and overlays</a></li>
+      <li><a href="../patterns/lists-and-tables.html">Lists and tables</a></li>
+      <li><a href="../patterns/notifications.html">Notifications</a></li>
+      <li><a href="../patterns/content-and-tone.html">Content and tone</a></li>
+    </ul></details>
+  </nav>
+
+  <main id="main" class="ds-main">
+    <header class="ds-header">
+      <p class="ds-kicker">Component · Navigation</p>
+      <h1>Skip link</h1>
+      <p class="ds-lead">The first thing a keyboard reaches on every page. It stays out of sight until it has focus, then lets the person jump straight past the top bar (up to eight nav links, search, the bell and the avatar) to the content.</p>
+      <div class="ds-meta"><span class="ds-pill ds-pill--ok">WCAG 2.2 AA</span><span class="ds-pill">Status: stable</span><span class="ds-pill">Native <code>&lt;a href="#main"&gt;</code></span></div>
+      <ul class="ds-toc">
+        <li><a href="#overview">Overview</a></li><li><a href="#anatomy">Anatomy</a></li><li><a href="#variants">Variants</a></li><li><a href="#sizes">Sizes</a></li><li><a href="#states">States</a></li><li><a href="#responsive">Responsive</a></li><li><a href="#theming">Theming</a></li><li><a href="#accessibility">Accessibility</a></li><li><a href="#content">Content</a></li><li><a href="#do-dont">Do and don't</a></li><li><a href="#tokens">Tokens</a></li><li><a href="#code">Code</a></li><li><a href="#sources">Sources</a></li>
+      </ul>
+    </header>
+
+    <section class="ds-section" id="overview"><h2><a href="#overview">Overview</a></h2>
+      <p>Every FaithTech Community page, signed in or not (including the public event page and the auth pages), starts with <code>&lt;a class="skip-link" href="#main"&gt;Skip to content&lt;/a&gt;</code> as the first element in <code>&lt;body&gt;</code>, and has a <code>&lt;main id="main"&gt;</code> for it to land on. It meets WCAG 2.4.1 (bypass blocks). This page has one too: press <kbd>Tab</kbd> from the address bar to see it.</p>
+    </section>
+
+    <section class="ds-section" id="anatomy"><h2><a href="#anatomy">Anatomy</a></h2>
+      <div class="ds-anatomy">
+        <figure class="ds-anatomy__figure" style="position: relative; overflow: hidden; min-height: var(--space-24);">
+          <a class="skip-link" href="#main" data-state="focus">Skip to content</a>
+          <span class="ds-callout" style="left: 4%; top: 8%;" aria-hidden="true">1</span>
+          <span class="ds-callout" style="left: 40%; top: 8%;" aria-hidden="true">2</span>
+        </figure>
+        <ol class="ds-anatomy__list">
+          <li><div><b>Container</b><small>Raised surface, <code>--radius-md</code>, <code>--shadow-3</code>, positioned <code>--space-4</code> from the top left when focused, above everything (<code>--z-tooltip</code>).</small></div></li>
+          <li><div><b>Label</b><small>"Skip to content" in <code>--color-fg-default</code>, no underline.</small></div></li>
+        </ol>
+      </div>
+    </section>
+
+    <section class="ds-section" id="variants" data-na="one variant"><h2><a href="#variants">Variants</a></h2>
+      <p class="ds-na">One link, one target (<code>#main</code>), on every page.</p>
+    </section>
+
+    <section class="ds-section" id="sizes" data-na="one size"><h2><a href="#sizes">Sizes</a></h2>
+      <p class="ds-na">One size: body text with <code>--space-2</code> × <code>--space-4</code> padding.</p>
+    </section>
+
+    <section class="ds-section" id="states"><h2><a href="#states">States</a></h2>
+      <p>Two states. At rest it sits above the top of the viewport (<code>top: calc(-1 * --space-24)</code>); on <code>:focus-visible</code> it slides to <code>--space-4</code>. The focused state is forced here with <code>data-state="focus"</code>.</p>
+      <div class="ds-matrix"><table>
+        <thead><tr><th scope="col">Theme</th><th scope="col">Default (off screen)</th><th scope="col">Focus</th></tr></thead>
+        <tbody>
+          <tr><th scope="row">Light</th>
+            <td data-theme="light"><div style="position: relative; overflow: hidden; min-height: var(--space-16); min-width: 12rem;"><a class="skip-link" href="#main">Skip to content</a></div></td>
+            <td data-theme="light"><div style="position: relative; overflow: hidden; min-height: var(--space-16); min-width: 12rem;"><a class="skip-link" href="#main" data-state="focus">Skip to content</a></div></td></tr>
+          <tr><th scope="row">Dark</th>
+            <td data-theme="dark"><div style="position: relative; overflow: hidden; min-height: var(--space-16); min-width: 12rem;"><a class="skip-link" href="#main">Skip to content</a></div></td>
+            <td data-theme="dark"><div style="position: relative; overflow: hidden; min-height: var(--space-16); min-width: 12rem;"><a class="skip-link" href="#main" data-state="focus">Skip to content</a></div></td></tr>
+        </tbody>
+      </table></div>
+      <h3>Both themes, over the top bar</h3>
+      <div class="ds-themes">
+        <div data-theme="light"><div style="position: relative; overflow: hidden;"><header class="topbar" style="position: relative; top: 0; width: 100%; margin: 0;"><a class="topbar__brand" href="../../mocks/pages/home/default.html"><svg class="icon icon--lg" aria-hidden="true" viewBox="0 0 24 24"><path d="M12 2v20M5 8h14"/><circle cx="12" cy="8" r="9" fill="none" opacity=".35"/></svg> FaithTech</a><span class="topbar__spacer"></span><span class="avatar avatar--sm avatar--sky" aria-hidden="true">GO</span></header><a class="skip-link" href="#main" data-state="focus">Skip to content</a></div></div>
+        <div data-theme="dark"><div style="position: relative; overflow: hidden;"><header class="topbar" style="position: relative; top: 0; width: 100%; margin: 0;"><a class="topbar__brand" href="../../mocks/pages/home/default.html"><svg class="icon icon--lg" aria-hidden="true" viewBox="0 0 24 24"><path d="M12 2v20M5 8h14"/><circle cx="12" cy="8" r="9" fill="none" opacity=".35"/></svg> FaithTech</a><span class="topbar__spacer"></span><span class="avatar avatar--sm avatar--sky" aria-hidden="true">GO</span></header><a class="skip-link" href="#main" data-state="focus">Skip to content</a></div></div>
+      </div>
+      <ul>
+        <li><b>Focus</b> shows the link and the shared focus ring together. It is the only state that appears; there is no hover state because a pointer cannot reach it.</li>
+        <li><b>Activated</b>: the browser moves to <code>#main</code>; <code>scroll-padding-top</code> keeps the heading clear of the sticky top bar.</li>
+      </ul>
+    </section>
+
+    <section class="ds-section" id="responsive"><h2><a href="#responsive">Responsive behaviour</a></h2>
+      <ul>
+        <li>Same at every width: <code>--space-4</code> from the top left, over the top bar.</li>
+        <li>Hidden in print with the top bar and tab bar.</li>
+      </ul>
+    </section>
+
+    <section class="ds-section" id="theming"><h2><a href="#theming">Theming</a></h2>
+      <p>Reads <code>--color-bg-surface-raised</code>, <code>--color-fg-default</code> and <code>--shadow-3</code>. The raised surface is lighter than the top bar in the dark theme, so the link still stands out when it lands on it.</p>
+    </section>
+
+    <section class="ds-section" id="accessibility"><h2><a href="#accessibility">Accessibility</a></h2>
+      <h3>Role and pattern</h3>
+      <p>A native link (<code>&lt;a href="#main"&gt;</code>) to the <code>&lt;main&gt;</code> landmark. No ARIA. It is moved off screen, never hidden with <code>display: none</code> or <code>visibility: hidden</code>, so it stays in the tab order.</p>
+      <h3>Keyboard</h3>
+      <table class="ds-table ds-keys"><thead><tr><th scope="col">Key</th><th scope="col">Action</th></tr></thead><tbody>
+        <tr><td><kbd>Tab</kbd> (first press on a page)</td><td>Focuses the skip link and shows it.</td></tr>
+        <tr><td><kbd>Enter</kbd></td><td>Jumps to <code>#main</code>; the next <kbd>Tab</kbd> goes to the first control in the content.</td></tr>
+        <tr><td><kbd>Tab</kbd> again</td><td>Hides it and moves on to the top bar brand.</td></tr>
+      </tbody></table>
+      <h3>Focus</h3>
+      <p>The shared 2px <code>--color-focus-ring</code> with 2px offset. Dialog mocks move focus into the dialog (its first field or its safe action), so the skip link is not part of the dialog flow; the dialog is the content.</p>
+      <h3>Labelling</h3>
+      <p>"Skip to content" is the name. Do not add <code>aria-label</code>.</p>
+      <h3>Contrast</h3>
+      <div class="ds-example__canvas ds-example__canvas--stack" style="padding: 0; gap: var(--space-2);">
+        <div class="ds-pair"><span>Label on raised surface</span><span class="ds-pair__ratio" data-contrast="--color-fg-default|--color-bg-surface-raised" data-min="4.5"></span></div>
+        <div class="ds-pair"><span>Focus ring on raised surface</span><span class="ds-pair__ratio" data-contrast="--color-focus-ring|--color-bg-surface-raised" data-min="3"></span></div>
+      </div>
+      <h3>Motion</h3>
+      <p>It slides into place over <code>--duration-fast</code>; reduced motion zeroes the duration so it simply appears.</p>
+      <h3>Touch</h3>
+      <p>Not used by touch; it only appears on keyboard focus. Its padded box still exceeds the 24px minimum for switch and keyboard-emulating devices.</p>
+    </section>
+
+    <section class="ds-section" id="content"><h2><a href="#content">Content</a></h2>
+      <ul>
+        <li>Always "Skip to content". Same words on every page.</li>
+      </ul>
+    </section>
+
+    <section class="ds-section" id="do-dont"><h2><a href="#do-dont">Do and don't</a></h2>
+      <div class="ds-dodont">
+        <figure class="ds-do"><div class="ds-example__canvas"><code>&lt;a class="skip-link" href="#main"&gt;</code> … <code>&lt;main id="main"&gt;</code></div><figcaption>Point it at an id that is on the page. Every mock pairs it with <code>&lt;main id="main"&gt;</code>, including the auth layout.</figcaption></figure>
+        <figure class="ds-dont"><div class="ds-example__canvas"><code>.skip-link { display: none; }</code></div><figcaption>Hiding it with <code>display: none</code>: it can no longer receive focus, so nobody can use it.</figcaption></figure>
+        <figure class="ds-do"><div class="ds-example__canvas"><code>&lt;body&gt;&lt;a class="skip-link" …&gt;&lt;header class="topbar"&gt;</code></div><figcaption>Make it the very first element in the body.</figcaption></figure>
+        <figure class="ds-dont"><div class="ds-example__canvas"><code>&lt;header class="topbar"&gt; … &lt;a class="skip-link"&gt;</code></div><figcaption>Putting it after the top bar: the person has already tabbed through what it was meant to skip.</figcaption></figure>
+      </div>
+    </section>
+
+    <section class="ds-section" id="tokens"><h2><a href="#tokens">Tokens</a></h2>
+      <div class="ds-table-wrap"><table class="ds-table">
+        <thead><tr><th scope="col">Part</th><th scope="col">Token</th><th scope="col">Light</th><th scope="col">Dark</th></tr></thead>
+        <tbody>
+          <tr><td>Background</td><td><code>--color-bg-surface-raised</code></td><td><span class="ds-swatch-cell" data-theme="light"><i data-token="--color-bg-surface-raised" data-swatch></i><span data-token="--color-bg-surface-raised"></span></span></td><td><span class="ds-swatch-cell" data-theme="dark"><i data-token="--color-bg-surface-raised" data-swatch></i><span data-token="--color-bg-surface-raised"></span></span></td></tr>
+          <tr><td>Label</td><td><code>--color-fg-default</code></td><td><span class="ds-swatch-cell" data-theme="light"><i data-token="--color-fg-default" data-swatch></i><span data-token="--color-fg-default"></span></span></td><td><span class="ds-swatch-cell" data-theme="dark"><i data-token="--color-fg-default" data-swatch></i><span data-token="--color-fg-default"></span></span></td></tr>
+          <tr><td>Focus ring</td><td><code>--color-focus-ring</code></td><td><span class="ds-swatch-cell" data-theme="light"><i data-token="--color-focus-ring" data-swatch></i><span data-token="--color-focus-ring"></span></span></td><td><span class="ds-swatch-cell" data-theme="dark"><i data-token="--color-focus-ring" data-swatch></i><span data-token="--color-focus-ring"></span></span></td></tr>
+          <tr><td>Shadow</td><td><code>--shadow-3</code></td><td><span data-token="--shadow-3"></span></td><td><span data-theme="dark" data-token="--shadow-3"></span></td></tr>
+          <tr><td>Resting offset / focused offset</td><td><code>--space-24</code> / <code>--space-4</code></td><td colspan="2"><span data-token="--space-24"></span> / <span data-token="--space-4"></span></td></tr>
+          <tr><td>Padding</td><td><code>--space-2</code> <code>--space-4</code></td><td colspan="2"><span data-token="--space-2"></span> <span data-token="--space-4"></span></td></tr>
+          <tr><td>Radius</td><td><code>--radius-md</code></td><td colspan="2"><span data-token="--radius-md"></span></td></tr>
+          <tr><td>Stacking</td><td><code>--z-tooltip</code></td><td colspan="2"><span data-token="--z-tooltip"></span></td></tr>
+          <tr><td>Transition</td><td><code>--duration-fast</code>, <code>--ease-standard</code></td><td colspan="2"><span data-token="--duration-fast"></span> <span data-token="--ease-standard"></span></td></tr>
+        </tbody>
+      </table></div>
+    </section>
+
+    <section class="ds-section" id="code"><h2><a href="#code">Code</a></h2>
+      <pre><code>&lt;body&gt;
+  &lt;a class="skip-link" href="#main"&gt;Skip to content&lt;/a&gt;
+  &lt;header class="topbar"&gt; … &lt;/header&gt;
+  &lt;main id="main" class="container"&gt; … &lt;/main&gt;
+&lt;/body&gt;</code></pre>
+      <table class="ds-table"><thead><tr><th scope="col">Class / attribute</th><th scope="col">Effect</th></tr></thead><tbody>
+        <tr><td><code>.skip-link</code></td><td>Off screen until <code>:focus-visible</code>.</td></tr>
+        <tr><td><code>href="#main"</code></td><td>Target; the page's <code>&lt;main&gt;</code> carries <code>id="main"</code>.</td></tr>
+        <tr><td><code>data-state="focus"</code></td><td>Documentation only: shows it as if focused.</td></tr>
+      </tbody></table>
+    </section>
+
+    <section class="ds-section" id="sources"><h2><a href="#sources">Sources</a></h2>
+      <p>Extracted from these mocks (every page has it):</p>
+      <ul>
+        <li><a href="../../mocks/pages/home/default.html">pages/home/default</a> and <a href="../../mocks/pages/contacts/default.html">pages/contacts/default</a> (before the top bar)</li>
+        <li><a href="../../mocks/pages/public-event/default.html">pages/public-event/default</a> (anonymous top bar)</li>
+        <li><a href="../../mocks/pages/sign-in/default.html">pages/sign-in/default</a> (auth layout: <code>main.auth-layout</code> carries <code>id="main"</code>)</li>
+      </ul>
+      <p>Drift noticed: none; all 195 page mocks use the same first-element <code>&lt;a class="skip-link" href="#main"&gt;Skip to content&lt;/a&gt;</code> and a <code>&lt;main id="main"&gt;</code> target. Dialog and notification mocks render over a page and rely on that page's link. Note that the documentation site's own <code>ds.css</code> restyles <code>.skip-link</code> for these pages; product pages use <code>components.css</code> only.</p>
+    </section>
+
+    <footer class="ds-footer"><span>FaithTech Community design system · extracted from <a href="../../mocks/index.html">docs/mocks</a> on 2026-10-21</span><a href="#top">Back to top</a></footer>
+  </main>
+</div>
+<script src="../assets/ds.js"></script>
+</body>
+</html>

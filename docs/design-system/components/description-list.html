@@ -1,0 +1,174 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Description list — FaithTech Community design system</title>
+<meta name="description" content="Labelled read-only facts for contacts, events, partners and work items, built on a semantic dl. Default, missing, long, loading and cancelled, in both themes.">
+<link rel="stylesheet" href="../tokens/tokens.css">
+<link rel="stylesheet" href="../assets/components.css">
+<link rel="stylesheet" href="../assets/ds.css">
+</head>
+<body id="top">
+<a class="skip-link" href="#main">Skip to content</a>
+<div class="ds-shell">
+  <nav class="ds-nav" aria-label="Design system">
+    <div class="ds-nav__brand"><a href="../index.html">FaithTech DS</a><button class="ds-theme-toggle" type="button" aria-pressed="false">☾ Dark</button></div>
+    <details open><summary>Foundations</summary><ul>
+      <li><a href="../foundations/color.html">Color</a></li>
+      <li><a href="../foundations/typography.html">Typography</a></li>
+      <li><a href="../foundations/spacing.html">Spacing</a></li>
+      <li><a href="../foundations/layout.html">Layout</a></li>
+      <li><a href="../foundations/elevation.html">Elevation</a></li>
+      <li><a href="../foundations/shape.html">Shape</a></li>
+      <li><a href="../foundations/motion.html">Motion</a></li>
+      <li><a href="../foundations/iconography.html">Iconography</a></li>
+      <li><a href="../foundations/theming.html">Theming</a></li>
+      <li><a href="../foundations/responsive.html">Responsive</a></li>
+      <li><a href="../foundations/accessibility.html">Accessibility</a></li>
+      <li><a href="../foundations/content.html">Content</a></li>
+    </ul></details>
+    <details open><summary>Components</summary><ul>
+      <li><a href="../components/button.html">Button</a></li>
+      <li><a href="../components/link.html">Link</a></li>
+      <li><a href="../components/menu.html">Menu</a></li>
+      <li><a href="../components/form-field.html">Form field</a></li>
+      <li><a href="../components/text-field.html">Text field</a></li>
+      <li><a href="../components/textarea.html">Textarea</a></li>
+      <li><a href="../components/select.html">Select</a></li>
+      <li><a href="../components/radio-group.html">Radio group</a></li>
+      <li><a href="../components/switch.html">Switch</a></li>
+      <li><a href="../components/form-layout.html">Form layout</a></li>
+      <li><a href="../components/picture-list.html">Picture list</a></li>
+      <li><a href="../components/sticker-picker.html">Estimate card picker</a></li>
+      <li><a href="../components/top-bar.html">Top bar</a></li>
+      <li><a href="../components/tab-bar.html">Tab bar</a></li>
+      <li><a href="../components/tabs.html">Tabs</a></li>
+      <li><a href="../components/breadcrumb.html">Breadcrumb</a></li>
+      <li><a href="../components/skip-link.html">Skip link</a></li>
+      <li><a href="../components/layout.html">Layout primitives</a></li>
+      <li><a href="../components/card.html">Card</a></li>
+      <li><a href="../components/dialog.html">Dialog</a></li>
+      <li><a href="../components/notification-panel.html">Notification panel</a></li>
+      <li><a href="../components/list.html">List</a></li>
+      <li><a href="../components/table.html">Table</a></li>
+      <li><a href="../components/description-list.html">Description list</a></li>
+      <li><a href="../components/feed.html">Activity feed</a></li>
+      <li><a href="../components/tree.html">Backlog tree</a></li>
+      <li><a href="../components/kanban.html">Kanban board</a></li>
+      <li><a href="../components/event-card.html">Event card</a></li>
+      <li><a href="../components/profile-header.html">Profile header</a></li>
+      <li><a href="../components/search-results.html">Search results</a></li>
+      <li><a href="../components/note.html">Note</a></li>
+      <li><a href="../components/avatar.html">Avatar</a></li>
+      <li><a href="../components/logo-mark.html">Logo mark</a></li>
+      <li><a href="../components/badge.html">Badge</a></li>
+      <li><a href="../components/chip.html">Chip</a></li>
+      <li><a href="../components/stat.html">Stat</a></li>
+      <li><a href="../components/sticker.html">Estimate card</a></li>
+      <li><a href="../components/toast.html">Toast</a></li>
+      <li><a href="../components/alert.html">Alert and banner</a></li>
+      <li><a href="../components/inline-message.html">Inline message</a></li>
+      <li><a href="../components/progress.html">Progress</a></li>
+      <li><a href="../components/skeleton.html">Skeleton</a></li>
+      <li><a href="../components/empty-state.html">Empty state</a></li>
+      <li><a href="../components/error-page.html">Error page</a></li>
+    </ul></details>
+    <details open><summary>Patterns</summary><ul>
+      <li><a href="../patterns/forms.html">Forms</a></li>
+      <li><a href="../patterns/feedback-and-loading.html">Feedback and loading</a></li>
+      <li><a href="../patterns/empty-and-error-states.html">Empty and error states</a></li>
+      <li><a href="../patterns/navigation.html">Navigation and page structure</a></li>
+      <li><a href="../patterns/dialogs-and-overlays.html">Dialogs and overlays</a></li>
+      <li><a href="../patterns/lists-and-tables.html">Lists and tables</a></li>
+      <li><a href="../patterns/notifications.html">Notifications</a></li>
+      <li><a href="../patterns/content-and-tone.html">Content and tone</a></li>
+    </ul></details>
+  </nav>
+
+  <main id="main" class="ds-main">
+    <header class="ds-header">
+      <p class="ds-kicker">Component · Data display</p>
+      <h1>Description list</h1>
+      <p class="ds-lead">A description list shows labelled facts about one thing, like a contact&rsquo;s email and organisation or where an event happens.</p>
+      <div class="ds-meta"><span class="ds-pill ds-pill--ok">WCAG 2.2 AA</span><span class="ds-pill">Status: stable</span><span class="ds-pill">Native <code>&lt;dl&gt;</code></span></div>
+      <ul class="ds-toc">
+        <li><a href="#overview">Overview</a></li><li><a href="#anatomy">Anatomy</a></li><li><a href="#variants">Variants</a></li><li><a href="#sizes">Sizes</a></li><li><a href="#states">States</a></li><li><a href="#responsive">Responsive</a></li><li><a href="#theming">Theming</a></li><li><a href="#accessibility">Accessibility</a></li><li><a href="#content">Content</a></li><li><a href="#do-dont">Do and don't</a></li><li><a href="#tokens">Tokens</a></li><li><a href="#code">Code</a></li><li><a href="#sources">Sources</a></li>
+      </ul>
+    </header>
+
+    <section class="ds-section" id="overview"><h2><a href="#overview">Overview</a></h2>
+      <p>A description list shows labelled facts about one thing: a contact&rsquo;s email, phone and organisation; an event&rsquo;s place, format and host; a partner&rsquo;s stage and main contact; a work item&rsquo;s status and points. It is a semantic <code>&lt;dl&gt;</code> with each pair grouped in a <code>&lt;div&gt;</code>. Added for FaithTech Community.</p>      <ul><li>Use it for read-only facts with short values. Editing opens a dialog or the edit screen; the list itself never becomes a form.</li><li>Use a <a href="table.html">table</a> when several records share the same fields, and a <a href="list.html">list</a> for a set of items.</li></ul>
+    </section>
+    <section class="ds-section" id="anatomy"><h2><a href="#anatomy">Anatomy</a></h2>
+      <div class="ds-anatomy">
+        <figure class="ds-anatomy__figure" style="position: relative;"><dl class="facts"><div><dt>Email</dt><dd><a href="mailto:tomas.ortega@example.org">tomas.ortega@example.org</a></dd></div><div><dt>Phone</dt><dd>416-555-0142</dd></div><div><dt>Organisation</dt><dd>Harbour Light Shelter</dd></div></dl><span class="ds-callout" style="left: 4%; top: 4%;" aria-hidden="true">1</span><span class="ds-callout" style="left: 44%; top: 4%;" aria-hidden="true">2</span><span class="ds-callout" style="left: 94%; top: 40%;" aria-hidden="true">3</span></figure>
+        <ol class="ds-anatomy__list"><li><div><b>Term</b><small><code>dt</code>: <code>--text-label</code> in <code>--color-fg-muted</code>, a 6 to 9rem column.</small></div></li><li><div><b>Description</b><small><code>dd</code>: body text, <code>overflow-wrap: anywhere</code> so emails and addresses break.</small></div></li><li><div><b>Pair group</b><small><code>&lt;div&gt;</code> inside <code>.facts</code>, a two-column grid with <code>--space-3</code> gaps.</small></div></li></ol>
+      </div>
+    </section>
+    <section class="ds-section" id="variants"><h2><a href="#variants">Variants</a></h2>
+      <h3>Contact facts</h3>      <div class="ds-example">
+        <div class="ds-example__canvas"><dl class="facts"><div><dt>Email</dt><dd><a href="mailto:tomas.ortega@example.org">tomas.ortega@example.org</a></dd></div><div><dt>Phone</dt><dd>416-555-0142</dd></div><div><dt>Organisation</dt><dd>Harbour Light Shelter</dd></div><div><dt>City</dt><dd>Toronto</dd></div><div><dt>Added</dt><dd>Thu 18 Sep by you</dd></div></dl></div>
+        <div class="ds-example__caption"><span>A private contact&rsquo;s details (visible only to the lead who added Tomás and to System Admin).</span></div>
+        <details class="ds-example__code"><summary>HTML</summary><pre><code>&lt;dl class="facts"&gt;&lt;div&gt;&lt;dt&gt;Email&lt;/dt&gt;&lt;dd&gt;&lt;a href="mailto:tomas.ortega@example.org"&gt;tomas.ortega@example.org&lt;/a&gt;&lt;/dd&gt;&lt;/div&gt;&lt;div&gt;&lt;dt&gt;Phone&lt;/dt&gt;&lt;dd&gt;416-555-0142&lt;/dd&gt;&lt;/div&gt;&lt;/dl&gt;</code></pre></details>
+      </div>      <h3>Event facts</h3>      <div class="ds-example">
+        <div class="ds-example__canvas"><dl class="facts"><div><dt>Where</dt><dd>Kestrel Labs, 220 King St W, Toronto</dd></div><div><dt>Format</dt><dd>In person</dd></div><div><dt>Hosted by</dt><dd>Marcus Lee, Event Lead</dd></div><div><dt>Visibility</dt><dd>Public — anyone can register</dd></div><div><dt>Going</dt><dd>34 people</dd></div></dl></div>
+        <div class="ds-example__caption"><span>Toronto Builders Night: the same list appears on the member and public event pages.</span></div>
+        
+      </div>      <h3>In a card</h3>      <div class="ds-example">
+        <div class="ds-example__canvas"><section class="card stack" aria-labelledby="pf"><h2 class="card__title" id="pf">Partner details</h2><dl class="facts"><div><dt>Stage</dt><dd><span class="badge">In funnel</span></dd></div><div><dt>Main contact</dt><dd>Ada Mwangi</dd></div><div><dt>Could offer</dt><dd>Grant funding for shelter technology</dd></div></dl></section></div>
+        <div class="ds-example__caption"><span>On the partner page the list sits in a titled card; values may hold a badge or a link but nothing larger.</span></div>
+        
+      </div>
+    </section>
+    <section class="ds-section" id="sizes" data-na="One density; the term column is fixed between 6 and 9rem."><h2><a href="#sizes">Sizes</a></h2>
+      <p>There is one density. The term column is <code>minmax(6rem, 9rem)</code>; values take the rest.</p>
+    </section>
+    <section class="ds-section" id="states"><h2><a href="#states">States</a></h2>
+      <div class="ds-matrix"><table><thead><tr><th scope="col">State</th><th scope="col">Example</th></tr></thead><tbody><tr><th scope="row">Default</th><td><dl class="facts"><div><dt>Email</dt><dd><a href="mailto:tomas.ortega@example.org">tomas.ortega@example.org</a></dd></div><div><dt>Phone</dt><dd>416-555-0142</dd></div></dl></td></tr><tr><th scope="row">Missing value</th><td><dl class="facts"><div><dt>Phone</dt><dd><span class="text-muted">Not added</span></dd></div><div><dt>Organisation</dt><dd>Harbour Light Shelter</dd></div></dl></td></tr><tr><th scope="row">Long value</th><td><dl class="facts"><div><dt>Email</dt><dd><a href="mailto:samuel.mensah.volunteer.coordinator@example.org">samuel.mensah.volunteer.coordinator@example.org</a></dd></div></dl></td></tr><tr><th scope="row">Loading</th><td><div aria-busy="true" aria-label="Loading contact"><span class="skeleton skeleton--text" aria-hidden="true"></span><span class="skeleton skeleton--text" aria-hidden="true"></span></div></td></tr><tr><th scope="row">Cancelled event</th><td><dl class="facts"><div><dt>Where</dt><dd><s>Kestrel Labs, 220 King St W</s></dd></div><div><dt>Status</dt><dd><span class="badge badge--danger">Cancelled</span></dd></div></dl></td></tr></tbody></table></div>      <h3>Both themes</h3>
+      <div class="ds-themes">
+        <div data-theme="light"><div class="ds-example__canvas ds-example__canvas--stack" style="padding: 0;"><dl class="facts"><div><dt>Where</dt><dd>Kestrel Labs, 220 King St W, Toronto</dd></div><div><dt>Format</dt><dd>In person</dd></div><div><dt>Hosted by</dt><dd>Marcus Lee, Event Lead</dd></div></dl></div></div>
+        <div data-theme="dark"><div class="ds-example__canvas ds-example__canvas--stack" style="padding: 0;"><dl class="facts"><div><dt>Where</dt><dd>Kestrel Labs, 220 King St W, Toronto</dd></div><div><dt>Format</dt><dd>In person</dd></div><div><dt>Hosted by</dt><dd>Marcus Lee, Event Lead</dd></div></dl></div></div>
+      </div>      <ul><li>A missing optional value shows &ldquo;Not added&rdquo; in muted text rather than dropping the row, so the layout does not shift between contacts.</li><li>Loading uses skeleton lines inside the containing card; errors replace the whole card with an error state.</li></ul>
+    </section>
+    <section class="ds-section" id="responsive"><h2><a href="#responsive">Responsive behaviour</a></h2>
+      <ul><li>The two columns hold at 360px; the term column shrinks to 6rem and long values wrap.</li><li>Emails, URLs and addresses break anywhere instead of overflowing the card.</li><li>In the two-column <code>.split</code> layout the list sits in the side column on wide screens and below the main content on phones.</li></ul>
+    </section>
+    <section class="ds-section" id="theming"><h2><a href="#theming">Theming</a></h2>
+      <p>Only <code>--color-fg-muted</code> (terms) and the inherited body colour (values) are read, so the list follows the surrounding surface in both themes.</p>
+    </section>
+    <section class="ds-section" id="accessibility"><h2><a href="#accessibility">Accessibility</a></h2>
+      <h3>Role and pattern</h3>      <p>A native <code>&lt;dl&gt;</code>; grouping <code>&lt;div&gt;</code>s are valid HTML and keep pairs together for assistive tech. Screen readers announce term and description in order.</p>      <h3>Keyboard</h3><table class="ds-table ds-keys"><thead><tr><th scope="col">Key</th><th scope="col">Action</th></tr></thead><tbody><tr><td><kbd>Tab</kbd></td><td>Reaches only links inside values (email, partner page); the list itself is not focusable.</td></tr></tbody></table>      <h3>Labelling</h3>      <p>The list is labelled by its card heading (&ldquo;Contact details&rdquo;, &ldquo;Partner details&rdquo;). Do not repeat the term inside the value.</p>      <h3>Contrast</h3><div class="ds-example__canvas ds-example__canvas--stack" style="padding: 0; gap: var(--space-2);"><div class="ds-pair"><span>Term on surface</span><span class="ds-pair__ratio" data-contrast="--color-fg-muted|--color-bg-surface" data-min="4.5"></span></div><div class="ds-pair"><span>Value on surface</span><span class="ds-pair__ratio" data-contrast="--color-fg-default|--color-bg-surface" data-min="4.5"></span></div><div class="ds-pair"><span>Link value on surface</span><span class="ds-pair__ratio" data-contrast="--color-fg-link|--color-bg-surface" data-min="4.5"></span></div></div>
+    </section>
+    <section class="ds-section" id="content"><h2><a href="#content">Content</a></h2>
+      <ul><li>Terms are short nouns in sentence case: Email, Phone, Organisation, City, Added; Where, Format, Hosted by, Visibility, Going.</li><li>Values are plain facts. Dates follow the product format (&ldquo;Thu 18 Sep&rdquo;), with who did it when it matters (&ldquo;by you&rdquo;).</li><li>Make emails <code>mailto:</code> links; keep phone numbers as text unless the app offers calling.</li></ul>
+    </section>
+    <section class="ds-section" id="do-dont"><h2><a href="#do-dont">Do and don't</a></h2>
+      <div class="ds-dodont"><figure class="ds-do"><div class="ds-example__canvas ds-example__canvas--stack"><dl class="facts"><div><dt>Email</dt><dd><a href="mailto:tomas.ortega@example.org">tomas.ortega@example.org</a></dd></div><div><dt>Phone</dt><dd>416-555-0142</dd></div><div><dt>Organisation</dt><dd>Harbour Light Shelter</dd></div></dl></div><figcaption>Semantic <code>&lt;dl&gt;</code> with each pair grouped.</figcaption></figure><figure class="ds-dont"><div class="ds-example__canvas ds-example__canvas--stack"><div class="stack"><p><b>Email:</b> tomas.ortega@example.org</p><p><b>Phone:</b> 416-555-0142</p></div></div><figcaption>Bold labels in paragraphs: the pairing is lost for assistive tech.</figcaption></figure><figure class="ds-do"><div class="ds-example__canvas ds-example__canvas--stack"><dl class="facts"><div><dt>Phone</dt><dd><span class="text-muted">Not added</span></dd></div></dl></div><figcaption>Show a muted placeholder for missing optional values.</figcaption></figure><figure class="ds-dont"><div class="ds-example__canvas ds-example__canvas--stack"><dl class="facts"><div><dt>Email</dt><dd>tomas.ortega@example.org</dd></div><div><dt>Notes</dt><dd>Met at the Harbour Light open house; wants to mentor a hackathon team and knows the shelter director well, follow up in November about…</dd></div></dl></div><figcaption>Long prose as a value. Contact notes belong in the notes list, not the facts.</figcaption></figure></div>
+    </section>
+    <section class="ds-section" id="tokens"><h2><a href="#tokens">Tokens</a></h2>
+      <div class="ds-table-wrap"><table class="ds-table">
+        <thead><tr><th scope="col">Part</th><th scope="col">Token</th><th scope="col">Light</th><th scope="col">Dark</th></tr></thead>
+        <tbody><tr><td>Term text</td><td><code>--color-fg-muted</code></td><td><span class="ds-swatch-cell" data-theme="light"><i data-token="--color-fg-muted" data-swatch></i><span data-token="--color-fg-muted"></span></span></td><td><span class="ds-swatch-cell" data-theme="dark"><i data-token="--color-fg-muted" data-swatch></i><span data-token="--color-fg-muted"></span></span></td></tr><tr><td>Value text</td><td><code>--color-fg-default</code></td><td><span class="ds-swatch-cell" data-theme="light"><i data-token="--color-fg-default" data-swatch></i><span data-token="--color-fg-default"></span></span></td><td><span class="ds-swatch-cell" data-theme="dark"><i data-token="--color-fg-default" data-swatch></i><span data-token="--color-fg-default"></span></span></td></tr><tr><td>Row and column gap</td><td><code>--space-3</code></td><td colspan="2"><span data-token="--space-3"></span></td></tr><tr><td>Term font</td><td><code>--text-label</code></td><td colspan="2"><span data-token="--text-label"></span></td></tr></tbody>
+      </table></div>
+    </section>
+    <section class="ds-section" id="code"><h2><a href="#code">Code</a></h2>
+      <pre><code>&lt;dl class="facts"&gt;
+  &lt;div&gt;&lt;dt&gt;Email&lt;/dt&gt;&lt;dd&gt;&lt;a href="mailto:tomas.ortega@example.org"&gt;tomas.ortega@example.org&lt;/a&gt;&lt;/dd&gt;&lt;/div&gt;
+  &lt;div&gt;&lt;dt&gt;Phone&lt;/dt&gt;&lt;dd&gt;416-555-0142&lt;/dd&gt;&lt;/div&gt;
+  &lt;div&gt;&lt;dt&gt;Organisation&lt;/dt&gt;&lt;dd&gt;Harbour Light Shelter&lt;/dd&gt;&lt;/div&gt;
+&lt;/dl&gt;</code></pre><table class="ds-table"><thead><tr><th scope="col">Class / attribute</th><th scope="col">Effect</th></tr></thead><tbody><tr><td><code>.facts</code></td><td>Description list grid.</td></tr><tr><td><code>.facts &gt; div</code></td><td>One term/description pair in two columns.</td></tr></tbody></table>
+    </section>
+    <section class="ds-section" id="sources"><h2><a href="#sources">Sources</a></h2>
+      <p>Extracted from these mocks:</p>
+      <ul><li><a href="../../mocks/pages/contact/default.html">pages/contact/default</a> (contact facts)</li><li><a href="../../mocks/pages/contact/linked.html">pages/contact/linked</a> (linked contact)</li><li><a href="../../mocks/pages/event/default.html">pages/event/default</a> (event facts)</li><li><a href="../../mocks/pages/public-event/default.html">pages/public-event/default</a> (public event facts)</li><li><a href="../../mocks/pages/partner/default.html">pages/partner/default</a> (partner facts)</li><li><a href="../../mocks/pages/work-item/default.html">pages/work-item/default</a> (work item facts)</li><li><a href="../../mocks/pages/workspace-settings/default.html">pages/workspace-settings/default</a> (workspace facts)</li></ul>
+      <p>Drift noticed in those mocks:</p>
+      <ul><li>Contact emails are plain text in the mocks; they should be <code>mailto:</code> links.</li><li>No mock shows a missing optional value; the &ldquo;Not added&rdquo; treatment is defined here.</li><li>No loading state for the facts card itself; the contact loading mock skeletons the whole page.</li></ul>
+    </section>
+
+    <footer class="ds-footer"><span>FaithTech Community design system · extracted from <a href="../../mocks/index.html">docs/mocks</a> on 2026-10-21</span><a href="#top">Back to top</a></footer>
+  </main>
+</div>
+<script src="../assets/ds.js"></script>
+</body>
+</html>

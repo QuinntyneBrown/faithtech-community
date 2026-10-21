@@ -1,0 +1,289 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>List — FaithTech Community design system</title>
+<meta name="description" content="Lists show one person, invite or event per row: avatar or icon, linked name, a muted meta line and a status badge, as in Contacts, Team and Invites.">
+<link rel="stylesheet" href="../tokens/tokens.css">
+<link rel="stylesheet" href="../assets/components.css">
+<link rel="stylesheet" href="../assets/ds.css">
+</head>
+<body id="top">
+<a class="skip-link" href="#main">Skip to content</a>
+<div class="ds-shell">
+  <nav class="ds-nav" aria-label="Design system">
+    <div class="ds-nav__brand"><a href="../index.html">FaithTech DS</a><button class="ds-theme-toggle" type="button" aria-pressed="false">☾ Dark</button></div>
+    <details open><summary>Foundations</summary><ul>
+      <li><a href="../foundations/color.html">Color</a></li>
+      <li><a href="../foundations/typography.html">Typography</a></li>
+      <li><a href="../foundations/spacing.html">Spacing</a></li>
+      <li><a href="../foundations/layout.html">Layout</a></li>
+      <li><a href="../foundations/elevation.html">Elevation</a></li>
+      <li><a href="../foundations/shape.html">Shape</a></li>
+      <li><a href="../foundations/motion.html">Motion</a></li>
+      <li><a href="../foundations/iconography.html">Iconography</a></li>
+      <li><a href="../foundations/theming.html">Theming</a></li>
+      <li><a href="../foundations/responsive.html">Responsive</a></li>
+      <li><a href="../foundations/accessibility.html">Accessibility</a></li>
+      <li><a href="../foundations/content.html">Content</a></li>
+    </ul></details>
+    <details open><summary>Components</summary><ul>
+      <li><a href="../components/button.html">Button</a></li>
+      <li><a href="../components/link.html">Link</a></li>
+      <li><a href="../components/menu.html">Menu</a></li>
+      <li><a href="../components/form-field.html">Form field</a></li>
+      <li><a href="../components/text-field.html">Text field</a></li>
+      <li><a href="../components/textarea.html">Textarea</a></li>
+      <li><a href="../components/select.html">Select</a></li>
+      <li><a href="../components/radio-group.html">Radio group</a></li>
+      <li><a href="../components/switch.html">Switch</a></li>
+      <li><a href="../components/form-layout.html">Form layout</a></li>
+      <li><a href="../components/picture-list.html">Picture list</a></li>
+      <li><a href="../components/sticker-picker.html">Estimate card picker</a></li>
+      <li><a href="../components/top-bar.html">Top bar</a></li>
+      <li><a href="../components/tab-bar.html">Tab bar</a></li>
+      <li><a href="../components/tabs.html">Tabs</a></li>
+      <li><a href="../components/breadcrumb.html">Breadcrumb</a></li>
+      <li><a href="../components/skip-link.html">Skip link</a></li>
+      <li><a href="../components/layout.html">Layout primitives</a></li>
+      <li><a href="../components/card.html">Card</a></li>
+      <li><a href="../components/dialog.html">Dialog</a></li>
+      <li><a href="../components/notification-panel.html">Notification panel</a></li>
+      <li><a href="../components/list.html">List</a></li>
+      <li><a href="../components/table.html">Table</a></li>
+      <li><a href="../components/description-list.html">Description list</a></li>
+      <li><a href="../components/feed.html">Activity feed</a></li>
+      <li><a href="../components/tree.html">Backlog tree</a></li>
+      <li><a href="../components/kanban.html">Kanban board</a></li>
+      <li><a href="../components/event-card.html">Event card</a></li>
+      <li><a href="../components/profile-header.html">Profile header</a></li>
+      <li><a href="../components/search-results.html">Search results</a></li>
+      <li><a href="../components/note.html">Note</a></li>
+      <li><a href="../components/avatar.html">Avatar</a></li>
+      <li><a href="../components/logo-mark.html">Logo mark</a></li>
+      <li><a href="../components/badge.html">Badge</a></li>
+      <li><a href="../components/chip.html">Chip</a></li>
+      <li><a href="../components/stat.html">Stat</a></li>
+      <li><a href="../components/sticker.html">Estimate card</a></li>
+      <li><a href="../components/toast.html">Toast</a></li>
+      <li><a href="../components/alert.html">Alert and banner</a></li>
+      <li><a href="../components/inline-message.html">Inline message</a></li>
+      <li><a href="../components/progress.html">Progress</a></li>
+      <li><a href="../components/skeleton.html">Skeleton</a></li>
+      <li><a href="../components/empty-state.html">Empty state</a></li>
+      <li><a href="../components/error-page.html">Error page</a></li>
+    </ul></details>
+    <details open><summary>Patterns</summary><ul>
+      <li><a href="../patterns/forms.html">Forms</a></li>
+      <li><a href="../patterns/feedback-and-loading.html">Feedback and loading</a></li>
+      <li><a href="../patterns/empty-and-error-states.html">Empty and error states</a></li>
+      <li><a href="../patterns/navigation.html">Navigation and page structure</a></li>
+      <li><a href="../patterns/dialogs-and-overlays.html">Dialogs and overlays</a></li>
+      <li><a href="../patterns/lists-and-tables.html">Lists and tables</a></li>
+      <li><a href="../patterns/notifications.html">Notifications</a></li>
+      <li><a href="../patterns/content-and-tone.html">Content and tone</a></li>
+    </ul></details>
+  </nav>
+
+  <main id="main" class="ds-main">
+    <header class="ds-header">
+      <p class="ds-kicker">Component · Data display</p>
+      <h1>List</h1>
+      <p class="ds-lead">A stack of rows, one per person, invite or event, each with a leading avatar or icon, a title, a muted meta line and an optional trailing badge. Contacts, Team, Invites, Archived contacts and the event lists are all lists.</p>
+      <div class="ds-meta"><span class="ds-pill ds-pill--ok">WCAG 2.2 AA</span><span class="ds-pill">Status: stable</span><span class="ds-pill"><code>&lt;ul class="list"&gt;</code></span></div>
+      <ul class="ds-toc">
+        <li><a href="#overview">Overview</a></li><li><a href="#anatomy">Anatomy</a></li><li><a href="#variants">Variants</a></li><li><a href="#sizes">Sizes</a></li><li><a href="#states">States</a></li><li><a href="#responsive">Responsive</a></li><li><a href="#theming">Theming</a></li><li><a href="#accessibility">Accessibility</a></li><li><a href="#content">Content</a></li><li><a href="#do-dont">Do and don't</a></li><li><a href="#tokens">Tokens</a></li><li><a href="#code">Code</a></li><li><a href="#sources">Sources</a></li>
+      </ul>
+    </header>
+
+    <section class="ds-section" id="overview"><h2><a href="#overview">Overview</a></h2>
+      <p>Use a list when each item is one thing with a name and a line of context, and the reader scans down to open one. Grace Okonkwo's private contacts, the Toronto team, pending invites, search results and "Coming up" on Home are lists.</p>
+      <ul>
+        <li>Use a <a href="table.html">table</a> instead when readers compare the same columns across rows (Admin users, audit log, roles).</li>
+        <li>Use a <a href="feed.html">feed</a> for things that happened, newest first, with a time on each.</li>
+        <li>In Angular, use <code>&lt;ft-list&gt;</code> and <code>&lt;ft-list-item&gt;</code> from the components library.</li>
+      </ul>
+    </section>
+
+    <section class="ds-section" id="anatomy"><h2><a href="#anatomy">Anatomy</a></h2>
+      <div class="ds-anatomy">
+        <figure class="ds-anatomy__figure"><ul class="list card card--flush"><li class="list__item"><span class="avatar avatar--sm avatar--sun" aria-hidden="true">TO</span><div class="list__body"><a class="list__title" href="../../mocks/pages/contact/default.html">Tomás Ortega</a><div class="list__meta">Signed up today · runs IT at Harbour Light Shelter</div></div><span class="badge badge--success">Signed up</span></li></ul>
+          <span class="ds-callout" style="left: 4%; top: 20%;" aria-hidden="true">1</span>
+          <span class="ds-callout" style="left: 30%; top: 10%;" aria-hidden="true">2</span>
+          <span class="ds-callout" style="left: 30%; top: 70%;" aria-hidden="true">3</span>
+          <span class="ds-callout" style="left: 88%; top: 20%;" aria-hidden="true">4</span>
+        </figure>
+        <ol class="ds-anatomy__list">
+          <li><div><b>Leading</b><small>A small <a href="avatar.html">avatar</a> for a person, a <code>sticker</code> icon for an invite, or a date badge for an event.</small></div></li>
+          <li><div><b>Title</b> (<code>.list__title</code>)<small>The name, as a link when the row opens a detail page.</small></div></li>
+          <li><div><b>Meta</b> (<code>.list__meta</code>)<small>One muted line of context, parts joined with " · ". <code>.list__meta.cluster</code> holds role badges.</small></div></li>
+          <li><div><b>Trailing</b> (optional)<small>A status <a href="badge.html">badge</a> or a button.</small></div></li>
+        </ol>
+      </div>
+    </section>
+
+    <section class="ds-section" id="variants"><h2><a href="#variants">Variants</a></h2>
+      <h3>Person rows (contacts)</h3>
+      <div class="ds-example">
+        <div class="ds-example__canvas ds-example__canvas--stack"><ul class="list card card--flush"><li class="list__item"><span class="avatar avatar--sm avatar--sun" aria-hidden="true">TO</span><div class="list__body"><a class="list__title" href="../../mocks/pages/contact/default.html">Tomás Ortega</a><div class="list__meta">Signed up today · runs IT at Harbour Light Shelter</div></div><span class="badge badge--success">Signed up</span></li><li class="list__item"><span class="avatar avatar--sm" aria-hidden="true">AB</span><div class="list__body"><a class="list__title" href="../../mocks/pages/contact/default.html">Abby Brooks</a><div class="list__meta">Met at Builders Night in September · UX designer</div></div><span class="badge"><svg class="icon icon--sm" aria-hidden="true" viewBox="0 0 24 24"><rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>Private</span></li><li class="list__item"><span class="avatar avatar--sm avatar--sage" aria-hidden="true">JB</span><div class="list__body"><a class="list__title" href="../../mocks/pages/contact/default.html">Jonah Bell</a><div class="list__meta">Linked to member profile · wants to mentor students</div></div><span class="badge badge--info">Member</span></li></ul></div>
+        <div class="ds-example__caption"><span>From Contacts: avatar, linked name, meta and a status badge (Signed up, Private, Member).</span></div>
+        <details class="ds-example__code"><summary>HTML</summary><pre><code>&lt;ul class="list card card--flush"&gt;&lt;li class="list__item"&gt;&lt;span class="avatar avatar--sm avatar--sun" aria-hidden="true"&gt;TO&lt;/span&gt;&lt;div class="list__body"&gt;&lt;a class="list__title" href="../../mocks/pages/contact/default.html"&gt;Tomás Ortega&lt;/a&gt;&lt;div class="list__meta"&gt;Signed up today · runs IT at Harbour Light Shelter&lt;/div&gt;&lt;/div&gt;&lt;span class="badge badge--success"&gt;Signed up&lt;/span&gt;&lt;/li&gt;&lt;li class="list__item"&gt;&lt;span class="avatar avatar--sm" aria-hidden="true"&gt;AB&lt;/span&gt;&lt;div class="list__body"&gt;&lt;a class="list__title" href="../../mocks/pages/contact/default.html"&gt;Abby Brooks&lt;/a&gt;&lt;div class="list__meta"&gt;Met at Builders Night in September · UX designer&lt;/div&gt;&lt;/div&gt;&lt;span class="badge"&gt;&lt;svg class="icon icon--sm" aria-hidden="true" viewBox="0 0 24 24"&gt;&lt;rect x="4" y="11" width="16" height="10" rx="2"/&gt;&lt;path d="M8 11V7a4 4 0 0 1 8 0v4"/&gt;&lt;/svg&gt;Private&lt;/span&gt;&lt;/li&gt;&lt;li class="list__item"&gt;&lt;span class="avatar avatar--sm avatar--sage" aria-hidden="true"&gt;JB&lt;/span&gt;&lt;div class="list__body"&gt;&lt;a class="list__title" href="../../mocks/pages/contact/default.html"&gt;Jonah Bell&lt;/a&gt;&lt;div class="list__meta"&gt;Linked to member profile · wants to mentor students&lt;/div&gt;&lt;/div&gt;&lt;span class="badge badge--info"&gt;Member&lt;/span&gt;&lt;/li&gt;&lt;/ul&gt;</code></pre></details>
+      </div>
+
+      <h3>Role rows (team)</h3>
+      <div class="ds-example">
+        <div class="ds-example__canvas ds-example__canvas--stack"><ul class="list card card--flush"><li class="list__item"><span class="avatar avatar--sm avatar--sky" aria-hidden="true">GO</span><div class="list__body"><a class="list__title" href="../../mocks/pages/profile/default.html">Grace Okonkwo</a><div class="list__meta cluster"><span class="badge badge--role">City Lead</span></div></div></li><li class="list__item"><span class="avatar avatar--sm avatar--sun" aria-hidden="true">ML</span><div class="list__body"><a class="list__title" href="../../mocks/pages/profile/default.html">Marcus Lee</a><div class="list__meta cluster"><span class="badge badge--role">Event Lead</span></div></div></li><li class="list__item"><span class="avatar avatar--sm avatar--rose" aria-hidden="true">RA</span><div class="list__body"><a class="list__title" href="../../mocks/pages/profile/default.html">Ruth Alvarez</a><div class="list__meta cluster"><span class="badge badge--role">Volunteer</span></div></div></li></ul></div>
+        <div class="ds-example__caption"><span>From Team: the meta line is a cluster of role badges.</span></div>
+        <details class="ds-example__code"><summary>HTML</summary><pre><code>&lt;ul class="list card card--flush"&gt;&lt;li class="list__item"&gt;&lt;span class="avatar avatar--sm avatar--sky" aria-hidden="true"&gt;GO&lt;/span&gt;&lt;div class="list__body"&gt;&lt;a class="list__title" href="../../mocks/pages/profile/default.html"&gt;Grace Okonkwo&lt;/a&gt;&lt;div class="list__meta cluster"&gt;&lt;span class="badge badge--role"&gt;City Lead&lt;/span&gt;&lt;/div&gt;&lt;/div&gt;&lt;/li&gt;&lt;li class="list__item"&gt;&lt;span class="avatar avatar--sm avatar--sun" aria-hidden="true"&gt;ML&lt;/span&gt;&lt;div class="list__body"&gt;&lt;a class="list__title" href="../../mocks/pages/profile/default.html"&gt;Marcus Lee&lt;/a&gt;&lt;div class="list__meta cluster"&gt;&lt;span class="badge badge--role"&gt;Event Lead&lt;/span&gt;&lt;/div&gt;&lt;/div&gt;&lt;/li&gt;&lt;li class="list__item"&gt;&lt;span class="avatar avatar--sm avatar--rose" aria-hidden="true"&gt;RA&lt;/span&gt;&lt;div class="list__body"&gt;&lt;a class="list__title" href="../../mocks/pages/profile/default.html"&gt;Ruth Alvarez&lt;/a&gt;&lt;div class="list__meta cluster"&gt;&lt;span class="badge badge--role"&gt;Volunteer&lt;/span&gt;&lt;/div&gt;&lt;/div&gt;&lt;/li&gt;&lt;/ul&gt;</code></pre></details>
+      </div>
+
+      <h3>Icon rows (invites)</h3>
+      <div class="ds-example">
+        <div class="ds-example__canvas ds-example__canvas--stack"><ul class="list card card--flush"><li class="list__item"><span class="sticker" aria-hidden="true"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="m3 7 9 6 9-6"/></svg></span><div class="list__body"><div class="list__title">nate.oyelaran@example.org</div><div class="list__meta">Product Engineer · Sent Mon 20 Oct · expires Mon 3 Nov</div></div><span class="badge badge--info">Pending</span></li><li class="list__item"><span class="sticker" aria-hidden="true"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="m3 7 9 6 9-6"/></svg></span><div class="list__body"><div class="list__title">ruth.alvarez@example.org</div><div class="list__meta">Volunteer · Accepted Sat 18 Oct</div></div><span class="badge badge--success">Accepted</span></li></ul></div>
+        <div class="ds-example__caption"><span>From Invites: a sticker icon leads, the title is the email (not a link), and the badge gives Pending or Accepted.</span></div>
+        <details class="ds-example__code"><summary>HTML</summary><pre><code>&lt;ul class="list card card--flush"&gt;&lt;li class="list__item"&gt;&lt;span class="sticker" aria-hidden="true"&gt;&lt;svg class="icon" aria-hidden="true" viewBox="0 0 24 24"&gt;&lt;rect x="3" y="5" width="18" height="14" rx="2"/&gt;&lt;path d="m3 7 9 6 9-6"/&gt;&lt;/svg&gt;&lt;/span&gt;&lt;div class="list__body"&gt;&lt;div class="list__title"&gt;nate.oyelaran@example.org&lt;/div&gt;&lt;div class="list__meta"&gt;Product Engineer · Sent Mon 20 Oct · expires Mon 3 Nov&lt;/div&gt;&lt;/div&gt;&lt;span class="badge badge--info"&gt;Pending&lt;/span&gt;&lt;/li&gt;&lt;li class="list__item"&gt;&lt;span class="sticker" aria-hidden="true"&gt;&lt;svg class="icon" aria-hidden="true" viewBox="0 0 24 24"&gt;&lt;rect x="3" y="5" width="18" height="14" rx="2"/&gt;&lt;path d="m3 7 9 6 9-6"/&gt;&lt;/svg&gt;&lt;/span&gt;&lt;div class="list__body"&gt;&lt;div class="list__title"&gt;ruth.alvarez@example.org&lt;/div&gt;&lt;div class="list__meta"&gt;Volunteer · Accepted Sat 18 Oct&lt;/div&gt;&lt;/div&gt;&lt;span class="badge badge--success"&gt;Accepted&lt;/span&gt;&lt;/li&gt;&lt;/ul&gt;</code></pre></details>
+      </div>
+
+      <h3>Event rows</h3>
+      <div class="ds-example">
+        <div class="ds-example__canvas ds-example__canvas--stack"><ul class="list card card--flush"><li class="list__item event-card"><span class="date-badge" aria-hidden="true"><span class="date-badge__month">Nov</span><span class="date-badge__day">6</span></span><div class="event-card__body"><a class="event-card__title" href="../../mocks/pages/event/default.html">Toronto Builders Night</a><span class="event-card__meta">Thu 6 Nov · 6:30 pm · Kestrel Labs, 220 King St W · 34 going</span></div><span class="badge badge--info">Public</span></li><li class="list__item event-card"><span class="date-badge" aria-hidden="true"><span class="date-badge__month">Oct</span><span class="date-badge__day">28</span></span><div class="event-card__body"><a class="event-card__title" href="../../mocks/pages/event/default.html">City Team Prayer &amp; Planning</a><span class="event-card__meta">Tue 28 Oct · 7:00 pm · Online</span></div><span class="badge">Members only</span></li></ul></div>
+        <div class="ds-example__caption"><span>From Home and Events: <code>.list__item.event-card</code> with a date badge; see the event card.</span></div>
+        <details class="ds-example__code"><summary>HTML</summary><pre><code>&lt;ul class="list card card--flush"&gt;&lt;li class="list__item event-card"&gt;&lt;span class="date-badge" aria-hidden="true"&gt;&lt;span class="date-badge__month"&gt;Nov&lt;/span&gt;&lt;span class="date-badge__day"&gt;6&lt;/span&gt;&lt;/span&gt;&lt;div class="event-card__body"&gt;&lt;a class="event-card__title" href="../../mocks/pages/event/default.html"&gt;Toronto Builders Night&lt;/a&gt;&lt;span class="event-card__meta"&gt;Thu 6 Nov · 6:30 pm · Kestrel Labs, 220 King St W · 34 going&lt;/span&gt;&lt;/div&gt;&lt;span class="badge badge--info"&gt;Public&lt;/span&gt;&lt;/li&gt;&lt;li class="list__item event-card"&gt;&lt;span class="date-badge" aria-hidden="true"&gt;&lt;span class="date-badge__month"&gt;Oct&lt;/span&gt;&lt;span class="date-badge__day"&gt;28&lt;/span&gt;&lt;/span&gt;&lt;div class="event-card__body"&gt;&lt;a class="event-card__title" href="../../mocks/pages/event/default.html"&gt;City Team Prayer &amp;amp; Planning&lt;/a&gt;&lt;span class="event-card__meta"&gt;Tue 28 Oct · 7:00 pm · Online&lt;/span&gt;&lt;/div&gt;&lt;span class="badge"&gt;Members only&lt;/span&gt;&lt;/li&gt;&lt;/ul&gt;</code></pre></details>
+      </div>
+
+      <p><code>.list</code> on its own sits inside a card that already has a heading (Home "Coming up", Search groups); <code>.list.card.card--flush</code> is the list as its own card.</p>
+    </section>
+
+    <section class="ds-section" id="sizes" data-na="One density: rows are always padded by --space-3 and --space-4."><h2><a href="#sizes">Sizes</a></h2>
+      <p>One density. Rows grow in height only when the meta line wraps.</p>
+    </section>
+
+    <section class="ds-section" id="states"><h2><a href="#states">States</a></h2>
+      <div class="ds-matrix"><table>
+        <thead><tr><th scope="col">State</th><th scope="col">Example</th></tr></thead>
+        <tbody>
+          <tr><th scope="row">Default</th><td><ul class="list card card--flush"><li class="list__item"><span class="avatar avatar--sm avatar--sun" aria-hidden="true">TO</span><div class="list__body"><a class="list__title" href="../../mocks/pages/contact/default.html">Tomás Ortega</a><div class="list__meta">Signed up today</div></div></li></ul></td></tr>
+          <tr><th scope="row">Hover</th><td><ul class="list card card--flush"><li class="list__item" data-state="hover"><span class="avatar avatar--sm avatar--sun" aria-hidden="true">TO</span><div class="list__body"><a class="list__title" href="../../mocks/pages/contact/default.html">Tomás Ortega</a><div class="list__meta">Signed up today</div></div></li></ul></td></tr>
+          <tr><th scope="row">Focus (title link)</th><td><ul class="list card card--flush"><li class="list__item"><span class="avatar avatar--sm avatar--sun" aria-hidden="true">TO</span><div class="list__body"><a class="list__title" href="../../mocks/pages/contact/default.html" data-state="focus">Tomás Ortega</a><div class="list__meta">Signed up today</div></div></li></ul></td></tr>
+          <tr><th scope="row">Loading</th><td><div class="list card card--flush" aria-busy="true" aria-label="Loading contacts"><div class="list__item"><span class="skeleton avatar avatar--sm" aria-hidden="true"></span><div class="list__body"><span class="skeleton skeleton--title" aria-hidden="true"></span><span class="skeleton skeleton--text" aria-hidden="true"></span></div></div><div class="list__item"><span class="skeleton avatar avatar--sm" aria-hidden="true"></span><div class="list__body"><span class="skeleton skeleton--title" aria-hidden="true"></span><span class="skeleton skeleton--text" aria-hidden="true"></span></div></div><div class="list__item"><span class="skeleton avatar avatar--sm" aria-hidden="true"></span><div class="list__body"><span class="skeleton skeleton--title" aria-hidden="true"></span><span class="skeleton skeleton--text" aria-hidden="true"></span></div></div></div></td></tr>
+          <tr><th scope="row">Empty</th><td><div class="empty"><span class="empty__icon" aria-hidden="true"><svg class="icon icon--lg" aria-hidden="true" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="2"/><circle cx="9" cy="11" r="2.5"/><path d="M5.5 17a3.5 3.5 0 0 1 7 0M15 9h3M15 13h3"/></svg></span><h2 class="empty__title">No contacts yet</h2><p class="empty__text">Keep track of people you meet. Contacts and your notes on them are private to you until they join.</p></div></td></tr>
+        </tbody>
+      </table></div>
+      <ul>
+        <li><b>Loading</b>: skeleton rows of the same shape, the container marked <code>aria-busy="true"</code> with a label such as "Loading contacts".</li>
+        <li><b>Empty</b>, <b>no results</b> and <b>error</b> replace the list with an <a href="empty-state.html">empty state</a> ("No contacts yet", "No contacts match “harbour”", "We couldn’t load your contacts").</li>
+        <li>Rows have no selected or disabled state; archived contacts move to their own list.</li>
+      </ul>
+      <h3>Both themes</h3>
+      <div class="ds-themes"><div data-theme="light"><ul class="list card card--flush"><li class="list__item"><span class="avatar avatar--sm avatar--sun" aria-hidden="true">TO</span><div class="list__body"><a class="list__title" href="../../mocks/pages/contact/default.html">Tomás Ortega</a><div class="list__meta">Signed up today · runs IT at Harbour Light Shelter</div></div><span class="badge badge--success">Signed up</span></li><li class="list__item"><span class="avatar avatar--sm" aria-hidden="true">AB</span><div class="list__body"><a class="list__title" href="../../mocks/pages/contact/default.html">Abby Brooks</a><div class="list__meta">Met at Builders Night in September · UX designer</div></div><span class="badge"><svg class="icon icon--sm" aria-hidden="true" viewBox="0 0 24 24"><rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>Private</span></li><li class="list__item"><span class="avatar avatar--sm avatar--sage" aria-hidden="true">JB</span><div class="list__body"><a class="list__title" href="../../mocks/pages/contact/default.html">Jonah Bell</a><div class="list__meta">Linked to member profile · wants to mentor students</div></div><span class="badge badge--info">Member</span></li></ul></div><div data-theme="dark"><ul class="list card card--flush"><li class="list__item"><span class="avatar avatar--sm avatar--sun" aria-hidden="true">TO</span><div class="list__body"><a class="list__title" href="../../mocks/pages/contact/default.html">Tomás Ortega</a><div class="list__meta">Signed up today · runs IT at Harbour Light Shelter</div></div><span class="badge badge--success">Signed up</span></li><li class="list__item"><span class="avatar avatar--sm" aria-hidden="true">AB</span><div class="list__body"><a class="list__title" href="../../mocks/pages/contact/default.html">Abby Brooks</a><div class="list__meta">Met at Builders Night in September · UX designer</div></div><span class="badge"><svg class="icon icon--sm" aria-hidden="true" viewBox="0 0 24 24"><rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>Private</span></li><li class="list__item"><span class="avatar avatar--sm avatar--sage" aria-hidden="true">JB</span><div class="list__body"><a class="list__title" href="../../mocks/pages/contact/default.html">Jonah Bell</a><div class="list__meta">Linked to member profile · wants to mentor students</div></div><span class="badge badge--info">Member</span></li></ul></div></div>
+    </section>
+
+    <section class="ds-section" id="responsive"><h2><a href="#responsive">Responsive behaviour</a></h2>
+      <ul>
+        <li>Full width of its column at every breakpoint; the leading avatar and trailing badge keep their size and the body takes the rest (<code>min-width: 0</code>).</li>
+        <li>On a phone the meta line wraps; it is never truncated, so a contact note stays readable.</li>
+      </ul>
+    </section>
+
+    <section class="ds-section" id="theming"><h2><a href="#theming">Theming</a></h2>
+      <p>Rows sit on the card surface; dividers use <code>--color-border-default</code>, the meta line <code>--color-fg-muted</code>. Both follow the theme with no list-specific tokens.</p>
+    </section>
+
+    <section class="ds-section" id="accessibility"><h2><a href="#accessibility">Accessibility</a></h2>
+      <h3>Role and pattern</h3>
+      <p>A native <code>&lt;ul&gt;</code> with <code>&lt;li&gt;</code> rows, so screen readers announce "list, 4 items". The only interactive element in a row is the title link (or a trailing button); the whole row is not a click target.</p>
+      <h3>Keyboard</h3>
+      <table class="ds-table ds-keys"><thead><tr><th scope="col">Key</th><th scope="col">Action</th></tr></thead><tbody>
+        <tr><td><kbd>Tab</kbd></td><td>Moves to the next row's title link or trailing button.</td></tr>
+        <tr><td><kbd>Enter</kbd></td><td>Opens the contact, profile or event.</td></tr>
+      </tbody></table>
+      <h3>Focus</h3>
+      <p>The shared focus ring on the title link.</p>
+      <h3>Labelling</h3>
+      <p>Avatars and stickers are <code>aria-hidden</code>; the title names the row. A badge's text is read as part of the row ("Private"); the lock icon in it is hidden.</p>
+      <h3>Contrast</h3>
+      <div class="ds-themes"><div data-theme="light"><div class="ds-example__canvas ds-example__canvas--stack" style="padding: 0; gap: var(--space-2);"><div class="ds-pair"><span>Title on surface</span><span class="ds-pair__ratio" data-contrast="--color-fg-default|--color-bg-surface" data-min="4.5"></span></div><div class="ds-pair"><span>Meta on surface</span><span class="ds-pair__ratio" data-contrast="--color-fg-muted|--color-bg-surface" data-min="4.5"></span></div><div class="ds-pair"><span>Link title on surface</span><span class="ds-pair__ratio" data-contrast="--color-fg-accent|--color-bg-surface" data-min="4.5"></span></div></div></div><div data-theme="dark"><div class="ds-example__canvas ds-example__canvas--stack" style="padding: 0; gap: var(--space-2);"><div class="ds-pair"><span>Title on surface</span><span class="ds-pair__ratio" data-contrast="--color-fg-default|--color-bg-surface" data-min="4.5"></span></div><div class="ds-pair"><span>Meta on surface</span><span class="ds-pair__ratio" data-contrast="--color-fg-muted|--color-bg-surface" data-min="4.5"></span></div><div class="ds-pair"><span>Link title on surface</span><span class="ds-pair__ratio" data-contrast="--color-fg-accent|--color-bg-surface" data-min="4.5"></span></div></div></div></div>
+      <h3>Motion</h3>
+      <p>None.</p>
+    </section>
+
+    <section class="ds-section" id="content"><h2><a href="#content">Content</a></h2>
+      <ul>
+        <li>Title: the person's full name, the invite email or the event name.</li>
+        <li>Meta: the most useful fact first, then " · ": "Pastor at Maple Street Church · interested in hosting".</li>
+        <li>Dates use "Mon 20 Oct"; today and yesterday are written as words.</li>
+        <li>Badges are one or two words in sentence case: "Signed up", "Pending".</li>
+      </ul>
+    </section>
+
+    <section class="ds-section" id="do-dont"><h2><a href="#do-dont">Do and don't</a></h2>
+      <div class="ds-dodont">
+        <figure class="ds-do"><div class="ds-example__canvas ds-example__canvas--stack"><ul class="list card card--flush"><li class="list__item"><span class="avatar avatar--sm" aria-hidden="true">KA</span><div class="list__body"><a class="list__title" href="../../mocks/pages/contact/default.html">Kwame Asante</a><div class="list__meta">Pastor at Maple Street Church · interested in hosting</div></div></li></ul></div><figcaption>One link per row, on the name.</figcaption></figure>
+        <figure class="ds-dont"><div class="ds-example__canvas ds-example__canvas--stack"><ul class="list card card--flush"><li class="list__item"><span class="avatar avatar--sm" aria-hidden="true">KA</span><div class="list__body"><div class="list__title">Kwame Asante</div><div class="list__meta">Pastor at Maple Street Church</div></div><a class="btn btn--sm" href="../../mocks/pages/contact/default.html">Open</a></li></ul></div><figcaption>A vague "Open" button; the link text must name the contact.</figcaption></figure>
+        <figure class="ds-do"><div class="ds-example__canvas ds-example__canvas--stack"><ul class="list card card--flush"><li class="list__item"><span class="avatar avatar--sm avatar--sky" aria-hidden="true">GO</span><div class="list__body"><a class="list__title" href="../../mocks/pages/profile/default.html">Grace Okonkwo</a><div class="list__meta cluster"><span class="badge badge--role">City Lead</span></div></div></li><li class="list__item"><span class="avatar avatar--sm avatar--sun" aria-hidden="true">ML</span><div class="list__body"><a class="list__title" href="../../mocks/pages/profile/default.html">Marcus Lee</a><div class="list__meta cluster"><span class="badge badge--role">Event Lead</span></div></div></li><li class="list__item"><span class="avatar avatar--sm avatar--rose" aria-hidden="true">RA</span><div class="list__body"><a class="list__title" href="../../mocks/pages/profile/default.html">Ruth Alvarez</a><div class="list__meta cluster"><span class="badge badge--role">Volunteer</span></div></div></li></ul></div><figcaption>Role badges in the meta cluster.</figcaption></figure>
+        <figure class="ds-dont"><div class="ds-example__canvas ds-example__canvas--stack"><ul class="list card card--flush"><li class="list__item"><span class="avatar avatar--sm avatar--sky" aria-hidden="true">GO</span><div class="list__body"><a class="list__title" href="../../mocks/pages/profile/default.html">Grace Okonkwo</a><div class="list__meta">City Lead, Toronto, 12 contacts, 3 events, 2 workspaces, member since March 2024</div></div></li></ul></div><figcaption>A meta line crammed with every fact; that belongs in a table or the profile.</figcaption></figure>
+      </div>
+    </section>
+
+    <section class="ds-section" id="tokens"><h2><a href="#tokens">Tokens</a></h2>
+      <div class="ds-table-wrap"><table class="ds-table">
+        <thead><tr><th scope="col">Part</th><th scope="col">Token</th><th scope="col">Light</th><th scope="col">Dark</th></tr></thead>
+        <tbody>
+          <tr><td>Row divider</td><td><code>--color-border-default</code></td><td><span class="ds-swatch-cell" data-theme="light"><i data-token="--color-border-default" data-swatch></i><span data-token="--color-border-default"></span></span></td><td><span class="ds-swatch-cell" data-theme="dark"><i data-token="--color-border-default" data-swatch></i><span data-token="--color-border-default"></span></span></td></tr>
+          <tr><td>Card surface</td><td><code>--color-bg-surface</code></td><td><span class="ds-swatch-cell" data-theme="light"><i data-token="--color-bg-surface" data-swatch></i><span data-token="--color-bg-surface"></span></span></td><td><span class="ds-swatch-cell" data-theme="dark"><i data-token="--color-bg-surface" data-swatch></i><span data-token="--color-bg-surface"></span></span></td></tr>
+          <tr><td>Title</td><td><code>--color-fg-default</code></td><td><span class="ds-swatch-cell" data-theme="light"><i data-token="--color-fg-default" data-swatch></i><span data-token="--color-fg-default"></span></span></td><td><span class="ds-swatch-cell" data-theme="dark"><i data-token="--color-fg-default" data-swatch></i><span data-token="--color-fg-default"></span></span></td></tr>
+          <tr><td>Meta line</td><td><code>--color-fg-muted</code></td><td><span class="ds-swatch-cell" data-theme="light"><i data-token="--color-fg-muted" data-swatch></i><span data-token="--color-fg-muted"></span></span></td><td><span class="ds-swatch-cell" data-theme="dark"><i data-token="--color-fg-muted" data-swatch></i><span data-token="--color-fg-muted"></span></span></td></tr>
+          <tr><td>Row padding (block)</td><td><code>--space-3</code></td><td colspan="2"><span data-token="--space-3"></span></td></tr>
+          <tr><td>Row padding (inline)</td><td><code>--space-4</code></td><td colspan="2"><span data-token="--space-4"></span></td></tr>
+          <tr><td>Gap</td><td><code>--space-3</code></td><td colspan="2"><span data-token="--space-3"></span></td></tr>
+          <tr><td>Title font</td><td><code>--text-label</code></td><td colspan="2"><span data-token="--text-label"></span></td></tr>
+          <tr><td>Meta font</td><td><code>--text-body-sm</code></td><td colspan="2"><span data-token="--text-body-sm"></span></td></tr>
+        </tbody>
+      </table></div>
+    </section>
+
+    <section class="ds-section" id="code"><h2><a href="#code">Code</a></h2>
+      <pre><code>&lt;ul class="list card card--flush"&gt;
+  &lt;li class="list__item"&gt;
+    &lt;span class="avatar avatar--sm avatar--sun" aria-hidden="true"&gt;TO&lt;/span&gt;
+    &lt;div class="list__body"&gt;
+      &lt;a class="list__title" href="/contacts/tomas-ortega"&gt;Tomás Ortega&lt;/a&gt;
+      &lt;div class="list__meta"&gt;Signed up today · runs IT at Harbour Light Shelter&lt;/div&gt;
+    &lt;/div&gt;
+    &lt;span class="badge badge--success"&gt;Signed up&lt;/span&gt;
+  &lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;!-- Angular --&gt;
+&lt;ft-list&gt;
+  &lt;ft-list-item [title]="c.name" [link]="['/contacts', c.id]" [meta]="c.summary"&gt;…&lt;/ft-list-item&gt;
+&lt;/ft-list&gt;</code></pre>
+      <table class="ds-table"><thead><tr><th scope="col">Class / attribute</th><th scope="col">Effect</th></tr></thead><tbody>
+        <tr><td><code>.list</code></td><td>Unstyled vertical list.</td></tr>
+        <tr><td><code>.list.card.card--flush</code></td><td>The list as its own card.</td></tr>
+        <tr><td><code>.list__item</code></td><td>Padded row with a divider; flex, centred.</td></tr>
+        <tr><td><code>.list__body</code>, <code>.list__title</code>, <code>.list__meta</code></td><td>Growing body, label-weight title, muted meta.</td></tr>
+        <tr><td><code>.list__meta.cluster</code></td><td>Meta line of badges.</td></tr>
+        <tr><td><code>aria-busy="true"</code></td><td>On the container while skeleton rows show.</td></tr>
+      </tbody></table>
+    </section>
+
+    <section class="ds-section" id="sources"><h2><a href="#sources">Sources</a></h2>
+      <p>Extracted from these mocks:</p>
+      <ul>
+        <li><a href="../../mocks/pages/contacts/default.html">pages/contacts/default</a>, <a href="../../mocks/pages/contacts/loading.html">loading</a> and <a href="../../mocks/pages/contacts/empty.html">empty</a></li>
+        <li><a href="../../mocks/pages/team/default.html">pages/team/default</a> (role badges)</li>
+        <li><a href="../../mocks/pages/invites/default.html">pages/invites/default</a> (icon rows)</li>
+        <li><a href="../../mocks/pages/home/default.html">pages/home/default</a> and <a href="../../mocks/pages/events/default.html">pages/events/default</a> (event rows)</li>
+        <li><a href="../../mocks/pages/archived-contacts/default.html">pages/archived-contacts/default</a> and <a href="../../mocks/pages/search/default.html">pages/search/default</a></li>
+      </ul>
+      <p>Drift: Team rows put an inline <code>style="gap: var(--space-1);"</code> on the meta cluster; skeleton rows repeat <code>style="flex:1;"</code> on <code>.list__body</code>, which already grows. No mock shows a hover or focus state for rows.</p>
+    </section>
+
+    <footer class="ds-footer"><span>FaithTech Community design system · extracted from <a href="../../mocks/index.html">docs/mocks</a> on 2026-10-21</span><a href="#top">Back to top</a></footer>
+  </main>
+</div>
+<script src="../assets/ds.js"></script>
+</body>
+</html>

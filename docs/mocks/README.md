@@ -1,6 +1,6 @@
 # FaithTech Community mocks
 
-Static HTML mocks for every page, dialog and notification, built from [`idea.txt`](../../idea.txt) and [`decisions.txt`](../../decisions.txt), styled with Shelfie's design system (copied into `assets/`).
+Static HTML mocks for every page, dialog and notification, built from [`idea.txt`](../../idea.txt) and [`decisions.txt`](../../decisions.txt), styled with the [FaithTech Community design system](../design-system/README.md) (tokens and components inherited from Shelfie).
 
 ## How to open
 
@@ -12,9 +12,8 @@ Static HTML mocks for every page, dialog and notification, built from [`idea.txt
 
 | File | Source |
 |---|---|
-| `assets/tokens.css` | Copy of `shelfie/docs/design-system/tokens/tokens.css` (unchanged) |
-| `assets/components.css` | Copy of `shelfie/docs/design-system/assets/components.css` (unchanged) |
-| `assets/ui-extra.css` | New FaithTech components: tabs, select, date badge, event card, Kanban/board, backlog tree, search groups, bell panel, facts list, notes |
+| `../design-system/tokens/tokens.css` | Design system tokens (single source of truth) |
+| `../design-system/assets/components.css` | Design system components, including the FaithTech additions formerly in `assets/ui-extra.css` |
 | `assets/mock.css`, `mock.js` | Mock chrome from Shelfie |
 
 ## Cast and catalog

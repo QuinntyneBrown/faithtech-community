@@ -1,0 +1,259 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Feedback and loading — FaithTech Community design system</title>
+<meta name="description" content="How FaithTech Community shows that something is loading, saving or uploading and how it reports the result in place: skeletons, busy buttons, upload progress, inline alerts and success cards.">
+<link rel="stylesheet" href="../tokens/tokens.css">
+<link rel="stylesheet" href="../assets/components.css">
+<link rel="stylesheet" href="../assets/ds.css">
+</head>
+<body id="top">
+<a class="skip-link" href="#main">Skip to content</a>
+<div class="ds-shell">
+  <nav class="ds-nav" aria-label="Design system">
+    <div class="ds-nav__brand"><a href="../index.html">FaithTech DS</a><button class="ds-theme-toggle" type="button" aria-pressed="false">☾ Dark</button></div>
+    <details open><summary>Foundations</summary><ul>
+      <li><a href="../foundations/color.html">Color</a></li>
+      <li><a href="../foundations/typography.html">Typography</a></li>
+      <li><a href="../foundations/spacing.html">Spacing</a></li>
+      <li><a href="../foundations/layout.html">Layout</a></li>
+      <li><a href="../foundations/elevation.html">Elevation</a></li>
+      <li><a href="../foundations/shape.html">Shape</a></li>
+      <li><a href="../foundations/motion.html">Motion</a></li>
+      <li><a href="../foundations/iconography.html">Iconography</a></li>
+      <li><a href="../foundations/theming.html">Theming</a></li>
+      <li><a href="../foundations/responsive.html">Responsive</a></li>
+      <li><a href="../foundations/accessibility.html">Accessibility</a></li>
+      <li><a href="../foundations/content.html">Content</a></li>
+    </ul></details>
+    <details open><summary>Components</summary><ul>
+      <li><a href="../components/button.html">Button</a></li>
+      <li><a href="../components/link.html">Link</a></li>
+      <li><a href="../components/menu.html">Menu</a></li>
+      <li><a href="../components/form-field.html">Form field</a></li>
+      <li><a href="../components/text-field.html">Text field</a></li>
+      <li><a href="../components/textarea.html">Textarea</a></li>
+      <li><a href="../components/select.html">Select</a></li>
+      <li><a href="../components/radio-group.html">Radio group</a></li>
+      <li><a href="../components/switch.html">Switch</a></li>
+      <li><a href="../components/form-layout.html">Form layout</a></li>
+      <li><a href="../components/picture-list.html">Picture list</a></li>
+      <li><a href="../components/sticker-picker.html">Estimate card picker</a></li>
+      <li><a href="../components/top-bar.html">Top bar</a></li>
+      <li><a href="../components/tab-bar.html">Tab bar</a></li>
+      <li><a href="../components/tabs.html">Tabs</a></li>
+      <li><a href="../components/breadcrumb.html">Breadcrumb</a></li>
+      <li><a href="../components/skip-link.html">Skip link</a></li>
+      <li><a href="../components/layout.html">Layout primitives</a></li>
+      <li><a href="../components/card.html">Card</a></li>
+      <li><a href="../components/dialog.html">Dialog</a></li>
+      <li><a href="../components/notification-panel.html">Notification panel</a></li>
+      <li><a href="../components/list.html">List</a></li>
+      <li><a href="../components/table.html">Table</a></li>
+      <li><a href="../components/description-list.html">Description list</a></li>
+      <li><a href="../components/feed.html">Activity feed</a></li>
+      <li><a href="../components/tree.html">Backlog tree</a></li>
+      <li><a href="../components/kanban.html">Kanban board</a></li>
+      <li><a href="../components/event-card.html">Event card</a></li>
+      <li><a href="../components/profile-header.html">Profile header</a></li>
+      <li><a href="../components/search-results.html">Search results</a></li>
+      <li><a href="../components/note.html">Note</a></li>
+      <li><a href="../components/avatar.html">Avatar</a></li>
+      <li><a href="../components/logo-mark.html">Logo mark</a></li>
+      <li><a href="../components/badge.html">Badge</a></li>
+      <li><a href="../components/chip.html">Chip</a></li>
+      <li><a href="../components/stat.html">Stat</a></li>
+      <li><a href="../components/sticker.html">Estimate card</a></li>
+      <li><a href="../components/toast.html">Toast</a></li>
+      <li><a href="../components/alert.html">Alert and banner</a></li>
+      <li><a href="../components/inline-message.html">Inline message</a></li>
+      <li><a href="../components/progress.html">Progress</a></li>
+      <li><a href="../components/skeleton.html">Skeleton</a></li>
+      <li><a href="../components/empty-state.html">Empty state</a></li>
+      <li><a href="../components/error-page.html">Error page</a></li>
+    </ul></details>
+    <details open><summary>Patterns</summary><ul>
+      <li><a href="../patterns/forms.html">Forms</a></li>
+      <li><a href="../patterns/feedback-and-loading.html">Feedback and loading</a></li>
+      <li><a href="../patterns/empty-and-error-states.html">Empty and error states</a></li>
+      <li><a href="../patterns/navigation.html">Navigation and page structure</a></li>
+      <li><a href="../patterns/dialogs-and-overlays.html">Dialogs and overlays</a></li>
+      <li><a href="../patterns/lists-and-tables.html">Lists and tables</a></li>
+      <li><a href="../patterns/notifications.html">Notifications</a></li>
+      <li><a href="../patterns/content-and-tone.html">Content and tone</a></li>
+    </ul></details>
+  </nav>
+
+  <main id="main" class="ds-main">
+    <header class="ds-header">
+      <p class="ds-kicker">Pattern · Feedback</p>
+      <h1>Feedback and loading</h1>
+      <p class="ds-lead">Every wait has a shape and every action has an answer. Loading shows a skeleton of what is coming. Saving shows on the button that was pressed. The result appears where the person is looking, and it always says whether anything was lost.</p>
+      <div class="ds-meta"><span class="ds-pill ds-pill--ok">WCAG 2.2 AA</span><span class="ds-pill">Status: stable</span><span class="ds-pill">Pattern</span></div>
+      <ul class="ds-toc">
+        <li><a href="#overview">Overview</a></li><li><a href="#when">When to use</a></li><li><a href="#structure">Structure</a></li><li><a href="#states">States</a></li><li><a href="#responsive">Responsive</a></li><li><a href="#accessibility">Accessibility</a></li><li><a href="#content">Content</a></li><li><a href="#do-dont">Do and don't</a></li><li><a href="#sources">Sources</a></li>
+      </ul>
+    </header>
+
+    <section class="ds-section" id="overview"><h2><a href="#overview">Overview</a></h2>
+      <ul>
+        <li><b><a href="../components/skeleton.html">Skeleton</a></b>: grey blocks shaped like the rows, cards or profile that are loading. Every screen with data has a <code>loading</code> state.</li>
+        <li><b>Busy button</b>: the pressed button shows a pulsing dot, an "-ing…" label, <code>aria-busy</code> and <code>aria-disabled</code>. Used in every form and dialog.</li>
+        <li><b><a href="../components/picture-list.html">Upload progress</a></b>: a photo tile with <code>aria-busy</code> and a status line ("Uploading… 60%"). If the upload fails, the tile shows the error.</li>
+        <li><b><a href="../components/alert.html">Inline alert</a></b>: the result in context. "Profile saved", "Settings saved", "That didn’t work".</li>
+        <li><b>Success card</b> (<code>.card--success</code>): replaces a form after a send that can't be undone, such as "Sent to 41 Product Engineers".</li>
+      </ul>
+      <p>Toasts, banners and the bell are on <a href="notifications.html">notifications</a>. Screens that are empty or failed are on <a href="empty-and-error-states.html">empty and error states</a>.</p>
+    </section>
+
+    <section class="ds-section" id="when"><h2><a href="#when">When to use</a></h2>
+      <div class="ds-table-wrap"><table class="ds-table">
+        <thead><tr><th scope="col">Moment</th><th scope="col">Use</th><th scope="col">Example</th></tr></thead>
+        <tbody>
+          <tr><td>A page or region is fetching data</td><td>Skeleton in the region, with the page header and actions already shown</td><td>contacts/loading, profile/loading</td></tr>
+          <tr><td>A form or dialog is saving</td><td>Busy button. The fields stay editable, but pressing again does nothing</td><td>"Saving…", "Delete permanently…"</td></tr>
+          <tr><td>A file is uploading</td><td>Progress on the tile, with a percentage as text</td><td>edit-profile/uploading</td></tr>
+          <tr><td>Saved, and the person stays on the page</td><td>Success alert at the top of the form, <code>role="status"</code></td><td>"Profile saved · Everyone signed in can now see your changes."</td></tr>
+          <tr><td>Saved, and the person moves to the item</td><td>Toast on the next page</td><td>"Invite sent", "Contact restored"</td></tr>
+          <tr><td>Sent, and it can't be undone</td><td>Success card with what happened and what to do next</td><td>compose-announcement/success</td></tr>
+          <tr><td>The save failed</td><td>Danger alert in context. Nothing typed is lost</td><td>"That didn’t work · Nothing was changed — try again."</td></tr>
+        </tbody>
+      </table></div>
+      <p>If loading takes less than about 300ms, don't show a skeleton at all. That avoids a flash.</p>
+    </section>
+
+    <section class="ds-section" id="structure"><h2><a href="#structure">Structure</a></h2>
+      <h3>Skeleton list</h3>
+      <div class="ds-example">
+        <div class="ds-example__canvas ds-example__canvas--stack">
+          <div class="card card--flush" aria-busy="true" aria-label="Loading contacts" style="width: 100%;"><div class="list__item"><span class="skeleton avatar avatar--sm" aria-hidden="true"></span><div class="list__body" style="flex: 1;"><span class="skeleton skeleton--title" aria-hidden="true"></span><span class="skeleton skeleton--text" aria-hidden="true"></span></div></div><div class="list__item"><span class="skeleton avatar avatar--sm" aria-hidden="true"></span><div class="list__body" style="flex: 1;"><span class="skeleton skeleton--title" aria-hidden="true"></span><span class="skeleton skeleton--text" aria-hidden="true"></span></div></div><div class="list__item"><span class="skeleton avatar avatar--sm" aria-hidden="true"></span><div class="list__body" style="flex: 1;"><span class="skeleton skeleton--title" aria-hidden="true"></span><span class="skeleton skeleton--text" aria-hidden="true"></span></div></div></div>
+        </div>
+        <div class="ds-example__caption"><span>pages/contacts/loading. The heading "Contacts", Archived and Add contact are already on screen above it.</span></div>
+        <details class="ds-example__code"><summary>HTML</summary><pre><code>&lt;div class="card card--flush" aria-busy="true" aria-label="Loading contacts"&gt;
+  &lt;div class="list__item"&gt;
+    &lt;span class="skeleton avatar avatar--sm" aria-hidden="true"&gt;&lt;/span&gt;
+    &lt;div class="list__body"&gt;
+      &lt;span class="skeleton skeleton--title" aria-hidden="true"&gt;&lt;/span&gt;
+      &lt;span class="skeleton skeleton--text" aria-hidden="true"&gt;&lt;/span&gt;
+    &lt;/div&gt;
+  &lt;/div&gt;
+&lt;/div&gt;</code></pre></details>
+      </div>
+      <h3>Busy button and results in place</h3>
+      <div class="ds-example">
+        <div class="ds-example__canvas ds-example__canvas--stack">
+          <div class="cluster"><button class="btn btn--primary" type="button" aria-busy="true" aria-disabled="true"><span class="dot dot--pulse" aria-hidden="true"></span>Saving…</button><button class="btn btn--danger" type="button" aria-busy="true" aria-disabled="true"><span class="dot dot--pulse" aria-hidden="true"></span>Delete permanently…</button></div>
+          <div class="alert alert--success" role="status" style="width: 100%;"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="m8 12 3 3 5-6"/></svg><div class="alert__body"><div class="alert__title">Profile saved</div><div class="alert__text">Everyone signed in can now see your changes.</div></div></div>
+          <div class="alert alert--danger" role="alert" style="width: 100%;"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 8v4M12 16h.01"/></svg><div class="alert__body"><div class="alert__title">That didn’t work</div><div class="alert__text">We couldn’t reach FaithTech. Nothing was changed — try again.</div></div></div>
+        </div>
+        <div class="ds-example__caption"><span>contact-form/busy, delete-contact/busy, edit-profile/success and delete-contact/failed.</span></div>
+      </div>
+      <h3>Upload progress and failure</h3>
+      <div class="ds-example">
+        <div class="ds-example__canvas ds-example__canvas--stack">
+          <ul class="picture-list__grid" style="width: 100%; list-style: none; margin: 0; padding: 0;">
+            <li class="picture-list__item"><div class="picture-list__thumb" aria-busy="true"><img src="../assets/photos/team.svg" alt="The Toronto city team gathered around a whiteboard"></div><p class="picture-list__note" role="status">Uploading… 60%</p></li>
+            <li class="picture-list__item picture-list__item--failed"><div class="picture-list__thumb"><img src="../assets/photos/hackathon.svg" alt="Teams working on laptops at the spring hackathon"></div><p class="picture-list__note">hackathon.jpg is 9.4 MB. Photos can be up to 5 MB — try a smaller one.</p></li>
+          </ul>
+        </div>
+        <div class="ds-example__caption"><span>edit-profile/uploading and too-large. Photos need a description before the profile can be saved.</span></div>
+      </div>
+      <h3>Success card</h3>
+      <div class="ds-example">
+        <div class="ds-example__canvas ds-example__canvas--stack">
+          <div class="card card--success stack" role="status" style="width: 100%; max-width: 44rem;"><h4 style="font: var(--text-h4);"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="m8 12 3 3 5-6"/></svg> Sent to 41 Product Engineers</h4><p>It’s in their notifications now. 38 will also get it by email — 3 have opted out of announcement emails.</p><div class="cluster"><a class="btn btn--primary" href="../../mocks/pages/announcements/default.html">Back to announcements</a><a class="btn btn--ghost" href="../../mocks/pages/compose-announcement/default.html">Write another</a></div></div>
+        </div>
+        <div class="ds-example__caption"><span>pages/compose-announcement/success.</span></div>
+      </div>
+    </section>
+
+    <section class="ds-section" id="states"><h2><a href="#states">States</a></h2>
+      <div class="ds-matrix"><table>
+        <thead><tr><th scope="col">Part</th><th scope="col">Idle</th><th scope="col">Busy</th><th scope="col">Done</th><th scope="col">Failed</th></tr></thead>
+        <tbody>
+          <tr><th scope="row">Save button</th>
+            <td><button class="btn btn--primary" type="button">Save settings</button></td>
+            <td><button class="btn btn--primary" type="button" aria-busy="true" aria-disabled="true"><span class="dot dot--pulse" aria-hidden="true"></span>Saving…</button></td>
+            <td><span class="text-caption">Success alert: "Settings saved"</span></td>
+            <td><span class="text-caption">Danger alert above the form; values kept</span></td></tr>
+          <tr><th scope="row">RSVP</th>
+            <td><button class="btn btn--primary" type="button">RSVP</button></td>
+            <td><button class="btn btn--primary" type="button" aria-busy="true" aria-disabled="true"><span class="dot dot--pulse" aria-hidden="true"></span>Saving…</button></td>
+            <td><span class="badge badge--success">You’re going</span></td>
+            <td><span class="text-caption">Danger toast: "Your RSVP wasn’t saved" · Retry</span></td></tr>
+        </tbody>
+      </table></div>
+      <h3>Both themes</h3>
+      <div class="ds-themes">
+        <div data-theme="light"><div class="stack"><span class="skeleton skeleton--title" aria-hidden="true"></span><span class="skeleton skeleton--text" aria-hidden="true"></span><button class="btn btn--primary" type="button" aria-busy="true" aria-disabled="true"><span class="dot dot--pulse" aria-hidden="true"></span>Sending…</button></div></div>
+        <div data-theme="dark"><div class="stack"><span class="skeleton skeleton--title" aria-hidden="true"></span><span class="skeleton skeleton--text" aria-hidden="true"></span><button class="btn btn--primary" type="button" aria-busy="true" aria-disabled="true"><span class="dot dot--pulse" aria-hidden="true"></span>Sending…</button></div></div>
+      </div>
+    </section>
+
+    <section class="ds-section" id="responsive"><h2><a href="#responsive">Responsive behaviour</a></h2>
+      <ul>
+        <li>Skeletons use the same layout as the content they stand in for, so nothing jumps when the content arrives (no layout shift).</li>
+        <li>Busy labels can be longer than idle labels. Buttons grow to fit and never cut off "Creating account…".</li>
+        <li>Alerts span the form card at every width. On phones, their actions drop below the text.</li>
+      </ul>
+    </section>
+
+    <section class="ds-section" id="accessibility"><h2><a href="#accessibility">Accessibility</a></h2>
+      <ul>
+        <li>A loading region has <code>aria-busy="true"</code> and a label ("Loading contacts"). The skeleton blocks are <code>aria-hidden</code>. When the data arrives, <code>aria-busy</code> is removed and focus stays where it was.</li>
+        <li>Busy buttons use <code>aria-disabled</code>, not <code>disabled</code>, so they keep focus and the screen reader reads the new label.</li>
+        <li>Success results use <code>role="status"</code>. Failures use <code>role="alert"</code>, and in a dialog focus moves to the alert. Upload progress is a <code>role="status"</code> line with the percentage written out.</li>
+        <li>The pulsing dot and the skeleton shimmer stop with reduced motion (<code>prefers-reduced-motion</code>). The text still shows the state.</li>
+        <li>A result never relies on colour alone. It has a title and an icon.</li>
+      </ul>
+      <h3>Contrast</h3>
+      <div class="ds-example__canvas ds-example__canvas--stack" style="padding: 0; gap: var(--space-2);">
+        <div class="ds-pair"><span>Success alert text</span><span class="ds-pair__ratio" data-contrast="--color-success-fg|--color-success-bg" data-min="4.5"></span></div>
+        <div class="ds-pair"><span>Danger alert text</span><span class="ds-pair__ratio" data-contrast="--color-danger-fg|--color-danger-bg" data-min="4.5"></span></div>
+        <div class="ds-pair"><span>Busy primary button</span><span class="ds-pair__ratio" data-contrast="--color-fg-on-accent|--color-accent" data-min="4.5"></span></div>
+      </div>
+    </section>
+
+    <section class="ds-section" id="content"><h2><a href="#content">Content</a></h2>
+      <ul>
+        <li><b>Busy labels on page forms use the "-ing" form</b>: Saving…, Sending…, Publishing…, Creating account…, Signing in…. <b>Dialog buttons keep their label and add an ellipsis</b>: Delete permanently…, Suspend…, Move to Confirmed…. Use a real ellipsis character.</li>
+        <li><b>Success says what is now true for others</b>: "Everyone signed in can now see your changes." or "Your notification preferences take effect straight away."</li>
+        <li><b>Failure says that nothing was changed or lost</b>: "Nothing was changed — try again." or "Anything you were typing is still here."</li>
+        <li><b>Limits give the actual numbers</b>: "team.jpg is 9.4 MB. Photos can be up to 5 MB — try a smaller one."</li>
+      </ul>
+    </section>
+
+    <section class="ds-section" id="do-dont"><h2><a href="#do-dont">Do and don't</a></h2>
+      <div class="ds-dodont">
+        <figure class="ds-do"><div class="ds-example__canvas"><button class="btn btn--primary" type="button" aria-busy="true" aria-disabled="true"><span class="dot dot--pulse" aria-hidden="true"></span>Sending…</button></div><figcaption>Show the wait on the button that was pressed, and keep the label meaningful.</figcaption></figure>
+        <figure class="ds-dont"><div class="ds-example__canvas"><button class="btn btn--primary" type="button" disabled aria-label="Sending"><span class="dot dot--pulse" aria-hidden="true"></span></button></div><figcaption>Don't use a disabled button with only a spinner. It loses focus and says nothing.</figcaption></figure>
+        <figure class="ds-do"><div class="ds-example__canvas"><div class="stack" style="width: 100%;"><span class="skeleton skeleton--title" aria-hidden="true"></span><span class="skeleton skeleton--text" aria-hidden="true"></span></div></div><figcaption>Make the skeleton the shape of the rows that are coming.</figcaption></figure>
+        <figure class="ds-dont"><div class="ds-example__canvas"><p class="text-muted">Loading…</p></div><figcaption>Don't put a bare "Loading…" in place of the whole page, header and actions included.</figcaption></figure>
+      </div>
+    </section>
+
+    <section class="ds-section" id="sources"><h2><a href="#sources">Sources</a></h2>
+      <ul>
+        <li>Loading: <a href="../../mocks/pages/contacts/loading.html">contacts/loading</a>, <a href="../../mocks/pages/profile/loading.html">profile/loading</a>, <a href="../../mocks/pages/events/loading.html">events/loading</a>, <a href="../../mocks/pages/audit-log/loading.html">audit-log/loading</a>, <a href="../../mocks/pages/partners/loading.html">partners/loading</a>, <a href="../../mocks/pages/backlog/loading.html">backlog/loading</a></li>
+        <li>Busy: <a href="../../mocks/pages/contact-form/busy.html">contact-form/busy</a>, <a href="../../mocks/pages/sign-up/busy.html">sign-up/busy</a>, <a href="../../mocks/pages/settings/busy.html">settings/busy</a>, <a href="../../mocks/dialogs/delete-contact/busy.html">delete-contact/busy</a></li>
+        <li>Upload: <a href="../../mocks/pages/edit-profile/uploading.html">edit-profile/uploading</a>, <a href="../../mocks/pages/edit-profile/too-large.html">edit-profile/too-large</a></li>
+        <li>Results: <a href="../../mocks/pages/edit-profile/success.html">edit-profile/success</a>, <a href="../../mocks/pages/settings/success.html">settings/success</a>, <a href="../../mocks/pages/compose-announcement/success.html">compose-announcement/success</a>, <a href="../../mocks/dialogs/delete-contact/failed.html">delete-contact/failed</a>, <a href="../../mocks/pages/compose-announcement/error.html">compose-announcement/error</a></li>
+      </ul>
+      <p>Drift noticed in the mocks:</p>
+      <ul>
+        <li>Busy labels mix two styles across the mocks ("Saving…" on pages, "Send invite…" in dialogs). This page records that split as the rule.</li>
+        <li>The skeleton list rows use an inline <code>style="flex:1;"</code> on <code>.list__body</code>.</li>
+        <li>The uploading tile puts <code>aria-busy</code> on the thumbnail, not on the item that holds the status line.</li>
+        <li>The success card heading uses an inline <code>style="font: var(--text-h4);"</code>.</li>
+        <li>The danger toast in the mocks has a timer bar, although failures should stay until dismissed.</li>
+      </ul>
+    </section>
+
+    <footer class="ds-footer"><span>FaithTech Community design system · extracted from <a href="../../mocks/index.html">docs/mocks</a> on 2026-10-21</span><a href="#top">Back to top</a></footer>
+  </main>
+</div>
+<script src="../assets/ds.js"></script>
+</body>
+</html>

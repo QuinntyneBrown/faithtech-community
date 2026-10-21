@@ -1,0 +1,245 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Content and tone — FaithTech Community design system</title>
+<meta name="description" content="How FaithTech Community writes: a warm, plain and specific voice for staff, leads, volunteers and builders, with rules for names, roles, dates, privacy, buttons, errors and confirmations taken from the mocks.">
+<link rel="stylesheet" href="../tokens/tokens.css">
+<link rel="stylesheet" href="../assets/components.css">
+<link rel="stylesheet" href="../assets/ds.css">
+</head>
+<body id="top">
+<a class="skip-link" href="#main">Skip to content</a>
+<div class="ds-shell">
+  <nav class="ds-nav" aria-label="Design system">
+    <div class="ds-nav__brand"><a href="../index.html">FaithTech DS</a><button class="ds-theme-toggle" type="button" aria-pressed="false">☾ Dark</button></div>
+    <details open><summary>Foundations</summary><ul>
+      <li><a href="../foundations/color.html">Color</a></li>
+      <li><a href="../foundations/typography.html">Typography</a></li>
+      <li><a href="../foundations/spacing.html">Spacing</a></li>
+      <li><a href="../foundations/layout.html">Layout</a></li>
+      <li><a href="../foundations/elevation.html">Elevation</a></li>
+      <li><a href="../foundations/shape.html">Shape</a></li>
+      <li><a href="../foundations/motion.html">Motion</a></li>
+      <li><a href="../foundations/iconography.html">Iconography</a></li>
+      <li><a href="../foundations/theming.html">Theming</a></li>
+      <li><a href="../foundations/responsive.html">Responsive</a></li>
+      <li><a href="../foundations/accessibility.html">Accessibility</a></li>
+      <li><a href="../foundations/content.html">Content</a></li>
+    </ul></details>
+    <details open><summary>Components</summary><ul>
+      <li><a href="../components/button.html">Button</a></li>
+      <li><a href="../components/link.html">Link</a></li>
+      <li><a href="../components/menu.html">Menu</a></li>
+      <li><a href="../components/form-field.html">Form field</a></li>
+      <li><a href="../components/text-field.html">Text field</a></li>
+      <li><a href="../components/textarea.html">Textarea</a></li>
+      <li><a href="../components/select.html">Select</a></li>
+      <li><a href="../components/radio-group.html">Radio group</a></li>
+      <li><a href="../components/switch.html">Switch</a></li>
+      <li><a href="../components/form-layout.html">Form layout</a></li>
+      <li><a href="../components/picture-list.html">Picture list</a></li>
+      <li><a href="../components/sticker-picker.html">Estimate card picker</a></li>
+      <li><a href="../components/top-bar.html">Top bar</a></li>
+      <li><a href="../components/tab-bar.html">Tab bar</a></li>
+      <li><a href="../components/tabs.html">Tabs</a></li>
+      <li><a href="../components/breadcrumb.html">Breadcrumb</a></li>
+      <li><a href="../components/skip-link.html">Skip link</a></li>
+      <li><a href="../components/layout.html">Layout primitives</a></li>
+      <li><a href="../components/card.html">Card</a></li>
+      <li><a href="../components/dialog.html">Dialog</a></li>
+      <li><a href="../components/notification-panel.html">Notification panel</a></li>
+      <li><a href="../components/list.html">List</a></li>
+      <li><a href="../components/table.html">Table</a></li>
+      <li><a href="../components/description-list.html">Description list</a></li>
+      <li><a href="../components/feed.html">Activity feed</a></li>
+      <li><a href="../components/tree.html">Backlog tree</a></li>
+      <li><a href="../components/kanban.html">Kanban board</a></li>
+      <li><a href="../components/event-card.html">Event card</a></li>
+      <li><a href="../components/profile-header.html">Profile header</a></li>
+      <li><a href="../components/search-results.html">Search results</a></li>
+      <li><a href="../components/note.html">Note</a></li>
+      <li><a href="../components/avatar.html">Avatar</a></li>
+      <li><a href="../components/logo-mark.html">Logo mark</a></li>
+      <li><a href="../components/badge.html">Badge</a></li>
+      <li><a href="../components/chip.html">Chip</a></li>
+      <li><a href="../components/stat.html">Stat</a></li>
+      <li><a href="../components/sticker.html">Estimate card</a></li>
+      <li><a href="../components/toast.html">Toast</a></li>
+      <li><a href="../components/alert.html">Alert and banner</a></li>
+      <li><a href="../components/inline-message.html">Inline message</a></li>
+      <li><a href="../components/progress.html">Progress</a></li>
+      <li><a href="../components/skeleton.html">Skeleton</a></li>
+      <li><a href="../components/empty-state.html">Empty state</a></li>
+      <li><a href="../components/error-page.html">Error page</a></li>
+    </ul></details>
+    <details open><summary>Patterns</summary><ul>
+      <li><a href="../patterns/forms.html">Forms</a></li>
+      <li><a href="../patterns/feedback-and-loading.html">Feedback and loading</a></li>
+      <li><a href="../patterns/empty-and-error-states.html">Empty and error states</a></li>
+      <li><a href="../patterns/navigation.html">Navigation and page structure</a></li>
+      <li><a href="../patterns/dialogs-and-overlays.html">Dialogs and overlays</a></li>
+      <li><a href="../patterns/lists-and-tables.html">Lists and tables</a></li>
+      <li><a href="../patterns/notifications.html">Notifications</a></li>
+      <li><a href="../patterns/content-and-tone.html">Content and tone</a></li>
+    </ul></details>
+  </nav>
+
+  <main id="main" class="ds-main">
+    <header class="ds-header">
+      <p class="ds-kicker">Pattern · Content</p>
+      <h1>Content and tone</h1>
+      <p class="ds-lead">FaithTech Community sounds like a good City Lead: warm, plain and specific. It uses people's names, says what will happen, and says who can see what.</p>
+      <div class="ds-meta"><span class="ds-pill ds-pill--ok">WCAG 2.2 AA</span><span class="ds-pill">Status: stable</span><span class="ds-pill">Pattern</span></div>
+      <ul class="ds-toc">
+        <li><a href="#overview">Overview</a></li><li><a href="#when">When to use</a></li><li><a href="#structure">Structure</a></li><li><a href="#states">States</a></li><li><a href="#responsive">Responsive</a></li><li><a href="#accessibility">Accessibility</a></li><li><a href="#content">Content</a></li><li><a href="#do-dont">Do and don't</a></li><li><a href="#sources">Sources</a></li>
+      </ul>
+    </header>
+
+    <section class="ds-section" id="overview"><h2><a href="#overview">Overview</a></h2>
+      <p>The people who use it are FaithTech staff, City Leads, Volunteers, Product Engineers, event attendees and partners. Many of them are volunteering their evenings, so every screen should help them finish the task and get back to people. The voice has three traits:</p>
+      <div class="ds-table-wrap"><table class="ds-table">
+        <thead><tr><th scope="col">Trait</th><th scope="col">Means</th><th scope="col">From the mocks</th></tr></thead>
+        <tbody>
+          <tr><td>Warm</td><td>Greets people by name, and thanks without fuss</td><td>"Good afternoon, Grace", "See you Thu 6 Nov, Abby", "Welcome to FaithTech."</td></tr>
+          <tr><td>Plain</td><td>Short sentences and everyday words. Says "you", not "the user"</td><td>"It’s not you. We’ve been told and are looking into it."</td></tr>
+          <tr><td>Specific</td><td>Names the person, the thing, the number and the date</td><td>"Sent to 41 Product Engineers", "The invite link lasts 14 days."</td></tr>
+        </tbody>
+      </table></div>
+      <p>Faith language belongs to the content people write: event names such as "City Team Prayer &amp; Planning", and announcements. The interface itself stays neutral, so it works for every partner and attendee.</p>
+    </section>
+
+    <section class="ds-section" id="when"><h2><a href="#when">When to use</a></h2>
+      <p>These rules apply to every string in the app, the emails and the public event page. Tone changes with the moment:</p>
+      <div class="ds-table-wrap"><table class="ds-table">
+        <thead><tr><th scope="col">Moment</th><th scope="col">Tone</th><th scope="col">Example</th></tr></thead>
+        <tbody>
+          <tr><td>Welcome and success</td><td>Warm, brief</td><td>"You’re going · We emailed you a confirmation with a calendar invite."</td></tr>
+          <tr><td>Everyday tasks</td><td>Neutral, direct</td><td>"Add contact", "Move to Confirmed", "Start sprint"</td></tr>
+          <tr><td>Privacy</td><td>Clear, reassuring</td><td>"Only you can see this contact and your notes."</td></tr>
+          <tr><td>Destructive actions</td><td>Calm, exact</td><td>"This removes the contact and all 4 of your notes. It can’t be undone."</td></tr>
+          <tr><td>Errors</td><td>Takes the blame, gives the fix</td><td>"We couldn’t reach FaithTech. Nothing was changed — try again."</td></tr>
+          <tr><td>Refusals</td><td>Respectful, names who can help</td><td>"Ask Grace Okonkwo, your City Lead, if someone needs a role added or removed."</td></tr>
+        </tbody>
+      </table></div>
+    </section>
+
+    <section class="ds-section" id="structure"><h2><a href="#structure">Structure</a></h2>
+      <p>A screen reads from the top down: what this is, who can see it, then what to do. The events list below shows the rules working together: event titles in title case, meta written as short facts joined by middle dots, and the status as a word.</p>
+      <div class="ds-example">
+        <div class="ds-example__canvas ds-example__canvas--stack">
+          <div class="stack" style="width: 100%;">
+            <div class="page-header"><div><h3 style="font: var(--text-h2);">Events</h3><p class="subtitle">Builders nights, hackathons and gatherings across every city</p></div></div>
+            <ul class="list card card--flush" aria-label="Upcoming events">
+              <li class="list__item event-card"><span class="date-badge" aria-hidden="true"><span class="date-badge__month">Oct</span><span class="date-badge__day">28</span></span><div class="event-card__body"><a class="event-card__title" href="../../mocks/pages/event/default.html">City Team Prayer &amp; Planning</a><span class="event-card__meta">Tue 28 Oct · 7:00 pm · Online</span></div><span class="badge">Members only</span></li>
+              <li class="list__item event-card event-card--cancelled"><span class="date-badge date-badge--cancelled" aria-hidden="true"><span class="date-badge__month">Oct</span><span class="date-badge__day">30</span></span><div class="event-card__body"><a class="event-card__title" href="../../mocks/pages/event/cancelled.html">Austin Faith &amp; AI Panel</a><span class="event-card__meta">Thu 30 Oct · Austin · Cancelled by Esther Nakamura</span></div><span class="badge badge--danger">Cancelled</span></li>
+              <li class="list__item event-card"><span class="date-badge" aria-hidden="true"><span class="date-badge__month">Nov</span><span class="date-badge__day">6</span></span><div class="event-card__body"><a class="event-card__title" href="../../mocks/pages/event/default.html">Toronto Builders Night</a><span class="event-card__meta">Thu 6 Nov · 6:30 pm · Kestrel Labs, 220 King St W · 34 going</span></div><span class="badge badge--info">Public</span></li>
+              <li class="list__item event-card"><span class="date-badge" aria-hidden="true"><span class="date-badge__month">Nov</span><span class="date-badge__day">14</span></span><div class="event-card__body"><a class="event-card__title" href="../../mocks/pages/event/default.html">Hackathon: Tech for Shelters</a><span class="event-card__meta">Sat 14 – Sun 15 Nov · Trinity Community Centre · 52 going</span></div><span class="badge badge--info">Public</span></li>
+            </ul>
+          </div>
+        </div>
+        <div class="ds-example__caption"><span>Composed from pages/events/default with the <a href="../components/event-card.html">event card</a>. The date badge is <code>aria-hidden</code>, because the meta line already says the date in words.</span></div>
+      </div>
+      <h3>Writing a confirmation</h3>
+      <div class="ds-example">
+        <div class="ds-example__canvas ds-example__canvas--stack">
+          <div class="dialog dialog--static" role="dialog" aria-modal="false" aria-labelledby="ct-rr-title" aria-describedby="ct-rr-desc" style="width: 100%;">
+            <div class="dialog__panel">
+              <div class="dialog__header"><div style="flex: 1;"><h4 class="dialog__title" id="ct-rr-title">Remove Volunteer from Ruth Alvarez?</h4><p id="ct-rr-desc" class="text-muted" style="margin-top: var(--space-1);">Ruth stays a member but leaves the city team. She’ll get an in-app notification and an email.</p></div><button class="btn btn--ghost btn--icon" type="button" aria-label="Close"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18"/></svg></button></div>
+              <div class="dialog__footer"><button class="btn" type="button">Cancel</button><button class="btn btn--danger" type="button">Remove role</button></div>
+            </div>
+          </div>
+        </div>
+        <div class="ds-example__caption"><span>dialogs/remove-role/default. The title is a question that names the person and the role. The description says what changes and who will be told. The button repeats the verb.</span></div>
+      </div>
+    </section>
+
+    <section class="ds-section" id="states"><h2><a href="#states">States</a></h2>
+      <p>The same subject is written differently in each state. Here is the contacts area:</p>
+      <div class="ds-table-wrap"><table class="ds-table">
+        <thead><tr><th scope="col">State</th><th scope="col">Copy</th></tr></thead>
+        <tbody>
+          <tr><td>Default</td><td>Contacts · "Private to you · 24 contacts"</td></tr>
+          <tr><td>Empty</td><td>"No contacts yet · Keep track of people you meet. Contacts and your notes on them are private to you until they join."</td></tr>
+          <tr><td>No results</td><td>"No contacts match “harbour” · Search looks at names and your notes. Archived contacts aren’t included."</td></tr>
+          <tr><td>Error</td><td>"We couldn’t load your contacts · Check your connection and try again. If it keeps happening, we’ve already been told about it."</td></tr>
+          <tr><td>Forbidden (Staff)</td><td>"Contacts are private to each lead · Staff can see everything else read-only, but contacts and their notes belong to the lead who created them."</td></tr>
+          <tr><td>Match</td><td>"Tomás Ortega just joined FaithTech · He’s one of your contacts. Link him to his new profile and keep your notes."</td></tr>
+          <tr><td>Archive</td><td>"Archive Tomás Ortega? · He’ll move to Archived contacts with your notes. You can restore him whenever you like."</td></tr>
+          <tr><td>Delete</td><td>"Delete Ben Carter for good? · This removes the contact and all 4 of your notes. It can’t be undone."</td></tr>
+        </tbody>
+      </table></div>
+    </section>
+
+    <section class="ds-section" id="responsive"><h2><a href="#responsive">Responsive behaviour</a></h2>
+      <ul>
+        <li>Write for the phone first. Titles should fit on one line at 360px: "Invite sent", not "Your invitation has been sent successfully".</li>
+        <li>Never write a separate, shorter copy for small screens. Let lines wrap instead.</li>
+        <li>Meta lines can wrap at the middle dots. Put the most important fact first (the date, then the place).</li>
+      </ul>
+    </section>
+
+    <section class="ds-section" id="accessibility"><h2><a href="#accessibility">Accessibility</a></h2>
+      <ul>
+        <li>Links and buttons make sense out of context: "Add role to Marcus Lee", "Move Kestrel Labs to another stage", "Remove photo 4". Never "Click here".</li>
+        <li>Every image has alt text that describes it: "Grace speaking at Builders Night in front of a full room". Profile photos can't be saved without one.</li>
+        <li>Status is written in words (Cancelled, Members only, Unread, Private), not shown only by colour or a line through the text.</li>
+        <li>Dates are written in full words ("Tue 21 Oct"), never as 21/10, which reads differently from country to country. The audit log is the exception: it uses ISO dates (2026-10-21 10:05) in <code>.mono</code> so the rows line up.</li>
+        <li>Aim for a reading age of about 12. Explain any jargon the first time it appears: "Initiatives hold epics, epics hold stories, stories hold tasks."</li>
+      </ul>
+    </section>
+
+    <section class="ds-section" id="content"><h2><a href="#content">Content</a></h2>
+      <h3>Words we use</h3>
+      <div class="ds-table-wrap"><table class="ds-table">
+        <thead><tr><th scope="col">Use</th><th scope="col">Not</th><th scope="col">Why</th></tr></thead>
+        <tbody>
+          <tr><td>member, person, you</td><td>user, account holder</td><td>People, not records. "User" appears only in System Admin's Users tab.</td></tr>
+          <tr><td>City Lead, Staff, Volunteer, Product Engineer, Attendee</td><td>admin, moderator, guest user</td><td>The real role names, in title case, exactly as on the badges.</td></tr>
+          <tr><td>contact</td><td>lead, prospect</td><td>"Lead" is a role and also the first partner stage. Don't use it a third way.</td></tr>
+          <tr><td>partner</td><td>sponsor, client</td><td>Churches, companies and foundations, at every stage.</td></tr>
+          <tr><td>archive, restore</td><td>delete (for things that can be restored)</td><td>"Delete" means gone for good.</td></tr>
+          <tr><td>RSVP, going</td><td>register, sign up (for events)</td><td>"Sign up" means creating an account.</td></tr>
+        </tbody>
+      </table></div>
+      <h3>Mechanics</h3>
+      <ul>
+        <li><b>Sentence case</b> for headings, buttons and labels: "New announcement", "Invite someone". Proper nouns keep their capitals: Planning Poker, Builders Night, Toronto team.</li>
+        <li><b>Dates</b>: "Tue 21 Oct", "Thu 6 Nov · 6:30 pm". For ranges, use an en dash: "14–15 Nov", "Mon 20 – Fri 31 Oct". Add the year only when it isn't this year.</li>
+        <li><b>Numbers</b> are digits: "4 notes", "14 days", "41 recipients".</li>
+        <li><b>Punctuation</b>: curly quotes and apostrophes (’ “ ”), a real ellipsis (…), and the middle dot (·) between facts. Use an em dash only to join two clauses.</li>
+        <li><b>Names</b>: full name on first mention and in lists (Grace Okonkwo), first name in emails and on your own screens ("Grace assigned you…").</li>
+      </ul>
+    </section>
+
+    <section class="ds-section" id="do-dont"><h2><a href="#do-dont">Do and don't</a></h2>
+      <div class="ds-dodont">
+        <figure class="ds-do"><div class="ds-example__canvas"><p>Only you can see this contact and your notes.</p></div><figcaption>Say who can see it, at the moment it matters.</figcaption></figure>
+        <figure class="ds-dont"><div class="ds-example__canvas"><p>Visibility: restricted (owner + SA).</p></div><figcaption>Don't describe permissions in system terms.</figcaption></figure>
+        <figure class="ds-do"><div class="ds-example__canvas"><p>Nate Oyelaran has 14 days to accept.</p></div><figcaption>Give the person and the number.</figcaption></figure>
+        <figure class="ds-dont"><div class="ds-example__canvas"><p>Your invitation has been successfully processed!</p></div><figcaption>Don't write vague, passive copy with exclamation marks.</figcaption></figure>
+      </div>
+    </section>
+
+    <section class="ds-section" id="sources"><h2><a href="#sources">Sources</a></h2>
+      <ul>
+        <li>Voice: <a href="../../mocks/pages/home/default.html">home/default</a>, <a href="../../mocks/pages/events/default.html">events/default</a>, <a href="../../mocks/pages/contacts/default.html">contacts/default</a>, <a href="../../mocks/pages/contact-form/default.html">contact-form/default</a>, <a href="../../mocks/pages/compose-announcement/success.html">compose-announcement/success</a>, <a href="../../mocks/pages/server-error/default.html">server-error/default</a></li>
+        <li>Confirmations: <a href="../../mocks/dialogs/remove-role/default.html">remove-role</a>, <a href="../../mocks/dialogs/archive-contact/default.html">archive-contact</a>, <a href="../../mocks/dialogs/delete-contact/default.html">delete-contact</a>, <a href="../../mocks/dialogs/send-invite/default.html">send-invite</a></li>
+        <li>Notifications: <a href="../../mocks/notifications/bell/unread.html">bell/unread</a>, <a href="../../mocks/notifications/toast/stacked.html">toast/stacked</a>, <a href="../../mocks/notifications/email/success.html">email/success</a>, <a href="../../mocks/notifications/email/announcement.html">email/announcement</a></li>
+        <li>Brief: <code>docs/mocks/README.md</code> (cast, "today" is Tue 21 Oct 2026, the "Tue 21 Oct" date format, English only)</li>
+      </ul>
+      <p>Drift noticed in the mocks:</p>
+      <ul>
+        <li>Role names are mixed. The README and the role badges use "Event Lead", "Create Lead" and "Communications Lead", but <code>AGENTS.md</code> just says "Lead". The design system uses the badge names.</li>
+        <li>"Lead" is used both for a role and for the first partner stage.</li>
+        <li>Dialogs pair "Cancel" with "Cancel event" and "Cancel my RSVP".</li>
+      </ul>
+    </section>
+
+    <footer class="ds-footer"><span>FaithTech Community design system · extracted from <a href="../../mocks/index.html">docs/mocks</a> on 2026-10-21</span><a href="#top">Back to top</a></footer>
+  </main>
+</div>
+<script src="../assets/ds.js"></script>
+</body>
+</html>

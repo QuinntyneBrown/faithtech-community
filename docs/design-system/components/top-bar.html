@@ -1,0 +1,369 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Top bar — FaithTech Community design system</title>
+<meta name="description" content="The floating capsule at the top of every signed-in FaithTech Community page: brand, primary nav with secondary links, global search, notification bell and profile avatar. Member, Staff and anonymous variants in both themes.">
+<link rel="stylesheet" href="../tokens/tokens.css">
+<link rel="stylesheet" href="../assets/components.css">
+<link rel="stylesheet" href="../assets/ds.css">
+</head>
+<body id="top">
+<a class="skip-link" href="#main">Skip to content</a>
+<div class="ds-shell">
+  <nav class="ds-nav" aria-label="Design system">
+    <div class="ds-nav__brand"><a href="../index.html">FaithTech DS</a><button class="ds-theme-toggle" type="button" aria-pressed="false">☾ Dark</button></div>
+    <details open><summary>Foundations</summary><ul>
+      <li><a href="../foundations/color.html">Color</a></li>
+      <li><a href="../foundations/typography.html">Typography</a></li>
+      <li><a href="../foundations/spacing.html">Spacing</a></li>
+      <li><a href="../foundations/layout.html">Layout</a></li>
+      <li><a href="../foundations/elevation.html">Elevation</a></li>
+      <li><a href="../foundations/shape.html">Shape</a></li>
+      <li><a href="../foundations/motion.html">Motion</a></li>
+      <li><a href="../foundations/iconography.html">Iconography</a></li>
+      <li><a href="../foundations/theming.html">Theming</a></li>
+      <li><a href="../foundations/responsive.html">Responsive</a></li>
+      <li><a href="../foundations/accessibility.html">Accessibility</a></li>
+      <li><a href="../foundations/content.html">Content</a></li>
+    </ul></details>
+    <details open><summary>Components</summary><ul>
+      <li><a href="../components/button.html">Button</a></li>
+      <li><a href="../components/link.html">Link</a></li>
+      <li><a href="../components/menu.html">Menu</a></li>
+      <li><a href="../components/form-field.html">Form field</a></li>
+      <li><a href="../components/text-field.html">Text field</a></li>
+      <li><a href="../components/textarea.html">Textarea</a></li>
+      <li><a href="../components/select.html">Select</a></li>
+      <li><a href="../components/radio-group.html">Radio group</a></li>
+      <li><a href="../components/switch.html">Switch</a></li>
+      <li><a href="../components/form-layout.html">Form layout</a></li>
+      <li><a href="../components/picture-list.html">Picture list</a></li>
+      <li><a href="../components/sticker-picker.html">Estimate card picker</a></li>
+      <li><a href="../components/top-bar.html">Top bar</a></li>
+      <li><a href="../components/tab-bar.html">Tab bar</a></li>
+      <li><a href="../components/tabs.html">Tabs</a></li>
+      <li><a href="../components/breadcrumb.html">Breadcrumb</a></li>
+      <li><a href="../components/skip-link.html">Skip link</a></li>
+      <li><a href="../components/layout.html">Layout primitives</a></li>
+      <li><a href="../components/card.html">Card</a></li>
+      <li><a href="../components/dialog.html">Dialog</a></li>
+      <li><a href="../components/notification-panel.html">Notification panel</a></li>
+      <li><a href="../components/list.html">List</a></li>
+      <li><a href="../components/table.html">Table</a></li>
+      <li><a href="../components/description-list.html">Description list</a></li>
+      <li><a href="../components/feed.html">Activity feed</a></li>
+      <li><a href="../components/tree.html">Backlog tree</a></li>
+      <li><a href="../components/kanban.html">Kanban board</a></li>
+      <li><a href="../components/event-card.html">Event card</a></li>
+      <li><a href="../components/profile-header.html">Profile header</a></li>
+      <li><a href="../components/search-results.html">Search results</a></li>
+      <li><a href="../components/note.html">Note</a></li>
+      <li><a href="../components/avatar.html">Avatar</a></li>
+      <li><a href="../components/logo-mark.html">Logo mark</a></li>
+      <li><a href="../components/badge.html">Badge</a></li>
+      <li><a href="../components/chip.html">Chip</a></li>
+      <li><a href="../components/stat.html">Stat</a></li>
+      <li><a href="../components/sticker.html">Estimate card</a></li>
+      <li><a href="../components/toast.html">Toast</a></li>
+      <li><a href="../components/alert.html">Alert and banner</a></li>
+      <li><a href="../components/inline-message.html">Inline message</a></li>
+      <li><a href="../components/progress.html">Progress</a></li>
+      <li><a href="../components/skeleton.html">Skeleton</a></li>
+      <li><a href="../components/empty-state.html">Empty state</a></li>
+      <li><a href="../components/error-page.html">Error page</a></li>
+    </ul></details>
+    <details open><summary>Patterns</summary><ul>
+      <li><a href="../patterns/forms.html">Forms</a></li>
+      <li><a href="../patterns/feedback-and-loading.html">Feedback and loading</a></li>
+      <li><a href="../patterns/empty-and-error-states.html">Empty and error states</a></li>
+      <li><a href="../patterns/navigation.html">Navigation and page structure</a></li>
+      <li><a href="../patterns/dialogs-and-overlays.html">Dialogs and overlays</a></li>
+      <li><a href="../patterns/lists-and-tables.html">Lists and tables</a></li>
+      <li><a href="../patterns/notifications.html">Notifications</a></li>
+      <li><a href="../patterns/content-and-tone.html">Content and tone</a></li>
+    </ul></details>
+  </nav>
+
+  <main id="main" class="ds-main">
+    <header class="ds-header">
+      <p class="ds-kicker">Component · Navigation</p>
+      <h1>Top bar</h1>
+      <p class="ds-lead">The bar across the top of every signed-in page: the FaithTech brand, the primary nav, global search, the notification bell and the profile avatar. Grace sees all eight sections; Staff never see Contacts.</p>
+      <div class="ds-meta"><span class="ds-pill ds-pill--ok">WCAG 2.2 AA</span><span class="ds-pill">Status: stable</span><span class="ds-pill">Native <code>&lt;header&gt;</code> + <code>&lt;nav&gt;</code> + <code>role="search"</code></span></div>
+      <ul class="ds-toc">
+        <li><a href="#overview">Overview</a></li><li><a href="#anatomy">Anatomy</a></li><li><a href="#variants">Variants</a></li><li><a href="#sizes">Sizes</a></li><li><a href="#states">States</a></li><li><a href="#responsive">Responsive</a></li><li><a href="#theming">Theming</a></li><li><a href="#accessibility">Accessibility</a></li><li><a href="#content">Content</a></li><li><a href="#do-dont">Do and don't</a></li><li><a href="#tokens">Tokens</a></li><li><a href="#code">Code</a></li><li><a href="#sources">Sources</a></li>
+      </ul>
+    </header>
+
+    <section class="ds-section" id="overview"><h2><a href="#overview">Overview</a></h2>
+      <p>Every signed-in page starts with a <code>.topbar</code>. It keeps the way home, search, notifications and your own profile one tap away, and it stays put while the page scrolls. Sign-in, sign-up, verify email, forgot and reset password and accept invite have no top bar; they use the <a href="layout.html">auth layout</a>. The public event page shows a reduced bar for anonymous visitors.</p>
+      <ul>
+        <li><b>Member</b>: brand (back to Home), <code>.topbar__nav</code> with Home, Events, Contacts, Partners, Workspaces and the secondary links Team, Announcements, People; then <code>.topbar__search</code>, the <code>.bell-anchor</code> and the <code>.avatar-trigger</code>.</li>
+        <li><b>Staff</b>: the same bar without Contacts, because private contacts are visible only to the lead who created them and to System Admin.</li>
+        <li><b>Anonymous</b> (public event): brand and a "Sign in" button only.</li>
+        <li>The avatar is a link to your own profile (<code>a.avatar-trigger</code>), not a menu.</li>
+      </ul>
+    </section>
+
+    <section class="ds-section" id="anatomy"><h2><a href="#anatomy">Anatomy</a></h2>
+      <div class="ds-anatomy">
+        <figure class="ds-anatomy__figure" style="padding: var(--space-10) var(--space-4);">
+          <header class="topbar" style="position: relative; top: 0; width: 100%; margin: 0;">
+            <a class="topbar__brand" href="../../mocks/pages/home/default.html"><svg class="icon icon--lg" aria-hidden="true" viewBox="0 0 24 24"><path d="M12 2v20M5 8h14"/><circle cx="12" cy="8" r="9" fill="none" opacity=".35"/></svg> FaithTech</a>
+            <nav class="topbar__nav" aria-label="Primary (anatomy)"><a class="nav-link" href="../../mocks/pages/home/default.html" aria-current="page">Home</a><a class="nav-link" href="../../mocks/pages/events/default.html">Events</a><a class="nav-link nav-link--secondary" href="../../mocks/pages/team/default.html">Team</a></nav>
+            <span class="topbar__spacer"></span>
+            <form class="topbar__search" role="search" action="../../mocks/pages/search/default.html"><label class="visually-hidden" for="tb-q-anatomy">Search FaithTech (anatomy)</label><input class="input input--sm" id="tb-q-anatomy" name="q" type="search" placeholder="Search people, events, partners"></form>
+            <div class="bell-anchor"><a class="btn btn--ghost btn--icon" href="../../mocks/pages/notifications/default.html" aria-label="Notifications, 3 unread (anatomy)" aria-expanded="false"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><path d="M6 16V11a6 6 0 0 1 12 0v5l2 2H4zM10 20a2 2 0 0 0 4 0"/></svg><span class="badge badge--count" aria-hidden="true">3</span></a></div>
+            <a class="avatar-trigger" href="../../mocks/pages/profile/own.html" aria-label="Your profile, Grace Okonkwo (anatomy)"><span class="avatar avatar--sm avatar--sky" aria-hidden="true">GO</span></a>
+          </header>
+          <span class="ds-callout" style="left: 4%; top: 14%;" aria-hidden="true">1</span>
+          <span class="ds-callout" style="left: 24%; top: 14%;" aria-hidden="true">2</span>
+          <span class="ds-callout" style="left: 62%; top: 14%;" aria-hidden="true">3</span>
+          <span class="ds-callout" style="left: 82%; top: 14%;" aria-hidden="true">4</span>
+          <span class="ds-callout" style="left: 92%; top: 14%;" aria-hidden="true">5</span>
+          <span class="ds-callout" style="left: 48%; top: 80%;" aria-hidden="true">6</span>
+        </figure>
+        <ol class="ds-anatomy__list">
+          <li><div><b>Brand</b><small><code>.topbar__brand</code>: mark and "FaithTech" in <code>--text-h4</code>; links to Home.</small></div></li>
+          <li><div><b>Nav</b><small><code>nav.topbar__nav</code> of <code>.nav-link</code>s; the current page has <code>aria-current="page"</code>. <code>.nav-link--secondary</code> (Team, Announcements, People) hides between 768px and 1023px. The whole nav hides below 768px.</small></div></li>
+          <li><div><b>Search</b><small><code>form.topbar__search[role=search]</code> with a visually hidden label and an <code>.input--sm</code>; 14rem wide, shown from 1024px.</small></div></li>
+          <li><div><b>Bell</b><small><code>.bell-anchor</code> holds a ghost icon button with a <code>.badge--count</code>; the anchor positions the <code>.bell-panel</code> when it opens.</small></div></li>
+          <li><div><b>Avatar</b><small><code>a.avatar-trigger</code> wrapping a small <code>.avatar</code> with initials; links to your own profile.</small></div></li>
+          <li><div><b>Capsule</b><small><code>header.topbar</code>: a pill (<code>--radius-full</code>) floating <code>--space-2</code> below the top, container-wide, translucent blurred surface, hairline border and <code>--shadow-2</code>. Inherited from Shelfie unchanged.</small></div></li>
+        </ol>
+      </div>
+    </section>
+
+    <section class="ds-section" id="variants"><h2><a href="#variants">Variants</a></h2>
+      <h3>Member (City Lead)</h3>
+      <div class="ds-example">
+        <div class="ds-example__canvas ds-example__canvas--canvas" style="padding: 0; display: block;">
+          <header class="topbar" style="position: relative; top: 0; width: 100%; margin: 0;">
+            <a class="topbar__brand" href="../../mocks/pages/home/default.html"><svg class="icon icon--lg" aria-hidden="true" viewBox="0 0 24 24"><path d="M12 2v20M5 8h14"/><circle cx="12" cy="8" r="9" fill="none" opacity=".35"/></svg> FaithTech</a>
+            <nav class="topbar__nav" aria-label="Primary (member example)"><a class="nav-link" href="../../mocks/pages/home/default.html" aria-current="page">Home</a><a class="nav-link" href="../../mocks/pages/events/default.html">Events</a><a class="nav-link" href="../../mocks/pages/contacts/default.html">Contacts</a><a class="nav-link" href="../../mocks/pages/partners/default.html">Partners</a><a class="nav-link" href="../../mocks/pages/workspaces/default.html">Workspaces</a><a class="nav-link nav-link--secondary" href="../../mocks/pages/team/default.html">Team</a><a class="nav-link nav-link--secondary" href="../../mocks/pages/announcements/default.html">Announcements</a><a class="nav-link nav-link--secondary" href="../../mocks/pages/people/default.html">People</a></nav>
+            <span class="topbar__spacer"></span>
+            <form class="topbar__search" role="search" action="../../mocks/pages/search/default.html"><label class="visually-hidden" for="tb-q-member">Search FaithTech (member example)</label><input class="input input--sm" id="tb-q-member" name="q" type="search" placeholder="Search people, events, partners"></form>
+            <div class="bell-anchor"><a class="btn btn--ghost btn--icon" href="../../mocks/pages/notifications/default.html" aria-label="Notifications, 3 unread" aria-expanded="false"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><path d="M6 16V11a6 6 0 0 1 12 0v5l2 2H4zM10 20a2 2 0 0 0 4 0"/></svg><span class="badge badge--count" aria-hidden="true">3</span></a></div>
+            <a class="avatar-trigger" href="../../mocks/pages/profile/own.html" aria-label="Your profile, Grace Okonkwo"><span class="avatar avatar--sm avatar--sky" aria-hidden="true">GO</span></a>
+          </header>
+        </div>
+        <div class="ds-example__caption"><span>Grace on Home with three unread notifications. Narrow the window: search goes below 1024px, the secondary links go below 1024px, the nav goes below 768px.</span></div>
+        <details class="ds-example__code"><summary>HTML</summary><pre><code>&lt;header class="topbar"&gt;
+  &lt;a class="topbar__brand" href="/"&gt;&lt;svg class="icon icon--lg" aria-hidden="true" …&gt;&lt;/svg&gt; FaithTech&lt;/a&gt;
+  &lt;nav class="topbar__nav" aria-label="Primary"&gt;
+    &lt;a class="nav-link" href="/" aria-current="page"&gt;Home&lt;/a&gt;
+    &lt;a class="nav-link" href="/events"&gt;Events&lt;/a&gt; … Contacts, Partners, Workspaces
+    &lt;a class="nav-link nav-link--secondary" href="/team"&gt;Team&lt;/a&gt; … Announcements, People
+  &lt;/nav&gt;
+  &lt;span class="topbar__spacer"&gt;&lt;/span&gt;
+  &lt;form class="topbar__search" role="search" action="/search"&gt;
+    &lt;label class="visually-hidden" for="global-q"&gt;Search FaithTech&lt;/label&gt;
+    &lt;input class="input input--sm" id="global-q" name="q" type="search" placeholder="Search people, events, partners"&gt;
+  &lt;/form&gt;
+  &lt;div class="bell-anchor"&gt;
+    &lt;a class="btn btn--ghost btn--icon" href="/notifications" aria-label="Notifications, 3 unread" aria-expanded="false"&gt;
+      &lt;svg class="icon" aria-hidden="true" …&gt;&lt;/svg&gt;&lt;span class="badge badge--count" aria-hidden="true"&gt;3&lt;/span&gt;&lt;/a&gt;
+  &lt;/div&gt;
+  &lt;a class="avatar-trigger" href="/profile" aria-label="Your profile, Grace Okonkwo"&gt;
+    &lt;span class="avatar avatar--sm avatar--sky" aria-hidden="true"&gt;GO&lt;/span&gt;&lt;/a&gt;
+&lt;/header&gt;</code></pre></details>
+      </div>
+      <h3>Staff</h3>
+      <div class="ds-example">
+        <div class="ds-example__canvas ds-example__canvas--canvas" style="padding: 0; display: block;">
+          <header class="topbar" style="position: relative; top: 0; width: 100%; margin: 0;">
+            <a class="topbar__brand" href="../../mocks/pages/home/staff.html"><svg class="icon icon--lg" aria-hidden="true" viewBox="0 0 24 24"><path d="M12 2v20M5 8h14"/><circle cx="12" cy="8" r="9" fill="none" opacity=".35"/></svg> FaithTech</a>
+            <nav class="topbar__nav" aria-label="Primary (staff example)"><a class="nav-link" href="../../mocks/pages/home/staff.html" aria-current="page">Home</a><a class="nav-link" href="../../mocks/pages/events/default.html">Events</a><a class="nav-link" href="../../mocks/pages/partners/default.html">Partners</a><a class="nav-link" href="../../mocks/pages/workspaces/default.html">Workspaces</a><a class="nav-link nav-link--secondary" href="../../mocks/pages/team/default.html">Team</a><a class="nav-link nav-link--secondary" href="../../mocks/pages/announcements/default.html">Announcements</a><a class="nav-link nav-link--secondary" href="../../mocks/pages/people/default.html">People</a></nav>
+            <span class="topbar__spacer"></span>
+            <div class="bell-anchor"><a class="btn btn--ghost btn--icon" href="../../mocks/pages/notifications/default.html" aria-label="Notifications" aria-expanded="false"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><path d="M6 16V11a6 6 0 0 1 12 0v5l2 2H4zM10 20a2 2 0 0 0 4 0"/></svg></a></div>
+            <a class="avatar-trigger" href="../../mocks/pages/profile/own.html" aria-label="Your profile, Daniel Reyes"><span class="avatar avatar--sm avatar--sage" aria-hidden="true">DR</span></a>
+          </header>
+        </div>
+        <div class="ds-example__caption"><span>Daniel (Staff) has no Contacts link and nothing unread, so the bell has no badge and is named just "Notifications".</span></div>
+      </div>
+      <h3>Anonymous (public event)</h3>
+      <div class="ds-example">
+        <div class="ds-example__canvas ds-example__canvas--canvas" style="padding: 0; display: block;">
+          <header class="topbar" style="position: relative; top: 0; width: 100%; margin: 0;">
+            <a class="topbar__brand" href="../../mocks/pages/home/default.html"><svg class="icon icon--lg" aria-hidden="true" viewBox="0 0 24 24"><path d="M12 2v20M5 8h14"/><circle cx="12" cy="8" r="9" fill="none" opacity=".35"/></svg> FaithTech</a>
+            <span class="topbar__spacer"></span>
+            <a class="btn btn--sm" href="../../mocks/pages/sign-in/default.html">Sign in</a>
+          </header>
+        </div>
+        <div class="ds-example__caption"><span>Visitors to the Toronto Builders Night public page see the brand and a Sign in button; no nav, search, bell or avatar.</span></div>
+      </div>
+    </section>
+
+    <section class="ds-section" id="sizes" data-na="one height at every width"><h2><a href="#sizes">Sizes</a></h2>
+      <p class="ds-na">The bar is always <code>--layout-topbar-height</code> (56px) tall; only its contents change with width.</p>
+    </section>
+
+    <section class="ds-section" id="states"><h2><a href="#states">States</a></h2>
+      <p>The bar has no state of its own; its parts do. Hover and focus are forced with <code>data-state</code>; current uses the real <code>aria-current="page"</code>.</p>
+      <div class="ds-matrix"><table>
+        <thead><tr><th scope="col">Part</th><th scope="col">Default</th><th scope="col">Hover</th><th scope="col">Focus</th><th scope="col">Current / open</th></tr></thead>
+        <tbody>
+          <tr><th scope="row">Nav link</th>
+            <td><a class="nav-link" href="../../mocks/pages/events/default.html">Events</a></td>
+            <td><a class="nav-link" href="../../mocks/pages/events/default.html" data-state="hover">Events</a></td>
+            <td><a class="nav-link" href="../../mocks/pages/events/default.html" data-state="focus">Events</a></td>
+            <td><a class="nav-link" href="../../mocks/pages/events/default.html" aria-current="page">Events</a></td></tr>
+          <tr><th scope="row">Bell</th>
+            <td><a class="btn btn--ghost btn--icon" href="../../mocks/pages/notifications/default.html" aria-label="Notifications, 3 unread, default" aria-expanded="false"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><path d="M6 16V11a6 6 0 0 1 12 0v5l2 2H4zM10 20a2 2 0 0 0 4 0"/></svg><span class="badge badge--count" aria-hidden="true">3</span></a></td>
+            <td><a class="btn btn--ghost btn--icon" href="../../mocks/pages/notifications/default.html" aria-label="Notifications, 3 unread, hover" aria-expanded="false" data-state="hover"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><path d="M6 16V11a6 6 0 0 1 12 0v5l2 2H4zM10 20a2 2 0 0 0 4 0"/></svg><span class="badge badge--count" aria-hidden="true">3</span></a></td>
+            <td><a class="btn btn--ghost btn--icon" href="../../mocks/pages/notifications/default.html" aria-label="Notifications, 3 unread, focus" aria-expanded="false" data-state="focus"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><path d="M6 16V11a6 6 0 0 1 12 0v5l2 2H4zM10 20a2 2 0 0 0 4 0"/></svg><span class="badge badge--count" aria-hidden="true">3</span></a></td>
+            <td><a class="btn btn--ghost btn--icon" href="../../mocks/notifications/bell/unread.html" aria-label="Notifications, 3 unread, open" aria-expanded="true" data-state="hover"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><path d="M6 16V11a6 6 0 0 1 12 0v5l2 2H4zM10 20a2 2 0 0 0 4 0"/></svg><span class="badge badge--count" aria-hidden="true">3</span></a></td></tr>
+          <tr><th scope="row">Avatar</th>
+            <td><a class="avatar-trigger" href="../../mocks/pages/profile/own.html" aria-label="Your profile, Grace Okonkwo, default"><span class="avatar avatar--sm avatar--sky" aria-hidden="true">GO</span></a></td>
+            <td><a class="avatar-trigger" href="../../mocks/pages/profile/own.html" aria-label="Your profile, Grace Okonkwo, hover" data-state="hover"><span class="avatar avatar--sm avatar--sky" aria-hidden="true">GO</span></a></td>
+            <td><a class="avatar-trigger" href="../../mocks/pages/profile/own.html" aria-label="Your profile, Grace Okonkwo, focus" data-state="focus"><span class="avatar avatar--sm avatar--sky" aria-hidden="true">GO</span></a></td>
+            <td><span class="text-caption">Not applicable (a link)</span></td></tr>
+          <tr><th scope="row">Search</th>
+            <td><label class="visually-hidden" for="tb-s1">Search, default</label><input class="input input--sm" id="tb-s1" type="search" placeholder="Search people, events, partners"></td>
+            <td><label class="visually-hidden" for="tb-s2">Search, hover</label><input class="input input--sm" id="tb-s2" type="search" placeholder="Search people, events, partners" data-state="hover"></td>
+            <td><label class="visually-hidden" for="tb-s3">Search, focus</label><input class="input input--sm" id="tb-s3" type="search" placeholder="Search people, events, partners" data-state="focus"></td>
+            <td><label class="visually-hidden" for="tb-s4">Search, filled</label><input class="input input--sm" id="tb-s4" type="search" value="Lantern"></td></tr>
+        </tbody>
+      </table></div>
+      <h3>Both themes</h3>
+      <div class="ds-themes">
+        <div data-theme="light"><header class="topbar" style="position: relative; top: 0; width: 100%; margin: 0;"><a class="topbar__brand" href="../../mocks/pages/home/default.html"><svg class="icon icon--lg" aria-hidden="true" viewBox="0 0 24 24"><path d="M12 2v20M5 8h14"/><circle cx="12" cy="8" r="9" fill="none" opacity=".35"/></svg> FaithTech</a><span class="topbar__spacer"></span><div class="bell-anchor"><a class="btn btn--ghost btn--icon" href="../../mocks/pages/notifications/default.html" aria-label="Notifications, 3 unread, light theme"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><path d="M6 16V11a6 6 0 0 1 12 0v5l2 2H4zM10 20a2 2 0 0 0 4 0"/></svg><span class="badge badge--count" aria-hidden="true">3</span></a></div><a class="avatar-trigger" href="../../mocks/pages/profile/own.html" aria-label="Your profile, Grace Okonkwo, light theme"><span class="avatar avatar--sm avatar--sky" aria-hidden="true">GO</span></a></header></div>
+        <div data-theme="dark"><header class="topbar" style="position: relative; top: 0; width: 100%; margin: 0;"><a class="topbar__brand" href="../../mocks/pages/home/default.html"><svg class="icon icon--lg" aria-hidden="true" viewBox="0 0 24 24"><path d="M12 2v20M5 8h14"/><circle cx="12" cy="8" r="9" fill="none" opacity=".35"/></svg> FaithTech</a><span class="topbar__spacer"></span><div class="bell-anchor"><a class="btn btn--ghost btn--icon" href="../../mocks/pages/notifications/default.html" aria-label="Notifications, 3 unread, dark theme"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><path d="M6 16V11a6 6 0 0 1 12 0v5l2 2H4zM10 20a2 2 0 0 0 4 0"/></svg><span class="badge badge--count" aria-hidden="true">3</span></a></div><a class="avatar-trigger" href="../../mocks/pages/profile/own.html" aria-label="Your profile, Grace Okonkwo, dark theme"><span class="avatar avatar--sm avatar--sky" aria-hidden="true">GO</span></a></header></div>
+      </div>
+      <ul>
+        <li><b>Current</b> nav link: <code>--color-accent-subtle</code> fill and <code>--color-fg-accent</code> text, plus <code>aria-current="page"</code>.</li>
+        <li><b>Bell open</b>: <code>aria-expanded="true"</code> while the <code>.bell-panel</code> shows below it (see <a href="../../mocks/notifications/bell/unread.html">notifications/bell/unread</a>).</li>
+        <li><b>Count badge</b> disappears when nothing is unread; it never shows "0". The bell's name drops the count too.</li>
+      </ul>
+    </section>
+
+    <section class="ds-section" id="responsive"><h2><a href="#responsive">Responsive behaviour</a></h2>
+      <ul>
+        <li>Base (phones): brand, spacer, bell, avatar. The <a href="tab-bar.html">tab bar</a> carries Home, Events, Search, Contacts and Partners.</li>
+        <li>768px to 1023px: <code>.topbar__nav</code> appears with the five primary links; <code>.nav-link--secondary</code> (Team, Announcements, People) stays hidden so the row never wraps. The tab bar hides.</li>
+        <li>1024px and up: the secondary links and <code>.topbar__search</code> (14rem) appear. Nav links never wrap (<code>white-space: nowrap</code>).</li>
+        <li>The capsule is <code>position: sticky; top: var(--space-2)</code> at <code>--z-sticky</code>; <code>scroll-padding-top</code> on <code>html</code> keeps focused fields clear of it.</li>
+      </ul>
+    </section>
+
+    <section class="ds-section" id="theming"><h2><a href="#theming">Theming</a></h2>
+      <p>The bar is <code>--color-bg-surface</code> at 90% over a backdrop blur, with a hairline <code>--color-border-default</code> and <code>--shadow-2</code>. Nav links read <code>--color-fg-muted</code>, <code>--color-bg-subtle</code> and the violet accent pair; the bell badge reads the danger pair; avatars read the avatar palette with <code>--color-fg-on-cover</code>. The dark theme changes only those semantic tokens.</p>
+    </section>
+
+    <section class="ds-section" id="accessibility"><h2><a href="#accessibility">Accessibility</a></h2>
+      <h3>Role and pattern</h3>
+      <p>A native <code>&lt;header&gt;</code> (banner landmark) holding <code>&lt;nav aria-label="Primary"&gt;</code> of links and a <code>&lt;form role="search"&gt;</code> (search landmark). Current page is <code>aria-current="page"</code>. The bell is a link to Notifications that, with script, toggles the bell panel as a disclosure (<code>aria-expanded</code>); the panel is <code>role="dialog"</code> labelled "Notifications".</p>
+      <h3>Keyboard</h3>
+      <table class="ds-table ds-keys"><thead><tr><th scope="col">Key</th><th scope="col">Action</th></tr></thead><tbody>
+        <tr><td><kbd>Tab</kbd> / <kbd>Shift</kbd>+<kbd>Tab</kbd></td><td>Skip link, brand, nav links, search, bell, avatar, then the page.</td></tr>
+        <tr><td><kbd>Enter</kbd></td><td>Follows the brand, a nav link or the avatar; in search, submits to the Search page.</td></tr>
+        <tr><td><kbd>Enter</kbd> / <kbd>Space</kbd> on the bell</td><td>Opens the bell panel; focus moves into it.</td></tr>
+        <tr><td><kbd>Esc</kbd> in the panel</td><td>Closes it and returns focus to the bell.</td></tr>
+      </tbody></table>
+      <h3>Focus</h3>
+      <p>The shared 2px <code>--color-focus-ring</code> with 2px offset on every link, the search input, the bell and the avatar. <code>scroll-padding-top</code> reserves the bar's height (WCAG 2.4.11).</p>
+      <h3>Labelling</h3>
+      <p>The search input has a visually hidden label, "Search FaithTech"; the placeholder is a hint, not the label. The bell's name includes the count ("Notifications, 3 unread") and the visible badge is <code>aria-hidden</code>. The avatar link says whose profile it is: "Your profile, Grace Okonkwo". The brand mark is <code>aria-hidden</code>; "FaithTech" names the link.</p>
+      <h3>Contrast</h3>
+      <div class="ds-example__canvas ds-example__canvas--stack" style="padding: 0; gap: var(--space-2);">
+        <div class="ds-pair"><span>Brand on surface</span><span class="ds-pair__ratio" data-contrast="--color-fg-default|--color-bg-surface" data-min="4.5"></span></div>
+        <div class="ds-pair"><span>Nav link on surface</span><span class="ds-pair__ratio" data-contrast="--color-fg-muted|--color-bg-surface" data-min="4.5"></span></div>
+        <div class="ds-pair"><span>Nav link, hover</span><span class="ds-pair__ratio" data-contrast="--color-fg-default|--color-bg-subtle" data-min="4.5"></span></div>
+        <div class="ds-pair"><span>Current nav link</span><span class="ds-pair__ratio" data-contrast="--color-fg-accent|--color-accent-subtle" data-min="4.5"></span></div>
+        <div class="ds-pair"><span>Grace's avatar</span><span class="ds-pair__ratio" data-contrast="--color-fg-on-cover|--color-cover-sky" data-min="4.5"></span></div>
+        <div class="ds-pair"><span>Bell count badge</span><span class="ds-pair__ratio" data-contrast="--color-fg-on-danger|--color-danger-solid" data-min="4.5"></span></div>
+        <div class="ds-pair"><span>Search input edge on surface</span><span class="ds-pair__ratio" data-contrast="--color-border-strong|--color-bg-surface" data-min="3"></span></div>
+        <div class="ds-pair"><span>Focus ring on surface</span><span class="ds-pair__ratio" data-contrast="--color-focus-ring|--color-bg-surface" data-min="3"></span></div>
+      </div>
+      <h3>Motion</h3>
+      <p>Nav links fade their background over <code>--duration-fast</code>. The bar does not hide on scroll. Reduced motion zeroes the fade.</p>
+      <h3>Touch</h3>
+      <p>Nav links and the bell are <code>--target-comfortable</code> (44px). The avatar is 32px (<code>--size-avatar-sm</code>), above the 24px minimum, with space around it.</p>
+    </section>
+
+    <section class="ds-section" id="content"><h2><a href="#content">Content</a></h2>
+      <ul>
+        <li>The brand is always "FaithTech"; no page titles in the bar (the page header has the <code>&lt;h1&gt;</code>).</li>
+        <li>Nav labels are one word each, always in this order: Home, Events, Contacts, Partners, Workspaces, Team, Announcements, People. A link the person may not use is left out, not disabled.</li>
+        <li>Search placeholder: "Search people, events, partners".</li>
+        <li>Avatars show initials ("GO" for Grace Okonkwo); never a photo in the bar.</li>
+      </ul>
+    </section>
+
+    <section class="ds-section" id="do-dont"><h2><a href="#do-dont">Do and don't</a></h2>
+      <div class="ds-dodont">
+        <figure class="ds-do"><div class="ds-example__canvas"><nav class="topbar__nav" aria-label="Do example, staff nav" style="display: flex;"><a class="nav-link" href="../../mocks/pages/home/staff.html">Home</a><a class="nav-link" href="../../mocks/pages/events/default.html">Events</a><a class="nav-link" href="../../mocks/pages/partners/default.html">Partners</a></nav></div><figcaption>Leave Contacts out of the Staff bar entirely; the server enforces it too.</figcaption></figure>
+        <figure class="ds-dont"><div class="ds-example__canvas"><a class="nav-link" href="../../mocks/pages/contacts/forbidden.html">Contacts</a></div><figcaption>Showing Contacts to Staff and landing them on a forbidden page.</figcaption></figure>
+        <figure class="ds-do"><div class="ds-example__canvas"><a class="btn btn--ghost btn--icon" href="../../mocks/pages/notifications/default.html" aria-label="Notifications, 3 unread, do example"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><path d="M6 16V11a6 6 0 0 1 12 0v5l2 2H4zM10 20a2 2 0 0 0 4 0"/></svg><span class="badge badge--count" aria-hidden="true">3</span></a></div><figcaption>Put the count in the bell's name and hide the badge from screen readers.</figcaption></figure>
+        <figure class="ds-dont"><div class="ds-example__canvas"><code>&lt;input type="search" placeholder="Search"&gt;</code></div><figcaption>A search field labelled only by its placeholder; it disappears as soon as you type.</figcaption></figure>
+      </div>
+    </section>
+
+    <section class="ds-section" id="tokens"><h2><a href="#tokens">Tokens</a></h2>
+      <div class="ds-table-wrap"><table class="ds-table">
+        <thead><tr><th scope="col">Part</th><th scope="col">Token</th><th scope="col">Light</th><th scope="col">Dark</th></tr></thead>
+        <tbody>
+          <tr><td>Bar background</td><td><code>--color-bg-surface</code></td><td><span class="ds-swatch-cell" data-theme="light"><i data-token="--color-bg-surface" data-swatch></i><span data-token="--color-bg-surface"></span></span></td><td><span class="ds-swatch-cell" data-theme="dark"><i data-token="--color-bg-surface" data-swatch></i><span data-token="--color-bg-surface"></span></span></td></tr>
+          <tr><td>Capsule edge</td><td><code>--color-border-default</code></td><td><span class="ds-swatch-cell" data-theme="light"><i data-token="--color-border-default" data-swatch></i><span data-token="--color-border-default"></span></span></td><td><span class="ds-swatch-cell" data-theme="dark"><i data-token="--color-border-default" data-swatch></i><span data-token="--color-border-default"></span></span></td></tr>
+          <tr><td>Nav link text</td><td><code>--color-fg-muted</code></td><td><span class="ds-swatch-cell" data-theme="light"><i data-token="--color-fg-muted" data-swatch></i><span data-token="--color-fg-muted"></span></span></td><td><span class="ds-swatch-cell" data-theme="dark"><i data-token="--color-fg-muted" data-swatch></i><span data-token="--color-fg-muted"></span></span></td></tr>
+          <tr><td>Nav link hover</td><td><code>--color-bg-subtle</code></td><td><span class="ds-swatch-cell" data-theme="light"><i data-token="--color-bg-subtle" data-swatch></i><span data-token="--color-bg-subtle"></span></span></td><td><span class="ds-swatch-cell" data-theme="dark"><i data-token="--color-bg-subtle" data-swatch></i><span data-token="--color-bg-subtle"></span></span></td></tr>
+          <tr><td>Current link fill / text</td><td><code>--color-accent-subtle</code> / <code>--color-fg-accent</code></td><td><span class="ds-swatch-cell" data-theme="light"><i data-token="--color-accent-subtle" data-swatch></i><span data-token="--color-accent-subtle"></span></span></td><td><span class="ds-swatch-cell" data-theme="dark"><i data-token="--color-accent-subtle" data-swatch></i><span data-token="--color-accent-subtle"></span></span></td></tr>
+          <tr><td>Bell badge</td><td><code>--color-danger-solid</code></td><td><span class="ds-swatch-cell" data-theme="light"><i data-token="--color-danger-solid" data-swatch></i><span data-token="--color-danger-solid"></span></span></td><td><span class="ds-swatch-cell" data-theme="dark"><i data-token="--color-danger-solid" data-swatch></i><span data-token="--color-danger-solid"></span></span></td></tr>
+          <tr><td>Height</td><td><code>--layout-topbar-height</code></td><td colspan="2"><span data-token="--layout-topbar-height"></span></td></tr>
+          <tr><td>Side padding</td><td><code>--layout-margin</code></td><td colspan="2"><span data-token="--layout-margin"></span></td></tr>
+          <tr><td>Nav link and bell height</td><td><code>--target-comfortable</code></td><td colspan="2"><span data-token="--target-comfortable"></span></td></tr>
+          <tr><td>Avatar size</td><td><code>--size-avatar-sm</code></td><td colspan="2"><span data-token="--size-avatar-sm"></span></td></tr>
+          <tr><td>Stacking (bar / bell panel)</td><td><code>--z-sticky</code> / <code>--z-dropdown</code></td><td colspan="2"><span data-token="--z-sticky"></span> / <span data-token="--z-dropdown"></span></td></tr>
+          <tr><td>Brand font</td><td><code>--text-h4</code></td><td colspan="2"><span data-token="--text-h4"></span></td></tr>
+          <tr><td>Capsule shadow</td><td><code>--shadow-2</code></td><td><span data-token="--shadow-2"></span></td><td><span data-theme="dark" data-token="--shadow-2"></span></td></tr>
+          <tr><td>Capsule radius / offset</td><td><code>--radius-full</code> / <code>--space-2</code></td><td colspan="2"><span data-token="--radius-full"></span> / <span data-token="--space-2"></span></td></tr>
+        </tbody>
+      </table></div>
+    </section>
+
+    <section class="ds-section" id="code"><h2><a href="#code">Code</a></h2>
+      <pre><code>&lt;a class="skip-link" href="#main"&gt;Skip to content&lt;/a&gt;
+&lt;div class="has-tabbar"&gt;
+  &lt;header class="topbar"&gt; … &lt;/header&gt;
+  &lt;main id="main" class="container"&gt; … &lt;/main&gt;
+  &lt;nav class="tabbar" aria-label="Primary, phone"&gt; … &lt;/nav&gt;
+&lt;/div&gt;</code></pre>
+      <table class="ds-table"><thead><tr><th scope="col">Class / attribute</th><th scope="col">Effect</th></tr></thead><tbody>
+        <tr><td><code>.topbar</code></td><td>Floating sticky capsule: flex row, 56px tall, translucent blurred surface, hairline border, <code>--radius-full</code>, <code>--shadow-2</code>.</td></tr>
+        <tr><td><code>.topbar__brand</code></td><td>Brand link with mark.</td></tr>
+        <tr><td><code>.topbar__nav</code></td><td>Primary nav; hidden below 768px; links never wrap.</td></tr>
+        <tr><td><code>.nav-link</code> + <code>aria-current="page"</code></td><td>A nav link; current page highlighted.</td></tr>
+        <tr><td><code>.nav-link--secondary</code></td><td>Team, Announcements, People; hidden from 768px to 1023px.</td></tr>
+        <tr><td><code>.topbar__spacer</code></td><td>Pushes search, bell and avatar right.</td></tr>
+        <tr><td><code>.topbar__search</code></td><td>Global search form; 14rem, shown from 1024px.</td></tr>
+        <tr><td><code>.bell-anchor</code></td><td>Positioning context for the bell and its <code>.bell-panel</code>.</td></tr>
+        <tr><td><code>.avatar-trigger</code></td><td>Profile link wrapping the avatar; removes the underline.</td></tr>
+        <tr><td><code>data-state="hover|focus"</code></td><td>Documentation only: forces a state.</td></tr>
+      </tbody></table>
+    </section>
+
+    <section class="ds-section" id="sources"><h2><a href="#sources">Sources</a></h2>
+      <p>Extracted from these mocks:</p>
+      <ul>
+        <li><a href="../../mocks/pages/home/default.html">pages/home/default</a>, <a href="../../mocks/pages/events/default.html">pages/events/default</a>, <a href="../../mocks/pages/contacts/default.html">pages/contacts/default</a> (member bar, current link, bell count)</li>
+        <li><a href="../../mocks/pages/home/staff.html">pages/home/staff</a> (Staff bar without Contacts)</li>
+        <li><a href="../../mocks/pages/public-event/default.html">pages/public-event/default</a> (anonymous bar with Sign in)</li>
+        <li><a href="../../mocks/notifications/bell/unread.html">notifications/bell/unread</a> and <a href="../../mocks/notifications/bell/empty.html">notifications/bell/empty</a> (bell open)</li>
+        <li><a href="../../mocks/pages/search/default.html">pages/search/default</a> (search target)</li>
+      </ul>
+      <p>Drift noticed:</p>
+      <ul>
+        <li>The bell link carries <code>aria-expanded</code> in every mock even though it is a plain link to Notifications; without script there is nothing to expand. Implementation should render it as a button when it toggles the panel.</li>
+        <li><code>.topbar__search</code> is sized with a raw <code>14rem</code> and the breakpoints in <code>ui-extra.css</code> use raw <code>48rem</code>/<code>64rem</code> media queries instead of the layout breakpoint tokens.</li>
+              <li>The top bar markup is copied by hand into every page mock (eight personas); a shared shell component is needed in the app.</li>
+      </ul>
+    </section>
+
+    <footer class="ds-footer"><span>FaithTech Community design system · extracted from <a href="../../mocks/index.html">docs/mocks</a> on 2026-10-21</span><a href="#top">Back to top</a></footer>
+  </main>
+</div>
+<script src="../assets/ds.js"></script>
+</body>
+</html>
