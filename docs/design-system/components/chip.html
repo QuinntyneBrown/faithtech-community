@@ -128,11 +128,14 @@
           <div class="cluster" role="group" aria-label="Filter team"><button class="chip" type="button" aria-pressed="true">All</button><button class="chip" type="button" aria-pressed="false">Leads</button><button class="chip" type="button" aria-pressed="false">Volunteers</button></div>
         </div>
         <div class="ds-example__caption"><span>From Events and Team. Pressing one chip un-presses the others and refilters the list below; the result count is announced politely.</span></div>
-        <details class="ds-example__code"><summary>HTML</summary><pre><code>&lt;div class="cluster" role="group" aria-label="Filter events"&gt;
-  &lt;button class="chip" type="button" aria-pressed="true"&gt;Upcoming&lt;/button&gt;
-  &lt;button class="chip" type="button" aria-pressed="false"&gt;Past&lt;/button&gt;
-  &lt;button class="chip" type="button" aria-pressed="false"&gt;Hackathons&lt;/button&gt;
-  &lt;button class="chip" type="button" aria-pressed="false"&gt;Online&lt;/button&gt;
+        <details class="ds-example__code"><summary>HTML</summary><pre><code>&lt;div class="cluster cluster--between filter-bar"&gt;
+  &lt;div class="cluster" role="group" aria-label="Filter events"&gt;
+    &lt;button class="chip" type="button" aria-pressed="true"&gt;Upcoming&lt;/button&gt;
+    &lt;button class="chip" type="button" aria-pressed="false"&gt;Past&lt;/button&gt;
+    &lt;button class="chip" type="button" aria-pressed="false"&gt;Hackathons&lt;/button&gt;
+    &lt;button class="chip" type="button" aria-pressed="false"&gt;Online&lt;/button&gt;
+  &lt;/div&gt;
+  &lt;!-- City select --&gt;
 &lt;/div&gt;</code></pre></details>
       </div>
       <h3>View chips</h3>
@@ -248,6 +251,8 @@
 &lt;/div&gt;</code></pre>
       <table class="ds-table"><thead><tr><th scope="col">Class / attribute</th><th scope="col">Effect</th></tr></thead><tbody>
         <tr><td><code>.chip</code></td><td>Pill button or link, 32px tall.</td></tr>
+        <tr><td><code>.cluster[role="group"][aria-label]</code></td><td>The filter chip row. Always labelled ("Filter events", "Filter team"). In Angular: <code>&lt;ft-chip-group label="Filter events"&gt;</code>.</td></tr>
+        <tr><td><code>.filter-bar</code></td><td>With <code>.cluster.cluster--between</code>: the row above a list that holds the chip group and any select, aligned to the bottom and spaced <code>--space-4</code> from the list.</td></tr>
         <tr><td><code>aria-pressed="true|false"</code></td><td>Filter chip state; <code>true</code> shows the accent style.</td></tr>
         <tr><td><code>a.chip[aria-current="page"]</code></td><td>Current view chip. Needs <code>aria-pressed="true"</code> as a styling hook until the CSS also matches <code>aria-current</code>.</td></tr>
         <tr><td><code>disabled</code></td><td>50% opacity, not focusable. Only while the list loads.</td></tr>
@@ -265,7 +270,7 @@
         <li><a href="../../mocks/pages/backlog/default.html">pages/backlog/default</a> (Tree view chip)</li>
         <li><a href="../../mocks/pages/backlog/sprints.html">pages/backlog/sprints</a> (Sprint history view chip)</li>
       </ul>
-      <p>The chip rule is inherited from Shelfie unchanged. Drift: the filter rows on Events and Team are a bare <code>.cluster</code> with no <code>role="group"</code> or label; the backlog view chips are links carrying <code>aria-pressed</code>, which is not valid on a link and is read by no screen reader, and they lack <code>aria-current</code>. Team sets the row's margin inline. The suggested fix is to add <code>.chip[aria-current="page"]</code> to the pressed selector in <code>components.css</code>: <code>.chip[aria-pressed="true"], .chip[aria-current="page"], .chip[data-state="selected"] { … }</code>.</p>
+      <p>The chip rule is inherited from Shelfie unchanged. Resolved: the filter rows on Events and Team are now <code>.cluster.cluster--between.filter-bar</code> rows holding a <code>role="group"</code> chip cluster labelled "Filter events" or "Filter team", with no inline margin. Drift: the backlog view chips are links carrying <code>aria-pressed</code>, which is not valid on a link and is read by no screen reader, and they lack <code>aria-current</code>. The suggested fix is to add <code>.chip[aria-current="page"]</code> to the pressed selector in <code>components.css</code>: <code>.chip[aria-pressed="true"], .chip[aria-current="page"], .chip[data-state="selected"] { … }</code>.</p>
     </section>
     <footer class="ds-footer"><span>FaithTech Community design system · extracted from <a href="../../mocks/index.html">docs/mocks</a> on 2026-10-21</span><a href="#top">Back to top</a></footer>
   </main>
