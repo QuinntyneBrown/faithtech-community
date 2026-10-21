@@ -10,6 +10,7 @@ export class AuditLogPage {
   readonly showOlder: Locator;
   readonly empty: Locator;
   readonly forbidden: Locator;
+  readonly exportedToast: Locator;
 
   constructor(private readonly page: Page) {
     this.heading = page.getByRole('heading', { level: 1 });
@@ -20,6 +21,7 @@ export class AuditLogPage {
     this.showOlder = page.getByRole('button', { name: 'Show older entries' });
     this.empty = page.getByRole('heading', { name: 'No admin actions yet' });
     this.forbidden = page.getByRole('heading', { name: 'This area is for System Admins' });
+    this.exportedToast = page.locator('ft-toast').filter({ hasText: 'Audit log exported' });
   }
 
   async open(): Promise<void> {

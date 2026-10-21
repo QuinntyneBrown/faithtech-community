@@ -20,6 +20,7 @@ import {
   TableColumn,
   TableComponent,
   TabsComponent,
+  ToastService,
   formatTimestamp,
 } from '@faithtech-community/components';
 import { firstValueFrom } from 'rxjs';
@@ -56,6 +57,7 @@ const CATEGORIES: SelectOption[] = [
 })
 export class AuditLogPage {
   private readonly audit = inject(AUDIT_LOG_SERVICE);
+  private readonly toasts = inject(ToastService);
 
   protected readonly categories = CATEGORIES;
   protected readonly category = new FormControl('', { nonNullable: true });
@@ -69,6 +71,7 @@ export class AuditLogPage {
   protected readonly entries = signal<AuditEntry[]>([]);
   protected readonly total = signal(0);
   protected readonly loadingMore = signal(false);
+  protected readonly exporting = signal(false);
   private readonly page = signal(1);
   private readonly selected = signal<AuditCategory | null>(null);
 
@@ -118,13 +121,32 @@ export class AuditLogPage {
   }
 
   protected async exportCsv(): Promise<void> {
-    const blob = await firstValueFrom(this.audit.exportCsv(this.filters()));
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement('a');
-    link.href = url;
-    link.download = 'audit-log.csv';
-    link.click();
-    URL.revokeObjectURL(url);
+    if (this.exporting()) return;
+    this.exporting.set(true);
+    try {
+      const blob = await firstValueFrom(this.audit.exportCsv(this.filters()));
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = 'audit-log.csv';
+      link.click();
+      URL.revokeObjectURL(url);
+      this.toasts.show({
+        variant: 'success',
+        heading: 'Audit log exported',
+        text: 'audit-log.csv is in your downloads.',
+      });
+    } catch {
+      this.toasts.show({
+        variant: 'danger',
+        heading: 'We couldn’t export the audit log',
+        text: 'Check your connection and try again.',
+        actionLabel: 'Try again',
+        onAction: () => void this.exportCsv(),
+      });
+    } finally {
+      this.exporting.set(false);
+    }
   }
 
   private filters(): AuditFilters {

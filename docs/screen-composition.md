@@ -34,9 +34,9 @@ Coverage: the profiles screens (`profile`, `edit-profile`, `delete-photo`), the 
 - Opens `SuspendUserDialog` through `DialogService`.
 - Local: the search `<form role="search">`. The mock's workspace-owner alert belongs to the Agile design and is not built.
 
-### Audit log — `/admin/audit-log` (`pages/audit-log`: default, loading, empty, error, no-results)
+### Audit log — `/admin/audit-log` (`pages/audit-log`: default, loading, empty, error, no-results, exporting, exported, export-failed)
 
-- Library: `PageHeaderComponent` with *Export CSV* (`ButtonComponent`, `IconComponent` `export`), `TabsComponent` + `TabComponent`, `FormFieldComponent` + `SelectComponent` "Action" (all, role changes, suspensions, private contact access, deletions), `TableComponent` (When monospaced, Who, What; `loading` shows skeleton rows under the headers), `EmptyStateComponent` (empty; no-results "No {category} in the last 90 days" with *Show all actions*; error; forbidden as on admin users), `ButtonComponent` *Show older entries* when more than 50.
+- Library: `PageHeaderComponent` with *Export CSV* (`ButtonComponent` with `loading` while exporting, `IconComponent` `export`; `ToastService` "Audit log exported" or a danger toast with *Try again*), `TabsComponent` + `TabComponent`, `FormFieldComponent` + `SelectComponent` "Action" (all, role changes, suspensions, private contact access, deletions), `TableComponent` (When monospaced, Who, What; `loading` shows skeleton rows under the headers), `EmptyStateComponent` (empty; no-results "No {category} in the last 90 days" with *Show all actions*; error; forbidden as on admin users), `ButtonComponent` *Show older entries* when more than 50.
 - Local: the CSV download glue (object URL and a temporary link).
 
 ### Invites — `/invites` (`pages/invites`: default, loading, empty, error)

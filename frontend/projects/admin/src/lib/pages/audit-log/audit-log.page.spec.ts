@@ -7,7 +7,8 @@ import {
   AuditLogService,
   PagedResult,
 } from '@faithtech-community/api';
-import { NEVER, Observable, of, throwError } from 'rxjs';
+import { ToastService } from '@faithtech-community/components';
+import { NEVER, Observable, of, Subject, throwError } from 'rxjs';
 
 import { AuditLogPage } from './audit-log.page';
 
@@ -33,13 +34,18 @@ function page(items: AuditEntry[], totalCount = items.length, pageNo = 1): Paged
 
 async function setup(
   getEntries: (filters: AuditFilters, page?: number) => Observable<PagedResult<AuditEntry>>,
+  exportCsv: () => Observable<Blob> = () => of(new Blob(['x'])),
 ) {
   const service = {
     getEntries: vi.fn(getEntries),
-    exportCsv: vi.fn(() => of(new Blob(['x']))),
+    exportCsv: vi.fn(exportCsv),
   } satisfies AuditLogService;
+  const toasts = { show: vi.fn() };
   TestBed.configureTestingModule({
-    providers: [{ provide: AUDIT_LOG_SERVICE, useValue: service }],
+    providers: [
+      { provide: AUDIT_LOG_SERVICE, useValue: service },
+      { provide: ToastService, useValue: toasts },
+    ],
   });
   const fixture = TestBed.createComponent(AuditLogPage);
   fixture.detectChanges();
@@ -53,7 +59,7 @@ async function setup(
     await fixture.whenStable();
     fixture.detectChanges();
   };
-  return { fixture, host, service, button, settle };
+  return { fixture, host, service, toasts, button, settle };
 }
 
 describe('AuditLogPage', () => {
@@ -133,5 +139,58 @@ describe('AuditLogPage', () => {
     button('Export CSV')!.click();
 
     expect(service.exportCsv).toHaveBeenCalledWith({ category: null });
+  });
+
+  it('shows Export CSV as busy until the file is ready, then confirms the download', async () => {
+    const file = new Subject<Blob>();
+    const { host, toasts, settle } = await setup(
+      () => of(page([entry('Granted Staff to Daniel Reyes')])),
+      () => file,
+    );
+    URL.createObjectURL = vi.fn(() => 'blob:audit');
+    URL.revokeObjectURL = vi.fn();
+    const exportButton = () =>
+      Array.from(host.querySelectorAll('button')).find((b) => b.textContent?.includes('Export'))!;
+
+    exportButton().click();
+    await settle();
+
+    expect(exportButton().getAttribute('aria-busy')).toBe('true');
+    expect(exportButton().textContent!.trim()).toBe('Export CSV…');
+
+    file.next(new Blob(['x']));
+    file.complete();
+    await settle();
+
+    expect(exportButton().getAttribute('aria-busy')).toBeNull();
+    expect(exportButton().textContent!.trim()).toBe('Export CSV');
+    expect(toasts.show).toHaveBeenCalledWith({
+      variant: 'success',
+      heading: 'Audit log exported',
+      text: 'audit-log.csv is in your downloads.',
+    });
+  });
+
+  it('says so when the export fails and lets the admin try again', async () => {
+    const { button, service, toasts, settle } = await setup(
+      () => of(page([entry('Granted Staff to Daniel Reyes')])),
+      () => throwError(() => new HttpErrorResponse({ status: 500 })),
+    );
+
+    button('Export CSV')!.click();
+    await settle();
+
+    expect(toasts.show).toHaveBeenCalledWith({
+      variant: 'danger',
+      heading: 'We couldn’t export the audit log',
+      text: 'Check your connection and try again.',
+      actionLabel: 'Try again',
+      onAction: expect.any(Function),
+    });
+    expect(button('Export CSV')!.getAttribute('aria-busy')).toBeNull();
+
+    toasts.show.mock.calls[0][0].onAction();
+    await settle();
+    expect(service.exportCsv).toHaveBeenCalledTimes(2);
   });
 });
