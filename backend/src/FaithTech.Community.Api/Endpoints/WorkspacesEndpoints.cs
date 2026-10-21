@@ -2,7 +2,7 @@ using FaithTech.Community.Application.Agile;
 
 namespace FaithTech.Community.Api.Endpoints;
 
-/// <summary>Agile workspaces and their members (L2-031, L2-050, L2-051). Access is decided by WorkspaceAccessPolicy.</summary>
+/// <summary>Agile workspaces, their members and sprints (L2-031, L2-035, L2-050, L2-051). Access is decided by WorkspaceAccessPolicy.</summary>
 public static class WorkspacesEndpoints
 {
     public static IEndpointRouteBuilder MapWorkspacesEndpoints(this IEndpointRouteBuilder app)
@@ -46,6 +46,25 @@ public static class WorkspacesEndpoints
         workspaces.MapDelete("/{id:guid}/members/{profileId:guid}", async (
                 Guid id, Guid profileId, WorkspaceSettingsHandler handler, CancellationToken cancellationToken) =>
             (await handler.RemoveMemberAsync(id, profileId, cancellationToken)).ToHttp(Results.NoContent));
+
+        workspaces.MapGet("/{id:guid}/sprints", async (Guid id, SprintsHandler handler, CancellationToken cancellationToken) =>
+            await handler.GetAsync(id, cancellationToken) is { } sprints ? Results.Ok(sprints) : Results.NotFound());
+
+        workspaces.MapPost("/{id:guid}/sprints", async (Guid id, StartSprintCommand command, SprintsHandler handler, CancellationToken cancellationToken) =>
+            {
+                var (result, sprintId) = await handler.StartAsync(id, command, cancellationToken);
+                return result.ToHttp(() => Results.Created($"/api/workspaces/{id}/sprints", new { Id = sprintId }));
+            })
+            .Validate<StartSprintCommand>();
+
+        workspaces.MapPost("/{id:guid}/sprints/{sprintId:guid}/stories", async (
+                Guid id, Guid sprintId, AddStoriesToSprintCommand command, SprintsHandler handler, CancellationToken cancellationToken) =>
+                (await handler.AddStoriesAsync(id, sprintId, command, cancellationToken)).ToHttp(Results.NoContent))
+            .Validate<AddStoriesToSprintCommand>();
+
+        workspaces.MapPost("/{id:guid}/sprints/{sprintId:guid}/close", async (
+                Guid id, Guid sprintId, SprintsHandler handler, CancellationToken cancellationToken) =>
+            (await handler.CloseAsync(id, sprintId, cancellationToken)).ToHttp(Results.NoContent));
 
         return app;
     }

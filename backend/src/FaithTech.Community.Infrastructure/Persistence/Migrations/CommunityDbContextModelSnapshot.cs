@@ -178,6 +178,9 @@ namespace FaithTech.Community.Infrastructure.Persistence.Migrations
                     b.Property<Guid>("Id")
                         .HasColumnType("uuid");
 
+                    b.Property<int?>("CommittedPoints")
+                        .HasColumnType("integer");
+
                     b.Property<int?>("CompletedPoints")
                         .HasColumnType("integer");
 
