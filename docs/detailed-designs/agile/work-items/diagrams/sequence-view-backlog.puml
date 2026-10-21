@@ -1,0 +1,47 @@
+@startuml
+title UML sequence behaviour — View the backlog tree
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+actor "Workspace member" as actor
+box "Frontend — FaithTech Community web app (agile library)" #E0F2FE
+  participant "BacklogPage" as page
+  participant "AgileService (AGILE_SERVICE)" as svc
+end box
+box "Backend — FaithTech.Community.Api" #D1FADF
+  participant "WorkItemsEndpoints" as ep
+end box
+box "Backend — FaithTech.Community.Application and Domain" #ECFDF3
+  participant "GetBacklogHandler" as h
+  participant "WorkspaceAccessPolicy" as pol
+end box
+box "Backend — FaithTech.Community.Infrastructure" #FFF4E5
+  participant "CommunityDbContext" as ctx
+  database "Community database" as db
+end box
+actor -> page : Open backlog, optionally pick initiative or epic filter
+page -> svc : getBacklog(workspaceId, filter)
+svc -> ep : GET /workspaces/{id}/backlog?initiative=&epic=
+ep -> h : Send GetBacklogQuery
+h -> pol : EnsureCanRead(workspaceId)
+pol --> h : Allowed
+h -> ctx : Query non-archived initiatives, epics, stories
+ctx -> db : SELECT
+db --> ctx : Rows
+h -> h : Build tree and apply filter (L2-032 AC4)
+h --> ep : BacklogTreeDto
+ep --> svc : 200 OK
+svc --> page : Tree
+page --> actor : Render expandable tree
+@enduml

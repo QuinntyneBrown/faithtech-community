@@ -1,0 +1,45 @@
+@startuml
+title UML sequence behaviour — View and filter the team
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+actor "Member" as actor
+box "Frontend — FaithTech Community web app (team library)" #E0F2FE
+  participant "TeamPage" as page
+  participant "HttpTeamService" as svc
+end box
+box "Backend — FaithTech.Community.Api" #D1FADF
+  participant "TeamEndpoints" as ep
+end box
+box "Backend — FaithTech.Community.Application and Domain" #ECFDF3
+  participant "ListTeamHandler" as h
+end box
+box "Backend — FaithTech.Community.Infrastructure" #FFF4E5
+  database "Community database" as db
+end box
+actor -> page : Open team, optionally choose a role filter
+page -> svc : list(role?)
+svc -> ep : GET /api/team?role=
+ep -> ep : Require signed-in member
+ep -> h : Send ListTeamQuery
+h -> db : Select profiles with any TeamRoles role (L2-019 AC1, AC3)
+opt role filter
+  h -> h : Narrow to profiles holding the role (L2-019 AC2)
+end
+db --> h : Profiles
+h --> ep : TeamMemberDto list with name, photo, roles
+ep --> svc : 200 OK
+svc --> page : Members
+page --> actor : Team cards
+@enduml

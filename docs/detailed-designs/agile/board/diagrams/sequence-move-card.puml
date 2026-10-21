@@ -1,0 +1,59 @@
+@startuml
+title UML sequence behaviour — Move a card
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+actor "Workspace member" as actor
+box "Frontend — FaithTech Community web app (agile library)" #E0F2FE
+  participant "TeamBoardPage" as page
+  participant "AgileService (AGILE_SERVICE)" as svc
+  participant "AgileLiveService" as live
+end box
+box "Backend — FaithTech.Community.Api" #D1FADF
+  participant "BoardEndpoints" as ep
+end box
+box "Backend — FaithTech.Community.Application and Domain" #ECFDF3
+  participant "MoveCardHandler" as h
+  participant "WorkspaceAccessPolicy" as pol
+  participant "WorkItem" as ent
+end box
+box "Backend — FaithTech.Community.Infrastructure" #FFF4E5
+  participant "AgileHub" as hub
+  participant "CommunityDbContext" as ctx
+  database "Community database" as db
+end box
+actor -> page : Drag card, or press keys to move it to another column
+page -> page : Move card optimistically and announce the move
+page -> svc : moveCard(storyId, status)
+svc -> ep : PUT /items/{id}/status
+ep -> h : Send MoveCardCommand
+h -> pol : EnsureMember(workspaceId)
+alt Staff or outsider
+pol --> h : Forbidden or NotFound
+h --> ep : 403 / 404
+ep --> svc : ProblemDetails
+svc --> page : Error
+page --> actor : Revert card and show error
+else member
+pol --> h : Allowed
+h -> ent : Set Status (L2-034 AC2)
+h -> ctx : SaveChanges
+ctx -> db : UPDATE work_item
+h -> hub : CardMoved to workspace group
+hub -> live : Push CardMoved to other viewers within 2 s (L2-034 AC2)
+h --> ep : Result
+ep --> svc : 204 No Content
+svc --> page : Confirmed
+end
+@enduml

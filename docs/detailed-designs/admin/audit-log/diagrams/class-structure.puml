@@ -1,0 +1,49 @@
+@startuml
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 8
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam class {
+  BorderColor #344054
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+title Class structure — Audit log
+class AuditEntry {
+  +Guid Id
+  +Guid ActorId
+  +string Action
+  +string TargetType
+  +string TargetId
+  +string BeforeJson
+  +string AfterJson
+  +DateTime OccurredAtUtc
+  +string IpAddress
+}
+interface IAuditLog {
+  +Write(entry: AuditEntry): Task
+}
+class AuditLog {
+  +Write(entry: AuditEntry): Task
+}
+class GetAuditEntriesQuery {
+  +Guid? ActorId
+  +string Action
+  +DateTime? FromUtc
+  +DateTime? ToUtc
+  +int Page
+}
+class GetAuditEntriesHandler {
+  +PageSize: int = 50
+  +Handle(query: GetAuditEntriesQuery): Task<PagedResult<AuditEntry>>
+}
+class CommunityDbContext {
+  +DbSet<AuditEntry> AuditEntries
+}
+AuditLog ..|> IAuditLog
+AuditLog --> CommunityDbContext
+GetAuditEntriesHandler ..> GetAuditEntriesQuery : handles
+GetAuditEntriesHandler --> CommunityDbContext
+CommunityDbContext "1" o-- "*" AuditEntry
+@enduml

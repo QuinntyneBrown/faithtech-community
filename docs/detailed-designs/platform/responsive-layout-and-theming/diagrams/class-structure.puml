@@ -1,0 +1,40 @@
+@startuml
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 8
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam class {
+  BorderColor #344054
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+title Class structure — Responsive layout and theming
+enum Breakpoint {
+  XS
+  SM
+  MD
+  LG
+  XL
+}
+enum ThemePreference {
+  System
+  Light
+  Dark
+}
+class BreakpointService {
+  +current: Signal<Breakpoint>
+}
+class ThemeService {
+  +preference: Signal<ThemePreference>
+  +effectiveTheme: Signal<'light' | 'dark'>
+  +setPreference(p: ThemePreference): void
+}
+class AppShellComponent {
+  +navCollapsed: Signal<boolean>
+}
+BreakpointService --> Breakpoint
+ThemeService --> ThemePreference
+AppShellComponent ..> BreakpointService : uses
+AppShellComponent ..> ThemeService : uses
+@enduml

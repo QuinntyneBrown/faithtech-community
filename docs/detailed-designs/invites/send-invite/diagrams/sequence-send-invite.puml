@@ -1,0 +1,57 @@
+@startuml
+title UML sequence behaviour — send an invite
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+actor "Lead" as actor
+box "Frontend — FaithTech Community web app (invites library)" #E0F2FE
+  participant "SendInviteDialog" as dlg
+  participant "InvitesService" as client
+end box
+box "Backend — FaithTech.Community.Api" #D1FADF
+  participant "InvitesEndpoints" as ep
+end box
+box "Backend — FaithTech.Community.Application and Domain" #ECFDF3
+  participant "SendInviteHandler" as h
+  participant "IRoleAssignmentPolicy" as rp
+end box
+box "Backend — FaithTech.Community.Infrastructure" #FFF4E5
+  database "Community database" as db
+end box
+participant "Email provider" as mail
+actor -> dlg : Enter email and optional role
+dlg -> dlg : Offer only grantable roles (L2-010, L2-009)
+dlg -> client : sendInvite(email, role)
+client -> ep : POST /api/invites
+ep -> h : Send SendInviteCommand
+alt caller holds no lead role and is not System Admin
+  h --> ep : Forbidden
+  ep --> client : 403 (L2-010)
+else role not grantable by caller
+  h -> rp : CanGrant(caller, role)
+  rp --> h : false
+  h --> ep : Forbidden
+  ep --> client : 403 (L2-010)
+else more than 50 invites in 24 hours
+  h -> db : Count caller's recent invites
+  h --> ep : Rate limited
+  ep --> client : 429 with rate-limit message (L2-010)
+else permitted
+  h -> db : Save invite, token hash, expiry in 14 days (L2-010)
+  h -> mail : Send single-use invite link
+  h --> ep : InviteDto
+  ep --> client : 201 Created
+  dlg --> actor : Close and show pending invite
+end
+@enduml

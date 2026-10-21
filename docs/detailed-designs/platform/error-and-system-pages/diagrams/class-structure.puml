@@ -1,0 +1,31 @@
+@startuml
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 8
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam class {
+  BorderColor #344054
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+title Class structure — Error and system pages
+class NotFoundPage
+class ForbiddenPage
+class ServerErrorPage {
+  +referenceId: string
+}
+class httpErrorInterceptor {
+  +intercept(req, next): Observable<HttpEvent>
+}
+class ConnectivityService {
+  +online: Signal<boolean>
+}
+class BannerComponent {
+  +tone: 'info' | 'warning' | 'danger'
+  +message: string
+}
+httpErrorInterceptor ..> ServerErrorPage : navigates to
+httpErrorInterceptor ..> ForbiddenPage : navigates to
+BannerComponent ..> ConnectivityService : shown by shell from
+@enduml

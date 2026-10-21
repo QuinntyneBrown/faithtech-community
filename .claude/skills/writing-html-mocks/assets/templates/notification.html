@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Loan toast · success — Shelf mocks</title>
+<meta name="mock:kind" content="notification">
+<meta name="mock:screen" content="loan-toast">
+<meta name="mock:state" content="success">
+<meta name="mock:requirements" content="L2-LOAN-006">
+<meta name="description" content="Success toast after a copy is returned, with an undo action, over the loans list.">
+<link rel="stylesheet" href="../../assets/tokens.css">
+<link rel="stylesheet" href="../../assets/ui.css">
+<link rel="stylesheet" href="../../assets/mock.css">
+</head>
+<body>
+<a class="skip-link" href="#main">Skip to content</a>
+
+<header class="topbar">
+  <a class="topbar__brand" href="../../pages/dashboard/default.html">Shelf</a>
+  <span class="topbar__spacer"></span>
+  <span class="avatar avatar--sm" aria-hidden="true">PN</span>
+</header>
+<main id="main" class="container">
+  <div class="page-header"><div><h1>Loans</h1><p class="subtitle">37 active loans · 2 overdue</p></div></div>
+  <div class="table-wrap">
+    <table class="table">
+      <thead><tr><th scope="col">Title</th><th scope="col">Member</th><th scope="col">Due</th><th scope="col">Status</th></tr></thead>
+      <tbody>
+        <tr><td>Braiding Sweetgrass</td><td>Mei Rodríguez</td><td>Fri 17 Oct</td><td><span class="badge badge--success">On time</span></td></tr>
+        <tr><td>Piranesi</td><td>Tomasz Okafor</td><td>3 days overdue</td><td><span class="badge badge--danger">Overdue</span></td></tr>
+      </tbody>
+    </table>
+  </div>
+</main>
+
+<!-- Toasts are announced politely; the region exists in the DOM before the toast arrives so screen readers pick it up. -->
+<div class="toast-region" role="status" aria-live="polite">
+  <div class="toast toast--success">
+    <svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="m8 12 3 3 5-6"/></svg>
+    <div class="toast__body">
+      <div class="toast__title">Copy returned</div>
+      <div class="toast__text">“The Left Hand of Darkness” is back on the shelf. Amara Osei has been notified that her hold is ready.</div>
+      <button class="toast__action" type="button">Undo</button>
+    </div>
+    <button class="close" type="button" aria-label="Dismiss">
+      <svg class="icon icon--sm" aria-hidden="true" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18"/></svg>
+    </button>
+    <span class="toast__progress" aria-hidden="true"></span>
+  </div>
+</div>
+
+<p class="mock-note" style="bottom: 9rem; right: 1rem;">Auto-dismisses after 8 s; the timer pauses on hover and focus. Undo is available for the whole lifetime of the toast.</p>
+
+<nav class="mock-bar" aria-label="Mock navigation">
+  <a class="mock-bar__home" href="../../index.html" aria-label="All mocks">⌂</a>
+  <span class="mock-bar__screen">Loan toast</span>
+  <ul class="mock-bar__states">
+    <li><a href="info.html">info</a></li>
+    <li><a href="success.html" aria-current="page">success</a></li>
+    <li><a href="warning.html">warning</a></li>
+    <li><a href="danger.html">danger</a></li>
+    <li><a href="stacked.html">stacked</a></li>
+  </ul>
+  <button type="button" data-theme-toggle aria-pressed="false">☾ Dark</button>
+  <button type="button" data-chrome-toggle aria-label="Hide mock chrome">×</button>
+</nav>
+<script src="../../assets/mock.js"></script>
+</body>
+</html>

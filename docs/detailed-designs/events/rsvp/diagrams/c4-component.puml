@@ -1,0 +1,38 @@
+@startuml
+!include <C4/C4_Component>
+LAYOUT_WITH_LEGEND()
+title Components — RSVP
+
+Container_Boundary(spa, "Web app") {
+  Component(page, "EventPage", "Angular page (events library)", "RSVP, cancel RSVP, count or list")
+  Component(dlg, "CancelRsvpDialog", "CDK Dialog (events library)", "Confirms RSVP cancellation")
+  Component(svc, "EventsService / EVENTS_SERVICE", "TypeScript contract and injection token (api library)", "Contract the pages depend on")
+  Component(http, "HttpEventsService", "Angular service (api library)", "HTTP implementation of EventsService")
+}
+Container_Boundary(api, "Community API") {
+  Component(ep, "EventsEndpoints", "ASP.NET Core minimal API", "Maps /api/events routes; no business logic")
+  Component(get, "GetEventHandler", "Application query handler", "Event detail with permission-filtered RSVP data")
+  Component(rsvp, "RsvpToEventHandler / CancelRsvpHandler", "Application handlers", "Create and remove member RSVPs")
+  Component(perm, "EventPermissions", "Application service", "RSVP list and guest email visibility")
+  Component(notif, "INotificationPublisher", "Application contract", "In-app confirmation")
+  Component(ics, "IcsCalendarWriter", "Infrastructure service", "RFC 5545 .ics attachment")
+  Component(mail, "EmailSender", "Infrastructure service", "Sends confirmation email")
+  Component(ctx, "CommunityDbContext", "EF Core DbContext", "Events and RSVPs")
+}
+ContainerDb(db, "Community database", "PostgreSQL", "Events, RSVPs, notifications and outbox")
+System_Ext(email, "Email provider", "SMTP/SendGrid delivery")
+Rel(page, svc, "Calls getEvent / rsvp / cancelRsvp")
+Rel(page, dlg, "Opens")
+Rel(svc, http, "Implemented by")
+Rel(http, ep, "JSON/HTTPS")
+Rel(ep, get, "Dispatches GetEventQuery")
+Rel(ep, rsvp, "Dispatches RSVP commands")
+Rel(get, perm, "Filters with")
+Rel(rsvp, notif, "Confirms in-app via")
+Rel(rsvp, ics, "Builds attachment with")
+Rel(rsvp, mail, "Emails via")
+Rel(get, ctx, "Reads")
+Rel(rsvp, ctx, "Writes")
+Rel(ctx, db, "SQL")
+Rel(mail, email, "SMTP")
+@enduml

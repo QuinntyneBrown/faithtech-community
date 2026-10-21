@@ -1,0 +1,55 @@
+@startuml
+title UML sequence behaviour — feature and delete photos
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+actor "Member" as actor
+box "Frontend — FaithTech Community web app (profiles library)" #E0F2FE
+  participant "EditProfilePage" as page
+  participant "DeletePhotoDialog" as dlg
+  participant "ProfilesService" as client
+end box
+box "Backend — FaithTech.Community.Api" #D1FADF
+  participant "ProfilesEndpoints" as ep
+end box
+box "Backend — FaithTech.Community.Application and Domain" #ECFDF3
+  participant "Profile" as ent
+end box
+box "Backend — FaithTech.Community.Infrastructure" #FFF4E5
+  participant "IPhotoStorage" as ps
+  database "Community database" as db
+end box
+group Feature a photo
+  actor -> page : Mark photo as featured
+  page -> client : setFeatured(id, photoId)
+  client -> ep : PUT /api/profiles/{id}/photos/{photoId}/featured
+  ep -> ent : Feature(photoId); clear others (L2-007)
+  ent -> db : Save
+  ep --> page : 204
+end
+group Delete a photo
+  actor -> page : Select delete
+  page -> dlg : Open confirmation
+  actor -> dlg : Confirm
+  dlg -> client : deletePhoto(id, photoId)
+  client -> ep : DELETE /api/profiles/{id}/photos/{photoId}
+  ep -> ent : RemovePhoto(photoId)
+  opt removed photo was featured and others remain
+    ent -> ent : Feature most recently uploaded remaining photo (L2-007)
+  end
+  ep -> ps : Delete blob
+  ent -> db : Save
+  ep --> page : 204
+end
+@enduml

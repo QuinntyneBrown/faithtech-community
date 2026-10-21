@@ -1,0 +1,42 @@
+@startuml
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 8
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam class {
+  BorderColor #344054
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+title Class structure — Switch method
+
+enum WorkspaceMethod {
+  Scrum
+  Kanban
+}
+class Workspace {
+  +WorkspaceMethod Method
+  +SwitchMethod(target: WorkspaceMethod, sprints: IEnumerable<Sprint>, stories: IEnumerable<WorkItem>): void
+}
+class Sprint {
+  +SprintState State
+  +Close(stories: IEnumerable<WorkItem>): void
+}
+class WorkItem {
+  +Guid? SprintId
+  +WorkItemStatus Status
+}
+class SwitchMethodCommand {
+  +Guid WorkspaceId
+  +WorkspaceMethod Target
+}
+class SwitchMethodHandler {
+  +Handle(cmd: SwitchMethodCommand): Task<Result>
+}
+Workspace --> WorkspaceMethod
+Workspace ..> Sprint : closes open
+Workspace ..> WorkItem : resets SprintId
+SwitchMethodHandler ..> SwitchMethodCommand : handles
+SwitchMethodHandler --> Workspace : mutates
+@enduml

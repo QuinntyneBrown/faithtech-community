@@ -1,0 +1,4 @@
+interface:
+  display_name: "Writing Design Documents"
+  short_description: "Feature designs with requirement links and diagrams"
+  default_prompt: "Use $writing-design-documents to create detailed feature designs from docs/specs/, including rendered diagrams."

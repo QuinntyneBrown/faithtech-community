@@ -1,0 +1,52 @@
+@startuml
+title UML sequence behaviour — Remove a workspace member
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+actor "Workspace owner" as actor
+box "Frontend — FaithTech Community web app (agile library)" #E0F2FE
+  participant "WorkspaceSettingsPage" as page
+  participant "RemoveWorkspaceMemberDialog" as dlg
+  participant "AgileService (AGILE_SERVICE)" as svc
+end box
+box "Backend — FaithTech.Community.Api" #D1FADF
+  participant "WorkspacesEndpoints" as ep
+end box
+box "Backend — FaithTech.Community.Application and Domain" #ECFDF3
+  participant "RemoveWorkspaceMemberHandler" as h
+  participant "WorkspaceAccessPolicy" as pol
+  participant "Workspace" as ent
+end box
+box "Backend — FaithTech.Community.Infrastructure" #FFF4E5
+  participant "CommunityDbContext" as ctx
+  database "Community database" as db
+end box
+actor -> page : Choose "Remove" on a member
+page -> dlg : Open confirmation
+actor -> dlg : Confirm
+dlg -> svc : removeMember(workspaceId, profileId)
+svc -> ep : DELETE /workspaces/{id}/members/{profileId}
+ep -> h : Send RemoveWorkspaceMemberCommand
+h -> pol : EnsureOwner(workspaceId)
+pol --> h : Allowed
+h -> ent : RemoveMember(profileId)
+h -> ctx : Clear AssigneeId on the member's items (L2-031 AC8)
+h -> ctx : SaveChanges
+ctx -> db : DELETE member, UPDATE work_items in one transaction
+db --> ctx : Committed
+h --> ep : Result
+ep --> svc : 204 No Content
+svc --> page : Refresh members
+page --> actor : Member removed
+@enduml

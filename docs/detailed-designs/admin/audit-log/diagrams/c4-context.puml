@@ -1,0 +1,8 @@
+@startuml
+!include <C4/C4_Context>
+LAYOUT_WITH_LEGEND()
+title System Context — Audit log
+Person(admin, "System Admin", "Holds full override across the site")
+System(community, "FaithTech Community", "Community site for FaithTech staff, leads, volunteers, builders and partners")
+Rel(admin, community, "Reviews the audit log using")
+@enduml

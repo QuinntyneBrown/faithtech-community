@@ -1,0 +1,19 @@
+@startuml
+!include <C4/C4_Component>
+LAYOUT_WITH_LEGEND()
+title Components — Send an announcement
+Container_Boundary(api, "Community API") {
+  Component(ep, "AnnouncementsEndpoints", "Minimal API", "Maps /announcements routes")
+  Component(val, "SendAnnouncementValidator", "Validator", "Subject and body required")
+  Component(send, "SendAnnouncementHandler", "Application handler", "Authorizes, stores and fans out")
+  Component(count, "CountAnnouncementRecipientsHandler", "Application handler", "Resolves audience to a count")
+  Component(pub, "INotificationPublisher", "Application service", "In-app notification and email")
+  ComponentDb(db, "CommunityDbContext", "EF Core", "announcements, recipients, outbox")
+}
+Rel(ep, val, "Validates with")
+Rel(ep, send, "Sends SendAnnouncementCommand")
+Rel(ep, count, "Sends CountAnnouncementRecipientsQuery")
+Rel(send, pub, "Publishes per recipient")
+Rel(send, db, "Stores Announcement")
+Rel(count, db, "Counts recipients")
+@enduml

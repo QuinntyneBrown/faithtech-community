@@ -1,0 +1,63 @@
+@startuml
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 8
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam class {
+  BorderColor #344054
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+title Class structure — Sprints
+
+enum SprintState {
+  Planned
+  Active
+  Closed
+}
+class Sprint {
+  +Guid Id
+  +Guid WorkspaceId
+  +string Name
+  +string Goal
+  +DateOnly StartDate
+  +DateOnly EndDate
+  +SprintState State
+  +int? CompletedPoints
+  +Start(): void
+  +Close(stories: IEnumerable<WorkItem>): void
+}
+class WorkItem {
+  +Guid? SprintId
+  +WorkItemStatus Status
+  +int? StoryPoints
+}
+class StartSprintCommand {
+  +Guid WorkspaceId
+  +string Name
+  +string Goal
+  +DateOnly StartDate
+  +DateOnly EndDate
+}
+class CloseSprintCommand {
+  +Guid SprintId
+}
+class MoveStoriesToSprintCommand {
+  +Guid SprintId
+  +List<Guid> StoryIds
+}
+class StartSprintHandler
+class CloseSprintHandler
+class MoveStoriesToSprintHandler
+class Workspace
+Workspace "1" *-- "*" Sprint
+Sprint "0..1" o-- "*" WorkItem : stories
+Sprint --> SprintState
+StartSprintHandler ..> StartSprintCommand : handles
+CloseSprintHandler ..> CloseSprintCommand : handles
+MoveStoriesToSprintHandler ..> MoveStoriesToSprintCommand : handles
+StartSprintHandler --> Sprint
+CloseSprintHandler --> Sprint
+MoveStoriesToSprintHandler --> WorkItem : sets SprintId
+@enduml

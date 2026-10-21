@@ -1,0 +1,20 @@
+@startuml
+!include <C4/C4_Component>
+LAYOUT_WITH_LEGEND()
+title Components — In-app notifications
+Container_Boundary(api, "Community API") {
+  Component(ep, "NotificationsEndpoints", "Minimal API", "Maps /notifications routes")
+  Component(list, "ListNotificationsHandler", "Application handler", "Pages the caller's notifications")
+  Component(mark, "MarkNotificationReadHandler", "Application handler", "Marks one or all as read")
+  Component(pub, "INotificationPublisher", "Application service", "Creates notifications for other features")
+  Component(cu, "ICurrentUser", "Application abstraction", "Identifies the caller")
+  ComponentDb(db, "CommunityDbContext", "EF Core", "notifications table")
+}
+Rel(ep, list, "Sends ListNotificationsQuery")
+Rel(ep, mark, "Sends Mark*Command")
+Rel(list, cu, "Reads recipient id")
+Rel(mark, cu, "Reads recipient id")
+Rel(list, db, "Queries by recipient")
+Rel(mark, db, "Updates ReadAt")
+Rel(pub, db, "Inserts Notification")
+@enduml

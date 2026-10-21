@@ -1,0 +1,89 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Return loan · default — Shelf mocks</title>
+<meta name="mock:kind" content="dialog">
+<meta name="mock:screen" content="return-loan">
+<meta name="mock:state" content="default">
+<meta name="mock:requirements" content="L2-LOAN-006">
+<meta name="description" content="Confirmation dialog for returning a loaned copy, shown over the loans list.">
+<link rel="stylesheet" href="../../assets/tokens.css">
+<link rel="stylesheet" href="../../assets/ui.css">
+<link rel="stylesheet" href="../../assets/mock.css">
+</head>
+<body>
+<a class="skip-link" href="#main">Skip to content</a>
+
+<!-- The page underneath is inert while the dialog is open: it stays visible for context but is not interactive. -->
+<div inert aria-hidden="true">
+  <header class="topbar">
+    <a class="topbar__brand" href="../../pages/dashboard/default.html">Shelf</a>
+    <span class="topbar__spacer"></span>
+    <span class="avatar avatar--sm">PN</span>
+  </header>
+  <main id="main" class="container">
+    <div class="page-header"><div><h1>Loans</h1><p class="subtitle">38 active loans · 2 overdue</p></div></div>
+    <div class="table-wrap">
+      <table class="table">
+        <thead><tr><th scope="col">Title</th><th scope="col">Member</th><th scope="col">Due</th><th scope="col">Status</th></tr></thead>
+        <tbody>
+          <tr aria-selected="true"><td>The Left Hand of Darkness</td><td>Jonah Adeyemi</td><td>Tomorrow</td><td><span class="badge badge--warning">Due soon</span></td></tr>
+          <tr><td>Braiding Sweetgrass</td><td>Mei Rodríguez</td><td>Fri 17 Oct</td><td><span class="badge badge--success">On time</span></td></tr>
+          <tr><td>Piranesi</td><td>Tomasz Okafor</td><td>3 days overdue</td><td><span class="badge badge--danger">Overdue</span></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </main>
+</div>
+
+<div class="backdrop"></div>
+<div class="dialog" role="dialog" aria-modal="true" aria-labelledby="dlg-title" aria-describedby="dlg-desc" data-dismiss-on-escape>
+  <div class="dialog__panel">
+    <div class="dialog__header">
+      <div class="dialog__icon dialog__icon--info" aria-hidden="true">
+        <svg class="icon" viewBox="0 0 24 24"><path d="M4 12l6 6L20 6"/></svg>
+      </div>
+      <div style="flex: 1;">
+        <h2 class="dialog__title" id="dlg-title">Return “The Left Hand of Darkness”?</h2>
+        <p id="dlg-desc" class="text-muted" style="margin-top: var(--space-1);">Jonah Adeyemi’s loan ends today. The copy goes back to the shelf and the next hold is notified.</p>
+      </div>
+      <button class="btn btn--ghost btn--icon" type="button" aria-label="Close">
+        <svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18"/></svg>
+      </button>
+    </div>
+    <div class="dialog__body stack">
+      <fieldset>
+        <legend>Condition on return</legend>
+        <label class="choice"><input type="radio" name="condition" checked><span class="choice__text">Good<small>No damage noticed</small></span></label>
+        <label class="choice"><input type="radio" name="condition"><span class="choice__text">Damaged<small>Flag the copy for review before it is loaned again</small></span></label>
+        <label class="choice"><input type="radio" name="condition"><span class="choice__text">Lost<small>Removes the copy from the catalog and opens a replacement charge</small></span></label>
+      </fieldset>
+      <label class="field">
+        <span class="field__label">Note <span class="optional">(optional)</span></span>
+        <textarea class="textarea" rows="2" placeholder="Anything the next librarian should know"></textarea>
+      </label>
+    </div>
+    <div class="dialog__footer">
+      <button class="btn" type="button">Cancel</button>
+      <button class="btn btn--primary" type="button" autofocus>Return copy</button>
+    </div>
+  </div>
+</div>
+
+<nav class="mock-bar" aria-label="Mock navigation">
+  <a class="mock-bar__home" href="../../index.html" aria-label="All mocks">⌂</a>
+  <span class="mock-bar__screen">Return loan</span>
+  <ul class="mock-bar__states">
+    <li><a href="default.html" aria-current="page">default</a></li>
+    <li><a href="invalid.html">invalid</a></li>
+    <li><a href="busy.html">busy</a></li>
+    <li><a href="failed.html">failed</a></li>
+  </ul>
+  <button type="button" data-theme-toggle aria-pressed="false">☾ Dark</button>
+  <button type="button" data-chrome-toggle aria-label="Hide mock chrome">×</button>
+</nav>
+<script src="../../assets/mock.js"></script>
+</body>
+</html>

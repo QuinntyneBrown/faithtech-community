@@ -1,0 +1,28 @@
+@startuml
+!include <C4/C4_Component>
+LAYOUT_WITH_LEGEND()
+title Components — Agile workspaces and membership
+
+Container_Boundary(web, "Web app") {
+  Component(page, "WorkspacesPage / WorkspaceSettingsPage", "Angular page", "Lists workspaces and manages members")
+  Component(dlg, "CreateWorkspaceDialog / AddWorkspaceMemberDialog", "CDK Dialog", "Create and add-member forms")
+  Component(svc, "AgileService", "api library", "AGILE_SERVICE token, HttpAgileService")
+}
+Container_Boundary(api, "Community API") {
+  Component(ep, "WorkspacesEndpoints", "Minimal API", "Maps /workspaces routes")
+  Component(h, "Workspace handlers", "Application", "Create, add member, remove member, queries")
+  Component(pol, "WorkspaceAccessPolicy", "Application", "Owner/member/Staff/Admin/outsider rules")
+  Component(ent, "Workspace", "Domain entity", "Owner, method, members")
+  Component(ntf, "INotificationService / IAuditLog", "Infrastructure", "Notifications and audit log")
+  ComponentDb(db, "Community database", "PostgreSQL", "Agile tables")
+}
+
+Rel(page, dlg, "Opens")
+Rel(page, svc, "Calls")
+Rel(svc, ep, "Calls", "JSON/HTTPS")
+Rel(ep, h, "Dispatches commands and queries")
+Rel(h, pol, "Checks access")
+Rel(h, ent, "Loads and mutates")
+Rel(h, ntf, "Notifies and audits")
+Rel(h, db, "Persists", "EF Core")
+@enduml

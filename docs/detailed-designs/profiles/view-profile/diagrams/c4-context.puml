@@ -1,0 +1,11 @@
+@startuml
+!include <C4/C4_Context>
+LAYOUT_WITH_LEGEND()
+title System Context — View a profile
+
+Person(member, "Member", "Signed-in user with a profile")
+Person(visitor, "Anonymous visitor", "Person without a signed-in session")
+System(ftc, "FaithTech Community", "Community site for FaithTech staff, leads, volunteers, builders and partners")
+Rel(member, ftc, "Views profiles in", "HTTPS")
+Rel(visitor, ftc, "Views profiles in", "HTTPS")
+@enduml

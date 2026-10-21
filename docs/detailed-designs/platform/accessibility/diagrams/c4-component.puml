@@ -1,0 +1,18 @@
+@startuml
+!include <C4/C4_Component>
+LAYOUT_WITH_LEGEND()
+title Components — Accessibility
+Container_Boundary(web, "Web app") {
+  Component(page, "Feature pages", "Angular", "Compose screens from components")
+  Component(ff, "FormFieldComponent", "components library", "Labels, errors, aria-invalid, live region")
+  Component(dlg, "DialogService", "components library", "CDK Dialog with focus trap and restore")
+  Component(toast, "ToastService", "components library", "LiveAnnouncer announcements")
+  Component(tok, "Design tokens", "CSS custom properties", "Verified contrast in light and dark")
+}
+Container(e2e, "Playwright suite", "Playwright + axe-core", "Axe check on every screen")
+Rel(page, ff, "Uses")
+Rel(page, dlg, "Opens dialogs with")
+Rel(page, toast, "Shows toasts with")
+Rel(ff, tok, "Reads")
+Rel(e2e, page, "Scans", "Chromium")
+@enduml

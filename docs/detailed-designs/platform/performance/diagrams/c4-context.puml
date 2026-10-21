@@ -1,0 +1,8 @@
+@startuml
+!include <C4/C4_Context>
+LAYOUT_WITH_LEGEND()
+title System Context — Performance
+Person(member, "Member", "Signed-in community member")
+System(ftc, "FaithTech Community", "Community site for FaithTech staff, leads, volunteers, builders and partners")
+Rel(member, ftc, "Uses")
+@enduml

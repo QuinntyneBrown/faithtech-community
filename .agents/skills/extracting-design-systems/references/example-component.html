@@ -1,0 +1,261 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Button — Shelf design system</title>
+<meta name="description" content="Buttons trigger actions. Five variants, three sizes, every state, in both themes.">
+<link rel="stylesheet" href="../tokens/tokens.css">
+<link rel="stylesheet" href="../assets/components.css">
+<link rel="stylesheet" href="../assets/ds.css">
+</head>
+<body id="top">
+<a class="skip-link" href="#main">Skip to content</a>
+<div class="ds-shell">
+  <nav class="ds-nav" aria-label="Design system">
+    <div class="ds-nav__brand"><a href="../index.html">Shelf DS</a><button class="ds-theme-toggle" type="button" aria-pressed="false">☾ Dark</button></div>
+    <details open><summary>Foundations</summary><ul>
+      <li><a href="../foundations/color.html">Color</a></li>
+      <li><a href="../foundations/typography.html">Typography</a></li>
+      <li><a href="../foundations/spacing.html">Spacing</a></li>
+      <li><a href="../foundations/layout.html">Layout</a></li>
+      <li><a href="../foundations/elevation.html">Elevation</a></li>
+      <li><a href="../foundations/shape.html">Shape</a></li>
+      <li><a href="../foundations/motion.html">Motion</a></li>
+      <li><a href="../foundations/iconography.html">Iconography</a></li>
+      <li><a href="../foundations/theming.html">Theming</a></li>
+      <li><a href="../foundations/responsive.html">Responsive</a></li>
+      <li><a href="../foundations/accessibility.html">Accessibility</a></li>
+      <li><a href="../foundations/content.html">Content</a></li>
+    </ul></details>
+    <details open><summary>Components</summary><ul>
+      <li><a href="../components/button.html">Button</a></li>
+    </ul></details>
+    <details open><summary>Patterns</summary><ul>
+      <li><a href="../patterns/forms.html">Forms</a></li>
+    </ul></details>
+  </nav>
+
+  <main id="main" class="ds-main">
+    <header class="ds-header">
+      <p class="ds-kicker">Component · Actions</p>
+      <h1>Button</h1>
+      <p class="ds-lead">Buttons let people take an action: save, send, delete, open. One primary button per view tells them what matters most.</p>
+      <div class="ds-meta"><span class="ds-pill ds-pill--ok">WCAG 2.2 AA</span><span class="ds-pill">Status: stable</span><span class="ds-pill">Native <code>&lt;button&gt;</code></span></div>
+      <ul class="ds-toc">
+        <li><a href="#overview">Overview</a></li><li><a href="#anatomy">Anatomy</a></li><li><a href="#variants">Variants</a></li><li><a href="#sizes">Sizes</a></li><li><a href="#states">States</a></li><li><a href="#responsive">Responsive</a></li><li><a href="#theming">Theming</a></li><li><a href="#accessibility">Accessibility</a></li><li><a href="#content">Content</a></li><li><a href="#do-dont">Do and don't</a></li><li><a href="#tokens">Tokens</a></li><li><a href="#code">Code</a></li><li><a href="#sources">Sources</a></li>
+      </ul>
+    </header>
+
+    <section class="ds-section" id="overview"><h2><a href="#overview">Overview</a></h2>
+      <p>Use a button when activating it changes something: it submits, creates, deletes, opens a dialog or starts a process. Use a <a href="link.html">link</a> when it only takes the person somewhere. Use a <a href="menu.html">menu</a> when one trigger offers several actions.</p>
+      <ul>
+        <li><b>Primary</b> is the one action the view exists for. Never two per view.</li>
+        <li><b>Secondary</b> (the default look) is for everything else that is still an action.</li>
+        <li><b>Ghost</b> sits inside dense surfaces: toolbars, table rows, card headers.</li>
+        <li><b>Link</b> looks like a link but behaves like a button; use it for low-emphasis actions inside sentences.</li>
+        <li><b>Danger</b> is for destructive actions and only appears after a confirmation step or inside a confirmation dialog.</li>
+      </ul>
+    </section>
+
+    <section class="ds-section" id="anatomy"><h2><a href="#anatomy">Anatomy</a></h2>
+      <div class="ds-anatomy">
+        <figure class="ds-anatomy__figure">
+          <button class="btn btn--primary btn--lg" type="button"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>New loan</button>
+          <span class="ds-callout" style="left: 34%; top: 22%;" aria-hidden="true">1</span>
+          <span class="ds-callout" style="left: 56%; top: 22%;" aria-hidden="true">2</span>
+          <span class="ds-callout" style="left: 70%; top: 72%;" aria-hidden="true">3</span>
+        </figure>
+        <ol class="ds-anatomy__list">
+          <li><div><b>Leading icon (optional)</b><small>1.25em square, inherits the label colour, <code>aria-hidden</code>.</small></div></li>
+          <li><div><b>Label</b><small>A verb phrase in sentence case; the accessible name.</small></div></li>
+          <li><div><b>Container</b><small>Height from <code>--control-height-*</code>, <code>--radius-md</code> corners, 1px border, horizontal padding from the spacing scale.</small></div></li>
+        </ol>
+      </div>
+    </section>
+
+    <section class="ds-section" id="variants"><h2><a href="#variants">Variants</a></h2>
+      <p>Variants change emphasis, not meaning. Pick by how much attention the action deserves on this view.</p>
+      <div class="ds-example">
+        <div class="ds-example__canvas">
+          <button class="btn btn--primary" type="button">Primary</button>
+          <button class="btn" type="button">Secondary</button>
+          <button class="btn btn--ghost" type="button">Ghost</button>
+          <button class="btn btn--link" type="button">Link</button>
+          <button class="btn btn--danger" type="button">Danger</button>
+        </div>
+        <div class="ds-example__caption"><span>Emphasis from highest to lowest; danger is reserved for destructive confirmations.</span></div>
+        <details class="ds-example__code"><summary>HTML</summary><pre><code>&lt;button class="btn btn--primary" type="button"&gt;Primary&lt;/button&gt;
+&lt;button class="btn" type="button"&gt;Secondary&lt;/button&gt;
+&lt;button class="btn btn--ghost" type="button"&gt;Ghost&lt;/button&gt;
+&lt;button class="btn btn--link" type="button"&gt;Link&lt;/button&gt;
+&lt;button class="btn btn--danger" type="button"&gt;Danger&lt;/button&gt;</code></pre></details>
+      </div>
+      <h3>With icons and icon-only</h3>
+      <div class="ds-example">
+        <div class="ds-example__canvas">
+          <button class="btn btn--primary" type="button"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>New loan</button>
+          <button class="btn" type="button">Export<svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><path d="M12 3v12m0 0-4-4m4 4 4-4M4 17v3h16v-3"/></svg></button>
+          <button class="btn btn--icon" type="button" aria-label="Edit"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><path d="M4 20h4l10-10-4-4L4 16v4zM13 7l4 4"/></svg></button>
+          <button class="btn btn--ghost btn--icon" type="button" aria-label="More actions"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><circle cx="5" cy="12" r="1.5"/><circle cx="12" cy="12" r="1.5"/><circle cx="19" cy="12" r="1.5"/></svg></button>
+          <button class="btn btn--block" type="button" style="max-width: 16rem;">Block (full width)</button>
+        </div>
+        <div class="ds-example__caption"><span>Icon-only buttons carry <code>aria-label</code> and a tooltip; the icon itself is <code>aria-hidden</code>.</span></div>
+      </div>
+    </section>
+
+    <section class="ds-section" id="sizes"><h2><a href="#sizes">Sizes</a></h2>
+      <p>Medium is the default. Small lives in tables, chips and toolbars; large is for hero and auth screens where the button is the whole point.</p>
+      <div class="ds-example">
+        <div class="ds-example__canvas">
+          <button class="btn btn--primary btn--sm" type="button">Small · 32px</button>
+          <button class="btn btn--primary" type="button">Medium · 40px</button>
+          <button class="btn btn--primary btn--lg" type="button">Large · 48px</button>
+        </div>
+        <div class="ds-example__caption"><span>Heights: <code>--control-height-sm/md/lg</code>; padding: <code>--space-3/4/6</code>; font: <code>--font-size-sm/md/lg</code>.</span></div>
+      </div>
+    </section>
+
+    <section class="ds-section" id="states"><h2><a href="#states">States</a></h2>
+      <p>Every variant has the same six states. Pointer and focus states are forced here with <code>data-state</code> so they can be reviewed without a mouse; real pages get them from <code>:hover</code>, <code>:focus-visible</code>, <code>:active</code>, <code>:disabled</code> and <code>aria-busy</code>.</p>
+      <div class="ds-matrix"><table>
+        <thead><tr><th scope="col">Variant</th><th scope="col">Default</th><th scope="col">Hover</th><th scope="col">Focus</th><th scope="col">Active</th><th scope="col">Disabled</th><th scope="col">Loading</th></tr></thead>
+        <tbody>
+          <tr><th scope="row">Primary</th><td><button class="btn btn--primary" type="button">Save</button></td><td><button class="btn btn--primary" type="button" data-state="hover">Save</button></td><td><button class="btn btn--primary" type="button" data-state="focus">Save</button></td><td><button class="btn btn--primary" type="button" data-state="active">Save</button></td><td><button class="btn btn--primary" type="button" disabled>Save</button></td><td><button class="btn btn--primary" type="button" aria-busy="true">Save</button></td></tr>
+          <tr><th scope="row">Secondary</th><td><button class="btn" type="button">Cancel</button></td><td><button class="btn" type="button" data-state="hover">Cancel</button></td><td><button class="btn" type="button" data-state="focus">Cancel</button></td><td><button class="btn" type="button" data-state="active">Cancel</button></td><td><button class="btn" type="button" disabled>Cancel</button></td><td><button class="btn" type="button" aria-busy="true">Cancel</button></td></tr>
+          <tr><th scope="row">Ghost</th><td><button class="btn btn--ghost" type="button">Edit</button></td><td><button class="btn btn--ghost" type="button" data-state="hover">Edit</button></td><td><button class="btn btn--ghost" type="button" data-state="focus">Edit</button></td><td><button class="btn btn--ghost" type="button" data-state="active">Edit</button></td><td><button class="btn btn--ghost" type="button" disabled>Edit</button></td><td><button class="btn btn--ghost" type="button" aria-busy="true">Edit</button></td></tr>
+          <tr><th scope="row">Link</th><td><button class="btn btn--link" type="button">Learn more</button></td><td><button class="btn btn--link" type="button" data-state="hover">Learn more</button></td><td><button class="btn btn--link" type="button" data-state="focus">Learn more</button></td><td><button class="btn btn--link" type="button" data-state="active">Learn more</button></td><td><button class="btn btn--link" type="button" disabled>Learn more</button></td><td><button class="btn btn--link" type="button" aria-busy="true">Learn more</button></td></tr>
+          <tr><th scope="row">Danger</th><td><button class="btn btn--danger" type="button">Delete</button></td><td><button class="btn btn--danger" type="button" data-state="hover">Delete</button></td><td><button class="btn btn--danger" type="button" data-state="focus">Delete</button></td><td><button class="btn btn--danger" type="button" data-state="active">Delete</button></td><td><button class="btn btn--danger" type="button" disabled>Delete</button></td><td><button class="btn btn--danger" type="button" aria-busy="true">Delete</button></td></tr>
+        </tbody>
+      </table></div>
+      <h3>Both themes</h3>
+      <div class="ds-themes">
+        <div data-theme="light"><div class="ds-example__canvas" style="padding: 0;"><button class="btn btn--primary" type="button">Primary</button><button class="btn" type="button">Secondary</button><button class="btn btn--ghost" type="button">Ghost</button><button class="btn btn--danger" type="button">Danger</button></div></div>
+        <div data-theme="dark"><div class="ds-example__canvas" style="padding: 0;"><button class="btn btn--primary" type="button">Primary</button><button class="btn" type="button">Secondary</button><button class="btn btn--ghost" type="button">Ghost</button><button class="btn btn--danger" type="button">Danger</button></div></div>
+      </div>
+      <ul>
+        <li><b>Loading</b> keeps the button's width, hides the label, shows a spinner, sets <code>aria-busy="true"</code> and ignores further clicks. Use it for the action that was pressed, not for the whole form.</li>
+        <li><b>Disabled</b> uses the native attribute; it is not focusable and is 50% opaque. Prefer leaving a button enabled and explaining the problem on activation when the reason is not obvious.</li>
+        <li><b>Pressed</b> (toggle buttons) uses <code>aria-pressed</code>; see <a href="button-group.html">button group</a>.</li>
+      </ul>
+    </section>
+
+    <section class="ds-section" id="responsive"><h2><a href="#responsive">Responsive behaviour</a></h2>
+      <ul>
+        <li>Below <code>--layout-breakpoint-md</code> (768px) the primary action in a page header or form becomes full width (<code>.btn--block</code>); secondary actions stack beneath it.</li>
+        <li>In dialog and drawer footers, buttons stay on one row and wrap when the row is narrower than their combined width; the primary stays last (rightmost, or bottom when wrapped).</li>
+        <li>Touch targets: medium and large buttons already exceed 44px tall; small buttons (32px) are only used inside rows where the whole row is also a target, and have 8px between neighbours.</li>
+        <li>Labels never truncate; a label that wraps at 360px is too long. Shorten the verb phrase instead.</li>
+      </ul>
+    </section>
+
+    <section class="ds-section" id="theming"><h2><a href="#theming">Theming</a></h2>
+      <p>The button reads only semantic tokens, mapped into four component tokens (<code>--btn-bg</code>, <code>--btn-fg</code>, <code>--btn-border</code>, <code>--btn-bg-hover</code>) that each variant overrides. A theme changes the semantic tokens; a product re-skin overrides the component tokens; neither touches the component CSS.</p>
+      <pre><code>/* Re-skin primary buttons for a partner theme without touching .btn */
+[data-theme="partner"] .btn--primary { --btn-bg: var(--color-accent); --btn-fg: var(--color-fg-on-accent); }</code></pre>
+      <p>In the dark theme the accent lightens to <code>--palette-blue-300</code> and the label flips to <code>--color-fg-on-accent</code> (near-black) so the pair stays above 7:1; the danger button does the same with the red ramp.</p>
+    </section>
+
+    <section class="ds-section" id="accessibility"><h2><a href="#accessibility">Accessibility</a></h2>
+      <h3>Role and pattern</h3>
+      <p>Native <code>&lt;button type="button"&gt;</code> (or <code>type="submit"</code> inside a form). A link styled as a button is still an <code>&lt;a href&gt;</code>; never a <code>&lt;div&gt;</code> with a click handler. No ARIA role is needed.</p>
+      <h3>Keyboard</h3>
+      <table class="ds-table ds-keys"><thead><tr><th scope="col">Key</th><th scope="col">Action</th></tr></thead><tbody>
+        <tr><td><kbd>Tab</kbd> / <kbd>Shift</kbd>+<kbd>Tab</kbd></td><td>Moves focus to and from the button in DOM order.</td></tr>
+        <tr><td><kbd>Enter</kbd>, <kbd>Space</kbd></td><td>Activates the button. Space activates on key up, so a mis-press can be cancelled by moving away.</td></tr>
+        <tr><td><kbd>Esc</kbd></td><td>No effect on the button itself; a loading button cannot be cancelled with Esc, so offer a separate Cancel when an action is long.</td></tr>
+      </tbody></table>
+      <h3>Focus</h3>
+      <p>The shared ring (<code>2px --color-focus-ring</code>, 2px offset) appears on <code>:focus-visible</code> only, so pointer clicks do not show it. On a primary button the offset gap shows the surface colour, which keeps the ring at least 3:1 against both the button and the page.</p>
+      <h3>Labelling</h3>
+      <p>The visible label is the accessible name. Icon-only buttons set <code>aria-label</code> with the verb ("Edit", "More actions for Piranesi") and show a tooltip on hover and focus. Loading buttons keep their name and add <code>aria-busy="true"</code>; a visually hidden "Saving…" is announced through the form's live region, not the button.</p>
+      <h3>Contrast</h3>
+      <div class="ds-example__canvas ds-example__canvas--stack" style="padding: 0; gap: var(--space-2);">
+        <div class="ds-pair"><span>Label on primary</span><span class="ds-pair__ratio" data-contrast="--color-fg-on-accent|--color-accent" data-min="4.5"></span></div>
+        <div class="ds-pair"><span>Label on primary (hover)</span><span class="ds-pair__ratio" data-contrast="--color-fg-on-accent|--color-accent-hover" data-min="4.5"></span></div>
+        <div class="ds-pair"><span>Label on danger</span><span class="ds-pair__ratio" data-contrast="--color-fg-on-danger|--color-danger-solid" data-min="4.5"></span></div>
+        <div class="ds-pair"><span>Secondary border on surface</span><span class="ds-pair__ratio" data-contrast="--color-border-strong|--color-bg-surface" data-min="3"></span></div>
+        <div class="ds-pair"><span>Focus ring on surface</span><span class="ds-pair__ratio" data-contrast="--color-focus-ring|--color-bg-surface" data-min="3"></span></div>
+      </div>
+      <h3>Motion</h3>
+      <p>Background and border transition over <code>--duration-fast</code> (120 ms); active state translates 1px. Both are removed under <code>prefers-reduced-motion</code> because the tokens zero the durations. The loading spinner keeps rotating; it is a status indicator, not decoration.</p>
+      <h3>Touch</h3>
+      <p>Medium (40px) and large (48px) meet the 24px minimum and the 44px comfortable target; small (32px) is only used where the surrounding row is also tappable, with 8px between buttons.</p>
+    </section>
+
+    <section class="ds-section" id="content"><h2><a href="#content">Content</a></h2>
+      <ul>
+        <li>Labels are verb phrases in sentence case: "Renew loan", "Send reminder", "Delete copy". Never "OK", "Yes", "Submit", "Click here".</li>
+        <li>Say what happens, with the object when it is not obvious from context: "Return copy" in the return dialog, "Return" in a table row.</li>
+        <li>Destructive labels name the loss: "Delete 3 members", not "Confirm".</li>
+        <li>Keep labels to three words where possible; a label that wraps at 360px is too long.</li>
+        <li>Loading has no label change; progress text lives next to the button or in a live region ("Saving your changes…").</li>
+      </ul>
+    </section>
+
+    <section class="ds-section" id="do-dont"><h2><a href="#do-dont">Do and don't</a></h2>
+      <div class="ds-dodont">
+        <figure class="ds-do"><div class="ds-example__canvas"><button class="btn" type="button">Cancel</button><button class="btn btn--primary" type="button">Save changes</button></div><figcaption>One primary action, placed last, with the safe action beside it.</figcaption></figure>
+        <figure class="ds-dont"><div class="ds-example__canvas"><button class="btn btn--primary" type="button">Save</button><button class="btn btn--primary" type="button">Save and close</button></div><figcaption>Two primary buttons compete; make the second one secondary or a menu.</figcaption></figure>
+        <figure class="ds-do"><div class="ds-example__canvas"><button class="btn btn--icon" type="button" aria-label="Edit member"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><path d="M4 20h4l10-10-4-4L4 16v4zM13 7l4 4"/></svg></button></div><figcaption>Icon-only buttons have an <code>aria-label</code> and a tooltip.</figcaption></figure>
+        <figure class="ds-dont"><div class="ds-example__canvas"><button class="btn btn--danger" type="button">Delete account</button></div><figcaption>A danger button on a settings page with no confirmation step. Put it behind a confirmation dialog.</figcaption></figure>
+      </div>
+    </section>
+
+    <section class="ds-section" id="tokens"><h2><a href="#tokens">Tokens</a></h2>
+      <div class="ds-table-wrap"><table class="ds-table">
+        <thead><tr><th scope="col">Part</th><th scope="col">Token</th><th scope="col">Light</th><th scope="col">Dark</th></tr></thead>
+        <tbody>
+          <tr><td>Primary background</td><td><code>--color-accent</code></td><td><span class="ds-swatch-cell" data-theme="light"><i data-token="--color-accent" data-swatch></i><span data-token="--color-accent"></span></span></td><td><span class="ds-swatch-cell" data-theme="dark"><i data-token="--color-accent" data-swatch></i><span data-token="--color-accent"></span></span></td></tr>
+          <tr><td>Primary background, hover</td><td><code>--color-accent-hover</code></td><td><span class="ds-swatch-cell" data-theme="light"><i data-token="--color-accent-hover" data-swatch></i><span data-token="--color-accent-hover"></span></span></td><td><span class="ds-swatch-cell" data-theme="dark"><i data-token="--color-accent-hover" data-swatch></i><span data-token="--color-accent-hover"></span></span></td></tr>
+          <tr><td>Primary label</td><td><code>--color-fg-on-accent</code></td><td><span class="ds-swatch-cell" data-theme="light"><i data-token="--color-fg-on-accent" data-swatch></i><span data-token="--color-fg-on-accent"></span></span></td><td><span class="ds-swatch-cell" data-theme="dark"><i data-token="--color-fg-on-accent" data-swatch></i><span data-token="--color-fg-on-accent"></span></span></td></tr>
+          <tr><td>Secondary background / border</td><td><code>--color-bg-surface</code> / <code>--color-border-strong</code></td><td><span class="ds-swatch-cell" data-theme="light"><i data-token="--color-border-strong" data-swatch></i><span data-token="--color-border-strong"></span></span></td><td><span class="ds-swatch-cell" data-theme="dark"><i data-token="--color-border-strong" data-swatch></i><span data-token="--color-border-strong"></span></span></td></tr>
+          <tr><td>Secondary hover background</td><td><code>--color-bg-subtle</code></td><td><span class="ds-swatch-cell" data-theme="light"><i data-token="--color-bg-subtle" data-swatch></i><span data-token="--color-bg-subtle"></span></span></td><td><span class="ds-swatch-cell" data-theme="dark"><i data-token="--color-bg-subtle" data-swatch></i><span data-token="--color-bg-subtle"></span></span></td></tr>
+          <tr><td>Danger background / label</td><td><code>--color-danger-solid</code> / <code>--color-fg-on-danger</code></td><td><span class="ds-swatch-cell" data-theme="light"><i data-token="--color-danger-solid" data-swatch></i><span data-token="--color-danger-solid"></span></span></td><td><span class="ds-swatch-cell" data-theme="dark"><i data-token="--color-danger-solid" data-swatch></i><span data-token="--color-danger-solid"></span></span></td></tr>
+          <tr><td>Focus ring</td><td><code>--color-focus-ring</code>, <code>--focus-ring-width</code>, <code>--focus-ring-offset</code></td><td><span data-token="--color-focus-ring"></span></td><td><span data-theme="dark" data-token="--color-focus-ring"></span></td></tr>
+          <tr><td>Height sm / md / lg</td><td><code>--control-height-sm/md/lg</code></td><td colspan="2"><span data-token="--control-height-sm"></span> / <span data-token="--control-height-md"></span> / <span data-token="--control-height-lg"></span></td></tr>
+          <tr><td>Padding sm / md / lg</td><td><code>--space-3/4/6</code></td><td colspan="2"><span data-token="--space-3"></span> / <span data-token="--space-4"></span> / <span data-token="--space-6"></span></td></tr>
+          <tr><td>Radius</td><td><code>--radius-md</code></td><td colspan="2"><span data-token="--radius-md"></span></td></tr>
+          <tr><td>Label font</td><td><code>--text-label</code> at <code>--font-size-sm/md/lg</code></td><td colspan="2"><span data-token="--text-label"></span></td></tr>
+          <tr><td>Transition</td><td><code>--duration-fast</code>, <code>--ease-standard</code></td><td colspan="2"><span data-token="--duration-fast"></span> <span data-token="--ease-standard"></span></td></tr>
+        </tbody>
+      </table></div>
+    </section>
+
+    <section class="ds-section" id="code"><h2><a href="#code">Code</a></h2>
+      <pre><code>&lt;button class="btn btn--primary" type="button"&gt;
+  &lt;svg class="icon" aria-hidden="true" viewBox="0 0 24 24"&gt;…&lt;/svg&gt;
+  New loan
+&lt;/button&gt;
+
+&lt;button class="btn btn--primary" type="submit" aria-busy="true"&gt;Save&lt;/button&gt;
+&lt;button class="btn btn--icon" type="button" aria-label="Edit"&gt;…&lt;/button&gt;</code></pre>
+      <table class="ds-table"><thead><tr><th scope="col">Class / attribute</th><th scope="col">Effect</th></tr></thead><tbody>
+        <tr><td><code>.btn</code></td><td>Base: secondary look, medium size.</td></tr>
+        <tr><td><code>.btn--primary</code> <code>.btn--ghost</code> <code>.btn--link</code> <code>.btn--danger</code></td><td>Variant.</td></tr>
+        <tr><td><code>.btn--sm</code> <code>.btn--lg</code></td><td>Size; omit for medium.</td></tr>
+        <tr><td><code>.btn--icon</code></td><td>Square icon-only button; requires <code>aria-label</code>.</td></tr>
+        <tr><td><code>.btn--block</code></td><td>Full width.</td></tr>
+        <tr><td><code>disabled</code></td><td>Disabled; not focusable.</td></tr>
+        <tr><td><code>aria-busy="true"</code></td><td>Loading: spinner, label hidden, clicks ignored, width kept.</td></tr>
+        <tr><td><code>aria-pressed</code></td><td>Toggle button state (segmented groups).</td></tr>
+        <tr><td><code>data-state="hover|focus|active"</code></td><td>Documentation only: forces a pointer/focus state in static pages.</td></tr>
+      </tbody></table>
+    </section>
+
+    <section class="ds-section" id="sources"><h2><a href="#sources">Sources</a></h2>
+      <p>Extracted from these mocks:</p>
+      <ul>
+        <li><a href="../../mocks/pages/loans/default.html">pages/loans/default</a> (page header actions, row actions, pagination)</li>
+        <li><a href="../../mocks/dialogs/return-loan/default.html">dialogs/return-loan/default</a> (footer buttons, close button)</li>
+        <li><a href="../../mocks/notifications/loan-toast/success.html">notifications/loan-toast/success</a> (toast action, dismiss)</li>
+      </ul>
+      <p>Drift fixed during extraction: none; every mock used the kit classes.</p>
+    </section>
+
+    <footer class="ds-footer"><span>Shelf design system · extracted from <a href="../../mocks/index.html">docs/mocks</a></span><a href="#top">Back to top</a></footer>
+  </main>
+</div>
+<script src="../assets/ds.js"></script>
+</body>
+</html>

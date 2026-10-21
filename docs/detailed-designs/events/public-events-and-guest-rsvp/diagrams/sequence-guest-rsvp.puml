@@ -1,0 +1,64 @@
+@startuml
+title UML sequence behaviour — RSVP as a guest
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+actor "Guest" as actor
+box "Frontend — FaithTech Community web app (events library)" #E0F2FE
+  participant "PublicEventPage" as page
+  participant "HttpEventsService" as svc
+end box
+box "Backend — FaithTech.Community.Api" #D1FADF
+  participant "EventsEndpoints" as ep
+end box
+box "Backend — FaithTech.Community.Application and Domain" #ECFDF3
+  participant "GuestRsvpHandler" as h
+  participant "GuestRsvpValidator" as val
+end box
+box "Backend — FaithTech.Community.Infrastructure" #FFF4E5
+  participant "IcsCalendarWriter" as ics
+  participant "EmailSender" as mail
+  database "Community database" as db
+end box
+
+actor -> page : Enter name and email, submit
+page -> svc : rsvpAsGuest(id, { name, email })
+svc -> ep : POST /api/public/events/{id}/rsvps (AllowAnonymous)
+alt more than 10 guest RSVPs from this IP in the last hour
+  ep --> svc : 429 Too Many Requests (L2-023)
+  svc --> page : Rate limited
+  page --> actor : Try again later
+else within limit
+  ep -> h : Send GuestRsvpCommand
+  h -> val : Validate name and email
+  alt invalid
+    h --> ep : Field errors
+    ep --> svc : 400 ProblemDetails
+    page --> actor : Inline errors
+  else valid
+    h -> db : Find RSVP by event and normalized email
+    alt already RSVP'd
+      h -> h : Keep single RSVP (L2-023)
+    else new
+      h -> db : Insert guest RSVP; no account created (L2-023)
+    end
+    h -> ics : Write(event)
+    h -> mail : Send confirmation with .ics (L2-023)
+    h --> ep : Success
+    ep --> svc : 201 Created
+    svc --> page : Confirmed
+    page --> actor : Success state
+  end
+end
+@enduml

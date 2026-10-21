@@ -1,0 +1,52 @@
+@startuml
+title UML sequence behaviour — update the profile name
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+actor "Member" as actor
+box "Frontend — FaithTech Community web app (profiles library)" #E0F2FE
+  participant "EditProfilePage" as page
+  participant "ProfilesService" as client
+end box
+box "Backend — FaithTech.Community.Api" #D1FADF
+  participant "ProfilesEndpoints" as ep
+end box
+box "Backend — FaithTech.Community.Application and Domain" #ECFDF3
+  participant "UpdateProfileHandler" as h
+  participant "Profile" as ent
+end box
+box "Backend — FaithTech.Community.Infrastructure" #FFF4E5
+  database "Community database" as db
+end box
+actor -> page : Change name and save
+alt empty or longer than 100 characters
+  page --> actor : Inline error; nothing saved (L2-006)
+else valid
+  page -> client : updateProfile(id, name)
+  client -> ep : PUT /api/profiles/{id}
+  ep -> h : Send UpdateProfileCommand
+  h -> h : Validate name (L2-006)
+  alt caller is not owner and not System Admin
+    h --> ep : Forbidden
+    ep --> client : 403 (L2-006)
+  else permitted
+    h -> db : Load profile
+    h -> ent : Rename(name)
+    h -> db : Save; audit if admin override
+    h --> ep : Updated
+    ep --> client : 204 No Content
+    page --> actor : Success toast (L2-006)
+  end
+end
+@enduml

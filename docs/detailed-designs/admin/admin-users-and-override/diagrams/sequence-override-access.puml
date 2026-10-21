@@ -1,0 +1,52 @@
+@startuml
+title UML sequence behaviour — Override access to an owned record
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+actor "System Admin" as actor
+box "Frontend — FaithTech Community web app (admin library)" #E0F2FE
+  participant "Feature page" as page
+  participant "Feature service" as svc
+end box
+box "Backend — FaithTech.Community.Api" #D1FADF
+  participant "Feature endpoints" as ep
+end box
+box "Backend — FaithTech.Community.Application and Domain" #ECFDF3
+  participant "Feature handler" as h
+  participant "AdminOverridePolicy" as pol
+end box
+box "Backend — FaithTech.Community.Infrastructure" #FFF4E5
+  participant "AuditLog" as audit
+  database "Community database" as db
+end box
+actor -> page : Open or change a record owned by another user
+page -> svc : Request
+svc -> ep : HTTPS request
+ep -> h : Send command or query
+h -> db : Load record
+h -> h : Caller is not owner
+h -> pol : IsSystemAdmin(caller)
+alt System Admin
+  h -> pol : AuditOverride(caller, action, target) (L2-040 AC2)
+  pol -> audit : Write audit entry (L2-041)
+  h -> db : Apply change when the request writes
+  h --> ep : Result
+  ep --> svc : 200 OK
+else other caller
+  h --> ep : Not found or forbidden per owning feature
+  ep --> svc : 404 or 403
+end
+svc --> page : Result
+page --> actor : Present record
+@enduml

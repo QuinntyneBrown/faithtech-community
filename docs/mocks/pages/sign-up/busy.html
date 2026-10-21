@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Sign up · busy — FaithTech Community mocks</title>
+<meta name="mock:kind" content="page">
+<meta name="mock:screen" content="sign-up">
+<meta name="mock:state" content="busy">
+<meta name="mock:requirements" content="L2-001">
+<meta name="description" content="Open registration for anyone.">
+<link rel="stylesheet" href="../../assets/tokens.css">
+<link rel="stylesheet" href="../../assets/components.css">
+<link rel="stylesheet" href="../../assets/ui-extra.css">
+<link rel="stylesheet" href="../../assets/mock.css">
+</head>
+<body>
+<a class="skip-link" href="#main">Skip to content</a>
+<main id="main" class="auth-layout">
+  <div class="auth-card stack">
+    <div class="logo"><span class="logo-mark"><img src="../../assets/logo.svg" alt="FaithTech" width="64" height="64"></span></div>
+    <div class="card stack"><h1 style="text-align: center;">Join FaithTech</h1>
+<p class="text-muted" style="text-align: center;">Builders, leads, volunteers, partners and anyone curious about faith and technology.</p>
+<form class="stack" action="success.html" method="get" novalidate>
+  
+  <div class="field"><label class="field__label" for="su-name">Full name</label><input class="input" id="su-name" name="su-name" type="text" value="Leah Thompson" autocomplete="name" required></div>
+  <div class="field"><label class="field__label" for="su-email">Email</label><input class="input" id="su-email" name="su-email" type="email" value="leah.thompson@example.org" autocomplete="email" required></div>
+  <div class="field"><label class="field__label" for="su-password">Password</label><input class="input" id="su-password" name="su-password" type="password" autocomplete="new-password" required aria-describedby="su-password-help"><div class="field__help" id="su-password-help">At least 12 characters.</div></div>
+  <button class="btn btn--primary btn--block btn--lg" type="submit" aria-busy="true" aria-disabled="true"><span class="dot dot--pulse" aria-hidden="true"></span>Creating account…</button>
+  <p class="text-caption">By creating an account you agree to our community guidelines and privacy notice.</p>
+</form></div>
+    <p class="text-caption" style="text-align: center;">Already a member? <a href="../../pages/sign-in/default.html">Sign in</a></p>
+  </div>
+</main>
+<nav class="mock-bar" aria-label="Mock navigation">
+  <a class="mock-bar__home" href="../../index.html" aria-label="All mocks">⌂</a>
+  <span class="mock-bar__screen">Sign up</span>
+  <ul class="mock-bar__states"><li><a href="default.html">default</a></li><li><a href="invalid.html">invalid</a></li><li><a href="busy.html" aria-current="page">busy</a></li><li><a href="error.html">error</a></li><li><a href="success.html">success</a></li></ul>
+  <button type="button" data-theme-toggle aria-pressed="false">☾ Dark</button>
+  <button type="button" data-chrome-toggle aria-label="Hide mock chrome">×</button>
+</nav>
+<script src="../../assets/mock.js"></script>
+</body>
+</html>

@@ -1,0 +1,61 @@
+@startuml
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 8
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam class {
+  BorderColor #344054
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+title Class structure — Manage profile photos
+
+class Profile {
+  +Guid Id
+  +int MaxPhotos = 10
+  +AddPhoto(photo: ProfilePhoto): void
+  +Feature(photoId: Guid): void
+  +RemovePhoto(photoId: Guid): void
+}
+class ProfilePhoto {
+  +Guid Id
+  +string BlobName
+  +string AltText
+  +bool IsFeatured
+  +DateTimeOffset UploadedAt
+}
+class UploadPhotoCommand {
+  +Guid ProfileId
+  +Stream Content
+  +string FileName
+  +string ContentType
+  +string AltText
+}
+class UploadPhotoHandler {
+  +long MaxBytes = 5 MB
+  +Handle(command: UploadPhotoCommand): Task<PhotoDto>
+}
+class SetFeaturedPhotoHandler {
+  +Handle(command: SetFeaturedPhotoCommand): Task
+}
+class DeletePhotoHandler {
+  +Handle(command: DeletePhotoCommand): Task
+}
+interface IImageProcessor {
+  +DetectFormat(content: Stream): ImageFormat?
+  +ResizeAndStrip(content: Stream): Stream
+}
+interface IPhotoStorage {
+  +SaveAsync(name: string, content: Stream): Task
+  +DeleteAsync(name: string): Task
+}
+Profile "1" *-- "0..10" ProfilePhoto
+UploadPhotoHandler ..> UploadPhotoCommand : handles
+UploadPhotoHandler ..> IImageProcessor : uses
+UploadPhotoHandler ..> IPhotoStorage : uses
+UploadPhotoHandler --> Profile : adds photo
+SetFeaturedPhotoHandler --> Profile : features
+DeletePhotoHandler --> Profile : removes
+DeletePhotoHandler ..> IPhotoStorage : uses
+@enduml

@@ -1,0 +1,66 @@
+@startuml
+title UML sequence behaviour — Create an event
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+actor "Event Lead / City Lead" as actor
+box "Frontend — FaithTech Community web app (events library)" #E0F2FE
+  participant "EventFormPage" as page
+  participant "HttpEventsService" as svc
+end box
+box "Backend — FaithTech.Community.Api" #D1FADF
+  participant "EventsEndpoints" as ep
+end box
+box "Backend — FaithTech.Community.Application and Domain" #ECFDF3
+  participant "CreateEventHandler" as h
+  participant "EventCommandValidator" as val
+  participant "EventPermissions" as perm
+  participant "Event" as ev
+end box
+box "Backend — FaithTech.Community.Infrastructure" #FFF4E5
+  database "Community database" as db
+end box
+
+actor -> page : Fill in event form and save
+page -> page : Client-side validation; show busy state
+page -> svc : createEvent(request)
+svc -> ep : POST /api/events
+ep -> ep : Require authenticated user
+ep -> h : Send CreateEventCommand
+h -> perm : CanManageEvents(currentUser)
+alt not Event Lead, City Lead or System Admin
+  perm --> h : false
+  h --> ep : Forbidden
+  ep --> svc : 403 ProblemDetails (L2-020)
+  svc --> page : Error
+  page --> actor : Show permission error
+else permitted
+  h -> val : Validate (L2-020 date, venue, link rules)
+  alt invalid
+    val --> h : Field errors
+    h --> ep : Validation failure
+    ep --> svc : 400 ProblemDetails with field errors
+    svc --> page : Field errors
+    page --> actor : Inline errors, focus first invalid field
+  else valid
+    h -> ev : new Event(...)
+    h -> db : Insert event
+    db --> h : Committed
+    h --> ep : Event id
+    ep --> svc : 201 Created
+    svc --> page : Event id
+    page --> actor : Navigate to event page
+  end
+end
+@enduml

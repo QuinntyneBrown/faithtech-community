@@ -1,0 +1,47 @@
+@startuml
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 8
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam class {
+  BorderColor #344054
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+title Class structure — Read announcements and opt out
+class Profile {
+  +Guid Id
+  +bool AnnouncementEmailsOptedOut
+  +SetAnnouncementEmailOptOut(value: bool): void
+}
+class Announcement {
+  +Guid Id
+  +string Subject
+  +string Body
+  +DateTimeOffset SentAt
+}
+class AnnouncementRecipient {
+  +Guid AnnouncementId
+  +Guid ProfileId
+}
+class ListMyAnnouncementsHandler {
+  +Handle(q: ListMyAnnouncementsQuery): Task<AnnouncementPage>
+}
+class SetAnnouncementEmailOptOutHandler {
+  +Handle(c: SetAnnouncementEmailOptOutCommand): Task<Result>
+}
+class UnsubscribeFromAnnouncementsHandler {
+  +Handle(c: UnsubscribeFromAnnouncementsCommand): Task<Result>
+}
+interface IUnsubscribeTokenService {
+  +Issue(profileId: Guid): string
+  +TryRead(token: string, out profileId: Guid): bool
+}
+Announcement "1" *-- "*" AnnouncementRecipient
+AnnouncementRecipient --> Profile
+ListMyAnnouncementsHandler ..> AnnouncementRecipient : queries
+SetAnnouncementEmailOptOutHandler --> Profile : mutates
+UnsubscribeFromAnnouncementsHandler --> Profile : mutates
+UnsubscribeFromAnnouncementsHandler ..> IUnsubscribeTokenService : uses
+@enduml

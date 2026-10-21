@@ -1,0 +1,11 @@
+@startuml
+!include <C4/C4_Context>
+LAYOUT_WITH_LEGEND()
+title System Context — Email verification
+
+Person(member, "Member", "Signed-in user with a profile")
+System(ftc, "FaithTech Community", "Community site for FaithTech staff, leads, volunteers, builders and partners")
+System_Ext(email, "Email provider", "SMTP or SendGrid")
+Rel(member, ftc, "Verifies email in", "HTTPS")
+Rel(ftc, email, "Sends email via", "SMTP/HTTPS")
+@enduml

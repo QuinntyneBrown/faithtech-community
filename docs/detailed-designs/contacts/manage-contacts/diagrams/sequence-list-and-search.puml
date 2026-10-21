@@ -1,0 +1,48 @@
+@startuml
+title UML sequence behaviour — List and search contacts
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+actor "City Lead" as actor
+box "Frontend — FaithTech Community web app (contacts library)" #E0F2FE
+  participant "ContactsPage" as list
+  participant "HttpContactsService" as svc
+end box
+box "Backend — FaithTech.Community.Api" #D1FADF
+  participant "ContactsEndpoints" as ep
+end box
+box "Backend — FaithTech.Community.Application and Domain" #ECFDF3
+  participant "ListContactsHandler" as h
+end box
+box "Backend — FaithTech.Community.Infrastructure" #FFF4E5
+  participant "ContactSearch" as search
+  database "Community database" as db
+end box
+actor -> list : Open contacts or type a search term
+list -> svc : list(term)
+svc -> ep : GET /api/contacts?q=term
+ep -> h : Send ListContactsQuery
+h -> search : Find(ownerId = caller, term) (L2-012 AC3)
+search -> db : Filter active contacts on name, email, organization
+db --> search : Rows
+search --> h : Matches within 500 ms (L2-013 AC3)
+h --> ep : ContactSummary list
+ep --> svc : 200 OK
+svc --> list : Contacts
+alt none
+  list --> actor : Empty state inviting to add a contact (L2-013 AC4)
+else some
+  list --> actor : Table, or cards at XS (L2-013 AC5)
+end
+@enduml

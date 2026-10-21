@@ -1,0 +1,67 @@
+@startuml
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 8
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam class {
+  BorderColor #344054
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+title Class structure — Partner Kanban board
+enum PartnerStage {
+  Lead
+  InFunnel
+  Confirmed
+}
+class Partner {
+  +Guid Id
+  +string Name
+  +string ContactName
+  +string Email
+  +string Phone
+  +string Notes
+  +PartnerStage Stage
+  +MoveTo(stage: PartnerStage, by: Guid, nowUtc: DateTime): void
+}
+class PartnerStageChange {
+  +Guid Id
+  +Guid PartnerId
+  +PartnerStage From
+  +PartnerStage To
+  +Guid MovedBy
+  +DateTime MovedAtUtc
+}
+class PartnerAccessPolicy {
+  +CanRead(caller: ICurrentUser): bool
+  +CanWrite(caller: ICurrentUser): bool
+}
+Partner --> PartnerStage
+Partner "1" *-- "*" PartnerStageChange
+
+class MovePartnerCommand {
+  +Guid PartnerId
+  +PartnerStage To
+}
+class MovePartnerHandler {
+  +Handle(command: MovePartnerCommand): Task<PartnerDto>
+}
+class ListPartnersHandler {
+  +Handle(query: ListPartnersQuery): Task<PartnerBoardDto>
+}
+class PartnerBoardDto {
+  +IReadOnlyList<PartnerColumnDto> Columns
+}
+class PartnerColumnDto {
+  +PartnerStage Stage
+  +int Count
+  +IReadOnlyList<PartnerCardDto> Cards
+}
+MovePartnerHandler ..> MovePartnerCommand : handles
+MovePartnerHandler --> Partner : MoveTo
+MovePartnerHandler --> PartnerAccessPolicy
+ListPartnersHandler --> PartnerAccessPolicy
+ListPartnersHandler ..> PartnerBoardDto : returns
+PartnerBoardDto "1" *-- "3" PartnerColumnDto
+@enduml

@@ -1,0 +1,6 @@
+interface:
+  display_name: "Recording Demo Videos"
+  short_description: "Record verified demos of runnable applications"
+  default_prompt: "Use $recording-demo-videos to understand this repository, run its executable applications locally, and create a narrated, captioned demo video for each in docs/demo/."
+policy:
+  allow_implicit_invocation: true

@@ -1,0 +1,8 @@
+@startuml
+!include <C4/C4_Context>
+LAYOUT_WITH_LEGEND()
+title System Context — Team list
+Person(member, "Member", "Signed-in profile holder")
+System(community, "FaithTech Community", "Community site for FaithTech staff, leads, volunteers, builders and partners")
+Rel(member, community, "Browses the team using")
+@enduml

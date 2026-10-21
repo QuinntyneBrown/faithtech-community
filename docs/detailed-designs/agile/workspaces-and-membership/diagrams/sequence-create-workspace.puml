@@ -1,0 +1,55 @@
+@startuml
+title UML sequence behaviour — Create a workspace
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+actor "City Lead" as actor
+box "Frontend — FaithTech Community web app (agile library)" #E0F2FE
+  participant "WorkspacesPage" as page
+  participant "CreateWorkspaceDialog" as dlg
+  participant "AgileService (AGILE_SERVICE)" as svc
+end box
+box "Backend — FaithTech.Community.Api" #D1FADF
+  participant "WorkspacesEndpoints" as ep
+end box
+box "Backend — FaithTech.Community.Application and Domain" #ECFDF3
+  participant "CreateWorkspaceHandler" as h
+  participant "Workspace" as ent
+end box
+box "Backend — FaithTech.Community.Infrastructure" #FFF4E5
+  participant "CommunityDbContext" as ctx
+  database "Community database" as db
+end box
+actor -> page : Choose "New workspace"
+page -> dlg : Open dialog
+actor -> dlg : Enter name and method (Scrum or Kanban)
+dlg -> svc : createWorkspace(name, method)
+svc -> ep : POST /workspaces
+ep -> h : Send CreateWorkspaceCommand
+alt caller is City Lead or System Admin
+h -> ent : Create with OwnerId = caller (L2-031 AC1)
+h -> ctx : Add workspace
+ctx -> db : INSERT workspace
+db --> ctx : Committed
+h --> ep : WorkspaceDto
+ep --> svc : 201 Created
+svc --> page : Workspace
+page --> actor : Open new workspace
+else any other role
+h --> ep : Forbidden
+ep --> svc : 403 ProblemDetails
+svc --> dlg : Error
+dlg --> actor : Show error
+end
+@enduml

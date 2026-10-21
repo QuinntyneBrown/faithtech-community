@@ -1,0 +1,14 @@
+@startuml
+!include <C4/C4_Component>
+LAYOUT_WITH_LEGEND()
+title Components — Performance
+Container_Boundary(api, "Community API") {
+  Component(ep, "Feature list endpoints", "Minimal API", "Bind PageRequest")
+  Component(h, "List query handlers", "Application handlers", "AsNoTracking projections")
+  Component(pg, "ToPagedResultAsync", "Infrastructure extension", "Skip/Take and count in SQL")
+  ComponentDb(db, "Community database", "PostgreSQL", "Indexed tables")
+}
+Rel(ep, h, "Sends query with PageRequest")
+Rel(h, pg, "Pages with")
+Rel(pg, db, "Queries")
+@enduml

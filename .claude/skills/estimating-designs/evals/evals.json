@@ -1,0 +1,62 @@
+{
+  "skill_name": "estimating-designs",
+  "evals": [
+    {
+      "id": 0,
+      "name": "library-partial-implementation",
+      "prompt": "How far along are we on Shelf? Give me effort estimates and percent complete for every design, plus a short roadmap.",
+      "fixture": "library-in-progress",
+      "expected_output": "docs/estimates/catalog.md and docs/estimates/lending.md, each a title and one alphabetical row per feature folder with whole-day effort and a percent complete rounded to 10% from code and test evidence; docs/estimates/README.md with the effort-weighted rollup, linked subsystem table in delivery order and a short roadmap; the bundled check exits cleanly.",
+      "expectations": [
+        "docs/estimates contains exactly one {subsystem}.md per subsystem folder in docs/detailed-designs (catalog.md and lending.md) plus README.md",
+        "Each subsystem file contains only the '# Estimates: {subsystem}' title and a '| Design | Effort | Complete |' table, with no prose, notes or totals",
+        "Each subsystem table has exactly one row per feature folder, named exactly as the folder and sorted alphabetically",
+        "Every effort cell is a whole number of days ('1 day' or '{n} days') and every complete cell is a multiple of 10% between 0% and 100%",
+        "A design whose behaviours all have both implementation and an acceptance test in the fixture is 100%; a design with no implementation is 0%; a design with implementation but no tests is not 100%",
+        "README.md states the overall effort as the sum of all design efforts and the overall complete as the effort-weighted average rounded to whole percent",
+        "README.md links each subsystem as [name](name.md) with figures that match the subsystem files",
+        "The roadmap lists in-progress work first, contains about five or fewer one-line steps, omits finished subsystems and contains no dates",
+        "Running scripts/estimates.py check docs/detailed-designs docs/estimates exits with status 0"
+      ]
+    },
+    {
+      "id": 1,
+      "name": "refresh-keeps-effort-stable",
+      "prompt": "We merged the checkout and renewal work and added a new reserve-book design. Refresh the estimates.",
+      "fixture": "library-refresh",
+      "expected_output": "Existing effort figures for unchanged designs are kept; percentages are recalculated from the newly merged code and tests; a reserve-book row is added to lending.md; the rollup and roadmap are updated; the check passes.",
+      "expectations": [
+        "Effort values for designs whose README.md did not change since the previous estimates are identical to the previous docs/estimates files",
+        "lending.md gains a reserve-book row in alphabetical position, and no row exists for a design folder that was removed",
+        "Percent complete for checkout-book and renew-loan increased to reflect the merged implementation and tests",
+        "README.md overall effort and complete match the updated subsystem files",
+        "Running scripts/estimates.py check docs/detailed-designs docs/estimates exits with status 0"
+      ]
+    },
+    {
+      "id": 2,
+      "name": "deferred-work-excluded",
+      "prompt": "Estimate the HelpHub designs. Note the AGENTS.md says SLA escalation emails are deferred.",
+      "fixture": "ticketing-deferred",
+      "expected_output": "Deferred SLA escalation behaviour is excluded from scoring; the sla subsystem file carries the 'Excludes deferred work (see AGENTS.md).' line; the roadmap ends with a single Deferred step naming it.",
+      "expectations": [
+        "The subsystem file containing the design with deferred parts has the exact line 'Excludes deferred work (see AGENTS.md).' directly under its table",
+        "Percent complete for that design is scored only on its non-deferred behaviours",
+        "The root roadmap's last step begins with 'Deferred' and names SLA escalation emails, and no earlier step lists that work",
+        "Subsystem files without deferred work contain no deferred line"
+      ]
+    },
+    {
+      "id": 3,
+      "name": "no-designs-gate",
+      "prompt": "How long will it take to build Orchard? Estimate it.",
+      "fixture": "greenfield-specs-only",
+      "expected_output": "Designs gate triggers: docs/specs exists but docs/detailed-designs does not. The run stops, explains that estimates are made per detailed design and that writing-design-documents comes first, and creates nothing.",
+      "expectations": [
+        "No docs/estimates folder or file was created",
+        "The assistant explicitly said that detailed designs under docs/detailed-designs are required before estimating and pointed to the writing-design-documents skill",
+        "The assistant did not invent per-feature estimates from the requirements or notes"
+      ]
+    }
+  ]
+}

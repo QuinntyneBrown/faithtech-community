@@ -1,0 +1,58 @@
+@startuml
+title UML sequence behaviour — sign in
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+actor "Account holder" as actor
+box "Frontend — FaithTech Community web app (faithtech-community library)" #E0F2FE
+  participant "SignInPage" as page
+  participant "OidcAuthClient" as client
+end box
+box "Backend — FaithTech.Community.Api" #D1FADF
+  participant "AuthorizationEndpoints" as ep
+end box
+box "Backend — FaithTech.Community.Application and Domain" #ECFDF3
+  participant "SignInHandler" as h
+end box
+box "Backend — FaithTech.Community.Infrastructure" #FFF4E5
+  database "Community database" as db
+end box
+actor -> client : Open protected page
+client -> client : Create code verifier and challenge
+client -> ep : GET /connect/authorize (code_challenge)
+ep --> page : Redirect to sign-in page
+actor -> page : Submit email and password
+page -> ep : POST credentials
+ep -> h : Send SignInCommand
+h -> db : Load user, lockout and suspension state
+alt 5 failures in 15 minutes
+  h --> ep : LockedOut (L2-003)
+  ep --> page : Locked out for 15 minutes
+else suspended
+  h --> ep : Suspended (L2-003)
+  ep --> page : "Your account is suspended"
+else wrong password
+  h -> db : Increment failed count
+  h --> ep : InvalidCredentials
+  ep --> page : "Email or password is incorrect" (L2-003)
+else succeeded
+  h --> ep : Principal
+  ep --> client : Redirect with authorization code
+  client -> ep : POST /connect/token (code, code_verifier)
+  ep -> ep : Validate PKCE verifier (L2-003)
+  ep -> db : Store tokens
+  ep --> client : Access and refresh tokens
+  client --> actor : Land on requested page or home (L2-003)
+end
+@enduml

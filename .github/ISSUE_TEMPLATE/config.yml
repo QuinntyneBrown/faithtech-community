@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Questions and discussion
+    url: https://docs.github.com/discussions
+    about: Ask questions and share ideas in this repository's GitHub Discussions.
+  - name: Report a security vulnerability
+    url: https://docs.github.com/code-security/security-advisories/guidance-on-reporting-and-writing-information-about-vulnerabilities/privately-reporting-a-security-vulnerability
+    about: Report vulnerabilities privately through the repository's Security tab. See SECURITY.md.

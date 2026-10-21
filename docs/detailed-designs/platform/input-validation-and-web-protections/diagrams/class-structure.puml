@@ -1,0 +1,34 @@
+@startuml
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 8
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam class {
+  BorderColor #344054
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+title Class structure — Input validation and web protections
+class ValidationEndpointFilter {
+  +InvokeAsync(ctx: EndpointFilterInvocationContext, next): ValueTask<object?>
+}
+interface "IValidator<T>" as IValidator {
+  +ValidateAsync(model: T): Task<ValidationResult>
+}
+class ValidationResult {
+  +bool IsValid
+  +IDictionary<string, string[]> Errors
+}
+class SecurityHeadersMiddleware {
+  +InvokeAsync(ctx: HttpContext): Task
+}
+class RateLimitOptions {
+  +int PerUserPerMinute = 100
+  +int AuthPerIpPerMinute = 20
+}
+class SendAnnouncementValidator
+IValidator <|.. SendAnnouncementValidator
+ValidationEndpointFilter ..> IValidator : resolves
+IValidator ..> ValidationResult : returns
+@enduml

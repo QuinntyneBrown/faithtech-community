@@ -1,0 +1,17 @@
+@startuml
+!include <C4/C4_Component>
+LAYOUT_WITH_LEGEND()
+title Components — View a profile
+
+Container(spa, "Web app", "Angular", "profiles feature library and api client")
+Container_Boundary(api, "Community API") {
+  Component(ep, "ProfilesEndpoints", "Minimal API", "GET /api/profiles/{id}, authenticated")
+  Component(h, "GetProfileHandler", "Application handler", "Loads profile, applies visibility")
+  Component(cu, "ICurrentUser", "Application abstraction", "Caller identity and roles")
+  ComponentDb(db, "CommunityDbContext", "EF Core / PostgreSQL", "Profiles, photos, roles, contacts")
+}
+Rel(spa, ep, "GET profile")
+Rel(ep, h, "Sends GetProfileQuery")
+Rel(h, cu, "Reads caller")
+Rel(h, db, "Reads profile")
+@enduml

@@ -1,0 +1,58 @@
+@startuml
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 8
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam class {
+  BorderColor #344054
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+title Class structure — Suspend users
+class UserAccount {
+  +Guid Id
+  +string Email
+  +bool IsSuspended
+  +string SuspendedReason
+  +DateTime? SuspendedAtUtc
+  +Suspend(reason: string, nowUtc: DateTime): void
+  +Reinstate(): void
+}
+class SuspendUserCommand {
+  +Guid UserId
+  +string Reason
+}
+class ReinstateUserCommand {
+  +Guid UserId
+}
+class SuspendUserValidator {
+  +Validate(command: SuspendUserCommand): ValidationResult
+}
+class SuspendUserHandler {
+  +Handle(command: SuspendUserCommand): Task<Result>
+}
+class ReinstateUserHandler {
+  +Handle(command: ReinstateUserCommand): Task<Result>
+}
+interface ITokenRevocation {
+  +RevokeAll(userId: Guid): Task
+}
+interface IAuditLog {
+  +Write(entry: AuditEntry): Task
+}
+interface ICurrentUser {
+  +Guid ProfileId
+  +bool IsSystemAdmin
+}
+SuspendUserValidator ..> SuspendUserCommand : validates
+SuspendUserHandler ..> SuspendUserCommand : handles
+ReinstateUserHandler ..> ReinstateUserCommand : handles
+SuspendUserHandler --> UserAccount : mutates
+ReinstateUserHandler --> UserAccount : mutates
+SuspendUserHandler ..> ITokenRevocation
+SuspendUserHandler ..> IAuditLog
+ReinstateUserHandler ..> IAuditLog
+SuspendUserHandler ..> ICurrentUser
+ReinstateUserHandler ..> ICurrentUser
+@enduml

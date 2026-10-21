@@ -1,0 +1,19 @@
+@startuml
+!include <C4/C4_Container>
+LAYOUT_WITH_LEGEND()
+title Containers — Create and edit events
+
+Person(lead, "Event Lead / City Lead", "Creates, edits and cancels events")
+Person(admin, "System Admin", "Overrides any event action")
+Person(member, "Member", "Signed-in user who browses and RSVPs to events")
+System_Boundary(ftc, "FaithTech Community") {
+  Container(spa, "Web app", "Angular", "Shell, events feature library, api and components libraries")
+  Container(api, "Community API", "ASP.NET Core", "FaithTech.Community.Api with Application, Domain and Infrastructure")
+  ContainerDb(db, "Community database", "PostgreSQL", "Events, RSVPs, notifications and outbox")
+}
+Rel(lead, spa, "Uses", "HTTPS")
+Rel(admin, spa, "Uses", "HTTPS")
+Rel(member, spa, "Uses", "HTTPS")
+Rel(spa, api, "Calls", "JSON/HTTPS, OAuth2 bearer token")
+Rel(api, db, "Reads and writes", "EF Core")
+@enduml

@@ -1,0 +1,67 @@
+{
+  "skill_name": "writing-html-mocks",
+  "evals": [
+    {
+      "id": 0,
+      "name": "library-from-specs",
+      "prompt": "We have the L1/L2 requirements for Shelf (library lending: catalog, members, loans, returns, holds) in docs/specs. Build the HTML mocks for the whole product so the team can click through it before we start the Angular work.",
+      "fixture": "library-specs",
+      "expected_output": "docs/mocks/ with manifest.json, README.md (cast, coverage matrix, open questions), index.html gallery, shared assets, and one HTML file per page/dialog/notification per state; requirement IDs copied verbatim from docs/specs into the manifest and mock:requirements metas; check_mocks.py exits 0.",
+      "expectations": [
+        "docs/mocks/manifest.json lists pages, dialogs and notifications, including sign-in, password reset, 404, 403, error and offline pages that the specs do not mention explicitly",
+        "Every page listed in the manifest has default, loading, empty and error state files (or a not_applicable reason), every dialog has default, busy and invalid, and every notification has info, success, warning and danger",
+        "Every mock links docs/mocks/assets/tokens.css and ui.css; no raw hex/rgb/hsl colours appear in page styles or style attributes",
+        "Every mock has doctype, lang, title, viewport, one h1, a main landmark, mock:kind/mock:screen/mock:state metas matching its path, and a .mock-bar linking its sibling states",
+        "Requirement IDs in the manifest and mock:requirements metas match identifiers that exist verbatim in docs/specs",
+        "No mock contains lorem ipsum, TODO, TBD or generic names like John Doe; the same cast of people and items recurs across mocks",
+        "Dialog mocks render the dialog over its originating page with role=dialog, aria-modal, aria-labelledby and an inert page behind",
+        "Notification mocks place toasts in a role=status live region on the page that triggers them and include an undo action for reversible operations",
+        "Running check_mocks.py --write exits 0 and README.md contains the generated coverage matrix with no ❌ cells",
+        "Screenshots at 360, 768 and 1280 px in light and dark were produced (or the missing browser was reported) and no screenshot shows horizontal overflow or clipped text"
+      ]
+    },
+    {
+      "id": 1,
+      "name": "add-missing-states",
+      "prompt": "The mocks in docs/mocks only have the happy path. Add the loading, empty, error and validation states everywhere they are missing and make sure dark mode works.",
+      "fixture": "mocks-happy-path-only",
+      "expected_output": "Existing mocks preserved; new state files derived from each default with identical layout; manifest and coverage updated; dark theme verified via tokens; checker exits 0.",
+      "expectations": [
+        "Existing default.html files are not rewritten beyond adding mock:* metas and the mock bar if they were missing",
+        "Each page gains loading.html using layout-matching skeletons, empty.html with an explanation and one call to action, and error.html that keeps the page chrome and offers a retry",
+        "Each page with a form gains invalid.html with inline field errors, aria-invalid, aria-describedby and an error summary",
+        "The manifest lists every new state and the coverage matrix in README.md is regenerated with the new columns filled",
+        "Any raw colour found in the existing mocks is replaced with a token so the dark theme applies everywhere",
+        "check_mocks.py exits 0 with no orphan files"
+      ]
+    },
+    {
+      "id": 2,
+      "name": "no-specs-from-description",
+      "prompt": "Mock up a small invoicing app: list invoices, create/edit an invoice, send it, mark it paid, and a settings page for company details. Nothing is written down yet.",
+      "fixture": "empty-project",
+      "expected_output": "A complete mock set derived from the description with assumptions recorded; no requirement IDs invented.",
+      "expectations": [
+        "docs/mocks/README.md records the assumptions made in the absence of docs/specs under an Open questions section",
+        "No mock:requirements meta or manifest requirements array contains invented identifiers",
+        "The set includes pages for invoices list, invoice detail, new/edit invoice, settings, sign in, 404 and error, dialogs for send and mark-as-paid, and toasts for sent/paid/failed",
+        "The invoice list has default, loading, empty, error and no-results states; the invoice form has default, invalid, submitting and success states",
+        "Monetary values use consistent formatting with thousands separators and currency, and dates are human-readable",
+        "check_mocks.py exits 0"
+      ]
+    },
+    {
+      "id": 3,
+      "name": "consume-existing-design-system",
+      "prompt": "docs/design-system already exists. Add mocks for the new 'holds' feature (list holds, place a hold dialog, hold-ready notification) using the system, not new styles.",
+      "fixture": "library-with-design-system",
+      "expected_output": "New mocks link ../../design-system/tokens/tokens.css and assets/components.css, use its classes, and add nothing to docs/mocks/assets beyond mock.css/mock.js.",
+      "expectations": [
+        "New mock files link the design system's tokens.css and components.css rather than a local ui.css copy",
+        "No new component CSS is written inside the mocks; a genuinely new component is added to docs/design-system with its own page instead",
+        "The manifest gains the holds page, place-hold dialog and hold-ready notification with all required states",
+        "check_mocks.py exits 0 and the gallery shows the new screens"
+      ]
+    }
+  ]
+}

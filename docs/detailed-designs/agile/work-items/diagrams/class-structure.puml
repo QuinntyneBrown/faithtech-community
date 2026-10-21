@@ -1,0 +1,81 @@
+@startuml
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 8
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam class {
+  BorderColor #344054
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+title Class structure — Work items
+
+enum WorkItemKind {
+  Initiative
+  Epic
+  Story
+  Task
+}
+enum WorkItemStatus {
+  ToDo
+  InProgress
+  Done
+}
+class WorkItem {
+  +Guid Id
+  +Guid WorkspaceId
+  +WorkItemKind Kind
+  +string Title
+  +string Description
+  +WorkItemStatus Status
+  +Guid? AssigneeId
+  +Guid? ParentId
+  +int? StoryPoints
+  +bool IsDone
+  +bool IsArchived
+  +SetParent(parent: WorkItem): void
+  +Assign(profileId: Guid?): void
+}
+class Comment {
+  +Guid Id
+  +Guid AuthorId
+  +string Body
+  +DateTimeOffset CreatedAt
+}
+class WorkItemHierarchy {
+  +{static} CanParent(parent: WorkItemKind, child: WorkItemKind): bool
+}
+class CreateWorkItemCommand {
+  +Guid WorkspaceId
+  +WorkItemKind Kind
+  +string Title
+  +string Description
+  +Guid? ParentId
+  +Guid? AssigneeId
+  +int? StoryPoints
+}
+class UpdateWorkItemCommand
+class CreateWorkItemHandler {
+  +Handle(cmd: CreateWorkItemCommand): Task<WorkItemDto>
+}
+class UpdateWorkItemHandler {
+  +Handle(cmd: UpdateWorkItemCommand): Task<WorkItemDto>
+}
+class GetBacklogHandler {
+  +Handle(q: GetBacklogQuery): Task<BacklogTreeDto>
+}
+class WorkItemValidator
+WorkItem "1" *-- "*" Comment
+WorkItem "0..1" o-- "*" WorkItem : parent / children
+WorkItem --> WorkItemKind
+WorkItem --> WorkItemStatus
+WorkItem ..> WorkItemHierarchy
+CreateWorkItemHandler ..> CreateWorkItemCommand : handles
+UpdateWorkItemHandler ..> UpdateWorkItemCommand : handles
+CreateWorkItemHandler ..> WorkItemValidator
+UpdateWorkItemHandler ..> WorkItemValidator
+CreateWorkItemHandler --> WorkItem : creates
+UpdateWorkItemHandler --> WorkItem : mutates
+GetBacklogHandler ..> WorkItem : reads
+@enduml

@@ -1,0 +1,28 @@
+@startuml
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 8
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam class {
+  BorderColor #344054
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+title Class structure — Reliability and observability
+class CorrelationIdMiddleware {
+  +const string Header = "X-Correlation-ID"
+  +InvokeAsync(ctx: HttpContext): Task
+}
+class ProblemDetailsExceptionHandler {
+  +TryHandleAsync(ctx: HttpContext, ex: Exception): ValueTask<bool>
+}
+interface IHealthCheck {
+  +CheckHealthAsync(ctx): Task<HealthCheckResult>
+}
+class DatabaseHealthCheck
+class BlobStorageHealthCheck
+IHealthCheck <|.. DatabaseHealthCheck
+IHealthCheck <|.. BlobStorageHealthCheck
+ProblemDetailsExceptionHandler ..> CorrelationIdMiddleware : reads traceId set by
+@enduml

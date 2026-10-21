@@ -1,0 +1,10 @@
+@startuml
+!include <C4/C4_Context>
+LAYOUT_WITH_LEGEND()
+title System Context — Partner Kanban board
+Person(lead, "City Lead", "Lead who owns contacts, partners and team roles")
+Person(staff, "Staff", "Read-only across everything except private contacts")
+System(community, "FaithTech Community", "Community site for FaithTech staff, leads, volunteers, builders and partners")
+Rel(lead, community, "Moves partners through the pipeline using")
+Rel(staff, community, "Moves partners through the pipeline using")
+@enduml

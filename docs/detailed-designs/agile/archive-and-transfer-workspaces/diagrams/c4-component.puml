@@ -1,0 +1,29 @@
+@startuml
+!include <C4/C4_Component>
+LAYOUT_WITH_LEGEND()
+title Components — Archive and transfer workspaces
+
+Container_Boundary(web, "Web app") {
+  Component(page, "WorkspaceSettingsPage", "Angular page", "Archive and restore actions")
+  Component(dlg, "ArchiveWorkspaceDialog / ReassignOwnerDialog", "CDK Dialog", "Confirm archive, choose owner")
+  Component(svc, "AgileService", "api library", "AGILE_SERVICE token")
+}
+Container_Boundary(api, "Community API") {
+  Component(ep, "WorkspacesEndpoints", "Minimal API", "Archive, restore, owner routes")
+  Component(h, "Archive and reassign handlers", "Application", "Soft delete, restore, reassign")
+  Component(evt, "CityLeadRoleRemovedHandler", "Application", "Reacts to role removal")
+  Component(pol, "WorkspaceAccessPolicy", "Application", "Owner and System Admin checks")
+  Component(ntf, "INotificationService / IAuditLog", "Infrastructure", "Notify and audit")
+  ComponentDb(db, "Community database", "PostgreSQL", "Agile tables")
+}
+
+Rel(page, dlg, "Opens")
+Rel(dlg, svc, "Calls")
+Rel(svc, ep, "Calls", "JSON/HTTPS")
+Rel(ep, h, "Dispatches")
+Rel(h, pol, "Checks access")
+Rel(h, ntf, "Audits")
+Rel(evt, ntf, "Notifies System Admin")
+Rel(h, db, "Persists", "EF Core")
+Rel(evt, db, "Reads owned workspaces", "EF Core")
+@enduml

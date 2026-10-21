@@ -1,0 +1,54 @@
+@startuml
+title UML sequence behaviour — Load the board
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+actor "Workspace member or Staff" as actor
+box "Frontend — FaithTech Community web app (agile library)" #E0F2FE
+  participant "TeamBoardPage" as page
+  participant "AgileService (AGILE_SERVICE)" as svc
+  participant "AgileLiveService" as live
+end box
+box "Backend — FaithTech.Community.Api" #D1FADF
+  participant "BoardEndpoints" as ep
+end box
+box "Backend — FaithTech.Community.Application and Domain" #ECFDF3
+  participant "GetBoardHandler" as h
+  participant "WorkspaceAccessPolicy" as pol
+end box
+box "Backend — FaithTech.Community.Infrastructure" #FFF4E5
+  participant "AgileHub" as hub
+  participant "CommunityDbContext" as ctx
+  database "Community database" as db
+end box
+actor -> page : Open board
+page -> svc : getBoard(workspaceId)
+svc -> ep : GET /workspaces/{id}/board
+ep -> h : Send GetBoardQuery
+h -> pol : EnsureCanRead(workspaceId)
+pol --> h : Allowed
+alt Scrum workspace
+h -> ctx : Stories in active sprint only (L2-034 AC3)
+else Kanban workspace
+h -> ctx : All non-archived stories
+end
+ctx -> db : SELECT stories with task counts
+db --> ctx : Rows
+h --> ep : BoardDto with To Do, In Progress, Done (L2-034 AC1)
+ep --> svc : 200 OK
+svc --> page : Board
+page -> live : Join workspace group
+live -> hub : Subscribe
+page --> actor : Render columns, or tabs at XS (L2-034 AC4)
+@enduml

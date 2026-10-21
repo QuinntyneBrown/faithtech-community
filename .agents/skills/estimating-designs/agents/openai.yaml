@@ -1,0 +1,4 @@
+interface:
+  display_name: "Estimating Designs"
+  short_description: "Effort, percent complete and roadmap per design"
+  default_prompt: "Use $estimating-designs to create docs/estimates/ from docs/detailed-designs/ with effort, percent complete and a roadmap."

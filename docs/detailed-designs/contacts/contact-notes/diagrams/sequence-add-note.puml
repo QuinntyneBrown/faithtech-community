@@ -1,0 +1,52 @@
+@startuml
+title UML sequence behaviour — Add a note
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+actor "City Lead" as actor
+box "Frontend — FaithTech Community web app (contacts library)" #E0F2FE
+  participant "ContactPage" as page
+  participant "AddNoteDialog" as dlg
+  participant "HttpContactsService" as svc
+end box
+box "Backend — FaithTech.Community.Api" #D1FADF
+  participant "ContactsEndpoints" as ep
+end box
+box "Backend — FaithTech.Community.Application and Domain" #ECFDF3
+  participant "AddContactNoteHandler" as h
+  participant "ContactAccessPolicy" as pol
+end box
+box "Backend — FaithTech.Community.Infrastructure" #FFF4E5
+  database "Community database" as db
+end box
+actor -> page : Choose Add note
+page -> dlg : Open
+actor -> dlg : Type note and save
+dlg -> svc : addNote(contactId, body)
+svc -> ep : POST /api/contacts/{id}/notes
+ep -> h : Send AddContactNoteCommand
+h -> db : Load Contact
+h -> pol : CanAccess(caller, contact)
+alt NotFound
+  h --> ep : Not found (L2-012 AC1)
+  ep --> svc : 404 ProblemDetails
+else Owner or AdminOverride
+  h -> db : Insert ContactNote with CreatedAtUtc (L2-014 AC1)
+  h --> ep : ContactNoteDto
+  ep --> svc : 201 Created
+  svc --> dlg : Note
+  dlg --> page : Close
+  page --> actor : Note shown first
+end
+@enduml

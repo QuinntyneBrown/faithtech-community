@@ -1,0 +1,73 @@
+@startuml
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 8
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam class {
+  BorderColor #344054
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+title Class structure — Calendar export
+
+enum EventType {
+  Standard
+  Hackathon
+}
+
+enum EventFormat {
+  InPerson
+  Online
+}
+
+enum EventVisibility {
+  MembersOnly
+  Public
+}
+
+class Event <<Domain entity>> {
+  +Guid Id
+  +string Title
+  +string Description
+  +EventType Type
+  +DateTimeOffset StartsAt
+  +DateTimeOffset EndsAt
+  +string City
+  +EventFormat Format
+  +string? Venue
+  +string? OnlineLink
+  +EventVisibility Visibility
+  +bool IsCancelled
+  +string? CancellationReason
+  +int Sequence
+  +Guid CreatedById
+}
+Event --> EventType
+Event --> EventFormat
+Event --> EventVisibility
+
+class GetEventCalendarQuery {
+  +Guid EventId
+  +bool Anonymous
+}
+class GetEventCalendarHandler {
+  +Handle(query: GetEventCalendarQuery): Task<Result<CalendarFile>>
+}
+class CalendarFile {
+  +string FileName
+  +string ContentType
+  +string Content
+}
+interface IIcsCalendarWriter {
+  +Write(event: Event): string
+}
+class IcsCalendarWriter {
+  +Write(event: Event): string
+}
+IcsCalendarWriter ..|> IIcsCalendarWriter
+GetEventCalendarHandler ..> GetEventCalendarQuery : handles
+GetEventCalendarHandler ..> IIcsCalendarWriter
+GetEventCalendarHandler ..> Event : reads
+GetEventCalendarHandler ..> CalendarFile : returns
+@enduml

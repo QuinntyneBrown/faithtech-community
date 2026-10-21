@@ -1,0 +1,46 @@
+@startuml
+title UML sequence behaviour — View the audit log
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+actor "System Admin" as actor
+box "Frontend — FaithTech Community web app (admin library)" #E0F2FE
+  participant "AuditLogPage" as page
+  participant "HttpAuditLogService" as svc
+end box
+box "Backend — FaithTech.Community.Api" #D1FADF
+  participant "AuditLogEndpoints" as ep
+end box
+box "Backend — FaithTech.Community.Application and Domain" #ECFDF3
+  participant "GetAuditEntriesHandler" as q
+end box
+box "Backend — FaithTech.Community.Infrastructure" #FFF4E5
+  database "Community database" as db
+end box
+actor -> page : Set filters
+page -> svc : getEntries(filters, page)
+svc -> ep : GET /api/admin/audit?actor&action&from&to&page
+ep -> q : Send GetAuditEntriesQuery
+alt not System Admin
+  q --> ep : Forbidden (L2-041 AC4)
+  ep --> svc : 403 ProblemDetails
+else System Admin
+  q -> db : Filter and take 50 ordered by OccurredAtUtc desc (L2-041 AC2)
+  db --> q : Entries
+  q --> ep : PagedResult<AuditEntry>
+  ep --> svc : 200 OK
+  svc --> page : Entries
+  page --> actor : Show entries and pager
+end
+@enduml

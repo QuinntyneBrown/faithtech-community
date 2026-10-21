@@ -1,0 +1,42 @@
+@startuml
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 8
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam class {
+  BorderColor #344054
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+title Class structure — Accept an invite
+
+class AcceptInviteCommand {
+  +string Token
+  +string? Name
+  +string? Password
+}
+class AcceptInviteHandler {
+  +Handle(command: AcceptInviteCommand): Task<Result>
+}
+class Invite {
+  +string Email
+  +Role? PreassignedRole
+  +Status(now: DateTimeOffset): InviteStatus
+  +MarkAccepted(by: Guid, now: DateTimeOffset): void
+}
+class CommunityUser {
+  +Guid Id
+  +string Email
+  +bool EmailConfirmed
+}
+class Profile {
+  +Guid Id
+  +Grant(role: Role): void
+}
+AcceptInviteHandler ..> AcceptInviteCommand : handles
+AcceptInviteHandler --> Invite : accepts
+AcceptInviteHandler --> CommunityUser : creates or loads
+AcceptInviteHandler --> Profile : grants role
+CommunityUser "1" --> "1" Profile
+@enduml

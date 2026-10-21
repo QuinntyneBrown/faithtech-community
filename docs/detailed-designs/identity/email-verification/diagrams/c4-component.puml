@@ -1,0 +1,24 @@
+@startuml
+!include <C4/C4_Component>
+LAYOUT_WITH_LEGEND()
+title Components — Email verification
+
+Container(spa, "Web app", "Angular", "faithtech-community feature library and api client")
+Container_Boundary(api, "Community API") {
+  Component(ep, "AccountEndpoints", "Minimal API", "POST /api/account/confirm-email, /resend-verification")
+  Component(pol, "RequireVerifiedEmail", "Authorization policy", "Blocks unverified accounts")
+  Component(ch, "ConfirmEmailHandler", "Application handler", "Validates token, confirms email")
+  Component(rh, "ResendVerificationHandler", "Application handler", "Rate-limited resend")
+  Component(es, "IEmailSender", "Infrastructure service", "Sends verification email")
+  ComponentDb(db, "CommunityDbContext", "EF Core / PostgreSQL", "Users and resend log")
+}
+System_Ext(email, "Email provider", "SMTP or SendGrid")
+Rel(spa, ep, "Calls")
+Rel(ep, ch, "Sends ConfirmEmailCommand")
+Rel(ep, rh, "Sends ResendVerificationCommand")
+Rel(ch, db, "Updates EmailConfirmed")
+Rel(rh, db, "Reads resend log")
+Rel(rh, es, "Sends link")
+Rel(es, email, "Delivers via")
+Rel(pol, db, "Reads EmailConfirmed")
+@enduml

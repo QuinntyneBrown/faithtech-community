@@ -1,0 +1,89 @@
+{
+  "skill_name": "recording-demo-videos",
+  "execution": "Run these scenarios in disposable sample repositories with local synthetic data. Create the fixtures described by each setup; fixtures and an automated agent runner are not bundled. Inspect actual artifacts and record which scenarios were exercised. Do not treat this scenario list as passing test results.",
+  "evals": [
+    {
+      "id": 1,
+      "name": "browser-and-cli-without-specifications",
+      "setup": "A small local web application with a persisted create/list workflow and an independently runnable CLI that lists the same records. Include startup commands and tests, but no docs/specs or docs/detailed-designs. Include a shared library and test runner.",
+      "prompt": "Create a demo video for every application in this repository.",
+      "expected": [
+        "Discovers the web app and CLI; excludes the library and test runner.",
+        "Infers workflows without requiring new specifications or designs.",
+        "Produces two playable WebM files with an Opus narration track synthesized by edge-tts using en-US-AndrewMultilingualNeural, captions matching the narration text, and posters from decoded successful footage, with measured metadata and accurate chapters.",
+        "CLI output comes from commands executed during capture; assertions verify persisted records.",
+        "Documents and successfully exercises a clean rerun command."
+      ]
+    },
+    {
+      "id": 2,
+      "name": "multiple-apps-and-shared-data",
+      "setup": "A monorepo with admin and public web applications served by one host, an independently executable API, and a worker. Admin publishes a record, the public app reads it, and the worker processes a job. Include a third-party database service and stale specifications claiming an unimplemented feature.",
+      "prompt": "Record each application so a viewer understands the whole platform.",
+      "expected": [
+        "Accounts for four first-party applications and excludes the database from the video count.",
+        "Orders stories by data dependencies, keeps fixtures consistent, and documents full-sequence and individual rerun prerequisites.",
+        "Shows real API interactions and correlates a worker result with the submitted job.",
+        "Documents the unimplemented feature without simulating it or describing it as working."
+      ]
+    },
+    {
+      "id": 3,
+      "name": "partial-startup-and-resource-ownership",
+      "setup": "An existing unrelated listener and a development database contain sentinel data. The proposed demo port is occupied. Arrange for a required service to fail readiness after another owned service starts. Include an independent working CLI.",
+      "prompt": "Create demos for all apps; keep going if one is blocked.",
+      "expected": [
+        "Chooses isolated ports/storage or reports a precise blocker; preserves sentinel data and the unrelated listener.",
+        "Bounds startup and cleans up the owned service despite partial setup failure.",
+        "Completes the CLI recording and reports partial completion with actionable startup diagnostics."
+      ]
+    },
+    {
+      "id": 4,
+      "name": "failed-replacement-and-product-bug",
+      "setup": "Existing successful video, poster, and chapter documentation have known hashes. A product image endpoint now returns 404 while the UI still sets the expected src and alt attributes. A second application works.",
+      "prompt": "Refresh all demo videos.",
+      "expected": [
+        "Detects that the image did not load, fails the affected take, and does not weaken assertions or fix product code by default.",
+        "Preserves the previous affected artifact set and labels it as retained from an earlier run.",
+        "Publishes the independent successful recording and identifies the broken workflow as blocked.",
+        "A simulated promotion failure restores the prior complete artifact set rather than mixing versions."
+      ]
+    },
+    {
+      "id": 5,
+      "name": "native-and-interactive-capture-unavailable",
+      "setup": "A native app and interactive terminal UI have runnable entrypoints, but the execution environment lacks desktop capture and PTY support. Include a noninteractive CLI that can run and be captured.",
+      "prompt": "Make a video of every executable application.",
+      "expected": [
+        "Identifies missing capture capabilities early and names both blockers.",
+        "Does not replace the native app with a mock UI or the TUI with a pipes-only transcript.",
+        "Captures the noninteractive CLI with actual execution and a disclosed presentation method.",
+        "Does not claim complete coverage."
+      ]
+    },
+    {
+      "id": 6,
+      "name": "scope-and-empty-repository",
+      "setup": "First use a library-only repository with build scripts and tests. Then use a multi-app repository with a user request explicitly limited to its marketing application.",
+      "prompt": "Create demo videos for this repository, respecting the applications I selected.",
+      "expected": [
+        "Explains that the library-only repository has no executable product to record.",
+        "For the scoped request, records only the selected application and labels other applications as out of the user's scope.",
+        "Preserves unrelated existing demo content."
+      ]
+    },
+    {
+      "id": 7,
+      "name": "narration-tools-unavailable",
+      "setup": "The browser application from scenario 1 in an environment where the edge-tts package cannot be installed or synthesis has no network access, while Playwright, Chromium, and ffmpeg are available.",
+      "prompt": "Create a demo video for the web application in this repository.",
+      "expected": [
+        "Detects the missing narration capability before or during synthesis and names the exact installation or connectivity step that remains.",
+        "Keeps the recording and its narration text in staging; does not promote a silent WebM into docs/demo/ or describe it as complete.",
+        "Does not substitute silence, placeholder audio, or a transcript for the narration.",
+        "Reports partial completion with the rerun commands that will produce the narrated video once the tool is available."
+      ]
+    }
+  ]
+}

@@ -1,0 +1,44 @@
+@startuml
+title UML sequence behaviour — Handle a request that fails
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+actor "Member" as actor
+box "Frontend — FaithTech Community web app (feature library)" #E0F2FE
+  participant "Http<Feature>Service" as client
+end box
+box "Backend — FaithTech.Community.Api" #D1FADF
+  participant "CorrelationIdMiddleware" as cid
+  participant "Request logging" as log
+  participant "Exception handler" as exc
+  participant "<Feature>Endpoints" as ep
+end box
+box "Backend — FaithTech.Community.Application and Domain" #ECFDF3
+  participant "<Verb><Noun>Handler" as h
+end box
+actor -> client : Act
+client -> cid : HTTPS request
+cid -> cid : Assign correlation ID (L2-047 #2)
+cid -> log : Next
+log -> exc : Next
+exc -> ep : Next
+ep -> h : Dispatch
+h --> ep : Unhandled exception
+ep --> exc : Exception
+exc --> log : 500 problem details with traceId
+log -> log : Log status 500 with correlation ID, no personal data (L2-047 #2)
+log --> cid : Response
+cid --> client : 500 + X-Correlation-ID
+client --> actor : Server error page with reference ID
+@enduml

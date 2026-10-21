@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Accept invite · invalid — FaithTech Community mocks</title>
+<meta name="mock:kind" content="page">
+<meta name="mock:screen" content="accept-invite">
+<meta name="mock:state" content="invalid">
+<meta name="mock:requirements" content="L2-011 L2-001">
+<meta name="description" content="Accept an emailed invite with a pre-assigned role.">
+<link rel="stylesheet" href="../../assets/tokens.css">
+<link rel="stylesheet" href="../../assets/components.css">
+<link rel="stylesheet" href="../../assets/ui-extra.css">
+<link rel="stylesheet" href="../../assets/mock.css">
+</head>
+<body>
+<a class="skip-link" href="#main">Skip to content</a>
+<main id="main" class="auth-layout">
+  <div class="auth-card stack">
+    <div class="logo"><span class="logo-mark"><img src="../../assets/logo.svg" alt="FaithTech" width="64" height="64"></span></div>
+    <div class="card stack"><h1 style="text-align: center;">You’re invited</h1>
+<div class="cluster" style="justify-content: center;"><span class="avatar avatar--sm avatar--sky" aria-hidden="true">GO</span><p><strong>Grace Okonkwo</strong> invited you to join FaithTech Toronto as a <span class="badge badge--role">Volunteer</span></p></div>
+<form class="stack" action="../../pages/edit-profile/default.html" method="get" novalidate><div class="alert alert--danger form-summary" role="alert" tabindex="-1" id="summary"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 8v4M12 16h.01"/></svg><div class="alert__body"><div class="alert__title">Fix 1 thing to accept the invite</div><ul style="margin: 0; padding-left: 1.2em;"><li><a href="#ai-password">Password needs at least 12 characters</a></li></ul></div></div>
+<div class="field"><label class="field__label" for="ai-name">Full name</label><input class="input" id="ai-name" name="ai-name" type="text" value="Ruth Alvarez" autocomplete="name" required></div>
+<div class="field"><label class="field__label" for="ai-email">Email</label><input class="input" id="ai-email" type="email" value="ruth.alvarez@example.org" readonly aria-describedby="ai-email-help"><div class="field__help" id="ai-email-help">The invite was sent to this address.</div></div>
+<div class="field"><label class="field__label" for="ai-password">Create a password</label><input class="input" id="ai-password" name="ai-password" type="password" value="•••••" autocomplete="new-password" required aria-invalid="true" aria-describedby="ai-password-help ai-password-error"><div class="field__help" id="ai-password-help">At least 12 characters.</div><div class="field__error" id="ai-password-error">Use at least 12 characters.</div></div>
+<button class="btn btn--primary btn--lg btn--block" type="submit">Accept and join</button></form></div>
+    
+  </div>
+</main>
+<nav class="mock-bar" aria-label="Mock navigation">
+  <a class="mock-bar__home" href="../../index.html" aria-label="All mocks">⌂</a>
+  <span class="mock-bar__screen">Accept invite</span>
+  <ul class="mock-bar__states"><li><a href="default.html">default</a></li><li><a href="invalid.html" aria-current="page">invalid</a></li><li><a href="error.html">error</a></li></ul>
+  <button type="button" data-theme-toggle aria-pressed="false">☾ Dark</button>
+  <button type="button" data-chrome-toggle aria-label="Hide mock chrome">×</button>
+</nav>
+<script src="../../assets/mock.js"></script>
+</body>
+</html>

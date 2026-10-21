@@ -1,0 +1,48 @@
+@startuml
+title UML sequence behaviour — resend a verification link
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+actor "Account holder" as actor
+box "Frontend — FaithTech Community web app (faithtech-community library)" #E0F2FE
+  participant "VerifyEmailPage" as page
+  participant "AuthService" as client
+end box
+box "Backend — FaithTech.Community.Api" #D1FADF
+  participant "AccountEndpoints" as ep
+end box
+box "Backend — FaithTech.Community.Application and Domain" #ECFDF3
+  participant "ResendVerificationHandler" as h
+end box
+box "Backend — FaithTech.Community.Infrastructure" #FFF4E5
+  database "Community database" as db
+end box
+participant "Email provider" as mail
+actor -> page : Select resend
+page -> client : resendVerification(email)
+client -> ep : POST /api/account/resend-verification
+ep -> h : Send ResendVerificationCommand
+h -> db : Count resends in last hour
+alt fewer than 4
+  h -> db : Record resend
+  h -> mail : Send new verification link
+  h --> ep : Sent
+  ep --> client : 202 Accepted
+  page --> actor : Confirmation message
+else more than 3 in the last hour
+  h --> ep : Rate limited (L2-002)
+  ep --> client : 429 ProblemDetails
+  page --> actor : "Try again later"
+end
+@enduml

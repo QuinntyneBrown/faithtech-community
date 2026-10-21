@@ -1,0 +1,47 @@
+@startuml
+title UML sequence behaviour — list and revoke invites
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+actor "Lead" as actor
+box "Frontend — FaithTech Community web app (invites library)" #E0F2FE
+  participant "InvitesPage" as page
+  participant "InvitesService" as client
+end box
+box "Backend — FaithTech.Community.Api" #D1FADF
+  participant "InvitesEndpoints" as ep
+end box
+box "Backend — FaithTech.Community.Application and Domain" #ECFDF3
+  participant "RevokeInviteHandler" as h
+  participant "Invite" as ent
+end box
+box "Backend — FaithTech.Community.Infrastructure" #FFF4E5
+  database "Community database" as db
+end box
+participant "Email provider" as mail
+actor -> page : Open invites page
+page -> client : listInvites()
+client -> ep : GET /api/invites
+ep -> db : Load caller's invites
+ep --> page : Invites with Pending, Accepted, Expired or Revoked status (L2-010)
+actor -> page : Revoke a pending invite
+page -> client : revokeInvite(id)
+client -> ep : POST /api/invites/{id}/revoke
+ep -> h : Send RevokeInviteCommand
+h -> db : Load invite
+h -> ent : Revoke(now)
+h -> db : Save; link stops working (L2-010)
+h --> ep : Revoked
+ep --> page : 204
+@enduml

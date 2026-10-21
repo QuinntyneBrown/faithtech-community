@@ -1,0 +1,42 @@
+@startuml
+title UML sequence behaviour — Probe health
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+actor "Operator" as actor
+box "Backend — FaithTech.Community.Api" #D1FADF
+  participant "Health checks" as hc
+end box
+box "Backend — FaithTech.Community.Infrastructure" #FFF4E5
+  participant "DatabaseHealthCheck" as dbc
+  participant "BlobStorageHealthCheck" as bc
+  database "Community database" as db
+end box
+participant "Azure Blob storage" as blob
+actor -> hc : GET /health/live
+hc --> actor : 200 Healthy (process only, L2-047 #1)
+actor -> hc : GET /health/ready
+hc -> dbc : CheckHealthAsync
+dbc -> db : SELECT 1
+db --> dbc : OK
+hc -> bc : CheckHealthAsync
+bc -> blob : Get container properties
+alt reachable
+  blob --> bc : OK
+  hc --> actor : 200 Healthy
+else unavailable
+  blob --> bc : Error
+  hc --> actor : 503 Unhealthy (blob storage)
+end
+@enduml

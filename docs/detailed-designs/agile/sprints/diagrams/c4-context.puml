@@ -1,0 +1,12 @@
+@startuml
+!include <C4/C4_Context>
+LAYOUT_WITH_LEGEND()
+title System Context — Sprints
+
+Person(lead, "City Lead", "Owns Agile workspaces")
+Person(member, "Workspace member", "Lead or volunteer added to a workspace")
+System(ftc, "FaithTech Community", "Community site with Agile team workspaces")
+
+Rel(lead, ftc, "Starts and closes sprints in")
+Rel(member, ftc, "Plans stories into sprints in")
+@enduml

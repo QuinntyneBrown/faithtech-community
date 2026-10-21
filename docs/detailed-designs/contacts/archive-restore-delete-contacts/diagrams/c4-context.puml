@@ -1,0 +1,8 @@
+@startuml
+!include <C4/C4_Context>
+LAYOUT_WITH_LEGEND()
+title System Context — Archive, restore and delete contacts
+Person(lead, "City Lead", "Lead who owns contacts, partners and team roles")
+System(community, "FaithTech Community", "Community site for FaithTech staff, leads, volunteers, builders and partners")
+Rel(lead, community, "Archives, restores and deletes private contacts using")
+@enduml

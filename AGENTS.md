@@ -1,0 +1,184 @@
+# AGENTS.md
+
+## Project overview
+
+FaithTech Community is a full-stack community site for FaithTech staff, leads, volunteers, builders, event attendees and partners. Anyone can sign up and create a profile. The .NET backend owns persistence, permissions and authentication; the Angular frontend provides the app; Playwright covers end-to-end behavior and accessibility.
+
+`idea.txt` is the original brief. `decisions.txt` holds the agreed decisions and wins where the two differ.
+
+## Repository layout (MANDATORY)
+
+**This folder structure MUST be followed. It is a mandate, not a suggestion.**
+
+- Every file MUST go in the folder this tree assigns it. If no folder fits, stop and ask; do not guess or improvise.
+- Do NOT create top-level folders, projects, libraries or alternative layouts that are not in this tree.
+- Do NOT move, rename or merge folders or projects in this tree.
+- The tree changes only with the user's explicit approval, and this section MUST be updated in the same change, before any code is placed in the new location.
+- Work that does not follow this structure is incomplete and MUST be corrected before it is considered done.
+
+```text
+faithtech-community/
+├── AGENTS.md, CLAUDE.md, GEMINI.md   # Agent instructions (AGENTS.md is the source of truth)
+├── README.md                         # Product overview, setup and development commands
+├── LICENSE                           # MIT
+├── CONTRIBUTING.md, CODE_OF_CONDUCT.md, SECURITY.md, SUPPORT.md   # Community health files
+├── idea.txt, decisions.txt           # Original brief and agreed decisions
+├── .github/
+│   ├── workflows/                    # CI: build, test, lint, format, container image publish
+│   ├── ISSUE_TEMPLATE/               # Bug report and feature request templates
+│   ├── pull_request_template.md      # PR checklist
+│   └── copilot-instructions.md       # Pointer to AGENTS.md
+├── backend/                          # .NET solution
+│   ├── FaithTech.Community.sln
+│   ├── Directory.Build.props         # Shared build settings for every project
+│   ├── Directory.Packages.props      # Central NuGet package versions
+│   ├── global.json                   # Pinned .NET SDK
+│   ├── deploy/                       # Dockerfiles and container config
+│   ├── src/
+│   │   ├── FaithTech.Community.Domain/          # Entities, value objects, roles. Zero dependencies.
+│   │   ├── FaithTech.Community.Application/     # Handlers, validators, DTO contracts, permission
+│   │   │                                        # checks; one folder per feature (Profiles/,
+│   │   │                                        # Contacts/, Partners/, Team/, Events/, Search/,
+│   │   │                                        # Notifications/, Announcements/, Invites/, Admin/)
+│   │   ├── FaithTech.Community.Infrastructure/  # DbContext, EF migrations, Postgres full-text
+│   │   │                                        # search, Azure Blob, email, .ics, image resizing,
+│   │   │                                        # OpenIddict stores, audit log, seeder
+│   │   ├── FaithTech.Community.Api/             # Endpoints, Program.cs, DI composition,
+│   │   │                                        # middleware. No business logic.
+│   │   └── FaithTech.Community.Cli/             # Database migrate, seed and reset commands
+│   └── tests/
+│       ├── FaithTech.Community.Application.Tests/     # Handler and authorization rule tests
+│       ├── FaithTech.Community.Infrastructure.Tests/  # Persistence, search, storage, email
+│       ├── FaithTech.Community.Api.Tests/             # Integration tests against the API
+│       └── FaithTech.Community.Cli.Tests/             # CLI command tests
+├── frontend/                         # Angular workspace
+│   ├── angular.json, package.json, eslint.config.js, .prettierrc
+│   └── projects/
+│       ├── faithtech-community/      # The app: shell, top-level routes that lazy-load the
+│       │                             # feature libraries, auth guards. No feature pages.
+│       ├── api/                      # API client library: service contracts, injection
+│       │                             # tokens, HTTP implementations, OIDC + PKCE auth
+│       ├── components/               # Shared accessible UI component library and design tokens
+│       ├── profiles/                 # Feature library: profile pages, photos, dialogs/
+│       ├── contacts/                 # Feature library: private contacts, notes, archive
+│       ├── partners/                 # Feature library: partner pipeline Kanban
+│       ├── team/                     # Feature library: city team members
+│       ├── events/                   # Feature library: events, RSVP, public event page, .ics
+│       ├── search/                   # Feature library: global search
+│       ├── notifications/            # Feature library: in-app bell and preferences
+│       ├── announcements/            # Feature library: compose and read announcements
+│       ├── invites/                  # Feature library: send and accept invites
+│       └── admin/                    # Feature library: System Admin roles, suspension, audit log
+├── e2e/                              # Playwright suite (Chromium only)
+│   ├── playwright.config.ts
+│   ├── pages/                        # Page objects: one per screen, owning selectors
+│   ├── fixtures/                     # Test fixtures and seeded data helpers
+│   └── tests/                        # Specs by feature, including axe accessibility checks
+├── eng/                              # Developer and CI scripts (start stack, run tests, deploy)
+│   └── infra/                        # Infrastructure as code for Azure
+└── docs/
+    ├── specs/                        # L1/L2 requirements with acceptance criteria
+    ├── detailed-designs/             # Per-subsystem/feature designs and diagrams
+    ├── mocks/                        # Static HTML mocks: the design reference
+    ├── design-system/                # Tokens, components and patterns taken from the mocks
+    ├── estimates/                    # Effort and percent-complete per design
+    └── adr/                          # Architecture decision records (NNNN-title.md)
+```
+
+Rules (MUST be followed):
+
+- Every feature uses the same name in `Application/`, `frontend/projects/`, `docs/specs/` and `docs/detailed-designs/`.
+- EF Core migrations live only in `Infrastructure/Persistence/Migrations/` and are applied by the Cli project, never by the API.
+- .NET tests live only under `backend/tests/`. Angular unit tests (`*.spec.ts`) sit next to the code they test. Playwright tests live only in `e2e/`.
+- Each frontend feature is its own library project under `frontend/projects/<feature>/`, exposing its routes, pages and dialogs through its public API (`public-api.ts`). The app lazy-loads it from the shell.
+- Feature libraries depend only on `components` and `api`, never on each other or on the app. Anything two features share moves into `components` or `api`.
+- Feature pages use components from `components` and services from `api`. They never call `HttpClient` directly.
+- Read the relevant ADRs in `docs/adr/` before changing the areas they cover.
+
+## Components library is mandatory (CRITICAL)
+
+**Every UI component defined in the design system (`docs/design-system/`) MUST be built once in `frontend/projects/components/` and reused everywhere. This is not optional.**
+
+- The `components` library is the single home of the design system in code: buttons, inputs, form fields, dialogs, cards, avatars, badges, tables, Kanban columns, toasts, navigation and every other component in `docs/design-system/`, plus the design tokens.
+- The app and every feature library MUST compose their screens from `components`. Do NOT build, copy, restyle or wrap a design-system component inside a feature library or the app.
+- If a screen needs a component that `components` does not have, add it to `components` first, matching the design system, then use it from the feature. Never create a one-off local version.
+- If an existing component is missing a variant or state that the design system defines, extend the component in `components`. Do not override its styles from a feature.
+- Feature libraries may contain only feature-specific composition: pages, routes, feature dialogs and the glue between `api` services and `components`. Anything reusable belongs in `components`.
+- `components` MUST NOT depend on `api`, the app or any feature library. It contains no business logic and makes no HTTP calls.
+- Components in `components` MUST meet WCAG 2.2 AA, read tokens by role and expose the design system's variants, sizes and states through inputs.
+- A screen that uses a hand-rolled substitute for a library component is incomplete and MUST be corrected before it is considered done.
+
+## Domain rules (do not break)
+
+- Data is global with no city boundary. **Exception:** private contacts and their notes are visible only to the lead who created them and to System Admin.
+- A profile can hold several global roles. New users start with no role.
+- City Leads may add/remove Lead, Volunteer, Product Engineer and Attendee roles. Only System Admin grants or removes City Lead, Staff and System Admin.
+- Staff is read-only across everything except private contacts.
+- System Admin can override anything; every admin action goes to the audit log.
+- Profiles are visible to signed-in members only. Public events are the only content anonymous visitors see (shareable page, guest RSVP, `.ics`).
+- Every query, search result and endpoint must enforce these permissions on the server. Never rely on the UI to hide data.
+
+v1 features: profiles and photos (max 10, one featured, alt text required), invites (expire after 14 days), contacts (soft-delete archive and restore, linked when the person signs up), partner Kanban (Lead -> In Funnel -> Confirmed), team, events (hackathon is an event type), global search, notifications (in-app + email), announcements (with email opt-out). Hackathon teams, projects and judging are v2. Do not build them yet.
+
+## Backend architecture
+
+Stack: .NET (LTS), ASP.NET Core, EF Core, PostgreSQL (full-text search for global search). Identity is ASP.NET Identity + OpenIddict (OAuth2 authorization code + PKCE); passwords are hashed by Identity, and email verification and password reset are required. Photos go to Azure Blob storage, email goes via SMTP/SendGrid, and deployment is containerized.
+
+Layer dependency direction (strict):
+
+- `FaithTech.Community.Domain`: entities, value objects, roles. Zero dependencies.
+- `FaithTech.Community.Application`: handlers, validators, DTO contracts, permission checks.
+- `FaithTech.Community.Infrastructure`: DbContext, migrations, Postgres, blob storage, email, auth services, seeder.
+- `FaithTech.Community.Api`: endpoints, `Program.cs`, DI composition, middleware.
+- `FaithTech.Community.Cli`: database migration, seeding and reset commands.
+
+Non-obvious rules:
+
+- Business rules live in Application handlers and domain services, never in endpoints or controllers.
+- The API does **not** apply EF Core migrations on startup. Run them explicitly with the Cli project.
+- Seed data is idempotent and safe to re-run.
+- Endpoints require authentication by default. Anonymous access, such as public event pages and guest RSVP, must be opted into explicitly per endpoint.
+- Keep request logging outside the exception-handling middleware so handled response statuses are logged correctly.
+- Keep secrets out of the repo; use configuration and environment variables.
+
+### Tests
+
+Backend behavior is covered by integration tests against the API. Write tests for authorization rules alongside each feature, especially private-contact visibility and role-assignment limits.
+
+## Frontend architecture
+
+### Conventions enforced across the codebase
+
+- Prettier owns formatting and angular-eslint owns lint; CI fails on either.
+- WCAG 2.2 AA on every screen: keyboard reachable, visible focus, labelled controls, sufficient contrast.
+- Read design tokens by role (for example `var(--color-brand-foreground)`), never as hex values.
+- Keep component styles encapsulated; global styles are limited to shared foundations and utilities.
+- Declare each `ng-content` slot once. A component that renders `<a>` or `<button>` conditionally puts its slots in one `<ng-template>` and renders it with `ngTemplateOutlet` in both branches.
+- API services have a contract and an injection token; pages depend on the token, not the concrete implementation.
+- No inline forms in pages. Button-triggered editing opens an Angular CDK Dialog or navigates to a screen.
+- Use Angular CDK Dialog/Overlay for modal behavior; never hand-roll modals.
+
+## E2E architecture (Playwright)
+
+- Use the Page Object Model. Each screen has one page object, which owns its selectors and interactions. Tests state intent; page objects know the DOM. Never put a selector in a test.
+- Run frontend tests in Chromium only. Do not configure or run Firefox, WebKit or any other browser.
+- Run axe accessibility checks on every screen.
+
+## Incremental implementation and ATDD (MANDATORY)
+
+Mocks and the design system are design artifacts. ATDD does not apply to them; do not write tests for mocks or the design system.
+
+Every new feature or change to production behavior MUST have a requirement (`docs/specs/`), a detailed design (`docs/detailed-designs/`) and a mock (`docs/mocks/`) before implementation begins. This includes behavior changes to existing features. Documentation-only, design-system-only, mock-only and test-only changes are out of scope unless they are part of a production behavior change.
+
+Every production behavior implementation MUST invoke and follow the `implementing-incrementally` skill before any code is written, combined with acceptance test-driven development:
+
+1. Plan small, reviewable slices and complete one at a time.
+2. For each slice, write Given-When-Then acceptance criteria, write the acceptance test, and run it to prove it fails for the expected reason BEFORE writing production code.
+3. Implement only what satisfies that slice, refactor with tests green, and run the relevant regression checks.
+4. Do not move to the next slice until those checks pass.
+
+No bulk implementation, no tests added afterward, and no weakening tests to manufacture a pass. Keep the requirement, design, mock, criteria, tests and implementation aligned until the feature is complete. Keep changes small and match the existing code style.
+
+### Never write architecture tests
+
+Never add a test that asserts the shape of the codebase rather than its behavior: no structure, layout or naming tests, no banned-API scans, and no traceability tests that parse the specifications. Those constraints belong to the compiler, the formatter and review. A test suite exists to prove behavior.

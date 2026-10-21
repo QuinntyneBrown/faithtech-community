@@ -1,0 +1,49 @@
+@startuml
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 8
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam class {
+  BorderColor #344054
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+title Class structure — Sign up
+
+class SignUpCommand {
+  +string Name
+  +string Email
+  +string Password
+}
+class SignUpValidator {
+  +Validate(command: SignUpCommand): ValidationResult
+}
+class SignUpHandler {
+  +Handle(command: SignUpCommand): Task<SignUpResult>
+}
+interface IBreachedPasswordChecker {
+  +IsBreachedAsync(password: string): Task<bool>
+}
+interface IEmailSender {
+  +SendAsync(message: EmailMessage): Task
+}
+class CommunityUser {
+  +Guid Id
+  +string Email
+  +bool EmailConfirmed
+  +string PasswordHash
+  +Guid ProfileId
+}
+class Profile {
+  +Guid Id
+  +string Name
+  +IReadOnlyCollection<Role> Roles
+}
+SignUpHandler ..> SignUpCommand : handles
+SignUpHandler ..> SignUpValidator : uses
+SignUpHandler ..> IBreachedPasswordChecker : uses
+SignUpHandler ..> IEmailSender : uses
+SignUpHandler --> CommunityUser : creates
+CommunityUser "1" --> "1" Profile : owns
+@enduml

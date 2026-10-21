@@ -1,0 +1,4 @@
+interface:
+  display_name: "Implementing Incrementally"
+  short_description: "Deliver a change in thin vertical slices, testing and committing each one"
+  default_prompt: "Use $implementing-incrementally to implement the next task from the plan in thin, tested, committed slices."

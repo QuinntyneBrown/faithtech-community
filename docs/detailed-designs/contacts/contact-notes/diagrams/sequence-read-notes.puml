@@ -1,0 +1,47 @@
+@startuml
+title UML sequence behaviour — Read notes
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+actor "City Lead" as actor
+box "Frontend — FaithTech Community web app (contacts library)" #E0F2FE
+  participant "ContactPage" as page
+  participant "HttpContactsService" as svc
+end box
+box "Backend — FaithTech.Community.Api" #D1FADF
+  participant "ContactsEndpoints" as ep
+end box
+box "Backend — FaithTech.Community.Application and Domain" #ECFDF3
+  participant "GetContactNotesHandler" as h
+  participant "ContactAccessPolicy" as pol
+end box
+box "Backend — FaithTech.Community.Infrastructure" #FFF4E5
+  participant "AuditLog" as audit
+  database "Community database" as db
+end box
+actor -> page : Open contact
+page -> svc : getNotes(contactId)
+svc -> ep : GET /api/contacts/{id}/notes
+ep -> h : Send GetContactNotesQuery
+h -> db : Load Contact
+h -> pol : CanAccess(caller, contact) (L2-014 AC2)
+alt AdminOverride
+  h -> audit : Write audit entry
+end
+h -> db : Select notes order by CreatedAtUtc desc
+h --> ep : Notes
+ep --> svc : 200 OK
+svc --> page : Notes
+page --> actor : Notes newest first
+@enduml

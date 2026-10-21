@@ -1,0 +1,45 @@
+@startuml
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 8
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam class {
+  BorderColor #344054
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+title Class structure — Admin users page and override
+enum UserStatus {
+  Active
+  Suspended
+  Unverified
+}
+class SearchUsersQuery {
+  +string Term
+  +int Page
+  +int PageSize
+}
+class AdminUserSummary {
+  +Guid ProfileId
+  +string Name
+  +string Email
+  +IReadOnlyList<Role> Roles
+  +UserStatus Status
+}
+class SearchUsersHandler {
+  +Handle(query: SearchUsersQuery): Task<PagedResult<AdminUserSummary>>
+}
+class AdminOverridePolicy {
+  +IsSystemAdmin(caller: ICurrentUser): bool
+  +AuditOverride(caller: ICurrentUser, action: string, target: string): Task
+}
+interface IAuditLog {
+  +Write(entry: AuditEntry): Task
+}
+SearchUsersHandler ..> SearchUsersQuery : handles
+SearchUsersHandler --> AdminOverridePolicy
+SearchUsersHandler ..> AdminUserSummary : returns
+AdminUserSummary --> UserStatus
+AdminOverridePolicy ..> IAuditLog
+@enduml

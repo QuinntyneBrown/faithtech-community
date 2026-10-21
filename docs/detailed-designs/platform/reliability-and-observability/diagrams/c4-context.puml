@@ -1,0 +1,8 @@
+@startuml
+!include <C4/C4_Context>
+LAYOUT_WITH_LEGEND()
+title System Context — Reliability and observability
+Person(ops, "Operator", "Runs and monitors the deployment")
+System(ftc, "FaithTech Community", "Community site for FaithTech staff, leads, volunteers, builders and partners")
+Rel(ops, ftc, "Probes health and reads logs of")
+@enduml

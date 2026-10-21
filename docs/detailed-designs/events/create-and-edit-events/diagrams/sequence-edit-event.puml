@@ -1,0 +1,51 @@
+@startuml
+title UML sequence behaviour — Edit an event and notify RSVPs
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+actor "Event Lead / City Lead" as actor
+box "Frontend — FaithTech Community web app (events library)" #E0F2FE
+  participant "EventFormPage" as page
+  participant "HttpEventsService" as svc
+end box
+box "Backend — FaithTech.Community.Api" #D1FADF
+  participant "EventsEndpoints" as ep
+end box
+box "Backend — FaithTech.Community.Application and Domain" #ECFDF3
+  participant "UpdateEventHandler" as h
+  participant "EventPermissions" as perm
+  participant "Event" as ev
+  participant "INotificationPublisher" as notif
+end box
+box "Backend — FaithTech.Community.Infrastructure" #FFF4E5
+  database "Community database" as db
+end box
+
+actor -> page : Edit fields and save
+page -> svc : updateEvent(id, request)
+svc -> ep : PUT /api/events/{id}
+ep -> h : Send UpdateEventCommand
+h -> perm : CanManageEvents(currentUser) (L2-020)
+perm --> h : true
+h -> db : Load event with member RSVPs
+db --> h : Event
+h -> ev : Update(...); Sequence += 1
+h -> notif : Publish EventChanged to each RSVP'd member (L2-020)
+h -> db : Save event and notifications in one unit of work
+db --> h : Committed
+h --> ep : Success
+ep --> svc : 204 No Content
+svc --> page : Saved
+page --> actor : Show event with updated details
+@enduml

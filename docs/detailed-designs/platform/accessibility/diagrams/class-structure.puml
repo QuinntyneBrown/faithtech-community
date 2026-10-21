@@ -1,0 +1,36 @@
+@startuml
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 8
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam class {
+  BorderColor #344054
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+title Class structure — Accessibility
+class FormFieldComponent {
+  +label: string
+  +hint?: string
+  +error?: string
+}
+class FormErrorFocus {
+  +onSubmit(): void
+}
+class DialogService {
+  +open(component, config): DialogRef
+}
+class ToastService {
+  +show(message: string, tone: Tone): void
+}
+class AvatarComponent {
+  +src: string
+  +alt: string
+}
+class LiveAnnouncer
+class "CDK Dialog" as CdkDialog
+DialogService ..> CdkDialog : wraps
+ToastService ..> LiveAnnouncer : announces via
+FormErrorFocus ..> FormFieldComponent : focuses first invalid
+@enduml

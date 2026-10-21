@@ -1,0 +1,27 @@
+@startuml
+!include <C4/C4_Component>
+LAYOUT_WITH_LEGEND()
+title Components — Sprints
+
+Container_Boundary(web, "Web app") {
+  Component(page, "BacklogPage", "Angular page", "Backlog, sprint panel, history")
+  Component(dlg, "StartSprintDialog / CloseSprintDialog", "CDK Dialog", "Start and close")
+  Component(svc, "AgileService", "api library", "AGILE_SERVICE token")
+}
+Container_Boundary(api, "Community API") {
+  Component(ep, "SprintsEndpoints", "Minimal API", "Sprint routes")
+  Component(h, "Sprint handlers", "Application", "Start, move stories, close, history")
+  Component(pol, "WorkspaceAccessPolicy", "Application", "Owner and member checks")
+  Component(ent, "Sprint", "Domain entity", "Sprint state and points")
+  ComponentDb(db, "Community database", "PostgreSQL", "Agile tables")
+}
+
+Rel(page, dlg, "Opens")
+Rel(page, svc, "Calls")
+Rel(dlg, svc, "Calls")
+Rel(svc, ep, "Calls", "JSON/HTTPS")
+Rel(ep, h, "Dispatches")
+Rel(h, pol, "Checks access")
+Rel(h, ent, "Creates and mutates")
+Rel(h, db, "Persists", "EF Core")
+@enduml

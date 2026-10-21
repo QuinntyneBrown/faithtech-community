@@ -1,0 +1,48 @@
+@startuml
+title UML sequence behaviour — Load a paged list
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+actor "Member" as actor
+box "Frontend — FaithTech Community web app (feature library)" #E0F2FE
+  participant "App shell router" as router
+  participant "Feature page" as page
+  participant "Http<Feature>Service" as client
+end box
+box "Backend — FaithTech.Community.Api" #D1FADF
+  participant "<Feature>Endpoints" as ep
+end box
+box "Backend — FaithTech.Community.Application and Domain" #ECFDF3
+  participant "List<Items>Handler" as h
+end box
+box "Backend — FaithTech.Community.Infrastructure" #FFF4E5
+  participant "ToPagedResultAsync" as pg
+  database "Community database" as db
+end box
+actor -> router : Navigate to feature route
+router -> router : loadChildren: fetch feature chunk (L2-046 #2)
+router -> page : Activate
+page -> client : list(page 1, size 25)
+client -> ep : GET /<feature>?page=1&pageSize=25
+ep -> h : Send query with PageRequest
+h -> h : Normalize: PageSize <= 100 (L2-046 #3)
+h -> pg : ToPagedResultAsync
+pg -> db : SELECT ... LIMIT/OFFSET; COUNT
+db --> pg : Rows and total
+pg --> h : PagedResult
+h --> ep : PagedResult
+ep --> client : 200 (p95 < 300 ms target, L2-046 #1)
+client --> page : Render list
+page --> actor : List shown
+@enduml

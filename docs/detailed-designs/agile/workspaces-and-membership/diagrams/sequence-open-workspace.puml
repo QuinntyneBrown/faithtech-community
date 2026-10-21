@@ -1,0 +1,54 @@
+@startuml
+title UML sequence behaviour — Open a workspace
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+actor "Signed-in user" as actor
+box "Frontend — FaithTech Community web app (agile library)" #E0F2FE
+  participant "WorkspacesPage" as page
+  participant "AgileService (AGILE_SERVICE)" as svc
+end box
+box "Backend — FaithTech.Community.Api" #D1FADF
+  participant "WorkspacesEndpoints" as ep
+end box
+box "Backend — FaithTech.Community.Application and Domain" #ECFDF3
+  participant "GetWorkspaceHandler" as h
+  participant "WorkspaceAccessPolicy" as pol
+end box
+box "Backend — FaithTech.Community.Infrastructure" #FFF4E5
+  participant "CommunityDbContext" as ctx
+  database "Community database" as db
+end box
+actor -> page : Open workspace
+page -> svc : getWorkspace(id)
+svc -> ep : GET /workspaces/{id}
+ep -> h : Send GetWorkspaceQuery
+h -> pol : Resolve(workspaceId)
+pol -> ctx : Load owner and membership
+ctx -> db : SELECT
+db --> ctx : Rows
+alt outsider (not member, Staff or System Admin)
+pol --> h : Outsider
+h --> ep : NotFound (L2-031 AC6)
+ep --> svc : 404
+svc --> page : Not found
+page --> actor : Show not-found page
+else member, owner, Staff or System Admin
+pol --> h : Access level
+h --> ep : WorkspaceDto with permitted actions
+ep --> svc : 200 OK
+svc --> page : Workspace
+page --> actor : Render; owner controls only for owner or System Admin (L2-031 AC4, AC5)
+end
+@enduml

@@ -1,0 +1,52 @@
+@startuml
+title UML sequence behaviour — Move a partner
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+actor "Lead" as actor
+box "Frontend — FaithTech Community web app (partners library)" #E0F2FE
+  participant "PartnersPage" as page
+  participant "MovePartnerDialog" as dlg
+  participant "HttpPartnersService" as svc
+end box
+box "Backend — FaithTech.Community.Api" #D1FADF
+  participant "PartnersEndpoints" as ep
+end box
+box "Backend — FaithTech.Community.Application and Domain" #ECFDF3
+  participant "MovePartnerHandler" as h
+  participant "Partner" as ent
+end box
+box "Backend — FaithTech.Community.Infrastructure" #FFF4E5
+  database "Community database" as db
+end box
+alt pointer
+  actor -> page : Drag card to another column
+else keyboard or Move to
+  actor -> page : Focus card and choose Move to (L2-018 AC3)
+  page -> dlg : Open
+  actor -> dlg : Choose stage
+  dlg --> page : Stage
+end
+page -> svc : move(id, stage)
+svc -> ep : POST /api/partners/{id}/stage
+ep -> h : Send MovePartnerCommand
+h -> h : PartnerAccessPolicy.CanWrite (L2-017 AC3)
+h -> db : Load Partner
+h -> ent : MoveTo(stage, caller, nowUtc) (L2-018 AC2)
+h -> db : Save Partner and PartnerStageChange
+h --> ep : PartnerDto
+ep --> svc : 200 OK
+svc --> page : Updated card
+page --> actor : Card in new column, counts updated, move announced
+@enduml

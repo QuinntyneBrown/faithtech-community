@@ -1,0 +1,74 @@
+@startuml
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 8
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam class {
+  BorderColor #344054
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+title Class structure — Global search
+
+class GlobalSearchQuery {
+  +string Term
+}
+class GlobalSearchValidator {
+  +Validate(query: GlobalSearchQuery): ValidationResult
+}
+class GlobalSearchHandler {
+  +Handle(query: GlobalSearchQuery): Task<SearchResultsDto>
+}
+interface ICurrentUser {
+  +Guid ProfileId
+  +IReadOnlySet<Role> Roles
+}
+class SearchScope <<Value object>> {
+  +bool People
+  +bool Events
+  +bool Partners
+  +bool Contacts
+  +Guid? ContactOwnerId
+  +bool AllContacts
+  +bool WorkItems
+  +bool AllWorkspaces
+  +IReadOnlySet<Guid> MemberWorkspaceIds
+  +{static} For(user: ICurrentUser): SearchScope
+}
+interface ISearchIndex {
+  +SearchAsync(term: string, scope: SearchScope): Task<SearchResultsDto>
+}
+class PostgresSearchIndex {
+  +SearchAsync(term: string, scope: SearchScope): Task<SearchResultsDto>
+}
+enum SearchResultKind {
+  Person
+  Event
+  Partner
+  Contact
+  WorkItem
+}
+class SearchResultsDto {
+  +IReadOnlyList<SearchResultGroup> Groups
+}
+class SearchResultGroup {
+  +SearchResultKind Kind
+  +IReadOnlyList<SearchResultItem> Items
+}
+class SearchResultItem {
+  +Guid Id
+  +string Title
+  +string Snippet
+  +string Route
+}
+PostgresSearchIndex ..|> ISearchIndex
+GlobalSearchValidator ..> GlobalSearchQuery : validates
+GlobalSearchHandler ..> GlobalSearchQuery : handles
+GlobalSearchHandler ..> ICurrentUser
+GlobalSearchHandler ..> SearchScope : builds
+GlobalSearchHandler ..> ISearchIndex
+SearchResultsDto "1" *-- "*" SearchResultGroup
+SearchResultGroup "1" *-- "*" SearchResultItem
+SearchResultGroup --> SearchResultKind
+@enduml

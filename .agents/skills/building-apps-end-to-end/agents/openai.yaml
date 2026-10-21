@@ -1,0 +1,4 @@
+interface:
+  display_name: "Building Apps End to End"
+  short_description: "Plan once, then build a full stack app and all its documents from one idea"
+  default_prompt: "Use $building-apps-end-to-end to build a complete app from this idea, with mocks, specs, designs and tests."

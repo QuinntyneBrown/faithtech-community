@@ -1,0 +1,59 @@
+@startuml
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 8
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam class {
+  BorderColor #344054
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+title Class structure — Send an announcement
+enum AudienceKind {
+  Everyone
+  Role
+  EventRsvps
+}
+class AnnouncementAudience {
+  +AudienceKind Kind
+  +Role? Role
+  +Guid? EventId
+}
+class Announcement {
+  +Guid Id
+  +string Subject
+  +string Body
+  +AnnouncementAudience Audience
+  +Guid SenderId
+  +DateTimeOffset SentAt
+}
+class AnnouncementRecipient {
+  +Guid AnnouncementId
+  +Guid ProfileId
+}
+class SendAnnouncementCommand {
+  +string Subject
+  +string Body
+  +AnnouncementAudience Audience
+}
+class SendAnnouncementHandler {
+  +Handle(c: SendAnnouncementCommand): Task<Result<Guid>>
+}
+class SendAnnouncementValidator
+class CountAnnouncementRecipientsHandler {
+  +Handle(q: CountAnnouncementRecipientsQuery): Task<int>
+}
+interface INotificationPublisher
+interface ICurrentUser {
+  +bool HasRole(role: Role)
+}
+AnnouncementAudience --> AudienceKind
+Announcement *-- AnnouncementAudience
+Announcement "1" *-- "*" AnnouncementRecipient
+SendAnnouncementHandler ..> SendAnnouncementCommand : handles
+SendAnnouncementValidator ..> SendAnnouncementCommand : validates
+SendAnnouncementHandler ..> ICurrentUser : authorizes
+SendAnnouncementHandler ..> INotificationPublisher : uses
+SendAnnouncementHandler --> Announcement : creates
+@enduml

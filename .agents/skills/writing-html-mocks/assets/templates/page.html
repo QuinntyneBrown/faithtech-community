@@ -1,0 +1,144 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Loans · default — Shelf mocks</title>
+<!-- mock:* metas tie this file to manifest.json; check_mocks.py verifies they match the path pages/loans/default.html -->
+<meta name="mock:kind" content="page">
+<meta name="mock:screen" content="loans">
+<meta name="mock:state" content="default">
+<meta name="mock:requirements" content="L2-LOAN-001 L2-LOAN-004">
+<meta name="description" content="Loans list with active, overdue and returned loans for a library member.">
+<link rel="stylesheet" href="../../assets/tokens.css">
+<link rel="stylesheet" href="../../assets/ui.css">
+<link rel="stylesheet" href="../../assets/mock.css">
+</head>
+<body>
+<a class="skip-link" href="#main">Skip to content</a>
+
+<div class="sidebar-layout">
+  <nav class="sidebar" aria-label="Primary">
+    <a class="topbar__brand" href="../dashboard/default.html" style="margin-bottom: var(--space-4);">
+      <svg class="icon icon--lg" aria-hidden="true" viewBox="0 0 24 24"><path d="M4 4h16v16H4zM8 4v16M12 8h6M12 12h6"/></svg>
+      Shelf
+    </a>
+    <a class="nav-link" href="../dashboard/default.html"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><path d="M3 12 12 3l9 9M5 10v10h14V10"/></svg>Dashboard</a>
+    <a class="nav-link" href="../catalog/default.html"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><path d="M4 19V5a2 2 0 0 1 2-2h12v18H6a2 2 0 0 1-2-2zM8 7h6"/></svg>Catalog</a>
+    <a class="nav-link" href="default.html" aria-current="page"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><path d="M3 7h18M3 12h18M3 17h12"/></svg>Loans <span class="badge badge--count" aria-label="2 overdue">2</span></a>
+    <a class="nav-link" href="../members/default.html"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></svg>Members</a>
+    <div class="sidebar__group">Account</div>
+    <a class="nav-link" href="../settings/default.html"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19 12a7 7 0 0 0-.1-1l2-1.5-2-3.4-2.3.9a7 7 0 0 0-1.7-1L14.5 3h-5l-.4 2.4a7 7 0 0 0-1.7 1L5.1 5.5l-2 3.4 2 1.5a7 7 0 0 0 0 2l-2 1.5 2 3.4 2.3-.9a7 7 0 0 0 1.7 1l.4 2.4h5l.4-2.4a7 7 0 0 0 1.7-1l2.3.9 2-3.4-2-1.5c.1-.3.1-.7.1-1z"/></svg>Settings</a>
+  </nav>
+
+  <div>
+    <header class="topbar">
+      <button class="btn btn--ghost btn--icon topbar__menu" type="button" aria-label="Open navigation" aria-expanded="false">
+        <svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><path d="M4 7h16M4 12h16M4 17h16"/></svg>
+      </button>
+      <form class="search" role="search">
+        <label class="visually-hidden" for="q">Search loans</label>
+        <svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+        <input class="input" id="q" type="search" placeholder="Search by title or member">
+      </form>
+      <span class="topbar__spacer"></span>
+      <button class="btn btn--ghost btn--icon has-tooltip" type="button" aria-label="Notifications, 3 unread">
+        <svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><path d="M6 16V11a6 6 0 0 1 12 0v5l2 2H4zM10 20a2 2 0 0 0 4 0"/></svg>
+        <span class="tooltip" role="tooltip">3 unread</span>
+      </button>
+      <button class="avatar avatar--sm" type="button" aria-label="Account menu for Priya Natarajan" style="border: 0; cursor: pointer;">PN</button>
+    </header>
+
+    <main id="main" class="container">
+      <nav aria-label="Breadcrumb"><ol class="breadcrumb"><li><a href="../dashboard/default.html">Dashboard</a></li><li aria-current="page">Loans</li></ol></nav>
+      <div class="page-header">
+        <div>
+          <h1>Loans</h1>
+          <p class="subtitle">38 active loans · 2 overdue · 14 due this week</p>
+        </div>
+        <div class="cluster">
+          <button class="btn" type="button"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><path d="M12 3v12m0 0-4-4m4 4 4-4M4 17v3h16v-3"/></svg>Export</button>
+          <a class="btn btn--primary" href="../new-loan/default.html"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>New loan</a>
+        </div>
+      </div>
+
+      <div class="tabs" role="tablist" aria-label="Loan status">
+        <button class="tab" role="tab" aria-selected="true" id="tab-active" aria-controls="panel-active" type="button">Active <span class="badge">38</span></button>
+        <button class="tab" role="tab" aria-selected="false" id="tab-overdue" type="button" tabindex="-1">Overdue <span class="badge badge--danger">2</span></button>
+        <button class="tab" role="tab" aria-selected="false" id="tab-returned" type="button" tabindex="-1">Returned</button>
+      </div>
+
+      <section id="panel-active" role="tabpanel" aria-labelledby="tab-active" class="section" style="margin-top: var(--space-4);">
+        <div class="cluster cluster--between" style="margin-bottom: var(--space-4);">
+          <div class="cluster">
+            <button class="chip" type="button" aria-pressed="true">Due this week</button>
+            <button class="chip" type="button" aria-pressed="false">Renewed</button>
+            <button class="chip" type="button" aria-pressed="false">Holds waiting</button>
+          </div>
+          <label class="field" style="flex-direction: row; align-items: center; gap: var(--space-2);"><span class="field__label">Sort</span>
+            <select class="select input--sm" style="width: auto;"><option>Due date</option><option>Member</option><option>Title</option></select>
+          </label>
+        </div>
+        <div class="table-wrap">
+          <table class="table">
+            <caption class="visually-hidden">Active loans</caption>
+            <thead><tr>
+              <th scope="col">Title</th><th scope="col">Member</th><th scope="col" aria-sort="ascending"><button type="button">Due</button></th><th scope="col">Status</th><th scope="col"><span class="visually-hidden">Actions</span></th>
+            </tr></thead>
+            <tbody>
+              <tr>
+                <td><div class="list__title">The Left Hand of Darkness</div><div class="list__meta">Ursula K. Le Guin · Copy 2</div></td>
+                <td><div class="cluster" style="gap: var(--space-2);"><span class="avatar avatar--sm" aria-hidden="true">JA</span>Jonah Adeyemi</div></td>
+                <td>Tomorrow</td>
+                <td><span class="badge badge--warning">Due soon</span></td>
+                <td class="row-actions"><button class="btn btn--sm" type="button">Renew</button> <button class="btn btn--sm btn--ghost" type="button">Return</button></td>
+              </tr>
+              <tr>
+                <td><div class="list__title">Braiding Sweetgrass</div><div class="list__meta">Robin Wall Kimmerer · Copy 1</div></td>
+                <td><div class="cluster" style="gap: var(--space-2);"><span class="avatar avatar--sm" aria-hidden="true">MR</span>Mei Rodríguez</div></td>
+                <td>Fri 17 Oct</td>
+                <td><span class="badge badge--success">On time</span></td>
+                <td class="row-actions"><button class="btn btn--sm" type="button">Renew</button> <button class="btn btn--sm btn--ghost" type="button">Return</button></td>
+              </tr>
+              <tr>
+                <td><div class="list__title">Piranesi</div><div class="list__meta">Susanna Clarke · Copy 3</div></td>
+                <td><div class="cluster" style="gap: var(--space-2);"><span class="avatar avatar--sm" aria-hidden="true">TO</span>Tomasz Okafor</div></td>
+                <td>3 days overdue</td>
+                <td><span class="badge badge--danger">Overdue</span></td>
+                <td class="row-actions"><button class="btn btn--sm" type="button">Send reminder</button> <button class="btn btn--sm btn--ghost" type="button">Return</button></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <nav class="cluster cluster--between" aria-label="Pagination" style="margin-top: var(--space-4);">
+          <span class="text-caption">Showing 1–20 of 38</span>
+          <ul class="pagination">
+            <li><a href="#" aria-disabled="true" aria-label="Previous page">‹</a></li>
+            <li><a href="#" aria-current="page">1</a></li>
+            <li><a href="#">2</a></li>
+            <li><a href="#" aria-label="Next page">›</a></li>
+          </ul>
+        </nav>
+      </section>
+    </main>
+  </div>
+</div>
+
+<p class="mock-note" style="top: 5rem; right: 1rem;">Row actions appear on hover and keyboard focus; on touch they are always visible (see <code>loans/default</code> at 360px).</p>
+
+<nav class="mock-bar" aria-label="Mock navigation">
+  <a class="mock-bar__home" href="../../index.html" aria-label="All mocks">⌂</a>
+  <span class="mock-bar__screen">Loans</span>
+  <ul class="mock-bar__states">
+    <li><a href="default.html" aria-current="page">default</a></li>
+    <li><a href="loading.html">loading</a></li>
+    <li><a href="empty.html">empty</a></li>
+    <li><a href="error.html">error</a></li>
+    <li><a href="no-results.html">no-results</a></li>
+  </ul>
+  <button type="button" data-theme-toggle aria-pressed="false">☾ Dark</button>
+  <button type="button" data-chrome-toggle aria-label="Hide mock chrome">×</button>
+</nav>
+<script src="../../assets/mock.js"></script>
+</body>
+</html>

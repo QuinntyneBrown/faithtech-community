@@ -1,0 +1,90 @@
+@startuml
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 8
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam class {
+  BorderColor #344054
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+title Class structure — Agile workspaces and membership
+
+enum WorkspaceMethod {
+  Scrum
+  Kanban
+}
+enum WorkspaceAccess {
+  Outsider
+  StaffReader
+  Member
+  Owner
+  SystemAdmin
+}
+class Workspace {
+  +Guid Id
+  +string Name
+  +WorkspaceMethod Method
+  +Guid OwnerId
+  +bool IsArchived
+  +AddMember(profileId: Guid): void
+  +RemoveMember(profileId: Guid): void
+}
+class WorkspaceMember {
+  +Guid WorkspaceId
+  +Guid ProfileId
+  +DateTimeOffset AddedAt
+}
+class CreateWorkspaceCommand {
+  +string Name
+  +WorkspaceMethod Method
+}
+class AddWorkspaceMemberCommand {
+  +Guid WorkspaceId
+  +Guid ProfileId
+}
+class RemoveWorkspaceMemberCommand {
+  +Guid WorkspaceId
+  +Guid ProfileId
+}
+class CreateWorkspaceHandler {
+  +Handle(cmd: CreateWorkspaceCommand): Task<WorkspaceDto>
+}
+class AddWorkspaceMemberHandler {
+  +Handle(cmd: AddWorkspaceMemberCommand): Task<Result>
+}
+class RemoveWorkspaceMemberHandler {
+  +Handle(cmd: RemoveWorkspaceMemberCommand): Task<Result>
+}
+class WorkspaceAccessPolicy {
+  +Resolve(workspaceId: Guid): Task<WorkspaceAccess>
+  +EnsureCanRead(workspaceId: Guid): Task
+  +EnsureMember(workspaceId: Guid): Task
+  +EnsureOwner(workspaceId: Guid): Task
+}
+interface ICurrentUser {
+  +Guid ProfileId
+  +IReadOnlySet<Role> Roles
+}
+interface INotificationService {
+  +NotifyAsync(profileId: Guid, notification: Notification): Task
+}
+interface IAuditLog {
+  +RecordAsync(entry: AuditEntry): Task
+}
+Workspace "1" *-- "*" WorkspaceMember
+Workspace --> WorkspaceMethod
+CreateWorkspaceHandler ..> CreateWorkspaceCommand : handles
+AddWorkspaceMemberHandler ..> AddWorkspaceMemberCommand : handles
+RemoveWorkspaceMemberHandler ..> RemoveWorkspaceMemberCommand : handles
+CreateWorkspaceHandler --> Workspace : creates
+AddWorkspaceMemberHandler --> Workspace : mutates
+RemoveWorkspaceMemberHandler --> Workspace : mutates
+AddWorkspaceMemberHandler ..> WorkspaceAccessPolicy
+RemoveWorkspaceMemberHandler ..> WorkspaceAccessPolicy
+AddWorkspaceMemberHandler ..> INotificationService
+WorkspaceAccessPolicy ..> ICurrentUser
+WorkspaceAccessPolicy ..> IAuditLog
+WorkspaceAccessPolicy --> WorkspaceAccess
+@enduml

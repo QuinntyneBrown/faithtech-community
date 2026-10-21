@@ -1,0 +1,14 @@
+@startuml
+!include <C4/C4_Container>
+LAYOUT_WITH_LEGEND()
+title Containers — Reliability and observability
+Person(ops, "Operator", "Runs and monitors the deployment")
+System_Boundary(ftc, "FaithTech Community") {
+  Container(web, "Web app", "Angular", "Shell, app shell feature library, api and components libraries")
+  Container(api, "Community API", "ASP.NET Core", "FaithTech.Community.Api with Application, Domain and Infrastructure")
+  ContainerDb(db, "Community database", "PostgreSQL", "Persistent community data")
+}
+Rel(ops, api, "Probes", "HTTPS /health")
+Rel(web, api, "Calls", "JSON/HTTPS")
+Rel(api, db, "Reads and writes", "EF Core")
+@enduml

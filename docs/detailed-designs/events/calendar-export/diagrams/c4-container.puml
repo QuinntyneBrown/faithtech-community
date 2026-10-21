@@ -1,0 +1,17 @@
+@startuml
+!include <C4/C4_Container>
+LAYOUT_WITH_LEGEND()
+title Containers — Calendar export
+
+Person(member, "Member", "Signed-in user who browses and RSVPs to events")
+Person_Ext(guest, "Anonymous visitor / Guest", "Opens a public event share link without an account")
+System_Boundary(ftc, "FaithTech Community") {
+  Container(spa, "Web app", "Angular", "Shell, events feature library, api and components libraries")
+  Container(api, "Community API", "ASP.NET Core", "FaithTech.Community.Api with Application, Domain and Infrastructure")
+  ContainerDb(db, "Community database", "PostgreSQL", "Events, RSVPs, notifications and outbox")
+}
+Rel(member, spa, "Uses", "HTTPS")
+Rel(guest, spa, "Uses", "HTTPS")
+Rel(spa, api, "Calls", "HTTPS; bearer token for members-only events")
+Rel(api, db, "Reads and writes", "EF Core")
+@enduml

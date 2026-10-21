@@ -1,0 +1,22 @@
+@startuml
+!include <C4/C4_Component>
+LAYOUT_WITH_LEGEND()
+title Components — Edit own profile
+
+Container(spa, "Web app", "Angular", "profiles feature library and api client")
+Container_Boundary(api, "Community API") {
+  Component(ep, "ProfilesEndpoints", "Minimal API", "PUT /api/profiles/{id}")
+  Component(val, "UpdateProfileValidator", "Validator", "Name 1 to 100 characters")
+  Component(h, "UpdateProfileHandler", "Application handler", "Authorizes and renames")
+  Component(cu, "ICurrentUser", "Application abstraction", "Caller identity and roles")
+  Component(au, "IAuditLog", "Infrastructure service", "Records admin overrides")
+  ComponentDb(db, "CommunityDbContext", "EF Core / PostgreSQL", "Profiles and audit log")
+}
+Rel(spa, ep, "PUT profile")
+Rel(ep, h, "Sends UpdateProfileCommand")
+Rel(h, val, "Validates with")
+Rel(h, cu, "Reads caller")
+Rel(h, db, "Saves profile")
+Rel(h, au, "Audits override")
+Rel(au, db, "Writes entry")
+@enduml

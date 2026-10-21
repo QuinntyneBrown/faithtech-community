@@ -1,0 +1,9 @@
+@startuml
+!include <C4/C4_Context>
+LAYOUT_WITH_LEGEND()
+title System Context — Sign in and sign out
+
+Person(member, "Member", "Signed-in user with a profile")
+System(ftc, "FaithTech Community", "Community site for FaithTech staff, leads, volunteers, builders and partners")
+Rel(member, ftc, "Signs in to", "HTTPS")
+@enduml

@@ -1,0 +1,57 @@
+@startuml
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 8
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam class {
+  BorderColor #344054
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+title Class structure — Send an invite
+
+class Invite {
+  +Guid Id
+  +string Email
+  +string TokenHash
+  +Role? PreassignedRole
+  +Guid InvitedBy
+  +DateTimeOffset CreatedAt
+  +DateTimeOffset ExpiresAt
+  +DateTimeOffset? AcceptedAt
+  +DateTimeOffset? RevokedAt
+  +Status(now: DateTimeOffset): InviteStatus
+  +Revoke(now: DateTimeOffset): void
+}
+enum InviteStatus {
+  Pending
+  Accepted
+  Expired
+  Revoked
+}
+class SendInviteCommand {
+  +string Email
+  +Role? PreassignedRole
+}
+class SendInviteHandler {
+  +int MaxPer24Hours = 50
+  +TimeSpan Lifetime = 14 days
+  +Handle(command: SendInviteCommand): Task<InviteDto>
+}
+class RevokeInviteHandler {
+  +Handle(command: RevokeInviteCommand): Task
+}
+interface IRoleAssignmentPolicy {
+  +CanGrant(caller: ICurrentUser, role: Role): bool
+}
+interface IEmailSender {
+  +SendAsync(message: EmailMessage): Task
+}
+SendInviteHandler ..> SendInviteCommand : handles
+SendInviteHandler ..> IRoleAssignmentPolicy : uses
+SendInviteHandler ..> IEmailSender : uses
+SendInviteHandler --> Invite : creates
+RevokeInviteHandler --> Invite : revokes
+Invite --> InviteStatus : derives
+@enduml

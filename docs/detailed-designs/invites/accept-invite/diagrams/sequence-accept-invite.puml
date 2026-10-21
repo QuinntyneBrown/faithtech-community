@@ -1,0 +1,58 @@
+@startuml
+title UML sequence behaviour — accept an invite
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+actor "Invitee" as actor
+box "Frontend — FaithTech Community web app (invites library)" #E0F2FE
+  participant "AcceptInvitePage" as page
+  participant "InvitesService" as client
+end box
+box "Backend — FaithTech.Community.Api" #D1FADF
+  participant "InvitesEndpoints" as ep
+end box
+box "Backend — FaithTech.Community.Application and Domain" #ECFDF3
+  participant "AcceptInviteHandler" as h
+end box
+box "Backend — FaithTech.Community.Infrastructure" #FFF4E5
+  database "Community database" as db
+end box
+actor -> page : Open invite link
+page -> client : getInvite(token)
+client -> ep : GET /api/invites/by-token
+ep -> db : Find invite by token hash
+alt expired, revoked or used
+  ep --> page : Invalid invite
+  page --> actor : Error with link to normal sign-up (L2-011)
+else pending
+  ep --> page : Invited email
+  alt no account
+    actor -> page : Sign up with invited email
+    page -> client : acceptInvite(token, name, password)
+    client -> ep : POST /api/invites/accept
+    ep -> h : Send AcceptInviteCommand
+    h -> db : Create user with EmailConfirmed = true (L2-011)
+  else existing signed-in account
+    actor -> page : Accept invite
+    page -> client : acceptInvite(token)
+    client -> ep : POST /api/invites/accept
+    ep -> h : Send AcceptInviteCommand
+    h -> db : Load caller's account (L2-011)
+  end
+  h -> db : Grant pre-assigned role, mark invite accepted (L2-011)
+  h --> ep : Accepted
+  ep --> page : 200
+  page --> actor : Continue into the app
+end
+@enduml

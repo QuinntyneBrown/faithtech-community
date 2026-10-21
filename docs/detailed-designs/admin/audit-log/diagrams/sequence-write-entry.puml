@@ -1,0 +1,46 @@
+@startuml
+title UML sequence behaviour — Write an audit entry
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+actor "System Admin" as actor
+box "Frontend — FaithTech Community web app (admin library)" #E0F2FE
+  participant "Any admin page" as page
+  participant "Feature service" as svc
+end box
+box "Backend — FaithTech.Community.Api" #D1FADF
+  participant "Feature endpoints" as ep
+end box
+box "Backend — FaithTech.Community.Application and Domain" #ECFDF3
+  participant "Admin or role handler" as h
+end box
+box "Backend — FaithTech.Community.Infrastructure" #FFF4E5
+  participant "AuditLog" as audit
+  database "Community database" as db
+end box
+actor -> page : Perform admin action
+page -> svc : Request
+svc -> ep : HTTPS request
+ep -> h : Send command
+h -> db : Load target and capture before values
+h -> h : Apply change and capture after values
+h -> audit : Write(actor, action, target, before, after, UTC, IP) (L2-041 AC1)
+audit -> db : Insert audit_entries row
+h -> db : Save changes in one unit of work
+db --> h : Commit
+h --> ep : Result
+ep --> svc : Response
+svc --> page : Result
+page --> actor : Present outcome
+@enduml

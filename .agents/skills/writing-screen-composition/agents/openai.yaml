@@ -1,0 +1,4 @@
+interface:
+  display_name: "Writing Screen Composition"
+  short_description: "Map every mocked screen to component-library parts and local UI"
+  default_prompt: "Use $writing-screen-composition to create docs/screen-composition.md from docs/mocks/ and the component library catalogue."

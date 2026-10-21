@@ -1,0 +1,59 @@
+@startuml
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 8
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam class {
+  BorderColor #344054
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+title Class structure — Archive, restore and delete contacts
+class Contact {
+  +Guid Id
+  +Guid OwnerId
+  +string Name
+  +string Email
+  +string Phone
+  +string Organization
+  +Guid? LinkedProfileId
+  +DateTime? ArchivedAtUtc
+  +Archive(nowUtc: DateTime): void
+  +Restore(): void
+  +LinkTo(profileId: Guid): void
+}
+class ContactNote {
+  +Guid Id
+  +Guid ContactId
+  +string Body
+  +DateTime CreatedAtUtc
+}
+class ContactAccessPolicy {
+  +CanAccess(caller: ICurrentUser, contact: Contact): AccessResult
+}
+interface ICurrentUser {
+  +Guid ProfileId
+  +bool IsSystemAdmin
+  +bool HoldsLeadRole
+}
+Contact "1" *-- "*" ContactNote
+ContactAccessPolicy ..> Contact
+ContactAccessPolicy ..> ICurrentUser
+
+class ArchiveContactHandler {
+  +Handle(command: ArchiveContactCommand): Task<Result>
+}
+class RestoreContactHandler {
+  +Handle(command: RestoreContactCommand): Task<Result>
+}
+class DeleteContactHandler {
+  +Handle(command: DeleteContactCommand): Task<Result>
+}
+ArchiveContactHandler --> Contact : Archive
+RestoreContactHandler --> Contact : Restore
+DeleteContactHandler --> Contact : removes
+ArchiveContactHandler --> ContactAccessPolicy
+RestoreContactHandler --> ContactAccessPolicy
+DeleteContactHandler --> ContactAccessPolicy
+@enduml

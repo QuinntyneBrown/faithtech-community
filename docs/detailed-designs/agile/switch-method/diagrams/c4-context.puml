@@ -1,0 +1,10 @@
+@startuml
+!include <C4/C4_Context>
+LAYOUT_WITH_LEGEND()
+title System Context — Switch method
+
+Person(lead, "City Lead", "Owns Agile workspaces")
+System(ftc, "FaithTech Community", "Community site with Agile team workspaces")
+
+Rel(lead, ftc, "Switches the method of a workspace in")
+@enduml

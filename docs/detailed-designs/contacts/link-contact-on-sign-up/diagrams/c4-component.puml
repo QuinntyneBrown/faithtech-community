@@ -1,0 +1,24 @@
+@startuml
+!include <C4/C4_Component>
+LAYOUT_WITH_LEGEND()
+title Components — Link a contact on sign-up
+Container_Boundary(web, "Web app") {
+  Component(dlg, "LinkContactDialog", "Angular CDK Dialog", "Confirms linking")
+  Component(svc, "HttpContactsService", "Angular service", "Implements ContactsService")
+}
+Container_Boundary(api, "Community API") {
+  Component(ep, "ContactsEndpoints", "ASP.NET Core minimal API", "POST /api/contacts/{id}/link")
+  Component(evt, "ContactSignedUpHandler", "Application event handler", "Matches verified email to contacts")
+  Component(h, "LinkContactHandler", "Application handler", "Links contact to profile")
+  Component(pol, "ContactAccessPolicy", "Application permission check", "Owner or System Admin only")
+  Component(notify, "NotificationDispatcher", "Infrastructure service", "Writes in-app notifications and sends email")
+  ComponentDb(db, "CommunityDbContext", "PostgreSQL", "EF Core context over the Community database")
+}
+Rel(dlg, svc, "Calls")
+Rel(svc, ep, "POST", "JSON/HTTPS")
+Rel(ep, h, "Sends command")
+Rel(h, pol, "Checks ownership")
+Rel(h, db, "Persists", "EF Core")
+Rel(evt, db, "Finds matching contacts")
+Rel(evt, notify, "Notifies owning lead")
+@enduml

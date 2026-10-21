@@ -1,0 +1,1209 @@
+{
+  "project": "FaithTech Community",
+  "screens": [
+    {
+      "id": "sign-in",
+      "kind": "page",
+      "title": "Sign in",
+      "route": "/sign-in",
+      "requirements": [
+        "L2-003"
+      ],
+      "states": [
+        "default",
+        "invalid",
+        "busy",
+        "locked",
+        "error",
+        "suspended"
+      ],
+      "not_applicable": {
+        "loading": "A static form; nothing is fetched before it renders.",
+        "empty": "This screen has no collection that could be empty."
+      }
+    },
+    {
+      "id": "sign-up",
+      "kind": "page",
+      "title": "Sign up",
+      "route": "/sign-up",
+      "requirements": [
+        "L2-001"
+      ],
+      "states": [
+        "default",
+        "invalid",
+        "busy",
+        "error",
+        "success"
+      ],
+      "not_applicable": {
+        "loading": "A static form; nothing is fetched before it renders.",
+        "empty": "This screen has no collection that could be empty."
+      }
+    },
+    {
+      "id": "verify-email",
+      "kind": "page",
+      "title": "Verify email",
+      "route": "/verify-email",
+      "requirements": [
+        "L2-002"
+      ],
+      "states": [
+        "default",
+        "success",
+        "error"
+      ],
+      "not_applicable": {
+        "loading": "The link is checked server-side before the page renders.",
+        "empty": "This screen has no collection that could be empty."
+      }
+    },
+    {
+      "id": "forgot-password",
+      "kind": "page",
+      "title": "Forgot password",
+      "route": "/forgot-password",
+      "requirements": [
+        "L2-004"
+      ],
+      "states": [
+        "default",
+        "invalid",
+        "error",
+        "success"
+      ],
+      "not_applicable": {
+        "loading": "A static form; nothing is fetched before it renders.",
+        "empty": "This screen has no collection that could be empty."
+      }
+    },
+    {
+      "id": "reset-password",
+      "kind": "page",
+      "title": "Reset password",
+      "route": "/reset-password",
+      "requirements": [
+        "L2-004"
+      ],
+      "states": [
+        "default",
+        "invalid",
+        "error",
+        "success"
+      ],
+      "not_applicable": {
+        "loading": "The token is checked server-side before the page renders.",
+        "empty": "This screen has no collection that could be empty."
+      }
+    },
+    {
+      "id": "accept-invite",
+      "kind": "page",
+      "title": "Accept invite",
+      "route": "/invite/:token",
+      "requirements": [
+        "L2-001",
+        "L2-011"
+      ],
+      "states": [
+        "default",
+        "invalid",
+        "error"
+      ],
+      "not_applicable": {
+        "loading": "The invite is checked server-side before the page renders.",
+        "empty": "This screen has no collection that could be empty."
+      }
+    },
+    {
+      "id": "home",
+      "kind": "page",
+      "title": "Home",
+      "route": "/",
+      "requirements": [
+        "L2-049"
+      ],
+      "states": [
+        "default",
+        "loading",
+        "empty",
+        "error",
+        "staff"
+      ],
+      "not_applicable": {}
+    },
+    {
+      "id": "profile",
+      "kind": "page",
+      "title": "Profile",
+      "route": "/people/:id",
+      "requirements": [
+        "L2-005",
+        "L2-007"
+      ],
+      "states": [
+        "default",
+        "own",
+        "loading",
+        "empty",
+        "error"
+      ],
+      "not_applicable": {}
+    },
+    {
+      "id": "edit-profile",
+      "kind": "page",
+      "title": "Edit profile",
+      "route": "/profile/edit",
+      "requirements": [
+        "L2-006",
+        "L2-007"
+      ],
+      "states": [
+        "default",
+        "loading",
+        "error",
+        "invalid",
+        "busy",
+        "success",
+        "uploading",
+        "too-large"
+      ],
+      "not_applicable": {
+        "empty": "The form always shows your name; the photo empty state is shown on the profile page."
+      }
+    },
+    {
+      "id": "search",
+      "kind": "page",
+      "title": "Search",
+      "route": "/search",
+      "requirements": [
+        "L2-026"
+      ],
+      "states": [
+        "default",
+        "member",
+        "loading",
+        "empty",
+        "error",
+        "no-results"
+      ],
+      "not_applicable": {}
+    },
+    {
+      "id": "events",
+      "kind": "page",
+      "title": "Events",
+      "route": "/events",
+      "requirements": [
+        "L2-021"
+      ],
+      "states": [
+        "default",
+        "member",
+        "loading",
+        "empty",
+        "error",
+        "no-results"
+      ],
+      "not_applicable": {}
+    },
+    {
+      "id": "event",
+      "kind": "page",
+      "title": "Event",
+      "route": "/events/:id",
+      "requirements": [
+        "L2-022",
+        "L2-024",
+        "L2-025"
+      ],
+      "states": [
+        "default",
+        "rsvped",
+        "lead",
+        "cancelled",
+        "loading",
+        "error"
+      ],
+      "not_applicable": {
+        "empty": "An event page always has an event; a missing one is the 404 page."
+      }
+    },
+    {
+      "id": "public-event",
+      "kind": "page",
+      "title": "Public event page",
+      "route": "/e/:slug",
+      "requirements": [
+        "L2-023",
+        "L2-024"
+      ],
+      "states": [
+        "default",
+        "invalid",
+        "error",
+        "success",
+        "cancelled"
+      ],
+      "not_applicable": {
+        "loading": "Rendered on the server so it can be shared and indexed.",
+        "empty": "A public page always has an event."
+      }
+    },
+    {
+      "id": "event-form",
+      "kind": "page",
+      "title": "Create / edit event",
+      "route": "/events/new",
+      "requirements": [
+        "L2-020"
+      ],
+      "states": [
+        "default",
+        "edit",
+        "loading",
+        "error",
+        "invalid",
+        "busy"
+      ],
+      "not_applicable": {
+        "empty": "A new event form starts with sensible defaults, not an empty collection."
+      }
+    },
+    {
+      "id": "contacts",
+      "kind": "page",
+      "title": "Contacts",
+      "route": "/contacts",
+      "requirements": [
+        "L2-012",
+        "L2-013"
+      ],
+      "states": [
+        "default",
+        "loading",
+        "empty",
+        "error",
+        "no-results",
+        "forbidden"
+      ],
+      "not_applicable": {}
+    },
+    {
+      "id": "contact",
+      "kind": "page",
+      "title": "Contact detail",
+      "route": "/contacts/:id",
+      "requirements": [
+        "L2-012",
+        "L2-014",
+        "L2-015"
+      ],
+      "states": [
+        "default",
+        "match",
+        "linked",
+        "loading",
+        "error"
+      ],
+      "not_applicable": {
+        "empty": "A contact page always has a contact; a missing one is the 404 page."
+      }
+    },
+    {
+      "id": "contact-form",
+      "kind": "page",
+      "title": "Add / edit contact",
+      "route": "/contacts/new",
+      "requirements": [
+        "L2-013"
+      ],
+      "states": [
+        "default",
+        "edit",
+        "invalid",
+        "duplicate",
+        "busy",
+        "error"
+      ],
+      "not_applicable": {
+        "loading": "A new contact form needs no data; editing loads with the contact page.",
+        "empty": "A form, not a collection."
+      }
+    },
+    {
+      "id": "archived-contacts",
+      "kind": "page",
+      "title": "Archived contacts",
+      "route": "/contacts/archived",
+      "requirements": [
+        "L2-016"
+      ],
+      "states": [
+        "default",
+        "loading",
+        "empty",
+        "error"
+      ],
+      "not_applicable": {}
+    },
+    {
+      "id": "partners",
+      "kind": "page",
+      "title": "Partner pipeline",
+      "route": "/partners",
+      "requirements": [
+        "L2-017",
+        "L2-018"
+      ],
+      "states": [
+        "default",
+        "loading",
+        "empty",
+        "error",
+        "read-only",
+        "dragging"
+      ],
+      "not_applicable": {}
+    },
+    {
+      "id": "partner",
+      "kind": "page",
+      "title": "Partner detail",
+      "route": "/partners/:id",
+      "requirements": [
+        "L2-017",
+        "L2-018"
+      ],
+      "states": [
+        "default",
+        "loading",
+        "error"
+      ],
+      "not_applicable": {
+        "empty": "A partner page always has a partner; a missing one is the 404 page."
+      }
+    },
+    {
+      "id": "team",
+      "kind": "page",
+      "title": "Team",
+      "route": "/team",
+      "requirements": [
+        "L2-019"
+      ],
+      "states": [
+        "default",
+        "member",
+        "loading",
+        "empty",
+        "error",
+        "no-results"
+      ],
+      "not_applicable": {}
+    },
+    {
+      "id": "people",
+      "kind": "page",
+      "title": "People and roles",
+      "route": "/people",
+      "requirements": [
+        "L2-009",
+        "L2-053"
+      ],
+      "states": [
+        "default",
+        "admin",
+        "read-only",
+        "loading",
+        "error",
+        "no-results",
+        "forbidden"
+      ],
+      "not_applicable": {
+        "empty": "The list always contains at least you."
+      }
+    },
+    {
+      "id": "invites",
+      "kind": "page",
+      "title": "Invites",
+      "route": "/invites",
+      "requirements": [
+        "L2-010"
+      ],
+      "states": [
+        "default",
+        "loading",
+        "empty",
+        "error"
+      ],
+      "not_applicable": {}
+    },
+    {
+      "id": "announcements",
+      "kind": "page",
+      "title": "Announcements",
+      "route": "/announcements",
+      "requirements": [
+        "L2-030"
+      ],
+      "states": [
+        "default",
+        "loading",
+        "empty",
+        "error"
+      ],
+      "not_applicable": {}
+    },
+    {
+      "id": "compose-announcement",
+      "kind": "page",
+      "title": "Compose announcement",
+      "route": "/announcements/new",
+      "requirements": [
+        "L2-029"
+      ],
+      "states": [
+        "default",
+        "invalid",
+        "busy",
+        "error",
+        "success"
+      ],
+      "not_applicable": {
+        "loading": "The form needs no data before it renders.",
+        "empty": "A form, not a collection."
+      }
+    },
+    {
+      "id": "notifications",
+      "kind": "page",
+      "title": "Notifications",
+      "route": "/notifications",
+      "requirements": [
+        "L2-027"
+      ],
+      "states": [
+        "default",
+        "loading",
+        "empty",
+        "error"
+      ],
+      "not_applicable": {}
+    },
+    {
+      "id": "settings",
+      "kind": "page",
+      "title": "Settings",
+      "route": "/settings",
+      "requirements": [
+        "L2-030",
+        "L2-052"
+      ],
+      "states": [
+        "default",
+        "loading",
+        "error",
+        "invalid",
+        "busy",
+        "success"
+      ],
+      "not_applicable": {
+        "empty": "Settings always have values."
+      }
+    },
+    {
+      "id": "admin-users",
+      "kind": "page",
+      "title": "Admin · Users",
+      "route": "/admin/users",
+      "requirements": [
+        "L2-037",
+        "L2-039",
+        "L2-040"
+      ],
+      "states": [
+        "default",
+        "loading",
+        "error",
+        "no-results",
+        "forbidden"
+      ],
+      "not_applicable": {
+        "empty": "There is always at least one System Admin account."
+      }
+    },
+    {
+      "id": "audit-log",
+      "kind": "page",
+      "title": "Admin · Audit log",
+      "route": "/admin/audit",
+      "requirements": [
+        "L2-041"
+      ],
+      "states": [
+        "default",
+        "loading",
+        "empty",
+        "error",
+        "no-results"
+      ],
+      "not_applicable": {}
+    },
+    {
+      "id": "not-found",
+      "kind": "page",
+      "title": "Not found",
+      "route": "/*",
+      "requirements": [
+        "L2-048"
+      ],
+      "states": [
+        "default"
+      ],
+      "not_applicable": {
+        "loading": "A static error page.",
+        "empty": "A static error page.",
+        "error": "This page is itself the error state."
+      }
+    },
+    {
+      "id": "forbidden",
+      "kind": "page",
+      "title": "Forbidden",
+      "route": "/403",
+      "requirements": [
+        "L2-048"
+      ],
+      "states": [
+        "default"
+      ],
+      "not_applicable": {
+        "loading": "A static error page.",
+        "empty": "A static error page.",
+        "error": "This page is itself the error state."
+      }
+    },
+    {
+      "id": "server-error",
+      "kind": "page",
+      "title": "Server error",
+      "route": "/500",
+      "requirements": [
+        "L2-048"
+      ],
+      "states": [
+        "default"
+      ],
+      "not_applicable": {
+        "loading": "A static error page.",
+        "empty": "A static error page.",
+        "error": "This page is itself the error state."
+      }
+    },
+    {
+      "id": "offline",
+      "kind": "page",
+      "title": "Offline",
+      "requirements": [
+        "L2-048"
+      ],
+      "states": [
+        "default"
+      ],
+      "not_applicable": {
+        "loading": "A static error page.",
+        "empty": "A static error page.",
+        "error": "This page is itself the error state."
+      }
+    },
+    {
+      "id": "workspaces",
+      "kind": "page",
+      "title": "Workspaces",
+      "route": "/workspaces",
+      "requirements": [
+        "L2-050"
+      ],
+      "states": [
+        "default",
+        "member",
+        "staff",
+        "loading",
+        "empty",
+        "error"
+      ],
+      "not_applicable": {}
+    },
+    {
+      "id": "workspace-settings",
+      "kind": "page",
+      "title": "Workspace settings",
+      "route": "/workspaces/:id/settings",
+      "requirements": [
+        "L2-036",
+        "L2-037",
+        "L2-051"
+      ],
+      "states": [
+        "default",
+        "invalid",
+        "loading",
+        "error",
+        "forbidden"
+      ],
+      "not_applicable": {
+        "empty": "A workspace always has at least its owner."
+      }
+    },
+    {
+      "id": "team-board",
+      "kind": "page",
+      "title": "Board",
+      "route": "/workspaces/:id/board",
+      "requirements": [
+        "L2-031",
+        "L2-034",
+        "L2-035"
+      ],
+      "states": [
+        "default",
+        "kanban",
+        "member",
+        "staff",
+        "loading",
+        "empty",
+        "error",
+        "forbidden"
+      ],
+      "not_applicable": {}
+    },
+    {
+      "id": "backlog",
+      "kind": "page",
+      "title": "Backlog",
+      "route": "/workspaces/:id/backlog",
+      "requirements": [
+        "L2-031",
+        "L2-032",
+        "L2-035"
+      ],
+      "states": [
+        "default",
+        "sprints",
+        "member",
+        "staff",
+        "loading",
+        "empty",
+        "error",
+        "forbidden"
+      ],
+      "not_applicable": {}
+    },
+    {
+      "id": "work-item",
+      "kind": "page",
+      "title": "Story",
+      "route": "/workspaces/:id/items/:id",
+      "requirements": [
+        "L2-032",
+        "L2-033",
+        "L2-037"
+      ],
+      "states": [
+        "default",
+        "member",
+        "staff",
+        "empty",
+        "loading",
+        "error",
+        "forbidden"
+      ],
+      "not_applicable": {}
+    },
+    {
+      "id": "planning-poker",
+      "kind": "page",
+      "title": "Planning Poker",
+      "route": "/workspaces/:id/poker",
+      "requirements": [
+        "L2-038"
+      ],
+      "states": [
+        "default",
+        "revealed",
+        "facilitator",
+        "agreed",
+        "loading",
+        "empty",
+        "error",
+        "forbidden",
+        "staff"
+      ],
+      "not_applicable": {}
+    },
+    {
+      "id": "create-workspace",
+      "kind": "dialog",
+      "title": "Create workspace",
+      "opens_from": "workspaces",
+      "requirements": [
+        "L2-031"
+      ],
+      "states": [
+        "default",
+        "invalid",
+        "busy",
+        "failed"
+      ],
+      "not_applicable": {}
+    },
+    {
+      "id": "add-workspace-member",
+      "kind": "dialog",
+      "title": "Add workspace members",
+      "opens_from": "workspace-settings",
+      "requirements": [
+        "L2-031"
+      ],
+      "states": [
+        "default",
+        "invalid",
+        "busy",
+        "failed"
+      ],
+      "not_applicable": {}
+    },
+    {
+      "id": "remove-workspace-member",
+      "kind": "dialog",
+      "title": "Remove workspace member",
+      "opens_from": "workspace-settings",
+      "requirements": [
+        "L2-031"
+      ],
+      "states": [
+        "default",
+        "busy",
+        "failed"
+      ],
+      "not_applicable": {
+        "invalid": "A confirmation with no input to validate."
+      }
+    },
+    {
+      "id": "archive-workspace",
+      "kind": "dialog",
+      "title": "Archive workspace",
+      "opens_from": "workspace-settings",
+      "requirements": [
+        "L2-037"
+      ],
+      "states": [
+        "default",
+        "busy",
+        "failed"
+      ],
+      "not_applicable": {
+        "invalid": "A confirmation with no input to validate."
+      }
+    },
+    {
+      "id": "archive-work-item",
+      "kind": "dialog",
+      "title": "Archive work item",
+      "opens_from": "work-item",
+      "requirements": [
+        "L2-037"
+      ],
+      "states": [
+        "default",
+        "busy",
+        "failed"
+      ],
+      "not_applicable": {
+        "invalid": "A confirmation with no input to validate."
+      }
+    },
+    {
+      "id": "new-work-item",
+      "kind": "dialog",
+      "title": "New work item",
+      "opens_from": "backlog",
+      "requirements": [
+        "L2-032",
+        "L2-033"
+      ],
+      "states": [
+        "default",
+        "member",
+        "task",
+        "invalid",
+        "busy",
+        "failed"
+      ],
+      "not_applicable": {}
+    },
+    {
+      "id": "start-sprint",
+      "kind": "dialog",
+      "title": "Start sprint",
+      "opens_from": "backlog",
+      "requirements": [
+        "L2-035"
+      ],
+      "states": [
+        "default",
+        "invalid",
+        "busy",
+        "failed"
+      ],
+      "not_applicable": {}
+    },
+    {
+      "id": "close-sprint",
+      "kind": "dialog",
+      "title": "Close sprint",
+      "opens_from": "team-board",
+      "requirements": [
+        "L2-035"
+      ],
+      "states": [
+        "default",
+        "busy",
+        "failed"
+      ],
+      "not_applicable": {
+        "invalid": "A confirmation with no input to validate."
+      }
+    },
+    {
+      "id": "switch-method",
+      "kind": "dialog",
+      "title": "Switch Scrum / Kanban",
+      "opens_from": "workspace-settings",
+      "requirements": [
+        "L2-036"
+      ],
+      "states": [
+        "default",
+        "busy",
+        "failed",
+        "to-scrum"
+      ],
+      "not_applicable": {
+        "invalid": "A method is always selected."
+      }
+    },
+    {
+      "id": "start-poker",
+      "kind": "dialog",
+      "title": "Start Planning Poker",
+      "opens_from": "planning-poker",
+      "requirements": [
+        "L2-038"
+      ],
+      "states": [
+        "default",
+        "invalid",
+        "busy",
+        "failed"
+      ],
+      "not_applicable": {}
+    },
+    {
+      "id": "reassign-owner",
+      "kind": "dialog",
+      "title": "Reassign workspace owner",
+      "opens_from": "admin-users",
+      "requirements": [
+        "L2-037"
+      ],
+      "states": [
+        "default",
+        "invalid",
+        "busy",
+        "failed"
+      ],
+      "not_applicable": {}
+    },
+    {
+      "id": "cancel-event",
+      "kind": "dialog",
+      "title": "Cancel event",
+      "opens_from": "event",
+      "requirements": [
+        "L2-025"
+      ],
+      "states": [
+        "default",
+        "invalid",
+        "busy",
+        "failed"
+      ],
+      "not_applicable": {}
+    },
+    {
+      "id": "cancel-rsvp",
+      "kind": "dialog",
+      "title": "Cancel RSVP",
+      "opens_from": "event",
+      "requirements": [
+        "L2-022"
+      ],
+      "states": [
+        "default",
+        "busy",
+        "failed"
+      ],
+      "not_applicable": {
+        "invalid": "A confirmation with no input to validate."
+      }
+    },
+    {
+      "id": "archive-contact",
+      "kind": "dialog",
+      "title": "Archive contact",
+      "opens_from": "contact",
+      "requirements": [
+        "L2-016"
+      ],
+      "states": [
+        "default",
+        "busy",
+        "failed"
+      ],
+      "not_applicable": {
+        "invalid": "A confirmation with no input to validate."
+      }
+    },
+    {
+      "id": "delete-contact",
+      "kind": "dialog",
+      "title": "Delete contact permanently",
+      "opens_from": "archived-contacts",
+      "requirements": [
+        "L2-016"
+      ],
+      "states": [
+        "default",
+        "invalid",
+        "busy",
+        "failed"
+      ],
+      "not_applicable": {}
+    },
+    {
+      "id": "link-contact",
+      "kind": "dialog",
+      "title": "Link contact to profile",
+      "opens_from": "contact",
+      "requirements": [
+        "L2-015"
+      ],
+      "states": [
+        "default",
+        "busy",
+        "failed"
+      ],
+      "not_applicable": {
+        "invalid": "Both choices are valid; one is preselected."
+      }
+    },
+    {
+      "id": "add-role",
+      "kind": "dialog",
+      "title": "Add role",
+      "opens_from": "people",
+      "requirements": [
+        "L2-009"
+      ],
+      "states": [
+        "default",
+        "invalid",
+        "busy",
+        "failed"
+      ],
+      "not_applicable": {}
+    },
+    {
+      "id": "remove-role",
+      "kind": "dialog",
+      "title": "Remove role",
+      "opens_from": "people",
+      "requirements": [
+        "L2-009"
+      ],
+      "states": [
+        "default",
+        "busy",
+        "failed"
+      ],
+      "not_applicable": {
+        "invalid": "A confirmation with no input to validate."
+      }
+    },
+    {
+      "id": "send-invite",
+      "kind": "dialog",
+      "title": "Send invite",
+      "opens_from": "people",
+      "requirements": [
+        "L2-010"
+      ],
+      "states": [
+        "default",
+        "invalid",
+        "busy",
+        "failed"
+      ],
+      "not_applicable": {}
+    },
+    {
+      "id": "suspend-user",
+      "kind": "dialog",
+      "title": "Suspend user",
+      "opens_from": "admin-users",
+      "requirements": [
+        "L2-039"
+      ],
+      "states": [
+        "default",
+        "invalid",
+        "busy",
+        "failed"
+      ],
+      "not_applicable": {}
+    },
+    {
+      "id": "delete-photo",
+      "kind": "dialog",
+      "title": "Delete photo",
+      "opens_from": "edit-profile",
+      "requirements": [
+        "L2-007"
+      ],
+      "states": [
+        "default",
+        "busy",
+        "failed"
+      ],
+      "not_applicable": {
+        "invalid": "A confirmation with no input to validate."
+      }
+    },
+    {
+      "id": "move-partner",
+      "kind": "dialog",
+      "title": "Move partner stage",
+      "opens_from": "partners",
+      "requirements": [
+        "L2-018"
+      ],
+      "states": [
+        "default",
+        "busy",
+        "failed"
+      ],
+      "not_applicable": {
+        "invalid": "A stage is always selected."
+      }
+    },
+    {
+      "id": "add-partner",
+      "kind": "dialog",
+      "title": "Add partner",
+      "opens_from": "partners",
+      "requirements": [
+        "L2-017"
+      ],
+      "states": [
+        "default",
+        "invalid",
+        "busy",
+        "failed"
+      ],
+      "not_applicable": {}
+    },
+    {
+      "id": "toast",
+      "kind": "notification",
+      "title": "Toast",
+      "opens_from": "event",
+      "requirements": [
+        "L2-054"
+      ],
+      "states": [
+        "info",
+        "success",
+        "warning",
+        "danger",
+        "stacked"
+      ],
+      "not_applicable": {}
+    },
+    {
+      "id": "banner",
+      "kind": "notification",
+      "title": "Banner",
+      "opens_from": "events",
+      "requirements": [
+        "L2-002",
+        "L2-039",
+        "L2-054"
+      ],
+      "states": [
+        "info",
+        "success",
+        "warning",
+        "danger"
+      ],
+      "not_applicable": {}
+    },
+    {
+      "id": "bell",
+      "kind": "notification",
+      "title": "Notification bell",
+      "opens_from": "home",
+      "requirements": [
+        "L2-027"
+      ],
+      "states": [
+        "info",
+        "success",
+        "warning",
+        "danger",
+        "unread",
+        "agile",
+        "empty"
+      ],
+      "not_applicable": {}
+    },
+    {
+      "id": "email",
+      "kind": "notification",
+      "title": "Email",
+      "opens_from": "home",
+      "requirements": [
+        "L2-028",
+        "L2-030"
+      ],
+      "states": [
+        "info",
+        "success",
+        "warning",
+        "danger",
+        "announcement",
+        "assigned",
+        "workspace-added",
+        "poker-invite"
+      ],
+      "not_applicable": {}
+    }
+  ]
+}

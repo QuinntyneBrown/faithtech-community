@@ -1,0 +1,109 @@
+@startuml
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 8
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam class {
+  BorderColor #344054
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+title Class structure — Create and edit events
+
+enum EventType {
+  Standard
+  Hackathon
+}
+
+enum EventFormat {
+  InPerson
+  Online
+}
+
+enum EventVisibility {
+  MembersOnly
+  Public
+}
+
+class Event <<Domain entity>> {
+  +Guid Id
+  +string Title
+  +string Description
+  +EventType Type
+  +DateTimeOffset StartsAt
+  +DateTimeOffset EndsAt
+  +string City
+  +EventFormat Format
+  +string? Venue
+  +string? OnlineLink
+  +EventVisibility Visibility
+  +bool IsCancelled
+  +string? CancellationReason
+  +int Sequence
+  +Guid CreatedById
+}
+Event --> EventType
+Event --> EventFormat
+Event --> EventVisibility
+
+class Rsvp <<Domain entity>> {
+  +Guid Id
+  +Guid EventId
+  +Guid? ProfileId
+  +string? GuestName
+  +string? GuestEmail
+  +DateTimeOffset CreatedAt
+  +bool IsGuest
+}
+Event "1" *-- "*" Rsvp : rsvps
+
+class EventPermissions <<Application service>> {
+  +CanManageEvents(user: ICurrentUser): bool
+  +CanSeeRsvpList(user: ICurrentUser): bool
+  +CanSeeGuestEmails(user: ICurrentUser): bool
+}
+interface ICurrentUser {
+  +Guid ProfileId
+  +IReadOnlySet<Role> Roles
+  +bool IsAuthenticated
+}
+EventPermissions ..> ICurrentUser
+
+class CreateEventCommand {
+  +string Title
+  +string Description
+  +EventType Type
+  +DateTimeOffset StartsAt
+  +DateTimeOffset EndsAt
+  +string City
+  +EventFormat Format
+  +string? Venue
+  +string? OnlineLink
+  +EventVisibility Visibility
+}
+class UpdateEventCommand {
+  +Guid EventId
+}
+CreateEventCommand <|-- UpdateEventCommand
+class EventCommandValidator {
+  +Validate(command: CreateEventCommand): ValidationResult
+}
+class CreateEventHandler {
+  +Handle(command: CreateEventCommand): Task<Result<Guid>>
+}
+class UpdateEventHandler {
+  +Handle(command: UpdateEventCommand): Task<Result>
+}
+interface INotificationPublisher {
+  +PublishAsync(recipients: IEnumerable<Guid>, notification: Notification): Task
+}
+EventCommandValidator ..> CreateEventCommand : validates
+CreateEventHandler ..> CreateEventCommand : handles
+UpdateEventHandler ..> UpdateEventCommand : handles
+CreateEventHandler ..> EventPermissions
+UpdateEventHandler ..> EventPermissions
+CreateEventHandler --> Event : creates
+UpdateEventHandler --> Event : loads / mutates
+UpdateEventHandler ..> INotificationPublisher : notifies RSVPs
+@enduml

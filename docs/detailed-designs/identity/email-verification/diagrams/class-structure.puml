@@ -1,0 +1,45 @@
+@startuml
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 8
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam class {
+  BorderColor #344054
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+title Class structure — Email verification
+
+class ConfirmEmailCommand {
+  +Guid UserId
+  +string Token
+}
+class ConfirmEmailHandler {
+  +Handle(command: ConfirmEmailCommand): Task<Result>
+}
+class ResendVerificationCommand {
+  +string Email
+}
+class ResendVerificationHandler {
+  +int MaxResendsPerHour = 3
+  +Handle(command: ResendVerificationCommand): Task<Result>
+}
+class VerificationResendLog {
+  +Guid UserId
+  +DateTimeOffset RequestedAt
+}
+class CommunityUser {
+  +Guid Id
+  +bool EmailConfirmed
+}
+interface IEmailSender {
+  +SendAsync(message: EmailMessage): Task
+}
+ConfirmEmailHandler ..> ConfirmEmailCommand : handles
+ConfirmEmailHandler --> CommunityUser : confirms
+ResendVerificationHandler ..> ResendVerificationCommand : handles
+ResendVerificationHandler --> VerificationResendLog : counts
+ResendVerificationHandler ..> IEmailSender : uses
+CommunityUser "1" --> "*" VerificationResendLog
+@enduml

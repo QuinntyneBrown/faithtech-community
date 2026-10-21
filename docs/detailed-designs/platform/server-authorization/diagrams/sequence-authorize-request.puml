@@ -1,0 +1,59 @@
+@startuml
+title UML sequence behaviour — Authorize a request
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+actor "Any caller" as actor
+box "Frontend — FaithTech Community web app (feature library)" #E0F2FE
+  participant "Feature page" as page
+  participant "Http<Feature>Service" as client
+end box
+box "Backend — FaithTech.Community.Api" #D1FADF
+  participant "Authorization middleware" as mw
+  participant "<Feature>Endpoints" as ep
+  participant "ResultMapper" as map
+end box
+box "Backend — FaithTech.Community.Application and Domain" #ECFDF3
+  participant "Get<Item>Handler" as h
+  participant "IPermissionFilters" as pf
+end box
+box "Backend — FaithTech.Community.Infrastructure" #FFF4E5
+  database "Community database" as db
+end box
+actor -> page : Open item
+page -> client : get(id)
+client -> mw : GET /<feature>/{id}
+alt no valid token and endpoint not AllowAnonymous
+  mw --> client : 401 (L2-042 #1)
+else authenticated
+  mw -> ep : Admit
+  ep -> h : Send Get<Item>Query
+  h -> pf : Visible<Items>(query, currentUser)
+  pf --> h : Filtered IQueryable
+  h -> db : SELECT ... WHERE id = @id AND <permission filter> (L2-042 #3)
+  alt row returned
+    db --> h : Item
+    h --> ep : Result.Ok
+    ep -> map : ToHttp
+    map --> client : 200
+  else not visible to caller
+    db --> h : none
+    h --> ep : Result.NotFound
+    ep -> map : ToHttp
+    map --> client : 404, not 403 (L2-042 #2)
+  end
+end
+client --> page : Item or not-found page
+page --> actor : Result
+@enduml

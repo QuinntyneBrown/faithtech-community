@@ -1,0 +1,36 @@
+@startuml
+title UML sequence behaviour — Show a server error
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+actor "Member" as actor
+box "Frontend — FaithTech Community web app (app shell library)" #E0F2FE
+  participant "Feature page" as page
+  participant "httpErrorInterceptor" as int
+  participant "ServerErrorPage" as err
+end box
+box "Backend — FaithTech.Community.Api" #D1FADF
+  participant "Community API pipeline" as ep
+end box
+actor -> page : Act
+page -> int : HTTP request
+int -> ep : Forward
+ep --> int : 500 + X-Correlation-ID
+alt 500
+  int -> err : Navigate /error with reference ID (L2-048 #3)
+  err --> actor : Server error page with reference ID
+else 403
+  int --> actor : Forbidden page, no data exposed (L2-048 #2)
+end
+@enduml

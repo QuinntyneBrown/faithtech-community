@@ -1,0 +1,51 @@
+@startuml
+title UML sequence behaviour — Delete a contact permanently
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+actor "City Lead" as actor
+box "Frontend — FaithTech Community web app (contacts library)" #E0F2FE
+  participant "ArchivedContactsPage" as arch
+  participant "DeleteContactDialog" as dlg
+  participant "HttpContactsService" as svc
+end box
+box "Backend — FaithTech.Community.Api" #D1FADF
+  participant "ContactsEndpoints" as ep
+end box
+box "Backend — FaithTech.Community.Application and Domain" #ECFDF3
+  participant "DeleteContactHandler" as h
+end box
+box "Backend — FaithTech.Community.Infrastructure" #FFF4E5
+  database "Community database" as db
+end box
+actor -> arch : Choose Delete permanently
+arch -> dlg : Open
+actor -> dlg : Type confirmation
+dlg -> dlg : Enable Delete only when text equals DELETE (L2-016 AC4)
+actor -> dlg : Confirm
+dlg -> svc : delete(id)
+svc -> ep : DELETE /api/contacts/{id}
+ep -> h : Send DeleteContactCommand
+h -> db : Load Contact and check ContactAccessPolicy
+alt not archived
+  h --> ep : Conflict
+  ep --> svc : 409 ProblemDetails
+else archived
+  h -> db : Delete Contact and cascade ContactNote rows (L2-016 AC3)
+  ep --> svc : 204 No Content
+  svc --> dlg : Done
+  dlg --> arch : Close
+  arch --> actor : Contact removed from archive
+end
+@enduml

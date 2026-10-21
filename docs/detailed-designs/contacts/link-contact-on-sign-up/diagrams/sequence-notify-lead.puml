@@ -1,0 +1,48 @@
+@startuml
+title UML sequence behaviour — Notify the lead after verification
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+actor "New member" as actor
+box "Frontend — FaithTech Community web app (app shell — sign-up and email verification)" #E0F2FE
+  participant "VerifyEmailPage" as page
+  participant "HttpAuthService" as svc
+end box
+box "Backend — FaithTech.Community.Api" #D1FADF
+  participant "AuthEndpoints" as ep
+end box
+box "Backend — FaithTech.Community.Application and Domain" #ECFDF3
+  participant "VerifyEmailHandler" as v
+  participant "ContactSignedUpHandler" as evt
+end box
+box "Backend — FaithTech.Community.Infrastructure" #FFF4E5
+  participant "NotificationDispatcher" as notify
+  database "Community database" as db
+end box
+actor -> page : Open verification link
+page -> svc : verify(token)
+svc -> ep : POST /api/auth/verify-email
+ep -> v : Send VerifyEmailCommand (L2-002)
+v -> db : Mark email verified
+v -> evt : Publish EmailVerified
+evt -> db : Find unlinked contacts where lower(email) matches
+db --> evt : Matching contacts
+loop each matching contact
+  evt -> notify : ContactSignedUp to owning lead, in-app and email (L2-015 AC1)
+end
+v --> ep : Verified
+ep --> svc : 200 OK
+svc --> page : Done
+page --> actor : Continue to sign in
+@enduml

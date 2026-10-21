@@ -1,0 +1,64 @@
+@startuml
+title UML sequence behaviour — Cancel an event
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+actor "Event Lead / City Lead" as actor
+box "Frontend — FaithTech Community web app (events library)" #E0F2FE
+  participant "EventPage" as page
+  participant "CancelEventDialog" as dlg
+  participant "HttpEventsService" as svc
+end box
+box "Backend — FaithTech.Community.Api" #D1FADF
+  participant "EventsEndpoints" as ep
+end box
+box "Backend — FaithTech.Community.Application and Domain" #ECFDF3
+  participant "CancelEventHandler" as h
+  participant "EventPermissions" as perm
+  participant "Event" as ev
+  participant "INotificationPublisher" as notif
+end box
+box "Backend — FaithTech.Community.Infrastructure" #FFF4E5
+  participant "EmailSender" as mail
+  database "Community database" as db
+end box
+
+actor -> page : Select cancel event
+page -> dlg : Open dialog
+actor -> dlg : Enter optional reason, confirm
+dlg -> dlg : Busy state
+dlg -> svc : cancelEvent(id, reason)
+svc -> ep : POST /api/events/{id}/cancel
+ep -> h : Send CancelEventCommand
+h -> perm : CanManageEvents(currentUser)
+alt not permitted
+  h --> ep : Forbidden
+  ep --> svc : 403 ProblemDetails
+  svc --> dlg : Error
+  dlg --> actor : Failed state
+else permitted
+  h -> db : Load event with RSVPs
+  db --> h : Event
+  h -> ev : Cancel(reason); refuse new RSVPs; Sequence += 1 (L2-025)
+  h -> notif : Publish EventCancelled to member RSVPs (L2-025)
+  h -> db : Save event and notifications
+  db --> h : Committed
+  h -> mail : Email every member and guest who RSVP'd (L2-025)
+  h --> ep : Success
+  ep --> svc : 204 No Content
+  svc --> dlg : Done
+  dlg --> page : Close with result
+  page --> actor : Show cancelled state
+end
+@enduml

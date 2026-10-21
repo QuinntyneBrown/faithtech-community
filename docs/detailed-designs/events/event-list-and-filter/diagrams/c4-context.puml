@@ -1,0 +1,9 @@
+@startuml
+!include <C4/C4_Context>
+LAYOUT_WITH_LEGEND()
+title System Context — Event list and filter
+
+Person(member, "Member", "Signed-in user who browses and RSVPs to events")
+System(ftc, "FaithTech Community", "Community site for FaithTech members, leads and partners")
+Rel(member, ftc, "Browses events in", "HTTPS")
+@enduml

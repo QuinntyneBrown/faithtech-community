@@ -1,0 +1,50 @@
+@startuml
+title UML sequence behaviour — Link a contact
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+actor "City Lead" as actor
+box "Frontend — FaithTech Community web app (contacts library)" #E0F2FE
+  participant "LinkContactDialog" as dlg
+  participant "HttpContactsService" as svc
+end box
+box "Backend — FaithTech.Community.Api" #D1FADF
+  participant "ContactsEndpoints" as ep
+end box
+box "Backend — FaithTech.Community.Application and Domain" #ECFDF3
+  participant "LinkContactHandler" as h
+  participant "ContactAccessPolicy" as pol
+  participant "Contact" as c
+end box
+box "Backend — FaithTech.Community.Infrastructure" #FFF4E5
+  database "Community database" as db
+end box
+actor -> dlg : Confirm "Link contact"
+dlg -> svc : link(contactId, profileId)
+svc -> ep : POST /api/contacts/{id}/link
+ep -> h : Send LinkContactCommand
+h -> db : Load Contact
+h -> pol : CanAccess(caller, contact)
+alt NotFound
+  h --> ep : Not found
+  ep --> svc : 404 ProblemDetails
+else Owner
+  h -> c : LinkTo(profileId), notes kept (L2-015 AC2)
+  h -> db : Save changes
+  h --> ep : ContactDto with profile name and photo
+  ep --> svc : 200 OK
+  svc --> dlg : Contact
+  dlg --> actor : Contact shows profile name and photo
+end
+@enduml

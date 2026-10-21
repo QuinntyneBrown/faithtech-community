@@ -1,0 +1,57 @@
+@startuml
+title UML sequence behaviour — Deliver a notification email
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+actor "Member" as actor
+box "Backend — FaithTech.Community.Api" #D1FADF
+  participant "Triggering endpoint" as ep
+end box
+box "Backend — FaithTech.Community.Application and Domain" #ECFDF3
+  participant "Triggering handler" as h
+  participant "INotificationPublisher" as pub
+end box
+box "Backend — FaithTech.Community.Infrastructure" #FFF4E5
+  participant "EmailTemplateRenderer" as r
+  database "Community database" as db
+  participant "EmailDeliveryWorker" as w
+  participant "IEmailSender" as s
+end box
+participant "Email provider" as prov
+actor -> ep : State-changing request (e.g. cancel event)
+ep -> h : Send command
+h -> pub : PublishAsync(recipient, kind)
+alt kind is Announcement and recipient opted out (L2-028 #3)
+  pub --> h : In-app notification only
+else
+  pub -> r : Render HTML + plain text, HTTPS links (L2-028 #2)
+  r --> pub : EmailMessage
+  pub -> db : Insert OutboxEmail (Pending)
+end
+h -> db : Commit action and outbox in one unit of work
+h --> ep : Success
+ep --> actor : Response
+loop every poll interval
+  w -> db : Load due Pending rows
+  w -> s : SendAsync(message)
+  s -> prov : SMTP send
+  alt delivered
+    prov --> s : Accepted
+    w -> db : MarkSent (within 2 minutes, L2-028 #1)
+  else failure
+    prov --> s : Error
+    w -> db : RecordFailure, schedule retry (max 5 attempts)
+  end
+end
+@enduml

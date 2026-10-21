@@ -1,0 +1,42 @@
+@startuml
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 8
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam class {
+  BorderColor #344054
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+title Class structure — Edit own profile
+
+class UpdateProfileCommand {
+  +Guid ProfileId
+  +string Name
+}
+class UpdateProfileValidator {
+  +int MaxNameLength = 100
+  +Validate(command: UpdateProfileCommand): ValidationResult
+}
+class UpdateProfileHandler {
+  +Handle(command: UpdateProfileCommand): Task<Result>
+}
+class Profile {
+  +Guid Id
+  +string Name
+  +Rename(name: string): void
+}
+interface ICurrentUser {
+  +Guid ProfileId
+  +bool IsSystemAdmin
+}
+interface IAuditLog {
+  +RecordAsync(entry: AuditEntry): Task
+}
+UpdateProfileHandler ..> UpdateProfileCommand : handles
+UpdateProfileHandler ..> UpdateProfileValidator : uses
+UpdateProfileHandler ..> ICurrentUser : uses
+UpdateProfileHandler ..> IAuditLog : uses
+UpdateProfileHandler --> Profile : renames
+@enduml

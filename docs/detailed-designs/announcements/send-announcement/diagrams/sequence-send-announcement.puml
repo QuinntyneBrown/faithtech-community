@@ -1,0 +1,63 @@
+@startuml
+title UML sequence behaviour — Send an announcement
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+actor "Communications Lead" as actor
+box "Frontend — FaithTech Community web app (announcements library)" #E0F2FE
+  participant "ComposeAnnouncementPage" as page
+  participant "HttpAnnouncementsService" as client
+end box
+box "Backend — FaithTech.Community.Api" #D1FADF
+  participant "AnnouncementsEndpoints" as ep
+end box
+box "Backend — FaithTech.Community.Application and Domain" #ECFDF3
+  participant "SendAnnouncementHandler" as h
+  participant "INotificationPublisher" as pub
+end box
+box "Backend — FaithTech.Community.Infrastructure" #FFF4E5
+  database "Community database" as db
+end box
+actor -> page : Choose audience
+page -> client : countRecipients(audience)
+client -> ep : POST /announcements/recipient-count
+ep -> db : Count audience members
+db --> ep : n
+ep --> client : 200 { count }
+client --> page : Show recipient count (L2-029 #4)
+actor -> page : Send
+page -> client : send(subject, body, audience)
+client -> ep : POST /announcements
+alt empty subject or body
+  ep --> client : 400 ProblemDetails per field
+  client --> page : Inline errors (L2-029 #2)
+else valid
+  ep -> h : Send SendAnnouncementCommand
+  alt caller lacks Communications Lead or System Admin
+    h --> ep : Forbidden
+    ep --> client : 403 (L2-029 #3)
+  else authorized
+    h -> db : Insert Announcement and recipients
+    loop each recipient
+      h -> pub : Publish Announcement notification (L2-029 #1)
+      pub -> db : Insert Notification; enqueue email unless opted out
+    end
+    h -> db : Commit
+    h --> ep : Announcement id
+    ep --> client : 201
+    client --> page : Sent confirmation
+  end
+end
+page --> actor : Result
+@enduml

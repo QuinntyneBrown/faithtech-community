@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Forgot password · default — FaithTech Community mocks</title>
+<meta name="mock:kind" content="page">
+<meta name="mock:screen" content="forgot-password">
+<meta name="mock:state" content="default">
+<meta name="mock:requirements" content="L2-004">
+<meta name="description" content="Request a password reset link.">
+<link rel="stylesheet" href="../../assets/tokens.css">
+<link rel="stylesheet" href="../../assets/components.css">
+<link rel="stylesheet" href="../../assets/ui-extra.css">
+<link rel="stylesheet" href="../../assets/mock.css">
+</head>
+<body>
+<a class="skip-link" href="#main">Skip to content</a>
+<main id="main" class="auth-layout">
+  <div class="auth-card stack">
+    <div class="logo"><span class="logo-mark"><img src="../../assets/logo.svg" alt="FaithTech" width="64" height="64"></span></div>
+    <div class="card stack"><h1 style="text-align: center;">Reset your password</h1>
+<p class="text-muted" style="text-align: center;">Enter your account email and we’ll send you a link to choose a new password.</p>
+<form class="stack" action="success.html" method="get" novalidate>
+<div class="field"><label class="field__label" for="fp-email">Email</label><input class="input" id="fp-email" name="fp-email" type="email" value="grace.okonkwo@example.org" autocomplete="email" required></div>
+<button class="btn btn--primary btn--lg btn--block" type="submit">Send reset link</button></form></div>
+    <p class="text-caption" style="text-align: center;"><a href="../../pages/sign-in/default.html">Back to sign in</a></p>
+  </div>
+</main>
+<nav class="mock-bar" aria-label="Mock navigation">
+  <a class="mock-bar__home" href="../../index.html" aria-label="All mocks">⌂</a>
+  <span class="mock-bar__screen">Forgot password</span>
+  <ul class="mock-bar__states"><li><a href="default.html" aria-current="page">default</a></li><li><a href="invalid.html">invalid</a></li><li><a href="error.html">error</a></li><li><a href="success.html">success</a></li></ul>
+  <button type="button" data-theme-toggle aria-pressed="false">☾ Dark</button>
+  <button type="button" data-chrome-toggle aria-label="Hide mock chrome">×</button>
+</nav>
+<script src="../../assets/mock.js"></script>
+</body>
+</html>

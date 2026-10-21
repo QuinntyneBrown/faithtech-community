@@ -1,0 +1,41 @@
+@startuml
+title UML sequence behaviour — refresh tokens and sign out
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+actor "Account holder" as actor
+box "Frontend — FaithTech Community web app (faithtech-community library)" #E0F2FE
+  participant "OidcAuthClient" as client
+end box
+box "Backend — FaithTech.Community.Api" #D1FADF
+  participant "AuthorizationEndpoints" as ep
+end box
+box "Backend — FaithTech.Community.Infrastructure" #FFF4E5
+  database "Community database" as db
+end box
+group Silent refresh
+  actor -> client : Use the app after access token expiry
+  client -> ep : POST /connect/token (refresh_token)
+  ep -> db : Validate refresh token
+  ep --> client : New access token (L2-003)
+end
+group Sign out
+  actor -> client : Select sign out
+  client -> ep : POST /connect/revoke
+  ep -> db : Mark tokens revoked (L2-003)
+  ep --> client : 200 OK
+  client -> ep : Later API call with revoked token
+  ep --> client : 401 Unauthorized (L2-003)
+end
+@enduml

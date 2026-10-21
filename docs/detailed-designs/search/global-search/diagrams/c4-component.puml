@@ -1,0 +1,27 @@
+@startuml
+!include <C4/C4_Component>
+LAYOUT_WITH_LEGEND()
+title Components — Global search
+
+Container_Boundary(spa, "Web app") {
+  Component(page, "SearchPage", "Angular page (search library)", "Search box, hint, grouped results, empty state")
+  Component(svc, "SearchService / SEARCH_SERVICE", "TypeScript contract and injection token (api library)", "Contract the page depends on")
+  Component(http, "HttpSearchService", "Angular service (api library)", "HTTP implementation")
+}
+Container_Boundary(api, "Community API") {
+  Component(ep, "SearchEndpoints", "ASP.NET Core minimal API", "Maps /api/search; no business logic")
+  Component(val, "GlobalSearchValidator", "Application validator", "Minimum 2 characters")
+  Component(h, "GlobalSearchHandler", "Application query handler", "Builds SearchScope from caller roles")
+  Component(idx, "PostgresSearchIndex", "Infrastructure service", "tsvector/tsquery search with scope filters")
+  Component(ctx, "CommunityDbContext", "EF Core DbContext", "Searchable tables")
+}
+ContainerDb(db, "Community database", "PostgreSQL", "Profiles, events, partners, contacts, work items and full-text indexes")
+Rel(page, svc, "Calls search")
+Rel(svc, http, "Implemented by")
+Rel(http, ep, "GET /api/search (JSON/HTTPS)")
+Rel(ep, h, "Dispatches GlobalSearchQuery")
+Rel(h, val, "Validates with")
+Rel(h, idx, "Searches via ISearchIndex")
+Rel(idx, ctx, "Uses connection of")
+Rel(ctx, db, "SQL")
+@enduml

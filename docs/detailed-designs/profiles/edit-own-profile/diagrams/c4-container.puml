@@ -1,0 +1,17 @@
+@startuml
+!include <C4/C4_Container>
+LAYOUT_WITH_LEGEND()
+title Containers — Edit own profile
+
+Person(member, "Member", "Signed-in user with a profile")
+Person(admin, "System Admin", "Holder of the System Admin role")
+System_Boundary(ftc, "FaithTech Community") {
+  Container(spa, "Web app", "Angular", "Shell, profiles feature library, api and components libraries")
+  Container(api, "Community API", "ASP.NET Core", "FaithTech.Community.Api with Application, Domain and Infrastructure")
+  ContainerDb(db, "Community database", "PostgreSQL", "Accounts, profiles, invites and audit log")
+}
+Rel(member, spa, "Uses", "HTTPS")
+Rel(admin, spa, "Uses", "HTTPS")
+Rel(spa, api, "Calls", "JSON/HTTPS")
+Rel(api, db, "Reads and writes", "EF Core")
+@enduml

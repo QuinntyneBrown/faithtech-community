@@ -1,0 +1,6 @@
+interface:
+  display_name: "Writing HTML Mocks"
+  short_description: "Static HTML mocks for every screen and state"
+  default_prompt: "Use $writing-html-mocks to create docs/mocks/ with a responsive, themed, accessible HTML mock for every page, dialog and notification in every state, plus the coverage matrix and gallery."
+policy:
+  allow_implicit_invocation: true

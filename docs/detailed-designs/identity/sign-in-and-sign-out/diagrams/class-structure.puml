@@ -1,0 +1,52 @@
+@startuml
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 8
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam class {
+  BorderColor #344054
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+title Class structure — Sign in and sign out
+
+class SignInCommand {
+  +string Email
+  +string Password
+  +string ReturnUrl
+}
+class SignInHandler {
+  +int MaxFailedAttempts = 5
+  +TimeSpan LockoutWindow = 15 min
+  +Handle(command: SignInCommand): Task<SignInOutcome>
+}
+enum SignInOutcome {
+  Succeeded
+  InvalidCredentials
+  LockedOut
+  Suspended
+  EmailNotVerified
+}
+class CommunityUser {
+  +Guid Id
+  +bool EmailConfirmed
+  +int AccessFailedCount
+  +DateTimeOffset? LockoutEnd
+}
+class Profile {
+  +Guid Id
+  +bool IsSuspended
+}
+class OpenIddictToken {
+  +string Id
+  +string Type
+  +string Status
+  +DateTimeOffset ExpirationDate
+}
+SignInHandler ..> SignInCommand : handles
+SignInHandler ..> SignInOutcome : returns
+SignInHandler --> CommunityUser : authenticates
+CommunityUser "1" --> "1" Profile
+CommunityUser "1" --> "*" OpenIddictToken : subject of
+@enduml

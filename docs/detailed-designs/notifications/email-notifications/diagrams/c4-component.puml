@@ -1,0 +1,22 @@
+@startuml
+!include <C4/C4_Component>
+LAYOUT_WITH_LEGEND()
+title Components — Email notifications
+Container_Boundary(api, "Community API") {
+  Component(src, "Triggering handler", "Application handler", "Any feature command that notifies, e.g. CancelEventHandler")
+  Component(pub, "INotificationPublisher", "Application service", "Creates notification and email per recipient")
+  Component(queue, "IEmailQueue", "Application abstraction", "Adds email to outbox")
+  Component(render, "EmailTemplateRenderer", "Infrastructure service", "HTML and plain-text parts with HTTPS links")
+  Component(worker, "EmailDeliveryWorker", "Hosted service", "Delivers due outbox rows with retry")
+  Component(sender, "IEmailSender", "Infrastructure service", "SMTP/SendGrid client")
+  ComponentDb(db, "CommunityDbContext", "EF Core", "email_outbox table")
+}
+System_Ext(email, "Email provider", "SMTP/SendGrid")
+Rel(src, pub, "Publishes")
+Rel(pub, queue, "Enqueues")
+Rel(queue, render, "Renders with")
+Rel(queue, db, "Inserts OutboxEmail")
+Rel(worker, db, "Reads due rows")
+Rel(worker, sender, "Sends")
+Rel(sender, email, "Delivers", "SMTP")
+@enduml

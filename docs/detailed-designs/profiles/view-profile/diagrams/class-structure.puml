@@ -1,0 +1,58 @@
+@startuml
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 8
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam class {
+  BorderColor #344054
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+title Class structure — View a profile
+
+class GetProfileQuery {
+  +Guid ProfileId
+}
+class GetProfileHandler {
+  +Handle(query: GetProfileQuery): Task<ProfileDto?>
+}
+class ProfileDto {
+  +Guid Id
+  +string Name
+  +PhotoDto? FeaturedPhoto
+  +IReadOnlyList<PhotoDto> Photos
+  +IReadOnlyList<string> Roles
+}
+class Profile {
+  +Guid Id
+  +string Name
+}
+class ProfilePhoto {
+  +Guid Id
+  +string BlobName
+  +string AltText
+  +bool IsFeatured
+}
+enum Role {
+  CityLead
+  EventLead
+  CreateLead
+  CommunicationsLead
+  Staff
+  Volunteer
+  ProductEngineer
+  Attendee
+  SystemAdmin
+}
+interface ICurrentUser {
+  +Guid UserId
+  +IReadOnlySet<Role> Roles
+}
+GetProfileHandler ..> GetProfileQuery : handles
+GetProfileHandler ..> ICurrentUser : uses
+GetProfileHandler --> Profile : reads
+GetProfileHandler ..> ProfileDto : returns
+Profile "1" *-- "0..10" ProfilePhoto
+Profile "1" --> "*" Role
+@enduml

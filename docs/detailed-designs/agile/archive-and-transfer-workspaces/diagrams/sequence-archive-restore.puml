@@ -1,0 +1,67 @@
+@startuml
+title UML sequence behaviour — Archive and restore a workspace
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+actor "Workspace owner" as actor
+box "Frontend — FaithTech Community web app (agile library)" #E0F2FE
+  participant "WorkspaceSettingsPage" as page
+  participant "ArchiveWorkspaceDialog" as dlg
+  participant "AgileService (AGILE_SERVICE)" as svc
+end box
+box "Backend — FaithTech.Community.Api" #D1FADF
+  participant "WorkspacesEndpoints" as ep
+end box
+box "Backend — FaithTech.Community.Application and Domain" #ECFDF3
+  participant "ArchiveWorkspaceHandler" as h
+  participant "WorkspaceAccessPolicy" as pol
+  participant "Workspace" as ent
+end box
+box "Backend — FaithTech.Community.Infrastructure" #FFF4E5
+  participant "AuditLog" as audit
+  participant "CommunityDbContext" as ctx
+  database "Community database" as db
+end box
+actor -> page : Choose "Archive workspace"
+page -> dlg : Open confirmation
+actor -> dlg : Confirm
+dlg -> svc : archiveWorkspace(id)
+svc -> ep : POST /workspaces/{id}/archive
+ep -> h : Send ArchiveWorkspaceCommand
+h -> pol : EnsureOwner(workspaceId)
+pol --> h : Allowed (owner or System Admin)
+h -> ent : Archive() (L2-037 AC1)
+h -> ctx : SaveChanges
+ctx -> db : UPDATE workspace SET is_archived
+opt caller is System Admin
+h -> audit : Record action
+end
+h --> ep : Result
+ep --> svc : 204 No Content
+svc --> page : Navigate to workspaces list
+page --> actor : Workspace hidden from normal views
+== Later ==
+actor -> page : Open archived workspaces and choose "Restore"
+page -> svc : restoreWorkspace(id)
+svc -> ep : POST /workspaces/{id}/restore
+ep -> h : Send RestoreWorkspaceCommand
+h -> pol : EnsureOwner(workspaceId)
+pol --> h : Allowed
+h -> ent : Restore() (L2-037 AC1)
+h -> ctx : SaveChanges
+ctx -> db : UPDATE workspace
+h --> ep : Result
+ep --> svc : 204 No Content
+svc --> page : Workspace restored
+@enduml

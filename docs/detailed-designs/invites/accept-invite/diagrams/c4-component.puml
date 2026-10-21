@@ -1,0 +1,18 @@
+@startuml
+!include <C4/C4_Component>
+LAYOUT_WITH_LEGEND()
+title Components — Accept an invite
+
+Container(spa, "Web app", "Angular", "invites feature library and api client")
+Container_Boundary(api, "Community API") {
+  Component(ep, "InvitesEndpoints", "Minimal API", "GET /api/invites/by-token, POST /api/invites/accept (anonymous opt-in)")
+  Component(gh, "GetInviteByTokenHandler", "Application handler", "Validates token for display")
+  Component(ah, "AcceptInviteHandler", "Application handler", "Creates account, grants role")
+  ComponentDb(db, "CommunityDbContext", "EF Core / PostgreSQL", "Invites, users, profiles")
+}
+Rel(spa, ep, "Calls")
+Rel(ep, gh, "Sends GetInviteByTokenQuery")
+Rel(ep, ah, "Sends AcceptInviteCommand")
+Rel(gh, db, "Reads invite")
+Rel(ah, db, "Writes user, role and invite")
+@enduml

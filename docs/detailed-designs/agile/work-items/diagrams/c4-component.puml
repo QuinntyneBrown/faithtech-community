@@ -1,0 +1,31 @@
+@startuml
+!include <C4/C4_Component>
+LAYOUT_WITH_LEGEND()
+title Components — Work items
+
+Container_Boundary(web, "Web app") {
+  Component(page, "BacklogPage / WorkItemPage", "Angular page", "Tree, filters and item detail")
+  Component(dlg, "NewWorkItemDialog", "CDK Dialog", "Creates an item")
+  Component(svc, "AgileService", "api library", "AGILE_SERVICE token")
+}
+Container_Boundary(api, "Community API") {
+  Component(ep, "WorkItemsEndpoints", "Minimal API", "Maps item and comment routes")
+  Component(h, "Work item handlers", "Application", "Create, update, comment, backlog query")
+  Component(val, "WorkItemValidator", "Application", "Title, hierarchy and assignee rules")
+  Component(pol, "WorkspaceAccessPolicy", "Application", "Membership check")
+  Component(ent, "WorkItem", "Domain entity", "Hierarchy and fields")
+  Component(ntf, "INotificationService", "Infrastructure", "In-app and email")
+  ComponentDb(db, "Community database", "PostgreSQL", "Agile tables")
+}
+
+Rel(page, dlg, "Opens")
+Rel(page, svc, "Calls")
+Rel(dlg, svc, "Calls")
+Rel(svc, ep, "Calls", "JSON/HTTPS")
+Rel(ep, h, "Dispatches")
+Rel(h, val, "Validates with")
+Rel(h, pol, "Checks access")
+Rel(h, ent, "Creates and mutates")
+Rel(h, ntf, "Notifies assignee")
+Rel(h, db, "Persists", "EF Core")
+@enduml

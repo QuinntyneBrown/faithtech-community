@@ -1,0 +1,67 @@
+@startuml
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 8
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam class {
+  BorderColor #344054
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+title Class structure — Link a contact on sign-up
+class Contact {
+  +Guid Id
+  +Guid OwnerId
+  +string Name
+  +string Email
+  +string Phone
+  +string Organization
+  +Guid? LinkedProfileId
+  +DateTime? ArchivedAtUtc
+  +Archive(nowUtc: DateTime): void
+  +Restore(): void
+  +LinkTo(profileId: Guid): void
+}
+class ContactNote {
+  +Guid Id
+  +Guid ContactId
+  +string Body
+  +DateTime CreatedAtUtc
+}
+class ContactAccessPolicy {
+  +CanAccess(caller: ICurrentUser, contact: Contact): AccessResult
+}
+interface ICurrentUser {
+  +Guid ProfileId
+  +bool IsSystemAdmin
+  +bool HoldsLeadRole
+}
+Contact "1" *-- "*" ContactNote
+ContactAccessPolicy ..> Contact
+ContactAccessPolicy ..> ICurrentUser
+
+class EmailVerified {
+  +Guid ProfileId
+  +string Email
+}
+class ContactSignedUpHandler {
+  +Handle(event: EmailVerified): Task
+}
+class LinkContactCommand {
+  +Guid ContactId
+  +Guid ProfileId
+}
+class LinkContactHandler {
+  +Handle(command: LinkContactCommand): Task<ContactDto>
+}
+interface INotificationService {
+  +Notify(profileId: Guid, notification: Notification): Task
+}
+ContactSignedUpHandler ..> EmailVerified : handles
+ContactSignedUpHandler ..> INotificationService
+ContactSignedUpHandler ..> Contact : finds
+LinkContactHandler ..> LinkContactCommand : handles
+LinkContactHandler --> ContactAccessPolicy
+LinkContactHandler --> Contact : LinkTo
+@enduml

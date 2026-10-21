@@ -1,0 +1,13 @@
+@startuml
+!include <C4/C4_Context>
+LAYOUT_WITH_LEGEND()
+title System Context — Create and edit events
+
+Person(lead, "Event Lead / City Lead", "Creates, edits and cancels events")
+Person(admin, "System Admin", "Overrides any event action")
+Person(member, "Member", "Signed-in user who browses and RSVPs to events")
+System(ftc, "FaithTech Community", "Community site for FaithTech members, leads and partners")
+Rel(lead, ftc, "Creates and edits events in", "HTTPS")
+Rel(admin, ftc, "Creates and edits any event in", "HTTPS")
+Rel(member, ftc, "Receives change notifications from", "HTTPS")
+@enduml

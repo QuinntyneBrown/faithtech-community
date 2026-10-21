@@ -1,0 +1,19 @@
+@startuml
+!include <C4/C4_Container>
+LAYOUT_WITH_LEGEND()
+title Containers — View a profile
+
+Person(member, "Member", "Signed-in user with a profile")
+Person(visitor, "Anonymous visitor", "Person without a signed-in session")
+System_Boundary(ftc, "FaithTech Community") {
+  Container(spa, "Web app", "Angular", "Shell, profiles feature library, api and components libraries")
+  Container(api, "Community API", "ASP.NET Core", "FaithTech.Community.Api with Application, Domain and Infrastructure")
+  ContainerDb(db, "Community database", "PostgreSQL", "Accounts, profiles, invites and audit log")
+  ContainerDb(blob, "Photo storage", "Azure Blob Storage", "Resized profile photos")
+}
+Rel(member, spa, "Uses", "HTTPS")
+Rel(visitor, spa, "Uses", "HTTPS")
+Rel(spa, api, "Calls", "JSON/HTTPS")
+Rel(api, db, "Reads and writes", "EF Core")
+Rel(api, blob, "Stores and deletes photos", "Azure SDK")
+@enduml

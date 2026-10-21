@@ -1,0 +1,16 @@
+@startuml
+!include <C4/C4_Container>
+LAYOUT_WITH_LEGEND()
+title Containers — Email notifications
+Person(member, "Member", "Signed-in community member")
+System_Boundary(ftc, "FaithTech Community") {
+  Container(web, "Web app", "Angular", "Shell, notifications feature library, api and components libraries")
+  Container(api, "Community API", "ASP.NET Core", "FaithTech.Community.Api with Application, Domain and Infrastructure")
+  ContainerDb(db, "Community database", "PostgreSQL", "Persistent community data")
+}
+System_Ext(email, "Email provider", "SMTP/SendGrid")
+Rel(email, member, "Delivers email to")
+Rel(web, api, "Calls", "JSON/HTTPS")
+Rel(api, db, "Reads and writes", "EF Core")
+Rel(api, email, "Sends email via", "SMTP")
+@enduml

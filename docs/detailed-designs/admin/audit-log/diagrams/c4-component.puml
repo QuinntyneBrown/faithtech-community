@@ -1,0 +1,22 @@
+@startuml
+!include <C4/C4_Component>
+LAYOUT_WITH_LEGEND()
+title Components — Audit log
+Container_Boundary(web, "Web app") {
+  Component(page, "AuditLogPage", "Angular page", "Filters and pages audit entries")
+  Component(svc, "HttpAuditLogService", "Angular service", "Implements AuditLogService")
+}
+Container_Boundary(api, "Community API") {
+  Component(ep, "AuditLogEndpoints", "ASP.NET Core minimal API", "GET /api/admin/audit only")
+  Component(q, "GetAuditEntriesHandler", "Application handler", "Filters and pages entries")
+  Component(writers, "Admin and role handlers", "Application handlers", "Call IAuditLog.Write")
+  Component(audit, "AuditLog", "Infrastructure service", "Implements IAuditLog; appends immutable audit entries")
+  ComponentDb(db, "CommunityDbContext", "PostgreSQL", "EF Core context over the Community database")
+}
+Rel(page, svc, "Calls")
+Rel(svc, ep, "GET", "JSON/HTTPS")
+Rel(ep, q, "Sends query")
+Rel(q, db, "Reads audit_entries", "EF Core")
+Rel(writers, audit, "Write(entry)")
+Rel(audit, db, "Inserts", "EF Core")
+@enduml

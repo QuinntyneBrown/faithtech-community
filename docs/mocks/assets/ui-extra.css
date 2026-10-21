@@ -1,0 +1,118 @@
+/* ui-extra.css — FaithTech Community components that Shelfie's design system does not have yet.
+   Same naming (block__element--modifier), same state hooks ([aria-*], [data-state]) and tokens only.
+   Promote these into the design system when it is extracted. */
+
+/* ---------- Badge: danger and neutral role badges ---------------------------- */
+.badge--danger { background: var(--color-danger-bg); color: var(--color-danger-fg); }
+.badge--role { text-transform: none; letter-spacing: normal; font: var(--text-label); }
+.badge--role::before { display: none; }
+
+/* ---------- Select ------------------------------------------------------------ */
+.select { appearance: none; width: 100%; min-height: var(--control-height-md); padding: 0 calc(var(--space-3) * 2 + var(--size-icon-sm)) 0 var(--space-3);
+  border: var(--border-width-hairline) solid var(--color-border-strong); border-radius: var(--radius-md); background: var(--color-bg-surface)
+  url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23888' stroke-width='2'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E") no-repeat right var(--space-3) center / var(--size-icon-sm);
+  color: var(--color-fg-default); font: var(--text-body); }
+.select:focus-visible { outline: var(--focus-ring-width) solid var(--color-focus-ring); outline-offset: 0; }
+.select[aria-invalid="true"] { border-color: var(--color-danger-solid); }
+
+/* ---------- Tabs -------------------------------------------------------------- */
+.tabs { display: flex; gap: var(--space-1); border-bottom: var(--border-width-hairline) solid var(--color-border-default); overflow-x: auto; scrollbar-width: none; }
+.tab { display: inline-flex; align-items: center; gap: var(--space-2); min-height: var(--target-comfortable); padding: 0 var(--space-3); border: 0; border-bottom: var(--space-0-5) solid transparent;
+  background: none; color: var(--color-fg-muted); font: var(--text-label); cursor: pointer; white-space: nowrap; text-decoration: none; }
+.tab:hover { color: var(--color-fg-default); }
+.tab[aria-selected="true"], .tab[aria-current="page"] { color: var(--color-fg-accent); border-bottom-color: var(--color-accent); }
+
+/* ---------- Date badge (calendar leaf) ---------------------------------------- */
+.date-badge { flex: none; display: grid; place-items: center; width: var(--size-avatar-lg); min-height: var(--size-avatar-lg); padding: var(--space-1);
+  border-radius: var(--radius-md); background: var(--color-accent-subtle); color: var(--color-fg-accent); text-align: center; line-height: 1.1; }
+.date-badge__month { font: var(--text-overline); text-transform: uppercase; letter-spacing: var(--letter-spacing-wide); }
+.date-badge__day { font: var(--text-h4); }
+.date-badge--cancelled { background: var(--color-bg-subtle); color: var(--color-fg-muted); text-decoration: line-through; }
+
+/* ---------- Event card -------------------------------------------------------- */
+.event-card { display: flex; gap: var(--space-4); align-items: flex-start; }
+.event-card__body { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: var(--space-1); }
+.event-card__title { font: var(--text-h4); color: var(--color-fg-default); text-decoration: none; }
+.event-card__title:hover { text-decoration: underline; }
+.event-card__meta { color: var(--color-fg-muted); font: var(--text-body-sm); }
+.event-card--cancelled .event-card__title { color: var(--color-fg-muted); }
+
+/* ---------- Kanban (partner pipeline) ----------------------------------------- */
+.kanban { display: grid; gap: var(--layout-gutter); grid-template-columns: minmax(0, 1fr); align-items: start; }
+@media (min-width: 48rem) { .kanban { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+.kanban__column { display: flex; flex-direction: column; gap: var(--space-3); padding: var(--space-3); border-radius: var(--radius-lg); background: var(--color-bg-subtle); min-height: 12rem; }
+.kanban__header { display: flex; align-items: center; justify-content: space-between; gap: var(--space-2); padding-inline: var(--space-1); }
+.kanban__title { font: var(--text-label); font-weight: var(--font-weight-semibold); }
+.kanban__list { display: flex; flex-direction: column; gap: var(--space-2); list-style: none; margin: 0; padding: 0; }
+.kanban__card { display: flex; flex-direction: column; gap: var(--space-1); padding: var(--space-3); border-radius: var(--radius-md); background: var(--color-bg-surface);
+  border: var(--border-width-hairline) solid var(--color-border-default); box-shadow: var(--shadow-1); }
+.kanban__card a { color: var(--color-fg-default); font-weight: var(--font-weight-semibold); text-decoration: none; }
+.kanban__card a:hover { text-decoration: underline; }
+.kanban__card[aria-grabbed="true"], .kanban__card[data-state="dragging"] { box-shadow: var(--shadow-3); outline: var(--focus-ring-width) solid var(--color-focus-ring); rotate: 1deg; }
+.kanban__drop { border: var(--border-width-hairline) dashed var(--color-accent); border-radius: var(--radius-md); min-height: 4rem; background: var(--color-accent-subtle); }
+.kanban__empty { color: var(--color-fg-muted); font: var(--text-body-sm); text-align: center; padding: var(--space-4); }
+
+/* ---------- Search results ---------------------------------------------------- */
+.search-group { display: flex; flex-direction: column; gap: var(--space-2); }
+.search-group__title { font: var(--text-overline); text-transform: uppercase; letter-spacing: var(--letter-spacing-wide); color: var(--color-fg-muted); }
+mark { background: var(--color-warning-bg); color: inherit; border-radius: var(--radius-sm); padding: 0 var(--space-0-5); }
+
+/* ---------- Notification panel (bell) ----------------------------------------- */
+.notice-list { list-style: none; margin: 0; padding: 0; }
+.notice { display: flex; gap: var(--space-3); align-items: flex-start; padding: var(--space-3) var(--space-4); border-bottom: var(--border-width-hairline) solid var(--color-border-default); }
+.notice:last-child { border-bottom: 0; }
+.notice__body { flex: 1; min-width: 0; }
+.notice__meta { color: var(--color-fg-muted); font: var(--text-caption); }
+.notice--unread { background: var(--color-accent-subtle); }
+.notice--unread .notice__body::before { content: ""; display: inline-block; width: var(--space-2); height: var(--space-2); margin-right: var(--space-2); border-radius: var(--radius-full); background: var(--color-accent); vertical-align: middle; }
+.bell-panel { position: absolute; right: 0; top: calc(100% + var(--space-2)); z-index: var(--z-dropdown); width: min(24rem, calc(100vw - 2 * var(--layout-margin)));
+  background: var(--color-bg-surface-raised); border: var(--border-width-hairline) solid var(--color-border-default); border-radius: var(--radius-lg); box-shadow: var(--shadow-3); overflow: hidden; }
+.bell-panel__header { display: flex; justify-content: space-between; align-items: center; padding: var(--space-3) var(--space-4); border-bottom: var(--border-width-hairline) solid var(--color-border-default); }
+.bell-panel__footer { padding: var(--space-2) var(--space-4); border-top: var(--border-width-hairline) solid var(--color-border-default); text-align: center; }
+.bell-anchor { position: relative; }
+
+/* ---------- Description list (profile/contact facts) -------------------------- */
+.facts { display: grid; gap: var(--space-3); margin: 0; }
+.facts > div { display: grid; grid-template-columns: minmax(6rem, 9rem) 1fr; gap: var(--space-3); }
+.facts dt { color: var(--color-fg-muted); font: var(--text-label); }
+.facts dd { margin: 0; overflow-wrap: anywhere; }
+
+/* ---------- Note (private annotation on a contact) ---------------------------- */
+.note { padding: var(--space-3) var(--space-4); border-left: var(--space-1) solid var(--color-accent); border-radius: var(--radius-sm); background: var(--color-bg-subtle); }
+.note__meta { color: var(--color-fg-muted); font: var(--text-caption); margin-top: var(--space-1); }
+
+/* ---------- Profile header ---------------------------------------------------- */
+.profile-head { display: flex; flex-wrap: wrap; gap: var(--space-4); align-items: center; }
+.profile-head__body { flex: 1; min-width: 12rem; display: flex; flex-direction: column; gap: var(--space-2); }
+.photo-strip { display: grid; gap: var(--space-2); grid-template-columns: repeat(auto-fill, minmax(min(100%, 7rem), 1fr)); list-style: none; margin: 0; padding: 0; }
+.photo-strip img, .photo-strip .photo-ph { width: 100%; aspect-ratio: 1; object-fit: cover; border-radius: var(--radius-md); display: block; }
+.photo-ph { display: grid !important; place-items: center; background: var(--color-bg-subtle); color: var(--color-fg-muted); font-size: var(--font-size-3xl); }
+
+/* ---------- Two-column layout helper ------------------------------------------ */
+.split { display: grid; gap: var(--layout-gutter); grid-template-columns: minmax(0, 1fr); align-items: start; }
+@media (min-width: 64rem) { .split { grid-template-columns: minmax(0, 2fr) minmax(0, 1fr); } }
+
+/* ---------- Topbar extras ----------------------------------------------------- */
+.topbar__search { display: none; }
+@media (min-width: 64rem) { .topbar__search { display: block; width: 14rem; } }
+.topbar__nav .nav-link { white-space: nowrap; }
+@media (min-width: 48rem) and (max-width: 63.99rem) { .topbar__nav .nav-link--secondary { display: none; } }
+
+/* ---------- Mono (audit log) -------------------------------------------------- */
+.mono { font: var(--text-code); }
+
+/* ---------- Agile workspace: 4-column board and backlog tree ------------------ */
+@media (min-width: 48rem) { .kanban--4 { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (min-width: 64rem) { .kanban--4 { grid-template-columns: repeat(4, minmax(0, 1fr)); } }
+.tree { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: var(--space-1); }
+.tree .tree { padding-left: var(--space-6); border-left: var(--border-width-hairline) solid var(--color-border-default); margin-left: var(--space-3); }
+.tree__row { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-2); min-height: var(--target-comfortable); padding: var(--space-1) var(--space-2); border-radius: var(--radius-sm); }
+summary.tree__row { cursor: pointer; }
+.tree__row:hover { background: var(--color-bg-subtle); }
+.tree__row a { color: var(--color-fg-default); font-weight: var(--font-weight-medium); }
+
+/* ---------- Review fixes -------------------------------------------------------- */
+.kanban__card > .badge { align-self: flex-start; }
+.event-card { flex-wrap: wrap; }
+.event-card__body { flex: 1 1 12rem; }
+.avatar-trigger { text-decoration: none; }

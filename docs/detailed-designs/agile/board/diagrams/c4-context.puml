@@ -1,0 +1,12 @@
+@startuml
+!include <C4/C4_Context>
+LAYOUT_WITH_LEGEND()
+title System Context — Board
+
+Person(member, "Workspace member", "Lead or volunteer added to a workspace")
+Person(staff, "Staff", "Read-only across workspaces")
+System(ftc, "FaithTech Community", "Community site with Agile team workspaces")
+
+Rel(member, ftc, "Moves cards on")
+Rel(staff, ftc, "Views boards in")
+@enduml

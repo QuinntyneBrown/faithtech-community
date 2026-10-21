@@ -1,0 +1,58 @@
+@startuml
+title UML sequence behaviour — Protect a state-changing request
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+actor "Any caller" as actor
+box "Frontend — FaithTech Community web app (feature library)" #E0F2FE
+  participant "Feature page" as page
+  participant "Http<Feature>Service" as client
+end box
+box "Backend — FaithTech.Community.Api" #D1FADF
+  participant "SecurityHeadersMiddleware" as hdr
+  participant "CORS and rate limiter" as rl
+  participant "ValidationEndpointFilter" as vf
+end box
+box "Backend — FaithTech.Community.Application and Domain" #ECFDF3
+  participant "<Verb><Noun>Validator" as val
+  participant "<Verb><Noun>Handler" as h
+end box
+box "Backend — FaithTech.Community.Infrastructure" #FFF4E5
+  database "Community database" as db
+end box
+actor -> page : Submit form
+page -> client : create(body)
+client -> hdr : POST /<feature>
+hdr -> rl : Next (headers added on response, L2-043 #3)
+alt foreign origin
+  rl --> client : CORS rejection (L2-043 #4)
+else limit exceeded
+  rl --> client : 429 (L2-043 #5)
+else allowed
+  rl -> vf : Next
+  vf -> val : ValidateAsync(body)
+  alt invalid
+    val --> vf : Errors
+    vf --> client : 400 problem details per field; nothing saved (L2-043 #1)
+  else valid
+    vf -> h : Dispatch command
+    h -> db : Save
+    db --> h : Committed
+    h --> vf : Result
+    vf --> client : 2xx with security headers
+  end
+end
+client --> page : Result; text rendered encoded (L2-043 #2)
+page --> actor : Outcome
+@enduml

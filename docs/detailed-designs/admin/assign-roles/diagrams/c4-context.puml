@@ -1,0 +1,14 @@
+@startuml
+!include <C4/C4_Context>
+LAYOUT_WITH_LEGEND()
+title System Context — Assign roles
+Person(lead, "City Lead", "Lead who owns contacts, partners and team roles")
+Person(admin, "System Admin", "Holds full override across the site")
+Person(member, "Member", "Signed-in profile holder")
+System(community, "FaithTech Community", "Community site for FaithTech staff, leads, volunteers, builders and partners")
+System_Ext(email, "Email provider", "Delivers notification email")
+Rel(lead, community, "Views and changes profile roles using")
+Rel(admin, community, "Views and changes profile roles using")
+Rel(member, community, "Views and changes profile roles using")
+Rel(community, email, "Sends notification email via", "SMTP/SendGrid")
+@enduml

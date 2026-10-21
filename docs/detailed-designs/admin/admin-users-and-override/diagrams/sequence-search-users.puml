@@ -1,0 +1,50 @@
+@startuml
+title UML sequence behaviour — Search users
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+actor "System Admin" as actor
+box "Frontend — FaithTech Community web app (admin library)" #E0F2FE
+  participant "AdminUsersPage" as page
+  participant "HttpAdminUsersService" as svc
+end box
+box "Backend — FaithTech.Community.Api" #D1FADF
+  participant "AdminUsersEndpoints" as ep
+end box
+box "Backend — FaithTech.Community.Application and Domain" #ECFDF3
+  participant "SearchUsersHandler" as h
+  participant "AdminOverridePolicy" as pol
+end box
+box "Backend — FaithTech.Community.Infrastructure" #FFF4E5
+  database "Community database" as db
+end box
+actor -> page : Enter search term
+page -> svc : search(term, page)
+svc -> ep : GET /api/admin/users?q=term&page=n
+ep -> h : Send SearchUsersQuery
+h -> pol : IsSystemAdmin(caller)
+alt not System Admin
+  h --> ep : Forbidden
+  ep --> svc : 403 ProblemDetails
+  svc --> page : Error
+  page --> actor : Show forbidden page
+else System Admin
+  h -> db : Query accounts with roles and status (L2-040 AC1)
+  db --> h : Rows
+  h --> ep : PagedResult<AdminUserSummary>
+  ep --> svc : 200 OK
+  svc --> page : Users
+  page --> actor : Show users, roles and status
+end
+@enduml

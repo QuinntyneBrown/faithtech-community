@@ -1,0 +1,38 @@
+@startuml
+title UML sequence behaviour — Open a dialog and submit with errors
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+actor "Keyboard user" as actor
+box "Frontend — FaithTech Community web app (components library)" #E0F2FE
+  participant "Feature page" as page
+  participant "DialogService (CDK)" as dlg
+  participant "FormFieldComponent" as ff
+  participant "LiveAnnouncer" as live
+end box
+box "Backend — FaithTech.Community.Api" #D1FADF
+  participant "<Feature>Endpoints" as ep
+end box
+actor -> page : Tab to button, press Enter (L2-044 #2)
+page -> dlg : open(FeatureDialog)
+dlg --> actor : Focus moves into dialog and is trapped
+actor -> dlg : Submit
+dlg -> ep : POST request
+ep --> dlg : 400 problem details
+dlg -> ff : Set error per field
+ff -> live : Announce error (L2-044 #3)
+ff --> actor : First invalid field focused
+actor -> dlg : Escape
+dlg --> page : Close; focus returns to opener (L2-044 #2)
+@enduml

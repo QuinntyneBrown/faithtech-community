@@ -1,0 +1,63 @@
+@startuml
+title UML sequence behaviour — sign up
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+actor "Anonymous visitor" as actor
+box "Frontend — FaithTech Community web app (faithtech-community library)" #E0F2FE
+  participant "SignUpPage" as page
+  participant "AuthService" as client
+end box
+box "Backend — FaithTech.Community.Api" #D1FADF
+  participant "AccountEndpoints" as ep
+end box
+box "Backend — FaithTech.Community.Application and Domain" #ECFDF3
+  participant "SignUpHandler" as h
+end box
+box "Backend — FaithTech.Community.Infrastructure" #FFF4E5
+  participant "IBreachedPasswordChecker" as bp
+  database "Community database" as db
+end box
+participant "Email provider" as mail
+actor -> page : Submit name, email and password
+page -> page : Validate fields inline (L2-001)
+alt invalid field
+  page --> actor : Inline errors, focus first invalid field, announce (L2-001)
+else valid
+  page -> page : Disable submit, show busy state (L2-001)
+  page -> client : signUp(request)
+  client -> ep : POST /api/account/sign-up
+  ep -> h : Send SignUpCommand
+  h -> bp : Check password length and breach list (L2-001)
+  alt short or breached password
+    bp --> h : Rejected
+    h --> ep : Validation problem on password
+    ep --> client : 400 ProblemDetails
+    client --> page : Field error
+    page --> actor : Inline password error
+  else accepted
+    h -> db : Find user by email
+    alt email unused
+      h -> db : Create user and profile with no role (L2-001)
+      h -> mail : Send verification email
+    else email already registered
+      h -> h : Create nothing; keep outcome identical (L2-001)
+    end
+    h --> ep : Accepted
+    ep --> client : 202 Accepted
+    client --> page : Success
+    page --> actor : Navigate to verify-email page
+  end
+end
+@enduml

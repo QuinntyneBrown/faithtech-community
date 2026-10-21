@@ -1,0 +1,101 @@
+@startuml
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 8
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam class {
+  BorderColor #344054
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+title Class structure — Public events and guest RSVP
+
+enum EventType {
+  Standard
+  Hackathon
+}
+
+enum EventFormat {
+  InPerson
+  Online
+}
+
+enum EventVisibility {
+  MembersOnly
+  Public
+}
+
+class Event <<Domain entity>> {
+  +Guid Id
+  +string Title
+  +string Description
+  +EventType Type
+  +DateTimeOffset StartsAt
+  +DateTimeOffset EndsAt
+  +string City
+  +EventFormat Format
+  +string? Venue
+  +string? OnlineLink
+  +EventVisibility Visibility
+  +bool IsCancelled
+  +string? CancellationReason
+  +int Sequence
+  +Guid CreatedById
+}
+Event --> EventType
+Event --> EventFormat
+Event --> EventVisibility
+
+class Rsvp <<Domain entity>> {
+  +Guid Id
+  +Guid EventId
+  +Guid? ProfileId
+  +string? GuestName
+  +string? GuestEmail
+  +DateTimeOffset CreatedAt
+  +bool IsGuest
+}
+Event "1" *-- "*" Rsvp : rsvps
+
+class GetPublicEventQuery {
+  +Guid EventId
+}
+class GetPublicEventHandler {
+  +Handle(query: GetPublicEventQuery): Task<Result<PublicEventDto>>
+}
+class PublicEventDto {
+  +Guid Id
+  +string Title
+  +string Description
+  +DateTimeOffset StartsAt
+  +DateTimeOffset EndsAt
+  +string? Venue
+  +string? OnlineLink
+  +bool IsCancelled
+}
+class GuestRsvpCommand {
+  +Guid EventId
+  +string Name
+  +string Email
+}
+class GuestRsvpValidator {
+  +Validate(command: GuestRsvpCommand): ValidationResult
+}
+class GuestRsvpHandler {
+  +Handle(command: GuestRsvpCommand): Task<Result>
+}
+interface IIcsCalendarWriter {
+  +Write(event: Event): string
+}
+interface IEmailSender {
+  +SendAsync(message: EmailMessage): Task
+}
+GetPublicEventHandler ..> GetPublicEventQuery : handles
+GetPublicEventHandler ..> PublicEventDto : returns
+GuestRsvpValidator ..> GuestRsvpCommand : validates
+GuestRsvpHandler ..> GuestRsvpCommand : handles
+GuestRsvpHandler --> Rsvp : creates guest RSVP
+GuestRsvpHandler ..> IIcsCalendarWriter
+GuestRsvpHandler ..> IEmailSender
+@enduml

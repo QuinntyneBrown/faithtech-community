@@ -1,0 +1,65 @@
+@startuml
+title UML sequence behaviour — Add a workspace member
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+actor "Workspace owner" as actor
+box "Frontend — FaithTech Community web app (agile library)" #E0F2FE
+  participant "WorkspaceSettingsPage" as page
+  participant "AddWorkspaceMemberDialog" as dlg
+  participant "AgileService (AGILE_SERVICE)" as svc
+end box
+box "Backend — FaithTech.Community.Api" #D1FADF
+  participant "WorkspacesEndpoints" as ep
+end box
+box "Backend — FaithTech.Community.Application and Domain" #ECFDF3
+  participant "AddWorkspaceMemberHandler" as h
+  participant "WorkspaceAccessPolicy" as pol
+  participant "Workspace" as ent
+end box
+box "Backend — FaithTech.Community.Infrastructure" #FFF4E5
+  participant "NotificationService" as ntf
+  participant "CommunityDbContext" as ctx
+  database "Community database" as db
+end box
+actor -> page : Choose "Add member"
+page -> dlg : Open dialog
+dlg -> svc : searchEligibleMembers(term)
+svc --> dlg : Profiles with a lead or volunteer role (L2-031 AC2)
+actor -> dlg : Select profile
+dlg -> svc : addMember(workspaceId, profileId)
+svc -> ep : POST /workspaces/{id}/members
+ep -> h : Send AddWorkspaceMemberCommand
+h -> pol : EnsureOwner(workspaceId)
+alt outsider
+pol --> h : NotFound (L2-031 AC6)
+h --> ep : 404
+else member, not owner, or Staff
+pol --> h : Forbidden (L2-031 AC4, AC5)
+h --> ep : 403
+else owner or System Admin
+pol --> h : Allowed (System Admin action audited, L2-031 AC7)
+h -> ctx : Load workspace and profile roles
+ctx -> db : SELECT
+db --> ctx : Rows
+h -> ent : AddMember(profileId) after lead/volunteer role check
+h -> ctx : SaveChanges
+ctx -> db : INSERT workspace_member
+h -> ntf : Notify added member in-app and by email
+h --> ep : Result
+ep --> svc : 204 No Content
+svc --> page : Refresh members
+page --> actor : Show member in list
+end
+@enduml

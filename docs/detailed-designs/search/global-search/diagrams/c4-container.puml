@@ -1,0 +1,19 @@
+@startuml
+!include <C4/C4_Container>
+LAYOUT_WITH_LEGEND()
+title Containers — Global search
+
+Person(member, "Member", "Signed-in user who browses and RSVPs to events")
+Person(lead, "Event Lead / City Lead", "Creates, edits and cancels events")
+Person(staff, "Staff", "Read-only across events, sees full RSVP lists")
+System_Boundary(ftc, "FaithTech Community") {
+  Container(spa, "Web app", "Angular", "Shell, search feature library, api and components libraries")
+  Container(api, "Community API", "ASP.NET Core", "FaithTech.Community.Api with Application, Domain and Infrastructure")
+  ContainerDb(db, "Community database", "PostgreSQL", "Profiles, events, partners, contacts, work items and full-text indexes")
+}
+Rel(member, spa, "Uses", "HTTPS")
+Rel(lead, spa, "Uses", "HTTPS")
+Rel(staff, spa, "Uses", "HTTPS")
+Rel(spa, api, "Calls", "JSON/HTTPS, OAuth2 bearer token")
+Rel(api, db, "Reads and writes", "EF Core")
+@enduml

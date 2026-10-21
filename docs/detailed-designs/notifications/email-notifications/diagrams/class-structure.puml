@@ -1,0 +1,60 @@
+@startuml
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 8
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam class {
+  BorderColor #344054
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+title Class structure — Email notifications
+class EmailMessage {
+  +string To
+  +string Subject
+  +string HtmlBody
+  +string TextBody
+  +NotificationKind Kind
+  +string CorrelationId
+}
+enum OutboxStatus {
+  Pending
+  Sent
+  Failed
+}
+class OutboxEmail {
+  +Guid Id
+  +EmailMessage Message
+  +OutboxStatus Status
+  +int Attempts
+  +DateTimeOffset NextAttemptAt
+  +string? LastError
+  +RecordFailure(error: string, now: DateTimeOffset): void
+  +MarkSent(): void
+}
+interface IEmailQueue {
+  +EnqueueAsync(m: EmailMessage): Task
+}
+interface IEmailSender {
+  +SendAsync(m: EmailMessage): Task
+}
+class EmailTemplateRenderer {
+  +Render(kind: NotificationKind, model: object): EmailMessage
+}
+class EmailDeliveryWorker {
+  +int MaxAttempts = 5
+  +ExecuteAsync(ct: CancellationToken): Task
+}
+class Profile {
+  +bool AnnouncementEmailsOptedOut
+}
+interface INotificationPublisher
+INotificationPublisher ..> IEmailQueue : uses
+INotificationPublisher ..> Profile : checks opt-out
+IEmailQueue ..> EmailTemplateRenderer : uses
+OutboxEmail *-- EmailMessage
+OutboxEmail --> OutboxStatus
+EmailDeliveryWorker ..> OutboxEmail : reads / updates
+EmailDeliveryWorker ..> IEmailSender : uses
+@enduml

@@ -1,0 +1,43 @@
+@startuml
+title UML sequence behaviour — request a reset link
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+actor "Account holder" as actor
+box "Frontend — FaithTech Community web app (faithtech-community library)" #E0F2FE
+  participant "ForgotPasswordPage" as page
+  participant "AuthService" as client
+end box
+box "Backend — FaithTech.Community.Api" #D1FADF
+  participant "AccountEndpoints" as ep
+end box
+box "Backend — FaithTech.Community.Application and Domain" #ECFDF3
+  participant "RequestPasswordResetHandler" as h
+end box
+box "Backend — FaithTech.Community.Infrastructure" #FFF4E5
+  database "Community database" as db
+end box
+participant "Email provider" as mail
+actor -> page : Submit email
+page -> client : requestPasswordReset(email)
+client -> ep : POST /api/account/forgot-password
+ep -> h : Send RequestPasswordResetCommand
+h -> db : Find user by email
+opt account exists
+  h -> mail : Send reset link valid for 1 hour (L2-004)
+end
+h --> ep : Accepted
+ep --> client : 202 Accepted
+page --> actor : Same confirmation in every case (L2-004)
+@enduml

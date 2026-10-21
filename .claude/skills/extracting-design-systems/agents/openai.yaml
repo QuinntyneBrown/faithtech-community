@@ -1,0 +1,6 @@
+interface:
+  display_name: "Extracting Design Systems"
+  short_description: "Tokens, foundations and component docs from HTML mocks"
+  default_prompt: "Use $extracting-design-systems to extract design tokens, foundation pages and one documented HTML page per component from docs/mocks/ into docs/design-system/, verified for WCAG contrast."
+policy:
+  allow_implicit_invocation: true

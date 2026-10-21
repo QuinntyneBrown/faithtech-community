@@ -1,0 +1,62 @@
+@startuml
+title UML sequence behaviour — Reassign ownership after role loss
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+actor "System Admin" as actor
+box "Frontend — FaithTech Community web app (agile library)" #E0F2FE
+  participant "WorkspaceSettingsPage" as page
+  participant "ReassignOwnerDialog" as dlg
+  participant "AgileService (AGILE_SERVICE)" as svc
+end box
+box "Backend — FaithTech.Community.Api" #D1FADF
+  participant "WorkspacesEndpoints" as ep
+end box
+box "Backend — FaithTech.Community.Application and Domain" #ECFDF3
+  participant "CityLeadRoleRemovedHandler" as evt
+  participant "ReassignWorkspaceOwnerHandler" as h
+  participant "Workspace" as ent
+end box
+box "Backend — FaithTech.Community.Infrastructure" #FFF4E5
+  participant "NotificationService" as ntf
+  participant "AuditLog" as audit
+  participant "CommunityDbContext" as ctx
+  database "Community database" as db
+end box
+evt <- evt : CityLeadRoleRemoved raised by role removal
+evt -> ctx : Find workspaces owned by profile
+ctx -> db : SELECT
+db --> ctx : Workspaces
+evt -> ntf : Notify System Admin in-app and by email (L2-037 AC2)
+ntf --> actor : Notification
+actor -> page : Open workspace from notification
+page -> dlg : Open reassign owner
+actor -> dlg : Choose a City Lead
+dlg -> svc : reassignOwner(workspaceId, newOwnerId)
+svc -> ep : PUT /workspaces/{id}/owner
+ep -> h : Send ReassignWorkspaceOwnerCommand
+alt caller not System Admin, or new owner not City Lead
+h --> ep : 403 / 400
+ep --> svc : ProblemDetails
+svc --> dlg : Error
+else valid
+h -> ent : ReassignOwner(newOwnerId) (L2-037 AC2)
+h -> ctx : SaveChanges
+ctx -> db : UPDATE workspace owner
+h -> audit : Record admin action
+h --> ep : Result
+ep --> svc : 204 No Content
+svc --> page : Owner updated
+end
+@enduml

@@ -1,0 +1,42 @@
+@startuml
+title UML sequence behaviour — Unsubscribe from an email link
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+actor "Email recipient" as actor
+box "Backend — FaithTech.Community.Api" #D1FADF
+  participant "AnnouncementsEndpoints" as ep
+end box
+box "Backend — FaithTech.Community.Application and Domain" #ECFDF3
+  participant "UnsubscribeFromAnnouncementsHandler" as h
+end box
+box "Backend — FaithTech.Community.Infrastructure" #FFF4E5
+  participant "IUnsubscribeTokenService" as tok
+  database "Community database" as db
+end box
+actor -> ep : POST /announcements/unsubscribe { token } (anonymous)
+ep -> h : Send UnsubscribeFromAnnouncementsCommand
+h -> tok : TryRead(token)
+alt valid token
+  tok --> h : profileId
+  h -> db : Set AnnouncementEmailsOptedOut = true (L2-030 #3)
+  db --> h : Saved
+  h --> ep : Success
+  ep --> actor : 200 Opted out
+else invalid or expired
+  tok --> h : false
+  h --> ep : Invalid
+  ep --> actor : 400 ProblemDetails
+end
+@enduml

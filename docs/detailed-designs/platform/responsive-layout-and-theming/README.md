@@ -1,0 +1,67 @@
+# Responsive layout and theming
+
+## Overview
+
+FaithTech Community runs on phones and desktops and in light and dark themes. This design describes the shared layout grid, breakpoints and theme switching that the app shell and the `components` library provide.
+
+- **breakpoint** — named viewport width threshold: XS <576px, SM >=576px, MD >=768px, LG >=992px, XL >=1200px
+- **theme** — set of colour token values; light and dark themes define the same role names
+- **theme preference** — member choice of `system`, `light` or `dark`; `system` follows `prefers-color-scheme`
+
+## Description
+
+- **Layout tokens** — breakpoint, gutter, margin and spacing custom properties in `components` (from `docs/design-system/`).
+- **`AppShellComponent`** — shell in the `faithtech-community` app. At XS it collapses navigation into a menu button that opens `NavDrawerComponent` from `components`; above XS it shows the full navigation.
+- **`BreakpointService`** — `components` wrapper over CDK `BreakpointObserver` exposing the current named breakpoint as a signal.
+- **`ThemeService`** — `components` service that applies `data-theme="light|dark"` on `<html>`. With preference `system` it follows `matchMedia('(prefers-color-scheme: dark)')`.
+- **Theme preference storage** — the settings page (mock `pages/settings`) sets the preference. Whether it persists in the profile through the API or in browser storage only is `<TO SUPPLY>`.
+- **Touch targets** — interactive components set a minimum of 24x24 CSS pixels through a size token.
+- **Playwright viewport projects** — the e2e suite runs layout specs at one width per breakpoint in Chromium and asserts no horizontal page scroll.
+
+## Requirements
+
+The feature realizes the following level-2 (L2) requirements. Each L2 requirement refines a level-1 (L1) requirement, cited by identifier.
+
+| L2 ID | Refines (L1) | Requirement |
+|-------|--------------|-------------|
+| `L2-045` | `L1-016` | Responsive layout and theming |
+
+### Acceptance criteria
+
+**`L2-045` — Responsive layout and theming**
+
+1. Given any screen at XS, SM, MD, LG and XL widths, when it renders, then there is no horizontal page scroll, and touch targets are at least 24x24 CSS pixels.
+2. Given an XS viewport, when the app shell renders, then the navigation collapses into a menu.
+3. Given the operating system prefers a dark theme, when the app loads, then the dark theme is used. The user can override the theme in settings.
+
+## Diagrams
+
+### System context
+
+A member uses FaithTech Community on any device width and theme.
+
+![C4 system context for responsive layout and theming](diagrams/c4-context.png)
+
+### Containers
+
+Layout and theming live entirely in the web app.
+
+![C4 container view for responsive layout and theming](diagrams/c4-container.png)
+
+### Components
+
+`AppShellComponent` observes `BreakpointService` to collapse navigation at XS and initializes `ThemeService`, which selects light or dark token values.
+
+![C4 component view for responsive layout and theming](diagrams/c4-component.png)
+
+### Class structure
+
+`ThemeService` resolves a `ThemePreference` to an effective theme; `BreakpointService` exposes the current `Breakpoint`.
+
+![Class diagram for responsive layout and theming](diagrams/class-structure.png)
+
+### Behaviour — load the app shell
+
+On load the shell picks the theme from the stored preference or the operating system and collapses navigation at XS (`L2-045`).
+
+![Sequence diagram for load the app shell](diagrams/sequence-load-shell.png)

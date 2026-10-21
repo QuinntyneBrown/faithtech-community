@@ -1,0 +1,26 @@
+@startuml
+!include <C4/C4_Component>
+LAYOUT_WITH_LEGEND()
+title Components — Manage profile photos
+
+Container(spa, "Web app", "Angular", "profiles feature library and api client")
+Container_Boundary(api, "Community API") {
+  Component(ep, "ProfilesEndpoints", "Minimal API", "POST/DELETE /api/profiles/{id}/photos, PUT .../featured")
+  Component(uh, "UploadPhotoHandler", "Application handler", "Validates, resizes, stores")
+  Component(fh, "SetFeaturedPhotoHandler", "Application handler", "Features one photo")
+  Component(dh, "DeletePhotoHandler", "Application handler", "Deletes and promotes")
+  Component(ip, "IImageProcessor", "Infrastructure service", "Format detection, resize, metadata strip")
+  Component(ps, "IPhotoStorage", "Infrastructure service", "Azure Blob client")
+  ComponentDb(db, "CommunityDbContext", "EF Core / PostgreSQL", "Profile photos")
+}
+Rel(spa, ep, "Uploads, features, deletes")
+Rel(ep, uh, "Sends UploadPhotoCommand")
+Rel(ep, fh, "Sends SetFeaturedPhotoCommand")
+Rel(ep, dh, "Sends DeletePhotoCommand")
+Rel(uh, ip, "Processes image")
+Rel(uh, ps, "Stores blob")
+Rel(dh, ps, "Deletes blob")
+Rel(uh, db, "Adds photo")
+Rel(fh, db, "Saves")
+Rel(dh, db, "Removes photo")
+@enduml

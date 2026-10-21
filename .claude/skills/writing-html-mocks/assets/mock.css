@@ -1,0 +1,37 @@
+/* mock.css — chrome around a mock (never part of the product UI).
+   The mock bar shows what you are looking at, links sibling states, toggles
+   the theme and can be hidden with ?chrome=0. Everything uses tokens.css. */
+.mock-bar {
+  position: fixed; left: 50%; bottom: var(--space-3); translate: -50% 0; z-index: calc(var(--z-tooltip) + 10);
+  display: flex; align-items: center; gap: var(--space-2); max-width: calc(100vw - var(--space-6));
+  padding: var(--space-1) var(--space-2) var(--space-1) var(--space-3);
+  background: var(--color-bg-inverse); color: var(--color-fg-inverse);
+  border-radius: var(--radius-full); box-shadow: var(--shadow-3); font: var(--text-caption);
+  opacity: 0.92; transition: opacity var(--duration-fast) var(--ease-standard);
+}
+.mock-bar:hover, .mock-bar:focus-within { opacity: 1; }
+.mock-bar__screen { font-weight: var(--font-weight-semibold); white-space: nowrap; }
+.mock-bar__states { display: flex; gap: var(--space-0-5); list-style: none; margin: 0; padding: 0; overflow-x: auto; scrollbar-width: none; }
+.mock-bar__states a, .mock-bar__states span {
+  display: inline-flex; align-items: center; min-height: var(--target-min); padding: 0 var(--space-2);
+  border-radius: var(--radius-full); color: inherit; text-decoration: none; white-space: nowrap; opacity: 0.8;
+}
+.mock-bar__states a:hover { opacity: 1; background: color-mix(in srgb, currentColor 12%, transparent); }
+.mock-bar__states [aria-current="page"] { opacity: 1; background: var(--color-accent); color: var(--color-fg-on-accent); }
+.mock-bar button, .mock-bar__home {
+  display: inline-grid; place-items: center; min-width: var(--target-min); min-height: var(--target-min); padding: 0 var(--space-2);
+  border: 0; border-radius: var(--radius-full); background: color-mix(in srgb, currentColor 10%, transparent); color: inherit; font: inherit; cursor: pointer; text-decoration: none;
+}
+.mock-bar button:hover, .mock-bar__home:hover { background: color-mix(in srgb, currentColor 20%, transparent); }
+.mock-bar :focus-visible { outline-color: var(--color-fg-inverse); }
+[data-chrome="off"] .mock-bar { display: none; }
+
+/* Annotations: design intent visible only while the chrome is on. */
+.mock-note {
+  position: absolute; z-index: var(--z-tooltip); max-width: 16rem; padding: var(--space-2) var(--space-3);
+  background: var(--color-warning-bg); color: var(--color-warning-fg); border: 1px dashed var(--color-warning-border);
+  border-radius: var(--radius-md); font: var(--text-caption); box-shadow: var(--shadow-2);
+}
+.mock-note::before { content: "Note"; display: block; font-weight: var(--font-weight-semibold); text-transform: uppercase; letter-spacing: var(--letter-spacing-wide); }
+[data-chrome="off"] .mock-note { display: none; }
+@media (max-width: 39.99rem) { .mock-bar__states { max-width: 40vw; } }

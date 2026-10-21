@@ -1,0 +1,47 @@
+@startuml
+title UML sequence behaviour — confirm an email
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+actor "Account holder" as actor
+box "Frontend — FaithTech Community web app (faithtech-community library)" #E0F2FE
+  participant "VerifyEmailPage" as page
+  participant "AuthService" as client
+end box
+box "Backend — FaithTech.Community.Api" #D1FADF
+  participant "AccountEndpoints" as ep
+end box
+box "Backend — FaithTech.Community.Application and Domain" #ECFDF3
+  participant "ConfirmEmailHandler" as h
+end box
+box "Backend — FaithTech.Community.Infrastructure" #FFF4E5
+  database "Community database" as db
+end box
+participant "Email provider" as mail
+actor -> page : Open verification link
+page -> client : confirmEmail(userId, token)
+client -> ep : POST /api/account/confirm-email
+ep -> h : Send ConfirmEmailCommand
+h -> db : Load user and token state
+alt token valid and younger than 24 hours
+  h -> db : Set EmailConfirmed = true (L2-002)
+  h --> ep : Confirmed
+  ep --> client : 204 No Content
+  page --> actor : Navigate to sign in (L2-002)
+else expired or already used
+  h --> ep : Invalid token
+  ep --> client : 400 ProblemDetails
+  page --> actor : Error state offering resend (L2-002)
+end
+@enduml

@@ -1,0 +1,32 @@
+@startuml
+!include <C4/C4_Component>
+LAYOUT_WITH_LEGEND()
+title Components — Public events and guest RSVP
+
+Container_Boundary(spa, "Web app") {
+  Component(page, "PublicEventPage", "Angular page (events library, anonymous route)", "Event details and guest RSVP form")
+  Component(svc, "EventsService / EVENTS_SERVICE", "TypeScript contract and injection token (api library)", "Contract the pages depend on")
+  Component(http, "HttpEventsService", "Angular service (api library)", "HTTP implementation of EventsService")
+}
+Container_Boundary(api, "Community API") {
+  Component(ep, "EventsEndpoints", "ASP.NET Core minimal API", "Anonymous /api/public/events routes with rate limiting")
+  Component(get, "GetPublicEventHandler", "Application query handler", "Returns public events only")
+  Component(h, "GuestRsvpHandler", "Application handler", "Validates, de-duplicates and confirms guest RSVPs")
+  Component(ics, "IcsCalendarWriter", "Infrastructure service", "RFC 5545 .ics attachment")
+  Component(mail, "EmailSender", "Infrastructure service", "Sends confirmation email")
+  Component(ctx, "CommunityDbContext", "EF Core DbContext", "Events and RSVPs")
+}
+ContainerDb(db, "Community database", "PostgreSQL", "Events, RSVPs, notifications and outbox")
+System_Ext(email, "Email provider", "SMTP/SendGrid delivery")
+Rel(page, svc, "Calls getPublicEvent / rsvpAsGuest")
+Rel(svc, http, "Implemented by")
+Rel(http, ep, "JSON/HTTPS, anonymous")
+Rel(ep, get, "Dispatches")
+Rel(ep, h, "Dispatches")
+Rel(h, ics, "Builds attachment with")
+Rel(h, mail, "Emails via")
+Rel(get, ctx, "Reads")
+Rel(h, ctx, "Writes")
+Rel(ctx, db, "SQL")
+Rel(mail, email, "SMTP")
+@enduml

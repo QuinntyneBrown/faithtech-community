@@ -1,0 +1,80 @@
+@startuml
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 8
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam class {
+  BorderColor #344054
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+title Class structure — Assign roles
+enum Role {
+  CityLead
+  EventLead
+  CreateLead
+  CommunicationsLead
+  Staff
+  Volunteer
+  ProductEngineer
+  Attendee
+  SystemAdmin
+}
+class Profile {
+  +Guid Id
+  +string Name
+  +IReadOnlyCollection<ProfileRole> Roles
+  +AddRole(role: Role): void
+  +RemoveRole(role: Role): void
+  +HasRole(role: Role): bool
+}
+class ProfileRole {
+  +Guid ProfileId
+  +Role Role
+  +DateTime GrantedAtUtc
+  +Guid GrantedBy
+}
+class AssignRoleCommand {
+  +Guid ProfileId
+  +Role Role
+}
+class RemoveRoleCommand {
+  +Guid ProfileId
+  +Role Role
+}
+class RoleAssignmentPolicy {
+  +CanChange(caller: ICurrentUser, role: Role): bool
+  +IsLastSystemAdmin(profileId: Guid): Task<bool>
+}
+class AssignRoleHandler {
+  +Handle(command: AssignRoleCommand): Task<Result>
+}
+class RemoveRoleHandler {
+  +Handle(command: RemoveRoleCommand): Task<Result>
+}
+interface ICurrentUser {
+  +Guid ProfileId
+  +IReadOnlySet<Role> Roles
+  +string IpAddress
+}
+interface IAuditLog {
+  +Write(entry: AuditEntry): Task
+}
+interface INotificationService {
+  +Notify(profileId: Guid, notification: Notification): Task
+}
+Profile "1" *-- "*" ProfileRole
+ProfileRole --> Role
+AssignRoleHandler ..> AssignRoleCommand : handles
+RemoveRoleHandler ..> RemoveRoleCommand : handles
+AssignRoleHandler --> RoleAssignmentPolicy
+RemoveRoleHandler --> RoleAssignmentPolicy
+AssignRoleHandler --> Profile : mutates
+RemoveRoleHandler --> Profile : mutates
+AssignRoleHandler ..> ICurrentUser
+AssignRoleHandler ..> IAuditLog
+AssignRoleHandler ..> INotificationService
+RemoveRoleHandler ..> IAuditLog
+RemoveRoleHandler ..> INotificationService
+@enduml

@@ -1,0 +1,27 @@
+@startuml
+!include <C4/C4_Component>
+LAYOUT_WITH_LEGEND()
+title Components — Send an invite
+
+Container(spa, "Web app", "Angular", "invites feature library and api client")
+Container_Boundary(api, "Community API") {
+  Component(ep, "InvitesEndpoints", "Minimal API", "GET/POST /api/invites, POST /api/invites/{id}/revoke")
+  Component(sh, "SendInviteHandler", "Application handler", "Authorizes, rate-limits, creates invite")
+  Component(rh, "RevokeInviteHandler", "Application handler", "Revokes pending invite")
+  Component(lh, "ListInvitesHandler", "Application handler", "Lists invites with status")
+  Component(rp, "IRoleAssignmentPolicy", "Application service", "Grantable roles per caller")
+  Component(es, "IEmailSender", "Infrastructure service", "Sends invite email")
+  ComponentDb(db, "CommunityDbContext", "EF Core / PostgreSQL", "Invites")
+}
+System_Ext(email, "Email provider", "SMTP or SendGrid")
+Rel(spa, ep, "Calls")
+Rel(ep, sh, "Sends SendInviteCommand")
+Rel(ep, rh, "Sends RevokeInviteCommand")
+Rel(ep, lh, "Sends ListInvitesQuery")
+Rel(sh, rp, "Checks role")
+Rel(sh, es, "Sends email")
+Rel(sh, db, "Saves invite")
+Rel(rh, db, "Updates invite")
+Rel(lh, db, "Reads invites")
+Rel(es, email, "Delivers via")
+@enduml

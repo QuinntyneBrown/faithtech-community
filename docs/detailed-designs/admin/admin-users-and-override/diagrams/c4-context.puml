@@ -1,0 +1,8 @@
+@startuml
+!include <C4/C4_Context>
+LAYOUT_WITH_LEGEND()
+title System Context — Admin users page and override
+Person(admin, "System Admin", "Holds full override across the site")
+System(community, "FaithTech Community", "Community site for FaithTech staff, leads, volunteers, builders and partners")
+Rel(admin, community, "Searches users and overrides records using")
+@enduml

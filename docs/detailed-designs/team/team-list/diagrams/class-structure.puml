@@ -1,0 +1,37 @@
+@startuml
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 8
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam class {
+  BorderColor #344054
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+title Class structure — Team list
+class TeamRoles {
+  +{static} IReadOnlySet<Role> All
+}
+class ListTeamQuery {
+  +Role? Role
+}
+class ListTeamHandler {
+  +Handle(query: ListTeamQuery): Task<IReadOnlyList<TeamMemberDto>>
+}
+class TeamMemberDto {
+  +Guid ProfileId
+  +string Name
+  +string PhotoUrl
+  +IReadOnlyList<Role> Roles
+}
+class Profile {
+  +Guid Id
+  +string Name
+  +IReadOnlyCollection<ProfileRole> Roles
+}
+ListTeamHandler ..> ListTeamQuery : handles
+ListTeamHandler --> TeamRoles
+ListTeamHandler --> Profile : reads
+ListTeamHandler ..> TeamMemberDto : returns
+@enduml

@@ -1,0 +1,57 @@
+@startuml
+title UML sequence behaviour — Switch a workspace's method
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+actor "Workspace owner" as actor
+box "Frontend — FaithTech Community web app (agile library)" #E0F2FE
+  participant "WorkspaceSettingsPage" as page
+  participant "SwitchMethodDialog" as dlg
+  participant "AgileService (AGILE_SERVICE)" as svc
+end box
+box "Backend — FaithTech.Community.Api" #D1FADF
+  participant "WorkspacesEndpoints" as ep
+end box
+box "Backend — FaithTech.Community.Application and Domain" #ECFDF3
+  participant "SwitchMethodHandler" as h
+  participant "WorkspaceAccessPolicy" as pol
+  participant "Workspace" as ent
+end box
+box "Backend — FaithTech.Community.Infrastructure" #FFF4E5
+  participant "CommunityDbContext" as ctx
+  database "Community database" as db
+end box
+actor -> page : Choose the other method
+page -> dlg : Open confirmation stating consequences
+actor -> dlg : Confirm
+dlg -> svc : switchMethod(workspaceId, target)
+svc -> ep : PUT /workspaces/{id}/method
+ep -> h : Send SwitchMethodCommand
+h -> pol : EnsureOwner(workspaceId)
+pol --> h : Allowed (non-owner 403)
+h -> ctx : Load workspace, open sprints, stories
+ctx -> db : SELECT
+db --> ctx : Rows
+alt Scrum to Kanban
+h -> ent : SwitchMethod(Kanban): statuses kept, open sprints closed (L2-036 AC1)
+else Kanban to Scrum
+h -> ent : SwitchMethod(Scrum): stories not Done placed in backlog (L2-036 AC2)
+end
+h -> ctx : SaveChanges
+ctx -> db : UPDATE workspace, sprints, work_items in one transaction
+h --> ep : WorkspaceDto
+ep --> svc : 200 OK
+svc --> page : Updated workspace
+page --> actor : Show new method
+@enduml

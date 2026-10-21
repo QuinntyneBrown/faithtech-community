@@ -1,0 +1,91 @@
+@startuml
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 8
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam class {
+  BorderColor #344054
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+title Class structure — Cancel events
+
+enum EventType {
+  Standard
+  Hackathon
+}
+
+enum EventFormat {
+  InPerson
+  Online
+}
+
+enum EventVisibility {
+  MembersOnly
+  Public
+}
+
+class Event <<Domain entity>> {
+  +Guid Id
+  +string Title
+  +string Description
+  +EventType Type
+  +DateTimeOffset StartsAt
+  +DateTimeOffset EndsAt
+  +string City
+  +EventFormat Format
+  +string? Venue
+  +string? OnlineLink
+  +EventVisibility Visibility
+  +bool IsCancelled
+  +string? CancellationReason
+  +int Sequence
+  +Guid CreatedById
+}
+Event --> EventType
+Event --> EventFormat
+Event --> EventVisibility
+
+class Rsvp <<Domain entity>> {
+  +Guid Id
+  +Guid EventId
+  +Guid? ProfileId
+  +string? GuestName
+  +string? GuestEmail
+  +DateTimeOffset CreatedAt
+  +bool IsGuest
+}
+Event "1" *-- "*" Rsvp : rsvps
+
+class EventPermissions <<Application service>> {
+  +CanManageEvents(user: ICurrentUser): bool
+  +CanSeeRsvpList(user: ICurrentUser): bool
+  +CanSeeGuestEmails(user: ICurrentUser): bool
+}
+interface ICurrentUser {
+  +Guid ProfileId
+  +IReadOnlySet<Role> Roles
+  +bool IsAuthenticated
+}
+EventPermissions ..> ICurrentUser
+
+class CancelEventCommand {
+  +Guid EventId
+  +string? Reason
+}
+class CancelEventHandler {
+  +Handle(command: CancelEventCommand): Task<Result>
+}
+interface IEmailSender {
+  +SendAsync(message: EmailMessage): Task
+}
+interface INotificationPublisher {
+  +PublishAsync(recipients: IEnumerable<Guid>, notification: Notification): Task
+}
+CancelEventHandler ..> CancelEventCommand : handles
+CancelEventHandler ..> EventPermissions
+CancelEventHandler --> Event : Cancel(reason)
+CancelEventHandler ..> INotificationPublisher : members
+CancelEventHandler ..> IEmailSender : members and guests
+@enduml

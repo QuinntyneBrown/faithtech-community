@@ -1,0 +1,46 @@
+@startuml
+title UML sequence behaviour — Cancel an RSVP
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+actor "Member" as actor
+box "Frontend — FaithTech Community web app (events library)" #E0F2FE
+  participant "EventPage" as page
+  participant "CancelRsvpDialog" as dlg
+  participant "HttpEventsService" as svc
+end box
+box "Backend — FaithTech.Community.Api" #D1FADF
+  participant "EventsEndpoints" as ep
+end box
+box "Backend — FaithTech.Community.Application and Domain" #ECFDF3
+  participant "CancelRsvpHandler" as h
+end box
+box "Backend — FaithTech.Community.Infrastructure" #FFF4E5
+  database "Community database" as db
+end box
+
+actor -> page : Select cancel RSVP
+page -> dlg : Open confirmation dialog
+actor -> dlg : Confirm
+dlg -> svc : cancelRsvp(eventId)
+svc -> ep : DELETE /api/events/{id}/rsvps/me
+ep -> h : Send CancelRsvpCommand
+h -> db : Delete caller RSVP (L2-022)
+db --> h : Committed
+h --> ep : Success
+ep --> svc : 204 No Content
+svc --> dlg : Done
+dlg --> page : Close with result
+page --> actor : Show not-RSVP'd state
+@enduml

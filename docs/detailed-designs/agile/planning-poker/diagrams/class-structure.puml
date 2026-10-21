@@ -1,0 +1,73 @@
+@startuml
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 8
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam class {
+  BorderColor #344054
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+title Class structure — Planning Poker
+
+enum DeckValue {
+  One
+  Two
+  Three
+  Five
+  Eight
+  Thirteen
+  TwentyOne
+  Unknown
+}
+class PokerSession {
+  +Guid Id
+  +Guid StoryId
+  +Guid FacilitatorId
+  +int Round
+  +bool IsRevealed
+  +List<Guid> InvitedIds
+  +CastVote(profileId: Guid, value: DeckValue): void
+  +Reveal(by: Guid): void
+  +Revote(by: Guid): void
+  +SetFinalPoints(by: Guid, points: int, story: WorkItem): void
+}
+class PokerVote {
+  +Guid ProfileId
+  +int Round
+  +DeckValue Value
+}
+class WorkItem {
+  +int? StoryPoints
+}
+class PlanningPokerHub {
+  +Join(sessionId: Guid): Task
+  +Vote(sessionId: Guid, value: DeckValue): Task
+  +Reveal(sessionId: Guid): Task
+  +Revote(sessionId: Guid): Task
+  +SetPoints(sessionId: Guid, points: int): Task
+}
+interface IPokerBroadcaster {
+  +VoteCastAsync(sessionId: Guid, profileId: Guid): Task
+  +VotesRevealedAsync(sessionId: Guid, votes: IReadOnlyList<PokerVote>): Task
+  +RevoteStartedAsync(sessionId: Guid): Task
+  +PointsSetAsync(sessionId: Guid, points: int): Task
+}
+class SignalRPokerBroadcaster
+class CastVoteHandler
+class RevealVotesHandler
+class SetFinalPointsHandler
+PokerSession "1" *-- "*" PokerVote
+PokerVote --> DeckValue
+PokerSession ..> WorkItem : sets StoryPoints
+PlanningPokerHub ..> CastVoteHandler
+PlanningPokerHub ..> RevealVotesHandler
+PlanningPokerHub ..> SetFinalPointsHandler
+CastVoteHandler --> PokerSession
+RevealVotesHandler --> PokerSession
+SetFinalPointsHandler --> PokerSession
+CastVoteHandler ..> IPokerBroadcaster
+RevealVotesHandler ..> IPokerBroadcaster
+SignalRPokerBroadcaster ..|> IPokerBroadcaster
+@enduml

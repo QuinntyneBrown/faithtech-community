@@ -1,0 +1,22 @@
+@startuml
+!include <C4/C4_Component>
+LAYOUT_WITH_LEGEND()
+title Components — Manage partners
+Container_Boundary(web, "Web app") {
+  Component(dlg, "AddPartnerDialog", "Angular CDK Dialog", "Collects partner details")
+  Component(page, "PartnerPage", "Angular page", "Shows one partner")
+  Component(svc, "HttpPartnersService", "Angular service", "Implements PartnersService")
+}
+Container_Boundary(api, "Community API") {
+  Component(ep, "PartnersEndpoints", "ASP.NET Core minimal API", "/api/partners")
+  Component(h, "Partner handlers", "Application handler", "Create, update and get")
+  Component(pol, "PartnerAccessPolicy", "Application permission check", "Read and write rules")
+  ComponentDb(db, "CommunityDbContext", "PostgreSQL", "EF Core context over the Community database")
+}
+Rel(dlg, svc, "Calls")
+Rel(page, svc, "Calls")
+Rel(svc, ep, "Sends request", "JSON/HTTPS")
+Rel(ep, h, "Sends command or query")
+Rel(h, pol, "Checks L2-017 access")
+Rel(h, db, "Persists", "EF Core")
+@enduml

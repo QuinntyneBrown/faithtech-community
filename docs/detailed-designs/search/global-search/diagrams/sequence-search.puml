@@ -1,0 +1,59 @@
+@startuml
+title UML sequence behaviour — Search across the community
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+actor "Signed-in member" as actor
+box "Frontend — FaithTech Community web app (search library)" #E0F2FE
+  participant "SearchPage" as page
+  participant "HttpSearchService" as svc
+end box
+box "Backend — FaithTech.Community.Api" #D1FADF
+  participant "SearchEndpoints" as ep
+end box
+box "Backend — FaithTech.Community.Application and Domain" #ECFDF3
+  participant "GlobalSearchHandler" as h
+  participant "GlobalSearchValidator" as val
+  participant "SearchScope" as scope
+end box
+box "Backend — FaithTech.Community.Infrastructure" #FFF4E5
+  participant "PostgresSearchIndex" as idx
+  database "Community database" as db
+end box
+
+actor -> page : Type term and submit
+alt term shorter than 2 characters
+  page --> actor : Show hint; no search runs (L2-026)
+else valid term
+  page -> page : Loading state
+  page -> svc : search(term)
+  svc -> ep : GET /api/search?q=term
+  ep -> h : Send GlobalSearchQuery
+  h -> val : Validate minimum length (L2-026)
+  h -> scope : For(currentUser) (L2-026 permission filters)
+  scope --> h : Own contacts only; partners for leads, Staff, System Admin; work items for workspace members, Staff, System Admin
+  h -> idx : SearchAsync(term, scope)
+  idx -> db : websearch_to_tsquery over GIN-indexed tsvector, scope filters in WHERE (L2-026)
+  db --> idx : Ranked rows per group
+  idx --> h : SearchResultsDto
+  h --> ep : Grouped results
+  ep --> svc : 200 OK
+  svc --> page : Results
+  alt no matches
+    page --> actor : Empty state suggesting other terms (L2-026)
+  else matches
+    page --> actor : People, events, partners, contacts, work items groups (L2-026)
+  end
+end
+@enduml

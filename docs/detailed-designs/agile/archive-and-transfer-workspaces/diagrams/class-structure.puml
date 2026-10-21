@@ -1,0 +1,55 @@
+@startuml
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 8
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam class {
+  BorderColor #344054
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+title Class structure — Archive and transfer workspaces
+
+class Workspace {
+  +Guid OwnerId
+  +bool IsArchived
+  +Archive(): void
+  +Restore(): void
+  +ReassignOwner(newOwnerId: Guid): void
+}
+class WorkItem {
+  +bool IsArchived
+  +Archive(): void
+  +Restore(): void
+}
+class ArchiveWorkspaceCommand {
+  +Guid WorkspaceId
+}
+class RestoreWorkspaceCommand {
+  +Guid WorkspaceId
+}
+class ReassignWorkspaceOwnerCommand {
+  +Guid WorkspaceId
+  +Guid NewOwnerId
+}
+class CityLeadRoleRemoved {
+  +Guid ProfileId
+}
+class ArchiveWorkspaceHandler
+class RestoreWorkspaceHandler
+class ReassignWorkspaceOwnerHandler
+class CityLeadRoleRemovedHandler
+interface INotificationService
+interface IAuditLog
+Workspace "1" *-- "*" WorkItem
+ArchiveWorkspaceHandler ..> ArchiveWorkspaceCommand : handles
+RestoreWorkspaceHandler ..> RestoreWorkspaceCommand : handles
+ReassignWorkspaceOwnerHandler ..> ReassignWorkspaceOwnerCommand : handles
+CityLeadRoleRemovedHandler ..> CityLeadRoleRemoved : handles
+ArchiveWorkspaceHandler --> Workspace
+RestoreWorkspaceHandler --> Workspace
+ReassignWorkspaceOwnerHandler --> Workspace
+ReassignWorkspaceOwnerHandler ..> IAuditLog
+CityLeadRoleRemovedHandler ..> INotificationService
+@enduml

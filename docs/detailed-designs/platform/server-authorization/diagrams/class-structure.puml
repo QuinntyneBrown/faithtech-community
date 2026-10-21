@@ -1,0 +1,45 @@
+@startuml
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 8
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam class {
+  BorderColor #344054
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+title Class structure — Server authorization
+interface ICurrentUser {
+  +Guid? UserId
+  +IReadOnlySet<Role> Roles
+  +bool IsAuthenticated
+  +HasRole(role: Role): bool
+}
+class HttpCurrentUser
+interface IPermissionFilters {
+  +VisibleContacts(q: IQueryable<Contact>, u: ICurrentUser): IQueryable<Contact>
+  +VisibleWorkItems(q: IQueryable<WorkItem>, u: ICurrentUser): IQueryable<WorkItem>
+}
+class AuthorizationRules {
+  +CanAssignRole(actor: ICurrentUser, role: Role): bool
+  +CanWrite(actor: ICurrentUser): bool
+}
+enum ResultStatus {
+  Ok
+  Invalid
+  NotFound
+  Forbidden
+}
+class Result {
+  +ResultStatus Status
+}
+class ResultMapper {
+  +ToHttp(r: Result): IResult
+}
+ICurrentUser <|.. HttpCurrentUser
+IPermissionFilters ..> ICurrentUser : uses
+AuthorizationRules ..> ICurrentUser : uses
+Result --> ResultStatus
+ResultMapper ..> Result : maps
+@enduml

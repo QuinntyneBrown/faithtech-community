@@ -1,0 +1,41 @@
+@startuml
+title UML sequence behaviour — Load the app shell
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+actor "Member" as actor
+box "Frontend — FaithTech Community web app (components library)" #E0F2FE
+  participant "AppShellComponent" as shell
+  participant "ThemeService" as theme
+  participant "BreakpointService" as bp
+  participant "NavDrawerComponent" as nav
+end box
+actor -> shell : Open app
+shell -> theme : init()
+alt preference is System
+  theme -> theme : Read prefers-color-scheme (L2-045 #3)
+else Light or Dark override
+  theme -> theme : Use stored preference
+end
+theme --> shell : data-theme applied
+shell -> bp : current()
+alt XS
+  bp --> shell : XS
+  shell -> nav : Render menu button (L2-045 #2)
+else SM and wider
+  bp --> shell : SM..XL
+  shell -> shell : Render full navigation
+end
+shell --> actor : Shell without horizontal scroll (L2-045 #1)
+@enduml

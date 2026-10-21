@@ -1,0 +1,62 @@
+@startuml
+title UML sequence behaviour — Add a role
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+actor "City Lead or System Admin" as actor
+box "Frontend — FaithTech Community web app (admin library)" #E0F2FE
+  participant "AddRoleDialog" as dlg
+  participant "HttpRolesService" as svc
+end box
+box "Backend — FaithTech.Community.Api" #D1FADF
+  participant "RolesEndpoints" as ep
+end box
+box "Backend — FaithTech.Community.Application and Domain" #ECFDF3
+  participant "AssignRoleHandler" as h
+  participant "RoleAssignmentPolicy" as pol
+  participant "Profile" as prof
+end box
+box "Backend — FaithTech.Community.Infrastructure" #FFF4E5
+  participant "AuditLog" as audit
+  participant "NotificationDispatcher" as notify
+  database "Community database" as db
+end box
+actor -> dlg : Choose role and confirm
+dlg -> svc : addRole(profileId, role)
+svc -> ep : POST /api/profiles/{id}/roles
+ep -> ep : Authenticate bearer token
+ep -> h : Send AssignRoleCommand
+h -> pol : CanChange(caller, role) per L2-009
+alt caller not permitted
+  pol --> h : false
+  h --> ep : Forbidden
+  ep --> svc : 403 ProblemDetails
+  svc --> dlg : Error
+  dlg --> actor : Show not-permitted message
+else permitted
+  pol --> h : true
+  h -> db : Load Profile with roles
+  db --> h : Profile
+  h -> prof : AddRole(role) (L2-008 any combination)
+  h -> audit : Write actor, action, target, before/after, UTC, IP (L2-041)
+  h -> db : Save changes in one unit of work
+  opt caller is City Lead
+    h -> notify : Notify profile owner (L2-009 AC1)
+  end
+  h --> ep : Updated role set
+  ep --> svc : 200 OK
+  svc --> dlg : Roles
+  dlg --> actor : Close dialog, badges update without reload
+end
+@enduml

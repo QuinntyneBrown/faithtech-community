@@ -1,0 +1,10 @@
+@startuml
+!include <C4/C4_Context>
+LAYOUT_WITH_LEGEND()
+title System Context — Email notifications
+Person(member, "Member", "Signed-in community member")
+System(ftc, "FaithTech Community", "Community site for FaithTech staff, leads, volunteers, builders and partners")
+System_Ext(email, "Email provider", "SMTP/SendGrid email delivery")
+Rel(ftc, member, "Sends notification email to")
+Rel(ftc, email, "Delivers email via", "SMTP")
+@enduml

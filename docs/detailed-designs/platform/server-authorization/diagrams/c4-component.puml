@@ -1,0 +1,20 @@
+@startuml
+!include <C4/C4_Component>
+LAYOUT_WITH_LEGEND()
+title Components — Server authorization
+Container_Boundary(api, "Community API") {
+  Component(auth, "Authentication and fallback policy", "ASP.NET Core middleware", "OpenIddict validation; 401 by default")
+  Component(ep, "Feature endpoints", "Minimal API", "Explicit AllowAnonymous only where listed")
+  Component(cu, "ICurrentUser", "Application abstraction", "Caller id and roles")
+  Component(h, "Feature handlers", "Application handlers", "Apply rules and filters")
+  Component(pf, "IPermissionFilters", "Application service", "IQueryable predicates per role")
+  Component(map, "ResultMapper", "Api helper", "Result to 400/403/404")
+  ComponentDb(db, "CommunityDbContext", "EF Core", "Filtered SQL queries")
+}
+Rel(auth, ep, "Admits authenticated callers to")
+Rel(ep, h, "Dispatches to")
+Rel(h, cu, "Reads caller")
+Rel(h, pf, "Applies")
+Rel(pf, db, "Composes WHERE clauses for")
+Rel(ep, map, "Maps result with")
+@enduml

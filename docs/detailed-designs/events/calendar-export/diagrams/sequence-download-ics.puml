@@ -1,0 +1,52 @@
+@startuml
+title UML sequence behaviour — Download an event's .ics file
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+actor "Member or guest" as actor
+box "Frontend — FaithTech Community web app (events library)" #E0F2FE
+  participant "EventPage" as page
+  participant "HttpEventsService" as svc
+end box
+box "Backend — FaithTech.Community.Api" #D1FADF
+  participant "EventsEndpoints" as ep
+end box
+box "Backend — FaithTech.Community.Application and Domain" #ECFDF3
+  participant "GetEventCalendarHandler" as h
+end box
+box "Backend — FaithTech.Community.Infrastructure" #FFF4E5
+  participant "IcsCalendarWriter" as ics
+  database "Community database" as db
+end box
+
+actor -> page : Select Add to calendar
+page -> svc : calendarUrl(id)
+svc --> page : URL
+page -> ep : GET /api/events/{id}/calendar.ics (or public route)
+ep -> h : Send GetEventCalendarQuery
+h -> db : Load event
+db --> h : Event
+alt caller may not see event
+  h --> ep : Not found or forbidden
+  ep --> page : 404 / 401
+else visible
+  h -> ics : Write(event)
+  ics -> ics : UID from Event.Id; DTSTART/DTEND in UTC; LOCATION or URL (L2-024)
+  ics -> ics : SEQUENCE = Event.Sequence; STATUS:CANCELLED if cancelled (L2-024)
+  ics --> h : .ics text
+  h --> ep : CalendarFile
+  ep --> page : 200 text/calendar attachment
+  page --> actor : Browser saves .ics
+end
+@enduml

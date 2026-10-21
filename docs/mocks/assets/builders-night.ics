@@ -1,0 +1,12 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//FaithTech Community//Mocks//EN
+BEGIN:VEVENT
+UID:toronto-builders-night-2026@community.faithtech.example
+DTSTAMP:20261021T120000Z
+DTSTART:20261106T233000Z
+DTEND:20261107T020000Z
+SUMMARY:Toronto Builders Night
+LOCATION:Kestrel Labs, 220 King St W, Toronto
+END:VEVENT
+END:VCALENDAR

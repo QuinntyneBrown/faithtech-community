@@ -1,0 +1,24 @@
+@startuml
+!include <C4/C4_Component>
+LAYOUT_WITH_LEGEND()
+title Components — Password reset
+
+Container(spa, "Web app", "Angular", "faithtech-community feature library and api client")
+Container_Boundary(api, "Community API") {
+  Component(ep, "AccountEndpoints", "Minimal API", "POST /api/account/forgot-password, /reset-password")
+  Component(rq, "RequestPasswordResetHandler", "Application handler", "Neutral reset request")
+  Component(rs, "ResetPasswordHandler", "Application handler", "Validates token, sets password")
+  Component(rv, "ITokenRevocation", "Infrastructure service", "Revokes all sessions")
+  Component(es, "IEmailSender", "Infrastructure service", "Sends reset link")
+  ComponentDb(db, "CommunityDbContext", "EF Core / PostgreSQL", "Users and tokens")
+}
+System_Ext(email, "Email provider", "SMTP or SendGrid")
+Rel(spa, ep, "Calls")
+Rel(ep, rq, "Sends RequestPasswordResetCommand")
+Rel(ep, rs, "Sends ResetPasswordCommand")
+Rel(rq, es, "Sends link")
+Rel(rs, rv, "Revokes sessions")
+Rel(rs, db, "Updates password")
+Rel(rv, db, "Revokes tokens")
+Rel(es, email, "Delivers via")
+@enduml

@@ -1,0 +1,67 @@
+@startuml
+title UML sequence behaviour — Create a work item
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+actor "Workspace member" as actor
+box "Frontend — FaithTech Community web app (agile library)" #E0F2FE
+  participant "BacklogPage" as page
+  participant "NewWorkItemDialog" as dlg
+  participant "AgileService (AGILE_SERVICE)" as svc
+end box
+box "Backend — FaithTech.Community.Api" #D1FADF
+  participant "WorkItemsEndpoints" as ep
+end box
+box "Backend — FaithTech.Community.Application and Domain" #ECFDF3
+  participant "CreateWorkItemHandler" as h
+  participant "WorkItemValidator" as val
+  participant "WorkspaceAccessPolicy" as pol
+  participant "WorkItem" as ent
+end box
+box "Backend — FaithTech.Community.Infrastructure" #FFF4E5
+  participant "NotificationService" as ntf
+  participant "CommunityDbContext" as ctx
+  database "Community database" as db
+end box
+actor -> page : Choose "New item"
+page -> dlg : Open dialog
+actor -> dlg : Enter kind, title, parent, assignee
+opt title empty
+dlg --> actor : Inline error on title (L2-033 AC5)
+end
+dlg -> svc : createItem(workspaceId, request)
+svc -> ep : POST /workspaces/{id}/items
+ep -> h : Send CreateWorkItemCommand
+h -> pol : EnsureMember(workspaceId)
+pol --> h : Allowed (Staff 403, outsider 404)
+h -> val : Validate title <= 200, parent kind, task has story parent, assignee is member
+alt invalid
+val --> h : Errors (L2-032 AC1, AC3; L2-033 AC4)
+h --> ep : Validation failure
+ep --> svc : 400 ProblemDetails
+svc --> dlg : Field errors
+dlg --> actor : Show inline errors
+else valid
+h -> ent : Create item with fields (L2-033 AC1, AC2)
+h -> ctx : SaveChanges
+ctx -> db : INSERT work_item
+opt assignee set
+h -> ntf : Notify assignee in-app and by email (L2-033 AC3)
+end
+h --> ep : WorkItemDto
+ep --> svc : 201 Created
+svc --> page : Item
+page --> actor : Show item in backlog tree
+end
+@enduml

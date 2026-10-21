@@ -1,0 +1,71 @@
+@startuml
+title UML sequence behaviour — Vote, reveal and set points
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+actor "Participant" as actor
+box "Frontend — FaithTech Community web app (agile library)" #E0F2FE
+  participant "PlanningPokerPage" as page
+  participant "PlanningPokerService" as live
+end box
+box "Backend — FaithTech.Community.Api" #D1FADF
+  participant "PlanningPokerHub" as hub
+end box
+box "Backend — FaithTech.Community.Application and Domain" #ECFDF3
+  participant "Poker handlers" as h
+  participant "WorkspaceAccessPolicy" as pol
+  participant "PokerSession" as ent
+end box
+box "Backend — FaithTech.Community.Infrastructure" #FFF4E5
+  participant "SignalRPokerBroadcaster" as bc
+  participant "CommunityDbContext" as ctx
+  database "Community database" as db
+end box
+actor -> page : Pick card (1, 2, 3, 5, 8, 13, 21, ?)
+page -> live : vote(sessionId, value)
+live -> hub : Vote
+hub -> h : CastVoteCommand
+h -> pol : EnsureMember (Staff may watch, not vote) (L2-038 AC7)
+h -> ent : CastVote(profileId, value)
+h -> ctx : SaveChanges
+ctx -> db : UPSERT poker_vote
+h -> bc : VoteCast(profileId) without value
+bc -> live : Push to session group within 2 s (L2-038 AC2)
+live --> page : Mark participant as voted
+alt caller is facilitator
+actor -> page : Reveal
+page -> live : reveal(sessionId)
+live -> hub : Reveal
+hub -> h : RevealVotesCommand
+h -> ent : Reveal(by)
+h -> bc : VotesRevealed(votes) (L2-038 AC3)
+bc -> live : Push all votes
+opt re-vote
+page -> live : revote(sessionId)
+hub -> h : RevoteCommand
+h -> ent : Revote(by): clear votes, Round + 1 (L2-038 AC4)
+h -> bc : RevoteStarted
+end
+page -> live : setPoints(sessionId, points)
+hub -> h : SetFinalPointsCommand
+h -> ent : SetFinalPoints(by, points, story) (L2-038 AC5)
+h -> ctx : SaveChanges
+ctx -> db : UPDATE work_item story_points
+h -> bc : PointsSet
+else caller is not facilitator
+hub -> h : Reveal, Revote or SetFinalPoints
+h --> hub : Refused (L2-038 AC6)
+hub --> live : Error
+end
+@enduml

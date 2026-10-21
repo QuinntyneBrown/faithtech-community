@@ -1,0 +1,54 @@
+@startuml
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 8
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam class {
+  BorderColor #344054
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+title Class structure — Board
+
+class BoardDto {
+  +WorkspaceMethod Method
+  +Guid? ActiveSprintId
+  +List<BoardColumnDto> Columns
+}
+class BoardColumnDto {
+  +WorkItemStatus Status
+  +List<CardDto> Cards
+}
+class CardDto {
+  +Guid StoryId
+  +string Title
+  +Guid? AssigneeId
+  +int? StoryPoints
+  +int TasksDone
+  +int TasksTotal
+}
+class MoveCardCommand {
+  +Guid StoryId
+  +WorkItemStatus Status
+}
+class GetBoardHandler {
+  +Handle(q: GetBoardQuery): Task<BoardDto>
+}
+class MoveCardHandler {
+  +Handle(cmd: MoveCardCommand): Task<Result>
+}
+interface IBoardNotifier {
+  +CardMovedAsync(workspaceId: Guid, storyId: Guid, status: WorkItemStatus): Task
+}
+class SignalRBoardNotifier
+class WorkItem
+BoardDto "1" *-- "3" BoardColumnDto
+BoardColumnDto "1" *-- "*" CardDto
+GetBoardHandler ..> BoardDto : returns
+GetBoardHandler ..> WorkItem : reads
+MoveCardHandler ..> MoveCardCommand : handles
+MoveCardHandler --> WorkItem : sets Status
+MoveCardHandler ..> IBoardNotifier
+SignalRBoardNotifier ..|> IBoardNotifier
+@enduml

@@ -1,0 +1,14 @@
+@startuml
+!include <C4/C4_Context>
+LAYOUT_WITH_LEGEND()
+title System Context — Work items
+
+Person(member, "Workspace member", "Lead or volunteer added to a workspace")
+Person(staff, "Staff", "Read-only across workspaces")
+System(ftc, "FaithTech Community", "Community site with Agile team workspaces")
+System_Ext(email, "Email provider", "SMTP/SendGrid")
+
+Rel(member, ftc, "Creates and edits work items in")
+Rel(staff, ftc, "Reads work items in")
+Rel(ftc, email, "Sends notification email via", "SMTP")
+@enduml

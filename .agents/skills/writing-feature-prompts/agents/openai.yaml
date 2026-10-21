@@ -1,0 +1,4 @@
+interface:
+  display_name: "Writing Feature Prompts"
+  short_description: "Write an end-to-end implementation prompt for a feature or bug fix and open it"
+  default_prompt: "Use $writing-feature-prompts to write an end-to-end implementation prompt for this feature request and open it in Notepad."

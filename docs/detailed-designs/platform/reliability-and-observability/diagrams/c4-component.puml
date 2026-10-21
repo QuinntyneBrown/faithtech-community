@@ -1,0 +1,19 @@
+@startuml
+!include <C4/C4_Component>
+LAYOUT_WITH_LEGEND()
+title Components — Reliability and observability
+Container_Boundary(api, "Community API") {
+  Component(log, "Request logging", "ASP.NET Core middleware", "Outermost; logs final status")
+  Component(cid, "CorrelationIdMiddleware", "ASP.NET Core middleware", "Assigns correlation ID")
+  Component(exc, "Exception handler", "ASP.NET Core middleware", "500 problem details with traceId")
+  Component(ep, "Feature endpoints", "Minimal API", "Business requests")
+  Component(hc, "Health checks", "ASP.NET Core", "/health/live and /health/ready")
+  ComponentDb(db, "Community database", "PostgreSQL", "Ready check target")
+}
+System_Ext(blob, "Azure Blob storage", "Photo storage")
+Rel(cid, log, "Precedes")
+Rel(log, exc, "Wraps")
+Rel(exc, ep, "Wraps")
+Rel(hc, db, "Checks")
+Rel(hc, blob, "Checks")
+@enduml

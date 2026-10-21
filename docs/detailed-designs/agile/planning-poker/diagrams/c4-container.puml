@@ -1,0 +1,21 @@
+@startuml
+!include <C4/C4_Container>
+LAYOUT_WITH_LEGEND()
+title Containers — Planning Poker
+
+Person(member, "Workspace member", "Lead or volunteer added to a workspace")
+Person(staff, "Staff", "Read-only across workspaces")
+System_Boundary(ftc, "FaithTech Community") {
+  Container(web, "Web app", "Angular", "Shell, agile feature library, api and components libraries")
+  Container(api, "Community API", "ASP.NET Core", "FaithTech.Community.Api with Application, Domain and Infrastructure")
+  ContainerDb(db, "Community database", "PostgreSQL", "Workspaces, work items, sprints, poker sessions")
+}
+System_Ext(email, "Email provider", "SMTP/SendGrid")
+
+Rel(member, web, "Uses", "HTTPS")
+Rel(staff, web, "Uses", "HTTPS")
+Rel(web, api, "Calls", "JSON/HTTPS")
+Rel(api, web, "Pushes live updates to", "SignalR")
+Rel(api, db, "Reads and writes", "EF Core")
+Rel(api, email, "Sends email via", "SMTP")
+@enduml

@@ -1,0 +1,31 @@
+@startuml
+title UML sequence behaviour — Go offline
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+actor "Member" as actor
+box "Frontend — FaithTech Community web app (app shell library)" #E0F2FE
+  participant "ConnectivityService" as conn
+  participant "AppShellComponent" as shell
+  participant "BannerComponent" as banner
+end box
+actor -> conn : Browser fires offline
+conn -> shell : online = false
+shell -> banner : Render offline banner in live region (L2-048 #4)
+banner --> actor : Offline banner announced
+actor -> conn : Browser fires online
+conn -> shell : online = true
+shell -> banner : Remove
+banner --> actor : Banner cleared
+@enduml

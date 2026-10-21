@@ -1,0 +1,29 @@
+@startuml
+!include <C4/C4_Component>
+LAYOUT_WITH_LEGEND()
+title Components — Board
+
+Container_Boundary(web, "Web app") {
+  Component(page, "TeamBoardPage", "Angular page", "Columns, cards, drag and keyboard moves")
+  Component(svc, "AgileService", "api library", "Board reads and moves")
+  Component(live, "AgileLiveService", "api library", "Live board subscription")
+}
+Container_Boundary(api, "Community API") {
+  Component(ep, "BoardEndpoints", "Minimal API", "Board and status routes")
+  Component(h, "GetBoardHandler / MoveCardHandler", "Application", "Board query and move")
+  Component(pol, "WorkspaceAccessPolicy", "Application", "Membership check")
+  Component(ent, "WorkItem", "Domain entity", "Story status")
+  Component(hub, "AgileHub / SignalRBoardNotifier", "Infrastructure", "Pushes CardMoved")
+  ComponentDb(db, "Community database", "PostgreSQL", "Agile tables")
+}
+
+Rel(page, svc, "Calls")
+Rel(page, live, "Subscribes")
+Rel(svc, ep, "Calls", "JSON/HTTPS")
+Rel(ep, h, "Dispatches")
+Rel(h, pol, "Checks access")
+Rel(h, ent, "Mutates")
+Rel(h, db, "Persists", "EF Core")
+Rel(h, hub, "Publishes CardMoved")
+Rel(hub, live, "Pushes", "SignalR")
+@enduml

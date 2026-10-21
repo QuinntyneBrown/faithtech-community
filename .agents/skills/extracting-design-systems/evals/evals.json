@@ -1,0 +1,63 @@
+{
+  "skill_name": "extracting-design-systems",
+  "evals": [
+    {
+      "id": 0,
+      "name": "library-mocks-to-system",
+      "prompt": "The Shelf mocks in docs/mocks are approved. Extract the design system from them so the frontend team has tokens, documented components and accessibility guidance before they start building.",
+      "fixture": "library-mocks-complete",
+      "expected_output": "docs/design-system/ with tokens.css (light + dark), tokens.json, contrast-pairs.json, components.css, twelve foundation pages, one page per component used in the mocks plus the core set, pattern pages, index.html and README.md; both checkers exit 0.",
+      "expectations": [
+        "docs/design-system/tokens/tokens.css defines primitive, semantic and layout tokens with a :root light theme and a [data-theme=\"dark\"] block mirrored under prefers-color-scheme",
+        "check_contrast.py exits 0 for both themes and contrast-pairs.json includes pairs for body text, muted text, links, primary button label, input borders, focus ring and all four status tones",
+        "tokens/tokens.json exists in DTCG format with $type and $value and dark overrides under $extensions",
+        "foundations/ contains color, typography, spacing, layout, elevation, shape, motion, iconography, theming, responsive, accessibility and content pages",
+        "components/ contains one HTML page per component found in the mocks (at least button, text field, select, checkbox, radio, switch, card, table, tabs, dialog, toast, alert, badge, avatar, skeleton, empty state, pagination, breadcrumb, navigation) and each page has the thirteen required sections in order",
+        "Each component page shows default, hover, focus, active and disabled states for every variant and both themes side by side",
+        "Each component page's accessibility section names the ARIA pattern, gives a keyboard table, focus behaviour, labelling rules and live contrast pairs",
+        "No raw hex, rgb() or hsl() colour appears in components.css, ds.css or any page's styles; check_design_system.py exits 0",
+        "index.html and README.md link every foundation, component and pattern page, and README.md contains a drift log and a verification record",
+        "The layout foundation documents breakpoints with columns, gutters and margins per breakpoint and shows a live grid demo"
+      ]
+    },
+    {
+      "id": 1,
+      "name": "no-mocks-hard-stop",
+      "prompt": "Create a design system for our app in docs/design-system.",
+      "fixture": "empty-project",
+      "expected_output": "No files written; a clear message that docs/mocks is required and that writing-html-mocks produces it.",
+      "expectations": [
+        "docs/design-system is not created",
+        "The response states that the system is extracted from docs/mocks and offers to run writing-html-mocks first",
+        "No tokens or components are invented"
+      ]
+    },
+    {
+      "id": 2,
+      "name": "update-existing-system",
+      "prompt": "We added mocks for the holds feature (a new 'hold ready' banner variant and a date-range picker). Update the design system.",
+      "fixture": "library-with-design-system-and-new-mocks",
+      "expected_output": "Existing token names and page URLs preserved; banner page gains the new variant; a new date-range-picker page is added; index, README, nav and drift/changelog updated; checkers exit 0.",
+      "expectations": [
+        "No existing token is renamed or removed; new tokens are added only if the new mocks need them and every change is listed in the README changelog",
+        "components/alert.html (or banner) gains the new variant with all states in both themes",
+        "A new component page for the date picker exists with all thirteen sections and links to the holds mocks in its sources section",
+        "Every page's navigation includes the new page and index.html and README.md link it",
+        "check_design_system.py and check_contrast.py exit 0"
+      ]
+    },
+    {
+      "id": 3,
+      "name": "drift-detection",
+      "prompt": "Extract the design system from docs/mocks. Some of the mocks were hand-edited and use their own colours and spacing; make sure the system is clean.",
+      "fixture": "mocks-with-drift",
+      "expected_output": "Harvest report consulted; off-grid spacing and one-off colours normalised; drift log in README lists each mock, the stray value, and the token it was mapped to; mocks repointed at the system tokens.",
+      "expectations": [
+        "README.md's drift table lists each stray colour and off-grid spacing value found by harvest_styles.py with the mock file and the token it was normalised to",
+        "tokens.css contains no near-duplicate colours for the same role",
+        "The mocks are updated to link the design system tokens and components, and the mocks checker still exits 0",
+        "check_contrast.py exits 0 after normalisation"
+      ]
+    }
+  ]
+}

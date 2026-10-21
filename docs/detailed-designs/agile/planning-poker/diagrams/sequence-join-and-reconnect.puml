@@ -1,0 +1,63 @@
+@startuml
+title UML sequence behaviour — Join and reconnect
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+actor "Signed-in user" as actor
+box "Frontend — FaithTech Community web app (agile library)" #E0F2FE
+  participant "PlanningPokerPage" as page
+  participant "PlanningPokerService" as live
+end box
+box "Backend — FaithTech.Community.Api" #D1FADF
+  participant "PlanningPokerHub" as hub
+end box
+box "Backend — FaithTech.Community.Application and Domain" #ECFDF3
+  participant "JoinPokerSessionHandler" as h
+  participant "WorkspaceAccessPolicy" as pol
+end box
+box "Backend — FaithTech.Community.Infrastructure" #FFF4E5
+  participant "CommunityDbContext" as ctx
+  database "Community database" as db
+end box
+actor -> page : Open session
+page -> live : connect and join(sessionId)
+live -> hub : Join
+hub -> h : JoinPokerSessionCommand
+h -> pol : Resolve(workspaceId)
+alt outsider
+pol --> h : Outsider
+h --> hub : Refused (L2-038 AC7)
+hub --> live : Error
+live --> page : Show refusal
+else Staff
+pol --> h : StaffReader
+h --> hub : Join as watcher, voting disabled (L2-038 AC7)
+else member
+pol --> h : Member
+h -> ctx : Load session state and caller's vote in current round
+ctx -> db : SELECT
+db --> ctx : State
+h --> hub : SessionState with caller's own vote
+hub -> hub : Add connection to session group
+hub --> live : SessionState
+live --> page : Render deck and voted markers
+end
+== Connection lost ==
+live -> live : Automatic reconnect
+live -> hub : Join again
+hub -> h : JoinPokerSessionCommand
+h --> hub : SessionState with current vote intact (L2-038 AC8)
+hub --> live : SessionState
+live --> page : Restore selection
+@enduml

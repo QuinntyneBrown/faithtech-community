@@ -1,0 +1,32 @@
+@startuml
+!include <C4/C4_Component>
+LAYOUT_WITH_LEGEND()
+title Components — Planning Poker
+
+Container_Boundary(web, "Web app") {
+  Component(page, "PlanningPokerPage", "Angular page", "Deck, participants, facilitator controls")
+  Component(dlg, "StartPokerDialog", "CDK Dialog", "Story and invitees")
+  Component(svc, "AgileService / PlanningPokerService", "api library", "HTTP start; SignalR session client")
+}
+Container_Boundary(api, "Community API") {
+  Component(ep, "PokerEndpoints", "Minimal API", "Starts sessions")
+  Component(hub, "PlanningPokerHub", "SignalR hub", "Session messages")
+  Component(h, "Poker handlers", "Application", "Start, join, vote, reveal, re-vote, set points")
+  Component(pol, "WorkspaceAccessPolicy", "Application", "Member and Staff checks")
+  Component(ent, "PokerSession", "Domain entity", "Rounds and votes")
+  Component(ntf, "INotificationService", "Infrastructure", "Invite notifications")
+  ComponentDb(db, "Community database", "PostgreSQL", "Agile tables")
+}
+
+Rel(page, dlg, "Opens")
+Rel(dlg, svc, "Calls")
+Rel(svc, ep, "Starts session", "JSON/HTTPS")
+Rel(svc, hub, "Sends and receives", "SignalR")
+Rel(ep, h, "Dispatches")
+Rel(hub, h, "Dispatches")
+Rel(h, pol, "Checks access")
+Rel(h, ent, "Mutates")
+Rel(h, ntf, "Notifies invitees")
+Rel(h, hub, "Broadcasts via IPokerBroadcaster")
+Rel(h, db, "Persists", "EF Core")
+@enduml

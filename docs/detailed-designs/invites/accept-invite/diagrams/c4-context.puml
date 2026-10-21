@@ -1,0 +1,9 @@
+@startuml
+!include <C4/C4_Context>
+LAYOUT_WITH_LEGEND()
+title System Context — Accept an invite
+
+Person(invitee, "Invitee", "Person who received an invite email")
+System(ftc, "FaithTech Community", "Community site for FaithTech staff, leads, volunteers, builders and partners")
+Rel(invitee, ftc, "Accepts invites in", "HTTPS")
+@enduml

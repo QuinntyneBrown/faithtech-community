@@ -1,0 +1,57 @@
+@startuml
+title UML sequence behaviour — upload a photo
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+actor "Member" as actor
+box "Frontend — FaithTech Community web app (profiles library)" #E0F2FE
+  participant "EditProfilePage" as page
+  participant "ProfilesService" as client
+end box
+box "Backend — FaithTech.Community.Api" #D1FADF
+  participant "ProfilesEndpoints" as ep
+end box
+box "Backend — FaithTech.Community.Application and Domain" #ECFDF3
+  participant "UploadPhotoHandler" as h
+end box
+box "Backend — FaithTech.Community.Infrastructure" #FFF4E5
+  participant "IImageProcessor" as ip
+  participant "IPhotoStorage" as ps
+  database "Community database" as db
+end box
+actor -> page : Choose file and enter alt text
+alt alt text empty
+  page --> actor : Block upload: "Describe this photo" (L2-007)
+else profile already has 10 photos
+  page --> actor : Upload control disabled with limit explanation (L2-007)
+else ready
+  page -> client : uploadPhoto(id, file, altText)
+  client -> ep : POST /api/profiles/{id}/photos (multipart)
+  ep -> h : Send UploadPhotoCommand
+  h -> db : Load profile and photo count
+  h -> ip : Detect real format
+  alt over 5 MB, wrong type, content mismatch or 10 photos
+    h --> ep : Rejected (L2-007)
+    ep --> client : 400 or 409 ProblemDetails
+    page --> actor : Inline error
+  else valid
+    h -> ip : Resize and strip metadata (L2-007)
+    h -> ps : Store blob
+    h -> db : Add ProfilePhoto
+    h --> ep : PhotoDto
+    ep --> client : 201 Created
+    page --> actor : Photo shown within 5 seconds (L2-007)
+  end
+end
+@enduml
