@@ -110,7 +110,7 @@ Each component page documents variants, sizes and the full state matrix in both 
 | notifications/bell | Bell is a link with `aria-expanded` | Documented: a `<button>` when it opens the panel |
 | assets/ui-extra.css | Raw `14rem`, `12rem`, `24rem`, `9rem`, `7rem` sizes, `63.99rem` breakpoint, `!important` on `.photo-ph`, raw `#888` chevron | Chevron redrawn with `currentColor`; the unused `.photo-ph` removed; sizes logged for a later token pass |
 | pages/edit-profile | Remove is a link; Feature buttons not named per photo; grid not wrapped in `.picture-list`; empty, full, wrong-type states missing | Fixed in the mocks (#70 to #74) |
-| pages/planning-poker | No invalid, withdrawn or failed vote states; revealed "?" never shown | Invalid, withdrawn and vote-failed states mocked; `ft-estimate-picker` gains `error`; revealed "?" documented on Estimate card |
+| pages/planning-poker | No invalid, withdrawn or failed vote states; revealed "?" never shown | Invalid, withdrawn and vote-failed states mocked; `ft-estimate-picker` gains `error`; Ruth's revealed vote is "?" (Unsure) in `revealed`, `facilitator` and `agreed` |
 | pages/* breadcrumbs | Some state mocks label the current crumb generically ("Event") | Documented: the current crumb is the record name |
 | pages/* | Top bar and tab bar copied by hand into every mock, varying by role | One shell component in the app |
 | pages/events, pages/search (loading) | Round avatar skeletons where rows have square date badges | Documented on Event card and Search results |
