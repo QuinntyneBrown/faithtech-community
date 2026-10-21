@@ -88,6 +88,10 @@ public class WorkspaceAccessPolicy(IApplicationDbContext db, ICurrentUser curren
         return workspace is null ? (null!, caller, Result.NotFound()) : (workspace, caller, caller.Refuse(manage));
     }
 
+    /// <summary>Records an action only a System Admin may take, such as reassigning the owner.</summary>
+    public void Audit(WorkspaceCaller caller, string action, string targetType, Guid targetId, object? before, object? after) =>
+        audit.Record(caller.ProfileId, action, targetType, targetId.ToString(), before, after);
+
     /// <summary>Records a System Admin override (ADR 0008); writes by the owner or a member are not audited.</summary>
     public void AuditOverride(WorkspaceCaller caller, string action, string targetType, Guid targetId, object? before, object? after)
     {

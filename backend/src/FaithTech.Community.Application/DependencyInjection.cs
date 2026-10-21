@@ -50,6 +50,8 @@ public static class DependencyInjection
         services.AddScoped<WorkItemsHandler>();
         services.AddScoped<BoardHandler>();
         services.AddScoped<SprintsHandler>();
+        services.AddScoped<ArchiveHandler>();
+        services.AddScoped<CityLeadRoleRemovedHandler>();
         services.TryAddSingleton(TimeProvider.System);
         return services;
     }

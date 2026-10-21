@@ -10,8 +10,10 @@ import {
   viewChild,
 } from '@angular/core';
 import { NonNullableFormBuilder, ReactiveFormsModule } from '@angular/forms';
+import { Router } from '@angular/router';
 import {
   AGILE_SERVICE,
+  ArchivedItemDto,
   ROLE_LABELS,
   WorkspaceDto,
   WorkspaceMemberDto,
@@ -21,8 +23,10 @@ import {
 import {
   AlertComponent,
   AvatarComponent,
+  BadgeComponent,
   ButtonComponent,
   CardComponent,
+  DangerZoneComponent,
   DescriptionListComponent,
   DescriptionListItemComponent,
   DialogService,
@@ -31,28 +35,34 @@ import {
   FormError,
   FormErrorFocusDirective,
   FormFieldComponent,
+  IconComponent,
   ListComponent,
   ListItemComponent,
   ListSkeletonComponent,
   StackComponent,
   TextFieldComponent,
   ToastService,
+  formatDay,
 } from '@faithtech-community/components';
 import { firstValueFrom } from 'rxjs';
 
 import {
   AddWorkspaceMembersDialog,
+  ArchiveWorkspaceDialog,
+  ReassignOwnerDialog,
   RemoveWorkspaceMemberDialog,
   SwitchMethodData,
   SwitchMethodDialog,
 } from '../../dialogs';
+import { KIND_BADGES } from '../../work-item-labels';
 import { WorkspaceFrameComponent } from '../workspace-frame';
 
 type State = 'loading' | 'loaded' | 'error' | 'not-found';
 
 /**
- * The owner's settings (L2-051): the name, the members (L2-031 AC2, AC8) and, in later sections, the method,
- * archived items and archiving. Anyone who reads but does not manage the workspace sees that only the owner
+ * The owner's settings (L2-051): the name, the method (L2-036), the members (L2-031 AC2, AC8), archived items
+ * and archiving the workspace (L2-037 AC1). System Admin sees the same and, when the owner lost City Lead,
+ * reassigns ownership (L2-037 AC2). Anyone who reads but does not manage the workspace sees that only the owner
  * changes settings. Matches docs/mocks/pages/workspace-settings.
  */
 @Component({
@@ -61,14 +71,17 @@ type State = 'loading' | 'loaded' | 'error' | 'not-found';
     ReactiveFormsModule,
     AlertComponent,
     AvatarComponent,
+    BadgeComponent,
     ButtonComponent,
     CardComponent,
+    DangerZoneComponent,
     DescriptionListComponent,
     DescriptionListItemComponent,
     EmptyStateComponent,
     ErrorSummaryComponent,
     FormErrorFocusDirective,
     FormFieldComponent,
+    IconComponent,
     ListComponent,
     ListItemComponent,
     ListSkeletonComponent,
@@ -83,6 +96,7 @@ export class WorkspaceSettingsPage {
   private readonly agile = inject(AGILE_SERVICE);
   private readonly dialogs = inject(DialogService);
   private readonly toasts = inject(ToastService);
+  private readonly router = inject(Router);
   private readonly errorFocus = viewChild(FormErrorFocusDirective);
   private readonly nameField = viewChild('nameField', { read: FormFieldComponent });
 
@@ -95,10 +109,17 @@ export class WorkspaceSettingsPage {
   protected readonly saving = signal(false);
   protected readonly saveFailed = signal(false);
   protected readonly nameError = signal('');
+  protected readonly archived = signal<ArchivedItemDto[]>([]);
+  protected readonly kindBadges = KIND_BADGES;
 
-  protected readonly subtitle = computed(() =>
-    this.workspace()?.canManage ? 'Settings · only you, the owner, can change these' : 'Settings',
-  );
+  protected readonly subtitle = computed(() => {
+    const access = this.workspace()?.access;
+    return access === 'Owner'
+      ? 'Settings · only you, the owner, can change these'
+      : access === 'Admin'
+        ? 'Settings · you’re changing these as System Admin, and each change is recorded in the audit log'
+        : 'Settings';
+  });
   protected readonly summary = computed<FormError[]>(() =>
     this.nameError()
       ? [{ message: 'Enter a name', fieldId: this.nameField()?.controlId() ?? '' }]
@@ -188,6 +209,43 @@ export class WorkspaceSettingsPage {
     await this.reload();
   }
 
+  protected archivedMeta(item: ArchivedItemDto): string {
+    return `Archived ${formatDay(item.archivedAt)} by ${item.archivedByName}`;
+  }
+
+  protected async restore(item: ArchivedItemDto): Promise<void> {
+    try {
+      await firstValueFrom(this.agile.restoreWorkItem(item.id));
+      this.toasts.show({ variant: 'success', heading: `“${item.title}” restored` });
+      await this.reload();
+    } catch {
+      this.toasts.show({
+        variant: 'danger',
+        heading: 'That didn’t work',
+        text: `We couldn’t restore “${item.title}”. Try again.`,
+      });
+    }
+  }
+
+  protected async archiveWorkspace(): Promise<void> {
+    const workspace = this.workspace();
+    if (!workspace) return;
+    const ref = this.dialogs.open<boolean>(ArchiveWorkspaceDialog, { data: { workspace } });
+    if (!(await firstValueFrom(ref.closed))) return;
+    this.toasts.show({ variant: 'success', heading: `${workspace.name} archived` });
+    await this.router.navigateByUrl('/workspaces');
+  }
+
+  protected async reassignOwner(): Promise<void> {
+    const workspace = this.workspace();
+    if (!workspace) return;
+    const ref = this.dialogs.open<string>(ReassignOwnerDialog, { data: { workspace } });
+    const owner = await firstValueFrom(ref.closed);
+    if (owner === undefined) return;
+    this.toasts.show({ variant: 'success', heading: `${owner} now owns ${workspace.name}` });
+    await this.reload();
+  }
+
   protected other(method: WorkspaceMethod): WorkspaceMethod {
     return method === 'Scrum' ? 'Kanban' : 'Scrum';
   }
@@ -198,7 +256,9 @@ export class WorkspaceSettingsPage {
 
   private async reload(): Promise<void> {
     try {
-      this.workspace.set(await firstValueFrom(this.agile.getWorkspace(this.id())));
+      const workspace = await firstValueFrom(this.agile.getWorkspace(this.id()));
+      this.workspace.set(workspace);
+      this.archived.set(await this.loadArchived(workspace));
     } catch {
       this.state.set('error');
     }
@@ -208,6 +268,7 @@ export class WorkspaceSettingsPage {
     this.state.set('loading');
     try {
       const workspace = await firstValueFrom(this.agile.getWorkspace(id));
+      this.archived.set(await this.loadArchived(workspace));
       this.workspace.set(workspace);
       this.form.setValue({ name: workspace.name });
       this.state.set('loaded');
@@ -216,5 +277,11 @@ export class WorkspaceSettingsPage {
         error instanceof HttpErrorResponse && error.status === 404 ? 'not-found' : 'error',
       );
     }
+  }
+
+  private loadArchived(workspace: WorkspaceDto): Promise<ArchivedItemDto[]> {
+    return workspace.canManage
+      ? firstValueFrom(this.agile.getArchivedItems(workspace.id))
+      : Promise.resolve([]);
   }
 }

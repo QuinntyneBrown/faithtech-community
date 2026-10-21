@@ -26,7 +26,7 @@
     </ft-empty-state>
   }
   @case ('loaded') {
-    @if (list().length === 0) {
+    @if (list().length === 0 && archived().length === 0) {
       @if (canCreate()) {
         <ft-empty-state
           icon="workspaces"
@@ -43,22 +43,42 @@
         />
       }
     } @else {
-      <ft-card variant="flush">
-        <ft-list label="Workspaces">
-          @for (workspace of list(); track workspace.id) {
-            <ft-list-item
-              [label]="workspace.name"
-              [href]="'/workspaces/' + workspace.id"
-              [meta]="meta(workspace)"
-            >
-              <ft-sticker leading><ft-icon name="workspaces" /></ft-sticker>
-              @if (workspace.isOwner) {
-                <ft-badge trailing variant="info">Owner</ft-badge>
-              }
-            </ft-list-item>
-          }
-        </ft-list>
-      </ft-card>
+      @if (list().length) {
+        <ft-card variant="flush">
+          <ft-list label="Workspaces">
+            @for (workspace of list(); track workspace.id) {
+              <ft-list-item
+                [label]="workspace.name"
+                [href]="'/workspaces/' + workspace.id"
+                [meta]="meta(workspace)"
+              >
+                <ft-sticker leading><ft-icon name="workspaces" /></ft-sticker>
+                @if (workspace.isOwner) {
+                  <ft-badge trailing variant="info">Owner</ft-badge>
+                }
+              </ft-list-item>
+            }
+          </ft-list>
+        </ft-card>
+      }
+      @if (archived().length) {
+        <ft-card variant="flush" heading="Archived">
+          <ft-list label="Archived workspaces">
+            @for (workspace of archived(); track workspace.id) {
+              <ft-list-item [label]="workspace.name" [meta]="archivedMeta(workspace)">
+                <ft-sticker leading><ft-icon name="workspaces" /></ft-sticker>
+                <ft-button
+                  trailing
+                  [label]="'Restore ' + workspace.name"
+                  (click)="restore(workspace)"
+                >
+                  <ft-icon name="restore" /> Restore
+                </ft-button>
+              </ft-list-item>
+            }
+          </ft-list>
+        </ft-card>
+      }
     }
   }
 }

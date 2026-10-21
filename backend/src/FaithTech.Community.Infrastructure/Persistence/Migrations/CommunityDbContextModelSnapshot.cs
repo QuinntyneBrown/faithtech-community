@@ -224,6 +224,12 @@ namespace FaithTech.Community.Infrastructure.Persistence.Migrations
                     b.Property<Guid>("Id")
                         .HasColumnType("uuid");
 
+                    b.Property<DateTimeOffset?>("ArchivedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid?>("ArchivedById")
+                        .HasColumnType("uuid");
+
                     b.Property<Guid?>("AssigneeId")
                         .HasColumnType("uuid");
 

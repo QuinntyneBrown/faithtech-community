@@ -5,6 +5,7 @@ import { Observable } from 'rxjs';
 import { API_BASE_URL } from '../config';
 import {
   AgileService,
+  ArchivedItemDto,
   BacklogFilter,
   BacklogNodeDto,
   BoardDto,
@@ -118,6 +119,34 @@ export class HttpAgileService implements AgileService {
       `${this.workspace(workspaceId)}/sprints/${encodeURIComponent(sprintId)}/close`,
       null,
     );
+  }
+
+  archiveWorkspace(id: string): Observable<void> {
+    return this.http.post<void>(`${this.workspace(id)}/archive`, null);
+  }
+
+  restoreWorkspace(id: string): Observable<void> {
+    return this.http.post<void>(`${this.workspace(id)}/restore`, null);
+  }
+
+  getArchivedItems(workspaceId: string): Observable<ArchivedItemDto[]> {
+    return this.http.get<ArchivedItemDto[]>(`${this.workspace(workspaceId)}/archived-items`);
+  }
+
+  archiveWorkItem(id: string): Observable<void> {
+    return this.http.post<void>(`${this.item(id)}/archive`, null);
+  }
+
+  restoreWorkItem(id: string): Observable<void> {
+    return this.http.post<void>(`${this.item(id)}/restore`, null);
+  }
+
+  listOwnerCandidates(workspaceId: string): Observable<MemberCandidateDto[]> {
+    return this.http.get<MemberCandidateDto[]>(`${this.workspace(workspaceId)}/owner-candidates`);
+  }
+
+  reassignOwner(workspaceId: string, ownerId: string): Observable<void> {
+    return this.http.put<void>(`${this.workspace(workspaceId)}/owner`, { ownerId });
   }
 
   private item(id: string): string {

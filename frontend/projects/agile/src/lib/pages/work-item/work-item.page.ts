@@ -9,6 +9,7 @@ import {
   signal,
 } from '@angular/core';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
+import { Router } from '@angular/router';
 import {
   AGILE_SERVICE,
   SprintDto,
@@ -33,6 +34,7 @@ import {
   FeedComponent,
   FeedItemComponent,
   FormFieldComponent,
+  IconComponent,
   LinkComponent,
   PageHeaderComponent,
   SelectComponent,
@@ -47,7 +49,7 @@ import {
 } from '@faithtech-community/components';
 import { firstValueFrom } from 'rxjs';
 
-import { WorkItemDialog, WorkItemDialogData } from '../../dialogs';
+import { ArchiveWorkItemDialog, WorkItemDialog, WorkItemDialogData } from '../../dialogs';
 import { STATUS_LABELS, points } from '../../work-item-labels';
 
 type State = 'loading' | 'loaded' | 'error' | 'not-found';
@@ -75,6 +77,7 @@ type State = 'loading' | 'loaded' | 'error' | 'not-found';
     FeedComponent,
     FeedItemComponent,
     FormFieldComponent,
+    IconComponent,
     LinkComponent,
     PageHeaderComponent,
     SelectComponent,
@@ -91,6 +94,7 @@ type State = 'loading' | 'loaded' | 'error' | 'not-found';
 export class WorkItemPage {
   private readonly agile = inject(AGILE_SERVICE);
   private readonly dialogs = inject(DialogService);
+  private readonly router = inject(Router);
   private readonly toasts = inject(ToastService);
 
   /** The workspace id and the item id from the route. */
@@ -153,6 +157,16 @@ export class WorkItemPage {
     if (!(await firstValueFrom(ref.closed))) return;
     this.toasts.show({ variant: 'success', heading: `${item.kind} saved` });
     await this.reload();
+  }
+
+  /** Owner or System Admin: archive the item and what sits under it, then return to the backlog (L2-037 AC1). */
+  protected async archive(): Promise<void> {
+    const item = this.item();
+    if (!item) return;
+    const ref = this.dialogs.open<boolean>(ArchiveWorkItemDialog, { data: { item } });
+    if (!(await firstValueFrom(ref.closed))) return;
+    this.toasts.show({ variant: 'success', heading: `“${item.title}” archived` });
+    await this.router.navigateByUrl(`/workspaces/${item.workspaceId}/backlog`);
   }
 
   /** The empty state's Add task: the dialog, preset to a task of this story. */

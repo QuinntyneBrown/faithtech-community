@@ -653,7 +653,8 @@
         "loading",
         "empty",
         "error",
-        "empty-member"
+        "empty-member",
+        "archived"
       ],
       "not_applicable": {}
     },
@@ -672,7 +673,8 @@
         "invalid",
         "loading",
         "error",
-        "forbidden"
+        "forbidden",
+        "needs-owner"
       ],
       "not_applicable": {
         "empty": "A workspace always has at least its owner."

@@ -235,6 +235,15 @@ export interface StartSprintRequest {
   storyIds: string[];
 }
 
+/** An archived item on workspace settings, ready to restore (L2-037 AC1). */
+export interface ArchivedItemDto {
+  id: string;
+  kind: WorkItemKind;
+  title: string;
+  archivedAt: string;
+  archivedByName: string;
+}
+
 export interface CreateWorkspaceRequest {
   name: string;
   method: WorkspaceMethod;
@@ -281,6 +290,21 @@ export interface AgileService {
   addStoriesToSprint(workspaceId: string, sprintId: string, storyIds: string[]): Observable<void>;
   /** Owner or System Admin. Unfinished stories return to the backlog. */
   closeSprint(workspaceId: string, sprintId: string): Observable<void>;
+
+  /** Owner or System Admin (L2-037). Members lose access until it is restored. 409 when already archived. */
+  archiveWorkspace(id: string): Observable<void>;
+  /** Owner or System Admin; 404 for anyone else, who can't see an archived workspace. */
+  restoreWorkspace(id: string): Observable<void>;
+  /** Archived items whose parent isn't archived, newest first. Owner or System Admin. */
+  getArchivedItems(workspaceId: string): Observable<ArchivedItemDto[]>;
+  /** Owner or System Admin. Archives everything under the item too, such as a story's tasks. */
+  archiveWorkItem(id: string): Observable<void>;
+  /** Brings back the item and what was archived with it. */
+  restoreWorkItem(id: string): Observable<void>;
+  /** City Leads who could own the workspace. System Admin only. */
+  listOwnerCandidates(workspaceId: string): Observable<MemberCandidateDto[]>;
+  /** System Admin only, audited. 400 (OwnerId) when the profile isn't a City Lead. */
+  reassignOwner(workspaceId: string, ownerId: string): Observable<void>;
 }
 
 export const AGILE_SERVICE = new InjectionToken<AgileService>('AGILE_SERVICE');

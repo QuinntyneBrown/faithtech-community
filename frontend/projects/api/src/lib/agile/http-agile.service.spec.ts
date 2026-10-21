@@ -181,6 +181,43 @@ describe('HttpAgileService', () => {
       '/api/workspaces/w1/sprints/sp1/close',
       null,
     ],
+    [
+      'archiveWorkspace',
+      () => service.archiveWorkspace('w1'),
+      'POST',
+      '/api/workspaces/w1/archive',
+      null,
+    ],
+    [
+      'restoreWorkspace',
+      () => service.restoreWorkspace('w1'),
+      'POST',
+      '/api/workspaces/w1/restore',
+      null,
+    ],
+    [
+      'getArchivedItems',
+      () => service.getArchivedItems('w1'),
+      'GET',
+      '/api/workspaces/w1/archived-items',
+      undefined,
+    ],
+    ['archiveWorkItem', () => service.archiveWorkItem('i1'), 'POST', '/api/items/i1/archive', null],
+    ['restoreWorkItem', () => service.restoreWorkItem('i1'), 'POST', '/api/items/i1/restore', null],
+    [
+      'listOwnerCandidates',
+      () => service.listOwnerCandidates('w1'),
+      'GET',
+      '/api/workspaces/w1/owner-candidates',
+      undefined,
+    ],
+    [
+      'reassignOwner',
+      () => service.reassignOwner('w1', 'p2'),
+      'PUT',
+      '/api/workspaces/w1/owner',
+      { ownerId: 'p2' },
+    ],
   ])('%s', (_name, call, method, url, body) => {
     (call() as Observable<unknown>).subscribe();
 

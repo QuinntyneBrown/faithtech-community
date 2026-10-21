@@ -49,6 +49,8 @@ export interface MockItem {
   sprintId: string | null;
   storyPoints: number | null;
   isArchived: boolean;
+  archivedAt: string | null;
+  archivedById: string | null;
   comments: MockComment[];
 }
 
@@ -222,6 +224,8 @@ export class MockAgile {
       sprintId: null,
       storyPoints: null,
       isArchived: false,
+      archivedAt: null,
+      archivedById: null,
       comments: [],
       ...item,
     };
@@ -258,6 +262,8 @@ export class MockAgile {
 
     const match = /^\/api\/workspaces\/([^/]+)(\/.*)?$/.exec(path);
     if (!match) return this.unknown(request);
+    const archived = this.workspaces.find((w) => w.id === match[1] && w.isArchived);
+    if (archived) return this.archivedWorkspace(request, archived, match[2] ?? '');
     const workspace = this.workspaces.find((w) => w.id === match[1] && !w.isArchived);
     const access = workspace ? this.access(workspace, caller) : 'Outsider';
     if (!workspace || access === 'Outsider') return route.fulfill({ status: 404 });
@@ -278,11 +284,16 @@ export class MockAgile {
       case 'PUT /method': {
         if (!manage) return route.fulfill({ status: 403 });
         const target = request.body['method'] as MockMethod;
-        if (target === workspace.method) return problem(route, 409, `This workspace already uses ${target}.`);
-        const open = this.sprints.filter((sp) => sp.workspaceId === workspace.id && sp.state !== 'Closed');
+        if (target === workspace.method)
+          return problem(route, 409, `This workspace already uses ${target}.`);
+        const open = this.sprints.filter(
+          (sp) => sp.workspaceId === workspace.id && sp.state !== 'Closed',
+        );
         if (target === 'Kanban') open.forEach((sp) => this.close(sp));
         else {
-          for (const st of this.items.filter((i) => i.workspaceId === workspace.id && i.kind === 'Story' && i.status !== 'Done')) {
+          for (const st of this.items.filter(
+            (i) => i.workspaceId === workspace.id && i.kind === 'Story' && i.status !== 'Done',
+          )) {
             st.sprintId = null;
           }
         }
@@ -319,6 +330,35 @@ export class MockAgile {
         return this.startSprint(request, workspace, manage);
       case 'POST /items':
         return this.createItem(request, workspace, access);
+      case 'POST /archive':
+        if (!manage) return route.fulfill({ status: 403 });
+        workspace.isArchived = true;
+        return route.fulfill({ status: 204 });
+      case 'GET /archived-items':
+        if (!manage) return route.fulfill({ status: 403 });
+        return route.fulfill({ status: 200, json: this.archivedItems(workspace) });
+      case 'GET /owner-candidates':
+        if (!caller.roles.includes('SystemAdmin')) return route.fulfill({ status: 403 });
+        return route.fulfill({
+          status: 200,
+          json: [...this.profiles.values()]
+            .filter((p) => p.id !== workspace.ownerId && p.roles.includes('CityLead'))
+            .sort((a, b) => a.name.localeCompare(b.name))
+            .map((p) => ({ profileId: p.id, name: p.name, roles: p.roles })),
+        });
+      case 'PUT /owner': {
+        if (!caller.roles.includes('SystemAdmin')) return route.fulfill({ status: 403 });
+        const ownerId = request.body['ownerId'] as string | null;
+        if (!ownerId) return invalid(route, 'OwnerId', 'Choose who will own this workspace.');
+        if (!this.profiles.get(ownerId)?.roles.includes('CityLead'))
+          return invalid(route, 'OwnerId', 'Choose a City Lead.');
+        workspace.memberIds = [
+          ...workspace.memberIds.filter((id) => id !== ownerId),
+          workspace.ownerId,
+        ];
+        workspace.ownerId = ownerId;
+        return route.fulfill({ status: 204 });
+      }
     }
 
     const sprintAction = /^\/sprints\/([^/]+)\/(stories|close)$/.exec(rest);
@@ -395,6 +435,8 @@ export class MockAgile {
 
   private async itemRequest(request: AgileRequest, id: string, rest: string) {
     const { route, method, body, caller } = request;
+    if (method === 'POST' && (rest === '/archive' || rest === '/restore'))
+      return this.archiveItem(request, id, rest === '/archive');
     const item = this.live(id);
     const workspace =
       item && this.workspaces.find((w) => w.id === item.workspaceId && !w.isArchived);
@@ -458,6 +500,66 @@ export class MockAgile {
       }
     }
     return this.unknown(request);
+  }
+
+  /** Only the owner and System Admin know an archived workspace exists; they may only restore it. */
+  private archivedWorkspace(
+    { route, method, caller }: AgileRequest,
+    workspace: MockWorkspace,
+    rest: string,
+  ) {
+    const access = this.access(workspace, caller!);
+    if (access !== 'Owner' && access !== 'Admin') return route.fulfill({ status: 404 });
+    if (`${method} ${rest}` === 'POST /archive')
+      return problem(route, 409, 'This workspace is already archived.');
+    if (`${method} ${rest}` !== 'POST /restore') return route.fulfill({ status: 404 });
+    workspace.isArchived = false;
+    return route.fulfill({ status: 204 });
+  }
+
+  /** Archives or restores an item and what sits under it, as WorkItem.Archive and Restore do. */
+  private archiveItem({ route, caller }: AgileRequest, id: string, archive: boolean) {
+    const item = this.items.find((i) => i.id === id);
+    const workspace =
+      item && this.workspaces.find((w) => w.id === item.workspaceId && !w.isArchived);
+    const access = workspace ? this.access(workspace, caller!) : 'Outsider';
+    if (!item || access === 'Outsider') return route.fulfill({ status: 404 });
+    if (access !== 'Owner' && access !== 'Admin') return route.fulfill({ status: 403 });
+    if (item.isArchived === archive)
+      return problem(
+        route,
+        409,
+        archive ? 'This item is already archived.' : 'This item isn’t archived.',
+      );
+    const stamp = item.archivedAt;
+    const under = (i: MockItem): boolean => {
+      const parent = this.items.find((p) => p.id === i.parentId);
+      return !!parent && (parent.id === item.id || under(parent));
+    };
+    const affected = this.items
+      .filter((i) => under(i) && (archive ? !i.isArchived : i.isArchived && i.archivedAt === stamp))
+      .concat(item);
+    const at = new Date(Date.UTC(2026, 9, 21, 12, 0, this.items.indexOf(item))).toISOString();
+    for (const i of affected) {
+      i.isArchived = archive;
+      i.archivedAt = archive ? at : null;
+      i.archivedById = archive ? caller!.profileId : null;
+    }
+    return route.fulfill({ status: 204 });
+  }
+
+  private archivedItems(workspace: MockWorkspace) {
+    return this.items
+      .filter((i) => i.workspaceId === workspace.id && i.isArchived)
+      .filter((i) => !this.items.find((p) => p.id === i.parentId)?.isArchived)
+      .sort((a, b) => b.archivedAt!.localeCompare(a.archivedAt!) || a.title.localeCompare(b.title))
+      .map((i) => ({
+        id: i.id,
+        kind: i.kind,
+        title: i.title,
+        archivedAt: i.archivedAt,
+        archivedByName: this.nameOf(i.archivedById!),
+      }));
   }
 
   itemDto(item: MockItem, caller: MockAccount) {
@@ -699,7 +801,7 @@ export class MockAgile {
     const visible = this.workspaces
       .filter((w) =>
         w.isArchived
-          ? w.ownerId === caller!.profileId
+          ? w.ownerId === caller!.profileId || caller!.roles.includes('SystemAdmin')
           : all || this.access(w, caller!) !== 'Outsider',
       )
       .sort((a, b) => a.name.localeCompare(b.name));

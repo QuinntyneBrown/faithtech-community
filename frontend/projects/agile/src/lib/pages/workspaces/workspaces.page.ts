@@ -26,7 +26,10 @@ import { CreateWorkspaceDialog } from '../../dialogs';
 
 type State = 'loading' | 'loaded' | 'error';
 
-/** The workspaces a member may see (L2-050), matching docs/mocks/pages/workspaces. */
+/**
+ * The workspaces a member may see (L2-050), and archived ones for their owner and System Admin to restore
+ * (L2-037 AC1), matching docs/mocks/pages/workspaces.
+ */
 @Component({
   selector: 'ft-workspaces-page',
   imports: [
@@ -53,7 +56,10 @@ export class WorkspacesPage {
   private readonly toasts = inject(ToastService);
 
   protected readonly state = signal<State>('loading');
-  protected readonly list = signal<WorkspaceSummaryDto[]>([]);
+  private readonly all = signal<WorkspaceSummaryDto[]>([]);
+  protected readonly list = computed(() => this.all().filter((w) => !w.isArchived));
+  /** Listed only to their owner and System Admin, who may restore them (L2-037 AC1). */
+  protected readonly archived = computed(() => this.all().filter((w) => w.isArchived));
 
   /** City Leads and System Admins create workspaces (L2-031 AC1). */
   protected readonly canCreate = computed(() =>
@@ -84,6 +90,10 @@ export class WorkspacesPage {
     return parts.join(' · ');
   }
 
+  protected archivedMeta(workspace: WorkspaceSummaryDto): string {
+    return `${this.meta(workspace)} · Members can’t open it until you restore it`;
+  }
+
   protected retry(): void {
     void this.load();
   }
@@ -96,10 +106,24 @@ export class WorkspacesPage {
     await this.load();
   }
 
+  protected async restore(workspace: WorkspaceSummaryDto): Promise<void> {
+    try {
+      await firstValueFrom(this.agile.restoreWorkspace(workspace.id));
+      this.toasts.show({ variant: 'success', heading: `${workspace.name} restored` });
+      this.all.set(await firstValueFrom(this.agile.listWorkspaces()));
+    } catch {
+      this.toasts.show({
+        variant: 'danger',
+        heading: 'That didn’t work',
+        text: `We couldn’t restore ${workspace.name}. Try again.`,
+      });
+    }
+  }
+
   private async load(): Promise<void> {
     this.state.set('loading');
     try {
-      this.list.set(await firstValueFrom(this.agile.listWorkspaces()));
+      this.all.set(await firstValueFrom(this.agile.listWorkspaces()));
       this.state.set('loaded');
     } catch {
       this.state.set('error');

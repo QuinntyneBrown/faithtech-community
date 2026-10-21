@@ -5,11 +5,21 @@ import { SwitchMethodDialog } from '../../pages/switch-method.dialog';
 import { WorkspaceSettingsPage } from '../../pages/workspace-settings.page';
 
 test.describe('Switch method', () => {
-  test('the owner switches Scrum to Kanban, which closes the running sprint', async ({ page, api, axe }) => {
+  test('the owner switches Scrum to Kanban, which closes the running sprint', async ({
+    page,
+    api,
+    axe,
+  }) => {
     const grace = api.addAccount({ email: 'grace@example.org', roles: ['CityLead'] });
     const ws = api.agile.addWorkspace({ name: 'Toronto team', ownerId: grace.profileId });
     const sprint = api.agile.addSprint({ workspaceId: ws.id, name: 'Sprint 7', state: 'Active' });
-    api.agile.addItem({ workspaceId: ws.id, kind: 'Story', title: 'Shelter briefs', status: 'InProgress', sprintId: sprint.id });
+    api.agile.addItem({
+      workspaceId: ws.id,
+      kind: 'Story',
+      title: 'Shelter briefs',
+      status: 'InProgress',
+      sprintId: sprint.id,
+    });
     const settings = new WorkspaceSettingsPage(page);
     await api.signInAs(grace, `/workspaces/${ws.id}/settings`);
     await expect(settings.method).toContainText('Scrum');
@@ -30,12 +40,21 @@ test.describe('Switch method', () => {
     const board = new BoardPage(page);
     await board.open(ws.id);
     await expect(board.frame.subtitle).toHaveText('Kanban · To Do → In Progress → Done');
-    await expect(board.column('In Progress').getByRole('link', { name: 'Shelter briefs' })).toBeVisible();
+    await expect(
+      board.column('In Progress').getByRole('link', { name: 'Shelter briefs' }),
+    ).toBeVisible();
   });
 
-  test('the owner switches Kanban to Scrum, and stories not Done wait in the backlog', async ({ page, api }) => {
+  test('the owner switches Kanban to Scrum, and stories not Done wait in the backlog', async ({
+    page,
+    api,
+  }) => {
     const grace = api.addAccount({ email: 'grace@example.org', roles: ['CityLead'] });
-    const ws = api.agile.addWorkspace({ name: 'Hackathon ops', method: 'Kanban', ownerId: grace.profileId });
+    const ws = api.agile.addWorkspace({
+      name: 'Hackathon ops',
+      method: 'Kanban',
+      ownerId: grace.profileId,
+    });
     const settings = new WorkspaceSettingsPage(page);
     await api.signInAs(grace, `/workspaces/${ws.id}/settings`);
 
@@ -45,6 +64,8 @@ test.describe('Switch method', () => {
     await dialog.confirm.click();
 
     await expect(settings.method).toContainText('Scrum');
-    expect(api.callsTo('PUT', `/api/workspaces/${ws.id}/method`)[0].body).toEqual({ method: 'Scrum' });
+    expect(api.callsTo('PUT', `/api/workspaces/${ws.id}/method`)[0].body).toEqual({
+      method: 'Scrum',
+    });
   });
 });

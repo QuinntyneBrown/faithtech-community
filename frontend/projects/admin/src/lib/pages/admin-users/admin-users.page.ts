@@ -11,14 +11,17 @@ import {
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
 import {
   ADMIN_USERS_SERVICE,
+  AGILE_SERVICE,
   AdminUserSummary,
   ROLE_LABELS,
   Role,
   UserStatus,
+  WorkspaceSummaryDto,
 } from '@faithtech-community/api';
 import {
   AvatarColor,
   avatarColorFor,
+  AlertComponent,
   AvatarComponent,
   BadgeComponent,
   BadgeVariant,
@@ -51,6 +54,7 @@ const STATUS_BADGES: Record<UserStatus, BadgeVariant> = {
 @Component({
   selector: 'ft-admin-users-page',
   imports: [
+    AlertComponent,
     ReactiveFormsModule,
     AvatarComponent,
     BadgeComponent,
@@ -72,6 +76,10 @@ const STATUS_BADGES: Record<UserStatus, BadgeVariant> = {
 export class AdminUsersPage {
   private readonly users = inject(ADMIN_USERS_SERVICE);
   private readonly dialogs = inject(DialogService);
+  private readonly agile = inject(AGILE_SERVICE);
+
+  /** Live workspaces whose owner lost City Lead; System Admin reassigns them from settings (L2-037 AC2). */
+  protected readonly needsOwner = signal<WorkspaceSummaryDto[]>([]);
 
   private readonly nameCell = viewChild.required<TemplateRef<unknown>>('nameCell');
   private readonly rolesCell = viewChild.required<TemplateRef<unknown>>('rolesCell');
@@ -100,6 +108,7 @@ export class AdminUsersPage {
 
   constructor() {
     void this.load();
+    void this.loadWorkspacesNeedingOwner();
   }
 
   /** A suspended account shows the plain avatar (ADR 0008). */
@@ -180,6 +189,15 @@ export class AdminUsersPage {
     } catch (error) {
       const forbidden = error instanceof HttpErrorResponse && error.status === 403;
       this.state.set(forbidden ? 'forbidden' : 'error');
+    }
+  }
+
+  private async loadWorkspacesNeedingOwner(): Promise<void> {
+    try {
+      const workspaces = await firstValueFrom(this.agile.listWorkspaces());
+      this.needsOwner.set(workspaces.filter((w) => w.needsNewOwner && !w.isArchived));
+    } catch {
+      // The users list still works; the reminder also reaches System Admin as a notification.
     }
   }
 }

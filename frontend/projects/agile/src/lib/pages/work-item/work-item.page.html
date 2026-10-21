@@ -41,6 +41,11 @@
             @if (item.canEdit) {
               <ft-button (click)="edit()">Edit</ft-button>
             }
+            @if (item.canManage) {
+              <ft-button variant="ghost" (click)="archive()">
+                <ft-icon name="archive" /> Archive
+              </ft-button>
+            }
           </div>
         </ft-page-header>
         @if (readOnly()) {

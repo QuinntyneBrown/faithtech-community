@@ -166,14 +166,33 @@ public class WorkItemTests
         var story = Item(WorkItemKind.Story);
         var task = Item(WorkItemKind.Task, story);
         var otherTask = Item(WorkItemKind.Task, Item(WorkItemKind.Story));
+        var owner = Guid.NewGuid();
 
-        story.Archive([task, otherTask]);
+        story.Archive([task, otherTask], owner, Now);
         Assert.Equal((true, true, false), (story.IsArchived, task.IsArchived, otherTask.IsArchived));
-        Assert.Throws<InvalidOperationException>(() => story.Archive([]));
+        Assert.Equal((owner, (DateTimeOffset?)Now), (story.ArchivedById, story.ArchivedAt));
+        Assert.Throws<InvalidOperationException>(() => story.Archive([], owner, Now));
 
         story.Restore([task, otherTask]);
         Assert.Equal((false, false), (story.IsArchived, task.IsArchived));
+        Assert.Equal(((Guid?)null, (DateTimeOffset?)null), (story.ArchivedById, story.ArchivedAt));
         Assert.Throws<InvalidOperationException>(() => story.Restore([]));
+    }
+
+    [Fact]
+    public void Archiving_an_epic_hides_its_stories_and_their_tasks_and_restore_leaves_items_archived_earlier()
+    {
+        var epic = Item(WorkItemKind.Epic);
+        var story = Item(WorkItemKind.Story, epic);
+        var task = Item(WorkItemKind.Task, story);
+        var earlier = Item(WorkItemKind.Story, epic);
+        earlier.Archive([], Guid.NewGuid(), Now.AddDays(-3));
+
+        epic.Archive([story, task], Guid.NewGuid(), Now);
+        Assert.Equal((true, true, true), (epic.IsArchived, story.IsArchived, task.IsArchived));
+
+        epic.Restore([story, task, earlier]);
+        Assert.Equal((false, false, false, true), (epic.IsArchived, story.IsArchived, task.IsArchived, earlier.IsArchived));
     }
 
     [Fact]

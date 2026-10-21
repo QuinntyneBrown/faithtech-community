@@ -6,3 +6,6 @@ export * from './remove-workspace-member';
 export * from './start-sprint';
 export * from './work-item';
 export * from './switch-method';
+export * from './archive-work-item';
+export * from './archive-workspace';
+export * from './reassign-owner';

@@ -2,7 +2,7 @@ using FaithTech.Community.Application.Agile;
 
 namespace FaithTech.Community.Api.Endpoints;
 
-/// <summary>Agile workspaces, their members and sprints (L2-031, L2-035, L2-050, L2-051). Access is decided by WorkspaceAccessPolicy.</summary>
+/// <summary>Agile workspaces, their members, sprints, archive and ownership (L2-031, L2-035, L2-036, L2-037, L2-050, L2-051). Access is decided by WorkspaceAccessPolicy.</summary>
 public static class WorkspacesEndpoints
 {
     public static IEndpointRouteBuilder MapWorkspacesEndpoints(this IEndpointRouteBuilder app)
@@ -29,6 +29,28 @@ public static class WorkspacesEndpoints
         workspaces.MapPut("/{id:guid}/method", async (Guid id, SwitchMethodCommand command, WorkspaceSettingsHandler handler, CancellationToken cancellationToken) =>
                 (await handler.SwitchMethodAsync(id, command, cancellationToken)).ToHttp(Results.NoContent))
             .Validate<SwitchMethodCommand>();
+
+        workspaces.MapPost("/{id:guid}/archive", async (Guid id, ArchiveHandler handler, CancellationToken cancellationToken) =>
+            (await handler.ArchiveWorkspaceAsync(id, cancellationToken)).ToHttp(Results.NoContent));
+
+        workspaces.MapPost("/{id:guid}/restore", async (Guid id, ArchiveHandler handler, CancellationToken cancellationToken) =>
+            (await handler.RestoreWorkspaceAsync(id, cancellationToken)).ToHttp(Results.NoContent));
+
+        workspaces.MapGet("/{id:guid}/archived-items", async (Guid id, ArchiveHandler handler, CancellationToken cancellationToken) =>
+            {
+                var (result, items) = await handler.ArchivedItemsAsync(id, cancellationToken);
+                return result.ToHttp(() => Results.Ok(items));
+            });
+
+        workspaces.MapGet("/{id:guid}/owner-candidates", async (Guid id, ArchiveHandler handler, CancellationToken cancellationToken) =>
+            {
+                var (result, candidates) = await handler.OwnerCandidatesAsync(id, cancellationToken);
+                return result.ToHttp(() => Results.Ok(candidates));
+            });
+
+        workspaces.MapPut("/{id:guid}/owner", async (Guid id, ReassignOwnerCommand command, ArchiveHandler handler, CancellationToken cancellationToken) =>
+                (await handler.ReassignOwnerAsync(id, command, cancellationToken)).ToHttp(Results.NoContent))
+            .Validate<ReassignOwnerCommand>();
 
         workspaces.MapGet("/candidates", async (WorkspaceSettingsHandler handler, CancellationToken cancellationToken) =>
         {
@@ -69,6 +91,14 @@ public static class WorkspacesEndpoints
         workspaces.MapPost("/{id:guid}/sprints/{sprintId:guid}/close", async (
                 Guid id, Guid sprintId, SprintsHandler handler, CancellationToken cancellationToken) =>
             (await handler.CloseAsync(id, sprintId, cancellationToken)).ToHttp(Results.NoContent));
+
+        var items = app.MapGroup("/api/items");
+
+        items.MapPost("/{id:guid}/archive", async (Guid id, ArchiveHandler handler, CancellationToken cancellationToken) =>
+            (await handler.ArchiveItemAsync(id, cancellationToken)).ToHttp(Results.NoContent));
+
+        items.MapPost("/{id:guid}/restore", async (Guid id, ArchiveHandler handler, CancellationToken cancellationToken) =>
+            (await handler.RestoreItemAsync(id, cancellationToken)).ToHttp(Results.NoContent));
 
         return app;
     }

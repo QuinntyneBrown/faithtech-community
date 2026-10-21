@@ -34,6 +34,15 @@
           </ft-empty-state>
         } @else {
           <ft-stack>
+            @if (ws.needsNewOwner && ws.access === 'Admin') {
+              <ft-alert status="warning" heading="This workspace needs a new owner">
+                {{ ws.ownerName }} no longer holds the City Lead role, and a workspace owner must be
+                a City Lead.
+                <ft-button ftAlertActions (click)="reassignOwner()">
+                  <ft-icon name="admin" /> Reassign owner
+                </ft-button>
+              </ft-alert>
+            }
             <ft-card heading="Workspace" [headingLevel]="2">
               <form [formGroup]="form" (ngSubmit)="save()" ftFormErrorFocus novalidate>
                 <ft-stack>
@@ -80,6 +89,28 @@
                 }
               </ft-list>
             </ft-card>
+
+            @if (archived().length) {
+              <ft-card variant="flush" heading="Archived items">
+                <ft-list label="Archived items">
+                  @for (item of archived(); track item.id) {
+                    <ft-list-item [label]="item.title" [meta]="archivedMeta(item)">
+                      <ft-badge leading [variant]="kindBadges[item.kind]">{{ item.kind }}</ft-badge>
+                      <ft-button trailing [label]="'Restore ' + item.title" (click)="restore(item)">
+                        <ft-icon name="restore" /> Restore
+                      </ft-button>
+                    </ft-list-item>
+                  }
+                </ft-list>
+              </ft-card>
+            }
+
+            <ft-danger-zone heading="Archive this workspace">
+              Members lose access. You can restore it from Workspaces.
+              <ft-button ftDangerAction variant="danger" (click)="archiveWorkspace()">
+                <ft-icon name="archive" /> Archive workspace
+              </ft-button>
+            </ft-danger-zone>
           </ft-stack>
         }
       }

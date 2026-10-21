@@ -48,6 +48,10 @@ public class WorkItem
 
     public bool IsArchived { get; private set; }
 
+    public Guid? ArchivedById { get; private set; }
+
+    public DateTimeOffset? ArchivedAt { get; private set; }
+
     public IReadOnlyCollection<Comment> Comments => _comments;
 
     public void Edit(string title, string description)
@@ -129,24 +133,39 @@ public class WorkItem
         return comment;
     }
 
-    public void Archive(IEnumerable<WorkItem> children)
+    /// <summary>
+    /// Archives the item and every item under it among <paramref name="items"/>, such as a story's tasks (L2-037 AC1).
+    /// Items outside its subtree are left alone.
+    /// </summary>
+    public void Archive(IEnumerable<WorkItem> items, Guid archivedById, DateTimeOffset now)
     {
         if (IsArchived)
         {
             throw new InvalidOperationException("The work item is already archived.");
         }
 
-        SetArchived(children, true);
+        foreach (var item in Subtree(items).Where(i => !i.IsArchived).Append(this))
+        {
+            item.IsArchived = true;
+            item.ArchivedById = archivedById;
+            item.ArchivedAt = now;
+        }
     }
 
-    public void Restore(IEnumerable<WorkItem> children)
+    /// <summary>Restores the item and the items under it that were archived with it; ones archived earlier stay archived.</summary>
+    public void Restore(IEnumerable<WorkItem> items)
     {
         if (!IsArchived)
         {
             throw new InvalidOperationException("The work item is not archived.");
         }
 
-        SetArchived(children, false);
+        foreach (var item in Subtree(items).Where(i => i.IsArchived && i.ArchivedAt == ArchivedAt).Append(this))
+        {
+            item.IsArchived = false;
+            item.ArchivedById = null;
+            item.ArchivedAt = null;
+        }
     }
 
     public void MoveToSprint(Sprint sprint)
@@ -168,12 +187,23 @@ public class WorkItem
 
     internal void ReturnToBacklog() => SprintId = null;
 
-    private void SetArchived(IEnumerable<WorkItem> children, bool archived)
+    private List<WorkItem> Subtree(IEnumerable<WorkItem> items)
     {
-        IsArchived = archived;
-        foreach (var task in children.Where(c => c.ParentId == Id && c.Kind == WorkItemKind.Task))
+        var list = items.Where(i => i != this).ToList();
+        var byId = list.ToDictionary(i => i.Id);
+        bool Under(WorkItem item)
         {
-            task.IsArchived = archived;
+            for (var parentId = item.ParentId; parentId is { } id; parentId = byId.GetValueOrDefault(id)?.ParentId)
+            {
+                if (id == Id)
+                {
+                    return true;
+                }
+            }
+
+            return false;
         }
+
+        return [.. list.Where(Under)];
     }
 }

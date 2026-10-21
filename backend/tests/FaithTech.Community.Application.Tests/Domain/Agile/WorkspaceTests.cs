@@ -107,9 +107,13 @@ public class WorkspaceTests
         var workspace = NewWorkspace();
         var newOwner = ProfileWith(Role.CityLead);
 
-        workspace.ReassignOwner(newOwner);
+        var formerOwner = workspace.OwnerId;
+        workspace.AddMember(newOwner, Now);
+
+        workspace.ReassignOwner(newOwner, Now);
 
         Assert.Equal(newOwner.Id, workspace.OwnerId);
+        Assert.Equal([formerOwner], workspace.Members.Select(m => m.ProfileId));
     }
 
     [Fact]
@@ -118,7 +122,7 @@ public class WorkspaceTests
         var workspace = NewWorkspace();
         var owner = workspace.OwnerId;
 
-        Assert.Throws<InvalidOperationException>(() => workspace.ReassignOwner(ProfileWith(Role.EventLead)));
+        Assert.Throws<InvalidOperationException>(() => workspace.ReassignOwner(ProfileWith(Role.EventLead), Now));
         Assert.Equal(owner, workspace.OwnerId);
     }
 }

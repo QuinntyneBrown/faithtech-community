@@ -15,6 +15,10 @@ export class WorkspaceSettingsPage {
   readonly ownerOnly: Locator;
   readonly toast: Locator;
   readonly method: Locator;
+  readonly archivedItems: Locator;
+  readonly archiveWorkspace: Locator;
+  readonly needsOwner: Locator;
+  readonly reassignOwner: Locator;
 
   constructor(private readonly page: Page) {
     this.frame = new WorkspaceFrame(page);
@@ -28,6 +32,12 @@ export class WorkspaceSettingsPage {
     this.ownerOnly = page.getByRole('heading', { name: 'Only the owner changes settings' });
     this.toast = page.locator('ft-toast');
     this.method = page.locator('ft-description-list-item').filter({ hasText: 'Method' });
+    this.archivedItems = page.getByRole('list', { name: 'Archived items' }).getByRole('listitem');
+    this.archiveWorkspace = page.getByRole('button', { name: 'Archive workspace' });
+    this.needsOwner = page
+      .locator('ft-alert')
+      .filter({ hasText: 'This workspace needs a new owner' });
+    this.reassignOwner = page.getByRole('button', { name: 'Reassign owner' });
   }
 
   switchTo(method: 'Scrum' | 'Kanban'): Locator {
@@ -40,6 +50,10 @@ export class WorkspaceSettingsPage {
 
   member(name: string): Locator {
     return this.members.filter({ hasText: name });
+  }
+
+  restore(title: string): Locator {
+    return this.page.getByRole('button', { name: `Restore ${title}` });
   }
 
   remove(name: string): Locator {
