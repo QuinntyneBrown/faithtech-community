@@ -37,8 +37,8 @@ faithtech-community/
 │   ├── src/
 │   │   ├── FaithTech.Community.Domain/          # Entities, value objects, roles. Zero dependencies.
 │   │   ├── FaithTech.Community.Application/     # Handlers, validators, DTO contracts, permission
-│   │   │                                        # checks; one folder per feature (Profiles/,
-│   │   │                                        # Contacts/, Partners/, Team/, Events/, Search/,
+│   │   │                                        # checks; one folder per feature (Identity/,
+│   │   │                                        # Profiles/, Contacts/, Partners/, Team/, Events/, Search/,
 │   │   │                                        # Notifications/, Announcements/, Invites/, Admin/)
 │   │   ├── FaithTech.Community.Infrastructure/  # DbContext, EF migrations, Postgres full-text
 │   │   │                                        # search, Azure Blob, email, .ics, image resizing,

@@ -4,6 +4,11 @@
     <ProjectReference Include="..\FaithTech.Community.Infrastructure\FaithTech.Community.Infrastructure.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <PackageReference Include="OpenIddict.AspNetCore" />
+    <PackageReference Include="Serilog.AspNetCore" />
+  </ItemGroup>
+
   <PropertyGroup>
   </PropertyGroup>
 

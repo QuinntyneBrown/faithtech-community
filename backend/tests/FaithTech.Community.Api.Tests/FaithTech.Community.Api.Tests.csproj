@@ -19,6 +19,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\src\FaithTech.Community.Api\FaithTech.Community.Api.csproj" />
+    <ProjectReference Include="..\..\src\FaithTech.Community.Cli\FaithTech.Community.Cli.csproj" />
   </ItemGroup>
 
 </Project>
