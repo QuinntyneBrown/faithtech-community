@@ -1,7 +1,9 @@
 using FaithTech.Community.Api.Authentication;
 using FaithTech.Community.Api.Endpoints;
+using FaithTech.Community.Api.Hubs;
 using FaithTech.Community.Api.Middleware;
 using FaithTech.Community.Application;
+using FaithTech.Community.Application.Agile;
 using FaithTech.Community.Infrastructure;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Serilog;
@@ -19,6 +21,8 @@ builder.Services.AddApplication(builder.Configuration);
 builder.Services.AddInfrastructure(builder.Configuration);
 builder.Services.AddCommunityAuthentication(builder.Configuration, builder.Environment);
 builder.Services.AddWebProtections(builder.Configuration);
+builder.Services.AddSignalR();
+builder.Services.AddScoped<IBoardNotifier, SignalRAgileNotifier>();
 
 var app = builder.Build();
 
@@ -47,6 +51,7 @@ app.MapInvitesEndpoints();
 app.MapTeamEndpoints();
 app.MapWorkspacesEndpoints();
 app.MapWorkItemsEndpoints();
+app.MapHub<AgileHub>("/hubs/agile");
 app.MapAccountEndpoints();
 app.MapAuthorizationEndpoints();
 

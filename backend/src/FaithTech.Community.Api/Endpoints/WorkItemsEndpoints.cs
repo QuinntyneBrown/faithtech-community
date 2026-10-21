@@ -2,7 +2,7 @@ using FaithTech.Community.Application.Agile;
 
 namespace FaithTech.Community.Api.Endpoints;
 
-/// <summary>Work items, their comments and the backlog (L2-032, L2-033). Access is decided by WorkspaceAccessPolicy.</summary>
+/// <summary>Work items, their comments, the backlog and the board (L2-032, L2-033, L2-034). Access is decided by WorkspaceAccessPolicy.</summary>
 public static class WorkItemsEndpoints
 {
     public static IEndpointRouteBuilder MapWorkItemsEndpoints(this IEndpointRouteBuilder app)
@@ -19,7 +19,15 @@ public static class WorkItemsEndpoints
                 Guid id, Guid? initiativeId, Guid? epicId, bool? noEpic, WorkItemsHandler handler, CancellationToken cancellationToken) =>
             await handler.BacklogAsync(id, initiativeId, epicId, noEpic ?? false, cancellationToken) is { } tree ? Results.Ok(tree) : Results.NotFound());
 
+        app.MapGet("/api/workspaces/{id:guid}/board", async (
+                Guid id, Guid? initiativeId, Guid? epicId, bool? noEpic, BoardHandler handler, CancellationToken cancellationToken) =>
+            await handler.GetAsync(id, initiativeId, epicId, noEpic ?? false, cancellationToken) is { } board ? Results.Ok(board) : Results.NotFound());
+
         var items = app.MapGroup("/api/items");
+
+        items.MapPut("/{id:guid}/status", async (Guid id, MoveCardCommand command, BoardHandler handler, CancellationToken cancellationToken) =>
+                (await handler.MoveAsync(id, command, cancellationToken)).ToHttp(Results.NoContent))
+            .Validate<MoveCardCommand>();
 
         items.MapGet("/{id:guid}", async (Guid id, WorkItemsHandler handler, CancellationToken cancellationToken) =>
             await handler.GetAsync(id, cancellationToken) is { } item ? Results.Ok(item) : Results.NotFound());

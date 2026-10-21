@@ -89,6 +89,7 @@ public class WorkItemsHandler(
     IApplicationDbContext db,
     WorkspaceAccessPolicy policy,
     AgileNotifier notifier,
+    IBoardNotifier board,
     TimeProvider time)
 {
     public async Task<(Result Result, WorkItemDto? Item)> CreateAsync(Guid workspaceId, CreateWorkItemCommand command, CancellationToken cancellationToken = default)
@@ -159,6 +160,7 @@ public class WorkItemsHandler(
 
         var before = Snapshot(item);
         var previousAssignee = item.AssigneeId;
+        var previousStatus = item.Status;
         item.Edit(command.Title!.Trim(), command.Description?.Trim() ?? string.Empty);
         item.Assign(command.AssigneeId, workspace);
         if (item.Kind == WorkItemKind.Story)
@@ -175,6 +177,11 @@ public class WorkItemsHandler(
         policy.AuditOverride(caller, "workitem.updated", "WorkItem", item.Id, before, Snapshot(item));
         await db.SaveChangesAsync(cancellationToken);
         await notifier.SendEmailsAsync(cancellationToken);
+        if (item.Status != previousStatus)
+        {
+            await board.CardMovedAsync(item.WorkspaceId, item.Id, item.Status.ToString(), cancellationToken);
+        }
+
         return Result.Ok();
     }
 

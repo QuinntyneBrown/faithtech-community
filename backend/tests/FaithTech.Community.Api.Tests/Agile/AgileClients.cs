@@ -72,3 +72,70 @@ public static class AgileClients
     public static Task<string> EmailOfAsync(this CommunityApiFactory factory, ProfileClients.Member member) =>
         factory.WithDbAsync(db => db.Users.Where(u => u.Id == member.UserId).Select(u => u.Email!).SingleAsync());
 }
+
+/// <summary>Stories, tasks and sprints stored directly, for the board, sprint and poker tests.</summary>
+public static class AgileItems
+{
+    public static Task<Guid> AddStoryAsync(
+        this CommunityApiFactory factory, Guid workspaceId, string title, WorkItemStatus status = WorkItemStatus.ToDo,
+        int? points = null, Guid? sprintId = null, Guid? assigneeId = null, Guid? epicId = null) =>
+        factory.WithDbAsync(async db =>
+        {
+            var workspace = await db.Workspaces.SingleAsync(w => w.Id == workspaceId);
+            var epic = epicId is { } e ? await db.WorkItems.SingleAsync(i => i.Id == e) : null;
+            var story = new WorkItem(workspaceId, WorkItemKind.Story, title, string.Empty, epic);
+            story.SetStatus(status);
+            story.SetStoryPoints(points);
+            story.Assign(assigneeId, workspace);
+            if (sprintId is { } id)
+            {
+                story.MoveToSprint(await db.Sprints.SingleAsync(s => s.Id == id));
+            }
+
+            db.WorkItems.Add(story);
+            await db.SaveChangesAsync();
+            return story.Id;
+        });
+
+    public static Task<Guid> AddItemAsync(this CommunityApiFactory factory, Guid workspaceId, WorkItemKind kind, string title, Guid? parentId = null, bool done = false) =>
+        factory.WithDbAsync(async db =>
+        {
+            var parent = parentId is { } p ? await db.WorkItems.SingleAsync(i => i.Id == p) : null;
+            var item = new WorkItem(workspaceId, kind, title, string.Empty, parent);
+            if (kind == WorkItemKind.Task)
+            {
+                item.SetDone(done);
+            }
+
+            db.WorkItems.Add(item);
+            await db.SaveChangesAsync();
+            return item.Id;
+        });
+
+    /// <summary>A sprint in the given state: active sprints are started through the workspace, as the domain requires.</summary>
+    public static Task<Guid> AddSprintAsync(
+        this CommunityApiFactory factory, Guid workspaceId, string name = "Sprint 7", SprintState state = SprintState.Active,
+        string goal = "Hackathon ready for registration", DateOnly? start = null, DateOnly? end = null) =>
+        factory.WithDbAsync(async db =>
+        {
+            var workspace = await db.Workspaces.SingleAsync(w => w.Id == workspaceId);
+            var sprint = new Sprint(workspaceId, name, goal, start ?? new DateOnly(2026, 10, 20), end ?? new DateOnly(2026, 10, 31));
+            db.Sprints.Add(sprint);
+            if (state != SprintState.Planned)
+            {
+                var sprints = await db.Sprints.Where(s => s.WorkspaceId == workspaceId).ToListAsync();
+                workspace.StartSprint(sprint, sprints, []);
+            }
+
+            if (state == SprintState.Closed)
+            {
+                sprint.Close([]);
+            }
+
+            await db.SaveChangesAsync();
+            return sprint.Id;
+        });
+
+    public static Task<WorkItem> LoadItemAsync(this CommunityApiFactory factory, Guid id) =>
+        factory.WithDbAsync(db => db.WorkItems.IgnoreQueryFilters().AsNoTracking().SingleAsync(i => i.Id == id));
+}

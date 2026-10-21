@@ -1,5 +1,6 @@
 using Azure.Storage.Blobs;
 using FaithTech.Community.Api.Tests.Fakes;
+using FaithTech.Community.Application.Agile;
 using FaithTech.Community.Application.Common;
 using FaithTech.Community.Application.Identity;
 using FaithTech.Community.Application.Profiles;
@@ -33,6 +34,8 @@ public class CommunityApiFactory : WebApplicationFactory<Program>, IAsyncLifetim
 
     public FakePhotoStorage Photos { get; } = new();
 
+    public FakeAgileNotifier Live { get; } = new();
+
     public async Task InitializeAsync()
     {
         await using var scope = Services.CreateAsyncScope();
@@ -62,6 +65,7 @@ public class CommunityApiFactory : WebApplicationFactory<Program>, IAsyncLifetim
             services.AddSingleton<IPhotoStorage>(Photos);
             services.AddSingleton<TimeProvider>(Time);
             services.AddSingleton<IBreachedPasswordChecker, FakeBreachedPasswordChecker>();
+            services.AddSingleton<IBoardNotifier>(Live);
         });
     }
 

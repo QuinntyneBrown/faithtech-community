@@ -48,6 +48,7 @@ public static class DependencyInjection
         services.AddScoped<WorkspacesHandler>();
         services.AddScoped<WorkspaceSettingsHandler>();
         services.AddScoped<WorkItemsHandler>();
+        services.AddScoped<BoardHandler>();
         services.TryAddSingleton(TimeProvider.System);
         return services;
     }
