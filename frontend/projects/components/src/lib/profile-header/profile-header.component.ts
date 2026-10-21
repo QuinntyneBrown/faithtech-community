@@ -4,7 +4,6 @@ import { BadgeComponent } from '../badge/badge.component';
 import { IconComponent } from '../icon/icon.component';
 import { PhotoComponent } from '../photo/photo.component';
 import { SkeletonComponent } from '../skeleton/skeleton.component';
-import { StickerComponent } from '../sticker/sticker.component';
 
 export interface ProfilePhoto {
   url: string;
@@ -18,14 +17,7 @@ export interface ProfilePhoto {
  */
 @Component({
   selector: 'ft-profile-header',
-  imports: [
-    AvatarComponent,
-    BadgeComponent,
-    IconComponent,
-    PhotoComponent,
-    SkeletonComponent,
-    StickerComponent,
-  ],
+  imports: [AvatarComponent, BadgeComponent, IconComponent, PhotoComponent, SkeletonComponent],
   templateUrl: './profile-header.component.html',
   styleUrl: './profile-header.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,

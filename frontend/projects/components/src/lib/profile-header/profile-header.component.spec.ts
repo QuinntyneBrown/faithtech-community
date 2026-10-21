@@ -54,11 +54,13 @@ describe('ProfileHeaderComponent', () => {
     expect(avatar.classList.contains('ft-avatar--mint')).toBe(true);
   });
 
-  it('shows the featured photo instead of initials when there is one', () => {
+  it('shows the featured photo in the XL avatar when there is one', () => {
     const { fixture, cmp, q } = setup();
     cmp.photoUrl.set('/featured.jpg');
     fixture.detectChanges();
-    expect(q('img')!.getAttribute('src')).toBe('/featured.jpg');
+    const img = q('.ft-profile-header__head ft-avatar .ft-avatar--xl img')!;
+    expect(img.getAttribute('src')).toBe('/featured.jpg');
+    expect(img.getAttribute('alt')).toBe('');
   });
 
   it('shows one role badge per role', () => {

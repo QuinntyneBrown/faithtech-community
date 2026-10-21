@@ -26,7 +26,7 @@ export class ProfilePage {
     this.bio = page.locator('.ft-profile-header__bio');
     this.photos = page.getByRole('region', { name: 'Photos' }).getByRole('img');
     this.photosHeading = page.getByRole('heading', { name: 'Photos', level: 2 });
-    this.avatarPhoto = page.locator('.ft-profile-header__head ft-sticker img');
+    this.avatarPhoto = page.locator('.ft-profile-header__head ft-avatar img');
     this.avatar = page.locator('.ft-profile-header__head .ft-avatar');
     this.editProfile = page.getByRole('link', { name: 'Edit profile' });
     this.noPhotos = page.getByRole('heading', { name: 'No photos yet' });

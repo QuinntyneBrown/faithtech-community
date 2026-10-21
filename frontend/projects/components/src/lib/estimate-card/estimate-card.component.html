@@ -1,1 +1,6 @@
-<ft-sticker [size]="size()" [label]="label()">{{ text() }}</ft-sticker>
+<span
+  [class]="'ft-estimate-card ft-estimate-card--' + size()"
+  role="img"
+  [attr.aria-label]="label()"
+  >{{ text() }}</span
+>

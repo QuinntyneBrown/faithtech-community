@@ -78,6 +78,6 @@ describe('EstimateCardComponent', () => {
     const { fixture, cmp } = setup();
     cmp.size.set('lg');
     fixture.detectChanges();
-    expect(fixture.nativeElement.querySelector('.ft-sticker--lg')).not.toBeNull();
+    expect(fixture.nativeElement.querySelector('.ft-estimate-card--lg')).not.toBeNull();
   });
 });

@@ -43,8 +43,6 @@ export * from './select';
 export * from './skeleton';
 export * from './skip-link';
 export * from './stat';
-export * from './sticker';
-export * from './sticker-picker';
 export * from './switch';
 export * from './tab-bar';
 export * from './table';

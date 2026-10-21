@@ -16,7 +16,7 @@ Coverage: the profiles screens (`profile`, `edit-profile`, `delete-photo`), the 
 
 ### Profile — `/people/:id`, `/people/me` (`pages/profile`: default, own, loading, empty, error, not-found)
 
-- Library: `ProfileHeaderComponent` (featured photo via `StickerComponent` or initials via `AvatarComponent`, name as the `h1`, `BadgeComponent` roles, home city, bio, photo strip of `PhotoComponent`), `ButtonComponent` (*Edit profile*, *Add photos*, *Try again*, *Go home*), `EmptyStateComponent` (no photos on the own profile; error variant for load failure; not-found).
+- Library: `ProfileHeaderComponent` (featured photo, or initials without one, in an XL `AvatarComponent`, name as the `h1`, `BadgeComponent` roles, home city, bio, photo strip of `PhotoComponent`), `ButtonComponent` (*Edit profile*, *Add photos*, *Try again*, *Go home*), `EmptyStateComponent` (no photos on the own profile; error variant for load failure; not-found).
 - Loading uses `ProfileHeaderComponent [loading]` (skeletons, `aria-busy`).
 - Own state adds *Edit profile* in the header's `[actions]` slot.
 - *Add a role* and *Remove a role* (`ButtonComponent` in the `[actions]` slot) appear when `assignableRoles` from `api` offers an option for the caller (City Lead or System Admin, L2-009); each opens `RoleDialogComponent` through `DialogService` (ADR 0005) and the role badges update from the API's answer.
