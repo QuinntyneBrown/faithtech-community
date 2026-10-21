@@ -748,11 +748,14 @@
         "revealed",
         "facilitator",
         "agreed",
+        "withdrawn",
         "loading",
         "empty",
         "error",
         "forbidden",
-        "staff"
+        "staff",
+        "invalid",
+        "vote-failed"
       ],
       "not_applicable": {}
     },
