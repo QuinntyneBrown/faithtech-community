@@ -10,6 +10,10 @@
           <li class="ft-search-group__item">
             @if (item.avatarName) {
               <ft-avatar size="sm" [name]="item.avatarName" [color]="item.avatarColor ?? 'plain'" />
+            } @else if (item.icon) {
+              <span class="ft-search-group__icon" aria-hidden="true"
+                ><ft-icon [name]="item.icon" size="sm"
+              /></span>
             }
             <div class="ft-search-group__body">
               <a class="ft-search-group__link" [attr.href]="item.href">

@@ -29,6 +29,17 @@
   box-shadow: var(--shadow-1);
 }
 
+.ft-search-group__icon {
+  display: inline-grid;
+  flex: none;
+  place-items: center;
+  inline-size: var(--size-avatar-sm);
+  block-size: var(--size-avatar-sm);
+  border-radius: var(--radius-md);
+  background: var(--color-accent-subtle);
+  color: var(--color-fg-accent);
+}
+
 .ft-search-group__item {
   display: flex;
   flex-wrap: wrap;
