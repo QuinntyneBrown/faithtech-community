@@ -38,6 +38,7 @@ public static class DependencyInjection
         services.AddScoped<SearchUsersHandler>();
         services.AddScoped<InviteSender>();
         services.AddScoped<ManageInvitesHandler>();
+        services.AddScoped<AcceptInviteHandler>();
         services.TryAddSingleton(TimeProvider.System);
         return services;
     }

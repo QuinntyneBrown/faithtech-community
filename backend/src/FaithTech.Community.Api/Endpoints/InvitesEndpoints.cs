@@ -1,3 +1,4 @@
+using FaithTech.Community.Api.Middleware;
 using FaithTech.Community.Application.Invites;
 
 namespace FaithTech.Community.Api.Endpoints;
@@ -27,6 +28,17 @@ public static class InvitesEndpoints
 
         invites.MapPost("/{id:guid}/revoke", async (Guid id, ManageInvitesHandler handler, CancellationToken cancellationToken) =>
             (await handler.RevokeAsync(id, cancellationToken)).ToHttp(Results.NoContent));
+
+        // The invite link is the credential, so these two are anonymous (L2-011).
+        invites.MapGet("/by-token/{token}", async (string token, AcceptInviteHandler handler, CancellationToken cancellationToken) =>
+                await handler.LookUpAsync(token, cancellationToken) is { } invite ? Results.Ok(invite) : Results.NotFound())
+            .AllowAnonymous();
+
+        invites.MapPost("/accept", async (AcceptInviteCommand command, AcceptInviteHandler handler, CancellationToken cancellationToken) =>
+                (await handler.AcceptAsync(command, cancellationToken)).ToHttp(Results.NoContent))
+            .Validate<AcceptInviteCommand>()
+            .AllowAnonymous()
+            .RequireRateLimiting(WebProtectionSetup.AuthRateLimitPolicy);
 
         return app;
     }
