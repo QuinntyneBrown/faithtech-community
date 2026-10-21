@@ -253,12 +253,25 @@ button.avatar:hover, button.avatar[data-state="hover"] { box-shadow: 0 0 0 var(-
 .nav-link[aria-current="page"] { background: var(--color-accent-subtle); color: var(--color-fg-accent); }
 /* Bottom tab bar: the grown-up's navigation on phones; hidden from 768px, where .topbar__nav takes over. */
 .tabbar { position: fixed; left: 0; right: 0; bottom: 0; z-index: var(--z-sticky); display: flex; min-height: var(--layout-tabbar-height); padding-bottom: env(safe-area-inset-bottom); background: var(--color-bg-surface); border-top: var(--border-width-hairline) solid var(--color-border-default); }
-.tabbar a { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: var(--space-0-5); min-height: var(--target-comfortable); color: var(--color-fg-muted); text-decoration: none; font: var(--text-caption); font-weight: var(--font-weight-medium); position: relative; }
-.tabbar a:hover, .tabbar a[data-state="hover"] { color: var(--color-fg-default); }
-.tabbar a[aria-current="page"] { color: var(--color-fg-accent); }
+.tabbar a, .tabbar button { flex: 1; padding: 0; border: 0; background: none; cursor: pointer; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: var(--space-0-5); min-height: var(--target-comfortable); color: var(--color-fg-muted); text-decoration: none; font: var(--text-caption); font-weight: var(--font-weight-medium); position: relative; }
+.tabbar a:hover, .tabbar a[data-state="hover"], .tabbar button:hover { color: var(--color-fg-default); }
+.tabbar a[aria-current="page"], .tabbar button[aria-current="true"] { color: var(--color-fg-accent); }
 .tabbar a .badge--count { position: absolute; top: var(--space-1); left: calc(50% + var(--space-2)); }
 .tabbar .icon { width: var(--size-icon-lg); height: var(--size-icon-lg); }
 .tabbar--static { position: static; }
+/* Nav drawer ("Main menu"): every section the member may open, sliding in from the start edge.
+   Opened by the tab bar's More (and the top bar's More between 768 and 1023px); a popover in the mocks. */
+.nav-drawer { position: fixed; inset: 0 auto 0 0; z-index: var(--z-modal); display: none; flex-direction: column; width: min(var(--layout-sidebar-width), calc(100% - var(--space-12))); height: 100%; max-height: none; margin: 0; padding: 0; border: 0; border-right: var(--border-width-hairline) solid var(--color-border-default); background: var(--color-bg-surface-raised); color: var(--color-fg-default); box-shadow: var(--shadow-4); }
+.nav-drawer:popover-open { display: flex; animation: slide-in-start var(--duration-base) var(--ease-enter); }
+.nav-drawer::backdrop { background: var(--color-bg-backdrop); }
+.nav-drawer__header { display: flex; align-items: center; justify-content: space-between; padding: var(--space-3) var(--space-4); border-bottom: var(--border-width-hairline) solid var(--color-border-default); }
+.nav-drawer__title { font: var(--text-h4); }
+.nav-drawer__nav { display: flex; flex-direction: column; gap: var(--space-1); padding: var(--space-3); overflow-y: auto; }
+.nav-drawer__link { display: flex; align-items: center; gap: var(--space-3); min-height: var(--target-comfortable); padding: 0 var(--space-3); border-radius: var(--radius-md); color: var(--color-fg-muted); font: var(--text-label); text-decoration: none; }
+.nav-drawer__link:hover, .nav-drawer__link[data-state="hover"] { background: var(--color-bg-subtle); color: var(--color-fg-default); text-decoration: none; }
+.nav-drawer__link[aria-current="page"] { background: var(--color-accent-subtle); color: var(--color-fg-accent); }
+@keyframes slide-in-start { from { transform: translateX(-100%); } }
+@media (prefers-reduced-motion: reduce) { .nav-drawer:popover-open { animation: none; } }
 .has-tabbar { padding-bottom: calc(var(--layout-tabbar-height) + var(--space-6)); }
 @media (min-width: 48rem) { .tabbar:not(.tabbar--static) { display: none; } .has-tabbar { padding-bottom: 0; } }
 .breadcrumb { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-2); list-style: none; padding: var(--space-4) 0 0; font: var(--text-body-sm); color: var(--color-fg-muted); }

@@ -9,4 +9,16 @@
       <span class="tab-bar__label">{{ item.label }}</span>
     </a>
   }
+  @if (moreLabel(); as moreText) {
+    <button
+      class="tab-bar__item"
+      type="button"
+      aria-haspopup="dialog"
+      [attr.aria-current]="moreCurrent() ? 'true' : null"
+      (click)="more.emit()"
+    >
+      <ft-icon name="more" size="lg" />
+      <span class="tab-bar__label">{{ moreText }}</span>
+    </button>
+  }
 </nav>

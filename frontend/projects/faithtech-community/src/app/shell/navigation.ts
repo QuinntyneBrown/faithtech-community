@@ -65,8 +65,11 @@ export function sectionsFor(roles: readonly Role[]): Section[] {
   return SECTIONS.filter((s) => s.opens(roles));
 }
 
-/** The phone tab bar: Home, Events, Search, then the member's next two sections. */
+/**
+ * The phone tab bar's links: Home, Events, Search and the member's next section. A More tab
+ * follows them and opens the menu of every section.
+ */
 export function tabsFor(roles: readonly Role[]): Section[] {
   const [home, events, ...rest] = sectionsFor(roles);
-  return [home, events, SEARCH_SECTION, ...rest.slice(0, 2)];
+  return [home, events, SEARCH_SECTION, ...rest.slice(0, 1)];
 }
