@@ -2,6 +2,7 @@ using Azure.Storage.Blobs;
 using FaithTech.Community.Api.Tests.Fakes;
 using FaithTech.Community.Application.Common;
 using FaithTech.Community.Application.Identity;
+using FaithTech.Community.Application.Profiles;
 using FaithTech.Community.Infrastructure.Persistence;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
@@ -30,6 +31,8 @@ public class CommunityApiFactory : WebApplicationFactory<Program>, IAsyncLifetim
 
     public FakeBlobServiceClient Blobs { get; } = new();
 
+    public FakePhotoStorage Photos { get; } = new();
+
     public async Task InitializeAsync()
     {
         await using var scope = Services.CreateAsyncScope();
@@ -56,6 +59,7 @@ public class CommunityApiFactory : WebApplicationFactory<Program>, IAsyncLifetim
 
             services.AddSingleton<BlobServiceClient>(Blobs);
             services.AddSingleton<IEmailSender>(Emails);
+            services.AddSingleton<IPhotoStorage>(Photos);
             services.AddSingleton<TimeProvider>(Time);
             services.AddSingleton<IBreachedPasswordChecker, FakeBreachedPasswordChecker>();
         });

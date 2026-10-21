@@ -1,6 +1,7 @@
 using Azure.Storage.Blobs;
 using FaithTech.Community.Application.Common;
 using FaithTech.Community.Application.Identity;
+using FaithTech.Community.Application.Profiles;
 using FaithTech.Community.Infrastructure.Email;
 using FaithTech.Community.Infrastructure.Identity;
 using FaithTech.Community.Infrastructure.Persistence;
@@ -62,6 +63,7 @@ public static class DependencyInjection
         services.AddHostedService<EmailOutboxWorker>();
 
         services.AddSingleton(_ => new BlobServiceClient(configuration.GetConnectionString("Blobs")));
+        services.AddSingleton<IPhotoStorage, AzureBlobPhotoStorage>();
 
         services.AddScoped<CommunitySeeder>();
 

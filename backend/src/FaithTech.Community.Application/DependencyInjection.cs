@@ -1,4 +1,5 @@
 using FaithTech.Community.Application.Identity;
+using FaithTech.Community.Application.Profiles;
 using FluentValidation;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -19,6 +20,8 @@ public static class DependencyInjection
         services.AddScoped<SignInHandler>();
         services.AddScoped<RequestPasswordResetHandler>();
         services.AddScoped<ResetPasswordHandler>();
+        services.AddScoped<ProfileAccess>();
+        services.AddScoped<GetProfileHandler>();
         services.TryAddSingleton(TimeProvider.System);
         return services;
     }
