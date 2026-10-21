@@ -40,8 +40,8 @@
 <div class="dialog" role="dialog" aria-modal="true" aria-labelledby="dlg-title" aria-describedby="dlg-desc" data-dismiss-on-escape>
   <div class="dialog__panel">
     <div class="dialog__header"><div class="dialog__icon" aria-hidden="true"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19 12a7 7 0 0 0-.1-1l2-1.5-2-3.4-2.3.9a7 7 0 0 0-1.7-1L14.5 3h-5l-.4 2.4a7 7 0 0 0-1.7 1L5.1 5.5l-2 3.4 2 1.5a7 7 0 0 0 0 2l-2 1.5 2 3.4 2.3-.9a7 7 0 0 0 1.7 1l.4 2.4h5l.4-2.4a7 7 0 0 0 1.7-1l2.3.9 2-3.4-2-1.5c.1-.3.1-.7.1-1z"/></svg></div>
-      <div style="flex: 1;"><h2 class="dialog__title" id="dlg-title">Switch Toronto team to Kanban?</h2>
-      <p id="dlg-desc" class="text-muted" style="margin-top: var(--space-1);">Items keep their status. Switching to Kanban closes Sprint 7, and its unfinished stories return to the backlog.</p></div>
+      <div class="dialog__heading"><h2 class="dialog__title" id="dlg-title">Switch Toronto team to Kanban?</h2>
+      <p id="dlg-desc" class="dialog__description">Items keep their status. Switching to Kanban closes Sprint 7, and its unfinished stories return to the backlog.</p></div>
       <button class="btn btn--ghost btn--icon" type="button" aria-label="Close" disabled><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18"/></svg></button>
     </div>
     <div class="dialog__body stack"><fieldset class="stack"><legend class="field__label">Method</legend><label class="choice"><input type="radio" name="m" disabled><span class="choice__text">Scrum<small>Sprints with a name, goal and dates</small></span></label><label class="choice"><input type="radio" name="m" checked disabled><span class="choice__text">Kanban<small>Continuous flow on To Do → In Progress → Done</small></span></label></fieldset></div>
