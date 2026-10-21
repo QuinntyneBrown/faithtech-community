@@ -102,6 +102,7 @@
       <ul>
         <li>A feed sits inside a card with a heading ("Recent activity", "Comments (2)", "History").</li>
         <li>Use a <a href="list.html">list</a> for things to open, and the notifications list for items with read and unread state.</li>
+        <li>Name the actor in full in every feed ("Grace Okonkwo moved Kestrel Labs…", "Marcus Lee: …"), as Home does; never first names only.</li>
         <li>In Angular, use <code>&lt;ft-feed&gt;</code> and <code>&lt;ft-feed-item&gt;</code>. <code>ft-feed</code> takes <code>state</code> (<code>ready</code>, <code>loading</code>, <code>empty</code>, <code>error</code>) and, for errors, <code>retrying</code> and a <code>(retry)</code> output.</li>
       </ul>
     </section>
@@ -138,9 +139,9 @@
 
       <h3>History</h3>
       <div class="ds-example">
-        <div class="ds-example__canvas ds-example__canvas--stack"><section class="card stack" aria-labelledby="hi"><h3 id="hi">History</h3><ul class="feed"><li><span class="avatar avatar--sm avatar--sky" aria-hidden="true">GO</span><div class="feed__body">Grace moved Kestrel Labs from Lead to In funnel<div class="feed__meta">Tue 14 Oct</div></div></li><li><span class="avatar avatar--sm avatar--sun" aria-hidden="true">ML</span><div class="feed__body">Marcus: “They’ll host Builders Night for free if we credit them on the event page.”<div class="feed__meta">Fri 10 Oct</div></div></li><li><span class="avatar avatar--sm avatar--sky" aria-hidden="true">GO</span><div class="feed__body">Grace added Kestrel Labs<div class="feed__meta">Mon 29 Sep</div></div></li></ul></section></div>
+        <div class="ds-example__canvas ds-example__canvas--stack"><section class="card stack" aria-labelledby="hi"><h3 id="hi">History</h3><ul class="feed"><li><span class="avatar avatar--sm avatar--sky" aria-hidden="true">GO</span><div class="feed__body">Grace Okonkwo moved Kestrel Labs from Lead to In funnel<div class="feed__meta">Tue 14 Oct</div></div></li><li><span class="avatar avatar--sm avatar--sun" aria-hidden="true">ML</span><div class="feed__body">Marcus Lee: “They’ll host Builders Night for free if we credit them on the event page.”<div class="feed__meta">Fri 10 Oct</div></div></li><li><span class="avatar avatar--sm avatar--sky" aria-hidden="true">GO</span><div class="feed__body">Grace Okonkwo added Kestrel Labs<div class="feed__meta">Mon 29 Sep</div></div></li></ul></section></div>
         <div class="ds-example__caption"><span>Partner: stage moves and notes on Kestrel Labs.</span></div>
-        <details class="ds-example__code"><summary>HTML</summary><pre><code>&lt;section class="card stack" aria-labelledby="hi"&gt;&lt;h3 id="hi"&gt;History&lt;/h3&gt;&lt;ul class="feed"&gt;&lt;li&gt;&lt;span class="avatar avatar--sm avatar--sky" aria-hidden="true"&gt;GO&lt;/span&gt;&lt;div class="feed__body"&gt;Grace moved Kestrel Labs from Lead to In funnel&lt;div class="feed__meta"&gt;Tue 14 Oct&lt;/div&gt;&lt;/div&gt;&lt;/li&gt;&lt;li&gt;&lt;span class="avatar avatar--sm avatar--sun" aria-hidden="true"&gt;ML&lt;/span&gt;&lt;div class="feed__body"&gt;Marcus: “They’ll host Builders Night for free if we credit them on the event page.”&lt;div class="feed__meta"&gt;Fri 10 Oct&lt;/div&gt;&lt;/div&gt;&lt;/li&gt;&lt;li&gt;&lt;span class="avatar avatar--sm avatar--sky" aria-hidden="true"&gt;GO&lt;/span&gt;&lt;div class="feed__body"&gt;Grace added Kestrel Labs&lt;div class="feed__meta"&gt;Mon 29 Sep&lt;/div&gt;&lt;/div&gt;&lt;/li&gt;&lt;/ul&gt;&lt;/section&gt;</code></pre></details>
+        <details class="ds-example__code"><summary>HTML</summary><pre><code>&lt;section class="card stack" aria-labelledby="hi"&gt;&lt;h3 id="hi"&gt;History&lt;/h3&gt;&lt;ul class="feed"&gt;&lt;li&gt;&lt;span class="avatar avatar--sm avatar--sky" aria-hidden="true"&gt;GO&lt;/span&gt;&lt;div class="feed__body"&gt;Grace Okonkwo moved Kestrel Labs from Lead to In funnel&lt;div class="feed__meta"&gt;Tue 14 Oct&lt;/div&gt;&lt;/div&gt;&lt;/li&gt;&lt;li&gt;&lt;span class="avatar avatar--sm avatar--sun" aria-hidden="true"&gt;ML&lt;/span&gt;&lt;div class="feed__body"&gt;Marcus Lee: “They’ll host Builders Night for free if we credit them on the event page.”&lt;div class="feed__meta"&gt;Fri 10 Oct&lt;/div&gt;&lt;/div&gt;&lt;/li&gt;&lt;li&gt;&lt;span class="avatar avatar--sm avatar--sky" aria-hidden="true"&gt;GO&lt;/span&gt;&lt;div class="feed__body"&gt;Grace Okonkwo added Kestrel Labs&lt;div class="feed__meta"&gt;Mon 29 Sep&lt;/div&gt;&lt;/div&gt;&lt;/li&gt;&lt;/ul&gt;&lt;/section&gt;</code></pre></details>
       </div>
 
     </section>
@@ -251,7 +252,7 @@
         <li><a href="../../mocks/pages/work-item/default.html">pages/work-item/default</a> (comments)</li>
         <li><a href="../../mocks/pages/partner/default.html">pages/partner/default</a> (history)</li>
       </ul>
-      <p>Drift: feed headings set their size inline with <code>style="font: var(--text-h4);"</code>. Partner history writes the actor's first name only ("Grace moved…") while Home uses full names.</p>
+      <p>Drift: feed headings set their size inline with <code>style="font: var(--text-h4);"</code>.</p>
     </section>
 
     <footer class="ds-footer"><span>FaithTech Community design system · extracted from <a href="../../mocks/index.html">docs/mocks</a> on 2026-10-21</span><a href="#top">Back to top</a></footer>
