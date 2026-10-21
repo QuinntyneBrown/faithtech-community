@@ -884,7 +884,7 @@ mark { background: var(--color-warning-bg); color: inherit; border-radius: var(-
 .tree__toggle::before { content: ""; width: var(--space-2); height: var(--space-2); border: solid currentColor; border-width: var(--border-width-thick) var(--border-width-thick) 0 0; rotate: 45deg; }
 .tree__toggle[aria-expanded="true"]::before { rotate: 135deg; }
 .tree__toggle:hover, .tree__toggle[data-state="hover"] { color: var(--color-fg-default); }
-.tree__row:hover { background: var(--color-bg-subtle); }
+.tree__row:hover, .tree__row[data-state="hover"] { background: var(--color-bg-subtle); }
 .tree__row a { color: var(--color-fg-default); font-weight: var(--font-weight-medium); }
 
 /* ---------- Review fixes -------------------------------------------------------- */
@@ -907,7 +907,6 @@ mark { background: var(--color-warning-bg); color: inherit; border-radius: var(-
 /* ---------- State hooks added during extraction --------------------------------- */
 .select:hover, .select[data-state="hover"] { border-color: var(--color-fg-muted); }
 .select:disabled { background-color: var(--color-bg-subtle); border-color: var(--color-border-default); color: var(--color-fg-disabled); cursor: not-allowed; }
-.tree__row[data-state="hover"] { background: var(--color-bg-subtle); }
 /* Checkboxes inside choice rows (member pickers) are square with a tick, not round. */
 .choice input[type="checkbox"] { border-radius: var(--radius-xs); }
 .choice input[type="checkbox"]:checked::before { width: var(--space-2); height: var(--space-1); border-radius: 0; background: none; border: solid var(--color-fg-on-accent); border-width: 0 0 var(--border-width-thick) var(--border-width-thick); rotate: -45deg; translate: 0 -10%; }
