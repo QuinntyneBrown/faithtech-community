@@ -128,7 +128,7 @@
         <ol class="ds-anatomy__list">
           <li><div><b>Brand</b><small><code>.topbar__brand</code>: mark and "FaithTech" in <code>--text-h4</code>; links to Home.</small></div></li>
           <li><div><b>Nav</b><small><code>nav.topbar__nav</code> of <code>.nav-link</code>s; the current page has <code>aria-current="page"</code>. <code>.nav-link--secondary</code> (Team, Announcements, People) hides between 768px and 1023px. The whole nav hides below 768px.</small></div></li>
-          <li><div><b>Search</b><small><code>form.topbar__search[role=search]</code> with a visually hidden label and an <code>.input--sm</code>; 14rem wide, shown from 1024px.</small></div></li>
+          <li><div><b>Search</b><small><code>form.topbar__search[role=search]</code> with a visually hidden label and an <code>.input--sm</code>; <code>--layout-topbar-search-width</code> (14rem) wide, shown from 1024px.</small></div></li>
           <li><div><b>Bell</b><small><code>.bell-anchor</code> holds a ghost icon button with a <code>.badge--count</code>; the anchor positions the <code>.bell-panel</code> when it opens.</small></div></li>
           <li><div><b>Avatar</b><small><code>button.avatar-trigger</code> wrapping a small <code>.avatar</code> with initials; opens the account menu.</small></div></li>
           <li><div><b>Capsule</b><small><code>header.topbar</code>: a pill (<code>--radius-full</code>) floating <code>--space-2</code> below the top, container-wide, translucent blurred surface, hairline border and <code>--shadow-2</code>. Inherited from Shelfie unchanged.</small></div></li>
@@ -244,7 +244,7 @@
       <ul>
         <li>Base (phones): brand, spacer, bell, avatar. The <a href="tab-bar.html">tab bar</a> carries Home, Events, Search, Contacts and Partners.</li>
         <li>768px to 1023px: <code>.topbar__nav</code> appears with the five primary links; <code>.nav-link--secondary</code> (Team, Announcements, People) stays hidden so the row never wraps. The tab bar hides.</li>
-        <li>1024px and up: the secondary links and <code>.topbar__search</code> (14rem) appear. Nav links never wrap (<code>white-space: nowrap</code>).</li>
+        <li>1024px and up: the secondary links and <code>.topbar__search</code> (<code>--layout-topbar-search-width</code>, 14rem) appear. Nav links never wrap (<code>white-space: nowrap</code>).</li>
         <li>The capsule is <code>position: sticky; top: var(--space-2)</code> at <code>--z-sticky</code>; <code>scroll-padding-top</code> on <code>html</code> keeps focused fields clear of it.</li>
       </ul>
     </section>
@@ -339,7 +339,7 @@
         <tr><td><code>.nav-link--secondary</code></td><td>Team, Announcements, People; hidden from 768px to 1023px.</td></tr>
         <tr><td><code>.topbar__spacer</code></td><td>Pushes search, bell and avatar right.</td></tr>
         <tr><td><code>.nav-link--more</code></td><td>Button at the end of <code>.topbar__nav</code>, shown only from 768px to 1023px, that opens the Main menu (<code>.nav-drawer</code>) while the secondary links are hidden.</td></tr>
-        <tr><td><code>.topbar__search</code></td><td>Global search form; 14rem, shown from 1024px.</td></tr>
+        <tr><td><code>.topbar__search</code></td><td>Global search form; <code>--layout-topbar-search-width</code> wide, shown from <code>--layout-breakpoint-lg</code> (1024px).</td></tr>
         <tr><td><code>.bell-anchor</code></td><td>Positioning context for the bell and its <code>.bell-panel</code>.</td></tr>
         <tr><td><code>.avatar-trigger</code></td><td>Account menu button wrapping the avatar; see <a href="menu.html">menu</a>.</td></tr>
         <tr><td><code>data-state="hover|focus"</code></td><td>Documentation only: forces a state.</td></tr>
@@ -357,7 +357,7 @@
       </ul>
       <p>Drift noticed:</p>
       <ul>
-        <li><code>.topbar__search</code> is sized with a raw <code>14rem</code> and the breakpoints in <code>ui-extra.css</code> use raw <code>48rem</code>/<code>64rem</code> media queries instead of the layout breakpoint tokens.</li>
+        <li>Resolved: <code>.topbar__search</code> was sized with a raw <code>14rem</code>; it now reads <code>--layout-topbar-search-width</code>. Media queries cannot read custom properties, so the top bar's <code>48rem</code>/<code>64rem</code> queries are the values of <code>--layout-breakpoint-md</code>/<code>-lg</code> (the rule is stated at the top of <code>components.css</code>), and the Angular <code>TopBarComponent</code> reads them by name with <code>@include bp.up(md)</code> from <code>styles/_breakpoints.scss</code>.</li>
               <li>The top bar markup is copied by hand into every page mock (eight personas); a shared shell component is needed in the app.</li>
       </ul>
     </section>

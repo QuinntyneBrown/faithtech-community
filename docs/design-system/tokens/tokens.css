@@ -275,6 +275,7 @@
   --layout-measure: 65ch;           /* max line length for prose */
   --layout-sidebar-width: 16rem;    /* 256px */
   --layout-topbar-height: 3.5rem;   /* 56px */
+  --layout-topbar-search-width: 14rem; /* 224px inline search in the top bar, from 1024px */
   --layout-tabbar-height: 4rem;     /* 64px bottom tab bar on phones */
 
   /* ---------- Semantic: shape ------------------------------------------ */

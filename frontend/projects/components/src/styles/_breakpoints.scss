@@ -1,0 +1,18 @@
+// Media queries cannot read custom properties, so the --layout-breakpoint-* tokens (sm 640px,
+// md 768px, lg 1024px, xl 1280px, 2xl 1536px) are mirrored here once and read by name:
+// `@include bp.up(md) { … }`. Mobile first, min-width only.
+@use 'sass:map';
+
+$breakpoints: (
+  sm: 40rem,
+  md: 48rem,
+  lg: 64rem,
+  xl: 80rem,
+  '2xl': 96rem,
+);
+
+@mixin up($name) {
+  @media (min-width: map.get($breakpoints, $name)) {
+    @content;
+  }
+}

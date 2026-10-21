@@ -9,7 +9,10 @@
    static page can show a state without a pointer:
        <button class="btn" data-state="hover">
    Layout is mobile first: base styles target phones and min-width queries
-   (40rem sm, 48rem md, 64rem lg) add space.
+   (40rem sm, 48rem md, 64rem lg) add space. Media queries cannot read custom
+   properties, so each query uses the value of a --layout-breakpoint-* token
+   (--layout-breakpoint-sm/md/lg) and never another number; the Angular
+   library reads the same tokens by name through styles/_breakpoints.scss.
    ========================================================================== */
 
 /* ---------- Base --------------------------------------------------------- */
@@ -861,7 +864,7 @@ mark { background: var(--color-warning-bg); color: inherit; border-radius: var(-
 
 /* ---------- Topbar extras ----------------------------------------------------- */
 .topbar__search { display: none; }
-@media (min-width: 64rem) { .topbar__search { display: block; width: 14rem; } }
+@media (min-width: 64rem) { .topbar__search { display: block; width: var(--layout-topbar-search-width); } }
 .topbar__nav .nav-link { white-space: nowrap; }
 /* Secondary links (Team, Announcements, People, Admin) join the nav from 1024px; mobile-first, min-width only. */
 .topbar__nav .nav-link--secondary { display: none; }

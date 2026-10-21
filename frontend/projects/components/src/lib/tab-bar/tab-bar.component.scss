@@ -1,3 +1,5 @@
+@use '../../styles/breakpoints' as bp;
+
 :host {
   display: block;
 }
@@ -51,7 +53,7 @@
   font-weight: var(--font-weight-medium);
 }
 
-@media (min-width: 48rem) {
+@include bp.up(md) {
   .tab-bar {
     display: none;
   }
