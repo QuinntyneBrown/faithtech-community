@@ -803,6 +803,7 @@ mark { background: var(--color-warning-bg); color: inherit; border-radius: var(-
 .bell-panel { position: absolute; right: 0; top: calc(100% + var(--space-2)); z-index: var(--z-dropdown); width: min(24rem, calc(100vw - 2 * var(--layout-margin)));
   background: var(--color-bg-surface-raised); border: var(--border-width-hairline) solid var(--color-border-default); border-radius: var(--radius-lg); box-shadow: var(--shadow-3); overflow: hidden; }
 .bell-panel__header { display: flex; justify-content: space-between; align-items: center; padding: var(--space-3) var(--space-4); border-bottom: var(--border-width-hairline) solid var(--color-border-default); }
+.bell-panel__empty { padding: var(--space-6) var(--space-4); }
 .bell-panel__footer { padding: var(--space-2) var(--space-4); border-top: var(--border-width-hairline) solid var(--color-border-default); text-align: center; }
 .bell-anchor { position: relative; }
 
