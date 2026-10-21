@@ -102,7 +102,7 @@ export class AdminUsersPage {
     void this.load();
   }
 
-  /** A suspended account shows the plain avatar (ADR 0007). */
+  /** A suspended account shows the plain avatar (ADR 0008). */
   protected avatarColor(user: AdminUserSummary): AvatarColor {
     return user.status === 'Suspended' ? 'plain' : avatarColorFor(user.id);
   }

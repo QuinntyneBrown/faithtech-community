@@ -4,7 +4,7 @@ import type { AvatarColor } from './avatar.component';
 export const AVATAR_COLORS = ['sky', 'sun', 'lilac', 'sage', 'rose', 'mint', 'peach'] as const;
 
 /**
- * A member's avatar colour, derived from their profile id (ADR 0007) so every screen that shows
+ * A member's avatar colour, derived from their profile id (ADR 0008) so every screen that shows
  * them computes the same colour without storing it. No id (an unlinked contact) is plain.
  */
 export function avatarColorFor(memberId: string | null | undefined): AvatarColor {

@@ -35,7 +35,7 @@ Static HTML mocks for every page, dialog and notification, built from [`idea.txt
 | Esther Nakamura | City Lead | Austin | mint | Cancelled the Austin panel |
 | Tomás Ortega | — (private contact) | Toronto | sun | Grace's contact who just signed up |
 
-- **Avatar colours** come from each member's profile id (ADR 0007), so a person keeps one colour on every screen. Seven colours serve every member, so colours repeat (Marcus and Tomás are both sun); the printed name, never the colour, identifies a person. Private contacts who have not signed up, and suspended accounts, use the plain avatar.
+- **Avatar colours** come from each member's profile id (ADR 0008), so a person keeps one colour on every screen. Seven colours serve every member, so colours repeat (Marcus and Tomás are both sun); the printed name, never the colour, identifies a person. Private contacts who have not signed up, and suspended accounts, use the plain avatar.
 - **Events:** Toronto Builders Night (public, Thu 6 Nov), City Team Prayer & Planning (members only, Tue 28 Oct), Hackathon: Tech for Shelters (public, 14–15 Nov), Austin Faith & AI Panel (cancelled).
 - **Partners:**
   - Lead: Maple Street Church, Northgate Credit Union, Ellis Design Studio, St. Brigid's Parish

@@ -1,4 +1,4 @@
-# 0007. Avatar colour from the profile id
+# 0008. Avatar colour from the profile id
 
 - Status: Accepted
 - Date: 2026-10-21
