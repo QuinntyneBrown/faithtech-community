@@ -148,7 +148,8 @@
         "own",
         "loading",
         "empty",
-        "error"
+        "error",
+        "not-found"
       ],
       "not_applicable": {}
     },
@@ -156,7 +157,7 @@
       "id": "edit-profile",
       "kind": "page",
       "title": "Edit profile",
-      "route": "/profile/edit",
+      "route": "/people/me/edit",
       "requirements": [
         "L2-006",
         "L2-007"
@@ -169,7 +170,9 @@
         "busy",
         "success",
         "uploading",
-        "too-large"
+        "too-large",
+        "pending",
+        "full"
       ],
       "not_applicable": {
         "empty": "The form always shows your name; the photo empty state is shown on the profile page."

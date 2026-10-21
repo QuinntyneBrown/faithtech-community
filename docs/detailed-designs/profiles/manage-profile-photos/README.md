@@ -12,17 +12,18 @@ Uploads accept JPEG, PNG or WebP files of 5 MB or less whose content matches the
 
 ## Description
 
-- **`EditProfilePage`** photo section — part of the `profiles` feature library, matching the `edit-profile` mock. It uses the `components` file-upload control, which disables itself at 10 photos and explains the limit, and requires alt text with the message "Describe this photo".
-- **`DeletePhotoDialog`** — Angular CDK dialog in the `profiles` library, matching the `delete-photo` mock.
+- **`EditProfilePage`** photo section — part of the `profiles` feature library, matching the `edit-profile` mock. It uses `PictureListComponent`, which checks type and size in the browser, disables *Add photos* at 10 photos and explains the limit. A chosen file appears as a *pending* photo (not saved yet, no *Feature* action) with an empty description; *Save profile* uploads each pending photo and saves changed descriptions. A missing description blocks the save with "Describe this photo" in the error summary. *Feature* acts at once.
+- **`DeletePhotoDialog`** — opened through `DialogService` from a saved photo's *Remove* button, matching the `delete-photo` mock (default, busy, failed). It calls `deletePhoto` and closes with the updated profile. A pending photo is removed without a dialog because nothing is stored yet.
 - **`ProfilesService`** — contract in the `api` library, provided through the `PROFILES_SERVICE` injection token and implemented by `HttpProfilesService`.
 - **`ProfilesEndpoints`** — minimal API route group in `FaithTech.Community.Api` under `/api/profiles`. Its endpoints require authentication by default and hold no business logic.
-- **`ICurrentUser`** — Application abstraction exposing the caller's user id, profile id and roles.
+- **`ICurrentUser`** — Application abstraction exposing the caller's user id and roles; **`ProfileAccess`** decides owner, audited System Admin or 403 (ADR 0004).
 - **`Profile`** — Domain entity holding `Name`, `Roles` and the `Photos` collection.
-- **`UploadPhotoCommand`** / **`UploadPhotoHandler`** — Application request and handler. The handler checks ownership, the 10-photo limit, size, declared type and content signature, then resizes, strips metadata, stores the blob and adds a `ProfilePhoto`. The first photo becomes featured.
-- **`SetFeaturedPhotoCommand`** / **`SetFeaturedPhotoHandler`** — make one photo the only featured photo through `Profile.Feature`.
-- **`DeletePhotoCommand`** / **`DeletePhotoHandler`** — remove the photo and its blob; `Profile.RemovePhoto` promotes the most recent remaining photo when the featured one is removed.
-- **`IImageProcessor`** — Infrastructure service that detects the real format, resizes and strips metadata. The resize dimensions are `<TO SUPPLY>`.
-- **`IPhotoStorage`** — Infrastructure service over Azure Blob Storage.
+- **`UploadPhotoCommand`** / **`UploadPhotoHandler`** — `POST /api/profiles/{id}/photos`, multipart fields `file` and `altText`, answering `201` with the `PhotoDto`. The handler checks permission, the 10-photo limit (`409`), alt text, size (5 MB) and content against extension (`400`, keyed `File` or `AltText`), then resizes, strips metadata, stores the blob under `profiles/{profileId}/{photoId}.{ext}` and adds a `ProfilePhoto`. The first photo becomes featured.
+- **`DescribePhotoCommand`** / **`DescribePhotoHandler`** — `PUT /api/profiles/{id}/photos/{photoId}` with `{ altText }` changes a photo's alt text through `ProfilePhoto.Describe` (L2-007 AC7).
+- **`SetFeaturedPhotoCommand`** / **`SetFeaturedPhotoHandler`** — `PUT /api/profiles/{id}/photos/{photoId}/featured`; make one photo the only featured photo through `Profile.Feature`.
+- **`DeletePhotoCommand`** / **`DeletePhotoHandler`** — `DELETE /api/profiles/{id}/photos/{photoId}`; remove the photo and its blob; `Profile.RemovePhoto` promotes the most recent remaining photo when the featured one is removed. Every write answers `403` to anyone but the owner or System Admin, whose override is audited.
+- **`IImageProcessor`** — Application abstraction implemented with ImageSharp in Infrastructure: detects the real format from the bytes, auto-orients, resizes to fit 1600 × 1600 without upscaling and strips EXIF, IPTC, XMP and ICC metadata (ADR 0001).
+- **`IPhotoStorage`** — Application abstraction implemented over Azure Blob Storage in Infrastructure: save, delete and one-hour read SAS URLs (ADR 0002). Tests use an in-memory fake.
 
 ## Requirements
 
@@ -42,6 +43,7 @@ The feature realizes the following level-2 (L2) requirements. Each L2 requiremen
 4. Given a profile with 10 photos, when the user tries to add another, then the upload control is disabled and explains the limit, and the API rejects the upload.
 5. Given several photos, when the user marks one as featured, then it becomes the only featured photo.
 6. Given the featured photo is deleted after confirmation, when other photos remain, then the most recently uploaded remaining photo becomes featured.
+7. Given an uploaded photo, when the owner changes its description to non-empty text and saves, then the new alt text is stored; an empty description is blocked with "Describe this photo".
 
 ## Diagrams
 
@@ -87,3 +89,11 @@ Decisions recorded while building the Domain layer (`FaithTech.Community.Domain`
 
 - `ProfilePhoto` rejects empty alt text; `Profile.AddPhoto` rejects an eleventh photo and features the first; `Profile.Feature` and `Profile.RemovePhoto` reject an unknown photo id. Domain rule violations throw `InvalidOperationException` (a broken rule) or `ArgumentException` (invalid input); there is no shared domain exception type. Handlers check permissions and preconditions first and map any remaining violation to a `400` or `409` result.
 - Photos persist in a `ProfilePhotos` table owned by `Profiles`.
+
+Decisions recorded while implementing the feature:
+
+- The edit-profile mock lets every photo's description be edited, which L2-007 did not cover. AC7 is added to L2-007 and `PUT /api/profiles/{id}/photos/{photoId}` implements it. Resolved.
+- Image processing uses ImageSharp, 1600 px maximum (ADR 0001); storage, keys and SAS read URLs follow ADR 0002. Resolved.
+- Uploads are sent when the member saves, one request per pending photo, so alt text is always present at upload (AC3). Progress percentages are not reported; the photo shows "Uploading…". Resolved.
+- Requests up to 10 MB are read so that a too-large photo gets the inline `400` error rather than a bare `413`. Resolved.
+- Reordering photos is not in L2-007 and is not built.

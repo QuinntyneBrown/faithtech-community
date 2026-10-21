@@ -33,10 +33,9 @@
 <main id="main" class="container">
 <nav aria-label="Breadcrumb"><ol class="breadcrumb"><li><a href="../../pages/profile/own.html">Profile</a></li><li aria-current="page">Edit profile</li></ol></nav><div class="page-header"><div><h1>Edit profile</h1><p class="subtitle">Visible to everyone signed in to FaithTech.</p></div></div>
 <form class="stack" action="success.html" method="get" novalidate style="max-width: 48rem;">
-  <div class="alert alert--success" role="status"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="m8 12 3 3 5-6"/></svg><div class="alert__body"><div class="alert__title">Profile saved</div><div class="alert__text">Everyone signed in can now see your changes.</div></div></div>
   <section class="card stack" aria-labelledby="about"><h2 id="about" style="font: var(--text-h4);">About you</h2>
     <div class="field"><label class="field__label" for="ep-name">Name</label><input class="input" id="ep-name" name="ep-name" type="text" value="Grace Okonkwo" autocomplete="name" required></div>
-    <div class="field"><label class="field__label" for="ep-city">Home city</label><select class="select" id="ep-city" name="ep-city"><option selected>Toronto</option><option>Austin</option><option>Vancouver</option><option>Kitchener-Waterloo</option><option>Ottawa</option></select></div>
+    <div class="field"><label class="field__label" for="ep-city">Home city</label><input class="input" id="ep-city" name="ep-city" type="text" value="Toronto" autocomplete="address-level2"></div>
     <div class="field"><label class="field__label" for="ep-bio">Bio <span class="text-muted">(optional)</span></label><textarea class="textarea" id="ep-bio" name="ep-bio" rows="4" aria-describedby="ep-bio-help">City Lead for FaithTech Toronto. Product manager by day, convener of builders by night. Ask me about our shelter-tech hackathon.</textarea><div class="field__help" id="ep-bio-help">Up to 400 characters.</div></div>
   </section>
   <section class="card stack" aria-labelledby="photos"><div class="cluster cluster--between"><h2 id="photos" style="font: var(--text-h4);">Photos <span class="badge">4 of 10</span></h2>
@@ -59,13 +58,14 @@
   <div class="form-actions cluster"><button class="btn btn--primary" type="submit">Save profile</button><a class="btn btn--ghost" href="../../pages/profile/own.html">Cancel</a></div>
 </form>
 </main>
+<div class="toast-region" role="status" aria-live="polite"><div class="toast toast--success"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="m8 12 3 3 5-6"/></svg><div class="toast__body"><div class="toast__title">Profile saved</div><div class="toast__text">Everyone signed in can now see your changes.</div></div><button class="close" type="button" aria-label="Dismiss"><svg class="icon icon--sm" aria-hidden="true" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18"/></svg></button><span class="toast__progress" aria-hidden="true"></span></div></div>
 <nav class="tabbar" aria-label="Primary, phone"><a href="../../pages/home/default.html"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><path d="M3 12 12 3l9 9M5 10v10h14V10"/></svg>Home</a><a href="../../pages/events/default.html"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/></svg>Events</a><a href="../../pages/search/default.html"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>Search</a><a href="../../pages/contacts/default.html"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="2"/><circle cx="9" cy="11" r="2.5"/><path d="M5.5 17a3.5 3.5 0 0 1 7 0M15 9h3M15 13h3"/></svg>Contacts</a><a href="../../pages/partners/default.html"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><path d="M2 12l4-4 4 2 4-4 4 4 4 2M6 8v7l4 4 2-2 2 2 4-4v-5"/></svg>Partners</a></nav>
 </div>
 
 <nav class="mock-bar" aria-label="Mock navigation">
   <a class="mock-bar__home" href="../../index.html" aria-label="All mocks">⌂</a>
   <span class="mock-bar__screen">Edit profile</span>
-  <ul class="mock-bar__states"><li><a href="default.html">default</a></li><li><a href="loading.html">loading</a></li><li><a href="error.html">error</a></li><li><a href="invalid.html">invalid</a></li><li><a href="busy.html">busy</a></li><li><a href="success.html" aria-current="page">success</a></li><li><a href="uploading.html">uploading</a></li><li><a href="too-large.html">too-large</a></li></ul>
+  <ul class="mock-bar__states"><li><a href="default.html">default</a></li><li><a href="loading.html">loading</a></li><li><a href="error.html">error</a></li><li><a href="invalid.html">invalid</a></li><li><a href="busy.html">busy</a></li><li><a href="success.html" aria-current="page">success</a></li><li><a href="uploading.html">uploading</a></li><li><a href="too-large.html">too-large</a></li><li><a href="pending.html">pending</a></li><li><a href="full.html">full</a></li></ul>
   <button type="button" data-theme-toggle aria-pressed="false">☾ Dark</button>
   <button type="button" data-chrome-toggle aria-label="Hide mock chrome">×</button>
 </nav>
