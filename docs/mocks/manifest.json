@@ -652,7 +652,8 @@
         "staff",
         "loading",
         "empty",
-        "error"
+        "error",
+        "empty-member"
       ],
       "not_applicable": {}
     },

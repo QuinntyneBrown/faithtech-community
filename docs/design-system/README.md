@@ -33,6 +33,7 @@ The mocks were styled with the Shelfie design system unchanged plus FaithTech ad
 | [Textarea](components/textarea.html) | Bios, notes, announcement body. |
 | [Select](components/select.html) | Native select for roles, cities, event types. |
 | [Radio group](components/radio-group.html) | Choice rows with descriptions. |
+| [Checkbox group](components/checkbox-group.html) | Several choices: member and story pickers. |
 | [Switch](components/switch.html) | Notification and email preferences. |
 | [Form layout](components/form-layout.html) | Actions bar, error summary, danger zone. |
 | [Picture list](components/picture-list.html) | Profile photos: up to 10, one featured, alt text. |
