@@ -129,7 +129,7 @@
         </figure>
         <ol class="ds-anatomy__list">
           <li><div><b>Backdrop and frame</b><small><code>.backdrop</code> dims the page with <code>--color-bg-backdrop</code> at <code>--z-overlay</code>; <code>.dialog</code> (<code>role="dialog"</code>, <code>aria-modal="true"</code>) centres the panel at <code>--z-modal</code>.</small></div></li>
-          <li><div><b>Icon</b><small><code>.dialog__icon</code>: 40px neutral circle naming the task (send, trash, archive). <code>.dialog__icon--danger</code> tints it for destructive confirmations.</small></div></li>
+          <li><div><b>Icon</b><small><code>.dialog__icon</code>: 40px neutral circle naming the task (send, trash, archive). <code>.dialog__icon--danger</code> tints it for every destructive confirmation, the ones whose main button is danger (Delete contact, Delete photo, Suspend user, Cancel event, Archive workspace, Remove member). Reversible confirmations keep the neutral icon.</small></div></li>
           <li><div><b>Title and description</b><small><code>h2.dialog__title</code> via <code>aria-labelledby</code>; the muted description via <code>aria-describedby</code>. <code>--text-h4</code> on phones, <code>--text-h3</code> from 640px.</small></div></li>
           <li><div><b>Close</b><small>Ghost icon button, <code>aria-label="Close"</code>.</small></div></li>
           <li><div><b>Body</b><small><code>.dialog__body</code>, usually a <code>.stack</code> of fields; scrolls inside the panel when tall.</small></div></li>
@@ -210,7 +210,7 @@
             </div>
           </div>
         </div>
-        <div class="ds-example__caption"><span><code>.dialog__icon--danger</code> marks the confirmations that take access away (Archive workspace, Remove member).</span></div>
+        <div class="ds-example__caption"><span><code>.dialog__icon--danger</code> marks every confirmation whose main button is danger: here Remove member; also Delete contact, Delete photo, Suspend user, Cancel event and Archive workspace.</span></div>
       </div>
       <h3>Confirmation with a typed check: delete a contact</h3>
       <div class="ds-example">
@@ -408,7 +408,7 @@
         <tr><td><code>.dialog__panel</code></td><td>The raised panel, max 32rem, scrolls when tall.</td></tr>
         <tr><td><code>.dialog__header</code> / <code>__title</code> / <code>__body</code> / <code>__footer</code></td><td>Parts; the footer is sticky.</td></tr>
         <tr><td><code>.dialog__icon</code></td><td>Neutral icon circle naming the task.</td></tr>
-        <tr><td><code>.dialog__icon--danger</code></td><td>Danger tint for destructive confirmations.</td></tr>
+        <tr><td><code>.dialog__icon--danger</code></td><td>Danger tint for every confirmation whose main button is danger.</td></tr>
         <tr><td><code>.dialog--static</code></td><td>Documentation only: renders in flow.</td></tr>
         <tr><td><code>role="dialog"</code> <code>aria-modal="true"</code> <code>aria-labelledby</code> <code>aria-describedby</code></td><td>Required in the product.</td></tr>
       </tbody></table>
@@ -429,7 +429,6 @@
       </ul>
       <p>Drift noticed in the mocks:</p>
       <ul>
-        <li><code>.dialog__icon--danger</code> is used only by Archive workspace and Remove member; other destructive dialogs (Delete contact, Suspend user, Cancel event) use the neutral icon.</li>
         <li>Busy states leave fields editable (no <code>readonly</code>).</li>
         <li>Cancel event and Cancel RSVP pair "Cancel" with "Cancel event" / "Cancel RSVP".</li>
         <li>Archive workspace has an empty body holding only a <code>visually-hidden</code> "No further options".</li>
