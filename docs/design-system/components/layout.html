@@ -102,7 +102,7 @@
       <ul>
         <li><b><code>.container</code></b>: the page width (max 1280px) and side margins. <code>main</code> on every signed-in page.</li>
         <li><b><code>.stack</code></b>: children in a column, 16px apart. Cards, forms, dialog bodies.</li>
-        <li><b><code>.cluster</code></b>: children in a wrapping row, 12px apart, vertically centred. Button rows, role badges, stats. <b><code>.cluster--between</code></b> pushes the ends apart (a card title with an "Open board" link). <b><code>.cluster--tight</code></b> closes the gap to 4px for a run of role badges in a list row's meta line (<code>&lt;ft-cluster gap="1"&gt;</code> in Angular).</li>
+        <li><b><code>.cluster</code></b>: children in a wrapping row, 12px apart, vertically centred. Button rows, role badges, stats. <b><code>.cluster--between</code></b> pushes the ends apart (a card title with an "Open board" link). <b><code>.cluster--tight</code></b> closes the gap to 4px for a run of role badges in a list row's meta line (<code>&lt;ft-cluster gap="1"&gt;</code> in Angular). <b><code>.cluster--snug</code></b> sets it to 8px for an avatar beside a name, or a row of actions, in a table cell (<code>&lt;ft-cluster gap="2"&gt;</code>).</li>
         <li><b><code>.grid</code></b>: the token column grid; a form can set <code>--layout-columns: 2</code> for a Starts/Ends pair. <b><code>.grid--auto</code></b> fills with 18rem-minimum cards instead.</li>
         <li><b><code>.split</code></b>: one column on phones, main and aside at 2:1 from 1024px. Home, event, contact and partner pages.</li>
         <li><b><code>.page-header</code></b> (title, subtitle, actions) and <b><code>.section</code></b> (vertical rhythm between page sections).</li>
@@ -310,6 +310,7 @@
         <tr><td><code>.container</code></td><td>Max width, centred, side margins.</td></tr>
         <tr><td><code>.stack</code></td><td>Column, 16px gap.</td></tr>
         <tr><td><code>.cluster</code> / <code>.cluster--between</code></td><td>Wrapping row, 12px gap / ends apart.</td></tr>
+        <tr><td><code>.cluster--tight</code> / <code>.cluster--snug</code></td><td>4px gap (role badges in a meta line) / 8px gap (avatar and name, or actions, in a table cell).</td></tr>
         <tr><td><code>.grid</code> / <code>.grid--auto</code></td><td>Token column grid (override with <code>--layout-columns</code>) / auto-fill 18rem columns.</td></tr>
         <tr><td><code>.split</code></td><td>One column, then 2fr / 1fr from 1024px.</td></tr>
         <tr><td><code>.page-header</code> (+ <code>.subtitle</code>)</td><td>Title block and actions, wraps.</td></tr>
