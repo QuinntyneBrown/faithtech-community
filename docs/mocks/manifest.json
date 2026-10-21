@@ -133,6 +133,7 @@
         "loading",
         "empty",
         "error",
+        "activity-error",
         "staff"
       ],
       "not_applicable": {}
