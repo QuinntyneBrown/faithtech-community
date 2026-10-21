@@ -122,7 +122,7 @@
           <span class="ds-callout" style="left: 80%; top: 86%;" aria-hidden="true">4</span>
         </figure>
         <ol class="ds-anatomy__list">
-          <li><div><b>Icon</b><small><code>.empty__icon</code>: 64px circle, accent-subtle (danger-bg for errors), 32px line icon, <code>aria-hidden</code>.</small></div></li>
+          <li><div><b>Icon</b><small><code>&lt;span class="empty__icon"&gt;</code>: 64px circle, accent-subtle (danger-bg for errors), 32px line icon, <code>aria-hidden</code>.</small></div></li>
           <li><div><b>Title</b><small><code>.empty__title</code>: an <code>&lt;h2&gt;</code> in the h3 style; says what is (not) here.</small></div></li>
           <li><div><b>Text</b><small><code>.empty__text</code>: one or two sentences, muted, 36ch max.</small></div></li>
           <li><div><b>Actions</b><small><code>.empty__actions</code>: one primary action, optionally one secondary. Left out when there is nothing the viewer can do (audit log, notifications).</small></div></li>
@@ -301,7 +301,7 @@
         <li>Error: <a href="../../mocks/pages/contacts/error.html">pages/contacts/error</a>, <a href="../../mocks/pages/home/error.html">home/error</a>, <a href="../../mocks/pages/events/error.html">events/error</a>, <a href="../../mocks/pages/partners/error.html">partners/error</a>, <a href="../../mocks/pages/audit-log/error.html">audit-log/error</a></li>
         <li><a href="../../mocks/notifications/bell/empty.html">notifications/bell/empty</a></li>
       </ul>
-      <p>Try again is a <code>&lt;button type="button"&gt;</code> in every error mock and in the system. The icon wrapper is a <code>&lt;span&gt;</code> in the mocks (a <code>&lt;div&gt;</code> in the inherited Shelfie pages); both work. The component is inherited from Shelfie unchanged.</p>
+      <p>Try again is a <code>&lt;button type="button"&gt;</code> in every error mock and in the system. The icon wrapper is always a <code>&lt;span class="empty__icon" aria-hidden="true"&gt;</code>, in every mock, on this page and in <code>ft-empty-state</code>; do not use a <code>&lt;div&gt;</code> (the inherited Shelfie pages did). The component is inherited from Shelfie unchanged.</p>
     </section>
 
     <footer class="ds-footer"><span>FaithTech Community design system · extracted from <a href="../../mocks/index.html">docs/mocks</a> on 2026-10-21</span><a href="#top">Back to top</a></footer>
