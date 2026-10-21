@@ -114,7 +114,7 @@ Each component page documents variants, sizes and the full state matrix in both 
 | pages/* breadcrumbs | Some state mocks label the current crumb generically ("Event") | Documented: the current crumb is the record name |
 | pages/* | Top bar and tab bar copied by hand into every mock, varying by role | One shell component in the app |
 | pages/events, pages/search (loading) | Round avatar skeletons where rows have square date badges | Documented on Event card and Search results |
-| pages/profile | Samuel's photos copied from Grace's, with alt text describing her; loading uses text skeletons for square tiles | Flagged for the mocks |
+| pages/profile | Samuel's photos copied from Grace's, with alt text describing her (fixed, #76); loading uses text skeletons for square tiles | Flagged for the mocks |
 | pages/public-event/cancelled | Says "FaithTech Toronto" and Kestrel Labs for the Austin panel | Flagged for the mocks |
 | pages/search | Work-item rows borrow `.sticker` as an icon tile | Documented: use an icon tile, not the estimate card |
 | pages/contact | Gap between note text and date relies on default paragraph margins | `.note__meta` owns the gap |
