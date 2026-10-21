@@ -1,5 +1,6 @@
 using System.Net;
 using System.Net.Http.Json;
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
@@ -55,7 +56,10 @@ public class ReliabilityTests(CommunityApiFactory factory) : IClassFixture<Commu
     public async Task Unhandled_exception_returns_problem_details_with_the_correlation_id()
     {
         var client = factory.WithWebHostBuilder(b =>
-            b.ConfigureServices(s => s.AddTransient<IStartupFilter, ThrowingStartupFilter>())).CreateClient();
+            b.ConfigureServices(s => s.AddTransient<IStartupFilter, ThrowingStartupFilter>()
+                .AddAuthentication(TestAuthHandler.SchemeName)
+                .AddScheme<AuthenticationSchemeOptions, TestAuthHandler>(TestAuthHandler.SchemeName, null))).CreateClient();
+        client.DefaultRequestHeaders.Add(TestAuthHandler.Header, Guid.NewGuid().ToString());
 
         var response = await client.GetAsync("/boom");
 

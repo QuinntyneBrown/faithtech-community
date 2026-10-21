@@ -1,3 +1,5 @@
+using FaithTech.Community.Api.Authentication;
+using FaithTech.Community.Api.Endpoints;
 using FaithTech.Community.Api.Middleware;
 using FaithTech.Community.Infrastructure;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
@@ -13,6 +15,7 @@ builder.Services.AddSerilog((services, logger) => logger
 builder.Services.AddProblemDetails(options => options.CustomizeProblemDetails = context =>
     context.ProblemDetails.Extensions["traceId"] = context.HttpContext.TraceIdentifier);
 builder.Services.AddInfrastructure(builder.Configuration);
+builder.Services.AddCommunityAuthentication(builder.Configuration, builder.Environment);
 
 var app = builder.Build();
 
@@ -21,12 +24,15 @@ app.UseMiddleware<CorrelationIdMiddleware>();
 app.UseSerilogRequestLogging();
 app.UseExceptionHandler();
 app.UseStatusCodePages();
+app.UseAuthentication();
+app.UseAuthorization();
 
-app.MapHealthChecks("/health/live", new HealthCheckOptions { Predicate = _ => false });
+app.MapHealthChecks("/health/live", new HealthCheckOptions { Predicate = _ => false }).AllowAnonymous();
 app.MapHealthChecks("/health/ready", new HealthCheckOptions
 {
     Predicate = check => check.Tags.Contains(DependencyInjection.ReadyTag),
-});
+}).AllowAnonymous();
+app.MapMeEndpoints();
 
 app.Run();
 
