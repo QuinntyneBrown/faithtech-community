@@ -101,7 +101,7 @@
       <p>Every signed-in page starts with a <code>.topbar</code>. It keeps the way home, search, notifications and your own profile one tap away, and it stays put while the page scrolls. Sign-in, sign-up, verify email, forgot and reset password and accept invite have no top bar; they use the <a href="layout.html">auth layout</a>. The public event page shows a reduced bar for anonymous visitors.</p>
       <ul>
         <li><b>Member</b>: brand (back to Home), <code>.topbar__nav</code> with Home, Events, Contacts, Partners, Workspaces and the secondary links Team, Announcements, People; then <code>.topbar__search</code>, the <code>.bell-anchor</code> and the <code>.avatar-trigger</code>.</li>
-        <li><b>Staff</b>: the same bar without Contacts, because private contacts are visible only to the lead who created them and to System Admin.</li>
+        <li><b>By role</b>: the links follow one rule (<a href="../../adr/0009-shell-navigation-by-role.md">ADR 0009</a>, see the <a href="tab-bar.html">tab bar</a>). Staff have no Contacts, because private contacts are visible only to the lead who created them and to System Admin; only System Admins have Admin; a member with no role sees Home, Events, Team and Announcements.</li>
         <li><b>Anonymous</b> (public event): brand and a "Sign in" button only.</li>
         <li>The avatar opens the <a href="menu.html">account menu</a> (<code>button.avatar-trigger</code>): Your profile, Settings and Sign out. It is the one way to sign out of this device.</li>
       </ul>

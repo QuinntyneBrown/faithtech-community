@@ -98,7 +98,7 @@
     </header>
 
     <section class="ds-section" id="overview"><h2><a href="#overview">Overview</a></h2>
-      <p>Use the tab bar on every signed-in page. It is the phone form of the <a href="top-bar.html">top bar</a>: the five places members go most, in a fixed order. Search takes a tab because the top bar search field only appears from 1024px. Workspaces, Team, Announcements and People are reached from Home and the top bar on wider screens. The auth pages and the public event page have no tab bar.</p>
+      <p>Use the tab bar on every signed-in page. It is the phone form of the <a href="top-bar.html">top bar</a>: the five places a member goes most, built by one rule from their roles. Search takes a tab because the top bar search field only appears from 1024px. Workspaces, Team, Announcements and People are reached from Home and the top bar on wider screens. The auth pages and the public event page have no tab bar.</p>
       <ul>
         <li>Tabs are links, not ARIA tabs: each one goes to a different page.</li>
         <li>The page wrapper gets <code>.has-tabbar</code> so the last content is not hidden behind the bar.</li>
@@ -129,7 +129,7 @@
     </section>
 
     <section class="ds-section" id="variants"><h2><a href="#variants">Variants</a></h2>
-      <p>Two variants. Both have five tabs. Staff swap Contacts (private to the lead who created them) for Workspaces.</p>
+      <p>One rule for every role (<a href="../../adr/0009-shell-navigation-by-role.md">ADR 0009</a>): Home, Events, Search, then the first two of the member's other sections in the order Contacts, Partners, Workspaces, Team, Announcements, People, Admin. Contacts are for leads and System Admin; Partners for leads, Staff and System Admin; Workspaces for leads, Volunteers, Staff and System Admin; Team and Announcements for everyone. So a lead or System Admin gets Contacts and Partners, Staff get Partners and Workspaces, a Volunteer gets Workspaces and Team, and a member with no role gets Team and Announcements. The app builds the bar once, in <code>AppShellComponent</code>.</p>
       <h3>Member</h3>
       <div class="ds-example">
         <div class="ds-example__canvas ds-example__canvas--stack ds-example__canvas--canvas">
@@ -282,7 +282,7 @@
         <li><a href="../../mocks/pages/home/staff.html">pages/home/staff</a> (Staff)</li>
         <li><a href="../../mocks/pages/team-board/default.html">pages/team-board/default</a> (no current tab)</li>
       </ul>
-      <p>Drift noticed: the tab set differs by role (Staff: Workspaces instead of Contacts) and is hand-copied per mock, so it must come from one shell component in the app. Pages outside the five sections show no current tab, which can leave phone users unsure where they are; the page header carries that instead.</p>
+      <p>Resolved drift: the tab set used to differ by persona with no rule (Staff, Communications Lead and System Admin each had their own) and was hand-copied per mock. Every mock now follows the one rule above, and the app renders it from one shell component. Pages outside the five sections show no current tab, which can leave phone users unsure where they are; the page header carries that instead.</p>
     </section>
 
     <footer class="ds-footer"><span>FaithTech Community design system · extracted from <a href="../../mocks/index.html">docs/mocks</a> on 2026-10-21</span><a href="#top">Back to top</a></footer>
