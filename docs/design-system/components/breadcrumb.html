@@ -215,6 +215,7 @@
       <ul>
         <li>Each ancestor is named as its page heading: "Contacts", "Events", "Partners", "Workspaces", "People and roles", "Profile", or the workspace name ("Toronto team").</li>
         <li>The current item repeats this page's subject: the record name ("Tomás Ortega", "Kestrel Labs", "Toronto Builders Night") or the task ("New contact", "Edit event", "New announcement").</li>
+        <li>Once the record is known the current item is always its name, in every state that shows the record (default, lead, staff, member, cancelled, empty). Only while the record is still loading, when its name is not yet known, does the current item fall back to the record type, matching the page heading: "Contact", "Partner", "Event" or "Story" (see <a href="../../mocks/pages/event/loading.html">pages/event/loading</a>). Error, not-found and forbidden states drop the trail.</li>
         <li>Never "Home" or "Back".</li>
       </ul>
     </section>
@@ -268,7 +269,7 @@
         <li><a href="../../mocks/pages/partner/default.html">pages/partner/default</a>, <a href="../../mocks/pages/edit-profile/default.html">pages/edit-profile/default</a>, <a href="../../mocks/pages/compose-announcement/default.html">pages/compose-announcement/default</a>, <a href="../../mocks/pages/invites/default.html">pages/invites/default</a></li>
         <li><a href="../../mocks/pages/team-board/default.html">pages/team-board/default</a>, <a href="../../mocks/pages/backlog/default.html">pages/backlog/default</a> and <a href="../../mocks/pages/work-item/default.html">pages/work-item/default</a> (Workspaces root; three items, long current title)</li>
       </ul>
-      <p>Drift noticed: every mock uses the same <code>nav aria-label="Breadcrumb"</code> + <code>ol.breadcrumb</code> markup. Some state mocks name the current page generically ("Event", "Contact", "Partner", "Story") instead of the record, because the record has not loaded or does not exist; once the record is known the trail should use its name.</p>
+      <p>Drift noticed: every mock uses the same <code>nav aria-label="Breadcrumb"</code> + <code>ol.breadcrumb</code> markup. Resolved: only the loading mocks (<a href="../../mocks/pages/contact/loading.html">contact</a>, <a href="../../mocks/pages/partner/loading.html">partner</a>, <a href="../../mocks/pages/event/loading.html">event</a>, <a href="../../mocks/pages/work-item/loading.html">work-item</a>) name the current page by its record type, because the name is not known yet; every state that shows the record names it. The rule is under <a href="#content">Content</a>.</p>
     </section>
 
     <footer class="ds-footer"><span>FaithTech Community design system · extracted from <a href="../../mocks/index.html">docs/mocks</a> on 2026-10-21</span><a href="#top">Back to top</a></footer>
