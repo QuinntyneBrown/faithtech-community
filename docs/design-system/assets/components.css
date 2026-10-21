@@ -878,7 +878,12 @@ mark { background: var(--color-warning-bg); color: inherit; border-radius: var(-
 .tree { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: var(--space-1); }
 .tree .tree { padding-left: var(--space-6); border-left: var(--border-width-hairline) solid var(--color-border-default); margin-left: var(--space-3); }
 .tree__row { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-2); min-height: var(--target-comfortable); padding: var(--space-1) var(--space-2); border-radius: var(--radius-sm); }
-summary.tree__row { cursor: pointer; }
+/* Disclosure button before a branch's badge; the title link sits beside it, never inside it.
+   The chevron is drawn from two borders: right when collapsed, down when expanded. */
+.tree__toggle { display: inline-grid; place-items: center; flex: none; width: var(--target-min); height: var(--target-min); margin: calc(-1 * var(--space-1)) 0 calc(-1 * var(--space-1)) calc(-1 * var(--space-2)); padding: 0; border: 0; border-radius: var(--radius-sm); background: none; color: var(--color-fg-muted); cursor: pointer; }
+.tree__toggle::before { content: ""; width: var(--space-2); height: var(--space-2); border: solid currentColor; border-width: var(--border-width-thick) var(--border-width-thick) 0 0; rotate: 45deg; }
+.tree__toggle[aria-expanded="true"]::before { rotate: 135deg; }
+.tree__toggle:hover, .tree__toggle[data-state="hover"] { color: var(--color-fg-default); }
 .tree__row:hover { background: var(--color-bg-subtle); }
 .tree__row a { color: var(--color-fg-default); font-weight: var(--font-weight-medium); }
 
