@@ -32,6 +32,16 @@ public static class AccountEndpoints
             .Validate<ResendVerificationCommand>()
             .AllowAnonymous();
 
+        account.MapPost("/forgot-password", async (RequestPasswordResetCommand command, RequestPasswordResetHandler handler, CancellationToken ct) =>
+                (await handler.HandleAsync(command, ct)).ToHttp(() => Results.Accepted()))
+            .Validate<RequestPasswordResetCommand>()
+            .AllowAnonymous();
+
+        account.MapPost("/reset-password", async (ResetPasswordCommand command, ResetPasswordHandler handler, CancellationToken ct) =>
+                (await handler.HandleAsync(command, ct)).ToHttp(() => Results.Ok()))
+            .Validate<ResetPasswordCommand>()
+            .AllowAnonymous();
+
         account.MapPost("/sign-in", SignInAsync).Validate<SignInCommand>().AllowAnonymous();
         account.MapPost("/sign-out", SignOutAsync);
 

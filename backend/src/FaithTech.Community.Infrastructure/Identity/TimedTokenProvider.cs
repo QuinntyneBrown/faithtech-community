@@ -55,3 +55,10 @@ public class EmailConfirmationTokenProvider<TUser>(IDataProtectionProvider dataP
 {
     public const string Name = "EmailConfirmation";
 }
+
+public class PasswordResetTokenProvider<TUser>(IDataProtectionProvider dataProtection, TimeProvider time)
+    : TimedTokenProvider<TUser>(dataProtection, time, Name, TimeSpan.FromHours(1))
+    where TUser : class
+{
+    public const string Name = "PasswordReset";
+}
