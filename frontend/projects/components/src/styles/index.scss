@@ -1,0 +1,11 @@
+/*
+ * SCAFFOLD: entry point for the global styles of @faithtech-community/components.
+ * Generated from AGENTS.md and:
+ *   - docs/design-system/README.md (Tokens)
+ * The app imports this once from its styles.scss. Order: tokens, themes, foundations, utilities.
+ * Overwrite with the expected implementation, then delete this comment.
+ */
+@use 'tokens';
+@use 'themes';
+@use 'foundations';
+@use 'utilities';

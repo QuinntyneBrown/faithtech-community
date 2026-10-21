@@ -1,0 +1,488 @@
+{
+  "$schema": "./node_modules/@angular/cli/lib/config/schema.json",
+  "version": 1,
+  "cli": {
+    "packageManager": "npm"
+  },
+  "newProjectRoot": "projects",
+  "projects": {
+    "faithtech-community": {
+      "projectType": "application",
+      "schematics": {
+        "@schematics/angular:component": {
+          "style": "scss"
+        }
+      },
+      "root": "projects/faithtech-community",
+      "sourceRoot": "projects/faithtech-community/src",
+      "prefix": "ft",
+      "architect": {
+        "build": {
+          "builder": "@angular/build:application",
+          "options": {
+            "browser": "projects/faithtech-community/src/main.ts",
+            "tsConfig": "projects/faithtech-community/tsconfig.app.json",
+            "inlineStyleLanguage": "scss",
+            "assets": [
+              {
+                "glob": "**/*",
+                "input": "projects/faithtech-community/public"
+              }
+            ],
+            "styles": ["projects/faithtech-community/src/styles.scss"]
+          },
+          "configurations": {
+            "production": {
+              "budgets": [
+                {
+                  "type": "initial",
+                  "maximumWarning": "500kB",
+                  "maximumError": "1MB"
+                },
+                {
+                  "type": "anyComponentStyle",
+                  "maximumWarning": "4kB",
+                  "maximumError": "8kB"
+                }
+              ],
+              "outputHashing": "all"
+            },
+            "development": {
+              "optimization": false,
+              "extractLicenses": false,
+              "sourceMap": true
+            }
+          },
+          "defaultConfiguration": "production"
+        },
+        "serve": {
+          "builder": "@angular/build:dev-server",
+          "configurations": {
+            "production": {
+              "buildTarget": "faithtech-community:build:production"
+            },
+            "development": {
+              "buildTarget": "faithtech-community:build:development"
+            }
+          },
+          "defaultConfiguration": "development"
+        },
+        "test": {
+          "builder": "@angular/build:unit-test"
+        },
+        "lint": {
+          "builder": "@angular-eslint/builder:lint",
+          "options": {
+            "lintFilePatterns": [
+              "projects/faithtech-community/**/*.ts",
+              "projects/faithtech-community/**/*.html"
+            ],
+            "eslintConfig": "projects/faithtech-community/eslint.config.js"
+          }
+        }
+      }
+    },
+    "components": {
+      "projectType": "library",
+      "root": "projects/components",
+      "sourceRoot": "projects/components/src",
+      "prefix": "ft",
+      "architect": {
+        "build": {
+          "builder": "@angular/build:ng-packagr",
+          "configurations": {
+            "production": {
+              "tsConfig": "projects/components/tsconfig.lib.prod.json"
+            },
+            "development": {
+              "tsConfig": "projects/components/tsconfig.lib.json"
+            }
+          },
+          "defaultConfiguration": "production"
+        },
+        "test": {
+          "builder": "@angular/build:unit-test",
+          "options": {
+            "tsConfig": "projects/components/tsconfig.spec.json"
+          }
+        },
+        "lint": {
+          "builder": "@angular-eslint/builder:lint",
+          "options": {
+            "lintFilePatterns": ["projects/components/**/*.ts", "projects/components/**/*.html"],
+            "eslintConfig": "projects/components/eslint.config.js"
+          }
+        }
+      }
+    },
+    "api": {
+      "projectType": "library",
+      "root": "projects/api",
+      "sourceRoot": "projects/api/src",
+      "prefix": "ft",
+      "architect": {
+        "build": {
+          "builder": "@angular/build:ng-packagr",
+          "configurations": {
+            "production": {
+              "tsConfig": "projects/api/tsconfig.lib.prod.json"
+            },
+            "development": {
+              "tsConfig": "projects/api/tsconfig.lib.json"
+            }
+          },
+          "defaultConfiguration": "production"
+        },
+        "test": {
+          "builder": "@angular/build:unit-test",
+          "options": {
+            "tsConfig": "projects/api/tsconfig.spec.json"
+          }
+        },
+        "lint": {
+          "builder": "@angular-eslint/builder:lint",
+          "options": {
+            "lintFilePatterns": ["projects/api/**/*.ts", "projects/api/**/*.html"],
+            "eslintConfig": "projects/api/eslint.config.js"
+          }
+        }
+      }
+    },
+    "profiles": {
+      "projectType": "library",
+      "root": "projects/profiles",
+      "sourceRoot": "projects/profiles/src",
+      "prefix": "ft",
+      "architect": {
+        "build": {
+          "builder": "@angular/build:ng-packagr",
+          "configurations": {
+            "production": {
+              "tsConfig": "projects/profiles/tsconfig.lib.prod.json"
+            },
+            "development": {
+              "tsConfig": "projects/profiles/tsconfig.lib.json"
+            }
+          },
+          "defaultConfiguration": "production"
+        },
+        "test": {
+          "builder": "@angular/build:unit-test",
+          "options": {
+            "tsConfig": "projects/profiles/tsconfig.spec.json"
+          }
+        },
+        "lint": {
+          "builder": "@angular-eslint/builder:lint",
+          "options": {
+            "lintFilePatterns": ["projects/profiles/**/*.ts", "projects/profiles/**/*.html"],
+            "eslintConfig": "projects/profiles/eslint.config.js"
+          }
+        }
+      }
+    },
+    "contacts": {
+      "projectType": "library",
+      "root": "projects/contacts",
+      "sourceRoot": "projects/contacts/src",
+      "prefix": "ft",
+      "architect": {
+        "build": {
+          "builder": "@angular/build:ng-packagr",
+          "configurations": {
+            "production": {
+              "tsConfig": "projects/contacts/tsconfig.lib.prod.json"
+            },
+            "development": {
+              "tsConfig": "projects/contacts/tsconfig.lib.json"
+            }
+          },
+          "defaultConfiguration": "production"
+        },
+        "test": {
+          "builder": "@angular/build:unit-test",
+          "options": {
+            "tsConfig": "projects/contacts/tsconfig.spec.json"
+          }
+        },
+        "lint": {
+          "builder": "@angular-eslint/builder:lint",
+          "options": {
+            "lintFilePatterns": ["projects/contacts/**/*.ts", "projects/contacts/**/*.html"],
+            "eslintConfig": "projects/contacts/eslint.config.js"
+          }
+        }
+      }
+    },
+    "partners": {
+      "projectType": "library",
+      "root": "projects/partners",
+      "sourceRoot": "projects/partners/src",
+      "prefix": "ft",
+      "architect": {
+        "build": {
+          "builder": "@angular/build:ng-packagr",
+          "configurations": {
+            "production": {
+              "tsConfig": "projects/partners/tsconfig.lib.prod.json"
+            },
+            "development": {
+              "tsConfig": "projects/partners/tsconfig.lib.json"
+            }
+          },
+          "defaultConfiguration": "production"
+        },
+        "test": {
+          "builder": "@angular/build:unit-test",
+          "options": {
+            "tsConfig": "projects/partners/tsconfig.spec.json"
+          }
+        },
+        "lint": {
+          "builder": "@angular-eslint/builder:lint",
+          "options": {
+            "lintFilePatterns": ["projects/partners/**/*.ts", "projects/partners/**/*.html"],
+            "eslintConfig": "projects/partners/eslint.config.js"
+          }
+        }
+      }
+    },
+    "team": {
+      "projectType": "library",
+      "root": "projects/team",
+      "sourceRoot": "projects/team/src",
+      "prefix": "ft",
+      "architect": {
+        "build": {
+          "builder": "@angular/build:ng-packagr",
+          "configurations": {
+            "production": {
+              "tsConfig": "projects/team/tsconfig.lib.prod.json"
+            },
+            "development": {
+              "tsConfig": "projects/team/tsconfig.lib.json"
+            }
+          },
+          "defaultConfiguration": "production"
+        },
+        "test": {
+          "builder": "@angular/build:unit-test",
+          "options": {
+            "tsConfig": "projects/team/tsconfig.spec.json"
+          }
+        },
+        "lint": {
+          "builder": "@angular-eslint/builder:lint",
+          "options": {
+            "lintFilePatterns": ["projects/team/**/*.ts", "projects/team/**/*.html"],
+            "eslintConfig": "projects/team/eslint.config.js"
+          }
+        }
+      }
+    },
+    "events": {
+      "projectType": "library",
+      "root": "projects/events",
+      "sourceRoot": "projects/events/src",
+      "prefix": "ft",
+      "architect": {
+        "build": {
+          "builder": "@angular/build:ng-packagr",
+          "configurations": {
+            "production": {
+              "tsConfig": "projects/events/tsconfig.lib.prod.json"
+            },
+            "development": {
+              "tsConfig": "projects/events/tsconfig.lib.json"
+            }
+          },
+          "defaultConfiguration": "production"
+        },
+        "test": {
+          "builder": "@angular/build:unit-test",
+          "options": {
+            "tsConfig": "projects/events/tsconfig.spec.json"
+          }
+        },
+        "lint": {
+          "builder": "@angular-eslint/builder:lint",
+          "options": {
+            "lintFilePatterns": ["projects/events/**/*.ts", "projects/events/**/*.html"],
+            "eslintConfig": "projects/events/eslint.config.js"
+          }
+        }
+      }
+    },
+    "search": {
+      "projectType": "library",
+      "root": "projects/search",
+      "sourceRoot": "projects/search/src",
+      "prefix": "ft",
+      "architect": {
+        "build": {
+          "builder": "@angular/build:ng-packagr",
+          "configurations": {
+            "production": {
+              "tsConfig": "projects/search/tsconfig.lib.prod.json"
+            },
+            "development": {
+              "tsConfig": "projects/search/tsconfig.lib.json"
+            }
+          },
+          "defaultConfiguration": "production"
+        },
+        "test": {
+          "builder": "@angular/build:unit-test",
+          "options": {
+            "tsConfig": "projects/search/tsconfig.spec.json"
+          }
+        },
+        "lint": {
+          "builder": "@angular-eslint/builder:lint",
+          "options": {
+            "lintFilePatterns": ["projects/search/**/*.ts", "projects/search/**/*.html"],
+            "eslintConfig": "projects/search/eslint.config.js"
+          }
+        }
+      }
+    },
+    "notifications": {
+      "projectType": "library",
+      "root": "projects/notifications",
+      "sourceRoot": "projects/notifications/src",
+      "prefix": "ft",
+      "architect": {
+        "build": {
+          "builder": "@angular/build:ng-packagr",
+          "configurations": {
+            "production": {
+              "tsConfig": "projects/notifications/tsconfig.lib.prod.json"
+            },
+            "development": {
+              "tsConfig": "projects/notifications/tsconfig.lib.json"
+            }
+          },
+          "defaultConfiguration": "production"
+        },
+        "test": {
+          "builder": "@angular/build:unit-test",
+          "options": {
+            "tsConfig": "projects/notifications/tsconfig.spec.json"
+          }
+        },
+        "lint": {
+          "builder": "@angular-eslint/builder:lint",
+          "options": {
+            "lintFilePatterns": [
+              "projects/notifications/**/*.ts",
+              "projects/notifications/**/*.html"
+            ],
+            "eslintConfig": "projects/notifications/eslint.config.js"
+          }
+        }
+      }
+    },
+    "announcements": {
+      "projectType": "library",
+      "root": "projects/announcements",
+      "sourceRoot": "projects/announcements/src",
+      "prefix": "ft",
+      "architect": {
+        "build": {
+          "builder": "@angular/build:ng-packagr",
+          "configurations": {
+            "production": {
+              "tsConfig": "projects/announcements/tsconfig.lib.prod.json"
+            },
+            "development": {
+              "tsConfig": "projects/announcements/tsconfig.lib.json"
+            }
+          },
+          "defaultConfiguration": "production"
+        },
+        "test": {
+          "builder": "@angular/build:unit-test",
+          "options": {
+            "tsConfig": "projects/announcements/tsconfig.spec.json"
+          }
+        },
+        "lint": {
+          "builder": "@angular-eslint/builder:lint",
+          "options": {
+            "lintFilePatterns": [
+              "projects/announcements/**/*.ts",
+              "projects/announcements/**/*.html"
+            ],
+            "eslintConfig": "projects/announcements/eslint.config.js"
+          }
+        }
+      }
+    },
+    "invites": {
+      "projectType": "library",
+      "root": "projects/invites",
+      "sourceRoot": "projects/invites/src",
+      "prefix": "ft",
+      "architect": {
+        "build": {
+          "builder": "@angular/build:ng-packagr",
+          "configurations": {
+            "production": {
+              "tsConfig": "projects/invites/tsconfig.lib.prod.json"
+            },
+            "development": {
+              "tsConfig": "projects/invites/tsconfig.lib.json"
+            }
+          },
+          "defaultConfiguration": "production"
+        },
+        "test": {
+          "builder": "@angular/build:unit-test",
+          "options": {
+            "tsConfig": "projects/invites/tsconfig.spec.json"
+          }
+        },
+        "lint": {
+          "builder": "@angular-eslint/builder:lint",
+          "options": {
+            "lintFilePatterns": ["projects/invites/**/*.ts", "projects/invites/**/*.html"],
+            "eslintConfig": "projects/invites/eslint.config.js"
+          }
+        }
+      }
+    },
+    "admin": {
+      "projectType": "library",
+      "root": "projects/admin",
+      "sourceRoot": "projects/admin/src",
+      "prefix": "ft",
+      "architect": {
+        "build": {
+          "builder": "@angular/build:ng-packagr",
+          "configurations": {
+            "production": {
+              "tsConfig": "projects/admin/tsconfig.lib.prod.json"
+            },
+            "development": {
+              "tsConfig": "projects/admin/tsconfig.lib.json"
+            }
+          },
+          "defaultConfiguration": "production"
+        },
+        "test": {
+          "builder": "@angular/build:unit-test",
+          "options": {
+            "tsConfig": "projects/admin/tsconfig.spec.json"
+          }
+        },
+        "lint": {
+          "builder": "@angular-eslint/builder:lint",
+          "options": {
+            "lintFilePatterns": ["projects/admin/**/*.ts", "projects/admin/**/*.html"],
+            "eslintConfig": "projects/admin/eslint.config.js"
+          }
+        }
+      }
+    }
+  }
+}
