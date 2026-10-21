@@ -154,7 +154,7 @@
         <li>Reach for the layout primitives first: <code>.stack</code> (vertical, <code>--space-4</code>), <code>.cluster</code> (wrapping row, <code>--space-3</code>), <code>.grid</code> (the column grid). Override their gap with a token when a group needs to be tighter.</li>
         <li>Use <code>gap</code> on the parent rather than margins on children; it collapses cleanly when an item is missing.</li>
         <li>Do not add a step between steps. If 16px feels too loose and 12px too tight, the group is wrong, not the scale.</li>
-        <li>Inline <code>style</code> in a page may only nudge layout with a token (<code>style="gap: var(--space-6);"</code>), never a raw length. Drift in the mocks: forms cap width with <code>style="max-width: 48rem;"</code> (settings, edit profile, contact form); this belongs in a class. Filter fields take <code>.field--sm</code>, <code>--md</code> or <code>--lg</code> rather than an inline width.</li>
+        <li>Inline <code>style</code> in a page may only nudge layout with a token (<code>style="gap: var(--space-6);"</code>), never a raw length. Forms cap their width with <code>.form-width--sm</code>, <code>--md</code> or <code>--lg</code>; a row of stats is <code>.cluster.stat-row</code> (32px). Filter fields take <code>.field--sm</code>, <code>--md</code> or <code>--lg</code> rather than an inline width.</li>
       </ul>
     </section>
 

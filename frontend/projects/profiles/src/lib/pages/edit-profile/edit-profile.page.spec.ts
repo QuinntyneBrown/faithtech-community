@@ -41,4 +41,18 @@ describe('EditProfilePage', () => {
     expect(link.getAttribute('href')).toBe(`#${name.id}`);
     expect(service.updateProfile).not.toHaveBeenCalled();
   });
+
+  it('caps the form at the large form width, as the mock does, leaving the header full width', async () => {
+    TestBed.configureTestingModule({
+      providers: [{ provide: PROFILES_SERVICE, useValue: { getProfile: () => of(grace) } }],
+    });
+    const fixture = TestBed.createComponent(EditProfilePage);
+    fixture.detectChanges();
+    await fixture.whenStable();
+    fixture.detectChanges();
+    const host: HTMLElement = fixture.nativeElement;
+
+    expect(host.querySelector('form > ft-stack')!.classList).toContain('ft-stack--width-lg');
+    expect(host.querySelector('ft-page-header')!.closest('.ft-stack--width-lg')).toBeNull();
+  });
 });

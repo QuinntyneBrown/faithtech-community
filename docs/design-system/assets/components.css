@@ -89,6 +89,10 @@ a:hover, a[data-state="hover"] { color: var(--color-fg-link-hover); text-decorat
 .page-header { display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between; gap: var(--space-4); margin-block: var(--space-6); }
 .page-header .subtitle { color: var(--color-fg-muted); margin-top: var(--space-1); }
 .section { margin-block: var(--space-8); }
+/* Form widths: cap a page form, the success card that replaces it, or a danger zone. Sizes follow .field--sm/md/lg; <ft-stack width="sm|md|lg"> in Angular. */
+.form-width--sm { width: 100%; max-width: 40rem; }
+.form-width--md { width: 100%; max-width: 44rem; }
+.form-width--lg { width: 100%; max-width: 48rem; }
 .auth-layout { min-height: 100dvh; display: grid; place-items: center; padding: var(--space-6) var(--layout-margin); }
 .auth-card { width: 100%; max-width: 26rem; }
 .auth-card .logo { display: flex; justify-content: center; margin-bottom: var(--space-6); }
@@ -198,6 +202,8 @@ fieldset.card > legend { display: contents; }
 .card--flush { padding: 0; overflow: hidden; }
 .card--success { background: linear-gradient(135deg, var(--color-success-bg), var(--card-bg) 70%); }
 .card--warning { background: linear-gradient(135deg, var(--color-warning-bg), var(--card-bg) 70%); }
+/* Stat strip: a card that is a row of stats (.card.cluster.stat-row) above a board, 16px from it (<ft-card variant="strip">). */
+.card--strip { margin-bottom: var(--space-4); }
 .card__title { font: var(--text-h4); margin-bottom: var(--space-4); }
 /* The card-title role on a heading that is not a card's own title: a header row with a link or badge, a page section, a danger zone. No margin. */
 .section-title { font: var(--text-h4); }
