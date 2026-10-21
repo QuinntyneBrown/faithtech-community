@@ -1,6 +1,22 @@
-<!--
-  SCAFFOLD: placeholder, not the implementation.
-  Generated from AGENTS.md and:
-    - docs/design-system/components/sticker-picker.html
-  Overwrite this template with the expected implementation, then delete this comment.
--->
+<div
+  class="ft-estimate-picker"
+  role="group"
+  [attr.aria-labelledby]="labelId"
+  [attr.aria-invalid]="invalid() ? 'true' : null"
+>
+  <div class="ft-estimate-picker__label" [id]="labelId">{{ label() }}</div>
+  <div class="ft-estimate-picker__deck">
+    @for (option of options(); track option) {
+      <button
+        class="ft-estimate-choice"
+        type="button"
+        [attr.aria-pressed]="value() === option"
+        [disabled]="disabled()"
+        (click)="toggle(option)"
+      >
+        <span class="ft-estimate-choice__value">{{ option }}</span>
+        <span class="ft-estimate-choice__unit">{{ option === '?' ? 'Unsure' : 'points' }}</span>
+      </button>
+    }
+  </div>
+</div>

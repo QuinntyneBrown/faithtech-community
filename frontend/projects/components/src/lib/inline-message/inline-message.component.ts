@@ -1,14 +1,13 @@
-/*
- * SCAFFOLD: placeholder, not the implementation.
- * Generated from AGENTS.md and:
- *   - docs/design-system/components/inline-message.html
- * Overwrite this file with the expected implementation (implementing-incrementally
- * skill + ATDD), then delete this comment.
- */
 import { ChangeDetectionStrategy, Component } from '@angular/core';
+import { IconComponent } from '../icon/icon.component';
 
+/**
+ * One line of error text right under the thing it is about. Not a live
+ * region: link it to its field with aria-describedby.
+ */
 @Component({
   selector: 'ft-inline-message',
+  imports: [IconComponent],
   templateUrl: './inline-message.component.html',
   styleUrl: './inline-message.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,

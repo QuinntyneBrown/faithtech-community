@@ -1,6 +1,17 @@
-<!--
-  SCAFFOLD: placeholder, not the implementation.
-  Generated from AGENTS.md and:
-    - docs/design-system/components/event-card.html
-  Overwrite this template with the expected implementation, then delete this comment.
--->
+<div class="ft-event-card" [class.ft-event-card--cancelled]="cancelled()">
+  <span
+    class="ft-event-card__date"
+    [class.ft-event-card__date--cancelled]="cancelled()"
+    aria-hidden="true"
+  >
+    <span class="ft-event-card__month">{{ month() }}</span>
+    <span class="ft-event-card__day">{{ day() }}</span>
+  </span>
+  <div class="ft-event-card__body">
+    <a class="ft-event-card__title" [attr.href]="href()">{{ title() }}</a>
+    @if (meta()) {
+      <span class="ft-event-card__meta">{{ meta() }}</span>
+    }
+  </div>
+  <ft-badge [variant]="badge().variant">{{ badge().text }}</ft-badge>
+</div>

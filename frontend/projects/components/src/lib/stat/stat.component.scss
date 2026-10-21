@@ -1,7 +1,15 @@
-/*
- * SCAFFOLD: placeholder, not the implementation.
- * Generated from AGENTS.md and:
- *   - docs/design-system/components/stat.html
- * Overwrite with the encapsulated styles for this component. Read tokens by role
- * (var(--color-...)), never hex values. Delete this comment when implemented.
- */
+:host {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
+.ft-stat__label {
+  font: var(--text-label);
+  color: var(--color-fg-muted);
+}
+
+.ft-stat__value {
+  font: var(--text-h2);
+  color: var(--color-fg-default);
+}

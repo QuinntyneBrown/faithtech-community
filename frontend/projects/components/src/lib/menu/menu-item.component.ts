@@ -1,16 +1,19 @@
-/*
- * SCAFFOLD: placeholder, not the implementation.
- * Generated from AGENTS.md and:
- *   - docs/design-system/components/menu.html
- * Overwrite this file with the expected implementation (implementing-incrementally
- * skill + ATDD), then delete this comment.
- */
-import { ChangeDetectionStrategy, Component } from '@angular/core';
+import { CdkMenuItem } from '@angular/cdk/menu';
+import { ChangeDetectionStrategy, Component, input } from '@angular/core';
+import { IconComponent } from '../icon/icon.component';
 
+/**
+ * One account-menu item. Put it on a native `<a>` (navigation) or `<button>` (command) inside an
+ * `ft-menu`; it is a CDK menuitem with roving focus, an optional icon and the label as content.
+ */
 @Component({
-  selector: 'ft-menu-item',
+  selector: 'a[ft-menu-item], button[ft-menu-item]',
+  imports: [IconComponent],
+  hostDirectives: [{ directive: CdkMenuItem, inputs: ['cdkMenuItemDisabled: disabled'] }],
   templateUrl: './menu-item.component.html',
   styleUrl: './menu-item.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class MenuItemComponent {}
+export class MenuItemComponent {
+  readonly icon = input<string | null>(null);
+}

@@ -1,9 +1,21 @@
-/*
- * SCAFFOLD: placeholder, not the implementation.
- * Generated from AGENTS.md and:
- *   - docs/design-system/components/description-list.html
- * Overwrite this file with the expected implementation (implementing-incrementally
- * skill + ATDD), then delete this comment.
- */
+import { Component } from '@angular/core';
+import { TestBed } from '@angular/core/testing';
+import { DescriptionListItemComponent } from './description-list-item.component';
 
-describe.todo('DescriptionListItemComponent');
+@Component({
+  imports: [DescriptionListItemComponent],
+  template: `<ft-description-list-item label="Organisation"
+    >Harbour Light</ft-description-list-item
+  >`,
+})
+class HostComponent {}
+
+describe('DescriptionListItemComponent', () => {
+  it('pairs the label term with the projected definition', () => {
+    const fixture = TestBed.createComponent(HostComponent);
+    fixture.detectChanges();
+    const el = fixture.nativeElement as HTMLElement;
+    expect(el.querySelector('dl > dt')?.textContent).toBe('Organisation');
+    expect(el.querySelector('dl > dd')?.textContent).toContain('Harbour Light');
+  });
+});

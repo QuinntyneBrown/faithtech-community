@@ -1,16 +1,12 @@
-/*
- * SCAFFOLD: placeholder, not the implementation.
- * Generated from AGENTS.md and:
- *   - docs/design-system/components/breadcrumb.html
- * Overwrite this file with the expected implementation (implementing-incrementally
- * skill + ATDD), then delete this comment.
- */
-import { ChangeDetectionStrategy, Component } from '@angular/core';
+import { ChangeDetectionStrategy, Component, input } from '@angular/core';
 
+/** Trail above the page title: ancestors as `ft-breadcrumb-item` links, then the current page. */
 @Component({
   selector: 'ft-breadcrumb',
   templateUrl: './breadcrumb.component.html',
   styleUrl: './breadcrumb.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class BreadcrumbComponent {}
+export class BreadcrumbComponent {
+  readonly label = input('Breadcrumb');
+}

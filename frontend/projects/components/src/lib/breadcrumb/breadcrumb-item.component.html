@@ -1,7 +1,8 @@
-<!--
-  SCAFFOLD: placeholder, not the implementation.
-  Generated from AGENTS.md and:
-    - docs/design-system/components/breadcrumb.html
-  Overwrite this template with the expected implementation, then delete this comment.
--->
-<ng-content />
+@if (href(); as url) {
+  <a class="breadcrumb-item__link" [attr.href]="url"
+    ><ng-container [ngTemplateOutlet]="content"
+  /></a>
+} @else {
+  <span class="breadcrumb-item__current"><ng-container [ngTemplateOutlet]="content" /></span>
+}
+<ng-template #content><ng-content /></ng-template>

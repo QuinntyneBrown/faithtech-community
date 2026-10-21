@@ -1,10 +1,70 @@
-/*
- * SCAFFOLD: placeholder, not the implementation.
- * Generated from AGENTS.md and:
- *   - docs/design-system/components/top-bar.html
- *   - docs/design-system/components/tab-bar.html
- *   - docs/detailed-designs/platform/responsive-layout-and-theming
- *   - docs/design-system/patterns/navigation.html
- * Overwrite with the encapsulated styles for this component. Read tokens by role
- * (var(--color-...)), never hex values. Delete this comment when implemented.
- */
+.nav-drawer {
+  display: flex;
+  flex-direction: column;
+  inline-size: min(20rem, 85vw);
+  block-size: 100%;
+  background: var(--color-bg-surface-raised);
+  color: var(--color-fg-default);
+  border-inline-end: var(--border-width-hairline) solid var(--color-border-default);
+  box-shadow: var(--shadow-2);
+  animation: nav-drawer-in var(--duration-fast) ease-out;
+}
+
+.nav-drawer__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--space-3) var(--space-4);
+  border-block-end: var(--border-width-hairline) solid var(--color-border-default);
+}
+
+.nav-drawer__title {
+  font: var(--text-h4);
+}
+
+.nav-drawer__nav {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  padding: var(--space-3);
+  overflow-y: auto;
+}
+
+.nav-drawer__link {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  min-block-size: var(--target-comfortable);
+  padding-inline: var(--space-3);
+  border-radius: var(--radius-md);
+  color: var(--color-fg-muted);
+  font: var(--text-label);
+  text-decoration: none;
+
+  &:hover {
+    background: var(--color-bg-subtle);
+    color: var(--color-fg-default);
+  }
+
+  &[aria-current='page'] {
+    background: var(--color-accent-subtle);
+    color: var(--color-fg-accent);
+  }
+
+  &:focus-visible {
+    outline: none;
+    box-shadow: var(--shadow-focus);
+  }
+}
+
+@keyframes nav-drawer-in {
+  from {
+    transform: translateX(-100%);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .nav-drawer {
+    animation: none;
+  }
+}

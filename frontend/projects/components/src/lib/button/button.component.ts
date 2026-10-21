@@ -1,16 +1,51 @@
-/*
- * SCAFFOLD: placeholder, not the implementation.
- * Generated from AGENTS.md and:
- *   - docs/design-system/components/button.html
- * Overwrite this file with the expected implementation (implementing-incrementally
- * skill + ATDD), then delete this comment.
- */
-import { ChangeDetectionStrategy, Component } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, input } from '@angular/core';
+import { NgTemplateOutlet } from '@angular/common';
 
+export type ButtonVariant = 'primary' | 'secondary' | 'ghost' | 'danger';
+export type ButtonSize = 'sm' | 'md' | 'lg';
+export type ButtonType = 'button' | 'submit' | 'reset';
+
+/**
+ * Design system button. Renders a native <button>, or an <a> styled as a button when `href` is set.
+ * Icon-only buttons must pass `label`. While `loading` the button is inert and busy.
+ */
 @Component({
   selector: 'ft-button',
+  imports: [NgTemplateOutlet],
   templateUrl: './button.component.html',
   styleUrl: './button.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
+  host: {
+    '[class.ft-button-host--block]': 'block()',
+    '(click)': 'onHostClick($event)',
+  },
 })
-export class ButtonComponent {}
+export class ButtonComponent {
+  readonly variant = input<ButtonVariant>('secondary');
+  readonly size = input<ButtonSize>('md');
+  readonly type = input<ButtonType>('button');
+  readonly disabled = input(false);
+  readonly loading = input(false);
+  readonly block = input(false);
+  readonly iconOnly = input(false);
+  /** Accessible name; required for icon-only buttons. */
+  readonly label = input<string | null>(null);
+  readonly href = input<string | null>(null);
+
+  protected readonly classes = computed(() => ({
+    'ft-button': true,
+    [`ft-button--${this.variant()}`]: true,
+    [`ft-button--${this.size()}`]: true,
+    'ft-button--block': this.block(),
+    'ft-button--icon': this.iconOnly(),
+  }));
+
+  protected readonly inert = computed(() => this.disabled() || this.loading());
+
+  protected onHostClick(event: Event): void {
+    if (this.inert()) {
+      event.preventDefault();
+      event.stopImmediatePropagation();
+    }
+  }
+}

@@ -1,16 +1,18 @@
-/*
- * SCAFFOLD: placeholder, not the implementation.
- * Generated from AGENTS.md and:
- *   - docs/design-system/components/list.html
- * Overwrite this file with the expected implementation (implementing-incrementally
- * skill + ATDD), then delete this comment.
- */
-import { ChangeDetectionStrategy, Component } from '@angular/core';
+import { ChangeDetectionStrategy, Component, input } from '@angular/core';
 
+/**
+ * One list row: optional leading slot (avatar or icon), a title that is a link when `href` is set,
+ * a muted meta line and an optional trailing slot (badge). Slots: `[leading]`, `[trailing]`.
+ */
 @Component({
   selector: 'ft-list-item',
   templateUrl: './list-item.component.html',
   styleUrl: './list-item.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
+  host: { role: 'listitem' },
 })
-export class ListItemComponent {}
+export class ListItemComponent {
+  readonly label = input.required<string>();
+  readonly href = input<string | null>(null);
+  readonly meta = input<string | null>(null);
+}

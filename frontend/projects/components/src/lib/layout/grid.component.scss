@@ -1,7 +1,9 @@
-/*
- * SCAFFOLD: placeholder, not the implementation.
- * Generated from AGENTS.md and:
- *   - docs/design-system/components/layout.html
- * Overwrite with the encapsulated styles for this component. Read tokens by role
- * (var(--color-...)), never hex values. Delete this comment when implemented.
- */
+:host {
+  display: grid;
+  gap: var(--layout-gutter);
+  grid-template-columns: repeat(var(--layout-columns), minmax(0, 1fr));
+}
+
+:host(.ft-grid--auto) {
+  grid-template-columns: repeat(auto-fill, minmax(18rem, 1fr));
+}

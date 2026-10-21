@@ -1,16 +1,21 @@
-/*
- * SCAFFOLD: placeholder, not the implementation.
- * Generated from AGENTS.md and:
- *   - docs/design-system/components/radio-group.html
- * Overwrite this file with the expected implementation (implementing-incrementally
- * skill + ATDD), then delete this comment.
- */
-import { ChangeDetectionStrategy, Component } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject, input } from '@angular/core';
+import { RadioGroupComponent } from './radio-group.component';
 
+/** A native radio drawn as a choice row. Must sit inside ft-radio-group. */
 @Component({
   selector: 'ft-radio',
   templateUrl: './radio.component.html',
   styleUrl: './radio.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class RadioComponent {}
+export class RadioComponent {
+  protected readonly group = inject(RadioGroupComponent);
+
+  readonly value = input.required<string>();
+  /** Optional small line saying what the option means. */
+  readonly description = input('');
+  readonly disabled = input(false);
+
+  protected readonly checked = computed(() => this.group.value() === this.value());
+  protected readonly isDisabled = computed(() => this.disabled() || this.group.disabled());
+}

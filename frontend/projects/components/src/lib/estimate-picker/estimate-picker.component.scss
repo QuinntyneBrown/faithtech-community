@@ -1,7 +1,64 @@
-/*
- * SCAFFOLD: placeholder, not the implementation.
- * Generated from AGENTS.md and:
- *   - docs/design-system/components/sticker-picker.html
- * Overwrite with the encapsulated styles for this component. Read tokens by role
- * (var(--color-...)), never hex values. Delete this comment when implemented.
- */
+:host {
+  display: block;
+}
+
+.ft-estimate-picker__label {
+  margin-block-end: var(--space-2);
+  font: var(--text-label);
+}
+
+.ft-estimate-picker__deck {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+
+.ft-estimate-choice {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-inline-size: 4.5rem;
+  min-block-size: var(--target-comfortable);
+  padding: var(--space-2) var(--space-3);
+  border: var(--border-width-hairline) solid var(--color-border-strong);
+  border-radius: var(--radius-md);
+  background: var(--color-bg-surface);
+  color: var(--color-fg-default);
+  cursor: pointer;
+
+  &:hover:not(:disabled) {
+    background: var(--color-bg-subtle);
+  }
+
+  &:focus-visible {
+    outline: none;
+    box-shadow: var(--shadow-focus);
+  }
+
+  &[aria-pressed='true'] {
+    background: var(--color-accent-subtle);
+    border-color: var(--color-fg-accent);
+    box-shadow: 0 0 0 var(--border-width-hairline) var(--color-fg-accent);
+  }
+
+  &:disabled {
+    cursor: not-allowed;
+    color: var(--color-fg-disabled);
+  }
+}
+
+.ft-estimate-choice__value {
+  font-size: var(--font-size-3xl);
+  font-weight: var(--font-weight-bold);
+  line-height: 1;
+}
+
+.ft-estimate-choice__unit {
+  color: var(--color-fg-muted);
+  font: var(--text-caption);
+}
+
+[aria-invalid='true'] .ft-estimate-choice {
+  border-color: var(--color-danger-border);
+}

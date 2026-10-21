@@ -1,6 +1,90 @@
-<!--
-  SCAFFOLD: placeholder, not the implementation.
-  Generated from AGENTS.md and:
-    - docs/design-system/components/picture-list.html
-  Overwrite this template with the expected implementation, then delete this comment.
--->
+<div class="ft-picture-list" role="group" aria-label="Photos">
+  <div class="ft-picture-list__head">
+    <h3 class="ft-picture-list__title">Photos</h3>
+    <ft-badge>{{ photos().length }} of {{ max() }}</ft-badge>
+    <ft-button #addButton [disabled]="full()" (click)="openChooser()">Add photos</ft-button>
+    <input
+      #fileInput
+      class="visually-hidden"
+      type="file"
+      multiple
+      tabindex="-1"
+      aria-hidden="true"
+      [attr.accept]="accept"
+      (change)="onFiles($event)"
+    />
+  </div>
+
+  @if (full()) {
+    <p class="ft-picture-list__note">
+      That’s {{ max() }} photos, the most a profile can have. Remove one to add another.
+    </p>
+  } @else {
+    <p class="ft-picture-list__note">
+      @if (photos().length === 0) {
+        No photos yet. Add one so people recognise you at events.
+      }
+      JPEG, PNG or WebP up to 5 MB. Your featured photo is your picture everywhere on FaithTech.
+    </p>
+  }
+
+  @for (note of rejections(); track note) {
+    <p class="ft-picture-list__note ft-picture-list__note--error">{{ note }}</p>
+  }
+
+  @if (photos().length > 0) {
+    <ul class="ft-picture-list__grid">
+      @for (photo of photos(); track photo.url; let i = $index) {
+        <li class="ft-picture-list__item">
+          <ft-photo
+            [src]="photo.url"
+            [alt]="photo.alt"
+            [featured]="photo.featured"
+            [state]="photo.state ?? null"
+            [progress]="photo.progress ?? null"
+          >
+            <span class="ft-picture-list__remove">
+              <ft-button
+                variant="secondary"
+                size="sm"
+                [iconOnly]="true"
+                [label]="'Remove photo ' + (i + 1)"
+                (click)="remove(i)"
+              >
+                <ft-icon name="close" size="sm" />
+              </ft-button>
+            </span>
+          </ft-photo>
+          @if (photo.featured) {
+            <ft-badge variant="success">Featured</ft-badge>
+          }
+          <ft-form-field
+            [label]="'Photo ' + (i + 1) + ' description'"
+            [error]="
+              photo.alt.trim() === '' && photo.state !== 'uploading'
+                ? 'Describe what’s in the photo for people using screen readers.'
+                : ''
+            "
+          >
+            <ft-text-field
+              [ngModel]="photo.alt"
+              (ngModelChange)="altChange.emit({ index: i, alt: $event })"
+            />
+          </ft-form-field>
+          @if (photo.error) {
+            <p class="ft-picture-list__note ft-picture-list__note--error">{{ photo.error }}</p>
+          }
+          @if (!photo.featured) {
+            <ft-button
+              variant="ghost"
+              size="sm"
+              [label]="'Feature photo ' + (i + 1)"
+              (click)="featured.emit(i)"
+              >Feature</ft-button
+            >
+          }
+        </li>
+      }
+    </ul>
+  }
+</div>

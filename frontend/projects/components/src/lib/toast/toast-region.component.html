@@ -1,0 +1,19 @@
+<div class="toast-region" role="status" aria-live="polite">
+  @if (hidden() > 0) {
+    <div class="toast-region__more">+{{ hidden() }} more</div>
+  }
+  @for (toast of visible(); track toast.id) {
+    <ft-toast
+      [variant]="toast.variant"
+      [heading]="toast.heading"
+      [text]="toast.text"
+      [actionLabel]="toast.actionLabel"
+      [timed]="toast.duration !== null"
+      [duration]="toast.duration ?? 0"
+      (action)="service.runAction(toast.id)"
+      (dismissed)="service.dismiss(toast.id)"
+      (paused)="service.pause(toast.id)"
+      (resumed)="service.resume(toast.id)"
+    />
+  }
+</div>

@@ -1,12 +1,6 @@
-/*
- * SCAFFOLD: placeholder, not the implementation.
- * Generated from AGENTS.md and:
- *   - docs/design-system/components/form-layout.html
- * Overwrite this file with the expected implementation (implementing-incrementally
- * skill + ATDD), then delete this comment.
- */
 import { ChangeDetectionStrategy, Component } from '@angular/core';
 
+/** The wrapping button row at the end of a form: primary submit, then a way out. */
 @Component({
   selector: 'ft-form-actions',
   templateUrl: './form-actions.component.html',

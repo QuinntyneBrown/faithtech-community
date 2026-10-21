@@ -1,16 +1,11 @@
-/*
- * SCAFFOLD: placeholder, not the implementation.
- * Generated from AGENTS.md and:
- *   - docs/design-system/components/description-list.html
- * Overwrite this file with the expected implementation (implementing-incrementally
- * skill + ATDD), then delete this comment.
- */
 import { ChangeDetectionStrategy, Component } from '@angular/core';
 
+/** Container for label and value facts, such as a contact Details block. Holds `ft-description-list-item`s. */
 @Component({
   selector: 'ft-description-list',
   templateUrl: './description-list.component.html',
   styleUrl: './description-list.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
+  host: { role: 'group' },
 })
 export class DescriptionListComponent {}

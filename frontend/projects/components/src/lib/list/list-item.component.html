@@ -1,7 +1,12 @@
-<!--
-  SCAFFOLD: placeholder, not the implementation.
-  Generated from AGENTS.md and:
-    - docs/design-system/components/list.html
-  Overwrite this template with the expected implementation, then delete this comment.
--->
-<ng-content />
+<span class="ft-list-item__leading"><ng-content select="[leading]" /></span>
+<div class="ft-list-item__body">
+  @if (href(); as url) {
+    <a class="ft-list-item__title" [attr.href]="url">{{ label() }}</a>
+  } @else {
+    <div class="ft-list-item__title">{{ label() }}</div>
+  }
+  @if (meta(); as m) {
+    <div class="ft-list-item__meta">{{ m }}</div>
+  }
+</div>
+<span class="ft-list-item__trailing"><ng-content select="[trailing]" /></span>

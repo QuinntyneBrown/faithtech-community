@@ -1,7 +1,33 @@
-/*
- * SCAFFOLD: placeholder, not the implementation.
- * Generated from AGENTS.md and:
- *   - docs/design-system/components/breadcrumb.html
- * Overwrite with the encapsulated styles for this component. Read tokens by role
- * (var(--color-...)), never hex values. Delete this comment when implemented.
- */
+:host {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  min-inline-size: 0;
+}
+
+:host(:not(:first-child))::before {
+  content: '/';
+  color: var(--color-fg-subtle);
+}
+
+.breadcrumb-item__link {
+  color: var(--color-fg-muted);
+  text-decoration: none;
+  border-radius: var(--radius-sm);
+
+  &:hover {
+    color: var(--color-fg-default);
+    text-decoration: underline;
+  }
+
+  &:focus-visible {
+    outline: none;
+    box-shadow: var(--shadow-focus);
+  }
+}
+
+.breadcrumb-item__current {
+  color: var(--color-fg-default);
+  font-weight: var(--font-weight-medium);
+  overflow-wrap: anywhere;
+}

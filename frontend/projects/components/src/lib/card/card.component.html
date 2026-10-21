@@ -1,7 +1,14 @@
-<!--
-  SCAFFOLD: placeholder, not the implementation.
-  Generated from AGENTS.md and:
-    - docs/design-system/components/card.html
-  Overwrite this template with the expected implementation, then delete this comment.
--->
+@if (heading(); as text) {
+  @switch (headingLevel()) {
+    @case (3) {
+      <h3 class="ft-card__title" [id]="headingId">{{ text }}</h3>
+    }
+    @case (4) {
+      <h4 class="ft-card__title" [id]="headingId">{{ text }}</h4>
+    }
+    @default {
+      <h2 class="ft-card__title" [id]="headingId">{{ text }}</h2>
+    }
+  }
+}
 <ng-content />

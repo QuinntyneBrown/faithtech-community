@@ -1,6 +1,44 @@
-<!--
-  SCAFFOLD: placeholder, not the implementation.
-  Generated from AGENTS.md and:
-    - docs/design-system/components/search-results.html
-  Overwrite this template with the expected implementation, then delete this comment.
--->
+<p class="ft-search-results__status" role="status">{{ status() }}</p>
+<div class="ft-search-results">
+  @for (group of view(); track group.id) {
+    <section class="ft-search-group" [attr.aria-labelledby]="'ft-search-group-' + group.id">
+      <h2 class="ft-search-group__title" [id]="'ft-search-group-' + group.id">
+        {{ group.heading }}
+      </h2>
+      <ul class="ft-search-group__list">
+        @for (item of group.items; track item.href) {
+          <li class="ft-search-group__item">
+            @if (item.avatarName) {
+              <ft-avatar size="sm" [name]="item.avatarName" [color]="item.avatarColor ?? 'plain'" />
+            }
+            <div class="ft-search-group__body">
+              <a class="ft-search-group__link" [attr.href]="item.href">
+                @for (s of item.titleSegments; track $index) {
+                  @if (s.match) {
+                    <mark>{{ s.text }}</mark>
+                  } @else {
+                    <span>{{ s.text }}</span>
+                  }
+                }
+              </a>
+              @if (item.meta) {
+                <div class="ft-search-group__meta">
+                  @for (s of item.metaSegments; track $index) {
+                    @if (s.match) {
+                      <mark>{{ s.text }}</mark>
+                    } @else {
+                      <span>{{ s.text }}</span>
+                    }
+                  }
+                </div>
+              }
+            </div>
+            @if (item.badge) {
+              <ft-badge [variant]="item.badgeVariant ?? 'neutral'">{{ item.badge }}</ft-badge>
+            }
+          </li>
+        }
+      </ul>
+    </section>
+  }
+</div>

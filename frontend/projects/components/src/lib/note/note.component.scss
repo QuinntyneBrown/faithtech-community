@@ -1,7 +1,19 @@
-/*
- * SCAFFOLD: placeholder, not the implementation.
- * Generated from AGENTS.md and:
- *   - docs/design-system/components/note.html
- * Overwrite with the encapsulated styles for this component. Read tokens by role
- * (var(--color-...)), never hex values. Delete this comment when implemented.
- */
+:host {
+  display: block;
+  padding: var(--space-4);
+  background: var(--color-bg-subtle);
+  border-inline-start: var(--border-width-thick) solid var(--color-accent);
+  border-radius: var(--radius-md);
+  color: var(--color-fg-default);
+  overflow-wrap: anywhere;
+}
+
+.ft-note__body ::ng-deep p {
+  margin: 0 0 var(--space-2);
+}
+
+.ft-note__meta {
+  margin: var(--space-2) 0 0;
+  font: var(--text-caption);
+  color: var(--color-fg-muted);
+}

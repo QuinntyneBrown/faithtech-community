@@ -1,7 +1,32 @@
-<!--
-  SCAFFOLD: placeholder, not the implementation.
-  Generated from AGENTS.md and:
-    - docs/design-system/components/tabs.html
-  Overwrite this template with the expected implementation, then delete this comment.
--->
+@if (navMode()) {
+  <nav class="tabs" [attr.aria-label]="label()">
+    @for (tab of tabs(); track tab) {
+      <a
+        class="tabs__tab"
+        [attr.href]="tab.href()"
+        [attr.aria-current]="tab.current() ? 'page' : null"
+        >{{ tab.label() }}</a
+      >
+    }
+  </nav>
+} @else {
+  <div class="tabs" role="tablist" [attr.aria-label]="label()">
+    @for (tab of tabs(); track tab; let i = $index) {
+      <button
+        #tabButton
+        class="tabs__tab"
+        type="button"
+        role="tab"
+        [id]="tab.tabId"
+        [attr.aria-controls]="tab.panelId"
+        [attr.aria-selected]="i === selectedIndex()"
+        [attr.tabindex]="i === selectedIndex() ? 0 : -1"
+        (click)="select(i)"
+        (keydown)="onKeydown($event, i)"
+      >
+        {{ tab.label() }}
+      </button>
+    }
+  </div>
+}
 <ng-content />

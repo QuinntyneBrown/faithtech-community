@@ -1,11 +1,3 @@
-/*
- * SCAFFOLD: light and dark themes plus preference overrides, copied from the design system. ThemeService sets data-theme on <html>.
- * Generated from AGENTS.md and:
- *   - docs/design-system/tokens/tokens.css (lines 364-612), docs/design-system/foundations/theming.html
- * Re-check against the source (it wins), overwrite with the expected implementation,
- * then delete this comment.
- */
-
 /* Forced light: identical to the :root values, so a light preview nested in a dark page stays light. */
 [data-theme='light'] {
   --color-bg-canvas: var(--palette-gray-50);

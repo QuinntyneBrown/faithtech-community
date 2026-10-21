@@ -1,7 +1,43 @@
-/*
- * SCAFFOLD: placeholder, not the implementation.
- * Generated from AGENTS.md and:
- *   - docs/design-system/components/form-layout.html
- * Overwrite with the encapsulated styles for this component. Read tokens by role
- * (var(--color-...)), never hex values. Delete this comment when implemented.
- */
+:host {
+  display: block;
+}
+
+.summary {
+  display: flex;
+  gap: var(--space-3);
+  padding: var(--space-4);
+  color: var(--color-danger-fg);
+  background: var(--color-danger-bg);
+  border: 1px solid var(--color-danger-border);
+  border-inline-start: var(--space-1) solid var(--color-danger-solid);
+  border-radius: var(--radius-md);
+
+  &:focus-visible {
+    outline: var(--focus-ring-width) solid var(--color-accent);
+    outline-offset: var(--focus-ring-offset);
+  }
+}
+
+ft-icon {
+  color: var(--color-danger-icon);
+  margin-block-start: var(--space-0-5);
+}
+
+.title {
+  font: var(--text-label);
+}
+
+ul {
+  margin: var(--space-1) 0 0;
+  padding-inline-start: var(--space-5);
+}
+
+a {
+  color: inherit;
+  text-decoration: underline;
+
+  &:focus-visible {
+    outline: var(--focus-ring-width) solid var(--color-accent);
+    outline-offset: var(--focus-ring-offset);
+  }
+}

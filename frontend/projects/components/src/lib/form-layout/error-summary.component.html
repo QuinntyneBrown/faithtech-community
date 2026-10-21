@@ -1,6 +1,17 @@
-<!--
-  SCAFFOLD: placeholder, not the implementation.
-  Generated from AGENTS.md and:
-    - docs/design-system/components/form-layout.html
-  Overwrite this template with the expected implementation, then delete this comment.
--->
+@if (errors().length) {
+  <div #box class="summary" role="alert" tabindex="-1">
+    <ft-icon name="error" />
+    <div class="body">
+      <div class="title">{{ title() }}</div>
+      <ul>
+        @for (error of errors(); track error.fieldId) {
+          <li>
+            <a [attr.href]="'#' + error.fieldId" (click)="select($event, error)">{{
+              error.message
+            }}</a>
+          </li>
+        }
+      </ul>
+    </div>
+  </div>
+}

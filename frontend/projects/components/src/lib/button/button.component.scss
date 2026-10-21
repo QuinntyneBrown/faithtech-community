@@ -1,7 +1,146 @@
-/*
- * SCAFFOLD: placeholder, not the implementation.
- * Generated from AGENTS.md and:
- *   - docs/design-system/components/button.html
- * Overwrite with the encapsulated styles for this component. Read tokens by role
- * (var(--color-...)), never hex values. Delete this comment when implemented.
- */
+:host {
+  display: inline-flex;
+}
+
+:host(.ft-button-host--block) {
+  display: flex;
+  inline-size: 100%;
+}
+
+.ft-button {
+  --btn-bg: var(--color-bg-surface);
+  --btn-fg: var(--color-fg-default);
+  --btn-border: var(--color-border-strong);
+  --btn-bg-hover: var(--color-bg-subtle);
+  --btn-bg-active: var(--color-bg-subtle-hover);
+  --btn-height: var(--control-height-md);
+  --btn-padding: var(--space-4);
+  --btn-font-size: var(--font-size-md);
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  box-sizing: border-box;
+  min-block-size: var(--btn-height);
+  padding: 0 var(--btn-padding);
+  font: var(--text-label);
+  font-size: var(--btn-font-size);
+  line-height: 1;
+  white-space: nowrap;
+  color: var(--btn-fg);
+  background: var(--btn-bg);
+  border: var(--border-width-hairline) solid var(--btn-border);
+  border-radius: var(--radius-full);
+  cursor: pointer;
+  text-decoration: none;
+  user-select: none;
+  transition:
+    background-color var(--duration-fast) var(--ease-standard),
+    border-color var(--duration-fast) var(--ease-standard),
+    transform var(--duration-fast) var(--ease-standard),
+    box-shadow var(--duration-fast) var(--ease-standard);
+
+  &:hover {
+    background: var(--btn-bg-hover);
+    color: var(--btn-fg);
+    text-decoration: none;
+  }
+
+  &:active {
+    background: var(--btn-bg-active);
+    transform: translateY(1px);
+  }
+
+  &:disabled,
+  &[aria-disabled='true'] {
+    opacity: 0.5;
+    cursor: not-allowed;
+    transform: none;
+  }
+
+  &[aria-busy='true'] {
+    color: transparent;
+    pointer-events: none;
+
+    &::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      margin: auto;
+      inline-size: 1.25em;
+      block-size: 1.25em;
+      border: var(--border-width-thick) solid var(--btn-fg);
+      border-right-color: transparent;
+      border-radius: var(--radius-full);
+      animation: ft-button-spin calc(var(--duration-loop) / 2) linear infinite;
+    }
+  }
+}
+
+.ft-button--primary {
+  --btn-bg: var(--color-accent);
+  --btn-fg: var(--color-fg-on-accent);
+  --btn-border: var(--color-accent);
+  --btn-bg-hover: var(--color-accent-hover);
+  --btn-bg-active: var(--color-accent-active);
+
+  &:hover {
+    border-color: var(--color-accent-hover);
+    box-shadow: var(--shadow-1);
+  }
+}
+
+.ft-button--danger {
+  --btn-bg: var(--color-danger-solid);
+  --btn-fg: var(--color-fg-on-danger);
+  --btn-border: var(--color-danger-solid);
+  --btn-bg-hover: var(--color-danger-solid-hover);
+  --btn-bg-active: var(--color-danger-solid-hover);
+}
+
+.ft-button--ghost {
+  --btn-bg: transparent;
+  --btn-border: transparent;
+}
+
+.ft-button--sm {
+  --btn-height: var(--control-height-sm);
+  --btn-padding: var(--space-3);
+  --btn-font-size: var(--font-size-sm);
+}
+
+.ft-button--lg {
+  --btn-height: var(--control-height-lg);
+  --btn-padding: var(--space-6);
+  --btn-font-size: var(--font-size-lg);
+}
+
+/* A full-width button wraps its label rather than scrolling the page on a narrow phone. */
+.ft-button--block {
+  display: flex;
+  inline-size: 100%;
+  min-inline-size: 0;
+  white-space: normal;
+}
+
+.ft-button--icon {
+  padding: 0;
+  inline-size: var(--btn-height);
+}
+
+@keyframes ft-button-spin {
+  to {
+    rotate: 360deg;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ft-button {
+    transition: none;
+
+    &[aria-busy='true']::after {
+      animation-duration: var(--duration-loop);
+    }
+  }
+}

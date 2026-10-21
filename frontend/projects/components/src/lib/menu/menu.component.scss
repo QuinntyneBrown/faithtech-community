@@ -1,7 +1,71 @@
-/*
- * SCAFFOLD: placeholder, not the implementation.
- * Generated from AGENTS.md and:
- *   - docs/design-system/components/menu.html
- * Overwrite with the encapsulated styles for this component. Read tokens by role
- * (var(--color-...)), never hex values. Delete this comment when implemented.
- */
+:host {
+  display: inline-block;
+}
+
+.menu__trigger {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-inline-size: var(--target-min);
+  min-block-size: var(--target-min);
+  padding: 0;
+  border: 0;
+  border-radius: var(--radius-full, 50%);
+  background: transparent;
+  color: inherit;
+  cursor: pointer;
+
+  &:hover {
+    box-shadow: 0 0 0 2px var(--color-border-strong);
+  }
+
+  &:focus-visible {
+    outline: none;
+    box-shadow: var(--shadow-focus);
+  }
+}
+
+.menu {
+  list-style: none;
+  margin: 0;
+  padding: var(--space-1);
+  min-inline-size: 12rem;
+  background: var(--color-bg-surface-raised);
+  color: var(--color-fg-default);
+  border: var(--border-width-thin, 1px) solid var(--color-border-default);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-3);
+  transform-origin: top right;
+  animation: menu-in var(--duration-fast, 120ms) var(--ease-enter) both;
+}
+
+.menu__header {
+  padding: var(--space-2) var(--space-3);
+}
+
+.menu__title {
+  font: var(--text-label);
+}
+
+.menu__caption {
+  color: var(--color-fg-muted);
+  font: var(--text-caption);
+}
+
+.menu__divider {
+  margin: var(--space-1) 0;
+  border-block-start: var(--border-width-thin, 1px) solid var(--color-border-default);
+}
+
+@keyframes menu-in {
+  from {
+    opacity: 0;
+    transform: scale(0.96);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .menu {
+    animation: none;
+  }
+}

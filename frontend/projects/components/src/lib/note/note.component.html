@@ -1,7 +1,4 @@
-<!--
-  SCAFFOLD: placeholder, not the implementation.
-  Generated from AGENTS.md and:
-    - docs/design-system/components/note.html
-  Overwrite this template with the expected implementation, then delete this comment.
--->
-<ng-content />
+<div class="ft-note__body"><ng-content /></div>
+@if (date(); as d) {
+  <p class="ft-note__meta">{{ d }}</p>
+}

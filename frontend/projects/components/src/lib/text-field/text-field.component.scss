@@ -1,7 +1,81 @@
-/*
- * SCAFFOLD: placeholder, not the implementation.
- * Generated from AGENTS.md and:
- *   - docs/design-system/components/text-field.html
- * Overwrite with the encapsulated styles for this component. Read tokens by role
- * (var(--color-...)), never hex values. Delete this comment when implemented.
- */
+:host {
+  display: block;
+}
+
+.group {
+  position: relative;
+}
+
+.input {
+  inline-size: 100%;
+  box-sizing: border-box;
+  block-size: var(--control-height-md);
+  padding-inline: var(--space-3);
+  font: var(--text-body);
+  color: var(--color-fg-default);
+  background: var(--color-bg-surface);
+  border: 1px solid var(--color-border-strong);
+  border-radius: var(--radius-md);
+
+  &::placeholder {
+    color: var(--color-fg-subtle);
+  }
+
+  &:focus-visible {
+    outline: var(--focus-ring-width) solid var(--color-accent);
+    outline-offset: var(--focus-ring-offset);
+  }
+
+  &:disabled {
+    color: var(--color-fg-disabled);
+    background: var(--color-bg-surface-sunken);
+    border-color: var(--color-border-default);
+  }
+
+  &[aria-invalid='true'] {
+    border-color: var(--color-danger-solid);
+  }
+}
+
+.group--action .input {
+  padding-inline-end: calc(var(--control-height-sm) + var(--space-2));
+}
+
+.action {
+  position: absolute;
+  inset-block: var(--space-1);
+  inset-inline-end: var(--space-1);
+  inline-size: calc(var(--control-height-md) - var(--space-2));
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  color: var(--color-fg-muted);
+  background: transparent;
+  border: 0;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+
+  svg {
+    inline-size: var(--size-icon-md);
+    block-size: var(--size-icon-md);
+    fill: none;
+    stroke: currentcolor;
+    stroke-width: 2;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+
+  &:hover {
+    background: var(--color-bg-subtle-hover);
+  }
+
+  &[aria-pressed='true'] {
+    color: var(--color-fg-accent);
+  }
+
+  &:focus-visible {
+    outline: var(--focus-ring-width) solid var(--color-accent);
+    outline-offset: var(--focus-ring-offset);
+  }
+}
