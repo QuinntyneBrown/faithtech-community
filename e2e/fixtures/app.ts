@@ -9,12 +9,16 @@ export interface Axe {
 }
 
 export const test = base.extend<{ api: MockApi; axe: Axe }>({
-  api: async ({ page }, use) => {
-    const api = new MockApi(page);
-    await api.install();
-    await use(api);
-    expect(api.unrecognised, 'requests the fake backend does not implement').toEqual([]);
-  },
+  // Automatic: every test runs against the fake backend, so no request can reach a real server.
+  api: [
+    async ({ page }, use) => {
+      const api = new MockApi(page);
+      await api.install();
+      await use(api);
+      expect(api.unrecognised, 'requests the fake backend does not implement').toEqual([]);
+    },
+    { auto: true },
+  ],
   axe: async ({ page }, use) => {
     await use({ check: () => checkAccessibility(page) });
   },
