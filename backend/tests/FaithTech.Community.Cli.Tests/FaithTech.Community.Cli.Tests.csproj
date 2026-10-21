@@ -15,4 +15,8 @@
     <Using Include="Xunit" />
   </ItemGroup>
 
-  <ItemGro
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\FaithTech.Community.Cli\FaithTech.Community.Cli.csproj" />
+  </ItemGroup>
+
+</Project>
