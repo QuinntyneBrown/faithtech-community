@@ -113,7 +113,7 @@
             <div class="dialog__panel" style="margin-inline: auto;">
               <div class="dialog__header">
                 <div class="dialog__icon dialog__icon--danger" aria-hidden="true"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><path d="M3 4h18v4H3zM5 8v12h14V8M10 12h4"/></svg></div>
-                <div style="flex: 1;"><h2 class="dialog__title" id="dlg-anat-title">Archive Toronto team?</h2><p id="dlg-anat-desc" class="text-muted" style="margin-top: var(--space-1);">Members lose access. Everything is kept, and you can restore it from Workspaces.</p></div>
+                <div class="dialog__heading"><h2 class="dialog__title" id="dlg-anat-title">Archive Toronto team?</h2><p id="dlg-anat-desc" class="dialog__description">Members lose access. Everything is kept, and you can restore it from Workspaces.</p></div>
                 <button class="btn btn--ghost btn--icon" type="button" aria-label="Close (anatomy)"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18"/></svg></button>
               </div>
               <div class="dialog__body"><p>Toronto team has 9 members, 42 work items and an active sprint.</p></div>
@@ -130,7 +130,7 @@
         <ol class="ds-anatomy__list">
           <li><div><b>Backdrop and frame</b><small><code>.backdrop</code> dims the page with <code>--color-bg-backdrop</code> at <code>--z-overlay</code>; <code>.dialog</code> (<code>role="dialog"</code>, <code>aria-modal="true"</code>) centres the panel at <code>--z-modal</code>.</small></div></li>
           <li><div><b>Icon</b><small><code>.dialog__icon</code>: 40px neutral circle naming the task (send, trash, archive). <code>.dialog__icon--danger</code> tints it for every destructive confirmation, the ones whose main button is danger (Delete contact, Delete photo, Suspend user, Cancel event, Archive workspace, Remove member). Reversible confirmations keep the neutral icon.</small></div></li>
-          <li><div><b>Title and description</b><small><code>h2.dialog__title</code> via <code>aria-labelledby</code>; the muted description via <code>aria-describedby</code>. <code>--text-h4</code> on phones, <code>--text-h3</code> from 640px.</small></div></li>
+          <li><div><b>Title and description</b><small><code>.dialog__heading</code> wraps <code>h2.dialog__title</code> (via <code>aria-labelledby</code>) and <code>p.dialog__description</code> (muted, via <code>aria-describedby</code>). <code>--text-h4</code> on phones, <code>--text-h3</code> from 640px.</small></div></li>
           <li><div><b>Close</b><small>Ghost icon button, <code>aria-label="Close"</code>.</small></div></li>
           <li><div><b>Body</b><small><code>.dialog__body</code>, usually a <code>.stack</code> of fields; scrolls inside the panel when tall. Optional: a confirmation whose title and description say everything (Archive contact, Archive workspace, Cancel RSVP) leaves it out, and <code>.dialog__header + .dialog__footer</code> keeps the gap. Never fill it with placeholder or visually hidden text.</small></div></li>
           <li><div><b>Footer</b><small><code>.dialog__footer</code>: sticky, right-aligned, Cancel first, primary or danger last.</small></div></li>
@@ -147,7 +147,7 @@
             <div class="dialog__panel" style="margin-inline: auto;">
               <div class="dialog__header">
                 <div class="dialog__icon" aria-hidden="true"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><path d="M22 2 11 13M22 2l-7 20-4-9-9-4z"/></svg></div>
-                <div style="flex: 1;"><h2 class="dialog__title" id="dlg-si-title">Invite someone to FaithTech</h2><p id="dlg-si-desc" class="text-muted" style="margin-top: var(--space-1);">They’ll get an email with a link to create their account.</p></div>
+                <div class="dialog__heading"><h2 class="dialog__title" id="dlg-si-title">Invite someone to FaithTech</h2><p id="dlg-si-desc" class="dialog__description">They’ll get an email with a link to create their account.</p></div>
                 <button class="btn btn--ghost btn--icon" type="button" aria-label="Close"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18"/></svg></button>
               </div>
               <div class="dialog__body stack">
@@ -166,8 +166,8 @@
   &lt;div class="dialog__panel"&gt;
     &lt;div class="dialog__header"&gt;
       &lt;div class="dialog__icon" aria-hidden="true"&gt;&lt;svg class="icon" …&gt;&lt;/svg&gt;&lt;/div&gt;
-      &lt;div style="flex: 1;"&gt;&lt;h2 class="dialog__title" id="dlg-title"&gt;Invite someone to FaithTech&lt;/h2&gt;
-        &lt;p id="dlg-desc" class="text-muted"&gt;They’ll get an email with a link to create their account.&lt;/p&gt;&lt;/div&gt;
+      &lt;div class="dialog__heading"&gt;&lt;h2 class="dialog__title" id="dlg-title"&gt;Invite someone to FaithTech&lt;/h2&gt;
+        &lt;p id="dlg-desc" class="dialog__description"&gt;They’ll get an email with a link to create their account.&lt;/p&gt;&lt;/div&gt;
       &lt;button class="btn btn--ghost btn--icon" type="button" aria-label="Close"&gt;…&lt;/button&gt;
     &lt;/div&gt;
     &lt;div class="dialog__body stack"&gt; … &lt;input class="input" id="inv-email" type="email" autofocus …&gt; … &lt;/div&gt;
@@ -185,7 +185,7 @@
             <div class="dialog__panel" style="margin-inline: auto;">
               <div class="dialog__header">
                 <div class="dialog__icon" aria-hidden="true"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><path d="M4 7h16M10 11v6M14 11v6M6 7l1 13h10l1-13M9 7V4h6v3"/></svg></div>
-                <div style="flex: 1;"><h2 class="dialog__title" id="dlg-rr-title">Remove Volunteer from Ruth Alvarez?</h2><p id="dlg-rr-desc" class="text-muted" style="margin-top: var(--space-1);">She keeps her profile and her other roles. The change is recorded in the audit log.</p></div>
+                <div class="dialog__heading"><h2 class="dialog__title" id="dlg-rr-title">Remove Volunteer from Ruth Alvarez?</h2><p id="dlg-rr-desc" class="dialog__description">She keeps her profile and her other roles. The change is recorded in the audit log.</p></div>
                 <button class="btn btn--ghost btn--icon" type="button" aria-label="Close"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18"/></svg></button>
               </div>
               <div class="dialog__body stack"><label class="choice"><input type="radio" name="dlg-rr" checked><span class="choice__text">Volunteer</span></label></div>
@@ -202,7 +202,7 @@
             <div class="dialog__panel" style="margin-inline: auto;">
               <div class="dialog__header">
                 <div class="dialog__icon dialog__icon--danger" aria-hidden="true"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2M9 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8zM17 11h6"/></svg></div>
-                <div style="flex: 1;"><h2 class="dialog__title" id="dlg-rm-title">Remove Ruth Alvarez from Toronto team?</h2><p id="dlg-rm-desc" class="text-muted" style="margin-top: var(--space-1);">She loses access to the workspace. Work items assigned to her become unassigned.</p></div>
+                <div class="dialog__heading"><h2 class="dialog__title" id="dlg-rm-title">Remove Ruth Alvarez from Toronto team?</h2><p id="dlg-rm-desc" class="dialog__description">She loses access to the workspace. Work items assigned to her become unassigned.</p></div>
                 <button class="btn btn--ghost btn--icon" type="button" aria-label="Close"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18"/></svg></button>
               </div>
               <div class="dialog__body stack"><p>Ruth is assigned to <strong>3 work items</strong> in Sprint 7.</p></div>
@@ -219,7 +219,7 @@
             <div class="dialog__panel" style="margin-inline: auto;">
               <div class="dialog__header">
                 <div class="dialog__icon" aria-hidden="true"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><path d="M4 7h16M10 11v6M14 11v6M6 7l1 13h10l1-13M9 7V4h6v3"/></svg></div>
-                <div style="flex: 1;"><h2 class="dialog__title" id="dlg-dc-title">Delete Ben Carter for good?</h2><p id="dlg-dc-desc" class="text-muted" style="margin-top: var(--space-1);">This removes the contact and all 4 of your notes. It can’t be undone.</p></div>
+                <div class="dialog__heading"><h2 class="dialog__title" id="dlg-dc-title">Delete Ben Carter for good?</h2><p id="dlg-dc-desc" class="dialog__description">This removes the contact and all 4 of your notes. It can’t be undone.</p></div>
                 <button class="btn btn--ghost btn--icon" type="button" aria-label="Close"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18"/></svg></button>
               </div>
               <div class="dialog__body stack"><div class="field"><label class="field__label" for="dlg-dc-confirm">Type DELETE to confirm</label><input class="input" id="dlg-dc-confirm" type="text" autocomplete="off" required></div></div>
@@ -241,29 +241,29 @@
         <div data-theme="light">
           <div class="dialog dialog--static" role="dialog" aria-labelledby="dlg-busy-title">
             <div class="dialog__panel">
-              <div class="dialog__header"><div style="flex: 1;"><h2 class="dialog__title" id="dlg-busy-title">Busy</h2></div><button class="btn btn--ghost btn--icon" type="button" aria-label="Close" disabled><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18"/></svg></button></div>
+              <div class="dialog__header"><div class="dialog__heading"><h2 class="dialog__title" id="dlg-busy-title">Busy</h2></div><button class="btn btn--ghost btn--icon" type="button" aria-label="Close" disabled><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18"/></svg></button></div>
               <div class="dialog__body stack">
                 <div class="field"><label class="field__label" for="dlg-busy-email">Email</label><input class="input" id="dlg-busy-email" type="email" value="nate.oyelaran@example.org" readonly></div>
               </div>
-              <div class="dialog__footer"><button class="btn" type="button" disabled>Cancel</button><button class="btn btn--primary" type="submit" aria-busy="true" aria-disabled="true">Send invite…</button></div>
+              <div class="dialog__footer"><button class="btn" type="button" disabled>Cancel</button><button class="btn btn--primary" type="button" aria-busy="true" aria-disabled="true">Send invite…</button></div>
             </div>
           </div>
         </div>
         <div data-theme="dark">
           <div class="dialog dialog--static" role="dialog" aria-labelledby="dlg-busy-d-title">
             <div class="dialog__panel">
-              <div class="dialog__header"><div style="flex: 1;"><h2 class="dialog__title" id="dlg-busy-d-title">Busy</h2></div><button class="btn btn--ghost btn--icon" type="button" aria-label="Close" disabled><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18"/></svg></button></div>
+              <div class="dialog__header"><div class="dialog__heading"><h2 class="dialog__title" id="dlg-busy-d-title">Busy</h2></div><button class="btn btn--ghost btn--icon" type="button" aria-label="Close" disabled><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18"/></svg></button></div>
               <div class="dialog__body stack">
                 <div class="field"><label class="field__label" for="dlg-busy-d-email">Email</label><input class="input" id="dlg-busy-d-email" type="email" value="nate.oyelaran@example.org" readonly></div>
               </div>
-              <div class="dialog__footer"><button class="btn" type="button" disabled>Cancel</button><button class="btn btn--primary" type="submit" aria-busy="true" aria-disabled="true">Send invite…</button></div>
+              <div class="dialog__footer"><button class="btn" type="button" disabled>Cancel</button><button class="btn btn--primary" type="button" aria-busy="true" aria-disabled="true">Send invite…</button></div>
             </div>
           </div>
         </div>
         <div data-theme="light">
           <div class="dialog dialog--static" role="dialog" aria-labelledby="dlg-inv-title">
             <div class="dialog__panel">
-              <div class="dialog__header"><div style="flex: 1;"><h2 class="dialog__title" id="dlg-inv-title">Invalid</h2></div><button class="btn btn--ghost btn--icon" type="button" aria-label="Close"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18"/></svg></button></div>
+              <div class="dialog__header"><div class="dialog__heading"><h2 class="dialog__title" id="dlg-inv-title">Invalid</h2></div><button class="btn btn--ghost btn--icon" type="button" aria-label="Close"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18"/></svg></button></div>
               <div class="dialog__body stack">
                 <div class="field"><label class="field__label" for="dlg-inv-msg">Message to attendees</label><textarea class="textarea" id="dlg-inv-msg" rows="3" required aria-invalid="true" aria-describedby="dlg-inv-msg-error"></textarea><div class="field__error" id="dlg-inv-msg-error">Tell attendees why, so they aren’t left guessing.</div></div>
               </div>
@@ -274,7 +274,7 @@
         <div data-theme="dark">
           <div class="dialog dialog--static" role="dialog" aria-labelledby="dlg-fail-title">
             <div class="dialog__panel">
-              <div class="dialog__header"><div style="flex: 1;"><h2 class="dialog__title" id="dlg-fail-title">Failed</h2></div><button class="btn btn--ghost btn--icon" type="button" aria-label="Close"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18"/></svg></button></div>
+              <div class="dialog__header"><div class="dialog__heading"><h2 class="dialog__title" id="dlg-fail-title">Failed</h2></div><button class="btn btn--ghost btn--icon" type="button" aria-label="Close"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18"/></svg></button></div>
               <div class="dialog__body stack">
                 <div class="alert alert--danger" role="alert"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 8v4M12 16h.01"/></svg><div class="alert__body"><div class="alert__title">Invite not sent</div><div class="alert__text">We couldn’t reach FaithTech. Nothing was changed — try again.</div></div></div>
                 <div class="field"><label class="field__label" for="dlg-fail-email">Email</label><input class="input" id="dlg-fail-email" type="email" value="nate.oyelaran@example.org"></div>
@@ -302,7 +302,7 @@
         <div class="ds-example__canvas ds-example__canvas--canvas" style="display: block;">
           <div class="dialog dialog--static" role="dialog" aria-labelledby="dlg-sheet-title" style="max-width: 22.5rem; margin-inline: auto;">
             <div class="dialog__panel" style="border-radius: var(--radius-xl) var(--radius-xl) 0 0;">
-              <div class="dialog__header"><div style="flex: 1;"><h2 class="dialog__title" id="dlg-sheet-title">Cancel your RSVP?</h2></div><button class="btn btn--ghost btn--icon" type="button" aria-label="Close"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18"/></svg></button></div>
+              <div class="dialog__header"><div class="dialog__heading"><h2 class="dialog__title" id="dlg-sheet-title">Cancel your RSVP?</h2></div><button class="btn btn--ghost btn--icon" type="button" aria-label="Close"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18"/></svg></button></div>
               <div class="dialog__body stack"><p>Your spot at Toronto Builders Night on Thu 23 Oct goes to the next person on the waitlist.</p></div>
               <div class="dialog__footer"><button class="btn" type="button">Keep my RSVP</button><button class="btn btn--danger" type="button">Cancel my RSVP</button></div>
             </div>
@@ -391,8 +391,8 @@
   &lt;div class="dialog__panel"&gt;
     &lt;div class="dialog__header"&gt;
       &lt;div class="dialog__icon dialog__icon--danger" aria-hidden="true"&gt;&lt;svg class="icon" …&gt;&lt;/svg&gt;&lt;/div&gt;
-      &lt;div style="flex: 1;"&gt;&lt;h2 class="dialog__title" id="dlg-title"&gt;Archive Toronto team?&lt;/h2&gt;
-        &lt;p id="dlg-desc" class="text-muted"&gt;Members lose access. Everything is kept, and you can restore it from Workspaces.&lt;/p&gt;&lt;/div&gt;
+      &lt;div class="dialog__heading"&gt;&lt;h2 class="dialog__title" id="dlg-title"&gt;Archive Toronto team?&lt;/h2&gt;
+        &lt;p id="dlg-desc" class="dialog__description"&gt;Members lose access. Everything is kept, and you can restore it from Workspaces.&lt;/p&gt;&lt;/div&gt;
       &lt;button class="btn btn--ghost btn--icon" type="button" aria-label="Close"&gt;…&lt;/button&gt;
     &lt;/div&gt;
     &lt;div class="dialog__body stack"&gt; … &lt;/div&gt;
@@ -408,6 +408,8 @@
         <tr><td><code>.dialog__panel</code></td><td>The raised panel, max 32rem, scrolls when tall.</td></tr>
         <tr><td><code>.dialog__header</code> / <code>__title</code> / <code>__body</code> / <code>__footer</code></td><td>Parts; the footer is sticky and the body is optional.</td></tr>
         <tr><td><code>.dialog__header + .dialog__footer</code></td><td>Keeps the gap above the footer when a confirmation has no body.</td></tr>
+        <tr><td><code>.dialog__heading</code></td><td>Wraps the title and description; grows to fill the header beside the icon and close button.</td></tr>
+        <tr><td><code>.dialog__description</code></td><td>The muted line under the title, <code>--space-1</code> below it; referenced by <code>aria-describedby</code>.</td></tr>
         <tr><td><code>.dialog__icon</code></td><td>Neutral icon circle naming the task.</td></tr>
         <tr><td><code>.dialog__icon--danger</code></td><td>Danger tint for every confirmation whose main button is danger.</td></tr>
         <tr><td><code>.dialog--static</code></td><td>Documentation only: renders in flow.</td></tr>
@@ -430,7 +432,6 @@
       </ul>
       <p>Drift noticed in the mocks:</p>
       <ul>
-        <li>Inline styles: the header wraps title and description in <code>&lt;div style="flex: 1;"&gt;</code> and the description uses <code>style="margin-top: var(--space-1)"</code>; there is no class for either yet.</li>
       </ul>
     </section>
 

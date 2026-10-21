@@ -73,6 +73,21 @@ describe('AuditLogPage', () => {
     expect(cells[2]).toBe('Granted City Lead to Esther Nakamura');
   });
 
+  it('offers only the Admin sections that share this tab row: Users and Audit log', async () => {
+    const { host } = await setup(() => of(page([entry('Granted Staff to Daniel Reyes')])));
+
+    const nav = host.querySelector('nav[aria-label="Admin sections"]')!;
+    const tabs = Array.from(nav.querySelectorAll('a')).map((a) => [
+      a.textContent!.trim(),
+      a.getAttribute('href'),
+      a.getAttribute('aria-current'),
+    ]);
+    expect(tabs).toEqual([
+      ['Users', '/admin/users', null],
+      ['Audit log', '/admin/audit-log', 'page'],
+    ]);
+  });
+
   it('filters by category and says when nothing matches', async () => {
     const { host, service, settle } = await setup((filters) =>
       of(page(filters.category ? [] : [entry('Reinstated Victor Kane')])),
@@ -156,7 +171,7 @@ describe('AuditLogPage', () => {
     await settle();
 
     expect(exportButton().getAttribute('aria-busy')).toBe('true');
-    expect(exportButton().textContent!.trim()).toBe('Export CSV…');
+    expect(exportButton().textContent!.trim()).toBe('Export CSVâ€¦');
 
     file.next(new Blob(['x']));
     file.complete();
@@ -182,7 +197,7 @@ describe('AuditLogPage', () => {
 
     expect(toasts.show).toHaveBeenCalledWith({
       variant: 'danger',
-      heading: 'We couldn’t export the audit log',
+      heading: 'We couldnâ€™t export the audit log',
       text: 'Check your connection and try again.',
       actionLabel: 'Try again',
       onAction: expect.any(Function),

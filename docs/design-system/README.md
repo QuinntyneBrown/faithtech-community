@@ -110,13 +110,13 @@ Each component page documents variants, sizes and the full state matrix in both 
 | notifications/bell | Bell is a link with `aria-expanded` | Documented: a `<button>` when it opens the panel |
 | assets/ui-extra.css | Raw `14rem`, `12rem`, `24rem`, `9rem`, `7rem` sizes, `63.99rem` breakpoint, `!important` on `.photo-ph`, raw `#888` chevron | Chevron redrawn with `currentColor`; the unused `.photo-ph` removed; sizes logged for a later token pass |
 | pages/edit-profile | Remove is a link; Feature buttons not named per photo; grid not wrapped in `.picture-list`; empty, full, wrong-type states missing | Fixed in the mocks (#70 to #74) |
-| pages/planning-poker | No invalid, withdrawn or failed vote states; revealed "?" never shown | Invalid, withdrawn and vote-failed states mocked; `ft-estimate-picker` gains `error`; revealed "?" documented on Estimate card |
+| pages/planning-poker | No invalid, withdrawn or failed vote states; revealed "?" never shown | Invalid, withdrawn and vote-failed states mocked; `ft-estimate-picker` gains `error`; Ruth's revealed vote is "?" (Unsure) in `revealed`, `facilitator` and `agreed` |
 | pages/* breadcrumbs | Some state mocks label the current crumb generically ("Event") | Documented: the current crumb is the record name |
 | pages/* | Top bar and tab bar copied by hand into every mock, varying by role | One shell component in the app |
 | pages/events, pages/search (loading) | Round avatar skeletons where rows have square date badges | Documented on Event card and Search results |
 | pages/profile | Samuel's photos copied from Grace's, with alt text describing her (fixed, #76); loading uses text skeletons for square tiles (fixed, #77) | Fixed in the mocks |
 | pages/public-event/cancelled | Says "FaithTech Toronto" and Kestrel Labs for the Austin panel | Flagged for the mocks |
-| pages/search | Work-item rows borrow `.sticker` as an icon tile | Documented: use an icon tile, not the estimate card |
+| pages/search, invites, announcements, workspaces | Rows borrow `.sticker` as an icon tile | Fixed: `.icon-tile`; the estimate card and picker are `.estimate-card` and `.estimate-choice`, and the unused `.sticker__img`, `--xl` and `--bob` are removed |
 | pages/contact | Gap between note text and date relies on default paragraph margins | `.note__meta` owns the gap |
 | assets/ui-extra.css | `.event-card__title` had no `data-state="hover"` hook | Added in components.css |
 | notifications/toast (rsvp failed) | "Retry" where every other failure says "Try again" | Content page: always "Try again" |

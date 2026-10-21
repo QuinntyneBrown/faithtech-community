@@ -32,4 +32,22 @@ describe('StatComponent', () => {
     const spans = Array.from(setup().querySelectorAll('ft-stat span')) as HTMLElement[];
     expect(spans[0].classList.contains('ft-stat__label')).toBe(true);
   });
+
+  // Given a stat whose value is words (a sprint goal, an end date), when it renders, then the
+  // value takes the smaller text style through a modifier rather than an inline font override.
+  it('sets a text value smaller through the text variant', () => {
+    const fixture = TestBed.createComponent(StatComponent);
+    fixture.componentRef.setInput('label', 'Sprint goal');
+    fixture.componentRef.setInput('value', 'Hackathon ready for registration');
+    fixture.componentRef.setInput('variant', 'text');
+    fixture.detectChanges();
+    const value = (fixture.nativeElement as HTMLElement).querySelector('.ft-stat__value')!;
+    expect(value.classList.contains('ft-stat__value--text')).toBe(true);
+    expect(value.getAttribute('style')).toBeNull();
+  });
+
+  it('keeps the large number style by default', () => {
+    const value = setup().querySelector('.ft-stat__value')!;
+    expect(value.classList.contains('ft-stat__value--text')).toBe(false);
+  });
 });

@@ -70,7 +70,7 @@ describe('TextFieldComponent', () => {
     expect(setup().button()).toBeNull();
   });
 
-  it('reveal action toggles password visibility with aria-pressed and a label', () => {
+  it('reveal action is a toggle: aria-pressed changes, the label stays Show password', () => {
     const { fixture, input, button } = setup({ type: 'password', action: 'reveal' });
     expect(input().type).toBe('password');
     expect(button()!.getAttribute('aria-label')).toBe('Show password');
@@ -78,7 +78,7 @@ describe('TextFieldComponent', () => {
     button()!.click();
     fixture.detectChanges();
     expect(input().type).toBe('text');
-    expect(button()!.getAttribute('aria-label')).toBe('Hide password');
+    expect(button()!.getAttribute('aria-label')).toBe('Show password');
     expect(button()!.getAttribute('aria-pressed')).toBe('true');
   });
 

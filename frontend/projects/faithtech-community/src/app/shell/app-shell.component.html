@@ -1,17 +1,6 @@
 <ft-skip-link />
 <ft-top-bar [links]="topLinks()" (searchSubmit)="search($event)">
   <div ftTopBarActions class="actions">
-    @if (phone()) {
-      <ft-button
-        variant="ghost"
-        size="sm"
-        label="Open menu"
-        [attr.aria-expanded]="menuOpen()"
-        (click)="menuOpen.set(true)"
-      >
-        Menu
-      </ft-button>
-    }
     @if (user(); as me) {
       <ft-menu
         [label]="'Account menu for ' + (me.name ?? '')"
@@ -56,6 +45,11 @@
 </main>
 
 @if (phone()) {
-  <ft-tab-bar [items]="tabs()" />
+  <ft-tab-bar
+    [items]="tabs()"
+    moreLabel="More"
+    [moreCurrent]="moreCurrent()"
+    (more)="menuOpen.set(true)"
+  />
   <ft-nav-drawer [(open)]="menuOpen" [links]="drawerLinks()" />
 }

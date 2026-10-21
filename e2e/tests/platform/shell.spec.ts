@@ -15,7 +15,7 @@ test.describe('App shell', () => {
       await expect(shell.navLink(name)).toBeVisible();
     }
     await expect(shell.navLink('Home')).toHaveAttribute('aria-current', 'page');
-    await expect(shell.menuButton).toBeHidden();
+    await expect(shell.moreTab).toBeHidden();
     await expect(shell.tabBar).toBeHidden();
     await axe.check();
   });
@@ -25,27 +25,27 @@ test.describe('App shell', () => {
     {
       roles: ['CityLead'],
       nav: ['Home', 'Events', 'Contacts', 'Partners', 'Team', 'Announcements', 'People'],
-      tabs: ['Home', 'Events', 'Search', 'Contacts', 'Partners'],
+      tabs: ['Home', 'Events', 'Search', 'Contacts'],
     },
     {
       roles: ['Staff'],
       nav: ['Home', 'Events', 'Partners', 'Team', 'Announcements', 'People'],
-      tabs: ['Home', 'Events', 'Search', 'Partners', 'Team'],
+      tabs: ['Home', 'Events', 'Search', 'Partners'],
     },
     {
       roles: ['EventLead'],
       nav: ['Home', 'Events', 'Contacts', 'Partners', 'Team', 'Announcements'],
-      tabs: ['Home', 'Events', 'Search', 'Contacts', 'Partners'],
+      tabs: ['Home', 'Events', 'Search', 'Contacts'],
     },
     {
       roles: ['SystemAdmin'],
       nav: ['Home', 'Events', 'Contacts', 'Partners', 'Team', 'Announcements', 'People', 'Admin'],
-      tabs: ['Home', 'Events', 'Search', 'Contacts', 'Partners'],
+      tabs: ['Home', 'Events', 'Search', 'Contacts'],
     },
     {
       roles: [],
       nav: ['Home', 'Events', 'Team', 'Announcements'],
-      tabs: ['Home', 'Events', 'Search', 'Team', 'Announcements'],
+      tabs: ['Home', 'Events', 'Search', 'Team'],
     },
   ];
   for (const { roles, nav, tabs } of byRole) {
@@ -63,10 +63,28 @@ test.describe('App shell', () => {
       await page.setViewportSize(BREAKPOINTS.xs);
       await expect(shell.tabBar).toBeVisible();
       expect(await shell.tabLabels()).toEqual(tabs);
+      await expect(shell.moreTab).toBeVisible();
     });
   }
 
-  test('at XS the navigation collapses into a menu that traps and returns focus', async ({
+  test('on a page outside the tabs, More is the current tab', async ({ page, api, axe }) => {
+    await page.setViewportSize(BREAKPOINTS.xs);
+    const shell = new AppShell(page);
+    await api.signInAs(
+      api.addAccount({ email: 'grace@example.org', roles: ['CityLead'] }),
+      '/team',
+    );
+
+    await expect(shell.moreTab).toHaveAttribute('aria-current', 'true');
+    await expect(shell.tabBar.locator('[aria-current="page"]')).toHaveCount(0);
+    await axe.check();
+
+    await shell.tab('Events').click();
+    await expect(shell.tab('Events')).toHaveAttribute('aria-current', 'page');
+    await expect(shell.moreTab).not.toHaveAttribute('aria-current');
+  });
+
+  test('at XS the tab bar More opens a menu of every section that traps and returns focus', async ({
     page,
     api,
     axe,
@@ -77,7 +95,7 @@ test.describe('App shell', () => {
 
     await expect(shell.navLink('Events')).toBeHidden();
     await expect(shell.tabBar).toBeVisible();
-    await shell.menuButton.click();
+    await shell.moreTab.click();
 
     await expect(shell.drawer).toBeVisible();
     for (const name of [
@@ -97,7 +115,7 @@ test.describe('App shell', () => {
 
     await page.keyboard.press('Escape');
     await expect(shell.drawer).toBeHidden();
-    await expect(shell.menuButton).toBeFocused();
+    await expect(shell.moreTab).toBeFocused();
   });
 
   test('the skip link is the first thing keyboard users reach', async ({ page, api }) => {

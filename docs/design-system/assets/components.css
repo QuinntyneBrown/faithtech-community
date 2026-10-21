@@ -205,6 +205,10 @@ fieldset.card > legend { display: contents; }
 .stat { display: flex; flex-direction: column; gap: var(--space-1); }
 .stat__label { font: var(--text-label); color: var(--color-fg-muted); }
 .stat__value { font: var(--text-h2); font-variant-numeric: tabular-nums; }
+/* A value in words (sprint goal, end date) is set smaller than a count. */
+.stat__value--text { font: var(--text-h4); }
+/* A row of stats: a wrapping cluster with 32px between stats. */
+.stat-row { gap: var(--space-8); }
 
 /* ---------- Hero: the one thing to do next ---------------------------------- */
 .hero { --card-bg: linear-gradient(135deg, var(--color-accent-subtle), var(--color-bg-surface) 70%); position: relative; overflow: hidden; background: var(--card-bg); border: var(--border-width-hairline) solid var(--color-border-default); border-radius: var(--radius-lg); padding: var(--space-6); display: flex; gap: var(--space-6); align-items: center; flex-wrap: wrap; }
@@ -250,15 +254,28 @@ button.avatar:hover, button.avatar[data-state="hover"] { box-shadow: 0 0 0 var(-
 @media (min-width: 48rem) { .topbar__nav { display: flex; } }
 .nav-link { display: inline-flex; align-items: center; gap: var(--space-2); min-height: var(--target-comfortable); padding: 0 var(--space-3); border-radius: var(--radius-md); color: var(--color-fg-muted); text-decoration: none; font: var(--text-label); transition: background-color var(--duration-fast) var(--ease-standard), color var(--duration-fast) var(--ease-standard); }
 .nav-link:hover, .nav-link[data-state="hover"] { background: var(--color-bg-subtle); color: var(--color-fg-default); text-decoration: none; }
-.nav-link[aria-current="page"] { background: var(--color-accent-subtle); color: var(--color-fg-accent); }
+.nav-link[aria-current="page"] { background: var(--color-accent-subtle); }
 /* Bottom tab bar: the grown-up's navigation on phones; hidden from 768px, where .topbar__nav takes over. */
 .tabbar { position: fixed; left: 0; right: 0; bottom: 0; z-index: var(--z-sticky); display: flex; min-height: var(--layout-tabbar-height); padding-bottom: env(safe-area-inset-bottom); background: var(--color-bg-surface); border-top: var(--border-width-hairline) solid var(--color-border-default); }
-.tabbar a { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: var(--space-0-5); min-height: var(--target-comfortable); color: var(--color-fg-muted); text-decoration: none; font: var(--text-caption); font-weight: var(--font-weight-medium); position: relative; }
-.tabbar a:hover, .tabbar a[data-state="hover"] { color: var(--color-fg-default); }
-.tabbar a[aria-current="page"] { color: var(--color-fg-accent); }
+.tabbar a, .tabbar button { flex: 1; padding: 0; border: 0; background: none; cursor: pointer; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: var(--space-0-5); min-height: var(--target-comfortable); color: var(--color-fg-muted); text-decoration: none; font: var(--text-caption); font-weight: var(--font-weight-medium); position: relative; }
+.tabbar a:hover, .tabbar a[data-state="hover"], .tabbar button:hover { color: var(--color-fg-default); }
+.tabbar a[aria-current="page"], .tabbar button[aria-current="true"] { color: var(--color-fg-accent); }
 .tabbar a .badge--count { position: absolute; top: var(--space-1); left: calc(50% + var(--space-2)); }
 .tabbar .icon { width: var(--size-icon-lg); height: var(--size-icon-lg); }
 .tabbar--static { position: static; }
+/* Nav drawer ("Main menu"): every section the member may open, sliding in from the start edge.
+   Opened by the tab bar's More (and the top bar's More between 768 and 1023px); a popover in the mocks. */
+.nav-drawer { position: fixed; inset: 0 auto 0 0; z-index: var(--z-modal); display: none; flex-direction: column; width: min(var(--layout-sidebar-width), calc(100% - var(--space-12))); height: 100%; max-height: none; margin: 0; padding: 0; border: 0; border-right: var(--border-width-hairline) solid var(--color-border-default); background: var(--color-bg-surface-raised); color: var(--color-fg-default); box-shadow: var(--shadow-4); }
+.nav-drawer:popover-open { display: flex; animation: slide-in-start var(--duration-base) var(--ease-enter); }
+.nav-drawer::backdrop { background: var(--color-bg-backdrop); }
+.nav-drawer__header { display: flex; align-items: center; justify-content: space-between; padding: var(--space-3) var(--space-4); border-bottom: var(--border-width-hairline) solid var(--color-border-default); }
+.nav-drawer__title { font: var(--text-h4); }
+.nav-drawer__nav { display: flex; flex-direction: column; gap: var(--space-1); padding: var(--space-3); overflow-y: auto; }
+.nav-drawer__link { display: flex; align-items: center; gap: var(--space-3); min-height: var(--target-comfortable); padding: 0 var(--space-3); border-radius: var(--radius-md); color: var(--color-fg-muted); font: var(--text-label); text-decoration: none; }
+.nav-drawer__link:hover, .nav-drawer__link[data-state="hover"] { background: var(--color-bg-subtle); color: var(--color-fg-default); text-decoration: none; }
+.nav-drawer__link[aria-current="page"] { background: var(--color-accent-subtle); color: var(--color-fg-accent); }
+@keyframes slide-in-start { from { transform: translateX(-100%); } }
+@media (prefers-reduced-motion: reduce) { .nav-drawer:popover-open { animation: none; } }
 .has-tabbar { padding-bottom: calc(var(--layout-tabbar-height) + var(--space-6)); }
 @media (min-width: 48rem) { .tabbar:not(.tabbar--static) { display: none; } .has-tabbar { padding-bottom: 0; } }
 .breadcrumb { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-2); list-style: none; padding: var(--space-4) 0 0; font: var(--text-body-sm); color: var(--color-fg-muted); }
@@ -320,6 +337,9 @@ button.avatar:hover, button.avatar[data-state="hover"] { box-shadow: 0 0 0 var(-
 .dialog__panel { width: 100%; max-width: 32rem; max-height: calc(100dvh - var(--space-12)); overflow: auto; background: var(--color-bg-surface-raised); color: var(--color-fg-default); border-radius: var(--radius-xl) var(--radius-xl) 0 0; box-shadow: var(--shadow-4); animation: slide-up var(--duration-slow) var(--ease-enter); display: flex; flex-direction: column; }
 .dialog__header { display: flex; align-items: flex-start; gap: var(--space-4); padding: var(--space-6) var(--space-6) 0; }
 .dialog__title { font: var(--text-h4); flex: 1; }
+/* Title and description stack beside the icon and take the space left of the close button. */
+.dialog__heading { flex: 1; min-width: 0; }
+.dialog__description { margin-top: var(--space-1); color: var(--color-fg-muted); }
 .dialog__body { padding: var(--space-4) var(--space-6); flex: 1; }
 /* A confirmation whose title and description say everything has no body; keep the gap above the footer. */
 .dialog__header + .dialog__footer { margin-top: var(--space-4); }
@@ -438,21 +458,21 @@ a.chapter:hover, a.chapter[data-state="hover"] { background: var(--color-bg-subt
 .chapter__meta { font: var(--text-body-sm); color: var(--color-fg-muted); display: block; }
 .chapter__status { flex: none; display: inline-flex; align-items: center; gap: var(--space-1); font: var(--text-body-sm); color: var(--color-fg-muted); }
 
-/* ---------- Shelfie: sticker and sticker picker ------------------------------------------- */
+/* ---------- Estimate card, estimate card picker and icon tile ------------------------------ */
 /* Icon tile: a decorative icon leading a row for something that is not a person (invite, workspace, announcement, work item).
    Rounded square, so it never reads as an avatar or a planning-poker estimate card. */
-.icon-tile { display: inline-grid; place-items: center; flex: none; width: var(--size-avatar-md); height: var(--size-avatar-md); border-radius: var(--radius-md); background: var(--color-accent-subtle); color: var(--color-fg-accent); }
+.icon-tile { display: inline-grid; place-items: center; flex: none; width: var(--size-avatar-md); height: var(--size-avatar-md); border-radius: var(--radius-md); background: var(--color-accent-subtle); }
 .icon-tile--sm { width: var(--size-avatar-sm); height: var(--size-avatar-sm); }
-.sticker { --sticker-size: var(--size-avatar-md); display: inline-grid; place-items: center; width: var(--sticker-size); height: var(--sticker-size); flex: none; border-radius: var(--radius-full); background: var(--color-accent-subtle); font-size: calc(var(--sticker-size) * 0.5); line-height: 1; }
-.sticker--lg { --sticker-size: var(--size-avatar-xl); }
-.sticker--xl { --sticker-size: calc(var(--size-avatar-xl) * 1.5); font-size: calc(var(--sticker-size) * 0.54); }
-.sticker-choice { display: inline-flex; flex-direction: column; align-items: center; gap: var(--space-1); min-width: 4.5rem; min-height: var(--target-comfortable); padding: var(--space-2); border: var(--border-width-hairline) solid var(--color-border-strong); border-radius: var(--radius-md); background: var(--color-bg-surface); color: var(--color-fg-default); font: var(--text-caption); cursor: pointer; transition: background-color var(--duration-fast) var(--ease-standard), border-color var(--duration-fast) var(--ease-standard), transform var(--duration-fast) var(--ease-spring); }
-.sticker-choice span:first-child { font-size: var(--font-size-3xl); line-height: 1; }
-.sticker-choice:hover, .sticker-choice[data-state="hover"] { background: var(--color-bg-subtle); transform: translateY(calc(-1 * var(--space-0-5))); }
-.sticker-choice:active, .sticker-choice[data-state="active"] { transform: none; }
-.sticker-choice[aria-pressed="true"] { background: var(--color-accent-subtle); border-color: var(--color-accent); color: var(--color-fg-accent); box-shadow: 0 0 0 var(--border-width-hairline) var(--color-accent); }
-.sticker-choice[aria-invalid="true"], [aria-invalid="true"] > .sticker-choice { border-color: var(--color-danger-solid); }
-.sticker-choice:disabled, .sticker-choice[data-state="disabled"] { opacity: 0.5; cursor: not-allowed; transform: none; }
+/* Estimate card: one planning-poker vote (a tick, an ellipsis or the points) in a round accent-subtle tile. */
+.estimate-card { --estimate-card-size: var(--size-avatar-md); display: inline-grid; place-items: center; width: var(--estimate-card-size); height: var(--estimate-card-size); flex: none; border-radius: var(--radius-full); background: var(--color-accent-subtle); font-size: calc(var(--estimate-card-size) * 0.5); line-height: 1; }
+.estimate-card--lg { --estimate-card-size: var(--size-avatar-xl); }
+.estimate-choice { display: inline-flex; flex-direction: column; align-items: center; gap: var(--space-1); min-width: 4.5rem; min-height: var(--target-comfortable); padding: var(--space-2); border: var(--border-width-hairline) solid var(--color-border-strong); border-radius: var(--radius-md); background: var(--color-bg-surface); color: var(--color-fg-default); font: var(--text-caption); cursor: pointer; transition: background-color var(--duration-fast) var(--ease-standard), border-color var(--duration-fast) var(--ease-standard), transform var(--duration-fast) var(--ease-spring); }
+.estimate-choice span:first-child { font-size: var(--font-size-3xl); line-height: 1; }
+.estimate-choice:hover, .estimate-choice[data-state="hover"] { background: var(--color-bg-subtle); transform: translateY(calc(-1 * var(--space-0-5))); }
+.estimate-choice:active, .estimate-choice[data-state="active"] { transform: none; }
+.estimate-choice[aria-pressed="true"] { background: var(--color-accent-subtle); border-color: var(--color-accent); color: var(--color-fg-accent); box-shadow: 0 0 0 var(--border-width-hairline) var(--color-accent); }
+.estimate-choice[aria-invalid="true"], [aria-invalid="true"] > .estimate-choice { border-color: var(--color-danger-solid); }
+.estimate-choice:disabled, .estimate-choice[data-state="disabled"] { opacity: 0.5; cursor: not-allowed; transform: none; }
 
 /* ---------- Shelfie: question and answer, parent feedback ---------------------------------- */
 .qa { display: flex; flex-direction: column; gap: var(--space-2); }
@@ -589,8 +609,6 @@ label.bubble__text { cursor: pointer; }
 /* Stagger: children rise in one after another (auth forms). Zeroed by reduced motion like everything else. */
 .stagger > * { animation: slide-up var(--duration-slow) var(--ease-enter) both; animation-delay: calc(var(--i, 0) * var(--duration-fast) / 3); }
 
-/* Sticker bob: the logo sticker sways gently, once under reduced motion. */
-.sticker--bob { display: inline-block; animation: bob calc(var(--duration-loop) * 3) var(--ease-standard) infinite; transform-origin: 50% 100%; }
 
 /* Aurora: a full-bleed canvas behind the auth card. WebGPU paints it (aurora.js); .aurora--css is the fallback. */
 .auth-layout { position: relative; isolation: isolate; }
@@ -621,7 +639,7 @@ label.bubble__text { cursor: pointer; }
   .skeleton { animation: none; }
 }
 @media (forced-colors: active) {
-  .btn, .input, .textarea, .card, .chip, .badge, .sticker-choice { forced-color-adjust: none; border: var(--border-width-hairline) solid CanvasText; }
+  .btn, .input, .textarea, .card, .chip, .badge, .estimate-choice { forced-color-adjust: none; border: var(--border-width-hairline) solid CanvasText; }
   .btn--primary { background: Highlight; color: HighlightText; }
 }
 @media print { .topbar, .tabbar, .toast-region, .skip-link { display: none !important; } }
@@ -674,10 +692,6 @@ label.bubble__text { cursor: pointer; }
 @media (prefers-reduced-motion: reduce) { .combobox__panel { animation: none; } }
 
 /* ---------- Shelfie: reward pictures ----------------------------------------------------- */
-/* Sticker picture: a photo fills the sticker's circle over its emoji, which shows while it loads and
-   stays if it fails (the image is removed, never shown broken). */
-.sticker { position: relative; overflow: hidden; }
-.sticker__img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; animation: fade-in var(--duration-base) var(--ease-standard); }
 /* A gallery reward's description: the parent's own words under its target. */
 .trophy__description { margin-top: var(--space-1); font: var(--text-body-sm); color: var(--color-fg-default); white-space: pre-line; overflow-wrap: anywhere; }
 /* Picture list: a reward's pictures as square thumbnails, one marked Featured, each with its own
@@ -703,7 +717,7 @@ label.bubble__text { cursor: pointer; }
 .picture-list__choice:focus-visible { outline: var(--focus-ring-width) solid var(--color-focus-ring); outline-offset: var(--focus-ring-offset); }
 .picture-list__choice img { width: 100%; aspect-ratio: 1; border-radius: var(--radius-sm); display: block; }
 .picture-list__add .btn:has(input:focus-visible) { outline: var(--focus-ring-width) solid var(--color-focus-ring); outline-offset: var(--focus-ring-offset); }
-@media (prefers-reduced-motion: reduce) { .picture-list__thumb img, .sticker__img { animation: none; } }
+@media (prefers-reduced-motion: reduce) { .picture-list__thumb img { animation: none; } }
 /* Streak reward card (L2-113): the reward's text and path of days, with its badge — a shield with the milestone and a coin with the amount — at the end. */
 .streak-reward { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: var(--space-3) var(--space-4); align-items: center; padding: var(--space-4); border-radius: var(--radius-xl); background: var(--color-bg-surface); border: var(--border-width-hairline) solid var(--color-border-default); }
 .streak-reward--goal { border-color: var(--color-accent); box-shadow: 0 0 0 var(--border-width-hairline) var(--color-accent); }
@@ -881,7 +895,6 @@ summary.tree__row { cursor: pointer; }
 .select:hover, .select[data-state="hover"] { border-color: var(--color-fg-muted); }
 .select:disabled { background-color: var(--color-bg-subtle); border-color: var(--color-border-default); color: var(--color-fg-disabled); cursor: not-allowed; }
 .tree__row[data-state="hover"] { background: var(--color-bg-subtle); }
-.stat__value--text { font: var(--text-h4); }
 /* Checkboxes inside choice rows (member pickers) are square with a tick, not round. */
 .choice input[type="checkbox"] { border-radius: var(--radius-xs); }
 .choice input[type="checkbox"]:checked::before { width: var(--space-2); height: var(--space-1); border-radius: 0; background: none; border: solid var(--color-fg-on-accent); border-width: 0 0 var(--border-width-thick) var(--border-width-thick); rotate: -45deg; translate: 0 -10%; }

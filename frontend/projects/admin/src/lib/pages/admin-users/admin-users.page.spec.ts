@@ -79,6 +79,21 @@ describe('AdminUsersPage', () => {
     expect(row('Victor Kane').textContent).toContain('Suspended');
   });
 
+  it('offers only the Admin sections that share this tab row: Users and Audit log', async () => {
+    const { host } = await setup(() => of(page([grace])));
+
+    const nav = host.querySelector('nav[aria-label="Admin sections"]')!;
+    const tabs = Array.from(nav.querySelectorAll('a')).map((a) => [
+      a.textContent!.trim(),
+      a.getAttribute('href'),
+      a.getAttribute('aria-current'),
+    ]);
+    expect(tabs).toEqual([
+      ['Users', '/admin/users', 'page'],
+      ['Audit log', '/admin/audit-log', null],
+    ]);
+  });
+
   it('colours each member’s avatar by their profile id, and a suspended account’s plain', async () => {
     const { row } = await setup(() => of(page([grace, victor])));
     const avatar = (name: string) => row(name).querySelector('.ft-avatar')!;

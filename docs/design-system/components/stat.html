@@ -120,10 +120,10 @@
       <h3>Count row</h3>
       <div class="ds-example">
         <div class="ds-example__canvas">
-          <div class="cluster" style="gap: var(--space-8);"><div class="stat"><span class="stat__label">Lead</span><span class="stat__value">4</span></div><div class="stat"><span class="stat__label">In funnel</span><span class="stat__value">3</span></div><div class="stat"><span class="stat__label">Confirmed</span><span class="stat__value">5</span></div></div>
+          <div class="cluster stat-row"><div class="stat"><span class="stat__label">Lead</span><span class="stat__value">4</span></div><div class="stat"><span class="stat__label">In funnel</span><span class="stat__value">3</span></div><div class="stat"><span class="stat__label">Confirmed</span><span class="stat__value">5</span></div></div>
         </div>
         <div class="ds-example__caption"><span>From Home. The partner pipeline in numbers; the same on the Staff home.</span></div>
-        <details class="ds-example__code"><summary>HTML</summary><pre><code>&lt;div class="cluster" style="gap: var(--space-8);"&gt;
+        <details class="ds-example__code"><summary>HTML</summary><pre><code>&lt;div class="cluster stat-row"&gt;
   &lt;div class="stat"&gt;&lt;span class="stat__label"&gt;Lead&lt;/span&gt;&lt;span class="stat__value"&gt;4&lt;/span&gt;&lt;/div&gt;
   &lt;div class="stat"&gt;&lt;span class="stat__label"&gt;In funnel&lt;/span&gt;&lt;span class="stat__value"&gt;3&lt;/span&gt;&lt;/div&gt;
   &lt;div class="stat"&gt;&lt;span class="stat__label"&gt;Confirmed&lt;/span&gt;&lt;span class="stat__value"&gt;5&lt;/span&gt;&lt;/div&gt;
@@ -132,9 +132,9 @@
       <h3>Sprint strip (mixed values)</h3>
       <div class="ds-example">
         <div class="ds-example__canvas">
-          <div class="card cluster" style="gap: var(--space-8);"><div class="stat"><span class="stat__label">Sprint goal</span><span class="stat__value" style="font: var(--text-body); font-weight: var(--font-weight-semibold);">Hackathon ready for registration</span></div><div class="stat"><span class="stat__label">Completed points</span><span class="stat__value">6 of 24</span></div><div class="stat"><span class="stat__label">Ends</span><span class="stat__value stat__value--text">Fri 31 Oct</span></div></div>
+          <div class="card cluster stat-row"><div class="stat"><span class="stat__label">Sprint goal</span><span class="stat__value stat__value--text">Hackathon ready for registration</span></div><div class="stat"><span class="stat__label">Completed points</span><span class="stat__value">6 of 24</span></div><div class="stat"><span class="stat__label">Ends</span><span class="stat__value stat__value--text">Fri 31 Oct</span></div></div>
         </div>
-        <div class="ds-example__caption"><span>From the Toronto team board, Sprint 7. Text values are set smaller inline in the mock; a <code>stat__value--text</code> modifier would replace that (see Sources).</span></div>
+        <div class="ds-example__caption"><span>From the Toronto team board, Sprint 7. Text values (the goal, the end date) take <code>.stat__value--text</code>.</span></div>
       </div>
     </section>
 
@@ -151,8 +151,8 @@
       </ul>
       <h3>Both themes</h3>
       <div class="ds-themes">
-        <div data-theme="light"><div class="cluster" style="gap: var(--space-8);"><div class="stat"><span class="stat__label">Lead</span><span class="stat__value">4</span></div><div class="stat"><span class="stat__label">Completed points</span><span class="stat__value">6 of 24</span></div></div></div>
-        <div data-theme="dark"><div class="cluster" style="gap: var(--space-8);"><div class="stat"><span class="stat__label">Lead</span><span class="stat__value">4</span></div><div class="stat"><span class="stat__label">Completed points</span><span class="stat__value">6 of 24</span></div></div></div>
+        <div data-theme="light"><div class="cluster stat-row"><div class="stat"><span class="stat__label">Lead</span><span class="stat__value">4</span></div><div class="stat"><span class="stat__label">Completed points</span><span class="stat__value">6 of 24</span></div></div></div>
+        <div data-theme="dark"><div class="cluster stat-row"><div class="stat"><span class="stat__label">Lead</span><span class="stat__value">4</span></div><div class="stat"><span class="stat__label">Completed points</span><span class="stat__value">6 of 24</span></div></div></div>
       </div>
     </section>
 
@@ -202,7 +202,7 @@
           <tr><td>Label colour</td><td><code>--color-fg-muted</code></td><td><span class="ds-swatch-cell"><i data-token="--color-fg-muted" data-swatch></i><span data-token="--color-fg-muted"></span></span></td></tr>
           <tr><td>Value font</td><td><code>--text-h2</code></td><td><span data-token="--text-h2"></span></td></tr>
           <tr><td>Label to value gap</td><td><code>--space-1</code></td><td><span data-token="--space-1"></span></td></tr>
-          <tr><td>Gap between stats</td><td><code>--space-8</code></td><td><span data-token="--space-8"></span></td></tr>
+          <tr><td>Gap between stats (<code>.stat-row</code>)</td><td><code>--space-8</code></td><td><span data-token="--space-8"></span></td></tr>
         </tbody>
       </table></div>
     </section>
@@ -216,6 +216,8 @@
         <tr><td><code>.stat</code></td><td>Column, 4px gap.</td></tr>
         <tr><td><code>.stat__label</code></td><td>Muted label.</td></tr>
         <tr><td><code>.stat__value</code></td><td>Large tabular value.</td></tr>
+        <tr><td><code>.stat__value--text</code></td><td>A value in words (sprint goal, end date), set at <code>--text-h4</code>.</td></tr>
+        <tr><td><code>.cluster.stat-row</code></td><td>A row of stats, 32px (<code>--space-8</code>) apart. In Angular: <code>&lt;ft-cluster gap="8"&gt;</code> of <code>&lt;ft-stat&gt;</code>, with <code>variant="text"</code> for word values.</td></tr>
       </tbody></table>
     </section>
 
@@ -228,7 +230,7 @@
         <li><a href="../../mocks/pages/team-board/member.html">pages/team-board/member</a></li>
         <li><a href="../../mocks/pages/team-board/staff.html">pages/team-board/staff</a></li>
       </ul>
-      <p>The stat rule is inherited from Shelfie unchanged. Drift: the sprint strip overrides <code>.stat__value</code> inline (<code>font: var(--text-body); font-weight: …</code> and <code>font: var(--text-h4)</code>) for text values; a <code>.stat__value--text { font: var(--text-h4); }</code> modifier would remove that. The row gap (<code>--space-8</code>) is set inline on every <code>.cluster</code>; no loading, zero or error state for the stat row is mocked on Home.</p>
+      <p>The stat rule is inherited from Shelfie unchanged. Text values take <code>.stat__value--text</code> and rows take <code>.cluster.stat-row</code>; nothing is overridden inline. Drift: no loading, zero or error state for the stat row is mocked on Home.</p>
     </section>
     <footer class="ds-footer"><span>FaithTech Community design system · extracted from <a href="../../mocks/index.html">docs/mocks</a> on 2026-10-21</span><a href="#top">Back to top</a></footer>
   </main>

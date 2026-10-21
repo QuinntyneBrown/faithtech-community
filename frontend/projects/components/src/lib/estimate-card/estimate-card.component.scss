@@ -2,3 +2,21 @@
   display: inline-flex;
   flex: none;
 }
+
+.ft-estimate-card {
+  --estimate-card-size: var(--size-avatar-md);
+  display: inline-grid;
+  place-items: center;
+  inline-size: var(--estimate-card-size);
+  block-size: var(--estimate-card-size);
+  flex: none;
+  border-radius: var(--radius-full);
+  background: var(--color-accent-subtle);
+  color: var(--color-fg-default);
+  font-size: calc(var(--estimate-card-size) * 0.5);
+  line-height: 1;
+}
+
+.ft-estimate-card--lg {
+  --estimate-card-size: var(--size-avatar-xl);
+}

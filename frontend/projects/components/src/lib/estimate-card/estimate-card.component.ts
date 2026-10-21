@@ -1,5 +1,4 @@
 import { ChangeDetectionStrategy, Component, computed, input } from '@angular/core';
-import { StickerComponent } from '../sticker/sticker.component';
 
 export type EstimateVote = number | '?';
 
@@ -10,7 +9,6 @@ export type EstimateVote = number | '?';
  */
 @Component({
   selector: 'ft-estimate-card',
-  imports: [StickerComponent],
   templateUrl: './estimate-card.component.html',
   styleUrl: './estimate-card.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,

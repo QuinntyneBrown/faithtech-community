@@ -9,13 +9,12 @@
 } @else {
   <ft-page-header title="Admin" subtitle="Every action here is recorded in the audit log.">
     <ft-button ftPageHeaderActions [loading]="exporting()" (click)="exportCsv()">
-      <ft-icon name="export" /> {{ exporting() ? 'Export CSV�' : 'Export CSV' }}
+      <ft-icon name="export" /> {{ exporting() ? 'Export CSV…' : 'Export CSV' }}
     </ft-button>
   </ft-page-header>
   <ft-tabs label="Admin sections">
     <ft-tab label="Users" href="/admin/users" />
     <ft-tab label="Audit log" href="/admin/audit-log" [current]="true" />
-    <ft-tab label="Roles" href="/people" />
   </ft-tabs>
   <div class="filters">
     <ft-form-field label="Action" width="md">

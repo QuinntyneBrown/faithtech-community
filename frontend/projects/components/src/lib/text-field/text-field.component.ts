@@ -54,7 +54,7 @@ export class TextFieldComponent implements ControlValueAccessor {
     this.action() === 'reveal' && this.revealed() ? 'text' : this.type(),
   );
   protected readonly buttonLabel = computed(() =>
-    this.action() === 'copy' ? 'Copy link' : this.revealed() ? 'Hide password' : 'Show password',
+    this.action() === 'copy' ? 'Copy link' : 'Show password',
   );
 
   private onChange: (value: string) => void = () => undefined;

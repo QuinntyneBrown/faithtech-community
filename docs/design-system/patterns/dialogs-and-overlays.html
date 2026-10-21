@@ -104,7 +104,7 @@
         <li><b>Confirmations that can be undone</b>: <a href="../../mocks/dialogs/archive-contact/default.html">Archive Tomás Ortega?</a>, <a href="../../mocks/dialogs/move-partner/default.html">Move Kestrel Labs</a>, <a href="../../mocks/dialogs/cancel-rsvp/default.html">Cancel your RSVP?</a>, <a href="../../mocks/dialogs/link-contact/default.html">Link to Tomás’s profile?</a>.</li>
         <li><b>Destructive confirmations</b>: <a href="../../mocks/dialogs/delete-contact/default.html">Delete Ben Carter for good?</a> (type DELETE), <a href="../../mocks/dialogs/suspend-user/default.html">Suspend Leah Thompson?</a> (reason required), <a href="../../mocks/dialogs/cancel-event/default.html">Cancel Toronto Builders Night?</a>, <a href="../../mocks/dialogs/remove-role/default.html">Remove Volunteer from Ruth Alvarez?</a>, <a href="../../mocks/dialogs/delete-photo/default.html">Delete this photo?</a>.</li>
       </ul>
-      <p>The <a href="../components/notification-panel.html">bell panel</a> is the only non-modal overlay. Under 640px, a dialog becomes a bottom sheet. There are no drawers, popovers or tooltips.</p>
+      <p>The <a href="../components/notification-panel.html">bell panel</a> is the only non-modal overlay. Under 640px, a dialog becomes a bottom sheet. The only drawer is the Main menu (<a href="../components/tab-bar.html">tab bar</a> More); there are no other popovers or tooltips.</p>
     </section>
 
     <section class="ds-section" id="when"><h2><a href="#when">When to use</a></h2>
@@ -143,7 +143,7 @@
           <div class="dialog dialog--static" role="dialog" aria-modal="false" aria-labelledby="dx-del-title" aria-describedby="dx-del-desc" style="width: 100%;">
             <div class="dialog__panel">
               <div class="dialog__header"><div class="dialog__icon dialog__icon--danger" aria-hidden="true"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><path d="M4 7h16M10 11v6M14 11v6M6 7l1 13h10l1-13M9 7V4h6v3"/></svg></div>
-                <div style="flex: 1;"><h3 class="dialog__title" id="dx-del-title">Delete Ben Carter for good?</h3><p id="dx-del-desc" class="text-muted" style="margin-top: var(--space-1);">This removes the contact and all 4 of your notes. It can’t be undone.</p></div>
+                <div class="dialog__heading"><h3 class="dialog__title" id="dx-del-title">Delete Ben Carter for good?</h3><p id="dx-del-desc" class="dialog__description">This removes the contact and all 4 of your notes. It can’t be undone.</p></div>
                 <button class="btn btn--ghost btn--icon" type="button" aria-label="Close"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18"/></svg></button>
               </div>
               <div class="dialog__body stack"><div class="field"><label class="field__label" for="dx-del-confirm">Type DELETE to confirm</label><input class="input" id="dx-del-confirm" type="text" value="DELETE" autocomplete="off" required></div></div>
@@ -175,7 +175,7 @@
           <div class="dialog dialog--static" role="dialog" aria-modal="false" aria-labelledby="dx-su-title" aria-describedby="dx-su-desc" style="width: 100%;">
             <div class="dialog__panel">
               <div class="dialog__header"><div class="dialog__icon dialog__icon--danger" aria-hidden="true"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><circle cx="9" cy="8" r="4"/><path d="M2 21a7 7 0 0 1 14 0M17 8l5 5M22 8l-5 5"/></svg></div>
-                <div style="flex: 1;"><h3 class="dialog__title" id="dx-su-title">Suspend Leah Thompson?</h3><p id="dx-su-desc" class="text-muted" style="margin-top: var(--space-1);">She’ll be signed out everywhere and can’t sign in until reinstated. This is recorded in the audit log.</p></div>
+                <div class="dialog__heading"><h3 class="dialog__title" id="dx-su-title">Suspend Leah Thompson?</h3><p id="dx-su-desc" class="dialog__description">She’ll be signed out everywhere and can’t sign in until reinstated. This is recorded in the audit log.</p></div>
                 <button class="btn btn--ghost btn--icon" type="button" aria-label="Close"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18"/></svg></button>
               </div>
               <div class="dialog__body stack"><div class="field"><label class="field__label" for="dx-su-reason">Reason (recorded in the audit log)</label><textarea class="textarea" id="dx-su-reason" rows="3" required>Repeated spam event listings after a warning.</textarea></div></div>
@@ -191,7 +191,7 @@
           <div class="dialog dialog--static" role="dialog" aria-modal="false" aria-labelledby="dx-ar-title" aria-describedby="dx-ar-desc" style="width: 100%;">
             <div class="dialog__panel">
               <div class="dialog__header"><div class="dialog__icon" aria-hidden="true"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><path d="M3 4h18v4H3zM5 8v12h14V8M10 12h4"/></svg></div>
-                <div style="flex: 1;"><h3 class="dialog__title" id="dx-ar-title">Archive Tomás Ortega?</h3><p id="dx-ar-desc" class="text-muted" style="margin-top: var(--space-1);">He’ll move to Archived contacts with your notes. You can restore him whenever you like.</p></div>
+                <div class="dialog__heading"><h3 class="dialog__title" id="dx-ar-title">Archive Tomás Ortega?</h3><p id="dx-ar-desc" class="dialog__description">He’ll move to Archived contacts with your notes. You can restore him whenever you like.</p></div>
                 <button class="btn btn--ghost btn--icon" type="button" aria-label="Close"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18"/></svg></button>
               </div>
               <div class="dialog__footer"><button class="btn" type="button">Cancel</button><button class="btn btn--primary" type="button">Archive</button></div>
@@ -205,7 +205,7 @@
         <div class="ds-example__canvas ds-example__canvas--stack">
           <div class="dialog dialog--static" role="dialog" aria-modal="false" aria-labelledby="dx-inv-title" style="width: 100%;">
             <div class="dialog__panel">
-              <div class="dialog__header"><div style="flex: 1;"><h3 class="dialog__title" id="dx-inv-title">Invite someone to FaithTech</h3></div><button class="btn btn--ghost btn--icon" type="button" aria-label="Close"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18"/></svg></button></div>
+              <div class="dialog__header"><div class="dialog__heading"><h3 class="dialog__title" id="dx-inv-title">Invite someone to FaithTech</h3></div><button class="btn btn--ghost btn--icon" type="button" aria-label="Close"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18"/></svg></button></div>
               <div class="dialog__body stack">
                 <div class="field"><label class="field__label" for="dx-inv-email">Email</label><input class="input" id="dx-inv-email" type="email" value="nate.oyelaran@example.org" autocomplete="off" required></div>
                 <div class="field"><label class="field__label" for="dx-inv-role">Join with role</label><select class="select" id="dx-inv-role"><option>No role</option><option>Attendee</option><option>Volunteer</option><option selected>Product Engineer</option><option>Event Lead</option></select></div>
@@ -226,20 +226,20 @@
         <div class="ds-example__canvas ds-example__canvas--stack">
           <div class="dialog dialog--static" role="dialog" aria-modal="false" aria-labelledby="dx-inv2-title" style="width: 100%;">
             <div class="dialog__panel">
-              <div class="dialog__header"><div style="flex: 1;"><h3 class="dialog__title" id="dx-inv2-title">Delete Ben Carter for good? (invalid)</h3></div><button class="btn btn--ghost btn--icon" type="button" aria-label="Close"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18"/></svg></button></div>
+              <div class="dialog__header"><div class="dialog__heading"><h3 class="dialog__title" id="dx-inv2-title">Delete Ben Carter for good? (invalid)</h3></div><button class="btn btn--ghost btn--icon" type="button" aria-label="Close"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18"/></svg></button></div>
               <div class="dialog__body stack"><div class="field"><label class="field__label" for="dx-inv2-confirm">Type DELETE to confirm</label><input class="input" id="dx-inv2-confirm" type="text" value="delet" autocomplete="off" required aria-invalid="true" aria-describedby="dx-inv2-error"><div class="field__error" id="dx-inv2-error">Type DELETE in capitals to confirm.</div></div></div>
               <div class="dialog__footer"><button class="btn" type="button">Cancel</button><button class="btn btn--danger" type="button">Delete permanently</button></div>
             </div>
           </div>
           <div class="dialog dialog--static" role="dialog" aria-modal="false" aria-labelledby="dx-busy-title" style="width: 100%;">
             <div class="dialog__panel">
-              <div class="dialog__header"><div style="flex: 1;"><h3 class="dialog__title" id="dx-busy-title">Delete Ben Carter for good? (busy)</h3></div></div>
+              <div class="dialog__header"><div class="dialog__heading"><h3 class="dialog__title" id="dx-busy-title">Delete Ben Carter for good? (busy)</h3></div></div>
               <div class="dialog__footer"><button class="btn" type="button" disabled>Cancel</button><button class="btn btn--danger" type="button" aria-busy="true" aria-disabled="true">Delete permanently…</button></div>
             </div>
           </div>
           <div class="dialog dialog--static" role="dialog" aria-modal="false" aria-labelledby="dx-fail-title" style="width: 100%;">
             <div class="dialog__panel">
-              <div class="dialog__header"><div style="flex: 1;"><h3 class="dialog__title" id="dx-fail-title">Delete Ben Carter for good? (failed)</h3></div><button class="btn btn--ghost btn--icon" type="button" aria-label="Close"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18"/></svg></button></div>
+              <div class="dialog__header"><div class="dialog__heading"><h3 class="dialog__title" id="dx-fail-title">Delete Ben Carter for good? (failed)</h3></div><button class="btn btn--ghost btn--icon" type="button" aria-label="Close"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18"/></svg></button></div>
               <div class="dialog__body stack"><div class="alert alert--danger" role="alert"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 8v4M12 16h.01"/></svg><div class="alert__body"><div class="alert__title">Contact not deleted</div><div class="alert__text">We couldn’t reach FaithTech. Nothing was changed — try again.</div></div></div></div>
               <div class="dialog__footer"><button class="btn" type="button">Cancel</button><button class="btn btn--danger" type="button">Delete permanently</button></div>
             </div>
@@ -252,7 +252,7 @@
         <tbody>
           <tr><td>Default</td><td>Focus is on the first field. In a confirmation with no fields, focus is on Cancel.</td></tr>
           <tr><td>Invalid</td><td>The error appears under the field and focus moves to the field. The dialog stays open.</td></tr>
-          <tr><td>Busy</td><td>The main button shows a pulsing dot, an ellipsis and <code>aria-busy</code>. Cancel and Close are disabled. Esc does nothing.</td></tr>
+          <tr><td>Busy</td><td>The pressed button shows the spinner and keeps its <code>type</code>: a button that is <code>type="button"</code> in the default state stays <code>type="button"</code> while busy. Cancel and Close are disabled. Esc does nothing.</td></tr>
           <tr><td>Failed</td><td>A danger alert at the top of the body names what was not saved ("Invite not sent", "Contact not deleted") and says that nothing changed. What the person typed is kept. Focus moves to the alert.</td></tr>
           <tr><td>Success</td><td>The dialog closes, focus returns to the button that opened it, and a toast confirms: "Contact archived · Undo", "Invite sent".</td></tr>
         </tbody>
@@ -314,8 +314,6 @@
       </ul>
       <p>Drift noticed in the mocks:</p>
       <ul>
-        <li>The title wrapper uses an inline <code>style="flex: 1;"</code> and the description an inline <code>margin-top</code>. There is no class for either.</li>
-        <li>The busy state changes the main button to <code>type="submit"</code> while the default state uses <code>type="button"</code>.</li>
       </ul>
     </section>
 

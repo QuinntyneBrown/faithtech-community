@@ -75,6 +75,6 @@ Any feature handler that receives a request for a record the caller does not own
 Decisions recorded while implementing:
 
 - Users are addressed by **profile id** in every admin route (`/api/admin/users/{profileId}/...`); the handler resolves the account from `CommunityUser.ProfileId`. `AdminUserSummary` is `Id` (profile id), `Name`, `Email`, `Roles`, `Status`.
-- The "Roles" tab in the mock links to the People page (`L2-053`), which is built with the profiles feature. The workspace-owner alert in the mock belongs to the Agile design and is deferred with it.
+- The Admin tab row is Users and Audit log only. The mock once had a "Roles" tab linking to the People page (`L2-053`, built with the profiles feature), a page without the same tab row; it was removed so every tab leads to a page with the same tab set. System Admins assign roles from People, reached from the top bar. The workspace-owner alert in the mock belongs to the Agile design and is deferred with it.
 - A non-admin opening `/admin/**` gets the API's `403` and the page shows the forbidden state ("This area is for System Admins").
 - The shell shows the **Admin** navigation link only to System Admins.
