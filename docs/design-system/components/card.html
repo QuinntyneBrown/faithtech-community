@@ -208,7 +208,7 @@
 
     <section class="ds-section" id="accessibility"><h2><a href="#accessibility">Accessibility</a></h2>
       <h3>Role and pattern</h3>
-      <p>A <code>&lt;section aria-labelledby&gt;</code> when the card is a named region (it becomes a region landmark), an <code>&lt;article&gt;</code> for a self-contained item, a <code>&lt;form&gt;</code> when it is a form. A success card that appears after an action adds <code>role="status"</code> so it is announced.</p>
+      <p>A <code>&lt;section aria-labelledby&gt;</code> when the card is a named region (it becomes a region landmark), an <code>&lt;article&gt;</code> for a self-contained item, a <code>&lt;form&gt;</code> when it is a form. A success card that appears after an action is a <code>&lt;section role="status" aria-labelledby&gt;</code> named by its heading, so it is announced with a name ("You’re on the list, Abby", "Sent to 41 Product Engineers"); <code>&lt;ft-card variant="success" heading="…"&gt;</code> does this in Angular.</p>
       <h3>Keyboard</h3>
       <table class="ds-table ds-keys"><thead><tr><th scope="col">Key</th><th scope="col">Action</th></tr></thead><tbody>
         <tr><td><kbd>Tab</kbd> / <kbd>Shift</kbd>+<kbd>Tab</kbd></td><td>The card is not focusable; focus moves through the links and buttons inside it.</td></tr>
@@ -292,10 +292,6 @@
         <li><a href="../../mocks/pages/home/loading.html">pages/home/loading</a> (skeleton card)</li>
         <li><a href="../../mocks/pages/team-board/default.html">pages/team-board/default</a> (stat strip)</li>
         <li><a href="../../mocks/pages/compose-announcement/success.html">pages/compose-announcement/success</a> and <a href="../../mocks/pages/public-event/success.html">pages/public-event/success</a> (success card)</li>
-      </ul>
-      <p>Drift noticed in the mocks:</p>
-      <ul>
-        <li>The success card on compose-announcement is a <code>div</code> with no accessible name; on public-event it is a named section.</li>
       </ul>
     </section>
 
