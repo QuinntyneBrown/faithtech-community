@@ -16,6 +16,7 @@ public static class DependencyInjection
         services.AddScoped<SignUpHandler>();
         services.AddScoped<ConfirmEmailHandler>();
         services.AddScoped<ResendVerificationHandler>();
+        services.AddScoped<SignInHandler>();
         services.TryAddSingleton(TimeProvider.System);
         return services;
     }

@@ -36,6 +36,9 @@ public static class DependencyInjection
                 options.Password.RequireUppercase = false;
                 options.Password.RequireNonAlphanumeric = false;
                 options.Tokens.EmailConfirmationTokenProvider = EmailConfirmationTokenProvider<CommunityUser>.Name;
+                options.Lockout.MaxFailedAccessAttempts = 5;
+                options.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromMinutes(15);
+                options.Lockout.AllowedForNewUsers = true;
             })
             .AddEntityFrameworkStores<CommunityDbContext>()
             .AddTokenProvider<EmailConfirmationTokenProvider<CommunityUser>>(EmailConfirmationTokenProvider<CommunityUser>.Name);
@@ -49,6 +52,7 @@ public static class DependencyInjection
             client.DefaultRequestHeaders.Add("Add-Padding", "true");
         });
         services.AddScoped<IVerificationResendLog, VerificationResendLog>();
+        services.AddScoped<ITokenRevocation, TokenRevocation>();
         services.Configure<SmtpOptions>(configuration.GetSection(SmtpOptions.Section));
         services.AddScoped<IEmailSender, SmtpEmailSender>();
 
