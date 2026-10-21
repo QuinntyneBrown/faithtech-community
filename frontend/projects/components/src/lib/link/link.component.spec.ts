@@ -4,11 +4,14 @@ import { LinkComponent } from './link.component';
 
 @Component({
   imports: [LinkComponent],
-  template: `<ft-link [href]="href()" [external]="external()">Forgot your password?</ft-link>`,
+  template: `<ft-link [href]="href()" [external]="external()" [object]="object()"
+    >Forgot your password?</ft-link
+  >`,
 })
 class HostComponent {
   href = signal('/forgot-password');
   external = signal(false);
+  object = signal<string | null>(null);
 }
 
 function setup() {
@@ -38,6 +41,21 @@ describe('LinkComponent', () => {
     fixture.detectChanges();
     expect(a.target).toBe('_blank');
     expect(a.rel).toContain('noopener');
+  });
+
+  it('adds a visually hidden object to repeated list links', () => {
+    const { fixture, cmp, a } = setup();
+    cmp.object.set('Toronto Builders Night');
+    fixture.detectChanges();
+    const hidden = a.querySelector('.ft-link__object') as HTMLElement;
+    expect(hidden.textContent).toBe(' Toronto Builders Night');
+    expect(a.textContent).toBe('Forgot your password? Toronto Builders Night');
+    expect(a.getAttribute('aria-label')).toBeNull();
+  });
+
+  it('renders no hidden object by default', () => {
+    const { a } = setup();
+    expect(a.querySelector('.ft-link__object')).toBeNull();
   });
 
   it('keeps same-tab behaviour for internal links', () => {
