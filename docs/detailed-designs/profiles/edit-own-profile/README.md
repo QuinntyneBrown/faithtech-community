@@ -8,20 +8,19 @@ Each member maintains the name, home city and bio on their own profile. *Edit ow
 
 **System Admin override** — the System Admin's permission to change any profile, recorded in the audit log
 
-The edit happens on the dedicated `edit-profile` screen, not inline, in line with the frontend conventions. A name is required and shall not exceed 100 characters; a bio shall not exceed 400 characters.
+The edit happens on the dedicated `edit-profile` screen at `/people/me/edit`, not inline, in line with the frontend conventions. A name is required and shall not exceed 100 characters; a bio shall not exceed 400 characters.
 
 ## Description
 
-- **`EditProfilePage`** — page in the `profiles` feature library, matching the `edit-profile` mock. It uses `components` form fields, shows inline errors and a success toast.
+- **`EditProfilePage`** — page in the `profiles` feature library, matching the `edit-profile` mock. It uses `FormFieldComponent`, `TextFieldComponent` and `TextareaComponent`, an `ErrorSummaryComponent` and inline errors on a failed save, a busy *Save profile* button, and `ToastService` for the "Profile saved" toast.
 - **`ProfilesService`** — contract in the `api` library, provided through the `PROFILES_SERVICE` injection token and implemented by `HttpProfilesService`.
 - **`ProfilesEndpoints`** — minimal API route group in `FaithTech.Community.Api` under `/api/profiles`. Its endpoints require authentication by default and hold no business logic.
-- **`ICurrentUser`** — Application abstraction exposing the caller's user id, profile id and roles.
+- **`ICurrentUser`** — Application abstraction exposing the caller's user id and roles. **`ProfileAccess`** resolves the caller's profile from `CommunityUser.ProfileId` and decides owner, System Admin (audited) or forbidden (ADR 0004).
 - **`Profile`** — Domain entity holding `Name`, `Roles` and the `Photos` collection.
-- **`UpdateProfileCommand`** — request carrying `ProfileId` and `Name`.
 - **`UpdateProfileCommand`** carries `ProfileId`, `Name`, `HomeCity` and `Bio`.
-- **`UpdateProfileValidator`** — rejects an empty name, a name longer than 100 characters or a bio longer than 400 characters.
+- **`UpdateProfileValidator`** — rejects an empty name ("Enter your name as you’d like people to see it."), a name longer than 100 characters ("Use 100 characters or fewer for your name."), a home city longer than 100 characters and a bio longer than 400 characters ("Use 400 characters or fewer for your bio."). The endpoint is `PUT /api/profiles/{id}` with `{ name, homeCity, bio }` and answers `204`, `400`, `403` or `404`.
 - **`UpdateProfileHandler`** — Application handler. It returns forbidden unless the caller owns the profile or is System Admin, calls `Profile.Update(name, homeCity, bio)`, saves, and writes an audit entry through `IAuditLog` when the caller is a System Admin editing another profile.
-- **`IAuditLog`** — Infrastructure audit writer.
+- **`IAuditLog`** — Application abstraction implemented by `AuditLog` in Infrastructure; it adds an `AuditEntry` (actor, action `profile.updated`, target, before and after JSON, UTC time, IP address) saved with the change (L2-041).
 
 ## Requirements
 
@@ -77,3 +76,6 @@ The page and the validator reject invalid names. The handler returns 403 to any 
 Decisions recorded while building the Domain layer (`FaithTech.Community.Domain`):
 
 - `L2-006` covers name, home city and bio while this design covered only the name. `Profile.Update(name, homeCity, bio)` replaces `Rename`; it rejects a blank name, and length limits stay in the validator. Resolved.
+- Home city is free text (up to 100 characters) on a text field rather than a fixed select: there is no list of cities to choose from. The mock is updated. Resolved.
+- Success is confirmed with a toast (L2-006 AC1, L2-054) rather than the inline alert the first mock showed. The mock is updated. Resolved.
+- The page saves the details and the photo changes (new uploads and changed descriptions) with one *Save profile* button; see *Manage profile photos*. Resolved.

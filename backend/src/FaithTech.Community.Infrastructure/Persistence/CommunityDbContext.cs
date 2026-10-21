@@ -1,5 +1,6 @@
 using FaithTech.Community.Application.Common;
 using FaithTech.Community.Application.Identity;
+using FaithTech.Community.Domain.Admin;
 using FaithTech.Community.Domain.Profiles;
 using FaithTech.Community.Infrastructure.Email;
 using FaithTech.Community.Infrastructure.Identity;
@@ -17,6 +18,8 @@ public class CommunityDbContext(DbContextOptions<CommunityDbContext> options)
     public DbSet<VerificationResend> VerificationResends => Set<VerificationResend>();
 
     public DbSet<OutboxMessage> OutboxMessages => Set<OutboxMessage>();
+
+    public DbSet<AuditEntry> AuditEntries => Set<AuditEntry>();
 
     protected override void OnModelCreating(ModelBuilder builder)
     {
@@ -60,6 +63,16 @@ public class CommunityDbContext(DbContextOptions<CommunityDbContext> options)
             message.Property(m => m.Subject).HasMaxLength(300);
             message.Property(m => m.LastError).HasMaxLength(500);
             message.HasIndex(m => new { m.SentAt, m.NextAttemptAt });
+        });
+
+        builder.Entity<AuditEntry>(entry =>
+        {
+            entry.Property(e => e.Id).ValueGeneratedNever();
+            entry.Property(e => e.Action).HasMaxLength(100);
+            entry.Property(e => e.TargetType).HasMaxLength(100);
+            entry.Property(e => e.TargetId).HasMaxLength(100);
+            entry.Property(e => e.IpAddress).HasMaxLength(45);
+            entry.HasIndex(e => e.OccurredAtUtc);
         });
 
         builder.Entity<CommunityUser>()

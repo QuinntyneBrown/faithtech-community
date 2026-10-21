@@ -17,6 +17,10 @@
   flex: none;
 }
 
+.ft-avatar[data-initials]::before {
+  content: attr(data-initials);
+}
+
 .ft-avatar--sm {
   --avatar-size: var(--size-avatar-sm);
   font-size: var(--font-size-xs);

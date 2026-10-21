@@ -18,6 +18,27 @@ public class ProfilePhotoTests
     }
 
     [Fact]
+    public void A_photo_can_be_described_again()
+    {
+        var photo = Photo(1);
+
+        photo.Describe("Grace speaking at Builders Night");
+
+        Assert.Equal("Grace speaking at Builders Night", photo.AltText);
+    }
+
+    [Theory]
+    [InlineData("")]
+    [InlineData("  ")]
+    public void A_new_description_cannot_be_empty(string altText)
+    {
+        var photo = Photo(1);
+
+        Assert.Throws<ArgumentException>(() => photo.Describe(altText));
+        Assert.Equal("Photo 1", photo.AltText);
+    }
+
+    [Fact]
     public void The_first_photo_becomes_featured()
     {
         var profile = new Profile("Ada");

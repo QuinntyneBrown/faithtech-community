@@ -2,10 +2,16 @@
   <div class="ft-picture-list__head">
     <h3 class="ft-picture-list__title">Photos</h3>
     <ft-badge>{{ photos().length }} of {{ max() }}</ft-badge>
-    <ft-button #addButton [disabled]="full()" (click)="openChooser()">Add photos</ft-button>
+    <ft-button
+      #addButton
+      [disabled]="full()"
+      [describedBy]="full() ? noteId : null"
+      (click)="openChooser()"
+      >Add photos</ft-button
+    >
     <input
       #fileInput
-      class="visually-hidden"
+      hidden
       type="file"
       multiple
       tabindex="-1"
@@ -16,7 +22,7 @@
   </div>
 
   @if (full()) {
-    <p class="ft-picture-list__note">
+    <p class="ft-picture-list__note" [id]="noteId">
       That’s {{ max() }} photos, the most a profile can have. Remove one to add another.
     </p>
   } @else {
@@ -58,14 +64,7 @@
           @if (photo.featured) {
             <ft-badge variant="success">Featured</ft-badge>
           }
-          <ft-form-field
-            [label]="'Photo ' + (i + 1) + ' description'"
-            [error]="
-              photo.alt.trim() === '' && photo.state !== 'uploading'
-                ? 'Describe what’s in the photo for people using screen readers.'
-                : ''
-            "
-          >
+          <ft-form-field [label]="'Photo ' + (i + 1) + ' description'" [error]="altError(photo)">
             <ft-text-field
               [ngModel]="photo.alt"
               (ngModelChange)="altChange.emit({ index: i, alt: $event })"
@@ -74,7 +73,11 @@
           @if (photo.error) {
             <p class="ft-picture-list__note ft-picture-list__note--error">{{ photo.error }}</p>
           }
-          @if (!photo.featured) {
+          @if (photo.pending) {
+            <p class="ft-picture-list__note">
+              Not saved yet. It uploads when you save your profile.
+            </p>
+          } @else if (!photo.featured) {
             <ft-button
               variant="ghost"
               size="sm"

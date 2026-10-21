@@ -28,19 +28,19 @@ end box
 box "Backend — FaithTech.Community.Infrastructure" #FFF4E5
   database "Community database" as db
 end box
-actor -> page : Open /profiles/{id}
+actor -> page : Open /people/{id} or /people/me
 alt anonymous visitor
   page --> actor : Redirect to sign in (L2-005)
 else signed-in member
   page -> client : getProfile(id)
   client -> ep : GET /api/profiles/{id}
   ep -> ep : Require authenticated caller; 401 if none (L2-005)
-  ep -> h : Send GetProfileQuery
+  ep -> h : HandleAsync(id)
   h -> db : Load profile, photos and roles
-  alt unlinked private contact and caller not owner or System Admin
+  alt no such profile, including an unlinked private contact (ADR 0003)
     h --> ep : Not found (L2-005)
     ep --> client : 404
-    page --> actor : Not-found page
+    page --> actor : "We can’t find that profile"
   else profile
     h --> ep : ProfileDto
     ep --> client : 200 ProfileDto

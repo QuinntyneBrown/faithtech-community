@@ -1,6 +1,21 @@
-<!--
-  SCAFFOLD: placeholder, not the implementation.
-  Generated from AGENTS.md and:
-    - docs/detailed-designs/profiles/manage-profile-photos
-  Overwrite this template with the expected implementation, then delete this comment.
--->
+<ft-dialog
+  heading="Delete this photo?"
+  [description]="description"
+  icon="delete"
+  tone="danger"
+  [busy]="busy()"
+  (closed)="ref.close(false)"
+>
+  @if (failed()) {
+    <ft-alert status="danger" heading="That didn’t work">
+      We couldn’t reach FaithTech. Nothing was changed — try again.
+    </ft-alert>
+  }
+  <div class="photo">
+    <ft-photo [src]="data.photo.url" [alt]="data.photo.altText" />
+  </div>
+  <ft-button ftDialogFooter [disabled]="busy()" (click)="ref.close(false)">Cancel</ft-button>
+  <ft-button ftDialogFooter data-autofocus variant="danger" [loading]="busy()" (click)="confirm()">
+    {{ busy() ? 'Delete photo…' : 'Delete photo' }}
+  </ft-button>
+</ft-dialog>

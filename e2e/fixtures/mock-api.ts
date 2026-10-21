@@ -7,6 +7,31 @@ export interface MockAccount {
   verified: boolean;
   suspended: boolean;
   roles: string[];
+  profileId: string;
+}
+
+export interface MockPhoto {
+  id: string;
+  url: string;
+  altText: string;
+  isFeatured: boolean;
+  uploadedAt: string;
+}
+
+/** A profile as GET /api/profiles/{id} returns it, without the caller-specific canEdit. */
+export interface MockProfile {
+  id: string;
+  name: string;
+  homeCity: string | null;
+  bio: string | null;
+  roles: string[];
+  photos: MockPhoto[];
+}
+
+/** A tiny square SVG standing in for a stored photo, so no request leaves the browser. */
+export function photoUrl(colour = '#7c5cff'): string {
+  const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="8" height="8"><rect width="8" height="8" fill="${colour}"/></svg>`;
+  return `data:image/svg+xml,${encodeURIComponent(svg)}`;
 }
 
 type Handler = (route: Route, body: Record<string, unknown>) => Promise<void> | void;
@@ -17,6 +42,7 @@ type Handler = (route: Route, body: Record<string, unknown>) => Promise<void> | 
  */
 export class MockApi {
   readonly accounts = new Map<string, MockAccount>();
+  readonly profiles = new Map<string, MockProfile>();
   readonly calls: {
     method: string;
     path: string;
@@ -28,6 +54,7 @@ export class MockApi {
   private session: MockAccount | null = null;
   private signedIn: MockAccount | null = null;
   private failures = new Map<string, number>();
+  private uploads = 0;
 
   constructor(private readonly page: Page) {}
 
@@ -38,9 +65,27 @@ export class MockApi {
       verified: true,
       suspended: false,
       roles: [],
+      profileId: `profile-${this.accounts.size + 1}`,
       ...account,
     };
     this.accounts.set(full.email.toLowerCase(), full);
+    if (!this.profiles.has(full.profileId)) {
+      this.addProfile({ id: full.profileId, name: full.name, roles: full.roles });
+    }
+    return full;
+  }
+
+  /** A member's profile; give `id` to match an account's profileId. */
+  addProfile(profile: Partial<MockProfile> & { name: string }): MockProfile {
+    const full: MockProfile = {
+      id: `profile-${this.profiles.size + 100}`,
+      homeCity: null,
+      bio: null,
+      roles: [],
+      photos: [],
+      ...profile,
+    };
+    this.profiles.set(full.id, full);
     return full;
   }
 
@@ -66,15 +111,36 @@ export class MockApi {
     await this.page.route(/\/(api|connect)\//, (route) => this.handle(route));
   }
 
-  private async handle(route: Route): Promise<void> {
+  /** From inside an override: answer as the fake backend normally would. */
+  fallback(route: Route): Promise<void> {
+    return this.handle(route, false);
+  }
+
+  private async handle(route: Route, overridable = true): Promise<void> {
     const request = route.request();
     const url = new URL(request.url());
     const method = request.method();
-    const body = parseBody(request.postData(), request.headers()['content-type']);
-    this.calls.push({ method, path: url.pathname, body });
+    const contentType = request.headers()['content-type'] ?? '';
+    const body = contentType.startsWith('multipart/form-data')
+      ? parseMultipart(request.postDataBuffer())
+      : parseBody(request.postData(), contentType);
+    if (overridable) this.calls.push({ method, path: url.pathname, body });
 
-    const override = this.overrides.get(`${method} ${url.pathname}`);
+    const override = overridable ? this.overrides.get(`${method} ${url.pathname}`) : undefined;
     if (override) return override(route, body);
+
+    const authorization = request.headers()['authorization'];
+    const profileRoute = /^\/api\/profiles\/([^/]+)$/.exec(url.pathname);
+    if (method === 'GET' && profileRoute) {
+      return this.getProfile(route, profileRoute[1], authorization);
+    }
+    if (method === 'PUT' && profileRoute) {
+      return this.updateProfile(route, profileRoute[1], body, authorization);
+    }
+    const photos = /^\/api\/profiles\/([^/]+)\/photos(?:\/([^/]+))?(\/featured)?$/.exec(
+      url.pathname,
+    );
+    if (photos) return this.photos(route, method, photos, body, authorization);
 
     switch (`${method} ${url.pathname}`) {
       case 'POST /api/account/sign-in':
@@ -169,11 +235,143 @@ export class MockApi {
       },
     });
   }
+
+  /** The signed-in caller, or null when the bearer token is missing or stale (the API's 401). */
+  private caller(authorization: string | undefined): MockAccount | null {
+    return this.signedIn && authorization === 'Bearer access-token' ? this.signedIn : null;
+  }
+
+  /** ProfilesEndpoints: GET /api/profiles/me and /api/profiles/{id} (L2-005). */
+  private getProfile(route: Route, id: string, authorization: string | undefined) {
+    const caller = this.caller(authorization);
+    if (!caller) return route.fulfill({ status: 401 });
+    const profile = this.profiles.get(id === 'me' ? caller.profileId : id);
+    if (!profile) return route.fulfill({ status: 404 });
+    return route.fulfill({ status: 200, json: this.profileDto(profile, caller) });
+  }
+
+  /** PUT /api/profiles/{id}: owner or System Admin, same rules as UpdateProfileValidator (L2-006). */
+  private updateProfile(
+    route: Route,
+    id: string,
+    body: Record<string, unknown>,
+    authorization: string | undefined,
+  ) {
+    const caller = this.caller(authorization);
+    if (!caller) return route.fulfill({ status: 401 });
+    if (id !== caller.profileId && !caller.roles.includes('SystemAdmin')) {
+      return route.fulfill({ status: 403 });
+    }
+    const profile = this.profiles.get(id);
+    if (!profile) return route.fulfill({ status: 404 });
+    const name = String(body['name'] ?? '').trim();
+    const bio = String(body['bio'] ?? '').trim();
+    const errors: Record<string, string[]> = {};
+    if (!name) errors['Name'] = ['Enter your name as you’d like people to see it.'];
+    else if (name.length > 100) errors['Name'] = ['Use 100 characters or fewer for your name.'];
+    if (bio.length > 400) errors['Bio'] = ['Use 400 characters or fewer for your bio.'];
+    if (Object.keys(errors).length)
+      return route.fulfill({ status: 400, json: { status: 400, errors } });
+    profile.name = name;
+    profile.homeCity = String(body['homeCity'] ?? '').trim() || null;
+    profile.bio = bio || null;
+    return route.fulfill({ status: 204 });
+  }
+
+  /** ProfilesEndpoints photo routes: upload, describe, feature and delete (L2-007). */
+  private photos(
+    route: Route,
+    method: string,
+    [, profileId, photoId, featured]: RegExpExecArray,
+    body: Record<string, unknown>,
+    authorization: string | undefined,
+  ) {
+    const caller = this.caller(authorization);
+    if (!caller) return route.fulfill({ status: 401 });
+    if (profileId !== caller.profileId && !caller.roles.includes('SystemAdmin')) {
+      return route.fulfill({ status: 403 });
+    }
+    const profile = this.profiles.get(profileId);
+    if (!profile) return route.fulfill({ status: 404 });
+    const invalid = (field: string, message: string) =>
+      route.fulfill({ status: 400, json: { status: 400, errors: { [field]: [message] } } });
+
+    if (method === 'POST' && !photoId) {
+      const altText = String(body['altText'] ?? '').trim();
+      if (profile.photos.length >= 10) {
+        return invalid(
+          'File',
+          'That’s 10 photos, the most a profile can have. Remove one to add another.',
+        );
+      }
+      if (!altText) return invalid('AltText', 'Describe this photo.');
+      const photo: MockPhoto = {
+        id: `photo-${++this.uploads}`,
+        url: photoUrl(),
+        altText,
+        isFeatured: profile.photos.length === 0,
+        uploadedAt: new Date(Date.UTC(2026, 9, 21, 12, this.uploads)).toISOString(),
+      };
+      profile.photos.push(photo);
+      return route.fulfill({ status: 201, json: photo });
+    }
+
+    const photo = profile.photos.find((p) => p.id === photoId);
+    if (!photo) return route.fulfill({ status: 404 });
+    if (method === 'PUT' && featured) {
+      for (const p of profile.photos) p.isFeatured = p === photo;
+      return route.fulfill({ status: 204 });
+    }
+    if (method === 'PUT') {
+      const altText = String(body['altText'] ?? '').trim();
+      if (!altText) return invalid('AltText', 'Describe this photo.');
+      photo.altText = altText;
+      return route.fulfill({ status: 204 });
+    }
+    if (method === 'DELETE') {
+      profile.photos = profile.photos.filter((p) => p !== photo);
+      if (photo.isFeatured && profile.photos.length) {
+        const newest = [...profile.photos].sort((a, b) =>
+          b.uploadedAt.localeCompare(a.uploadedAt),
+        )[0];
+        newest.isFeatured = true;
+      }
+      return route.fulfill({ status: 204 });
+    }
+    this.unrecognised.push(`${method} ${route.request().url()}`);
+    return route.abort('failed');
+  }
+
+  private profileDto(profile: MockProfile, caller: MockAccount) {
+    const photos = [...profile.photos].sort((a, b) => b.uploadedAt.localeCompare(a.uploadedAt));
+    return {
+      ...profile,
+      photos,
+      featuredPhoto: photos.find((p) => p.isFeatured) ?? null,
+      isOwn: profile.id === caller.profileId,
+      canEdit: profile.id === caller.profileId || caller.roles.includes('SystemAdmin'),
+    };
+  }
 }
 
 /** Matches the problem body AccountEndpoints.SignInAsync returns. */
 function problem(route: Route, code: string) {
   return route.fulfill({ status: 400, json: { status: 400, code } });
+}
+
+/** The text fields and the file name of a multipart/form-data body. */
+function parseMultipart(data: Buffer | null): Record<string, unknown> {
+  if (!data) return {};
+  const text = data.toString('latin1');
+  const fields: Record<string, unknown> = {};
+  for (const part of text.split(/--[^\r\n]+\r\n/)) {
+    const name = /name="([^"]+)"/.exec(part)?.[1];
+    if (!name) continue;
+    const fileName = /filename="([^"]*)"/.exec(part)?.[1];
+    const value = part.slice(part.indexOf('\r\n\r\n') + 4).replace(/\r\n(--[^\r\n]*--)?\s*$/, '');
+    fields[name] = fileName ?? Buffer.from(value, 'latin1').toString('utf8');
+  }
+  return fields;
 }
 
 function parseBody(data: string | null, contentType = ''): Record<string, unknown> {

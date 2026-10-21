@@ -24,6 +24,11 @@ export class AppShell {
     this.signOut = page.getByRole('button', { name: 'Sign out' });
   }
 
+  /** The top bar's avatar link, named "Your profile, {name}". */
+  yourProfile(name: string): Locator {
+    return this.page.getByRole('link', { name: `Your profile, ${name}` });
+  }
+
   navLink(name: string): Locator {
     return this.primaryNav.getByRole('link', { name, exact: true });
   }

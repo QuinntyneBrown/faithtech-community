@@ -41,8 +41,8 @@
     </div>
     @if (bio()) {
       <p class="ft-profile-header__bio">{{ bio() }}</p>
-    } @else {
-      <p class="ft-profile-header__bio ft-profile-header__muted">You haven’t written a bio yet.</p>
+    } @else if (emptyBio(); as prompt) {
+      <p class="ft-profile-header__bio ft-profile-header__muted">{{ prompt }}</p>
     }
   </div>
 

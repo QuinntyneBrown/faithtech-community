@@ -78,6 +78,16 @@ describe('AvatarComponent', () => {
     expect(a.querySelector('.ft-avatar')?.getAttribute('aria-hidden')).toBe('true');
   });
 
+  it('draws the link trigger’s initials instead of writing them, so its name is only the label', () => {
+    const { fixture, cmp, q } = setup();
+    cmp.href.set('/people/me');
+    cmp.label.set('Your profile, Grace Okonkwo');
+    fixture.detectChanges();
+    const circle = q('a .ft-avatar');
+    expect(circle.textContent?.trim()).toBe('');
+    expect(circle.getAttribute('data-initials')).toBe('GO');
+  });
+
   it('is not a link without href', () => {
     const { q } = setup();
     expect(q('a')).toBeNull();

@@ -10,6 +10,7 @@ import { ProfileHeaderComponent, ProfilePhoto } from './profile-header.component
     location="Toronto"
     memberSince="March 2024"
     [bio]="bio()"
+    [emptyBio]="emptyBio()"
     avatarColor="mint"
     [photoUrl]="photoUrl()"
     [photos]="photos()"
@@ -22,6 +23,7 @@ import { ProfileHeaderComponent, ProfilePhoto } from './profile-header.component
 class HostComponent {
   roles = signal<string[]>(['City Lead', 'Product Engineer']);
   bio = signal('Backend engineer.');
+  emptyBio = signal<string | null>('You haven’t written a bio yet.');
   photoUrl = signal<string | null>(null);
   photos = signal<ProfilePhoto[]>([]);
   loading = signal(false);
@@ -94,6 +96,14 @@ describe('ProfileHeaderComponent', () => {
     cmp.bio.set('');
     fixture.detectChanges();
     expect(host.textContent).toContain('You haven’t written a bio yet.');
+  });
+
+  it('shows nothing for a missing bio when there is no prompt for the viewer', () => {
+    const { fixture, cmp, q } = setup();
+    cmp.bio.set('');
+    cmp.emptyBio.set(null);
+    fixture.detectChanges();
+    expect(q('.ft-profile-header__bio')).toBeNull();
   });
 
   it('lists photos under a Photos heading using their alt text', () => {

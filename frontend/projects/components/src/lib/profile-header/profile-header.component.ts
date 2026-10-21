@@ -37,6 +37,8 @@ export class ProfileHeaderComponent {
   /** For example "March 2024". */
   readonly memberSince = input('');
   readonly bio = input('');
+  /** Shown muted when there is no bio; null shows nothing (someone else's profile). */
+  readonly emptyBio = input<string | null>('You haven’t written a bio yet.');
   readonly avatarColor = input<AvatarColor>('plain');
   /** The featured photo; initials are shown when there is none. */
   readonly photoUrl = input<string | null>(null);

@@ -7,6 +7,7 @@ import {
   output,
   signal,
   viewChild,
+  viewChildren,
 } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { BadgeComponent } from '../badge/badge.component';
@@ -23,10 +24,16 @@ export interface PictureListPhoto {
   state?: PhotoState;
   progress?: number;
   error?: string;
+  /** Chosen but not saved yet: no Feature action, and a "Not saved yet" note. */
+  pending?: boolean;
+  /** The description error to show; when absent the list asks for a missing description itself. */
+  altError?: string;
 }
 
 const ACCEPTED_TYPES = ['image/jpeg', 'image/png', 'image/webp'];
 const MAX_BYTES = 5 * 1024 * 1024;
+const MISSING_ALT = 'Describe what’s in the photo for people using screen readers.';
+let nextId = 0;
 
 /**
  * A member's profile photos as square thumbnails, up to `max`. One is featured; every photo needs
@@ -61,9 +68,23 @@ export class PictureListComponent {
 
   protected readonly fileInput = viewChild.required<ElementRef<HTMLInputElement>>('fileInput');
   protected readonly addButton = viewChild.required('addButton', { read: ElementRef });
+  private readonly descriptionFields = viewChildren(FormFieldComponent);
+  protected readonly noteId = `ft-picture-list-note-${nextId++}`;
   protected readonly rejections = signal<string[]>([]);
   protected readonly full = computed(() => this.photos().length >= this.max());
   protected readonly accept = ACCEPTED_TYPES.join(',');
+
+  /** Id of photo `index`'s description field, so an error summary can link to it. */
+  descriptionFieldId(index: number): string {
+    return this.descriptionFields()[index]?.controlId() ?? '';
+  }
+
+  protected altError(photo: PictureListPhoto): string {
+    if (photo.altError !== undefined) return photo.altError;
+    return photo.alt.trim() === '' && photo.state !== 'uploading' && !photo.pending
+      ? MISSING_ALT
+      : '';
+  }
 
   protected openChooser(): void {
     this.fileInput().nativeElement.click();

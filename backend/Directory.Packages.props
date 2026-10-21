@@ -23,6 +23,8 @@
     <PackageVersion Include="OpenIddict.Validation.AspNetCore" Version="7.7.2" />
     <PackageVersion Include="OpenIddict.Validation.ServerIntegration" Version="7.7.2" />
     <PackageVersion Include="Serilog.AspNetCore" Version="10.0.0" />
+    <PackageVersion Include="SkiaSharp" Version="4.153.1" />
+    <PackageVersion Include="SkiaSharp.NativeAssets.Linux.NoDependencies" Version="4.153.1" />
     <PackageVersion Include="System.Security.Cryptography.Pkcs" Version="10.0.13" />
     <PackageVersion Include="System.Security.Cryptography.Xml" Version="10.0.13" />
     <PackageVersion Include="xunit" Version="2.9.3" />

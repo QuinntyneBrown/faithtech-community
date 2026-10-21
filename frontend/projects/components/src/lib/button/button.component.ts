@@ -31,6 +31,8 @@ export class ButtonComponent {
   /** Accessible name; required for icon-only buttons. */
   readonly label = input<string | null>(null);
   readonly href = input<string | null>(null);
+  /** Id of text that explains the button, such as why it is disabled. */
+  readonly describedBy = input<string | null>(null);
 
   protected readonly classes = computed(() => ({
     'ft-button': true,

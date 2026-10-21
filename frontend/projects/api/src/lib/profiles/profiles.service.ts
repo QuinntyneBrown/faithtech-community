@@ -1,12 +1,3 @@
-/*
- * EARLY IMPLEMENTATION: written ahead of the vertical slices to get a head start.
- * Contracts and DTOs follow docs/detailed-designs/ but may change as each feature is
- * implemented end to end (spec -> design -> mock -> ATDD slice).
- * Sources:
- *   - docs/detailed-designs/profiles/view-profile
- *   - docs/detailed-designs/profiles/edit-own-profile
- *   - docs/detailed-designs/profiles/manage-profile-photos
- */
 import { InjectionToken } from '@angular/core';
 import { Observable } from 'rxjs';
 
@@ -20,25 +11,39 @@ export interface PhotoDto {
   uploadedAt: string;
 }
 
+/** A profile as a signed-in member sees it (L2-005). Photos are newest first. */
 export interface ProfileDto {
   id: string;
   name: string;
+  homeCity: string | null;
+  bio: string | null;
   featuredPhoto: PhotoDto | null;
   photos: PhotoDto[];
   roles: Role[];
+  /** The caller owns this profile. */
+  isOwn: boolean;
+  /** The caller may change it: the owner, or a System Admin. */
+  canEdit: boolean;
 }
 
-/**
- * Contract for the profiles API. Pages depend on PROFILES_SERVICE, never on HttpProfilesService.
- * TODO(slice): the design carries only name; home city and bio (L2-006) are not in the DTO yet.
- * TODO(slice): PhotoDto fields are inferred from the entity, the design names none.
- */
+/** The details a member edits on their own profile (L2-006). Blank home city or bio clears it. */
+export interface ProfileDetails {
+  name: string;
+  homeCity: string;
+  bio: string;
+}
+
+/** Contract for the profiles API. Pages depend on PROFILES_SERVICE, never on HttpProfilesService. */
 export interface ProfilesService {
+  /** A profile by id, or the caller's own with "me". 404 when there is no such profile. */
   getProfile(id: string): Observable<ProfileDto>;
-  updateProfile(id: string, changes: { name: string }): Observable<void>;
-  /** Max 10 photos, JPEG/PNG/WebP up to 5 MB, alt text required. */
+  /** 400 with per-field errors, 403 unless the caller owns the profile or is a System Admin. */
+  updateProfile(id: string, details: ProfileDetails): Observable<void>;
+  /** JPEG, PNG or WebP up to 5 MB with alt text; at most 10 photos. 400 errors are keyed File or AltText. */
   uploadPhoto(id: string, file: File, altText: string): Observable<PhotoDto>;
+  describePhoto(id: string, photoId: string, altText: string): Observable<void>;
   setFeatured(id: string, photoId: string): Observable<void>;
+  /** The newest remaining photo becomes featured when the featured one is deleted. */
   deletePhoto(id: string, photoId: string): Observable<void>;
 }
 

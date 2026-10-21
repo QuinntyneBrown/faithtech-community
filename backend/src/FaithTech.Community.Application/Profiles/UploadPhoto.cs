@@ -1,0 +1,81 @@
+using FaithTech.Community.Application.Admin;
+using FaithTech.Community.Application.Common;
+using FaithTech.Community.Domain.Profiles;
+using Microsoft.EntityFrameworkCore;
+
+namespace FaithTech.Community.Application.Profiles;
+
+public record UploadPhotoCommand(Stream Content, string FileName, long Length, string? AltText);
+
+/// <summary>Validates, processes and stores a new profile photo (L2-007 AC1-4). The first photo is featured.</summary>
+public class UploadPhotoHandler(
+    IApplicationDbContext db,
+    ProfileAccess access,
+    IImageProcessor images,
+    IPhotoStorage storage,
+    IAuditLog audit,
+    TimeProvider time)
+{
+    public const long MaxBytes = 5 * 1024 * 1024;
+    public const int MaxAltText = 300;
+
+    public async Task<(Result Result, PhotoDto? Photo)> HandleAsync(
+        Guid profileId, UploadPhotoCommand command, CancellationToken cancellationToken = default)
+    {
+        var (editAccess, actor) = await access.AuthorizeEditAsync(profileId, cancellationToken);
+        if (editAccess == EditAccess.Forbidden)
+        {
+            return (Result.Forbidden(), null);
+        }
+
+        var profile = await db.Profiles.SingleOrDefaultAsync(p => p.Id == profileId, cancellationToken);
+        if (profile is null)
+        {
+            return (Result.NotFound(), null);
+        }
+
+        if (profile.Photos.Count >= Profile.MaxPhotos)
+        {
+            return (Result.Invalid("File", $"That’s {Profile.MaxPhotos} photos, the most a profile can have. Remove one to add another."), null);
+        }
+
+        var altText = command.AltText?.Trim() ?? string.Empty;
+        if (PhotoDescription.Check(altText) is { } altError)
+        {
+            return (Result.Invalid("AltText", altError), null);
+        }
+
+        if (command.Length > MaxBytes)
+        {
+            var megabytes = command.Length / (1024.0 * 1024.0);
+            return (Result.Invalid("File", $"{command.FileName} is {megabytes:0.0} MB. Photos can be up to 5 MB — try a smaller one."), null);
+        }
+
+        var processed = await images.ProcessAsync(command.Content, command.FileName, cancellationToken);
+        if (processed.Image is not { } image)
+        {
+            return (Result.Invalid("File", processed.Error!), null);
+        }
+
+        var key = $"profiles/{profileId}/{Guid.NewGuid()}{image.Extension}";
+        await storage.SaveAsync(key, image.Content, image.ContentType, cancellationToken);
+        var photo = new ProfilePhoto(key, altText, time.GetUtcNow());
+        profile.AddPhoto(photo);
+        if (editAccess == EditAccess.AdminOverride)
+        {
+            audit.Record(actor, "profile.photo.uploaded", "Profile", profileId.ToString(), null, new { photo.Id, photo.AltText });
+        }
+
+        await db.SaveChangesAsync(cancellationToken);
+        return (Result.Ok(), new PhotoDto(photo.Id, storage.GetReadUrl(key), photo.AltText, photo.IsFeatured, photo.UploadedAt));
+    }
+}
+
+/// <summary>The alt text rule every photo shares (L2-007 AC3, AC7).</summary>
+public static class PhotoDescription
+{
+    public static string? Check(string altText) =>
+        altText.Length == 0 ? "Describe this photo."
+        : altText.Length > UploadPhotoHandler.MaxAltText ? $"Use {UploadPhotoHandler.MaxAltText} characters or fewer to describe this photo."
+        : null;
+}
