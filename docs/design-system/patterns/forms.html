@@ -100,8 +100,8 @@
     <section class="ds-section" id="overview"><h2><a href="#overview">Overview</a></h2>
       <p>Forms are built from <a href="../components/text-field.html">text field</a>, <a href="../components/textarea.html">textarea</a>, <a href="../components/select.html">select</a>, <a href="../components/switch.html">switch</a> and <a href="../components/button.html">button</a>, each inside a <a href="../components/form-field.html"><code>.field</code></a>. There are two places a form can live:</p>
       <ul>
-        <li><b>Page forms</b>, in a <code>.card.stack</code> up to 40–44rem wide: sign up, sign in, the contact form, the event form, edit profile, compose announcement and settings.</li>
-        <li><b>Dialog forms</b>, with one to four fields: send invite, add role, add partner, create workspace, new work item, start sprint. See <a href="dialogs-and-overlays.html">dialogs and overlays</a>.</li>
+        <li><b>Page forms</b>, in a <code>.card.stack</code> up to 40–44rem wide: sign up, sign in, the contact form, the partner form, the event form, edit profile, compose announcement and settings.</li>
+        <li><b>Dialog forms</b>, with one to four fields: send invite, add role, add note, create workspace, new work item, start sprint. Add partner is the one longer dialog form: two required choices (organisation, stage) followed by optional fields in a scrolling body, so a lead can add a partner without leaving the board. See <a href="dialogs-and-overlays.html">dialogs and overlays</a>.</li>
       </ul>
       <p>Pages never have inline edit forms. An Edit button opens a dialog or goes to the form page.</p>
     </section>
@@ -110,7 +110,7 @@
       <div class="ds-table-wrap"><table class="ds-table">
         <thead><tr><th scope="col">Situation</th><th scope="col">Use</th></tr></thead>
         <tbody>
-          <tr><td>Five or more fields, uploads, or something worth a URL</td><td>A page form: contact, event, profile, announcement</td></tr>
+          <tr><td>Five or more fields, uploads, or something worth a URL</td><td>A page form: contact, partner, event, profile, announcement</td></tr>
           <tr><td>One to four fields, on top of what the person is looking at</td><td>A dialog form: invite, role, partner, sprint</td></tr>
           <tr><td>A setting that applies straight away</td><td>A switch inside the settings form, saved with Save settings</td></tr>
           <tr><td>Searching or filtering a list</td><td>A <code>role="search"</code> form or a filter select. These are not covered by the validation rules on this page.</td></tr>
@@ -242,6 +242,7 @@
     <section class="ds-section" id="sources"><h2><a href="#sources">Sources</a></h2>
       <ul>
         <li>Contact form: <a href="../../mocks/pages/contact-form/default.html">default</a>, <a href="../../mocks/pages/contact-form/invalid.html">invalid</a>, <a href="../../mocks/pages/contact-form/busy.html">busy</a>, <a href="../../mocks/pages/contact-form/duplicate.html">duplicate</a>, <a href="../../mocks/pages/contact-form/error.html">error</a>, <a href="../../mocks/pages/contact-form/edit.html">edit</a></li>
+        <li>Partner form: <a href="../../mocks/pages/partner-form/default.html">default</a>, <a href="../../mocks/pages/partner-form/invalid.html">invalid</a>, <a href="../../mocks/pages/partner-form/busy.html">busy</a>, <a href="../../mocks/pages/partner-form/error.html">error</a>, <a href="../../mocks/pages/partner-form/loading.html">loading</a>; add note: <a href="../../mocks/dialogs/add-note/default.html">default</a>, <a href="../../mocks/dialogs/add-note/invalid.html">invalid</a></li>
         <li>Event form: <a href="../../mocks/pages/event-form/default.html">default</a>, <a href="../../mocks/pages/event-form/invalid.html">invalid</a>, <a href="../../mocks/pages/event-form/busy.html">busy</a></li>
         <li>Account: <a href="../../mocks/pages/sign-up/invalid.html">sign-up/invalid</a>, <a href="../../mocks/pages/sign-in/invalid.html">sign-in/invalid</a>, <a href="../../mocks/pages/reset-password/invalid.html">reset-password/invalid</a>, <a href="../../mocks/pages/settings/default.html">settings/default</a>, <a href="../../mocks/pages/settings/invalid.html">settings/invalid</a></li>
         <li>Content: <a href="../../mocks/pages/edit-profile/invalid.html">edit-profile/invalid</a>, <a href="../../mocks/pages/compose-announcement/invalid.html">compose-announcement/invalid</a>, <a href="../../mocks/pages/compose-announcement/success.html">compose-announcement/success</a>, <a href="../../mocks/pages/public-event/invalid.html">public-event/invalid</a></li>

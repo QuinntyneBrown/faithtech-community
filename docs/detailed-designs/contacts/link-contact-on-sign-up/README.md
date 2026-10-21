@@ -9,14 +9,14 @@ The trigger is email verification, not sign-up. Once a new account verifies an e
 ## Description
 
 - **`EmailVerified`** — Domain event raised by the identity subsystem when an account's email becomes verified (`L2-002`).
-- **`ContactSignedUpHandler`** — Application `Contacts/` event handler. It finds unlinked contacts whose `Email` matches the verified email case-insensitively and, for each owner, raises a `ContactSignedUp` notification. Unverified accounts raise no event, so no notification is sent (`L2-015` AC3).
-- **`INotificationService`** — writes the in-app notification and sends email through the email provider.
+- **`ContactSignedUpHandler`** — Application `Contacts/` handler, called by `ConfirmEmailHandler` and by `AcceptInviteHandler` when a new account is created verified. It finds active, unlinked contacts whose `Email` matches the verified email case-insensitively and, for each owner, raises a `ContactSignedUp` notification. Unverified accounts raise no event, so no notification is sent (`L2-015` AC3).
+- **Notification and email** — the handler adds the in-app `Notification` to the unit of work and sends the email through `IEmailSender` (the outbox), as `RoleChangeNotifier` does; there is no separate `INotificationService` yet.
 - **`LinkContactDialog`** — CDK dialog in the `contacts` feature library, opened from the notification or from `ContactPage`, that confirms "Link contact".
-- **`ContactsService.link(contactId, profileId)`** — calls `POST /api/contacts/{id}/link`.
+- **`ContactsService.link(contactId, profileId, discardNotes)`** — calls `POST /api/contacts/{id}/link`.
 - **`LinkContactCommand`** / **`LinkContactHandler`** — check ownership through `ContactAccessPolicy`, call `Contact.LinkTo(profileId, discardNotes)` and save. Notes are kept unless the lead chose to discard them (`L2-015` AC5).
 - **`ContactDto`** — when `LinkedProfileId` is set, the name and featured photo come from the profile.
 
-Behaviour when two accounts share one contact email over time, or when a linked profile is deleted: `<TO SUPPLY>`.
+Behaviour when two accounts share one contact email over time, or when a linked profile is deleted: deferred, because profiles are not deleted in v1 and a contact links once ([ADR 0007](../../../adr/0007-contacts-and-partners-access-and-open-questions.md)).
 
 ## Requirements
 
@@ -79,3 +79,5 @@ The lead confirms from the notification or later from the contact page; the link
 Decisions recorded while building the Domain layer (`FaithTech.Community.Domain`):
 
 - `L2-015` AC5 lets the lead discard notes while linking; `LinkTo` takes a `discardNotes` flag. A contact links once: linking an already-linked contact is rejected. Resolved.
+- "Not them" only hides the match prompt on the open page; nothing is stored, so the prompt returns on the next visit and the lead can still link (`L2-015` AC4).
+- The contact reports a `match` (the member's profile id and name) while it is unlinked and a verified account uses its email; join dates are not stored, so the mocks no longer show one.

@@ -8,7 +8,7 @@ At extra-small viewports the board shows the stages as tabs with one column visi
 
 ## Description
 
-- **`PartnersPage`** — board page in the `partners` feature library. It groups partners by stage and renders one Kanban column per stage, or stage tabs at XS widths.
+- **`PartnersPage`** — board page in the `partners` feature library. It groups partners by stage and renders one Kanban column per stage, or, below 576px, stage tabs (`TabsComponent`) with one column visible at a time (mock `pages/partners/tabs`).
 - **Kanban column and card components** — from the `components` library, built on Angular CDK drag and drop. A focused card exposes a Move action reachable by keyboard.
 - **`MovePartnerDialog`** — CDK dialog listing the other stages; used from the card's Move to action and as the keyboard path.
 - **`PartnersService`** — `list()` and `move(id, stage)` calling `GET /api/partners` and `POST /api/partners/{id}/stage`.
@@ -17,7 +17,7 @@ At extra-small viewports the board shows the stages as tabs with one column visi
 - **`MovePartnerCommand`** / **`MovePartnerHandler`** — requires `CanWrite`, calls `Partner.MoveTo`, which appends a `PartnerStageChange` with `From`, `To`, `MovedBy`, `MovedAtUtc` and the optional `Note` (`L2-018` AC2).
 - Stage moves are not restricted to adjacent stages; any stage may move to any other.
 
-Behaviour when two leads move the same card at the same time: last write wins; an optimistic concurrency token is `<TO SUPPLY>`.
+Behaviour when two leads move the same card at the same time: last write wins, with no concurrency token ([ADR 0007](../../../adr/0007-contacts-and-partners-access-and-open-questions.md)).
 
 ## Requirements
 
@@ -79,3 +79,4 @@ Drag, the Move to dialog and the keyboard path all send the same command; the mo
 Decisions recorded while building the Domain layer (`FaithTech.Community.Domain`):
 
 - Moving a partner to the stage it is already in is rejected and records no history. Domain rule violations throw `InvalidOperationException` (a broken rule) or `ArgumentException` (invalid input); there is no shared domain exception type. Handlers check permissions and preconditions first and map any remaining violation to a `400` or `409` result.
+- At XS the page composes `TabsComponent` with one `KanbanColumnComponent`; the mock gained a `tabs` state.

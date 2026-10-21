@@ -10,14 +10,16 @@ This feature covers creating, viewing and editing partner records. A new partner
 
 - **`PartnersPage`** — the board page in the `partners` feature library (see `partners/partner-kanban-board`); it hosts the Add partner action.
 - **`AddPartnerDialog`** — CDK dialog collecting name (required), website, offering, owner (a lead), contact name, email, phone, notes and stage (Lead by default).
-- **`PartnerPage`** — partner detail page; Edit navigates to an edit screen. Write actions are hidden for Staff.
-- **`PartnersService`** / **`PARTNERS_SERVICE`** / **`HttpPartnersService`** — API client for `GET /api/partners`, `GET /api/partners/{id}`, `POST /api/partners` and `PUT /api/partners/{id}`.
+- **`PartnerPage`** — partner detail page with the details and the stage history; Edit navigates to `PartnerFormPage`. Write actions are hidden for Staff.
+- **`PartnerFormPage`** — edit screen at `/partners/:id/edit` (mock `pages/partner-form`) with the same fields as `AddPartnerDialog` except the stage, which changes only by a move.
+- **`PartnersService`** / **`PARTNERS_SERVICE`** / **`HttpPartnersService`** — API client for `GET /api/partners`, `GET /api/partners/{id}`, `POST /api/partners`, `PUT /api/partners/{id}` and `GET /api/partners/owners` (members holding a lead role, for the owner select).
 - **`PartnersEndpoints`** — minimal API mapping.
 - **`CreatePartnerCommand`**, **`UpdatePartnerCommand`**, **`GetPartnerQuery`** and handlers in Application `Partners/`, with **`PartnerValidator`** requiring a name and a valid email when present.
-- **`PartnerAccessPolicy`** — read: any lead role, Staff or System Admin; write: any lead role or System Admin. Others receive `403`.
+- **`PartnerAccess`** (the design's `PartnerAccessPolicy`) — read: any lead role, Staff or System Admin; write: any lead role or System Admin. Others receive `403`.
+- **Owner** — optional; it must be a member holding a lead role, otherwise `400`.
 - **`Partner`** — Domain entity; new partners start at `PartnerStage.Lead` unless another stage is chosen. `Update(...)` edits the details but never the stage.
 
-Which lead roles may write partners: `decisions.txt` lists partners under City Lead, while `L2-017` says "a lead" and refuses only users "without a lead role, Staff or System Admin". The design grants writes to any lead role and System Admin through `PartnerAccessPolicy`; confirmation of the role set is `<TO SUPPLY>`.
+Which lead roles may write partners: `decisions.txt` lists partners under City Lead, while `L2-017` says "a lead" and refuses only users "without a lead role, Staff or System Admin". The design grants writes to any lead role and System Admin through `PartnerAccessPolicy`; the role set is confirmed in [ADR 0007](../../../adr/0007-contacts-and-partners-access-and-open-questions.md).
 
 ## Requirements
 
@@ -80,3 +82,4 @@ Decisions recorded while building the Domain layer (`FaithTech.Community.Domain`
 
 - `L2-017` adds website, offering and an owner (a lead) to a partner; `Partner` carries `Website`, `Offering` and `OwnerId`. Resolved.
 - Domain rule violations throw `InvalidOperationException` (a broken rule) or `ArgumentException` (invalid input); there is no shared domain exception type. Handlers check permissions and preconditions first and map any remaining violation to a `400` or `409` result.
+- Edit navigates to the new partner form page (`/partners/:id/edit`, mock `pages/partner-form`); the add-partner dialog mock gained website, owner, phone and notes, and the partner page shows stage history without an inline note form ([ADR 0007](../../../adr/0007-contacts-and-partners-access-and-open-questions.md)).

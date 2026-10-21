@@ -8,14 +8,14 @@ Notes remain private even after the contact is linked to the person's real profi
 
 ## Description
 
-- **`ContactPage`** — contact detail page in the `contacts` feature library. It lists notes newest first and offers an Add note action.
-- **`AddNoteDialog`** — CDK dialog with a single required text area. Maximum note length: `<TO SUPPLY>`.
+- **`ContactPage`** — contact detail page in the `contacts` feature library. It lists notes newest first and offers an Add note button that opens `AddNoteDialog` (no inline form, `AGENTS.md`).
+- **`AddNoteDialog`** — CDK dialog with a single required text area. A note is 1 to 2,000 characters (mock `dialogs/add-note`).
 - **`ContactsService`** — `addNote(contactId, body)` and `getNotes(contactId)` calling `POST` and `GET /api/contacts/{id}/notes`.
 - **`ContactsEndpoints`** — maps the notes routes.
 - **`AddContactNoteCommand`** / **`AddContactNoteHandler`** and **`GetContactNotesQuery`** / **`GetContactNotesHandler`** in Application `Contacts/`. Both use `ContactAccessPolicy`; non-owners receive `404`, and System Admin access is audited.
 - **`ContactNote`** — Domain entity with `Body` (required) and `CreatedAtUtc`, composed by `Contact` and created only through `Contact.AddNote(body, nowUtc)`.
 
-Whether notes may be edited or deleted after creation: `<TO SUPPLY>`; `L2-014` defines only adding and reading.
+Notes cannot be edited or deleted after creation; `L2-014` defines only adding and reading ([ADR 0007](../../../adr/0007-contacts-and-partners-access-and-open-questions.md)).
 
 ## Requirements
 
@@ -75,3 +75,4 @@ Notes are returned newest first, including on a contact linked to a real profile
 Decisions recorded while building the Domain layer (`FaithTech.Community.Domain`):
 
 - Notes are append-only in the Domain; editing and deleting single notes stay deferred until a requirement defines them.
+- The contact page's inline note form in the original mock is replaced by an Add note button and `AddNoteDialog`; the contact form's first note becomes the first `ContactNote` on create.

@@ -16,7 +16,7 @@ The archived contacts page lists the caller's archived contacts and offers Resto
 - **`Contact.Archive(nowUtc)`** sets `ArchivedAtUtc`; **`Contact.Restore()`** clears it. Each rejects a contact already in the target state. **`Contact.CanBeDeleted`** is true only for an archived contact, and `DeleteContactHandler` checks it. Active queries filter on `ArchivedAtUtc IS NULL`.
 - **Cascade** — deleting a `Contact` deletes its `ContactNote` rows through an EF Core cascade.
 
-Whether archived contacts expire automatically: `<TO SUPPLY>`.
+Archived contacts do not expire automatically ([ADR 0007](../../../adr/0007-contacts-and-partners-access-and-open-questions.md)).
 
 ## Requirements
 

@@ -10,16 +10,16 @@ This feature covers listing, creating, editing and searching contacts, and the v
 
 - **`ContactsPage`** — page in the `contacts` feature library. It shows the caller's active contacts in a table, or as a single column of cards at XS widths, with a search box and an empty state that invites the lead to add one.
 - **`ContactPage`** — detail page for one contact.
-- **`ContactFormPage`** — create and edit screen with name (required), email, phone, organization, city and initial notes. Inline errors appear on invalid fields. Editing navigates to this screen rather than editing inline.
-- **`ContactsService`** / **`CONTACTS_SERVICE`** / **`HttpContactsService`** — API client for `GET /api/contacts?q=`, `GET /api/contacts/{id}`, `POST /api/contacts` and `PUT /api/contacts/{id}`.
+- **`ContactFormPage`** — create and edit screen with name (required), email, phone, organization, city and a first note (create only). Inline errors appear on invalid fields. Editing navigates to this screen rather than editing inline.
+- **`ContactsService`** / **`CONTACTS_SERVICE`** / **`HttpContactsService`** — API client for `GET /api/contacts?q=`, `GET /api/contacts/{id}`, `POST /api/contacts` and `PUT /api/contacts/{id}`. `POST` answers `409` with `memberName` when the email belongs to a verified member, unless `linkToMember` is true ("Save and link", `L2-013` AC6).
 - **`ContactsEndpoints`** — minimal API mapping.
 - **`CreateContactCommand`**, **`UpdateContactCommand`**, **`GetContactQuery`**, **`ListContactsQuery`** and their handlers in Application `Contacts/`.
 - **`ContactValidator`** — requires a name and validates email format.
-- **`ContactAccessPolicy`** — returns `Owner`, `AdminOverride` or `NotFound`. A non-owner, non-admin caller receives `404`, never `403`, so existence is not revealed. `AdminOverride` access writes an audit entry (`L2-012` AC2).
+- **`ContactAccess`** (the design's `ContactAccessPolicy`) — returns `Owner`, `AdminOverride` or `NotFound`. A non-owner, non-admin caller receives `404`, never `403`, so existence is not revealed. `AdminOverride` access writes an audit entry (`L2-012` AC2).
 - **`Contact`** — Domain entity owned by `OwnerId`, with `Name` (required), `Email`, `Phone`, `Organization` and `City`; `Update(...)` edits the details but never the owner.
-- **`ContactSearch`** — Infrastructure query filtering on name, email or organization with a `WHERE owner_id = caller` predicate, meeting the 500 ms target. The same owner predicate applies to global search results.
+- **`ListContactsHandler`** (the design's `ContactSearch`) — Application query through `IApplicationDbContext` filtering, case-insensitively, on name, email, organization or note text with an `owner_id = caller` and `archived_at IS NULL` predicate in the database query, meeting the 500 ms target. The same owner predicate applies to global search results.
 
-Which lead roles may own contacts: `decisions.txt` assigns contacts to City Lead, while `L2-012` to `L2-016` say "lead". The design reads `ICurrentUser.HoldsLeadRole`; the exact role set is `<TO SUPPLY>`.
+Which lead roles may own contacts: any lead role (City, Event, Create or Communications Lead) or System Admin; everyone else gets `403` for the list and create, and `404` for a single contact ([ADR 0007](../../../adr/0007-contacts-and-partners-access-and-open-questions.md)).
 
 ## Requirements
 
@@ -97,3 +97,9 @@ Decisions recorded while building the Domain layer (`FaithTech.Community.Domain`
 
 - `L2-013` adds a city to a contact; `Contact.City` is added to match. Resolved.
 - Domain rule violations throw `InvalidOperationException` (a broken rule) or `ArgumentException` (invalid input); there is no shared domain exception type. Handlers check permissions and preconditions first and map any remaining violation to a `400` or `409` result.
+
+Decisions recorded while building the feature ([ADR 0007](../../../adr/0007-contacts-and-partners-access-and-open-questions.md)):
+
+- The contacts list is a list of cards at every width, as the mock shows, rather than a table that turns into cards at XS (`L2-013` AC5).
+- The list and search return only the caller's own contacts, System Admin included; every System Admin access to another lead's contact is audited.
+- "Save and link" matches verified accounts only.
