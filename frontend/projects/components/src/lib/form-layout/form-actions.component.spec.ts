@@ -5,7 +5,7 @@ import { FormActionsComponent } from './form-actions.component';
 @Component({
   imports: [FormActionsComponent],
   template: `<ft-form-actions
-    ><button type="submit">Save</button><a href="/">Cancel</a></ft-form-actions
+    ><a href="/">Cancel</a><button type="submit">Save</button></ft-form-actions
   >`,
 })
 class HostComponent {}
@@ -17,6 +17,6 @@ describe('FormActionsComponent', () => {
     const kids = Array.from(
       f.nativeElement.querySelector('ft-form-actions').children,
     ) as HTMLElement[];
-    expect(kids.map((k) => k.textContent)).toEqual(['Save', 'Cancel']);
+    expect(kids.map((k) => k.textContent)).toEqual(['Cancel', 'Save']);
   });
 });

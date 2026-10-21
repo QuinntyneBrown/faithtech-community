@@ -12,7 +12,7 @@ The edit happens on the dedicated `edit-profile` screen at `/people/me/edit`, no
 
 ## Description
 
-- **`EditProfilePage`** — page in the `profiles` feature library, matching the `edit-profile` mock. It uses `FormFieldComponent`, `TextFieldComponent` and `TextareaComponent`, an `ErrorSummaryComponent` and inline errors on a failed save, a busy *Save profile* button, and `ToastService` for the "Profile saved" toast.
+- **`EditProfilePage`** — page in the `profiles` feature library, matching the `edit-profile` mock. It uses `FormFieldComponent`, `TextFieldComponent` and `TextareaComponent`, an `ErrorSummaryComponent` and inline errors on a failed save, a `FormActionsComponent` row that puts the ghost *Cancel* link first and the busy *Save profile* button last, end-aligned like a dialog footer, and `ToastService` for the "Profile saved" toast.
 - **`ProfilesService`** — contract in the `api` library, provided through the `PROFILES_SERVICE` injection token and implemented by `HttpProfilesService`.
 - **`ProfilesEndpoints`** — minimal API route group in `FaithTech.Community.Api` under `/api/profiles`. Its endpoints require authentication by default and hold no business logic.
 - **`ICurrentUser`** — Application abstraction exposing the caller's user id and roles. **`ProfileAccess`** resolves the caller's profile from `CommunityUser.ProfileId` and decides owner, System Admin (audited) or forbidden (ADR 0004).

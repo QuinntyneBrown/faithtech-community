@@ -38,6 +38,18 @@ test.describe('Edit own profile', () => {
     await expect(profile.where('Toronto')).toBeVisible();
   });
 
+  test('the form ends with Cancel, then Save profile last, as dialog footers do', async ({
+    page,
+    api,
+  }) => {
+    const grace = api.addAccount({ email: 'grace@example.org', name: 'Grace Okonkwo' });
+    const edit = new EditProfilePage(page);
+    await api.signInAs(grace, '/people/me/edit');
+
+    await expect(edit.heading).toBeVisible();
+    await expect(edit.actions).toHaveText(['Cancel', 'Save profile']);
+  });
+
   test('an empty name is caught inline and nothing is saved', async ({ page, api, axe }) => {
     const grace = api.addAccount({ email: 'grace@example.org' });
     const edit = new EditProfilePage(page);
