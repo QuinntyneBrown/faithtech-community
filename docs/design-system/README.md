@@ -123,7 +123,7 @@ Each component page documents variants, sizes and the full state matrix in both 
 | pages/* tab bar | No Workspaces, Team, Announcements or People; Team, Announcements, People also hidden in the top bar at 768–1023px | Flagged: those pages need a route at tablet width |
 | assets/ui-extra.css | Secondary nav hidden with a min/max range query | Logged; system rule is min-width queries only |
 | pages/* | Bell panel uses `--z-dropdown`; `--color-tint-*`, `--size-cover-*`, `avatar--lg` unused | Logged; panels move to `--z-popover` in the app |
-| pages/* | Inline raw sizes: Kanban skeleton `4rem`, action filter `14rem`, toast note `9rem`, form-summary `padding-left: 1.2em` | Logged; use spacing tokens and layout primitives |
+| pages/* | Inline raw sizes: Kanban skeleton `4rem`, action filter `14rem`, toast note `9rem` | Logged; use spacing tokens and layout primitives |
 | pages/not-found, server-error, offline | "Try again" is an `<a href>` styled as a button | Documented: a `<button>` |
 | pages/backlog | View chips are links with `aria-pressed` | Documented: links use `aria-current` |
 | pages/* | About 65 Task badges have a trailing space in `class` | Logged |

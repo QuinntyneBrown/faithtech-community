@@ -48,6 +48,15 @@ describe('ErrorSummaryComponent', () => {
     expect(host.querySelector('[role=alert]')).toBeNull();
   });
 
+  it('lists the errors in order as an ordered list', () => {
+    const { host } = setup();
+    const items = host.querySelectorAll('[role=alert] ol > li');
+    expect(Array.from(items).map((li) => li.textContent!.trim())).toEqual([
+      'Enter a title',
+      'End must be after start',
+    ]);
+  });
+
   it('lists a link per error that moves focus to its field', () => {
     const { fixture, cmp, host } = setup();
     const links = host.querySelectorAll<HTMLAnchorElement>('li a');
