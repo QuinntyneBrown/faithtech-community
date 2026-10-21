@@ -26,6 +26,15 @@ describe('NoteComponent', () => {
     expect(host.hasAttribute('tabindex')).toBe(false);
   });
 
+  it('leaves no trailing margin after the last paragraph', () => {
+    const fixture = TestBed.createComponent(HostComponent);
+    fixture.componentInstance.date.set(null);
+    fixture.detectChanges();
+    const p = fixture.nativeElement.querySelector('ft-note p') as HTMLElement;
+    expect(getComputedStyle(p).marginBottom).toBe('0px');
+    expect(getComputedStyle(p).marginTop).toBe('0px');
+  });
+
   it('omits the meta line without a date', () => {
     const fixture = TestBed.createComponent(HostComponent);
     fixture.componentInstance.date.set(null);

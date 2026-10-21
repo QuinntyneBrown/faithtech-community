@@ -9,7 +9,11 @@
 }
 
 .ft-note__body ::ng-deep p {
-  margin: 0 0 var(--space-2);
+  margin: 0;
+}
+
+.ft-note__body ::ng-deep p + p {
+  margin-block-start: var(--space-2);
 }
 
 .ft-note__meta {
