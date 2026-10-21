@@ -88,6 +88,8 @@ a:hover, a[data-state="hover"] { color: var(--color-fg-link-hover); text-decorat
 }
 .page-header { display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between; gap: var(--space-4); margin-block: var(--space-6); }
 .page-header .subtitle { color: var(--color-fg-muted); margin-top: var(--space-1); }
+/* The first block of a page with no .page-header (the profile head card): 24px below the top bar, as a page header sits. */
+.page-start { margin-top: var(--space-6); }
 .section { margin-block: var(--space-8); }
 /* Form widths: cap a page form, the success card that replaces it, or a danger zone. Sizes follow .field--sm/md/lg; <ft-stack width="sm|md|lg"> in Angular. */
 .form-width--sm { width: 100%; max-width: 40rem; }
@@ -867,7 +869,8 @@ mark { background: var(--color-warning-bg); color: inherit; border-radius: var(-
 .photo-strip img { width: 100%; aspect-ratio: 1; object-fit: cover; border-radius: var(--radius-md); display: block; }
 
 /* ---------- Two-column layout helper ------------------------------------------ */
-.split { display: grid; gap: var(--layout-gutter); grid-template-columns: minmax(0, 1fr); align-items: start; }
+/* 16px below what comes before it (a banner or alert); after a .page-header the margins collapse to its 24px. */
+.split { display: grid; gap: var(--layout-gutter); grid-template-columns: minmax(0, 1fr); align-items: start; margin-top: var(--space-4); }
 @media (min-width: 64rem) { .split { grid-template-columns: minmax(0, 2fr) minmax(0, 1fr); } }
 
 /* ---------- Topbar extras ----------------------------------------------------- */
