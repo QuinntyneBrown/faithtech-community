@@ -8,30 +8,37 @@ import {
   input,
   signal,
 } from '@angular/core';
-import { CONTACTS_SERVICE, ContactDto } from '@faithtech-community/api';
+import { CONTACTS_SERVICE, ContactDto, ContactNoteDto } from '@faithtech-community/api';
 import {
+  BadgeComponent,
   BreadcrumbComponent,
   BreadcrumbItemComponent,
   ButtonComponent,
   CardComponent,
   DescriptionListComponent,
   DescriptionListItemComponent,
+  DialogService,
   EmptyStateComponent,
   IconComponent,
   LinkComponent,
+  NoteComponent,
   PageHeaderComponent,
   SkeletonComponent,
   SplitComponent,
   StackComponent,
+  formatDay,
 } from '@faithtech-community/components';
 import { firstValueFrom } from 'rxjs';
 
+import { AddNoteDialog, AddNoteData } from '../../dialogs';
+
 type State = 'loading' | 'loaded' | 'not-found' | 'error';
 
-/** One private contact (L2-012, L2-013), matching docs/mocks/pages/contact. */
+/** One private contact and its private notes (L2-012 to L2-014), matching docs/mocks/pages/contact. */
 @Component({
   selector: 'ft-contact-page',
   imports: [
+    BadgeComponent,
     BreadcrumbComponent,
     BreadcrumbItemComponent,
     ButtonComponent,
@@ -41,6 +48,7 @@ type State = 'loading' | 'loaded' | 'not-found' | 'error';
     EmptyStateComponent,
     IconComponent,
     LinkComponent,
+    NoteComponent,
     PageHeaderComponent,
     SkeletonComponent,
     SplitComponent,
@@ -52,12 +60,14 @@ type State = 'loading' | 'loaded' | 'not-found' | 'error';
 })
 export class ContactPage {
   private readonly contacts = inject(CONTACTS_SERVICE);
+  private readonly dialogs = inject(DialogService);
 
   /** Route parameter. */
   readonly id = input.required<string>();
 
   protected readonly state = signal<State>('loading');
   protected readonly contact = signal<ContactDto | null>(null);
+  protected readonly notes = signal<ContactNoteDto[]>([]);
 
   protected readonly subtitle = computed(() => {
     const contact = this.contact();
@@ -72,6 +82,18 @@ export class ContactPage {
     effect(() => void this.load(this.id()));
   }
 
+  protected day(value: string): string {
+    return formatDay(value);
+  }
+
+  protected async addNote(contact: ContactDto): Promise<void> {
+    const ref = this.dialogs.open<ContactNoteDto, AddNoteData>(AddNoteDialog, {
+      data: { contactId: contact.id, contactName: contact.name },
+    });
+    const note = await firstValueFrom(ref.closed);
+    if (note) this.notes.update((notes) => [note, ...notes]);
+  }
+
   protected retry(): void {
     void this.load(this.id());
   }
@@ -79,7 +101,12 @@ export class ContactPage {
   private async load(id: string): Promise<void> {
     this.state.set('loading');
     try {
-      this.contact.set(await firstValueFrom(this.contacts.get(id)));
+      const [contact, notes] = await Promise.all([
+        firstValueFrom(this.contacts.get(id)),
+        firstValueFrom(this.contacts.getNotes(id)),
+      ]);
+      this.contact.set(contact);
+      this.notes.set(notes);
       this.state.set('loaded');
     } catch (error) {
       this.state.set(

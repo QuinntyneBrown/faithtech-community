@@ -5,6 +5,7 @@ import { CONTACTS_SERVICE, ContactDto, ContactNoteDto } from '@faithtech-communi
 import { DialogService, ToastService } from '@faithtech-community/components';
 import { Observable, of, throwError } from 'rxjs';
 
+import { AddNoteDialog } from '../../dialogs';
 import { ContactPage } from './contact.page';
 
 function contactDto(overrides: Partial<ContactDto> = {}): ContactDto {
@@ -45,9 +46,11 @@ async function setupContactPage(
   });
   const fixture = TestBed.createComponent(ContactPage);
   fixture.componentRef.setInput('id', 'c1');
+  // Loading waits on the contact and its notes together, so let both resolve.
   const settle = async () => {
     fixture.detectChanges();
     await fixture.whenStable();
+    await new Promise((resolve) => setTimeout(resolve));
     fixture.detectChanges();
   };
   await settle();
@@ -108,5 +111,52 @@ describe('ContactPage', () => {
     );
 
     expect(text()).toContain('We couldn’t load this contact');
+  });
+
+  it('shows the private notes newest first with their dates', async () => {
+    const { host } = await setupContactPage(() => of(contactDto({ noteCount: 2 })), {
+      notes: () =>
+        of([
+          {
+            id: 'n2',
+            body: 'Wants two staff at the hackathon.',
+            createdAtUtc: '2026-10-16T12:00:00Z',
+          },
+          { id: 'n1', body: 'Met at Builders Night.', createdAtUtc: '2026-10-02T12:00:00Z' },
+        ]),
+    });
+
+    const notes = Array.from(host.querySelectorAll('ft-note')).map(
+      (n) =>
+        `${n.querySelector('.ft-note__body')!.textContent!.trim()} | ${n.querySelector('.ft-note__meta')!.textContent}`,
+    );
+    expect(notes).toEqual([
+      'Wants two staff at the hackathon. | Fri 16 Oct',
+      'Met at Builders Night. | Fri 2 Oct',
+    ]);
+    expect(host.querySelector('#notes-heading, h2')!.textContent).toContain('Your notes');
+  });
+
+  it('adds a note through the dialog and shows it first', async () => {
+    const added = { id: 'n3', body: 'Called today.', createdAtUtc: '2026-10-21T12:00:00Z' };
+    const { host, dialogs, button, settle } = await setupContactPage(() => of(contactDto()), {
+      notes: () =>
+        of([{ id: 'n1', body: 'Met at Builders Night.', createdAtUtc: '2026-09-18T12:00:00Z' }]),
+      dialogResult: added,
+    });
+
+    button('Add note')!.click();
+    await settle();
+
+    expect(dialogs.open).toHaveBeenCalledWith(AddNoteDialog, {
+      data: { contactId: 'c1', contactName: 'Tomás Ortega' },
+    });
+    expect(host.querySelector('ft-note')!.textContent).toContain('Called today.');
+  });
+
+  it('invites the lead to add a first note', async () => {
+    const { text } = await setupContactPage(() => of(contactDto()));
+
+    expect(text()).toContain('No notes yet');
   });
 });

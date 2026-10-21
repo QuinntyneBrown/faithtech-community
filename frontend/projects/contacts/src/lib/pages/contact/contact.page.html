@@ -54,7 +54,25 @@
       </ft-page-header>
 
       <ft-split>
-        <ft-stack ftSplitMain></ft-stack>
+        <section ftSplitMain class="notes" aria-labelledby="notes-heading">
+          <ft-card>
+            <ft-stack>
+              <h2 id="notes-heading" class="notes__heading">
+                Your notes <ft-badge><ft-icon name="locked" size="sm" /> Private</ft-badge>
+              </h2>
+              <div>
+                <ft-button variant="primary" size="sm" (click)="addNote(c)">
+                  <ft-icon name="add" size="sm" /> Add note
+                </ft-button>
+              </div>
+              @for (note of notes(); track note.id) {
+                <ft-note [date]="day(note.createdAtUtc)">{{ note.body }}</ft-note>
+              } @empty {
+                <p class="text-muted">No notes yet. Add what you’d like to remember about them.</p>
+              }
+            </ft-stack>
+          </ft-card>
+        </section>
         <ft-card ftSplitAside heading="Details">
           <ft-stack>
             <ft-description-list>

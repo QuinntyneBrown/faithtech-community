@@ -15,7 +15,7 @@ Access
 
 - A **lead role** is City Lead, Event Lead, Create Lead or Communications Lead, as for invites (ADR 0006).
 - Contacts: any lead role or System Admin may list and create contacts. Everyone else, Staff included, gets `403` for the list and for create (the contacts page shows its forbidden state). A request for one contact, its notes or any change to it answers `404` unless the caller owns it or is a System Admin (L2-042 AC2). The list and search only ever return the caller's own active contacts, System Admin included; an admin opens another lead's contact by its link.
-- Every System Admin access to a contact they do not own, read or change, writes an audit entry (`contact.viewed`, `contact.updated`, `contact.note-added`, `contact.archived`, `contact.restored`, `contact.linked`, `contact.deleted`), target type `Contact`.
+- Every System Admin access to a contact they do not own, read or change, writes an audit entry (`contact.viewed`, `contact.updated`, `contact.notes-viewed`, `contact.note-added`, `contact.archived`, `contact.restored`, `contact.linked`, `contact.deleted`), target type `Contact`.
 - Partners: any lead role, Staff or System Admin may read the board, a partner and the owner list. Lead roles and System Admin may create, edit and move. Staff get `403` for writes; anyone else gets `403` for every partner endpoint (L2-017 AC3, AC4). An unknown partner id is `404`.
 
 Contacts

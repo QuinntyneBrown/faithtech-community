@@ -43,6 +43,7 @@ public static class DependencyInjection
         services.AddScoped<ContactAccess>();
         services.AddScoped<ContactViews>();
         services.AddScoped<ManageContactsHandler>();
+        services.AddScoped<ContactNotesHandler>();
         services.TryAddSingleton(TimeProvider.System);
         return services;
     }

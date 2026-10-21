@@ -1,6 +1,24 @@
-<!--
-  SCAFFOLD: placeholder, not the implementation.
-  Generated from AGENTS.md and:
-    - docs/detailed-designs/contacts/contact-notes
-  Overwrite this template with the expected implementation, then delete this comment.
--->
+<ft-dialog
+  [heading]="'Add a note about ' + data.contactName"
+  description="Only you can see your notes, even after they join."
+  icon="edit"
+  [busy]="busy()"
+  (closed)="ref.close()"
+>
+  <form (submit)="$event.preventDefault(); add()">
+    <ft-stack>
+      @if (failed()) {
+        <ft-alert status="danger" heading="That didn’t work">
+          We couldn’t save your note. It’s still here — try again.
+        </ft-alert>
+      }
+      <ft-form-field label="Note" [error]="error()">
+        <ft-textarea [formControl]="body" [rows]="4" />
+      </ft-form-field>
+    </ft-stack>
+  </form>
+  <ft-button ftDialogFooter [disabled]="busy()" (click)="ref.close()">Cancel</ft-button>
+  <ft-button ftDialogFooter variant="primary" [loading]="busy()" (click)="add()">
+    {{ busy() ? 'Saving…' : 'Add note' }}
+  </ft-button>
+</ft-dialog>

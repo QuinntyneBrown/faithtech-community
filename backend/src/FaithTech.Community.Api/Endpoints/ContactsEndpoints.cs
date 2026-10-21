@@ -31,6 +31,16 @@ public static class ContactsEndpoints
             })
             .Validate<UpdateContactCommand>();
 
+        contacts.MapGet("/{id:guid}/notes", async (Guid id, ContactNotesHandler handler, CancellationToken cancellationToken) =>
+            await handler.ListAsync(id, cancellationToken) is { } notes ? Results.Ok(notes) : Results.NotFound());
+
+        contacts.MapPost("/{id:guid}/notes", async (Guid id, AddContactNoteCommand command, ContactNotesHandler handler, CancellationToken cancellationToken) =>
+            {
+                var (result, note) = await handler.AddAsync(id, command, cancellationToken);
+                return result.ToHttp(() => Results.Created($"/api/contacts/{id}/notes", note));
+            })
+            .Validate<AddContactNoteCommand>();
+
         return app;
     }
 }
