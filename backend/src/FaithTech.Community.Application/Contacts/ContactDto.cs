@@ -9,7 +9,7 @@ namespace FaithTech.Community.Application.Contacts;
 public record ContactMatchDto(Guid ProfileId, string Name);
 
 /// <summary>A row of the contacts list. Status is Private, SignedUp (a verified member uses the email) or Member (linked).</summary>
-public record ContactSummaryDto(Guid Id, string Name, string? Email, string? Organization, string? City, string Status);
+public record ContactSummaryDto(Guid Id, string Name, string? Email, string? Organization, string? City, string Status, DateTime? ArchivedAtUtc);
 
 /// <summary>
 /// One contact. Once linked, the name and featured photo come from the member's profile (L2-015 AC2).

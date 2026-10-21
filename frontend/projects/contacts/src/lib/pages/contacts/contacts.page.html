@@ -1,6 +1,93 @@
-<!--
-  SCAFFOLD: placeholder, not the implementation.
-  Generated from AGENTS.md and:
-    - docs/detailed-designs/contacts/manage-contacts
-  Overwrite this template with the expected implementation, then delete this comment.
--->
+@if (state() === 'forbidden') {
+  <h1 class="visually-hidden">Contacts</h1>
+  <ft-empty-state
+    icon="locked"
+    heading="Contacts are private to each lead"
+    text="Staff can see everything else read-only, but contacts and their notes belong to the lead who created them."
+  >
+    <ft-button actions variant="primary" href="/">Back to home</ft-button>
+  </ft-empty-state>
+} @else {
+  <ft-page-header title="Contacts" [subtitle]="subtitle()">
+    <ft-button ftPageHeaderActions variant="ghost" href="/contacts/archived">
+      <ft-icon name="archive" /> Archived
+    </ft-button>
+    <ft-button ftPageHeaderActions variant="primary" href="/contacts/new">
+      <ft-icon name="add" /> Add contact
+    </ft-button>
+  </ft-page-header>
+
+  @if (joined(); as person) {
+    <ft-alert status="info" [heading]="person.name + ' just joined FaithTech'">
+      They’re one of your contacts. Link them to their new profile and keep your notes.
+      <ft-button ftAlertActions [href]="'/contacts/' + person.id">Review</ft-button>
+    </ft-alert>
+  }
+
+  <form class="search" role="search" (submit)="$event.preventDefault(); search()">
+    <ft-text-field
+      type="search"
+      label="Search contacts"
+      placeholder="Search your contacts by name or note"
+      [formControl]="query"
+    />
+  </form>
+
+  @switch (state()) {
+    @case ('loading') {
+      <ft-list-skeleton label="Loading contacts" [rows]="4" />
+    }
+    @case ('error') {
+      <ft-empty-state
+        variant="error"
+        heading="We couldn’t load your contacts"
+        text="Check your connection and try again. If it keeps happening, we’ve already been told about it."
+      >
+        <ft-button actions variant="primary" (click)="retry()">Try again</ft-button>
+      </ft-empty-state>
+    }
+    @case ('loaded') {
+      @if (list().length === 0 && term()) {
+        <ft-empty-state
+          icon="search"
+          [heading]="'No contacts match “' + term() + '”'"
+          text="Search looks at names, emails, organisations and your notes. Archived contacts aren’t included."
+        >
+          <ft-button actions href="/contacts/archived">
+            <ft-icon name="archive" /> View archived contacts
+          </ft-button>
+        </ft-empty-state>
+      } @else if (list().length === 0) {
+        <ft-empty-state
+          icon="contacts"
+          heading="No contacts yet"
+          text="Keep track of people you meet. Contacts and your notes on them are private to you until they join."
+        >
+          <ft-button actions variant="primary" href="/contacts/new">
+            <ft-icon name="add" /> Add your first contact
+          </ft-button>
+        </ft-empty-state>
+      } @else {
+        <ft-card variant="flush">
+          <ft-list label="Contacts">
+            @for (contact of list(); track contact.id) {
+              <ft-list-item
+                [label]="contact.name"
+                [href]="'/contacts/' + contact.id"
+                [meta]="meta(contact)"
+              >
+                <ft-avatar leading size="sm" [name]="contact.name" />
+                <ft-badge trailing [variant]="badge(contact).variant">
+                  @if (contact.status === 'Private') {
+                    <ft-icon name="locked" size="sm" />
+                  }
+                  {{ badge(contact).label }}
+                </ft-badge>
+              </ft-list-item>
+            }
+          </ft-list>
+        </ft-card>
+      }
+    }
+  }
+}

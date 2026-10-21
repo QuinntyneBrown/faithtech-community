@@ -1,5 +1,7 @@
 import { Page, Route } from '@playwright/test';
 
+import { MockContacts } from './mock-contacts';
+
 export interface MockAccount {
   name: string;
   email: string;
@@ -99,6 +101,8 @@ export class MockApi {
   private uploads = 0;
   /** The stored URL of an uploaded photo; the journey videos swap in the image that was chosen. */
   uploadedPhotoUrl: (file: string) => string = () => photoUrl();
+  /** Private contacts (ADR 0007). */
+  readonly contacts = new MockContacts(this);
 
   constructor(private readonly page: Page) {}
 
@@ -210,6 +214,8 @@ export class MockApi {
     if (override) return override(route, body);
 
     const authorization = request.headers()['authorization'];
+    const contacts = this.contacts.handle(route, method, url, body, this.caller(authorization));
+    if (contacts) return contacts;
     const profileRoute = /^\/api\/profiles\/([^/]+)$/.exec(url.pathname);
     if (method === 'GET' && profileRoute) {
       return this.getProfile(route, profileRoute[1], authorization);

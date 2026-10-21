@@ -148,6 +148,7 @@ public class ManageContactsHandler(IApplicationDbContext db, ContactAccess acces
                 c.Organization,
                 c.City,
                 c.LinkedProfileId,
+                c.ArchivedAtUtc,
                 Linked = db.Profiles.Where(p => p.Id == c.LinkedProfileId).Select(p => p.Name).FirstOrDefault(),
                 SignedUp = c.LinkedProfileId == null && c.Email != null
                     && db.Users.Any(u => u.EmailConfirmed && u.NormalizedEmail == c.Email.ToUpper()),
@@ -160,7 +161,8 @@ public class ManageContactsHandler(IApplicationDbContext db, ContactAccess acces
                 r.Email,
                 r.Organization,
                 r.City,
-                r.LinkedProfileId is not null ? "Member" : r.SignedUp ? "SignedUp" : "Private"))
+                r.LinkedProfileId is not null ? "Member" : r.SignedUp ? "SignedUp" : "Private",
+                r.ArchivedAtUtc))
             .OrderBy(r => r.Name, StringComparer.CurrentCultureIgnoreCase)];
     }
 
