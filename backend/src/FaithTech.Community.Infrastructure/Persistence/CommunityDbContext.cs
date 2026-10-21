@@ -2,6 +2,7 @@ using FaithTech.Community.Application.Common;
 using FaithTech.Community.Application.Identity;
 using FaithTech.Community.Domain.Admin;
 using FaithTech.Community.Domain.Agile;
+using FaithTech.Community.Domain.Announcements;
 using FaithTech.Community.Domain.Contacts;
 using FaithTech.Community.Domain.Invites;
 using FaithTech.Community.Domain.Notifications;
@@ -12,6 +13,7 @@ using FaithTech.Community.Infrastructure.Identity;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.ChangeTracking;
 
 namespace FaithTech.Community.Infrastructure.Persistence;
 
@@ -49,6 +51,8 @@ public class CommunityDbContext(DbContextOptions<CommunityDbContext> options)
     public DbSet<PokerSession> PokerSessions => Set<PokerSession>();
 
     public DbSet<PhotoBlobTask> PhotoBlobTasks => Set<PhotoBlobTask>();
+
+    public DbSet<Announcement> Announcements => Set<Announcement>();
 
     protected override void OnModelCreating(ModelBuilder builder)
     {
@@ -199,6 +203,38 @@ public class CommunityDbContext(DbContextOptions<CommunityDbContext> options)
         });
 
         ConfigureAgile(builder);
+
+        builder.Entity<Announcement>(announcement =>
+        {
+            announcement.Property(a => a.Id).ValueGeneratedNever();
+            announcement.Property(a => a.Subject).HasMaxLength(150);
+            announcement.Property(a => a.Body).HasMaxLength(5000);
+            announcement.HasIndex(a => a.SentAt);
+            announcement.OwnsOne(a => a.Audience, audience =>
+            {
+                audience.Property(x => x.Kind).HasConversion<string>().HasMaxLength(16).HasColumnName("AudienceKind");
+                audience.Property(x => x.EventId).HasColumnName("AudienceEventId");
+                // A few roles at most, stored as "CityLead,Volunteer".
+                audience.Property(x => x.Roles)
+                    .HasConversion(
+                        roles => string.Join(',', roles.Order()),
+                        text => text.Split(',', StringSplitOptions.RemoveEmptyEntries).Select(Enum.Parse<Role>).ToHashSet(),
+                        new ValueComparer<IReadOnlySet<Role>>(
+                            (a, b) => a!.SetEquals(b!),
+                            roles => roles.Aggregate(0, (hash, role) => hash ^ role.GetHashCode()),
+                            roles => roles.ToHashSet()))
+                    .HasMaxLength(300)
+                    .HasColumnName("AudienceRoles");
+            });
+            announcement.OwnsMany(a => a.Recipients, recipient =>
+            {
+                recipient.ToTable("AnnouncementRecipients");
+                recipient.WithOwner().HasForeignKey(r => r.AnnouncementId);
+                recipient.HasKey(r => new { r.AnnouncementId, r.ProfileId });
+                recipient.HasIndex(r => r.ProfileId);
+            });
+            announcement.Navigation(a => a.Recipients).UsePropertyAccessMode(PropertyAccessMode.Field);
+        });
 
         builder.Entity<CommunityUser>()
             .HasOne<Profile>()

@@ -1,6 +1,7 @@
 using FaithTech.Community.Application.Admin;
 using FaithTech.Community.Application.Agile;
 using FaithTech.Community.Application.Contacts;
+using FaithTech.Community.Application.Announcements;
 using FaithTech.Community.Application.Identity;
 using FaithTech.Community.Application.Invites;
 using FaithTech.Community.Application.Partners;
@@ -74,6 +75,9 @@ public static class DependencyInjection
         services.AddScoped<PlanningPokerHandler>();
         services.AddScoped<ManageNotificationsHandler>();
         services.AddScoped<INotificationPublisher, NotificationPublisher>();
+        services.AddScoped<AnnouncementAudiences>();
+        services.AddScoped<CountAnnouncementRecipientsHandler>();
+        services.AddScoped<SendAnnouncementHandler>();
         services.TryAddSingleton(TimeProvider.System);
         return services;
     }
