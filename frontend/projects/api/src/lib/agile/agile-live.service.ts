@@ -5,13 +5,13 @@ import { WorkItemStatus } from './agile.service';
 
 /**
  * Something changed on a board: a card moved, or the connection came back after a drop and the page
- * should reload what it shows (L2-034 AC2, ADR 0009).
+ * should reload what it shows (L2-034 AC2, ADR 0012).
  */
 export type BoardEvent =
   { kind: 'moved'; itemId: string; status: WorkItemStatus } | { kind: 'resync' };
 
 /**
- * Live Agile updates over SignalR (ADR 0009). Pages depend on AGILE_LIVE_SERVICE, never on
+ * Live Agile updates over SignalR (ADR 0012). Pages depend on AGILE_LIVE_SERVICE, never on
  * SignalRAgileLiveService. Changes still go over HTTP through AGILE_SERVICE; this only listens.
  */
 export interface AgileLiveService {

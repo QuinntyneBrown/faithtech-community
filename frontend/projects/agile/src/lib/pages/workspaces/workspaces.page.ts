@@ -17,7 +17,7 @@ import {
   ListItemComponent,
   ListSkeletonComponent,
   PageHeaderComponent,
-  StickerComponent,
+  IconTileComponent,
   ToastService,
 } from '@faithtech-community/components';
 import { firstValueFrom } from 'rxjs';
@@ -43,7 +43,7 @@ type State = 'loading' | 'loaded' | 'error';
     ListItemComponent,
     ListSkeletonComponent,
     PageHeaderComponent,
-    StickerComponent,
+    IconTileComponent,
   ],
   templateUrl: './workspaces.page.html',
   styleUrl: './workspaces.page.scss',

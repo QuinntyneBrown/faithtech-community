@@ -119,7 +119,7 @@ public class CommunityDbContext(DbContextOptions<CommunityDbContext> options)
             .HasForeignKey<CommunityUser>(u => u.ProfileId);
     }
 
-    // Archived workspaces and work items are hidden from every normal view (L2-037 AC1, ADR 0008).
+    // Archived workspaces and work items are hidden from every normal view (L2-037 AC1, ADR 0011).
     private static void ConfigureAgile(ModelBuilder builder)
     {
         builder.Entity<Workspace>(workspace =>

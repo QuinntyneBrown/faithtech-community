@@ -10,7 +10,7 @@ Coverage: the profiles screens (`profile`, `edit-profile`, `delete-photo`), the 
 
 | Part | Library | Local |
 |---|---|---|
-| App shell around `/people/**`, `/team`, `/admin/**`, `/invites`, `/workspaces/**` | `TopBarComponent` with the account menu (`MenuComponent` "Account menu for {name}" whose face is an `AvatarComponent`: *Your profile* → `/people/me`, *Settings* → `/settings`, *Sign out*), `NavDrawerComponent`, `TabBarComponent` (top bar, tab bar and menu all from `shell/navigation.ts`, one rule by role, ADR 0009), `SkipLinkComponent`, `ToastRegionComponent` (in `AppShellComponent`). System Admins get an **Admin** link (secondary) to `/admin`. | — |
+| App shell around `/people/**`, `/team`, `/admin/**`, `/invites`, `/workspaces/**` | `TopBarComponent` with the account menu (`MenuComponent` "Account menu for {name}" whose face is an `AvatarComponent`: *Your profile* → `/people/me`, *Settings* → `/settings`, *Sign out*), `NavDrawerComponent`, `TabBarComponent` (top bar, tab bar and menu all from `shell/navigation.ts`, one rule by role, ADR 0012), `SkipLinkComponent`, `ToastRegionComponent` (in `AppShellComponent`). System Admins get an **Admin** link (secondary) to `/admin`. | — |
 
 ## Pages
 
@@ -94,7 +94,7 @@ Coverage: the profiles screens (`profile`, `edit-profile`, `delete-photo`), the 
 ### Planning Poker — `/workspaces/:id/poker` (`pages/planning-poker`: default, facilitator, revealed, agreed, staff, empty, forbidden, loading, error)
 
 - Library: `SplitComponent`, `CardComponent` (current story, *You’re the facilitator*, *Your vote*, *Votes (n invited)*), `BadgeComponent` (Story), `AlertComponent` (who has voted; votes differ; agreed points; watching as Staff), `EstimatePickerComponent` (Your vote), `EstimateCardComponent` + `AvatarComponent` in `ListComponent` (votes), `FormFieldComponent` + `SelectComponent` (Final points), `ButtonComponent` (*Reveal votes*, *End session*, *Set points*, *Re-vote*, *Start a session*), `EmptyStateComponent`, `ListSkeletonComponent`.
-- Opens `StartPokerDialog`. Changes arrive through `AGILE_LIVE_SERVICE.watchPokerSession` and the page re-reads the session (ADR 0009).
+- Opens `StartPokerDialog`. Changes arrive through `AGILE_LIVE_SERVICE.watchPokerSession` and the page re-reads the session (ADR 0012).
 - Local: the "Now estimating" overline and story heading.
 
 ## Dialogs

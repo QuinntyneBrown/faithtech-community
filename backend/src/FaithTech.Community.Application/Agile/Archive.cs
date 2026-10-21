@@ -22,7 +22,7 @@ public class ReassignOwnerValidator : AbstractValidator<ReassignOwnerCommand>
 
 /// <summary>
 /// Archives and restores workspaces and work items, and reassigns ownership (L2-037). Archive is an owner action;
-/// System Admin may do it too and is audited (ADR 0008). An archived workspace stays hidden from everyone else.
+/// System Admin may do it too and is audited (ADR 0011). An archived workspace stays hidden from everyone else.
 /// </summary>
 public class ArchiveHandler(IApplicationDbContext db, WorkspaceAccessPolicy policy, TimeProvider time)
 {

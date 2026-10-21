@@ -1,4 +1,4 @@
-# 0009. Agile live updates with SignalR
+# 0012. Agile live updates with SignalR
 
 - Status: Accepted
 - Date: 2026-10-21

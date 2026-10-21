@@ -6,7 +6,7 @@ using Microsoft.AspNetCore.SignalR;
 namespace FaithTech.Community.Api.Hubs;
 
 /// <summary>
-/// Live Agile updates (ADR 0009). Clients only join groups here; every change goes over HTTP to an
+/// Live Agile updates (ADR 0012). Clients only join groups here; every change goes over HTTP to an
 /// Application handler, which broadcasts through <see cref="SignalRAgileNotifier"/>. Holds no business logic.
 /// </summary>
 public class AgileHub(WorkspaceAccessPolicy policy, IApplicationDbContext db, IHttpContextAccessor http) : Hub

@@ -59,7 +59,7 @@ interface Status {
 /**
  * Planning Poker (L2-038): the story being estimated, the deck, who has voted and, for the facilitator, reveal,
  * re-vote, final points and end. Changes go over HTTP; SignalR only says "changed", and the page re-reads the
- * session (ADR 0009), which also restores the caller's vote after a dropped connection (AC8).
+ * session (ADR 0012), which also restores the caller's vote after a dropped connection (AC8).
  * Matches docs/mocks/pages/planning-poker.
  */
 @Component({

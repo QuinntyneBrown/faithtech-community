@@ -7,7 +7,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace FaithTech.Community.Application.Agile;
 
-/// <summary>How the caller relates to one workspace (ADR 0008), from least to most access.</summary>
+/// <summary>How the caller relates to one workspace (ADR 0011), from least to most access.</summary>
 public enum WorkspaceAccess
 {
     Outsider,
@@ -38,7 +38,7 @@ public record WorkspaceCaller(Guid ProfileId, WorkspaceAccess Access)
 }
 
 /// <summary>
-/// Decides who may read and change a workspace and everything in it (L2-031, L2-042, ADR 0008).
+/// Decides who may read and change a workspace and everything in it (L2-031, L2-042, ADR 0011).
 /// Every agile handler and the hub ask it first; lists use <see cref="Visible"/> so the filter runs in the database.
 /// </summary>
 public class WorkspaceAccessPolicy(IApplicationDbContext db, ICurrentUser current, ProfileAccess profiles, IAuditLog audit)
@@ -92,7 +92,7 @@ public class WorkspaceAccessPolicy(IApplicationDbContext db, ICurrentUser curren
     public void Audit(WorkspaceCaller caller, string action, string targetType, Guid targetId, object? before, object? after) =>
         audit.Record(caller.ProfileId, action, targetType, targetId.ToString(), before, after);
 
-    /// <summary>Records a System Admin override (ADR 0008); writes by the owner or a member are not audited.</summary>
+    /// <summary>Records a System Admin override (ADR 0011); writes by the owner or a member are not audited.</summary>
     public void AuditOverride(WorkspaceCaller caller, string action, string targetType, Guid targetId, object? before, object? after)
     {
         if (caller.IsOverride)

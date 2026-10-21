@@ -100,7 +100,7 @@ export interface AgileRequest {
 
 /**
  * Plays the Agile API (backend/src/FaithTech.Community.Api/Endpoints/WorkspacesEndpoints.cs and friends) with
- * the same access rules: owner, member, Staff read-only, System Admin override, outsider 404 (ADR 0008).
+ * the same access rules: owner, member, Staff read-only, System Admin override, outsider 404 (ADR 0011).
  */
 export class MockAgile {
   readonly workspaces: MockWorkspace[] = [];

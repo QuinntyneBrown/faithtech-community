@@ -88,7 +88,7 @@ public record PokerSessionDto(
     int? LastPoints);
 
 /// <summary>
-/// Planning Poker (L2-038, ADR 0009). Any member starts a session and facilitates it; invitees vote; only the
+/// Planning Poker (L2-038, ADR 0012). Any member starts a session and facilitates it; invitees vote; only the
 /// facilitator reveals, re-votes, sets points and ends it. Staff and System Admin watch. Every change is saved,
 /// then broadcast as a bare "changed" so clients re-read.
 /// </summary>

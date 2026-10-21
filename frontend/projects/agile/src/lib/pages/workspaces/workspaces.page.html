@@ -52,7 +52,7 @@
                 [href]="'/workspaces/' + workspace.id"
                 [meta]="meta(workspace)"
               >
-                <ft-sticker leading><ft-icon name="workspaces" /></ft-sticker>
+                <ft-icon-tile leading name="workspaces" />
                 @if (workspace.isOwner) {
                   <ft-badge trailing variant="info">Owner</ft-badge>
                 }
@@ -66,7 +66,7 @@
           <ft-list label="Archived workspaces">
             @for (workspace of archived(); track workspace.id) {
               <ft-list-item [label]="workspace.name" [meta]="archivedMeta(workspace)">
-                <ft-sticker leading><ft-icon name="workspaces" /></ft-sticker>
+                <ft-icon-tile leading name="workspaces" />
                 <ft-button
                   trailing
                   [label]="'Restore ' + workspace.name"

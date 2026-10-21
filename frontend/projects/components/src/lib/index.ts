@@ -21,6 +21,7 @@ export * from './format';
 export * from './form-field';
 export * from './form-layout';
 export * from './icon';
+export * from './icon-tile';
 export * from './inline-message';
 export * from './kanban';
 export * from './layout';

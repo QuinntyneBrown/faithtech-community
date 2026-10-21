@@ -17,7 +17,7 @@ public record WorkspaceSummaryDto(
 public record WorkspaceMemberDto(Guid ProfileId, string Name, IReadOnlyList<string> Roles, bool IsOwner, int AssignedStories, int AssignedTasks, bool IsYou);
 
 /// <summary>
-/// One workspace as the caller may see it. <see cref="Access"/> is Owner, Member, Admin or Staff (ADR 0008);
+/// One workspace as the caller may see it. <see cref="Access"/> is Owner, Member, Admin or Staff (ADR 0011);
 /// <see cref="CanEdit"/> and <see cref="CanManage"/> tell the web app which controls to show.
 /// </summary>
 public record WorkspaceDto(

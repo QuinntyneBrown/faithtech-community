@@ -12,13 +12,13 @@ The *board* is the visual view of a workspace's stories.
 
 In a Kanban workspace the board shows every non-archived story. In a Scrum workspace it shows only stories in the active sprint. The board has no work-in-progress (WIP) limits. A member moves a card by drag or by keyboard; the move changes the story's status, and other open viewers see the change within 2 seconds. On an extra small (XS, <576px) viewport the columns become tabs with one column visible at a time.
 
-The live transport for board updates is SignalR, the same hub Planning Poker uses (`AgileHub` at `/hubs/agile`, ADR 0009). Moves go over HTTP; the hub broadcasts `CardMoved(itemId, status)` to the board's group.
+The live transport for board updates is SignalR, the same hub Planning Poker uses (`AgileHub` at `/hubs/agile`, ADR 0012). Moves go over HTTP; the hub broadcasts `CardMoved(itemId, status)` to the board's group.
 
 ## Description
 
 - **`TeamBoardPage`** — renders the three columns and cards, supports drag and keyboard moves, and switches to tabs at XS (mock `docs/mocks/pages/team-board`). The keyboard path is each card's Move button, which opens a CDK dialog with a To Do / In Progress / Done radio group (mock `docs/mocks/dialogs/move-story`). Column and card UI comes from the `components` library Kanban column and card components.
 - **`AgileService`** — `api` contract (`AGILE_SERVICE`, `HttpAgileService`) with `getBoard` and `moveCard`.
-- **`AgileLiveService`** — `api` contract for live updates (`AGILE_LIVE_SERVICE`), implemented by `SignalRAgileLiveService` over `@microsoft/signalr` with automatic reconnect (ADR 0009).
+- **`AgileLiveService`** — `api` contract for live updates (`AGILE_LIVE_SERVICE`), implemented by `SignalRAgileLiveService` over `@microsoft/signalr` with automatic reconnect (ADR 0012).
 - **`BoardEndpoints`** — minimal API mapping for `GET /workspaces/{id}/board` and `PUT /items/{id}/status`.
 - **`GetBoardQuery`** / **`GetBoardHandler`** — returns stories grouped by status with task counts; filters to the active sprint for Scrum.
 - **`MoveCardCommand`** / **`MoveCardHandler`** — changes a story's status and publishes a `CardMoved` event to the workspace group.

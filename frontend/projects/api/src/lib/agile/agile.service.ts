@@ -5,7 +5,7 @@ import { Role } from '../shared';
 
 export type WorkspaceMethod = 'Scrum' | 'Kanban';
 
-/** How the caller relates to a workspace (ADR 0008). */
+/** How the caller relates to a workspace (ADR 0011). */
 export type WorkspaceAccess = 'Owner' | 'Member' | 'Admin' | 'Staff';
 
 /** A row on the workspaces page (L2-050). */

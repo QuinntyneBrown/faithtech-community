@@ -64,7 +64,7 @@ public class WorkspacesHandler(
 
     /// <summary>
     /// Members see the workspaces they own or belong to; Staff and System Admin see every one (L2-050). Archived
-    /// workspaces are listed only to their owner and System Admin, so they can be restored (ADR 0008).
+    /// workspaces are listed only to their owner and System Admin, so they can be restored (ADR 0011).
     /// </summary>
     public async Task<IReadOnlyList<WorkspaceSummaryDto>> ListAsync(CancellationToken cancellationToken = default)
     {

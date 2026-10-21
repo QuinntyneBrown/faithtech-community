@@ -1,4 +1,4 @@
-# 0008. Workspace access, audit and ownership
+# 0011. Workspace access, audit and ownership
 
 - Status: Accepted
 - Date: 2026-10-21

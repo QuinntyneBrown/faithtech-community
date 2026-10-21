@@ -1,4 +1,4 @@
-# 0007. Agile feature layout
+# 0010. Agile feature layout
 
 - Status: Accepted
 - Date: 2026-10-21
@@ -14,7 +14,7 @@ The Agile subsystem (workspaces, work items, board, sprints, switch method, arch
 - `backend/src/FaithTech.Community.Application/Agile/` holds the Agile handlers, validators, DTOs and the shared `WorkspaceAccessPolicy`.
 - `frontend/projects/agile/` is a feature library with its own `public-api.ts`, lazy-loaded by the app shell at `/workspaces`, registered in `angular.json`, the workspace `tsconfig.json` paths and the `build:libs` and `test` scripts like the other feature libraries. It depends only on `components` and `api`.
 - The feature name is `agile` everywhere: `Domain/Agile/`, `Application/Agile/`, `frontend/projects/agile/` and `docs/detailed-designs/agile/`. `docs/specs/` keeps one L1 and one L2 file, so the name appears there in the requirement titles (L1-012, L1-013).
-- No other folder or project was added. Endpoints, the SignalR hub and persistence live in the existing `Api`, `Infrastructure` and `Cli` projects (ADR 0009).
+- No other folder or project was added. Endpoints, the SignalR hub and persistence live in the existing `Api`, `Infrastructure` and `Cli` projects (ADR 0012).
 
 ## Consequences
 

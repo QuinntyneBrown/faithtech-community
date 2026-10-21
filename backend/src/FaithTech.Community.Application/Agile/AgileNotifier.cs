@@ -8,7 +8,7 @@ namespace FaithTech.Community.Application.Agile;
 /// <summary>
 /// In-app notifications and emails for workspace additions, assignments and Planning Poker invites (L2-027, L2-028).
 /// <see cref="Notify"/> adds the notification to the unit of work; call <see cref="SendEmailsAsync"/> once it is saved.
-/// Nobody is notified about their own action (ADR 0008).
+/// Nobody is notified about their own action (ADR 0011).
 /// </summary>
 public class AgileNotifier(IApplicationDbContext db, IEmailSender email, IOptions<WebAppOptions> webApp, TimeProvider time)
 {

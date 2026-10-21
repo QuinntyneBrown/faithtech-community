@@ -1,0 +1,14 @@
+:host {
+  display: inline-grid;
+  flex: none;
+  place-items: center;
+  inline-size: var(--size-avatar-md);
+  block-size: var(--size-avatar-md);
+  border-radius: var(--radius-md);
+  background: var(--color-accent-subtle);
+}
+
+:host(.ft-icon-tile--sm) {
+  inline-size: var(--size-avatar-sm);
+  block-size: var(--size-avatar-sm);
+}

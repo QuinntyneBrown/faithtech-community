@@ -44,9 +44,9 @@ describe('WorkspacesPage', () => {
         summary({ id: 'w3', name: 'Austin', activeSprintName: null, isOwner: false }),
       ]),
     );
-    const metas = Array.from(host.querySelectorAll('.ft-list-item__meta')).map((m) =>
-      m.textContent?.trim(),
-    );
+    const metas = Array.from(
+      host.querySelectorAll('.ft-list-item__meta:not(.ft-list-item__meta-slot)'),
+    ).map((m) => m.textContent?.trim());
     expect(metas).toEqual([
       'Owner: Grace Okonkwo · Scrum · Sprint 7 active · 5 members',
       'Owner: Grace Okonkwo · Kanban · 1 member',
