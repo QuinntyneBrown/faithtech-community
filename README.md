@@ -1,3 +1,7 @@
+<p align="center">
+  <img src="docs/design-system/assets/logo.svg" alt="FaithTech" width="96" height="96">
+</p>
+
 # FaithTech Community
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
