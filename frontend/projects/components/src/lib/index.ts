@@ -16,6 +16,7 @@ export * from './estimate-picker';
 export * from './event-card';
 export * from './feed';
 export * from './form-error-focus';
+export * from './format';
 export * from './form-field';
 export * from './form-layout';
 export * from './icon';

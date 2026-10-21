@@ -1,13 +1,5 @@
-import { formatDate } from '@angular/common';
 import { HttpErrorResponse } from '@angular/common/http';
-import {
-  ChangeDetectionStrategy,
-  Component,
-  LOCALE_ID,
-  computed,
-  inject,
-  signal,
-} from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
 import {
   AUDIT_LOG_SERVICE,
@@ -29,6 +21,7 @@ import {
   TableColumn,
   TableComponent,
   TabsComponent,
+  formatTimestamp,
 } from '@faithtech-community/components';
 import { firstValueFrom } from 'rxjs';
 
@@ -65,7 +58,6 @@ const CATEGORIES: SelectOption[] = [
 })
 export class AuditLogPage {
   private readonly audit = inject(AUDIT_LOG_SERVICE);
-  private readonly locale = inject(LOCALE_ID);
 
   protected readonly categories = CATEGORIES;
   protected readonly category = new FormControl('', { nonNullable: true });
@@ -84,7 +76,7 @@ export class AuditLogPage {
 
   protected readonly rows = computed(() =>
     this.entries().map((e) => ({
-      when: formatDate(e.occurredAtUtc, 'yyyy-MM-dd HH:mm', this.locale),
+      when: formatTimestamp(e.occurredAtUtc),
       who: e.actorName,
       what: e.summary,
     })),

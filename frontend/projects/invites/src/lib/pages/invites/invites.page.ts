@@ -1,5 +1,4 @@
-import { formatDate } from '@angular/common';
-import { ChangeDetectionStrategy, Component, LOCALE_ID, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
 import { INVITES_SERVICE, InviteDto, InviteStatus, ROLE_LABELS } from '@faithtech-community/api';
 import {
   BadgeComponent,
@@ -16,6 +15,7 @@ import {
   ListSkeletonComponent,
   PageHeaderComponent,
   ToastService,
+  formatDay,
 } from '@faithtech-community/components';
 import { firstValueFrom } from 'rxjs';
 
@@ -54,7 +54,6 @@ export class InvitesPage {
   private readonly invites = inject(INVITES_SERVICE);
   private readonly dialogs = inject(DialogService);
   private readonly toasts = inject(ToastService);
-  private readonly locale = inject(LOCALE_ID);
 
   protected readonly state = signal<State>('loading');
   protected readonly list = signal<InviteDto[]>([]);
@@ -116,7 +115,7 @@ export class InvitesPage {
   }
 
   private day(value: string | null): string {
-    return value ? formatDate(value, 'EEE d MMM', this.locale) : '';
+    return value ? formatDay(value) : '';
   }
 
   private async load(): Promise<void> {
