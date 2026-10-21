@@ -16,6 +16,7 @@ public partial class ServerAuthorizationTests(CommunityApiFactory factory) : ICl
         "health/ready",
         "api/account/sign-up",
         "api/account/verify-email",
+        "api/account/resend-verification",
         "api/account/forgot-password",
         "api/account/reset-password",
         "connect/authorize",

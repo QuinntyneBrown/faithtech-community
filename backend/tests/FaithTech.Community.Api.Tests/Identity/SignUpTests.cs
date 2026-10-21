@@ -1,6 +1,7 @@
 using System.Net;
 using System.Net.Http.Json;
 using FaithTech.Community.Api.Tests.Fakes;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -70,7 +71,7 @@ public class SignUpTests(CommunityApiFactory factory) : IClassFixture<CommunityA
     [Fact]
     public async Task The_21st_auth_request_in_a_minute_from_one_address_returns_429()
     {
-        var client = factory.WithWebHostBuilder(_ => { }).CreateClient();
+        var client = factory.WithWebHostBuilder(b => b.UseSetting("RateLimits:AuthPerMinute", "20")).CreateClient();
 
         for (var i = 0; i < 20; i++)
         {

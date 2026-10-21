@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.AspNetCore.TestHost;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Time.Testing;
 using Testcontainers.Azurite;
 using Testcontainers.PostgreSql;
 
@@ -17,6 +18,8 @@ public class CommunityApiFactory : WebApplicationFactory<Program>, IAsyncLifetim
     public const string WebAppOrigin = "https://app.faithtech.test";
 
     public FakeEmailSender Emails { get; } = new();
+
+    public FakeTimeProvider Time { get; } = new(DateTimeOffset.UtcNow);
 
     private readonly PostgreSqlContainer _postgres =
         new PostgreSqlBuilder("postgres:17-alpine").WithDatabase("faithtech_community").Build();
@@ -35,10 +38,13 @@ public class CommunityApiFactory : WebApplicationFactory<Program>, IAsyncLifetim
         builder.UseEnvironment("Testing");
         builder.UseSetting("ConnectionStrings:Community", _postgres.GetConnectionString());
         builder.UseSetting("WebApp:Origin", WebAppOrigin);
+        // Tests share one client address; the rate-limit tests restore the production limit explicitly.
+        builder.UseSetting("RateLimits:AuthPerMinute", "100000");
         builder.UseSetting("ConnectionStrings:Blobs", _azurite.GetConnectionString());
         builder.ConfigureTestServices(services =>
         {
             services.AddSingleton<IEmailSender>(Emails);
+            services.AddSingleton<TimeProvider>(Time);
             services.AddSingleton<IBreachedPasswordChecker, FakeBreachedPasswordChecker>();
         });
     }

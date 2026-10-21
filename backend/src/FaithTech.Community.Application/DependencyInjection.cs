@@ -2,6 +2,7 @@ using FaithTech.Community.Application.Identity;
 using FluentValidation;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 
 namespace FaithTech.Community.Application;
 
@@ -13,6 +14,9 @@ public static class DependencyInjection
         services.AddValidatorsFromAssemblyContaining<SignUpValidator>();
         services.AddScoped<VerificationEmails>();
         services.AddScoped<SignUpHandler>();
+        services.AddScoped<ConfirmEmailHandler>();
+        services.AddScoped<ResendVerificationHandler>();
+        services.TryAddSingleton(TimeProvider.System);
         return services;
     }
 }

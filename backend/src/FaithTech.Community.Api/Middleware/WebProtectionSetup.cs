@@ -28,8 +28,9 @@ public static class WebProtectionSetup
                     _ => Window(100)));
 
             // 20 requests a minute per IP address for sign-in, sign-up, reset and verification.
+            var authPermitLimit = configuration.GetValue("RateLimits:AuthPerMinute", 20);
             options.AddPolicy(AuthRateLimitPolicy, context =>
-                RateLimitPartition.GetFixedWindowLimiter($"auth:{context.Connection.RemoteIpAddress}", _ => Window(20)));
+                RateLimitPartition.GetFixedWindowLimiter($"auth:{context.Connection.RemoteIpAddress}", _ => Window(authPermitLimit)));
         });
         return services;
     }

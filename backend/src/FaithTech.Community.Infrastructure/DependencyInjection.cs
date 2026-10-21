@@ -4,10 +4,12 @@ using FaithTech.Community.Application.Identity;
 using FaithTech.Community.Infrastructure.Email;
 using FaithTech.Community.Infrastructure.Identity;
 using FaithTech.Community.Infrastructure.Persistence;
+using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 
 namespace FaithTech.Community.Infrastructure;
 
@@ -32,10 +34,12 @@ public static class DependencyInjection
                 options.Password.RequireLowercase = false;
                 options.Password.RequireUppercase = false;
                 options.Password.RequireNonAlphanumeric = false;
+                options.Tokens.EmailConfirmationTokenProvider = EmailConfirmationTokenProvider<CommunityUser>.Name;
             })
             .AddEntityFrameworkStores<CommunityDbContext>()
-            .AddDefaultTokenProviders();
-        services.Configure<DataProtectionTokenProviderOptions>(options => options.TokenLifespan = TimeSpan.FromHours(24));
+            .AddTokenProvider<EmailConfirmationTokenProvider<CommunityUser>>(EmailConfirmationTokenProvider<CommunityUser>.Name);
+        services.AddDataProtection();
+        services.TryAddSingleton(TimeProvider.System);
 
         services.AddHttpClient<IBreachedPasswordChecker, HibpBreachedPasswordChecker>(client =>
         {
@@ -43,6 +47,7 @@ public static class DependencyInjection
             client.Timeout = TimeSpan.FromSeconds(3);
             client.DefaultRequestHeaders.Add("Add-Padding", "true");
         });
+        services.AddScoped<IVerificationResendLog, VerificationResendLog>();
         services.Configure<SmtpOptions>(configuration.GetSection(SmtpOptions.Section));
         services.AddScoped<IEmailSender, SmtpEmailSender>();
 
