@@ -52,9 +52,7 @@
           />
         }
       } @else {
-        <ft-card variant="flush">
-          <ft-table caption="Audit log" [columns]="columns" [rows]="rows()" />
-        </ft-card>
+        <ft-table caption="Audit log" [columns]="columns" [rows]="rows()" />
         @if (hasMore()) {
           <ft-cluster class="more">
             <ft-button [loading]="loadingMore()" (click)="loadMore()">Show older entries</ft-button>

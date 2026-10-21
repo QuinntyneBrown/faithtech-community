@@ -14,6 +14,8 @@ export class ProfilePage {
   readonly loadError: Locator;
   readonly tryAgain: Locator;
   readonly notFound: Locator;
+  readonly addRole: Locator;
+  readonly removeRole: Locator;
 
   constructor(private readonly page: Page) {
     this.heading = page.getByRole('heading', { level: 1 });
@@ -28,6 +30,8 @@ export class ProfilePage {
     this.loadError = page.getByRole('heading', { name: 'We couldn’t load this profile' });
     this.tryAgain = page.getByRole('button', { name: 'Try again' });
     this.notFound = page.getByRole('heading', { name: 'We can’t find that profile' });
+    this.addRole = page.getByRole('button', { name: 'Add a role' });
+    this.removeRole = page.getByRole('button', { name: 'Remove a role' });
   }
 
   async open(id: string): Promise<void> {

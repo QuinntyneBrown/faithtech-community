@@ -17,7 +17,6 @@ import {
 } from '@faithtech-community/api';
 import {
   ButtonComponent,
-  CardComponent,
   ClusterComponent,
   EmptyStateComponent,
   FormFieldComponent,
@@ -49,7 +48,6 @@ const CATEGORIES: SelectOption[] = [
   imports: [
     ReactiveFormsModule,
     ButtonComponent,
-    CardComponent,
     ClusterComponent,
     EmptyStateComponent,
     FormFieldComponent,

@@ -3,6 +3,8 @@
 }
 
 .ft-table__wrap {
+  /* Contains the visually hidden caption and headers, so they scroll with the table, not the page. */
+  position: relative;
   overflow-x: auto;
   background: var(--color-bg-surface);
   border: var(--border-width-hairline) solid var(--color-border-default);

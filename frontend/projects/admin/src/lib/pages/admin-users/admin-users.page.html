@@ -78,9 +78,7 @@
           <ft-button actions (click)="clear()">Clear search</ft-button>
         </ft-empty-state>
       } @else {
-        <ft-card variant="flush">
-          <ft-table caption="All user accounts" [columns]="columns()" [rows]="rows()" />
-        </ft-card>
+        <ft-table caption="All user accounts" [columns]="columns()" [rows]="rows()" />
         @if (hasMore()) {
           <ft-cluster class="more">
             <ft-button [loading]="loadingMore()" (click)="loadMore()">Show more users</ft-button>
