@@ -65,7 +65,7 @@ Static HTML mocks for every page, dialog and notification, built from [`idea.txt
 | Staff read-only, System Admin override, non-members see nothing (search too) | The `staff` and `forbidden` states, `search/member` vs `search/default`, `dialogs/reassign-owner` |
 | Scrum or Kanban per workspace, switchable; switching closes the sprints | `team-board/default` vs `kanban`, `dialogs/switch-method` |
 | Strict Initiative → Epic → Story → Task hierarchy, optional parents, a task needs a story | `backlog/default` (orphan epic and story), `dialogs/new-work-item/task` and `invalid` |
-| Stories are the cards, tasks a checklist; To Do → In Progress → Done; filter by epic/initiative | `team-board/*`, `work-item/default`, the epic filter on the Kanban board and backlog |
+| Stories are the cards, tasks a checklist; To Do → In Progress → Done; filter by epic/initiative | `team-board/*`, `dialogs/move-story`, `work-item/default`, the epic filter on the Kanban board and backlog |
 | Fields: title, description, one assignee, status, points, comments | `work-item/default` |
 | Sprints: name, goal, dates; one active; unfinished stories return to the backlog; completed points | `dialogs/start-sprint`, `dialogs/close-sprint`, `backlog/sprints` |
 | Planning Poker: any member starts a live session; deck 1–21 and ?; hidden votes; re-vote; facilitator sets the points | `dialogs/start-poker`, `planning-poker/default`, `revealed`, `facilitator`, `agreed` |
@@ -143,6 +143,7 @@ Legend: ✅ mock exists · ➖ not applicable (reason in manifest) · ❌ missin
 | New work item (`new-work-item`) | [✅](dialogs/new-work-item/default.html) | [✅](dialogs/new-work-item/busy.html) | [✅](dialogs/new-work-item/invalid.html) | [✅](dialogs/new-work-item/failed.html) | [✅](dialogs/new-work-item/member.html) | [✅](dialogs/new-work-item/task.html) |  | `L2-032`, `L2-033` |
 | Start sprint (`start-sprint`) | [✅](dialogs/start-sprint/default.html) | [✅](dialogs/start-sprint/busy.html) | [✅](dialogs/start-sprint/invalid.html) | [✅](dialogs/start-sprint/failed.html) |  |  |  | `L2-035` |
 | Close sprint (`close-sprint`) | [✅](dialogs/close-sprint/default.html) | [✅](dialogs/close-sprint/busy.html) | ➖ | [✅](dialogs/close-sprint/failed.html) |  |  |  | `L2-035` |
+| Move story (`move-story`) | [✅](dialogs/move-story/default.html) | [✅](dialogs/move-story/busy.html) | ➖ | [✅](dialogs/move-story/failed.html) |  |  |  | `L2-034` |
 | Switch Scrum / Kanban (`switch-method`) | [✅](dialogs/switch-method/default.html) | [✅](dialogs/switch-method/busy.html) | ➖ | [✅](dialogs/switch-method/failed.html) |  |  | [✅](dialogs/switch-method/to-scrum.html) | `L2-036` |
 | Start Planning Poker (`start-poker`) | [✅](dialogs/start-poker/default.html) | [✅](dialogs/start-poker/busy.html) | [✅](dialogs/start-poker/invalid.html) | [✅](dialogs/start-poker/failed.html) |  |  |  | `L2-038` |
 | Reassign workspace owner (`reassign-owner`) | [✅](dialogs/reassign-owner/default.html) | [✅](dialogs/reassign-owner/busy.html) | [✅](dialogs/reassign-owner/invalid.html) | [✅](dialogs/reassign-owner/failed.html) |  |  |  | `L2-037` |
