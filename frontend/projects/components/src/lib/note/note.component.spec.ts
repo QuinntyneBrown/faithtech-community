@@ -4,10 +4,13 @@ import { NoteComponent } from './note.component';
 
 @Component({
   imports: [NoteComponent],
-  template: `<ft-note [date]="date()"><p>Met at Builders Night.</p></ft-note>`,
+  template: `<ft-note [date]="date()" [loading]="loading()"
+    ><p>Met at Builders Night.</p></ft-note
+  >`,
 })
 class HostComponent {
   date = signal<string | null>('Thu 18 Sep');
+  loading = signal(false);
 }
 
 describe('NoteComponent', () => {
@@ -40,5 +43,17 @@ describe('NoteComponent', () => {
     fixture.componentInstance.date.set(null);
     fixture.detectChanges();
     expect(fixture.nativeElement.querySelector('.ft-note__meta')).toBeNull();
+  });
+
+  it('shows a note-shaped skeleton while loading, hidden from assistive technology', () => {
+    const fixture = TestBed.createComponent(HostComponent);
+    fixture.componentInstance.loading.set(true);
+    fixture.detectChanges();
+    const host = fixture.nativeElement.querySelector('ft-note') as HTMLElement;
+    expect(host.classList.contains('ft-note--skeleton')).toBe(true);
+    expect(host.getAttribute('aria-hidden')).toBe('true');
+    expect(host.querySelectorAll('ft-skeleton').length).toBe(3);
+    expect(host.textContent).not.toContain('Met at Builders Night.');
+    expect(host.querySelector('.ft-note__meta')).toBeNull();
   });
 });

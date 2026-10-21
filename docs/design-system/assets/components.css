@@ -810,6 +810,10 @@ mark { background: var(--color-warning-bg); color: inherit; border-radius: var(-
 .note p { margin: 0; }
 .note p + p { margin-top: var(--space-2); }
 .note__meta { color: var(--color-fg-muted); font: var(--text-caption); }
+/* Loading note: skeleton lines on the surface (they share the note fill), with a quiet rule. */
+.note--skeleton { background: var(--color-bg-surface); border-left-color: var(--color-border-default); }
+.note--skeleton .skeleton--text + .skeleton--text { width: 60%; }
+.note--skeleton .skeleton--caption { height: 0.75em; width: 6em; margin-top: var(--space-2); }
 
 /* ---------- Profile header ---------------------------------------------------- */
 .profile-head { display: flex; flex-wrap: wrap; gap: var(--space-4); align-items: center; }
