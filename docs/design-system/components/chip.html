@@ -252,7 +252,7 @@
       <table class="ds-table"><thead><tr><th scope="col">Class / attribute</th><th scope="col">Effect</th></tr></thead><tbody>
         <tr><td><code>.chip</code></td><td>Pill button or link, 32px tall.</td></tr>
         <tr><td><code>.cluster[role="group"][aria-label]</code></td><td>The filter chip row. Always labelled ("Filter events", "Filter team"). In Angular: <code>&lt;ft-chip-group label="Filter events"&gt;</code>.</td></tr>
-        <tr><td><code>.filter-bar</code></td><td>With <code>.cluster.cluster--between</code>: the row above a list that holds the chip group and any select, aligned to the bottom and spaced <code>--space-4</code> from the list.</td></tr>
+        <tr><td><code>.filter-bar</code></td><td>With <code>.cluster.cluster--between</code>: the row above a list that holds the chip group and any select, aligned to the bottom and spaced <code>--space-4</code> from the list. A search form above a list, as on Contacts, uses <code>.cluster.filter-bar</code> for the same spacing.</td></tr>
         <tr><td><code>aria-pressed="true|false"</code></td><td>Filter chip state; <code>true</code> shows the accent style.</td></tr>
         <tr><td><code>a.chip[aria-current="page"]</code></td><td>Current view chip, inside a <code>&lt;nav class="cluster" aria-label="…"&gt;</code>. Shows the pressed style. Never put <code>aria-pressed</code> on a link. In Angular: <code>&lt;ft-chip href="…" [current]="true"&gt;</code>.</td></tr>
         <tr><td><code>disabled</code></td><td>50% opacity, not focusable. Only while the list loads.</td></tr>
