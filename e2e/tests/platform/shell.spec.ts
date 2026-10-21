@@ -118,6 +118,33 @@ test.describe('App shell', () => {
     await expect(shell.moreTab).toBeFocused();
   });
 
+  test('on a tablet the hidden sections stay reachable through More', async ({
+    page,
+    api,
+    axe,
+  }) => {
+    await page.setViewportSize(BREAKPOINTS.md);
+    const shell = new AppShell(page);
+    await api.signInAs(api.addAccount({ email: 'grace@example.org', roles: ['CityLead'] }));
+
+    await expect(shell.navLink('Events')).toBeVisible();
+    await expect(shell.navLink('Team')).toBeHidden();
+    await expect(shell.tabBar).toBeHidden();
+    await shell.moreLink.click();
+
+    await expect(shell.drawer).toBeVisible();
+    for (const name of ['Team', 'Announcements', 'People']) {
+      await expect(shell.drawerLink(name)).toBeVisible();
+    }
+    await axe.check();
+    await page.keyboard.press('Escape');
+    await expect(shell.moreLink).toBeFocused();
+
+    await page.setViewportSize(BREAKPOINTS.lg);
+    await expect(shell.navLink('Team')).toBeVisible();
+    await expect(shell.moreLink).toBeHidden();
+  });
+
   test('the skip link is the first thing keyboard users reach', async ({ page, api }) => {
     await api.signInAs(api.addAccount({ email: 'grace@example.org' }));
 

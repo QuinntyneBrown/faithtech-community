@@ -20,6 +20,7 @@ The mocks hand-copied the top bar and tab bar per persona, and the sets disagree
   - People: City Lead, Staff or System Admin (L2-053).
   - Admin: System Admin (L2-040).
 - The phone tab bar is Home, Events, Search, the member's next section, then **More**: a button that opens the menu (nav drawer) of every section the member may open. More is the current tab (`aria-current="true"`) whenever the page is outside the four link tabs, so a phone user always sees where they are.
+- From 768px to 1023px the top bar hides the secondary sections and ends its nav with a **More** button that opens the same menu, so every section stays reachable at every width.
 - Hiding a section is a convenience only; the API still refuses what a role may not open.
 - The mocks are regenerated from the same rule per persona, so each persona's bar matches what the app renders.
 

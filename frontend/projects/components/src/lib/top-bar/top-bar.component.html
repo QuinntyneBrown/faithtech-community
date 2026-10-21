@@ -14,6 +14,16 @@
           >{{ link.label }}</a
         >
       }
+      @if (moreLabel(); as moreText) {
+        <button
+          class="top-bar__link top-bar__more"
+          type="button"
+          aria-haspopup="dialog"
+          (click)="more.emit()"
+        >
+          {{ moreText }}
+        </button>
+      }
     </nav>
   }
   <span class="top-bar__spacer"></span>

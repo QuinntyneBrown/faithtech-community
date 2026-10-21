@@ -864,6 +864,10 @@ mark { background: var(--color-warning-bg); color: inherit; border-radius: var(-
 @media (min-width: 64rem) { .topbar__search { display: block; width: 14rem; } }
 .topbar__nav .nav-link { white-space: nowrap; }
 @media (min-width: 48rem) and (max-width: 63.99rem) { .topbar__nav .nav-link--secondary { display: none; } }
+/* More: between 768 and 1023px it stands in for the hidden secondary links and opens the Main menu (.nav-drawer). */
+.nav-link--more { display: none; border: 0; background: none; cursor: pointer; }
+@media (min-width: 48rem) { .topbar__nav .nav-link--more { display: inline-flex; } }
+@media (min-width: 64rem) { .topbar__nav .nav-link--more { display: none; } }
 
 /* ---------- Mono (audit log) -------------------------------------------------- */
 .mono { font: var(--text-code); }

@@ -68,8 +68,15 @@
   }
 }
 
-.top-bar__link--secondary {
+.top-bar__link--secondary,
+.top-bar__more {
   display: none;
+}
+
+.top-bar__more {
+  border: 0;
+  background: none;
+  cursor: pointer;
 }
 
 .top-bar__spacer {
@@ -112,6 +119,7 @@
 }
 
 a:focus-visible,
+.top-bar__more:focus-visible,
 .top-bar__input:focus-visible {
   outline: none;
   box-shadow: var(--shadow-focus);
@@ -121,11 +129,20 @@ a:focus-visible,
   .top-bar__nav {
     display: flex;
   }
+
+  // Between 768px and 1023px More stands in for the hidden secondary links.
+  .top-bar__more {
+    display: inline-flex;
+  }
 }
 
 @media (min-width: 64rem) {
   .top-bar__link--secondary {
     display: inline-flex;
+  }
+
+  .top-bar__more {
+    display: none;
   }
 
   .top-bar__search {

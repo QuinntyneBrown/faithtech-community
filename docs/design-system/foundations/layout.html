@@ -189,7 +189,7 @@
         <li>Put spans on grid children with the <code>.span-*</code> classes; never write <code>style="grid-column: span 8"</code> plus a <code>max-width</code> override .</li>
         <li>A page has one <code>.container</code>; full-bleed elements (top bar, banners) sit outside it.</li>
         <li>Use <code>100dvh</code>, not <code>100vh</code>, for full-height layouts so mobile browser bars do not clip content.</li>
-        <li>Never hide content at a breakpoint that is not reachable another way. Drift: the tab bar carries Search but not Workspaces, Team, Announcements or People, and 768 to 1023px hides the secondary links; they must stay reachable (for example through the avatar menu).</li>
+        <li>Never hide content at a breakpoint that is not reachable another way. Resolved drift: the hidden sections used to be reachable only from Home. Under 768px the tab bar's More, and from 768 to 1023px a More button at the end of the top-bar nav, open the Main menu drawer of every section.</li>
       </ul>
     </section>
 
