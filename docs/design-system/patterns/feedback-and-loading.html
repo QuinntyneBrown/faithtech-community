@@ -203,7 +203,7 @@
     <section class="ds-section" id="accessibility"><h2><a href="#accessibility">Accessibility</a></h2>
       <ul>
         <li>A loading region has <code>aria-busy="true"</code> and a label ("Loading contacts"). The skeleton blocks are <code>aria-hidden</code>. When the data arrives, <code>aria-busy</code> is removed and focus stays where it was.</li>
-        <li>Busy buttons use <code>aria-disabled</code>, not <code>disabled</code>, so they keep focus and the screen reader reads the new label.</li>
+        <li>The pressed busy button uses <code>aria-busy</code> plus <code>aria-disabled</code>, not <code>disabled</code>, so it keeps focus and the screen reader reads the new label. The other buttons in a busy dialog (Cancel, Close) use native <code>disabled</code>.</li>
         <li>Success results use <code>role="status"</code>. Failures use <code>role="alert"</code>, and in a dialog focus moves to the alert. Upload progress is a <code>role="status"</code> line with the percentage written out.</li>
         <li>The skeleton shimmer stops with reduced motion (<code>prefers-reduced-motion</code>). The text still shows the state.</li>
         <li>A result never relies on colour alone. It has a title and an icon.</li>
