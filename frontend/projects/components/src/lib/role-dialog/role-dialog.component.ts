@@ -51,6 +51,8 @@ export class RoleDialogComponent {
   protected readonly data = inject<RoleDialogData>(DIALOG_DATA);
 
   protected readonly adding = this.data.mode === 'add';
+  /** One role to remove is no choice: the title names it and no radio group is shown. */
+  protected readonly choosing = this.adding || this.data.options.length > 1;
   protected readonly role = new FormControl<string | null>(
     this.adding ? null : (this.data.options[0]?.value ?? null),
   );

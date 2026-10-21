@@ -40,6 +40,7 @@ test.describe('Assign roles', () => {
     await profile.removeRole.click();
     const dialog = new RoleDialog(page, 'Remove Volunteer from Ruth Alvarez?');
     await expect(dialog.cancel).toBeFocused();
+    await expect(dialog.options).toHaveCount(0);
     await dialog.confirm.click();
 
     await expect(dialog.dialog).toBeHidden();
