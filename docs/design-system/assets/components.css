@@ -864,6 +864,17 @@ summary.tree__row { cursor: pointer; }
 .event-card__body { flex: 1 1 12rem; }
 .avatar-trigger { text-decoration: none; }
 
+/* ---------- Email body ----------------------------------------------------------
+   The single source for email styling. Always render inside data-theme="light".
+   The email build inlines these rules with their resolved light-theme token
+   values (a CSS inliner), so no colour, size or font is ever typed by hand. */
+.email { background: var(--color-bg-surface); color: var(--color-fg-default); padding: var(--space-8); font: var(--text-body); }
+.email__title { font: var(--text-h4); margin: 0 0 var(--space-4); }
+.email__text, .email__action { margin: 0 0 var(--space-6); }
+.email__button { display: inline-block; background: var(--color-accent); color: var(--color-fg-on-accent); padding: var(--space-3) var(--space-5); border-radius: var(--radius-full); font: var(--text-label); text-decoration: none; }
+.email__footer { font: var(--text-caption); color: var(--color-fg-muted); margin: 0; }
+.email__footer a { color: inherit; }
+
 /* ---------- State hooks added during extraction --------------------------------- */
 .select:hover, .select[data-state="hover"] { border-color: var(--color-fg-muted); }
 .select:disabled { background-color: var(--color-bg-subtle); border-color: var(--color-border-default); color: var(--color-fg-disabled); cursor: not-allowed; }

@@ -14,7 +14,7 @@ The outbox decouples the triggering action from delivery. The triggering action 
 
 - **`IEmailQueue`** — Application abstraction. `EnqueueAsync(EmailMessage)` adds a message to the outbox inside the caller's unit of work.
 - **`EmailMessage`** — value object with `To`, `Subject`, `HtmlBody`, `TextBody`, `Kind` and `CorrelationId`.
-- **`EmailTemplateRenderer`** — Infrastructure service that renders each `NotificationKind` template into HTML and plain-text parts and builds every link from the configured HTTPS base URL.
+- **`EmailTemplateRenderer`** — Infrastructure service that renders each `NotificationKind` template into HTML and plain-text parts and builds every link from the configured HTTPS base URL. Templates use the design system's `.email` classes (`docs/design-system/patterns/notifications.html`); the HTML part is produced by inlining those rules with the light-theme token values from `tokens.css`, so no colour, size or font is typed into a template.
 - **`OutboxEmail`** — Infrastructure persistence entity with `Status`, `Attempts`, `NextAttemptAt` and `LastError`.
 - **`EmailDeliveryWorker`** — hosted background service in Infrastructure. It polls due outbox rows, calls `IEmailSender`, and on failure schedules a retry with backoff, up to 5 attempts.
 - **`IEmailSender`** / **`SmtpEmailSender`** — Infrastructure sender that delivers through SMTP or SendGrid, chosen by configuration.

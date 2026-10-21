@@ -206,19 +206,27 @@
       </div>
       <h3>Email</h3>
       <p>Every email has the same layout: a heading that says what happened, one sentence with the details, one button and a footer. Announcement emails end with a one-click unsubscribe link that works without signing in. Other emails explain that account and activity emails are always sent. The email is always shown in the light theme, because email clients do not use our tokens.</p>
+      <p>Email styling has one source: the <code>.email</code> classes in <code>components.css</code>, which read tokens by role and are always rendered inside <code>data-theme="light"</code>. Email clients ignore stylesheets and custom properties, so the email build runs the template through a CSS inliner against <code>tokens.css</code> in the light theme; the hex colours, px sizes and font stack in the sent email come from that step. Nobody types them, in a mock or in a template.</p>
+      <div class="ds-table-wrap"><table class="ds-table"><thead><tr><th scope="col">Class</th><th scope="col">Part</th><th scope="col">Tokens</th></tr></thead><tbody>
+        <tr><td><code>.email</code></td><td>Body: surface, text colour, padding, body type</td><td><code>--color-bg-surface</code>, <code>--color-fg-default</code>, <code>--space-8</code>, <code>--text-body</code></td></tr>
+        <tr><td><code>.email__title</code></td><td>What happened</td><td><code>--text-h4</code>, <code>--space-4</code></td></tr>
+        <tr><td><code>.email__text</code>, <code>.email__action</code></td><td>The detail sentence and the paragraph holding the button</td><td><code>--space-6</code></td></tr>
+        <tr><td><code>.email__button</code></td><td>The one button (a link)</td><td><code>--color-accent</code>, <code>--color-fg-on-accent</code>, <code>--space-3</code>/<code>--space-5</code>, <code>--radius-full</code>, <code>--text-label</code></td></tr>
+        <tr><td><code>.email__footer</code></td><td>Footer and unsubscribe link</td><td><code>--text-caption</code>, <code>--color-fg-muted</code></td></tr>
+      </tbody></table></div>
       <div class="ds-example">
         <div class="ds-example__canvas ds-example__canvas--stack">
           <div data-theme="light" class="stack" style="width: 100%; max-width: 36rem; margin-inline: auto;">
             <dl class="facts card"><div><dt>From</dt><dd>FaithTech Community &lt;hello@faithtech.example&gt;</dd></div><div><dt>To</dt><dd>samuel.mensah@example.org</dd></div><div><dt>Subject</dt><dd>Grace assigned you: Volunteer check-in kiosk</dd></div></dl>
-            <div class="card stack">
-              <p style="font: var(--text-h3); margin: 0;">You’ve been assigned a story</p>
-              <p>Grace Okonkwo assigned you “Volunteer check-in kiosk” (5 points) in the Toronto team workspace, Sprint 7.</p>
-              <p><a class="btn btn--primary" href="../../mocks/pages/work-item/default.html">Open the story</a></p>
-              <p class="text-caption">FaithTech Community · You can turn off announcement emails in Settings; account and activity emails are always sent.</p>
+            <div class="email">
+              <p class="email__title">You’ve been assigned a story</p>
+              <p class="email__text">Grace Okonkwo assigned you “Volunteer check-in kiosk” (5 points) in the Toronto team workspace, Sprint 7.</p>
+              <p class="email__action"><a class="email__button" href="../../mocks/pages/work-item/default.html">Open the story</a></p>
+              <p class="email__footer">FaithTech Community · You can turn off announcement emails in Settings; account and activity emails are always sent.</p>
             </div>
           </div>
         </div>
-        <div class="ds-example__caption"><span>notifications/email/assigned, rebuilt with tokens. The real email uses inline styles.</span></div>
+        <div class="ds-example__caption"><span>notifications/email/assigned with the <code>.email</code> classes. The real email gets the same values as inline styles from the email build, never typed by hand.</span></div>
       </div>
       <div class="ds-table-wrap"><table class="ds-table">
         <thead><tr><th scope="col">Email</th><th scope="col">Subject</th><th scope="col">Button</th><th scope="col">Can opt out</th></tr></thead>
@@ -340,7 +348,7 @@
       <p>Drift noticed in the mocks:</p>
       <ul>
         
-        <li>The email mocks use raw hex colours, px sizes and a system font stack in inline styles. Email clients need this, but the values should come from the token build, not be typed by hand.</li>
+        <li>Resolved: the email mocks no longer type hex colours, px sizes or a font stack; they use the <code>.email</code> classes inside <code>data-theme="light"</code>, and the sent email gets its inline values from the email build (see Email above).</li>
       </ul>
     </section>
 
