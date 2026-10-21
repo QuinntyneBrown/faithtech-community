@@ -43,6 +43,24 @@ public class PasswordResetTests(CommunityApiFactory factory) : IClassFixture<Com
     }
 
     [Fact]
+    public async Task Reset_clears_a_lockout_and_the_failures_that_led_to_it()
+    {
+        var email = await _flow.CreateAccountAsync();
+        for (var i = 0; i < 5; i++)
+        {
+            await _flow.SignInAsync(email, "not-the-right-password");
+        }
+
+        await Reset(await RequestAndGetLink(email), NewPassword);
+        for (var i = 0; i < 4; i++)
+        {
+            await _flow.SignInAsync(email, "not-the-right-password");
+        }
+
+        Assert.Equal(HttpStatusCode.OK, (await _flow.SignInAsync(email, NewPassword)).StatusCode);
+    }
+
+    [Fact]
     public async Task Already_used_link_is_rejected_with_a_token_error()
     {
         var link = await RequestAndGetLink(await _flow.CreateAccountAsync());
