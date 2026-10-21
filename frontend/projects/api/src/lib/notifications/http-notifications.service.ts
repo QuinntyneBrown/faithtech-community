@@ -1,13 +1,36 @@
 /*
- * SCAFFOLD: placeholder, not the implementation.
- * Generated from AGENTS.md and:
+ * EARLY IMPLEMENTATION: written ahead of the vertical slices to get a head start.
+ * Contracts and DTOs follow docs/detailed-designs/ but may change as each feature is
+ * implemented end to end (spec -> design -> mock -> ATDD slice).
+ * Sources:
  *   - docs/detailed-designs/notifications/in-app-notifications
- * Overwrite this file with the expected implementation (implementing-incrementally
- * skill + ATDD), then delete this comment.
  */
-import { Injectable } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
+import { Injectable, inject } from '@angular/core';
+import { Observable, map } from 'rxjs';
 
-import { NotificationsService } from './notifications.service';
+import { API_BASE_URL } from '../config';
+import { toHttpParams } from '../shared';
+import { NotificationPage, NotificationsService } from './notifications.service';
 
 @Injectable()
-export class HttpNotificationsService implements NotificationsService {}
+export class HttpNotificationsService implements NotificationsService {
+  private readonly http = inject(HttpClient);
+  private readonly base = `${inject(API_BASE_URL)}/notifications`;
+
+  list(page = 1): Observable<NotificationPage> {
+    return this.http.get<NotificationPage>(this.base, { params: toHttpParams({ page }) });
+  }
+
+  unreadCount(): Observable<number> {
+    return this.http.get<{ count: number }>(`${this.base}/unread-count`).pipe(map((r) => r.count));
+  }
+
+  markRead(id: string): Observable<void> {
+    return this.http.post<void>(`${this.base}/${id}/read`, null);
+  }
+
+  markAllRead(): Observable<void> {
+    return this.http.post<void>(`${this.base}/read-all`, null);
+  }
+}

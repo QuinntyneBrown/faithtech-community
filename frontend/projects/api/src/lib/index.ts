@@ -1,8 +1,7 @@
 /*
- * SCAFFOLD: placeholder, not the implementation.
- * Generated from AGENTS.md.
- * Overwrite this file with the expected implementation (implementing-incrementally
- * skill + ATDD), then delete this comment.
+ * EARLY IMPLEMENTATION: written ahead of the vertical slices to get a head start.
+ * Contracts and DTOs follow docs/detailed-designs/ but may change as each feature is
+ * implemented end to end (spec -> design -> mock -> ATDD slice).
  */
 export * from './admin';
 export * from './announcements';
@@ -17,4 +16,5 @@ export * from './partners';
 export * from './profiles';
 export * from './search';
 export * from './team';
+export * from './shared';
 export * from './provide-api';

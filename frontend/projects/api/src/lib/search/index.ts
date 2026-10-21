@@ -1,9 +1,9 @@
 /*
- * SCAFFOLD: placeholder, not the implementation.
- * Generated from AGENTS.md and:
+ * EARLY IMPLEMENTATION: written ahead of the vertical slices to get a head start.
+ * Contracts and DTOs follow docs/detailed-designs/ but may change as each feature is
+ * implemented end to end (spec -> design -> mock -> ATDD slice).
+ * Sources:
  *   - docs/detailed-designs/search/global-search
- * Overwrite this file with the expected implementation (implementing-incrementally
- * skill + ATDD), then delete this comment.
  */
 export * from './search.service';
 export * from './http-search.service';

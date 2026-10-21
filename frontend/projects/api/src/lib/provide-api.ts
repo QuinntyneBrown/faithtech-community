@@ -1,13 +1,12 @@
 /*
- * SCAFFOLD: placeholder, not the implementation.
- * Generated from AGENTS.md.
- * Overwrite this file with the expected implementation (implementing-incrementally
- * skill + ATDD), then delete this comment.
+ * EARLY IMPLEMENTATION: written ahead of the vertical slices to get a head start.
+ * Contracts and DTOs follow docs/detailed-designs/ but may change as each feature is
+ * implemented end to end (spec -> design -> mock -> ATDD slice).
  */
 import { provideHttpClient, withInterceptors } from '@angular/common/http';
 import { EnvironmentProviders, Provider, makeEnvironmentProviders } from '@angular/core';
 
-import { API_BASE_URL } from './config';
+import { API_BASE_URL, AUTH_CONFIG, AuthConfig, defaultAuthConfig } from './config';
 import { authInterceptor } from './auth';
 import { httpErrorInterceptor } from './errors';
 import { AUTH_SERVICE, HttpAuthService } from './auth';
@@ -29,10 +28,17 @@ import {
   HttpRolesService,
 } from './admin';
 
-/** Registers HttpClient, the interceptors and every service token with its HTTP implementation. */
-export function provideApi(baseUrl: string): EnvironmentProviders {
+/**
+ * Registers HttpClient, the interceptors and every service token with its HTTP implementation.
+ * Auth settings default to the current origin; override them with the second argument.
+ */
+export function provideApi(baseUrl: string, auth: Partial<AuthConfig> = {}): EnvironmentProviders {
   const providers: Provider[] = [
     { provide: API_BASE_URL, useValue: baseUrl },
+    {
+      provide: AUTH_CONFIG,
+      useFactory: () => ({ ...defaultAuthConfig(window.location.origin), ...auth }),
+    },
     { provide: AUTH_SERVICE, useClass: HttpAuthService },
     { provide: PROFILES_SERVICE, useClass: HttpProfilesService },
     { provide: CONTACTS_SERVICE, useClass: HttpContactsService },

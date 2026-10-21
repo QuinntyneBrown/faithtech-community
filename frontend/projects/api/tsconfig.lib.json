@@ -1,4 +1,4 @@
-/* SCAFFOLD: library build config. Feature libraries build against ./dist, so build components and api first (npm run build:libs). */
+/* Library build config. Feature libraries build against ./dist, so build components and api first (npm run build:libs). */
 {
   "extends": "../../tsconfig.json",
   "compilerOptions": {

@@ -1,14 +1,96 @@
 /*
- * SCAFFOLD: placeholder, not the implementation.
- * Generated from AGENTS.md and:
+ * EARLY IMPLEMENTATION: written ahead of the vertical slices to get a head start.
+ * Contracts and DTOs follow docs/detailed-designs/ but may change as each feature is
+ * implemented end to end (spec -> design -> mock -> ATDD slice).
+ * Sources:
  *   - docs/detailed-designs/events/event-list-and-filter
  *   - docs/detailed-designs/events/create-and-edit-events
  *   - docs/detailed-designs/events/rsvp
  *   - docs/detailed-designs/events/cancel-events
  *   - docs/detailed-designs/events/public-events-and-guest-rsvp
  *   - docs/detailed-designs/events/calendar-export
- * Overwrite this file with the expected implementation (implementing-incrementally
- * skill + ATDD), then delete this comment.
  */
+import { HttpTestingController } from '@angular/common/http/testing';
+import { TestBed } from '@angular/core/testing';
+import { Observable } from 'rxjs';
 
-describe.todo('HttpEventsService');
+import { apiTestProviders } from '../shared/api-test-providers';
+import { EVENTS_SERVICE, EventRequest } from './events.service';
+import { HttpEventsService } from './http-events.service';
+
+const event: EventRequest = {
+  title: 'Builders night',
+  description: 'Hack',
+  type: 'Standard',
+  startsAt: '2026-11-01T18:00:00Z',
+  endsAt: '2026-11-01T20:00:00Z',
+  city: 'Toronto',
+  format: 'InPerson',
+  venue: 'HQ',
+  onlineLink: null,
+  visibility: 'MembersOnly',
+};
+
+describe('HttpEventsService', () => {
+  let service: HttpEventsService;
+  let controller: HttpTestingController;
+
+  beforeEach(() => {
+    TestBed.configureTestingModule({
+      providers: [...apiTestProviders(), { provide: EVENTS_SERVICE, useClass: HttpEventsService }],
+    });
+    service = TestBed.inject(EVENTS_SERVICE) as HttpEventsService;
+    controller = TestBed.inject(HttpTestingController);
+  });
+
+  it.each([
+    ['listEvents', () => service.listEvents({}), 'GET', '/api/events', undefined],
+    [
+      'listEvents by city',
+      () => service.listEvents({ city: 'Toronto' }),
+      'GET',
+      '/api/events?city=Toronto',
+      undefined,
+    ],
+    ['getEvent', () => service.getEvent('e1'), 'GET', '/api/events/e1', undefined],
+    ['createEvent', () => service.createEvent(event), 'POST', '/api/events', event],
+    ['updateEvent', () => service.updateEvent('e1', event), 'PUT', '/api/events/e1', event],
+    [
+      'cancelEvent',
+      () => service.cancelEvent('e1', 'Venue closed'),
+      'POST',
+      '/api/events/e1/cancel',
+      { reason: 'Venue closed' },
+    ],
+    ['rsvp', () => service.rsvp('e1'), 'POST', '/api/events/e1/rsvps', undefined],
+    ['cancelRsvp', () => service.cancelRsvp('e1'), 'DELETE', '/api/events/e1/rsvps/me', undefined],
+    [
+      'getPublicEvent',
+      () => service.getPublicEvent('e1'),
+      'GET',
+      '/api/public/events/e1',
+      undefined,
+    ],
+    [
+      'rsvpAsGuest',
+      () => service.rsvpAsGuest('e1', { name: 'Guest', email: 'g@h.io' }),
+      'POST',
+      '/api/public/events/e1/rsvps',
+      { name: 'Guest', email: 'g@h.io' },
+    ],
+  ])('%s', (_name, call, method, url, body) => {
+    (call() as Observable<unknown>).subscribe();
+
+    const req = controller.expectOne(url);
+    expect(req.request.method).toBe(method);
+    if (body !== undefined) expect(req.request.body).toEqual(body);
+    req.flush(null);
+  });
+
+  it('builds calendar download urls for members and for public events', () => {
+    expect(service.calendarUrl('e1')).toBe('/api/events/e1/calendar.ics');
+    expect(service.calendarUrl('e1', { isPublic: true })).toBe(
+      '/api/public/events/e1/calendar.ics',
+    );
+  });
+});
