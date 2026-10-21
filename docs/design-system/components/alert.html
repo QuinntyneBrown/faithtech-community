@@ -299,7 +299,7 @@
         <tr><td><code>.alert--info</code> <code>--success</code> <code>--warning</code> <code>--danger</code></td><td>Status.</td></tr>
         <tr><td><code>.alert__body</code>, <code>__title</code>, <code>__text</code>, <code>__actions</code></td><td>Content column, title, text, action row.</td></tr>
         <tr><td><code>.close</code></td><td>24px dismiss; needs <code>aria-label</code>.</td></tr>
-        <tr><td><code>.banner</code></td><td>Full width, square, one row from 640px. Replaces the mocks’ <code>.banner-wrap</code> with inline padding.</td></tr>
+        <tr><td><code>.banner</code></td><td>Full width, square, one row from 640px. Sits directly between the top bar and main, with no wrapper.</td></tr>
         <tr><td><code>.form-summary</code></td><td>Error list for a form; add <code>tabindex="-1"</code>.</td></tr>
         <tr><td><code>role="status"</code> / <code>role="alert"</code></td><td>Polite for info, success, warning; assertive for danger.</td></tr>
       </tbody></table>
@@ -317,7 +317,7 @@
         <li><a href="../../mocks/pages/event-form/invalid.html">pages/event-form/invalid</a>, <a href="../../mocks/pages/settings/invalid.html">pages/settings/invalid</a> (form summary)</li>
         <li><a href="../../mocks/dialogs/add-role/failed.html">dialogs/add-role/failed</a> (alert inside a dialog)</li>
       </ul>
-      <p>Drift in the mocks: the banner mocks wrap a plain <code>.alert</code> in <code>.banner-wrap</code> with inline <code>style="padding: var(--space-2) var(--layout-margin);"</code> instead of using <code>.banner</code>, and only the danger banner sets a role. The contacts page spaces its search form with inline <code>style="margin-bottom: var(--space-4);"</code>.</p>
+      <p>Drift in the mocks: only the danger banner sets a role. The contacts page spaces its search form with inline <code>style="margin-bottom: var(--space-4);"</code>.</p>
     </section>
 
     <footer class="ds-footer"><span>FaithTech Community design system · extracted from <a href="../../mocks/index.html">docs/mocks</a> on 2026-10-21</span><a href="#top">Back to top</a></footer>
