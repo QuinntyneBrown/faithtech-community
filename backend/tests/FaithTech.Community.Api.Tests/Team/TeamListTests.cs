@@ -82,6 +82,27 @@ public class TeamListTests(CommunityApiFactory factory) : IClassFixture<Communit
         Assert.DoesNotContain("Regina", list.Cities);
     }
 
+    // AC3: Given a profile that loses its last lead or volunteer role, when the team page is viewed, then that
+    // profile no longer appears.
+    [Fact]
+    public async Task Profile_that_loses_its_last_team_role_drops_off_and_one_keeping_a_team_role_stays()
+    {
+        var team = new TeamFactory(factory);
+        var ruth = await team.AddAsync("Ruth Alvarez", "Toronto", Role.Volunteer, Role.Attendee);
+        var marcus = await team.AddAsync("Marcus Lee", "Toronto", Role.EventLead, Role.Volunteer);
+        var grace = await factory.AddMemberAsync("Grace Okonkwo");
+        var lead = factory.ClientFor(grace, Role.CityLead);
+        Assert.Equal(["Marcus Lee", "Ruth Alvarez"], team.Mine((await lead.GetFromJsonAsync<TeamListResponse>(team.Url()))!).Select(m => m.Name));
+
+        (await lead.DeleteAsync($"/api/profiles/{ruth.ProfileId}/roles/Volunteer")).EnsureSuccessStatusCode();
+        (await lead.DeleteAsync($"/api/profiles/{marcus.ProfileId}/roles/Volunteer")).EnsureSuccessStatusCode();
+
+        var list = await lead.GetFromJsonAsync<TeamListResponse>(team.Url());
+        var marcusRow = Assert.Single(team.Mine(list!));
+        Assert.Equal(marcus.ProfileId, marcusRow.ProfileId);
+        Assert.Equal(["EventLead"], marcusRow.Roles);
+    }
+
     [Theory]
     [InlineData("?role=Staff")]
     [InlineData("?role=7")]
