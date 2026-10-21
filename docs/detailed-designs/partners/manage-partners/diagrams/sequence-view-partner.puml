@@ -17,31 +17,55 @@ skinparam package {
 actor "Lead or Staff" as actor
 box "Frontend — FaithTech Community web app (partners library)" #E0F2FE
   participant "PartnerPage" as page
+  participant "PartnerFormPage" as form
   participant "HttpPartnersService" as svc
 end box
 box "Backend — FaithTech.Community.Api" #D1FADF
   participant "PartnersEndpoints" as ep
 end box
 box "Backend — FaithTech.Community.Application and Domain" #ECFDF3
-  participant "GetPartnerHandler" as h
-  participant "PartnerAccessPolicy" as pol
+  participant "ManagePartnersHandler" as h
+  participant "PartnerAccess" as acc
+  participant "PartnerViews" as views
 end box
 box "Backend — FaithTech.Community.Infrastructure" #FFF4E5
   database "Community database" as db
 end box
-actor -> page : Open partner
+actor -> page : Open /partners/{id}
 page -> svc : get(id)
 svc -> ep : GET /api/partners/{id}
-ep -> h : Send GetPartnerQuery
-h -> pol : CanRead(caller)
-alt not lead, Staff or System Admin
+ep -> h : GetAsync(id)
+h -> acc : CanRead
+alt not a lead, Staff or System Admin
   h --> ep : Forbidden (L2-017 AC4)
-  ep --> svc : 403 ProblemDetails
+  ep --> svc : 403
 else permitted
-  h -> db : Load shared Partner record (L2-017 AC2)
-  h --> ep : PartnerDto with canEdit flag
-  ep --> svc : 200 OK
-  svc --> page : Partner
-  page --> actor : Show partner, edit hidden for Staff
+  h -> db : Load the shared Partner with StageChanges (L2-017 AC2)
+  alt unknown id
+    h --> ep : NotFound
+    ep --> svc : 404
+    svc --> page : Error
+    page --> actor : Not-found state
+  else found
+    h -> views : ToDtoAsync(partner)
+    views -> db : Owner and mover names
+    h --> ep : PartnerDto with history, newest first, and CanEdit
+    ep --> svc : 200 OK
+    svc --> page : Partner
+    page --> actor : Details and history; Edit and Move hidden when CanEdit is false (Staff)
+  end
+end
+opt Edit (CanEdit)
+  actor -> page : Choose Edit
+  page -> form : Navigate to /partners/{id}/edit
+  form -> svc : get(id) and owners()
+  actor -> form : Change details and save
+  form -> svc : update(id, request)
+  svc -> ep : PUT /api/partners/{id}
+  ep -> h : UpdateAsync(id, command)
+  h -> acc : CanWrite, then AuditAdminWrite(..., "partner.updated")
+  h -> db : Save Partner (stage unchanged)
+  ep --> svc : 200 PartnerDto (400, 403 or 404 otherwise)
+  form --> actor : Navigate back to /partners/{id}
 end
 @enduml

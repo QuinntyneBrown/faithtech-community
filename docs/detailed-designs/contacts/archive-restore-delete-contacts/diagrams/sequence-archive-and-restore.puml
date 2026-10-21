@@ -14,8 +14,9 @@ skinparam package {
   FontColor #101828
   BackgroundColor #F9FAFB
 }
-actor "City Lead" as actor
+actor "Lead" as actor
 box "Frontend — FaithTech Community web app (contacts library)" #E0F2FE
+  participant "ContactPage" as page
   participant "ArchiveContactDialog" as dlg
   participant "ArchivedContactsPage" as arch
   participant "HttpContactsService" as svc
@@ -24,30 +25,51 @@ box "Backend — FaithTech.Community.Api" #D1FADF
   participant "ContactsEndpoints" as ep
 end box
 box "Backend — FaithTech.Community.Application and Domain" #ECFDF3
-  participant "Archive / RestoreContactHandler" as h
+  participant "ArchiveContactsHandler" as h
+  participant "ContactAccess" as acc
   participant "Contact" as c
 end box
 box "Backend — FaithTech.Community.Infrastructure" #FFF4E5
   database "Community database" as db
 end box
+actor -> page : Choose Archive
+page -> dlg : Open with {contactId, name}
 actor -> dlg : Confirm archive
 dlg -> svc : archive(id)
 svc -> ep : POST /api/contacts/{id}/archive
-ep -> h : Send ArchiveContactCommand
-h -> db : Load Contact and check ContactAccessPolicy
-h -> c : Archive(nowUtc) (L2-016 AC1)
-h -> db : Save changes
-ep --> svc : 204 No Content
-svc --> dlg : Done
-dlg --> actor : Contact leaves main list
+ep -> h : ArchiveAsync(id)
+h -> acc : AuthorizeAsync(id)
+alt NotFound
+  ep --> svc : 404
+else already archived
+  ep --> svc : 409 "The contact is already archived."
+else Owner or AdminOverride
+  h -> c : Archive(nowUtc) (L2-016 AC1)
+  h -> acc : AuditOverride(..., "contact.archived")
+  h -> db : Save changes
+  ep --> svc : 204 No Content
+  svc --> dlg : Done
+  dlg --> page : Close with true
+  page --> actor : "Contact archived" toast; navigate to /contacts
+end
 == later ==
+actor -> arch : Open /contacts/archived
+arch -> svc : listArchived()
+svc -> ep : GET /api/contacts/archived
+ep --> svc : 200 own archived contacts, newest first (403 without a lead role)
 actor -> arch : Choose Restore
 arch -> svc : restore(id)
 svc -> ep : POST /api/contacts/{id}/restore
-ep -> h : Send RestoreContactCommand
-h -> c : Restore(), notes kept (L2-016 AC2)
-h -> db : Save changes
-ep --> svc : 204 No Content
-svc --> arch : Done
-arch --> actor : Contact back in main list
+ep -> h : RestoreAsync(id)
+h -> acc : AuthorizeAsync(id)
+alt not archived
+  ep --> svc : 409 "The contact is not archived."
+else archived
+  h -> c : Restore(), notes kept (L2-016 AC2)
+  h -> acc : AuditOverride(..., "contact.restored")
+  h -> db : Save changes
+  ep --> svc : 204 No Content
+  svc --> arch : Done
+  arch --> actor : Row removed; "Contact restored" toast
+end
 @enduml

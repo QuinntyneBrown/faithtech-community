@@ -23,23 +23,32 @@ box "Backend — FaithTech.Community.Api" #D1FADF
   participant "PartnersEndpoints" as ep
 end box
 box "Backend — FaithTech.Community.Application and Domain" #ECFDF3
-  participant "ListPartnersHandler" as h
+  participant "ManagePartnersHandler" as h
+  participant "PartnerAccess" as acc
 end box
 box "Backend — FaithTech.Community.Infrastructure" #FFF4E5
   database "Community database" as db
 end box
-actor -> page : Open partners
-page -> svc : list()
+actor -> page : Open /partners
+page -> svc : getBoard()
 svc -> ep : GET /api/partners
-ep -> h : Send ListPartnersQuery
-h -> h : PartnerAccessPolicy.CanRead (L2-017 AC4)
-h -> db : Select partners grouped by stage
-h --> ep : Board with Lead, In Funnel, Confirmed and counts (L2-018 AC1)
-ep --> svc : 200 OK
-svc --> page : Board
-alt XS viewport
-  page --> actor : Stage tabs, one column visible (L2-018 AC4)
-else larger
-  page --> actor : Three columns side by side
+ep -> h : BoardAsync()
+h -> acc : CanRead
+alt not a lead, Staff or System Admin
+  h --> ep : null
+  ep --> svc : 403 (L2-017 AC4)
+  svc --> page : Error
+  page --> actor : Forbidden state
+else permitted
+  h -> db : Select Id, Name, ContactName, Offering, Stage of every partner
+  h -> h : One PartnerColumnDto per stage in order, cards by name, with counts
+  h --> ep : PartnerBoardDto with CanEdit = PartnerAccess.CanWrite (L2-018 AC1)
+  ep --> svc : 200 OK
+  svc --> page : Board
+  alt BreakpointService.current() is base (below sm, 640px)
+    page --> actor : Stage tabs, one KanbanColumn visible (L2-018 AC4)
+  else larger
+    page --> actor : Three KanbanColumns side by side; Add partner and Move hidden when CanEdit is false
+  end
 end
 @enduml

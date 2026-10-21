@@ -14,37 +14,58 @@ skinparam package {
   FontColor #101828
   BackgroundColor #F9FAFB
 }
-actor "City Lead" as actor
+actor "Lead" as actor
 box "Frontend — FaithTech Community web app (contacts library)" #E0F2FE
   participant "ContactFormPage" as form
   participant "HttpContactsService" as svc
 end box
 box "Backend — FaithTech.Community.Api" #D1FADF
   participant "ContactsEndpoints" as ep
+  participant "CreateContactValidator" as v
 end box
 box "Backend — FaithTech.Community.Application and Domain" #ECFDF3
-  participant "CreateContactHandler" as h
-  participant "ContactValidator" as v
+  participant "ManageContactsHandler" as h
+  participant "ContactAccess" as acc
+  participant "ContactViews" as views
 end box
 box "Backend — FaithTech.Community.Infrastructure" #FFF4E5
   database "Community database" as db
 end box
-actor -> form : Fill fields and save
-form -> svc : create(contact)
-svc -> ep : POST /api/contacts
-ep -> h : Send CreateContactCommand
-h -> v : Validate name and email (L2-013 AC2)
-alt invalid
-  v --> h : Errors
-  h --> ep : Validation failure
-  ep --> svc : 400 ProblemDetails with field errors
-  svc --> form : Errors
-  form --> actor : Inline errors, focus first invalid field
-else valid
-  h -> db : Insert Contact with OwnerId = caller (L2-013 AC1)
-  h --> ep : ContactDto
-  ep --> svc : 201 Created
-  svc --> form : Contact
-  form --> actor : Navigate to contact list
+actor -> form : Fill fields and save at /contacts/new
+form -> form : Client checks mirror the validator
+alt name missing or email malformed
+  form --> actor : Inline errors and error summary, focus first invalid field (L2-013 AC2)
+else looks valid
+  form -> svc : create({name, email, phone, organization, city, notes, linkToMember})
+  svc -> ep : POST /api/contacts
+  ep -> v : Validate (ContactRules)
+  alt invalid
+    ep --> svc : 400 ValidationProblem with field errors
+    svc --> form : Errors
+    form --> actor : Server errors on the fields (L2-013 AC2)
+  else valid
+    ep -> h : CreateAsync(command)
+    h -> acc : CanKeepContacts, CallerProfileIdAsync()
+    alt no lead role and not System Admin
+      h --> ep : Forbidden
+      ep --> svc : 403
+    else may keep contacts
+      h -> views : MatchAsync(email): verified member with this email?
+      alt member found and linkToMember is false
+        h --> ep : Conflict "{name} is already a member." with memberName
+        ep --> svc : 409 ProblemDetails with memberName
+        svc --> form : Error
+        form --> actor : Offer "Save and link" (L2-013 AC6)
+      else no member, or linkToMember is true
+        h -> h : new Contact(owner = caller); LinkTo(member) when linking; AddNote(first note)
+        h -> db : Insert Contact and first ContactNote (L2-013 AC1)
+        h -> views : ToDtoAsync(contact, isOwn: true)
+        h --> ep : ContactDto
+        ep --> svc : 201 Created
+        svc --> form : Contact
+        form --> actor : Navigate to /contacts/{id}
+      end
+    end
+  end
 end
 @enduml
