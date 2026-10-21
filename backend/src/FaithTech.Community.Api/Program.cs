@@ -46,6 +46,7 @@ app.MapAdminUsersEndpoints();
 app.MapInvitesEndpoints();
 app.MapTeamEndpoints();
 app.MapWorkspacesEndpoints();
+app.MapWorkItemsEndpoints();
 app.MapAccountEndpoints();
 app.MapAuthorizationEndpoints();
 
