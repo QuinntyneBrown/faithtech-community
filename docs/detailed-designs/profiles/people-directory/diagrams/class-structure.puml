@@ -1,0 +1,53 @@
+@startuml
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 8
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam class {
+  BorderColor #344054
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+title Class structure — People directory
+class ListPeopleHandler {
+  +{static} int PageSize = 25
+  +HandleAsync(term: string?, page: int): Task<PagedResult<PersonSummary>?>
+}
+class PersonSummary {
+  +Guid Id
+  +string Name
+  +string? HomeCity
+  +string? PhotoUrl
+  +IReadOnlyList<string> Roles
+}
+class "PagedResult<T>" as PagedResult {
+  +IReadOnlyList<T> Items
+  +int Page
+  +int PageSize
+  +int TotalCount
+}
+interface ICurrentUser {
+  +HasRole(role: Role): bool
+}
+interface IPhotoStorage {
+  +GetReadUrl(blobName: string): string
+}
+class Profile {
+  +Guid Id
+  +string Name
+  +string? HomeCity
+  +IReadOnlyCollection<ProfilePhoto> Photos
+  +IReadOnlyCollection<ProfileRole> Roles
+}
+class CommunityUser {
+  +Guid ProfileId
+  +string Email
+}
+ListPeopleHandler --> ICurrentUser : City Lead, Staff or System Admin
+ListPeopleHandler --> IPhotoStorage
+ListPeopleHandler --> Profile : reads
+ListPeopleHandler --> CommunityUser : matches email
+ListPeopleHandler ..> PagedResult : returns
+PagedResult *-- PersonSummary
+@enduml
