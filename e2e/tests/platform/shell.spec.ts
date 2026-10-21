@@ -11,7 +11,7 @@ test.describe('App shell', () => {
 
     await api.signInAs(api.addAccount({ email: 'grace@example.org', roles: ['CityLead'] }));
 
-    for (const name of ['Home', 'Events', 'Contacts', 'Partners', 'Team', 'People']) {
+    for (const name of ['Home', 'Events', 'Contacts', 'Partners', 'Workspaces', 'Team', 'People']) {
       await expect(shell.navLink(name)).toBeVisible();
     }
     await expect(shell.navLink('Home')).toHaveAttribute('aria-current', 'page');
@@ -103,6 +103,7 @@ test.describe('App shell', () => {
       'Events',
       'Contacts',
       'Partners',
+      'Workspaces',
       'Team',
       'Announcements',
       'People',

@@ -483,6 +483,39 @@
           }
         }
       }
+    },
+    "agile": {
+      "projectType": "library",
+      "root": "projects/agile",
+      "sourceRoot": "projects/agile/src",
+      "prefix": "ft",
+      "architect": {
+        "build": {
+          "builder": "@angular/build:ng-packagr",
+          "configurations": {
+            "production": {
+              "tsConfig": "projects/agile/tsconfig.lib.prod.json"
+            },
+            "development": {
+              "tsConfig": "projects/agile/tsconfig.lib.json"
+            }
+          },
+          "defaultConfiguration": "production"
+        },
+        "test": {
+          "builder": "@angular/build:unit-test",
+          "options": {
+            "tsConfig": "projects/agile/tsconfig.spec.json"
+          }
+        },
+        "lint": {
+          "builder": "@angular-eslint/builder:lint",
+          "options": {
+            "lintFilePatterns": ["projects/agile/**/*.ts", "projects/agile/**/*.html"],
+            "eslintConfig": "projects/agile/eslint.config.js"
+          }
+        }
+      }
     }
   }
 }

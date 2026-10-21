@@ -41,7 +41,8 @@ faithtech-community/
 │   │   ├── FaithTech.Community.Application/     # Handlers, validators, DTO contracts, permission
 │   │   │                                        # checks; one folder per feature (Identity/,
 │   │   │                                        # Profiles/, Contacts/, Partners/, Team/, Events/, Search/,
-│   │   │                                        # Notifications/, Announcements/, Invites/, Admin/)
+│   │   │                                        # Notifications/, Announcements/, Invites/, Admin/,
+│   │   │                                        # Agile/)
 │   │   ├── FaithTech.Community.Infrastructure/  # DbContext, EF migrations, Postgres full-text
 │   │   │                                        # search, Azure Blob, email, .ics, image resizing,
 │   │   │                                        # OpenIddict stores, audit log, seeder
@@ -70,7 +71,9 @@ faithtech-community/
 │       ├── notifications/            # Feature library: in-app bell and preferences
 │       ├── announcements/            # Feature library: compose and read announcements
 │       ├── invites/                  # Feature library: send and accept invites
-│       └── admin/                    # Feature library: System Admin roles, suspension, audit log
+│       ├── admin/                    # Feature library: System Admin roles, suspension, audit log
+│       └── agile/                    # Feature library: workspaces, backlog, board, sprints,
+│                                     # work items, Planning Poker
 ├── e2e/                              # Playwright suite (Chromium only)
 │   ├── playwright.config.ts
 │   ├── pages/                        # Page objects: one per screen, owning selectors
@@ -94,7 +97,7 @@ faithtech-community/
 
 Rules (MUST be followed):
 
-- Every feature uses the same name in `Application/`, `frontend/projects/`, `docs/specs/` and `docs/detailed-designs/`.
+- Every feature uses the same name in `Application/`, `frontend/projects/`, `docs/specs/` and `docs/detailed-designs/`. The Agile workspaces subsystem is named `agile` (`Domain/Agile/`, `Application/Agile/`, `frontend/projects/agile/`, `docs/detailed-designs/agile/`; ADR 0007).
 - EF Core migrations live only in `Infrastructure/Persistence/Migrations/` and are applied by the Cli project, never by the API.
 - .NET tests live only under `backend/tests/`. Angular unit tests (`*.spec.ts`) sit next to the code they test. Playwright tests live only in `e2e/`.
 - Each frontend feature is its own library project under `frontend/projects/<feature>/`, exposing its routes, pages and dialogs through its public API (`public-api.ts`). The app lazy-loads it from the shell.

@@ -14,7 +14,7 @@ Community data is global, but workspace access comes from membership. Members cr
 
 This feature is the entry point of the agile subsystem. Every other agile feature (work items, board, sprints, switch method, archive and transfer, Planning Poker) relies on the membership model and the access policy defined here.
 
-The repository layout in `AGENTS.md` lists the `Agile/` folder in `FaithTech.Community.Domain`. It does not yet list an `Agile/` feature folder in `FaithTech.Community.Application` or an `agile` library in `frontend/projects/`; the layout requires an approved update to include them before those layers are implemented.
+The repository layout in `AGENTS.md` lists the `Agile/` folders in `FaithTech.Community.Domain` and `FaithTech.Community.Application` and the `agile` feature library in `frontend/projects/` ([ADR 0007](../../../adr/0007-agile-feature-layout.md)).
 
 ## Description
 

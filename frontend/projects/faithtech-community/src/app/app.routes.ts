@@ -51,6 +51,10 @@ export const routes: Routes = [
         loadChildren: () => import('@faithtech-community/partners').then((m) => m.PARTNERS_ROUTES),
       },
       {
+        path: 'workspaces',
+        loadChildren: () => import('@faithtech-community/agile').then((m) => m.AGILE_ROUTES),
+      },
+      {
         path: 'team',
         loadChildren: () => import('@faithtech-community/team').then((m) => m.TEAM_ROUTES),
       },
