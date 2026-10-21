@@ -5,6 +5,7 @@
     [value]="value()"
     [checked]="checked()"
     [disabled]="isDisabled()"
+    [attr.aria-invalid]="group.error() ? 'true' : null"
     (change)="group.select(value())"
     (blur)="group.touch()"
   />

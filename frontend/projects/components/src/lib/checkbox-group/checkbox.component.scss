@@ -40,6 +40,10 @@ input {
     }
   }
 
+  &[aria-invalid='true']:not(:checked) {
+    border-color: var(--color-danger-solid);
+  }
+
   &:focus-visible {
     outline: var(--focus-ring-width) solid var(--color-accent);
     outline-offset: var(--focus-ring-offset);
