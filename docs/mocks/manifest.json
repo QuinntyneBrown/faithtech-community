@@ -149,6 +149,7 @@
       "states": [
         "default",
         "own",
+        "no-role",
         "loading",
         "empty",
         "error",
