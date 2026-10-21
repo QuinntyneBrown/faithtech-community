@@ -1,7 +1,54 @@
-/*
- * SCAFFOLD: placeholder, not the implementation.
- * Generated from AGENTS.md and:
- *   - docs/design-system/components/tree.html
- * Overwrite with the encapsulated styles for this component. Read tokens by role
- * (var(--color-...)), never hex values. Delete this comment when implemented.
- */
+:host {
+  display: block;
+}
+
+.ft-tree-item__row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-2) var(--space-3);
+  min-block-size: var(--target-min);
+  border-radius: var(--radius-md);
+  color: var(--color-fg-default);
+}
+
+summary.ft-tree-item__row {
+  cursor: pointer;
+
+  &:hover {
+    background: var(--color-bg-subtle);
+  }
+
+  &:focus-visible {
+    outline: var(--focus-ring-width) solid var(--color-focus-ring);
+    outline-offset: var(--focus-ring-offset);
+  }
+}
+
+.ft-tree-item__children {
+  margin: 0;
+  padding: 0 0 0 var(--space-6);
+  list-style: none;
+  border-inline-start: var(--border-width-hairline) solid var(--color-border-default);
+  margin-inline-start: var(--space-4);
+}
+
+a.ft-tree-item__label {
+  color: var(--color-fg-link);
+  text-decoration: underline;
+
+  &:hover {
+    color: var(--color-fg-link-hover);
+  }
+
+  &:focus-visible {
+    outline: var(--focus-ring-width) solid var(--color-focus-ring);
+    outline-offset: var(--focus-ring-offset);
+  }
+}
+
+.ft-tree-item__meta {
+  font: var(--text-caption);
+  color: var(--color-fg-muted);
+}

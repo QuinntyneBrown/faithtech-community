@@ -1,16 +1,13 @@
-/*
- * SCAFFOLD: placeholder, not the implementation.
- * Generated from AGENTS.md and:
- *   - docs/design-system/components/note.html
- * Overwrite this file with the expected implementation (implementing-incrementally
- * skill + ATDD), then delete this comment.
- */
-import { ChangeDetectionStrategy, Component } from '@angular/core';
+import { ChangeDetectionStrategy, Component, input } from '@angular/core';
 
+/** A private note: text on a subtle block with an accent rule and a date line. */
 @Component({
   selector: 'ft-note',
   templateUrl: './note.component.html',
   styleUrl: './note.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class NoteComponent {}
+export class NoteComponent {
+  /** Display date such as "Thu 16 Oct". */
+  readonly date = input<string | null>(null);
+}

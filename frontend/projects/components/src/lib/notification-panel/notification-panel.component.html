@@ -1,7 +1,38 @@
-<!--
-  SCAFFOLD: placeholder, not the implementation.
-  Generated from AGENTS.md and:
-    - docs/design-system/components/notification-panel.html
-  Overwrite this template with the expected implementation, then delete this comment.
--->
-<ng-content />
+<div class="ft-notification-panel" role="dialog" aria-label="Notifications">
+  <div class="ft-notification-panel__header">
+    <strong>Notifications</strong>
+    @if (hasUnread()) {
+      <ft-button variant="ghost" size="sm" (click)="markAllRead.emit()">Mark all read</ft-button>
+    }
+  </div>
+
+  @if (shown().length > 0) {
+    <ul class="ft-notification-panel__list">
+      @for (notice of shown(); track notice.id) {
+        <li class="ft-notice" [class.ft-notice--unread]="notice.unread">
+          <ft-avatar size="sm" [name]="notice.name" [color]="notice.color ?? 'plain'" />
+          <div class="ft-notice__body">
+            {{ notice.text }}
+            @if (notice.href && notice.linkText) {
+              <ft-link [href]="notice.href" (click)="noticeOpened.emit(notice.id)">{{
+                notice.linkText
+              }}</ft-link>
+            }
+            <div class="ft-notice__meta">
+              {{ notice.meta }}{{ notice.unread ? ' · Unread' : '' }}
+            </div>
+          </div>
+        </li>
+      }
+    </ul>
+  } @else {
+    <div class="ft-notification-panel__empty">
+      <strong>You’re all caught up</strong>
+      <span>New notifications show up here.</span>
+    </div>
+  }
+
+  <div class="ft-notification-panel__footer">
+    <ft-link [href]="seeAllHref()">See all</ft-link>
+  </div>
+</div>

@@ -1,8 +1,23 @@
-<!--
-  SCAFFOLD: placeholder, not the implementation.
-  Generated from AGENTS.md and:
-    - docs/design-system/components/picture-list.html
-    - docs/design-system/components/avatar.html
-    - docs/detailed-designs/platform/accessibility
-  Overwrite this template with the expected implementation, then delete this comment.
--->
+<div
+  class="ft-photo"
+  [class.ft-photo--featured]="featured()"
+  [class.ft-photo--failed]="state() === 'failed'"
+  [class.ft-photo--uploading]="state() === 'uploading'"
+>
+  <div class="ft-photo__thumb" [attr.aria-busy]="state() === 'uploading' ? 'true' : null">
+    @if (src(); as url) {
+      <img class="ft-photo__img" [src]="url" [alt]="alt()" />
+    } @else {
+      <span class="ft-photo__placeholder" role="img" [attr.aria-label]="alt()"></span>
+    }
+    @if (state() === 'uploading') {
+      <span class="ft-photo__spinner" aria-hidden="true"></span>
+    }
+    <ng-content />
+  </div>
+  <p class="ft-photo__status" role="status">
+    @if (state() === 'uploading') {
+      Uploading…{{ progress() === null ? '' : ' ' + progress() + '%' }}
+    }
+  </p>
+</div>

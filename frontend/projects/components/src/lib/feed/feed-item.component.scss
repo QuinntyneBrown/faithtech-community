@@ -1,7 +1,17 @@
-/*
- * SCAFFOLD: placeholder, not the implementation.
- * Generated from AGENTS.md and:
- *   - docs/design-system/components/feed.html
- * Overwrite with the encapsulated styles for this component. Read tokens by role
- * (var(--color-...)), never hex values. Delete this comment when implemented.
- */
+:host {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-3);
+  color: var(--color-fg-default);
+}
+
+.ft-feed-item__body {
+  flex: 1;
+  min-inline-size: 0;
+  overflow-wrap: anywhere;
+}
+
+.ft-feed-item__meta {
+  font: var(--text-caption);
+  color: var(--color-fg-muted);
+}

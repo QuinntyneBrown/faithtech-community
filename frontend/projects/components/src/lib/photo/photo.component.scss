@@ -1,9 +1,68 @@
-/*
- * SCAFFOLD: placeholder, not the implementation.
- * Generated from AGENTS.md and:
- *   - docs/design-system/components/picture-list.html
- *   - docs/design-system/components/avatar.html
- *   - docs/detailed-designs/platform/accessibility
- * Overwrite with the encapsulated styles for this component. Read tokens by role
- * (var(--color-...)), never hex values. Delete this comment when implemented.
- */
+:host {
+  display: block;
+  min-inline-size: 0;
+}
+
+.ft-photo__thumb {
+  position: relative;
+  aspect-ratio: 1;
+  overflow: hidden;
+  border: var(--border-width-hairline) solid var(--color-border-default);
+  border-radius: var(--radius-md);
+  background: var(--color-bg-subtle);
+}
+
+.ft-photo--featured .ft-photo__thumb {
+  border: var(--border-width-thick) solid var(--color-accent);
+}
+
+.ft-photo--failed .ft-photo__thumb {
+  border: var(--border-width-thick) solid var(--color-danger-solid);
+}
+
+.ft-photo--failed .ft-photo__img,
+.ft-photo--uploading .ft-photo__img {
+  opacity: 0.5;
+}
+
+.ft-photo__img,
+.ft-photo__placeholder {
+  display: block;
+  inline-size: 100%;
+  block-size: 100%;
+  object-fit: cover;
+}
+
+.ft-photo__spinner {
+  position: absolute;
+  inset: 0;
+  margin: auto;
+  inline-size: var(--space-6);
+  block-size: var(--space-6);
+  border: var(--border-width-thick) solid var(--color-border-strong);
+  border-block-start-color: var(--color-accent);
+  border-radius: var(--radius-full);
+  animation: ft-photo-spin 0.8s linear infinite;
+}
+
+.ft-photo__status {
+  margin: 0;
+  color: var(--color-fg-muted);
+  font: var(--text-caption);
+}
+
+.ft-photo--uploading .ft-photo__status {
+  margin-block-start: var(--space-1);
+}
+
+@keyframes ft-photo-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ft-photo__spinner {
+    animation: none;
+  }
+}

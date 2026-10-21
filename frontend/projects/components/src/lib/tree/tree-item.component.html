@@ -1,7 +1,23 @@
-<!--
-  SCAFFOLD: placeholder, not the implementation.
-  Generated from AGENTS.md and:
-    - docs/design-system/components/tree.html
-  Overwrite this template with the expected implementation, then delete this comment.
--->
-<ng-content />
+<ng-template #row>
+  @if (kind(); as k) {
+    <ft-badge [variant]="kindVariant()">{{ k }}</ft-badge>
+  }
+  @if (href(); as url) {
+    <a class="ft-tree-item__label" [attr.href]="url">{{ label() }}</a>
+  } @else {
+    <span class="ft-tree-item__label">{{ label() }}</span>
+  }
+  @if (meta(); as m) {
+    <span class="ft-tree-item__meta">{{ m }}</span>
+  }
+</ng-template>
+@if (hasChildren()) {
+  <details [attr.open]="expanded() ? '' : null">
+    <summary class="ft-tree-item__row"><ng-container [ngTemplateOutlet]="row" /></summary>
+    <ul class="ft-tree-item__children" role="list">
+      <ng-content />
+    </ul>
+  </details>
+} @else {
+  <div class="ft-tree-item__row"><ng-container [ngTemplateOutlet]="row" /></div>
+}

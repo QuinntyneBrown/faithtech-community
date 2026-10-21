@@ -1,7 +1,48 @@
-/*
- * SCAFFOLD: placeholder, not the implementation.
- * Generated from AGENTS.md and:
- *   - docs/design-system/components/tabs.html
- * Overwrite with the encapsulated styles for this component. Read tokens by role
- * (var(--color-...)), never hex values. Delete this comment when implemented.
- */
+:host {
+  display: block;
+}
+
+.tabs {
+  display: flex;
+  overflow-x: auto;
+  border-block-end: var(--border-width-hairline) solid var(--color-border-default);
+}
+
+.tabs__tab {
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  min-block-size: var(--target-comfortable);
+  padding: 0 var(--space-3);
+  margin-block-end: calc(-1 * var(--space-0-5));
+  border: 0;
+  border-block-end: var(--space-0-5) solid transparent;
+  background: transparent;
+  color: var(--color-fg-muted);
+  font: var(--text-label);
+  text-decoration: none;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: color var(--duration-fast);
+
+  &:hover {
+    color: var(--color-fg-default);
+  }
+
+  &[aria-current='page'],
+  &[aria-selected='true'] {
+    border-block-end-color: var(--color-accent);
+    color: var(--color-fg-accent);
+  }
+
+  &:focus-visible {
+    outline: none;
+    box-shadow: inset var(--shadow-focus);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .tabs__tab {
+    transition: none;
+  }
+}

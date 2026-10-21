@@ -1,9 +1,19 @@
-/*
- * SCAFFOLD: placeholder, not the implementation.
- * Generated from AGENTS.md and:
- *   - docs/design-system/components/breadcrumb.html
- * Overwrite this file with the expected implementation (implementing-incrementally
- * skill + ATDD), then delete this comment.
- */
+import { Component } from '@angular/core';
+import { TestBed } from '@angular/core/testing';
+import { BreadcrumbItemComponent } from './breadcrumb-item.component';
 
-describe.todo('BreadcrumbItemComponent');
+@Component({
+  imports: [BreadcrumbItemComponent],
+  template: `<ft-breadcrumb-item href="/events">Events</ft-breadcrumb-item>`,
+})
+class HostComponent {}
+
+describe('BreadcrumbItemComponent', () => {
+  it('links to its href when one is given', () => {
+    const fixture = TestBed.createComponent(HostComponent);
+    fixture.detectChanges();
+    const a = (fixture.nativeElement as HTMLElement).querySelector('a')!;
+    expect(a.getAttribute('href')).toBe('/events');
+    expect(a.textContent).toContain('Events');
+  });
+});

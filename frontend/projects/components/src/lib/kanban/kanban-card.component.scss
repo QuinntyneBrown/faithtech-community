@@ -1,7 +1,61 @@
-/*
- * SCAFFOLD: placeholder, not the implementation.
- * Generated from AGENTS.md and:
- *   - docs/design-system/components/kanban.html
- * Overwrite with the encapsulated styles for this component. Read tokens by role
- * (var(--color-...)), never hex values. Delete this comment when implemented.
- */
+:host {
+  display: block;
+}
+
+.ft-kanban__card {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--space-1);
+  padding: var(--space-3);
+  border: var(--border-width-hairline) solid var(--color-border-default);
+  border-radius: var(--radius-md);
+  background: var(--color-bg-surface);
+  box-shadow: var(--shadow-1);
+}
+
+.ft-kanban__card--movable {
+  cursor: grab;
+}
+
+.ft-kanban__link {
+  color: var(--color-fg-link);
+  font: var(--text-label);
+  overflow-wrap: anywhere;
+
+  &:hover {
+    color: var(--color-fg-link-hover);
+  }
+
+  &:focus-visible {
+    outline: none;
+    border-radius: var(--radius-sm);
+    box-shadow: var(--shadow-focus);
+  }
+}
+
+.ft-kanban__caption {
+  color: var(--color-fg-muted);
+  font: var(--text-caption);
+}
+
+:host(.cdk-drag-preview) .ft-kanban__card {
+  box-shadow: var(--shadow-3);
+  cursor: grabbing;
+}
+
+:host(.cdk-drag-placeholder) {
+  opacity: 0.4;
+  outline: var(--border-width-thick) dashed var(--color-border-strong);
+  border-radius: var(--radius-md);
+}
+
+:host(.cdk-drag-animating) {
+  transition: transform 200ms ease;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :host(.cdk-drag-animating) {
+    transition: none;
+  }
+}

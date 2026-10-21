@@ -1,16 +1,13 @@
-/*
- * SCAFFOLD: placeholder, not the implementation.
- * Generated from AGENTS.md and:
- *   - docs/design-system/components/layout.html
- * Overwrite this file with the expected implementation (implementing-incrementally
- * skill + ATDD), then delete this comment.
- */
-import { ChangeDetectionStrategy, Component } from '@angular/core';
+import { ChangeDetectionStrategy, Component, input } from '@angular/core';
 
+/** Page title block (the page's h1 and subtitle) with an actions slot (`ftPageHeaderActions`). */
 @Component({
   selector: 'ft-page-header',
   templateUrl: './page-header.component.html',
   styleUrl: './page-header.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class PageHeaderComponent {}
+export class PageHeaderComponent {
+  readonly title = input.required<string>();
+  readonly subtitle = input<string | null>(null);
+}

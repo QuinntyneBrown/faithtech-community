@@ -1,10 +1,32 @@
-<!--
-  SCAFFOLD: placeholder, not the implementation.
-  Generated from AGENTS.md and:
-    - docs/design-system/components/top-bar.html
-    - docs/design-system/components/tab-bar.html
-    - docs/detailed-designs/platform/responsive-layout-and-theming
-    - docs/design-system/patterns/navigation.html
-  Overwrite this template with the expected implementation, then delete this comment.
--->
-<ng-content />
+<ng-template #panel>
+  <div
+    class="nav-drawer"
+    role="dialog"
+    aria-modal="true"
+    [attr.aria-label]="label()"
+    cdkTrapFocus
+    cdkTrapFocusAutoCapture
+  >
+    <div class="nav-drawer__header">
+      <span class="nav-drawer__title">{{ label() }}</span>
+      <ft-button variant="ghost" [iconOnly]="true" label="Close menu" (click)="close()">
+        <ft-icon name="close" />
+      </ft-button>
+    </div>
+    <nav class="nav-drawer__nav" aria-label="Primary">
+      @for (link of links(); track link.href) {
+        <a
+          class="nav-drawer__link"
+          [attr.href]="link.href"
+          [attr.aria-current]="link.current ? 'page' : null"
+          (click)="close()"
+        >
+          @if (link.icon) {
+            <ft-icon [name]="link.icon" />
+          }
+          <span>{{ link.label }}</span>
+        </a>
+      }
+    </nav>
+  </div>
+</ng-template>

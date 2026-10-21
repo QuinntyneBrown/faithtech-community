@@ -1,7 +1,52 @@
-/*
- * SCAFFOLD: placeholder, not the implementation.
- * Generated from AGENTS.md and:
- *   - docs/design-system/components/table.html
- * Overwrite with the encapsulated styles for this component. Read tokens by role
- * (var(--color-...)), never hex values. Delete this comment when implemented.
- */
+:host {
+  display: block;
+}
+
+.ft-table__wrap {
+  overflow-x: auto;
+  background: var(--color-bg-surface);
+  border: var(--border-width-hairline) solid var(--color-border-default);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-1);
+}
+
+.ft-table {
+  inline-size: 100%;
+  border-collapse: collapse;
+  font: var(--text-body-sm);
+  color: var(--color-fg-default);
+}
+
+.ft-table__caption,
+.ft-table__visually-hidden {
+  position: absolute;
+  inline-size: 1px;
+  block-size: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+th {
+  padding: var(--space-3) var(--space-4);
+  text-align: start;
+  font: var(--text-label);
+  color: var(--color-fg-muted);
+  background: var(--color-bg-subtle);
+  border-block-end: var(--border-width-hairline) solid var(--color-border-default);
+}
+
+td {
+  padding: var(--space-3) var(--space-4);
+  border-block-end: var(--border-width-hairline) solid var(--color-border-default);
+  vertical-align: middle;
+}
+
+tbody tr:last-child td {
+  border-block-end: 0;
+}
+
+.ft-table__mono {
+  font-family: var(--font-family-mono);
+  white-space: nowrap;
+}

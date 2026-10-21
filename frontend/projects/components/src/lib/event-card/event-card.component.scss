@@ -1,7 +1,74 @@
-/*
- * SCAFFOLD: placeholder, not the implementation.
- * Generated from AGENTS.md and:
- *   - docs/design-system/components/event-card.html
- * Overwrite with the encapsulated styles for this component. Read tokens by role
- * (var(--color-...)), never hex values. Delete this comment when implemented.
- */
+:host {
+  display: block;
+}
+
+.ft-event-card {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-3) var(--space-4);
+}
+
+.ft-event-card__date {
+  display: inline-flex;
+  flex: none;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  inline-size: var(--size-avatar-lg);
+  block-size: var(--size-avatar-lg);
+  border-radius: var(--radius-md);
+  background: var(--color-accent-subtle);
+  color: var(--color-fg-accent);
+  line-height: 1.1;
+}
+
+.ft-event-card__month {
+  font: var(--text-overline);
+}
+
+.ft-event-card__day {
+  font: var(--text-label);
+  font-weight: var(--font-weight-bold);
+}
+
+.ft-event-card__date--cancelled {
+  background: var(--color-bg-subtle);
+  color: var(--color-fg-muted);
+  text-decoration: line-through;
+}
+
+.ft-event-card__body {
+  display: flex;
+  flex: 1 1 12rem;
+  flex-direction: column;
+  gap: var(--space-1);
+  min-inline-size: 0;
+}
+
+.ft-event-card__title {
+  color: var(--color-fg-default);
+  font: var(--text-h4);
+  text-decoration: none;
+  overflow-wrap: anywhere;
+
+  &:hover {
+    text-decoration: underline;
+  }
+
+  &:focus-visible {
+    outline: none;
+    border-radius: var(--radius-sm);
+    box-shadow: var(--shadow-focus);
+  }
+}
+
+.ft-event-card--cancelled .ft-event-card__title {
+  color: var(--color-fg-muted);
+}
+
+.ft-event-card__meta {
+  color: var(--color-fg-muted);
+  font: var(--text-caption);
+}

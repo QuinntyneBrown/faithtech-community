@@ -1,7 +1,59 @@
-<!--
-  SCAFFOLD: placeholder, not the implementation.
-  Generated from AGENTS.md and:
-    - docs/design-system/components/profile-header.html
-  Overwrite this template with the expected implementation, then delete this comment.
--->
-<ng-content />
+@if (loading()) {
+  <div class="ft-profile-header" aria-busy="true" aria-label="Loading profile">
+    <div class="ft-profile-header__head">
+      <ft-skeleton shape="avatar" size="xl" />
+      <div class="ft-profile-header__body">
+        <ft-skeleton shape="title" width="12rem" />
+        <ft-skeleton shape="text" width="8rem" />
+      </div>
+    </div>
+    <ft-skeleton shape="text" />
+  </div>
+} @else {
+  <div class="ft-profile-header">
+    <div class="ft-profile-header__head">
+      @if (photoUrl(); as url) {
+        <ft-sticker size="xl" [src]="url" />
+      } @else {
+        <ft-avatar size="xl" [name]="name()" [color]="avatarColor()" />
+      }
+      <div class="ft-profile-header__body">
+        <h1 class="ft-profile-header__name">{{ name() }}</h1>
+        <div class="ft-profile-header__roles">
+          @for (role of roles(); track role) {
+            <ft-badge variant="role">{{ role }}</ft-badge>
+          } @empty {
+            <span class="ft-profile-header__muted">No role yet</span>
+          }
+        </div>
+        @if (where()) {
+          <p class="ft-profile-header__muted ft-profile-header__where">
+            @if (location()) {
+              <ft-icon name="location" size="sm" />
+            }
+            <span>{{ where() }}</span>
+          </p>
+        }
+      </div>
+      <div class="ft-profile-header__actions">
+        <ng-content select="[actions]" />
+      </div>
+    </div>
+    @if (bio()) {
+      <p class="ft-profile-header__bio">{{ bio() }}</p>
+    } @else {
+      <p class="ft-profile-header__bio ft-profile-header__muted">You haven’t written a bio yet.</p>
+    }
+  </div>
+
+  @if (photos().length > 0) {
+    <section class="ft-profile-header__photos" aria-labelledby="ft-profile-header-photos">
+      <h2 id="ft-profile-header-photos" class="ft-profile-header__photos-title">Photos</h2>
+      <ul class="ft-profile-header__strip">
+        @for (photo of photos(); track photo.url) {
+          <li><ft-photo [src]="photo.url" [alt]="photo.alt" /></li>
+        }
+      </ul>
+    </section>
+  }
+}

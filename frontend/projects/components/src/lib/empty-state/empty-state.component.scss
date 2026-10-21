@@ -1,7 +1,47 @@
-/*
- * SCAFFOLD: placeholder, not the implementation.
- * Generated from AGENTS.md and:
- *   - docs/design-system/components/empty-state.html
- * Overwrite with the encapsulated styles for this component. Read tokens by role
- * (var(--color-...)), never hex values. Delete this comment when implemented.
- */
+:host {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-12) var(--space-6);
+  text-align: center;
+  color: var(--color-fg-default);
+}
+
+.ft-empty__icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  inline-size: var(--space-16);
+  block-size: var(--space-16);
+  border-radius: var(--radius-full);
+  background: var(--color-accent-subtle);
+  color: var(--color-fg-accent);
+}
+
+:host(.ft-empty--error) .ft-empty__icon {
+  background: var(--color-danger-bg);
+  color: var(--color-danger-icon);
+}
+
+.ft-empty__title {
+  margin: 0;
+  font: var(--text-h3);
+}
+
+.ft-empty__text {
+  margin: 0;
+  max-inline-size: 36ch;
+  color: var(--color-fg-muted);
+}
+
+.ft-empty__actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: var(--space-3);
+}
+
+.ft-empty__actions:empty {
+  display: none;
+}

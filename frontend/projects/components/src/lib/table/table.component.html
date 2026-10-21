@@ -1,6 +1,36 @@
-<!--
-  SCAFFOLD: placeholder, not the implementation.
-  Generated from AGENTS.md and:
-    - docs/design-system/components/table.html
-  Overwrite this template with the expected implementation, then delete this comment.
--->
+<div class="ft-table__wrap">
+  <table class="ft-table" [attr.aria-busy]="busy() ? 'true' : null">
+    <caption class="ft-table__caption" [textContent]="caption()"></caption>
+    <thead>
+      <tr>
+        @for (col of columns(); track col.key) {
+          <th scope="col">
+            @if (col.hideHeader) {
+              <span class="ft-table__visually-hidden">{{ col.header }}</span>
+            } @else {
+              {{ col.header }}
+            }
+          </th>
+        }
+      </tr>
+    </thead>
+    <tbody>
+      @for (row of rows(); track $index) {
+        <tr>
+          @for (col of columns(); track col.key) {
+            <td [class.ft-table__mono]="col.mono">
+              @if (col.template; as tpl) {
+                <ng-container
+                  [ngTemplateOutlet]="tpl"
+                  [ngTemplateOutletContext]="{ $implicit: row }"
+                />
+              } @else {
+                {{ row[col.key] }}
+              }
+            </td>
+          }
+        </tr>
+      }
+    </tbody>
+  </table>
+</div>
