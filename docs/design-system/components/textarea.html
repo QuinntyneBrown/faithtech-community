@@ -102,7 +102,7 @@
       <ul>
         <li><b>Free text</b> (most uses): optional, prefilled when editing ("Bio", "Description", "First note").</li>
         <li><b>Required message</b>: the text is the point of the action and cannot be empty ("Message" on an announcement, "Message to attendees" when cancelling an event, "Reason (recorded in the audit log)" when suspending).</li>
-        <li><b>Inline composer</b>: a short textarea with a small primary button below it, on a contact ("Add a note") and a work item ("Add a comment").</li>
+        <li><b>Inline composer</b>: a short textarea with a small primary button below it, on a contact ("Add a note") and a work item ("Add a comment"). The textarea is the composer’s only field and the button does nothing without it, so it is <code>required</code> and its label carries no "(optional)".</li>
       </ul>
     </section>
 
@@ -141,7 +141,7 @@
       </div>
       <div class="ds-example">
         <div class="ds-example__canvas ds-example__canvas--stack" style="max-width: 32rem;">
-          <div class="stack" style="width: 100%;"><div class="field"><label class="field__label" for="v-note">Add a note</label><textarea class="textarea" id="v-note" name="v-note" rows="2"></textarea></div><div><button class="btn btn--primary btn--sm" type="button">Add note</button></div></div>
+          <div class="stack" style="width: 100%;"><div class="field"><label class="field__label" for="v-note">Add a note</label><textarea class="textarea" id="v-note" name="v-note" rows="2" required></textarea></div><div><button class="btn btn--primary btn--sm" type="button">Add note</button></div></div>
         </div>
         <div class="ds-example__caption"><span>Inline composer on a contact: two rows and a small primary button. The note is private to Grace and System Admin.</span></div>
         <details class="ds-example__code"><summary>HTML</summary><pre><code>&lt;div class="stack" style="width: 100%;"&gt;&lt;div class="field"&gt;&lt;label class="field__label" for="v-note"&gt;Add a note&lt;/label&gt;&lt;textarea class="textarea" id="v-note" name="v-note" rows="2"&gt;&lt;/textarea&gt;&lt;/div&gt;&lt;div&gt;&lt;button class="btn btn--primary btn--sm" type="button"&gt;Add note&lt;/button&gt;&lt;/div&gt;&lt;/div&gt;</code></pre></details>
@@ -278,7 +278,7 @@
         <li><a href="../../mocks/pages/contact/default.html">pages/contact/default</a> (inline note composer)</li>
         <li><a href="../../mocks/pages/work-item/default.html">pages/work-item/default</a> (comment composer)</li>
       </ul>
-      <p>Drift noticed in the mocks: the composers label their only field "Add a note (optional)" and "Add a comment (optional)", though the button does nothing without text; <code>rows="2"</code> is overridden by the 2.5-control-height minimum, so 2 and 3 rows render the same; the 400-character bio limit has no counter or over-limit state.</p>
+      <p>Drift noticed in the mocks: <code>rows="2"</code> is overridden by the 2.5-control-height minimum, so 2 and 3 rows render the same; the 400-character bio limit has no counter or over-limit state.</p>
     </section>
 
     <footer class="ds-footer"><span>FaithTech Community design system · extracted from <a href="../../mocks/index.html">docs/mocks</a> on 2026-10-21</span><a href="#top">Back to top</a></footer>
