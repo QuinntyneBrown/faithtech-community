@@ -35,6 +35,8 @@ h4 { font: var(--text-h4); }
 p { max-width: var(--layout-measure); text-wrap: pretty; }
 small { font: var(--text-body-sm); }
 .text-muted { color: var(--color-fg-muted); }
+/* Centred text: an auth page's heading and footer links, a standalone link under a form. */
+.text-center { text-align: center; }
 .text-caption { font: var(--text-caption); color: var(--color-fg-muted); }
 .overline { font: var(--text-overline); letter-spacing: var(--letter-spacing-wide); text-transform: uppercase; color: var(--color-fg-muted); }
 .truncate { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
