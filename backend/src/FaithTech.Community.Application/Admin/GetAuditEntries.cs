@@ -90,7 +90,8 @@ public class GetAuditEntriesHandler(IApplicationDbContext db, ICurrentUser curre
             .Where(p => profileIds.Contains(p.Id))
             .ToDictionaryAsync(p => p.Id, p => p.Name, cancellationToken);
 
-        string NameOf(Guid id) => names.GetValueOrDefault(id, "Unknown member");
+        // Guid.Empty is the command line, e.g. the first System Admin grant.
+        string NameOf(Guid id) => id == Guid.Empty ? "System" : names.GetValueOrDefault(id, "Unknown member");
         string TargetName(AuditEntry e) =>
             e.TargetType == "Profile" && Guid.TryParse(e.TargetId, out var id) ? NameOf(id) : $"{e.TargetType} {e.TargetId}";
 
