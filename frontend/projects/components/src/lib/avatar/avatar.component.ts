@@ -32,6 +32,8 @@ export class AvatarComponent {
    */
   readonly drawn = input(false);
 
+  protected readonly failedSrc = signal<string | null>(null);
+
   protected readonly initials = computed(() => {
     const parts = this.name().trim().split(/\s+/).filter(Boolean);
     if (parts.length === 0) return '';
