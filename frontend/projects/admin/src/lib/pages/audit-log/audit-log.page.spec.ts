@@ -156,7 +156,7 @@ describe('AuditLogPage', () => {
     await settle();
 
     expect(exportButton().getAttribute('aria-busy')).toBe('true');
-    expect(exportButton().textContent!.trim()).toBe('Export CSV…');
+    expect(exportButton().textContent!.trim()).toBe('Export CSVâ€¦');
 
     file.next(new Blob(['x']));
     file.complete();
@@ -182,7 +182,7 @@ describe('AuditLogPage', () => {
 
     expect(toasts.show).toHaveBeenCalledWith({
       variant: 'danger',
-      heading: 'We couldn’t export the audit log',
+      heading: 'We couldnâ€™t export the audit log',
       text: 'Check your connection and try again.',
       actionLabel: 'Try again',
       onAction: expect.any(Function),
