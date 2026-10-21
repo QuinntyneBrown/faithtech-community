@@ -358,7 +358,7 @@
       <p>Drift noticed:</p>
       <ul>
         <li>Resolved: <code>.topbar__search</code> was sized with a raw <code>14rem</code>; it now reads <code>--layout-topbar-search-width</code>. Media queries cannot read custom properties, so the top bar's <code>48rem</code>/<code>64rem</code> queries are the values of <code>--layout-breakpoint-md</code>/<code>-lg</code> (the rule is stated at the top of <code>components.css</code>), and the Angular <code>TopBarComponent</code> reads them by name with <code>@include bp.up(md)</code> from <code>styles/_breakpoints.scss</code>.</li>
-              <li>The top bar markup is copied by hand into every page mock (eight personas); a shared shell component is needed in the app.</li>
+        <li>Resolved: the top bar markup was copied by hand into every page mock (eight personas). In the app it is one shared shell: <code>AppShellComponent</code> wraps every signed-in route and renders <code>TopBarComponent</code> from the components library once, with links from one rule by role (<code>shell/navigation.ts</code>, <a href="../../adr/0009-shell-navigation-by-role.md">ADR 0009</a>). Static mocks cannot share markup, so their bars are regenerated from that same rule per persona rather than edited by hand.</li>
       </ul>
     </section>
 
