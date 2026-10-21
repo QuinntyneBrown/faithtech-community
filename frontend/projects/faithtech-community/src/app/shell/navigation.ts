@@ -32,8 +32,14 @@ export const SECTIONS: readonly Section[] = [
     icon: 'partners',
     opens: (roles) => isLead(roles) || roles.includes('Staff'),
   },
-  // Members see the workspaces they belong to; Staff and System Admin see all (L2-050).
-  { label: 'Workspaces', href: '/workspaces', icon: 'workspaces', secondary: true, opens: anyone },
+  // Workspaces are for leads and volunteers; Staff and System Admin see all of them (L2-050).
+  {
+    label: 'Workspaces',
+    href: '/workspaces',
+    icon: 'workspaces',
+    secondary: true,
+    opens: (roles) => isLead(roles) || has('Volunteer', 'Staff', 'SystemAdmin')(roles),
+  },
   { label: 'Team', href: '/team', icon: 'team', secondary: true, opens: anyone },
   {
     label: 'Announcements',
