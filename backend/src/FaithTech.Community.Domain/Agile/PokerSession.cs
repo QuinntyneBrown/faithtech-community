@@ -79,6 +79,18 @@ public class PokerSession
         }
     }
 
+    /// <summary>Withdraws the participant's vote in the current round; refused once votes are revealed.</summary>
+    public void WithdrawVote(Guid profileId)
+    {
+        EnsureOpen();
+        if (IsRevealed)
+        {
+            throw new InvalidOperationException("Votes are already revealed.");
+        }
+
+        _votes.RemoveAll(v => v.ProfileId == profileId);
+    }
+
     public void Reveal(Guid by)
     {
         EnsureFacilitator(by);

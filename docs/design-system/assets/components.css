@@ -441,7 +441,7 @@ a.chapter:hover, a.chapter[data-state="hover"] { background: var(--color-bg-subt
 .sticker-choice:hover, .sticker-choice[data-state="hover"] { background: var(--color-bg-subtle); transform: translateY(calc(-1 * var(--space-0-5))); }
 .sticker-choice:active, .sticker-choice[data-state="active"] { transform: none; }
 .sticker-choice[aria-pressed="true"] { background: var(--color-accent-subtle); border-color: var(--color-accent); color: var(--color-fg-accent); box-shadow: 0 0 0 var(--border-width-hairline) var(--color-accent); }
-.sticker-choice[aria-invalid="true"] { border-color: var(--color-danger-solid); }
+.sticker-choice[aria-invalid="true"], [aria-invalid="true"] > .sticker-choice { border-color: var(--color-danger-solid); }
 .sticker-choice:disabled, .sticker-choice[data-state="disabled"] { opacity: 0.5; cursor: not-allowed; transform: none; }
 
 /* ---------- Shelfie: question and answer, parent feedback ---------------------------------- */

@@ -10,6 +10,7 @@ import { EstimateOption, EstimatePickerComponent } from './estimate-picker.compo
     [(value)]="value"
     [disabled]="disabled()"
     [invalid]="invalid()"
+    [error]="error()"
   />`,
 })
 class HostComponent {
@@ -17,6 +18,7 @@ class HostComponent {
   value = signal<EstimateOption | null>(null);
   disabled = signal(false);
   invalid = signal(false);
+  error = signal('');
 }
 
 function setup() {
@@ -100,5 +102,18 @@ describe('EstimatePickerComponent', () => {
     cmp.invalid.set(true);
     fixture.detectChanges();
     expect(host.querySelector('[role="group"]')!.getAttribute('aria-invalid')).toBe('true');
+  });
+
+  it('shows why a vote was refused in a message that describes the group', () => {
+    const { fixture, cmp, host } = setup();
+    expect(host.querySelector('ft-inline-message')).toBeNull();
+    expect(host.querySelector('[role="group"]')!.hasAttribute('aria-describedby')).toBe(false);
+    cmp.error.set('Voting has closed on this story. Your vote wasn’t counted.');
+    fixture.detectChanges();
+    const group = host.querySelector('[role="group"]')!;
+    const msg = host.querySelector('ft-inline-message')!;
+    expect(msg.textContent).toContain('Voting has closed on this story.');
+    expect(group.getAttribute('aria-describedby')).toBe(msg.id);
+    expect(group.getAttribute('aria-invalid')).toBe('true');
   });
 });

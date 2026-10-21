@@ -98,6 +98,23 @@ public class PokerSessionTests
     }
 
     [Fact]
+    public void A_participant_can_withdraw_their_vote_until_the_reveal()
+    {
+        var session = NewSession();
+        session.CastVote(_voter, DeckValue.Eight);
+        session.CastVote(_facilitator, DeckValue.Five);
+
+        session.WithdrawVote(_voter);
+
+        Assert.Equal([_facilitator], session.VoterIds);
+        Assert.Null(session.CurrentVoteOf(_voter));
+
+        session.Reveal(_facilitator);
+        Assert.Throws<InvalidOperationException>(() => session.WithdrawVote(_facilitator));
+        Assert.Equal(DeckValue.Five, session.CurrentVoteOf(_facilitator));
+    }
+
+    [Fact]
     public void A_revote_clears_the_previous_votes_and_starts_a_new_round()
     {
         var session = NewSession();

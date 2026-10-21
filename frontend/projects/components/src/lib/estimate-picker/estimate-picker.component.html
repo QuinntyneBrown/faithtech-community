@@ -2,7 +2,8 @@
   class="ft-estimate-picker"
   role="group"
   [attr.aria-labelledby]="labelId"
-  [attr.aria-invalid]="invalid() ? 'true' : null"
+  [attr.aria-invalid]="isInvalid() ? 'true' : null"
+  [attr.aria-describedby]="error() ? errorId : null"
 >
   <div class="ft-estimate-picker__label" [id]="labelId">{{ label() }}</div>
   <div class="ft-estimate-picker__deck">
@@ -19,4 +20,7 @@
       </button>
     }
   </div>
+  @if (error()) {
+    <ft-inline-message [id]="errorId">{{ error() }}</ft-inline-message>
+  }
 </div>
