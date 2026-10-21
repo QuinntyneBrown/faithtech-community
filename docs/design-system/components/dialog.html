@@ -276,7 +276,7 @@
             <div class="dialog__panel">
               <div class="dialog__header"><div style="flex: 1;"><h2 class="dialog__title" id="dlg-fail-title">Failed</h2></div><button class="btn btn--ghost btn--icon" type="button" aria-label="Close"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18"/></svg></button></div>
               <div class="dialog__body stack">
-                <div class="alert alert--danger" role="alert"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 8v4M12 16h.01"/></svg><div class="alert__body"><div class="alert__title">That didn’t work</div><div class="alert__text">We couldn’t reach FaithTech. Nothing was changed — try again.</div></div></div>
+                <div class="alert alert--danger" role="alert"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 8v4M12 16h.01"/></svg><div class="alert__body"><div class="alert__title">Invite not sent</div><div class="alert__text">We couldn’t reach FaithTech. Nothing was changed — try again.</div></div></div>
                 <div class="field"><label class="field__label" for="dlg-fail-email">Email</label><input class="input" id="dlg-fail-email" type="email" value="nate.oyelaran@example.org"></div>
               </div>
               <div class="dialog__footer"><button class="btn" type="button">Cancel</button><button class="btn btn--primary" type="button">Send invite</button></div>
@@ -288,7 +288,7 @@
         <li><b>Default</b>: focus on the first field (form dialogs) or on Cancel (confirmations).</li>
         <li><b>Busy</b>: Cancel and Close take native <code>disabled</code> (focus is not on them, so they leave the tab order); the pressed button keeps focus with <code>aria-busy="true"</code> and <code>aria-disabled="true"</code>, always both, a pulsing dot and an ellipsis ("Send invite…"). Text fields and textareas become <code>readonly</code> (they keep their value and stay readable); selects, radios and checkboxes, which have no read-only state, become <code>disabled</code>. Escape does nothing until it settles.</li>
         <li><b>Invalid</b>: the field gets <code>aria-invalid="true"</code> and a <code>.field__error</code> linked with <code>aria-describedby</code>; focus moves to it. The dialog stays open. Examples: "Enter an email like name@example.org.", "Give a reason so other admins understand."</li>
-        <li><b>Failed</b>: a danger <a href="alert.html">alert</a> with <code>role="alert"</code> at the top of the body; everything typed stays. Copy: "That didn’t work · We couldn’t reach FaithTech. Nothing was changed — try again."</li>
+        <li><b>Failed</b>: a danger <a href="alert.html">alert</a> with <code>role="alert"</code> at the top of the body; everything typed stays. The title names what was not saved, in the form "Thing not done" ("Invite not sent", "Role not removed", "Contact not deleted", "Account not suspended"); the text says why and what to do: "We couldn’t reach FaithTech. Nothing was changed — try again." Never a generic "That didn’t work".</li>
       </ul>
     </section>
 
@@ -430,7 +430,6 @@
       </ul>
       <p>Drift noticed in the mocks:</p>
       <ul>
-        <li>Every failed state uses the same generic "That didn’t work" title rather than naming what was not saved.</li>
         <li>Send invite's role list has "Create Lead" and offers lead roles beyond those a City Lead may grant.</li>
         <li>Inline styles: the header wraps title and description in <code>&lt;div style="flex: 1;"&gt;</code> and the description uses <code>style="margin-top: var(--space-1)"</code>; there is no class for either yet.</li>
       </ul>

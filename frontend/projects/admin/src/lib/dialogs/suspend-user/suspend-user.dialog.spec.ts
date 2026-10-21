@@ -93,6 +93,7 @@ describe('SuspendUserDialog', () => {
     await settle();
     expect(ref.close).not.toHaveBeenCalled();
     expect(host.textContent).toContain('You can’t suspend your own account.');
+    expect(host.querySelector('ft-alert')!.textContent).toContain('Account not suspended');
   });
 
   it('says it didn’t work when FaithTech can’t be reached', async () => {
@@ -100,6 +101,6 @@ describe('SuspendUserDialog', () => {
     type('Spam');
     button('Suspend').click();
     await settle();
-    expect(host.textContent).toContain('That didn’t work');
+    expect(host.querySelector('ft-alert')!.textContent).toContain('Account not suspended');
   });
 });

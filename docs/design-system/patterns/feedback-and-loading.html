@@ -102,7 +102,7 @@
         <li><b><a href="../components/skeleton.html">Skeleton</a></b>: grey blocks shaped like the rows, cards or profile that are loading. Every screen with data has a <code>loading</code> state.</li>
         <li><b>Busy button</b>: the pressed button swaps its label for a spinner (the label stays in the markup as its accessible name) and sets <code>aria-busy</code> and <code>aria-disabled</code>. Used in every form and dialog.</li>
         <li><b><a href="../components/picture-list.html">Upload progress</a></b>: a photo item with <code>aria-busy</code> (on the item that holds the status line, not the thumbnail), a <a href="../components/progress.html">progress</a> bar when the percentage is known, and a status line ("Uploading… 60%"). If the upload fails, the tile shows the error.</li>
-        <li><b><a href="../components/alert.html">Inline alert</a></b>: the result in context. "Profile saved", "Settings saved", "That didn’t work".</li>
+        <li><b><a href="../components/alert.html">Inline alert</a></b>: the result in context. "Profile saved", "Settings saved", "Invite not sent".</li>
         <li><b>Success card</b> (<code>.card--success</code>): replaces a form after a send that can't be undone, such as "Sent to 41 Product Engineers".</li>
       </ul>
       <p>Toasts, banners and the bell are on <a href="notifications.html">notifications</a>. Screens that are empty or failed are on <a href="empty-and-error-states.html">empty and error states</a>.</p>
@@ -118,7 +118,7 @@
           <tr><td>Saved, and the person stays on the page</td><td>Success alert at the top of the form, <code>role="status"</code></td><td>"Profile saved · Everyone signed in can now see your changes."</td></tr>
           <tr><td>Saved, and the person moves to the item</td><td>Toast on the next page</td><td>"Invite sent", "Contact restored"</td></tr>
           <tr><td>Sent, and it can't be undone</td><td>Success card with what happened and what to do next</td><td>compose-announcement/success</td></tr>
-          <tr><td>The save failed</td><td>Danger alert in context. Nothing typed is lost</td><td>"That didn’t work · Nothing was changed — try again."</td></tr>
+          <tr><td>The save failed</td><td>Danger alert in context. Nothing typed is lost</td><td>"Invite not sent · Nothing was changed — try again." The title names what was not saved.</td></tr>
         </tbody>
       </table></div>
       <p>If loading takes less than about 300ms, don't show a skeleton at all. That avoids a flash.</p>
@@ -146,7 +146,7 @@
         <div class="ds-example__canvas ds-example__canvas--stack">
           <div class="cluster"><button class="btn btn--primary" type="button" aria-busy="true" aria-disabled="true">Saving…</button><button class="btn btn--danger" type="button" aria-busy="true" aria-disabled="true">Delete permanently…</button></div>
           <div class="alert alert--success" role="status" style="width: 100%;"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="m8 12 3 3 5-6"/></svg><div class="alert__body"><div class="alert__title">Profile saved</div><div class="alert__text">Everyone signed in can now see your changes.</div></div></div>
-          <div class="alert alert--danger" role="alert" style="width: 100%;"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 8v4M12 16h.01"/></svg><div class="alert__body"><div class="alert__title">That didn’t work</div><div class="alert__text">We couldn’t reach FaithTech. Nothing was changed — try again.</div></div></div>
+          <div class="alert alert--danger" role="alert" style="width: 100%;"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 8v4M12 16h.01"/></svg><div class="alert__body"><div class="alert__title">Contact not saved</div><div class="alert__text">We couldn’t reach FaithTech. Nothing was changed — try again.</div></div></div>
         </div>
         <div class="ds-example__caption"><span>contact-form/busy, delete-contact/busy, edit-profile/success and delete-contact/failed.</span></div>
       </div>
