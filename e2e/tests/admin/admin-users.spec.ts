@@ -82,16 +82,20 @@ test.describe('Admin users', () => {
     await axe.check();
   });
 
-  test('only System Admins get the Admin link', async ({ page, api }) => {
+  test('members without System Admin get no Admin link', async ({ page, api }) => {
     const shell = new AppShell(page);
     await api.signInAs(api.addAccount({ email: 'grace@example.org', roles: ['CityLead'] }));
+
     await expect(shell.navLink('Announcements')).toBeVisible();
     await expect(shell.navLink('Admin')).toHaveCount(0);
+  });
 
-    await shell.signOut.click();
+  test('a System Admin reaches the admin area from the Admin link', async ({ page, api }) => {
+    const shell = new AppShell(page);
     await api.signInAs(
       api.addAccount({ email: 'priya@example.org', name: 'Priya Shah', roles: ['SystemAdmin'] }),
     );
+
     await shell.navLink('Admin').click();
     await expect(new AdminUsersPage(page).heading).toHaveText('Admin');
   });
