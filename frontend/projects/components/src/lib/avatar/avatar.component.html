@@ -4,8 +4,11 @@
     [class]="'ft-avatar ft-avatar--' + color() + ' ft-avatar--' + size()"
     [attr.data-initials]="drawn ? initials() : null"
     aria-hidden="true"
-    >{{ drawn ? '' : initials() }}</span
-  >
+    >{{ drawn ? '' : initials() }}
+    @if (photo(); as url) {
+      <img class="ft-avatar__img" [src]="url" alt="" (error)="failedSrc.set(url)" />
+    }
+  </span>
 </ng-template>
 @if (href(); as url) {
   <!-- Initials are drawn with CSS so the visible text never disagrees with the label (WCAG 2.5.3). -->

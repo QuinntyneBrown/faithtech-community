@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, computed, input } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, input, signal } from '@angular/core';
 import { NgTemplateOutlet } from '@angular/common';
 
 export type AvatarColor = 'plain' | 'sky' | 'sun' | 'lilac' | 'sage' | 'rose' | 'mint' | 'peach';
@@ -6,6 +6,7 @@ export type AvatarSize = 'sm' | 'md' | 'lg' | 'xl';
 
 /**
  * Initials on a person's colour. Always decorative (aria-hidden): the name is printed beside it.
+ * With `src` the member's photo covers the initials (`alt=""`), which show again if it fails to load.
  * With `href` it becomes the top-bar style trigger, a link named by `label`.
  */
 @Component({
@@ -22,6 +23,11 @@ export class AvatarComponent {
   readonly href = input<string | null>(null);
   /** Accessible name of the link trigger, e.g. "Your profile, Grace Okonkwo". */
   readonly label = input<string | null>(null);
+  /** URL of the member's featured photo; initials show without one. */
+  readonly src = input<string | null>(null);
+
+  protected readonly failedSrc = signal<string | null>(null);
+  protected readonly photo = computed(() => (this.src() === this.failedSrc() ? null : this.src()));
 
   protected readonly initials = computed(() => {
     const parts = this.name().trim().split(/\s+/).filter(Boolean);

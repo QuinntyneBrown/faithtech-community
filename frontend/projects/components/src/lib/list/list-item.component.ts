@@ -2,7 +2,8 @@ import { ChangeDetectionStrategy, Component, input } from '@angular/core';
 
 /**
  * One list row: optional leading slot (avatar or icon), a title that is a link when `href` is set,
- * a muted meta line and an optional trailing slot (badge). Slots: `[leading]`, `[trailing]`.
+ * a muted meta line (text through `meta`, or rich content such as role badges through the `[meta]` slot)
+ * and an optional trailing slot (badge). Slots: `[leading]`, `[meta]`, `[trailing]`.
  */
 @Component({
   selector: 'ft-list-item',
