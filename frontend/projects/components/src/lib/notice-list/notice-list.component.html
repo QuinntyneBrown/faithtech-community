@@ -1,0 +1,16 @@
+<ul class="ft-notice-list" [attr.aria-label]="label()">
+  @for (notice of notices(); track notice.id) {
+    <li class="ft-notice" [class.ft-notice--unread]="notice.unread">
+      <ft-avatar size="sm" [name]="notice.name" [color]="notice.color ?? 'plain'" />
+      <div class="ft-notice__body">
+        {{ notice.text }}
+        @if (notice.href && notice.linkText) {
+          <ft-link [href]="notice.href" (click)="open($event, notice.id)">{{
+            notice.linkText
+          }}</ft-link>
+        }
+        <div class="ft-notice__meta">{{ notice.meta }}{{ notice.unread ? ' · Unread' : '' }}</div>
+      </div>
+    </li>
+  }
+</ul>

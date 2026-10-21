@@ -7,24 +7,7 @@
   </div>
 
   @if (shown().length > 0) {
-    <ul class="ft-notification-panel__list">
-      @for (notice of shown(); track notice.id) {
-        <li class="ft-notice" [class.ft-notice--unread]="notice.unread">
-          <ft-avatar size="sm" [name]="notice.name" [color]="notice.color ?? 'plain'" />
-          <div class="ft-notice__body">
-            {{ notice.text }}
-            @if (notice.href && notice.linkText) {
-              <ft-link [href]="notice.href" (click)="noticeOpened.emit(notice.id)">{{
-                notice.linkText
-              }}</ft-link>
-            }
-            <div class="ft-notice__meta">
-              {{ notice.meta }}{{ notice.unread ? ' · Unread' : '' }}
-            </div>
-          </div>
-        </li>
-      }
-    </ul>
+    <ft-notice-list [notices]="shown()" (noticeOpened)="noticeOpened.emit($event)" />
   } @else {
     <div class="ft-notification-panel__empty">
       <strong>You’re all caught up</strong>

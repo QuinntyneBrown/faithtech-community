@@ -15,3 +15,17 @@ export function formatTimestamp(value: Date | string): string {
   const pad = (n: number) => String(n).padStart(2, '0');
   return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())} ${pad(d.getHours())}:${pad(d.getMinutes())}`;
 }
+
+const TIME = new Intl.DateTimeFormat('en-GB', { hour: 'numeric', minute: '2-digit', hour12: true });
+
+/** "Today, 11:42 am" for today, otherwise "Mon 20 Oct": the notification lists' format. */
+export function formatNoticeTime(value: Date | string, now: Date = new Date()): string {
+  const d = new Date(value);
+  const today =
+    d.getFullYear() === now.getFullYear() &&
+    d.getMonth() === now.getMonth() &&
+    d.getDate() === now.getDate();
+  return today
+    ? `Today, ${TIME.format(d).replace(/\s/g, ' ').replace(/^0:/, '12:')}`
+    : formatDay(d);
+}

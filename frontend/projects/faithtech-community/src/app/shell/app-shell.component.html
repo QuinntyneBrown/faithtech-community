@@ -6,6 +6,13 @@
   (searchSubmit)="search($event)"
 >
   <div ftTopBarActions class="actions">
+    <ft-notification-bell [unread]="unread()" [open]="bellOpen()" (openChange)="toggleBell($event)">
+      <ft-notification-panel
+        [notices]="notices()"
+        (markAllRead)="markAllRead()"
+        (noticeOpened)="openNotice($event)"
+      />
+    </ft-notification-bell>
     @if (user(); as me) {
       <ft-menu
         [label]="'Account menu for ' + (me.name ?? '')"

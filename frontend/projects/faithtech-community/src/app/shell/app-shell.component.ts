@@ -1,8 +1,13 @@
 import { HttpErrorResponse } from '@angular/common/http';
 import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
-import { toSignal } from '@angular/core/rxjs-interop';
+import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
 import { NavigationEnd, Router, RouterOutlet } from '@angular/router';
-import { AUTH_SERVICE, ROLE_LABELS } from '@faithtech-community/api';
+import {
+  AUTH_SERVICE,
+  NOTIFICATIONS_SERVICE,
+  NotificationDto,
+  ROLE_LABELS,
+} from '@faithtech-community/api';
 import {
   avatarColorFor,
   AvatarComponent,
@@ -14,15 +19,24 @@ import {
   MenuEntry,
   NavDrawerComponent,
   NavDrawerLink,
+  Notice,
+  NotificationBellComponent,
+  NotificationPanelComponent,
   SkipLinkComponent,
   TabBarComponent,
   TabBarItem,
   TopBarComponent,
   TopBarLink,
+  toNotice,
 } from '@faithtech-community/components';
-import { filter, firstValueFrom, map } from 'rxjs';
+import { filter, firstValueFrom, interval, map } from 'rxjs';
 
 import { Section, sectionsFor, tabsFor } from './navigation';
+
+/** How often the bell reads the unread count while the tab is visible (ADR 0015). */
+const UNREAD_POLL_MS = 60_000;
+/** The panel shows the latest few; the Notifications page holds the history. */
+const PANEL_SIZE = 5;
 
 /** The signed-in chrome around every member page (docs/design-system/patterns/navigation.html). */
 @Component({
@@ -38,6 +52,8 @@ import { Section, sectionsFor, tabsFor } from './navigation';
     ButtonComponent,
     ContainerComponent,
     MenuComponent,
+    NotificationBellComponent,
+    NotificationPanelComponent,
   ],
   templateUrl: './app-shell.component.html',
   styleUrl: './app-shell.component.scss',
@@ -47,6 +63,7 @@ export class AppShellComponent {
   private readonly auth = inject(AUTH_SERVICE);
   private readonly router = inject(Router);
   private readonly breakpoint = inject(BreakpointService);
+  private readonly notifications = inject(NOTIFICATIONS_SERVICE);
 
   protected readonly user = this.auth.currentUser;
   protected readonly avatarColor = computed(() => avatarColorFor(this.user()?.profileId));
@@ -59,6 +76,12 @@ export class AppShellComponent {
   /** From 768px to 1023px the secondary links hide, so More in the top bar opens the menu. */
   protected readonly tablet = computed(() => this.breakpoint.current() === 'md');
   protected readonly menuOpen = signal(false);
+
+  /** The bell (L2-027): the count, and the latest notices once the panel opens. */
+  protected readonly unread = signal(0);
+  protected readonly bellOpen = signal(false);
+  private readonly latest = signal<NotificationDto[]>([]);
+  protected readonly notices = computed<Notice[]>(() => this.latest().map((n) => toNotice(n)));
 
   private readonly path = toSignal(
     this.router.events.pipe(
@@ -99,6 +122,69 @@ export class AppShellComponent {
   );
   /** More is the current tab while the page is outside the link tabs (design system, tab bar). */
   protected readonly moreCurrent = computed(() => !this.tabs().some((t) => t.current));
+
+  constructor() {
+    this.router.events
+      .pipe(
+        filter((e) => e instanceof NavigationEnd),
+        takeUntilDestroyed(),
+      )
+      .subscribe(() => void this.readUnread());
+    interval(UNREAD_POLL_MS)
+      .pipe(takeUntilDestroyed())
+      .subscribe(() => {
+        if (document.visibilityState !== 'hidden') void this.readUnread();
+      });
+    void this.readUnread();
+  }
+
+  protected async toggleBell(open: boolean): Promise<void> {
+    this.bellOpen.set(open);
+    if (!open) return;
+    try {
+      const page = await firstValueFrom(this.notifications.list(1));
+      this.latest.set(page.items.slice(0, PANEL_SIZE));
+      this.unread.set(page.unreadCount);
+    } catch {
+      // The panel shows what it had; the next poll tries again.
+    }
+  }
+
+  protected async openNotice(id: string): Promise<void> {
+    const item = this.latest().find((n) => n.id === id);
+    if (!item) return;
+    this.bellOpen.set(false);
+    if (item.readAt === null) {
+      try {
+        await firstValueFrom(this.notifications.markRead(id));
+        const now = new Date().toISOString();
+        this.latest.update((all) => all.map((n) => (n.id === id ? { ...n, readAt: now } : n)));
+        this.unread.update((count) => Math.max(0, count - 1));
+      } catch {
+        // Still take them to the item; it stays unread and the count catches up on the next read.
+      }
+    }
+    await this.router.navigateByUrl(item.linkPath);
+  }
+
+  protected async markAllRead(): Promise<void> {
+    try {
+      await firstValueFrom(this.notifications.markAllRead());
+      const now = new Date().toISOString();
+      this.latest.update((all) => all.map((n) => ({ ...n, readAt: n.readAt ?? now })));
+      this.unread.set(0);
+    } catch {
+      // Nothing changed on the server, so nothing changes here.
+    }
+  }
+
+  private async readUnread(): Promise<void> {
+    try {
+      this.unread.set(await firstValueFrom(this.notifications.unreadCount()));
+    } catch {
+      // Keep the last count; the next navigation or poll tries again.
+    }
+  }
 
   protected search(query: string): void {
     void this.router.navigate(['/search'], { queryParams: query ? { q: query } : {} });

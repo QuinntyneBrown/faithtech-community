@@ -1,22 +1,9 @@
 import { ChangeDetectionStrategy, Component, computed, input, output } from '@angular/core';
-import { AvatarColor, AvatarComponent } from '../avatar/avatar.component';
 import { ButtonComponent } from '../button/button.component';
 import { LinkComponent } from '../link/link.component';
+import { Notice, NoticeListComponent } from '../notice-list/notice-list.component';
 
-export interface Notice {
-  id: string;
-  /** The person the notice is about; shown as initials. */
-  name: string;
-  color?: AvatarColor;
-  /** One sentence, past tense. */
-  text: string;
-  /** The one action: the object of the sentence, as a link. */
-  linkText?: string;
-  href?: string;
-  /** Time, for example "Today, 11:42 am". "Unread" is appended for unread notices. */
-  meta: string;
-  unread: boolean;
-}
+export type { Notice } from '../notice-list/notice-list.component';
 
 /**
  * The popover half of FaithTech notifications: latest notices with a "Mark all read" action and a
@@ -24,7 +11,7 @@ export interface Notice {
  */
 @Component({
   selector: 'ft-notification-panel',
-  imports: [AvatarComponent, ButtonComponent, LinkComponent],
+  imports: [ButtonComponent, LinkComponent, NoticeListComponent],
   templateUrl: './notification-panel.component.html',
   styleUrl: './notification-panel.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -36,7 +23,7 @@ export class NotificationPanelComponent {
   readonly seeAllHref = input('/notifications');
 
   readonly markAllRead = output<void>();
-  /** The id of the notice whose link was opened (the app marks it read). */
+  /** The id of the notice whose link was opened in place (the app marks it read and navigates). */
   readonly noticeOpened = output<string>();
 
   protected readonly shown = computed(() => this.notices().slice(0, this.limit()));

@@ -1,10 +1,3 @@
-/*
- * EARLY IMPLEMENTATION: written ahead of the vertical slices to get a head start.
- * Contracts and DTOs follow docs/detailed-designs/ but may change as each feature is
- * implemented end to end (spec -> design -> mock -> ATDD slice).
- * Sources:
- *   - docs/detailed-designs/notifications/in-app-notifications
- */
 import { InjectionToken } from '@angular/core';
 import { Observable } from 'rxjs';
 
@@ -13,10 +6,12 @@ export type NotificationKind =
   | 'EventCancelled'
   | 'EventChanged'
   | 'Invite'
+  | 'InviteAccepted'
   | 'RsvpConfirmed'
   | 'RoleChanged'
   | 'WorkItemAssigned'
   | 'WorkspaceMemberAdded'
+  | 'WorkspaceOwnerLostCityLead'
   | 'PlanningPokerInvite'
   | 'Announcement';
 
@@ -26,6 +21,8 @@ export interface NotificationDto {
   title: string;
   /** App route to open after marking the notification read. */
   linkPath: string;
+  /** The person whose action raised it, shown as the avatar; null for system notices. */
+  actorName: string | null;
   createdAt: string;
   readAt: string | null;
 }
@@ -39,9 +36,8 @@ export interface NotificationPage {
 }
 
 /**
- * Contract for the notifications API. Pages depend on NOTIFICATIONS_SERVICE, never on HttpNotificationsService.
- * TODO(slice): NotificationPage and the unread-count body are undefined in the design; the refresh mechanism
- * (polling vs push) is open and will live in the feature container, not here.
+ * The caller's own notifications, newest first, 20 to a page (L2-027, ADR 0009). Pages and the shell
+ * depend on NOTIFICATIONS_SERVICE, never on HttpNotificationsService.
  */
 export interface NotificationsService {
   list(page?: number): Observable<NotificationPage>;
