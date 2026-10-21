@@ -18,6 +18,10 @@ export class EditProfilePage {
   readonly tryAgain: Locator;
   readonly savedToast: Locator;
   readonly failedAlert: Locator;
+  readonly photosGroup: Locator;
+  readonly addPhotos: Locator;
+  readonly photoItems: Locator;
+  readonly photoLimit: Locator;
 
   constructor(private readonly page: Page) {
     this.heading = page.getByRole('heading', { level: 1, name: 'Edit profile' });
@@ -39,10 +43,44 @@ export class EditProfilePage {
     this.failedAlert = page
       .locator('ft-alert')
       .filter({ hasText: 'We couldn’t save your profile' });
+    this.photosGroup = page.getByRole('group', { name: 'Photos' });
+    this.addPhotos = this.photosGroup.getByRole('button', { name: 'Add photos' });
+    this.photoItems = this.photosGroup.getByRole('listitem');
+    this.photoLimit = this.photosGroup.getByText(
+      'That’s 10 photos, the most a profile can have. Remove one to add another.',
+    );
   }
 
   async open(): Promise<void> {
     await this.page.goto('/people/me/edit');
+  }
+
+  /** Chooses files through Add photos, as a member would in the file picker. */
+  async choosePhotos(files: { name: string; mimeType: string; buffer: Buffer }[]): Promise<void> {
+    const chooser = this.page.waitForEvent('filechooser');
+    await this.addPhotos.click();
+    await (await chooser).setFiles(files);
+  }
+
+  photo(index: number): Locator {
+    return this.photoItems.nth(index);
+  }
+
+  description(index: number): Locator {
+    return this.page.getByLabel(`Photo ${index + 1} description`);
+  }
+
+  feature(index: number): Locator {
+    return this.page.getByRole('button', { name: `Feature photo ${index + 1}` });
+  }
+
+  remove(index: number): Locator {
+    return this.page.getByRole('button', { name: `Remove photo ${index + 1}` });
+  }
+
+  /** A note in the photos group, such as a file the browser refused. */
+  note(text: string): Locator {
+    return this.photosGroup.getByText(text);
   }
 
   async fill(details: { name?: string; homeCity?: string; bio?: string }): Promise<void> {

@@ -47,4 +47,34 @@ describe('HttpProfilesService', () => {
     expect(req.request.body).toEqual(details);
     req.flush(null, { status: 204, statusText: 'No Content' });
   });
+
+  it('uploads a photo as multipart with file and alt text', () => {
+    const file = new File(['x'], 'a.png', { type: 'image/png' });
+    service.uploadPhoto('p1', file, 'A smiling person').subscribe();
+
+    const req = controller.expectOne('/api/profiles/p1/photos');
+    expect(req.request.method).toBe('POST');
+    const body = req.request.body as FormData;
+    expect(body.get('file')).toBe(file);
+    expect(body.get('altText')).toBe('A smiling person');
+    req.flush({});
+  });
+
+  it('describes, features and deletes a photo', () => {
+    service.describePhoto('p1', 'ph1', 'New words').subscribe();
+    const describe = controller.expectOne('/api/profiles/p1/photos/ph1');
+    expect(describe.request.method).toBe('PUT');
+    expect(describe.request.body).toEqual({ altText: 'New words' });
+    describe.flush(null);
+
+    service.setFeatured('p1', 'ph1').subscribe();
+    const feature = controller.expectOne('/api/profiles/p1/photos/ph1/featured');
+    expect(feature.request.method).toBe('PUT');
+    feature.flush(null);
+
+    service.deletePhoto('p1', 'ph1').subscribe();
+    const del = controller.expectOne('/api/profiles/p1/photos/ph1');
+    expect(del.request.method).toBe('DELETE');
+    del.flush(null);
+  });
 });

@@ -54,6 +54,7 @@ export class MockApi {
   private session: MockAccount | null = null;
   private signedIn: MockAccount | null = null;
   private failures = new Map<string, number>();
+  private uploads = 0;
 
   constructor(private readonly page: Page) {}
 
@@ -119,7 +120,10 @@ export class MockApi {
     const request = route.request();
     const url = new URL(request.url());
     const method = request.method();
-    const body = parseBody(request.postData(), request.headers()['content-type']);
+    const contentType = request.headers()['content-type'] ?? '';
+    const body = contentType.startsWith('multipart/form-data')
+      ? parseMultipart(request.postDataBuffer())
+      : parseBody(request.postData(), contentType);
     if (overridable) this.calls.push({ method, path: url.pathname, body });
 
     const override = overridable ? this.overrides.get(`${method} ${url.pathname}`) : undefined;
@@ -133,6 +137,10 @@ export class MockApi {
     if (method === 'PUT' && profileRoute) {
       return this.updateProfile(route, profileRoute[1], body, authorization);
     }
+    const photos = /^\/api\/profiles\/([^/]+)\/photos(?:\/([^/]+))?(\/featured)?$/.exec(
+      url.pathname,
+    );
+    if (photos) return this.photos(route, method, photos, body, authorization);
 
     switch (`${method} ${url.pathname}`) {
       case 'POST /api/account/sign-in':
@@ -270,6 +278,70 @@ export class MockApi {
     return route.fulfill({ status: 204 });
   }
 
+  /** ProfilesEndpoints photo routes: upload, describe, feature and delete (L2-007). */
+  private photos(
+    route: Route,
+    method: string,
+    [, profileId, photoId, featured]: RegExpExecArray,
+    body: Record<string, unknown>,
+    authorization: string | undefined,
+  ) {
+    const caller = this.caller(authorization);
+    if (!caller) return route.fulfill({ status: 401 });
+    if (profileId !== caller.profileId && !caller.roles.includes('SystemAdmin')) {
+      return route.fulfill({ status: 403 });
+    }
+    const profile = this.profiles.get(profileId);
+    if (!profile) return route.fulfill({ status: 404 });
+    const invalid = (field: string, message: string) =>
+      route.fulfill({ status: 400, json: { status: 400, errors: { [field]: [message] } } });
+
+    if (method === 'POST' && !photoId) {
+      const altText = String(body['altText'] ?? '').trim();
+      if (profile.photos.length >= 10) {
+        return invalid(
+          'File',
+          'That’s 10 photos, the most a profile can have. Remove one to add another.',
+        );
+      }
+      if (!altText) return invalid('AltText', 'Describe this photo.');
+      const photo: MockPhoto = {
+        id: `photo-${++this.uploads}`,
+        url: photoUrl(),
+        altText,
+        isFeatured: profile.photos.length === 0,
+        uploadedAt: new Date(Date.UTC(2026, 9, 21, 12, this.uploads)).toISOString(),
+      };
+      profile.photos.push(photo);
+      return route.fulfill({ status: 201, json: photo });
+    }
+
+    const photo = profile.photos.find((p) => p.id === photoId);
+    if (!photo) return route.fulfill({ status: 404 });
+    if (method === 'PUT' && featured) {
+      for (const p of profile.photos) p.isFeatured = p === photo;
+      return route.fulfill({ status: 204 });
+    }
+    if (method === 'PUT') {
+      const altText = String(body['altText'] ?? '').trim();
+      if (!altText) return invalid('AltText', 'Describe this photo.');
+      photo.altText = altText;
+      return route.fulfill({ status: 204 });
+    }
+    if (method === 'DELETE') {
+      profile.photos = profile.photos.filter((p) => p !== photo);
+      if (photo.isFeatured && profile.photos.length) {
+        const newest = [...profile.photos].sort((a, b) =>
+          b.uploadedAt.localeCompare(a.uploadedAt),
+        )[0];
+        newest.isFeatured = true;
+      }
+      return route.fulfill({ status: 204 });
+    }
+    this.unrecognised.push(`${method} ${route.request().url()}`);
+    return route.abort('failed');
+  }
+
   private profileDto(profile: MockProfile, caller: MockAccount) {
     const photos = [...profile.photos].sort((a, b) => b.uploadedAt.localeCompare(a.uploadedAt));
     return {
@@ -285,6 +357,21 @@ export class MockApi {
 /** Matches the problem body AccountEndpoints.SignInAsync returns. */
 function problem(route: Route, code: string) {
   return route.fulfill({ status: 400, json: { status: 400, code } });
+}
+
+/** The text fields and the file name of a multipart/form-data body. */
+function parseMultipart(data: Buffer | null): Record<string, unknown> {
+  if (!data) return {};
+  const text = data.toString('latin1');
+  const fields: Record<string, unknown> = {};
+  for (const part of text.split(/--[^\r\n]+\r\n/)) {
+    const name = /name="([^"]+)"/.exec(part)?.[1];
+    if (!name) continue;
+    const fileName = /filename="([^"]*)"/.exec(part)?.[1];
+    const value = part.slice(part.indexOf('\r\n\r\n') + 4).replace(/\r\n(--[^\r\n]*--)?\s*$/, '');
+    fields[name] = fileName ?? Buffer.from(value, 'latin1').toString('utf8');
+  }
+  return fields;
 }
 
 function parseBody(data: string | null, contentType = ''): Record<string, unknown> {

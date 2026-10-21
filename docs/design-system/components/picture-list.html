@@ -225,7 +225,7 @@
 
 // photos: { url: string; alt: string; featured: boolean;
 //           state?: 'uploading' | 'failed'; progress?: number; error?: string;
-//           pending?: boolean }[]</code></pre>
+//           pending?: boolean; altError?: string }[]</code></pre>
       <table class="ds-table"><thead><tr><th scope="col">Class / input</th><th scope="col">Effect</th></tr></thead><tbody>
         <tr><td><code>.picture-list</code>, <code>.picture-list__grid</code></td><td>The group, and the auto-fill grid of thumbnails.</td></tr>
         <tr><td><code>.picture-list__item--featured</code>, <code>--failed</code></td><td>Accent ring; danger border and dimmed photo.</td></tr>
@@ -233,6 +233,7 @@
         <tr><td><code>.picture-list__remove</code>, <code>__actions</code>, <code>__note</code></td><td>The corner Remove button, the Feature row and the caption note.</td></tr>
         <tr><td><code>photos</code>, <code>max</code></td><td>The items. Add photos is disabled at <code>max</code> (10) and described by the limit note.</td></tr>
         <tr><td><code>pending</code> (per photo)</td><td>Not saved yet: hides Feature and adds the "Not saved yet" note.</td></tr>
+        <tr><td><code>altError</code> (per photo), <code>descriptionFieldId(i)</code></td><td>The page’s own description error (shown after a save attempt), and the id of a description field for the form’s error summary to link to.</td></tr>
         <tr><td><code>picked</code>, <code>removed</code>, <code>featured</code>, <code>altChange</code></td><td>Emit the chosen files (after the type and size checks), or the photo’s index and new description.</td></tr>
       </tbody></table>
     </section>

@@ -39,6 +39,12 @@ export interface ProfilesService {
   getProfile(id: string): Observable<ProfileDto>;
   /** 400 with per-field errors, 403 unless the caller owns the profile or is a System Admin. */
   updateProfile(id: string, details: ProfileDetails): Observable<void>;
+  /** JPEG, PNG or WebP up to 5 MB with alt text; at most 10 photos. 400 errors are keyed File or AltText. */
+  uploadPhoto(id: string, file: File, altText: string): Observable<PhotoDto>;
+  describePhoto(id: string, photoId: string, altText: string): Observable<void>;
+  setFeatured(id: string, photoId: string): Observable<void>;
+  /** The newest remaining photo becomes featured when the featured one is deleted. */
+  deletePhoto(id: string, photoId: string): Observable<void>;
 }
 
 export const PROFILES_SERVICE = new InjectionToken<ProfilesService>('PROFILES_SERVICE');

@@ -173,11 +173,40 @@ describe('PictureListComponent', () => {
     expect(host.querySelector('ul')).toBeNull();
   });
 
+  it('marks a pending photo as not saved yet and offers no Feature for it', async () => {
+    const { fixture, cmp, host, buttonByName } = await setup();
+    cmp.photos.update((p) => [...p, { url: 'blob:3', alt: '', featured: false, pending: true }]);
+    fixture.detectChanges();
+    const item = host.querySelectorAll('li')[2];
+    expect(item.textContent).toContain('Not saved yet. It uploads when you save your profile.');
+    expect(buttonByName('Feature photo 3')).toBeUndefined();
+    expect(item.textContent).not.toContain('Describe what’s in the photo');
+  });
+
+  it('shows the description error the page gives instead of its own check', async () => {
+    const { fixture, cmp, host } = await setup();
+    cmp.photos.set([{ url: '/1.jpg', alt: '', featured: true, altError: 'Describe this photo.' }]);
+    fixture.detectChanges();
+    expect(host.querySelector('ft-inline-message')!.textContent).toContain('Describe this photo.');
+    cmp.photos.set([{ url: '/1.jpg', alt: '', featured: true, altError: '' }]);
+    fixture.detectChanges();
+    expect(host.querySelector('ft-inline-message')).toBeNull();
+  });
+
+  it('gives the id of each description field, for an error summary to link to', async () => {
+    const { fixture, host } = await setup();
+    const list = fixture.debugElement.children[0].componentInstance as PictureListComponent;
+    const input = host.querySelectorAll<HTMLInputElement>('input[type="text"]')[1];
+    expect(list.descriptionFieldId(1)).toBe(input.id);
+  });
+
   it('disables Add photos and explains when the maximum is reached', async () => {
     const { fixture, cmp, host, addButton } = await setup();
     cmp.max.set(2);
     fixture.detectChanges();
     expect(addButton().disabled).toBe(true);
+    const note = host.querySelector('#' + addButton().getAttribute('aria-describedby'))!;
+    expect(note.textContent).toContain('the most a profile can have');
     expect(host.textContent).toContain(
       'That’s 2 photos, the most a profile can have. Remove one to add another.',
     );

@@ -3,7 +3,7 @@ import { Injectable, inject } from '@angular/core';
 import { Observable } from 'rxjs';
 
 import { API_BASE_URL } from '../config';
-import { ProfileDetails, ProfileDto, ProfilesService } from './profiles.service';
+import { PhotoDto, ProfileDetails, ProfileDto, ProfilesService } from './profiles.service';
 
 @Injectable()
 export class HttpProfilesService implements ProfilesService {
@@ -16,5 +16,29 @@ export class HttpProfilesService implements ProfilesService {
 
   updateProfile(id: string, details: ProfileDetails): Observable<void> {
     return this.http.put<void>(`${this.base}/${encodeURIComponent(id)}`, details);
+  }
+
+  uploadPhoto(id: string, file: File, altText: string): Observable<PhotoDto> {
+    const form = new FormData();
+    form.append('file', file);
+    form.append('altText', altText);
+    return this.http.post<PhotoDto>(this.photos(id), form);
+  }
+
+  describePhoto(id: string, photoId: string, altText: string): Observable<void> {
+    return this.http.put<void>(this.photos(id, photoId), { altText });
+  }
+
+  setFeatured(id: string, photoId: string): Observable<void> {
+    return this.http.put<void>(`${this.photos(id, photoId)}/featured`, null);
+  }
+
+  deletePhoto(id: string, photoId: string): Observable<void> {
+    return this.http.delete<void>(this.photos(id, photoId));
+  }
+
+  private photos(id: string, photoId?: string): string {
+    const base = `${this.base}/${encodeURIComponent(id)}/photos`;
+    return photoId ? `${base}/${encodeURIComponent(photoId)}` : base;
   }
 }

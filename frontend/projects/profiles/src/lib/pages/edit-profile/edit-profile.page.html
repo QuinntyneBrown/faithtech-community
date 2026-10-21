@@ -38,6 +38,11 @@
             Something went wrong on our side. Your changes are still here — try again.
           </ft-alert>
         }
+        @if (photosFailed()) {
+          <ft-alert status="danger" heading="Some photos weren’t saved">
+            Your details were saved. Check the photos marked below and try again.
+          </ft-alert>
+        }
         <ft-card heading="About you" [headingLevel]="2">
           <ft-stack>
             <ft-form-field #nameField label="Name" [error]="error('name')">
@@ -61,6 +66,16 @@
               <ft-textarea formControlName="bio" [rows]="4" />
             </ft-form-field>
           </ft-stack>
+        </ft-card>
+        <ft-card>
+          <ft-picture-list
+            [photos]="listPhotos()"
+            [max]="10"
+            (picked)="pick($event)"
+            (removed)="remove($event)"
+            (featured)="feature($event)"
+            (altChange)="describe($event)"
+          />
         </ft-card>
         <ft-form-actions>
           <ft-button type="submit" variant="primary" [loading]="busy()">
