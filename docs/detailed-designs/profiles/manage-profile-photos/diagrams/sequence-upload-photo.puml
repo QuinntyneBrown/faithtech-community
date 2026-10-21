@@ -43,8 +43,8 @@ else ready
   h -> ip : Detect real format
   alt over 5 MB, wrong type, content mismatch or 10 photos
     h --> ep : Rejected (L2-007)
-    ep --> client : 400 or 409 ProblemDetails
-    page --> actor : Inline error
+    ep --> client : 400 ProblemDetails keyed File or AltText
+    page --> actor : Error on that photo
   else valid
     h -> ip : Resize and strip metadata (L2-007)
     h -> ps : Store blob

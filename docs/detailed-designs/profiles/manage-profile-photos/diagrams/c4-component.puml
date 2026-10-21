@@ -5,7 +5,7 @@ title Components — Manage profile photos
 
 Container(spa, "Web app", "Angular", "profiles feature library and api client")
 Container_Boundary(api, "Community API") {
-  Component(ep, "ProfilesEndpoints", "Minimal API", "POST/DELETE /api/profiles/{id}/photos, PUT .../featured")
+  Component(ep, "ProfilesEndpoints", "Minimal API", "POST /api/profiles/{id}/photos, PUT and DELETE .../photos/{photoId}, PUT .../featured")
   Component(uh, "UploadPhotoHandler", "Application handler", "Validates, resizes, stores")
   Component(fh, "SetFeaturedPhotoHandler", "Application handler", "Features one photo")
   Component(dh, "DeletePhotoHandler", "Application handler", "Deletes and promotes")
