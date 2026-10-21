@@ -1,4 +1,4 @@
-# 0008. Shell navigation follows one rule by role
+# 0009. Shell navigation follows one rule by role
 
 - Status: Accepted
 - Date: 2026-10-21

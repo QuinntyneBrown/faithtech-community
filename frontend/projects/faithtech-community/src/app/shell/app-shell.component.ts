@@ -64,7 +64,7 @@ export class AppShellComponent {
     { initialValue: this.router.url.split(/[?#]/)[0] },
   );
 
-  /** One rule for every role builds the top bar, the tab bar and the menu (ADR 0008). */
+  /** One rule for every role builds the top bar, the tab bar and the menu (ADR 0009). */
   private readonly sections = computed(() => sectionsFor(this.auth.roles()));
 
   protected readonly topLinks = computed<TopBarLink[]>(() =>

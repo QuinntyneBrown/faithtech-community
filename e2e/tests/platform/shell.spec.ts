@@ -20,7 +20,7 @@ test.describe('App shell', () => {
     await axe.check();
   });
 
-  // One rule for every role (docs/adr/0008-shell-navigation-by-role.md).
+  // One rule for every role (docs/adr/0009-shell-navigation-by-role.md).
   const byRole: { roles: string[]; nav: string[]; tabs: string[] }[] = [
     {
       roles: ['CityLead'],

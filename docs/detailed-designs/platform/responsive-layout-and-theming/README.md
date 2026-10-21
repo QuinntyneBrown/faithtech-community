@@ -12,7 +12,7 @@ FaithTech Community runs on phones and desktops and in light and dark themes. Th
 
 - **Layout tokens** — breakpoint, gutter, margin and spacing custom properties in `components` (from `docs/design-system/`).
 - **`AppShellComponent`** — shell in the `faithtech-community` app. At XS it collapses navigation into a menu button that opens `NavDrawerComponent` from `components`; above XS it shows the full navigation.
-- **Navigation by role** — `shell/navigation.ts` in the app holds the ordered sections and the roles that may open each; `sectionsFor(roles)` feeds the top bar and the menu, `tabsFor(roles)` the phone tab bar (ADR 0008). The API still enforces every permission.
+- **Navigation by role** — `shell/navigation.ts` in the app holds the ordered sections and the roles that may open each; `sectionsFor(roles)` feeds the top bar and the menu, `tabsFor(roles)` the phone tab bar (ADR 0009). The API still enforces every permission.
 - **`BreakpointService`** — `components` wrapper over CDK `BreakpointObserver` exposing the current named breakpoint as a signal.
 - **`ThemeService`** — `components` service that applies `data-theme="light|dark"` on `<html>`. With preference `system` it follows `matchMedia('(prefers-color-scheme: dark)')`.
 - **Theme preference storage** — the settings page (mock `pages/settings`) sets the preference. Whether it persists in the profile through the API or in browser storage only is `<TO SUPPLY>`.

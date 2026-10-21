@@ -18,7 +18,7 @@ const has =
 
 /**
  * Every section in the order the top bar, the tab bar and the menu show them
- * (docs/adr/0008-shell-navigation-by-role.md). The mock's Workspaces joins when the Agile feature
+ * (docs/adr/0009-shell-navigation-by-role.md). The mock's Workspaces joins when the Agile feature
  * has a route.
  */
 export const SECTIONS: readonly Section[] = [
