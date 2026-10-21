@@ -33,6 +33,13 @@ export class TopBarComponent {
   readonly searchPlaceholder = input('Search people, events, partners');
   /** Emits the trimmed query when the search form is submitted. */
   readonly searchSubmit = output<string>();
+  /**
+   * Label of a More button at the end of the nav, shown only from 768px to 1023px where the
+   * secondary links are hidden, so every section stays reachable; no button when null.
+   */
+  readonly moreLabel = input<string | null>(null);
+  /** Emits when More is pressed, to open the menu of every section. */
+  readonly more = output<void>();
 
   protected readonly searchId = `ft-top-bar-search-${nextId++}`;
 

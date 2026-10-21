@@ -13,14 +13,18 @@ const LINKS: TopBarLink[] = [
   template: `<ft-top-bar
     [links]="links()"
     [anonymous]="anonymous()"
+    [moreLabel]="moreLabel()"
     (searchSubmit)="searched = $event"
+    (more)="opened = opened + 1"
     ><span ftTopBarActions class="slot">actions</span></ft-top-bar
   >`,
 })
 class HostComponent {
   links = signal(LINKS);
   anonymous = signal(false);
+  moreLabel = signal<string | null>(null);
   searched: string | null = null;
+  opened = 0;
 }
 
 function setup() {
@@ -77,5 +81,23 @@ describe('TopBarComponent', () => {
     expect(q('nav')).toBeNull();
     expect(q('form')).toBeNull();
     expect(q('.slot')).toBeTruthy();
+  });
+
+  it('has no More button unless it is labelled', () => {
+    const { q } = setup();
+    expect(q('nav button')).toBeNull();
+  });
+
+  it('ends the nav with a More button that asks to open the menu', () => {
+    const { fixture, cmp, q } = setup();
+    cmp.moreLabel.set('More');
+    fixture.detectChanges();
+    const more = q<HTMLButtonElement>('nav > :last-child');
+    expect(more.tagName).toBe('BUTTON');
+    expect(more.textContent?.trim()).toBe('More');
+    expect(more.getAttribute('aria-haspopup')).toBe('dialog');
+    expect(more.classList).toContain('top-bar__more');
+    more.click();
+    expect(cmp.opened).toBe(1);
   });
 });

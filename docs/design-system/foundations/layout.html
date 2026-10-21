@@ -101,7 +101,7 @@
       <p>FaithTech Community is mobile first (the grid is inherited from Shelfie unchanged). Base styles target a 360px phone; two breakpoints (768px and 1024px) add columns, wider gutters and wider margins by changing three tokens, so components rarely need their own media queries. Content is centred in a 1280px container.</p>
       <ul>
         <li>Lay pages out on <code>.container</code> + <code>.grid</code>; the grid reads <code>--layout-columns</code>, <code>--layout-gutter</code> and <code>--layout-margin</code>.</li>
-        <li>Use <code>min-width</code> queries in <code>rem</code> only. Drift: <code>components.css</code> still hides <code>.nav-link--secondary</code> with a <code>(min-width: 48rem) and (max-width: 63.99rem)</code> range.</li>
+        <li>Use <code>min-width</code> queries in <code>rem</code> only. Resolved drift: <code>components.css</code> used to hide <code>.nav-link--secondary</code> with a <code>(min-width: 48rem) and (max-width: 63.99rem)</code> range; it is now hidden by default and shown from <code>(min-width: 64rem)</code>.</li>
         <li>No page scrolls sideways at 320px.</li>
       </ul>
     </section>
@@ -189,7 +189,7 @@
         <li>Put spans on grid children with the <code>.span-*</code> classes; never write <code>style="grid-column: span 8"</code> plus a <code>max-width</code> override .</li>
         <li>A page has one <code>.container</code>; full-bleed elements (top bar, banners) sit outside it.</li>
         <li>Use <code>100dvh</code>, not <code>100vh</code>, for full-height layouts so mobile browser bars do not clip content.</li>
-        <li>Never hide content at a breakpoint that is not reachable another way. Drift: the tab bar carries Search but not Workspaces, Team, Announcements or People, and 768 to 1023px hides the secondary links; they must stay reachable (for example through the avatar menu).</li>
+        <li>Never hide content at a breakpoint that is not reachable another way. Resolved drift: the hidden sections used to be reachable only from Home. Under 768px the tab bar's More, and from 768 to 1023px a More button at the end of the top-bar nav, open the Main menu drawer of every section.</li>
       </ul>
     </section>
 

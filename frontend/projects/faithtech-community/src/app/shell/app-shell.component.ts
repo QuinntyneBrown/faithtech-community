@@ -54,6 +54,8 @@ export class AppShellComponent {
 
   /** Under 768px the navigation collapses into the menu and the tab bar (L2-045 AC2). */
   protected readonly phone = computed(() => ['base', 'sm'].includes(this.breakpoint.current()));
+  /** From 768px to 1023px the secondary links hide, so More in the top bar opens the menu. */
+  protected readonly tablet = computed(() => this.breakpoint.current() === 'md');
   protected readonly menuOpen = signal(false);
 
   private readonly path = toSignal(

@@ -101,6 +101,7 @@
       <p>A radio group asks for exactly one of a few options that can all be seen at once: an event's format and visibility, who an announcement goes to, which role to add. Each option is a <code>label.choice</code> around a native radio, and the group is a <code>fieldset</code> with a <code>legend</code>.</p>
       <ul>
         <li><b>Use it</b> for two to six options where the difference matters enough to read: Public vs Members only, Scrum vs Kanban.</li>
+        <li><b>Don’t use it for one option.</b> A single radio offers no choice; state the thing instead. Remove role names the one role in its title ("Remove Volunteer from Ruth Alvarez?") and shows a group only when the person holds several removable roles.</li>
         <li><b>Use a select</b> for a long or familiar list (event type, city).</li>
         <li><b>Use a <a href="switch.html">switch</a></b> for one on/off setting.</li>
         <li><b>Use a checkbox group</b> when several options can be chosen at once, such as the member pickers (add workspace member, create workspace, start poker). It is the same <code>.choice</code> row with a square checkbox; see <a href="#variants">Variants</a>.</li>
@@ -274,7 +275,6 @@
         <li><a href="../../mocks/dialogs/switch-method/default.html">dialogs/switch-method/default</a>, <a href="../../mocks/dialogs/move-partner/default.html">dialogs/move-partner/default</a> and <a href="../../mocks/dialogs/new-work-item/default.html">dialogs/new-work-item/default</a></li>
         <li><a href="../../mocks/dialogs/add-workspace-member/default.html">dialogs/add-workspace-member/default</a> (checkboxes in <code>.choice</code> rows)</li>
       </ul>
-      <p>Drift noticed in the mocks: the remove-role dialog has a group with a single, pre-checked radio, which offers no choice.</p>
     </section>
 
     <footer class="ds-footer"><span>FaithTech Community design system · extracted from <a href="../../mocks/index.html">docs/mocks</a> on 2026-10-21</span><a href="#top">Back to top</a></footer>

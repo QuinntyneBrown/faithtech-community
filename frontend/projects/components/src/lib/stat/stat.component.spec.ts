@@ -46,6 +46,31 @@ describe('StatComponent', () => {
     expect(value.getAttribute('style')).toBeNull();
   });
 
+  // Given an empty pipeline, when the stat shows a zero count, then it reads "0", never blank.
+  it('shows a zero count as 0', () => {
+    const fixture = TestBed.createComponent(StatComponent);
+    fixture.componentRef.setInput('label', 'Lead');
+    fixture.componentRef.setInput('value', 0);
+    fixture.detectChanges();
+    const el = fixture.nativeElement as HTMLElement;
+    expect(el.querySelector('.ft-stat__value')?.textContent?.trim()).toBe('0');
+  });
+
+  // Given the counts are loading, when the stat renders, then its label stays and a skeleton
+  // stands in for the value, and the stat is marked busy.
+  it('keeps the label and shows a skeleton value while loading', () => {
+    const fixture = TestBed.createComponent(StatComponent);
+    fixture.componentRef.setInput('label', 'In funnel');
+    fixture.componentRef.setInput('value', 3);
+    fixture.componentRef.setInput('loading', true);
+    fixture.detectChanges();
+    const el = fixture.nativeElement as HTMLElement;
+    expect(el.getAttribute('aria-busy')).toBe('true');
+    expect(el.querySelector('.ft-stat__label')?.textContent).toBe('In funnel');
+    expect(el.querySelector('ft-skeleton')).not.toBeNull();
+    expect(el.querySelector('.ft-stat__value')).toBeNull();
+  });
+
   it('keeps the large number style by default', () => {
     const value = setup().querySelector('.ft-stat__value')!;
     expect(value.classList.contains('ft-stat__value--text')).toBe(false);

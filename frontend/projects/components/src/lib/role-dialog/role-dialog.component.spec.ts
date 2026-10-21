@@ -111,4 +111,17 @@ describe('RoleDialogComponent', () => {
     await settle();
     expect(host.querySelector('ft-alert')!.textContent).toContain('Role not removed');
   });
+
+  it('offers no radio group when there is only one role to remove', async () => {
+    const { host, data, button, settle } = setup({
+      mode: 'remove',
+      name: 'Ruth Alvarez',
+      options: [options[0]],
+    });
+    expect(host.querySelector('h2')!.textContent).toContain('Remove Volunteer from Ruth Alvarez?');
+    expect(host.querySelector('input[type="radio"]')).toBeNull();
+    button('Remove role').click();
+    await settle();
+    expect(data.submit).toHaveBeenCalledWith('Volunteer');
+  });
 });

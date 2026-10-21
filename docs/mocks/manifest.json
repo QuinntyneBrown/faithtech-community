@@ -134,6 +134,8 @@
         "empty",
         "error",
         "activity-error",
+        "pipeline-zero",
+        "pipeline-error",
         "staff"
       ],
       "not_applicable": {}
@@ -232,6 +234,7 @@
         "default",
         "rsvped",
         "lead",
+        "link-copied",
         "cancelled",
         "loading",
         "error"

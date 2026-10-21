@@ -14,16 +14,18 @@
     @if (refusal(); as message) {
       <ft-alert status="danger" heading="That change isn’t allowed">{{ message }}</ft-alert>
     }
-    <ft-radio-group legend="Role" [formControl]="role" [error]="error()">
-      @for (option of data.options; track option.value) {
-        <ft-radio
-          [value]="option.value"
-          [description]="option.description ?? ''"
-          [disabled]="busy()"
-          >{{ option.label }}</ft-radio
-        >
-      }
-    </ft-radio-group>
+    @if (choosing) {
+      <ft-radio-group legend="Role" [formControl]="role" [error]="error()">
+        @for (option of data.options; track option.value) {
+          <ft-radio
+            [value]="option.value"
+            [description]="option.description ?? ''"
+            [disabled]="busy()"
+            >{{ option.label }}</ft-radio
+          >
+        }
+      </ft-radio-group>
+    }
     @if (data.caption) {
       <p class="caption">{{ data.caption }}</p>
     }
