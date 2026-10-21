@@ -130,7 +130,7 @@ Each component page documents variants, sizes and the full state matrix in both 
 | pages/events, pages/team | Filter rows have no group or label | Documented: `role="group"` with `aria-label` |
 | dialogs/start-poker/invalid | Group error not linked to the fieldset; no `aria-invalid` | Documented on Form field |
 | notifications/toast/danger | `role="alert"` on the region instead of the toast | Documented on Toast |
-| notifications/banner | Only the danger banner has a role | Documented on Alert and banner |
+| notifications/banner | Only the danger banner had a role | Fixed: info, success and warning banners use `role="status"` |
 | pages/* | No loading, empty or error states for feed or stats; no row hover/focus; no busy Export CSV; offline page has no banner | Documented as system states |
 | pages/* | Avatar colours chosen by hand, some people share one | Documented: colour derived from the person id |
 | pages/event-form | Summary wording differs from the field error | Documented: the summary repeats the field error |
