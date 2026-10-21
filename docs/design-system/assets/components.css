@@ -430,6 +430,10 @@ body:has(.tabbar:not(.tabbar--static)) .toast-region { bottom: calc(var(--layout
 .skeleton--text:last-child { width: 60%; }
 .skeleton--title { height: 1.5em; width: 40%; }
 .skeleton--rect { border-radius: var(--radius-md); }
+/* A Kanban card still loading (<ft-skeleton shape="card">). */
+.skeleton--card { height: var(--space-16); border-radius: var(--radius-md); }
+/* One line inside running text, such as a page header's subtitle while it loads. */
+.skeleton--subtitle { display: inline-block; width: 12rem; }
 /* Stands in for a stat value (a count) while it loads; the stat label stays. */
 .skeleton--stat { width: var(--size-avatar-md); height: var(--size-avatar-sm); border-radius: var(--radius-md); }
 /* Square placeholder the size of .date-badge, leading an event row while it loads. */

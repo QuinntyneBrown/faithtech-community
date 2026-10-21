@@ -39,6 +39,12 @@
   block-size: var(--size-avatar-sm);
 }
 
+/* A Kanban card still loading (.skeleton--card in the design system). */
+:host(.ft-skeleton--card) {
+  border-radius: var(--radius-md);
+  block-size: var(--space-16);
+}
+
 :host(.ft-skeleton--date-badge) {
   flex: none;
   border-radius: var(--radius-md);

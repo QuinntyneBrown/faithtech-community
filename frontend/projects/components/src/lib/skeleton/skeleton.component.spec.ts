@@ -31,7 +31,7 @@ describe('SkeletonComponent', () => {
     expect(el().getAttribute('aria-hidden')).toBe('true');
   });
 
-  it.each(['text', 'title', 'rect', 'square', 'avatar', 'date-badge'] as const)(
+  it.each(['text', 'title', 'rect', 'square', 'avatar', 'date-badge', 'card'] as const)(
     'renders the %s shape',
     (s) => {
       const { fixture, cmp, el } = setup();
