@@ -126,9 +126,9 @@
 
     <section class="ds-section" id="loops"><h2><a href="#loops">Loading loops</a></h2>
       <div class="ds-example"><div class="ds-example__canvas">
-        <button class="btn btn--primary" type="submit" aria-busy="true" aria-disabled="true"><span class="dot dot--pulse" aria-hidden="true"></span>Add partner…</button>
+        <button class="btn btn--primary" type="submit" aria-busy="true" aria-disabled="true">Add partner…</button>
         <div class="list__item" style="flex: 1 1 16rem;" aria-busy="true" aria-label="Loading contacts"><span class="skeleton avatar avatar--sm" aria-hidden="true"></span><div class="list__body" style="flex: 1;"><span class="skeleton skeleton--title" aria-hidden="true"></span><span class="skeleton skeleton--text" aria-hidden="true"></span></div></div>
-      </div><div class="ds-example__caption"><span>The busy submit button from <a href="../../mocks/dialogs/add-partner/busy.html">dialogs/add-partner/busy</a> and a skeleton row from <a href="../../mocks/pages/contacts/loading.html">pages/contacts/loading</a>. Pulse and shimmer each run one cycle per <code>--duration-loop</code>.</span></div></div>
+      </div><div class="ds-example__caption"><span>The busy submit button from <a href="../../mocks/dialogs/add-partner/busy.html">dialogs/add-partner/busy</a> and a skeleton row from <a href="../../mocks/pages/contacts/loading.html">pages/contacts/loading</a>. The spinner turns once every <code>--duration-loop</code>/2 and the shimmer runs one cycle per <code>--duration-loop</code>.</span></div></div>
     </section>
 
     <section class="ds-section" id="choreography"><h2><a href="#choreography">Choreography</a></h2>
@@ -144,7 +144,7 @@
     </section>
 
     <section class="ds-section" id="accessibility"><h2><a href="#accessibility">Reduced motion</a></h2>
-      <p>Under <code>prefers-reduced-motion: reduce</code>, <code>tokens.css</code> sets every duration to 0.01ms, so transitions and entrances become instant without any component change. <code>components.css</code> also stops loops after one pass and turns off the skeleton shimmer. The busy-button dot still shows (static) because it tells the person their invite or RSVP is on its way.</p>
+      <p>Under <code>prefers-reduced-motion: reduce</code>, <code>tokens.css</code> sets every duration to 0.01ms, so transitions and entrances become instant without any component change. <code>components.css</code> also stops loops after one pass and turns off the skeleton shimmer. The busy-button spinner still shows because it tells the person their invite or RSVP is on its way.</p>
       <ul>
         <li>No animation flashes more than three times a second (2.3.1).</li>
         <li>Smooth scrolling is turned off too.</li>
