@@ -1,4 +1,5 @@
 using Azure.Storage.Blobs;
+using Azure.Storage.Blobs.Models;
 using Azure.Storage.Sas;
 using FaithTech.Community.Application.Profiles;
 
@@ -12,7 +13,19 @@ public class AzureBlobPhotoStorage(BlobServiceClient blobs, TimeProvider time) :
     private static readonly TimeSpan ReadUrlLifetime = TimeSpan.FromHours(1);
 
     public string GetReadUrl(string key) =>
-        blobs.GetBlobContainerClient(Container).GetBlobClient(key)
-            .GenerateSasUri(BlobSasPermissions.Read, time.GetUtcNow().Add(ReadUrlLifetime))
-            .ToString();
+        Blob(key).GenerateSasUri(BlobSasPermissions.Read, time.GetUtcNow().Add(ReadUrlLifetime)).ToString();
+
+    public async Task SaveAsync(string key, byte[] content, string contentType, CancellationToken cancellationToken = default)
+    {
+        await blobs.GetBlobContainerClient(Container).CreateIfNotExistsAsync(cancellationToken: cancellationToken);
+        await Blob(key).UploadAsync(
+            new BinaryData(content),
+            new BlobUploadOptions { HttpHeaders = new BlobHttpHeaders { ContentType = contentType } },
+            cancellationToken);
+    }
+
+    public Task DeleteAsync(string key, CancellationToken cancellationToken = default) =>
+        Blob(key).DeleteIfExistsAsync(cancellationToken: cancellationToken);
+
+    private BlobClient Blob(string key) => blobs.GetBlobContainerClient(Container).GetBlobClient(key);
 }

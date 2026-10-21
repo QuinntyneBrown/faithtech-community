@@ -12,7 +12,7 @@ Photos are stored in Azure Blob Storage. The view-profile design left the access
 ## Decision
 
 - `IPhotoStorage` (Application) has three operations: `SaveAsync(key, stream, contentType)`, `DeleteAsync(key)` and `GetReadUrl(key)`. `AzureBlobPhotoStorage` in `Infrastructure/Storage/` implements it over the registered `BlobServiceClient`; the API tests replace it with an in-memory fake.
-- Container: `profile-photos` (private, created on first use). Key: `profiles/{profileId}/{photoId}.{jpg|png|webp}`. `ProfilePhoto.BlobName` stores the key.
+- Container: `profile-photos` (private, created on first use). Key: `profiles/{profileId}/{blobId}.{jpg|png|webp}`, where `blobId` is a fresh GUID per upload, so a key is never reused. `ProfilePhoto.BlobName` stores the key.
 - Photo URLs in `ProfileDto` are **read-only SAS URLs that expire after one hour**, generated per response. They are only ever handed to signed-in members by the authenticated profile API.
 
 ## Consequences

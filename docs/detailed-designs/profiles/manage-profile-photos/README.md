@@ -18,11 +18,11 @@ Uploads accept JPEG, PNG or WebP files of 5 MB or less whose content matches the
 - **`ProfilesEndpoints`** — minimal API route group in `FaithTech.Community.Api` under `/api/profiles`. Its endpoints require authentication by default and hold no business logic.
 - **`ICurrentUser`** — Application abstraction exposing the caller's user id and roles; **`ProfileAccess`** decides owner, audited System Admin or 403 (ADR 0004).
 - **`Profile`** — Domain entity holding `Name`, `Roles` and the `Photos` collection.
-- **`UploadPhotoCommand`** / **`UploadPhotoHandler`** — `POST /api/profiles/{id}/photos`, multipart fields `file` and `altText`, answering `201` with the `PhotoDto`. The handler checks permission, the 10-photo limit (`409`), alt text, size (5 MB) and content against extension (`400`, keyed `File` or `AltText`), then resizes, strips metadata, stores the blob under `profiles/{profileId}/{photoId}.{ext}` and adds a `ProfilePhoto`. The first photo becomes featured.
+- **`UploadPhotoCommand`** / **`UploadPhotoHandler`** — `POST /api/profiles/{id}/photos`, multipart fields `file` and `altText`, answering `201` with the `PhotoDto`. The handler checks permission, the 10-photo limit, alt text ("Describe this photo."), size (5 MB) and content against extension, answering `400` keyed `File` or `AltText` so each shows inline, then resizes, strips metadata, stores the blob under `profiles/{profileId}/{blobId}.{ext}` and adds a `ProfilePhoto`. The first photo becomes featured.
 - **`DescribePhotoCommand`** / **`DescribePhotoHandler`** — `PUT /api/profiles/{id}/photos/{photoId}` with `{ altText }` changes a photo's alt text through `ProfilePhoto.Describe` (L2-007 AC7).
 - **`SetFeaturedPhotoCommand`** / **`SetFeaturedPhotoHandler`** — `PUT /api/profiles/{id}/photos/{photoId}/featured`; make one photo the only featured photo through `Profile.Feature`.
 - **`DeletePhotoCommand`** / **`DeletePhotoHandler`** — `DELETE /api/profiles/{id}/photos/{photoId}`; remove the photo and its blob; `Profile.RemovePhoto` promotes the most recent remaining photo when the featured one is removed. Every write answers `403` to anyone but the owner or System Admin, whose override is audited.
-- **`IImageProcessor`** — Application abstraction implemented with ImageSharp in Infrastructure: detects the real format from the bytes, auto-orients, resizes to fit 1600 × 1600 without upscaling and strips EXIF, IPTC, XMP and ICC metadata (ADR 0001).
+- **`IImageProcessor`** — Application abstraction implemented with SkiaSharp in Infrastructure (`SkiaImageProcessor`): detects the real format from the bytes, applies the EXIF orientation, resizes to fit 1600 × 1600 without upscaling and re-encodes from pixels so no EXIF, XMP or IPTC metadata survives (ADR 0001).
 - **`IPhotoStorage`** — Application abstraction implemented over Azure Blob Storage in Infrastructure: save, delete and one-hour read SAS URLs (ADR 0002). Tests use an in-memory fake.
 
 ## Requirements
@@ -93,7 +93,7 @@ Decisions recorded while building the Domain layer (`FaithTech.Community.Domain`
 Decisions recorded while implementing the feature:
 
 - The edit-profile mock lets every photo's description be edited, which L2-007 did not cover. AC7 is added to L2-007 and `PUT /api/profiles/{id}/photos/{photoId}` implements it. Resolved.
-- Image processing uses ImageSharp, 1600 px maximum (ADR 0001); storage, keys and SAS read URLs follow ADR 0002. Resolved.
+- Image processing uses SkiaSharp, 1600 px maximum (ADR 0001); storage, keys and SAS read URLs follow ADR 0002. Resolved.
 - Uploads are sent when the member saves, one request per pending photo, so alt text is always present at upload (AC3). Progress percentages are not reported; the photo shows "Uploading…". Resolved.
 - Requests up to 10 MB are read so that a too-large photo gets the inline `400` error rather than a bare `413`. Resolved.
 - Reordering photos is not in L2-007 and is not built.
