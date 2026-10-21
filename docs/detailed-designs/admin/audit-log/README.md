@@ -8,12 +8,12 @@ This feature covers both writing entries, which other features trigger through `
 
 ## Description
 
-- **`AuditLogPage`** — page in the `admin` feature library with filters for actor, action and date range, and paging at 50 entries per page.
-- **`AuditLogService`** / **`AUDIT_LOG_SERVICE`** / **`HttpAuditLogService`** — API client calling `GET /api/admin/audit?actor=&action=&from=&to=&page=`.
+- **`AuditLogPage`** — page in the `admin` feature library with a category filter (all, role changes, suspensions, private contact access, deletions), the last 90 days by default, paging at 50 entries per page and an **Export CSV** button.
+- **`AuditLogService`** / **`AUDIT_LOG_SERVICE`** / **`HttpAuditLogService`** — API client calling `GET /api/admin/audit?category=&actor=&from=&to=&page=` and `GET /api/admin/audit/export?category=&actor=&from=&to=` (CSV).
 - **`AuditLogEndpoints`** — maps only the `GET` query. No `PUT`, `PATCH` or `DELETE` route exists.
-- **`GetAuditEntriesQuery`** and **`GetAuditEntriesHandler`** — Application `Admin/` query; requires System Admin and pages 50 at a time.
-- **`IAuditLog`** — Application abstraction with a single `Write(AuditEntry)` method, called by role, suspension, override and other admin handlers in the same unit of work as the change.
-- **`AuditLog`** — Infrastructure implementation that inserts into the `audit_entries` table. The table grants the application role insert and select only. Retention period: `<TO SUPPLY>`.
+- **`GetAuditEntriesQuery`** and **`GetAuditEntriesHandler`** — Application `Admin/` query; requires System Admin, defaults `from` to 90 days ago, pages 50 at a time newest first and returns `AuditEntryDto` items with the actor's and target's names and a one-line summary ("Granted City Lead to Esther Nakamura"). The same query, unpaged, feeds the CSV export.
+- **`IAuditLog`** — Application abstraction with a single `Record(actor, action, targetType, targetId, before, after)` method, called by role, suspension, override and other admin handlers in the same unit of work as the change.
+- **`AuditLog`** — Infrastructure implementation that inserts into the `audit_entries` table. The table grants the application role insert and select only. Retention: entries are kept indefinitely in v1; a purge job is deferred.
 - **`AuditEntry`** — Domain record with `Id`, `ActorId`, `Action`, `TargetType`, `TargetId`, `BeforeJson`, `AfterJson`, `OccurredAtUtc` and `IpAddress`. Its constructor requires an action, a target type and a target id and a UTC time; it has no mutators, so an entry cannot change after it is written.
 - **`ICurrentUser`** — supplies `ProfileId` and `IpAddress` for the entry.
 
@@ -78,3 +78,6 @@ Only System Admins may read entries, filtered by actor, action and date range an
 Decisions recorded while building the Domain layer (`FaithTech.Community.Domain`):
 
 - Filter categories (`L2-041` AC2) map onto the `Action` values written by each feature; the Domain does not add a separate category field.
+- Categories: `roles` → actions starting `role.`; `suspensions` → `user.suspended`, `user.reinstated`; `contacts` → actions starting `contact.`; `deletions` → actions ending `.deleted`.
+- Actions written so far: `role.granted`, `role.removed` (before and after hold the role sets), `user.suspended` (after holds the reason), `user.reinstated`, and the profile actions of ADR 0004.
+- The CSV export holds at most 10,000 rows; columns are When (UTC), Who, Action, Summary, Target type, Target id, IP address.

@@ -102,7 +102,7 @@
       "id": "accept-invite",
       "kind": "page",
       "title": "Accept invite",
-      "route": "/invite/:token",
+      "route": "/accept-invite/:token",
       "requirements": [
         "L2-001",
         "L2-011"
@@ -110,7 +110,10 @@
       "states": [
         "default",
         "invalid",
-        "error"
+        "error",
+        "existing",
+        "sign-in",
+        "wrong-account"
       ],
       "not_applicable": {
         "loading": "The invite is checked server-side before the page renders.",
@@ -1063,7 +1066,8 @@
         "default",
         "invalid",
         "busy",
-        "failed"
+        "failed",
+        "limited"
       ],
       "not_applicable": {}
     },

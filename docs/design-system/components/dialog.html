@@ -412,6 +412,8 @@
         <tr><td><code>.dialog--static</code></td><td>Documentation only: renders in flow.</td></tr>
         <tr><td><code>role="dialog"</code> <code>aria-modal="true"</code> <code>aria-labelledby</code> <code>aria-describedby</code></td><td>Required in the product.</td></tr>
       </tbody></table>
+      <h3>Role dialog (<code>RoleDialogComponent</code>)</h3>
+      <p>The add-role and remove-role dialogs are one library component, <code>ft-role-dialog</code>, opened with <code>DialogService</code> from any screen (ADR 0005). Data: <code>mode</code> (<code>add</code> or <code>remove</code>), <code>name</code>, <code>description</code>, <code>options</code> (value, label, optional description), optional <code>caption</code> and a <code>submit(value)</code> callback that resolves to <code>null</code> on success or to a message to show. Add mode titles "Add a role for {name}", needs a choice ("Choose a role to add.") and confirms with a primary <em>Add role</em>. Remove mode titles "Remove {role} from {name}?", preselects the first role and confirms with a danger <em>Remove role</em>. Both show the busy and failed states above and close with the chosen role.</p>
     </section>
 
     <section class="ds-section" id="sources"><h2><a href="#sources">Sources</a></h2>

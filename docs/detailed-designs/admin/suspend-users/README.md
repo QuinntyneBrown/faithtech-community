@@ -10,15 +10,15 @@ This feature covers suspending a user with a reason and reinstating them. Only a
 
 - **`AdminUsersPage`** — page in the `admin` feature library that lists users and offers Suspend and Reinstate actions.
 - **`SuspendUserDialog`** — CDK dialog that collects the required reason and confirms the suspension.
-- **`AdminUsersService`** / **`ADMIN_USERS_SERVICE`** / **`HttpAdminUsersService`** — API client in the `api` library calling `POST /api/admin/users/{id}/suspension` and `DELETE /api/admin/users/{id}/suspension`.
+- **`AdminUsersService`** / **`ADMIN_USERS_SERVICE`** / **`HttpAdminUsersService`** — API client in the `api` library calling `POST /api/admin/users/{id}/suspension` and `DELETE /api/admin/users/{id}/suspension`, where `{id}` is the profile id.
 - **`AdminUsersEndpoints`** — minimal API mapping; requires an authenticated caller and sends the command.
 - **`SuspendUserCommand`** (`UserId`, `Reason`) and **`ReinstateUserCommand`** (`UserId`) with **`SuspendUserHandler`** and **`ReinstateUserHandler`** in Application `Admin/`. Each handler requires the caller to hold System Admin and returns `403` otherwise.
-- **`SuspendUserValidator`** — requires a non-empty reason. Maximum reason length: `<TO SUPPLY>`.
+- **`SuspendUserValidator`** — requires a non-empty reason. Maximum reason length: 500 characters.
 - **`Profile`** — Domain entity that holds the suspended state: `IsSuspended`, `SuspendedReason`, `SuspendedAtUtc`, `Suspend(reason, nowUtc)` and `Reinstate()`. `Suspend` requires a reason and rejects a profile that is already suspended; `Reinstate` rejects a profile that is not suspended. The command's `UserId` resolves to the account's `ProfileId`.
 - **`ITokenRevocation`** — Infrastructure service over the OpenIddict token and authorization stores; revokes every token for the account.
 - **`IAuditLog`** — records each suspension and reinstatement (`L2-041`).
 
-Whether a System Admin may suspend their own account or another System Admin: `<TO SUPPLY>`.
+A System Admin may suspend another System Admin but not their own account (`409` "You can’t suspend your own account."), so the site always keeps an administrator who can reinstate.
 
 ## Requirements
 
@@ -80,3 +80,4 @@ Decisions recorded while building the Domain layer (`FaithTech.Community.Domain`
 
 - Suspension lives on `Profile`, not on a separate `UserAccount` entity: the Domain has no dependency on ASP.NET Identity, and sign-in already reads `Profile.IsSuspended` (`identity/sign-in-and-sign-out`). Resolved.
 - Domain rule violations throw `InvalidOperationException` (a broken rule) or `ArgumentException` (invalid input); there is no shared domain exception type. Handlers check permissions and preconditions first and map any remaining violation to a `400` or `409` result.
+- Suspending an already-suspended profile, or reinstating an active one, answers `409`. Audit actions are `user.suspended` (after: reason) and `user.reinstated`.

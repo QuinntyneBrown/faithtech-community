@@ -8,10 +8,10 @@ Override is not a separate set of screens. Each feature's Application permission
 
 ## Description
 
-- **`AdminUsersPage`** — page in the `admin` feature library. It shows a search box and a paged list of users with name, email, roles and status (Active, Suspended, Unverified). Row actions link to the profile, the role dialogs (`admin/assign-roles`) and suspension (`admin/suspend-users`). At XS widths the table collapses to cards.
+- **`AdminUsersPage`** — page in the `admin` feature library. It shows a search box and a paged list of users with name, email, roles and status (Active, Suspended, Unverified). The name links to the profile, where the role dialogs open (`admin/assign-roles`); the row action suspends or reinstates (`admin/suspend-users`). At XS widths the table scrolls inside its card.
 - **`AdminUsersService`** / **`ADMIN_USERS_SERVICE`** / **`HttpAdminUsersService`** — API client calling `GET /api/admin/users?q=&page=`.
 - **`AdminUsersEndpoints`** — minimal API mapping for the query.
-- **`SearchUsersQuery`** (`Term`, `Page`, `PageSize`) and **`SearchUsersHandler`** in Application `Admin/`. The handler requires System Admin and returns `AdminUserSummary` items. Page size: `<TO SUPPLY>`.
+- **`SearchUsersQuery`** (`Term`, `Page`, `PageSize`) and **`SearchUsersHandler`** in Application `Admin/`. The handler requires System Admin and returns `AdminUserSummary` items. Page size: 25. Search matches name or email, case-insensitive, and includes suspended accounts.
 - **`AdminOverridePolicy`** — Application permission rule shared by every feature: `IsSystemAdmin(caller)` grants access, and the calling handler writes an `AuditEntry` whenever the grant was by override rather than ownership or role.
 - **`IAuditLog`** — records override accesses and changes.
 
@@ -69,3 +69,12 @@ The handler requires System Admin and returns a page of users with roles and sta
 Any feature handler that receives a request for a record the caller does not own consults the override policy. A System Admin is granted access and an audit entry is written (`L2-040` AC2).
 
 ![Sequence diagram for override access to an owned record](diagrams/sequence-override-access.png)
+
+## Open questions
+
+Decisions recorded while implementing:
+
+- Users are addressed by **profile id** in every admin route (`/api/admin/users/{profileId}/...`); the handler resolves the account from `CommunityUser.ProfileId`. `AdminUserSummary` is `Id` (profile id), `Name`, `Email`, `Roles`, `Status`.
+- The "Roles" tab in the mock links to the People page (`L2-053`), which is built with the profiles feature. The workspace-owner alert in the mock belongs to the Agile design and is deferred with it.
+- A non-admin opening `/admin/**` gets the API's `403` and the page shows the forbidden state ("This area is for System Admins").
+- The shell shows the **Admin** navigation link only to System Admins.

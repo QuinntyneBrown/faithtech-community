@@ -44,7 +44,7 @@ The mocks were styled with the Shelfie design system unchanged plus FaithTech ad
 | [Skip link](components/skip-link.html) | First stop for keyboard users. |
 | [Layout primitives](components/layout.html) | Container, stack, cluster, grid, split, page header. |
 | [Card](components/card.html) | Surfaces for grouped content. |
-| [Dialog](components/dialog.html) | CDK dialogs: default, destructive, form, busy, failed. |
+| [Dialog](components/dialog.html) | CDK dialogs: default, destructive, form, busy, failed; the shared role dialog. |
 | [Notification panel](components/notification-panel.html) | Bell panel with unread notices. |
 | [List](components/list.html) | People, contacts and invites lists. |
 | [Table](components/table.html) | Audit log and admin tables. |

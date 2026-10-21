@@ -20,7 +20,8 @@ Any lead or System Admin may send invites. A City Lead may pre-assign only the r
 - **`InviteStatus`** — `Pending`, `Accepted`, `Expired`, `Revoked`.
 - **`SendInviteCommand`** / **`SendInviteHandler`** — Application request and handler. The handler requires a lead role or System Admin, checks the pre-assigned role against `IRoleAssignmentPolicy`, enforces the 50-per-24-hours limit, creates the `Invite` with a random token, stores only its hash and sends the email.
 - **`RevokeInviteCommand`** / **`RevokeInviteHandler`** — mark a pending invite revoked so its link stops working.
-- **`ListInvitesQuery`** / **`ListInvitesHandler`** — return the caller's invites with status. Whether System Admin sees every inviter's invites is `<TO SUPPLY>`.
+- **`ResendInviteCommand`** / **`ResendInviteHandler`** — for an expired invite, create a new one with a new token and 14 days (ADR 0006).
+- **`ListInvitesQuery`** / **`ListInvitesHandler`** — return invites with status, newest first. Every lead and System Admin sees every inviter's invites (L2-010 AC4, ADR 0006).
 - **`IRoleAssignmentPolicy`** — Application service shared with role assignment; it answers which roles a caller may grant.
 
 ## Requirements
@@ -85,3 +86,6 @@ The invites page shows each invite's status. Revoking a pending invite marks it 
 Decisions recorded while building the Domain layer (`FaithTech.Community.Domain`):
 
 - `Invite.Status(now)` is derived, never stored: revoked wins over accepted, accepted over expired, and an invite is expired from exactly 14 days after creation. Domain rule violations throw `InvalidOperationException` (a broken rule) or `ArgumentException` (invalid input); there is no shared domain exception type. Handlers check permissions and preconditions first and map any remaining violation to a `400` or `409` result.
+- Routes: `POST /api/invites` (`Email`, optional `PreassignedRole`, optional `Note` up to 500 characters), `GET /api/invites`, `POST /api/invites/{id}/resend`, `POST /api/invites/{id}/revoke`. Revoke is API-only in v1; the invites mock has no revoke control.
+- `Invite` gains an optional `Note`, kept so a resend repeats it.
+- A refused send (rate limit, unverified sender, role not allowed) shows the dialog's `limited` state with the server's message.

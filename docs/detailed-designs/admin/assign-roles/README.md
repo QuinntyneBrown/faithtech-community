@@ -12,7 +12,7 @@ The feature sits in the admin subsystem because role grants are the root of ever
 
 The slice runs from the profile page in the web app to the `ProfileRole` rows in the Community database.
 
-- **`AddRoleDialog`** and **`RemoveRoleDialog`** — Angular CDK dialogs in the `admin` feature library, opened from the profile page. Each lists only the roles the caller may change and confirms the change. On success the profile's role badges update without a page reload.
+- **`RoleDialogComponent`** — presentational Angular CDK dialog in the `components` library with an `add` and a `remove` mode (ADR 0005), opened from the profile page. It lists only the roles the caller may change (`assignableRoles` in `api`) and confirms the change. On success the profile's role badges update without a page reload.
 - **`RolesService`** / **`ROLES_SERVICE`** / **`HttpRolesService`** — API client contract, injection token and HTTP implementation in the `api` library. They call `POST /api/profiles/{id}/roles` and `DELETE /api/profiles/{id}/roles/{role}`.
 - **`RolesEndpoints`** — minimal API mapping in `FaithTech.Community.Api`. It authenticates the caller and sends the command; it holds no business logic.
 - **`AssignRoleCommand`** / **`RemoveRoleCommand`** — request objects carrying `ProfileId` and `Role`.
@@ -21,7 +21,7 @@ The slice runs from the profile page in the web app to the `ProfileRole` rows in
 - **`Role`** — Domain enumeration of the nine global roles. **`Profile`** — Domain entity that owns a set of `ProfileRole` entries (role, who granted it, when) and enforces no duplicates: `AddRole(role, grantedBy, nowUtc)` rejects a role already held and `RemoveRole(role)` rejects one not held. Removing City Lead raises the **`CityLeadRoleRemoved`** domain event in `Profile.DomainEvents` (`L2-037`).
 - **`ICurrentUser`** — caller identity and roles, read from the access token.
 - **`IAuditLog`** — records actor, action, target, before and after role sets, UTC time and IP address (`L2-041`).
-- **`INotificationService`** — raises the in-app and email notification to the profile owner.
+- **`RoleChangeNotifier`** — Application service that adds an in-app `Notification` (`RoleChanged`) for the profile owner and sends them an email; the notifications feature will later route both through `INotificationService`.
 
 The visible role options in the dialogs are a convenience; the server returns `403` for any change the caller is not permitted to make.
 
@@ -96,3 +96,6 @@ Decisions recorded while building the Domain layer (`FaithTech.Community.Domain`
 - Roles persist as `ProfileRole` rows (table `ProfileRoles`, key profile and role), replacing the earlier text-array column.
 - Domain events: `Profile` collects `CityLeadRoleRemoved` in `DomainEvents`; the handler that saves the profile dispatches and clears them. A shared domain-event base type is deferred until a second aggregate raises events.
 - Domain rule violations throw `InvalidOperationException` (a broken rule) or `ArgumentException` (invalid input); there is no shared domain exception type. Handlers check permissions and preconditions first and map any remaining violation to a `400` or `409` result.
+- Responses: both routes return the profile's new role set. Adding a role already held, or removing one not held, answers `409`. Removing the last System Admin answers `409` "There must always be at least one System Admin." An unknown profile answers `404` to a caller who may change roles and `403` to anyone else.
+- Every role change is audited (`role.granted`, `role.removed`), whoever makes it; the owner is notified only when the caller is a City Lead acting without System Admin.
+- A caller changing roles through the profile page is shown "Add a role" and "Remove a role" only when `assignableRoles` offers at least one option.

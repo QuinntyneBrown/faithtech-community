@@ -19,8 +19,8 @@ Because the invite reached the invited address, signing up with that address cou
 - **`InviteStatus`** — `Pending`, `Accepted`, `Expired`, `Revoked`.
 - **`GetInviteByTokenQuery`** / **`GetInviteByTokenHandler`** — anonymous lookup that returns the invite's email and status for display.
 - **`AcceptInviteCommand`** / **`AcceptInviteHandler`** — Application request and handler. For a new account, it creates the user with the invited email marked verified; for a signed-in account, it uses that account. It then grants the pre-assigned role through `Profile.AddRole` and marks the invite accepted in one unit of work.
-- **Email mismatch** — behaviour when a signed-in account's email differs from the invited email is `<TO SUPPLY>`.
-- **Role grant audit** — whether a role granted through an invite writes an audit entry is `<TO SUPPLY>`.
+- **Email mismatch** — a signed-in account whose email differs from the invited email cannot accept (`409`, mock state `wrong-account`; ADR 0006).
+- **Role grant audit** — a role granted through an invite is audited as `role.granted` with the inviter as actor (ADR 0006).
 
 ## Requirements
 
@@ -76,3 +76,5 @@ A stale invite shows an error with a sign-up link. A pending invite either creat
 Decisions recorded while building the Domain layer (`FaithTech.Community.Domain`):
 
 - `Invite.Status(now)` is derived, never stored: revoked wins over accepted, accepted over expired, and an invite is expired from exactly 14 days after creation. Domain rule violations throw `InvalidOperationException` (a broken rule) or `ArgumentException` (invalid input); there is no shared domain exception type. Handlers check permissions and preconditions first and map any remaining violation to a `400` or `409` result.
+- Page states: `default` (new account form), `invalid`, `error` (expired: "This invite has expired"; used: "This invite has already been used"; revoked: "This invite was withdrawn"; unknown token: "This invite link isn’t valid"), `existing` (signed in with the invited email: "Accept invite"), `sign-in` (an account already uses the email: "Sign in to accept"), `wrong-account`.
+- After a new account accepts, the page signs in with the chosen password and lands on the member's own profile.
