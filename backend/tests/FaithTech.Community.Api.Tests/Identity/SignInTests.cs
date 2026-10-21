@@ -46,6 +46,23 @@ public class SignInTests(CommunityApiFactory factory) : IClassFixture<CommunityA
     }
 
     [Fact]
+    public async Task Me_reflects_email_verification_without_signing_in_again()
+    {
+        var email = await _flow.CreateAccountAsync(verified: false);
+        var api = _flow.Api((await _flow.SignInAndGetTokensAsync(email)).AccessToken);
+
+        await factory.WithDbAsync(async db =>
+        {
+            (await db.Users.SingleAsync(u => u.Email == email)).EmailConfirmed = true;
+            return await db.SaveChangesAsync();
+        });
+
+        var me = await api.GetFromJsonAsync<JsonElement>("/api/me");
+        Assert.True(me.GetProperty("emailVerified").GetBoolean());
+        Assert.Equal("Signer", me.GetProperty("name").GetString());
+    }
+
+    [Fact]
     public async Task Wrong_password_and_unknown_email_get_the_same_generic_error()
     {
         var email = await _flow.CreateAccountAsync();
