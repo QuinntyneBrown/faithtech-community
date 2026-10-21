@@ -28,8 +28,13 @@ public record SignInResult(CommunityUser? User, SignInError? Error)
     public bool Succeeded => User is not null;
 }
 
-public class SignInHandler(UserManager<CommunityUser> users, IApplicationDbContext db)
+public class SignInHandler(UserManager<CommunityUser> users, IApplicationDbContext db, TimeProvider time)
 {
+    public const int MaxFailedAttempts = 5;
+
+    /// <summary>Failures count towards a lockout only within this window, and a lockout lasts this long.</summary>
+    public static readonly TimeSpan Window = TimeSpan.FromMinutes(15);
+
     public async Task<SignInResult> HandleAsync(SignInCommand command, CancellationToken cancellationToken = default)
     {
         var user = await users.FindByEmailAsync(command.Email);
@@ -38,14 +43,15 @@ public class SignInHandler(UserManager<CommunityUser> users, IApplicationDbConte
             return new(null, SignInError.InvalidCredentials);
         }
 
-        if (await users.IsLockedOutAsync(user))
+        var now = time.GetUtcNow();
+        if (user.LockoutEnabled && user.LockoutEnd > now)
         {
             return new(null, SignInError.LockedOut);
         }
 
         if (!await users.CheckPasswordAsync(user, command.Password))
         {
-            await users.AccessFailedAsync(user);
+            await RecordFailureAsync(user, now);
             return new(null, SignInError.InvalidCredentials);
         }
 
@@ -55,8 +61,35 @@ public class SignInHandler(UserManager<CommunityUser> users, IApplicationDbConte
             return new(null, SignInError.Suspended);
         }
 
-        await users.ResetAccessFailedCountAsync(user);
+        if (user.AccessFailedCount > 0 || user.FailedAccessWindowStartedAt is not null)
+        {
+            user.AccessFailedCount = 0;
+            user.FailedAccessWindowStartedAt = null;
+            await users.UpdateAsync(user);
+        }
+
         return new(user, null);
+    }
+
+    // The window is [first failure, first failure + 15 minutes): a failure at or after its end starts a new window.
+    // Lockout times use TimeProvider rather than UserManager, whose lockout checks read the system clock.
+    private async Task RecordFailureAsync(CommunityUser user, DateTimeOffset now)
+    {
+        if (user.AccessFailedCount == 0 || user.FailedAccessWindowStartedAt is not { } started || now - started >= Window)
+        {
+            user.AccessFailedCount = 0;
+            user.FailedAccessWindowStartedAt = now;
+        }
+
+        user.AccessFailedCount++;
+        if (user.AccessFailedCount >= MaxFailedAttempts && user.LockoutEnabled)
+        {
+            user.LockoutEnd = now + Window;
+            user.AccessFailedCount = 0;
+            user.FailedAccessWindowStartedAt = null;
+        }
+
+        await users.UpdateAsync(user);
     }
 }
 

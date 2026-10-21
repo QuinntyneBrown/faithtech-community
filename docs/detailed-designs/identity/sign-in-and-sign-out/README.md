@@ -10,6 +10,8 @@ Every page except public events requires a signed-in session. *Sign in and sign 
 
 **lockout** — ASP.NET Identity state that refuses sign-in for 15 minutes after 5 failed attempts within 15 minutes
 
+**failure window** — the 15 minutes starting at the first counted failed attempt, stored as `CommunityUser.FailedAccessWindowStartedAt`; a failure at or after the window's end starts a new window with a count of one
+
 The web app redirects to the sign-in page, which posts credentials to the identity server. On success, the server issues an authorization code that the app exchanges, with its PKCE verifier, for an access token and a refresh token. Sign-out revokes those tokens so that any later API call returns 401.
 
 ## Description
@@ -20,7 +22,7 @@ The web app redirects to the sign-in page, which posts credentials to the identi
 - **`OidcAuthClient`** — `api` library class behind `AUTH_SERVICE`. It generates the code verifier and challenge, exchanges the code, stores tokens, refreshes silently on 401 or expiry and calls the revocation endpoint on sign-out.
 - **`authInterceptor`** — `api` library HTTP interceptor. It attaches the access token and triggers a silent refresh.
 - **`AuthorizationEndpoints`** — Api route group that hosts the OpenIddict `/connect/authorize`, `/connect/token`, `/connect/revoke` and `/connect/logout` passthrough endpoints.
-- **`SignInCommand`** / **`SignInHandler`** — Application request and handler. The handler checks the password through `SignInManager` with lockout enabled, refuses suspended accounts and unverified emails, and returns a principal for code issuance.
+- **`SignInCommand`** / **`SignInHandler`** — Application request and handler. The handler checks the password through `UserManager`, refuses suspended accounts and unverified emails, and returns a principal for code issuance. It owns the lockout rule itself, reading the clock from `TimeProvider` (Identity's own lockout checks read the system clock): each wrong password adds to `AccessFailedCount` inside the failure window, or starts a new window when the old one has ended; the fifth failure inside one window sets `LockoutEnd` 15 minutes ahead and clears the count. A successful sign-in, a password reset or a new window after an elapsed lockout starts counting from zero, so failures older than the window never lead to a lockout.
 - **OpenIddict stores** — Infrastructure EF Core stores for applications, authorizations and tokens. Token revocation marks the stored tokens as revoked.
 - **Token lifetimes** — access-token and refresh-token lifetimes are `<TO SUPPLY>`.
 
@@ -38,7 +40,7 @@ The feature realizes the following level-2 (L2) requirements. Each L2 requiremen
 
 1. Given a verified account and correct credentials, when the user signs in, then an authorization code is exchanged with PKCE for tokens, and the user lands on the page they first requested, or the home page.
 2. Given incorrect credentials, when the user signs in, then a generic "email or password is incorrect" error is shown.
-3. Given 5 failed attempts within 15 minutes, when a 6th is made, then the account is locked out for 15 minutes.
+3. Given 5 failed attempts within 15 minutes, when a 6th is made, then the account is locked out for 15 minutes; failed attempts older than 15 minutes, or made before a successful sign-in, a password reset or an elapsed lockout, do not count.
 4. Given a suspended account, when the user signs in, then sign-in is refused with a "your account is suspended" message.
 5. Given a token request without a valid PKCE code verifier, when it reaches the token endpoint, then it is rejected.
 6. Given a signed-in user, when they sign out, then their tokens are revoked, and any further API call with those tokens returns 401.
