@@ -42,7 +42,16 @@ import {
 } from '@faithtech-community/components';
 import { Subscription, firstValueFrom } from 'rxjs';
 
-import { MoveCardData, MoveCardDialog, WorkItemDialog, WorkItemDialogData } from '../../dialogs';
+import {
+  CloseSprintData,
+  CloseSprintDialog,
+  MoveCardData,
+  MoveCardDialog,
+  StartSprintData,
+  StartSprintDialog,
+  WorkItemDialog,
+  WorkItemDialogData,
+} from '../../dialogs';
 import {
   STATUS_LABELS,
   calendarDay,
@@ -185,6 +194,37 @@ export class BoardPage {
     if (!created || created === true) return;
     this.toasts.show({ variant: 'success', heading: `${created.title} created` });
     await this.loadBoard();
+  }
+
+  protected async closeSprint(): Promise<void> {
+    const board = this.board();
+    if (!board?.sprint) return;
+    const unfinished = board.columns
+      .filter((c) => c.status !== 'Done')
+      .flatMap((c) => c.cards.map((card) => ({ card, status: c.status })));
+    const ref = this.dialogs.open<boolean, CloseSprintData>(CloseSprintDialog, {
+      data: { workspaceId: this.id(), sprint: board.sprint, unfinished },
+    });
+    if (!(await firstValueFrom(ref.closed))) return;
+    this.toasts.show({ variant: 'success', heading: `${board.sprint.name} closed` });
+    await this.loadBoard();
+  }
+
+  protected async startSprint(): Promise<void> {
+    const workspace = this.workspace();
+    if (!workspace) return;
+    try {
+      const sprints = await firstValueFrom(this.agile.getSprints(this.id()));
+      const ref = this.dialogs.open<string, StartSprintData>(StartSprintDialog, {
+        data: { workspace, sprints },
+      });
+      const started = await firstValueFrom(ref.closed);
+      if (!started) return;
+      this.toasts.show({ variant: 'success', heading: `${started} started` });
+      await this.loadBoard();
+    } catch {
+      this.toasts.show({ variant: 'danger', heading: 'That didn’t work', text: 'Try again.' });
+    }
   }
 
   private find(cardId: string): BoardCardDto | undefined {

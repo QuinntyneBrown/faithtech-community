@@ -190,6 +190,51 @@ export interface BoardDto {
   columns: BoardColumnDto[];
 }
 
+export type SprintState = 'Planned' | 'Active' | 'Closed';
+
+export interface SprintDto {
+  id: string;
+  name: string;
+  goal: string;
+  /** ISO dates, e.g. 2026-10-20. */
+  startDate: string;
+  endDate: string;
+  state: SprintState;
+  /** Stories in the sprint now (a closed sprint keeps only its Done stories). */
+  storyCount: number;
+  points: number;
+  /** Closed sprints: "completed N of M points". */
+  completedPoints: number | null;
+  committedPoints: number | null;
+}
+
+/** A story the next sprint can take: from the backlog, or unfinished in the active sprint. */
+export interface SprintCandidateDto {
+  id: string;
+  title: string;
+  storyPoints: number | null;
+  status: WorkItemStatus;
+  /** The active sprint it would come back from, e.g. "Sprint 7". */
+  returnedFrom: string | null;
+}
+
+/** The sprints of a Scrum workspace (L2-035). */
+export interface SprintsDto {
+  active: SprintDto | null;
+  /** Closed sprints, newest first. */
+  history: SprintDto[];
+  averageCompletedPoints: number | null;
+  candidates: SprintCandidateDto[];
+}
+
+export interface StartSprintRequest {
+  name: string;
+  goal: string;
+  startDate: string;
+  endDate: string;
+  storyIds: string[];
+}
+
 export interface CreateWorkspaceRequest {
   name: string;
   method: WorkspaceMethod;
@@ -226,6 +271,14 @@ export interface AgileService {
   getBoard(workspaceId: string, filter?: BacklogFilter): Observable<BoardDto>;
   /** Moves a story to a column; open viewers hear of it through AGILE_LIVE_SERVICE. */
   moveCard(itemId: string, status: WorkItemStatus): Observable<void>;
+
+  getSprints(workspaceId: string): Observable<SprintsDto>;
+  /** Owner or System Admin, Scrum only (409 otherwise). Closes the active sprint first. 400 per field. */
+  startSprint(workspaceId: string, request: StartSprintRequest): Observable<void>;
+  /** Any member: into the planned or active sprint. */
+  addStoriesToSprint(workspaceId: string, sprintId: string, storyIds: string[]): Observable<void>;
+  /** Owner or System Admin. Unfinished stories return to the backlog. */
+  closeSprint(workspaceId: string, sprintId: string): Observable<void>;
 }
 
 export const AGILE_SERVICE = new InjectionToken<AgileService>('AGILE_SERVICE');

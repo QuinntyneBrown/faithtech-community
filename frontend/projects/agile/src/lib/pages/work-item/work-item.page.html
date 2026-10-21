@@ -165,6 +165,16 @@
                 <ft-description-list-item label="Sprint">{{
                   sprint.name
                 }}</ft-description-list-item>
+              } @else if (activeSprint(); as sprint) {
+                <ft-description-list-item label="Sprint">
+                  Backlog
+                  @if (canWork() && item.status !== 'Done') {
+                    ·
+                    <ft-button size="sm" [loading]="joining()" (click)="addToSprint()"
+                      >Add to {{ sprint.name }}</ft-button
+                    >
+                  }
+                </ft-description-list-item>
               }
             </ft-description-list>
           </ft-card>

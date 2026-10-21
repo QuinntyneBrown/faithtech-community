@@ -12,6 +12,8 @@ import {
   CreateWorkItemRequest,
   CreateWorkspaceRequest,
   MemberCandidateDto,
+  SprintsDto,
+  StartSprintRequest,
   UpdateWorkItemRequest,
   WorkItemDto,
   WorkItemStatus,
@@ -89,6 +91,28 @@ export class HttpAgileService implements AgileService {
 
   moveCard(itemId: string, status: WorkItemStatus): Observable<void> {
     return this.http.put<void>(`${this.item(itemId)}/status`, { status });
+  }
+
+  getSprints(workspaceId: string): Observable<SprintsDto> {
+    return this.http.get<SprintsDto>(`${this.workspace(workspaceId)}/sprints`);
+  }
+
+  startSprint(workspaceId: string, request: StartSprintRequest): Observable<void> {
+    return this.http.post<void>(`${this.workspace(workspaceId)}/sprints`, request);
+  }
+
+  addStoriesToSprint(workspaceId: string, sprintId: string, storyIds: string[]): Observable<void> {
+    return this.http.post<void>(
+      `${this.workspace(workspaceId)}/sprints/${encodeURIComponent(sprintId)}/stories`,
+      { storyIds },
+    );
+  }
+
+  closeSprint(workspaceId: string, sprintId: string): Observable<void> {
+    return this.http.post<void>(
+      `${this.workspace(workspaceId)}/sprints/${encodeURIComponent(sprintId)}/close`,
+      null,
+    );
   }
 
   private item(id: string): string {

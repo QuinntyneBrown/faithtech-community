@@ -139,6 +139,41 @@ describe('HttpAgileService', () => {
       '/api/items/i1/status',
       { status: 'InProgress' },
     ],
+    ['getSprints', () => service.getSprints('w1'), 'GET', '/api/workspaces/w1/sprints', undefined],
+    [
+      'startSprint',
+      () =>
+        service.startSprint('w1', {
+          name: 'Sprint 8',
+          goal: 'G',
+          startDate: '2026-11-03',
+          endDate: '2026-11-14',
+          storyIds: ['s1'],
+        }),
+      'POST',
+      '/api/workspaces/w1/sprints',
+      {
+        name: 'Sprint 8',
+        goal: 'G',
+        startDate: '2026-11-03',
+        endDate: '2026-11-14',
+        storyIds: ['s1'],
+      },
+    ],
+    [
+      'addStoriesToSprint',
+      () => service.addStoriesToSprint('w1', 'sp1', ['s1']),
+      'POST',
+      '/api/workspaces/w1/sprints/sp1/stories',
+      { storyIds: ['s1'] },
+    ],
+    [
+      'closeSprint',
+      () => service.closeSprint('w1', 'sp1'),
+      'POST',
+      '/api/workspaces/w1/sprints/sp1/close',
+      null,
+    ],
   ])('%s', (_name, call, method, url, body) => {
     (call() as Observable<unknown>).subscribe();
 

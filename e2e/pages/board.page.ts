@@ -12,6 +12,8 @@ export class BoardPage {
   readonly filter: Locator;
   readonly newStory: Locator;
   readonly loadError: Locator;
+  readonly closeSprint: Locator;
+  readonly startSprint: Locator;
 
   constructor(private readonly page: Page) {
     this.frame = new WorkspaceFrame(page);
@@ -22,6 +24,8 @@ export class BoardPage {
     this.filter = page.getByLabel('Show stories from');
     this.newStory = page.getByRole('button', { name: 'New story' });
     this.loadError = page.getByRole('heading', { name: 'We couldn’t load the board' });
+    this.closeSprint = page.getByRole('button', { name: 'Close sprint' });
+    this.startSprint = page.getByRole('button', { name: 'Start a sprint' });
   }
 
   async open(workspaceId: string): Promise<void> {

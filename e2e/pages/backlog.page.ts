@@ -11,6 +11,12 @@ export class BacklogPage {
   readonly empty: Locator;
   readonly loadError: Locator;
   readonly toast: Locator;
+  readonly sprint: Locator;
+  readonly startSprint: Locator;
+  readonly treeView: Locator;
+  readonly historyView: Locator;
+  readonly history: Locator;
+  readonly average: Locator;
 
   constructor(private readonly page: Page) {
     this.frame = new WorkspaceFrame(page);
@@ -20,6 +26,16 @@ export class BacklogPage {
     this.empty = page.getByRole('heading', { name: 'Nothing in the backlog' });
     this.loadError = page.getByRole('heading', { name: 'We couldn’t load the backlog' });
     this.toast = page.locator('ft-toast');
+    this.sprint = page.getByRole('region', { name: /^Sprint \d+ ·/ });
+    this.startSprint = page.getByRole('button', { name: 'Start sprint' });
+    this.treeView = page.getByRole('button', { name: 'Tree', exact: true });
+    this.historyView = page.getByRole('button', { name: 'Sprint history', exact: true });
+    this.history = page.getByRole('table', { name: 'Closed sprints and completed points' });
+    this.average = page.getByText(/Average: \d+ points per sprint\./);
+  }
+
+  historyRow(name: string): Locator {
+    return this.history.getByRole('row').filter({ hasText: name });
   }
 
   async open(workspaceId: string): Promise<void> {

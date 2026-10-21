@@ -9,7 +9,13 @@ import {
   signal,
 } from '@angular/core';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
-import { AGILE_SERVICE, WorkItemDto, WorkItemStatus, WorkspaceDto } from '@faithtech-community/api';
+import {
+  AGILE_SERVICE,
+  SprintDto,
+  WorkItemDto,
+  WorkItemStatus,
+  WorkspaceDto,
+} from '@faithtech-community/api';
 import {
   AlertComponent,
   BadgeComponent,
@@ -106,6 +112,9 @@ export class WorkItemPage {
   protected readonly addingTask = signal(false);
   protected readonly commenting = signal(false);
   protected readonly commentError = signal('');
+  /** The running sprint a backlog story can join (L2-035 AC2). */
+  protected readonly activeSprint = signal<SprintDto | null>(null);
+  protected readonly joining = signal(false);
 
   protected readonly readOnly = computed(() => this.workspace()?.access === 'Staff');
   protected readonly canWork = computed(() => this.workspace()?.canEdit ?? false);
@@ -200,6 +209,22 @@ export class WorkItemPage {
     }
   }
 
+  protected async addToSprint(): Promise<void> {
+    const item = this.item();
+    const sprint = this.activeSprint();
+    if (!item || !sprint || this.joining()) return;
+    this.joining.set(true);
+    try {
+      await firstValueFrom(this.agile.addStoriesToSprint(item.workspaceId, sprint.id, [item.id]));
+      this.toasts.show({ variant: 'success', heading: `Added to ${sprint.name}` });
+      await this.reload();
+    } catch {
+      this.toasts.show({ variant: 'danger', heading: 'That didn’t work', text: 'Try again.' });
+    } finally {
+      this.joining.set(false);
+    }
+  }
+
   private async syncDone(ids: string[]): Promise<void> {
     const item = this.item();
     if (!item) return;
@@ -258,7 +283,11 @@ export class WorkItemPage {
     this.state.set('loading');
     try {
       const item = await firstValueFrom(this.agile.getWorkItem(itemId));
-      this.workspace.set(await firstValueFrom(this.agile.getWorkspace(item.workspaceId)));
+      const workspace = await firstValueFrom(this.agile.getWorkspace(item.workspaceId));
+      this.workspace.set(workspace);
+      if (workspace.method === 'Scrum' && item.kind === 'Story') {
+        this.activeSprint.set((await firstValueFrom(this.agile.getSprints(workspace.id))).active);
+      }
       this.show(item);
       if (!this.canWork()) this.done.disable({ emitEvent: false });
       this.state.set('loaded');

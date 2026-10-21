@@ -21,6 +21,7 @@ export class WorkItemPage {
   readonly notMember: Locator;
   readonly loadError: Locator;
   readonly toast: Locator;
+  readonly addToSprint: Locator;
 
   constructor(private readonly page: Page) {
     this.heading = page.getByRole('heading', { level: 1 });
@@ -42,6 +43,7 @@ export class WorkItemPage {
     this.notMember = page.getByRole('heading', { name: 'You’re not a member of this workspace' });
     this.loadError = page.getByRole('heading', { name: /^We couldn’t load this/ });
     this.toast = page.locator('ft-toast');
+    this.addToSprint = page.getByRole('button', { name: /^Add to Sprint/ });
   }
 
   async open(workspaceId: string, itemId: string): Promise<void> {

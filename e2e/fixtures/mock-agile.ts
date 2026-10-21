@@ -23,6 +23,7 @@ export interface MockSprint {
   endDate: string;
   state: 'Planned' | 'Active' | 'Closed';
   completedPoints: number | null;
+  committedPoints: number | null;
 }
 
 export type MockKind = 'Initiative' | 'Epic' | 'Story' | 'Task';
@@ -201,6 +202,7 @@ export class MockAgile {
       endDate: '2026-10-31',
       state: 'Planned',
       completedPoints: null,
+      committedPoints: null,
       ...sprint,
     };
     this.sprints.push(full);
@@ -297,8 +299,29 @@ export class MockAgile {
         return route.fulfill({ status: 200, json: this.backlog(workspace, request.url) });
       case 'GET /board':
         return route.fulfill({ status: 200, json: this.board(workspace, request.url) });
+      case 'GET /sprints':
+        return route.fulfill({ status: 200, json: this.sprintsDto(workspace) });
+      case 'POST /sprints':
+        return this.startSprint(request, workspace, manage);
       case 'POST /items':
         return this.createItem(request, workspace, access);
+    }
+
+    const sprintAction = /^\/sprints\/([^/]+)\/(stories|close)$/.exec(rest);
+    if (method === 'POST' && sprintAction) {
+      const sprint = this.sprints.find(
+        (sp) => sp.id === sprintAction[1] && sp.workspaceId === workspace.id,
+      );
+      if (!sprint) return route.fulfill({ status: 404 });
+      if (sprintAction[2] === 'stories') {
+        if (access === 'Staff') return route.fulfill({ status: 403 });
+        for (const id of (request.body['storyIds'] as string[]) ?? [])
+          this.items.find((i) => i.id === id)!.sprintId = sprint.id;
+        return route.fulfill({ status: 204 });
+      }
+      if (!manage) return route.fulfill({ status: 403 });
+      this.close(sprint);
+      return route.fulfill({ status: 204 });
     }
 
     const member = /^\/members\/([^/]+)$/.exec(rest);
@@ -496,6 +519,90 @@ export class MockAgile {
         i.assigneeId === profileId &&
         (i.kind === 'Task') === tasks,
     ).length;
+  }
+
+  private sprintStories(sprint: MockSprint): MockItem[] {
+    return this.items.filter(
+      (i) => i.sprintId === sprint.id && i.kind === 'Story' && !i.isArchived,
+    );
+  }
+
+  private close(sprint: MockSprint): void {
+    const stories = this.sprintStories(sprint);
+    const points = (list: MockItem[]) => list.reduce((n, st) => n + (st.storyPoints ?? 0), 0);
+    sprint.completedPoints = points(stories.filter((st) => st.status === 'Done'));
+    sprint.committedPoints = points(stories);
+    for (const st of stories.filter((x) => x.status !== 'Done')) st.sprintId = null;
+    sprint.state = 'Closed';
+  }
+
+  private sprintsDto(workspace: MockWorkspace) {
+    const mine = this.sprints.filter((sp) => sp.workspaceId === workspace.id);
+    const active = mine.find((sp) => sp.state === 'Active') ?? null;
+    const history = mine
+      .filter((sp) => sp.state === 'Closed')
+      .sort((a, b) => b.endDate.localeCompare(a.endDate));
+    const dto = (sp: MockSprint) => {
+      const stories = this.sprintStories(sp);
+      return {
+        ...sp,
+        storyCount: stories.length,
+        points: stories.reduce((n, st) => n + (st.storyPoints ?? 0), 0),
+      };
+    };
+    const candidates = this.items
+      .filter(
+        (i) =>
+          i.workspaceId === workspace.id &&
+          i.kind === 'Story' &&
+          !i.isArchived &&
+          i.status !== 'Done' &&
+          (!i.sprintId || i.sprintId === active?.id),
+      )
+      .sort((a, b) => a.title.localeCompare(b.title))
+      .map((i) => ({
+        id: i.id,
+        title: i.title,
+        storyPoints: i.storyPoints,
+        status: i.status,
+        returnedFrom: i.sprintId ? active!.name : null,
+      }));
+    return {
+      active: active ? dto(active) : null,
+      history: history.map(dto),
+      averageCompletedPoints: history.length
+        ? Math.round(history.reduce((n, sp) => n + (sp.completedPoints ?? 0), 0) / history.length)
+        : null,
+      candidates,
+    };
+  }
+
+  private startSprint({ route, body }: AgileRequest, workspace: MockWorkspace, manage: boolean) {
+    if (!manage) return route.fulfill({ status: 403 });
+    if (workspace.method !== 'Scrum')
+      return problem(route, 409, 'Sprints run only in a Scrum workspace.');
+    const goal = String(body['goal'] ?? '').trim();
+    if (!goal)
+      return invalid(route, 'Goal', 'Write a goal so the team knows what done looks like.');
+    const storyIds = (body['storyIds'] as string[] | undefined) ?? [];
+    if (!storyIds.length) return invalid(route, 'StoryIds', 'Choose at least one story.');
+    if (String(body['endDate']) <= String(body['startDate'])) {
+      return invalid(route, 'EndDate', 'Choose an end date after the start date.');
+    }
+    const active = this.sprints.find(
+      (sp) => sp.workspaceId === workspace.id && sp.state === 'Active',
+    );
+    if (active) this.close(active);
+    const sprint = this.addSprint({
+      workspaceId: workspace.id,
+      name: String(body['name']).trim(),
+      goal,
+      startDate: String(body['startDate']),
+      endDate: String(body['endDate']),
+      state: 'Active',
+    });
+    for (const id of storyIds) this.items.find((i) => i.id === id)!.sprintId = sprint.id;
+    return route.fulfill({ status: 201, json: { id: sprint.id } });
   }
 
   private board(workspace: MockWorkspace, url: URL) {

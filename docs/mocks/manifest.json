@@ -740,7 +740,8 @@
         "empty",
         "loading",
         "error",
-        "forbidden"
+        "forbidden",
+        "not-in-sprint"
       ],
       "not_applicable": {}
     },

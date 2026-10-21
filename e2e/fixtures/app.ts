@@ -25,6 +25,16 @@ export const test = base.extend<{ api: MockApi; axe: Axe }>({
 });
 
 async function checkAccessibility(page: Page): Promise<void> {
+  // A dialog or toast fading in reads as low contrast; check the screen as it settles.
+  // Endless ones (a busy pulse) never finish, so only finite animations are awaited.
+  await page.evaluate(() =>
+    Promise.all(
+      document
+        .getAnimations()
+        .filter((a) => a.effect?.getTiming().iterations !== Infinity)
+        .map((a) => a.finished.catch(() => undefined)),
+    ),
+  );
   const results = await new AxeBuilder({ page })
     .withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa', 'wcag22a', 'wcag22aa'])
     .analyze();

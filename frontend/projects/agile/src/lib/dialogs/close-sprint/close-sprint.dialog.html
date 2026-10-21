@@ -1,0 +1,29 @@
+<ft-dialog
+  [heading]="'Close ' + data.sprint.name + '?'"
+  [description]="description"
+  icon="done"
+  [busy]="busy()"
+  (closed)="ref.close()"
+>
+  @if (failed()) {
+    <ft-alert status="danger" heading="That didn’t work">
+      We couldn’t reach FaithTech. Nothing was changed — try again.
+    </ft-alert>
+  }
+  @if (data.unfinished.length) {
+    <ft-card variant="flush">
+      <ft-list label="Unfinished stories">
+        @for (row of data.unfinished; track row.card.id) {
+          <ft-list-item [label]="row.card.title">
+            <ft-badge leading variant="success">Story</ft-badge>
+            <span trailing class="text-caption">{{ labels[row.status] }}</span>
+          </ft-list-item>
+        }
+      </ft-list>
+    </ft-card>
+  }
+  <ft-button ftDialogFooter [disabled]="busy()" (click)="ref.close()">Cancel</ft-button>
+  <ft-button ftDialogFooter variant="primary" [loading]="busy()" (click)="close()">
+    {{ busy() ? 'Close sprint…' : 'Close sprint' }}
+  </ft-button>
+</ft-dialog>

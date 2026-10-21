@@ -13,12 +13,17 @@ import {
   AGILE_SERVICE,
   BacklogFilter,
   BacklogNodeDto,
+  SprintDto,
+  SprintsDto,
   WorkItemDto,
   WorkspaceDto,
 } from '@faithtech-community/api';
 import {
+  BadgeComponent,
   ButtonComponent,
   CardComponent,
+  ChipComponent,
+  ClusterComponent,
   DialogService,
   EmptyStateComponent,
   FormFieldComponent,
@@ -26,14 +31,29 @@ import {
   ListSkeletonComponent,
   SelectComponent,
   SelectOption,
+  TableColumn,
+  TableComponent,
   ToastService,
   TreeComponent,
   TreeItemComponent,
 } from '@faithtech-community/components';
 import { firstValueFrom } from 'rxjs';
 
-import { WorkItemDialog, WorkItemDialogData } from '../../dialogs';
-import { KIND_BADGES, STATUS_LABELS, firstName, flatten, points } from '../../work-item-labels';
+import {
+  StartSprintData,
+  StartSprintDialog,
+  WorkItemDialog,
+  WorkItemDialogData,
+} from '../../dialogs';
+import {
+  KIND_BADGES,
+  STATUS_LABELS,
+  calendarDay,
+  dateRange,
+  firstName,
+  flatten,
+  points,
+} from '../../work-item-labels';
 import { WorkspaceFrameComponent } from '../workspace-frame';
 
 type State = 'loading' | 'loaded' | 'error' | 'not-found';
@@ -46,13 +66,17 @@ type State = 'loading' | 'loaded' | 'error' | 'not-found';
   selector: 'ft-backlog-page',
   imports: [
     ReactiveFormsModule,
+    BadgeComponent,
     ButtonComponent,
     CardComponent,
+    ChipComponent,
+    ClusterComponent,
     EmptyStateComponent,
     FormFieldComponent,
     IconComponent,
     ListSkeletonComponent,
     SelectComponent,
+    TableComponent,
     TreeComponent,
     TreeItemComponent,
     WorkspaceFrameComponent,
@@ -73,6 +97,23 @@ export class BacklogPage {
   protected readonly tree = signal<BacklogNodeDto[]>([]);
   protected readonly filter = new FormControl('', { nonNullable: true });
   protected readonly kindBadges = KIND_BADGES;
+  protected readonly view = signal<'tree' | 'history'>('tree');
+  protected readonly sprints = signal<SprintsDto | null>(null);
+  protected readonly scrum = computed(() => this.workspace()?.method === 'Scrum');
+  protected readonly historyColumns: TableColumn[] = [
+    { key: 'name', header: 'Sprint' },
+    { key: 'goal', header: 'Goal' },
+    { key: 'dates', header: 'Dates' },
+    { key: 'completed', header: 'Completed' },
+  ];
+  protected readonly historyRows = computed(() =>
+    (this.sprints()?.history ?? []).map((s) => ({
+      name: s.name,
+      goal: s.goal,
+      dates: dateRange(s.startDate, s.endDate),
+      completed: `${s.completedPoints ?? 0} of ${s.committedPoints ?? 0} points`,
+    })),
+  );
   /** Initiatives and epics from the whole backlog, so filtering never empties the list of choices. */
   private readonly planning = signal<BacklogNodeDto[]>([]);
 
@@ -115,6 +156,25 @@ export class BacklogPage {
     }
   }
 
+  /** "6 stories · 24 points · ends Fri 31 Oct." */
+  protected sprintLine(sprint: SprintDto): string {
+    const stories = `${sprint.storyCount} ${sprint.storyCount === 1 ? 'story' : 'stories'}`;
+    return `${stories} · ${sprint.points} points · ends ${calendarDay(sprint.endDate)}.`;
+  }
+
+  protected async startSprint(): Promise<void> {
+    const workspace = this.workspace();
+    const sprints = this.sprints();
+    if (!workspace || !sprints) return;
+    const ref = this.dialogs.open<string, StartSprintData>(StartSprintDialog, {
+      data: { workspace, sprints },
+    });
+    const started = await firstValueFrom(ref.closed);
+    if (!started) return;
+    this.toasts.show({ variant: 'success', heading: `${started} started` });
+    await this.loadTree(true);
+  }
+
   protected retry(): void {
     void this.load(this.id());
   }
@@ -145,6 +205,9 @@ export class BacklogPage {
 
   private async loadTree(refreshFilters = false): Promise<void> {
     try {
+      if (refreshFilters && this.scrum()) {
+        this.sprints.set(await firstValueFrom(this.agile.getSprints(this.id())));
+      }
       if (refreshFilters) {
         const all = await firstValueFrom(this.agile.getBacklog(this.id()));
         this.planning.set(flatten(all).filter((n) => n.kind === 'Initiative' || n.kind === 'Epic'));

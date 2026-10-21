@@ -5,6 +5,9 @@
   [subtitle]="subtitle()"
   [notFound]="state() === 'not-found'"
 >
+  @if (workspace()?.canManage && board()?.sprint) {
+    <ft-button ftWorkspaceActions variant="ghost" (click)="closeSprint()">Close sprint</ft-button>
+  }
   @if (workspace()?.canEdit) {
     <ft-button ftWorkspaceActions variant="primary" (click)="newStory()">
       <ft-icon name="add" /> New story
@@ -40,6 +43,11 @@
             heading="No sprint running"
             text="Move stories from the backlog into a new sprint with a name, a goal and dates."
           >
+            @if (workspace()?.canManage) {
+              <ft-button actions variant="primary" (click)="startSprint()"
+                >Start a sprint</ft-button
+              >
+            }
             <ft-button actions [href]="'/workspaces/' + id() + '/backlog'">Open backlog</ft-button>
           </ft-empty-state>
         } @else {

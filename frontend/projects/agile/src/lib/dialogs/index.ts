@@ -1,5 +1,7 @@
 export * from './add-workspace-members';
+export * from './close-sprint';
 export * from './create-workspace';
 export * from './move-card';
 export * from './remove-workspace-member';
+export * from './start-sprint';
 export * from './work-item';
