@@ -163,7 +163,7 @@
 &lt;/div&gt;</code></pre></details>
       </div>
       <h3>Toasts</h3>
-      <p>All toasts appear in one region. The newest is added at the bottom. Each one has an icon, a title, one line of text, at most one action, a Dismiss button and a timer bar.</p>
+      <p>All toasts appear in one region. The newest is added at the bottom. Each one has an icon, a title, one line of text, at most one action and a Dismiss button. Info and success toasts also show a timer bar; warning and danger toasts have none because they stay until dismissed.</p>
       <div class="ds-example">
         <div class="ds-example__canvas ds-example__canvas--stack">
           <div class="toast-region toast-region--static" role="region" aria-label="Toasts (example)" style="width: 100%; max-width: 24rem; margin-inline: auto;">
@@ -342,7 +342,6 @@
         <li>The bell button is an <code>&lt;a&gt;</code> with <code>aria-expanded</code>. It should be a <code>&lt;button&gt;</code> with <code>aria-controls</code> that toggles the panel.</li>
         <li>The empty bell still shows "Mark all read".</li>
         <li>The email mocks use raw hex colours, px sizes and a system font stack in inline styles. Email clients need this, but the values should come from the token build, not be typed by hand.</li>
-        <li>In every toast mock the timer bar is shown, including the danger toast, which should have none.</li>
       </ul>
     </section>
 
