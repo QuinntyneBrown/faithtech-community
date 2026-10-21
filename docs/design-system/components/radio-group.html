@@ -174,7 +174,7 @@
       </div>
       <ul>
         <li><b>Invalid</b>: when nothing is chosen on submit, every radio in the group gets <code>aria-invalid="true"</code>, the <code>fieldset</code> gets <code>aria-describedby</code> pointing at a <code>.field__error</code> ("Choose a role to add.").</li>
-        <li><b>Disabled</b> is not used in the mocks: options a person cannot choose are left out and explained in a caption.</li>
+        <li><b>Disabled</b> is deliberately absent from the mocks: options a person cannot choose are left out and explained in a caption (see the Don’t below). The state exists so an option or group disabled through Angular forms still reads as unavailable.</li>
         <li>Most groups have a default checked; only "Role" in add role starts empty, because there is no safe default.</li>
       </ul>
       <fieldset class="stack" aria-describedby="ri-error"><legend class="field__label">Role</legend><label class="choice"><input type="radio" name="ri" aria-invalid="true"><span class="choice__text">Volunteer<small>Joins the city team</small></span></label><label class="choice"><input type="radio" name="ri" aria-invalid="true"><span class="choice__text">Attendee<small>Comes to events</small></span></label></fieldset><div class="field__error" id="ri-error">Choose a role to add.</div>
@@ -274,7 +274,7 @@
         <li><a href="../../mocks/dialogs/switch-method/default.html">dialogs/switch-method/default</a>, <a href="../../mocks/dialogs/move-partner/default.html">dialogs/move-partner/default</a> and <a href="../../mocks/dialogs/new-work-item/default.html">dialogs/new-work-item/default</a></li>
         <li><a href="../../mocks/dialogs/add-workspace-member/default.html">dialogs/add-workspace-member/default</a> (checkboxes in <code>.choice</code> rows)</li>
       </ul>
-      <p>Drift noticed in the mocks: the "Visibility" legend is visually hidden with no visible heading. No group shows a disabled option. The remove-role dialog has a group with a single, pre-checked radio, which offers no choice.</p>
+      <p>Drift noticed in the mocks: the remove-role dialog has a group with a single, pre-checked radio, which offers no choice.</p>
     </section>
 
     <footer class="ds-footer"><span>FaithTech Community design system · extracted from <a href="../../mocks/index.html">docs/mocks</a> on 2026-10-21</span><a href="#top">Back to top</a></footer>

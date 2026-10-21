@@ -172,7 +172,7 @@
       <ul>
         <li><b>Invalid</b> sets <code>aria-invalid="true"</code> on the control, adds <code>.field__error</code> and points <code>aria-describedby</code> at it. If the field also has help, the help stays and the error is added below it, and <code>aria-describedby</code> lists both (sign up: "At least 12 characters." then "Use at least 12 characters. A short phrase is easiest to remember.").</li>
         <li><b>Read-only</b> is used once: the invite email on Accept invite, which the person cannot change.</li>
-        <li><b>Disabled</b> is not used in the mocks; it is shown for completeness. Prefer leaving a field out.</li>
+        <li><b>Disabled</b> is deliberately absent from the mocks: a field the person cannot use is left out, and while a form submits its fields stay editable. The state exists so a control disabled through Angular forms still reads as unavailable (<code>--color-bg-subtle</code>, <code>--color-fg-disabled</code>).</li>
         <li>Errors appear on submit, never while typing. A form with errors also shows the <a href="form-layout.html">error summary</a>.</li>
       </ul>
     </section>
@@ -270,8 +270,7 @@
         <li><a href="../../mocks/pages/sign-up/invalid.html">pages/sign-up/invalid</a> (help and error together)</li>
         <li><a href="../../mocks/pages/accept-invite/default.html">pages/accept-invite/default</a> (read-only email)</li>
         <li><a href="../../mocks/dialogs/add-role/invalid.html">dialogs/add-role/invalid</a> (fieldset with <code>aria-describedby</code> error)</li>
-      </ul>
-      <p>Drift noticed in the mocks: no mock shows a disabled field.</p>
+      </ul>
     </section>
 
     <footer class="ds-footer"><span>FaithTech Community design system · extracted from <a href="../../mocks/index.html">docs/mocks</a> on 2026-10-21</span><a href="#top">Back to top</a></footer>
