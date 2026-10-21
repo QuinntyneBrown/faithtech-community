@@ -125,7 +125,7 @@
         </figure>
         <ol class="ds-anatomy__list">
           <li><div><b>Surface</b><small><code>--color-bg-surface</code>, hairline <code>--color-border-default</code>, <code>--radius-lg</code>, <code>--shadow-1</code>, <code>--space-6</code> padding.</small></div></li>
-          <li><div><b>Title</b><small><code>.card__title</code> in <code>--text-h4</code> on a real heading (<code>h2</code> or <code>h3</code>).</small></div></li>
+          <li><div><b>Title</b><small><code>.card__title</code> in <code>--text-h4</code> on a real heading (<code>h2</code> or <code>h3</code>). In a header row beside a link or badge, use <code>.section-title</code>, the same role without the margin.</small></div></li>
           <li><div><b>Content</b><small>Usually a <code>.stack</code>; here three <code>.stat</code>s in a <code>.cluster</code>.</small></div></li>
         </ol>
       </div>
@@ -242,8 +242,8 @@
       <div class="ds-dodont">
         <figure class="ds-do"><div class="ds-example__canvas"><code>&lt;section class="card card--success stack" role="status"&gt;</code></div><figcaption>Use the success variant, announced as a status, to confirm an RSVP or a sent announcement.</figcaption></figure>
         <figure class="ds-dont"><div class="ds-example__canvas"><code>&lt;section class="card" style="border-color: var(--color-success-border)"&gt;</code></div><figcaption>Don't restyle a plain card on one screen to show success.</figcaption></figure>
-        <figure class="ds-do"><div class="ds-example__canvas"><code>&lt;h2 class="card__title"&gt;Coming up&lt;/h2&gt;</code></div><figcaption>Use <code>.card__title</code>; inside <code>.card--flush</code> it pads itself.</figcaption></figure>
-        <figure class="ds-dont"><div class="ds-example__canvas"><code>&lt;h2 style="font: var(--text-h4);"&gt;</code></div><figcaption>The inline title style repeated on about 110 card headings in the mocks.</figcaption></figure>
+        <figure class="ds-do"><div class="ds-example__canvas"><code>&lt;h2 class="card__title"&gt;Coming up&lt;/h2&gt;</code></div><figcaption>Use <code>.card__title</code>; inside <code>.card--flush</code> it pads itself. A heading that shares a row with a link or badge, or heads a page section, takes <code>.section-title</code> (the same role, no margin).</figcaption></figure>
+        <figure class="ds-dont"><div class="ds-example__canvas"><code>&lt;h2 style="font: var(--text-h4);"&gt;</code></div><figcaption>Don't restyle a heading inline; use the role class.</figcaption></figure>
       </div>
     </section>
 
@@ -293,7 +293,6 @@
       </ul>
       <p>Drift noticed in the mocks:</p>
       <ul>
-        <li>About 110 card headings use <code>style="font: var(--text-h4);"</code> instead of <code>.card__title</code>, some on headings that already carry <code>.card__title</code>.</li>
         <li>The flush card's footer link on Home is padded inline (<code>padding: var(--space-3) var(--space-4)</code>).</li>
         <li>The stat strip and the success card set width and spacing inline (<code>max-width: 44rem</code>, <code>margin-bottom: var(--space-4)</code>).</li>
         <li>The success card on compose-announcement is a <code>div</code> with no accessible name; on public-event it is a named section.</li>
