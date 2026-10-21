@@ -141,11 +141,11 @@
       <h3>View chips</h3>
       <div class="ds-example">
         <div class="ds-example__canvas">
-          <nav class="cluster" aria-label="Backlog view"><a class="chip" href="../../mocks/pages/backlog/default.html" aria-current="page" aria-pressed="true">Tree</a><a class="chip" href="../../mocks/pages/backlog/sprints.html">Sprint history</a></nav>
+          <nav class="cluster" aria-label="Backlog view"><a class="chip" href="../../mocks/pages/backlog/default.html" aria-current="page">Tree</a><a class="chip" href="../../mocks/pages/backlog/sprints.html">Sprint history</a></nav>
         </div>
-        <div class="ds-example__caption"><span>From Backlog. Each view is its own page, so these are links; the current one carries <code>aria-current="page"</code>. The pressed look comes from the <code>aria-pressed</code> selector, which is a styling hook only (see Sources).</span></div>
+        <div class="ds-example__caption"><span>From Backlog. Each view is its own page, so these are links; the current one carries <code>aria-current="page"</code>. The current chip takes the pressed look from the <code>.chip[aria-current="page"]</code> selector; links never carry <code>aria-pressed</code>.</span></div>
         <details class="ds-example__code"><summary>HTML</summary><pre><code>&lt;nav class="cluster" aria-label="Backlog view"&gt;
-  &lt;a class="chip" href="default.html" aria-current="page" aria-pressed="true"&gt;Tree&lt;/a&gt;
+  &lt;a class="chip" href="default.html" aria-current="page"&gt;Tree&lt;/a&gt;
   &lt;a class="chip" href="sprints.html"&gt;Sprint history&lt;/a&gt;
 &lt;/nav&gt;</code></pre></details>
       </div>
@@ -161,7 +161,7 @@
         <thead><tr><th scope="col">Chip</th><th scope="col">Default</th><th scope="col">Hover</th><th scope="col">Focus</th><th scope="col">Pressed</th><th scope="col">Pressed, focus</th><th scope="col">Disabled</th></tr></thead>
         <tbody>
           <tr><th scope="row">Filter</th><td><button class="chip" type="button" aria-pressed="false">Past</button></td><td><button class="chip" type="button" aria-pressed="false" data-state="hover">Past</button></td><td><button class="chip" type="button" aria-pressed="false" data-state="focus">Past</button></td><td><button class="chip" type="button" aria-pressed="true">Upcoming</button></td><td><button class="chip" type="button" aria-pressed="true" data-state="focus">Upcoming</button></td><td><button class="chip" type="button" aria-pressed="false" disabled>Online</button></td></tr>
-          <tr><th scope="row">View</th><td><a class="chip" href="../../mocks/pages/backlog/sprints.html">Sprint history</a></td><td><a class="chip" href="../../mocks/pages/backlog/sprints.html" data-state="hover">Sprint history</a></td><td><a class="chip" href="../../mocks/pages/backlog/sprints.html" data-state="focus">Sprint history</a></td><td><a class="chip" href="../../mocks/pages/backlog/default.html" aria-current="page" aria-pressed="true">Tree</a></td><td><a class="chip" href="../../mocks/pages/backlog/default.html" aria-current="page" aria-pressed="true" data-state="focus">Tree</a></td><td>Not used</td></tr>
+          <tr><th scope="row">View</th><td><a class="chip" href="../../mocks/pages/backlog/sprints.html">Sprint history</a></td><td><a class="chip" href="../../mocks/pages/backlog/sprints.html" data-state="hover">Sprint history</a></td><td><a class="chip" href="../../mocks/pages/backlog/sprints.html" data-state="focus">Sprint history</a></td><td><a class="chip" href="../../mocks/pages/backlog/default.html" aria-current="page">Tree</a></td><td><a class="chip" href="../../mocks/pages/backlog/default.html" aria-current="page" data-state="focus">Tree</a></td><td>Not used</td></tr>
         </tbody>
       </table></div>
       <h3>Both themes</h3>
@@ -254,7 +254,7 @@
         <tr><td><code>.cluster[role="group"][aria-label]</code></td><td>The filter chip row. Always labelled ("Filter events", "Filter team"). In Angular: <code>&lt;ft-chip-group label="Filter events"&gt;</code>.</td></tr>
         <tr><td><code>.filter-bar</code></td><td>With <code>.cluster.cluster--between</code>: the row above a list that holds the chip group and any select, aligned to the bottom and spaced <code>--space-4</code> from the list.</td></tr>
         <tr><td><code>aria-pressed="true|false"</code></td><td>Filter chip state; <code>true</code> shows the accent style.</td></tr>
-        <tr><td><code>a.chip[aria-current="page"]</code></td><td>Current view chip. Needs <code>aria-pressed="true"</code> as a styling hook until the CSS also matches <code>aria-current</code>.</td></tr>
+        <tr><td><code>a.chip[aria-current="page"]</code></td><td>Current view chip, inside a <code>&lt;nav class="cluster" aria-label="…"&gt;</code>. Shows the pressed style. Never put <code>aria-pressed</code> on a link. In Angular: <code>&lt;ft-chip href="…" [current]="true"&gt;</code>.</td></tr>
         <tr><td><code>disabled</code></td><td>50% opacity, not focusable. Only while the list loads.</td></tr>
         <tr><td><code>data-state="hover|focus|selected|disabled"</code></td><td>Documentation only.</td></tr>
       </tbody></table>
@@ -270,7 +270,7 @@
         <li><a href="../../mocks/pages/backlog/default.html">pages/backlog/default</a> (Tree view chip)</li>
         <li><a href="../../mocks/pages/backlog/sprints.html">pages/backlog/sprints</a> (Sprint history view chip)</li>
       </ul>
-      <p>The chip rule is inherited from Shelfie unchanged. Resolved: the filter rows on Events and Team are now <code>.cluster.cluster--between.filter-bar</code> rows holding a <code>role="group"</code> chip cluster labelled "Filter events" or "Filter team", with no inline margin. Drift: the backlog view chips are links carrying <code>aria-pressed</code>, which is not valid on a link and is read by no screen reader, and they lack <code>aria-current</code>. The suggested fix is to add <code>.chip[aria-current="page"]</code> to the pressed selector in <code>components.css</code>: <code>.chip[aria-pressed="true"], .chip[aria-current="page"], .chip[data-state="selected"] { … }</code>.</p>
+      <p>The chip rule is inherited from Shelfie, with <code>.chip[aria-current="page"]</code> added to the pressed selector. Resolved: the filter rows on Events and Team are now <code>.cluster.cluster--between.filter-bar</code> rows holding a <code>role="group"</code> chip cluster labelled "Filter events" or "Filter team", with no inline margin. Resolved: the backlog view chips are links in a <code>&lt;nav class="cluster filter-bar" aria-label="Backlog view"&gt;</code>, with <code>aria-current="page"</code> on the current view and no <code>aria-pressed</code>; <code>components.css</code> matches <code>.chip[aria-pressed="true"], .chip[aria-current="page"], .chip[data-state="selected"]</code> for the pressed style.</p>
     </section>
     <footer class="ds-footer"><span>FaithTech Community design system · extracted from <a href="../../mocks/index.html">docs/mocks</a> on 2026-10-21</span><a href="#top">Back to top</a></footer>
   </main>

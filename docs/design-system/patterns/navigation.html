@@ -116,7 +116,7 @@
           <tr><td>Find any person, event or partner</td><td>Global search in the top bar, or the Search tab on phones</td></tr>
           <tr><td>Switch between views of the same thing</td><td>Tabs. Each tab is its own URL, so a view can be linked to.</td></tr>
           <tr><td>Go back up from a detail or form page</td><td>Breadcrumb</td></tr>
-          <tr><td>Switch between two modes of one list</td><td>Chips with <code>aria-pressed</code>, such as Tree and Sprint history in the backlog. Not tabs.</td></tr>
+          <tr><td>Switch between two modes of one list</td><td>View chips: links in a labelled <code>&lt;nav&gt;</code> with <code>aria-current="page"</code> on the current view, such as Tree and Sprint history in the backlog. Not tabs.</td></tr>
         </tbody>
       </table></div>
       <h3>Role-aware destinations</h3>
@@ -165,7 +165,7 @@
         <div class="ds-example__canvas ds-example__canvas--stack">
           <nav aria-label="Breadcrumb (example)"><ol class="breadcrumb"><li><a href="../../mocks/pages/workspaces/default.html">Workspaces</a></li><li aria-current="page">Toronto team</li></ol></nav>
           <nav class="tabs" aria-label="Workspace sections (example)" style="width: 100%;"><a class="tab" href="../../mocks/pages/team-board/default.html">Board</a><a class="tab" href="../../mocks/pages/backlog/default.html" aria-current="page">Backlog</a><a class="tab" href="../../mocks/pages/planning-poker/default.html">Planning Poker</a><a class="tab" href="../../mocks/pages/workspace-settings/default.html">Settings</a></nav>
-          <div class="cluster"><a class="chip" href="../../mocks/pages/backlog/default.html" aria-pressed="true">Tree</a><a class="chip" href="../../mocks/pages/backlog/sprints.html" aria-pressed="false">Sprint history</a></div>
+          <nav class="cluster" aria-label="Backlog view (example)"><a class="chip" href="../../mocks/pages/backlog/default.html" aria-current="page">Tree</a><a class="chip" href="../../mocks/pages/backlog/sprints.html">Sprint history</a></nav>
         </div>
         <div class="ds-example__caption"><span>pages/backlog/default: breadcrumb, workspace tabs and view chips.</span></div>
       </div>

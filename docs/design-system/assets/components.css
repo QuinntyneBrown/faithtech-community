@@ -217,7 +217,7 @@ fieldset.card > legend { display: contents; }
 .badge--count::before { display: none; }
 .chip { display: inline-flex; align-items: center; gap: var(--space-1); min-height: var(--control-height-sm); padding: 0 var(--space-3); border-radius: var(--radius-full); border: var(--border-width-hairline) solid var(--color-border-strong); background: var(--color-bg-surface); color: var(--color-fg-default); font: var(--text-label); cursor: pointer; transition: background-color var(--duration-fast) var(--ease-standard); }
 .chip:hover, .chip[data-state="hover"] { background: var(--color-bg-subtle); }
-.chip[aria-pressed="true"], .chip[data-state="selected"] { background: var(--color-accent-subtle); border-color: var(--color-accent); color: var(--color-fg-accent); }
+.chip[aria-pressed="true"], .chip[aria-current="page"], .chip[data-state="selected"] { background: var(--color-accent-subtle); border-color: var(--color-accent); color: var(--color-fg-accent); }
 .chip:disabled, .chip[data-state="disabled"] { opacity: 0.5; cursor: not-allowed; }
 .streak { display: inline-flex; align-items: center; gap: var(--space-1); padding: 0 var(--space-3); min-height: var(--control-height-sm); border-radius: var(--radius-full); background: var(--color-warning-bg); color: var(--color-warning-fg); font: var(--text-label); }
 .avatar { --avatar-size: var(--size-avatar-md); display: inline-grid; place-items: center; width: var(--avatar-size); height: var(--avatar-size); border-radius: var(--radius-full); background: var(--color-accent-subtle); color: var(--color-fg-accent); font: var(--text-label); overflow: hidden; flex: none; }
