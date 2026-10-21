@@ -1,6 +1,13 @@
-<!--
-  SCAFFOLD: placeholder, not the implementation.
-  Generated from AGENTS.md and:
-    - docs/design-system/components/logo-mark.html
-  Overwrite this template with the expected implementation, then delete this comment.
--->
+<svg
+  xmlns="http://www.w3.org/2000/svg"
+  viewBox="0 0 64 64"
+  focusable="false"
+  [attr.role]="label() ? 'img' : null"
+  [attr.aria-label]="label() || null"
+  [attr.aria-hidden]="label() ? null : 'true'"
+>
+  <!-- Brand artwork: fixed colours by design, identical in light and dark. -->
+  <rect width="64" height="64" rx="16" fill="#6d28d9" />
+  <path d="M32 12v40M20 26h24" stroke="#fff" stroke-width="6" stroke-linecap="round" />
+  <circle cx="32" cy="32" r="22" fill="none" stroke="#fff" stroke-opacity=".35" stroke-width="3" />
+</svg>

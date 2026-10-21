@@ -31,7 +31,7 @@ module.exports = defineConfig([
       '@angular-eslint/component-selector': [
         'error',
         {
-          type: 'element',
+          type: ['element', 'attribute'],
           prefix: 'ft',
           style: 'kebab-case',
         },
@@ -46,6 +46,14 @@ module.exports = defineConfig([
         'error',
         { template: 0, styles: 0, animations: 0 },
       ],
+    },
+  },
+  {
+    // Test host components declare their template inline and need no change detection tuning.
+    files: ['**/*.spec.ts'],
+    rules: {
+      '@angular-eslint/component-max-inline-declarations': 'off',
+      '@angular-eslint/prefer-on-push-component-change-detection': 'off',
     },
   },
   {

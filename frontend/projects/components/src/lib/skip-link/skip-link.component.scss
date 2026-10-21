@@ -1,7 +1,29 @@
-/*
- * SCAFFOLD: placeholder, not the implementation.
- * Generated from AGENTS.md and:
- *   - docs/design-system/components/skip-link.html
- * Overwrite with the encapsulated styles for this component. Read tokens by role
- * (var(--color-...)), never hex values. Delete this comment when implemented.
- */
+.ft-skip-link {
+  position: absolute;
+  inset-inline-start: var(--space-4);
+  inset-block-start: calc(-1 * var(--space-24));
+  z-index: var(--z-tooltip);
+  padding: var(--space-2) var(--space-4);
+  background: var(--color-bg-surface-raised);
+  color: var(--color-fg-default);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-3);
+  text-decoration: none;
+  transition: inset-block-start var(--duration-fast) var(--ease-standard);
+
+  &:focus-visible {
+    inset-block-start: var(--space-4);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ft-skip-link {
+    transition: none;
+  }
+}
+
+@media print {
+  .ft-skip-link {
+    display: none;
+  }
+}

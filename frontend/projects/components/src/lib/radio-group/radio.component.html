@@ -1,7 +1,17 @@
-<!--
-  SCAFFOLD: placeholder, not the implementation.
-  Generated from AGENTS.md and:
-    - docs/design-system/components/radio-group.html
-  Overwrite this template with the expected implementation, then delete this comment.
--->
-<ng-content />
+<label class="choice">
+  <input
+    type="radio"
+    [name]="group.groupName()"
+    [value]="value()"
+    [checked]="checked()"
+    [disabled]="isDisabled()"
+    (change)="group.select(value())"
+    (blur)="group.touch()"
+  />
+  <span class="text">
+    <ng-content />
+    @if (description()) {
+      <small>{{ description() }}</small>
+    }
+  </span>
+</label>

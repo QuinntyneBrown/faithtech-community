@@ -1,6 +1,42 @@
-<!--
-  SCAFFOLD: placeholder, not the implementation.
-  Generated from AGENTS.md and:
-    - docs/design-system/components/text-field.html
-  Overwrite this template with the expected implementation, then delete this comment.
--->
+<div class="group" [class.group--action]="action()">
+  <input
+    class="input"
+    [attr.id]="id()"
+    [attr.name]="name()"
+    [type]="effectiveType()"
+    [value]="value()"
+    [placeholder]="placeholder()"
+    [attr.autocomplete]="autocomplete()"
+    [readOnly]="readonly()"
+    [disabled]="disabled()"
+    [attr.aria-label]="ariaLabel()"
+    [attr.aria-describedby]="describedBy()"
+    [attr.aria-invalid]="invalid()"
+    (input)="onInput($event)"
+    (blur)="onBlur()"
+  />
+  @if (action()) {
+    <button
+      class="action"
+      type="button"
+      [attr.aria-label]="buttonLabel()"
+      [attr.aria-pressed]="action() === 'reveal' ? revealed() : null"
+      [disabled]="disabled()"
+      (click)="onAction()"
+    >
+      <svg viewBox="0 0 24 24" aria-hidden="true">
+        @if (action() === 'copy') {
+          <rect x="9" y="9" width="11" height="11" rx="2" />
+          <path d="M5 15V6a2 2 0 0 1 2-2h8" />
+        } @else if (revealed()) {
+          <path
+            d="M3 3l18 18M10.6 6.2A10 10 0 0 1 12 6c6.5 0 10 6 10 6a17 17 0 0 1-3.2 3.8M6.5 7.6C3.9 9.3 2 12 2 12s3.5 6 10 6a10 10 0 0 0 3.4-.6"
+          />
+        } @else {
+          <path d="M2 12s3.5-6 10-6 10 6 10 6-3.5 6-10 6S2 12 2 12z" />
+          <circle cx="12" cy="12" r="3" />
+        }
+      </svg>
+    </button>
+  }
+</div>

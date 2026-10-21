@@ -1,8 +1,20 @@
-/*
- * SCAFFOLD: placeholder, not the implementation.
- * Generated from AGENTS.md and:
- *   - docs/design-system/components/form-field.html
- *   - docs/detailed-designs/platform/accessibility
- * Overwrite with the encapsulated styles for this component. Read tokens by role
- * (var(--color-...)), never hex values. Delete this comment when implemented.
- */
+:host {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
+.label {
+  font: var(--text-label);
+  color: var(--color-fg-default);
+}
+
+.optional {
+  color: var(--color-fg-muted);
+  font-weight: var(--font-weight-regular);
+}
+
+.field__help {
+  font: var(--text-body-sm);
+  color: var(--color-fg-muted);
+}

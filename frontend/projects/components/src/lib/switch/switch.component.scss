@@ -1,7 +1,75 @@
-/*
- * SCAFFOLD: placeholder, not the implementation.
- * Generated from AGENTS.md and:
- *   - docs/design-system/components/switch.html
- * Overwrite with the encapsulated styles for this component. Read tokens by role
- * (var(--color-...)), never hex values. Delete this comment when implemented.
- */
+:host {
+  display: block;
+}
+
+.switch {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-3);
+  font: var(--text-body);
+  color: var(--color-fg-default);
+  cursor: pointer;
+}
+
+input {
+  position: relative;
+  flex: none;
+  margin: 0;
+  block-size: var(--size-icon-md);
+  inline-size: calc(var(--size-icon-md) * 1.75);
+  background: var(--color-border-strong);
+  border: 0;
+  border-radius: var(--radius-full);
+  appearance: none;
+  cursor: inherit;
+  transition: background-color 150ms;
+
+  &::after {
+    content: '';
+    position: absolute;
+    inset-block: var(--space-0-5);
+    inset-inline-start: var(--space-0-5);
+    inline-size: calc(var(--size-icon-md) - var(--space-1));
+    background: var(--color-bg-surface);
+    border-radius: var(--radius-full);
+    box-shadow: var(--shadow-1);
+    transition: transform 200ms cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+
+  &:hover {
+    background: var(--color-fg-muted);
+  }
+
+  &:checked {
+    background: var(--color-accent);
+
+    &::after {
+      transform: translateX(calc(var(--size-icon-md) * 0.75));
+    }
+
+    &:hover {
+      background: var(--color-accent-hover);
+    }
+  }
+
+  &:focus-visible {
+    outline: var(--focus-ring-width) solid var(--color-accent);
+    outline-offset: var(--focus-ring-offset);
+  }
+
+  &:disabled {
+    background: var(--color-border-default);
+    cursor: not-allowed;
+
+    & + .text {
+      color: var(--color-fg-disabled);
+    }
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  input,
+  input::after {
+    transition: none;
+  }
+}

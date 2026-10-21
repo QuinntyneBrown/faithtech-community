@@ -1,9 +1,48 @@
-/*
- * SCAFFOLD: placeholder, not the implementation.
- * Generated from AGENTS.md and:
- *   - docs/design-system/components/textarea.html
- * Overwrite this file with the expected implementation (implementing-incrementally
- * skill + ATDD), then delete this comment.
- */
+import { Component } from '@angular/core';
+import { TestBed } from '@angular/core/testing';
+import { FormControl, ReactiveFormsModule } from '@angular/forms';
+import { TextareaComponent } from './textarea.component';
 
-describe.todo('TextareaComponent');
+@Component({
+  imports: [TextareaComponent, ReactiveFormsModule],
+  template: `<ft-textarea [formControl]="ctrl" [rows]="rows" />`,
+})
+class HostComponent {
+  ctrl = new FormControl('note');
+  rows = 4;
+}
+
+describe('TextareaComponent', () => {
+  function setup() {
+    const fixture = TestBed.createComponent(HostComponent);
+    fixture.detectChanges();
+    const el = () => (fixture.nativeElement as HTMLElement).querySelector('textarea')!;
+    return { fixture, cmp: fixture.componentInstance, el };
+  }
+
+  it('writes the value and reports typing', () => {
+    const { cmp, el } = setup();
+    expect(el().value).toBe('note');
+    el().value = 'more';
+    el().dispatchEvent(new Event('input'));
+    expect(cmp.ctrl.value).toBe('more');
+  });
+
+  it('marks touched on blur', () => {
+    const { cmp, el } = setup();
+    el().dispatchEvent(new Event('blur'));
+    expect(cmp.ctrl.touched).toBe(true);
+  });
+
+  it('sets rows from the input', () => {
+    const { el } = setup();
+    expect(el().rows).toBe(4);
+  });
+
+  it('disables with the control', () => {
+    const { fixture, cmp, el } = setup();
+    cmp.ctrl.disable();
+    fixture.detectChanges();
+    expect(el().disabled).toBe(true);
+  });
+});

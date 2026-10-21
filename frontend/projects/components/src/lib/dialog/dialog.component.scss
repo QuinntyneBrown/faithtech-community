@@ -1,9 +1,137 @@
-/*
- * SCAFFOLD: placeholder, not the implementation.
- * Generated from AGENTS.md and:
- *   - docs/design-system/components/dialog.html
- *   - docs/detailed-designs/platform/accessibility
- *   - docs/design-system/patterns/dialogs-and-overlays.html
- * Overwrite with the encapsulated styles for this component. Read tokens by role
- * (var(--color-...)), never hex values. Delete this comment when implemented.
- */
+:host {
+  display: block;
+}
+
+.dialog {
+  display: flex;
+  flex-direction: column;
+  max-block-size: 90vh;
+  inline-size: 100%;
+  background: var(--color-bg-surface-raised);
+  color: var(--color-fg-default);
+  box-shadow: var(--shadow-4);
+  border-start-start-radius: var(--radius-xl);
+  border-start-end-radius: var(--radius-xl);
+  animation: dialog-in var(--duration-slow) var(--ease-enter) both;
+}
+
+.dialog__header {
+  display: flex;
+  gap: var(--space-3);
+  align-items: flex-start;
+  padding: var(--space-5) var(--space-5) var(--space-3);
+}
+
+.dialog__icon {
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  inline-size: 2.5rem;
+  block-size: 2.5rem;
+  border-radius: var(--radius-full, 50%);
+  background: var(--color-brand-subtle, var(--color-bg-subtle));
+  color: var(--color-brand-foreground, var(--color-fg-accent));
+}
+
+.dialog__icon--danger {
+  background: var(--color-danger-bg);
+  color: var(--color-danger-icon);
+}
+
+.dialog__heading {
+  flex: 1;
+  min-inline-size: 0;
+}
+
+.dialog__title {
+  margin: 0;
+  font: var(--text-h4);
+}
+
+.dialog__description {
+  margin: var(--space-1) 0 0;
+  color: var(--color-fg-muted);
+  font: var(--text-body-sm);
+}
+
+.dialog__close {
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  inline-size: var(--target-comfortable);
+  block-size: var(--target-comfortable);
+  padding: 0;
+  border: 0;
+  border-radius: var(--radius-md);
+  background: transparent;
+  color: var(--color-fg-muted);
+  cursor: pointer;
+
+  &:hover:not(:disabled) {
+    background: var(--color-bg-subtle);
+    color: var(--color-fg-default);
+  }
+
+  &:focus-visible {
+    outline: none;
+    box-shadow: var(--shadow-focus);
+  }
+
+  &:disabled {
+    color: var(--color-fg-disabled);
+    cursor: not-allowed;
+  }
+}
+
+.dialog__body {
+  flex: 1;
+  overflow-y: auto;
+  padding: var(--space-2) var(--space-5);
+}
+
+.dialog__footer {
+  position: sticky;
+  inset-block-end: 0;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: var(--space-3);
+  padding: var(--space-4) var(--space-5) var(--space-5);
+  background: var(--color-bg-surface-raised);
+
+  &:empty {
+    display: none;
+  }
+}
+
+@media (min-width: 40rem) {
+  .dialog {
+    border-radius: var(--radius-lg);
+    animation-name: dialog-scale;
+  }
+
+  .dialog__title {
+    font: var(--text-h3);
+  }
+}
+
+@keyframes dialog-in {
+  from {
+    transform: translateY(100%);
+  }
+}
+
+@keyframes dialog-scale {
+  from {
+    opacity: 0;
+    transform: scale(0.96);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .dialog {
+    animation: none;
+  }
+}

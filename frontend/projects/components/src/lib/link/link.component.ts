@@ -1,16 +1,14 @@
-/*
- * SCAFFOLD: placeholder, not the implementation.
- * Generated from AGENTS.md and:
- *   - docs/design-system/components/link.html
- * Overwrite this file with the expected implementation (implementing-incrementally
- * skill + ATDD), then delete this comment.
- */
-import { ChangeDetectionStrategy, Component } from '@angular/core';
+import { ChangeDetectionStrategy, Component, input } from '@angular/core';
 
+/** Design system link: a native <a href>, always underlined. Use a button for actions that change data. */
 @Component({
   selector: 'ft-link',
   templateUrl: './link.component.html',
   styleUrl: './link.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class LinkComponent {}
+export class LinkComponent {
+  readonly href = input.required<string>();
+  /** Opens in a new tab with `noopener noreferrer`. */
+  readonly external = input(false);
+}

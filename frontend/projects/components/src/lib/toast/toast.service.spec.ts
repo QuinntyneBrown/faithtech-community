@@ -1,10 +1,89 @@
-/*
- * SCAFFOLD: placeholder, not the implementation.
- * Generated from AGENTS.md and:
- *   - docs/detailed-designs/platform/accessibility
- *   - docs/design-system/components/toast.html
- * Overwrite this file with the expected implementation (implementing-incrementally
- * skill + ATDD), then delete this comment.
- */
+import { Component } from '@angular/core';
+import { TestBed } from '@angular/core/testing';
+import { ToastRegionComponent } from './toast-region.component';
+import { ToastService } from './toast.service';
 
-describe.todo('ToastService');
+@Component({ imports: [ToastRegionComponent], template: '<ft-toast-region />' })
+class HostComponent {}
+
+describe('ToastService', () => {
+  beforeEach(() => vi.useFakeTimers());
+  afterEach(() => vi.useRealTimers());
+
+  it('adds toasts and dismisses them', () => {
+    const service = TestBed.inject(ToastService);
+    const id = service.show({ variant: 'info', heading: 'Contact restored' });
+    expect(service.toasts().map((t) => t.heading)).toEqual(['Contact restored']);
+    service.dismiss(id);
+    expect(service.toasts()).toEqual([]);
+  });
+
+  it('auto-dismisses info and success after 6 seconds', () => {
+    const service = TestBed.inject(ToastService);
+    service.show({ variant: 'success', heading: 'Saved' });
+    vi.advanceTimersByTime(5999);
+    expect(service.toasts().length).toBe(1);
+    vi.advanceTimersByTime(1);
+    expect(service.toasts().length).toBe(0);
+  });
+
+  it('keeps warning and danger toasts until dismissed', () => {
+    const service = TestBed.inject(ToastService);
+    service.show({ variant: 'danger', heading: 'Not saved' });
+    service.show({ variant: 'warning', heading: 'Email paused' });
+    vi.advanceTimersByTime(60000);
+    expect(service.toasts().length).toBe(2);
+  });
+
+  it('pauses the timer while hovered or focused and resumes with the remainder', () => {
+    const service = TestBed.inject(ToastService);
+    const id = service.show({ variant: 'info', heading: 'Hi' });
+    vi.advanceTimersByTime(4000);
+    service.pause(id);
+    vi.advanceTimersByTime(60000);
+    expect(service.toasts().length).toBe(1);
+    service.resume(id);
+    vi.advanceTimersByTime(1999);
+    expect(service.toasts().length).toBe(1);
+    vi.advanceTimersByTime(1);
+    expect(service.toasts().length).toBe(0);
+  });
+
+  it('runs the action callback and dismisses the toast', () => {
+    const service = TestBed.inject(ToastService);
+    const spy = vi.fn();
+    const id = service.show({
+      variant: 'info',
+      heading: 'Gone',
+      actionLabel: 'Undo',
+      onAction: spy,
+    });
+    service.runAction(id);
+    expect(spy).toHaveBeenCalledOnce();
+    expect(service.toasts()).toEqual([]);
+  });
+});
+
+describe('ToastRegionComponent', () => {
+  it('is a persistent polite live region that renders queued toasts', () => {
+    const fixture = TestBed.createComponent(HostComponent);
+    fixture.detectChanges();
+    const host: HTMLElement = fixture.nativeElement;
+    const region = host.querySelector('[aria-live]') as HTMLElement;
+    expect(region.getAttribute('role')).toBe('status');
+    expect(region.getAttribute('aria-live')).toBe('polite');
+    TestBed.inject(ToastService).show({ variant: 'warning', heading: 'No connection' });
+    fixture.detectChanges();
+    expect(host.querySelectorAll('ft-toast').length).toBe(1);
+  });
+
+  it('collapses more than three toasts into a "+N more" line', () => {
+    const fixture = TestBed.createComponent(HostComponent);
+    const service = TestBed.inject(ToastService);
+    for (let i = 0; i < 4; i++) service.show({ variant: 'danger', heading: `T${i}` });
+    fixture.detectChanges();
+    const host: HTMLElement = fixture.nativeElement;
+    expect(host.querySelectorAll('ft-toast').length).toBe(3);
+    expect(host.textContent).toContain('+1 more');
+  });
+});

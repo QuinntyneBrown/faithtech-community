@@ -1,16 +1,67 @@
-/*
- * SCAFFOLD: placeholder, not the implementation.
- * Generated from AGENTS.md and:
- *   - docs/design-system/components/radio-group.html
- * Overwrite this file with the expected implementation (implementing-incrementally
- * skill + ATDD), then delete this comment.
- */
-import { ChangeDetectionStrategy, Component } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  computed,
+  forwardRef,
+  input,
+  signal,
+} from '@angular/core';
+import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
+import { InlineMessageComponent } from '../inline-message/inline-message.component';
 
+let nextId = 0;
+
+/** One choice from a few visible options: a fieldset with a legend and ft-radio children. */
 @Component({
   selector: 'ft-radio-group',
+  imports: [InlineMessageComponent],
   templateUrl: './radio-group.component.html',
   styleUrl: './radio-group.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
+  providers: [
+    {
+      provide: NG_VALUE_ACCESSOR,
+      useExisting: forwardRef(() => RadioGroupComponent),
+      multi: true,
+    },
+  ],
 })
-export class RadioGroupComponent {}
+export class RadioGroupComponent implements ControlValueAccessor {
+  private readonly uid = `ft-radio-group-${nextId++}`;
+
+  readonly legend = input.required<string>();
+  readonly name = input<string | null>(null);
+  readonly error = input('');
+
+  readonly value = signal<string | null>(null);
+  readonly disabled = signal(false);
+
+  readonly groupName = computed(() => this.name() ?? this.uid);
+  protected readonly errorId = `${this.uid}-error`;
+
+  private onChange: (value: string) => void = () => undefined;
+  private onTouched: () => void = () => undefined;
+
+  writeValue(value: string | null): void {
+    this.value.set(value);
+  }
+  registerOnChange(fn: (value: string) => void): void {
+    this.onChange = fn;
+  }
+  registerOnTouched(fn: () => void): void {
+    this.onTouched = fn;
+  }
+  setDisabledState(isDisabled: boolean): void {
+    this.disabled.set(isDisabled);
+  }
+
+  /** Called by ft-radio when the person selects it. */
+  select(value: string): void {
+    this.value.set(value);
+    this.onChange(value);
+  }
+
+  touch(): void {
+    this.onTouched();
+  }
+}

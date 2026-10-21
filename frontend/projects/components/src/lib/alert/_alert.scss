@@ -1,0 +1,95 @@
+@mixin alert-styles {
+  :host {
+    display: block;
+  }
+
+  .alert {
+    --alert-bg: var(--color-info-bg);
+    --alert-fg: var(--color-info-fg);
+    --alert-border: var(--color-info-border);
+    --alert-icon: var(--color-info-icon);
+    display: flex;
+    gap: var(--space-3);
+    align-items: flex-start;
+    padding: var(--space-4);
+    background: var(--alert-bg);
+    color: var(--alert-fg);
+    border: var(--border-width-thin, 1px) solid var(--alert-border);
+    border-inline-start: 4px solid var(--alert-border);
+    border-radius: var(--radius-md);
+    font: var(--text-body-sm);
+  }
+
+  .alert--success {
+    --alert-bg: var(--color-success-bg);
+    --alert-fg: var(--color-success-fg);
+    --alert-border: var(--color-success-border);
+    --alert-icon: var(--color-success-icon);
+  }
+
+  .alert--warning {
+    --alert-bg: var(--color-warning-bg);
+    --alert-fg: var(--color-warning-fg);
+    --alert-border: var(--color-warning-border);
+    --alert-icon: var(--color-warning-icon);
+  }
+
+  .alert--danger {
+    --alert-bg: var(--color-danger-bg);
+    --alert-fg: var(--color-danger-fg);
+    --alert-border: var(--color-danger-border);
+    --alert-icon: var(--color-danger-icon);
+  }
+
+  .alert__icon {
+    color: var(--alert-icon);
+  }
+
+  .alert__body {
+    flex: 1;
+    min-inline-size: 0;
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-1);
+  }
+
+  .alert__title {
+    font: var(--text-label);
+  }
+
+  .alert__text:empty,
+  .alert__actions:empty {
+    display: none;
+  }
+
+  .alert__actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2);
+    margin-block-start: var(--space-1);
+  }
+
+  .alert__close {
+    flex: none;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    inline-size: var(--target-min);
+    block-size: var(--target-min);
+    padding: 0;
+    border: 0;
+    border-radius: var(--radius-sm);
+    background: transparent;
+    color: inherit;
+    cursor: pointer;
+
+    &:hover {
+      background: color-mix(in srgb, currentColor 8%, transparent);
+    }
+
+    &:focus-visible {
+      outline: none;
+      box-shadow: var(--shadow-focus);
+    }
+  }
+}

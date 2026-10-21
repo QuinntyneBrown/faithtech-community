@@ -1,8 +1,13 @@
-<!--
-  SCAFFOLD: placeholder, not the implementation.
-  Generated from AGENTS.md and:
-    - docs/design-system/components/form-field.html
-    - docs/detailed-designs/platform/accessibility
-  Overwrite this template with the expected implementation, then delete this comment.
--->
+<label class="label" [attr.for]="controlId()">
+  {{ label() }}
+  @if (optional()) {
+    <span class="optional">(optional)</span>
+  }
+</label>
 <ng-content />
+@if (help()) {
+  <div class="field__help" [id]="helpId()">{{ help() }}</div>
+}
+@if (error()) {
+  <ft-inline-message [id]="errorId()">{{ error() }}</ft-inline-message>
+}

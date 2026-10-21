@@ -1,0 +1,22 @@
+<div
+  class="sticker-picker"
+  role="group"
+  [attr.aria-labelledby]="labelId"
+  [attr.aria-invalid]="invalid() ? 'true' : null"
+>
+  <div class="sticker-picker__label" [id]="labelId">{{ label() }}</div>
+  <div class="sticker-picker__deck">
+    @for (card of deck; track card) {
+      <button
+        class="sticker-choice"
+        type="button"
+        [attr.aria-pressed]="value() === card"
+        [disabled]="disabled()"
+        (click)="toggle(card)"
+      >
+        <span class="sticker-choice__value">{{ card }}</span>
+        <span class="sticker-choice__unit">{{ card === '?' ? 'Unsure' : 'points' }}</span>
+      </button>
+    }
+  </div>
+</div>
