@@ -1,6 +1,73 @@
-<!--
-  SCAFFOLD: placeholder, not the implementation.
-  Generated from AGENTS.md and:
-    - docs/detailed-designs/admin/audit-log
-  Overwrite this template with the expected implementation, then delete this comment.
--->
+@if (state() === 'forbidden') {
+  <h1 class="visually-hidden">Admin</h1>
+  <ft-empty-state
+    heading="This area is for System Admins"
+    text="If you need a user suspended or a Staff role changed, contact a System Admin."
+  >
+    <ft-button actions variant="primary" href="/">Back to home</ft-button>
+  </ft-empty-state>
+} @else {
+  <ft-page-header title="Admin" subtitle="Every action here is recorded in the audit log.">
+    <ft-button ftPageHeaderActions (click)="exportCsv()">
+      <ft-icon name="export" /> Export CSV
+    </ft-button>
+  </ft-page-header>
+  <ft-tabs label="Admin sections">
+    <ft-tab label="Users" href="/admin/users" />
+    <ft-tab label="Audit log" href="/admin/audit-log" [current]="true" />
+    <ft-tab label="Roles" href="/people" />
+  </ft-tabs>
+  <div class="filters">
+    <ft-form-field label="Action">
+      <ft-select [options]="categories" [formControl]="category" />
+    </ft-form-field>
+  </div>
+
+  @switch (state()) {
+    @case ('loading') {
+      <ft-card variant="flush" [busy]="true" aria-label="Loading audit log">
+        @for (row of skeletonRows; track row) {
+          <div class="skeleton-row">
+            <ft-skeleton shape="avatar" />
+            <ft-stack gap="2"><ft-skeleton shape="title" /><ft-skeleton /></ft-stack>
+          </div>
+        }
+      </ft-card>
+    }
+    @case ('error') {
+      <ft-empty-state
+        variant="error"
+        heading="We couldn’t load the audit log"
+        text="Check your connection and try again. If it keeps happening, we’ve already been told about it."
+      >
+        <ft-button actions variant="primary" (click)="retry()">Try again</ft-button>
+      </ft-empty-state>
+    }
+    @case ('loaded') {
+      @if (entries().length === 0) {
+        @if (category.value) {
+          <ft-empty-state
+            [heading]="noResultsHeading()"
+            text="Try another action type or a longer date range."
+          >
+            <ft-button actions (click)="showAll()">Show all actions</ft-button>
+          </ft-empty-state>
+        } @else {
+          <ft-empty-state
+            heading="No admin actions yet"
+            text="When a System Admin changes roles, suspends a user or opens a private contact, it’s recorded here."
+          />
+        }
+      } @else {
+        <ft-card variant="flush">
+          <ft-table caption="Audit log" [columns]="columns" [rows]="rows()" />
+        </ft-card>
+        @if (hasMore()) {
+          <ft-cluster class="more">
+            <ft-button [loading]="loadingMore()" (click)="loadMore()">Show older entries</ft-button>
+          </ft-cluster>
+        }
+      }
+    }
+  }
+}

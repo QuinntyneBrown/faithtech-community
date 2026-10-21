@@ -40,6 +40,7 @@ app.MapHealthChecks("/health/ready", new HealthCheckOptions
 }).AllowAnonymous();
 app.MapMeEndpoints();
 app.MapProfilesEndpoints();
+app.MapAuditLogEndpoints();
 app.MapAccountEndpoints();
 app.MapAuthorizationEndpoints();
 

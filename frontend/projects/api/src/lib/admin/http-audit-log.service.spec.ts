@@ -1,13 +1,5 @@
-/*
- * EARLY IMPLEMENTATION: written ahead of the vertical slices to get a head start.
- * Contracts and DTOs follow docs/detailed-designs/ but may change as each feature is
- * implemented end to end (spec -> design -> mock -> ATDD slice).
- * Sources:
- *   - docs/detailed-designs/admin/audit-log
- */
 import { HttpTestingController } from '@angular/common/http/testing';
 import { TestBed } from '@angular/core/testing';
-import { Observable } from 'rxjs';
 
 import { apiTestProviders } from '../shared/api-test-providers';
 import { HttpAuditLogService } from './http-audit-log.service';
@@ -28,22 +20,36 @@ describe('HttpAuditLogService', () => {
     controller = TestBed.inject(HttpTestingController);
   });
 
+  afterEach(() => controller.verify());
+
   it.each([
     ['unfiltered', () => service.getEntries({}), '/api/admin/audit?page=1'],
     [
-      'filtered',
-      () =>
-        service.getEntries(
-          { actor: 'a1', action: 'role.add', from: '2026-01-01', to: '2026-02-01' },
-          3,
-        ),
-      '/api/admin/audit?actor=a1&action=role.add&from=2026-01-01&to=2026-02-01&page=3',
+      'by category',
+      () => service.getEntries({ category: 'suspensions' }, 2),
+      '/api/admin/audit?category=suspensions&page=2',
+    ],
+    [
+      'by actor and range',
+      () => service.getEntries({ actor: 'a1', from: '2026-01-01', to: '2026-02-01' }, 3),
+      '/api/admin/audit?actor=a1&from=2026-01-01&to=2026-02-01&page=3',
     ],
   ])('gets entries %s', (_name, call, url) => {
-    (call() as Observable<unknown>).subscribe();
+    call().subscribe();
 
     const req = controller.expectOne(url);
     expect(req.request.method).toBe('GET');
-    req.flush(null);
+    req.flush({ items: [], page: 1, pageSize: 50, totalCount: 0 });
+  });
+
+  it('exports the filtered entries as a CSV blob', () => {
+    let blob: Blob | null = null;
+    service.exportCsv({ category: 'roles' }).subscribe((b) => (blob = b));
+
+    const req = controller.expectOne('/api/admin/audit/export?category=roles');
+    expect(req.request.method).toBe('GET');
+    expect(req.request.responseType).toBe('blob');
+    req.flush(new Blob(['When (UTC)\n'], { type: 'text/csv' }));
+    expect(blob).not.toBeNull();
   });
 });

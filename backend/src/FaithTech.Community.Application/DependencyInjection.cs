@@ -1,3 +1,4 @@
+using FaithTech.Community.Application.Admin;
 using FaithTech.Community.Application.Identity;
 using FaithTech.Community.Application.Profiles;
 using FluentValidation;
@@ -28,6 +29,7 @@ public static class DependencyInjection
         services.AddScoped<DescribePhotoHandler>();
         services.AddScoped<SetFeaturedPhotoHandler>();
         services.AddScoped<DeletePhotoHandler>();
+        services.AddScoped<GetAuditEntriesHandler>();
         services.TryAddSingleton(TimeProvider.System);
         return services;
     }

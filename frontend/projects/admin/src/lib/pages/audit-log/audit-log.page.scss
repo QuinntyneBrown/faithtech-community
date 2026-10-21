@@ -1,7 +1,29 @@
-/*
- * SCAFFOLD: placeholder, not the implementation.
- * Generated from AGENTS.md and:
- *   - docs/detailed-designs/admin/audit-log
- * Overwrite with the encapsulated styles for this component. Read tokens by role
- * (var(--color-...)), never hex values. Delete this comment when implemented.
- */
+:host {
+  display: block;
+  margin-block-start: var(--space-6);
+}
+
+ft-tabs,
+.filters {
+  display: block;
+  margin-block-end: var(--space-4);
+}
+
+.filters {
+  max-inline-size: 14rem;
+}
+
+.skeleton-row {
+  display: flex;
+  gap: var(--space-3);
+  align-items: center;
+  padding: var(--space-3) var(--space-4);
+}
+
+.skeleton-row ft-stack {
+  flex: 1;
+}
+
+.more {
+  margin-block-start: var(--space-4);
+}
