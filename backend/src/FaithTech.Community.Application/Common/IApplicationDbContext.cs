@@ -1,5 +1,6 @@
 using FaithTech.Community.Application.Identity;
 using FaithTech.Community.Domain.Admin;
+using FaithTech.Community.Domain.Contacts;
 using FaithTech.Community.Domain.Invites;
 using FaithTech.Community.Domain.Notifications;
 using FaithTech.Community.Domain.Profiles;
@@ -18,6 +19,10 @@ public interface IApplicationDbContext
     DbSet<Notification> Notifications { get; }
 
     DbSet<Invite> Invites { get; }
+
+    DbSet<Contact> Contacts { get; }
+
+    DbSet<ContactNote> ContactNotes { get; }
 
     Task<int> SaveChangesAsync(CancellationToken cancellationToken = default);
 }

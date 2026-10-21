@@ -111,6 +111,13 @@ public class GetAuditEntriesHandler(IApplicationDbContext db, ICurrentUser curre
         "profile.photo.described" => $"Changed a photo description on the profile of {target}",
         "profile.photo.featured" => $"Featured a photo on the profile of {target}",
         "profile.photo.deleted" => $"Deleted a photo from the profile of {target}",
+        "contact.viewed" => $"Opened {Read(entry.AfterJson, "Name")}, another lead’s private contact",
+        "contact.updated" => $"Edited {Read(entry.AfterJson, "Name")}, another lead’s private contact",
+        "contact.note-added" => $"Added a note to {Read(entry.AfterJson, "Name")}, another lead’s private contact",
+        "contact.archived" => $"Archived {Read(entry.AfterJson, "Name")}, another lead’s private contact",
+        "contact.restored" => $"Restored {Read(entry.AfterJson, "Name")}, another lead’s private contact",
+        "contact.linked" => $"Linked {Read(entry.AfterJson, "Name")}, another lead’s private contact, to a profile",
+        "contact.deleted" => $"Deleted {Read(entry.AfterJson, "Name")}, another lead’s private contact",
         _ => $"{entry.Action} on {target}",
     };
 

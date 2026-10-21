@@ -1,6 +1,7 @@
 using FaithTech.Community.Application.Common;
 using FaithTech.Community.Application.Identity;
 using FaithTech.Community.Domain.Admin;
+using FaithTech.Community.Domain.Contacts;
 using FaithTech.Community.Domain.Invites;
 using FaithTech.Community.Domain.Notifications;
 using FaithTech.Community.Domain.Profiles;
@@ -26,6 +27,10 @@ public class CommunityDbContext(DbContextOptions<CommunityDbContext> options)
     public DbSet<Notification> Notifications => Set<Notification>();
 
     public DbSet<Invite> Invites => Set<Invite>();
+
+    public DbSet<Contact> Contacts => Set<Contact>();
+
+    public DbSet<ContactNote> ContactNotes => Set<ContactNote>();
 
     protected override void OnModelCreating(ModelBuilder builder)
     {
@@ -100,6 +105,30 @@ public class CommunityDbContext(DbContextOptions<CommunityDbContext> options)
             invite.Property(i => i.PreassignedRole).HasConversion<string>().HasMaxLength(32);
             invite.Property(i => i.Note).HasMaxLength(500);
             invite.HasIndex(i => new { i.InvitedBy, i.CreatedAt });
+        });
+
+        builder.Entity<Contact>(contact =>
+        {
+            contact.Property(c => c.Id).ValueGeneratedNever();
+            contact.Property(c => c.Name).HasMaxLength(200);
+            contact.Property(c => c.Email).HasMaxLength(256);
+            contact.Property(c => c.Phone).HasMaxLength(200);
+            contact.Property(c => c.Organization).HasMaxLength(200);
+            contact.Property(c => c.City).HasMaxLength(200);
+            contact.Ignore(c => c.IsArchived);
+            contact.Ignore(c => c.CanBeDeleted);
+            contact.HasIndex(c => new { c.OwnerId, c.ArchivedAtUtc });
+            contact.HasIndex(c => c.Email);
+            // Deleting a contact deletes its notes (L2-016 AC3).
+            contact.HasMany(c => c.Notes).WithOne().HasForeignKey(n => n.ContactId).OnDelete(DeleteBehavior.Cascade);
+            contact.Navigation(c => c.Notes).UsePropertyAccessMode(PropertyAccessMode.Field);
+        });
+
+        builder.Entity<ContactNote>(note =>
+        {
+            note.Property(n => n.Id).ValueGeneratedNever();
+            note.Property(n => n.Body).HasMaxLength(2000);
+            note.HasIndex(n => new { n.ContactId, n.CreatedAtUtc });
         });
 
         builder.Entity<CommunityUser>()

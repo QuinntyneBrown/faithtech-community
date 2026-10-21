@@ -1,0 +1,36 @@
+using FaithTech.Community.Application.Contacts;
+
+namespace FaithTech.Community.Api.Endpoints;
+
+/// <summary>
+/// Private contacts (L2-012 to L2-016). Lead roles and System Admin only; another lead's contact answers 404 (ADR 0007).
+/// </summary>
+public static class ContactsEndpoints
+{
+    public static IEndpointRouteBuilder MapContactsEndpoints(this IEndpointRouteBuilder app)
+    {
+        var contacts = app.MapGroup("/api/contacts");
+
+        contacts.MapGet("", async (string? q, ManageContactsHandler handler, CancellationToken cancellationToken) =>
+            await handler.ListAsync(q, cancellationToken) is { } list ? Results.Ok(list) : Results.Forbid());
+
+        contacts.MapPost("", async (CreateContactCommand command, ManageContactsHandler handler, CancellationToken cancellationToken) =>
+            {
+                var (result, contact) = await handler.CreateAsync(command, cancellationToken);
+                return result.ToHttp(() => Results.Created($"/api/contacts/{contact!.Id}", contact));
+            })
+            .Validate<CreateContactCommand>();
+
+        contacts.MapGet("/{id:guid}", async (Guid id, ManageContactsHandler handler, CancellationToken cancellationToken) =>
+            await handler.GetAsync(id, cancellationToken) is { } contact ? Results.Ok(contact) : Results.NotFound());
+
+        contacts.MapPut("/{id:guid}", async (Guid id, UpdateContactCommand command, ManageContactsHandler handler, CancellationToken cancellationToken) =>
+            {
+                var (result, contact) = await handler.UpdateAsync(id, command, cancellationToken);
+                return result.ToHttp(() => Results.Ok(contact));
+            })
+            .Validate<UpdateContactCommand>();
+
+        return app;
+    }
+}

@@ -137,6 +137,73 @@ namespace FaithTech.Community.Infrastructure.Persistence.Migrations
                     b.ToTable("AuditEntries");
                 });
 
+            modelBuilder.Entity("FaithTech.Community.Domain.Contacts.Contact", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime?>("ArchivedAtUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("City")
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
+
+                    b.Property<string>("Email")
+                        .HasMaxLength(256)
+                        .HasColumnType("character varying(256)");
+
+                    b.Property<Guid?>("LinkedProfileId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
+
+                    b.Property<string>("Organization")
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
+
+                    b.Property<Guid>("OwnerId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Phone")
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Email");
+
+                    b.HasIndex("OwnerId", "ArchivedAtUtc");
+
+                    b.ToTable("Contacts");
+                });
+
+            modelBuilder.Entity("FaithTech.Community.Domain.Contacts.ContactNote", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Body")
+                        .IsRequired()
+                        .HasMaxLength(2000)
+                        .HasColumnType("character varying(2000)");
+
+                    b.Property<Guid>("ContactId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime>("CreatedAtUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ContactId", "CreatedAtUtc");
+
+                    b.ToTable("ContactNotes");
+                });
+
             modelBuilder.Entity("FaithTech.Community.Domain.Invites.Invite", b =>
                 {
                     b.Property<Guid>("Id")
@@ -674,6 +741,15 @@ namespace FaithTech.Community.Infrastructure.Persistence.Migrations
                         .IsRequired();
                 });
 
+            modelBuilder.Entity("FaithTech.Community.Domain.Contacts.ContactNote", b =>
+                {
+                    b.HasOne("FaithTech.Community.Domain.Contacts.Contact", null)
+                        .WithMany("Notes")
+                        .HasForeignKey("ContactId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
             modelBuilder.Entity("FaithTech.Community.Domain.Profiles.Profile", b =>
                 {
                     b.OwnsMany("FaithTech.Community.Domain.Profiles.ProfilePhoto", "Photos", b1 =>
@@ -811,6 +887,11 @@ namespace FaithTech.Community.Infrastructure.Persistence.Migrations
                     b.Navigation("Application");
 
                     b.Navigation("Authorization");
+                });
+
+            modelBuilder.Entity("FaithTech.Community.Domain.Contacts.Contact", b =>
+                {
+                    b.Navigation("Notes");
                 });
 
             modelBuilder.Entity("OpenIddict.EntityFrameworkCore.Models.OpenIddictEntityFrameworkCoreApplication", b =>
