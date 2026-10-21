@@ -70,6 +70,13 @@ describe('ListItemComponent', () => {
     expect(item.querySelector('.ft-list-item__meta-slot .role')?.textContent).toBe('City Lead');
   });
 
+  it('marks rows with a title link as interactive so they tint on hover', () => {
+    const { el } = setup();
+    const items = el.querySelectorAll('ft-list-item');
+    expect(items[0].classList.contains('ft-list-item--link')).toBe(true);
+    expect(items[1].classList.contains('ft-list-item--link')).toBe(false);
+  });
+
   it('omits meta when not given', () => {
     const { el } = setup();
     const item = el.querySelectorAll('ft-list-item')[1];

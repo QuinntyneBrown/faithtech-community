@@ -173,6 +173,8 @@
       <ul>
         <li><b>Loading</b>: skeleton rows of the same shape, the container marked <code>aria-busy="true"</code> with a label such as "Loading contacts".</li>
         <li><b>Empty</b>, <b>no results</b> and <b>error</b> replace the list with an <a href="empty-state.html">empty state</a> ("No contacts yet", "No contacts match “harbour”", "We couldn’t load your contacts").</li>
+        <li><b>Hover</b>: a row whose title is a link tints to <code>--color-bg-subtle</code>; rows without a link do not change.</li>
+        <li><b>Focus</b>: the row is never focusable. Focus lands on the title link (or a trailing button), which shows the shared focus ring; the row does not tint on focus.</li>
         <li>Rows have no selected or disabled state; archived contacts move to their own list.</li>
       </ul>
       <h3>Both themes</h3>
@@ -187,7 +189,7 @@
     </section>
 
     <section class="ds-section" id="theming"><h2><a href="#theming">Theming</a></h2>
-      <p>Rows sit on the card surface; dividers use <code>--color-border-default</code>, the meta line <code>--color-fg-muted</code>. Both follow the theme with no list-specific tokens.</p>
+      <p>Rows sit on the card surface; dividers use <code>--color-border-default</code>, the meta line <code>--color-fg-muted</code>, a hovered link row <code>--color-bg-subtle</code>. Both follow the theme with no list-specific tokens.</p>
     </section>
 
     <section class="ds-section" id="accessibility"><h2><a href="#accessibility">Accessibility</a></h2>
@@ -233,6 +235,7 @@
           <tr><td>Row divider</td><td><code>--color-border-default</code></td><td><span class="ds-swatch-cell" data-theme="light"><i data-token="--color-border-default" data-swatch></i><span data-token="--color-border-default"></span></span></td><td><span class="ds-swatch-cell" data-theme="dark"><i data-token="--color-border-default" data-swatch></i><span data-token="--color-border-default"></span></span></td></tr>
           <tr><td>Card surface</td><td><code>--color-bg-surface</code></td><td><span class="ds-swatch-cell" data-theme="light"><i data-token="--color-bg-surface" data-swatch></i><span data-token="--color-bg-surface"></span></span></td><td><span class="ds-swatch-cell" data-theme="dark"><i data-token="--color-bg-surface" data-swatch></i><span data-token="--color-bg-surface"></span></span></td></tr>
           <tr><td>Title</td><td><code>--color-fg-default</code></td><td><span class="ds-swatch-cell" data-theme="light"><i data-token="--color-fg-default" data-swatch></i><span data-token="--color-fg-default"></span></span></td><td><span class="ds-swatch-cell" data-theme="dark"><i data-token="--color-fg-default" data-swatch></i><span data-token="--color-fg-default"></span></span></td></tr>
+          <tr><td>Row, hover (link rows)</td><td><code>--color-bg-subtle</code></td><td><span class="ds-swatch-cell" data-theme="light"><i data-token="--color-bg-subtle" data-swatch></i><span data-token="--color-bg-subtle"></span></span></td><td><span class="ds-swatch-cell" data-theme="dark"><i data-token="--color-bg-subtle" data-swatch></i><span data-token="--color-bg-subtle"></span></span></td></tr>
           <tr><td>Meta line</td><td><code>--color-fg-muted</code></td><td><span class="ds-swatch-cell" data-theme="light"><i data-token="--color-fg-muted" data-swatch></i><span data-token="--color-fg-muted"></span></span></td><td><span class="ds-swatch-cell" data-theme="dark"><i data-token="--color-fg-muted" data-swatch></i><span data-token="--color-fg-muted"></span></span></td></tr>
           <tr><td>Row padding (block)</td><td><code>--space-3</code></td><td colspan="2"><span data-token="--space-3"></span></td></tr>
           <tr><td>Row padding (inline)</td><td><code>--space-4</code></td><td colspan="2"><span data-token="--space-4"></span></td></tr>
@@ -270,6 +273,7 @@
         <tr><td><code>.list__item</code></td><td>Padded row with a divider; flex, centred.</td></tr>
         <tr><td><code>.list__body</code>, <code>.list__title</code>, <code>.list__meta</code></td><td>Growing body, label-weight title, muted meta.</td></tr>
         <tr><td><code>.list__meta.cluster</code></td><td>Meta line of badges.</td></tr>
+        <tr><td><code>.list__item:has(.list__title[href]):hover</code></td><td>Tints a link row; <code>data-state="hover"</code> forces it in static pages. <code>&lt;ft-list-item [href]&gt;</code> does the same through <code>.ft-list-item--link</code>.</td></tr>
         <tr><td><code>aria-busy="true"</code></td><td>On the container while skeleton rows show.</td></tr>
       </tbody></table>
     </section>
@@ -283,7 +287,7 @@
         <li><a href="../../mocks/pages/home/default.html">pages/home/default</a> and <a href="../../mocks/pages/events/default.html">pages/events/default</a> (event rows)</li>
         <li><a href="../../mocks/pages/archived-contacts/default.html">pages/archived-contacts/default</a> and <a href="../../mocks/pages/search/default.html">pages/search/default</a></li>
       </ul>
-      <p>Drift: skeleton rows repeat <code>style="flex:1;"</code> on <code>.list__body</code>, which already grows. No mock shows a hover or focus state for rows.</p>
+      <p>Drift: skeleton rows repeat <code>style="flex:1;"</code> on <code>.list__body</code>, which already grows.</p>
     </section>
 
     <footer class="ds-footer"><span>FaithTech Community design system · extracted from <a href="../../mocks/index.html">docs/mocks</a> on 2026-10-21</span><a href="#top">Back to top</a></footer>
