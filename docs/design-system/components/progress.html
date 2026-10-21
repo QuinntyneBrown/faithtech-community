@@ -266,13 +266,13 @@
     </section>
 
     <section class="ds-section" id="sources"><h2><a href="#sources">Sources</a></h2>
-      <p>Core component inherited from Shelfie. No FaithTech mock uses <code>.progress</code> or <code>role="progressbar"</code>; the values on this page come from mocks that show progress as text:</p>
+      <p>Core component inherited from Shelfie. The photo upload in <a href="../../mocks/pages/edit-profile/uploading.html">pages/edit-profile/uploading</a> uses it ("Uploading photo 4", 60%); the other values on this page come from mocks that show progress as text:</p>
       <ul>
         <li><a href="../../mocks/pages/backlog/sprints.html">pages/backlog/sprints</a> (sprint history: "21 of 23 points", "18 of 26 points", "24 of 24 points")</li>
         <li><a href="../../mocks/dialogs/close-sprint/default.html">dialogs/close-sprint/default</a> (completed points)</li>
         <li><a href="../../mocks/pages/edit-profile/uploading.html">pages/edit-profile/uploading</a> ("Uploading… 60%" as a status note)</li>
       </ul>
-      <p>Drift: the photo upload shows only a text percentage in <code>.picture-list__note</code>, with no bar or <code>progressbar</code> role; sprint completion is text in a table cell. Neither is wrong, but if a bar is added it must use this component.</p>
+      <p>Drift: sprint completion is text in a table cell. That is not wrong, but if a bar is added it must use this component.</p>
     </section>
 
     <footer class="ds-footer"><span>FaithTech Community design system · extracted from <a href="../../mocks/index.html">docs/mocks</a> on 2026-10-21</span><a href="#top">Back to top</a></footer>

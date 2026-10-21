@@ -10,6 +10,7 @@ import { PhotoComponent, PhotoState } from './photo.component';
     [featured]="featured()"
     [state]="state()"
     [progress]="progress()"
+    [uploadLabel]="uploadLabel()"
     ><button type="button">Remove photo 1</button></ft-photo
   >`,
 })
@@ -19,6 +20,7 @@ class HostComponent {
   featured = signal(false);
   state = signal<PhotoState | null>(null);
   progress = signal<number | null>(null);
+  uploadLabel = signal('Uploading photo');
 }
 
 function setup() {
@@ -60,6 +62,26 @@ describe('PhotoComponent', () => {
     fixture.detectChanges();
     expect(q('.ft-photo__thumb')!.getAttribute('aria-busy')).toBe('true');
     expect(q('[role="status"]')!.textContent).toContain('Uploading… 60%');
+  });
+
+  it('shows a progress bar named for the upload when the percentage is known', () => {
+    const { fixture, cmp, q } = setup();
+    cmp.state.set('uploading');
+    cmp.progress.set(60);
+    cmp.uploadLabel.set('Uploading photo 4');
+    fixture.detectChanges();
+    const bar = q('[role="progressbar"]')!;
+    expect(bar.getAttribute('aria-valuenow')).toBe('60');
+    expect(bar.getAttribute('aria-valuemax')).toBe('100');
+    expect(bar.getAttribute('aria-label')).toBe('Uploading photo 4');
+  });
+
+  it('shows no progress bar while uploading without a percentage', () => {
+    const { fixture, cmp, q } = setup();
+    cmp.state.set('uploading');
+    fixture.detectChanges();
+    expect(q('[role="progressbar"]')).toBeNull();
+    expect(q('[role="status"]')!.textContent!.trim()).toBe('Uploading…');
   });
 
   it('is not busy when idle', () => {
