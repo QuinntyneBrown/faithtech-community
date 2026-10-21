@@ -1,6 +1,68 @@
-<!--
-  SCAFFOLD: placeholder, not the implementation.
-  Generated from AGENTS.md and:
-    - docs/detailed-designs/team/team-list
-  Overwrite this template with the expected implementation, then delete this comment.
--->
+<ft-page-header title="Team" subtitle="Everyone with a lead or volunteer role">
+  @if (canInvite()) {
+    <ft-button ftPageHeaderActions variant="primary" href="/invites">
+      <ft-icon name="invite" /> Invite someone
+    </ft-button>
+  }
+</ft-page-header>
+
+<div class="filters">
+  <ft-cluster gap="2" class="chips">
+    @for (chip of roleChips; track chip.label) {
+      <ft-chip [pressed]="role() === chip.value" (click)="chooseRole(chip.value)">{{
+        chip.label
+      }}</ft-chip>
+    }
+  </ft-cluster>
+  <ft-form-field label="City" class="city">
+    <ft-select [options]="cityOptions()" [formControl]="city" />
+  </ft-form-field>
+</div>
+
+@switch (state()) {
+  @case ('loading') {
+    <ft-list-skeleton label="Loading team" [rows]="5" />
+  }
+  @case ('error') {
+    <ft-empty-state
+      variant="error"
+      heading="We couldn’t load the team"
+      text="Check your connection and try again. If it keeps happening, we’ve already been told about it."
+    >
+      <ft-button actions variant="primary" (click)="retry()">Try again</ft-button>
+    </ft-empty-state>
+  }
+  @case ('loaded') {
+    @if (members().length === 0) {
+      @if (filtered()) {
+        <ft-empty-state [heading]="noResultsHeading()" text="Try a different role or city.">
+          <ft-button actions (click)="showEveryone()">Show everyone</ft-button>
+        </ft-empty-state>
+      } @else {
+        <ft-empty-state
+          heading="No team yet"
+          text="Your team is everyone with a lead or volunteer role. Invite people, then give them a role."
+        >
+          @if (canInvite()) {
+            <ft-button actions variant="primary" href="/invites">Invite someone</ft-button>
+          }
+        </ft-empty-state>
+      }
+    } @else {
+      <ft-card variant="flush">
+        <ft-list label="Team">
+          @for (member of members(); track member.profileId) {
+            <ft-list-item [label]="member.name" [href]="'/people/' + member.profileId">
+              <ft-avatar leading size="sm" [name]="member.name" [src]="member.photoUrl" />
+              <ft-cluster meta gap="1">
+                @for (label of labels(member.roles); track label) {
+                  <ft-badge variant="role">{{ label }}</ft-badge>
+                }
+              </ft-cluster>
+            </ft-list-item>
+          }
+        </ft-list>
+      </ft-card>
+    }
+  }
+}

@@ -25,3 +25,4 @@ L2-019 asks for a team list with name, photo and roles, a role filter (Leads or 
 
 - One request serves both filters and the city options.
 - A team that outgrows one page needs paging added to the endpoint and the page.
+- The team page shares the avatar, button and form field with the initial bundle, so esbuild splits the shared chunk in two and the initial bundle grows about 1.3 kB to 500.9 kB, from 499.7 kB on `main`, with no new initial code. The initial bundle's warning budget moves from 500 kB to 510 kB; the 1 MB error budget is unchanged.

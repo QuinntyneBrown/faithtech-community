@@ -27,7 +27,6 @@ export class AvatarComponent {
   readonly src = input<string | null>(null);
 
   protected readonly failedSrc = signal<string | null>(null);
-  protected readonly photo = computed(() => (this.src() === this.failedSrc() ? null : this.src()));
 
   protected readonly initials = computed(() => {
     const parts = this.name().trim().split(/\s+/).filter(Boolean);

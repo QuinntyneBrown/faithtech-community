@@ -5,8 +5,10 @@
     [attr.data-initials]="drawn ? initials() : null"
     aria-hidden="true"
     >{{ drawn ? '' : initials() }}
-    @if (photo(); as url) {
-      <img class="ft-avatar__img" [src]="url" alt="" (error)="failedSrc.set(url)" />
+    @if (src(); as url) {
+      @if (url !== failedSrc()) {
+        <img class="ft-avatar__img" [src]="url" alt="" (error)="failedSrc.set(url)" />
+      }
     }
   </span>
 </ng-template>
