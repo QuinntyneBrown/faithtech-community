@@ -15,6 +15,8 @@ export class EditProfilePage {
   readonly summary: Locator;
   readonly nameError: Locator;
   readonly bioError: Locator;
+  /** The characters-left counter under the bio. */
+  readonly bioCount: Locator;
   readonly loading: Locator;
   readonly loadError: Locator;
   readonly tryAgain: Locator;
@@ -39,6 +41,10 @@ export class EditProfilePage {
       .locator('ft-form-field')
       .filter({ has: page.getByText('Up to 400 characters.') })
       .locator('ft-inline-message');
+    this.bioCount = page
+      .locator('ft-form-field')
+      .filter({ has: page.getByText('Up to 400 characters.') })
+      .locator('.field__count');
     this.loading = page.locator('[aria-busy="true"][aria-label="Loading your profile"]');
     this.loadError = page.getByRole('heading', { name: 'We couldn’t load your profile' });
     this.tryAgain = page.getByRole('button', { name: 'Try again' });
