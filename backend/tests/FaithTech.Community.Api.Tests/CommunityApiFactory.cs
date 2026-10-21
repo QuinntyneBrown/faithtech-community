@@ -66,6 +66,7 @@ public class CommunityApiFactory : WebApplicationFactory<Program>, IAsyncLifetim
             services.AddSingleton<TimeProvider>(Time);
             services.AddSingleton<IBreachedPasswordChecker, FakeBreachedPasswordChecker>();
             services.AddSingleton<IBoardNotifier>(Live);
+            services.AddSingleton<IPokerBroadcaster>(Live);
         });
     }
 

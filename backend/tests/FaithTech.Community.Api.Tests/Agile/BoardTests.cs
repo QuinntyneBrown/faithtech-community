@@ -194,7 +194,7 @@ public class BoardTests(CommunityApiFactory factory) : IClassFixture<CommunityAp
         await outsider.DisposeAsync();
     }
 
-    private static HubConnection Connect(Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactory<Program> server, ProfileClients.Member member, Role role) =>
+    internal static HubConnection Connect(Microsoft.AspNetCore.Mvc.Testing.WebApplicationFactory<Program> server, ProfileClients.Member member, Role role) =>
         new HubConnectionBuilder()
             .WithUrl(new Uri(server.Server.BaseAddress, "/hubs/agile"), options =>
             {

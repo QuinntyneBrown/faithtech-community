@@ -153,8 +153,17 @@ namespace FaithTech.Community.Infrastructure.Persistence.Migrations
                         .IsRequired()
                         .HasColumnType("uuid[]");
 
+                    b.Property<bool>("IsClosed")
+                        .HasColumnType("boolean");
+
                     b.Property<bool>("IsRevealed")
                         .HasColumnType("boolean");
+
+                    b.Property<int?>("LastPoints")
+                        .HasColumnType("integer");
+
+                    b.Property<Guid?>("LastStoryId")
+                        .HasColumnType("uuid");
 
                     b.Property<int>("Round")
                         .HasColumnType("integer");
@@ -853,22 +862,30 @@ namespace FaithTech.Community.Infrastructure.Persistence.Migrations
                 {
                     b.OwnsMany("FaithTech.Community.Domain.Agile.PokerVote", "Votes", b1 =>
                         {
-                            b1.Property<Guid>("SessionId")
-                                .HasColumnType("uuid");
+                            b1.Property<int>("Id")
+                                .ValueGeneratedOnAdd()
+                                .HasColumnType("integer");
+
+                            NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b1.Property<int>("Id"));
 
                             b1.Property<Guid>("ProfileId")
-                                .ValueGeneratedOnAdd()
                                 .HasColumnType("uuid");
 
                             b1.Property<int>("Round")
                                 .HasColumnType("integer");
+
+                            b1.Property<Guid>("SessionId")
+                                .HasColumnType("uuid");
 
                             b1.Property<string>("Value")
                                 .IsRequired()
                                 .HasMaxLength(16)
                                 .HasColumnType("character varying(16)");
 
-                            b1.HasKey("SessionId", "ProfileId");
+                            b1.HasKey("Id");
+
+                            b1.HasIndex("SessionId", "ProfileId")
+                                .IsUnique();
 
                             b1.ToTable("PokerVotes", (string)null);
 

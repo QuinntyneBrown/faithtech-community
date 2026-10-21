@@ -52,6 +52,7 @@ public static class DependencyInjection
         services.AddScoped<SprintsHandler>();
         services.AddScoped<ArchiveHandler>();
         services.AddScoped<CityLeadRoleRemovedHandler>();
+        services.AddScoped<PlanningPokerHandler>();
         services.TryAddSingleton(TimeProvider.System);
         return services;
     }

@@ -185,7 +185,10 @@ public class CommunityDbContext(DbContextOptions<CommunityDbContext> options)
             {
                 vote.ToTable("PokerVotes");
                 vote.WithOwner().HasForeignKey(v => v.SessionId);
-                vote.HasKey(v => new { v.SessionId, v.ProfileId });
+                // A generated shadow key, as for workspace members: a vote added to a loaded session is new, not modified.
+                vote.Property<int>("Id").ValueGeneratedOnAdd();
+                vote.HasKey("Id");
+                vote.HasIndex(v => new { v.SessionId, v.ProfileId }).IsUnique();
                 vote.Property(v => v.Value).HasConversion<string>().HasMaxLength(16);
             });
         });

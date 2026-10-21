@@ -2,7 +2,7 @@ using FaithTech.Community.Application.Agile;
 
 namespace FaithTech.Community.Api.Endpoints;
 
-/// <summary>Work items, their comments, the backlog and the board (L2-032, L2-033, L2-034). Access is decided by WorkspaceAccessPolicy.</summary>
+/// <summary>Work items, their comments, the backlog, the board and Planning Poker (L2-032, L2-033, L2-034, L2-038). Access is decided by WorkspaceAccessPolicy.</summary>
 public static class WorkItemsEndpoints
 {
     public static IEndpointRouteBuilder MapWorkItemsEndpoints(this IEndpointRouteBuilder app)
@@ -45,6 +45,42 @@ public static class WorkItemsEndpoints
                 return result.ToHttp(() => Results.Created($"/api/items/{id}", comment));
             })
             .Validate<AddCommentCommand>();
+
+        app.MapPost("/api/workspaces/{id:guid}/poker-sessions", async (
+                Guid id, StartPokerCommand command, PlanningPokerHandler handler, CancellationToken cancellationToken) =>
+            {
+                var (result, session) = await handler.StartAsync(id, command, cancellationToken);
+                return result.ToHttp(() => Results.Created($"/api/poker-sessions/{session!.Id}", session));
+            })
+            .Validate<StartPokerCommand>();
+
+        app.MapGet("/api/workspaces/{id:guid}/poker-sessions/current", async (Guid id, PlanningPokerHandler handler, CancellationToken cancellationToken) =>
+            {
+                var (result, session) = await handler.CurrentAsync(id, cancellationToken);
+                return result.ToHttp(() => session is null ? Results.NoContent() : Results.Ok(session));
+            });
+
+        var poker = app.MapGroup("/api/poker-sessions");
+
+        poker.MapGet("/{id:guid}", async (Guid id, PlanningPokerHandler handler, CancellationToken cancellationToken) =>
+            await handler.GetAsync(id, cancellationToken) is { } session ? Results.Ok(session) : Results.NotFound());
+
+        poker.MapPut("/{id:guid}/vote", async (Guid id, CastVoteCommand command, PlanningPokerHandler handler, CancellationToken cancellationToken) =>
+                (await handler.VoteAsync(id, command, cancellationToken)).ToHttp(Results.NoContent))
+            .Validate<CastVoteCommand>();
+
+        poker.MapPost("/{id:guid}/reveal", async (Guid id, PlanningPokerHandler handler, CancellationToken cancellationToken) =>
+            (await handler.RevealAsync(id, cancellationToken)).ToHttp(Results.NoContent));
+
+        poker.MapPost("/{id:guid}/revote", async (Guid id, PlanningPokerHandler handler, CancellationToken cancellationToken) =>
+            (await handler.RevoteAsync(id, cancellationToken)).ToHttp(Results.NoContent));
+
+        poker.MapPost("/{id:guid}/points", async (Guid id, SetPointsCommand command, PlanningPokerHandler handler, CancellationToken cancellationToken) =>
+                (await handler.SetPointsAsync(id, command, cancellationToken)).ToHttp(Results.NoContent))
+            .Validate<SetPointsCommand>();
+
+        poker.MapPost("/{id:guid}/end", async (Guid id, PlanningPokerHandler handler, CancellationToken cancellationToken) =>
+            (await handler.EndAsync(id, cancellationToken)).ToHttp(Results.NoContent));
 
         return app;
     }

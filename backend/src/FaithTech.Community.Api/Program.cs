@@ -22,7 +22,9 @@ builder.Services.AddInfrastructure(builder.Configuration);
 builder.Services.AddCommunityAuthentication(builder.Configuration, builder.Environment);
 builder.Services.AddWebProtections(builder.Configuration);
 builder.Services.AddSignalR();
-builder.Services.AddScoped<IBoardNotifier, SignalRAgileNotifier>();
+builder.Services.AddScoped<SignalRAgileNotifier>();
+builder.Services.AddScoped<IBoardNotifier>(sp => sp.GetRequiredService<SignalRAgileNotifier>());
+builder.Services.AddScoped<IPokerBroadcaster>(sp => sp.GetRequiredService<SignalRAgileNotifier>());
 
 var app = builder.Build();
 
