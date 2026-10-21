@@ -1,4 +1,10 @@
 <dl class="ft-dl">
   <dt class="ft-dl__term">{{ label() }}</dt>
-  <dd class="ft-dl__detail"><ng-content /></dd>
+  <dd class="ft-dl__detail">
+    @if (missing()) {
+      <span class="ft-dl__missing">Not added</span>
+    } @else {
+      <ng-content />
+    }
+  </dd>
 </dl>

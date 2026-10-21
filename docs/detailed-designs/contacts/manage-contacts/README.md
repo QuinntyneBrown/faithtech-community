@@ -9,7 +9,7 @@ This feature covers listing, creating, editing and searching contacts, and the v
 ## Description
 
 - **`ContactsPage`** — page in the `contacts` feature library. It shows the caller's active contacts in a table, or as a single column of cards at XS widths, with a search box and an empty state that invites the lead to add one.
-- **`ContactPage`** — detail page for one contact.
+- **`ContactPage`** — detail page for one contact. Its Details card is an `ft-description-list`; the email is a `mailto:` link, and an optional fact with no value (email, phone, organization, city) keeps its row and reads "Not added" through `ft-description-list-item [missing]` (mock `pages/contact/missing`).
 - **`ContactFormPage`** — create and edit screen with name (required), email, phone, organization, city and initial notes. Inline errors appear on invalid fields. Editing navigates to this screen rather than editing inline.
 - **`ContactsService`** / **`CONTACTS_SERVICE`** / **`HttpContactsService`** — API client for `GET /api/contacts?q=`, `GET /api/contacts/{id}`, `POST /api/contacts` and `PUT /api/contacts/{id}`.
 - **`ContactsEndpoints`** — minimal API mapping.
