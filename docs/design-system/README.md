@@ -141,7 +141,7 @@ Each component page documents variants, sizes and the full state matrix in both 
 | pages/notifications | Notices out of time order | Documented: newest first |
 | pages/team-board | Cards draggable with no Move action | Fixed: every movable story card has Move, opening the new `dialogs/move-story` |
 | assets/components.css | `.kanban--4` and `.kanban__empty` unused by any mock | `.kanban--4` removed from the CSS and `ft-kanban-board` (every workflow has three stages); `team-board/kanban` shows an empty Done column with `.kanban__empty` |
-| pages/partners | Move is a link; dragging uses deprecated `aria-grabbed` with no live region | Move fixed: a `<button type="button">` naming the dialog in `data-href` on every board; `data-state="dragging"` and a polite announcement documented |
+| pages/partners | Move is a link; dragging uses deprecated `aria-grabbed` with no live region | Fixed: Move is a `<button type="button">` naming the dialog in `data-href`; `aria-grabbed` removed from the mocks and CSS (`data-state="dragging"` only); `partners/default` and `dragging` carry the polite live region |
 | dialogs/move-partner | Radios have no `value` | Logged |
 | pages/backlog | Title link nested inside `<summary>`; no collapsed branch mocked | Documented on Backlog tree |
 | pages/* tabs | 36 tab rows carry inline `margin-bottom` | Logged |
