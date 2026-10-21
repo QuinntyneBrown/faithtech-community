@@ -9,7 +9,7 @@ At extra-small viewports the board shows the stages as tabs with one column visi
 ## Description
 
 - **`PartnersPage`** — board page in the `partners` feature library. It groups partners by stage and renders one Kanban column per stage, or stage tabs at XS widths.
-- **Kanban column and card components** — from the `components` library, built on Angular CDK drag and drop. A focused card exposes a Move action reachable by keyboard.
+- **Kanban column and card components** — from the `components` library, built on Angular CDK drag and drop. A focused card exposes a Move action reachable by keyboard. After a move by drag or dialog, the page sets the board's `announcement` ("Kestrel Labs moved to Confirmed"), which `ft-kanban-board` reads out in a polite live region; the deprecated `aria-grabbed` is not used.
 - **`MovePartnerDialog`** — CDK dialog listing the other stages; used from the card's Move to action and as the keyboard path.
 - **`PartnersService`** — `list()` and `move(id, stage)` calling `GET /api/partners` and `POST /api/partners/{id}/stage`.
 - **`PartnersEndpoints`** — maps the board routes.

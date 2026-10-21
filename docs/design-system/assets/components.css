@@ -765,7 +765,7 @@ label.bubble__text { cursor: pointer; }
   border: var(--border-width-hairline) solid var(--color-border-default); box-shadow: var(--shadow-1); }
 .kanban__card a { color: var(--color-fg-default); font-weight: var(--font-weight-semibold); text-decoration: none; }
 .kanban__card a:hover { text-decoration: underline; }
-.kanban__card[aria-grabbed="true"], .kanban__card[data-state="dragging"] { box-shadow: var(--shadow-3); outline: var(--focus-ring-width) solid var(--color-focus-ring); rotate: 1deg; }
+.kanban__card[data-state="dragging"] { box-shadow: var(--shadow-3); outline: var(--focus-ring-width) solid var(--color-focus-ring); rotate: 1deg; }
 .kanban__drop { border: var(--border-width-hairline) dashed var(--color-accent); border-radius: var(--radius-md); min-height: 4rem; background: var(--color-accent-subtle); }
 .kanban__empty { margin: 0; color: var(--color-fg-muted); font: var(--text-body-sm); text-align: center; padding: var(--space-4); }
 
