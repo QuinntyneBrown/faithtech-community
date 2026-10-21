@@ -158,14 +158,17 @@
   &lt;/select&gt;
 &lt;/div&gt;
 
-&lt;select class="select" id="ro-owner" aria-invalid="true" aria-describedby="ro-owner-error"&gt;…&lt;/select&gt;
-&lt;div class="field__error" id="ro-owner-error"&gt;Choose who will own this workspace.&lt;/div&gt;</code></pre><table class="ds-table"><thead><tr><th scope="col">Class / attribute</th><th scope="col">Effect</th></tr></thead><tbody><tr><td><code>.select</code></td><td>Restyled native select, full width, medium height, chevron.</td></tr><tr><td><code>.field--sm</code>, <code>--md</code>, <code>--lg</code></td><td>On the <code>.field</code> of a filter select: 12rem, 14rem or 16rem wide, at most 100%.</td></tr><tr><td><code>aria-invalid="true"</code></td><td>Danger border.</td></tr><tr><td><code>:hover</code>, <code>data-state="hover"</code></td><td><code>--color-fg-muted</code> border.</td></tr><tr><td><code>disabled</code></td><td>Subtle fill, default border, disabled text, not-allowed cursor. Also used while a dialog is busy, because a select has no read-only state.</td></tr><tr><td><code>data-state="focus"</code></td><td>Documentation only: forces the focus ring.</td></tr></tbody></table>
+&lt;!-- Invalid: the label and .field wrapper stay; only aria-invalid and the error are added --&gt;
+&lt;div class="field"&gt;
+  &lt;label class="field__label" for="ro-owner"&gt;New owner (City Leads only)&lt;/label&gt;
+  &lt;select class="select" id="ro-owner" name="ro-owner" aria-invalid="true" aria-describedby="ro-owner-error"&gt;…&lt;/select&gt;
+  &lt;div class="field__error" id="ro-owner-error"&gt;Choose who will own this workspace.&lt;/div&gt;
+&lt;/div&gt;</code></pre><table class="ds-table"><thead><tr><th scope="col">Class / attribute</th><th scope="col">Effect</th></tr></thead><tbody><tr><td><code>.select</code></td><td>Restyled native select, full width, medium height, chevron.</td></tr><tr><td><code>.field--sm</code>, <code>--md</code>, <code>--lg</code></td><td>On the <code>.field</code> of a filter select: 12rem, 14rem or 16rem wide, at most 100%.</td></tr><tr><td><code>aria-invalid="true"</code></td><td>Danger border.</td></tr><tr><td><code>:hover</code>, <code>data-state="hover"</code></td><td><code>--color-fg-muted</code> border.</td></tr><tr><td><code>disabled</code></td><td>Subtle fill, default border, disabled text, not-allowed cursor. Also used while a dialog is busy, because a select has no read-only state.</td></tr><tr><td><code>data-state="focus"</code></td><td>Documentation only: forces the focus ring.</td></tr></tbody></table>
     </section>
     <section class="ds-section" id="sources"><h2><a href="#sources">Sources</a></h2>
       <p>Extracted from these mocks:</p>
       <ul><li><a href="../../mocks/dialogs/add-partner/default.html">dialogs/add-partner/default</a> (stage select in a dialog form)</li><li><a href="../../mocks/dialogs/send-invite/default.html">dialogs/send-invite/default</a> (role select)</li><li><a href="../../mocks/dialogs/new-work-item/default.html">dialogs/new-work-item/default</a> (parent, assignee, points with help text)</li><li><a href="../../mocks/dialogs/new-work-item/invalid.html">dialogs/new-work-item/invalid</a> (invalid parent select)</li><li><a href="../../mocks/dialogs/reassign-owner/invalid.html">dialogs/reassign-owner/invalid</a> (invalid owner select with error)</li><li><a href="../../mocks/pages/events/default.html">pages/events/default</a> (city filter beside chips)</li><li><a href="../../mocks/pages/audit-log/default.html">pages/audit-log/default</a> (action filter)</li><li><a href="../../mocks/pages/work-item/default.html">pages/work-item/default</a> (status select)</li></ul>
-      <p>Drift noticed in those mocks:</p>
-      <ul><li>Invalid selects in <i>New work item</i> and <i>Reassign owner</i> lose the label/field structure in some states; the label must stay.</li></ul>
+      <p>Every state of <i>New work item</i> and <i>Reassign owner</i>, invalid included, keeps the <code>.field</code> wrapper and its visible label; an invalid select only adds <code>aria-invalid="true"</code> and a linked <code>.field__error</code>. The code sample above shows the whole field.</p>
     </section>
 
     <footer class="ds-footer"><span>FaithTech Community design system · extracted from <a href="../../mocks/index.html">docs/mocks</a> on 2026-10-21</span><a href="#top">Back to top</a></footer>
