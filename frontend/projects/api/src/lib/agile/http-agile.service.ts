@@ -18,6 +18,7 @@ import {
   WorkItemDto,
   WorkItemStatus,
   WorkspaceDto,
+  WorkspaceMethod,
   WorkspaceSummaryDto,
 } from './agile.service';
 
@@ -40,6 +41,10 @@ export class HttpAgileService implements AgileService {
 
   renameWorkspace(id: string, name: string): Observable<void> {
     return this.http.put<void>(this.workspace(id), { name });
+  }
+
+  switchMethod(id: string, method: WorkspaceMethod): Observable<void> {
+    return this.http.put<void>(`${this.workspace(id)}/method`, { method });
   }
 
   listMemberCandidates(workspaceId?: string): Observable<MemberCandidateDto[]> {

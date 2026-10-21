@@ -5,3 +5,4 @@ export * from './move-card';
 export * from './remove-workspace-member';
 export * from './start-sprint';
 export * from './work-item';
+export * from './switch-method';

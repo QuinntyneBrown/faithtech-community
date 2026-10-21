@@ -46,6 +46,14 @@
                   <ft-form-field #nameField label="Name" [error]="nameError()">
                     <ft-text-field formControlName="name" autocomplete="off" />
                   </ft-form-field>
+                  <ft-description-list>
+                    <ft-description-list-item label="Method">
+                      {{ ws.method }} ·
+                      <ft-button variant="ghost" size="sm" (click)="switchMethod()"
+                        >Switch to {{ other(ws.method) }}</ft-button
+                      >
+                    </ft-description-list-item>
+                  </ft-description-list>
                   <div>
                     <ft-button type="submit" variant="primary" [loading]="saving()">Save</ft-button>
                   </div>

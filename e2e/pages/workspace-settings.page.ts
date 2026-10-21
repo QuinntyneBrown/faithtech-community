@@ -14,6 +14,7 @@ export class WorkspaceSettingsPage {
   readonly addMembers: Locator;
   readonly ownerOnly: Locator;
   readonly toast: Locator;
+  readonly method: Locator;
 
   constructor(private readonly page: Page) {
     this.frame = new WorkspaceFrame(page);
@@ -26,6 +27,11 @@ export class WorkspaceSettingsPage {
     this.addMembers = page.getByRole('button', { name: 'Add members' });
     this.ownerOnly = page.getByRole('heading', { name: 'Only the owner changes settings' });
     this.toast = page.locator('ft-toast');
+    this.method = page.locator('ft-description-list-item').filter({ hasText: 'Method' });
+  }
+
+  switchTo(method: 'Scrum' | 'Kanban'): Locator {
+    return this.page.getByRole('button', { name: `Switch to ${method}` });
   }
 
   async open(workspaceId: string): Promise<void> {

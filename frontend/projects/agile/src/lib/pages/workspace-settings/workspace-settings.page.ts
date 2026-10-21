@@ -15,6 +15,7 @@ import {
   ROLE_LABELS,
   WorkspaceDto,
   WorkspaceMemberDto,
+  WorkspaceMethod,
   problemDetails,
 } from '@faithtech-community/api';
 import {
@@ -22,6 +23,8 @@ import {
   AvatarComponent,
   ButtonComponent,
   CardComponent,
+  DescriptionListComponent,
+  DescriptionListItemComponent,
   DialogService,
   EmptyStateComponent,
   ErrorSummaryComponent,
@@ -37,7 +40,12 @@ import {
 } from '@faithtech-community/components';
 import { firstValueFrom } from 'rxjs';
 
-import { AddWorkspaceMembersDialog, RemoveWorkspaceMemberDialog } from '../../dialogs';
+import {
+  AddWorkspaceMembersDialog,
+  RemoveWorkspaceMemberDialog,
+  SwitchMethodData,
+  SwitchMethodDialog,
+} from '../../dialogs';
 import { WorkspaceFrameComponent } from '../workspace-frame';
 
 type State = 'loading' | 'loaded' | 'error' | 'not-found';
@@ -55,6 +63,8 @@ type State = 'loading' | 'loaded' | 'error' | 'not-found';
     AvatarComponent,
     ButtonComponent,
     CardComponent,
+    DescriptionListComponent,
+    DescriptionListItemComponent,
     EmptyStateComponent,
     ErrorSummaryComponent,
     FormErrorFocusDirective,
@@ -160,6 +170,26 @@ export class WorkspaceSettingsPage {
     if (!(await firstValueFrom(ref.closed))) return;
     this.toasts.show({ variant: 'success', heading: `${member.name} removed` });
     await this.reload();
+  }
+
+  protected async switchMethod(): Promise<void> {
+    const workspace = this.workspace();
+    if (!workspace) return;
+    const activeSprintName =
+      workspace.method === 'Scrum'
+        ? ((await firstValueFrom(this.agile.getSprints(workspace.id))).active?.name ?? null)
+        : null;
+    const ref = this.dialogs.open<WorkspaceMethod, SwitchMethodData>(SwitchMethodDialog, {
+      data: { workspace, activeSprintName },
+    });
+    const method = await firstValueFrom(ref.closed);
+    if (!method) return;
+    this.toasts.show({ variant: 'success', heading: `${workspace.name} now uses ${method}` });
+    await this.reload();
+  }
+
+  protected other(method: WorkspaceMethod): WorkspaceMethod {
+    return method === 'Scrum' ? 'Kanban' : 'Scrum';
   }
 
   private ownerSuffix(): string {

@@ -26,6 +26,10 @@ public static class WorkspacesEndpoints
                 (await handler.RenameAsync(id, command, cancellationToken)).ToHttp(Results.NoContent))
             .Validate<RenameWorkspaceCommand>();
 
+        workspaces.MapPut("/{id:guid}/method", async (Guid id, SwitchMethodCommand command, WorkspaceSettingsHandler handler, CancellationToken cancellationToken) =>
+                (await handler.SwitchMethodAsync(id, command, cancellationToken)).ToHttp(Results.NoContent))
+            .Validate<SwitchMethodCommand>();
+
         workspaces.MapGet("/candidates", async (WorkspaceSettingsHandler handler, CancellationToken cancellationToken) =>
         {
             var (result, candidates) = await handler.CandidatesAsync(null, cancellationToken);

@@ -275,6 +275,20 @@ export class MockAgile {
         workspace.name = name;
         return route.fulfill({ status: 204 });
       }
+      case 'PUT /method': {
+        if (!manage) return route.fulfill({ status: 403 });
+        const target = request.body['method'] as MockMethod;
+        if (target === workspace.method) return problem(route, 409, `This workspace already uses ${target}.`);
+        const open = this.sprints.filter((sp) => sp.workspaceId === workspace.id && sp.state !== 'Closed');
+        if (target === 'Kanban') open.forEach((sp) => this.close(sp));
+        else {
+          for (const st of this.items.filter((i) => i.workspaceId === workspace.id && i.kind === 'Story' && i.status !== 'Done')) {
+            st.sprintId = null;
+          }
+        }
+        workspace.method = target;
+        return route.fulfill({ status: 204 });
+      }
       case 'GET /candidates':
         if (!manage) return route.fulfill({ status: 403 });
         return route.fulfill({

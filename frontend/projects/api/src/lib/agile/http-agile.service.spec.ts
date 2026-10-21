@@ -38,6 +38,13 @@ describe('HttpAgileService', () => {
       { name: 'Team' },
     ],
     [
+      'switchMethod',
+      () => service.switchMethod('w1', 'Kanban'),
+      'PUT',
+      '/api/workspaces/w1/method',
+      { method: 'Kanban' },
+    ],
+    [
       'listMemberCandidates for a new workspace',
       () => service.listMemberCandidates(),
       'GET',

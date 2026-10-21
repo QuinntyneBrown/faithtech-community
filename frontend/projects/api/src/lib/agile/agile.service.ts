@@ -253,6 +253,8 @@ export interface AgileService {
   getWorkspace(id: string): Observable<WorkspaceDto>;
   /** Owner or System Admin. 400 Name. */
   renameWorkspace(id: string, name: string): Observable<void>;
+  /** Owner or System Admin (L2-036). 409 when it already uses that method. */
+  switchMethod(id: string, method: WorkspaceMethod): Observable<void>;
   /** Without an id: everyone a new workspace can include. With one: team members not in it yet. */
   listMemberCandidates(workspaceId?: string): Observable<MemberCandidateDto[]>;
   addMembers(workspaceId: string, profileIds: string[]): Observable<void>;

@@ -1,4 +1,5 @@
 using FaithTech.Community.Application.Common;
+using FaithTech.Community.Domain.Agile;
 using FaithTech.Community.Domain.Profiles;
 using FaithTech.Community.Domain.Team;
 using FluentValidation;
@@ -29,7 +30,19 @@ public class RenameWorkspaceValidator : AbstractValidator<RenameWorkspaceCommand
     }
 }
 
-/// <summary>The owner's settings: members, candidates and the name (L2-031 AC2, AC4, AC8, L2-051).</summary>
+public record SwitchMethodCommand(string? Method);
+
+public class SwitchMethodValidator : AbstractValidator<SwitchMethodCommand>
+{
+    public SwitchMethodValidator()
+    {
+        RuleFor(x => x.Method)
+            .Must(method => Enum.TryParse<WorkspaceMethod>(method, ignoreCase: false, out var m) && Enum.IsDefined(m))
+            .WithMessage("Choose Scrum or Kanban.");
+    }
+}
+
+/// <summary>The owner's settings: members, candidates, the name and the method (L2-031 AC2, AC4, AC8, L2-036, L2-051).</summary>
 public class WorkspaceSettingsHandler(
     IApplicationDbContext db,
     ICurrentUser current,
@@ -96,6 +109,35 @@ public class WorkspaceSettingsHandler(
         var before = workspace.Name;
         workspace.Rename(command.Name!.Trim());
         policy.AuditOverride(caller, "workspace.renamed", "Workspace", workspace.Id, new { Name = before }, new { workspace.Name });
+        await db.SaveChangesAsync(cancellationToken);
+        return Result.Ok();
+    }
+
+    /// <summary>
+    /// Switches Scrum and Kanban in one unit of work (L2-036): to Kanban every open sprint closes and items keep
+    /// their status; to Scrum every story that is not Done goes to the backlog.
+    /// </summary>
+    public async Task<Result> SwitchMethodAsync(Guid workspaceId, SwitchMethodCommand command, CancellationToken cancellationToken = default)
+    {
+        var (workspace, caller, refusal) = await policy.AuthorizeAsync(workspaceId, manage: true, cancellationToken);
+        if (refusal is not null)
+        {
+            return refusal;
+        }
+
+        var target = Enum.Parse<WorkspaceMethod>(command.Method!);
+        if (target == workspace.Method)
+        {
+            return Result.Conflict($"This workspace already uses {target}.");
+        }
+
+        var before = workspace.Method;
+        var sprints = await db.Sprints.Where(s => s.WorkspaceId == workspaceId).ToListAsync(cancellationToken);
+        var stories = await db.WorkItems.IgnoreQueryFilters()
+            .Where(i => i.WorkspaceId == workspaceId && i.Kind == WorkItemKind.Story)
+            .ToListAsync(cancellationToken);
+        workspace.SwitchMethod(target, sprints, stories);
+        policy.AuditOverride(caller, "workspace.method.switched", "Workspace", workspace.Id, new { Method = before.ToString() }, new { Method = target.ToString() });
         await db.SaveChangesAsync(cancellationToken);
         return Result.Ok();
     }
