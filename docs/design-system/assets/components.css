@@ -196,6 +196,8 @@ fieldset.card > legend { display: contents; }
 .card--success { background: linear-gradient(135deg, var(--color-success-bg), var(--card-bg) 70%); }
 .card--warning { background: linear-gradient(135deg, var(--color-warning-bg), var(--card-bg) 70%); }
 .card__title { font: var(--text-h4); margin-bottom: var(--space-4); }
+/* The card-title role on a heading that is not a card's own title: a header row with a link or badge, a page section, a danger zone. No margin. */
+.section-title { font: var(--text-h4); }
 .stack > .card__title { margin-bottom: 0; }
 .card--flush > .card__title { padding: var(--space-4) var(--space-4) 0; margin-bottom: 0; }
 .stat { display: flex; flex-direction: column; gap: var(--space-1); }

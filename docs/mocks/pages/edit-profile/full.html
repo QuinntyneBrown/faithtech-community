@@ -34,12 +34,12 @@
 <nav aria-label="Breadcrumb"><ol class="breadcrumb"><li><a href="../../pages/profile/own.html">Profile</a></li><li aria-current="page">Edit profile</li></ol></nav><div class="page-header"><div><h1>Edit profile</h1><p class="subtitle">Visible to everyone signed in to FaithTech.</p></div></div>
 <form class="stack" action="success.html" method="get" novalidate style="max-width: 48rem;">
   
-  <section class="card stack" aria-labelledby="about"><h2 id="about" style="font: var(--text-h4);">About you</h2>
+  <section class="card stack" aria-labelledby="about"><h2 class="card__title" id="about">About you</h2>
     <div class="field"><label class="field__label" for="ep-name">Name</label><input class="input" id="ep-name" name="ep-name" type="text" value="Grace Okonkwo" autocomplete="name" required></div>
     <div class="field"><label class="field__label" for="ep-city">Home city</label><input class="input" id="ep-city" name="ep-city" type="text" value="Toronto" autocomplete="address-level2"></div>
     <div class="field"><label class="field__label" for="ep-bio">Bio <span class="optional">(optional)</span></label><textarea class="textarea" id="ep-bio" name="ep-bio" rows="4" aria-describedby="ep-bio-help">City Lead for FaithTech Toronto. Product manager by day, convener of builders by night. Ask me about our shelter-tech hackathon.</textarea><div class="field__help" id="ep-bio-help">Up to 400 characters.</div></div>
   </section>
-  <section class="card"><div class="picture-list" role="group" aria-labelledby="photos"><div class="cluster cluster--between"><h2 id="photos" style="font: var(--text-h4);">Photos <span class="badge">10 of 10</span></h2>
+  <section class="card"><div class="picture-list" role="group" aria-labelledby="photos"><div class="cluster cluster--between"><h2 class="section-title" id="photos">Photos <span class="badge">10 of 10</span></h2>
     <button class="btn" type="button" disabled aria-describedby="photo-limit"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>Add photos</button></div>
     <p class="text-muted" id="photo-limit">That’s 10 photos, the most a profile can have. Remove one to add another.</p>
     <ul class="picture-list__grid"><li class="picture-list__item picture-list__item--featured"><div class="picture-list__thumb"><img src="../../assets/photos/builders-night.svg" alt="Grace speaking at Builders Night in front of a full room"><span class="badge badge--success">Featured</span>

@@ -147,7 +147,7 @@
         <li>One <code>&lt;h1&gt;</code> per page and headings in order; pick the role for its look, the element for its level (the home page’s “Coming up” card title is an <code>&lt;h2&gt;</code> set in <code>--text-h4</code>).</li>
         <li>Uppercase only through <code>--text-overline</code> with <code>--letter-spacing-wide</code>; never type copy in capitals.</li>
         <li>Do not set font sizes in <code>px</code> or add steps between the scale's steps. If a size is missing, the design is asking for a new role; raise it.</li>
-        <li>Drift in the mocks: card headings are restyled inline (<code>style="font: var(--text-h4);"</code> on <code>&lt;h2&gt;</code>s in home, event and settings) and auth pages centre the <code>&lt;h1&gt;</code> with inline <code>text-align</code>; components should carry the role instead.</li>
+        <li>A heading set in <code>--text-h4</code> carries the role as a class: <code>.card__title</code> for a card's own title, <code>.section-title</code> for a header row, page section or danger zone, <code>.dialog__title</code> in a dialog; never an inline <code>font</code>. Drift in the mocks: auth pages centre the <code>&lt;h1&gt;</code> with inline <code>text-align</code>; components should carry the role instead.</li>
       </ul>
     </section>
 
