@@ -151,7 +151,7 @@
         </div>
         <div class="ds-example__caption"><span>Offline.</span></div>
         <details class="ds-example__code"><summary>HTML</summary><pre><code>&lt;main id="main" class="container"&gt;
-  &lt;div style="padding-top: var(--space-12);"&gt;
+  &lt;div class="error-page"&gt;
     &lt;div class="empty"&gt;
       &lt;span class="empty__icon" aria-hidden="true"&gt;&lt;svg class="icon icon--lg" aria-hidden="true" viewBox="0 0 24 24"&gt;…&lt;/svg&gt;&lt;/span&gt;
       &lt;h1 class="empty__title"&gt;You’re offline&lt;/h1&gt;
@@ -164,7 +164,7 @@
     </section>
 
     <section class="ds-section" id="sizes" data-na="One size only"><h2><a href="#sizes">Sizes</a></h2>
-      <p class="ds-na">One size: the empty state with an extra 48px (<code>--space-12</code>) above it so the message sits in the upper middle of the screen.</p>
+      <p class="ds-na">One size: the empty state inside a <code>.error-page</code> wrapper, which adds 48px (<code>--space-12</code>) above it so the message sits in the upper middle of the screen.</p>
     </section>
 
     <section class="ds-section" id="states"><h2><a href="#states">States</a></h2>
@@ -244,14 +244,14 @@
           <tr><td>Icon</td><td><code>--color-fg-accent</code></td><td><span class="ds-swatch-cell" data-theme="light"><i data-token="--color-fg-accent" data-swatch></i><span data-token="--color-fg-accent"></span></span></td><td><span class="ds-swatch-cell" data-theme="dark"><i data-token="--color-fg-accent" data-swatch></i><span data-token="--color-fg-accent"></span></span></td></tr>
           <tr><td>Heading</td><td><code>--color-fg-default</code></td><td><span class="ds-swatch-cell" data-theme="light"><i data-token="--color-fg-default" data-swatch></i><span data-token="--color-fg-default"></span></span></td><td><span class="ds-swatch-cell" data-theme="dark"><i data-token="--color-fg-default" data-swatch></i><span data-token="--color-fg-default"></span></span></td></tr>
           <tr><td>Text, reference</td><td><code>--color-fg-muted</code></td><td><span class="ds-swatch-cell" data-theme="light"><i data-token="--color-fg-muted" data-swatch></i><span data-token="--color-fg-muted"></span></span></td><td><span class="ds-swatch-cell" data-theme="dark"><i data-token="--color-fg-muted" data-swatch></i><span data-token="--color-fg-muted"></span></span></td></tr>
-          <tr><td>Top offset</td><td><code>--space-12</code></td><td colspan="2"><span data-token="--space-12"></span></td></tr>
+          <tr><td>Top offset (<code>.error-page</code>)</td><td><code>--space-12</code></td><td colspan="2"><span data-token="--space-12"></span></td></tr>
         </tbody>
       </table></div>
     </section>
 
     <section class="ds-section" id="code"><h2><a href="#code">Code</a></h2>
       <pre><code>&lt;main id="main" class="container"&gt;
-  &lt;div style="padding-top: var(--space-12);"&gt;
+  &lt;div class="error-page"&gt;
     &lt;div class="empty"&gt;
       &lt;span class="empty__icon" aria-hidden="true"&gt;…&lt;/span&gt;
       &lt;h1 class="empty__title" tabindex="-1"&gt;Something went wrong on our side&lt;/h1&gt;
@@ -277,7 +277,7 @@
         <li><a href="../../mocks/pages/server-error/default.html">pages/server-error/default</a></li>
         <li><a href="../../mocks/pages/offline/default.html">pages/offline/default</a></li>
       </ul>
-      <p>Drift noticed: the top offset is an inline <code>style="padding-top: var(--space-12)"</code> wrapper on every page rather than a class; the offline page has no offline banner even though the banner exists in notifications/banner. The Shelfie sticker variant was dropped; FaithTech uses the plain empty-state icon.</p>
+      <p>The top offset is the <code>.error-page</code> wrapper class (<code>padding-top: var(--space-12)</code>) on every page. Drift noticed: the offline page has no offline banner even though the banner exists in notifications/banner. The Shelfie sticker variant was dropped; FaithTech uses the plain empty-state icon.</p>
     </section>
 
     <footer class="ds-footer"><span>FaithTech Community design system · extracted from <a href="../../mocks/index.html">docs/mocks</a> on 2026-10-21</span><a href="#top">Back to top</a></footer>
