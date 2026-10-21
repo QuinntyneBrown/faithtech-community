@@ -9,7 +9,10 @@
    static page can show a state without a pointer:
        <button class="btn" data-state="hover">
    Layout is mobile first: base styles target phones and min-width queries
-   (40rem sm, 48rem md, 64rem lg) add space.
+   (40rem sm, 48rem md, 64rem lg) add space. Media queries cannot read custom
+   properties, so each query uses the value of a --layout-breakpoint-* token
+   (--layout-breakpoint-sm/md/lg) and never another number; the Angular
+   library reads the same tokens by name through styles/_breakpoints.scss.
    ========================================================================== */
 
 /* ---------- Base --------------------------------------------------------- */
@@ -32,6 +35,8 @@ h4 { font: var(--text-h4); }
 p { max-width: var(--layout-measure); text-wrap: pretty; }
 small { font: var(--text-body-sm); }
 .text-muted { color: var(--color-fg-muted); }
+/* Centred text: an auth page's heading and footer links, a standalone link under a form. */
+.text-center { text-align: center; }
 .text-caption { font: var(--text-caption); color: var(--color-fg-muted); }
 .overline { font: var(--text-overline); letter-spacing: var(--letter-spacing-wide); text-transform: uppercase; color: var(--color-fg-muted); }
 .truncate { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
@@ -76,6 +81,8 @@ a:hover, a[data-state="hover"] { color: var(--color-fg-link-hover); text-decorat
 .filter-bar { align-items: flex-end; margin-bottom: var(--space-4); }
 .grid { display: grid; gap: var(--layout-gutter); grid-template-columns: repeat(var(--layout-columns), minmax(0, 1fr)); }
 .grid--auto { grid-template-columns: repeat(auto-fill, minmax(min(100%, 18rem), 1fr)); }
+/* Two equal columns at every width: a Starts/Ends or start/end date pair in a form (<ft-grid [columns]="2">). */
+.grid--pair { --layout-columns: 2; }
 /* Column spans: full width until lg, then the named span of 12. */
 .span-full, .span-4, .span-5, .span-7, .span-8 { grid-column: 1 / -1; }
 @media (min-width: 64rem) {
@@ -85,7 +92,13 @@ a:hover, a[data-state="hover"] { color: var(--color-fg-link-hover); text-decorat
 }
 .page-header { display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between; gap: var(--space-4); margin-block: var(--space-6); }
 .page-header .subtitle { color: var(--color-fg-muted); margin-top: var(--space-1); }
+/* The first block of a page with no .page-header (the profile head card): 24px below the top bar, as a page header sits. */
+.page-start { margin-top: var(--space-6); }
 .section { margin-block: var(--space-8); }
+/* Form widths: cap a page form, the success card that replaces it, or a danger zone. Sizes follow .field--sm/md/lg; <ft-stack width="sm|md|lg"> in Angular. */
+.form-width--sm { width: 100%; max-width: 40rem; }
+.form-width--md { width: 100%; max-width: 44rem; }
+.form-width--lg { width: 100%; max-width: 48rem; }
 .auth-layout { min-height: 100dvh; display: grid; place-items: center; padding: var(--space-6) var(--layout-margin); }
 .auth-card { width: 100%; max-width: 26rem; }
 .auth-card .logo { display: flex; justify-content: center; margin-bottom: var(--space-6); }
@@ -147,6 +160,9 @@ a:hover, a[data-state="hover"] { color: var(--color-fg-link-hover); text-decorat
 .field__label { font: var(--text-label); color: var(--color-fg-default); display: flex; gap: var(--space-1); }
 .field__label .optional { color: var(--color-fg-subtle); font-weight: var(--font-weight-regular); }
 .field__help { font: var(--text-body-sm); color: var(--color-fg-muted); }
+/* Character counter under a textarea with a limit (bio): characters left, or how many too many. */
+.field__count { font: var(--text-body-sm); color: var(--color-fg-muted); font-variant-numeric: tabular-nums; }
+.field__count--over { color: var(--color-danger-fg); font-weight: var(--font-weight-semibold); }
 .field__error { font: var(--text-body-sm); color: var(--color-danger-fg); display: flex; gap: var(--space-1); align-items: flex-start; }
 .field__error::before { content: "⚠"; flex: none; }
 .input, .textarea {
@@ -156,7 +172,7 @@ a:hover, a[data-state="hover"] { color: var(--color-fg-link-hover); text-decorat
   border: var(--border-width-hairline) solid var(--field-border); border-radius: var(--radius-md);
   transition: border-color var(--duration-fast) var(--ease-standard), box-shadow var(--duration-fast) var(--ease-standard);
 }
-.textarea { min-height: calc(var(--control-height-md) * 2.5); resize: vertical; line-height: var(--line-height-relaxed); }
+.textarea { resize: vertical; line-height: var(--line-height-relaxed); }
 .input::placeholder, .textarea::placeholder { color: var(--color-fg-subtle); }
 .input:hover, .textarea:hover, .input[data-state="hover"], .textarea[data-state="hover"] { --field-border: var(--color-fg-muted); }
 .input:focus-visible, .textarea:focus-visible, .input[data-state="focus"], .textarea[data-state="focus"] { outline: var(--focus-ring-width) solid var(--color-focus-ring); outline-offset: 0; --field-border: var(--color-focus-ring); }
@@ -195,6 +211,8 @@ fieldset.card > legend { display: contents; }
 .card--flush { padding: 0; overflow: hidden; }
 .card--success { background: linear-gradient(135deg, var(--color-success-bg), var(--card-bg) 70%); }
 .card--warning { background: linear-gradient(135deg, var(--color-warning-bg), var(--card-bg) 70%); }
+/* Stat strip: a card that is a row of stats (.card.cluster.stat-row) above a board, 16px from it (<ft-card variant="strip">). */
+.card--strip { margin-bottom: var(--space-4); }
 .card__title { font: var(--text-h4); margin-bottom: var(--space-4); }
 /* The card-title role on a heading that is not a card's own title: a header row with a link or badge, a page section, a danger zone. No margin. */
 .section-title { font: var(--text-h4); }
@@ -249,6 +267,8 @@ button.avatar:hover, button.avatar[data-state="hover"] { box-shadow: 0 0 0 var(-
 /* R2: the top bar is a floating capsule. Sticky keeps it in flow, so nothing is ever hidden under it. */
 .topbar { position: sticky; top: var(--space-2); z-index: var(--z-sticky); display: flex; align-items: center; gap: var(--space-4); min-height: var(--layout-topbar-height); width: calc(min(var(--layout-container-max), 100%) - 2 * var(--layout-margin)); margin: var(--space-2) auto 0; padding-inline: var(--space-3) var(--space-2); background: color-mix(in srgb, var(--color-bg-surface) 90%, transparent); backdrop-filter: blur(12px); border: var(--border-width-hairline) solid var(--color-border-default); border-radius: var(--radius-full); box-shadow: var(--shadow-2); }
 .topbar__brand { font: var(--text-h4); color: var(--color-fg-default); text-decoration: none; display: inline-flex; align-items: center; gap: var(--space-2); }
+/* The brand mark is the logo artwork (assets/logo.svg), decorative because "FaithTech" names the link. */
+.topbar__mark { display: block; width: var(--size-avatar-sm); height: var(--size-avatar-sm); border-radius: var(--radius-md); }
 .topbar__nav { display: none; gap: var(--space-1); margin-left: var(--space-4); }
 .topbar__spacer { flex: 1; }
 @media (min-width: 48rem) { .topbar__nav { display: flex; } }
@@ -413,6 +433,10 @@ body:has(.tabbar:not(.tabbar--static)) .toast-region { bottom: calc(var(--layout
 .skeleton--text:last-child { width: 60%; }
 .skeleton--title { height: 1.5em; width: 40%; }
 .skeleton--rect { border-radius: var(--radius-md); }
+/* A Kanban card still loading (<ft-skeleton shape="card">). */
+.skeleton--card { height: var(--space-16); border-radius: var(--radius-md); }
+/* One line inside running text, such as a page header's subtitle while it loads. */
+.skeleton--subtitle { display: inline-block; width: 12rem; }
 /* Stands in for a stat value (a count) while it loads; the stat label stays. */
 .skeleton--stat { width: var(--size-avatar-md); height: var(--size-avatar-sm); border-radius: var(--radius-md); }
 /* Square placeholder the size of .date-badge, leading an event row while it loads. */
@@ -856,12 +880,13 @@ mark { background: var(--color-warning-bg); color: inherit; border-radius: var(-
 .photo-strip img { width: 100%; aspect-ratio: 1; object-fit: cover; border-radius: var(--radius-md); display: block; }
 
 /* ---------- Two-column layout helper ------------------------------------------ */
-.split { display: grid; gap: var(--layout-gutter); grid-template-columns: minmax(0, 1fr); align-items: start; }
+/* 16px below what comes before it (a banner or alert); after a .page-header the margins collapse to its 24px. */
+.split { display: grid; gap: var(--layout-gutter); grid-template-columns: minmax(0, 1fr); align-items: start; margin-top: var(--space-4); }
 @media (min-width: 64rem) { .split { grid-template-columns: minmax(0, 2fr) minmax(0, 1fr); } }
 
 /* ---------- Topbar extras ----------------------------------------------------- */
 .topbar__search { display: none; }
-@media (min-width: 64rem) { .topbar__search { display: block; width: 14rem; } }
+@media (min-width: 64rem) { .topbar__search { display: block; width: var(--layout-topbar-search-width); } }
 .topbar__nav .nav-link { white-space: nowrap; }
 /* Secondary links (Team, Announcements, People, Admin) join the nav from 1024px; mobile-first, min-width only. */
 .topbar__nav .nav-link--secondary { display: none; }
@@ -878,8 +903,13 @@ mark { background: var(--color-warning-bg); color: inherit; border-radius: var(-
 .tree { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: var(--space-1); }
 .tree .tree { padding-left: var(--space-6); border-left: var(--border-width-hairline) solid var(--color-border-default); margin-left: var(--space-3); }
 .tree__row { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-2); min-height: var(--target-comfortable); padding: var(--space-1) var(--space-2); border-radius: var(--radius-sm); }
-summary.tree__row { cursor: pointer; }
-.tree__row:hover { background: var(--color-bg-subtle); }
+/* Disclosure button before a branch's badge; the title link sits beside it, never inside it.
+   The chevron is drawn from two borders: right when collapsed, down when expanded. */
+.tree__toggle { display: inline-grid; place-items: center; flex: none; width: var(--target-min); height: var(--target-min); margin: calc(-1 * var(--space-1)) 0 calc(-1 * var(--space-1)) calc(-1 * var(--space-2)); padding: 0; border: 0; border-radius: var(--radius-sm); background: none; color: var(--color-fg-muted); cursor: pointer; }
+.tree__toggle::before { content: ""; width: var(--space-2); height: var(--space-2); border: solid currentColor; border-width: var(--border-width-thick) var(--border-width-thick) 0 0; rotate: 45deg; }
+.tree__toggle[aria-expanded="true"]::before { rotate: 135deg; }
+.tree__toggle:hover, .tree__toggle[data-state="hover"] { color: var(--color-fg-default); }
+.tree__row:hover, .tree__row[data-state="hover"] { background: var(--color-bg-subtle); }
 .tree__row a { color: var(--color-fg-default); font-weight: var(--font-weight-medium); }
 
 /* ---------- Review fixes -------------------------------------------------------- */
@@ -902,7 +932,6 @@ summary.tree__row { cursor: pointer; }
 /* ---------- State hooks added during extraction --------------------------------- */
 .select:hover, .select[data-state="hover"] { border-color: var(--color-fg-muted); }
 .select:disabled { background-color: var(--color-bg-subtle); border-color: var(--color-border-default); color: var(--color-fg-disabled); cursor: not-allowed; }
-.tree__row[data-state="hover"] { background: var(--color-bg-subtle); }
 /* Checkboxes inside choice rows (member pickers) are square with a tick, not round. */
 .choice input[type="checkbox"] { border-radius: var(--radius-xs); }
 .choice input[type="checkbox"]:checked::before { width: var(--space-2); height: var(--space-1); border-radius: 0; background: none; border: solid var(--color-fg-on-accent); border-width: 0 0 var(--border-width-thick) var(--border-width-thick); rotate: -45deg; translate: 0 -10%; }

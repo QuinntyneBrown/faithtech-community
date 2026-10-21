@@ -143,14 +143,14 @@
       <ul>
         <li><code>.container</code> is full width, capped at <code>--layout-container-max</code> (1280px), centred, with <code>--layout-margin</code> on both sides.</li>
         <li>Prose stops at <code>--layout-measure</code> (65ch); every <code>&lt;p&gt;</code> has it as a <code>max-width</code>.</li>
-        <li>The auth card is 26rem wide and centred in the viewport (<code>.auth-layout</code>, <code>.auth-card</code>); a dialog panel is 32rem; forms (settings, edit profile, new contact, new event) cap at 48rem with an inline style, which is drift.</li>
+        <li>The auth card is 26rem wide and centred in the viewport (<code>.auth-layout</code>, <code>.auth-card</code>); a dialog panel is 32rem; page forms cap with <code>.form-width--sm</code> (40rem: new contact), <code>--md</code> (44rem: settings, compose announcement, its success card and the danger zone) or <code>--lg</code> (48rem: edit profile, the event form, workspace settings); <code>&lt;ft-stack width="sm|md|lg"&gt;</code> in Angular.</li>
       </ul>
     </section>
 
     <section class="ds-section" id="chrome"><h2><a href="#chrome">Top bar and tab bar</a></h2>
       <div class="ds-example"><div class="ds-example__canvas ds-example__canvas--stack ds-example__canvas--canvas" style="padding: 0;">
         <header class="topbar" style="position: relative; top: 0; width: 100%; margin: 0;">
-          <a class="topbar__brand" href="../../mocks/pages/home/default.html"><svg class="icon icon--lg" aria-hidden="true" viewBox="0 0 24 24"><path d="M12 2v20M5 8h14"/><circle cx="12" cy="8" r="9" fill="none" opacity=".35"/></svg> FaithTech</a>
+          <a class="topbar__brand" href="../../mocks/pages/home/default.html"><img class="topbar__mark" src="../assets/logo.svg" alt="" width="32" height="32"> FaithTech</a>
           <nav class="topbar__nav" aria-label="Primary (example)"><a class="nav-link" href="../../mocks/pages/home/default.html" aria-current="page">Home</a><a class="nav-link" href="../../mocks/pages/events/default.html">Events</a><a class="nav-link" href="../../mocks/pages/contacts/default.html">Contacts</a><a class="nav-link" href="../../mocks/pages/partners/default.html">Partners</a><a class="nav-link" href="../../mocks/pages/workspaces/default.html">Workspaces</a><a class="nav-link nav-link--secondary" href="../../mocks/pages/team/default.html">Team</a><a class="nav-link nav-link--secondary" href="../../mocks/pages/announcements/default.html">Announcements</a><a class="nav-link nav-link--secondary" href="../../mocks/pages/people/default.html">People</a></nav>
           <span class="topbar__spacer"></span>
           <form class="topbar__search" role="search" action="../../mocks/pages/search/default.html"><label class="visually-hidden" for="ds-global-q">Search FaithTech</label><input class="input input--sm" id="ds-global-q" name="q" type="search" placeholder="Search people, events, partners"></form>
@@ -174,7 +174,7 @@
         <tbody>
           <tr><td>Member shell</td><td>Sticky top bar (brand, primary nav from 768px, search from 1024px, bell, avatar); one <code>main.container</code> with a <code>.page-header</code> (h1, subtitle, actions); fixed tab bar below 768px with <code>.has-tabbar</code> on the wrapper. Home splits into a main column and an “Activity” aside with <code>.split</code> (2fr + 1fr from 1024px).</td><td><a href="../../mocks/pages/home/default.html">pages/home/default</a></td></tr>
           <tr><td>Auth</td><td>No chrome; <code>main.auth-layout</code> centres a 26rem <code>.auth-card</code> with the logo above one card (sign in, sign up, forgot and reset password, accept invite, verify email).</td><td><a href="../../mocks/pages/sign-in/default.html">pages/sign-in/default</a></td></tr>
-          <tr><td>Settings and forms</td><td>Member shell; a single column of <code>.card.stack</code> sections (Account, Email me when, Sign out everywhere) capped at 48rem; form actions at the end of each card.</td><td><a href="../../mocks/pages/settings/default.html">pages/settings/default</a></td></tr>
+          <tr><td>Settings and forms</td><td>Member shell; a single column of <code>.card.stack</code> sections (Account, Email me when, Sign out everywhere) capped at 44rem (<code>.form-width--md</code>); form actions at the end of each card.</td><td><a href="../../mocks/pages/settings/default.html">pages/settings/default</a></td></tr>
           <tr><td>Detail: profile</td><td>Member shell; <code>.profile-head</code> (avatar, name, role badges, actions), a <code>.photo-strip</code> and a <code>.facts</code> card in one column.</td><td><a href="../../mocks/pages/profile/default.html">pages/profile/default</a></td></tr>
           <tr><td>Detail: event</td><td>Member shell; breadcrumb, page header, then <code>.split</code>: “About this event” and “When and where” in the main column, the RSVP card in the aside.</td><td><a href="../../mocks/pages/event/default.html">pages/event/default</a></td></tr>
           <tr><td>Board</td><td>Member shell; page header, then <code>.kanban</code>: one column per stage, stacked on phones, side by side from 768px. Partners (Lead, In funnel, Confirmed) and the Sprint 7 team board (To Do, In Progress, Done, under workspace <code>.tabs</code>).</td><td><a href="../../mocks/pages/partners/default.html">pages/partners/default</a>, <a href="../../mocks/pages/team-board/default.html">pages/team-board/default</a></td></tr>
@@ -219,6 +219,7 @@
           <tr><td>Max line length for prose</td><td><code>--layout-measure</code></td><td colspan="2"><span data-token="--layout-measure"></span></td></tr>
           <tr><td>Docs-site navigation only</td><td><code>--layout-sidebar-width</code></td><td colspan="2"><span data-token="--layout-sidebar-width"></span></td></tr>
           <tr><td>Sticky member top bar</td><td><code>--layout-topbar-height</code></td><td colspan="2"><span data-token="--layout-topbar-height"></span></td></tr>
+          <tr><td>Inline search in the top bar (from 1024px)</td><td><code>--layout-topbar-search-width</code></td><td colspan="2"><span data-token="--layout-topbar-search-width"></span></td></tr>
           <tr><td>Bottom tab bar on phones</td><td><code>--layout-tabbar-height</code></td><td colspan="2"><span data-token="--layout-tabbar-height"></span></td></tr>
         </tbody>
       </table></div>

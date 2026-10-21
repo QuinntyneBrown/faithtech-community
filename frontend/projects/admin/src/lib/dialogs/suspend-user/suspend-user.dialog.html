@@ -21,6 +21,6 @@
   </ft-stack>
   <ft-button ftDialogFooter [disabled]="busy()" (click)="ref.close(false)">Cancel</ft-button>
   <ft-button ftDialogFooter variant="danger" [loading]="busy()" (click)="confirm()">
-    {{ busy() ? 'Suspend…' : 'Suspend' }}
+    {{ busy() ? 'Suspending…' : 'Suspend' }}
   </ft-button>
 </ft-dialog>

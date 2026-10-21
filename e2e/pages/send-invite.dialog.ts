@@ -15,7 +15,7 @@ export class SendInviteDialog {
     this.email = this.dialog.getByLabel('Email');
     this.role = this.dialog.getByLabel('Join with role');
     this.note = this.dialog.getByLabel(/Personal note/);
-    this.send = this.dialog.getByRole('button', { name: /^Send invite/ });
+    this.send = this.dialog.getByRole('button', { name: /^(Send invite|Sending invite)/ });
     this.emailError = this.dialog.getByText('Enter an email like name@example.org.');
     this.refusal = this.dialog
       .locator('ft-alert')

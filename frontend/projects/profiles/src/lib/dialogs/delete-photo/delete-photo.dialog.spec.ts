@@ -1,7 +1,7 @@
 import { DIALOG_DATA, DialogRef } from '@angular/cdk/dialog';
 import { TestBed } from '@angular/core/testing';
 import { PROFILES_SERVICE, ProfilesService } from '@faithtech-community/api';
-import { of, throwError } from 'rxjs';
+import { Subject, of, throwError } from 'rxjs';
 
 import { DeletePhotoData, DeletePhotoDialog } from './delete-photo.dialog';
 
@@ -50,5 +50,14 @@ describe('DeletePhotoDialog', () => {
     fixture.detectChanges();
     expect(ref.close).not.toHaveBeenCalled();
     expect(host.querySelector('ft-alert')!.textContent).toContain('Photo not deleted');
+  });
+
+  it('reads Deleting photo… while the delete is in flight', () => {
+    const { fixture, host, button } = setup(() => new Subject<void>());
+    button('Delete photo').click();
+    fixture.detectChanges();
+    expect(host.querySelector('button[aria-busy="true"]')!.textContent!.trim()).toBe(
+      'Deleting photo…',
+    );
   });
 });

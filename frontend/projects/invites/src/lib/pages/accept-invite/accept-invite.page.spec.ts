@@ -8,7 +8,7 @@ import {
   INVITES_SERVICE,
   InviteLookupDto,
 } from '@faithtech-community/api';
-import { Observable, of, throwError } from 'rxjs';
+import { Observable, Subject, of, throwError } from 'rxjs';
 
 import { AcceptInvitePage } from './accept-invite.page';
 
@@ -155,5 +155,15 @@ describe('AcceptInvitePage', () => {
   it('treats an unknown token as an invalid link', async () => {
     const { host } = await setup(() => throwError(() => new HttpErrorResponse({ status: 404 })));
     expect(host.querySelector('h1')!.textContent).toContain('This invite link isn’t valid');
+  });
+
+  it('reads Joining… while the invite is being accepted', async () => {
+    const { fixture, host, invites, button, type } = await setup(() => of(invite));
+    invites.acceptInvite.mockReturnValue(new Subject<undefined>());
+    type('Full name', 'Ruth Alvarez');
+    type('Create a password', 'a-long-enough-passphrase');
+    button('Accept and join')!.click();
+    fixture.detectChanges();
+    expect(host.querySelector('button[aria-busy="true"]')!.textContent!.trim()).toBe('Joining…');
   });
 });

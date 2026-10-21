@@ -3,3 +3,16 @@
   flex-direction: column;
   gap: var(--ft-stack-gap, var(--space-4));
 }
+
+// Form widths, as .form-width--sm/md/lg in the design system (docs/design-system/foundations/layout.html).
+:host(.ft-stack--width-sm) {
+  max-inline-size: 40rem;
+}
+
+:host(.ft-stack--width-md) {
+  max-inline-size: 44rem;
+}
+
+:host(.ft-stack--width-lg) {
+  max-inline-size: 48rem;
+}

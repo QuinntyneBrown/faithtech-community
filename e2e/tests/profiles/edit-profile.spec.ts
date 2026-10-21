@@ -79,6 +79,25 @@ test.describe('Edit own profile', () => {
     expect(api.callsTo('PUT', `/api/profiles/${grace.profileId}`)).toHaveLength(0);
   });
 
+  test('the bio counts the characters left and says how many too many once over 400', async ({
+    page,
+    api,
+    axe,
+  }) => {
+    const grace = api.addAccount({ email: 'grace@example.org' });
+    const edit = new EditProfilePage(page);
+    await api.signInAs(grace, '/people/me/edit');
+
+    await edit.fill({ bio: 'b'.repeat(128) });
+    await expect(edit.bioCount).toHaveText('272 characters left');
+    await expect(edit.bio).toHaveAccessibleDescription(/272 characters left/);
+
+    await edit.fill({ bio: 'b'.repeat(437) });
+    await expect(edit.bioCount).toHaveText('37 characters too many');
+    await expect(edit.bio).toHaveValue('b'.repeat(437));
+    await axe.check();
+  });
+
   test('errors the server reports are shown on their fields', async ({ page, api }) => {
     const grace = api.addAccount({ email: 'grace@example.org' });
     api.on('PUT', `/api/profiles/${grace.profileId}`, (route) =>

@@ -100,7 +100,7 @@
     <section class="ds-section" id="overview"><h2><a href="#overview">Overview</a></h2>
       <p>Forms are built from <a href="../components/text-field.html">text field</a>, <a href="../components/textarea.html">textarea</a>, <a href="../components/select.html">select</a>, <a href="../components/switch.html">switch</a> and <a href="../components/button.html">button</a>, each inside a <a href="../components/form-field.html"><code>.field</code></a>. There are two places a form can live:</p>
       <ul>
-        <li><b>Page forms</b>, in a <code>.card.stack</code> up to 40–44rem wide: sign up, sign in, the contact form, the partner form, the event form, edit profile, compose announcement and settings.</li>
+        <li><b>Page forms</b>, in a <code>.card.stack</code> capped by <code>.form-width--sm</code> (40rem), <code>--md</code> (44rem) or <code>--lg</code> (48rem): sign up, sign in, the contact form, the partner form, the event form, edit profile, compose announcement and settings.</li>
         <li><b>Dialog forms</b>, with one to four fields: send invite, add role, add note, create workspace, new work item, start sprint. Add partner is the one longer dialog form: two required choices (organisation, stage) followed by optional fields in a scrolling body, so a lead can add a partner without leaving the board. See <a href="dialogs-and-overlays.html">dialogs and overlays</a>.</li>
       </ul>
       <p>Pages never have inline edit forms. An Edit button opens a dialog or goes to the form page.</p>
@@ -122,7 +122,7 @@
       <p>Each field has a label, then help text if needed, then the control, then the error. Optional fields say "(optional)" in the label, in a <code>.optional</code> span (<code>--color-fg-subtle</code>). Required fields have no marker, because most fields are required. Actions sit in <code>.form-actions</code>: the primary button first, then Cancel as a ghost link.</p>
       <div class="ds-example">
         <div class="ds-example__canvas ds-example__canvas--stack">
-          <form class="card stack" action="#structure" novalidate style="width: 100%; max-width: 40rem;" aria-labelledby="fm-new-title">
+          <form class="card stack form-width--sm" action="#structure" novalidate aria-labelledby="fm-new-title">
             <h3 class="card__title" id="fm-new-title">New contact</h3>
             <div class="field"><label class="field__label" for="fm-name">Name</label><input class="input" id="fm-name" type="text" value="Kwame Asante" autocomplete="off" required></div>
             <div class="field"><label class="field__label" for="fm-email">Email <span class="optional">(optional)</span></label><input class="input" id="fm-email" type="email" value="kwame.asante@example.org" aria-describedby="fm-email-help"><div class="field__help" id="fm-email-help">If they ever sign up with this email, we’ll let you know.</div></div>
@@ -147,7 +147,7 @@
       <h3>Choices and settings</h3>
       <div class="ds-example">
         <div class="ds-example__canvas ds-example__canvas--stack">
-          <div class="card stack" style="width: 100%; max-width: 40rem;">
+          <div class="card stack form-width--sm">
             <div class="field"><label class="field__label" for="fm-type">Type</label><select class="select" id="fm-type"><option>Gathering</option><option selected>Builders night</option><option>Hackathon</option><option>Prayer &amp; planning</option><option>Panel</option></select></div>
             <div class="field"><label class="field__label" for="fm-cap">Capacity <span class="optional">(optional)</span></label><input class="input" id="fm-cap" type="number" value="60" aria-describedby="fm-cap-help"><div class="field__help" id="fm-cap-help">Leave empty for no limit.</div></div>
             <label class="switch"><input type="checkbox" checked><span class="switch__text">Email me announcements</span></label>
@@ -163,7 +163,7 @@
       <p>When the person presses the main button, the form is checked. If anything is wrong, a danger alert at the top lists each problem as a link to its field, and focus moves to that alert. Each field shows its own error and has <code>aria-invalid</code>. The page title starts with "Error:".</p>
       <div class="ds-example">
         <div class="ds-example__canvas ds-example__canvas--stack">
-          <form class="card stack" action="#states" novalidate style="width: 100%; max-width: 40rem;" aria-label="New contact, with errors">
+          <form class="card stack form-width--sm" action="#states" novalidate aria-label="New contact, with errors">
             <div class="alert alert--danger form-summary" role="alert" tabindex="-1"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 8v4M12 16h.01"/></svg><div class="alert__body"><div class="alert__title">Fix 2 things to save</div><ol><li><a href="#fm-x-name">Enter a name</a></li><li><a href="#fm-x-email">Enter a valid email</a></li></ol></div></div>
             <div class="field"><label class="field__label" for="fm-x-name">Name</label><input class="input" id="fm-x-name" type="text" required aria-invalid="true" aria-describedby="fm-x-name-error"><div class="field__error" id="fm-x-name-error">Enter at least a first name.</div></div>
             <div class="field"><label class="field__label" for="fm-x-email">Email <span class="optional">(optional)</span></label><input class="input" id="fm-x-email" type="email" value="kwame@" aria-invalid="true" aria-describedby="fm-x-email-help fm-x-email-error"><div class="field__help" id="fm-x-email-help">If they ever sign up with this email, we’ll let you know.</div><div class="field__error" id="fm-x-email-error">Enter an email like name@example.org, or leave it empty.</div></div>
@@ -176,8 +176,8 @@
       <div class="ds-example">
         <div class="ds-example__canvas ds-example__canvas--stack">
           <div class="form-actions cluster"><a class="btn btn--ghost" href="../../mocks/pages/contacts/default.html">Cancel</a><button class="btn btn--primary" type="button" aria-busy="true" aria-disabled="true">Saving…</button></div>
-          <div class="alert alert--info" style="width: 100%; max-width: 40rem;"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 8h.01"/></svg><div class="alert__body"><div class="alert__title">Kwame Asante is already a member</div><div class="alert__text">This email belongs to an existing profile. Save the contact linked to his profile, and your notes will stay private to you.</div></div></div>
-          <div class="card card--success stack" role="status" style="width: 100%; max-width: 40rem;"><h4 class="card__title"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="m8 12 3 3 5-6"/></svg> Sent to 41 Product Engineers</h4><p>It’s in their notifications now. 38 will also get it by email — 3 have opted out of announcement emails.</p><div class="cluster"><a class="btn btn--primary" href="../../mocks/pages/announcements/default.html">Back to announcements</a><a class="btn btn--ghost" href="../../mocks/pages/compose-announcement/default.html">Write another</a></div></div>
+          <div class="alert alert--info form-width--sm"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 8h.01"/></svg><div class="alert__body"><div class="alert__title">Kwame Asante is already a member</div><div class="alert__text">This email belongs to an existing profile. Save the contact linked to his profile, and your notes will stay private to you.</div></div></div>
+          <div class="card card--success stack form-width--sm" role="status"><h4 class="card__title"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="m8 12 3 3 5-6"/></svg> Sent to 41 Product Engineers</h4><p>It’s in their notifications now. 38 will also get it by email — 3 have opted out of announcement emails.</p><div class="cluster"><a class="btn btn--primary" href="../../mocks/pages/announcements/default.html">Back to announcements</a><a class="btn btn--ghost" href="../../mocks/pages/compose-announcement/default.html">Write another</a></div></div>
         </div>
         <div class="ds-example__caption"><span>pages/contact-form/busy and duplicate; pages/compose-announcement/success.</span></div>
       </div>
@@ -197,7 +197,7 @@
     <section class="ds-section" id="responsive"><h2><a href="#responsive">Responsive behaviour</a></h2>
       <ul>
         <li>One column at every width. Fields that belong together, like Starts and Ends on the event form, sit side by side from 640px and stack below that.</li>
-        <li>Form cards are at most 40rem wide (44rem for settings and compose announcement), so lines stay short.</li>
+        <li>Form cards are at most 40rem wide (<code>.form-width--sm</code>; <code>--md</code>, 44rem, for settings and compose announcement; <code>--lg</code>, 48rem, for edit profile and the event form), so lines stay short.</li>
         <li>Under 640px the buttons in <code>.form-actions</code> fill the width, with the primary button on top.</li>
         <li>Inputs use the right <code>type</code> and <code>autocomplete</code> (<code>email</code>, <code>tel</code>, <code>new-password</code>, <code>datetime-local</code>), so phones show the right keyboard.</li>
       </ul>
@@ -249,7 +249,6 @@
       </ul>
       <p>Drift noticed in the mocks:</p>
       <ul>
-        <li>Form cards set their width inline (<code>max-width: 40rem</code> or <code>44rem</code>). There is no width class for this.</li>
         <li>Resolved: "Sign out everywhere" in the settings danger zone was a link that signed the person out at once. It is now a button that opens the <a href="../../mocks/dialogs/sign-out-everywhere/default.html">Sign out everywhere?</a> confirmation (default, busy, failed).</li>
       </ul>
     </section>

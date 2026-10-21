@@ -117,7 +117,7 @@
         </figure>
         <ol class="ds-anatomy__list">
           <li><div><b>Label</b><small>From the form field, with "(optional)" when it is.</small></div></li>
-          <li><div><b>Text area</b><small>At least 2.5 times <code>--control-height-md</code> tall, <code>--line-height-relaxed</code>, same border, radius and background as the text field.</small></div></li>
+          <li><div><b>Text area</b><small>As tall as its <code>rows</code>, <code>--line-height-relaxed</code>, same border, radius and background as the text field.</small></div></li>
           <li><div><b>Resize handle</b><small>Vertical only (<code>resize: vertical</code>), so the field never breaks the layout width.</small></div></li>
           <li><div><b>Help or error</b><small>From the form field: the length limit, or how to fix the message.</small></div></li>
         </ol>
@@ -149,7 +149,7 @@
     </section>
 
     <section class="ds-section" id="sizes"><h2><a href="#sizes">Sizes</a></h2>
-      <p>The height is set by <code>rows</code>, with a floor of 2.5 control heights. The mocks use 2 rows for composers and short notes (invite "Personal note", "Add a comment"), 3 for dialog messages and first notes, 4 for bio and descriptions, 6 for the announcement message. People can drag it taller.</p>
+      <p>The height is set by <code>rows</code> alone, with no minimum height, so 2 rows render shorter than 3. The mocks use 2 rows for composers and short notes (invite "Personal note", "Add a comment"), 3 for dialog messages and first notes, 4 for bio and descriptions, 6 for the announcement message. People can drag it taller.</p>
       <div class="ds-example">
         <div class="ds-example__canvas ds-example__canvas--stack" style="max-width: 32rem;">
           <div class="field"><label class="field__label" for="sz-2">Personal note <span class="optional">(optional)</span></label><textarea class="textarea" id="sz-2" name="sz-2" rows="2"></textarea></div>
@@ -183,6 +183,12 @@
         <li><b>Read-only</b> and <b>disabled</b> are not used in the mocks; shown for completeness.</li>
       </ul>
       <div class="field"><label class="field__label" for="st-inv">Reason (recorded in the audit log)</label><textarea class="textarea" id="st-inv" name="st-inv" rows="3" required aria-invalid="true" aria-describedby="st-inv-error"></textarea><div class="field__error" id="st-inv-error">Give a reason so other admins understand.</div></div>
+      <h3>With a character counter</h3>
+      <p>A textarea with a limit (the 400-character bio) shows a <code>.field__count</code> line under it that counts down as the person types. Past the limit it says how many characters to remove and turns danger with <code>.field__count--over</code>; nothing is cut off, and saving shows the field error (<a href="../../mocks/pages/edit-profile/default.html">edit-profile/default</a>, <a href="../../mocks/pages/edit-profile/invalid.html">edit-profile/invalid</a>).</p>
+      <div class="ds-example"><div class="ds-example__canvas ds-example__canvas--stack" style="max-width: 32rem;">
+        <div class="field"><label class="field__label" for="cn-bio">Bio <span class="optional">(optional)</span></label><textarea class="textarea" id="cn-bio" name="cn-bio" rows="4" aria-describedby="cn-bio-count cn-bio-help">City Lead for FaithTech Toronto. Product manager by day, convener of builders by night. Ask me about our shelter-tech hackathon.</textarea><div class="field__count" id="cn-bio-count">272 characters left</div><div class="field__help" id="cn-bio-help">Up to 400 characters.</div></div>
+        <div class="field"><label class="field__label" for="cn-bio-over">Bio <span class="optional">(optional)</span></label><textarea class="textarea" id="cn-bio-over" name="cn-bio-over" rows="4" aria-invalid="true" aria-describedby="cn-bio-over-count cn-bio-over-help cn-bio-over-error">City Lead for FaithTech Toronto. Product manager by day, convener of builders by night. Ask me about our shelter-tech hackathon, the Lantern Foundation grant we are writing, the volunteer check-in kiosk Samuel is prototyping, and the monthly Builders Night at Kestrel Labs. I love hearing what churches and shelters need, and pairing them with designers, developers and product people who want to serve with their craft. Coffee is on me.</textarea><div class="field__count field__count--over" id="cn-bio-over-count">37 characters too many</div><div class="field__help" id="cn-bio-over-help">Up to 400 characters.</div><div class="field__error" id="cn-bio-over-error">Use 400 characters or fewer for your bio.</div></div>
+      </div><div class="ds-example__caption"><span>Under the limit, and 37 characters over after a save.</span></div></div>
     </section>
 
 
@@ -209,7 +215,7 @@
       <h3>Focus</h3>
       <p>The shared focus ring with no offset, and the border takes the ring colour.</p>
       <h3>Labelling</h3>
-      <p>Every textarea has a visible label that says what to write: "Message to attendees", not "Message". A limit is in the help text, so it is read before typing.</p>
+      <p>Every textarea has a visible label that says what to write: "Message to attendees", not "Message". A limit is in the help text, so it is read before typing. The counter is joined by <code>aria-describedby</code> and is not a live region, so it is read on focus, not on every keystroke.</p>
       <h3>Contrast</h3>
       <div class="ds-example__canvas ds-example__canvas--stack" style="padding: 0; gap: var(--space-2);"><div class="ds-pair"><span>Text on field</span><span class="ds-pair__ratio" data-contrast="--color-fg-default|--color-bg-surface" data-min="4.5"></span></div><div class="ds-pair"><span>Border on surface</span><span class="ds-pair__ratio" data-contrast="--color-border-strong|--color-bg-surface" data-min="3"></span></div><div class="ds-pair"><span>Invalid border on surface</span><span class="ds-pair__ratio" data-contrast="--color-danger-solid|--color-bg-surface" data-min="3"></span></div><div class="ds-pair"><span>Text in a dialog</span><span class="ds-pair__ratio" data-contrast="--color-fg-default|--color-bg-surface-raised" data-min="4.5"></span></div><div class="ds-pair"><span>Focus ring on surface</span><span class="ds-pair__ratio" data-contrast="--color-focus-ring|--color-bg-surface" data-min="3"></span></div></div>
       <h3>Motion</h3>
@@ -222,7 +228,7 @@
       <ul>
         <li>Label what to write and who reads it: "Message to attendees", "Note for the history", "Reason (recorded in the audit log)".</li>
         <li>Say who can see private text in the help or nearby copy: contact notes are visible only to the lead who wrote them and System Admin.</li>
-        <li>State a limit in help ("Up to 400 characters.") rather than cutting text off.</li>
+        <li>State a limit in help ("Up to 400 characters.") rather than cutting text off, and count it: "272 characters left", "1 character left", "37 characters too many".</li>
         <li>Prefill with a useful draft only when the product knows one; never with placeholder filler.</li>
       </ul>
     </section>
@@ -246,7 +252,6 @@
           <tr><td>Border, focus</td><td><code>--color-focus-ring</code></td><td><span class="ds-swatch-cell" data-theme="light"><i data-token="--color-focus-ring" data-swatch></i><span data-token="--color-focus-ring"></span></span></td><td><span class="ds-swatch-cell" data-theme="dark"><i data-token="--color-focus-ring" data-swatch></i><span data-token="--color-focus-ring"></span></span></td></tr>
           <tr><td>Border, invalid</td><td><code>--color-danger-solid</code></td><td><span class="ds-swatch-cell" data-theme="light"><i data-token="--color-danger-solid" data-swatch></i><span data-token="--color-danger-solid"></span></span></td><td><span class="ds-swatch-cell" data-theme="dark"><i data-token="--color-danger-solid" data-swatch></i><span data-token="--color-danger-solid"></span></span></td></tr>
           <tr><td>Question number</td><td><code>--color-fg-accent</code></td><td><span class="ds-swatch-cell" data-theme="light"><i data-token="--color-fg-accent" data-swatch></i><span data-token="--color-fg-accent"></span></span></td><td><span class="ds-swatch-cell" data-theme="dark"><i data-token="--color-fg-accent" data-swatch></i><span data-token="--color-fg-accent"></span></span></td></tr>
-          <tr><td>Minimum height</td><td><code>--control-height-md</code> × 2.5</td><td><span data-token="--control-height-md"></span> × 2.5</td><td><span data-theme="dark"><span data-token="--control-height-md"></span> × 2.5</span></td></tr>
           <tr><td>Line height</td><td><code>--line-height-relaxed</code></td><td><span data-token="--line-height-relaxed"></span></td><td><span data-theme="dark" data-token="--line-height-relaxed"></span></td></tr>
           <tr><td>Padding / radius</td><td><code>--space-2</code> <code>--space-3</code> / <code>--radius-md</code></td><td><span data-token="--space-2"></span> <span data-token="--space-3"></span> / <span data-token="--radius-md"></span></td><td><span data-theme="dark"><span data-token="--space-2"></span> <span data-token="--space-3"></span> / <span data-token="--radius-md"></span></span></td></tr>
         </tbody>
@@ -262,8 +267,9 @@
 &lt;/div&gt;</code></pre>
       <table class="ds-table"><thead><tr><th scope="col">Class / attribute</th><th scope="col">Effect</th></tr></thead><tbody>
         <tr><td><code>.textarea</code></td><td>Multi-line field; shares tokens with <code>.input</code>.</td></tr>
-        <tr><td><code>rows</code></td><td>Initial height, with a 2.5-control-height minimum.</td></tr>
+        <tr><td><code>rows</code></td><td>Initial height; there is no minimum, so it is exact.</td></tr>
         <tr><td><code>aria-invalid="true"</code>, <code>readonly</code>, <code>disabled</code></td><td>States.</td></tr>
+        <tr><td><code>.field__count</code>, <code>.field__count--over</code></td><td>Character counter under a textarea with a limit; danger once over it.</td></tr>
       </tbody></table>
     </section>
 
@@ -278,7 +284,6 @@
         <li><a href="../../mocks/pages/contact/default.html">pages/contact/default</a> (inline note composer)</li>
         <li><a href="../../mocks/pages/work-item/default.html">pages/work-item/default</a> (comment composer)</li>
       </ul>
-      <p>Drift noticed in the mocks: <code>rows="2"</code> is overridden by the 2.5-control-height minimum, so 2 and 3 rows render the same; the 400-character bio limit has no counter or over-limit state.</p>
     </section>
 
     <footer class="ds-footer"><span>FaithTech Community design system · extracted from <a href="../../mocks/index.html">docs/mocks</a> on 2026-10-21</span><a href="#top">Back to top</a></footer>

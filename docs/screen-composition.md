@@ -4,7 +4,7 @@ Which `@faithtech-community/components` parts build each screen, and what is bui
 
 **Local UI** is markup a feature library writes itself. It is limited to page composition: headings that belong to the page, sections and the glue between `api` services and components. Anything reusable goes into `components` first (`AGENTS.md`).
 
-Coverage: the profiles screens (`profile`, `edit-profile`, `delete-photo`), the admin screens (`admin-users`, `audit-log`, `add-role`, `remove-role`, `suspend-user`), the invites screens (`invites`, `accept-invite`, `send-invite`), the team list (`team`), the contacts screens (`contacts`, `contact`, `contact-form`, `archived-contacts`, `add-note`, `archive-contact`, `delete-contact`, `link-contact`) and the partners screens (`partners`, `partner`, `partner-form`, `add-partner`, `move-partner`). Other screens are added here as their features are built.
+Coverage: the profiles screens (`profile`, `edit-profile`, `delete-photo`), the admin screens (`admin-users`, `audit-log`, `add-role`, `remove-role`, `suspend-user`), the invites screens (`invites`, `accept-invite`, `send-invite`), the team list (`team`), the Appearance card of settings (`settings`), the contacts screens (`contacts`, `contact`, `contact-form`, `archived-contacts`, `add-note`, `archive-contact`, `delete-contact`, `link-contact`) and the partners screens (`partners`, `partner`, `partner-form`, `add-partner`, `move-partner`). Other screens are added here as their features are built.
 
 ## Shell
 
@@ -69,7 +69,7 @@ Coverage: the profiles screens (`profile`, `edit-profile`, `delete-photo`), the 
 
 ### Add / edit contact — `/contacts/new`, `/contacts/:id/edit` (`pages/contact-form`: default, edit, invalid, duplicate, busy, error)
 
-- Library: `BreadcrumbComponent`, `PageHeaderComponent`, `CardComponent`, `StackComponent`, `ErrorSummaryComponent` ("Fix N things to save"), `FormErrorFocusDirective`, `AlertComponent` (duplicate "{name} is already a member"; error), `FormFieldComponent` + `TextFieldComponent` (Name, Email with help, Phone, Organisation, City), `TextareaComponent` (First note, create only), `FormActionsComponent` + `ButtonComponent` (*Cancel*, then *Save contact* or *Save and link*), `SkeletonComponent`, `EmptyStateComponent` error.
+- Library: `BreadcrumbComponent`, `PageHeaderComponent`, `StackComponent` `width="sm"` holding `CardComponent`, `ErrorSummaryComponent` ("Fix N things to save"), `FormErrorFocusDirective`, `AlertComponent` (duplicate "{name} is already a member"; error), `FormFieldComponent` + `TextFieldComponent` (Name, Email with help, Phone, Organisation, City), `TextareaComponent` (First note, create only), `FormActionsComponent` + `ButtonComponent` (*Cancel*, then *Save contact* or *Save and link*), `SkeletonComponent`, `EmptyStateComponent` error.
 - Local: the `<form>` element.
 
 ### Archived contacts — `/contacts/archived` (`pages/archived-contacts`: default, loading, empty, error)
@@ -92,7 +92,7 @@ Coverage: the profiles screens (`profile`, `edit-profile`, `delete-photo`), the 
 
 ### Edit partner — `/partners/:id/edit` (`pages/partner-form`: default, loading, invalid, busy, error)
 
-- Library: `BreadcrumbComponent`, `PageHeaderComponent`, `CardComponent`, `StackComponent`, `ErrorSummaryComponent`, `FormErrorFocusDirective`, `AlertComponent` (error), `FormFieldComponent` + `TextFieldComponent` (Organisation, Website, What they could offer, Main contact, Email, Phone), `SelectComponent` (Owner: "No owner" and the members with a lead role), `TextareaComponent` (Notes), `FormActionsComponent` + `ButtonComponent` (*Cancel*, then *Save partner*), `SkeletonComponent`, `EmptyStateComponent` (error; read-only for Staff).
+- Library: `BreadcrumbComponent`, `PageHeaderComponent`, `StackComponent` `width="sm"` holding `CardComponent`, `ErrorSummaryComponent`, `FormErrorFocusDirective`, `AlertComponent` (error), `FormFieldComponent` + `TextFieldComponent` (Organisation, Website, What they could offer, Main contact, Email, Phone), `SelectComponent` (Owner: "No owner" and the members with a lead role), `TextareaComponent` (Notes), `FormActionsComponent` + `ButtonComponent` (*Cancel*, then *Save partner*), `SkeletonComponent`, `EmptyStateComponent` (error; read-only for Staff).
 - Local: the `<form>` element.
 
 ## Dialogs
@@ -120,3 +120,9 @@ None for profiles. Admin and invites use `ToastService` success toasts on the in
 2. Team added to the library: `AvatarComponent` `src` shows a member's featured photo over the initials (ADR 0007), and `ListItemComponent` gained a `[meta]` slot for the role-badge meta line (`components/list.html`).
 3. Nothing reusable: every profiles screen is composed from the library. `PictureListComponent` gained a per-photo `pending` flag for photos chosen but not saved yet (design system: `components/picture-list.html`).
 4. Contacts and partners added to the library rather than building locally: `PageHeaderComponent` gained an `ftPageHeaderSubtitle` slot, `TextFieldComponent` gained `initialFocus` (the delete-contact confirmation) and `KanbanCardComponent`'s name link keeps a 24px target for rich subtitles such as the partner's stage badge. Everything else is composed from existing components; the add-partner dialog and the partner form share their field rules in the feature's `partner-fields.ts`.
+
+### Settings — `/settings` (`pages/settings`: Appearance card only so far)
+
+- Library: `PageHeaderComponent` ("Settings"), `StackComponent` `width="md"`, `CardComponent` heading "Appearance" holding `RadioGroupComponent` (legend "Theme") with `RadioComponent` *Light*, *Dark* and *Match my device* (with its description), bound to `ThemeService` from `components` (L2-045 AC6).
+- The Account and Email me when cards and Sign out everywhere join when their designs are built.
+- Local: the caption "Changes straight away and is remembered on this device."

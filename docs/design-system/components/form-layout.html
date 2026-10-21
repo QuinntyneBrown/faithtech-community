@@ -104,7 +104,7 @@
         <li><b>Error summary</b> (<code>.form-summary</code>): a danger alert listing every problem as a link to its field, shown and focused when a submit fails.</li>
         <li><b>Danger zone</b> (<code>.danger-zone</code>): a red-bordered section after the form for one destructive action: "Sign out everywhere" in Settings, "Archive workspace" in workspace settings. Its button opens a confirmation <a href="dialog.html">dialog</a>; it never acts at once.</li>
       </ul>
-      <p>A page form is a <code>form.stack</code> capped at 44 to 48rem; long forms group fields in <code>section.card</code> blocks with an <code>h2</code> ("Account", "Email me when").</p>
+      <p>A page form is a <code>form.stack</code> capped at 44 to 48rem (<code>.form-width--md</code> or <code>--lg</code>); long forms group fields in <code>section.card</code> blocks with an <code>h2</code> ("Account", "Email me when").</p>
     </section>
 
     <section class="ds-section" id="anatomy"><h2><a href="#anatomy">Anatomy</a></h2>
@@ -290,7 +290,7 @@
         <li><a href="../../mocks/pages/workspace-settings/default.html">pages/workspace-settings/default</a> (archive danger zone)</li>
         <li><a href="../../mocks/pages/sign-in/invalid.html">pages/sign-in/invalid</a> (single-problem summary)</li>
       </ul>
-      <p>Danger zone headings and Settings section headings take <code>.section-title</code> (or <code>.card__title</code> as a card's own title). Drift noticed in the mocks: the Settings danger zone sets <code>max-width</code> and <code>margin-block</code> inline.</p>
+      <p>Danger zone headings and Settings section headings take <code>.section-title</code> (or <code>.card__title</code> as a card's own title). Below a form, the danger zone takes the form's width and <code>.section</code> spacing: <code>class="danger-zone form-width--md section"</code>.</p>
     </section>
 
     <footer class="ds-footer"><span>FaithTech Community design system · extracted from <a href="../../mocks/index.html">docs/mocks</a> on 2026-10-21</span><a href="#top">Back to top</a></footer>

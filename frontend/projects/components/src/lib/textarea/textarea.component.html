@@ -14,3 +14,8 @@
   (input)="onInput($event)"
   (blur)="onBlur()"
 ></textarea>
+@if (left() !== null) {
+  <div class="field__count" [class.field__count--over]="left()! < 0" [id]="countId">
+    {{ countText() }}
+  </div>
+}
