@@ -21,6 +21,14 @@ describe('AuthLayoutComponent', () => {
     expect(main?.id).toBe('main');
   });
 
+  it('starts with a skip link to the main landmark', () => {
+    const el = setup();
+    const first = el.querySelector('a');
+
+    expect(first?.textContent?.trim()).toBe('Skip to content');
+    expect(first?.getAttribute('href')).toBe('#main');
+  });
+
   it('shows the logo mark above the projected card content', () => {
     const el = setup();
     const card = el.querySelector('.auth-card')!;

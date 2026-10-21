@@ -1,5 +1,6 @@
 import { ChangeDetectionStrategy, Component } from '@angular/core';
 import { LogoMarkComponent } from '../logo-mark/logo-mark.component';
+import { SkipLinkComponent } from '../skip-link/skip-link.component';
 
 /**
  * The centred auth card used by sign in, sign up, verify email, forgot and reset password and accept
@@ -7,7 +8,7 @@ import { LogoMarkComponent } from '../logo-mark/logo-mark.component';
  */
 @Component({
   selector: 'ft-auth-layout',
-  imports: [LogoMarkComponent],
+  imports: [LogoMarkComponent, SkipLinkComponent],
   templateUrl: './auth-layout.component.html',
   styleUrl: './auth-layout.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,

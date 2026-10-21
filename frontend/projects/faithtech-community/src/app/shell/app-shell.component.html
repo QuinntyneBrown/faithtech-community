@@ -1,3 +1,23 @@
+<ft-skip-link />
+<ft-top-bar [links]="topLinks()" (searchSubmit)="search($event)">
+  <div ftTopBarActions class="actions">
+    @if (phone()) {
+      <ft-button
+        variant="ghost"
+        size="sm"
+        label="Open menu"
+        [attr.aria-expanded]="menuOpen()"
+        (click)="menuOpen.set(true)"
+      >
+        Menu
+      </ft-button>
+    }
+    <ft-button variant="ghost" size="sm" (click)="signOut()">
+      <ft-icon name="sign-out" size="sm" /> Sign out
+    </ft-button>
+  </div>
+</ft-top-bar>
+
 @if (unverified()) {
   <ft-banner status="warning" heading="Verify your email to RSVP">
     @switch (resend()) {
@@ -24,6 +44,12 @@
     }
   </ft-banner>
 }
-<main id="main" tabindex="-1">
+
+<main id="main" tabindex="-1" [class.with-tab-bar]="phone()">
   <router-outlet />
 </main>
+
+@if (phone()) {
+  <ft-tab-bar [items]="tabs()" />
+  <ft-nav-drawer [(open)]="menuOpen" [links]="drawerLinks()" />
+}
