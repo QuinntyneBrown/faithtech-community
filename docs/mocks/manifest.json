@@ -499,6 +499,7 @@
       ],
       "states": [
         "default",
+        "unread",
         "loading",
         "empty",
         "error"
