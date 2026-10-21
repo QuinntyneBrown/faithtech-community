@@ -25,14 +25,7 @@
 
   @switch (state()) {
     @case ('loading') {
-      <ft-card variant="flush" [busy]="true" aria-label="Loading audit log">
-        @for (row of skeletonRows; track row) {
-          <div class="skeleton-row">
-            <ft-skeleton shape="avatar" />
-            <ft-stack gap="2"><ft-skeleton shape="title" /><ft-skeleton /></ft-stack>
-          </div>
-        }
-      </ft-card>
+      <ft-list-skeleton label="Loading audit log" />
     }
     @case ('error') {
       <ft-empty-state

@@ -1,5 +1,6 @@
 using FaithTech.Community.Application.Admin;
 using FaithTech.Community.Application.Identity;
+using FaithTech.Community.Application.Invites;
 using FaithTech.Community.Application.Profiles;
 using FluentValidation;
 using Microsoft.Extensions.Configuration;
@@ -35,6 +36,8 @@ public static class DependencyInjection
         services.AddScoped<ChangeRolesHandler>();
         services.AddScoped<SuspensionHandler>();
         services.AddScoped<SearchUsersHandler>();
+        services.AddScoped<InviteSender>();
+        services.AddScoped<ManageInvitesHandler>();
         services.TryAddSingleton(TimeProvider.System);
         return services;
     }

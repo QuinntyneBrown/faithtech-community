@@ -1,5 +1,6 @@
 using FaithTech.Community.Application.Identity;
 using FaithTech.Community.Domain.Admin;
+using FaithTech.Community.Domain.Invites;
 using FaithTech.Community.Domain.Notifications;
 using FaithTech.Community.Domain.Profiles;
 using Microsoft.EntityFrameworkCore;
@@ -15,6 +16,8 @@ public interface IApplicationDbContext
     DbSet<AuditEntry> AuditEntries { get; }
 
     DbSet<Notification> Notifications { get; }
+
+    DbSet<Invite> Invites { get; }
 
     Task<int> SaveChangesAsync(CancellationToken cancellationToken = default);
 }

@@ -1,11 +1,3 @@
-/*
- * EARLY IMPLEMENTATION: written ahead of the vertical slices to get a head start.
- * Contracts and DTOs follow docs/detailed-designs/ but may change as each feature is
- * implemented end to end (spec -> design -> mock -> ATDD slice).
- * Sources:
- *   - docs/detailed-designs/invites/send-invite
- *   - docs/detailed-designs/invites/accept-invite
- */
 import { InjectionToken } from '@angular/core';
 import { Observable } from 'rxjs';
 
@@ -18,6 +10,7 @@ export interface InviteDto {
   email: string;
   preassignedRole: Role | null;
   status: InviteStatus;
+  invitedByName: string;
   createdAt: string;
   /** Invites expire 14 days after they are sent. */
   expiresAt: string;
@@ -25,9 +18,22 @@ export interface InviteDto {
   revokedAt: string | null;
 }
 
-export interface InviteLookupDto {
+export interface SendInviteRequest {
   email: string;
+  preassignedRole?: Role | null;
+  /** Optional personal note, up to 500 characters. */
+  note?: string | null;
+}
+
+/** What the invite link shows before anyone signs in (ADR 0006). */
+export interface InviteLookupDto {
   status: InviteStatus;
+  email: string;
+  inviterName: string;
+  inviterCity: string | null;
+  preassignedRole: Role | null;
+  /** An account already uses the invited email, so the invitee signs in to accept. */
+  hasAccount: boolean;
 }
 
 export interface NewAccount {
@@ -35,18 +41,19 @@ export interface NewAccount {
   password: string;
 }
 
-/**
- * Contract for the invites API. Pages depend on INVITES_SERVICE, never on HttpInvitesService.
- * TODO(slice): InviteDto and InviteLookupDto are inferred; L2 adds a personal note and resend, neither designed;
- * how the token is passed to by-token and the invalid-invite response are unspecified.
- */
+/** Contract for the invites API (L2-010, L2-011). Pages depend on INVITES_SERVICE, never on HttpInvitesService. */
 export interface InvitesService {
-  sendInvite(email: string, preassignedRole?: Role | null): Observable<InviteDto>;
+  /** Leads and System Admins. 400 Email, 403 with a detail (role or unverified), 429 over 50 a day. */
+  sendInvite(request: SendInviteRequest): Observable<InviteDto>;
+  /** Every lead's invites, newest first. */
   listInvites(): Observable<InviteDto[]>;
+  /** An expired invite only: sends a new one with a new 14-day link. */
+  resendInvite(id: string): Observable<InviteDto>;
+  /** A pending invite only. */
   revokeInvite(id: string): Observable<void>;
-  /** Anonymous. */
+  /** Anonymous. 404 when the token matches no invite. */
   getInvite(token: string): Observable<InviteLookupDto>;
-  /** Anonymous with a new account; with no account the caller must be signed in. */
+  /** Anonymous with a new account; without one the caller must be signed in with the invited email. */
   acceptInvite(token: string, account?: NewAccount): Observable<void>;
 }
 

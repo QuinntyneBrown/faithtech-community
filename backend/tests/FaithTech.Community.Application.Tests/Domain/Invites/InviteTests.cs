@@ -21,6 +21,15 @@ public class InviteTests
             (invite.Email, invite.TokenHash, invite.PreassignedRole, invite.InvitedBy, invite.CreatedAt, invite.ExpiresAt));
     }
 
+    [Fact]
+    public void An_invite_keeps_an_optional_personal_note()
+    {
+        var invite = new Invite("grace@example.org", "hash", null, Inviter, Sent, "Come build with us!");
+
+        Assert.Equal("Come build with us!", invite.Note);
+        Assert.Null(NewInvite().Note);
+    }
+
     [Theory]
     [InlineData("", "hash")]
     [InlineData("grace@example.org", " ")]

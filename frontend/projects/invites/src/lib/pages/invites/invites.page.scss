@@ -1,7 +1,14 @@
-/*
- * SCAFFOLD: placeholder, not the implementation.
- * Generated from AGENTS.md and:
- *   - docs/detailed-designs/invites/send-invite
- * Overwrite with the encapsulated styles for this component. Read tokens by role
- * (var(--color-...)), never hex values. Delete this comment when implemented.
- */
+:host {
+  display: block;
+  margin-block-start: var(--space-4);
+}
+
+ft-page-header {
+  margin-block-end: var(--space-4);
+}
+
+.trailing {
+  display: inline-flex;
+  gap: var(--space-2);
+  align-items: center;
+}

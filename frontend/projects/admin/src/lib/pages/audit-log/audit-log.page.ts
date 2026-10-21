@@ -25,8 +25,7 @@ import {
   PageHeaderComponent,
   SelectComponent,
   SelectOption,
-  SkeletonComponent,
-  StackComponent,
+  ListSkeletonComponent,
   TabComponent,
   TableColumn,
   TableComponent,
@@ -57,8 +56,7 @@ const CATEGORIES: SelectOption[] = [
     IconComponent,
     PageHeaderComponent,
     SelectComponent,
-    SkeletonComponent,
-    StackComponent,
+    ListSkeletonComponent,
     TabComponent,
     TableComponent,
     TabsComponent,
@@ -78,7 +76,6 @@ export class AuditLogPage {
     { key: 'who', header: 'Who' },
     { key: 'what', header: 'What' },
   ];
-  protected readonly skeletonRows = [1, 2, 3, 4, 5];
 
   protected readonly state = signal<State>('loading');
   protected readonly entries = signal<AuditEntry[]>([]);

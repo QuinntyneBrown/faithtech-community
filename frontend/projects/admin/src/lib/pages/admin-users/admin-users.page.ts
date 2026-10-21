@@ -27,8 +27,7 @@ import {
   EmptyStateComponent,
   LinkComponent,
   PageHeaderComponent,
-  SkeletonComponent,
-  StackComponent,
+  ListSkeletonComponent,
   TabComponent,
   TableColumn,
   TableComponent,
@@ -60,8 +59,7 @@ const STATUS_BADGES: Record<UserStatus, BadgeVariant> = {
     EmptyStateComponent,
     LinkComponent,
     PageHeaderComponent,
-    SkeletonComponent,
-    StackComponent,
+    ListSkeletonComponent,
     TabComponent,
     TableComponent,
     TabsComponent,
@@ -87,7 +85,6 @@ export class AdminUsersPage {
     { key: 'status', header: 'Status', template: this.statusCell() },
     { key: 'action', header: 'Actions', hideHeader: true, template: this.actionCell() },
   ]);
-  protected readonly skeletonRows = [1, 2, 3, 4, 5];
 
   protected readonly query = new FormControl('', { nonNullable: true });
   protected readonly term = signal('');

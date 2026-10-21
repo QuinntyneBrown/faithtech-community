@@ -1,0 +1,25 @@
+import { ChangeDetectionStrategy, Component, computed, input } from '@angular/core';
+import { SkeletonComponent } from './skeleton.component';
+
+/**
+ * Loading placeholder for a list or table in a flush card: rows of avatar, title and text skeletons
+ * (design system: skeleton, loading list). Busy and labelled for assistive tech.
+ */
+@Component({
+  selector: 'ft-list-skeleton',
+  imports: [SkeletonComponent],
+  templateUrl: './list-skeleton.component.html',
+  styleUrl: './list-skeleton.component.scss',
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  host: {
+    'aria-busy': 'true',
+    '[attr.aria-label]': 'label()',
+  },
+})
+export class ListSkeletonComponent {
+  /** What is loading, e.g. "Loading users". */
+  readonly label = input.required<string>();
+  readonly rows = input(5);
+
+  protected readonly items = computed(() => Array.from({ length: this.rows() }, (_, i) => i));
+}

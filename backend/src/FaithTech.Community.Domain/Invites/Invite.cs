@@ -8,7 +8,7 @@ public class Invite
 
     private Invite() { }
 
-    public Invite(string email, string tokenHash, Role? preassignedRole, Guid invitedBy, DateTimeOffset createdAt)
+    public Invite(string email, string tokenHash, Role? preassignedRole, Guid invitedBy, DateTimeOffset createdAt, string? note = null)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(email);
         ArgumentException.ThrowIfNullOrWhiteSpace(tokenHash);
@@ -19,6 +19,7 @@ public class Invite
         InvitedBy = invitedBy;
         CreatedAt = createdAt;
         ExpiresAt = createdAt + Lifetime;
+        Note = note;
     }
 
     public Guid Id { get; private set; }
@@ -30,6 +31,9 @@ public class Invite
     public Role? PreassignedRole { get; private set; }
 
     public Guid InvitedBy { get; private set; }
+
+    /// <summary>The inviter's optional personal note, repeated when the invite is resent.</summary>
+    public string? Note { get; private set; }
 
     public DateTimeOffset CreatedAt { get; private set; }
 

@@ -9,21 +9,6 @@ ft-tabs,
   margin-block-end: var(--space-4);
 }
 
-.muted {
-  color: var(--color-fg-muted);
-}
-
-.skeleton-row {
-  display: flex;
-  gap: var(--space-3);
-  align-items: center;
-  padding: var(--space-3) var(--space-4);
-}
-
-.skeleton-row ft-stack {
-  flex: 1;
-}
-
 .more {
   margin-block-start: var(--space-4);
 }

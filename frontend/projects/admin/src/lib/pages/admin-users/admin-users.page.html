@@ -9,7 +9,7 @@
     @for (role of user.roles; track role) {
       <ft-badge variant="role">{{ roleLabel(role) }}</ft-badge>
     } @empty {
-      <span class="muted">No role</span>
+      <span class="text-muted">No role</span>
     }
   </ft-cluster>
 </ng-template>
@@ -58,14 +58,7 @@
 
   @switch (state()) {
     @case ('loading') {
-      <ft-card variant="flush" [busy]="true" aria-label="Loading users">
-        @for (row of skeletonRows; track row) {
-          <div class="skeleton-row">
-            <ft-skeleton shape="avatar" />
-            <ft-stack gap="2"><ft-skeleton shape="title" /><ft-skeleton /></ft-stack>
-          </div>
-        }
-      </ft-card>
+      <ft-list-skeleton label="Loading users" />
     }
     @case ('error') {
       <ft-empty-state

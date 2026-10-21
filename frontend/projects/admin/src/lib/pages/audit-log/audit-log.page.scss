@@ -13,17 +13,6 @@ ft-tabs,
   max-inline-size: 14rem;
 }
 
-.skeleton-row {
-  display: flex;
-  gap: var(--space-3);
-  align-items: center;
-  padding: var(--space-3) var(--space-4);
-}
-
-.skeleton-row ft-stack {
-  flex: 1;
-}
-
 .more {
   margin-block-start: var(--space-4);
 }
