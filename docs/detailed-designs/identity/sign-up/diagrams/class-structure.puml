@@ -38,7 +38,7 @@ class CommunityUser {
 class Profile {
   +Guid Id
   +string Name
-  +IReadOnlyCollection<Role> Roles
+  +IReadOnlyCollection<ProfileRole> Roles
 }
 SignUpHandler ..> SignUpCommand : handles
 SignUpHandler ..> SignUpValidator : uses

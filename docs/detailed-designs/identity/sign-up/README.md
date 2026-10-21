@@ -75,3 +75,9 @@ The web app posts the sign-up form to the Community API, which writes the accoun
 The page validates inline before sending. The handler rejects weak passwords, creates the account with no role only when the email is unused, and returns the same outcome either way (`L2-001`).
 
 ![Sequence diagram for sign up](diagrams/sequence-sign-up.png)
+
+## Open questions
+
+Decisions recorded while building the Domain layer (`FaithTech.Community.Domain`):
+
+- `Profile` requires a non-blank name and starts with an empty `ProfileRole` collection (`L2-001`, `L2-008`).

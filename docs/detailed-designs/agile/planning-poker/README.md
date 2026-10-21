@@ -22,7 +22,7 @@ Any workspace member starts a session for a story and becomes its facilitator; i
 - **`PlanningPokerHub`** — SignalR hub in `FaithTech.Community.Api`. It authenticates the connection and forwards `Join`, `Vote`, `Reveal`, `Revote` and `SetPoints` to Application handlers; it holds no business logic.
 - **`StartPokerSessionHandler`**, **`CastVoteHandler`**, **`RevealVotesHandler`**, **`RevoteHandler`**, **`SetFinalPointsHandler`**, **`JoinPokerSessionHandler`** — Application handlers. Facilitator-only actions are refused for others; vote values are withheld from broadcasts until reveal.
 - **`WorkspaceAccessPolicy`** — Application service shared by every agile handler. It resolves the caller from `ICurrentUser` and classifies the caller as owner, member, Staff, System Admin or outsider for a workspace. Outsiders receive 404, Staff and non-owner members receive 403 on writes they lack, and System Admin actions pass and are written to the audit log (`L2-031`, `L2-042`).
-- **`PokerSession`** — Domain entity with `StoryId`, `FacilitatorId`, `Round`, `IsRevealed`, `InvitedIds` and `Votes`; persisting votes lets a reconnecting participant recover the current vote.
+- **`PokerSession`** — Domain entity with `StoryIds`, `CurrentStoryId`, `FacilitatorId`, `Round`, `IsRevealed`, `InvitedIds` and `Votes`. Its constructor takes the workspace and refuses non-story items, items of another workspace and a facilitator or invitee who is not a member. Only the facilitator and invitees vote; votes are fixed once revealed; `Revote` clears them; `SetFinalPoints` updates the current story and moves to the next; persisting votes lets a reconnecting participant recover the current vote.
 - **`PokerVote`** — value of one participant in one round; `DeckValue` restricts the value to the deck.
 - **`IPokerBroadcaster`** — Application abstraction, implemented by `SignalRPokerBroadcaster`, that sends `VoteCast(profileId)`, `VotesRevealed(votes)`, `RevoteStarted` and `PointsSet` to the session group.
 - Session end and expiry rules are `<TO SUPPLY>`.
@@ -91,3 +91,11 @@ Votes broadcast only the voter's identity until the facilitator reveals; facilit
 Joining checks membership; Staff join as watchers and non-members are refused. After a dropped connection the client rejoins and receives its current vote (`L2-038`).
 
 ![Sequence diagram: join and reconnect](diagrams/sequence-join-and-reconnect.png)
+
+## Open questions
+
+Decisions recorded while building the Domain layer (`FaithTech.Community.Domain`):
+
+- `L2-038` AC1 starts a session for one or more stories estimated one at a time; the session holds `StoryIds` and a current story instead of a single `StoryId`, and is complete after the last story. Resolved.
+- `DeckValue.Points()` maps each card to its points; `?` (`Unknown`) has none.
+- Domain rule violations throw `InvalidOperationException` (a broken rule) or `ArgumentException` (invalid input); there is no shared domain exception type. Handlers check permissions and preconditions first and map any remaining violation to a `400` or `409` result.

@@ -12,13 +12,16 @@ skinparam class {
 title Class structure — Send an announcement
 enum AudienceKind {
   Everyone
-  Role
+  Roles
   EventRsvps
 }
 class AnnouncementAudience {
   +AudienceKind Kind
-  +Role? Role
+  +IReadOnlySet<Role> Roles
   +Guid? EventId
+  +{static} Everyone(): AnnouncementAudience
+  +{static} ForRoles(roles: Role[]): AnnouncementAudience
+  +{static} ForEventRsvps(eventId: Guid): AnnouncementAudience
 }
 class Announcement {
   +Guid Id
@@ -27,6 +30,8 @@ class Announcement {
   +AnnouncementAudience Audience
   +Guid SenderId
   +DateTimeOffset SentAt
+  +bool AlsoEmail
+  +AddRecipients(profileIds: IEnumerable<Guid>): void
 }
 class AnnouncementRecipient {
   +Guid AnnouncementId

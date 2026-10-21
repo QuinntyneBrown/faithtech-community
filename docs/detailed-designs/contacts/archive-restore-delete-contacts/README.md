@@ -13,7 +13,7 @@ The archived contacts page lists the caller's archived contacts and offers Resto
 - **`DeleteContactDialog`** — CDK dialog with a text input; the Delete button stays disabled until the input equals `DELETE` exactly (case-sensitive).
 - **`ContactsService`** — `archive`, `restore`, `listArchived` and `delete`, calling `POST /api/contacts/{id}/archive`, `POST /api/contacts/{id}/restore`, `GET /api/contacts/archived` and `DELETE /api/contacts/{id}`.
 - **`ArchiveContactHandler`**, **`RestoreContactHandler`** and **`DeleteContactHandler`** in Application `Contacts/`. Each applies `ContactAccessPolicy`. `DeleteContactHandler` refuses a contact that is not archived with `409`.
-- **`Contact.Archive()`** sets `ArchivedAtUtc`; **`Contact.Restore()`** clears it. Active queries filter on `ArchivedAtUtc IS NULL`.
+- **`Contact.Archive(nowUtc)`** sets `ArchivedAtUtc`; **`Contact.Restore()`** clears it. Each rejects a contact already in the target state. **`Contact.CanBeDeleted`** is true only for an archived contact, and `DeleteContactHandler` checks it. Active queries filter on `ArchivedAtUtc IS NULL`.
 - **Cascade** — deleting a `Contact` deletes its `ContactNote` rows through an EF Core cascade.
 
 Whether archived contacts expire automatically: `<TO SUPPLY>`.
@@ -72,3 +72,9 @@ Archiving moves the contact to the archived list after confirmation; restoring r
 The dialog keeps Delete disabled until the input is exactly `DELETE`; the server deletes only archived contacts.
 
 ![Sequence diagram for delete a contact permanently](diagrams/sequence-delete-permanently.png)
+
+## Open questions
+
+Decisions recorded while building the Domain layer (`FaithTech.Community.Domain`):
+
+- Domain rule violations throw `InvalidOperationException` (a broken rule) or `ArgumentException` (invalid input); there is no shared domain exception type. Handlers check permissions and preconditions first and map any remaining violation to a `400` or `409` result.

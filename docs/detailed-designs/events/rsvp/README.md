@@ -19,13 +19,13 @@ Attendees see only the RSVP count. Leads, Staff and System Admin see the full RS
 - **`EventsService` / `EVENTS_SERVICE`** — `getEvent(id)`, `rsvp(id)` and `cancelRsvp(id)`, implemented by `HttpEventsService`.
 - **`EventsEndpoints`** — maps `GET /api/events/{id}`, `POST /api/events/{id}/rsvps` and `DELETE /api/events/{id}/rsvps/me`.
 - **`GetEventHandler`** — returns `EventDetailDto`. It includes `Rsvps` only when `EventPermissions.CanSeeRsvpList` is true, and includes guest emails only when `CanSeeGuestEmails` is true (`L2-022`).
-- **`RsvpToEventHandler`** — refuses a cancelled event, creates the `Rsvp` idempotently, records an in-app confirmation, and queues a confirmation email with the `.ics` attached.
-- **`CancelRsvpHandler`** — removes the caller's `Rsvp`.
+- **`RsvpToEventHandler`** — calls `Event.Rsvp(profileId, now)`, which refuses a cancelled, full or already-started event and returns the existing `Rsvp` when the member already RSVP'd; the handler then records an in-app confirmation and queues a confirmation email with the `.ics` attached.
+- **`CancelRsvpHandler`** — calls `Event.CancelRsvp(profileId)` to remove the caller's `Rsvp`.
 - **`IIcsCalendarWriter`** — Infrastructure service that writes the `.ics` attachment (see calendar-export).
 - **`IEmailSender`** — Infrastructure email service that sends through SMTP/SendGrid.
 - **`INotificationPublisher`** — records the in-app confirmation.
 
-Whether an event has a capacity limit is `<TO SUPPLY>`; the specs define none.
+An event may have an optional capacity (`L2-020` AC5); `Event.IsFull` refuses RSVPs once it is reached.
 
 ## Requirements
 
@@ -88,3 +88,10 @@ The member confirms in `CancelRsvpDialog` before the RSVP is removed from the li
 The server decides what RSVP data leaves the API. Attendees receive only the count; leads, Staff and System Admin receive the list; guest emails reach leads and System Admin only (`L2-022`).
 
 ![Sequence diagram: view RSVP details by role](diagrams/sequence-view-rsvps.png)
+
+## Open questions
+
+Decisions recorded while building the Domain layer (`FaithTech.Community.Domain`):
+
+- Capacity was an open question; `L2-020` AC5 defines it, so `Event` enforces it. RSVPs are also refused once the event has started, matching "any time before the event" in `L2-022` AC2. Resolved.
+- Domain rule violations throw `InvalidOperationException` (a broken rule) or `ArgumentException` (invalid input); there is no shared domain exception type. Handlers check permissions and preconditions first and map any remaining violation to a `400` or `409` result.

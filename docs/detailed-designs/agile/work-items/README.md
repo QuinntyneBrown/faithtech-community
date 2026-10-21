@@ -31,9 +31,9 @@ This feature owns the work item model, the new-work-item dialog, the work item d
 - **`WorkItemValidator`** — FluentValidation-style validator: title required and at most 200 characters, assignee is a workspace member, parent kind matches the allowed hierarchy, task has a story parent.
 - **`GetBacklogQuery`** / **`GetBacklogHandler`** — returns the initiative/epic/story tree, optionally filtered by initiative or epic.
 - **`WorkspaceAccessPolicy`** — Application service shared by every agile handler. It resolves the caller from `ICurrentUser` and classifies the caller as owner, member, Staff, System Admin or outsider for a workspace. Outsiders receive 404, Staff and non-owner members receive 403 on writes they lack, and System Admin actions pass and are written to the audit log (`L2-031`, `L2-042`).
-- **`WorkItem`** — Domain entity with `Kind`, `Title`, `Description`, `Status`, `AssigneeId`, `ParentId`, `StoryPoints` (stories only), `IsDone` (tasks only), `IsArchived` and `Comments`.
+- **`WorkItem`** — Domain entity with `Kind`, `Title`, `Description`, `Status`, `AssigneeId`, `ParentId`, `StoryPoints` (stories only), `IsDone` (tasks only), `IsArchived` and `Comments`. The constructor requires a title of at most 200 characters and a story parent for a task; `SetParent` enforces `WorkItemHierarchy` and the same workspace; `Assign(profileId, workspace)` rejects a non-member (`L2-033` AC4); `SetStatus` applies to non-task items and `SetDone` to tasks only.
 - **`WorkItemKind`** — enumeration `Initiative`, `Epic`, `Story`, `Task`; `WorkItemHierarchy.CanParent(parent, child)` encodes the allowed links.
-- **`WorkItemStatus`** — enumeration `ToDo`, `InProgress`, `Done`. Initiative and epic status values are `<TO SUPPLY>` if they differ from story status.
+- **`WorkItemStatus`** — enumeration `ToDo`, `InProgress`, `Done`. Initiatives and epics use the same status values as stories.
 - **`INotificationService`** — sends the in-app and email assignment notification.
 
 ## Requirements
@@ -99,3 +99,10 @@ The dialog enforces a non-empty title on the client; the server re-validates the
 The backlog query returns initiatives, epics and stories as a tree, optionally filtered by initiative or epic (`L2-032`).
 
 ![Sequence diagram: view the backlog tree](diagrams/sequence-view-backlog.png)
+
+## Open questions
+
+Decisions recorded while building the Domain layer (`FaithTech.Community.Domain`):
+
+- Initiative and epic status values were open; they reuse `WorkItemStatus`. Resolved.
+- Domain rule violations throw `InvalidOperationException` (a broken rule) or `ArgumentException` (invalid input); there is no shared domain exception type. Handlers check permissions and preconditions first and map any remaining violation to a `400` or `409` result.

@@ -10,7 +10,7 @@ Container_Boundary(web, "Web app") {
 Container_Boundary(api, "Community API") {
   Component(ep, "AdminUsersEndpoints", "ASP.NET Core minimal API", "/api/admin/users/{id}/suspension")
   Component(h, "SuspendUserHandler / ReinstateUserHandler", "Application handler", "Changes suspension state")
-  Component(acct, "UserAccount", "Domain entity", "Holds suspension state")
+  Component(acct, "Profile", "Domain entity", "Holds suspension state")
   Component(rev, "TokenRevocation", "Infrastructure service", "Revokes OpenIddict tokens")
   Component(audit, "AuditLog", "Infrastructure service", "Implements IAuditLog; appends immutable audit entries")
   ComponentDb(db, "CommunityDbContext", "PostgreSQL", "EF Core context over the Community database")

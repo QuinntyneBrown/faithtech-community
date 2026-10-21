@@ -20,7 +20,7 @@ Other features create notifications through one Application service, so every so
 - **`ListNotificationsQuery`** / **`ListNotificationsHandler`** — returns a page of the caller's notifications ordered by `CreatedAt` descending, filtered by recipient in the database query.
 - **`MarkNotificationReadCommand`** / **`MarkNotificationReadHandler`** and **`MarkAllNotificationsReadCommand`** / **`MarkAllNotificationsReadHandler`** — set `ReadAt` on one or all of the caller's unread notifications.
 - **`INotificationPublisher`** — Application service other features call to create a notification and, when the notification kind has an email form, enqueue the email.
-- **`Notification`** — Domain entity with `RecipientId`, `Kind`, `Title`, `LinkPath`, `CreatedAt` and `ReadAt`.
+- **`Notification`** — Domain entity with `RecipientId`, `Kind`, `Title` (required), `LinkPath` (required), `CreatedAt` and `ReadAt`. `MarkRead(at)` keeps the first read time.
 - **`NotificationKind`** — enumeration of notification sources, listed in `L2-028`.
 - **`CommunityDbContext`** — persists `Notification` rows in the `notifications` table.
 
@@ -80,3 +80,9 @@ The panel lists notifications newest first (`L2-027`). Opening one marks it read
 "Mark all as read" sets `ReadAt` on every unread notification of the caller in one statement, and the badge clears (`L2-027`). An empty result shows the empty state.
 
 ![Sequence diagram for mark all as read](diagrams/sequence-mark-all-read.png)
+
+## Open questions
+
+Decisions recorded while building the Domain layer (`FaithTech.Community.Domain`):
+
+- `NotificationKind` adds `InviteAccepted` (inviter notified, `L2-011` AC4) and `WorkspaceOwnerLostCityLead` (System Admin notified, `L2-037` AC2), which are in-app occurrences not listed in `L2-028`.

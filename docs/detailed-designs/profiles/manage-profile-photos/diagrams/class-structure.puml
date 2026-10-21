@@ -19,6 +19,7 @@ class Profile {
   +RemovePhoto(photoId: Guid): void
 }
 class ProfilePhoto {
+  +ProfilePhoto(blobName: string, altText: string, uploadedAt: DateTimeOffset)
   +Guid Id
   +string BlobName
   +string AltText

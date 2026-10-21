@@ -7,18 +7,18 @@ An event manager may cancel an event that no longer takes place. Cancelling is a
 Key terms:
 
 - **event manager** — holder of the Event Lead, City Lead or System Admin role
-- **cancellation reason** — optional free text explaining why the event was cancelled
+- **cancellation reason** — required free text explaining why the event was cancelled (`L2-025` AC1, AC3)
 
 Cancelling notifies everyone who RSVP'd: members by email and in-app notification, guests by email. The event's `.ics` SEQUENCE increases and its status becomes cancelled (`L2-024`).
 
 ## Description
 
 - **`EventPage`** — offers the cancel action to event managers (mock state `lead`).
-- **`CancelEventDialog`** — Angular CDK Dialog in the `events` library (mock: `docs/mocks/dialogs/cancel-event/`, states `default`, `busy`, `invalid`, `failed`) with an optional reason and a confirm button.
+- **`CancelEventDialog`** — Angular CDK Dialog in the `events` library (mock: `docs/mocks/dialogs/cancel-event/`, states `default`, `busy`, `invalid`, `failed`) with a required reason and a confirm button.
 - **`EventsService` / `EVENTS_SERVICE`** — `cancelEvent(id, reason)`, implemented by `HttpEventsService`.
 - **`EventsEndpoints`** — maps `POST /api/events/{id}/cancel`.
 - **`CancelEventCommand` / `CancelEventHandler`** — checks `EventPermissions.CanManageEvents`, calls `Event.Cancel(reason)`, records in-app notifications for member RSVPs, and queues emails to every member and guest who RSVP'd.
-- **`Event.Cancel(reason)`** — sets `IsCancelled`, stores the reason and increments `Sequence`. The RSVP handlers refuse cancelled events.
+- **`Event.Cancel(reason)`** — rejects an empty reason and an event already cancelled, then sets `IsCancelled`, stores the reason and increments `Sequence`. The RSVP handlers refuse cancelled events.
 - **`IEmailSender`** — Infrastructure email service. Delivery is asynchronous through an outbox; the outbox mechanism is `<TO SUPPLY>`.
 - **`INotificationPublisher`** — records in-app notifications.
 
@@ -71,3 +71,9 @@ The `CancelEventDialog` calls the Community API, which updates the event and sen
 The manager confirms in `CancelEventDialog`. The handler marks the event cancelled, closes RSVPs, and notifies every member and guest who RSVP'd (`L2-025`).
 
 ![Sequence diagram: cancel an event](diagrams/sequence-cancel-event.png)
+
+## Open questions
+
+Decisions recorded while building the Domain layer (`FaithTech.Community.Domain`):
+
+- The reason is required, as `L2-025` states; the earlier "optional reason" wording is corrected. Resolved.

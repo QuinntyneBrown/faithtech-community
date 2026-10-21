@@ -18,8 +18,8 @@ The workspace owner archives a workspace or an item and may restore it; System A
 - **`AgileService`** — `api` contract (`AGILE_SERVICE`, `HttpAgileService`).
 - **`WorkspacesEndpoints`** — maps `POST /workspaces/{id}/archive`, `/restore`, `/owner`, and `POST /items/{id}/archive`, `/restore`.
 - **`ArchiveWorkspaceCommand`**, **`RestoreWorkspaceCommand`**, **`ArchiveWorkItemCommand`**, **`RestoreWorkItemCommand`** and handlers — set or clear `IsArchived`; a global EF query filter hides archived rows from normal views.
-- **`ReassignWorkspaceOwnerCommand`** / **`ReassignWorkspaceOwnerHandler`** — System Admin only; the new owner shall hold the City Lead role.
-- **`CityLeadRoleRemovedHandler`** — Application handler for the domain event raised when the City Lead role is removed; it notifies System Admin of each workspace the former owner holds.
+- **`ReassignWorkspaceOwnerCommand`** / **`ReassignWorkspaceOwnerHandler`** — System Admin only; `Workspace.ReassignOwner(newOwner)` rejects a profile without the City Lead role.
+- **`CityLeadRoleRemovedHandler`** — Application handler for the `CityLeadRoleRemoved` domain event that `Profile.RemoveRole` raises when the City Lead role is removed; it notifies System Admin of each workspace the former owner holds.
 - **`WorkspaceAccessPolicy`** — Application service shared by every agile handler. It resolves the caller from `ICurrentUser` and classifies the caller as owner, member, Staff, System Admin or outsider for a workspace. Outsiders receive 404, Staff and non-owner members receive 403 on writes they lack, and System Admin actions pass and are written to the audit log (`L2-031`, `L2-042`).
 - **`IAuditLog`** and **`INotificationService`** — audit and notification abstractions.
 
@@ -76,3 +76,10 @@ Archiving hides the workspace from normal views; the owner or System Admin resto
 Removing the City Lead role from an owner notifies System Admin, who reassigns the workspace to another City Lead; the action is audited (`L2-037`).
 
 ![Sequence diagram: reassign ownership after role loss](diagrams/sequence-reassign-owner.png)
+
+## Open questions
+
+Decisions recorded while building the Domain layer (`FaithTech.Community.Domain`):
+
+- `WorkItem.Archive(children)` and `Restore(children)` also archive or restore the tasks of a story (`L2-037` AC1); the handler passes the loaded children.
+- Archive and restore reject an item or workspace already in the target state. Domain rule violations throw `InvalidOperationException` (a broken rule) or `ArgumentException` (invalid input); there is no shared domain exception type. Handlers check permissions and preconditions first and map any remaining violation to a `400` or `409` result.

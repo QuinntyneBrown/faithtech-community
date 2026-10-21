@@ -15,10 +15,12 @@ enum NotificationKind {
   EventCancelled
   EventChanged
   Invite
+  InviteAccepted
   RsvpConfirmed
   RoleChanged
   WorkItemAssigned
   WorkspaceMemberAdded
+  WorkspaceOwnerLostCityLead
   PlanningPokerInvite
   Announcement
 }
@@ -30,6 +32,7 @@ class Notification {
   +string LinkPath
   +DateTimeOffset CreatedAt
   +DateTimeOffset? ReadAt
+  +bool IsRead
   +MarkRead(at: DateTimeOffset): void
 }
 class ListNotificationsQuery {

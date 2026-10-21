@@ -75,3 +75,9 @@ The member reads announcements newest first, then turns off announcement emails 
 The unsubscribe link carries a token that identifies the recipient, so the opt-out succeeds without a sign-in (`L2-030`).
 
 ![Sequence diagram for unsubscribe from an email link](diagrams/sequence-unsubscribe-link.png)
+
+## Open questions
+
+Decisions recorded while building the Domain layer (`FaithTech.Community.Domain`):
+
+- `Profile.SetAnnouncementEmailOptOut(bool)` stores the preference; it defaults to receiving announcement emails.

@@ -19,6 +19,7 @@ An unverified account that signs in sees only the verify-email page with a resen
 - **`ConfirmEmailCommand`** / **`ConfirmEmailHandler`** — Application request and handler. The handler validates the token through `UserManager.ConfirmEmailAsync`, rejects tokens older than 24 hours or already used, and sets `EmailConfirmed`.
 - **`ResendVerificationCommand`** / **`ResendVerificationHandler`** — Application request and handler. The handler counts resends in the last hour and rejects the fourth with a "try again later" result.
 - **`VerificationResendLog`** — Infrastructure record of resend timestamps per account. Its storage form (table or cache) is `<TO SUPPLY>`.
+- **`EmailVerified`** — Domain event (`Domain/Identity`) naming the profile and the verified email. `ConfirmEmailHandler` raises it once the email is confirmed; the contacts subsystem handles it (`contacts/link-contact-on-sign-up`).
 - **`RequireVerifiedEmail`** — authorization policy applied by default to API endpoints. It refuses any call from an unverified account except the resend endpoint.
 
 ## Requirements
@@ -75,3 +76,9 @@ A valid link younger than 24 hours confirms the email and sends the user to sign
 The handler sends a fresh link unless more than 3 resends occurred in the last hour, in which case it returns 429 and the page shows "try again later" (`L2-002`).
 
 ![Sequence diagram for resend a verification link](diagrams/sequence-resend-verification.png)
+
+## Open questions
+
+Decisions recorded while building the Domain layer (`FaithTech.Community.Domain`):
+
+- `EmailVerified` is a Domain record because `CommunityUser` is an Infrastructure Identity type; the Application handler raises it rather than an entity.

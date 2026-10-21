@@ -20,8 +20,10 @@ class Invite {
   +DateTimeOffset CreatedAt
   +DateTimeOffset ExpiresAt
   +DateTimeOffset? AcceptedAt
+  +Guid? AcceptedBy
   +DateTimeOffset? RevokedAt
   +Status(now: DateTimeOffset): InviteStatus
+  +MarkAccepted(by: Guid, now: DateTimeOffset): void
   +Revoke(now: DateTimeOffset): void
 }
 enum InviteStatus {

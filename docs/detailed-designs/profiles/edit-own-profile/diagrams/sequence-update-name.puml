@@ -42,7 +42,7 @@ else valid
     ep --> client : 403 (L2-006)
   else permitted
     h -> db : Load profile
-    h -> ent : Rename(name)
+    h -> ent : Update(name, homeCity, bio)
     h -> db : Save; audit if admin override
     h --> ep : Updated
     ep --> client : 204 No Content

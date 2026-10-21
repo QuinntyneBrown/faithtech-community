@@ -14,7 +14,7 @@ This feature covers suspending a user with a reason and reinstating them. Only a
 - **`AdminUsersEndpoints`** — minimal API mapping; requires an authenticated caller and sends the command.
 - **`SuspendUserCommand`** (`UserId`, `Reason`) and **`ReinstateUserCommand`** (`UserId`) with **`SuspendUserHandler`** and **`ReinstateUserHandler`** in Application `Admin/`. Each handler requires the caller to hold System Admin and returns `403` otherwise.
 - **`SuspendUserValidator`** — requires a non-empty reason. Maximum reason length: `<TO SUPPLY>`.
-- **`UserAccount`** — Domain/identity account with `IsSuspended`, `SuspendedReason`, `SuspendedAtUtc` and `Suspend(reason)` / `Reinstate()`.
+- **`Profile`** — Domain entity that holds the suspended state: `IsSuspended`, `SuspendedReason`, `SuspendedAtUtc`, `Suspend(reason, nowUtc)` and `Reinstate()`. `Suspend` requires a reason and rejects a profile that is already suspended; `Reinstate` rejects a profile that is not suspended. The command's `UserId` resolves to the account's `ProfileId`.
 - **`ITokenRevocation`** — Infrastructure service over the OpenIddict token and authorization stores; revokes every token for the account.
 - **`IAuditLog`** — records each suspension and reinstatement (`L2-041`).
 
@@ -52,13 +52,13 @@ The `admin` feature library in the Angular web app calls the Community API over 
 
 ### Components
 
-The page opens `SuspendUserDialog`, which calls the API client. The handler changes `UserAccount`, revokes tokens through `TokenRevocation`, audits, and saves.
+The page opens `SuspendUserDialog`, which calls the API client. The handler changes `Profile`, revokes tokens through `TokenRevocation`, audits, and saves.
 
 ![C4 component view for suspend users](diagrams/c4-component.png)
 
 ### Class structure
 
-Both handlers depend on `ICurrentUser`, `ITokenRevocation` and `IAuditLog`, and mutate `UserAccount`.
+Both handlers depend on `ICurrentUser`, `ITokenRevocation` and `IAuditLog`, and mutate `Profile`.
 
 ![Class diagram for suspend users](diagrams/class-structure.png)
 
@@ -73,3 +73,10 @@ The handler rejects non-admin callers with `403`, then sets the suspended state,
 Reinstatement clears the suspended state so the next sign-in succeeds (`L2-039` AC2).
 
 ![Sequence diagram for reinstate a user](diagrams/sequence-reinstate-user.png)
+
+## Open questions
+
+Decisions recorded while building the Domain layer (`FaithTech.Community.Domain`):
+
+- Suspension lives on `Profile`, not on a separate `UserAccount` entity: the Domain has no dependency on ASP.NET Identity, and sign-in already reads `Profile.IsSuspended` (`identity/sign-in-and-sign-out`). Resolved.
+- Domain rule violations throw `InvalidOperationException` (a broken rule) or `ArgumentException` (invalid input); there is no shared domain exception type. Handlers check permissions and preconditions first and map any remaining violation to a `400` or `409` result.

@@ -18,12 +18,16 @@ enum PartnerStage {
 class Partner {
   +Guid Id
   +string Name
-  +string ContactName
-  +string Email
-  +string Phone
-  +string Notes
+  +string? Website
+  +string? Offering
+  +Guid? OwnerId
+  +string? ContactName
+  +string? Email
+  +string? Phone
+  +string? Notes
   +PartnerStage Stage
-  +MoveTo(stage: PartnerStage, by: Guid, nowUtc: DateTime): void
+  +Update(name, website, offering, ownerId, contactName, email, phone, notes): void
+  +MoveTo(stage: PartnerStage, by: Guid, nowUtc: DateTime, note: string?): void
 }
 class PartnerStageChange {
   +Guid Id
@@ -32,6 +36,7 @@ class PartnerStageChange {
   +PartnerStage To
   +Guid MovedBy
   +DateTime MovedAtUtc
+  +string? Note
 }
 class PartnerAccessPolicy {
   +CanRead(caller: ICurrentUser): bool
@@ -42,6 +47,9 @@ Partner "1" *-- "*" PartnerStageChange
 
 class CreatePartnerCommand {
   +string Name
+  +string? Website
+  +string? Offering
+  +Guid? OwnerId
   +string ContactName
   +string Email
   +string Phone

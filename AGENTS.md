@@ -36,9 +36,11 @@ faithtech-community/
 │   ├── deploy/                       # Dockerfiles and container config
 │   ├── src/
 │   │   ├── FaithTech.Community.Domain/          # Entities, value objects, roles. Zero dependencies.
+│   │   │                                        # One folder per feature, named as in Application/,
+│   │   │                                        # plus Agile/ for the agile workspace designs
 │   │   ├── FaithTech.Community.Application/     # Handlers, validators, DTO contracts, permission
-│   │   │                                        # checks; one folder per feature (Profiles/,
-│   │   │                                        # Contacts/, Partners/, Team/, Events/, Search/,
+│   │   │                                        # checks; one folder per feature (Identity/,
+│   │   │                                        # Profiles/, Contacts/, Partners/, Team/, Events/, Search/,
 │   │   │                                        # Notifications/, Announcements/, Invites/, Admin/)
 │   │   ├── FaithTech.Community.Infrastructure/  # DbContext, EF migrations, Postgres full-text
 │   │   │                                        # search, Azure Blob, email, .ics, image resizing,
@@ -144,6 +146,8 @@ Non-obvious rules:
 ### Tests
 
 Backend behavior is covered by integration tests against the API. Write tests for authorization rules alongside each feature, especially private-contact visibility and role-assignment limits.
+
+All backend tests MUST use a fake database: the EF Core in-memory provider, with a uniquely named database per test fixture. Tests MUST NOT depend on Docker, Testcontainers, a running PostgreSQL or any other external service; fake external dependencies (blob storage, email, breached-password checks, time) behind their abstractions.
 
 ## Frontend architecture
 

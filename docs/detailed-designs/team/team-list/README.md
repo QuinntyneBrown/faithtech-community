@@ -12,7 +12,7 @@ The team page lets any signed-in member see who the team is, with name, photo an
 - **`TeamService`** / **`TEAM_SERVICE`** / **`HttpTeamService`** — API client calling `GET /api/team?role=`.
 - **`TeamEndpoints`** — minimal API mapping requiring an authenticated caller.
 - **`ListTeamQuery`** (`Role?`) and **`ListTeamHandler`** in Application `Team/`. The handler selects profiles whose roles intersect `TeamRoles`, optionally narrowed to the filtered role.
-- **`TeamRoles`** — Domain constant set: City Lead, Event Lead, Create Lead, Communications Lead, Volunteer.
+- **`TeamRoles`** — Domain constant set: City Lead, Event Lead, Create Lead, Communications Lead, Volunteer. `TeamRoles.IsTeamMember(profile)` is true while the profile holds one of them; the Agile workspace membership rule reuses it.
 - **`TeamMemberDto`** — `ProfileId`, `Name`, `PhotoUrl`, `Roles`.
 
 Sort order and paging of the team list: `<TO SUPPLY>`.
@@ -64,3 +64,9 @@ The `team` feature library in the Angular web app calls the Community API over H
 Membership is computed from current roles, so a profile that loses its last team role drops out on the next view (`L2-019` AC3).
 
 ![Sequence diagram for view and filter the team](diagrams/sequence-view-team.png)
+
+## Open questions
+
+Decisions recorded while building the Domain layer (`FaithTech.Community.Domain`):
+
+- Team membership stays derived from roles through `TeamRoles.IsTeamMember`; nothing is stored. Resolved.

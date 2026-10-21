@@ -25,9 +25,14 @@ class Profile {
   +Guid Id
   +string Name
   +IReadOnlyCollection<ProfileRole> Roles
-  +AddRole(role: Role): void
+  +IReadOnlyList<object> DomainEvents
+  +AddRole(role: Role, grantedBy: Guid, nowUtc: DateTime): void
   +RemoveRole(role: Role): void
   +HasRole(role: Role): bool
+  +ClearDomainEvents(): void
+}
+class CityLeadRoleRemoved {
+  +Guid ProfileId
 }
 class ProfileRole {
   +Guid ProfileId
@@ -66,6 +71,7 @@ interface INotificationService {
 }
 Profile "1" *-- "*" ProfileRole
 ProfileRole --> Role
+Profile ..> CityLeadRoleRemoved : raises
 AssignRoleHandler ..> AssignRoleCommand : handles
 RemoveRoleHandler ..> RemoveRoleCommand : handles
 AssignRoleHandler --> RoleAssignmentPolicy

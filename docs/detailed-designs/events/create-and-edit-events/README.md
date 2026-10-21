@@ -8,7 +8,7 @@ This feature covers authoring an event: creating a new one and editing an existi
 
 Key terms:
 
-- **event type** — category of an event, either `Standard` or `Hackathon`; hackathon teams, projects and judging are out of scope for v1
+- **event type** — category of an event: `Gathering`, `BuildersNight`, `Hackathon`, `PrayerAndPlanning` or `Panel`; hackathon teams, projects and judging are out of scope for v1
 - **format** — whether an event is held in person, at a venue, or online, at a link
 - **visibility** — audience setting of an event, either members-only or public
 - **event manager** — holder of the Event Lead, City Lead or System Admin role, the roles permitted to create, edit and cancel events
@@ -22,10 +22,10 @@ The slice runs from the event form page to the database.
 - **`EventFormPage`** — routed page in the `events` feature library (mock: `docs/mocks/pages/event-form/`). It hosts the create and edit form, shows inline validation errors and a busy state while saving. It composes form fields, date-time inputs and buttons from the `components` library.
 - **`EventsService` / `EVENTS_SERVICE`** — API client contract and injection token in the `api` library. `HttpEventsService` implements it with `createEvent(request)` and `updateEvent(id, request)`.
 - **`EventsEndpoints`** — minimal API mapping in `FaithTech.Community.Api` for `POST /api/events` and `PUT /api/events/{id}`. Both require authentication and dispatch to the Application layer.
-- **`CreateEventCommand` / `UpdateEventCommand`** — request objects carrying title, description, type, start, end, city, format, venue or link, and visibility.
+- **`CreateEventCommand` / `UpdateEventCommand`** — request objects carrying title, description, type, start, end, city, format, venue or link, optional capacity, and visibility.
 - **`EventCommandValidator`** — validator that rejects an end before the start, an in-person event without a venue and an online event without a link (`L2-020`).
 - **`CreateEventHandler` / `UpdateEventHandler`** — Application handlers. Each checks `EventPermissions.CanManageEvents` and returns 403 for any other role, then writes the `Event` entity. `UpdateEventHandler` increments `Event.Sequence` and raises an `EventChanged` notification for each member RSVP.
-- **`Event`** — Domain entity holding the event state; `Update(...)` applies edits and increments `Sequence` for calendar export (`L2-024`).
+- **`Event`** — Domain entity holding the event state; `Update(...)` applies edits and increments `Sequence` for calendar export (`L2-024`). The constructor and `Update` reject a blank title or city, an end before the start, an in-person event without a venue, an online event without a link and a capacity below 1, so an invalid edit changes nothing.
 - **`EventPermissions`** — Application service that reads roles from `ICurrentUser`.
 - **`INotificationPublisher`** — Application contract from the notifications subsystem that records in-app notifications. Its implementation lives in Infrastructure.
 - **`CommunityDbContext`** — EF Core context in Infrastructure that persists events and RSVPs.
@@ -87,3 +87,11 @@ The validator rejects invalid date order, venue and link combinations before the
 An edit increments the event's `Sequence` and records an in-app notification for every member who RSVP'd, in the same unit of work (`L2-020`).
 
 ![Sequence diagram: edit an event and notify RSVPs](diagrams/sequence-edit-event.png)
+
+## Open questions
+
+Decisions recorded while building the Domain layer (`FaithTech.Community.Domain`):
+
+- Event types follow `L2-020`: Gathering, Builders night, Hackathon, Prayer & planning and Panel, replacing the earlier `Standard`/`Hackathon` pair. Resolved.
+- Capacity: `L2-020` AC1 and AC5 define an optional capacity; `Event.Capacity` is nullable and `Event.IsFull` refuses RSVPs at capacity. Resolved.
+- Domain rule violations throw `InvalidOperationException` (a broken rule) or `ArgumentException` (invalid input); there is no shared domain exception type. Handlers check permissions and preconditions first and map any remaining violation to a `400` or `409` result.

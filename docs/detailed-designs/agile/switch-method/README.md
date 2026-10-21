@@ -17,7 +17,7 @@ The workspace owner chooses the method when creating the workspace (see `agile/w
 - **`SwitchMethodCommand`** / **`SwitchMethodHandler`** — owner only; applies the transition in one unit of work.
 - **`Workspace.SwitchMethod(target, sprints, stories)`** — Domain method that closes open sprints when moving to Kanban and clears sprint membership of unfinished stories when moving to Scrum.
 - **`WorkspaceAccessPolicy`** — Application service shared by every agile handler. It resolves the caller from `ICurrentUser` and classifies the caller as owner, member, Staff, System Admin or outsider for a workspace. Outsiders receive 404, Staff and non-owner members receive 403 on writes they lack, and System Admin actions pass and are written to the audit log (`L2-031`, `L2-042`).
-- Whether closing sprints on a switch to Kanban records completed points as in `agile/sprints` is `<TO SUPPLY>`.
+- Closing sprints on a switch to Kanban uses `Sprint.Close`, so it records completed points as in `agile/sprints`.
 
 ## Requirements
 
@@ -65,3 +65,9 @@ The settings page calls the Community API, which updates the workspace, its spri
 The owner confirms the switch; the handler applies the Scrum-to-Kanban or Kanban-to-Scrum rule in one unit of work (`L2-036`).
 
 ![Sequence diagram: switch a workspace's method](diagrams/sequence-switch-method.png)
+
+## Open questions
+
+Decisions recorded while building the Domain layer (`FaithTech.Community.Domain`):
+
+- Switching to Kanban closes every sprint that is not closed (planned or active) and records completed points; switching to the current method is rejected. Resolved.

@@ -17,11 +17,16 @@ class Contact {
   +string Email
   +string Phone
   +string Organization
+  +string City
   +Guid? LinkedProfileId
   +DateTime? ArchivedAtUtc
+  +bool IsArchived
+  +bool CanBeDeleted
+  +Update(name, email, phone, organization, city): void
+  +AddNote(body: string, nowUtc: DateTime): ContactNote
   +Archive(nowUtc: DateTime): void
   +Restore(): void
-  +LinkTo(profileId: Guid): void
+  +LinkTo(profileId: Guid, discardNotes: bool = false): void
 }
 class ContactNote {
   +Guid Id

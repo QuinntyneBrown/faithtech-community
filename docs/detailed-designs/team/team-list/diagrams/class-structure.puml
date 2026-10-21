@@ -12,6 +12,7 @@ skinparam class {
 title Class structure — Team list
 class TeamRoles {
   +{static} IReadOnlySet<Role> All
+  +{static} IsTeamMember(profile: Profile): bool
 }
 class ListTeamQuery {
   +Role? Role

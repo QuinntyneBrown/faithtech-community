@@ -13,7 +13,7 @@ Notes remain private even after the contact is linked to the person's real profi
 - **`ContactsService`** — `addNote(contactId, body)` and `getNotes(contactId)` calling `POST` and `GET /api/contacts/{id}/notes`.
 - **`ContactsEndpoints`** — maps the notes routes.
 - **`AddContactNoteCommand`** / **`AddContactNoteHandler`** and **`GetContactNotesQuery`** / **`GetContactNotesHandler`** in Application `Contacts/`. Both use `ContactAccessPolicy`; non-owners receive `404`, and System Admin access is audited.
-- **`ContactNote`** — Domain entity with `Body` and `CreatedAtUtc`, composed by `Contact`.
+- **`ContactNote`** — Domain entity with `Body` (required) and `CreatedAtUtc`, composed by `Contact` and created only through `Contact.AddNote(body, nowUtc)`.
 
 Whether notes may be edited or deleted after creation: `<TO SUPPLY>`; `L2-014` defines only adding and reading.
 
@@ -69,3 +69,9 @@ The note is saved with a UTC timestamp and appears at the top of the list (`L2-0
 Notes are returned newest first, including on a contact linked to a real profile (`L2-014` AC2).
 
 ![Sequence diagram for read notes](diagrams/sequence-read-notes.png)
+
+## Open questions
+
+Decisions recorded while building the Domain layer (`FaithTech.Community.Domain`):
+
+- Notes are append-only in the Domain; editing and deleting single notes stay deferred until a requirement defines them.
