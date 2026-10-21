@@ -14,6 +14,6 @@ internal static class Program
         var connectionString = configuration.GetConnectionString("Community")
             ?? throw new InvalidOperationException("ConnectionStrings:Community is not configured.");
 
-        return await CliApp.RunAsync(args, connectionString);
+        return await CliApp.RunAsync(args, connectionString, configuration["WebApp:Origin"] ?? "http://localhost:4200");
     }
 }
