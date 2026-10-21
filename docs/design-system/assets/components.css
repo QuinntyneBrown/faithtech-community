@@ -163,6 +163,8 @@ a:hover, a[data-state="hover"] { color: var(--color-fg-link-hover); text-decorat
 .input[aria-invalid="true"], .textarea[aria-invalid="true"] { --field-border: var(--color-danger-solid); box-shadow: inset 0 0 0 var(--border-width-hairline) var(--color-danger-solid); }
 .input:disabled, .textarea:disabled, .input[data-state="disabled"], .textarea[data-state="disabled"] { --field-bg: var(--color-bg-subtle); --field-border: var(--color-border-default); color: var(--color-fg-disabled); cursor: not-allowed; }
 .input:read-only:not(:disabled), .textarea:read-only:not(:disabled) { --field-bg: var(--color-bg-surface-sunken); }
+/* An input that fills the rest of its row (search, Add a task) and wraps below 12rem. */
+.input--grow { flex: 1 1 12rem; min-width: 0; }
 .input--sm { min-height: var(--control-height-sm); padding-block: var(--space-1); font-size: var(--font-size-sm); }
 .input--lg { min-height: var(--control-height-lg); font-size: var(--font-size-lg); }
 
@@ -783,6 +785,9 @@ label.bubble__text { cursor: pointer; }
 .kanban__empty { margin: 0; color: var(--color-fg-muted); font: var(--text-body-sm); text-align: center; padding: var(--space-4); }
 
 /* ---------- Search results ---------------------------------------------------- */
+/* Search page: the form sits 16px above the results; result groups sit 24px apart. */
+.search-form { margin-bottom: var(--space-4); }
+.search-results { gap: var(--space-6); }
 .search-group { display: flex; flex-direction: column; gap: var(--space-2); }
 .search-group__title { font: var(--text-overline); text-transform: uppercase; letter-spacing: var(--letter-spacing-wide); color: var(--color-fg-muted); }
 mark { background: var(--color-warning-bg); color: inherit; border-radius: var(--radius-sm); padding: 0 var(--space-0-5); }

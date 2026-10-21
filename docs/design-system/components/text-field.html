@@ -188,7 +188,7 @@
       <ul>
         <li>Inputs fill their container; the form sets the maximum width.</li>
         <li>Text is at least 16px (<code>--font-size-md</code>) so iOS does not zoom on focus; the small size is used only where zoom is acceptable (top bar search).</li>
-        <li>The search page input grows to fill its row and wraps below the filters under 12rem.</li>
+        <li>The search page input (<code>.input--grow</code>) grows to fill its row and wraps below the filters under 12rem.</li>
       </ul>
     </section>
 
@@ -272,6 +272,7 @@
       <table class="ds-table"><thead><tr><th scope="col">Class / attribute</th><th scope="col">Effect</th></tr></thead><tbody>
         <tr><td><code>.input</code></td><td>Base text input, medium.</td></tr>
         <tr><td><code>.input--sm</code> <code>.input--lg</code></td><td>Size.</td></tr>
+        <tr><td><code>.input--grow</code></td><td>Fills the rest of its row (<code>flex: 1 1 12rem</code>) and wraps below 12rem in a wrapping cluster.</td></tr>
         <tr><td><code>.input-group</code></td><td>Positions one trailing button inside the input.</td></tr>
         <tr><td><code>.input-group__btn</code></td><td>The trailing icon button; accent when <code>aria-pressed="true"</code>.</td></tr>
         <tr><td><code>aria-invalid="true"</code>, <code>readonly</code>, <code>disabled</code></td><td>States.</td></tr>
@@ -288,7 +289,7 @@
         <li><a href="../../mocks/pages/edit-profile/invalid.html">pages/edit-profile/invalid</a> (small alt-text inputs, invalid)</li>
         <li><a href="../../mocks/pages/accept-invite/default.html">pages/accept-invite/default</a> (read-only email)</li>
       </ul>
-      <p>Drift noticed in the mocks: the search page input sets <code>flex: 1</code> and a raw <code>min-width: 12rem</code> inline, and "Add a task" sets <code>flex: 1</code> inline; password fields are prefilled with bullet characters as their value; the show-password button on sign in never shows its pressed state; no mock shows the confirmation after "Copy link".</p>
+      <p>The search page, contacts search and "Add a task" inputs take <code>.input--grow</code> rather than an inline <code>flex</code>. Drift noticed in the mocks: password fields are prefilled with bullet characters as their value; the show-password button on sign in never shows its pressed state; no mock shows the confirmation after "Copy link".</p>
     </section>
 
     <footer class="ds-footer"><span>FaithTech Community design system · extracted from <a href="../../mocks/index.html">docs/mocks</a> on 2026-10-21</span><a href="#top">Back to top</a></footer>
