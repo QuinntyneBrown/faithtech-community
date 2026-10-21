@@ -124,8 +124,8 @@ xdg-open docs/mocks/index.html   # Linux
 
 ### Watch the journeys that work today
 
-Narrated demo videos of sign up, email verification, sign in and out, password reset, the app shell
-and the error pages are in [`docs/videos/journeys/`](docs/videos/journeys/README.md). Regenerate
+Narrated demo videos of sign up, email verification, sign in and out, password reset, the app
+shell, the error pages and member profiles (view, edit and photos) are in [`docs/videos/journeys/`](docs/videos/journeys/README.md). Regenerate
 them all with `pwsh eng/videos/Record-JourneyVideos.ps1`.
 
 ### Prerequisites for development

@@ -26,7 +26,9 @@ against without a database and identity server.
 - **Fake API.** Recordings use the same in-browser fake API as the e2e suite, with synthetic people
   (`example.org` addresses) and fake tokens. Every opening card and the index README say so. Staged
   failures (expired links, a server error) use the fake's per-endpoint overrides, exactly as the
-  acceptance tests do.
+  acceptance tests do. Profile photos are illustrations drawn on a canvas in the browser
+  (`eng/videos/photos.ts`); the fake's optional `uploadedPhotoUrl` hook returns the uploaded
+  picture instead of its default placeholder square, so the video shows what was uploaded.
 - **Narration.** One `<slug>-narration.md` per journey: `## step-id: Chapter title` followed by one
   paragraph. The same text is the on-screen caption, the WebVTT caption and the source of the voice
   track. `pronunciations.json` holds spoken replacements. Voice: `en-US-AndrewMultilingualNeural`
@@ -51,4 +53,5 @@ against without a database and identity server.
   whose screens change must be re-recorded; a failing story means the journey no longer works as
   narrated.
 - Features at 0% in `docs/estimates/` are not filmed. The app shell tour shows their navigation
-  entries only and says that those pages are still being built.
+  entries only and says that those pages are still being built. Profiles landed while the first
+  videos were being made and have three journeys of their own (view, edit, photos).

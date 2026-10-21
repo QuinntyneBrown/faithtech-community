@@ -37,7 +37,7 @@ $Python = if ($env:PYTHON) { $env:PYTHON } elseif ($IsWindows) { 'python' } else
 $Voice = if ($env:EDGE_VOICE) { $env:EDGE_VOICE } else { 'en-US-AndrewMultilingualNeural' }
 $MarginSeconds = 0.7
 $AllJourneys = 'sign-up', 'verify-email', 'sign-in-and-sign-out', 'password-reset', 'app-shell-tour',
-'error-and-system-pages'
+'error-and-system-pages', 'view-profile', 'edit-own-profile', 'manage-profile-photos'
 # Accepts "-Journey a,b" from PowerShell and "-Journey a,b" passed as one string by other shells.
 $Journey = if ($Journey) { $Journey -split ',' | ForEach-Object Trim | Where-Object { $_ } } else { $AllJourneys }
 foreach ($slug in $Journey) {

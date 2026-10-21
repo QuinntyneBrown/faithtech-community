@@ -7,8 +7,9 @@ caption file, a poster frame and the narration text it was spoken from.
 > **The API is a local fake.** The app talks to the in-browser fake of the Community API and
 > identity server that the e2e suite uses ([`e2e/fixtures/mock-api.ts`](../../../e2e/fixtures/mock-api.ts)).
 > Every person, email address, password and token on screen is made up (`example.org`). Expired
-> links, the server error and the lost connection are staged on purpose. Each video's opening card
-> says the same.
+> links, the server error and the lost connection are staged on purpose. Profile pictures are
+> illustrations drawn in the browser ([`eng/videos/photos.ts`](../../../eng/videos/photos.ts)). Each
+> video's opening card says the same.
 
 ## Videos
 
@@ -20,9 +21,12 @@ caption file, a poster frame and the narration text it was spoken from.
 | [Forgot and reset password](password-reset.webm) · [poster](password-reset-poster.png) · [captions](password-reset.vtt) · [narration](password-reset-narration.md) | 1:26 | Forgot your password from sign in, a mistyped address, the neutral confirmation, a short and mismatched new password, saving it, and an expired link. | `pwsh eng/videos/Record-JourneyVideos.ps1 -Journey password-reset` |
 | [App shell tour](app-shell-tour.webm) · [poster](app-shell-tour-poster.png) · [captions](app-shell-tour.vtt) · [narration](app-shell-tour-narration.md) | 1:36 | The top bar on desktop and tablet, the tab bar and menu drawer on a phone (focus trap and Escape), dark and light themes, and the skip link and focus rings. | `pwsh eng/videos/Record-JourneyVideos.ps1 -Journey app-shell-tour` |
 | [Error and system pages](error-and-system-pages.webm) · [poster](error-and-system-pages-poster.png) · [captions](error-and-system-pages.vtt) · [narration](error-and-system-pages-narration.md) | 1:01 | Page not found, no access, a server error with its reference code, and the offline banner appearing and clearing. | `pwsh eng/videos/Record-JourneyVideos.ps1 -Journey error-and-system-pages` |
+| [View profiles](view-profile.webm) · [poster](view-profile-poster.png) · [captions](view-profile.vtt) · [narration](view-profile-narration.md) | 1:08 | Your own new profile from the top bar, another member's profile with roles, city, bio, featured photo and photos, and a profile that is not found. | `pwsh eng/videos/Record-JourneyVideos.ps1 -Journey view-profile` |
+| [Edit your profile](edit-own-profile.webm) · [poster](edit-own-profile-poster.png) · [captions](edit-own-profile.vtt) · [narration](edit-own-profile-narration.md) | 0:55 | Edit profile from your profile, a missing name caught before saving, new name, home city and bio, the Profile saved message and the updated profile. | `pwsh eng/videos/Record-JourneyVideos.ps1 -Journey edit-own-profile` |
+| [Manage profile photos](manage-profile-photos.webm) · [poster](manage-profile-photos-poster.png) · [captions](manage-profile-photos.vtt) · [narration](manage-profile-photos-narration.md) | 1:20 | Adding two pictures, Describe this photo blocking the save, describing and uploading, featuring the other photo, removing one after confirming, and the result on the profile. | `pwsh eng/videos/Record-JourneyVideos.ps1 -Journey manage-profile-photos` |
 
-All six are WebM files with a VP9 video stream (1280x720, 25 fps) and an Opus audio stream (48 kHz
-mono, 48 kb/s, loudness-normalized), each 3-5 MB. The phone and tablet scenes in the app shell tour
+All nine are WebM files with a VP9 video stream (1280x720, 25 fps) and an Opus audio stream (48 kHz
+mono, 48 kb/s, loudness-normalized), each 3-6 MB. The phone and tablet scenes in the app shell tour
 use a 390 or 768 pixel wide viewport, so the rest of the frame is grey.
 
 ### Chapters
@@ -37,6 +41,9 @@ Chapters are embedded in each WebM and listed here.
 | Forgot and reset password | 0:00 Opening · 0:09 Forgot your password · 0:17 A mistyped address · 0:24 Request the link · 0:35 Open the reset link · 0:40 Two things to fix · 0:49 Save the new password · 0:58 An expired link · 1:08 Summary |
 | App shell tour | 0:00 Opening · 0:15 Desktop · 0:31 Tablet · 0:36 Phone · 0:43 The menu · 0:53 Dark theme · 1:02 Light theme · 1:05 Keyboard · 1:16 Summary |
 | Error and system pages | 0:00 Opening · 0:10 Page not found · 0:17 No access · 0:25 Server error · 0:35 Offline · 0:40 Back online · 0:45 Summary |
+| View profiles | 0:00 Opening · 0:11 Your own profile · 0:21 Another member · 0:31 Their photos · 0:42 Not found · 0:52 Summary |
+| Edit your profile | 0:00 Opening · 0:10 Edit profile · 0:18 A missing name · 0:28 New details · 0:35 Saved · 0:38 Back on your profile · 0:44 Summary |
+| Manage profile photos | 0:00 Opening · 0:12 Add photos · 0:24 Describe this photo · 0:35 Describe and save · 0:44 Feature a photo · 0:52 Remove a photo · 1:00 On your profile · 1:07 Summary |
 
 ## Voice
 
@@ -51,7 +58,7 @@ From the repository root, on Windows, macOS or Linux:
 
 ```sh
 python -m pip install edge-tts           # once; use the interpreter named by PYTHON
-pwsh eng/videos/Record-JourneyVideos.ps1  # all six videos
+pwsh eng/videos/Record-JourneyVideos.ps1  # all nine videos
 pwsh eng/videos/Record-JourneyVideos.ps1 -Journey sign-up,password-reset   # some of them
 ```
 
@@ -85,7 +92,7 @@ to the file `python -c "import certifi; print(certifi.where())"` prints.
 
 ## Scope
 
-These are the journeys implemented as of October 2026 (identity and platform). Profiles, invites,
+These are the journeys implemented as of October 2026 (identity, platform and profiles). Invites,
 contacts, partners, team, events, search, notifications, announcements, admin and the agile
 workspace are not built yet ([estimates](../../estimates/README.md)), so they are not filmed; the
 app shell tour shows their navigation entries only. The home page is still a placeholder.
@@ -96,4 +103,7 @@ Design decisions are recorded in [ADR 0001](../../adr/0001-journey-demo-videos.m
 [sign in and sign out](../../detailed-designs/identity/sign-in-and-sign-out/),
 [password reset](../../detailed-designs/identity/password-reset/),
 [responsive layout and theming](../../detailed-designs/platform/responsive-layout-and-theming/),
-[error and system pages](../../detailed-designs/platform/error-and-system-pages/).
+[error and system pages](../../detailed-designs/platform/error-and-system-pages/),
+[view profile](../../detailed-designs/profiles/view-profile/),
+[edit own profile](../../detailed-designs/profiles/edit-own-profile/),
+[manage profile photos](../../detailed-designs/profiles/manage-profile-photos/).

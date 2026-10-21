@@ -55,6 +55,8 @@ export class MockApi {
   private signedIn: MockAccount | null = null;
   private failures = new Map<string, number>();
   private uploads = 0;
+  /** The stored URL of an uploaded photo; the journey videos swap in the image that was chosen. */
+  uploadedPhotoUrl: (file: string) => string = () => photoUrl();
 
   constructor(private readonly page: Page) {}
 
@@ -307,7 +309,7 @@ export class MockApi {
       if (!altText) return invalid('AltText', 'Describe this photo.');
       const photo: MockPhoto = {
         id: `photo-${++this.uploads}`,
-        url: photoUrl(),
+        url: this.uploadedPhotoUrl(String(body['file'] ?? '')),
         altText,
         isFeatured: profile.photos.length === 0,
         uploadedAt: new Date(Date.UTC(2026, 9, 21, 12, this.uploads)).toISOString(),
