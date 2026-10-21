@@ -116,6 +116,15 @@ describe('PictureListComponent', () => {
     );
   });
 
+  it('keeps the file input out of the page; Add photos opens it', async () => {
+    const { q, addButton } = await setup();
+    const input = q<HTMLInputElement>('input[type="file"]')!;
+    const opened = vi.spyOn(input, 'click');
+    expect(input.hidden).toBe(true);
+    addButton().click();
+    expect(opened).toHaveBeenCalled();
+  });
+
   it('emits accepted files', async () => {
     const { cmp, choose } = await setup();
     const a = file('a.jpg', 'image/jpeg', 1000);

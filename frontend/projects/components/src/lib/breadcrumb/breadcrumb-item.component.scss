@@ -11,6 +11,10 @@
 }
 
 .breadcrumb-item__link {
+  /* A flex item is blockified, so give the link the minimum target height itself (WCAG 2.5.8). */
+  display: inline-flex;
+  align-items: center;
+  min-block-size: var(--target-min);
   color: var(--color-fg-muted);
   text-decoration: none;
   border-radius: var(--radius-sm);
