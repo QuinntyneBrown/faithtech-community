@@ -1,12 +1,3 @@
-/*
- * EARLY IMPLEMENTATION: written ahead of the vertical slices to get a head start.
- * Contracts and DTOs follow docs/detailed-designs/ but may change as each feature is
- * implemented end to end (spec -> design -> mock -> ATDD slice).
- * Sources:
- *   - docs/detailed-designs/profiles/view-profile
- *   - docs/detailed-designs/profiles/edit-own-profile
- *   - docs/detailed-designs/profiles/manage-profile-photos
- */
 import { InjectionToken } from '@angular/core';
 import { Observable } from 'rxjs';
 
@@ -20,26 +11,25 @@ export interface PhotoDto {
   uploadedAt: string;
 }
 
+/** A profile as a signed-in member sees it (L2-005). Photos are newest first. */
 export interface ProfileDto {
   id: string;
   name: string;
+  homeCity: string | null;
+  bio: string | null;
   featuredPhoto: PhotoDto | null;
   photos: PhotoDto[];
   roles: Role[];
+  /** The caller owns this profile. */
+  isOwn: boolean;
+  /** The caller may change it: the owner, or a System Admin. */
+  canEdit: boolean;
 }
 
-/**
- * Contract for the profiles API. Pages depend on PROFILES_SERVICE, never on HttpProfilesService.
- * TODO(slice): the design carries only name; home city and bio (L2-006) are not in the DTO yet.
- * TODO(slice): PhotoDto fields are inferred from the entity, the design names none.
- */
+/** Contract for the profiles API. Pages depend on PROFILES_SERVICE, never on HttpProfilesService. */
 export interface ProfilesService {
+  /** A profile by id, or the caller's own with "me". 404 when there is no such profile. */
   getProfile(id: string): Observable<ProfileDto>;
-  updateProfile(id: string, changes: { name: string }): Observable<void>;
-  /** Max 10 photos, JPEG/PNG/WebP up to 5 MB, alt text required. */
-  uploadPhoto(id: string, file: File, altText: string): Observable<PhotoDto>;
-  setFeatured(id: string, photoId: string): Observable<void>;
-  deletePhoto(id: string, photoId: string): Observable<void>;
 }
 
 export const PROFILES_SERVICE = new InjectionToken<ProfilesService>('PROFILES_SERVICE');

@@ -4,6 +4,7 @@ import { toSignal } from '@angular/core/rxjs-interop';
 import { NavigationEnd, Router, RouterOutlet } from '@angular/router';
 import { AUTH_SERVICE } from '@faithtech-community/api';
 import {
+  AvatarComponent,
   BannerComponent,
   BreakpointService,
   ButtonComponent,
@@ -38,6 +39,7 @@ const SECTIONS: Section[] = [
   { label: 'Announcements', href: '/announcements', icon: 'announcements', secondary: true },
   { label: 'People', href: '/people', icon: 'team', secondary: true },
 ];
+const PROFILE_SECTION: Section = { label: 'Your profile', href: '/people/me', icon: 'team' };
 const SEARCH_TAB: TabBarItem = { label: 'Search', href: '/search', icon: 'search' };
 
 /** The signed-in chrome around every member page (docs/design-system/patterns/navigation.html). */
@@ -45,6 +47,7 @@ const SEARCH_TAB: TabBarItem = { label: 'Search', href: '/search', icon: 'search
   selector: 'ft-app-shell',
   imports: [
     RouterOutlet,
+    AvatarComponent,
     SkipLinkComponent,
     TopBarComponent,
     NavDrawerComponent,
@@ -82,9 +85,11 @@ export class AppShellComponent {
   protected readonly topLinks = computed<TopBarLink[]>(() =>
     SECTIONS.map((s) => ({ ...this.link(s), secondary: s.secondary })),
   );
-  protected readonly drawerLinks = computed<NavDrawerLink[]>(() =>
-    SECTIONS.map((s) => ({ ...this.link(s), icon: s.icon })),
-  );
+  /** On phones the top bar has no room for the avatar, so the menu links to your profile. */
+  protected readonly drawerLinks = computed<NavDrawerLink[]>(() => [
+    ...SECTIONS.map((s) => ({ ...this.link(s), icon: s.icon })),
+    { ...this.link(PROFILE_SECTION), icon: PROFILE_SECTION.icon },
+  ]);
   protected readonly tabs = computed<TabBarItem[]>(() => [
     ...SECTIONS.filter((s) => s.tab)
       .slice(0, 2)

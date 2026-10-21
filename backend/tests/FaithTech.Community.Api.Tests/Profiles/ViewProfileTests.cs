@@ -44,6 +44,7 @@ public class ViewProfileTests(CommunityApiFactory factory) : IClassFixture<Commu
         Assert.Equal(["The hackathon team", "Samuel at Builders Night"], profile.Photos.Select(p => p.AltText));
         Assert.Equal("Samuel at Builders Night", profile.FeaturedPhoto!.AltText);
         Assert.Equal($"{FakePhotoStorage.BaseUrl}profiles/{samuel.ProfileId}/a.jpg", profile.FeaturedPhoto.Url);
+        Assert.False(profile.IsOwn);
         Assert.False(profile.CanEdit);
     }
 
@@ -59,6 +60,7 @@ public class ViewProfileTests(CommunityApiFactory factory) : IClassFixture<Commu
         Assert.Empty(profile.Roles);
         Assert.Empty(profile.Photos);
         Assert.Null(profile.FeaturedPhoto);
+        Assert.True(profile.IsOwn);
         Assert.True(profile.CanEdit);
     }
 
@@ -71,7 +73,8 @@ public class ViewProfileTests(CommunityApiFactory factory) : IClassFixture<Commu
         var profile = await factory.ClientFor(priya, Role.SystemAdmin)
             .GetFromJsonAsync<ProfileResponse>($"/api/profiles/{samuel.ProfileId}");
 
-        Assert.True(profile!.CanEdit);
+        Assert.False(profile!.IsOwn);
+        Assert.True(profile.CanEdit);
     }
 
     [Theory]
@@ -99,5 +102,6 @@ public class ViewProfileTests(CommunityApiFactory factory) : IClassFixture<Commu
         PhotoResponse? FeaturedPhoto,
         PhotoResponse[] Photos,
         string[] Roles,
+        bool IsOwn,
         bool CanEdit);
 }

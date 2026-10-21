@@ -12,6 +12,16 @@
         Menu
       </ft-button>
     }
+    @if (user(); as me) {
+      @if (!phone()) {
+        <ft-avatar
+          size="sm"
+          href="/people/me"
+          [name]="me.name ?? ''"
+          [label]="'Your profile, ' + (me.name ?? '')"
+        />
+      }
+    }
     <ft-button variant="ghost" size="sm" (click)="signOut()">
       <ft-icon name="sign-out" size="sm" /> Sign out
     </ft-button>

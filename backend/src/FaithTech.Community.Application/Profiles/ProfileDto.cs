@@ -11,4 +11,5 @@ public record ProfileDto(
     PhotoDto? FeaturedPhoto,
     IReadOnlyList<PhotoDto> Photos,
     IReadOnlyList<string> Roles,
+    bool IsOwn,
     bool CanEdit);

@@ -16,13 +16,13 @@ public class GetProfileHandler(IApplicationDbContext db, ProfileAccess access, I
         }
 
         var caller = await access.CallerProfileIdAsync(cancellationToken);
-        return ToDto(profile, access.CanEdit(profile.Id, caller));
+        return ToDto(profile, profile.Id == caller, access.CanEdit(profile.Id, caller));
     }
 
     public async Task<ProfileDto?> HandleOwnAsync(CancellationToken cancellationToken = default) =>
         await access.CallerProfileIdAsync(cancellationToken) is { } own ? await HandleAsync(own, cancellationToken) : null;
 
-    private ProfileDto ToDto(Profile profile, bool canEdit)
+    private ProfileDto ToDto(Profile profile, bool isOwn, bool canEdit)
     {
         var photos = profile.Photos
             .OrderByDescending(p => p.UploadedAt)
@@ -36,6 +36,7 @@ public class GetProfileHandler(IApplicationDbContext db, ProfileAccess access, I
             photos.FirstOrDefault(p => p.IsFeatured),
             photos,
             [.. profile.Roles.OrderBy(r => r.Role).Select(r => r.Role.ToString())],
+            isOwn,
             canEdit);
     }
 }

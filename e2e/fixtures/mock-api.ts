@@ -7,6 +7,31 @@ export interface MockAccount {
   verified: boolean;
   suspended: boolean;
   roles: string[];
+  profileId: string;
+}
+
+export interface MockPhoto {
+  id: string;
+  url: string;
+  altText: string;
+  isFeatured: boolean;
+  uploadedAt: string;
+}
+
+/** A profile as GET /api/profiles/{id} returns it, without the caller-specific canEdit. */
+export interface MockProfile {
+  id: string;
+  name: string;
+  homeCity: string | null;
+  bio: string | null;
+  roles: string[];
+  photos: MockPhoto[];
+}
+
+/** A tiny square SVG standing in for a stored photo, so no request leaves the browser. */
+export function photoUrl(colour = '#7c5cff'): string {
+  const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="8" height="8"><rect width="8" height="8" fill="${colour}"/></svg>`;
+  return `data:image/svg+xml,${encodeURIComponent(svg)}`;
 }
 
 type Handler = (route: Route, body: Record<string, unknown>) => Promise<void> | void;
@@ -17,6 +42,7 @@ type Handler = (route: Route, body: Record<string, unknown>) => Promise<void> | 
  */
 export class MockApi {
   readonly accounts = new Map<string, MockAccount>();
+  readonly profiles = new Map<string, MockProfile>();
   readonly calls: {
     method: string;
     path: string;
@@ -38,9 +64,27 @@ export class MockApi {
       verified: true,
       suspended: false,
       roles: [],
+      profileId: `profile-${this.accounts.size + 1}`,
       ...account,
     };
     this.accounts.set(full.email.toLowerCase(), full);
+    if (!this.profiles.has(full.profileId)) {
+      this.addProfile({ id: full.profileId, name: full.name, roles: full.roles });
+    }
+    return full;
+  }
+
+  /** A member's profile; give `id` to match an account's profileId. */
+  addProfile(profile: Partial<MockProfile> & { name: string }): MockProfile {
+    const full: MockProfile = {
+      id: `profile-${this.profiles.size + 100}`,
+      homeCity: null,
+      bio: null,
+      roles: [],
+      photos: [],
+      ...profile,
+    };
+    this.profiles.set(full.id, full);
     return full;
   }
 
@@ -66,15 +110,25 @@ export class MockApi {
     await this.page.route(/\/(api|connect)\//, (route) => this.handle(route));
   }
 
-  private async handle(route: Route): Promise<void> {
+  /** From inside an override: answer as the fake backend normally would. */
+  fallback(route: Route): Promise<void> {
+    return this.handle(route, false);
+  }
+
+  private async handle(route: Route, overridable = true): Promise<void> {
     const request = route.request();
     const url = new URL(request.url());
     const method = request.method();
     const body = parseBody(request.postData(), request.headers()['content-type']);
-    this.calls.push({ method, path: url.pathname, body });
+    if (overridable) this.calls.push({ method, path: url.pathname, body });
 
-    const override = this.overrides.get(`${method} ${url.pathname}`);
+    const override = overridable ? this.overrides.get(`${method} ${url.pathname}`) : undefined;
     if (override) return override(route, body);
+
+    const authorization = request.headers()['authorization'];
+    const profileRoute = /^\/api\/profiles\/([^/]+)$/.exec(url.pathname);
+    if (method === 'GET' && profileRoute)
+      return this.getProfile(route, profileRoute[1], authorization);
 
     switch (`${method} ${url.pathname}`) {
       case 'POST /api/account/sign-in':
@@ -168,6 +222,31 @@ export class MockApi {
         roles: account.roles,
       },
     });
+  }
+
+  /** The signed-in caller, or null when the bearer token is missing or stale (the API's 401). */
+  private caller(authorization: string | undefined): MockAccount | null {
+    return this.signedIn && authorization === 'Bearer access-token' ? this.signedIn : null;
+  }
+
+  /** ProfilesEndpoints: GET /api/profiles/me and /api/profiles/{id} (L2-005). */
+  private getProfile(route: Route, id: string, authorization: string | undefined) {
+    const caller = this.caller(authorization);
+    if (!caller) return route.fulfill({ status: 401 });
+    const profile = this.profiles.get(id === 'me' ? caller.profileId : id);
+    if (!profile) return route.fulfill({ status: 404 });
+    return route.fulfill({ status: 200, json: this.profileDto(profile, caller) });
+  }
+
+  private profileDto(profile: MockProfile, caller: MockAccount) {
+    const photos = [...profile.photos].sort((a, b) => b.uploadedAt.localeCompare(a.uploadedAt));
+    return {
+      ...profile,
+      photos,
+      featuredPhoto: photos.find((p) => p.isFeatured) ?? null,
+      isOwn: profile.id === caller.profileId,
+      canEdit: profile.id === caller.profileId || caller.roles.includes('SystemAdmin'),
+    };
   }
 }
 
