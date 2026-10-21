@@ -4,6 +4,7 @@ using FaithTech.Community.Application.Contacts;
 using FaithTech.Community.Application.Identity;
 using FaithTech.Community.Application.Invites;
 using FaithTech.Community.Application.Partners;
+using FaithTech.Community.Application.Notifications;
 using FaithTech.Community.Application.Profiles;
 using FaithTech.Community.Application.Team;
 using FluentValidation;
@@ -69,6 +70,7 @@ public static class DependencyInjection
         services.AddScoped<ArchiveHandler>();
         services.AddScoped<CityLeadRoleRemovedHandler>();
         services.AddScoped<PlanningPokerHandler>();
+        services.AddScoped<ManageNotificationsHandler>();
         services.TryAddSingleton(TimeProvider.System);
         return services;
     }

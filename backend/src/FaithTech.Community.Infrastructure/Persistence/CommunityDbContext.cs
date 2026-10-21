@@ -132,6 +132,7 @@ public class CommunityDbContext(DbContextOptions<CommunityDbContext> options)
             notification.Property(n => n.Kind).HasConversion<string>().HasMaxLength(48);
             notification.Property(n => n.Title).HasMaxLength(300);
             notification.Property(n => n.LinkPath).HasMaxLength(300);
+            notification.Property(n => n.ActorName).HasMaxLength(200);
             notification.Ignore(n => n.IsRead);
             notification.HasIndex(n => new { n.RecipientId, n.CreatedAt });
         });

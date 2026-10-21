@@ -21,6 +21,13 @@ public class NotificationTests
             (notification.RecipientId, notification.Kind, notification.Title, notification.LinkPath, notification.CreatedAt, notification.IsRead));
     }
 
+    [Fact]
+    public void A_notification_may_name_the_person_who_caused_it()
+    {
+        Assert.Null(NewNotification().ActorName);
+        Assert.Equal("Hannah Kim", new Notification(Recipient, NotificationKind.Announcement, "Builders Night moves", "/announcements", Now, "Hannah Kim").ActorName);
+    }
+
     [Theory]
     [InlineData("", "/events/42")]
     [InlineData("Cancelled", " ")]
