@@ -41,7 +41,7 @@ export class HttpContactsService implements ContactsService {
   }
 
   listArchived(): Observable<ContactSummary[]> {
-    return this.http.get<ContactSummary[]>(`${this.base}/archived`);
+    return this.http.get<ContactSummary[]>(`${this.base}/archived`, { context: this.context });
   }
 
   archive(id: string): Observable<void> {

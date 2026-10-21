@@ -2,10 +2,11 @@
 import { HttpErrorResponse } from '@angular/common/http';
 import { TestBed } from '@angular/core/testing';
 import { CONTACTS_SERVICE, ContactDto, ContactNoteDto } from '@faithtech-community/api';
+import { Router } from '@angular/router';
 import { DialogService, ToastService } from '@faithtech-community/components';
 import { Observable, of, throwError } from 'rxjs';
 
-import { AddNoteDialog } from '../../dialogs';
+import { AddNoteDialog, ArchiveContactDialog } from '../../dialogs';
 import { ContactPage } from './contact.page';
 
 function contactDto(overrides: Partial<ContactDto> = {}): ContactDto {
@@ -37,8 +38,10 @@ async function setupContactPage(
   };
   const dialogs = { open: vi.fn(() => ({ closed: of(options.dialogResult) })) };
   const toasts = { show: vi.fn() };
+  const router = { navigateByUrl: vi.fn(() => Promise.resolve(true)) };
   TestBed.configureTestingModule({
     providers: [
+      { provide: Router, useValue: router },
       { provide: CONTACTS_SERVICE, useValue: service },
       { provide: DialogService, useValue: dialogs },
       { provide: ToastService, useValue: toasts },
@@ -60,7 +63,7 @@ async function setupContactPage(
     Array.from(host.querySelectorAll<HTMLElement>('button, a')).find(
       (b) => b.getAttribute('aria-label') === label || b.textContent?.trim() === label,
     );
-  return { host, service, dialogs, toasts, text, button, settle };
+  return { host, service, dialogs, toasts, router, text, button, settle };
 }
 
 describe('ContactPage', () => {
@@ -158,5 +161,31 @@ describe('ContactPage', () => {
     const { text } = await setupContactPage(() => of(contactDto()));
 
     expect(text()).toContain('No notes yet');
+  });
+
+  it('archives the contact after the dialog confirms and returns to the list', async () => {
+    const { dialogs, router, toasts, button, settle } = await setupContactPage(
+      () => of(contactDto()),
+      { dialogResult: true },
+    );
+
+    button('Archive')!.click();
+    await settle();
+
+    expect(dialogs.open).toHaveBeenCalledWith(ArchiveContactDialog, {
+      data: { contactId: 'c1', name: 'Tomás Ortega' },
+    });
+    expect(router.navigateByUrl).toHaveBeenCalledWith('/contacts');
+    expect(toasts.show).toHaveBeenCalledWith(
+      expect.objectContaining({ heading: 'Contact archived' }),
+    );
+  });
+
+  it('offers no Archive on a contact that is already archived', async () => {
+    const { button } = await setupContactPage(() =>
+      of(contactDto({ archivedAtUtc: '2026-10-13T12:00:00Z' })),
+    );
+
+    expect(button('Archive')).toBeUndefined();
   });
 });

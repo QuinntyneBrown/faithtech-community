@@ -1,6 +1,17 @@
-<!--
-  SCAFFOLD: placeholder, not the implementation.
-  Generated from AGENTS.md and:
-    - docs/detailed-designs/contacts/archive-restore-delete-contacts
-  Overwrite this template with the expected implementation, then delete this comment.
--->
+<ft-dialog
+  [heading]="'Archive ' + data.name + '?'"
+  description="They’ll move to Archived contacts with your notes. You can restore them whenever you like."
+  icon="archive"
+  [busy]="busy()"
+  (closed)="ref.close(false)"
+>
+  @if (failed()) {
+    <ft-alert status="danger" heading="That didn’t work">
+      We couldn’t reach FaithTech. Nothing was changed — try again.
+    </ft-alert>
+  }
+  <ft-button ftDialogFooter [disabled]="busy()" (click)="ref.close(false)">Cancel</ft-button>
+  <ft-button ftDialogFooter variant="primary" [loading]="busy()" (click)="confirm()">
+    {{ busy() ? 'Archive…' : 'Archive' }}
+  </ft-button>
+</ft-dialog>

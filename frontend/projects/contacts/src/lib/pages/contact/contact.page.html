@@ -51,6 +51,11 @@
         <ft-button ftPageHeaderActions [href]="'/contacts/' + c.id + '/edit'">
           <ft-icon name="edit" /> Edit
         </ft-button>
+        @if (!c.archivedAtUtc) {
+          <ft-button ftPageHeaderActions variant="ghost" (click)="archive(c)">
+            <ft-icon name="archive" /> Archive
+          </ft-button>
+        }
       </ft-page-header>
 
       <ft-split>

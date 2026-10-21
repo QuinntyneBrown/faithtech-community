@@ -121,14 +121,21 @@ public class ManageContactsHandler(IApplicationDbContext db, ContactAccess acces
     /// The caller's own active contacts by name, filtered in the database on name, email, organisation or
     /// note text (L2-012 AC3, L2-013 AC3, L2-042 AC3). Null when the caller may not keep contacts.
     /// </summary>
-    public async Task<IReadOnlyList<ContactSummaryDto>?> ListAsync(string? term, CancellationToken cancellationToken = default)
+    public Task<IReadOnlyList<ContactSummaryDto>?> ListAsync(string? term, CancellationToken cancellationToken = default) =>
+        SummariesAsync(archived: false, term, cancellationToken);
+
+    /// <summary>The caller's own archived contacts, most recently archived first (L2-016).</summary>
+    public Task<IReadOnlyList<ContactSummaryDto>?> ListArchivedAsync(CancellationToken cancellationToken = default) =>
+        SummariesAsync(archived: true, term: null, cancellationToken);
+
+    private async Task<IReadOnlyList<ContactSummaryDto>?> SummariesAsync(bool archived, string? term, CancellationToken cancellationToken)
     {
         if (!access.CanKeepContacts || await access.CallerProfileIdAsync(cancellationToken) is not { } owner)
         {
             return null;
         }
 
-        var contacts = db.Contacts.AsNoTracking().Where(c => c.OwnerId == owner && c.ArchivedAtUtc == null);
+        var contacts = db.Contacts.AsNoTracking().Where(c => c.OwnerId == owner && (c.ArchivedAtUtc != null) == archived);
         if (ContactRules.Blank(term) is { } search)
         {
             var like = search.ToLower();
@@ -154,16 +161,17 @@ public class ManageContactsHandler(IApplicationDbContext db, ContactAccess acces
                     && db.Users.Any(u => u.EmailConfirmed && u.NormalizedEmail == c.Email.ToUpper()),
             })
             .ToListAsync(cancellationToken);
-        return [.. rows
-            .Select(r => new ContactSummaryDto(
-                r.Id,
-                r.Linked ?? r.Name,
-                r.Email,
-                r.Organization,
-                r.City,
-                r.LinkedProfileId is not null ? "Member" : r.SignedUp ? "SignedUp" : "Private",
-                r.ArchivedAtUtc))
-            .OrderBy(r => r.Name, StringComparer.CurrentCultureIgnoreCase)];
+        var summaries = rows.Select(r => new ContactSummaryDto(
+            r.Id,
+            r.Linked ?? r.Name,
+            r.Email,
+            r.Organization,
+            r.City,
+            r.LinkedProfileId is not null ? "Member" : r.SignedUp ? "SignedUp" : "Private",
+            r.ArchivedAtUtc));
+        return archived
+            ? [.. summaries.OrderByDescending(r => r.ArchivedAtUtc)]
+            : [.. summaries.OrderBy(r => r.Name, StringComparer.CurrentCultureIgnoreCase)];
     }
 
     private static object Snapshot(Contact c) => new { c.Name, c.Email, c.Phone, c.Organization, c.City };

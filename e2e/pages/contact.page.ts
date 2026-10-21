@@ -8,6 +8,7 @@ export class ContactPage {
   readonly details: Locator;
   readonly notFound: Locator;
   readonly addNote: Locator;
+  readonly archive: Locator;
   readonly notes: Locator;
 
   constructor(private readonly page: Page) {
@@ -17,6 +18,7 @@ export class ContactPage {
     this.details = page.locator('ft-description-list');
     this.notFound = page.getByRole('heading', { name: 'We couldn’t find that contact' });
     this.addNote = page.getByRole('button', { name: 'Add note' });
+    this.archive = page.getByRole('button', { name: 'Archive' });
     this.notes = page.locator('ft-note');
   }
 

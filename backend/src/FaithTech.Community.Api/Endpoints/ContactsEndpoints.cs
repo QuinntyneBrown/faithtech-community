@@ -14,6 +14,9 @@ public static class ContactsEndpoints
         contacts.MapGet("", async (string? q, ManageContactsHandler handler, CancellationToken cancellationToken) =>
             await handler.ListAsync(q, cancellationToken) is { } list ? Results.Ok(list) : Results.Forbid());
 
+        contacts.MapGet("/archived", async (ManageContactsHandler handler, CancellationToken cancellationToken) =>
+            await handler.ListArchivedAsync(cancellationToken) is { } list ? Results.Ok(list) : Results.Forbid());
+
         contacts.MapPost("", async (CreateContactCommand command, ManageContactsHandler handler, CancellationToken cancellationToken) =>
             {
                 var (result, contact) = await handler.CreateAsync(command, cancellationToken);
@@ -40,6 +43,15 @@ public static class ContactsEndpoints
                 return result.ToHttp(() => Results.Created($"/api/contacts/{id}/notes", note));
             })
             .Validate<AddContactNoteCommand>();
+
+        contacts.MapPost("/{id:guid}/archive", async (Guid id, ArchiveContactsHandler handler, CancellationToken cancellationToken) =>
+            (await handler.ArchiveAsync(id, cancellationToken)).ToHttp(Results.NoContent));
+
+        contacts.MapPost("/{id:guid}/restore", async (Guid id, ArchiveContactsHandler handler, CancellationToken cancellationToken) =>
+            (await handler.RestoreAsync(id, cancellationToken)).ToHttp(Results.NoContent));
+
+        contacts.MapDelete("/{id:guid}", async (Guid id, ArchiveContactsHandler handler, CancellationToken cancellationToken) =>
+            (await handler.DeleteAsync(id, cancellationToken)).ToHttp(Results.NoContent));
 
         return app;
     }

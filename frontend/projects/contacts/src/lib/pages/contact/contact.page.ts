@@ -8,6 +8,7 @@ import {
   input,
   signal,
 } from '@angular/core';
+import { Router } from '@angular/router';
 import { CONTACTS_SERVICE, ContactDto, ContactNoteDto } from '@faithtech-community/api';
 import {
   BadgeComponent,
@@ -26,11 +27,12 @@ import {
   SkeletonComponent,
   SplitComponent,
   StackComponent,
+  ToastService,
   formatDay,
 } from '@faithtech-community/components';
 import { firstValueFrom } from 'rxjs';
 
-import { AddNoteDialog, AddNoteData } from '../../dialogs';
+import { AddNoteData, AddNoteDialog, ArchiveContactDialog, ContactRef } from '../../dialogs';
 
 type State = 'loading' | 'loaded' | 'not-found' | 'error';
 
@@ -61,6 +63,8 @@ type State = 'loading' | 'loaded' | 'not-found' | 'error';
 export class ContactPage {
   private readonly contacts = inject(CONTACTS_SERVICE);
   private readonly dialogs = inject(DialogService);
+  private readonly toasts = inject(ToastService);
+  private readonly router = inject(Router);
 
   /** Route parameter. */
   readonly id = input.required<string>();
@@ -92,6 +96,19 @@ export class ContactPage {
     });
     const note = await firstValueFrom(ref.closed);
     if (note) this.notes.update((notes) => [note, ...notes]);
+  }
+
+  protected async archive(contact: ContactDto): Promise<void> {
+    const ref = this.dialogs.open<boolean, ContactRef>(ArchiveContactDialog, {
+      data: { contactId: contact.id, name: contact.name },
+    });
+    if (!(await firstValueFrom(ref.closed))) return;
+    this.toasts.show({
+      variant: 'success',
+      heading: 'Contact archived',
+      text: `${contact.name} is in Archived contacts with your notes.`,
+    });
+    await this.router.navigateByUrl('/contacts');
   }
 
   protected retry(): void {
