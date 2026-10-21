@@ -3,6 +3,7 @@ using FaithTech.Community.Domain.Admin;
 using FaithTech.Community.Domain.Contacts;
 using FaithTech.Community.Domain.Invites;
 using FaithTech.Community.Domain.Notifications;
+using FaithTech.Community.Domain.Partners;
 using FaithTech.Community.Domain.Profiles;
 using Microsoft.EntityFrameworkCore;
 
@@ -23,6 +24,8 @@ public interface IApplicationDbContext
     DbSet<Contact> Contacts { get; }
 
     DbSet<ContactNote> ContactNotes { get; }
+
+    DbSet<Partner> Partners { get; }
 
     Task<int> SaveChangesAsync(CancellationToken cancellationToken = default);
 }

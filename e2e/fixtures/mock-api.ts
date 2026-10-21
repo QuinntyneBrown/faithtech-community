@@ -1,6 +1,7 @@
 import { Page, Route } from '@playwright/test';
 
 import { MockContacts } from './mock-contacts';
+import { MockPartners } from './mock-partners';
 
 export interface MockAccount {
   name: string;
@@ -103,6 +104,8 @@ export class MockApi {
   uploadedPhotoUrl: (file: string) => string = () => photoUrl();
   /** Private contacts (ADR 0007). */
   readonly contacts = new MockContacts(this);
+  /** The shared partner pipeline (ADR 0007). */
+  readonly partners = new MockPartners(this);
 
   constructor(private readonly page: Page) {}
 
@@ -216,6 +219,8 @@ export class MockApi {
     const authorization = request.headers()['authorization'];
     const contacts = this.contacts.handle(route, method, url, body, this.caller(authorization));
     if (contacts) return contacts;
+    const partners = this.partners.handle(route, method, url, body, this.caller(authorization));
+    if (partners) return partners;
     const profileRoute = /^\/api\/profiles\/([^/]+)$/.exec(url.pathname);
     if (method === 'GET' && profileRoute) {
       return this.getProfile(route, profileRoute[1], authorization);

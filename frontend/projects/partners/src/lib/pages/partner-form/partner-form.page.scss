@@ -1,0 +1,14 @@
+:host {
+  display: block;
+  margin-block-start: var(--space-4);
+}
+
+ft-page-header {
+  display: block;
+  margin-block-end: var(--space-4);
+}
+
+.form {
+  display: block;
+  max-width: 40rem;
+}

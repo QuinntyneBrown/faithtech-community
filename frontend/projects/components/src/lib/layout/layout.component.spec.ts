@@ -28,6 +28,9 @@ import { StackComponent } from './stack.component';
     <ft-page-header title="Good afternoon, Grace" subtitle="Tuesday">
       <button ftPageHeaderActions>New event</button>
     </ft-page-header>
+    <ft-page-header class="rich" title="Kestrel Labs">
+      <span ftPageHeaderSubtitle><b>In funnel</b> · Venue</span>
+    </ft-page-header>
   `,
 })
 class HostComponent {
@@ -93,5 +96,12 @@ describe('layout primitives', () => {
       'Tuesday',
     );
     expect(host.querySelector('ft-page-header button')).toBeTruthy();
+  });
+
+  it('page header takes rich subtitle content such as a status badge', () => {
+    const { host } = setup();
+    const subtitle = host.querySelector('ft-page-header.rich .page-header__subtitle')!;
+    expect(subtitle.querySelector('b')!.textContent).toBe('In funnel');
+    expect(subtitle.textContent).toContain('· Venue');
   });
 });

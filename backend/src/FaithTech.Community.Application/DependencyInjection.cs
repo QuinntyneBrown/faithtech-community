@@ -2,6 +2,7 @@ using FaithTech.Community.Application.Admin;
 using FaithTech.Community.Application.Contacts;
 using FaithTech.Community.Application.Identity;
 using FaithTech.Community.Application.Invites;
+using FaithTech.Community.Application.Partners;
 using FaithTech.Community.Application.Profiles;
 using FluentValidation;
 using Microsoft.Extensions.Configuration;
@@ -47,6 +48,9 @@ public static class DependencyInjection
         services.AddScoped<ArchiveContactsHandler>();
         services.AddScoped<ContactSignedUpHandler>();
         services.AddScoped<LinkContactHandler>();
+        services.AddScoped<PartnerAccess>();
+        services.AddScoped<PartnerViews>();
+        services.AddScoped<ManagePartnersHandler>();
         services.TryAddSingleton(TimeProvider.System);
         return services;
     }

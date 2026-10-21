@@ -4,6 +4,7 @@ using FaithTech.Community.Domain.Admin;
 using FaithTech.Community.Domain.Contacts;
 using FaithTech.Community.Domain.Invites;
 using FaithTech.Community.Domain.Notifications;
+using FaithTech.Community.Domain.Partners;
 using FaithTech.Community.Domain.Profiles;
 using FaithTech.Community.Infrastructure.Email;
 using FaithTech.Community.Infrastructure.Identity;
@@ -31,6 +32,8 @@ public class CommunityDbContext(DbContextOptions<CommunityDbContext> options)
     public DbSet<Contact> Contacts => Set<Contact>();
 
     public DbSet<ContactNote> ContactNotes => Set<ContactNote>();
+
+    public DbSet<Partner> Partners => Set<Partner>();
 
     protected override void OnModelCreating(ModelBuilder builder)
     {
@@ -129,6 +132,32 @@ public class CommunityDbContext(DbContextOptions<CommunityDbContext> options)
             note.Property(n => n.Id).ValueGeneratedNever();
             note.Property(n => n.Body).HasMaxLength(2000);
             note.HasIndex(n => new { n.ContactId, n.CreatedAtUtc });
+        });
+
+        builder.Entity<Partner>(partner =>
+        {
+            partner.Property(p => p.Id).ValueGeneratedNever();
+            partner.Property(p => p.Name).HasMaxLength(200);
+            partner.Property(p => p.Website).HasMaxLength(200);
+            partner.Property(p => p.Offering).HasMaxLength(200);
+            partner.Property(p => p.ContactName).HasMaxLength(200);
+            partner.Property(p => p.Email).HasMaxLength(256);
+            partner.Property(p => p.Phone).HasMaxLength(200);
+            partner.Property(p => p.Notes).HasMaxLength(2000);
+            partner.Property(p => p.Stage).HasConversion<string>().HasMaxLength(16);
+            partner.HasIndex(p => p.Stage);
+            partner.HasMany(p => p.StageChanges).WithOne().HasForeignKey(c => c.PartnerId).OnDelete(DeleteBehavior.Cascade);
+            partner.Navigation(p => p.StageChanges).UsePropertyAccessMode(PropertyAccessMode.Field);
+        });
+
+        builder.Entity<PartnerStageChange>(change =>
+        {
+            change.ToTable("PartnerStageChanges");
+            change.Property(c => c.Id).ValueGeneratedNever();
+            change.Property(c => c.From).HasConversion<string>().HasMaxLength(16);
+            change.Property(c => c.To).HasConversion<string>().HasMaxLength(16);
+            change.Property(c => c.Note).HasMaxLength(500);
+            change.HasIndex(c => new { c.PartnerId, c.MovedAtUtc });
         });
 
         builder.Entity<CommunityUser>()

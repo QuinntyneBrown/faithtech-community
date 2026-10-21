@@ -1,6 +1,48 @@
-<!--
-  SCAFFOLD: placeholder, not the implementation.
-  Generated from AGENTS.md and:
-    - docs/detailed-designs/partners/manage-partners
-  Overwrite this template with the expected implementation, then delete this comment.
--->
+<ft-dialog
+  heading="Add a partner"
+  description="Partners are shared with every lead."
+  icon="partners"
+  [busy]="busy()"
+  (closed)="ref.close()"
+>
+  <form [formGroup]="form" (submit)="$event.preventDefault(); add()">
+    <ft-stack>
+      @if (failed()) {
+        <ft-alert status="danger" heading="That didn’t work">
+          We couldn’t reach FaithTech. Nothing was saved — try again.
+        </ft-alert>
+      }
+      <ft-form-field label="Organisation" [error]="error('name')">
+        <ft-text-field formControlName="name" autocomplete="off" />
+      </ft-form-field>
+      <ft-form-field label="Website" [optional]="true" [error]="error('website')">
+        <ft-text-field formControlName="website" autocomplete="off" />
+      </ft-form-field>
+      <ft-form-field label="Stage">
+        <ft-select [formControl]="stage" [options]="stageOptions" />
+      </ft-form-field>
+      <ft-form-field label="Main contact" [optional]="true" [error]="error('contactName')">
+        <ft-text-field formControlName="contactName" autocomplete="off" />
+      </ft-form-field>
+      <ft-form-field label="Email" [optional]="true" [error]="error('email')">
+        <ft-text-field type="email" formControlName="email" autocomplete="off" />
+      </ft-form-field>
+      <ft-form-field label="Phone" [optional]="true" [error]="error('phone')">
+        <ft-text-field type="tel" formControlName="phone" autocomplete="off" />
+      </ft-form-field>
+      <ft-form-field label="What they could offer" [optional]="true" [error]="error('offering')">
+        <ft-textarea formControlName="offering" [rows]="2" />
+      </ft-form-field>
+      <ft-form-field label="Owner" [optional]="true" [error]="error('ownerId')">
+        <ft-select formControlName="ownerId" [options]="ownerOptions()" />
+      </ft-form-field>
+      <ft-form-field label="Notes" [optional]="true" [error]="error('notes')">
+        <ft-textarea formControlName="notes" [rows]="2" />
+      </ft-form-field>
+    </ft-stack>
+  </form>
+  <ft-button ftDialogFooter [disabled]="busy()" (click)="ref.close()">Cancel</ft-button>
+  <ft-button ftDialogFooter variant="primary" [loading]="busy()" (click)="add()">
+    {{ busy() ? 'Add partner…' : 'Add partner' }}
+  </ft-button>
+</ft-dialog>

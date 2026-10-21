@@ -18,6 +18,10 @@
   font: var(--text-body);
 }
 
+.page-header__subtitle--slot:empty {
+  display: none;
+}
+
 .page-header__actions {
   display: flex;
   flex-wrap: wrap;

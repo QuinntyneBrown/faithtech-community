@@ -1,0 +1,98 @@
+<ft-breadcrumb>
+  <ft-breadcrumb-item href="/partners">Partners</ft-breadcrumb-item>
+  @if (partner(); as p) {
+    <ft-breadcrumb-item [href]="'/partners/' + p.id">{{ p.name }}</ft-breadcrumb-item>
+  }
+  <ft-breadcrumb-item>Edit</ft-breadcrumb-item>
+</ft-breadcrumb>
+<ft-page-header
+  title="Edit partner"
+  subtitle="Changes are shared with every lead. Move the stage from the board or the partner page."
+/>
+
+@switch (state()) {
+  @case ('loading') {
+    <ft-card class="form" aria-busy="true" aria-label="Loading partner">
+      <ft-stack>
+        @for (row of [1, 2, 3, 4]; track row) {
+          <ft-skeleton />
+          <ft-skeleton shape="rect" />
+        }
+      </ft-stack>
+    </ft-card>
+  }
+  @case ('error') {
+    <ft-empty-state
+      variant="error"
+      heading="We couldn’t load this partner"
+      text="Check your connection and try again. If it keeps happening, we’ve already been told about it."
+    >
+      <ft-button actions variant="primary" (click)="retry()">Try again</ft-button>
+      <ft-button actions href="/partners">Back to partners</ft-button>
+    </ft-empty-state>
+  }
+  @case ('read-only') {
+    <ft-empty-state
+      icon="locked"
+      heading="Staff can see partners but can’t change them"
+      text="Ask a lead to update this partner."
+    >
+      <ft-button actions variant="primary" [href]="'/partners/' + id()"
+        >Back to the partner</ft-button
+      >
+    </ft-empty-state>
+  }
+  @case ('loaded') {
+    <form [formGroup]="form" (ngSubmit)="save()" ftFormErrorFocus novalidate>
+      <ft-card class="form">
+        <ft-stack>
+          <ft-error-summary [errors]="summary()" action="save" />
+          @if (failed()) {
+            <ft-alert status="danger" heading="We couldn’t save this partner">
+              Something went wrong on our side. Your changes are still here — try again.
+            </ft-alert>
+          }
+          <ft-form-field #nameField label="Organisation" [error]="error('name')">
+            <ft-text-field formControlName="name" autocomplete="off" />
+          </ft-form-field>
+          <ft-form-field label="Website" [optional]="true" [error]="error('website')">
+            <ft-text-field formControlName="website" autocomplete="off" />
+          </ft-form-field>
+          <ft-form-field
+            label="What they could offer"
+            [optional]="true"
+            [error]="error('offering')"
+          >
+            <ft-text-field formControlName="offering" autocomplete="off" />
+          </ft-form-field>
+          <ft-form-field
+            label="Owner"
+            [optional]="true"
+            help="The lead who looks after this partner."
+            [error]="error('ownerId')"
+          >
+            <ft-select formControlName="ownerId" [options]="ownerOptions()" />
+          </ft-form-field>
+          <ft-form-field label="Main contact" [optional]="true" [error]="error('contactName')">
+            <ft-text-field formControlName="contactName" autocomplete="off" />
+          </ft-form-field>
+          <ft-form-field #emailField label="Email" [optional]="true" [error]="error('email')">
+            <ft-text-field type="email" formControlName="email" autocomplete="off" />
+          </ft-form-field>
+          <ft-form-field label="Phone" [optional]="true" [error]="error('phone')">
+            <ft-text-field type="tel" formControlName="phone" autocomplete="off" />
+          </ft-form-field>
+          <ft-form-field label="Notes" [optional]="true" [error]="error('notes')">
+            <ft-textarea formControlName="notes" [rows]="3" />
+          </ft-form-field>
+          <ft-form-actions>
+            <ft-button type="submit" variant="primary" [loading]="busy()">
+              {{ busy() ? 'Saving…' : 'Save partner' }}
+            </ft-button>
+            <ft-button variant="ghost" [href]="'/partners/' + id()">Cancel</ft-button>
+          </ft-form-actions>
+        </ft-stack>
+      </ft-card>
+    </form>
+  }
+}
