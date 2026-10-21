@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore.Migrations;
+using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 #nullable disable
 
@@ -130,13 +131,15 @@ namespace FaithTech.Community.Infrastructure.Persistence.Migrations
                 name: "WorkspaceMembers",
                 columns: table => new
                 {
+                    Id = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
                     WorkspaceId = table.Column<Guid>(type: "uuid", nullable: false),
                     ProfileId = table.Column<Guid>(type: "uuid", nullable: false),
                     AddedAt = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_WorkspaceMembers", x => new { x.WorkspaceId, x.ProfileId });
+                    table.PrimaryKey("PK_WorkspaceMembers", x => x.Id);
                     table.ForeignKey(
                         name: "FK_WorkspaceMembers_Workspaces_WorkspaceId",
                         column: x => x.WorkspaceId,
@@ -191,6 +194,12 @@ namespace FaithTech.Community.Infrastructure.Persistence.Migrations
                 name: "IX_WorkspaceMembers_ProfileId",
                 table: "WorkspaceMembers",
                 column: "ProfileId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_WorkspaceMembers_WorkspaceId_ProfileId",
+                table: "WorkspaceMembers",
+                columns: new[] { "WorkspaceId", "ProfileId" },
+                unique: true);
 
             migrationBuilder.CreateIndex(
                 name: "IX_Workspaces_OwnerId",

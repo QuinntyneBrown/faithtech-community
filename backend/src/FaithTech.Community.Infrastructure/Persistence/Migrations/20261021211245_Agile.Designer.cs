@@ -13,7 +13,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace FaithTech.Community.Infrastructure.Persistence.Migrations
 {
     [DbContext(typeof(CommunityDbContext))]
-    [Migration("20261021210316_Agile")]
+    [Migration("20261021211245_Agile")]
     partial class Agile
     {
         /// <inheritdoc />
@@ -911,19 +911,27 @@ namespace FaithTech.Community.Infrastructure.Persistence.Migrations
                 {
                     b.OwnsMany("FaithTech.Community.Domain.Agile.WorkspaceMember", "Members", b1 =>
                         {
-                            b1.Property<Guid>("WorkspaceId")
-                                .HasColumnType("uuid");
-
-                            b1.Property<Guid>("ProfileId")
+                            b1.Property<int>("Id")
                                 .ValueGeneratedOnAdd()
-                                .HasColumnType("uuid");
+                                .HasColumnType("integer");
+
+                            NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b1.Property<int>("Id"));
 
                             b1.Property<DateTimeOffset>("AddedAt")
                                 .HasColumnType("timestamp with time zone");
 
-                            b1.HasKey("WorkspaceId", "ProfileId");
+                            b1.Property<Guid>("ProfileId")
+                                .HasColumnType("uuid");
+
+                            b1.Property<Guid>("WorkspaceId")
+                                .HasColumnType("uuid");
+
+                            b1.HasKey("Id");
 
                             b1.HasIndex("ProfileId");
+
+                            b1.HasIndex("WorkspaceId", "ProfileId")
+                                .IsUnique();
 
                             b1.ToTable("WorkspaceMembers", (string)null);
 

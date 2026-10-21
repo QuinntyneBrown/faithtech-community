@@ -22,6 +22,31 @@ public static class WorkspacesEndpoints
         workspaces.MapGet("/{id:guid}", async (Guid id, WorkspacesHandler handler, CancellationToken cancellationToken) =>
             await handler.GetAsync(id, cancellationToken) is { } workspace ? Results.Ok(workspace) : Results.NotFound());
 
+        workspaces.MapPut("/{id:guid}", async (Guid id, RenameWorkspaceCommand command, WorkspaceSettingsHandler handler, CancellationToken cancellationToken) =>
+                (await handler.RenameAsync(id, command, cancellationToken)).ToHttp(Results.NoContent))
+            .Validate<RenameWorkspaceCommand>();
+
+        workspaces.MapGet("/candidates", async (WorkspaceSettingsHandler handler, CancellationToken cancellationToken) =>
+        {
+            var (result, candidates) = await handler.CandidatesAsync(null, cancellationToken);
+            return result.ToHttp(() => Results.Ok(candidates));
+        });
+
+        workspaces.MapGet("/{id:guid}/candidates", async (Guid id, WorkspaceSettingsHandler handler, CancellationToken cancellationToken) =>
+        {
+            var (result, candidates) = await handler.CandidatesAsync(id, cancellationToken);
+            return result.ToHttp(() => Results.Ok(candidates));
+        });
+
+        workspaces.MapPost("/{id:guid}/members", async (
+                Guid id, AddWorkspaceMembersCommand command, WorkspaceSettingsHandler handler, CancellationToken cancellationToken) =>
+                (await handler.AddMembersAsync(id, command, cancellationToken)).ToHttp(Results.NoContent))
+            .Validate<AddWorkspaceMembersCommand>();
+
+        workspaces.MapDelete("/{id:guid}/members/{profileId:guid}", async (
+                Guid id, Guid profileId, WorkspaceSettingsHandler handler, CancellationToken cancellationToken) =>
+            (await handler.RemoveMemberAsync(id, profileId, cancellationToken)).ToHttp(Results.NoContent));
+
         return app;
     }
 }

@@ -46,6 +46,7 @@ public static class DependencyInjection
         services.AddScoped<AgileNotifier>();
         services.AddScoped<WorkspaceMembership>();
         services.AddScoped<WorkspacesHandler>();
+        services.AddScoped<WorkspaceSettingsHandler>();
         services.TryAddSingleton(TimeProvider.System);
         return services;
     }

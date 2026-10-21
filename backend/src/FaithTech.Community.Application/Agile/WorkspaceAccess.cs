@@ -77,6 +77,17 @@ public class WorkspaceAccessPolicy(IApplicationDbContext db, ICurrentUser curren
             : (workspace, new WorkspaceCaller(caller ?? Guid.Empty, Classify(workspace, caller)));
     }
 
+    /// <summary>
+    /// Loads a workspace for a write: the refusal is 404 when it is missing or the caller may not read it, 403 when
+    /// they may read but lack the right (<paramref name="manage"/> for owner actions), otherwise null.
+    /// </summary>
+    public async Task<(Workspace Workspace, WorkspaceCaller Caller, Result? Refusal)> AuthorizeAsync(
+        Guid workspaceId, bool manage, CancellationToken cancellationToken = default, bool includeArchived = false)
+    {
+        var (workspace, caller) = await LoadAsync(workspaceId, cancellationToken, includeArchived);
+        return workspace is null ? (null!, caller, Result.NotFound()) : (workspace, caller, caller.Refuse(manage));
+    }
+
     /// <summary>Records a System Admin override (ADR 0008); writes by the owner or a member are not audited.</summary>
     public void AuditOverride(WorkspaceCaller caller, string action, string targetType, Guid targetId, object? before, object? after)
     {

@@ -133,7 +133,10 @@ public class CommunityDbContext(DbContextOptions<CommunityDbContext> options)
             {
                 member.ToTable("WorkspaceMembers");
                 member.WithOwner().HasForeignKey(m => m.WorkspaceId);
-                member.HasKey(m => new { m.WorkspaceId, m.ProfileId });
+                // A generated shadow key, so EF sees a member added to a loaded workspace as new rather than modified.
+                member.Property<int>("Id").ValueGeneratedOnAdd();
+                member.HasKey("Id");
+                member.HasIndex(m => new { m.WorkspaceId, m.ProfileId }).IsUnique();
                 member.HasIndex(m => m.ProfileId);
             });
         });
