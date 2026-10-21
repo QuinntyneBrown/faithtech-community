@@ -69,6 +69,9 @@ describe('SendInviteDialog', () => {
     expect(host.querySelector<HTMLInputElement>('input[type=email]')!.readOnly).toBe(true);
     expect(host.querySelector('textarea')!.readOnly).toBe(true);
     expect(host.querySelector('select')!.disabled).toBe(true);
+    expect(host.querySelector('button[aria-busy="true"]')!.textContent!.trim()).toBe(
+      'Sending invite…',
+    );
 
     pending.error(new Error('offline'));
     await fixture.whenStable();

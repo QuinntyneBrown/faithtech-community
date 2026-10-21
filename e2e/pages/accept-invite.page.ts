@@ -19,7 +19,7 @@ export class AcceptInvitePage {
     this.name = page.getByLabel('Full name');
     this.email = page.getByLabel('Email');
     this.password = page.getByLabel('Create a password');
-    this.acceptAndJoin = page.getByRole('button', { name: /^Accept and join/ });
+    this.acceptAndJoin = page.getByRole('button', { name: /^(Accept and join|Joining)/ });
     this.acceptInvite = page.getByRole('button', { name: 'Accept invite' });
     this.signInToAccept = page.getByRole('button', { name: 'Sign in to accept' });
     this.createAccount = page.getByRole('link', { name: 'Create an account' });

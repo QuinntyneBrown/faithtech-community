@@ -16,7 +16,7 @@ export class AuditLogPage {
     this.heading = page.getByRole('heading', { level: 1 });
     this.category = page.getByLabel('Action');
     this.rows = page.getByRole('table', { name: 'Audit log' }).locator('tbody tr');
-    this.exportCsv = page.getByRole('button', { name: 'Export CSV' });
+    this.exportCsv = page.getByRole('button', { name: /^(Export CSV|Exporting)/ });
     this.showAll = page.getByRole('button', { name: 'Show all actions' });
     this.showOlder = page.getByRole('button', { name: 'Show older entries' });
     this.empty = page.getByRole('heading', { name: 'No admin actions yet' });

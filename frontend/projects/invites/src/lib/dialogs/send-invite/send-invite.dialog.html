@@ -36,6 +36,6 @@
   </form>
   <ft-button ftDialogFooter [disabled]="busy()" (click)="ref.close()">Cancel</ft-button>
   <ft-button ftDialogFooter variant="primary" [loading]="busy()" (click)="send()">
-    {{ busy() ? 'Send invite…' : 'Send invite' }}
+    {{ busy() ? 'Sending invite…' : 'Send invite' }}
   </ft-button>
 </ft-dialog>
