@@ -10,7 +10,7 @@ export class PartnerFormPage {
   readonly save: Locator;
   readonly summary: Locator;
 
-  constructor(page: Page) {
+  constructor(private readonly page: Page) {
     this.heading = page.getByRole('heading', { level: 1 });
     this.name = page.getByRole('textbox', { name: 'Organisation' });
     this.email = page.getByRole('textbox', { name: /^Email/ });
@@ -18,5 +18,24 @@ export class PartnerFormPage {
     this.notes = page.getByRole('textbox', { name: /^Notes/ });
     this.save = page.getByRole('button', { name: 'Save partner' });
     this.summary = page.locator('ft-error-summary');
+  }
+
+  /** Waits for the error summary to take focus and the smooth scroll up to it to finish. */
+  async showingErrors(): Promise<void> {
+    await this.page.locator('ft-error-summary [role="alert"]').waitFor();
+    await this.page.waitForFunction(
+      () =>
+        new Promise<boolean>((resolve) => {
+          const y = window.scrollY;
+          requestAnimationFrame(() =>
+            requestAnimationFrame(() =>
+              resolve(
+                window.scrollY === y &&
+                  document.activeElement?.closest('ft-error-summary') !== null,
+              ),
+            ),
+          );
+        }),
+    );
   }
 }

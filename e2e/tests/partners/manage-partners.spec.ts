@@ -43,6 +43,9 @@ test.describe('Manage partners', () => {
     api,
     axe,
   }) => {
+    // Tall enough that the whole form fits, so focusing the error summary never scrolls links under
+    // the sticky top bar while axe measures target sizes.
+    await page.setViewportSize({ width: 1280, height: 1200 });
     const grace = api.addAccount({ email: 'grace@example.org', roles: ['CityLead'] });
     api.addAccount({ email: 'marcus@example.org', name: 'Marcus Lee', roles: ['EventLead'] });
     const kestrel = api.partners.add({
@@ -64,6 +67,7 @@ test.describe('Manage partners', () => {
     await form.email.fill('nadia@');
     await form.save.click();
     await expect(form.summary).toContainText('Fix 1 thing to save');
+    await form.showingErrors();
     await axe.check();
 
     await form.email.fill('nadia@kestrel.example');
