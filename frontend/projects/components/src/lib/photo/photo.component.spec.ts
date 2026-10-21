@@ -55,12 +55,15 @@ describe('PhotoComponent', () => {
     expect(q('.ft-photo')!.classList.contains('ft-photo--featured')).toBe(true);
   });
 
-  it('is busy and announces progress politely while uploading', () => {
+  it('is busy on the item that holds the status line while uploading', () => {
     const { fixture, cmp, q } = setup();
     cmp.state.set('uploading');
     cmp.progress.set(60);
     fixture.detectChanges();
-    expect(q('.ft-photo__thumb')!.getAttribute('aria-busy')).toBe('true');
+    const busy = q('.ft-photo')!;
+    expect(busy.getAttribute('aria-busy')).toBe('true');
+    expect(busy.querySelector('[role="status"]')).not.toBeNull();
+    expect(q('.ft-photo__thumb')!.getAttribute('aria-busy')).toBeNull();
     expect(q('[role="status"]')!.textContent).toContain('Uploading… 60%');
   });
 
@@ -86,7 +89,7 @@ describe('PhotoComponent', () => {
 
   it('is not busy when idle', () => {
     const { q } = setup();
-    expect(q('.ft-photo__thumb')!.getAttribute('aria-busy')).toBeNull();
+    expect(q('.ft-photo')!.getAttribute('aria-busy')).toBeNull();
     expect(q('[role="status"]')!.textContent!.trim()).toBe('');
   });
 

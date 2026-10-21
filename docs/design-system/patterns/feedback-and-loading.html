@@ -101,7 +101,7 @@
       <ul>
         <li><b><a href="../components/skeleton.html">Skeleton</a></b>: grey blocks shaped like the rows, cards or profile that are loading. Every screen with data has a <code>loading</code> state.</li>
         <li><b>Busy button</b>: the pressed button swaps its label for a spinner (the label stays in the markup as its accessible name) and sets <code>aria-busy</code> and <code>aria-disabled</code>. Used in every form and dialog.</li>
-        <li><b><a href="../components/picture-list.html">Upload progress</a></b>: a photo tile with <code>aria-busy</code>, a <a href="../components/progress.html">progress</a> bar when the percentage is known, and a status line ("Uploading… 60%"). If the upload fails, the tile shows the error.</li>
+        <li><b><a href="../components/picture-list.html">Upload progress</a></b>: a photo item with <code>aria-busy</code> (on the item that holds the status line, not the thumbnail), a <a href="../components/progress.html">progress</a> bar when the percentage is known, and a status line ("Uploading… 60%"). If the upload fails, the tile shows the error.</li>
         <li><b><a href="../components/alert.html">Inline alert</a></b>: the result in context. "Profile saved", "Settings saved", "That didn’t work".</li>
         <li><b>Success card</b> (<code>.card--success</code>): replaces a form after a send that can't be undone, such as "Sent to 41 Product Engineers".</li>
       </ul>
@@ -154,7 +154,7 @@
       <div class="ds-example">
         <div class="ds-example__canvas ds-example__canvas--stack">
           <ul class="picture-list__grid" style="width: 100%; list-style: none; margin: 0; padding: 0;">
-            <li class="picture-list__item"><div class="picture-list__thumb" aria-busy="true"><img src="../assets/photos/team.svg" alt="The Toronto city team gathered around a whiteboard"></div><div class="progress" role="progressbar" aria-valuenow="60" aria-valuemin="0" aria-valuemax="100" aria-label="Uploading photo 4"><div class="progress__bar" style="--value: 60%;"></div></div><p class="picture-list__note" role="status">Uploading… 60%</p></li>
+            <li class="picture-list__item" aria-busy="true"><div class="picture-list__thumb"><img src="../assets/photos/team.svg" alt="The Toronto city team gathered around a whiteboard"></div><div class="progress" role="progressbar" aria-valuenow="60" aria-valuemin="0" aria-valuemax="100" aria-label="Uploading photo 4"><div class="progress__bar" style="--value: 60%;"></div></div><p class="picture-list__note" role="status">Uploading… 60%</p></li>
             <li class="picture-list__item picture-list__item--failed"><div class="picture-list__thumb"><img src="../assets/photos/hackathon.svg" alt="Teams working on laptops at the spring hackathon"></div><p class="picture-list__note">hackathon.jpg is 9.4 MB. Photos can be up to 5 MB — try a smaller one.</p></li>
           </ul>
         </div>
@@ -245,7 +245,6 @@
       <ul>
         <li>Busy labels mix two styles across the mocks ("Saving…" on pages, "Send invite…" in dialogs). This page records that split as the rule.</li>
         <li>The skeleton list rows use an inline <code>style="flex:1;"</code> on <code>.list__body</code>.</li>
-        <li>The uploading tile puts <code>aria-busy</code> on the thumbnail, not on the item that holds the status line.</li>
         <li>The success card heading uses an inline <code>style="font: var(--text-h4);"</code>.</li>
         <li>The danger toast in the mocks has a timer bar, although failures should stay until dismissed.</li>
       </ul>

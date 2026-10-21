@@ -678,8 +678,8 @@ label.bubble__text { cursor: pointer; }
 .picture-list__thumb .badge { position: absolute; top: var(--space-2); left: var(--space-2); }
 .picture-list__item--featured .picture-list__thumb { border-color: var(--color-accent); box-shadow: 0 0 0 var(--border-width-thick) var(--color-accent); }
 .picture-list__item--failed .picture-list__thumb { border-color: var(--color-danger-solid); }
-.picture-list__thumb[aria-busy="true"] img, .picture-list__item--failed .picture-list__thumb img { opacity: 0.5; }
-.picture-list__thumb[aria-busy="true"]::after { content: ""; position: absolute; inset: 0; margin: auto; width: 30%; height: 30%; border: var(--border-width-thick) solid var(--color-bg-surface); border-right-color: transparent; border-radius: var(--radius-full); animation: spin calc(var(--duration-loop) / 2) linear infinite; }
+.picture-list__item[aria-busy="true"] .picture-list__thumb img, .picture-list__item--failed .picture-list__thumb img { opacity: 0.5; }
+.picture-list__item[aria-busy="true"] .picture-list__thumb::after { content: ""; position: absolute; inset: 0; margin: auto; width: 30%; height: 30%; border: var(--border-width-thick) solid var(--color-bg-surface); border-right-color: transparent; border-radius: var(--radius-full); animation: spin calc(var(--duration-loop) / 2) linear infinite; }
 .picture-list__remove { position: absolute; top: var(--space-1); right: var(--space-1); background: var(--color-bg-surface); box-shadow: var(--shadow-1); }
 .picture-list__actions { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-1); }
 .picture-list__note { font: var(--text-caption); color: var(--color-fg-muted); }
