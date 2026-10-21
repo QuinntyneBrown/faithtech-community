@@ -1,19 +1,13 @@
-/*
- * SCAFFOLD: placeholder, not the implementation.
- * Generated from AGENTS.md and:
- *   - docs/detailed-designs/platform/responsive-layout-and-theming
- *   - docs/detailed-designs/identity/sign-in-and-sign-out
- * Overwrite this file with the expected implementation (implementing-incrementally
- * skill + ATDD), then delete this comment.
- */
-import { ChangeDetectionStrategy, Component } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
+import { BannerComponent, ConnectivityService } from '@faithtech-community/components';
 
 @Component({
   selector: 'ft-root',
-  imports: [RouterOutlet],
+  imports: [RouterOutlet, BannerComponent],
   templateUrl: './app.html',
-  styleUrl: './app.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class AppComponent {}
+export class AppComponent {
+  protected readonly connectivity = inject(ConnectivityService);
+}

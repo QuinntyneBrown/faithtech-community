@@ -1,16 +1,18 @@
-/*
- * SCAFFOLD: placeholder, not the implementation.
- * Generated from AGENTS.md and:
- *   - docs/detailed-designs/platform/error-and-system-pages
- * Overwrite this file with the expected implementation (implementing-incrementally
- * skill + ATDD), then delete this comment.
- */
 import { ChangeDetectionStrategy, Component } from '@angular/core';
+import { ContainerComponent, ErrorPageComponent } from '@faithtech-community/components';
 
+/** Shown by httpErrorInterceptor on a 500, with the response's correlation ID as the reference. */
 @Component({
   selector: 'ft-server-error-page',
+  imports: [ContainerComponent, ErrorPageComponent],
   templateUrl: './server-error.page.html',
-  styleUrl: './server-error.page.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class ServerErrorPage {}
+export class ServerErrorPage {
+  protected readonly reference =
+    (window.history.state as { referenceId?: string } | null)?.referenceId ?? null;
+
+  protected retry(): void {
+    window.history.back();
+  }
+}

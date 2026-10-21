@@ -1,6 +1,9 @@
-<!--
-  SCAFFOLD: placeholder, not the implementation.
-  Generated from AGENTS.md. The root only hosts the router; the signed-in chrome lives in
-  AppShellComponent (shell/). Overwrite as needed, then delete this comment.
--->
+<!-- A live region that is always present, so the offline banner is announced when it appears. -->
+<div aria-live="polite">
+  @if (connectivity.offline()) {
+    <ft-banner status="warning" heading="No connection">
+      We’ll keep trying in the background.
+    </ft-banner>
+  }
+</div>
 <router-outlet />
