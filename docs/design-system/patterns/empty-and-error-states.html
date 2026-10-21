@@ -234,7 +234,7 @@
       </ul>
       <p>Drift noticed in the mocks:</p>
       <ul>
-        <li>Full-page states put the block in a wrapper with an inline <code>style="padding-top: var(--space-12);"</code>. There is no class for it.</li>
+        <li>Full-page states put the block in a <code>.error-page</code> wrapper, which adds <code>padding-top: var(--space-12)</code>. Never set the offset inline.</li>
         <li>"Try again" is an <code>&lt;a&gt;</code> that links to the default state. In the app it should be a button that runs the request again.</li>
         <li>Load-error copy is the same on 26 screens. That is deliberate, but it is not stored anywhere as one shared string.</li>
         <li>The bell's empty state uses <code>&lt;p class="empty__title"&gt;</code> while the pages use headings.</li>

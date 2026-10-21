@@ -376,6 +376,8 @@ body:has(.tabbar:not(.tabbar--static)) .toast-region { bottom: calc(var(--layout
 .empty__title { font: var(--text-h3); }
 .empty__text { color: var(--color-fg-muted); max-width: 36ch; }
 .empty__actions { display: flex; gap: var(--space-3); margin-top: var(--space-2); flex-wrap: wrap; justify-content: center; }
+/* Full-page error (not found, forbidden, server error, offline): the empty state sits 48px down main. */
+.error-page { padding-top: var(--space-12); }
 .empty--error .empty__icon { background: var(--color-danger-bg); color: var(--color-danger-fg); }
 
 /* ---------- Shelfie: cover ------------------------------------------------------------ */
