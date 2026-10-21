@@ -70,6 +70,8 @@ a:hover, a[data-state="hover"] { color: var(--color-fg-link-hover); text-decorat
 .cluster { display: flex; flex-wrap: wrap; gap: var(--space-3); align-items: center; }
 .cluster--between { justify-content: space-between; }
 .cluster--tight { gap: var(--space-1); }
+/* 8px: an avatar and the name beside it, or a row of actions, inside a table cell. */
+.cluster--snug { gap: var(--space-2); }
 /* Filter row above a list: chip group and select, spaced from the list below. */
 .filter-bar { align-items: flex-end; margin-bottom: var(--space-4); }
 .grid { display: grid; gap: var(--layout-gutter); grid-template-columns: repeat(var(--layout-columns), minmax(0, 1fr)); }
