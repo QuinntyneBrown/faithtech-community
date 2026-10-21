@@ -100,7 +100,7 @@ faithtech-community/
 ├── frontend/         # Angular workspace: app, components, api and feature libraries
 ├── e2e/              # Playwright end-to-end and accessibility suite
 ├── eng/              # Developer and CI scripts, infrastructure as code
-├── docs/             # Specs, detailed designs, mocks, design system, estimates, ADRs
+├── docs/             # Specs, detailed designs, mocks, design system, estimates, ADRs, videos
 ├── idea.txt          # Original product brief
 └── decisions.txt     # Agreed product decisions (win over idea.txt)
 ```
@@ -121,6 +121,12 @@ start docs/mocks/index.html      # Windows
 open docs/mocks/index.html       # macOS
 xdg-open docs/mocks/index.html   # Linux
 ```
+
+### Watch the journeys that work today
+
+Narrated demo videos of sign up, email verification, sign in and out, password reset, the app
+shell, the error pages and member profiles (view, edit and photos) are in [`docs/videos/journeys/`](docs/videos/journeys/README.md). Regenerate
+them all with `pwsh eng/videos/Record-JourneyVideos.ps1`.
 
 ### Prerequisites for development
 
@@ -168,7 +174,8 @@ Exact commands will be kept up to date here as each part of the stack is added.
 | `docs/specs/` | L1/L2 requirements with acceptance criteria |
 | `docs/detailed-designs/` | Per-feature designs and diagrams |
 | `docs/design-system/` | Tokens, components and patterns extracted from the mocks |
-| `docs/adr/` | Architecture decision records |
+| [`docs/adr/`](docs/adr/) | Architecture decision records |
+| [`docs/videos/journeys/`](docs/videos/journeys/README.md) | Narrated demo videos of the journeys implemented so far |
 | [AGENTS.md](AGENTS.md) | Conventions for contributors and coding agents |
 
 ## Project status

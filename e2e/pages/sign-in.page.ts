@@ -9,6 +9,7 @@ export class SignInPage {
   readonly alert: Locator;
   readonly emailError: Locator;
   readonly passwordError: Locator;
+  readonly forgotPassword: Locator;
 
   constructor(private readonly page: Page) {
     this.heading = page.getByRole('heading', {
@@ -25,6 +26,7 @@ export class SignInPage {
     this.alert = page.locator('ft-alert [role=alert], ft-alert [role=status]');
     this.emailError = fieldError(page, 'Email');
     this.passwordError = fieldError(page, 'Password');
+    this.forgotPassword = page.getByRole('link', { name: 'Forgot your password?' });
   }
 
   /** Submits without filling anything in, so no request is made. */

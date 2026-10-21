@@ -1,0 +1,29 @@
+WEBVTT
+
+00:00:00.000 --> 00:00:11.000
+In this video you sign in to FaithTech Community, and sign out again. The app runs for real, against a local stand-in for the identity server, with a made-up account.
+
+00:00:11.000 --> 00:00:20.000
+Member pages are for signed-in members. When you open the home page without signing in, the app sends you to Welcome back, and remembers where you were going.
+
+00:00:20.000 --> 00:00:28.000
+If you press Sign in with nothing filled in, each field tells you what it needs, and your cursor moves to the first one.
+
+00:00:28.000 --> 00:00:36.000
+With a wrong password, the form shows one general message. It never reveals whether the email or the password was the problem.
+
+00:00:36.000 --> 00:00:47.000
+Now you enter the right password and sign in. Behind the scenes the app uses the secure authorization code flow with PKCE, then takes you to the page you first asked for.
+
+00:00:47.000 --> 00:00:54.000
+You are on the home page, inside the member area. The top bar holds the main sections and a Sign out button.
+
+00:00:54.000 --> 00:01:01.000
+When you are done, you press Sign out. Your session ends, and you are back on the sign-in page.
+
+00:01:01.000 --> 00:01:07.000
+If you try the home page again, you are asked to sign in first. The session really is gone.
+
+00:01:07.000 --> 00:01:17.000
+That is sign in and sign out: clear errors that protect your privacy, a secure sign-in that returns you to where you were going, and a clean sign out.
+

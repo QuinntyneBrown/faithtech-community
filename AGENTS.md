@@ -77,13 +77,17 @@ faithtech-community/
 │   ├── fixtures/                     # Test fixtures and seeded data helpers
 │   └── tests/                        # Specs by feature, including axe accessibility checks
 ├── eng/                              # Developer and CI scripts (start stack, run tests, deploy)
-│   └── infra/                        # Infrastructure as code for Azure
+│   ├── infra/                        # Infrastructure as code for Azure
+│   └── videos/                       # Journey video recording: PowerShell entry point,
+│                                     # Playwright recording config, presenter and journey stories
 └── docs/
     ├── specs/                        # L1/L2 requirements with acceptance criteria
     ├── detailed-designs/             # Per-subsystem/feature designs and diagrams
     ├── mocks/                        # Static HTML mocks: the design reference
     ├── design-system/                # Tokens, components and patterns taken from the mocks
     ├── estimates/                    # Effort and percent-complete per design
+    ├── videos/
+    │   └── journeys/                 # Narrated demo videos (WebM, poster, captions, narration text)
     └── adr/                          # Architecture decision records (NNNN-title.md)
 ```
 
@@ -167,6 +171,7 @@ All backend tests MUST use a fake database: the EF Core in-memory provider, with
 - Use the Page Object Model. Each screen has one page object, which owns its selectors and interactions. Tests state intent; page objects know the DOM. Never put a selector in a test.
 - Run frontend tests in Chromium only. Do not configure or run Firefox, WebKit or any other browser.
 - Run axe accessibility checks on every screen.
+- Journey demo videos (`docs/videos/journeys/`) are recorded by `pwsh eng/videos/Record-JourneyVideos.ps1`. Their stories reuse `e2e/pages/` and `e2e/fixtures/`, but they are recordings, not tests: keep them out of `e2e/tests/` and the acceptance run. Re-record a journey when its screens change.
 
 ## Incremental implementation and ATDD (MANDATORY)
 
