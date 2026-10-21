@@ -49,6 +49,6 @@ describe('DeletePhotoDialog', () => {
     await fixture.whenStable();
     fixture.detectChanges();
     expect(ref.close).not.toHaveBeenCalled();
-    expect(host.textContent).toContain('That didn’t work');
+    expect(host.querySelector('ft-alert')!.textContent).toContain('Photo not deleted');
   });
 });

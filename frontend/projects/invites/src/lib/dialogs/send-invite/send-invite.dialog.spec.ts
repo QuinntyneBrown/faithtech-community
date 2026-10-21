@@ -143,6 +143,6 @@ describe('SendInviteDialog', () => {
     const { host, set, send } = setup(() => throwError(() => new Error('offline')));
     set('input[type="email"]', 'nate@example.org');
     await send();
-    expect(host.textContent).toContain('That didn’t work');
+    expect(host.querySelector('ft-alert')!.textContent).toContain('Invite not sent');
   });
 });

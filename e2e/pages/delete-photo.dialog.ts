@@ -15,6 +15,6 @@ export class DeletePhotoDialog {
     this.photo = this.dialog.getByRole('img');
     this.cancel = this.dialog.getByRole('button', { name: 'Cancel' });
     this.confirm = this.dialog.getByRole('button', { name: /Delete photo/ });
-    this.failure = this.dialog.locator('ft-alert').filter({ hasText: 'That didn’t work' });
+    this.failure = this.dialog.locator('ft-alert').filter({ hasText: 'Photo not deleted' });
   }
 }
