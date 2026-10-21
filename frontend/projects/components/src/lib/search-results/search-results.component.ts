@@ -1,6 +1,7 @@
 import { ChangeDetectionStrategy, Component, computed, input } from '@angular/core';
 import { AvatarColor, AvatarComponent } from '../avatar/avatar.component';
 import { BadgeComponent, BadgeVariant } from '../badge/badge.component';
+import { IconComponent } from '../icon/icon.component';
 
 export interface SearchResultItem {
   title: string;
@@ -10,6 +11,8 @@ export interface SearchResultItem {
   /** Shows initials in an avatar when set. */
   avatarName?: string;
   avatarColor?: AvatarColor;
+  /** Shows a decorative icon tile for non-person results, e.g. "workspaces" for a work item. */
+  icon?: string;
   badge?: string;
   badgeVariant?: BadgeVariant;
 }
@@ -58,7 +61,7 @@ function segments(text: string, query: string): Segment[] {
  */
 @Component({
   selector: 'ft-search-results',
-  imports: [AvatarComponent, BadgeComponent],
+  imports: [AvatarComponent, BadgeComponent, IconComponent],
   templateUrl: './search-results.component.html',
   styleUrl: './search-results.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,

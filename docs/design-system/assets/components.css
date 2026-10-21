@@ -437,6 +437,10 @@ a.chapter:hover, a.chapter[data-state="hover"] { background: var(--color-bg-subt
 .chapter__status { flex: none; display: inline-flex; align-items: center; gap: var(--space-1); font: var(--text-body-sm); color: var(--color-fg-muted); }
 
 /* ---------- Shelfie: sticker and sticker picker ------------------------------------------- */
+/* Icon tile: a decorative icon leading a row for something that is not a person (invite, workspace, announcement, work item).
+   Rounded square, so it never reads as an avatar or a planning-poker estimate card. */
+.icon-tile { display: inline-grid; place-items: center; flex: none; width: var(--size-avatar-md); height: var(--size-avatar-md); border-radius: var(--radius-md); background: var(--color-accent-subtle); color: var(--color-fg-accent); }
+.icon-tile--sm { width: var(--size-avatar-sm); height: var(--size-avatar-sm); }
 .sticker { --sticker-size: var(--size-avatar-md); display: inline-grid; place-items: center; width: var(--sticker-size); height: var(--sticker-size); flex: none; border-radius: var(--radius-full); background: var(--color-accent-subtle); font-size: calc(var(--sticker-size) * 0.5); line-height: 1; }
 .sticker--lg { --sticker-size: var(--size-avatar-xl); }
 .sticker--xl { --sticker-size: calc(var(--size-avatar-xl) * 1.5); font-size: calc(var(--sticker-size) * 0.54); }
