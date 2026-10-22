@@ -70,7 +70,9 @@ public static class DependencyInjection
         services.AddScoped<ArchiveHandler>();
         services.AddScoped<CityLeadRoleRemovedHandler>();
         services.AddScoped<PlanningPokerHandler>();
+        services.AddScoped<EventPermissions>();
         services.AddScoped<ListEventsHandler>();
+        services.AddScoped<SaveEventHandler>();
         services.TryAddSingleton(TimeProvider.System);
         return services;
     }

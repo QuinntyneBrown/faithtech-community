@@ -2,10 +2,12 @@ using Azure.Storage.Blobs;
 using FaithTech.Community.Application.Admin;
 using FaithTech.Community.Application.Common;
 using FaithTech.Community.Application.Identity;
+using FaithTech.Community.Application.Notifications;
 using FaithTech.Community.Application.Profiles;
 using FaithTech.Community.Infrastructure.Admin;
 using FaithTech.Community.Infrastructure.Email;
 using FaithTech.Community.Infrastructure.Identity;
+using FaithTech.Community.Infrastructure.Notifications;
 using FaithTech.Community.Infrastructure.Persistence;
 using FaithTech.Community.Infrastructure.Storage;
 using Microsoft.AspNetCore.DataProtection;
@@ -71,6 +73,7 @@ public static class DependencyInjection
 
         services.AddHttpContextAccessor();
         services.AddScoped<IAuditLog, AuditLog>();
+        services.AddScoped<INotificationPublisher, DbNotificationPublisher>();
 
         services.AddScoped<CommunitySeeder>();
 

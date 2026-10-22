@@ -29,6 +29,17 @@ public static class EventsEndpoints
             return Results.Ok(await handler.HandleAsync(new ListEventsQuery(parsed, city), cancellationToken));
         });
 
+        events.MapPost("", async (SaveEventCommand command, SaveEventHandler handler, CancellationToken cancellationToken) =>
+            {
+                var (result, id) = await handler.CreateAsync(command, cancellationToken);
+                return result.ToHttp(() => Results.Created($"/api/events/{id}", new { id }));
+            })
+            .Validate<SaveEventCommand>();
+
+        events.MapPut("/{id:guid}", async (Guid id, SaveEventCommand command, SaveEventHandler handler, CancellationToken cancellationToken) =>
+                (await handler.UpdateAsync(id, command, cancellationToken)).ToHttp(Results.NoContent))
+            .Validate<SaveEventCommand>();
+
         return app;
     }
 }
