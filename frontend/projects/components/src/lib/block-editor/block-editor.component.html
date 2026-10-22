@@ -133,47 +133,80 @@
       }
     }
   } @else {
-    @for (block of items(); track block.id; let i = $index) {
-      <div
-        class="block block--{{ block.type }}"
-        [class.callout]="block.type === 'callout'"
-        [class.todo--done]="block.type === 'todo' && block.checked"
-        [attr.data-block-id]="block.id"
-      >
-        @switch (block.type) {
-          @case ('bulleted') {
-            <span class="block__marker" aria-hidden="true">•</span>
-          }
-          @case ('numbered') {
-            <span class="block__marker" aria-hidden="true">{{ numberOf(block) }}.</span>
-          }
-          @case ('todo') {
-            <input
-              type="checkbox"
-              class="todo__check"
-              [checked]="!!block.checked"
-              [attr.aria-label]="plain(block) || 'To-do'"
-              (change)="toggle(i, $any($event.target).checked)"
-            />
-          }
-          @case ('callout') {
-            <span class="callout__icon" aria-hidden="true">{{ block.icon || '💡' }}</span>
-          }
-        }
-        @if (hasText(block.type)) {
-          <ng-container *ngTemplateOutlet="textBox; context: { block, index: i }" />
-        } @else {
+    <div class="visually-hidden" aria-live="polite" data-move-announcement>
+      {{ announcement() }}
+    </div>
+    <div
+      class="ft-block-editor__blocks"
+      cdkDropList
+      cdkDropListLockAxis="y"
+      [cdkDropListData]="items()"
+      (cdkDropListDropped)="dropped($event)"
+    >
+      @for (block of items(); track block.id; let i = $index) {
+        <div
+          cdkDrag
+          [cdkDragData]="block"
+          class="block block--{{ block.type }}"
+          [class.callout]="block.type === 'callout'"
+          [class.todo--done]="block.type === 'todo' && block.checked"
+          [attr.data-block-id]="block.id"
+        >
+          <div class="drop-indicator" *cdkDragPlaceholder></div>
+          <button
+            type="button"
+            class="block__handle"
+            cdkDragHandle
+            data-focus
+            [cdkMenuTriggerFor]="blockMenu"
+            [cdkMenuTriggerData]="{ $implicit: i }"
+            [attr.aria-label]="handleLabel(i, block)"
+            (keydown)="onHandleKeydown(i, $event)"
+          >
+            <svg class="block__grip" viewBox="0 0 24 24" aria-hidden="true">
+              <circle cx="9" cy="6" r="1.5" />
+              <circle cx="15" cy="6" r="1.5" />
+              <circle cx="9" cy="12" r="1.5" />
+              <circle cx="15" cy="12" r="1.5" />
+              <circle cx="9" cy="18" r="1.5" />
+              <circle cx="15" cy="18" r="1.5" />
+            </svg>
+          </button>
           @switch (block.type) {
-            @case ('divider') {
-              <hr class="block__divider" />
+            @case ('bulleted') {
+              <span class="block__marker" aria-hidden="true">•</span>
             }
-            @default {
-              <ng-container *ngTemplateOutlet="viewBlock; context: { block }" />
+            @case ('numbered') {
+              <span class="block__marker" aria-hidden="true">{{ numberOf(block) }}.</span>
+            }
+            @case ('todo') {
+              <input
+                type="checkbox"
+                class="todo__check"
+                [checked]="!!block.checked"
+                [attr.aria-label]="plain(block) || 'To-do'"
+                (change)="toggle(i, $any($event.target).checked)"
+              />
+            }
+            @case ('callout') {
+              <span class="callout__icon" aria-hidden="true">{{ block.icon || '💡' }}</span>
             }
           }
-        }
-      </div>
-    }
+          @if (hasText(block.type)) {
+            <ng-container *ngTemplateOutlet="textBox; context: { block, index: i }" />
+          } @else {
+            @switch (block.type) {
+              @case ('divider') {
+                <hr class="block__divider" />
+              }
+              @default {
+                <ng-container *ngTemplateOutlet="viewBlock; context: { block }" />
+              }
+            }
+          }
+        </div>
+      }
+    </div>
     @if (selected(); as sel) {
       <ft-format-toolbar
         class="ft-block-editor__popup"
@@ -203,3 +236,41 @@
     }
   }
 </section>
+
+<ng-template #blockMenu let-i>
+  <div class="ft-block-menu" cdkMenu aria-label="Block actions">
+    @let block = items()[i];
+    @if (hasText(block.type)) {
+      <button ft-menu-item [submenu]="turnIntoMenu" [submenuData]="{ $implicit: i }">
+        Turn into
+      </button>
+    }
+    @if (block.type === 'callout') {
+      <button ft-menu-item (click)="editBlock(i)">Change icon</button>
+    }
+    @if (block.type === 'image') {
+      <button ft-menu-item (click)="editBlock(i)">Edit alt text</button>
+    }
+    <button ft-menu-item shortcut="Alt+Shift+↑" [disabled]="i === 0" (click)="move(i, -1)">
+      Move up
+    </button>
+    <button
+      ft-menu-item
+      shortcut="Alt+Shift+↓"
+      [disabled]="i === items().length - 1"
+      (click)="move(i, 1)"
+    >
+      Move down
+    </button>
+    <button ft-menu-item (click)="duplicate(i)">Duplicate</button>
+    <button ft-menu-item [danger]="true" (click)="remove(i)">Delete</button>
+  </div>
+</ng-template>
+
+<ng-template #turnIntoMenu let-i>
+  <div class="ft-block-menu" cdkMenu aria-label="Turn into">
+    @for (t of textTypes; track t.type) {
+      <button ft-menu-item (click)="turnInto(i, t.type)">{{ t.label }}</button>
+    }
+  </div>
+</ng-template>

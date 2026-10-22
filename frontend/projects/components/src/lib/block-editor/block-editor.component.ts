@@ -1,3 +1,12 @@
+import {
+  CdkDrag,
+  CdkDragDrop,
+  CdkDragHandle,
+  CdkDragPlaceholder,
+  CdkDropList,
+  moveItemInArray,
+} from '@angular/cdk/drag-drop';
+import { CdkMenu, CdkMenuTrigger } from '@angular/cdk/menu';
 import { NgTemplateOutlet } from '@angular/common';
 import {
   ChangeDetectionStrategy,
@@ -15,6 +24,7 @@ import {
 } from '@angular/core';
 
 import { FormatMark, FormatToolbarComponent } from '../format-toolbar/format-toolbar.component';
+import { MenuItemComponent } from '../menu/menu-item.component';
 import { SlashMenuComponent, SlashMenuOption } from '../slash-menu/slash-menu.component';
 import {
   BLOCK_TYPES,
@@ -22,6 +32,8 @@ import {
   EditorBlockType,
   EditorSpan,
   continuesOnEnter,
+  describeBlock,
+  newBlockId,
   hasText,
   labelOf,
   newBlock,
@@ -118,7 +130,19 @@ let nextId = 0;
  */
 @Component({
   selector: 'ft-block-editor',
-  imports: [NgTemplateOutlet, FormatToolbarComponent, RichTextDirective, SlashMenuComponent],
+  imports: [
+    CdkDrag,
+    CdkDragHandle,
+    CdkDragPlaceholder,
+    CdkDropList,
+    CdkMenu,
+    CdkMenuTrigger,
+    FormatToolbarComponent,
+    MenuItemComponent,
+    NgTemplateOutlet,
+    RichTextDirective,
+    SlashMenuComponent,
+  ],
   host: { '(document:selectionchange)': 'trackSelection()' },
   templateUrl: './block-editor.component.html',
   styleUrl: './block-editor.component.scss',
@@ -135,6 +159,8 @@ export class BlockEditorComponent {
   readonly refused = output<string>();
   readonly blockRequested = output<BlockRequest>();
   readonly linkRequested = output<LinkRequest>();
+  /** The block menu's Change icon (callout) or Edit alt text (image) (L2-087 AC6, L2-097 AC8). */
+  readonly blockEditRequested = output<{ index: number; block: EditorBlock }>();
 
   private readonly host = inject<ElementRef<HTMLElement>>(ElementRef).nativeElement;
   private readonly cdr = inject(ChangeDetectorRef);
@@ -142,6 +168,10 @@ export class BlockEditorComponent {
   protected readonly items = signal<EditorBlock[]>([]);
   protected readonly popup = signal<Popup | null>(null);
   protected readonly selected = signal<Selected | null>(null);
+  /** The latest move, read out by the polite live region (L2-089 AC5). */
+  protected readonly announcement = signal('');
+  /** The text types a block can turn into (L2-088 AC10). */
+  protected readonly textTypes = BLOCK_TYPES.filter((t) => hasText(t.type));
   private readonly toolbar = viewChild(FormatToolbarComponent);
   /** The marks the whole selection has, for the toolbar's pressed states (L2-088 AC1). */
   protected readonly pressed = computed(() => {
@@ -191,6 +221,69 @@ export class BlockEditorComponent {
   /** Focuses the first block, at its start; the title's Enter lands here. */
   focusFirst(): void {
     this.focusBlock(0, 'start');
+  }
+
+  /** Replaces a block in place, such as a callout with its new icon. */
+  update(index: number, block: EditorBlock): void {
+    this.change(index, block);
+    this.focusBlock(index, 'end');
+  }
+
+  protected handleLabel(index: number, block: EditorBlock): string {
+    return `Move or open the menu for block ${index + 1} of ${this.items().length}, ${labelOf(block.type)}`;
+  }
+
+  /** Moves a block one place up or down, keeps it focused and announces where it went (L2-089 AC4, AC5). */
+  protected move(index: number, step: -1 | 1, caret: Caret | null = null): void {
+    const to = index + step;
+    if (to < 0 || to >= this.items().length) return;
+    const items = [...this.items()];
+    moveItemInArray(items, index, to);
+    this.commit(items);
+    this.announce(items[to], to);
+    if (caret !== null) this.focusBlock(to, caret);
+  }
+
+  protected dropped(event: CdkDragDrop<EditorBlock[]>): void {
+    if (event.previousIndex === event.currentIndex) return;
+    const items = [...this.items()];
+    moveItemInArray(items, event.previousIndex, event.currentIndex);
+    this.commit(items);
+    this.announce(items[event.currentIndex], event.currentIndex);
+  }
+
+  protected duplicate(index: number): void {
+    if (!this.roomFor(1)) return;
+    const items = [...this.items()];
+    items.splice(index + 1, 0, { ...structuredClone(items[index]), id: newBlockId() });
+    this.commit(items);
+    this.focusBlock(index + 1, 'end');
+  }
+
+  protected remove(index: number): void {
+    const items = [...this.items()];
+    items.splice(index, 1);
+    if (items.length === 0) items.push(newBlock());
+    this.commit(items);
+    this.focusBlock(Math.max(0, index - 1), index > 0 ? 'end' : 'start');
+  }
+
+  protected editBlock(index: number): void {
+    this.blockEditRequested.emit({ index, block: this.items()[index] });
+  }
+
+  /** Alt+Shift+↑/↓ on a handle (blocks without text are focused there). */
+  protected onHandleKeydown(index: number, event: KeyboardEvent): void {
+    if (event.altKey && event.shiftKey && (event.key === 'ArrowUp' || event.key === 'ArrowDown')) {
+      event.preventDefault();
+      this.move(index, event.key === 'ArrowUp' ? -1 : 1, 'start');
+    }
+  }
+
+  private announce(block: EditorBlock, index: number): void {
+    this.announcement.set(
+      `Moved ${describeBlock(block)} to position ${index + 1} of ${this.items().length}`,
+    );
   }
 
   /** Puts a block the page filled in through a dialog where it was asked for, and focuses after it. */
@@ -407,6 +500,12 @@ export class BlockEditorComponent {
     const el = event.currentTarget as HTMLElement;
     if (this.popup()?.index === index && this.menuKey(event)) return;
     if (this.shortcut(index, event)) return;
+    if (event.altKey && event.shiftKey && (event.key === 'ArrowUp' || event.key === 'ArrowDown')) {
+      event.preventDefault();
+      const el = event.currentTarget as HTMLElement;
+      this.move(index, event.key === 'ArrowUp' ? -1 : 1, caretOffset(el) ?? 'end');
+      return;
+    }
     const block = this.items()[index];
     switch (event.key) {
       case 'Enter':

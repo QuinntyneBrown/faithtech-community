@@ -11,6 +11,8 @@ export class NotePage {
   readonly retry: Locator;
   readonly slashMenu: Locator;
   readonly toolbar: Locator;
+  readonly blockMenu: Locator;
+  readonly announcement: Locator;
   readonly slashOptions: Locator;
   readonly saveStatus: Locator;
   readonly banner: Locator;
@@ -26,6 +28,8 @@ export class NotePage {
     this.blocks = this.content.locator('.block');
     this.textBlocks = this.content.getByRole('textbox');
     this.retry = page.getByRole('button', { name: 'Retry' });
+    this.blockMenu = page.getByRole('menu').last();
+    this.announcement = page.locator('[data-move-announcement]');
     this.toolbar = page.getByRole('toolbar', { name: 'Formatting' });
     this.slashMenu = page.getByRole('listbox', { name: 'Insert a block' });
     this.slashOptions = this.slashMenu.getByRole('option');
@@ -77,6 +81,31 @@ export class NotePage {
       },
       [start, end],
     );
+  }
+
+  /** The drag handle of block `n` (1-based), "Move or open the menu for block n of total, type". */
+  handle(n: number): Locator {
+    return this.content.getByRole('button', {
+      name: new RegExp(`^Move or open the menu for block ${n} of`),
+    });
+  }
+
+  menuItem(name: string): Locator {
+    return this.page.getByRole('menuitem', { name, exact: true });
+  }
+
+  /** Drags block `from` (1-based) by its handle onto block `to`'s place, in small steps as a person would. */
+  async drag(from: number, to: number): Promise<void> {
+    const handle = await this.handle(from).boundingBox();
+    const target = await this.blocks.nth(to - 1).boundingBox();
+    if (!handle || !target) throw new Error('Block not on screen');
+    await this.page.mouse.move(handle.x + handle.width / 2, handle.y + handle.height / 2);
+    await this.page.mouse.down();
+    await this.page.mouse.move(handle.x + handle.width / 2, handle.y + handle.height / 2 - 10, {
+      steps: 5,
+    });
+    await this.page.mouse.move(handle.x + handle.width / 2, target.y + 2, { steps: 20 });
+    await this.page.mouse.up();
   }
 
   checkbox(name: string): Locator {
