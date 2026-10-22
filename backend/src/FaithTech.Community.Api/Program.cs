@@ -36,6 +36,7 @@ app.UseExceptionHandler();
 app.UseStatusCodePages();
 app.UseCors(WebProtectionSetup.WebAppCorsPolicy);
 app.UseAuthentication();
+app.UseMiddleware<CurrentRolesMiddleware>();
 app.UseRateLimiter();
 app.UseAuthorization();
 

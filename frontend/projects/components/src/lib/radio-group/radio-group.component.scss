@@ -12,6 +12,15 @@ fieldset {
   border: 0;
 }
 
+// Always rendered so its polite live region exists before an error; empty, it cancels the gap.
+.errors {
+  margin-block-start: calc(-1 * var(--space-3));
+
+  ft-inline-message {
+    margin-block-start: var(--space-3);
+  }
+}
+
 legend {
   padding: 0;
   margin-block-end: var(--space-1);

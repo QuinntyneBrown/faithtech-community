@@ -1,4 +1,17 @@
-import { Page } from '@playwright/test';
+import { Locator, Page } from '@playwright/test';
+
+/**
+ * True when the element sits in a live region (aria-live polite/assertive, role status or alert),
+ * so a screen reader announces it when it appears without focus moving to it.
+ */
+export function isAnnounced(locator: Locator): Promise<boolean> {
+  return locator.evaluate(
+    (el) =>
+      !!el.closest(
+        '[aria-live="polite"], [aria-live="assertive"], [role="status"], [role="alert"]',
+      ),
+  );
+}
 
 interface AXValue {
   value?: unknown;

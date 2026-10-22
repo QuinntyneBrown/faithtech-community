@@ -67,6 +67,16 @@ describe('RadioGroupComponent', () => {
     expect(fs.getAttribute('aria-invalid')).toBe('true');
   });
 
+  it('announces the group error through a polite live region', () => {
+    const { fixture, cmp, host } = setup();
+    const region = host.querySelector<HTMLElement>('[aria-live="polite"]')!;
+    expect(region).toBeTruthy();
+    cmp.error = 'Choose a role to add.';
+    fixture.changeDetectorRef.markForCheck();
+    fixture.detectChanges();
+    expect(region.textContent).toContain('Choose a role to add.');
+  });
+
   it('marks every radio invalid while the group shows an error', () => {
     const { fixture, cmp, radios } = setup();
     expect(radios().some((r) => r.hasAttribute('aria-invalid'))).toBe(false);

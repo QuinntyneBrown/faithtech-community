@@ -1,4 +1,5 @@
 import { Locator, Page } from '@playwright/test';
+import { fieldError } from './sign-in.page';
 
 export class VerifyEmailPage {
   readonly pending: Locator;
@@ -6,6 +7,7 @@ export class VerifyEmailPage {
   readonly expired: Locator;
   readonly sendNewLink: Locator;
   readonly email: Locator;
+  readonly emailError: Locator;
   readonly message: Locator;
   readonly setUpProfile: Locator;
 
@@ -15,6 +17,7 @@ export class VerifyEmailPage {
     this.expired = page.getByRole('heading', { level: 1, name: 'This link has expired' });
     this.sendNewLink = page.getByRole('button', { name: /Send a new link|Sending/ });
     this.email = page.getByLabel('Email');
+    this.emailError = fieldError(page, 'Email');
     this.message = page.locator('ft-alert [role=status], ft-alert [role=alert]');
     this.setUpProfile = page.getByRole('link', { name: 'Set up my profile' });
   }

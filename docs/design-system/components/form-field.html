@@ -192,6 +192,8 @@
     <section class="ds-section" id="accessibility"><h2><a href="#accessibility">Accessibility</a></h2>
       <h3>Role and pattern</h3>
       <p>A native <code>&lt;label for&gt;</code> and control. Groups use <code>&lt;fieldset&gt;</code> and <code>&lt;legend&gt;</code>. Help and error are plain text referenced by <code>aria-describedby</code>, so they are read after the label. Required fields have no visible marker, so the control states it: the mocks use native <code>required</code>; in Angular, <code>&lt;ft-form-field required&gt;</code> puts <code>aria-required="true"</code> on its control, and <code>&lt;ft-radio-group required&gt;</code> on its <code>radiogroup</code>. Validation stays with the page, so no browser bubble blocks the inline errors. Optional fields are never marked required.</p>
+      <h3>Announcing errors</h3>
+      <p>An error must be heard without moving focus. In Angular, <code>ft-form-field</code> and <code>ft-radio-group</code> keep a polite live region (<code>aria-live="polite"</code>) under the control, rendered before any error, and put the error in it, so it is read when it appears. A clear or a new error updates the same region. A page form with an error summary uses <code>ftFormErrorFocus</code>, which moves focus to the summary or the first invalid field; its fields then skip the live region, so the error is read once, by focus.</p>
       <h3>Keyboard</h3>
       <table class="ds-table ds-keys"><thead><tr><th scope="col">Key</th><th scope="col">Action</th></tr></thead><tbody>
         <tr><td><kbd>Tab</kbd></td><td>Moves to the control. The label, help and error are not focusable.</td></tr>

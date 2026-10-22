@@ -3,8 +3,10 @@ import {
   Component,
   booleanAttribute,
   computed,
+  inject,
   input,
 } from '@angular/core';
+import { FormErrorFocusDirective } from '../form-error-focus/form-error-focus.directive';
 import { InlineMessageComponent } from '../inline-message/inline-message.component';
 
 let nextId = 0;
@@ -30,6 +32,12 @@ export type FormFieldWidth = 'auto' | 'sm' | 'md' | 'lg';
 })
 export class FormFieldComponent {
   private readonly uid = `ft-field-${nextId++}`;
+  /**
+   * The error is announced once. A form with `ftFormErrorFocus` moves focus to its first error,
+   * which reads it through aria-describedby; anywhere else (dialogs, single-field forms) the error
+   * sits in a polite live region that is present before any error, so it is read when it appears.
+   */
+  protected readonly announce = !inject(FormErrorFocusDirective, { optional: true });
 
   readonly label = input.required<string>();
   /** Adds "(optional)" to the label. Required fields carry no marker. */
