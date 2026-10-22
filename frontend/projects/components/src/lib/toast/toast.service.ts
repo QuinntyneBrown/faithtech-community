@@ -1,4 +1,4 @@
-import { Injectable, signal } from '@angular/core';
+import { DOCUMENT, Injectable, inject, signal } from '@angular/core';
 import { ToastVariant } from './toast.component';
 
 export interface ToastOptions {
@@ -37,6 +37,8 @@ export class ToastService {
   private nextId = 1;
   private readonly timers = new Map<number, Timer>();
   private readonly actions = new Map<number, () => void>();
+  private readonly triggers = new Map<number, HTMLElement>();
+  private readonly document = inject(DOCUMENT);
 
   show(options: ToastOptions): number {
     const id = this.nextId++;
@@ -58,6 +60,11 @@ export class ToastService {
       },
     ]);
     if (options.onAction) this.actions.set(id, options.onAction);
+    // Where focus goes back to if this toast is focused when it closes (toast design, Focus).
+    const active = this.document.activeElement;
+    if (active instanceof HTMLElement && active !== this.document.body) {
+      this.triggers.set(id, active);
+    }
     if (duration !== null) {
       this.timers.set(id, { handle: null, remaining: duration, startedAt: 0 });
       this.resume(id);
@@ -69,7 +76,13 @@ export class ToastService {
     this.clearTimer(id);
     this.timers.delete(id);
     this.actions.delete(id);
+    this.triggers.delete(id);
     this.queue.update((list) => list.filter((t) => t.id !== id));
+  }
+
+  /** The element that had focus when the toast was shown, if any. */
+  triggerOf(id: number): HTMLElement | null {
+    return this.triggers.get(id) ?? null;
   }
 
   runAction(id: number): void {
