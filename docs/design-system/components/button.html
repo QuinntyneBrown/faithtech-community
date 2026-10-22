@@ -194,7 +194,8 @@
       </div>
       <ul>
         <li><b>Loading</b> keeps the button's width, hides the label behind a spinner and ignores clicks. The spinner is drawn by <code>.btn[aria-busy="true"]::after</code>; put nothing else inside the button (no dot or icon), only its label. One rule for every busy form and dialog: the pressed button takes <code>aria-busy="true"</code> and <code>aria-disabled="true"</code>, always both (<code>aria-busy</code> draws the spinner and says work is under way; <code>aria-disabled</code> says it can't be pressed while keeping focus on it, which native <code>disabled</code> would drop). Every other button in a busy dialog (Cancel and Close) takes native <code>disabled</code>, because focus is not on it and it should leave the tab order. A page form's ghost Cancel link stays a working link: leaving the page is always allowed. Nothing is sent twice. Focus stays on the pressed button; the page then moves focus to the result: the toast, the error summary or the next page.</li>
-        <li><b>Disabled</b> uses the native attribute: not focusable, 50% opacity. It is used for the other buttons in a form or dialog while a submit is in flight, and for nothing else.</li>
+        <li><b>Disabled</b> uses the native attribute: not focusable, 50% opacity. It is used for the other buttons in a form or dialog while a submit is in flight, and for a page action that cannot be taken yet when an alert on the page says why (Add walk-in before check-in opens, <code>event-check-in/not-open</code>).</li>
+        <li><b>Loading outside a form</b>: a page action that runs in the background, such as Export CSV, takes the same <code>aria-busy="true"</code> + <code>aria-disabled="true"</code> pair while it works; if it fails, a danger toast says so with Try again and the button returns to normal (<code>reports/exporting</code>, <code>reports/export-failed</code>).</li>
         <li><b>Pressed</b> applies only to the show-password button in an input group, which sets <code>aria-pressed</code>; toggle choices are <a href="switch.html">switches</a> and <a href="chip.html">chips</a>.</li>
       </ul>
     </section>
@@ -317,6 +318,7 @@
         <li><a href="../../mocks/dialogs/cancel-event/default.html">dialogs/cancel-event/default</a> and <a href="../../mocks/dialogs/cancel-event/busy.html">busy</a> (secondary plus danger footer, close button)</li>
         <li><a href="../../mocks/dialogs/add-role/default.html">dialogs/add-role/default</a> and <a href="../../mocks/dialogs/add-role/busy.html">busy</a> (secondary plus primary footer)</li>
         <li><a href="../../mocks/pages/event/default.html">pages/event/default</a> (large "I’m going")</li>
+        <li><a href="../../mocks/pages/reports/exporting.html">pages/reports/exporting</a> (busy ghost Export CSV), <a href="../../mocks/pages/event-check-in/not-open.html">pages/event-check-in/not-open</a> (disabled Add walk-in) and <a href="../../mocks/dialogs/restore-partner/busy.html">dialogs/restore-partner/busy</a> ("Restoring…")</li>
       </ul>
       <p>Inherited from Shelfie unchanged: the spinner at <code>--duration-loop</code>/2 and the 1.25em icon.</p>
     </section>

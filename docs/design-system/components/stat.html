@@ -155,7 +155,7 @@
         <div class="ds-example__canvas">
           <div class="cluster stat-row"><div class="stat"><span class="stat__label">Members</span><span class="stat__value">412</span><span class="text-caption">+18 in the last 30 days</span></div><div class="stat"><span class="stat__label">Events held</span><span class="stat__value">9</span><span class="text-caption">1 cancelled</span></div><div class="stat"><span class="stat__label">RSVPs</span><span class="stat__value">286</span><span class="text-caption">81% checked in</span></div><div class="stat"><span class="stat__label">Partners confirmed</span><span class="stat__value">5</span><span class="text-caption">of 12 in the pipeline</span></div><div class="stat"><span class="stat__label">Announcements</span><span class="stat__value">4</span><span class="text-caption">sent by leads</span></div></div>
         </div>
-        <div class="ds-example__caption"><span>From Reports (All cities, last 30 days). Each stat adds a <code>.text-caption</code> line under the value that says what the number is relative to. In Angular, <code>&lt;ft-stat label="Members" value="412" context="+18 in the last 30 days"&gt;</code>.</span></div>
+        <div class="ds-example__caption"><span>From Reports (All cities, last 30 days). Each stat adds a <code>.text-caption</code> line under the value that says what the number is relative to: "+N in the {period}", "{n} cancelled", "{p}% checked in" (only when there are RSVPs), "of {n} in the pipeline", "sent by leads". The context follows the filters: under Toronto the same row reads 186, "+9 in the last 30 days" (<code>reports/city</code>). In Angular, <code>&lt;ft-stat label="Members" value="412" context="+18 in the last 30 days"&gt;</code>; <code>ft-stat</code> has no <code>context</code> input yet (a gap listed in <code>docs/screen-composition.md</code>).</span></div>
         <details class="ds-example__code"><summary>HTML</summary><pre><code>&lt;div class="stat"&gt;
   &lt;span class="stat__label"&gt;Members&lt;/span&gt;
   &lt;span class="stat__value"&gt;412&lt;/span&gt;
@@ -258,7 +258,7 @@
         <li><a href="../../mocks/pages/home/staff.html">pages/home/staff</a></li>
         <li><a href="../../mocks/pages/home/loading.html">pages/home/loading</a>, <a href="../../mocks/pages/home/pipeline-zero.html">pipeline-zero</a> and <a href="../../mocks/pages/home/pipeline-error.html">pipeline-error</a> (stat row loading, zero and error)</li>
         <li><a href="../../mocks/pages/team-board/default.html">pages/team-board/default</a> (sprint strip)</li>
-        <li><a href="../../mocks/pages/reports/default.html">pages/reports/default</a>, <a href="../../mocks/pages/reports/filtered.html">filtered</a> and <a href="../../mocks/pages/reports/loading.html">loading</a> (report row with context lines; loading uses <code>.skeleton--stat</code>)</li>
+        <li><a href="../../mocks/pages/reports/default.html">pages/reports/default</a>, <a href="../../mocks/pages/reports/filtered.html">filtered</a>, <a href="../../mocks/pages/reports/city.html">city</a> and <a href="../../mocks/pages/reports/loading.html">loading</a> (report row with context lines; loading uses <code>.skeleton--stat</code>)</li>
         <li><a href="../../mocks/pages/team-board/member.html">pages/team-board/member</a></li>
         <li><a href="../../mocks/pages/team-board/staff.html">pages/team-board/staff</a></li>
       </ul>

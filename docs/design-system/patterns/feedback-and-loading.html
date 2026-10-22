@@ -133,6 +133,8 @@
           <tr><td>Saved, and the person moves to the item</td><td>Toast on the next page</td><td>"Invite sent", "Contact restored"</td></tr>
           <tr><td>Sent, and it can't be undone</td><td>Success card with what happened and what to do next</td><td>compose-announcement/success</td></tr>
           <tr><td>A row control saves on its own (no Save button)</td><td>The row's text changes at once and a success toast confirms, with Undo</td><td>event-check-in/checked-in: "Leah Thompson is checked in · 6:44 pm · 13 of 34 here."</td></tr>
+          <tr><td>A background export is running</td><td>The pressed button is busy (<code>aria-busy</code> + <code>aria-disabled</code>); on failure a danger toast with Try again</td><td>reports/exporting, reports/export-failed: "Couldn’t export the report. Try again."</td></tr>
+          <tr><td>A row control fails to save</td><td>The control reverts to its old position and a danger toast names what was not saved, with Try again</td><td>event-check-in/save-failed: "Couldn’t save Leah Thompson’s check-in. Try again."</td></tr>
           <tr><td>A whole task is complete</td><td>Success alert above the list, which stays usable</td><td>event-check-in/done: "Everyone’s here"</td></tr>
           <tr><td>The save failed</td><td>Danger alert in context. Nothing typed is lost</td><td>"Invite not sent · Nothing was changed — try again." The title names what was not saved.</td></tr>
         </tbody>
@@ -257,7 +259,7 @@
         <li>Loading: <a href="../../mocks/pages/contacts/loading.html">contacts/loading</a>, <a href="../../mocks/pages/profile/loading.html">profile/loading</a>, <a href="../../mocks/pages/events/loading.html">events/loading</a>, <a href="../../mocks/pages/audit-log/loading.html">audit-log/loading</a>, <a href="../../mocks/pages/partners/loading.html">partners/loading</a>, <a href="../../mocks/pages/backlog/loading.html">backlog/loading</a></li>
         <li>Busy: <a href="../../mocks/pages/contact-form/busy.html">contact-form/busy</a>, <a href="../../mocks/pages/sign-up/busy.html">sign-up/busy</a>, <a href="../../mocks/pages/settings/busy.html">settings/busy</a>, <a href="../../mocks/dialogs/delete-contact/busy.html">delete-contact/busy</a></li>
         <li>Upload: <a href="../../mocks/pages/edit-profile/uploading.html">edit-profile/uploading</a>, <a href="../../mocks/pages/edit-profile/too-large.html">edit-profile/too-large</a></li>
-        <li>Save on toggle: <a href="../../mocks/pages/event-check-in/checked-in.html">event-check-in/checked-in</a>, <a href="../../mocks/pages/event-check-in/done.html">event-check-in/done</a></li>
+        <li>Save on toggle: <a href="../../mocks/pages/event-check-in/checked-in.html">event-check-in/checked-in</a>, <a href="../../mocks/pages/event-check-in/save-failed.html">event-check-in/save-failed</a>, <a href="../../mocks/pages/event-check-in/done.html">event-check-in/done</a></li>
         <li>Results: <a href="../../mocks/pages/edit-profile/success.html">edit-profile/success</a>, <a href="../../mocks/pages/settings/success.html">settings/success</a>, <a href="../../mocks/pages/compose-announcement/success.html">compose-announcement/success</a>, <a href="../../mocks/dialogs/delete-contact/failed.html">delete-contact/failed</a>, <a href="../../mocks/pages/compose-announcement/error.html">compose-announcement/error</a></li>
       </ul>
     </section>

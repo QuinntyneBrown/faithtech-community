@@ -161,7 +161,18 @@
         <div class="ds-example__canvas ds-example__canvas--stack">
           <div class="card stack"><div class="progress-row"><span class="progress-row__label">Checked in</span><div class="progress" role="progressbar" aria-valuenow="12" aria-valuemin="0" aria-valuemax="34" aria-label="12 of 34 checked in"><div class="progress__bar" style="--value: 35%;"></div></div><span class="progress-row__label">12 of 34</span></div></div>
         </div>
-        <div class="ds-example__caption"><span>From event check-in, Toronto Builders Night. A leading label names the measure, the trailing label gives the count. Walk-ins count toward the total, so when everyone is in it reads "36 of 36" and takes <code>.progress--complete</code>. The <code>event-check-in/done</code> mock leaves it accent; that is drift.</span></div>
+        <div class="ds-example__caption"><span>From event check-in, Toronto Builders Night. A leading label names the measure, the trailing label gives the count. Walk-ins count toward the total, so when everyone is in it reads "36 of 36" and takes <code>.progress--complete</code> (<code>event-check-in/done</code>). On a cancelled event the meter stays at "0 of 18" in accent and the page explains why (<code>event-check-in/cancelled</code>).</span></div>
+      </div>
+      <div class="ds-example">
+        <div class="ds-example__canvas ds-example__canvas--stack">
+          <div class="card stack"><div class="progress-row"><span class="progress-row__label">Checked in</span><div class="progress progress--complete" role="progressbar" aria-valuenow="36" aria-valuemin="0" aria-valuemax="36" aria-label="36 of 36 checked in"><div class="progress__bar" style="--value: 100%;"></div></div><span class="progress-row__label">36 of 36</span></div></div>
+        </div>
+        <div class="ds-example__caption"><span>Complete attendance meter: everyone who RSVP’d plus 2 walk-ins. In Angular, <code>ft-progress</code> adds the complete variant itself when the value reaches the maximum; the leading "Checked in" label is not an input yet (see the gap in <code>docs/screen-composition.md</code>).</span></div>
+        <details class="ds-example__code"><summary>HTML</summary><pre><code>&lt;div class="progress-row"&gt;&lt;span class="progress-row__label"&gt;Checked in&lt;/span&gt;
+  &lt;div class="progress progress--complete" role="progressbar" aria-valuenow="36" aria-valuemin="0" aria-valuemax="36" aria-label="36 of 36 checked in"&gt;
+    &lt;div class="progress__bar" style="--value: 100%;"&gt;&lt;/div&gt;
+  &lt;/div&gt;&lt;span class="progress-row__label"&gt;36 of 36&lt;/span&gt;
+&lt;/div&gt;</code></pre></details>
       </div>
       <h3>Bar chart</h3>
       <div class="ds-example">
@@ -174,7 +185,7 @@
   <li class="progress-row"><span class="progress-row__label">Other</span><div class="progress" aria-hidden="true"><div class="progress__bar" style="--value: 13%;"></div></div><span class="progress-row__label">24</span></li>
 </ul><p class="card__footer text-caption">Members with a verified email. Private contacts are never counted.</p></section>
         </div>
-        <div class="ds-example__caption"><span>From Reports. <code>.progress-chart</code> is a list whose rows share one label column, sized by the longest label, so no row needs an inline width. Each fill is the value divided by the <em>largest</em> value, so the bars compare categories and are not a fraction of a total.</span></div>
+        <div class="ds-example__caption"><span>From Reports. <code>.progress-chart</code> is a list whose rows share one label column, sized by the longest label, so no row needs an inline width. Each fill is the value divided by the <em>largest</em> value, so the bars compare categories and are not a fraction of a total. Filtered to one city (<code>reports/city</code>), "Members by city" shows that city alone as a single full bar; "New members by month" marks the current month "so far".</span></div>
         <details class="ds-example__code"><summary>HTML</summary><pre><code>&lt;ul class="progress-chart" aria-label="Members by city"&gt;
   &lt;li class="progress-row"&gt;&lt;span class="progress-row__label"&gt;Toronto&lt;/span&gt;&lt;div class="progress" aria-hidden="true"&gt;&lt;div class="progress__bar" style="--value: 100%;"&gt;&lt;/div&gt;&lt;/div&gt;&lt;span class="progress-row__label"&gt;186&lt;/span&gt;&lt;/li&gt;
   &lt;li class="progress-row"&gt;&lt;span class="progress-row__label"&gt;Austin&lt;/span&gt;&lt;div class="progress" aria-hidden="true"&gt;&lt;div class="progress__bar" style="--value: 52%;"&gt;&lt;/div&gt;&lt;/div&gt;&lt;span class="progress-row__label"&gt;97&lt;/span&gt;&lt;/li&gt;
@@ -275,7 +286,7 @@
         <figure class="ds-do"><div class="ds-example__canvas ds-example__canvas--stack"><div class="progress-row"><div class="progress" role="progressbar" aria-valuenow="2" aria-valuemin="0" aria-valuemax="24" aria-label="Sprint 7: 2 of 24 points done"><div class="progress__bar" style="--value: 8%;"></div></div><span class="progress-row__label">2 of 24</span></div></div><figcaption>Always show the number next to the bar.</figcaption></figure>
         <figure class="ds-dont"><div class="ds-example__canvas ds-example__canvas--stack"><div class="progress" role="progressbar" aria-valuenow="2" aria-valuemin="0" aria-valuemax="24"><div class="progress__bar" style="--value: 8%;"></div></div></div><figcaption>A bare bar with no label or <code>aria-label</code>; 8% is a sliver.</figcaption></figure>
         <figure class="ds-do"><div class="ds-example__canvas ds-example__canvas--stack"><ul class="progress-chart" aria-label="Example"><li class="progress-row"><span class="progress-row__label">Toronto</span><div class="progress" aria-hidden="true"><div class="progress__bar" style="--value: 100%;"></div></div><span class="progress-row__label">186</span></li><li class="progress-row"><span class="progress-row__label">Vancouver</span><div class="progress" aria-hidden="true"><div class="progress__bar" style="--value: 34%;"></div></div><span class="progress-row__label">64</span></li></ul></div><figcaption>Chart rows share the <code>.progress-chart</code> label column, and the visible text carries the numbers.</figcaption></figure>
-        <figure class="ds-dont"><div class="ds-example__canvas ds-example__canvas--stack"><div class="progress-row"><span class="progress-row__label">Toronto</span><div class="progress" role="progressbar" aria-valuenow="186" aria-valuemin="0" aria-valuemax="412" aria-label="Toronto: 186 of 412"><div class="progress__bar" style="--value: 100%;"></div></div><span class="progress-row__label">186</span></div></div><figcaption>A full bar announced as "186 of 412": the length and the announced value disagree (<code>pages/reports</code>).</figcaption></figure>
+        <figure class="ds-dont"><div class="ds-example__canvas ds-example__canvas--stack"><div class="progress-row"><span class="progress-row__label">Toronto</span><div class="progress" role="progressbar" aria-valuenow="186" aria-valuemin="0" aria-valuemax="412" aria-label="Toronto: 186 of 412"><div class="progress__bar" style="--value: 100%;"></div></div><span class="progress-row__label">186</span></div></div><figcaption>A full bar announced as "186 of 412": the length and the announced value disagree (the first Reports mocks; fixed).</figcaption></figure>
       </div>
     </section>
 
@@ -322,10 +333,10 @@
         <li><a href="../../mocks/pages/edit-profile/uploading.html">pages/edit-profile/uploading</a> ("Uploading… 60%" as a status note)</li>
       </ul>
       <ul>
-        <li><a href="../../mocks/pages/event-check-in/default.html">pages/event-check-in/default</a>, <a href="../../mocks/pages/event-check-in/done.html">done</a> and <a href="../../mocks/dialogs/check-in-walk-in/default.html">dialogs/check-in-walk-in</a> (attendance meter)</li>
-        <li><a href="../../mocks/pages/reports/default.html">pages/reports/default</a> and <a href="../../mocks/pages/reports/filtered.html">filtered</a> (bar charts)</li>
+        <li><a href="../../mocks/pages/event-check-in/default.html">pages/event-check-in/default</a>, <a href="../../mocks/pages/event-check-in/done.html">done</a> (complete), <a href="../../mocks/pages/event-check-in/cancelled.html">cancelled</a>, <a href="../../mocks/pages/event-check-in/read-only.html">read-only</a> and <a href="../../mocks/dialogs/check-in-walk-in/default.html">dialogs/check-in-walk-in</a> (attendance meter)</li>
+        <li><a href="../../mocks/pages/reports/default.html">pages/reports/default</a>, <a href="../../mocks/pages/reports/filtered.html">filtered</a> and <a href="../../mocks/pages/reports/city.html">city</a> (bar charts)</li>
       </ul>
-      <p>Drift in Reports: chart labels set an inline <code>min-width: 5.5rem</code>, which <code>.progress-chart</code> replaces. Chart bars are <code>role="progressbar"</code> with <code>aria-valuemax</code> set to the overall total while the fill is scaled to the largest bar, so a full bar is announced as "186 of 412". Chart tracks are now <code>aria-hidden</code>. Both are flagged for the mocks. <code>event-check-in/done</code> shows 36 of 36 without <code>.progress--complete</code>.</p>
+      <p>Resolved 2026-10-22: the Reports mocks now use <code>.progress-chart</code> (no inline <code>min-width</code>) with <code>aria-hidden</code> tracks, so no full bar is announced as "186 of 412"; <code>event-check-in/done</code> shows 36 of 36 with <code>.progress--complete</code>.</p>
       <p>Drift: sprint completion is text in a table cell. That is not wrong, but if a bar is added it must use this component.</p>
     </section>
 

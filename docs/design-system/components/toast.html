@@ -171,6 +171,17 @@
   &lt;span class="toast__progress" aria-hidden="true"&gt;&lt;/span&gt;
 &lt;/div&gt;</code></pre></details>
       </div>
+      <h3>Undo and Try again after a save on toggle</h3>
+      <div class="ds-example">
+        <div class="ds-example__canvas ds-example__canvas--stack">
+          <div class="toast-region toast-region--static" style="max-width: 24rem;">
+            <div class="toast toast--success"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="m8 12 3 3 5-6"/></svg><div class="toast__body"><div class="toast__title">Leah Thompson is checked in</div><div class="toast__text">6:44 pm · 13 of 34 here.</div><button class="toast__action" type="button">Undo</button></div><button class="close" type="button" aria-label="Dismiss"><svg class="icon icon--sm" aria-hidden="true" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18"/></svg></button><span class="toast__progress" aria-hidden="true"></span></div>
+            <div class="toast toast--danger" role="alert"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 8v4M12 16h.01"/></svg><div class="toast__body"><div class="toast__title">Couldn’t save Leah Thompson’s check-in. Try again.</div><div class="toast__text">Her switch is back off; nothing was saved.</div><button class="toast__action" type="button">Try again</button></div><button class="close" type="button" aria-label="Dismiss"><svg class="icon icon--sm" aria-hidden="true" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18"/></svg></button></div>
+            <div class="toast toast--success"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="m8 12 3 3 5-6"/></svg><div class="toast__body"><div class="toast__title">We won’t flag these two again</div><div class="toast__text">Kestrel Labs and Kestrel Labs Inc. stay separate for every lead.</div></div><button class="close" type="button" aria-label="Dismiss"><svg class="icon icon--sm" aria-hidden="true" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18"/></svg></button><span class="toast__progress" aria-hidden="true"></span></div>
+          </div>
+        </div>
+        <div class="ds-example__caption"><span>Event check-in: success with Undo (<code>event-check-in/checked-in</code>), and the danger toast when a save fails, which says the switch went back and offers Try again (<code>event-check-in/save-failed</code>). Partner: "Not the same" confirmed (<code>partner/not-the-same</code>); "Restored Kestrel Labs Inc." with what came back (<code>partner/restored</code>). Reports: a failed export is a danger toast "Couldn’t export the report. Try again." with Try again (<code>reports/export-failed</code>). The danger toast carries <code>role="alert"</code> on the toast itself; the success toasts rely on the region's polite status.</span></div>
+      </div>
       <h3>Timing</h3>
       <div class="ds-table-wrap"><table class="ds-table">
         <thead><tr><th scope="col">Variant</th><th scope="col">Live region</th><th scope="col">Dismisses itself</th><th scope="col">Timer bar</th></tr></thead>
@@ -328,8 +339,10 @@
         <li><a href="../../mocks/notifications/toast/warning.html">notifications/toast/warning</a> (Saved, but email is paused)</li>
         <li><a href="../../mocks/notifications/toast/danger.html">notifications/toast/danger</a> (Your RSVP wasn’t saved, Retry)</li>
         <li><a href="../../mocks/notifications/toast/stacked.html">notifications/toast/stacked</a> (three at once)</li>
+        <li><a href="../../mocks/pages/event-check-in/checked-in.html">pages/event-check-in/checked-in</a> (Undo), <a href="../../mocks/pages/event-check-in/save-failed.html">save-failed</a> (danger, Try again) and <a href="../../mocks/pages/partner/not-the-same.html">pages/partner/not-the-same</a>, <a href="../../mocks/pages/partner/restored.html">restored</a>, <a href="../../mocks/pages/reports/export-failed.html">pages/reports/export-failed</a></li>
       </ul>
-      <p>Inherited from Shelfie unchanged. No drift remains in the FaithTech toast mocks.</p>
+      <p>Drift: <code>reports/export-failed</code> puts <code>role="alert"</code> and <code>aria-live="assertive"</code> on the toast region instead of on the danger toast; the region stays polite and the toast carries <code>role="alert"</code>.</p>
+      <p>Inherited from Shelfie unchanged.</p>
     </section>
 
     <footer class="ds-footer"><span>FaithTech Community design system · extracted from <a href="../../mocks/index.html">docs/mocks</a> on 2026-10-21</span><a href="#top">Back to top</a></footer>
