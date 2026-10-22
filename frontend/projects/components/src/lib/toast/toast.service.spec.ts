@@ -1,10 +1,50 @@
-import { Component } from '@angular/core';
+import { Component, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
+import { TabBarComponent } from '../tab-bar';
 import { ToastRegionComponent } from './toast-region.component';
 import { ToastService } from './toast.service';
 
 @Component({ imports: [ToastRegionComponent], template: '<ft-toast-region />' })
 class HostComponent {}
+
+@Component({
+  imports: [ToastRegionComponent, TabBarComponent],
+  template: `@if (tabBar()) {
+      <ft-tab-bar />
+    }
+    <ft-toast-region />`,
+})
+class TabBarHostComponent {
+  readonly tabBar = signal(true);
+}
+
+@Component({
+  imports: [ToastRegionComponent],
+  template: `<main tabindex="-1">
+      @if (trigger()) {
+        <button type="button" class="trigger">Send</button>
+      }
+      <button type="button" class="other">Other</button>
+    </main>
+    <ft-toast-region />`,
+})
+class FocusHostComponent {
+  readonly trigger = signal(true);
+}
+
+async function focusSetup() {
+  const fixture = TestBed.createComponent(FocusHostComponent);
+  document.body.appendChild(fixture.nativeElement);
+  fixture.detectChanges();
+  const host: HTMLElement = fixture.nativeElement;
+  const service = TestBed.inject(ToastService);
+  const settle = async () => {
+    fixture.detectChanges();
+    await fixture.whenStable();
+  };
+  const q = <T extends HTMLElement>(s: string) => host.querySelector<T>(s)!;
+  return { fixture, host, service, settle, q };
+}
 
 describe('ToastService', () => {
   beforeEach(() => vi.useFakeTimers());
@@ -75,6 +115,83 @@ describe('ToastRegionComponent', () => {
     TestBed.inject(ToastService).show({ variant: 'warning', heading: 'No connection' });
     fixture.detectChanges();
     expect(host.querySelectorAll('ft-toast').length).toBe(1);
+  });
+
+  it('sits above the phone tab bar only while one is rendered', () => {
+    const fixture = TestBed.createComponent(TabBarHostComponent);
+    fixture.detectChanges();
+    const region = (fixture.nativeElement as HTMLElement).querySelector('ft-toast-region')!;
+    expect(region.classList).toContain('ft-toast-region--above-tab-bar');
+    fixture.componentInstance.tabBar.set(false);
+    fixture.detectChanges();
+    expect(region.classList).not.toContain('ft-toast-region--above-tab-bar');
+  });
+
+  describe('focus', () => {
+    afterEach(() => document.body.replaceChildren());
+
+    it('returns focus to the trigger when the focused toast is dismissed', async () => {
+      const { service, settle, q } = await focusSetup();
+      q('.trigger').focus();
+      service.show({ variant: 'danger', heading: 'Not sent' });
+      await settle();
+      expect(document.activeElement).toBe(q('.trigger'));
+
+      q('.toast__close').focus();
+      q('.toast__close').click();
+      await settle();
+
+      expect(document.activeElement).toBe(q('.trigger'));
+    });
+
+    it('returns focus to the trigger when the focused toast runs its action', async () => {
+      const { service, settle, q } = await focusSetup();
+      q('.trigger').focus();
+      const retry = vi.fn();
+      service.show({
+        variant: 'danger',
+        heading: 'Not sent',
+        actionLabel: 'Retry',
+        onAction: retry,
+      });
+      await settle();
+
+      q('.toast__action').focus();
+      q('.toast__action').click();
+      await settle();
+
+      expect(retry).toHaveBeenCalledOnce();
+      expect(document.activeElement).toBe(q('.trigger'));
+    });
+
+    it('moves focus to main when the trigger is gone', async () => {
+      const { fixture, service, settle, q, host } = await focusSetup();
+      q('.trigger').focus();
+      service.show({ variant: 'danger', heading: 'Not sent' });
+      await settle();
+      fixture.componentInstance.trigger.set(false);
+      await settle();
+
+      q('.toast__close').focus();
+      q('.toast').dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true }));
+      await settle();
+
+      expect(host.querySelector('ft-toast')).toBeNull();
+      expect(document.activeElement).toBe(host.querySelector('main'));
+    });
+
+    it('leaves focus where it is when a toast it is not in closes', async () => {
+      const { service, settle, q } = await focusSetup();
+      q('.trigger').focus();
+      const id = service.show({ variant: 'danger', heading: 'Not sent' });
+      await settle();
+      q('.other').focus();
+
+      service.dismiss(id);
+      await settle();
+
+      expect(document.activeElement).toBe(q('.other'));
+    });
   });
 
   it('collapses more than three toasts into a "+N more" line', () => {

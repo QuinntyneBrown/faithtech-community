@@ -1,3 +1,5 @@
+@use '../../styles/breakpoints' as bp;
+
 :host {
   position: fixed;
   inset-inline: var(--space-4);
@@ -22,10 +24,23 @@
   pointer-events: auto;
 }
 
-@media (min-width: 40rem) {
+@include bp.up(sm) {
   :host {
     inset-inline: auto var(--space-6);
     inset-block-end: var(--space-6);
     inline-size: 24rem;
+  }
+}
+
+// The phone tab bar shows below md; while it does, toasts sit 16px above it and its safe area.
+:host(.ft-toast-region--above-tab-bar) {
+  inset-block-end: calc(
+    var(--layout-tabbar-height) + env(safe-area-inset-bottom, 0px) + var(--space-4)
+  );
+}
+
+@include bp.up(md) {
+  :host(.ft-toast-region--above-tab-bar) {
+    inset-block-end: var(--space-6);
   }
 }

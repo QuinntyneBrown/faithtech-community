@@ -1,7 +1,8 @@
-// Traces to: L2-005, L2-006, L2-007 with L2-045 AC1 (docs/detailed-designs/platform/responsive-layout-and-theming)
+// Traces to: L2-005, L2-006, L2-007, L2-053 with L2-045 AC1 (docs/detailed-designs/platform/responsive-layout-and-theming)
 import { expect, test } from '../../fixtures/app';
 import { photoUrl } from '../../fixtures/mock-api';
 import { EditProfilePage } from '../../pages/edit-profile.page';
+import { PeoplePage } from '../../pages/people.page';
 import { ProfilePage } from '../../pages/profile.page';
 import {
   BREAKPOINTS,
@@ -31,5 +32,24 @@ for (const name of Object.keys(BREAKPOINTS) as BreakpointName[]) {
     await expect(new EditProfilePage(page).photoItems).toHaveCount(4);
     expect(await hasHorizontalScroll(page), 'edit profile').toBe(false);
     expect(await undersizedTargets(page), 'edit profile').toEqual([]);
+  });
+}
+
+for (const name of Object.keys(BREAKPOINTS) as BreakpointName[]) {
+  test(`the people page fits and keeps 24px targets at ${name}`, async ({ page, api }) => {
+    await page.setViewportSize(BREAKPOINTS[name]);
+    const grace = api.addAccount({ email: 'grace@example.org', roles: ['CityLead'] });
+    const samuel = api.addAccount({
+      email: 'samuel@example.org',
+      name: 'Samuel Mensah',
+      roles: ['CreateLead', 'ProductEngineer', 'Volunteer'],
+    });
+    api.profiles.get(samuel.profileId)!.homeCity = 'Toronto';
+
+    await api.signInAs(grace, '/people');
+    const people = new PeoplePage(page);
+    await expect(people.row('Samuel Mensah')).toBeVisible();
+    expect(await hasHorizontalScroll(page), 'people').toBe(false);
+    expect(await undersizedTargets(page), 'people').toEqual([]);
   });
 }

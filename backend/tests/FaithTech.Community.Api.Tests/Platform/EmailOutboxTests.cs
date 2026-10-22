@@ -46,6 +46,70 @@ public class EmailOutboxTests(CommunityApiFactory factory) : IClassFixture<Commu
         Assert.Single(_transport.Delivered, m => m.To == email);
     }
 
+    [Fact]
+    public async Task A_permanently_failing_email_is_tried_five_times_in_all_and_then_marked_failed()
+    {
+        var app = OutboxApp();
+        var email = await SignUpAsync(app);
+        _transport.Down = true;
+
+        for (var i = 0; i < 10; i++)
+        {
+            await DispatchAsync(app);
+            factory.Time.Advance(TimeSpan.FromHours(2));
+        }
+
+        Assert.Equal(5, _transport.Attempts.Count(m => m.To == email));
+        var row = await factory.WithDbAsync(db => db.OutboxMessages.SingleAsync(m => m.To == email));
+        Assert.Equal(5, row.Attempts);
+        Assert.NotNull(row.FailedAt);
+        Assert.Null(row.SentAt);
+        Assert.DoesNotContain(email, row.LastError);
+
+        _transport.Down = false;
+        factory.Time.Advance(TimeSpan.FromDays(1));
+        await DispatchAsync(app);
+        Assert.DoesNotContain(_transport.Delivered, m => m.To == email);
+    }
+
+    [Fact]
+    public async Task An_email_that_recovers_within_the_budget_is_sent_once()
+    {
+        var app = OutboxApp();
+        var email = await SignUpAsync(app);
+        _transport.Down = true;
+        for (var i = 0; i < 4; i++)
+        {
+            await DispatchAsync(app);
+            factory.Time.Advance(TimeSpan.FromHours(2));
+        }
+
+        _transport.Down = false;
+        await DispatchAsync(app);
+        factory.Time.Advance(TimeSpan.FromHours(2));
+        await DispatchAsync(app);
+
+        Assert.Single(_transport.Delivered, m => m.To == email);
+        var row = await factory.WithDbAsync(db => db.OutboxMessages.SingleAsync(m => m.To == email));
+        Assert.NotNull(row.SentAt);
+        Assert.Null(row.FailedAt);
+    }
+
+    private WebApplicationFactory<Program> OutboxApp() =>
+        factory.WithWebHostBuilder(b => b.ConfigureTestServices(s =>
+        {
+            s.AddScoped<IEmailSender, OutboxEmailSender>();
+            s.AddSingleton<IEmailTransport>(_transport);
+        }));
+
+    private static async Task<string> SignUpAsync(WebApplicationFactory<Program> app)
+    {
+        var email = $"{Guid.NewGuid():N}@example.com";
+        (await app.CreateClient().PostAsJsonAsync("/api/account/sign-up",
+            new { name = "Offline", email, password = "a-long-enough-passphrase" })).EnsureSuccessStatusCode();
+        return email;
+    }
+
     private static async Task DispatchAsync(WebApplicationFactory<Program> app)
     {
         await using var scope = app.Services.CreateAsyncScope();
@@ -58,11 +122,14 @@ public class EmailOutboxTests(CommunityApiFactory factory) : IClassFixture<Commu
 
         public List<EmailMessage> Delivered { get; } = [];
 
+        public List<EmailMessage> Attempts { get; } = [];
+
         public Task SendAsync(EmailMessage message, CancellationToken cancellationToken = default)
         {
+            Attempts.Add(message);
             if (Down)
             {
-                throw new InvalidOperationException("SMTP server unavailable");
+                throw new InvalidOperationException($"SMTP server unavailable for {message.To}");
             }
 
             Delivered.Add(message);

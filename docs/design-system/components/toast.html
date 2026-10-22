@@ -201,7 +201,7 @@
 
     <section class="ds-section" id="responsive"><h2><a href="#responsive">Responsive behaviour</a></h2>
       <ul>
-        <li>Below 640px the region spans the screen with 16px on each side and sits 16px above the bottom; on phones it clears the bottom tab bar.</li>
+        <li>Below 640px the region spans the screen with 16px on each side and sits 16px above the bottom; on phones it clears the bottom tab bar: while a tab bar is on screen the region sits 16px above it and its safe area (in Angular, <code>ft-tab-bar</code> registers with <code>TabBarPresence</code> and <code>ft-toast-region</code> takes <code>.ft-toast-region--above-tab-bar</code>). Pages without a tab bar (sign-in, public event) keep the 16px margin.</li>
         <li>From 640px the region is 24rem wide, 24px from the bottom-right corner.</li>
         <li>Text wraps; the toast grows taller rather than truncating.</li>
         <li>Toasts never cover the focused element; the region ignores pointer events except on the toasts themselves.</li>
@@ -223,7 +223,7 @@
         <tr><td><kbd>Esc</kbd></td><td>Dismisses the toast that holds focus.</td></tr>
       </tbody></table>
       <h3>Focus</h3>
-      <p>Toasts never take focus when they appear. If the focused toast is dismissed or times out, focus returns to the element that triggered it (the RSVP button, say) or to <code>main</code>.</p>
+      <p>Toasts never take focus when they appear. If the focused toast is dismissed or times out, focus returns to the element that triggered it (the RSVP button, say) or to <code>main</code> when that element is gone or disabled. In Angular, <code>ToastService.show</code> remembers the focused element and <code>ft-toast-region</code> restores focus once the toast leaves; focus outside a toast is never moved.</p>
       <h3>Labelling</h3>
       <p>The icon is <code>aria-hidden</code>; the title says the status in words. The dismiss button is named "Dismiss". The timer bar is <code>aria-hidden</code>. Action labels make sense alone: "View invites", not "Go".</p>
       <h3>Contrast</h3>

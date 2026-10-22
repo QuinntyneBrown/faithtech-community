@@ -1,9 +1,16 @@
-<div class="toast-region" role="status" aria-live="polite">
+<div
+  class="toast-region"
+  role="status"
+  aria-live="polite"
+  (focusin)="onFocusIn($event)"
+  (focusout)="onFocusOut($event)"
+>
   @if (hidden() > 0) {
     <div class="toast-region__more">+{{ hidden() }} more</div>
   }
   @for (toast of visible(); track toast.id) {
     <ft-toast
+      [attr.data-toast-id]="toast.id"
       [variant]="toast.variant"
       [heading]="toast.heading"
       [text]="toast.text"

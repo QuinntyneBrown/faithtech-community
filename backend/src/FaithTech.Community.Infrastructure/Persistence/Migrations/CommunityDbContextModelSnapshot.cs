@@ -434,6 +434,9 @@ namespace FaithTech.Community.Infrastructure.Persistence.Migrations
                     b.Property<DateTimeOffset>("CreatedAt")
                         .HasColumnType("timestamp with time zone");
 
+                    b.Property<DateTimeOffset?>("FailedAt")
+                        .HasColumnType("timestamp with time zone");
+
                     b.Property<string>("LastError")
                         .HasMaxLength(500)
                         .HasColumnType("character varying(500)");
@@ -456,7 +459,7 @@ namespace FaithTech.Community.Infrastructure.Persistence.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("SentAt", "NextAttemptAt");
+                    b.HasIndex("SentAt", "FailedAt", "NextAttemptAt");
 
                     b.ToTable("OutboxMessages");
                 });

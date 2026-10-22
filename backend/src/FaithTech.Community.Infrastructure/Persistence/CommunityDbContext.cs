@@ -78,7 +78,7 @@ public class CommunityDbContext(DbContextOptions<CommunityDbContext> options)
             message.Property(m => m.To).HasMaxLength(256);
             message.Property(m => m.Subject).HasMaxLength(300);
             message.Property(m => m.LastError).HasMaxLength(500);
-            message.HasIndex(m => new { m.SentAt, m.NextAttemptAt });
+            message.HasIndex(m => new { m.SentAt, m.FailedAt, m.NextAttemptAt });
         });
 
         builder.Entity<AuditEntry>(entry =>

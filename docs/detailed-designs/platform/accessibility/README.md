@@ -16,7 +16,7 @@ Design tokens carry contrast: colour tokens are chosen and verified for 4.5:1 te
 - **`FormFieldComponent`** — associates label, hint and error via `aria-describedby`, sets `aria-invalid`, and renders errors inside a polite live region.
 - **`FormErrorFocus`** — directive in `components` that moves focus to the first invalid field on submit.
 - **`DialogService`** — wrapper over Angular CDK `Dialog` in `components`. CDK `FocusTrap` holds focus; `restoreFocus` returns it to the opening control. A dialog picks its first focus by setting `initialFocus` on an `ft-button` or `ft-textarea`, which renders CDK `cdkFocusInitial` on the native control; destructive dialogs set it on the reason field or on Cancel.
-- **`ToastService`** / **`ToastComponent`** — announce through CDK `LiveAnnouncer`.
+- **`ToastService`** / **`ToastComponent`** — announce through CDK `LiveAnnouncer`. A toast never takes focus. `ToastService.show` remembers the element that had focus; when the toast that holds keyboard focus closes (Dismiss, Escape, its action, or code), `ToastRegionComponent` returns focus to that element, or to `main` when it is gone or disabled, unless the action already moved focus elsewhere.
 - **`AvatarComponent`** / **`PhotoComponent`** — require an `alt` input; profile photos pass the uploader's alt text.
 - **Design tokens** — role-named CSS custom properties such as `--color-text-primary`; components read tokens by role, never hex values.
 - **`AxePage` fixture** — Playwright fixture in `e2e/fixtures/` that runs `@axe-core/playwright` with WCAG 2.2 A and AA tags on every page object's screen and fails on any violation.

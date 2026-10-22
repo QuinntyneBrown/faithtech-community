@@ -13,6 +13,11 @@ export class AppShell {
   readonly drawer: Locator;
   readonly closeDrawer: Locator;
   readonly tabBar: Locator;
+  /** The live region in the bottom corner that holds every toast. */
+  readonly toastRegion: Locator;
+  readonly toasts: Locator;
+  /** The main landmark, where focus lands when nothing better is left. */
+  readonly main: Locator;
 
   constructor(private readonly page: Page) {
     this.verifyBanner = page.locator('ft-banner').filter({ hasText: 'Verify your email' });
@@ -25,6 +30,14 @@ export class AppShell {
     this.tabBar = page.getByRole('navigation', { name: 'Primary, phone' });
     this.moreTab = this.tabBar.getByRole('button', { name: 'More' });
     this.moreLink = this.primaryNav.getByRole('button', { name: 'More' });
+    this.toastRegion = page.locator('ft-toast-region');
+    this.toasts = this.toastRegion.locator('ft-toast');
+    this.main = page.getByRole('main');
+  }
+
+  /** Moves keyboard focus to a toast's Dismiss button, as Tab would. */
+  async focusToastDismiss(heading: string): Promise<void> {
+    await this.toasts.filter({ hasText: heading }).getByRole('button', { name: 'Dismiss' }).focus();
   }
 
   /** The top bar's avatar, a menu button named "Account menu for {name}". */

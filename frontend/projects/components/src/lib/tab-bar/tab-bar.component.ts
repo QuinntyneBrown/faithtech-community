@@ -1,5 +1,13 @@
-import { ChangeDetectionStrategy, Component, input, output } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  DestroyRef,
+  inject,
+  input,
+  output,
+} from '@angular/core';
 import { IconComponent } from '../icon';
+import { TabBarPresence } from './tab-bar-presence.service';
 
 export interface TabBarItem {
   label: string;
@@ -31,4 +39,9 @@ export class TabBarComponent {
   readonly moreCurrent = input(false);
   /** Emits when More is pressed, to open the menu. */
   readonly more = output<void>();
+
+  constructor() {
+    // Toasts and other bottom overlays sit above the tab bar while it is on screen.
+    inject(DestroyRef).onDestroy(inject(TabBarPresence).register());
+  }
 }

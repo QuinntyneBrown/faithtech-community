@@ -32,6 +32,9 @@ public class OutboxMessage
 
     public DateTimeOffset? SentAt { get; set; }
 
+    /// <summary>Set when the last allowed attempt fails; the dispatcher never selects the row again.</summary>
+    public DateTimeOffset? FailedAt { get; set; }
+
     public string? LastError { get; set; }
 }
 
@@ -57,13 +60,16 @@ public class EmailOutboxDispatcher(
     CommunityDbContext db, IEmailTransport transport, TimeProvider time, ILogger<EmailOutboxDispatcher> logger)
 {
     private const int BatchSize = 20;
+
+    /// <summary>Delivery attempts in all, including the first send (L2-028).</summary>
+    public const int MaxAttempts = 5;
     private static readonly TimeSpan MaxBackoff = TimeSpan.FromHours(1);
 
     public async Task DispatchPendingAsync(CancellationToken cancellationToken = default)
     {
         var now = time.GetUtcNow();
         var due = await db.OutboxMessages
-            .Where(m => m.SentAt == null && m.NextAttemptAt <= now)
+            .Where(m => m.SentAt == null && m.FailedAt == null && m.NextAttemptAt <= now)
             .OrderBy(m => m.NextAttemptAt)
             .Take(BatchSize)
             .ToListAsync(cancellationToken);
@@ -78,11 +84,22 @@ public class EmailOutboxDispatcher(
             catch (Exception exception) when (exception is not OperationCanceledException)
             {
                 message.Attempts++;
-                var backoff = TimeSpan.FromMinutes(Math.Pow(2, message.Attempts));
-                message.NextAttemptAt = time.GetUtcNow() + (backoff < MaxBackoff ? backoff : MaxBackoff);
-                message.LastError = exception.Message.Length > 500 ? exception.Message[..500] : exception.Message;
-                // Log the message id only: the recipient address is personal data.
-                logger.LogWarning(exception, "Email {OutboxMessageId} failed on attempt {Attempts}", message.Id, message.Attempts);
+                // Provider errors can quote the recipient address, which is personal data.
+                var error = exception.Message.Replace(message.To, "[recipient]", StringComparison.OrdinalIgnoreCase);
+                message.LastError = error.Length > 500 ? error[..500] : error;
+                if (message.Attempts >= MaxAttempts)
+                {
+                    message.FailedAt = time.GetUtcNow();
+                    // Log the message id only, never the exception text or the recipient.
+                    logger.LogError("Email {OutboxMessageId} failed {Attempts} times and will not be retried", message.Id, message.Attempts);
+                }
+                else
+                {
+                    var backoff = TimeSpan.FromMinutes(Math.Pow(2, message.Attempts));
+                    message.NextAttemptAt = time.GetUtcNow() + (backoff < MaxBackoff ? backoff : MaxBackoff);
+                    logger.LogWarning("Email {OutboxMessageId} failed on attempt {Attempts} of {MaxAttempts}: {ErrorType}",
+                        message.Id, message.Attempts, MaxAttempts, exception.GetType().Name);
+                }
             }
 
             await db.SaveChangesAsync(cancellationToken);

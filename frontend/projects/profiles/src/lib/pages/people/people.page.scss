@@ -1,7 +1,17 @@
-/*
- * SCAFFOLD: placeholder, not the implementation.
- * Generated from AGENTS.md and:
- *   - docs/mocks/pages/people (no detailed design yet: TO CONFIRM)
- * Overwrite with the encapsulated styles for this component. Read tokens by role
- * (var(--color-...)), never hex values. Delete this comment when implemented.
- */
+:host {
+  display: block;
+  margin-block-start: var(--space-4);
+}
+
+ft-page-header {
+  margin-block-end: var(--space-4);
+}
+
+.search {
+  display: block;
+  margin-block-end: var(--space-4);
+}
+
+.more {
+  margin-block-start: var(--space-4);
+}
