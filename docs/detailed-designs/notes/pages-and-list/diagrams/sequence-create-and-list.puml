@@ -1,0 +1,55 @@
+@startuml
+title UML sequence behaviour — Create and list pages
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+actor "Member" as actor
+box "Frontend — FaithTech Community web app (notes library)" #E0F2FE
+  participant "NotesPage" as page
+  participant "HttpNotesService" as svc
+end box
+box "Backend — FaithTech.Community.Api" #D1FADF
+  participant "NotesEndpoints" as ep
+end box
+box "Backend — FaithTech.Community.Application and Domain" #ECFDF3
+  participant "ListNotesHandler" as lh
+  participant "CreateNoteHandler" as ch
+  participant "NoteAccess" as acc
+end box
+box "Backend — FaithTech.Community.Infrastructure" #FFF4E5
+  database "Community database" as db
+end box
+actor -> page : Open /notes?q=&owner=
+page -> svc : list({ q, owner, page: 1 })
+svc -> ep : GET /api/notes?q=&owner=all&page=1
+ep -> lh : HandleAsync(query)
+lh -> acc : Visible(NotePages, caller)
+lh -> db : Visible, owner filter, title contains q,\nUpdatedAt desc, 25 a page (L2-085)
+db --> lh : Rows and total
+ep --> svc : 200 PagedResult<NotePageSummaryDto>
+page --> actor : Rows: icon, title, owner, "Edited {date}", badge
+actor -> page : New page
+page -> svc : create({})
+svc -> ep : POST /api/notes {}
+ep -> ch : HandleAsync(request)
+ch -> acc : IsVerifiedAsync(caller)
+alt email not verified
+  ep --> svc : 403 "Verify your email before creating pages."
+else verified
+  ch -> ch : new NotePage(caller, title, parentId, now)\nVisibility = Private (L2-092)
+  ch -> db : Insert, one save
+  ep --> svc : 201 NotePageDto, Location /api/notes/{id}
+  page -> page : Navigate to /notes/{id}, focus the title
+end
+@enduml

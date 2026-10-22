@@ -1,0 +1,87 @@
+@startuml
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 8
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam class {
+  BorderColor #344054
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+title Class structure — Page visibility and sharing
+enum NoteVisibility {
+  Private
+  Shared
+  Global
+}
+class NotePage {
+  +Guid Id
+  +Guid OwnerId
+  +NoteVisibility Visibility
+  +IReadOnlyList<NoteShareMember> SharedMembers
+  +IReadOnlyList<NoteShareRole> SharedRoles
+  +SetAudience(visibility, memberIds, roles): void
+}
+class NoteShareMember {
+  +Guid PageId
+  +Guid ProfileId
+}
+class NoteShareRole {
+  +Guid PageId
+  +Role Role
+}
+NotePage "1" *-- "*" NoteShareMember
+NotePage "1" *-- "*" NoteShareRole
+NotePage --> NoteVisibility
+class NoteAccess {
+  +{static} ShareableRoles: CityLead, EventLead, CreateLead, CommunicationsLead, Volunteer, ProductEngineer, Staff
+  +bool IsSystemAdmin
+  +Visible(pages, caller): IQueryable<NotePage>
+  +FindAsync(id, caller): Task<NotePage?>
+  +CanChange(page, caller): bool
+  +IsOverride(page, caller): bool
+  +IsVerifiedAsync(caller): Task<bool>
+}
+class ShareNoteRequest <<record>> {
+  +NoteVisibility Visibility
+  +IReadOnlyList<Guid> MemberIds
+  +IReadOnlyList<Role> Roles
+}
+class ShareNoteHandler {
+  +HandleAsync(id, request): Task<(Result, NoteAudienceDto?)>
+}
+class NoteShareNotifier {
+  +RecipientsAsync(page): Task<IReadOnlyCollection<Guid>>
+  +NotifyAsync(page, actor, alreadyReached): Task
+}
+interface INotificationPublisher {
+  +PublishAsync(recipientIds, kind, title, linkPath, actorId, email): Task<int>
+}
+enum NotificationKind {
+  ...
+  ResourceShared
+  ResourceOwnershipTransferred
+  NotePageShared
+}
+class NoteMembersHandler {
+  +MaxResults = 10
+  +HandleAsync(q): Task<IReadOnlyList<NoteMemberDto>?>
+}
+class NoteAudienceDto <<record>> {
+  +NoteVisibility Visibility
+  +IReadOnlyList<NoteMemberDto> Members
+  +IReadOnlyList<SharedRoleDto> Roles
+}
+ShareNoteHandler ..> ShareNoteRequest
+ShareNoteHandler --> NoteAccess
+ShareNoteHandler --> NotePage : SetAudience
+ShareNoteHandler --> NoteShareNotifier
+ShareNoteHandler ..> NoteAudienceDto
+NoteShareNotifier --> INotificationPublisher
+NoteShareNotifier ..> NotificationKind : NotePageShared
+interface IAuditLog {
+  +Record(actorId, action, targetType, targetId, before, after): void
+}
+ShareNoteHandler --> IAuditLog : note.shared on override
+@enduml

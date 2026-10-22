@@ -1,0 +1,75 @@
+@startuml
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 8
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam class {
+  BorderColor #344054
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+title Class structure — Archive, restore and search pages
+class NotePage {
+  +Guid Id
+  +string Title
+  +string BodyText
+  +DateTimeOffset? ArchivedAt
+  +bool IsArchived
+  +Archive(now): void
+  +Restore(): void
+}
+class ArchiveNoteHandler {
+  +ArchiveAsync(id): Task<Result>
+  +RestoreAsync(id): Task<Result>
+  +ListAsync(): Task<IReadOnlyList<ArchivedNoteDto>>
+}
+class ArchivedNoteDto <<record>> {
+  +Guid Id
+  +string Title
+  +string? Icon
+  +DateTimeOffset ArchivedAt
+}
+interface ISearchSource {
+  +SearchResultKind Kind
+  +SearchAsync(term, caller, limit): Task<IReadOnlyList<SearchResultItem>>
+}
+class NotesSearchSource {
+  +Kind = SearchResultKind.Note
+}
+enum SearchResultKind {
+  Person
+  Event
+  Partner
+  Contact
+  WorkItem
+  Resource
+  Note
+}
+class SearchResultItem <<record>> {
+  +Guid Id
+  +string Title
+  +string Snippet
+  +string Route
+  +DateTimeOffset? StartsAt
+  +string? Badge
+}
+interface IFullTextSearch {
+  +Match<T>(source, term, document): IQueryable<T>
+}
+class NoteAccess {
+  +Visible(pages, caller): IQueryable<NotePage>
+  +FindAsync(id, caller): Task<NotePage?>
+  +CanChange(page, caller): bool
+}
+ISearchSource <|.. NotesSearchSource
+NotesSearchSource --> NoteAccess
+NotesSearchSource --> IFullTextSearch
+NotesSearchSource ..> SearchResultItem
+NotesSearchSource ..> SearchResultKind
+ArchiveNoteHandler --> NoteAccess
+ArchiveNoteHandler --> NotePage
+ArchiveNoteHandler ..> ArchivedNoteDto
+class GlobalSearchHandler
+GlobalSearchHandler o-- "*" ISearchSource
+@enduml

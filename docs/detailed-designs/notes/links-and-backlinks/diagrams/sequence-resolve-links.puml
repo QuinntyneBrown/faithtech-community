@@ -1,0 +1,48 @@
+@startuml
+title UML sequence behaviour — Resolve page links, breadcrumb and backlinks without leaking titles
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+actor "Reader" as actor
+box "Frontend — FaithTech Community web app (notes library)" #E0F2FE
+  participant "NotePage" as page
+end box
+box "Backend — FaithTech.Community.Api" #D1FADF
+  participant "NotesEndpoints" as ep
+end box
+box "Backend — FaithTech.Community.Application and Domain" #ECFDF3
+  participant "GetNoteHandler" as h
+  participant "NoteLinkResolver" as r
+  participant "NoteAccess" as acc
+end box
+box "Backend — FaithTech.Community.Infrastructure" #FFF4E5
+  database "Community database" as db
+end box
+actor -> page : Open /notes/{id}
+page -> ep : GET /api/notes/{id}
+ep -> h : HandleAsync(id)
+h -> db : Page (visible to the reader)
+h -> r : FillAsync(blocks, caller)
+r -> acc : Visible(NotePages, caller)
+r -> db : Titles of visible targets among the page-link ids
+r -> r : Visible target: text = current title, canOpen = true\nMissing, archived or hidden: text = "Private page", canOpen = false (L2-090)
+h -> r : BreadcrumbAsync(page, caller)
+r -> db : Walk ParentId upwards
+r -> r : Hidden ancestor: { id: null, "Private page", canOpen: false } (L2-091)
+h -> r : ChildrenAsync / BacklinksAsync
+r -> db : Children: ParentId = id AND visible\nBacklinks: NoteLinks.TargetId = id AND source visible
+r --> h : Only visible pages; hidden ones are not counted
+ep --> page : 200 NotePageDto
+page --> actor : Links (hidden ones as plain "Private page"),\n"Notes › … › title", "Pages inside", "Linked from"
+@enduml

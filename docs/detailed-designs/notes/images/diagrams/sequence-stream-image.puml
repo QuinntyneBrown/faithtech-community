@@ -1,0 +1,47 @@
+@startuml
+title UML sequence behaviour — Show an image under the page's visibility
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+actor "Reader" as actor
+box "Frontend — FaithTech Community web app (notes library)" #E0F2FE
+  participant "ft-block-editor" as ed
+  participant "NotePage" as page
+  participant "HttpNotesService" as svc
+end box
+box "Backend — FaithTech.Community.Api" #D1FADF
+  participant "NotesEndpoints" as ep
+end box
+box "Backend — FaithTech.Community.Application and Domain" #ECFDF3
+  participant "NoteImagesHandler" as h
+end box
+box "Backend — FaithTech.Community.Infrastructure" #FFF4E5
+  participant "AzureBlobFileStorage" as fs
+  database "Community database" as db
+end box
+ed -> page : imageSrc(imageId)
+page -> svc : image(id, imageId) (Blob, bearer token)
+svc -> ep : GET /api/notes/{id}/images/{imageId}
+ep -> h : OpenAsync(id, imageId)
+h -> db : NoteAccess.FindAsync(id, caller) and the NoteImage row
+alt page not visible or image not on the page
+  ep --> svc : 404
+  ed --> actor : Placeholder with the alt text
+else visible
+  h -> fs : OpenReadAsync(blobName)
+  ep --> svc : 200 bytes, stored Content-Type,\nX-Content-Type-Options: nosniff, Cache-Control: private
+  page -> page : URL.createObjectURL(blob); revoke on destroy
+  ed --> actor : <img alt="{alt}"> in a figure with its caption
+end
+@enduml

@@ -1,0 +1,14 @@
+@startuml
+!include <C4/C4_Container>
+LAYOUT_WITH_LEGEND()
+title Containers — Page links, backlinks and nesting
+Person(member, "Member", "Owner or reader")
+System_Boundary(community, "FaithTech Community") {
+  Container(web, "Web app", "Angular", "ft-page-link-menu, ft-backlinks, ft-breadcrumb, move-note dialog")
+  Container(api, "Community API", "ASP.NET Core", "GetNoteHandler, NoteLinkSuggestionsHandler, MoveNoteHandler, SaveNoteHandler")
+  ContainerDb(db, "Community database", "PostgreSQL", "NotePages.ParentId, NoteLinks (SourceId, TargetId)")
+}
+Rel(member, web, "Uses", "HTTPS")
+Rel(web, api, "GET /api/notes/links, PUT /api/notes/{id}/parent, GET /api/notes/{id}", "JSON/HTTPS")
+Rel(api, db, "Visible-only joins over links and parents", "EF Core")
+@enduml

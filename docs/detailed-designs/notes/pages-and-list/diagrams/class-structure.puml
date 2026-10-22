@@ -1,0 +1,118 @@
+@startuml
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 8
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam class {
+  BorderColor #344054
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+title Class structure — Notes pages and list
+enum NoteVisibility {
+  Private
+  Shared
+  Global
+}
+class NotePage {
+  +{static} MaxTitle = 200
+  +{static} MaxIcon = 16
+  +Guid Id
+  +string Title
+  +string? Icon
+  +Guid OwnerId
+  +Guid? ParentId
+  +NoteVisibility Visibility
+  +string Content
+  +string BodyText
+  +int Version
+  +DateTimeOffset CreatedAt
+  +DateTimeOffset UpdatedAt
+  +Guid UpdatedById
+  +DateTimeOffset? ArchivedAt
+  +NotePage(ownerId, title, parentId, now)
+  +Save(title, icon, content, bodyText, by, now): void
+}
+NotePage --> NoteVisibility
+class NoteAccess {
+  +bool IsSystemAdmin
+  +CallerAsync(): Task<Guid>
+  +IsVerifiedAsync(caller): Task<bool>
+  +Visible(pages, caller): IQueryable<NotePage>
+  +FindAsync(id, caller): Task<NotePage?>
+  +CanChange(page, caller): bool
+  +IsOverride(page, caller): bool
+}
+class ListNotesHandler {
+  +PageSize = 25
+  +HandleAsync(query: ListNotesQuery): Task<(Result, PagedResult<NotePageSummaryDto>?)>
+}
+class ListNotesQuery <<record>> {
+  +string? Q
+  +string Owner  (all | mine | shared)
+  +int Page
+}
+class CreateNoteHandler {
+  +HandleAsync(request: CreateNoteRequest): Task<(Result, NotePageDto?)>
+}
+class GetNoteHandler {
+  +HandleAsync(id: Guid): Task<NotePageDto?>
+}
+class SaveNoteHandler {
+  +HandleAsync(id: Guid, request: SaveNoteRequest): Task<(Result, NoteSavedDto?)>
+}
+class SaveNoteRequest <<record>> {
+  +string Title
+  +string? Icon
+  +IReadOnlyList<NoteBlock> Blocks
+  +int Version
+}
+class NoteSavedDto <<record>> {
+  +int Version
+  +DateTimeOffset UpdatedAt
+}
+class NotePageSummaryDto <<record>> {
+  +Guid Id
+  +string Title
+  +string? Icon
+  +NoteOwnerDto Owner
+  +NoteVisibility Visibility
+  +string? Badge
+  +DateTimeOffset UpdatedAt
+  +string UpdatedBy
+}
+class NotePageDto <<record>> {
+  +Guid Id
+  +string Title
+  +string? Icon
+  +IReadOnlyList<NoteBlock> Blocks
+  +int Version
+  +NoteOwnerDto Owner
+  +NoteVisibility Visibility
+  +DateTimeOffset UpdatedAt
+  +string UpdatedBy
+  +DateTimeOffset? ArchivedAt
+  +IReadOnlyList<NoteCrumbDto> Breadcrumb
+  +IReadOnlyList<NoteRefDto> Children
+  +IReadOnlyList<NoteRefDto> Backlinks
+  +NoteAudienceDto? Audience
+  +bool CanEdit
+  +bool IsOwn
+}
+class NoteBlocksValidator {
+  +Validate(page: NotePage, blocks): Result
+  +Normalise(blocks): IReadOnlyList<NoteBlock>
+}
+ListNotesHandler ..> ListNotesQuery
+ListNotesHandler ..> NotePageSummaryDto
+ListNotesHandler --> NoteAccess : Visible
+CreateNoteHandler --> NoteAccess : IsVerifiedAsync
+GetNoteHandler --> NoteAccess : FindAsync
+GetNoteHandler ..> NotePageDto
+SaveNoteHandler --> NoteAccess : CanChange
+SaveNoteHandler --> NoteBlocksValidator
+SaveNoteHandler ..> SaveNoteRequest
+SaveNoteHandler ..> NoteSavedDto
+SaveNoteHandler --> NotePage : Save
+@enduml

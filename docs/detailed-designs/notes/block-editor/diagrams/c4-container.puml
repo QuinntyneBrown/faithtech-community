@@ -1,0 +1,14 @@
+@startuml
+!include <C4/C4_Container>
+LAYOUT_WITH_LEGEND()
+title Containers — Block editor
+Person(owner, "Page owner", "Edits blocks")
+System_Boundary(community, "FaithTech Community") {
+  Container(web, "Web app", "Angular", "components library: ft-block-editor and its menus; notes library: NotePage and dialogs")
+  Container(api, "Community API", "ASP.NET Core", "SaveNoteHandler, NoteBlocksValidator")
+  ContainerDb(db, "Community database", "PostgreSQL", "NotePages.Content (JSON blocks)")
+}
+Rel(owner, web, "Types, formats, drags and uses shortcuts", "HTTPS")
+Rel(web, api, "Whole-page save", "PUT /api/notes/{id}, JSON/HTTPS")
+Rel(api, db, "Writes Content, BodyText, Version", "EF Core")
+@enduml

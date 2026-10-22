@@ -1,0 +1,66 @@
+@startuml
+title UML sequence behaviour — Archive and restore a page
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+actor "Owner or System Admin" as actor
+box "Frontend — FaithTech Community web app (notes library)" #E0F2FE
+  participant "NotePage / ArchivedNotesPage" as page
+  participant "ArchiveNoteDialog / RestoreNoteDialog" as dlg
+  participant "HttpNotesService" as svc
+end box
+box "Backend — FaithTech.Community.Api" #D1FADF
+  participant "NotesEndpoints" as ep
+end box
+box "Backend — FaithTech.Community.Application and Domain" #ECFDF3
+  participant "ArchiveNoteHandler" as h
+  participant "IAuditLog" as audit
+end box
+box "Backend — FaithTech.Community.Infrastructure" #FFF4E5
+  database "Community database" as db
+end box
+actor -> page : Archive… (page menu)
+page -> dlg : Open
+actor -> dlg : Archive page
+dlg -> svc : archive(id)
+svc -> ep : POST /api/notes/{id}/archive
+ep -> h : ArchiveAsync(id)
+alt not visible
+  ep --> svc : 404
+else not owner or System Admin
+  ep --> svc : 403
+else may change
+  h -> h : page.Archive(now) — child pages untouched (L2-095)
+  opt override
+    h -> audit : note.archived
+  end
+  h -> db : One save
+  ep --> svc : 204
+  page --> actor : Navigate to /notes; toast "Archived {title}" with "Undo" (restore)
+end
+== Later ==
+actor -> page : Open /notes/archived
+page -> svc : archived()
+svc -> ep : GET /api/notes/archived
+ep -> h : ListAsync() — caller's own archived pages
+ep --> svc : 200 [ArchivedNoteDto]
+actor -> dlg : Restore
+dlg -> svc : restore(id)
+svc -> ep : POST /api/notes/{id}/restore
+ep -> h : RestoreAsync(id)
+h -> h : page.Restore(); override audited as note.restored
+h -> db : One save
+ep --> svc : 204
+page --> actor : Row leaves the list; toast "Restored {title}"
+@enduml

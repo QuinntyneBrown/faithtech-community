@@ -1,0 +1,72 @@
+@startuml
+title UML sequence behaviour — Autosave and an edit conflict
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+actor "Owner" as actor
+box "Frontend — FaithTech Community web app (notes library)" #E0F2FE
+  participant "ft-block-editor" as ed
+  participant "NotePage" as page
+  participant "NoteAutosave" as auto
+  participant "HttpNotesService" as svc
+end box
+box "Backend — FaithTech.Community.Api" #D1FADF
+  participant "NotesEndpoints" as ep
+end box
+box "Backend — FaithTech.Community.Application and Domain" #ECFDF3
+  participant "SaveNoteHandler" as h
+  participant "NoteBlocksValidator" as val
+end box
+box "Backend — FaithTech.Community.Infrastructure" #FFF4E5
+  database "Community database" as db
+end box
+actor -> ed : Types in a block
+ed -> page : changes(blocks)
+page -> auto : changed({ title, icon, blocks })
+auto -> auto : Restart the 800 ms timer (L2-086)
+...800 ms with no change...
+auto -> auto : No save in flight: take the latest snapshot
+auto --> page : status Saving…
+auto -> svc : save(id, { title, icon, blocks, version: 7 })
+svc -> ep : PUT /api/notes/{id}
+ep -> h : HandleAsync(id, request)
+h -> db : Load page (NoteAccess.FindAsync)
+alt not visible
+  ep --> svc : 404
+else visible but caller cannot change it
+  ep --> svc : 403
+else request.Version != page.Version (L2-094)
+  h --> ep : Conflict(version 8, updatedBy, updatedAt)
+  ep --> svc : 409 ProblemDetails { version, updatedBy, updatedAt }
+  auto -> auto : Stop autosaving; keep local blocks
+  page --> actor : Conflict banner and "Reload page"; editor read-only
+else versions match
+  h -> val : Validate(page, blocks)
+  alt invalid
+    ep --> svc : 400 ValidationProblem
+    auto --> page : status Couldn't save, Retry
+  else valid
+    h -> h : Normalise (strip page-link text), BodyText,\nrebuild NoteLinks, Version = 8
+    h -> db : One save; Version is the concurrency token
+    alt another save committed first
+      db --> h : DbUpdateConcurrencyException
+      ep --> svc : 409 (same body)
+    else committed
+      ep --> svc : 200 NoteSavedDto { version: 8, updatedAt }
+      auto -> auto : version = 8; if changes arrived while in flight, save again
+      auto --> page : status Saved
+    end
+  end
+end
+@enduml

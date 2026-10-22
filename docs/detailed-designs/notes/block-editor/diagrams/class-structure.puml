@@ -1,0 +1,101 @@
+@startuml
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 8
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam class {
+  BorderColor #344054
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+title Class structure — Block editor
+class NoteBlock <<record, C#>> {
+  +string Id
+  +string Type
+  +IReadOnlyList<NoteSpan>? Spans
+  +bool? Checked
+  +string? Icon
+  +Guid? ImageId
+  +string? Alt
+  +string? Url
+  +string? Caption
+}
+class NoteSpan <<record, C#>> {
+  +string Text
+  +bool? Bold
+  +bool? Italic
+  +bool? Underline
+  +bool? Strike
+  +bool? Code
+  +string? Href
+  +Guid? PageId
+}
+NoteBlock "1" *-- "*" NoteSpan
+class NoteBlockTypes <<static, C#>> {
+  +{static} Text: paragraph, heading1..3, bulleted, numbered, todo, quote, callout, code
+  +{static} Other: divider, image, link
+  +{static} MaxBlocks = 500
+  +{static} MaxBlockText = 10000
+  +{static} MaxUrl = 2000
+  +{static} MaxAlt = 250
+  +{static} MaxCaption = 200
+}
+class NoteBlocksValidator <<C#>> {
+  +Validate(page: NotePage, blocks): Result
+  +Normalise(blocks): IReadOnlyList<NoteBlock>
+  +BodyText(title, blocks): string
+  +PageLinks(blocks): IReadOnlySet<Guid>
+}
+NoteBlocksValidator ..> NoteBlockTypes
+NoteBlocksValidator ..> NoteBlock
+class NoteJson <<static, C#>> {
+  +{static} Options: JsonSerializerOptions (camelCase, omit nulls)
+  +{static} Write(blocks): string
+  +{static} Read(content): IReadOnlyList<NoteBlock>
+}
+NoteJson ..> NoteBlock
+
+class BlockEditorComponent <<Angular, ft-block-editor>> {
+  +blocks: input<NoteBlock[]>
+  +readonly: input<boolean>
+  +pageLinkSearch: input<(q) => Observable<PageLinkOption[]>>
+  +imageSrc: input<(imageId) => Observable<string | null>>
+  +changes: output<NoteBlock[]>
+  +linkRequested: output<LinkRequest>
+  +imageRequested: output<number>
+  +linkCardRequested: output<number>
+  +insertBlock(at, block): void
+  +applyLink(href | null): void
+  +moveBlock(from, to): void
+  +turnInto(index, type): void
+}
+class RichTextSerializer <<TypeScript>> {
+  +toSpans(element: HTMLElement): NoteSpan[]
+  +render(spans, element): void
+  +toggleMark(range, mark): NoteSpan[]
+}
+class MarkdownShortcuts <<TypeScript>> {
+  +match(prefix: string): BlockType | null
+}
+class SlashMenuComponent <<Angular, ft-slash-menu>> {
+  +query: input<string>
+  +picked: output<BlockType>
+  +closed: output<void>
+}
+class FormatToolbarComponent <<Angular, ft-format-toolbar>> {
+  +active: input<MarkSet>
+  +toggled: output<Mark>
+  +linkRequested: output<void>
+}
+class PageLinkMenuComponent <<Angular, ft-page-link-menu>> {
+  +options: input<PageLinkOption[]>
+  +picked: output<PageLinkOption>
+}
+BlockEditorComponent --> RichTextSerializer
+BlockEditorComponent --> MarkdownShortcuts
+BlockEditorComponent --> SlashMenuComponent
+BlockEditorComponent --> FormatToolbarComponent
+BlockEditorComponent --> PageLinkMenuComponent
+BlockEditorComponent ..> NoteBlock : wire shape (TypeScript interface)
+@enduml

@@ -1,0 +1,54 @@
+@startuml
+title UML sequence behaviour — Markdown shortcuts and the slash menu
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+actor "Owner" as actor
+box "Frontend — FaithTech Community web app (components library)" #E0F2FE
+  participant "BlockEditorComponent" as ed
+  participant "MarkdownShortcuts" as md
+  participant "SlashMenuComponent" as slash
+  participant "RichTextSerializer" as ser
+end box
+box "Frontend — FaithTech Community web app (notes library)" #E0F2FE
+  participant "NotePage" as page
+end box
+actor -> ed : Types "## " at the start of a Text block
+ed -> md : match("##")
+md --> ed : heading2
+ed -> ed : Turn the block into Heading 2, keep the caret (L2-088)
+ed -> page : changes(blocks)
+actor -> ed : Types "/" in an empty block
+ed -> slash : Open under the caret (CDK Overlay)\naria-activedescendant on the block
+actor -> slash : Types "call", ArrowDown, Enter
+alt Escape
+  slash --> ed : closed; "/" stays as text
+else picked Callout
+  slash --> ed : picked(callout)
+  ed -> ed : Remove "/call"; turn into Callout with icon 💡
+  ed -> page : changes(blocks)
+else picked Image or Link card
+  ed -> page : imageRequested(index) / linkCardRequested(index)
+  page -> page : Open add-image or add-link-card dialog
+  page -> ed : insertBlock(index, block)
+end
+actor -> ed : Selects text, Ctrl+B
+ed -> ser : toggleMark(range, bold)
+ser --> ed : spans with bold on the selection
+ed -> page : changes(blocks)
+actor -> ed : Ctrl+K
+ed -> page : linkRequested({ href })
+page -> page : Open add-link dialog (https:// or mailto:)
+page -> ed : applyLink(href); selection restored
+@enduml

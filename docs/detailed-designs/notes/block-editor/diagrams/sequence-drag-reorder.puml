@@ -1,0 +1,41 @@
+@startuml
+title UML sequence behaviour — Reorder a block by drag
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+actor "Owner" as actor
+box "Frontend — FaithTech Community web app (components library)" #E0F2FE
+  participant "BlockEditorComponent" as ed
+  participant "CDK drag-drop" as dd
+  participant "LiveAnnouncer" as live
+end box
+box "Frontend — FaithTech Community web app (notes library)" #E0F2FE
+  participant "NotePage" as page
+  participant "NoteAutosave" as auto
+end box
+box "Backend — FaithTech.Community.Api" #D1FADF
+  participant "NotesEndpoints" as ep
+end box
+actor -> ed : Hover a block; grab its handle
+ed -> dd : cdkDragStarted (handle only, cdkDragHandle)
+dd --> actor : Drop indicator line between blocks (cdkDragPlaceholder)
+actor -> dd : Drop below block 5
+dd -> ed : cdkDropListDropped(previousIndex 1, currentIndex 5)
+ed -> ed : moveItemInArray(blocks, 1, 5) (L2-089)
+ed -> live : "Moved Heading 2 to position 6 of 9"
+ed -> page : changes(blocks)
+page -> auto : changed(snapshot)
+auto -> ep : PUT /api/notes/{id} after 800 ms; order is array order
+ep --> auto : 200 { version }
+@enduml

@@ -1,0 +1,65 @@
+@startuml
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 8
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam class {
+  BorderColor #344054
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+title Class structure — Image blocks
+class NotePage {
+  +Guid Id
+  +IReadOnlyList<NoteImage> Images
+  +AddImage(image: NoteImage): void
+}
+class NoteImage {
+  +Guid Id
+  +Guid PageId
+  +string BlobName
+  +string ContentType
+  +long Size
+  +DateTimeOffset AddedAt
+}
+NotePage "1" *-- "*" NoteImage
+class NoteImageTypes <<static>> {
+  +{static} MaxBytes = 5 MB
+  +{static} Detect(header: ReadOnlySpan<byte>): (ext, contentType)?
+}
+class NoteImagesHandler {
+  +UploadAsync(id, file: UploadedFile): Task<(Result, NoteImageDto?)>
+  +OpenAsync(id, imageId): Task<(Result, NoteImageContent?)>
+}
+class NoteImageDto <<record>> {
+  +Guid Id
+  +string ContentType
+  +long Size
+}
+class NoteImageContent <<record>> {
+  +Stream Content
+  +string ContentType
+}
+interface IFileStorage {
+  +SaveAsync(key, stream, contentType): Task
+  +OpenReadAsync(key): Task<Stream>
+  +DeleteAsync(key): Task
+}
+class NoteBlock <<record>> {
+  +string Type = "image"
+  +Guid? ImageId
+  +string? Alt
+  +string? Caption
+}
+class NoteBlocksValidator {
+  +Validate(page, blocks): Result
+}
+NoteImagesHandler --> IFileStorage
+NoteImagesHandler ..> NoteImageTypes
+NoteImagesHandler --> NotePage : AddImage
+NoteImagesHandler ..> NoteImageDto
+NoteImagesHandler ..> NoteImageContent
+NoteBlocksValidator ..> NoteBlock : alt required (1..250)
+NoteBlocksValidator ..> NoteImage : ImageId in page.Images
+@enduml

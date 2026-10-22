@@ -1,0 +1,39 @@
+@startuml
+!include <C4/C4_Component>
+LAYOUT_WITH_LEGEND()
+title Components — Notes pages and list
+Container_Boundary(web, "Web app") {
+  Component(list, "NotesPage", "Angular page (notes library)", "/notes: search, owner filter, New page, Show more")
+  Component(page, "NotePage", "Angular page (notes library)", "/notes/:id: title, icon, editor, autosave, conflict banner")
+  Component(autosave, "NoteAutosave", "Class (notes library)", "800 ms debounce, one save in flight, Saving / Saved / Couldn't save")
+  Component(ui, "ft-block-editor, ft-save-status, ft-breadcrumb, ft-banner", "components library", "Editing surface and status")
+  Component(svc, "HttpNotesService", "Angular service (api library)", "NOTES_SERVICE: list, create, get, save")
+}
+Container_Boundary(api, "Community API") {
+  Component(ep, "NotesEndpoints", "ASP.NET Core minimal API", "GET/POST /api/notes, GET/PUT /api/notes/{id}")
+  Component(lh, "ListNotesHandler", "Application handler", "Visible pages, title search, owner filter, 25 a page")
+  Component(ch, "CreateNoteHandler", "Application handler", "Verified member; Private; optional own parent")
+  Component(gh, "GetNoteHandler", "Application handler", "Page DTO, canEdit, override audit")
+  Component(sh, "SaveNoteHandler", "Application handler", "Version check, validate, links, BodyText, Version++")
+  Component(val, "NoteBlocksValidator", "Application service", "Limits, types, hrefs, alt text, strips page-link text")
+  Component(acc, "NoteAccess", "Application permission rule", "Visible, FindAsync, CanChange, IsOverride")
+  Component(audit, "AuditLog", "Implements IAuditLog", "note.opened, note.edited")
+  ComponentDb(db, "CommunityDbContext", "PostgreSQL", "NotePages, NoteLinks")
+}
+Rel(list, svc, "list, create")
+Rel(page, autosave, "Feeds changes")
+Rel(autosave, svc, "save(id, request)")
+Rel(page, ui, "Composes")
+Rel(svc, ep, "Sends request", "JSON/HTTPS")
+Rel(ep, lh, "Calls")
+Rel(ep, ch, "Calls")
+Rel(ep, gh, "Calls")
+Rel(ep, sh, "Calls")
+Rel(sh, val, "Validates blocks")
+Rel(lh, acc, "Visible")
+Rel(gh, acc, "FindAsync")
+Rel(sh, acc, "CanChange, IsOverride")
+Rel(gh, audit, "Override open")
+Rel(sh, audit, "Override edit")
+Rel(sh, db, "One save", "EF Core")
+@enduml

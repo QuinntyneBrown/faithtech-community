@@ -1,0 +1,47 @@
+@startuml
+title UML sequence behaviour — Notes group in global search
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+actor "Member" as actor
+box "Frontend — FaithTech Community web app (search library)" #E0F2FE
+  participant "SearchPage" as page
+  participant "HttpSearchService" as svc
+end box
+box "Backend — FaithTech.Community.Api" #D1FADF
+  participant "SearchEndpoints" as ep
+end box
+box "Backend — FaithTech.Community.Application and Domain" #ECFDF3
+  participant "GlobalSearchHandler" as gs
+  participant "NotesSearchSource" as src
+  participant "NoteAccess" as acc
+end box
+box "Backend — FaithTech.Community.Infrastructure" #FFF4E5
+  participant "PostgresFullTextSearch" as fts
+  database "Community database" as db
+end box
+actor -> page : Search "onboarding"
+page -> svc : search("onboarding")
+svc -> ep : GET /api/search?q=onboarding
+ep -> gs : SearchAsync(q)
+gs -> src : SearchAsync(term, caller, 10)
+src -> acc : Visible(NotePages, caller) — not archived (L2-096)
+src -> fts : Match(visible, term, p => p.Title + " " + p.BodyText)
+fts -> db : SearchVector @@ to_tsquery('onbo:*'), ORDER BY ts_rank, LIMIT 10
+db --> src : Rows
+src --> gs : SearchResultItem(title or "Untitled", "{owner} · edited {date} · {excerpt}",\n/notes/{id}, badge Private | Shared | Shared with you)
+gs --> ep : Group "Note" after "Resource"
+ep --> svc : 200 SearchResultsDto
+page --> actor : "Notes (N)" group and "See all in Notes" (/notes?q=onboarding)
+@enduml

@@ -88,3 +88,4 @@ The panel lists notifications newest first (`L2-027`). Opening one marks it read
 Decisions recorded while building the Domain layer (`FaithTech.Community.Domain`):
 
 - `NotificationKind` adds `InviteAccepted` (inviter notified, `L2-011` AC4) and `WorkspaceOwnerLostCityLead` (System Admin notified, `L2-037` AC2), which are in-app occurrences not listed in `L2-028`.
+- `NotificationKind` adds `NotePageShared` ("{Owner} shared {title} with you", linking to `/notes/{id}`), published in-app and by email through `INotificationPublisher.PublishAsync` by `NoteShareNotifier`; the email cannot be turned off (`L2-093`, `notes/share-and-visibility`).

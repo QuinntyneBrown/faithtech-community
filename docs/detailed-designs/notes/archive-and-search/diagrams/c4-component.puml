@@ -1,0 +1,31 @@
+@startuml
+!include <C4/C4_Component>
+LAYOUT_WITH_LEGEND()
+title Components — Archive, restore and search pages
+Container_Boundary(web, "Web app") {
+  Component(page, "NotePage", "notes library", "Archive…, archived banner with Restore")
+  Component(arch, "ArchivedNotesPage", "notes library", "/notes/archived: the caller's archived pages")
+  Component(dlgs, "ArchiveNoteDialog, RestoreNoteDialog", "CDK dialogs (notes library)", "Confirm")
+  Component(search, "SearchPage", "search library", "Notes (N) group, See all in Notes")
+}
+Container_Boundary(api, "Community API") {
+  Component(ep, "NotesEndpoints", "ASP.NET Core minimal API", "/archive, /restore, /archived")
+  Component(ah, "ArchiveNoteHandler", "Application handler", "Archive, Restore, ListArchived")
+  Component(gs, "GlobalSearchHandler", "Application handler", "Groups by SearchResultKind, 10 a group")
+  Component(src, "NotesSearchSource", "ISearchSource", "Kind Note; Visible first, then the text match")
+  Component(fts, "PostgresFullTextSearch", "Implements IFullTextSearch", "SearchVector over Title and BodyText")
+  Component(acc, "NoteAccess", "Application permission rule", "Visible excludes archived")
+  Component(audit, "AuditLog", "Implements IAuditLog", "note.archived, note.restored on override")
+  ComponentDb(db, "CommunityDbContext", "PostgreSQL", "NotePages")
+}
+Rel(page, dlgs, "Opens")
+Rel(dlgs, ep, "archive, restore", "JSON/HTTPS")
+Rel(arch, ep, "archived", "JSON/HTTPS")
+Rel(search, gs, "GET /api/search", "JSON/HTTPS")
+Rel(ep, ah, "Calls")
+Rel(ah, audit, "Override")
+Rel(gs, src, "SearchAsync(term, caller, 10)")
+Rel(src, acc, "Visible")
+Rel(src, fts, "Match")
+Rel(ah, db, "ArchivedAt")
+@enduml
