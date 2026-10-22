@@ -104,6 +104,12 @@ WebVTT caption file, a poster frame and the narration text it was spoken from.
 | [Send an announcement](send-announcement/video.webm) · [poster](send-announcement/poster.png) · [captions](send-announcement/captions.vtt) · [narration](send-announcement/narration.md) | 1:07 | `pwsh eng/videos/Record-JourneyVideos.ps1 -Journey send-announcement` |
 | [Read announcements and opt out](read-announcements-and-opt-out/video.webm) · [poster](read-announcements-and-opt-out/poster.png) · [captions](read-announcements-and-opt-out/captions.vtt) · [narration](read-announcements-and-opt-out/narration.md) | 0:57 | `pwsh eng/videos/Record-JourneyVideos.ps1 -Journey read-announcements-and-opt-out` |
 
+### Docs & notes
+
+| Video | Length | Rerun alone |
+|---|---|---|
+| [Docs & notes](docs-and-notes/video.webm) · [poster](docs-and-notes/poster.png) · [captions](docs-and-notes/captions.vtt) · [narration](docs-and-notes/narration.md) | 1:25 | `pwsh eng/videos/Record-JourneyVideos.ps1 -Journey docs-and-notes` |
+
 ### Reports
 
 | Video | Length | Rerun alone |

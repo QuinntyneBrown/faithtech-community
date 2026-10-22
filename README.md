@@ -142,8 +142,8 @@ When the application code lands you will need:
 ### Build and run (planned)
 
 ```sh
-# Start PostgreSQL and supporting services
-docker compose -f backend/deploy/docker-compose.yml up -d
+# Start PostgreSQL and Azurite (blob storage) for development
+docker compose -f backend/deploy/compose.yaml up -d postgres azurite
 
 # Apply migrations and seed data (the API never migrates on startup)
 dotnet run --project backend/src/FaithTech.Community.Cli -- migrate
@@ -170,6 +170,25 @@ export Google__ClientId=<client id> Google__ClientSecret=<client secret>
 # with `pip install kokoro soundfile`; --engine edge or --engine espeak are the alternatives)
 PYTHON=.cache/kokoro-venv/bin/python node eng/videos/brochure/build.mjs
 ```
+
+### Deploy behind the private-preview wall
+
+`app.faithtech.community` and `www.faithtech.community` run as one Azure Container Apps app behind a server-side wall until private preview ends ([ADR 0026](docs/adr/0026-private-preview-wall-and-hosting.md)). The owner's steps, from DNS records to lifting the wall, are in the [runbook](docs/detailed-designs/platform/private-preview-wall/runbook.md).
+
+```sh
+# Smoke-test the production images locally with the wall on (passphrase: "local smoke test passphrase")
+docker compose -f backend/deploy/compose.yaml up --build --wait   # then open http://www.localhost:8080
+
+# The wall's secrets: a PBKDF2 hash of a passphrase read from standard input, and a signing key
+dotnet run --project backend/src/FaithTech.Community.Cli -- wall-hash
+dotnet run --project backend/src/FaithTech.Community.Cli -- wall-key
+
+# Deploy (normally run by .github/workflows/deploy.yml); validate the templates without deploying
+eng/deploy.sh
+az bicep build --file eng/infra/main.bicep && az bicep lint --file eng/infra/main.bicep
+```
+
+Development keeps the wall off (`PrivatePreview:Enabled` is `false` in `appsettings.Development.json`).
 
 ### Test (planned)
 
@@ -203,7 +222,7 @@ Exact commands will be kept up to date here as each part of the stack is added.
 | HTML mocks for every screen and state | ✅ Done |
 | Requirements (`docs/specs/`) | ✅ Done |
 | Detailed designs and design system | ✅ Done |
-| v1 implementation | 🚧 97% ([estimates](docs/estimates/README.md)): profiles, admin, invites, contacts, partners, team, events, notifications, announcements, Agile workspaces, resources and the marketing page with Google sign-in are built; search, platform and identity are nearly done |
+| v1 implementation | 🚧 97% ([estimates](docs/estimates/README.md)): profiles, admin, invites, contacts, partners, team, events, notifications, announcements, Agile workspaces, resources, the marketing page with Google sign-in and the private-preview wall with its deployment assets are built; search, platform and identity are nearly done |
 | v2: hackathon teams, projects and judging | 🗓️ Later |
 
 ## Accessibility

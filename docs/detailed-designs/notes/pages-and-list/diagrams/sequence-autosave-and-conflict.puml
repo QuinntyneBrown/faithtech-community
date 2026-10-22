@@ -1,0 +1,78 @@
+@startuml
+title UML sequence behaviour — Autosave and an edit conflict
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+actor "Owner" as actor
+box "Frontend — FaithTech Community web app (notes library)" #E0F2FE
+  participant "ft-block-editor" as ed
+  participant "NotePage" as page
+  participant "NoteAutosave" as auto
+  participant "HttpNotesService" as svc
+end box
+box "Backend — FaithTech.Community.Api" #D1FADF
+  participant "NotesEndpoints" as ep
+end box
+box "Backend — FaithTech.Community.Application and Domain" #ECFDF3
+  participant "SaveNoteHandler" as h
+  participant "NoteBlocksValidator" as val
+end box
+box "Backend — FaithTech.Community.Infrastructure" #FFF4E5
+  database "Community database" as db
+end box
+actor -> ed : Types in a block
+ed -> page : blocksChange(blocks)
+page -> auto : changed()
+auto -> auto : Restart the 800 ms timer (L2-086)
+...800 ms with no change...
+auto -> auto : No save in flight: take the latest snapshot
+auto --> page : state saving: "Saving…"
+auto -> svc : save(id, { title, icon, blocks, version: 7 })
+svc -> ep : PUT /api/notes/{id}
+ep -> h : HandleAsync(id, request)
+h -> db : Load page (NoteAccess.FindAsync)
+alt not visible
+  ep --> svc : 404
+  auto -> auto : stopped = missing
+  page --> actor : "This page isn't available"
+else visible but caller cannot change it
+  ep --> svc : 403
+  auto -> auto : stopped = forbidden
+  page --> actor : "You can't change this page" and "Reload page"
+else archived
+  ep --> svc : 400 "Restore this page before you change it."
+else request.Version != page.Version (L2-094)
+  h --> ep : Conflict(currentVersion 8, updatedByName,\nupdatedByYou, updatedAt)
+  ep --> svc : 409 ProblemDetails "This page changed somewhere else."\n{ currentVersion, updatedByName, updatedByYou, updatedAt }
+  auto -> auto : stopped = conflict; autosave stops
+  page --> actor : Latest local blocks read-only, banner\n"{Who} saved a newer version at {time}" and "Reload page"
+else versions match
+  h -> val : Check(blocks, page's image ids);\ntitle, icon and new page links
+  alt invalid
+    ep --> svc : 400 ValidationProblem
+    auto --> page : state failed: "Couldn't save" and Retry
+  else valid
+    h -> h : Strip page-link text, BodyText,\nrebuild NoteLinks, NotePage.Save: Version = 8
+    h -> db : One save; Version is the concurrency token
+    alt another save committed first
+      db --> h : DbUpdateConcurrencyException
+      ep --> svc : 409 (same body)
+    else committed
+      ep --> svc : 200 NoteSavedDto { version: 8, updatedAt }
+      auto -> auto : version = 8; if changes arrived while in flight, save again
+      auto --> page : state saved: "Saved"
+    end
+  end
+end
+@enduml

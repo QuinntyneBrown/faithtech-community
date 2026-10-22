@@ -51,3 +51,11 @@
 .mail-meta dd { margin: 0; overflow-wrap: anywhere; }
 .mail-page { max-width: 44rem; padding-block: var(--space-8); }
 .mail-preview { margin-top: var(--space-4); border-radius: var(--radius-lg); overflow: hidden; border: 1px solid var(--color-border-default); box-shadow: var(--shadow-2); }
+
+/* A live region the product keeps visually hidden, unhidden here so reviewers can read what a screen reader hears.
+   With ?chrome=0 it goes back to being visually hidden, exactly as in the product. */
+.mock-live { position: static !important; width: auto !important; height: auto !important; clip-path: none !important; white-space: normal !important;
+  display: inline-flex; align-self: flex-start; gap: var(--space-2); padding: var(--space-2) var(--space-3); border-radius: var(--radius-md);
+  background: var(--color-info-bg); color: var(--color-info-fg); border: 1px dashed var(--color-info-border); font: var(--text-label); }
+.mock-live::before { content: "Screen reader hears:"; font-weight: var(--font-weight-regular); }
+[data-chrome="off"] .mock-live { position: absolute !important; width: 1px !important; height: 1px !important; overflow: hidden; clip-path: inset(50%) !important; padding: 0; border: 0; }

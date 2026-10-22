@@ -9,6 +9,7 @@ using FaithTech.Community.Domain.Invites;
 using FaithTech.Community.Domain.Notifications;
 using FaithTech.Community.Domain.Partners;
 using FaithTech.Community.Domain.Profiles;
+using FaithTech.Community.Domain.Notes;
 using FaithTech.Community.Domain.Resources;
 using FaithTech.Community.Infrastructure.Email;
 using FaithTech.Community.Infrastructure.Identity;
@@ -69,6 +70,12 @@ public class CommunityDbContext(DbContextOptions<CommunityDbContext> options)
     public DbSet<Resource> Resources => Set<Resource>();
 
     public DbSet<ResourceBlobTask> ResourceBlobTasks => Set<ResourceBlobTask>();
+
+    public DbSet<NotePage> NotePages => Set<NotePage>();
+
+    public DbSet<NoteLink> NoteLinks => Set<NoteLink>();
+
+    public DbSet<NoteImage> NoteImages => Set<NoteImage>();
 
     protected override void OnModelCreating(ModelBuilder builder)
     {
@@ -323,6 +330,7 @@ public class CommunityDbContext(DbContextOptions<CommunityDbContext> options)
 
         ConfigureAnnouncements(builder);
         ConfigureResources(builder);
+        ConfigureNotes(builder);
 
         // Full-text search columns exist only in PostgreSQL; the in-memory test database has none (ADR 0016).
         if (Database.IsNpgsql())
@@ -396,6 +404,57 @@ public class CommunityDbContext(DbContextOptions<CommunityDbContext> options)
             task.Property(t => t.ContentType).HasMaxLength(100);
             task.HasIndex(t => t.NextAttemptAt);
             task.HasIndex(t => t.ResourceId);
+        });
+    }
+
+    private static void ConfigureNotes(ModelBuilder builder)
+    {
+        builder.Entity<NotePage>(page =>
+        {
+            page.Property(p => p.Id).ValueGeneratedNever();
+            page.Property(p => p.Title).HasMaxLength(NotePage.MaxTitle);
+            page.Property(p => p.Icon).HasMaxLength(NotePage.MaxIcon);
+            page.Property(p => p.Visibility).HasConversion<string>().HasMaxLength(16);
+            page.Property(p => p.Version).IsConcurrencyToken();
+            page.Ignore(p => p.IsArchived);
+            page.HasIndex(p => new { p.ArchivedAt, p.UpdatedAt });
+            page.HasIndex(p => p.OwnerId);
+            page.HasIndex(p => p.ParentId);
+            page.OwnsMany(p => p.SharedMembers, member =>
+            {
+                // A generated key, so a member added to a loaded page is inserted, not updated.
+                member.ToTable("NoteShareMembers");
+                member.WithOwner().HasForeignKey(m => m.PageId);
+                member.Property<int>("Id").ValueGeneratedOnAdd();
+                member.HasKey("Id");
+                member.HasIndex(m => new { m.PageId, m.ProfileId }).IsUnique();
+                member.HasIndex(m => m.ProfileId);
+            });
+            page.Navigation(p => p.SharedMembers).HasField("_members").UsePropertyAccessMode(PropertyAccessMode.Field);
+            page.OwnsMany(p => p.SharedRoles, role =>
+            {
+                role.ToTable("NoteShareRoles");
+                role.WithOwner().HasForeignKey(x => x.PageId);
+                role.Property<int>("Id").ValueGeneratedOnAdd();
+                role.HasKey("Id");
+                role.Property(x => x.Role).HasConversion<string>().HasMaxLength(32);
+                role.HasIndex(x => new { x.PageId, x.Role }).IsUnique();
+            });
+            page.Navigation(p => p.SharedRoles).HasField("_roles").UsePropertyAccessMode(PropertyAccessMode.Field);
+        });
+
+        builder.Entity<NoteLink>(link =>
+        {
+            link.HasKey(l => new { l.SourceId, l.TargetId });
+            link.HasIndex(l => l.TargetId);
+        });
+
+        builder.Entity<NoteImage>(image =>
+        {
+            image.Property(i => i.Id).ValueGeneratedNever();
+            image.Property(i => i.BlobName).HasMaxLength(200);
+            image.Property(i => i.ContentType).HasMaxLength(100);
+            image.HasIndex(i => i.PageId);
         });
     }
 

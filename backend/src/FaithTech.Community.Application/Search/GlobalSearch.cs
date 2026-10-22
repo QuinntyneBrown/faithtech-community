@@ -13,6 +13,7 @@ public enum SearchResultKind
     Contact,
     WorkItem,
     Resource,
+    Note,
 }
 
 /// <summary>One result: what it is called, a line of context, and the app route that opens it.</summary>

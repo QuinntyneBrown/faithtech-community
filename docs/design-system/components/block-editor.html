@@ -1,0 +1,521 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Block editor — FaithTech Community design system</title>
+<meta name="description" content="The FaithTech Community notes page surface: page title, ordered blocks with drag handles and a block menu, keyboard moves with a live announcement, and a read-only rendering.">
+<link rel="stylesheet" href="../tokens/tokens.css">
+<link rel="stylesheet" href="../assets/components.css">
+<link rel="stylesheet" href="../assets/ds.css">
+</head>
+<body id="top">
+<a class="skip-link" href="#main">Skip to content</a>
+<div class="ds-shell">
+  <nav class="ds-nav" aria-label="Design system">
+    <div class="ds-nav__brand"><a href="../index.html">FaithTech DS</a><button class="ds-theme-toggle" type="button" aria-pressed="false">☾ Dark</button></div>
+    <details open><summary>Foundations</summary><ul>
+      <li><a href="../foundations/color.html">Color</a></li>
+      <li><a href="../foundations/typography.html">Typography</a></li>
+      <li><a href="../foundations/spacing.html">Spacing</a></li>
+      <li><a href="../foundations/layout.html">Layout</a></li>
+      <li><a href="../foundations/elevation.html">Elevation</a></li>
+      <li><a href="../foundations/shape.html">Shape</a></li>
+      <li><a href="../foundations/motion.html">Motion</a></li>
+      <li><a href="../foundations/iconography.html">Iconography</a></li>
+      <li><a href="../foundations/theming.html">Theming</a></li>
+      <li><a href="../foundations/responsive.html">Responsive</a></li>
+      <li><a href="../foundations/accessibility.html">Accessibility</a></li>
+      <li><a href="../foundations/content.html">Content</a></li>
+    </ul></details>
+    <details open><summary>Components</summary><ul>
+      <li><a href="../components/button.html">Button</a></li>
+      <li><a href="../components/link.html">Link</a></li>
+      <li><a href="../components/menu.html">Menu</a></li>
+      <li><a href="../components/form-field.html">Form field</a></li>
+      <li><a href="../components/text-field.html">Text field</a></li>
+      <li><a href="../components/copy-field.html">Copy field</a></li>
+      <li><a href="../components/textarea.html">Textarea</a></li>
+      <li><a href="../components/select.html">Select</a></li>
+      <li><a href="../components/radio-group.html">Radio group</a></li><li><a href="../components/checkbox-group.html">Checkbox group</a></li>
+      <li><a href="../components/switch.html">Switch</a></li>
+      <li><a href="../components/form-layout.html">Form layout</a></li>
+      <li><a href="../components/picture-list.html">Picture list</a></li>
+      <li><a href="../components/photo-gallery.html">Photo gallery</a></li>
+      <li><a href="../components/file-dropzone.html">File drop zone</a></li>
+      <li><a href="../components/file-row.html">File row</a></li>
+      <li><a href="../components/tag-input.html">Tag input</a></li>
+      <li><a href="../components/person-picker.html">Person picker</a></li>
+      <li><a href="../components/type-icon.html">Type icon</a></li>
+      <li><a href="../components/sticker-picker.html">Estimate card picker</a></li>
+      <li><a href="../components/emoji-picker.html">Emoji picker</a></li>
+      <li><a href="../components/top-bar.html">Top bar</a></li>
+      <li><a href="../components/tab-bar.html">Tab bar</a></li>
+      <li><a href="../components/tabs.html">Tabs</a></li>
+      <li><a href="../components/breadcrumb.html">Breadcrumb</a></li>
+      <li><a href="../components/skip-link.html">Skip link</a></li>
+      <li><a href="../components/layout.html">Layout primitives</a></li>
+      <li><a href="../components/card.html">Card</a></li>
+      <li><a href="../components/dialog.html">Dialog</a></li>
+      <li><a href="../components/notification-panel.html">Notification panel</a></li>
+      <li><a href="../components/list.html">List</a></li>
+      <li><a href="../components/table.html">Table</a></li>
+      <li><a href="../components/description-list.html">Description list</a></li>
+      <li><a href="../components/feed.html">Activity feed</a></li>
+      <li><a href="../components/tree.html">Backlog tree</a></li>
+      <li><a href="../components/kanban.html">Kanban board</a></li>
+      <li><a href="../components/event-card.html">Event card</a></li>
+      <li><a href="../components/person-card.html">Person card</a></li>
+      <li><a href="../components/profile-header.html">Profile header</a></li>
+      <li><a href="../components/person-summary.html">Person summary</a></li>
+      <li><a href="../components/search-results.html">Search results</a></li>
+      <li><a href="../components/note.html">Note</a></li>
+      <li><a href="../components/block-editor.html">Block editor</a></li>
+      <li><a href="../components/slash-menu.html">Slash menu</a></li>
+      <li><a href="../components/format-toolbar.html">Formatting toolbar</a></li>
+      <li><a href="../components/save-status.html">Save status</a></li>
+      <li><a href="../components/page-links.html">Page links</a></li>
+      <li><a href="../components/avatar.html">Avatar</a></li>
+      <li><a href="../components/qr-code.html">QR code</a></li>
+      <li><a href="../components/logo-mark.html">Logo mark</a></li>
+      <li><a href="../components/badge.html">Badge</a></li>
+      <li><a href="../components/chip.html">Chip</a></li>
+      <li><a href="../components/stat.html">Stat</a></li>
+      <li><a href="../components/sticker.html">Estimate card</a></li>
+      <li><a href="../components/toast.html">Toast</a></li>
+      <li><a href="../components/alert.html">Alert and banner</a></li>
+      <li><a href="../components/inline-message.html">Inline message</a></li>
+      <li><a href="../components/progress.html">Progress</a></li>
+      <li><a href="../components/skeleton.html">Skeleton</a></li>
+      <li><a href="../components/empty-state.html">Empty state</a></li>
+      <li><a href="../components/error-page.html">Error page</a></li>
+      <li><a href="../components/landing-hero.html">Landing hero</a></li>
+      <li><a href="../components/video-player.html">Video player</a></li>
+      <li><a href="../components/auth-forms.html">Sign-in and sign-up forms</a></li>
+      <li><a href="../components/site-footer.html">Site footer</a></li>
+    </ul></details>
+    <details open><summary>Patterns</summary><ul>
+      <li><a href="../patterns/forms.html">Forms</a></li>
+      <li><a href="../patterns/feedback-and-loading.html">Feedback and loading</a></li>
+      <li><a href="../patterns/empty-and-error-states.html">Empty and error states</a></li>
+      <li><a href="../patterns/navigation.html">Navigation and page structure</a></li>
+      <li><a href="../patterns/dialogs-and-overlays.html">Dialogs and overlays</a></li>
+      <li><a href="../patterns/lists-and-tables.html">Lists and tables</a></li>
+      <li><a href="../patterns/notifications.html">Notifications</a></li>
+      <li><a href="../patterns/content-and-tone.html">Content and tone</a></li>
+      <li><a href="../patterns/private-preview-wall.html">Private preview wall</a></li>
+    </ul></details>
+  </nav>
+  <main id="main" class="ds-main">
+    <header class="ds-header">
+      <p class="ds-kicker">Component · Inputs</p>
+      <h1>Block editor</h1>
+      <p class="ds-lead">The surface of a Notes page: the page title, an optional emoji icon and an ordered list of blocks the owner writes, formats, inserts and reorders in place. Readers get the same blocks as plain content.</p>
+      <div class="ds-meta"><span class="ds-pill ds-pill--ok">WCAG 2.2 AA</span><span class="ds-pill">Status: new</span><span class="ds-pill"><code>ft-block-editor</code></span><span class="ds-pill"><code>ft-page-title</code></span><span class="ds-pill">APG Menu Button, Toolbar, Combobox</span></div>
+      <ul class="ds-toc">
+        <li><a href="#overview">Overview</a></li><li><a href="#anatomy">Anatomy</a></li><li><a href="#variants">Variants</a></li><li><a href="#sizes">Sizes</a></li><li><a href="#states">States</a></li><li><a href="#responsive">Responsive</a></li><li><a href="#theming">Theming</a></li><li><a href="#accessibility">Accessibility</a></li><li><a href="#content">Content</a></li><li><a href="#do-dont">Do and don't</a></li><li><a href="#tokens">Tokens</a></li><li><a href="#code">Code</a></li><li><a href="#sources">Sources</a></li>
+      </ul>
+    </header>
+
+    <section class="ds-section" id="overview"><h2><a href="#overview">Overview</a></h2>
+      <p>The block editor is a <b>content editor, not a form</b> (ADR 0024): each text block is its own <code>contenteditable</code> region, a handle on every block opens the block menu and is the drag grip, and changes are saved by autosave (<a href="save-status.html">save status</a>), never by a submit button. It is built once in <code>components</code> with no third-party editor; Angular CDK drag-drop reorders blocks and CDK Overlay positions the block menu, the <a href="slash-menu.html">slash menu</a> and the <a href="format-toolbar.html">formatting toolbar</a>.</p>
+      <ul>
+        <li>Use it for the body of a Notes page (<code>/notes/{id}</code>), in the editor for the owner and a System Admin, and in the read-only rendering for everyone else who may open the page.</li>
+        <li>Do not use it for short structured input such as a description or a note on a contact; use a <a href="textarea.html">textarea</a> in a dialog. Every form the Notes feature needs (share, page settings, move, add image, add link) stays a <a href="dialog.html">dialog</a>.</li>
+        <li>The page's actions (visibility badge, save status, Share, More actions), banners and the <a href="page-links.html">Pages inside and Linked from</a> sections sit around the editor and are composed by the <code>notes</code> library.</li>
+      </ul>
+    </section>
+
+    <section class="ds-section" id="anatomy"><h2><a href="#anatomy">Anatomy</a></h2>
+      <div class="ds-anatomy">
+        <figure class="ds-anatomy__figure">
+          <div class="block-editor" style="padding-bottom: 0; max-width: 100%;">
+            <div class="block-editor__head"><button class="block-editor__icon" type="button" aria-label="Change the icon, now 🛠️">🛠️</button><div class="block-editor__title"><span contenteditable="true" role="textbox" aria-label="Page title" data-placeholder="Untitled">Builders Night run sheet</span></div><p class="block-editor__meta">Owned by you · inside Toronto city team playbook · edited today at 9:15 am</p></div>
+            <div class="block-editor__blocks" role="group" aria-label="Page content">
+              <div class="block block--h2" data-state="hover"><button class="block__handle" type="button" aria-label="Move or open the menu for block 1 of 3, Heading 2" aria-haspopup="menu" aria-expanded="false"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><circle cx="9" cy="6" r="1"/><circle cx="15" cy="6" r="1"/><circle cx="9" cy="12" r="1"/><circle cx="15" cy="12" r="1"/><circle cx="9" cy="18" r="1"/><circle cx="15" cy="18" r="1"/></svg></button><div class="block__text"><span contenteditable="true" role="textbox" aria-label="Heading 2">Before doors</span></div></div>
+              <div class="block block--todo"><button class="block__handle" type="button" aria-label="Move or open the menu for block 2 of 3, To-do" aria-haspopup="menu" aria-expanded="false"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><circle cx="9" cy="6" r="1"/><circle cx="15" cy="6" r="1"/><circle cx="9" cy="12" r="1"/><circle cx="15" cy="12" r="1"/><circle cx="9" cy="18" r="1"/><circle cx="15" cy="18" r="1"/></svg></button><div class="todo"><span class="todo__check"><input type="checkbox" aria-label="Put the welcome sign by the lift"></span><div class="block__text" contenteditable="true" role="textbox" aria-multiline="true" aria-label="To-do">Put the welcome sign by the lift</div></div></div>
+              <div class="block block--paragraph"><button class="block__handle" type="button" aria-label="Move or open the menu for block 3 of 3, Text" aria-haspopup="menu" aria-expanded="false"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><circle cx="9" cy="6" r="1"/><circle cx="15" cy="6" r="1"/><circle cx="9" cy="12" r="1"/><circle cx="15" cy="12" r="1"/><circle cx="9" cy="18" r="1"/><circle cx="15" cy="18" r="1"/></svg></button><div class="block__text" contenteditable="true" role="textbox" aria-multiline="true" aria-label="Text">Everything else is in <a class="page-link" href="../../mocks/pages/note/default.html"><span class="page-link__icon" aria-hidden="true">📘</span>Toronto city team playbook</a>.</div></div>
+            </div>
+          </div>
+          <span class="ds-callout" style="left: 4%; top: 2%;" aria-hidden="true">1</span>
+          <span class="ds-callout" style="left: 40%; top: 22%;" aria-hidden="true">2</span>
+          <span class="ds-callout" style="left: 40%; top: 36%;" aria-hidden="true">3</span>
+          <span class="ds-callout" style="left: 0; top: 52%;" aria-hidden="true">4</span>
+          <span class="ds-callout" style="left: 30%; top: 52%;" aria-hidden="true">5</span>
+          <span class="ds-callout" style="left: 12%; top: 66%;" aria-hidden="true">6</span>
+          <span class="ds-callout" style="left: 58%; top: 84%;" aria-hidden="true">7</span>
+        </figure>
+        <ol class="ds-anatomy__list">
+          <li><div><b>Icon</b><small><code>.block-editor__icon</code>: the page's emoji, 64px, a button that opens Page settings ("Change the icon, now 🛠️"). With no icon nothing is shown; the owner adds one from Page settings in "More actions".</small></div></li>
+          <li><div><b>Page title</b> (<code>ft-page-title</code>)<small><code>.block-editor__title</code>: a single-line text box labelled "Page title" with the placeholder "Untitled", inside the page's only <code>&lt;h1&gt;</code>. At most 200 characters; Enter moves to the first block; paste is plain text on one line.</small></div></li>
+          <li><div><b>Meta line</b><small><code>.block-editor__meta</code>: owner, parent and the edited time, <code>--text-body-sm</code> muted.</small></div></li>
+          <li><div><b>Drag handle</b><small><code>.block__handle</code>: a 24px button (32px on touch) with the grip icon, labelled "Move or open the menu for block {n} of {total}, {type}". Hidden until the row is hovered or focused; always shown on touch screens.</small></div></li>
+          <li><div><b>Block row</b><small><code>.block.block--{type}</code>: a two-column grid, handle then content. The block list is <code>.block-editor__blocks</code>, a group named "Page content".</small></div></li>
+          <li><div><b>Block content</b><small><code>.block__text</code>: the editable region, a multi-line text box named by its type ("To-do", "Heading 2"). Other types put their own parts here (checkbox, callout icon, image, link card).</small></div></li>
+          <li><div><b>Page link</b><small><code>.page-link</code>: an inline chip with the target's icon and current title, or the muted "Private page" chip.</small></div></li>
+        </ol>
+      </div>
+      <p>Two parts appear only while something happens: the <b>block menu</b> (<code>.menu.block__menu</code>, opened from a handle) and the <b>drop indicator</b> (<code>.drop-indicator</code>, during a drag). The polite live region <code>.block-editor__live</code> is always in the DOM and visually hidden.</p>
+    </section>
+
+    <section class="ds-section" id="variants"><h2><a href="#variants">Variants</a></h2>
+      <h3>Block types</h3>
+      <p>Thirteen types, in slash-menu order (wire names in brackets, <code>BLOCK_TYPES</code> in the library). Every type except Divider, Image and Link card holds rich-text spans. In the app Heading 1 to 3 render as <code>&lt;h2&gt;</code> to <code>&lt;h4&gt;</code>, one level below the title; this page draws them in <code>&lt;div&gt;</code>s so the documentation outline stays intact.</p>
+      <div class="ds-example">
+        <div class="ds-example__canvas ds-example__canvas--stack">
+          <div class="block-editor" style="padding-bottom: 0; max-width: 100%;">
+            <div class="block-editor__blocks" role="group" aria-label="Every block type">
+              <div class="block block--paragraph"><button class="block__handle" type="button" aria-label="Move or open the menu for block 1 of 21, Text" aria-haspopup="menu" aria-expanded="false"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><circle cx="9" cy="6" r="1"/><circle cx="15" cy="6" r="1"/><circle cx="9" cy="12" r="1"/><circle cx="15" cy="12" r="1"/><circle cx="9" cy="18" r="1"/><circle cx="15" cy="18" r="1"/></svg></button><div class="block__text" contenteditable="true" role="textbox" aria-multiline="true" aria-label="Text">Text with <strong>bold</strong>, <em>italic</em>, <u>underline</u>, <s>strikethrough</s>, <code>inline code</code> and a <a href="https://faithtech.community" target="_blank" rel="noopener">hyperlink<span class="visually-hidden"> (opens in a new tab)</span></a>.</div></div>
+              <div class="block block--h1"><button class="block__handle" type="button" aria-label="Move or open the menu for block 2 of 21, Heading 1" aria-haspopup="menu" aria-expanded="false"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><circle cx="9" cy="6" r="1"/><circle cx="15" cy="6" r="1"/><circle cx="9" cy="12" r="1"/><circle cx="15" cy="12" r="1"/><circle cx="9" cy="18" r="1"/><circle cx="15" cy="18" r="1"/></svg></button><div class="block__text"><span contenteditable="true" role="textbox" aria-label="Heading 1">Heading 1 (an h2)</span></div></div>
+              <div class="block block--h2"><button class="block__handle" type="button" aria-label="Move or open the menu for block 3 of 21, Heading 2" aria-haspopup="menu" aria-expanded="false"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><circle cx="9" cy="6" r="1"/><circle cx="15" cy="6" r="1"/><circle cx="9" cy="12" r="1"/><circle cx="15" cy="12" r="1"/><circle cx="9" cy="18" r="1"/><circle cx="15" cy="18" r="1"/></svg></button><div class="block__text"><span contenteditable="true" role="textbox" aria-label="Heading 2">Heading 2 (an h3)</span></div></div>
+              <div class="block block--h3"><button class="block__handle" type="button" aria-label="Move or open the menu for block 4 of 21, Heading 3" aria-haspopup="menu" aria-expanded="false"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><circle cx="9" cy="6" r="1"/><circle cx="15" cy="6" r="1"/><circle cx="9" cy="12" r="1"/><circle cx="15" cy="12" r="1"/><circle cx="9" cy="18" r="1"/><circle cx="15" cy="18" r="1"/></svg></button><div class="block__text"><span contenteditable="true" role="textbox" aria-label="Heading 3">Heading 3 (an h4)</span></div></div>
+              <ul class="block-group">
+                <li class="block block--bulleted"><button class="block__handle" type="button" aria-label="Move or open the menu for block 5 of 21, Bulleted list" aria-haspopup="menu" aria-expanded="false"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><circle cx="9" cy="6" r="1"/><circle cx="15" cy="6" r="1"/><circle cx="9" cy="12" r="1"/><circle cx="15" cy="12" r="1"/><circle cx="9" cy="18" r="1"/><circle cx="15" cy="18" r="1"/></svg></button><div class="block__text" contenteditable="true" role="textbox" aria-multiline="true" aria-label="Bulleted list">Builders Night on the first Thursday</div></li>
+                <li class="block block--bulleted"><button class="block__handle" type="button" aria-label="Move or open the menu for block 6 of 21, Bulleted list" aria-haspopup="menu" aria-expanded="false"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><circle cx="9" cy="6" r="1"/><circle cx="15" cy="6" r="1"/><circle cx="9" cy="12" r="1"/><circle cx="15" cy="12" r="1"/><circle cx="9" cy="18" r="1"/><circle cx="15" cy="18" r="1"/></svg></button><div class="block__text" contenteditable="true" role="textbox" aria-multiline="true" aria-label="Bulleted list">A coffee with each partner in the funnel</div></li>
+              </ul>
+              <ol class="block-group">
+                <li class="block block--numbered"><button class="block__handle" type="button" aria-label="Move or open the menu for block 7 of 21, Numbered list" aria-haspopup="menu" aria-expanded="false"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><circle cx="9" cy="6" r="1"/><circle cx="15" cy="6" r="1"/><circle cx="9" cy="12" r="1"/><circle cx="15" cy="12" r="1"/><circle cx="9" cy="18" r="1"/><circle cx="15" cy="18" r="1"/></svg></button><div class="block__text" contenteditable="true" role="textbox" aria-multiline="true" aria-label="Numbered list">Confirm the room with Kestrel Labs</div></li>
+                <li class="block block--numbered"><button class="block__handle" type="button" aria-label="Move or open the menu for block 8 of 21, Numbered list" aria-haspopup="menu" aria-expanded="false"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><circle cx="9" cy="6" r="1"/><circle cx="15" cy="6" r="1"/><circle cx="9" cy="12" r="1"/><circle cx="15" cy="12" r="1"/><circle cx="9" cy="18" r="1"/><circle cx="15" cy="18" r="1"/></svg></button><div class="block__text" contenteditable="true" role="textbox" aria-multiline="true" aria-label="Numbered list">Post the event and share the RSVP link</div></li>
+              </ol>
+              <div class="block block--todo"><button class="block__handle" type="button" aria-label="Move or open the menu for block 9 of 21, To-do" aria-haspopup="menu" aria-expanded="false"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><circle cx="9" cy="6" r="1"/><circle cx="15" cy="6" r="1"/><circle cx="9" cy="12" r="1"/><circle cx="15" cy="12" r="1"/><circle cx="9" cy="18" r="1"/><circle cx="15" cy="18" r="1"/></svg></button><div class="todo todo--done"><span class="todo__check"><input type="checkbox" checked aria-label="Book Kestrel Labs for Thu 6 Nov"></span><div class="block__text" contenteditable="true" role="textbox" aria-multiline="true" aria-label="To-do">Book Kestrel Labs for Thu 6 Nov</div></div></div>
+              <div class="block block--todo"><button class="block__handle" type="button" aria-label="Move or open the menu for block 10 of 21, To-do" aria-haspopup="menu" aria-expanded="false"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><circle cx="9" cy="6" r="1"/><circle cx="15" cy="6" r="1"/><circle cx="9" cy="12" r="1"/><circle cx="15" cy="12" r="1"/><circle cx="9" cy="18" r="1"/><circle cx="15" cy="18" r="1"/></svg></button><div class="todo"><span class="todo__check"><input type="checkbox" aria-label="Order food for 40"></span><div class="block__text" contenteditable="true" role="textbox" aria-multiline="true" aria-label="To-do">Order food for 40</div></div></div>
+              <div class="block block--quote"><button class="block__handle" type="button" aria-label="Move or open the menu for block 11 of 21, Quote" aria-haspopup="menu" aria-expanded="false"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><circle cx="9" cy="6" r="1"/><circle cx="15" cy="6" r="1"/><circle cx="9" cy="12" r="1"/><circle cx="15" cy="12" r="1"/><circle cx="9" cy="18" r="1"/><circle cx="15" cy="18" r="1"/></svg></button><blockquote class="block__text" contenteditable="true" role="textbox" aria-multiline="true" aria-label="Quote">Whatever you do, work at it with all your heart. — Colossians 3:23</blockquote></div>
+              <div class="block block--callout"><button class="block__handle" type="button" aria-label="Move or open the menu for block 12 of 21, Callout" aria-haspopup="menu" aria-expanded="false"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><circle cx="9" cy="6" r="1"/><circle cx="15" cy="6" r="1"/><circle cx="9" cy="12" r="1"/><circle cx="15" cy="12" r="1"/><circle cx="9" cy="18" r="1"/><circle cx="15" cy="18" r="1"/></svg></button><div class="callout"><span class="callout__icon" aria-hidden="true">💡</span><div class="block__text" contenteditable="true" role="textbox" aria-multiline="true" aria-label="Callout">New to the team? Shadow Marcus on the door at your first Builders Night.</div></div></div>
+              <div class="block block--code"><button class="block__handle" type="button" aria-label="Move or open the menu for block 13 of 21, Code" aria-haspopup="menu" aria-expanded="false"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><circle cx="9" cy="6" r="1"/><circle cx="15" cy="6" r="1"/><circle cx="9" cy="12" r="1"/><circle cx="15" cy="12" r="1"/><circle cx="9" cy="18" r="1"/><circle cx="15" cy="18" r="1"/></svg></button><pre class="code-block"><code class="block__text" contenteditable="true" role="textbox" aria-multiline="true" aria-label="Code">Doors 6:00 pm · Talks 6:30 pm · Build 7:00 pm
+Kestrel Labs, 4th floor, Studio B</code></pre></div>
+              <div class="block block--divider"><button class="block__handle" type="button" aria-label="Move or open the menu for block 14 of 21, Divider" aria-haspopup="menu" aria-expanded="false"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><circle cx="9" cy="6" r="1"/><circle cx="15" cy="6" r="1"/><circle cx="9" cy="12" r="1"/><circle cx="15" cy="12" r="1"/><circle cx="9" cy="18" r="1"/><circle cx="15" cy="18" r="1"/></svg></button><hr class="block__divider"></div>
+              <div class="block block--image"><button class="block__handle" type="button" aria-label="Move or open the menu for block 15 of 21, Image" aria-haspopup="menu" aria-expanded="false"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><circle cx="9" cy="6" r="1"/><circle cx="15" cy="6" r="1"/><circle cx="9" cy="12" r="1"/><circle cx="15" cy="12" r="1"/><circle cx="9" cy="18" r="1"/><circle cx="15" cy="18" r="1"/></svg></button><figure class="image-block"><img src="../../mocks/assets/photos/hackathon-pairing.jpg" alt="Two builders pairing at a whiteboard covered in sticky notes at Builders Night"><figcaption class="image-block__caption">Alt text: “Two builders pairing at a whiteboard covered in sticky notes at Builders Night”</figcaption></figure></div>
+              <div class="block block--link"><button class="block__handle" type="button" aria-label="Move or open the menu for block 16 of 21, Link card" aria-haspopup="menu" aria-expanded="false"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><circle cx="9" cy="6" r="1"/><circle cx="15" cy="6" r="1"/><circle cx="9" cy="12" r="1"/><circle cx="15" cy="12" r="1"/><circle cx="9" cy="18" r="1"/><circle cx="15" cy="18" r="1"/></svg></button><a class="link-card" href="https://faithtech.community/events/toronto-builders-night" target="_blank" rel="noopener"><span class="link-card__icon" aria-hidden="true"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><path d="M14 4h6v6M20 4l-9 9M18 14v6H4V6h6"/></svg></span><span class="link-card__body"><span class="link-card__title">Toronto Builders Night, the public event page</span><span class="link-card__url">faithtech.community</span></span><span class="visually-hidden"> (opens in a new tab)</span></a></div>
+              <div class="block block--paragraph"><button class="block__handle" type="button" aria-label="Move or open the menu for block 17 of 21, Text" aria-haspopup="menu" aria-expanded="false"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><circle cx="9" cy="6" r="1"/><circle cx="15" cy="6" r="1"/><circle cx="9" cy="12" r="1"/><circle cx="15" cy="12" r="1"/><circle cx="9" cy="18" r="1"/><circle cx="15" cy="18" r="1"/></svg></button><div class="block__text" contenteditable="true" role="textbox" aria-multiline="true" aria-label="Text">A page link: <a class="page-link" href="../../mocks/pages/note/backlinks.html"><span class="page-link__icon" aria-hidden="true">✅</span>Volunteer onboarding checklist</a>, and one the viewer can’t open: <span class="page-link page-link--private"><svg class="icon icon--sm" aria-hidden="true" viewBox="0 0 24 24"><rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>Private page</span>.</div></div>
+            </div>
+          </div>
+        </div>
+        <div class="ds-example__caption"><span>From <code>pages/note/default</code> and <code>pages/note/backlinks</code>. Consecutive list blocks are grouped in one real <code>&lt;ul&gt;</code> or <code>&lt;ol&gt;</code> (<code>.block-group</code>); numbering restarts after any other block.</span></div>
+        <details class="ds-example__code"><summary>HTML</summary><pre><code>&lt;div class="block-editor__blocks" role="group" aria-label="Page content"&gt;
+  &lt;div class="block block--h1"&gt;
+    &lt;button class="block__handle" type="button" aria-haspopup="menu" aria-expanded="false"
+            aria-label="Move or open the menu for block 2 of 12, Heading 1"&gt;…grip…&lt;/button&gt;
+    &lt;h2 class="block__text"&gt;&lt;span contenteditable="true" role="textbox" aria-label="Heading 1"&gt;Our rhythm&lt;/span&gt;&lt;/h2&gt;
+  &lt;/div&gt;
+  &lt;ol class="block-group"&gt;
+    &lt;li class="block block--numbered"&gt;…&lt;div class="block__text" contenteditable="true" role="textbox"
+        aria-multiline="true" aria-label="Numbered list"&gt;Confirm the room&lt;/div&gt;&lt;/li&gt;
+  &lt;/ol&gt;
+  &lt;div class="block block--todo"&gt;…&lt;div class="todo"&gt;
+    &lt;span class="todo__check"&gt;&lt;input type="checkbox" aria-label="Order food for 40"&gt;&lt;/span&gt;
+    &lt;div class="block__text" contenteditable="true" role="textbox" aria-multiline="true" aria-label="To-do"&gt;Order food for 40&lt;/div&gt;
+  &lt;/div&gt;&lt;/div&gt;
+  &lt;div class="block block--callout"&gt;…&lt;div class="callout"&gt;&lt;span class="callout__icon" aria-hidden="true"&gt;💡&lt;/span&gt;…&lt;/div&gt;&lt;/div&gt;
+  &lt;div class="block block--code"&gt;…&lt;pre class="code-block"&gt;&lt;code class="block__text" contenteditable="true" …&gt;…&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+  &lt;div class="block block--divider"&gt;…&lt;hr class="block__divider"&gt;&lt;/div&gt;
+  &lt;div class="block block--image"&gt;…&lt;figure class="image-block"&gt;&lt;img src="/api/notes/{id}/images/{imageId}" alt="{alt}"&gt;&lt;/figure&gt;&lt;/div&gt;
+  &lt;div class="block block--link"&gt;…&lt;a class="link-card" href="https://…" target="_blank" rel="noopener"&gt;…&lt;/a&gt;&lt;/div&gt;
+&lt;/div&gt;
+&lt;p class="block-editor__live" role="status" aria-live="polite"&gt;&lt;/p&gt;</code></pre></details>
+      </div>
+      <div class="ds-table-wrap"><table class="ds-table">
+        <thead><tr><th scope="col">Type (wire name)</th><th scope="col">Renders as</th><th scope="col">Notes</th></tr></thead>
+        <tbody>
+          <tr><td>Text (<code>paragraph</code>)</td><td><code>&lt;div&gt;</code> text box; <code>&lt;p&gt;</code> read-only</td><td>The default; Enter at the end adds another Text block.</td></tr>
+          <tr><td>Heading 1–3 (<code>heading1</code>–<code>heading3</code>)</td><td><code>&lt;h2&gt;</code>–<code>&lt;h4&gt;</code></td><td>One level below the title, which is the only <code>&lt;h1&gt;</code>. <code>--text-h2</code> to <code>--text-h4</code>.</td></tr>
+          <tr><td>Bulleted, Numbered list (<code>bulleted</code>, <code>numbered</code>)</td><td><code>&lt;li&gt;</code> in a shared <code>&lt;ul&gt;</code> / <code>&lt;ol&gt;</code></td><td>Enter continues the list; Enter in an empty item turns it into Text.</td></tr>
+          <tr><td>To-do (<code>todo</code>)</td><td>Checkbox + text box</td><td>The checkbox's name is the block's text; checked shows muted and struck through. Read-only: disabled checkbox showing its state.</td></tr>
+          <tr><td>Quote (<code>quote</code>)</td><td><code>&lt;blockquote&gt;</code></td><td>Muted italic with a 4px strong border.</td></tr>
+          <tr><td>Callout (<code>callout</code>)</td><td>Tinted box with an emoji</td><td>Icon defaults to 💡, changed from the block menu; decorative (<code>aria-hidden</code>), in edit and read views alike.</td></tr>
+          <tr><td>Code (<code>code</code>)</td><td><code>&lt;pre&gt;&lt;code&gt;</code></td><td>Plain text exactly as typed, monospace, no highlighting, no inline formatting; long lines scroll inside the block.</td></tr>
+          <tr><td>Divider (<code>divider</code>)</td><td><code>&lt;hr&gt;</code></td><td>No text; selected, moved and deleted through its handle.</td></tr>
+          <tr><td>Image (<code>image</code>)</td><td><code>&lt;figure&gt;&lt;img alt&gt;</code></td><td>Uploaded through "Add an image"; alt text is required. Never wider than the column, at most 28rem tall.</td></tr>
+          <tr><td>Link card (<code>link</code>)</td><td><code>&lt;a class="link-card"&gt;</code></td><td>External icon, the caption (or the URL) and the host; opens in a new tab with <code>rel="noopener"</code>. The server never fetches the URL.</td></tr>
+          <tr><td>Page link (a span with <code>pageId</code>)</td><td><code>&lt;a class="page-link"&gt;</code> or <code>&lt;span class="page-link page-link--private"&gt;</code></td><td>Inline in any text block except Code. Shows the target's icon and current title; "Private page" (not a link) when the viewer can't open the target or it is archived.</td></tr>
+        </tbody>
+      </table></div>
+
+      <h3>Editor and read-only</h3>
+      <p>The same blocks render two ways. <code>canEdit</code> from the API decides: the owner and a System Admin get the editor; every other reader gets the read-only rendering (<code>.block-editor--readonly</code>): no handles, no <code>contenteditable</code>, no slash menu, toolbar or move shortcuts, and the grid drops its handle column. Text blocks become <code>&lt;p&gt;</code>, headings stay headings and hyperlinks stay links.</p>
+      <div class="ds-example">
+        <div class="ds-example__canvas ds-example__canvas--stack">
+          <div class="block-editor block-editor--readonly" style="padding-bottom: 0; max-width: 100%;">
+            <div class="block-editor__head"><span class="block-editor__icon" aria-hidden="true">⚖️</span><div class="block-editor__title">Hackathon judging how-to</div><p class="block-editor__meta">Owned by Marcus Lee · edited Thu 16 Oct</p></div>
+            <div class="block-editor__blocks" role="group" aria-label="Page content, read only">
+              <div class="block block--paragraph"><p class="block__text">How we judge at FaithTech hackathons, so every team gets a fair hearing.</p></div>
+              <div class="block block--h1"><div class="block__text">Before judging</div></div>
+              <ol class="block-group"><li class="block block--numbered"><div class="block__text">Read the brief for each challenge</div></li><li class="block block--numbered"><div class="block__text">Agree with your fellow judge what “done” looks like</div></li></ol>
+              <div class="block block--todo"><div class="todo todo--done"><span class="todo__check"><input type="checkbox" checked disabled aria-label="Scores entered in the rubric"></span><div class="block__text">Scores entered in the rubric</div></div></div>
+              <div class="block block--callout"><div class="callout"><span class="callout__icon" aria-hidden="true">💡</span><div class="block__text">Scores go in the judging rubric in Resources, never on this page.</div></div></div>
+            </div>
+          </div>
+        </div>
+        <div class="ds-example__caption"><span>From <code>pages/note/read-only</code>: Marcus Lee's Global page as Grace sees it. The banner above it ("Only Marcus Lee can change this page.") is an <a href="alert.html">alert</a> composed by the page.</span></div>
+      </div>
+
+      <h3>Page title</h3>
+      <p><code>ft-page-title</code> is the title part on its own, so the page and the editor share one implementation. It is a <code>contenteditable="plaintext-only"</code> span with <code>role="textbox"</code> inside the <code>&lt;h1&gt;</code>; read-only it is plain heading text, and an empty title reads "Untitled" in <code>--color-fg-subtle</code>.</p>
+      <div class="ds-example">
+        <div class="ds-example__canvas ds-example__canvas--stack">
+          <div class="block-editor" style="padding-bottom: 0; max-width: 100%;"><div class="block-editor__head"><div class="block-editor__title"><span contenteditable="plaintext-only" role="textbox" tabindex="0" aria-label="Page title" aria-placeholder="Untitled" data-placeholder="Untitled"></span></div></div></div>
+        </div>
+        <div class="ds-example__caption"><span>A new page (<code>pages/note/new</code>): focus starts in the empty title.</span></div>
+      </div>
+    </section>
+
+    <section class="ds-section" id="sizes" data-na="One size: the editor fills the reading measure (--layout-measure) plus the handle column."><h2><a href="#sizes">Sizes</a></h2>
+      <p>Not applicable. The editor is one size: <code>--layout-measure</code> wide plus the 24px handle column and its gap, centred. Only the handle grows, to 32px (<code>--target-comfortable</code>) on touch screens.</p>
+    </section>
+
+    <section class="ds-section" id="states"><h2><a href="#states">States</a></h2>
+      <h3>Block row and handle</h3>
+      <div class="ds-matrix"><table>
+        <thead><tr><th scope="col">Default</th><th scope="col">Hover</th><th scope="col">Focus in the text</th><th scope="col">Handle focus</th><th scope="col">Menu open</th></tr></thead>
+        <tbody><tr>
+          <td><div class="block-editor" style="padding-bottom: 0;"><div class="block block--paragraph"><button class="block__handle" type="button" aria-label="Move or open the menu for block 1 of 1, Text, default" aria-haspopup="menu" aria-expanded="false"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><circle cx="9" cy="6" r="1"/><circle cx="15" cy="6" r="1"/><circle cx="9" cy="12" r="1"/><circle cx="15" cy="12" r="1"/><circle cx="9" cy="18" r="1"/><circle cx="15" cy="18" r="1"/></svg></button><div class="block__text">Doors at 6:00 pm</div></div></div></td>
+          <td><div class="block-editor" style="padding-bottom: 0;"><div class="block block--paragraph" data-state="hover"><button class="block__handle" type="button" aria-label="Move or open the menu for block 1 of 1, Text, hover" aria-haspopup="menu" aria-expanded="false"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><circle cx="9" cy="6" r="1"/><circle cx="15" cy="6" r="1"/><circle cx="9" cy="12" r="1"/><circle cx="15" cy="12" r="1"/><circle cx="9" cy="18" r="1"/><circle cx="15" cy="18" r="1"/></svg></button><div class="block__text">Doors at 6:00 pm</div></div></div></td>
+          <td><div class="block-editor" style="padding-bottom: 0;"><div class="block block--paragraph" data-state="hover"><button class="block__handle" type="button" aria-label="Move or open the menu for block 1 of 1, Text, text focus" aria-haspopup="menu" aria-expanded="false"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><circle cx="9" cy="6" r="1"/><circle cx="15" cy="6" r="1"/><circle cx="9" cy="12" r="1"/><circle cx="15" cy="12" r="1"/><circle cx="9" cy="18" r="1"/><circle cx="15" cy="18" r="1"/></svg></button><div class="block__text" data-state="focus">Doors at 6:00 pm</div></div></div></td>
+          <td><div class="block-editor" style="padding-bottom: 0;"><div class="block block--paragraph"><button class="block__handle" type="button" aria-label="Move or open the menu for block 1 of 1, Text, focus" aria-haspopup="menu" aria-expanded="false" data-state="focus"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><circle cx="9" cy="6" r="1"/><circle cx="15" cy="6" r="1"/><circle cx="9" cy="12" r="1"/><circle cx="15" cy="12" r="1"/><circle cx="9" cy="18" r="1"/><circle cx="15" cy="18" r="1"/></svg></button><div class="block__text">Doors at 6:00 pm</div></div></div></td>
+          <td><div class="block-editor" style="padding-bottom: 0;"><div class="block block--paragraph"><button class="block__handle" type="button" aria-label="Move or open the menu for block 1 of 1, Text, open" aria-haspopup="menu" aria-expanded="true"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><circle cx="9" cy="6" r="1"/><circle cx="15" cy="6" r="1"/><circle cx="9" cy="12" r="1"/><circle cx="15" cy="12" r="1"/><circle cx="9" cy="18" r="1"/><circle cx="15" cy="18" r="1"/></svg></button><div class="block__text">Doors at 6:00 pm</div></div></div></td>
+        </tr></tbody>
+      </table></div>
+
+      <h3>Block menu</h3>
+      <p>The handle opens the block menu, a <a href="menu.html">menu</a> anchored under the handle. It offers Turn into (a submenu of the text-bearing types), Move up, Move down, Duplicate and Delete; a Callout adds <b>Change icon</b> and an Image adds <b>Edit alt text</b>. Move up is disabled on the first block and Move down on the last.</p>
+      <div class="ds-example">
+        <div class="ds-example__canvas">
+          <ul class="menu menu--static" role="menu" aria-label="Block actions" style="min-width: 16rem;">
+            <li role="none"><button class="menu__item" role="menuitem" type="button" aria-haspopup="menu" aria-expanded="false" data-state="focus">Turn into</button></li>
+            <li role="none"><button class="menu__item" role="menuitem" type="button">Change icon</button></li>
+            <li role="none"><button class="menu__item" role="menuitem" type="button" aria-keyshortcuts="Alt+Shift+ArrowUp">Move up<span class="menu__shortcut" aria-hidden="true">Alt+Shift+↑</span></button></li>
+            <li role="none"><button class="menu__item" role="menuitem" type="button" aria-keyshortcuts="Alt+Shift+ArrowDown">Move down<span class="menu__shortcut" aria-hidden="true">Alt+Shift+↓</span></button></li>
+            <li role="none"><button class="menu__item" role="menuitem" type="button">Duplicate</button></li>
+            <li role="none"><button class="menu__item menu__item--danger" role="menuitem" type="button">Delete</button></li>
+          </ul>
+          <ul class="menu menu--static" role="menu" aria-label="Block actions" style="min-width: 16rem;">
+            <li role="none"><button class="menu__item" role="menuitem" type="button">Edit alt text</button></li>
+            <li role="none"><button class="menu__item" role="menuitem" type="button" aria-keyshortcuts="Alt+Shift+ArrowUp" aria-disabled="true">Move up<span class="menu__shortcut" aria-hidden="true">Alt+Shift+↑</span></button></li>
+            <li role="none"><button class="menu__item" role="menuitem" type="button" aria-keyshortcuts="Alt+Shift+ArrowDown">Move down<span class="menu__shortcut" aria-hidden="true">Alt+Shift+↓</span></button></li>
+            <li role="none"><button class="menu__item" role="menuitem" type="button">Duplicate</button></li>
+            <li role="none"><button class="menu__item menu__item--danger" role="menuitem" type="button">Delete</button></li>
+          </ul>
+        </div>
+        <div class="ds-example__caption"><span>A Callout's menu with Turn into focused, and the first block's menu (an Image) with Move up disabled. From <code>pages/note/block-menu</code>. Turn into is not offered for Divider, Image or Link card.</span></div>
+      </div>
+
+      <h3>Dragging</h3>
+      <p>Mid-drag the source row stays as a faded dashed placeholder (<code>.block--dragging</code>), a raised preview follows the pointer (<code>.block--preview</code>, <code>--shadow-3</code>, tilted 1°) and a 2px accent line with a ring at its start marks the drop position (<code>.drop-indicator</code>). Escape or dropping outside the page cancels.</p>
+      <div class="ds-example">
+        <div class="ds-example__canvas ds-example__canvas--stack">
+          <div class="block-editor" style="padding-bottom: 0; max-width: 100%;">
+            <div class="block-editor__blocks" role="group" aria-label="Page content while dragging">
+              <div class="block block--h2"><button class="block__handle" type="button" aria-label="Move or open the menu for block 1 of 4, Heading 2" aria-haspopup="menu" aria-expanded="false"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><circle cx="9" cy="6" r="1"/><circle cx="15" cy="6" r="1"/><circle cx="9" cy="12" r="1"/><circle cx="15" cy="12" r="1"/><circle cx="9" cy="18" r="1"/><circle cx="15" cy="18" r="1"/></svg></button><div class="block__text">Before doors</div></div>
+              <div class="drop-indicator" role="presentation"></div>
+              <div class="block block--todo"><button class="block__handle" type="button" aria-label="Move or open the menu for block 2 of 4, To-do" aria-haspopup="menu" aria-expanded="false"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><circle cx="9" cy="6" r="1"/><circle cx="15" cy="6" r="1"/><circle cx="9" cy="12" r="1"/><circle cx="15" cy="12" r="1"/><circle cx="9" cy="18" r="1"/><circle cx="15" cy="18" r="1"/></svg></button><div class="todo"><span class="todo__check"><input type="checkbox" aria-label="Pick up the name badges from Hannah"></span><div class="block__text">Pick up the name badges from Hannah</div></div></div>
+              <div class="block block--todo"><button class="block__handle" type="button" aria-label="Move or open the menu for block 3 of 4, To-do" aria-haspopup="menu" aria-expanded="false"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><circle cx="9" cy="6" r="1"/><circle cx="15" cy="6" r="1"/><circle cx="9" cy="12" r="1"/><circle cx="15" cy="12" r="1"/><circle cx="9" cy="18" r="1"/><circle cx="15" cy="18" r="1"/></svg></button><div class="todo"><span class="todo__check"><input type="checkbox" aria-label="Test the projector and the mic"></span><div class="block__text">Test the projector and the mic</div></div></div>
+              <div class="block block--todo block--dragging"><button class="block__handle" type="button" aria-label="Move or open the menu for block 4 of 4, To-do" aria-haspopup="menu" aria-expanded="false" data-state="hover"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><circle cx="9" cy="6" r="1"/><circle cx="15" cy="6" r="1"/><circle cx="9" cy="12" r="1"/><circle cx="15" cy="12" r="1"/><circle cx="9" cy="18" r="1"/><circle cx="15" cy="18" r="1"/></svg></button><div class="todo"><span class="todo__check"><input type="checkbox" aria-label="Put the welcome sign by the lift"></span><div class="block__text">Put the welcome sign by the lift</div></div></div>
+            </div>
+          </div>
+        </div>
+        <div class="ds-example__caption"><span>From <code>pages/note/dragging</code>: "Put the welcome sign by the lift" is about to land first under "Before doors".</span></div>
+      </div>
+
+      <h3>Moved by keyboard</h3>
+      <p>Alt+Shift+↑ / ↓ (or Move up / Move down) moves the focused block one place, keeps focus and the caret, washes the row with <code>--color-accent-subtle</code> plus the focus ring for <code>--duration-slow</code> (<code>.block--moved</code>) and announces the move in the polite live region.</p>
+      <div class="ds-example">
+        <div class="ds-example__canvas ds-example__canvas--stack">
+          <div class="block-editor" style="padding-bottom: 0; max-width: 100%;">
+            <div class="block-editor__blocks" role="group" aria-label="Page content after a keyboard move">
+              <div class="block block--todo"><button class="block__handle" type="button" aria-label="Move or open the menu for block 3 of 12, To-do" aria-haspopup="menu" aria-expanded="false"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><circle cx="9" cy="6" r="1"/><circle cx="15" cy="6" r="1"/><circle cx="9" cy="12" r="1"/><circle cx="15" cy="12" r="1"/><circle cx="9" cy="18" r="1"/><circle cx="15" cy="18" r="1"/></svg></button><div class="todo"><span class="todo__check"><input type="checkbox" aria-label="Test the projector and the mic"></span><div class="block__text">Test the projector and the mic</div></div></div>
+              <div class="block block--todo block--moved"><button class="block__handle" type="button" aria-label="Move or open the menu for block 4 of 12, To-do" aria-haspopup="menu" aria-expanded="false"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><circle cx="9" cy="6" r="1"/><circle cx="15" cy="6" r="1"/><circle cx="9" cy="12" r="1"/><circle cx="15" cy="12" r="1"/><circle cx="9" cy="18" r="1"/><circle cx="15" cy="18" r="1"/></svg></button><div class="todo todo--done"><span class="todo__check"><input type="checkbox" checked aria-label="Pick up the name badges from Hannah"></span><div class="block__text" data-state="focus">Pick up the name badges from Hannah</div></div></div>
+            </div>
+            <p class="text-caption">Live region (polite): “Moved To-do “Pick up the name badges” to position 4 of 12”</p>
+          </div>
+        </div>
+        <div class="ds-example__caption"><span>From <code>pages/note/keyboard-move</code>. {block} is the type followed by the first words of its text, in curly quotes.</span></div>
+      </div>
+
+      <h3>Paused, conflict and empty</h3>
+      <ul>
+        <li><b>Paused</b> (<code>.block-editor--disabled</code>): after a 409 conflict or a 403, editing stops. Text boxes get <code>contenteditable="false"</code> with <code>aria-readonly="true"</code>, handles are <code>disabled</code> and the surface dims to 60%; text can still be selected and copied. The <a href="alert.html">banner</a> above it says why ("This page changed somewhere else" with <b>Reload page</b>). See <a href="../patterns/feedback-and-loading.html#autosave">Autosave and edit conflicts</a>.</li>
+        <li><b>Empty page</b>: one empty Text block whose placeholder reads "Type / for blocks, or [[ to link a page" (<code>[data-placeholder]:empty::before</code>, <code>--color-fg-subtle</code>).</li>
+        <li><b>Full</b>: at 500 blocks no block is added and the page shows "A page holds up to 500 blocks. Start a new page inside this one."</li>
+        <li><b>Selected</b> (<code>.block[data-state="selected"]</code>): the accent-subtle wash used while a block is the target of its open menu.</li>
+        <li><b>Loading</b> and <b>error</b> belong to the page: a <a href="skeleton.html">skeleton</a> region named "Loading page", or the <a href="empty-state.html">error empty state</a> "We couldn’t load this page".</li>
+      </ul>
+
+      <h3>Both themes</h3>
+      <div class="ds-themes">
+        <div data-theme="light"><div class="ds-example__canvas ds-example__canvas--stack"><div class="block-editor" style="padding-bottom: 0; max-width: 100%;"><div class="block-editor__blocks" role="group" aria-label="Light theme blocks"><div class="block block--quote" data-state="hover"><button class="block__handle" type="button" aria-label="Move or open the menu for block 1 of 3, Quote, light" aria-haspopup="menu" aria-expanded="false"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><circle cx="9" cy="6" r="1"/><circle cx="15" cy="6" r="1"/><circle cx="9" cy="12" r="1"/><circle cx="15" cy="12" r="1"/><circle cx="9" cy="18" r="1"/><circle cx="15" cy="18" r="1"/></svg></button><blockquote class="block__text">Judge the work; encourage the people.</blockquote></div><div class="block block--callout"><button class="block__handle" type="button" aria-label="Move or open the menu for block 2 of 3, Callout, light" aria-haspopup="menu" aria-expanded="false"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><circle cx="9" cy="6" r="1"/><circle cx="15" cy="6" r="1"/><circle cx="9" cy="12" r="1"/><circle cx="15" cy="12" r="1"/><circle cx="9" cy="18" r="1"/><circle cx="15" cy="18" r="1"/></svg></button><div class="callout"><span class="callout__icon" aria-hidden="true">💡</span><div class="block__text">Read the run sheet first.</div></div></div><div class="block block--code"><button class="block__handle" type="button" aria-label="Move or open the menu for block 3 of 3, Code, light" aria-haspopup="menu" aria-expanded="false"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><circle cx="9" cy="6" r="1"/><circle cx="15" cy="6" r="1"/><circle cx="9" cy="12" r="1"/><circle cx="15" cy="12" r="1"/><circle cx="9" cy="18" r="1"/><circle cx="15" cy="18" r="1"/></svg></button><pre class="code-block"><code class="block__text">Doors 6:00 pm</code></pre></div></div><p class="block__text">See <a class="page-link" href="../../mocks/pages/note/nested.html"><span class="page-link__icon" aria-hidden="true">🛠️</span>Builders Night run sheet</a> or <span class="page-link page-link--private"><svg class="icon icon--sm" aria-hidden="true" viewBox="0 0 24 24"><rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>Private page</span>.</p></div></div></div>
+        <div data-theme="dark"><div class="ds-example__canvas ds-example__canvas--stack"><div class="block-editor" style="padding-bottom: 0; max-width: 100%;"><div class="block-editor__blocks" role="group" aria-label="Dark theme blocks"><div class="block block--quote" data-state="hover"><button class="block__handle" type="button" aria-label="Move or open the menu for block 1 of 3, Quote, dark" aria-haspopup="menu" aria-expanded="false"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><circle cx="9" cy="6" r="1"/><circle cx="15" cy="6" r="1"/><circle cx="9" cy="12" r="1"/><circle cx="15" cy="12" r="1"/><circle cx="9" cy="18" r="1"/><circle cx="15" cy="18" r="1"/></svg></button><blockquote class="block__text">Judge the work; encourage the people.</blockquote></div><div class="block block--callout"><button class="block__handle" type="button" aria-label="Move or open the menu for block 2 of 3, Callout, dark" aria-haspopup="menu" aria-expanded="false"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><circle cx="9" cy="6" r="1"/><circle cx="15" cy="6" r="1"/><circle cx="9" cy="12" r="1"/><circle cx="15" cy="12" r="1"/><circle cx="9" cy="18" r="1"/><circle cx="15" cy="18" r="1"/></svg></button><div class="callout"><span class="callout__icon" aria-hidden="true">💡</span><div class="block__text">Read the run sheet first.</div></div></div><div class="block block--code"><button class="block__handle" type="button" aria-label="Move or open the menu for block 3 of 3, Code, dark" aria-haspopup="menu" aria-expanded="false"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><circle cx="9" cy="6" r="1"/><circle cx="15" cy="6" r="1"/><circle cx="9" cy="12" r="1"/><circle cx="15" cy="12" r="1"/><circle cx="9" cy="18" r="1"/><circle cx="15" cy="18" r="1"/></svg></button><pre class="code-block"><code class="block__text">Doors 6:00 pm</code></pre></div></div><p class="block__text">See <a class="page-link" href="../../mocks/pages/note/nested.html"><span class="page-link__icon" aria-hidden="true">🛠️</span>Builders Night run sheet</a> or <span class="page-link page-link--private"><svg class="icon icon--sm" aria-hidden="true" viewBox="0 0 24 24"><rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>Private page</span>.</p></div></div></div>
+      </div>
+    </section>
+
+    <section class="ds-section" id="responsive"><h2><a href="#responsive">Responsive behaviour</a></h2>
+      <ul>
+        <li>One column at every width; the editor is centred at <code>--layout-measure</code> and shrinks with the container below it, keeping the 16px page gutter at 360px.</li>
+        <li>On touch screens (<code>@media (hover: none)</code>) handles are always visible and 32px; on a pointer they show on hover and focus.</li>
+        <li>Nothing scrolls horizontally except a long line in a Code block, which scrolls inside <code>.code-block</code>. Images, link cards (the URL ellipsises) and page links (<code>overflow-wrap: anywhere</code>) never widen the page.</li>
+        <li>Below 640px the block menu and slash menu span the editor's width; the formatting toolbar stays inside the viewport (L2-099 AC11).</li>
+        <li>At XS the page's actions collapse into "More actions"; that is page composition, not part of the editor.</li>
+      </ul>
+    </section>
+
+    <section class="ds-section" id="theming"><h2><a href="#theming">Theming</a></h2>
+      <p>Everything reads role tokens: text <code>--color-fg-default</code>, quote and meta <code>--color-fg-muted</code>, placeholders and the handle icon <code>--color-fg-subtle</code>, callouts <code>--color-bg-subtle</code>, code <code>--color-bg-surface-sunken</code>, page links <code>--color-accent-subtle</code> with <code>--color-fg-accent</code>, the drop indicator <code>--color-accent</code>. In dark the sunken code well and subtle callout read against the dark page without a shadow; the drag preview uses <code>--color-bg-surface-raised</code>, lighter than the page. Under <code>forced-colors</code> callouts, code, link cards and page links get a <code>CanvasText</code> border and the drop indicator uses <code>Highlight</code>.</p>
+    </section>
+
+    <section class="ds-section" id="accessibility"><h2><a href="#accessibility">Accessibility</a></h2>
+      <h3>Role and pattern</h3>
+      <p>The block list is <code>role="group"</code> named "Page content" (L2-099 AC2). Each editable block is <code>role="textbox"</code> with <code>aria-multiline="true"</code>, named by its type ("Text", "Heading 2", "To-do"); the title is a single-line textbox named "Page title". Each handle is a native <code>&lt;button&gt;</code> following the APG <b>Menu Button</b> pattern (<code>aria-haspopup="menu"</code>, <code>aria-expanded</code>) and the block menu is a CDK Menu. The slash menu and page-link suggestions are combobox listboxes (<a href="slash-menu.html">slash menu</a>); the formatting toolbar is an APG <b>Toolbar</b> (<a href="format-toolbar.html">formatting toolbar</a>).</p>
+      <h3>Keyboard</h3>
+      <table class="ds-table ds-keys"><thead><tr><th scope="col">Key</th><th scope="col">Where</th><th scope="col">Action</th></tr></thead><tbody>
+        <tr><td><kbd>Tab</kbd> / <kbd>Shift</kbd>+<kbd>Tab</kbd></td><td>Anywhere</td><td>Moves between the icon, the title, each block's handle and text box (and a To-do's checkbox), then the sections below. Tab never inserts a tab character, including in Code.</td></tr>
+        <tr><td><kbd>Enter</kbd></td><td>Title</td><td>Moves to the first block.</td></tr>
+        <tr><td><kbd>Enter</kbd></td><td>Caret at the end of a block</td><td>Inserts and focuses a new Text block, or the same type for lists and To-do; in an empty list or To-do item turns it into Text.</td></tr>
+        <tr><td><kbd>Enter</kbd></td><td>Caret inside a block</td><td>Splits the block at the caret; the rest moves to a new block of the same type with the caret at its start.</td></tr>
+        <tr><td><kbd>Shift</kbd>+<kbd>Enter</kbd></td><td>Text block</td><td>Line break inside the block. In Code, Enter itself is a line break.</td></tr>
+        <tr><td><kbd>Backspace</kbd></td><td>Start of an empty block</td><td>Deletes the block; the caret goes to the end of the previous block (or the start of the next).</td></tr>
+        <tr><td><kbd>Alt</kbd>+<kbd>Shift</kbd>+<kbd>↑</kbd> / <kbd>↓</kbd></td><td>Focus or caret in a block</td><td>Moves the block one place, keeps focus and the caret, and announces "Moved {block} to position {n} of {total}". Nothing moves at the ends.</td></tr>
+        <tr><td><kbd>Enter</kbd>, <kbd>Space</kbd></td><td>Handle</td><td>Opens the block menu with focus on its first item.</td></tr>
+        <tr><td><kbd>↑</kbd> / <kbd>↓</kbd>, <kbd>Enter</kbd>, <kbd>→</kbd></td><td>Block menu</td><td>Moves between items, chooses one, opens Turn into.</td></tr>
+        <tr><td><kbd>Esc</kbd></td><td>Block menu</td><td>Closes it and returns focus to the handle.</td></tr>
+        <tr><td><kbd>Space</kbd></td><td>To-do checkbox</td><td>Toggles <code>checked</code>; saved by autosave.</td></tr>
+        <tr><td><kbd>/</kbd>, <kbd>[</kbd><kbd>[</kbd></td><td>Text block</td><td>Opens the slash menu or the page-link suggestions (<a href="slash-menu.html">slash menu</a>).</td></tr>
+        <tr><td><kbd>Ctrl</kbd>/<kbd>⌘</kbd>+<kbd>B</kbd>, <kbd>I</kbd>, <kbd>U</kbd>, <kbd>E</kbd>, <kbd>K</kbd>, <kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>S</kbd>, <kbd>Alt</kbd>+<kbd>F10</kbd></td><td>Selection</td><td>Formatting (<a href="format-toolbar.html">formatting toolbar</a>).</td></tr>
+        <tr><td><kbd>Esc</kbd></td><td>During a drag</td><td>Cancels; nothing moves.</td></tr>
+      </tbody></table>
+      <h3>Dragging Movements (WCAG 2.5.7)</h3>
+      <p>Every drag has a single-pointer alternative: the handle is clickable, and Move up / Move down in the block menu reach every position one click at a time; Alt+Shift+↑ / ↓ is the keyboard path. The drop indicator is never the only feedback: the move is announced.</p>
+      <h3>Focus</h3>
+      <p>Focus is never lost to the top of the page: after insert, split, delete, duplicate, Turn into or a move, it lands as the keyboard table says (L2-099 AC5). A focused text box shows the 2px focus ring flush with its box; a handle shows the ring around the button. <b>Focus Not Obscured (2.4.11):</b> the editor scrolls the caret's block into view with <code>scroll-margin</code> clearing the sticky top bar, the phone tab bar, a banner and the formatting toolbar, so the focused block is never hidden behind them.</p>
+      <h3>Labelling and announcements</h3>
+      <p>Handles are labelled "Move or open the menu for block {n} of {total}, {type}" (L2-089 AC1), updated as blocks move. A To-do's checkbox is named by its text. Callout emoji, page-link icons and the handle grip are <code>aria-hidden</code>. Hyperlinks to <code>https://</code> end with a visually hidden "(opens in a new tab)". The live region <code>.block-editor__live</code> (<code>role="status"</code>, polite) carries move announcements; the <a href="save-status.html">save status</a> carries its own.</p>
+      <h3>Contrast</h3>
+      <div class="ds-themes">
+        <div data-theme="light"><div class="ds-example__canvas ds-example__canvas--stack" style="padding: 0; gap: var(--space-2);"><div class="ds-pair"><span>Block text</span><span class="ds-pair__ratio" data-contrast="--color-fg-default|--color-bg-surface" data-min="4.5"></span></div><div class="ds-pair"><span>Placeholder “Untitled”, empty-block hint</span><span class="ds-pair__ratio" data-contrast="--color-fg-subtle|--color-bg-surface" data-min="4.5"></span></div><div class="ds-pair"><span>Handle icon on a hovered row</span><span class="ds-pair__ratio" data-contrast="--color-fg-subtle|--color-bg-subtle" data-min="3"></span></div><div class="ds-pair"><span>Quote and meta</span><span class="ds-pair__ratio" data-contrast="--color-fg-muted|--color-bg-surface" data-min="4.5"></span></div><div class="ds-pair"><span>Callout text</span><span class="ds-pair__ratio" data-contrast="--color-fg-default|--color-bg-subtle" data-min="4.5"></span></div><div class="ds-pair"><span>Code text</span><span class="ds-pair__ratio" data-contrast="--color-fg-default|--color-bg-surface-sunken" data-min="4.5"></span></div><div class="ds-pair"><span>Page link</span><span class="ds-pair__ratio" data-contrast="--color-fg-accent|--color-accent-subtle" data-min="4.5"></span></div><div class="ds-pair"><span>Private page chip</span><span class="ds-pair__ratio" data-contrast="--color-fg-muted|--color-bg-subtle" data-min="4.5"></span></div><div class="ds-pair"><span>Hyperlink</span><span class="ds-pair__ratio" data-contrast="--color-fg-link|--color-bg-surface" data-min="4.5"></span></div><div class="ds-pair"><span>To-do box edge</span><span class="ds-pair__ratio" data-contrast="--color-border-strong|--color-bg-surface" data-min="3"></span></div><div class="ds-pair"><span>Drop indicator</span><span class="ds-pair__ratio" data-contrast="--color-accent|--color-bg-surface" data-min="3"></span></div><div class="ds-pair"><span>Focus ring</span><span class="ds-pair__ratio" data-contrast="--color-focus-ring|--color-bg-surface" data-min="3"></span></div></div></div>
+        <div data-theme="dark"><div class="ds-example__canvas ds-example__canvas--stack" style="padding: 0; gap: var(--space-2);"><div class="ds-pair"><span>Block text</span><span class="ds-pair__ratio" data-contrast="--color-fg-default|--color-bg-surface" data-min="4.5"></span></div><div class="ds-pair"><span>Placeholder “Untitled”, empty-block hint</span><span class="ds-pair__ratio" data-contrast="--color-fg-subtle|--color-bg-surface" data-min="4.5"></span></div><div class="ds-pair"><span>Handle icon on a hovered row</span><span class="ds-pair__ratio" data-contrast="--color-fg-subtle|--color-bg-subtle" data-min="3"></span></div><div class="ds-pair"><span>Quote and meta</span><span class="ds-pair__ratio" data-contrast="--color-fg-muted|--color-bg-surface" data-min="4.5"></span></div><div class="ds-pair"><span>Callout text</span><span class="ds-pair__ratio" data-contrast="--color-fg-default|--color-bg-subtle" data-min="4.5"></span></div><div class="ds-pair"><span>Code text</span><span class="ds-pair__ratio" data-contrast="--color-fg-default|--color-bg-surface-sunken" data-min="4.5"></span></div><div class="ds-pair"><span>Page link</span><span class="ds-pair__ratio" data-contrast="--color-fg-accent|--color-accent-subtle" data-min="4.5"></span></div><div class="ds-pair"><span>Private page chip</span><span class="ds-pair__ratio" data-contrast="--color-fg-muted|--color-bg-subtle" data-min="4.5"></span></div><div class="ds-pair"><span>Hyperlink</span><span class="ds-pair__ratio" data-contrast="--color-fg-link|--color-bg-surface" data-min="4.5"></span></div><div class="ds-pair"><span>To-do box edge</span><span class="ds-pair__ratio" data-contrast="--color-border-strong|--color-bg-surface" data-min="3"></span></div><div class="ds-pair"><span>Drop indicator</span><span class="ds-pair__ratio" data-contrast="--color-accent|--color-bg-surface" data-min="3"></span></div><div class="ds-pair"><span>Focus ring</span><span class="ds-pair__ratio" data-contrast="--color-focus-ring|--color-bg-surface" data-min="3"></span></div></div></div>
+      </div>
+      <h3>Motion</h3>
+      <p>Handles fade in over <code>--duration-fast</code>; a keyboard move flashes the row over <code>--duration-slow</code>. Under <code>prefers-reduced-motion</code> the move wash does not animate and CDK drag-drop's sort animation is turned off, so blocks jump into place (L2-099 AC12).</p>
+      <h3>Touch</h3>
+      <p>Handles are 32px and always visible on touch; To-do checkboxes sit in a 24px-minimum target; block menu items are 36px. Long-press on a handle starts a drag; a tap opens the menu.</p>
+    </section>
+
+    <section class="ds-section" id="content"><h2><a href="#content">Content</a></h2>
+      <ul>
+        <li>Empty title shows as "Untitled" everywhere the page is named; never "New page" or "Untitled page".</li>
+        <li>The empty-block hint is exactly "Type / for blocks, or [[ to link a page".</li>
+        <li>Block type names are the ones the slash menu uses: Text, Heading 1, Heading 2, Heading 3, Bulleted list, Numbered list, To-do, Quote, Callout, Code, Divider, Image, Link card.</li>
+        <li>Move announcements: "Moved {type} “{first words}” to position {n} of {total}", for example "Moved Heading 2 “Run sheet” to position 3 of 12".</li>
+        <li>A page link to a page the viewer can't open reads "Private page", never the title or "Hidden".</li>
+        <li>Image alt text describes the image ("Two builders pairing at a whiteboard…"), not "Image of…" and never the file name.</li>
+      </ul>
+    </section>
+
+    <section class="ds-section" id="do-dont"><h2><a href="#do-dont">Do and don't</a></h2>
+      <div class="ds-dodont">
+        <figure class="ds-do"><div class="ds-example__canvas"><div class="block-editor" style="padding-bottom: 0; max-width: 100%;"><div class="block block--todo" data-state="hover"><button class="block__handle" type="button" aria-label="Move or open the menu for block 4 of 12, To-do" aria-haspopup="menu" aria-expanded="false"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><circle cx="9" cy="6" r="1"/><circle cx="15" cy="6" r="1"/><circle cx="9" cy="12" r="1"/><circle cx="15" cy="12" r="1"/><circle cx="9" cy="18" r="1"/><circle cx="15" cy="18" r="1"/></svg></button><div class="todo"><span class="todo__check"><input type="checkbox" aria-label="Order food for 40"></span><div class="block__text">Order food for 40</div></div></div></div></div><figcaption>Name the handle by position and type: "Move or open the menu for block 4 of 12, To-do".</figcaption></figure>
+        <figure class="ds-dont"><div class="ds-example__canvas"><div class="block-editor" style="padding-bottom: 0; max-width: 100%;"><div class="block block--todo" data-state="hover"><button class="block__handle" type="button" aria-label="Move or open menu for To-do block" aria-haspopup="menu" aria-expanded="false"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><circle cx="9" cy="6" r="1"/><circle cx="15" cy="6" r="1"/><circle cx="9" cy="12" r="1"/><circle cx="15" cy="12" r="1"/><circle cx="9" cy="18" r="1"/><circle cx="15" cy="18" r="1"/></svg></button><div class="todo"><span class="todo__check"><input type="checkbox" aria-label="Order food for 40, bad example"></span><div class="block__text">Order food for 40</div></div></div></div></div><figcaption>"Move or open menu for To-do block" on every To-do: a screen-reader user can't tell twelve handles apart (the first mocks' label).</figcaption></figure>
+        <figure class="ds-do"><div class="ds-example__canvas"><ul class="menu menu--static" role="menu" aria-label="Block actions, good example" style="min-width: 14rem;"><li role="none"><button class="menu__item" role="menuitem" type="button">Move up<kbd class="menu__shortcut">Alt+Shift+↑</kbd></button></li><li role="none"><button class="menu__item" role="menuitem" type="button">Move down<kbd class="menu__shortcut">Alt+Shift+↓</kbd></button></li></ul></div><figcaption>Offer Move up and Move down in the menu, with the shortcut beside them, so a drag is never required.</figcaption></figure>
+        <figure class="ds-dont"><div class="ds-example__canvas"><div class="block-editor" style="padding-bottom: 0; max-width: 100%;"><div class="block block--paragraph"><span class="block__handle" aria-hidden="true" style="opacity: 1;"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><circle cx="9" cy="6" r="1"/><circle cx="15" cy="6" r="1"/><circle cx="9" cy="12" r="1"/><circle cx="15" cy="12" r="1"/><circle cx="9" cy="18" r="1"/><circle cx="15" cy="18" r="1"/></svg></span><div class="block__text">Drag me</div></div></div></div><figcaption>A grip that only drags (a <code>&lt;span&gt;</code>, no menu): fails WCAG 2.5.7 and keyboard users.</figcaption></figure>
+        <figure class="ds-do"><div class="ds-example__canvas"><p class="block__text">See <span class="page-link page-link--private"><svg class="icon icon--sm" aria-hidden="true" viewBox="0 0 24 24"><rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>Private page</span> for the safeguarding steps.</p></div><figcaption>Show "Private page" for a target the viewer can't open.</figcaption></figure>
+        <figure class="ds-dont"><div class="ds-example__canvas"><p class="block__text">See <a class="page-link" href="../../mocks/pages/note/not-found.html">Safeguarding incidents 2026</a> for the steps.</p></div><figcaption>The target's real title in a link the viewer can't follow: it leaks the title (L2-090 AC3).</figcaption></figure>
+      </div>
+    </section>
+
+    <section class="ds-section" id="tokens"><h2><a href="#tokens">Tokens</a></h2>
+      <div class="ds-table-wrap"><table class="ds-table">
+        <thead><tr><th scope="col">Part</th><th scope="col">Token</th><th scope="col">Light</th><th scope="col">Dark</th></tr></thead>
+        <tbody>
+          <tr><td>Block text</td><td><code>--color-fg-default</code></td><td><span class="ds-swatch-cell" data-theme="light"><i data-token="--color-fg-default" data-swatch></i><span data-token="--color-fg-default"></span></span></td><td><span class="ds-swatch-cell" data-theme="dark"><i data-token="--color-fg-default" data-swatch></i><span data-token="--color-fg-default"></span></span></td></tr>
+          <tr><td>Placeholder, handle icon</td><td><code>--color-fg-subtle</code></td><td><span class="ds-swatch-cell" data-theme="light"><i data-token="--color-fg-subtle" data-swatch></i><span data-token="--color-fg-subtle"></span></span></td><td><span class="ds-swatch-cell" data-theme="dark"><i data-token="--color-fg-subtle" data-swatch></i><span data-token="--color-fg-subtle"></span></span></td></tr>
+          <tr><td>Quote text, meta, numbers</td><td><code>--color-fg-muted</code></td><td><span class="ds-swatch-cell" data-theme="light"><i data-token="--color-fg-muted" data-swatch></i><span data-token="--color-fg-muted"></span></span></td><td><span class="ds-swatch-cell" data-theme="dark"><i data-token="--color-fg-muted" data-swatch></i><span data-token="--color-fg-muted"></span></span></td></tr>
+          <tr><td>Handle hover, callout, inline code, private chip</td><td><code>--color-bg-subtle</code></td><td><span class="ds-swatch-cell" data-theme="light"><i data-token="--color-bg-subtle" data-swatch></i><span data-token="--color-bg-subtle"></span></span></td><td><span class="ds-swatch-cell" data-theme="dark"><i data-token="--color-bg-subtle" data-swatch></i><span data-token="--color-bg-subtle"></span></span></td></tr>
+          <tr><td>Code well</td><td><code>--color-bg-surface-sunken</code></td><td><span class="ds-swatch-cell" data-theme="light"><i data-token="--color-bg-surface-sunken" data-swatch></i><span data-token="--color-bg-surface-sunken"></span></span></td><td><span class="ds-swatch-cell" data-theme="dark"><i data-token="--color-bg-surface-sunken" data-swatch></i><span data-token="--color-bg-surface-sunken"></span></span></td></tr>
+          <tr><td>Quote rule, divider, to-do edge</td><td><code>--color-border-strong</code></td><td><span class="ds-swatch-cell" data-theme="light"><i data-token="--color-border-strong" data-swatch></i><span data-token="--color-border-strong"></span></span></td><td><span class="ds-swatch-cell" data-theme="dark"><i data-token="--color-border-strong" data-swatch></i><span data-token="--color-border-strong"></span></span></td></tr>
+          <tr><td>Callout, code, image, link card border</td><td><code>--color-border-default</code></td><td><span class="ds-swatch-cell" data-theme="light"><i data-token="--color-border-default" data-swatch></i><span data-token="--color-border-default"></span></span></td><td><span class="ds-swatch-cell" data-theme="dark"><i data-token="--color-border-default" data-swatch></i><span data-token="--color-border-default"></span></span></td></tr>
+          <tr><td>Page link, moved and selected wash</td><td><code>--color-accent-subtle</code></td><td><span class="ds-swatch-cell" data-theme="light"><i data-token="--color-accent-subtle" data-swatch></i><span data-token="--color-accent-subtle"></span></span></td><td><span class="ds-swatch-cell" data-theme="dark"><i data-token="--color-accent-subtle" data-swatch></i><span data-token="--color-accent-subtle"></span></span></td></tr>
+          <tr><td>Page link text</td><td><code>--color-fg-accent</code></td><td><span class="ds-swatch-cell" data-theme="light"><i data-token="--color-fg-accent" data-swatch></i><span data-token="--color-fg-accent"></span></span></td><td><span class="ds-swatch-cell" data-theme="dark"><i data-token="--color-fg-accent" data-swatch></i><span data-token="--color-fg-accent"></span></span></td></tr>
+          <tr><td>Drop indicator, checked to-do</td><td><code>--color-accent</code></td><td><span class="ds-swatch-cell" data-theme="light"><i data-token="--color-accent" data-swatch></i><span data-token="--color-accent"></span></span></td><td><span class="ds-swatch-cell" data-theme="dark"><i data-token="--color-accent" data-swatch></i><span data-token="--color-accent"></span></span></td></tr>
+          <tr><td>Hyperlink</td><td><code>--color-fg-link</code></td><td><span class="ds-swatch-cell" data-theme="light"><i data-token="--color-fg-link" data-swatch></i><span data-token="--color-fg-link"></span></span></td><td><span class="ds-swatch-cell" data-theme="dark"><i data-token="--color-fg-link" data-swatch></i><span data-token="--color-fg-link"></span></span></td></tr>
+          <tr><td>Drag preview</td><td><code>--color-bg-surface-raised</code></td><td><span class="ds-swatch-cell" data-theme="light"><i data-token="--color-bg-surface-raised" data-swatch></i><span data-token="--color-bg-surface-raised"></span></span></td><td><span class="ds-swatch-cell" data-theme="dark"><i data-token="--color-bg-surface-raised" data-swatch></i><span data-token="--color-bg-surface-raised"></span></span></td></tr>
+          <tr><td>Reading width</td><td><code>--layout-measure</code></td><td><span data-token="--layout-measure"></span></td><td><span data-theme="dark" data-token="--layout-measure"></span></td></tr>
+          <tr><td>Handle size</td><td><code>--target-min</code></td><td><span data-token="--target-min"></span></td><td><span data-theme="dark" data-token="--target-min"></span></td></tr>
+          <tr><td>Handle size on touch</td><td><code>--target-comfortable</code></td><td><span data-token="--target-comfortable"></span></td><td><span data-theme="dark" data-token="--target-comfortable"></span></td></tr>
+          <tr><td>Title type</td><td><code>--text-h1</code></td><td><span data-token="--text-h1"></span></td><td><span data-theme="dark" data-token="--text-h1"></span></td></tr>
+          <tr><td>Code type</td><td><code>--text-code</code></td><td><span data-token="--text-code"></span></td><td><span data-theme="dark" data-token="--text-code"></span></td></tr>
+          <tr><td>Drag preview shadow</td><td><code>--shadow-3</code></td><td><span data-token="--shadow-3"></span></td><td><span data-theme="dark" data-token="--shadow-3"></span></td></tr>
+          <tr><td>Handle fade</td><td><code>--duration-fast</code></td><td><span data-token="--duration-fast"></span></td><td><span data-theme="dark" data-token="--duration-fast"></span></td></tr>
+          <tr><td>Move wash</td><td><code>--duration-slow</code></td><td><span data-token="--duration-slow"></span></td><td><span data-theme="dark" data-token="--duration-slow"></span></td></tr>
+        </tbody>
+      </table></div>
+    </section>
+
+    <section class="ds-section" id="code"><h2><a href="#code">Code</a></h2>
+      <pre><code>&lt;!-- Angular: the notes page (composition in the notes library) --&gt;
+&lt;ft-page-title
+  [value]="title()" [readonly]="!editable() || !!stop()"
+  (valueChange)="onTitle($event)" (submitted)="toFirstBlock()" /&gt;
+&lt;ft-block-editor
+  [blocks]="editorBlocks()"                 &lt;!-- readonly EditorBlock[]; the editor edits a copy --&gt;
+  [readonly]="!editable() || !!stop()"      &lt;!-- read view: h2-h4, real ul/ol, blockquote, no handles --&gt;
+  [pageLink]="pageLink"                     &lt;!-- PageLinkResolver: span -&gt; { text, icon, href } or "Private page" --&gt;
+  [pageSearch]="pageSearch"                 &lt;!-- (q) =&gt; Promise&lt;PageLinkItem[]&gt;, for "[[" --&gt;
+  [imageSrc]="imageSrc"                     &lt;!-- (imageId) =&gt; Promise&lt;url&gt;, fetched with the member's token --&gt;
+  (blocksChange)="onBlocks($event)"         &lt;!-- EditorBlock[] on every change; the page autosaves --&gt;
+  (refused)="refused($event)"               &lt;!-- e.g. "A page holds up to 500 blocks. Start a new page inside this one." --&gt;
+  (blockRequested)="request($event)"        &lt;!-- { type: 'link' | 'image', index, replace }: open the dialog --&gt;
+  (linkRequested)="link($event)"            &lt;!-- { index, start, end, href }: open Add a link / Edit link --&gt;
+  (blockEditRequested)="editBlock($event)"  &lt;!-- { index, block }: Change icon (callout) or Edit alt text (image) --&gt;
+/&gt;
+
+// Methods the page calls back with: focusFirst(), place(request, block),
+// update(index, block), applyLink(request, href | null)</code></pre>
+      <p>The library owns the editing model (<code>EditorBlock</code>, <code>EditorSpan</code>, <code>BLOCK_TYPES</code> and the span helpers in <code>block-editor/editor-model.ts</code>) and knows no API. The <code>notes</code> library maps the page in, answers the editor's requests for a dialog (Add an image, Add a link card, Add a link, Edit alt text, Change icon) and for page-link suggestions, and runs autosave. The component's own API docs are the reference for the exact types.</p>
+      <table class="ds-table"><thead><tr><th scope="col">Built behaviour</th><th scope="col">How</th></tr></thead><tbody>
+        <tr><td>Text boxes</td><td>One stable <code>contenteditable</code> per text block: <code>role="textbox"</code>, <code>aria-multiline="true"</code>, named by its type ("Text", "Heading 1", "Bulleted list", "To-do", "Quote", "Callout", "Code"). Rich text is built from text nodes (no <code>innerHTML</code>) and read back to spans.</td></tr>
+        <tr><td>Empty-block hint</td><td>"Type / for blocks, or [[ to link a page" on the only empty block, as <code>aria-placeholder</code> and <code>data-placeholder</code>.</td></tr>
+        <tr><td>Handle</td><td>A button labelled "Move or open the menu for block {n} of {total}, {type}": CDK drag handle and CDK menu trigger; the CDK placeholder is the drop indicator line.</td></tr>
+        <tr><td>Block menu</td><td>CDK menu "Block actions" of <code>ft-menu-item</code>s: Turn into (submenu "Turn into"; Enter or → opens it), Change icon (callout), Edit alt text (image), Move up / Move down (<code>shortcut</code> Alt+Shift+↑/↓, disabled at the ends), Duplicate, Delete (<code>danger</code>).</td></tr>
+        <tr><td>Keyboard</td><td>Enter splits, continues lists and to-dos, and turns an empty list item into Text; Shift+Enter (and Enter in Code) inserts a line break; Backspace at the start deletes an empty block or joins with the previous one; arrows at the edges move between blocks; Alt+Shift+↑/↓ in a text box or on a handle moves the block. Markdown: <code>#&nbsp;</code>, <code>##&nbsp;</code>, <code>###&nbsp;</code>, <code>-&nbsp;</code>, <code>*&nbsp;</code>, <code>1.&nbsp;</code>, <code>[]&nbsp;</code>, <code>&gt;&nbsp;</code>, <code>```</code>, <code>---</code>.</td></tr>
+        <tr><td>Moves</td><td>A polite live region reads "Moved {type} “{first four words}” to position {n} of {total}", for example "Moved To-do “Pick up the name” to position 4 of 12".</td></tr>
+        <tr><td>Popups</td><td>"/" opens <a href="slash-menu.html"><code>ft-slash-menu</code></a> "Insert a block"; "[[" opens it as "Link to a page". Selecting text opens <a href="format-toolbar.html"><code>ft-format-toolbar</code></a>. The text box carries <code>aria-controls</code> and <code>aria-activedescendant</code> while a list is open.</td></tr>
+        <tr><td>Read view</td><td>Headings h2–h4, real <code>ul</code>/<code>ol</code>, <code>blockquote</code>, a focusable <code>pre</code> named "Code", a disabled checkbox named by its text, link cards named "{caption or host} (opens in a new tab)" with the host hidden from the name, images with their alt text.</td></tr>
+      </tbody></table>
+      <p>Known limitation: with a mouse, the CDK opens the "Turn into" submenu on hover, and a click then toggles it closed; Enter and → open it reliably.</p>
+      <table class="ds-table"><thead><tr><th scope="col">Class / attribute</th><th scope="col">Effect</th></tr></thead><tbody>
+        <tr><td><code>.block-editor</code></td><td>The surface: centred column of measure + handle width; sets <code>--block-handle-size</code>.</td></tr>
+        <tr><td><code>.block-editor--readonly</code></td><td>Drops the handle column and indents.</td></tr>
+        <tr><td><code>.block-editor--disabled</code></td><td>Not used by the build: after a 409 or 403 the page renders the read view (<code>[readonly]</code>) under the conflict or access banner.</td></tr>
+        <tr><td><code>.block-editor__head</code>, <code>__icon</code>, <code>__title</code></td><td>Icon and title (<code>ft-page-title</code>). <code>__meta</code> is kept in the CSS but the built page shows no meta line.</td></tr>
+        <tr><td><code>.block-editor__blocks</code></td><td>The "Page content" group; resets the list counter.</td></tr>
+        <tr><td><code>.block-editor__live</code></td><td>Visually hidden polite live region for moves.</td></tr>
+        <tr><td><code>.block-editor__section</code></td><td>A section under the blocks (<a href="page-links.html">page links</a>), aligned with the text column.</td></tr>
+        <tr><td><code>.block</code>, <code>.block--{paragraph|h1|h2|h3|bulleted|numbered|todo|quote|callout|code|divider|image|link}</code></td><td>Block row and its type.</td></tr>
+        <tr><td><code>.block-group</code> on <code>&lt;ul&gt;</code> / <code>&lt;ol&gt;</code></td><td>Groups consecutive list blocks.</td></tr>
+        <tr><td><code>.block__handle</code>, <code>.block__text</code>, <code>.block__menu</code></td><td>Handle button, editable region, block menu position.</td></tr>
+        <tr><td><code>.block--dragging</code>, <code>.block--preview</code>, <code>.drop-indicator</code></td><td>Drag placeholder, preview and drop line.</td></tr>
+        <tr><td><code>.block--moved</code>, <code>[data-state="selected"]</code></td><td>Keyboard-move wash; menu target.</td></tr>
+        <tr><td><code>.todo</code>, <code>.todo--done</code>, <code>.todo__check</code></td><td>To-do layout and done state.</td></tr>
+        <tr><td><code>.callout</code>, <code>.callout__icon</code></td><td>Callout box and emoji.</td></tr>
+        <tr><td><code>.code-block</code></td><td>Monospace well that scrolls sideways.</td></tr>
+        <tr><td><code>.block__divider</code>, <code>.image-block</code>, <code>.image-block__caption</code></td><td>Divider and image.</td></tr>
+        <tr><td><code>.link-card</code>, <code>__icon</code>, <code>__body</code>, <code>__title</code>, <code>__url</code></td><td>Link card.</td></tr>
+        <tr><td><code>.page-link</code>, <code>.page-link__icon</code>, <code>.page-link--private</code></td><td>Inline page link and the "Private page" chip.</td></tr>
+        <tr><td><code>[contenteditable][data-placeholder]</code></td><td>Shows the placeholder while the region is empty.</td></tr>
+      </tbody></table>
+      <h3>Icon picker</h3>
+      <p>The page icon (Page settings, with "No icon") and a callout's icon (Change icon, without "No icon") use <a href="emoji-picker.html"><code>ft-emoji-picker</code></a>.</p>
+    </section>
+
+    <section class="ds-section" id="sources"><h2><a href="#sources">Sources</a></h2>
+      <ul>
+        <li><a href="../../mocks/pages/note/default.html">pages/note/default</a> (every block type, inline formatting, page links), <a href="../../mocks/pages/note/new.html">new</a>, <a href="../../mocks/pages/note/block-menu.html">block-menu</a>, <a href="../../mocks/pages/note/dragging.html">dragging</a>, <a href="../../mocks/pages/note/keyboard-move.html">keyboard-move</a>, <a href="../../mocks/pages/note/conflict.html">conflict</a>, <a href="../../mocks/pages/note/read-only.html">read-only</a>, <a href="../../mocks/pages/note/backlinks.html">backlinks</a>.</li>
+        <li>Requirements L2-086 to L2-091, L2-097 and L2-099; ADR 0023 (storage and ordering) and ADR 0024 (editor on contenteditable with Angular CDK).</li>
+        <li>CSS: the "Notes: block editor" rules at the end of <code>assets/components.css</code>.</li>
+      </ul>
+      <p>Drift resolved in favour of the requirements and the build, and since fixed in the mocks: handles read "Move or open menu for {type} block" (now "Move or open the menu for block {n} of {total}, {type}"); text boxes were named "{type} block" (now the type alone); the empty-block hint lacked "or"; the keyboard-move announcement lacked the block's first words; the image caption's "Edit alt text" opened the add-image dialog (it is now a block-menu item opening its own <a href="../../mocks/dialogs/edit-alt-text/default.html">Edit alt text</a> dialog); headings in the editor are text boxes, not <code>h2</code>–<code>h4</code>; the page shows no meta line and no "Add an icon" button.</p>
+    </section>
+
+    <footer class="ds-footer"><span>FaithTech Community design system · extracted from <a href="../../mocks/index.html">docs/mocks</a> on 2026-10-22</span><a href="#top">Back to top</a></footer>
+  </main>
+</div>
+<script src="../assets/ds.js"></script>
+</body>
+</html>

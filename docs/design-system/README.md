@@ -45,6 +45,7 @@ The mocks were styled with the Shelfie design system unchanged plus FaithTech ad
 | [Person picker](components/person-picker.html) | Combobox of members with chips; single or multiple. |
 | [Type icon](components/type-icon.html) | Resource type icons, image thumbnail tile, file preview. |
 | [Estimate card picker](components/sticker-picker.html) | Planning poker vote cards. |
+| [Emoji picker](components/emoji-picker.html) | Page and callout icon (`ft-emoji-picker`): a radio group of 16 named emoji, with an optional "No icon". |
 | [Top bar](components/top-bar.html) | App header with nav, search, bell and avatar. |
 | [Tab bar](components/tab-bar.html) | Phone navigation. |
 | [Tabs](components/tabs.html) | Section tabs and in-page tab panels. |
@@ -66,6 +67,11 @@ The mocks were styled with the Shelfie design system unchanged plus FaithTech ad
 | [Person summary](components/person-summary.html) | Centred avatar, name and meta: who you connect with. |
 | [Search results](components/search-results.html) | Grouped global search with highlights. |
 | [Note](components/note.html) | Private notes on contacts. |
+| [Block editor](components/block-editor.html) | Notes page surface (`ft-block-editor`, `ft-page-title`): every block type, handle and block menu, drag, keyboard moves, read-only. |
+| [Slash menu](components/slash-menu.html) | `ft-slash-menu`: Insert a block and Link to a page listboxes on the caret. |
+| [Formatting toolbar](components/format-toolbar.html) | `ft-format-toolbar`: inline formats over a selection, pressed states, shortcuts. |
+| [Save status](components/save-status.html) | `ft-save-status`: Saving…, Saved, Couldn’t save with Retry. |
+| [Page links](components/page-links.html) | `ft-page-links`: Pages inside and Linked from. |
 | [Avatar](components/avatar.html) | Initials, colours, sizes, trigger. |
 | [QR code](components/qr-code.html) | Dark modules on a light plate in both themes, quiet zone, alt text required. |
 | [Logo mark](components/logo-mark.html) | FaithTech mark on auth screens. |
@@ -99,11 +105,13 @@ Each component page documents variants, sizes and the full state matrix in both 
 | [Lists and tables](patterns/lists-and-tables.html) | Lists, tables, Kanban, backlog. |
 | [Notifications](patterns/notifications.html) | Bell, toast, banner, email. |
 | [Content and tone](patterns/content-and-tone.html) | Voice, verbs, dates, microcopy. |
+| [Private preview wall](patterns/private-preview-wall.html) | The unbranded unlock page served before either app. |
 
 ## Tokens
 
 - `tokens/tokens.css` — source of truth: primitives, semantic tokens, light and dark themes.
 - `tokens/tokens.json` — DTCG export generated from `tokens.css` (330 tokens).
+- `tokens/neutral-accent.css` — the neutral accent scope (`data-accent="neutral"`): accent, link and focus roles become greys for pages that must not carry the brand. Loaded after `tokens.css`; not part of `tokens.json`, which exports themes, not scopes.
 - `tokens/contrast-pairs.json` — every fg/bg pair the components rely on, checked in both themes.
 - `assets/components.css` — the component stylesheet, token-driven, with `data-state` hooks for documentation.
 
@@ -112,11 +120,14 @@ Each component page documents variants, sizes and the full state matrix in both 
 - 2026-10-22 — Built Dynamics components documented: [Switch](components/switch.html) gains a description caption joined with `aria-describedby` (`.switch__description`; `ft-switch` `description`, used for "Check them in now"); [Radio group](components/radio-group.html) inline rows use the new `.choice-row` (`--space-4` between choices, `--space-2` between wrapped lines; `ft-radio-group orientation="inline"`), replacing `.cluster--tight`; [Text field](components/text-field.html) documents the `maxlength` counter ("176 characters left"); [Alert](components/alert.html) documents `polite` (a danger record-state alert as `role="status"`) and the merge failure "Partners not merged" with the server's reason; [Layout](components/layout.html) the page header's focusable title (`tabindex="-1"`, `focusTitle()`); [Chip](components/chip.html) and the Report pattern the filter bar's end slot (`.filter-bar__end`, `ftFilterBarEnd`). Copy aligned with the built screens on [Toast](components/toast.html) (walk-in, Not the same, merged and restored toasts), [Activity feed](components/feed.html) and [Dialog](components/dialog.html) (merge intro, counters, walk-in description). Two new CSS rules (`.choice-row`, `.filter-bar__end`) and one modifier (`.switch__description`); no new tokens, contrast unchanged at 210 pairs.
 - 2026-10-22 — Restore, not-open and export states (mocks commit b1039f84): the check-in switch is named as an action, "Check in {name}" ([Switch](components/switch.html), [List](components/list.html)); [Button](components/button.html) documents a busy page action (Export CSV while exporting) and a disabled action whose reason an alert gives (Add walk-in before check-in opens); [Alert](components/alert.html) adds title-only record-state alerts (check-in not open, unknown Reports filter); [Dialog](components/dialog.html) adds the restore-partner confirm; [Activity feed](components/feed.html) the Restored entry; [Toast](components/toast.html) the restored and export-failed toasts. No new tokens or CSS.
 - 2026-10-22 — Dynamics drift resolved: the Phase 1 mocks fixed every row logged for the Dynamics screens, so they leave the drift table. Reports use `.progress-chart` with `aria-hidden` tracks (no inline `min-width`, no full bar announced as "186 of 412"), card titles no longer repeat `.card--flush` padding, `manifest.json` carries L2-123 to L2-129, and five context-line stats per row stay the rule; `event-check-in/done` takes `.progress--complete`; the possible-duplicate alerts on `partner/duplicate` and `contact-form/possible-duplicate` carry their icon and `role="status"`; `dialogs/merge-partners` stacks each field's `.choice` radios. Documented the new states: [Progress](components/progress.html) complete attendance meter and the one-city chart (`reports/city`); [Alert](components/alert.html) record-state alerts (archived partner, Staff read-only check-in, cancelled event, danger with `role="status"` at load) and the merge conflict; [Radio group](components/radio-group.html) value-per-field and inline short-choice rows; [List](components/list.html) walk-in, disabled and save-failed check-in rows plus the event attendance list; [Switch](components/switch.html) disabled for Staff and cancelled events, revert on a failed save; [Toast](components/toast.html) Undo, the danger Try again and "Not the same"; [Kanban board](components/kanban.html) the "Next: …" line; [Activity feed](components/feed.html) Merged entries, "· from {other}" markers, the filtered caption and the archived record; [Stat](components/stat.html) context-line formulas; the log-activity counters, date and next-step due date and the merge conflict on [Dialog](components/dialog.html); the event-check-in forbidden and cancelled states (empty and error states pattern); and five icons on [Iconography](foundations/iconography.html) (Reports, Check-in, Add walk-in, Merge, Call). No new tokens, no component CSS changes; the contrast check is unchanged at 210 pairs. Five small new drifts are logged below.
+- 2026-10-22 — Private preview wall (L2-100 to L2-103, ADR 0026). Added the [Private preview wall](patterns/private-preview-wall.html) pattern and the neutral accent scope `tokens/neutral-accent.css` (accent, link and focus-ring roles mapped to the grey ramp in both themes; grey 900 and white, grey 150 and grey 900, all well above 4.5:1). No new component and no change to `tokens.css` or `components.css`: the wall composes card, form field, alert and button. It is rendered by the server, not Angular, so nothing was added to `frontend/projects/components`.
 - 2026-10-22 — Dynamics 365 adoptions (Reports, event check-in, partner activity, duplicates and merge). These mocks use only existing classes, so there are no new components and no new tokens; the contrast check is unchanged at 210 pairs. Added `.progress-chart` (`components.css`), a bar chart whose rows share one label column through subgrid and replaces the mocks' inline `min-width: 5.5rem`. Documented new uses: [Stat](components/stat.html) report row with context lines (up to five), [Progress](components/progress.html) attendance meter and bar chart (chart tracks are `aria-hidden`), [List](components/list.html) check-in rows with a trailing [Switch](components/switch.html) that saves on toggle, typed partner activity on [Activity feed](components/feed.html) (replaces the History example) with [Chip](components/chip.html) type filters, the possible-duplicate [Alert](components/alert.html), the merge-partners, log-activity and walk-in [dialogs](components/dialog.html), and the report [Table](components/table.html). Patterns: Report (lists and tables), possible duplicate (forms), save on toggle (feedback), and the new empty, error and forbidden states. Also fixed four existing checker failures: Tomás's photos on person card and photo gallery pointed at deleted `.svg` files, photo gallery lacked variants, sizes and do/don't sections, and type icon used a raw `#e6f4ea`.
 - 2026-10-22 — Connect by QR code: added QR code, copy field and person summary (`components.css`) and two semantic tokens, `--color-code-plate` and `--color-code-module`, that the dark theme deliberately leaves alone so a QR code stays readable by any camera.
 - 2026-10-22 — Contact photos and the contacts card grid (L2-067 to L2-073). Added: person card and person grid (`.person-grid`, `.person-card*`; cover tints reuse `--color-tint-*`, photo `--size-cover-lg`, no new tokens) and photo gallery (`.photo-gallery*`). Picture list gains a `contact` subject (contact wording, "Describe this photo." for a missing description, Feature on chosen photos before they are saved), `featurable` and `pendingNote`. Button gains the accent `outline` variant (the card's View profile pill) and avatar the `2xl` size (the card's initials). In Angular: `ft-person-card`, `ft-person-grid`, `ft-person-card-skeleton` and `ft-photo-gallery`.
 - 2026-10-21 — First extraction. Tokens inherited from Shelfie unchanged except comments. Added: select, tabs, notification panel, description list, backlog tree, Kanban board, event card, profile header, search results, note (from `ui-extra.css`). Select chevron redrawn with `currentColor` (was raw `#888`). Added state hooks: event card title hover, select hover/disabled, tab hover, tree row hover, `stat__value--text`, square checkboxes in `.choice`. Renamed for FaithTech: sticker → Estimate card, sticker picker → Estimate card picker (class names unchanged). Dropped Shelfie-only components (book cover, streak, trophy, celebration and others) and the e-mail foundation.
 - 2026-10-22 — Resources. Added component pages for File drop zone (`ft-file-dropzone`), File row (`ft-file-row`), Tag input (`ft-tag-input`), Person picker (`ft-person-picker`) and Type icon (resource type icons and the image tile on `ft-icon-tile`), documenting the `.dropzone`, `.tag-input`, `.chip--removable`, `.icon-tile--image` and `.file-preview` rules the Resources mocks added to `assets/components.css`. No new tokens: every rule reads existing ones.
+- 2026-10-22 — Docs & notes (L2-085 to L2-099). Added component pages for Block editor (`ft-block-editor` with `ft-page-title`), Slash menu (`ft-slash-menu`), Formatting toolbar (`ft-format-toolbar`), Save status (`ft-save-status`) and Page links (`ft-page-links`), documenting the "Notes: block editor" rules the notes mocks added to `assets/components.css`. Documented the emoji icon tile (`.icon-tile--emoji`, `ft-icon-tile [emoji]`) on [List](components/list.html#icon-tile-emoji), the menu shortcut, danger item and chevron on [Menu](components/menu.html#notes-menus), and the [Autosave and edit conflicts](patterns/feedback-and-loading.html#autosave) pattern. No new tokens; five contrast pairs added to `contrast-pairs.json` (page link hover, saved and failed icons, focus ring on code, handle icon on hover), all passing. The page and callout icon picker (`.emoji-grid` of `.swatch` radios) had no library component yet.
+- 2026-10-22 — Docs & notes as built. Added the [Emoji picker](components/emoji-picker.html) page (`ft-emoji-picker`, 16 named emoji, optional "No icon"; no new CSS or tokens). Block editor, Slash menu, Formatting toolbar, Save status and Page links now document the built selectors, inputs, outputs, labels and keyboard behaviour (Save status gains the `unsaved` state that shows nothing; Page links has no count or meta line; the slash menu has no groups or footer). Menu documents `ft-menu-item`'s `shortcut`, `danger` and `submenu`/`submenuData` inputs. The notes drift rows below are fixed in the mocks.
 
 ## Marketing page additions (2026-10-22)
 
@@ -189,9 +200,34 @@ The marketing page mocks (`docs/mocks/pages/marketing`) added the [landing hero]
 | pages/event/attendance | "Going" card header row sets inline padding | Logged; use the card's header actions slot |
 | dialogs/add-partner/duplicate | Warning alert ("Kestrel Labs is already in the pipeline") has no `role="status"` | Documented on Alert: every warning alert is `role="status"`; `ft-alert` adds it |
 | pages/reports/export-failed | `role="alert"` and `aria-live="assertive"` on the toast region | Documented on Toast: the region stays polite; the danger toast carries `role="alert"` |
+| pages/reports | Chart labels use inline `min-width: 5.5rem` (18 times) | `.progress-chart` shares one label column; flagged for the mocks |
+| pages/reports | Chart bars are `role="progressbar"` with `aria-valuemax` = overall total while the fill is scaled to the largest bar ("Toronto: 186 of 412" reads as a full bar) | Chart tracks are `aria-hidden`; the row text carries the value. Flagged for the mocks |
+| pages/reports | Card titles in `.card--flush` repeat its padding inline | Dropped: `.card--flush > .card__title` already pads |
+| pages/reports | No requirement IDs in `manifest.json` | Flagged for the specs |
+| pages/reports | Five stats in one row where Content allowed four | Rule widened: a report row may hold five when each has a context line |
+| pages/event-check-in/done | 36 of 36 shown in accent, not `.progress--complete` | Documented: a full attendance meter takes the complete variant |
+| pages/partner/duplicate, contact-form/possible-duplicate | Warning alert without its icon or `role="status"` | Restored on the Alert page |
+| dialogs/merge-partners | Per-field choices sit in a `.cluster--tight` row, so each radio crowds the previous label at 1280px | Logged: stacked `.choice` rows (radio group) would read better |
+| pages/note/* | Handles labelled "Move or open menu for {type} block"; text boxes named "{type} block" | Documented per L2-089 AC1 and L2-099 AC2: "Move or open the menu for block {n} of {total}, {type}" and the type alone. Fixed in the mocks |
+| pages/note/new | Empty-block hint "Type / for blocks, [[ to link a page"; "Linked from" empty text carries an extra hint | Documented per L2-086 AC4 and L2-090 AC5: "Type / for blocks, or [[ to link a page" and "No pages link here yet." Fixed in the mocks |
+| pages/note/keyboard-move | Announcement "Moved To-do to position 4 of 12" lacks the block's first words; count badge "1 pages" | Documented per L2-089 AC5 and the build ("Moved To-do “Pick up the name” to position 4 of 12, the first four words"); the count badge is gone (the built `ft-page-links` has none). Fixed in the mocks |
+| pages/note/toolbar | Toolbar named "Format text"; Edit link / Remove link only in the dialog | Documented per L2-088: "Formatting", and Edit link / Remove link on the toolbar when the caret is in a link. Fixed in the mocks |
+| pages/note/save-failed | "Couldn’t save" in a polite `role="status"` | Documented per L2-099 AC6: assertive (`role="alert"`). Fixed in the mocks |
+| pages/note/default | "Edit alt text" in the image caption opens the add-image dialog | Documented per L2-089 AC3 and L2-097 AC8: a block-menu item opening its own "Edit alt text" dialog. Fixed in the mocks (`dialogs/edit-alt-text`) |
+| pages/note/slash-menu | Hints ("Just start writing") differ from the library's `BLOCK_TYPES`; the text box lacks `aria-expanded` | The library's descriptions are the source; the built text box carries `aria-controls` and `aria-activedescendant`. Fixed in the mocks |
+| dialogs/add-link-card | "Title (optional)", "Add card", hint "Starts with https://" | L2-087 AC9 wins: "Caption (optional)", "Add link card", hint "Must start with https://." Fixed in the mocks |
+| dialogs/note-settings | Emoji grid (`.emoji-grid` + `.swatch`) has no library component | Resolved: [Emoji picker](components/emoji-picker.html) (`ft-emoji-picker`) is built and used by Page settings and Change icon |
 
 
 ## Verification
+
+Run on 2026-10-22 after merging main (Docs & notes and the private-preview wall) into the Dynamics branch:
+
+```sh
+python .claude/skills/writing-html-mocks/scripts/check_mocks.py docs/mocks            # 108 screens, 601 mocks, 0 errors (27 requirement-ID warnings in older mocks)
+python .claude/skills/extracting-design-systems/scripts/check_contrast.py docs/design-system/tokens/tokens.css   # 220 passed, 0 failed, 0 unresolved
+python .claude/skills/extracting-design-systems/scripts/check_design_system.py docs/design-system                 # 87 pages (65 components, 9 patterns), 0 errors, 0 warnings
+```
 
 Run on 2026-10-22 after documenting the built Dynamics components (switch description, inline radio row, text-field counter, polite alert, focusable page title, filter bar end slot):
 
@@ -212,6 +248,13 @@ python .claude/skills/extracting-design-systems/scripts/check_design_system.py d
 ```
 
 Screenshots: the changed alert, feed, Kanban board, list and toast pages at 360 and 1280 px in both themes, and radio group in light: no horizontal overflow at 360px (every capture is exactly the viewport width).
+
+Run on 2026-10-22 after the Docs & notes update:
+
+```sh
+python .claude/skills/extracting-design-systems/scripts/check_contrast.py docs/design-system/tokens/tokens.css   # 220 passed, 0 failed, 0 unresolved
+python .claude/skills/extracting-design-systems/scripts/check_design_system.py docs/design-system                 # 86 pages (65 components, 8 patterns), 0 errors, 0 warnings
+```
 
 Run on 2026-10-22 after the Dynamics 365 update:
 

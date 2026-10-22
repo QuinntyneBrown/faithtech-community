@@ -1,0 +1,16 @@
+@startuml
+!include <C4/C4_Container>
+LAYOUT_WITH_LEGEND()
+title Containers — Image blocks
+Person(owner, "Owner", "Adds images")
+System_Boundary(community, "FaithTech Community") {
+  Container(web, "Web app", "Angular", "add-image and edit-alt-text dialogs (ft-file-dropzone, ft-text-field); ft-block-editor image block")
+  Container(api, "Community API", "ASP.NET Core", "NoteImagesHandler, IImageProcessor, NoteBlocksValidator")
+  ContainerDb(db, "Community database", "PostgreSQL", "NoteImages (PageId, BlobName, ContentType, Size)")
+}
+System_Ext(blob, "Azure Blob storage", "Private container, no public URL")
+Rel(owner, web, "Uses", "HTTPS")
+Rel(web, api, "POST /api/notes/{id}/images, GET /api/notes/{id}/images/{imageId}", "multipart / bytes over HTTPS")
+Rel(api, db, "NoteImage rows", "EF Core")
+Rel(api, blob, "IFileStorage.SaveAsync / OpenReadAsync", "Azure SDK")
+@enduml

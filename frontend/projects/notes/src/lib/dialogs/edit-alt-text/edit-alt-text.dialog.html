@@ -1,0 +1,12 @@
+<ft-dialog heading="Edit alt text" icon="image" (closed)="ref.close()">
+  <ft-form-field
+    required
+    label="Alt text"
+    help="Describe what’s in the image for someone who can’t see it."
+    [error]="error()"
+  >
+    <ft-text-field [formControl]="alt" />
+  </ft-form-field>
+  <ft-button ftDialogFooter (click)="ref.close()">Cancel</ft-button>
+  <ft-button ftDialogFooter variant="primary" (click)="save()">Save</ft-button>
+</ft-dialog>

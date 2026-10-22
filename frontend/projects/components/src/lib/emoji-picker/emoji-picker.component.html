@@ -1,0 +1,30 @@
+<fieldset class="ft-emoji-picker" role="radiogroup" [disabled]="disabled()">
+  <legend class="ft-emoji-picker__legend">{{ legend() }}</legend>
+  <div class="ft-emoji-picker__grid">
+    @if (allowNone()) {
+      <label class="ft-emoji-picker__choice ft-emoji-picker__choice--none">
+        <input
+          type="radio"
+          [name]="name"
+          [checked]="value() === null"
+          (change)="choose(null)"
+          (blur)="touch()"
+        />
+        <span>No icon</span>
+      </label>
+    }
+    @for (icon of icons; track icon.emoji) {
+      <label class="ft-emoji-picker__choice" [title]="icon.name">
+        <input
+          type="radio"
+          [name]="name"
+          [attr.aria-label]="icon.name"
+          [checked]="value() === icon.emoji"
+          (change)="choose(icon.emoji)"
+          (blur)="touch()"
+        />
+        <span aria-hidden="true">{{ icon.emoji }}</span>
+      </label>
+    }
+  </div>
+</fieldset>

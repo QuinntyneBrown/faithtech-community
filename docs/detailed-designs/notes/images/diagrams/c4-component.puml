@@ -1,0 +1,30 @@
+@startuml
+!include <C4/C4_Component>
+LAYOUT_WITH_LEGEND()
+title Components — Image blocks
+Container_Boundary(web, "Web app") {
+  Component(dlg, "AddImageDialog", "CDK dialog (notes library)", "Choose an image, Alt text; also EditAltTextDialog")
+  Component(page, "NotePage", "notes library", "imageSrc resolver: fetch as Blob, object URL, revoke")
+  Component(ed, "ft-block-editor", "components library", "Image block: figure with img alt")
+  Component(svc, "HttpNotesService", "api library", "uploadImage, image")
+}
+Container_Boundary(api, "Community API") {
+  Component(ep, "NotesEndpoints", "ASP.NET Core minimal API", "POST /{id}/images (5 MB + form limit), GET /{id}/images/{imageId}")
+  Component(ih, "NoteImagesHandler", "Application handler", "Owner check, size and extension, process, store, stream")
+  Component(proc, "SkiaImageProcessor", "Implements IImageProcessor", "Real format check, resize, strip metadata")
+  Component(val, "NoteBlocksValidator", "Application static class", "Alt required; imageId belongs to the page")
+  Component(acc, "NoteAccess", "Application permission rule", "FindAsync, CanChange")
+  Component(fs, "File storage", "Implements IFileStorage (Azure Blob)", "Private container, notes/ prefix")
+  ComponentDb(db, "CommunityDbContext", "PostgreSQL", "NoteImages")
+}
+Rel(dlg, svc, "uploadImage(id, file)")
+Rel(page, svc, "image(id, imageId)")
+Rel(page, ed, "imageSrc")
+Rel(svc, ep, "Sends request", "HTTPS")
+Rel(ep, ih, "Calls")
+Rel(ih, acc, "CanChange / FindAsync")
+Rel(ih, proc, "ProcessAsync")
+Rel(ih, fs, "SaveAsync / OpenReadAsync")
+Rel(ih, db, "NoteImage row")
+Rel(ep, val, "On save")
+@enduml

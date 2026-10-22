@@ -45,6 +45,14 @@
                   "maximumError": "8kB"
                 }
               ],
+              "optimization": {
+                "scripts": true,
+                "styles": {
+                  "minify": true,
+                  "inlineCritical": false
+                },
+                "fonts": true
+              },
               "outputHashing": "all",
               "fileReplacements": [
                 {
@@ -128,6 +136,14 @@
                   "maximumError": "8kB"
                 }
               ],
+              "optimization": {
+                "scripts": true,
+                "styles": {
+                  "minify": true,
+                  "inlineCritical": false
+                },
+                "fonts": true
+              },
               "outputHashing": "all",
               "fileReplacements": [
                 {
@@ -635,6 +651,39 @@
           "options": {
             "lintFilePatterns": ["projects/resources/**/*.ts", "projects/resources/**/*.html"],
             "eslintConfig": "projects/resources/eslint.config.js"
+          }
+        }
+      }
+    },
+    "notes": {
+      "projectType": "library",
+      "root": "projects/notes",
+      "sourceRoot": "projects/notes/src",
+      "prefix": "ft",
+      "architect": {
+        "build": {
+          "builder": "@angular/build:ng-packagr",
+          "configurations": {
+            "production": {
+              "tsConfig": "projects/notes/tsconfig.lib.prod.json"
+            },
+            "development": {
+              "tsConfig": "projects/notes/tsconfig.lib.json"
+            }
+          },
+          "defaultConfiguration": "production"
+        },
+        "test": {
+          "builder": "@angular/build:unit-test",
+          "options": {
+            "tsConfig": "projects/notes/tsconfig.spec.json"
+          }
+        },
+        "lint": {
+          "builder": "@angular-eslint/builder:lint",
+          "options": {
+            "lintFilePatterns": ["projects/notes/**/*.ts", "projects/notes/**/*.html"],
+            "eslintConfig": "projects/notes/eslint.config.js"
           }
         }
       }

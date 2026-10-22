@@ -1,0 +1,29 @@
+@startuml
+!include <C4/C4_Component>
+LAYOUT_WITH_LEGEND()
+title Components — Block editor
+Container_Boundary(web, "Web app") {
+  Component(page, "NotePage", "Angular page (notes library)", "Hosts the editor; opens add-image, add-link, add-link-card, edit-alt-text and change-icon dialogs")
+  Component(ed, "BlockEditorComponent", "ft-block-editor (components)", "Blocks in, blocksChange out; one stable contenteditable text box per text block")
+  Component(ser, "rich-text.ts, RichTextDirective", "TypeScript (components)", "Spans <-> DOM with createElement and text nodes; caret offsets")
+  Component(md, "editor-model.ts", "TypeScript (components)", "Block types, markdown shortcuts, span operations, move descriptions")
+  Component(slash, "SlashMenuComponent", "ft-slash-menu (inside the editor)", "Filterable listbox: block types or [[ page links")
+  Component(fmt, "FormatToolbarComponent", "ft-format-toolbar (inside the editor)", "Bold, Italic, Underline, Strike, Code, Link, Remove link")
+  Component(menu, "ft-menu (block menu)", "CDK Menu (components)", "Turn into, Change icon, Edit alt text, Move up, Move down, Duplicate, Delete")
+  Component(dd, "CDK drag-drop", "@angular/cdk/drag-drop", "cdkDropList, cdkDrag, cdkDragHandle, placeholder as drop indicator")
+  Component(live, "Live region", "aria-live=polite (in ft-block-editor)", "Moved {block} to position {n} of {total}")
+}
+Container_Boundary(api, "Community API") {
+  Component(val, "NoteBlocksValidator", "Application static class", "Types, limits, hrefs, alt text, image ids")
+}
+Rel(page, ed, "blocks, readonly, pageLink, pageSearch, imageSrc")
+Rel(ed, page, "blocksChange, refused, blockRequested, linkRequested, blockEditRequested")
+Rel(ed, ser, "Reads and writes spans")
+Rel(ed, md, "Shortcuts, marks, splits")
+Rel(ed, slash, "Opens on '/' and '[['")
+Rel(ed, fmt, "Opens on a selection")
+Rel(ed, menu, "Opens from the handle")
+Rel(ed, dd, "Reorders by handle")
+Rel(ed, live, "Announces moves")
+Rel(page, val, "Saved blocks checked by", "PUT /api/notes/{id}")
+@enduml

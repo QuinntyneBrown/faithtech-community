@@ -1,0 +1,49 @@
+@startuml
+title UML sequence behaviour — Unlock
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+actor "Owner" as actor
+box "Frontend — wall page (server-rendered HTML)" #E0F2FE
+  participant "Wall form" as form
+end box
+box "Backend — FaithTech.Community.Api" #D1FADF
+  participant "PrivatePreviewGateMiddleware" as gate
+  participant "WallPage" as page
+end box
+box "Backend — FaithTech.Community.Application" #ECFDF3
+  participant "UnlockHandler" as handler
+  participant "UnlockAttempts" as attempts
+end box
+box "Backend — FaithTech.Community.Infrastructure" #FFF4E5
+  participant "Pbkdf2PassphraseHasher" as hasher
+  participant "HmacUnlockTokens" as tokens
+end box
+actor -> form : Type the passphrase, press Unlock
+form -> form : Button reads "Checking…" (L2-102 #6)
+form -> gate : POST /__wall/unlock (passphrase, csrf, returnUrl)
+gate -> gate : formIsGenuine = CSRF cookie equals field and Origin is this host
+gate -> handler : Handle(passphrase, formIsGenuine, client address)
+handler -> attempts : IsLockedOut(client)
+alt locked out (L2-103 #1 to #3)
+  handler --> gate : LockedOut (passphrase not checked)
+  gate -> page : Render locked-out state
+  page --> form : 429, "Too many attempts"
+else not locked out
+  handler -> hasher : Verify(passphrase, stored hash), always run (L2-102 #4)
+  alt valid and form genuine
+    handler -> attempts : RecordSuccess(client)
+    handler -> tokens : Issue(now + 7 days)
+    tokens --> handler : w1.<expiry>.<mac>
+    handler --> gate : Unlocked
+    gate --> form : 303 to the local returnUrl, Set-Cookie __Secure-unlock (L2-102 #1, #2, L2-104 #1, #2)
+  else anything else
+    handler -> attempts : RecordFailure(client); log without the input (L2-103 #4)
+    handler --> gate : Refused
+    gate -> page : Render invalid state with a fresh CSRF value
+    page --> form : 403, "That passphrase didn’t work" (identical for every failure, L2-102 #3)
+  end
+end
+@enduml

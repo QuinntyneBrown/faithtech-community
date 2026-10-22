@@ -1,0 +1,14 @@
+<ft-dialog [heading]="current ? 'Edit link' : 'Add a link'" icon="link" (closed)="ref.close()">
+  <ft-form-field required label="Link" help="Starts with https:// or mailto:" [error]="error()">
+    <ft-text-field type="url" [formControl]="link" />
+  </ft-form-field>
+  @if (current) {
+    <ft-button ftDialogFooter variant="ghost" (click)="ref.close({ href: null })"
+      >Remove link</ft-button
+    >
+  }
+  <ft-button ftDialogFooter (click)="ref.close()">Cancel</ft-button>
+  <ft-button ftDialogFooter variant="primary" (click)="save()">{{
+    current ? 'Save' : 'Add link'
+  }}</ft-button>
+</ft-dialog>

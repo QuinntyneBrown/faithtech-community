@@ -1,0 +1,18 @@
+@startuml
+!include <C4/C4_Container>
+LAYOUT_WITH_LEGEND()
+title Containers — Page visibility and sharing
+Person(owner, "Owner", "Member or System Admin")
+Person(recipient, "Recipient", "Named member or role holder")
+System_Boundary(community, "FaithTech Community") {
+  Container(web, "Web app", "Angular", "share-note dialog (ft-radio-group, ft-person-picker, ft-checkbox-group); shell bell")
+  Container(api, "Community API", "ASP.NET Core", "ShareNoteHandler, NoteShareNotifier, NoteAccess, INotificationPublisher, outbox worker")
+  ContainerDb(db, "Community database", "PostgreSQL", "NoteShareMembers, NoteShareRoles, Notifications, EmailOutbox, AuditEntries")
+}
+System_Ext(mail, "Email provider", "SMTP / SendGrid")
+Rel(owner, web, "Uses", "HTTPS")
+Rel(recipient, web, "Uses", "HTTPS")
+Rel(web, api, "PUT /api/notes/{id}/visibility, GET /api/notes/members", "JSON/HTTPS")
+Rel(api, db, "Audience, notifications, outbox and audit in one save", "EF Core")
+Rel(api, mail, "Outbox worker sends", "SMTP")
+@enduml

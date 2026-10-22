@@ -1,0 +1,80 @@
+@startuml
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 8
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam class {
+  BorderColor #344054
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+title Class structure — Page links, backlinks and nesting
+class NotePage {
+  +Guid Id
+  +Guid OwnerId
+  +Guid? ParentId
+  +string Title
+  +string? Icon
+  +MoveTo(parentId: Guid?): void
+}
+class NoteLink {
+  +Guid SourceId
+  +Guid TargetId
+}
+NotePage "1" o-- "0..*" NotePage : parent of
+NoteLink --> NotePage : SourceId
+NoteLink --> NotePage : TargetId
+class NoteSpan <<record>> {
+  +string Text
+  +Guid? PageId
+}
+class NotePageRefDto <<record>> {
+  +Guid? Id
+  +string Title
+  +string? Icon
+}
+class NoteRefs {
+  +{static} PrivatePage = "Private page"
+  +{static} Untitled = "Untitled"
+  +VisibleAsync(ids, caller): Task<Dictionary<Guid, NotePageRefDto>>
+  +{static} LinkedIds(blocks): IEnumerable<Guid>
+  +{static} Resolve(blocks, visible): IReadOnlyList<NoteBlock>
+  +BreadcrumbAsync(page, caller): Task<IReadOnlyList<NotePageRefDto>>
+  +ChildrenAsync(pageId, caller): Task<IReadOnlyList<NotePageRefDto>>
+  +BacklinksAsync(pageId, caller): Task<IReadOnlyList<NotePageRefDto>>
+}
+class NoteViews {
+  +DetailAsync(page, caller): Task<NotePageDto>
+}
+class LinkSuggestionsHandler {
+  +Limit = 10
+  +HandleAsync(q, exclude): Task<IReadOnlyList<NotePageRefDto>>
+}
+class ParentOptionsHandler {
+  +Limit = 50
+  +HandleAsync(id, q): Task<IReadOnlyList<NotePageRefDto>?>
+}
+class MoveNoteHandler {
+  +HandleAsync(id, command: MoveNoteCommand): Task<(Result, NotePageDto?)>
+  +{static} DescendantsAsync(db, pageId): Task<HashSet<Guid>>
+}
+class NoteAccess {
+  +Visible(pages, caller): IQueryable<NotePage>
+  +FindAsync(id, caller): Task<NotePage?>
+}
+class SaveNoteHandler {
+  +LinkMessage = "Link to a page you can open."
+}
+NoteViews --> NoteRefs
+NoteRefs --> NoteAccess : Visible
+NoteRefs ..> NotePageRefDto
+NoteRefs ..> NoteSpan : fills Text
+LinkSuggestionsHandler --> NoteAccess : Visible
+LinkSuggestionsHandler ..> NotePageRefDto
+ParentOptionsHandler --> MoveNoteHandler : DescendantsAsync
+MoveNoteHandler --> NotePage : MoveTo
+MoveNoteHandler --> NoteAccess : FindAsync
+SaveNoteHandler --> NoteRefs : VisibleAsync (new targets)
+SaveNoteHandler ..> NoteLink : rebuilds
+@enduml

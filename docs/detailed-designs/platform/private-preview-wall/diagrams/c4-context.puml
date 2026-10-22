@@ -1,0 +1,16 @@
+@startuml
+!include <C4/C4_Context>
+LAYOUT_WITH_LEGEND()
+title System Context — Private preview wall and deployment
+Person(owner, "Owner", "Holds the passphrase; unlocks both hosts")
+Person(visitor, "Any other visitor", "Sees only the wall page")
+System(ftc, "FaithTech Community", "app.faithtech.community and www.faithtech.community behind the wall")
+System_Ext(dns, "DNS for faithtech.community", "CNAME and asuid TXT records the owner creates")
+System_Ext(azure, "Microsoft Azure", "Container Apps, PostgreSQL, Blob storage, Key Vault, managed certificates")
+System_Ext(gh, "GitHub Actions", "Builds, tests and deploys")
+Rel(owner, ftc, "Unlocks, then uses", "HTTPS")
+Rel(visitor, ftc, "Is refused by", "HTTPS")
+Rel(ftc, azure, "Runs on")
+Rel(dns, azure, "Points both hosts at")
+Rel(gh, azure, "Deploys to", "OIDC")
+@enduml

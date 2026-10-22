@@ -12,7 +12,8 @@
     <PackageReference Include="Serilog.AspNetCore" />
   </ItemGroup>
 
-  <PropertyGroup>
-  </PropertyGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Middleware\PrivatePreview\wall.html" />
+  </ItemGroup>
 
 </Project>

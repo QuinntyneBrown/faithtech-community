@@ -55,6 +55,7 @@ export const ICONS: Readonly<Record<string, string>> = {
     "<rect x='3' y='3' width='18' height='18' rx='2'/><circle cx='9' cy='9' r='2'/><path d='m21 15-5-5L5 21'/>",
   'sign-out': "<path d='M15 4h4v16h-4M10 17l5-5-5-5M15 12H3'/>",
   resources: "<path d='M4 4h6l2 2h8v14H4z'/><path d='M8 12h8M8 16h5'/>",
+  notes: "<path d='M5 3h10l4 4v14H5z'/><path d='M9 9h6M9 13h6M9 17h4'/>",
   deck: "<rect x='3' y='4' width='18' height='12' rx='1'/><path d='M12 16v4M8 20h8'/>",
   logo: "<circle cx='12' cy='12' r='9'/><path d='M12 7v10M8 10h8'/>",
   image:

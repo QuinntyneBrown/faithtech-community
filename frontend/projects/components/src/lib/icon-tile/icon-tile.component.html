@@ -1,5 +1,7 @@
 @if (src(); as url) {
   <img [src]="url" alt="" />
+} @else if (emoji(); as glyph) {
+  <span class="ft-icon-tile__emoji">{{ glyph }}</span>
 } @else {
   <ft-icon [name]="name()" />
 }

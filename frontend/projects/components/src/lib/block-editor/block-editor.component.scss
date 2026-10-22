@@ -1,0 +1,191 @@
+// The block editor (design system, block editor). Unencapsulated because the runs inside each text box are built
+// at runtime (rich-text.ts), but every rule is scoped under .ft-block-editor.
+.ft-block-editor {
+  --block-handle-size: var(--target-min);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  position: relative;
+
+  @media (hover: none) {
+    --block-handle-size: var(--target-comfortable);
+  }
+
+  .ft-block-editor__blocks {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-1);
+  }
+
+  .block__handle {
+    flex: none;
+    display: inline-grid;
+    place-items: center;
+    inline-size: var(--block-handle-size);
+    block-size: var(--block-handle-size);
+    padding: 0;
+    border: 0;
+    border-radius: var(--radius-sm);
+    background: none;
+    color: var(--color-fg-muted);
+    cursor: grab;
+    opacity: 0;
+
+    &:hover,
+    &[aria-expanded='true'] {
+      background: var(--color-bg-subtle);
+      color: var(--color-fg-default);
+    }
+
+    &:focus-visible {
+      opacity: 1;
+      outline: var(--focus-ring-width) solid var(--color-focus-ring);
+    }
+
+    @media (hover: none) {
+      opacity: 1;
+    }
+  }
+
+  .block:hover > .block__handle,
+  .block:focus-within > .block__handle,
+  .block__handle[aria-expanded='true'] {
+    opacity: 1;
+  }
+
+  .block__grip {
+    inline-size: var(--size-icon-md);
+    block-size: var(--size-icon-md);
+    fill: currentColor;
+  }
+
+  .drop-indicator {
+    block-size: var(--space-0-5);
+    margin-inline-start: calc(var(--block-handle-size) + var(--space-2));
+    border-radius: var(--radius-full);
+    background: var(--color-accent);
+  }
+
+  .cdk-drop-list-dragging .block:not(.cdk-drag-placeholder) {
+    transition: transform var(--duration-fast) var(--ease-standard);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .cdk-drop-list-dragging .block:not(.cdk-drag-placeholder),
+    .cdk-drag-animating {
+      transition: none;
+    }
+  }
+
+  .ft-block-editor__popup {
+    position: absolute;
+    z-index: var(--z-dropdown);
+  }
+
+  .block {
+    position: relative;
+    display: flex;
+    align-items: flex-start;
+    gap: var(--space-2);
+    margin: 0;
+    border-radius: var(--radius-sm);
+  }
+
+  .block__text {
+    display: block;
+    flex: 1;
+    min-inline-size: 0;
+    min-block-size: var(--target-min);
+    padding: var(--space-0-5) var(--space-1);
+    border-radius: var(--radius-sm);
+    font: var(--text-body);
+    line-height: var(--line-height-relaxed);
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+    outline: none;
+
+    &:focus-visible {
+      outline: var(--focus-ring-width) solid var(--color-focus-ring);
+      outline-offset: 0;
+    }
+
+    &[data-placeholder]:empty::before {
+      content: attr(data-placeholder);
+      color: var(--color-fg-muted);
+      pointer-events: none;
+    }
+
+    code {
+      padding: 0 var(--space-1);
+      border-radius: var(--radius-xs);
+      background: var(--color-bg-subtle);
+      font: var(--text-code);
+      font-size: 0.9em;
+    }
+
+    a:not(.page-link) {
+      color: var(--color-fg-link);
+      text-decoration: underline;
+    }
+  }
+
+  .block--heading1 {
+    margin-block-start: var(--space-6);
+    .block__text {
+      font: var(--text-h2);
+    }
+  }
+
+  .block--heading2 {
+    margin-block-start: var(--space-4);
+    .block__text {
+      font: var(--text-h3);
+    }
+  }
+
+  .block--heading3 {
+    margin-block-start: var(--space-3);
+    .block__text {
+      font: var(--text-h4);
+    }
+  }
+
+  .block__marker {
+    flex: none;
+    min-inline-size: var(--space-6);
+    padding-block-start: var(--space-0-5);
+    color: var(--color-fg-muted);
+    font: var(--text-body);
+    line-height: var(--line-height-relaxed);
+    text-align: end;
+    font-variant-numeric: tabular-nums;
+  }
+}
+
+// The drag preview and the block menu live in the CDK overlay, outside the editor.
+.cdk-drag-preview.block {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-2);
+  padding: var(--space-1) var(--space-2);
+  background: var(--color-bg-surface-raised);
+  border: var(--border-width-hairline) solid var(--color-border-default);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-3);
+  opacity: 0.9;
+
+  .block__handle {
+    opacity: 1;
+  }
+}
+
+.ft-block-menu {
+  display: flex;
+  flex-direction: column;
+  min-inline-size: 14rem;
+  padding: var(--space-1);
+  background: var(--color-bg-surface-raised);
+  border: var(--border-width-hairline) solid var(--color-border-default);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-3);
+}

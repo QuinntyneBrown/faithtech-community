@@ -708,6 +708,121 @@ namespace FaithTech.Community.Infrastructure.Persistence.Migrations
                     b.ToTable("Invites");
                 });
 
+            modelBuilder.Entity("FaithTech.Community.Domain.Notes.NoteImage", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("BlobName")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
+
+                    b.Property<string>("ContentType")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<Guid>("PageId")
+                        .HasColumnType("uuid");
+
+                    b.Property<long>("Size")
+                        .HasColumnType("bigint");
+
+                    b.Property<DateTimeOffset>("UploadedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("PageId");
+
+                    b.ToTable("NoteImages");
+                });
+
+            modelBuilder.Entity("FaithTech.Community.Domain.Notes.NoteLink", b =>
+                {
+                    b.Property<Guid>("SourceId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("TargetId")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("SourceId", "TargetId");
+
+                    b.HasIndex("TargetId");
+
+                    b.ToTable("NoteLinks");
+                });
+
+            modelBuilder.Entity("FaithTech.Community.Domain.Notes.NotePage", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTimeOffset?>("ArchivedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("BodyText")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("Content")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Icon")
+                        .HasMaxLength(16)
+                        .HasColumnType("character varying(16)");
+
+                    b.Property<Guid>("OwnerId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid?>("ParentId")
+                        .HasColumnType("uuid");
+
+                    b.Property<NpgsqlTsVector>("SearchVector")
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("tsvector")
+                        .HasComputedColumnSql("to_tsvector('english', coalesce(\"Title\", '') || ' ' || coalesce(\"BodyText\", ''))", true);
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
+
+                    b.Property<DateTimeOffset>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid>("UpdatedById")
+                        .HasColumnType("uuid");
+
+                    b.Property<int>("Version")
+                        .IsConcurrencyToken()
+                        .HasColumnType("integer");
+
+                    b.Property<string>("Visibility")
+                        .IsRequired()
+                        .HasMaxLength(16)
+                        .HasColumnType("character varying(16)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("OwnerId");
+
+                    b.HasIndex("ParentId");
+
+                    b.HasIndex("SearchVector");
+
+                    NpgsqlIndexBuilderExtensions.HasMethod(b.HasIndex("SearchVector"), "GIN");
+
+                    b.HasIndex("ArchivedAt", "UpdatedAt");
+
+                    b.ToTable("NotePages");
+                });
+
             modelBuilder.Entity("FaithTech.Community.Domain.Notifications.Notification", b =>
                 {
                     b.Property<Guid>("Id")
@@ -1845,6 +1960,67 @@ namespace FaithTech.Community.Infrastructure.Persistence.Migrations
                         .HasForeignKey("EventId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+                });
+
+            modelBuilder.Entity("FaithTech.Community.Domain.Notes.NotePage", b =>
+                {
+                    b.OwnsMany("FaithTech.Community.Domain.Notes.NoteShareMember", "SharedMembers", b1 =>
+                        {
+                            b1.Property<int>("Id")
+                                .ValueGeneratedOnAdd()
+                                .HasColumnType("integer");
+
+                            NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b1.Property<int>("Id"));
+
+                            b1.Property<Guid>("PageId")
+                                .HasColumnType("uuid");
+
+                            b1.Property<Guid>("ProfileId")
+                                .HasColumnType("uuid");
+
+                            b1.HasKey("Id");
+
+                            b1.HasIndex("ProfileId");
+
+                            b1.HasIndex("PageId", "ProfileId")
+                                .IsUnique();
+
+                            b1.ToTable("NoteShareMembers", (string)null);
+
+                            b1.WithOwner()
+                                .HasForeignKey("PageId");
+                        });
+
+                    b.OwnsMany("FaithTech.Community.Domain.Notes.NoteShareRole", "SharedRoles", b1 =>
+                        {
+                            b1.Property<int>("Id")
+                                .ValueGeneratedOnAdd()
+                                .HasColumnType("integer");
+
+                            NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b1.Property<int>("Id"));
+
+                            b1.Property<Guid>("PageId")
+                                .HasColumnType("uuid");
+
+                            b1.Property<string>("Role")
+                                .IsRequired()
+                                .HasMaxLength(32)
+                                .HasColumnType("character varying(32)");
+
+                            b1.HasKey("Id");
+
+                            b1.HasIndex("PageId", "Role")
+                                .IsUnique();
+
+                            b1.ToTable("NoteShareRoles", (string)null);
+
+                            b1.WithOwner()
+                                .HasForeignKey("PageId");
+                        });
+
+                    b.Navigation("SharedMembers");
+
+                    b.Navigation("SharedRoles");
                 });
 
             modelBuilder.Entity("FaithTech.Community.Domain.Partners.PartnerActivity", b =>

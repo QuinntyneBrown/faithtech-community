@@ -33,7 +33,8 @@ faithtech-community/
 │   ├── Directory.Build.props         # Shared build settings for every project
 │   ├── Directory.Packages.props      # Central NuGet package versions
 │   ├── global.json                   # Pinned .NET SDK
-│   ├── deploy/                       # Dockerfiles and container config
+│   ├── deploy/                       # Dockerfiles (API with both Angular builds, Cli) and the
+│   │                                 # local compose file (ADR 0026)
 │   ├── src/
 │   │   ├── FaithTech.Community.Domain/          # Entities, value objects, roles. Zero dependencies.
 │   │   │                                        # One folder per feature, named as in Application/,
@@ -42,10 +43,11 @@ faithtech-community/
 │   │   │                                        # checks; one folder per feature (Identity/,
 │   │   │                                        # Profiles/, Contacts/, Partners/, Team/, Events/, Search/,
 │   │   │                                        # Notifications/, Announcements/, Invites/, Admin/,
-│   │   │                                        # Resources/, Agile/, Reports/)
+│   │   │                                        # Resources/, Notes/, Agile/, PrivatePreview/, Reports/)
 │   │   ├── FaithTech.Community.Infrastructure/  # DbContext, EF migrations, Postgres full-text
 │   │   │                                        # search, Azure Blob, email, .ics, CSV, image resizing,
-│   │   │                                        # OpenIddict stores, audit log, seeder
+│   │   │                                        # OpenIddict stores, audit log, seeder, private-preview
+│   │   │                                        # passphrase hashing and unlock signing
 │   │   ├── FaithTech.Community.Api/             # Endpoints, Program.cs, DI composition,
 │   │   │                                        # middleware. No business logic.
 │   │   └── FaithTech.Community.Cli/             # Database migrate, seed and reset commands
@@ -77,6 +79,8 @@ faithtech-community/
 │       ├── admin/                    # Feature library: System Admin roles, suspension, audit log
 │       ├── resources/                # Feature library: resources list, resource page, archived view,
 │       │                             # add/edit/archive/transfer dialogs
+│       ├── notes/                    # Feature library: Docs & notes page list, block page editor,
+│       │                             # archived view, share/settings/move/archive/image/link dialogs
 │       ├── agile/                    # Feature library: workspaces, backlog, board, sprints,
 │       │                             # work items, Planning Poker
 │       └── reports/                  # Feature library: the fixed, read-only Reports page for Staff
@@ -87,8 +91,8 @@ faithtech-community/
 │   ├── fixtures/                     # Test fixtures, the fake backend (routed API + auth) and seeded data
 │   └── tests/                        # Specs by feature (one folder per feature, including reports/),
 │                                     # including axe accessibility checks
-├── eng/                              # Developer and CI scripts (start stack, run tests, deploy)
-│   ├── infra/                        # Infrastructure as code for Azure
+├── eng/                              # Developer and CI scripts (start stack, run tests, deploy.sh)
+│   ├── infra/                        # Infrastructure as code for Azure (Bicep: main.bicep, modules/)
 │   └── videos/                       # Journey video recording: PowerShell entry point,
 │       │                             # Playwright recording config, presenter and journey stories
 │       └── brochure/                 # Marketing brochure video source: script, timed slide deck,
@@ -135,12 +139,12 @@ Rules (MUST be followed):
 - Data is global with no city boundary. **Exception:** private contacts and their notes are visible only to the lead who created them and to System Admin.
 - A profile can hold several global roles. New users start with no role.
 - City Leads may add/remove Lead, Volunteer, Product Engineer and Attendee roles. Only System Admin grants or removes City Lead, Staff and System Admin.
-- Staff is read-only across everything except private contacts and the resources Staff own: Staff may add resources and edit, share, archive and restore their own; every other Staff write is refused.
+- Staff is read-only across everything except private contacts and the resources and note pages Staff own: Staff may add resources and note pages and edit, share, archive and restore their own; every other Staff write is refused.
 - System Admin can override anything; every admin action goes to the audit log.
 - Profiles are visible to signed-in members only. Public events are the only content anonymous visitors see (shareable page, guest RSVP, `.ics`).
 - Every query, search result and endpoint must enforce these permissions on the server. Never rely on the UI to hide data.
 
-v1 features: profiles and photos (max 10, one featured, alt text required), invites (expire after 14 days), connect links (a City Lead's reusable QR code that never expires and can be replaced; not an invite), contacts (soft-delete archive and restore, linked when the person signs up), partner Kanban (Lead -> In Funnel -> Confirmed), team, events (hackathon is an event type), global search, notifications (in-app + email), announcements (with email opt-out), resources (uploads and https links, type and tags, private/shared/global visibility, archive with 30-day purge). Hackathon teams, projects and judging are v2. Do not build them yet.
+v1 features: profiles and photos (max 10, one featured, alt text required), invites (expire after 14 days), connect links (a City Lead's reusable QR code that never expires and can be replaced; not an invite), contacts (soft-delete archive and restore, linked when the person signs up), partner Kanban (Lead -> In Funnel -> Confirmed), team, events (hackathon is an event type), global search, notifications (in-app + email), announcements (with email opt-out), resources (uploads and https links, type and tags, private/shared/global visibility, archive with 30-day purge), docs & notes (block-based pages with formatting, drag-and-drop and keyboard reorder, page links, backlinks and nesting; private/shared/global visibility, default private; archive and restore). Hackathon teams, projects and judging are v2. Do not build them yet.
 
 ## Backend architecture
 
@@ -161,6 +165,7 @@ Non-obvious rules:
 - Seed data is idempotent and safe to re-run.
 - Endpoints require authentication by default. Anonymous access, such as public event pages and guest RSVP, must be opted into explicitly per endpoint.
 - Keep request logging outside the exception-handling middleware so handled response statuses are logged correctly.
+- While `PrivatePreview:Enabled` is on (the default; Development turns it off), `PrivatePreviewGateMiddleware` refuses every request without a valid unlock before routing, authentication and static files (ADR 0026). Keep it ahead of them in `Program.cs`. It is a gate in front of the permission rules, never a replacement for them.
 - Keep secrets out of the repo; use configuration and environment variables.
 
 ### Tests
@@ -197,6 +202,7 @@ All backend tests MUST use a fake database: the EF Core in-memory provider, with
 - Authentication is faked too: the fake API answers the OIDC discovery, authorization, token and userinfo requests so the app completes its real sign-in flow against the fake. Tests sign in as a role (System Admin, City Lead, Staff, Volunteer, anonymous visitor) through a fixture, never by hand-editing storage or bypassing the app's auth code.
 - Fake behavior lives in `e2e/fixtures/`, never in page objects or specs. A spec arranges state through a fixture, drives the app through page objects and asserts what the user sees.
 - A request the fake does not recognise MUST fail the test loudly (an unrouted request is a bug, not a pass-through). Never let a request fall through to a real network.
+- Every test runs as the owner who has already unlocked the private-preview wall; a spec puts the visitor in front of it with `api.wall.lock()` (`e2e/fixtures/mock-wall.ts`, which renders the API's own `wall.html`).
 - Playwright's `webServer` starts only the Angular app. It MUST NOT start the API, the Cli project, a database or any container.
 - A spec that needs the real backend, a seeded database or any external service is out of scope for `e2e/`; that behavior belongs in the backend integration tests under `backend/tests/`.
 - Keep the fake in step with the API: when an endpoint, DTO or permission rule changes, update the fake in the same change so the e2e suite reflects the real contract.

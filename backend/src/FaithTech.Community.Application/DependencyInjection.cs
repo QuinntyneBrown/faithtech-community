@@ -7,8 +7,10 @@ using FaithTech.Community.Application.Identity;
 using FaithTech.Community.Application.Invites;
 using FaithTech.Community.Application.Notifications;
 using FaithTech.Community.Application.Partners;
+using FaithTech.Community.Application.PrivatePreview;
 using FaithTech.Community.Application.Profiles;
 using FaithTech.Community.Application.Reports;
+using FaithTech.Community.Application.Notes;
 using FaithTech.Community.Application.Resources;
 using FaithTech.Community.Application.Search;
 using FaithTech.Community.Application.Team;
@@ -25,6 +27,9 @@ public static class DependencyInjection
     {
         services.Configure<Common.WebAppOptions>(configuration.GetSection(Common.WebAppOptions.Section));
         services.Configure<Common.MarketingOptions>(configuration.GetSection(Common.MarketingOptions.Section));
+        services.Configure<PrivatePreviewOptions>(configuration.GetSection(PrivatePreviewOptions.Section));
+        services.AddSingleton<UnlockAttempts>();
+        services.AddSingleton<UnlockHandler>();
         services.AddValidatorsFromAssemblyContaining<SignUpValidator>();
         services.AddScoped<VerificationEmails>();
         services.AddScoped<SignUpHandler>();
@@ -129,6 +134,21 @@ public static class DependencyInjection
         services.AddScoped<PurgeArchivedResourcesHandler>();
         services.AddScoped<ArchiveResourceHandler>();
         services.AddScoped<TransferOwnershipHandler>();
+        services.AddScoped<NoteAccess>();
+        services.AddScoped<NoteViews>();
+        services.AddScoped<ListNotesHandler>();
+        services.AddScoped<CreateNoteHandler>();
+        services.AddScoped<GetNoteHandler>();
+        services.AddScoped<SaveNoteHandler>();
+        services.AddScoped<NoteRefs>();
+        services.AddScoped<NoteImagesHandler>();
+        services.AddScoped<ArchiveNoteHandler>();
+        services.AddScoped<ShareNoteHandler>();
+        services.AddScoped<NoteShareNotifier>();
+        services.AddScoped<NoteMembersHandler>();
+        services.AddScoped<MoveNoteHandler>();
+        services.AddScoped<ParentOptionsHandler>();
+        services.AddScoped<LinkSuggestionsHandler>();
         services.AddScoped<GlobalSearchHandler>();
         services.AddScoped<ISearchSource, PeopleSearchSource>();
         services.AddScoped<ISearchSource, EventsSearchSource>();
@@ -136,6 +156,7 @@ public static class DependencyInjection
         services.AddScoped<ISearchSource, ContactsSearchSource>();
         services.AddScoped<ISearchSource, WorkItemsSearchSource>();
         services.AddScoped<ISearchSource, ResourcesSearchSource>();
+        services.AddScoped<ISearchSource, NotesSearchSource>();
         services.TryAddSingleton(TimeProvider.System);
         return services;
     }

@@ -1,0 +1,71 @@
+@startuml
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 8
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam class {
+  BorderColor #344054
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+title Class structure — Private preview wall
+class PrivatePreviewOptions {
+  +bool Enabled = true
+  +string PassphraseHash
+  +string SigningKey
+  +string? CookieDomain
+  +TimeSpan UnlockLifetime = 7 days
+}
+interface IPassphraseHasher {
+  +Hash(passphrase: string): string
+  +Verify(passphrase: string, encodedHash: string): bool
+}
+interface IUnlockTokens {
+  +Issue(expiresAt: DateTimeOffset): string
+  +IsValid(token: string?): bool
+}
+class UnlockAttempts {
+  +IsLockedOut(client: string): bool
+  +RecordFailure(client: string): int
+  +RecordSuccess(client: string): void
+}
+class UnlockHandler {
+  +Handle(passphrase: string?, formIsGenuine: bool, client: string): UnlockOutcome
+}
+enum UnlockStatus {
+  Unlocked
+  Refused
+  LockedOut
+  Failed
+}
+class UnlockOutcome {
+  +UnlockStatus Status
+  +string? Token
+  +DateTimeOffset? ExpiresAt
+}
+class ReturnUrls {
+  +{static} Local(value: string?): string
+}
+class Pbkdf2PassphraseHasher
+class HmacUnlockTokens
+class PrivatePreviewGateMiddleware {
+  +InvokeAsync(context: HttpContext): Task
+}
+class WallPage {
+  +WriteAsync(context: HttpContext, state: WallState, returnUrl: string, status: int): Task
+}
+IPassphraseHasher <|.. Pbkdf2PassphraseHasher
+IUnlockTokens <|.. HmacUnlockTokens
+UnlockHandler --> UnlockAttempts
+UnlockHandler --> IPassphraseHasher
+UnlockHandler --> IUnlockTokens
+UnlockHandler ..> UnlockOutcome : returns
+UnlockOutcome --> UnlockStatus
+PrivatePreviewGateMiddleware --> UnlockHandler
+PrivatePreviewGateMiddleware --> IUnlockTokens
+PrivatePreviewGateMiddleware --> WallPage
+PrivatePreviewGateMiddleware ..> ReturnUrls
+PrivatePreviewGateMiddleware ..> PrivatePreviewOptions
+HmacUnlockTokens ..> PrivatePreviewOptions
+@enduml

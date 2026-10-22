@@ -1,0 +1,30 @@
+@startuml
+!include <C4/C4_Component>
+LAYOUT_WITH_LEGEND()
+title Components — Page visibility and sharing
+Container_Boundary(web, "Web app") {
+  Component(dlg, "ShareNoteDialog", "CDK dialog (notes library)", "Who can see it: Private, Shared, Global; People; Roles")
+  Component(picker, "ft-person-picker, ft-radio-group, ft-checkbox-group", "components library", "Form controls")
+  Component(svc, "HttpNotesService", "api library", "members(q), setVisibility(id, change)")
+}
+Container_Boundary(api, "Community API") {
+  Component(ep, "NotesEndpoints", "ASP.NET Core minimal API", "/members, /{id}/visibility")
+  Component(mem, "NoteMembersHandler", "Application handler", "Members with an account, not suspended, by name, at most 10")
+  Component(sh, "ShareNoteHandler", "Application handler", "Validates audience; SetAudience; returns NotePageDto")
+  Component(n, "NoteShareNotifier", "Application service", "New recipients minus owner, suspended, already reached")
+  Component(pub, "NotificationPublisher", "Implements INotificationPublisher", "In-app rows and queued emails")
+  Component(acc, "NoteAccess", "Application permission rule", "Visible, CanChange, IsOverride")
+  Component(audit, "AuditLog", "Implements IAuditLog", "note.shared, note.opened, note.edited")
+  ComponentDb(db, "CommunityDbContext", "PostgreSQL", "Share rows, Notifications, EmailOutbox")
+}
+Rel(dlg, picker, "Composes")
+Rel(dlg, svc, "members, setVisibility")
+Rel(svc, ep, "Sends request", "JSON/HTTPS")
+Rel(ep, mem, "Calls")
+Rel(ep, sh, "Calls")
+Rel(sh, acc, "CanChange (403), IsOverride")
+Rel(sh, n, "Previous recipients")
+Rel(n, pub, "PublishAsync(NotePageShared)")
+Rel(sh, audit, "Override")
+Rel(pub, db, "Same unit of work")
+@enduml

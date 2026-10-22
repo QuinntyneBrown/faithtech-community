@@ -1,0 +1,7 @@
+<ft-dialog heading="Change icon" (closed)="ref.close()">
+  <ft-emoji-picker legend="Icon" [allowNone]="false" [formControl]="icon" />
+  <ft-button ftDialogFooter (click)="ref.close()">Cancel</ft-button>
+  <ft-button ftDialogFooter variant="primary" (click)="ref.close(icon.value ?? '💡')"
+    >Save</ft-button
+  >
+</ft-dialog>

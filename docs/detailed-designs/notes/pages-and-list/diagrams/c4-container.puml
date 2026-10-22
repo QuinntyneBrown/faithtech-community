@@ -1,0 +1,16 @@
+@startuml
+!include <C4/C4_Container>
+LAYOUT_WITH_LEGEND()
+title Containers — Notes pages and list
+Person(member, "Signed-in member", "Owner or reader of pages")
+System_Boundary(community, "FaithTech Community") {
+  Container(web, "Web app", "Angular", "notes feature library, components library (ft-block-editor, ft-page-title, ft-save-status), api library (HttpNotesService)")
+  Container(api, "Community API", "ASP.NET Core", "NotesEndpoints, Notes handlers, NoteAccess")
+  ContainerDb(db, "Community database", "PostgreSQL", "NotePages (Content, BodyText, Version), NoteShareMembers, NoteShareRoles, NoteLinks, NoteImages, AuditEntries")
+  Container(cli, "Cli", ".NET console", "Applies the Notes migration")
+}
+Rel(member, web, "Uses", "HTTPS")
+Rel(web, api, "Calls /api/notes", "JSON/HTTPS, OAuth2 bearer token")
+Rel(api, db, "Reads and writes", "EF Core")
+Rel(cli, db, "Migrates", "EF Core")
+@enduml
