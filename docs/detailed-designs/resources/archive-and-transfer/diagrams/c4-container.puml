@@ -1,0 +1,18 @@
+@startuml
+!include <C4/C4_Container>
+LAYOUT_WITH_LEGEND()
+title Containers — Archive, restore, purge and transfer resources
+Person(owner, "Owner", "Contributor")
+Person(admin, "System Admin", "Full override")
+System_Boundary(community, "FaithTech Community") {
+  Container(web, "Web app", "Angular", "resources library: archive and transfer dialogs, Archived page")
+  Container(api, "Community API", "ASP.NET Core", "Endpoints, handlers and ResourceMaintenanceWorker (purge and storage retry)")
+  ContainerDb(db, "Community database", "PostgreSQL", "Resources, AuditEntries, Notifications, ResourceBlobTasks")
+}
+System_Ext(blob, "Azure Blob Storage", "Private resources container")
+Rel(owner, web, "Uses", "HTTPS")
+Rel(admin, web, "Uses", "HTTPS")
+Rel(web, api, "Calls", "JSON/HTTPS, OAuth2 bearer token")
+Rel(api, db, "Reads and writes", "EF Core")
+Rel(api, blob, "DeleteAsync on purge", "Azure SDK")
+@enduml

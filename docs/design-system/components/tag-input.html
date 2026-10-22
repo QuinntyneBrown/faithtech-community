@@ -1,0 +1,215 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Tag input — FaithTech Community design system</title>
+<meta name="description" content="Free-text tags as removable chips inside one field, with a combobox of tags already in use and an option to add a new one.">
+<link rel="stylesheet" href="../tokens/tokens.css">
+<link rel="stylesheet" href="../assets/components.css">
+<link rel="stylesheet" href="../assets/ds.css">
+</head>
+<body id="top">
+<a class="skip-link" href="#main">Skip to content</a>
+<div class="ds-shell">
+  <nav class="ds-nav" aria-label="Design system">
+    <div class="ds-nav__brand"><a href="../index.html">FaithTech DS</a><button class="ds-theme-toggle" type="button" aria-pressed="false">☾ Dark</button></div>
+    <details open><summary>Foundations</summary><ul>
+      <li><a href="../foundations/color.html">Color</a></li>
+      <li><a href="../foundations/typography.html">Typography</a></li>
+      <li><a href="../foundations/spacing.html">Spacing</a></li>
+      <li><a href="../foundations/layout.html">Layout</a></li>
+      <li><a href="../foundations/elevation.html">Elevation</a></li>
+      <li><a href="../foundations/shape.html">Shape</a></li>
+      <li><a href="../foundations/motion.html">Motion</a></li>
+      <li><a href="../foundations/iconography.html">Iconography</a></li>
+      <li><a href="../foundations/theming.html">Theming</a></li>
+      <li><a href="../foundations/responsive.html">Responsive</a></li>
+      <li><a href="../foundations/accessibility.html">Accessibility</a></li>
+      <li><a href="../foundations/content.html">Content</a></li>
+    </ul></details>
+    <details open><summary>Components</summary><ul>
+      <li><a href="../components/button.html">Button</a></li>
+      <li><a href="../components/link.html">Link</a></li>
+      <li><a href="../components/menu.html">Menu</a></li>
+      <li><a href="../components/form-field.html">Form field</a></li>
+      <li><a href="../components/text-field.html">Text field</a></li>
+      <li><a href="../components/textarea.html">Textarea</a></li>
+      <li><a href="../components/select.html">Select</a></li>
+      <li><a href="../components/radio-group.html">Radio group</a></li><li><a href="../components/checkbox-group.html">Checkbox group</a></li>
+      <li><a href="../components/switch.html">Switch</a></li>
+      <li><a href="../components/form-layout.html">Form layout</a></li>
+      <li><a href="../components/picture-list.html">Picture list</a></li>
+      <li><a href="../components/file-dropzone.html">File drop zone</a></li>
+      <li><a href="../components/file-row.html">File row</a></li>
+      <li><a href="../components/tag-input.html">Tag input</a></li>
+      <li><a href="../components/person-picker.html">Person picker</a></li>
+      <li><a href="../components/type-icon.html">Type icon</a></li>
+      <li><a href="../components/sticker-picker.html">Estimate card picker</a></li>
+      <li><a href="../components/top-bar.html">Top bar</a></li>
+      <li><a href="../components/tab-bar.html">Tab bar</a></li>
+      <li><a href="../components/tabs.html">Tabs</a></li>
+      <li><a href="../components/breadcrumb.html">Breadcrumb</a></li>
+      <li><a href="../components/skip-link.html">Skip link</a></li>
+      <li><a href="../components/layout.html">Layout primitives</a></li>
+      <li><a href="../components/card.html">Card</a></li>
+      <li><a href="../components/dialog.html">Dialog</a></li>
+      <li><a href="../components/notification-panel.html">Notification panel</a></li>
+      <li><a href="../components/list.html">List</a></li>
+      <li><a href="../components/table.html">Table</a></li>
+      <li><a href="../components/description-list.html">Description list</a></li>
+      <li><a href="../components/feed.html">Activity feed</a></li>
+      <li><a href="../components/tree.html">Backlog tree</a></li>
+      <li><a href="../components/kanban.html">Kanban board</a></li>
+      <li><a href="../components/event-card.html">Event card</a></li>
+      <li><a href="../components/profile-header.html">Profile header</a></li>
+      <li><a href="../components/search-results.html">Search results</a></li>
+      <li><a href="../components/note.html">Note</a></li>
+      <li><a href="../components/avatar.html">Avatar</a></li>
+      <li><a href="../components/logo-mark.html">Logo mark</a></li>
+      <li><a href="../components/badge.html">Badge</a></li>
+      <li><a href="../components/chip.html">Chip</a></li>
+      <li><a href="../components/stat.html">Stat</a></li>
+      <li><a href="../components/sticker.html">Estimate card</a></li>
+      <li><a href="../components/toast.html">Toast</a></li>
+      <li><a href="../components/alert.html">Alert and banner</a></li>
+      <li><a href="../components/inline-message.html">Inline message</a></li>
+      <li><a href="../components/progress.html">Progress</a></li>
+      <li><a href="../components/skeleton.html">Skeleton</a></li>
+      <li><a href="../components/empty-state.html">Empty state</a></li>
+      <li><a href="../components/error-page.html">Error page</a></li>
+    </ul></details>
+    <details open><summary>Patterns</summary><ul>
+      <li><a href="../patterns/forms.html">Forms</a></li>
+      <li><a href="../patterns/feedback-and-loading.html">Feedback and loading</a></li>
+      <li><a href="../patterns/empty-and-error-states.html">Empty and error states</a></li>
+      <li><a href="../patterns/navigation.html">Navigation and page structure</a></li>
+      <li><a href="../patterns/dialogs-and-overlays.html">Dialogs and overlays</a></li>
+      <li><a href="../patterns/lists-and-tables.html">Lists and tables</a></li>
+      <li><a href="../patterns/notifications.html">Notifications</a></li>
+      <li><a href="../patterns/content-and-tone.html">Content and tone</a></li>
+    </ul></details>
+  </nav>
+
+  <main id="main" class="ds-main">
+    <header class="ds-header">
+      <p class="ds-kicker">Component · Forms</p>
+      <h1>Tag input</h1>
+      <p class="ds-lead">Free-text tags as removable chips inside one field. Typing suggests the tags already in use so spellings stay the same; Enter or a comma adds a new one.</p>
+      <div class="ds-meta"><span class="ds-pill ds-pill--ok">WCAG 2.2 AA</span><span class="ds-pill">Status: new</span><span class="ds-pill"><code>ft-tag-input</code></span></div>
+      <ul class="ds-toc">
+        <li><a href="#overview">Overview</a></li><li><a href="#anatomy">Anatomy</a></li><li><a href="#variants">Variants</a></li><li><a href="#sizes">Sizes</a></li><li><a href="#states">States</a></li><li><a href="#responsive">Responsive</a></li><li><a href="#theming">Theming</a></li><li><a href="#accessibility">Accessibility</a></li><li><a href="#content">Content</a></li><li><a href="#do-dont">Do and don't</a></li><li><a href="#tokens">Tokens</a></li><li><a href="#code">Code</a></li><li><a href="#sources">Sources</a></li>
+      </ul>
+    </header>
+
+    <section class="ds-section" id="overview"><h2><a href="#overview">Overview</a></h2>
+      <p>Use the tag input for free tags on a record: the Tags field of Add a resource and Edit a resource. Suggestions come from the feature ("Tags already in use", with how often each is used); the component only shows them. For a fixed set of choices use a <a href="checkbox-group.html">checkbox group</a> or <a href="chip.html">filter chips</a>; for people use the <a href="person-picker.html">person picker</a>, which shares this field's look.</p>
+    </section>
+
+    <section class="ds-section" id="anatomy"><h2><a href="#anatomy">Anatomy</a></h2>
+      <div class="ds-anatomy">
+        <figure class="ds-anatomy__figure" style="max-width: 32rem;">
+          <div class="field"><label class="field__label" for="an-tag">Tags <span class="optional">(optional)</span></label><div class="combobox"><div class="tag-input"><span class="chip chip--removable">hackathon<button class="chip__remove" type="button" aria-label="Remove tag hackathon"><svg class="icon icon--sm" aria-hidden="true" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18"/></svg></button></span><span class="chip chip--removable">judging<button class="chip__remove" type="button" aria-label="Remove tag judging"><svg class="icon icon--sm" aria-hidden="true" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18"/></svg></button></span><input class="tag-input__field" id="an-tag" type="text" role="combobox" aria-autocomplete="list" aria-expanded="true" aria-controls="an-tag-list" aria-activedescendant="an-tag-o1" aria-describedby="an-tag-help" value="hack"></div><div class="combobox__panel" id="an-tag-list"><ul class="combobox__list" role="listbox" aria-label="Tags already in use"><li class="combobox__option" role="option" id="an-tag-o1" aria-selected="true"><span class="combobox__text"><span class="combobox__title">hackathon</span><span class="combobox__detail">Used on 6 resources</span></span></li><li class="combobox__option" role="option" id="an-tag-o2"><span class="combobox__text"><span class="combobox__title">hackathon-judging</span><span class="combobox__detail">Used on 2 resources</span></span></li><li class="combobox__option" role="option" id="an-tag-o3"><span class="combobox__text"><span class="combobox__title">Add “hack” as a new tag</span></span></li></ul></div></div><div class="field__help" id="an-tag-help">Press Enter or comma to add. Pick an existing tag so spellings stay the same.</div></div><div style="height: 9rem" aria-hidden="true"></div>
+          <span class="ds-callout" style="left: 2%; top: 4%;" aria-hidden="true">1</span><span class="ds-callout" style="left: 6%; top: 24%;" aria-hidden="true">2</span><span class="ds-callout" style="left: 52%; top: 24%;" aria-hidden="true">3</span><span class="ds-callout" style="left: 30%; top: 52%;" aria-hidden="true">4</span><span class="ds-callout" style="left: 2%; top: 92%;" aria-hidden="true">5</span>
+        </figure>
+        <ol class="ds-anatomy__list">
+          <li><div><b>Label</b><small>"Tags (optional)" from the <a href="form-field.html">form field</a>.</small></div></li><li><div><b>Chips</b><small><code>.chip.chip--removable</code>, each with a 44px remove button "Remove tag {tag}".</small></div></li><li><div><b>Text input</b><small><code>.tag-input__field</code>: the combobox; grows to fill the rest of the line.</small></div></li><li><div><b>Suggestions</b><small><code>.combobox__panel</code> with a listbox "Tags already in use": "{tag}" and "Used on {N} resources", then "Add “{text}” as a new tag".</small></div></li><li><div><b>Help</b><small>"Press Enter or comma to add. Pick an existing tag so spellings stay the same."</small></div></li>
+        </ol>
+      </div>
+    </section>
+
+    <section class="ds-section" id="variants"><h2><a href="#variants">Variants</a></h2>
+      <h3>Empty</h3>
+      <div class="ds-example">
+        <div class="ds-example__canvas ds-example__canvas--stack"><div class="field"><label class="field__label" for="v-t1">Tags <span class="optional">(optional)</span></label><div class="combobox"><div class="tag-input"><input class="tag-input__field" id="v-t1" type="text" role="combobox" aria-autocomplete="list" aria-expanded="false" aria-controls="v-t1-list" aria-describedby="v-t1-help" value=""></div></div><div class="field__help" id="v-t1-help">Press Enter or comma to add. Pick an existing tag so spellings stay the same.</div></div></div>
+        <div class="ds-example__caption"><span>Add a resource before any tag.</span></div>
+        <details class="ds-example__code"><summary>HTML</summary><pre><code>&lt;div class="field"&gt;&lt;label class="field__label" for="v-t1"&gt;Tags &lt;span class="optional"&gt;(optional)&lt;/span&gt;&lt;/label&gt;&lt;div class="combobox"&gt;&lt;div class="tag-input"&gt;&lt;input class="tag-input__field" id="v-t1" type="text" role="combobox" aria-autocomplete="list" aria-expanded="false" aria-controls="v-t1-list" aria-describedby="v-t1-help" value=""&gt;&lt;/div&gt;&lt;/div&gt;&lt;div class="field__help" id="v-t1-help"&gt;Press Enter or comma to add. Pick an existing tag so spellings stay the same.&lt;/div&gt;&lt;/div&gt;</code></pre></details>
+      </div>
+      <h3>With tags</h3>
+      <div class="ds-example">
+        <div class="ds-example__canvas ds-example__canvas--stack"><div class="field"><label class="field__label" for="v-t2">Tags <span class="optional">(optional)</span></label><div class="combobox"><div class="tag-input"><span class="chip chip--removable">hackathon<button class="chip__remove" type="button" aria-label="Remove tag hackathon"><svg class="icon icon--sm" aria-hidden="true" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18"/></svg></button></span><span class="chip chip--removable">judging<button class="chip__remove" type="button" aria-label="Remove tag judging"><svg class="icon icon--sm" aria-hidden="true" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18"/></svg></button></span><input class="tag-input__field" id="v-t2" type="text" role="combobox" aria-autocomplete="list" aria-expanded="false" aria-controls="v-t2-list" aria-describedby="v-t2-help" value=""></div></div><div class="field__help" id="v-t2-help">Press Enter or comma to add. Pick an existing tag so spellings stay the same.</div></div></div>
+        <div class="ds-example__caption"><span>Chips sit inside the field before the text input.</span></div>
+        <details class="ds-example__code"><summary>HTML</summary><pre><code>&lt;div class="field"&gt;&lt;label class="field__label" for="v-t2"&gt;Tags &lt;span class="optional"&gt;(optional)&lt;/span&gt;&lt;/label&gt;&lt;div class="combobox"&gt;&lt;div class="tag-input"&gt;&lt;span class="chip chip--removable"&gt;hackathon&lt;button class="chip__remove" type="button" aria-label="Remove tag hackathon"&gt;&lt;svg class="icon icon--sm" aria-hidden="true" viewBox="0 0 24 24"&gt;&lt;path d="M6 6l12 12M18 6 6 18"/&gt;&lt;/svg&gt;&lt;/button&gt;&lt;/span&gt;&lt;span class="chip chip--removable"&gt;judging&lt;button class="chip__remove" type="button" aria-label="Remove tag judging"&gt;&lt;svg class="icon icon--sm" aria-hidden="true" viewBox="0 0 24 24"&gt;&lt;path d="M6 6l12 12M18 6 6 18"/&gt;&lt;/svg&gt;&lt;/button&gt;&lt;/span&gt;&lt;input class="tag-input__field" id="v-t2" type="text" role="combobox" aria-autocomplete="list" aria-expanded="false" aria-controls="v-t2-list" aria-describedby="v-t2-help" value=""&gt;&lt;/div&gt;&lt;/div&gt;&lt;div class="field__help" id="v-t2-help"&gt;Press Enter or comma to add. Pick an existing tag so spellings stay the same.&lt;/div&gt;&lt;/div&gt;</code></pre></details>
+      </div>
+      <h3>Suggesting</h3>
+      <div class="ds-example">
+        <div class="ds-example__canvas ds-example__canvas--stack"><div class="field"><label class="field__label" for="v-t3">Tags <span class="optional">(optional)</span></label><div class="combobox"><div class="tag-input"><span class="chip chip--removable">hackathon<button class="chip__remove" type="button" aria-label="Remove tag hackathon"><svg class="icon icon--sm" aria-hidden="true" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18"/></svg></button></span><input class="tag-input__field" id="v-t3" type="text" role="combobox" aria-autocomplete="list" aria-expanded="true" aria-controls="v-t3-list" aria-activedescendant="v-t3-o1" aria-describedby="v-t3-help" value="hack"></div><div class="combobox__panel" id="v-t3-list"><ul class="combobox__list" role="listbox" aria-label="Tags already in use"><li class="combobox__option" role="option" id="v-t3-o1" aria-selected="true"><span class="combobox__text"><span class="combobox__title">hackathon</span><span class="combobox__detail">Used on 6 resources</span></span></li><li class="combobox__option" role="option" id="v-t3-o2"><span class="combobox__text"><span class="combobox__title">hackathon-judging</span><span class="combobox__detail">Used on 2 resources</span></span></li><li class="combobox__option" role="option" id="v-t3-o3"><span class="combobox__text"><span class="combobox__title">Add “hack” as a new tag</span></span></li></ul></div></div><div class="field__help" id="v-t3-help">Press Enter or comma to add. Pick an existing tag so spellings stay the same.</div></div><div style="height: 9rem" aria-hidden="true"></div></div>
+        <div class="ds-example__caption"><span>The panel opens under the field while typing; the first match is active.</span></div>
+        <details class="ds-example__code"><summary>HTML</summary><pre><code>&lt;div class="field"&gt;&lt;label class="field__label" for="v-t3"&gt;Tags &lt;span class="optional"&gt;(optional)&lt;/span&gt;&lt;/label&gt;&lt;div class="combobox"&gt;&lt;div class="tag-input"&gt;&lt;span class="chip chip--removable"&gt;hackathon&lt;button class="chip__remove" type="button" aria-label="Remove tag hackathon"&gt;&lt;svg class="icon icon--sm" aria-hidden="true" viewBox="0 0 24 24"&gt;&lt;path d="M6 6l12 12M18 6 6 18"/&gt;&lt;/svg&gt;&lt;/button&gt;&lt;/span&gt;&lt;input class="tag-input__field" id="v-t3" type="text" role="combobox" aria-autocomplete="list" aria-expanded="true" aria-controls="v-t3-list" aria-activedescendant="v-t3-o1" aria-describedby="v-t3-help" value="hack"&gt;&lt;/div&gt;&lt;div class="combobox__panel" id="v-t3-list"&gt;&lt;ul class="combobox__list" role="listbox" aria-label="Tags already in use"&gt;&lt;li class="combobox__option" role="option" id="v-t3-o1" aria-selected="true"&gt;&lt;span class="combobox__text"&gt;&lt;span class="combobox__title"&gt;hackathon&lt;/span&gt;&lt;span class="combobox__detail"&gt;Used on 6 resources&lt;/span&gt;&lt;/span&gt;&lt;/li&gt;&lt;li class="combobox__option" role="option" id="v-t3-o2"&gt;&lt;span class="combobox__text"&gt;&lt;span class="combobox__title"&gt;hackathon-judging&lt;/span&gt;&lt;span class="combobox__detail"&gt;Used on 2 resources&lt;/span&gt;&lt;/span&gt;&lt;/li&gt;&lt;li class="combobox__option" role="option" id="v-t3-o3"&gt;&lt;span class="combobox__text"&gt;&lt;span class="combobox__title"&gt;Add “hack” as a new tag&lt;/span&gt;&lt;/span&gt;&lt;/li&gt;&lt;/ul&gt;&lt;/div&gt;&lt;/div&gt;&lt;div class="field__help" id="v-t3-help"&gt;Press Enter or comma to add. Pick an existing tag so spellings stay the same.&lt;/div&gt;&lt;/div&gt;&lt;div style="height: 9rem" aria-hidden="true"&gt;&lt;/div&gt;</code></pre></details>
+      </div>
+    </section>
+
+    <section class="ds-section" id="sizes"><h2><a href="#sizes">Sizes</a></h2>
+      <p>One size: at least <code>--control-height-md</code> (44px) tall, growing a line at a time as chips wrap.</p>
+    </section>
+
+    <section class="ds-section" id="states"><h2><a href="#states">States</a></h2>
+      <div class="ds-matrix"><table><thead><tr><th scope="col">State</th><th scope="col">Example</th></tr></thead><tbody><tr><th scope="row">Default</th><td><div class="field"><label class="field__label" for="s-t1">Tags <span class="optional">(optional)</span></label><div class="combobox"><div class="tag-input"><span class="chip chip--removable">hackathon<button class="chip__remove" type="button" aria-label="Remove tag hackathon"><svg class="icon icon--sm" aria-hidden="true" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18"/></svg></button></span><span class="chip chip--removable">judging<button class="chip__remove" type="button" aria-label="Remove tag judging"><svg class="icon icon--sm" aria-hidden="true" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18"/></svg></button></span><input class="tag-input__field" id="s-t1" type="text" role="combobox" aria-autocomplete="list" aria-expanded="false" aria-controls="s-t1-list" aria-describedby="s-t1-help" value=""></div></div><div class="field__help" id="s-t1-help">Press Enter or comma to add. Pick an existing tag so spellings stay the same.</div></div></td></tr><tr><th scope="row">Focus</th><td><div class="field"><label class="field__label" for="s-t2">Tags <span class="optional">(optional)</span></label><div class="combobox"><div class="tag-input" data-state="focus"><span class="chip chip--removable">hackathon<button class="chip__remove" type="button" aria-label="Remove tag hackathon"><svg class="icon icon--sm" aria-hidden="true" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18"/></svg></button></span><span class="chip chip--removable">judging<button class="chip__remove" type="button" aria-label="Remove tag judging"><svg class="icon icon--sm" aria-hidden="true" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18"/></svg></button></span><input class="tag-input__field" id="s-t2" type="text" role="combobox" aria-autocomplete="list" aria-expanded="false" aria-controls="s-t2-list" aria-describedby="s-t2-help" value=""></div></div><div class="field__help" id="s-t2-help">Press Enter or comma to add. Pick an existing tag so spellings stay the same.</div></div></td></tr><tr><th scope="row">Invalid</th><td><div class="field"><label class="field__label" for="s-t3">Tags <span class="optional">(optional)</span></label><div class="combobox"><div class="tag-input" aria-invalid="true"><span class="chip chip--removable">hackathon<button class="chip__remove" type="button" aria-label="Remove tag hackathon"><svg class="icon icon--sm" aria-hidden="true" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18"/></svg></button></span><span class="chip chip--removable">judging<button class="chip__remove" type="button" aria-label="Remove tag judging"><svg class="icon icon--sm" aria-hidden="true" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18"/></svg></button></span><input class="tag-input__field" id="s-t3" type="text" role="combobox" aria-autocomplete="list" aria-expanded="false" aria-controls="s-t3-list" aria-describedby="s-t3-help s-t3-error" value="this-tag-is-far-too-long-to-be-a-useful-tag-really" aria-invalid="true"></div></div><div class="field__help" id="s-t3-help">Press Enter or comma to add. Pick an existing tag so spellings stay the same.</div><div class="field__error" id="s-t3-error">Keep each tag under 40 characters.</div></div></td></tr><tr><th scope="row">Disabled (busy)</th><td><div class="field"><label class="field__label" for="s-t4">Tags <span class="optional">(optional)</span></label><div class="combobox"><div class="tag-input"><span class="chip chip--removable">hackathon<button class="chip__remove" type="button" aria-label="Remove tag hackathon"><svg class="icon icon--sm" aria-hidden="true" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18"/></svg></button></span><span class="chip chip--removable">judging<button class="chip__remove" type="button" aria-label="Remove tag judging"><svg class="icon icon--sm" aria-hidden="true" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18"/></svg></button></span><input class="tag-input__field" id="s-t4" type="text" role="combobox" aria-autocomplete="list" aria-expanded="false" aria-controls="s-t4-list" aria-describedby="s-t4-help" value="" disabled></div></div><div class="field__help" id="s-t4-help">Press Enter or comma to add. Pick an existing tag so spellings stay the same.</div></div></td></tr><tr><th scope="row">Loading suggestions</th><td><div class="field"><label class="field__label" for="s-t5">Tags <span class="optional">(optional)</span></label><div class="combobox"><div class="tag-input"><input class="tag-input__field" id="s-t5" type="text" role="combobox" aria-autocomplete="list" aria-expanded="true" aria-controls="s-t5-list" aria-describedby="s-t5-help" value="hack"></div><div class="combobox__panel" id="s-t5-list"><p class="combobox__note" aria-busy="true">Finding tags…</p></div></div><div class="field__help" id="s-t5-help">Press Enter or comma to add. Pick an existing tag so spellings stay the same.</div></div></td></tr><tr><th scope="row">No matches</th><td><div class="field"><label class="field__label" for="s-t6">Tags <span class="optional">(optional)</span></label><div class="combobox"><div class="tag-input"><input class="tag-input__field" id="s-t6" type="text" role="combobox" aria-autocomplete="list" aria-expanded="true" aria-controls="s-t6-list" aria-activedescendant="s-t6-o1" aria-describedby="s-t6-help" value="zz"></div><div class="combobox__panel" id="s-t6-list"><ul class="combobox__list" role="listbox" aria-label="Tags already in use"><li class="combobox__option" role="option" id="s-t6-o1" aria-selected="true"><span class="combobox__text"><span class="combobox__title">Add “zz” as a new tag</span></span></li></ul></div></div><div class="field__help" id="s-t6-help">Press Enter or comma to add. Pick an existing tag so spellings stay the same.</div></div></td></tr></tbody></table></div><div style="height: 4rem" aria-hidden="true"></div>
+      <h3>Both themes</h3>
+      <div class="ds-themes">
+        <div data-theme="light"><div class="field"><label class="field__label" for="th-t">Tags <span class="optional">(optional)</span></label><div class="combobox"><div class="tag-input"><span class="chip chip--removable">hackathon<button class="chip__remove" type="button" aria-label="Remove tag hackathon"><svg class="icon icon--sm" aria-hidden="true" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18"/></svg></button></span><span class="chip chip--removable">judging<button class="chip__remove" type="button" aria-label="Remove tag judging"><svg class="icon icon--sm" aria-hidden="true" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18"/></svg></button></span><input class="tag-input__field" id="th-t" type="text" role="combobox" aria-autocomplete="list" aria-expanded="false" aria-controls="th-t-list" aria-describedby="th-t-help" value=""></div></div><div class="field__help" id="th-t-help">Press Enter or comma to add. Pick an existing tag so spellings stay the same.</div></div></div>
+        <div data-theme="dark"><div class="field"><label class="field__label" for="d-th-t">Tags <span class="optional">(optional)</span></label><div class="combobox"><div class="tag-input"><span class="chip chip--removable">hackathon<button class="chip__remove" type="button" aria-label="Remove tag hackathon"><svg class="icon icon--sm" aria-hidden="true" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18"/></svg></button></span><span class="chip chip--removable">judging<button class="chip__remove" type="button" aria-label="Remove tag judging"><svg class="icon icon--sm" aria-hidden="true" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18"/></svg></button></span><input class="tag-input__field" id="d-th-t" type="text" role="combobox" aria-autocomplete="list" aria-expanded="false" aria-controls="d-th-t-list" aria-describedby="d-th-t-help" value=""></div></div><div class="field__help" id="d-th-t-help">Press Enter or comma to add. Pick an existing tag so spellings stay the same.</div></div></div>
+      </div><ul><li>Tags are lower-cased, trimmed and de-duplicated as they are added; adding one that is already a chip does nothing.</li><li>Backspace in an empty input focuses the last chip's remove button; it never deletes silently.</li><li>Disabled: the whole field is disabled while the form submits.</li></ul>
+    </section>
+
+    <section class="ds-section" id="responsive"><h2><a href="#responsive">Responsive behaviour</a></h2>
+      <ul><li>Chips wrap; the input keeps at least 8rem and drops to its own line when needed.</li><li>The suggestion panel is as wide as the field and never wider than the viewport.</li></ul>
+    </section>
+
+    <section class="ds-section" id="theming"><h2><a href="#theming">Theming</a></h2>
+      <p>The field reads <code>--color-bg-surface</code> and <code>--color-border-strong</code>, focus <code>--color-focus-ring</code>, invalid <code>--color-danger-solid</code>. Chips and the panel read the <a href="chip.html">chip</a> and combobox tokens.</p>
+    </section>
+
+    <section class="ds-section" id="accessibility"><h2><a href="#accessibility">Accessibility</a></h2>
+      <h3>Role and pattern</h3><p>APG combobox with list autocomplete: the input has <code>role="combobox"</code>, <code>aria-autocomplete="list"</code>, <code>aria-expanded</code>, <code>aria-controls</code> and <code>aria-activedescendant</code>; the panel is a <code>listbox</code> named "Tags already in use". The chips are a list of buttons named "Remove tag {tag}". Adding or removing a tag is announced politely ("hackathon added").</p><h3>Keyboard</h3><table class="ds-table ds-keys"><thead><tr><th scope="col">Key</th><th scope="col">Action</th></tr></thead><tbody><tr><td><kbd>↓</kbd> / <kbd>↑</kbd></td><td>Opens the panel and moves the active option.</td></tr><tr><td><kbd>Enter</kbd></td><td>Adds the active option, or the typed text when nothing is active.</td></tr><tr><td><kbd>,</kbd></td><td>Adds the typed text.</td></tr><tr><td><kbd>Escape</kbd></td><td>Closes the panel; a second Escape is left to the dialog.</td></tr><tr><td><kbd>Backspace</kbd> (empty input)</td><td>Moves focus to the last chip's remove button.</td></tr><tr><td><kbd>Tab</kbd></td><td>Leaves the field; typed text is kept, not added.</td></tr></tbody></table><h3>Focus</h3><p>The ring is drawn on the whole field (<code>:focus-within</code>); the active option has the accent tint and an inset ring.</p><h3>Contrast</h3><div class="ds-themes"><div data-theme="light"><div class="ds-example__canvas ds-example__canvas--stack" style="padding: 0; gap: var(--space-2);"><div class="ds-pair"><span>Text on field</span><span class="ds-pair__ratio" data-contrast="--color-fg-default|--color-bg-surface" data-min="4.5"></span></div><div class="ds-pair"><span>Field border</span><span class="ds-pair__ratio" data-contrast="--color-border-strong|--color-bg-surface" data-min="3"></span></div><div class="ds-pair"><span>Option detail</span><span class="ds-pair__ratio" data-contrast="--color-fg-muted|--color-bg-surface-raised" data-min="4.5"></span></div><div class="ds-pair"><span>Active option</span><span class="ds-pair__ratio" data-contrast="--color-fg-default|--color-accent-subtle" data-min="4.5"></span></div></div></div><div data-theme="dark"><div class="ds-example__canvas ds-example__canvas--stack" style="padding: 0; gap: var(--space-2);"><div class="ds-pair"><span>Text on field</span><span class="ds-pair__ratio" data-contrast="--color-fg-default|--color-bg-surface" data-min="4.5"></span></div><div class="ds-pair"><span>Field border</span><span class="ds-pair__ratio" data-contrast="--color-border-strong|--color-bg-surface" data-min="3"></span></div><div class="ds-pair"><span>Option detail</span><span class="ds-pair__ratio" data-contrast="--color-fg-muted|--color-bg-surface-raised" data-min="4.5"></span></div><div class="ds-pair"><span>Active option</span><span class="ds-pair__ratio" data-contrast="--color-fg-default|--color-accent-subtle" data-min="4.5"></span></div></div></div></div><h3>Touch</h3><p>Each chip's remove button is 44px.</p>
+    </section>
+
+    <section class="ds-section" id="content"><h2><a href="#content">Content</a></h2>
+      <ul><li>Label "Tags (optional)"; help "Press Enter or comma to add. Pick an existing tag so spellings stay the same."</li><li>Suggestions read "{tag}" with "Used on {N} resources"; the new-tag option reads "Add “{text}” as a new tag".</li><li>Tags are shown lower-case, as stored.</li></ul>
+    </section>
+
+    <section class="ds-section" id="do-dont"><h2><a href="#do-dont">Do and don't</a></h2>
+      <div class="ds-dodont">
+        <figure class="ds-do"><div class="ds-example__canvas"><div class="field"><label class="field__label" for="dd-t1">Tags <span class="optional">(optional)</span></label><div class="combobox"><div class="tag-input"><span class="chip chip--removable">hackathon<button class="chip__remove" type="button" aria-label="Remove tag hackathon"><svg class="icon icon--sm" aria-hidden="true" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18"/></svg></button></span><span class="chip chip--removable">judging<button class="chip__remove" type="button" aria-label="Remove tag judging"><svg class="icon icon--sm" aria-hidden="true" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18"/></svg></button></span><input class="tag-input__field" id="dd-t1" type="text" role="combobox" aria-autocomplete="list" aria-expanded="false" aria-controls="dd-t1-list" aria-describedby="dd-t1-help" value=""></div></div><div class="field__help" id="dd-t1-help">Press Enter or comma to add. Pick an existing tag so spellings stay the same.</div></div></div><figcaption>Show each tag as a chip with its own Remove.</figcaption></figure><figure class="ds-dont"><div class="ds-example__canvas"><div class="field"><label class="field__label" for="dd-t2">Tags</label><input class="input" id="dd-t2" value="hackathon, Judging ,judging"></div></div><figcaption>A comma-separated text box: duplicates and spellings drift.</figcaption></figure><figure class="ds-do"><div class="ds-example__canvas"><p class="text-caption">Used on 6 resources</p></div><figcaption>Say how often a tag is used so people pick the common one.</figcaption></figure><figure class="ds-dont"><div class="ds-example__canvas"><p class="text-caption">hackathon (6)</p></div><figcaption>Bare counts in brackets read as part of the tag.</figcaption></figure>
+      </div>
+    </section>
+
+    <section class="ds-section" id="tokens"><h2><a href="#tokens">Tokens</a></h2>
+      <div class="ds-table-wrap"><table class="ds-table">
+        <thead><tr><th scope="col">Part</th><th scope="col">Token</th><th scope="col">Light</th><th scope="col">Dark</th></tr></thead>
+        <tbody>
+          <tr><td>Field background</td><td><code>--color-bg-surface</code></td><td><span class="ds-swatch-cell" data-theme="light"><i data-token="--color-bg-surface" data-swatch></i><span data-token="--color-bg-surface"></span></span></td><td><span class="ds-swatch-cell" data-theme="dark"><i data-token="--color-bg-surface" data-swatch></i><span data-token="--color-bg-surface"></span></span></td></tr>
+          <tr><td>Field border</td><td><code>--color-border-strong</code></td><td><span class="ds-swatch-cell" data-theme="light"><i data-token="--color-border-strong" data-swatch></i><span data-token="--color-border-strong"></span></span></td><td><span class="ds-swatch-cell" data-theme="dark"><i data-token="--color-border-strong" data-swatch></i><span data-token="--color-border-strong"></span></span></td></tr>
+          <tr><td>Focus ring</td><td><code>--color-focus-ring</code></td><td><span class="ds-swatch-cell" data-theme="light"><i data-token="--color-focus-ring" data-swatch></i><span data-token="--color-focus-ring"></span></span></td><td><span class="ds-swatch-cell" data-theme="dark"><i data-token="--color-focus-ring" data-swatch></i><span data-token="--color-focus-ring"></span></span></td></tr>
+          <tr><td>Invalid border</td><td><code>--color-danger-solid</code></td><td><span class="ds-swatch-cell" data-theme="light"><i data-token="--color-danger-solid" data-swatch></i><span data-token="--color-danger-solid"></span></span></td><td><span class="ds-swatch-cell" data-theme="dark"><i data-token="--color-danger-solid" data-swatch></i><span data-token="--color-danger-solid"></span></span></td></tr>
+          <tr><td>Panel</td><td><code>--color-bg-surface-raised</code></td><td><span class="ds-swatch-cell" data-theme="light"><i data-token="--color-bg-surface-raised" data-swatch></i><span data-token="--color-bg-surface-raised"></span></span></td><td><span class="ds-swatch-cell" data-theme="dark"><i data-token="--color-bg-surface-raised" data-swatch></i><span data-token="--color-bg-surface-raised"></span></span></td></tr>
+          <tr><td>Active option</td><td><code>--color-accent-subtle</code></td><td><span class="ds-swatch-cell" data-theme="light"><i data-token="--color-accent-subtle" data-swatch></i><span data-token="--color-accent-subtle"></span></span></td><td><span class="ds-swatch-cell" data-theme="dark"><i data-token="--color-accent-subtle" data-swatch></i><span data-token="--color-accent-subtle"></span></span></td></tr>
+          <tr><td>Min height</td><td><code>--control-height-md</code></td><td colspan="2"><span data-token="--control-height-md"></span></td></tr>
+          <tr><td>Remove target</td><td><code>--target-min</code></td><td colspan="2"><span data-token="--target-min"></span></td></tr>
+          <tr><td>Radius</td><td><code>--radius-md</code></td><td colspan="2"><span data-token="--radius-md"></span></td></tr>
+        </tbody>
+      </table></div>
+    </section>
+
+    <section class="ds-section" id="code"><h2><a href="#code">Code</a></h2>
+      <pre><code>&lt;ft-form-field label="Tags (optional)" help="Press Enter or comma to add. Pick an existing tag so spellings stay the same."&gt;
+  &lt;ft-tag-input
+    [tags]="tags()"
+    [suggestions]="suggestions()"
+    suggestionsLabel="Tags already in use"
+    (query)="searchTags($event)"
+    (tagsChange)="tags.set($event)" /&gt;
+&lt;/ft-form-field&gt;</code></pre><table class="ds-table"><thead><tr><th scope="col">Class / attribute / input</th><th scope="col">Effect</th></tr></thead><tbody><tr><td><code>.tag-input</code></td><td>The field-shaped box holding chips and the input.</td></tr><tr><td><code>.tag-input__field</code></td><td>The combobox input.</td></tr><tr><td><code>.chip--removable / .chip__remove</code></td><td>A chip with its remove button.</td></tr><tr><td><code>.combobox__panel / .combobox__list / .combobox__option</code></td><td>The suggestion panel, shared with the person picker.</td></tr><tr><td><code>[suggestions]</code></td><td><code>{ value, detail }[]</code> from the feature; the component does no HTTP.</td></tr><tr><td><code>(query)</code></td><td>Emits the typed text, debounced by the feature.</td></tr></tbody></table>
+    </section>
+
+    <section class="ds-section" id="sources"><h2><a href="#sources">Sources</a></h2>
+      <p>Extracted from these mocks:</p>
+      <ul><li><a href="../../mocks/dialogs/add-resource/default.html">dialogs/add-resource/default</a> (empty)</li><li><a href="../../mocks/dialogs/add-resource/single.html">dialogs/add-resource/single</a> (with a tag)</li><li><a href="../../mocks/dialogs/edit-resource/default.html">dialogs/edit-resource/default</a> (with tags)</li><li><a href="../../mocks/dialogs/add-resource/busy.html">dialogs/add-resource/busy</a> (disabled)</li></ul>
+      <p>The <code>.tag-input</code>, <code>.chip--removable</code> and <code>.chip__remove</code> rules were added to <code>assets/components.css</code> with the Resources mocks; the suggestion panel reuses the existing <code>.combobox</code> rules. Built once as <code>TagInputComponent</code> in <code>frontend/projects/components/</code>.</p>
+    </section>
+    <footer class="ds-footer"><span>FaithTech Community design system · extracted from <a href="../../mocks/index.html">docs/mocks</a> on 2026-10-22</span><a href="#top">Back to top</a></footer>
+  </main>
+</div>
+<script src="../assets/ds.js"></script>
+</body>
+</html>

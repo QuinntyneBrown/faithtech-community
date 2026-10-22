@@ -1,0 +1,40 @@
+@startuml
+!include <C4/C4_Component>
+LAYOUT_WITH_LEGEND()
+title Components — Archive, restore, purge and transfer resources
+Container_Boundary(web, "Web app") {
+  Component(adlg, "ArchiveResourceDialog", "CDK dialog (resources library)", "Archive {title}?; Archiving…; Not archived")
+  Component(apage, "ArchivedResourcesPage", "Angular page (resources library)", "/resources/archived; Restore {title}")
+  Component(tdlg, "TransferOwnershipDialog", "CDK dialog (resources library)", "New owner picker; Transfer to {name}")
+  Component(svc, "HttpResourcesService", "Angular service (api library)", "archive, restore, archived, ownerCandidates, transfer")
+}
+Container_Boundary(api, "Community API") {
+  Component(ep, "ResourcesEndpoints", "ASP.NET Core minimal API", "POST /{id}/archive, /{id}/restore; GET /archived, /owner-candidates; PUT /{id}/owner")
+  Component(arch, "ArchiveResourceHandler", "Application handler", "ArchiveAsync, RestoreAsync, ListArchivedAsync")
+  Component(tr, "TransferOwnershipHandler", "Application handler", "System Admin only; contributor target; audit; notify")
+  Component(mem, "ResourceMembersHandler", "Application handler", "OwnerCandidatesAsync")
+  Component(purge, "PurgeArchivedResourcesHandler", "Application handler", "Archived >= 30 days: blobs and row")
+  Component(retry, "ResourceStorageRetryHandler", "Application handler", "Pending Save and Delete")
+  Component(worker, "ResourceMaintenanceWorker", "BackgroundService", "Outbox interval, Outbox:Enabled")
+  Component(acc, "ResourceAccess", "Application permission rule", "CanEdit, IsAdminOverride")
+  Component(pub, "NotificationPublisher", "Implements INotificationPublisher", "ResourceOwnershipTransferred")
+  Component(audit, "AuditLog", "Implements IAuditLog", "resource.archived, restored, owner.transferred")
+  Component(store, "AzureBlobFileStorage", "Implements IFileStorage", "DeleteAsync")
+  ComponentDb(db, "CommunityDbContext", "PostgreSQL", "Resources, ResourceBlobTasks, AuditEntries")
+}
+Rel(adlg, svc, "archive")
+Rel(apage, svc, "archived, restore")
+Rel(tdlg, svc, "ownerCandidates, transfer")
+Rel(svc, ep, "Sends request", "JSON/HTTPS")
+Rel(ep, arch, "Calls")
+Rel(ep, tr, "Calls")
+Rel(ep, mem, "Calls")
+Rel(arch, acc, "CanEdit")
+Rel(arch, audit, "Override")
+Rel(tr, audit, "Always")
+Rel(tr, pub, "New owner")
+Rel(worker, retry, "RetryDueAsync")
+Rel(worker, purge, "PurgeDueAsync")
+Rel(purge, store, "Delete file and thumbnail")
+Rel(purge, db, "Delete row", "EF Core")
+@enduml

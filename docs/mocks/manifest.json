@@ -1724,6 +1724,7 @@
       "opens_from": "resource",
       "requirements": [
         "L2-059",
+        "L2-061",
         "L2-062"
       ],
       "states": [

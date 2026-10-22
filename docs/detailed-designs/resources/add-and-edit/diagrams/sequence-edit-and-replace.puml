@@ -1,0 +1,82 @@
+@startuml
+title UML sequence behaviour — Edit a resource and replace its file
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+actor "Owner or System Admin" as actor
+box "Frontend — FaithTech Community web app (resources library)" #E0F2FE
+  participant "EditResourceDialog" as dlg
+  participant "HttpResourcesService" as svc
+end box
+box "Backend — FaithTech.Community.Api" #D1FADF
+  participant "ResourcesEndpoints" as ep
+end box
+box "Backend — FaithTech.Community.Application and Domain" #ECFDF3
+  participant "EditResourceHandler" as edit
+  participant "ReplaceFileHandler" as rep
+  participant "ResourceAccess" as acc
+end box
+box "Backend — FaithTech.Community.Infrastructure" #FFF4E5
+  participant "AzureBlobFileStorage" as store
+  participant "AuditLog" as audit
+  database "Community database" as db
+end box
+actor -> dlg : Edit on /resources/{id}
+dlg --> actor : "Edit {title}", fields pre-filled (L2-062 AC1)
+opt Replace file
+  actor -> dlg : Choose a new file
+  dlg --> actor : Row "· new", warning "This replaces {old}…", "Save and replace file" (AC2)
+end
+actor -> dlg : Save
+dlg --> actor : "Saving…", disabled (AC5)
+dlg -> svc : update(id, details)
+svc -> ep : PUT /api/resources/{id}
+ep -> edit : EditAsync(id, command)
+edit -> acc : VisibleOrOwnArchived; CanEdit
+alt not visible
+  ep --> svc : 404
+else visible but not owner or System Admin (Staff and other leads included)
+  ep --> svc : 403 (AC3, L2-066 AC2)
+else may edit
+  edit -> edit : SetDetails, SetTags, SetLink, SetAudience, Touch(caller, now)
+  opt System Admin override
+    edit -> audit : resource.edited with before and after (L2-064 AC1)
+  end
+  edit -> db : Save
+  ep --> svc : 200 ResourceDto
+end
+opt a new file was chosen
+  dlg -> svc : replaceFile(id, file)
+  svc -> ep : PUT /api/resources/{id}/file (multipart)
+  ep -> rep : ReplaceAsync(id, file)
+  rep -> acc : CanEdit
+  rep -> rep : ResourceFileTypes.Check; thumbnail for an image
+  rep -> store : SaveAsync(resources/{id}/{newBlobId}.{ext})
+  rep -> rep : ReplaceFile(file, caller, now) returns the old file
+  rep -> store : DeleteAsync(old blob and thumbnail)
+  alt delete fails
+    rep -> rep : Queue ResourceBlobTask.Delete
+  end
+  opt System Admin override
+    rep -> audit : resource.file.replaced
+  end
+  rep -> db : Save; same id and URL (AC2)
+  ep --> svc : 200 ResourceDto
+end
+alt saved
+  dlg --> actor : Close; page shows "Updated {date} by {who} — file replaced"
+else request failed
+  dlg --> actor : "Changes not saved" with Try again; nothing changed (AC4)
+end
+@enduml

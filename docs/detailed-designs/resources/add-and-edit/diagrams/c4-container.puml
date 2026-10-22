@@ -1,0 +1,16 @@
+@startuml
+!include <C4/C4_Container>
+LAYOUT_WITH_LEGEND()
+title Containers — Add and edit resources
+Person(contrib, "Contributor", "Lead, Staff or System Admin")
+System_Boundary(community, "FaithTech Community") {
+  Container(web, "Web app", "Angular", "resources feature library: add and edit dialogs; api and components libraries")
+  Container(api, "Community API", "ASP.NET Core", "Endpoints, handlers, file rules, image processor, maintenance worker")
+  ContainerDb(db, "Community database", "PostgreSQL", "Resources, tags, audiences, ResourceBlobTasks")
+}
+System_Ext(blob, "Azure Blob Storage", "Private resources container")
+Rel(contrib, web, "Uses", "HTTPS")
+Rel(web, api, "Uploads and edits", "multipart and JSON/HTTPS, OAuth2 bearer token")
+Rel(api, db, "Writes resources and pending blob work", "EF Core")
+Rel(api, blob, "SaveAsync, DeleteAsync", "Azure SDK")
+@enduml

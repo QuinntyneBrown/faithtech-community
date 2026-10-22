@@ -1,0 +1,50 @@
+@startuml
+title UML sequence behaviour — Storage outage and retry
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+participant "AddResourcesHandler" as h
+participant "ResourceMaintenanceWorker" as w
+participant "ResourceStorageRetryHandler" as r
+participant "AzureBlobFileStorage" as store
+database "Community database" as db
+actor "Signed-in member" as member
+h -> store : SaveAsync(blob)
+store --> h : Fails (storage unavailable)
+h -> h : File.MarkStoring(); ResourceBlobTask.Save(resourceId, blobName, bytes, contentType, now)
+h -> db : Save Resource and task together (L2-057 AC11)
+member -> h : (via API) list and open the resource
+note right of member
+  Listed with its type icon; the download answers
+  409 "This file is still uploading. Try again in a minute."
+end note
+loop every outbox interval
+  w -> r : RetryDueAsync()
+  r -> db : Tasks with NextAttemptAt <= now
+  alt Save
+    r -> store : SaveAsync(blobName, content)
+    alt succeeds
+      r -> r : File.MarkStored(); remove the task
+    else fails again
+      r -> r : task.Failed(now): backoff doubling, at most one hour
+    end
+  else Delete
+    r -> store : DeleteAsync(blobName)
+    r -> r : Remove the task on success, else Failed(now)
+  end
+  r -> db : Save
+end
+member -> h : Download again
+note right of member: 200 with the original file name, no new upload needed
+@enduml

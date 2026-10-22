@@ -1,0 +1,59 @@
+@startuml
+title UML sequence behaviour — Resources group in global search
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+actor "Signed-in member" as actor
+box "Frontend — FaithTech Community web app (search library)" #E0F2FE
+  participant "SearchPage" as page
+  participant "HttpSearchService" as svc
+end box
+box "Backend — FaithTech.Community.Api" #D1FADF
+  participant "SearchEndpoints" as ep
+end box
+box "Backend — FaithTech.Community.Application and Domain" #ECFDF3
+  participant "GlobalSearchHandler" as g
+  participant "ResourcesSearchSource" as src
+  participant "ResourceAccess" as acc
+end box
+box "Backend — FaithTech.Community.Infrastructure" #FFF4E5
+  participant "PostgresFullTextSearch" as fts
+  database "Community database" as db
+end box
+actor -> page : Search "launch"
+page -> svc : search("launch")
+svc -> ep : GET /api/search?q=launch
+alt anonymous
+  ep --> svc : 401 (L2-065 AC3)
+else signed in
+  ep -> g : SearchAsync("launch")
+  g -> g : People, events, partners, contacts, work items sources
+  g -> src : SearchAsync("launch", caller, limit: 10)
+  src -> acc : Visible(Resources, caller)
+  note right of acc: Archived and invisible rows are excluded before matching (L2-065 AC2)
+  src -> fts : Match(visible, "launch", Title + Description + TagText + FileName)
+  fts -> db : WHERE visibility predicate AND SearchVector @@ to_tsquery('launch:*') ORDER BY ts_rank LIMIT 10
+  db --> src : Best matches first
+  src -> src : SearchResultItem per row: /resources/{id}, "{Type} · {EXT or host} · {owner}", why it matched, badge
+  src --> g : Up to 10 items
+  g --> ep : Groups, Resources after work items
+  ep --> svc : 200 SearchResultsDto
+  svc --> page : Groups
+  page --> actor : "Resources (N)" with "See all in Resources" -> /resources?q=launch (L2-065 AC1)
+end
+note over db
+  SearchVector is a generated tsvector column, so an add, edit,
+  archive or restore is searchable at once with no reindex (L2-065 AC4)
+end note
+@enduml

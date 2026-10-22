@@ -1,0 +1,211 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>File row — FaithTech Community design system</title>
+<meta name="description" content="One chosen or uploading file: type icon, file name, type and size, upload progress, and Remove, in every upload state.">
+<link rel="stylesheet" href="../tokens/tokens.css">
+<link rel="stylesheet" href="../assets/components.css">
+<link rel="stylesheet" href="../assets/ds.css">
+</head>
+<body id="top">
+<a class="skip-link" href="#main">Skip to content</a>
+<div class="ds-shell">
+  <nav class="ds-nav" aria-label="Design system">
+    <div class="ds-nav__brand"><a href="../index.html">FaithTech DS</a><button class="ds-theme-toggle" type="button" aria-pressed="false">☾ Dark</button></div>
+    <details open><summary>Foundations</summary><ul>
+      <li><a href="../foundations/color.html">Color</a></li>
+      <li><a href="../foundations/typography.html">Typography</a></li>
+      <li><a href="../foundations/spacing.html">Spacing</a></li>
+      <li><a href="../foundations/layout.html">Layout</a></li>
+      <li><a href="../foundations/elevation.html">Elevation</a></li>
+      <li><a href="../foundations/shape.html">Shape</a></li>
+      <li><a href="../foundations/motion.html">Motion</a></li>
+      <li><a href="../foundations/iconography.html">Iconography</a></li>
+      <li><a href="../foundations/theming.html">Theming</a></li>
+      <li><a href="../foundations/responsive.html">Responsive</a></li>
+      <li><a href="../foundations/accessibility.html">Accessibility</a></li>
+      <li><a href="../foundations/content.html">Content</a></li>
+    </ul></details>
+    <details open><summary>Components</summary><ul>
+      <li><a href="../components/button.html">Button</a></li>
+      <li><a href="../components/link.html">Link</a></li>
+      <li><a href="../components/menu.html">Menu</a></li>
+      <li><a href="../components/form-field.html">Form field</a></li>
+      <li><a href="../components/text-field.html">Text field</a></li>
+      <li><a href="../components/textarea.html">Textarea</a></li>
+      <li><a href="../components/select.html">Select</a></li>
+      <li><a href="../components/radio-group.html">Radio group</a></li><li><a href="../components/checkbox-group.html">Checkbox group</a></li>
+      <li><a href="../components/switch.html">Switch</a></li>
+      <li><a href="../components/form-layout.html">Form layout</a></li>
+      <li><a href="../components/picture-list.html">Picture list</a></li>
+      <li><a href="../components/file-dropzone.html">File drop zone</a></li>
+      <li><a href="../components/file-row.html">File row</a></li>
+      <li><a href="../components/tag-input.html">Tag input</a></li>
+      <li><a href="../components/person-picker.html">Person picker</a></li>
+      <li><a href="../components/type-icon.html">Type icon</a></li>
+      <li><a href="../components/sticker-picker.html">Estimate card picker</a></li>
+      <li><a href="../components/top-bar.html">Top bar</a></li>
+      <li><a href="../components/tab-bar.html">Tab bar</a></li>
+      <li><a href="../components/tabs.html">Tabs</a></li>
+      <li><a href="../components/breadcrumb.html">Breadcrumb</a></li>
+      <li><a href="../components/skip-link.html">Skip link</a></li>
+      <li><a href="../components/layout.html">Layout primitives</a></li>
+      <li><a href="../components/card.html">Card</a></li>
+      <li><a href="../components/dialog.html">Dialog</a></li>
+      <li><a href="../components/notification-panel.html">Notification panel</a></li>
+      <li><a href="../components/list.html">List</a></li>
+      <li><a href="../components/table.html">Table</a></li>
+      <li><a href="../components/description-list.html">Description list</a></li>
+      <li><a href="../components/feed.html">Activity feed</a></li>
+      <li><a href="../components/tree.html">Backlog tree</a></li>
+      <li><a href="../components/kanban.html">Kanban board</a></li>
+      <li><a href="../components/event-card.html">Event card</a></li>
+      <li><a href="../components/profile-header.html">Profile header</a></li>
+      <li><a href="../components/search-results.html">Search results</a></li>
+      <li><a href="../components/note.html">Note</a></li>
+      <li><a href="../components/avatar.html">Avatar</a></li>
+      <li><a href="../components/logo-mark.html">Logo mark</a></li>
+      <li><a href="../components/badge.html">Badge</a></li>
+      <li><a href="../components/chip.html">Chip</a></li>
+      <li><a href="../components/stat.html">Stat</a></li>
+      <li><a href="../components/sticker.html">Estimate card</a></li>
+      <li><a href="../components/toast.html">Toast</a></li>
+      <li><a href="../components/alert.html">Alert and banner</a></li>
+      <li><a href="../components/inline-message.html">Inline message</a></li>
+      <li><a href="../components/progress.html">Progress</a></li>
+      <li><a href="../components/skeleton.html">Skeleton</a></li>
+      <li><a href="../components/empty-state.html">Empty state</a></li>
+      <li><a href="../components/error-page.html">Error page</a></li>
+    </ul></details>
+    <details open><summary>Patterns</summary><ul>
+      <li><a href="../patterns/forms.html">Forms</a></li>
+      <li><a href="../patterns/feedback-and-loading.html">Feedback and loading</a></li>
+      <li><a href="../patterns/empty-and-error-states.html">Empty and error states</a></li>
+      <li><a href="../patterns/navigation.html">Navigation and page structure</a></li>
+      <li><a href="../patterns/dialogs-and-overlays.html">Dialogs and overlays</a></li>
+      <li><a href="../patterns/lists-and-tables.html">Lists and tables</a></li>
+      <li><a href="../patterns/notifications.html">Notifications</a></li>
+      <li><a href="../patterns/content-and-tone.html">Content and tone</a></li>
+    </ul></details>
+  </nav>
+
+  <main id="main" class="ds-main">
+    <header class="ds-header">
+      <p class="ds-kicker">Component · Lists</p>
+      <h1>File row</h1>
+      <p class="ds-lead">One file in an upload: its type icon, name, type and size, then its progress and outcome. Rows sit in a flush card list above the drop zone.</p>
+      <div class="ds-meta"><span class="ds-pill ds-pill--ok">WCAG 2.2 AA</span><span class="ds-pill">Status: new</span><span class="ds-pill"><code>ft-file-row</code></span></div>
+      <ul class="ds-toc">
+        <li><a href="#overview">Overview</a></li><li><a href="#anatomy">Anatomy</a></li><li><a href="#variants">Variants</a></li><li><a href="#sizes">Sizes</a></li><li><a href="#states">States</a></li><li><a href="#responsive">Responsive</a></li><li><a href="#theming">Theming</a></li><li><a href="#accessibility">Accessibility</a></li><li><a href="#content">Content</a></li><li><a href="#do-dont">Do and don't</a></li><li><a href="#tokens">Tokens</a></li><li><a href="#code">Code</a></li><li><a href="#sources">Sources</a></li>
+      </ul>
+    </header>
+
+    <section class="ds-section" id="overview"><h2><a href="#overview">Overview</a></h2>
+      <p>Use file rows to show the files a member has chosen before and while they upload: in Add a resource (single, batch, busy, failed, invalid) and in Edit a resource (the current file and its replacement). A finished resource in a list is a <a href="list.html">list</a> row with a <a href="type-icon.html">type icon</a>, not a file row.</p><ul><li><b>Ready</b>: chosen, not yet sent; offers Remove.</li><li><b>Uploading</b>: determinate <a href="progress.html">progress</a> with a percentage.</li><li><b>Uploaded</b>: 100% and the success badge "Uploaded".</li><li><b>Failed</b>: the danger badge "Didn’t upload" and Remove; retried by the dialog's "Try N again".</li><li><b>Refused</b>: the danger badge "Can’t add" (wrong type, too big or content that doesn’t match) and Remove.</li><li><b>Current / new</b> (edit): the current file with Replace file, or the replacement marked new.</li></ul>
+    </section>
+
+    <section class="ds-section" id="anatomy"><h2><a href="#anatomy">Anatomy</a></h2>
+      <div class="ds-anatomy">
+        <figure class="ds-anatomy__figure" style="max-width: 32rem;">
+          <ul class="list card card--flush"><li class="list__item"><span class="icon-tile icon-tile--sm" aria-hidden="true"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><path d="M12 3l2.6 5.3 5.9.9-4.3 4.1 1 5.8L12 16.4l-5.2 2.7 1-5.8-4.3-4.1 5.9-.9z"/></svg></span><div class="list__body"><div class="list__title truncate">faithtech-wordmark-dark.png</div><div class="list__meta">Logo · 208 KB</div><div class="progress-row"><div class="progress" role="progressbar" aria-valuenow="64" aria-valuemin="0" aria-valuemax="100" aria-label="Uploading faithtech-wordmark-dark.png"><div class="progress__bar" style="--value: 64%;"></div></div><span class="progress-row__label">64%</span></div></div></li></ul>
+          <span class="ds-callout" style="left: 3%; top: 30%;" aria-hidden="true">1</span><span class="ds-callout" style="left: 22%; top: 18%;" aria-hidden="true">2</span><span class="ds-callout" style="left: 22%; top: 50%;" aria-hidden="true">3</span><span class="ds-callout" style="left: 50%; top: 78%;" aria-hidden="true">4</span><span class="ds-callout" style="right: 4%; top: 78%;" aria-hidden="true">5</span>
+        </figure>
+        <ol class="ds-anatomy__list">
+          <li><div><b>Type icon</b><small>A small <a href="type-icon.html">type icon</a> tile (<code>.icon-tile--sm</code>, 32px), decorative.</small></div></li><li><div><b>File name</b><small><code>--text-label</code>, truncated with an ellipsis; the full name is in the accessible names of Remove and the progress bar.</small></div></li><li><div><b>Meta</b><small><code>--text-body-sm</code> muted: "DOCX · 640 KB" while choosing, "Logo · 208 KB" in a batch (the guessed type).</small></div></li><li><div><b>Progress</b><small><code>.progress-row</code> with <code>role="progressbar"</code> named "Uploading {file name}" and the percentage label.</small></div></li><li><div><b>Trailing</b><small>Remove (ghost icon button, "Remove {file name}"), a status <a href="badge.html">badge</a>, or Replace file.</small></div></li>
+        </ol>
+      </div>
+    </section>
+
+    <section class="ds-section" id="variants"><h2><a href="#variants">Variants</a></h2>
+      <h3>Single file</h3>
+      <div class="ds-example">
+        <div class="ds-example__canvas ds-example__canvas--stack"><ul class="list card card--flush"><li class="list__item"><span class="icon-tile icon-tile--sm" aria-hidden="true"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><path d="M6 3h8l5 5v13H6zM14 3v5h5M9 13h6M9 17h6"/></svg></span><div class="list__body"><div class="list__title truncate">partner-pitch-one-pager.docx</div><div class="list__meta">DOCX · 640 KB</div></div><button class="btn btn--ghost btn--icon btn--sm" type="button" aria-label="Remove partner-pitch-one-pager.docx"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18"/></svg></button></li></ul></div>
+        <div class="ds-example__caption"><span>Add a resource with one file.</span></div>
+        <details class="ds-example__code"><summary>HTML</summary><pre><code>&lt;ul class="list card card--flush"&gt;&lt;li class="list__item"&gt;&lt;span class="icon-tile icon-tile--sm" aria-hidden="true"&gt;&lt;svg class="icon" aria-hidden="true" viewBox="0 0 24 24"&gt;&lt;path d="M6 3h8l5 5v13H6zM14 3v5h5M9 13h6M9 17h6"/&gt;&lt;/svg&gt;&lt;/span&gt;&lt;div class="list__body"&gt;&lt;div class="list__title truncate"&gt;partner-pitch-one-pager.docx&lt;/div&gt;&lt;div class="list__meta"&gt;DOCX · 640 KB&lt;/div&gt;&lt;/div&gt;&lt;button class="btn btn--ghost btn--icon btn--sm" type="button" aria-label="Remove partner-pitch-one-pager.docx"&gt;&lt;svg class="icon" aria-hidden="true" viewBox="0 0 24 24"&gt;&lt;path d="M6 6l12 12M18 6 6 18"/&gt;&lt;/svg&gt;&lt;/button&gt;&lt;/li&gt;&lt;/ul&gt;</code></pre></details>
+      </div>
+      <h3>Batch</h3>
+      <div class="ds-example">
+        <div class="ds-example__canvas ds-example__canvas--stack"><div class="cluster cluster--between"><span class="field__label">3 files</span><span class="text-caption">Each file becomes its own resource</span></div><ul class="list card card--flush"><li class="list__item"><span class="icon-tile icon-tile--sm" aria-hidden="true"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><path d="M12 3l2.6 5.3 5.9.9-4.3 4.1 1 5.8L12 16.4l-5.2 2.7 1-5.8-4.3-4.1 5.9-.9z"/></svg></span><div class="list__body"><div class="list__title truncate">faithtech-mark.svg</div><div class="list__meta">Logo · 4 KB</div></div><button class="btn btn--ghost btn--icon btn--sm" type="button" aria-label="Remove faithtech-mark.svg"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18"/></svg></button></li><li class="list__item"><span class="icon-tile icon-tile--sm" aria-hidden="true"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><path d="M6 3h8l5 5v13H6zM14 3v5h5M9 13h6M9 17h6"/></svg></span><div class="list__body"><div class="list__title truncate">brand-colours.pdf</div><div class="list__meta">Document · 1.2 MB</div></div><button class="btn btn--ghost btn--icon btn--sm" type="button" aria-label="Remove brand-colours.pdf"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18"/></svg></button></li><li class="list__item"><span class="icon-tile icon-tile--sm" aria-hidden="true"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="2"/><circle cx="9" cy="10" r="2"/><path d="m21 16-5-5-9 9"/></svg></span><div class="list__body"><div class="list__title truncate">social-avatar-square.png</div><div class="list__meta">Image · 96 KB</div></div><button class="btn btn--ghost btn--icon btn--sm" type="button" aria-label="Remove social-avatar-square.png"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18"/></svg></button></li></ul></div>
+        <div class="ds-example__caption"><span>A batch shows a count and the guessed type of each file.</span></div>
+        <details class="ds-example__code"><summary>HTML</summary><pre><code>&lt;div class="cluster cluster--between"&gt;&lt;span class="field__label"&gt;3 files&lt;/span&gt;&lt;span class="text-caption"&gt;Each file becomes its own resource&lt;/span&gt;&lt;/div&gt;&lt;ul class="list card card--flush"&gt;&lt;li class="list__item"&gt;&lt;span class="icon-tile icon-tile--sm" aria-hidden="true"&gt;&lt;svg class="icon" aria-hidden="true" viewBox="0 0 24 24"&gt;&lt;path d="M12 3l2.6 5.3 5.9.9-4.3 4.1 1 5.8L12 16.4l-5.2 2.7 1-5.8-4.3-4.1 5.9-.9z"/&gt;&lt;/svg&gt;&lt;/span&gt;&lt;div class="list__body"&gt;&lt;div class="list__title truncate"&gt;faithtech-mark.svg&lt;/div&gt;&lt;div class="list__meta"&gt;Logo · 4 KB&lt;/div&gt;&lt;/div&gt;&lt;button class="btn btn--ghost btn--icon btn--sm" type="button" aria-label="Remove faithtech-mark.svg"&gt;&lt;svg class="icon" aria-hidden="true" viewBox="0 0 24 24"&gt;&lt;path d="M6 6l12 12M18 6 6 18"/&gt;&lt;/svg&gt;&lt;/button&gt;&lt;/li&gt;&lt;li class="list__item"&gt;&lt;span class="icon-tile icon-tile--sm" aria-hidden="true"&gt;&lt;svg class="icon" aria-hidden="true" viewBox="0 0 24 24"&gt;&lt;path d="M6 3h8l5 5v13H6zM14 3v5h5M9 13h6M9 17h6"/&gt;&lt;/svg&gt;&lt;/span&gt;&lt;div class="list__body"&gt;&lt;div class="list__title truncate"&gt;brand-colours.pdf&lt;/div&gt;&lt;div class="list__meta"&gt;Document · 1.2 MB&lt;/div&gt;&lt;/div&gt;&lt;button class="btn btn--ghost btn--icon btn--sm" type="button" aria-label="Remove brand-colours.pdf"&gt;&lt;svg class="icon" aria-hidden="true" viewBox="0 0 24 24"&gt;&lt;path d="M6 6l12 12M18 6 6 18"/&gt;&lt;/svg&gt;&lt;/button&gt;&lt;/li&gt;&lt;li class="list__item"&gt;&lt;span class="icon-tile icon-tile--sm" aria-hidden="true"&gt;&lt;svg class="icon" aria-hidden="true" viewBox="0 0 24 24"&gt;&lt;rect x="3" y="4" width="18" height="16" rx="2"/&gt;&lt;circle cx="9" cy="10" r="2"/&gt;&lt;path d="m21 16-5-5-9 9"/&gt;&lt;/svg&gt;&lt;/span&gt;&lt;div class="list__body"&gt;&lt;div class="list__title truncate"&gt;social-avatar-square.png&lt;/div&gt;&lt;div class="list__meta"&gt;Image · 96 KB&lt;/div&gt;&lt;/div&gt;&lt;button class="btn btn--ghost btn--icon btn--sm" type="button" aria-label="Remove social-avatar-square.png"&gt;&lt;svg class="icon" aria-hidden="true" viewBox="0 0 24 24"&gt;&lt;path d="M6 6l12 12M18 6 6 18"/&gt;&lt;/svg&gt;&lt;/button&gt;&lt;/li&gt;&lt;/ul&gt;</code></pre></details>
+      </div>
+      <h3>Current file and replacement</h3>
+      <div class="ds-example">
+        <div class="ds-example__canvas ds-example__canvas--stack"><ul class="list card card--flush"><li class="list__item"><span class="icon-tile icon-tile--sm" aria-hidden="true"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="12" rx="1"/><path d="M12 16v4M8 20h8"/></svg></span><div class="list__body"><div class="list__title truncate">city-launch-deck.pptx</div><div class="list__meta">PPTX · 24.6 MB</div></div><button class="btn btn--sm" type="button">Replace file</button></li></ul><ul class="list card card--flush"><li class="list__item"><span class="icon-tile icon-tile--sm" aria-hidden="true"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="12" rx="1"/><path d="M12 16v4M8 20h8"/></svg></span><div class="list__body"><div class="list__title truncate">city-launch-deck-v2.pptx</div><div class="list__meta">PPTX · 26.1 MB · new</div></div><span class="badge badge--info">New</span><button class="btn btn--ghost btn--icon btn--sm" type="button" aria-label="Remove city-launch-deck-v2.pptx"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18"/></svg></button></li></ul></div>
+        <div class="ds-example__caption"><span>Edit a resource: the current file offers Replace file; the chosen replacement is marked new and can be removed.</span></div>
+        <details class="ds-example__code"><summary>HTML</summary><pre><code>&lt;ul class="list card card--flush"&gt;&lt;li class="list__item"&gt;&lt;span class="icon-tile icon-tile--sm" aria-hidden="true"&gt;&lt;svg class="icon" aria-hidden="true" viewBox="0 0 24 24"&gt;&lt;rect x="3" y="4" width="18" height="12" rx="1"/&gt;&lt;path d="M12 16v4M8 20h8"/&gt;&lt;/svg&gt;&lt;/span&gt;&lt;div class="list__body"&gt;&lt;div class="list__title truncate"&gt;city-launch-deck.pptx&lt;/div&gt;&lt;div class="list__meta"&gt;PPTX · 24.6 MB&lt;/div&gt;&lt;/div&gt;&lt;button class="btn btn--sm" type="button"&gt;Replace file&lt;/button&gt;&lt;/li&gt;&lt;/ul&gt;&lt;ul class="list card card--flush"&gt;&lt;li class="list__item"&gt;&lt;span class="icon-tile icon-tile--sm" aria-hidden="true"&gt;&lt;svg class="icon" aria-hidden="true" viewBox="0 0 24 24"&gt;&lt;rect x="3" y="4" width="18" height="12" rx="1"/&gt;&lt;path d="M12 16v4M8 20h8"/&gt;&lt;/svg&gt;&lt;/span&gt;&lt;div class="list__body"&gt;&lt;div class="list__title truncate"&gt;city-launch-deck-v2.pptx&lt;/div&gt;&lt;div class="list__meta"&gt;PPTX · 26.1 MB · new&lt;/div&gt;&lt;/div&gt;&lt;span class="badge badge--info"&gt;New&lt;/span&gt;&lt;button class="btn btn--ghost btn--icon btn--sm" type="button" aria-label="Remove city-launch-deck-v2.pptx"&gt;&lt;svg class="icon" aria-hidden="true" viewBox="0 0 24 24"&gt;&lt;path d="M6 6l12 12M18 6 6 18"/&gt;&lt;/svg&gt;&lt;/button&gt;&lt;/li&gt;&lt;/ul&gt;</code></pre></details>
+      </div>
+    </section>
+
+    <section class="ds-section" id="sizes"><h2><a href="#sizes">Sizes</a></h2>
+      <p>One size: rows are at least 56px tall with the 32px icon tile. The trailing icon button is 32px (<code>.btn--sm</code>) with a 44px hit area from the row padding.</p>
+    </section>
+
+    <section class="ds-section" id="states"><h2><a href="#states">States</a></h2>
+      <div class="ds-matrix"><table><thead><tr><th scope="col">State</th><th scope="col">Example</th></tr></thead><tbody><tr><th scope="row">Ready</th><td><ul class="list card card--flush"><li class="list__item"><span class="icon-tile icon-tile--sm" aria-hidden="true"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><path d="M6 3h8l5 5v13H6zM14 3v5h5M9 13h6M9 17h6"/></svg></span><div class="list__body"><div class="list__title truncate">partner-pitch-one-pager.docx</div><div class="list__meta">DOCX · 640 KB</div></div><button class="btn btn--ghost btn--icon btn--sm" type="button" aria-label="Remove partner-pitch-one-pager.docx"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18"/></svg></button></li></ul></td></tr><tr><th scope="row">Uploading</th><td><ul class="list card card--flush"><li class="list__item"><span class="icon-tile icon-tile--sm" aria-hidden="true"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><path d="M6 3h8l5 5v13H6zM14 3v5h5M9 13h6M9 17h6"/></svg></span><div class="list__body"><div class="list__title truncate">brand-colours.pdf</div><div class="list__meta">Document · 1.2 MB</div><div class="progress-row"><div class="progress" role="progressbar" aria-valuenow="20" aria-valuemin="0" aria-valuemax="100" aria-label="Uploading brand-colours.pdf"><div class="progress__bar" style="--value: 20%;"></div></div><span class="progress-row__label">20%</span></div></div></li></ul></td></tr><tr><th scope="row">Uploaded</th><td><ul class="list card card--flush"><li class="list__item"><span class="icon-tile icon-tile--sm" aria-hidden="true"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><path d="M12 3l2.6 5.3 5.9.9-4.3 4.1 1 5.8L12 16.4l-5.2 2.7 1-5.8-4.3-4.1 5.9-.9z"/></svg></span><div class="list__body"><div class="list__title truncate">faithtech-mark.svg</div><div class="list__meta">Logo · 4 KB</div><div class="progress-row"><div class="progress" role="progressbar" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100" aria-label="Uploading faithtech-mark.svg"><div class="progress__bar" style="--value: 100%;"></div></div><span class="progress-row__label">100%</span></div></div><span class="badge badge--success">Uploaded</span></li></ul></td></tr><tr><th scope="row">Failed</th><td><ul class="list card card--flush"><li class="list__item"><span class="icon-tile icon-tile--sm" aria-hidden="true"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="2"/><circle cx="9" cy="10" r="2"/><path d="m21 16-5-5-9 9"/></svg></span><div class="list__body"><div class="list__title truncate">social-avatar-square.png</div><div class="list__meta">Image · 96 KB</div></div><span class="badge badge--danger">Didn’t upload</span><button class="btn btn--ghost btn--icon btn--sm" type="button" aria-label="Remove social-avatar-square.png"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18"/></svg></button></li></ul></td></tr><tr><th scope="row">Refused</th><td><ul class="list card card--flush"><li class="list__item"><span class="icon-tile icon-tile--sm" aria-hidden="true"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><rect x="3" y="5" width="14" height="14" rx="2"/><path d="m17 10 4-2v8l-4-2"/></svg></span><div class="list__body"><div class="list__title truncate">hackathon-raw-footage.mov</div><div class="list__meta">MOV · 1.8 GB</div></div><span class="badge badge--danger">Can’t add</span><button class="btn btn--ghost btn--icon btn--sm" type="button" aria-label="Remove hackathon-raw-footage.mov"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18"/></svg></button></li></ul></td></tr><tr><th scope="row">Remove, focus</th><td><ul class="list card card--flush"><li class="list__item"><span class="icon-tile icon-tile--sm" aria-hidden="true"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><path d="M6 3h8l5 5v13H6zM14 3v5h5M9 13h6M9 17h6"/></svg></span><div class="list__body"><div class="list__title truncate">partner-pitch-one-pager.docx</div><div class="list__meta">DOCX · 640 KB</div></div><button class="btn btn--ghost btn--icon btn--sm" data-state="focus" type="button" aria-label="Remove partner-pitch-one-pager.docx"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18"/></svg></button></li></ul></td></tr></tbody></table></div>
+      <h3>Both themes</h3>
+      <div class="ds-themes">
+        <div data-theme="light"><ul class="list card card--flush"><li class="list__item"><span class="icon-tile icon-tile--sm" aria-hidden="true"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><path d="M6 3h8l5 5v13H6zM14 3v5h5M9 13h6M9 17h6"/></svg></span><div class="list__body"><div class="list__title truncate">brand-colours.pdf</div><div class="list__meta">Document · 1.2 MB</div><div class="progress-row"><div class="progress" role="progressbar" aria-valuenow="64" aria-valuemin="0" aria-valuemax="100" aria-label="Uploading brand-colours.pdf"><div class="progress__bar" style="--value: 64%;"></div></div><span class="progress-row__label">64%</span></div></div></li><li class="list__item"><span class="icon-tile icon-tile--sm" aria-hidden="true"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><path d="M12 3l2.6 5.3 5.9.9-4.3 4.1 1 5.8L12 16.4l-5.2 2.7 1-5.8-4.3-4.1 5.9-.9z"/></svg></span><div class="list__body"><div class="list__title truncate">faithtech-mark.svg</div><div class="list__meta">Logo · 4 KB</div><div class="progress-row"><div class="progress" role="progressbar" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100" aria-label="Uploading faithtech-mark.svg"><div class="progress__bar" style="--value: 100%;"></div></div><span class="progress-row__label">100%</span></div></div><span class="badge badge--success">Uploaded</span></li><li class="list__item"><span class="icon-tile icon-tile--sm" aria-hidden="true"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="2"/><circle cx="9" cy="10" r="2"/><path d="m21 16-5-5-9 9"/></svg></span><div class="list__body"><div class="list__title truncate">social-avatar-square.png</div><div class="list__meta">Image · 96 KB</div></div><span class="badge badge--danger">Didn’t upload</span><button class="btn btn--ghost btn--icon btn--sm" type="button" aria-label="Remove social-avatar-square.png"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18"/></svg></button></li></ul></div>
+        <div data-theme="dark"><ul class="list card card--flush"><li class="list__item"><span class="icon-tile icon-tile--sm" aria-hidden="true"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><path d="M6 3h8l5 5v13H6zM14 3v5h5M9 13h6M9 17h6"/></svg></span><div class="list__body"><div class="list__title truncate">brand-colours.pdf</div><div class="list__meta">Document · 1.2 MB</div><div class="progress-row"><div class="progress" role="progressbar" aria-valuenow="64" aria-valuemin="0" aria-valuemax="100" aria-label="Uploading brand-colours.pdf"><div class="progress__bar" style="--value: 64%;"></div></div><span class="progress-row__label">64%</span></div></div></li><li class="list__item"><span class="icon-tile icon-tile--sm" aria-hidden="true"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><path d="M12 3l2.6 5.3 5.9.9-4.3 4.1 1 5.8L12 16.4l-5.2 2.7 1-5.8-4.3-4.1 5.9-.9z"/></svg></span><div class="list__body"><div class="list__title truncate">faithtech-mark.svg</div><div class="list__meta">Logo · 4 KB</div><div class="progress-row"><div class="progress" role="progressbar" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100" aria-label="Uploading faithtech-mark.svg"><div class="progress__bar" style="--value: 100%;"></div></div><span class="progress-row__label">100%</span></div></div><span class="badge badge--success">Uploaded</span></li><li class="list__item"><span class="icon-tile icon-tile--sm" aria-hidden="true"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="2"/><circle cx="9" cy="10" r="2"/><path d="m21 16-5-5-9 9"/></svg></span><div class="list__body"><div class="list__title truncate">social-avatar-square.png</div><div class="list__meta">Image · 96 KB</div></div><span class="badge badge--danger">Didn’t upload</span><button class="btn btn--ghost btn--icon btn--sm" type="button" aria-label="Remove social-avatar-square.png"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18"/></svg></button></li></ul></div>
+      </div><ul><li>While a batch uploads, the dialog's status line says "Uploading 3 of 6…" so screen-reader users hear the overall progress without every row speaking.</li><li>Remove is hidden while a row uploads and once it has uploaded; an uploaded file is already a resource.</li><li>A refused row stays until removed; the submit stays disabled meanwhile.</li></ul>
+    </section>
+
+    <section class="ds-section" id="responsive"><h2><a href="#responsive">Responsive behaviour</a></h2>
+      <ul><li>The name truncates; the meta, progress and badge wrap under it at XS.</li><li>Rows never scroll sideways; the badge keeps its own width.</li></ul>
+    </section>
+
+    <section class="ds-section" id="theming"><h2><a href="#theming">Theming</a></h2>
+      <p>Rows read the <a href="list.html">list</a> tokens; the badge and progress read their own semantic tokens. Nothing is theme-specific.</p>
+    </section>
+
+    <section class="ds-section" id="accessibility"><h2><a href="#accessibility">Accessibility</a></h2>
+      <h3>Role and pattern</h3><p>Rows are <code>&lt;li&gt;</code> in a <code>&lt;ul&gt;</code>. The progress bar is <code>role="progressbar"</code> with <code>aria-valuenow</code> and the name "Uploading {file name}". Badges are text, not colour alone.</p><h3>Keyboard</h3><table class="ds-table ds-keys"><thead><tr><th scope="col">Key</th><th scope="col">Action</th></tr></thead><tbody><tr><td><kbd>Tab</kbd></td><td>Moves to each row's Remove or Replace file.</td></tr><tr><td><kbd>Enter</kbd> / <kbd>Space</kbd></td><td>Removes the file; focus moves to the next row's Remove, or to the drop zone after the last.</td></tr></tbody></table><h3>Labelling</h3><p>Remove is named "Remove {file name}" so a list of Removes is distinguishable.</p><h3>Contrast</h3><div class="ds-themes"><div data-theme="light"><div class="ds-example__canvas ds-example__canvas--stack" style="padding: 0; gap: var(--space-2);"><div class="ds-pair"><span>Name on surface</span><span class="ds-pair__ratio" data-contrast="--color-fg-default|--color-bg-surface" data-min="4.5"></span></div><div class="ds-pair"><span>Meta on surface</span><span class="ds-pair__ratio" data-contrast="--color-fg-muted|--color-bg-surface" data-min="4.5"></span></div><div class="ds-pair"><span>Danger badge</span><span class="ds-pair__ratio" data-contrast="--color-danger-fg|--color-danger-bg" data-min="4.5"></span></div><div class="ds-pair"><span>Success badge</span><span class="ds-pair__ratio" data-contrast="--color-success-fg|--color-success-bg" data-min="4.5"></span></div></div></div><div data-theme="dark"><div class="ds-example__canvas ds-example__canvas--stack" style="padding: 0; gap: var(--space-2);"><div class="ds-pair"><span>Name on surface</span><span class="ds-pair__ratio" data-contrast="--color-fg-default|--color-bg-surface" data-min="4.5"></span></div><div class="ds-pair"><span>Meta on surface</span><span class="ds-pair__ratio" data-contrast="--color-fg-muted|--color-bg-surface" data-min="4.5"></span></div><div class="ds-pair"><span>Danger badge</span><span class="ds-pair__ratio" data-contrast="--color-danger-fg|--color-danger-bg" data-min="4.5"></span></div><div class="ds-pair"><span>Success badge</span><span class="ds-pair__ratio" data-contrast="--color-success-fg|--color-success-bg" data-min="4.5"></span></div></div></div></div>
+    </section>
+
+    <section class="ds-section" id="content"><h2><a href="#content">Content</a></h2>
+      <ul><li>Show the file's own name, never a rewritten one.</li><li>Meta is "EXT · size" while choosing one file, "{guessed type} · size" in a batch.</li><li>Status words: "Uploaded", "Didn’t upload", "Can’t add"; the reason is in the field error, not the badge.</li></ul>
+    </section>
+
+    <section class="ds-section" id="do-dont"><h2><a href="#do-dont">Do and don't</a></h2>
+      <div class="ds-dodont">
+        <figure class="ds-do"><div class="ds-example__canvas"><ul class="list card card--flush"><li class="list__item"><span class="icon-tile icon-tile--sm" aria-hidden="true"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><rect x="3" y="5" width="14" height="14" rx="2"/><path d="m17 10 4-2v8l-4-2"/></svg></span><div class="list__body"><div class="list__title truncate">hackathon-raw-footage.mov</div><div class="list__meta">MOV · 1.8 GB</div></div><span class="badge badge--danger">Can’t add</span><button class="btn btn--ghost btn--icon btn--sm" type="button" aria-label="Remove hackathon-raw-footage.mov"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18"/></svg></button></li></ul></div><figcaption>Mark the refused file and say why in the field error.</figcaption></figure><figure class="ds-dont"><div class="ds-example__canvas"><div class="alert alert--danger"><div class="alert__body">Some files are invalid.</div></div></div><figcaption>A generic alert that names no file.</figcaption></figure><figure class="ds-do"><div class="ds-example__canvas"><ul class="list card card--flush"><li class="list__item"><span class="icon-tile icon-tile--sm" aria-hidden="true"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><path d="M6 3h8l5 5v13H6zM14 3v5h5M9 13h6M9 17h6"/></svg></span><div class="list__body"><div class="list__title truncate">brand-colours.pdf</div><div class="list__meta">Document · 1.2 MB</div><div class="progress-row"><div class="progress" role="progressbar" aria-valuenow="64" aria-valuemin="0" aria-valuemax="100" aria-label="Uploading brand-colours.pdf"><div class="progress__bar" style="--value: 64%;"></div></div><span class="progress-row__label">64%</span></div></div></li></ul></div><figcaption>Show each file's own progress.</figcaption></figure><figure class="ds-dont"><div class="ds-example__canvas"><div class="progress" role="progressbar" aria-valuenow="50" aria-valuemin="0" aria-valuemax="100" aria-label="Uploading"><div class="progress__bar" style="--value: 50%;"></div></div></div><figcaption>One bar for the whole batch hides which file failed.</figcaption></figure>
+      </div>
+    </section>
+
+    <section class="ds-section" id="tokens"><h2><a href="#tokens">Tokens</a></h2>
+      <div class="ds-table-wrap"><table class="ds-table">
+        <thead><tr><th scope="col">Part</th><th scope="col">Token</th><th scope="col">Light</th><th scope="col">Dark</th></tr></thead>
+        <tbody>
+          <tr><td>Row text</td><td><code>--color-fg-default</code></td><td><span class="ds-swatch-cell" data-theme="light"><i data-token="--color-fg-default" data-swatch></i><span data-token="--color-fg-default"></span></span></td><td><span class="ds-swatch-cell" data-theme="dark"><i data-token="--color-fg-default" data-swatch></i><span data-token="--color-fg-default"></span></span></td></tr>
+          <tr><td>Meta</td><td><code>--color-fg-muted</code></td><td><span class="ds-swatch-cell" data-theme="light"><i data-token="--color-fg-muted" data-swatch></i><span data-token="--color-fg-muted"></span></span></td><td><span class="ds-swatch-cell" data-theme="dark"><i data-token="--color-fg-muted" data-swatch></i><span data-token="--color-fg-muted"></span></span></td></tr>
+          <tr><td>Icon tile</td><td><code>--color-accent-subtle</code></td><td><span class="ds-swatch-cell" data-theme="light"><i data-token="--color-accent-subtle" data-swatch></i><span data-token="--color-accent-subtle"></span></span></td><td><span class="ds-swatch-cell" data-theme="dark"><i data-token="--color-accent-subtle" data-swatch></i><span data-token="--color-accent-subtle"></span></span></td></tr>
+          <tr><td>Icon tile size</td><td><code>--size-avatar-sm</code></td><td colspan="2"><span data-token="--size-avatar-sm"></span></td></tr>
+          <tr><td>Name font</td><td><code>--text-label</code></td><td colspan="2"><span data-token="--text-label"></span></td></tr>
+          <tr><td>Meta font</td><td><code>--text-body-sm</code></td><td colspan="2"><span data-token="--text-body-sm"></span></td></tr>
+        </tbody>
+      </table></div>
+    </section>
+
+    <section class="ds-section" id="code"><h2><a href="#code">Code</a></h2>
+      <pre><code>&lt;ft-file-row
+  [fileName]="file.name"
+  [meta]="'Logo · 208 KB'"
+  icon="logo"
+  [state]="'uploading'"
+  [progress]="64"
+  (remove)="remove(file)" /&gt;</code></pre><table class="ds-table"><thead><tr><th scope="col">Class / attribute / input</th><th scope="col">Effect</th></tr></thead><tbody><tr><td><code>[state]</code></td><td><code>ready</code> | <code>uploading</code> | <code>uploaded</code> | <code>failed</code> | <code>refused</code>.</td></tr><tr><td><code>[progress]</code></td><td>0–100 while uploading.</td></tr><tr><td><code>[isNew]</code></td><td>Marks a replacement as new.</td></tr><tr><td><code>(remove) / (replace)</code></td><td>Remove the file; open Replace file.</td></tr><tr><td><code>.list__item .progress-row</code></td><td>The progress line inside the row body.</td></tr></tbody></table>
+    </section>
+
+    <section class="ds-section" id="sources"><h2><a href="#sources">Sources</a></h2>
+      <p>Extracted from these mocks:</p>
+      <ul><li><a href="../../mocks/dialogs/add-resource/single.html">dialogs/add-resource/single</a></li><li><a href="../../mocks/dialogs/add-resource/batch.html">dialogs/add-resource/batch</a></li><li><a href="../../mocks/dialogs/add-resource/busy.html">dialogs/add-resource/busy</a> (uploading, uploaded)</li><li><a href="../../mocks/dialogs/add-resource/failed.html">dialogs/add-resource/failed</a> (didn’t upload)</li><li><a href="../../mocks/dialogs/add-resource/invalid.html">dialogs/add-resource/invalid</a> (can’t add)</li><li><a href="../../mocks/dialogs/edit-resource/default.html">dialogs/edit-resource/default</a> (current file)</li><li><a href="../../mocks/dialogs/edit-resource/replace.html">dialogs/edit-resource/replace</a> (new)</li></ul>
+      <p>Composed in the mocks from <code>.list__item</code>, <code>.icon-tile--sm</code>, <code>.progress-row</code> and <code>.badge</code>; no new CSS. Built once as <code>FileRowComponent</code> in <code>frontend/projects/components/</code>.</p>
+    </section>
+    <footer class="ds-footer"><span>FaithTech Community design system · extracted from <a href="../../mocks/index.html">docs/mocks</a> on 2026-10-22</span><a href="#top">Back to top</a></footer>
+  </main>
+</div>
+<script src="../assets/ds.js"></script>
+</body>
+</html>

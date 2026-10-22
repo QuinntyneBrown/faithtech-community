@@ -1,0 +1,89 @@
+@startuml
+title UML sequence behaviour — Open and download a resource
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+actor "Signed-in member" as actor
+box "Frontend — FaithTech Community web app (resources library)" #E0F2FE
+  participant "ResourcePage" as page
+  participant "HttpResourcesService" as svc
+end box
+box "Backend — FaithTech.Community.Api" #D1FADF
+  participant "ResourcesEndpoints" as ep
+end box
+box "Backend — FaithTech.Community.Application and Domain" #ECFDF3
+  participant "GetResourceHandler" as get
+  participant "DownloadResourceHandler" as dl
+  participant "ResourceAccess" as acc
+end box
+box "Backend — FaithTech.Community.Infrastructure" #FFF4E5
+  participant "AuditLog" as audit
+  participant "AzureBlobFileStorage" as store
+  database "Community database" as db
+end box
+actor -> page : Open /resources/{id}
+page --> actor : "Resources › Loading", region "Loading resource" (L2-056 AC9)
+page -> svc : get(id)
+svc -> ep : GET /api/resources/{id}
+ep -> get : GetAsync(id)
+get -> acc : VisibleOrOwnArchived(Resources, caller)
+get -> db : Resource with tags, audience and owner
+alt not found, archived for someone else, or not visible
+  get --> ep : null
+  ep --> svc : 404 (L2-060 AC1, AC2)
+  page --> actor : "This resource isn’t available" with Browse resources (L2-056 AC8)
+else visible
+  opt System Admin, not the owner, Private or Shared
+    get -> audit : Record resource.opened (L2-060 AC5)
+    get -> db : Save
+  end
+  get --> ep : ResourceDto (canEdit, canTransfer, sharedWithYou, ...)
+  ep --> svc : 200 OK
+  page --> actor : Preview, About, Details, audience and banners (L2-056 AC1-AC7)
+  opt Image resource with a thumbnail
+    page -> svc : thumbnail(id)
+    svc -> ep : GET /api/resources/{id}/thumbnail
+    ep -> dl : ThumbnailAsync(id)
+    dl -> acc : VisibleOrOwnArchived
+    dl -> store : OpenReadAsync(resources/{id}/{blobId}-thumb.png)
+    ep --> svc : 200 image/png
+    svc --> page : Blob
+    page --> actor : <img src=object URL alt={owner's alt text}> (L2-056 AC3)
+  end
+end
+alt file resource
+  actor -> page : Download {EXT}, {size}
+  page -> svc : download(id)
+  svc -> ep : GET /api/resources/{id}/file (bearer token)
+  ep -> dl : FileAsync(id)
+  dl -> acc : VisibleOrOwnArchived
+  alt not visible
+    ep --> svc : 404
+  else file not yet stored (storage was down)
+    ep --> svc : 409 "This file is still uploading. Try again in a minute."
+  else stored
+    opt System Admin override
+      dl -> audit : Record resource.downloaded
+    end
+    dl -> store : OpenReadAsync(BlobName)
+    ep --> svc : 200 stream, Content-Disposition attachment; filename, nosniff
+    svc --> page : Blob and file name
+    page -> page : Object URL, <a download> click, revoke
+    page --> actor : File saved with its original name (L2-055 AC4)
+  end
+else link resource
+  actor -> page : Open on {host} (opens in a new tab)
+  page --> actor : New tab with rel="noopener"; the URL is never fetched by the server (L2-058 AC4, AC5)
+end
+@enduml

@@ -1,0 +1,88 @@
+@startuml
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 8
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam class {
+  BorderColor #344054
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+title Class structure — Archive, restore, purge and transfer resources
+class Resource {
+  +{static} PurgeAfter = 30 days
+  +Guid Id
+  +Guid OwnerId
+  +DateTimeOffset? ArchivedAt
+  +DateTimeOffset? PurgeAt
+  +bool IsArchived
+  +ResourceFile? File
+  +Archive(now): void
+  +Restore(): void
+  +IsPurgeDue(now): bool
+  +TransferTo(ownerId: Guid): void
+  +Touch(by, now): void
+}
+class ResourceBlobTask {
+  +{static} Delete(resourceId, blobName, now): ResourceBlobTask
+}
+class ResourceAccess <<static>> {
+  +{static} Contributors: IReadOnlyList<Role>
+  +{static} CanEdit(resource, caller): bool
+  +{static} IsAdminOverride(resource, caller): bool
+  +{static} VisibleOrOwnArchived(query, caller): IQueryable<Resource>
+}
+class ArchiveResourceHandler {
+  +ArchiveAsync(id): Task<(Result, ResourceDto?)>
+  +RestoreAsync(id): Task<(Result, ResourceDto?)>
+  +ListArchivedAsync(): Task<IReadOnlyList<ArchivedResourceDto>>
+}
+class TransferOwnershipCommand <<record>> {
+  +Guid? OwnerId
+}
+class TransferOwnershipHandler {
+  +TransferAsync(id, command: TransferOwnershipCommand): Task<(Result, ResourceDto?)>
+}
+class PurgeArchivedResourcesHandler {
+  +PurgeDueAsync(): Task<int>
+}
+class ResourceStorageRetryHandler {
+  +RetryDueAsync(): Task<int>
+}
+class ResourceMaintenanceWorker <<BackgroundService>> {
+  #ExecuteAsync(stoppingToken): Task
+}
+class ArchivedResourceDto <<record>> {
+  +Guid Id
+  +string Title
+  +ResourceType Type
+  +string? Extension
+  +long? Size
+  +DateTimeOffset ArchivedAt
+  +DateTimeOffset PurgeAt
+}
+interface IAuditLog {
+  +Record(actorId, action, targetType, targetId, before, after): void
+}
+interface INotificationPublisher {
+  +PublishAsync(recipientIds, kind, title, linkPath, actorId, email): Task<int>
+}
+interface IFileStorage {
+  +DeleteAsync(key): Task
+}
+ArchiveResourceHandler --> ResourceAccess
+ArchiveResourceHandler --> IAuditLog : override
+ArchiveResourceHandler ..> ArchivedResourceDto
+ArchiveResourceHandler ..> Resource : Archive, Restore
+TransferOwnershipHandler --> ResourceAccess : Contributors
+TransferOwnershipHandler --> IAuditLog : resource.owner.transferred
+TransferOwnershipHandler --> INotificationPublisher : ResourceOwnershipTransferred
+TransferOwnershipHandler ..> TransferOwnershipCommand
+TransferOwnershipHandler ..> Resource : TransferTo
+PurgeArchivedResourcesHandler --> IFileStorage
+PurgeArchivedResourcesHandler ..> Resource : IsPurgeDue, remove
+PurgeArchivedResourcesHandler ..> ResourceBlobTask : storage down
+ResourceMaintenanceWorker --> ResourceStorageRetryHandler
+ResourceMaintenanceWorker --> PurgeArchivedResourcesHandler
+@enduml
