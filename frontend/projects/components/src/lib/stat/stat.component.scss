@@ -22,3 +22,12 @@
   inline-size: var(--size-avatar-md);
   block-size: var(--size-avatar-sm);
 }
+
+.ft-stat__context {
+  font: var(--text-caption);
+  color: var(--color-fg-muted);
+}
+
+.ft-stat__context-skeleton {
+  inline-size: calc(var(--size-avatar-md) * 2);
+}
