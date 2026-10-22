@@ -21,22 +21,32 @@ class Workspace {
 }
 class Sprint {
   +SprintState State
+  +int? CompletedPoints
+  +int? CommittedPoints
   +Close(stories: IEnumerable<WorkItem>): void
 }
 class WorkItem {
   +Guid? SprintId
   +WorkItemStatus Status
+  ~ReturnToBacklog(): void
 }
-class SwitchMethodCommand {
-  +Guid WorkspaceId
-  +WorkspaceMethod Target
+class SwitchMethodCommand <<record>> {
+  +string? Method
 }
-class SwitchMethodHandler {
-  +Handle(cmd: SwitchMethodCommand): Task<Result>
+class SwitchMethodValidator
+class WorkspaceSettingsHandler {
+  +SwitchMethodAsync(workspaceId: Guid, cmd: SwitchMethodCommand): Task<Result>
+}
+class WorkspaceAccessPolicy {
+  +AuthorizeAsync(workspaceId: Guid, manage: bool): Task<(Workspace, WorkspaceCaller, Result?)>
+  +AuditOverride(caller: WorkspaceCaller, action: string, ...): void
 }
 Workspace --> WorkspaceMethod
-Workspace ..> Sprint : closes open
-Workspace ..> WorkItem : resets SprintId
-SwitchMethodHandler ..> SwitchMethodCommand : handles
-SwitchMethodHandler --> Workspace : mutates
+Workspace ..> Sprint : closes non-closed (to Kanban)
+Workspace ..> WorkItem : ReturnToBacklog when not Done (to Scrum)
+Sprint ..> WorkItem : ReturnToBacklog when not Done
+SwitchMethodValidator ..> SwitchMethodCommand : validates
+WorkspaceSettingsHandler ..> SwitchMethodCommand : handles
+WorkspaceSettingsHandler --> WorkspaceAccessPolicy : authorizes with
+WorkspaceSettingsHandler --> Workspace : SwitchMethod
 @enduml

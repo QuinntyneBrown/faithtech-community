@@ -16,38 +16,59 @@ skinparam package {
 }
 actor "Workspace owner" as actor
 box "Frontend — FaithTech Community web app (agile library)" #E0F2FE
-  participant "BacklogPage" as page
+  participant "BoardPage" as page
   participant "CloseSprintDialog" as dlg
   participant "AgileService (AGILE_SERVICE)" as svc
 end box
 box "Backend — FaithTech.Community.Api" #D1FADF
-  participant "SprintsEndpoints" as ep
+  participant "WorkspacesEndpoints" as ep
 end box
 box "Backend — FaithTech.Community.Application and Domain" #ECFDF3
-  participant "CloseSprintHandler" as h
+  participant "SprintsHandler" as h
   participant "WorkspaceAccessPolicy" as pol
   participant "Sprint" as ent
+  participant "WorkItem (stories)" as wi
 end box
 box "Backend — FaithTech.Community.Infrastructure" #FFF4E5
   participant "CommunityDbContext" as ctx
   database "Community database" as db
 end box
-actor -> page : Choose "Close sprint"
-page -> dlg : Open confirmation with unfinished count
-actor -> dlg : Confirm
-dlg -> svc : closeSprint(sprintId)
-svc -> ep : POST /sprints/{id}/close
-ep -> h : Send CloseSprintCommand
-h -> pol : EnsureOwner(workspaceId)
-pol --> h : Allowed
-h -> ctx : Load sprint and its stories
+actor -> page : Choose "Close sprint" on the board
+page -> dlg : Open with the sprint and the cards not in Done
+dlg --> actor : "N of M points completed"; unfinished stories that return to the backlog
+actor -> dlg : Confirm "Close sprint"
+dlg -> svc : closeSprint(workspaceId, sprintId)
+svc -> ep : POST /api/workspaces/{id}/sprints/{sprintId}/close
+ep -> h : CloseAsync(workspaceId, sprintId)
+h -> pol : AuthorizeAsync(workspaceId, manage = true)
+pol --> h : Workspace and caller (non-owner 403, outsider 404)
+h -> ctx : Load sprint of this workspace
+ctx -> db : SELECT
+db --> ctx : Sprint or none
+alt sprint missing
+h --> ep : Result.NotFound
+ep --> svc : 404 Not Found
+else already closed
+h --> ep : Result.Conflict("This sprint is already closed.")
+ep --> svc : 409 Problem
+else open
+h -> ctx : Load the sprint's stories (IgnoreQueryFilters: archived ones count too)
 ctx -> db : SELECT
 db --> ctx : Rows
-h -> ent : Close(stories): clear SprintId where Status != Done, CompletedPoints = sum of Done points (L2-035 AC3)
-h -> ctx : SaveChanges
-ctx -> db : UPDATE sprint and work_items in one transaction
-h --> ep : SprintDto
-ep --> svc : 200 OK
-svc --> page : Refresh backlog and history
-page --> actor : Show history with completed points per sprint (L2-035 AC4)
+h -> ent : Close(stories)
+ent -> ent : CompletedPoints = sum of Done points; CommittedPoints = sum of all points (L2-035 AC3)
+loop each story not Done
+ent -> wi : ReturnToBacklog(): SprintId = null
+end
+ent -> ent : State = Closed
+h -> pol : AuditOverride(caller, "sprint.closed", ...) (System Admin only)
+h -> ctx : SaveChangesAsync
+ctx -> db : UPDATE sprint and work items in one transaction
+h --> ep : Result.Ok
+ep --> svc : 204 No Content
+svc --> dlg : Done
+dlg --> page : Close with true
+page --> actor : Toast "<sprint> closed"; board reloaded
+note over page : BacklogPage history now lists "completed N of M points" and the average of the last three (L2-035 AC4)
+end
 @enduml

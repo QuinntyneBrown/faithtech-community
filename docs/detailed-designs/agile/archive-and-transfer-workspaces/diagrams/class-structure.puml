@@ -16,40 +16,74 @@ class Workspace {
   +bool IsArchived
   +Archive(): void
   +Restore(): void
-  +ReassignOwner(newOwner: Profile): void
+  +ReassignOwner(newOwner: Profile, now: DateTimeOffset): void
 }
 class WorkItem {
+  +Guid? ParentId
   +bool IsArchived
-  +Archive(children: IEnumerable<WorkItem>): void
-  +Restore(children: IEnumerable<WorkItem>): void
+  +Guid? ArchivedById
+  +DateTimeOffset? ArchivedAt
+  +Archive(items: IEnumerable<WorkItem>, archivedById: Guid, now: DateTimeOffset): void
+  +Restore(items: IEnumerable<WorkItem>): void
 }
-class ArchiveWorkspaceCommand {
-  +Guid WorkspaceId
+class ArchivedItemDto <<record>> {
+  +Guid Id
+  +string Kind
+  +string Title
+  +DateTimeOffset ArchivedAt
+  +string ArchivedByName
 }
-class RestoreWorkspaceCommand {
-  +Guid WorkspaceId
+class ReassignOwnerCommand <<record>> {
+  +Guid? OwnerId
 }
-class ReassignWorkspaceOwnerCommand {
-  +Guid WorkspaceId
-  +Guid NewOwnerId
-}
-class CityLeadRoleRemoved {
+class CityLeadRoleRemoved <<record>> {
   +Guid ProfileId
 }
-class ArchiveWorkspaceHandler
-class RestoreWorkspaceHandler
-class ReassignWorkspaceOwnerHandler
-class CityLeadRoleRemovedHandler
-interface INotificationService
-interface IAuditLog
+class ArchiveHandler {
+  +ArchiveWorkspaceAsync(workspaceId: Guid): Task<Result>
+  +RestoreWorkspaceAsync(workspaceId: Guid): Task<Result>
+  +ArchiveItemAsync(itemId: Guid): Task<Result>
+  +RestoreItemAsync(itemId: Guid): Task<Result>
+  +ArchivedItemsAsync(workspaceId: Guid): Task<(Result, IReadOnlyList<ArchivedItemDto>?)>
+  +OwnerCandidatesAsync(workspaceId: Guid): Task<(Result, IReadOnlyList<MemberCandidateDto>?)>
+  +ReassignOwnerAsync(workspaceId: Guid, command: ReassignOwnerCommand): Task<Result>
+}
+class WorkspacesHandler {
+  +ListAsync(): Task<IReadOnlyList<WorkspaceSummaryDto>>
+  -NeedsNewOwner(owner: Profile?): bool
+}
+class ChangeRolesHandler <<Application/Admin>> {
+  +RemoveAsync(profileId: Guid, role: string?): Task
+}
+class CityLeadRoleRemovedHandler {
+  +HandleAsync(removed: CityLeadRoleRemoved): Task
+  +SendEmailsAsync(): Task
+}
+class WorkspaceAccessPolicy {
+  +bool IsSystemAdmin
+  +LoadAsync(workspaceId: Guid, includeArchived: bool): Task<(Workspace?, WorkspaceCaller)>
+  +AuthorizeAsync(workspaceId: Guid, manage: bool, includeArchived: bool): Task<(Workspace, WorkspaceCaller, Result?)>
+  +Audit(caller, action, targetType, targetId, before, after): void
+  +AuditOverride(caller, action, targetType, targetId, before, after): void
+}
+class AgileNotifier {
+  +Notify(actor, recipient, kind, title, linkPath, subject, body): void
+  +SendEmailsAsync(): Task
+}
+interface IAuditLog {
+  +Record(actorId, action, targetType, targetId, before, after): void
+}
 Workspace "1" *-- "*" WorkItem
-ArchiveWorkspaceHandler ..> ArchiveWorkspaceCommand : handles
-RestoreWorkspaceHandler ..> RestoreWorkspaceCommand : handles
-ReassignWorkspaceOwnerHandler ..> ReassignWorkspaceOwnerCommand : handles
+ArchiveHandler ..> ReassignOwnerCommand : handles
+ArchiveHandler --> Workspace : Archive, Restore, ReassignOwner
+ArchiveHandler --> WorkItem : Archive, Restore
+ArchiveHandler ..> ArchivedItemDto : returns
+ArchiveHandler ..> WorkspaceAccessPolicy : AuthorizeAsync, AuditOverride, Audit
+WorkspaceAccessPolicy ..> IAuditLog
+WorkspacesHandler --> Workspace : lists archived to owner and Admin
+ChangeRolesHandler ..> CityLeadRoleRemoved : reads from Profile.DomainEvents
+ChangeRolesHandler ..> CityLeadRoleRemovedHandler : HandleAsync, SendEmailsAsync
 CityLeadRoleRemovedHandler ..> CityLeadRoleRemoved : handles
-ArchiveWorkspaceHandler --> Workspace
-RestoreWorkspaceHandler --> Workspace
-ReassignWorkspaceOwnerHandler --> Workspace
-ReassignWorkspaceOwnerHandler ..> IAuditLog
-CityLeadRoleRemovedHandler ..> INotificationService
+CityLeadRoleRemovedHandler --> Workspace : live workspaces of the former owner
+CityLeadRoleRemovedHandler ..> AgileNotifier
 @enduml
