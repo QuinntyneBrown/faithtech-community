@@ -16,9 +16,14 @@ public class DatabaseCommandTests
     {
         Assert.Equal(0, await Run("migrate"));
 
-        await using var db = CreateContext();
-        db.Profiles.Add(new Profile("Ada"));
-        Assert.Equal(1, await db.SaveChangesAsync());
+        await using (var db = CreateContext())
+        {
+            db.Profiles.Add(new Profile("Ada"));
+            await db.SaveChangesAsync();
+        }
+
+        await using var read = CreateContext();
+        Assert.Equal("Ada", (await read.Profiles.SingleAsync()).Name);
     }
 
     [Fact]

@@ -1209,6 +1209,29 @@ namespace FaithTech.Community.Infrastructure.Persistence.Migrations
 
             modelBuilder.Entity("FaithTech.Community.Domain.Profiles.Profile", b =>
                 {
+                    b.OwnsOne("FaithTech.Community.Domain.Profiles.PhotoLease", "PhotoLease", b1 =>
+                        {
+                            b1.Property<Guid>("ProfileId")
+                                .HasColumnType("uuid");
+
+                            b1.Property<DateTimeOffset?>("ExpiresAt")
+                                .HasColumnType("timestamp with time zone");
+
+                            b1.Property<Guid?>("Holder")
+                                .HasColumnType("uuid");
+
+                            b1.Property<Guid>("Version")
+                                .IsConcurrencyToken()
+                                .HasColumnType("uuid");
+
+                            b1.HasKey("ProfileId");
+
+                            b1.ToTable("PhotoLeases", (string)null);
+
+                            b1.WithOwner()
+                                .HasForeignKey("ProfileId");
+                        });
+
                     b.OwnsMany("FaithTech.Community.Domain.Profiles.ProfilePhoto", "Photos", b1 =>
                         {
                             b1.Property<Guid>("Id")
@@ -1268,6 +1291,9 @@ namespace FaithTech.Community.Infrastructure.Persistence.Migrations
                             b1.WithOwner()
                                 .HasForeignKey("ProfileId");
                         });
+
+                    b.Navigation("PhotoLease")
+                        .IsRequired();
 
                     b.Navigation("Photos");
 
