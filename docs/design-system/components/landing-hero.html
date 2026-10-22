@@ -100,7 +100,7 @@
     </header>
 
     <section class="ds-section" id="overview"><h2><a href="#overview">Overview</a></h2>
-      <p><code>ft-landing-hero</code> lays out three slots: <code>[ftHeroCopy]</code>-free inputs for the eyebrow, title and lead, a <code>[ftHeroPanel]</code> slot for the auth form card and a <code>[ftHeroMedia]</code> slot for the video. It takes its composition from a split product hero (headline left, form right) and keeps every value on tokens.</p>
+      <p><code>ft-landing-hero</code> lays out three slots: inputs for the eyebrow, heading and lead, a <code>[ftHeroPanel]</code> slot for the auth form card and a <code>[ftHeroMedia]</code> slot for the video. It takes its composition from a split product hero (headline left, form right) and keeps every value on tokens.</p><p>Two companions sit below the hero on the marketing page: <code>ft-benefit</code> (an icon tile, an <code>&lt;h3&gt;</code> and a sentence, laid out in an auto grid) and <code>ft-cta-band</code> (a named region with an <code>&lt;h2&gt;</code>, a line and one action, on the accent-subtle wash).</p>
     </section>
 
     <section class="ds-section" id="anatomy"><h2><a href="#anatomy">Anatomy</a></h2>
@@ -147,7 +147,11 @@
       <pre><code>&lt;ft-landing-hero eyebrow="FaithTech Community" heading="Build with people who share your faith" lead="…"&gt;
   &lt;ft-sign-in-form ftHeroPanel … /&gt;
   &lt;ft-video-player ftHeroMedia … /&gt;
-&lt;/ft-landing-hero&gt;</code></pre>
+&lt;/ft-landing-hero&gt;
+&lt;ft-benefit icon="team" heading="Find your city team"&gt;See who builds near you.&lt;/ft-benefit&gt;
+&lt;ft-cta-band heading="Ready to build with us?" text="It’s free, and it takes a minute."&gt;
+  &lt;ft-button variant="primary" size="lg"&gt;Join now&lt;/ft-button&gt;
+&lt;/ft-cta-band&gt;</code></pre>
     </section>
 
     <section class="ds-section" id="sources"><h2><a href="#sources">Sources</a></h2>

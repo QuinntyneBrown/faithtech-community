@@ -36,6 +36,7 @@ and Agile workspaces with Planning Poker.
 
 | Area | What it does |
 |---|---|
+| **Marketing page** | A public page at www.faithtech.community with a 21-second captioned brochure video, where visitors sign in, sign up or continue with Google and land in the community app. |
 | **Profiles** | Every member has a profile with a name, bio and up to 10 photos (one featured, alt text required). Profiles are visible to signed-in members. |
 | **Events** | Members-only or public events with city, venue and an online/in-person flag. Public events get a shareable page with guest RSVP (no account needed) and an `.ics` download. Cancelling notifies everyone who RSVP'd. Hackathons are an event type. |
 | **Contacts** | Leads keep private contacts and notes, visible only to them and System Admin. When a contact signs up with the same verified email, the lead is notified and can link to the real profile while keeping their notes. Archive and restore. |
@@ -97,7 +98,7 @@ Architecture decisions are recorded in [`docs/adr/`](docs/adr/).
 ```text
 faithtech-community/
 ├── backend/          # .NET solution: src/ and tests/
-├── frontend/         # Angular workspace: app, components, api and feature libraries
+├── frontend/         # Angular workspace: community app, marketing app, components, api and feature libraries
 ├── e2e/              # Playwright end-to-end and accessibility suite
 ├── eng/              # Developer and CI scripts, infrastructure as code
 ├── docs/             # Specs, detailed designs, mocks, design system, estimates, ADRs, videos
@@ -157,8 +158,15 @@ dotnet run --project backend/src/FaithTech.Community.Api
 # (see docs/detailed-designs/platform/performance, "Load test")
 LOADTEST_PASSWORD=<12+ characters> dotnet run --project backend/src/FaithTech.Community.Cli -- seed-load-users 200
 
-# Run the Angular app
+# Run the Angular app (http://localhost:4200) and the marketing page (http://localhost:4300)
 cd frontend && npm ci && npm start
+cd frontend && npm run start:marketing
+
+# Google sign-in reads its client from configuration, never the repository
+export Google__ClientId=<client id> Google__ClientSecret=<client secret>
+
+# Re-render the marketing page's brochure video (edge-tts; --engine espeak works offline)
+node eng/videos/brochure/build.mjs
 ```
 
 ### Test (planned)
@@ -193,7 +201,7 @@ Exact commands will be kept up to date here as each part of the stack is added.
 | HTML mocks for every screen and state | ✅ Done |
 | Requirements (`docs/specs/`) | ✅ Done |
 | Detailed designs and design system | ✅ Done |
-| v1 implementation | 🚧 97% ([estimates](docs/estimates/README.md)): profiles, admin, invites, contacts, partners, team, events, notifications, announcements and Agile workspaces are built; search, platform and identity are nearly done |
+| v1 implementation | 🚧 97% ([estimates](docs/estimates/README.md)): profiles, admin, invites, contacts, partners, team, events, notifications, announcements, Agile workspaces and the marketing page with Google sign-in are built; search, platform and identity are nearly done |
 | v2: hackathon teams, projects and judging | 🗓️ Later |
 
 ## Accessibility

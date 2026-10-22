@@ -100,7 +100,7 @@
     </header>
 
     <section class="ds-section" id="overview"><h2><a href="#overview">Overview</a></h2>
-      <p><code>ft-sign-in-form</code> and <code>ft-sign-up-form</code> live in the components library so both apps render the same fields, validation messages, alerts and busy states. They make no HTTP calls: the page passes <code>busy</code>, <code>failure</code> and server field errors in and handles <code>submitted</code>. A form that shows the Google button projects it into the <code>[ftAuthAlternatives]</code> slot.</p>
+      <p><code>ft-sign-in-form</code> and <code>ft-sign-up-form</code> live in the components library so both apps render the same fields, validation messages, alerts and busy states. They make no HTTP calls: the page passes <code>busy</code>, <code>failure</code> and server field errors in and handles <code>submitted</code>. A form that shows the Google button projects it into the <code>[ftAuthAlternatives]</code> slot and sets <code>divider="or"</code>; <code>keepSignedIn()</code> reads the switch for the other ways in.</p>
     </section>
 
     <section class="ds-section" id="anatomy"><h2><a href="#anatomy">Anatomy</a></h2>
@@ -144,8 +144,8 @@
     </section>
 
     <section class="ds-section" id="code"><h2><a href="#code">Code</a></h2>
-      <pre><code>&lt;ft-sign-in-form [busy]="busy()" [failure]="failure()" forgotPasswordHref="/forgot-password" (submitted)="signIn($event)"&gt;
-  &lt;ft-button ftAuthAlternatives variant="google" [block]="true" size="lg" (click)="google()"&gt;Sign in with Google&lt;/ft-button&gt;
+      <pre><code>&lt;ft-sign-in-form divider="or" [busy]="busy()" [failure]="failure()" forgotPasswordHref="/forgot-password" (submitted)="signIn($event)"&gt;
+  &lt;ft-button ftAuthAlternatives variant="google" [block]="true" size="lg" [loading]="googleBusy()" (click)="google()"&gt;Sign in with Google&lt;/ft-button&gt;
 &lt;/ft-sign-in-form&gt;</code></pre>
     </section>
 
