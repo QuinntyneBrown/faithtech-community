@@ -388,7 +388,7 @@ button.avatar:hover, button.avatar[data-state="hover"] { box-shadow: 0 0 0 var(-
 .alert__body { flex: 1; display: flex; flex-direction: column; gap: var(--space-1); }
 .alert__title { font: var(--text-label); }
 .alert__actions { display: flex; flex-wrap: wrap; gap: var(--space-3); margin-top: var(--space-1); }
-.alert__actions a, .alert__actions button { color: inherit; font: var(--text-label); }
+.alert__actions a:not(.btn), .alert__actions button:not(.btn) { color: inherit; font: var(--text-label); }
 .alert .close, .toast .close { background: none; border: 0; color: inherit; cursor: pointer; width: var(--target-min); height: var(--target-min); display: grid; place-items: center; border-radius: var(--radius-sm); flex: none; }
 .alert .close { margin: calc(-1 * var(--space-1)) calc(-1 * var(--space-1)) 0 0; }
 .alert .close:hover, .alert .close[data-state="hover"] { background: color-mix(in srgb, currentColor 8%, transparent); }
