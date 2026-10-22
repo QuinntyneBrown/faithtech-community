@@ -22,7 +22,8 @@ export class WorkspacesPage {
     this.loadError = page.getByRole('heading', { name: 'We couldn’t load your workspaces' });
     this.tryAgain = page.getByRole('button', { name: 'Try again' });
     this.readOnly = page.locator('ft-alert').filter({ hasText: 'Read-only for Staff' });
-    this.toast = page.locator('ft-toast');
+    // The newest toast: an earlier one (Archived) can still be up when the next (Restored) arrives.
+    this.toast = page.locator('ft-toast').last();
     this.archived = page.getByRole('list', { name: 'Archived workspaces' }).getByRole('listitem');
   }
 

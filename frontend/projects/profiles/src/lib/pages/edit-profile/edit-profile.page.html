@@ -63,7 +63,7 @@
         }
         <ft-card [heading]="aboutHeading()" [headingLevel]="2">
           <ft-stack>
-            <ft-form-field #nameField label="Name" [error]="error('name')">
+            <ft-form-field #nameField required label="Name" [error]="error('name')">
               <ft-text-field formControlName="name" autocomplete="name" />
             </ft-form-field>
             <ft-form-field

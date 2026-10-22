@@ -1,4 +1,6 @@
 <fieldset
+  role="radiogroup"
+  [attr.aria-required]="required() ? 'true' : null"
   [attr.aria-describedby]="error() ? errorId : null"
   [attr.aria-invalid]="error() ? 'true' : null"
 >

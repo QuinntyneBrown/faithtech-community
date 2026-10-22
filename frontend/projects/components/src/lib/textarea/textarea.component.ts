@@ -61,6 +61,7 @@ export class TextareaComponent implements ControlValueAccessor {
     return ids.filter(Boolean).join(' ') || null;
   });
   protected readonly invalid = computed(() => (this.field?.invalid() ? 'true' : null));
+  protected readonly required = computed(() => (this.field?.required() ? 'true' : null));
   protected readonly ariaLabel = computed(() => (this.field ? null : this.label()));
 
   private onChange: (value: string) => void = () => undefined;

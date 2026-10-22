@@ -105,13 +105,14 @@
                         </ol>
                       </ft-alert>
                     }
-                    <ft-form-field label="Full name" [error]="error('name')">
+                    <ft-form-field required label="Full name" [error]="error('name')">
                       <ft-text-field formControlName="name" autocomplete="name" />
                     </ft-form-field>
                     <ft-form-field label="Email" help="The invite was sent to this address.">
                       <ft-text-field formControlName="email" type="email" [readonly]="true" />
                     </ft-form-field>
                     <ft-form-field
+                      required
                       label="Create a password"
                       help="At least 12 characters."
                       [error]="error('password')"

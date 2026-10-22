@@ -15,7 +15,7 @@
     @if (refusal(); as message) {
       <ft-alert status="danger" heading="Account not suspended">{{ message }}</ft-alert>
     }
-    <ft-form-field label="Reason (recorded in the audit log)" [error]="error()">
+    <ft-form-field required label="Reason (recorded in the audit log)" [error]="error()">
       <ft-textarea [formControl]="reason" [rows]="3" initialFocus [readonly]="busy()" />
     </ft-form-field>
   </ft-stack>
