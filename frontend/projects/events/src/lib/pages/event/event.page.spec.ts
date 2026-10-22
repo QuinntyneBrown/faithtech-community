@@ -267,4 +267,33 @@ describe('EventPage', () => {
     await page.settle();
     expect(page.host.querySelector('h1')!.textContent).toContain('Toronto Builders Night');
   });
+
+  it('gives event managers the public page link to copy and preview (L2-023 AC1)', async () => {
+    const page = await setup();
+    await page.show(lead);
+    const writeText = vi.fn(() => Promise.resolve());
+    Object.defineProperty(navigator, 'clipboard', { value: { writeText }, configurable: true });
+
+    const link = page.host.querySelector('input[readonly]') as HTMLInputElement;
+    expect(link.value).toBe(`${location.origin}/public/events/e1`);
+    expect(page.link('Preview public page')!.getAttribute('href')).toBe('/public/events/e1');
+    (page.host.querySelector('button[aria-label="Copy link"]') as HTMLButtonElement).click();
+    await page.settle();
+
+    expect(writeText).toHaveBeenCalledWith(`${location.origin}/public/events/e1`);
+    expect(page.toasts.show).toHaveBeenCalledWith(
+      expect.objectContaining({
+        heading: 'Link copied',
+        text: 'Anyone with the link can see Toronto Builders Night and RSVP.',
+      }),
+    );
+  });
+
+  it('has no public page card for a members-only event or for attendees', async () => {
+    const page = await setup();
+    expect(page.host.textContent).not.toContain('Public page');
+
+    await page.show({ ...lead, visibility: 'MembersOnly' });
+    expect(page.host.textContent).not.toContain('Public page');
+  });
 });

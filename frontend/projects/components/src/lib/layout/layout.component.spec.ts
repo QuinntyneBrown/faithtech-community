@@ -28,6 +28,11 @@ import { StackComponent, StackWidth } from './stack.component';
     <ft-page-header title="Good afternoon, Grace" subtitle="Tuesday">
       <button ftPageHeaderActions>New event</button>
     </ft-page-header>
+    <ft-page-header
+      class="public"
+      overline="FaithTech Toronto · Public event"
+      title="Builders Night"
+    />
     <ft-page-header class="rich" title="Kestrel Labs">
       <span ftPageHeaderSubtitle><b>In funnel</b> · Venue</span>
     </ft-page-header>
@@ -115,5 +120,15 @@ describe('layout primitives', () => {
     const subtitle = host.querySelector('ft-page-header.rich .page-header__subtitle')!;
     expect(subtitle.querySelector('b')!.textContent).toBe('In funnel');
     expect(subtitle.textContent).toContain('· Venue');
+  });
+
+  it('page header shows an overline above the h1 only when given one', () => {
+    const { host } = setup();
+    const overline = host.querySelector('ft-page-header.public .page-header__overline')!;
+    expect(overline.textContent!.trim()).toBe('FaithTech Toronto · Public event');
+    expect(overline.compareDocumentPosition(host.querySelector('ft-page-header.public h1')!)).toBe(
+      Node.DOCUMENT_POSITION_FOLLOWING,
+    );
+    expect(host.querySelector('ft-page-header.rich .page-header__overline')).toBeNull();
   });
 });

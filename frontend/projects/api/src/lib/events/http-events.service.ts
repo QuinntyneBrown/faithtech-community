@@ -73,6 +73,10 @@ export class HttpEventsService implements EventsService {
     return this.http.post<void>(`${this.api}/public/events/${id}/rsvps`, guest);
   }
 
+  cancelGuestRsvp(id: string, token: string): Observable<void> {
+    return this.http.post<void>(`${this.api}/public/events/${id}/rsvps/cancel`, { token });
+  }
+
   calendarUrl(id: string, options: { isPublic?: boolean } = {}): string {
     return `${this.api}/${options.isPublic ? 'public/' : ''}events/${id}/calendar.ics`;
   }

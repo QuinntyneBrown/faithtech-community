@@ -87,6 +87,13 @@ describe('HttpEventsService', () => {
       '/api/public/events/e1/rsvps',
       { name: 'Guest', email: 'g@h.io' },
     ],
+    [
+      'cancelGuestRsvp',
+      () => service.cancelGuestRsvp('e1', 'secret'),
+      'POST',
+      '/api/public/events/e1/rsvps/cancel',
+      { token: 'secret' },
+    ],
   ])('%s', (_name, call, method, url, body) => {
     (call() as Observable<unknown>).subscribe();
 

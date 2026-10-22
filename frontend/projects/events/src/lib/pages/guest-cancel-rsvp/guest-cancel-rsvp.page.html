@@ -1,0 +1,53 @@
+<ft-page-header
+  [overline]="overline()"
+  [title]="event()?.title ?? 'Your RSVP'"
+  [subtitle]="subtitle()"
+/>
+
+<ft-stack width="sm">
+  @switch (state()) {
+    @case ('confirm') {
+      <ft-card heading="Cancel your RSVP?">
+        <ft-stack>
+          @if (failed()) {
+            <ft-alert status="danger" heading="RSVP not cancelled">
+              We couldn’t reach FaithTech. Nothing was changed — try again.
+            </ft-alert>
+          }
+          <p class="text">
+            The hosts will see one fewer person coming. You can RSVP again on the event page any
+            time before it starts.
+          </p>
+          <div class="actions">
+            <ft-button variant="danger" [loading]="busy()" (click)="cancel()">
+              {{ busy() ? 'Cancelling your RSVP…' : 'Cancel my RSVP' }}
+            </ft-button>
+            <ft-button variant="ghost" [href]="eventHref()">Keep my RSVP</ft-button>
+          </div>
+        </ft-stack>
+      </ft-card>
+    }
+    @case ('done') {
+      <ft-card variant="success" heading="Your RSVP is cancelled">
+        <ft-stack role="status">
+          <p class="text">
+            We’ve let the hosts know. Changed your mind? You can RSVP again any time before the
+            event.
+          </p>
+          <div class="actions">
+            <ft-button [href]="eventHref()">Back to the event</ft-button>
+          </div>
+        </ft-stack>
+      </ft-card>
+    }
+    @case ('invalid') {
+      <ft-empty-state
+        variant="error"
+        heading="This cancel link doesn’t work"
+        text="It may have been used already, or a newer confirmation email replaced it. Your RSVP may already be cancelled."
+      >
+        <ft-button actions [href]="eventHref()">Go to the event</ft-button>
+      </ft-empty-state>
+    }
+  }
+</ft-stack>

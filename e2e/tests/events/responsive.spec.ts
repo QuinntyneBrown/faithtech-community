@@ -1,8 +1,10 @@
-// Traces to: L2-020, L2-021, L2-022 with L2-045 AC1 (docs/detailed-designs/platform/responsive-layout-and-theming)
+// Traces to: L2-020, L2-021, L2-022, L2-023 with L2-045 AC1 (docs/detailed-designs/platform/responsive-layout-and-theming)
 import { expect, test } from '../../fixtures/app';
 import { EventFormPage } from '../../pages/event-form.page';
 import { EventPage } from '../../pages/event.page';
 import { EventsPage } from '../../pages/events.page';
+import { GuestCancelRsvpPage } from '../../pages/guest-cancel-rsvp.page';
+import { PublicEventPage } from '../../pages/public-event.page';
 import {
   BREAKPOINTS,
   BreakpointName,
@@ -60,5 +62,28 @@ for (const name of Object.keys(BREAKPOINTS) as BreakpointName[]) {
     await expect(eventPage.rsvpList).toHaveCount(4);
     expect(await hasHorizontalScroll(page), 'event').toBe(false);
     expect(await undersizedTargets(page), 'event').toEqual([]);
+  });
+}
+
+for (const name of Object.keys(BREAKPOINTS) as BreakpointName[]) {
+  test(`the public event page and the guest cancel page fit at ${name}`, async ({ page, api }) => {
+    await page.setViewportSize(BREAKPOINTS[name]);
+    const event = api.events.add({
+      title: 'Hackathon: Tech for Shelters, a weekend of building',
+      visibility: 'Public',
+      venue: 'Trinity Community Centre, 155 Crawford St',
+    });
+    const publicPage = new PublicEventPage(page);
+    await publicPage.open(event.id);
+    await publicPage.imGoing.click();
+    await expect(publicPage.summary).toBeVisible();
+    expect(await hasHorizontalScroll(page), 'public event').toBe(false);
+    expect(await undersizedTargets(page), 'public event').toEqual([]);
+
+    const cancelPage = new GuestCancelRsvpPage(page);
+    await cancelPage.follow(`/public/events/${event.id}/cancel-rsvp?token=unknown`);
+    await expect(cancelPage.question).toBeVisible();
+    expect(await hasHorizontalScroll(page), 'guest cancel').toBe(false);
+    expect(await undersizedTargets(page), 'guest cancel').toEqual([]);
   });
 }

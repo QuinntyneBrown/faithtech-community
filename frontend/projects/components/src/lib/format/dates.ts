@@ -39,3 +39,15 @@ export function formatDayRange(start: Date | string, end: Date | string): string
   const sameMonth = from.getMonth() === to.getMonth() && from.getFullYear() === to.getFullYear();
   return `${sameMonth ? first.slice(0, first.lastIndexOf(' ')) : first} – ${formatDay(to)}`;
 }
+
+/** "Fri 6 Nov 2026 · 6:30 – 9:00 pm" (am or pm once when shared), or "Sat 14 – Sun 15 Nov 2026" across days. */
+export function formatTimeRange(start: Date | string, end: Date | string): string {
+  const from = new Date(start);
+  const to = new Date(end);
+  const year = from.getFullYear();
+  if (from.toDateString() !== to.toDateString()) return `${formatDayRange(from, to)} ${year}`;
+  const first = formatTime(from);
+  const last = formatTime(to);
+  const shared = first.slice(-2) === last.slice(-2);
+  return `${formatDay(from)} ${year} · ${shared ? first.slice(0, -3) : first} – ${last}`;
+}
