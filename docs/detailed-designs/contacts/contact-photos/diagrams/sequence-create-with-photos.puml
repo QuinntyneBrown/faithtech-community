@@ -1,0 +1,48 @@
+@startuml
+title UML sequence behaviour — Create a contact with photos
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+actor "Lead" as actor
+box "Frontend — FaithTech Community web app (contacts library)" #E0F2FE
+  participant "ContactFormPage" as form
+  participant "PictureListComponent" as pick
+  participant "HttpContactsService" as svc
+end box
+box "Backend — FaithTech.Community.Api" #D1FADF
+  participant "ContactsEndpoints" as ep
+end box
+actor -> pick : Choose photos, describe each, Feature one
+pick -> pick : Refuse wrong type or > 5 MB; at most 10 (L2-055 AC4, L2-057 AC2)
+actor -> form : Save contact
+form -> form : Validate details and every description ("Describe this photo.", L2-055 AC3)
+form -> svc : create(contact)
+svc -> ep : POST /api/contacts
+ep --> svc : 201 ContactDto
+loop chosen photos, featured first (ADR 0017)
+  form -> svc : uploadPhoto(contact.id, file, altText)
+  svc -> ep : POST /api/contacts/{id}/photos
+  alt 201
+    ep --> svc : ContactPhotoDto (first upload is featured)
+  else 400, 409 or network error
+    ep --> svc : Error
+    form -> form : Remember the photo's description
+  end
+end
+alt Every photo uploaded
+  form --> actor : Navigate to /contacts/{id} (L2-055 AC5)
+else Some failed
+  form --> actor : Navigate to /contacts/{id} with the failed descriptions; photo-failed alert (L2-055 AC6)
+end
+@enduml

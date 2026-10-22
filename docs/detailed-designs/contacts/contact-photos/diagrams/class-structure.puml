@@ -1,0 +1,101 @@
+@startuml
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 8
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam class {
+  BorderColor #344054
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+title Class structure — Contact photos
+class Contact {
+  +{static} int MaxPhotos = 10
+  +Guid Id
+  +Guid OwnerId
+  +IReadOnlyCollection<ContactPhoto> Photos
+  +PhotoLease PhotoLease
+  +AddPhoto(photo: ContactPhoto): void
+  +Feature(photoId: Guid): void
+  +RemovePhoto(photoId: Guid): void
+}
+class ContactPhoto {
+  +Guid Id
+  +Guid ContactId
+  +string BlobName
+  +string AltText
+  +bool IsFeatured
+  +DateTimeOffset UploadedAt
+  +bool IsStored
+  +Describe(altText: string): void
+  +MarkStoring(): void
+  +MarkStored(): void
+}
+class PhotoLease <<owned>> {
+  +Guid Version
+  +Guid? Holder
+  +DateTimeOffset? ExpiresAt
+  +TryTake(now): bool
+  +Release(): void
+}
+class PhotoBlobTask {
+  +PhotoBlobWork Work
+  +Guid PhotoId
+  +string BlobName
+  +byte[]? Content
+  +{static} Save(photoId, blobName, content, contentType, now): PhotoBlobTask
+  +{static} Delete(photoId, blobName, now): PhotoBlobTask
+}
+class ContactPhotosHandler {
+  +UploadAsync(contactId, UploadPhotoCommand): Task<(Result, ContactPhotoDto?)>
+  +DescribeAsync(contactId, photoId, DescribePhotoCommand): Task<Result>
+  +FeatureAsync(contactId, photoId): Task<Result>
+  +DeleteAsync(contactId, photoId): Task<Result>
+  +ReadImageAsync(contactId, photoId): Task<StoredImage?>
+}
+class ContactPhotoDto <<record>> {
+  +Guid Id
+  +string? Url
+  +string AltText
+  +bool IsFeatured
+  +DateTimeOffset UploadedAt
+  +bool IsStored
+}
+class ContactSummaryDto <<record>> {
+  +Guid Id
+  +string Name
+  +string Status
+  +string? PhotoUrl
+  +string? PhotoAltText
+  +int NoteCount
+  +DateTime CreatedAtUtc
+}
+interface IPhotoStorage {
+  +GetReadUrl(key): string
+  +SaveAsync(key, content, contentType): Task
+  +ReadAsync(key): Task<StoredImage?>
+  +DeleteAsync(key): Task
+}
+interface IImageProcessor {
+  +ProcessAsync(content, fileName): Task<ImageProcessingResult>
+}
+class PhotoLeases {
+  +TakeAsync(lease: PhotoLease): Task<bool>
+  +ReleaseAsync(lease: PhotoLease): Task
+}
+class ContactAccess {
+  +AuthorizeAsync(contactId, withNotes, withPhotos): Task<(ContactAccessKind, Contact?, Guid)>
+  +AuditOverride(kind, actor, contact, action, before, after): void
+}
+Contact "1" *-- "0..10" ContactPhoto
+Contact "1" *-- "1" PhotoLease
+ContactPhotosHandler ..> ContactAccess
+ContactPhotosHandler ..> IImageProcessor
+ContactPhotosHandler ..> IPhotoStorage
+ContactPhotosHandler ..> PhotoLeases
+ContactPhotosHandler ..> PhotoBlobTask : queues when storage is down
+ContactPhotosHandler ..> ContactPhotoDto : returns
+ContactPhotoDto ..> ContactPhoto : from
+PhotoLeases ..> PhotoLease
+@enduml

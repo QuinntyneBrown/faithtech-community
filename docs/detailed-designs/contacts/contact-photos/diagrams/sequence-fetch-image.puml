@@ -1,0 +1,61 @@
+@startuml
+title UML sequence behaviour — Show a private contact photo on a card
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+actor "Any caller" as actor
+box "Frontend — FaithTech Community web app (contacts library)" #E0F2FE
+  participant "ContactsPage" as page
+  participant "HttpContactsService" as svc
+end box
+box "Backend — FaithTech.Community.Api" #D1FADF
+  participant "ContactsEndpoints" as ep
+end box
+box "Backend — FaithTech.Community.Application and Domain" #ECFDF3
+  participant "ContactPhotosHandler" as h
+  participant "ContactAccess" as acc
+end box
+box "Backend — FaithTech.Community.Infrastructure" #FFF4E5
+  participant "IPhotoStorage" as store
+  database "Community database" as db
+end box
+actor -> page : Open /contacts
+page -> svc : list()
+svc --> page : ContactSummaryDto[] with PhotoUrl and PhotoAltText (L2-060)
+loop each card whose PhotoUrl is a contacts API path
+  page -> svc : photoImage(photoUrl)
+  svc -> ep : GET /api/contacts/{id}/photos/{photoId}/image with bearer token
+  alt No token
+    ep --> svc : 401 (L2-058 AC2)
+  else Signed in
+    ep -> h : ReadImageAsync(id, photoId)
+    h -> acc : AuthorizeAsync(id, withPhotos)
+    alt NotFound, photo unknown or still storing
+      h --> ep : null
+      ep --> svc : 404 (L2-058 AC1, AC3)
+      svc --> page : Error; card keeps the initials
+    else Owner or AdminOverride
+      opt AdminOverride
+        h -> acc : AuditOverride("contact.photo-viewed") and save (L2-058 AC4)
+      end
+      h -> store : ReadAsync(blobName)
+      store --> h : bytes and content type
+      h --> ep : StoredImage
+      ep --> svc : 200 image, Cache-Control private, max-age=300
+      svc --> page : object URL (cached per photo URL)
+      page --> actor : Card shows the photo with its description as alt
+    end
+  end
+end
+@enduml

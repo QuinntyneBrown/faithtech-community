@@ -15,7 +15,7 @@ The trigger is email verification, not sign-up. Once a new account verifies an e
 - **`LinkContactDialog`** — CDK dialog in the `contacts` feature library, opened from `ContactPage` with the contact id, email, note count and member. It offers keep (default) or discard notes, calls `CONTACTS_SERVICE.link` itself, shows busy and failed states, and closes with the linked `ContactDto`.
 - **`ContactsService.link(contactId, profileId, discardNotes)`** — calls `POST /api/contacts/{id}/link`, which answers `200`, `404` or `409`.
 - **`LinkContactCommand`** (`ProfileId`, `DiscardNotes`) / **`LinkContactHandler`** — `LinkAsync(id, command)` checks the caller through `ContactAccess.AuthorizeAsync` and that the profile exists (`404` otherwise), refuses an already-linked contact with `409`, calls `Contact.LinkTo(profileId, discardNotes)`, audits `contact.linked` on admin override and saves. Notes are kept unless the lead chose to discard them (`L2-015` AC5).
-- **`ContactDto`** — when `LinkedProfileId` is set, the name and featured photo come from the profile.
+- **`ContactDto`** — when `LinkedProfileId` is set, the name and featured photo come from the profile, as do the contact's person card in the list (`ContactSummaryDto.PhotoUrl`, `L2-060` AC3). The photos the lead added to the contact stay on the contact page, private ([ADR 0017](../../../adr/0017-contact-photos-private-images-and-person-cards.md)).
 
 Behaviour when two accounts share one contact email over time, or when a linked profile is deleted: deferred, because profiles are not deleted in v1 and a contact links once ([ADR 0014](../../../adr/0014-contacts-and-partners-access-and-open-questions.md)).
 

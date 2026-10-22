@@ -16,7 +16,8 @@ The archived contacts page lists the caller's archived contacts and offers Resto
 - **`ArchiveContactsHandler`** — Application handler in `Contacts/ArchiveContacts.cs` with `ArchiveAsync`, `RestoreAsync` and `DeleteAsync`. Each calls `ContactAccess.AuthorizeAsync` (`404` for anyone but the owner and System Admin), checks the contact's state (`409` "The contact is already archived.", "The contact is not archived." or "Archive the contact before deleting it."), applies the change, audits a System Admin override (`contact.archived`, `contact.restored`, `contact.deleted`) and saves once.
 - **`ManageContactsHandler.ListArchivedAsync`** — the caller's own archived contacts as `ContactSummaryDto` rows, newest archive first; `null` (`403`) when the caller may not keep contacts.
 - **`Contact.Archive(nowUtc)`** sets `ArchivedAtUtc`; **`Contact.Restore()`** clears it. Each rejects a contact already in the target state. **`Contact.CanBeDeleted`** is true only for an archived contact, and `DeleteAsync` checks it. Active queries filter on `ArchivedAtUtc IS NULL`.
-- **Cascade** — `CommunityDbContext` maps `Contact.Notes` with `OnDelete(Cascade)`, so deleting a `Contact` deletes its `ContactNote` rows.
+- **Cascade** — `CommunityDbContext` maps `Contact.Notes` and `Contact.Photos` with `OnDelete(Cascade)`, so deleting a `Contact` deletes its `ContactNote` and `ContactPhoto` rows. After the save, `DeleteAsync` deletes each photo's blob through `IPhotoStorage`; a delete that fails, and the queued write of a photo still storing, are handled as in [contact photos](../contact-photos/README.md) (`L2-058` AC6, `L2-059` AC2). Archive and restore keep the photos (`L2-058` AC5).
+- **Archive from a card** — the × on a contacts-list person card opens the same `ArchiveContactDialog`; confirming removes the card without a reload (`L2-061`).
 
 Archived contacts do not expire automatically ([ADR 0014](../../../adr/0014-contacts-and-partners-access-and-open-questions.md)).
 
