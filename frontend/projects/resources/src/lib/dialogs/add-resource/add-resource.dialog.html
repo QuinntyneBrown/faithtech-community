@@ -1,0 +1,126 @@
+<ft-dialog
+  heading="Add a resource"
+  description="Upload files or link to something that lives in another app."
+  icon="add"
+  [busy]="busy()"
+  (closed)="close()"
+>
+  @if (summary().length) {
+    <ft-error-summary [errors]="summary()" action="add this" />
+  }
+  @if (refusedReason(); as reason) {
+    <ft-alert status="warning" heading="You can’t add resources yet">{{ reason }}</ft-alert>
+  }
+  @if (failed() && mode() === 0) {
+    <ft-alert
+      status="danger"
+      [heading]="
+        didntUpload().length +
+        (didntUpload().length === 1 ? ' file didn’t upload' : ' files didn’t upload')
+      "
+    >
+      The other {{ rows().length - didntUpload().length }} were added. We lost the connection
+      part-way; try the last {{ didntUpload().length }} again.
+    </ft-alert>
+  } @else if (failed()) {
+    <ft-alert status="danger" heading="Link not added">
+      We couldn’t reach FaithTech. Nothing was saved — try again.
+    </ft-alert>
+  }
+
+  <ft-tabs
+    label="What are you adding?"
+    [selectedIndex]="mode()"
+    (selectedIndexChange)="switchMode($event)"
+  >
+    <ft-tab label="Upload files">
+      <div class="panel">
+        @if (busy() && rows().length > 1) {
+          <p class="status" role="status">Uploading {{ uploading() }} of {{ rows().length }}…</p>
+        }
+        @if (rows().length > 1) {
+          <div class="batch-head">
+            <span class="label">{{ rows().length }} files</span>
+            <span class="caption">Each file becomes its own resource</span>
+          </div>
+        }
+        @if (rows().length) {
+          <ft-list label="Chosen files" class="files">
+            @for (row of rows(); track row.key) {
+              <ft-file-row
+                [name]="row.file.name"
+                [meta]="rowMeta(row)"
+                [icon]="rowIcon(row)"
+                [status]="row.status"
+                [progress]="row.progress"
+                [error]="row.error"
+                [errorId]="rowErrorId(row)"
+                [removable]="!busy()"
+                (removed)="remove(row)"
+              />
+            }
+          </ft-list>
+        }
+        @if (!busy() && rows().length < 20) {
+          <ft-file-dropzone
+            [heading]="rows().length ? 'Add more files' : 'Drop files here or choose files'"
+            [hint]="limits"
+            [invalid]="tooMany()"
+            (filesChosen)="choose($event)"
+          />
+        }
+        @if (tooMany()) {
+          <p class="error" role="alert">{{ limits }}</p>
+        }
+        @if (rows().length > 1) {
+          <p class="caption">
+            Titles come from the file names and types from the extensions. The tags and visibility
+            below apply to all {{ rows().length }}; you can edit each one afterwards.
+          </p>
+        }
+        <ft-resource-details
+          [form]="form"
+          [errors]="errors()"
+          [showTitleAndType]="rows().length <= 1"
+          [typeHint]="typeHint()"
+        />
+      </div>
+    </ft-tab>
+    <ft-tab label="Add a link">
+      <div class="panel">
+        <ft-form-field
+          #urlField
+          required
+          label="Link"
+          help="Must start with https://. Use a link for things that stay live in their own app, like a Canva template or a shared sheet."
+          [error]="errors()['url'] ?? ''"
+        >
+          <ft-text-field type="url" placeholder="https://" [formControl]="url" />
+        </ft-form-field>
+        <ft-resource-details [form]="form" [errors]="errors()" />
+      </div>
+    </ft-tab>
+  </ft-tabs>
+
+  @if (busy() && rows().length > 1) {
+    <ft-button ftDialogFooter (click)="cancelRemaining()">Cancel remaining</ft-button>
+  } @else if (failed() && didntUpload().length) {
+    <ft-button ftDialogFooter (click)="close()">Close</ft-button>
+  } @else {
+    <ft-button ftDialogFooter [disabled]="busy()" (click)="close()">Cancel</ft-button>
+  }
+  @if (failed() && didntUpload().length && !busy()) {
+    <ft-button ftDialogFooter variant="primary" (click)="retryFailed()"
+      >Try {{ didntUpload().length }} again</ft-button
+    >
+  } @else {
+    <ft-button
+      ftDialogFooter
+      variant="primary"
+      [disabled]="!canSubmit()"
+      [loading]="busy()"
+      (click)="submit()"
+      >{{ submitText() }}</ft-button
+    >
+  }
+</ft-dialog>

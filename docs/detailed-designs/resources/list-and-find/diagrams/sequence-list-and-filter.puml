@@ -1,0 +1,83 @@
+@startuml
+title UML sequence behaviour — List, filter and search resources
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+actor "Signed-in member" as actor
+box "Frontend — FaithTech Community web app (resources library)" #E0F2FE
+  participant "ResourcesPage" as list
+  participant "HttpResourcesService" as svc
+end box
+box "Backend — FaithTech.Community.Api" #D1FADF
+  participant "ResourcesEndpoints" as ep
+end box
+box "Backend — FaithTech.Community.Application and Domain" #ECFDF3
+  participant "ListResourcesHandler" as h
+  participant "ResourceAccess" as acc
+  participant "ResourceTagsHandler" as tags
+end box
+box "Backend — FaithTech.Community.Infrastructure" #FFF4E5
+  participant "PostgresFullTextSearch" as fts
+  database "Community database" as db
+end box
+actor -> list : Open /resources?q=&type=&tag=
+list --> actor : Skeleton "Loading resources" (L2-055 AC9)
+par list and tags
+  list -> svc : list({q, type, tag, page: 1})
+  svc -> ep : GET /api/resources?q=&type=&tag=&page=1
+  alt anonymous
+    ep --> svc : 401 (L2-055 AC12)
+  else signed in
+    ep -> h : ListAsync(q, type, tag, page)
+    h -> acc : Visible(Resources, caller)
+    note right of acc
+      ArchivedAt IS NULL AND (Global OR OwnerId = caller
+      OR caller is System Admin OR caller in ResourceShareMembers
+      OR a ResourceShareRole the caller holds now) (L2-060)
+    end note
+    opt type or tag
+      h -> h : WHERE Type = type; EXISTS ResourceTag = tag
+    end
+    opt q
+      h -> fts : Match(query, q, Title + Description + TagText + FileName)
+      note right of fts: Never the file content (L2-055 AC6)
+    end
+    h -> db : ORDER BY AddedAt DESC, 25 rows and total count
+    db --> h : Rows with owner names, file or link, tags
+    h --> ep : PagedResult<ResourceSummaryDto>
+    ep --> svc : 200 OK
+  end
+else
+  list -> svc : tags()
+  svc -> ep : GET /api/resources/tags
+  ep -> tags : ListAsync(null)
+  tags -> db : Distinct tags on Visible resources, with counts
+  ep --> svc : 200 [{tag, count}]
+end
+svc --> list : Page and tags
+alt total = 0 and no filters
+  list --> actor : "No resources yet"; "Add the first resource" for contributors (L2-055 AC8)
+else total = 0 with a term
+  list --> actor : "No resources match “{term}”" with Clear search (L2-055 AC7)
+else results
+  list --> actor : Rows: icon tile or thumbnail, title, meta, badge, Download or Open (AC2-AC4)
+end
+actor -> list : Pick a type chip or a tag, or type a term
+list -> list : Update the address; debounce 250 ms
+list -> svc : list({q, type, tag, page: 1})
+note over list: Heading line "2 resources tagged “hackathon”" and Clear filters (AC5)
+actor -> list : Show more
+list -> svc : list({..., page: 2})
+list --> actor : Next 25 appended (AC1)
+@enduml

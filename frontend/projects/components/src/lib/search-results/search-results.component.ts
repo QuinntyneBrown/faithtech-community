@@ -22,6 +22,8 @@ export interface SearchGroup {
   /** Type name without the count, for example "People". */
   title: string;
   items: SearchResultItem[];
+  /** A link after the group, such as "See all in Resources". */
+  more?: { label: string; href: string };
 }
 
 interface Segment {
@@ -38,6 +40,7 @@ interface ViewGroup {
   id: string;
   heading: string;
   items: ViewItem[];
+  more?: { label: string; href: string };
 }
 
 function segments(text: string, query: string): Segment[] {
@@ -76,6 +79,7 @@ export class SearchResultsComponent {
       .map((g) => ({
         id: g.id,
         heading: `${g.title} (${g.items.length})`,
+        more: g.more,
         items: g.items.map((item) => ({
           ...item,
           titleSegments: segments(item.title, this.query()),

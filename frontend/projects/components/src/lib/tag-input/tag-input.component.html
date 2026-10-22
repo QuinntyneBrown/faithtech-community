@@ -1,0 +1,54 @@
+<div class="tag-input" [attr.aria-invalid]="invalid()">
+  @for (tag of tags(); track tag) {
+    <span class="tag-chip"
+      >{{ tag }}
+      <button
+        class="tag-chip__remove"
+        type="button"
+        [attr.aria-label]="'Remove tag ' + tag"
+        [disabled]="disabled()"
+        (click)="remove(tag)"
+      >
+        <ft-icon name="close" size="sm" /></button
+    ></span>
+  }
+  <input
+    class="tag-input__field"
+    type="text"
+    role="combobox"
+    autocomplete="off"
+    aria-autocomplete="list"
+    [attr.id]="id()"
+    [attr.aria-expanded]="expanded()"
+    [attr.aria-controls]="listId"
+    [attr.aria-activedescendant]="expanded() ? optionId(active()) : null"
+    [attr.aria-describedby]="describedBy()"
+    [attr.aria-invalid]="invalid()"
+    [value]="text()"
+    [disabled]="disabled()"
+    (input)="onInput($event)"
+    (keydown)="onKeydown($event)"
+    (focus)="open.set(true)"
+    (blur)="onBlur()"
+  />
+</div>
+<div class="combobox__panel" [hidden]="!expanded()">
+  <ul class="combobox__list" role="listbox" [id]="listId" [attr.aria-label]="listLabel()">
+    @for (option of options(); track option.value; let i = $index) {
+      <li
+        class="combobox__option"
+        role="option"
+        [id]="optionId(i)"
+        [attr.aria-selected]="i === active()"
+        (mousedown)="$event.preventDefault(); choose(option.value)"
+      >
+        <span class="combobox__text">
+          <span class="combobox__title">{{ option.title }}</span>
+          @if (option.detail) {
+            <span class="combobox__detail">{{ option.detail }}</span>
+          }
+        </span>
+      </li>
+    }
+  </ul>
+</div>

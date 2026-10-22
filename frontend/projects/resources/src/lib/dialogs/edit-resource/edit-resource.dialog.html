@@ -1,0 +1,75 @@
+<ft-dialog
+  [heading]="'Edit ' + resource.title"
+  description="Changes show for everyone who can see it."
+  icon="edit"
+  [busy]="busy()"
+  (closed)="ref.close()"
+>
+  @if (summary().length) {
+    <ft-error-summary [errors]="summary()" action="save" />
+  }
+  @if (failed()) {
+    <ft-alert status="danger" heading="Changes not saved">
+      We couldn’t reach FaithTech. The old file and details are still in place — try again.
+    </ft-alert>
+  }
+
+  @if (resource.linkUrl) {
+    <ft-form-field
+      #urlField
+      required
+      label="Link"
+      help="Must start with https://."
+      [error]="errors()['url'] ?? ''"
+    >
+      <ft-text-field type="url" [formControl]="url" />
+    </ft-form-field>
+  } @else {
+    <div class="file">
+      <span class="label">File</span>
+      <ft-list label="File">
+        @if (replacement(); as file) {
+          <ft-file-row
+            [name]="file.name"
+            [meta]="replacementMeta(file)"
+            [icon]="typeIcon({ type: resource.type, extension: file.name.split('.').pop() ?? '' })"
+            [status]="replacementError() ? 'refused' : 'ready'"
+            [error]="replacementError()"
+            errorId="edit-resource-file-error"
+            (removed)="replacement.set(null)"
+          />
+        } @else {
+          <ft-file-row
+            [name]="resource.fileName!"
+            [meta]="currentMeta"
+            [icon]="typeIcon(resource)"
+            [removable]="false"
+          />
+        }
+      </ft-list>
+      @if (replacement() && !replacementError()) {
+        <ft-alert status="warning" heading="This replaces the file for everyone">
+          This replaces {{ resource.fileName }} for everyone who can see it. There’s no version
+          history, so keep a copy if you need the old one.
+        </ft-alert>
+      }
+      @if (choosing()) {
+        <ft-file-dropzone
+          heading="Choose the new file"
+          hint="One file, up to 100 MB. PPTX, PPT, KEY, PDF, DOCX, DOC, XLSX, CSV, PNG, JPG, SVG, GIF, WEBP, MP4 or ZIP."
+          [multiple]="false"
+          (filesChosen)="choose($event)"
+        />
+      } @else if (!replacement()) {
+        <ft-button size="sm" (click)="choosing.set(true)">Replace file</ft-button>
+      }
+    </div>
+  }
+
+  <ft-resource-details [form]="form" [errors]="errors()" />
+
+  <ft-button ftDialogFooter [disabled]="busy()" (click)="ref.close()">Cancel</ft-button>
+  <ft-button ftDialogFooter variant="primary" [loading]="busy()" (click)="save()">{{
+    submitText()
+  }}</ft-button>
+</ft-dialog>

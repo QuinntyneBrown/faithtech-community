@@ -1,0 +1,52 @@
+@startuml
+title UML sequence behaviour — Purge resources archived 30 days ago
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+box "Backend — FaithTech.Community.Infrastructure" #FFF4E5
+  participant "ResourceMaintenanceWorker" as w
+end box
+box "Backend — FaithTech.Community.Application and Domain" #ECFDF3
+  participant "ResourceStorageRetryHandler" as r
+  participant "PurgeArchivedResourcesHandler" as p
+end box
+box "Backend — FaithTech.Community.Infrastructure" #FFF4E5
+  participant "AzureBlobFileStorage" as store
+  database "Community database" as db
+end box
+loop every Outbox:IntervalSeconds while Outbox:Enabled
+  w -> r : RetryDueAsync()
+  w -> p : PurgeDueAsync()
+  p -> db : Resources WHERE ArchivedAt <= now - 30 days
+  alt none due
+    p --> w : 0 (safe to run again, L2-063 AC7)
+  else due resources
+    loop each resource
+      p -> store : DeleteAsync(file blob)
+      p -> store : DeleteAsync(thumbnail blob)
+      alt storage unavailable
+        p -> db : Add ResourceBlobTask.Delete for each blob
+      end
+      p -> db : Remove Resource, tags, share rows and pending Save tasks
+      note right of db: AuditEntries about the resource stay
+    end
+    p -> db : Save
+    p --> w : Purged count
+  end
+end
+note over p
+  A resource archived less than 30 days ago is untouched.
+  Backend tests call PurgeDueAsync with a fake TimeProvider.
+end note
+@enduml

@@ -1,0 +1,18 @@
+@startuml
+!include <C4/C4_Container>
+LAYOUT_WITH_LEGEND()
+title Containers — Share resources with members and roles
+Person(owner, "Owner", "Contributor or System Admin")
+Person(recipient, "Recipient", "Named member or role holder")
+System_Boundary(community, "FaithTech Community") {
+  Container(web, "Web app", "Angular", "resources library dialogs with ft-person-picker; shell bell")
+  Container(api, "Community API", "ASP.NET Core", "Resources endpoints, ShareNotifier, INotificationPublisher, email outbox worker")
+  ContainerDb(db, "Community database", "PostgreSQL", "ResourceShareMembers, ResourceShareRoles, Notifications, EmailOutbox")
+}
+System_Ext(mail, "Email provider", "SMTP / SendGrid")
+Rel(owner, web, "Uses", "HTTPS")
+Rel(recipient, web, "Uses", "HTTPS")
+Rel(web, api, "Calls", "JSON/HTTPS, OAuth2 bearer token")
+Rel(api, db, "Audience, notifications and outbox in one save", "EF Core")
+Rel(api, mail, "Outbox worker sends", "SMTP")
+@enduml

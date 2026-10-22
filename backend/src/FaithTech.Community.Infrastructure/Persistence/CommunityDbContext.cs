@@ -9,6 +9,7 @@ using FaithTech.Community.Domain.Invites;
 using FaithTech.Community.Domain.Notifications;
 using FaithTech.Community.Domain.Partners;
 using FaithTech.Community.Domain.Profiles;
+using FaithTech.Community.Domain.Resources;
 using FaithTech.Community.Infrastructure.Email;
 using FaithTech.Community.Infrastructure.Identity;
 using FaithTech.Community.Infrastructure.Search;
@@ -60,6 +61,10 @@ public class CommunityDbContext(DbContextOptions<CommunityDbContext> options)
     public DbSet<Event> Events => Set<Event>();
 
     public DbSet<Announcement> Announcements => Set<Announcement>();
+
+    public DbSet<Resource> Resources => Set<Resource>();
+
+    public DbSet<ResourceBlobTask> ResourceBlobTasks => Set<ResourceBlobTask>();
 
     protected override void OnModelCreating(ModelBuilder builder)
     {
@@ -276,6 +281,7 @@ public class CommunityDbContext(DbContextOptions<CommunityDbContext> options)
         });
 
         ConfigureAnnouncements(builder);
+        ConfigureResources(builder);
 
         // Full-text search columns exist only in PostgreSQL; the in-memory test database has none (ADR 0016).
         if (Database.IsNpgsql())
@@ -287,6 +293,69 @@ public class CommunityDbContext(DbContextOptions<CommunityDbContext> options)
             .HasOne<Profile>()
             .WithOne()
             .HasForeignKey<CommunityUser>(u => u.ProfileId);
+    }
+
+    private static void ConfigureResources(ModelBuilder builder)
+    {
+        builder.Entity<Resource>(resource =>
+        {
+            resource.Property(r => r.Id).ValueGeneratedNever();
+            resource.Property(r => r.Title).HasMaxLength(Resource.MaxTitle);
+            resource.Property(r => r.Description).HasMaxLength(Resource.MaxDescription);
+            resource.Property(r => r.Type).HasConversion<string>().HasMaxLength(16);
+            resource.Property(r => r.Visibility).HasConversion<string>().HasMaxLength(16);
+            resource.Property(r => r.OwnerRole).HasConversion<string>().HasMaxLength(32);
+            resource.Property(r => r.LinkUrl).HasMaxLength(2000);
+            resource.Property(r => r.LinkHost).HasMaxLength(255);
+            resource.Property(r => r.TagText).HasMaxLength(2000);
+            resource.Ignore(r => r.IsArchived);
+            resource.Ignore(r => r.IsLink);
+            resource.Ignore(r => r.PurgeAt);
+            resource.HasIndex(r => new { r.ArchivedAt, r.AddedAt });
+            resource.HasIndex(r => r.OwnerId);
+            resource.OwnsOne(r => r.File, file =>
+            {
+                file.Property(f => f.FileName).HasMaxLength(255);
+                file.Property(f => f.Extension).HasMaxLength(8);
+                file.Property(f => f.ContentType).HasMaxLength(100);
+                file.Property(f => f.BlobName).HasMaxLength(200);
+                file.Property(f => f.ThumbnailBlobName).HasMaxLength(200);
+            });
+            resource.OwnsMany(r => r.Tags, tag =>
+            {
+                tag.ToTable("ResourceTags");
+                tag.WithOwner().HasForeignKey(t => t.ResourceId);
+                tag.HasKey(t => new { t.ResourceId, t.Tag });
+                tag.Property(t => t.Tag).HasMaxLength(Resource.MaxTag);
+                tag.HasIndex(t => t.Tag);
+            });
+            resource.Navigation(r => r.Tags).HasField("_tags").UsePropertyAccessMode(PropertyAccessMode.Field);
+            resource.OwnsMany(r => r.SharedMembers, member =>
+            {
+                member.ToTable("ResourceShareMembers");
+                member.WithOwner().HasForeignKey(m => m.ResourceId);
+                member.HasKey(m => new { m.ResourceId, m.ProfileId });
+                member.HasIndex(m => m.ProfileId);
+            });
+            resource.Navigation(r => r.SharedMembers).HasField("_members").UsePropertyAccessMode(PropertyAccessMode.Field);
+            resource.OwnsMany(r => r.SharedRoles, role =>
+            {
+                role.ToTable("ResourceShareRoles");
+                role.WithOwner().HasForeignKey(x => x.ResourceId);
+                role.HasKey(x => new { x.ResourceId, x.Role });
+                role.Property(x => x.Role).HasConversion<string>().HasMaxLength(32);
+            });
+            resource.Navigation(r => r.SharedRoles).HasField("_roles").UsePropertyAccessMode(PropertyAccessMode.Field);
+        });
+
+        builder.Entity<ResourceBlobTask>(task =>
+        {
+            task.Property(t => t.Work).HasConversion<string>().HasMaxLength(16);
+            task.Property(t => t.BlobName).HasMaxLength(200);
+            task.Property(t => t.ContentType).HasMaxLength(100);
+            task.HasIndex(t => t.NextAttemptAt);
+            task.HasIndex(t => t.ResourceId);
+        });
     }
 
     private static void ConfigureAnnouncements(ModelBuilder builder)

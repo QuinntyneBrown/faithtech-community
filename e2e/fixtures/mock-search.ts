@@ -5,6 +5,7 @@ import type { MockAgile } from './mock-agile';
 import type { MockContacts } from './mock-contacts';
 import type { MockEvents } from './mock-events';
 import type { MockPartners } from './mock-partners';
+import type { MockResources } from './mock-resources';
 
 /** What the search fake reads from the rest of the fake backend. */
 export interface SearchContext {
@@ -14,6 +15,7 @@ export interface SearchContext {
   readonly partners: MockPartners;
   readonly contacts: MockContacts;
   readonly agile: MockAgile;
+  readonly resources: MockResources;
 }
 
 const LEADS = ['CityLead', 'EventLead', 'CreateLead', 'CommunicationsLead'];
@@ -138,6 +140,7 @@ export class MockSearch {
         ['Partner', partners],
         ['Contact', contacts],
         ['WorkItem', workItems],
+        ['Resource', this.context.resources.searchItems(words, caller)],
       ] as const
     )
       .filter(([, items]) => items.length > 0)

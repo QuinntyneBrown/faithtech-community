@@ -1,0 +1,169 @@
+@startuml
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 8
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam class {
+  BorderColor #344054
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+title Class structure — List and find resources
+enum ResourceType {
+  Deck
+  Logo
+  Image
+  Training
+  Template
+  Document
+  Other
+}
+enum ResourceVisibility {
+  Private
+  Shared
+  Global
+}
+class Resource {
+  +Guid Id
+  +string Title
+  +string? Description
+  +ResourceType Type
+  +ResourceVisibility Visibility
+  +Guid OwnerId
+  +DateTimeOffset AddedAt
+  +DateTimeOffset? UpdatedAt
+  +Guid? UpdatedById
+  +DateTimeOffset? FileReplacedAt
+  +Guid? FileReplacedById
+  +DateTimeOffset? ArchivedAt
+  +ResourceFile? File
+  +string? LinkUrl
+  +string? LinkHost
+  +string TagText
+  +bool IsArchived
+  +bool IsLink
+}
+class ResourceFile <<owned>> {
+  +string FileName
+  +string Extension
+  +long Size
+  +string ContentType
+  +string BlobName
+  +string? ThumbnailBlobName
+  +bool IsStored
+}
+class ResourceTag {
+  +Guid ResourceId
+  +string Tag
+}
+class ResourceShareMember {
+  +Guid ResourceId
+  +Guid ProfileId
+}
+class ResourceShareRole {
+  +Guid ResourceId
+  +Role Role
+}
+Resource "1" *-- "0..1" ResourceFile
+Resource "1" *-- "*" ResourceTag
+Resource "1" *-- "*" ResourceShareMember
+Resource "1" *-- "*" ResourceShareRole
+Resource --> ResourceType
+Resource --> ResourceVisibility
+
+interface ICurrentUser {
+  +Guid? UserId
+  +IReadOnlyCollection<Role> Roles
+  +HasRole(role: Role): bool
+}
+class ResourceAccess <<static>> {
+  +{static} Contributors: IReadOnlyList<Role>
+  +{static} CanContribute(current: ICurrentUser): bool
+  +{static} Visible(query: IQueryable<Resource>, caller: Caller): IQueryable<Resource>
+  +{static} VisibleOrOwnArchived(query, caller): IQueryable<Resource>
+  +{static} CanEdit(resource: Resource, caller: Caller): bool
+  +{static} IsAdminOverride(resource: Resource, caller: Caller): bool
+}
+ResourceAccess ..> ICurrentUser : roles now
+ResourceAccess ..> Resource : filters
+
+interface IFullTextSearch {
+  +Match<T>(source, term, document): IQueryable<T>
+}
+interface IFileStorage {
+  +SaveAsync(key, stream, contentType): Task
+  +OpenReadAsync(key): Task<Stream>
+  +DeleteAsync(key): Task
+}
+interface IAuditLog {
+  +Record(actorId, action, targetType, targetId, before, after): void
+}
+interface ISearchSource {
+  +SearchResultKind Kind
+  +SearchAsync(term, caller, limit): Task<IReadOnlyList<SearchResultItem>>
+}
+class ListResourcesHandler {
+  +PageSize = 25
+  +ListAsync(q, type, tag, page): Task<PagedResult<ResourceSummaryDto>>
+}
+class GetResourceHandler {
+  +GetAsync(id: Guid): Task<ResourceDto?>
+}
+class DownloadResourceHandler {
+  +FileAsync(id: Guid): Task<(Result, ResourceDownload?)>
+  +ThumbnailAsync(id: Guid): Task<ResourceDownload?>
+}
+class ResourceTagsHandler {
+  +ListAsync(q: string?): Task<IReadOnlyList<ResourceTagDto>>
+}
+class ResourcesSearchSource {
+  +Kind = Resource
+  +SearchAsync(term, caller, limit = 10)
+}
+ResourcesSearchSource ..|> ISearchSource
+ListResourcesHandler --> ResourceAccess
+ListResourcesHandler --> IFullTextSearch
+GetResourceHandler --> ResourceAccess
+GetResourceHandler --> IAuditLog : admin override
+DownloadResourceHandler --> ResourceAccess
+DownloadResourceHandler --> IFileStorage
+DownloadResourceHandler --> IAuditLog : admin override
+ResourceTagsHandler --> ResourceAccess
+ResourcesSearchSource --> ResourceAccess
+ResourcesSearchSource --> IFullTextSearch
+
+class ResourceSummaryDto <<record>> {
+  +Guid Id
+  +string Title
+  +ResourceType Type
+  +ResourceVisibility Visibility
+  +ResourceOwnerDto Owner
+  +DateTimeOffset AddedAt
+  +ResourceFileDto? File
+  +ResourceLinkDto? Link
+  +IReadOnlyList<string> Tags
+  +string? Badge
+}
+class ResourceDto <<record>> {
+  +string? Description
+  +ResourceAudienceDto? Audience
+  +DateTimeOffset? UpdatedAt
+  +string? UpdatedBy
+  +bool FileReplaced
+  +bool IsOwn
+  +bool CanEdit
+  +bool CanTransfer
+  +string? SharedWithYou
+  +bool IsArchived
+  +DateTimeOffset? PurgeAt
+}
+class ResourceTagDto <<record>> {
+  +string Tag
+  +int Count
+}
+ResourceDto --|> ResourceSummaryDto
+ListResourcesHandler ..> ResourceSummaryDto : pages
+GetResourceHandler ..> ResourceDto : builds
+ResourceTagsHandler ..> ResourceTagDto
+@enduml

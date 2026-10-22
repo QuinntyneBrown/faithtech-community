@@ -54,6 +54,22 @@ export const ICONS: Readonly<Record<string, string>> = {
   photo:
     "<rect x='3' y='3' width='18' height='18' rx='2'/><circle cx='9' cy='9' r='2'/><path d='m21 15-5-5L5 21'/>",
   'sign-out': "<path d='M15 4h4v16h-4M10 17l5-5-5-5M15 12H3'/>",
+  resources: "<path d='M4 4h6l2 2h8v14H4z'/><path d='M8 12h8M8 16h5'/>",
+  deck: "<rect x='3' y='4' width='18' height='12' rx='1'/><path d='M12 16v4M8 20h8'/>",
+  logo: "<circle cx='12' cy='12' r='9'/><path d='M12 7v10M8 10h8'/>",
+  image:
+    "<rect x='3' y='5' width='18' height='14' rx='2'/><circle cx='9' cy='10' r='2'/><path d='m21 16-5-5-9 8'/>",
+  training: "<path d='M2 9l10-5 10 5-10 5zM6 11v5c3 2 9 2 12 0v-5'/>",
+  template: "<rect x='4' y='3' width='16' height='18' rx='2'/><path d='M4 9h16M10 9v12'/>",
+  document: "<path d='M6 3h8l5 5v13H6zM14 3v5h5M9 13h6M9 17h6'/>",
+  video: "<rect x='3' y='5' width='14' height='14' rx='2'/><path d='m17 10 4-2v8l-4-2'/>",
+  file: "<path d='M6 3h8l5 5v13H6zM14 3v5h5'/>",
+  download: "<path d='M12 4v11M7 10l5 5 5-5M5 20h14'/>",
+  external: "<path d='M14 4h6v6M20 4l-9 9M18 14v6H4V6h6'/>",
+  upload: "<path d='M12 20V9M7 14l5-5 5 5M5 4h14'/>",
+  shared:
+    "<circle cx='9' cy='8' r='4'/><path d='M2 21a7 7 0 0 1 14 0M16 3.5a4 4 0 0 1 0 7.5M22 21a7 7 0 0 0-4-6.3'/>",
+  transfer: "<path d='M4 8h14l-4-4M20 16H6l4 4'/>",
   suspended: "<circle cx='12' cy='12' r='9'/><path d='M5.6 5.6l12.8 12.8'/>",
 };
 

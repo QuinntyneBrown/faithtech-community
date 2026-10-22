@@ -45,6 +45,25 @@ public class SkiaImageProcessor : IImageProcessor
         return new ImageProcessingResult(new ProcessedImage(encoded.ToArray(), expected.ContentType, expected.Extension), null);
     }
 
+    public async Task<byte[]?> ThumbnailAsync(Stream content, int maxEdge, CancellationToken cancellationToken = default)
+    {
+        using var buffer = new MemoryStream();
+        await content.CopyToAsync(buffer, cancellationToken);
+        using var data = SKData.CreateCopy(buffer.ToArray());
+        using var codec = SKCodec.Create(data);
+        using var decoded = codec is null ? null : SKBitmap.Decode(codec);
+        if (decoded is null)
+        {
+            return null;
+        }
+
+        using var oriented = Orient(decoded, codec!.EncodedOrigin);
+        using var resized = FitInside(oriented, maxEdge);
+        using var image = SKImage.FromBitmap(resized);
+        using var encoded = image.Encode(SKEncodedImageFormat.Png, 100);
+        return encoded.ToArray();
+    }
+
     /// <summary>Draws the pixels the way the camera meant them to be seen, so the orientation tag can be dropped.</summary>
     private static SKBitmap Orient(SKBitmap source, SKEncodedOrigin origin)
     {
@@ -95,9 +114,9 @@ public class SkiaImageProcessor : IImageProcessor
         return target;
     }
 
-    private static SKBitmap FitInside(SKBitmap source)
+    private static SKBitmap FitInside(SKBitmap source, int maxEdge = MaxEdge)
     {
-        var scale = Math.Min(1.0, (double)MaxEdge / Math.Max(source.Width, source.Height));
+        var scale = Math.Min(1.0, (double)maxEdge / Math.Max(source.Width, source.Height));
         if (scale >= 1.0)
         {
             return source.Copy();

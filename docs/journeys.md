@@ -37,3 +37,8 @@ Ordered by value to the user. Effort and completion come from [estimates](estima
 | 30 | Review the audit log | Admins review who did what, and when. | 4 | 0 |
 | 31 | Use a fast, accessible, secure site | Responsive, themed, accessible, validated and reliable on every screen. | 21 | 78 |
 | 32 | Plan work in the agile workspace | Organize and track team work in a shared agile workspace. | 36 | 0 |
+| 33 | Add and share resources | Leads and Staff upload decks, logos and training, or link to them, and share them with members and roles. | 12 | 0 |
+| 34 | Find and download resources | Members browse, filter and search the resources visible to them, then open or download them. | 6 | 0 |
+| 35 | Archive and transfer resources | Owners archive and restore resources; System Admin hands a resource to a new owner, audited. | 5 | 0 |
+
+Journeys 33 to 35 (Resources) are not yet recorded in [`videos/journeys/`](videos/journeys/README.md); record them with `pwsh eng/videos/Record-JourneyVideos.ps1` once the screens are built. The app shell tour needs re-recording too, because the shell gains the Resources nav item.

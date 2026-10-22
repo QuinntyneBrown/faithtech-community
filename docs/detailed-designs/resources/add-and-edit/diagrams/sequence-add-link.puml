@@ -1,0 +1,60 @@
+@startuml
+title UML sequence behaviour — Add a link
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+actor "Contributor" as actor
+box "Frontend — FaithTech Community web app (resources library)" #E0F2FE
+  participant "AddResourceDialog" as dlg
+  participant "HttpResourcesService" as svc
+end box
+box "Backend — FaithTech.Community.Api" #D1FADF
+  participant "ResourcesEndpoints" as ep
+  participant "ResourceFieldRules" as v
+end box
+box "Backend — FaithTech.Community.Application and Domain" #ECFDF3
+  participant "AddLinkHandler" as h
+  participant "ResourceAccess" as acc
+end box
+box "Backend — FaithTech.Community.Infrastructure" #FFF4E5
+  database "Community database" as db
+end box
+actor -> dlg : Choose "Add a link"
+dlg --> actor : Link, Title, Description, Type, Tags, Who can see it; "Add link" (L2-058 AC1)
+actor -> dlg : Fill and submit
+dlg -> dlg : Client checks: https:// absolute URL, title, lengths
+alt invalid
+  dlg --> actor : Inline errors and error summary (L2-059 AC1)
+else looks valid
+  dlg -> svc : addLink({url, title, description, type, tags, visibility, ...})
+  svc -> ep : POST /api/resources/links
+  ep -> v : Validate
+  alt not https, not absolute, both or neither of file and link
+    ep --> svc : 400 ValidationProblem (L2-058 AC2, L2-059 AC7)
+    dlg --> actor : Error on the Link field
+  else valid
+    ep -> h : AddAsync(command)
+    h -> acc : CanContribute; email verified
+    alt refused
+      ep --> svc : 403
+    else allowed
+      h -> h : Resource.ForLink(owner = caller, uri); LinkHost = uri.Host
+      note right of h: The URL is never fetched (L2-058 AC5)
+      h -> db : Save
+      ep --> svc : 201 ResourceDto
+      dlg --> actor : Close; toast "{title} added" with View
+    end
+  end
+end
+@enduml

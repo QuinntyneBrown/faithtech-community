@@ -1,1 +1,5 @@
-<ft-icon [name]="name()" />
+@if (src(); as url) {
+  <img [src]="url" alt="" />
+} @else {
+  <ft-icon [name]="name()" />
+}

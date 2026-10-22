@@ -1,0 +1,105 @@
+@startuml
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 8
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam class {
+  BorderColor #344054
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+title Class structure — Share resources with members and roles
+enum ResourceVisibility {
+  Private
+  Shared
+  Global
+}
+class ResourceAudience <<value object>> {
+  +ResourceVisibility Visibility
+  +IReadOnlySet<Guid> Members
+  +IReadOnlySet<Role> Roles
+  +{static} Private(): ResourceAudience
+  +{static} Global(): ResourceAudience
+  +{static} Shared(members, roles): ResourceAudience
+}
+class Resource {
+  +Guid Id
+  +Guid OwnerId
+  +ResourceVisibility Visibility
+  +IReadOnlyList<ResourceShareMember> SharedMembers
+  +IReadOnlyList<ResourceShareRole> SharedRoles
+  +SetAudience(audience: ResourceAudience): (NewMembers: IReadOnlyList<Guid>, NewRoles: IReadOnlyList<Role>)
+}
+class ResourceShareMember {
+  +Guid ResourceId
+  +Guid ProfileId
+}
+class ResourceShareRole {
+  +Guid ResourceId
+  +Role Role
+}
+Resource "1" *-- "*" ResourceShareMember
+Resource "1" *-- "*" ResourceShareRole
+Resource ..> ResourceAudience : applies
+ResourceAudience --> ResourceVisibility
+
+class ShareNotifier {
+  +NotifyAsync(resource: Resource, owner: Profile, before: ResourceAudience, newMembers, newRoles): Task<int>
+  -ResolveRecipientsAsync(...): Task<IReadOnlyCollection<Guid>>
+  -Email(recipientId): NotificationEmail
+}
+interface INotificationPublisher {
+  +Publish(recipient, kind, title, linkPath): void
+  +PublishAsync(recipientIds, kind, title, linkPath, actorId, email): Task<int>
+}
+enum NotificationKind {
+  ...
+  Announcement
+  ResourceShared
+  ResourceOwnershipTransferred
+}
+class NotificationEmail <<record>> {
+  +string Subject
+  +string Body
+}
+ShareNotifier --> INotificationPublisher
+ShareNotifier ..> NotificationKind : ResourceShared
+ShareNotifier ..> NotificationEmail : builds
+
+class ResourceMembersHandler {
+  +MaxResults = 10
+  +MembersAsync(q: string?): Task<(Result, IReadOnlyList<ResourceMemberDto>?)>
+  +OwnerCandidatesAsync(q: string?): Task<(Result, IReadOnlyList<ResourceMemberDto>?)>
+}
+class ResourceMemberDto <<record>> {
+  +Guid ProfileId
+  +string Name
+  +string Initials
+  +string? PhotoUrl
+  +string? Role
+  +string? City
+}
+ResourceMembersHandler ..> ResourceMemberDto
+class ResourceAudienceDto <<record>> {
+  +IReadOnlyList<ResourceMemberDto> Members
+  +IReadOnlyList<SharedRoleDto> Roles
+}
+class SharedRoleDto <<record>> {
+  +Role Role
+  +int HoldersToday
+}
+ResourceAudienceDto --> ResourceMemberDto
+ResourceAudienceDto --> SharedRoleDto
+class ResourceAccess <<static>> {
+  +{static} CanEdit(resource, caller): bool
+  +{static} Visible(query, caller): IQueryable<Resource>
+}
+class EditResourceHandler
+class AddResourcesHandler
+class AddLinkHandler
+EditResourceHandler --> ShareNotifier
+AddResourcesHandler --> ShareNotifier
+AddLinkHandler --> ShareNotifier
+EditResourceHandler --> ResourceAccess : CanEdit
+@enduml

@@ -1,0 +1,69 @@
+@startuml
+title UML sequence behaviour — Share a resource and notify new recipients
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+actor "Owner" as actor
+box "Frontend — FaithTech Community web app (resources library)" #E0F2FE
+  participant "EditResourceDialog" as dlg
+  participant "HttpResourcesService" as svc
+end box
+box "Backend — FaithTech.Community.Api" #D1FADF
+  participant "ResourcesEndpoints" as ep
+end box
+box "Backend — FaithTech.Community.Application and Domain" #ECFDF3
+  participant "EditResourceHandler" as h
+  participant "ResourceMembersHandler" as mem
+  participant "ShareNotifier" as n
+  participant "INotificationPublisher" as pub
+end box
+box "Backend — FaithTech.Community.Infrastructure" #FFF4E5
+  database "Community database" as db
+end box
+actor -> dlg : Change who can see it -> Shared
+dlg --> actor : Share with: People picker, Roles, caption (L2-061 AC1)
+actor -> dlg : Type "ha"
+dlg -> svc : members("ha")
+svc -> ep : GET /api/resources/members?q=ha
+ep -> mem : MembersAsync("ha")
+mem -> db : Active members by name, with role and city
+ep --> svc : 200 [ResourceMemberDto]
+dlg --> actor : "Matching members": Hannah Kim · Communications Lead · Toronto
+actor -> dlg : Pick Hannah; tick City Lead; Save
+alt no member and no role
+  dlg --> actor : "Choose at least one person or role, or pick another visibility."
+else audience chosen
+  dlg -> svc : update(id, {visibility: Shared, memberIds, roles})
+  svc -> ep : PUT /api/resources/{id}
+  ep -> h : EditAsync(id, command)
+  alt caller is not owner or System Admin (a recipient)
+    ep --> svc : 403 (L2-061 AC4)
+  else may edit
+    h -> h : before = current audience
+    h -> h : SetAudience(Shared(members, roles)) returns new members and new roles
+    h -> n : NotifyAsync(resource, owner, before, newMembers, newRoles)
+    n -> db : Current holders of new roles; suspended flags
+    n -> n : new members + role holders, de-duplicated,\nminus owner, suspended, and anyone already reached by before (AC3)
+    n -> pub : PublishAsync(recipients, ResourceShared,\n"{Owner} shared {title} with you", /resources/{id}, owner, email)
+    pub -> pub : Notification rows and EmailOutbox rows (always sent, AC2)
+    h -> db : One save: audience rows, Touch, notifications, outbox (L2-028)
+    ep --> svc : 200 ResourceDto
+    dlg --> actor : Saved; page lists the audience
+  end
+end
+note over db
+  Changing Shared to Private or Global clears the
+  audience and sends nothing (L2-061 AC6)
+end note
+@enduml

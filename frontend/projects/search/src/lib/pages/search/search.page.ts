@@ -42,6 +42,16 @@ const TITLES: Record<SearchResultKind, string> = {
   Partner: 'Partners',
   Contact: 'Your private contacts',
   WorkItem: 'Work items in your workspaces',
+  Resource: 'Resources',
+};
+const RESOURCE_ICONS: Record<string, string> = {
+  Deck: 'deck',
+  Logo: 'logo',
+  Image: 'image',
+  Training: 'training',
+  Template: 'template',
+  Document: 'document',
+  Other: 'file',
 };
 const STAGES: Record<string, { label: string; variant: BadgeVariant }> = {
   Lead: { label: 'Lead', variant: 'neutral' },
@@ -120,7 +130,7 @@ export class SearchPage {
     try {
       const results = await firstValueFrom(this.service.search(term));
       if (request !== this.request) return;
-      this.groups.set(results.groups.map(toGroup));
+      this.groups.set(results.groups.map((g) => toGroup(g, term)));
       this.state.set('loaded');
     } catch {
       if (request === this.request) this.state.set('error');
@@ -128,11 +138,16 @@ export class SearchPage {
   }
 }
 
-function toGroup(group: SearchResultGroup): SearchGroup {
+function toGroup(group: SearchResultGroup, term: string): SearchGroup {
   return {
     id: group.kind,
     title: TITLES[group.kind],
     items: group.items.map((i) => toView(group.kind, i)),
+    // The Resources page searches the same fields, with filters and paging (L2-065 AC1).
+    more:
+      group.kind === 'Resource'
+        ? { label: 'See all in Resources', href: `/resources?q=${encodeURIComponent(term)}` }
+        : undefined,
   };
 }
 
@@ -168,6 +183,13 @@ function toView(kind: SearchResultKind, item: SearchResultItem): ResultView {
         avatarColor: avatarColorFor(item.id),
         badge: 'Private',
         badgeVariant: 'neutral',
+      };
+    case 'Resource':
+      return {
+        ...base,
+        icon: RESOURCE_ICONS[item.snippet.split(' · ')[0]] ?? 'resources',
+        badge: item.badge ?? undefined,
+        badgeVariant: item.badge === 'Private' ? 'neutral' : 'info',
       };
     case 'WorkItem':
       return {

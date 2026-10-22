@@ -1,0 +1,32 @@
+@startuml
+!include <C4/C4_Component>
+LAYOUT_WITH_LEGEND()
+title Components — Share resources with members and roles
+Container_Boundary(web, "Web app") {
+  Component(dlg, "AddResourceDialog / EditResourceDialog", "CDK dialogs (resources library)", "Who can see it: Shared, Share with")
+  Component(picker, "ft-person-picker", "components library", "Combobox of members with chips")
+  Component(page, "ResourcePage", "Angular page", "Audience list, shared-with-you banner, Change who can see it")
+  Component(svc, "HttpResourcesService", "Angular service (api library)", "members(q), add, addLink, update")
+}
+Container_Boundary(api, "Community API") {
+  Component(ep, "ResourcesEndpoints", "ASP.NET Core minimal API", "GET /api/resources/members; POST, PUT with visibility, memberIds, roles")
+  Component(mem, "ResourceMembersHandler", "Application handler", "Active members matching a name, with role and city")
+  Component(h, "Add / AddLink / EditResource handlers", "Application handlers", "Build ResourceAudience; SetAudience returns what is new")
+  Component(notifier, "ShareNotifier", "Application service", "New recipients: members + current role holders, minus owner and suspended")
+  Component(pub, "NotificationPublisher", "Implements INotificationPublisher", "In-app notifications and queued emails")
+  Component(acc, "ResourceAccess", "Application permission rule", "CanEdit: owner or System Admin; Visible: live roles")
+  Component(audit, "AuditLog", "Implements IAuditLog", "resource.shared on override")
+  ComponentDb(db, "CommunityDbContext", "PostgreSQL", "Share rows, Notifications, EmailOutbox")
+}
+Rel(dlg, picker, "Composes")
+Rel(dlg, svc, "members, add, update")
+Rel(page, dlg, "Opens on the picker")
+Rel(svc, ep, "Sends request", "JSON/HTTPS")
+Rel(ep, mem, "Calls")
+Rel(ep, h, "Calls")
+Rel(h, acc, "CanEdit (403 for recipients)")
+Rel(h, notifier, "New members and roles")
+Rel(notifier, pub, "PublishAsync(ResourceShared)")
+Rel(h, audit, "Override")
+Rel(pub, db, "Same unit of work")
+@enduml

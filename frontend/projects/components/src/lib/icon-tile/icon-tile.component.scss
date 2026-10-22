@@ -12,3 +12,16 @@
   inline-size: var(--size-avatar-sm);
   block-size: var(--size-avatar-sm);
 }
+
+:host(.ft-icon-tile--image) {
+  overflow: hidden;
+  background: var(--color-bg-subtle);
+  border: var(--border-width-hairline) solid var(--color-border-default);
+}
+
+img {
+  inline-size: 100%;
+  block-size: 100%;
+  object-fit: cover;
+  display: block;
+}

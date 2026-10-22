@@ -3,6 +3,7 @@ using FaithTech.Community.Domain.Contacts;
 using FaithTech.Community.Domain.Events;
 using FaithTech.Community.Domain.Partners;
 using FaithTech.Community.Domain.Profiles;
+using FaithTech.Community.Domain.Resources;
 using Microsoft.EntityFrameworkCore;
 using NpgsqlTypes;
 
@@ -23,6 +24,7 @@ public static class SearchVectors
         Add<Partner>(builder, "Name", "Offering", "ContactName", "Notes");
         Add<Contact>(builder, "Name", "Email", "Organization", "City");
         Add<WorkItem>(builder, "Title", "Description");
+        Add<Resource>(builder, "Title", "Description", "TagText", "File_FileName");
     }
 
     private static void Add<T>(ModelBuilder builder, params string[] columns) where T : class

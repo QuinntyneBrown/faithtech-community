@@ -1,0 +1,16 @@
+@startuml
+!include <C4/C4_Container>
+LAYOUT_WITH_LEGEND()
+title Containers — List and find resources
+Person(member, "Signed-in member", "Finds, opens and downloads visible resources")
+System_Boundary(community, "FaithTech Community") {
+  Container(web, "Web app", "Angular", "Shell with the Resources nav item, resources and search feature libraries, api and components libraries")
+  Container(api, "Community API", "ASP.NET Core", "FaithTech.Community.Api with Application, Domain and Infrastructure")
+  ContainerDb(db, "Community database", "PostgreSQL", "Resources, tags, share members and roles; tsvector search column")
+}
+System_Ext(blob, "Azure Blob Storage", "Private resources container")
+Rel(member, web, "Uses", "HTTPS")
+Rel(web, api, "Calls", "JSON/HTTPS, OAuth2 bearer token; files as blobs")
+Rel(api, db, "Reads with the visibility predicate", "EF Core")
+Rel(api, blob, "OpenReadAsync file and thumbnail", "Azure SDK")
+@enduml

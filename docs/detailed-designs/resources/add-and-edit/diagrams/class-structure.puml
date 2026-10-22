@@ -1,0 +1,163 @@
+@startuml
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 8
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam class {
+  BorderColor #344054
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+title Class structure — Add and edit resources
+class Resource {
+  +MaxTitle = 120
+  +MaxDescription = 1000
+  +MaxTag = 40
+  +Guid Id
+  +string Title
+  +string? Description
+  +ResourceType Type
+  +ResourceVisibility Visibility
+  +Guid OwnerId
+  +DateTimeOffset AddedAt
+  +DateTimeOffset? UpdatedAt
+  +Guid? UpdatedById
+  +DateTimeOffset? FileReplacedAt
+  +Guid? FileReplacedById
+  +ResourceFile? File
+  +string? LinkUrl
+  +string? LinkHost
+  +string TagText
+  +{static} ForFile(owner, title, description, type, file, now): Resource
+  +{static} ForLink(owner, title, description, type, link: Uri, now): Resource
+  +{static} NormaliseTags(tags): IReadOnlyList<string>
+  +SetDetails(title, description, type): void
+  +SetTags(tags): void
+  +SetAudience(audience: ResourceAudience): (NewMembers, NewRoles)
+  +SetLink(link: Uri): void
+  +Touch(by: Guid, now): void
+  +ReplaceFile(file: ResourceFile, by: Guid, now): ResourceFile
+}
+class ResourceFile <<owned>> {
+  +string FileName
+  +string Extension
+  +long Size
+  +string ContentType
+  +string BlobName
+  +string? ThumbnailBlobName
+  +bool IsStored
+  +MarkStoring(): void
+  +MarkStored(): void
+}
+class ResourceTag {
+  +Guid ResourceId
+  +string Tag
+}
+enum ResourceBlobWork {
+  Save
+  Delete
+}
+class ResourceBlobTask {
+  +Guid Id
+  +ResourceBlobWork Work
+  +Guid ResourceId
+  +string BlobName
+  +byte[]? Content
+  +string? ContentType
+  +DateTimeOffset NextAttemptAt
+  +int Attempts
+  +{static} Save(resourceId, blobName, content, contentType, now): ResourceBlobTask
+  +{static} Delete(resourceId, blobName, now): ResourceBlobTask
+  +Failed(now): void
+}
+Resource "1" *-- "0..1" ResourceFile
+Resource "1" *-- "*" ResourceTag
+ResourceBlobTask --> ResourceBlobWork
+ResourceBlobTask ..> Resource : ResourceId
+
+class ResourceFileTypes <<static>> {
+  +MaxBytes = 100 MB
+  +MaxFilesPerAdd = 20
+  +{static} Allowed: IReadOnlySet<string>
+  +{static} RefusedMessage(fileName): string
+  +{static} TypeFromExtension(ext): ResourceType
+  +{static} MatchesSignature(ext, leadingBytes): bool
+  +{static} Check(fileName, size, leadingBytes): string?
+}
+class ResourceDetails <<record>> {
+  +string? Title
+  +string? Description
+  +ResourceType? Type
+  +IReadOnlyList<string>? Tags
+  +ResourceVisibility Visibility
+  +IReadOnlyList<Guid>? MemberIds
+  +IReadOnlyList<Role>? Roles
+}
+class AddLinkCommand <<record>> {
+  +string? Url
+}
+class EditResourceCommand <<record>> {
+  +string? Url
+}
+AddLinkCommand --|> ResourceDetails
+EditResourceCommand --|> ResourceDetails
+class ResourceFieldRules
+ResourceFieldRules ..> ResourceDetails
+class UploadedFile <<record>> {
+  +string FileName
+  +long Length
+  +string ContentType
+  +OpenReadStream(): Stream
+}
+interface IFileStorage {
+  +SaveAsync(key, stream, contentType): Task
+  +OpenReadAsync(key): Task<Stream>
+  +DeleteAsync(key): Task
+}
+interface IImageProcessor {
+  +ProcessAsync(content, fileName): Task<ImageProcessingResult>
+  +ThumbnailAsync(content, fileName): Task<ProcessedImage?>
+}
+abstract class TimeProvider {
+  +GetUtcNow(): DateTimeOffset
+}
+class AddResourcesHandler {
+  +AddAsync(files: IReadOnlyList<UploadedFile>, details: ResourceDetails): Task<(Result, IReadOnlyList<ResourceDto>?)>
+}
+class AddLinkHandler {
+  +AddAsync(command: AddLinkCommand): Task<(Result, ResourceDto?)>
+}
+class EditResourceHandler {
+  +EditAsync(id, command: EditResourceCommand): Task<(Result, ResourceDto?)>
+}
+class ReplaceFileHandler {
+  +ReplaceAsync(id, file: UploadedFile): Task<(Result, ResourceDto?)>
+}
+class ResourceStorageRetryHandler {
+  +RetryDueAsync(): Task<int>
+}
+class ResourceAccess <<static>>
+class ShareNotifier
+AddResourcesHandler --> ResourceFileTypes
+AddResourcesHandler --> IFileStorage
+AddResourcesHandler --> IImageProcessor
+AddResourcesHandler --> ResourceAccess
+AddResourcesHandler --> ShareNotifier
+AddResourcesHandler ..> ResourceBlobTask : storage down
+AddLinkHandler --> ResourceAccess
+AddLinkHandler --> ShareNotifier
+EditResourceHandler --> ResourceAccess
+EditResourceHandler --> ShareNotifier
+ReplaceFileHandler --> ResourceFileTypes
+ReplaceFileHandler --> IFileStorage
+ReplaceFileHandler --> IImageProcessor
+ReplaceFileHandler ..> ResourceBlobTask : delete queued
+ResourceStorageRetryHandler --> IFileStorage
+ResourceStorageRetryHandler --> ResourceBlobTask
+AddResourcesHandler --> TimeProvider
+EditResourceHandler --> TimeProvider
+ReplaceFileHandler --> TimeProvider
+AddResourcesHandler ..> UploadedFile
+ReplaceFileHandler ..> UploadedFile
+@enduml

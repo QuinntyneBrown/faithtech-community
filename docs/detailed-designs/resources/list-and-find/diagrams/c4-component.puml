@@ -1,0 +1,43 @@
+@startuml
+!include <C4/C4_Component>
+LAYOUT_WITH_LEGEND()
+title Components — List and find resources
+Container_Boundary(web, "Web app") {
+  Component(list, "ResourcesPage", "Angular page (resources library)", "/resources: Recently added, type chips, tag select, search, Show more")
+  Component(page, "ResourcePage", "Angular page (resources library)", "/resources/:id: preview, About, Details, audience, banners, Download or Open")
+  Component(search, "SearchPage", "Angular page (search library)", "Resources group with See all in Resources")
+  Component(svc, "HttpResourcesService", "Angular service (api library)", "Implements ResourcesService (RESOURCES_SERVICE); file and thumbnail as Blob")
+}
+Container_Boundary(api, "Community API") {
+  Component(ep, "ResourcesEndpoints", "ASP.NET Core minimal API", "GET /api/resources, /tags, /{id}, /{id}/file, /{id}/thumbnail")
+  Component(listh, "ListResourcesHandler", "Application handler", "Visible + type + tag + full-text q, newest first, 25 a page")
+  Component(geth, "GetResourceHandler", "Application handler", "ResourceDto with permission flags; audits admin override")
+  Component(dl, "DownloadResourceHandler", "Application handler", "File and thumbnail streams; 409 while not stored")
+  Component(tags, "ResourceTagsHandler", "Application handler", "Tags in use on visible resources, with counts")
+  Component(src, "ResourcesSearchSource", "ISearchSource", "Kind Resource, max 10, visibility in the base query")
+  Component(acc, "ResourceAccess", "Application permission rule", "CanContribute, Visible, VisibleOrOwnArchived, CanEdit")
+  Component(fts, "PostgresFullTextSearch", "Implements IFullTextSearch", "tsvector over Title, Description, TagText, FileName")
+  Component(store, "AzureBlobFileStorage", "Implements IFileStorage", "resources container, no read URL")
+  Component(audit, "AuditLog", "Infrastructure service", "Implements IAuditLog")
+  ComponentDb(db, "CommunityDbContext", "PostgreSQL", "Resources, ResourceTags, ResourceShareMembers, ResourceShareRoles")
+}
+Rel(list, svc, "list, tags")
+Rel(page, svc, "get, download, thumbnail")
+Rel(search, ep, "GET /api/search (GlobalSearchHandler)")
+Rel(svc, ep, "Sends request", "JSON/HTTPS")
+Rel(ep, listh, "Calls")
+Rel(ep, geth, "Calls")
+Rel(ep, dl, "Calls")
+Rel(ep, tags, "Calls")
+Rel(listh, acc, "Visible(query, caller)")
+Rel(geth, acc, "VisibleOrOwnArchived")
+Rel(dl, acc, "VisibleOrOwnArchived")
+Rel(tags, acc, "Visible")
+Rel(src, acc, "Visible")
+Rel(listh, fts, "Match q")
+Rel(src, fts, "Match term")
+Rel(dl, store, "OpenReadAsync")
+Rel(geth, audit, "resource.opened (override)")
+Rel(dl, audit, "resource.downloaded (override)")
+Rel(listh, db, "One query", "EF Core")
+@enduml

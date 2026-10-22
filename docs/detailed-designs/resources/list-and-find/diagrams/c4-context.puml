@@ -1,0 +1,14 @@
+@startuml
+!include <C4/C4_Context>
+LAYOUT_WITH_LEGEND()
+title System Context — List and find resources
+Person(member, "Signed-in member", "Any role or none: finds, opens and downloads the resources visible to them")
+Person(contrib, "Contributor", "City, Event, Create or Communications Lead, Staff or System Admin")
+Person(admin, "System Admin", "Opens any resource by override, audited")
+System(community, "FaithTech Community", "Community site for FaithTech staff, leads, volunteers, builders and partners")
+System_Ext(blob, "Azure Blob Storage", "Private resources container: files and image thumbnails")
+Rel(member, community, "Browses, filters, searches, opens and downloads resources using")
+Rel(contrib, community, "Finds their own and everyone's visible resources using")
+Rel(admin, community, "Opens Private and Shared resources by override using")
+Rel(community, blob, "Streams files and thumbnails from", "HTTPS")
+@enduml

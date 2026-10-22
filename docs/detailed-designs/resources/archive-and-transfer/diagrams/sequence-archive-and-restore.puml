@@ -1,0 +1,76 @@
+@startuml
+title UML sequence behaviour — Archive and restore a resource
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+actor "Owner" as actor
+box "Frontend — FaithTech Community web app (resources library)" #E0F2FE
+  participant "ResourcePage" as page
+  participant "ArchiveResourceDialog" as dlg
+  participant "ArchivedResourcesPage" as arch
+  participant "HttpResourcesService" as svc
+end box
+box "Backend — FaithTech.Community.Api" #D1FADF
+  participant "ResourcesEndpoints" as ep
+end box
+box "Backend — FaithTech.Community.Application and Domain" #ECFDF3
+  participant "ArchiveResourceHandler" as h
+  participant "ResourceAccess" as acc
+end box
+box "Backend — FaithTech.Community.Infrastructure" #FFF4E5
+  participant "AuditLog" as audit
+  database "Community database" as db
+end box
+actor -> page : Archive
+page -> dlg : Open; focus on Cancel (L2-063 AC1)
+actor -> dlg : Archive
+dlg --> actor : "Archiving…"
+dlg -> svc : archive(id)
+svc -> ep : POST /api/resources/{id}/archive
+ep -> h : ArchiveAsync(id)
+h -> acc : Visible; CanEdit
+alt not visible
+  ep --> svc : 404
+else not owner or System Admin
+  ep --> svc : 403 (AC8)
+else allowed
+  h -> h : Archive(now); Touch
+  opt System Admin override
+    h -> audit : resource.archived
+  end
+  h -> db : Save
+  ep --> svc : 200
+  dlg --> actor : Close; /resources; toast "{title} archived", "Restore it from Archived until {date}." with Undo
+end
+alt request failed
+  dlg --> actor : "Not archived" with Try again (AC6)
+end
+note over db: Archived rows leave every list, search and read for anyone else (AC2)
+actor -> arch : Open /resources/archived
+arch -> svc : archived()
+svc -> ep : GET /api/resources/archived
+ep -> h : ListArchivedAsync()
+h -> db : OwnerId = caller (all for System Admin) AND ArchivedAt IS NOT NULL, newest first
+ep --> svc : 200 [ArchivedResourceDto with PurgeAt]
+arch --> actor : "{title} · … · archived {date} · deleted for good {date}" (AC3)
+actor -> arch : Restore {title}
+arch -> svc : restore(id)
+svc -> ep : POST /api/resources/{id}/restore
+ep -> h : RestoreAsync(id)
+h -> acc : VisibleOrOwnArchived; CanEdit
+h -> h : Restore(): same visibility, audience, tags and file
+h -> db : Save
+ep --> svc : 200
+arch --> actor : Toast "{title} restored" with View (AC4); on failure "{title} wasn’t restored" with Try again
+@enduml

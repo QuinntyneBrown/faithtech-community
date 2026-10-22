@@ -1,0 +1,82 @@
+@startuml
+title UML sequence behaviour — Upload a batch of files
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+actor "Contributor" as actor
+box "Frontend — FaithTech Community web app (resources library)" #E0F2FE
+  participant "AddResourceDialog" as dlg
+  participant "HttpResourcesService" as svc
+end box
+box "Backend — FaithTech.Community.Api" #D1FADF
+  participant "ResourcesEndpoints" as ep
+  participant "ResourceFieldRules" as v
+end box
+box "Backend — FaithTech.Community.Application and Domain" #ECFDF3
+  participant "AddResourcesHandler" as h
+  participant "ResourceFileTypes" as types
+  participant "ShareNotifier" as share
+end box
+box "Backend — FaithTech.Community.Infrastructure" #FFF4E5
+  participant "SkiaImageProcessor" as img
+  participant "AzureBlobFileStorage" as store
+  database "Community database" as db
+end box
+actor -> dlg : Add resource; drop 6 files
+dlg -> dlg : ResourceFileRules per file: extension, 100 MB, at most 20
+alt a file is refused
+  dlg --> actor : Row "Can’t add", field error, "Fix N things to add this"; submit disabled (L2-057 AC7)
+else all valid
+  dlg --> actor : "6 files", rows with Remove, tags, Who can see it (Global), "Add 6 resources" (AC5)
+end
+actor -> dlg : Add 6 resources
+loop each file, one request at a time
+  dlg -> svc : add(file, {tags, visibility, memberIds, roles})
+  svc -> ep : POST /api/resources (multipart, reportProgress)
+  svc --> dlg : Upload progress events
+  dlg --> actor : "Uploading k of 6…", row progress (AC8)
+  ep -> v : Validate details
+  ep -> h : AddAsync(files, details)
+  alt not a contributor
+    h --> ep : Forbidden
+    ep --> svc : 403 (AC2)
+  else email not verified
+    ep --> svc : 403 "Verify your email" (AC3)
+  else more than 20 files, or a file fails extension, size or signature
+    h -> types : Check(fileName, size, leading bytes)
+    ep --> svc : 400 naming the file (AC6, AC7)
+  else valid
+    h -> h : Resource.ForFile(owner = caller, title from file name, type from extension); SetTags; SetAudience
+    opt PNG, JPEG, GIF or WebP
+      h -> img : ThumbnailAsync(stream)
+      img --> h : 480 px PNG
+    end
+    h -> store : SaveAsync(resources/{id}/{blobId}.{ext}) and thumbnail
+    alt storage unavailable
+      h -> h : File.MarkStoring(); add ResourceBlobTask.Save with the bytes (AC11)
+    end
+    opt Shared
+      h -> share : Notify recipients (resources/share)
+    end
+    h -> db : Save Resource, tags, audience, tasks and notifications in one transaction
+    ep --> svc : 201 [ResourceDto]
+    dlg --> actor : Row "100% · Uploaded"
+  end
+end
+alt every file added
+  dlg --> actor : Close; toast "6 resources added" with View (AC5)
+else some failed (network)
+  dlg --> actor : "2 files didn’t upload", rows "Didn’t upload", "Try 2 again" (AC9)
+end
+@enduml

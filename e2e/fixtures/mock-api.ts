@@ -9,6 +9,7 @@ import { MockEvents } from './mock-events';
 import { MockGoogle } from './mock-google';
 import { MockNotification, MockNotifications } from './mock-notifications';
 import { MockSearch } from './mock-search';
+import { MockResources } from './mock-resources';
 
 export interface MockAccount {
   name: string;
@@ -163,6 +164,8 @@ export class MockApi {
   readonly connect = new MockConnect(this);
   /** The shared partner pipeline (ADR 0014). */
   readonly partners = new MockPartners(this);
+  /** Resources: uploads, links, visibility and sharing (ADR 0017). */
+  readonly resources = new MockResources(this);
   /** Global search over the other fakes, with the server's permission rules (L2-026). */
   readonly search = new MockSearch(this);
   /** Google sign-in: Google itself and the API's Google endpoints (L2-078). */
@@ -345,6 +348,8 @@ export class MockApi {
       this.caller(authorization),
     );
     if (announcements) return announcements;
+    const resources = this.resources.handle(route, method, url, body, this.caller(authorization));
+    if (resources) return resources;
     const search = this.search.handle(route, method, url, this.caller(authorization));
     if (search) return search;
     const profileRoute = /^\/api\/profiles\/([^/]+)$/.exec(url.pathname);

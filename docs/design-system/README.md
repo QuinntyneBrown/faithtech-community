@@ -39,6 +39,11 @@ The mocks were styled with the Shelfie design system unchanged plus FaithTech ad
 | [Form layout](components/form-layout.html) | Actions bar, error summary, danger zone. |
 | [Picture list](components/picture-list.html) | Profile and contact photos: up to 10, one featured, alt text. |
 | [Photo gallery](components/photo-gallery.html) | Saved photos with descriptions; Feature, Edit description and Delete open dialogs. |
+| [File drop zone](components/file-dropzone.html) | Drag and drop or choose files, with the limits. |
+| [File row](components/file-row.html) | Chosen file with progress: ready, uploading, uploaded, failed, refused. |
+| [Tag input](components/tag-input.html) | Free tags as chips with suggestions in use. |
+| [Person picker](components/person-picker.html) | Combobox of members with chips; single or multiple. |
+| [Type icon](components/type-icon.html) | Resource type icons, image thumbnail tile, file preview. |
 | [Estimate card picker](components/sticker-picker.html) | Planning poker vote cards. |
 | [Top bar](components/top-bar.html) | App header with nav, search, bell and avatar. |
 | [Tab bar](components/tab-bar.html) | Phone navigation. |
@@ -107,6 +112,7 @@ Each component page documents variants, sizes and the full state matrix in both 
 - 2026-10-22 — Connect by QR code: added QR code, copy field and person summary (`components.css`) and two semantic tokens, `--color-code-plate` and `--color-code-module`, that the dark theme deliberately leaves alone so a QR code stays readable by any camera.
 - 2026-10-22 — Contact photos and the contacts card grid (L2-067 to L2-073). Added: person card and person grid (`.person-grid`, `.person-card*`; cover tints reuse `--color-tint-*`, photo `--size-cover-lg`, no new tokens) and photo gallery (`.photo-gallery*`). Picture list gains a `contact` subject (contact wording, "Describe this photo." for a missing description, Feature on chosen photos before they are saved), `featurable` and `pendingNote`. Button gains the accent `outline` variant (the card's View profile pill) and avatar the `2xl` size (the card's initials). In Angular: `ft-person-card`, `ft-person-grid`, `ft-person-card-skeleton` and `ft-photo-gallery`.
 - 2026-10-21 — First extraction. Tokens inherited from Shelfie unchanged except comments. Added: select, tabs, notification panel, description list, backlog tree, Kanban board, event card, profile header, search results, note (from `ui-extra.css`). Select chevron redrawn with `currentColor` (was raw `#888`). Added state hooks: event card title hover, select hover/disabled, tab hover, tree row hover, `stat__value--text`, square checkboxes in `.choice`. Renamed for FaithTech: sticker → Estimate card, sticker picker → Estimate card picker (class names unchanged). Dropped Shelfie-only components (book cover, streak, trophy, celebration and others) and the e-mail foundation.
+- 2026-10-22 — Resources. Added component pages for File drop zone (`ft-file-dropzone`), File row (`ft-file-row`), Tag input (`ft-tag-input`), Person picker (`ft-person-picker`) and Type icon (resource type icons and the image tile on `ft-icon-tile`), documenting the `.dropzone`, `.tag-input`, `.chip--removable`, `.icon-tile--image` and `.file-preview` rules the Resources mocks added to `assets/components.css`. No new tokens: every rule reads existing ones.
 
 ## Marketing page additions (2026-10-22)
 

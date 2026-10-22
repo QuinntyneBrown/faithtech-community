@@ -5,6 +5,7 @@ using FaithTech.Community.Application.Agile;
 using FaithTech.Community.Application.Common;
 using FaithTech.Community.Application.Identity;
 using FaithTech.Community.Application.Profiles;
+using FaithTech.Community.Application.Resources;
 using FaithTech.Community.Application.Search;
 using FaithTech.Community.Infrastructure.Email;
 using FaithTech.Community.Infrastructure.Persistence;
@@ -38,6 +39,8 @@ public class CommunityApiFactory : WebApplicationFactory<Program>, IAsyncLifetim
     public FakeBlobServiceClient Blobs { get; } = new();
 
     public FakePhotoStorage Photos { get; } = new();
+
+    public FakeFileStorage Files { get; } = new();
 
     /// <summary>Lets a test overlap saves from concurrent requests.</summary>
     public SaveChangesGate SaveGate { get; } = new();
@@ -79,6 +82,7 @@ public class CommunityApiFactory : WebApplicationFactory<Program>, IAsyncLifetim
             services.AddSingleton<BlobServiceClient>(Blobs);
             services.AddSingleton<IEmailSender>(Emails);
             services.AddSingleton<IPhotoStorage>(Photos);
+            services.AddSingleton<IFileStorage>(Files);
             services.AddSingleton<TimeProvider>(Time);
             services.AddSingleton<IBreachedPasswordChecker, FakeBreachedPasswordChecker>();
             services.AddSingleton<IBoardNotifier>(Live);
@@ -104,6 +108,20 @@ public class CommunityApiFactory : WebApplicationFactory<Program>, IAsyncLifetim
                 m.AttachmentsJson is { } json ? JsonSerializer.Deserialize<List<EmailAttachment>>(json) : null,
                 m.HtmlBody)).ToList();
         });
+
+    /// <summary>Runs the resource blob retry once, as ResourceMaintenanceWorker would after storage recovers.</summary>
+    public async Task RunResourceStorageRetryAsync()
+    {
+        await using var scope = Services.CreateAsyncScope();
+        await scope.ServiceProvider.GetRequiredService<ResourceStorageRetryHandler>().RunAsync();
+    }
+
+    /// <summary>Runs the 30-day purge once, as ResourceMaintenanceWorker would.</summary>
+    public async Task PurgeArchivedResourcesAsync()
+    {
+        await using var scope = Services.CreateAsyncScope();
+        await scope.ServiceProvider.GetRequiredService<PurgeArchivedResourcesHandler>().RunAsync();
+    }
 
     public new Task DisposeAsync() => base.DisposeAsync().AsTask();
 }

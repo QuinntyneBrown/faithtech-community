@@ -1,0 +1,123 @@
+:host {
+  display: block;
+  margin-block-start: var(--space-4);
+}
+
+.loading {
+  display: grid;
+  gap: var(--space-3);
+  margin-block-start: var(--space-4);
+}
+
+.head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--space-4);
+  margin-block: var(--space-4);
+
+  h1 {
+    margin: 0;
+    font: var(--text-h2);
+    overflow-wrap: anywhere;
+  }
+}
+
+.subtitle,
+.note,
+.preview__meta {
+  color: var(--color-fg-muted);
+}
+
+.subtitle {
+  margin: var(--space-1) 0 0;
+}
+
+ft-banner {
+  display: block;
+  margin-block-end: var(--space-4);
+}
+
+.layout {
+  display: grid;
+  grid-template-columns: minmax(0, 2fr) minmax(0, 1fr);
+  gap: var(--space-6);
+}
+
+h2 {
+  margin: var(--space-5) 0 var(--space-3);
+  font: var(--text-h4);
+}
+
+.side h2 {
+  margin-block-start: 0;
+}
+
+.preview {
+  display: grid;
+  place-items: center;
+  gap: var(--space-3);
+  min-block-size: 12rem;
+  padding: var(--space-6);
+  border-radius: var(--radius-lg);
+  background: var(--color-bg-subtle);
+  border: var(--border-width-hairline) solid var(--color-border-default);
+  text-align: center;
+
+  img {
+    max-inline-size: 100%;
+    max-block-size: 20rem;
+    object-fit: contain;
+    border-radius: var(--radius-md);
+  }
+
+  ft-icon-tile {
+    inline-size: var(--size-avatar-xl);
+    block-size: var(--size-avatar-xl);
+    color: var(--color-fg-accent);
+  }
+}
+
+.preview__name {
+  font: var(--text-label);
+  overflow-wrap: anywhere;
+}
+
+.preview__meta {
+  font: var(--text-body-sm);
+}
+
+.about {
+  white-space: pre-line;
+  overflow-wrap: anywhere;
+}
+
+.owner {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.visually-hidden {
+  position: absolute;
+  inline-size: 1px;
+  block-size: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+
+@media (max-width: 899.98px) {
+  .layout {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .actions {
+    inline-size: 100%;
+
+    ft-button:first-child {
+      flex: 1 1 100%;
+    }
+  }
+}

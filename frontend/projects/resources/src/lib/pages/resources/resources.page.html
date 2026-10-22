@@ -1,0 +1,127 @@
+<ft-page-header title="Resources" [subtitle]="subtitle()">
+  @if (canAdd()) {
+    <ft-cluster ftPageHeaderActions gap="2">
+      <ft-button variant="ghost" href="/resources/archived">
+        <ft-icon name="archive" /> Archived
+      </ft-button>
+      <ft-button variant="primary" (click)="add()"> <ft-icon name="add" /> Add resource </ft-button>
+    </ft-cluster>
+  }
+</ft-page-header>
+
+<div class="filters" role="search">
+  <ft-form-field label="Search resources" [labelHidden]="true" class="search">
+    <ft-text-field
+      type="search"
+      placeholder="Search titles, descriptions, tags and file names"
+      [formControl]="search"
+    />
+  </ft-form-field>
+  <ft-form-field label="Tag" [labelHidden]="true" class="tag">
+    <ft-select placeholder="Any tag" [options]="tagOptions()" [formControl]="tag" />
+  </ft-form-field>
+</div>
+<ft-chip-group label="Type" class="types">
+  <ft-chip [pressed]="!type()" (click)="chooseType(null)">All types</ft-chip>
+  @for (t of types; track t) {
+    <ft-chip [pressed]="type() === t" (click)="chooseType(t)">{{ t }}</ft-chip>
+  }
+</ft-chip-group>
+
+@switch (state()) {
+  @case ('loading') {
+    <ft-list-skeleton label="Loading resources" [rows]="5" />
+  }
+  @case ('error') {
+    <ft-empty-state
+      variant="error"
+      heading="We couldn’t load resources"
+      text="Check your connection and try again. If it keeps happening, we’ve already been told about it."
+    >
+      <ft-button actions variant="primary" (click)="retry()">
+        <ft-icon name="try-again" /> Try again
+      </ft-button>
+    </ft-empty-state>
+  }
+  @case ('loaded') {
+    @if (items().length === 0 && term()) {
+      <ft-empty-state
+        icon="search"
+        [heading]="'No resources match “' + term() + '”'"
+        text="Search looks at titles, descriptions, tags and file names, not the text inside files. Try another word, or ask in Announcements who has it."
+      >
+        <ft-button actions (click)="clearFilters()">Clear search</ft-button>
+      </ft-empty-state>
+    } @else if (items().length === 0 && filtered()) {
+      <ft-empty-state icon="resources" [heading]="filterLine()" text="Try another type or tag.">
+        <ft-button actions (click)="clearFilters()">Clear filters</ft-button>
+      </ft-empty-state>
+    } @else if (items().length === 0) {
+      <ft-empty-state
+        icon="resources"
+        heading="No resources yet"
+        text="Add the decks, logos and training you keep sending people, so every lead can find them here."
+      >
+        @if (canAdd()) {
+          <ft-button actions variant="primary" (click)="add()">Add the first resource</ft-button>
+        }
+      </ft-empty-state>
+    } @else {
+      @if (filtered()) {
+        <div class="filter-line">
+          <p role="status">{{ filterLine() }}</p>
+          <ft-button variant="ghost" size="sm" (click)="clearFilters()">Clear filters</ft-button>
+        </div>
+      } @else {
+        <h2 class="section-title">Recently added</h2>
+      }
+      <ft-card variant="flush">
+        <ft-list label="Resources">
+          @for (resource of items(); track resource.id) {
+            <ft-list-item [label]="resource.title" [href]="'/resources/' + resource.id">
+              <ft-icon-tile
+                leading
+                [name]="typeIcon(resource)"
+                [src]="thumbnails.url(resource.id)"
+              />
+              <span meta class="meta">
+                @if (resource.linkHost) {
+                  <ft-icon name="external" size="sm" />
+                }
+                {{ metaLine(resource) }}
+              </span>
+              @if (badgeOf(resource); as badge) {
+                <ft-badge meta [variant]="badge.variant">{{ badge.text }}</ft-badge>
+              }
+              @if (resource.linkUrl) {
+                <ft-button
+                  trailing
+                  variant="ghost"
+                  [iconOnly]="true"
+                  [href]="resource.linkUrl"
+                  [label]="openLabel(resource)"
+                  target="_blank"
+                  ><ft-icon name="external"
+                /></ft-button>
+              } @else {
+                <ft-button
+                  trailing
+                  variant="ghost"
+                  [iconOnly]="true"
+                  [label]="downloadLabel(resource)"
+                  (click)="download(resource)"
+                  ><ft-icon name="download"
+                /></ft-button>
+              }
+            </ft-list-item>
+          }
+        </ft-list>
+      </ft-card>
+      @if (hasMore()) {
+        <div class="more">
+          <ft-button [loading]="loadingMore()" (click)="showMore()">Show more</ft-button>
+        </div>
+      }
+    }
+  }
+}

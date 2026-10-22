@@ -1,0 +1,14 @@
+@startuml
+!include <C4/C4_Context>
+LAYOUT_WITH_LEGEND()
+title System Context — Share resources with members and roles
+Person(owner, "Owner", "Contributor who owns the resource; System Admin by audited override")
+Person(recipient, "Recipient", "Named member, or current holder of a named role")
+System(community, "FaithTech Community", "Community site for FaithTech staff, leads, volunteers, builders and partners")
+System_Ext(mail, "Email provider", "SMTP / SendGrid")
+Rel(owner, community, "Shares a resource with members and roles using")
+Rel(community, recipient, "Shows the ResourceShared notice to")
+Rel(community, mail, "Sends the ResourceShared email through", "SMTP")
+Rel(mail, recipient, "Delivers email to")
+Rel(recipient, community, "Opens and downloads, cannot re-share, using")
+@enduml

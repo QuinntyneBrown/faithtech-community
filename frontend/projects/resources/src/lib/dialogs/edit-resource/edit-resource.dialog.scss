@@ -1,0 +1,22 @@
+.file {
+  display: grid;
+  gap: var(--space-3);
+  justify-items: start;
+  margin-block-end: var(--space-4);
+
+  ft-list,
+  ft-alert,
+  ft-file-dropzone {
+    justify-self: stretch;
+  }
+
+  ft-list {
+    display: block;
+    border: var(--border-width-hairline) solid var(--color-border-default);
+    border-radius: var(--radius-md);
+  }
+}
+
+.label {
+  font: var(--text-label);
+}

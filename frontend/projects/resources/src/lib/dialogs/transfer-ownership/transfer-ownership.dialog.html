@@ -1,0 +1,37 @@
+<ft-dialog
+  heading="Transfer ownership"
+  [description]="
+    'Hand ' +
+    resource.title +
+    ' to another member. They become its owner and can edit, share or archive it.'
+  "
+  icon="transfer"
+  [busy]="busy()"
+  (closed)="ref.close()"
+>
+  @if (failed()) {
+    <ft-alert status="danger" heading="Ownership not transferred">
+      We couldn’t reach FaithTech. {{ resource.ownerName }} is still the owner — try again.
+    </ft-alert>
+  }
+  <ft-form-field
+    required
+    label="New owner"
+    help="Only members who can add resources are listed: leads, Staff and System Admin."
+    [error]="error()"
+  >
+    <ft-person-picker
+      [formControl]="owner"
+      [multiple]="false"
+      [options]="options()"
+      [loading]="searching()"
+      listLabel="Members who can own resources"
+      (query)="search($event)"
+    />
+  </ft-form-field>
+  <p class="note">Written to the audit log with your name. The new owner gets a notification.</p>
+  <ft-button ftDialogFooter [disabled]="busy()" (click)="ref.close()">Cancel</ft-button>
+  <ft-button ftDialogFooter variant="primary" [loading]="busy()" (click)="confirm()">{{
+    submitText()
+  }}</ft-button>
+</ft-dialog>

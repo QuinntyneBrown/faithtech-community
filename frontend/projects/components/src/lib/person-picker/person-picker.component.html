@@ -1,0 +1,58 @@
+<div class="person-picker" [attr.aria-invalid]="invalid()">
+  @for (person of chosen(); track person.id) {
+    <span class="tag-chip"
+      >{{ person.name }}
+      <button
+        class="tag-chip__remove"
+        type="button"
+        [attr.aria-label]="'Remove ' + person.name"
+        [disabled]="disabled()"
+        (click)="remove(person)"
+      >
+        <ft-icon name="close" size="sm" /></button
+    ></span>
+  }
+  <input
+    class="tag-input__field"
+    type="text"
+    role="combobox"
+    autocomplete="off"
+    aria-autocomplete="list"
+    [attr.id]="id()"
+    [attr.aria-expanded]="expanded()"
+    [attr.aria-controls]="listId"
+    [attr.aria-activedescendant]="expanded() && matches().length ? optionId(active()) : null"
+    [attr.aria-describedby]="describedBy()"
+    [attr.aria-invalid]="invalid()"
+    [placeholder]="chosen().length ? '' : placeholder()"
+    [value]="text()"
+    [disabled]="disabled()"
+    (input)="onInput($event)"
+    (keydown)="onKeydown($event)"
+    (blur)="onBlur()"
+  />
+</div>
+<div class="combobox__panel" [hidden]="!expanded()">
+  @if (loading() && matches().length === 0) {
+    <p class="combobox__note" aria-busy="true">Searching…</p>
+  }
+  <ul class="combobox__list" role="listbox" [id]="listId" [attr.aria-label]="listLabel()">
+    @for (person of matches(); track person.id; let i = $index) {
+      <li
+        class="combobox__option"
+        role="option"
+        [id]="optionId(i)"
+        [attr.aria-selected]="i === active()"
+        (mousedown)="$event.preventDefault(); choose(person)"
+      >
+        <ft-avatar size="sm" [name]="person.name" [color]="colorFor(person.id)" />
+        <span class="combobox__text">
+          <span class="combobox__title">{{ person.name }}</span>
+          @if (person.detail) {
+            <span class="combobox__detail">{{ person.detail }}</span>
+          }
+        </span>
+      </li>
+    }
+  </ul>
+</div>

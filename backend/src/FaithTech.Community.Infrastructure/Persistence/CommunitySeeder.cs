@@ -3,6 +3,7 @@ using FaithTech.Community.Application.Identity;
 using FaithTech.Community.Domain.Admin;
 using FaithTech.Community.Domain.Events;
 using FaithTech.Community.Domain.Profiles;
+using FaithTech.Community.Domain.Resources;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using OpenIddict.Abstractions;
@@ -58,6 +59,45 @@ public class CommunitySeeder(IOpenIddictApplicationManager applications, Communi
             db.SystemAdminRosters.Add(new SystemAdminRoster());
             await db.SaveChangesAsync(cancellationToken);
         }
+
+        await SeedStarterResourcesAsync(cancellationToken);
+    }
+
+    public record StarterResource(Guid Id, string Title, string Description, ResourceType Type, string Url, string[] Tags);
+
+    /// <summary>Links every member can use from day one (L2-055); fixed ids keep the seed idempotent.</summary>
+    public static readonly IReadOnlyList<StarterResource> StarterResources =
+    [
+        new(new Guid("6f1d1b8e-3c55-4a43-9a41-3f6f0a9d0001"), "FaithTech brand guidelines", "Logos, colours and type for anything that carries the FaithTech name.",
+            ResourceType.Logo, "https://faithtech.com/brand", ["brand", "logo"]),
+        new(new Guid("6f1d1b8e-3c55-4a43-9a41-3f6f0a9d0002"), "Starting a FaithTech city", "The playbook for launching a new city team.",
+            ResourceType.Training, "https://faithtech.com/start-a-city", ["city-team", "launch", "training"]),
+        new(new Guid("6f1d1b8e-3c55-4a43-9a41-3f6f0a9d0003"), "Hackathon planning guide", "How to plan, run and follow up a FaithTech hackathon.",
+            ResourceType.Document, "https://faithtech.com/hackathons", ["hackathon", "events"]),
+    ];
+
+    /// <summary>Adds the starter links once, owned by the first System Admin; until there is one, nothing is added.</summary>
+    private async Task SeedStarterResourcesAsync(CancellationToken cancellationToken)
+    {
+        var owner = await db.Profiles.Where(p => p.Roles.Any(r => r.Role == Role.SystemAdmin)).OrderBy(p => p.Id).Select(p => (Guid?)p.Id)
+            .FirstOrDefaultAsync(cancellationToken);
+        if (owner is not { } ownerId)
+        {
+            return;
+        }
+
+        var ids = StarterResources.Select(r => r.Id).ToList();
+        var existing = await db.Resources.Where(r => ids.Contains(r.Id)).Select(r => r.Id).ToListAsync(cancellationToken);
+        foreach (var starter in StarterResources.Where(r => !existing.Contains(r.Id)))
+        {
+            var resource = Resource.ForLink(starter.Title, starter.Description, starter.Type, ownerId, new Uri(starter.Url), time.GetUtcNow(), starter.Id);
+            resource.SetOwner(ownerId, Role.SystemAdmin);
+            resource.SetTags(starter.Tags);
+            resource.SetAudience(ResourceAudience.Global());
+            db.Resources.Add(resource);
+        }
+
+        await db.SaveChangesAsync(cancellationToken);
     }
 
     public const int MaxLoadTestUsers = 1000;
