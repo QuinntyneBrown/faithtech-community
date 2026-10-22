@@ -1,9 +1,6 @@
 # Estimates
 
-- Overall effort: 195 days
-- Complete: 97%
-- Visual conformance: letter grade (F to A+) of the implemented UI against the HTML mocks and design system (margins, spacing, fonts, borders), from screenshots in `docs/videos/journeys/<journey>/screenshots/`. Subsystem grades are the rounded mean of their designs.
-- Overall effort: 201 days
+- Overall effort: 209 days
 - Complete: 97%
 - Visual conformance: letter grade (F to A+) of the implemented UI against the HTML mocks and design system (margins, spacing, fonts, borders), from screenshots in `docs/videos/journeys/<journey>/screenshots/`. Subsystem grades are the rounded mean of their designs. The marketing page and Google sign-in have no journey screenshots yet, so they are not graded (n/a).
 
@@ -33,4 +30,4 @@
 5. announcements and search
 6. agile
 7. contact photos and the person-card grid
-7. marketing page and Google sign-in
+8. marketing page and Google sign-in

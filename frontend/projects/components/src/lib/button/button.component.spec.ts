@@ -20,7 +20,9 @@ import { ButtonComponent } from './button.component';
   >`,
 })
 class HostComponent {
-  variant = signal<'primary' | 'secondary' | 'outline' | 'ghost' | 'danger' | 'google'>('secondary');
+  variant = signal<'primary' | 'secondary' | 'outline' | 'ghost' | 'danger' | 'google'>(
+    'secondary',
+  );
   size = signal<'sm' | 'md' | 'lg'>('md');
   type = signal<'button' | 'submit' | 'reset'>('button');
   disabled = signal(false);
