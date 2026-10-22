@@ -7,5 +7,5 @@
     (change)="onToggle($event)"
     (blur)="onBlur()"
   />
-  <span class="text"><ng-content /></span>
+  <span class="text" [class.visually-hidden]="labelHidden()"><ng-content /></span>
 </label>
