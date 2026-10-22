@@ -88,6 +88,7 @@ export class EventPage {
   protected readonly event = signal<EventDetailDto | null>(null);
   protected readonly rsvping = signal(false);
   protected readonly exporting = signal(false);
+  protected readonly downloading = signal(false);
   /** Why the server refused the RSVP, such as "This event is full.". */
   protected readonly refusal = signal<string | null>(null);
 
@@ -187,19 +188,33 @@ export class EventPage {
     }
   }
 
+  /** Saves the event's .ics, fetched with the member's sign-in (L2-024). */
+  protected async addToCalendar(): Promise<void> {
+    const e = this.event();
+    if (!e || this.downloading()) return;
+    this.downloading.set(true);
+    try {
+      save(await firstValueFrom(this.events.downloadCalendar(e.id)), `${slug(e.title)}.ics`);
+    } catch {
+      this.toasts.show({
+        variant: 'danger',
+        heading: 'We couldn’t download the calendar file',
+        text: 'Check your connection and try again.',
+        actionLabel: 'Try again',
+        onAction: () => void this.addToCalendar(),
+      });
+    } finally {
+      this.downloading.set(false);
+    }
+  }
+
   protected async exportCsv(): Promise<void> {
     const e = this.event();
     if (!e || this.exporting()) return;
     this.exporting.set(true);
     const fileName = `${slug(e.title)}-rsvps.csv`;
     try {
-      const blob = await firstValueFrom(this.events.exportRsvps(e.id));
-      const url = URL.createObjectURL(blob);
-      const link = document.createElement('a');
-      link.href = url;
-      link.download = fileName;
-      link.click();
-      URL.revokeObjectURL(url);
+      save(await firstValueFrom(this.events.exportRsvps(e.id)), fileName);
       this.toasts.show({
         variant: 'success',
         heading: 'RSVP list exported',
@@ -230,6 +245,16 @@ export class EventPage {
       if (id === this.id()) this.state.set('error');
     }
   }
+}
+
+/** Hands a downloaded file to the browser under the given name. */
+function save(blob: Blob, fileName: string): void {
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement('a');
+  link.href = url;
+  link.download = fileName;
+  link.click();
+  URL.revokeObjectURL(url);
 }
 
 /** The same file-name slug as the server's EventFileNames. */

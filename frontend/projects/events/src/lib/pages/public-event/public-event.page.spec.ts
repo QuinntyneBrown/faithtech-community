@@ -35,6 +35,10 @@ async function setup(overrides: Overrides = {}) {
   const service = {
     getPublicEvent: vi.fn(overrides.getPublicEvent ?? (() => of(publicEvent()))),
     rsvpAsGuest: vi.fn(overrides.rsvpAsGuest ?? (() => of(undefined))),
+    calendarUrl: vi.fn(
+      (id: string, options?: { isPublic?: boolean }) =>
+        `/api/${options?.isPublic ? 'public/' : ''}events/${id}/calendar.ics`,
+    ),
   };
   TestBed.configureTestingModule({ providers: [{ provide: EVENTS_SERVICE, useValue: service }] });
   const navigate = vi.spyOn(TestBed.inject(Router), 'navigateByUrl').mockResolvedValue(true);
@@ -200,5 +204,32 @@ describe('PublicEventPage', () => {
       .click();
     await page.settle();
     expect(page.host.querySelector('h1')!.textContent).toContain('Toronto Builders Night');
+  });
+
+  it('offers the public .ics download before and after the RSVP (L2-024)', async () => {
+    const page = await setup();
+    const links = () =>
+      Array.from(page.host.querySelectorAll('a')).filter(
+        (a) => a.textContent?.trim() === 'Add to calendar (.ics)',
+      );
+    expect(links().map((a) => a.getAttribute('href'))).toEqual([
+      '/api/public/events/e1/calendar.ics',
+    ]);
+
+    page.type('Your name', 'Abby Brooks');
+    page.type('Email', 'abby.brooks@example.org');
+    await page.submit();
+
+    expect(links()).toHaveLength(2);
+  });
+
+  it('offers a cancelled event’s .ics so calendars can update (L2-024 AC2)', async () => {
+    const page = await setup({ getPublicEvent: () => of(publicEvent({ isCancelled: true })) });
+
+    const link = Array.from(page.host.querySelectorAll('a')).find(
+      (a) => a.textContent?.trim() === 'Update your calendar (.ics)',
+    )!;
+    expect(link.getAttribute('href')).toBe('/api/public/events/e1/calendar.ics');
+    expect(page.host.textContent).not.toContain('Add to calendar');
   });
 });

@@ -68,6 +68,37 @@ const seesList = (c: EventsCaller) =>
 const seesEmails = (c: EventsCaller) =>
   c.roles.some((r) => LEADS.includes(r) || r === 'SystemAdmin');
 
+const utc = (iso: string) =>
+  new Date(iso)
+    .toISOString()
+    .replace(/[-:]/g, '')
+    .replace(/\.\d{3}/, '');
+
+/** IcsCalendarWriter's file, unfolded: what a calendar app reads. */
+export function ics(event: MockEvent, isPublic = false): string {
+  const lines = [
+    'BEGIN:VCALENDAR',
+    'VERSION:2.0',
+    'PRODID:-//FaithTech Community//Events//EN',
+    'BEGIN:VEVENT',
+    `UID:${event.id}@faithtech.community`,
+    `DTSTART:${utc(event.startsAt)}`,
+    `DTEND:${utc(event.endsAt)}`,
+    `SUMMARY:${event.title}`,
+    event.format === 'InPerson' ? `LOCATION:${event.venue}, ${event.city}` : '',
+    isPublic
+      ? `URL:/public/events/${event.id}`
+      : event.format === 'Online'
+        ? `URL:${event.onlineLink}`
+        : '',
+    `SEQUENCE:${event.sequence}`,
+    event.isCancelled ? 'STATUS:CANCELLED' : 'STATUS:CONFIRMED',
+    'END:VEVENT',
+    'END:VCALENDAR',
+  ];
+  return lines.filter((l) => l).join('\r\n') + '\r\n';
+}
+
 /** EventFileNames.Slug: "toronto-builders-night". */
 export function slug(title: string): string {
   const words = title
@@ -229,6 +260,8 @@ export class MockEvents {
     const one = /^\/api\/events\/([^/]+)$/.exec(url.pathname);
     if (one && method === 'GET') return this.get(route, one[1], caller);
     if (one && method === 'PUT') return this.update(route, one[1], body, caller);
+    const ics = /^\/api\/(public\/)?events\/([^/]+)\/calendar\.ics$/.exec(url.pathname);
+    if (ics && method === 'GET') return this.calendar(route, ics[2], !!ics[1], caller);
     const publicRoute = /^\/api\/public\/events\/([^/]+)(\/rsvps(?:\/cancel)?)?$/.exec(
       url.pathname,
     );
@@ -245,6 +278,24 @@ export class MockEvents {
     if (rsvps && method === 'GET' && rsvps[2] === '.csv')
       return this.exportRsvps(route, rsvps[1], caller);
     return false;
+  }
+
+  /** GET /api/events/{id}/calendar.ics and /api/public/events/{id}/calendar.ics (L2-024). */
+  private calendar(
+    route: Route,
+    id: string,
+    isPublic: boolean,
+    caller: EventsCaller | null,
+  ): Promise<void> {
+    if (!isPublic && !caller) return route.fulfill({ status: 401 });
+    const event = isPublic ? this.publicEvent(id) : this.events.find((e) => e.id === id);
+    if (!event) return route.fulfill({ status: 404 });
+    return route.fulfill({
+      status: 200,
+      contentType: 'text/calendar',
+      headers: { 'content-disposition': `attachment; filename=${slug(event.title)}.ics` },
+      body: ics(event, isPublic),
+    });
   }
 
   /** Guest RSVPs and cancellations taken in this test: the guest-rsvp limit is 10 an hour per address. */

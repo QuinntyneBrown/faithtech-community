@@ -55,6 +55,18 @@ public class IcsCalendarWriterTests
     }
 
     [Fact]
+    public void The_public_copy_links_the_public_page_instead_of_the_joining_link()
+    {
+        var e = new Event("Prayer & Planning", "", EventType.PrayerAndPlanning, Start, Start.AddHours(1), "Toronto",
+            EventFormat.Online, null, "https://meet.example.org/ft", null, EventVisibility.Public, Guid.NewGuid());
+
+        var lines = Lines(_writer.Write(e, "https://app.example/public/events/1"));
+
+        Assert.Contains("URL:https://app.example/public/events/1", lines);
+        Assert.DoesNotContain(lines, l => l.Contains("meet.example.org", StringComparison.Ordinal));
+    }
+
+    [Fact]
     public void A_changed_or_cancelled_event_carries_a_higher_sequence_and_the_cancelled_status()
     {
         var e = InPerson();

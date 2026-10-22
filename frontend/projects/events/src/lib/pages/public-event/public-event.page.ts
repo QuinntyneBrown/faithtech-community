@@ -91,6 +91,9 @@ export class PublicEventPage {
   private readonly submitted = signal(false);
   private readonly version = signal(0);
 
+  protected readonly calendarUrl = computed(() =>
+    this.events.calendarUrl(this.id(), { isPublic: true }),
+  );
   protected readonly signInHref = computed(
     () => `/sign-in?returnUrl=${encodeURIComponent(`/events/${this.id()}`)}`,
   );

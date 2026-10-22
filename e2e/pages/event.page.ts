@@ -13,6 +13,8 @@ export class EventPage {
   readonly rsvpList: Locator;
   readonly rsvpListHeading: Locator;
   readonly exportCsv: Locator;
+  readonly addToCalendar: Locator;
+  readonly updateCalendar: Locator;
   readonly publicLink: Locator;
   readonly copyLink: Locator;
   readonly previewPublicPage: Locator;
@@ -32,6 +34,8 @@ export class EventPage {
     this.rsvpList = page.getByRole('list', { name: 'Going' }).getByRole('listitem');
     this.rsvpListHeading = page.getByRole('heading', { name: /^Going \(\d+\)$/ });
     this.exportCsv = page.getByRole('button', { name: 'Export CSV' });
+    this.addToCalendar = page.getByRole('button', { name: 'Add to calendar (.ics)' });
+    this.updateCalendar = page.getByRole('button', { name: 'Update your calendar (.ics)' });
     this.publicLink = page.getByLabel('Link', { exact: true });
     this.copyLink = page.getByRole('button', { name: 'Copy link' });
     this.previewPublicPage = page.getByRole('link', { name: 'Preview public page' });

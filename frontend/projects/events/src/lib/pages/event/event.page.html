@@ -41,6 +41,10 @@
             <ft-icon name="done" /> {{ rsvping() ? 'RSVPing…' : 'RSVP' }}
           </ft-button>
         }
+        <ft-button ftPageHeaderActions [loading]="downloading()" (click)="addToCalendar()">
+          <ft-icon name="export" />
+          {{ e.isCancelled ? 'Update your calendar (.ics)' : 'Add to calendar (.ics)' }}
+        </ft-button>
         @if (e.canManage && !e.isCancelled) {
           <ft-button ftPageHeaderActions [href]="'/events/' + e.id + '/edit'">
             <ft-icon name="edit" /> Edit

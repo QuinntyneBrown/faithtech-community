@@ -68,6 +68,14 @@ public static class EventClients
         return created;
     }
 
+    /// <summary>Cancels an event straight in the database, as the cancel handler would.</summary>
+    public static Task CancelEventAsync(this CommunityApiFactory factory, Guid id, string reason) =>
+        factory.WithDbAsync(async db =>
+        {
+            (await db.Events.SingleAsync(e => e.Id == id)).Cancel(reason);
+            return await db.SaveChangesAsync();
+        });
+
     public static Task<string> EmailOfAsync(this CommunityApiFactory factory, ProfileClients.Member member) =>
         factory.WithDbAsync(db => db.Users.Where(u => u.Id == member.UserId).Select(u => u.Email!).SingleAsync());
 

@@ -27,7 +27,12 @@
   }
   @case ('loaded') {
     @if (event(); as e) {
-      <ft-page-header [overline]="overline()" [title]="e.title" [subtitle]="subtitle()" />
+      <ft-page-header [overline]="overline()" [title]="e.title" [subtitle]="subtitle()">
+        <ft-button ftPageHeaderActions [href]="calendarUrl()">
+          <ft-icon name="export" />
+          {{ e.isCancelled ? 'Update your calendar (.ics)' : 'Add to calendar (.ics)' }}
+        </ft-button>
+      </ft-page-header>
       <ft-stack>
         @if (e.isCancelled) {
           <ft-alert status="danger" heading="This event was cancelled">{{
@@ -57,6 +62,9 @@
                     >. If plans change, use the link in that email to cancel.
                   </p>
                   <div class="actions">
+                    <ft-button variant="primary" [href]="calendarUrl()">
+                      <ft-icon name="export" /> Add to calendar (.ics)
+                    </ft-button>
                     <ft-button variant="ghost" href="/sign-up"
                       >Create a FaithTech account</ft-button
                     >

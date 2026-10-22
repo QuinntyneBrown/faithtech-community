@@ -57,11 +57,17 @@ public static class EventsEndpoints
             return result.ToHttp(() => Results.File(Encoding.UTF8.GetBytes(file!.Content), "text/csv", file.FileName));
         });
 
+        events.MapGet("/{id:guid}/calendar.ics", async (Guid id, GetEventCalendarHandler handler, CancellationToken cancellationToken) =>
+            await handler.ForMemberAsync(id, cancellationToken) is { } file ? Calendar(file) : Results.NotFound());
+
         // The share link and guest RSVP are for anonymous visitors, public events only (L2-023).
         var publicEvents = app.MapGroup("/api/public/events").AllowAnonymous();
 
         publicEvents.MapGet("/{id:guid}", async (Guid id, PublicEventsHandler handler, CancellationToken cancellationToken) =>
             await handler.GetAsync(id, cancellationToken) is { } found ? Results.Ok(found) : Results.NotFound());
+
+        publicEvents.MapGet("/{id:guid}/calendar.ics", async (Guid id, GetEventCalendarHandler handler, CancellationToken cancellationToken) =>
+            await handler.ForAnyoneAsync(id, cancellationToken) is { } file ? Calendar(file) : Results.NotFound());
 
         publicEvents.MapPost("/{id:guid}/rsvps", async (Guid id, GuestRsvpCommand command, PublicEventsHandler handler, CancellationToken cancellationToken) =>
                 (await handler.RsvpAsync(id, command, cancellationToken)).ToHttp(Results.NoContent))
@@ -74,4 +80,7 @@ public static class EventsEndpoints
 
         return app;
     }
+
+    private static IResult Calendar(CalendarFile file) =>
+        Results.File(Encoding.UTF8.GetBytes(file.Content), "text/calendar", file.FileName);
 }
