@@ -3,6 +3,7 @@ import { Page, Route } from '@playwright/test';
 import { MockAgile } from './mock-agile';
 import { MockContacts } from './mock-contacts';
 import { MockPartners } from './mock-partners';
+import { MockEvents } from './mock-events';
 
 export interface MockAccount {
   name: string;
@@ -94,6 +95,8 @@ export class MockApi {
   readonly audit: MockAuditEntry[] = [];
   /** "Now" for invite status, matching the mocks' 21 October 2026. */
   now = new Date(Date.UTC(2026, 9, 21, 12));
+  /** The events fake (fixtures/mock-events.ts), sharing this fake's clock. */
+  readonly events = new MockEvents(() => this.now);
   readonly calls: {
     method: string;
     path: string;
@@ -253,6 +256,8 @@ export class MockApi {
         caller: this.caller(authorization),
       });
     }
+    const events = this.events.handle(route, method, url, this.caller(authorization));
+    if (events) return events;
     const profileRoute = /^\/api\/profiles\/([^/]+)$/.exec(url.pathname);
     if (method === 'GET' && profileRoute) {
       return this.getProfile(route, profileRoute[1], authorization);

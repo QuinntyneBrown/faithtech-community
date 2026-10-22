@@ -13,8 +13,10 @@
 import { InjectionToken } from '@angular/core';
 import { Observable } from 'rxjs';
 
+import { Role } from '../shared/role';
+
 // "Hackathon" is only an event type in v1; teams, projects and judging are v2.
-export type EventType = 'Standard' | 'Hackathon';
+export type EventType = 'Gathering' | 'BuildersNight' | 'Hackathon' | 'PrayerAndPlanning' | 'Panel';
 export type EventFormat = 'InPerson' | 'Online';
 export type EventVisibility = 'MembersOnly' | 'Public';
 
@@ -31,14 +33,25 @@ export interface EventRequest {
   visibility: EventVisibility;
 }
 
+/** An event as the events list shows it (L2-021). */
 export interface EventSummaryDto {
   id: string;
   title: string;
+  type: EventType;
   startsAt: string;
+  endsAt: string;
   city: string;
   format: EventFormat;
+  venue: string | null;
+  visibility: EventVisibility;
   rsvpCount: number;
   isCancelled: boolean;
+}
+
+/** The matching events, and every city that has an event whatever the filters. */
+export interface EventListDto {
+  events: EventSummaryDto[];
+  cities: string[];
 }
 
 export interface RsvpDto {
@@ -73,8 +86,12 @@ export interface GuestRsvpRequest {
   email: string;
 }
 
+/** The list's chips (L2-021 AC2): one at a time; Hackathons and Online keep to upcoming events. */
+export type EventListFilter = 'Upcoming' | 'Past' | 'Hackathons' | 'Online';
+
 export interface EventFilter {
-  city?: string;
+  filter?: EventListFilter;
+  city?: string | null;
 }
 
 /**
@@ -84,7 +101,7 @@ export interface EventFilter {
  * TODO(slice): the members-only .ics link carries no bearer token; it may need a blob fetch or signed URL.
  */
 export interface EventsService {
-  listEvents(filter: EventFilter): Observable<EventSummaryDto[]>;
+  listEvents(filter: EventFilter): Observable<EventListDto>;
   getEvent(id: string): Observable<EventDetailDto>;
   createEvent(event: EventRequest): Observable<{ id: string }>;
   updateEvent(id: string, event: EventRequest): Observable<void>;
@@ -100,6 +117,13 @@ export interface EventsService {
 
   /** Download url for the browser to open directly; no request is made. */
   calendarUrl(id: string, options?: { isPublic?: boolean }): string;
+}
+
+const EVENT_MANAGERS: readonly Role[] = ['EventLead', 'CityLead', 'SystemAdmin'];
+
+/** Event Leads, City Leads and System Admins create, edit and cancel events (L2-020, L2-025). */
+export function canManageEvents(callerRoles: readonly Role[]): boolean {
+  return callerRoles.some((r) => EVENT_MANAGERS.includes(r));
 }
 
 export const EVENTS_SERVICE = new InjectionToken<EventsService>('EVENTS_SERVICE');

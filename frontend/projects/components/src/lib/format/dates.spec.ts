@@ -1,4 +1,4 @@
-import { formatDay, formatTimestamp } from './dates';
+import { formatDay, formatDayRange, formatMonth, formatTime, formatTimestamp } from './dates';
 
 describe('date formats', () => {
   it('writes a day as "Tue 20 Oct", the mocks’ format', () => {
@@ -13,5 +13,26 @@ describe('date formats', () => {
   it('writes a timestamp as "2026-10-21 10:05" in local time', () => {
     expect(formatTimestamp(new Date(2026, 9, 21, 10, 5))).toBe('2026-10-21 10:05');
     expect(formatTimestamp(new Date(2026, 0, 2, 3, 4))).toBe('2026-01-02 03:04');
+  });
+
+  it('writes a time as "6:30 pm", the mocks’ format, in local time', () => {
+    expect(formatTime(new Date(2026, 10, 6, 18, 30))).toBe('6:30 pm');
+    expect(formatTime(new Date(2026, 10, 6, 0, 5))).toBe('12:05 am');
+    expect(formatTime(new Date(2026, 10, 6, 12, 0))).toBe('12:00 pm');
+  });
+
+  it('writes a short month as "Nov" for the date badge', () => {
+    expect(formatMonth(new Date(2026, 10, 6))).toBe('Nov');
+    expect(formatMonth(new Date(2026, 8, 6))).toBe('Sep');
+  });
+
+  it('writes a day range as "Sat 14 – Sun 15 Nov", or one day when it ends that day', () => {
+    expect(formatDayRange(new Date(2026, 10, 14, 9), new Date(2026, 10, 15, 17))).toBe(
+      'Sat 14 – Sun 15 Nov',
+    );
+    expect(formatDayRange(new Date(2026, 9, 31, 9), new Date(2026, 10, 1, 17))).toBe(
+      'Sat 31 Oct – Sun 1 Nov',
+    );
+    expect(formatDayRange(new Date(2026, 10, 6, 18), new Date(2026, 10, 6, 21))).toBe('Fri 6 Nov');
   });
 });

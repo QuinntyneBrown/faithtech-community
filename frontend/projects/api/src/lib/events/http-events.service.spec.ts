@@ -21,7 +21,7 @@ import { HttpEventsService } from './http-events.service';
 const event: EventRequest = {
   title: 'Builders night',
   description: 'Hack',
-  type: 'Standard',
+  type: 'BuildersNight',
   startsAt: '2026-11-01T18:00:00Z',
   endsAt: '2026-11-01T20:00:00Z',
   city: 'Toronto',
@@ -50,6 +50,13 @@ describe('HttpEventsService', () => {
       () => service.listEvents({ city: 'Toronto' }),
       'GET',
       '/api/events?city=Toronto',
+      undefined,
+    ],
+    [
+      'listEvents by filter and city',
+      () => service.listEvents({ filter: 'Past', city: 'Austin' }),
+      'GET',
+      '/api/events?filter=Past&city=Austin',
       undefined,
     ],
     ['getEvent', () => service.getEvent('e1'), 'GET', '/api/events/e1', undefined],
