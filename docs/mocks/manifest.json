@@ -354,6 +354,7 @@
       "states": [
         "default",
         "checked-in",
+        "walk-in-added",
         "save-failed",
         "no-results",
         "done",
@@ -363,7 +364,8 @@
         "loading",
         "empty",
         "error",
-        "forbidden"
+        "forbidden",
+        "not-found"
       ],
       "not_applicable": {}
     },
