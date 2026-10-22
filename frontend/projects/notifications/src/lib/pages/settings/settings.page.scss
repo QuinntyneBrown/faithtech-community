@@ -1,0 +1,14 @@
+:host {
+  display: block;
+  margin-block-start: var(--space-4);
+}
+
+ft-page-header {
+  margin-block-end: var(--space-4);
+}
+
+.caption {
+  margin: 0;
+  color: var(--color-fg-muted);
+  font: var(--text-caption);
+}

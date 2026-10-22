@@ -1,14 +1,18 @@
 import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
-import { FormControl, ReactiveFormsModule } from '@angular/forms';
+import { FormControl, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { ANNOUNCEMENTS_SERVICE } from '@faithtech-community/api';
 import {
   ButtonComponent,
   CardComponent,
   EmptyStateComponent,
   PageHeaderComponent,
+  RadioComponent,
+  RadioGroupComponent,
   SkeletonComponent,
   StackComponent,
   SwitchComponent,
+  ThemePreference,
+  ThemeService,
   ToastService,
 } from '@faithtech-community/components';
 import { firstValueFrom } from 'rxjs';
@@ -16,14 +20,18 @@ import { firstValueFrom } from 'rxjs';
 type State = 'loading' | 'loaded' | 'error';
 
 /**
- * Settings: the "Email me when" section of docs/mocks/pages/settings (L2-030 AC2, L2-052 AC4).
- * The switch saves as soon as it changes. The mock's Account section belongs to account
- * settings (L2-052) and is not built yet (ADR 0016).
+ * Settings (mock `pages/settings`). Appearance applies the chosen theme at once and remembers it on
+ * this device (L2-045 AC6). "Email me when" holds the announcement email switch, which saves as soon
+ * as it changes (L2-030 AC2, L2-052 AC4). The mock's Account section belongs to account settings
+ * (L2-052) and is not built yet (ADR 0016).
  */
 @Component({
   selector: 'ft-settings-page',
   imports: [
+    FormsModule,
     ReactiveFormsModule,
+    RadioComponent,
+    RadioGroupComponent,
     ButtonComponent,
     CardComponent,
     EmptyStateComponent,
@@ -39,6 +47,9 @@ type State = 'loading' | 'loaded' | 'error';
 export class SettingsPage {
   private readonly announcements = inject(ANNOUNCEMENTS_SERVICE);
   private readonly toasts = inject(ToastService);
+  private readonly theme = inject(ThemeService);
+
+  protected readonly preference = this.theme.preference;
 
   protected readonly state = signal<State>('loading');
   /** On means announcement emails arrive: the opposite of the stored opt-out. */
@@ -47,6 +58,10 @@ export class SettingsPage {
   constructor() {
     this.announcementEmails.valueChanges.subscribe((on) => void this.save(on));
     void this.load();
+  }
+
+  protected choose(preference: ThemePreference): void {
+    this.theme.set(preference);
   }
 
   protected retry(): void {

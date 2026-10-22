@@ -80,7 +80,7 @@ export const routes: Routes = [
       {
         path: 'settings',
         loadChildren: () =>
-          import('@faithtech-community/announcements').then((m) => m.SETTINGS_ROUTES),
+          import('@faithtech-community/notifications').then((m) => m.SETTINGS_ROUTES),
       },
       {
         path: 'announcements',
