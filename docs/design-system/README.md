@@ -72,6 +72,10 @@ The mocks were styled with the Shelfie design system unchanged plus FaithTech ad
 | [Skeleton](components/skeleton.html) | Loading placeholders, including the loading list. |
 | [Empty state](components/empty-state.html) | First-run, no results, error; page-level heading for full-page errors. |
 | [Error page](components/error-page.html) | 404, 403, 500, offline. |
+| [Landing hero](components/landing-hero.html) | Split hero for the marketing page. |
+| [Video player](components/video-player.html) | Self-hosted video with captions and transcript. |
+| [Sign-in and sign-up forms](components/auth-forms.html) | Shared sign-in and sign-up forms, Google button. |
+| [Site footer](components/site-footer.html) | Marketing page footer. |
 
 Each component page documents variants, sizes and the full state matrix in both themes, and its Sources section lists the mocks it came from.
 
@@ -99,6 +103,10 @@ Each component page documents variants, sizes and the full state matrix in both 
 
 - 2026-10-22 — Contact photos and the contacts card grid (L2-067 to L2-073). Added: person card and person grid (`.person-grid`, `.person-card*`; cover tints reuse `--color-tint-*`, photo `--size-cover-lg`, no new tokens) and photo gallery (`.photo-gallery*`). Picture list gains a `contact` subject (contact wording, "Describe this photo." for a missing description, Feature on chosen photos before they are saved), `featurable` and `pendingNote`. Button gains the accent `outline` variant (the card's View profile pill) and avatar the `2xl` size (the card's initials). In Angular: `ft-person-card`, `ft-person-grid`, `ft-person-card-skeleton` and `ft-photo-gallery`.
 - 2026-10-21 — First extraction. Tokens inherited from Shelfie unchanged except comments. Added: select, tabs, notification panel, description list, backlog tree, Kanban board, event card, profile header, search results, note (from `ui-extra.css`). Select chevron redrawn with `currentColor` (was raw `#888`). Added state hooks: event card title hover, select hover/disabled, tab hover, tree row hover, `stat__value--text`, square checkboxes in `.choice`. Renamed for FaithTech: sticker → Estimate card, sticker picker → Estimate card picker (class names unchanged). Dropped Shelfie-only components (book cover, streak, trophy, celebration and others) and the e-mail foundation.
+
+## Marketing page additions (2026-10-22)
+
+The marketing page mocks (`docs/mocks/pages/marketing`) added the [landing hero](components/landing-hero.html), the [video player](components/video-player.html), the [shared sign-in and sign-up forms](components/auth-forms.html) with the Google button variant, and the [site footer](components/site-footer.html). The only new tokens are Google's brand fills (`--palette-google-*`, `--color-social-google-*`), checked in `contrast-pairs.json`. The top bar gained a marketing use of its anonymous variant; no other component changed.
 
 ## Drift found in the mocks
 
