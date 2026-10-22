@@ -12,14 +12,16 @@ The workspace owner archives a workspace or an item and may restore it; System A
 
 ## Description
 
-- **`WorkspaceSettingsPage`** — owner actions for archive and restore of the workspace and archived items (mock `docs/mocks/pages/workspace-settings`).
+- **`WorkspaceSettingsPage`** — owner actions for archive and restore of the workspace and archived items (mock `docs/mocks/pages/workspace-settings`). System Admin sees the same page; when the owner lost City Lead it shows "This workspace needs a new owner" with **Reassign owner** (state `needs-owner`).
+- **`WorkspacesPage`** — lists archived workspaces to their owner and System Admin under **Archived**, each with **Restore** (state `archived`).
+- **`AdminUsersPage`** — shows "A workspace needs a new owner" for each live workspace whose owner lost City Lead, linking to its settings. The admin library may not depend on the agile library, so the dialog opens from settings.
 - **`ArchiveWorkspaceDialog`** and **`ArchiveWorkItemDialog`** — CDK Dialogs confirming the archive (mocks `archive-workspace`, `archive-work-item`).
-- **`ReassignOwnerDialog`** — CDK Dialog for System Admin to pick a new City Lead owner (mock `docs/mocks/dialogs/reassign-owner`). Where System Admin opens it (admin library or workspace settings) is `<TO SUPPLY>`.
+- **`ReassignOwnerDialog`** — CDK Dialog for System Admin to pick a new City Lead owner (mock `docs/mocks/dialogs/reassign-owner`). It opens from workspace settings, which the admin users alert and the notification link to.
 - **`AgileService`** — `api` contract (`AGILE_SERVICE`, `HttpAgileService`).
-- **`WorkspacesEndpoints`** — maps `POST /workspaces/{id}/archive`, `/restore`, `/owner`, and `POST /items/{id}/archive`, `/restore`.
-- **`ArchiveWorkspaceCommand`**, **`RestoreWorkspaceCommand`**, **`ArchiveWorkItemCommand`**, **`RestoreWorkItemCommand`** and handlers — set or clear `IsArchived`; a global EF query filter hides archived rows from normal views.
-- **`ReassignWorkspaceOwnerCommand`** / **`ReassignWorkspaceOwnerHandler`** — System Admin only; `Workspace.ReassignOwner(newOwner)` rejects a profile without the City Lead role.
-- **`CityLeadRoleRemovedHandler`** — Application handler for the `CityLeadRoleRemoved` domain event that `Profile.RemoveRole` raises when the City Lead role is removed; it notifies System Admin of each workspace the former owner holds.
+- **`WorkspacesEndpoints`** — maps `POST /workspaces/{id}/archive` and `/restore`, `GET /workspaces/{id}/archived-items`, `GET /workspaces/{id}/owner-candidates`, `PUT /workspaces/{id}/owner`, and `POST /items/{id}/archive` and `/restore`.
+- **`ArchiveHandler`** — archives and restores workspaces and items, lists archived items and owner candidates, and reassigns the owner. Archive sets `IsArchived`, `ArchivedById` and `ArchivedAt`; a global EF query filter hides archived rows from normal views. Owner and System Admin only; anyone else gets 403, or 404 for an archived workspace they can't see.
+- **`ReassignOwnerCommand`** — System Admin only, always audited; `Workspace.ReassignOwner(newOwner, now)` rejects a profile without the City Lead role and keeps the former owner as a member.
+- **`CityLeadRoleRemovedHandler`** — Application handler for the `CityLeadRoleRemoved` domain event that `Profile.RemoveRole` raises when the City Lead role is removed. `ChangeRolesHandler` calls it before saving; it notifies every System Admin, the acting one included, of each workspace the former owner holds (`WorkspaceOwnerLostCityLead`, linking to `/workspaces/{id}/settings`).
 - **`WorkspaceAccessPolicy`** — Application service shared by every agile handler. It resolves the caller from `ICurrentUser` and classifies the caller as owner, member, Staff, System Admin or outsider for a workspace. Outsiders receive 404, Staff and non-owner members receive 403 on writes they lack, and System Admin actions pass and are written to the audit log (`L2-031`, `L2-042`).
 - **`IAuditLog`** and **`INotificationService`** — audit and notification abstractions.
 
@@ -81,5 +83,5 @@ Removing the City Lead role from an owner notifies System Admin, who reassigns t
 
 Decisions recorded while building the Domain layer (`FaithTech.Community.Domain`):
 
-- `WorkItem.Archive(children)` and `Restore(children)` also archive or restore the tasks of a story (`L2-037` AC1); the handler passes the loaded children.
+- `WorkItem.Archive(items, archivedById, now)` archives the item and everything under it among `items`, so a story takes its tasks and an epic its stories and their tasks (`L2-037` AC1). `Restore(items)` brings back only what was archived at the same moment; an item archived earlier stays archived. Settings lists an archived item only when its parent is not archived.
 - Archive and restore reject an item or workspace already in the target state. Domain rule violations throw `InvalidOperationException` (a broken rule) or `ArgumentException` (invalid input); there is no shared domain exception type. Handlers check permissions and preconditions first and map any remaining violation to a `400` or `409` result.

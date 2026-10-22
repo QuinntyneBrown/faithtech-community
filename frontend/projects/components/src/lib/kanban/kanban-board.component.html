@@ -1,3 +1,23 @@
+@if (phone()) {
+  <div class="ft-kanban__tabs" role="tablist" [attr.aria-label]="label() + ' columns'">
+    @for (stage of stages(); track $index) {
+      <button
+        #tab
+        type="button"
+        role="tab"
+        class="ft-kanban__tab"
+        [id]="tabId + '-' + $index"
+        [attr.aria-selected]="selected() === $index"
+        [attr.aria-controls]="stage.panelId"
+        [tabIndex]="selected() === $index ? 0 : -1"
+        (click)="select($index)"
+        (keydown)="onKeydown($event, $index)"
+      >
+        {{ stage.title() }} <ft-badge>{{ stage.count() }}</ft-badge>
+      </button>
+    }
+  </div>
+}
 <div class="ft-kanban" role="region" [attr.aria-label]="label()">
   <ng-content />
 </div>

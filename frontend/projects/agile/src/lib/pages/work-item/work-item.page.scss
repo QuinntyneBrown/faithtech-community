@@ -1,0 +1,44 @@
+:host {
+  display: block;
+  margin-block-start: var(--space-4);
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+
+.description {
+  margin: 0;
+  white-space: pre-line;
+}
+
+.tasks {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+
+  h2 {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    margin: 0;
+    font: var(--text-h4);
+  }
+}
+
+.add-task {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  margin-block-start: var(--space-4);
+
+  ft-text-field {
+    flex: 1;
+  }
+}
+
+.comment-form {
+  margin-block-end: var(--space-4);
+}

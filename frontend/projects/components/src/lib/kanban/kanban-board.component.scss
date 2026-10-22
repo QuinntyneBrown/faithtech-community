@@ -14,3 +14,37 @@
     grid-template-columns: repeat(3, minmax(0, 1fr));
   }
 }
+
+.ft-kanban__tabs {
+  display: flex;
+  gap: var(--space-1);
+  margin-block-end: var(--space-3);
+  overflow-x: auto;
+}
+
+.ft-kanban__tab {
+  display: inline-flex;
+  flex: 1;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  min-block-size: var(--target-comfortable);
+  padding-inline: var(--space-3);
+  background: none;
+  border: 0;
+  border-block-end: var(--border-width-thick) solid transparent;
+  color: var(--color-fg-muted);
+  font: var(--text-label);
+  white-space: nowrap;
+  cursor: pointer;
+
+  &[aria-selected='true'] {
+    border-block-end-color: var(--color-accent);
+    color: var(--color-fg-default);
+  }
+
+  &:focus-visible {
+    outline: var(--focus-ring-width) solid var(--color-focus-ring);
+    outline-offset: var(--focus-ring-offset);
+  }
+}

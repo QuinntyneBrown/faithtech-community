@@ -1,14 +1,17 @@
 @if (heading(); as text) {
-  @switch (headingLevel()) {
-    @case (3) {
-      <h3 class="ft-card__title" [id]="headingId">{{ text }}</h3>
+  <div class="ft-card__header">
+    @switch (headingLevel()) {
+      @case (3) {
+        <h3 class="ft-card__title" [id]="headingId">{{ text }}</h3>
+      }
+      @case (4) {
+        <h4 class="ft-card__title" [id]="headingId">{{ text }}</h4>
+      }
+      @default {
+        <h2 class="ft-card__title" [id]="headingId">{{ text }}</h2>
+      }
     }
-    @case (4) {
-      <h4 class="ft-card__title" [id]="headingId">{{ text }}</h4>
-    }
-    @default {
-      <h2 class="ft-card__title" [id]="headingId">{{ text }}</h2>
-    }
-  }
+    <ng-content select="[ftCardActions]" />
+  </div>
 }
 <ng-content />

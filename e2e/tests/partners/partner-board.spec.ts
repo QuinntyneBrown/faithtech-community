@@ -99,14 +99,14 @@ test.describe('Partner Kanban board', () => {
     await api.signInAs(grace, '/partners');
 
     await expect(partners.stageTabs.getByRole('tab')).toHaveText([
-      'Lead (2)',
-      'In funnel (1)',
-      'Confirmed (1)',
+      /Lead\s*2/,
+      /In funnel\s*1/,
+      /Confirmed\s*1/,
     ]);
     await expect(partners.board.getByRole('heading', { level: 2 })).toHaveText(['Lead']);
     await axe.check();
 
-    await partners.stageTab('In funnel (1)').click();
+    await partners.stageTab(/In funnel/).click();
     await expect(partners.board.getByRole('heading', { level: 2 })).toHaveText(['In funnel']);
     await expect(partners.card('Kestrel Labs')).toBeVisible();
   });

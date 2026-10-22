@@ -10,8 +10,8 @@ import { TextFieldComponent } from './text-field.component';
     [type]="type"
     [action]="action"
     [readonly]="readonly"
-    [initialFocus]="initialFocus"
     [size]="size"
+    [initialFocus]="initialFocus"
     [inputId]="inputId"
     label="Field"
     (actionClick)="clicks = clicks + 1"
@@ -22,9 +22,9 @@ class HostComponent {
   type = 'text';
   action: 'reveal' | 'copy' | null = null;
   readonly = false;
-  initialFocus = false;
   size: 'sm' | 'md' | 'lg' = 'md';
   inputId: string | null = null;
+  initialFocus = false;
   clicks = 0;
 }
 
@@ -86,6 +86,12 @@ describe('TextFieldComponent', () => {
     expect(setup({ inputId: 'global-q' }).input().id).toBe('global-q');
   });
 
+  it("marks the input as the dialog's first focus only when asked", () => {
+    expect(setup().input().hasAttribute('cdkFocusInitial')).toBe(false);
+    TestBed.resetTestingModule();
+    expect(setup({ initialFocus: true }).input().hasAttribute('cdkFocusInitial')).toBe(true);
+  });
+
   it('has no trailing button by default', () => {
     expect(setup().button()).toBeNull();
   });
@@ -107,10 +113,5 @@ describe('TextFieldComponent', () => {
     expect(button()!.getAttribute('aria-label')).toBe('Copy link');
     button()!.click();
     expect(cmp.clicks).toBe(1);
-  });
-
-  it('marks the native input as the dialog’s first focus when initialFocus is set', () => {
-    expect(setup().input().hasAttribute('cdkFocusInitial')).toBe(false);
-    expect(setup({ initialFocus: true }).input().hasAttribute('cdkFocusInitial')).toBe(true);
   });
 });

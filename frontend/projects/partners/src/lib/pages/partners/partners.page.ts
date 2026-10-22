@@ -1,4 +1,3 @@
-import { NgTemplateOutlet } from '@angular/common';
 import { HttpErrorResponse } from '@angular/common/http';
 import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
 import {
@@ -11,7 +10,6 @@ import {
 } from '@faithtech-community/api';
 import {
   AlertComponent,
-  BreakpointService,
   ButtonComponent,
   CardComponent,
   DialogService,
@@ -24,8 +22,6 @@ import {
   PageHeaderComponent,
   SkeletonComponent,
   StackComponent,
-  TabComponent,
-  TabsComponent,
   ToastService,
 } from '@faithtech-community/components';
 import { firstValueFrom } from 'rxjs';
@@ -38,7 +34,6 @@ type State = 'loading' | 'loaded' | 'error' | 'forbidden';
 @Component({
   selector: 'ft-partners-page',
   imports: [
-    NgTemplateOutlet,
     AlertComponent,
     ButtonComponent,
     CardComponent,
@@ -50,8 +45,6 @@ type State = 'loading' | 'loaded' | 'error' | 'forbidden';
     PageHeaderComponent,
     SkeletonComponent,
     StackComponent,
-    TabComponent,
-    TabsComponent,
   ],
   templateUrl: './partners.page.html',
   styleUrl: './partners.page.scss',
@@ -61,16 +54,12 @@ export class PartnersPage {
   private readonly partners = inject(PARTNERS_SERVICE);
   private readonly dialogs = inject(DialogService);
   private readonly toasts = inject(ToastService);
-  private readonly breakpoint = inject(BreakpointService);
 
   protected readonly state = signal<State>('loading');
   protected readonly board = signal<PartnerBoardDto | null>(null);
   protected readonly labels = PARTNER_STAGE_LABELS;
   /** Read out after each move (L2-018 AC3). */
   protected readonly announcement = signal('');
-  /** On phones the stages become tabs with one column at a time (L2-018 AC4). */
-  protected readonly phone = computed(() => this.breakpoint.current() === 'base');
-  protected readonly selectedStage = signal(0);
 
   protected readonly total = computed(
     () => this.board()?.columns.reduce((sum, c) => sum + c.count, 0) ?? 0,

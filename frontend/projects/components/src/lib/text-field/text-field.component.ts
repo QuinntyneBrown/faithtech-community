@@ -36,8 +36,6 @@ export class TextFieldComponent implements ControlValueAccessor {
   readonly placeholder = input('');
   readonly autocomplete = input<string | null>(null);
   readonly readonly = input(false);
-  /** Takes focus when the dialog that holds it opens (CDK `cdkFocusInitial`). */
-  readonly initialFocus = input(false, { transform: booleanAttribute });
   readonly name = input<string | null>(null);
   readonly size = input<TextFieldSize>('md');
   /** Id of the native input when a visible label outside ft-form-field points at it. */
@@ -45,6 +43,8 @@ export class TextFieldComponent implements ControlValueAccessor {
   /** Accessible name when the field is used without ft-form-field. */
   readonly label = input<string | null>(null);
   readonly action = input<TextFieldAction | null>(null);
+  /** Takes focus when the dialog that holds it opens (CDK `cdkFocusInitial`). */
+  readonly initialFocus = input(false, { transform: booleanAttribute });
   readonly actionClick = output<void>();
 
   protected readonly value = signal('');

@@ -3,9 +3,8 @@
 LAYOUT_WITH_LEGEND()
 title Components — Partner Kanban board
 Container_Boundary(web, "Web app") {
-  Component(page, "PartnersPage", "Angular page (partners library)", "Three stage columns; stage tabs at the base breakpoint")
-  Component(kb, "KanbanBoard / KanbanColumn / KanbanCard", "components library", "CDK drag and drop columns and cards with a Move button")
-  Component(tabs, "TabsComponent / TabComponent", "components library", "One stage per tab on phones")
+  Component(page, "PartnersPage", "Angular page (partners library)", "Three stage columns in the board")
+  Component(kb, "KanbanBoard / KanbanColumn / KanbanCard", "components library", "CDK drag and drop columns and cards with a Move button; column tabs below 640px")
   Component(bp, "BreakpointService", "components library", "Current breakpoint")
   Component(dlg, "MovePartnerDialog", "Angular CDK Dialog (partners library)", "Stage radio and optional note; keyboard path")
   Component(svc, "HttpPartnersService", "Angular service (api library)", "getBoard and move")
@@ -20,8 +19,7 @@ Container_Boundary(api, "Community API") {
   ComponentDb(db, "CommunityDbContext", "PostgreSQL", "Partners and PartnerStageChanges tables")
 }
 Rel(page, kb, "Composes")
-Rel(page, tabs, "Composes on phones")
-Rel(page, bp, "Reads")
+Rel(kb, bp, "Reads")
 Rel(page, dlg, "Opens from the card's Move button")
 Rel(dlg, svc, "move(id, to, note)")
 Rel(page, svc, "getBoard / move on drop")

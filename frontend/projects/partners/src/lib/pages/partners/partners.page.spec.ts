@@ -64,7 +64,7 @@ async function setupBoard(
   const host: HTMLElement = fixture.nativeElement;
   const text = () => host.textContent!.replace(/\s+/g, ' ');
   const columns = () =>
-    Array.from(host.querySelectorAll('ft-kanban-column')).map(
+    Array.from(host.querySelectorAll('ft-kanban-column:not([hidden])')).map(
       (c) =>
         `${c.querySelector('h2')!.textContent!.trim()} ${c.querySelector('ft-badge')!.textContent!.trim()}: ${Array.from(
           c.querySelectorAll('ft-kanban-card a'),
@@ -223,9 +223,9 @@ describe('PartnersPage', () => {
     const { host, columns, settle } = await setupBoard(() => of(board), { breakpoint: 'base' });
 
     const tabs = Array.from(host.querySelectorAll('[role="tab"]')).map((t) =>
-      t.textContent!.trim(),
+      t.textContent!.replace(/\s+/g, ' ').trim(),
     );
-    expect(tabs).toEqual(['Lead (1)', 'In funnel (1)', 'Confirmed (0)']);
+    expect(tabs).toEqual(['Lead 1', 'In funnel 1', 'Confirmed 0']);
     expect(columns()).toEqual(['Lead 1: Maple Street Church']);
 
     host.querySelectorAll<HTMLButtonElement>('[role="tab"]')[1].click();

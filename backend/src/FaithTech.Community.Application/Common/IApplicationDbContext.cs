@@ -1,5 +1,6 @@
 using FaithTech.Community.Application.Identity;
 using FaithTech.Community.Domain.Admin;
+using FaithTech.Community.Domain.Agile;
 using FaithTech.Community.Domain.Contacts;
 using FaithTech.Community.Domain.Invites;
 using FaithTech.Community.Domain.Notifications;
@@ -28,6 +29,14 @@ public interface IApplicationDbContext
     DbSet<Partner> Partners { get; }
 
     DbSet<PartnerStageChange> PartnerStageChanges { get; }
+
+    DbSet<Workspace> Workspaces { get; }
+
+    DbSet<WorkItem> WorkItems { get; }
+
+    DbSet<Sprint> Sprints { get; }
+
+    DbSet<PokerSession> PokerSessions { get; }
 
     Task<int> SaveChangesAsync(CancellationToken cancellationToken = default);
 }

@@ -26,7 +26,7 @@ The slice runs from the contacts pages in the web app to the `Contacts` and `Con
 - **`Contact`** — Domain entity owned by `OwnerId`, with `Name` (required), `Email`, `Phone`, `Organization` and `City`; `Update(...)` edits the details but never the owner. `CommunityDbContext` maps it to `Contacts` with an index on owner and archive time.
 - **List and search** — `ManageContactsHandler.ListAsync` filters, case-insensitively, on name, email, organisation or note text with an `OwnerId = caller` and `ArchivedAtUtc IS NULL` predicate in the database query, meeting the 500 ms target. Global search, when built, must apply the same owner predicate.
 
-Which lead roles may own contacts: any lead role (City, Event, Create or Communications Lead) or System Admin; everyone else gets `403` for the list and create, and `404` for a single contact ([ADR 0010](../../../adr/0010-contacts-and-partners-access-and-open-questions.md)).
+Which lead roles may own contacts: any lead role (City, Event, Create or Communications Lead) or System Admin; everyone else gets `403` for the list and create, and `404` for a single contact ([ADR 0013](../../../adr/0013-contacts-and-partners-access-and-open-questions.md)).
 
 ## Requirements
 
@@ -105,7 +105,7 @@ Decisions recorded while building the Domain layer (`FaithTech.Community.Domain`
 - `L2-013` adds a city to a contact; `Contact.City` is added to match. Resolved.
 - Domain rule violations throw `InvalidOperationException` (a broken rule) or `ArgumentException` (invalid input); there is no shared domain exception type. Handlers check permissions and preconditions first and map any remaining violation to a `400` or `409` result.
 
-Decisions recorded while building the feature ([ADR 0010](../../../adr/0010-contacts-and-partners-access-and-open-questions.md)):
+Decisions recorded while building the feature ([ADR 0013](../../../adr/0013-contacts-and-partners-access-and-open-questions.md)):
 
 - The contacts list is a list of cards at every width, as the mock shows, rather than a table that turns into cards at XS (`L2-013` AC5).
 - The list and search return only the caller's own contacts, System Admin included; every System Admin access to another lead's contact is audited.

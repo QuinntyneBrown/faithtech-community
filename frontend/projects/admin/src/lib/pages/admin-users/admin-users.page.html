@@ -53,6 +53,15 @@
     />
   </form>
 
+  @for (workspace of needsOwner(); track workspace.id) {
+    <ft-alert status="warning" heading="A workspace needs a new owner">
+      {{ workspace.ownerName }} no longer holds the City Lead role but owns {{ workspace.name }}.
+      <ft-button ftAlertActions [href]="'/workspaces/' + workspace.id + '/settings'"
+        >Open workspace settings</ft-button
+      >
+    </ft-alert>
+  }
+
   @switch (state()) {
     @case ('loading') {
       <ft-list-skeleton label="Loading users" />

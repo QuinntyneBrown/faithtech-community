@@ -2,6 +2,10 @@
   display: block;
 }
 
+:host([hidden]) {
+  display: none;
+}
+
 .ft-kanban__column {
   min-block-size: 12rem;
   padding: var(--space-3);

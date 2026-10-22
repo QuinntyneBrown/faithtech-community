@@ -1,0 +1,18 @@
+<ft-dialog
+  [heading]="'Archive ' + data.workspace.name + '?'"
+  description="Members lose access. Everything is kept, and you can restore it from Workspaces."
+  tone="danger"
+  icon="archive"
+  [busy]="busy()"
+  (closed)="ref.close()"
+>
+  @if (failed()) {
+    <ft-alert status="danger" heading="That didn’t work">
+      We couldn’t reach FaithTech. Nothing was changed — try again.
+    </ft-alert>
+  }
+  <ft-button ftDialogFooter [disabled]="busy()" (click)="ref.close()">Cancel</ft-button>
+  <ft-button ftDialogFooter variant="danger" [loading]="busy()" (click)="archive()">
+    Archive workspace
+  </ft-button>
+</ft-dialog>

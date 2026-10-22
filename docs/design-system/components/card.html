@@ -36,7 +36,7 @@
       <li><a href="../components/text-field.html">Text field</a></li>
       <li><a href="../components/textarea.html">Textarea</a></li>
       <li><a href="../components/select.html">Select</a></li>
-      <li><a href="../components/radio-group.html">Radio group</a></li>
+      <li><a href="../components/radio-group.html">Radio group</a></li><li><a href="../components/checkbox-group.html">Checkbox group</a></li>
       <li><a href="../components/switch.html">Switch</a></li>
       <li><a href="../components/form-layout.html">Form layout</a></li>
       <li><a href="../components/picture-list.html">Picture list</a></li>
@@ -105,6 +105,7 @@
         <li><b>Stat strip</b> (<code>.card.cluster.stat-row.card--strip</code>): a row of <a href="stat.html">stats</a> 32px apart, spaced 16px from the board below, as in the team board sprint summary (<code>&lt;ft-card variant="strip"&gt;</code>).</li>
         <li><b>Success</b> (<code>.card--success</code>): a green tint fading into the surface, with <code>role="status"</code>. Confirms a finished task: "You’re on the list, Abby", "Sent to 41 Product Engineers".</li>
         <li><b>Title</b> (<code>.card__title</code>) and <b>stats</b> (<code>.stat</code>) go inside.</li>
+        <li><b>Header action</b>: one button may sit beside the title, as in workspace settings "Members (5) · Add members" (<code>ftCardActions</code> in Angular).</li>
       </ul>
     </section>
 
@@ -147,6 +148,10 @@
               <li class="list__item event-card"><span class="date-badge" aria-hidden="true"><span class="date-badge__month">Nov</span><span class="date-badge__day">6</span></span><div class="event-card__body"><a class="event-card__title" href="../../mocks/pages/event/default.html">Toronto Builders Night</a><span class="event-card__meta">Thu 6 Nov · 6:30 pm · Kestrel Labs, 220 King St W · 34 going</span></div><span class="badge badge--info">Public</span></li>
               <li class="list__item event-card"><span class="date-badge" aria-hidden="true"><span class="date-badge__month">Nov</span><span class="date-badge__day">14</span></span><div class="event-card__body"><a class="event-card__title" href="../../mocks/pages/event/default.html">Hackathon: Tech for Shelters</a><span class="event-card__meta">Sat 14 – Sun 15 Nov · Trinity Community Centre · 52 going</span></div><span class="badge badge--info">Public</span></li>
             </ul>
+          </section>
+          <section class="card card--flush" aria-labelledby="card-v-actions">
+            <div class="cluster cluster--between" style="padding: var(--space-6) var(--space-6) var(--space-2);"><h2 class="card__title" id="card-v-actions">Members (5)</h2><button class="btn" type="button">Add members</button></div>
+            <ul class="list"><li class="list__item"><span class="avatar avatar--sm avatar--sky" aria-hidden="true">GO</span><div class="list__body"><div class="list__title">Grace Okonkwo (you, owner)</div><div class="list__meta">City Lead</div></div></li></ul>
           </section>
           <div class="card cluster" style="gap: var(--space-8);">
             <div class="stat"><span class="stat__label">Sprint</span><span class="stat__value">3</span></div>

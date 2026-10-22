@@ -7,7 +7,8 @@ let nextId = 0;
 
 /**
  * Raised surface that groups one set of content. Not interactive. With a `heading` the card
- * is a named region; the success variant is announced as status. Use `busy` while loading.
+ * is a named region; project a header button beside the title with `ftCardActions` (Members ·
+ * Add members). The success variant is announced as status. Use `busy` while loading.
  */
 @Component({
   selector: 'ft-card',

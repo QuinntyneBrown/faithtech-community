@@ -131,13 +131,24 @@ public class Workspace
         IsArchived = false;
     }
 
-    public void ReassignOwner(Profile newOwner)
+    /// <summary>
+    /// Gives the workspace to another City Lead (L2-037 AC2). The former owner stays on as a member, even without a
+    /// team role, so they keep their work; the new owner is no longer listed as a member.
+    /// </summary>
+    public void ReassignOwner(Profile newOwner, DateTimeOffset now)
     {
         if (!newOwner.HasRole(Role.CityLead))
         {
             throw new InvalidOperationException("A workspace owner must hold the City Lead role.");
         }
 
+        if (newOwner.Id == OwnerId)
+        {
+            return;
+        }
+
+        _members.RemoveAll(m => m.ProfileId == newOwner.Id);
+        _members.Add(new WorkspaceMember(Id, OwnerId, now));
         OwnerId = newOwner.Id;
     }
 }

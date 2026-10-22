@@ -1,0 +1,133 @@
+<ft-workspace-frame
+  [workspaceId]="id()"
+  [workspace]="workspace()"
+  section="backlog"
+  subtitle="Backlog · Initiative → Epic → Story → Task"
+  [notFound]="state() === 'not-found'"
+>
+  @if (scrum() && workspace()?.canManage) {
+    <ft-button ftWorkspaceActions variant="ghost" (click)="startSprint()">Start sprint</ft-button>
+  }
+  @if (workspace()?.canEdit) {
+    <ft-button ftWorkspaceActions variant="primary" (click)="newItem()">
+      <ft-icon name="add" /> New item
+    </ft-button>
+  }
+  @switch (state()) {
+    @case ('loading') {
+      <ft-list-skeleton label="Loading backlog" [rows]="6" />
+    }
+    @case ('error') {
+      <ft-empty-state
+        variant="error"
+        heading="We couldn’t load the backlog"
+        text="Check your connection and try again. If it keeps happening, we’ve already been told about it."
+      >
+        <ft-button actions variant="primary" (click)="retry()">Try again</ft-button>
+      </ft-empty-state>
+    }
+    @case ('loaded') {
+      @if (scrum()) {
+        <ft-cluster gap="2">
+          <ft-chip [pressed]="view() === 'tree'" (pressedChange)="view.set('tree')">Tree</ft-chip>
+          <ft-chip [pressed]="view() === 'history'" (pressedChange)="view.set('history')"
+            >Sprint history</ft-chip
+          >
+        </ft-cluster>
+      }
+      @if (view() === 'history') {
+        @if (historyRows().length) {
+          <ft-card variant="flush">
+            <ft-table
+              caption="Closed sprints and completed points"
+              [columns]="historyColumns"
+              [rows]="historyRows()"
+            />
+          </ft-card>
+          <p class="text-caption">
+            Average: {{ sprints()?.averageCompletedPoints }} points per sprint.
+          </p>
+        } @else {
+          <ft-empty-state
+            heading="No sprints closed yet"
+            text="Each sprint shows here once it closes, with what it completed."
+          />
+        }
+      } @else {
+        @if (sprints()?.active; as sprint) {
+          <ft-card [heading]="sprint.name + ' · ' + sprint.goal">
+            <ft-badge ftCardActions variant="info">Active</ft-badge>
+            <p class="text-muted">
+              {{ sprintLine(sprint) }} Unfinished stories return to the backlog when the sprint
+              closes.
+            </p>
+          </ft-card>
+        }
+        @if (tree().length === 0 && filter.value === '') {
+          <ft-empty-state
+            heading="Nothing in the backlog"
+            text="Start with a story, or with an initiative if you’re planning something big. Initiatives hold epics, epics hold stories, stories hold tasks."
+          >
+            @if (workspace()?.canEdit) {
+              <ft-button actions variant="primary" (click)="newItem()">New item</ft-button>
+            }
+          </ft-empty-state>
+        } @else {
+          <div class="filter">
+            <ft-form-field label="Show stories from">
+              <ft-select [formControl]="filter" [options]="filterOptions()" />
+            </ft-form-field>
+          </div>
+          <ft-card>
+            <ft-tree label="Backlog hierarchy">
+              <!-- Initiative → epic → story → task: at most four levels deep (L2-032). -->
+              @for (a of tree(); track a.id) {
+                <ft-tree-item
+                  [kind]="a.kind"
+                  [kindVariant]="kindBadges[a.kind]"
+                  [label]="a.title"
+                  [href]="href(a)"
+                  [meta]="meta(a, true)"
+                  [expanded]="true"
+                >
+                  @for (b of a.children; track b.id) {
+                    <ft-tree-item
+                      [kind]="b.kind"
+                      [kindVariant]="kindBadges[b.kind]"
+                      [label]="b.title"
+                      [href]="href(b)"
+                      [meta]="meta(b, false)"
+                      [expanded]="true"
+                    >
+                      @for (c of b.children; track c.id) {
+                        <ft-tree-item
+                          [kind]="c.kind"
+                          [kindVariant]="kindBadges[c.kind]"
+                          [label]="c.title"
+                          [href]="href(c)"
+                          [meta]="meta(c, false)"
+                          [expanded]="true"
+                        >
+                          @for (d of c.children; track d.id) {
+                            <ft-tree-item
+                              [kind]="d.kind"
+                              [kindVariant]="kindBadges[d.kind]"
+                              [label]="d.title"
+                              [href]="href(d)"
+                              [meta]="meta(d, false)"
+                              [expanded]="true"
+                            ></ft-tree-item>
+                          }
+                        </ft-tree-item>
+                      }
+                    </ft-tree-item>
+                  }
+                </ft-tree-item>
+              }
+            </ft-tree>
+          </ft-card>
+        }
+      }
+    }
+  }
+</ft-workspace-frame>

@@ -81,7 +81,7 @@ export interface PartnerOwnerDto {
 }
 
 /**
- * Contract for the shared partner pipeline (L2-017, L2-018, ADR 0010). Pages depend on
+ * Contract for the shared partner pipeline (L2-017, L2-018, ADR 0013). Pages depend on
  * PARTNERS_SERVICE, never on HttpPartnersService. Lead roles, Staff and System Admin read; Staff
  * get 403 for writes and everyone else 403 for everything.
  */

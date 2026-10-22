@@ -2,9 +2,11 @@ import { HttpErrorResponse } from '@angular/common/http';
 import { TestBed } from '@angular/core/testing';
 import {
   ADMIN_USERS_SERVICE,
+  AGILE_SERVICE,
   AdminUserSummary,
   AdminUsersService,
   PagedResult,
+  WorkspaceSummaryDto,
 } from '@faithtech-community/api';
 import { avatarColorFor, DialogService } from '@faithtech-community/components';
 import { Observable, of, throwError } from 'rxjs';
@@ -34,7 +36,9 @@ function page(items: AdminUserSummary[], totalCount = items.length): PagedResult
 async function setup(
   search: (term: string, page?: number) => Observable<PagedResult<AdminUserSummary>>,
   dialogResult: boolean | undefined = true,
+  workspaces: Partial<WorkspaceSummaryDto>[] = [],
 ) {
+  const agile = { listWorkspaces: vi.fn(() => of(workspaces as WorkspaceSummaryDto[])) };
   const service = {
     search: vi.fn(search),
     suspend: vi.fn(() => of(undefined)),
@@ -44,6 +48,7 @@ async function setup(
   TestBed.configureTestingModule({
     providers: [
       { provide: ADMIN_USERS_SERVICE, useValue: service },
+      { provide: AGILE_SERVICE, useValue: agile },
       { provide: DialogService, useValue: dialogs },
     ],
   });
@@ -65,6 +70,40 @@ async function setup(
 }
 
 describe('AdminUsersPage', () => {
+  it('flags each live workspace whose owner lost City Lead, linking to its settings (L2-037 AC2)', async () => {
+    const { host } = await setup(() => of(page([grace])), true, [
+      {
+        id: 'w1',
+        name: 'Toronto team',
+        ownerName: 'Grace Okonkwo',
+        needsNewOwner: true,
+        isArchived: false,
+      },
+      {
+        id: 'w2',
+        name: 'Hackathon ops',
+        ownerName: 'Joel Mbeki',
+        needsNewOwner: false,
+        isArchived: false,
+      },
+      {
+        id: 'w3',
+        name: 'Old team',
+        ownerName: 'Esther Nakamura',
+        needsNewOwner: true,
+        isArchived: true,
+      },
+    ]);
+
+    const alerts = Array.from(host.querySelectorAll('ft-alert'));
+    expect(alerts.length).toBe(1);
+    expect(alerts[0].textContent).toContain('A workspace needs a new owner');
+    expect(alerts[0].textContent).toContain(
+      'Grace Okonkwo no longer holds the City Lead role but owns Toronto team.',
+    );
+    expect(alerts[0].querySelector('a')?.getAttribute('href')).toBe('/workspaces/w1/settings');
+  });
+
   it('lists users with their roles and status, linking each to the profile', async () => {
     const { host, row } = await setup(() => of(page([grace, victor])));
 

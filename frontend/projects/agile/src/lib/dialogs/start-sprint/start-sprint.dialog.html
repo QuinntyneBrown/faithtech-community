@@ -1,0 +1,54 @@
+<ft-dialog
+  heading="Start a sprint"
+  description="Only the owner starts and closes sprints."
+  icon="events"
+  [busy]="busy()"
+  (closed)="ref.close()"
+>
+  <form [formGroup]="form" (submit)="$event.preventDefault(); start()" ftFormErrorFocus>
+    <ft-stack>
+      @if (failed()) {
+        <ft-alert status="danger" heading="That didn’t work">
+          We couldn’t reach FaithTech. Nothing was changed — try again.
+        </ft-alert>
+      }
+      <ft-grid>
+        <ft-form-field label="Name" [error]="error('Name')">
+          <ft-text-field formControlName="name" autocomplete="off" />
+        </ft-form-field>
+        <ft-form-field label="Goal" [error]="error('Goal')">
+          <ft-text-field formControlName="goal" autocomplete="off" />
+        </ft-form-field>
+      </ft-grid>
+      <ft-grid>
+        <ft-form-field label="Starts" [error]="error('StartDate')">
+          <ft-text-field type="date" formControlName="startDate" />
+        </ft-form-field>
+        <ft-form-field label="Ends" [error]="error('EndDate')">
+          <ft-text-field type="date" formControlName="endDate" />
+        </ft-form-field>
+      </ft-grid>
+      <ft-checkbox-group
+        [legend]="'Stories from the backlog · ' + chosenPoints() + ' points'"
+        [hint]="
+          candidates.length
+            ? ''
+            : 'Every story is in the sprint or done. Add stories to the backlog first.'
+        "
+        formControlName="storyIds"
+        [error]="error('StoryIds')"
+      >
+        @for (candidate of candidates; track candidate.id) {
+          <ft-checkbox [value]="candidate.id" [description]="describe(candidate)">{{
+            candidate.title
+          }}</ft-checkbox>
+        }
+      </ft-checkbox-group>
+      <p class="text-caption">{{ caption }}</p>
+    </ft-stack>
+  </form>
+  <ft-button ftDialogFooter [disabled]="busy()" (click)="ref.close()">Cancel</ft-button>
+  <ft-button ftDialogFooter variant="primary" [loading]="busy()" (click)="start()">
+    {{ busy() ? 'Start sprint…' : 'Start sprint' }}
+  </ft-button>
+</ft-dialog>

@@ -34,8 +34,12 @@
         [photoUrl]="p.featuredPhoto?.url ?? null"
         [photos]="photos()"
       >
-        @if (p.isOwn) {
-          <ft-button actions variant="primary" href="/people/me/edit">
+        @if (p.canEdit) {
+          <ft-button
+            actions
+            variant="primary"
+            [href]="p.isOwn ? '/people/me/edit' : '/people/' + p.id + '/edit'"
+          >
             <ft-icon name="edit" /> Edit profile
           </ft-button>
         }

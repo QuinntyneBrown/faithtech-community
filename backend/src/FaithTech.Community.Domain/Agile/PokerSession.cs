@@ -45,7 +45,15 @@ public class PokerSession
 
     public bool IsRevealed { get; private set; }
 
-    public bool IsComplete => CurrentStoryIndex >= StoryIds.Count;
+    /// <summary>Set once the last story has its points or the facilitator ends the session; a workspace has one open session.</summary>
+    public bool IsClosed { get; private set; }
+
+    public bool IsComplete => IsClosed || CurrentStoryIndex >= StoryIds.Count;
+
+    /// <summary>The story whose points were set last and those points, shown to everyone until the next estimate.</summary>
+    public Guid? LastStoryId { get; private set; }
+
+    public int? LastPoints { get; private set; }
 
     public IReadOnlyCollection<PokerVote> Votes => _votes;
 
@@ -91,6 +99,12 @@ public class PokerSession
         _votes.RemoveAll(v => v.ProfileId == profileId);
     }
 
+    public void End(Guid by)
+    {
+        EnsureFacilitator(by);
+        IsClosed = true;
+    }
+
     public void Reveal(Guid by)
     {
         EnsureFacilitator(by);
@@ -112,7 +126,10 @@ public class PokerSession
         }
 
         story.SetStoryPoints(points);
+        LastStoryId = story.Id;
+        LastPoints = points;
         CurrentStoryIndex++;
+        IsClosed = CurrentStoryIndex >= StoryIds.Count;
         StartRound(1);
     }
 

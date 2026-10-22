@@ -1,0 +1,40 @@
+<ft-dialog
+  heading="New workspace"
+  description="You’ll own it and choose who’s in it."
+  icon="workspaces"
+  [busy]="busy()"
+  (closed)="ref.close()"
+>
+  <form [formGroup]="form" (submit)="$event.preventDefault(); create()" ftFormErrorFocus>
+    <ft-stack>
+      @if (failed()) {
+        <ft-alert status="danger" heading="That didn’t work">
+          We couldn’t reach FaithTech. Nothing was changed — try again.
+        </ft-alert>
+      }
+      <ft-form-field label="Name" [error]="nameError()">
+        <ft-text-field formControlName="name" autocomplete="off" />
+      </ft-form-field>
+      <ft-radio-group legend="Method" formControlName="method">
+        <ft-radio value="Scrum" description="Sprints with a name, goal and dates">Scrum</ft-radio>
+        <ft-radio value="Kanban" description="Continuous flow, no sprints">Kanban</ft-radio>
+      </ft-radio-group>
+      <ft-checkbox-group
+        legend="Members"
+        hint="Only people with a lead or volunteer role can be added."
+        formControlName="memberIds"
+        [error]="membersError()"
+      >
+        @for (candidate of candidates(); track candidate.profileId) {
+          <ft-checkbox [value]="candidate.profileId" [description]="roles(candidate)">{{
+            candidate.name
+          }}</ft-checkbox>
+        }
+      </ft-checkbox-group>
+    </ft-stack>
+  </form>
+  <ft-button ftDialogFooter [disabled]="busy()" (click)="ref.close()">Cancel</ft-button>
+  <ft-button ftDialogFooter variant="primary" [loading]="busy()" (click)="create()">
+    {{ busy() ? 'Create workspace…' : 'Create workspace' }}
+  </ft-button>
+</ft-dialog>

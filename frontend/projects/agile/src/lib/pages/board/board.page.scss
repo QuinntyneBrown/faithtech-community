@@ -1,0 +1,12 @@
+.filter {
+  max-inline-size: 24rem;
+}
+
+.loading {
+  display: grid;
+  gap: var(--space-4);
+
+  @media (min-width: 48rem) {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
