@@ -8,6 +8,7 @@ using FaithTech.Community.Application.Invites;
 using FaithTech.Community.Application.Notifications;
 using FaithTech.Community.Application.Partners;
 using FaithTech.Community.Application.Profiles;
+using FaithTech.Community.Application.Reports;
 using FaithTech.Community.Application.Resources;
 using FaithTech.Community.Application.Search;
 using FaithTech.Community.Application.Team;
@@ -96,6 +97,8 @@ public static class DependencyInjection
         services.AddScoped<CheckInHandler>();
         services.AddScoped<AddWalkInHandler>();
         services.AddScoped<ExportCheckInsHandler>();
+        services.AddScoped<ReportAccess>();
+        services.AddScoped<GetReportHandler>();
         services.AddScoped<PublicEventsHandler>();
         services.AddScoped<GetEventCalendarHandler>();
         services.AddScoped<CancelEventHandler>();

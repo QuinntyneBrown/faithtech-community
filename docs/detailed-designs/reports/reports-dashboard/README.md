@@ -222,4 +222,9 @@ Resolved while designing (ADR 0026, ADR 0027):
 - **CSV writers elsewhere** — the audit log and RSVP exports keep their own cell functions, which quote only when needed. Moving them to `ICsvWriter` is a follow-up behaviour change for those features, not part of this one.
 - **Home** — the mocks' "Open reports" action on the Staff home page belongs to [Home](../../platform/home/README.md) and has no requirement yet.
 - **Proving `L2-104` AC1** — the in-memory provider cannot prove latency or SQL shape; the budget is checked by the load test against PostgreSQL, and the query shapes by review.
+- **Recorded while building** (slice 11a):
+  - The unknown-filter warning reads as the later `reports/unknown-filter` mock, "We couldn’t use that filter, so this shows all cities for the last 30 days.", not the wording above.
+  - The Events and attendance footer reads "Events in the period and the next 30 days. Walk-ins aren’t counted as RSVPs or check-ins." The `reports/default` mock's "Walk-ins count as checked in but not as RSVPs" contradicts ADR 0026, which leaves walk-ins out of both columns.
+  - Layout: `SplitComponent` holds the two tables in the main column and the two charts in the aside; at XS (`BreakpointService` below SM) the stat row is a `StackComponent` instead of a `ClusterComponent`, so the figures are one column.
+  - The join-time tests sit with the flows they exercise (`Identity/SignUpTests`, `Identity/GoogleSignInTests`, `Invites/AcceptInviteTests`, `Invites/ConnectSignUpTests`) rather than in a separate `Reports/JoinedAtTests`.
 - **Deferred** — configurable dashboards, numbers linking to the lists behind them (only event titles link), per-lead or per-city access for City Leads, scheduled or emailed reports, and charts beyond the two fixed ones.

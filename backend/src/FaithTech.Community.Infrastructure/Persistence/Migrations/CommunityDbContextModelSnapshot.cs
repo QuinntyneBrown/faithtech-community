@@ -1021,6 +1021,9 @@ namespace FaithTech.Community.Infrastructure.Persistence.Migrations
                     b.Property<bool>("IsSuspended")
                         .HasColumnType("boolean");
 
+                    b.Property<DateTime?>("JoinedAtUtc")
+                        .HasColumnType("timestamp with time zone");
+
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasMaxLength(200)
@@ -1039,6 +1042,8 @@ namespace FaithTech.Community.Infrastructure.Persistence.Migrations
                         .HasColumnType("character varying(500)");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("HomeCity");
 
                     b.HasIndex("SearchVector");
 

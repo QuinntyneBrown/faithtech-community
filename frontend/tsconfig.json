@@ -17,7 +17,8 @@
       "@faithtech-community/announcements": ["./projects/announcements/src/public-api.ts"],
       "@faithtech-community/invites": ["./projects/invites/src/public-api.ts"],
       "@faithtech-community/admin": ["./projects/admin/src/public-api.ts"],
-      "@faithtech-community/agile": ["./projects/agile/src/public-api.ts"]
+      "@faithtech-community/agile": ["./projects/agile/src/public-api.ts"],
+      "@faithtech-community/reports": ["./projects/reports/src/public-api.ts"]
     },
     "strict": true,
     "noImplicitOverride": true,
@@ -80,6 +81,12 @@
     },
     {
       "path": "./projects/resources/tsconfig.spec.json"
+    },
+    {
+      "path": "./projects/reports/tsconfig.lib.json"
+    },
+    {
+      "path": "./projects/reports/tsconfig.spec.json"
     },
     {
       "path": "./projects/partners/tsconfig.lib.json"

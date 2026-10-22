@@ -16,6 +16,7 @@ export * from './invites';
 export * from './notifications';
 export * from './partners';
 export * from './profiles';
+export * from './reports';
 export * from './resources';
 export * from './search';
 export * from './team';

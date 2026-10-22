@@ -81,6 +81,25 @@ public class AcceptInviteTests(CommunityApiFactory factory) : IClassFixture<Comm
         Assert.True((await signIn.Content.ReadFromJsonAsync<JsonElement>()).GetProperty("emailVerified").GetBoolean());
     }
 
+    // Traces to: L2-100 AC1 (docs/detailed-designs/reports/reports-dashboard): a new account from an invite records
+    // the join time.
+    [Fact]
+    public async Task Signing_up_from_an_invite_records_the_join_time()
+    {
+        var grace = await factory.AddMemberAsync("Grace Okonkwo");
+        var email = $"{Guid.NewGuid():N}@example.org";
+        var (_, token) = await factory.AddInviteAsync(grace, email, Role.Volunteer);
+
+        await factory.CreateClient().PostAsJsonAsync("/api/invites/accept", new { Token = token, Name = "Ruth Alvarez", Password = OidcFlow.Password });
+
+        var joined = await factory.WithDbAsync(async db =>
+        {
+            var user = await db.Users.AsNoTracking().SingleAsync(u => u.Email == email);
+            return (await db.Profiles.AsNoTracking().SingleAsync(p => p.Id == user.ProfileId)).JoinedAtUtc;
+        });
+        Assert.Equal(factory.Time.GetUtcNow().UtcDateTime, joined);
+    }
+
     [Fact]
     public async Task An_invite_works_only_once()
     {

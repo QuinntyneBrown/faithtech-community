@@ -81,6 +81,7 @@ app.MapNotificationsEndpoints();
 app.MapAnnouncementsEndpoints();
 app.MapSearchEndpoints();
 app.MapResourcesEndpoints();
+app.MapReportsEndpoints();
 app.MapAccountEndpoints();
 app.MapAuthorizationEndpoints();
 

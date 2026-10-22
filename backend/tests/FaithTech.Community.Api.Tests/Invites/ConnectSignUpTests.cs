@@ -160,6 +160,20 @@ public class ConnectSignUpTests(CommunityApiFactory factory) : IClassFixture<Com
         Assert.Equal("Use 100 characters or fewer for your name.", problem.Errors["Name"][0]);
     }
 
+    // Traces to: L2-100 AC1 (docs/detailed-designs/reports/reports-dashboard): connect sign-up records the join time.
+    [Fact]
+    public async Task Signing_up_through_the_link_records_the_join_time()
+    {
+        var grace = await factory.AddMemberAsync("Grace Okonkwo");
+        var token = await factory.ConnectTokenOfAsync(grace);
+        var email = $"{Guid.NewGuid():N}@example.org";
+
+        await factory.CreateClient().PostAsJsonAsync("/api/connect/sign-up",
+            new { token, name = "Tomás Ortega", email, password = Identity.OidcFlow.Password });
+
+        Assert.Equal(factory.Time.GetUtcNow().UtcDateTime, (await AccountAsync(email)).Profile.JoinedAtUtc);
+    }
+
     private Task<(Application.Identity.CommunityUser User, Profile Profile)> AccountAsync(string email) =>
         factory.WithDbAsync(async db =>
         {

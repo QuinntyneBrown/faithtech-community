@@ -20,7 +20,8 @@ test.describe('App shell', () => {
     await axe.check();
   });
 
-  // One rule for every role (docs/adr/0009-shell-navigation-by-role.md).
+  // One rule for every role (docs/adr/0009-shell-navigation-by-role.md); Reports for Staff and System Admin
+  // only (L2-098 AC4, L2-045 AC4).
   const byRole: { roles: string[]; nav: string[]; tabs: string[] }[] = [
     {
       roles: ['CityLead'],
@@ -48,6 +49,7 @@ test.describe('App shell', () => {
         'Announcements',
         'Resources',
         'People',
+        'Reports',
       ],
       tabs: ['Home', 'Events', 'Search', 'Partners'],
     },
@@ -77,6 +79,7 @@ test.describe('App shell', () => {
         'Announcements',
         'Resources',
         'People',
+        'Reports',
         'Admin',
       ],
       tabs: ['Home', 'Events', 'Search', 'Contacts'],

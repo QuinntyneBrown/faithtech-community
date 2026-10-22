@@ -123,7 +123,8 @@ public class CommunitySeeder(IOpenIddictApplicationManager applications, Communi
                 continue;
             }
 
-            var profile = new Profile($"Load Tester {i:000}");
+            // Join times spread over the last 18 months, so the Reports load test exercises the month chart.
+            var profile = new Profile($"Load Tester {i:000}", time.GetUtcNow().UtcDateTime.AddDays(-(i * 540 / count)));
             var user = new CommunityUser
             {
                 Id = Guid.NewGuid(),

@@ -110,6 +110,25 @@ public class SignUpTests(CommunityApiFactory factory) : IClassFixture<CommunityA
         Assert.Equal(HttpStatusCode.TooManyRequests, response.StatusCode);
     }
 
+    // Traces to: L2-100 AC1 (docs/detailed-designs/reports/reports-dashboard): the account's creation time is the
+    // member's join time, which Reports counts as new members.
+    [Fact]
+    public async Task Sign_up_records_the_join_time()
+    {
+        var email = UniqueEmail();
+
+        await SignUp("Grace Hopper", email, ValidPassword);
+
+        Assert.Equal(factory.Time.GetUtcNow().UtcDateTime, await JoinedAtOfAsync(email));
+    }
+
+    private Task<DateTime?> JoinedAtOfAsync(string email) =>
+        factory.WithDbAsync(async db =>
+        {
+            var user = await db.Users.AsNoTracking().SingleAsync(u => u.Email == email);
+            return (await db.Profiles.AsNoTracking().SingleAsync(p => p.Id == user.ProfileId)).JoinedAtUtc;
+        });
+
     private Task<HttpResponseMessage> SignUp(string name, string email, string password) =>
         factory.CreateClient().PostAsJsonAsync("/api/account/sign-up", new { name, email, password });
 

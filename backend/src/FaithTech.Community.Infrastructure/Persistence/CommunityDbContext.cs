@@ -79,6 +79,8 @@ public class CommunityDbContext(DbContextOptions<CommunityDbContext> options)
         {
             profile.Property(p => p.Name).HasMaxLength(200);
             profile.Property(p => p.HomeCity).HasMaxLength(100);
+            // Reports group and filter members by home city (ADR 0026).
+            profile.HasIndex(p => p.HomeCity);
             profile.Property(p => p.Bio).HasMaxLength(400);
             profile.Property(p => p.SuspendedReason).HasMaxLength(500);
             profile.Ignore(p => p.DomainEvents);

@@ -60,6 +60,20 @@ public class GoogleSignInTests(CommunityApiFactory factory) : IClassFixture<Comm
         Assert.True(await factory.WithDbAsync(db => db.UserLogins.AnyAsync(l => l.UserId == user.Id && l.LoginProvider == "Google")));
     }
 
+    // Traces to: L2-100 AC1 (docs/detailed-designs/reports/reports-dashboard): a new Google account records the
+    // join time.
+    [Fact]
+    public async Task A_new_Google_account_records_the_join_time()
+    {
+        var email = NewEmail();
+
+        await SignInWithGoogleAsync(Identity(email, name: "Leah Thompson"));
+
+        var user = await factory.WithDbAsync(db => db.Users.SingleAsync(u => u.Email == email));
+        var profile = await factory.WithDbAsync(db => db.Profiles.SingleAsync(p => p.Id == user.ProfileId));
+        Assert.Equal(factory.Time.GetUtcNow().UtcDateTime, profile.JoinedAtUtc);
+    }
+
     [Fact]
     public async Task A_verified_matching_email_signs_into_the_existing_account_and_links_Google_to_it()
     {
