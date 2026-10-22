@@ -77,6 +77,10 @@ export class HttpEventsService implements EventsService {
     return this.http.post<void>(`${this.api}/public/events/${id}/rsvps/cancel`, { token });
   }
 
+  downloadCalendar(id: string): Observable<Blob> {
+    return this.http.get(`${this.api}/events/${id}/calendar.ics`, { responseType: 'blob' });
+  }
+
   calendarUrl(id: string, options: { isPublic?: boolean } = {}): string {
     return `${this.api}/${options.isPublic ? 'public/' : ''}events/${id}/calendar.ics`;
   }

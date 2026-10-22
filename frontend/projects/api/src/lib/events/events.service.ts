@@ -126,7 +126,6 @@ export interface EventFilter {
 
 /**
  * Contract for the events API. Pages depend on EVENTS_SERVICE, never on HttpEventsService.
- * TODO(slice): the members-only .ics link carries no bearer token; it may need a blob fetch or signed URL.
  */
 export interface EventsService {
   listEvents(filter: EventFilter): Observable<EventListDto>;
@@ -147,7 +146,9 @@ export interface EventsService {
   /** Anonymous. Cancels with the token from the confirmation's cancel link; 404 for an unknown or used link. */
   cancelGuestRsvp(id: string, token: string): Observable<void>;
 
-  /** Download url for the browser to open directly; no request is made. */
+  /** The event's .ics for a signed-in member, fetched with their token (L2-024). */
+  downloadCalendar(id: string): Observable<Blob>;
+  /** Download url of a public event's .ics for the browser to open directly; no request is made. */
   calendarUrl(id: string, options?: { isPublic?: boolean }): string;
 }
 

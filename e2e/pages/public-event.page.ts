@@ -14,6 +14,7 @@ export class PublicEventPage {
   readonly cancelled: Locator;
   readonly signIn: Locator;
   readonly signInToRsvp: Locator;
+  readonly addToCalendar: Locator;
   readonly loadError: Locator;
   readonly tryAgain: Locator;
 
@@ -30,6 +31,7 @@ export class PublicEventPage {
     this.cancelled = page.getByText('This event was cancelled', { exact: true });
     this.signIn = page.getByRole('banner').getByRole('link', { name: 'Sign in' });
     this.signInToRsvp = page.getByRole('link', { name: 'Sign in to RSVP' });
+    this.addToCalendar = page.getByRole('link', { name: 'Add to calendar (.ics)' }).first();
     this.loadError = page.getByRole('heading', { name: 'We couldn’t load this event' });
     this.tryAgain = page.getByRole('button', { name: 'Try again' });
   }

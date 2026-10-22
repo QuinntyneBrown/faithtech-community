@@ -70,6 +70,7 @@ async function setup(overrides: Overrides = {}) {
     getEvent: vi.fn(overrides.getEvent ?? (() => of(current))),
     rsvp: vi.fn(overrides.rsvp ?? (() => of(undefined))),
     exportRsvps: vi.fn(overrides.exportRsvps ?? (() => of(new Blob(['csv'])))),
+    downloadCalendar: vi.fn(() => of(new Blob(['BEGIN:VCALENDAR']))),
   };
   const dialogs = {
     open: vi.fn(() => ({ closed: of(overrides.dialogResult ?? true) })),
@@ -253,6 +254,7 @@ describe('EventPage', () => {
     expect(page.host.textContent).toContain('This event was cancelled');
     expect(page.host.textContent).toContain('Our venue fell through.');
     expect(page.button('RSVP')).toBeUndefined();
+    expect(page.button('Update your calendar (.ics)')).toBeTruthy();
   });
 
   it('shows the error state with Try again', async () => {
@@ -295,5 +297,23 @@ describe('EventPage', () => {
 
     await page.show({ ...lead, visibility: 'MembersOnly' });
     expect(page.host.textContent).not.toContain('Public page');
+  });
+
+  it('downloads the event’s .ics with the member’s sign-in (L2-024)', async () => {
+    const page = await setup();
+    Object.assign(URL, { createObjectURL: vi.fn(() => 'blob:ics'), revokeObjectURL: vi.fn() });
+    const names: string[] = [];
+    const click = vi.spyOn(HTMLAnchorElement.prototype, 'click').mockImplementation(function (
+      this: HTMLAnchorElement,
+    ) {
+      names.push(this.download);
+    });
+
+    page.button('Add to calendar (.ics)')!.click();
+    await page.settle();
+
+    expect(page.service.downloadCalendar).toHaveBeenCalledWith('e1');
+    expect(names).toEqual(['toronto-builders-night.ics']);
+    click.mockRestore();
   });
 });
