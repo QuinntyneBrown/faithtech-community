@@ -104,6 +104,8 @@ export const routes: Routes = [
       {
         path: 'reports',
         loadChildren: () => import('@faithtech-community/reports').then((m) => m.REPORTS_ROUTES),
+      },
+      {
         path: 'notes',
         loadChildren: () => import('@faithtech-community/notes').then((m) => m.NOTES_ROUTES),
       },
