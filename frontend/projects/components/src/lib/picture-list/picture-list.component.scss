@@ -48,12 +48,12 @@
 
 // The Featured badge overlays the thumbnail's top-left corner, as in the mock, so it never
 // pushes the description below it out of line with the other photos.
+// Inset by --space-1, as Remove is, so the two stay clear even on the narrowest thumbnails.
 .ft-picture-list__featured {
   position: absolute;
-  inset-block-start: var(--space-2);
-  inset-inline-start: var(--space-2);
+  inset-block-start: var(--space-1);
+  inset-inline-start: var(--space-1);
   display: inline-flex;
-  max-inline-size: calc(100% - var(--control-height-sm) - var(--space-4));
 }
 
 .ft-picture-list__remove {

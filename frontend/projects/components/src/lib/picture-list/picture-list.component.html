@@ -7,7 +7,7 @@
       [disabled]="full()"
       [describedBy]="full() ? noteId : null"
       (click)="openChooser()"
-      >Add photos</ft-button
+      ><ft-icon name="add" /> Add photos</ft-button
     >
     <input
       #fileInput
@@ -96,7 +96,7 @@
               size="sm"
               [label]="'Feature photo ' + (i + 1)"
               (click)="featured.emit(i)"
-              >Feature</ft-button
+              ><ft-icon name="star" /> Feature</ft-button
             >
           }
         </li>

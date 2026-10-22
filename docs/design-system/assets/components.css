@@ -729,7 +729,7 @@ label.bubble__text { cursor: pointer; }
 .picture-list__thumb img { width: 100%; height: 100%; object-fit: cover; display: block; animation: fade-in var(--duration-base) var(--ease-standard); }
 /* Stands in for the image of a saved photo that is still storing; carries role="img" and the description. */
 .picture-list__placeholder { display: block; width: 100%; height: 100%; }
-.picture-list__thumb .badge { position: absolute; top: var(--space-2); left: var(--space-2); }
+.picture-list__thumb .badge { position: absolute; top: var(--space-1); left: var(--space-1); }
 .picture-list__item--featured .picture-list__thumb { border-color: var(--color-accent); box-shadow: 0 0 0 var(--border-width-thick) var(--color-accent); }
 .picture-list__item--failed .picture-list__thumb { border-color: var(--color-danger-solid); }
 .picture-list__item[aria-busy="true"] .picture-list__thumb img, .picture-list__item--failed .picture-list__thumb img { opacity: 0.5; }
