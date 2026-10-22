@@ -66,6 +66,8 @@ test.describe('Send invites', () => {
 
     await invites.inviteSomeone.click();
     const dialog = new SendInviteDialog(page);
+    // Focus starts in Email, the first task field (docs/design-system/components/dialog.html).
+    await expect(dialog.email).toBeFocused();
     await expect(dialog.role.locator('option')).toHaveText([
       'No role',
       'Attendee',
@@ -113,5 +115,20 @@ test.describe('Send invites', () => {
 
     await expect(dialog.refusal).toContainText('You’ve sent 50 invites in the last 24 hours.');
     await expect(dialog.dialog).toBeVisible();
+  });
+
+  test('Escape closes Send invite and returns focus to Invite someone', async ({ page, api }) => {
+    const grace = api.addAccount({ email: 'grace@example.org', roles: ['CityLead'] });
+    const invites = new InvitesPage(page);
+    await api.signInAs(grace, '/invites');
+
+    await invites.inviteSomeone.click();
+    const dialog = new SendInviteDialog(page);
+    await expect(dialog.email).toBeFocused();
+    await page.keyboard.press('Escape');
+
+    await expect(dialog.dialog).toBeHidden();
+    await expect(invites.inviteSomeone).toBeFocused();
+    expect(api.callsTo('POST', '/api/invites')).toEqual([]);
   });
 });

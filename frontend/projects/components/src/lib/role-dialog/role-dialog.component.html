@@ -16,8 +16,9 @@
     }
     @if (choosing) {
       <ft-radio-group legend="Role" [formControl]="role" [error]="error()">
-        @for (option of data.options; track option.value) {
+        @for (option of data.options; track option.value; let first = $first) {
           <ft-radio
+            [initialFocus]="first"
             [value]="option.value"
             [description]="option.description ?? ''"
             [disabled]="busy()"

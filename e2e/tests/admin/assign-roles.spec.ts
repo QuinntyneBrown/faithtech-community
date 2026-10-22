@@ -16,6 +16,8 @@ test.describe('Assign roles', () => {
 
     await profile.addRole.click();
     const dialog = new RoleDialog(page, 'Add a role for Jonah Bell');
+    // Focus starts on the first role, the dialog's only field.
+    await expect(dialog.options.first()).toBeFocused();
     await expect(dialog.options).toHaveCount(4);
     await expect(dialog.option('City Lead')).toHaveCount(0);
     await expect(dialog.option('Staff')).toHaveCount(0);
