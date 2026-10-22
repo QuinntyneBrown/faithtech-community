@@ -1,0 +1,23 @@
+<ft-dialog
+  heading="Delete this photo?"
+  [description]="description"
+  icon="delete"
+  tone="danger"
+  [busy]="busy()"
+  (closed)="ref.close(false)"
+>
+  @if (failed()) {
+    <ft-alert status="danger" heading="Photo not deleted">
+      We couldn’t delete this photo. Nothing was changed — try again.
+    </ft-alert>
+  }
+  <div class="photo">
+    <ft-photo [src]="data.photo.url" [alt]="data.photo.altText" />
+  </div>
+  <ft-button ftDialogFooter initialFocus [disabled]="busy()" (click)="ref.close(false)"
+    >Cancel</ft-button
+  >
+  <ft-button ftDialogFooter variant="danger" [loading]="busy()" (click)="confirm()">
+    {{ busy() ? 'Deleting photo…' : 'Delete photo' }}
+  </ft-button>
+</ft-dialog>

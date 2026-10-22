@@ -1,0 +1,26 @@
+<ft-dialog heading="Edit photo description" icon="edit" [busy]="busy()" (closed)="ref.close()">
+  <form (submit)="$event.preventDefault(); save()">
+    <ft-stack>
+      @if (failed()) {
+        <ft-alert status="danger" heading="Description not saved">
+          We couldn’t save the description. It’s still here — try again.
+        </ft-alert>
+      }
+      <div class="photo">
+        <ft-photo [src]="data.photo.url" [alt]="data.photo.altText" />
+      </div>
+      <ft-form-field
+        required
+        label="Description"
+        help="Say what’s in the photo for people using screen readers. Up to 300 characters."
+        [error]="error()"
+      >
+        <ft-text-field [formControl]="altText" initialFocus />
+      </ft-form-field>
+    </ft-stack>
+  </form>
+  <ft-button ftDialogFooter [disabled]="busy()" (click)="ref.close()">Cancel</ft-button>
+  <ft-button ftDialogFooter variant="primary" [loading]="busy()" (click)="save()">
+    {{ busy() ? 'Saving…' : 'Save description' }}
+  </ft-button>
+</ft-dialog>

@@ -89,7 +89,7 @@
           @if (photo.pending) {
             <p class="ft-picture-list__note">{{ pendingText() }}</p>
           }
-          @if (!photo.featured && (!photo.pending || subject() === 'contact')) {
+          @if (featurable() && !photo.featured && (!photo.pending || subject() === 'contact')) {
             <ft-button
               variant="ghost"
               size="sm"

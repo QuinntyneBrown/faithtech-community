@@ -8,6 +8,7 @@ import { PictureListComponent, PictureListPhoto } from './picture-list.component
     [photos]="photos()"
     [max]="max()"
     [subject]="subject()"
+    [featurable]="featurable()"
     (picked)="picked.push($event)"
     (removed)="removed.push($event)"
     (featured)="featured.push($event)"
@@ -21,6 +22,7 @@ class HostComponent {
   ]);
   max = signal(10);
   subject = signal<'profile' | 'contact'>('profile');
+  featurable = signal(true);
   picked: File[][] = [];
   removed: number[] = [];
   featured: number[] = [];
@@ -321,6 +323,15 @@ describe('PictureListComponent', () => {
       feature.click();
       expect(cmp.featured).toEqual([1]);
       expect(host.textContent).toContain('Not saved yet. It uploads when you save the contact.');
+    });
+
+    it('hides Feature where the server picks the featured photo', async () => {
+      const { fixture, host } = await contactSetup([
+        { url: '/1.jpg', alt: 'One', featured: false, pending: true },
+      ]);
+      fixture.componentRef.instance.featurable.set(false);
+      fixture.detectChanges();
+      expect(host.textContent).not.toContain('Feature');
     });
 
     it('asks for a missing description in the server’s words', async () => {

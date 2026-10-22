@@ -86,6 +86,8 @@ export class PictureListComponent {
   readonly photos = input<PictureListPhoto[]>([]);
   readonly max = input(10);
   readonly subject = input<PictureListSubject>('profile');
+  /** False hides Feature, where the server picks the featured photo (the add contact photo dialog). */
+  readonly featurable = input(true);
   /** Overrides the note under a chosen photo, such as where a dialog uploads it. */
   readonly pendingNote = input<string | null>(null);
 

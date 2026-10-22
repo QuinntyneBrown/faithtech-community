@@ -36,6 +36,7 @@ export * from './notification-bell';
 export * from './notification-panel';
 export * from './person-card';
 export * from './photo';
+export * from './photo-gallery';
 export * from './picture-list';
 export * from './profile-header';
 export * from './progress';
