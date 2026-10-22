@@ -1,6 +1,8 @@
 using System.Net;
 using System.Net.Http.Json;
 using System.Text.RegularExpressions;
+using FaithTech.Community.Api.Tests.Profiles;
+using FaithTech.Community.Domain.Profiles;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.DependencyInjection;
@@ -57,15 +59,13 @@ public partial class ServerAuthorizationTests(CommunityApiFactory factory) : ICl
     [Fact]
     public async Task Me_returns_the_signed_in_user_and_roles()
     {
-        var client = factory.WithWebHostBuilder(b => b.ConfigureServices(s => s
-            .AddAuthentication(TestAuthHandler.SchemeName)
-            .AddScheme<AuthenticationSchemeOptions, TestAuthHandler>(TestAuthHandler.SchemeName, null))).CreateClient();
-        var userId = Guid.NewGuid();
-        client.DefaultRequestHeaders.Add(TestAuthHandler.Header, $"{userId};CityLead,Staff");
+        // The roles come from the profile, so the member really holds them.
+        var member = await factory.AddMemberAsync("Grace Okonkwo");
+        var client = factory.ClientFor(member, Role.CityLead, Role.Staff);
 
         var me = await client.GetFromJsonAsync<MeResponse>("/api/me");
 
-        Assert.Equal(userId, me!.Id);
+        Assert.Equal(member.UserId, me!.Id);
         Assert.Equal(["CityLead", "Staff"], me.Roles);
     }
 
