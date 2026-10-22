@@ -80,6 +80,7 @@ public static class DependencyInjection
         services.AddScoped<PublicEventsHandler>();
         services.AddScoped<GetEventCalendarHandler>();
         services.AddScoped<CancelEventHandler>();
+        services.AddScoped<InAppNotificationsHandler>();
         services.TryAddSingleton(TimeProvider.System);
         return services;
     }
