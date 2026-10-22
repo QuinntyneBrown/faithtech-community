@@ -149,7 +149,7 @@
             <button class="avatar-trigger" type="button" aria-haspopup="menu" aria-label="Account menu for Grace Okonkwo"><span class="avatar avatar--sm avatar--sky" aria-hidden="true">GO<img class="avatar__img" src="../assets/photos/people/grace-okonkwo.jpg" alt=""></span></button>
           </header>
         </div>
-        <div class="ds-example__caption"><span>Grace on Home with three unread notifications. Narrow the window: search goes below 1024px, the secondary links go below 1024px, the nav goes below 768px.</span></div>
+        <div class="ds-example__caption"><span>Grace on Home with three unread notifications. Narrow the window: search goes below 1024px, the secondary links go below 1536px, the nav goes below 768px.</span></div>
         <details class="ds-example__code"><summary>HTML</summary><pre><code>&lt;header class="topbar"&gt;
   &lt;a class="topbar__brand" href="/"&gt;&lt;img class="topbar__mark" src="assets/logo.svg" alt="" width="32" height="32"&gt; FaithTech&lt;/a&gt;
   &lt;nav class="topbar__nav" aria-label="Primary"&gt;
@@ -243,8 +243,9 @@
     <section class="ds-section" id="responsive"><h2><a href="#responsive">Responsive behaviour</a></h2>
       <ul>
         <li>Base (phones): brand, spacer, bell, avatar. The <a href="tab-bar.html">tab bar</a> carries Home, Events, Search, Contacts and Partners.</li>
-        <li>768px to 1023px: <code>.topbar__nav</code> appears with the five primary links; <code>.nav-link--secondary</code> (Team, Announcements, People) stays hidden so the row never wraps. The tab bar hides.</li>
-        <li>1024px and up: the secondary links and <code>.topbar__search</code> (<code>--layout-topbar-search-width</code>, 14rem) appear. Nav links never wrap (<code>white-space: nowrap</code>).</li>
+        <li>768px to 1535px: <code>.topbar__nav</code> appears with the five primary links and More; <code>.nav-link--secondary</code> (Team, Announcements, Resources, People) stays hidden so the row never wraps. The tab bar hides.</li>
+        <li>1024px and up: <code>.topbar__search</code> (<code>--layout-topbar-search-width</code>, 14rem) appears.</li>
+        <li>1536px and up (<code>--layout-breakpoint-2xl</code>): the secondary links appear and More hides. Nav links never wrap (<code>white-space: nowrap</code>).</li>
         <li>The capsule floats <code>--space-2</code> below the top of the viewport at <code>--z-sticky</code>. In the component it is pinned (<code>position: fixed</code>) over a placeholder that reserves its height plus <code>--space-2</code>, so it looks the same as the mocks&rsquo; sticky capsule but content scrolls beneath it as beneath the tab bar: a link passing under the bar is not an obscured target (WCAG 2.5.8). <code>scroll-padding-top</code> on <code>html</code> keeps focused fields clear of it.</li>
       </ul>
     </section>
@@ -358,7 +359,7 @@
       </ul>
       <p>Drift noticed:</p>
       <ul>
-        <li>Resolved: <code>.topbar__search</code> was sized with a raw <code>14rem</code>; it now reads <code>--layout-topbar-search-width</code>. Media queries cannot read custom properties, so the top bar's <code>48rem</code>/<code>64rem</code> queries are the values of <code>--layout-breakpoint-md</code>/<code>-lg</code> (the rule is stated at the top of <code>components.css</code>), and the Angular <code>TopBarComponent</code> reads them by name with <code>@include bp.up(md)</code> from <code>styles/_breakpoints.scss</code>.</li>
+        <li>Resolved: <code>.topbar__search</code> was sized with a raw <code>14rem</code>; it now reads <code>--layout-topbar-search-width</code>. Media queries cannot read custom properties, so the top bar's <code>48rem</code>/<code>64rem</code>/<code>96rem</code> queries are the values of <code>--layout-breakpoint-md</code>/<code>-lg</code>/<code>-2xl</code> (the rule is stated at the top of <code>components.css</code>), and the Angular <code>TopBarComponent</code> reads them by name with <code>@include bp.up(md)</code> from <code>styles/_breakpoints.scss</code>.</li>
         <li>Resolved: the top bar markup was copied by hand into every page mock (eight personas). In the app it is one shared shell: <code>AppShellComponent</code> wraps every signed-in route and renders <code>TopBarComponent</code> from the components library once, with links from one rule by role (<code>shell/navigation.ts</code>, <a href="../../adr/0009-shell-navigation-by-role.md">ADR 0009</a>). Static mocks cannot share markup, so their bars are regenerated from that same rule per persona rather than edited by hand.</li>
       </ul>
     </section>
