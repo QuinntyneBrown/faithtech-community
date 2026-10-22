@@ -6,6 +6,7 @@ using FaithTech.Community.Application.Events;
 using FaithTech.Community.Application.Identity;
 using FaithTech.Community.Application.Invites;
 using FaithTech.Community.Application.Notifications;
+using FaithTech.Community.Application.PrivatePreview;
 using FaithTech.Community.Application.Profiles;
 using FaithTech.Community.Application.Resources;
 using FaithTech.Community.Application.Search;
@@ -15,6 +16,7 @@ using FaithTech.Community.Infrastructure.Email;
 using FaithTech.Community.Infrastructure.Identity;
 using FaithTech.Community.Infrastructure.Invites;
 using FaithTech.Community.Infrastructure.Persistence;
+using FaithTech.Community.Infrastructure.PrivatePreview;
 using FaithTech.Community.Infrastructure.Search;
 using FaithTech.Community.Infrastructure.Storage;
 using Microsoft.AspNetCore.DataProtection;
@@ -59,6 +61,8 @@ public static class DependencyInjection
             .AddTokenProvider<EmailConfirmationTokenProvider<CommunityUser>>(EmailConfirmationTokenProvider<CommunityUser>.Name)
             .AddTokenProvider<PasswordResetTokenProvider<CommunityUser>>(PasswordResetTokenProvider<CommunityUser>.Name);
         services.AddDataProtection();
+        services.AddSingleton<IPassphraseHasher, Pbkdf2PassphraseHasher>();
+        services.AddSingleton<IUnlockTokens, HmacUnlockTokens>();
         services.TryAddSingleton(TimeProvider.System);
 
         services.AddHttpClient<IBreachedPasswordChecker, HibpBreachedPasswordChecker>(client =>

@@ -1,0 +1,48 @@
+/* ---------- Scope: neutral accent ---------------------------------------
+   For pages that must not carry the brand: the private-preview wall served
+   before anything else (docs/design-system/patterns/private-preview-wall.html,
+   ADR 0026). Put data-accent="neutral" on <html>; the accent, link and focus
+   roles become greys, every other role is unchanged. Load it after tokens.css so it
+   wins over the theme selectors there at equal specificity. Kept out of
+   tokens.css because tokens.json exports themes, not scopes.
+   ------------------------------------------------------------------------ */
+[data-accent="neutral"] {
+  --color-accent: var(--palette-gray-900);
+  --color-accent-hover: var(--palette-gray-800);
+  --color-accent-active: var(--palette-gray-700);
+  --color-accent-subtle: var(--palette-gray-100);
+  --color-accent-subtle-hover: var(--palette-gray-200);
+  --color-fg-on-accent: var(--palette-white);
+  --color-fg-accent: var(--palette-gray-900);
+  --color-fg-link: var(--palette-gray-900);
+  --color-fg-link-hover: var(--palette-gray-700);
+  --color-focus-ring: var(--palette-gray-900);
+}
+
+[data-accent="neutral"][data-theme="dark"] {
+  --color-accent: var(--palette-gray-150);
+  --color-accent-hover: var(--palette-gray-100);
+  --color-accent-active: var(--palette-gray-25);
+  --color-accent-subtle: var(--palette-gray-800);
+  --color-accent-subtle-hover: var(--palette-gray-700);
+  --color-fg-on-accent: var(--palette-gray-900);
+  --color-fg-accent: var(--palette-gray-150);
+  --color-fg-link: var(--palette-gray-150);
+  --color-fg-link-hover: var(--palette-gray-100);
+  --color-focus-ring: var(--palette-gray-150);
+}
+
+@media (prefers-color-scheme: dark) {
+  [data-accent="neutral"]:not([data-theme="light"]) {
+    --color-accent: var(--palette-gray-150);
+    --color-accent-hover: var(--palette-gray-100);
+    --color-accent-active: var(--palette-gray-25);
+    --color-accent-subtle: var(--palette-gray-800);
+    --color-accent-subtle-hover: var(--palette-gray-700);
+    --color-fg-on-accent: var(--palette-gray-900);
+    --color-fg-accent: var(--palette-gray-150);
+    --color-fg-link: var(--palette-gray-150);
+    --color-fg-link-hover: var(--palette-gray-100);
+    --color-focus-ring: var(--palette-gray-150);
+  }
+}

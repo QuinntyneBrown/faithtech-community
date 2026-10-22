@@ -2,6 +2,7 @@ using FaithTech.Community.Api.Authentication;
 using FaithTech.Community.Api.Endpoints;
 using FaithTech.Community.Api.Hubs;
 using FaithTech.Community.Api.Middleware;
+using FaithTech.Community.Api.Middleware.PrivatePreview;
 using FaithTech.Community.Application;
 using FaithTech.Community.Application.Agile;
 using FaithTech.Community.Infrastructure;
@@ -10,6 +11,8 @@ using Serilog;
 using Serilog.Events;
 
 var builder = WebApplication.CreateBuilder(args);
+// No server banner on any response (L2-106 AC1).
+builder.WebHost.ConfigureKestrel(options => options.AddServerHeader = false);
 
 builder.Services.AddSerilog((services, logger) => logger
     // The Serilog request log replaces ASP.NET Core's per-request events, which carry raw paths.
@@ -32,6 +35,7 @@ builder.Services.AddOptions<FaithTech.Community.Application.Common.WebAppOptions
 builder.Services.AddInfrastructure(builder.Configuration);
 builder.Services.AddCommunityAuthentication(builder.Configuration, builder.Environment);
 builder.Services.AddWebProtections(builder.Configuration);
+builder.Services.AddPrivatePreview(builder.Configuration);
 builder.Services.AddSignalR();
 builder.Services.AddScoped<SignalRAgileNotifier>();
 builder.Services.AddScoped<IBoardNotifier>(sp => sp.GetRequiredService<SignalRAgileNotifier>());
@@ -48,8 +52,12 @@ app.UseSerilogRequestLogging(options =>
     // This host's logger rather than the static one, which another host in the process may have replaced.
     options.Logger = app.Services.GetRequiredService<Serilog.ILogger>();
 });
+// The wall sits before the exception handler, status code pages and routing, so a locked request reaches nothing.
+app.UsePrivatePreview();
 app.UseExceptionHandler();
 app.UseStatusCodePages();
+// Both Angular builds by host, in the production container only (L2-108).
+app.UseStaticSites(app.Configuration);
 app.UseCors(WebProtectionSetup.WebAppCorsPolicy);
 app.UseAuthentication();
 app.UseMiddleware<CurrentRolesMiddleware>();

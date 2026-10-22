@@ -7,6 +7,7 @@ using FaithTech.Community.Application.Identity;
 using FaithTech.Community.Application.Invites;
 using FaithTech.Community.Application.Notifications;
 using FaithTech.Community.Application.Partners;
+using FaithTech.Community.Application.PrivatePreview;
 using FaithTech.Community.Application.Profiles;
 using FaithTech.Community.Application.Notes;
 using FaithTech.Community.Application.Resources;
@@ -25,6 +26,9 @@ public static class DependencyInjection
     {
         services.Configure<Common.WebAppOptions>(configuration.GetSection(Common.WebAppOptions.Section));
         services.Configure<Common.MarketingOptions>(configuration.GetSection(Common.MarketingOptions.Section));
+        services.Configure<PrivatePreviewOptions>(configuration.GetSection(PrivatePreviewOptions.Section));
+        services.AddSingleton<UnlockAttempts>();
+        services.AddSingleton<UnlockHandler>();
         services.AddValidatorsFromAssemblyContaining<SignUpValidator>();
         services.AddScoped<VerificationEmails>();
         services.AddScoped<SignUpHandler>();

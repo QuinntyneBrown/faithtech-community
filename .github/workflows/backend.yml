@@ -1,0 +1,55 @@
+# Backend and deployment assets: tests, both container images and the Azure templates (ADR 0026).
+name: Backend
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'backend/**'
+      - 'frontend/**'
+      - 'eng/infra/**'
+      - 'eng/deploy.sh'
+      - 'docs/design-system/tokens/tokens.css'
+      - '.github/workflows/backend.yml'
+  pull_request:
+    paths:
+      - 'backend/**'
+      - 'frontend/**'
+      - 'eng/infra/**'
+      - 'eng/deploy.sh'
+      - 'docs/design-system/tokens/tokens.css'
+      - '.github/workflows/backend.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with:
+          global-json-file: backend/global.json
+      - run: dotnet build backend --configuration Release
+      # In-memory database and fakes only: no Docker, no PostgreSQL (AGENTS.md).
+      - run: dotnet test backend --configuration Release --no-build
+
+  images:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: docker build -f backend/deploy/api.Dockerfile -t faithtech-community-api:ci .
+      - run: docker build -f backend/deploy/cli.Dockerfile -t faithtech-community-cli:ci .
+      - name: The Cli image hashes a passphrase from standard input
+        run: echo "a passphrase for continuous integration" | docker run --rm -i faithtech-community-cli:ci wall-hash | grep -q "^pbkdf2-sha256[$]600000[$]"
+
+  infrastructure:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: az bicep install
+      - run: az bicep build --file eng/infra/main.bicep --stdout > /dev/null
+      - run: az bicep lint --file eng/infra/main.bicep
+      - run: POSTGRES_ADMIN_PASSWORD=unused az bicep build-params --file eng/infra/main.bicepparam --stdout > /dev/null
+      - run: shellcheck eng/deploy.sh

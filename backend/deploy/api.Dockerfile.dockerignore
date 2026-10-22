@@ -1,0 +1,13 @@
+# Build context is the repository root; send only what the image builds from.
+**
+!backend/global.json
+!backend/Directory.Build.props
+!backend/Directory.Packages.props
+!backend/src/**
+!docs/design-system/tokens/tokens.css
+!frontend/**
+**/bin/
+**/obj/
+**/node_modules/
+frontend/dist/
+frontend/.angular/

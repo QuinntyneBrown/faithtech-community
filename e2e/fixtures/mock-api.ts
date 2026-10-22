@@ -9,6 +9,7 @@ import { MockEvents } from './mock-events';
 import { MockGoogle } from './mock-google';
 import { MockNotification, MockNotifications } from './mock-notifications';
 import { MockSearch } from './mock-search';
+import { MockWall } from './mock-wall';
 import { MockResources } from './mock-resources';
 import { MockNotes } from './mock-notes';
 
@@ -173,8 +174,12 @@ export class MockApi {
   readonly search = new MockSearch(this);
   /** Google sign-in: Google itself and the API's Google endpoints (L2-078). */
   readonly google = new MockGoogle(this, (account) => (this.session = account));
+  /** The private-preview wall on both hosts (ADR 0026); open unless a test calls wall.lock(). */
+  readonly wall: MockWall;
 
-  constructor(private readonly page: Page) {}
+  constructor(private readonly page: Page) {
+    this.wall = new MockWall(page, ALLOWED_ORIGINS);
+  }
 
   addAccount(account: Partial<MockAccount> & { email: string }): MockAccount {
     const full: MockAccount = {
