@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Avatar — FaithTech Community design system</title>
-<meta name="description" content="Avatars show who a row is about: a member's initials on their colour, small beside names and extra large on a profile, plus the top-bar avatar trigger that links to your own profile.">
+<meta name="description" content="Avatars show who a row is about: a person's photo over their initials on their colour, small beside names and extra large on a profile, plus the top-bar avatar trigger that links to your own profile.">
 <link rel="stylesheet" href="../tokens/tokens.css">
 <link rel="stylesheet" href="../assets/components.css">
 <link rel="stylesheet" href="../assets/ds.css">
@@ -90,7 +90,7 @@
     <header class="ds-header">
       <p class="ds-kicker">Component · Identity</p>
       <h1>Avatar</h1>
-      <p class="ds-lead">A circle with a person's initials on their colour. It sits beside every name in FaithTech Community: Grace Okonkwo's "GO" in sky in the top bar, rows in Contacts and Team, activity feeds, the admin tables, and extra large at the head of a profile.</p>
+      <p class="ds-lead">A circle with a person's photo, laid over their initials on their colour. It sits beside every name in FaithTech Community: Grace Okonkwo's photo (over "GO" in sky) in the top bar, rows in Contacts and Team, activity feeds, the admin tables, and extra large at the head of a profile.</p>
       <div class="ds-meta"><span class="ds-pill ds-pill--ok">WCAG 2.2 AA</span><span class="ds-pill">Status: stable</span><span class="ds-pill"><code>&lt;span&gt;</code> or <code>&lt;a class="avatar-trigger"&gt;</code></span></div>
       <ul class="ds-toc">
         <li><a href="#overview">Overview</a></li><li><a href="#anatomy">Anatomy</a></li><li><a href="#variants">Variants</a></li><li><a href="#sizes">Sizes</a></li><li><a href="#states">States</a></li><li><a href="#responsive">Responsive</a></li><li><a href="#theming">Theming</a></li><li><a href="#accessibility">Accessibility</a></li><li><a href="#content">Content</a></li><li><a href="#do-dont">Do and don't</a></li><li><a href="#tokens">Tokens</a></li><li><a href="#code">Code</a></li><li><a href="#sources">Sources</a></li>
@@ -102,16 +102,16 @@
       <ul>
         <li><b>Static</b> (<code>span.avatar</code>, <code>aria-hidden="true"</code>): beside a name in <a href="list.html">lists</a>, <a href="feed.html">feeds</a>, <a href="table.html">tables</a> and the profile head.</li>
         <li><b>Trigger</b> (<code>button.avatar-trigger</code> around a small avatar): the last item in the <a href="top-bar.html">top bar</a>, opening the <a href="menu.html">account menu</a>.</li>
-        <li><b>Plain</b> (no colour modifier): private contacts who have not signed up, such as Abby Brooks and Kwame Asante, and suspended accounts such as Victor Kane.</li>
+        <li><b>Plain</b> (no colour modifier): private contacts who have not signed up, such as Abby Brooks and Kwame Asante, and suspended accounts such as Victor Kane. They show a photo like everyone else; the plain colour is only what shows behind it.</li>
         <li>In Angular, use <code>&lt;ft-avatar&gt;</code> from the components library and pass <code>[color]="avatarColorFor(profileId)"</code> for a member; leave the colour unset (plain) for an unlinked contact or a suspended account.</li>
       </ul>
-      <p>An avatar shows initials, or the member’s featured photo where a screen promises a photo, such as the <a href="../../mocks/pages/team/default.html">team list</a> (<code>.avatar__img</code>, <code>alt=""</code>, initials stay behind it as the fallback). Do not use an avatar for status (use a <a href="badge.html">badge</a>) or for a partner organisation.</p>
+      <p>Every avatar shows the person’s photo, a member’s featured photo for instance, as on the <a href="../../mocks/pages/team/default.html">team list</a> (<code>.avatar__img</code>, <code>alt=""</code>, initials stay behind it as the fallback). Do not use an avatar for status (use a <a href="badge.html">badge</a>) or for a partner organisation.</p>
     </section>
 
     <section class="ds-section" id="anatomy"><h2><a href="#anatomy">Anatomy</a></h2>
       <div class="ds-anatomy">
         <figure class="ds-anatomy__figure">
-          <span class="avatar avatar--xl avatar--mint" aria-hidden="true">SM</span>
+          <span class="avatar avatar--xl avatar--mint" aria-hidden="true">SM<img class="avatar__img" src="../assets/photos/people/samuel-mensah.jpg" alt=""></span>
           <span class="ds-callout" style="left: 52%; top: 30%;" aria-hidden="true">1</span>
           <span class="ds-callout" style="left: 40%; top: 72%;" aria-hidden="true">2</span>
         </figure>
@@ -125,21 +125,21 @@
     <section class="ds-section" id="variants"><h2><a href="#variants">Variants</a></h2>
       <p>Seven colours (sky, sun, lilac, sage, rose, mint, peach) plus the plain accent tint. A person keeps one colour on every screen: the colour is not picked per screen but derived from the member's profile id (<code>avatarColorFor(profileId)</code> in the components library, ADR 0008), so every screen that shows them computes the same one. With seven colours, people share colours (Marcus Lee and Tom&aacute;s Ortega are both sun); the printed name, never the colour, tells them apart. The cast's colours are listed in <code>docs/mocks/README.md</code>.</p>
       <div class="ds-example">
-        <div class="ds-example__canvas"><span class="avatar avatar--sky" aria-hidden="true">GO</span><span class="avatar avatar--sun" aria-hidden="true">ML</span><span class="avatar avatar--lilac" aria-hidden="true">HK</span><span class="avatar avatar--sage" aria-hidden="true">JB</span><span class="avatar avatar--rose" aria-hidden="true">RA</span><span class="avatar avatar--mint" aria-hidden="true">SM</span><span class="avatar avatar--peach" aria-hidden="true">LT</span><span class="avatar" aria-hidden="true">KA</span></div>
-        <div class="ds-example__caption"><span>Grace, Marcus, Hannah, Jonah, Ruth, Samuel, Leah, and the plain avatar for Kwame Asante, a private contact.</span></div>
+        <div class="ds-example__canvas"><span class="avatar avatar--sky" aria-hidden="true">GO<img class="avatar__img" src="../assets/photos/people/grace-okonkwo.jpg" alt=""></span><span class="avatar avatar--sun" aria-hidden="true">ML<img class="avatar__img" src="../assets/photos/people/marcus-lee.jpg" alt=""></span><span class="avatar avatar--lilac" aria-hidden="true">HK<img class="avatar__img" src="../assets/photos/people/hannah-kim.jpg" alt=""></span><span class="avatar avatar--sage" aria-hidden="true">JB<img class="avatar__img" src="../assets/photos/people/jonah-bell.jpg" alt=""></span><span class="avatar avatar--rose" aria-hidden="true">RA<img class="avatar__img" src="../assets/photos/people/ruth-alvarez.jpg" alt=""></span><span class="avatar avatar--mint" aria-hidden="true">SM<img class="avatar__img" src="../assets/photos/people/samuel-mensah.jpg" alt=""></span><span class="avatar avatar--peach" aria-hidden="true">LT<img class="avatar__img" src="../assets/photos/people/leah-thompson.jpg" alt=""></span><span class="avatar" aria-hidden="true">KA<img class="avatar__img" src="../assets/photos/people/kwame-asante.jpg" alt=""></span></div>
+        <div class="ds-example__caption"><span>Grace, Marcus, Hannah, Jonah, Ruth, Samuel, Leah, and the plain avatar for Kwame Asante, a private contact, each with their photo.</span></div>
         <details class="ds-example__code"><summary>HTML</summary><pre><code>&lt;span class="avatar avatar--sky" aria-hidden="true"&gt;GO&lt;/span&gt;
 &lt;span class="avatar avatar--mint" aria-hidden="true"&gt;SM&lt;/span&gt;
 &lt;span class="avatar" aria-hidden="true"&gt;KA&lt;/span&gt;</code></pre></details>
       </div>
       <h3>Photo</h3>
       <div class="ds-example">
-        <div class="ds-example__canvas"><span class="avatar avatar--sky" aria-hidden="true">GO<img class="avatar__img" src="../../mocks/assets/photos/builders-night.svg" alt=""></span><span class="avatar avatar--sm avatar--sky" aria-hidden="true">GO<img class="avatar__img" src="../../mocks/assets/photos/builders-night.svg" alt=""></span></div>
+        <div class="ds-example__canvas"><span class="avatar avatar--sky" aria-hidden="true">GO<img class="avatar__img" src="../assets/photos/people/grace-okonkwo.jpg" alt=""></span><span class="avatar avatar--sm avatar--sky" aria-hidden="true">GO<img class="avatar__img" src="../assets/photos/people/grace-okonkwo.jpg" alt=""></span></div>
         <div class="ds-example__caption"><span>Grace’s featured photo covers her initials. The image is decorative (<code>alt=""</code>) because her name is printed beside it; without a photo the initials show.</span></div>
         <details class="ds-example__code"><summary>HTML</summary><pre><code>&lt;span class="avatar avatar--sm avatar--sky" aria-hidden="true"&gt;GO&lt;img class="avatar__img" src="…" alt=""&gt;&lt;/span&gt;</code></pre></details>
       </div>
       <h3>Avatar trigger</h3>
       <div class="ds-example">
-        <div class="ds-example__canvas"><button class="avatar-trigger" type="button" aria-haspopup="menu" aria-label="Account menu for Grace Okonkwo"><span class="avatar avatar--sm avatar--sky" aria-hidden="true">GO</span></button></div>
+        <div class="ds-example__canvas"><button class="avatar-trigger" type="button" aria-haspopup="menu" aria-label="Account menu for Grace Okonkwo"><span class="avatar avatar--sm avatar--sky" aria-hidden="true">GO<img class="avatar__img" src="../assets/photos/people/grace-okonkwo.jpg" alt=""></span></button></div>
         <div class="ds-example__caption"><span>The top-bar account menu button. <code>.avatar-trigger</code> removes the underline and gives the avatar inside a hover ring. In the Angular component the trigger draws its initials with CSS (<code>data-initials</code>), so the button’s only text is its label (WCAG 2.5.3, label in name).</span></div>
         <details class="ds-example__code"><summary>HTML</summary><pre><code>&lt;button class="avatar-trigger" type="button" aria-haspopup="menu" aria-label="Account menu for Grace Okonkwo"&gt;
   &lt;span class="avatar avatar--sm avatar--sky" aria-hidden="true"&gt;GO&lt;/span&gt;
@@ -150,12 +150,12 @@
     <section class="ds-section" id="sizes"><h2><a href="#sizes">Sizes</a></h2>
       <p>The mocks use two sizes: small wherever a name sits in a row, and extra large at the head of a profile. Medium and large exist in the CSS but no FaithTech mock uses them.</p>
       <div class="ds-example">
-        <div class="ds-example__canvas"><span class="avatar avatar--sm avatar--mint" aria-hidden="true">SM</span><span class="avatar avatar--mint" aria-hidden="true">SM</span><span class="avatar avatar--lg avatar--mint" aria-hidden="true">SM</span><span class="avatar avatar--xl avatar--mint" aria-hidden="true">SM</span></div>
+        <div class="ds-example__canvas"><span class="avatar avatar--sm avatar--mint" aria-hidden="true">SM<img class="avatar__img" src="../assets/photos/people/samuel-mensah.jpg" alt=""></span><span class="avatar avatar--mint" aria-hidden="true">SM<img class="avatar__img" src="../assets/photos/people/samuel-mensah.jpg" alt=""></span><span class="avatar avatar--lg avatar--mint" aria-hidden="true">SM<img class="avatar__img" src="../assets/photos/people/samuel-mensah.jpg" alt=""></span><span class="avatar avatar--xl avatar--mint" aria-hidden="true">SM<img class="avatar__img" src="../assets/photos/people/samuel-mensah.jpg" alt=""></span></div>
         <div class="ds-example__caption"><span>Small (<code>--size-avatar-sm</code>: rows, feeds, top bar), medium, large, and extra large (<code>--size-avatar-xl</code>: the profile head).</span></div>
       </div>
       <h3>Extra large on a profile</h3>
       <div class="ds-example">
-        <div class="ds-example__canvas"><div class="cluster"><span class="avatar avatar--xl avatar--mint" aria-hidden="true">SM</span><div class="stack"><b>Samuel Mensah</b><div class="cluster"><span class="badge badge--role">Create Lead</span><span class="badge badge--role">Product Engineer</span></div></div></div></div>
+        <div class="ds-example__canvas"><div class="cluster"><span class="avatar avatar--xl avatar--mint" aria-hidden="true">SM<img class="avatar__img" src="../assets/photos/people/samuel-mensah.jpg" alt=""></span><div class="stack"><b>Samuel Mensah</b><div class="cluster"><span class="badge badge--role">Create Lead</span><span class="badge badge--role">Product Engineer</span></div></div></div></div>
         <div class="ds-example__caption"><span>As on Samuel Mensah's profile. The name is the page's heading, so the avatar stays hidden from assistive technology.</span></div>
       </div>
     </section>
@@ -165,12 +165,12 @@
       <div class="ds-matrix"><table>
         <thead><tr><th scope="col">Element</th><th scope="col">Default</th><th scope="col">Hover</th><th scope="col">Focus</th><th scope="col">Loading</th></tr></thead>
         <tbody>
-          <tr><th scope="row">Trigger</th><td><button class="avatar-trigger" type="button" aria-haspopup="menu" aria-label="Account menu for Grace Okonkwo"><span class="avatar avatar--sm avatar--sky" aria-hidden="true">GO</span></button></td><td><button class="avatar-trigger" type="button" aria-haspopup="menu" aria-label="Account menu for Grace Okonkwo" data-state="hover"><span class="avatar avatar--sm avatar--sky" aria-hidden="true">GO</span></button></td><td><button class="avatar-trigger" type="button" aria-haspopup="menu" aria-label="Account menu for Grace Okonkwo" data-state="focus"><span class="avatar avatar--sm avatar--sky" aria-hidden="true">GO</span></button></td><td><span class="skeleton avatar avatar--sm" aria-hidden="true"></span></td></tr>
-          <tr><th scope="row">Profile head</th><td><span class="avatar avatar--xl avatar--sky" aria-hidden="true">GO</span></td><td>None</td><td>None</td><td><span class="skeleton avatar avatar--xl" aria-hidden="true"></span></td></tr>
+          <tr><th scope="row">Trigger</th><td><button class="avatar-trigger" type="button" aria-haspopup="menu" aria-label="Account menu for Grace Okonkwo"><span class="avatar avatar--sm avatar--sky" aria-hidden="true">GO<img class="avatar__img" src="../assets/photos/people/grace-okonkwo.jpg" alt=""></span></button></td><td><button class="avatar-trigger" type="button" aria-haspopup="menu" aria-label="Account menu for Grace Okonkwo" data-state="hover"><span class="avatar avatar--sm avatar--sky" aria-hidden="true">GO<img class="avatar__img" src="../assets/photos/people/grace-okonkwo.jpg" alt=""></span></button></td><td><button class="avatar-trigger" type="button" aria-haspopup="menu" aria-label="Account menu for Grace Okonkwo" data-state="focus"><span class="avatar avatar--sm avatar--sky" aria-hidden="true">GO<img class="avatar__img" src="../assets/photos/people/grace-okonkwo.jpg" alt=""></span></button></td><td><span class="skeleton avatar avatar--sm" aria-hidden="true"></span></td></tr>
+          <tr><th scope="row">Profile head</th><td><span class="avatar avatar--xl avatar--sky" aria-hidden="true">GO<img class="avatar__img" src="../assets/photos/people/grace-okonkwo.jpg" alt=""></span></td><td>None</td><td>None</td><td><span class="skeleton avatar avatar--xl" aria-hidden="true"></span></td></tr>
         </tbody>
       </table></div>
       <h3>Both themes</h3>
-      <div class="ds-themes"><div data-theme="light"><div class="cluster"><span class="avatar avatar--sky" aria-hidden="true">GO</span><span class="avatar avatar--mint" aria-hidden="true">SM</span><span class="avatar" aria-hidden="true">AB</span><button class="avatar-trigger" type="button" aria-haspopup="menu" aria-label="Account menu for Grace Okonkwo" data-state="hover"><span class="avatar avatar--sm avatar--sky" aria-hidden="true">GO</span></button></div></div><div data-theme="dark"><div class="cluster"><span class="avatar avatar--sky" aria-hidden="true">GO</span><span class="avatar avatar--mint" aria-hidden="true">SM</span><span class="avatar" aria-hidden="true">AB</span><button class="avatar-trigger" type="button" aria-haspopup="menu" aria-label="Account menu for Grace Okonkwo" data-state="hover"><span class="avatar avatar--sm avatar--sky" aria-hidden="true">GO</span></button></div></div></div>
+      <div class="ds-themes"><div data-theme="light"><div class="cluster"><span class="avatar avatar--sky" aria-hidden="true">GO<img class="avatar__img" src="../assets/photos/people/grace-okonkwo.jpg" alt=""></span><span class="avatar avatar--mint" aria-hidden="true">SM<img class="avatar__img" src="../assets/photos/people/samuel-mensah.jpg" alt=""></span><span class="avatar" aria-hidden="true">AB<img class="avatar__img" src="../assets/photos/people/abby-brooks.jpg" alt=""></span><button class="avatar-trigger" type="button" aria-haspopup="menu" aria-label="Account menu for Grace Okonkwo" data-state="hover"><span class="avatar avatar--sm avatar--sky" aria-hidden="true">GO<img class="avatar__img" src="../assets/photos/people/grace-okonkwo.jpg" alt=""></span></button></div></div><div data-theme="dark"><div class="cluster"><span class="avatar avatar--sky" aria-hidden="true">GO<img class="avatar__img" src="../assets/photos/people/grace-okonkwo.jpg" alt=""></span><span class="avatar avatar--mint" aria-hidden="true">SM<img class="avatar__img" src="../assets/photos/people/samuel-mensah.jpg" alt=""></span><span class="avatar" aria-hidden="true">AB<img class="avatar__img" src="../assets/photos/people/abby-brooks.jpg" alt=""></span><button class="avatar-trigger" type="button" aria-haspopup="menu" aria-label="Account menu for Grace Okonkwo" data-state="hover"><span class="avatar avatar--sm avatar--sky" aria-hidden="true">GO<img class="avatar__img" src="../assets/photos/people/grace-okonkwo.jpg" alt=""></span></button></div></div></div>
       <ul>
         <li><b>Hover</b> draws a 2px ring in <code>--color-border-strong</code> around the avatar.</li>
         <li><b>Focus</b> uses the shared focus ring on the round link.</li>
@@ -213,17 +213,17 @@
     <section class="ds-section" id="content"><h2><a href="#content">Content</a></h2>
       <ul>
         <li>Initials are the first letters of the first and last name, in capitals: "GO" for Grace Okonkwo, "TO" for Tomás Ortega.</li>
-        <li>A private contact gets initials the same way ("AB" for Abby Brooks) on the plain avatar until they sign up.</li>
+        <li>A private contact gets initials the same way ("AB" for Abby Brooks) on the plain avatar, behind their photo.</li>
         <li>The trigger's label says what it opens and whose it is: "Account menu for Grace Okonkwo".</li>
       </ul>
     </section>
 
     <section class="ds-section" id="do-dont"><h2><a href="#do-dont">Do and don't</a></h2>
       <div class="ds-dodont">
-        <figure class="ds-do"><div class="ds-example__canvas"><span class="avatar avatar--sm avatar--sky" aria-hidden="true">GO</span><span>Grace Okonkwo</span></div><figcaption>Hide the avatar and print the name beside it.</figcaption></figure>
-        <figure class="ds-dont"><div class="ds-example__canvas"><span class="avatar avatar--sm avatar--sky" role="img" aria-label="GO">GO</span></div><figcaption>An avatar on its own, labelled with initials: screen readers hear "G O", not Grace.</figcaption></figure>
-        <figure class="ds-do"><div class="ds-example__canvas"><span class="avatar avatar--sm avatar--mint" aria-hidden="true">SM</span><span>Samuel Mensah</span></div><figcaption>Keep Samuel mint on every screen.</figcaption></figure>
-        <figure class="ds-dont"><div class="ds-example__canvas"><span class="avatar avatar--sm avatar--rose" aria-hidden="true">SM</span><span>Samuel Mensah</span></div><figcaption>Changing a person's colour from one screen to the next.</figcaption></figure>
+        <figure class="ds-do"><div class="ds-example__canvas"><span class="avatar avatar--sm avatar--sky" aria-hidden="true">GO<img class="avatar__img" src="../assets/photos/people/grace-okonkwo.jpg" alt=""></span><span>Grace Okonkwo</span></div><figcaption>Hide the avatar and print the name beside it.</figcaption></figure>
+        <figure class="ds-dont"><div class="ds-example__canvas"><span class="avatar avatar--sm avatar--sky" role="img" aria-label="GO">GO<img class="avatar__img" src="../assets/photos/people/grace-okonkwo.jpg" alt=""></span></div><figcaption>An avatar on its own, labelled with initials: screen readers hear "G O", not Grace.</figcaption></figure>
+        <figure class="ds-do"><div class="ds-example__canvas"><span class="avatar avatar--sm avatar--mint" aria-hidden="true">SM<img class="avatar__img" src="../assets/photos/people/samuel-mensah.jpg" alt=""></span><span>Samuel Mensah</span></div><figcaption>Keep Samuel mint on every screen.</figcaption></figure>
+        <figure class="ds-dont"><div class="ds-example__canvas"><span class="avatar avatar--sm avatar--rose" aria-hidden="true">SM<img class="avatar__img" src="../assets/photos/people/samuel-mensah.jpg" alt=""></span><span>Samuel Mensah</span></div><figcaption>Changing a person's colour from one screen to the next.</figcaption></figure>
       </div>
     </section>
 

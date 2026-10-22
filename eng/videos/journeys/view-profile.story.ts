@@ -1,7 +1,7 @@
 import { expect, test } from '../../../e2e/fixtures/app';
 import { AppShell } from '../../../e2e/pages/app-shell.page';
 import { ProfilePage } from '../../../e2e/pages/profile.page';
-import { drawPicture, SCENE_ALT } from '../photos';
+import { loadPicture, SCENE_ALT } from '../photos';
 import { Presenter } from '../presenter';
 
 // Journey: view profiles (docs/detailed-designs/profiles/view-profile, L2-005, L2-007).
@@ -10,11 +10,11 @@ test('view-profile', async ({ page, api }) => {
   const shell = new AppShell(page);
   const profile = new ProfilePage(page);
   const leah = api.addAccount({ name: 'Leah Thompson', email: 'leah@example.org' });
-  const [sunset, skyline, workshop] = await Promise.all([
-    drawPicture(page, 'sunset'),
-    drawPicture(page, 'skyline'),
-    drawPicture(page, 'workshop'),
-  ]);
+  const [portrait, pairing, whiteboard] = [
+    loadPicture('samuel-mensah'),
+    loadPicture('hackathon-pairing'),
+    loadPicture('whiteboard-talk'),
+  ];
   api.addProfile({
     id: 'samuel',
     name: 'Samuel Mensah',
@@ -24,22 +24,22 @@ test('view-profile', async ({ page, api }) => {
     photos: [
       {
         id: 'p1',
-        url: workshop.dataUrl,
-        altText: SCENE_ALT.workshop,
+        url: portrait.dataUrl,
+        altText: SCENE_ALT['samuel-mensah'],
         isFeatured: true,
         uploadedAt: '2026-10-01T10:00:00Z',
       },
       {
         id: 'p2',
-        url: skyline.dataUrl,
-        altText: SCENE_ALT.skyline,
+        url: pairing.dataUrl,
+        altText: SCENE_ALT['hackathon-pairing'],
         isFeatured: false,
         uploadedAt: '2026-10-05T10:00:00Z',
       },
       {
         id: 'p3',
-        url: sunset.dataUrl,
-        altText: SCENE_ALT.sunset,
+        url: whiteboard.dataUrl,
+        altText: SCENE_ALT['whiteboard-talk'],
         isFeatured: false,
         uploadedAt: '2026-10-09T10:00:00Z',
       },
@@ -51,13 +51,13 @@ test('view-profile', async ({ page, api }) => {
     'opening',
     [
       'See who is in the community',
-      'Recorded against a local fake API · synthetic people and pictures',
+      'Recorded against a local fake API · fictional people, demo photos',
     ],
     () => api.signInAs(leah),
   );
 
   await show.step('own-profile', async () => {
-    await shell.yourProfile('Leah Thompson').click();
+    await shell.openYourProfile('Leah Thompson');
     await expect(profile.heading).toHaveText('Leah Thompson');
     await expect(profile.editProfile).toBeVisible();
     await expect(profile.noPhotos).toBeVisible();

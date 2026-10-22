@@ -62,7 +62,8 @@
               "buildTarget": "faithtech-community:build:production"
             },
             "development": {
-              "buildTarget": "faithtech-community:build:development"
+              "buildTarget": "faithtech-community:build:development",
+              "proxyConfig": "proxy.conf.json"
             }
           },
           "defaultConfiguration": "development"

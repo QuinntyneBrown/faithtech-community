@@ -44,7 +44,7 @@ test('app-shell-tour', async ({ page, api }) => {
     async () => {
       await page.setViewportSize(PHONE);
       await expect(shell.tabBar).toBeVisible();
-      await expect(shell.menuButton).toBeVisible();
+      await expect(shell.moreTab).toBeVisible();
     },
     { position: 'top' },
   );
@@ -52,7 +52,7 @@ test('app-shell-tour', async ({ page, api }) => {
   await show.step(
     'drawer',
     async () => {
-      await shell.menuButton.click();
+      await shell.moreTab.click();
       await expect(shell.drawer).toBeVisible();
       await expect(shell.drawerLink('Announcements')).toBeVisible();
       await page.waitForTimeout(2500);
@@ -64,7 +64,7 @@ test('app-shell-tour', async ({ page, api }) => {
       await page.waitForTimeout(1500);
       await page.keyboard.press('Escape');
       await expect(shell.drawer).toBeHidden();
-      await expect(shell.menuButton).toBeFocused();
+      await expect(shell.moreTab).toBeFocused();
     },
     { position: 'bottom' },
   );

@@ -8,6 +8,7 @@ internal static class Program
     private static async Task<int> Main(string[] args)
     {
         var configuration = new ConfigurationBuilder()
+            .SetBasePath(AppContext.BaseDirectory)
             .AddJsonFile("appsettings.json", optional: true)
             .AddEnvironmentVariables()
             .Build();
