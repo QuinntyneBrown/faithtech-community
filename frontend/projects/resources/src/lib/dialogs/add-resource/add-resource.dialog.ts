@@ -106,6 +106,8 @@ export class AddResourceDialog {
   protected readonly submitted = signal(false);
   protected readonly busy = signal(false);
   protected readonly failed = signal(false);
+  /** Why the server refused the caller, such as an unverified email (L2-057 AC3). */
+  protected readonly refusedReason = signal<string | null>(null);
   protected readonly uploading = signal(0);
   protected readonly added = signal<ResourceDto[]>([]);
   private cancelled = false;
@@ -198,6 +200,7 @@ export class AddResourceDialog {
     if (this.busy()) return;
     this.submitted.set(true);
     this.failed.set(false);
+    this.refusedReason.set(null);
     if (this.mode() === 1) return this.addLink();
     const errors = detailErrors(this.form, this.single());
     this.errors.set(errors);
@@ -244,6 +247,11 @@ export class AddResourceDialog {
           this.errors.set(errors);
           break;
         }
+        if (error instanceof HttpErrorResponse && error.status === 403) {
+          this.update(row, { status: 'ready' });
+          this.refusedReason.set(problemDetails(error)?.detail ?? 'You can’t add resources.');
+          break;
+        }
         this.update(row, { status: 'failed' });
       }
     }
@@ -272,6 +280,8 @@ export class AddResourceDialog {
     } catch (error) {
       if (error instanceof HttpErrorResponse && error.status === 400) {
         this.errors.set(serverErrors(problemDetails(error)?.errors));
+      } else if (error instanceof HttpErrorResponse && error.status === 403) {
+        this.refusedReason.set(problemDetails(error)?.detail ?? 'You can’t add resources.');
       } else {
         this.failed.set(true);
       }

@@ -26,17 +26,12 @@
 
 .subtitle,
 .note,
-.muted,
 .preview__meta {
   color: var(--color-fg-muted);
 }
 
 .subtitle {
   margin: var(--space-1) 0 0;
-}
-
-.muted {
-  font-weight: normal;
 }
 
 ft-banner {

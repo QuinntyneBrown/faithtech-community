@@ -43,7 +43,8 @@ and Agile workspaces with Planning Poker.
 | **Partner pipeline** | One shared Kanban board for all leads: Lead → In Funnel → Confirmed, moved by drag or keyboard with each move recorded. Staff see it read-only. |
 | **Team** | Everyone holding a lead or volunteer role. |
 | **Agile workspaces** | City Leads create Scrum or Kanban workspaces for their leads and volunteers, with an Initiative → Epic → Story → Task hierarchy, sprints and live Planning Poker. |
-| **Global search** | People, events, partners, work items and your own private contacts, filtered by what you are allowed to see. |
+| **Resources** | Decks, logos, images, training and templates as uploaded files (up to 20 at a time, 100 MB each) or https links, with a type, tags and a visibility: Private, Shared with chosen members and roles, or Global. Sharing notifies each recipient; archived resources are purged after 30 days. |
+| **Global search** | People, events, partners, work items, resources and your own private contacts, filtered by what you are allowed to see. |
 | **Announcements** | Send to everyone, to holders of a role, or to an event's RSVP list, in-app and by email (with opt-out). |
 | **Notifications** | In-app bell plus email for the events that matter. |
 | **Invites** | Leads invite people by email with an optional pre-assigned role. Invites expire after 14 days. City Leads also have **My QR code**: a reusable link that never expires (and can be replaced) which lets someone they meet join and become their private contact automatically once their email is verified. |
@@ -57,12 +58,12 @@ A profile can hold several global roles at once. New members start with no role.
 
 | Role | Can do |
 |---|---|
-| **City Lead** | Contacts, partners, team, Agile workspaces, invites and role assignment (except City Lead, Staff and System Admin) |
+| **City Lead** | Contacts, partners, team, Agile workspaces, resources, invites and role assignment (except City Lead, Staff and System Admin) |
 | **Event Lead** | Events |
 | **Create Lead** | Hackathon builders and projects |
 | **Communications Lead** | Announcements |
 | **Volunteer**, **Product Engineer**, **Attendee** | Community membership; volunteers can be added to Agile workspaces |
-| **Staff** | Read-only view of everything except private contacts |
+| **Staff** | Read-only view of everything except private contacts; may add resources and edit, share, archive and restore their own |
 | **System Admin** | Full override, including private contacts; every action is audited |
 
 All permissions are enforced on the server.
@@ -202,7 +203,7 @@ Exact commands will be kept up to date here as each part of the stack is added.
 | HTML mocks for every screen and state | ✅ Done |
 | Requirements (`docs/specs/`) | ✅ Done |
 | Detailed designs and design system | ✅ Done |
-| v1 implementation | 🚧 97% ([estimates](docs/estimates/README.md)): profiles, admin, invites, contacts, partners, team, events, notifications, announcements, Agile workspaces and the marketing page with Google sign-in are built; search, platform and identity are nearly done |
+| v1 implementation | 🚧 97% ([estimates](docs/estimates/README.md)): profiles, admin, invites, contacts, partners, team, events, notifications, announcements, Agile workspaces, resources and the marketing page with Google sign-in are built; search, platform and identity are nearly done |
 | v2: hackathon teams, projects and judging | 🗓️ Later |
 
 ## Accessibility

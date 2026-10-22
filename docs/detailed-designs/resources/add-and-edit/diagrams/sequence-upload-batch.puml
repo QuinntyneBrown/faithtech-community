@@ -21,7 +21,7 @@ box "Frontend — FaithTech Community web app (resources library)" #E0F2FE
 end box
 box "Backend — FaithTech.Community.Api" #D1FADF
   participant "ResourcesEndpoints" as ep
-  participant "ResourceDetailsValidator" as v
+  participant "ResourceFieldRules" as v
 end box
 box "Backend — FaithTech.Community.Application and Domain" #ECFDF3
   participant "AddResourcesHandler" as h

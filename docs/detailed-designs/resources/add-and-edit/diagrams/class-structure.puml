@@ -102,8 +102,8 @@ class EditResourceCommand <<record>> {
 }
 AddLinkCommand --|> ResourceDetails
 EditResourceCommand --|> ResourceDetails
-class ResourceDetailsValidator
-ResourceDetailsValidator ..> ResourceDetails
+class ResourceFieldRules
+ResourceFieldRules ..> ResourceDetails
 class UploadedFile <<record>> {
   +string FileName
   +long Length

@@ -8,6 +8,9 @@
   @if (summary().length) {
     <ft-error-summary [errors]="summary()" action="add this" />
   }
+  @if (refusedReason(); as reason) {
+    <ft-alert status="warning" heading="You can’t add resources yet">{{ reason }}</ft-alert>
+  }
   @if (failed() && mode() === 0) {
     <ft-alert
       status="danger"

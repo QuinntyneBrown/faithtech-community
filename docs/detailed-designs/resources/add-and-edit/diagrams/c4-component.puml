@@ -10,7 +10,7 @@ Container_Boundary(web, "Web app") {
 }
 Container_Boundary(api, "Community API") {
   Component(ep, "ResourcesEndpoints", "ASP.NET Core minimal API", "POST /api/resources, POST /links, PUT /{id}, PUT /{id}/file")
-  Component(val, "ResourceDetailsValidator", "FluentValidation", "Title, description, type, tags, visibility, https link")
+  Component(val, "ResourceFieldRules", "Application", "Title, description, type, tags, visibility, https link")
   Component(addh, "AddResourcesHandler", "Application handler", "1-20 files, contributor, verified email")
   Component(linkh, "AddLinkHandler", "Application handler", "One https link")
   Component(edith, "EditResourceHandler", "Application handler", "Owner or System Admin; Touch; audit override")

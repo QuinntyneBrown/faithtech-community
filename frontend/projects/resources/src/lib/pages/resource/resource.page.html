@@ -56,7 +56,7 @@
           </ft-button>
         } @else {
           <ft-button variant="primary" (click)="download()">
-            <ft-icon name="download" /> Download <span class="muted">{{ downloadText() }}</span>
+            <ft-icon name="download" /> Download {{ downloadText() }}
           </ft-button>
         }
         @if (r.canEdit && !r.archivedAt) {
