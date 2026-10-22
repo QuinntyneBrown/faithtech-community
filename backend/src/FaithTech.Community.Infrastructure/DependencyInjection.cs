@@ -20,6 +20,8 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
+using Microsoft.IdentityModel.Protocols;
+using Microsoft.IdentityModel.Protocols.OpenIdConnect;
 
 namespace FaithTech.Community.Infrastructure;
 
@@ -62,6 +64,15 @@ public static class DependencyInjection
             client.Timeout = TimeSpan.FromSeconds(3);
             client.DefaultRequestHeaders.Add("Add-Padding", "true");
         });
+        // Google sign-in (ADR 0018): Google's signing keys come from its discovery document, refreshed by the manager.
+        services.Configure<GoogleOptions>(configuration.GetSection(GoogleOptions.Section));
+        services.AddSingleton<IConfigurationManager<OpenIdConnectConfiguration>>(_ =>
+            new ConfigurationManager<OpenIdConnectConfiguration>(
+                GoogleIdTokenValidator.DiscoveryDocument,
+                new OpenIdConnectConfigurationRetriever(),
+                new HttpDocumentRetriever { RequireHttps = true }));
+        services.AddSingleton<GoogleIdTokenValidator>();
+        services.AddHttpClient<IGoogleIdentityProvider, GoogleIdentityProvider>(client => client.Timeout = TimeSpan.FromSeconds(10));
         services.AddScoped<IVerificationResendLog, VerificationResendLog>();
         services.AddScoped<ITokenRevocation, TokenRevocation>();
         services.Configure<SmtpOptions>(configuration.GetSection(SmtpOptions.Section));

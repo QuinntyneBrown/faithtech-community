@@ -47,6 +47,8 @@ public class CommunityApiFactory : WebApplicationFactory<Program>, IAsyncLifetim
 
     public FakeAgileNotifier Live { get; } = new();
 
+    public FakeGoogleIdentityProvider Google { get; } = new();
+
     public async Task InitializeAsync()
     {
         await using var scope = Services.CreateAsyncScope();
@@ -82,6 +84,7 @@ public class CommunityApiFactory : WebApplicationFactory<Program>, IAsyncLifetim
             services.AddSingleton<IBoardNotifier>(Live);
             services.AddSingleton<IPokerBroadcaster>(Live);
             services.AddSingleton<IFullTextSearch, InMemoryFullTextSearch>();
+            services.AddSingleton<IGoogleIdentityProvider>(Google);
         });
     }
 
