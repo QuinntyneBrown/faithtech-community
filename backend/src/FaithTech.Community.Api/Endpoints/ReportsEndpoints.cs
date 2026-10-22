@@ -1,3 +1,4 @@
+using System.Text;
 using FaithTech.Community.Application.Reports;
 
 namespace FaithTech.Community.Api.Endpoints;
@@ -13,6 +14,14 @@ public static class ReportsEndpoints
         {
             var (result, report) = await handler.HandleAsync(new GetReportQuery(city, period), cancellationToken);
             return result.ToHttp(() => Results.Ok(report));
+        });
+
+        // UTF-8 with a byte-order mark, so spreadsheet apps read accented names (L2-103).
+        reports.MapGet("/export.csv", async (string? city, string? period, ExportReportHandler handler, CancellationToken cancellationToken) =>
+        {
+            var (result, file) = await handler.HandleAsync(new GetReportQuery(city, period), cancellationToken);
+            return result.ToHttp(() => Results.File(
+                [.. Encoding.UTF8.GetPreamble(), .. Encoding.UTF8.GetBytes(file!.Content)], "text/csv; charset=utf-8", file.FileName));
         });
 
         return app;

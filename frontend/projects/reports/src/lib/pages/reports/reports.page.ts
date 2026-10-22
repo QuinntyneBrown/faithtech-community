@@ -43,10 +43,13 @@ import {
   StatComponent,
   TableColumn,
   TableComponent,
+  ToastService,
   formatDay,
   formatTime,
 } from '@faithtech-community/components';
 import { firstValueFrom } from 'rxjs';
+
+import { reportFileName, saveFile } from '../../download';
 
 type State = 'loading' | 'loaded' | 'error' | 'forbidden';
 
@@ -101,6 +104,7 @@ export class ReportsPage {
   private readonly service = inject(REPORTS_SERVICE);
   private readonly router = inject(Router);
   private readonly breakpoints = inject(BreakpointService);
+  private readonly toasts = inject(ToastService);
 
   /** Query parameters. */
   readonly city = input<string | undefined>();
@@ -110,6 +114,7 @@ export class ReportsPage {
   protected readonly report = signal<ReportDto | null>(null);
   /** The URL held a city or period the server refused, so the defaults are shown (L2-099 AC5). */
   protected readonly fellBack = signal(false);
+  protected readonly exporting = signal(false);
   protected readonly cityControl = new FormControl('', { nonNullable: true });
   protected readonly periodControl = new FormControl<ReportPeriod>(DEFAULT_PERIOD, {
     nonNullable: true,
@@ -258,6 +263,29 @@ export class ReportsPage {
   protected apply(): void {
     this.fellBack.set(false);
     this.go(this.cityControl.value || null, this.periodControl.value);
+  }
+
+  /** Downloads the report shown as CSV; Export CSV stays busy until it is saved (L2-103 AC4). */
+  protected async exportCsv(): Promise<void> {
+    const r = this.report();
+    if (!r || this.exporting()) return;
+    this.exporting.set(true);
+    try {
+      const filters: ReportFilters = { city: r.city, period: r.period };
+      saveFile(
+        await firstValueFrom(this.service.exportCsv(filters)),
+        reportFileName(r.city, r.period, r.to),
+      );
+    } catch {
+      this.toasts.show({
+        variant: 'danger',
+        heading: 'Couldn’t export the report. Try again.',
+        actionLabel: 'Try again',
+        onAction: () => void this.exportCsv(),
+      });
+    } finally {
+      this.exporting.set(false);
+    }
   }
 
   protected retry(): void {

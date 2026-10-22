@@ -75,6 +75,8 @@ export interface ReportDto {
 export interface ReportsService {
   /** Staff and System Admins; 403 for everyone else; 400 for an unknown city or period. */
   getReport(filters: ReportFilters): Observable<ReportDto>;
+  /** The same report as CSV, one section after another, for Staff and System Admins (L2-103). */
+  exportCsv(filters: ReportFilters): Observable<Blob>;
 }
 
 export const REPORTS_SERVICE = new InjectionToken<ReportsService>('REPORTS_SERVICE');

@@ -20,6 +20,21 @@ export type ReportPeriod = 'last-30-days' | 'last-90-days' | 'this-year' | 'all-
 const PERIODS: ReportPeriod[] = ['last-30-days', 'last-90-days', 'this-year', 'all-time'];
 const DAY = 24 * 60 * 60 * 1000;
 const NO_CITY = 'No city';
+const PERIOD_LABELS: Record<ReportPeriod, string> = {
+  'last-30-days': 'Last 30 days',
+  'last-90-days': 'Last 90 days',
+  'this-year': 'This year',
+  'all-time': 'All time',
+};
+
+/** EventFileNames.Slug: lower-case letters and digits joined by hyphens. */
+const citySlug = (city: string) =>
+  city
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '')
+    .slice(0, 60)
+    .replace(/-+$/, '') || 'event';
 const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 
 export interface MockReport {
@@ -79,7 +94,8 @@ export class MockReports {
     url: URL,
     caller: MockAccount | null,
   ): Promise<void> | false {
-    if (method !== 'GET' || url.pathname !== '/api/reports') return false;
+    const exporting = url.pathname === '/api/reports/export.csv';
+    if (method !== 'GET' || (url.pathname !== '/api/reports' && !exporting)) return false;
     if (!caller) return route.fulfill({ status: 401 });
     if (!caller.roles.some((r) => r === 'Staff' || r === 'SystemAdmin')) {
       return route.fulfill({ status: 403 });
@@ -95,7 +111,91 @@ export class MockReports {
         },
       });
     }
-    return route.fulfill({ json: result });
+    if (!exporting) return route.fulfill({ json: result });
+    const date = this.context.now.toISOString().slice(0, 10);
+    const slug = result.city ? citySlug(result.city) : 'all-cities';
+    return route.fulfill({
+      status: 200,
+      headers: {
+        'content-disposition': `attachment; filename=faithtech-report-${slug}-${result.period}-${date}.csv`,
+      },
+      contentType: 'text/csv; charset=utf-8',
+      body: '\uFEFF' + this.csv(result),
+    });
+  }
+
+  /** ExportReportHandler's sections, through CsvWriter's rules: every cell quoted, CRLF, a formula guard. */
+  csv(report: MockReport): string {
+    const minute = (iso: string | null) => (iso ? iso.slice(0, 16).replace('T', ' ') : null);
+    const text = (n: number | null) => (n === null ? null : String(n));
+    const f = report.figures;
+    const period = PERIOD_LABELS[report.period];
+    const describe = period.toLowerCase();
+    const rows: (string | null)[][] = [
+      ['Report', 'FaithTech Community Reports'],
+      ['City', report.city ?? 'All cities'],
+      ['Period', period],
+      ['From (UTC)', minute(report.from)],
+      ['To (UTC)', minute(report.to)],
+      ['Generated (UTC)', minute(report.to)],
+      [],
+      ['Figures'],
+      ['Figure', 'Value', 'Context'],
+      [
+        'Members',
+        text(f.members.value),
+        f.members.newInPeriod === null ? null : `${f.members.newInPeriod} new in the ${describe}`,
+      ],
+      ['Events held', text(f.eventsHeld.value), `${f.eventsHeld.cancelled} cancelled`],
+      [
+        'RSVPs',
+        text(f.rsvps.value),
+        f.rsvps.checkedInPercent === null ? null : `${f.rsvps.checkedInPercent}% checked in`,
+      ],
+      [
+        'Partners confirmed',
+        text(f.partnersConfirmed.value),
+        `of ${f.partnersConfirmed.inPipeline} in the pipeline`,
+      ],
+      ['Announcements', text(f.announcements.value), 'sent by leads'],
+      [],
+      ['Members by city'],
+      ['City', 'Members'],
+      ...report.membersByCity.map((r) => [r.label, text(r.value)]),
+      [],
+      ['New members by month'],
+      ['Month', 'New members'],
+      ...report.newMembersByMonth.map((m) => [
+        m.soFar ? `${m.label} (so far)` : m.label,
+        text(m.value),
+      ]),
+      [],
+      ['Partner pipeline by city'],
+      ['City', 'Lead', 'In funnel', 'Confirmed'],
+      ...report.partnerPipeline.map((r) => [
+        r.city,
+        text(r.lead),
+        text(r.inFunnel),
+        text(r.confirmed),
+      ]),
+      [],
+      ['Events and attendance'],
+      ['Event', 'Date (UTC)', 'City', 'Status', 'Going', 'Checked in', 'Checked in %'],
+      ...report.events.map((e) => [
+        e.title,
+        minute(e.startsAt),
+        e.city,
+        e.status,
+        text(e.going),
+        text(e.checkedIn),
+        text(e.checkedInPercent),
+      ]),
+    ];
+    const cell = (value: string | null) => {
+      const guarded = /^[=+\-@\t\r]/.test(value ?? '') ? `'${value}` : (value ?? '');
+      return `"${guarded.replace(/"/g, '""')}"`;
+    };
+    return rows.map((row) => row.map(cell).join(',') + '\r\n').join('');
   }
 
   /** The report for the filters, or the filter the server refuses. */

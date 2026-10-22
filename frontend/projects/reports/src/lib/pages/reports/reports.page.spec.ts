@@ -3,6 +3,7 @@ import { HttpErrorResponse } from '@angular/common/http';
 import { TestBed } from '@angular/core/testing';
 import { Router, provideRouter } from '@angular/router';
 import { REPORTS_SERVICE, ReportDto } from '@faithtech-community/api';
+import { ToastService } from '@faithtech-community/components';
 import { Observable, of, throwError } from 'rxjs';
 
 import { ReportsPage } from './reports.page';
@@ -44,10 +45,18 @@ function report(overrides: Partial<ReportDto> = {}): ReportDto {
   };
 }
 
-async function setup(get: () => Observable<ReportDto> = () => of(report())) {
-  const service = { getReport: vi.fn(get) };
+async function setup(
+  get: () => Observable<ReportDto> = () => of(report()),
+  exportCsv: () => Observable<Blob> = () => of(new Blob(['csv'])),
+) {
+  const service = { getReport: vi.fn(get), exportCsv: vi.fn(exportCsv) };
+  const toasts = { show: vi.fn() };
   TestBed.configureTestingModule({
-    providers: [provideRouter([]), { provide: REPORTS_SERVICE, useValue: service }],
+    providers: [
+      provideRouter([]),
+      { provide: REPORTS_SERVICE, useValue: service },
+      { provide: ToastService, useValue: toasts },
+    ],
   });
   const router = TestBed.inject(Router);
   const navigate = vi.spyOn(router, 'navigate').mockResolvedValue(true);
@@ -60,7 +69,7 @@ async function setup(get: () => Observable<ReportDto> = () => of(report())) {
   };
   await settle();
   const text = () => (fixture.nativeElement as HTMLElement).textContent!.replace(/\s+/g, ' ');
-  return { fixture, service, navigate, settle, text };
+  return { fixture, service, toasts, navigate, settle, text };
 }
 
 describe('ReportsPage', () => {
@@ -134,4 +143,42 @@ describe('ReportsPage', () => {
 
     expect(text()).toContain('Nothing to report for Calgary in the last 30 days');
   });
+
+  it('exports the report shown, under the server file name', async () => {
+    URL.createObjectURL = vi.fn(() => 'blob:report');
+    URL.revokeObjectURL = vi.fn();
+    const click = vi
+      .spyOn(HTMLAnchorElement.prototype, 'click')
+      .mockImplementation(() => undefined);
+    const { fixture, service, settle } = await setup(() => of(report({ city: 'Toronto' })));
+
+    exportButton(fixture.nativeElement).click();
+    await settle();
+
+    expect(service.exportCsv).toHaveBeenCalledWith({ city: 'Toronto', period: 'last-30-days' });
+    const link = click.mock.contexts[0] as HTMLAnchorElement;
+    expect(link.download).toBe('faithtech-report-toronto-last-30-days-2026-10-21.csv');
+    click.mockRestore();
+  });
+
+  it('offers Try again in a danger toast when the export fails', async () => {
+    const { fixture, toasts, settle } = await setup(undefined, () =>
+      throwError(() => new HttpErrorResponse({ status: 500 })),
+    );
+
+    exportButton(fixture.nativeElement).click();
+    await settle();
+
+    expect(toasts.show).toHaveBeenCalledWith(
+      expect.objectContaining({
+        variant: 'danger',
+        heading: 'Couldn’t export the report. Try again.',
+        actionLabel: 'Try again',
+      }),
+    );
+  });
 });
+
+function exportButton(root: HTMLElement): HTMLButtonElement {
+  return [...root.querySelectorAll('button')].find((b) => b.textContent!.includes('Export CSV'))!;
+}

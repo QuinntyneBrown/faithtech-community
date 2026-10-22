@@ -22,6 +22,14 @@ export class HttpReportsService implements ReportsService {
     });
   }
 
+  exportCsv(filters: ReportFilters): Observable<Blob> {
+    return this.http.get(`${this.api}/reports/export.csv`, {
+      params: this.params(filters),
+      responseType: 'blob',
+      context: this.page,
+    });
+  }
+
   private params(filters: ReportFilters): HttpParams {
     return new HttpParams().set('city', filters.city ?? '').set('period', filters.period);
   }

@@ -36,4 +36,13 @@ describe('HttpReportsService', () => {
 
     controller.expectOne('/api/reports?city=&period=last-30-days').flush({});
   });
+
+  it('downloads the CSV for the same filters as a blob, leaving failures to the page', () => {
+    service.exportCsv({ city: 'Toronto', period: 'all-time' }).subscribe();
+
+    const req = controller.expectOne('/api/reports/export.csv?city=Toronto&period=all-time');
+    expect(req.request.responseType).toBe('blob');
+    expect(req.request.context.get(HANDLES_SERVER_ERROR)).toBe(true);
+    req.flush(new Blob(['csv']));
+  });
 });

@@ -34,6 +34,15 @@
           <ft-select [options]="periods" [formControl]="periodControl" />
         </ft-form-field>
         <ft-button type="submit">Apply</ft-button>
+        <ft-button
+          ftFilterBarEnd
+          variant="ghost"
+          [loading]="exporting()"
+          [disabled]="!report()"
+          (click)="exportCsv()"
+        >
+          <ft-icon name="export" /> {{ exporting() ? 'Exporting…' : 'Export CSV' }}
+        </ft-button>
       </ft-filter-bar>
     </form>
 

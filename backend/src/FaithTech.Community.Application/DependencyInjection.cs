@@ -99,6 +99,7 @@ public static class DependencyInjection
         services.AddScoped<ExportCheckInsHandler>();
         services.AddScoped<ReportAccess>();
         services.AddScoped<GetReportHandler>();
+        services.AddScoped<ExportReportHandler>();
         services.AddScoped<PublicEventsHandler>();
         services.AddScoped<GetEventCalendarHandler>();
         services.AddScoped<CancelEventHandler>();

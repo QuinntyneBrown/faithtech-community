@@ -8,3 +8,6 @@ public interface ICsvWriter
 {
     string Write(IEnumerable<IReadOnlyList<string?>> rows);
 }
+
+/// <summary>A CSV download: the file name and its text.</summary>
+public record CsvFile(string FileName, string Content);

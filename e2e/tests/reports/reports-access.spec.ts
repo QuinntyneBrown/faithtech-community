@@ -23,7 +23,7 @@ test.describe('Reports access', () => {
 
       await expect(reports.heading).toHaveText('Reports');
       await expect(reports.figure('Members')).toContainText('9');
-      await expect(page.getByRole('main').getByRole('button')).toHaveText(['Apply']);
+      await expect(page.getByRole('main').getByRole('button')).toHaveText(['Apply', 'Export CSV']);
       const writes = api.calls.filter(
         (c) =>
           c.method !== 'GET' && c.path.startsWith('/api/') && !c.path.startsWith('/api/account/'),

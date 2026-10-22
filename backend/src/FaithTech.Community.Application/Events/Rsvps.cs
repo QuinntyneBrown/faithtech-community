@@ -9,9 +9,6 @@ using Microsoft.Extensions.Options;
 
 namespace FaithTech.Community.Application.Events;
 
-/// <summary>A CSV download: the file name and its text.</summary>
-public record CsvFile(string FileName, string Content);
-
 /// <summary>
 /// Member RSVPs (L2-022): RSVP with an in-app and email confirmation carrying the .ics, cancel and RSVP again before
 /// the event, and the CSV export for leads and System Admins. A cancelled, started or full event refuses new RSVPs.
