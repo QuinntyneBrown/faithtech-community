@@ -56,6 +56,14 @@ export const SECTIONS: readonly Section[] = [
     secondary: true,
     opens: anyone,
   },
+  // Docs & notes: block-based pages, for every signed-in member (L2-085).
+  {
+    label: 'Notes',
+    href: '/notes',
+    icon: 'notes',
+    secondary: true,
+    opens: anyone,
+  },
   // The people directory (L2-053).
   {
     label: 'People',

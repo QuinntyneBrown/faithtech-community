@@ -1,0 +1,15 @@
+:host {
+  display: block;
+  max-inline-size: 48rem;
+  margin-block-start: var(--space-4);
+}
+
+.head {
+  margin-block: var(--space-4);
+}
+
+.loading {
+  display: grid;
+  gap: var(--space-3);
+  margin-block-start: var(--space-4);
+}

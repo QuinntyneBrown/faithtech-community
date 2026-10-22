@@ -5,6 +5,7 @@ using FaithTech.Community.Domain.Announcements;
 using FaithTech.Community.Domain.Contacts;
 using FaithTech.Community.Domain.Events;
 using FaithTech.Community.Domain.Invites;
+using FaithTech.Community.Domain.Notes;
 using FaithTech.Community.Domain.Notifications;
 using FaithTech.Community.Domain.Partners;
 using FaithTech.Community.Domain.Profiles;
@@ -55,6 +56,8 @@ public interface IApplicationDbContext
     DbSet<Resource> Resources { get; }
 
     DbSet<ResourceBlobTask> ResourceBlobTasks { get; }
+
+    DbSet<NotePage> NotePages { get; }
 
     Task<int> SaveChangesAsync(CancellationToken cancellationToken = default);
 }

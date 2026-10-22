@@ -2,6 +2,7 @@ export * from './alert';
 export * from './auth-forms';
 export * from './avatar';
 export * from './badge';
+export * from './block-editor';
 export * from './breadcrumb';
 export * from './breakpoint';
 export * from './button';

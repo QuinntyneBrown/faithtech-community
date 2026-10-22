@@ -1,0 +1,82 @@
+<ft-page-header title="Notes" [subtitle]="subtitle()">
+  <ft-cluster ftPageHeaderActions gap="2">
+    <ft-button variant="ghost" href="/notes/archived">
+      <ft-icon name="archive" /> Archived
+    </ft-button>
+    <ft-button variant="primary" [loading]="creating()" (click)="create()">
+      <ft-icon name="add" /> New page
+    </ft-button>
+  </ft-cluster>
+</ft-page-header>
+
+<div class="filters" role="search">
+  <ft-form-field label="Search notes" [labelHidden]="true" class="search">
+    <ft-text-field type="search" placeholder="Search page titles and text" [formControl]="search" />
+  </ft-form-field>
+  <ft-chip-group label="Owner" class="owners">
+    @for (o of owners; track o.id) {
+      <ft-chip [pressed]="owner() === o.id" (click)="chooseOwner(o.id)">{{ o.label }}</ft-chip>
+    }
+  </ft-chip-group>
+</div>
+
+@switch (state()) {
+  @case ('loading') {
+    <ft-list-skeleton label="Loading notes" [rows]="5" />
+  }
+  @case ('error') {
+    <ft-empty-state
+      variant="error"
+      heading="We couldn’t load notes"
+      text="Check your connection and try again. If it keeps happening, we’ve already been told about it."
+    >
+      <ft-button actions variant="primary" (click)="retry()">
+        <ft-icon name="try-again" /> Try again
+      </ft-button>
+    </ft-empty-state>
+  }
+  @case ('loaded') {
+    @if (items().length === 0 && filtered()) {
+      <ft-empty-state
+        icon="search"
+        [heading]="'No pages match “' + term() + '”'"
+        text="Search looks at page titles and the text on each page. Try another word, or clear the search."
+      >
+        <ft-button actions (click)="clearSearch()">Clear search</ft-button>
+      </ft-empty-state>
+    } @else if (items().length === 0) {
+      <ft-empty-state
+        icon="notes"
+        heading="No pages yet"
+        text="Write down the run sheet, the checklist or the meeting notes you keep sending people, so your team can find them here."
+      >
+        <ft-button actions variant="primary" [loading]="creating()" (click)="create()"
+          >Create your first page</ft-button
+        >
+      </ft-empty-state>
+    } @else {
+      <h2 class="section-title">Recently edited</h2>
+      <ft-card variant="flush">
+        <ft-list label="Notes">
+          @for (note of items(); track note.id) {
+            <ft-list-item
+              [label]="titleOf(note)"
+              [href]="'/notes/' + note.id"
+              [meta]="editedLine(note)"
+            >
+              <ft-icon-tile leading name="notes" [emoji]="note.icon" />
+              @if (badgeOf(note); as badge) {
+                <ft-badge meta [variant]="badge.variant">{{ badge.text }}</ft-badge>
+              }
+            </ft-list-item>
+          }
+        </ft-list>
+      </ft-card>
+      @if (hasMore()) {
+        <div class="more">
+          <ft-button [loading]="loadingMore()" (click)="showMore()">Show more</ft-button>
+        </div>
+      }
+    }
+  }
+}

@@ -23,6 +23,7 @@ import { ACTIVITY_SERVICE, HttpActivityService } from './activity';
 import { EVENTS_SERVICE, HttpEventsService } from './events';
 import { SEARCH_SERVICE, HttpSearchService } from './search';
 import { RESOURCES_SERVICE, HttpResourcesService } from './resources';
+import { NOTES_SERVICE, HttpNotesService } from './notes';
 import { NOTIFICATIONS_SERVICE, HttpNotificationsService } from './notifications';
 import { ANNOUNCEMENTS_SERVICE, HttpAnnouncementsService } from './announcements';
 import {
@@ -67,6 +68,7 @@ export function provideApi(baseUrl: string, auth: Partial<AuthConfig> = {}): Env
     { provide: EVENTS_SERVICE, useClass: HttpEventsService },
     { provide: SEARCH_SERVICE, useClass: HttpSearchService },
     { provide: RESOURCES_SERVICE, useClass: HttpResourcesService },
+    { provide: NOTES_SERVICE, useClass: HttpNotesService },
     { provide: NOTIFICATIONS_SERVICE, useClass: HttpNotificationsService },
     { provide: ANNOUNCEMENTS_SERVICE, useClass: HttpAnnouncementsService },
     { provide: INVITES_SERVICE, useClass: HttpInvitesService },

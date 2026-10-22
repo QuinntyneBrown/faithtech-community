@@ -102,6 +102,10 @@ export const routes: Routes = [
           import('@faithtech-community/resources').then((m) => m.RESOURCES_ROUTES),
       },
       {
+        path: 'notes',
+        loadChildren: () => import('@faithtech-community/notes').then((m) => m.NOTES_ROUTES),
+      },
+      {
         path: 'invites',
         loadChildren: () => import('@faithtech-community/invites').then((m) => m.INVITES_ROUTES),
       },

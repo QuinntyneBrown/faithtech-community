@@ -1,0 +1,46 @@
+@switch (state()) {
+  @case ('loading') {
+    <ft-breadcrumb>
+      <ft-breadcrumb-item href="/notes">Notes</ft-breadcrumb-item>
+      <ft-breadcrumb-item>Loading</ft-breadcrumb-item>
+    </ft-breadcrumb>
+    <div class="loading" role="status" aria-label="Loading page">
+      <ft-skeleton shape="title" width="50%" />
+      <ft-skeleton shape="text" width="80%" />
+      <ft-skeleton shape="text" width="70%" />
+    </div>
+  }
+  @case ('missing') {
+    <ft-empty-state
+      icon="notes"
+      [headingLevel]="1"
+      heading="This page isn’t available"
+      text="It may have been archived, or it hasn’t been shared with you. If someone sent you the link, ask them to share it with you."
+    >
+      <ft-button actions variant="primary" href="/notes">Browse notes</ft-button>
+    </ft-empty-state>
+  }
+  @case ('error') {
+    <ft-empty-state
+      variant="error"
+      [headingLevel]="1"
+      heading="We couldn’t load this page"
+      text="Check your connection and try again. If it keeps happening, we’ve already been told about it."
+    >
+      <ft-button actions variant="primary" (click)="retry()">
+        <ft-icon name="try-again" /> Try again
+      </ft-button>
+      <ft-button actions href="/notes">Back to Notes</ft-button>
+    </ft-empty-state>
+  }
+  @case ('loaded') {
+    @let p = page()!;
+    <ft-breadcrumb>
+      <ft-breadcrumb-item href="/notes">Notes</ft-breadcrumb-item>
+      <ft-breadcrumb-item>{{ titleOf({ title: title() }) }}</ft-breadcrumb-item>
+    </ft-breadcrumb>
+    <header class="head">
+      <ft-page-title [value]="title()" [readonly]="!editable()" (valueChange)="onTitle($event)" />
+    </header>
+  }
+}
