@@ -72,6 +72,7 @@ describe('HttpEventsService', () => {
     ],
     ['rsvp', () => service.rsvp('e1'), 'POST', '/api/events/e1/rsvps', undefined],
     ['cancelRsvp', () => service.cancelRsvp('e1'), 'DELETE', '/api/events/e1/rsvps/me', undefined],
+    ['exportRsvps', () => service.exportRsvps('e1'), 'GET', '/api/events/e1/rsvps.csv', undefined],
     [
       'getPublicEvent',
       () => service.getPublicEvent('e1'),

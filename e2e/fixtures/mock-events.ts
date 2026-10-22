@@ -34,10 +34,46 @@ export interface MockEvent {
 export interface EventsCaller {
   profileId: string;
   roles: string[];
+  email?: string;
+}
+
+/** A member's profile as the events fake reads it (name for RSVP lists, roles for the host line). */
+export interface EventsProfile {
+  name: string;
+  roles: string[];
+}
+
+/** A queued email, as the outbox would send it. */
+export interface MockEmail {
+  to: string;
+  subject: string;
+  body: string;
+  attachment: { fileName: string; contentType: string } | null;
 }
 
 const LIST_FILTERS = ['upcoming', 'past', 'hackathons', 'online'];
 const MANAGERS = ['EventLead', 'CityLead', 'SystemAdmin'];
+const LEADS = ['CityLead', 'EventLead', 'CreateLead', 'CommunicationsLead'];
+const HOST_ROLES: [string, string][] = [
+  ['EventLead', 'Event Lead'],
+  ['CityLead', 'City Lead'],
+  ['SystemAdmin', 'System Admin'],
+];
+
+/** EventPermissions: who sees the RSVP list, guest emails and the CSV export (L2-022). */
+const seesList = (c: EventsCaller) =>
+  c.roles.some((r) => LEADS.includes(r) || r === 'Staff' || r === 'SystemAdmin');
+const seesEmails = (c: EventsCaller) =>
+  c.roles.some((r) => LEADS.includes(r) || r === 'SystemAdmin');
+
+/** EventFileNames.Slug: "toronto-builders-night". */
+export function slug(title: string): string {
+  const words = title
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '');
+  return words.slice(0, 60).replace(/-+$/, '') || 'event';
+}
 const TYPES = ['Gathering', 'BuildersNight', 'Hackathon', 'PrayerAndPlanning', 'Panel'];
 
 function canManage(caller: EventsCaller): boolean {
@@ -102,7 +138,13 @@ export class MockEvents {
     linkPath: string;
   }[] = [];
 
-  constructor(private readonly now: () => Date) {}
+  /** Emails the events endpoints sent (confirmations with the .ics, cancellations). */
+  readonly emails: MockEmail[] = [];
+
+  constructor(
+    private readonly now: () => Date,
+    private readonly profile: (id: string) => EventsProfile | undefined = () => undefined,
+  ) {}
 
   /** An event as a lead would create it; give `startsInDays` relative to the fake's "now". */
   add(event: Partial<MockEvent> & { title: string }, startsInDays = 7, hours = 2): MockEvent {
@@ -128,6 +170,34 @@ export class MockEvents {
     };
     this.events.push(full);
     return full;
+  }
+
+  /** A guest's RSVP, as the public page would take it, `daysAgo` before the fake's "now". */
+  addGuest(event: MockEvent, name: string, email: string, daysAgo = 1): MockRsvp {
+    return this.push(event, null, name, email, daysAgo);
+  }
+
+  /** A member's RSVP, `daysAgo` before the fake's "now". */
+  addMember(event: MockEvent, profileId: string, daysAgo = 1): MockRsvp {
+    return this.push(event, profileId, null, null, daysAgo);
+  }
+
+  private push(
+    event: MockEvent,
+    profileId: string | null,
+    guestName: string | null,
+    guestEmail: string | null,
+    daysAgo: number,
+  ): MockRsvp {
+    const rsvp: MockRsvp = {
+      id: `${event.id}-rsvp-${event.rsvps.length + 1}`,
+      profileId,
+      guestName,
+      guestEmail,
+      createdAt: new Date(this.now().getTime() - daysAgo * 24 * 60 * 60 * 1000).toISOString(),
+    };
+    event.rsvps.push(rsvp);
+    return rsvp;
   }
 
   /** Adds `count` member RSVPs from people who are not otherwise in the fake. */
@@ -157,7 +227,85 @@ export class MockEvents {
     const one = /^\/api\/events\/([^/]+)$/.exec(url.pathname);
     if (one && method === 'GET') return this.get(route, one[1], caller);
     if (one && method === 'PUT') return this.update(route, one[1], body, caller);
+    const rsvps = /^\/api\/events\/([^/]+)\/rsvps(\/me|\.csv)?$/.exec(url.pathname);
+    if (rsvps && method === 'POST' && !rsvps[2]) return this.rsvp(route, rsvps[1], caller);
+    if (rsvps && method === 'DELETE' && rsvps[2] === '/me')
+      return this.cancelRsvp(route, rsvps[1], caller);
+    if (rsvps && method === 'GET' && rsvps[2] === '.csv')
+      return this.exportRsvps(route, rsvps[1], caller);
     return false;
+  }
+
+  /** RsvpHandler.Refusal: why the event takes no new RSVPs. */
+  refusal(event: MockEvent): string | null {
+    if (event.isCancelled) return 'This event was cancelled.';
+    if (this.now().toISOString() >= event.startsAt) return 'This event has already started.';
+    if (event.capacity !== null && event.rsvps.length >= event.capacity)
+      return 'This event is full.';
+    return null;
+  }
+
+  /** POST /api/events/{id}/rsvps (L2-022 AC1): once per member, with an in-app and email confirmation. */
+  private rsvp(route: Route, id: string, caller: EventsCaller | null): Promise<void> {
+    if (!caller) return route.fulfill({ status: 401 });
+    const event = this.events.find((e) => e.id === id);
+    if (!event) return route.fulfill({ status: 404 });
+    if (event.rsvps.some((r) => r.profileId === caller.profileId))
+      return route.fulfill({ status: 204 });
+    const refusal = this.refusal(event);
+    if (refusal) return route.fulfill({ status: 409, json: { status: 409, detail: refusal } });
+    this.addMember(event, caller.profileId, 0);
+    this.notifications.push({
+      recipientId: caller.profileId,
+      kind: 'RsvpConfirmed',
+      title: `You’re going to ${event.title}`,
+      linkPath: `/events/${event.id}`,
+    });
+    if (caller.email) this.emails.push(this.confirmation(event, caller.email));
+    return route.fulfill({ status: 204 });
+  }
+
+  /** The confirmation email with the event's .ics attached. */
+  confirmation(event: MockEvent, to: string): MockEmail {
+    return {
+      to,
+      subject: `You’re going to ${event.title}`,
+      body: `You’re going to ${event.title}.`,
+      attachment: { fileName: `${slug(event.title)}.ics`, contentType: 'text/calendar' },
+    };
+  }
+
+  /** DELETE /api/events/{id}/rsvps/me (L2-022 AC2). */
+  private cancelRsvp(route: Route, id: string, caller: EventsCaller | null): Promise<void> {
+    if (!caller) return route.fulfill({ status: 401 });
+    const event = this.events.find((e) => e.id === id);
+    const mine = event?.rsvps.find((r) => r.profileId === caller.profileId);
+    if (!event || !mine) return route.fulfill({ status: 404 });
+    event.rsvps = event.rsvps.filter((r) => r !== mine);
+    return route.fulfill({ status: 204 });
+  }
+
+  /** GET /api/events/{id}/rsvps.csv (L2-022 AC5): leads and System Admins only. */
+  private exportRsvps(route: Route, id: string, caller: EventsCaller | null): Promise<void> {
+    if (!caller) return route.fulfill({ status: 401 });
+    if (!seesEmails(caller)) return route.fulfill({ status: 403 });
+    const event = this.events.find((e) => e.id === id);
+    if (!event) return route.fulfill({ status: 404 });
+    const rows = event.rsvps.map((r) =>
+      [this.rsvpName(r), r.profileId ? 'Member' : 'Guest', r.guestEmail ?? '', r.createdAt].join(
+        ',',
+      ),
+    );
+    return route.fulfill({
+      status: 200,
+      headers: { 'content-disposition': `attachment; filename=${slug(event.title)}-rsvps.csv` },
+      contentType: 'text/csv',
+      body: ["Name,Member or guest,Guest email,RSVP'd (UTC)", ...rows].join('\r\n'),
+    });
+  }
+
+  private rsvpName(r: MockRsvp): string {
+    return r.guestName ?? this.profile(r.profileId ?? '')?.name ?? 'A former member';
   }
 
   /** GET /api/events/{id}: every signed-in member sees every event. */
@@ -223,6 +371,7 @@ export class MockEvents {
   }
 
   private detail(event: MockEvent, caller: EventsCaller) {
+    const host = this.profile(event.createdById);
     return {
       id: event.id,
       title: event.title,
@@ -237,9 +386,25 @@ export class MockEvents {
       capacity: event.capacity,
       visibility: event.visibility,
       rsvpCount: event.rsvps.length,
+      isFull: event.capacity !== null && event.rsvps.length >= event.capacity,
       isCancelled: event.isCancelled,
       cancellationReason: event.cancellationReason,
+      hostName: host?.name ?? null,
+      hostRole: HOST_ROLES.find(([role]) => host?.roles.includes(role))?.[1] ?? null,
+      callerHasRsvp: event.rsvps.some((r) => r.profileId === caller.profileId),
       canManage: canManage(caller),
+      canExportRsvps: seesEmails(caller),
+      rsvps: seesList(caller)
+        ? [...event.rsvps]
+            .sort((a, b) => b.createdAt.localeCompare(a.createdAt))
+            .map((r) => ({
+              profileId: r.profileId,
+              name: this.rsvpName(r),
+              isGuest: r.profileId === null,
+              guestEmail: r.profileId === null && seesEmails(caller) ? r.guestEmail : null,
+              rsvpedAt: r.createdAt,
+            }))
+        : null,
     };
   }
 

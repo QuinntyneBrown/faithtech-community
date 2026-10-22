@@ -1,9 +1,31 @@
-/*
- * SCAFFOLD: placeholder, not the implementation.
- * Generated from AGENTS.md and:
- *   - docs/detailed-designs/events/rsvp
- *   - docs/detailed-designs/events/cancel-events
- *   - docs/detailed-designs/events/calendar-export
- * Overwrite with the encapsulated styles for this component. Read tokens by role
- * (var(--color-...)), never hex values. Delete this comment when implemented.
- */
+:host {
+  display: block;
+  margin-block-start: var(--space-4);
+}
+
+ft-page-header {
+  display: block;
+  margin-block-end: var(--space-4);
+}
+
+.loading {
+  display: grid;
+  gap: var(--layout-gutter);
+  grid-template-columns: repeat(auto-fill, minmax(18rem, 1fr));
+}
+
+.description {
+  margin: 0;
+}
+
+.none,
+.footer {
+  margin: 0;
+  padding: var(--space-3) var(--space-4);
+}
+
+.footer {
+  border-block-start: 1px solid var(--color-border-default);
+  color: var(--color-fg-muted);
+  font: var(--text-caption);
+}
