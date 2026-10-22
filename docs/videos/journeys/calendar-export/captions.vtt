@@ -1,0 +1,17 @@
+WEBVTT
+
+00:00:00.000 --> 00:00:10.000
+In this video you take an event into your own calendar. The app is real; the server is a local stand-in, and the people and events are made up.
+
+00:00:10.000 --> 00:00:18.000
+On an event page, Add to calendar downloads a calendar file named after the event. Open it in any calendar app.
+
+00:00:18.000 --> 00:00:27.000
+Public event pages offer the same file, so guests can add the event too. The joining link of an online event is not included.
+
+00:00:27.000 --> 00:00:39.000
+If the event is later changed or cancelled, the button becomes Update your calendar. The new file replaces the old one in your calendar, and a cancelled event is marked as cancelled.
+
+00:00:39.000 --> 00:00:46.000
+That is calendar export: one button, a standard file, and updates that replace the old entry.
+

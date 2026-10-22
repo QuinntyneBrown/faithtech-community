@@ -1,8 +1,9 @@
 # Journey videos
 
-Narrated demo videos of every FaithTech Community user journey that works today. Each video is one
-continuous take of the real Angular app at 1280x720, with on-screen captions, chapters, a WebVTT
-caption file, a poster frame and the narration text it was spoken from.
+Narrated demo videos of every FaithTech Community user journey that has a screen. Each journey has its
+own folder holding `video.webm`, `poster.png`, `captions.vtt` and `narration.md`. A video is one
+continuous take of the real Angular app at 1280x720, with on-screen captions, embedded chapters, a
+WebVTT caption file, a poster frame and the narration text it was spoken from.
 
 > **The API is a local fake.** The app talks to the in-browser fake of the Community API and
 > identity server that the e2e suite uses ([`e2e/fixtures/mock-api.ts`](../../../e2e/fixtures/mock-api.ts)).
@@ -13,37 +14,117 @@ caption file, a poster frame and the narration text it was spoken from.
 
 ## Videos
 
-| Video | Length | What it shows | Rerun alone |
-|---|---|---|---|
-| [Sign up](sign-up.webm) · [poster](sign-up-poster.png) · [captions](sign-up.vtt) · [narration](sign-up-narration.md) | 1:10 | The Join FaithTech form, a too-short password caught before anything is sent, then a passphrase and the Check your inbox page. | `pwsh eng/videos/Record-JourneyVideos.ps1 -Journey sign-up` |
-| [Verify email](verify-email.webm) · [poster](verify-email-poster.png) · [captions](verify-email.vtt) · [narration](verify-email-narration.md) | 1:12 | The pending page and resending the link, opening a valid link (You're in), then an expired link and asking for a new one. | `pwsh eng/videos/Record-JourneyVideos.ps1 -Journey verify-email` |
-| [Sign in and sign out](sign-in-and-sign-out.webm) · [poster](sign-in-and-sign-out-poster.png) · [captions](sign-in-and-sign-out.vtt) · [narration](sign-in-and-sign-out-narration.md) | 1:23 | Redirect to sign in from a member page, empty-field and wrong-password errors, sign in with PKCE, sign out, and the session staying gone. | `pwsh eng/videos/Record-JourneyVideos.ps1 -Journey sign-in-and-sign-out` |
-| [Forgot and reset password](password-reset.webm) · [poster](password-reset-poster.png) · [captions](password-reset.vtt) · [narration](password-reset-narration.md) | 1:26 | Forgot your password from sign in, a mistyped address, the neutral confirmation, a short and mismatched new password, saving it, and an expired link. | `pwsh eng/videos/Record-JourneyVideos.ps1 -Journey password-reset` |
-| [App shell tour](app-shell-tour.webm) · [poster](app-shell-tour-poster.png) · [captions](app-shell-tour.vtt) · [narration](app-shell-tour-narration.md) | 1:36 | The top bar on desktop and tablet, the tab bar and menu drawer on a phone (focus trap and Escape), dark and light themes, and the skip link and focus rings. | `pwsh eng/videos/Record-JourneyVideos.ps1 -Journey app-shell-tour` |
-| [Error and system pages](error-and-system-pages.webm) · [poster](error-and-system-pages-poster.png) · [captions](error-and-system-pages.vtt) · [narration](error-and-system-pages-narration.md) | 1:01 | Page not found, no access, a server error with its reference code, and the offline banner appearing and clearing. | `pwsh eng/videos/Record-JourneyVideos.ps1 -Journey error-and-system-pages` |
-| [View profiles](view-profile.webm) · [poster](view-profile-poster.png) · [captions](view-profile.vtt) · [narration](view-profile-narration.md) | 1:08 | Your own new profile from the top bar, another member's profile with roles, city, bio, featured photo and photos, and a profile that is not found. | `pwsh eng/videos/Record-JourneyVideos.ps1 -Journey view-profile` |
-| [Edit your profile](edit-own-profile.webm) · [poster](edit-own-profile-poster.png) · [captions](edit-own-profile.vtt) · [narration](edit-own-profile-narration.md) | 0:55 | Edit profile from your profile, a missing name caught before saving, new name, home city and bio, the Profile saved message and the updated profile. | `pwsh eng/videos/Record-JourneyVideos.ps1 -Journey edit-own-profile` |
-| [Manage profile photos](manage-profile-photos.webm) · [poster](manage-profile-photos-poster.png) · [captions](manage-profile-photos.vtt) · [narration](manage-profile-photos-narration.md) | 1:20 | Adding two pictures, Describe this photo blocking the save, describing and uploading, featuring the other photo, removing one after confirming, and the result on the profile. | `pwsh eng/videos/Record-JourneyVideos.ps1 -Journey manage-profile-photos` |
+### Identity
 
-All nine are WebM files with a VP9 video stream (1280x720, 25 fps) and an Opus audio stream (48 kHz
-mono, 48 kb/s, loudness-normalized), each 3-6 MB. The phone and tablet scenes in the app shell tour
-use a 390 or 768 pixel wide viewport, so the rest of the frame is grey.
+| Video | Length | Rerun alone |
+|---|---|---|
+| [Sign up](sign-up/video.webm) · [poster](sign-up/poster.png) · [captions](sign-up/captions.vtt) · [narration](sign-up/narration.md) | 1:10 | `pwsh eng/videos/Record-JourneyVideos.ps1 -Journey sign-up` |
+| [Verify email](verify-email/video.webm) · [poster](verify-email/poster.png) · [captions](verify-email/captions.vtt) · [narration](verify-email/narration.md) | 1:12 | `pwsh eng/videos/Record-JourneyVideos.ps1 -Journey verify-email` |
+| [Sign in and sign out](sign-in-and-sign-out/video.webm) · [poster](sign-in-and-sign-out/poster.png) · [captions](sign-in-and-sign-out/captions.vtt) · [narration](sign-in-and-sign-out/narration.md) | 1:23 | `pwsh eng/videos/Record-JourneyVideos.ps1 -Journey sign-in-and-sign-out` |
+| [Forgot and reset password](password-reset/video.webm) · [poster](password-reset/poster.png) · [captions](password-reset/captions.vtt) · [narration](password-reset/narration.md) | 1:25 | `pwsh eng/videos/Record-JourneyVideos.ps1 -Journey password-reset` |
 
-### Chapters
+### Platform
 
-Chapters are embedded in each WebM and listed here.
+| Video | Length | Rerun alone |
+|---|---|---|
+| [App shell tour](app-shell-tour/video.webm) · [poster](app-shell-tour/poster.png) · [captions](app-shell-tour/captions.vtt) · [narration](app-shell-tour/narration.md) | 1:36 | `pwsh eng/videos/Record-JourneyVideos.ps1 -Journey app-shell-tour` |
+| [Error and system pages](error-and-system-pages/video.webm) · [poster](error-and-system-pages/poster.png) · [captions](error-and-system-pages/captions.vtt) · [narration](error-and-system-pages/narration.md) | 1:00 | `pwsh eng/videos/Record-JourneyVideos.ps1 -Journey error-and-system-pages` |
+| [Your home page](home/video.webm) · [poster](home/poster.png) · [captions](home/captions.vtt) · [narration](home/narration.md) | 1:20 | `pwsh eng/videos/Record-JourneyVideos.ps1 -Journey home` |
 
-| Video | Chapters |
-|---|---|
-| Sign up | 0:00 Opening · 0:14 The sign-up form · 0:23 A password that is too short · 0:33 Choose a passphrase · 0:42 Check your inbox · 0:50 Summary |
-| Verify email | 0:00 Opening · 0:13 Waiting for the link · 0:20 Send another link · 0:27 Open the link · 0:35 An old link · 0:45 Ask for a new one · 0:54 Summary |
-| Sign in and sign out | 0:00 Opening · 0:10 Members only · 0:20 Empty fields · 0:27 A wrong password · 0:36 Sign in · 0:46 Signed in · 0:54 Sign out · 1:00 Stays signed out · 1:06 Summary |
-| Forgot and reset password | 0:00 Opening · 0:09 Forgot your password · 0:17 A mistyped address · 0:24 Request the link · 0:35 Open the reset link · 0:40 Two things to fix · 0:49 Save the new password · 0:58 An expired link · 1:08 Summary |
-| App shell tour | 0:00 Opening · 0:15 Desktop · 0:31 Tablet · 0:36 Phone · 0:43 The menu · 0:53 Dark theme · 1:02 Light theme · 1:05 Keyboard · 1:16 Summary |
-| Error and system pages | 0:00 Opening · 0:10 Page not found · 0:17 No access · 0:25 Server error · 0:35 Offline · 0:40 Back online · 0:45 Summary |
-| View profiles | 0:00 Opening · 0:11 Your own profile · 0:21 Another member · 0:31 Their photos · 0:42 Not found · 0:52 Summary |
-| Edit your profile | 0:00 Opening · 0:10 Edit profile · 0:18 A missing name · 0:28 New details · 0:35 Saved · 0:38 Back on your profile · 0:44 Summary |
-| Manage profile photos | 0:00 Opening · 0:12 Add photos · 0:24 Describe this photo · 0:35 Describe and save · 0:44 Feature a photo · 0:52 Remove a photo · 1:00 On your profile · 1:07 Summary |
+### Profiles
+
+| Video | Length | Rerun alone |
+|---|---|---|
+| [View profiles](view-profile/video.webm) · [poster](view-profile/poster.png) · [captions](view-profile/captions.vtt) · [narration](view-profile/narration.md) | 1:08 | `pwsh eng/videos/Record-JourneyVideos.ps1 -Journey view-profile` |
+| [Edit your profile](edit-own-profile/video.webm) · [poster](edit-own-profile/poster.png) · [captions](edit-own-profile/captions.vtt) · [narration](edit-own-profile/narration.md) | 0:54 | `pwsh eng/videos/Record-JourneyVideos.ps1 -Journey edit-own-profile` |
+| [Manage profile photos](manage-profile-photos/video.webm) · [poster](manage-profile-photos/poster.png) · [captions](manage-profile-photos/captions.vtt) · [narration](manage-profile-photos/narration.md) | 1:19 | `pwsh eng/videos/Record-JourneyVideos.ps1 -Journey manage-profile-photos` |
+| [People and roles](people-directory/video.webm) · [poster](people-directory/poster.png) · [captions](people-directory/captions.vtt) · [narration](people-directory/narration.md) | 1:16 | `pwsh eng/videos/Record-JourneyVideos.ps1 -Journey people-directory` |
+
+### Invites
+
+| Video | Length | Rerun alone |
+|---|---|---|
+| [Send an invite](send-invite/video.webm) · [poster](send-invite/poster.png) · [captions](send-invite/captions.vtt) · [narration](send-invite/narration.md) | 1:12 | `pwsh eng/videos/Record-JourneyVideos.ps1 -Journey send-invite` |
+| [Accept an invite](accept-invite/video.webm) · [poster](accept-invite/poster.png) · [captions](accept-invite/captions.vtt) · [narration](accept-invite/narration.md) | 1:12 | `pwsh eng/videos/Record-JourneyVideos.ps1 -Journey accept-invite` |
+
+### Contacts
+
+| Video | Length | Rerun alone |
+|---|---|---|
+| [Manage contacts](manage-contacts/video.webm) · [poster](manage-contacts/poster.png) · [captions](manage-contacts/captions.vtt) · [narration](manage-contacts/narration.md) | 1:11 | `pwsh eng/videos/Record-JourneyVideos.ps1 -Journey manage-contacts` |
+| [Contact notes](contact-notes/video.webm) · [poster](contact-notes/poster.png) · [captions](contact-notes/captions.vtt) · [narration](contact-notes/narration.md) | 0:57 | `pwsh eng/videos/Record-JourneyVideos.ps1 -Journey contact-notes` |
+| [Archive, restore and delete contacts](archive-restore-delete-contacts/video.webm) · [poster](archive-restore-delete-contacts/poster.png) · [captions](archive-restore-delete-contacts/captions.vtt) · [narration](archive-restore-delete-contacts/narration.md) | 1:07 | `pwsh eng/videos/Record-JourneyVideos.ps1 -Journey archive-restore-delete-contacts` |
+| [Link a contact on sign-up](link-contact-on-sign-up/video.webm) · [poster](link-contact-on-sign-up/poster.png) · [captions](link-contact-on-sign-up/captions.vtt) · [narration](link-contact-on-sign-up/narration.md) | 1:09 | `pwsh eng/videos/Record-JourneyVideos.ps1 -Journey link-contact-on-sign-up` |
+
+### Partners
+
+| Video | Length | Rerun alone |
+|---|---|---|
+| [Manage partners](manage-partners/video.webm) · [poster](manage-partners/poster.png) · [captions](manage-partners/captions.vtt) · [narration](manage-partners/narration.md) | 1:20 | `pwsh eng/videos/Record-JourneyVideos.ps1 -Journey manage-partners` |
+| [The partner board](partner-kanban-board/video.webm) · [poster](partner-kanban-board/poster.png) · [captions](partner-kanban-board/captions.vtt) · [narration](partner-kanban-board/narration.md) | 1:05 | `pwsh eng/videos/Record-JourneyVideos.ps1 -Journey partner-kanban-board` |
+
+### Team
+
+| Video | Length | Rerun alone |
+|---|---|---|
+| [The team](team-list/video.webm) · [poster](team-list/poster.png) · [captions](team-list/captions.vtt) · [narration](team-list/narration.md) | 1:10 | `pwsh eng/videos/Record-JourneyVideos.ps1 -Journey team-list` |
+
+### Events
+
+| Video | Length | Rerun alone |
+|---|---|---|
+| [Create and edit events](create-and-edit-events/video.webm) · [poster](create-and-edit-events/poster.png) · [captions](create-and-edit-events/captions.vtt) · [narration](create-and-edit-events/narration.md) | 1:20 | `pwsh eng/videos/Record-JourneyVideos.ps1 -Journey create-and-edit-events` |
+| [Event list and filters](event-list-and-filter/video.webm) · [poster](event-list-and-filter/poster.png) · [captions](event-list-and-filter/captions.vtt) · [narration](event-list-and-filter/narration.md) | 1:13 | `pwsh eng/videos/Record-JourneyVideos.ps1 -Journey event-list-and-filter` |
+| [RSVP to an event](rsvp/video.webm) · [poster](rsvp/poster.png) · [captions](rsvp/captions.vtt) · [narration](rsvp/narration.md) | 1:09 | `pwsh eng/videos/Record-JourneyVideos.ps1 -Journey rsvp` |
+| [Cancel an event](cancel-events/video.webm) · [poster](cancel-events/poster.png) · [captions](cancel-events/captions.vtt) · [narration](cancel-events/narration.md) | 1:00 | `pwsh eng/videos/Record-JourneyVideos.ps1 -Journey cancel-events` |
+| [Public events and guest RSVP](public-events-and-guest-rsvp/video.webm) · [poster](public-events-and-guest-rsvp/poster.png) · [captions](public-events-and-guest-rsvp/captions.vtt) · [narration](public-events-and-guest-rsvp/narration.md) | 1:05 | `pwsh eng/videos/Record-JourneyVideos.ps1 -Journey public-events-and-guest-rsvp` |
+| [Add an event to your calendar](calendar-export/video.webm) · [poster](calendar-export/poster.png) · [captions](calendar-export/captions.vtt) · [narration](calendar-export/narration.md) | 0:54 | `pwsh eng/videos/Record-JourneyVideos.ps1 -Journey calendar-export` |
+
+### Search
+
+| Video | Length | Rerun alone |
+|---|---|---|
+| [Search everything](global-search/video.webm) · [poster](global-search/poster.png) · [captions](global-search/captions.vtt) · [narration](global-search/narration.md) | 1:09 | `pwsh eng/videos/Record-JourneyVideos.ps1 -Journey global-search` |
+
+### Notifications
+
+| Video | Length | Rerun alone |
+|---|---|---|
+| [In-app notifications](in-app-notifications/video.webm) · [poster](in-app-notifications/poster.png) · [captions](in-app-notifications/captions.vtt) · [narration](in-app-notifications/narration.md) | 1:03 | `pwsh eng/videos/Record-JourneyVideos.ps1 -Journey in-app-notifications` |
+| [Email notifications](email-notifications/video.webm) · [poster](email-notifications/poster.png) · [captions](email-notifications/captions.vtt) · [narration](email-notifications/narration.md) | 1:10 | `pwsh eng/videos/Record-JourneyVideos.ps1 -Journey email-notifications` |
+
+### Announcements
+
+| Video | Length | Rerun alone |
+|---|---|---|
+| [Send an announcement](send-announcement/video.webm) · [poster](send-announcement/poster.png) · [captions](send-announcement/captions.vtt) · [narration](send-announcement/narration.md) | 1:07 | `pwsh eng/videos/Record-JourneyVideos.ps1 -Journey send-announcement` |
+| [Read announcements and opt out](read-announcements-and-opt-out/video.webm) · [poster](read-announcements-and-opt-out/poster.png) · [captions](read-announcements-and-opt-out/captions.vtt) · [narration](read-announcements-and-opt-out/narration.md) | 0:57 | `pwsh eng/videos/Record-JourneyVideos.ps1 -Journey read-announcements-and-opt-out` |
+
+### Admin
+
+| Video | Length | Rerun alone |
+|---|---|---|
+| [Admin users and profile override](admin-users-and-override/video.webm) · [poster](admin-users-and-override/poster.png) · [captions](admin-users-and-override/captions.vtt) · [narration](admin-users-and-override/narration.md) | 1:11 | `pwsh eng/videos/Record-JourneyVideos.ps1 -Journey admin-users-and-override` |
+| [Assign roles](assign-roles/video.webm) · [poster](assign-roles/poster.png) · [captions](assign-roles/captions.vtt) · [narration](assign-roles/narration.md) | 1:09 | `pwsh eng/videos/Record-JourneyVideos.ps1 -Journey assign-roles` |
+| [Suspend and reinstate users](suspend-users/video.webm) · [poster](suspend-users/poster.png) · [captions](suspend-users/captions.vtt) · [narration](suspend-users/narration.md) | 1:02 | `pwsh eng/videos/Record-JourneyVideos.ps1 -Journey suspend-users` |
+| [The audit log](audit-log/video.webm) · [poster](audit-log/poster.png) · [captions](audit-log/captions.vtt) · [narration](audit-log/narration.md) | 0:56 | `pwsh eng/videos/Record-JourneyVideos.ps1 -Journey audit-log` |
+
+### Agile
+
+| Video | Length | Rerun alone |
+|---|---|---|
+| [Workspaces and membership](workspaces-and-membership/video.webm) · [poster](workspaces-and-membership/poster.png) · [captions](workspaces-and-membership/captions.vtt) · [narration](workspaces-and-membership/narration.md) | 1:17 | `pwsh eng/videos/Record-JourneyVideos.ps1 -Journey workspaces-and-membership` |
+| [Work items](work-items/video.webm) · [poster](work-items/poster.png) · [captions](work-items/captions.vtt) · [narration](work-items/narration.md) | 1:09 | `pwsh eng/videos/Record-JourneyVideos.ps1 -Journey work-items` |
+| [The board](board/video.webm) · [poster](board/poster.png) · [captions](board/captions.vtt) · [narration](board/narration.md) | 1:04 | `pwsh eng/videos/Record-JourneyVideos.ps1 -Journey board` |
+| [Sprints](sprints/video.webm) · [poster](sprints/poster.png) · [captions](sprints/captions.vtt) · [narration](sprints/narration.md) | 1:10 | `pwsh eng/videos/Record-JourneyVideos.ps1 -Journey sprints` |
+| [Planning Poker](planning-poker/video.webm) · [poster](planning-poker/poster.png) · [captions](planning-poker/captions.vtt) · [narration](planning-poker/narration.md) | 1:19 | `pwsh eng/videos/Record-JourneyVideos.ps1 -Journey planning-poker` |
+| [Switch method](switch-method/video.webm) · [poster](switch-method/poster.png) · [captions](switch-method/captions.vtt) · [narration](switch-method/narration.md) | 1:05 | `pwsh eng/videos/Record-JourneyVideos.ps1 -Journey switch-method` |
+| [Archive and transfer workspaces](archive-and-transfer-workspaces/video.webm) · [poster](archive-and-transfer-workspaces/poster.png) · [captions](archive-and-transfer-workspaces/captions.vtt) · [narration](archive-and-transfer-workspaces/narration.md) | 1:19 | `pwsh eng/videos/Record-JourneyVideos.ps1 -Journey archive-and-transfer-workspaces` |
+
+All are WebM files with a VP9 video stream (1280x720, 25 fps) and an Opus audio stream (48 kHz
+mono, 48 kb/s, loudness-normalized). The chapters are embedded in each WebM and listed in its
+`captions.vtt`. The phone and tablet scenes in the app shell tour use a 390 or 768 pixel wide
+viewport, so the rest of the frame is grey.
 
 ## Voice
 
@@ -58,8 +139,9 @@ From the repository root, on Windows, macOS or Linux:
 
 ```sh
 python -m pip install edge-tts           # once; use the interpreter named by PYTHON
-pwsh eng/videos/Record-JourneyVideos.ps1  # all nine videos
+pwsh eng/videos/Record-JourneyVideos.ps1  # every video
 pwsh eng/videos/Record-JourneyVideos.ps1 -Journey sign-up,password-reset   # some of them
+pwsh eng/videos/Record-JourneyVideos.ps1 -Missing   # only journeys without a video yet
 ```
 
 Prerequisites: PowerShell 7.2+, Node.js and npm (the script runs `npm ci` in `frontend/` and `e2e/`
@@ -68,7 +150,7 @@ and internet access for synthesis, and ffmpeg/ffprobe built with libopus and lib
 
 What the script does, per journey:
 
-1. Reads `<slug>-narration.md`, applies the pronunciations and synthesizes one clip per paragraph
+1. Reads `<slug>/narration.md`, applies the pronunciations and synthesizes one clip per paragraph
    (cached by text and voice), measuring each clip.
 2. Starts the Angular dev server on its own port (4310; `-Port` changes it) and records the
    story in [`eng/videos/journeys/`](../../../eng/videos/journeys/) with
@@ -92,18 +174,11 @@ to the file `python -c "import certifi; print(certifi.where())"` prints.
 
 ## Scope
 
-These are the journeys implemented as of October 2026 (identity, platform and profiles). Invites,
-contacts, partners, team, events, search, notifications, announcements, admin and the agile
-workspace are not built yet ([estimates](../../estimates/README.md)), so they are not filmed; the
-app shell tour shows their navigation entries only. The home page is still a placeholder.
+One journey per detailed design that has a screen. Designs with no screen of their own (accessibility,
+performance, server authorization, input validation and web protections, reliability and observability)
+are not filmed; the app shell tour covers responsive layout and theming. A new journey is a
+`eng/videos/journeys/<slug>.story.ts` plus `docs/videos/journeys/<slug>/narration.md`; the recorder
+finds it by file name. Re-record a journey when its screens change.
 
-Design decisions are recorded in [ADR 0001](../../adr/0001-journey-demo-videos.md). Sources:
-[sign up](../../detailed-designs/identity/sign-up/),
-[email verification](../../detailed-designs/identity/email-verification/),
-[sign in and sign out](../../detailed-designs/identity/sign-in-and-sign-out/),
-[password reset](../../detailed-designs/identity/password-reset/),
-[responsive layout and theming](../../detailed-designs/platform/responsive-layout-and-theming/),
-[error and system pages](../../detailed-designs/platform/error-and-system-pages/),
-[view profile](../../detailed-designs/profiles/view-profile/),
-[edit own profile](../../detailed-designs/profiles/edit-own-profile/),
-[manage profile photos](../../detailed-designs/profiles/manage-profile-photos/).
+Design decisions are recorded in [ADR 0001](../../adr/0001-journey-demo-videos.md). Each journey's
+source design is `docs/detailed-designs/<subsystem>/<slug>/`.

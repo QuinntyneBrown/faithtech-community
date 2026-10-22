@@ -1,0 +1,23 @@
+WEBVTT
+
+00:00:00.000 --> 00:00:11.000
+In this video you are a System Admin, and you suspend an account and then bring it back. The app is real; the server is a local stand-in, and the people are made up.
+
+00:00:11.000 --> 00:00:16.000
+On the admin users page every active account has a Suspend button next to it.
+
+00:00:16.000 --> 00:00:23.000
+Choosing Suspend opens a confirmation. Focus lands straight in the reason box, so you can start typing.
+
+00:00:24.000 --> 00:00:30.000
+Try to confirm with the box empty and you are asked to give a reason, so that other admins understand what happened.
+
+00:00:30.000 --> 00:00:39.000
+Write the reason and confirm. The dialog closes and the row now reads Suspended. The reason is recorded in the audit log.
+
+00:00:39.000 --> 00:00:47.000
+A suspended account shows a Reinstate button instead. One click, and the person is Active again.
+
+00:00:47.000 --> 00:00:54.000
+That is suspending users: a reason every time, a quick way back, and a record of both in the audit log.
+

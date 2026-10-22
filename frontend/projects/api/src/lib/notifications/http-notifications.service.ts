@@ -1,6 +1,6 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
-import { Observable, map } from 'rxjs';
+import { Observable, Subject, map, tap } from 'rxjs';
 
 import { API_BASE_URL } from '../config';
 import { toHttpParams } from '../shared';
@@ -10,6 +10,9 @@ import { NotificationPage, NotificationQuery, NotificationsService } from './not
 export class HttpNotificationsService implements NotificationsService {
   private readonly http = inject(HttpClient);
   private readonly base = `${inject(API_BASE_URL)}/notifications`;
+  private readonly marked = new Subject<void>();
+
+  readonly changed: Observable<void> = this.marked.asObservable();
 
   list({ page = 1, unreadOnly = false }: NotificationQuery = {}): Observable<NotificationPage> {
     return this.http.get<NotificationPage>(this.base, {
@@ -22,10 +25,12 @@ export class HttpNotificationsService implements NotificationsService {
   }
 
   markRead(id: string): Observable<void> {
-    return this.http.post<void>(`${this.base}/${id}/read`, null);
+    return this.http
+      .post<void>(`${this.base}/${id}/read`, null)
+      .pipe(tap(() => this.marked.next()));
   }
 
   markAllRead(): Observable<void> {
-    return this.http.post<void>(`${this.base}/read-all`, null);
+    return this.http.post<void>(`${this.base}/read-all`, null).pipe(tap(() => this.marked.next()));
   }
 }

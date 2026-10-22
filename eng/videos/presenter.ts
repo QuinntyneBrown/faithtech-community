@@ -1,4 +1,4 @@
-import { readFileSync, writeFileSync } from 'node:fs';
+import { mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 
 import type { Locator, Page } from '@playwright/test';
@@ -34,6 +34,11 @@ interface StepOptions {
 
 const MARGIN_MS = 700;
 const REPO = join(__dirname, '..', '..');
+/**
+ * When set, the stories only capture one screenshot per step into `<dir>/<slug>/screenshots`:
+ * no overlay, no narration timing, no video. Used to review the UI against the mocks.
+ */
+const SHOTS = process.env['DEMO_SCREENSHOTS'];
 
 /**
  * Shows the opening card, captions and closing card over the app, holds each narration paragraph
@@ -45,6 +50,7 @@ export class Presenter {
   private readonly started = Date.now();
   private readonly timeline: { id: string; start: number; poster: boolean }[] = [];
   private state: OverlayState;
+  private shots = 0;
 
   private constructor(
     private readonly page: Page,
@@ -55,6 +61,7 @@ export class Presenter {
   }
 
   static async start(page: Page, slug: string): Promise<Presenter> {
+    if (SHOTS) return new Presenter(page, readNarration(slug), SHOTS);
     const runDir = join(process.env['DEMO_RUN_DIR'] ?? join(__dirname, '.run'), slug);
     const manifest = JSON.parse(readFileSync(join(runDir, 'manifest.json'), 'utf8')) as Manifest;
     const presenter = new Presenter(page, manifest, runDir);
@@ -85,6 +92,7 @@ export class Presenter {
 
   /** Clears the captions and writes the timeline the audio track is assembled from. */
   async finish(): Promise<void> {
+    if (SHOTS) return;
     await this.render({ caption: null, card: null });
     await this.page.waitForTimeout(600);
     const unused = this.manifest.clips.filter((c) => !this.timeline.some((t) => t.id === c.id));
@@ -111,6 +119,11 @@ export class Presenter {
   ): Promise<void> {
     const clip = this.manifest.clips.find((c) => c.id === id);
     if (!clip) throw new Error(`No narration paragraph "${id}" in ${this.manifest.slug}`);
+    if (SHOTS) {
+      if (action) await action();
+      if (!change.card) await this.capture(id);
+      return;
+    }
     await this.render({ ...change, caption: clip.text });
     const shownAt = Date.now();
     this.timeline.push({
@@ -121,6 +134,14 @@ export class Presenter {
     if (action) await action();
     const remaining = shownAt + clip.duration * 1000 + MARGIN_MS - Date.now();
     if (remaining > 0) await this.page.waitForTimeout(remaining);
+  }
+
+  private async capture(id: string): Promise<void> {
+    await this.page.waitForTimeout(500);
+    const dir = join(this.runDir, this.manifest.slug, 'screenshots');
+    mkdirSync(dir, { recursive: true });
+    const n = String(++this.shots).padStart(2, '0');
+    await this.page.screenshot({ path: join(dir, `${n}-${id}.png`) });
   }
 
   private async render(change: Partial<OverlayState>): Promise<void> {
@@ -137,6 +158,22 @@ export class Presenter {
       w.__demoRender?.(s);
     }, this.state);
   }
+}
+
+/** Reads docs/videos/journeys/<slug>/narration.md the way Record-JourneyVideos.ps1 does. */
+function readNarration(slug: string): Manifest {
+  const lines = readFileSync(
+    join(REPO, 'docs', 'videos', 'journeys', slug, 'narration.md'),
+    'utf8',
+  ).split(String.fromCharCode(10)).map((l) => l.trim());
+  const title = (lines.find((l) => l.startsWith('# ')) ?? '').slice(2);
+  const clips: Clip[] = [];
+  for (const line of lines) {
+    const m = /^## ([a-z0-9-]+): (.+)$/.exec(line);
+    if (m) clips.push({ id: m[1], chapter: m[2], text: '', duration: 0 });
+    else if (clips.length && line.trim()) clips[clips.length - 1].text += ` ${line.trim()}`;
+  }
+  return { slug, title, clips };
 }
 
 /** The app's own logo artwork (components/logo-mark), without its Angular bindings. */

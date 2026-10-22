@@ -1,13 +1,11 @@
 # Estimates: agile
 
-| Design | Effort | Complete |
-|---|---|---|
-| archive-and-transfer-workspaces | 4 days | 100% |
-| board | 5 days | 100% |
-| planning-poker | 6 days | 100% |
-| sprints | 6 days | 100% |
-| switch-method | 3 days | 100% |
-| work-items | 5 days | 100% |
-| workspaces-and-membership | 7 days | 95% |
-
-Workspaces and membership is short of 100% only for search: work items reach global search once the search subsystem exists (L2-031 AC6, ADR 0011).
+| Design | Effort | Complete | Visual conformance |
+|---|---|---|---|
+| archive-and-transfer-workspaces | 4 days | 100% | B |
+| board | 5 days | 100% | C+ |
+| planning-poker | 6 days | 100% | B- |
+| sprints | 6 days | 100% | C |
+| switch-method | 3 days | 100% | B+ |
+| work-items | 5 days | 100% | B |
+| workspaces-and-membership | 7 days | 95% | B |

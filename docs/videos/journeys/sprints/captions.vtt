@@ -1,0 +1,23 @@
+WEBVTT
+
+00:00:00.000 --> 00:00:12.000
+In this video you are the owner of a Scrum workspace, and you close one sprint and start the next. The app is real; the server is a local stand-in, and the people are made up.
+
+00:00:12.000 --> 00:00:20.000
+The backlog shows the active sprint at the top, with its goal, how many stories and points it holds, and when it ends.
+
+00:00:20.000 --> 00:00:30.000
+Switch to the history view for past sprints. Each shows its dates, its goal and the points completed out of those committed, with the average across sprints at the bottom.
+
+00:00:31.000 --> 00:00:42.000
+From the board, choose Close sprint. The dialog tells you how many points were completed and lists the unfinished stories, which go back to the backlog and keep their status.
+
+00:00:42.000 --> 00:00:52.000
+Now start a sprint. It is named for you, and it reminds you of your recent average. Try to start without a goal or any stories and both are flagged.
+
+00:00:52.000 --> 00:01:00.000
+Write a goal, set the dates, and choose the stories from the backlog. Start the sprint, and the board is running again.
+
+00:01:00.000 --> 00:01:08.000
+That is sprints: one at a time, each with a goal and its stories, and unfinished work always comes back to the backlog.
+

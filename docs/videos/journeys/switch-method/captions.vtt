@@ -1,0 +1,20 @@
+WEBVTT
+
+00:00:00.000 --> 00:00:12.000
+In this video you are a workspace owner changing how your team works, from Scrum to Kanban and back. The app is real; the server is a local stand-in, and the people are made up.
+
+00:00:13.000 --> 00:00:20.000
+In your workspace settings, the Method row shows that the team uses Scrum, with a button to switch to Kanban.
+
+00:00:20.000 --> 00:00:32.000
+Before anything happens, a dialog explains it. Items keep their status, and switching to Kanban closes the running sprint and sends its unfinished stories back to the backlog.
+
+00:00:32.000 --> 00:00:44.000
+Confirm, and the workspace uses Kanban. The board now shows every story in To Do, In Progress and Done, with no sprint, and your story is still in progress.
+
+00:00:44.000 --> 00:00:54.000
+Switching back to Scrum works the same way, and the dialog tells you that every story that is not done goes to the backlog, ready for the next sprint.
+
+00:00:54.000 --> 00:01:02.000
+That is switching method: the owner chooses, nothing is lost, and you are told exactly what will change first.
+

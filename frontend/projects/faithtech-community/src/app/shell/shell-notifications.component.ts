@@ -49,6 +49,7 @@ export class ShellNotificationsComponent {
         takeUntilDestroyed(),
       )
       .subscribe(() => void this.load());
+    this.service.changed?.pipe(takeUntilDestroyed()).subscribe(() => void this.load());
     const timer = setInterval(() => {
       if (this.document.visibilityState !== 'hidden') void this.load();
     }, NOTIFICATIONS_REFRESH_MS);

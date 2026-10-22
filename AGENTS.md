@@ -92,7 +92,7 @@ faithtech-community/
     ├── design-system/                # Tokens, components and patterns taken from the mocks
     ├── estimates/                    # Effort and percent-complete per design
     ├── videos/
-    │   └── journeys/                 # Narrated demo videos (WebM, poster, captions, narration text)
+    │   └── journeys/                 # One folder per journey: video.webm, poster.png, captions.vtt, narration.md
     ├── adr/                          # Architecture decision records (NNNN-title.md)
     ├── proposals/                    # Feature proposals: problem, decisions, scope and phases, agreed before specs are written
     └── prompts/                      # Ready-to-run implementation prompts for features
