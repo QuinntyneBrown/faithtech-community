@@ -1,4 +1,6 @@
 using FaithTech.Community.Application.Contacts;
+using FaithTech.Community.Application.Profiles;
+using Microsoft.AspNetCore.Mvc;
 
 namespace FaithTech.Community.Api.Endpoints;
 
@@ -7,6 +9,8 @@ namespace FaithTech.Community.Api.Endpoints;
 /// </summary>
 public static class ContactsEndpoints
 {
+    private const long PhotoRequestLimit = 10 * 1024 * 1024;
+
     public static IEndpointRouteBuilder MapContactsEndpoints(this IEndpointRouteBuilder app)
     {
         var contacts = app.MapGroup("/api/contacts");
@@ -58,6 +62,24 @@ public static class ContactsEndpoints
             var (result, contact) = await handler.LinkAsync(id, command, cancellationToken);
             return result.ToHttp(() => Results.Ok(contact));
         });
+
+        // Contact photos (L2-055 to L2-059). Bearer-token API, so no antiforgery; up to 10 MB is read so a
+        // too-large photo gets the inline 400.
+        contacts.MapPost("/{id:guid}/photos", async (
+                Guid id, IFormFile? file, [FromForm] string? altText, ContactPhotosHandler handler, CancellationToken cancellationToken) =>
+            {
+                if (file is null)
+                {
+                    return Results.ValidationProblem(new Dictionary<string, string[]> { ["File"] = ["Choose a photo to upload."] });
+                }
+
+                await using var content = file.OpenReadStream();
+                var (result, photo) = await handler.UploadAsync(
+                    id, new UploadPhotoCommand(content, file.FileName, file.Length, altText), cancellationToken);
+                return result.ToHttp(() => Results.Created($"/api/contacts/{id}", photo));
+            })
+            .DisableAntiforgery()
+            .WithMetadata(new RequestSizeLimitAttribute(PhotoRequestLimit), new RequestFormLimitsAttribute { MultipartBodyLengthLimit = PhotoRequestLimit });
 
         return app;
     }

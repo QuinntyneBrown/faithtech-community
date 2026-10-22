@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace FaithTech.Community.Application.Profiles;
 
-/// <summary>Takes and releases a profile's <see cref="PhotoLease"/> around a photo write.</summary>
+/// <summary>Takes and releases the <see cref="PhotoLease"/> of a profile or a contact around a photo write.</summary>
 public class PhotoLeases(IApplicationDbContext db, TimeProvider time)
 {
     public const string ChangedMeanwhile = "Your photos changed while this was saving. Reload and try again.";
@@ -14,9 +14,13 @@ public class PhotoLeases(IApplicationDbContext db, TimeProvider time)
     /// photo write holds the lease, or took it after this profile was loaded; the photos read with the
     /// profile are then not safe to change.
     /// </summary>
-    public async Task<bool> TakeAsync(Profile profile, CancellationToken cancellationToken)
+    public Task<bool> TakeAsync(Profile profile, CancellationToken cancellationToken) =>
+        TakeAsync(profile.PhotoLease, cancellationToken);
+
+    /// <summary>Takes a lease read with its otherwise unchanged owner (a profile or a contact) and saves it.</summary>
+    public async Task<bool> TakeAsync(PhotoLease lease, CancellationToken cancellationToken)
     {
-        if (!profile.PhotoLease.TryTake(time.GetUtcNow()))
+        if (!lease.TryTake(time.GetUtcNow()))
         {
             return false;
         }
@@ -33,9 +37,12 @@ public class PhotoLeases(IApplicationDbContext db, TimeProvider time)
     }
 
     /// <summary>Releases the lease after a refusal that changes nothing else.</summary>
-    public async Task ReleaseAsync(Profile profile, CancellationToken cancellationToken)
+    public Task ReleaseAsync(Profile profile, CancellationToken cancellationToken) =>
+        ReleaseAsync(profile.PhotoLease, cancellationToken);
+
+    public async Task ReleaseAsync(PhotoLease lease, CancellationToken cancellationToken)
     {
-        profile.PhotoLease.Release();
+        lease.Release();
         await db.SaveChangesAsync(cancellationToken);
     }
 }

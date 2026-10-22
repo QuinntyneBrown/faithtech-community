@@ -50,10 +50,16 @@ public class PhotoBlobTask
     public int Attempts { get; private set; }
 
     public static PhotoBlobTask Save(ProfilePhoto photo, byte[] content, string contentType, DateTimeOffset now) =>
-        new(PhotoBlobWork.Save, photo.Id, photo.BlobName, content, contentType, now);
+        Save(photo.Id, photo.BlobName, content, contentType, now);
 
-    public static PhotoBlobTask Delete(ProfilePhoto photo, DateTimeOffset now) =>
-        new(PhotoBlobWork.Delete, photo.Id, photo.BlobName, null, null, now);
+    public static PhotoBlobTask Delete(ProfilePhoto photo, DateTimeOffset now) => Delete(photo.Id, photo.BlobName, now);
+
+    /// <summary>Writes the blob of any photo, a profile's or a contact's, identified by its id and key.</summary>
+    public static PhotoBlobTask Save(Guid photoId, string blobName, byte[] content, string contentType, DateTimeOffset now) =>
+        new(PhotoBlobWork.Save, photoId, blobName, content, contentType, now);
+
+    public static PhotoBlobTask Delete(Guid photoId, string blobName, DateTimeOffset now) =>
+        new(PhotoBlobWork.Delete, photoId, blobName, null, null, now);
 
     /// <summary>Schedules the next try with exponential backoff, at most an hour apart.</summary>
     public void Failed(DateTimeOffset now)

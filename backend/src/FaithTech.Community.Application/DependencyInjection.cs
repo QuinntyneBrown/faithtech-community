@@ -54,6 +54,7 @@ public static class DependencyInjection
         services.AddScoped<ContactAccess>();
         services.AddScoped<ContactViews>();
         services.AddScoped<ManageContactsHandler>();
+        services.AddScoped<ContactPhotosHandler>();
         services.AddScoped<ContactNotesHandler>();
         services.AddScoped<ArchiveContactsHandler>();
         services.AddScoped<ContactSignedUpHandler>();
