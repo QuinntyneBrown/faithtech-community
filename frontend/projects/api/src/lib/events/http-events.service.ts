@@ -61,6 +61,10 @@ export class HttpEventsService implements EventsService {
     return this.http.delete<void>(`${this.api}/events/${id}/rsvps/me`);
   }
 
+  exportRsvps(id: string): Observable<Blob> {
+    return this.http.get(`${this.api}/events/${id}/rsvps.csv`, { responseType: 'blob' });
+  }
+
   getPublicEvent(id: string): Observable<PublicEventDto> {
     return this.http.get<PublicEventDto>(`${this.api}/public/events/${id}`);
   }

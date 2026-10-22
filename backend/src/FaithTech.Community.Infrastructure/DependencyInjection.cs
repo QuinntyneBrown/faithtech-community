@@ -1,10 +1,12 @@
 using Azure.Storage.Blobs;
 using FaithTech.Community.Application.Admin;
 using FaithTech.Community.Application.Common;
+using FaithTech.Community.Application.Events;
 using FaithTech.Community.Application.Identity;
 using FaithTech.Community.Application.Notifications;
 using FaithTech.Community.Application.Profiles;
 using FaithTech.Community.Infrastructure.Admin;
+using FaithTech.Community.Infrastructure.Calendar;
 using FaithTech.Community.Infrastructure.Email;
 using FaithTech.Community.Infrastructure.Identity;
 using FaithTech.Community.Infrastructure.Notifications;
@@ -74,6 +76,7 @@ public static class DependencyInjection
         services.AddHttpContextAccessor();
         services.AddScoped<IAuditLog, AuditLog>();
         services.AddScoped<INotificationPublisher, DbNotificationPublisher>();
+        services.AddSingleton<IIcsCalendarWriter, IcsCalendarWriter>();
 
         services.AddScoped<CommunitySeeder>();
 

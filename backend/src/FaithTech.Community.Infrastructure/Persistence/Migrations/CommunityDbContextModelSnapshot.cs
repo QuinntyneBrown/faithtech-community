@@ -777,6 +777,9 @@ namespace FaithTech.Community.Infrastructure.Persistence.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
+                    b.Property<string>("AttachmentsJson")
+                        .HasColumnType("text");
+
                     b.Property<int>("Attempts")
                         .HasColumnType("integer");
 

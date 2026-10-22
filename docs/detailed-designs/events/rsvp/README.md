@@ -95,3 +95,11 @@ Decisions recorded while building the Domain layer (`FaithTech.Community.Domain`
 
 - Capacity was an open question; `L2-020` AC5 defines it, so `Event` enforces it. RSVPs are also refused once the event has started, matching "any time before the event" in `L2-022` AC2. Resolved.
 - Domain rule violations throw `InvalidOperationException` (a broken rule) or `ArgumentException` (invalid input); there is no shared domain exception type. Handlers check permissions and preconditions first and map any remaining violation to a `400` or `409` result.
+
+Decisions recorded while building the slice:
+
+- `POST /api/events/{id}/rsvps` answers 204 and is idempotent: a second RSVP keeps the one RSVP and sends no second confirmation. A cancelled, started or full event answers 409 with "This event was cancelled.", "This event has already started." or "This event is full." (`L2-020` AC5), which the page shows. `DELETE /api/events/{id}/rsvps/me` answers 204, or 404 when the caller has no RSVP; the dialog treats 404 as done.
+- The confirmation is an `RsvpConfirmed` in-app notification through `INotificationPublisher` (the notifications seam) and an email with the `.ics` from `IIcsCalendarWriter` attached. `EmailMessage` gained attachments, which `OutboxMessage.AttachmentsJson` keeps until the outbox sends them, and the SMTP transport attaches them.
+- "Lead" means City Lead, Event Lead, Create Lead or Communications Lead. Leads, Staff and System Admins get `rsvps` on `EventDetailDto`, newest first; guest emails are filled in for leads and System Admins only, and `canExportRsvps` is true for them. Everyone else gets `rsvps: null` and the count.
+- `GET /api/events/{id}/rsvps.csv` (leads and System Admins; Staff and attendees 403) has the columns Name, Member or guest, Guest email and RSVP'd (UTC); cells that could start a spreadsheet formula are prefixed with an apostrophe. The file is `{event-slug}-rsvps.csv`.
+- The page names the host with their event role ("Marcus Lee, Event Lead"), shows a full event as full instead of offering RSVP, and after a refusal shows "You’re not on the list" with the server's reason. Cancelling an RSVP shows a success toast, "Your RSVP is cancelled". The Add to calendar link (calendar-export), the public page card (public-events-and-guest-rsvp) and Cancel event (cancel-events) arrive with their slices.

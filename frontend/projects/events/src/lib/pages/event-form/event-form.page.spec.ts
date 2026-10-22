@@ -21,9 +21,15 @@ const existing: EventDetailDto = {
   capacity: 60,
   visibility: 'Public',
   rsvpCount: 4,
+  isFull: false,
   isCancelled: false,
   cancellationReason: null,
+  hostName: 'Marcus Lee',
+  hostRole: 'Event Lead',
+  callerHasRsvp: false,
   canManage: true,
+  canExportRsvps: true,
+  rsvps: [],
 };
 
 interface Overrides {

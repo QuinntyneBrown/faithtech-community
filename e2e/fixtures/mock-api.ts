@@ -96,7 +96,10 @@ export class MockApi {
   /** "Now" for invite status, matching the mocks' 21 October 2026. */
   now = new Date(Date.UTC(2026, 9, 21, 12));
   /** The events fake (fixtures/mock-events.ts), sharing this fake's clock. */
-  readonly events = new MockEvents(() => this.now);
+  readonly events = new MockEvents(
+    () => this.now,
+    (id) => this.profiles.get(id),
+  );
   readonly calls: {
     method: string;
     path: string;

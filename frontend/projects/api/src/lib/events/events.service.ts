@@ -57,11 +57,13 @@ export interface EventListDto {
   cities: string[];
 }
 
+/** Someone who RSVP'd. `guestEmail` is null for members, and for Staff (L2-022 AC4). */
 export interface RsvpDto {
+  profileId: string | null;
   name: string;
-  /** Null for Staff. */
-  guestEmail: string | null;
   isGuest: boolean;
+  guestEmail: string | null;
+  rsvpedAt: string;
 }
 
 /** One event as its page and the edit form show it, with whether the caller may manage it. */
@@ -79,9 +81,17 @@ export interface EventDetailDto {
   capacity: number | null;
   visibility: EventVisibility;
   rsvpCount: number;
+  isFull: boolean;
   isCancelled: boolean;
   cancellationReason: string | null;
+  hostName: string | null;
+  /** "Event Lead", "City Lead" or "System Admin". */
+  hostRole: string | null;
+  callerHasRsvp: boolean;
   canManage: boolean;
+  canExportRsvps: boolean;
+  /** Null unless the caller is a lead, Staff or System Admin; attendees see only the count. */
+  rsvps: RsvpDto[] | null;
 }
 
 export interface PublicEventDto {
@@ -110,7 +120,7 @@ export interface EventFilter {
 
 /**
  * Contract for the events API. Pages depend on EVENTS_SERVICE, never on HttpEventsService.
- * TODO(slice): RSVP lists, RSVP CSV export and guest cancel links join with the rsvp and public-event slices.
+ * TODO(slice): guest cancel links join with the public-event slice.
  * TODO(slice): the members-only .ics link carries no bearer token; it may need a blob fetch or signed URL.
  */
 export interface EventsService {
@@ -119,9 +129,11 @@ export interface EventsService {
   createEvent(event: EventRequest): Observable<{ id: string }>;
   updateEvent(id: string, event: EventRequest): Observable<void>;
   cancelEvent(id: string, reason?: string | null): Observable<void>;
-  /** Idempotent. 409 when the event is cancelled. */
+  /** Idempotent. 409 with a detail when the event is cancelled, started or full. */
   rsvp(id: string): Observable<void>;
   cancelRsvp(id: string): Observable<void>;
+  /** The RSVP list as CSV, for leads and System Admins. */
+  exportRsvps(id: string): Observable<Blob>;
 
   /** Anonymous. 404 for members-only events. */
   getPublicEvent(id: string): Observable<PublicEventDto>;

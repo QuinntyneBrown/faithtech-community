@@ -74,6 +74,7 @@ public static class DependencyInjection
         services.AddScoped<ListEventsHandler>();
         services.AddScoped<SaveEventHandler>();
         services.AddScoped<GetEventHandler>();
+        services.AddScoped<RsvpHandler>();
         services.TryAddSingleton(TimeProvider.System);
         return services;
     }

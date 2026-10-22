@@ -1,3 +1,4 @@
+using FaithTech.Community.Api.Tests.Profiles;
 using FaithTech.Community.Domain.Events;
 using Microsoft.EntityFrameworkCore;
 
@@ -18,7 +19,9 @@ public static class EventClients
         string? cancelledBecause = null,
         int? capacity = null,
         Guid? createdBy = null,
-        TimeSpan? lasts = null)
+        TimeSpan? lasts = null,
+        IEnumerable<Guid>? members = null,
+        IEnumerable<(string Name, string Email)>? guests = null)
     {
         var now = factory.Time.GetUtcNow();
         var starts = now + startsIn;
@@ -42,6 +45,16 @@ public static class EventClients
             created.Rsvp(Guid.NewGuid(), starts.AddDays(-30));
         }
 
+        foreach (var member in members ?? [])
+        {
+            created.Rsvp(member, starts.AddDays(-30));
+        }
+
+        foreach (var (name, email) in guests ?? [])
+        {
+            created.GuestRsvp(name, email, starts.AddDays(-30));
+        }
+
         if (cancelledBecause is not null)
         {
             created.Cancel(cancelledBecause);
@@ -54,6 +67,9 @@ public static class EventClients
         });
         return created;
     }
+
+    public static Task<string> EmailOfAsync(this CommunityApiFactory factory, ProfileClients.Member member) =>
+        factory.WithDbAsync(db => db.Users.Where(u => u.Id == member.UserId).Select(u => u.Email!).SingleAsync());
 
     public static Task<Event> LoadEventAsync(this CommunityApiFactory factory, Guid id) =>
         factory.WithDbAsync(db => db.Events.AsNoTracking().Include(e => e.Rsvps).SingleAsync(e => e.Id == id));
