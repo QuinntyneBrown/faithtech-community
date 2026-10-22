@@ -1,7 +1,7 @@
 import { expect, test } from '../../fixtures/app';
 import { MarketingPage } from '../../pages/marketing.page';
 
-// Traces to: L2-071, L2-072 AC4 (docs/detailed-designs/identity/google-sign-in).
+// Traces to: L2-078, L2-079 AC4 (docs/detailed-designs/identity/google-sign-in).
 test.describe('Sign in with Google from the marketing page', () => {
   test('a new Google account gets an account with no role and lands in the community app', async ({
     page,

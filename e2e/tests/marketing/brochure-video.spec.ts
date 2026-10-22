@@ -1,7 +1,7 @@
 import { expect, test } from '../../fixtures/app';
 import { MarketingPage } from '../../pages/marketing.page';
 
-// Traces to: L2-068 (docs/detailed-designs/marketing/landing-page).
+// Traces to: L2-075 (docs/detailed-designs/marketing/landing-page).
 test.describe('Brochure video', () => {
   test('waits for Play with a poster, controls and English captions turned on', async ({
     page,

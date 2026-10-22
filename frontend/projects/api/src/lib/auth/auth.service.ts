@@ -55,7 +55,7 @@ export interface AuthService {
   signOut(): Observable<void>;
   /**
    * True when the community app keeps a "Keep me signed in" session on this device (the session hint,
-   * ADR 0017). It only decides a redirect; the community app validates the session itself.
+   * ADR 0018). It only decides a redirect; the community app validates the session itself.
    */
   hasKeptSession(): boolean;
   loadCurrentUser(): Observable<CurrentUser>;

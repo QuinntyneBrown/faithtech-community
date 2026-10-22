@@ -1,7 +1,7 @@
 import { expect, test } from '../../fixtures/app';
 import { MarketingPage } from '../../pages/marketing.page';
 
-// Traces to: L2-070, L2-067 AC5 (docs/detailed-designs/marketing/landing-page). Each outcome of L2-001.
+// Traces to: L2-077, L2-074 AC5 (docs/detailed-designs/marketing/landing-page). Each outcome of L2-001.
 test.describe('Sign up from the marketing page', () => {
   test('Join now shows the join form without leaving the page, and Sign in switches back', async ({
     page,

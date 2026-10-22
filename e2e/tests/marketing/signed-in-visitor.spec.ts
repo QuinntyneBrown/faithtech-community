@@ -2,7 +2,7 @@ import { expect, test } from '../../fixtures/app';
 import { AppShell } from '../../pages/app-shell.page';
 import { MarketingPage } from '../../pages/marketing.page';
 
-// Traces to: L2-067 AC6 (docs/detailed-designs/marketing/landing-page, ADR 0017).
+// Traces to: L2-074 AC6 (docs/detailed-designs/marketing/landing-page, ADR 0018).
 test.describe('A member who is already signed in', () => {
   test('with a session kept on this device goes straight to the community app', async ({
     page,

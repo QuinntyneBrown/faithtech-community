@@ -141,7 +141,7 @@ describe('HttpAuthService', () => {
     expect(service.roles()).toEqual(['Lead', 'Volunteer']);
   });
 
-  // Traces to: L2-071
+  // Traces to: L2-078
   it('sends the browser to the API to start Google sign-in with where to land', () => {
     service.signInWithGoogle('/events', true);
 

@@ -18,7 +18,7 @@ Coverage: the profiles screens (`profile`, `edit-profile`, `delete-photo`), the 
 ### Marketing page — `www.faithtech.community/` in the marketing app (`pages/marketing`: default, sign-in-busy, sign-in-invalid, sign-in-error, sign-in-unreachable, locked, suspended, unverified, sign-up, sign-up-invalid, sign-up-busy, sign-up-error, sign-up-success, google-busy, google-failed, video-unavailable, reduced-motion)
 
 - Library: `SkipLinkComponent`, `TopBarComponent` `anonymous` with *Join now* (`ButtonComponent` `ghost`) and *Sign in* in `ftTopBarActions`, `ContainerComponent`, `LandingHeroComponent` (eyebrow, `<h1>` heading and lead; `ftHeroPanel` and `ftHeroMedia` slots), `CardComponent` holding `SignInFormComponent` or `SignUpFormComponent` (the same forms as the community app's pages, `divider="or"`) with `ButtonComponent` `variant="google"` *Sign in with Google* / *Sign up with Google* in `ftAuthAlternatives`, `ButtonComponent` `ghost` *Join now* / *Sign in* to switch the panel, `AlertComponent` (the unverified hand-off), `EmptyStateComponent` with `LinkComponent` (check your inbox, send it again), `VideoPlayerComponent` (poster, captions, transcript, unavailable), `GridComponent` `auto` of three `BenefitComponent`s (Why join), `CtaBandComponent` with *Join now*, `SiteFooterComponent` (shell).
-- Lives in `frontend/projects/marketing/` (ADR 0017); services: `AUTH_SERVICE` only. The community origin comes from the `COMMUNITY_ORIGIN` token.
+- Lives in `frontend/projects/marketing/` (ADR 0018); services: `AUTH_SERVICE` only. The community origin comes from the `COMMUNITY_ORIGIN` token.
 - Local: the benefit copy, the transcript text, the panel switch between sign-in and sign-up (`?join` in the URL), the Google outcome (`?google=failed|suspended`) and the kept-session redirect (`AUTH_SERVICE.hasKeptSession()`). The in-page forms are the page's purpose, so they are not a dialog (AGENTS.md "No inline forms" exception, recorded in the mock and design).
 
 ### Sign in — `/sign-in` (`pages/sign-in`: default, invalid, busy, locked, error, suspended)
@@ -33,7 +33,7 @@ Coverage: the profiles screens (`profile`, `edit-profile`, `delete-photo`), the 
 
 ### Auth continue — `/auth/continue` (no mock; shows the auth callback's "Signing you in…")
 
-- Library: `AuthLayoutComponent`. Starts `AUTH_SERVICE.signIn(returnUrl, keepSignedIn)` for a session the marketing page or Google sign-in created (ADR 0017).
+- Library: `AuthLayoutComponent`. Starts `AUTH_SERVICE.signIn(returnUrl, keepSignedIn)` for a session the marketing page or Google sign-in created (ADR 0018).
 
 ### Home — `/` (`pages/home`: default, loading, empty, error, activity-error, pipeline-zero, pipeline-error, staff, coming-up-empty)
 

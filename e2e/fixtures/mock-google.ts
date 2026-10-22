@@ -26,7 +26,7 @@ function redirect(route: Route, location: string) {
 }
 
 /**
- * Plays Google and the API's Google endpoints (AccountEndpoints, GoogleSignInHandler; ADR 0018) so the
+ * Plays Google and the API's Google endpoints (AccountEndpoints, GoogleSignInHandler; ADR 0019) so the
  * marketing page's real redirects run without the network: start sends the browser to "Google", which
  * returns to the callback, which applies the server's rules and lands in the community app or back on
  * the marketing page with ?google=failed|suspended.

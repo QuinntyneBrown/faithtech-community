@@ -1,8 +1,8 @@
-# 0017. Marketing application and session hand-off
+# 0018. Marketing application and session hand-off
 
 - Status: Accepted
 - Date: 2026-10-22
-- Requirements: L1-021, L2-067 to L2-070, L2-072
+- Requirements: L1-021, L2-074 to L2-077, L2-079
 - Designs: `docs/detailed-designs/marketing/landing-page`, `docs/detailed-designs/identity/google-sign-in`
 
 ## Context

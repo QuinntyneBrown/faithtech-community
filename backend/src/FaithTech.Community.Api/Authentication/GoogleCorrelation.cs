@@ -5,7 +5,7 @@ using Microsoft.AspNetCore.DataProtection;
 namespace FaithTech.Community.Api.Authentication;
 
 /// <summary>
-/// The Google sign-in correlation cookie (ADR 0018): the state, the nonce and where to land, protected so the
+/// The Google sign-in correlation cookie (ADR 0019): the state, the nonce and where to land, protected so the
 /// browser can neither read nor forge it, kept for 10 minutes and deleted when Google sends the browser back.
 /// </summary>
 public class GoogleCorrelation(IDataProtectionProvider dataProtection, TimeProvider time)

@@ -22,7 +22,7 @@ public class GoogleOptions
     public bool IsConfigured => !string.IsNullOrWhiteSpace(ClientId) && !string.IsNullOrWhiteSpace(ClientSecret);
 }
 
-/// <summary>Google's authorization code flow with OpenID Connect (ADR 0018).</summary>
+/// <summary>Google's authorization code flow with OpenID Connect (ADR 0019).</summary>
 public class GoogleIdentityProvider(
     HttpClient http,
     GoogleIdTokenValidator validator,

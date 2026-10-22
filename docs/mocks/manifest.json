@@ -7,12 +7,12 @@
       "title": "Marketing page",
       "route": "www.faithtech.community /",
       "requirements": [
-        "L2-067",
-        "L2-068",
-        "L2-069",
-        "L2-070",
-        "L2-071",
-        "L2-072"
+        "L2-074",
+        "L2-075",
+        "L2-076",
+        "L2-077",
+        "L2-078",
+        "L2-079"
       ],
       "states": [
         "default",

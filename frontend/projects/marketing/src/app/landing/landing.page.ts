@@ -50,8 +50,8 @@ const BROCHURE_TRANSCRIPT =
   'Join FaithTech Community. It’s free, and it takes a minute.';
 
 /**
- * The marketing page (L2-067), matching docs/mocks/pages/marketing. It collects credentials and
- * hands the session to the community app, which completes PKCE (ADR 0017).
+ * The marketing page (L2-074), matching docs/mocks/pages/marketing. It collects credentials and
+ * hands the session to the community app, which completes PKCE (ADR 0018).
  */
 @Component({
   selector: 'ft-landing-page',
@@ -103,7 +103,7 @@ export class LandingPage implements OnInit {
 
   constructor() {
     const injector = inject(Injector);
-    // The API's Google outcome arrives once, in the URL the visitor comes back to (ADR 0018).
+    // The API's Google outcome arrives once, in the URL the visitor comes back to (ADR 0019).
     effect(() => {
       const outcome = this.google();
       untracked(() => {
@@ -130,7 +130,7 @@ export class LandingPage implements OnInit {
   }
 
   ngOnInit(): void {
-    // A member whose session the community app keeps on this device goes straight there (L2-067 AC6).
+    // A member whose session the community app keeps on this device goes straight there (L2-074 AC6).
     if (this.auth.hasKeptSession()) {
       this.handingOff.set({ emailVerified: true });
       this.redirect(`${this.communityOrigin}${appPath(this.returnUrl())}`);

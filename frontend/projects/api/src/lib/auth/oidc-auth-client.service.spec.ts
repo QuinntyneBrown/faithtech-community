@@ -115,7 +115,7 @@ describe('OidcAuthClient', () => {
     expect(redirect).toHaveBeenLastCalledWith(TEST_ORIGIN);
   });
 
-  // Traces to: L2-067 AC6
+  // Traces to: L2-074 AC6
   describe('the kept-session hint for the marketing page', () => {
     const hint = () => document.cookie.split('; ').includes('ftc.signed-in=1');
 

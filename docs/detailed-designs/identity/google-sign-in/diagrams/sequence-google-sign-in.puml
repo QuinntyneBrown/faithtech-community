@@ -23,7 +23,7 @@ ep -> ep : state, nonce -> ftc.google cookie (protected, 10 min)
 ep --> google : 302 authorize (client_id, redirect_uri, scope openid email profile, state, nonce)
 actor -> google : Choose account, consent
 google --> ep : 302 /api/account/google/callback?code&state
-ep -> ep : Delete cookie; state must match (L2-071 AC6)
+ep -> ep : Delete cookie; state must match (L2-078 AC6)
 ep -> h : GoogleSignInCommand(code, redirectUri, nonce)
 h -> prov : ExchangeCodeAsync
 prov -> google : POST /token (client secret)
@@ -32,7 +32,7 @@ alt invalid token
   h --> ep : InvalidToken
   ep --> page : 302 /?google=failed
 else email not verified
-  h --> ep : UnverifiedEmail (L2-071 AC4)
+  h --> ep : UnverifiedEmail (L2-078 AC4)
   ep --> page : 302 /?google=failed
 else found by login or verified email, or created
   h -> h : Link login; confirm email, drop unproven password; or create profile with no role (AC1-AC3)
@@ -43,7 +43,7 @@ else found by login or verified email, or created
     h --> ep : User
     ep -> ep : Sign in ftc.session cookie
     ep --> cont : 302 /auth/continue?returnUrl&keepSignedIn
-    cont --> actor : PKCE, then home (ADR 0017)
+    cont --> actor : PKCE, then home (ADR 0018)
   end
 end
 @enduml

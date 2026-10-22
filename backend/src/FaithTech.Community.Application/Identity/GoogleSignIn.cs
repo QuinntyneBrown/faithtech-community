@@ -8,7 +8,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace FaithTech.Community.Application.Identity;
 
-/// <summary>What a validated Google ID token says about the person (ADR 0018).</summary>
+/// <summary>What a validated Google ID token says about the person (ADR 0019).</summary>
 public record GoogleIdentity(string Subject, string Email, bool EmailVerified, string? Name);
 
 /// <summary>Google's OpenID Connect provider; Infrastructure talks to Google, tests use a fake.</summary>
@@ -39,7 +39,7 @@ public record GoogleSignInResult(CommunityUser? User, GoogleSignInError? Error)
 }
 
 /// <summary>
-/// Signs in, links or creates an account from a Google identity (L2-071, ADR 0018). A Google login is linked only
+/// Signs in, links or creates an account from a Google identity (L2-078, ADR 0019). A Google login is linked only
 /// to an account whose email Google has verified; a new account has no role, a verified email and no password.
 /// </summary>
 public class GoogleSignInHandler(

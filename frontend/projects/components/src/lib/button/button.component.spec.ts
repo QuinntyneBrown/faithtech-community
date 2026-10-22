@@ -180,7 +180,7 @@ describe('ButtonComponent', () => {
     expect(spy).not.toHaveBeenCalled();
   });
 
-  // Traces to: L2-071
+  // Traces to: L2-078
   it("shows Google's mark before the label on the Google variant, decorative to screen readers", () => {
     const { fixture, cmp, q } = setup();
     expect(q('img')).toBeNull();

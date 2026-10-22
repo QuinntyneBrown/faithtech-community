@@ -64,7 +64,7 @@ public static class DependencyInjection
             client.Timeout = TimeSpan.FromSeconds(3);
             client.DefaultRequestHeaders.Add("Add-Padding", "true");
         });
-        // Google sign-in (ADR 0018): Google's signing keys come from its discovery document, refreshed by the manager.
+        // Google sign-in (ADR 0019): Google's signing keys come from its discovery document, refreshed by the manager.
         services.Configure<GoogleOptions>(configuration.GetSection(GoogleOptions.Section));
         services.AddSingleton<IConfigurationManager<OpenIdConnectConfiguration>>(_ =>
             new ConfigurationManager<OpenIdConnectConfiguration>(

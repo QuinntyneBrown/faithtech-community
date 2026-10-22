@@ -1,5 +1,5 @@
 /**
- * The "kept session" hint (ADR 0017): a non-secret cookie the community app writes while it keeps a
+ * The "kept session" hint (ADR 0018): a non-secret cookie the community app writes while it keeps a
  * "Keep me signed in" session, so the marketing page on another host of the same site can send a member
  * straight to the app. It grants nothing; the app still validates the session itself.
  */

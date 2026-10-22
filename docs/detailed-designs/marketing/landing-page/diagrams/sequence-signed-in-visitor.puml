@@ -16,7 +16,7 @@ end box
 actor -> page : Open www.faithtech.community
 page -> auth : hasKeptSession()
 auth --> page : ftc.signed-in cookie present
-page -> init : location.replace(community origin + "/") (L2-067 AC6)
+page -> init : location.replace(community origin + "/") (L2-074 AC6)
 init -> client : restoreSession(): refresh token from localStorage
 alt refresh succeeds
   client --> actor : Home

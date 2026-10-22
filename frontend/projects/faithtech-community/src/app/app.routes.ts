@@ -19,7 +19,7 @@ import { AppShellComponent, PublicShellComponent } from './shell';
 export const routes: Routes = [
   { path: 'sign-in', component: SignInPage },
   { path: 'auth/callback', component: AuthCallbackPage },
-  // The marketing page and Google sign-in hand their session over here (ADR 0017).
+  // The marketing page and Google sign-in hand their session over here (ADR 0018).
   { path: 'auth/continue', component: AuthContinuePage },
   { path: 'sign-up', component: SignUpPage },
   { path: 'verify-email', component: VerifyEmailPage },

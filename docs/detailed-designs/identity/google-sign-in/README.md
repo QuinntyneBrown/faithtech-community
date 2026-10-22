@@ -23,7 +23,7 @@
 - **`GoogleSignInHandler`** — the rules:
   1. No identity → `InvalidToken`.
   2. `EmailVerified` false → `UnverifiedEmail`; nothing is created or linked.
-  3. Find by `FindByLoginAsync("Google", sub)`; else by `FindByEmailAsync(email)`, which links with `AddLoginAsync`. If the matching account had not confirmed its email, it is confirmed and its password removed (it was never proven to belong to the email's owner, ADR 0018), and `ContactSignedUpHandler` runs as after a verification link.
+  3. Find by `FindByLoginAsync("Google", sub)`; else by `FindByEmailAsync(email)`, which links with `AddLoginAsync`. If the matching account had not confirmed its email, it is confirmed and its password removed (it was never proven to belong to the email's owner, ADR 0019), and `ContactSignedUpHandler` runs as after a verification link.
   4. Otherwise create a `Profile` named from Google's `name` (trimmed to 100 characters, or the email's local part), a `CommunityUser` with `EmailConfirmed = true` and no password, and the login; no role is ever granted; `ContactSignedUpHandler` matches private contacts.
   5. `AccountStatus.IsSuspendedAsync` (shared with `SignInHandler`) → `Suspended`.
 - Lockout is a password rule; it does not block Google sign-in. Sign-up does not write an audit entry, so neither does a Google account creation.
@@ -48,8 +48,8 @@ No schema change: `CommunityDbContext` derives from `IdentityDbContext<Community
 
 | L2 ID | Refines (L1) | Requirement |
 |-------|--------------|-------------|
-| `L2-071` | `L1-001` | Google sign-in: create, link, unverified, suspended, bad state or token, configuration. |
-| `L2-072` | `L1-015`, `L1-021` | Rate limit, no enumeration difference between the Google and password paths. |
+| `L2-078` | `L1-001` | Google sign-in: create, link, unverified, suspended, bad state or token, configuration. |
+| `L2-079` | `L1-015`, `L1-021` | Rate limit, no enumeration difference between the Google and password paths. |
 
 ### Acceptance criteria
 
@@ -83,7 +83,7 @@ The handler depends on the provider port and the shared suspension rule; logins 
 
 ### Behaviour — continue with Google
 
-State and nonce are checked before any account is touched (`L2-071`).
+State and nonce are checked before any account is touched (`L2-078`).
 
 ![Sequence diagram for Google sign-in](diagrams/sequence-google-sign-in.png)
 

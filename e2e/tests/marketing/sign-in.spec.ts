@@ -3,7 +3,7 @@ import { AppShell } from '../../pages/app-shell.page';
 import { MarketingPage } from '../../pages/marketing.page';
 import { SignInPage } from '../../pages/sign-in.page';
 
-// Traces to: L2-069 (docs/detailed-designs/marketing/landing-page). Each outcome of L2-003.
+// Traces to: L2-076 (docs/detailed-designs/marketing/landing-page). Each outcome of L2-003.
 test.describe('Sign in from the marketing page', () => {
   test('a verified account lands on the community app home with a PKCE session', async ({
     page,

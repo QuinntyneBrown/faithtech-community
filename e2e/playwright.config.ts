@@ -12,7 +12,7 @@ export default defineConfig({
   reporter: process.env['CI'] ? 'github' : 'list',
   use: { baseURL, trace: 'retain-on-failure' },
   projects: [{ name: 'chromium', use: { ...devices['Desktop Chrome'] } }],
-  // Only the two Angular apps: the community app and the marketing page (ADR 0017). Never the API.
+  // Only the two Angular apps: the community app and the marketing page (ADR 0018). Never the API.
   webServer: [
     {
       command: 'npm --prefix ../frontend start -- --port 4200',

@@ -61,7 +61,7 @@ faithtech-community/
 │       │                             # feature libraries, auth guards. No feature pages.
 │       ├── marketing/                # Second application: the public marketing page served at
 │       │                             # www.faithtech.community (sign in, sign up, Google, brochure
-│       │                             # video in public/). Composes components and api only (ADR 0017)
+│       │                             # video in public/). Composes components and api only (ADR 0018)
 │       ├── api/                      # API client library: service contracts, injection
 │       │                             # tokens, HTTP implementations, OIDC + PKCE auth
 │       ├── components/               # Shared accessible UI component library and design tokens
@@ -89,7 +89,7 @@ faithtech-community/
 │   └── videos/                       # Journey video recording: PowerShell entry point,
 │       │                             # Playwright recording config, presenter and journey stories
 │       └── brochure/                 # Marketing brochure video source: script, timed slide deck,
-│                                     # build command (ADR 0019)
+│                                     # build command (ADR 0020)
 └── docs/
     ├── specs/                        # L1/L2 requirements with acceptance criteria
     ├── detailed-designs/             # Per-subsystem/feature designs and diagrams

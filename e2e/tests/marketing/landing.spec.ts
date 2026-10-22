@@ -2,7 +2,7 @@ import { expect, test } from '../../fixtures/app';
 import { MarketingPage } from '../../pages/marketing.page';
 import { BREAKPOINTS, hasHorizontalScroll, undersizedTargets } from '../../pages/viewport';
 
-// Traces to: L2-067 (docs/detailed-designs/marketing/landing-page).
+// Traces to: L2-074 (docs/detailed-designs/marketing/landing-page).
 test.describe('Marketing page', () => {
   test('an anonymous visitor sees the marketing page', async ({ page, axe }) => {
     const marketing = new MarketingPage(page);

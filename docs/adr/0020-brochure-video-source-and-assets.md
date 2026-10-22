@@ -1,8 +1,8 @@
-# 0019. Brochure video source and assets
+# 0020. Brochure video source and assets
 
 - Status: Accepted
 - Date: 2026-10-22
-- Requirements: L2-068
+- Requirements: L2-075
 - Designs: `docs/detailed-designs/marketing/landing-page`
 
 ## Context

@@ -4,7 +4,7 @@ import { AuthLayoutComponent } from '@faithtech-community/components';
 
 /**
  * Starts the authorization code + PKCE flow for a session the marketing page or Google sign-in
- * has just created (ADR 0017), so the verifier and tokens live in this app's storage.
+ * has just created (ADR 0018), so the verifier and tokens live in this app's storage.
  */
 @Component({
   selector: 'ft-auth-continue-page',
