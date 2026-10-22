@@ -49,7 +49,7 @@ test('cancel-events', async ({ page, api }) => {
 
   await show.step('empty-reason', async () => {
     await dialog.confirm.click();
-    expect(await dialog.error()).toContain('Tell attendees why');
+    await expect.poll(() => dialog.error()).toContain('Tell attendees why');
   });
 
   await show.step('reason', async () => {

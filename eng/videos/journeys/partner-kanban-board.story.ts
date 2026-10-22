@@ -16,7 +16,18 @@ test('partner-kanban-board', async ({ page, api }) => {
     roles: ['CityLead'],
   });
   api.partners.add({ name: 'Maple Street Church', contactName: 'Kwame Asante' });
-  api.partners.add({ name: 'Northgate Credit Union', offering: 'Sponsorship enquiry' });
+  const northgate = api.partners.add({
+    name: 'Northgate Credit Union',
+    offering: 'Sponsorship enquiry',
+  });
+  api.partners.addActivity(northgate, {
+    kind: 'Call',
+    summary: 'Asked about sponsoring the hackathon.',
+    occurredOn: '2026-10-19',
+    nextStep: 'Send the sponsor pack',
+    nextStepDue: '2026-10-26',
+    loggedById: grace.profileId,
+  });
   api.partners.add({ name: 'Kestrel Labs', stage: 'InFunnel' });
   api.partners.add({ name: 'Summit Cloud', stage: 'Confirmed' });
 
@@ -37,6 +48,9 @@ test('partner-kanban-board', async ({ page, api }) => {
       ]);
       await expect(partners.column('Lead').getByRole('listitem')).toHaveCount(2);
       await expect(partners.column('In funnel').getByRole('listitem')).toHaveCount(1);
+      await expect(partners.card('Northgate Credit Union')).toContainText(
+        'Next: Send the sponsor pack',
+      );
     },
     { poster: true },
   );
@@ -62,9 +76,10 @@ test('partner-kanban-board', async ({ page, api }) => {
     await expect(partners.announcement).toHaveText('Kestrel Labs moved to Confirmed');
   });
 
-  await show.step('history', async () => {
+  await show.step('timeline', async () => {
     await partners.card('Kestrel Labs').getByRole('link').click();
     await expect(partner.stage).toHaveText('Confirmed');
+    await expect(partner.entries.first()).toContainText('Stage moved · Grace Okonkwo');
     await expect(partner.entries.first()).toContainText(
       'Moved Kestrel Labs from In funnel to Confirmed: “Contract signed.”',
     );
@@ -73,7 +88,7 @@ test('partner-kanban-board', async ({ page, api }) => {
   await show.card('closing', 'closing', [
     'Lead, In funnel and Confirmed',
     'Drag a card, or use the Move dialog from the keyboard',
-    'Every move is kept in the partner history',
+    'Every move is kept on the partner’s activity timeline',
   ]);
   await show.finish();
 });
