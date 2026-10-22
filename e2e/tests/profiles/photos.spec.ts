@@ -4,6 +4,7 @@ import { MockApi, MockPhoto, photoUrl } from '../../fixtures/mock-api';
 import { DeletePhotoDialog } from '../../pages/delete-photo.dialog';
 import { EditProfilePage } from '../../pages/edit-profile.page';
 import { ProfilePage } from '../../pages/profile.page';
+import { BREAKPOINTS } from '../../pages/viewport';
 
 // A real 1×1 PNG, so the browser can preview what the member chose.
 const PNG = Buffer.from(
@@ -176,6 +177,46 @@ test.describe('Manage profile photos', () => {
       api.callsTo('PUT', `/api/profiles/${grace.profileId}/photos/photo-b/featured`),
     ).toHaveLength(1);
   });
+
+  for (const size of ['xs', 'xl'] as const) {
+    test(`the Featured badge sits on its thumbnail and the descriptions line up at ${size}`, async ({
+      page,
+      api,
+    }) => {
+      await page.setViewportSize(BREAKPOINTS[size]);
+      const grace = api.addAccount({ email: 'grace@example.org' });
+      withPhotos(api, grace.profileId, 3);
+      const edit = new EditProfilePage(page);
+      await api.signInAs(grace, '/people/me/edit');
+      await expect(edit.featuredBadge()).toHaveCount(1);
+
+      const featured = edit.featuredPhoto();
+      const thumb = (await featured.getByRole('img').boundingBox())!;
+      const badge = (await edit.featuredBadge().boundingBox())!;
+      expect(badge.x).toBeGreaterThanOrEqual(thumb.x);
+      expect(badge.y).toBeGreaterThanOrEqual(thumb.y);
+      expect(badge.x + badge.width).toBeLessThanOrEqual(thumb.x + thumb.width);
+      expect(badge.y + badge.height).toBeLessThanOrEqual(thumb.y + thumb.height);
+      // The Remove control keeps clear of the badge.
+      const remove = (await featured.getByRole('button', { name: /^Remove photo/ }).boundingBox())!;
+      expect(badge.x + badge.width <= remove.x || badge.y + badge.height <= remove.y).toBe(true);
+
+      // Featuring another photo moves the badge without shifting the descriptions.
+      // Measured from the top of the photos group, so scrolling to Feature does not count.
+      const rows = async () => {
+        const top = (await edit.photosGroup.boundingBox())!.y;
+        return Promise.all(
+          [0, 1, 2].map(async (i) => (await edit.description(i).boundingBox())!.y - top),
+        );
+      };
+      const before = await rows();
+      if (size === 'xl') expect(new Set(before.map(Math.round)).size).toBe(1);
+      await edit.feature(1).click();
+      await expect(edit.photo(1)).toContainText('Featured');
+      await expect(edit.featuredBadge()).toHaveCount(1);
+      expect(await rows()).toEqual(before);
+    });
+  }
 
   test('deleting the featured photo after confirmation features the newest remaining photo', async ({
     page,

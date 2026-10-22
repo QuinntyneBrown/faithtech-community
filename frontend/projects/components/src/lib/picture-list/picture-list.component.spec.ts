@@ -81,6 +81,13 @@ describe('PictureListComponent', () => {
     expect(buttonByName('Feature photo 2')).toBeDefined();
   });
 
+  it('overlays the Featured badge on the featured thumbnail', async () => {
+    const { host } = await setup();
+    const badge = host.querySelectorAll('li')[0].querySelector('ft-badge')!;
+    expect(badge.closest('.ft-photo__thumb')).not.toBeNull();
+    expect(host.querySelectorAll('li')[1].querySelector('ft-badge')).toBeNull();
+  });
+
   it('names each button after its photo and emits the index', async () => {
     const { cmp, buttonByName } = await setup();
     buttonByName('Feature photo 2').click();

@@ -50,6 +50,11 @@
             [progress]="photo.progress ?? null"
             [uploadLabel]="'Uploading photo ' + (i + 1)"
           >
+            @if (photo.featured) {
+              <span class="ft-picture-list__featured"
+                ><ft-badge variant="success">Featured</ft-badge></span
+              >
+            }
             <span class="ft-picture-list__remove">
               <ft-button
                 variant="secondary"
@@ -62,9 +67,6 @@
               </ft-button>
             </span>
           </ft-photo>
-          @if (photo.featured) {
-            <ft-badge variant="success">Featured</ft-badge>
-          }
           <ft-form-field
             required
             [label]="'Photo ' + (i + 1) + ' description'"
