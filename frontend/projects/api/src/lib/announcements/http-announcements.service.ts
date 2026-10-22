@@ -1,11 +1,3 @@
-/*
- * EARLY IMPLEMENTATION: written ahead of the vertical slices to get a head start.
- * Contracts and DTOs follow docs/detailed-designs/ but may change as each feature is
- * implemented end to end (spec -> design -> mock -> ATDD slice).
- * Sources:
- *   - docs/detailed-designs/announcements/send-announcement
- *   - docs/detailed-designs/announcements/read-announcements-and-opt-out
- */
 import { HttpClient } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
 import { Observable, map } from 'rxjs';
@@ -15,6 +7,7 @@ import { PagedResult, toHttpParams } from '../shared';
 import {
   AnnouncementAudience,
   AnnouncementDto,
+  AnnouncementSent,
   AnnouncementsService,
   SendAnnouncementRequest,
 } from './announcements.service';
@@ -36,8 +29,14 @@ export class HttpAnnouncementsService implements AnnouncementsService {
       .pipe(map((r) => r.count));
   }
 
-  send(announcement: SendAnnouncementRequest): Observable<{ id: string }> {
-    return this.http.post<{ id: string }>(`${this.api}/announcements`, announcement);
+  send(announcement: SendAnnouncementRequest): Observable<AnnouncementSent> {
+    return this.http.post<AnnouncementSent>(`${this.api}/announcements`, announcement);
+  }
+
+  getEmailOptOut(): Observable<boolean> {
+    return this.http
+      .get<{ optedOut: boolean }>(`${this.api}/me/announcement-email-opt-out`)
+      .pipe(map((r) => r.optedOut));
   }
 
   setEmailOptOut(optedOut: boolean): Observable<void> {

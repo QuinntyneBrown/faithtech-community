@@ -1,9 +1,12 @@
 import { Page, Route } from '@playwright/test';
 
 import { MockAgile } from './mock-agile';
+import { MockAnnouncements } from './mock-announcements';
 import { MockContacts } from './mock-contacts';
 import { MockPartners } from './mock-partners';
 import { MockEvents } from './mock-events';
+import { MockNotification, MockNotifications } from './mock-notifications';
+import { MockSearch } from './mock-search';
 
 export interface MockAccount {
   name: string;
@@ -59,15 +62,7 @@ export interface MockInvite {
   revokedAt: string | null;
 }
 
-/** A row of the Notifications table: addressed to one member (backend Domain/Notifications). */
-export interface MockNotification {
-  id: string;
-  recipientId: string;
-  kind: string;
-  title: string;
-  linkPath: string;
-  createdAt: string;
-}
+export type { MockNotification } from './mock-notifications';
 
 export interface MockAuditEntry {
   id: string;
@@ -107,8 +102,6 @@ export class MockApi {
   readonly profiles = new Map<string, MockProfile>();
   readonly invites: MockInvite[] = [];
   readonly audit: MockAuditEntry[] = [];
-  /** Notifications seeded for home's Recent activity; the events fake records its own. */
-  readonly notifications: MockNotification[] = [];
   /** "Now" for invite status, matching the mocks' 21 October 2026. */
   now = new Date(Date.UTC(2026, 9, 21, 12));
   /** The events fake (fixtures/mock-events.ts), sharing this fake's clock. */
@@ -116,6 +109,10 @@ export class MockApi {
     () => this.now,
     (id) => this.profiles.get(id),
   );
+  /** In-app notifications (L2-027) for the bell, the notifications page and home's Recent activity. */
+  readonly notifications = new MockNotifications(() => this.now);
+  /** Announcements and the announcement email opt-out (L2-029, L2-030). */
+  readonly announcements = new MockAnnouncements(this);
   readonly calls: {
     method: string;
     path: string;
@@ -140,6 +137,8 @@ export class MockApi {
   readonly contacts = new MockContacts(this);
   /** The shared partner pipeline (ADR 0014). */
   readonly partners = new MockPartners(this);
+  /** Global search over the other fakes, with the server's permission rules (L2-026). */
+  readonly search = new MockSearch(this);
 
   constructor(private readonly page: Page) {}
 
@@ -205,15 +204,10 @@ export class MockApi {
     notification: Partial<MockNotification> & { recipientId: string; title: string },
     minutesAgo = 0,
   ): MockNotification {
-    const full: MockNotification = {
-      id: `notification-${this.notifications.length + 1}`,
-      kind: 'InviteAccepted',
-      linkPath: '/',
-      createdAt: new Date(this.now.getTime() - minutesAgo * 60 * 1000).toISOString(),
-      ...notification,
-    };
-    this.notifications.push(full);
-    return full;
+    return this.notifications.add(
+      { kind: 'InviteAccepted', linkPath: '/', ...notification },
+      minutesAgo,
+    );
   }
 
   addAuditEntry(entry: Partial<MockAuditEntry> & { action: string; summary: string }): void {
@@ -299,6 +293,18 @@ export class MockApi {
     }
     const events = this.events.handle(route, method, url, body, this.caller(authorization));
     if (events) return events;
+    const notifications = this.notifications.handle(route, method, url, this.caller(authorization));
+    if (notifications) return notifications;
+    const announcements = this.announcements.handle(
+      route,
+      method,
+      url,
+      body,
+      this.caller(authorization),
+    );
+    if (announcements) return announcements;
+    const search = this.search.handle(route, method, url, this.caller(authorization));
+    if (search) return search;
     const profileRoute = /^\/api\/profiles\/([^/]+)$/.exec(url.pathname);
     if (method === 'GET' && profileRoute) {
       return this.getProfile(route, profileRoute[1], authorization);
@@ -453,7 +459,7 @@ export class MockApi {
       id: `event-notification-${i + 1}`,
       createdAt: this.now.toISOString(),
     }));
-    const items = [...this.notifications, ...recorded]
+    const items = [...this.notifications.notifications, ...recorded]
       .filter((n) => n.recipientId === caller.profileId)
       .sort((a, b) => b.createdAt.localeCompare(a.createdAt))
       .slice(0, 10)

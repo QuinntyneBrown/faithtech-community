@@ -18,4 +18,18 @@
       <p class="caption">Changes straight away and is remembered on this device.</p>
     </ft-stack>
   </ft-card>
+  <ft-card heading="Email me when">
+    <ft-stack gap="3">
+      <ft-switch [formControl]="emailAnnouncements">Email me announcements</ft-switch>
+      <p class="caption">You’ll always get account emails like password resets.</p>
+      <div role="status">
+        @if (save() === 'saved') {
+          <p class="caption">Saved. It applies from the next announcement.</p>
+        }
+      </div>
+      @if (save() === 'failed') {
+        <ft-inline-message>We couldn’t save that. Try again.</ft-inline-message>
+      }
+    </ft-stack>
+  </ft-card>
 </ft-stack>

@@ -30,36 +30,37 @@ class Notification {
   +NotificationKind Kind
   +string Title
   +string LinkPath
+  +Guid? ActorId
   +DateTimeOffset CreatedAt
   +DateTimeOffset? ReadAt
   +bool IsRead
   +MarkRead(at: DateTimeOffset): void
 }
-class ListNotificationsQuery {
+class NotificationPage {
+  +IReadOnlyList<NotificationDto> Items
   +int Page
   +int PageSize
+  +int TotalCount
+  +int UnreadCount
+  +bool HasMore
 }
-class ListNotificationsHandler {
-  +Handle(q: ListNotificationsQuery): Task<NotificationPage>
-}
-class MarkNotificationReadHandler {
-  +Handle(c: MarkNotificationReadCommand): Task<Result>
-}
-class MarkAllNotificationsReadHandler {
-  +Handle(c: MarkAllNotificationsReadCommand): Task<Result>
+class InAppNotificationsHandler {
+  +{static} PageSize: int = 50
+  +ListAsync(unreadOnly: bool, page: int): Task<NotificationPage>
+  +UnreadCountAsync(): Task<int>
+  +MarkReadAsync(id: Guid): Task<Result>
+  +MarkAllReadAsync(): Task
 }
 interface INotificationPublisher {
-  +PublishAsync(recipientId: Guid, kind: NotificationKind, title: string, linkPath: string): Task
+  +Publish(recipientProfileId: Guid, kind: NotificationKind, title: string, linkPath: string): void
+  +PublishAsync(recipientIds, kind, title, linkPath, actorId, email): Task<int>
 }
 interface ICurrentUser {
   +Guid UserId
 }
 Notification --> NotificationKind : has
-ListNotificationsHandler ..> ListNotificationsQuery : handles
-ListNotificationsHandler ..> ICurrentUser : uses
-MarkNotificationReadHandler ..> ICurrentUser : uses
-MarkAllNotificationsReadHandler ..> ICurrentUser : uses
-MarkNotificationReadHandler --> Notification : mutates
-MarkAllNotificationsReadHandler "1" --> "*" Notification : mutates
+InAppNotificationsHandler ..> NotificationPage : returns
+InAppNotificationsHandler ..> ICurrentUser : uses
+InAppNotificationsHandler "1" --> "*" Notification : reads / marks read
 INotificationPublisher ..> Notification : creates
 @enduml

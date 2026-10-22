@@ -11,36 +11,34 @@ skinparam class {
 }
 title Class structure — Global search
 
-class GlobalSearchQuery {
-  +string Term
-}
-class GlobalSearchValidator {
-  +Validate(query: GlobalSearchQuery): ValidationResult
-}
 class GlobalSearchHandler {
-  +Handle(query: GlobalSearchQuery): Task<SearchResultsDto>
+  +MinimumLength: int = 2
+  +MaximumLength: int = 200
+  +GroupLimit: int = 10
+  +SearchAsync(q: string?): Task<(Result, SearchResultsDto?)>
 }
 interface ICurrentUser {
-  +Guid ProfileId
-  +IReadOnlySet<Role> Roles
+  +Guid? UserId
 }
-class SearchScope <<Value object>> {
-  +bool People
-  +bool Events
-  +bool Partners
-  +bool Contacts
-  +Guid? ContactOwnerId
-  +bool AllContacts
-  +bool WorkItems
-  +bool AllWorkspaces
-  +IReadOnlySet<Guid> MemberWorkspaceIds
-  +{static} For(user: ICurrentUser): SearchScope
+interface ISearchSource {
+  +SearchResultKind Kind
+  +SearchAsync(term: string, caller: Guid, limit: int): Task<IReadOnlyList<SearchResultItem>>
 }
-interface ISearchIndex {
-  +SearchAsync(term: string, scope: SearchScope): Task<SearchResultsDto>
+class PeopleSearchSource
+class EventsSearchSource
+class PartnersSearchSource
+class ContactsSearchSource
+class WorkItemsSearchSource
+interface IFullTextSearch {
+  +Match<T>(source: IQueryable<T>, term: string, document: Expression<Func<T, string>>): IQueryable<T>
 }
-class PostgresSearchIndex {
-  +SearchAsync(term: string, scope: SearchScope): Task<SearchResultsDto>
+class PostgresFullTextSearch {
+  +Match<T>(...): IQueryable<T>
+  +{static} PrefixQuery(term: string): string?
+}
+class SearchVectors <<static>> {
+  +Column: string = "SearchVector"
+  +{static} Configure(builder: ModelBuilder): void
 }
 enum SearchResultKind {
   Person
@@ -53,7 +51,7 @@ class SearchResultsDto {
   +IReadOnlyList<SearchResultGroup> Groups
 }
 class SearchResultGroup {
-  +SearchResultKind Kind
+  +string Kind
   +IReadOnlyList<SearchResultItem> Items
 }
 class SearchResultItem {
@@ -61,14 +59,21 @@ class SearchResultItem {
   +string Title
   +string Snippet
   +string Route
+  +DateTimeOffset? StartsAt
+  +string? Badge
 }
-PostgresSearchIndex ..|> ISearchIndex
-GlobalSearchValidator ..> GlobalSearchQuery : validates
-GlobalSearchHandler ..> GlobalSearchQuery : handles
 GlobalSearchHandler ..> ICurrentUser
-GlobalSearchHandler ..> SearchScope : builds
-GlobalSearchHandler ..> ISearchIndex
+GlobalSearchHandler "1" --> "*" ISearchSource : asks in Kind order
+GlobalSearchHandler ..> SearchResultsDto : returns
+PeopleSearchSource ..|> ISearchSource
+EventsSearchSource ..|> ISearchSource
+PartnersSearchSource ..|> ISearchSource
+ContactsSearchSource ..|> ISearchSource
+WorkItemsSearchSource ..|> ISearchSource
+ISearchSource --> SearchResultKind
+ISearchSource ..> IFullTextSearch : uses
+PostgresFullTextSearch ..|> IFullTextSearch
+PostgresFullTextSearch ..> SearchVectors : matches column
 SearchResultsDto "1" *-- "*" SearchResultGroup
 SearchResultGroup "1" *-- "*" SearchResultItem
-SearchResultGroup --> SearchResultKind
 @enduml

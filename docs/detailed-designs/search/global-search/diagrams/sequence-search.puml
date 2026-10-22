@@ -24,11 +24,10 @@ box "Backend — FaithTech.Community.Api" #D1FADF
 end box
 box "Backend — FaithTech.Community.Application and Domain" #ECFDF3
   participant "GlobalSearchHandler" as h
-  participant "GlobalSearchValidator" as val
-  participant "SearchScope" as scope
+  participant "ISearchSource (x5)" as src
 end box
 box "Backend — FaithTech.Community.Infrastructure" #FFF4E5
-  participant "PostgresSearchIndex" as idx
+  participant "PostgresFullTextSearch" as idx
   database "Community database" as db
 end box
 
@@ -39,15 +38,17 @@ else valid term
   page -> page : Loading state
   page -> svc : search(term)
   svc -> ep : GET /api/search?q=term
-  ep -> h : Send GlobalSearchQuery
-  h -> val : Validate minimum length (L2-026)
-  h -> scope : For(currentUser) (L2-026 permission filters)
-  scope --> h : Own contacts only; partners for leads, Staff, System Admin; work items for workspace members, Staff, System Admin
-  h -> idx : SearchAsync(term, scope)
-  idx -> db : websearch_to_tsquery over GIN-indexed tsvector, scope filters in WHERE (L2-026)
-  db --> idx : Ranked rows per group
-  idx --> h : SearchResultsDto
-  h --> ep : Grouped results
+  ep -> h : SearchAsync(q)
+  h -> h : Trim; 2 to 200 characters, else 400 (L2-026)
+  loop each source in order: people, events, partners, contacts, work items
+    h -> src : SearchAsync(term, caller, 10)
+    src -> src : Start from what the caller may open (L2-026 permission filters):\nown contacts only; partners for leads, Staff, System Admin;\nwork items for workspace members, Staff, System Admin
+    src -> idx : Match(filtered query, term, document)
+    idx -> db : SearchVector @@ to_tsquery('english', 'gra:* & she:*'),\norder by ts_rank, permission filter in the same SQL (L2-026)
+    db --> src : Ranked rows (at most 10)
+    src --> h : SearchResultItems
+  end
+  h --> ep : SearchResultsDto (non-empty groups)
   ep --> svc : 200 OK
   svc --> page : Results
   alt no matches

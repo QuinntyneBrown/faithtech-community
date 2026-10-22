@@ -31,6 +31,7 @@ export * from './logo-mark';
 export * from './menu';
 export * from './nav-drawer';
 export * from './note';
+export * from './notice-list';
 export * from './notification-bell';
 export * from './notification-panel';
 export * from './photo';

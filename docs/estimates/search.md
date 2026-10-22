@@ -2,4 +2,4 @@
 
 | Design | Effort | Complete |
 |---|---|---|
-| global-search | 4 days | 0% |
+| global-search | 4 days | 90% |

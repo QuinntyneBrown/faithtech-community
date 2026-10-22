@@ -11,16 +11,17 @@ The unsubscribe endpoint is one of the anonymous endpoints listed in `L2-042`.
 
 ## Description
 
-- **`AnnouncementsPage`** — page in the `announcements` library (mock `pages/announcements`) listing the caller's announcements newest first.
-- **`SettingsPage`** toggle — the "Announcement emails" switch on the settings screen (mock `pages/settings`) calls `AnnouncementsService.setEmailOptOut`. The `components` library provides the switch.
+- **`AnnouncementsPage`** — page in the `announcements` library (mock `pages/announcements`) listing the caller's announcements newest first, 25 at a time: those sent to them and those they sent, each with its message, audience, sender, date and recipient count. Communications Leads and System Admins also get **New announcement**.
+- **`SettingsPage`** "Email me when" card — the "Email me announcements" switch on the settings screen (mock `pages/settings`, in the `notifications` library) reads `AnnouncementsService.getEmailOptOut` and saves through `setEmailOptOut` when it is flipped, as the theme does; a failed save puts the switch back and says so. The `components` library provides the switch.
+- **`UnsubscribePage`** — anonymous page in the `announcements` library at `/unsubscribe?token=` (mock `pages/unsubscribe`: default, success, error), outside the signed-in shell. It posts the link's token; a `GET` never changes anything.
 - **`AnnouncementsService`** / **`ANNOUNCEMENTS_SERVICE`** / **`HttpAnnouncementsService`** — client contract, token and implementation in the `api` library.
-- **`AnnouncementsEndpoints`** — maps `GET /announcements`, `PUT /me/announcement-email-opt-out` and the anonymous `POST /announcements/unsubscribe`.
-- **`ListMyAnnouncementsQuery`** / **`ListMyAnnouncementsHandler`** — joins `AnnouncementRecipient` on the caller and orders by `SentAt` descending.
-- **`SetAnnouncementEmailOptOutCommand`** / **`SetAnnouncementEmailOptOutHandler`** — sets `Profile.AnnouncementEmailsOptedOut` for the caller.
-- **`UnsubscribeFromAnnouncementsCommand`** / **`UnsubscribeFromAnnouncementsHandler`** — validates the token through `IUnsubscribeTokenService` and sets the opt-out for the profile it names.
-- **`IUnsubscribeTokenService`** — Infrastructure service that issues and verifies tokens with ASP.NET Data Protection.
+- **`AnnouncementsEndpoints`** — maps `GET /api/announcements?page=`, `GET` and `PUT /api/me/announcement-email-opt-out`, and the anonymous, rate-limited `POST /api/announcements/unsubscribe` (`204`, or `400` for a token that does not work).
+- **`ListMyAnnouncementsHandler`** — the announcements whose recipients include the caller, or that the caller sent, ordered by `SentAt` descending.
+- **`AnnouncementEmailOptOutHandler`** — reads and sets `Profile.AnnouncementEmailsOptedOut` for the caller.
+- **`UnsubscribeHandler`** — reads the token through `IUnsubscribeTokens` and sets the opt-out for the profile it names.
+- **`IUnsubscribeTokens`** / **`DataProtectionUnsubscribeTokens`** — Application contract and Infrastructure implementation with ASP.NET Data Protection under its own purpose; the payload is the profile id and the time of issue.
 
-Token lifetime is `<TO SUPPLY>`. The landing page shown after an unsubscribe is `<TO SUPPLY>`; no mock exists for it.
+The token works for one year (ADR 0016). It can do nothing but turn one member's announcement emails off.
 
 ## Requirements
 

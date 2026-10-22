@@ -53,3 +53,11 @@ a.ft-list-item__title {
 .ft-list-item__meta-slot {
   margin-block-start: var(--space-1);
 }
+
+.ft-list-item__description {
+  margin: var(--space-2) 0 0;
+  font: var(--text-body);
+  color: var(--color-fg-default);
+  white-space: pre-line;
+  overflow-wrap: anywhere;
+}

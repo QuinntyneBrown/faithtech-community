@@ -1,25 +1,20 @@
-/*
- * EARLY IMPLEMENTATION: written ahead of the vertical slices to get a head start.
- * Contracts and DTOs follow docs/detailed-designs/ but may change as each feature is
- * implemented end to end (spec -> design -> mock -> ATDD slice).
- * Sources:
- *   - docs/detailed-designs/notifications/in-app-notifications
- */
 import { HttpClient } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
 import { Observable, map } from 'rxjs';
 
 import { API_BASE_URL } from '../config';
 import { toHttpParams } from '../shared';
-import { NotificationPage, NotificationsService } from './notifications.service';
+import { NotificationPage, NotificationQuery, NotificationsService } from './notifications.service';
 
 @Injectable()
 export class HttpNotificationsService implements NotificationsService {
   private readonly http = inject(HttpClient);
   private readonly base = `${inject(API_BASE_URL)}/notifications`;
 
-  list(page = 1): Observable<NotificationPage> {
-    return this.http.get<NotificationPage>(this.base, { params: toHttpParams({ page }) });
+  list({ page = 1, unreadOnly = false }: NotificationQuery = {}): Observable<NotificationPage> {
+    return this.http.get<NotificationPage>(this.base, {
+      params: toHttpParams({ page, unreadOnly: unreadOnly || null }),
+    });
   }
 
   unreadCount(): Observable<number> {

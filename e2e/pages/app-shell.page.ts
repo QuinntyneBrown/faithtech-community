@@ -20,6 +20,10 @@ export class AppShell {
   readonly toasts: Locator;
   /** The main landmark, where focus lands when nothing better is left. */
   readonly main: Locator;
+  /** The top bar's bell, named "Notifications" or "Notifications, {n} unread". */
+  readonly bell: Locator;
+  /** The panel the bell opens. */
+  readonly notificationPanel: Locator;
 
   constructor(private readonly page: Page) {
     this.verifyBanner = page.locator('ft-banner').filter({ hasText: 'Verify your email' });
@@ -36,6 +40,33 @@ export class AppShell {
     this.pageHeader = page.getByRole('main').locator('ft-page-header');
     this.toasts = this.toastRegion.locator('ft-toast');
     this.main = page.getByRole('main');
+    this.bell = page.locator('header').getByRole('button', { name: /^Notifications/ });
+    this.notificationPanel = page.getByRole('dialog', { name: 'Notifications' });
+  }
+
+  /** The top bar's search box (wider screens). */
+  get topSearch(): Locator {
+    return this.page.locator('header').getByRole('search').getByRole('searchbox');
+  }
+
+  /** Searches from the top bar, as a member does from any page. */
+  async searchFromTopBar(term: string): Promise<void> {
+    await this.topSearch.fill(term);
+    await this.topSearch.press('Enter');
+  }
+
+  /** A notice in the open bell panel, found by its link text. */
+  panelNotice(title: string): Locator {
+    return this.notificationPanel.getByRole('link', { name: title, exact: true });
+  }
+
+  /** The panel's "Mark all read" and "See all" controls. */
+  get panelMarkAllRead(): Locator {
+    return this.notificationPanel.getByRole('button', { name: 'Mark all read' });
+  }
+
+  get panelSeeAll(): Locator {
+    return this.notificationPanel.getByRole('link', { name: 'See all' });
   }
 
   /** Moves keyboard focus to a toast's Dismiss button, as Tab would. */

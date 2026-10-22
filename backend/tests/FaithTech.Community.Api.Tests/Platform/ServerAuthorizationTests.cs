@@ -34,6 +34,7 @@ public partial class ServerAuthorizationTests(CommunityApiFactory factory) : ICl
         "api/public/events/{id:guid}/rsvps",
         "api/public/events/{id:guid}/rsvps/cancel",
         "api/public/events/{id:guid}/calendar.ics",
+        "api/announcements/unsubscribe",
     ];
 
     [Fact]

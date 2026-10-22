@@ -1,0 +1,8 @@
+<ft-notification-bell [unread]="unread()" [(open)]="open">
+  <ft-notification-panel
+    [notices]="notices()"
+    [deferNavigation]="true"
+    (noticeOpened)="openNotice($event)"
+    (markAllRead)="markAllRead()"
+  />
+</ft-notification-bell>

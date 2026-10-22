@@ -23,17 +23,18 @@ box "Backend — FaithTech.Community.Api" #D1FADF
   participant "NotificationsEndpoints" as ep
 end box
 box "Backend — FaithTech.Community.Application and Domain" #ECFDF3
-  participant "MarkAllNotificationsReadHandler" as h
+  participant "InAppNotificationsHandler" as h
 end box
 box "Backend — FaithTech.Community.Infrastructure" #FFF4E5
   database "Community database" as db
 end box
 actor -> page : Choose "Mark all as read"
 page -> client : markAllRead()
-client -> ep : POST /notifications/read-all
-ep -> h : Send MarkAllNotificationsReadCommand
-h -> db : Set ReadAt where RecipientId = caller and ReadAt is null (L2-027 #3)
-db --> h : Rows updated
+client -> ep : POST /api/notifications/read-all
+ep -> h : MarkAllReadAsync()
+h -> db : Load caller's notifications where ReadAt is null
+db --> h : Unread notifications
+h -> db : MarkRead(now) on each, save changes (L2-027 #3)
 h --> ep : Success
 ep --> client : 204
 client --> page : Unread count 0

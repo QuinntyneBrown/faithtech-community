@@ -1,6 +1,75 @@
-<!--
-  SCAFFOLD: placeholder, not the implementation.
-  Generated from AGENTS.md and:
-    - docs/detailed-designs/announcements/send-announcement
-  Overwrite this template with the expected implementation, then delete this comment.
--->
+<ft-breadcrumb>
+  <ft-breadcrumb-item href="/announcements">Announcements</ft-breadcrumb-item>
+  <ft-breadcrumb-item>New announcement</ft-breadcrumb-item>
+</ft-breadcrumb>
+<ft-page-header title="New announcement" />
+
+@if (sent(); as result) {
+  <ft-stack width="md">
+    <ft-card variant="success" [heading]="sentHeading()">
+      <ft-stack gap="3">
+        <p>It’s in their notifications now.{{ emailLine() }}</p>
+        <ft-cluster gap="2">
+          <ft-button variant="primary" href="/announcements">Back to announcements</ft-button>
+          <ft-button variant="ghost" (click)="writeAnother()">Write another</ft-button>
+        </ft-cluster>
+      </ft-stack>
+    </ft-card>
+  </ft-stack>
+} @else {
+  <form [formGroup]="form" (ngSubmit)="send()" ftFormErrorFocus novalidate>
+    <ft-stack width="md">
+      <ft-card>
+        <ft-stack>
+          <ft-error-summary [errors]="summary()" action="send" />
+          @if (failed()) {
+            <ft-alert status="danger" heading="Your announcement wasn’t sent">
+              Something went wrong on our side. Nothing went out — your draft is safe here.
+            </ft-alert>
+          }
+          <ft-radio-group legend="Send to" formControlName="kind">
+            <ft-radio
+              value="Everyone"
+              [description]="everyone() === null ? '' : everyone() + ' members'"
+              >Everyone</ft-radio
+            >
+            <ft-radio value="Roles" description="Choose one or more roles below"
+              >People with a role</ft-radio
+            >
+            <ft-radio value="EventRsvps">An event’s RSVP list</ft-radio>
+          </ft-radio-group>
+          @if (kind() === 'Roles') {
+            <ft-checkbox-group legend="Roles" formControlName="roles" [error]="error('roles')">
+              @for (option of roles; track option.role) {
+                <ft-checkbox [value]="option.role">{{ option.label }}</ft-checkbox>
+              }
+            </ft-checkbox-group>
+          }
+          @if (kind() === 'EventRsvps') {
+            <ft-form-field label="Event" [error]="error('eventId')">
+              <ft-select [options]="eventOptions()" formControlName="eventId" />
+            </ft-form-field>
+          }
+          <ft-form-field #subjectField required label="Subject" [error]="error('subject')">
+            <ft-text-field formControlName="subject" autocomplete="off" />
+          </ft-form-field>
+          <ft-form-field #bodyField required label="Message" [error]="error('body')">
+            <ft-textarea formControlName="body" [rows]="6" />
+          </ft-form-field>
+          <ft-switch formControlName="alsoEmail"
+            >Also send by email (respects each person’s opt-out)</ft-switch
+          >
+          <ft-form-actions>
+            <ft-button variant="ghost" href="/announcements">Cancel</ft-button>
+            <ft-button type="submit" variant="primary" [loading]="busy()">
+              @if (!busy()) {
+                <ft-icon name="announcements" />
+              }
+              {{ sendLabel() }}
+            </ft-button>
+          </ft-form-actions>
+        </ft-stack>
+      </ft-card>
+    </ft-stack>
+  </form>
+}

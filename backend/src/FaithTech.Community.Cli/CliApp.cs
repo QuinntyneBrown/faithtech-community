@@ -44,13 +44,15 @@ public static class CliApp
                 return 1;
             case "seed-load-users" when args.Length == 2:
                 return await SeedLoadUsersAsync(scope.ServiceProvider.GetRequiredService<CommunitySeeder>(), args[1], environment(LoadTestPasswordVariable));
+            case "seed-search-records" when args.Length == 2:
+                return await SeedSearchRecordsAsync(scope.ServiceProvider.GetRequiredService<CommunitySeeder>(), args[1]);
             case "reset":
                 NpgsqlConnection.ClearAllPools();
                 await db.Database.EnsureDeletedAsync();
                 await CreateSchemaAsync(db);
                 return 0;
             default:
-                Console.Error.WriteLine("Usage: faithtech-community <migrate|seed|reset|grant-admin <email>|seed-load-users <count>>");
+                Console.Error.WriteLine("Usage: faithtech-community <migrate|seed|reset|grant-admin <email>|seed-load-users <count>|seed-search-records <count>>");
                 return 1;
         }
     }
@@ -72,6 +74,20 @@ public static class CliApp
 
         var created = await seeder.SeedLoadTestUsersAsync(users, password);
         Console.WriteLine($"{users} load-test members ready ({created} new): load-001@{CommunitySeeder.LoadTestDomain} onwards.");
+        return 0;
+    }
+
+    /// <summary>Only for an isolated performance environment: never run it against a database real people use.</summary>
+    private static async Task<int> SeedSearchRecordsAsync(CommunitySeeder seeder, string count)
+    {
+        if (!int.TryParse(count, out var records) || records is < 1 or > CommunitySeeder.MaxSearchRecords)
+        {
+            Console.Error.WriteLine($"Give a count from 1 to {CommunitySeeder.MaxSearchRecords}.");
+            return 1;
+        }
+
+        var created = await seeder.SeedSearchRecordsAsync(records);
+        Console.WriteLine($"{records} searchable load-test events ready ({created} new).");
         return 0;
     }
 

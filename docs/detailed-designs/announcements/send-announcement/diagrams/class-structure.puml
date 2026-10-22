@@ -37,28 +37,51 @@ class AnnouncementRecipient {
   +Guid AnnouncementId
   +Guid ProfileId
 }
-class SendAnnouncementCommand {
-  +string Subject
-  +string Body
-  +AnnouncementAudience Audience
+class AudienceRequest <<record>> {
+  +string? Kind
+  +IReadOnlyList<string>? Roles
+  +Guid? EventId
+}
+class SendAnnouncementCommand <<record>> {
+  +string? Subject
+  +string? Body
+  +AudienceRequest? Audience
+  +bool AlsoEmail = true
 }
 class SendAnnouncementHandler {
-  +Handle(c: SendAnnouncementCommand): Task<Result<Guid>>
+  +CountAsync(r: AudienceRequest): Task<(Result, int)>
+  +SendAsync(c: SendAnnouncementCommand): Task<(Result, AnnouncementSent?)>
 }
+class AudienceRequestValidator
 class SendAnnouncementValidator
-class CountAnnouncementRecipientsHandler {
-  +Handle(q: CountAnnouncementRecipientsQuery): Task<int>
+class AnnouncementAccess {
+  +bool CanSend
 }
-interface INotificationPublisher
+class AudienceResolver {
+  +FromRequestAsync(r: AudienceRequest): Task<AnnouncementAudience?>
+  +RecipientIds(a: AnnouncementAudience): IQueryable<Guid>
+}
+interface INotificationPublisher {
+  +PublishAsync(recipientIds, kind, title, linkPath, actorId, email): Task<int>
+}
+interface IUnsubscribeTokens {
+  +Issue(profileId: Guid): string
+}
 interface ICurrentUser {
   +bool HasRole(role: Role)
 }
 AnnouncementAudience --> AudienceKind
 Announcement *-- AnnouncementAudience
 Announcement "1" *-- "*" AnnouncementRecipient
+SendAnnouncementCommand *-- AudienceRequest
 SendAnnouncementHandler ..> SendAnnouncementCommand : handles
 SendAnnouncementValidator ..> SendAnnouncementCommand : validates
-SendAnnouncementHandler ..> ICurrentUser : authorizes
+SendAnnouncementValidator ..> AudienceRequestValidator : uses
+AnnouncementAccess ..> ICurrentUser : reads roles
+SendAnnouncementHandler ..> AnnouncementAccess : authorizes
+SendAnnouncementHandler ..> AudienceResolver : resolves
+AudienceResolver ..> AnnouncementAudience : builds
+SendAnnouncementHandler ..> IUnsubscribeTokens : link per email
 SendAnnouncementHandler ..> INotificationPublisher : uses
 SendAnnouncementHandler --> Announcement : creates
 @enduml

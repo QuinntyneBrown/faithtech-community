@@ -1,6 +1,65 @@
-<!--
-  SCAFFOLD: placeholder, not the implementation.
-  Generated from AGENTS.md and:
-    - docs/detailed-designs/announcements/read-announcements-and-opt-out
-  Overwrite this template with the expected implementation, then delete this comment.
--->
+<ft-page-header
+  title="Announcements"
+  subtitle="In-app and email. People can opt out of announcement emails."
+>
+  @if (canSend()) {
+    <ft-button ftPageHeaderActions variant="primary" href="/announcements/new">
+      <ft-icon name="add" /> New announcement
+    </ft-button>
+  }
+</ft-page-header>
+
+@switch (state()) {
+  @case ('loading') {
+    <ft-list-skeleton label="Loading announcements" [rows]="3" />
+  }
+  @case ('error') {
+    <ft-empty-state
+      variant="error"
+      heading="We couldn’t load announcements"
+      text="Check your connection and try again. If it keeps happening, we’ve already been told about it."
+    >
+      <ft-button actions variant="primary" (click)="retry()">
+        <ft-icon name="try-again" /> Try again
+      </ft-button>
+    </ft-empty-state>
+  }
+  @case ('loaded') {
+    @if (items().length === 0) {
+      @if (canSend()) {
+        <ft-empty-state
+          icon="announcements"
+          heading="No announcements yet"
+          text="Send news to everyone, to people with a role, or to an event’s RSVP list — in the app and by email."
+        >
+          <ft-button actions variant="primary" href="/announcements/new">
+            <ft-icon name="add" /> New announcement
+          </ft-button>
+        </ft-empty-state>
+      } @else {
+        <ft-empty-state
+          icon="announcements"
+          heading="No announcements yet"
+          text="News from FaithTech shows up here, and in your email unless you turn it off in Settings."
+        />
+      }
+    } @else {
+      <ft-card variant="flush">
+        <ft-list label="Announcements">
+          @for (a of items(); track a.id) {
+            <ft-list-item [label]="a.subject" [meta]="meta(a)" [description]="a.body">
+              <ft-icon-tile leading name="announcements" />
+            </ft-list-item>
+          }
+        </ft-list>
+      </ft-card>
+      @if (hasMore()) {
+        <div class="more">
+          <ft-button [loading]="loadingMore()" (click)="showOlder()">
+            Show older announcements
+          </ft-button>
+        </div>
+      }
+    }
+  }
+}

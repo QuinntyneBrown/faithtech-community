@@ -23,6 +23,11 @@
     <PackageReference Include="SkiaSharp.NativeAssets.Linux.NoDependencies" />
   </ItemGroup>
 
+  <ItemGroup>
+    <!-- The design system's tokens, read by EmailTemplateRenderer so emails use the same colours and type. -->
+    <EmbeddedResource Include="..\..\..\docs\design-system\tokens\tokens.css" LogicalName="FaithTech.Community.Infrastructure.Email.tokens.css" />
+  </ItemGroup>
+
   <PropertyGroup>
   </PropertyGroup>
 

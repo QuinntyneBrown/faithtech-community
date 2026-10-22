@@ -313,6 +313,7 @@ button.avatar:hover, button.avatar[data-state="hover"] { box-shadow: 0 0 0 var(-
 .list__body { flex: 1; min-width: 0; }
 .list__title { font: var(--text-label); }
 .list__meta { font: var(--text-body-sm); color: var(--color-fg-muted); }
+.list__text { margin: var(--space-2) 0 0; font: var(--text-body); color: var(--color-fg-default); white-space: pre-line; overflow-wrap: anywhere; }
 /* position: relative so the visually-hidden caption (position: absolute) is clipped by the scroll box instead of widening the page. */
 .table-wrap { position: relative; overflow-x: auto; border: var(--border-width-hairline) solid var(--color-border-default); border-radius: var(--radius-lg); background: var(--color-bg-surface); }
 .table-wrap--flush { border: 0; border-radius: 0; }

@@ -1,6 +1,57 @@
-<!--
-  SCAFFOLD: placeholder, not the implementation.
-  Generated from AGENTS.md and:
-    - docs/detailed-designs/search/global-search
-  Overwrite this template with the expected implementation, then delete this comment.
--->
+<ft-page-header title="Search" />
+
+<form class="search" role="search" (submit)="$event.preventDefault(); submit()">
+  <ft-cluster gap="2" class="row">
+    <ft-form-field label="Search" [labelHidden]="true" [help]="hint()" class="field">
+      <ft-text-field
+        type="search"
+        size="lg"
+        placeholder="Search people, events, partners and contacts"
+        [formControl]="query"
+      />
+    </ft-form-field>
+    <ft-button type="submit" variant="primary" size="lg"
+      ><ft-icon name="search" /> Search</ft-button
+    >
+  </ft-cluster>
+</form>
+<p class="visually-hidden" role="status">{{ hint() }}</p>
+
+@switch (state()) {
+  @case ('idle') {
+    <ft-empty-state
+      icon="search"
+      heading="Search all of FaithTech"
+      text="Find people by name or role, events by title or city, and partners by organisation. Leads also see their own private contacts."
+    />
+  }
+  @case ('loading') {
+    <div role="status" aria-busy="true" aria-label="Searching">
+      <ft-list-skeleton label="Searching" [rows]="4" />
+    </div>
+  }
+  @case ('error') {
+    <ft-empty-state
+      variant="error"
+      heading="We couldn’t load search results"
+      text="Check your connection and try again. If it keeps happening, we’ve already been told about it."
+    >
+      <ft-button actions variant="primary" (click)="retry()">
+        <ft-icon name="try-again" /> Try again
+      </ft-button>
+    </ft-empty-state>
+  }
+  @case ('loaded') {
+    @if (groups().length === 0) {
+      <ft-empty-state
+        icon="search"
+        [heading]="'No results for “' + term() + '”'"
+        text="Check the spelling, try fewer words, or search for a person’s first name."
+      >
+        <ft-button actions href="/search">Clear search</ft-button>
+      </ft-empty-state>
+    } @else {
+      <ft-search-results [query]="term()" [groups]="groups()" />
+    }
+  }
+}

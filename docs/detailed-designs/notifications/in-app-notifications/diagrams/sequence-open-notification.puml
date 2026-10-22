@@ -15,44 +15,49 @@ skinparam package {
   BackgroundColor #F9FAFB
 }
 actor "Member" as actor
-box "Frontend — FaithTech Community web app (notifications library)" #E0F2FE
-  participant "NotificationBellComponent" as bell
+box "Frontend — FaithTech Community web app (app shell, components and api libraries)" #E0F2FE
+  participant "NotificationBellComponent\n+ NotificationPanelComponent" as bell
+  participant "ShellNotificationsComponent" as shell
   participant "HttpNotificationsService" as client
 end box
 box "Backend — FaithTech.Community.Api" #D1FADF
   participant "NotificationsEndpoints" as ep
 end box
 box "Backend — FaithTech.Community.Application and Domain" #ECFDF3
-  participant "MarkNotificationReadHandler" as h
+  participant "InAppNotificationsHandler" as h
   participant "Notification" as n
 end box
 box "Backend — FaithTech.Community.Infrastructure" #FFF4E5
   database "Community database" as db
 end box
-actor -> bell : Open bell
-bell -> client : list(page 1)
-client -> ep : GET /notifications
+shell -> client : list() on navigation and every 60 s
+client -> ep : GET /api/notifications
 ep -> ep : Require authenticated caller
-ep -> db : Query by RecipientId, newest first (L2-027 #1)
-db --> ep : Notification page
+ep -> h : ListAsync(unreadOnly: false, page: 1)
+h -> db : Query by RecipientId, newest first (L2-027 #1)
+db --> h : Notification page
+h --> ep : NotificationPage
 ep --> client : 200 NotificationPage
-client --> bell : Items and unread count
-actor -> bell : Open notification
-bell -> client : markRead(id)
-client -> ep : POST /notifications/{id}/read
-ep -> h : Send MarkNotificationReadCommand
+client --> shell : Items and unread count
+shell --> bell : Inputs: items, unread count
+actor -> bell : Open bell, choose a notice
+bell -> shell : Notice opened (id)
+shell -> client : markRead(id)
+client -> ep : POST /api/notifications/{id}/read
+ep -> h : MarkReadAsync(id)
 h -> db : Load notification where RecipientId = caller
 alt found
   db --> h : Notification
   h -> n : MarkRead(now) (L2-027 #2)
   h -> db : Save changes
-  h --> ep : Success
+  h --> ep : Ok
   ep --> client : 204
-  client --> bell : Navigate to LinkPath
 else not the caller's notification
   db --> h : none
   h --> ep : NotFound
   ep --> client : 404 ProblemDetails
 end
-bell --> actor : Related item shown
+client --> shell : Done (a failure is ignored)
+shell -> shell : Mark read locally, navigate to LinkPath
+shell --> actor : Related item shown
 @enduml

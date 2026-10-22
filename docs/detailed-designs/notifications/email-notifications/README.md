@@ -12,14 +12,16 @@ The outbox decouples the triggering action from delivery. The triggering action 
 
 ## Description
 
-- **`IEmailQueue`** — Application abstraction. `EnqueueAsync(EmailMessage)` adds a message to the outbox inside the caller's unit of work.
-- **`EmailMessage`** — value object with `To`, `Subject`, `HtmlBody`, `TextBody`, `Kind` and `CorrelationId`.
-- **`EmailTemplateRenderer`** — Infrastructure service that renders each `NotificationKind` template into HTML and plain-text parts and builds every link from the configured HTTPS base URL. Templates use the design system's `.email` classes (`docs/design-system/patterns/notifications.html`); the HTML part is produced by inlining those rules with the light-theme token values from `tokens.css`, so no colour, size or font is typed into a template.
-- **`OutboxEmail`** — Infrastructure persistence entity (`OutboxMessage`) with `Attempts`, `NextAttemptAt`, `SentAt`, `FailedAt` (terminal: the retry budget is spent) and `LastError`.
-- **`EmailDeliveryWorker`** — hosted background service in Infrastructure. It polls due outbox rows, calls `IEmailSender`, and on failure schedules a retry with backoff, up to 5 attempts in all including the first send, after which the row is marked failed.
-- **`IEmailSender`** / **`SmtpEmailSender`** — Infrastructure sender that delivers through SMTP or SendGrid, chosen by configuration.
-- **`INotificationPublisher`** — Application service that writes the in-app `Notification` and, for kinds with an email form, calls `IEmailQueue`. For `NotificationKind.Announcement` it skips recipients whose `AnnouncementEmailsOptedOut` flag is set.
-- **`CommunityDbContext`** — holds the `email_outbox` table.
+- **`IEmailQueue`** — Application abstraction. `Enqueue(EmailMessage)` adds a message to the outbox inside the caller's unit of work, so it is saved with the action that raised it.
+- **`EmailMessage`** — record with `To`, `Subject`, the plain-text `Body`, optional `Attachments` (an RSVP's `.ics`) and `HtmlBody`.
+- **`IEmailSender`** / **`OutboxEmailSender`** — the older single-email entry point the identity, invite, role and Agile notifiers use; it enqueues and saves at once.
+- **`OutboxEmailQueue`** — Infrastructure implementation of `IEmailQueue`. It renders the HTML part with `EmailTemplateRenderer` unless the message brings one.
+- **`EmailTemplateRenderer`** — Infrastructure renderer that turns the plain-text body into the HTML part with the design system's `.email` classes (`docs/design-system/patterns/notifications.html`): a paragraph that is only a URL becomes the "Open in FaithTech" button, and a line "Label: URL" becomes a link named Label. Every style is read from the light-theme tokens in `tokens.css`, which the Infrastructure assembly embeds at build time, so no colour, size or font is typed into it. Text is HTML-encoded.
+- **`OutboxMessage`** — Infrastructure persistence entity (`OutboxMessages` table) with `Body`, `HtmlBody`, `AttachmentsJson`, `Attempts`, `NextAttemptAt`, `SentAt`, `FailedAt` (terminal: the retry budget is spent) and `LastError`.
+- **`EmailOutboxDispatcher`** / **`EmailOutboxWorker`** — the hosted background service in Infrastructure polls due outbox rows, hands each to `IEmailTransport`, and on failure schedules a retry with backoff, up to 5 attempts in all including the first send, after which the row is marked failed.
+- **`IEmailTransport`** / **`SmtpEmailTransport`** — Infrastructure transport that delivers through SMTP, which covers the SendGrid relay. It sends the plain-text part with the HTML part as its alternative.
+- **`INotificationPublisher.PublishAsync`** — Application service that writes the in-app `Notification` for each recipient and, for sources with an email form, enqueues one email per recipient with the link to the item appended on the `WebApp:Origin`. For `NotificationKind.Announcement` it skips recipients whose `AnnouncementEmailsOptedOut` flag is set; every other kind always emails.
+- **`WebAppOptions`** — `WebApp:Origin`, validated at start-up: outside Development the API refuses to start unless it is an `https://` URL, so every link in an email uses HTTPS.
 
 The worker polls every 10 seconds (`Outbox:IntervalSeconds`), so a newly queued email is first sent within 2 minutes whenever the provider is healthy. The retry budget is **5 delivery attempts in all, counting the first send** (`EmailOutboxDispatcher.MaxAttempts`). After failed attempt *n* the next attempt is due 2<sup>*n*</sup> minutes later, capped at one hour, so the attempts fall at about 0, 2, 6, 14 and 30 minutes. When the fifth attempt fails, the row gets `FailedAt` and the dispatcher never selects it again. The failure stays observable in the outbox row (`Attempts`, `FailedAt`, `LastError` with the recipient address replaced by `[recipient]`) and in an error log entry that names only the message id. A message sent within the budget gets `SentAt` and is never dispatched again.
 

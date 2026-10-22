@@ -2,6 +2,7 @@ using FaithTech.Community.Application.Common;
 using FaithTech.Community.Application.Identity;
 using FaithTech.Community.Domain.Admin;
 using FaithTech.Community.Domain.Agile;
+using FaithTech.Community.Domain.Announcements;
 using FaithTech.Community.Domain.Contacts;
 using FaithTech.Community.Domain.Events;
 using FaithTech.Community.Domain.Invites;
@@ -10,9 +11,11 @@ using FaithTech.Community.Domain.Partners;
 using FaithTech.Community.Domain.Profiles;
 using FaithTech.Community.Infrastructure.Email;
 using FaithTech.Community.Infrastructure.Identity;
+using FaithTech.Community.Infrastructure.Search;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.ChangeTracking;
 
 namespace FaithTech.Community.Infrastructure.Persistence;
 
@@ -51,6 +54,8 @@ public class CommunityDbContext(DbContextOptions<CommunityDbContext> options)
 
     public DbSet<PhotoBlobTask> PhotoBlobTasks => Set<PhotoBlobTask>();
     public DbSet<Event> Events => Set<Event>();
+
+    public DbSet<Announcement> Announcements => Set<Announcement>();
 
     protected override void OnModelCreating(ModelBuilder builder)
     {
@@ -233,10 +238,53 @@ public class CommunityDbContext(DbContextOptions<CommunityDbContext> options)
             rsvp.HasIndex(r => new { r.EventId, r.GuestEmail });
         });
 
+        ConfigureAnnouncements(builder);
+
+        // Full-text search columns exist only in PostgreSQL; the in-memory test database has none (ADR 0016).
+        if (Database.IsNpgsql())
+        {
+            SearchVectors.Configure(builder);
+        }
+
         builder.Entity<CommunityUser>()
             .HasOne<Profile>()
             .WithOne()
             .HasForeignKey<CommunityUser>(u => u.ProfileId);
+    }
+
+    private static void ConfigureAnnouncements(ModelBuilder builder)
+    {
+        builder.Entity<Announcement>(announcement =>
+        {
+            announcement.Property(a => a.Id).ValueGeneratedNever();
+            announcement.Property(a => a.Subject).HasMaxLength(200);
+            announcement.Property(a => a.Body).HasMaxLength(5000);
+            announcement.HasIndex(a => a.SentAt);
+            announcement.HasIndex(a => a.SenderId);
+            announcement.OwnsOne(a => a.Audience, audience =>
+            {
+                audience.Property(x => x.Kind).HasColumnName("AudienceKind").HasConversion<string>().HasMaxLength(16);
+                audience.Property(x => x.EventId).HasColumnName("AudienceEventId");
+                // The chosen roles, stored as "Volunteer,ProductEngineer".
+                audience.Property(x => x.Roles).HasColumnName("AudienceRoles").HasMaxLength(300)
+                    .HasConversion(
+                        roles => string.Join(',', roles.Select(r => r.ToString()).Order()),
+                        value => value.Split(',', StringSplitOptions.RemoveEmptyEntries).Select(Enum.Parse<Role>).ToHashSet(),
+                        new ValueComparer<IReadOnlySet<Role>>(
+                            (a, b) => a!.SetEquals(b!),
+                            roles => roles.Aggregate(0, (hash, role) => hash ^ role.GetHashCode()),
+                            roles => roles.ToHashSet()));
+            });
+            announcement.Navigation(a => a.Audience).IsRequired();
+            announcement.OwnsMany(a => a.Recipients, recipient =>
+            {
+                recipient.ToTable("AnnouncementRecipients");
+                recipient.WithOwner().HasForeignKey(r => r.AnnouncementId);
+                recipient.HasKey(r => new { r.AnnouncementId, r.ProfileId });
+                recipient.HasIndex(r => r.ProfileId);
+            });
+            announcement.Navigation(a => a.Recipients).HasField("_recipients").UsePropertyAccessMode(PropertyAccessMode.Field);
+        });
     }
 
     // Archived workspaces and work items are hidden from every normal view (L2-037 AC1, ADR 0011).

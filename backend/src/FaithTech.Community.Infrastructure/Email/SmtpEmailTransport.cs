@@ -13,7 +13,8 @@ public class SmtpEmailTransport(IOptions<SmtpOptions> options) : IEmailTransport
     public async Task SendAsync(EmailMessage message, CancellationToken cancellationToken = default)
     {
         var smtp = options.Value;
-        var body = new BodyBuilder { TextBody = message.Body };
+        // Plain text always, with the HTML part as the alternative when there is one (L2-028 AC2).
+        var body = new BodyBuilder { TextBody = message.Body, HtmlBody = message.HtmlBody };
         foreach (var attachment in message.Attachments ?? [])
         {
             body.Attachments.Add(attachment.FileName, Encoding.UTF8.GetBytes(attachment.Content), ContentType.Parse(attachment.ContentType));

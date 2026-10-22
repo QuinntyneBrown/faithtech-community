@@ -26,22 +26,29 @@ class AnnouncementRecipient {
   +Guid ProfileId
 }
 class ListMyAnnouncementsHandler {
-  +Handle(q: ListMyAnnouncementsQuery): Task<AnnouncementPage>
+  +ListAsync(page: int): Task<PagedResult<AnnouncementListItem>>
 }
-class SetAnnouncementEmailOptOutHandler {
-  +Handle(c: SetAnnouncementEmailOptOutCommand): Task<Result>
+class AnnouncementEmailOptOutHandler {
+  +GetAsync(): Task<AnnouncementEmailOptOut>
+  +SetAsync(c: AnnouncementEmailOptOut): Task<Result>
 }
-class UnsubscribeFromAnnouncementsHandler {
-  +Handle(c: UnsubscribeFromAnnouncementsCommand): Task<Result>
+class UnsubscribeCommand <<record>> {
+  +string? Token
 }
-interface IUnsubscribeTokenService {
+class UnsubscribeHandler {
+  +UnsubscribeAsync(c: UnsubscribeCommand): Task<Result>
+}
+interface IUnsubscribeTokens {
   +Issue(profileId: Guid): string
-  +TryRead(token: string, out profileId: Guid): bool
+  +Read(token: string?): Guid?
 }
+class DataProtectionUnsubscribeTokens
 Announcement "1" *-- "*" AnnouncementRecipient
 AnnouncementRecipient --> Profile
 ListMyAnnouncementsHandler ..> AnnouncementRecipient : queries
-SetAnnouncementEmailOptOutHandler --> Profile : mutates
-UnsubscribeFromAnnouncementsHandler --> Profile : mutates
-UnsubscribeFromAnnouncementsHandler ..> IUnsubscribeTokenService : uses
+AnnouncementEmailOptOutHandler --> Profile : reads / mutates
+UnsubscribeHandler ..> UnsubscribeCommand : handles
+UnsubscribeHandler --> Profile : mutates
+UnsubscribeHandler ..> IUnsubscribeTokens : uses
+DataProtectionUnsubscribeTokens ..|> IUnsubscribeTokens
 @enduml

@@ -4,7 +4,8 @@ public class Notification
 {
     private Notification() { }
 
-    public Notification(Guid recipientId, NotificationKind kind, string title, string linkPath, DateTimeOffset createdAt)
+    public Notification(
+        Guid recipientId, NotificationKind kind, string title, string linkPath, DateTimeOffset createdAt, Guid? actorId = null)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(title);
         ArgumentException.ThrowIfNullOrWhiteSpace(linkPath);
@@ -14,6 +15,7 @@ public class Notification
         Title = title;
         LinkPath = linkPath;
         CreatedAt = createdAt;
+        ActorId = actorId;
     }
 
     public Guid Id { get; private set; }
@@ -25,6 +27,9 @@ public class Notification
     public string Title { get; private set; } = string.Empty;
 
     public string LinkPath { get; private set; } = string.Empty;
+
+    /// <summary>The member whose action raised the notification, when there is one; the notice shows their initials.</summary>
+    public Guid? ActorId { get; private set; }
 
     public DateTimeOffset CreatedAt { get; private set; }
 

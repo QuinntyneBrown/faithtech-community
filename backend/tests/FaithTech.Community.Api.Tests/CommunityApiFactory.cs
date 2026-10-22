@@ -4,6 +4,7 @@ using FaithTech.Community.Application.Agile;
 using FaithTech.Community.Application.Common;
 using FaithTech.Community.Application.Identity;
 using FaithTech.Community.Application.Profiles;
+using FaithTech.Community.Application.Search;
 using FaithTech.Community.Infrastructure.Persistence;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
@@ -72,6 +73,7 @@ public class CommunityApiFactory : WebApplicationFactory<Program>, IAsyncLifetim
             services.AddSingleton<IBreachedPasswordChecker, FakeBreachedPasswordChecker>();
             services.AddSingleton<IBoardNotifier>(Live);
             services.AddSingleton<IPokerBroadcaster>(Live);
+            services.AddSingleton<IFullTextSearch, InMemoryFullTextSearch>();
         });
     }
 

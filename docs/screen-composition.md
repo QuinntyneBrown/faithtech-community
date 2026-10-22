@@ -4,13 +4,13 @@ Which `@faithtech-community/components` parts build each screen, and what is bui
 
 **Local UI** is markup a feature library writes itself. It is limited to page composition: headings that belong to the page, sections and the glue between `api` services and components. Anything reusable goes into `components` first (`AGENTS.md`).
 
-Coverage: the profiles screens (`profile`, `edit-profile`, `delete-photo`), the admin screens (`admin-users`, `audit-log`, `add-role`, `remove-role`, `suspend-user`), the invites screens (`invites`, `accept-invite`, `send-invite`), the team list (`team`), the events screens (`events`, `event-form`, `event`, `cancel-rsvp`, `cancel-event`, `public-event`, `guest-cancel-rsvp`), the Appearance card of settings (`settings`), the contacts screens (`contacts`, `contact`, `contact-form`, `archived-contacts`, `add-note`, `archive-contact`, `delete-contact`, `link-contact`), the partners screens (`partners`, `partner`, `partner-form`, `add-partner`, `move-partner`) and the agile screens (`workspaces`, `team-board`, `backlog`, `work-item`, `workspace-settings`, `planning-poker` and their dialogs). Other screens are added here as their features are built.
+Coverage: the profiles screens (`profile`, `edit-profile`, `delete-photo`), the admin screens (`admin-users`, `audit-log`, `add-role`, `remove-role`, `suspend-user`), the invites screens (`invites`, `accept-invite`, `send-invite`), the team list (`team`), the events screens (`events`, `event-form`, `event`, `cancel-rsvp`, `cancel-event`, `public-event`, `guest-cancel-rsvp`), settings (`settings`: Appearance and Email me when), the notifications screens (the bell and panel, `notifications`), the announcements screens (`announcements`, `compose-announcement`, `unsubscribe`), global search (`search`), the contacts screens (`contacts`, `contact`, `contact-form`, `archived-contacts`, `add-note`, `archive-contact`, `delete-contact`, `link-contact`), the partners screens (`partners`, `partner`, `partner-form`, `add-partner`, `move-partner`) and the agile screens (`workspaces`, `team-board`, `backlog`, `work-item`, `workspace-settings`, `planning-poker` and their dialogs). Other screens are added here as their features are built.
 
 ## Shell
 
 | Part | Library | Local |
 |---|---|---|
-| App shell around `/people/**`, `/team`, `/admin/**`, `/invites`, `/contacts/**`, `/partners/**`, `/workspaces/**` | `TopBarComponent` with the account menu (`MenuComponent` "Account menu for {name}" whose face is an `AvatarComponent`: *Your profile* → `/people/me`, *Settings* → `/settings`, *Sign out*), `NavDrawerComponent`, `TabBarComponent` (top bar, tab bar and menu all from `shell/navigation.ts`, one rule by role, ADR 0012), `SkipLinkComponent`, `ToastRegionComponent` (in `AppShellComponent`). System Admins get an **Admin** link (secondary) to `/admin`. | — |
+| App shell around `/people/**`, `/team`, `/admin/**`, `/invites`, `/contacts/**`, `/partners/**`, `/workspaces/**` | `TopBarComponent` with the account menu (`MenuComponent` "Account menu for {name}" whose face is an `AvatarComponent`: *Your profile* → `/people/me`, *Settings* → `/settings`, *Sign out*), `NavDrawerComponent`, `TabBarComponent` (top bar, tab bar and menu all from `shell/navigation.ts`, one rule by role, ADR 0012), `SkipLinkComponent`, `ToastRegionComponent` (in `AppShellComponent`). System Admins get an **Admin** link (secondary) to `/admin`. The top bar's search box opens `/search?q=`. Before the account menu, `ShellNotificationsComponent` (in `shell/`, ADR 0016) composes `NotificationBellComponent` ("Notifications, {n} unread") holding `NotificationPanelComponent` (latest 5 notices through `NoticeListComponent` with `deferNavigation`, *Mark all read*, *See all*) with `NOTIFICATIONS_SERVICE`; it reloads on navigation and every minute, and marks an opened notice read before going to its item. | The notice mapping (actor initials and colour, `formatFeedTime` time) |
 
 ## Pages
 
@@ -178,6 +178,32 @@ Coverage: the profiles screens (`profile`, `edit-profile`, `delete-photo`), the 
 - Inside `PublicShellComponent`. Library: `PageHeaderComponent` with `overline` (the event, or "Your RSVP" when it cannot be shown), `StackComponent` `width="sm"`, `CardComponent` "Cancel your RSVP?" with `AlertComponent` (failed "RSVP not cancelled") and `ButtonComponent` (*Cancel my RSVP* `danger` with `loading`, *Keep my RSVP* `ghost` link), `CardComponent` `success` "Your RSVP is cancelled" with *Back to the event*, `EmptyStateComponent` error "This cancel link doesn’t work" with *Go to the event*.
 - Local: none beyond composition.
 
+### Notifications — `/notifications` (`pages/notifications`: default, unread, loading, empty, error)
+
+- Library: `PageHeaderComponent` ("Notifications", subtitle "{n} unread") with ghost *Mark all as read* (while anything is unread) and ghost *Settings* link (`ButtonComponent`, `IconComponent` `done`, `settings`), `ClusterComponent` group "Show notifications" with `ChipComponent` *All* and *Unread* (`pressed`), `CardComponent` `flush` + `NoticeListComponent` (`deferNavigation`: the page marks the notice read, then navigates), `ButtonComponent` *Show older notifications* (50 more, with `loading`), `ListSkeletonComponent` (4 rows), `EmptyStateComponent` ("You’re all caught up"; "Nothing unread" under Unread; error with *Try again*).
+- Local: the notice mapping, as in the shell.
+
+### Announcements — `/announcements` (`pages/announcements`: default, loading, empty, error)
+
+- Library: `PageHeaderComponent` ("Announcements", subtitle "In-app and email. People can opt out of announcement emails.") with primary *New announcement* for Communications Leads and System Admins, `CardComponent` `flush` + `ListComponent` "Announcements" + `ListItemComponent` (subject, meta "To {audience} · Sent {day} by {sender} · {n} recipients", `description` the message, leading `IconTileComponent` `announcements`), `ButtonComponent` *Show older announcements*, `ListSkeletonComponent`, `EmptyStateComponent` ("No announcements yet", with *New announcement* for senders; error with *Try again*).
+- Local: the audience wording ("Product Engineers", "RSVPs: {event}").
+
+### New announcement — `/announcements/new` (`pages/compose-announcement`: default, invalid, busy, error, success)
+
+- Library: `BreadcrumbComponent`, `PageHeaderComponent`, `StackComponent` `width="md"`, `CardComponent`, `ErrorSummaryComponent` ("Fix N things to send"), `FormErrorFocusDirective`, `AlertComponent` (danger "Your announcement wasn’t sent"), `RadioGroupComponent` "Send to" + `RadioComponent` (*Everyone* with "{n} members", *People with a role*, *An event’s RSVP list*), `CheckboxGroupComponent` "Roles" + `CheckboxComponent` (the nine roles), `FormFieldComponent` + `SelectComponent` (Event: upcoming events as "{title} · {day}"), `FormFieldComponent` + `TextFieldComponent` (Subject) and `TextareaComponent` (Message), `SwitchComponent` (*Also send by email*, on), `FormActionsComponent` with *Cancel* and primary *Send to {n} people* (`loading`, "Sending…"), `CardComponent` `success` ("Sent to {n} people", "{m} will also get it by email — {k} have opted out", *Back to announcements*, *Write another*).
+- Anyone without Communications Lead or System Admin is sent to `/forbidden`.
+- Local: the `<form>` element.
+
+### Unsubscribe — `/unsubscribe?token=` (`pages/unsubscribe`: default, success, error)
+
+- Outside the shell, anonymous. Library: `AuthLayoutComponent`, `CardComponent`, `EmptyStateComponent` `headingLevel` 1 (working "Turning off announcement emails…" in a status region; "You’re unsubscribed" with *Open settings*; error "This unsubscribe link doesn’t work" with *Open settings*), `ButtonComponent`.
+- Local: the status region around the working state.
+
+### Search — `/search?q=` (`pages/search`: default, member, loading, empty, invalid, no-results, error)
+
+- Library: `PageHeaderComponent` ("Search"), `ClusterComponent`, `FormFieldComponent` (label "Search" with `labelHidden`, the "Type at least 2 characters to search." hint as `help`) + `TextFieldComponent` `type="search"` `size="lg"`, `ButtonComponent` primary `lg` *Search*, `SearchResultsComponent` (groups People, Events, Partners, "Your private contacts", "Work items in your workspaces", with the "{n} results for “{term}”" status, avatars, icons and badges), `ListSkeletonComponent` (in a busy status region), `EmptyStateComponent` ("Search all of FaithTech"; "No results for “{term}”" with *Clear search*; error with *Try again*).
+- Local: the `<form role="search">`, the visually hidden status line that announces the hint, and the result mapping (event day, partner stage label, work item status).
+
 ## Dialogs
 
 | Dialog (mock: states) | Surface | Library | Local |
@@ -207,7 +233,7 @@ Coverage: the profiles screens (`profile`, `edit-profile`, `delete-photo`), the 
 
 ## Notifications
 
-None for profiles. Admin and invites use `ToastService` success toasts on the invites page; role changes and accepted invites raise in-app notifications that the notifications feature will show. Agile screens use `ToastService` toasts for saves, moves, archive and restore; member additions, assignments, Planning Poker invites and an owner losing City Lead raise in-app notifications and emails. Contacts and partners use `ToastService` toasts (archived, restored, deleted, partner added, a failed drag); a contact who verifies their email raises a `ContactSignedUp` in-app notification and an email to the owning lead.
+None for profiles. Admin and invites use `ToastService` success toasts on the invites page; role changes and accepted invites raise in-app notifications, shown by the bell and the notifications page. Announcements raise one in-app notification per recipient and, unless they opted out, an email whose HTML part follows the design system's `.email` pattern (`notifications/email/announcement`), with an unsubscribe link. Agile screens use `ToastService` toasts for saves, moves, archive and restore; member additions, assignments, Planning Poker invites and an owner losing City Lead raise in-app notifications and emails. Contacts and partners use `ToastService` toasts (archived, restored, deleted, partner added, a failed drag); a contact who verifies their email raises a `ContactSignedUp` in-app notification and an email to the owning lead.
 
 ## Summary of local UI to build
 
@@ -217,9 +243,11 @@ None for profiles. Admin and invites use `ToastService` success toasts on the in
 4. Agile added to the library rather than building locally: `IconTileComponent` (the list rows' leading icon, now that `ft-sticker` is gone), the checkbox group's `legendHidden`, the card header actions slot (`ftCardActions`), the Kanban card `kind` and `moveTarget` inputs, the Kanban board's phone column tabs, and the top bar's tighter link padding between 1024px and 1279px. `CheckboxGroupComponent`, the tree's disclosure button, `EstimatePickerComponent`, `EstimateCardComponent` and `DangerZoneComponent` were already there.
 5. Contacts and partners added to the library rather than building locally: `PageHeaderComponent` gained an `ftPageHeaderSubtitle` slot, `TextFieldComponent` gained `initialFocus` (the delete-contact confirmation) and `KanbanCardComponent`'s name link keeps a 24px target for rich subtitles such as the partner's stage badge. Everything else is composed from existing components; the add-partner dialog and the partner form share their field rules in the feature's `partner-fields.ts`.
 6. Events added to the library: `formatTime` ("6:30 pm"), `formatMonth` ("Nov"), `formatDayRange` ("Sat 14 – Sun 15 Nov") and `formatTimeRange` ("Fri 6 Nov 2026 · 6:30 – 9:00 pm") join the date formats, and `PageHeaderComponent` gained an `overline` for the public event page. The app gained `PublicShellComponent` for pages anyone may open.
+7. Notifications, announcements and search added to the library: `NoticeListComponent` (the notice rows, now shared by the panel and the page, with `deferNavigation`), `ListItemComponent`'s `description` (an announcement's message) and `FormFieldComponent`'s `labelHidden` (the search box). The bell glue lives in the shell rather than a feature library (ADR 0016).
 
-### Settings — `/settings` (`pages/settings`: Appearance card only so far)
+### Settings — `/settings` (`pages/settings`: Appearance and Email me when cards so far)
 
 - Library: `PageHeaderComponent` ("Settings"), `StackComponent` `width="md"`, `CardComponent` heading "Appearance" holding `RadioGroupComponent` (legend "Theme") with `RadioComponent` *Light*, *Dark* and *Match my device* (with its description), bound to `ThemeService` from `components` (L2-045 AC6).
-- The Account and Email me when cards and Sign out everywhere join when their designs are built.
+- `CardComponent` heading "Email me when" holding `SwitchComponent` *Email me announcements* (saved through `ANNOUNCEMENTS_SERVICE` when flipped, disabled until read), the caption "You’ll always get account emails like password resets.", a status line "Saved. It applies from the next announcement." and `InlineMessageComponent` "We couldn’t save that. Try again." (L2-030 AC2, ADR 0016).
+- The Account card, the Save button and Sign out everywhere join when the account settings design (L2-052) is built.
 - Local: the caption "Changes straight away and is remembered on this device."
