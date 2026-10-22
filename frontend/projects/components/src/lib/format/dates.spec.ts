@@ -1,6 +1,7 @@
 import {
   formatDay,
   formatDayRange,
+  formatFeedTime,
   formatMonth,
   formatTime,
   formatTimeRange,
@@ -52,6 +53,16 @@ describe('date formats', () => {
     );
     expect(formatTimeRange(new Date(2026, 10, 14, 9), new Date(2026, 10, 15, 17))).toBe(
       'Sat 14 – Sun 15 Nov 2026',
+    );
+  });
+
+  it('writes when activity happened: "Today, 11:42 am", "Yesterday, 4:10 pm", then "Mon 19 Oct"', () => {
+    const now = new Date(2026, 9, 21, 15, 0);
+    expect(formatFeedTime(new Date(2026, 9, 21, 11, 42), now)).toBe('Today, 11:42 am');
+    expect(formatFeedTime(new Date(2026, 9, 20, 16, 10), now)).toBe('Yesterday, 4:10 pm');
+    expect(formatFeedTime(new Date(2026, 9, 19, 9, 0), now)).toBe('Mon 19 Oct');
+    expect(formatFeedTime(new Date(2026, 0, 1, 0, 30), new Date(2026, 0, 2, 8))).toBe(
+      'Yesterday, 12:30 am',
     );
   });
 });

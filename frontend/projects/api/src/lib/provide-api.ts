@@ -19,6 +19,7 @@ import {
 import { CONTACTS_SERVICE, HttpContactsService } from './contacts';
 import { PARTNERS_SERVICE, HttpPartnersService } from './partners';
 import { TEAM_SERVICE, HttpTeamService } from './team';
+import { ACTIVITY_SERVICE, HttpActivityService } from './activity';
 import { EVENTS_SERVICE, HttpEventsService } from './events';
 import { SEARCH_SERVICE, HttpSearchService } from './search';
 import { NOTIFICATIONS_SERVICE, HttpNotificationsService } from './notifications';
@@ -56,6 +57,7 @@ export function provideApi(baseUrl: string, auth: Partial<AuthConfig> = {}): Env
     { provide: CONTACTS_SERVICE, useClass: HttpContactsService },
     { provide: PARTNERS_SERVICE, useClass: HttpPartnersService },
     { provide: TEAM_SERVICE, useClass: HttpTeamService },
+    { provide: ACTIVITY_SERVICE, useClass: HttpActivityService },
     { provide: EVENTS_SERVICE, useClass: HttpEventsService },
     { provide: SEARCH_SERVICE, useClass: HttpSearchService },
     { provide: NOTIFICATIONS_SERVICE, useClass: HttpNotificationsService },
