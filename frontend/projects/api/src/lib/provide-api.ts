@@ -10,7 +10,12 @@ import { API_BASE_URL, AUTH_CONFIG, AuthConfig, defaultAuthConfig } from './conf
 import { authInterceptor } from './auth';
 import { httpErrorInterceptor } from './errors';
 import { AUTH_SERVICE, HttpAuthService } from './auth';
-import { PROFILES_SERVICE, HttpProfilesService } from './profiles';
+import {
+  PROFILES_SERVICE,
+  HttpProfilesService,
+  PEOPLE_SERVICE,
+  HttpPeopleService,
+} from './profiles';
 import { CONTACTS_SERVICE, HttpContactsService } from './contacts';
 import { PARTNERS_SERVICE, HttpPartnersService } from './partners';
 import { TEAM_SERVICE, HttpTeamService } from './team';
@@ -47,6 +52,7 @@ export function provideApi(baseUrl: string, auth: Partial<AuthConfig> = {}): Env
     },
     { provide: AUTH_SERVICE, useClass: HttpAuthService },
     { provide: PROFILES_SERVICE, useClass: HttpProfilesService },
+    { provide: PEOPLE_SERVICE, useClass: HttpPeopleService },
     { provide: CONTACTS_SERVICE, useClass: HttpContactsService },
     { provide: PARTNERS_SERVICE, useClass: HttpPartnersService },
     { provide: TEAM_SERVICE, useClass: HttpTeamService },

@@ -189,7 +189,7 @@ Exact commands will be kept up to date here as each part of the stack is added.
 | HTML mocks for every screen and state | ✅ Done |
 | Requirements (`docs/specs/`) | ✅ Done |
 | Detailed designs and design system | ✅ Done |
-| v1 implementation | 🚧 58% ([estimates](docs/estimates/README.md)): platform, identity, profiles, admin, invites, team and Agile workspaces are built |
+| v1 implementation | 🚧 59% ([estimates](docs/estimates/README.md)): platform, identity, profiles, admin, invites, team and Agile workspaces are built |
 | v2: hackathon teams, projects and judging | 🗓️ Later |
 
 ## Accessibility

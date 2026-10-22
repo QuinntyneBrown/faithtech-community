@@ -262,6 +262,8 @@ export class MockApi {
         return this.auditExport(route, url, authorization);
       case 'GET /api/team':
         return this.listTeam(route, url, authorization);
+      case 'GET /api/people':
+        return this.listPeople(route, url, authorization);
       case 'GET /api/invites':
         return this.listInvites(route, authorization);
       case 'POST /api/invites':
@@ -522,6 +524,38 @@ export class MockApi {
       }))
       .filter((u) => !term || u.name.toLowerCase().includes(term) || u.email.includes(term))
       .sort((a, b) => a.name.localeCompare(b.name));
+    const items = all.slice((page - 1) * 25, page * 25);
+    return route.fulfill({
+      status: 200,
+      json: { items, page, pageSize: 25, totalCount: all.length },
+    });
+  }
+
+  /** PeopleEndpoints: GET /api/people, City Lead, Staff or System Admin, 25 per page by name (L2-053). */
+  private listPeople(route: Route, url: URL, authorization: string | undefined) {
+    const caller = this.caller(authorization);
+    if (!caller) return route.fulfill({ status: 401 });
+    if (!caller.roles.some((r) => ['CityLead', 'Staff', 'SystemAdmin'].includes(r))) {
+      return route.fulfill({ status: 403 });
+    }
+    const term = (url.searchParams.get('q') ?? '').trim().toLowerCase();
+    const page = Number(url.searchParams.get('page') ?? '1');
+    const all = [...this.accounts.values()]
+      .map((a) => ({ account: a, profile: this.profiles.get(a.profileId)! }))
+      .filter(
+        ({ account, profile }) =>
+          !term ||
+          profile.name.toLowerCase().includes(term) ||
+          account.email.toLowerCase().includes(term),
+      )
+      .sort((a, b) => a.profile.name.localeCompare(b.profile.name))
+      .map(({ profile }) => ({
+        id: profile.id,
+        name: profile.name,
+        homeCity: profile.homeCity,
+        photoUrl: profile.photos.find((photo) => photo.isFeatured)?.url ?? null,
+        roles: profile.roles,
+      }));
     const items = all.slice((page - 1) * 25, page * 25);
     return route.fulfill({
       status: 200,

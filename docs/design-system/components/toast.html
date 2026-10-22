@@ -201,7 +201,7 @@
 
     <section class="ds-section" id="responsive"><h2><a href="#responsive">Responsive behaviour</a></h2>
       <ul>
-        <li>Below 640px the region spans the screen with 16px on each side and sits 16px above the bottom; on phones it clears the bottom tab bar.</li>
+        <li>Below 640px the region spans the screen with 16px on each side and sits 16px above the bottom; on phones it clears the bottom tab bar: while a tab bar is on screen the region sits 16px above it and its safe area (in Angular, <code>ft-tab-bar</code> registers with <code>TabBarPresence</code> and <code>ft-toast-region</code> takes <code>.ft-toast-region--above-tab-bar</code>). Pages without a tab bar (sign-in, public event) keep the 16px margin.</li>
         <li>From 640px the region is 24rem wide, 24px from the bottom-right corner.</li>
         <li>Text wraps; the toast grows taller rather than truncating.</li>
         <li>Toasts never cover the focused element; the region ignores pointer events except on the toasts themselves.</li>

@@ -28,6 +28,12 @@ Coverage: the profiles screens (`profile`, `edit-profile`, `delete-photo`), the 
 - Opens `DeletePhotoDialog` through `DialogService` from a saved photo's Remove.
 - Local: the `<form>` element and the section headings.
 
+### People and roles — `/people` (`pages/people`: default, admin, read-only, loading, error, no-results, forbidden)
+
+- Library: `PageHeaderComponent` ("People and roles", subtitle by role) with *Invite someone* (`ButtonComponent` `primary` link to `/invites`, City Leads and System Admins), `TextFieldComponent` `type="search"` labelled "Search people", `TableComponent` caption "Members and their roles" (cell templates: `AvatarComponent` `sm` with the featured photo + `LinkComponent` to `/people/:id`; `BadgeComponent` `role` per role or "No role yet"; City; `ButtonComponent` *Add role* and ghost *Remove* with the member's name as `object`, or the caption "Only System Admin can change"), `ListSkeletonComponent` (5 rows), `EmptyStateComponent` (no-results "No one matches “{term}”" with *Invite someone*; error with *Try again*; forbidden "Only City Leads manage roles" with *Back to home*), `ButtonComponent` *Show more people* when more than 25.
+- Opens `RoleDialogComponent` through `DialogService` (ADR 0005); the row's badges update from the API's answer.
+- Local: the search `<form role="search">`.
+
 ### Admin users — `/admin/users` (`pages/admin-users`: default, loading, error, no-results, forbidden)
 
 - Library: `PageHeaderComponent` ("Admin"), `TabsComponent` + `TabComponent` in navigation mode (Users, Audit log), `TextFieldComponent` `type="search"` labelled "Search users", `TableComponent` (cell templates: `AvatarComponent` + `LinkComponent` to the profile; `BadgeComponent` `role` per role or "No role"; `BadgeComponent` status — Active `success`, Suspended `danger`, Unverified `warning`; ghost `ButtonComponent` *Suspend {name}* or *Reinstate {name}*), `ListSkeletonComponent` (loading), `EmptyStateComponent` (no-results with *Clear search*; error variant with *Try again*; forbidden with *Back to home*), `ButtonComponent` *Show more users* when more than 25.

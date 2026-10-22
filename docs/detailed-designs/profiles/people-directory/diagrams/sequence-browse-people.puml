@@ -1,0 +1,45 @@
+@startuml
+title UML sequence behaviour — Browse people and change a role
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+actor "City Lead, Staff or System Admin" as actor
+box "Frontend — FaithTech Community web app (profiles library)" #E0F2FE
+  participant "PeoplePage" as page
+  participant "HttpPeopleService" as svc
+  participant "RoleDialogComponent" as dialog
+  participant "HttpRolesService" as roles
+end box
+box "Backend — FaithTech.Community.Api" #D1FADF
+  participant "PeopleEndpoints" as ep
+  participant "RolesEndpoints" as rep
+end box
+box "Backend — FaithTech.Community.Application" #ECFDF3
+  participant "ListPeopleHandler" as h
+  participant "ChangeRolesHandler" as ch
+end box
+database "Community database" as db
+actor -> page : Open /people, optionally search by name or email
+page -> svc : search(term, page)
+svc -> ep : GET /api/people?q=&page=
+ep -> h : HandleAsync(term, page) (401 anonymous)
+h -> h : Caller holds City Lead, Staff or System Admin? (403 otherwise, L2-053 AC3, AC6)
+h -> db : Profiles joined to accounts, name or email matches, by name, 25 per page
+db --> h : Rows
+h --> ep : PagedResult<PersonSummary> (no email)
+ep --> svc : 200 OK
+svc --> page : Page of people
+page --> actor : Table, or the no-results state offering an invite (L2-053 AC4)
+opt City Lead or System Admin chooses Add role or Remove on a row
+  page -> dialog : open(roles the caller may change, L2-009 AC2)
+  dialog -> roles : addRole / removeRole
+  roles -> rep : POST or DELETE /api/profiles/{id}/roles
+  rep -> ch : RoleAssignmentPolicy enforces the limits (403)
+  ch --> rep : New role set
+  rep --> roles : 200 OK
+  roles --> page : Roles
+  page --> actor : The row's badges update without a reload (L2-009 AC5)
+end
+@enduml
