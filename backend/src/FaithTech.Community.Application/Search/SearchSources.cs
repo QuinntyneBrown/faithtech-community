@@ -66,7 +66,7 @@ public class PartnersSearchSource(IApplicationDbContext db, IFullTextSearch text
         }
 
         var rows = await text
-            // Merged (archived) partners are never found (L2-089 AC4).
+            // Merged (archived) partners are never found (L2-114 AC4).
             .Match(db.Partners.AsNoTracking().Where(p => p.ArchivedAtUtc == null), term,
                 p => p.Name + " " + (p.Offering ?? "") + " " + (p.ContactName ?? "") + " " + (p.Notes ?? ""))
             .Take(limit)

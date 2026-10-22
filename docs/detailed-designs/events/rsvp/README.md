@@ -27,7 +27,7 @@ Attendees see only the RSVP count. Leads, Staff and System Admin see the full RS
 
 An event may have an optional capacity (`L2-020` AC5); `Event.IsFull` refuses RSVPs once it is reached.
 
-Since [event check-in](../event-check-in/README.md), an `Rsvp` row also records a check-in (`CheckedInAt`, `CheckedInById`) and may be a walk-in added at the door (`IsWalkIn`, [ADR 0025](../../../adr/0025-check-in-storage-on-the-rsvp.md)). `RsvpCount`, `IsFull`, the RSVP list on the event page and the RSVP CSV leave walk-ins out, so this feature's behaviour is unchanged. Leads, Staff and System Admin also see "{n} checked in" beside the RSVP count once anyone is checked in (`L2-096`).
+Since [event check-in](../event-check-in/README.md), an `Rsvp` row also records a check-in (`CheckedInAt`, `CheckedInById`) and may be a walk-in added at the door (`IsWalkIn`, [ADR 0029](../../../adr/0029-check-in-storage-on-the-rsvp.md)). `RsvpCount`, `IsFull`, the RSVP list on the event page and the RSVP CSV leave walk-ins out, so this feature's behaviour is unchanged. Leads, Staff and System Admin also see "{n} checked in" beside the RSVP count once anyone is checked in (`L2-121`).
 
 ## Requirements
 
@@ -106,7 +106,7 @@ Decisions recorded while building the slice:
 - `GET /api/events/{id}/rsvps.csv` (leads and System Admins; Staff and attendees 403) has the columns Name, Member or guest, Guest email and RSVP'd (UTC); cells that could start a spreadsheet formula are prefixed with an apostrophe. The file is `{event-slug}-rsvps.csv`.
 - The page names the host with their event role ("Marcus Lee, Event Lead"), shows a full event as full instead of offering RSVP, and after a refusal shows "You’re not on the list" with the server's reason. Cancelling an RSVP shows a success toast, "Your RSVP is cancelled". The Add to calendar link (calendar-export), the public page card (public-events-and-guest-rsvp) and Cancel event (cancel-events) arrive with their slices.
 
-Decisions recorded with event check-in ([ADR 0025](../../../adr/0025-check-in-storage-on-the-rsvp.md)):
+Decisions recorded with event check-in ([ADR 0029](../../../adr/0029-check-in-storage-on-the-rsvp.md)):
 
 - Walk-ins are `Rsvp` rows with `IsWalkIn` set. They skip the capacity and has-started rules, and every RSVP count, the RSVP list and the RSVP CSV exclude them.
 - The RSVP CSV writes through the shared `ICsvWriter` (`Application/Common`, `Infrastructure/Csv/CsvWriter.cs`), which applies the same quoting and apostrophe guard as the former private `Cell` method; the file's bytes are unchanged, as `RsvpTests` prove.

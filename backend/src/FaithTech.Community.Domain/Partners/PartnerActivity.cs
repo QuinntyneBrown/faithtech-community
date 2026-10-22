@@ -24,7 +24,7 @@ public static class PartnerActivityKinds
 }
 
 /// <summary>
-/// One dated touchpoint on a partner's shared timeline (L2-085). Logged entries cannot be edited
+/// One dated touchpoint on a partner's shared timeline (L2-110). Logged entries cannot be edited
 /// or deleted in v1; system entries mirror a change to the partner.
 /// </summary>
 public class PartnerActivity
@@ -73,7 +73,7 @@ public class PartnerActivity
     /// <summary>The other partner of a Merged or Restored entry.</summary>
     public Guid? RelatedPartnerId { get; private set; }
 
-    /// <summary>The partner this entry was first written on, when a merge moved it (ADR 0024).</summary>
+    /// <summary>The partner this entry was first written on, when a merge moved it (ADR 0028).</summary>
     public Guid? MergedFromPartnerId { get; private set; }
 
     public static PartnerActivity Log(
@@ -108,16 +108,16 @@ public class PartnerActivity
         };
     }
 
-    /// <summary>The partner entered the pipeline at its first stage (L2-085 AC6).</summary>
+    /// <summary>The partner entered the pipeline at its first stage (L2-110 AC6).</summary>
     public static PartnerActivity Added(Partner partner, Guid by, DateTime nowUtc) =>
         new(partner.Id, PartnerActivityKind.Added, by, nowUtc) { ToStage = partner.Stage };
 
-    /// <summary>Written on the kept record of a merge, with the stages when the merge changed it (L2-089 AC3).</summary>
+    /// <summary>Written on the kept record of a merge, with the stages when the merge changed it (L2-114 AC3).</summary>
     public static PartnerActivity Merged(Partner kept, Partner other, Guid by, DateTime nowUtc, PartnerStage? fromStage, PartnerStage? toStage) =>
         new(kept.Id, PartnerActivityKind.Merged, by, nowUtc) { RelatedPartnerId = other.Id, FromStage = fromStage, ToStage = toStage };
 
     /// <summary>
-    /// Written on both records of a restore (L2-090 AC4). The restored record's entry carries the
+    /// Written on both records of a restore (L2-115 AC4). The restored record's entry carries the
     /// stage it comes back at, which is how the timeline tells the two sides apart.
     /// </summary>
     public static PartnerActivity Restored(Partner partner, Partner other, Guid by, DateTime nowUtc, bool isRestoredRecord) =>
@@ -141,7 +141,7 @@ public class PartnerActivity
         MergedFromPartnerId = null;
     }
 
-    /// <summary>Mirrors a stage change, with its note (L2-085 AC7).</summary>
+    /// <summary>Mirrors a stage change, with its note (L2-110 AC7).</summary>
     public static PartnerActivity StageMoved(PartnerStageChange change) =>
         new(change.PartnerId, PartnerActivityKind.StageMoved, change.MovedBy, change.MovedAtUtc)
         {

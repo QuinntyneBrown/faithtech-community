@@ -1,4 +1,4 @@
-// Traces to: L2-013, L2-067, L2-091
+// Traces to: L2-013, L2-067, L2-116
 import { HttpErrorResponse } from '@angular/common/http';
 import { TestBed } from '@angular/core/testing';
 import { Router } from '@angular/router';
@@ -84,7 +84,7 @@ async function setup(
   };
   const save = async () => {
     host.querySelector('form')!.dispatchEvent(new Event('submit'));
-    // The save awaits the duplicate check (L2-091) before it calls the service.
+    // The save awaits the duplicate check (L2-116) before it calls the service.
     await new Promise((resolve) => setTimeout(resolve));
     await settle();
   };
@@ -116,7 +116,7 @@ const nadia: DuplicateContactDto = {
 const photo = (name: string) => new File(['x'], name, { type: 'image/png' });
 
 describe('ContactFormPage', () => {
-  describe('possible duplicate (L2-091)', () => {
+  describe('possible duplicate (L2-116)', () => {
     it('checks the email when it loses focus and warns about a match', async () => {
       const { service, type, blurEmail, text, host } = await setup({
         findDuplicate: () => of(nadia),

@@ -7,7 +7,7 @@ namespace FaithTech.Community.Application.Events;
 
 /// <summary>
 /// Someone who RSVP'd. <see cref="GuestEmail"/> is null for a member, and for Staff (L2-022 AC4);
-/// <see cref="CheckedInAt"/> is when they were checked in at the door, if they were (L2-096).
+/// <see cref="CheckedInAt"/> is when they were checked in at the door, if they were (L2-121).
 /// </summary>
 public record RsvpDto(
     Guid? ProfileId, string Name, bool IsGuest, string? GuestEmail, DateTimeOffset RsvpedAt, DateTimeOffset? CheckedInAt = null);
@@ -15,7 +15,7 @@ public record RsvpDto(
 /// <summary>
 /// An event as its page and the edit form show it (L2-020, L2-022), with what the caller may do. <see cref="Rsvps"/>
 /// is null unless the caller is a lead, Staff or System Admin; attendees see only <see cref="RsvpCount"/>.
-/// <see cref="CheckedInCount"/>, walk-ins included, is for the same callers (L2-096 AC1, AC2).
+/// <see cref="CheckedInCount"/>, walk-ins included, is for the same callers (L2-121 AC1, AC2).
 /// </summary>
 public record EventDetailDto(
     Guid Id,
@@ -69,7 +69,7 @@ public class GetEventHandler(IApplicationDbContext db, EventPermissions permissi
         IReadOnlyList<RsvpDto>? rsvps = null;
         if (permissions.CanSeeRsvpList)
         {
-            // Walk-ins did not RSVP, so the RSVP list leaves them out (L2-096 AC3).
+            // Walk-ins did not RSVP, so the RSVP list leaves them out (L2-121 AC3).
             var rsvped = e.Rsvps.Where(r => !r.IsWalkIn).ToList();
             var memberIds = rsvped.Select(r => r.ProfileId).OfType<Guid>().ToList();
             var names = await db.Profiles.AsNoTracking().Where(p => memberIds.Contains(p.Id))

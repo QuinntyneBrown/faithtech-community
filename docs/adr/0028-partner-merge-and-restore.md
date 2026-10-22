@@ -1,13 +1,13 @@
-# 0024. Partner merge semantics and restore
+# 0028. Partner merge semantics and restore
 
 - Status: Accepted
 - Date: 2026-10-22
-- Requirements: L2-089, L2-090, L2-086
+- Requirements: L2-114, L2-115, L2-111
 - Design: `docs/detailed-designs/partners/duplicate-detection-and-merge`, `docs/detailed-designs/partners/partner-activity-timeline`
 
 ## Context
 
-When two partner records describe the same organization (ADR 0023), leads need one record that keeps everything both records knew: field values, notes, logged activities and stage history. A merge is a large change made by one lead to shared data, so it must not silently lose information, must not run on data that changed while the lead compared the records, and must be reversible by someone accountable. Until now partner writes were last-write-wins with no concurrency token (ADR 0014), and partners were never removed.
+When two partner records describe the same organization (ADR 0027), leads need one record that keeps everything both records knew: field values, notes, logged activities and stage history. A merge is a large change made by one lead to shared data, so it must not silently lose information, must not run on data that changed while the lead compared the records, and must be reversible by someone accountable. Until now partner writes were last-write-wins with no concurrency token (ADR 0014), and partners were never removed.
 
 ## Decision
 

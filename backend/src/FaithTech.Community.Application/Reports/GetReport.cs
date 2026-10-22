@@ -11,10 +11,10 @@ namespace FaithTech.Community.Application.Reports;
 public record GetReportQuery(string? City, string? Period);
 
 /// <summary>
-/// Computes the report (L2-098 to L2-102) from the definitions in ADR 0026. Every figure is a database aggregate:
+/// Computes the report (L2-123 to L2-127) from the definitions in ADR 0030. Every figure is a database aggregate:
 /// a <c>CountAsync</c> or a <c>GroupBy</c>/<c>Count</c> projection, with correlated counts for the events table, so
-/// no query runs per row and no entity is loaded to be counted (L2-104 AC2). Shaping runs in memory over at most one
-/// row per city, stage or month. Private contacts, their notes and pending connections are never read (L2-100 AC6).
+/// no query runs per row and no entity is loaded to be counted (L2-129 AC2). Shaping runs in memory over at most one
+/// row per city, stage or month. Private contacts, their notes and pending connections are never read (L2-125 AC6).
 /// </summary>
 public class GetReportHandler(IApplicationDbContext db, ReportAccess access, TimeProvider time)
 {
@@ -122,7 +122,7 @@ public class GetReportHandler(IApplicationDbContext db, ReportAccess access, Tim
         return (new EventsHeldFigureDto(heldCount, cancelled), new RsvpsFigureDto(rsvpCount, checkedIn, Percent(checkedIn, rsvpCount)));
     }
 
-    /// <summary>Lead, In funnel and Confirmed per owner home city; the period does not apply (ADR 0026).</summary>
+    /// <summary>Lead, In funnel and Confirmed per owner home city; the period does not apply (ADR 0030).</summary>
     private async Task<List<PartnerPipelineRowDto>> PartnerPipelineAsync(string? city, List<string> cities, CancellationToken cancellationToken)
     {
         var groups = await (

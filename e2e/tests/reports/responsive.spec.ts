@@ -1,4 +1,4 @@
-// Traces to: L2-099 AC6, L2-101 AC6 (docs/detailed-designs/reports/reports-dashboard)
+// Traces to: L2-124 AC6, L2-126 AC6 (docs/detailed-designs/reports/reports-dashboard)
 import { expect, test } from '../../fixtures/app';
 import { seedReportData } from '../../fixtures/report-data';
 import { ReportsPage } from '../../pages/reports.page';

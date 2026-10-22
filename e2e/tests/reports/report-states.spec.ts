@@ -1,4 +1,4 @@
-// Traces to: L2-102 (docs/detailed-designs/reports/reports-dashboard)
+// Traces to: L2-127 (docs/detailed-designs/reports/reports-dashboard)
 import { expect, test } from '../../fixtures/app';
 import { seedReportData } from '../../fixtures/report-data';
 import { ReportsPage } from '../../pages/reports.page';
@@ -6,7 +6,7 @@ import { ReportsPage } from '../../pages/reports.page';
 test.use({ timezoneId: 'America/Toronto' });
 
 test.describe('Report states', () => {
-  // L2-102 AC1: Given the report is loading, then skeletons stand in for the figures, charts and tables, and the
+  // L2-127 AC1: Given the report is loading, then skeletons stand in for the figures, charts and tables, and the
   // busy state is announced.
   test('while loading, skeletons stand in and the region is busy', async ({ page, api, axe }) => {
     const { staff } = seedReportData(api);
@@ -29,7 +29,7 @@ test.describe('Report states', () => {
     await expect(reports.figure('Members')).toContainText('9');
   });
 
-  // L2-102 AC2: Given no members and no events for the filters, then it says "Nothing to report for {city} in the
+  // L2-127 AC2: Given no members and no events for the filters, then it says "Nothing to report for {city} in the
   // {period}", with All cities and Last 90 days.
   test('a city with nothing in the period shows the empty state', async ({ page, api, axe }) => {
     const { staff } = seedReportData(api);
@@ -45,7 +45,7 @@ test.describe('Report states', () => {
     await expect(reports.figure('Events held')).toContainText('1');
   });
 
-  // L2-102 AC3: Given the report fails to load, then an error offers "Try again", which reloads the same filters.
+  // L2-127 AC3: Given the report fails to load, then an error offers "Try again", which reloads the same filters.
   test('a failed load offers Try again, which reloads the same filters', async ({
     page,
     api,

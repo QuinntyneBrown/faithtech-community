@@ -52,7 +52,7 @@ export interface RsvpDto {
   isGuest: boolean;
   guestEmail: string | null;
   rsvpedAt: string;
-  /** When they were checked in at the door, if they were (L2-096). */
+  /** When they were checked in at the door, if they were (L2-121). */
   checkedInAt: string | null;
 }
 
@@ -84,9 +84,9 @@ export interface EventDetailDto {
   canExportRsvps: boolean;
   /** Null unless the caller is a lead, Staff or System Admin; attendees see only the count. */
   rsvps: RsvpDto[] | null;
-  /** Everyone checked in, walk-ins included; null for callers who don't see the RSVP list (L2-096). */
+  /** Everyone checked in, walk-ins included; null for callers who don't see the RSVP list (L2-121). */
   checkedInCount: number | null;
-  /** Lead roles and System Admins check people in; Staff only view the check-in page (L2-092). */
+  /** Lead roles and System Admins check people in; Staff only view the check-in page (L2-117). */
   canCheckIn: boolean;
   canViewCheckIn: boolean;
 }

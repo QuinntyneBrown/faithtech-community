@@ -1,4 +1,4 @@
-// Traces to: L2-098 (docs/detailed-designs/reports/reports-dashboard)
+// Traces to: L2-123 (docs/detailed-designs/reports/reports-dashboard)
 using System.Net;
 using FaithTech.Community.Api.Tests.Profiles;
 using FaithTech.Community.Domain.Profiles;
@@ -7,7 +7,7 @@ namespace FaithTech.Community.Api.Tests.Reports;
 
 public class ReportAccessTests(CommunityApiFactory factory) : IClassFixture<CommunityApiFactory>
 {
-    // L2-098 AC1: Given Staff or a System Admin, when they open the report, then it is shown.
+    // L2-123 AC1: Given Staff or a System Admin, when they open the report, then it is shown.
     [Theory]
     [InlineData(Role.Staff)]
     [InlineData(Role.SystemAdmin)]
@@ -27,7 +27,7 @@ public class ReportAccessTests(CommunityApiFactory factory) : IClassFixture<Comm
         Assert.Equal(HttpStatusCode.OK, (await client.GetAsync("/api/reports")).StatusCode);
     }
 
-    // L2-098 AC2: Given any other signed-in member, City Leads and the other lead roles included, when they call
+    // L2-123 AC2: Given any other signed-in member, City Leads and the other lead roles included, when they call
     // GET /api/reports, then the server answers 403.
     [Theory]
     [InlineData(Role.CityLead)]
@@ -52,7 +52,7 @@ public class ReportAccessTests(CommunityApiFactory factory) : IClassFixture<Comm
         Assert.Equal(HttpStatusCode.Forbidden, (await client.GetAsync("/api/reports?period=all-time")).StatusCode);
     }
 
-    // L2-098 AC3: Given an anonymous visitor, when they call a report endpoint, then the response is 401.
+    // L2-123 AC3: Given an anonymous visitor, when they call a report endpoint, then the response is 401.
     [Fact]
     public async Task Anonymous_visitors_get_401()
     {

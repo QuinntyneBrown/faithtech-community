@@ -1,4 +1,4 @@
-// Traces to: L2-088, L2-089, L2-090 (docs/detailed-designs/partners/duplicate-detection-and-merge, ADR 0024)
+// Traces to: L2-113, L2-114, L2-115 (docs/detailed-designs/partners/duplicate-detection-and-merge, ADR 0028)
 using FaithTech.Community.Domain.Partners;
 
 namespace FaithTech.Community.Application.Tests.Domain.Partners;

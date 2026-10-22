@@ -1,4 +1,4 @@
-// Traces to: L2-094, L2-095, L2-096 AC3 (docs/detailed-designs/events/event-check-in)
+// Traces to: L2-119, L2-120, L2-121 AC3 (docs/detailed-designs/events/event-check-in)
 using FaithTech.Community.Domain.Events;
 using static FaithTech.Community.Application.Tests.Domain.Events.EventTests;
 
@@ -23,7 +23,7 @@ public class EventCheckInTests
         Assert.Equal((false, false, null, null), (rsvp.IsCheckedIn, rsvp.IsWalkIn, rsvp.CheckedInAt, rsvp.CheckedInById));
     }
 
-    // L2-094 AC1: the check-in records the time and who checked them in.
+    // L2-119 AC1: the check-in records the time and who checked them in.
     [Fact]
     public void Checking_in_records_the_time_and_who_checked_them_in()
     {
@@ -36,7 +36,7 @@ public class EventCheckInTests
         Assert.Equal((1, 1), (e.CheckedInCount, e.AttendeeCount));
     }
 
-    // L2-094 AC4: Given an attendee already checked in, when the check-in is saved again, then the original time is kept.
+    // L2-119 AC4: Given an attendee already checked in, when the check-in is saved again, then the original time is kept.
     [Fact]
     public void Checking_in_again_keeps_the_first_time_and_person()
     {
@@ -48,7 +48,7 @@ public class EventCheckInTests
         Assert.Equal(((DateTimeOffset?)AtTheDoor, (Guid?)Lead), (rsvp.CheckedInAt, rsvp.CheckedInById));
     }
 
-    // L2-094 AC2: undo clears the check-in.
+    // L2-119 AC2: undo clears the check-in.
     [Fact]
     public void Undoing_clears_the_check_in()
     {
@@ -69,7 +69,7 @@ public class EventCheckInTests
         Assert.Throws<InvalidOperationException>(() => e.UndoCheckIn(Guid.NewGuid(), AtTheDoor));
     }
 
-    // L2-095 AC2: a walk-in is added to the end of the list marked as a walk-in, checked in when asked.
+    // L2-120 AC2: a walk-in is added to the end of the list marked as a walk-in, checked in when asked.
     [Fact]
     public void A_walk_in_is_a_guest_row_marked_as_a_walk_in()
     {
@@ -93,7 +93,7 @@ public class EventCheckInTests
         Assert.Equal(("mira@example.org", false), (walkIn.GuestEmail, walkIn.IsCheckedIn));
     }
 
-    // L2-095 AC4: a verified member's email links the row to their profile.
+    // L2-120 AC4: a verified member's email links the row to their profile.
     [Fact]
     public void A_walk_in_linked_to_a_member_is_a_member_row()
     {
@@ -105,7 +105,7 @@ public class EventCheckInTests
         Assert.Equal(((Guid?)member, (string?)null, (string?)null, true), (walkIn.ProfileId, walkIn.GuestName, walkIn.GuestEmail, walkIn.IsWalkIn));
     }
 
-    // L2-095 AC5: the member or email already has an RSVP, so that RSVP is reused and checked in.
+    // L2-120 AC5: the member or email already has an RSVP, so that RSVP is reused and checked in.
     [Fact]
     public void A_walk_in_reuses_a_member_rsvp_or_a_guest_rsvp_by_email()
     {
@@ -121,8 +121,8 @@ public class EventCheckInTests
         Assert.Equal(2, e.AttendeeCount);
     }
 
-    // L2-095 AC6: walk-ins skip the capacity and has-started rules.
-    // L2-096 AC3: RSVP counts and fullness leave walk-ins out.
+    // L2-120 AC6: walk-ins skip the capacity and has-started rules.
+    // L2-121 AC3: RSVP counts and fullness leave walk-ins out.
     [Fact]
     public void Walk_ins_skip_capacity_and_the_start_and_are_left_out_of_rsvp_counts()
     {
@@ -143,7 +143,7 @@ public class EventCheckInTests
         Assert.Throws<ArgumentException>(() => e.AddWalkIn(" ", null, null, checkInNow: true, Lead, AtTheDoor));
     }
 
-    // L2-094 AC5: a cancelled event takes no check-in writes.
+    // L2-119 AC5: a cancelled event takes no check-in writes.
     [Fact]
     public void A_cancelled_event_refuses_check_ins_undo_and_walk_ins()
     {
@@ -158,7 +158,7 @@ public class EventCheckInTests
         Assert.True(rsvp.IsCheckedIn);
     }
 
-    // L2-094 AC6: check-in opens 24 hours before the start and does not close.
+    // L2-119 AC6: check-in opens 24 hours before the start and does not close.
     [Fact]
     public void Check_in_opens_24_hours_before_the_start_and_stays_open()
     {

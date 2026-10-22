@@ -11,7 +11,7 @@
 - **Join time** — `Profile.JoinedAtUtc`, a new, optional time stamp set when an account is created. It is what "new members" counts. Profiles created before this feature have none and are never counted as new.
 - **Partner city** — a partner has no city of its own; it counts for its owner's home city, and under "No city" when it has no owner or the owner has no home city.
 
-Reports sits in its own subsystem, `reports` (ADR 0027). It owns no data: it reads profiles, accounts, events, RSVPs, partners and announcements that other features write, and it never reads private contacts or their notes. Every number is computed on the server from the definitions in [ADR 0026](../../../adr/0026-report-metric-definitions.md), so the page, the CSV export and the e2e fake agree. The check-in fields it reads (`Rsvp.CheckedInAt`, `Rsvp.IsWalkIn`) come from [event check-in](../../events/event-check-in/README.md) (ADR 0025) and the partner archive from [duplicate detection and merge](../../partners/duplicate-detection-and-merge/README.md) (ADR 0024).
+Reports sits in its own subsystem, `reports` (ADR 0031). It owns no data: it reads profiles, accounts, events, RSVPs, partners and announcements that other features write, and it never reads private contacts or their notes. Every number is computed on the server from the definitions in [ADR 0030](../../../adr/0030-report-metric-definitions.md), so the page, the CSV export and the e2e fake agree. The check-in fields it reads (`Rsvp.CheckedInAt`, `Rsvp.IsWalkIn`) come from [event check-in](../../events/event-check-in/README.md) (ADR 0029) and the partner archive from [duplicate detection and merge](../../partners/duplicate-detection-and-merge/README.md) (ADR 0028).
 
 ## Description
 
@@ -32,7 +32,7 @@ There is no `Domain/Reports/`: a report is a read model over other features' ent
   1. `403` unless `ReportAccess.CanRead`.
   2. Resolves the period; an unknown key is `Result.Invalid("period", …)` (`400`). An empty or missing period is the default.
   3. Loads the **city list**: the distinct non-blank `HomeCity` of member profiles (below), unioned with the distinct `Event.City` of all events, sorted with an ordinal-ignore-case comparer. An empty or missing city is All cities; a city that is not in the list (ordinal match) is `Result.Invalid("city", …)` (`400`).
-  4. Runs the aggregates below. Each is one `IQueryable` ending in `CountAsync` or a `GroupBy(…).Select(g => new { g.Key, Count = g.Count() })` projection, all `AsNoTracking`. No query runs per row, and no entity is loaded to be counted (`L2-104` AC2). Shaping (top four cities, filling empty months, percentages) happens in memory on the grouped results, which hold at most one row per city, stage or month. The queries use only operators that both Npgsql and the EF Core in-memory provider translate.
+  4. Runs the aggregates below. Each is one `IQueryable` ending in `CountAsync` or a `GroupBy(…).Select(g => new { g.Key, Count = g.Count() })` projection, all `AsNoTracking`. No query runs per row, and no entity is loaded to be counted (`L2-129` AC2). Shaping (top four cities, filling empty months, percentages) happens in memory on the grouped results, which hold at most one row per city, stage or month. The queries use only operators that both Npgsql and the EF Core in-memory provider translate.
 - **Metric queries** — `members` is `from p in db.Profiles join u in db.Users on p.Id equals u.ProfileId where u.EmailConfirmed && !p.IsSuspended select p`; `events` is `db.Events`; both narrowed by `p.HomeCity == city` and `e.City == city` under one city. `window.Contains(x)` stands for `(From == null || x >= From) && x <= To`.
 
   | Output | Query |
@@ -51,7 +51,7 @@ There is no `Domain/Reports/`: a report is a read model over other features' ent
   | Events and attendance | `events.Where(e => (From == null \|\| e.StartsAt >= From) && e.StartsAt <= To.AddDays(30)).OrderByDescending(e => e.StartsAt).Take(50).Select(e => new { e.Id, e.Title, e.StartsAt, e.City, e.IsCancelled, Going = e.Rsvps.Count(r => !r.IsWalkIn), CheckedIn = e.Rsvps.Count(r => !r.IsWalkIn && r.CheckedInAt != null) })` — one statement with correlated counts. Status is `Cancelled`, else `Upcoming` when `StartsAt > To`, else `Held` |
   | Empty | Members is 0 and the Events and attendance list is empty |
 
-  No query touches `db.Contacts`, `db.ContactNotes`, `db.PendingConnections` or contact photos (`L2-100` AC6); the e2e privacy spec proves the result does not move when contacts change.
+  No query touches `db.Contacts`, `db.ContactNotes`, `db.PendingConnections` or contact photos (`L2-125` AC6); the e2e privacy spec proves the result does not move when contacts change.
 - **`ReportDto`** (`Application/Reports/ReportDto.cs`) — the whole report in one response, serialized camelCase:
 
   ```json
@@ -109,7 +109,7 @@ There is no `Domain/Reports/`: a report is a read model over other features' ent
   - `GET /api/reports?city=&period=` → `200 ReportDto` · `400` problem details naming `city` or `period` · `401` · `403`
   - `GET /api/reports/export.csv?city=&period=` → `200 text/csv; charset=utf-8` with `Content-Disposition: attachment`, written as UTF-8 with a byte-order mark so spreadsheet apps read accented names · `400` · `401` · `403`
   - Both use `ResultMapper.ToHttp`. The application registers `ReportAccess`, `GetReportHandler` and `ExportReportHandler` as scoped in `Application/DependencyInjection.cs`.
-- **Performance (`L2-104` AC1)** — the existing `IX_Events_StartsAt`, the new `IX_Profiles_HomeCity`, the unique `ProfileId` index on the Identity users table, and `IX_Rsvps_EventId_GuestEmail` (whose leading column is `EventId`, so no separate `Rsvp.EventId` index is added) serve the queries; `IX_Announcements_SentAt` and `IX_Partners_Stage` already exist. The Cli command `seed-report-records <members>` (`CommunitySeeder.SeedReportRecordsAsync`) seeds the reports volume: `seed-report-records 10000` gives 10,000 verified members across six cities with join times over 18 months, 1,000 events and 50,000 RSVPs with check-ins. `eng/load-test.js` gains a `reports` scenario that calls both endpoints for every period and a few cities as a System Admin (load member VUS + 2, granted with `grant-admin`, since the Cli cannot grant Staff), with the threshold `p(95)<1000` on `kind:report`. The 1-second p95 budget is verified against PostgreSQL by that load test in the isolated performance environment; `Reports/ReportVolumeTests` checks only that the report and export answer with the right totals over 10,000 members, 1,000 events and 3,000 RSVPs in the in-memory provider, which cannot measure latency or SQL shape.
+- **Performance (`L2-129` AC1)** — the existing `IX_Events_StartsAt`, the new `IX_Profiles_HomeCity`, the unique `ProfileId` index on the Identity users table, and `IX_Rsvps_EventId_GuestEmail` (whose leading column is `EventId`, so no separate `Rsvp.EventId` index is added) serve the queries; `IX_Announcements_SentAt` and `IX_Partners_Stage` already exist. The Cli command `seed-report-records <members>` (`CommunitySeeder.SeedReportRecordsAsync`) seeds the reports volume: `seed-report-records 10000` gives 10,000 verified members across six cities with join times over 18 months, 1,000 events and 50,000 RSVPs with check-ins. `eng/load-test.js` gains a `reports` scenario that calls both endpoints for every period and a few cities as a System Admin (load member VUS + 2, granted with `grant-admin`, since the Cli cannot grant Staff), with the threshold `p(95)<1000` on `kind:report`. The 1-second p95 budget is verified against PostgreSQL by that load test in the isolated performance environment; `Reports/ReportVolumeTests` checks only that the report and export answer with the right totals over 10,000 members, 1,000 events and 3,000 RSVPs in the in-memory provider, which cannot measure latency or SQL shape.
 
 ### Frontend
 
@@ -125,7 +125,7 @@ There is no `Domain/Reports/`: a report is a read model over other features' ent
   - States: loading keeps the header and filters, and shows `StatComponent` `loading`, skeleton chart rows (`ProgressChartComponent` `loading`) and `TableComponent` `loading`, with `aria-busy` on the report region; empty is `EmptyStateComponent` "Nothing to report for {city} in the {period}" ("…for All cities yet" for All time) with All cities and Last 90 days actions; error is `EmptyStateComponent` `variant="error"` "We couldn’t load the reports" with **Try again**, which reloads the same filters; forbidden is `EmptyStateComponent` "Reports are for Staff and System Admin" with Go to Home, as in `reports/forbidden`.
   - A `400` navigates to `/reports?city=&period=last-30-days` with `replaceUrl` and shows a warning `AlertComponent`: "That city or period isn’t available, so the report shows All cities for the last 30 days."
   - Export: `ButtonComponent` `loading` reads "Exporting…" and cannot be pressed again; the blob downloads through an object URL with the server's file name pattern; a failure shows a danger toast (`ToastService`) "We couldn’t export the report" with **Try again**.
-  - The page has no write action (`L2-098` AC5).
+  - The page has no write action (`L2-123` AC5).
 
 ### Components (`frontend/projects/components/`)
 
@@ -141,7 +141,7 @@ Missing, to be added to `components` first (design system pages `stat`, `progres
 
 ### Fake backend and tests
 
-- **`MockReports`** (`e2e/fixtures/mock-reports.ts`) — `ReportsEndpoints` in the browser. It computes the report from the fake's own state: `api.accounts` (verified, suspended) and `api.profiles` (home city, a new optional `joinedAtUtc` on `MockProfile` and `addAccount`), `api.events` (RSVPs with `isWalkIn` and `checkedInAt` from the check-in fake), `api.partners` (`archived`, owner) and `api.announcements` (`senderId`, `sentAt`), using `api.now` and the definitions of ADR 0026. It never reads `api.contacts`. It answers `401` with no caller, `403` unless Staff or System Admin, `400` problem details for an unknown city or period, and the CSV with the same sections. Failures are arranged with `api.on('GET', '/api/reports', …)`.
+- **`MockReports`** (`e2e/fixtures/mock-reports.ts`) — `ReportsEndpoints` in the browser. It computes the report from the fake's own state: `api.accounts` (verified, suspended) and `api.profiles` (home city, a new optional `joinedAtUtc` on `MockProfile` and `addAccount`), `api.events` (RSVPs with `isWalkIn` and `checkedInAt` from the check-in fake), `api.partners` (`archived`, owner) and `api.announcements` (`senderId`, `sentAt`), using `api.now` and the definitions of ADR 0030. It never reads `api.contacts`. It answers `401` with no caller, `403` unless Staff or System Admin, `400` problem details for an unknown city or period, and the CSV with the same sections. Failures are arranged with `api.on('GET', '/api/reports', …)`.
 - **`mock-api.ts`** — `readonly reports = new MockReports(this);` and, in `handle`, `const reports = this.reports.handle(route, method, url, this.caller(authorization)); if (reports) return reports;` before search. Any other `/api/reports` request falls through to the unrecognised list and fails the test.
 - **Page object** `e2e/pages/reports.page.ts` (`ReportsPage`): `open(query)`, `filter(city, period)`, `figure(label)`, `figureText(label)`, `chart(title)`, `chartRows(title)`, `card(title)`, `tableRows(title)`, `eventLink(title)`, `cityOptions()`, `periodOptions()`, `emptyAction(name)`, `toast(heading)`, `heading`, `subtitle`, `city`, `period`, `apply`, `exportCsv`, `loading`, `empty`, `error`, `tryAgain`, `forbidden`, `goHome`, `filterAlert`; the Reports nav entry is reached through `AppShell`'s existing `navLink(name)` and `drawerLink(name)`.
 - **E2E specs** (`e2e/tests/reports/`, axe on every state): `reports-access.spec.ts` (Staff and System Admin see it; City Lead, Event Lead, Volunteer and no-role members see the forbidden state; anonymous goes to sign in; nav shows Reports only for Staff and System Admin, in More at MD), `report-filters.spec.ts` (defaults, city list, Apply and the URL, bookmark reload, unknown filter fallback), `report-figures.spec.ts` (each definition, including unverified, suspended, archived, cancelled and walk-in exclusions, partner "No city", and a lead's private contacts in Toronto leaving every number unchanged), `report-charts-and-tables.spec.ts`, `report-states.spec.ts` (loading, empty, error and Try again), `report-export.spec.ts` (sections, formula guard, busy, failure toast) and `responsive.spec.ts` (XS single column, no horizontal page scroll).
@@ -152,13 +152,13 @@ Missing, to be added to `components` first (design system pages `stat`, `progres
 
 | L2 ID | Refines (L1) | Requirement |
 |-------|--------------|-------------|
-| `L2-098` | `L1-022` | Reports access |
-| `L2-099` | `L1-022` | Report filters |
-| `L2-100` | `L1-022` | Report figures |
-| `L2-101` | `L1-022` | Report charts and tables |
-| `L2-102` | `L1-022` | Report states |
-| `L2-103` | `L1-022` | Export a report |
-| `L2-104` | `L1-022` | Report performance |
+| `L2-123` | `L1-024` | Reports access |
+| `L2-124` | `L1-024` | Report filters |
+| `L2-125` | `L1-024` | Report figures |
+| `L2-126` | `L1-024` | Report charts and tables |
+| `L2-127` | `L1-024` | Report states |
+| `L2-128` | `L1-024` | Export a report |
+| `L2-129` | `L1-024` | Report performance |
 | `L2-045` | `L1-016` | Responsive layout and theming (AC4 and AC5: Reports in the navigation and the More menu) |
 
 The acceptance criteria are in [`docs/specs/L2.md`](../../../specs/L2.md).
@@ -191,25 +191,25 @@ The handlers depend on `IApplicationDbContext`, `ICurrentUser`, `TimeProvider` a
 
 ### Behaviour — view the report
 
-The page sends the filters from the URL; the server refuses anyone but Staff and System Admin, validates the filters and answers the whole report from aggregates (`L2-098` to `L2-102`, `L2-104`).
+The page sends the filters from the URL; the server refuses anyone but Staff and System Admin, validates the filters and answers the whole report from aggregates (`L2-123` to `L2-127`, `L2-129`).
 
 ![Sequence diagram for viewing the report](diagrams/sequence-view-report.png)
 
 ### Behaviour — export the report
 
-The export applies the same access, filters and figures, then writes every section through `ICsvWriter` (`L2-103`).
+The export applies the same access, filters and figures, then writes every section through `ICsvWriter` (`L2-128`).
 
 ![Sequence diagram for exporting the report](diagrams/sequence-export-report.png)
 
 ### Behaviour — record the join time
 
-Creating an account stamps the profile's join time once, which "+N in the period" and New members by month count (`L2-100` AC1).
+Creating an account stamps the profile's join time once, which "+N in the period" and New members by month count (`L2-125` AC1).
 
 ![Sequence diagram for recording the join time](diagrams/sequence-record-join-time.png)
 
 ## Open questions
 
-Resolved while designing (ADR 0026, ADR 0027):
+Resolved while designing (ADR 0030, ADR 0031):
 
 - **More at MD** — Reports is a secondary section, like People and Admin: hidden from the top bar from MD up to 1535px and reached through More, shown in the top bar from 2XL, and listed in the phone More menu. `L2-045` AC5 lists it.
 - **City list and suspended members** — the list uses the same member set as Members (verified and not suspended) plus every event's city, cancelled events included. City names are matched exactly; "Toronto" and "toronto " would be two cities. Normalising free-text home cities is deferred.
@@ -217,17 +217,17 @@ Resolved while designing (ADR 0026, ADR 0027):
 - **Period edges** — windows are UTC and inclusive at both ends; months follow UTC calendar months. A city-local time zone is deferred.
 - **Walk-ins** — excluded from RSVPs, from the checked-in rate and from the Events and attendance columns, so the rate never passes 100%. Showing a walk-in count per event is deferred.
 - **Partner owner state** — a partner counts for its owner's home city whether or not the owner is verified or suspended.
-- **Archived partners** — the filter is written here as `Partner.IsArchived`; it follows whatever archive marker the merge design gives `Partner` (ADR 0024, "archived with `MergedIntoId`").
-- **Mock drift** — `reports/default` draws chart bars as `role="progressbar"` with the overall total as the maximum and shows New members by month as Jul to Oct for Last 30 days; the design follows the brief and the design system (tracks `aria-hidden`; only the months the period touches). The mocks have no state for an unknown filter (`L2-099` AC5) or for exporting and export failure (`L2-103` AC4); those states should be added to `docs/mocks/pages/reports/` before the slices that build them.
+- **Archived partners** — the filter is written here as `Partner.IsArchived`; it follows whatever archive marker the merge design gives `Partner` (ADR 0028, "archived with `MergedIntoId`").
+- **Mock drift** — `reports/default` draws chart bars as `role="progressbar"` with the overall total as the maximum and shows New members by month as Jul to Oct for Last 30 days; the design follows the brief and the design system (tracks `aria-hidden`; only the months the period touches). The mocks have no state for an unknown filter (`L2-124` AC5) or for exporting and export failure (`L2-128` AC4); those states should be added to `docs/mocks/pages/reports/` before the slices that build them.
 - **CSV writers elsewhere** — the audit log and RSVP exports keep their own cell functions, which quote only when needed. Moving them to `ICsvWriter` is a follow-up behaviour change for those features, not part of this one.
 - **Home** — the mocks' "Open reports" action on the Staff home page belongs to [Home](../../platform/home/README.md) and has no requirement yet.
-- **Proving `L2-104` AC1** — the in-memory provider cannot prove latency or SQL shape; the budget is checked by the load test against PostgreSQL, and the query shapes by review.
+- **Proving `L2-129` AC1** — the in-memory provider cannot prove latency or SQL shape; the budget is checked by the load test against PostgreSQL, and the query shapes by review.
 - **Recorded while building** (slice 11a):
   - The unknown-filter warning reads as the later `reports/unknown-filter` mock, "We couldn’t use that filter, so this shows all cities for the last 30 days.", not the wording above.
-  - The Events and attendance footer reads "Events in the period and the next 30 days. Walk-ins aren’t counted as RSVPs or check-ins." The `reports/default` mock's "Walk-ins count as checked in but not as RSVPs" contradicts ADR 0026, which leaves walk-ins out of both columns.
+  - The Events and attendance footer reads "Events in the period and the next 30 days. Walk-ins aren’t counted as RSVPs or check-ins." The `reports/default` mock's "Walk-ins count as checked in but not as RSVPs" contradicts ADR 0030, which leaves walk-ins out of both columns.
   - Layout: `SplitComponent` holds the two tables in the main column and the two charts in the aside; at XS (`BreakpointService` below SM) the stat row is a `StackComponent` instead of a `ClusterComponent`, so the figures are one column.
   - The join-time tests sit with the flows they exercise (`Identity/SignUpTests`, `Identity/GoogleSignInTests`, `Invites/AcceptInviteTests`, `Invites/ConnectSignUpTests`) rather than in a separate `Reports/JoinedAtTests`.
   - Slice 12: each CSV section opens with a title row ("Figures", "Members by city", …) before its column headers; the header block's dates read "From (UTC)", "To (UTC)" and "Generated (UTC)" as `yyyy-MM-dd HH:mm`, and From is empty for All time. The page writes the server's file name pattern itself, from the shown report's city, period and `to`. Reports shows no success toast after an export, as the mocks have none.
   - Performance: measured on 2026-10-22 against a local PostgreSQL with `seed-report-records 10000` (10,000 members, 1,000 events, 50,000 RSVPs), the Release API and `k6 run -e VUS=5 -e DURATION=3m eng/load-test.js`: the `reports` scenario's p95 was 68 ms against the 1,000 ms budget, with no failed requests. The run also fixed the script: k6 numbers VUs across both scenarios, so it now signs in VUS + 1 members for the members scenario and the System Admin as member VUS + 2. A run in the isolated performance environment at 200 VUs remains the release check. `ReportVolumeTests` passed on its first run, since the aggregates were already server-side from slice 11a; it guards correctness at volume.
-- **Spec wording (2026-10-22)** — `L2-102` AC2 now names the All time heading, "Nothing to report for {city} yet", which the All time decision above already used. The `reports/*` mocks now carry the shipped events footer ("Walk-ins aren’t counted as RSVPs or check-ins.") and the filter bar's end slot.
+- **Spec wording (2026-10-22)** — `L2-127` AC2 now names the All time heading, "Nothing to report for {city} yet", which the All time decision above already used. The `reports/*` mocks now carry the shipped events footer ("Walk-ins aren’t counted as RSVPs or check-ins.") and the filter bar's end slot.
 - **Deferred** — configurable dashboards, numbers linking to the lists behind them (only event titles link), per-lead or per-city access for City Leads, scheduled or emailed reports, and charts beyond the two fixed ones.

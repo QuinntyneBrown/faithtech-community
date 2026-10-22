@@ -1,13 +1,13 @@
-# 0025. Check-in storage on the RSVP
+# 0029. Check-in storage on the RSVP
 
 - Status: Accepted
 - Date: 2026-10-22
-- Requirements: L2-092, L2-093, L2-094, L2-095, L2-096, L2-097, L2-100, L2-022
+- Requirements: L2-117, L2-118, L2-119, L2-120, L2-121, L2-122, L2-125, L2-022
 - Design: `docs/detailed-designs/events/event-check-in`
 
 ## Context
 
-Leads check attendees in at the door, add people who turn up without an RSVP, and export who came (`L2-092` to `L2-097`). Reports shows the share of RSVPs that were checked in (`L2-100`). Each check-in needs the time and who recorded it, must be undoable, and must not change the RSVP rules, counts or list that `L2-020` to `L2-024` already define. Questions: where a check-in lives, what a walk-in is, and when check-in may happen.
+Leads check attendees in at the door, add people who turn up without an RSVP, and export who came (`L2-117` to `L2-122`). Reports shows the share of RSVPs that were checked in (`L2-125`). Each check-in needs the time and who recorded it, must be undoable, and must not change the RSVP rules, counts or list that `L2-020` to `L2-024` already define. Questions: where a check-in lives, what a walk-in is, and when check-in may happen.
 
 ## Decision
 

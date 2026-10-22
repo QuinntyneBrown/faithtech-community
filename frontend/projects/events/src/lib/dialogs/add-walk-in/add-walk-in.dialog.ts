@@ -17,7 +17,7 @@ import { firstValueFrom } from 'rxjs';
 
 export interface AddWalkInData {
   eventId: string;
-  /** Filled in from the search that found no one (L2-093 AC3). */
+  /** Filled in from the search that found no one (L2-118 AC3). */
   name?: string;
 }
 
@@ -27,7 +27,7 @@ export const MAX_WALK_IN_NAME = 100;
 const MAX_EMAIL = 256;
 
 /**
- * Adds someone at the door who didn't RSVP (L2-095), matching docs/mocks/dialogs/check-in-walk-in. Client rules
+ * Adds someone at the door who didn't RSVP (L2-120), matching docs/mocks/dialogs/check-in-walk-in. Client rules
  * mirror AddWalkInValidator; a failed save keeps the input and offers Try again. Closes with the WalkInResultDto.
  */
 @Component({

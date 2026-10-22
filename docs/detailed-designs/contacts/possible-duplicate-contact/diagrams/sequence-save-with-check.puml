@@ -41,18 +41,18 @@ alt email not yet checked
     dup --> ep : DuplicateContactDto
     ep --> svc : 200 OK
     svc --> page : Match
-    page --> actor : Show warning; this save stops (L2-091 AC1)
+    page --> actor : Show warning; this save stops (L2-116 AC1)
     actor -> page : Save as a new contact (no second check)
   else no match, error or timeout
     ep --> svc : 204, error or no answer
     svc --> page : null or failure
-    page -> page : Continue saving (L2-091 AC7)
+    page -> page : Continue saving (L2-116 AC7)
   end
 end
 page -> svc : create(contact) or update(id, contact)
 svc -> ep : POST /api/contacts or PUT /api/contacts/{id}
 ep -> save : CreateAsync or UpdateAsync
-save -> db : Insert or update a separate contact (L2-091 AC3)
+save -> db : Insert or update a separate contact (L2-116 AC3)
 db --> save : Committed
 save --> ep : ContactDto
 ep --> svc : 201 Created or 200 OK

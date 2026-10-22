@@ -20,7 +20,7 @@ export interface RestorePartnerData {
 }
 
 /**
- * Confirms restoring a merged partner (L2-090 AC4, AC6), matching docs/mocks/dialogs/restore-partner.
+ * Confirms restoring a merged partner (L2-115 AC4, AC6), matching docs/mocks/dialogs/restore-partner.
  * System Admin only. A refusal shows "Partner not restored" with Reload and try again, which reads
  * the partner (and so both versions) again. Closes with the restored partner.
  */

@@ -68,10 +68,10 @@ export const STAGE_BADGES: Record<PartnerStage, BadgeVariant> = {
 };
 
 /**
- * One partner with its details and shared activity timeline (L2-017, L2-018, L2-086), matching
+ * One partner with its details and shared activity timeline (L2-017, L2-018, L2-111), matching
  * docs/mocks/pages/partner. Log activity opens LogActivityDialog for leads and System Admin. A
  * possible duplicate shows a warning with Compare and merge, Open {other} and Not the same
- * (L2-088, L2-089); an archived (merged) partner shows who merged it instead, read-only.
+ * (L2-113, L2-114); an archived (merged) partner shows who merged it instead, read-only.
  */
 @Component({
   selector: 'ft-partner-page',
@@ -111,7 +111,7 @@ export class PartnerPage {
   protected readonly badges = STAGE_BADGES;
   /** Bumped after a log or a move so the timeline fetches its first page again. */
   protected readonly timelineReload = signal(0);
-  /** Undismissed possible duplicates, by name; the first takes the alert (L2-088). */
+  /** Undismissed possible duplicates, by name; the first takes the alert (L2-113). */
   protected readonly duplicates = signal<PartnerDuplicateDto[]>([]);
   protected readonly duplicate = computed(() => this.duplicates()[0] ?? null);
   protected readonly dismissing = signal(false);
@@ -162,7 +162,7 @@ export class PartnerPage {
     return `This may be the same partner as “${match.name}”${more > 0 ? ` and ${more} more` : ''}`;
   }
 
-  /** Compare and merge: reads the duplicate, then this page's partner is the kept record (L2-089). */
+  /** Compare and merge: reads the duplicate, then this page's partner is the kept record (L2-114). */
   protected async compareAndMerge(partner: PartnerDto, match: PartnerDuplicateDto): Promise<void> {
     let other: PartnerDto;
     try {
@@ -189,7 +189,7 @@ export class PartnerPage {
     });
   }
 
-  /** System Admin only: the partner becomes active again with its own entries (L2-090 AC4). */
+  /** System Admin only: the partner becomes active again with its own entries (L2-115 AC4). */
   protected async restore(partner: PartnerDto): Promise<void> {
     const ref = this.dialogs.open<PartnerDto, RestorePartnerData>(RestorePartnerDialog, {
       data: { partner },
@@ -274,7 +274,7 @@ export class PartnerPage {
       const partner = await firstValueFrom(this.partners.get(id));
       this.partner.set(partner);
       this.state.set('loaded');
-      // An archived partner is never a duplicate (L2-088 AC8).
+      // An archived partner is never a duplicate (L2-113 AC8).
       if (!partner.archived) void this.loadDuplicates(id);
     } catch (error) {
       this.state.set(

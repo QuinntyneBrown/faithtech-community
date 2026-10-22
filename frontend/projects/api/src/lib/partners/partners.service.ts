@@ -54,7 +54,7 @@ export const PARTNER_ACTIVITY_LABELS: Record<PartnerActivityKind, string> = {
   Restored: 'Restored',
 };
 
-/** One entry on a partner's shared timeline (L2-086). */
+/** One entry on a partner's shared timeline (L2-111). */
 export interface PartnerActivityDto {
   id: string;
   kind: PartnerActivityKind;
@@ -116,18 +116,18 @@ export interface PartnerDto {
   stage: PartnerStage;
   /** False for Staff, who see the pipeline read-only. */
   canEdit: boolean;
-  /** yyyy-MM-dd of the latest timeline entry (L2-086 AC7). */
+  /** yyyy-MM-dd of the latest timeline entry (L2-111 AC7). */
   lastActivityOn: string | null;
-  /** The latest logged activity's next step, with its due date (L2-086 AC6). */
+  /** The latest logged activity's next step, with its due date (L2-111 AC6). */
   nextStep: string | null;
   nextStepDue: string | null;
   /** False for Staff and on an archived partner. */
   canLogActivity: boolean;
   /** Moved on by every edit, move, merge and restore; a merge sends the version the lead saw. */
   version: number;
-  /** Set when a merge archived this partner (L2-089 AC7). */
+  /** Set when a merge archived this partner (L2-114 AC7). */
   archived: PartnerArchivedDto | null;
-  /** System Admin on an archived partner (L2-090 AC5). */
+  /** System Admin on an archived partner (L2-115 AC5). */
   canRestore: boolean;
 }
 
@@ -142,7 +142,7 @@ export interface PartnerArchivedDto {
   mergedAtUtc: string;
 }
 
-/** The fields a merge chooses between, in the dialog's order, with their labels (L2-089 AC1). */
+/** The fields a merge chooses between, in the dialog's order, with their labels (L2-114 AC1). */
 export const MERGE_FIELDS = [
   { field: 'name', label: 'Name' },
   { field: 'stage', label: 'Stage' },
@@ -171,10 +171,10 @@ export interface MergePartnersRequest {
   choices: Partial<Record<MergeField, MergeChoice>>;
 }
 
-/** Why two partners may be the same: equal website hosts, else equal names (ADR 0023). */
+/** Why two partners may be the same: equal website hosts, else equal names (ADR 0027). */
 export type DuplicateReason = 'Website' | 'Name';
 
-/** A possible duplicate of the partner (L2-088). */
+/** A possible duplicate of the partner (L2-113). */
 export interface PartnerDuplicateDto {
   id: string;
   name: string;
@@ -231,25 +231,25 @@ export interface PartnersService {
   update(id: string, partner: PartnerRequest): Observable<PartnerDto>;
   /** Any stage to any other; the move is recorded with the optional note. 409 for the current stage. */
   move(id: string, to: PartnerStage, note?: string | null): Observable<PartnerDto>;
-  /** The shared timeline, newest first, 50 at a time; `before` is the previous page's cursor (L2-086). */
+  /** The shared timeline, newest first, 50 at a time; `before` is the previous page's cursor (L2-111). */
   activities(
     id: string,
     kind?: PartnerActivityFilter | null,
     before?: string | null,
   ): Observable<PartnerActivityPageDto>;
-  /** Logs a call, email, meeting or note (L2-085). 400 keyed by field, 403 for Staff. */
+  /** Logs a call, email, meeting or note (L2-110). 400 keyed by field, 403 for Staff. */
   logActivity(id: string, activity: LogPartnerActivityRequest): Observable<PartnerActivityDto>;
-  /** Possible duplicates of the partner (L2-088); empty for an archived partner. */
+  /** Possible duplicates of the partner (L2-113); empty for an archived partner. */
   duplicates(id: string): Observable<PartnerDuplicatesDto>;
   /** "Not the same": stored once for the pair, for every lead. 403 for Staff. */
   dismissDuplicate(id: string, otherId: string): Observable<void>;
   /**
-   * Keeps `keepId`, archives the other and moves both timelines into the kept partner (L2-089).
+   * Keeps `keepId`, archives the other and moves both timelines into the kept partner (L2-114).
    * 409 when either changed since the lead compared them; 403 for Staff.
    */
   merge(keepId: string, request: MergePartnersRequest): Observable<PartnerDto>;
   /**
-   * Makes a merged partner active again and moves its own entries back (L2-090). System Admin
+   * Makes a merged partner active again and moves its own entries back (L2-115). System Admin
    * only (403 for everyone else); 409 when either partner changed since the page loaded.
    */
   restore(id: string, request: RestorePartnerRequest): Observable<PartnerDto>;

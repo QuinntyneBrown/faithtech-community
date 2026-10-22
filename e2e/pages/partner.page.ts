@@ -8,7 +8,7 @@ export class PartnerPage {
   readonly edit: Locator;
   readonly moveStage: Locator;
   readonly logActivity: Locator;
-  /** The shared activity timeline, newest first (L2-086). */
+  /** The shared activity timeline, newest first (L2-111). */
   readonly timeline: Locator;
   readonly entries: Locator;
   /** The type chips: All, Calls, Emails, Meetings, Notes, Stage moves. */
@@ -22,13 +22,13 @@ export class PartnerPage {
   /** The empty state's own Log activity button. */
   readonly emptyLogActivity: Locator;
   readonly timelineError: Locator;
-  /** "This may be the same partner as “{other}”" (L2-088). */
+  /** "This may be the same partner as “{other}”" (L2-113). */
   readonly duplicateAlert: Locator;
   readonly compareAndMerge: Locator;
   readonly notTheSame: Locator;
-  /** "{name} was merged into {kept}" on an archived partner (L2-089 AC7). */
+  /** "{name} was merged into {kept}" on an archived partner (L2-114 AC7). */
   readonly archivedAlert: Locator;
-  /** System Admin only, on an archived partner (L2-090 AC4). */
+  /** System Admin only, on an archived partner (L2-115 AC4). */
   readonly restore: Locator;
 
   constructor(private readonly page: Page) {

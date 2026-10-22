@@ -1,14 +1,14 @@
-# 0027. Reports feature added to the layout
+# 0031. Reports feature added to the layout
 
 - Status: Accepted
 - Date: 2026-10-22
-- Requirements: L1-022, L2-098 to L2-104, L2-045 AC4 and AC5
+- Requirements: L1-024, L2-123 to L2-129, L2-045 AC4 and AC5
 - Design: `docs/detailed-designs/reports/reports-dashboard`
 - Refines: ADR 0009, ADR 0010
 
 ## Context
 
-Reports (L1-022) is a new subsystem. The mandatory repository layout in `AGENTS.md` had no place for it: no `Reports/` folder in `FaithTech.Community.Application`, no `reports` feature library, no `e2e/tests/reports/`, and nowhere for CSV writing in Infrastructure. The layout may change only with the user's approval, recorded in `AGENTS.md` before code is placed. The brief (`docs/prompts/dynamics-adopted-features-decisions.md`) gave that approval and placed the code.
+Reports (L1-024) is a new subsystem. The mandatory repository layout in `AGENTS.md` had no place for it: no `Reports/` folder in `FaithTech.Community.Application`, no `reports` feature library, no `e2e/tests/reports/`, and nowhere for CSV writing in Infrastructure. The layout may change only with the user's approval, recorded in `AGENTS.md` before code is placed. The brief (`docs/prompts/dynamics-adopted-features-decisions.md`) gave that approval and placed the code.
 
 ## Decision
 

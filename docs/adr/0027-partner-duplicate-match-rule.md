@@ -1,8 +1,8 @@
-# 0023. Partner duplicate match rule
+# 0027. Partner duplicate match rule
 
 - Status: Accepted
 - Date: 2026-10-22
-- Requirements: L2-088
+- Requirements: L2-113
 - Design: `docs/detailed-designs/partners/duplicate-detection-and-merge`
 
 ## Context

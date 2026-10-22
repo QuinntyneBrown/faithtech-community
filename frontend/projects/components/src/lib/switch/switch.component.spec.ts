@@ -97,7 +97,7 @@ describe('SwitchComponent', () => {
   });
 
   // Traces to: design system, switch (Labelling: a related caption is joined with aria-describedby);
-  // L2-095 (Add walk-in dialog, "Check them in now").
+  // L2-120 (Add walk-in dialog, "Check them in now").
   // Given a switch with a description, When it renders, Then the description shows as caption text
   // outside the label (so it is not part of the name) and the input is described by it.
   describe('with a description', () => {

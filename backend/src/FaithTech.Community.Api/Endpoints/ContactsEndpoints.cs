@@ -21,7 +21,7 @@ public static class ContactsEndpoints
         contacts.MapGet("/archived", async (ManageContactsHandler handler, CancellationToken cancellationToken) =>
             await handler.ListArchivedAsync(cancellationToken) is { } list ? Results.Ok(list) : Results.Forbid());
 
-        // Possible duplicate (L2-091): the caller's own contacts only. Mapped before "/{id:guid}"; the guid
+        // Possible duplicate (L2-116): the caller's own contacts only. Mapped before "/{id:guid}"; the guid
         // constraint keeps "duplicates" from being read as an id.
         contacts.MapGet("/duplicates", async (string? email, Guid? excludeId, FindDuplicateContactHandler handler, CancellationToken cancellationToken) =>
             {

@@ -2,9 +2,9 @@
 
 ## Overview
 
-Leads in different cities share one partner pipeline (`partners/manage-partners`), so two leads can add the same organization twice. A **possible duplicate** — two partners that are not archived and whose website hosts or names are equal after normalising, under the exact match rule in [ADR 0023](../../../adr/0023-partner-duplicate-match-rule.md). The partner page warns about the first undismissed possible duplicate. A lead then either merges the two records or marks them as **not the same**: a dismissal stored once for the pair that hides the warning for every lead.
+Leads in different cities share one partner pipeline (`partners/manage-partners`), so two leads can add the same organization twice. A **possible duplicate** — two partners that are not archived and whose website hosts or names are equal after normalising, under the exact match rule in [ADR 0027](../../../adr/0027-partner-duplicate-match-rule.md). The partner page warns about the first undismissed possible duplicate. A lead then either merges the two records or marks them as **not the same**: a dismissal stored once for the pair that hides the warning for every lead.
 
-A **merge** — keeps one partner (the **kept** record), takes the lead's choice of value for each field that differs, joins the notes, moves both activity timelines and both stage histories into the kept record and **archives** the other record. An **archived** partner leaves the board, global search, duplicate checks and Reports, but its page still opens and says who merged it, when and into which partner. A System Admin can **restore** an archived partner: it becomes active again and every timeline entry and stage change that came from it moves back. Merge and restore semantics are recorded in [ADR 0024](../../../adr/0024-partner-merge-and-restore.md).
+A **merge** — keeps one partner (the **kept** record), takes the lead's choice of value for each field that differs, joins the notes, moves both activity timelines and both stage histories into the kept record and **archives** the other record. An **archived** partner leaves the board, global search, duplicate checks and Reports, but its page still opens and says who merged it, when and into which partner. A System Admin can **restore** an archived partner: it becomes active again and every timeline entry and stage change that came from it moves back. Merge and restore semantics are recorded in [ADR 0028](../../../adr/0028-partner-merge-and-restore.md).
 
 Each partner carries a **version** — a counter that every edit, stage move, merge and restore increments. The merge and restore requests carry the versions the caller saw, so a record that changed in the meantime is never merged or restored on stale data.
 
@@ -22,39 +22,39 @@ The timeline entries this feature writes (Merged, Restored) and the activity row
   - `Restore()` — clears the archive and merge fields; throws when not archived.
 - **`PartnerMergeValues`** — record of the eight field values the kept record takes.
 - **`PartnerStageChange`** — gains `MergedFromPartnerId` with `MoveTo(Guid partnerId)` and `MoveBack()`, as `PartnerActivity` has (`partners/partner-activity-timeline`). `MoveTo` sets `MergedFromPartnerId` only when it is empty, so a row keeps the record it was first written on through a chain of merges.
-- **`PartnerDuplicateDismissal`** — `Id`, `LowerPartnerId`, `HigherPartnerId`, `DismissedById`, `DismissedAtUtc`. `PartnerDuplicateDismissal.For(a, b, by, nowUtc)` orders the two ids (`Guid.CompareTo`), so the pair is stored once whichever partner it was chosen from (`L2-088` AC6), and throws `ArgumentException` when `a == b`.
+- **`PartnerDuplicateDismissal`** — `Id`, `LowerPartnerId`, `HigherPartnerId`, `DismissedById`, `DismissedAtUtc`. `PartnerDuplicateDismissal.For(a, b, by, nowUtc)` orders the two ids (`Guid.CompareTo`), so the pair is stored once whichever partner it was chosen from (`L2-113` AC6), and throws `ArgumentException` when `a == b`.
 
 ### Application (`FaithTech.Community.Application/Partners/`)
 
-- **`PartnerDuplicateRules`** — pure static class with no dependencies, unit-tested on its own (ADR 0023):
+- **`PartnerDuplicateRules`** — pure static class with no dependencies, unit-tested on its own (ADR 0027):
   - `NormaliseHost(string? website) : string?` — trims; adds `http://` when no scheme is present; parses with `Uri.TryCreate`; takes the host only (dropping scheme, port, path, query and fragment); lowercases; removes one leading `www.` and a trailing dot. Blank or unparseable input returns `null`.
   - `NormaliseName(string? name) : string?` — Unicode NFD then drops non-spacing marks (accents folded); lowercases with the invariant culture; deletes every punctuation and symbol character; collapses whitespace to single spaces and trims; removes one trailing word when it is one of `inc`, `incorporated`, `ltd`, `limited`, `llc`, `corp`, `corporation`, `co`, `company` and another word remains. An empty result returns `null`. "Acme Ltd." and "acme" both give `acme`.
-  - `Match(PartnerKey a, PartnerKey b) : DuplicateReason?` — `Website` when both hosts are present and equal, else `Name` when both names are present and equal, else `null`. Email and email domain are never compared (`L2-088` AC3).
+  - `Match(PartnerKey a, PartnerKey b) : DuplicateReason?` — `Website` when both hosts are present and equal, else `Name` when both names are present and equal, else `null`. Email and email domain are never compared (`L2-113` AC3).
   - `PartnerKey` is `(Guid Id, string? Host, string? Name)`; `PartnerKey.From(id, name, website)` builds it.
 - **`PartnerDuplicatesHandler`**:
-  - `ListAsync(id)` — requires `PartnerAccess.CanRead` (`403`), `404` for an unknown partner, and an empty list for an archived one. It loads `(Id, Name, Website)` for every non-archived partner (`L2-088` AC8), keeps those that `Match` the partner, removes pairs with a `PartnerDuplicateDismissal`, orders by name (current culture, ignoring case) then id, and adds each match's Added entry (who and when) when it exists (`L2-088` AC4, AC5).
-  - `DismissAsync(id, otherId)` — requires `PartnerAccess.CanWrite` (`403`, `L2-088` AC7); `400` when both ids are equal; `404` when either is unknown; `409` when either is archived. An existing dismissal for the pair is kept and the call still succeeds. It writes `PartnerAccess.AuditAdminWrite(..., "partner.duplicate.dismissed", ...)` for a System Admin without a lead role.
+  - `ListAsync(id)` — requires `PartnerAccess.CanRead` (`403`), `404` for an unknown partner, and an empty list for an archived one. It loads `(Id, Name, Website)` for every non-archived partner (`L2-113` AC8), keeps those that `Match` the partner, removes pairs with a `PartnerDuplicateDismissal`, orders by name (current culture, ignoring case) then id, and adds each match's Added entry (who and when) when it exists (`L2-113` AC4, AC5).
+  - `DismissAsync(id, otherId)` — requires `PartnerAccess.CanWrite` (`403`, `L2-113` AC7); `400` when both ids are equal; `404` when either is unknown; `409` when either is archived. An existing dismissal for the pair is kept and the call still succeeds. It writes `PartnerAccess.AuditAdminWrite(..., "partner.duplicate.dismissed", ...)` for a System Admin without a lead role.
 - **`MergePartnersCommand`** — `OtherId`, `KeepVersion`, `OtherVersion` and `Choices` (`MergeChoices`: `Name`, `Stage`, `ContactName`, `Email`, `Phone`, `Website`, `Offering`, `Owner`, each `"keep"`, `"other"` or missing for keep).
 - **`MergePartnersValidator`** — `OtherId` required; both versions required and not negative; each choice `keep` or `other` ("Choose which value to keep.").
 - **`MergePartnersHandler.MergeAsync(keepId, command)`** — in this order, changing nothing until every check passes:
-  1. `PartnerAccess.CanWrite`, else `403` (`L2-090` AC2);
+  1. `PartnerAccess.CanWrite`, else `403` (`L2-115` AC2);
   2. `keepId == OtherId` → `400` "Choose two different partners.";
   3. load both partners with their stage changes, activities and the dismissals that name the other; either unknown → `404`;
   4. either archived → `409` "{name} has already been merged.";
-  5. `KeepVersion` or `OtherVersion` differs from the stored `Version` → `409` "Someone changed {name} while you were comparing. Nothing was changed; reload and try again." with extension `partnerId` (`L2-089` AC5);
+  5. `KeepVersion` or `OtherVersion` differs from the stored `Version` → `409` "Someone changed {name} while you were comparing. Nothing was changed; reload and try again." with extension `partnerId` (`L2-114` AC5);
   6. joined notes (kept first, a blank line, then the other's; either alone when the other is empty) longer than 2,000 characters → `400` keyed `Notes` "The joined notes are longer than 2,000 characters. Shorten the notes on one partner, then merge.";
-  7. builds `PartnerMergeValues` from `Choices`, calls `kept.AbsorbMerge(...)` (`L2-089` AC1, AC2);
-  8. moves every `PartnerActivity` and `PartnerStageChange` of the other partner to the kept one with `MoveTo(kept.Id)` (`L2-089` AC3);
+  7. builds `PartnerMergeValues` from `Choices`, calls `kept.AbsorbMerge(...)` (`L2-114` AC1, AC2);
+  8. moves every `PartnerActivity` and `PartnerStageChange` of the other partner to the kept one with `MoveTo(kept.Id)` (`L2-114` AC3);
   9. adds `PartnerActivity.Merged(kept, other, caller, nowUtc, fromStage, toStage)` on the kept record, with the stages only when the stage changed;
   10. `other.ArchiveAsMergedInto(kept.Id, caller, nowUtc)`;
-  11. records `partners.merged` in `IAuditLog` for every caller (`L2-090` AC3): target type `Partner`, target id the kept partner, before both snapshots with their versions, after the other's id and the chosen values;
+  11. records `partners.merged` in `IAuditLog` for every caller (`L2-115` AC3): target type `Partner`, target id the kept partner, before both snapshots with their versions, after the other's id and the chosen values;
   12. saves in one `SaveChanges`. A `DbUpdateConcurrencyException` on the `Version` token answers the same `409`. It returns `200` with the kept `PartnerDto`.
 - **`RestorePartnerCommand`** — `Version` (the archived partner) and `MergedIntoVersion` (the kept partner).
 - **`RestorePartnerHandler.RestoreAsync(id, command)`**:
-  1. `PartnerAccess.CanRestore` (System Admin only), else `403` (`L2-090` AC5);
+  1. `PartnerAccess.CanRestore` (System Admin only), else `403` (`L2-115` AC5);
   2. `404` for an unknown partner; `409` "{name} is not archived." when it is active;
   3. the kept partner (`MergedIntoId`) archived → `409` "Restore {kept} first.";
-  4. either version differs → `409` "Someone changed these partners since the page loaded. Nothing was changed; reload and try again." (`L2-090` AC6);
+  4. either version differs → `409` "Someone changed these partners since the page loaded. Nothing was changed; reload and try again." (`L2-115` AC6);
   5. every `PartnerActivity` and `PartnerStageChange` with `MergedFromPartnerId == id` calls `MoveBack()`, wherever it now lives;
   6. `partner.Restore()`, `kept.TouchForRestore()` (version only);
   7. adds `PartnerActivity.Restored(partner, kept, ...)` on both records;
@@ -63,7 +63,7 @@ The timeline entries this feature writes (Merged, Restored) and the activity row
   The kept record keeps the values and joined notes the merge gave it.
 - **`PartnerAccess`** — gains `CanRestore` (`current.HasRole(Role.SystemAdmin)`) and `Audit(actor, partner, action, before, after)`, which records whoever acts (merge and restore are always audited).
 - **`PartnerViews.ToDtoAsync`** — `PartnerDto` gains `Archived` (`PartnerArchivedDto`: `MergedIntoId`, `MergedIntoName`, `MergedIntoVersion`, `MergedById`, `MergedByName`, `MergedAtUtc`; `null` when active) and `CanRestore` (`CanRestore` and archived). For an archived partner `CanEdit` and `CanLogActivity` are `false`.
-- **Archived partners left out** — `ManagePartnersHandler.BoardAsync` and the next-step query filter `ArchivedAtUtc == null` (`L2-089` AC4); `PartnersSearchSource` (`Application/Search/SearchSources.cs`) adds the same filter before `IFullTextSearch.Match`; `PartnerDuplicatesHandler` uses it as above; Reports (`reports/reports-dashboard`) filter it in their partner figures. `GET /api/partners/{id}` still answers `200` for an archived partner so its page can show the archived state.
+- **Archived partners left out** — `ManagePartnersHandler.BoardAsync` and the next-step query filter `ArchivedAtUtc == null` (`L2-114` AC4); `PartnersSearchSource` (`Application/Search/SearchSources.cs`) adds the same filter before `IFullTextSearch.Match`; `PartnerDuplicatesHandler` uses it as above; Reports (`reports/reports-dashboard`) filter it in their partner figures. `GET /api/partners/{id}` still answers `200` for an archived partner so its page can show the archived state.
 
 ### Infrastructure (`FaithTech.Community.Infrastructure/Persistence/`)
 
@@ -72,7 +72,7 @@ The timeline entries this feature writes (Merged, Restored) and the activity row
 
 ### API (`FaithTech.Community.Api/Endpoints/PartnersEndpoints.cs`)
 
-All routes require authentication (anonymous `401`, `L2-090` AC2). No business logic.
+All routes require authentication (anonymous `401`, `L2-115` AC2). No business logic.
 
 - **`GET /api/partners/{id}/duplicates`** — `200`, `403` or `404`:
 
@@ -134,11 +134,11 @@ All routes require authentication (anonymous `401`, `L2-090` AC2). No business l
 
 - **`PartnersService`** / **`PARTNERS_SERVICE`** / **`HttpPartnersService`** (`api/src/lib/partners`) — gain `duplicates(id): Observable<PartnerDuplicatesDto>`, `dismissDuplicate(id, otherId): Observable<void>`, `merge(keepId, request: MergePartnersRequest): Observable<PartnerDto>` and `restore(id, request: RestorePartnerRequest): Observable<PartnerDto>`. New types: `PartnerDuplicateDto`, `PartnerDuplicatesDto`, `DuplicateReason`, `MERGE_FIELDS` (`name`, `stage`, `contactName`, `email`, `phone`, `website`, `offering`, `owner`, with their labels Name, Stage, Main contact, Email, Phone, Website, Offering, Owner), `MergeField`, `MergeChoice` (`'keep' | 'other'`), `MergePartnersRequest`, `RestorePartnerRequest` and `PartnerArchivedDto`; `PartnerDto` gains `archived` and `canRestore`.
 - **`PartnerPage`** — after the partner loads, and when it is not archived, it loads `duplicates(id)`. With a match it shows `ft-alert status="warning"` (role `status`, warning icon) above the split (mock `partner/duplicate`):
-  - heading "This may be the same partner as “{other}”", followed by " and {N} more" when `matches.length > 1` (`L2-088` AC5);
+  - heading "This may be the same partner as “{other}”", followed by " and {N} more" when `matches.length > 1` (`L2-113` AC5);
   - text "{added by} added {other} on {day} with the same {website|name}, {matched on}." (only when the Added entry exists), then "Merging keeps one record and moves both activity timelines into it.";
-  - actions: "Compare and merge" (when `canEdit`), "Open {other}" (always) and "Not the same" (when `canEdit`) (`L2-088` AC4).
-  "Not the same" calls `dismissDuplicate`, reloads the duplicates (the next match, if any, takes the alert), moves focus to the page heading and shows the toast "Marked {other} as a different partner". When `archived` is set the page shows the archived state instead of the actions, timeline log button and alert (mock `partner/archived`): `ft-alert status="info"` "{name} was merged into {kept}" with "{merged by} merged it on {day}. Its activity and stage history are on {kept}." and actions "Open {kept}" and, when `canRestore`, "Restore" (`L2-089` AC7, `L2-090` AC5).
-- **`MergePartnersDialog`** (`partners/src/lib/dialogs/merge-partners`) — CDK dialog "Merge {other} into {kept}" (mocks `dialogs/merge-partners/default`, `busy`, `failed`). It receives both `PartnerDto`s (the page calls `get(otherId)` before opening). It shows the info alert "Nothing is lost", the who-added-when line, and one stacked `ft-radio-group` per field in `MERGE_FIELDS` whose values differ, each with the kept value (preselected, `L2-089` AC1) and the other value, with the record name as the radio's description and "Not set" for an empty value; fields that are equal are listed in one caption line. The confirm button "Merge partners" is busy and disabled while the request runs (`L2-089` AC6). A `409` or other failure shows the danger alert "Partners not merged" with the server's detail and turns the button into "Reload and try again", which reloads both partners and resets the choices (`L2-089` AC5). Success closes with the kept `PartnerDto`; the page navigates to the kept partner (when the dialog was opened from the other) and shows the toast "Merged {other} into {kept}". On an XS viewport each field group stacks with both values visible (`L2-089` AC8).
+  - actions: "Compare and merge" (when `canEdit`), "Open {other}" (always) and "Not the same" (when `canEdit`) (`L2-113` AC4).
+  "Not the same" calls `dismissDuplicate`, reloads the duplicates (the next match, if any, takes the alert), moves focus to the page heading and shows the toast "Marked {other} as a different partner". When `archived` is set the page shows the archived state instead of the actions, timeline log button and alert (mock `partner/archived`): `ft-alert status="info"` "{name} was merged into {kept}" with "{merged by} merged it on {day}. Its activity and stage history are on {kept}." and actions "Open {kept}" and, when `canRestore`, "Restore" (`L2-114` AC7, `L2-115` AC5).
+- **`MergePartnersDialog`** (`partners/src/lib/dialogs/merge-partners`) — CDK dialog "Merge {other} into {kept}" (mocks `dialogs/merge-partners/default`, `busy`, `failed`). It receives both `PartnerDto`s (the page calls `get(otherId)` before opening). It shows the info alert "Nothing is lost", the who-added-when line, and one stacked `ft-radio-group` per field in `MERGE_FIELDS` whose values differ, each with the kept value (preselected, `L2-114` AC1) and the other value, with the record name as the radio's description and "Not set" for an empty value; fields that are equal are listed in one caption line. The confirm button "Merge partners" is busy and disabled while the request runs (`L2-114` AC6). A `409` or other failure shows the danger alert "Partners not merged" with the server's detail and turns the button into "Reload and try again", which reloads both partners and resets the choices (`L2-114` AC5). Success closes with the kept `PartnerDto`; the page navigates to the kept partner (when the dialog was opened from the other) and shows the toast "Merged {other} into {kept}". On an XS viewport each field group stacks with both values visible (`L2-114` AC8).
 - **`RestorePartnerDialog`** (`partners/src/lib/dialogs/restore-partner`) — CDK confirm dialog "Restore {name}?" with "Its activity and stage history move back from {kept}. {kept} keeps the values chosen in the merge." and "Restore" (busy while running). A `409` shows a danger alert with "Reload and try again". Success closes with the restored `PartnerDto`; the page shows it and the toast "{name} restored".
 - **`PartnersPage`** — unchanged; the board no longer contains archived partners because the API leaves them out.
 
@@ -162,13 +162,13 @@ Application unit tests in `backend/tests/FaithTech.Community.Application.Tests/C
 
 - hosts: `https://www.Kestrel.example:8443/about?x=1` → `kestrel.example`; `kestrel.example.` → `kestrel.example`; `www.www.example` → `www.example`; blank and `not a url` → `null`;
 - names: "Acme Ltd." and "acme" → `acme`; "Café Lumière Inc" → `cafe lumiere`; "  Harbour   Coffee  Co. " → `harbour coffee`; "Company" → `company`; "Ltd Inc" → `ltd`;
-- `Match`: website before name; two partners sharing only an email domain do not match (`L2-088` AC1 to AC3).
+- `Match`: website before name; two partners sharing only an email domain do not match (`L2-113` AC1 to AC3).
 
 Backend integration tests in `backend/tests/FaithTech.Community.Api.Tests/Partners/`:
 
-- `PartnerDuplicatesTests.cs` — matches by website and by name; no match by email domain; an archived partner is never offered; two matches return both in name order with the Added entry; Staff read them, a Volunteer gets `403`, anonymous `401`; dismissing from either side stores one row and hides the pair for another lead; Staff dismissing gets `403`; a System Admin without a lead role is audited `partner.duplicate.dismissed` (`L2-088`).
-- `MergePartnersTests.cs` — each lead role and System Admin merge (`L2-090` AC1); choices apply; notes join kept first; both timelines and stage histories end on the kept record with `mergedFromPartnerId`; the Merged entry is written; the other is archived and absent from the board, search and duplicates (`L2-089` AC1 to AC4); a stale `keepVersion` or `otherVersion` answers `409` and nothing changes (AC5); joined notes over 2,000 characters answer `400`; Staff and a Volunteer `403`, anonymous `401` (`L2-090` AC2); a `partners.merged` audit entry for a lead and for a System Admin (AC3).
-- `RestorePartnerTests.cs` — a System Admin restores; rows move back; Restored entries on both; `partner.restored` audited (`L2-090` AC4); a City Lead and Staff get `403` and nothing changes (AC5); a stale version answers `409` (AC6); restoring an active partner answers `409`; a chain A into B into C restores A's rows from C.
+- `PartnerDuplicatesTests.cs` — matches by website and by name; no match by email domain; an archived partner is never offered; two matches return both in name order with the Added entry; Staff read them, a Volunteer gets `403`, anonymous `401`; dismissing from either side stores one row and hides the pair for another lead; Staff dismissing gets `403`; a System Admin without a lead role is audited `partner.duplicate.dismissed` (`L2-113`).
+- `MergePartnersTests.cs` — each lead role and System Admin merge (`L2-115` AC1); choices apply; notes join kept first; both timelines and stage histories end on the kept record with `mergedFromPartnerId`; the Merged entry is written; the other is archived and absent from the board, search and duplicates (`L2-114` AC1 to AC4); a stale `keepVersion` or `otherVersion` answers `409` and nothing changes (AC5); joined notes over 2,000 characters answer `400`; Staff and a Volunteer `403`, anonymous `401` (`L2-115` AC2); a `partners.merged` audit entry for a lead and for a System Admin (AC3).
+- `RestorePartnerTests.cs` — a System Admin restores; rows move back; Restored entries on both; `partner.restored` audited (`L2-115` AC4); a City Lead and Staff get `403` and nothing changes (AC5); a stale version answers `409` (AC6); restoring an active partner answers `409`; a chain A into B into C restores A's rows from C.
 
 E2E specs in `e2e/tests/partners/` with page objects `e2e/pages/partner.page.ts` (duplicate alert, archived state) and `e2e/pages/merge-partners.dialog.ts` and `e2e/pages/restore-partner.dialog.ts`:
 
@@ -183,13 +183,13 @@ The feature realizes the following level-2 (L2) requirements. Each L2 requiremen
 
 | L2 ID | Refines (L1) | Requirement |
 |-------|--------------|-------------|
-| `L2-088` | `L1-006` | Possible duplicate partner |
-| `L2-089` | `L1-006` | Merge partners |
-| `L2-090` | `L1-006` | Merge access, audit and restore |
+| `L2-113` | `L1-006` | Possible duplicate partner |
+| `L2-114` | `L1-006` | Merge partners |
+| `L2-115` | `L1-006` | Merge access, audit and restore |
 
 ### Acceptance criteria
 
-**`L2-088` — Possible duplicate partner**
+**`L2-113` — Possible duplicate partner**
 
 1. Given two non-archived partners, when their website hosts are equal after normalising (lowercase; drop the scheme, a leading `www.`, the port, path, query and a trailing dot), then they are possible duplicates.
 2. Given two non-archived partners, when their names are equal after normalising (lowercase, accents folded, punctuation removed, whitespace collapsed, and one trailing company suffix removed: inc, incorporated, ltd, limited, llc, corp, corporation, co, company), then they are possible duplicates; for example "Acme Ltd." and "acme" match.
@@ -200,18 +200,18 @@ The feature realizes the following level-2 (L2) requirements. Each L2 requiremen
 7. Given Staff, or a member without a lead role, when they call the dismiss endpoint, then the response is 403.
 8. Given an archived partner, when duplicates are checked, then it is never offered as a match.
 
-**`L2-089` — Merge partners**
+**`L2-114` — Merge partners**
 
 1. Given a possible duplicate, when a lead chooses "Compare and merge", then a dialog shows both records side by side and, for each field that differs (name, stage, contact name, email, phone, website, offering, owner), lets the lead choose which value to keep; the current record's values are selected by default.
 2. Given both records have notes, when the merge completes, then the kept record's notes are followed by the other record's notes; notes are not a choice in the dialog.
 3. Given the lead confirms, when `POST /api/partners/{keepId}/merge` succeeds, then the kept record takes the chosen values, both timelines and both stage histories are in the kept record (each moved entry remembers which record it came from), a system "Merged" entry ("Merged {other} into {kept}") is written on the kept record, and the other record is archived and points to the kept record.
-4. Given an archived (merged) partner, when the board, global search (`L2-026`), duplicate checks (`L2-088`) and Reports (`L2-100`) are built, then it is not included.
+4. Given an archived (merged) partner, when the board, global search (`L2-026`), duplicate checks (`L2-113`) and Reports (`L2-125`) are built, then it is not included.
 5. Given either record was edited, moved, merged or restored after the lead opened the dialog, when they confirm, then the API answers 409, nothing is changed, and the dialog shows the failed state with "Reload and try again".
 6. Given the merge is in flight, when the lead waits, then the confirm button is busy and cannot be pressed again.
 7. Given an archived partner's page, when a lead, Staff or System Admin opens it, then it says who merged it, when, and into which partner, with a link to that partner (mock `partner/archived`).
 8. Given an XS viewport, when the merge dialog is shown, then the two records stack one field at a time with both values visible, without horizontal page scroll.
 
-**`L2-090` — Merge access, audit and restore**
+**`L2-115` — Merge access, audit and restore**
 
 1. Given a City Lead, Event Lead, Create Lead, Communications Lead or System Admin, when they merge two partners, then the merge is allowed.
 2. Given Staff or any other signed-in member, when they call the merge endpoint, then the response is 403 and nothing changes; an anonymous visitor gets 401.

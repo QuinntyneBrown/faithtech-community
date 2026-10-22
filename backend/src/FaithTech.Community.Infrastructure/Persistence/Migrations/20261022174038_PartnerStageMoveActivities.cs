@@ -6,7 +6,7 @@ namespace FaithTech.Community.Infrastructure.Persistence.Migrations
 {
     /// <summary>
     /// Writes a Stage moved timeline entry for every stage change recorded before the timeline
-    /// existed (L2-085 AC7). The NOT EXISTS guard makes it safe to re-run. Partners have no
+    /// existed (L2-110 AC7). The NOT EXISTS guard makes it safe to re-run. Partners have no
     /// creation time, so no Added entry is backfilled.
     /// </summary>
     public partial class PartnerStageMoveActivities : Migration

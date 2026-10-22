@@ -1,4 +1,4 @@
-// Traces to: L2-085, L2-086, L2-087 (docs/detailed-designs/partners/partner-activity-timeline)
+// Traces to: L2-110, L2-111, L2-112 (docs/detailed-designs/partners/partner-activity-timeline)
 import { expect, test } from '../../fixtures/app';
 import { AppShell } from '../../pages/app-shell.page';
 import { LogActivityDialog } from '../../pages/log-activity.dialog';
@@ -249,7 +249,7 @@ test.describe('Partner activity timeline', () => {
   });
 
   // Given Staff, when they view a partner, then they see the same timeline without Log activity,
-  // in the header or the empty state (L2-087 AC2).
+  // in the header or the empty state (L2-112 AC2).
   test('Staff see the shared timeline read-only', async ({ page, api, axe }) => {
     const grace = api.addAccount({ email: 'grace@example.org', roles: ['CityLead'] });
     const daniel = api.addAccount({
@@ -273,7 +273,7 @@ test.describe('Partner activity timeline', () => {
     await axe.check();
   });
 
-  // Given a System Admin without a lead role, then they can log an activity like a lead (L2-087 AC1).
+  // Given a System Admin without a lead role, then they can log an activity like a lead (L2-112 AC1).
   test('a System Admin without a lead role logs an activity', async ({ page, api }) => {
     const priya = api.addAccount({
       email: 'priya@example.org',

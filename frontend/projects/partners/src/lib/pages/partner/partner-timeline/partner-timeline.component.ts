@@ -44,7 +44,7 @@ export const ACTIVITY_ICONS: Record<PartnerActivityKind, string> = {
   Restored: 'restore',
 };
 
-/** The type chips in order; null is All (L2-086 AC3). */
+/** The type chips in order; null is All (L2-111 AC3). */
 export const ACTIVITY_FILTERS: {
   value: PartnerActivityFilter | null;
   label: string;
@@ -67,7 +67,7 @@ export function localDate(day: string, time: string | null = null): Date {
 }
 
 /**
- * A partner's shared activity timeline (L2-086), matching docs/mocks/pages/partner: the Activity
+ * A partner's shared activity timeline (L2-111), matching docs/mocks/pages/partner: the Activity
  * card with the type chips, `ft-feed` of typed `ft-feed-item`s newest first and Show older, 50 at a
  * time. Every lead, Staff member and System Admin sees the same entries. With no logged entries
  * for the chosen type it invites the lead to log one (`canLog`). Bump `reload` to fetch the first

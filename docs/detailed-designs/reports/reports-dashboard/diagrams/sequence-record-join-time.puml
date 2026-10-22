@@ -37,5 +37,5 @@ h -> db : Add Profile and CommunityUser in one save
 db --> h : Commit
 h --> ep : Result
 ep --> page : Response
-note over profile, db : JoinedAtUtc is set once and never changed. Profiles from before the migration keep null and are never counted as new (L2-100 AC1).
+note over profile, db : JoinedAtUtc is set once and never changed. Profiles from before the migration keep null and are never counted as new (L2-125 AC1).
 @enduml

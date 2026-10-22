@@ -84,7 +84,7 @@ export class PartnersPage {
     return [card.contactName, card.offering].filter(Boolean).join(' · ');
   }
 
-  /** "Next: Send credit-line wording · Wed 22 Oct" when the partner has a next step (L2-086 AC6). */
+  /** "Next: Send credit-line wording · Wed 22 Oct" when the partner has a next step (L2-111 AC6). */
   protected detail(card: PartnerCardDto): string | null {
     if (!card.nextStep) return null;
     const due = card.nextStepDue ? ` · ${formatDay(localDate(card.nextStepDue))}` : '';

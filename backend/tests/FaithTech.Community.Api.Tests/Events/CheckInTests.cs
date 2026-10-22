@@ -1,4 +1,4 @@
-// Traces to: L2-092, L2-093, L2-094, L2-096 (docs/detailed-designs/events/event-check-in)
+// Traces to: L2-117, L2-118, L2-119, L2-121 (docs/detailed-designs/events/event-check-in)
 using System.Net;
 using System.Net.Http.Json;
 using System.Text.Json;
@@ -27,9 +27,9 @@ public class CheckInTests(CommunityApiFactory factory) : IClassFixture<Community
             .GetProperty("attendees").EnumerateArray()
             .Single(a => a.GetProperty("name").GetString() == name).GetProperty("rsvpId").GetGuid();
 
-    // L2-093 AC1: Given an event with RSVPs, when the check-in page loads, then it lists every member and guest
+    // L2-118 AC1: Given an event with RSVPs, when the check-in page loads, then it lists every member and guest
     // who RSVP'd, in RSVP order, with the event's title, date, and counts of going and checked in.
-    // L2-092 AC6: it carries whether the caller can edit, and guest emails only for callers who may see them.
+    // L2-117 AC6: it carries whether the caller can edit, and guest emails only for callers who may see them.
     [Theory]
     [InlineData(Role.CityLead)]
     [InlineData(Role.EventLead)]
@@ -58,7 +58,7 @@ public class CheckInTests(CommunityApiFactory factory) : IClassFixture<Community
         Assert.All(attendees, a => Assert.Equal(JsonValueKind.Null, a.GetProperty("checkedInAt").ValueKind));
     }
 
-    // L2-092 AC2: Given Staff, when they open the check-in page, then they see the attendees and counts
+    // L2-117 AC2: Given Staff, when they open the check-in page, then they see the attendees and counts
     // read-only, without guest emails, and every check-in write answers 403.
     [Fact]
     public async Task Staff_see_the_attendees_read_only_without_guest_emails()
@@ -78,7 +78,7 @@ public class CheckInTests(CommunityApiFactory factory) : IClassFixture<Community
         Assert.Equal(HttpStatusCode.Forbidden, (await client.DeleteAsync($"/api/events/{eventId}/check-ins/{rsvpId}")).StatusCode);
     }
 
-    // L2-092 AC3: Given a signed-in member without a lead role, Staff or System Admin, when they open the check-in
+    // L2-117 AC3: Given a signed-in member without a lead role, Staff or System Admin, when they open the check-in
     // page or call a check-in endpoint, then the response is 403.
     [Theory]
     [InlineData]
@@ -96,7 +96,7 @@ public class CheckInTests(CommunityApiFactory factory) : IClassFixture<Community
         Assert.Equal(HttpStatusCode.Forbidden, (await client.DeleteAsync($"/api/events/{eventId}/check-ins/{rsvpId}")).StatusCode);
     }
 
-    // L2-092 AC4: Given an anonymous visitor, when they call a check-in endpoint, then the response is 401.
+    // L2-117 AC4: Given an anonymous visitor, when they call a check-in endpoint, then the response is 401.
     [Fact]
     public async Task Anonymous_visitors_get_401()
     {
@@ -123,9 +123,9 @@ public class CheckInTests(CommunityApiFactory factory) : IClassFixture<Community
         Assert.Equal(HttpStatusCode.NotFound, (await client.DeleteAsync($"/api/events/{eventId}/check-ins/{elsewhere}")).StatusCode);
     }
 
-    // L2-094 AC1: Given a lead, when they turn on an attendee's switch, then PUT saves the check-in at once with
+    // L2-119 AC1: Given a lead, when they turn on an attendee's switch, then PUT saves the check-in at once with
     // the time and who checked them in, and the checked-in count rises.
-    // L2-094 AC4: Given an attendee already checked in, when the check-in is saved again, then the original time is kept.
+    // L2-119 AC4: Given an attendee already checked in, when the check-in is saved again, then the original time is kept.
     [Fact]
     public async Task A_lead_checks_an_attendee_in_and_saving_again_keeps_the_first_time()
     {
@@ -152,9 +152,9 @@ public class CheckInTests(CommunityApiFactory factory) : IClassFixture<Community
         Assert.Equal(at, (await again.Content.ReadFromJsonAsync<JsonElement>()).GetProperty("checkedInAt").GetDateTimeOffset());
     }
 
-    // L2-094 AC2: Given a checked-in attendee, when the lead turns the switch off or chooses Undo, then DELETE
+    // L2-119 AC2: Given a checked-in attendee, when the lead turns the switch off or chooses Undo, then DELETE
     // clears the check-in, the time is removed and the count falls.
-    // L2-096 AC5: Given another lead checks someone in, when this lead reloads the page, then the check-in is shown.
+    // L2-121 AC5: Given another lead checks someone in, when this lead reloads the page, then the check-in is shown.
     [Fact]
     public async Task Another_lead_sees_the_check_in_and_undoing_clears_it()
     {
@@ -178,7 +178,7 @@ public class CheckInTests(CommunityApiFactory factory) : IClassFixture<Community
         Assert.Equal(0, (await first.GetFromJsonAsync<JsonElement>($"/api/events/{eventId}/check-in")).GetProperty("checkedIn").GetInt32());
     }
 
-    // L2-092 AC5: Given a System Admin without a lead role, when they check in or undo, then each write is
+    // L2-117 AC5: Given a System Admin without a lead role, when they check in or undo, then each write is
     // recorded in the audit log.
     [Fact]
     public async Task A_System_Admin_without_a_lead_role_is_audited_and_a_lead_is_not()
@@ -203,7 +203,7 @@ public class CheckInTests(CommunityApiFactory factory) : IClassFixture<Community
         Assert.Contains(rsvpId.ToString(), checkedIn.AfterJson);
     }
 
-    // L2-094 AC5: Given a cancelled event, when a lead opens its check-in page, then it says the event is
+    // L2-119 AC5: Given a cancelled event, when a lead opens its check-in page, then it says the event is
     // cancelled, and any check-in write answers 409.
     [Fact]
     public async Task A_cancelled_event_shows_cancelled_and_refuses_check_in_writes_with_409()
@@ -230,7 +230,7 @@ public class CheckInTests(CommunityApiFactory factory) : IClassFixture<Community
         Assert.NotNull((await factory.LoadEventAsync(eventId)).Rsvps.Single(r => r.Id == rsvpId).CheckedInAt);
     }
 
-    // L2-094 AC6: Given an event that starts more than 24 hours from now, when a lead tries to check someone in,
+    // L2-119 AC6: Given an event that starts more than 24 hours from now, when a lead tries to check someone in,
     // then the response is 409 and the page says when check-in opens.
     [Fact]
     public async Task Check_in_opens_24_hours_before_the_start()
@@ -255,8 +255,8 @@ public class CheckInTests(CommunityApiFactory factory) : IClassFixture<Community
         Assert.Equal(HttpStatusCode.OK, (await client.PutAsync($"/api/events/{e.Id}/check-ins/{rsvpId}", null)).StatusCode);
     }
 
-    // L2-096 AC1: Given an event with at least one check-in, when a lead, Staff or System Admin opens the event page,
-    // then the check-in count is shown; L2-096 AC2: members get no count. L2-092 AC1: leads are offered Check in.
+    // L2-121 AC1: Given an event with at least one check-in, when a lead, Staff or System Admin opens the event page,
+    // then the check-in count is shown; L2-121 AC2: members get no count. L2-117 AC1: leads are offered Check in.
     [Theory]
     [InlineData(Role.EventLead, 1, true, true)]
     [InlineData(Role.SystemAdmin, 1, true, true)]

@@ -18,7 +18,7 @@ export interface PartnersContext {
   }): void;
 }
 
-/** One row of PartnerDuplicateDismissals: the pair, lower id first (L2-088 AC6). */
+/** One row of PartnerDuplicateDismissals: the pair, lower id first (L2-113 AC6). */
 export interface MockDismissal {
   lower: string;
   higher: string;
@@ -65,7 +65,7 @@ export interface MockPartner {
   notes: string | null;
   stage: MockStage;
   activities: MockActivity[];
-  /** Every edit, move, merge and restore moves it on (ADR 0024). */
+  /** Every edit, move, merge and restore moves it on (ADR 0028). */
   version: number;
   archivedAtUtc: string | null;
   mergedIntoId: string | null;
@@ -265,7 +265,7 @@ export class MockPartners {
     }
     if (method === 'GET' && !action)
       return route.fulfill({ status: 200, json: this.dto(partner, canWrite, caller) });
-    // An archived partner refuses edits, moves and logged activities (ADR 0024, L2-087 AC6).
+    // An archived partner refuses edits, moves and logged activities (ADR 0028, L2-112 AC6).
     const write =
       method === 'PUT' || (method === 'POST' && ['stage', 'activities'].includes(action));
     if (partner.archivedAtUtc && write) {

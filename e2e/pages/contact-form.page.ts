@@ -14,7 +14,7 @@ export class ContactFormPage {
   readonly saveAsNew: Locator;
   readonly summary: Locator;
   readonly memberAlert: Locator;
-  /** The possible duplicate warning (L2-091). */
+  /** The possible duplicate warning (L2-116). */
   readonly duplicateAlert: Locator;
   readonly photosGroup: Locator;
   readonly addPhotos: Locator;

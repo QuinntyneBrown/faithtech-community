@@ -110,7 +110,7 @@ public class SignUpTests(CommunityApiFactory factory) : IClassFixture<CommunityA
         Assert.Equal(HttpStatusCode.TooManyRequests, response.StatusCode);
     }
 
-    // Traces to: L2-100 AC1 (docs/detailed-designs/reports/reports-dashboard): the account's creation time is the
+    // Traces to: L2-125 AC1 (docs/detailed-designs/reports/reports-dashboard): the account's creation time is the
     // member's join time, which Reports counts as new members.
     [Fact]
     public async Task Sign_up_records_the_join_time()

@@ -1,4 +1,4 @@
-// Traces to: L2-103 (docs/detailed-designs/reports/reports-dashboard, ADR 0026)
+// Traces to: L2-128 (docs/detailed-designs/reports/reports-dashboard, ADR 0030)
 using System.Net;
 using System.Text;
 using FaithTech.Community.Api.Tests.Profiles;
@@ -16,8 +16,8 @@ public class ReportExportTests : IAsyncLifetime
 
     public Task DisposeAsync() => factory.DisposeAsync();
 
-    // L2-103 AC1: Given Staff or a System Admin, when they export, then the CSV holds the figures, both charts and both
-    // tables, one section after another, for the same filters. L2-103 AC3: every value is quoted per RFC 4180 and a
+    // L2-128 AC1: Given Staff or a System Admin, when they export, then the CSV holds the figures, both charts and both
+    // tables, one section after another, for the same filters. L2-128 AC3: every value is quoted per RFC 4180 and a
     // value starting like a formula is guarded; the members context is written without a leading "+".
     [Theory]
     [InlineData(Role.Staff)]
@@ -90,7 +90,7 @@ public class ReportExportTests : IAsyncLifetime
         Assert.Contains("\"Members\",\"1\",\"\"\r\n", csv);
     }
 
-    // L2-103 AC2: Given any other caller, when they request the export, then the response is 403, or 401 when
+    // L2-128 AC2: Given any other caller, when they request the export, then the response is 403, or 401 when
     // anonymous; an unknown filter is 400 as for the report.
     [Theory]
     [InlineData(Role.CityLead)]

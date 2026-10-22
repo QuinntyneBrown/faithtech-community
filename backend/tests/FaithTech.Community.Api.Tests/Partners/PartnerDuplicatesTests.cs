@@ -1,4 +1,4 @@
-// Traces to: L2-088 (docs/detailed-designs/partners/duplicate-detection-and-merge, ADR 0023)
+// Traces to: L2-113 (docs/detailed-designs/partners/duplicate-detection-and-merge, ADR 0027)
 //
 // Given two partners whose website hosts are equal after normalising, when a lead asks for the
 // duplicates of either, then the other is a match by website with who added it and when (AC1, AC4).

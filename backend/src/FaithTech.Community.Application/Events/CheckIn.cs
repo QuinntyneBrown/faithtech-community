@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore;
 namespace FaithTech.Community.Application.Events;
 
 /// <summary>
-/// Someone on the check-in list (L2-093). <see cref="Email"/> is a guest's email, for leads and System Admins only;
+/// Someone on the check-in list (L2-118). <see cref="Email"/> is a guest's email, for leads and System Admins only;
 /// a member has none, as on the RSVP list.
 /// </summary>
 public record CheckInAttendeeDto(
@@ -20,7 +20,7 @@ public record CheckInAttendeeDto(
     DateTimeOffset? CheckedInAt);
 
 /// <summary>
-/// The check-in page (L2-092, L2-093): the event, whether the caller may edit and export, and every attendee in RSVP
+/// The check-in page (L2-117, L2-118): the event, whether the caller may edit and export, and every attendee in RSVP
 /// order with walk-ins last. <see cref="Going"/> counts every attendee, walk-ins included.
 /// </summary>
 public record CheckInDto(
@@ -42,7 +42,7 @@ public record CheckInDto(
     IReadOnlyList<CheckInAttendeeDto> Attendees);
 
 /// <summary>
-/// Check-in at the door (L2-092 to L2-094, ADR 0025): lead roles and System Admins check attendees in and undo;
+/// Check-in at the door (L2-117 to L2-119, ADR 0029): lead roles and System Admins check attendees in and undo;
 /// Staff read the list without guest emails. The check-in is stored on the attendee's RSVP row.
 /// </summary>
 public class CheckInHandler(IApplicationDbContext db, EventPermissions permissions, IAuditLog audit, TimeProvider time)
@@ -51,7 +51,7 @@ public class CheckInHandler(IApplicationDbContext db, EventPermissions permissio
     public const string NotOpen = "Check-in hasn’t opened yet.";
 
     /// <summary>
-    /// Why the event takes no check-in writes, or null when it does (L2-094 AC5, AC6). The not-yet-open conflict
+    /// Why the event takes no check-in writes, or null when it does (L2-119 AC5, AC6). The not-yet-open conflict
     /// carries <c>opensAt</c>.
     /// </summary>
     public static Result? Refusal(Event e, DateTimeOffset now) =>
@@ -59,7 +59,7 @@ public class CheckInHandler(IApplicationDbContext db, EventPermissions permissio
         : now < e.CheckInOpensAt ? Result.Conflict(NotOpen, new Dictionary<string, object?> { ["opensAt"] = e.CheckInOpensAt })
         : null;
 
-    /// <summary>A System Admin without a lead role writing a check-in is audited (L2-092 AC5).</summary>
+    /// <summary>A System Admin without a lead role writing a check-in is audited (L2-117 AC5).</summary>
     public void AuditOverride(Guid actor, string action, Event e, Rsvp rsvp, string name)
     {
         if (permissions.IsCheckInOverride)
@@ -93,7 +93,7 @@ public class CheckInHandler(IApplicationDbContext db, EventPermissions permissio
             e.AttendeeCount, e.CheckedInCount, e.Rsvps.Count(r => r.IsWalkIn), attendees));
     }
 
-    /// <summary>Marks the attendee present; saving again keeps the first time (L2-094 AC1, AC4).</summary>
+    /// <summary>Marks the attendee present; saving again keeps the first time (L2-119 AC1, AC4).</summary>
     public async Task<(Result Result, CheckInAttendeeDto? Attendee)> CheckInAsync(
         Guid id, Guid rsvpId, CancellationToken cancellationToken = default)
     {
@@ -124,7 +124,7 @@ public class CheckInHandler(IApplicationDbContext db, EventPermissions permissio
     public async Task<CheckInAttendeeDto> AttendeeAsync(Rsvp rsvp, CancellationToken cancellationToken = default) =>
         Attendee(rsvp, await NamesAsync([rsvp], cancellationToken));
 
-    /// <summary>Clears the attendee's check-in (L2-094 AC2).</summary>
+    /// <summary>Clears the attendee's check-in (L2-119 AC2).</summary>
     public async Task<Result> UndoAsync(Guid id, Guid rsvpId, CancellationToken cancellationToken = default)
     {
         if (!permissions.CanCheckIn || await permissions.CallerProfileIdAsync(cancellationToken) is not { } actor)

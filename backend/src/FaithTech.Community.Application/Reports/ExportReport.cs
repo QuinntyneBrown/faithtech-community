@@ -5,7 +5,7 @@ using FaithTech.Community.Application.Events;
 namespace FaithTech.Community.Application.Reports;
 
 /// <summary>
-/// The report as CSV (L2-103): the same access, filters and numbers as <see cref="GetReportHandler"/>, laid out one
+/// The report as CSV (L2-128): the same access, filters and numbers as <see cref="GetReportHandler"/>, laid out one
 /// section after another with a blank row between, through <see cref="ICsvWriter"/> (every cell quoted, formula
 /// guard). The members context reads "18 new in the last 30 days", so no cell needs the guard to change it.
 /// </summary>

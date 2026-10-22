@@ -12,7 +12,7 @@ public enum DuplicateReason
     Name,
 }
 
-/// <summary>The normalised keys one partner is compared on (ADR 0023).</summary>
+/// <summary>The normalised keys one partner is compared on (ADR 0027).</summary>
 public record PartnerKey(Guid Id, string? Host, string? Name)
 {
     public static PartnerKey From(Guid id, string? name, string? website) =>
@@ -20,7 +20,7 @@ public record PartnerKey(Guid Id, string? Host, string? Name)
 }
 
 /// <summary>
-/// The possible-duplicate rule (L2-088, ADR 0023): exact matches on normalised website hosts, then
+/// The possible-duplicate rule (L2-113, ADR 0027): exact matches on normalised website hosts, then
 /// on normalised names. Email and its domain are never compared. Pure, so it is tested on its own.
 /// </summary>
 public static class PartnerDuplicateRules
@@ -103,7 +103,7 @@ public record PartnerDuplicateDto(Guid Id, string Name, string Reason, string Ma
 
 public record PartnerDuplicatesDto(IReadOnlyList<PartnerDuplicateDto> Matches);
 
-/// <summary>Finds a partner's possible duplicates and stores "Not the same" (L2-088).</summary>
+/// <summary>Finds a partner's possible duplicates and stores "Not the same" (L2-113).</summary>
 public class PartnerDuplicatesHandler(IApplicationDbContext db, PartnerAccess access, TimeProvider time)
 {
     public async Task<(Result Result, PartnerDuplicatesDto? Duplicates)> ListAsync(Guid id, CancellationToken cancellationToken = default)

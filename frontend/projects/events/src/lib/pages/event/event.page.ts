@@ -135,7 +135,7 @@ export class EventPage {
     const checkedIn = e.checkedInCount ? ` · ${e.checkedInCount} checked in` : '';
     return `${people}${capacity}${checkedIn}`;
   });
-  /** "Going (34)", then "Going (34) · 36 checked in" once anyone is checked in (L2-096 AC1). */
+  /** "Going (34)", then "Going (34) · 36 checked in" once anyone is checked in (L2-121 AC1). */
   protected readonly goingHeading = computed(() => {
     const e = this.event();
     if (!e) return '';

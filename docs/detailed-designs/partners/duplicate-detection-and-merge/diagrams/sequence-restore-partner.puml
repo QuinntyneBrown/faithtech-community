@@ -35,7 +35,7 @@ end box
 actor -> page : Open /partners/{archivedId}
 page -> svc : get(id)
 svc --> page : PartnerDto with archived {mergedInto..., mergedBy..., mergedAtUtc} and canRestore
-page --> actor : "{name} was merged into {kept}", who and when, Open {kept} (L2-089 AC7);\nRestore only when canRestore (L2-090 AC5)
+page --> actor : "{name} was merged into {kept}", who and when, Open {kept} (L2-114 AC7);\nRestore only when canRestore (L2-115 AC5)
 actor -> page : Choose Restore
 page -> dlg : Open with name, kept name, versions
 actor -> dlg : Confirm Restore
@@ -44,16 +44,16 @@ svc -> ep : POST /api/partners/{id}/restore
 ep -> h : RestoreAsync(id, command)
 h -> acc : CanRestore
 alt not a System Admin (lead roles included)
-  ep --> svc : 403, nothing changes (L2-090 AC5)
+  ep --> svc : 403, nothing changes (L2-115 AC5)
 else System Admin
   h -> db : Load partner and its kept partner
   alt unknown
     ep --> svc : 404
   else not archived, kept partner archived, or a version differs
-    ep --> svc : 409, nothing changes (L2-090 AC6)
+    ep --> svc : 409, nothing changes (L2-115 AC6)
   else ready
     h -> db : Activities and stage changes with MergedFromPartnerId = id
-    h -> ent : MoveBack() on each (L2-090 AC4)
+    h -> ent : MoveBack() on each (L2-115 AC4)
     h -> ent : partner.Restore(); kept.TouchForRestore(); both Version + 1
     h -> ent : PartnerActivity.Restored on both partners
     h -> acc : Audit(actor, partner, "partner.restored")

@@ -22,14 +22,14 @@ The slice runs from the email field on the contact form to the `Contacts` and `C
   - a `(focusout)` listener on the email `ft-form-field`, which calls `checkDuplicate()` when the trimmed email is non-empty, well formed and different from the last value checked;
   - a `duplicate` signal holding the latest `DuplicateContactDto` or null, and `checkedEmail`, the email that answer belongs to; editing the email clears both;
   - a warning `ft-alert` (`status="warning"`, which renders `role="status"` with its icon) headed "You already have a contact with this email", with the text "{name} ({organisation}) is in your contacts with {email}, added {date} with {n} notes. Open it to add to those notes, or save this as a separate contact." and an `ftAlertActions` primary `ft-button` "Open {name}" linking to `/contacts/{id}`; an archived match reads "in your archived contacts" instead of "in your contacts";
-  - while the warning shows, the save button reads "Save as a new contact" in the secondary variant, and choosing it saves the contact as a separate record (`L2-091` AC3);
-  - a pre-save check: when the email has not been checked yet, `save()` runs the check first with a 2-second timeout (`DUPLICATE_CHECK_TIMEOUT_MS`). A match shows the warning and stops this save, so the lead sees it once; a timeout, an error or a `204` lets the save continue (`L2-091` AC7). A second save with the warning showing is "Save as a new contact" and is not checked again.
-- **`ContactsService`** / **`CONTACTS_SERVICE`** / **`HttpContactsService`** — `api/src/lib/contacts` gains `findDuplicate(email: string, excludeId?: string): Observable<DuplicateContactDto | null>`, which calls `GET /api/contacts/duplicates?email=&excludeId=` and maps a `204` to `null`. The request carries `HANDLES_FORBIDDEN` and a new `HANDLES_SERVER_ERROR` context token, so `httpErrorInterceptor` does not leave the form for the error page when the check fails (`L2-091` AC7). The `DuplicateContactDto` interface carries `id`, `name`, `organization`, `email`, `addedAt`, `noteCount` and `isArchived`.
+  - while the warning shows, the save button reads "Save as a new contact" in the secondary variant, and choosing it saves the contact as a separate record (`L2-116` AC3);
+  - a pre-save check: when the email has not been checked yet, `save()` runs the check first with a 2-second timeout (`DUPLICATE_CHECK_TIMEOUT_MS`). A match shows the warning and stops this save, so the lead sees it once; a timeout, an error or a `204` lets the save continue (`L2-116` AC7). A second save with the warning showing is "Save as a new contact" and is not checked again.
+- **`ContactsService`** / **`CONTACTS_SERVICE`** / **`HttpContactsService`** — `api/src/lib/contacts` gains `findDuplicate(email: string, excludeId?: string): Observable<DuplicateContactDto | null>`, which calls `GET /api/contacts/duplicates?email=&excludeId=` and maps a `204` to `null`. The request carries `HANDLES_FORBIDDEN` and a new `HANDLES_SERVER_ERROR` context token, so `httpErrorInterceptor` does not leave the form for the error page when the check fails (`L2-116` AC7). The `DuplicateContactDto` interface carries `id`, `name`, `organization`, `email`, `addedAt`, `noteCount` and `isArchived`.
 - **`ContactsEndpoints`** — maps `GET /api/contacts/duplicates` before the `/{id:guid}` routes; the guid constraint keeps the two apart. It answers `200` with `DuplicateContactDto`, `204` when there is no match, `401` for an anonymous caller and `403` for a caller who cannot keep contacts. It holds no business logic.
 - **`FindDuplicateContactQuery`** (`Email`, `ExcludeId`) and **`FindDuplicateContactHandler`** — new file `Application/Contacts/FindDuplicateContact.cs`. The handler:
-  1. returns `Result.Forbidden()` unless `ContactAccess.CanKeepContacts` and the caller has a profile (`L2-091` AC8);
+  1. returns `Result.Forbidden()` unless `ContactAccess.CanKeepContacts` and the caller has a profile (`L2-116` AC8);
   2. trims the email; a blank email answers no match;
-  3. queries `db.Contacts` with `OwnerId == caller` (never widened for System Admin, `L2-091` AC5, AC6), `Email != null`, `Email.ToLower() == email.ToLower()` and `Id != ExcludeId`, archived or not (`L2-091` AC1);
+  3. queries `db.Contacts` with `OwnerId == caller` (never widened for System Admin, `L2-116` AC5, AC6), `Email != null`, `Email.ToLower() == email.ToLower()` and `Id != ExcludeId`, archived or not (`L2-116` AC1);
   4. orders by `CreatedAtUtc` and takes the first match, projecting the linked profile's name when linked (as `ContactSummaryDto` does), the organisation, the email, `CreatedAtUtc`, `ArchivedAtUtc != null` and the note count from `db.ContactNotes`.
   The query is plain LINQ, so it runs on the in-memory provider in tests and on PostgreSQL in production. It writes no audit entry: it never reads another lead's contact.
 - **`DuplicateContactDto`** — `Application/Contacts/ContactDto.cs` gains `record DuplicateContactDto(Guid Id, string Name, string? Organization, string Email, DateTime AddedAtUtc, int NoteCount, bool IsArchived)`.
@@ -40,7 +40,7 @@ The slice runs from the email field on the contact form to the `Contacts` and `C
 
 **Tests.**
 
-- `backend/tests/FaithTech.Community.Api.Tests/Contacts/FindDuplicateContactTests.cs` — own active and archived matches, case and whitespace differences, `excludeId`, another lead's contact with the same email answering `204` (`L2-091` AC5), a System Admin never matched against another lead's contact (AC6), and `401` and `403` (AC8).
+- `backend/tests/FaithTech.Community.Api.Tests/Contacts/FindDuplicateContactTests.cs` — own active and archived matches, case and whitespace differences, `excludeId`, another lead's contact with the same email answering `204` (`L2-116` AC5), a System Admin never matched against another lead's contact (AC6), and `401` and `403` (AC8).
 - `e2e/tests/contacts/possible-duplicate.spec.ts` with page object additions in `e2e/pages/contact-form.page.ts` — the warning on blur with Open {name} (AC2), "Save as a new contact" (AC3), no warning for no match or another lead's contact (AC4, AC5), the edit form excluding itself, a failed or slow check not blocking save (AC7), and an axe check of the warning state.
 
 ## Requirements
@@ -49,11 +49,11 @@ The feature realizes the following level-2 (L2) requirement. It refines a level-
 
 | L2 ID | Refines (L1) | Requirement |
 |-------|--------------|-------------|
-| `L2-091` | `L1-005` | Possible duplicate contact. A lead is warned before adding a second contact for the same person. The check never reveals another lead's contacts (`L2-012`). |
+| `L2-116` | `L1-005` | Possible duplicate contact. A lead is warned before adding a second contact for the same person. The check never reveals another lead's contacts (`L2-012`). |
 
 ### Acceptance criteria
 
-**`L2-091` — Possible duplicate contact**
+**`L2-116` — Possible duplicate contact**
 
 1. Given a lead on the new or edit contact form (`L2-013`), when the email field loses focus, and again before save, then `GET /api/contacts/duplicates?email=&excludeId=` compares the email, trimmed and case-insensitively, with the signed-in lead's own contacts, active or archived, excluding the contact being edited.
 2. Given a match, when the check answers, then a warning alert (`role="status"`, with its icon) names the existing contact with its organisation, the date it was added and its note count, and offers "Open {name}".
@@ -92,13 +92,13 @@ The query carries the email and the contact being edited. The handler returns a 
 
 ### Behaviour — check the email when the field loses focus
 
-The server filters by owner before it compares emails, so another lead's contact never answers `200` (`L2-091` AC1, AC5, AC6).
+The server filters by owner before it compares emails, so another lead's contact never answers `200` (`L2-116` AC1, AC5, AC6).
 
 ![Sequence diagram: check the email when the field loses focus](diagrams/sequence-check-on-blur.png)
 
 ### Behaviour — save with a pre-save check
 
-An unchecked email is checked before save. A match stops that save and shows the warning; a failure or timeout lets the save continue (`L2-091` AC3, AC7).
+An unchecked email is checked before save. A match stops that save and shows the warning; a failure or timeout lets the save continue (`L2-116` AC3, AC7).
 
 ![Sequence diagram: save with a pre-save check](diagrams/sequence-save-with-check.png)
 

@@ -19,7 +19,7 @@
 // Search (L2-026 AC5): also seed 100,000 searchable records before the run, so search runs over them:
 //        dotnet run --project backend/src/FaithTech.Community.Cli -- seed-search-records 100000
 //
-// Reports (L2-104 AC1): the reports scenario reads GET /api/reports and the CSV export for every period, as a System
+// Reports (L2-129 AC1): the reports scenario reads GET /api/reports and the CSV export for every period, as a System
 // Admin, under 1 second at p95 over 10,000 members, 1,000 events and 50,000 RSVPs. Before the run, seed that volume,
 // two more load-test members than VUS, and make the last a System Admin (Staff cannot be granted from the Cli):
 //        dotnet run --project backend/src/FaithTech.Community.Cli -- seed-report-records 10000
@@ -69,7 +69,7 @@ export const options = {
     "http_req_duration{scenario:members,kind:write}": ["p(95)<600"],
     // L2-026 AC5: global search answers under 500 ms at p95 over 100,000 indexed records.
     "http_req_duration{scenario:members,kind:search}": ["p(95)<500"],
-    // L2-104 AC1: the report and its export answer under 1 second at p95.
+    // L2-129 AC1: the report and its export answer under 1 second at p95.
     "http_req_duration{scenario:reports,kind:report}": ["p(95)<1000"],
     "http_req_failed{scenario:members}": ["rate==0"],
     "http_req_failed{scenario:reports}": ["rate==0"],

@@ -10,7 +10,7 @@ public class Profile
 
     private Profile() { }
 
-    /// <param name="joinedAtUtc">When the account was created; set once and never changed (Reports, ADR 0026).</param>
+    /// <param name="joinedAtUtc">When the account was created; set once and never changed (Reports, ADR 0030).</param>
     public Profile(string name, DateTime? joinedAtUtc = null)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(name);

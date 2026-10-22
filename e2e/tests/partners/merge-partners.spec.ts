@@ -1,4 +1,4 @@
-// Traces to: L2-089, L2-090, L2-087 (docs/detailed-designs/partners/duplicate-detection-and-merge)
+// Traces to: L2-114, L2-115, L2-112 (docs/detailed-designs/partners/duplicate-detection-and-merge)
 import { Route } from '@playwright/test';
 
 import { expect, test } from '../../fixtures/app';
@@ -57,7 +57,7 @@ test.describe('Merge partners', () => {
   }
 
   // Given a possible duplicate, when a lead chooses Compare and merge, then the dialog offers only
-  // the fields that differ, with the current record's values selected (L2-089 AC1).
+  // the fields that differ, with the current record's values selected (L2-114 AC1).
   test('offers only the differing fields with the current values selected', async ({
     page,
     api,
@@ -176,7 +176,7 @@ test.describe('Merge partners', () => {
 
   // Given an archived partner, when a lead opens its page, then it says who merged it, when and
   // into which partner with a link, and offers no Log activity, Move stage, Edit or Restore
-  // (AC7, L2-087 AC6, L2-090 AC5).
+  // (AC7, L2-112 AC6, L2-115 AC5).
   test('the archived page says who merged it and links to the kept partner', async ({
     page,
     api,

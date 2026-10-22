@@ -44,10 +44,10 @@ public class Partner
 
     public IReadOnlyCollection<PartnerStageChange> StageChanges => _stageChanges;
 
-    /// <summary>The concurrency token merge and restore compare (ADR 0024).</summary>
+    /// <summary>The concurrency token merge and restore compare (ADR 0028).</summary>
     public int Version { get; private set; }
 
-    /// <summary>Set when a merge archived this record into another one (ADR 0024).</summary>
+    /// <summary>Set when a merge archived this record into another one (ADR 0028).</summary>
     public DateTime? ArchivedAtUtc { get; private set; }
 
     public Guid? MergedIntoId { get; private set; }
@@ -92,7 +92,7 @@ public class Partner
         Version++;
     }
 
-    /// <summary>The kept record of a merge takes the chosen values and the joined notes; no stage change is recorded (ADR 0024).</summary>
+    /// <summary>The kept record of a merge takes the chosen values and the joined notes; no stage change is recorded (ADR 0028).</summary>
     public void AbsorbMerge(PartnerMergeValues values, string? notes)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(values.Name);
@@ -146,7 +146,7 @@ public class Partner
     public void TouchForRestore() => Version++;
 }
 
-/// <summary>The eight values a merge's kept record takes (L2-089 AC1).</summary>
+/// <summary>The eight values a merge's kept record takes (L2-114 AC1).</summary>
 public record PartnerMergeValues(
     string Name,
     PartnerStage Stage,

@@ -40,7 +40,7 @@ h -> acc : CanRead
 alt not a lead, Staff or System Admin
   ep --> svc : 403
 else permitted
-  h -> db : (Id, Name, Website) of every partner where ArchivedAtUtc is null (L2-088 AC8)
+  h -> db : (Id, Name, Website) of every partner where ArchivedAtUtc is null (L2-113 AC8)
   loop each other active partner
     h -> rules : Match(key(partner), key(other))
     rules --> h : Website when hosts equal (AC1), else Name when names equal (AC2), else none;\nemail domain never compared (AC3)
@@ -59,9 +59,9 @@ opt Not the same (canEdit)
   ep -> h : DismissAsync(id, otherId)
   h -> acc : CanWrite
   alt Staff or no lead role
-    ep --> svc : 403 (L2-088 AC7)
+    ep --> svc : 403 (L2-113 AC7)
   else permitted
-    h -> db : Insert PartnerDuplicateDismissal.For(id, otherId, caller, now)\nonce per ordered pair (L2-088 AC6)
+    h -> db : Insert PartnerDuplicateDismissal.For(id, otherId, caller, now)\nonce per ordered pair (L2-113 AC6)
     h -> acc : AuditAdminWrite(..., "partner.duplicate.dismissed")
     ep --> svc : 204
     page -> svc : duplicates(id)

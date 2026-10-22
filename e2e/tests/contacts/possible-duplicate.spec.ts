@@ -1,4 +1,4 @@
-// Traces to: L2-091, L2-012 (docs/detailed-designs/contacts/possible-duplicate-contact)
+// Traces to: L2-116, L2-012 (docs/detailed-designs/contacts/possible-duplicate-contact)
 //
 // Given a lead on the contact form, when the email field loses focus (and again before save),
 // then the lead's own contacts, active or archived, are checked for the same email:

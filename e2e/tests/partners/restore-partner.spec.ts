@@ -1,4 +1,4 @@
-// Traces to: L2-090 (docs/detailed-designs/partners/duplicate-detection-and-merge)
+// Traces to: L2-115 (docs/detailed-designs/partners/duplicate-detection-and-merge)
 import { expect, test } from '../../fixtures/app';
 import { MockAccount } from '../../fixtures/mock-api';
 import { AppShell } from '../../pages/app-shell.page';

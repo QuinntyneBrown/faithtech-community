@@ -19,7 +19,7 @@ public record MergeChoices(
     public IEnumerable<string?> All => [Name, Stage, ContactName, Email, Phone, Website, Offering, Owner];
 }
 
-/// <summary>Merges OtherId into the partner in the route, with the versions the lead saw (L2-089, ADR 0024).</summary>
+/// <summary>Merges OtherId into the partner in the route, with the versions the lead saw (L2-114, ADR 0028).</summary>
 public record MergePartnersCommand(Guid? OtherId, int? KeepVersion, int? OtherVersion, MergeChoices? Choices = null);
 
 public class MergePartnersValidator : AbstractValidator<MergePartnersCommand>
@@ -37,7 +37,7 @@ public class MergePartnersValidator : AbstractValidator<MergePartnersCommand>
 
 /// <summary>
 /// Keeps one partner, takes the chosen values, joins the notes, moves both timelines and stage
-/// histories into it and archives the other (L2-089, L2-090). Nothing changes until every check passes,
+/// histories into it and archives the other (L2-114, L2-115). Nothing changes until every check passes,
 /// and everything is saved with its audit entry in one SaveChanges.
 /// </summary>
 public class MergePartnersHandler(IApplicationDbContext db, PartnerAccess access, PartnerViews views, TimeProvider time)

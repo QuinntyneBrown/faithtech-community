@@ -1,4 +1,4 @@
-// Traces to: L2-085, L2-087 (docs/detailed-designs/partners/partner-activity-timeline)
+// Traces to: L2-110, L2-112 (docs/detailed-designs/partners/partner-activity-timeline)
 //
 // Given a partner, when a lead or System Admin logs a call, email, meeting or note with what
 // happened and a date, then it is saved with who logged it and when (UTC) and tops the shared

@@ -58,7 +58,7 @@ function listed(labels: string[]): string {
 }
 
 /**
- * Compares a partner with its possible duplicate and merges the duplicate into it (L2-089),
+ * Compares a partner with its possible duplicate and merges the duplicate into it (L2-114),
  * matching docs/mocks/dialogs/merge-partners. One stacked radio group per field whose values
  * differ, the kept record's value selected; notes are joined, not chosen. A refusal (a 409 when
  * either record changed) shows "Partners not merged" with "Reload and try again", which reads both

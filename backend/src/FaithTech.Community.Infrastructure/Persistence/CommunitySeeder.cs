@@ -154,7 +154,7 @@ public class CommunitySeeder(IOpenIddictApplicationManager applications, Communi
     private static readonly string[] ReportCities = ["Austin", "Calgary", "Halifax", "Toronto", "Vancouver", "Winnipeg"];
 
     /// <summary>
-    /// The Reports volume for the isolated performance environment (L2-104 AC1, eng/load-test.js): verified members
+    /// The Reports volume for the isolated performance environment (L2-129 AC1, eng/load-test.js): verified members
     /// "Report load member 00001" onwards (report-00001@loadtest.invalid, with no password) across six cities, joined
     /// over the last 18 months; one event for every ten members, from 335 days ago to 30 days ahead, every twentieth
     /// cancelled; and 50 member RSVPs on each, 40 of them checked in once the event has started. Idempotent: existing

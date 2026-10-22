@@ -33,7 +33,7 @@ public record PartnerActivityDto(
 /// <summary>A page of the timeline, newest first.</summary>
 public record PartnerActivityPageDto(IReadOnlyList<PartnerActivityDto> Items, string? Before);
 
-/// <summary>The one order every timeline query uses (L2-086 AC2): date, time (none as 00:00), log time, id.</summary>
+/// <summary>The one order every timeline query uses (L2-111 AC2): date, time (none as 00:00), log time, id.</summary>
 public static class PartnerTimelineOrder
 {
     public static IOrderedQueryable<PartnerActivity> Newest(IQueryable<PartnerActivity> activities) =>
@@ -43,7 +43,7 @@ public static class PartnerTimelineOrder
             .ThenByDescending(a => a.LoggedAtUtc)
             .ThenByDescending(a => a.Id);
 
-    /// <summary>The entries after the cursor in this order, so "Show older" never repeats or skips one (L2-086 AC4).</summary>
+    /// <summary>The entries after the cursor in this order, so "Show older" never repeats or skips one (L2-111 AC4).</summary>
     public static IQueryable<PartnerActivity> OlderThan(IQueryable<PartnerActivity> activities, TimelineCursor cursor)
     {
         var at = cursor.OccurredAt ?? TimeOnly.MinValue;
@@ -83,7 +83,7 @@ public static class PartnerTimelineFilter
     }
 }
 
-/// <summary>Reads a partner's shared timeline (L2-086). Every lead role, Staff and System Admin see the same one.</summary>
+/// <summary>Reads a partner's shared timeline (L2-111). Every lead role, Staff and System Admin see the same one.</summary>
 public class PartnerTimelineHandler(IApplicationDbContext db, PartnerAccess access, PartnerTimelineViews views)
 {
     public const int PageSize = 50;

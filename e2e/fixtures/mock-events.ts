@@ -9,7 +9,7 @@ export interface MockRsvp {
   createdAt: string;
   /** The secret in a guest's cancel link (the server keeps only its hash). */
   cancelToken?: string;
-  /** When the attendee was checked in at the door (ADR 0025); null until then. */
+  /** When the attendee was checked in at the door (ADR 0029); null until then. */
   checkedInAt?: string | null;
   checkedInById?: string | null;
   /** Added at the door rather than RSVP'd. */
@@ -75,7 +75,7 @@ const seesList = (c: EventsCaller) =>
 const seesEmails = (c: EventsCaller) =>
   c.roles.some((r) => LEADS.includes(r) || r === 'SystemAdmin');
 
-/** Walk-ins did not RSVP: RSVP counts, lists and the RSVP export leave them out (L2-096 AC3). */
+/** Walk-ins did not RSVP: RSVP counts, lists and the RSVP export leave them out (L2-121 AC3). */
 const rsvped = (event: MockEvent) => event.rsvps.filter((r) => !r.isWalkIn);
 
 /** Event.CheckInOpensAt: a day before the start. */
@@ -315,7 +315,7 @@ export class MockEvents {
     this.failCheckIn = true;
   }
 
-  /** CheckInHandler.GetAsync (L2-092, L2-093): leads, Staff and System Admins; emails for leads and admins. */
+  /** CheckInHandler.GetAsync (L2-117, L2-118): leads, Staff and System Admins; emails for leads and admins. */
   private getCheckIn(route: Route, id: string, caller: EventsCaller | null): Promise<void> {
     if (!caller) return route.fulfill({ status: 401 });
     if (!seesList(caller)) return route.fulfill({ status: 403 });
@@ -361,7 +361,7 @@ export class MockEvents {
   private readonly attendance = new Map<string, string>();
 
   /**
-   * GET /api/events/{id}/check-ins.csv (L2-097): lead roles and System Admins. CsvWriter's rules: every cell
+   * GET /api/events/{id}/check-ins.csv (L2-122): lead roles and System Admins. CsvWriter's rules: every cell
    * quoted, CRLF, and a formula guard on cells starting with =, +, -, @, a tab or a carriage return.
    */
   private exportAttendance(route: Route, id: string, caller: EventsCaller | null): Promise<void> {
@@ -400,7 +400,7 @@ export class MockEvents {
     });
   }
 
-  /** CheckInHandler.Refusal (L2-094 AC5, AC6): a cancelled or not yet open event takes no check-in writes. */
+  /** CheckInHandler.Refusal (L2-119 AC5, AC6): a cancelled or not yet open event takes no check-in writes. */
   private checkInRefusal(route: Route, event: MockEvent): Promise<void> | null {
     if (event.isCancelled)
       return route.fulfill({
@@ -432,7 +432,7 @@ export class MockEvents {
   }
 
   /**
-   * POST /api/events/{id}/walk-ins (L2-095): AddWalkInValidator's rules and words; a verified member's email
+   * POST /api/events/{id}/walk-ins (L2-120): AddWalkInValidator's rules and words; a verified member's email
    * links the row; an existing RSVP is reused (200); no capacity or start check and no confirmation email.
    */
   private addWalkIn(
@@ -484,7 +484,7 @@ export class MockEvents {
     });
   }
 
-  /** PUT and DELETE /api/events/{id}/check-ins/{rsvpId} (L2-094): leads and System Admins. */
+  /** PUT and DELETE /api/events/{id}/check-ins/{rsvpId} (L2-119): leads and System Admins. */
   private checkIn(
     route: Route,
     id: string,
@@ -508,7 +508,7 @@ export class MockEvents {
       rsvp.checkedInById = null;
       return route.fulfill({ status: 204 });
     }
-    // Saving again keeps the first time (L2-094 AC4).
+    // Saving again keeps the first time (L2-119 AC4).
     if (!rsvp.checkedInAt) {
       rsvp.checkedInAt = this.now().toISOString();
       rsvp.checkedInById = caller.profileId;

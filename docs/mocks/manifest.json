@@ -321,7 +321,7 @@
         "L2-022",
         "L2-024",
         "L2-025",
-        "L2-096"
+        "L2-121"
       ],
       "states": [
         "default",
@@ -344,12 +344,12 @@
       "route": "/events/:id/check-in",
       "requirements": [
         "L2-022",
-        "L2-092",
-        "L2-093",
-        "L2-094",
-        "L2-095",
-        "L2-096",
-        "L2-097"
+        "L2-117",
+        "L2-118",
+        "L2-119",
+        "L2-120",
+        "L2-121",
+        "L2-122"
       ],
       "states": [
         "default",
@@ -490,7 +490,7 @@
         "L2-013",
         "L2-067",
         "L2-069",
-        "L2-091"
+        "L2-116"
       ],
       "states": [
         "default",
@@ -532,7 +532,7 @@
       "requirements": [
         "L2-017",
         "L2-018",
-        "L2-086"
+        "L2-111"
       ],
       "states": [
         "default",
@@ -553,12 +553,12 @@
       "requirements": [
         "L2-017",
         "L2-018",
-        "L2-085",
-        "L2-086",
-        "L2-087",
-        "L2-088",
-        "L2-089",
-        "L2-090"
+        "L2-110",
+        "L2-111",
+        "L2-112",
+        "L2-113",
+        "L2-114",
+        "L2-115"
       ],
       "states": [
         "default",
@@ -758,13 +758,13 @@
       "title": "Reports",
       "route": "/reports",
       "requirements": [
-        "L2-098",
-        "L2-099",
-        "L2-100",
-        "L2-101",
-        "L2-102",
-        "L2-103",
-        "L2-104"
+        "L2-123",
+        "L2-124",
+        "L2-125",
+        "L2-126",
+        "L2-127",
+        "L2-128",
+        "L2-129"
       ],
       "states": [
         "default",
@@ -1244,7 +1244,7 @@
       "opens_from": "event-check-in",
       "requirements": [
         "L2-023",
-        "L2-095"
+        "L2-120"
       ],
       "states": [
         "default",
@@ -1519,8 +1519,8 @@
       "title": "Log activity",
       "opens_from": "partner",
       "requirements": [
-        "L2-085",
-        "L2-087"
+        "L2-110",
+        "L2-112"
       ],
       "states": [
         "default",
@@ -1536,8 +1536,8 @@
       "title": "Merge partners",
       "opens_from": "partner",
       "requirements": [
-        "L2-089",
-        "L2-090"
+        "L2-114",
+        "L2-115"
       ],
       "states": [
         "default",
@@ -1555,7 +1555,7 @@
       "title": "Restore partner",
       "opens_from": "partner",
       "requirements": [
-        "L2-090"
+        "L2-115"
       ],
       "states": [
         "default",

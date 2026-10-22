@@ -40,7 +40,7 @@ export interface ReportData {
 }
 
 /**
- * The data set the Reports specs read (ADR 0026). For All cities and the last 30 days the report is:
+ * The data set the Reports specs read (ADR 0030). For All cities and the last 30 days the report is:
  * - Members 9, "+3 in the last 30 days": verified, unsuspended profiles; Una (unverified) and Sid (suspended) are
  *   left out, and Tomás joined before the window.
  * - Members by city: Toronto 3, Halifax 2, Vancouver 2, Austin 1, Other 1 (Nia has no home city).
@@ -115,7 +115,7 @@ export function seedReportData(api: MockApi): ReportData {
   return { staff, admin, grace };
 }
 
-/** A lead's private contacts, with emails, cities and notes, which no report may read (L2-100 AC6). */
+/** A lead's private contacts, with emails, cities and notes, which no report may read (L2-125 AC6). */
 export function addPrivateContacts(api: MockApi, ownerId: string): void {
   api.contacts.add({
     ownerId,

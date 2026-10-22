@@ -1,4 +1,4 @@
-// Traces to: L2-085, L2-086 (docs/detailed-designs/partners/partner-activity-timeline)
+// Traces to: L2-110, L2-111 (docs/detailed-designs/partners/partner-activity-timeline)
 //
 // Given a new partner, then the system writes an Added entry; given a move, a Stage moved entry
 // with from, to and the note. Given the timeline, then entries are newest first by date, time (none

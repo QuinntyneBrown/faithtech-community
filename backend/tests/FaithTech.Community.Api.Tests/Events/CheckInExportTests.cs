@@ -1,4 +1,4 @@
-// Traces to: L2-097 (docs/detailed-designs/events/event-check-in)
+// Traces to: L2-122 (docs/detailed-designs/events/event-check-in)
 using System.Globalization;
 using System.Net;
 using System.Net.Http.Json;
@@ -14,9 +14,9 @@ public class CheckInExportTests(CommunityApiFactory factory) : IClassFixture<Com
 
     private static string Utc(DateTimeOffset at) => at.UtcDateTime.ToString("yyyy-MM-dd HH:mm", CultureInfo.InvariantCulture);
 
-    // L2-097 AC1: Given a lead or System Admin, when they choose Export CSV, then the file has one row per attendee
+    // L2-122 AC1: Given a lead or System Admin, when they choose Export CSV, then the file has one row per attendee
     // with name, type (Member, Guest or Walk-in), email, RSVP'd at and checked in at (empty when not checked in).
-    // L2-097 AC3: cells starting with =, +, - or @ are guarded, and values are quoted per RFC 4180.
+    // L2-122 AC3: cells starting with =, +, - or @ are guarded, and values are quoted per RFC 4180.
     [Theory]
     [InlineData(Role.CityLead)]
     [InlineData(Role.EventLead)]
@@ -50,7 +50,7 @@ public class CheckInExportTests(CommunityApiFactory factory) : IClassFixture<Com
             await response.Content.ReadAsStringAsync());
     }
 
-    // L2-097 AC2: Given Staff, a member without a lead role, or an anonymous visitor, when they request the export,
+    // L2-122 AC2: Given Staff, a member without a lead role, or an anonymous visitor, when they request the export,
     // then the response is 403, or 401 for the anonymous visitor.
     [Theory]
     [InlineData(Role.Staff)]

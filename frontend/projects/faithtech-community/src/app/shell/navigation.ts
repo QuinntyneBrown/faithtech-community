@@ -64,7 +64,7 @@ export const SECTIONS: readonly Section[] = [
     secondary: true,
     opens: has('CityLead', 'Staff', 'SystemAdmin'),
   },
-  // City-level numbers for Staff and System Admin only (L2-098, ADR 0027).
+  // City-level numbers for Staff and System Admin only (L2-123, ADR 0031).
   {
     label: 'Reports',
     href: '/reports',

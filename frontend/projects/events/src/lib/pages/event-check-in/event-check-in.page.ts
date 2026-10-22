@@ -48,7 +48,7 @@ import { fileSlug, saveFile } from '../../download';
 type State = 'loading' | 'loaded' | 'error' | 'forbidden' | 'not-found';
 
 /**
- * Check-in at the door (L2-092 to L2-094), matching docs/mocks/pages/event-check-in: every attendee in RSVP order
+ * Check-in at the door (L2-117 to L2-119), matching docs/mocks/pages/event-check-in: every attendee in RSVP order
  * with a switch that saves at once, the attendance meter and a search by name or email. A failed save turns the
  * switch back, so the list never shows a check-in the server does not have.
  */
@@ -127,13 +127,13 @@ export class EventCheckInPage {
       (_m, space: string, c: string) => space + c.toUpperCase(),
     ),
   );
-  /** "Check-in opens Wed 5 Nov at 6:30 pm, 24 hours before the event." (L2-094 AC6). */
+  /** "Check-in opens Wed 5 Nov at 6:30 pm, 24 hours before the event." (L2-119 AC6). */
   protected readonly opens = computed(() => {
     const c = this.checkIn();
     if (!c) return '';
     return `Check-in opens ${formatDay(c.checkInOpensAt)} at ${formatTime(c.checkInOpensAt)}, 24 hours before the event.`;
   });
-  /** "Everyone’s here" once every attendee is in; it promises no follow-up email (L2-094 AC7). */
+  /** "Everyone’s here" once every attendee is in; it promises no follow-up email (L2-119 AC7). */
   protected readonly everyone = computed(() => {
     const going = this.going();
     if (!going || this.checkedIn() < going) return null;
@@ -184,7 +184,7 @@ export class EventCheckInPage {
     this.saves.set(a.rsvpId, queued);
   }
 
-  /** Downloads the attendance CSV; Export CSV stays busy until it is saved (L2-097 AC4). */
+  /** Downloads the attendance CSV; Export CSV stays busy until it is saved (L2-122 AC4). */
   protected async exportCsv(): Promise<void> {
     const c = this.checkIn();
     if (!c || this.exporting()) return;
@@ -210,7 +210,7 @@ export class EventCheckInPage {
     }
   }
 
-  /** Opens Add walk-in, with the unmatched search term as the name when there is one (L2-093 AC3). */
+  /** Opens Add walk-in, with the unmatched search term as the name when there is one (L2-118 AC3). */
   protected async addWalkIn(name?: string): Promise<void> {
     const ref = this.dialogs.open<WalkInResultDto, AddWalkInData>(AddWalkInDialog, {
       data: name ? { eventId: this.id(), name } : { eventId: this.id() },

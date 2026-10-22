@@ -1,4 +1,4 @@
-// Traces to: L2-091, L2-012 (docs/detailed-designs/contacts/possible-duplicate-contact/README.md)
+// Traces to: L2-116, L2-012 (docs/detailed-designs/contacts/possible-duplicate-contact/README.md)
 using System.Net;
 using System.Net.Http.Json;
 using FaithTech.Community.Api.Tests.Profiles;
@@ -8,7 +8,7 @@ using static FaithTech.Community.Api.Tests.Contacts.ContactClients;
 namespace FaithTech.Community.Api.Tests.Contacts;
 
 /// <summary>
-/// The duplicate check looks only at the caller's own contacts, active or archived (L2-091):
+/// The duplicate check looks only at the caller's own contacts, active or archived (L2-116):
 /// Given a lead's own contact with an email, when they check that email (any case, any surrounding spaces),
 /// then the match is named; given another lead's contact with the email, then the answer is 204.
 /// </summary>

@@ -36,16 +36,16 @@ end box
 actor -> page : Choose Compare and merge
 page -> svc : get(otherId)
 page -> dlg : Open with kept and other PartnerDto (with versions)
-dlg --> actor : Differing fields side by side, kept values selected (L2-089 AC1)
+dlg --> actor : Differing fields side by side, kept values selected (L2-114 AC1)
 actor -> dlg : Choose values, then Merge partners
-dlg -> dlg : Busy; button cannot be pressed again (L2-089 AC6)
+dlg -> dlg : Busy; button cannot be pressed again (L2-114 AC6)
 dlg -> svc : merge(keptId, {otherId, keepVersion, otherVersion, choices})
 svc -> ep : POST /api/partners/{keepId}/merge
 ep -> v : Validate
 ep -> h : MergeAsync(keepId, command)
 h -> acc : CanWrite
 alt Staff or other member
-  ep --> svc : 403, nothing changes (L2-090 AC2)
+  ep --> svc : 403, nothing changes (L2-115 AC2)
 else same id
   ep --> svc : 400
 else permitted
@@ -53,7 +53,7 @@ else permitted
   alt unknown
     ep --> svc : 404
   else either archived, or a version differs
-    ep --> svc : 409 "Someone changed {name} while you were comparing..." (L2-089 AC5)
+    ep --> svc : 409 "Someone changed {name} while you were comparing..." (L2-114 AC5)
   else joined notes over 2,000 characters
     ep --> svc : 400 Notes
   else ready
@@ -62,7 +62,7 @@ else permitted
     h -> ent : Add PartnerActivity.Merged "Merged {other} into {kept}" (AC3)
     h -> ent : other.ArchiveAsMergedInto(kept.Id, caller, now); both Version + 1
     h -> acc : Audit(actor, kept, "partners.merged", both snapshots, choices)
-    acc -> audit : Record, whoever merged (L2-090 AC3)
+    acc -> audit : Record, whoever merged (L2-115 AC3)
     h -> db : One SaveChanges (Version concurrency token)
     alt concurrency exception
       ep --> svc : 409, nothing changed

@@ -18,7 +18,7 @@ public class RestorePartnerValidator : AbstractValidator<RestorePartnerCommand>
 }
 
 /// <summary>
-/// A System Admin makes a merged partner active again (L2-090 AC4 to AC6, ADR 0024): every entry and
+/// A System Admin makes a merged partner active again (L2-115 AC4 to AC6, ADR 0028): every entry and
 /// stage change first written on it moves back, wherever it now lives, and both partners get a
 /// Restored entry. The kept record keeps the values and joined notes the merge gave it.
 /// </summary>

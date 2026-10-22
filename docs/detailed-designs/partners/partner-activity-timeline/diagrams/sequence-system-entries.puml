@@ -31,13 +31,13 @@ box "Backend — FaithTech.Community.Infrastructure" #FFF4E5
 end box
 group Migration PartnerActivitiesAndMerge
   cli -> db : Create PartnerActivities, PartnerDuplicateDismissals; add Partner.Version and merge columns
-  cli -> db : INSERT a StageMoved activity per PartnerStageChange\nWHERE NOT EXISTS (StageChangeId) (L2-085 AC7)
+  cli -> db : INSERT a StageMoved activity per PartnerStageChange\nWHERE NOT EXISTS (StageChangeId) (L2-110 AC7)
 end
 group Add a partner
   actor -> ep : POST /api/partners
   ep -> mh : CreateAsync(command)
   mh -> ent : new Partner(..., stage)
-  mh -> mh : PartnerActivity.Added(partner, caller, nowUtc)\n"Added {name} as a lead" (L2-085 AC6)
+  mh -> mh : PartnerActivity.Added(partner, caller, nowUtc)\n"Added {name} as a lead" (L2-110 AC6)
   mh -> db : Insert Partner and the Added activity in one SaveChanges
   ep --> actor : 201 PartnerDto
 end
@@ -45,7 +45,7 @@ group Move a partner (drag or Move to)
   actor -> ep : POST /api/partners/{id}/stage
   ep -> mv : MoveAsync(id, command)
   mv -> ent : MoveTo(to, caller, nowUtc, note); Version + 1
-  mv -> mv : PartnerActivity.StageMoved(change) with from, to and note (L2-085 AC7)
+  mv -> mv : PartnerActivity.StageMoved(change) with from, to and note (L2-110 AC7)
   mv -> db : Insert PartnerStageChange and StageMoved activity in one SaveChanges
   ep --> actor : 200 PartnerDto
 end

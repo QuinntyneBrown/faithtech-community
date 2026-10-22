@@ -1,4 +1,4 @@
-// Traces to: L2-100 (docs/detailed-designs/reports/reports-dashboard, ADR 0026)
+// Traces to: L2-125 (docs/detailed-designs/reports/reports-dashboard, ADR 0030)
 using FaithTech.Community.Domain.Partners;
 using static FaithTech.Community.Api.Tests.Reports.ReportClients;
 
@@ -16,7 +16,7 @@ public class ReportFiguresTests : IAsyncLifetime
 
     public Task DisposeAsync() => factory.DisposeAsync();
 
-    // L2-100 AC1, AC7: Given members, when Members is computed, then it counts verified, non-suspended profiles,
+    // L2-125 AC1, AC7: Given members, when Members is computed, then it counts verified, non-suspended profiles,
     // with the city filter on the home city; "+N" counts those whose join time is in the period, and a profile with
     // no recorded join time is never new.
     [Fact]
@@ -40,7 +40,7 @@ public class ReportFiguresTests : IAsyncLifetime
         Assert.Equal(new MembersFigure(4, null), allTime.Figures.Members);
     }
 
-    // L2-100 AC2, AC7: Events held counts events not cancelled that started in the window, up to now, by event
+    // L2-125 AC2, AC7: Events held counts events not cancelled that started in the window, up to now, by event
     // city; "{n} cancelled" counts cancelled events due to start in the window.
     [Fact]
     public async Task Events_held_counts_uncancelled_events_started_in_the_window_and_the_cancelled_ones_apart()
@@ -60,7 +60,7 @@ public class ReportFiguresTests : IAsyncLifetime
         Assert.Equal(new EventsHeldFigure(2, 1), toronto.Figures.EventsHeld);
     }
 
-    // L2-100 AC3: RSVPs counts RSVPs on the events held, walk-ins excluded; the rate is checked-in RSVPs over RSVPs,
+    // L2-125 AC3: RSVPs counts RSVPs on the events held, walk-ins excluded; the rate is checked-in RSVPs over RSVPs,
     // rounded half away from zero, and is null when there are none.
     [Fact]
     public async Task Rsvps_count_the_events_held_without_walk_ins_and_the_checked_in_rate()
@@ -87,7 +87,7 @@ public class ReportFiguresTests : IAsyncLifetime
         Assert.Equal(new RsvpsFigure(0, 0, null), (await staff.ReportAsync()).Figures.Rsvps);
     }
 
-    // L2-100 AC4, AC7: Partners confirmed counts non-archived partners at Confirmed, "of {n} in the pipeline" all
+    // L2-125 AC4, AC7: Partners confirmed counts non-archived partners at Confirmed, "of {n} in the pipeline" all
     // non-archived; a partner's city is its owner's home city whatever the owner's account state; no owner or no
     // home city is "No city", counted only under All cities; the period does not apply.
     [Fact]
@@ -112,7 +112,7 @@ public class ReportFiguresTests : IAsyncLifetime
         Assert.Equal(new PartnersFigure(1, 2), toronto.Figures.PartnersConfirmed);
     }
 
-    // L2-100 AC5: Announcements counts those sent in the window, with the city filter on the author's home city.
+    // L2-125 AC5: Announcements counts those sent in the window, with the city filter on the author's home city.
     [Fact]
     public async Task Announcements_count_those_sent_in_the_window_by_author_city()
     {
@@ -129,7 +129,7 @@ public class ReportFiguresTests : IAsyncLifetime
         Assert.Equal(4, (await staff.ReportAsync("?period=all-time")).Figures.Announcements.Value);
     }
 
-    // L2-100 AC6: Given private contacts and their notes, when the report runs, then they are never read or
+    // L2-125 AC6: Given private contacts and their notes, when the report runs, then they are never read or
     // counted: adding a lead's contacts in a city leaves every number unchanged and adds no contact data.
     [Fact]
     public async Task Private_contacts_never_change_the_report_or_appear_in_it()

@@ -41,7 +41,7 @@ export function localToday(now: Date = new Date()): string {
 }
 
 /**
- * Logs a call, email, meeting or note on a partner's shared timeline (L2-085), matching
+ * Logs a call, email, meeting or note on a partner's shared timeline (L2-110), matching
  * docs/mocks/dialogs/log-activity. Client rules mirror the API's validator; a failed save keeps the
  * input and offers Try again. Closes with the logged activity.
  */

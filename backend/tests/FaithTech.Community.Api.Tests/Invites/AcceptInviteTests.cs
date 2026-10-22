@@ -81,7 +81,7 @@ public class AcceptInviteTests(CommunityApiFactory factory) : IClassFixture<Comm
         Assert.True((await signIn.Content.ReadFromJsonAsync<JsonElement>()).GetProperty("emailVerified").GetBoolean());
     }
 
-    // Traces to: L2-100 AC1 (docs/detailed-designs/reports/reports-dashboard): a new account from an invite records
+    // Traces to: L2-125 AC1 (docs/detailed-designs/reports/reports-dashboard): a new account from an invite records
     // the join time.
     [Fact]
     public async Task Signing_up_from_an_invite_records_the_join_time()

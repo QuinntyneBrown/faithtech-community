@@ -29,7 +29,7 @@ public class PartnerStageChange
 
     public string? Note { get; private set; }
 
-    /// <summary>The partner this change was first recorded on, when a merge moved it (ADR 0024).</summary>
+    /// <summary>The partner this change was first recorded on, when a merge moved it (ADR 0028).</summary>
     public Guid? MergedFromPartnerId { get; private set; }
 
     /// <summary>A merge moves the change to the kept record; the first record it was written on is kept through a chain.</summary>

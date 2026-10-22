@@ -1,7 +1,7 @@
 import { InjectionToken } from '@angular/core';
 import { Observable } from 'rxjs';
 
-/** The four periods and their URL keys (L2-099 AC3). */
+/** The four periods and their URL keys (L2-124 AC3). */
 export type ReportPeriod = 'last-30-days' | 'last-90-days' | 'this-year' | 'all-time';
 
 /** The report's filters, as the URL carries them; `city` is null for All cities. */
@@ -46,7 +46,7 @@ export interface ReportEventRowDto {
   checkedInPercent: number | null;
 }
 
-/** The whole report (docs/detailed-designs/reports/reports-dashboard, ADR 0026). */
+/** The whole report (docs/detailed-designs/reports/reports-dashboard, ADR 0030). */
 export interface ReportDto {
   city: string | null;
   period: ReportPeriod;
@@ -70,12 +70,12 @@ export interface ReportDto {
 }
 
 /**
- * Contract for Reports (L2-098 to L2-103). Pages depend on REPORTS_SERVICE, never on HttpReportsService.
+ * Contract for Reports (L2-123 to L2-128). Pages depend on REPORTS_SERVICE, never on HttpReportsService.
  */
 export interface ReportsService {
   /** Staff and System Admins; 403 for everyone else; 400 for an unknown city or period. */
   getReport(filters: ReportFilters): Observable<ReportDto>;
-  /** The same report as CSV, one section after another, for Staff and System Admins (L2-103). */
+  /** The same report as CSV, one section after another, for Staff and System Admins (L2-128). */
   exportCsv(filters: ReportFilters): Observable<Blob>;
 }
 

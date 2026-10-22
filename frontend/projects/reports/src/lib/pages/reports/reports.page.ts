@@ -68,8 +68,8 @@ function describe(period: ReportPeriod): string {
 }
 
 /**
- * Reports (L2-098 to L2-102), matching docs/mocks/pages/reports: city-level figures, two bar charts and two tables
- * for the filters in the URL (`?city=&period=`). Every number comes from the server (ADR 0026); the page only
+ * Reports (L2-123 to L2-127), matching docs/mocks/pages/reports: city-level figures, two bar charts and two tables
+ * for the filters in the URL (`?city=&period=`). Every number comes from the server (ADR 0030); the page only
  * writes the copy around them. It has no write action.
  */
 @Component({
@@ -112,7 +112,7 @@ export class ReportsPage {
 
   protected readonly state = signal<State>('loading');
   protected readonly report = signal<ReportDto | null>(null);
-  /** The URL held a city or period the server refused, so the defaults are shown (L2-099 AC5). */
+  /** The URL held a city or period the server refused, so the defaults are shown (L2-124 AC5). */
   protected readonly fellBack = signal(false);
   protected readonly exporting = signal(false);
   protected readonly cityControl = new FormControl('', { nonNullable: true });
@@ -120,7 +120,7 @@ export class ReportsPage {
     nonNullable: true,
   });
   protected readonly periods: SelectOption[] = PERIODS;
-  /** Figures and charts are one column on phones (L2-101 AC6). */
+  /** Figures and charts are one column on phones (L2-126 AC6). */
   protected readonly wide = this.breakpoints.isAtLeast('sm');
   private latest = 0;
 
@@ -259,13 +259,13 @@ export class ReportsPage {
     });
   }
 
-  /** Apply: the URL carries both filters, so the view can be bookmarked (L2-099 AC4). */
+  /** Apply: the URL carries both filters, so the view can be bookmarked (L2-124 AC4). */
   protected apply(): void {
     this.fellBack.set(false);
     this.go(this.cityControl.value || null, this.periodControl.value);
   }
 
-  /** Downloads the report shown as CSV; Export CSV stays busy until it is saved (L2-103 AC4). */
+  /** Downloads the report shown as CSV; Export CSV stays busy until it is saved (L2-128 AC4). */
   protected async exportCsv(): Promise<void> {
     const r = this.report();
     if (!r || this.exporting()) return;

@@ -9,7 +9,7 @@ test.use({ timezoneId: 'America/Toronto' });
 const DAY = 24 * 60 * 60 * 1000;
 
 // Journey: a possible duplicate contact (docs/detailed-designs/contacts/possible-duplicate-contact,
-// L2-091).
+// L2-116).
 test('possible-duplicate-contact', async ({ page, api }) => {
   const show = await Presenter.start(page, 'possible-duplicate-contact');
   const contacts = new ContactsPage(page);

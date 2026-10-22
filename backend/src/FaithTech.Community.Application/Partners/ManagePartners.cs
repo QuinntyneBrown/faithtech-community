@@ -135,7 +135,7 @@ public class ManagePartnersHandler(IApplicationDbContext db, PartnerAccess acces
         return (Result.Ok(), await views.ToDtoAsync(partner, cancellationToken));
     }
 
-    /// <summary>The board: every active partner, by stage then name, with a count per stage (L2-018 AC1, L2-089 AC4).</summary>
+    /// <summary>The board: every active partner, by stage then name, with a count per stage (L2-018 AC1, L2-114 AC4).</summary>
     public async Task<PartnerBoardDto?> BoardAsync(CancellationToken cancellationToken = default)
     {
         if (!access.CanRead)

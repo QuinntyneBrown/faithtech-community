@@ -15,7 +15,7 @@ export const HANDLES_FORBIDDEN = new HttpContextToken<boolean>(() => false);
 
 /**
  * Set on an advisory request whose failure the caller ignores, such as the contact form's duplicate
- * check (L2-091 AC7), so a 500 does not leave the page for the error page.
+ * check (L2-116 AC7), so a 500 does not leave the page for the error page.
  */
 export const HANDLES_SERVER_ERROR = new HttpContextToken<boolean>(() => false);
 

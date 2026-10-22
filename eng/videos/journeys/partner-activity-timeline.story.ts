@@ -8,7 +8,7 @@ import { Presenter, typeInto } from '../presenter';
 test.use({ timezoneId: 'America/Toronto' });
 
 // Journey: the partner activity timeline (docs/detailed-designs/partners/partner-activity-timeline,
-// L2-085 to L2-087).
+// L2-110 to L2-112).
 test('partner-activity-timeline', async ({ page, api }) => {
   const show = await Presenter.start(page, 'partner-activity-timeline');
   const partner = new PartnerPage(page);

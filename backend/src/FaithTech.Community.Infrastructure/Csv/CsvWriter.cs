@@ -5,7 +5,7 @@ namespace FaithTech.Community.Infrastructure.Csv;
 
 /// <summary>
 /// RFC 4180 CSV: CRLF line ends and every cell quoted, with inner quotes doubled. A cell starting with =, +, -, @,
-/// a tab or a carriage return is prefixed with an apostrophe so spreadsheets do not run it as a formula (L2-097 AC3).
+/// a tab or a carriage return is prefixed with an apostrophe so spreadsheets do not run it as a formula (L2-122 AC3).
 /// </summary>
 public class CsvWriter : ICsvWriter
 {

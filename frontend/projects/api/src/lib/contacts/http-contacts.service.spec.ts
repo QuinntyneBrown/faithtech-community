@@ -104,7 +104,7 @@ describe('HttpContactsService', () => {
     req.flush(null);
   });
 
-  describe('findDuplicate (L2-091)', () => {
+  describe('findDuplicate (L2-116)', () => {
     it('asks for the email, excluding the contact being edited, and maps the match', () => {
       const answers: unknown[] = [];
       service.findDuplicate('nadia@kestrel.example', 'c1').subscribe((a) => answers.push(a));

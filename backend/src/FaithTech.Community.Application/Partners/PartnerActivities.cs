@@ -5,7 +5,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace FaithTech.Community.Application.Partners;
 
-/// <summary>A call, email, meeting or note a lead logs on a partner's timeline (L2-085).</summary>
+/// <summary>A call, email, meeting or note a lead logs on a partner's timeline (L2-110).</summary>
 public record LogPartnerActivityCommand(
     string? Kind,
     string? Summary,
@@ -38,7 +38,7 @@ public class LogPartnerActivityValidator : AbstractValidator<LogPartnerActivityC
     }
 }
 
-/// <summary>Logs an activity with who logged it and when (L2-085 AC2, L2-087).</summary>
+/// <summary>Logs an activity with who logged it and when (L2-110 AC2, L2-112).</summary>
 public class LogPartnerActivityHandler(IApplicationDbContext db, PartnerAccess access, PartnerTimelineViews views, TimeProvider time)
 {
     public async Task<(Result Result, PartnerActivityDto? Activity)> LogAsync(
@@ -74,7 +74,7 @@ public class LogPartnerActivityHandler(IApplicationDbContext db, PartnerAccess a
             actor,
             time.GetUtcNow().UtcDateTime);
         db.PartnerActivities.Add(activity);
-        // A System Admin without a lead role logs by admin right, so it is audited (L2-087 AC5).
+        // A System Admin without a lead role logs by admin right, so it is audited (L2-112 AC5).
         access.AuditAdminWrite(actor, partner, "partner.activity.logged", null, new
         {
             ActivityId = activity.Id,

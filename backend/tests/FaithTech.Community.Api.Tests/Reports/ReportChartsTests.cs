@@ -1,4 +1,4 @@
-// Traces to: L2-101, L2-102 AC2 (docs/detailed-designs/reports/reports-dashboard, ADR 0026)
+// Traces to: L2-126, L2-127 AC2 (docs/detailed-designs/reports/reports-dashboard, ADR 0030)
 using FaithTech.Community.Domain.Partners;
 using static FaithTech.Community.Api.Tests.Reports.ReportClients;
 
@@ -20,7 +20,7 @@ public class ReportChartsTests : IAsyncLifetime
         }
     }
 
-    // L2-101 AC1: Given All cities, then Members by city shows the four cities with most members (ties by name) and
+    // L2-126 AC1: Given All cities, then Members by city shows the four cities with most members (ties by name) and
     // every other city plus blank home cities as "Other"; given one city, that city alone.
     [Fact]
     public async Task Members_by_city_shows_the_top_four_cities_and_Other()
@@ -56,7 +56,7 @@ public class ReportChartsTests : IAsyncLifetime
         Assert.Equal([new ChartRow("Toronto", 1)], (await staff.ReportAsync()).MembersByCity);
     }
 
-    // L2-101 AC2: New members by month shows each UTC calendar month the period touches, at most the last 12,
+    // L2-126 AC2: New members by month shows each UTC calendar month the period touches, at most the last 12,
     // empty months as 0 and the current month "so far"; only joins in the window count.
     [Fact]
     public async Task New_members_by_month_shows_the_months_of_the_period()
@@ -81,7 +81,7 @@ public class ReportChartsTests : IAsyncLifetime
         Assert.Equal(new MonthRow("2031-03", "Mar 2031", 2, true), allTime.NewMembersByMonth[^1]);
     }
 
-    // L2-101 AC4: Partner pipeline by city lists Lead, In funnel and Confirmed per partner city, alphabetical with
+    // L2-126 AC4: Partner pipeline by city lists Lead, In funnel and Confirmed per partner city, alphabetical with
     // every city in the list, then "No city" when it has partners; under one city, that city's row.
     [Fact]
     public async Task Partner_pipeline_by_city_counts_each_stage_by_owner_city()
@@ -107,7 +107,7 @@ public class ReportChartsTests : IAsyncLifetime
         Assert.Equal([new PipelineRow("Vancouver", 0, 0, 0)], vancouver.PartnerPipeline);
     }
 
-    // L2-101 AC5: Events and attendance lists events starting in the period and in the next 30 days, newest first,
+    // L2-126 AC5: Events and attendance lists events starting in the period and in the next 30 days, newest first,
     // at most 50, with going and checked in (walk-ins excluded) and the rate, or Upcoming or Cancelled.
     [Fact]
     public async Task Events_and_attendance_lists_the_period_and_the_next_30_days_newest_first()
@@ -149,7 +149,7 @@ public class ReportChartsTests : IAsyncLifetime
         Assert.Equal("Night 0", report.Events[0].Title);
     }
 
-    // L2-102 AC2: Given no members and no events for the filters, then the report is empty.
+    // L2-127 AC2: Given no members and no events for the filters, then the report is empty.
     [Fact]
     public async Task A_city_with_no_members_and_no_events_in_range_is_empty()
     {

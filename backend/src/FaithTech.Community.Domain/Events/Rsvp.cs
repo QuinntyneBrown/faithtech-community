@@ -33,7 +33,7 @@ public class Rsvp
 
     public bool IsGuest => ProfileId is null;
 
-    /// <summary>When the attendee was marked present at the door (ADR 0025); null until checked in.</summary>
+    /// <summary>When the attendee was marked present at the door (ADR 0029); null until checked in.</summary>
     public DateTimeOffset? CheckedInAt { get; private set; }
 
     /// <summary>The profile that checked them in, kept for the audit trail.</summary>
@@ -44,7 +44,7 @@ public class Rsvp
 
     public bool IsCheckedIn => CheckedInAt is not null;
 
-    /// <summary>Marks the attendee present; an attendee already checked in keeps the first time and person (L2-094 AC4).</summary>
+    /// <summary>Marks the attendee present; an attendee already checked in keeps the first time and person (L2-119 AC4).</summary>
     internal void CheckIn(Guid byId, DateTimeOffset at)
     {
         if (IsCheckedIn)

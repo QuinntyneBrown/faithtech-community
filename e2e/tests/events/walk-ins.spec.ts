@@ -1,4 +1,4 @@
-// Traces to: L2-095, L2-093 AC3, AC4 (docs/detailed-designs/events/event-check-in)
+// Traces to: L2-120, L2-118 AC3, AC4 (docs/detailed-designs/events/event-check-in)
 import { expect, test } from '../../fixtures/app';
 import { MockApi } from '../../fixtures/mock-api';
 import { AddWalkInDialog } from '../../pages/add-walk-in.dialog';
@@ -28,10 +28,10 @@ function lead(api: MockApi) {
 }
 
 test.describe('Walk-ins', () => {
-  // L2-095 AC1: Given a lead on the check-in page, when they choose "Add walk-in", then a dialog asks for a name
+  // L2-120 AC1: Given a lead on the check-in page, when they choose "Add walk-in", then a dialog asks for a name
   // (required) and an optional email, with "Check them in now" on by default and described by
   // "Adds them to the attendance list as present." (aria-describedby).
-  // L2-095 AC2: when the lead saves, the walk-in is added to the end of the list, checked in with the time.
+  // L2-120 AC2: when the lead saves, the walk-in is added to the end of the list, checked in with the time.
   test('a lead adds a walk-in who is checked in at once', async ({ page, api, axe }) => {
     const event = tonight(api);
     const checkIn = new EventCheckInPage(page);
@@ -63,7 +63,7 @@ test.describe('Walk-ins', () => {
     await expect(checkIn.meter).toHaveAccessibleName('1 of 3 checked in');
     await expect(page.getByText('· 1 walk-in')).toBeVisible();
     await expect(checkIn.toast('Mira Chen is checked in')).toBeVisible();
-    // L2-095 AC7: no RSVP confirmation email is sent.
+    // L2-120 AC7: no RSVP confirmation email is sent.
     expect(api.events.emails).toEqual([]);
     await axe.check();
   });
@@ -85,7 +85,7 @@ test.describe('Walk-ins', () => {
     await expect(checkIn.toast('Ben Carter is on the list')).toBeVisible();
   });
 
-  // L2-095 AC3: Given no name or an invalid email, when the lead saves, then the field shows an inline error and
+  // L2-120 AC3: Given no name or an invalid email, when the lead saves, then the field shows an inline error and
   // nothing is saved.
   test('a walk-in needs a name and a valid email if one is given', async ({ page, api, axe }) => {
     const event = tonight(api);
@@ -135,7 +135,7 @@ test.describe('Walk-ins', () => {
     await axe.check();
   });
 
-  // L2-095 AC4: Given an email that belongs to a verified member's account, then the row is linked to that
+  // L2-120 AC4: Given an email that belongs to a verified member's account, then the row is linked to that
   // member's profile and shows as a member.
   test('a verified member’s email links the walk-in to their profile', async ({ page, api }) => {
     const event = tonight(api);
@@ -153,7 +153,7 @@ test.describe('Walk-ins', () => {
     expect(event.rsvps.at(-1)).toMatchObject({ profileId: mira.profileId, isWalkIn: true });
   });
 
-  // L2-095 AC5: Given the email already has an RSVP, then that RSVP is reused rather than a second row created.
+  // L2-120 AC5: Given the email already has an RSVP, then that RSVP is reused rather than a second row created.
   test('an existing RSVP is reused and checked in', async ({ page, api }) => {
     const event = tonight(api);
     const checkIn = new EventCheckInPage(page);
@@ -172,7 +172,7 @@ test.describe('Walk-ins', () => {
     );
   });
 
-  // L2-093 AC3: Given a search with no matches, then it offers "Add walk-in" to leads, with the name filled in.
+  // L2-118 AC3: Given a search with no matches, then it offers "Add walk-in" to leads, with the name filled in.
   test('no matches offer to add the search term as a walk-in', async ({ page, api, axe }) => {
     const event = tonight(api);
     const checkIn = new EventCheckInPage(page);
@@ -190,7 +190,7 @@ test.describe('Walk-ins', () => {
     await axe.check();
   });
 
-  // L2-093 AC4: Given an event with no RSVPs, then the empty state offers "Add walk-in" to leads.
+  // L2-118 AC4: Given an event with no RSVPs, then the empty state offers "Add walk-in" to leads.
   test('an event without RSVPs offers Add walk-in', async ({ page, api }) => {
     const event = api.events.add({ title: 'City Team Prayer & Planning' }, 0.4);
     const checkIn = new EventCheckInPage(page);

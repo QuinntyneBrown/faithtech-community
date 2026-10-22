@@ -1,14 +1,14 @@
-# 0026. Report metric definitions
+# 0030. Report metric definitions
 
 - Status: Accepted
 - Date: 2026-10-22
-- Requirements: L1-022, L2-098 to L2-104
+- Requirements: L1-024, L2-123 to L2-129
 - Design: `docs/detailed-designs/reports/reports-dashboard`
-- Refines: ADR 0014, ADR 0024, ADR 0025
+- Refines: ADR 0014, ADR 0028, ADR 0029
 
 ## Context
 
-Reports (L1-022) gives Staff and System Admins city-level numbers. A number that two people read differently is worse than no number, and the page, the CSV export and the e2e fake must agree. The brief (`docs/prompts/dynamics-adopted-features-decisions.md`) fixed the figures; this record fixes the edges it left open: what a member and a new member are, which time zone and window edges apply, how a partner gets a city, how walk-ins count, and how the queries stay fast and testable.
+Reports (L1-024) gives Staff and System Admins city-level numbers. A number that two people read differently is worse than no number, and the page, the CSV export and the e2e fake must agree. The brief (`docs/prompts/dynamics-adopted-features-decisions.md`) fixed the figures; this record fixes the edges it left open: what a member and a new member are, which time zone and window edges apply, how a partner gets a city, how walk-ins count, and how the queries stay fast and testable.
 
 ## Decision
 
@@ -21,10 +21,10 @@ Reports (L1-022) gives Staff and System Admins city-level numbers. A number that
 - **Members** — profiles whose account has a verified email (`CommunityUser.EmailConfirmed`) and is not suspended (`Profile.IsSuspended`); one city means the profile's `HomeCity` equals it.
 - **New members ("+N in the {period}")** — Members whose `Profile.JoinedAtUtc` is in the window. `JoinedAtUtc` is new, nullable, set once when the account is created (email sign-up, connect sign-up, Google, invite acceptance) and never changed. It is not backfilled, because Identity stores no creation time, so older profiles are never new. The context is hidden for All time, where every member would be new.
 - **Events held** — events not cancelled whose `StartsAt` is in the window; one city means `Event.City`. Context "{n} cancelled": cancelled events whose `StartsAt` is in the window.
-- **RSVPs** — RSVPs on the events held, walk-ins excluded. Context "{p}% checked in": those with `CheckedInAt` set divided by RSVPs, rounded half away from zero, shown only when RSVPs is above 0. Walk-ins are excluded from both so the rate never passes 100% (ADR 0025).
-- **Partners confirmed** — non-archived partners (ADR 0024) at Confirmed; context "of {n} in the pipeline", every non-archived partner. A partner's city is its owner's `HomeCity`, whatever the owner's account state; no owner or no home city is "No city", counted only under All cities. The pipeline is a snapshot; the period does not apply.
+- **RSVPs** — RSVPs on the events held, walk-ins excluded. Context "{p}% checked in": those with `CheckedInAt` set divided by RSVPs, rounded half away from zero, shown only when RSVPs is above 0. Walk-ins are excluded from both so the rate never passes 100% (ADR 0029).
+- **Partners confirmed** — non-archived partners (ADR 0028) at Confirmed; context "of {n} in the pipeline", every non-archived partner. A partner's city is its owner's `HomeCity`, whatever the owner's account state; no owner or no home city is "No city", counted only under All cities. The pipeline is a snapshot; the period does not apply.
 - **Announcements** — announcements whose `SentAt` is in the window; one city means the sender's `HomeCity`. Context "sent by leads".
-- **Private contacts** — contacts, their notes, photos and pending connections are never read by any report query or export (L2-100 AC6, ADR 0014).
+- **Private contacts** — contacts, their notes, photos and pending connections are never read by any report query or export (L2-125 AC6, ADR 0014).
 
 ### Charts and tables
 

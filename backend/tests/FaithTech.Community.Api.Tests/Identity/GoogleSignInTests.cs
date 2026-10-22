@@ -60,7 +60,7 @@ public class GoogleSignInTests(CommunityApiFactory factory) : IClassFixture<Comm
         Assert.True(await factory.WithDbAsync(db => db.UserLogins.AnyAsync(l => l.UserId == user.Id && l.LoginProvider == "Google")));
     }
 
-    // Traces to: L2-100 AC1 (docs/detailed-designs/reports/reports-dashboard): a new Google account records the
+    // Traces to: L2-125 AC1 (docs/detailed-designs/reports/reports-dashboard): a new Google account records the
     // join time.
     [Fact]
     public async Task A_new_Google_account_records_the_join_time()

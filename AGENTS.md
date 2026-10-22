@@ -108,7 +108,7 @@ faithtech-community/
 
 Rules (MUST be followed):
 
-- Every feature uses the same name in `Application/`, `frontend/projects/`, `docs/specs/` and `docs/detailed-designs/`. The Agile workspaces subsystem is named `agile` (`Domain/Agile/`, `Application/Agile/`, `frontend/projects/agile/`, `docs/detailed-designs/agile/`; ADR 0010). Reports is named `reports` (`Application/Reports/`, `frontend/projects/reports/`, `docs/detailed-designs/reports/`, `docs/estimates/reports.md`, `e2e/tests/reports/`; ADR 0027); it reads other features' entities and needs no `Domain/Reports/`.
+- Every feature uses the same name in `Application/`, `frontend/projects/`, `docs/specs/` and `docs/detailed-designs/`. The Agile workspaces subsystem is named `agile` (`Domain/Agile/`, `Application/Agile/`, `frontend/projects/agile/`, `docs/detailed-designs/agile/`; ADR 0010). Reports is named `reports` (`Application/Reports/`, `frontend/projects/reports/`, `docs/detailed-designs/reports/`, `docs/estimates/reports.md`, `e2e/tests/reports/`; ADR 0031); it reads other features' entities and needs no `Domain/Reports/`.
 - EF Core migrations live only in `Infrastructure/Persistence/Migrations/` and are applied by the Cli project, never by the API.
 - .NET tests live only under `backend/tests/`. Angular unit tests (`*.spec.ts`) sit next to the code they test. Playwright tests live only in `e2e/`.
 - Each frontend feature is its own library project under `frontend/projects/<feature>/`, exposing its routes, pages and dialogs through its public API (`public-api.ts`). The app lazy-loads it from the shell.

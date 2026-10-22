@@ -1,4 +1,4 @@
-// Traces to: L2-101 (docs/detailed-designs/reports/reports-dashboard, ADR 0026)
+// Traces to: L2-126 (docs/detailed-designs/reports/reports-dashboard, ADR 0030)
 import { expect, test } from '../../fixtures/app';
 import { seedReportData } from '../../fixtures/report-data';
 import { ReportsPage } from '../../pages/reports.page';
@@ -6,8 +6,8 @@ import { ReportsPage } from '../../pages/reports.page';
 test.use({ timezoneId: 'America/Toronto' });
 
 test.describe('Report charts and tables', () => {
-  // L2-101 AC1: Members by city shows the four largest cities and "Other"; L2-101 AC2: New members by month shows
-  // each month of the period with the current one "so far"; L2-101 AC3: each bar's row text carries its label and
+  // L2-126 AC1: Members by city shows the four largest cities and "Other"; L2-126 AC2: New members by month shows
+  // each month of the period with the current one "so far"; L2-126 AC3: each bar's row text carries its label and
   // value, and the track is hidden from assistive technology.
   test('the charts show their rows as text with hidden bar tracks', async ({ page, api, axe }) => {
     const { staff } = seedReportData(api);
@@ -39,8 +39,8 @@ test.describe('Report charts and tables', () => {
     expect(await reports.chartRows('New members by month')).toEqual(['Sep 0', 'Oct so far 1']);
   });
 
-  // L2-101 AC4: Partner pipeline by city counts each stage by the owner's home city, "No city" last.
-  // L2-101 AC5: Events and attendance lists the period and the next 30 days, newest first, with going and checked
+  // L2-126 AC4: Partner pipeline by city counts each stage by the owner's home city, "No city" last.
+  // L2-126 AC5: Events and attendance lists the period and the next 30 days, newest first, with going and checked
   // in with its rate, or Upcoming or Cancelled; each title links to the event.
   test('the tables list the pipeline by city and the events with attendance', async ({
     page,

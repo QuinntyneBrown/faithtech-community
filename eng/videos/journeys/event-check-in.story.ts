@@ -6,7 +6,7 @@ import { Presenter, typeInto } from '../presenter';
 
 test.use({ timezoneId: 'America/Toronto' });
 
-// Journey: event check-in (docs/detailed-designs/events/event-check-in, L2-092 to L2-097).
+// Journey: event check-in (docs/detailed-designs/events/event-check-in, L2-117 to L2-122).
 test('event-check-in', async ({ page, api }) => {
   const show = await Presenter.start(page, 'event-check-in');
   const eventPage = new EventPage(page);

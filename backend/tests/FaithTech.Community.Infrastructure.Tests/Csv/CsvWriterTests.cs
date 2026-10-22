@@ -1,4 +1,4 @@
-// Traces to: L2-097 AC3, L2-103 AC3 (docs/detailed-designs/events/event-check-in)
+// Traces to: L2-122 AC3, L2-128 AC3 (docs/detailed-designs/events/event-check-in)
 using FaithTech.Community.Infrastructure.Csv;
 
 namespace FaithTech.Community.Infrastructure.Tests.Csv;
@@ -32,7 +32,7 @@ public class CsvWriterTests
         Assert.Equal("\"Ruth Alvarez\",\"\",\"\"\r\n", Write(["Ruth Alvarez", null, string.Empty]));
     }
 
-    // L2-097 AC3: a cell that a spreadsheet would run as a formula is prefixed with an apostrophe.
+    // L2-122 AC3: a cell that a spreadsheet would run as a formula is prefixed with an apostrophe.
     [Theory]
     [InlineData("=HYPERLINK(\"x\")", "'=HYPERLINK(\"\"x\"\")")]
     [InlineData("+1 555", "'+1 555")]

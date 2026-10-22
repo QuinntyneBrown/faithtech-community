@@ -8,7 +8,7 @@ import { Presenter } from '../presenter';
 test.use({ timezoneId: 'America/Toronto' });
 
 // Journey: duplicate detection and merge (docs/detailed-designs/partners/duplicate-detection-and-merge,
-// L2-088 to L2-090).
+// L2-113 to L2-115).
 test('duplicate-detection-and-merge', async ({ page, api }) => {
   const show = await Presenter.start(page, 'duplicate-detection-and-merge');
   const partner = new PartnerPage(page);

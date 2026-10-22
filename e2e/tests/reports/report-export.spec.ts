@@ -1,4 +1,4 @@
-// Traces to: L2-103 (docs/detailed-designs/reports/reports-dashboard, ADR 0026)
+// Traces to: L2-128 (docs/detailed-designs/reports/reports-dashboard, ADR 0030)
 import { readFileSync } from 'node:fs';
 
 import { expect, test } from '../../fixtures/app';
@@ -8,9 +8,9 @@ import { ReportsPage } from '../../pages/reports.page';
 test.use({ timezoneId: 'America/Toronto' });
 
 test.describe('Export a report', () => {
-  // L2-103 AC1: Given Staff viewing the report, when they choose Export CSV, then the figures, both charts and both
-  // tables download one section after another for the same filters. L2-103 AC3: every value is quoted and a value
-  // starting like a formula is guarded. L2-103 AC4: while it is prepared, Export CSV is busy and cannot be pressed
+  // L2-128 AC1: Given Staff viewing the report, when they choose Export CSV, then the figures, both charts and both
+  // tables download one section after another for the same filters. L2-128 AC3: every value is quoted and a value
+  // starting like a formula is guarded. L2-128 AC4: while it is prepared, Export CSV is busy and cannot be pressed
   // again.
   test('Staff export the report for the filters shown', async ({ page, api, axe }) => {
     const { staff } = seedReportData(api);
@@ -53,7 +53,7 @@ test.describe('Export a report', () => {
     await expect(reports.exportCsv).toHaveText('Export CSV');
   });
 
-  // L2-103 AC4: when the export fails, a danger toast offers Try again.
+  // L2-128 AC4: when the export fails, a danger toast offers Try again.
   test('a failed export offers Try again', async ({ page, api, axe }) => {
     const { staff } = seedReportData(api);
     const reports = new ReportsPage(page);

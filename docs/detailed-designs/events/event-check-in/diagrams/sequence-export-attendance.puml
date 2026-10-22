@@ -32,7 +32,7 @@ box "Backend — FaithTech.Community.Infrastructure" #FFF4E5
 end box
 
 actor -> page : Export CSV
-page -> page : Button busy; second press ignored (L2-097 AC4)
+page -> page : Button busy; second press ignored (L2-122 AC4)
 page -> svc : exportAttendance(eventId)
 svc -> ep : GET /api/events/{id}/check-ins.csv
 ep -> h : ExportAsync(id)
@@ -40,13 +40,13 @@ h -> perm : CanCheckIn
 alt Staff or member without a lead role
   perm --> h : false
   h --> ep : Forbidden
-  ep --> svc : 403 (401 when anonymous) (L2-097 AC2)
+  ep --> svc : 403 (401 when anonymous) (L2-122 AC2)
 else lead or System Admin
   perm --> h : true
   h -> db : Load event, rows and member names
   db --> h : Rows
-  h -> csv : Write(Name, Type, Email, RSVP'd (UTC), Checked in (UTC); one row per attendee) (L2-097 AC1)
-  csv -> csv : RFC 4180 quoting; apostrophe before = + - @ (L2-097 AC3)
+  h -> csv : Write(Name, Type, Email, RSVP'd (UTC), Checked in (UTC); one row per attendee) (L2-122 AC1)
+  csv -> csv : RFC 4180 quoting; apostrophe before = + - @ (L2-122 AC3)
   csv --> h : CSV text
   h --> ep : CsvFile {slug}-attendance.csv
   ep --> svc : 200 text/csv
@@ -55,6 +55,6 @@ else lead or System Admin
 end
 alt failure
   svc --> page : Error
-  page --> actor : Danger toast with Try again (L2-097 AC4)
+  page --> actor : Danger toast with Try again (L2-122 AC4)
 end
 @enduml

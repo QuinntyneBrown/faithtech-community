@@ -35,11 +35,11 @@ box "Backend — FaithTech.Community.Infrastructure" #FFF4E5
 end box
 actor -> page : Choose Log activity (shown when canLogActivity)
 page -> dlg : Open with {partnerId, name}
-dlg --> actor : Type Call, date today, optional time, next step and due (L2-085 AC1)
+dlg --> actor : Type Call, date today, optional time, next step and due (L2-110 AC1)
 actor -> dlg : Fill in and choose Log {type}
 dlg -> dlg : Client rules: summary 1-2000, date not after today,\nnext step <= 200, due only with a next step
 alt client errors
-  dlg --> actor : Inline errors, nothing sent (L2-085 AC3-AC5)
+  dlg --> actor : Inline errors, nothing sent (L2-110 AC3-AC5)
 else valid
   dlg -> svc : logActivity(id, request)
   svc -> ep : POST /api/partners/{id}/activities
@@ -51,30 +51,30 @@ else valid
     ep -> h : LogAsync(id, command)
     h -> acc : CanWrite
     alt Staff or no lead role
-      h --> ep : Forbidden (L2-087 AC2, AC3)
+      h --> ep : Forbidden (L2-112 AC2, AC3)
       ep --> svc : 403
     else permitted
       h -> db : Load Partner
       alt unknown
         ep --> svc : 404
       else archived (merged)
-        ep --> svc : 409 "{name} was merged into {kept}. Log it there." (L2-087 AC6)
+        ep --> svc : 409 "{name} was merged into {kept}. Log it there." (L2-112 AC6)
       else active
-        h -> h : PartnerActivity.Log(..., caller, nowUtc) (L2-085 AC2)
+        h -> h : PartnerActivity.Log(..., caller, nowUtc) (L2-110 AC2)
         h -> acc : AuditAdminWrite(actor, partner, "partner.activity.logged")
-        acc -> audit : Record, only for a System Admin without a lead role (L2-087 AC5)
+        acc -> audit : Record, only for a System Admin without a lead role (L2-112 AC5)
         h -> db : Insert PartnerActivity (and audit entry) in one SaveChanges
         h -> views : ToDto(activity)
         ep --> svc : 201 PartnerActivityDto
         svc --> dlg : Activity
         dlg --> page : Close with the activity
         page -> svc : get(id), activities(id, kind)
-        page --> actor : Toast "{Type} logged for {name}"; entry on the timeline;\nNext step and Last activity updated (L2-086 AC6, AC7)
+        page --> actor : Toast "{Type} logged for {name}"; entry on the timeline;\nNext step and Last activity updated (L2-111 AC6, AC7)
       end
     end
   end
   opt 403, 409, 5xx or network failure
-    dlg --> actor : Danger alert "Activity not logged", input kept, Try again (L2-085 AC9)
+    dlg --> actor : Danger alert "Activity not logged", input kept, Try again (L2-110 AC9)
   end
 end
 @enduml

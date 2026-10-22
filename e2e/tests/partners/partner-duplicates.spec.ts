@@ -1,4 +1,4 @@
-// Traces to: L2-088 (docs/detailed-designs/partners/duplicate-detection-and-merge)
+// Traces to: L2-113 (docs/detailed-designs/partners/duplicate-detection-and-merge)
 import { expect, test } from '../../fixtures/app';
 import { AppShell } from '../../pages/app-shell.page';
 import { PartnerPage } from '../../pages/partner.page';

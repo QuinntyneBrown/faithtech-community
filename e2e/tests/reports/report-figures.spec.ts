@@ -1,4 +1,4 @@
-// Traces to: L2-100 (docs/detailed-designs/reports/reports-dashboard, ADR 0026)
+// Traces to: L2-125 (docs/detailed-designs/reports/reports-dashboard, ADR 0030)
 import { expect, test } from '../../fixtures/app';
 import { addPrivateContacts, seedReportData } from '../../fixtures/report-data';
 import { ReportsPage } from '../../pages/reports.page';
@@ -6,7 +6,7 @@ import { ReportsPage } from '../../pages/reports.page';
 test.use({ timezoneId: 'America/Toronto' });
 
 test.describe('Report figures', () => {
-  // L2-100 AC1 to AC5, AC7: each figure follows its definition, with unverified and suspended members, the merged
+  // L2-125 AC1 to AC5, AC7: each figure follows its definition, with unverified and suspended members, the merged
   // (archived) partner, the cancelled event, the old event and walk-ins excluded.
   test('the five figures and their context lines for All cities', async ({ page, api, axe }) => {
     const { staff } = seedReportData(api);
@@ -24,7 +24,7 @@ test.describe('Report figures', () => {
     await axe.check();
   });
 
-  // L2-100 AC1, AC4, AC5: one city narrows members by home city, events by city, partners by owner city and
+  // L2-125 AC1, AC4, AC5: one city narrows members by home city, events by city, partners by owner city and
   // announcements by author city; "No city" partners count only under All cities.
   test('one city narrows every figure', async ({ page, api }) => {
     const { staff } = seedReportData(api);
@@ -43,7 +43,7 @@ test.describe('Report figures', () => {
     expect(await reports.figureText('Announcements')).toBe('Announcements 1 sent by leads');
   });
 
-  // L2-100 AC1: All time hides "+N", where every member would be new; L2-100 AC3: the rate shows only when there
+  // L2-125 AC1: All time hides "+N", where every member would be new; L2-125 AC3: the rate shows only when there
   // are RSVPs.
   test('All time hides the new-members line and widens the window', async ({ page, api }) => {
     const { staff } = seedReportData(api);
@@ -59,7 +59,7 @@ test.describe('Report figures', () => {
     expect(await reports.figureText('Announcements')).toBe('Announcements 2 sent by leads');
   });
 
-  // L2-100 AC6: Given a lead's private contacts with emails and cities, when the report runs, then they are never
+  // L2-125 AC6: Given a lead's private contacts with emails and cities, when the report runs, then they are never
   // read or counted: every number is unchanged and nothing of them appears.
   test('private contacts never change the report or appear in it', async ({ page, api }) => {
     const { staff, grace } = seedReportData(api);

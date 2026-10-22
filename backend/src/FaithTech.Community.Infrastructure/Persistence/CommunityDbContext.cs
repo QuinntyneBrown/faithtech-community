@@ -79,7 +79,7 @@ public class CommunityDbContext(DbContextOptions<CommunityDbContext> options)
         {
             profile.Property(p => p.Name).HasMaxLength(200);
             profile.Property(p => p.HomeCity).HasMaxLength(100);
-            // Reports group and filter members by home city (ADR 0026).
+            // Reports group and filter members by home city (ADR 0030).
             profile.HasIndex(p => p.HomeCity);
             profile.Property(p => p.Bio).HasMaxLength(400);
             profile.Property(p => p.SuspendedReason).HasMaxLength(500);
@@ -238,7 +238,7 @@ public class CommunityDbContext(DbContextOptions<CommunityDbContext> options)
             partner.Property(p => p.Notes).HasMaxLength(2000);
             partner.Property(p => p.Stage).HasConversion<string>().HasMaxLength(16);
             partner.HasIndex(p => p.Stage);
-            // Merge and restore compare versions; a race the check misses fails at SaveChanges (ADR 0024).
+            // Merge and restore compare versions; a race the check misses fails at SaveChanges (ADR 0028).
             partner.Property(p => p.Version).IsConcurrencyToken();
             partner.HasIndex(p => p.ArchivedAtUtc);
             partner.Ignore(p => p.IsArchived);

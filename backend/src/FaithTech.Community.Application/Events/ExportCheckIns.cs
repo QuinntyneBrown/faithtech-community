@@ -5,7 +5,7 @@ using Microsoft.EntityFrameworkCore;
 namespace FaithTech.Community.Application.Events;
 
 /// <summary>
-/// The attendance as CSV (L2-097) for lead roles and System Admins, since it carries guest emails: one row per
+/// The attendance as CSV (L2-122) for lead roles and System Admins, since it carries guest emails: one row per
 /// attendee in check-in list order, with name, type, guest email, RSVP time and check-in time in UTC.
 /// </summary>
 public class ExportCheckInsHandler(IApplicationDbContext db, EventPermissions permissions, ICsvWriter csv)

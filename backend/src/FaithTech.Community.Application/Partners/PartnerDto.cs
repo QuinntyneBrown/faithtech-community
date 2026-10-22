@@ -6,7 +6,7 @@ namespace FaithTech.Community.Application.Partners;
 
 /// <summary>
 /// A partner record. Stage is Lead, InFunnel or Confirmed. LastActivityOn is the latest timeline
-/// entry's date; NextStep is the latest logged activity's next step (L2-086 AC6, AC7).
+/// entry's date; NextStep is the latest logged activity's next step (L2-111 AC6, AC7).
 /// </summary>
 public record PartnerDto(
     Guid Id,
@@ -29,7 +29,7 @@ public record PartnerDto(
     PartnerArchivedDto? Archived,
     bool CanRestore);
 
-/// <summary>Who merged an archived partner, when and into which partner (L2-089 AC7); MergedIntoVersion feeds a restore.</summary>
+/// <summary>Who merged an archived partner, when and into which partner (L2-114 AC7); MergedIntoVersion feeds a restore.</summary>
 public record PartnerArchivedDto(
     Guid MergedIntoId,
     string MergedIntoName,

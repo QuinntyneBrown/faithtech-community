@@ -160,7 +160,7 @@ public class ConnectSignUpTests(CommunityApiFactory factory) : IClassFixture<Com
         Assert.Equal("Use 100 characters or fewer for your name.", problem.Errors["Name"][0]);
     }
 
-    // Traces to: L2-100 AC1 (docs/detailed-designs/reports/reports-dashboard): connect sign-up records the join time.
+    // Traces to: L2-125 AC1 (docs/detailed-designs/reports/reports-dashboard): connect sign-up records the join time.
     [Fact]
     public async Task Signing_up_through_the_link_records_the_join_time()
     {

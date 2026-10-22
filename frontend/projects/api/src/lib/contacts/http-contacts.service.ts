@@ -24,7 +24,7 @@ export class HttpContactsService implements ContactsService {
   private readonly images = new Map<string, Observable<string>>();
   // The contacts page shows its own "private to each lead" state for callers without a lead role.
   private readonly context = new HttpContext().set(HANDLES_FORBIDDEN, true);
-  // The duplicate check is advice: the form ignores its failure and saves anyway (L2-091 AC7).
+  // The duplicate check is advice: the form ignores its failure and saves anyway (L2-116 AC7).
   private readonly advisory = new HttpContext()
     .set(HANDLES_FORBIDDEN, true)
     .set(HANDLES_SERVER_ERROR, true);

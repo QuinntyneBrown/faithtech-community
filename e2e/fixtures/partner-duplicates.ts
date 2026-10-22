@@ -1,6 +1,6 @@
 /**
  * PartnerDuplicateRules (backend/src/FaithTech.Community.Application/Partners/PartnerDuplicates.cs)
- * for the fake: exact matches on normalised keys, website before name (ADR 0023).
+ * for the fake: exact matches on normalised keys, website before name (ADR 0027).
  */
 const SUFFIXES = [
   'inc',

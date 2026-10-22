@@ -57,7 +57,7 @@ const SUMMARY: Record<string, string> = {
 const MISSING_ALT = 'Describe this photo.';
 const MAX_ALT = 300;
 const LONG_ALT = `Use ${MAX_ALT} characters or fewer to describe this photo.`;
-/** How long a save waits for an unanswered duplicate check before going ahead (L2-091 AC7). */
+/** How long a save waits for an unanswered duplicate check before going ahead (L2-116 AC7). */
 export const DUPLICATE_CHECK_TIMEOUT_MS = 2000;
 
 /** A photo chosen on the add-contact form; it uploads after the contact is created (ADR 0017). */
@@ -125,7 +125,7 @@ export class ContactFormPage {
   protected readonly contact = signal<ContactDto | null>(null);
   /** The member who already uses the email; saving then links the contact to them (L2-013 AC6). */
   protected readonly member = signal<string | null>(null);
-  /** The lead's own contact with this email (L2-091); saving then makes a separate contact. */
+  /** The lead's own contact with this email (L2-116); saving then makes a separate contact. */
   protected readonly duplicate = signal<DuplicateContactDto | null>(null);
   /** The email, lower-cased, that `duplicate` answers for. */
   private readonly checkedEmail = signal<string | null>(null);
@@ -206,7 +206,7 @@ export class ContactFormPage {
   }
 
   /**
-   * Checks a well-formed email against the lead's own contacts once per email (L2-091 AC1). A failed
+   * Checks a well-formed email against the lead's own contacts once per email (L2-116 AC1). A failed
    * check answers null and is tried again before save; it never shows an error.
    */
   protected checkDuplicate(): Promise<DuplicateContactDto | null> | null {
@@ -286,7 +286,7 @@ export class ContactFormPage {
     this.busy.set(true);
     this.saving = true;
     try {
-      // Before save, an unchecked email is checked (L2-091 AC1); a match stops this save so the lead
+      // Before save, an unchecked email is checked (L2-116 AC1); a match stops this save so the lead
       // sees it once, and a failure or a slow answer lets the save go ahead (AC7).
       if (!this.duplicate() && (await this.precheck())) return;
       await this.persist();

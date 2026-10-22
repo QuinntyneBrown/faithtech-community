@@ -1,9 +1,9 @@
 namespace FaithTech.Community.Application.Reports;
 
-/// <summary>A report window, inclusive at both ends; <see cref="From"/> is null for All time (ADR 0026).</summary>
+/// <summary>A report window, inclusive at both ends; <see cref="From"/> is null for All time (ADR 0030).</summary>
 public record ReportWindow(string Key, DateTimeOffset? From, DateTimeOffset To);
 
-/// <summary>The four report periods and their URL keys (L2-099 AC3); windows and months are UTC.</summary>
+/// <summary>The four report periods and their URL keys (L2-124 AC3); windows and months are UTC.</summary>
 public static class ReportPeriod
 {
     public const string Last30Days = "last-30-days";

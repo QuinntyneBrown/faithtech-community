@@ -1,4 +1,4 @@
-// Traces to: L2-095, L2-092 AC5, L2-094 AC6, L2-096 AC3 (docs/detailed-designs/events/event-check-in)
+// Traces to: L2-120, L2-117 AC5, L2-119 AC6, L2-121 AC3 (docs/detailed-designs/events/event-check-in)
 using System.Net;
 using System.Net.Http.Json;
 using System.Text.Json;
@@ -19,9 +19,9 @@ public class WalkInTests(CommunityApiFactory factory) : IClassFixture<CommunityA
     private static Task<HttpResponseMessage> AddWalkInAsync(HttpClient client, Guid eventId, object body) =>
         client.PostAsJsonAsync($"/api/events/{eventId}/walk-ins", body);
 
-    // L2-095 AC2: Given a name, when the lead saves, then the walk-in is added to the end of the list marked as a
+    // L2-120 AC2: Given a name, when the lead saves, then the walk-in is added to the end of the list marked as a
     // walk-in, checked in with the time when "Check them in now" is on (the default).
-    // L2-095 AC7: no RSVP confirmation email is sent.
+    // L2-120 AC7: no RSVP confirmation email is sent.
     [Fact]
     public async Task A_lead_adds_a_walk_in_who_is_checked_in_at_the_end_of_the_list()
     {
@@ -57,7 +57,7 @@ public class WalkInTests(CommunityApiFactory factory) : IClassFixture<CommunityA
         Assert.Equal(JsonValueKind.Null, attendee.GetProperty("email").ValueKind);
     }
 
-    // L2-095 AC4: Given an email that belongs to a verified member's account, when the walk-in is saved, then the
+    // L2-120 AC4: Given an email that belongs to a verified member's account, when the walk-in is saved, then the
     // row is linked to that member's profile and shows as a member, not a guest.
     [Fact]
     public async Task A_verified_members_email_links_the_walk_in_to_their_profile()
@@ -95,7 +95,7 @@ public class WalkInTests(CommunityApiFactory factory) : IClassFixture<CommunityA
         Assert.Equal("Mira", attendee.GetProperty("name").GetString());
     }
 
-    // L2-095 AC5: Given the member or email already has an RSVP for the event, when the walk-in is saved, then
+    // L2-120 AC5: Given the member or email already has an RSVP for the event, when the walk-in is saved, then
     // that RSVP is reused, and checked in when "Check them in now" is on, rather than a second row being created.
     [Fact]
     public async Task An_existing_rsvp_is_reused_and_checked_in()
@@ -120,8 +120,8 @@ public class WalkInTests(CommunityApiFactory factory) : IClassFixture<CommunityA
         Assert.All(saved.Rsvps, r => Assert.Equal((false, true), (r.IsWalkIn, r.IsCheckedIn)));
     }
 
-    // L2-095 AC6: Given an event at capacity or one that has started, when a walk-in is added, then it is still added.
-    // L2-096 AC3: the event list, the event page and the public page are unchanged by walk-ins.
+    // L2-120 AC6: Given an event at capacity or one that has started, when a walk-in is added, then it is still added.
+    // L2-121 AC3: the event list, the event page and the public page are unchanged by walk-ins.
     [Fact]
     public async Task Walk_ins_skip_capacity_and_the_start_and_leave_rsvp_counts_alone()
     {
@@ -144,7 +144,7 @@ public class WalkInTests(CommunityApiFactory factory) : IClassFixture<CommunityA
         Assert.DoesNotContain("Mira Chen", csv);
     }
 
-    // L2-095 AC3: Given no name, a name over 100 characters after trimming, or an invalid email, when the lead
+    // L2-120 AC3: Given no name, a name over 100 characters after trimming, or an invalid email, when the lead
     // saves, then the field shows an inline error and nothing is saved.
     [Theory]
     [InlineData(" ", null, "Name", "Enter their name so the list shows who came.")]
@@ -173,7 +173,7 @@ public class WalkInTests(CommunityApiFactory factory) : IClassFixture<CommunityA
         Assert.Equal("Use 100 characters or fewer for the name.", errors.GetProperty("Name")[0].GetString());
     }
 
-    // L2-095 AC8: Given Staff, when a walk-in is submitted, then the response is 403; other members get 403 too.
+    // L2-120 AC8: Given Staff, when a walk-in is submitted, then the response is 403; other members get 403 too.
     [Theory]
     [InlineData(Role.Staff)]
     [InlineData(Role.Attendee)]
@@ -211,8 +211,8 @@ public class WalkInTests(CommunityApiFactory factory) : IClassFixture<CommunityA
         Assert.Single(await factory.QueuedEmailsToAsync("abby@example.org"));
     }
 
-    // L2-095 AC8: Given a cancelled event, when a walk-in is submitted, then the response is 409.
-    // L2-094 AC6: walk-ins keep to the same 24-hour window as check-ins.
+    // L2-120 AC8: Given a cancelled event, when a walk-in is submitted, then the response is 409.
+    // L2-119 AC6: walk-ins keep to the same 24-hour window as check-ins.
     [Fact]
     public async Task A_cancelled_or_not_yet_open_event_refuses_walk_ins_with_409()
     {
@@ -231,7 +231,7 @@ public class WalkInTests(CommunityApiFactory factory) : IClassFixture<CommunityA
         Assert.Empty((await factory.LoadEventAsync(early.Id)).Rsvps);
     }
 
-    // L2-092 AC5: Given a System Admin without a lead role, when they add a walk-in, then it is audited.
+    // L2-117 AC5: Given a System Admin without a lead role, when they add a walk-in, then it is audited.
     [Fact]
     public async Task A_System_Admin_adding_a_walk_in_without_a_lead_role_is_audited()
     {

@@ -97,7 +97,7 @@ public class RsvpHandler(
             return (Result.NotFound(), null);
         }
 
-        // Walk-ins did not RSVP; the attendance export lists them (L2-096 AC3, L2-097).
+        // Walk-ins did not RSVP; the attendance export lists them (L2-121 AC3, L2-122).
         var rsvped = e.Rsvps.Where(r => !r.IsWalkIn).ToList();
         var memberIds = rsvped.Select(r => r.ProfileId).OfType<Guid>().ToList();
         var names = await db.Profiles.AsNoTracking().Where(p => memberIds.Contains(p.Id))

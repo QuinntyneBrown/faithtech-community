@@ -1,4 +1,4 @@
-// Traces to: L2-095 (docs/detailed-designs/events/event-check-in)
+// Traces to: L2-120 (docs/detailed-designs/events/event-check-in)
 import { DIALOG_DATA, DialogRef } from '@angular/cdk/dialog';
 import { HttpErrorResponse } from '@angular/common/http';
 import { TestBed } from '@angular/core/testing';

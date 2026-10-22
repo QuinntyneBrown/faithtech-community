@@ -1,4 +1,4 @@
-// Traces to: L2-088 (docs/detailed-designs/partners/duplicate-detection-and-merge, ADR 0023)
+// Traces to: L2-113 (docs/detailed-designs/partners/duplicate-detection-and-merge, ADR 0027)
 //
 // Given two partners, when their website hosts are equal after normalising (lowercase; no scheme,
 // leading www., port, path, query or trailing dot), then they match by website (AC1). When their

@@ -5,7 +5,7 @@ import type { MockAnnouncement } from './mock-announcements';
 import type { MockEvent } from './mock-events';
 import type { MockPartner } from './mock-partners';
 
-/** What the reports fake reads from the rest of the fake backend. It never reads contacts (L2-100 AC6). */
+/** What the reports fake reads from the rest of the fake backend. It never reads contacts (L2-125 AC6). */
 export interface ReportsContext {
   readonly accounts: Map<string, MockAccount>;
   readonly profiles: Map<string, MockProfile>;
@@ -81,7 +81,7 @@ const blank = (city: string | null | undefined) => !city || city.trim() === '';
 
 /**
  * Plays the reports endpoints (backend/src/FaithTech.Community.Api/Endpoints/ReportsEndpoints.cs). It computes the
- * report from the fake's own accounts, profiles, events, partners and announcements with the definitions of ADR 0026,
+ * report from the fake's own accounts, profiles, events, partners and announcements with the definitions of ADR 0030,
  * so the page's numbers, privacy and exclusions are asserted end to end. Fail it with
  * `api.on('GET', '/api/reports', …)`.
  */

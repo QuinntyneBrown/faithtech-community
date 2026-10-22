@@ -1,4 +1,4 @@
-// Traces to: L2-099 (docs/detailed-designs/reports/reports-dashboard, ADR 0026)
+// Traces to: L2-124 (docs/detailed-designs/reports/reports-dashboard, ADR 0030)
 using System.Net;
 using System.Net.Http.Json;
 using Microsoft.AspNetCore.Mvc;
@@ -14,7 +14,7 @@ public class ReportFiltersTests : IAsyncLifetime
 
     public Task DisposeAsync() => factory.DisposeAsync();
 
-    // L2-099 AC1: Given no filters, when the report opens, then it shows All cities and Last 30 days, a window from
+    // L2-124 AC1: Given no filters, when the report opens, then it shows All cities and Last 30 days, a window from
     // 30 days ago to now.
     [Fact]
     public async Task No_filters_means_All_cities_and_the_last_30_days()
@@ -27,7 +27,7 @@ public class ReportFiltersTests : IAsyncLifetime
         Assert.Equal(Now, report.To);
     }
 
-    // ADR 0026 windows: From is now minus 30 or 90 days, 1 January of the current UTC year, or none for All time.
+    // ADR 0030 windows: From is now minus 30 or 90 days, 1 January of the current UTC year, or none for All time.
     [Theory]
     [InlineData("last-30-days", "2031-02-13T12:00:00Z")]
     [InlineData("last-90-days", "2030-12-15T12:00:00Z")]
@@ -42,7 +42,7 @@ public class ReportFiltersTests : IAsyncLifetime
         Assert.Equal(Now, report.To);
     }
 
-    // L2-099 AC2: the city list is every city used by a verified member's profile or by an event, sorted.
+    // L2-124 AC2: the city list is every city used by a verified member's profile or by an event, sorted.
     [Fact]
     public async Task The_city_list_holds_verified_member_cities_and_event_cities_sorted()
     {
@@ -61,7 +61,7 @@ public class ReportFiltersTests : IAsyncLifetime
         Assert.Equal("Toronto", report.City);
     }
 
-    // L2-099 AC5: Given an unknown city or period, then the server answers 400 naming the filter.
+    // L2-124 AC5: Given an unknown city or period, then the server answers 400 naming the filter.
     [Theory]
     [InlineData("?period=last-week", "period")]
     [InlineData("?city=Atlantis", "city")]

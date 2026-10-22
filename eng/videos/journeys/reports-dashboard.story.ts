@@ -6,7 +6,7 @@ import { Presenter } from '../presenter';
 
 test.use({ timezoneId: 'America/Toronto' });
 
-// Journey: the Reports dashboard (docs/detailed-designs/reports/reports-dashboard, L2-098 to L2-104).
+// Journey: the Reports dashboard (docs/detailed-designs/reports/reports-dashboard, L2-123 to L2-129).
 test('reports-dashboard', async ({ page, api }) => {
   const show = await Presenter.start(page, 'reports-dashboard');
   const shell = new AppShell(page);

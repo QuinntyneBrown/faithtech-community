@@ -28,7 +28,7 @@ public static class PartnerClients
         Archived? Archived = null,
         bool CanRestore = false);
 
-    /// <summary>Who merged an archived partner, when and into which partner (L2-089 AC7).</summary>
+    /// <summary>Who merged an archived partner, when and into which partner (L2-114 AC7).</summary>
     public sealed record Archived(
         Guid MergedIntoId,
         string MergedIntoName,

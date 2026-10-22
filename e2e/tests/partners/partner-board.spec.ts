@@ -1,4 +1,4 @@
-// Traces to: L2-018, L2-085 AC7 (docs/detailed-designs/partners/partner-kanban-board)
+// Traces to: L2-018, L2-110 AC7 (docs/detailed-designs/partners/partner-kanban-board)
 import { expect, test } from '../../fixtures/app';
 import { MovePartnerDialog } from '../../pages/move-partner.dialog';
 import { PartnerPage } from '../../pages/partner.page';

@@ -3,13 +3,13 @@ using Microsoft.EntityFrameworkCore;
 
 namespace FaithTech.Community.Application.Contacts;
 
-/// <summary>An email typed on the contact form, and the contact being edited, which never matches itself (L2-091 AC1).</summary>
+/// <summary>An email typed on the contact form, and the contact being edited, which never matches itself (L2-116 AC1).</summary>
 public record FindDuplicateContactQuery(string? Email, Guid? ExcludeId);
 
 /// <summary>
 /// Finds the caller's own contact, active or archived, with the same email, trimmed and compared case-insensitively
-/// (L2-091). Only the caller's own contacts are read, System Admin included, so another lead's contact is never
-/// revealed (L2-091 AC5, AC6, L2-012).
+/// (L2-116). Only the caller's own contacts are read, System Admin included, so another lead's contact is never
+/// revealed (L2-116 AC5, AC6, L2-012).
 /// </summary>
 public class FindDuplicateContactHandler(IApplicationDbContext db, ContactAccess access)
 {

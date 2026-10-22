@@ -173,7 +173,7 @@ export class MockApi {
   readonly partners = new MockPartners(this);
   /** Resources: uploads, links, visibility and sharing (ADR 0017). */
   readonly resources = new MockResources(this);
-  /** Reports for Staff and System Admins, computed from the other fakes (ADR 0026). */
+  /** Reports for Staff and System Admins, computed from the other fakes (ADR 0030). */
   readonly reports = new MockReports(this);
   /** Global search over the other fakes, with the server's permission rules (L2-026). */
   readonly search = new MockSearch(this);

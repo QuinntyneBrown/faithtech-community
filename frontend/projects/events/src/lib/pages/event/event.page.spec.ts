@@ -364,7 +364,7 @@ describe('EventPage', () => {
     expect(page.button('Cancel event')).toBeUndefined();
   });
 
-  // L2-096 AC1, L2-092 AC1: leads see the check-in count beside the RSVP count and are offered Check in.
+  // L2-121 AC1, L2-117 AC1: leads see the check-in count beside the RSVP count and are offered Check in.
   it('shows leads the check-in count and Check in', async () => {
     const page = await setup();
     await page.show({
@@ -384,7 +384,7 @@ describe('EventPage', () => {
     expect(page.link('View check-in')).toBeUndefined();
   });
 
-  // L2-096 AC2: no count before anyone checks in; Staff get View check-in.
+  // L2-121 AC2: no count before anyone checks in; Staff get View check-in.
   it('offers Staff View check-in and shows no count before anyone checks in', async () => {
     const page = await setup();
     await page.show({ ...lead, checkedInCount: 0, canViewCheckIn: true });

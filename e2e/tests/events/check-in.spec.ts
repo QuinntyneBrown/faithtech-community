@@ -1,4 +1,4 @@
-// Traces to: L2-092, L2-093, L2-094, L2-096 (docs/detailed-designs/events/event-check-in)
+// Traces to: L2-117, L2-118, L2-119, L2-121 (docs/detailed-designs/events/event-check-in)
 import { expect, test } from '../../fixtures/app';
 import { MockApi } from '../../fixtures/mock-api';
 import { EventCheckInPage } from '../../pages/event-check-in.page';
@@ -30,7 +30,7 @@ function lead(api: MockApi, roles = ['EventLead']) {
 }
 
 test.describe('Event check-in', () => {
-  // L2-093 AC1: Given an event with RSVPs, when the check-in page loads, then it lists every member and
+  // L2-118 AC1: Given an event with RSVPs, when the check-in page loads, then it lists every member and
   // guest who RSVP'd, in RSVP order, with the event's title, date, and counts of going and checked in.
   test('a lead sees every attendee in RSVP order with the attendance meter', async ({
     page,
@@ -52,16 +52,16 @@ test.describe('Event check-in', () => {
     await expect(checkIn.attendee('Abby Brooks')).toContainText(
       'Guest · abby.brooks@example.org · Not here yet',
     );
-    // L2-093 AC6: each switch is labelled "Check in {name}" and announces whether it is on.
+    // L2-118 AC6: each switch is labelled "Check in {name}" and announces whether it is on.
     await expect(checkIn.switchFor('Jonah Bell')).not.toBeChecked();
     await axe.check();
     await page.emulateMedia({ colorScheme: 'dark' });
     await axe.check();
   });
 
-  // L2-093 AC2: Given a search term, when the lead types, then the list narrows to attendees whose name or
+  // L2-118 AC2: Given a search term, when the lead types, then the list narrows to attendees whose name or
   // email contains it, case-insensitively, without pressing a button.
-  // L2-093 AC3: Given a search with no matches, then it says no one matches.
+  // L2-118 AC3: Given a search with no matches, then it says no one matches.
   test('the search narrows by name or email as the lead types', async ({ page, api, axe }) => {
     const event = tonight(api);
     const checkIn = new EventCheckInPage(page);
@@ -83,9 +83,9 @@ test.describe('Event check-in', () => {
     await expect(checkIn.attendees).toHaveCount(3);
   });
 
-  // L2-094 AC1: Given a lead, when they turn on an attendee's switch, then the check-in saves at once, the row
+  // L2-119 AC1: Given a lead, when they turn on an attendee's switch, then the check-in saves at once, the row
   // shows "Checked in {time}", the count rises, and a success toast offers Undo.
-  // L2-094 AC2: when the lead chooses Undo or turns the switch off, then the check-in is cleared.
+  // L2-119 AC2: when the lead chooses Undo or turns the switch off, then the check-in is cleared.
   test('a lead checks an attendee in, then undoes it from the toast and from the switch', async ({
     page,
     api,
@@ -125,7 +125,7 @@ test.describe('Event check-in', () => {
     await expect.poll(() => event.rsvps.find((r) => r.profileId)?.checkedInAt).toBeNull();
   });
 
-  // L2-094 AC3: Given a check-in that fails to save, then the switch returns to its previous state and a
+  // L2-119 AC3: Given a check-in that fails to save, then the switch returns to its previous state and a
   // danger toast says it was not saved.
   test('a failed save turns the switch back and says nothing was saved', async ({
     page,
@@ -151,7 +151,7 @@ test.describe('Event check-in', () => {
     await expect(checkIn.attendee('Jonah Bell')).toContainText('Checked in 8:00 am');
   });
 
-  // L2-093 AC4: Given an event with no RSVPs, when the page loads, then an empty state says no one has
+  // L2-118 AC4: Given an event with no RSVPs, when the page loads, then an empty state says no one has
   // RSVP'd yet.
   test('an event without RSVPs says nobody has RSVP’d yet', async ({ page, api, axe }) => {
     const event = api.events.add({ title: 'City Team Prayer & Planning' }, 0.4);
@@ -163,7 +163,7 @@ test.describe('Event check-in', () => {
     await axe.check();
   });
 
-  // L2-096 AC4: Given the check-in page is loading, then skeleton rows are shown; when the load fails, then
+  // L2-121 AC4: Given the check-in page is loading, then skeleton rows are shown; when the load fails, then
   // an error offers Try again.
   test('the page shows skeleton rows while loading and Try again when the load fails', async ({
     page,
@@ -194,7 +194,7 @@ test.describe('Event check-in', () => {
     await expect(checkIn.attendees).toHaveCount(3);
   });
 
-  // L2-093 AC5: Given an XS viewport, then each attendee is one row with a trailing switch of at least 24x24
+  // L2-118 AC5: Given an XS viewport, then each attendee is one row with a trailing switch of at least 24x24
   // CSS pixels, the search stays at the top, and there is no horizontal page scroll.
   test('the page fits a phone with 24px targets', async ({ page, api }) => {
     await page.setViewportSize(BREAKPOINTS.xs);
@@ -216,8 +216,8 @@ test.describe('Event check-in', () => {
 });
 
 test.describe('Event check-in access and states', () => {
-  // L2-092 AC2: Given Staff, when they open the check-in page, then they see the attendees and counts
-  // read-only: switches disabled, no Add walk-in or Export CSV, no guest emails. L2-093 AC2: Staff match on name.
+  // L2-117 AC2: Given Staff, when they open the check-in page, then they see the attendees and counts
+  // read-only: switches disabled, no Add walk-in or Export CSV, no guest emails. L2-118 AC2: Staff match on name.
   test('Staff see the list read-only without guest emails', async ({ page, api, axe }) => {
     const event = tonight(api);
     const sam = api.addAccount({ email: 'sam@example.org', roles: ['Staff'] });
@@ -240,7 +240,7 @@ test.describe('Event check-in access and states', () => {
     await axe.check();
   });
 
-  // L2-092 AC3: Given a signed-in member without a lead role, Staff or System Admin, when they open the
+  // L2-117 AC3: Given a signed-in member without a lead role, Staff or System Admin, when they open the
   // check-in page, then the forbidden page is shown.
   test('a member without a lead role sees that check-in is for event leads', async ({
     page,
@@ -267,7 +267,7 @@ test.describe('Event check-in access and states', () => {
     await axe.check();
   });
 
-  // L2-092 AC4: Given an anonymous visitor, when they open the check-in page, then they are sent to sign in.
+  // L2-117 AC4: Given an anonymous visitor, when they open the check-in page, then they are sent to sign in.
   test('an anonymous visitor is sent to sign in', async ({ page, api }) => {
     const event = tonight(api);
     const checkIn = new EventCheckInPage(page);
@@ -279,7 +279,7 @@ test.describe('Event check-in access and states', () => {
     );
   });
 
-  // L2-092 AC1: a System Admin without a lead role checks attendees in too (the server audits it).
+  // L2-117 AC1: a System Admin without a lead role checks attendees in too (the server audits it).
   test('a System Admin checks an attendee in', async ({ page, api }) => {
     const event = tonight(api);
     const priya = api.addAccount({ email: 'priya@example.org', roles: ['SystemAdmin'] });
@@ -291,7 +291,7 @@ test.describe('Event check-in access and states', () => {
     await expect(checkIn.attendee('Ruth Alvarez')).toContainText('Checked in 8:00 am');
   });
 
-  // L2-094 AC5: Given a cancelled event, when a lead opens its check-in page, then it says the event is
+  // L2-119 AC5: Given a cancelled event, when a lead opens its check-in page, then it says the event is
   // cancelled and the switches are disabled.
   test('a cancelled event says no one can be checked in', async ({ page, api, axe }) => {
     const event = tonight(api);
@@ -308,7 +308,7 @@ test.describe('Event check-in access and states', () => {
     await axe.check();
   });
 
-  // L2-094 AC6: Given an event that starts more than 24 hours from now, then the switches are disabled and
+  // L2-119 AC6: Given an event that starts more than 24 hours from now, then the switches are disabled and
   // the page says when check-in opens.
   test('check-in has not opened until 24 hours before the start', async ({ page, api, axe }) => {
     const event = tonight(api);
@@ -325,7 +325,7 @@ test.describe('Event check-in access and states', () => {
     await axe.check();
   });
 
-  // L2-094 AC7: Given every attendee is checked in, when the list renders, then it shows "Everyone's here",
+  // L2-119 AC7: Given every attendee is checked in, when the list renders, then it shows "Everyone's here",
   // without promising any follow-up email.
   test('everyone checked in shows Everyone’s here', async ({ page, api, axe }) => {
     const event = tonight(api);
@@ -342,8 +342,8 @@ test.describe('Event check-in access and states', () => {
     await axe.check();
   });
 
-  // L2-096 AC1, AC2: the event page shows "{n} checked in" to leads, Staff and System Admins once anyone is
-  // checked in, and L2-092 AC1 offers leads Check in; Staff get View check-in; members get neither.
+  // L2-121 AC1, AC2: the event page shows "{n} checked in" to leads, Staff and System Admins once anyone is
+  // checked in, and L2-117 AC1 offers leads Check in; Staff get View check-in; members get neither.
   test('the event page shows attendance and the way into check-in', async ({ page, api }) => {
     const event = tonight(api);
     const eventPage = new EventPage(page);
@@ -388,8 +388,8 @@ test.describe('Event check-in access and states', () => {
 });
 
 test.describe('Export attendance', () => {
-  // L2-097 AC1: Given a lead on the check-in page, when they choose Export CSV, then the attendance downloads
-  // with one row per attendee. L2-097 AC4: while it is prepared, Export CSV is busy and cannot be pressed again.
+  // L2-122 AC1: Given a lead on the check-in page, when they choose Export CSV, then the attendance downloads
+  // with one row per attendee. L2-122 AC4: while it is prepared, Export CSV is busy and cannot be pressed again.
   test('a lead exports the attendance as CSV', async ({ page, api, axe }) => {
     const event = tonight(api);
     event.rsvps[0].checkedInAt = api.now.toISOString();
@@ -420,7 +420,7 @@ test.describe('Export attendance', () => {
     expect(lines[2]).toBe('"Abby Brooks","Guest","abby.brooks@example.org","2026-10-17 12:00",""');
   });
 
-  // L2-097 AC4: when the export fails, a danger toast offers Try again.
+  // L2-122 AC4: when the export fails, a danger toast offers Try again.
   test('a failed export offers Try again', async ({ page, api, axe }) => {
     const event = tonight(api);
     let fail = true;

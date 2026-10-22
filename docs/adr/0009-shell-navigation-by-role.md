@@ -2,7 +2,7 @@
 
 - Status: Accepted
 - Date: 2026-10-21
-- Requirements: L2-045 AC4, L2-012, L2-017, L2-019, L2-030, L2-040, L2-053, L2-098
+- Requirements: L2-045 AC4, L2-012, L2-017, L2-019, L2-030, L2-040, L2-053, L2-123
 - Designs: `docs/detailed-designs/platform/responsive-layout-and-theming`
 - Mocks: every signed-in page (`docs/design-system/components/tab-bar.html`, `top-bar.html`, `patterns/navigation.html`)
 
@@ -18,7 +18,7 @@ The mocks hand-copied the top bar and tab bar per persona, and the sets disagree
   - Partners: any lead role, Staff or System Admin (L2-017).
   - Workspaces: any lead role, Volunteer, Staff or System Admin (L2-050, ADR 0010).
   - People: City Lead, Staff or System Admin (L2-053).
-  - Reports: Staff or System Admin (L2-098, ADR 0027). A secondary section, so it sits behind More wherever the secondary sections do.
+  - Reports: Staff or System Admin (L2-123, ADR 0031). A secondary section, so it sits behind More wherever the secondary sections do.
   - Admin: System Admin (L2-040).
 - The phone tab bar is Home, Events, Search, the member's next section, then **More**: a button that opens the menu (nav drawer) of every section the member may open. More is the current tab (`aria-current="true"`) whenever the page is outside the four link tabs, so a phone user always sees where they are.
 - From 768px to 1023px the top bar hides the secondary sections and ends its nav with a **More** button that opens the same menu, so every section stays reachable at every width.

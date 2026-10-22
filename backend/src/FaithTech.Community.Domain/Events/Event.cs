@@ -63,7 +63,7 @@ public class Event
 
     public IReadOnlyCollection<Rsvp> Rsvps => _rsvps;
 
-    /// <summary>People who RSVP'd. Walk-ins did not, so they are left out and never take a seat (L2-096 AC3).</summary>
+    /// <summary>People who RSVP'd. Walk-ins did not, so they are left out and never take a seat (L2-121 AC3).</summary>
     public int RsvpCount => _rsvps.Count(r => !r.IsWalkIn);
 
     public bool IsFull => Capacity is not null && RsvpCount >= Capacity;
@@ -114,7 +114,7 @@ public class Event
         return existing ?? AddRsvp(new Rsvp(Id, null, name, email, now), now);
     }
 
-    /// <summary>Check-in opens a day before the start and does not close (L2-094 AC6).</summary>
+    /// <summary>Check-in opens a day before the start and does not close (L2-119 AC6).</summary>
     public static readonly TimeSpan CheckInOpensBefore = TimeSpan.FromHours(24);
 
     public DateTimeOffset CheckInOpensAt => StartsAt - CheckInOpensBefore;
@@ -128,7 +128,7 @@ public class Event
     /// <summary>Everyone on the check-in list: every RSVP and every walk-in.</summary>
     public int AttendeeCount => _rsvps.Count;
 
-    /// <summary>Marks an attendee of this event present at the door (L2-094).</summary>
+    /// <summary>Marks an attendee of this event present at the door (L2-119).</summary>
     public Rsvp CheckIn(Guid rsvpId, Guid byId, DateTimeOffset now)
     {
         EnsureCheckInOpen(now);
@@ -137,7 +137,7 @@ public class Event
         return rsvp;
     }
 
-    /// <summary>Clears an attendee's check-in (L2-094 AC2).</summary>
+    /// <summary>Clears an attendee's check-in (L2-119 AC2).</summary>
     public Rsvp UndoCheckIn(Guid rsvpId, DateTimeOffset now)
     {
         EnsureCheckInOpen(now);
@@ -147,7 +147,7 @@ public class Event
     }
 
     /// <summary>
-    /// Adds someone at the door (L2-095). It skips the capacity and has-started rules that close RSVPs, and reuses
+    /// Adds someone at the door (L2-120). It skips the capacity and has-started rules that close RSVPs, and reuses
     /// the member's RSVP, or a guest RSVP with the same email, rather than adding a second row.
     /// </summary>
     public (Rsvp Rsvp, bool Reused) AddWalkIn(

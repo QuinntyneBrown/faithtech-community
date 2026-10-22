@@ -1,4 +1,4 @@
-// Traces to: L2-104 (docs/detailed-designs/reports/reports-dashboard, ADR 0026)
+// Traces to: L2-129 (docs/detailed-designs/reports/reports-dashboard, ADR 0030)
 using FaithTech.Community.Application.Identity;
 using FaithTech.Community.Domain.Events;
 using FaithTech.Community.Domain.Profiles;
@@ -7,7 +7,7 @@ using static FaithTech.Community.Api.Tests.Reports.ReportClients;
 namespace FaithTech.Community.Api.Tests.Reports;
 
 /// <summary>
-/// L2-104: Given 10,000 members, 1,000 events and thousands of RSVPs, when the report and the export are asked for,
+/// L2-129: Given 10,000 members, 1,000 events and thousands of RSVPs, when the report and the export are asked for,
 /// then they answer with the right totals, computed as aggregates. The in-memory provider cannot prove latency or SQL
 /// shape: the 1-second p95 budget is checked by the load test against PostgreSQL (eng/load-test.js, reports scenario).
 /// </summary>

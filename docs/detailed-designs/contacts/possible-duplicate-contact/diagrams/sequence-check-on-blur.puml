@@ -39,22 +39,22 @@ h -> acc : CanKeepContacts and CallerProfileIdAsync
 alt anonymous or no lead role and not System Admin
   acc --> h : refused
   h --> ep : Forbidden
-  ep --> svc : 401 or 403 (L2-091 AC8)
+  ep --> svc : 401 or 403 (L2-116 AC8)
   svc --> page : Error; no warning
 else lead or System Admin
   acc --> h : caller profile id
-  h -> db : Contacts where OwnerId = caller and lower(Email) = lower(trim(email)) and Id <> excludeId, active or archived (L2-091 AC1, AC6)
+  h -> db : Contacts where OwnerId = caller and lower(Email) = lower(trim(email)) and Id <> excludeId, active or archived (L2-116 AC1, AC6)
   db --> h : Oldest match with note count, or none
   alt own match
     h --> ep : DuplicateContactDto
     ep --> svc : 200 OK
     svc --> page : Match
-    page --> actor : Warning alert with Open {name}; save reads "Save as a new contact" (L2-091 AC2)
+    page --> actor : Warning alert with Open {name}; save reads "Save as a new contact" (L2-116 AC2)
   else no own match, including another lead's contact
     h --> ep : No match
-    ep --> svc : 204 No Content (L2-091 AC5)
+    ep --> svc : 204 No Content (L2-116 AC5)
     svc --> page : null
-    page --> actor : No warning (L2-091 AC4)
+    page --> actor : No warning (L2-116 AC4)
   end
 end
 @enduml

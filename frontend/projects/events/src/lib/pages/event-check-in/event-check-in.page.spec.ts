@@ -1,4 +1,4 @@
-// Traces to: L2-093, L2-094 (docs/detailed-designs/events/event-check-in)
+// Traces to: L2-118, L2-119 (docs/detailed-designs/events/event-check-in)
 import { HttpErrorResponse } from '@angular/common/http';
 import { TestBed } from '@angular/core/testing';
 import { CHECK_IN_SERVICE, CheckInAttendeeDto, CheckInDto } from '@faithtech-community/api';
@@ -216,7 +216,7 @@ describe('EventCheckInPage', () => {
     );
   });
 
-  // L2-092 AC3: members without a lead role get the page's own forbidden state.
+  // L2-117 AC3: members without a lead role get the page's own forbidden state.
   it('shows that check-in is for event leads on 403', async () => {
     const page = await setup(undefined, undefined, () =>
       throwError(() => new HttpErrorResponse({ status: 403 })),
@@ -226,7 +226,7 @@ describe('EventCheckInPage', () => {
     expect(page.host.textContent).toContain('Check-in is for event leads');
   });
 
-  // L2-092 AC2: Staff see the list read-only.
+  // L2-117 AC2: Staff see the list read-only.
   it('disables every switch and hides Add walk-in for Staff', async () => {
     const page = await setup(undefined, undefined, () =>
       of(checkIn({ canEdit: false, canExport: false })),
@@ -237,7 +237,7 @@ describe('EventCheckInPage', () => {
     expect(page.button('Add walk-in')).toBeUndefined();
   });
 
-  // L2-094 AC5, AC6: cancelled and not yet open events disable the switches and say why.
+  // L2-119 AC5, AC6: cancelled and not yet open events disable the switches and say why.
   it('says when check-in opens and disables the switches', async () => {
     const page = await setup(undefined, undefined, () => of(checkIn({ isOpen: false })));
 
@@ -259,7 +259,7 @@ describe('EventCheckInPage', () => {
     expect(page.button('Add walk-in')).toBeUndefined();
   });
 
-  // L2-094 AC7: everyone checked in shows Everyone's here.
+  // L2-119 AC7: everyone checked in shows Everyone's here.
   it('shows Everyone’s here once every attendee is checked in', async () => {
     const at = new Date(2026, 10, 6, 18, 41).toISOString();
     const page = await setup(undefined, undefined, () =>
@@ -285,7 +285,7 @@ describe('EventCheckInPage', () => {
     expect(page.host.textContent).toContain('We couldn’t find that event');
   });
 
-  // L2-097 AC1, AC4: Export CSV downloads the attendance; a failure offers Try again.
+  // L2-122 AC1, AC4: Export CSV downloads the attendance; a failure offers Try again.
   it('exports the attendance and toasts the file name', async () => {
     URL.createObjectURL = vi.fn(() => 'blob:csv');
     URL.revokeObjectURL = vi.fn();

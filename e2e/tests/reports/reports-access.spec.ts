@@ -1,4 +1,4 @@
-// Traces to: L2-098, L2-102 AC4, L2-045 AC4 and AC5 (docs/detailed-designs/reports/reports-dashboard)
+// Traces to: L2-123, L2-127 AC4, L2-045 AC4 and AC5 (docs/detailed-designs/reports/reports-dashboard)
 import { expect, test } from '../../fixtures/app';
 import { seedReportData } from '../../fixtures/report-data';
 import { AppShell } from '../../pages/app-shell.page';
@@ -8,8 +8,8 @@ import { BREAKPOINTS } from '../../pages/viewport';
 test.use({ timezoneId: 'America/Toronto' });
 
 test.describe('Reports access', () => {
-  // L2-098 AC1: Given Staff or a System Admin, when they open /reports, then the report is shown.
-  // L2-098 AC5: the report offers no write action.
+  // L2-123 AC1: Given Staff or a System Admin, when they open /reports, then the report is shown.
+  // L2-123 AC5: the report offers no write action.
   for (const who of ['staff', 'admin'] as const) {
     test(`${who === 'staff' ? 'Staff' : 'a System Admin'} sees the report`, async ({
       page,
@@ -33,7 +33,7 @@ test.describe('Reports access', () => {
     });
   }
 
-  // L2-098 AC2, L2-102 AC4: Given any other signed-in member, City Leads and the other lead roles included, when
+  // L2-123 AC2, L2-127 AC4: Given any other signed-in member, City Leads and the other lead roles included, when
   // they open /reports, then the server answers 403 and the forbidden page is shown.
   for (const roles of [['CityLead'], ['EventLead'], ['Volunteer'], []]) {
     test(`a member with ${roles.join(', ') || 'no role'} sees the forbidden state`, async ({
@@ -56,14 +56,14 @@ test.describe('Reports access', () => {
     });
   }
 
-  // L2-098 AC3: Given an anonymous visitor, when they open /reports, then they are sent to sign in.
+  // L2-123 AC3: Given an anonymous visitor, when they open /reports, then they are sent to sign in.
   test('an anonymous visitor is sent to sign in', async ({ page }) => {
     await page.goto('/reports');
 
     await expect(page).toHaveURL(`/sign-in?returnUrl=${encodeURIComponent('/reports')}`);
   });
 
-  // L2-098 AC4, L2-045 AC5: Reports is a secondary section for Staff and System Admin only, reached through More
+  // L2-123 AC4, L2-045 AC5: Reports is a secondary section for Staff and System Admin only, reached through More
   // from MD and in the top bar from 2XL.
   test('Staff reach Reports through More on a tablet', async ({ page, api, axe }) => {
     const data = seedReportData(api);

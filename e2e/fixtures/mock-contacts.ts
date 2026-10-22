@@ -64,7 +64,7 @@ export class MockContacts {
   readonly contacts: MockContact[] = [];
   /** When true, uploads are saved as storing (L2-071 AC1). */
   storageDown = false;
-  /** How the duplicate check answers (L2-091 AC7): normally, with a 500, or after 5 seconds. */
+  /** How the duplicate check answers (L2-116 AC7): normally, with a 500, or after 5 seconds. */
   duplicateCheck: 'ok' | 'fail' | 'slow' = 'ok';
   /** Image requests and whether they carried a caller. */
   readonly imageRequests: { path: string; signedIn: boolean }[] = [];
@@ -202,7 +202,7 @@ export class MockContacts {
 
   /**
    * FindDuplicateContactHandler: the caller's own contacts only, System Admin included, active or archived,
-   * the email trimmed and compared case-insensitively, the oldest match; 204 for none (L2-091).
+   * the email trimmed and compared case-insensitively, the oldest match; 204 for none (L2-116).
    */
   private async duplicates(route: Route, url: URL, caller: MockCaller | null) {
     if (!caller) return route.fulfill({ status: 401 });

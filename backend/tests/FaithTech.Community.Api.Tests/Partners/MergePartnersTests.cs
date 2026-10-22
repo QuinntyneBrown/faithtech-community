@@ -1,18 +1,18 @@
-// Traces to: L2-089, L2-090, L2-087 (docs/detailed-designs/partners/duplicate-detection-and-merge, ADR 0024)
+// Traces to: L2-114, L2-115, L2-112 (docs/detailed-designs/partners/duplicate-detection-and-merge, ADR 0028)
 //
 // Given a City Lead, Event Lead, Create Lead, Communications Lead or System Admin, when they merge
-// two partners, then the merge is allowed (L2-090 AC1).
+// two partners, then the merge is allowed (L2-115 AC1).
 // Given per-field choices, when the merge completes, then the kept record takes the chosen values,
-// a missing choice keeps its own, and the notes are the kept record's then the other's (L2-089 AC1, AC2).
+// a missing choice keeps its own, and the notes are the kept record's then the other's (L2-114 AC1, AC2).
 // Given both records have timelines and stage histories, when merged, then every row is on the kept
 // record remembering where it came from, a Merged entry tops the kept timeline, and the other record
 // is archived pointing at the kept one (AC3).
 // Given an archived partner, then it is left off the board, out of search and duplicate checks, its
 // page still answers with who merged it, and edits, moves and logged activities answer 409 (AC4, AC7,
-// L2-087 AC6).
+// L2-112 AC6).
 // Given either record changed after the dialog opened, when the lead confirms, then 409 and nothing
 // changes (AC5). Given joined notes over 2,000 characters, then 400.
-// Given Staff or another member, then 403 and nothing changes; anonymous 401 (L2-090 AC2).
+// Given Staff or another member, then 403 and nothing changes; anonymous 401 (L2-115 AC2).
 // Given any merge, then a partners.merged audit entry records who, both partners and the choices (AC3).
 using System.Net;
 using System.Net.Http.Json;

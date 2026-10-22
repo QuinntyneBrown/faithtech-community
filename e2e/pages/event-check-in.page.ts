@@ -65,7 +65,7 @@ export class EventCheckInPage {
     return this.attendees.filter({ hasText: name });
   }
 
-  /** The switch labelled "Check in {name}" (L2-093 AC6). */
+  /** The switch labelled "Check in {name}" (L2-118 AC6). */
   switchFor(name: string): Locator {
     return this.page.getByRole('switch', { name: `Check in ${name}` });
   }

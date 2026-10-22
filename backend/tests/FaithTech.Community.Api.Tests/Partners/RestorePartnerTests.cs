@@ -1,4 +1,4 @@
-// Traces to: L2-090 (docs/detailed-designs/partners/duplicate-detection-and-merge, ADR 0024)
+// Traces to: L2-115 (docs/detailed-designs/partners/duplicate-detection-and-merge, ADR 0028)
 //
 // Given an archived partner, when a System Admin restores it, then it is active again at its old
 // stage, every timeline entry and stage change that came from it moves back, both partners get a

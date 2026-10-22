@@ -3,7 +3,7 @@ using FaithTech.Community.Application.Reports;
 
 namespace FaithTech.Community.Api.Endpoints;
 
-/// <summary>Reports (L2-098 to L2-104) for Staff and System Admins. Requires authentication.</summary>
+/// <summary>Reports (L2-123 to L2-129) for Staff and System Admins. Requires authentication.</summary>
 public static class ReportsEndpoints
 {
     public static IEndpointRouteBuilder MapReportsEndpoints(this IEndpointRouteBuilder app)
@@ -16,7 +16,7 @@ public static class ReportsEndpoints
             return result.ToHttp(() => Results.Ok(report));
         });
 
-        // UTF-8 with a byte-order mark, so spreadsheet apps read accented names (L2-103).
+        // UTF-8 with a byte-order mark, so spreadsheet apps read accented names (L2-128).
         reports.MapGet("/export.csv", async (string? city, string? period, ExportReportHandler handler, CancellationToken cancellationToken) =>
         {
             var (result, file) = await handler.HandleAsync(new GetReportQuery(city, period), cancellationToken);

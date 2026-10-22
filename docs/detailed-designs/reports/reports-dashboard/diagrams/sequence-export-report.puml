@@ -33,7 +33,7 @@ box "Backend — FaithTech.Community.Infrastructure" #FFF4E5
   database "Community database" as db
 end box
 actor -> page : Choose Export CSV
-page --> actor : "Exporting…", busy, cannot be pressed again (L2-103 AC4)
+page --> actor : "Exporting…", busy, cannot be pressed again (L2-128 AC4)
 page -> svc : exportCsv({ city, period })
 svc -> ep : GET /api/reports/export.csv?city&period
 ep -> x : HandleAsync(GetReportQuery)
@@ -43,19 +43,19 @@ db --> h : Aggregated rows
 alt not Staff or System Admin, or invalid filters
   h --> x : Forbidden or Invalid
   x --> ep : Result
-  ep --> svc : 403 or 400 (L2-103 AC2)
+  ep --> svc : 403 or 400 (L2-128 AC2)
 else
   h --> x : ReportDto
   x -> x : Rows: header, Figures, Members by city, New members by month, Partner pipeline, Events and attendance
   x -> csv : Write(rows)
-  csv -> csv : Quote every cell; double quotes; prefix ' on = + - @ tab CR; CRLF (L2-103 AC3)
+  csv -> csv : Quote every cell; double quotes; prefix ' on = + - @ tab CR; CRLF (L2-128 AC3)
   csv --> x : CSV text
   x --> ep : CsvFile(faithtech-report-{city}-{period}-{date}.csv)
-  ep --> svc : 200 text/csv, UTF-8 with BOM, attachment (L2-103 AC1)
+  ep --> svc : 200 text/csv, UTF-8 with BOM, attachment (L2-128 AC1)
   svc --> page : Blob
   page --> actor : Download the file
 end
 opt export fails
-  page --> actor : Danger toast "We couldn’t export the report" with Try again (L2-103 AC4)
+  page --> actor : Danger toast "We couldn’t export the report" with Try again (L2-128 AC4)
 end
 @enduml

@@ -1,4 +1,4 @@
-// Traces to: L2-086 (docs/detailed-designs/partners/partner-activity-timeline)
+// Traces to: L2-111 (docs/detailed-designs/partners/partner-activity-timeline)
 using FaithTech.Community.Application.Partners;
 
 namespace FaithTech.Community.Application.Tests.Common;

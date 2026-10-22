@@ -4,10 +4,10 @@ using Microsoft.EntityFrameworkCore;
 
 namespace FaithTech.Community.Application.Events;
 
-/// <summary>Someone at the door who didn't RSVP (L2-095). <see cref="CheckInNow"/> is on unless the lead turns it off.</summary>
+/// <summary>Someone at the door who didn't RSVP (L2-120). <see cref="CheckInNow"/> is on unless the lead turns it off.</summary>
 public record AddWalkInCommand(string? Name, string? Email, bool CheckInNow = true);
 
-/// <summary>The walk-in's row, and whether an existing RSVP was reused rather than a row added (L2-095 AC5).</summary>
+/// <summary>The walk-in's row, and whether an existing RSVP was reused rather than a row added (L2-120 AC5).</summary>
 public record WalkInResultDto(CheckInAttendeeDto Attendee, bool Reused);
 
 public class AddWalkInValidator : AbstractValidator<AddWalkInCommand>
@@ -36,7 +36,7 @@ public class AddWalkInValidator : AbstractValidator<AddWalkInCommand>
 }
 
 /// <summary>
-/// Adds a walk-in at the door (L2-095) for lead roles and System Admins. A verified member's email links the row
+/// Adds a walk-in at the door (L2-120) for lead roles and System Admins. A verified member's email links the row
 /// to their profile; an existing RSVP is reused. It skips capacity and has-started, and sends no confirmation.
 /// </summary>
 public class AddWalkInHandler(IApplicationDbContext db, EventPermissions permissions, CheckInHandler checkIns, TimeProvider time)

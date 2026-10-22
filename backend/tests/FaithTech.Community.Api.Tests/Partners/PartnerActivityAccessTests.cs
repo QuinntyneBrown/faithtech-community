@@ -1,4 +1,4 @@
-// Traces to: L2-087 (docs/detailed-designs/partners/partner-activity-timeline)
+// Traces to: L2-112 (docs/detailed-designs/partners/partner-activity-timeline)
 //
 // Given Staff, then they read the timeline and POST answers 403. Given a member without a lead
 // role, Staff or System Admin, then both endpoints answer 403; an anonymous visitor gets 401.
