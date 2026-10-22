@@ -27,6 +27,7 @@ public static class DependencyInjection
         services.Configure<Common.WebAppOptions>(configuration.GetSection(Common.WebAppOptions.Section));
         services.Configure<Common.MarketingOptions>(configuration.GetSection(Common.MarketingOptions.Section));
         services.Configure<PrivatePreviewOptions>(configuration.GetSection(PrivatePreviewOptions.Section));
+        services.AddSingleton<UnlockAttempts>();
         services.AddSingleton<UnlockHandler>();
         services.AddValidatorsFromAssemblyContaining<SignUpValidator>();
         services.AddScoped<VerificationEmails>();

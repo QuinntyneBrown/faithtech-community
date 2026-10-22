@@ -15,9 +15,11 @@ public record UnlockOutcome(UnlockStatus Status, string? Token = null, DateTimeO
 
 /// <summary>
 /// Checks the owner's passphrase (L2-087). Every refusal costs one full hash, whether the passphrase was wrong, empty,
-/// too long or the form was forged, so neither the response nor its timing says which check failed.
+/// too long or the form was forged, so neither the response nor its timing says which check failed. A locked-out
+/// address is not checked at all (L2-088). Nothing typed is ever logged.
 /// </summary>
 public class UnlockHandler(
+    UnlockAttempts attempts,
     IPassphraseHasher hasher,
     IUnlockTokens tokens,
     IOptions<PrivatePreviewOptions> options,
@@ -28,6 +30,12 @@ public class UnlockHandler(
 
     public UnlockOutcome Handle(string? passphrase, bool formIsGenuine, string clientAddress)
     {
+        if (attempts.IsLockedOut(clientAddress))
+        {
+            logger.LogWarning("Wall unlock locked out for {ClientAddress}", clientAddress);
+            return new UnlockOutcome(UnlockStatus.LockedOut);
+        }
+
         bool matches;
         try
         {
@@ -43,10 +51,12 @@ public class UnlockHandler(
 
         if (!matches || !formIsGenuine)
         {
-            logger.LogWarning("Wall unlock refused for {ClientAddress}", clientAddress);
+            var failures = attempts.RecordFailure(clientAddress);
+            logger.LogWarning("Wall unlock refused for {ClientAddress} ({RecentFailures} recent failures)", clientAddress, failures);
             return new UnlockOutcome(UnlockStatus.Refused);
         }
 
+        attempts.RecordSuccess(clientAddress);
         var expiresAt = time.GetUtcNow() + options.Value.UnlockLifetime;
         logger.LogInformation("Wall unlocked for {ClientAddress}", clientAddress);
         return new UnlockOutcome(UnlockStatus.Unlocked, tokens.Issue(expiresAt), expiresAt);
