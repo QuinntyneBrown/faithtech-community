@@ -122,6 +122,21 @@ public class WorkspacesTests(CommunityApiFactory factory) : IClassFixture<Commun
         Assert.DoesNotContain(list, w => w.Id == other);
     }
 
+    [Fact]
+    public async Task Given_a_city_lead_when_they_list_workspaces_then_they_see_the_ones_they_own_marked_owner_and_the_ones_they_belong_to_with_the_active_sprint()
+    {
+        var cast = await factory.AddCastAsync();
+        await factory.AddSprintAsync(cast.WorkspaceId, "Sprint 7");
+        var joel = await factory.AddWithRolesAsync("Joel Mbeki", Role.CityLead);
+        var joined = await factory.AddWorkspaceAsync(joel, "Hackathon ops", WorkspaceMethod.Kanban, cast.Owner);
+        await factory.AddWorkspaceAsync(joel, "Not mine");
+
+        var list = (await factory.OwnerClient(cast).GetFromJsonAsync<Summary[]>("/api/workspaces"))!;
+
+        Assert.Equal([("Hackathon ops", false, null), ("Toronto team", true, "Sprint 7")], list.Select(w => (w.Name, w.IsOwner, w.ActiveSprintName)));
+        Assert.Equal(joined, list[0].Id);
+    }
+
     [Theory]
     [InlineData(Role.Staff)]
     [InlineData(Role.SystemAdmin)]
