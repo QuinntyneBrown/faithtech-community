@@ -403,10 +403,34 @@ export class MockApi {
     if (bio.length > 400) errors['Bio'] = ['Use 400 characters or fewer for your bio.'];
     if (Object.keys(errors).length)
       return route.fulfill({ status: 400, json: { status: 400, errors } });
+    const before = { Name: profile.name, HomeCity: profile.homeCity, Bio: profile.bio };
     profile.name = name;
     profile.homeCity = String(body['homeCity'] ?? '').trim() || null;
     profile.bio = bio || null;
+    const after = { Name: profile.name, HomeCity: profile.homeCity, Bio: profile.bio };
+    this.auditOverride(caller, profile, 'profile.updated', before, after);
     return route.fulfill({ status: 204 });
+  }
+
+  /** ProfileAccess: a System Admin's change to someone else's profile is audited (ADR 0004). */
+  private auditOverride(
+    caller: MockAccount,
+    profile: MockProfile,
+    action: string,
+    before: Record<string, unknown> | null,
+    after: Record<string, unknown> | null,
+  ): void {
+    if (profile.id === caller.profileId) return;
+    this.addAuditEntry({
+      actorId: caller.profileId,
+      actorName: caller.name,
+      action,
+      targetType: 'Profile',
+      targetId: profile.id,
+      summary: `${caller.name} changed ${profile.name}’s profile`,
+      before: before && JSON.stringify(before),
+      after: after && JSON.stringify(after),
+    });
   }
 
   /** ProfilesEndpoints photo routes: upload, describe, feature and delete (L2-007). */
@@ -444,6 +468,7 @@ export class MockApi {
         uploadedAt: new Date(Date.UTC(2026, 9, 21, 12, this.uploads)).toISOString(),
       };
       profile.photos.push(photo);
+      this.auditOverride(caller, profile, 'profile.photo.uploaded', null, { AltText: altText });
       return route.fulfill({ status: 201, json: photo });
     }
 
@@ -451,16 +476,26 @@ export class MockApi {
     if (!photo) return route.fulfill({ status: 404 });
     if (method === 'PUT' && featured) {
       for (const p of profile.photos) p.isFeatured = p === photo;
+      this.auditOverride(caller, profile, 'profile.photo.featured', null, { PhotoId: photo.id });
       return route.fulfill({ status: 204 });
     }
     if (method === 'PUT') {
       const altText = String(body['altText'] ?? '').trim();
       if (!altText) return invalid('AltText', 'Describe this photo.');
+      const before = { AltText: photo.altText };
       photo.altText = altText;
+      this.auditOverride(caller, profile, 'profile.photo.described', before, { AltText: altText });
       return route.fulfill({ status: 204 });
     }
     if (method === 'DELETE') {
       profile.photos = profile.photos.filter((p) => p !== photo);
+      this.auditOverride(
+        caller,
+        profile,
+        'profile.photo.deleted',
+        { AltText: photo.altText },
+        null,
+      );
       if (photo.isFeatured && profile.photos.length) {
         const newest = [...profile.photos].sort((a, b) =>
           b.uploadedAt.localeCompare(a.uploadedAt),

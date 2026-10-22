@@ -96,6 +96,7 @@ public class UpdateProfileTests(CommunityApiFactory factory) : IClassFixture<Com
 
         Assert.Equal(HttpStatusCode.NoContent, response.StatusCode);
         Assert.Equal("Samuel K. Mensah", (await LoadAsync(samuel.ProfileId)).Name);
+        Assert.Equal("Priya Shah", (await LoadAsync(priya.ProfileId)).Name);
         var entry = await factory.WithDbAsync(db => db.AuditEntries.SingleAsync(a => a.TargetId == samuel.ProfileId.ToString()));
         Assert.Equal(priya.ProfileId, entry.ActorId);
         Assert.Equal("profile.updated", entry.Action);
