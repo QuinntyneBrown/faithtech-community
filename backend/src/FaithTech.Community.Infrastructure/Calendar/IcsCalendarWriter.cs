@@ -14,7 +14,7 @@ public class IcsCalendarWriter(TimeProvider time) : IIcsCalendarWriter
 {
     private const int MaxLineOctets = 75;
 
-    public string Write(Event calendarEvent)
+    public string Write(Event calendarEvent, string? publicPageUrl = null)
     {
         var e = calendarEvent;
         var lines = new List<string>
@@ -41,7 +41,11 @@ public class IcsCalendarWriter(TimeProvider time) : IIcsCalendarWriter
             lines.Add($"LOCATION:{Text($"{venue}, {e.City}")}");
         }
 
-        if (e.Format == EventFormat.Online && e.OnlineLink is { } link)
+        if (publicPageUrl is not null)
+        {
+            lines.Add($"URL:{publicPageUrl}");
+        }
+        else if (e.Format == EventFormat.Online && e.OnlineLink is { } link)
         {
             lines.Add($"URL:{link}");
         }
