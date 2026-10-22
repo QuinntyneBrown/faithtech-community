@@ -1,9 +1,11 @@
 using System.Security.Claims;
+using FaithTech.Community.Api.Authentication;
 using FaithTech.Community.Api.Middleware;
 using FaithTech.Community.Application.Common;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Identity;
 using FaithTech.Community.Application.Identity;
+using Microsoft.Extensions.Options;
 
 namespace FaithTech.Community.Api.Endpoints;
 
@@ -45,6 +47,10 @@ public static class AccountEndpoints
         account.MapPost("/sign-in", SignInAsync).Validate<SignInCommand>().AllowAnonymous();
         account.MapPost("/sign-out", SignOutAsync);
 
+        // Google sign-in for the marketing page (L2-078, ADR 0019): browser redirects, so anonymous by opt-in.
+        account.MapGet("/google/start", StartGoogleSignIn).AllowAnonymous();
+        account.MapGet("/google/callback", CompleteGoogleSignInAsync).AllowAnonymous();
+
         return app;
     }
 
@@ -65,11 +71,74 @@ public static class AccountEndpoints
         }
 
         var user = result.User!;
-        var identity = new ClaimsIdentity(IdentityConstants.ApplicationScheme);
-        identity.AddClaim(new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()));
-        await context.SignInAsync(IdentityConstants.ApplicationScheme, new ClaimsPrincipal(identity));
+        await StartSessionAsync(context, user);
         return Results.Ok(new { EmailVerified = user.EmailConfirmed });
     }
+
+    /// <summary>The short-lived cookie that carries a signed-in browser to /connect/authorize.</summary>
+    private static Task StartSessionAsync(HttpContext context, CommunityUser user)
+    {
+        var identity = new ClaimsIdentity(IdentityConstants.ApplicationScheme);
+        identity.AddClaim(new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()));
+        return context.SignInAsync(IdentityConstants.ApplicationScheme, new ClaimsPrincipal(identity));
+    }
+
+    private static IResult StartGoogleSignIn(
+        HttpContext context,
+        IGoogleIdentityProvider google,
+        GoogleCorrelation correlation,
+        IOptions<WebAppOptions> webApp,
+        IOptions<MarketingOptions> marketing,
+        string? returnUrl,
+        bool? keepSignedIn)
+    {
+        var state = GoogleCorrelation.NewSecret();
+        var nonce = GoogleCorrelation.NewSecret();
+        var authorizationUrl = google.BuildAuthorizationUrl(state, nonce, GoogleRedirectUri(webApp.Value));
+        if (authorizationUrl is null)
+        {
+            return Results.Redirect(GoogleOutcome(marketing.Value, "failed"));
+        }
+
+        correlation.Write(context, new GoogleCorrelation.Pending(state, nonce, AppPath(returnUrl), keepSignedIn ?? false));
+        return Results.Redirect(authorizationUrl);
+    }
+
+    private static async Task<IResult> CompleteGoogleSignInAsync(
+        HttpContext context,
+        GoogleSignInHandler handler,
+        GoogleCorrelation correlation,
+        IOptions<WebAppOptions> webApp,
+        IOptions<MarketingOptions> marketing,
+        string? code,
+        string? state,
+        CancellationToken ct)
+    {
+        var pending = correlation.ReadAndClear(context);
+        if (pending is null || string.IsNullOrEmpty(code) || !GoogleCorrelation.StateMatches(pending, state))
+        {
+            return Results.Redirect(GoogleOutcome(marketing.Value, "failed"));
+        }
+
+        var result = await handler.HandleAsync(new GoogleSignInCommand(code, GoogleRedirectUri(webApp.Value), pending.Nonce), ct);
+        if (!result.Succeeded)
+        {
+            return Results.Redirect(GoogleOutcome(marketing.Value, result.Error == GoogleSignInError.Suspended ? "suspended" : "failed"));
+        }
+
+        await StartSessionAsync(context, result.User!);
+        var keep = pending.KeepSignedIn ? "1" : "0";
+        return Results.Redirect($"{webApp.Value.Origin}/auth/continue?returnUrl={Uri.EscapeDataString(pending.ReturnUrl)}&keepSignedIn={keep}");
+    }
+
+    // The API sits behind the community app's origin, so Google returns there.
+    private static string GoogleRedirectUri(WebAppOptions webApp) => $"{webApp.Origin}/api/account/google/callback";
+
+    private static string GoogleOutcome(MarketingOptions marketing, string outcome) => $"{marketing.Origin}/?google={outcome}";
+
+    /// <summary>Only a path inside the community app is kept; anything else lands on home.</summary>
+    private static string AppPath(string? url) =>
+        url is not null && url.StartsWith('/') && !url.StartsWith("//") && !url.StartsWith("/\\") ? url : "/";
 
     private static async Task<IResult> SignOutAsync(ICurrentUser user, ITokenRevocation revocation, HttpContext context, CancellationToken ct)
     {

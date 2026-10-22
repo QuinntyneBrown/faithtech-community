@@ -1,0 +1,10 @@
+<ft-skip-link />
+<ft-top-bar [anonymous]="true">
+  <ft-button ftTopBarActions variant="ghost" size="sm" (click)="show('join')">Join now</ft-button>
+  <ft-button ftTopBarActions size="sm" (click)="show('sign-in')">Sign in</ft-button>
+</ft-top-bar>
+<router-outlet />
+<ft-site-footer copyright="© 2026 FaithTech">
+  <li><ft-button variant="ghost" size="sm" (click)="show('join')">Join now</ft-button></li>
+  <li><ft-button variant="ghost" size="sm" (click)="show('sign-in')">Sign in</ft-button></li>
+</ft-site-footer>

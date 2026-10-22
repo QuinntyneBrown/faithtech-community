@@ -20,7 +20,9 @@ import { ButtonComponent } from './button.component';
   >`,
 })
 class HostComponent {
-  variant = signal<'primary' | 'secondary' | 'outline' | 'ghost' | 'danger'>('secondary');
+  variant = signal<'primary' | 'secondary' | 'outline' | 'ghost' | 'danger' | 'google'>(
+    'secondary',
+  );
   size = signal<'sm' | 'md' | 'lg'>('md');
   type = signal<'button' | 'submit' | 'reset'>('button');
   disabled = signal(false);
@@ -178,5 +180,19 @@ describe('ButtonComponent', () => {
     q('ft-button').addEventListener('click', spy);
     q<HTMLButtonElement>('button').click();
     expect(spy).not.toHaveBeenCalled();
+  });
+
+  // Traces to: L2-078
+  it("shows Google's mark before the label on the Google variant, decorative to screen readers", () => {
+    const { fixture, cmp, q } = setup();
+    expect(q('img')).toBeNull();
+
+    cmp.variant.set('google');
+    fixture.detectChanges();
+
+    const button = q<HTMLButtonElement>('button');
+    expect(button.classList).toContain('ft-button--google');
+    expect(q('img')?.getAttribute('alt')).toBe('');
+    expect(button.textContent?.trim()).toBe('Publish event');
   });
 });

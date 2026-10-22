@@ -45,6 +45,12 @@
       "path": "./projects/faithtech-community/tsconfig.spec.json"
     },
     {
+      "path": "./projects/marketing/tsconfig.app.json"
+    },
+    {
+      "path": "./projects/marketing/tsconfig.spec.json"
+    },
+    {
       "path": "./projects/components/tsconfig.lib.json"
     },
     {

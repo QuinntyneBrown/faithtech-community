@@ -654,6 +654,18 @@
       "bg": "--color-bg-subtle",
       "min": 3,
       "note": "focus ring on a dragged Kanban card inside a column"
+    },
+    {
+      "fg": "--color-social-google-fg",
+      "bg": "--color-social-google-bg",
+      "min": 4.5,
+      "note": "Google sign-in button label"
+    },
+    {
+      "fg": "--color-social-google-border",
+      "bg": "--color-bg-surface",
+      "min": 3,
+      "note": "Google sign-in button outline on a card"
     }
   ]
 }

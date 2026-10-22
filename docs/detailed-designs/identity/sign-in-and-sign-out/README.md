@@ -24,6 +24,9 @@ The web app redirects to the sign-in page, which posts credentials to the identi
 - **`AuthorizationEndpoints`** — Api route group that hosts the OpenIddict `/connect/authorize`, `/connect/token`, `/connect/revoke` and `/connect/logout` passthrough endpoints.
 - **`SignInCommand`** / **`SignInHandler`** — Application request and handler. The handler checks the password through `UserManager`, refuses suspended accounts and unverified emails, and returns a principal for code issuance. It owns the lockout rule itself, reading the clock from `TimeProvider` (Identity's own lockout checks read the system clock): each wrong password adds to `AccessFailedCount` inside the failure window, or starts a new window when the old one has ended; the fifth failure inside one window sets `LockoutEnd` 15 minutes ahead and clears the count. A successful sign-in, a password reset or a new window after an elapsed lockout starts counting from zero, so failures older than the window never lead to a lockout.
 - **OpenIddict stores** — Infrastructure EF Core stores for applications, authorizations and tokens. Token revocation marks the stored tokens as revoked.
+- **`SignInFormComponent`** — the form itself lives in the `components` library and is shared with the marketing page (`docs/detailed-designs/marketing/landing-page`). `SignInPage` keeps the heading and the hand-off.
+- **`AuthContinuePage`** (`/auth/continue`) — starts PKCE for a session created on the marketing page or by Google sign-in (ADR 0018).
+- **Session hint** — when a kept ("Keep me signed in") refresh token is stored, `OidcAuthClient` writes the non-secret `ftc.signed-in` cookie so the marketing page can send the member to the app; sign-out and a failed restore clear it.
 - **Token lifetimes** — access-token and refresh-token lifetimes are `<TO SUPPLY>`.
 
 ## Requirements

@@ -52,6 +52,26 @@
     transform: translateY(1px);
   }
 
+  &.ft-button--google {
+    --btn-bg: var(--color-social-google-bg);
+    --btn-fg: var(--color-social-google-fg);
+    --btn-border: var(--color-social-google-border);
+    --btn-bg-hover: color-mix(
+      in srgb,
+      var(--color-social-google-fg) 8%,
+      var(--color-social-google-bg)
+    );
+    --btn-bg-active: color-mix(
+      in srgb,
+      var(--color-social-google-fg) 12%,
+      var(--color-social-google-bg)
+    );
+  }
+
+  &[aria-busy='true'] .ft-button__brand {
+    visibility: hidden;
+  }
+
   &:disabled,
   &[aria-disabled='true'] {
     opacity: 0.5;
@@ -167,4 +187,10 @@
   clip-path: inset(50%);
   white-space: nowrap;
   border: 0;
+}
+
+.ft-button__brand {
+  inline-size: 1.125em;
+  block-size: 1.125em;
+  flex: none;
 }

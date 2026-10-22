@@ -14,6 +14,7 @@ import { Observable, finalize, map, of, shareReplay, tap } from 'rxjs';
 
 import { API_BASE_URL, AUTH_CONFIG } from '../config';
 import { BROWSER_REDIRECT } from './browser-redirect';
+import { clearSessionHint, writeSessionHint } from './session-hint';
 
 interface TokenResponse {
   access_token: string;
@@ -97,6 +98,7 @@ export class OidcAuthClient {
   refresh(): Observable<string> {
     const refreshToken = this.readRefreshToken();
     if (!refreshToken) {
+      clearSessionHint(this.config.sessionHintDomain);
       return new Observable((s) => s.error(new Error('No refresh token.')));
     }
     this.inFlightRefresh ??= this.postToken({
@@ -104,7 +106,11 @@ export class OidcAuthClient {
       refresh_token: refreshToken,
       client_id: this.config.clientId,
     }).pipe(
-      tap((r) => this.store(r, localStorage.getItem(REFRESH_KEY) !== null)),
+      tap({
+        next: (r) => this.store(r, localStorage.getItem(REFRESH_KEY) !== null),
+        // The stored session is gone, so the marketing page must stop sending the member here.
+        error: () => clearSessionHint(this.config.sessionHintDomain),
+      }),
       map((r) => r.access_token),
       finalize(() => (this.inFlightRefresh = null)),
       shareReplay(1),
@@ -119,6 +125,7 @@ export class OidcAuthClient {
       this.token.set(null);
       sessionStorage.removeItem(REFRESH_KEY);
       localStorage.removeItem(REFRESH_KEY);
+      clearSessionHint(this.config.sessionHintDomain);
       this.redirect(this.config.postLogoutRedirectUri);
     };
     if (!accessToken) {
@@ -151,6 +158,8 @@ export class OidcAuthClient {
     sessionStorage.removeItem(REFRESH_KEY);
     localStorage.removeItem(REFRESH_KEY);
     target.setItem(REFRESH_KEY, response.refresh_token);
+    if (keepSignedIn) writeSessionHint(this.config.sessionHintDomain);
+    else clearSessionHint(this.config.sessionHintDomain);
   }
 
   private readRefreshToken(): string | null {

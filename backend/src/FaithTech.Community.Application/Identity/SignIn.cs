@@ -56,7 +56,7 @@ public class SignInHandler(UserManager<CommunityUser> users, IApplicationDbConte
         }
 
         // Checked only after a correct password, so a wrong guess cannot learn that an account is suspended.
-        if (await db.Profiles.AnyAsync(p => p.Id == user.ProfileId && p.IsSuspended, cancellationToken))
+        if (await AccountStatus.IsSuspendedAsync(db, user, cancellationToken))
         {
             return new(null, SignInError.Suspended);
         }

@@ -1,0 +1,20 @@
+@startuml
+!include <C4/C4_Container>
+LAYOUT_WITH_LEGEND()
+title Containers — Marketing page
+
+Person(visitor, "Visitor")
+System_Boundary(ftc, "FaithTech Community") {
+  Container(mkt, "Marketing app", "Angular (frontend/projects/marketing)", "www.faithtech.community: hero, brochure video, sign-in and sign-up panel")
+  Container(spa, "Community app", "Angular (frontend/projects/faithtech-community)", "WebApp:Origin: owns the PKCE session; /auth/continue and /auth/callback")
+  Container(api, "Community API", "ASP.NET Core + OpenIddict", "/api/account/* (rate limited), /connect/*; CORS allows WebApp:Origin and Marketing:Origin with credentials")
+  ContainerDb(db, "Community database", "PostgreSQL", "Accounts, profiles, external logins, OpenIddict tokens")
+}
+System_Ext(google, "Google", "accounts.google.com, oauth2.googleapis.com")
+Rel(visitor, mkt, "Opens", "HTTPS")
+Rel(mkt, api, "Sign in, sign up, start Google", "JSON/HTTPS, credentials")
+Rel(mkt, spa, "Hands off to /auth/continue", "navigation")
+Rel(spa, api, "Authorization code + PKCE, API calls", "HTTPS")
+Rel(api, db, "Reads and writes", "EF Core")
+Rel(api, google, "Code exchange, signing keys", "HTTPS")
+@enduml

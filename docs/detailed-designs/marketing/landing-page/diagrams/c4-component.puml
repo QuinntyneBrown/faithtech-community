@@ -1,0 +1,31 @@
+@startuml
+!include <C4/C4_Component>
+LAYOUT_WITH_LEGEND()
+title Components — Marketing app
+
+Container_Boundary(mkt, "Marketing app") {
+  Component(shell, "MarketingAppComponent + routes", "Angular", "Skip link, top bar (Join now, Sign in), footer; '' -> LandingPage")
+  Component(page, "LandingPage", "Angular page", "Hero copy, panel switch (?join), Google outcome (?google=), hand-off")
+  Component(origin, "COMMUNITY_ORIGIN", "Injection token", "Community app origin from build configuration")
+}
+Container_Boundary(lib, "components library") {
+  Component(hero, "LandingHeroComponent", "Angular", "Split hero with panel and media slots")
+  Component(forms, "SignInFormComponent / SignUpFormComponent", "Angular", "Shared with the community app's /sign-in and /sign-up")
+  Component(video, "VideoPlayerComponent", "Angular", "Poster, captions, transcript, unavailable")
+  Component(btn, "ButtonComponent variant=google", "Angular", "Google-branded social button")
+  Component(footer, "SiteFooterComponent", "Angular", "Footer landmark")
+}
+Container_Boundary(apilib, "api library") {
+  Component(auth, "AUTH_SERVICE (HttpAuthService)", "Angular service", "signInWithPassword, signUp, signInWithGoogle, hasKeptSession")
+  Component(errors, "signUpFieldErrors", "Function", "Maps validation problems onto the form")
+}
+Rel(shell, page, "Routes to")
+Rel(page, hero, "Composes")
+Rel(page, forms, "Composes")
+Rel(page, video, "Composes")
+Rel(page, btn, "Composes")
+Rel(shell, footer, "Composes")
+Rel(page, auth, "Depends on the token")
+Rel(page, errors, "Uses")
+Rel(page, origin, "Reads")
+@enduml

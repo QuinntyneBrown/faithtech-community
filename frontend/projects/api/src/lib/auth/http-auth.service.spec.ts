@@ -18,11 +18,13 @@ import { authTestProviders } from './test-helpers';
 describe('HttpAuthService', () => {
   let service: HttpAuthService;
   let controller: HttpTestingController;
+  let redirect: ReturnType<typeof vi.fn<(url: string) => void>>;
 
   beforeEach(() => {
+    redirect = vi.fn<(url: string) => void>();
     TestBed.configureTestingModule({
       providers: [
-        ...authTestProviders(vi.fn<(url: string) => void>()),
+        ...authTestProviders(redirect),
         { provide: AUTH_SERVICE, useClass: HttpAuthService },
       ],
     });
@@ -137,5 +139,14 @@ describe('HttpAuthService', () => {
 
     expect(service.currentUser()).toEqual(me);
     expect(service.roles()).toEqual(['Lead', 'Volunteer']);
+  });
+
+  // Traces to: L2-078
+  it('sends the browser to the API to start Google sign-in with where to land', () => {
+    service.signInWithGoogle('/events', true);
+
+    expect(redirect).toHaveBeenCalledWith(
+      '/api/account/google/start?returnUrl=%2Fevents&keepSignedIn=true',
+    );
   });
 });

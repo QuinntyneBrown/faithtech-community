@@ -1,0 +1,11 @@
+<div class="landing-hero__copy">
+  @if (eyebrow(); as text) {
+    <p class="landing-hero__eyebrow">{{ text }}</p>
+  }
+  <h1 class="landing-hero__title">{{ heading() }}</h1>
+  @if (lead(); as text) {
+    <p class="landing-hero__lead">{{ text }}</p>
+  }
+</div>
+<div class="landing-hero__panel"><ng-content select="[ftHeroPanel]" /></div>
+<div class="landing-hero__media"><ng-content select="[ftHeroMedia]" /></div>

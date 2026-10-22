@@ -115,10 +115,45 @@ describe('OidcAuthClient', () => {
     expect(redirect).toHaveBeenLastCalledWith(TEST_ORIGIN);
   });
 
-  async function startSession(refreshToken: string): Promise<string> {
+  // Traces to: L2-074 AC6
+  describe('the kept-session hint for the marketing page', () => {
+    const hint = () => document.cookie.split('; ').includes('ftc.signed-in=1');
+
+    beforeEach(() => (document.cookie = 'ftc.signed-in=; Max-Age=0; Path=/'));
+
+    it('is written only for a session kept on this device', async () => {
+      await startSession('r1', false);
+      expect(hint()).toBe(false);
+
+      await startSession('r2', true);
+      expect(hint()).toBe(true);
+    });
+
+    it('is cleared on sign-out', async () => {
+      await startSession('r1', true);
+
+      client.signOut().subscribe();
+      controller.expectOne('/api/account/sign-out').flush(null, { status: 204, statusText: '' });
+
+      expect(hint()).toBe(false);
+    });
+
+    it('is cleared when the kept session can no longer be restored', async () => {
+      await startSession('r1', true);
+
+      client.refresh().subscribe({ error: () => undefined });
+      controller
+        .expectOne(`${TEST_ORIGIN}/connect/token`)
+        .flush({ error: 'invalid_grant' }, { status: 400, statusText: 'Bad Request' });
+
+      expect(hint()).toBe(false);
+    });
+  });
+
+  async function startSession(refreshToken: string, keepSignedIn = false): Promise<string> {
     const access = fakeJwt({ n: 1 });
-    await client.signIn('/');
-    const state = new URL(redirect.mock.calls[0][0]).searchParams.get('state');
+    await client.signIn('/', keepSignedIn);
+    const state = new URL(redirect.mock.lastCall![0]).searchParams.get('state');
     const done = client.handleCallback(`?code=abc&state=${state}`);
     const req = await vi.waitFor(() => controller.expectOne(`${TEST_ORIGIN}/connect/token`));
     req.flush({ access_token: access, refresh_token: refreshToken, expires_in: 3600 });

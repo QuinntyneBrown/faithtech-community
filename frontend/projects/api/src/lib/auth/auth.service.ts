@@ -47,7 +47,17 @@ export interface AuthService {
   completeSignIn(search: string): Promise<string>;
   /** Posts credentials to the identity server, which starts a short browser session for /connect/authorize. */
   signInWithPassword(email: string, password: string): Observable<SignInOutcome>;
+  /**
+   * Starts Google sign-in (one flow for signing in and signing up): the browser leaves for the API, then
+   * Google, and lands in the community app at returnUrl, or back here with ?google=failed|suspended.
+   */
+  signInWithGoogle(returnUrl?: string, keepSignedIn?: boolean): void;
   signOut(): Observable<void>;
+  /**
+   * True when the community app keeps a "Keep me signed in" session on this device (the session hint,
+   * ADR 0018). It only decides a redirect; the community app validates the session itself.
+   */
+  hasKeptSession(): boolean;
   loadCurrentUser(): Observable<CurrentUser>;
   /** On app start: exchanges a stored refresh token and loads the member; false when there is no session. */
   restoreSession(): Promise<boolean>;

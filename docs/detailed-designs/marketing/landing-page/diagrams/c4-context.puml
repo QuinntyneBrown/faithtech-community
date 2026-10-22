@@ -1,0 +1,13 @@
+@startuml
+!include <C4/C4_Context>
+LAYOUT_WITH_LEGEND()
+title System context — Marketing page
+
+Person(visitor, "Visitor", "Anyone at www.faithtech.community, signed out")
+Person(member, "Member", "Has a FaithTech Community account")
+System(ftc, "FaithTech Community", "Marketing page, community app and Community API")
+System_Ext(google, "Google", "OpenID Connect identity provider")
+Rel(visitor, ftc, "Reads, watches the brochure, signs up", "HTTPS")
+Rel(member, ftc, "Signs in, lands in the community app", "HTTPS")
+Rel(ftc, google, "Sign in with Google", "OIDC")
+@enduml

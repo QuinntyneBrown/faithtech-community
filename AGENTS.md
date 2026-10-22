@@ -59,6 +59,9 @@ faithtech-community/
 │   └── projects/
 │       ├── faithtech-community/      # The app: shell, top-level routes that lazy-load the
 │       │                             # feature libraries, auth guards. No feature pages.
+│       ├── marketing/                # Second application: the public marketing page served at
+│       │                             # www.faithtech.community (sign in, sign up, Google, brochure
+│       │                             # video in public/). Composes components and api only (ADR 0018)
 │       ├── api/                      # API client library: service contracts, injection
 │       │                             # tokens, HTTP implementations, OIDC + PKCE auth
 │       ├── components/               # Shared accessible UI component library and design tokens
@@ -84,7 +87,9 @@ faithtech-community/
 ├── eng/                              # Developer and CI scripts (start stack, run tests, deploy)
 │   ├── infra/                        # Infrastructure as code for Azure
 │   └── videos/                       # Journey video recording: PowerShell entry point,
-│                                     # Playwright recording config, presenter and journey stories
+│       │                             # Playwright recording config, presenter and journey stories
+│       └── brochure/                 # Marketing brochure video source: script, timed slide deck,
+│                                     # build command (ADR 0020)
 └── docs/
     ├── specs/                        # L1/L2 requirements with acceptance criteria
     ├── detailed-designs/             # Per-subsystem/feature designs and diagrams
@@ -104,6 +109,7 @@ Rules (MUST be followed):
 - EF Core migrations live only in `Infrastructure/Persistence/Migrations/` and are applied by the Cli project, never by the API.
 - .NET tests live only under `backend/tests/`. Angular unit tests (`*.spec.ts`) sit next to the code they test. Playwright tests live only in `e2e/`.
 - Each frontend feature is its own library project under `frontend/projects/<feature>/`, exposing its routes, pages and dialogs through its public API (`public-api.ts`). The app lazy-loads it from the shell.
+- `frontend/projects/marketing/` is an application, not a feature library: the public marketing page (`docs/detailed-designs/marketing/`, `docs/estimates/marketing.md`, `e2e/tests/marketing/`). It depends only on `components` and `api`, never on the community app or a feature library, and never calls `HttpClient`. Anything it shares with the community app (the sign-in and sign-up forms) lives in `components` and `api`.
 - Feature libraries depend only on `components` and `api`, never on each other or on the app. Anything two features share moves into `components` or `api`.
 - Feature pages use components from `components` and services from `api`. They never call `HttpClient` directly.
 - Read the relevant ADRs in `docs/adr/` before changing the areas they cover.

@@ -9,6 +9,7 @@
 export * from './home';
 export * from './sign-in';
 export * from './auth-callback';
+export * from './auth-continue';
 export * from './sign-up';
 export * from './verify-email';
 export * from './forgot-password';

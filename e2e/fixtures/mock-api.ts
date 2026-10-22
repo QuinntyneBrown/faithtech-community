@@ -5,6 +5,7 @@ import { MockAnnouncements } from './mock-announcements';
 import { MockContacts } from './mock-contacts';
 import { MockPartners } from './mock-partners';
 import { MockEvents } from './mock-events';
+import { MockGoogle } from './mock-google';
 import { MockNotification, MockNotifications } from './mock-notifications';
 import { MockSearch } from './mock-search';
 
@@ -90,6 +91,28 @@ const LEAD_ROLES = ['CityLead', 'EventLead', 'CreateLead', 'CommunicationsLead',
 const TEAM_LEAD_ROLES = ['CityLead', 'EventLead', 'CreateLead', 'CommunicationsLead'];
 const TEAM_ROLES = [...TEAM_LEAD_ROLES, 'Volunteer'];
 const DAY = 24 * 60 * 60 * 1000;
+/** The API's CORS origins (WebApp:Origin and Marketing:Origin), with credentials allowed. */
+const ALLOWED_ORIGINS = ['http://localhost:4200', 'http://localhost:4300'];
+
+/** Answers as the API's CORS policy does for an allowed origin. */
+function withCors(route: Route, origin: string): Route {
+  const cors = {
+    'access-control-allow-origin': origin,
+    'access-control-allow-credentials': 'true',
+    'access-control-allow-headers': 'content-type, authorization',
+    'access-control-allow-methods': 'GET, POST, PUT, DELETE',
+  };
+  return new Proxy(route, {
+    get(target, prop) {
+      if (prop === 'fulfill') {
+        return (options: Parameters<Route['fulfill']>[0] = {}) =>
+          target.fulfill({ ...options, headers: { ...options.headers, ...cors } });
+      }
+      const value = Reflect.get(target, prop);
+      return typeof value === 'function' ? value.bind(target) : value;
+    },
+  });
+}
 
 type Handler = (route: Route, body: Record<string, unknown>) => Promise<void> | void;
 
@@ -139,6 +162,8 @@ export class MockApi {
   readonly partners = new MockPartners(this);
   /** Global search over the other fakes, with the server's permission rules (L2-026). */
   readonly search = new MockSearch(this);
+  /** Google sign-in: Google itself and the API's Google endpoints (L2-078). */
+  readonly google = new MockGoogle(this, (account) => (this.session = account));
 
   constructor(private readonly page: Page) {}
 
@@ -234,6 +259,11 @@ export class MockApi {
     this.storing.clear();
   }
 
+  /** The marketing page's brochure video cannot be fetched, as when the file is missing (L2-075 AC4). */
+  async breakBrochureVideo(): Promise<void> {
+    await this.page.route('**/brochure/brochure.webm', (route) => route.fulfill({ status: 404 }));
+  }
+
   /** Replaces the default behaviour of one endpoint, e.g. on('POST', '/api/account/sign-up', ...). */
   on(method: string, path: string, handler: Handler): void {
     this.overrides.set(`${method} ${path}`, handler);
@@ -254,6 +284,7 @@ export class MockApi {
 
   async install(): Promise<void> {
     await this.page.route(/\/(api|connect)\//, (route) => this.handle(route));
+    await this.page.route('https://accounts.google.com/**', (route) => this.google.consent(route));
     await this.page.route(/\/hubs\/agile\/negotiate/, (route) => this.agile.negotiate(route));
     await this.page.routeWebSocket(/\/hubs\/agile/, (ws) => this.agile.hub(ws));
   }
@@ -267,6 +298,12 @@ export class MockApi {
     const request = route.request();
     const url = new URL(request.url());
     const method = request.method();
+    // The marketing page calls the API from its own origin, as the real CORS policy allows (L2-079 AC3).
+    const origin = request.headers()['origin'];
+    if (origin && ALLOWED_ORIGINS.includes(origin)) {
+      route = withCors(route, origin);
+      if (method === 'OPTIONS') return route.fulfill({ status: 204 });
+    }
     const contentType = request.headers()['content-type'] ?? '';
     const body = contentType.startsWith('multipart/form-data')
       ? parseMultipart(request.postDataBuffer())
@@ -350,6 +387,10 @@ export class MockApi {
         return this.acceptInvite(route, body, authorization);
       case 'POST /api/account/sign-in':
         return this.signIn(route, body);
+      case 'GET /api/account/google/start':
+        return this.google.start(route, url);
+      case 'GET /api/account/google/callback':
+        return this.google.callback(route, url);
       case 'GET /connect/authorize':
         return this.authorize(route, url);
       case 'POST /connect/token':

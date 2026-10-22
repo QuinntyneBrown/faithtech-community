@@ -1,0 +1,78 @@
+@startuml
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 8
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam class {
+  BorderColor #344054
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+title Class structure — Google sign-in
+
+class GoogleSignInCommand {
+  +string Code
+  +string RedirectUri
+  +string Nonce
+}
+class GoogleSignInHandler {
+  +const LoginProvider = "Google"
+  +HandleAsync(command): Task<GoogleSignInResult>
+}
+class GoogleSignInResult {
+  +CommunityUser? User
+  +GoogleSignInError? Error
+}
+enum GoogleSignInError {
+  InvalidToken
+  UnverifiedEmail
+  Suspended
+}
+interface IGoogleIdentityProvider {
+  +BuildAuthorizationUrl(state, nonce, redirectUri): string?
+  +ExchangeCodeAsync(code, redirectUri, nonce): Task<GoogleIdentity?>
+}
+class GoogleIdentity <<record>> {
+  +string Subject
+  +string Email
+  +bool EmailVerified
+  +string? Name
+}
+class GoogleOptions {
+  +string ClientId
+  +string ClientSecret
+}
+class GoogleIdentityProvider
+class GoogleIdTokenValidator {
+  +ValidateAsync(idToken, nonce): Task<GoogleIdentity?>
+}
+class AccountStatus <<static>> {
+  +IsSuspendedAsync(db, user): Task<bool>
+}
+class CommunityUser {
+  +Guid ProfileId
+  +bool EmailConfirmed
+  +string? PasswordHash
+}
+class "IdentityUserLogin<Guid>" as Login {
+  +string LoginProvider = "Google"
+  +string ProviderKey = sub
+  +Guid UserId
+}
+class Profile {
+  +string Name
+  +bool IsSuspended
+}
+GoogleSignInHandler ..> GoogleSignInCommand
+GoogleSignInHandler ..> GoogleSignInResult
+GoogleSignInResult --> GoogleSignInError
+GoogleSignInHandler --> IGoogleIdentityProvider
+GoogleSignInHandler ..> AccountStatus
+IGoogleIdentityProvider <|.. GoogleIdentityProvider
+GoogleIdentityProvider --> GoogleIdTokenValidator
+GoogleIdentityProvider --> GoogleOptions
+IGoogleIdentityProvider ..> GoogleIdentity
+CommunityUser "1" --> "0..*" Login
+CommunityUser "1" --> "1" Profile
+@enduml

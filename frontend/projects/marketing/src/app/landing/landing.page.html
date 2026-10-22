@@ -1,0 +1,112 @@
+<main id="main" tabindex="-1">
+  <ft-container>
+    <div class="landing">
+      <ft-landing-hero
+        eyebrow="FaithTech Community"
+        heading="Build with people who share your faith"
+        lead="Meet the builders, leads and volunteers in your city, show up to events and hackathons together, and work on projects that serve your neighbours."
+      >
+        <ft-card ftHeroPanel>
+          @if (handingOff(); as handOff) {
+            <h2 aria-live="polite">Signing you in…</h2>
+            @if (!handOff.emailVerified) {
+              <ft-alert status="info" heading="Your email isn’t verified yet">
+                You can look around now. A banner in the app will offer to send the link again.
+              </ft-alert>
+            }
+            <p class="text-muted">Taking you to FaithTech Community.</p>
+          } @else if (sentTo(); as email) {
+            <ft-empty-state
+              icon="invite"
+              heading="Check your inbox"
+              [headingLevel]="2"
+              [text]="'We sent a link to ' + email"
+            >
+              <p actions class="text-caption">
+                Open it within 24 hours to finish creating your account. Didn’t get it? Check spam,
+                or <ft-link [href]="verifyEmailLink(email)">send it again</ft-link>
+              </p>
+            </ft-empty-state>
+          } @else if (joining()) {
+            <h2 #panelHeading tabindex="-1">Join FaithTech</h2>
+            <p class="text-muted">
+              Free for builders, leads, volunteers, partners and anyone curious about faith and
+              technology.
+            </p>
+            <ft-sign-up-form
+              divider="or"
+              [busy]="busy()"
+              [unreachable]="unreachable()"
+              [serverErrors]="serverErrors()"
+              (submitted)="signUp($event)"
+            >
+              <ft-button
+                ftAuthAlternatives
+                variant="google"
+                size="lg"
+                [block]="true"
+                [loading]="googleBusy()"
+                (click)="continueWithGoogle()"
+                >Sign up with Google</ft-button
+              >
+            </ft-sign-up-form>
+            <p class="text-center">
+              Already a member?
+              <ft-button variant="ghost" size="sm" (click)="show('sign-in')">Sign in</ft-button>
+            </p>
+          } @else {
+            <h2 #panelHeading tabindex="-1">Sign in</h2>
+            <ft-sign-in-form
+              divider="or"
+              [busy]="busy()"
+              [failure]="failure()"
+              [forgotPasswordHref]="communityOrigin + '/forgot-password'"
+              (submitted)="signIn($event)"
+            >
+              <ft-button
+                ftAuthAlternatives
+                variant="google"
+                size="lg"
+                [block]="true"
+                [loading]="googleBusy()"
+                (click)="continueWithGoogle()"
+                >Sign in with Google</ft-button
+              >
+            </ft-sign-in-form>
+            <p class="text-center">
+              New to FaithTech?
+              <ft-button variant="ghost" size="sm" (click)="show('join')">Join now</ft-button>
+            </p>
+          }
+        </ft-card>
+        <ft-video-player
+          ftHeroMedia
+          src="/brochure/brochure.webm"
+          poster="/brochure/brochure-poster.jpg"
+          posterAlt="FaithTech builders pairing at a hackathon table"
+          captions="/brochure/brochure.en.vtt"
+          label="FaithTech Community in 21 seconds"
+          caption="FaithTech Community in 21 seconds · captions on"
+          [transcript]="transcript"
+        />
+      </ft-landing-hero>
+      <section class="landing__section" aria-labelledby="why-join">
+        <h2 id="why-join">Why join</h2>
+        <ft-grid [auto]="true">
+          <ft-benefit icon="team" heading="Find your city team">
+            See who builds near you, from first-time volunteers to city leads.
+          </ft-benefit>
+          <ft-benefit icon="events" heading="Show up together">
+            RSVP to builders nights and hackathons, and add them to your calendar.
+          </ft-benefit>
+          <ft-benefit icon="workspaces" heading="Build what matters">
+            Plan projects with your team that serve churches, shelters and neighbours.
+          </ft-benefit>
+        </ft-grid>
+      </section>
+      <ft-cta-band heading="Ready to build with us?" text="It’s free, and it takes a minute.">
+        <ft-button variant="primary" size="lg" (click)="show('join')">Join now</ft-button>
+      </ft-cta-band>
+    </div>
+  </ft-container>
+</main>

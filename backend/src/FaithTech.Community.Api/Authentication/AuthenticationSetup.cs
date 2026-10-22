@@ -76,6 +76,7 @@ public static class AuthenticationSetup
 
         services.AddHttpContextAccessor();
         services.AddScoped<ICurrentUser, HttpCurrentUser>();
+        services.AddSingleton<GoogleCorrelation>();
         return services;
     }
 

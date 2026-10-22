@@ -1,0 +1,46 @@
+<form [formGroup]="form" (ngSubmit)="submit()" ftFormErrorFocus novalidate>
+  <ft-stack>
+    @if (unreachable()) {
+      <ft-alert status="danger" heading="We couldn’t create your account">
+        Something went wrong on our side. Nothing was saved — try again in a moment.
+      </ft-alert>
+    } @else if (errors().length) {
+      <ft-alert status="danger" [heading]="summaryHeading()">
+        <ol>
+          @for (e of errors(); track e.field) {
+            <li>{{ e.message }}</li>
+          }
+        </ol>
+      </ft-alert>
+    }
+    <ng-content select="[ftAuthAlternatives]" />
+    @if (divider(); as text) {
+      <p class="auth-form__divider">{{ text }}</p>
+    }
+    <ft-form-field required label="Full name" [error]="error('name')">
+      <ft-text-field formControlName="name" autocomplete="name" />
+    </ft-form-field>
+    <ft-form-field required label="Email" [error]="error('email')">
+      <ft-text-field formControlName="email" type="email" autocomplete="email" />
+    </ft-form-field>
+    <ft-form-field
+      required
+      label="Password"
+      help="At least 12 characters."
+      [error]="error('password')"
+    >
+      <ft-text-field
+        formControlName="password"
+        type="password"
+        autocomplete="new-password"
+        action="reveal"
+      />
+    </ft-form-field>
+    <ft-button type="submit" variant="primary" size="lg" [block]="true" [loading]="busy()">
+      {{ busy() ? 'Creating account…' : 'Create account' }}
+    </ft-button>
+    <p class="text-caption text-center">
+      By creating an account you agree to our community guidelines and privacy notice.
+    </p>
+  </ft-stack>
+</form>

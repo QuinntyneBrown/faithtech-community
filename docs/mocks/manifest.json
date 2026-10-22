@@ -2,6 +2,44 @@
   "project": "FaithTech Community",
   "screens": [
     {
+      "id": "marketing",
+      "kind": "page",
+      "title": "Marketing page",
+      "route": "www.faithtech.community /",
+      "requirements": [
+        "L2-074",
+        "L2-075",
+        "L2-076",
+        "L2-077",
+        "L2-078",
+        "L2-079"
+      ],
+      "states": [
+        "default",
+        "sign-in-busy",
+        "sign-in-invalid",
+        "sign-in-error",
+        "sign-in-unreachable",
+        "locked",
+        "suspended",
+        "unverified",
+        "sign-up",
+        "sign-up-invalid",
+        "sign-up-busy",
+        "sign-up-error",
+        "sign-up-success",
+        "google-busy",
+        "google-failed",
+        "video-unavailable",
+        "reduced-motion"
+      ],
+      "not_applicable": {
+        "loading": "A static page; the forms and video render without fetching anything.",
+        "empty": "This screen has no collection that could be empty.",
+        "error": "Every request on the page is a form submission with its own error state (sign-in-unreachable, sign-up-error, google-failed)."
+      }
+    },
+    {
       "id": "sign-in",
       "kind": "page",
       "title": "Sign in",

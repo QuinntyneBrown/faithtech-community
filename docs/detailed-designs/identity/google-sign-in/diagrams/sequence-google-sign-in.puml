@@ -1,0 +1,49 @@
+@startuml
+title UML sequence behaviour — continue with Google
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+actor "Visitor" as actor
+box "Marketing app" #FEF3C7
+  participant "LandingPage" as page
+end box
+box "Community API" #D1FADF
+  participant "AccountEndpoints" as ep
+  participant "GoogleSignInHandler" as h
+  participant "GoogleIdentityProvider" as prov
+end box
+participant "Google" as google
+box "Community app" #E0F2FE
+  participant "AuthContinuePage" as cont
+end box
+actor -> page : Sign in with Google
+page -> ep : GET /api/account/google/start?returnUrl&keepSignedIn
+ep -> ep : state, nonce -> ftc.google cookie (protected, 10 min)
+ep --> google : 302 authorize (client_id, redirect_uri, scope openid email profile, state, nonce)
+actor -> google : Choose account, consent
+google --> ep : 302 /api/account/google/callback?code&state
+ep -> ep : Delete cookie; state must match (L2-078 AC6)
+ep -> h : GoogleSignInCommand(code, redirectUri, nonce)
+h -> prov : ExchangeCodeAsync
+prov -> google : POST /token (client secret)
+prov -> prov : Validate ID token: signature, iss, aud, exp, nonce
+alt invalid token
+  h --> ep : InvalidToken
+  ep --> page : 302 /?google=failed
+else email not verified
+  h --> ep : UnverifiedEmail (L2-078 AC4)
+  ep --> page : 302 /?google=failed
+else found by login or verified email, or created
+  h -> h : Link login; confirm email, drop unproven password; or create profile with no role (AC1-AC3)
+  alt suspended
+    h --> ep : Suspended (AC5)
+    ep --> page : 302 /?google=suspended
+  else
+    h --> ep : User
+    ep -> ep : Sign in ftc.session cookie
+    ep --> cont : 302 /auth/continue?returnUrl&keepSignedIn
+    cont --> actor : PKCE, then home (ADR 0018)
+  end
+end
+@enduml
