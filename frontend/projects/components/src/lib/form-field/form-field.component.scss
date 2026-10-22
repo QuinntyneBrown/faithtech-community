@@ -32,6 +32,16 @@
   font-weight: var(--font-weight-regular);
 }
 
+// Always rendered so its live region exists before an error. Empty, it takes no room: its
+// negative margin cancels the column gap; with an error, the message restores the gap.
+.field__errors {
+  margin-block-start: calc(-1 * var(--space-1));
+
+  ft-inline-message {
+    margin-block-start: var(--space-1);
+  }
+}
+
 .field__help {
   font: var(--text-body-sm);
   color: var(--color-fg-muted);
