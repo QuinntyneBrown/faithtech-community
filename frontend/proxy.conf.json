@@ -1,0 +1,5 @@
+{
+  "/api": { "target": "https://localhost:7044", "secure": false },
+  "/connect": { "target": "https://localhost:7044", "secure": false },
+  "/hubs": { "target": "https://localhost:7044", "secure": false, "ws": true }
+}

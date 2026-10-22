@@ -9,6 +9,10 @@
     <PackageReference Include="Microsoft.Extensions.Configuration.Json" />
   </ItemGroup>
 
+  <ItemGroup>
+    <None Update="appsettings.json" CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
+
   <PropertyGroup>
     <OutputType>Exe</OutputType>
   </PropertyGroup>
