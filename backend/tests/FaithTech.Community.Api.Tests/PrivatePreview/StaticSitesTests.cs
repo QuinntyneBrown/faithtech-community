@@ -31,7 +31,11 @@ public sealed class StaticSitesApiFactory : PrivatePreviewApiFactory
     protected override void Dispose(bool disposing)
     {
         base.Dispose(disposing);
-        Directory.Delete(Root, recursive: true);
+        // The fixture is disposed through both DisposeAsync and Dispose, so the folder may already be gone.
+        if (Directory.Exists(Root))
+        {
+            Directory.Delete(Root, recursive: true);
+        }
     }
 
     private void Write(string path, string content)
