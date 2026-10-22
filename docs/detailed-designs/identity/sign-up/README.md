@@ -12,6 +12,7 @@ A visitor submits a name, an email and a password. The system creates the accoun
 
 ## Description
 
+- **`SignUpFormComponent`** — the form lives in the `components` library and `signUpFieldErrors` (in `api`) maps the API's validation problem onto it; the community app's `SignUpPage` and the marketing page share both (`docs/detailed-designs/marketing/landing-page`). A Google sign-up follows `docs/detailed-designs/identity/google-sign-in`.
 The slice runs from the `sign-up` mock page to the database and the email provider. The sign-up page belongs to the app shell (`frontend/projects/faithtech-community`) because it precedes any feature library.
 
 - **`SignUpPage`** — Angular page built from `components` form fields and buttons. It validates fields inline, moves focus to the first invalid field, announces errors through a live region and shows a busy state on the submit button while the request is in flight.

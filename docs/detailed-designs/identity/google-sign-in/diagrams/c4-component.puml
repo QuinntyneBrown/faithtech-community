@@ -1,0 +1,28 @@
+@startuml
+!include <C4/C4_Component>
+LAYOUT_WITH_LEGEND()
+title Components — Google sign-in in the Community API
+
+Container_Boundary(api, "Community API") {
+  Component(ep, "AccountEndpoints (google/start, google/callback)", "Minimal API, Api", "Anonymous by opt-in, auth rate limit; correlation cookie with state, nonce, returnUrl")
+  Component(corr, "GoogleCorrelation", "Api", "Data-protected ftc.google cookie, 10 minutes")
+  Component(h, "GoogleSignInHandler", "Application/Identity", "Verified email, find by login or email, link, create, suspension")
+  Component(status, "AccountStatus", "Application/Identity", "IsSuspendedAsync shared with SignInHandler")
+  Component(port, "IGoogleIdentityProvider", "Application/Identity", "Authorization URL; exchange code -> GoogleIdentity")
+  Component(prov, "GoogleIdentityProvider", "Infrastructure/Identity", "HttpClient to Google's token endpoint")
+  Component(val, "GoogleIdTokenValidator", "Infrastructure/Identity", "Signature, issuer, audience, expiry (TimeProvider), nonce")
+  Component(contacts, "ContactSignedUpHandler", "Application/Contacts", "Matches private contacts on a verified email (L2-015)")
+}
+ContainerDb(db, "Community database", "PostgreSQL")
+System_Ext(google, "Google")
+Rel(ep, corr, "Writes and reads")
+Rel(ep, port, "AuthorizationUrl")
+Rel(ep, h, "GoogleSignInCommand")
+Rel(h, port, "ExchangeCodeAsync")
+Rel(h, status, "IsSuspendedAsync")
+Rel(h, contacts, "EmailVerified")
+Rel(prov, val, "Validate ID token")
+Rel(port, prov, "Implemented by")
+Rel(prov, google, "POST /token; JWKS")
+Rel(h, db, "UserManager, Profiles")
+@enduml

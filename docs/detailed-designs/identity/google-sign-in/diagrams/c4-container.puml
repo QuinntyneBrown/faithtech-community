@@ -1,0 +1,21 @@
+@startuml
+!include <C4/C4_Container>
+LAYOUT_WITH_LEGEND()
+title Containers — Google sign-in
+
+Person(visitor, "Visitor")
+System_Boundary(ftc, "FaithTech Community") {
+  Container(mkt, "Marketing app", "Angular", "Sign in with Google button; shows ?google=failed|suspended")
+  Container(spa, "Community app", "Angular", "/auth/continue starts PKCE")
+  Container(api, "Community API", "ASP.NET Core", "/api/account/google/start and /callback; GoogleSignInHandler")
+  ContainerDb(db, "Community database", "PostgreSQL", "AspNetUsers, AspNetUserLogins, Profiles")
+}
+System_Ext(google, "Google", "accounts.google.com, oauth2.googleapis.com")
+Rel(visitor, mkt, "Presses Sign in with Google")
+Rel(mkt, api, "Navigates to /api/account/google/start")
+Rel(api, google, "302 to consent; code exchange; JWKS", "HTTPS")
+Rel(google, api, "302 to /api/account/google/callback?code&state")
+Rel(api, db, "Finds, links or creates the account", "EF Core")
+Rel(api, spa, "302 to /auth/continue on success")
+Rel(api, mkt, "302 to /?google=failed|suspended on failure")
+@enduml

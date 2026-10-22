@@ -1,0 +1,60 @@
+@startuml
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 8
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam class {
+  BorderColor #344054
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+title Class structure — Marketing page
+
+class LandingPage {
+  +returnUrl: string
+  +join: string
+  +google: 'failed' | 'suspended'
+  #mode: 'sign-in' | 'sign-up'
+  #signInFailure: SignInFormFailure
+  #handingOff: boolean
+  #signIn(credentials)
+  #signUp(request)
+  #continueWithGoogle()
+}
+interface AuthService {
+  +signInWithPassword(email, password): Observable<SignInOutcome>
+  +signUp(request): Observable<void>
+  +signInWithGoogle(returnUrl, keepSignedIn): void
+  +hasKeptSession(): boolean
+}
+class SignInFormComponent {
+  +busy: boolean
+  +failure: SignInFormFailure | null
+  +forgotPasswordHref: string
+  +submitted: SignInCredentials
+}
+class SignUpFormComponent {
+  +busy: boolean
+  +unreachable: boolean
+  +serverErrors: SignUpFieldErrors
+  +submitted: SignUpDetails
+}
+class VideoPlayerComponent {
+  +src, poster, captions, label, caption, transcript
+  #unavailable: boolean
+}
+class LandingHeroComponent {
+  +eyebrow, heading, lead
+}
+class AuthContinuePage {
+  +returnUrl: string
+  +keepSignedIn: string
+}
+LandingPage ..> AuthService : AUTH_SERVICE
+LandingPage *-- LandingHeroComponent
+LandingHeroComponent o-- SignInFormComponent : panel
+LandingHeroComponent o-- SignUpFormComponent : panel
+LandingHeroComponent o-- VideoPlayerComponent : media
+LandingPage ..> AuthContinuePage : navigates to (community app)
+@enduml
