@@ -31,17 +31,3 @@
   font: var(--text-body-sm);
   color: var(--color-fg-muted);
 }
-
-.video-player__transcript summary {
-  cursor: pointer;
-  color: var(--color-fg-link);
-  text-decoration: underline;
-  min-height: var(--target-min);
-  display: inline-flex;
-  align-items: center;
-}
-
-.video-player__transcript p {
-  margin: var(--space-2) 0 0;
-  max-width: var(--layout-measure);
-}

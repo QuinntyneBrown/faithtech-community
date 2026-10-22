@@ -11,7 +11,7 @@ Container_Boundary(mkt, "Marketing app") {
 Container_Boundary(lib, "components library") {
   Component(hero, "LandingHeroComponent", "Angular", "Split hero with panel and media slots")
   Component(forms, "SignInFormComponent / SignUpFormComponent", "Angular", "Shared with the community app's /sign-in and /sign-up")
-  Component(video, "VideoPlayerComponent", "Angular", "Poster, captions, transcript, unavailable")
+  Component(video, "VideoPlayerComponent", "Angular", "Poster, captions, unavailable")
   Component(btn, "ButtonComponent variant=google", "Angular", "Google-branded social button")
   Component(footer, "SiteFooterComponent", "Angular", "Footer landmark")
 }

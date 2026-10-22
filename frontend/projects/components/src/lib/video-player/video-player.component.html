@@ -4,7 +4,7 @@
       <img class="video-player__media" [src]="poster()" [alt]="posterAlt()" />
       <div class="video-player__unavailable">
         <ft-alert status="warning" heading="This video can’t play right now">
-          Read the transcript below instead.
+          Please try again later.
         </ft-alert>
       </div>
     } @else {
@@ -31,8 +31,4 @@
   @if (caption(); as line) {
     <figcaption class="video-player__caption">{{ line }}</figcaption>
   }
-  <details class="video-player__transcript" [open]="unavailable()">
-    <summary>Read the transcript</summary>
-    <p>{{ transcript() }}</p>
-  </details>
 </figure>

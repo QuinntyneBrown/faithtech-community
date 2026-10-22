@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Video player — FaithTech Community design system</title>
-<meta name="description" content="A self-hosted video with a poster, captions, the browser&#39;s own controls and a transcript. It never autoplays, and it falls back to the poster and transcript when the file cannot play.">
+<meta name="description" content="A self-hosted video with a poster, captions and the browser&#39;s own controls. It never autoplays, and it falls back to the poster and a message when the file cannot play.">
 <link rel="stylesheet" href="../tokens/tokens.css">
 <link rel="stylesheet" href="../assets/components.css">
 <link rel="stylesheet" href="../assets/ds.css">
@@ -94,7 +94,7 @@
     <header class="ds-header">
       <p class="ds-kicker">Component · Media</p>
       <h1>Video player</h1>
-      <p class="ds-lead">A self-hosted video with a poster, captions, the browser&#39;s own controls and a transcript. It never autoplays, and it falls back to the poster and transcript when the file cannot play.</p>
+      <p class="ds-lead">A self-hosted video with a poster, captions and the browser&#39;s own controls. It never autoplays, and it falls back to the poster and a message when the file cannot play.</p>
       <div class="ds-meta"><span class="ds-pill ds-pill--ok">WCAG 2.2 AA</span><span class="ds-pill">Status: new</span></div>
       <ul class="ds-toc"><li><a href="#overview">Overview</a></li><li><a href="#anatomy">Anatomy</a></li><li><a href="#variants">Variants</a></li><li><a href="#sizes">Sizes</a></li><li><a href="#states">States</a></li><li><a href="#responsive">Responsive behaviour</a></li><li><a href="#theming">Theming</a></li><li><a href="#accessibility">Accessibility</a></li><li><a href="#content">Content</a></li><li><a href="#do-dont">Do and don&#39;t</a></li><li><a href="#tokens">Tokens</a></li><li><a href="#code">Code</a></li><li><a href="#sources">Sources</a></li></ul>
     </header>
@@ -104,11 +104,11 @@
     </section>
 
     <section class="ds-section" id="anatomy"><h2><a href="#anatomy">Anatomy</a></h2>
-      <ol><li><b>Frame</b>: 16:9, <code>--radius-lg</code>, <code>--shadow-2</code>, sunken background while the poster loads.</li><li><b>Video</b>: <code>controls</code>, <code>preload="none"</code>, <code>poster</code>, one default English captions track, an <code>aria-label</code> naming the video and its length.</li><li><b>Caption line</b>: length and "captions on".</li><li><b>Transcript</b>: a <code>&lt;details&gt;</code> disclosure holding the full narration.</li><li><b>Unavailable message</b>: a warning alert over the poster.</li></ol>
+      <ol><li><b>Frame</b>: 16:9, <code>--radius-lg</code>, <code>--shadow-2</code>, sunken background while the poster loads.</li><li><b>Video</b>: <code>controls</code>, <code>preload="none"</code>, <code>poster</code>, one default English captions track, an <code>aria-label</code> naming the video and its length.</li><li><b>Caption line</b>: length and "captions on".</li><li><b>Unavailable message</b>: a warning alert over the poster.</li></ol>
     </section>
 
-    <section class="ds-section" id="variants" data-na="One variant: a single video with its transcript."><h2><a href="#variants">Variants</a></h2>
-      <p class="ds-na">One variant: a single video with its transcript.</p>
+    <section class="ds-section" id="variants" data-na="One variant: a single captioned video."><h2><a href="#variants">Variants</a></h2>
+      <p class="ds-na">One variant: a single captioned video.</p>
     </section>
 
     <section class="ds-section" id="sizes" data-na="Fluid: the frame fills its column at a fixed 16:9 ratio."><h2><a href="#sizes">Sizes</a></h2>
@@ -116,7 +116,7 @@
     </section>
 
     <section class="ds-section" id="states"><h2><a href="#states">States</a></h2>
-      <h3>Ready (poster)</h3><div class="ds-themes"><div data-theme="light" style="padding: var(--space-4);"><figure class="video-player"><div class="video-player__frame"><video controls preload="none" poster="../../mocks/assets/photos/hackathon.jpg" aria-label="FaithTech Community in 21 seconds"></video></div><figcaption class="video-player__caption"><span>FaithTech Community in 21 seconds · captions on</span></figcaption><details class="video-player__transcript"><summary>Read the transcript</summary><p>FaithTech is a community of Christians who build with technology.</p></details></figure></div><div data-theme="dark" style="padding: var(--space-4);"><figure class="video-player"><div class="video-player__frame"><video controls preload="none" poster="../../mocks/assets/photos/hackathon.jpg" aria-label="FaithTech Community in 21 seconds"></video></div><figcaption class="video-player__caption"><span>FaithTech Community in 21 seconds · captions on</span></figcaption><details class="video-player__transcript"><summary>Read the transcript</summary><p>FaithTech is a community of Christians who build with technology.</p></details></figure></div></div><h3>Unavailable</h3><p>When the video fires <code>error</code> (missing file, unsupported codec, offline), the player swaps the video for the poster image and opens the transcript.</p><div class="ds-themes"><div data-theme="light" style="padding: var(--space-4);"><figure class="video-player"><div class="video-player__frame"><img src="../../mocks/assets/photos/hackathon.jpg" alt="FaithTech builders pairing at a hackathon table"><div class="video-player__unavailable"><div class="alert alert--warning" role="alert"><div class="alert__body"><div class="alert__title">This video can’t play right now</div><div class="alert__text">Read the transcript below instead.</div></div></div></div></div><figcaption class="video-player__caption"><span>FaithTech Community in 21 seconds</span></figcaption><details class="video-player__transcript" open><summary>Read the transcript</summary><p>FaithTech is a community of Christians who build with technology.</p></details></figure></div><div data-theme="dark" style="padding: var(--space-4);"><figure class="video-player"><div class="video-player__frame"><img src="../../mocks/assets/photos/hackathon.jpg" alt="FaithTech builders pairing at a hackathon table"><div class="video-player__unavailable"><div class="alert alert--warning" role="alert"><div class="alert__body"><div class="alert__title">This video can’t play right now</div><div class="alert__text">Read the transcript below instead.</div></div></div></div></div><figcaption class="video-player__caption"><span>FaithTech Community in 21 seconds</span></figcaption><details class="video-player__transcript" open><summary>Read the transcript</summary><p>FaithTech is a community of Christians who build with technology.</p></details></figure></div></div><h3>Reduced motion</h3><p>Nothing changes visually: the video already waits for Play. <code>prefers-reduced-motion</code> keeps it from ever autoplaying, even muted.</p>
+      <h3>Ready (poster)</h3><div class="ds-themes"><div data-theme="light" style="padding: var(--space-4);"><figure class="video-player"><div class="video-player__frame"><video controls preload="none" poster="../../mocks/assets/photos/hackathon.jpg" aria-label="FaithTech Community in 21 seconds"></video></div><figcaption class="video-player__caption"><span>FaithTech Community in 21 seconds · captions on</span></figcaption></figure></div><div data-theme="dark" style="padding: var(--space-4);"><figure class="video-player"><div class="video-player__frame"><video controls preload="none" poster="../../mocks/assets/photos/hackathon.jpg" aria-label="FaithTech Community in 21 seconds"></video></div><figcaption class="video-player__caption"><span>FaithTech Community in 21 seconds · captions on</span></figcaption></figure></div></div><h3>Unavailable</h3><p>When the video fires <code>error</code> (missing file, unsupported codec, offline), the player swaps the video for the poster image and shows a warning.</p><div class="ds-themes"><div data-theme="light" style="padding: var(--space-4);"><figure class="video-player"><div class="video-player__frame"><img src="../../mocks/assets/photos/hackathon.jpg" alt="FaithTech builders pairing at a hackathon table"><div class="video-player__unavailable"><div class="alert alert--warning" role="alert"><div class="alert__body"><div class="alert__title">This video can’t play right now</div><div class="alert__text">Please try again later.</div></div></div></div></div><figcaption class="video-player__caption"><span>FaithTech Community in 21 seconds</span></figcaption></figure></div><div data-theme="dark" style="padding: var(--space-4);"><figure class="video-player"><div class="video-player__frame"><img src="../../mocks/assets/photos/hackathon.jpg" alt="FaithTech builders pairing at a hackathon table"><div class="video-player__unavailable"><div class="alert alert--warning" role="alert"><div class="alert__body"><div class="alert__title">This video can’t play right now</div><div class="alert__text">Please try again later.</div></div></div></div></div><figcaption class="video-player__caption"><span>FaithTech Community in 21 seconds</span></figcaption></figure></div></div><h3>Reduced motion</h3><p>Nothing changes visually: the video already waits for Play. <code>prefers-reduced-motion</code> keeps it from ever autoplaying, even muted.</p>
     </section>
 
     <section class="ds-section" id="responsive"><h2><a href="#responsive">Responsive behaviour</a></h2>
@@ -128,11 +128,11 @@
     </section>
 
     <section class="ds-section" id="accessibility"><h2><a href="#accessibility">Accessibility</a></h2>
-      <ul><li>No autoplay with sound; no autoplay at all (WCAG 1.4.2, 2.2.2).</li><li>Captions are on by default (<code>&lt;track default&gt;</code>, WCAG 1.2.2) and the transcript is the text alternative (1.2.1, 1.2.3).</li><li>Native controls are keyboard reachable with visible focus.</li><li>The unavailable message is a <code>role="alert"</code> and the poster image keeps its alt text.</li></ul>
+      <ul><li>No autoplay with sound; no autoplay at all (WCAG 1.4.2, 2.2.2).</li><li>Captions are on by default (<code>&lt;track default&gt;</code>, WCAG 1.2.2) and carry the whole narration; the narration describes everything shown, so no separate audio description is needed (1.2.3, 1.2.5).</li><li>Native controls are keyboard reachable with visible focus.</li><li>The unavailable message is a <code>role="alert"</code> and the poster image keeps its alt text.</li></ul>
     </section>
 
     <section class="ds-section" id="content"><h2><a href="#content">Content</a></h2>
-      <ul><li>Name the length in the caption line ("in 21 seconds").</li><li>The transcript is the narration word for word.</li></ul>
+      <ul><li>Name the length in the caption line ("in 21 seconds").</li><li>The captions are the narration word for word.</li></ul>
     </section>
 
     <section class="ds-section" id="do-dont"><h2><a href="#do-dont">Do and don&#39;t</a></h2>
@@ -140,7 +140,7 @@
     </section>
 
     <section class="ds-section" id="tokens"><h2><a href="#tokens">Tokens</a></h2>
-      <div class="ds-table-wrap"><table class="ds-table"><thead><tr><th scope="col">Part</th><th scope="col">Token</th></tr></thead><tbody><tr><td>Frame radius</td><td><code>--radius-lg</code></td></tr><tr><td>Frame shadow</td><td><code>--shadow-2</code></td></tr><tr><td>Frame border</td><td><code>--color-border-default</code></td></tr><tr><td>Frame background</td><td><code>--color-bg-surface-sunken</code></td></tr><tr><td>Caption text</td><td><code>--color-fg-muted</code></td></tr><tr><td>Transcript link</td><td><code>--color-fg-link</code></td></tr></tbody></table></div>
+      <div class="ds-table-wrap"><table class="ds-table"><thead><tr><th scope="col">Part</th><th scope="col">Token</th></tr></thead><tbody><tr><td>Frame radius</td><td><code>--radius-lg</code></td></tr><tr><td>Frame shadow</td><td><code>--shadow-2</code></td></tr><tr><td>Frame border</td><td><code>--color-border-default</code></td></tr><tr><td>Frame background</td><td><code>--color-bg-surface-sunken</code></td></tr><tr><td>Caption text</td><td><code>--color-fg-muted</code></td></tr></tbody></table></div>
     </section>
 
     <section class="ds-section" id="code"><h2><a href="#code">Code</a></h2>
@@ -149,8 +149,7 @@
   poster="/brochure/brochure-poster.jpg"
   captions="/brochure/brochure.en.vtt"
   label="FaithTech Community in 21 seconds"
-  caption="FaithTech Community in 21 seconds · captions on"
-  transcript="…" /&gt;</code></pre>
+  caption="FaithTech Community in 21 seconds · captions on" /&gt;</code></pre>
     </section>
 
     <section class="ds-section" id="sources"><h2><a href="#sources">Sources</a></h2>

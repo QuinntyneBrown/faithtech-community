@@ -1,11 +1,14 @@
 #!/usr/bin/env node
 // Builds the marketing page's brochure video (ADR 0020) from script.md and deck.html:
-//   narration  edge-tts (default) or the offline espeak-ng + MBROLA voice (--engine espeak)
+//   narration  Kokoro-82M from Hugging Face (default, local), edge-tts (--engine edge) or the offline
+//              espeak-ng + MBROLA voice (--engine espeak)
 //   frames     each deck slide captured with Playwright's Chromium at 1280x720
 //   output     frontend/projects/marketing/public/brochure/brochure.webm, brochure-poster.jpg and
 //              brochure.en.vtt (one caption per narration paragraph)
-// Usage: node eng/videos/brochure/build.mjs [--engine edge|espeak] [--check]
-// Needs node, ffmpeg, ffprobe, the e2e packages (npm --prefix e2e ci) and the chosen voice.
+// Usage: node eng/videos/brochure/build.mjs [--engine kokoro|edge|espeak] [--check]
+// Needs node, ffmpeg, ffprobe, the e2e packages (npm --prefix e2e ci) and the chosen voice. Kokoro
+// needs Python 3.10+ with `pip install kokoro soundfile`, for example in a venv passed as PYTHON:
+//   PYTHON=.cache/kokoro-venv/bin/python node eng/videos/brochure/build.mjs
 // Fails when the video is longer than 30 seconds (L2-075 AC1).
 import { execFileSync } from 'node:child_process';
 import { mkdirSync, readFileSync, writeFileSync } from 'node:fs';
@@ -20,10 +23,22 @@ const root = resolve(here, '../../..');
 const out = join(root, 'frontend/projects/marketing/public/brochure');
 const work = join(root, '.cache/brochure');
 const args = process.argv.slice(2);
-const engine = args.includes('--engine') ? args[args.indexOf('--engine') + 1] : 'edge';
+const engine = args.includes('--engine') ? args[args.indexOf('--engine') + 1] : 'kokoro';
 const checkOnly = args.includes('--check');
 const python = process.env.PYTHON ?? 'python3';
 const voice = process.env.EDGE_VOICE ?? 'en-US-AndrewMultilingualNeural';
+const kokoroVoice = process.env.KOKORO_VOICE ?? 'af_heart';
+const kokoroSpeed = process.env.KOKORO_SPEED ?? '1.1';
+
+// Speaks argv[1] with Kokoro-82M (hexgrad/Kokoro-82M) into argv[4] as 24 kHz WAV.
+const KOKORO = `
+import sys, numpy, soundfile
+from kokoro import KPipeline
+text, voice, speed, wav = sys.argv[1:5]
+pipeline = KPipeline(lang_code='a', repo_id='hexgrad/Kokoro-82M')
+audio = [chunk.audio for chunk in pipeline(text, voice=voice, speed=float(speed))]
+soundfile.write(wav, numpy.concatenate(audio), 24000)
+`;
 
 /** `## id` sections of script.md, each with the paragraph that is spoken over that slide. */
 function readScript() {
@@ -46,7 +61,9 @@ function duration(file) {
 }
 
 function speak(text, wav) {
-  if (engine === 'espeak') {
+  if (engine === 'kokoro') {
+    run(python, ['-c', KOKORO, text, kokoroVoice, kokoroSpeed, wav]);
+  } else if (engine === 'espeak') {
     run('espeak-ng', ['-v', 'mb-us2', '-s', '150', '-w', wav, text.replace(/’/g, "'")]);
   } else {
     const mp3 = wav.replace(/\.wav$/, '.mp3');

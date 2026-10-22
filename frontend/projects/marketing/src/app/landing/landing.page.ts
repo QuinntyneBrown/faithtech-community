@@ -42,13 +42,6 @@ import { firstValueFrom } from 'rxjs';
 
 import { COMMUNITY_ORIGIN } from '../community-origin';
 
-const BROCHURE_TRANSCRIPT =
-  'FaithTech is a community of Christians who build with technology. ' +
-  'Find the builders, leads and volunteers in your city. ' +
-  'RSVP to builders nights and hackathons, and bring a friend. ' +
-  'Work together on projects that serve your neighbours. ' +
-  'Join FaithTech Community. It’s free, and it takes a minute.';
-
 /**
  * The marketing page (L2-074), matching docs/mocks/pages/marketing. It collects credentials and
  * hands the session to the community app, which completes PKCE (ADR 0018).
@@ -87,8 +80,6 @@ export class LandingPage implements OnInit {
   /** How Google sign-in ended when the API sent the visitor back (`?google=failed|suspended`). */
   readonly google = input<string>();
 
-  /** The brochure's narration (eng/videos/brochure/script.md), shown as its transcript. */
-  protected readonly transcript = BROCHURE_TRANSCRIPT;
   protected readonly joining = computed(() => this.join() !== undefined);
   protected readonly busy = signal(false);
   protected readonly failure = signal<SignInFormFailure | null>(null);

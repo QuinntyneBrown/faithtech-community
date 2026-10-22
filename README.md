@@ -165,8 +165,9 @@ cd frontend && npm run start:marketing
 # Google sign-in reads its client from configuration, never the repository
 export Google__ClientId=<client id> Google__ClientSecret=<client secret>
 
-# Re-render the marketing page's brochure video (edge-tts; --engine espeak works offline)
-node eng/videos/brochure/build.mjs
+# Re-render the marketing page's brochure video (Kokoro-82M from Hugging Face; needs Python 3.10+
+# with `pip install kokoro soundfile`; --engine edge or --engine espeak are the alternatives)
+PYTHON=.cache/kokoro-venv/bin/python node eng/videos/brochure/build.mjs
 ```
 
 ### Test (planned)

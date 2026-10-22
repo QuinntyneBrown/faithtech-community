@@ -3,9 +3,9 @@ import { ChangeDetectionStrategy, Component, input, signal } from '@angular/core
 import { AlertComponent } from '../alert/alert.component';
 
 /**
- * A self-hosted video with the browser's own controls, a poster, a default captions track and a
- * transcript (docs/design-system/components/video-player.html). It never autoplays. When the file
- * cannot play it shows the poster with a message and opens the transcript.
+ * A self-hosted video with the browser's own controls, a poster and a default captions track
+ * (docs/design-system/components/video-player.html). It never autoplays. When the file cannot
+ * play it shows the poster with a message.
  */
 @Component({
   selector: 'ft-video-player',
@@ -28,8 +28,6 @@ export class VideoPlayerComponent {
   readonly label = input.required<string>();
   /** The line under the video. */
   readonly caption = input<string | null>(null);
-  /** The narration as text, behind "Read the transcript". */
-  readonly transcript = input.required<string>();
 
   protected readonly unavailable = signal(false);
 }

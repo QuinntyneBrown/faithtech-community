@@ -41,9 +41,9 @@ Composition follows a split product hero (headline and video beside the sign-in 
 
 ### Brochure video
 
-- Source in `eng/videos/brochure/`: `script.md` (the narration, 21 seconds), `deck.html` (a timed slide deck using the design-system tokens and mock photos) and `build.mjs` (edge-tts narration and WebVTT captions, Playwright frame capture, ffmpeg mux) (ADR 0020). `node eng/videos/brochure/build.mjs` fails when the result is longer than 30 seconds.
-- Shipped assets: `frontend/projects/marketing/public/brochure/brochure.webm`, `brochure-poster.jpg` and `brochure.en.vtt`. The transcript text on the page is the script.
-- `VideoPlayerComponent` renders `<video controls preload="none" poster>` with a default English captions track and no `autoplay`; on the media `error` event it swaps to the poster image with a warning alert and opens the transcript.
+- Source in `eng/videos/brochure/`: `script.md` (the narration, 21 seconds), `deck.html` (a timed slide deck using the design-system tokens and mock photos) and `build.mjs` (Kokoro-82M `af_heart` narration and WebVTT captions, Playwright frame capture, ffmpeg mux) (ADR 0020). `node eng/videos/brochure/build.mjs` fails when the result is longer than 30 seconds.
+- Shipped assets: `frontend/projects/marketing/public/brochure/brochure.webm`, `brochure-poster.jpg` and `brochure.en.vtt`. The captions are the script; the page shows no transcript.
+- `VideoPlayerComponent` renders `<video controls preload="none" poster>` with a default English captions track and no `autoplay`; on the media `error` event it swaps to the poster image with a warning alert.
 
 ### Security and privacy
 
