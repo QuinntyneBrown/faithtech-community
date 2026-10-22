@@ -7,7 +7,7 @@ skinparam defaultFontName Arial
 skinparam ArrowColor #344054
 actor "Owner" as actor
 box "CI — GitHub Actions" #E0F2FE
-  participant "deploy.yml" as wf
+  participant "deploy.yml and eng/deploy.sh" as wf
 end box
 box "Azure — resource group" #D1FADF
   participant "Container registry" as acr
@@ -19,15 +19,16 @@ box "Azure — data" #FFF4E5
   database "PostgreSQL" as db
 end box
 actor -> wf : Run workflow (or push to main when DEPLOY_ENABLED)
-wf -> wf : dotnet test; build both images
+wf -> wf : dotnet test
+wf -> arm : Deploy main.bicep without images: shared resources
 wf -> acr : Push api and cli images tagged with the commit
-wf -> arm : Deploy main.bicep (no secrets in parameters)
-arm --> wf : Resources up to date
-wf -> cli : Start job with "migrate"
+wf -> arm : Deploy with the Cli image: migrate and seed jobs
+wf -> cli : Start the migrate job and wait
 cli -> db : Apply EF migrations (never the API, L2-094 #3)
-wf -> cli : Start job with "seed"
+wf -> cli : Start the seed job and wait
 cli -> db : web client, admin roster, starter resources (L2-094 #4)
-wf -> api : Update image to the commit tag
-api --> wf : New revision healthy on /health/live
+wf -> arm : Deploy with the API image
+arm -> api : New revision on the commit tag
+api --> arm : Healthy on /health/live
 wf --> actor : Deployed behind the wall
 @enduml

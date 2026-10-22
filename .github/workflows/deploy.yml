@@ -1,0 +1,51 @@
+# Deploys to Azure Container Apps behind the private-preview wall (ADR 0023). Before the first run the owner follows
+# docs/detailed-designs/platform/private-preview-wall/runbook.md: an Azure federated credential for this repository,
+# the secrets and variables below, the Key Vault secrets and the DNS records.
+#   Secrets:   AZURE_CLIENT_ID, AZURE_TENANT_ID, AZURE_SUBSCRIPTION_ID, POSTGRES_ADMIN_PASSWORD
+#   Variables: AZURE_RESOURCE_GROUP, CUSTOM_DOMAINS_STAGE (none | issue | bound), PRIVATE_PREVIEW_ENABLED,
+#              GOOGLE_SIGN_IN_ENABLED, DEPLOY_ENABLED (true to deploy every push to main)
+name: Deploy
+
+on:
+  workflow_dispatch:
+    inputs:
+      shared_only:
+        description: Create only the shared resources (first run, before the Key Vault secrets exist)
+        type: boolean
+        default: false
+  push:
+    branches: [main]
+
+concurrency:
+  group: deploy-production
+  cancel-in-progress: false
+
+permissions:
+  id-token: write
+  contents: read
+
+jobs:
+  deploy:
+    if: github.event_name == 'workflow_dispatch' || vars.DEPLOY_ENABLED == 'true'
+    runs-on: ubuntu-latest
+    environment: production
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with:
+          global-json-file: backend/global.json
+      - run: dotnet test backend --configuration Release
+      - uses: azure/login@v2
+        with:
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+      - run: eng/deploy.sh
+        env:
+          RESOURCE_GROUP: ${{ vars.AZURE_RESOURCE_GROUP }}
+          POSTGRES_ADMIN_PASSWORD: ${{ secrets.POSTGRES_ADMIN_PASSWORD }}
+          IMAGE_TAG: ${{ github.sha }}
+          CUSTOM_DOMAINS_STAGE: ${{ vars.CUSTOM_DOMAINS_STAGE || 'none' }}
+          PRIVATE_PREVIEW_ENABLED: ${{ vars.PRIVATE_PREVIEW_ENABLED || 'true' }}
+          GOOGLE_SIGN_IN_ENABLED: ${{ vars.GOOGLE_SIGN_IN_ENABLED || 'false' }}
+          SHARED_ONLY: ${{ inputs.shared_only || false }}
