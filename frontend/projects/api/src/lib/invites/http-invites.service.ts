@@ -38,7 +38,8 @@ export class HttpInvitesService implements InvitesService {
   }
 
   getInvite(token: string): Observable<InviteLookupDto> {
-    return this.http.get<InviteLookupDto>(`${this.base}/by-token/${encodeURIComponent(token)}`);
+    // The token is a credential: it goes in the body so it never appears in a URL or request log.
+    return this.http.post<InviteLookupDto>(`${this.base}/lookup`, { token });
   }
 
   acceptInvite(token: string, account?: NewAccount): Observable<void> {

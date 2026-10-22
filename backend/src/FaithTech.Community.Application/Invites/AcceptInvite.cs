@@ -17,6 +17,9 @@ namespace FaithTech.Community.Application.Invites;
 public record InviteLookupDto(string Status, string Email, string InviterName, string? InviterCity, string? PreassignedRole, bool HasAccount);
 
 /// <summary>Accepts an invite: with a name and password as a new account, or without them as the signed-in account.</summary>
+/// <summary>The body of <c>POST /api/invites/lookup</c>: the invite link's token, kept out of the URL.</summary>
+public record InviteLookupRequest(string? Token);
+
 public record AcceptInviteCommand(string? Token, string? Name = null, string? Password = null)
 {
     public bool IsNewAccount => Name is not null || Password is not null;

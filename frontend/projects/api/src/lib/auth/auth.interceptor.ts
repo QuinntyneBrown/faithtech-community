@@ -18,7 +18,7 @@ import { OidcAuthClient } from './oidc-auth-client.service';
 // Anonymous endpoints never carry a token (L2-042).
 const ANONYMOUS = [
   '/public/',
-  '/invites/by-token',
+  '/invites/lookup',
   '/announcements/unsubscribe',
   '/account/sign-in',
   '/account/sign-up',

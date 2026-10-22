@@ -5,7 +5,7 @@ title Components — Accept an invite
 
 Container(spa, "Web app", "Angular", "AcceptInvitePage (invites library); HttpInvitesService (api library)")
 Container_Boundary(api, "Community API") {
-  Component(ep, "InvitesEndpoints", "Minimal API", "GET /api/invites/by-token/{token}, POST /api/invites/accept (anonymous opt-in)")
+  Component(ep, "InvitesEndpoints", "Minimal API", "POST /api/invites/lookup { token }, POST /api/invites/accept (anonymous opt-in)")
   Component(val, "AcceptInviteValidator", "FluentValidation validator", "Token; name and password for a new account")
   Component(ah, "AcceptInviteHandler", "Application handler", "LookUpAsync and AcceptAsync")
   Component(tok, "InviteTokens", "Application helper", "SHA-256 hash of the token")

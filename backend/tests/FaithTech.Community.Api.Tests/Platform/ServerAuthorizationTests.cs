@@ -26,7 +26,7 @@ public partial class ServerAuthorizationTests(CommunityApiFactory factory) : ICl
         "connect/logout",
         "connect/revoke",
         "api/account/sign-in",
-        "api/invites/by-token/{token}",
+        "api/invites/lookup",
         "api/invites/accept",
     ];
 

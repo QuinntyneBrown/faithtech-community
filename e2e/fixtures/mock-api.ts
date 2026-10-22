@@ -279,9 +279,6 @@ export class MockApi {
     if (method === 'POST' && inviteAction) {
       return this.inviteAction(route, inviteAction[1], inviteAction[2], authorization);
     }
-    const byToken = /^\/api\/invites\/by-token\/([^/]+)$/.exec(url.pathname);
-    if (method === 'GET' && byToken)
-      return this.lookUpInvite(route, decodeURIComponent(byToken[1]));
 
     switch (`${method} ${url.pathname}`) {
       case 'GET /api/admin/users':
@@ -298,6 +295,8 @@ export class MockApi {
         return this.listInvites(route, authorization);
       case 'POST /api/invites':
         return this.sendInvite(route, body, authorization);
+      case 'POST /api/invites/lookup':
+        return this.lookUpInvite(route, String(body['token'] ?? ''));
       case 'POST /api/invites/accept':
         return this.acceptInvite(route, body, authorization);
       case 'POST /api/account/sign-in':
@@ -837,7 +836,7 @@ export class MockApi {
     return route.fulfill({ status: 201, json: this.inviteDto(renewed) });
   }
 
-  /** GET /api/invites/by-token/{token}: anonymous (ADR 0006). */
+  /** POST /api/invites/lookup with { token }: anonymous (ADR 0006); the token never goes in the URL. */
   private lookUpInvite(route: Route, token: string) {
     const invite = this.invites.find((i) => i.token === token);
     if (!invite) return route.fulfill({ status: 404 });
