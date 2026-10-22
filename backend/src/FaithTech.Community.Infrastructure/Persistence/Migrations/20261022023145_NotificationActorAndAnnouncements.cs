@@ -6,11 +6,18 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace FaithTech.Community.Infrastructure.Persistence.Migrations
 {
     /// <inheritdoc />
-    public partial class Announcements : Migration
+    public partial class NotificationActorAndAnnouncements : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
+            migrationBuilder.AddColumn<string>(
+                name: "ActorName",
+                table: "Notifications",
+                type: "character varying(200)",
+                maxLength: 200,
+                nullable: true);
+
             migrationBuilder.CreateTable(
                 name: "Announcements",
                 columns: table => new
@@ -67,6 +74,10 @@ namespace FaithTech.Community.Infrastructure.Persistence.Migrations
 
             migrationBuilder.DropTable(
                 name: "Announcements");
+
+            migrationBuilder.DropColumn(
+                name: "ActorName",
+                table: "Notifications");
         }
     }
 }
