@@ -40,6 +40,15 @@ export function formatDayRange(start: Date | string, end: Date | string): string
   return `${sameMonth ? first.slice(0, first.lastIndexOf(' ')) : first} – ${formatDay(to)}`;
 }
 
+/** "Today, 11:42 am" or "Yesterday, 4:10 pm" for recent activity, then the day, "Mon 19 Oct". */
+export function formatFeedTime(value: Date | string, now: Date = new Date()): string {
+  const at = new Date(value);
+  const yesterday = new Date(now.getFullYear(), now.getMonth(), now.getDate() - 1);
+  if (at.toDateString() === now.toDateString()) return `Today, ${formatTime(at)}`;
+  if (at.toDateString() === yesterday.toDateString()) return `Yesterday, ${formatTime(at)}`;
+  return formatDay(at);
+}
+
 /** "Fri 6 Nov 2026 · 6:30 – 9:00 pm" (am or pm once when shared), or "Sat 14 – Sun 15 Nov 2026" across days. */
 export function formatTimeRange(start: Date | string, end: Date | string): string {
   const from = new Date(start);

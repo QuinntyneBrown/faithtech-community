@@ -59,6 +59,16 @@ export interface MockInvite {
   revokedAt: string | null;
 }
 
+/** A row of the Notifications table: addressed to one member (backend Domain/Notifications). */
+export interface MockNotification {
+  id: string;
+  recipientId: string;
+  kind: string;
+  title: string;
+  linkPath: string;
+  createdAt: string;
+}
+
 export interface MockAuditEntry {
   id: string;
   occurredAtUtc: string;
@@ -97,6 +107,8 @@ export class MockApi {
   readonly profiles = new Map<string, MockProfile>();
   readonly invites: MockInvite[] = [];
   readonly audit: MockAuditEntry[] = [];
+  /** Notifications seeded for home's Recent activity; the events fake records its own. */
+  readonly notifications: MockNotification[] = [];
   /** "Now" for invite status, matching the mocks' 21 October 2026. */
   now = new Date(Date.UTC(2026, 9, 21, 12));
   /** The events fake (fixtures/mock-events.ts), sharing this fake's clock. */
@@ -180,6 +192,27 @@ export class MockApi {
       ...invite,
     };
     this.invites.push(full);
+    return full;
+  }
+
+  /** Stops the browser's clock at the fake's "now", for screens that print today's date or greet by time. */
+  async freezeBrowserClock(): Promise<void> {
+    await this.page.clock.setFixedTime(this.now);
+  }
+
+  /** A notification for `recipientId`, `minutesAgo` before the fake's "now". */
+  addNotification(
+    notification: Partial<MockNotification> & { recipientId: string; title: string },
+    minutesAgo = 0,
+  ): MockNotification {
+    const full: MockNotification = {
+      id: `notification-${this.notifications.length + 1}`,
+      kind: 'InviteAccepted',
+      linkPath: '/',
+      createdAt: new Date(this.now.getTime() - minutesAgo * 60 * 1000).toISOString(),
+      ...notification,
+    };
+    this.notifications.push(full);
     return full;
   }
 
@@ -295,6 +328,8 @@ export class MockApi {
         return this.auditLog(route, url, authorization);
       case 'GET /api/admin/audit/export':
         return this.auditExport(route, url, authorization);
+      case 'GET /api/activity':
+        return this.activity(route, authorization);
       case 'GET /api/team':
         return this.listTeam(route, url, authorization);
       case 'GET /api/people':
@@ -407,6 +442,29 @@ export class MockApi {
   /** The signed-in caller, or null when the bearer token is missing or stale (the API's 401). */
   private caller(authorization: string | undefined): MockAccount | null {
     return this.signedIn && authorization === 'Bearer access-token' ? this.signedIn : null;
+  }
+
+  /** ActivityEndpoints: the ten newest notifications addressed to the caller (L2-049 AC7). */
+  private activity(route: Route, authorization: string | undefined) {
+    const caller = this.caller(authorization);
+    if (!caller) return route.fulfill({ status: 401 });
+    const recorded = this.events.notifications.map((n, i) => ({
+      ...n,
+      id: `event-notification-${i + 1}`,
+      createdAt: this.now.toISOString(),
+    }));
+    const items = [...this.notifications, ...recorded]
+      .filter((n) => n.recipientId === caller.profileId)
+      .sort((a, b) => b.createdAt.localeCompare(a.createdAt))
+      .slice(0, 10)
+      .map((n) => ({
+        id: n.id,
+        kind: n.kind,
+        text: n.title,
+        linkPath: n.linkPath,
+        occurredAt: n.createdAt,
+      }));
+    return route.fulfill({ status: 200, json: items });
   }
 
   /** ProfilesEndpoints: GET /api/profiles/me and /api/profiles/{id} (L2-005). */

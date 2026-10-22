@@ -1,6 +1,153 @@
-<!--
-  SCAFFOLD: placeholder, not the implementation.
-  Generated from AGENTS.md and:
-    - docs/mocks/pages/home (no detailed design yet: TO CONFIRM which library owns it)
-  Overwrite this template with the expected implementation, then delete this comment.
--->
+@if (!hasRole()) {
+  <ft-page-header
+    [title]="title()"
+    subtitle="You’re part of the FaithTech community. Here’s how to get started."
+  />
+  <ft-stack>
+    <ft-grid [auto]="true">
+      <ft-card heading="Finish your profile">
+        <ft-stack gap="3">
+          <p class="muted">Add a photo and a short bio so people recognise you at events.</p>
+          <ft-button variant="primary" href="/people/me/edit">
+            <ft-icon name="edit" /> Edit profile
+          </ft-button>
+        </ft-stack>
+      </ft-card>
+      <ft-card heading="Find an event">
+        <ft-stack gap="3">
+          <p class="muted">
+            Builders nights, hackathons and gatherings near you — RSVP in one tap.
+          </p>
+          <ft-button href="/events"><ft-icon name="events" /> Browse events</ft-button>
+        </ft-stack>
+      </ft-card>
+      <ft-card heading="Want to get involved?">
+        <ft-stack gap="3">
+          <p class="muted">
+            Your city lead can add you as a volunteer or builder. Say hi at your next event.
+          </p>
+          <ft-button variant="ghost" href="/team"><ft-icon name="team" /> Meet the team</ft-button>
+        </ft-stack>
+      </ft-card>
+    </ft-grid>
+    <ng-container *ngTemplateOutlet="activityCard" />
+  </ft-stack>
+} @else if (eventsState() === 'error') {
+  <ft-page-header [title]="title()" />
+  <ft-empty-state
+    variant="error"
+    heading="We couldn’t load your home page"
+    text="Check your connection and try again. If it keeps happening, we’ve already been told about it."
+  >
+    <ft-button actions variant="primary" (click)="retryPage()">
+      <ft-icon name="try-again" /> Try again
+    </ft-button>
+  </ft-empty-state>
+} @else {
+  <ft-page-header [title]="title()" [subtitle]="eventsState() === 'loaded' ? subtitle() : null">
+    @if (eventsState() === 'loading') {
+      <ft-skeleton ftPageHeaderSubtitle class="subtitle-skeleton" />
+    }
+    @if (canCreateEvents()) {
+      <ft-button ftPageHeaderActions variant="primary" href="/events/new">
+        <ft-icon name="add" /> New event
+      </ft-button>
+    }
+    @if (canAddContacts()) {
+      <ft-button ftPageHeaderActions href="/contacts/new">
+        <ft-icon name="contacts" /> Add contact
+      </ft-button>
+    }
+  </ft-page-header>
+
+  @if (isStaffOnly()) {
+    <ft-alert class="staff" status="info" heading="You’re viewing as Staff">
+      You can see everything across every city but can’t make changes. Private contacts stay with
+      the lead who created them.
+    </ft-alert>
+  }
+
+  <ft-split>
+    <ft-stack ftSplitMain>
+      @if (eventsState() === 'loading') {
+        <ft-card variant="flush">
+          <ft-list-skeleton label="Loading your events" [rows]="3" leading="date-badge" />
+        </ft-card>
+      } @else {
+        <ft-card variant="flush" heading="Coming up">
+          @if (comingUp().length === 0) {
+            <ft-card-footer><p class="muted">Nothing coming up yet.</p></ft-card-footer>
+          } @else {
+            <ft-list label="Coming up" [flush]="false">
+              @for (row of comingUp(); track row.id) {
+                <ft-event-card
+                  [title]="row.title"
+                  [href]="'/events/' + row.id"
+                  [month]="row.month"
+                  [day]="row.day"
+                  [meta]="row.meta"
+                  [visibility]="row.visibility"
+                />
+              }
+            </ft-list>
+          }
+          <ft-card-footer><ft-link href="/events">All events</ft-link></ft-card-footer>
+        </ft-card>
+      }
+
+      @if (seesPipeline()) {
+        <ft-card heading="Partner pipeline">
+          <ft-link ftCardActions href="/partners">Open board</ft-link>
+          @if (pipelineState() === 'error') {
+            <ft-alert status="danger" heading="We couldn’t load the partner pipeline">
+              The rest of the page is up to date.
+              <ft-button
+                ftAlertActions
+                size="sm"
+                [loading]="retryingPipeline()"
+                (click)="retryPipeline()"
+              >
+                <ft-icon name="try-again" size="sm" /> Try again
+              </ft-button>
+            </ft-alert>
+          } @else {
+            <ft-stack gap="3">
+              <ft-cluster gap="8">
+                @for (stat of stats(); track stat.label) {
+                  <ft-stat
+                    [label]="stat.label"
+                    [value]="stat.count"
+                    [loading]="pipelineState() === 'loading'"
+                  />
+                }
+              </ft-cluster>
+              @if (pipelineState() === 'loaded' && noPartners()) {
+                <p class="muted">No partners yet. Add the first one from the board.</p>
+              }
+            </ft-stack>
+          }
+        </ft-card>
+      }
+    </ft-stack>
+    <aside ftSplitAside aria-label="Activity">
+      <ng-container *ngTemplateOutlet="activityCard" />
+    </aside>
+  </ft-split>
+}
+
+<ng-template #activityCard>
+  <ft-card heading="Recent activity">
+    <ft-feed
+      label="Recent activity"
+      [state]="feedState()"
+      [retrying]="retryingFeed()"
+      (retry)="retryFeed()"
+    >
+      @for (item of feed(); track item.id) {
+        <ft-feed-item [actor]="actor" [meta]="item.meta">
+          <ft-link [href]="item.href">{{ item.text }}</ft-link>
+        </ft-feed-item>
+      }
+    </ft-feed>
+  </ft-card>
+</ng-template>

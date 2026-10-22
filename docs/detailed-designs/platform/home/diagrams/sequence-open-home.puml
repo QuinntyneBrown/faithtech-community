@@ -1,0 +1,38 @@
+@startuml
+title UML sequence behaviour — Open home
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+actor "Member" as actor
+box "Frontend — FaithTech Community web app (app shell)" #E0F2FE
+  participant "HomePage" as page
+end box
+box "Backend — FaithTech.Community.Api" #D1FADF
+  participant "Events, Partners and Activity endpoints" as ep
+end box
+box "Backend — FaithTech.Community.Application" #ECFDF3
+  participant "ListActivityHandler" as h
+end box
+box "Backend — FaithTech.Community.Infrastructure" #FFF4E5
+  database "Community database" as db
+end box
+actor -> page : Sign in, land on /
+page --> actor : Greeting and skeletons (loading)
+alt member holds a role
+  page -> ep : GET /api/events?filter=Upcoming
+  ep --> page : Upcoming events (cancelled ones skipped, first three shown)
+  opt lead, Staff or System Admin
+    page -> ep : GET /api/partners
+    ep --> page : Board columns: Lead, In funnel, Confirmed counts
+  end
+end
+page -> ep : GET /api/activity
+ep -> h : List the caller's activity
+h -> db : Ten newest notifications addressed to the caller
+db --> h : Notifications
+h --> ep : ActivityItemDto[]
+ep --> page : 200 OK
+page --> actor : Coming up, Partner pipeline and Recent activity, each with its own empty and error state
+@enduml

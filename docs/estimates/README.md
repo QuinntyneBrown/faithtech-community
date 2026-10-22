@@ -1,11 +1,11 @@
 # Estimates
 
-- Overall effort: 184 days
+- Overall effort: 187 days
 - Complete: 86%
 
 | Subsystem | Effort | Complete |
 |---|---|---|
-| [platform](platform.md) | 21 days | 78% |
+| [platform](platform.md) | 24 days | 81% |
 | [identity](identity.md) | 17 days | 98% |
 | [profiles](profiles.md) | 13 days | 100% |
 | [admin](admin.md) | 17 days | 99% |

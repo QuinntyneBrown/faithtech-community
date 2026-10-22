@@ -1,0 +1,44 @@
+@startuml
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 8
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam class {
+  BorderColor #344054
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+title Class structure — Home
+class ListActivityHandler {
+  +{static} int Limit = 10
+  +HandleAsync(): Task<IReadOnlyList<ActivityItemDto>?>
+}
+class ActivityItemDto {
+  +Guid Id
+  +string Kind
+  +string Text
+  +string LinkPath
+  +DateTimeOffset OccurredAt
+}
+class Notification {
+  +Guid Id
+  +Guid RecipientId
+  +NotificationKind Kind
+  +string Title
+  +string LinkPath
+  +DateTimeOffset CreatedAt
+}
+class HomePage {
+  -events: EventsService
+  -partners: PartnersService
+  -activity: ActivityService
+  +greeting: string
+  +comingUp: EventRow[]
+  +pipeline: PartnerColumnDto[]
+  +feed: ActivityItemDto[]
+}
+ListActivityHandler --> Notification : reads the caller's
+ListActivityHandler ..> ActivityItemDto : returns
+HomePage ..> ActivityItemDto : shows
+@enduml
