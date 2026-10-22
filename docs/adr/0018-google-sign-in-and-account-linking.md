@@ -2,7 +2,7 @@
 
 - Status: Accepted
 - Date: 2026-10-22
-- Requirements: L1-001, L2-058, L2-059
+- Requirements: L1-001, L2-059, L2-060
 - Designs: `docs/detailed-designs/identity/google-sign-in`
 
 ## Context

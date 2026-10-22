@@ -2,7 +2,7 @@
 
 - Status: Accepted
 - Date: 2026-10-22
-- Requirements: L1-020, L2-055 to L2-057, L2-060
+- Requirements: L1-020, L2-055 to L2-058, L2-060
 - Designs: `docs/detailed-designs/marketing/landing-page`, `docs/detailed-designs/identity/google-sign-in`
 
 ## Context

@@ -1,0 +1,11 @@
+file '/home/user/faithtech-community/.cache/brochure/title.png'
+duration 4.406
+file '/home/user/faithtech-community/.cache/brochure/team.png'
+duration 3.631
+file '/home/user/faithtech-community/.cache/brochure/events.png'
+duration 4.616
+file '/home/user/faithtech-community/.cache/brochure/build.png'
+duration 3.505
+file '/home/user/faithtech-community/.cache/brochure/join.png'
+duration 4.801
+file '/home/user/faithtech-community/.cache/brochure/join.png'

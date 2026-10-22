@@ -1016,3 +1016,42 @@ mark { background: var(--color-warning-bg); color: inherit; border-radius: var(-
 .photo-gallery__placeholder { display: grid; place-items: center; height: 100%; padding: var(--space-2); color: var(--color-fg-muted); font: var(--text-caption); text-align: center; }
 .photo-gallery__caption { margin: 0; font: var(--text-body-sm); overflow-wrap: anywhere; }
 .photo-gallery__actions { display: flex; flex-wrap: wrap; gap: var(--space-1); }
+/* ---------- Marketing page (docs/mocks/pages/marketing) -------------------------
+   Split hero (headline and video beside the sign-in panel at LG, stacked below),
+   the video player, the Google social button, benefit cards and the site footer. */
+.landing { display: flex; flex-direction: column; gap: var(--space-12); padding-block: var(--space-8) var(--space-12); }
+.landing-hero { display: grid; gap: var(--space-8); grid-template-columns: minmax(0, 1fr); grid-template-areas: "copy" "panel" "media"; align-items: start; }
+.landing-hero__media { grid-area: media; }
+.landing-hero__copy { grid-area: copy; display: flex; flex-direction: column; gap: var(--space-5); }
+.landing-hero__eyebrow { font: var(--text-overline); letter-spacing: var(--letter-spacing-wide); text-transform: uppercase; color: var(--color-fg-accent); }
+.landing-hero__title { font: var(--text-h1); letter-spacing: var(--letter-spacing-tight); max-width: 18ch; }
+.landing-hero__lead { font: var(--text-body-lg); color: var(--color-fg-muted); max-width: var(--layout-measure); }
+.landing-hero__panel { grid-area: panel; width: 100%; max-width: 28rem; justify-self: center; }
+@media (min-width: 64rem) {
+  .landing-hero { grid-template-columns: minmax(0, 7fr) minmax(0, 5fr); grid-template-areas: "copy panel" "media panel"; gap: var(--space-8) var(--space-12); }
+  .landing-hero__title { font: var(--text-display); }
+  .landing-hero__panel { justify-self: end; }
+}
+
+.video-player { margin: 0; display: flex; flex-direction: column; gap: var(--space-2); }
+.video-player__frame { position: relative; aspect-ratio: 16 / 9; overflow: hidden; border-radius: var(--radius-lg); background: var(--color-bg-surface-sunken); border: var(--border-width-hairline) solid var(--color-border-default); box-shadow: var(--shadow-2); }
+.video-player__frame video, .video-player__frame img { width: 100%; height: 100%; object-fit: cover; }
+.video-player__unavailable { position: absolute; inset: auto var(--space-3) var(--space-3); }
+.video-player__caption { display: flex; flex-wrap: wrap; gap: var(--space-1) var(--space-3); align-items: baseline; font: var(--text-body-sm); color: var(--color-fg-muted); }
+.video-player__transcript summary { cursor: pointer; color: var(--color-fg-link); text-decoration: underline; min-height: var(--target-min); display: inline-flex; align-items: center; }
+.video-player__transcript p { margin-top: var(--space-2); max-width: var(--layout-measure); }
+
+/* Google's "Sign in with Google" button: its own brand fill, border and full-colour mark in both themes. */
+.btn--google { --btn-bg: var(--color-social-google-bg); --btn-fg: var(--color-social-google-fg); --btn-border: var(--color-social-google-border); --btn-bg-hover: color-mix(in srgb, var(--color-social-google-fg) 8%, var(--color-social-google-bg)); --btn-bg-active: color-mix(in srgb, var(--color-social-google-fg) 12%, var(--color-social-google-bg)); font-weight: var(--font-weight-medium); }
+.btn--google .icon--brand { width: 1.125em; height: 1.125em; }
+.btn--google[aria-busy="true"]::after { border-color: var(--color-social-google-fg); border-right-color: transparent; }
+
+.benefit { display: flex; flex-direction: column; gap: var(--space-3); }
+.benefit__title { font: var(--text-h4); }
+
+.cta-band { display: flex; flex-direction: column; align-items: center; gap: var(--space-4); text-align: center; padding: var(--space-10) var(--space-6); border-radius: var(--radius-xl); background: linear-gradient(135deg, var(--color-accent-subtle), var(--color-bg-surface) 70%); border: var(--border-width-hairline) solid var(--color-border-default); }
+
+.site-footer { border-top: var(--border-width-hairline) solid var(--color-border-default); padding-block: var(--space-6); font: var(--text-body-sm); color: var(--color-fg-muted); }
+.site-footer__inner { display: flex; flex-wrap: wrap; gap: var(--space-3) var(--space-6); align-items: center; justify-content: space-between; }
+.site-footer__links { display: flex; flex-wrap: wrap; gap: var(--space-2) var(--space-5); list-style: none; margin: 0; padding: 0; }
+.site-footer__links a { color: var(--color-fg-muted); display: inline-flex; align-items: center; min-height: var(--target-min); }

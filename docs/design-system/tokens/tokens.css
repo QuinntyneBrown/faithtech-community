@@ -71,6 +71,14 @@
   --palette-violet-900: #4c1d95;
   --palette-violet-950: #2e1065;
 
+  /* Google sign-in button: Google's brand guidelines fix these values; used only by the social button. */
+  --palette-google-light-bg: #ffffff;
+  --palette-google-light-fg: #1f1f1f;
+  --palette-google-light-border: #747775;
+  --palette-google-dark-bg: #131314;
+  --palette-google-dark-fg: #e3e3e3;
+  --palette-google-dark-border: #8e918f;
+
   /* Pastel tints for avatars, event and partner accents. Always paired with --color-fg-on-cover (dark text) in both themes. */
   --palette-cover-sage: #cfe8d5;
   --palette-cover-rose: #f9d5e0;
@@ -182,6 +190,9 @@
   --color-fg-accent: var(--palette-violet-700);     /* accent-coloured text on surfaces */
 
   --color-focus-ring: var(--palette-violet-600);
+  --color-social-google-bg: var(--palette-google-light-bg);
+  --color-social-google-fg: var(--palette-google-light-fg);
+  --color-social-google-border: var(--palette-google-light-border);
   --color-focus-ring-offset: var(--color-bg-surface);
 
   --color-info-bg: var(--palette-blue-50);
@@ -390,6 +401,9 @@
   --color-fg-on-accent: var(--palette-white);
   --color-fg-accent: var(--palette-violet-700);
   --color-focus-ring: var(--palette-violet-600);
+  --color-social-google-bg: var(--palette-google-light-bg);
+  --color-social-google-fg: var(--palette-google-light-fg);
+  --color-social-google-border: var(--palette-google-light-border);
   --color-info-bg: var(--palette-blue-50);
   --color-info-fg: var(--palette-blue-800);
   --color-info-border: var(--palette-blue-300);
@@ -465,6 +479,9 @@
   --color-fg-accent: var(--palette-violet-300);
 
   --color-focus-ring: var(--palette-violet-300);
+  --color-social-google-bg: var(--palette-google-dark-bg);
+  --color-social-google-fg: var(--palette-google-dark-fg);
+  --color-social-google-border: var(--palette-google-dark-border);
 
   --color-info-bg: var(--palette-blue-950);
   --color-info-fg: var(--palette-blue-200);
@@ -542,6 +559,9 @@
     --color-fg-on-accent: var(--palette-violet-950);
     --color-fg-accent: var(--palette-violet-300);
     --color-focus-ring: var(--palette-violet-300);
+    --color-social-google-bg: var(--palette-google-dark-bg);
+    --color-social-google-fg: var(--palette-google-dark-fg);
+    --color-social-google-border: var(--palette-google-dark-border);
     --color-info-bg: var(--palette-blue-950);
     --color-info-fg: var(--palette-blue-200);
     --color-info-border: var(--palette-blue-800);
