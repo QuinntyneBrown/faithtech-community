@@ -16,7 +16,7 @@ The team page lets any signed-in member see who the team is, with name, photo an
 - **`TeamListDto`** — `Members` (`TeamMemberDto`) and `Cities`, every team member's distinct home city whatever the filters.
 - **`TeamMemberDto`** — `ProfileId`, `Name`, `HomeCity`, `PhotoUrl` (featured photo or `null`), `Roles` (every role held).
 
-Sorted by name, no paging, opening on All and All cities ([ADR 0007](../../../adr/0007-team-list-filters-and-photos.md)).
+Sorted by name, opening on All and All cities ([ADR 0007](../../../adr/0007-team-list-filters-and-photos.md)). Paged by [ADR 0015](../../../adr/0015-team-list-paging.md): `GET /api/team?role=&city=&after=&pageSize=` returns `{ members, cities, next, totalCount }`, 50 by default and at most 100. Filters and the order by lower-cased name, then id, run in the database before paging, and `next` is a keyset continuation. `cities` stays global. `TeamPage` shows "Showing N of M members" (`role="status"`) and *Show more members*. A failed continuation keeps the list, shows a danger `ft-alert`, "We couldn’t load more members. Try again.", and the button tries again (mock states `more` and `more-error`).
 
 ## Requirements
 
@@ -33,6 +33,7 @@ The feature realizes the following level-2 (L2) requirements. Each L2 requiremen
 1. Given any signed-in member, when they open the team page, then it lists every profile holding a lead or volunteer role, with name, photo and roles.
 2. Given a role filter (Leads or Volunteers) or a city filter, when it is applied, then only matching team members are listed.
 3. Given a profile that loses its last lead or volunteer role, when the team page is viewed, then that profile no longer appears.
+4. Given more than 50 matching team members, when the team page opens, then it shows the first 50 by name with "Showing 50 of N members", and "Show more members" loads the next 50 (at most 100 a page, `L2-046`) with the filters applied before paging, never repeating or skipping a member; the city filter still lists every team member's city; when loading more fails, the members already shown stay and "We couldn’t load more members. Try again." is shown.
 
 ## Diagrams
 
@@ -71,5 +72,5 @@ Membership is computed from current roles, so a profile that loses its last team
 Decisions recorded while building the Domain layer (`FaithTech.Community.Domain`):
 
 - Team membership stays derived from roles through `TeamRoles.IsTeamMember`; nothing is stored. Resolved.
-- Sort order, paging, filter values, the default city and the photo avatar: resolved in [ADR 0007](../../../adr/0007-team-list-filters-and-photos.md).
+- Sort order, filter values, the default city and the photo avatar: resolved in [ADR 0007](../../../adr/0007-team-list-filters-and-photos.md). Paging: resolved in [ADR 0015](../../../adr/0015-team-list-paging.md).
 - Hiding suspended profiles from the team: deferred to the admin subsystem.

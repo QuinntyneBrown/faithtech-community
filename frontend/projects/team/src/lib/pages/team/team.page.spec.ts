@@ -33,10 +33,15 @@ const samuel = member({
 const everyone: TeamListDto = {
   members: [grace, samuel],
   cities: ['Austin', 'Toronto', 'Vancouver'],
+  next: null,
+  totalCount: 2,
 };
-const none: TeamListDto = { members: [], cities: [] };
+const none: TeamListDto = { members: [], cities: [], next: null, totalCount: 0 };
 
-async function setup(list: () => Observable<TeamListDto>, roles: Role[] = ['CityLead']) {
+async function setup(
+  list: (filters?: unknown, after?: string | null) => Observable<TeamListDto>,
+  roles: Role[] = ['CityLead'],
+) {
   const service = { list: vi.fn(list) };
   TestBed.configureTestingModule({
     providers: [
@@ -150,6 +155,50 @@ describe('TeamPage', () => {
 
     expect(service.list).toHaveBeenLastCalledWith({ role: null, city: null });
     expect(button('All')!.getAttribute('aria-pressed')).toBe('true');
+  });
+
+  it('shows how many members match and loads the next page with Show more members', async () => {
+    const ruth = member({ profileId: 'p3', name: 'Ruth Alvarez', roles: ['Volunteer'] });
+    const { host, service, button, items, settle } = await setup((_filters, after) =>
+      of(
+        after
+          ? { ...everyone, members: [ruth], totalCount: 3 }
+          : { ...everyone, next: 'cursor-2', totalCount: 3 },
+      ),
+    );
+    expect(host.textContent).toContain('Showing 2 of 3 members');
+
+    button('Show more members')!.click();
+    await settle();
+
+    expect(service.list).toHaveBeenLastCalledWith({ role: null, city: null }, 'cursor-2');
+    expect(items()).toHaveLength(3);
+    expect(host.textContent).toContain('Showing 3 of 3 members');
+    expect(button('Show more members')).toBeUndefined();
+  });
+
+  it('keeps the members shown when the next page fails and lets the member try again', async () => {
+    let fail = true;
+    const ruth = member({ profileId: 'p3', name: 'Ruth Alvarez', roles: ['Volunteer'] });
+    const { host, button, items, settle } = await setup((_filters, after) => {
+      if (!after) return of({ ...everyone, next: 'cursor-2', totalCount: 3 });
+      return fail
+        ? throwError(() => new Error('offline'))
+        : of({ ...everyone, members: [ruth], totalCount: 3 });
+    });
+
+    button('Show more members')!.click();
+    await settle();
+    expect(items()).toHaveLength(2);
+    expect(host.querySelector('[role="alert"]')!.textContent).toContain(
+      'We couldn’t load more members. Try again.',
+    );
+
+    fail = false;
+    button('Show more members')!.click();
+    await settle();
+    expect(items()).toHaveLength(3);
+    expect(host.querySelector('[role="alert"]')).toBeNull();
   });
 
   it('shows the error state and tries again', async () => {
