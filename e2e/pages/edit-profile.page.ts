@@ -2,7 +2,10 @@ import { Locator, Page } from '@playwright/test';
 
 import { fieldError } from './sign-in.page';
 
-/** Edit your own profile at /people/me/edit (docs/mocks/pages/edit-profile). */
+/**
+ * Edit your own profile at /people/me/edit, or, as a System Admin, another member's at
+ * /people/:id/edit (docs/mocks/pages/edit-profile).
+ */
 export class EditProfilePage {
   readonly heading: Locator;
   readonly name: Locator;
@@ -26,6 +29,12 @@ export class EditProfilePage {
   readonly addPhotos: Locator;
   readonly photoItems: Locator;
   readonly photoLimit: Locator;
+  /** The page's h1, whatever it says. */
+  readonly title: Locator;
+  readonly adminNote: Locator;
+  readonly breadcrumb: Locator;
+  readonly forbidden: Locator;
+  readonly backToProfile: Locator;
 
   constructor(private readonly page: Page) {
     this.heading = page.getByRole('heading', { level: 1, name: 'Edit profile' });
@@ -58,10 +67,17 @@ export class EditProfilePage {
     this.photoLimit = this.photosGroup.getByText(
       'That’s 10 photos, the most a profile can have. Remove one to add another.',
     );
+    this.title = page.getByRole('heading', { level: 1 });
+    this.adminNote = page.getByText(
+      'You’re editing as System Admin. Every change is recorded in the audit log.',
+    );
+    this.breadcrumb = page.getByRole('navigation', { name: 'Breadcrumb' });
+    this.forbidden = page.getByRole('heading', { name: 'You can only edit your own profile' });
+    this.backToProfile = page.getByRole('link', { name: 'Back to profile' });
   }
 
-  async open(): Promise<void> {
-    await this.page.goto('/people/me/edit');
+  async open(id = 'me'): Promise<void> {
+    await this.page.goto(`/people/${id}/edit`);
   }
 
   /** Chooses files through Add photos, as a member would in the file picker. */

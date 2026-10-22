@@ -3,8 +3,11 @@ import {
   ChangeDetectionStrategy,
   Component,
   computed,
+  effect,
   inject,
+  input,
   signal,
+  untracked,
   viewChild,
 } from '@angular/core';
 import { NonNullableFormBuilder, ReactiveFormsModule } from '@angular/forms';
@@ -37,7 +40,7 @@ import { firstValueFrom } from 'rxjs';
 import { DeletePhotoData, DeletePhotoDialog } from '../../dialogs';
 
 type Field = 'name' | 'homeCity' | 'bio';
-type State = 'loading' | 'loaded' | 'error';
+type State = 'loading' | 'loaded' | 'error' | 'forbidden';
 
 /** A photo on the page: saved (it has an id) or pending (chosen, uploaded on save). */
 interface PhotoItem {
@@ -67,7 +70,9 @@ const LONG_ALT = 'Use 300 characters or fewer to describe this photo.';
 /**
  * Edit your own name, home city, bio and photos (L2-006, L2-007), matching
  * docs/mocks/pages/edit-profile. Feature acts at once; Remove confirms first; new photos and
- * changed descriptions are saved with Save profile.
+ * changed descriptions are saved with Save profile. A System Admin edits another member's
+ * profile here too, at /people/{id}/edit (L2-040, edit-profile/admin); anyone else sees the
+ * forbidden state, and the API refuses the change regardless (ADR 0004).
  */
 @Component({
   selector: 'ft-edit-profile-page',
@@ -104,6 +109,9 @@ export class EditProfilePage {
   private readonly homeCityField = viewChild('homeCityField', { read: FormFieldComponent });
   private readonly bioField = viewChild('bioField', { read: FormFieldComponent });
 
+  /** Route parameter: the profile to edit. me/edit has none, so the router binds undefined: "me". */
+  readonly id = input('me', { transform: (id: string | undefined) => id ?? 'me' });
+
   protected readonly form = inject(NonNullableFormBuilder).group({
     name: [''],
     homeCity: [''],
@@ -114,7 +122,19 @@ export class EditProfilePage {
   protected readonly failed = signal(false);
   protected readonly photosFailed = signal(false);
   protected readonly photos = signal<PhotoItem[]>([]);
-  private readonly profile = signal<ProfileDto | null>(null);
+  protected readonly profile = signal<ProfileDto | null>(null);
+  /** A System Admin editing someone else's profile (L2-040 AC3). */
+  protected readonly other = computed(() => this.profile()?.isOwn === false);
+  protected readonly title = computed(() => {
+    const profile = this.profile();
+    return profile && this.other() ? `Edit ${profile.name}’s profile` : 'Edit profile';
+  });
+  protected readonly profileHref = computed(() =>
+    this.id() === 'me' || this.profile()?.isOwn ? '/people/me' : `/people/${this.id()}`,
+  );
+  protected readonly aboutHeading = computed(() =>
+    this.other() ? `About ${this.profile()!.name.split(' ')[0]}` : 'About you',
+  );
   private readonly submitted = signal(false);
   private readonly serverErrors = signal<Partial<Record<Field, string>>>({});
   // Re-evaluated on submit; the form's own state is not a signal.
@@ -164,7 +184,10 @@ export class EditProfilePage {
   ]);
 
   constructor() {
-    void this.load();
+    effect(() => {
+      this.id();
+      untracked(() => void this.load());
+    });
   }
 
   protected error(field: Field): string {
@@ -173,9 +196,13 @@ export class EditProfilePage {
 
   protected load(): Promise<void> {
     this.state.set('loading');
-    return firstValueFrom(this.profiles.getProfile('me')).then(
+    return firstValueFrom(this.profiles.getProfile(this.id())).then(
       (profile) => {
         this.profile.set(profile);
+        if (!profile.canEdit) {
+          this.state.set('forbidden');
+          return;
+        }
         this.form.setValue({
           name: profile.name,
           homeCity: profile.homeCity ?? '',
@@ -272,7 +299,9 @@ export class EditProfilePage {
       this.toasts.show({
         variant: 'success',
         heading: 'Profile saved',
-        text: 'Everyone signed in can now see your changes.',
+        text: this.other()
+          ? 'Everyone signed in can now see the changes.'
+          : 'Everyone signed in can now see your changes.',
       });
     } else {
       this.photosFailed.set(true);

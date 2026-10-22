@@ -147,10 +147,12 @@
       "route": "/people/:id",
       "requirements": [
         "L2-005",
-        "L2-007"
+        "L2-007",
+        "L2-040"
       ],
       "states": [
         "default",
+        "admin",
         "own",
         "no-role",
         "loading",
@@ -164,13 +166,15 @@
       "id": "edit-profile",
       "kind": "page",
       "title": "Edit profile",
-      "route": "/people/me/edit",
+      "route": "/people/me/edit, /people/:id/edit",
       "requirements": [
         "L2-006",
-        "L2-007"
+        "L2-007",
+        "L2-040"
       ],
       "states": [
         "default",
+        "admin",
         "loading",
         "error",
         "invalid",
@@ -181,7 +185,8 @@
         "wrong-type",
         "pending",
         "full",
-        "empty"
+        "empty",
+        "forbidden"
       ]
     },
     {

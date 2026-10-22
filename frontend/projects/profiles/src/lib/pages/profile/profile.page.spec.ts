@@ -68,6 +68,21 @@ describe('ProfilePage', () => {
     expect(host.textContent).not.toContain('Edit profile');
   });
 
+  it('offers a System Admin Edit profile for another member, opening that member’s editor', async () => {
+    // Traces to: L2-040 AC3
+    const { fixture, button } = setup(() => of({ ...samuel, canEdit: true }), ['SystemAdmin']);
+    await fixture.whenStable();
+    fixture.detectChanges();
+    expect(button('Edit profile')!.getAttribute('href')).toBe('/people/p1/edit');
+  });
+
+  it('links the owner to their own editor', async () => {
+    const { fixture, button } = setup(() => of({ ...samuel, isOwn: true, canEdit: true }));
+    await fixture.whenStable();
+    fixture.detectChanges();
+    expect(button('Edit profile')!.getAttribute('href')).toBe('/people/me/edit');
+  });
+
   it('draws the avatar in the colour that belongs to the member’s profile id', async () => {
     const { fixture, host } = setup(() => of(samuel));
     await fixture.whenStable();

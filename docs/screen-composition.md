@@ -18,14 +18,15 @@ Coverage: the profiles screens (`profile`, `edit-profile`, `delete-photo`), the 
 
 - Library: `ProfileHeaderComponent` (featured photo, or initials without one, in an XL `AvatarComponent`, name as the `h1`, `BadgeComponent` roles, home city, bio, photo strip of `PhotoComponent`), `ButtonComponent` (*Edit profile*, *Add photos*, *Try again*, *Go home*), `EmptyStateComponent` (no photos on the own profile; error variant for load failure; not-found).
 - Loading uses `ProfileHeaderComponent [loading]` (skeletons, `aria-busy`).
-- Own state adds *Edit profile* in the header's `[actions]` slot.
+- Own state adds *Edit profile* in the header's `[actions]` slot; the admin state (a System Admin on another member, `CanEdit`) adds it too, linking to `/people/{id}/edit`.
 - *Add a role* and *Remove a role* (`ButtonComponent` in the `[actions]` slot) appear when `assignableRoles` from `api` offers an option for the caller (City Lead or System Admin, L2-009); each opens `RoleDialogComponent` through `DialogService` (ADR 0005) and the role badges update from the API's answer.
 - Local: none beyond composition. The `h1` for the error and not-found states is a visually hidden page heading.
 
-### Edit profile — `/people/me/edit` (`pages/edit-profile`: default, loading, error, invalid, busy, success, uploading, too-large, pending, full)
+### Edit profile — `/people/me/edit`, `/people/:id/edit` (`pages/edit-profile`: default, admin, loading, error, invalid, busy, success, uploading, too-large, pending, full, forbidden)
 
 - Library: `BreadcrumbComponent` + `BreadcrumbItemComponent`, `PageHeaderComponent`, `CardComponent` (About you, Photos), `StackComponent`, `FormFieldComponent` + `TextFieldComponent` (Name, Home city), `FormFieldComponent` + `TextareaComponent` (Bio), `PictureListComponent` (photos, descriptions, Feature, Remove, Add photos, uploading, failed, pending and full states), `ErrorSummaryComponent` (invalid), `FormActionsComponent` + `ButtonComponent` (*Save profile* with `loading`, *Cancel*), `SkeletonComponent` (loading), `EmptyStateComponent` error variant (error), `ToastService` (success: "Profile saved").
 - Opens `DeletePhotoDialog` through `DialogService` from a saved photo's Remove.
+- Admin state: the breadcrumb names the member, the header reads "Edit {name}’s profile" with the audit note, and Cancel returns to their profile. Forbidden state: `EmptyStateComponent` "You can only edit your own profile" with *Back to profile* and no form.
 - Local: the `<form>` element and the section headings.
 
 ### People and roles — `/people` (`pages/people`: default, admin, read-only, loading, error, no-results, forbidden)

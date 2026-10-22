@@ -13,6 +13,7 @@ Override is not a separate set of screens. Each feature's Application permission
 - **`AdminUsersEndpoints`** — minimal API mapping for the query. A `null` result from the handler answers `403`.
 - **`SearchUsersHandler`** in Application `Admin/` — `HandleAsync(term, page)` requires System Admin and returns a `PagedResult<AdminUserSummary>`, or `null` for any other caller. Page size: 25, ordered by name. Search matches name or email, case-insensitive, and includes suspended accounts. Status is Suspended when the profile is suspended, Unverified when the email is not confirmed, and Active otherwise.
 - **System Admin override** — not a shared class. Each feature's own access check grants System Admin and tells its handler that the grant was by override. For profiles this is `ProfileAccess.AuthorizeEditAsync` (ADR 0004): it answers `EditAccess.Owner`, `EditAccess.AdminOverride` or `EditAccess.Forbidden`, and the profile handlers write an audit entry only for `AdminOverride`. Contacts and the Agile workspaces are not built yet; their designs apply the same rule.
+- **Edit another member's profile** — the built override screen. `ProfilePage` shows *Edit profile* whenever `ProfileDto.CanEdit` is true (owner or System Admin), linking to `/people/me/edit` on the caller's own profile and to `/people/{id}/edit` on anyone else's. `EditProfilePage` takes the route's `id` (`me` by default) and loads, saves and changes photos for that profile. For another member it is titled "Edit {name}’s profile", says "You’re editing as System Admin. Every change is recorded in the audit log.", names the member in the breadcrumb and Cancel returns to their profile (`profile/admin`, `edit-profile/admin` mocks). When `CanEdit` is false it shows the forbidden state "You can only edit your own profile" with *Back to profile* and no form (`edit-profile/forbidden` mock); the API refuses any change regardless (ADR 0004).
 - **`IAuditLog`** — `Record(actorId, action, targetType, targetId, before, after)` adds the override entry to the same unit of work as the change.
 
 Whether read-only override views (for example, reading a private contact) are audited per request or per session: per request, as `L2-012` AC2 requires for contacts.
@@ -31,6 +32,8 @@ The feature realizes the following level-2 (L2) requirements. Each L2 requiremen
 
 1. Given a System Admin, when they open admin users, then they can search all users and see each user's roles and status.
 2. Given a System Admin, when they view or change any record, including private contacts and workspaces, then the action succeeds.
+3. Given a System Admin viewing another member's profile, when they choose "Edit profile", then the editor opens at `/people/{id}/edit` for that member, not their own, and saving changes that member's details and photos, with each change audited (L2-041 AC1).
+4. Given a user who is not a System Admin, when they open another member's editor at `/people/{id}/edit`, then a forbidden state is shown with no form, and the API refuses any change (L2-006 AC3).
 
 ## Diagrams
 
@@ -78,3 +81,4 @@ Decisions recorded while implementing:
 - The Admin tab row is Users and Audit log only. The mock once had a "Roles" tab linking to the People page (`L2-053`, built with the profiles feature), a page without the same tab row; it was removed so every tab leads to a page with the same tab set. System Admins assign roles from People, reached from the top bar. The workspace-owner alert in the mock belongs to the Agile design and is deferred with it.
 - A non-admin opening `/admin/**` gets the API's `403` and the page shows the forbidden state ("This area is for System Admins").
 - The shell shows the **Admin** navigation link only to System Admins.
+- The profile override needed a route: `/people/:id/edit` reuses `EditProfilePage` rather than a separate admin editor, so validation, photos and toasts stay one implementation. `ProfilePage` decides from `CanEdit`, not from the caller's roles, so the server stays the authority. Resolved.
