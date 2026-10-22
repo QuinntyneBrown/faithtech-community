@@ -1,0 +1,316 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Formatting toolbar — FaithTech Community design system</title>
+<meta name="description" content="The FaithTech Community notes formatting toolbar: Bold, Italic, Underline, Strikethrough, Inline code and Link over a text selection, with pressed states and shortcuts.">
+<link rel="stylesheet" href="../tokens/tokens.css">
+<link rel="stylesheet" href="../assets/components.css">
+<link rel="stylesheet" href="../assets/ds.css">
+</head>
+<body id="top">
+<a class="skip-link" href="#main">Skip to content</a>
+<div class="ds-shell">
+  <nav class="ds-nav" aria-label="Design system">
+    <div class="ds-nav__brand"><a href="../index.html">FaithTech DS</a><button class="ds-theme-toggle" type="button" aria-pressed="false">☾ Dark</button></div>
+    <details open><summary>Foundations</summary><ul>
+      <li><a href="../foundations/color.html">Color</a></li>
+      <li><a href="../foundations/typography.html">Typography</a></li>
+      <li><a href="../foundations/spacing.html">Spacing</a></li>
+      <li><a href="../foundations/layout.html">Layout</a></li>
+      <li><a href="../foundations/elevation.html">Elevation</a></li>
+      <li><a href="../foundations/shape.html">Shape</a></li>
+      <li><a href="../foundations/motion.html">Motion</a></li>
+      <li><a href="../foundations/iconography.html">Iconography</a></li>
+      <li><a href="../foundations/theming.html">Theming</a></li>
+      <li><a href="../foundations/responsive.html">Responsive</a></li>
+      <li><a href="../foundations/accessibility.html">Accessibility</a></li>
+      <li><a href="../foundations/content.html">Content</a></li>
+    </ul></details>
+    <details open><summary>Components</summary><ul>
+      <li><a href="../components/button.html">Button</a></li>
+      <li><a href="../components/link.html">Link</a></li>
+      <li><a href="../components/menu.html">Menu</a></li>
+      <li><a href="../components/form-field.html">Form field</a></li>
+      <li><a href="../components/text-field.html">Text field</a></li>
+      <li><a href="../components/copy-field.html">Copy field</a></li>
+      <li><a href="../components/textarea.html">Textarea</a></li>
+      <li><a href="../components/select.html">Select</a></li>
+      <li><a href="../components/radio-group.html">Radio group</a></li><li><a href="../components/checkbox-group.html">Checkbox group</a></li>
+      <li><a href="../components/switch.html">Switch</a></li>
+      <li><a href="../components/form-layout.html">Form layout</a></li>
+      <li><a href="../components/picture-list.html">Picture list</a></li>
+      <li><a href="../components/photo-gallery.html">Photo gallery</a></li>
+      <li><a href="../components/file-dropzone.html">File drop zone</a></li>
+      <li><a href="../components/file-row.html">File row</a></li>
+      <li><a href="../components/tag-input.html">Tag input</a></li>
+      <li><a href="../components/person-picker.html">Person picker</a></li>
+      <li><a href="../components/type-icon.html">Type icon</a></li>
+      <li><a href="../components/sticker-picker.html">Estimate card picker</a></li>
+      <li><a href="../components/top-bar.html">Top bar</a></li>
+      <li><a href="../components/tab-bar.html">Tab bar</a></li>
+      <li><a href="../components/tabs.html">Tabs</a></li>
+      <li><a href="../components/breadcrumb.html">Breadcrumb</a></li>
+      <li><a href="../components/skip-link.html">Skip link</a></li>
+      <li><a href="../components/layout.html">Layout primitives</a></li>
+      <li><a href="../components/card.html">Card</a></li>
+      <li><a href="../components/dialog.html">Dialog</a></li>
+      <li><a href="../components/notification-panel.html">Notification panel</a></li>
+      <li><a href="../components/list.html">List</a></li>
+      <li><a href="../components/table.html">Table</a></li>
+      <li><a href="../components/description-list.html">Description list</a></li>
+      <li><a href="../components/feed.html">Activity feed</a></li>
+      <li><a href="../components/tree.html">Backlog tree</a></li>
+      <li><a href="../components/kanban.html">Kanban board</a></li>
+      <li><a href="../components/event-card.html">Event card</a></li>
+      <li><a href="../components/person-card.html">Person card</a></li>
+      <li><a href="../components/profile-header.html">Profile header</a></li>
+      <li><a href="../components/person-summary.html">Person summary</a></li>
+      <li><a href="../components/search-results.html">Search results</a></li>
+      <li><a href="../components/note.html">Note</a></li>
+      <li><a href="../components/block-editor.html">Block editor</a></li>
+      <li><a href="../components/slash-menu.html">Slash menu</a></li>
+      <li><a href="../components/format-toolbar.html">Formatting toolbar</a></li>
+      <li><a href="../components/save-status.html">Save status</a></li>
+      <li><a href="../components/page-links.html">Page links</a></li>
+      <li><a href="../components/avatar.html">Avatar</a></li>
+      <li><a href="../components/qr-code.html">QR code</a></li>
+      <li><a href="../components/logo-mark.html">Logo mark</a></li>
+      <li><a href="../components/badge.html">Badge</a></li>
+      <li><a href="../components/chip.html">Chip</a></li>
+      <li><a href="../components/stat.html">Stat</a></li>
+      <li><a href="../components/sticker.html">Estimate card</a></li>
+      <li><a href="../components/toast.html">Toast</a></li>
+      <li><a href="../components/alert.html">Alert and banner</a></li>
+      <li><a href="../components/inline-message.html">Inline message</a></li>
+      <li><a href="../components/progress.html">Progress</a></li>
+      <li><a href="../components/skeleton.html">Skeleton</a></li>
+      <li><a href="../components/empty-state.html">Empty state</a></li>
+      <li><a href="../components/error-page.html">Error page</a></li>
+      <li><a href="../components/landing-hero.html">Landing hero</a></li>
+      <li><a href="../components/video-player.html">Video player</a></li>
+      <li><a href="../components/auth-forms.html">Sign-in and sign-up forms</a></li>
+      <li><a href="../components/site-footer.html">Site footer</a></li>
+    </ul></details>
+    <details open><summary>Patterns</summary><ul>
+      <li><a href="../patterns/forms.html">Forms</a></li>
+      <li><a href="../patterns/feedback-and-loading.html">Feedback and loading</a></li>
+      <li><a href="../patterns/empty-and-error-states.html">Empty and error states</a></li>
+      <li><a href="../patterns/navigation.html">Navigation and page structure</a></li>
+      <li><a href="../patterns/dialogs-and-overlays.html">Dialogs and overlays</a></li>
+      <li><a href="../patterns/lists-and-tables.html">Lists and tables</a></li>
+      <li><a href="../patterns/notifications.html">Notifications</a></li>
+      <li><a href="../patterns/content-and-tone.html">Content and tone</a></li>
+    </ul></details>
+  </nav>
+  <main id="main" class="ds-main">
+    <header class="ds-header">
+      <p class="ds-kicker">Component · Actions</p>
+      <h1>Formatting toolbar</h1>
+      <p class="ds-lead">A small dark toolbar that appears over a text selection in a Notes block and applies inline formats. Every button has a keyboard shortcut, and the toolbar itself is reachable with <kbd>Alt</kbd>+<kbd>F10</kbd>.</p>
+      <div class="ds-meta"><span class="ds-pill ds-pill--ok">WCAG 2.2 AA</span><span class="ds-pill">Status: new</span><span class="ds-pill"><code>ft-format-toolbar</code></span><span class="ds-pill">APG Toolbar</span></div>
+      <ul class="ds-toc">
+        <li><a href="#overview">Overview</a></li><li><a href="#anatomy">Anatomy</a></li><li><a href="#variants">Variants</a></li><li><a href="#sizes">Sizes</a></li><li><a href="#states">States</a></li><li><a href="#responsive">Responsive</a></li><li><a href="#theming">Theming</a></li><li><a href="#accessibility">Accessibility</a></li><li><a href="#content">Content</a></li><li><a href="#do-dont">Do and don't</a></li><li><a href="#tokens">Tokens</a></li><li><a href="#code">Code</a></li><li><a href="#sources">Sources</a></li>
+      </ul>
+    </header>
+
+    <section class="ds-section" id="overview"><h2><a href="#overview">Overview</a></h2>
+      <p>When the owner selects text in any text-bearing block except Code, the toolbar opens just above the selection with six buttons: <b>Bold</b>, <b>Italic</b>, <b>Underline</b>, <b>Strikethrough</b>, <b>Inline code</b> and <b>Link</b>. Each format button shows whether the whole selection already has that format and toggles it; Link opens the "Add a link" <a href="dialog.html">dialog</a>. With the caret inside linked text, Link is replaced by <b>Edit link</b> and <b>Remove link</b>. It is part of the <a href="block-editor.html">block editor</a> and saves through autosave.</p>
+      <ul>
+        <li>Use it only for inline formats on the selected text. Block-level changes (heading, list, quote) go through the slash menu or Turn into.</li>
+        <li>Never show it in the read-only view, in a Code block or while editing is paused.</li>
+      </ul>
+    </section>
+
+    <section class="ds-section" id="anatomy"><h2><a href="#anatomy">Anatomy</a></h2>
+      <div class="ds-anatomy">
+        <figure class="ds-anatomy__figure">
+          <div class="format-toolbar" role="toolbar" aria-label="Formatting" style="position: static; animation: none;">
+            <button class="format-toolbar__btn" type="button" aria-label="Bold" aria-keyshortcuts="Control+B" aria-pressed="true"><span aria-hidden="true"><b>B</b></span></button>
+            <button class="format-toolbar__btn" type="button" tabindex="-1" aria-label="Italic" aria-keyshortcuts="Control+I" aria-pressed="false" data-state="hover"><span aria-hidden="true"><i>I</i></span><span class="format-toolbar__tip" aria-hidden="true">Italic · Ctrl+I</span></button>
+            <button class="format-toolbar__btn" type="button" tabindex="-1" aria-label="Underline" aria-keyshortcuts="Control+U" aria-pressed="false"><span aria-hidden="true"><u>U</u></span></button>
+            <button class="format-toolbar__btn" type="button" tabindex="-1" aria-label="Strikethrough" aria-keyshortcuts="Control+Shift+S" aria-pressed="false"><span aria-hidden="true"><s>S</s></span></button>
+            <button class="format-toolbar__btn" type="button" tabindex="-1" aria-label="Inline code" aria-keyshortcuts="Control+E" aria-pressed="false"><span aria-hidden="true">&lt;/&gt;</span></button>
+            <span class="format-toolbar__sep" aria-hidden="true"></span>
+            <button class="format-toolbar__btn" type="button" tabindex="-1" aria-label="Link" aria-keyshortcuts="Control+K" aria-haspopup="dialog"><span aria-hidden="true"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><path d="M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1-1"/></svg></span></button>
+          </div>
+          <span class="ds-callout" style="left: 0; top: 0;" aria-hidden="true">1</span>
+          <span class="ds-callout" style="left: 8%; top: 70%;" aria-hidden="true">2</span>
+          <span class="ds-callout" style="left: 20%; top: 70%;" aria-hidden="true">3</span>
+          <span class="ds-callout" style="left: 30%; top: 0;" aria-hidden="true">4</span>
+          <span class="ds-callout" style="left: 52%; top: 70%;" aria-hidden="true">5</span>
+        </figure>
+        <ol class="ds-anatomy__list">
+          <li><div><b>Toolbar</b><small><code>.format-toolbar</code>, <code>role="toolbar"</code> named "Formatting": inverse surface, <code>--radius-md</code>, <code>--shadow-3</code>, anchored above the selection's start.</small></div></li>
+          <li><div><b>Pressed button</b><small><code>.format-toolbar__btn[aria-pressed="true"]</code>: accent fill with <code>--color-fg-on-accent</code>, meaning the whole selection is bold.</small></div></li>
+          <li><div><b>Button</b><small><code>.format-toolbar__btn</code>: 24px minimum (32px on touch), the format's letter drawn in its own style, labelled by name.</small></div></li>
+          <li><div><b>Tooltip</b><small><code>.format-toolbar__tip</code>: "Italic · Ctrl+I" (⌘ on macOS) under the button on hover and focus; <code>aria-hidden</code>, since the shortcut is in <code>aria-keyshortcuts</code>.</small></div></li>
+          <li><div><b>Separator and Link</b><small><code>.format-toolbar__sep</code> sets Link apart from the toggles; Link has <code>aria-haspopup="dialog"</code>.</small></div></li>
+        </ol>
+      </div>
+    </section>
+
+    <section class="ds-section" id="variants"><h2><a href="#variants">Variants</a></h2>
+      <h3>Selection</h3>
+      <div class="ds-example">
+        <div class="ds-example__canvas">
+          <div class="format-toolbar" role="toolbar" aria-label="Formatting" style="position: static; animation: none;"><button class="format-toolbar__btn" type="button" aria-label="Bold" aria-keyshortcuts="Control+B" aria-pressed="false"><span aria-hidden="true"><b>B</b></span></button><button class="format-toolbar__btn" type="button" tabindex="-1" aria-label="Italic" aria-keyshortcuts="Control+I" aria-pressed="true"><span aria-hidden="true"><i>I</i></span></button><button class="format-toolbar__btn" type="button" tabindex="-1" aria-label="Underline" aria-keyshortcuts="Control+U" aria-pressed="false"><span aria-hidden="true"><u>U</u></span></button><button class="format-toolbar__btn" type="button" tabindex="-1" aria-label="Strikethrough" aria-keyshortcuts="Control+Shift+S" aria-pressed="false"><span aria-hidden="true"><s>S</s></span></button><button class="format-toolbar__btn" type="button" tabindex="-1" aria-label="Inline code" aria-keyshortcuts="Control+E" aria-pressed="false"><span aria-hidden="true">&lt;/&gt;</span></button><span class="format-toolbar__sep" aria-hidden="true"></span><button class="format-toolbar__btn" type="button" tabindex="-1" aria-label="Link" aria-keyshortcuts="Control+K" aria-haspopup="dialog"><span aria-hidden="true"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><path d="M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1-1"/></svg></span></button></div>
+        </div>
+        <div class="ds-example__caption"><span>"ask in the team channel" is selected and already italic (<code>pages/note/toolbar</code>).</span></div>
+        <details class="ds-example__code"><summary>HTML</summary><pre><code>&lt;div class="format-toolbar" role="toolbar" aria-label="Formatting" aria-controls="block-3"&gt;
+  &lt;button class="format-toolbar__btn" type="button" tabindex="0" aria-label="Bold" aria-keyshortcuts="Control+B" aria-pressed="false"&gt;
+    &lt;span aria-hidden="true"&gt;&lt;b&gt;B&lt;/b&gt;&lt;/span&gt;&lt;span class="format-toolbar__tip" aria-hidden="true"&gt;Bold · Ctrl+B&lt;/span&gt;
+  &lt;/button&gt;
+  … Italic (Control+I), Underline (Control+U), Strikethrough (Control+Shift+S), Inline code (Control+E) …
+  &lt;span class="format-toolbar__sep" aria-hidden="true"&gt;&lt;/span&gt;
+  &lt;button class="format-toolbar__btn" type="button" tabindex="-1" aria-label="Link" aria-keyshortcuts="Control+K" aria-haspopup="dialog"&gt;…&lt;/button&gt;
+&lt;/div&gt;</code></pre></details>
+      </div>
+      <h3>Caret in a link</h3>
+      <div class="ds-example">
+        <div class="ds-example__canvas">
+          <div class="format-toolbar" role="toolbar" aria-label="Formatting" style="position: static; animation: none;"><button class="format-toolbar__btn" type="button" aria-label="Bold" aria-keyshortcuts="Control+B" aria-pressed="false"><span aria-hidden="true"><b>B</b></span></button><button class="format-toolbar__btn" type="button" tabindex="-1" aria-label="Italic" aria-keyshortcuts="Control+I" aria-pressed="false"><span aria-hidden="true"><i>I</i></span></button><button class="format-toolbar__btn" type="button" tabindex="-1" aria-label="Underline" aria-keyshortcuts="Control+U" aria-pressed="false"><span aria-hidden="true"><u>U</u></span></button><button class="format-toolbar__btn" type="button" tabindex="-1" aria-label="Strikethrough" aria-keyshortcuts="Control+Shift+S" aria-pressed="false"><span aria-hidden="true"><s>S</s></span></button><button class="format-toolbar__btn" type="button" tabindex="-1" aria-label="Inline code" aria-keyshortcuts="Control+E" aria-pressed="false"><span aria-hidden="true">&lt;/&gt;</span></button><span class="format-toolbar__sep" aria-hidden="true"></span><button class="format-toolbar__btn" type="button" tabindex="-1" aria-keyshortcuts="Control+K" aria-haspopup="dialog">Edit link</button><button class="format-toolbar__btn" type="button" tabindex="-1">Remove link</button></div>
+        </div>
+        <div class="ds-example__caption"><span>The caret is inside "faithtech.community". Edit link opens the dialog pre-filled ("Edit link", with Remove link in its footer); Remove link drops the <code>href</code> and keeps the text and its other formats.</span></div>
+      </div>
+    </section>
+
+    <section class="ds-section" id="sizes" data-na="One size; buttons grow from 24px to 32px on touch screens."><h2><a href="#sizes">Sizes</a></h2>
+      <p>Not applicable. Buttons are <code>--target-min</code> (24px) with a pointer and <code>--target-comfortable</code> (32px) on touch screens; the toolbar wraps nothing and stays one row.</p>
+    </section>
+
+    <section class="ds-section" id="states"><h2><a href="#states">States</a></h2>
+      <div class="ds-matrix"><table>
+        <thead><tr><th scope="col">Default</th><th scope="col">Hover</th><th scope="col">Focus</th><th scope="col">Pressed</th><th scope="col">Pressed + focus</th></tr></thead>
+        <tbody><tr>
+          <td><div class="format-toolbar" role="toolbar" aria-label="Default" style="position: static; animation: none;"><button class="format-toolbar__btn" type="button" aria-label="Bold, default" aria-pressed="false"><span aria-hidden="true"><b>B</b></span></button></div></td>
+          <td><div class="format-toolbar" role="toolbar" aria-label="Hover" style="position: static; animation: none;"><button class="format-toolbar__btn" type="button" aria-label="Bold, hover" aria-pressed="false" data-state="hover"><span aria-hidden="true"><b>B</b></span></button></div></td>
+          <td><div class="format-toolbar" role="toolbar" aria-label="Focus" style="position: static; animation: none;"><button class="format-toolbar__btn" type="button" aria-label="Bold, focus" aria-pressed="false" data-state="focus"><span aria-hidden="true"><b>B</b></span></button></div></td>
+          <td><div class="format-toolbar" role="toolbar" aria-label="Pressed" style="position: static; animation: none;"><button class="format-toolbar__btn" type="button" aria-label="Bold, pressed" aria-pressed="true"><span aria-hidden="true"><b>B</b></span></button></div></td>
+          <td><div class="format-toolbar" role="toolbar" aria-label="Pressed and focused" style="position: static; animation: none;"><button class="format-toolbar__btn" type="button" aria-label="Bold, pressed and focused" aria-pressed="true" data-state="focus"><span aria-hidden="true"><b>B</b></span></button></div></td>
+        </tr></tbody>
+      </table></div>
+      <ul>
+        <li><b>Pressed</b> only when the <em>whole</em> selection has the format; a mixed selection shows not pressed, and pressing applies the format to all of it.</li>
+        <li><b>Hidden</b>: no selection, a collapsed caret outside a link, a Code block, the read-only view or a paused editor.</li>
+        <li>There is no disabled state; buttons that can't apply are not shown.</li>
+      </ul>
+      <h3>Both themes</h3>
+      <div class="ds-themes">
+        <div data-theme="light"><div class="ds-example__canvas"><div class="format-toolbar" role="toolbar" aria-label="Formatting, light" style="position: static; animation: none;"><button class="format-toolbar__btn" type="button" aria-label="Bold" aria-pressed="true"><span aria-hidden="true"><b>B</b></span></button><button class="format-toolbar__btn" type="button" tabindex="-1" aria-label="Italic" aria-pressed="false" data-state="focus"><span aria-hidden="true"><i>I</i></span></button><button class="format-toolbar__btn" type="button" tabindex="-1" aria-label="Underline" aria-pressed="false"><span aria-hidden="true"><u>U</u></span></button><span class="format-toolbar__sep" aria-hidden="true"></span><button class="format-toolbar__btn" type="button" tabindex="-1" aria-label="Link" aria-haspopup="dialog"><span aria-hidden="true"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><path d="M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1-1"/></svg></span></button></div></div></div>
+        <div data-theme="dark"><div class="ds-example__canvas"><div class="format-toolbar" role="toolbar" aria-label="Formatting, dark" style="position: static; animation: none;"><button class="format-toolbar__btn" type="button" aria-label="Bold" aria-pressed="true"><span aria-hidden="true"><b>B</b></span></button><button class="format-toolbar__btn" type="button" tabindex="-1" aria-label="Italic" aria-pressed="false" data-state="focus"><span aria-hidden="true"><i>I</i></span></button><button class="format-toolbar__btn" type="button" tabindex="-1" aria-label="Underline" aria-pressed="false"><span aria-hidden="true"><u>U</u></span></button><span class="format-toolbar__sep" aria-hidden="true"></span><button class="format-toolbar__btn" type="button" tabindex="-1" aria-label="Link" aria-haspopup="dialog"><span aria-hidden="true"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><path d="M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1-1"/></svg></span></button></div></div></div>
+      </div>
+    </section>
+
+    <section class="ds-section" id="responsive"><h2><a href="#responsive">Responsive behaviour</a></h2>
+      <ul>
+        <li>Anchored above the start of the selection (CDK Overlay); when there is no room above (under the sticky top bar) it flips below the selection, and it shifts sideways to stay inside the viewport at 360px (L2-099 AC11).</li>
+        <li>On touch screens buttons are 32px, so the six buttons and the separator fit in about 220px.</li>
+        <li>It never covers the selected text or the caret (WCAG 2.4.11): it sits outside the selection's line box.</li>
+      </ul>
+    </section>
+
+    <section class="ds-section" id="theming"><h2><a href="#theming">Theming</a></h2>
+      <p>The toolbar uses the inverse pair (<code>--color-bg-inverse</code>, <code>--color-fg-inverse</code>) in both themes, like a <a href="toast.html">toast</a>, so it stands apart from the page. Hover tints with <code>currentColor</code> at 16%; pressed uses <code>--color-accent</code> with <code>--color-fg-on-accent</code>. The focus outline switches to <code>--color-fg-inverse</code> so it shows on the dark surface. Tooltips use the raised surface. Under <code>forced-colors</code> the toolbar gets a <code>CanvasText</code> border.</p>
+    </section>
+
+    <section class="ds-section" id="accessibility"><h2><a href="#accessibility">Accessibility</a></h2>
+      <h3>Role and pattern</h3>
+      <p>WAI-ARIA APG <b>Toolbar</b>: <code>role="toolbar"</code> named "Formatting", with <code>aria-controls</code> pointing at the block. Toggles are native buttons with <code>aria-pressed</code>; each names its shortcut in <code>aria-keyshortcuts</code> (<code>Control+B</code>, or <code>Meta+B</code> on macOS). Focus is roving: one button has <code>tabindex="0"</code>, the rest <code>-1</code> (L2-099 AC4).</p>
+      <h3>Keyboard</h3>
+      <table class="ds-table ds-keys"><thead><tr><th scope="col">Key</th><th scope="col">Action</th></tr></thead><tbody>
+        <tr><td><kbd>Ctrl</kbd>/<kbd>⌘</kbd>+<kbd>B</kbd></td><td>Bold on or off for the selection.</td></tr>
+        <tr><td><kbd>Ctrl</kbd>/<kbd>⌘</kbd>+<kbd>I</kbd></td><td>Italic.</td></tr>
+        <tr><td><kbd>Ctrl</kbd>/<kbd>⌘</kbd>+<kbd>U</kbd></td><td>Underline.</td></tr>
+        <tr><td><kbd>Ctrl</kbd>/<kbd>⌘</kbd>+<kbd>Shift</kbd>+<kbd>S</kbd></td><td>Strikethrough.</td></tr>
+        <tr><td><kbd>Ctrl</kbd>/<kbd>⌘</kbd>+<kbd>E</kbd></td><td>Inline code.</td></tr>
+        <tr><td><kbd>Ctrl</kbd>/<kbd>⌘</kbd>+<kbd>K</kbd></td><td>Opens "Add a link" (or "Edit link" inside a link).</td></tr>
+        <tr><td><kbd>Alt</kbd>+<kbd>F10</kbd></td><td>From the selection, moves focus into the toolbar (the first button).</td></tr>
+        <tr><td><kbd>←</kbd> / <kbd>→</kbd></td><td>Moves between buttons, wrapping; <kbd>Home</kbd> / <kbd>End</kbd> go to the first or last.</td></tr>
+        <tr><td><kbd>Enter</kbd>, <kbd>Space</kbd></td><td>Activates the focused button; the selection is kept.</td></tr>
+        <tr><td><kbd>Esc</kbd></td><td>Returns focus to the selection in the block; the toolbar stays until the selection collapses.</td></tr>
+        <tr><td><kbd>Tab</kbd></td><td>Leaves the toolbar back to the block.</td></tr>
+      </tbody></table>
+      <h3>Focus</h3>
+      <p>The focused button shows the 2px ring in <code>--color-fg-inverse</code> around it, offset from the pressed fill. Pointer clicks do not move focus out of the block (buttons prevent <code>mousedown</code> default), so the selection is not lost.</p>
+      <h3>Labelling</h3>
+      <p>Buttons are named "Bold", "Italic", "Underline", "Strikethrough", "Inline code", "Link", "Edit link" and "Remove link"; the drawn letters and icons are <code>aria-hidden</code>. Pressed state is announced as "Bold, toggle button, pressed".</p>
+      <h3>Contrast</h3>
+      <div class="ds-themes">
+        <div data-theme="light"><div class="ds-example__canvas ds-example__canvas--stack" style="padding: 0; gap: var(--space-2);"><div class="ds-pair"><span>Button letter</span><span class="ds-pair__ratio" data-contrast="--color-fg-inverse|--color-bg-inverse" data-min="4.5"></span></div><div class="ds-pair"><span>Pressed letter</span><span class="ds-pair__ratio" data-contrast="--color-fg-on-accent|--color-accent" data-min="4.5"></span></div><div class="ds-pair"><span>Focus ring on toolbar</span><span class="ds-pair__ratio" data-contrast="--color-fg-inverse|--color-bg-inverse" data-min="3"></span></div><div class="ds-pair"><span>Toolbar edge on page</span><span class="ds-pair__ratio" data-contrast="--color-bg-inverse|--color-bg-surface" data-min="3"></span></div><div class="ds-pair"><span>Tooltip</span><span class="ds-pair__ratio" data-contrast="--color-fg-default|--color-bg-surface-raised" data-min="4.5"></span></div></div></div>
+        <div data-theme="dark"><div class="ds-example__canvas ds-example__canvas--stack" style="padding: 0; gap: var(--space-2);"><div class="ds-pair"><span>Button letter</span><span class="ds-pair__ratio" data-contrast="--color-fg-inverse|--color-bg-inverse" data-min="4.5"></span></div><div class="ds-pair"><span>Pressed letter</span><span class="ds-pair__ratio" data-contrast="--color-fg-on-accent|--color-accent" data-min="4.5"></span></div><div class="ds-pair"><span>Focus ring on toolbar</span><span class="ds-pair__ratio" data-contrast="--color-fg-inverse|--color-bg-inverse" data-min="3"></span></div><div class="ds-pair"><span>Toolbar edge on page</span><span class="ds-pair__ratio" data-contrast="--color-bg-inverse|--color-bg-surface" data-min="3"></span></div><div class="ds-pair"><span>Tooltip</span><span class="ds-pair__ratio" data-contrast="--color-fg-default|--color-bg-surface-raised" data-min="4.5"></span></div></div></div>
+      </div>
+      <h3>Motion</h3>
+      <p>Scales in from the bottom left over <code>--duration-fast</code>; reduced motion makes it appear without scaling. Tooltips fade over <code>--duration-fast</code>.</p>
+      <h3>Touch</h3>
+      <p>32px buttons on touch. The OS selection handles stay usable because the toolbar sits above the selection, not on it.</p>
+    </section>
+
+    <section class="ds-section" id="content"><h2><a href="#content">Content</a></h2>
+      <ul>
+        <li>Button names are the format's name in sentence case; tooltips read "{Name} · {Shortcut}" with "Ctrl" on Windows and Linux and "⌘" on macOS ("Strikethrough · Ctrl+Shift+S").</li>
+        <li>Link actions: "Link", "Edit link", "Remove link". The dialog's hint is "Starts with https:// or mailto:" and its error "Use a link that starts with https:// or mailto:".</li>
+      </ul>
+    </section>
+
+    <section class="ds-section" id="do-dont"><h2><a href="#do-dont">Do and don't</a></h2>
+      <div class="ds-dodont">
+        <figure class="ds-do"><div class="ds-example__canvas"><div class="format-toolbar" role="toolbar" aria-label="Formatting, good" style="position: static; animation: none;"><button class="format-toolbar__btn" type="button" aria-label="Bold" aria-pressed="true"><span aria-hidden="true"><b>B</b></span></button><button class="format-toolbar__btn" type="button" tabindex="-1" aria-label="Italic" aria-pressed="false"><span aria-hidden="true"><i>I</i></span></button></div></div><figcaption>Name the toolbar "Formatting" and expose <code>aria-pressed</code> on every toggle.</figcaption></figure>
+        <figure class="ds-dont"><div class="ds-example__canvas"><div class="format-toolbar" style="position: static; animation: none;"><button class="format-toolbar__btn" type="button"><b>B</b></button><button class="format-toolbar__btn" type="button"><i>I</i></button></div></div><figcaption>An unnamed group of buttons whose only label is a styled letter and whose state is colour alone.</figcaption></figure>
+        <figure class="ds-do"><div class="ds-example__canvas"><p class="text-caption">Selection in a Text block → toolbar above it; Alt+F10 reaches it.</p></div><figcaption>Offer the toolbar and the shortcuts; neither is the only way.</figcaption></figure>
+        <figure class="ds-dont"><div class="ds-example__canvas"><pre class="code-block"><code>Hi {name}, thanks for joining!</code></pre></div><figcaption>A toolbar over Code: code is plain text and takes no inline formatting.</figcaption></figure>
+      </div>
+    </section>
+
+    <section class="ds-section" id="tokens"><h2><a href="#tokens">Tokens</a></h2>
+      <div class="ds-table-wrap"><table class="ds-table">
+        <thead><tr><th scope="col">Part</th><th scope="col">Token</th><th scope="col">Light</th><th scope="col">Dark</th></tr></thead>
+        <tbody>
+          <tr><td>Toolbar</td><td><code>--color-bg-inverse</code></td><td><span class="ds-swatch-cell" data-theme="light"><i data-token="--color-bg-inverse" data-swatch></i><span data-token="--color-bg-inverse"></span></span></td><td><span class="ds-swatch-cell" data-theme="dark"><i data-token="--color-bg-inverse" data-swatch></i><span data-token="--color-bg-inverse"></span></span></td></tr>
+          <tr><td>Button letter, focus ring</td><td><code>--color-fg-inverse</code></td><td><span class="ds-swatch-cell" data-theme="light"><i data-token="--color-fg-inverse" data-swatch></i><span data-token="--color-fg-inverse"></span></span></td><td><span class="ds-swatch-cell" data-theme="dark"><i data-token="--color-fg-inverse" data-swatch></i><span data-token="--color-fg-inverse"></span></span></td></tr>
+          <tr><td>Pressed fill</td><td><code>--color-accent</code></td><td><span class="ds-swatch-cell" data-theme="light"><i data-token="--color-accent" data-swatch></i><span data-token="--color-accent"></span></span></td><td><span class="ds-swatch-cell" data-theme="dark"><i data-token="--color-accent" data-swatch></i><span data-token="--color-accent"></span></span></td></tr>
+          <tr><td>Pressed letter</td><td><code>--color-fg-on-accent</code></td><td><span class="ds-swatch-cell" data-theme="light"><i data-token="--color-fg-on-accent" data-swatch></i><span data-token="--color-fg-on-accent"></span></span></td><td><span class="ds-swatch-cell" data-theme="dark"><i data-token="--color-fg-on-accent" data-swatch></i><span data-token="--color-fg-on-accent"></span></span></td></tr>
+          <tr><td>Tooltip</td><td><code>--color-bg-surface-raised</code></td><td><span class="ds-swatch-cell" data-theme="light"><i data-token="--color-bg-surface-raised" data-swatch></i><span data-token="--color-bg-surface-raised"></span></span></td><td><span class="ds-swatch-cell" data-theme="dark"><i data-token="--color-bg-surface-raised" data-swatch></i><span data-token="--color-bg-surface-raised"></span></span></td></tr>
+          <tr><td>Button size</td><td><code>--target-min</code></td><td><span data-token="--target-min"></span></td><td><span data-theme="dark" data-token="--target-min"></span></td></tr>
+          <tr><td>Button size on touch</td><td><code>--target-comfortable</code></td><td><span data-token="--target-comfortable"></span></td><td><span data-theme="dark" data-token="--target-comfortable"></span></td></tr>
+          <tr><td>Radius</td><td><code>--radius-md</code></td><td><span data-token="--radius-md"></span></td><td><span data-theme="dark" data-token="--radius-md"></span></td></tr>
+          <tr><td>Shadow</td><td><code>--shadow-3</code></td><td><span data-token="--shadow-3"></span></td><td><span data-theme="dark" data-token="--shadow-3"></span></td></tr>
+          <tr><td>Layer</td><td><code>--z-popover</code></td><td><span data-token="--z-popover"></span></td><td><span data-theme="dark" data-token="--z-popover"></span></td></tr>
+          <tr><td>Tooltip layer</td><td><code>--z-tooltip</code></td><td><span data-token="--z-tooltip"></span></td><td><span data-theme="dark" data-token="--z-tooltip"></span></td></tr>
+        </tbody>
+      </table></div>
+    </section>
+
+    <section class="ds-section" id="code"><h2><a href="#code">Code</a></h2>
+      <pre><code>&lt;!-- Inside ft-block-editor, opened over the selection by CDK Overlay --&gt;
+&lt;ft-format-toolbar
+  [pressed]="marksOfSelection()"     &lt;!-- e.g. { bold: true, italic: false, … } from hasMark() --&gt;
+  [inLink]="caretInLink()"
+  (toggle)="toggleMark($event)"      &lt;!-- 'bold' | 'italic' | 'underline' | 'strike' | 'code' --&gt;
+  (link)="openAddLink()" (removeLink)="removeLink()" /&gt;</code></pre>
+      <p>The marks are the library's <code>EditorMark</code> values; <code>hasMark</code> and <code>setMark</code> in <code>editor-model.ts</code> decide pressed state and apply the change. Exact inputs follow the component's API docs.</p>
+      <table class="ds-table"><thead><tr><th scope="col">Class / attribute</th><th scope="col">Effect</th></tr></thead><tbody>
+        <tr><td><code>.format-toolbar</code></td><td>Inverse floating bar above the selection.</td></tr>
+        <tr><td><code>.format-toolbar__btn</code>, <code>[aria-pressed="true"]</code></td><td>Button; pressed fill.</td></tr>
+        <tr><td><code>.format-toolbar__sep</code></td><td>Divider before Link.</td></tr>
+        <tr><td><code>.format-toolbar__tip</code></td><td>Name and shortcut on hover and focus.</td></tr>
+        <tr><td><code>.block__selection</code></td><td>Documentation only: draws a selection statically.</td></tr>
+      </tbody></table>
+    </section>
+
+    <section class="ds-section" id="sources"><h2><a href="#sources">Sources</a></h2>
+      <ul>
+        <li><a href="../../mocks/pages/note/toolbar.html">pages/note/toolbar</a>, <a href="../../mocks/dialogs/add-link/default.html">dialogs/add-link/default</a> and <a href="../../mocks/dialogs/add-link/edit.html">edit</a>.</li>
+        <li>Requirements L2-088 AC1 to AC5 and L2-099 AC4.</li>
+        <li>CSS: the <code>.format-toolbar*</code> rules in <code>assets/components.css</code>.</li>
+      </ul>
+      <p>Drift: the mock names the toolbar "Format text"; the requirement's name "Formatting" is used. The mock shows Edit link and Remove link only in the dialog; L2-088 AC4 also puts them on the toolbar when the caret is in a link.</p>
+    </section>
+
+    <footer class="ds-footer"><span>FaithTech Community design system · extracted from <a href="../../mocks/index.html">docs/mocks</a> on 2026-10-22</span><a href="#top">Back to top</a></footer>
+  </main>
+</div>
+<script src="../assets/ds.js"></script>
+</body>
+</html>
