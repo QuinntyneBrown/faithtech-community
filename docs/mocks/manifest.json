@@ -358,6 +358,7 @@
         "no-results",
         "done",
         "read-only",
+        "not-open",
         "cancelled",
         "loading",
         "empty",
@@ -565,6 +566,7 @@
         "merged",
         "not-the-same",
         "archived",
+        "restored",
         "loading",
         "error"
       ],
@@ -766,6 +768,9 @@
         "default",
         "filtered",
         "city",
+        "unknown-filter",
+        "exporting",
+        "export-failed",
         "loading",
         "empty",
         "error",
@@ -1540,6 +1545,23 @@
       ],
       "not_applicable": {
         "invalid": "A value is always chosen for every field; there is nothing to validate."
+      }
+    },
+    {
+      "id": "restore-partner",
+      "kind": "dialog",
+      "title": "Restore partner",
+      "opens_from": "partner",
+      "requirements": [
+        "L2-090"
+      ],
+      "states": [
+        "default",
+        "busy",
+        "failed"
+      ],
+      "not_applicable": {
+        "invalid": "Restore is a confirmation with nothing to fill in."
       }
     },
     {
