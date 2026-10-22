@@ -11,7 +11,8 @@ namespace FaithTech.Community.Api.Tests.Platform;
 
 public partial class ServerAuthorizationTests(CommunityApiFactory factory) : IClassFixture<CommunityApiFactory>
 {
-    // Endpoints the design marks anonymous (L2-042 AC1), plus the health probes (L2-047) and the invite link (L2-011).
+    // Endpoints the design marks anonymous (L2-042 AC1), plus the health probes (L2-047), the invite link (L2-011)
+    // and the announcement unsubscribe link (L2-030 AC3).
     private static readonly string[] AnonymousRoutes =
     [
         "health/live",
@@ -28,6 +29,7 @@ public partial class ServerAuthorizationTests(CommunityApiFactory factory) : ICl
         "api/account/sign-in",
         "api/invites/by-token/{token}",
         "api/invites/accept",
+        "api/announcements/unsubscribe",
     ];
 
     [Fact]
