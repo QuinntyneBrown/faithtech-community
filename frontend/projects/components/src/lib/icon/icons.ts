@@ -64,7 +64,6 @@ export const ICONS: Readonly<Record<string, string>> = {
   document: "<path d='M6 3h8l5 5v13H6zM14 3v5h5M9 13h6M9 17h6'/>",
   video: "<rect x='3' y='5' width='14' height='14' rx='2'/><path d='m17 10 4-2v8l-4-2'/>",
   file: "<path d='M6 3h8l5 5v13H6zM14 3v5h5'/>",
-  download: "<path d='M12 4v11M7 10l5 5 5-5M5 20h14'/>",
   external: "<path d='M14 4h6v6M20 4l-9 9M18 14v6H4V6h6'/>",
   upload: "<path d='M12 20V9M7 14l5-5 5 5M5 4h14'/>",
   shared:
