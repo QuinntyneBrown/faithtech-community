@@ -79,6 +79,7 @@ a:hover, a[data-state="hover"] { color: var(--color-fg-link-hover); text-decorat
 .cluster--snug { gap: var(--space-2); }
 /* Filter row above a list: chip group and select, spaced from the list below. */
 .filter-bar { align-items: flex-end; margin-bottom: var(--space-4); }
+.filter-bar > .select { width: auto; flex: 0 1 14rem; }
 .grid { display: grid; gap: var(--layout-gutter); grid-template-columns: repeat(var(--layout-columns), minmax(0, 1fr)); }
 .grid--auto { grid-template-columns: repeat(auto-fill, minmax(min(100%, 18rem), 1fr)); }
 /* Two equal columns at every width: a Starts/Ends or start/end date pair in a form (<ft-grid [columns]="2">). */
@@ -313,6 +314,7 @@ button.avatar:hover, button.avatar[data-state="hover"] { box-shadow: 0 0 0 var(-
 .list__body { flex: 1; min-width: 0; }
 .list__title { font: var(--text-label); }
 .list__meta { font: var(--text-body-sm); color: var(--color-fg-muted); }
+.list__meta .icon { display: inline-block; vertical-align: -0.125em; }
 .list__text { margin: var(--space-2) 0 0; font: var(--text-body); color: var(--color-fg-default); white-space: pre-line; overflow-wrap: anywhere; }
 /* position: relative so the visually-hidden caption (position: absolute) is clipped by the scroll box instead of widening the page. */
 .table-wrap { position: relative; overflow-x: auto; border: var(--border-width-hairline) solid var(--color-border-default); border-radius: var(--radius-lg); background: var(--color-bg-surface); }
@@ -891,13 +893,13 @@ mark { background: var(--color-warning-bg); color: inherit; border-radius: var(-
 .topbar__search { display: none; }
 @media (min-width: 64rem) { .topbar__search { display: block; width: var(--layout-topbar-search-width); } }
 .topbar__nav .nav-link { white-space: nowrap; }
-/* Secondary links (Team, Announcements, People, Admin) join the nav from 1024px; mobile-first, min-width only. */
+/* Secondary links (Team, Announcements, Resources, People, Admin) join the nav from 1536px; mobile-first, min-width only. */
 .topbar__nav .nav-link--secondary { display: none; }
-@media (min-width: 64rem) { .topbar__nav .nav-link--secondary { display: inline-flex; } }
-/* More: between 768 and 1023px it stands in for the hidden secondary links and opens the Main menu (.nav-drawer). */
+@media (min-width: 96rem) { .topbar__nav .nav-link--secondary { display: inline-flex; } }
+/* More: between 768 and 1535px it stands in for the hidden secondary links and opens the Main menu (.nav-drawer). */
 .nav-link--more { display: none; border: 0; background: none; cursor: pointer; }
 @media (min-width: 48rem) { .topbar__nav .nav-link--more { display: inline-flex; } }
-@media (min-width: 64rem) { .topbar__nav .nav-link--more { display: none; } }
+@media (min-width: 96rem) { .topbar__nav .nav-link--more { display: none; } }
 
 /* ---------- Mono (audit log) -------------------------------------------------- */
 .mono { font: var(--text-code); }
@@ -938,3 +940,33 @@ mark { background: var(--color-warning-bg); color: inherit; border-radius: var(-
 /* Checkboxes inside choice rows (member pickers) are square with a tick, not round. */
 .choice input[type="checkbox"] { border-radius: var(--radius-xs); }
 .choice input[type="checkbox"]:checked::before { width: var(--space-2); height: var(--space-1); border-radius: 0; background: none; border: solid var(--color-fg-on-accent); border-width: 0 0 var(--border-width-thick) var(--border-width-thick); rotate: -45deg; translate: 0 -10%; }
+
+/* ---------- Files: drop zone, tag input, image tile, file preview (Resources) -----
+   Generic file-handling parts first needed by Resources; any feature may use them. */
+/* Drop zone: a <label> wrapping a visually hidden file input, so a click, Enter or Space opens the picker. */
+.dropzone { display: flex; flex-direction: column; align-items: center; gap: var(--space-2); padding: var(--space-8) var(--space-4); border: var(--border-width-thick) dashed var(--color-border-strong); border-radius: var(--radius-lg); background: var(--color-bg-subtle); text-align: center; cursor: pointer; transition: background-color var(--duration-fast) var(--ease-standard), border-color var(--duration-fast) var(--ease-standard); }
+.dropzone:hover, .dropzone[data-state="hover"] { border-color: var(--color-fg-muted); }
+.dropzone:focus-within, .dropzone[data-state="focus"] { outline: var(--focus-ring-width) solid var(--color-focus-ring); outline-offset: var(--focus-ring-offset); }
+.dropzone[data-state="dragover"] { border-color: var(--color-accent); background: var(--color-accent-subtle); }
+.dropzone[aria-invalid="true"], .dropzone[data-state="invalid"] { border-color: var(--color-danger-solid); }
+.dropzone__title { font: var(--text-label); color: var(--color-fg-default); }
+.dropzone__text { font: var(--text-body-sm); color: var(--color-fg-muted); max-width: 40ch; }
+.dropzone .icon-tile { width: var(--size-avatar-lg); height: var(--size-avatar-lg); color: var(--color-fg-accent); }
+/* Tag input: removable chips and a text input inside one field-shaped box; suggestions use .combobox. */
+.tag-input { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-2); min-height: var(--control-height-md); padding: var(--space-1) var(--space-2); border: var(--border-width-hairline) solid var(--color-border-strong); border-radius: var(--radius-md); background: var(--color-bg-surface); }
+.tag-input:focus-within, .tag-input[data-state="focus"] { outline: var(--focus-ring-width) solid var(--color-focus-ring); outline-offset: 0; border-color: var(--color-focus-ring); }
+.tag-input[aria-invalid="true"], .tag-input[data-state="invalid"] { border-color: var(--color-danger-solid); }
+.tag-input__field { flex: 1 1 8rem; min-width: 0; min-height: var(--target-min); border: 0; background: transparent; color: var(--color-fg-default); font: var(--text-body); }
+.tag-input__field:focus-visible { outline: none; }
+.chip--removable { cursor: default; padding-right: var(--space-1); }
+.chip__remove { display: inline-grid; place-items: center; width: var(--target-min); height: var(--target-min); margin-block: calc(-1 * var(--space-1)); border: 0; border-radius: var(--radius-full); background: transparent; color: inherit; cursor: pointer; }
+.chip__remove:hover, .chip__remove[data-state="hover"] { background: var(--color-bg-subtle-hover); }
+/* Image tile: an .icon-tile that shows a thumbnail instead of an icon. */
+.icon-tile--image { overflow: hidden; background: var(--color-bg-subtle); border: var(--border-width-hairline) solid var(--color-border-default); }
+.icon-tile--image img { width: 100%; height: 100%; object-fit: cover; display: block; }
+/* File preview: the large image or type icon at the top of a file's page. */
+.file-preview { display: grid; place-items: center; gap: var(--space-3); min-height: 12rem; padding: var(--space-6); border-radius: var(--radius-lg); background: var(--color-bg-subtle); border: var(--border-width-hairline) solid var(--color-border-default); text-align: center; }
+.file-preview img { max-width: 100%; max-height: 20rem; object-fit: contain; border-radius: var(--radius-md); }
+.file-preview .icon-tile { width: var(--size-avatar-xl); height: var(--size-avatar-xl); color: var(--color-fg-accent); }
+.file-preview__name { font: var(--text-label); overflow-wrap: anywhere; }
+.file-preview__meta { font: var(--text-body-sm); color: var(--color-fg-muted); }

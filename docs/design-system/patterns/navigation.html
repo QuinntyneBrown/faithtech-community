@@ -136,7 +136,7 @@
             <button class="avatar-trigger" type="button" aria-haspopup="menu" aria-label="Account menu for Grace Okonkwo"><span class="avatar avatar--sm avatar--sky" aria-hidden="true">GO<img class="avatar__img" src="../assets/photos/people/grace-okonkwo.jpg" alt=""></span></button>
           </header>
         </div>
-        <div class="ds-example__caption"><span>The top bar on pages/contacts/default. Between 768px and 1023px, Team, Announcements and People (<code>.nav-link--secondary</code>) are hidden. Search appears from 1024px.</span></div>
+        <div class="ds-example__caption"><span>The top bar on pages/contacts/default. Between 768px and 1535px, Team, Announcements, Resources and People (<code>.nav-link--secondary</code>) are hidden behind More. Search appears from 1024px.</span></div>
         <details class="ds-example__code"><summary>HTML</summary><pre><code>&lt;a class="skip-link" href="#main"&gt;Skip to content&lt;/a&gt;
 &lt;header class="topbar"&gt;
   &lt;a class="topbar__brand" href="/"&gt;…FaithTech&lt;/a&gt;
@@ -199,8 +199,9 @@
         <thead><tr><th scope="col">Width</th><th scope="col">Top bar</th><th scope="col">Tab bar</th></tr></thead>
         <tbody>
           <tr><td>Under 768px</td><td>Brand, bell and avatar only</td><td>Shown: Home, Events, Search, the member's next section by role (a lead: Contacts) and More, which opens the menu of every section</td></tr>
-          <tr><td>768–1023px</td><td>Main sections, then More (opens the Main menu). Team, Announcements, People and Admin are hidden, and search is a page</td><td>Hidden</td></tr>
-          <tr><td>1024px and up</td><td>All sections, plus inline search (<code>--layout-topbar-search-width</code>)</td><td>Hidden</td></tr>
+          <tr><td>768–1023px</td><td>Main sections, then More (opens the Main menu). Team, Announcements, Resources, People and Admin are hidden, and search is a page</td><td>Hidden</td></tr>
+          <tr><td>1024–1535px</td><td>Main sections, More, and inline search (<code>--layout-topbar-search-width</code>)</td><td>Hidden</td></tr>
+          <tr><td>1536px and up</td><td>All sections, plus inline search</td><td>Hidden</td></tr>
         </tbody>
       </table></div>
       <p>Between 768px and 1023px, Team, Announcements, People and Admin are hidden from the top bar; a <b>More</b> button at the end of the nav opens the Main menu drawer with every section, as the tab bar's More does on phones. Tabs scroll sideways without a scrollbar when they don't fit.</p>

@@ -215,7 +215,8 @@
       "title": "Search",
       "route": "/search",
       "requirements": [
-        "L2-026"
+        "L2-026",
+        "L1-020"
       ],
       "states": [
         "default",
@@ -224,7 +225,8 @@
         "empty",
         "error",
         "no-results",
-        "invalid"
+        "invalid",
+        "resources"
       ],
       "not_applicable": {}
     },
@@ -1337,7 +1339,8 @@
       "title": "Notification bell",
       "opens_from": "home",
       "requirements": [
-        "L2-027"
+        "L2-027",
+        "L1-020"
       ],
       "states": [
         "info",
@@ -1346,7 +1349,8 @@
         "danger",
         "unread",
         "agile",
-        "empty"
+        "empty",
+        "resource-shared"
       ],
       "not_applicable": {}
     },
@@ -1357,7 +1361,8 @@
       "opens_from": "home",
       "requirements": [
         "L2-028",
-        "L2-030"
+        "L2-030",
+        "L1-020"
       ],
       "states": [
         "info",
@@ -1367,7 +1372,162 @@
         "announcement",
         "assigned",
         "workspace-added",
-        "poker-invite"
+        "poker-invite",
+        "resource-shared"
+      ],
+      "not_applicable": {}
+    },
+    {
+      "id": "resources",
+      "kind": "page",
+      "title": "Resources",
+      "route": "/resources",
+      "requirements": [
+        "L1-020"
+      ],
+      "states": [
+        "default",
+        "loading",
+        "empty",
+        "error",
+        "no-results",
+        "filtered",
+        "member"
+      ],
+      "not_applicable": {
+        "forbidden": "Every signed-in member can open Resources; anonymous visitors are sent to sign in."
+      }
+    },
+    {
+      "id": "resource",
+      "kind": "page",
+      "title": "Resource",
+      "route": "/resources/:id",
+      "requirements": [
+        "L1-020"
+      ],
+      "states": [
+        "default",
+        "image",
+        "link",
+        "shared",
+        "shared-with-you",
+        "private",
+        "member",
+        "admin",
+        "archived",
+        "loading",
+        "error",
+        "missing"
+      ],
+      "not_applicable": {
+        "empty": "A resource page always has a resource; one that is missing or not visible is the missing state.",
+        "forbidden": "A resource the viewer may not see answers exactly like a missing one, so its existence is not revealed (missing state)."
+      }
+    },
+    {
+      "id": "archived-resources",
+      "kind": "page",
+      "title": "Archived resources",
+      "route": "/resources/archived",
+      "requirements": [
+        "L1-020"
+      ],
+      "states": [
+        "default",
+        "loading",
+        "empty",
+        "error"
+      ],
+      "not_applicable": {
+        "forbidden": "Everyone sees only their own archived resources; System Admin sees all of them through the same page."
+      }
+    },
+    {
+      "id": "add-resource",
+      "kind": "dialog",
+      "title": "Add resource",
+      "opens_from": "resources",
+      "requirements": [
+        "L1-020"
+      ],
+      "states": [
+        "default",
+        "single",
+        "batch",
+        "link",
+        "shared",
+        "invalid",
+        "busy",
+        "failed"
+      ],
+      "not_applicable": {}
+    },
+    {
+      "id": "edit-resource",
+      "kind": "dialog",
+      "title": "Edit resource",
+      "opens_from": "resource",
+      "requirements": [
+        "L1-020"
+      ],
+      "states": [
+        "default",
+        "replace",
+        "invalid",
+        "busy",
+        "failed"
+      ],
+      "not_applicable": {}
+    },
+    {
+      "id": "archive-resource",
+      "kind": "dialog",
+      "title": "Archive resource",
+      "opens_from": "resource",
+      "requirements": [
+        "L1-020"
+      ],
+      "states": [
+        "default",
+        "busy",
+        "failed"
+      ],
+      "not_applicable": {
+        "invalid": "A confirmation with no input to validate."
+      }
+    },
+    {
+      "id": "transfer-resource-owner",
+      "kind": "dialog",
+      "title": "Transfer resource owner",
+      "opens_from": "resource",
+      "requirements": [
+        "L1-020"
+      ],
+      "states": [
+        "default",
+        "invalid",
+        "busy",
+        "failed"
+      ],
+      "not_applicable": {}
+    },
+    {
+      "id": "resource-toast",
+      "kind": "notification",
+      "title": "Resource toast",
+      "opens_from": "resources",
+      "requirements": [
+        "L1-020"
+      ],
+      "states": [
+        "success",
+        "info",
+        "warning",
+        "danger",
+        "batch-added",
+        "restored"
       ],
       "not_applicable": {}
     }
