@@ -19,13 +19,15 @@ public static class WebProtectionSetup
         {
             options.RejectionStatusCode = StatusCodes.Status429TooManyRequests;
 
-            // 100 requests a minute per signed-in user, or per IP address for anonymous callers.
+            // 100 requests a minute per signed-in user, or per IP address for anonymous callers. Only an
+            // isolated performance environment sets RateLimits:PerMinute (eng/load-test.js); nothing else does.
+            var permitLimit = configuration.GetValue("RateLimits:PerMinute", 100);
             options.GlobalLimiter = PartitionedRateLimiter.Create<HttpContext, string>(context =>
                 RateLimitPartition.GetFixedWindowLimiter(
                     context.User.FindFirst(OpenIddictConstants.Claims.Subject)?.Value is { } userId
                         ? $"user:{userId}"
                         : $"ip:{context.Connection.RemoteIpAddress}",
-                    _ => Window(100)));
+                    _ => Window(permitLimit)));
 
             // 20 requests a minute per IP address for sign-in, sign-up, reset and verification.
             var authPermitLimit = configuration.GetValue("RateLimits:AuthPerMinute", 20);

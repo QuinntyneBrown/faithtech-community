@@ -1,6 +1,8 @@
 using System.Text.Json;
+using FaithTech.Community.Application.Identity;
 using FaithTech.Community.Domain.Admin;
 using FaithTech.Community.Domain.Profiles;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using OpenIddict.Abstractions;
 using static OpenIddict.Abstractions.OpenIddictConstants;
@@ -55,6 +57,51 @@ public class CommunitySeeder(IOpenIddictApplicationManager applications, Communi
             db.SystemAdminRosters.Add(new SystemAdminRoster());
             await db.SaveChangesAsync(cancellationToken);
         }
+    }
+
+    public const int MaxLoadTestUsers = 1000;
+
+    /// <summary>A reserved top-level domain (RFC 2606): mail to it can never reach a real person.</summary>
+    public const string LoadTestDomain = "loadtest.invalid";
+
+    /// <summary>
+    /// Creates verified members load-001@loadtest.invalid onwards, with no role, for the isolated
+    /// performance environment (eng/load-test.js). Idempotent: existing load-test members are kept.
+    /// Returns how many were created.
+    /// </summary>
+    public async Task<int> SeedLoadTestUsersAsync(int count, string password, CancellationToken cancellationToken = default)
+    {
+        var hasher = new PasswordHasher<CommunityUser>();
+        var created = 0;
+        for (var i = 1; i <= count; i++)
+        {
+            var email = $"load-{i:000}@{LoadTestDomain}";
+            var normalized = email.ToUpperInvariant();
+            if (await db.Users.AnyAsync(u => u.NormalizedEmail == normalized, cancellationToken))
+            {
+                continue;
+            }
+
+            var profile = new Profile($"Load Tester {i:000}");
+            var user = new CommunityUser
+            {
+                Id = Guid.NewGuid(),
+                UserName = email,
+                NormalizedUserName = normalized,
+                Email = email,
+                NormalizedEmail = normalized,
+                EmailConfirmed = true,
+                SecurityStamp = Guid.NewGuid().ToString("N"),
+                ProfileId = profile.Id,
+            };
+            user.PasswordHash = hasher.HashPassword(user, password);
+            db.Profiles.Add(profile);
+            db.Users.Add(user);
+            created++;
+        }
+
+        await db.SaveChangesAsync(cancellationToken);
+        return created;
     }
 
     /// <summary>

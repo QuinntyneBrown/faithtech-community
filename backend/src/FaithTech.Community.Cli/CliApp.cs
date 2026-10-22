@@ -7,8 +7,16 @@ namespace FaithTech.Community.Cli;
 
 public static class CliApp
 {
-    public static async Task<int> RunAsync(string[] args, Action<DbContextOptionsBuilder> configureDatabase, string webAppOrigin)
+    /// <summary>The environment variable that carries the load-test members' password, never the command line.</summary>
+    public const string LoadTestPasswordVariable = "LOADTEST_PASSWORD";
+
+    public static async Task<int> RunAsync(
+        string[] args,
+        Action<DbContextOptionsBuilder> configureDatabase,
+        string webAppOrigin,
+        Func<string, string?>? environment = null)
     {
+        environment ??= Environment.GetEnvironmentVariable;
         await using var services = new ServiceCollection()
             .AddDbContext<CommunityDbContext>(options => configureDatabase(options.UseOpenIddict()))
             .AddScoped<CommunitySeeder>()
@@ -34,15 +42,37 @@ public static class CliApp
 
                 Console.Error.WriteLine($"No account uses {args[1]}. Sign up first, then grant the role.");
                 return 1;
+            case "seed-load-users" when args.Length == 2:
+                return await SeedLoadUsersAsync(scope.ServiceProvider.GetRequiredService<CommunitySeeder>(), args[1], environment(LoadTestPasswordVariable));
             case "reset":
                 NpgsqlConnection.ClearAllPools();
                 await db.Database.EnsureDeletedAsync();
                 await CreateSchemaAsync(db);
                 return 0;
             default:
-                Console.Error.WriteLine("Usage: faithtech-community <migrate|seed|reset|grant-admin <email>>");
+                Console.Error.WriteLine("Usage: faithtech-community <migrate|seed|reset|grant-admin <email>|seed-load-users <count>>");
                 return 1;
         }
+    }
+
+    /// <summary>Only for an isolated performance environment: never run it against a database real people use.</summary>
+    private static async Task<int> SeedLoadUsersAsync(CommunitySeeder seeder, string count, string? password)
+    {
+        if (!int.TryParse(count, out var users) || users is < 1 or > CommunitySeeder.MaxLoadTestUsers)
+        {
+            Console.Error.WriteLine($"Give a count from 1 to {CommunitySeeder.MaxLoadTestUsers}.");
+            return 1;
+        }
+
+        if (password is null || password.Length < 12)
+        {
+            Console.Error.WriteLine($"Set {LoadTestPasswordVariable} to a password of at least 12 characters.");
+            return 1;
+        }
+
+        var created = await seeder.SeedLoadTestUsersAsync(users, password);
+        Console.WriteLine($"{users} load-test members ready ({created} new): load-001@{CommunitySeeder.LoadTestDomain} onwards.");
+        return 0;
     }
 
     // Relational databases get the EF migrations; the in-memory test database has no migrations.
