@@ -247,4 +247,49 @@ test.describe('Partner activity timeline', () => {
     await expect(partner.logActivity).toBeVisible();
     await axe.check();
   });
+
+  // Given Staff, when they view a partner, then they see the same timeline without Log activity,
+  // in the header or the empty state (L2-087 AC2).
+  test('Staff see the shared timeline read-only', async ({ page, api, axe }) => {
+    const grace = api.addAccount({ email: 'grace@example.org', roles: ['CityLead'] });
+    const daniel = api.addAccount({
+      email: 'daniel@example.org',
+      name: 'Daniel Reyes',
+      roles: ['Staff'],
+    });
+    api.partners.addActivity(api.partners.partners[0], {
+      kind: 'Call',
+      summary: 'Called Nadia about the contract.',
+      loggedById: grace.profileId,
+    });
+    const partner = new PartnerPage(page);
+    await api.signInAs(daniel, '/partners/partner-1');
+
+    await expect(partner.entries.filter({ hasText: 'Call · Grace Okonkwo' })).toBeVisible();
+    await expect(partner.logActivity).toHaveCount(0);
+    await partner.filter('Emails').click();
+    await expect(partner.empty).toBeVisible();
+    await expect(partner.emptyLogActivity).toHaveCount(0);
+    await axe.check();
+  });
+
+  // Given a System Admin without a lead role, then they can log an activity like a lead (L2-087 AC1).
+  test('a System Admin without a lead role logs an activity', async ({ page, api }) => {
+    const priya = api.addAccount({
+      email: 'priya@example.org',
+      name: 'Priya Shah',
+      roles: ['SystemAdmin'],
+    });
+    const partner = new PartnerPage(page);
+    await api.signInAs(priya, '/partners/partner-1');
+
+    await partner.logActivity.click();
+    const dialog = new LogActivityDialog(page);
+    await dialog.type('Note').check();
+    await dialog.summary.fill('Checked the partnership agreement.');
+    await dialog.save.click();
+
+    await expect(dialog.dialog).toBeHidden();
+    await expect(partner.timeline).toContainText('Note · Priya Shah');
+  });
 });

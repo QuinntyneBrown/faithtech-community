@@ -69,6 +69,14 @@ public class LogPartnerActivityHandler(IApplicationDbContext db, PartnerAccess a
             actor,
             time.GetUtcNow().UtcDateTime);
         db.PartnerActivities.Add(activity);
+        // A System Admin without a lead role logs by admin right, so it is audited (L2-087 AC5).
+        access.AuditAdminWrite(actor, partner, "partner.activity.logged", null, new
+        {
+            ActivityId = activity.Id,
+            Kind = activity.Kind.ToString(),
+            activity.OccurredOn,
+            activity.Summary,
+        });
         await db.SaveChangesAsync(cancellationToken);
         return (Result.Ok(), (await views.ToDtosAsync(partner, [activity], cancellationToken))[0]);
     }
