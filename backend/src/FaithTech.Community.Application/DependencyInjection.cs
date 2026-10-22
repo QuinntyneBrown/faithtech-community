@@ -93,6 +93,7 @@ public static class DependencyInjection
         services.AddScoped<SaveEventHandler>();
         services.AddScoped<GetEventHandler>();
         services.AddScoped<RsvpHandler>();
+        services.AddScoped<CheckInHandler>();
         services.AddScoped<PublicEventsHandler>();
         services.AddScoped<GetEventCalendarHandler>();
         services.AddScoped<CancelEventHandler>();

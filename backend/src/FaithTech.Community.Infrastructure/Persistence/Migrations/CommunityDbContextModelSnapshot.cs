@@ -584,6 +584,12 @@ namespace FaithTech.Community.Infrastructure.Persistence.Migrations
                         .HasMaxLength(64)
                         .HasColumnType("character varying(64)");
 
+                    b.Property<DateTimeOffset?>("CheckedInAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid?>("CheckedInById")
+                        .HasColumnType("uuid");
+
                     b.Property<DateTimeOffset>("CreatedAt")
                         .HasColumnType("timestamp with time zone");
 
@@ -597,6 +603,9 @@ namespace FaithTech.Community.Infrastructure.Persistence.Migrations
                     b.Property<string>("GuestName")
                         .HasMaxLength(200)
                         .HasColumnType("character varying(200)");
+
+                    b.Property<bool>("IsWalkIn")
+                        .HasColumnType("boolean");
 
                     b.Property<Guid?>("ProfileId")
                         .HasColumnType("uuid");

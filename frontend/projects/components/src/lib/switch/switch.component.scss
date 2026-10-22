@@ -11,6 +11,12 @@
   cursor: pointer;
 }
 
+/* With its text hidden the track alone is too small to tap, so the label keeps the 24px target. */
+.switch--label-hidden {
+  min-block-size: var(--target-min);
+  min-inline-size: var(--target-min);
+}
+
 input {
   position: relative;
   flex: none;

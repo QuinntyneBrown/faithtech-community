@@ -22,6 +22,15 @@ public class EventPermissions(ICurrentUser current, IApplicationDbContext db)
     /// <summary>Leads and System Admins export the RSVP list as CSV (L2-022 AC5).</summary>
     public bool CanExportRsvps => CanSeeGuestEmails;
 
+    /// <summary>Lead roles and System Admins check attendees in, undo, add walk-ins and export (L2-092 AC1).</summary>
+    public bool CanCheckIn => CanSeeGuestEmails;
+
+    /// <summary>Staff also open the check-in page, read-only (L2-092 AC2).</summary>
+    public bool CanViewCheckIn => CanSeeRsvpList;
+
+    /// <summary>A System Admin checking in without a lead role is overriding, and is audited (L2-092 AC5).</summary>
+    public bool IsCheckInOverride => current.HasRole(Role.SystemAdmin) && !Leads.Any(current.HasRole);
+
     /// <summary>A System Admin acting without an event role is overriding, and is audited.</summary>
     public bool IsAdminOverride =>
         current.HasRole(Role.SystemAdmin) && !current.HasRole(Role.EventLead) && !current.HasRole(Role.CityLead);

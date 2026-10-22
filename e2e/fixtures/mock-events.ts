@@ -9,6 +9,11 @@ export interface MockRsvp {
   createdAt: string;
   /** The secret in a guest's cancel link (the server keeps only its hash). */
   cancelToken?: string;
+  /** When the attendee was checked in at the door (ADR 0025); null until then. */
+  checkedInAt?: string | null;
+  checkedInById?: string | null;
+  /** Added at the door rather than RSVP'd. */
+  isWalkIn?: boolean;
 }
 
 /** An event as the Events table holds it (FaithTech.Community.Domain.Events.Event). */
@@ -176,6 +181,9 @@ export class MockEvents {
   /** Emails the events endpoints sent (confirmations with the .ics, cancellations). */
   readonly emails: MockEmail[] = [];
 
+  /** The next check-in or undo answers 500, to drive the reverted switch and danger toast. */
+  private failCheckIn = false;
+
   constructor(
     private readonly now: () => Date,
     private readonly profile: (id: string) => EventsProfile | undefined = () => undefined,
@@ -281,7 +289,99 @@ export class MockEvents {
       return this.cancelRsvp(route, rsvps[1], caller);
     if (rsvps && method === 'GET' && rsvps[2] === '.csv')
       return this.exportRsvps(route, rsvps[1], caller);
+    const checkIn = /^\/api\/events\/([^/]+)\/check-in$/.exec(url.pathname);
+    if (checkIn && method === 'GET') return this.getCheckIn(route, checkIn[1], caller);
+    const checkIns = /^\/api\/events\/([^/]+)\/check-ins\/([^/]+)$/.exec(url.pathname);
+    if (checkIns && (method === 'PUT' || method === 'DELETE'))
+      return this.checkIn(route, checkIns[1], checkIns[2], method === 'PUT', caller);
     return false;
+  }
+
+  /** Makes the next check-in or undo fail with 500. */
+  failNextCheckIn(): void {
+    this.failCheckIn = true;
+  }
+
+  /** CheckInHandler.GetAsync (L2-092, L2-093): leads, Staff and System Admins; emails for leads and admins. */
+  private getCheckIn(route: Route, id: string, caller: EventsCaller | null): Promise<void> {
+    if (!caller) return route.fulfill({ status: 401 });
+    if (!seesList(caller)) return route.fulfill({ status: 403 });
+    const event = this.events.find((e) => e.id === id);
+    if (!event) return route.fulfill({ status: 404 });
+    const opensAt = new Date(
+      new Date(event.startsAt).getTime() - 24 * 60 * 60 * 1000,
+    ).toISOString();
+    const attendees = [...event.rsvps]
+      .sort(
+        (a, b) =>
+          Number(!!a.isWalkIn) - Number(!!b.isWalkIn) || a.createdAt.localeCompare(b.createdAt),
+      )
+      .map((r) => this.attendee(r, caller));
+    return route.fulfill({
+      status: 200,
+      json: {
+        eventId: event.id,
+        title: event.title,
+        startsAt: event.startsAt,
+        city: event.city,
+        format: event.format,
+        venue: event.venue,
+        isCancelled: event.isCancelled,
+        cancellationReason: event.cancellationReason,
+        checkInOpensAt: opensAt,
+        isOpen: !event.isCancelled && this.now().toISOString() >= opensAt,
+        canEdit: seesEmails(caller),
+        canExport: seesEmails(caller),
+        going: attendees.length,
+        checkedIn: attendees.filter((a) => a.checkedInAt).length,
+        walkIns: attendees.filter((a) => a.isWalkIn).length,
+        attendees,
+      },
+    });
+  }
+
+  /** CheckInAttendeeDto: guest emails only for leads and System Admins. */
+  private attendee(r: MockRsvp, caller: EventsCaller) {
+    return {
+      rsvpId: r.id,
+      profileId: r.profileId,
+      name: this.rsvpName(r),
+      isGuest: r.profileId === null,
+      isWalkIn: !!r.isWalkIn,
+      email: r.profileId === null && seesEmails(caller) ? r.guestEmail : null,
+      rsvpedAt: r.createdAt,
+      checkedInAt: r.checkedInAt ?? null,
+    };
+  }
+
+  /** PUT and DELETE /api/events/{id}/check-ins/{rsvpId} (L2-094): leads and System Admins. */
+  private checkIn(
+    route: Route,
+    id: string,
+    rsvpId: string,
+    on: boolean,
+    caller: EventsCaller | null,
+  ): Promise<void> {
+    if (!caller) return route.fulfill({ status: 401 });
+    if (!seesEmails(caller)) return route.fulfill({ status: 403 });
+    const event = this.events.find((e) => e.id === id);
+    const rsvp = event?.rsvps.find((r) => r.id === rsvpId);
+    if (!event || !rsvp) return route.fulfill({ status: 404 });
+    if (this.failCheckIn) {
+      this.failCheckIn = false;
+      return route.fulfill({ status: 500 });
+    }
+    if (!on) {
+      rsvp.checkedInAt = null;
+      rsvp.checkedInById = null;
+      return route.fulfill({ status: 204 });
+    }
+    // Saving again keeps the first time (L2-094 AC4).
+    if (!rsvp.checkedInAt) {
+      rsvp.checkedInAt = this.now().toISOString();
+      rsvp.checkedInById = caller.profileId;
+    }
+    return route.fulfill({ status: 200, json: this.attendee(rsvp, caller) });
   }
 
   /** POST /api/events/{id}/cancel (L2-025): event managers, a required reason, everyone who RSVP'd told. */

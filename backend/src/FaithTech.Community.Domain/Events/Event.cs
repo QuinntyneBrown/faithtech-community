@@ -113,6 +113,39 @@ public class Event
         return existing ?? AddRsvp(new Rsvp(Id, null, name, email, now), now);
     }
 
+    /// <summary>Check-in opens a day before the start and does not close (L2-094 AC6).</summary>
+    public static readonly TimeSpan CheckInOpensBefore = TimeSpan.FromHours(24);
+
+    public DateTimeOffset CheckInOpensAt => StartsAt - CheckInOpensBefore;
+
+    /// <summary>A cancelled event has no check-in window.</summary>
+    public bool IsCheckInOpen(DateTimeOffset now) => !IsCancelled && now >= CheckInOpensAt;
+
+    /// <summary>Everyone who checked in, walk-ins included.</summary>
+    public int CheckedInCount => _rsvps.Count(r => r.IsCheckedIn);
+
+    /// <summary>Everyone on the check-in list: every RSVP and every walk-in.</summary>
+    public int AttendeeCount => _rsvps.Count;
+
+    /// <summary>Marks an attendee of this event present at the door (L2-094).</summary>
+    public Rsvp CheckIn(Guid rsvpId, Guid byId, DateTimeOffset now)
+    {
+        var rsvp = Attendee(rsvpId);
+        rsvp.CheckIn(byId, now);
+        return rsvp;
+    }
+
+    /// <summary>Clears an attendee's check-in (L2-094 AC2).</summary>
+    public Rsvp UndoCheckIn(Guid rsvpId, DateTimeOffset now)
+    {
+        var rsvp = Attendee(rsvpId);
+        rsvp.UndoCheckIn();
+        return rsvp;
+    }
+
+    private Rsvp Attendee(Guid rsvpId) =>
+        _rsvps.FirstOrDefault(r => r.Id == rsvpId) ?? throw new InvalidOperationException("There is no such RSVP.");
+
     public void CancelRsvp(Guid profileId) =>
         RemoveRsvp(_rsvps.FirstOrDefault(r => r.ProfileId == profileId));
 

@@ -297,6 +297,9 @@ public class CommunityDbContext(DbContextOptions<CommunityDbContext> options)
             ev.Property(e => e.CancellationReason).HasMaxLength(500);
             ev.Ignore(e => e.RsvpCount);
             ev.Ignore(e => e.IsFull);
+            ev.Ignore(e => e.CheckedInCount);
+            ev.Ignore(e => e.AttendeeCount);
+            ev.Ignore(e => e.CheckInOpensAt);
             ev.HasIndex(e => e.StartsAt);
             ev.HasMany(e => e.Rsvps).WithOne().HasForeignKey(r => r.EventId).OnDelete(DeleteBehavior.Cascade);
             ev.Navigation(e => e.Rsvps).HasField("_rsvps").UsePropertyAccessMode(PropertyAccessMode.Field);
@@ -309,6 +312,7 @@ public class CommunityDbContext(DbContextOptions<CommunityDbContext> options)
             rsvp.Property(r => r.GuestName).HasMaxLength(200);
             rsvp.Property(r => r.GuestEmail).HasMaxLength(256);
             rsvp.Ignore(r => r.IsGuest);
+            rsvp.Ignore(r => r.IsCheckedIn);
             rsvp.Property(r => r.CancelTokenHash).HasMaxLength(64);
             rsvp.HasIndex(r => r.CancelTokenHash).IsUnique().HasFilter("\"CancelTokenHash\" IS NOT NULL");
             rsvp.HasIndex(r => new { r.EventId, r.ProfileId }).IsUnique().HasFilter("\"ProfileId\" IS NOT NULL");

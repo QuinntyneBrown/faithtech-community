@@ -4,7 +4,7 @@ using FaithTech.Community.Application.Events;
 
 namespace FaithTech.Community.Api.Endpoints;
 
-/// <summary>Events (L2-020 to L2-025). Every route requires authentication unless it opts out explicitly.</summary>
+/// <summary>Events (L2-020 to L2-025) and check-in (L2-092 to L2-097). Every route requires authentication unless it opts out explicitly.</summary>
 public static class EventsEndpoints
 {
     public static IEndpointRouteBuilder MapEventsEndpoints(this IEndpointRouteBuilder app)
@@ -60,6 +60,22 @@ public static class EventsEndpoints
             var (result, file) = await handler.ExportAsync(id, cancellationToken);
             return result.ToHttp(() => Results.File(Encoding.UTF8.GetBytes(file!.Content), "text/csv", file.FileName));
         });
+
+        // Check-in at the door (L2-092 to L2-094): lead roles and System Admins write, Staff read.
+        events.MapGet("/{id:guid}/check-in", async (Guid id, CheckInHandler handler, CancellationToken cancellationToken) =>
+        {
+            var (result, checkIn) = await handler.GetAsync(id, cancellationToken);
+            return result.ToHttp(() => Results.Ok(checkIn));
+        });
+
+        events.MapPut("/{id:guid}/check-ins/{rsvpId:guid}", async (Guid id, Guid rsvpId, CheckInHandler handler, CancellationToken cancellationToken) =>
+        {
+            var (result, attendee) = await handler.CheckInAsync(id, rsvpId, cancellationToken);
+            return result.ToHttp(() => Results.Ok(attendee));
+        });
+
+        events.MapDelete("/{id:guid}/check-ins/{rsvpId:guid}", async (Guid id, Guid rsvpId, CheckInHandler handler, CancellationToken cancellationToken) =>
+            (await handler.UndoAsync(id, rsvpId, cancellationToken)).ToHttp(Results.NoContent));
 
         events.MapGet("/{id:guid}/calendar.ics", async (Guid id, GetEventCalendarHandler handler, CancellationToken cancellationToken) =>
             await handler.ForMemberAsync(id, cancellationToken) is { } file ? Calendar(file) : Results.NotFound());
