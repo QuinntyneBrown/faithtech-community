@@ -27,7 +27,7 @@
         @for (row of rows(); track $index) {
           <tr>
             @for (col of columns(); track col.key) {
-              <td [class.ft-table__mono]="col.mono">
+              <ng-template #cell>
                 @if (col.template; as tpl) {
                   <ng-container
                     [ngTemplateOutlet]="tpl"
@@ -36,7 +36,16 @@
                 } @else {
                   {{ row[col.key] }}
                 }
-              </td>
+              </ng-template>
+              @if (col.rowHeader) {
+                <th scope="row" class="ft-table__row-header" [class.ft-table__mono]="col.mono">
+                  <ng-container [ngTemplateOutlet]="cell" />
+                </th>
+              } @else {
+                <td [class.ft-table__mono]="col.mono">
+                  <ng-container [ngTemplateOutlet]="cell" />
+                </td>
+              }
             }
           </tr>
         }

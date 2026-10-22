@@ -109,4 +109,28 @@ describe('TableComponent', () => {
     const { el } = setup();
     expect(el.querySelector('.ft-table__wrap')).not.toBeNull();
   });
+
+  // Traces to: Reports tables (components/table.html, Partner pipeline by city).
+  // Given a report table whose City column is the row header, When it renders, Then each
+  // city cell is a <th scope="row"> and the other cells stay data cells.
+  it('renders a rowHeader column as row headers', () => {
+    const { fixture, cmp, el } = setup();
+    cmp.columns.set([
+      { key: 'who', header: 'City', rowHeader: true },
+      { key: 'status', header: 'Lead' },
+    ]);
+    fixture.detectChanges();
+    const firstRow = el.querySelector('tbody tr')!;
+    const header = firstRow.children[0];
+    expect(header.tagName).toBe('TH');
+    expect(header.getAttribute('scope')).toBe('row');
+    expect(header.textContent?.trim()).toBe('Priya Shah');
+    expect(firstRow.children[1].tagName).toBe('TD');
+    expect(el.querySelectorAll('tbody th[scope="row"]').length).toBe(2);
+  });
+
+  it('keeps every body cell a data cell without a rowHeader column', () => {
+    const { el } = setup();
+    expect(el.querySelector('tbody th')).toBeNull();
+  });
 });
