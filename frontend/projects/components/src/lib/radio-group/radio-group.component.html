@@ -5,7 +5,12 @@
   [attr.aria-invalid]="error() ? 'true' : null"
 >
   <legend>{{ legend() }}</legend>
-  <ng-content />
+  <div
+    class="ft-radio-group__options"
+    [class.ft-radio-group__options--inline]="orientation() === 'inline'"
+  >
+    <ng-content />
+  </div>
   <div class="errors" aria-live="polite">
     @if (error()) {
       <ft-inline-message [id]="errorId">{{ error() }}</ft-inline-message>
