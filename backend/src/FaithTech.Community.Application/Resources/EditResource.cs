@@ -51,6 +51,7 @@ public class EditResourceHandler(
         }
 
         var before = ResourceAudit.Snapshot(resource);
+        var reached = await share.RecipientsAsync(resource, cancellationToken);
         resource.SetDetails(fields.Title!, fields.Description, fields.Type!.Value);
         resource.SetTags(fields.Tags);
         if (link is not null)
@@ -58,9 +59,9 @@ public class EditResourceHandler(
             resource.SetLink(link);
         }
 
-        var (newMembers, newRoles) = resource.SetAudience(fields.Audience);
+        resource.SetAudience(fields.Audience);
         resource.Touch(caller, time.GetUtcNow());
-        await share.NotifyAsync(resource, caller, newMembers, newRoles, cancellationToken);
+        await share.NotifyAsync(resource, caller, reached, cancellationToken);
         if (access.IsOverride(resource, caller))
         {
             audit.Record(caller, "resource.edited", nameof(Resource), resource.Id.ToString(), before, ResourceAudit.Snapshot(resource));

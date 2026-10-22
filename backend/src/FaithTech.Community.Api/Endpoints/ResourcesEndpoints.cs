@@ -25,6 +25,12 @@ public static class ResourcesEndpoints
         resources.MapGet("/tags", async (string? q, ResourceTagsHandler handler, CancellationToken cancellationToken) =>
             Results.Ok(await handler.HandleAsync(q, cancellationToken)));
 
+        resources.MapGet("/members", async (string? q, ResourceMembersHandler handler, CancellationToken cancellationToken) =>
+            await handler.ShareCandidatesAsync(q, cancellationToken) is { } members ? Results.Ok(members) : Results.Forbid());
+
+        resources.MapGet("/owner-candidates", async (string? q, ResourceMembersHandler handler, CancellationToken cancellationToken) =>
+            await handler.OwnerCandidatesAsync(q, cancellationToken) is { } members ? Results.Ok(members) : Results.Forbid());
+
         resources.MapGet("/{id:guid}", async (Guid id, GetResourceHandler handler, CancellationToken cancellationToken) =>
             await handler.HandleAsync(id, cancellationToken) is { } resource ? Results.Ok(resource) : Results.NotFound());
 

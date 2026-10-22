@@ -109,18 +109,14 @@ public class Resource
         TagText = string.Join(' ', normalised);
     }
 
-    /// <summary>Sets the visibility and audience; returns the members and roles that were not in the audience before.</summary>
-    public (IReadOnlyList<Guid> NewMembers, IReadOnlyList<Role> NewRoles) SetAudience(ResourceAudience audience)
+    /// <summary>Sets the visibility and, for Shared, the named members and roles; any other visibility clears them.</summary>
+    public void SetAudience(ResourceAudience audience)
     {
-        var wasShared = Visibility == ResourceVisibility.Shared;
-        var newMembers = audience.Members.Where(m => !wasShared || _members.All(x => x.ProfileId != m)).ToList();
-        var newRoles = audience.Roles.Where(r => !wasShared || _roles.All(x => x.Role != r)).ToList();
         Visibility = audience.Visibility;
         _members.RemoveAll(m => !audience.Members.Contains(m.ProfileId));
         _roles.RemoveAll(r => !audience.Roles.Contains(r.Role));
         _members.AddRange(audience.Members.Where(m => _members.All(x => x.ProfileId != m)).Select(m => new ResourceShareMember(Id, m)));
         _roles.AddRange(audience.Roles.Where(r => _roles.All(x => x.Role != r)).Select(r => new ResourceShareRole(Id, r)));
-        return (newMembers, newRoles);
     }
 
     public void SetLink(Uri link)
