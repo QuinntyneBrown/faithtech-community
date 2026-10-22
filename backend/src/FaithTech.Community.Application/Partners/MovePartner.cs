@@ -1,4 +1,5 @@
 using FaithTech.Community.Application.Common;
+using FaithTech.Community.Domain.Partners;
 using FluentValidation;
 using Microsoft.EntityFrameworkCore;
 
@@ -44,7 +45,9 @@ public class MovePartnerHandler(IApplicationDbContext db, PartnerAccess access, 
         var from = partner.Stage;
         var actor = await access.CallerProfileIdAsync(cancellationToken);
         partner.MoveTo(to, actor, time.GetUtcNow().UtcDateTime, PartnerRules.Blank(command.Note));
-        db.PartnerStageChanges.Add(partner.StageChanges.Last());
+        var change = partner.StageChanges.Last();
+        db.PartnerStageChanges.Add(change);
+        db.PartnerActivities.Add(PartnerActivity.StageMoved(change));
         access.AuditAdminWrite(actor, partner, "partner.moved", new { Stage = from.ToString() }, new { Stage = to.ToString(), command.Note });
         await db.SaveChangesAsync(cancellationToken);
         return (Result.Ok(), await views.ToDtoAsync(partner, cancellationToken));

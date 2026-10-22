@@ -10,14 +10,6 @@ export interface PartnersContext {
 
 export type MockStage = 'Lead' | 'InFunnel' | 'Confirmed';
 
-export interface MockStageChange {
-  from: MockStage;
-  to: MockStage;
-  movedById: string;
-  movedAtUtc: string;
-  note: string | null;
-}
-
 export type MockActivityKind =
   'Call' | 'Email' | 'Meeting' | 'Note' | 'Added' | 'StageMoved' | 'Merged' | 'Restored';
 
@@ -50,7 +42,6 @@ export interface MockPartner {
   phone: string | null;
   notes: string | null;
   stage: MockStage;
-  history: MockStageChange[];
   activities: MockActivity[];
 }
 
@@ -59,6 +50,41 @@ const LEAD_ROLES = ['CityLead', 'EventLead', 'CreateLead', 'CommunicationsLead']
 const EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const LOGGED: MockActivityKind[] = ['Call', 'Email', 'Meeting', 'Note'];
 const DAY = 24 * 60 * 60 * 1000;
+const PAGE_SIZE = 50;
+const STAGE_LABELS: Record<MockStage, string> = {
+  Lead: 'Lead',
+  InFunnel: 'In funnel',
+  Confirmed: 'Confirmed',
+};
+const FILTERS: Record<string, MockActivityKind[]> = {
+  Call: ['Call'],
+  Email: ['Email'],
+  Meeting: ['Meeting'],
+  Note: ['Note'],
+  Stage: ['Added', 'StageMoved', 'Merged', 'Restored'],
+};
+
+/** PartnerTimelineOrder: date, time (none as 00:00), log time, id; all newest first. */
+function newest(activities: MockActivity[]): MockActivity[] {
+  const key = (a: MockActivity) =>
+    `${a.occurredOn}|${a.occurredAt ?? '00:00:00'}|${a.loggedAtUtc}|${a.id.padStart(16, '0')}`;
+  return [...activities].sort((a, b) => key(b).localeCompare(key(a)));
+}
+
+function text(partner: MockPartner, activity: MockActivity): string {
+  switch (activity.kind) {
+    case 'Added':
+      return !activity.toStage || activity.toStage === 'Lead'
+        ? `Added ${partner.name} as a lead`
+        : `Added ${partner.name} at ${STAGE_LABELS[activity.toStage]}`;
+    case 'StageMoved': {
+      const note = activity.summary ? `: “${activity.summary}”` : '';
+      return `Moved ${partner.name} from ${STAGE_LABELS[activity.fromStage!]} to ${STAGE_LABELS[activity.toStage!]}${note}`;
+    }
+    default:
+      return activity.summary ?? '';
+  }
+}
 
 /**
  * PartnersEndpoints in the browser (backend/src/FaithTech.Community.Api/Endpoints/PartnersEndpoints.cs):
@@ -80,11 +106,20 @@ export class MockPartners {
       phone: null,
       notes: null,
       stage: 'Lead',
-      history: [],
       activities: [],
       ...partner,
     };
     this.partners.push(full);
+    // ManagePartnersHandler.CreateAsync writes the Added entry in the same save.
+    if (!partner.activities) {
+      this.addActivity(full, {
+        kind: 'Added',
+        summary: null,
+        occurredAt: this.context.now.toISOString().slice(11, 19),
+        loggedById: full.ownerId ?? '',
+        toStage: full.stage,
+      });
+    }
     return full;
   }
 
@@ -136,6 +171,7 @@ export class MockPartners {
       if (errors) return route.fulfill({ status: 400, json: { status: 400, errors } });
       const stage = (body['stage'] as MockStage | undefined) ?? 'Lead';
       const partner = this.add({ ...this.details(body), stage });
+      partner.activities[0].loggedById = caller.profileId;
       return route.fulfill({ status: 201, json: this.dto(partner, canWrite) });
     }
 
@@ -163,18 +199,24 @@ export class MockPartners {
           json: { status: 409, detail: `The partner is already at the ${to} stage.` },
         });
       }
-      partner.history.push({
-        from: partner.stage,
-        to,
-        movedById: caller.profileId,
-        movedAtUtc: this.context.now.toISOString(),
-        note: String(body['note'] ?? '').trim() || null,
+      this.addActivity(partner, {
+        kind: 'StageMoved',
+        summary: String(body['note'] ?? '').trim() || null,
+        occurredAt: this.context.now.toISOString().slice(11, 19),
+        loggedById: caller.profileId,
+        fromStage: partner.stage,
+        toStage: to,
       });
       partner.stage = to;
       return route.fulfill({ status: 200, json: this.dto(partner, canWrite) });
     }
-    if (method === 'GET' && action === 'activities')
-      return route.fulfill({ status: 200, json: this.timeline(partner) });
+    if (method === 'GET' && action === 'activities') {
+      const kind = url.searchParams.get('kind');
+      if (kind && !FILTERS[kind]) return route.fulfill({ status: 400, json: { status: 400 } });
+      const page = this.timeline(partner, kind, url.searchParams.get('before'));
+      if (!page) return route.fulfill({ status: 400, json: { status: 400 } });
+      return route.fulfill({ status: 200, json: page });
+    }
     if (method === 'POST' && action === 'activities') {
       const errors = this.validateActivity(body);
       if (errors) return route.fulfill({ status: 400, json: { status: 400, errors } });
@@ -192,23 +234,30 @@ export class MockPartners {
       return route.fulfill({
         status: 201,
         headers: { location: `/api/partners/${partner.id}/activities/${activity.id}` },
-        json: this.activityDto(activity),
+        json: this.activityDto(partner, activity),
       });
     }
     return route.fulfill({ status: 405 });
   }
 
-  /** PartnerTimelineOrder: date, time (none as 00:00), log time, id; all newest first. */
-  private timeline(partner: MockPartner) {
-    const key = (a: MockActivity) =>
-      `${a.occurredOn}|${a.occurredAt ?? '00:00:00'}|${a.loggedAtUtc}|${a.id.padStart(16, '0')}`;
-    const items = [...partner.activities].sort((a, b) => key(b).localeCompare(key(a)));
-    return { items: items.map((a) => this.activityDto(a)), before: null };
+  /** PartnerTimelineOrder and PartnerTimelineFilter, 50 a page; `before` is the last entry's id here. */
+  private timeline(partner: MockPartner, kind: string | null, before: string | null) {
+    const kinds = kind ? FILTERS[kind] : null;
+    const sorted = newest(partner.activities).filter((a) => !kinds || kinds.includes(a.kind));
+    const start = before ? sorted.findIndex((a) => a.id === before) + 1 : 0;
+    if (before && start === 0) return null;
+    const items = sorted.slice(start, start + PAGE_SIZE);
+    const more = sorted.length > start + PAGE_SIZE;
+    return {
+      items: items.map((a) => this.activityDto(partner, a)),
+      before: more ? items[items.length - 1].id : null,
+    };
   }
 
-  private activityDto(activity: MockActivity) {
+  /** PartnerTimelineViews: the logger's name and the sentence the timeline shows. */
+  private activityDto(partner: MockPartner, activity: MockActivity) {
     const name = this.context.profiles.get(activity.loggedById)?.name ?? 'A former member';
-    return { ...activity, text: activity.summary ?? '', loggedByName: name };
+    return { ...activity, text: text(partner, activity), loggedByName: name };
   }
 
   /** LogPartnerActivityValidator; "today" is the UTC date plus one day. */
@@ -244,6 +293,8 @@ export class MockPartners {
             name: p.name,
             contactName: p.contactName,
             offering: p.offering,
+            nextStep: this.nextStep(p)?.nextStep ?? null,
+            nextStepDue: this.nextStep(p)?.nextStepDue ?? null,
           }));
         return { stage, count: cards.length, cards };
       }),
@@ -283,14 +334,21 @@ export class MockPartners {
 
   private dto(partner: MockPartner, canEdit: boolean) {
     const name = (id: string | null) => (id ? (this.context.profiles.get(id)?.name ?? null) : null);
-    const { activities: _activities, ...record } = partner;
+    const { activities, ...record } = partner;
+    const next = this.nextStep(partner);
     return {
       ...record,
       ownerName: name(partner.ownerId),
-      history: [...partner.history]
-        .sort((a, b) => b.movedAtUtc.localeCompare(a.movedAtUtc))
-        .map((c) => ({ ...c, movedByName: name(c.movedById) ?? 'A former member' })),
       canEdit,
+      lastActivityOn: newest(activities)[0]?.occurredOn ?? null,
+      nextStep: next?.nextStep ?? null,
+      nextStepDue: next?.nextStepDue ?? null,
+      canLogActivity: canEdit,
     };
+  }
+
+  /** The latest logged activity with a next step, in timeline order. */
+  private nextStep(partner: MockPartner): MockActivity | undefined {
+    return newest(partner.activities).find((a) => LOGGED.includes(a.kind) && a.nextStep);
   }
 }

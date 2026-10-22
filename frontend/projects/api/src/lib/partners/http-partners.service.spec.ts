@@ -63,6 +63,13 @@ describe('HttpPartnersService', () => {
     ],
     ['activities', () => service.activities('x1'), 'GET', '/api/partners/x1/activities', undefined],
     [
+      'activities with a filter and a cursor',
+      () => service.activities('x1', 'Stage', 'abc'),
+      'GET',
+      '/api/partners/x1/activities?kind=Stage&before=abc',
+      undefined,
+    ],
+    [
       'logActivity',
       () => service.logActivity('x1', activity),
       'POST',

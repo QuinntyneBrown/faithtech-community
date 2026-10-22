@@ -4,10 +4,10 @@ using Microsoft.EntityFrameworkCore;
 
 namespace FaithTech.Community.Application.Partners;
 
-/// <summary>One stage move in a partner's history (L2-018 AC2).</summary>
-public record PartnerStageChangeDto(string From, string To, Guid MovedById, string MovedByName, DateTime MovedAtUtc, string? Note);
-
-/// <summary>A partner record. Stage is Lead, InFunnel or Confirmed; History is newest first.</summary>
+/// <summary>
+/// A partner record. Stage is Lead, InFunnel or Confirmed. LastActivityOn is the latest timeline
+/// entry's date; NextStep is the latest logged activity's next step (L2-086 AC6, AC7).
+/// </summary>
 public record PartnerDto(
     Guid Id,
     string Name,
@@ -20,10 +20,13 @@ public record PartnerDto(
     string? Phone,
     string? Notes,
     string Stage,
-    IReadOnlyList<PartnerStageChangeDto> History,
-    bool CanEdit);
+    bool CanEdit,
+    DateOnly? LastActivityOn,
+    string? NextStep,
+    DateOnly? NextStepDue,
+    bool CanLogActivity);
 
-public record PartnerCardDto(Guid Id, string Name, string? ContactName, string? Offering);
+public record PartnerCardDto(Guid Id, string Name, string? ContactName, string? Offering, string? NextStep = null, DateOnly? NextStepDue = null);
 
 public record PartnerColumnDto(string Stage, int Count, IReadOnlyList<PartnerCardDto> Cards);
 
@@ -36,27 +39,30 @@ public class PartnerViews(IApplicationDbContext db, PartnerAccess access)
 {
     public async Task<PartnerDto> ToDtoAsync(Partner partner, CancellationToken cancellationToken = default)
     {
-        var people = partner.StageChanges.Select(c => c.MovedBy).Append(partner.OwnerId ?? Guid.Empty).Distinct().ToList();
-        var names = await db.Profiles.AsNoTracking().Where(p => people.Contains(p.Id))
-            .ToDictionaryAsync(p => p.Id, p => p.Name, cancellationToken);
-        var history = partner.StageChanges
-            .OrderByDescending(c => c.MovedAtUtc)
-            .Select(c => new PartnerStageChangeDto(
-                c.From.ToString(), c.To.ToString(), c.MovedBy, names.GetValueOrDefault(c.MovedBy, "A former member"), c.MovedAtUtc, c.Note))
-            .ToList();
+        var ownerName = partner.OwnerId is { } owner
+            ? await db.Profiles.AsNoTracking().Where(p => p.Id == owner).Select(p => p.Name).SingleOrDefaultAsync(cancellationToken)
+            : null;
+        var activities = db.PartnerActivities.AsNoTracking().Where(a => a.PartnerId == partner.Id);
+        var last = await PartnerTimelineOrder.Newest(activities).Select(a => (DateOnly?)a.OccurredOn).FirstOrDefaultAsync(cancellationToken);
+        var next = await PartnerTimelineOrder.Newest(activities.Where(a => a.NextStep != null))
+            .Select(a => new { a.NextStep, a.NextStepDue })
+            .FirstOrDefaultAsync(cancellationToken);
         return new PartnerDto(
             partner.Id,
             partner.Name,
             partner.Website,
             partner.Offering,
             partner.OwnerId,
-            partner.OwnerId is { } owner ? names.GetValueOrDefault(owner) : null,
+            ownerName,
             partner.ContactName,
             partner.Email,
             partner.Phone,
             partner.Notes,
             partner.Stage.ToString(),
-            history,
+            access.CanWrite,
+            last,
+            next?.NextStep,
+            next?.NextStepDue,
             access.CanWrite);
     }
 }

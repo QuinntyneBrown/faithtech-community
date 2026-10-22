@@ -53,7 +53,7 @@ public class PartnerValidator : AbstractValidator<PartnerCommand>
 }
 
 /// <summary>Creates, reads and edits partners in the shared pipeline (L2-017).</summary>
-public class ManagePartnersHandler(IApplicationDbContext db, PartnerAccess access, PartnerViews views)
+public class ManagePartnersHandler(IApplicationDbContext db, PartnerAccess access, PartnerViews views, TimeProvider time)
 {
     public async Task<(Result Result, PartnerDto? Partner)> CreateAsync(PartnerCommand command, CancellationToken cancellationToken = default)
     {
@@ -79,7 +79,9 @@ public class ManagePartnersHandler(IApplicationDbContext db, PartnerAccess acces
             PartnerRules.Blank(command.Notes),
             stage);
         db.Partners.Add(partner);
-        access.AuditAdminWrite(await access.CallerProfileIdAsync(cancellationToken), partner, "partner.created", null, Snapshot(partner));
+        var actor = await access.CallerProfileIdAsync(cancellationToken);
+        db.PartnerActivities.Add(PartnerActivity.Added(partner, actor, time.GetUtcNow().UtcDateTime));
+        access.AuditAdminWrite(actor, partner, "partner.created", null, Snapshot(partner));
         await db.SaveChangesAsync(cancellationToken);
         return (Result.Ok(), await views.ToDtoAsync(partner, cancellationToken));
     }
@@ -139,12 +141,20 @@ public class ManagePartnersHandler(IApplicationDbContext db, PartnerAccess acces
         var partners = await db.Partners.AsNoTracking()
             .Select(p => new { p.Id, p.Name, p.ContactName, p.Offering, p.Stage })
             .ToListAsync(cancellationToken);
+        // One query for every card's next step: the first logged activity with one per partner, in timeline order.
+        var steps = (await PartnerTimelineOrder.Newest(db.PartnerActivities.AsNoTracking().Where(a => a.NextStep != null))
+                .Select(a => new { a.PartnerId, a.NextStep, a.NextStepDue })
+                .ToListAsync(cancellationToken))
+            .GroupBy(a => a.PartnerId)
+            .ToDictionary(g => g.Key, g => g.First());
         var columns = Enum.GetValues<PartnerStage>()
             .Select(stage =>
             {
                 var cards = partners.Where(p => p.Stage == stage)
                     .OrderBy(p => p.Name, StringComparer.CurrentCultureIgnoreCase)
-                    .Select(p => new PartnerCardDto(p.Id, p.Name, p.ContactName, p.Offering))
+                    .Select(p => steps.TryGetValue(p.Id, out var step)
+                        ? new PartnerCardDto(p.Id, p.Name, p.ContactName, p.Offering, step.NextStep, step.NextStepDue)
+                        : new PartnerCardDto(p.Id, p.Name, p.ContactName, p.Offering))
                     .ToList();
                 return new PartnerColumnDto(stage.ToString(), cards.Count, cards);
             })

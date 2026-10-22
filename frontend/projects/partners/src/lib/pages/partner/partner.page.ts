@@ -7,7 +7,6 @@ import {
   PartnerActivityDto,
   PartnerDto,
   PartnerStage,
-  PartnerStageChangeDto,
 } from '@faithtech-community/api';
 import {
   BadgeComponent,
@@ -20,8 +19,6 @@ import {
   DescriptionListItemComponent,
   DialogService,
   EmptyStateComponent,
-  FeedComponent,
-  FeedItemComponent,
   IconComponent,
   LinkComponent,
   PageHeaderComponent,
@@ -39,7 +36,7 @@ import {
   MovePartnerData,
   MovePartnerDialog,
 } from '../../dialogs';
-import { PartnerTimelineComponent } from './partner-timeline';
+import { PartnerTimelineComponent, localDate } from './partner-timeline';
 
 type State = 'loading' | 'loaded' | 'not-found' | 'error';
 
@@ -50,7 +47,10 @@ export const STAGE_BADGES: Record<PartnerStage, BadgeVariant> = {
   Confirmed: 'success',
 };
 
-/** One partner with its details and stage history (L2-017, L2-018), matching docs/mocks/pages/partner. */
+/**
+ * One partner with its details and shared activity timeline (L2-017, L2-018, L2-086), matching
+ * docs/mocks/pages/partner. Log activity opens LogActivityDialog for leads and System Admin.
+ */
 @Component({
   selector: 'ft-partner-page',
   imports: [
@@ -62,8 +62,6 @@ export const STAGE_BADGES: Record<PartnerStage, BadgeVariant> = {
     DescriptionListComponent,
     DescriptionListItemComponent,
     EmptyStateComponent,
-    FeedComponent,
-    FeedItemComponent,
     IconComponent,
     LinkComponent,
     PageHeaderComponent,
@@ -95,13 +93,14 @@ export class PartnerPage {
     effect(() => void this.load(this.id()));
   }
 
-  protected moved(partner: PartnerDto, change: PartnerStageChangeDto): string {
-    const note = change.note ? `: “${change.note}”` : '';
-    return `${change.movedByName} moved ${partner.name} from ${this.labels[change.from]} to ${this.labels[change.to]}${note}`;
+  /** A yyyy-MM-dd date as written, not shifted by the time zone. */
+  protected localDay(value: string): string {
+    return formatDay(localDate(value));
   }
 
-  protected day(value: string): string {
-    return formatDay(value);
+  protected nextStep(partner: PartnerDto): string {
+    const due = partner.nextStepDue ? ` · ${this.localDay(partner.nextStepDue)}` : '';
+    return `${partner.nextStep}${due}`;
   }
 
   protected async move(partner: PartnerDto): Promise<void> {
@@ -121,6 +120,8 @@ export class PartnerPage {
     });
     const logged = await firstValueFrom(ref.closed);
     if (!logged) return;
+    // Last activity and the next step come from the partner, so read it again with the timeline.
+    void this.refresh(partner.id);
     this.toasts.show({
       variant: 'success',
       heading: `${PARTNER_ACTIVITY_LABELS[logged.kind]} logged for ${partner.name}`,
@@ -130,6 +131,14 @@ export class PartnerPage {
 
   protected retry(): void {
     void this.load(this.id());
+  }
+
+  private async refresh(id: string): Promise<void> {
+    try {
+      this.partner.set(await firstValueFrom(this.partners.get(id)));
+    } catch {
+      // The page keeps what it showed; the timeline already has the new entry.
+    }
   }
 
   private async load(id: string): Promise<void> {

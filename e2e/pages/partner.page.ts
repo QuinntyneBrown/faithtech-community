@@ -11,7 +11,17 @@ export class PartnerPage {
   /** The shared activity timeline, newest first (L2-086). */
   readonly timeline: Locator;
   readonly entries: Locator;
-  readonly history: Locator;
+  /** The type chips: All, Calls, Emails, Meetings, Notes, Stage moves. */
+  readonly filters: Locator;
+  readonly showOlder: Locator;
+  /** "No touchpoints yet" when the selected type has no logged entries. */
+  readonly empty: Locator;
+  /** "1 call. Show all activity" under a filtered timeline. */
+  readonly filteredCaption: Locator;
+  readonly showAll: Locator;
+  /** The empty state's own Log activity button. */
+  readonly emptyLogActivity: Locator;
+  readonly timelineError: Locator;
 
   constructor(private readonly page: Page) {
     this.heading = page.getByRole('heading', { level: 1 });
@@ -22,7 +32,26 @@ export class PartnerPage {
     this.logActivity = page.locator('ft-page-header').getByRole('button', { name: 'Log activity' });
     this.timeline = page.getByRole('list', { name: 'Activity' });
     this.entries = this.timeline.getByRole('listitem');
-    this.history = page.getByRole('list', { name: 'Stage history' }).getByRole('listitem');
+    this.filters = page.getByRole('group', { name: 'Show' });
+    this.showOlder = page.getByRole('button', { name: 'Show older' });
+    this.empty = page.getByRole('heading', { name: 'No touchpoints yet' });
+    this.filteredCaption = page.getByRole('paragraph').filter({ hasText: 'Show all activity' });
+    this.showAll = page.getByRole('link', { name: 'Show all activity' });
+    this.emptyLogActivity = page
+      .locator('ft-empty-state')
+      .getByRole('button', { name: 'Log activity' });
+    this.timelineError = page
+      .getByRole('alert')
+      .filter({ hasText: 'We couldn’t load the activity' });
+  }
+
+  filter(name: string): Locator {
+    return this.filters.getByRole('button', { name, exact: true });
+  }
+
+  /** The entry's type, as its bold label says it: Call, Stage moved, Added to the pipeline... */
+  entryTypes(): Promise<string[]> {
+    return this.entries.locator('strong').allTextContents();
   }
 
   async open(id: string): Promise<void> {

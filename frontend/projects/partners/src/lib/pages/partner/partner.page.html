@@ -53,8 +53,11 @@
           @if (p.offering) {
             · {{ p.offering }}
           }
+          @if (p.lastActivityOn) {
+            · Last activity {{ localDay(p.lastActivityOn) }}
+          }
         </span>
-        @if (p.canEdit) {
+        @if (p.canLogActivity) {
           <ft-button ftPageHeaderActions variant="primary" (click)="logActivity(p)">
             <ft-icon name="add" /> Log activity
           </ft-button>
@@ -73,24 +76,13 @@
       </ft-page-header>
 
       <ft-split>
-        <ft-stack ftSplitMain>
-          <ft-card heading="Activity">
-            <ft-partner-timeline [partnerId]="p.id" [reload]="timelineReload()" />
-          </ft-card>
-          <ft-card heading="Stage history">
-            @if (p.history.length) {
-              <ft-feed label="Stage history">
-                @for (change of p.history; track change.movedAtUtc) {
-                  <ft-feed-item [actor]="change.movedByName" [meta]="day(change.movedAtUtc)">
-                    {{ moved(p, change) }}
-                  </ft-feed-item>
-                }
-              </ft-feed>
-            } @else {
-              <p class="text-muted">No stage changes yet. Moves on the board are recorded here.</p>
-            }
-          </ft-card>
-        </ft-stack>
+        <ft-partner-timeline
+          ftSplitMain
+          [partnerId]="p.id"
+          [reload]="timelineReload()"
+          [canLog]="p.canLogActivity"
+          (logRequested)="logActivity(p)"
+        />
         <ft-card ftSplitAside heading="Details">
           <ft-description-list>
             <ft-description-list-item label="Contact" [missing]="!p.contactName">{{
@@ -110,6 +102,9 @@
             }}</ft-description-list-item>
             <ft-description-list-item label="Owner" [missing]="!p.ownerName">{{
               p.ownerName
+            }}</ft-description-list-item>
+            <ft-description-list-item label="Next step">{{
+              p.nextStep ? nextStep(p) : 'Not set'
             }}</ft-description-list-item>
             <ft-description-list-item label="Notes" [missing]="!p.notes">{{
               p.notes

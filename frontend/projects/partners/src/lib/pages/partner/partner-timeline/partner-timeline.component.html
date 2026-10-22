@@ -1,23 +1,57 @@
-<ft-feed
-  label="Activity"
-  loadingLabel="Loading activity"
-  emptyText="No activity yet."
-  errorHeading="We couldn’t load the activity"
-  [state]="state()"
-  [retrying]="retrying()"
-  (retry)="retry()"
->
-  @for (activity of items(); track activity.id) {
-    <ft-feed-item
-      [actor]="activity.loggedByName"
-      [icon]="icons[activity.kind]"
-      [meta]="meta(activity)"
+<ft-card heading="Activity">
+  <ft-chip-group ftCardActions label="Show">
+    @for (f of filters; track f.label) {
+      <ft-chip [pressed]="filter() === f.value" (pressedChange)="choose(f.value)">{{
+        f.label
+      }}</ft-chip>
+    }
+  </ft-chip-group>
+  @if (untouched()) {
+    <ft-empty-state
+      heading="No touchpoints yet"
+      text="Log the first call, email or meeting so the next lead knows where things stand."
+      [headingLevel]="3"
     >
-      <strong>{{ labels[activity.kind] }}</strong> · {{ activity.loggedByName }}<br />
-      {{ activity.text }}
-      @if (activity.nextStep) {
-        <div class="next-step">Next: {{ activity.nextStep }}{{ due(activity) }}</div>
+      @if (canLog()) {
+        <ft-button actions variant="primary" (click)="logRequested.emit()">Log activity</ft-button>
       }
-    </ft-feed-item>
+    </ft-empty-state>
   }
-</ft-feed>
+  @if (state() !== 'empty') {
+    <ft-feed
+      label="Activity"
+      loadingLabel="Loading activity"
+      errorHeading="We couldn’t load the activity"
+      [state]="state()"
+      [retrying]="retrying()"
+      (retry)="retry()"
+    >
+      @for (activity of items(); track activity.id) {
+        <ft-feed-item
+          [actor]="activity.loggedByName"
+          [icon]="icons[activity.kind]"
+          [meta]="meta(activity)"
+        >
+          <strong>{{ labels[activity.kind] }}</strong> · {{ activity.loggedByName }}<br />
+          {{ activity.text }}
+          @if (activity.nextStep) {
+            <div class="next-step">Next: {{ activity.nextStep }}{{ due(activity) }}</div>
+          }
+        </ft-feed-item>
+      }
+    </ft-feed>
+  }
+  @if (before()) {
+    <ft-button class="older" variant="ghost" [loading]="loadingOlder()" (click)="showOlder()"
+      >Show older</ft-button
+    >
+  }
+  @if (filter() && state() === 'ready') {
+    <p class="caption">
+      {{ caption() }}
+      <ft-link [href]="'/partners/' + partnerId()" (click)="$event.preventDefault(); choose(null)"
+        >Show all activity</ft-link
+      >
+    </p>
+  }
+</ft-card>

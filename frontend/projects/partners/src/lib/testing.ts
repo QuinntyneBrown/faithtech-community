@@ -14,8 +14,11 @@ export function partnerDto(overrides: Partial<PartnerDto> = {}): PartnerDto {
     phone: '416-555-0199',
     notes: 'Studio of 12 developers.',
     stage: 'InFunnel',
-    history: [],
     canEdit: true,
+    lastActivityOn: null,
+    nextStep: null,
+    nextStepDue: null,
+    canLogActivity: true,
     ...overrides,
   };
 }

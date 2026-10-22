@@ -1,4 +1,4 @@
-import { HttpClient, HttpContext } from '@angular/common/http';
+import { HttpClient, HttpContext, HttpParams } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
 import { Observable } from 'rxjs';
 
@@ -8,6 +8,7 @@ import {
   LogPartnerActivityRequest,
   NewPartnerRequest,
   PartnerActivityDto,
+  PartnerActivityFilter,
   PartnerActivityPageDto,
   PartnerBoardDto,
   PartnerDto,
@@ -48,8 +49,15 @@ export class HttpPartnersService implements PartnersService {
     return this.http.post<PartnerDto>(`${this.base}/${id}/stage`, { to, note });
   }
 
-  activities(id: string): Observable<PartnerActivityPageDto> {
-    return this.http.get<PartnerActivityPageDto>(`${this.base}/${id}/activities`);
+  activities(
+    id: string,
+    kind: PartnerActivityFilter | null = null,
+    before: string | null = null,
+  ): Observable<PartnerActivityPageDto> {
+    let params = new HttpParams();
+    if (kind) params = params.set('kind', kind);
+    if (before) params = params.set('before', before);
+    return this.http.get<PartnerActivityPageDto>(`${this.base}/${id}/activities`, { params });
   }
 
   logActivity(id: string, activity: LogPartnerActivityRequest): Observable<PartnerActivityDto> {

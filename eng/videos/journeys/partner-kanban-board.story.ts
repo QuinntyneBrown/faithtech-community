@@ -65,8 +65,8 @@ test('partner-kanban-board', async ({ page, api }) => {
   await show.step('history', async () => {
     await partners.card('Kestrel Labs').getByRole('link').click();
     await expect(partner.stage).toHaveText('Confirmed');
-    await expect(partner.history.first()).toContainText(
-      'Grace Okonkwo moved Kestrel Labs from In funnel to Confirmed: “Contract signed.”',
+    await expect(partner.entries.first()).toContainText(
+      'Moved Kestrel Labs from In funnel to Confirmed: “Contract signed.”',
     );
   });
 

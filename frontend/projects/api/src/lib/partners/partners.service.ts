@@ -28,16 +28,6 @@ export interface NewPartnerRequest extends PartnerRequest {
   stage?: PartnerStage;
 }
 
-/** One move in a partner's history (L2-018 AC2). */
-export interface PartnerStageChangeDto {
-  from: PartnerStage;
-  to: PartnerStage;
-  movedById: string;
-  movedByName: string;
-  movedAtUtc: string;
-  note: string | null;
-}
-
 export const LOGGED_ACTIVITY_KINDS = ['Call', 'Email', 'Meeting', 'Note'] as const;
 /** The kinds a lead logs. */
 export type LoggedActivityKind = (typeof LOGGED_ACTIVITY_KINDS)[number];
@@ -85,6 +75,9 @@ export interface PartnerActivityDto {
   toStage: PartnerStage | null;
 }
 
+/** The timeline's type chips: one logged kind, or Stage for Added, Stage moved, Merged and Restored. */
+export type PartnerActivityFilter = LoggedActivityKind | 'Stage';
+
 /** Newest first; `before` asks for the next, older page and is null on the last one. */
 export interface PartnerActivityPageDto {
   items: PartnerActivityDto[];
@@ -115,10 +108,15 @@ export interface PartnerDto {
   phone: string | null;
   notes: string | null;
   stage: PartnerStage;
-  /** Newest first. */
-  history: PartnerStageChangeDto[];
   /** False for Staff, who see the pipeline read-only. */
   canEdit: boolean;
+  /** yyyy-MM-dd of the latest timeline entry (L2-086 AC7). */
+  lastActivityOn: string | null;
+  /** The latest logged activity's next step, with its due date (L2-086 AC6). */
+  nextStep: string | null;
+  nextStepDue: string | null;
+  /** False for Staff. */
+  canLogActivity: boolean;
 }
 
 export interface PartnerCardDto {
@@ -126,6 +124,8 @@ export interface PartnerCardDto {
   name: string;
   contactName: string | null;
   offering: string | null;
+  nextStep: string | null;
+  nextStepDue: string | null;
 }
 
 export interface PartnerColumnDto {
@@ -159,8 +159,12 @@ export interface PartnersService {
   update(id: string, partner: PartnerRequest): Observable<PartnerDto>;
   /** Any stage to any other; the move is recorded with the optional note. 409 for the current stage. */
   move(id: string, to: PartnerStage, note?: string | null): Observable<PartnerDto>;
-  /** The shared timeline, newest first, 50 at a time (L2-086). */
-  activities(id: string): Observable<PartnerActivityPageDto>;
+  /** The shared timeline, newest first, 50 at a time; `before` is the previous page's cursor (L2-086). */
+  activities(
+    id: string,
+    kind?: PartnerActivityFilter | null,
+    before?: string | null,
+  ): Observable<PartnerActivityPageDto>;
   /** Logs a call, email, meeting or note (L2-085). 400 keyed by field, 403 for Staff. */
   logActivity(id: string, activity: LogPartnerActivityRequest): Observable<PartnerActivityDto>;
 }
