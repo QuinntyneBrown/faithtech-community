@@ -20,10 +20,10 @@ public class AcceptInviteTests(CommunityApiFactory factory) : IClassFixture<Comm
         var grace = await factory.AddMemberAsync("Grace Okonkwo", p => p.Update("Grace Okonkwo", "Toronto", null));
         var (_, token) = await factory.AddInviteAsync(grace, "ruth.alvarez@example.org", Role.Volunteer);
 
-        var lookup = await factory.CreateClient().GetFromJsonAsync<Lookup>($"/api/invites/by-token/{token}");
+        var lookup = await LookUpAsync(factory.CreateClient(), token);
 
         Assert.Equal(new Lookup("Pending", "ruth.alvarez@example.org", "Grace Okonkwo", "Toronto", "Volunteer", false), lookup);
-        Assert.Equal(HttpStatusCode.NotFound, (await factory.CreateClient().GetAsync("/api/invites/by-token/nope")).StatusCode);
+        Assert.Equal(HttpStatusCode.NotFound, (await factory.CreateClient().PostAsJsonAsync("/api/invites/lookup", new { token = "nope" })).StatusCode);
     }
 
     [Fact]
@@ -39,8 +39,8 @@ public class AcceptInviteTests(CommunityApiFactory factory) : IClassFixture<Comm
         });
         var anonymous = factory.CreateClient();
 
-        Assert.Equal("Expired", (await anonymous.GetFromJsonAsync<Lookup>($"/api/invites/by-token/{expired}"))!.Status);
-        Assert.Equal("Revoked", (await anonymous.GetFromJsonAsync<Lookup>($"/api/invites/by-token/{revokedToken}"))!.Status);
+        Assert.Equal("Expired", (await LookUpAsync(anonymous, expired))!.Status);
+        Assert.Equal("Revoked", (await LookUpAsync(anonymous, revokedToken))!.Status);
         var accept = await anonymous.PostAsJsonAsync("/api/invites/accept", new { Token = expired, Name = "Felix Wu", Password = OidcFlow.Password });
         Assert.Equal(HttpStatusCode.Conflict, accept.StatusCode);
         Assert.Equal("This invite has expired.", (await accept.Content.ReadFromJsonAsync<ProblemDetails>())!.Detail);
@@ -93,7 +93,7 @@ public class AcceptInviteTests(CommunityApiFactory factory) : IClassFixture<Comm
 
         Assert.Equal(HttpStatusCode.Conflict, again.StatusCode);
         Assert.Equal("This invite has already been used.", (await again.Content.ReadFromJsonAsync<ProblemDetails>())!.Detail);
-        Assert.Equal("Accepted", (await anonymous.GetFromJsonAsync<Lookup>($"/api/invites/by-token/{token}"))!.Status);
+        Assert.Equal("Accepted", (await LookUpAsync(anonymous, token))!.Status);
     }
 
     [Fact]
@@ -103,7 +103,7 @@ public class AcceptInviteTests(CommunityApiFactory factory) : IClassFixture<Comm
         var jonah = await factory.AddMemberAsync("Jonah Bell", p => p.AddRole(Role.Attendee, Guid.Empty, DateTime.UtcNow));
         var email = await EmailOfAsync(jonah);
         var (invite, token) = await factory.AddInviteAsync(grace, email.ToUpperInvariant(), Role.Volunteer);
-        Assert.True((await factory.CreateClient().GetFromJsonAsync<Lookup>($"/api/invites/by-token/{token}"))!.HasAccount);
+        Assert.True((await LookUpAsync(factory.CreateClient(), token))!.HasAccount);
 
         var response = await factory.ClientFor(jonah).PostAsJsonAsync("/api/invites/accept", new { Token = token });
 
@@ -155,6 +155,13 @@ public class AcceptInviteTests(CommunityApiFactory factory) : IClassFixture<Comm
 
         Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
         Assert.Equal([message], (await response.Content.ReadFromJsonAsync<ValidationProblemDetails>())!.Errors[field]);
+    }
+
+    private static async Task<Lookup?> LookUpAsync(HttpClient client, string token)
+    {
+        var response = await client.PostAsJsonAsync("/api/invites/lookup", new { token });
+        response.EnsureSuccessStatusCode();
+        return await response.Content.ReadFromJsonAsync<Lookup>();
     }
 
     private Task<string> EmailOfAsync(ProfileClients.Member member) =>

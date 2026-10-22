@@ -36,7 +36,8 @@ describe('HttpInvitesService', () => {
     ['listInvites', () => service.listInvites(), 'GET', '/api/invites', undefined],
     ['resendInvite', () => service.resendInvite('i1'), 'POST', '/api/invites/i1/resend', null],
     ['revokeInvite', () => service.revokeInvite('i1'), 'POST', '/api/invites/i1/revoke', null],
-    ['getInvite', () => service.getInvite('t-k'), 'GET', '/api/invites/by-token/t-k', undefined],
+    // The token goes in the body, never the URL, so it cannot reach request logs (L2-043).
+    ['getInvite', () => service.getInvite('t-k'), 'POST', '/api/invites/lookup', { token: 't-k' }],
     [
       'accept as a new account',
       () => service.acceptInvite('tok', { name: 'Ada', password: 'pw' }),

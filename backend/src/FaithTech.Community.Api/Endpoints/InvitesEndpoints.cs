@@ -29,10 +29,12 @@ public static class InvitesEndpoints
         invites.MapPost("/{id:guid}/revoke", async (Guid id, ManageInvitesHandler handler, CancellationToken cancellationToken) =>
             (await handler.RevokeAsync(id, cancellationToken)).ToHttp(Results.NoContent));
 
-        // The invite link is the credential, so these two are anonymous (L2-011).
-        invites.MapGet("/by-token/{token}", async (string token, AcceptInviteHandler handler, CancellationToken cancellationToken) =>
-                await handler.LookUpAsync(token, cancellationToken) is { } invite ? Results.Ok(invite) : Results.NotFound())
-            .AllowAnonymous();
+        // The invite link is the credential, so these two are anonymous (L2-011). The token travels in the
+        // body, never the path, so it cannot reach request logs (L2-043).
+        invites.MapPost("/lookup", async (InviteLookupRequest request, AcceptInviteHandler handler, CancellationToken cancellationToken) =>
+                await handler.LookUpAsync(request.Token ?? string.Empty, cancellationToken) is { } invite ? Results.Ok(invite) : Results.NotFound())
+            .AllowAnonymous()
+            .RequireRateLimiting(WebProtectionSetup.AuthRateLimitPolicy);
 
         invites.MapPost("/accept", async (AcceptInviteCommand command, AcceptInviteHandler handler, CancellationToken cancellationToken) =>
                 (await handler.AcceptAsync(command, cancellationToken)).ToHttp(Results.NoContent))

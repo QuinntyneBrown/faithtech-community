@@ -33,7 +33,7 @@ box "Backend — FaithTech.Community.Infrastructure" #FFF4E5
 end box
 actor -> page : Open /accept-invite/{token}
 page -> client : getInvite(token)
-client -> ep : GET /api/invites/by-token/{token} (anonymous)
+client -> ep : POST /api/invites/lookup { token } (anonymous)
 ep -> h : LookUpAsync(token)
 h -> db : Find invite by InviteTokens.Hash(token)
 alt unknown token
