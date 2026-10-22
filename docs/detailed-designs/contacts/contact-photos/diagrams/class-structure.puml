@@ -22,7 +22,6 @@ class Contact {
 }
 class ContactPhoto {
   +Guid Id
-  +Guid ContactId
   +string BlobName
   +string AltText
   +bool IsFeatured

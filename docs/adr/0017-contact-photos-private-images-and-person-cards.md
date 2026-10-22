@@ -24,7 +24,7 @@ The feature also had to settle how photos chosen on `/contacts/new` are saved, w
 
 **Linked contacts.** A linked contact's card and page header show the member's featured photo and name (`L2-015` AC2). The photos the lead added stay on the contact page, private to the lead and System Admin.
 
-**Cover band.** The card's cover band is decorative: the tint of the person's avatar colour, chosen from the contact id as ADR 0008 chooses it from a profile id, or the neutral subtle background for the plain colour. Nobody uploads a cover.
+**Cover band.** The card's cover band is decorative: the tint of the person's colour, chosen from the contact id with the same hash ADR 0008 applies to a profile id, so every card has a colour and keeps it. The initials use the same colour. Nobody uploads a cover.
 
 ## Consequences
 
