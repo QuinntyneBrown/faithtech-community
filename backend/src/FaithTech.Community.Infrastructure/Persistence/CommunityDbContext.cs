@@ -169,6 +169,24 @@ public class CommunityDbContext(DbContextOptions<CommunityDbContext> options)
             // Deleting a contact deletes its notes (L2-016 AC3).
             contact.HasMany(c => c.Notes).WithOne().HasForeignKey(n => n.ContactId).OnDelete(DeleteBehavior.Cascade);
             contact.Navigation(c => c.Notes).UsePropertyAccessMode(PropertyAccessMode.Field);
+            // Photos are owned, so deleting a contact deletes them too (L2-058 AC6).
+            contact.OwnsMany(c => c.Photos, photo =>
+            {
+                photo.ToTable("ContactPhotos");
+                photo.WithOwner().HasForeignKey("ContactId");
+                photo.HasKey(p => p.Id);
+                photo.Property(p => p.Id).ValueGeneratedNever();
+                photo.Property(p => p.BlobName).HasMaxLength(200);
+                photo.Property(p => p.AltText).HasMaxLength(300);
+            });
+            contact.Navigation(c => c.Photos).UsePropertyAccessMode(PropertyAccessMode.Field);
+            contact.OwnsOne(c => c.PhotoLease, lease =>
+            {
+                lease.ToTable("ContactPhotoLeases");
+                lease.WithOwner().HasForeignKey("ContactId");
+                lease.Property(l => l.Version).IsConcurrencyToken();
+            });
+            contact.Navigation(c => c.PhotoLease).IsRequired();
         });
 
         builder.Entity<ContactNote>(note =>

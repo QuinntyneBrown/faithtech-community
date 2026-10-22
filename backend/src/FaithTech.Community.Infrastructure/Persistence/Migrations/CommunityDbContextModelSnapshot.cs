@@ -1452,6 +1452,74 @@ namespace FaithTech.Community.Infrastructure.Persistence.Migrations
                     b.Navigation("Recipients");
                 });
 
+            modelBuilder.Entity("FaithTech.Community.Domain.Contacts.Contact", b =>
+                {
+                    b.OwnsOne("FaithTech.Community.Domain.Profiles.PhotoLease", "PhotoLease", b1 =>
+                        {
+                            b1.Property<Guid>("ContactId")
+                                .HasColumnType("uuid");
+
+                            b1.Property<DateTimeOffset?>("ExpiresAt")
+                                .HasColumnType("timestamp with time zone");
+
+                            b1.Property<Guid?>("Holder")
+                                .HasColumnType("uuid");
+
+                            b1.Property<Guid>("Version")
+                                .IsConcurrencyToken()
+                                .HasColumnType("uuid");
+
+                            b1.HasKey("ContactId");
+
+                            b1.ToTable("ContactPhotoLeases", (string)null);
+
+                            b1.WithOwner()
+                                .HasForeignKey("ContactId");
+                        });
+
+                    b.OwnsMany("FaithTech.Community.Domain.Contacts.ContactPhoto", "Photos", b1 =>
+                        {
+                            b1.Property<Guid>("Id")
+                                .HasColumnType("uuid");
+
+                            b1.Property<string>("AltText")
+                                .IsRequired()
+                                .HasMaxLength(300)
+                                .HasColumnType("character varying(300)");
+
+                            b1.Property<string>("BlobName")
+                                .IsRequired()
+                                .HasMaxLength(200)
+                                .HasColumnType("character varying(200)");
+
+                            b1.Property<Guid>("ContactId")
+                                .HasColumnType("uuid");
+
+                            b1.Property<bool>("IsFeatured")
+                                .HasColumnType("boolean");
+
+                            b1.Property<bool>("IsStored")
+                                .HasColumnType("boolean");
+
+                            b1.Property<DateTimeOffset>("UploadedAt")
+                                .HasColumnType("timestamp with time zone");
+
+                            b1.HasKey("Id");
+
+                            b1.HasIndex("ContactId");
+
+                            b1.ToTable("ContactPhotos", (string)null);
+
+                            b1.WithOwner()
+                                .HasForeignKey("ContactId");
+                        });
+
+                    b.Navigation("PhotoLease")
+                        .IsRequired();
+
+                    b.Navigation("Photos");
+                });
+
             modelBuilder.Entity("FaithTech.Community.Domain.Contacts.ContactNote", b =>
                 {
                     b.HasOne("FaithTech.Community.Domain.Contacts.Contact", null)
