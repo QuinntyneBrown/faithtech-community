@@ -1,6 +1,8 @@
 // Traces to: L2-060, L2-061, L2-058 AC3 (docs/detailed-designs/contacts/contact-photos)
 import { expect, test } from '../../fixtures/app';
 import { photoUrl } from '../../fixtures/mock-api';
+import { AppShell } from '../../pages/app-shell.page';
+import { ArchiveContactDialog } from '../../pages/archive-contact.dialog';
 import { ContactPage } from '../../pages/contact.page';
 import { ContactsPage } from '../../pages/contacts.page';
 import { BREAKPOINTS } from '../../pages/viewport';
@@ -140,5 +142,46 @@ test.describe('Contacts as person cards', () => {
     await axe.check();
     release();
     await expect(contacts.card('Kwame Asante').root).toBeVisible();
+  });
+
+  test('the × on a card asks before archiving, and archives only on confirmation', async ({
+    page,
+    api,
+    axe,
+  }) => {
+    const grace = api.addAccount({ email: 'grace@example.org', roles: ['CityLead'] });
+    const tomas = api.contacts.add({
+      ownerId: grace.profileId,
+      name: 'Tomás Ortega',
+      city: 'Toronto',
+    });
+    api.contacts.add({ ownerId: grace.profileId, name: 'Kwame Asante', city: 'Toronto' });
+
+    await api.signInAs(grace, '/contacts');
+    const contacts = new ContactsPage(page);
+    const card = contacts.card('Tomás Ortega');
+    const dialog = new ArchiveContactDialog(page);
+
+    await card.viewProfile.focus();
+    await page.keyboard.press('Tab');
+    await expect(card.dismiss).toBeFocused();
+    await page.keyboard.press('Enter');
+    await expect(dialog.dialog).toHaveAccessibleName('Archive Tomás Ortega?');
+    expect(api.callsTo('POST', `/api/contacts/${tomas.id}/archive`)).toHaveLength(0);
+    await dialog.opened();
+    await axe.check();
+
+    await dialog.cancel.click();
+    await expect(dialog.dialog).toBeHidden();
+    await expect(card.dismiss).toBeFocused();
+    await expect(contacts.items).toHaveCount(2);
+
+    await card.dismiss.click();
+    await dialog.archive.click();
+
+    await expect(card.root).toBeHidden();
+    await expect(contacts.items).toHaveCount(1);
+    await expect(new AppShell(page).toasts).toContainText('Contact archived');
+    expect(api.callsTo('POST', `/api/contacts/${tomas.id}/archive`)).toHaveLength(1);
   });
 });

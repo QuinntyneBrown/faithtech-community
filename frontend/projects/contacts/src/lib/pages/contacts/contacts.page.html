@@ -78,6 +78,8 @@
               [subtitle]="meta(contact)"
               [secondary]="secondary(contact)"
               [href]="'/contacts/' + contact.id"
+              [dismissLabel]="'Archive ' + contact.name"
+              (dismissed)="archive(contact)"
             >
               <ft-badge badge [variant]="badge(contact).variant">
                 @if (contact.status === 'Private') {

@@ -8,6 +8,7 @@ import {
   BadgeComponent,
   BadgeVariant,
   ButtonComponent,
+  DialogService,
   EmptyStateComponent,
   formatDay,
   IconComponent,
@@ -16,8 +17,11 @@ import {
   PersonCardSkeletonComponent,
   PersonGridComponent,
   TextFieldComponent,
+  ToastService,
 } from '@faithtech-community/components';
 import { firstValueFrom } from 'rxjs';
+
+import { ArchiveContactDialog, ContactRef } from '../../dialogs';
 
 type State = 'loading' | 'loaded' | 'error' | 'forbidden';
 
@@ -52,6 +56,8 @@ const BADGES: Record<ContactStatus, { variant: BadgeVariant; label: string }> = 
 })
 export class ContactsPage {
   private readonly contacts = inject(CONTACTS_SERVICE);
+  private readonly dialogs = inject(DialogService);
+  private readonly toasts = inject(ToastService);
 
   protected readonly query = new FormControl('', { nonNullable: true });
   protected readonly term = signal('');
@@ -90,6 +96,20 @@ export class ContactsPage {
 
   protected color(contact: ContactSummary) {
     return avatarColorFor(contact.id);
+  }
+
+  /** The card's ×: confirms first, then removes the archived card (L2-061). */
+  protected async archive(contact: ContactSummary): Promise<void> {
+    const ref = this.dialogs.open<boolean, ContactRef>(ArchiveContactDialog, {
+      data: { contactId: contact.id, name: contact.name },
+    });
+    if (!(await firstValueFrom(ref.closed))) return;
+    this.list.update((all) => all.filter((c) => c.id !== contact.id));
+    this.toasts.show({
+      variant: 'success',
+      heading: 'Contact archived',
+      text: `${contact.name} is in Archived contacts with your notes.`,
+    });
   }
 
   protected search(): void {

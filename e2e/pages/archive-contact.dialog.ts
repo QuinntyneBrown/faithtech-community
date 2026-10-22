@@ -4,10 +4,12 @@ import { Locator, Page } from '@playwright/test';
 export class ArchiveContactDialog {
   readonly dialog: Locator;
   readonly archive: Locator;
+  readonly cancel: Locator;
 
   constructor(page: Page) {
     this.dialog = page.getByRole('dialog', { name: /^Archive / });
     this.archive = this.dialog.getByRole('button', { name: 'Archive', exact: true });
+    this.cancel = this.dialog.getByRole('button', { name: 'Cancel' });
   }
 
   /** Waits until the dialog has finished animating in, so colours are measured at full opacity. */

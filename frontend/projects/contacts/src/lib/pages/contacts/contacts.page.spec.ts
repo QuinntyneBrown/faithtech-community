@@ -1,8 +1,11 @@
-// Traces to: L2-012, L2-013, L2-060
+// Traces to: L2-012, L2-013, L2-060, L2-061
 import { HttpErrorResponse } from '@angular/common/http';
 import { TestBed } from '@angular/core/testing';
 import { CONTACTS_SERVICE, ContactSummary } from '@faithtech-community/api';
+import { DialogService, ToastService } from '@faithtech-community/components';
 import { Observable, of, throwError } from 'rxjs';
+
+import { ArchiveContactDialog } from '../../dialogs';
 
 import { ContactsPage } from './contacts.page';
 
@@ -41,12 +44,23 @@ const jonah = contact({
   status: 'Member',
 });
 
-async function setup(list: (term?: string) => Observable<ContactSummary[]>) {
+async function setup(
+  list: (term?: string) => Observable<ContactSummary[]>,
+  options: { archived?: boolean } = {},
+) {
   const service = {
     list: vi.fn(list),
     photoImage: vi.fn((url: string) => of(url.startsWith('/api/') ? 'blob:tomas' : url)),
   };
-  TestBed.configureTestingModule({ providers: [{ provide: CONTACTS_SERVICE, useValue: service }] });
+  const dialogs = { open: vi.fn(() => ({ closed: of(options.archived) })) };
+  const toasts = { show: vi.fn() };
+  TestBed.configureTestingModule({
+    providers: [
+      { provide: CONTACTS_SERVICE, useValue: service },
+      { provide: DialogService, useValue: dialogs },
+      { provide: ToastService, useValue: toasts },
+    ],
+  });
   const fixture = TestBed.createComponent(ContactsPage);
   const settle = async () => {
     fixture.detectChanges();
@@ -74,7 +88,7 @@ async function setup(list: (term?: string) => Observable<ContactSummary[]>) {
     host.querySelector('form[role="search"]')!.dispatchEvent(new Event('submit'));
     await settle();
   };
-  return { host, service, text, rows, search, settle };
+  return { host, service, dialogs, toasts, text, rows, search, settle };
 }
 
 describe('ContactsPage', () => {
@@ -104,6 +118,36 @@ describe('ContactsPage', () => {
     expect(img.getAttribute('src')).toBe('blob:tomas');
     expect(img.getAttribute('alt')).toBe('Tomás smiling outside Harbour Light Shelter');
     expect(host.querySelectorAll('ft-person-card img')).toHaveLength(1);
+  });
+
+  it('asks before archiving from a card’s × and removes the card once archived', async () => {
+    const { host, dialogs, toasts, rows, settle } = await setup(() => of([abby, tomas]), {
+      archived: true,
+    });
+    const dismiss = host.querySelector<HTMLButtonElement>(
+      'ft-person-card button[aria-label="Archive Abby Brooks"]',
+    )!;
+
+    dismiss.click();
+    await settle();
+
+    expect(dialogs.open).toHaveBeenCalledWith(ArchiveContactDialog, {
+      data: { contactId: 'c1', name: 'Abby Brooks' },
+    });
+    expect(rows().map((r) => r.split(' | ')[0])).toEqual(['Tomás Ortega']);
+    expect(toasts.show).toHaveBeenCalledWith(
+      expect.objectContaining({ variant: 'success', heading: 'Contact archived' }),
+    );
+  });
+
+  it('keeps the card when the archive confirmation is cancelled', async () => {
+    const { host, rows, toasts, settle } = await setup(() => of([abby]), { archived: false });
+
+    host.querySelector<HTMLButtonElement>('ft-person-card button')!.click();
+    await settle();
+
+    expect(rows()).toHaveLength(1);
+    expect(toasts.show).not.toHaveBeenCalled();
   });
 
   it('says “1 note” for a single note', async () => {
