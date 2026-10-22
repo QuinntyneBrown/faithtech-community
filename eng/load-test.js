@@ -21,10 +21,12 @@
 //
 // Reports (L2-104 AC1): the reports scenario reads GET /api/reports and the CSV export for every period, as a System
 // Admin, under 1 second at p95 over 10,000 members, 1,000 events and 50,000 RSVPs. Before the run, seed that volume,
-// one more load-test member than VUS, and make that member a System Admin (Staff cannot be granted from the Cli):
+// two more load-test members than VUS, and make the last a System Admin (Staff cannot be granted from the Cli):
 //        dotnet run --project backend/src/FaithTech.Community.Cli -- seed-report-records 10000
-//        LOADTEST_PASSWORD=<same password> dotnet run --project backend/src/FaithTech.Community.Cli -- seed-load-users 201
-//        dotnet run --project backend/src/FaithTech.Community.Cli -- grant-admin load-201@loadtest.invalid
+//        LOADTEST_PASSWORD=<same password> dotnet run --project backend/src/FaithTech.Community.Cli -- seed-load-users 202
+//        dotnet run --project backend/src/FaithTech.Community.Cli -- grant-admin load-202@loadtest.invalid
+// k6 numbers VUs across both scenarios, so the members scenario's VUs can be any VUS of 1 to VUS + 1;
+// a member is signed in for each of those ids, and the reports VU signs in as the member after them.
 //
 // Every request in the measured scenario must answer 2xx: any other status counts as a failure,
 // and the thresholds fail the run. Reads are the member's own session, profile and the team list.
@@ -85,11 +87,11 @@ export function setup() {
   if (!PASSWORD)
     fail("Set LOADTEST_PASSWORD to the password given to seed-load-users.");
   const members = [];
-  for (let i = 1; i <= VUS; i++) {
+  for (let i = 1; i <= VUS + 1; i++) {
     members.push(signIn(`load-${String(i).padStart(3, "0")}@loadtest.invalid`));
   }
-  // The System Admin who reads the reports: the member after the last VU (see the Reports steps above).
-  const admin = signIn(`load-${String(VUS + 1).padStart(3, "0")}@loadtest.invalid`);
+  // The System Admin who reads the reports: the member after those (see the Reports steps above).
+  const admin = signIn(`load-${String(VUS + 2).padStart(3, "0")}@loadtest.invalid`);
   return { members, admin };
 }
 

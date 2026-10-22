@@ -21,7 +21,7 @@
 | [agile](agile.md) | 36 days | 99% | B- |
 | [marketing](marketing.md) | 8 days | 95% | n/a |
 | [resources](resources.md) | 23 days | 99% | — |
-| [reports](reports.md) | 7 days | 95% | n/a |
+| [reports](reports.md) | 7 days | 100% | n/a |
 
 ## Roadmap
 
