@@ -10,6 +10,8 @@ import { TextFieldComponent } from './text-field.component';
     [type]="type"
     [action]="action"
     [readonly]="readonly"
+    [size]="size"
+    [inputId]="inputId"
     label="Field"
     (actionClick)="clicks = clicks + 1"
   />`,
@@ -19,6 +21,8 @@ class HostComponent {
   type = 'text';
   action: 'reveal' | 'copy' | null = null;
   readonly = false;
+  size: 'sm' | 'md' | 'lg' = 'md';
+  inputId: string | null = null;
   clicks = 0;
 }
 
@@ -62,6 +66,22 @@ describe('TextFieldComponent', () => {
 
   it('supports readonly', () => {
     expect(setup({ readonly: true }).input().readOnly).toBe(true);
+  });
+
+  it('renders the medium size by default', () => {
+    const { input } = setup();
+    expect(input().classList).not.toContain('input--sm');
+    expect(input().classList).not.toContain('input--lg');
+  });
+
+  it('renders the small and large design-system sizes', () => {
+    expect(setup({ size: 'sm' }).input().classList).toContain('input--sm');
+    TestBed.resetTestingModule();
+    expect(setup({ size: 'lg' }).input().classList).toContain('input--lg');
+  });
+
+  it('uses the given input id when there is no ft-form-field', () => {
+    expect(setup({ inputId: 'global-q' }).input().id).toBe('global-q');
   });
 
   it('has no trailing button by default', () => {

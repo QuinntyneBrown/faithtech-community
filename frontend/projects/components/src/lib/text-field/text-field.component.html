@@ -1,6 +1,13 @@
-<div class="group" [class.group--action]="action()">
+<div
+  class="group"
+  [class.group--action]="action()"
+  [class.group--sm]="size() === 'sm'"
+  [class.group--lg]="size() === 'lg'"
+>
   <input
     class="input"
+    [class.input--sm]="size() === 'sm'"
+    [class.input--lg]="size() === 'lg'"
     [attr.id]="id()"
     [attr.name]="name()"
     [type]="effectiveType()"

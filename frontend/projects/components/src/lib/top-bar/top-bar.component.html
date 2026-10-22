@@ -28,15 +28,14 @@
   }
   <span class="top-bar__spacer"></span>
   @if (!anonymous()) {
-    <form class="top-bar__search" role="search" (submit)="onSearch($event, q.value)">
+    <form class="top-bar__search" role="search" (submit)="onSearch($event)">
       <label class="top-bar__hidden" [attr.for]="searchId">{{ searchLabel() }}</label>
-      <input
-        #q
-        class="top-bar__input"
+      <ft-text-field
+        size="sm"
         type="search"
         name="q"
-        [id]="searchId"
-        [attr.placeholder]="searchPlaceholder()"
+        [inputId]="searchId"
+        [placeholder]="searchPlaceholder()"
       />
     </form>
   }

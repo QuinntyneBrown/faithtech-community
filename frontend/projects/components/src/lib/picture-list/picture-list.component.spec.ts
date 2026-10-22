@@ -107,6 +107,13 @@ describe('PictureListComponent', () => {
     expect(cmp.alts).toEqual([{ index: 0, alt: 'Grace speaking' }]);
   });
 
+  it('uses the compact small field for each description', async () => {
+    const { all } = await setup();
+    const inputs = all<HTMLInputElement>('input[type="text"]');
+    expect(inputs.length).toBe(2);
+    for (const input of inputs) expect(input.classList).toContain('input--sm');
+  });
+
   it('asks for a description when one is missing', async () => {
     const { fixture, cmp, host } = await setup();
     cmp.photos.set([{ url: '/1.jpg', alt: '', featured: true }]);

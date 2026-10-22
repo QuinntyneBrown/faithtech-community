@@ -90,21 +90,6 @@
   inline-size: var(--layout-topbar-search-width);
 }
 
-.top-bar__input {
-  inline-size: 100%;
-  min-block-size: var(--target-comfortable);
-  padding-inline: var(--space-3);
-  border: var(--border-width-hairline) solid var(--color-border-strong);
-  border-radius: var(--radius-full);
-  background: var(--color-bg-surface);
-  color: var(--color-fg-default);
-  font: var(--text-body-sm);
-
-  &::placeholder {
-    color: var(--color-fg-subtle);
-  }
-}
-
 .top-bar__actions {
   display: flex;
   align-items: center;
@@ -121,8 +106,7 @@
 }
 
 a:focus-visible,
-.top-bar__more:focus-visible,
-.top-bar__input:focus-visible {
+.top-bar__more:focus-visible {
   outline: none;
   box-shadow: var(--shadow-focus);
 }
