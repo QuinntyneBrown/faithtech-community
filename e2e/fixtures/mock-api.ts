@@ -90,6 +90,28 @@ const LEAD_ROLES = ['CityLead', 'EventLead', 'CreateLead', 'CommunicationsLead',
 const TEAM_LEAD_ROLES = ['CityLead', 'EventLead', 'CreateLead', 'CommunicationsLead'];
 const TEAM_ROLES = [...TEAM_LEAD_ROLES, 'Volunteer'];
 const DAY = 24 * 60 * 60 * 1000;
+/** The API's CORS origins (WebApp:Origin and Marketing:Origin), with credentials allowed. */
+const ALLOWED_ORIGINS = ['http://localhost:4200', 'http://localhost:4300'];
+
+/** Answers as the API's CORS policy does for an allowed origin. */
+function withCors(route: Route, origin: string): Route {
+  const cors = {
+    'access-control-allow-origin': origin,
+    'access-control-allow-credentials': 'true',
+    'access-control-allow-headers': 'content-type, authorization',
+    'access-control-allow-methods': 'GET, POST, PUT, DELETE',
+  };
+  return new Proxy(route, {
+    get(target, prop) {
+      if (prop === 'fulfill') {
+        return (options: Parameters<Route['fulfill']>[0] = {}) =>
+          target.fulfill({ ...options, headers: { ...options.headers, ...cors } });
+      }
+      const value = Reflect.get(target, prop);
+      return typeof value === 'function' ? value.bind(target) : value;
+    },
+  });
+}
 
 type Handler = (route: Route, body: Record<string, unknown>) => Promise<void> | void;
 
@@ -272,6 +294,12 @@ export class MockApi {
     const request = route.request();
     const url = new URL(request.url());
     const method = request.method();
+    // The marketing page calls the API from its own origin, as the real CORS policy allows (L2-060 AC3).
+    const origin = request.headers()['origin'];
+    if (origin && ALLOWED_ORIGINS.includes(origin)) {
+      route = withCors(route, origin);
+      if (method === 'OPTIONS') return route.fulfill({ status: 204 });
+    }
     const contentType = request.headers()['content-type'] ?? '';
     const body = contentType.startsWith('multipart/form-data')
       ? parseMultipart(request.postDataBuffer())

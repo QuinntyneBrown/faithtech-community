@@ -11,10 +11,17 @@ public static class WebProtectionSetup
 
     public static IServiceCollection AddWebProtections(this IServiceCollection services, IConfiguration configuration)
     {
+        // The marketing page (Marketing:Origin) posts credentials from its own origin, so the session cookie
+        // the sign-in sets must be allowed through: credentials are allowed for these two origins only.
+        var origins = new[] { configuration["WebApp:Origin"] ?? throw new InvalidOperationException("WebApp:Origin is not configured."), configuration["Marketing:Origin"] }
+            .Where(origin => !string.IsNullOrWhiteSpace(origin))
+            .Cast<string>()
+            .ToArray();
         services.AddCors(options => options.AddPolicy(WebAppCorsPolicy, policy => policy
-            .WithOrigins(configuration["WebApp:Origin"] ?? throw new InvalidOperationException("WebApp:Origin is not configured."))
+            .WithOrigins(origins)
             .AllowAnyHeader()
-            .AllowAnyMethod()));
+            .AllowAnyMethod()
+            .AllowCredentials()));
 
         services.AddRateLimiter(options =>
         {

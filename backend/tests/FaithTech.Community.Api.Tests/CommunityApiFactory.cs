@@ -25,6 +25,8 @@ public class CommunityApiFactory : WebApplicationFactory<Program>, IAsyncLifetim
 {
     public const string WebAppOrigin = "https://app.faithtech.test";
 
+    public const string MarketingOrigin = "https://www.faithtech.test";
+
     // Shared by servers derived with WithWebHostBuilder, so they see the same data.
     private readonly InMemoryDatabaseRoot _databaseRoot = new();
     private readonly string _databaseName = Guid.NewGuid().ToString();
@@ -57,6 +59,7 @@ public class CommunityApiFactory : WebApplicationFactory<Program>, IAsyncLifetim
         builder.UseSetting("ConnectionStrings:Community", "Host=unused");
         builder.UseSetting("ConnectionStrings:Blobs", "UseDevelopmentStorage=true");
         builder.UseSetting("WebApp:Origin", WebAppOrigin);
+        builder.UseSetting("Marketing:Origin", MarketingOrigin);
         // Tests share one client address; the rate-limit tests restore the production limit explicitly.
         builder.UseSetting("RateLimits:AuthPerMinute", "100000");
         builder.UseSetting("RateLimits:GuestRsvpPerHour", "100000");

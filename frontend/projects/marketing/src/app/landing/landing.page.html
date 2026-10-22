@@ -6,6 +6,29 @@
         heading="Build with people who share your faith"
         lead="Meet the builders, leads and volunteers in your city, show up to events and hackathons together, and work on projects that serve your neighbours."
       >
+        <ft-card ftHeroPanel>
+          @if (handingOff(); as handOff) {
+            <h2 aria-live="polite">Signing you in…</h2>
+            @if (!handOff.emailVerified) {
+              <ft-alert status="info" heading="Your email isn’t verified yet">
+                You can look around now. A banner in the app will offer to send the link again.
+              </ft-alert>
+            }
+            <p class="text-muted">Taking you to FaithTech Community.</p>
+          } @else {
+            <h2>Sign in</h2>
+            <ft-sign-in-form
+              [busy]="busy()"
+              [failure]="failure()"
+              [forgotPasswordHref]="communityOrigin + '/forgot-password'"
+              (submitted)="signIn($event)"
+            />
+            <p class="text-center">
+              New to FaithTech?
+              <ft-button variant="ghost" size="sm" (click)="showJoin()">Join now</ft-button>
+            </p>
+          }
+        </ft-card>
         <ft-video-player
           ftHeroMedia
           src="/brochure/brochure.webm"
@@ -32,7 +55,7 @@
         </ft-grid>
       </section>
       <ft-cta-band heading="Ready to build with us?" text="It’s free, and it takes a minute.">
-        <ft-button variant="primary" size="lg" (click)="join()">Join now</ft-button>
+        <ft-button variant="primary" size="lg" (click)="showJoin()">Join now</ft-button>
       </ft-cta-band>
     </div>
   </ft-container>

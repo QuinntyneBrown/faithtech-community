@@ -12,4 +12,5 @@ export * from './auth.service';
 export * from './http-auth.service';
 export * from './oidc-auth-client.service';
 export * from './auth.interceptor';
+export * from './browser-redirect';
 export * from './sign-up-errors';

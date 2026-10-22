@@ -1,5 +1,7 @@
 import { Locator, Page } from '@playwright/test';
 
+import { fieldError } from './sign-in.page';
+
 /** The marketing app's own dev server (playwright.config.ts starts it next to the community app). */
 export const MARKETING_URL = process.env['E2E_MARKETING_URL'] ?? 'http://localhost:4300';
 
@@ -22,6 +24,18 @@ export class MarketingPage {
   readonly transcriptToggle: Locator;
   readonly videoUnavailable: Locator;
   readonly videoPoster: Locator;
+  /** The hero panel: the sign-in or sign-up card. */
+  readonly panel: Locator;
+  readonly signInHeading: Locator;
+  readonly email: Locator;
+  readonly password: Locator;
+  readonly keepSignedIn: Locator;
+  readonly signInButton: Locator;
+  readonly alert: Locator;
+  readonly emailError: Locator;
+  readonly passwordError: Locator;
+  readonly resetPassword: Locator;
+  readonly handOff: Locator;
 
   constructor(private readonly page: Page) {
     this.heading = page.getByRole('heading', {
@@ -46,6 +60,38 @@ export class MarketingPage {
       hasText: 'This video can’t play right now',
     });
     this.videoPoster = page.getByRole('img', { name: /FaithTech builders/ });
+    this.panel = page.locator('ft-card').filter({ has: page.getByRole('heading', { level: 2 }) });
+    this.signInHeading = page.getByRole('heading', { level: 2, name: 'Sign in' });
+    this.email = this.panel.getByLabel('Email');
+    this.password = this.panel.getByLabel('Password', { exact: true });
+    this.keepSignedIn = this.panel.getByRole('switch', {
+      name: 'Keep me signed in on this device',
+    });
+    this.signInButton = this.panel.getByRole('button', { name: /^(Sign in|Signing in…)$/ });
+    this.alert = this.panel.locator('ft-alert [role=alert], ft-alert [role=status]');
+    this.emailError = fieldError(page, 'Email');
+    this.passwordError = fieldError(page, 'Password');
+    this.resetPassword = this.panel.getByRole('link', { name: 'Reset password' });
+    this.handOff = page.getByRole('heading', { level: 2, name: 'Signing you in…' });
+  }
+
+  /** Signs in from the hero panel and waits for the API's answer. */
+  async signIn(
+    email: string,
+    password: string,
+    options: { keepSignedIn?: boolean } = {},
+  ): Promise<void> {
+    await this.email.fill(email);
+    await this.password.fill(password);
+    if (options.keepSignedIn) await this.keepSignedIn.check();
+    const response = this.page.waitForResponse('**/api/account/sign-in');
+    await this.signInButton.click();
+    await response;
+  }
+
+  /** Submits the sign-in form without filling anything in, so no request is made. */
+  async submitEmptySignIn(): Promise<void> {
+    await this.signInButton.click();
   }
 
   /** Starts the brochure as a visitor pressing its Play control would. */
