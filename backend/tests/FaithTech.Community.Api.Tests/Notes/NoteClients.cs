@@ -2,7 +2,9 @@ using System.Net.Http.Json;
 using System.Text.Json;
 using System.Text.Json.Nodes;
 using FaithTech.Community.Api.Tests.Profiles;
+using FaithTech.Community.Domain.Notes;
 using FaithTech.Community.Domain.Profiles;
+using Microsoft.EntityFrameworkCore;
 
 namespace FaithTech.Community.Api.Tests.Notes;
 
@@ -71,7 +73,12 @@ public static class NoteClients
         var page = await client.CreateNoteAsync(title);
         if (visibility != "Private")
         {
-            (await client.PutAsJsonAsync($"/api/notes/{page.Id}/visibility", new { Visibility = visibility })).EnsureSuccessStatusCode();
+            await factory.WithDbAsync(async db =>
+            {
+                var stored = await db.NotePages.SingleAsync(p => p.Id == page.Id);
+                stored.SetAudience(Enum.Parse<NoteVisibility>(visibility), [], []);
+                return await db.SaveChangesAsync();
+            });
         }
 
         return (await client.GetFromJsonAsync<Detail>($"/api/notes/{page.Id}"))!;

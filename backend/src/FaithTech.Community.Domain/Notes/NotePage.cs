@@ -62,4 +62,39 @@ public class NotePage
     public IReadOnlyList<NoteShareRole> SharedRoles => _roles;
 
     public bool IsArchived => ArchivedAt is not null;
+
+    /// <summary>A whole-page save (ADR 0023): the title, icon and blocks replace the old ones and the version moves on.</summary>
+    public void Save(string title, string? icon, string content, string bodyText, Guid by, DateTimeOffset now)
+    {
+        Title = title.Trim();
+        Icon = string.IsNullOrWhiteSpace(icon) ? null : icon.Trim();
+        Content = content;
+        BodyText = bodyText;
+        Touch(by, now);
+    }
+
+    /// <summary>Sets the visibility and, for Shared, the named members and roles; any other visibility clears them.</summary>
+    public void SetAudience(NoteVisibility visibility, IReadOnlyCollection<Guid> members, IReadOnlyCollection<Profiles.Role> roles)
+    {
+        if (visibility == NoteVisibility.Shared && members.Count == 0 && roles.Count == 0)
+        {
+            throw new ArgumentException("A shared page needs at least one member or role.");
+        }
+
+        Visibility = visibility;
+        var keepMembers = visibility == NoteVisibility.Shared ? members : [];
+        var keepRoles = visibility == NoteVisibility.Shared ? roles : [];
+        _members.RemoveAll(m => !keepMembers.Contains(m.ProfileId));
+        _roles.RemoveAll(r => !keepRoles.Contains(r.Role));
+        _members.AddRange(keepMembers.Where(m => _members.All(x => x.ProfileId != m)).Select(m => new NoteShareMember(Id, m)));
+        _roles.AddRange(keepRoles.Where(r => _roles.All(x => x.Role != r)).Select(r => new NoteShareRole(Id, r)));
+    }
+
+    /// <summary>Records who changed the page and when, and moves the version on.</summary>
+    public void Touch(Guid by, DateTimeOffset now)
+    {
+        UpdatedAt = now;
+        UpdatedById = by;
+        Version++;
+    }
 }

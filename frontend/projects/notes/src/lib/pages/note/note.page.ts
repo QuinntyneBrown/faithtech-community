@@ -10,18 +10,23 @@ import {
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ActivatedRoute } from '@angular/router';
-import { NOTES_SERVICE, NotePageDto } from '@faithtech-community/api';
+import { NOTES_SERVICE, NoteBlock, NotePageDto } from '@faithtech-community/api';
 import {
+  BlockEditorComponent,
   BreadcrumbComponent,
   BreadcrumbItemComponent,
   ButtonComponent,
+  EditorBlock,
   EmptyStateComponent,
   IconComponent,
   PageTitleComponent,
+  SaveStatusComponent,
   SkeletonComponent,
+  ToastService,
 } from '@faithtech-community/components';
 import { firstValueFrom } from 'rxjs';
 
+import { NoteAutosave } from '../../note-autosave';
 import { titleOf } from '../../note-format';
 
 type State = 'loading' | 'loaded' | 'missing' | 'error';
@@ -30,12 +35,14 @@ type State = 'loading' | 'loaded' | 'missing' | 'error';
 @Component({
   selector: 'ft-note-page',
   imports: [
+    BlockEditorComponent,
     BreadcrumbComponent,
     BreadcrumbItemComponent,
     ButtonComponent,
     EmptyStateComponent,
     IconComponent,
     PageTitleComponent,
+    SaveStatusComponent,
     SkeletonComponent,
   ],
   templateUrl: './note.page.html',
@@ -44,13 +51,20 @@ type State = 'loading' | 'loaded' | 'missing' | 'error';
 })
 export class NotePage {
   private readonly notes = inject(NOTES_SERVICE);
+  private readonly toasts = inject(ToastService);
   private readonly titleBox = viewChild(PageTitleComponent);
+  private readonly editor = viewChild(BlockEditorComponent);
 
   protected readonly state = signal<State>('loading');
   protected readonly page = signal<NotePageDto | null>(null);
   protected readonly title = signal('');
+  protected readonly icon = signal<string | null>(null);
+  /** The blocks as loaded; the editor keeps its own working copy. */
+  protected readonly loadedBlocks = signal<NoteBlock[]>([]);
   protected readonly editable = computed(() => !!this.page()?.canEdit && !this.page()?.archivedAt);
   protected readonly titleOf = titleOf;
+  protected autosave: NoteAutosave | null = null;
+  private blocks: NoteBlock[] = [];
   private id = '';
 
   constructor() {
@@ -60,6 +74,7 @@ export class NotePage {
         this.id = params.get('id') ?? '';
         void this.load(true);
       });
+    inject(DestroyRef).onDestroy(() => this.autosave?.cancel());
   }
 
   protected retry(): void {
@@ -68,14 +83,37 @@ export class NotePage {
 
   protected onTitle(value: string): void {
     this.title.set(value);
+    this.autosave?.changed();
+  }
+
+  protected onBlocks(blocks: EditorBlock[]): void {
+    this.blocks = blocks as NoteBlock[];
+    this.autosave?.changed();
+  }
+
+  protected toFirstBlock(): void {
+    this.editor()?.focusFirst();
+  }
+
+  protected refused(message: string): void {
+    this.toasts.show({ variant: 'warning', heading: 'Block not added', text: message });
   }
 
   private async load(focusTitle: boolean): Promise<void> {
     this.state.set('loading');
+    this.autosave?.cancel();
     try {
       const page = await firstValueFrom(this.notes.get(this.id));
       this.page.set(page);
       this.title.set(page.title);
+      this.icon.set(page.icon);
+      this.blocks = page.blocks;
+      this.loadedBlocks.set(page.blocks);
+      this.autosave = new NoteAutosave(
+        page.version,
+        () => ({ title: this.title(), icon: this.icon(), blocks: this.blocks }),
+        (save) => this.notes.save(this.id, save),
+      );
       this.state.set('loaded');
       if (focusTitle && page.canEdit && !page.title) {
         setTimeout(() => this.titleBox()?.focus());

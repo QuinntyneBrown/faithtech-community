@@ -34,13 +34,28 @@
     </ft-empty-state>
   }
   @case ('loaded') {
-    @let p = page()!;
     <ft-breadcrumb>
       <ft-breadcrumb-item href="/notes">Notes</ft-breadcrumb-item>
       <ft-breadcrumb-item>{{ titleOf({ title: title() }) }}</ft-breadcrumb-item>
     </ft-breadcrumb>
     <header class="head">
-      <ft-page-title [value]="title()" [readonly]="!editable()" (valueChange)="onTitle($event)" />
+      @if (editable() && autosave) {
+        <div class="toolbar">
+          <ft-save-status [state]="autosave.state()" (retry)="autosave.retry()" />
+        </div>
+      }
+      <ft-page-title
+        [value]="title()"
+        [readonly]="!editable()"
+        (valueChange)="onTitle($event)"
+        (submitted)="toFirstBlock()"
+      />
     </header>
+    <ft-block-editor
+      [blocks]="loadedBlocks()"
+      [readonly]="!editable()"
+      (blocksChange)="onBlocks($event)"
+      (refused)="refused($event)"
+    />
   }
 }

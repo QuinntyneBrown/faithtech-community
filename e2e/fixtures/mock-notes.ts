@@ -110,7 +110,13 @@ export class MockNotes {
 
     const note = this.find(id, caller);
     if (!note) return route.fulfill({ status: 404 });
+    const admin = caller.roles.includes('SystemAdmin');
+    const canChange = note.ownerId === caller.profileId || admin;
     if (method === 'GET' && !match[2]) return this.json(route, 200, this.dto(note, caller));
+    if (method === 'PUT' && !match[2]) {
+      if (!canChange) return route.fulfill({ status: 403 });
+      return this.save(route, note, caller, body);
+    }
     return route.fulfill({ status: 405 });
   }
 
@@ -187,6 +193,35 @@ export class MockNotes {
       return this.invalid(route, { Title: ['Use 200 characters or fewer for the title.'] });
     const note = this.add({ title, ownerId: caller.profileId });
     return this.json(route, 201, this.dto(note, caller));
+  }
+
+  /** The plain text of each block, for assertions. */
+  texts(n: MockNote): string[] {
+    return n.blocks.map((b) => (b.text ?? []).map((s) => s.text).join(''));
+  }
+
+  /** A whole-page save (L2-086 AC8). */
+  private save(route: Route, n: MockNote, caller: MockAccount, body: Record<string, unknown>) {
+    const blocks = (body['blocks'] as MockBlock[] | undefined) ?? [];
+    const title = String(body['title'] ?? '').trim();
+    if (blocks.length > 500)
+      return this.invalid(route, {
+        Blocks: ['A page holds up to 500 blocks. Start a new page inside this one.'],
+      });
+    if (title.length > MAX_TITLE)
+      return this.invalid(route, { Title: ['Use 200 characters or fewer for the title.'] });
+    n.title = title;
+    n.icon = (body['icon'] as string | null) ?? null;
+    n.blocks = blocks.map((b) => this.stored(b));
+    n.version += 1;
+    n.updatedAt = this.context.now.toISOString();
+    n.updatedById = caller.profileId;
+    return this.json(route, 200, { version: n.version, updatedAt: n.updatedAt });
+  }
+
+  /** A block as the server stores it: nulls dropped. */
+  private stored(b: MockBlock): MockBlock {
+    return JSON.parse(JSON.stringify(b, (_k, v) => (v === null ? undefined : v))) as MockBlock;
   }
 
   private summary(n: MockNote, caller: MockAccount) {

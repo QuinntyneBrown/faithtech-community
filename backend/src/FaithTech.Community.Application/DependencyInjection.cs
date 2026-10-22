@@ -121,6 +121,7 @@ public static class DependencyInjection
         services.AddScoped<ListNotesHandler>();
         services.AddScoped<CreateNoteHandler>();
         services.AddScoped<GetNoteHandler>();
+        services.AddScoped<SaveNoteHandler>();
         services.AddScoped<GlobalSearchHandler>();
         services.AddScoped<ISearchSource, PeopleSearchSource>();
         services.AddScoped<ISearchSource, EventsSearchSource>();

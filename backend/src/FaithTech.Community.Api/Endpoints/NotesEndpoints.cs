@@ -27,6 +27,12 @@ public static class NotesEndpoints
         notes.MapGet("/{id:guid}", async (Guid id, GetNoteHandler handler, CancellationToken cancellationToken) =>
             await handler.HandleAsync(id, cancellationToken) is { } page ? Results.Ok(page) : Results.NotFound());
 
+        notes.MapPut("/{id:guid}", async (Guid id, SaveNoteCommand command, SaveNoteHandler handler, CancellationToken cancellationToken) =>
+        {
+            var (result, saved) = await handler.HandleAsync(id, command, cancellationToken);
+            return result.ToHttp(() => Results.Ok(saved));
+        });
+
         return app;
     }
 }
