@@ -37,6 +37,56 @@ export interface EventsCaller {
 }
 
 const LIST_FILTERS = ['upcoming', 'past', 'hackathons', 'online'];
+const MANAGERS = ['EventLead', 'CityLead', 'SystemAdmin'];
+const TYPES = ['Gathering', 'BuildersNight', 'Hackathon', 'PrayerAndPlanning', 'Panel'];
+
+function canManage(caller: EventsCaller): boolean {
+  return caller.roles.some((r) => MANAGERS.includes(r));
+}
+
+const text = (value: unknown) => (typeof value === 'string' ? value.trim() : '');
+
+/** SaveEventValidator's rules and words. */
+function validate(body: Record<string, unknown>): Record<string, string[]> {
+  const errors: Record<string, string[]> = {};
+  const online = body['format'] === 'Online';
+  if (!text(body['title'])) errors['Title'] = ['Give the event a title people will recognise.'];
+  if (!TYPES.includes(String(body['type']))) errors['Type'] = ['Choose a type from the list.'];
+  if (!(String(body['endsAt']) > String(body['startsAt']))) {
+    errors['EndsAt'] = ['The end time must be after the start time.'];
+  }
+  if (!text(body['city'])) errors['City'] = ['Enter the city the event is in.'];
+  if (!online && !text(body['venue']))
+    errors['Venue'] = ['Enter a venue address, or choose Online.'];
+  if (online && !text(body['onlineLink'])) {
+    errors['OnlineLink'] = ['Enter the joining link, or choose In person.'];
+  } else if (online && !/^https?:\/\//.test(text(body['onlineLink']))) {
+    errors['OnlineLink'] = ['Enter a link that starts with https://'];
+  }
+  const capacity = body['capacity'];
+  if (capacity !== null && capacity !== undefined && !(Number(capacity) >= 1)) {
+    errors['Capacity'] = ['Capacity must be at least 1, or leave it empty for no limit.'];
+  }
+  return errors;
+}
+
+/** The stored fields of a valid request; the field the format does not use is dropped. */
+function fields(body: Record<string, unknown>): Partial<MockEvent> {
+  const online = body['format'] === 'Online';
+  return {
+    title: text(body['title']),
+    description: text(body['description']),
+    type: body['type'] as MockEvent['type'],
+    startsAt: new Date(String(body['startsAt'])).toISOString(),
+    endsAt: new Date(String(body['endsAt'])).toISOString(),
+    city: text(body['city']),
+    format: online ? 'Online' : 'InPerson',
+    venue: online ? null : text(body['venue']),
+    onlineLink: online ? text(body['onlineLink']) : null,
+    capacity: (body['capacity'] as number | null) ?? null,
+    visibility: body['visibility'] as MockEvent['visibility'],
+  };
+}
 
 /**
  * Plays the events endpoints (backend/src/FaithTech.Community.Api/Endpoints/EventsEndpoints.cs)
@@ -44,6 +94,13 @@ const LIST_FILTERS = ['upcoming', 'past', 'hackathons', 'online'];
  */
 export class MockEvents {
   readonly events: MockEvent[] = [];
+  /** In-app notifications the events endpoints recorded (the Notifications table). */
+  readonly notifications: {
+    recipientId: string;
+    kind: string;
+    title: string;
+    linkPath: string;
+  }[] = [];
 
   constructor(private readonly now: () => Date) {}
 
@@ -91,10 +148,99 @@ export class MockEvents {
     route: Route,
     method: string,
     url: URL,
+    body: Record<string, unknown>,
     caller: EventsCaller | null,
   ): Promise<void> | false {
     if (method === 'GET' && url.pathname === '/api/events') return this.list(route, url, caller);
+    if (method === 'POST' && url.pathname === '/api/events')
+      return this.create(route, body, caller);
+    const one = /^\/api\/events\/([^/]+)$/.exec(url.pathname);
+    if (one && method === 'GET') return this.get(route, one[1], caller);
+    if (one && method === 'PUT') return this.update(route, one[1], body, caller);
     return false;
+  }
+
+  /** GET /api/events/{id}: every signed-in member sees every event. */
+  private get(route: Route, id: string, caller: EventsCaller | null): Promise<void> {
+    if (!caller) return route.fulfill({ status: 401 });
+    const event = this.events.find((e) => e.id === id);
+    if (!event) return route.fulfill({ status: 404 });
+    return route.fulfill({ status: 200, json: this.detail(event, caller) });
+  }
+
+  /** POST /api/events (L2-020): event managers only, SaveEventValidator's rules. */
+  private create(
+    route: Route,
+    body: Record<string, unknown>,
+    caller: EventsCaller | null,
+  ): Promise<void> {
+    if (!caller) return route.fulfill({ status: 401 });
+    const errors = validate(body);
+    if (Object.keys(errors).length)
+      return route.fulfill({ status: 400, json: { status: 400, errors } });
+    if (!canManage(caller)) return route.fulfill({ status: 403 });
+    const event = this.add({ title: '', ...fields(body), createdById: caller.profileId });
+    return route.fulfill({
+      status: 201,
+      headers: { location: `/api/events/${event.id}` },
+      json: { id: event.id },
+    });
+  }
+
+  /** PUT /api/events/{id} (L2-020): raises the sequence and notifies members who RSVP'd. */
+  private update(
+    route: Route,
+    id: string,
+    body: Record<string, unknown>,
+    caller: EventsCaller | null,
+  ): Promise<void> {
+    if (!caller) return route.fulfill({ status: 401 });
+    const errors = validate(body);
+    if (Object.keys(errors).length)
+      return route.fulfill({ status: 400, json: { status: 400, errors } });
+    if (!canManage(caller)) return route.fulfill({ status: 403 });
+    const event = this.events.find((e) => e.id === id);
+    if (!event) return route.fulfill({ status: 404 });
+    if (event.isCancelled) {
+      return route.fulfill({
+        status: 409,
+        json: { status: 409, detail: 'This event is cancelled, so it can’t be edited.' },
+      });
+    }
+    Object.assign(event, fields(body));
+    event.sequence++;
+    for (const rsvp of event.rsvps) {
+      if (rsvp.profileId && rsvp.profileId !== caller.profileId) {
+        this.notifications.push({
+          recipientId: rsvp.profileId,
+          kind: 'EventChanged',
+          title: `${event.title} changed. Check the new details.`,
+          linkPath: `/events/${event.id}`,
+        });
+      }
+    }
+    return route.fulfill({ status: 204 });
+  }
+
+  private detail(event: MockEvent, caller: EventsCaller) {
+    return {
+      id: event.id,
+      title: event.title,
+      description: event.description,
+      type: event.type,
+      startsAt: event.startsAt,
+      endsAt: event.endsAt,
+      city: event.city,
+      format: event.format,
+      venue: event.venue,
+      onlineLink: event.onlineLink,
+      capacity: event.capacity,
+      visibility: event.visibility,
+      rsvpCount: event.rsvps.length,
+      isCancelled: event.isCancelled,
+      cancellationReason: event.cancellationReason,
+      canManage: canManage(caller),
+    };
   }
 
   /** GET /api/events?filter=&city= (L2-021). */
