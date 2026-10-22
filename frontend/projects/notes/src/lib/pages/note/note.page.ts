@@ -14,6 +14,7 @@ import { NOTES_SERVICE, NoteBlock, NotePageDto } from '@faithtech-community/api'
 import {
   BlockEditorComponent,
   BlockRequest,
+  LinkRequest,
   BreadcrumbComponent,
   BreadcrumbItemComponent,
   ButtonComponent,
@@ -29,7 +30,7 @@ import {
 } from '@faithtech-community/components';
 import { firstValueFrom } from 'rxjs';
 
-import { AddLinkCardDialog, LinkCard } from '../../dialogs';
+import { AddLinkCardDialog, AddLinkDialog, LinkCard, LinkChoice } from '../../dialogs';
 import { NoteAutosave } from '../../note-autosave';
 import { titleOf } from '../../note-format';
 
@@ -106,6 +107,15 @@ export class NotePage {
     this.dialogs.open<LinkCard>(AddLinkCardDialog).closed.subscribe((card) => {
       if (card) this.editor()?.place(request, { id: newBlockId(), type: 'link', ...card });
     });
+  }
+
+  /** A hyperlink over selected text, added, changed or removed through its dialog (L2-088 AC3, AC4). */
+  protected link(request: LinkRequest): void {
+    this.dialogs
+      .open<LinkChoice>(AddLinkDialog, { data: { href: request.href } })
+      .closed.subscribe((choice) => {
+        if (choice) this.editor()?.applyLink(request, choice.href);
+      });
   }
 
   protected refused(message: string): void {

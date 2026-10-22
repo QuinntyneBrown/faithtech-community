@@ -11,8 +11,10 @@ import {
   input,
   output,
   signal,
+  viewChild,
 } from '@angular/core';
 
+import { FormatMark, FormatToolbarComponent } from '../format-toolbar/format-toolbar.component';
 import { SlashMenuComponent, SlashMenuOption } from '../slash-menu/slash-menu.component';
 import {
   BLOCK_TYPES,
@@ -25,11 +27,22 @@ import {
   newBlock,
   normalise,
   plainText,
+  hasMark,
+  linkAt,
   removeRange,
+  setHref,
+  setMark,
   shortcutFor,
   splitSpans,
 } from './editor-model';
-import { PageLinkResolver, caretOffset, caretRect, readSpans, setSelection } from './rich-text';
+import {
+  PageLinkResolver,
+  caretOffset,
+  caretRect,
+  readSpans,
+  selectionOffsets,
+  setSelection,
+} from './rich-text';
 import { RichTextDirective } from './rich-text.directive';
 
 export const MAX_BLOCKS = 500;
@@ -60,6 +73,24 @@ interface Popup {
 
 type Caret = 'start' | 'end' | number;
 
+/** A hyperlink the page fills in through its dialog (L2-088 AC3, AC4): the text it covers and its current href. */
+export interface LinkRequest {
+  index: number;
+  start: number;
+  end: number;
+  href: string | null;
+}
+
+/** The selection the formatting toolbar acts on. */
+interface Selected {
+  index: number;
+  start: number;
+  end: number;
+  link: { href: string; start: number; end: number } | null;
+  top: number;
+  left: number;
+}
+
 const GLYPHS: Partial<Record<EditorBlockType, string>> = {
   paragraph: 'T',
   heading1: 'H1',
@@ -87,7 +118,8 @@ let nextId = 0;
  */
 @Component({
   selector: 'ft-block-editor',
-  imports: [NgTemplateOutlet, RichTextDirective, SlashMenuComponent],
+  imports: [NgTemplateOutlet, FormatToolbarComponent, RichTextDirective, SlashMenuComponent],
+  host: { '(document:selectionchange)': 'trackSelection()' },
   templateUrl: './block-editor.component.html',
   styleUrl: './block-editor.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -102,12 +134,25 @@ export class BlockEditorComponent {
   /** The editor refused a change, such as a 501st block (L2-086 AC11). */
   readonly refused = output<string>();
   readonly blockRequested = output<BlockRequest>();
+  readonly linkRequested = output<LinkRequest>();
 
   private readonly host = inject<ElementRef<HTMLElement>>(ElementRef).nativeElement;
   private readonly cdr = inject(ChangeDetectorRef);
 
   protected readonly items = signal<EditorBlock[]>([]);
   protected readonly popup = signal<Popup | null>(null);
+  protected readonly selected = signal<Selected | null>(null);
+  private readonly toolbar = viewChild(FormatToolbarComponent);
+  /** The marks the whole selection has, for the toolbar's pressed states (L2-088 AC1). */
+  protected readonly pressed = computed(() => {
+    const sel = this.selected();
+    const spans = sel ? (this.items()[sel.index]?.text ?? []) : [];
+    const marks: Partial<Record<FormatMark, boolean>> = {};
+    if (sel && sel.end > sel.start)
+      for (const mark of ['bold', 'italic', 'underline', 'strike', 'code'] as const)
+        marks[mark] = hasMark(spans, sel.start, sel.end, mark);
+    return marks;
+  });
   protected readonly menuId = `ft-slash-menu-${nextId++}`;
   protected readonly labelOf = labelOf;
   protected readonly hasText = hasText;
@@ -149,6 +194,16 @@ export class BlockEditorComponent {
   }
 
   /** Puts a block the page filled in through a dialog where it was asked for, and focuses after it. */
+  /** Links (or unlinks, with null) the text a {@link LinkRequest} covered, and selects it again. */
+  applyLink(request: LinkRequest, href: string | null): void {
+    const block = this.items()[request.index];
+    if (!block) return;
+    this.change(request.index, {
+      text: setHref(block.text ?? [], request.start, request.end, href),
+    });
+    this.restoreSelection(request.index, request.start, request.end);
+  }
+
   place(request: BlockRequest, block: EditorBlock): void {
     const items = [...this.items()];
     if (request.replace) items[request.index] = block;
@@ -216,6 +271,134 @@ export class BlockEditorComponent {
     this.replaceSelection(index, el, [{ text }]);
   }
 
+  /** Follows the selection so the toolbar shows over selected text or a link (L2-088 AC1, AC4). */
+  protected trackSelection(): void {
+    if (this.readonly()) return;
+    if (this.host.querySelector('ft-format-toolbar')?.contains(document.activeElement)) return;
+    const selection = document.getSelection();
+    const anchor = selection?.anchorNode;
+    const el = (
+      anchor instanceof HTMLElement ? anchor : anchor?.parentElement
+    )?.closest<HTMLElement>('[data-text]');
+    if (!el || !this.host.contains(el)) {
+      this.selected.set(null);
+      return;
+    }
+    const id = el.closest<HTMLElement>('[data-block-id]')?.dataset['blockId'];
+    const index = this.items().findIndex((b) => b.id === id);
+    const offsets = selectionOffsets(el);
+    const block = this.items()[index];
+    if (index < 0 || !offsets || block.type === 'code') {
+      this.selected.set(null);
+      return;
+    }
+    const start = Math.min(offsets.start, offsets.end);
+    const end = Math.max(offsets.start, offsets.end);
+    const link = linkAt(readSpans(el), start);
+    if (start === end && !link) {
+      this.selected.set(null);
+      return;
+    }
+    const rect = caretRect(el);
+    const box = this.host.getBoundingClientRect();
+    this.selected.set({
+      index,
+      start,
+      end,
+      link,
+      top: Math.max(0, rect.top - box.top - 52),
+      left: Math.max(0, Math.min(rect.left - box.left, box.width - 320)),
+    });
+  }
+
+  /** Sets or clears a mark on the selection (L2-088 AC2). */
+  protected format(mark: FormatMark): void {
+    const sel = this.selected();
+    if (!sel || sel.end <= sel.start) return;
+    const spans = this.items()[sel.index].text ?? [];
+    const on = !hasMark(spans, sel.start, sel.end, mark);
+    this.change(sel.index, { text: setMark(spans, sel.start, sel.end, mark, on) });
+    this.restoreSelection(sel.index, sel.start, sel.end);
+  }
+
+  /** Asks the page for a link over the selection, or the link under the caret (L2-088 AC3, AC4). */
+  protected requestLink(): void {
+    const sel = this.selected();
+    if (!sel) return;
+    const range = sel.end > sel.start ? sel : (sel.link ?? sel);
+    this.linkRequested.emit({
+      index: sel.index,
+      start: range.start,
+      end: range.end,
+      href: linkAt(this.items()[sel.index].text ?? [], range.start)?.href ?? null,
+    });
+  }
+
+  protected removeLink(): void {
+    const sel = this.selected();
+    if (!sel?.link) return;
+    this.applyLink({ index: sel.index, ...sel.link }, null);
+  }
+
+  protected backToText(): void {
+    const sel = this.selected();
+    if (sel) this.restoreSelection(sel.index, sel.start, sel.end);
+  }
+
+  private restoreSelection(index: number, start: number, end: number): void {
+    this.cdr.detectChanges();
+    const el = this.textBox(index);
+    if (!el) return;
+    el.focus();
+    setSelection(el, start, end);
+    this.trackSelection();
+  }
+
+  private textBox(index: number): HTMLElement | null {
+    const block = this.items()[index];
+    return block
+      ? this.host.querySelector<HTMLElement>(`[data-block-id="${block.id}"] [data-text]`)
+      : null;
+  }
+
+  /** Ctrl (Cmd on macOS) shortcuts for marks and links, and Alt+F10 to the toolbar. Returns whether it handled one. */
+  private shortcut(index: number, event: KeyboardEvent): boolean {
+    if (event.altKey && event.key === 'F10') {
+      event.preventDefault();
+      this.toolbar()?.focus();
+      return true;
+    }
+    if (!(event.ctrlKey || event.metaKey) || event.altKey) return false;
+    const key = event.key.toLowerCase();
+    const mark: FormatMark | null =
+      key === 'b'
+        ? 'bold'
+        : key === 'i'
+          ? 'italic'
+          : key === 'u'
+            ? 'underline'
+            : key === 'e'
+              ? 'code'
+              : key === 's' && event.shiftKey
+                ? 'strike'
+                : null;
+    if (mark) {
+      event.preventDefault();
+      if (this.items()[index].type !== 'code') {
+        this.trackSelection();
+        this.format(mark);
+      }
+      return true;
+    }
+    if (key === 'k') {
+      event.preventDefault();
+      this.trackSelection();
+      this.requestLink();
+      return true;
+    }
+    return false;
+  }
+
   protected onBlur(index: number): void {
     if (this.popup()?.index === index) this.popup.set(null);
   }
@@ -223,6 +406,7 @@ export class BlockEditorComponent {
   protected onKeydown(index: number, event: KeyboardEvent): void {
     const el = event.currentTarget as HTMLElement;
     if (this.popup()?.index === index && this.menuKey(event)) return;
+    if (this.shortcut(index, event)) return;
     const block = this.items()[index];
     switch (event.key) {
       case 'Enter':

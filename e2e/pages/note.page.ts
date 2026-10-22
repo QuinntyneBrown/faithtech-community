@@ -10,6 +10,7 @@ export class NotePage {
   readonly textBlocks: Locator;
   readonly retry: Locator;
   readonly slashMenu: Locator;
+  readonly toolbar: Locator;
   readonly slashOptions: Locator;
   readonly saveStatus: Locator;
   readonly banner: Locator;
@@ -25,6 +26,7 @@ export class NotePage {
     this.blocks = this.content.locator('.block');
     this.textBlocks = this.content.getByRole('textbox');
     this.retry = page.getByRole('button', { name: 'Retry' });
+    this.toolbar = page.getByRole('toolbar', { name: 'Formatting' });
     this.slashMenu = page.getByRole('listbox', { name: 'Insert a block' });
     this.slashOptions = this.slashMenu.getByRole('option');
     this.saveStatus = page.locator('ft-save-status');
@@ -44,6 +46,37 @@ export class NotePage {
 
   slashOption(name: string): Locator {
     return this.slashMenu.getByRole('option', { name: new RegExp(`^${name}`) });
+  }
+
+  toolbarButton(name: string): Locator {
+    return this.toolbar.getByRole('button', { name, exact: true });
+  }
+
+  /** Selects the characters between two offsets of a text block, as a drag of the mouse would. */
+  async select(index: number, start: number, end: number): Promise<void> {
+    const block = this.textBlock(index);
+    await block.focus();
+    await block.evaluate(
+      (el, [from, to]) => {
+        const point = (at: number): [Node, number] => {
+          const walker = document.createTreeWalker(el, NodeFilter.SHOW_TEXT);
+          let left = at;
+          for (let node = walker.nextNode(); node; node = walker.nextNode()) {
+            const length = node.textContent?.length ?? 0;
+            if (left <= length) return [node, left];
+            left -= length;
+          }
+          return [el, el.childNodes.length];
+        };
+        const range = document.createRange();
+        range.setStart(...point(from));
+        range.setEnd(...point(to));
+        const selection = getSelection()!;
+        selection.removeAllRanges();
+        selection.addRange(range);
+      },
+      [start, end],
+    );
   }
 
   checkbox(name: string): Locator {

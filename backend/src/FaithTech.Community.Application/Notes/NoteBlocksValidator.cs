@@ -11,6 +11,7 @@ public static class NoteBlocksValidator
     public const int MaxUrl = 2000;
     public const int MaxCaption = 200;
     public const string LinkCardMessage = "Use a link that starts with https://.";
+    public const string HyperlinkMessage = "Use a link that starts with https:// or mailto:";
 
     public static Dictionary<string, string[]> Check(IReadOnlyList<NoteBlock> blocks)
     {
@@ -51,6 +52,11 @@ public static class NoteBlocksValidator
             return "Each run of text needs its text.";
         }
 
+        if (spans.Any(s => s.Href is not null && !IsHyperlink(s.Href)))
+        {
+            return HyperlinkMessage;
+        }
+
         if (spans.Sum(s => s.Text.Length) > MaxText)
         {
             return $"A block holds up to {MaxText:N0} characters.";
@@ -64,6 +70,12 @@ public static class NoteBlocksValidator
             _ => null,
         };
     }
+
+    /// <summary>An https or mailto link of at most 2,000 characters (L2-088 AC3).</summary>
+    public static bool IsHyperlink(string value) =>
+        IsHttps(value)
+        || (value.Length <= MaxUrl && value.StartsWith("mailto:", StringComparison.Ordinal)
+            && Uri.TryCreate(value, UriKind.Absolute, out var mail) && mail.Scheme == Uri.UriSchemeMailto);
 
     /// <summary>An absolute https URL of at most 2,000 characters (L2-087 AC9).</summary>
     public static bool IsHttps(string? value) =>

@@ -242,6 +242,8 @@ export class MockNotes {
     if (!TYPES.includes(b.type)) return 'Choose a block type from the list.';
     if (b.type === 'link' && !/^https:\/\/[^\s/]+/.test(b.url ?? ''))
       return 'Use a link that starts with https://.';
+    if ((b.text ?? []).some((t) => t.href && !/^(https:\/\/[^\s/]+|mailto:\S+)/.test(t.href)))
+      return 'Use a link that starts with https:// or mailto:';
     if ((b.caption ?? '').length > 200) return 'Use 200 characters or fewer for the caption.';
     return null;
   }

@@ -16,3 +16,20 @@ export class LinkCardDialog {
     this.cancel = this.dialog.getByRole('button', { name: 'Cancel' });
   }
 }
+
+/** "Add a link" and "Edit link" (docs/mocks/dialogs/add-link). */
+export class LinkDialog {
+  readonly dialog: Locator;
+  readonly link: Locator;
+  readonly save: Locator;
+  readonly remove: Locator;
+
+  constructor(page: Page, heading: 'Add a link' | 'Edit link' = 'Add a link') {
+    this.dialog = page.getByRole('dialog', { name: heading });
+    this.link = this.dialog.getByRole('textbox', { name: 'Link' });
+    this.save = this.dialog.getByRole('button', {
+      name: heading === 'Add a link' ? 'Add link' : 'Save',
+    });
+    this.remove = this.dialog.getByRole('button', { name: 'Remove link' });
+  }
+}

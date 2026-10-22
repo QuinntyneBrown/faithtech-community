@@ -174,6 +174,20 @@
         }
       </div>
     }
+    @if (selected(); as sel) {
+      <ft-format-toolbar
+        class="ft-block-editor__popup"
+        [style.top.px]="sel.top"
+        [style.left.px]="sel.left"
+        [pressed]="pressed()"
+        [hasSelection]="sel.end > sel.start"
+        [inLink]="!!sel.link"
+        (format)="format($event)"
+        (link)="requestLink()"
+        (removeLink)="removeLink()"
+        (dismissed)="backToText()"
+      />
+    }
     @if (popup(); as menu) {
       <ft-slash-menu
         class="ft-block-editor__popup"

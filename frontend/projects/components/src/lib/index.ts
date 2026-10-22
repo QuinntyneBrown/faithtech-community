@@ -23,6 +23,7 @@ export * from './file-dropzone';
 export * from './file-row';
 export * from './form-error-focus';
 export * from './format';
+export * from './format-toolbar';
 export * from './form-field';
 export * from './form-layout';
 export * from './icon';
