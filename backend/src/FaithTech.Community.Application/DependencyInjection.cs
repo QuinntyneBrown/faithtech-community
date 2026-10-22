@@ -114,6 +114,7 @@ public static class DependencyInjection
         services.AddScoped<ResourceStorageRetryHandler>();
         services.AddScoped<PurgeArchivedResourcesHandler>();
         services.AddScoped<ArchiveResourceHandler>();
+        services.AddScoped<TransferOwnershipHandler>();
         services.AddScoped<GlobalSearchHandler>();
         services.AddScoped<ISearchSource, PeopleSearchSource>();
         services.AddScoped<ISearchSource, EventsSearchSource>();

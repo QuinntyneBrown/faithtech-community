@@ -50,7 +50,7 @@ public class SearchResourcesTests(CommunityApiFactory factory) : IClassFixture<C
 
         Assert.Empty(other);
         Assert.Equal([(shared.Id, "Shared with you")], recipient.Select(i => (i.Id, i.Badge)));
-        Assert.Equal([priv.Id, shared.Id], owner.Select(i => i.Id).Order());
+        Assert.Equal(new[] { priv.Id, shared.Id }.Order(), owner.Select(i => i.Id).Order());
         Assert.Equal("Private", owner.Single(i => i.Id == priv.Id).Badge);
     }
 

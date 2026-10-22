@@ -94,6 +94,12 @@ public static class ResourcesEndpoints
             .DisableAntiforgery()
             .WithMetadata(new RequestSizeLimitAttribute(UploadRequestLimit), new RequestFormLimitsAttribute { MultipartBodyLengthLimit = UploadRequestLimit });
 
+        resources.MapPut("/{id:guid}/owner", async (Guid id, TransferOwnershipCommand command, TransferOwnershipHandler handler, CancellationToken cancellationToken) =>
+        {
+            var (result, resource) = await handler.HandleAsync(id, command, cancellationToken);
+            return result.ToHttp(() => Results.Ok(resource));
+        });
+
         return app;
     }
 
