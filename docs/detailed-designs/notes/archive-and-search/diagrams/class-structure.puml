@@ -36,6 +36,8 @@ interface ISearchSource {
 }
 class NotesSearchSource {
   +Kind = SearchResultKind.Note
+  +SearchAsync(term, caller, limit)
+  -{static} Excerpt(term, title, body): string?
 }
 enum SearchResultKind {
   Person

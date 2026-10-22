@@ -48,6 +48,7 @@
       <li><a href="../components/person-picker.html">Person picker</a></li>
       <li><a href="../components/type-icon.html">Type icon</a></li>
       <li><a href="../components/sticker-picker.html">Estimate card picker</a></li>
+      <li><a href="../components/emoji-picker.html">Emoji picker</a></li>
       <li><a href="../components/top-bar.html">Top bar</a></li>
       <li><a href="../components/tab-bar.html">Tab bar</a></li>
       <li><a href="../components/tabs.html">Tabs</a></li>
@@ -116,7 +117,7 @@
     </header>
 
     <section class="ds-section" id="overview"><h2><a href="#overview">Overview</a></h2>
-      <p>A Notes page has no Save button: the editor saves the whole page 800 ms after the last change, one save at a time (L2-086 AC8). The save status is the only sign of that work, so it must be honest and quiet: it says "Saving…" while a save is in flight, "Saved" when it succeeds and "Couldn’t save" with <b>Retry</b> when a network or server error stops it. Edits stay in the editor either way.</p>
+      <p>A Notes page has no Save button: the editor saves the whole page 800 ms after the last change, one save at a time (L2-086 AC8). The save status is the only sign of that work, so it must be honest and quiet: it says "Saving…" while a save is in flight, "Saved" when it succeeds and "Couldn’t save" with <b>Retry</b> when a network or server error stops it. Between a change and the save it shows nothing (<code>unsaved</code>), so it never claims "Saved" for edits that are not stored yet. Edits stay in the editor either way.</p>
       <ul>
         <li>Use it wherever content saves itself without a submit, today the <a href="block-editor.html">block editor</a>'s page.</li>
         <li>Do not use it for a form with a Save button (the button's busy state and a <a href="toast.html">toast</a> do that) or for a conflict or lost access: those are <a href="alert.html">banners</a> (see <a href="../patterns/feedback-and-loading.html#autosave">Autosave and edit conflicts</a>).</li>
@@ -126,7 +127,7 @@
     <section class="ds-section" id="anatomy"><h2><a href="#anatomy">Anatomy</a></h2>
       <div class="ds-anatomy">
         <figure class="ds-anatomy__figure">
-          <div class="cluster"><p class="save-status save-status--failed"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v6M12 16.5v.5"/></svg>Couldn’t save</p><button class="btn btn--sm" type="button">Retry</button></div>
+          <div class="cluster"><p class="save-status save-status--failed"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v6M12 16.5v.5"/></svg>Couldn’t save</p><button class="btn btn--ghost btn--sm" type="button">Retry</button></div>
           <span class="ds-callout" style="left: 0; top: 0;" aria-hidden="true">1</span>
           <span class="ds-callout" style="left: 22%; top: 0;" aria-hidden="true">2</span>
           <span class="ds-callout" style="left: 60%; top: 0;" aria-hidden="true">3</span>
@@ -144,7 +145,7 @@
         <div class="ds-example__canvas ds-example__canvas--stack">
           <p class="save-status save-status--saving">Saving…</p>
           <p class="save-status save-status--saved"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><path d="M5 12l5 5 9-10"/></svg>Saved</p>
-          <div class="cluster"><p class="save-status save-status--failed"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v6M12 16.5v.5"/></svg>Couldn’t save</p><button class="btn btn--sm" type="button">Retry</button></div>
+          <div class="cluster"><p class="save-status save-status--failed"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v6M12 16.5v.5"/></svg>Couldn’t save</p><button class="btn btn--ghost btn--sm" type="button">Retry</button></div>
         </div>
         <div class="ds-example__caption"><span>The three statuses, from <code>pages/note/saving</code>, <code>default</code> and <code>save-failed</code>. A page that has not changed since it opened shows "Saved".</span></div>
         <details class="ds-example__code"><summary>HTML</summary><pre><code>&lt;p class="save-status save-status--saving" role="status"&gt;Saving…&lt;/p&gt;
@@ -162,17 +163,18 @@
       <div class="ds-matrix"><table>
         <thead><tr><th scope="col">State</th><th scope="col">Shows</th><th scope="col">Announced</th><th scope="col">Next</th></tr></thead>
         <tbody>
+          <tr><th scope="row">Unsaved (<code>unsaved</code>)</th><td><span class="text-caption">Nothing</span></td><td>—</td><td>A change waits for the next save (800 ms after the last change), so nothing is claimed yet. Also the state of a page that has not saved since it opened.</td></tr>
           <tr><th scope="row">Saving</th><td><p class="save-status save-status--saving">Saving…</p></td><td>Polite</td><td>Saved, or Couldn’t save. A change made now waits and is sent once this save settles.</td></tr>
-          <tr><th scope="row">Saved</th><td><p class="save-status save-status--saved"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><path d="M5 12l5 5 9-10"/></svg>Saved</p></td><td>Polite</td><td>Saving, on the next change.</td></tr>
-          <tr><th scope="row">Couldn’t save</th><td><div class="cluster"><p class="save-status save-status--failed"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v6M12 16.5v.5"/></svg>Couldn’t save</p><button class="btn btn--sm" type="button">Retry</button></div></td><td>Assertive</td><td>Saving, on Retry or the next change.</td></tr>
-          <tr><th scope="row">Retry hover / focus</th><td><div class="cluster"><button class="btn btn--sm" type="button" data-state="hover">Retry</button><button class="btn btn--sm" type="button" data-state="focus">Retry</button></div></td><td>—</td><td>The shared <a href="button.html">button</a> states.</td></tr>
-          <tr><th scope="row">Paused</th><td><span class="text-caption">Hidden</span></td><td>—</td><td>After a 409 or 403 the status is removed and the conflict or access banner speaks instead (L2-094).</td></tr>
+          <tr><th scope="row">Saved</th><td><p class="save-status save-status--saved"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><path d="M5 12l5 5 9-10"/></svg>Saved</p></td><td>Polite</td><td>Unsaved, on the next change; Saving 800 ms later.</td></tr>
+          <tr><th scope="row">Couldn’t save</th><td><div class="cluster"><p class="save-status save-status--failed"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v6M12 16.5v.5"/></svg>Couldn’t save</p><button class="btn btn--ghost btn--sm" type="button">Retry</button></div></td><td>Assertive</td><td>Saving, on Retry or the next change.</td></tr>
+          <tr><th scope="row">Retry hover / focus</th><td><div class="cluster"><button class="btn btn--ghost btn--sm" type="button" data-state="hover">Retry</button><button class="btn btn--ghost btn--sm" type="button" data-state="focus">Retry</button></div></td><td>—</td><td>The shared <a href="button.html">button</a> states.</td></tr>
+          <tr><th scope="row">Paused</th><td><span class="text-caption">Couldn’t save</span></td><td>Assertive</td><td>After a 409 or 403 the state stays <code>failed</code> and autosave stops; the conflict or access banner explains why and offers "Reload page" (L2-094). Retry does nothing while paused.</td></tr>
         </tbody>
       </table></div>
       <h3>Both themes</h3>
       <div class="ds-themes">
-        <div data-theme="light"><div class="ds-example__canvas ds-example__canvas--stack"><p class="save-status save-status--saving">Saving…</p><p class="save-status save-status--saved"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><path d="M5 12l5 5 9-10"/></svg>Saved</p><div class="cluster"><p class="save-status save-status--failed"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v6M12 16.5v.5"/></svg>Couldn’t save</p><button class="btn btn--sm" type="button">Retry</button></div></div></div>
-        <div data-theme="dark"><div class="ds-example__canvas ds-example__canvas--stack"><p class="save-status save-status--saving">Saving…</p><p class="save-status save-status--saved"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><path d="M5 12l5 5 9-10"/></svg>Saved</p><div class="cluster"><p class="save-status save-status--failed"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v6M12 16.5v.5"/></svg>Couldn’t save</p><button class="btn btn--sm" type="button">Retry</button></div></div></div>
+        <div data-theme="light"><div class="ds-example__canvas ds-example__canvas--stack"><p class="save-status save-status--saving">Saving…</p><p class="save-status save-status--saved"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><path d="M5 12l5 5 9-10"/></svg>Saved</p><div class="cluster"><p class="save-status save-status--failed"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v6M12 16.5v.5"/></svg>Couldn’t save</p><button class="btn btn--ghost btn--sm" type="button">Retry</button></div></div></div>
+        <div data-theme="dark"><div class="ds-example__canvas ds-example__canvas--stack"><p class="save-status save-status--saving">Saving…</p><p class="save-status save-status--saved"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><path d="M5 12l5 5 9-10"/></svg>Saved</p><div class="cluster"><p class="save-status save-status--failed"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v6M12 16.5v.5"/></svg>Couldn’t save</p><button class="btn btn--ghost btn--sm" type="button">Retry</button></div></div></div>
       </div>
     </section>
 
@@ -214,7 +216,7 @@
 
     <section class="ds-section" id="do-dont"><h2><a href="#do-dont">Do and don't</a></h2>
       <div class="ds-dodont">
-        <figure class="ds-do"><div class="ds-example__canvas"><div class="cluster"><p class="save-status save-status--failed"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v6M12 16.5v.5"/></svg>Couldn’t save</p><button class="btn btn--sm" type="button">Retry</button></div></div><figcaption>Say it failed, keep the edits and offer Retry, announced assertively.</figcaption></figure>
+        <figure class="ds-do"><div class="ds-example__canvas"><div class="cluster"><p class="save-status save-status--failed"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v6M12 16.5v.5"/></svg>Couldn’t save</p><button class="btn btn--ghost btn--sm" type="button">Retry</button></div></div><figcaption>Say it failed, keep the edits and offer Retry, announced assertively.</figcaption></figure>
         <figure class="ds-dont"><div class="ds-example__canvas"><p class="save-status save-status--saved"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><path d="M5 12l5 5 9-10"/></svg>Saved</p></div><figcaption>"Saved" while the save is still failing in the background (the mock announced "Couldn’t save" only politely; it must be assertive).</figcaption></figure>
         <figure class="ds-do"><div class="ds-example__canvas"><p class="save-status save-status--saving">Saving…</p></div><figcaption>One quiet line beside the actions.</figcaption></figure>
         <figure class="ds-dont"><div class="ds-example__canvas"><div class="toast toast--success" style="position: static;"><div class="toast__body"><div class="toast__title">Page saved</div></div></div></div><figcaption>A toast for every autosave: it interrupts writing every few seconds.</figcaption></figure>
@@ -237,8 +239,14 @@
     </section>
 
     <section class="ds-section" id="code"><h2><a href="#code">Code</a></h2>
-      <pre><code>&lt;ft-save-status [state]="saveState()" (retry)="saveNow()" /&gt;   &lt;!-- 'saving' | 'saved' | 'failed' --&gt;</code></pre>
-      <p>The <code>notes</code> library owns the autosave loop (800 ms debounce, one save in flight) and passes the state; <code>ft-save-status</code> renders the text, icons, live regions and Retry. Exact inputs follow the component's API docs.</p>
+      <pre><code>&lt;ft-save-status [state]="saver.state()" (retry)="saver.retry()" /&gt;
+// state: SaveState = 'unsaved' | 'saving' | 'saved' | 'failed'  (default 'saved')
+//   unsaved  nothing shown: changes wait for the next save
+//   saving   "Saving…" with a spinner, in the polite role="status" region
+//   saved    check icon + "Saved", in the polite region
+//   failed   error icon + "Couldn’t save" in the assertive role="alert" region, and a ghost sm "Retry" button
+// retry: output&lt;void&gt;()</code></pre>
+      <p>The <code>notes</code> library owns the autosave loop (800 ms after the last change, one save in flight, changes made meanwhile sent next with the new version) and passes its state; a change sets <code>unsaved</code> until the save starts. Both live regions are always rendered (empty when not in use) so screen readers announce changes. After a 409 or 403 the state stays <code>failed</code> while the page's conflict or access banner explains it. The built component uses <code>.ft-save-status__text</code>, <code>__text--failed</code> and <code>__spinner</code>; the mock classes below draw the same states.</p>
       <table class="ds-table"><thead><tr><th scope="col">Class</th><th scope="col">Effect</th></tr></thead><tbody>
         <tr><td><code>.save-status</code></td><td>Muted inline status line.</td></tr>
         <tr><td><code>.save-status--saving</code></td><td>Adds the spinner.</td></tr>
@@ -253,7 +261,7 @@
         <li>Requirements L2-086 AC8 and AC9, L2-099 AC6.</li>
         <li>CSS: the <code>.save-status*</code> rules in <code>assets/components.css</code>.</li>
       </ul>
-      <p>Drift: <code>pages/note/save-failed</code> puts "Couldn’t save" in a polite <code>role="status"</code>; L2-099 AC6 requires an assertive announcement, so the component uses <code>role="alert"</code> for it.</p>
+      <p>Drift, now fixed in the mocks: <code>pages/note/save-failed</code> put "Couldn’t save" in a polite <code>role="status"</code>; L2-099 AC6 requires an assertive announcement, so the component uses <code>role="alert"</code> for it. Retry is a small ghost button.</p>
     </section>
 
     <footer class="ds-footer"><span>FaithTech Community design system · extracted from <a href="../../mocks/index.html">docs/mocks</a> on 2026-10-22</span><a href="#top">Back to top</a></footer>

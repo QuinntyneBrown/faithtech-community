@@ -1731,7 +1731,9 @@
         "L2-089",
         "L2-090",
         "L2-091",
+        "L2-092",
         "L2-094",
+        "L2-095",
         "L2-097",
         "L2-098",
         "L2-099"
@@ -1749,6 +1751,7 @@
         "save-failed",
         "conflict",
         "read-only",
+        "shared-with-you",
         "private",
         "backlinks",
         "nested",
@@ -1883,10 +1886,11 @@
       ],
       "states": [
         "default",
-        "invalid",
-        "busy"
+        "invalid"
       ],
-      "not_applicable": {}
+      "not_applicable": {
+        "busy": "Save closes the dialog and the page’s autosave stores the title and icon; the note page shows its saving and save-failed states."
+      }
     },
     {
       "id": "move-note",
@@ -1899,7 +1903,8 @@
       "states": [
         "default",
         "empty",
-        "busy"
+        "busy",
+        "failed"
       ],
       "not_applicable": {
         "invalid": "A parent is always chosen (the current one, or Top level), and pages it can’t go inside aren’t offered, so there is nothing to fix."
@@ -1989,6 +1994,38 @@
       }
     },
     {
+      "id": "change-icon",
+      "kind": "dialog",
+      "title": "Change icon",
+      "opens_from": "note",
+      "requirements": [
+        "L2-087"
+      ],
+      "states": [
+        "default"
+      ],
+      "not_applicable": {
+        "invalid": "One emoji is always chosen and there is no “No icon”, so there is nothing to fix.",
+        "busy": "Save closes the dialog and the page’s autosave stores the icon; the note page shows its saving and save-failed states."
+      }
+    },
+    {
+      "id": "edit-alt-text",
+      "kind": "dialog",
+      "title": "Edit alt text",
+      "opens_from": "note",
+      "requirements": [
+        "L2-097"
+      ],
+      "states": [
+        "default",
+        "invalid"
+      ],
+      "not_applicable": {
+        "busy": "Save closes the dialog and the page’s autosave stores the alt text; the note page shows its saving and save-failed states."
+      }
+    },
+    {
       "id": "resource-toast",
       "kind": "notification",
       "title": "Resource toast",
@@ -2014,17 +2051,21 @@
       "title": "Notes toast",
       "opens_from": "notes",
       "requirements": [
+        "L2-091",
+        "L2-093",
         "L2-095"
       ],
       "states": [
         "archived",
         "restored",
-        "danger"
+        "danger",
+        "shared",
+        "moved"
       ],
       "not_applicable": {
-        "info": "The info toast is the archived state; Notes toasts only report archive and restore.",
-        "success": "The success toast is the restored state.",
-        "warning": "Archiving and restoring a page either succeed or fail; there is no partial outcome to warn about."
+        "info": "The info toast is the archived state.",
+        "success": "The success toasts are the restored, shared and moved states.",
+        "warning": "Archiving, restoring, sharing and moving a page either succeed or fail; there is no partial outcome to warn about."
       }
     }
   ]

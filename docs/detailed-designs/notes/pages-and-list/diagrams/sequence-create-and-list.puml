@@ -30,20 +30,20 @@ end box
 box "Backend — FaithTech.Community.Infrastructure" #FFF4E5
   database "Community database" as db
 end box
-actor -> page : Open /notes?q=&owner=
+actor -> page : Open /notes (a ?q= fills the search box)
 page -> svc : list({ q, owner, page: 1 })
 svc -> ep : GET /api/notes?q=&owner=all&page=1
 ep -> lh : HandleAsync(query)
 lh -> acc : Visible(NotePages, caller)
-lh -> db : Visible, owner filter, title contains q,\nUpdatedAt desc, 25 a page (L2-085)
+lh -> db : Visible, owner filter,\nIFullTextSearch.Match(Title + BodyText, q),\nUpdatedAt desc, 25 a page (L2-085)
 db --> lh : Rows and total
 ep --> svc : 200 PagedResult<NotePageSummaryDto>
-page --> actor : Rows: icon, title, owner, "Edited {date}", badge
+page --> actor : Rows: icon, title,\n"Edited {date} · {owner}[ · in {parent}]", badge
 actor -> page : New page
-page -> svc : create({})
+page -> svc : create()
 svc -> ep : POST /api/notes {}
 ep -> ch : HandleAsync(request)
-ch -> acc : IsVerifiedAsync(caller)
+ch -> acc : VerifiedAsync(caller)
 alt email not verified
   ep --> svc : 403 "Verify your email before creating pages."
 else verified

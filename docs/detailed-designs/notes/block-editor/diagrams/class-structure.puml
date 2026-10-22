@@ -13,13 +13,13 @@ title Class structure — Block editor
 class NoteBlock <<record, C#>> {
   +string Id
   +string Type
-  +IReadOnlyList<NoteSpan>? Spans
+  +IReadOnlyList<NoteSpan>? Text
   +bool? Checked
   +string? Icon
-  +Guid? ImageId
-  +string? Alt
   +string? Url
   +string? Caption
+  +Guid? ImageId
+  +string? Alt
 }
 class NoteSpan <<record, C#>> {
   +string Text
@@ -33,69 +33,84 @@ class NoteSpan <<record, C#>> {
 }
 NoteBlock "1" *-- "*" NoteSpan
 class NoteBlockTypes <<static, C#>> {
-  +{static} Text: paragraph, heading1..3, bulleted, numbered, todo, quote, callout, code
-  +{static} Other: divider, image, link
-  +{static} MaxBlocks = 500
-  +{static} MaxBlockText = 10000
-  +{static} MaxUrl = 2000
-  +{static} MaxAlt = 250
-  +{static} MaxCaption = 200
+  +{static} WithText: paragraph, heading1..3, bulleted, numbered, todo, quote, callout, code
+  +{static} All: WithText + divider, image, link
 }
-class NoteBlocksValidator <<C#>> {
-  +Validate(page: NotePage, blocks): Result
-  +Normalise(blocks): IReadOnlyList<NoteBlock>
-  +BodyText(title, blocks): string
-  +PageLinks(blocks): IReadOnlySet<Guid>
+class NoteBlocksValidator <<static, C#>> {
+  +{static} MaxBlocks = 500
+  +{static} MaxText = 10000
+  +{static} MaxBlockId = 36
+  +{static} MaxUrl = 2000
+  +{static} MaxCaption = 200
+  +{static} Check(blocks, images): Dictionary<string, string[]>
+  +{static} IsHyperlink(value): bool
+  +{static} IsHttps(value): bool
+  +{static} BodyText(blocks): string
 }
 NoteBlocksValidator ..> NoteBlockTypes
 NoteBlocksValidator ..> NoteBlock
-class NoteJson <<static, C#>> {
-  +{static} Options: JsonSerializerOptions (camelCase, omit nulls)
-  +{static} Write(blocks): string
+class NoteContent <<static, C#>> {
   +{static} Read(content): IReadOnlyList<NoteBlock>
+  +{static} Write(blocks): string
 }
-NoteJson ..> NoteBlock
+NoteContent ..> NoteBlock
 
 class BlockEditorComponent <<Angular, ft-block-editor>> {
-  +blocks: input<NoteBlock[]>
+  +blocks: input<EditorBlock[]>
   +readonly: input<boolean>
-  +pageLinkSearch: input<(q) => Observable<PageLinkOption[]>>
-  +imageSrc: input<(imageId) => Observable<string | null>>
-  +changes: output<NoteBlock[]>
+  +pageLink: input<PageLinkResolver>
+  +pageSearch: input<(q) => Promise<PageLinkItem[]>>
+  +imageSrc: input<(imageId) => Promise<string>>
+  +blocksChange: output<EditorBlock[]>
+  +refused: output<string>
+  +blockRequested: output<BlockRequest>
   +linkRequested: output<LinkRequest>
-  +imageRequested: output<number>
-  +linkCardRequested: output<number>
-  +insertBlock(at, block): void
-  +applyLink(href | null): void
-  +moveBlock(from, to): void
-  +turnInto(index, type): void
+  +blockEditRequested: output<{ index, block }>
+  +focusFirst(): void
+  +place(request, block): void
+  +update(index, block): void
+  +applyLink(request, href | null): void
 }
-class RichTextSerializer <<TypeScript>> {
-  +toSpans(element: HTMLElement): NoteSpan[]
-  +render(spans, element): void
-  +toggleMark(range, mark): NoteSpan[]
+class "rich-text.ts + RichTextDirective" as RichText <<TypeScript>> {
+  +renderSpans(el, spans, pageLink): void
+  +readSpans(el): EditorSpan[]
+  +caretOffset(el): number
+  +selectionOffsets(el): { start, end }
+  +setSelection(el, start, end): void
 }
-class MarkdownShortcuts <<TypeScript>> {
-  +match(prefix: string): BlockType | null
+class "editor-model.ts" as EditorModel <<TypeScript>> {
+  +BLOCK_TYPES: BlockTypeInfo[13]
+  +shortcutFor(text): { marker, type }
+  +splitSpans(spans, at)
+  +setMark(spans, start, end, mark, on)
+  +setHref(spans, start, end, href)
+  +describeBlock(block): string
 }
 class SlashMenuComponent <<Angular, ft-slash-menu>> {
-  +query: input<string>
-  +picked: output<BlockType>
-  +closed: output<void>
+  +label: input<string>
+  +listId: input<string>
+  +options: input<SlashMenuOption[]>
+  +active: input<number>
+  +emptyText: input<string>
+  +chosen: output<string>
 }
 class FormatToolbarComponent <<Angular, ft-format-toolbar>> {
-  +active: input<MarkSet>
-  +toggled: output<Mark>
-  +linkRequested: output<void>
+  +pressed: input<Record<FormatMark, boolean>>
+  +hasSelection: input<boolean>
+  +inLink: input<boolean>
+  +format: output<FormatMark>
+  +link: output<void>
+  +removeLink: output<void>
+  +dismissed: output<void>
+  +focus(): void
 }
-class PageLinkMenuComponent <<Angular, ft-page-link-menu>> {
-  +options: input<PageLinkOption[]>
-  +picked: output<PageLinkOption>
+class EmojiPickerComponent <<Angular, ft-emoji-picker>> {
+  +legend: input<string>
+  +allowNone: input<boolean>
 }
-BlockEditorComponent --> RichTextSerializer
-BlockEditorComponent --> MarkdownShortcuts
-BlockEditorComponent --> SlashMenuComponent
+BlockEditorComponent --> RichText
+BlockEditorComponent --> EditorModel
+BlockEditorComponent --> SlashMenuComponent : opens on / and [[
 BlockEditorComponent --> FormatToolbarComponent
-BlockEditorComponent --> PageLinkMenuComponent
 BlockEditorComponent ..> NoteBlock : wire shape (TypeScript interface)
 @enduml

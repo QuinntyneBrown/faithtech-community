@@ -32,26 +32,28 @@ end box
 actor -> dlg : Move… (page menu)
 dlg -> svc : parentOptions(id, q)
 svc -> ep : GET /api/notes/{id}/parent-options?q=
-ep -> h : OptionsAsync(id, q)
-h -> db : Pages of the same owner, not archived,\nnot the page and not its descendants
-ep --> dlg : 200 [NoteRefDto]
+ep -> h : ParentOptionsHandler.HandleAsync(id, q)
+h -> db : Pages of the same owner, not archived,\nnot the page and not its descendants, by title, at most 50
+ep --> dlg : 200 [NotePageRefDto]
 actor -> dlg : Choose "Volunteer playbook"; Move
 dlg -> svc : move(id, parentId)
 svc -> ep : PUT /api/notes/{id}/parent { parentId }
-ep -> h : HandleAsync(id, parentId)
-alt not visible
+ep -> h : HandleAsync(id, { parentId })
+alt page or parent not visible
   ep --> svc : 404
 else cannot change
   ep --> svc : 403
-else parent is self, a descendant, archived, missing or another owner's (L2-091)
+else page archived
+  ep --> svc : 400 "Restore this page before you change it."
+else parent is self, a descendant, archived or another owner's (L2-091)
   ep --> svc : 400 "Choose another page."
 else valid (null means Top level)
-  h -> h : page.MoveTo(parentId, by, now)
+  h -> h : page.MoveTo(parentId) (Version unchanged)
   opt System Admin override
     h -> audit : Record(note.moved, before parent, after parent)
   end
   h -> db : One save
   ep --> svc : 200 NotePageDto (new breadcrumb)
-  dlg --> actor : Close; toast "Moved to Volunteer playbook"
+  dlg --> actor : Close; toast "{title} moved",\n"It's now inside Volunteer playbook."
 end
 @enduml

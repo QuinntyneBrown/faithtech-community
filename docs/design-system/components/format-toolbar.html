@@ -48,6 +48,7 @@
       <li><a href="../components/person-picker.html">Person picker</a></li>
       <li><a href="../components/type-icon.html">Type icon</a></li>
       <li><a href="../components/sticker-picker.html">Estimate card picker</a></li>
+      <li><a href="../components/emoji-picker.html">Emoji picker</a></li>
       <li><a href="../components/top-bar.html">Top bar</a></li>
       <li><a href="../components/tab-bar.html">Tab bar</a></li>
       <li><a href="../components/tabs.html">Tabs</a></li>
@@ -158,7 +159,7 @@
           <div class="format-toolbar" role="toolbar" aria-label="Formatting" style="position: static; animation: none;"><button class="format-toolbar__btn" type="button" aria-label="Bold" aria-keyshortcuts="Control+B" aria-pressed="false"><span aria-hidden="true"><b>B</b></span></button><button class="format-toolbar__btn" type="button" tabindex="-1" aria-label="Italic" aria-keyshortcuts="Control+I" aria-pressed="true"><span aria-hidden="true"><i>I</i></span></button><button class="format-toolbar__btn" type="button" tabindex="-1" aria-label="Underline" aria-keyshortcuts="Control+U" aria-pressed="false"><span aria-hidden="true"><u>U</u></span></button><button class="format-toolbar__btn" type="button" tabindex="-1" aria-label="Strikethrough" aria-keyshortcuts="Control+Shift+S" aria-pressed="false"><span aria-hidden="true"><s>S</s></span></button><button class="format-toolbar__btn" type="button" tabindex="-1" aria-label="Inline code" aria-keyshortcuts="Control+E" aria-pressed="false"><span aria-hidden="true">&lt;/&gt;</span></button><span class="format-toolbar__sep" aria-hidden="true"></span><button class="format-toolbar__btn" type="button" tabindex="-1" aria-label="Link" aria-keyshortcuts="Control+K" aria-haspopup="dialog"><span aria-hidden="true"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><path d="M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1-1"/></svg></span></button></div>
         </div>
         <div class="ds-example__caption"><span>"ask in the team channel" is selected and already italic (<code>pages/note/toolbar</code>).</span></div>
-        <details class="ds-example__code"><summary>HTML</summary><pre><code>&lt;div class="format-toolbar" role="toolbar" aria-label="Formatting" aria-controls="block-3"&gt;
+        <details class="ds-example__code"><summary>HTML</summary><pre><code>&lt;div class="format-toolbar" role="toolbar" aria-label="Formatting"&gt;
   &lt;button class="format-toolbar__btn" type="button" tabindex="0" aria-label="Bold" aria-keyshortcuts="Control+B" aria-pressed="false"&gt;
     &lt;span aria-hidden="true"&gt;&lt;b&gt;B&lt;/b&gt;&lt;/span&gt;&lt;span class="format-toolbar__tip" aria-hidden="true"&gt;Bold · Ctrl+B&lt;/span&gt;
   &lt;/button&gt;
@@ -217,7 +218,7 @@
 
     <section class="ds-section" id="accessibility"><h2><a href="#accessibility">Accessibility</a></h2>
       <h3>Role and pattern</h3>
-      <p>WAI-ARIA APG <b>Toolbar</b>: <code>role="toolbar"</code> named "Formatting", with <code>aria-controls</code> pointing at the block. Toggles are native buttons with <code>aria-pressed</code>; each names its shortcut in <code>aria-keyshortcuts</code> (<code>Control+B</code>, or <code>Meta+B</code> on macOS). Focus is roving: one button has <code>tabindex="0"</code>, the rest <code>-1</code> (L2-099 AC4).</p>
+      <p>WAI-ARIA APG <b>Toolbar</b>: <code>role="toolbar"</code> named "Formatting" (on the host element). Toggles are native buttons with <code>aria-pressed</code>; each names its shortcut in <code>aria-keyshortcuts</code> (<code>Control+B</code>) and in its <code>title</code> ("Bold (Ctrl+B)"); Cmd works in place of Ctrl on macOS. Link, Edit link and Remove link carry no <code>aria-pressed</code>. Focus is roving: one button has <code>tabindex="0"</code>, the rest <code>-1</code> (L2-099 AC4).</p>
       <h3>Keyboard</h3>
       <table class="ds-table ds-keys"><thead><tr><th scope="col">Key</th><th scope="col">Action</th></tr></thead><tbody>
         <tr><td><kbd>Ctrl</kbd>/<kbd>⌘</kbd>+<kbd>B</kbd></td><td>Bold on or off for the selection.</td></tr>
@@ -227,7 +228,7 @@
         <tr><td><kbd>Ctrl</kbd>/<kbd>⌘</kbd>+<kbd>E</kbd></td><td>Inline code.</td></tr>
         <tr><td><kbd>Ctrl</kbd>/<kbd>⌘</kbd>+<kbd>K</kbd></td><td>Opens "Add a link" (or "Edit link" inside a link).</td></tr>
         <tr><td><kbd>Alt</kbd>+<kbd>F10</kbd></td><td>From the selection, moves focus into the toolbar (the first button).</td></tr>
-        <tr><td><kbd>←</kbd> / <kbd>→</kbd></td><td>Moves between buttons, wrapping; <kbd>Home</kbd> / <kbd>End</kbd> go to the first or last.</td></tr>
+        <tr><td><kbd>←</kbd> / <kbd>→</kbd></td><td>Moves between buttons, wrapping.</td></tr>
         <tr><td><kbd>Enter</kbd>, <kbd>Space</kbd></td><td>Activates the focused button; the selection is kept.</td></tr>
         <tr><td><kbd>Esc</kbd></td><td>Returns focus to the selection in the block; the toolbar stays until the selection collapses.</td></tr>
         <tr><td><kbd>Tab</kbd></td><td>Leaves the toolbar back to the block.</td></tr>
@@ -283,18 +284,21 @@
     </section>
 
     <section class="ds-section" id="code"><h2><a href="#code">Code</a></h2>
-      <pre><code>&lt;!-- Inside ft-block-editor, opened over the selection by CDK Overlay --&gt;
+      <pre><code>&lt;!-- Inside ft-block-editor, positioned over the selection --&gt;
 &lt;ft-format-toolbar
-  [pressed]="marksOfSelection()"     &lt;!-- e.g. { bold: true, italic: false, … } from hasMark() --&gt;
-  [inLink]="caretInLink()"
-  (toggle)="toggleMark($event)"      &lt;!-- 'bold' | 'italic' | 'underline' | 'strike' | 'code' --&gt;
-  (link)="openAddLink()" (removeLink)="removeLink()" /&gt;</code></pre>
-      <p>The marks are the library's <code>EditorMark</code> values; <code>hasMark</code> and <code>setMark</code> in <code>editor-model.ts</code> decide pressed state and apply the change. Exact inputs follow the component's API docs.</p>
+  [pressed]="pressed()"               &lt;!-- Partial&lt;Record&lt;FormatMark, boolean&gt;&gt;: marks the whole selection has --&gt;
+  [hasSelection]="sel.end &gt; sel.start"&lt;!-- false: only Link / Edit link (and Remove link) are offered --&gt;
+  [inLink]="!!sel.link"               &lt;!-- "Link" becomes "Edit link" and "Remove link" appears --&gt;
+  (format)="format($event)"           &lt;!-- FormatMark: 'bold' | 'italic' | 'underline' | 'strike' | 'code' --&gt;
+  (link)="requestLink()" (removeLink)="removeLink()"
+  (dismissed)="backToText()" /&gt;       &lt;!-- Escape: focus back to the text --&gt;
+// focus(): Alt+F10 from the text lands on the first button</code></pre>
+      <p>The host is <code>role="toolbar"</code> named "Formatting". Buttons are Bold (Ctrl+B), Italic (Ctrl+I), Underline (Ctrl+U), Strikethrough (Ctrl+Shift+S), Inline code (Ctrl+E) and Link or Edit link (Ctrl+K), plus Remove link in a link; the marks expose <code>aria-pressed</code>, each button has <code>aria-keyshortcuts</code> (Control+…) and a <code>title</code> such as "Bold (Ctrl+B)"; Cmd replaces Ctrl on macOS. One button is in the tab order (roving <code>tabindex</code>) and ← and → move between them. Mousedown is prevented so the selection stays in the text. The built toolbar has no separator or hover tip element; the mock classes below draw them for review.</p>
       <table class="ds-table"><thead><tr><th scope="col">Class / attribute</th><th scope="col">Effect</th></tr></thead><tbody>
         <tr><td><code>.format-toolbar</code></td><td>Inverse floating bar above the selection.</td></tr>
         <tr><td><code>.format-toolbar__btn</code>, <code>[aria-pressed="true"]</code></td><td>Button; pressed fill.</td></tr>
-        <tr><td><code>.format-toolbar__sep</code></td><td>Divider before Link.</td></tr>
-        <tr><td><code>.format-toolbar__tip</code></td><td>Name and shortcut on hover and focus.</td></tr>
+        <tr><td><code>.format-toolbar__sep</code></td><td>Divider before Link (documentation only; the built toolbar has none).</td></tr>
+        <tr><td><code>.format-toolbar__tip</code></td><td>Name and shortcut drawn statically for review; the built buttons use <code>title</code>.</td></tr>
         <tr><td><code>.block__selection</code></td><td>Documentation only: draws a selection statically.</td></tr>
       </tbody></table>
     </section>
@@ -305,7 +309,7 @@
         <li>Requirements L2-088 AC1 to AC5 and L2-099 AC4.</li>
         <li>CSS: the <code>.format-toolbar*</code> rules in <code>assets/components.css</code>.</li>
       </ul>
-      <p>Drift: the mock names the toolbar "Format text"; the requirement's name "Formatting" is used. The mock shows Edit link and Remove link only in the dialog; L2-088 AC4 also puts them on the toolbar when the caret is in a link.</p>
+      <p>Drift, now fixed in the mocks: the mock named the toolbar "Format text" (built: "Formatting"), pointed it at the block with <code>aria-controls</code>, and showed Edit link and Remove link only in the dialog (built: on the toolbar when the caret is in a link). The built toolbar has no separator and shows the shortcut in the button's <code>title</code> rather than a tip element.</p>
     </section>
 
     <footer class="ds-footer"><span>FaithTech Community design system · extracted from <a href="../../mocks/index.html">docs/mocks</a> on 2026-10-22</span><a href="#top">Back to top</a></footer>

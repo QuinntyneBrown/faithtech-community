@@ -21,13 +21,15 @@ class NotePage {
   +NoteVisibility Visibility
   +IReadOnlyList<NoteShareMember> SharedMembers
   +IReadOnlyList<NoteShareRole> SharedRoles
-  +SetAudience(visibility, memberIds, roles): void
+  +SetAudience(visibility, members, roles): void
 }
 class NoteShareMember {
+  -int Id (generated key)
   +Guid PageId
   +Guid ProfileId
 }
 class NoteShareRole {
+  -int Id (generated key)
   +Guid PageId
   +Role Role
 }
@@ -41,15 +43,16 @@ class NoteAccess {
   +FindAsync(id, caller): Task<NotePage?>
   +CanChange(page, caller): bool
   +IsOverride(page, caller): bool
-  +IsVerifiedAsync(caller): Task<bool>
+  +VerifiedAsync(caller): Task<Result?>
 }
-class ShareNoteRequest <<record>> {
-  +NoteVisibility Visibility
-  +IReadOnlyList<Guid> MemberIds
-  +IReadOnlyList<Role> Roles
+class ShareNoteCommand <<record>> {
+  +string? Visibility
+  +IReadOnlyList<Guid>? MemberIds
+  +IReadOnlyList<string>? Roles
 }
 class ShareNoteHandler {
-  +HandleAsync(id, request): Task<(Result, NoteAudienceDto?)>
+  +AudienceMessage = "Choose at least one person or role, or pick another visibility."
+  +HandleAsync(id, command): Task<(Result, NotePageDto?)>
 }
 class NoteShareNotifier {
   +RecipientsAsync(page): Task<IReadOnlyCollection<Guid>>
@@ -65,19 +68,32 @@ enum NotificationKind {
   NotePageShared
 }
 class NoteMembersHandler {
-  +MaxResults = 10
-  +HandleAsync(q): Task<IReadOnlyList<NoteMemberDto>?>
+  +Limit = 10
+  +HandleAsync(q): Task<IReadOnlyList<NoteMemberDto>>
 }
 class NoteAudienceDto <<record>> {
-  +NoteVisibility Visibility
-  +IReadOnlyList<NoteMemberDto> Members
-  +IReadOnlyList<SharedRoleDto> Roles
+  +IReadOnlyList<NoteAudienceMemberDto> Members
+  +IReadOnlyList<NoteAudienceRoleDto> Roles (role, count)
 }
-ShareNoteHandler ..> ShareNoteRequest
+class NoteMemberDto <<record>> {
+  +Guid Id
+  +string Name
+  +string? City
+  +IReadOnlyList<string> Roles
+}
+class NotePageDto <<record>> {
+  +string Visibility
+  +string? SharedVia
+  +NoteAudienceDto Audience
+  +bool IsAdminView
+}
+NotePageDto *-- NoteAudienceDto
+NoteMembersHandler ..> NoteMemberDto
+ShareNoteHandler ..> ShareNoteCommand
 ShareNoteHandler --> NoteAccess
 ShareNoteHandler --> NotePage : SetAudience
 ShareNoteHandler --> NoteShareNotifier
-ShareNoteHandler ..> NoteAudienceDto
+ShareNoteHandler ..> NotePageDto
 NoteShareNotifier --> INotificationPublisher
 NoteShareNotifier ..> NotificationKind : NotePageShared
 interface IAuditLog {

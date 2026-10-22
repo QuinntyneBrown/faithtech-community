@@ -48,6 +48,7 @@
       <li><a href="../components/person-picker.html">Person picker</a></li>
       <li><a href="../components/type-icon.html">Type icon</a></li>
       <li><a href="../components/sticker-picker.html">Estimate card picker</a></li>
+      <li><a href="../components/emoji-picker.html">Emoji picker</a></li>
       <li><a href="../components/top-bar.html">Top bar</a></li>
       <li><a href="../components/tab-bar.html">Tab bar</a></li>
       <li><a href="../components/tabs.html">Tabs</a></li>
@@ -129,11 +130,11 @@
         <figure class="ds-anatomy__figure">
           <div class="slash-menu" style="position: static; width: min(22rem, 100%);">
             <ul class="slash-menu__list" id="an-slash" role="listbox" aria-label="Insert a block">
-              <li class="slash-menu__group" role="presentation">Basic blocks</li>
+              
               <li class="slash-menu__item" role="option" id="an-opt-1" aria-selected="true"><span class="slash-menu__icon" aria-hidden="true">Aa</span><span class="slash-menu__text"><span class="slash-menu__title">Text</span><span class="slash-menu__hint">Plain text.</span></span></li>
-              <li class="slash-menu__item" role="option" id="an-opt-2" aria-selected="false"><span class="slash-menu__icon" aria-hidden="true">H1</span><span class="slash-menu__text"><span class="slash-menu__title">Heading 1</span><span class="slash-menu__hint">A big section heading.</span></span><kbd class="slash-menu__shortcut"># </kbd></li>
+              <li class="slash-menu__item" role="option" id="an-opt-2" aria-selected="false"><span class="slash-menu__icon" aria-hidden="true">H1</span><span class="slash-menu__text"><span class="slash-menu__title">Heading 1</span><span class="slash-menu__hint">A big section heading.</span></span><kbd class="slash-menu__shortcut">#</kbd></li>
             </ul>
-            <p class="slash-menu__footer">↑↓ to move · Enter to insert · Esc to keep typing</p>
+            
           </div>
           <span class="ds-callout" style="left: 2%; top: 6%;" aria-hidden="true">1</span>
           <span class="ds-callout" style="left: 2%; top: 30%;" aria-hidden="true">2</span>
@@ -159,28 +160,28 @@
         <div class="ds-example__canvas">
           <div class="slash-menu" style="position: static; width: min(22rem, 100%);">
             <ul class="slash-menu__list" id="v-slash" role="listbox" aria-label="Insert a block">
-              <li class="slash-menu__group" role="presentation">Basic blocks</li>
+              
               <li class="slash-menu__item" role="option" id="v-o1" aria-selected="true"><span class="slash-menu__icon" aria-hidden="true">Aa</span><span class="slash-menu__text"><span class="slash-menu__title">Text</span><span class="slash-menu__hint">Plain text.</span></span></li>
-              <li class="slash-menu__item" role="option" id="v-o2" aria-selected="false"><span class="slash-menu__icon" aria-hidden="true">H1</span><span class="slash-menu__text"><span class="slash-menu__title">Heading 1</span><span class="slash-menu__hint">A big section heading.</span></span><kbd class="slash-menu__shortcut"># </kbd></li>
-              <li class="slash-menu__item" role="option" id="v-o3" aria-selected="false"><span class="slash-menu__icon" aria-hidden="true">H2</span><span class="slash-menu__text"><span class="slash-menu__title">Heading 2</span><span class="slash-menu__hint">A medium heading.</span></span><kbd class="slash-menu__shortcut">## </kbd></li>
-              <li class="slash-menu__item" role="option" id="v-o4" aria-selected="false"><span class="slash-menu__icon" aria-hidden="true">H3</span><span class="slash-menu__text"><span class="slash-menu__title">Heading 3</span><span class="slash-menu__hint">A small heading.</span></span><kbd class="slash-menu__shortcut">### </kbd></li>
-              <li class="slash-menu__item" role="option" id="v-o5" aria-selected="false"><span class="slash-menu__icon" aria-hidden="true">•</span><span class="slash-menu__text"><span class="slash-menu__title">Bulleted list</span><span class="slash-menu__hint">A simple list.</span></span><kbd class="slash-menu__shortcut">- </kbd></li>
-              <li class="slash-menu__item" role="option" id="v-o6" aria-selected="false"><span class="slash-menu__icon" aria-hidden="true">1.</span><span class="slash-menu__text"><span class="slash-menu__title">Numbered list</span><span class="slash-menu__hint">A list in order.</span></span><kbd class="slash-menu__shortcut">1. </kbd></li>
-              <li class="slash-menu__item" role="option" id="v-o7" aria-selected="false"><span class="slash-menu__icon" aria-hidden="true">☐</span><span class="slash-menu__text"><span class="slash-menu__title">To-do</span><span class="slash-menu__hint">A task to tick off.</span></span><kbd class="slash-menu__shortcut">[] </kbd></li>
-              <li class="slash-menu__item" role="option" id="v-o8" aria-selected="false"><span class="slash-menu__icon" aria-hidden="true">❝</span><span class="slash-menu__text"><span class="slash-menu__title">Quote</span><span class="slash-menu__hint">A quotation.</span></span><kbd class="slash-menu__shortcut">&gt; </kbd></li>
+              <li class="slash-menu__item" role="option" id="v-o2" aria-selected="false"><span class="slash-menu__icon" aria-hidden="true">H1</span><span class="slash-menu__text"><span class="slash-menu__title">Heading 1</span><span class="slash-menu__hint">A big section heading.</span></span><kbd class="slash-menu__shortcut">#</kbd></li>
+              <li class="slash-menu__item" role="option" id="v-o3" aria-selected="false"><span class="slash-menu__icon" aria-hidden="true">H2</span><span class="slash-menu__text"><span class="slash-menu__title">Heading 2</span><span class="slash-menu__hint">A medium heading.</span></span><kbd class="slash-menu__shortcut">##</kbd></li>
+              <li class="slash-menu__item" role="option" id="v-o4" aria-selected="false"><span class="slash-menu__icon" aria-hidden="true">H3</span><span class="slash-menu__text"><span class="slash-menu__title">Heading 3</span><span class="slash-menu__hint">A small heading.</span></span><kbd class="slash-menu__shortcut">###</kbd></li>
+              <li class="slash-menu__item" role="option" id="v-o5" aria-selected="false"><span class="slash-menu__icon" aria-hidden="true">•</span><span class="slash-menu__text"><span class="slash-menu__title">Bulleted list</span><span class="slash-menu__hint">A simple list.</span></span><kbd class="slash-menu__shortcut">-</kbd></li>
+              <li class="slash-menu__item" role="option" id="v-o6" aria-selected="false"><span class="slash-menu__icon" aria-hidden="true">1.</span><span class="slash-menu__text"><span class="slash-menu__title">Numbered list</span><span class="slash-menu__hint">A list in order.</span></span><kbd class="slash-menu__shortcut">1.</kbd></li>
+              <li class="slash-menu__item" role="option" id="v-o7" aria-selected="false"><span class="slash-menu__icon" aria-hidden="true">☐</span><span class="slash-menu__text"><span class="slash-menu__title">To-do</span><span class="slash-menu__hint">A task to tick off.</span></span><kbd class="slash-menu__shortcut">[]</kbd></li>
+              <li class="slash-menu__item" role="option" id="v-o8" aria-selected="false"><span class="slash-menu__icon" aria-hidden="true">❝</span><span class="slash-menu__text"><span class="slash-menu__title">Quote</span><span class="slash-menu__hint">A quotation.</span></span><kbd class="slash-menu__shortcut">&gt;</kbd></li>
               <li class="slash-menu__item" role="option" id="v-o9" aria-selected="false"><span class="slash-menu__icon" aria-hidden="true">💡</span><span class="slash-menu__text"><span class="slash-menu__title">Callout</span><span class="slash-menu__hint">Make a note stand out.</span></span></li>
               <li class="slash-menu__item" role="option" id="v-o10" aria-selected="false"><span class="slash-menu__icon" aria-hidden="true">&lt;/&gt;</span><span class="slash-menu__text"><span class="slash-menu__title">Code</span><span class="slash-menu__hint">Monospace text, as typed.</span></span><kbd class="slash-menu__shortcut">```</kbd></li>
               <li class="slash-menu__item" role="option" id="v-o11" aria-selected="false"><span class="slash-menu__icon" aria-hidden="true">—</span><span class="slash-menu__text"><span class="slash-menu__title">Divider</span><span class="slash-menu__hint">A line between sections.</span></span><kbd class="slash-menu__shortcut">---</kbd></li>
-              <li class="slash-menu__group" role="presentation">Media</li>
+              
               <li class="slash-menu__item" role="option" id="v-o12" aria-selected="false"><span class="slash-menu__icon" aria-hidden="true">▣</span><span class="slash-menu__text"><span class="slash-menu__title">Image</span><span class="slash-menu__hint">Upload an image with alt text.</span></span></li>
               <li class="slash-menu__item" role="option" id="v-o13" aria-selected="false"><span class="slash-menu__icon" aria-hidden="true">↗</span><span class="slash-menu__text"><span class="slash-menu__title">Link card</span><span class="slash-menu__hint">A link to another site.</span></span></li>
             </ul>
-            <p class="slash-menu__footer">↑↓ to move · Enter to insert · Esc to keep typing</p>
+            
           </div>
         </div>
         <div class="ds-example__caption"><span>Every block type in order, from <code>BLOCK_TYPES</code> (<code>pages/note/slash-menu</code>). Choosing an option turns the current block into that type when it holds only the slash command, otherwise inserts a new block below; Image and Link card open their dialogs.</span></div>
         <details class="ds-example__code"><summary>HTML</summary><pre><code>&lt;div class="block__text" contenteditable="true" role="textbox" aria-multiline="true" aria-label="Text"
-     aria-controls="slash-list" aria-expanded="true" aria-autocomplete="list" aria-activedescendant="slash-text"&gt;/&lt;/div&gt;
+     aria-controls="slash-list" aria-expanded="true" aria-activedescendant="slash-text"&gt;/&lt;/div&gt;
 &lt;div class="slash-menu"&gt;
   &lt;ul class="slash-menu__list" id="slash-list" role="listbox" aria-label="Insert a block"&gt;
     &lt;li class="slash-menu__group" role="presentation"&gt;Basic blocks&lt;/li&gt;
@@ -199,13 +200,13 @@
         <div class="ds-example__canvas">
           <div class="slash-menu" style="position: static; width: min(22rem, 100%);">
             <ul class="slash-menu__list" id="v-links" role="listbox" aria-label="Link to a page">
-              <li class="slash-menu__item" role="option" id="v-pl0" aria-selected="true"><span class="slash-menu__icon" aria-hidden="true">🛠️</span><span class="slash-menu__text"><span class="slash-menu__title"><mark>Buil</mark>ders Night run sheet</span><span class="slash-menu__hint">You · inside Toronto city team playbook</span></span></li>
-              <li class="slash-menu__item" role="option" id="v-pl1" aria-selected="false"><span class="slash-menu__icon" aria-hidden="true">📸</span><span class="slash-menu__text"><span class="slash-menu__title"><mark>Buil</mark>ders Night photo shot list</span><span class="slash-menu__hint">Hannah Kim · Global</span></span></li>
+              <li class="slash-menu__item" role="option" id="v-pl0" aria-selected="true"><span class="slash-menu__icon" aria-hidden="true">🛠️</span><span class="slash-menu__text"><span class="slash-menu__title">Builders Night run sheet</span></span></li>
+              <li class="slash-menu__item" role="option" id="v-pl1" aria-selected="false"><span class="slash-menu__icon" aria-hidden="true">📸</span><span class="slash-menu__text"><span class="slash-menu__title">Builders Night photo shot list</span></span></li>
             </ul>
-            <p class="slash-menu__footer">2 pages you can open · Enter to link · Esc to keep typing</p>
+            
           </div>
         </div>
-        <div class="ds-example__caption"><span>The owner typed "[[Buil" (<code>pages/note/page-link</code>). The matching part of each title is a <code>&lt;mark&gt;</code>; there are no groups or shortcuts. Choosing one replaces "[[Buil" with a <a href="block-editor.html">page link</a>.</span></div>
+        <div class="ds-example__caption"><span>The owner typed "[[Buil" (<code>pages/note/page-link</code>). Each option is the page's icon and title; there are no groups, hints or shortcuts. Choosing one replaces "[[Buil" with a <a href="block-editor.html">page link</a>.</span></div>
       </div>
     </section>
 
@@ -225,9 +226,9 @@
       <h3>Filtered, no match and closed</h3>
       <div class="ds-example">
         <div class="ds-example__canvas">
-          <div class="slash-menu" style="position: static; width: min(22rem, 100%);"><ul class="slash-menu__list" role="listbox" aria-label="Insert a block, filtered"><li class="slash-menu__item" role="option" aria-selected="true"><span class="slash-menu__icon" aria-hidden="true">H1</span><span class="slash-menu__text"><span class="slash-menu__title"><mark>Head</mark>ing 1</span><span class="slash-menu__hint">A big section heading.</span></span><kbd class="slash-menu__shortcut"># </kbd></li><li class="slash-menu__item" role="option" aria-selected="false"><span class="slash-menu__icon" aria-hidden="true">H2</span><span class="slash-menu__text"><span class="slash-menu__title"><mark>Head</mark>ing 2</span><span class="slash-menu__hint">A medium heading.</span></span><kbd class="slash-menu__shortcut">## </kbd></li></ul></div>
-          <div class="slash-menu" style="position: static; width: min(22rem, 100%);"><ul class="slash-menu__list" role="listbox" aria-label="Insert a block, no match"></ul><p class="slash-menu__footer" role="status">No matching blocks</p></div>
-          <div class="slash-menu" style="position: static; width: min(22rem, 100%);"><ul class="slash-menu__list" role="listbox" aria-label="Link to a page, no match"></ul><p class="slash-menu__footer" role="status">No pages match “budget”</p></div>
+          <div class="slash-menu" style="position: static; width: min(22rem, 100%);"><ul class="slash-menu__list" role="listbox" aria-label="Insert a block, filtered"><li class="slash-menu__item" role="option" aria-selected="true"><span class="slash-menu__icon" aria-hidden="true">H1</span><span class="slash-menu__text"><span class="slash-menu__title">Heading 1</span><span class="slash-menu__hint">A big section heading.</span></span><kbd class="slash-menu__shortcut">#</kbd></li><li class="slash-menu__item" role="option" aria-selected="false"><span class="slash-menu__icon" aria-hidden="true">H2</span><span class="slash-menu__text"><span class="slash-menu__title">Heading 2</span><span class="slash-menu__hint">A medium heading.</span></span><kbd class="slash-menu__shortcut">##</kbd></li></ul></div>
+          <div class="slash-menu" style="position: static; width: min(22rem, 100%);"><ul class="slash-menu__list" role="listbox" aria-label="Insert a block, no match"><li class="slash-menu__item" role="option" aria-disabled="true" aria-selected="false">No matching blocks</li></ul></div>
+          <div class="slash-menu" style="position: static; width: min(22rem, 100%);"><ul class="slash-menu__list" role="listbox" aria-label="Link to a page, no match"><li class="slash-menu__item" role="option" aria-disabled="true" aria-selected="false">No pages match “budget”</li></ul></div>
         </div>
         <div class="ds-example__caption"><span>"/head" filters to the headings; "/zz" shows "No matching blocks"; "[[budget" shows "No pages match “budget”". Escape closes the menu and leaves the typed text in the block.</span></div>
       </div>
@@ -237,8 +238,8 @@
       </ul>
       <h3>Both themes</h3>
       <div class="ds-themes">
-        <div data-theme="light"><div class="ds-example__canvas"><div class="slash-menu" style="position: static; width: min(22rem, 100%);"><ul class="slash-menu__list" role="listbox" aria-label="Insert a block, light"><li class="slash-menu__item" role="option" aria-selected="true"><span class="slash-menu__icon" aria-hidden="true">Aa</span><span class="slash-menu__text"><span class="slash-menu__title">Text</span><span class="slash-menu__hint">Plain text.</span></span></li><li class="slash-menu__item" role="option" aria-selected="false"><span class="slash-menu__icon" aria-hidden="true">•</span><span class="slash-menu__text"><span class="slash-menu__title">Bulleted list</span><span class="slash-menu__hint">A simple list.</span></span><kbd class="slash-menu__shortcut">- </kbd></li></ul><p class="slash-menu__footer">↑↓ to move · Enter to insert · Esc to keep typing</p></div></div></div>
-        <div data-theme="dark"><div class="ds-example__canvas"><div class="slash-menu" style="position: static; width: min(22rem, 100%);"><ul class="slash-menu__list" role="listbox" aria-label="Insert a block, dark"><li class="slash-menu__item" role="option" aria-selected="true"><span class="slash-menu__icon" aria-hidden="true">Aa</span><span class="slash-menu__text"><span class="slash-menu__title">Text</span><span class="slash-menu__hint">Plain text.</span></span></li><li class="slash-menu__item" role="option" aria-selected="false"><span class="slash-menu__icon" aria-hidden="true">•</span><span class="slash-menu__text"><span class="slash-menu__title">Bulleted list</span><span class="slash-menu__hint">A simple list.</span></span><kbd class="slash-menu__shortcut">- </kbd></li></ul><p class="slash-menu__footer">↑↓ to move · Enter to insert · Esc to keep typing</p></div></div></div>
+        <div data-theme="light"><div class="ds-example__canvas"><div class="slash-menu" style="position: static; width: min(22rem, 100%);"><ul class="slash-menu__list" role="listbox" aria-label="Insert a block, light"><li class="slash-menu__item" role="option" aria-selected="true"><span class="slash-menu__icon" aria-hidden="true">Aa</span><span class="slash-menu__text"><span class="slash-menu__title">Text</span><span class="slash-menu__hint">Plain text.</span></span></li><li class="slash-menu__item" role="option" aria-selected="false"><span class="slash-menu__icon" aria-hidden="true">•</span><span class="slash-menu__text"><span class="slash-menu__title">Bulleted list</span><span class="slash-menu__hint">A simple list.</span></span><kbd class="slash-menu__shortcut">-</kbd></li></ul></div></div></div>
+        <div data-theme="dark"><div class="ds-example__canvas"><div class="slash-menu" style="position: static; width: min(22rem, 100%);"><ul class="slash-menu__list" role="listbox" aria-label="Insert a block, dark"><li class="slash-menu__item" role="option" aria-selected="true"><span class="slash-menu__icon" aria-hidden="true">Aa</span><span class="slash-menu__text"><span class="slash-menu__title">Text</span><span class="slash-menu__hint">Plain text.</span></span></li><li class="slash-menu__item" role="option" aria-selected="false"><span class="slash-menu__icon" aria-hidden="true">•</span><span class="slash-menu__text"><span class="slash-menu__title">Bulleted list</span><span class="slash-menu__hint">A simple list.</span></span><kbd class="slash-menu__shortcut">-</kbd></li></ul></div></div></div>
       </div>
     </section>
 
@@ -257,7 +258,7 @@
 
     <section class="ds-section" id="accessibility"><h2><a href="#accessibility">Accessibility</a></h2>
       <h3>Role and pattern</h3>
-      <p>WAI-ARIA APG <b>Combobox</b> with a <b>listbox</b> popup, where the block's text box is the combobox. The text box gets <code>aria-controls</code> (the list), <code>aria-expanded</code>, <code>aria-autocomplete="list"</code> and <code>aria-activedescendant</code> (the active option's id). The list is <code>role="listbox"</code> named "Insert a block" or "Link to a page"; options are <code>role="option"</code> with <code>aria-selected</code> on the active one; group labels are <code>role="presentation"</code>. DOM focus never leaves the text box (L2-099 AC3).</p>
+      <p>WAI-ARIA APG <b>Combobox</b> with a <b>listbox</b> popup, where the block's text box is the combobox. While the list is open the text box gets <code>aria-controls</code> (the list) and <code>aria-activedescendant</code> (the active option's id, <code>{listId}-{index}</code>). The list is <code>role="listbox"</code> named "Insert a block" or "Link to a page"; options are <code>role="option"</code> with <code>aria-selected</code> on the active one; there are no group labels. DOM focus never leaves the text box (L2-099 AC3).</p>
       <h3>Keyboard</h3>
       <table class="ds-table ds-keys"><thead><tr><th scope="col">Key</th><th scope="col">Action</th></tr></thead><tbody>
         <tr><td><kbd>/</kbd></td><td>At the start of a block or after a space: opens Insert a block with the first option active.</td></tr>
@@ -272,11 +273,11 @@
       <h3>Focus</h3>
       <p>The active option shows the accent-subtle fill plus the 2px focus ring inside its edge, because the real focus ring stays on the text box. Pointer hover does not change the active option until a click.</p>
       <h3>Labelling and announcements</h3>
-      <p>Each option's accessible name is its title, then its hint ("Heading 1, A big section heading."). Icons are <code>aria-hidden</code>; the shortcut is plain text read after the hint. "No matching blocks" and "No pages match “{term}”" are announced through the footer's <code>role="status"</code>. Page titles are only ever pages the owner may open (L2-090 AC7).</p>
+      <p>Each option's accessible name is its title, then its hint ("Heading 1, A big section heading."). Icons are <code>aria-hidden</code>; the shortcut is plain text read after the hint. "No matching blocks" and "No pages match “{term}”" are a single disabled option (<code>aria-disabled="true"</code>) in the list. Page titles are only ever pages the owner may open (L2-090 AC7).</p>
       <h3>Contrast</h3>
       <div class="ds-themes">
-        <div data-theme="light"><div class="ds-example__canvas ds-example__canvas--stack" style="padding: 0; gap: var(--space-2);"><div class="ds-pair"><span>Option title</span><span class="ds-pair__ratio" data-contrast="--color-fg-default|--color-bg-surface-raised" data-min="4.5"></span></div><div class="ds-pair"><span>Option hint, footer</span><span class="ds-pair__ratio" data-contrast="--color-fg-muted|--color-bg-surface-raised" data-min="4.5"></span></div><div class="ds-pair"><span>Active option title</span><span class="ds-pair__ratio" data-contrast="--color-fg-default|--color-accent-subtle" data-min="4.5"></span></div><div class="ds-pair"><span>Active option hint</span><span class="ds-pair__ratio" data-contrast="--color-fg-muted|--color-accent-subtle" data-min="4.5"></span></div><div class="ds-pair"><span>Shortcut</span><span class="ds-pair__ratio" data-contrast="--color-fg-muted|--color-bg-subtle" data-min="4.5"></span></div><div class="ds-pair"><span>Active option ring</span><span class="ds-pair__ratio" data-contrast="--color-focus-ring|--color-accent-subtle" data-min="3"></span></div></div></div>
-        <div data-theme="dark"><div class="ds-example__canvas ds-example__canvas--stack" style="padding: 0; gap: var(--space-2);"><div class="ds-pair"><span>Option title</span><span class="ds-pair__ratio" data-contrast="--color-fg-default|--color-bg-surface-raised" data-min="4.5"></span></div><div class="ds-pair"><span>Option hint, footer</span><span class="ds-pair__ratio" data-contrast="--color-fg-muted|--color-bg-surface-raised" data-min="4.5"></span></div><div class="ds-pair"><span>Active option title</span><span class="ds-pair__ratio" data-contrast="--color-fg-default|--color-accent-subtle" data-min="4.5"></span></div><div class="ds-pair"><span>Active option hint</span><span class="ds-pair__ratio" data-contrast="--color-fg-muted|--color-accent-subtle" data-min="4.5"></span></div><div class="ds-pair"><span>Shortcut</span><span class="ds-pair__ratio" data-contrast="--color-fg-muted|--color-bg-subtle" data-min="4.5"></span></div><div class="ds-pair"><span>Active option ring</span><span class="ds-pair__ratio" data-contrast="--color-focus-ring|--color-accent-subtle" data-min="3"></span></div></div></div>
+        <div data-theme="light"><div class="ds-example__canvas ds-example__canvas--stack" style="padding: 0; gap: var(--space-2);"><div class="ds-pair"><span>Option title</span><span class="ds-pair__ratio" data-contrast="--color-fg-default|--color-bg-surface-raised" data-min="4.5"></span></div><div class="ds-pair"><span>Option hint</span><span class="ds-pair__ratio" data-contrast="--color-fg-muted|--color-bg-surface-raised" data-min="4.5"></span></div><div class="ds-pair"><span>Active option title</span><span class="ds-pair__ratio" data-contrast="--color-fg-default|--color-accent-subtle" data-min="4.5"></span></div><div class="ds-pair"><span>Active option hint</span><span class="ds-pair__ratio" data-contrast="--color-fg-muted|--color-accent-subtle" data-min="4.5"></span></div><div class="ds-pair"><span>Shortcut</span><span class="ds-pair__ratio" data-contrast="--color-fg-muted|--color-bg-subtle" data-min="4.5"></span></div><div class="ds-pair"><span>Active option ring</span><span class="ds-pair__ratio" data-contrast="--color-focus-ring|--color-accent-subtle" data-min="3"></span></div></div></div>
+        <div data-theme="dark"><div class="ds-example__canvas ds-example__canvas--stack" style="padding: 0; gap: var(--space-2);"><div class="ds-pair"><span>Option title</span><span class="ds-pair__ratio" data-contrast="--color-fg-default|--color-bg-surface-raised" data-min="4.5"></span></div><div class="ds-pair"><span>Option hint</span><span class="ds-pair__ratio" data-contrast="--color-fg-muted|--color-bg-surface-raised" data-min="4.5"></span></div><div class="ds-pair"><span>Active option title</span><span class="ds-pair__ratio" data-contrast="--color-fg-default|--color-accent-subtle" data-min="4.5"></span></div><div class="ds-pair"><span>Active option hint</span><span class="ds-pair__ratio" data-contrast="--color-fg-muted|--color-accent-subtle" data-min="4.5"></span></div><div class="ds-pair"><span>Shortcut</span><span class="ds-pair__ratio" data-contrast="--color-fg-muted|--color-bg-subtle" data-min="4.5"></span></div><div class="ds-pair"><span>Active option ring</span><span class="ds-pair__ratio" data-contrast="--color-focus-ring|--color-accent-subtle" data-min="3"></span></div></div></div>
       </div>
       <h3>Motion</h3>
       <p>The panel scales in from the top left over <code>--duration-fast</code> with <code>--ease-enter</code>; reduced motion zeroes the duration.</p>
@@ -296,10 +297,10 @@
 
     <section class="ds-section" id="do-dont"><h2><a href="#do-dont">Do and don't</a></h2>
       <div class="ds-dodont">
-        <figure class="ds-do"><div class="ds-example__canvas"><div class="slash-menu" style="position: static; width: 100%;"><ul class="slash-menu__list" role="listbox" aria-label="Good example"><li class="slash-menu__item" role="option" aria-selected="true"><span class="slash-menu__icon" aria-hidden="true">☐</span><span class="slash-menu__text"><span class="slash-menu__title">To-do</span><span class="slash-menu__hint">A task to tick off.</span></span><kbd class="slash-menu__shortcut">[] </kbd></li></ul></div></div><figcaption>Keep focus in the text and mark the active option with <code>aria-activedescendant</code> and a visible ring.</figcaption></figure>
+        <figure class="ds-do"><div class="ds-example__canvas"><div class="slash-menu" style="position: static; width: 100%;"><ul class="slash-menu__list" role="listbox" aria-label="Good example"><li class="slash-menu__item" role="option" aria-selected="true"><span class="slash-menu__icon" aria-hidden="true">☐</span><span class="slash-menu__text"><span class="slash-menu__title">To-do</span><span class="slash-menu__hint">A task to tick off.</span></span><kbd class="slash-menu__shortcut">[]</kbd></li></ul></div></div><figcaption>Keep focus in the text and mark the active option with <code>aria-activedescendant</code> and a visible ring.</figcaption></figure>
         <figure class="ds-dont"><div class="ds-example__canvas"><ul class="menu menu--static" role="menu" aria-label="Bad example" style="min-width: 14rem;"><li role="none"><button class="menu__item" role="menuitem" type="button" data-state="focus">To-do</button></li></ul></div><figcaption>A <code>role="menu"</code> that steals focus: the caret is lost and typing to filter stops working.</figcaption></figure>
-        <figure class="ds-do"><div class="ds-example__canvas"><div class="slash-menu" style="position: static; width: 100%;"><ul class="slash-menu__list" role="listbox" aria-label="Good page list"><li class="slash-menu__item" role="option" aria-selected="true"><span class="slash-menu__icon" aria-hidden="true">🛠️</span><span class="slash-menu__text"><span class="slash-menu__title">Builders Night run sheet</span><span class="slash-menu__hint">You · inside Toronto city team playbook</span></span></li></ul></div></div><figcaption>Suggest only pages the owner may open, from the server.</figcaption></figure>
-        <figure class="ds-dont"><div class="ds-example__canvas"><div class="slash-menu" style="position: static; width: 100%;"><ul class="slash-menu__list" role="listbox" aria-label="Bad page list"><li class="slash-menu__item" role="option" aria-selected="true"><span class="slash-menu__icon" aria-hidden="true">🔒</span><span class="slash-menu__text"><span class="slash-menu__title">Safeguarding incidents 2026</span><span class="slash-menu__hint">Priya Shah · Private</span></span></li></ul></div></div><figcaption>Listing someone else's Private page, even greyed out: it leaks its title.</figcaption></figure>
+        <figure class="ds-do"><div class="ds-example__canvas"><div class="slash-menu" style="position: static; width: 100%;"><ul class="slash-menu__list" role="listbox" aria-label="Good page list"><li class="slash-menu__item" role="option" aria-selected="true"><span class="slash-menu__icon" aria-hidden="true">🛠️</span><span class="slash-menu__text"><span class="slash-menu__title">Builders Night run sheet</span></span></li></ul></div></div><figcaption>Suggest only pages the owner may open, from the server.</figcaption></figure>
+        <figure class="ds-dont"><div class="ds-example__canvas"><div class="slash-menu" style="position: static; width: 100%;"><ul class="slash-menu__list" role="listbox" aria-label="Bad page list"><li class="slash-menu__item" role="option" aria-selected="true"><span class="slash-menu__icon" aria-hidden="true">🔒</span><span class="slash-menu__text"><span class="slash-menu__title">Safeguarding incidents 2026</span></span></li></ul></div></div><figcaption>Listing someone else's Private page, even greyed out: it leaks its title.</figcaption></figure>
       </div>
     </section>
 
@@ -325,21 +326,23 @@
     </section>
 
     <section class="ds-section" id="code"><h2><a href="#code">Code</a></h2>
-      <pre><code>&lt;!-- Inside ft-block-editor; the editor opens it on "/" or "[[" and keeps focus in the block --&gt;
+      <pre><code>&lt;!-- Inside ft-block-editor; "/" opens it as "Insert a block", "[[" as "Link to a page" --&gt;
 &lt;ft-slash-menu
-  label="Insert a block"                 &lt;!-- or "Link to a page" --&gt;
-  [options]="options()"                  &lt;!-- block types from BLOCK_TYPES, or page suggestions --&gt;
-  [query]="query()" [activeId]="activeId()"
-  emptyText="No matching blocks"          &lt;!-- or 'No pages match “' + query() + '”' --&gt;
-  (chosen)="choose($event)" (closed)="close()" /&gt;</code></pre>
-      <p>The editor owns the keys (it listens on the text box and moves <code>activeId</code>); <code>ft-slash-menu</code> renders the listbox, filtering and the empty text. Exact inputs follow the component's API docs.</p>
+  [label]="menu.kind === 'slash' ? 'Insert a block' : 'Link to a page'"
+  [listId]="menuId"                   &lt;!-- the text box's aria-controls --&gt;
+  [options]="options()"               &lt;!-- SlashMenuOption[]: { id, label, description?, glyph?, shortcut? } --&gt;
+  [active]="menu.active"              &lt;!-- index of the active option; the text box's aria-activedescendant --&gt;
+  [emptyText]="menu.kind === 'slash' ? 'No matching blocks' : 'No pages match “' + menu.query + '”'"
+  (chosen)="choose($event)" /&gt;        &lt;!-- the option id --&gt;
+// optionId(index) returns `${listId}-${index}`</code></pre>
+      <p>Focus never leaves the text box: the editor handles ↑, ↓, Enter and Escape there, filters <code>BLOCK_TYPES</code> by type name and sets <code>active</code>; <code>ft-slash-menu</code> renders the listbox (<code>.ft-slash-menu__list</code>, options with <code>.ft-slash-menu__glyph</code>, <code>__title</code>, <code>__hint</code> and a <code>&lt;kbd&gt;</code> shortcut) and emits <code>chosen</code> on a click. The 13 block options carry the descriptions and shortcuts of <code>BLOCK_TYPES</code> (Text "Plain text.", Heading 1 "A big section heading." <code>#</code>, … Link card "A link to another site."); page suggestions carry the page's emoji (📄 when it has none) and title only. With no options it renders one disabled option holding <code>emptyText</code>. The mock classes below draw the same thing.</p>
       <table class="ds-table"><thead><tr><th scope="col">Class / attribute</th><th scope="col">Effect</th></tr></thead><tbody>
         <tr><td><code>.slash-menu</code></td><td>Raised panel anchored under the block's text column.</td></tr>
         <tr><td><code>.slash-menu__list</code></td><td>The <code>role="listbox"</code>; scrolls past 22rem.</td></tr>
-        <tr><td><code>.slash-menu__group</code></td><td>Group label (Basic blocks, Media).</td></tr>
+        <tr><td><code>.slash-menu__group</code></td><td>Group label. Not used by the built menu, which lists the 13 types ungrouped.</td></tr>
         <tr><td><code>.slash-menu__item</code>, <code>[aria-selected="true"]</code></td><td>Option; the active one gets the fill and inset ring.</td></tr>
         <tr><td><code>.slash-menu__icon</code>, <code>__text</code>, <code>__title</code>, <code>__hint</code>, <code>__shortcut</code></td><td>Option parts.</td></tr>
-        <tr><td><code>.slash-menu__footer</code></td><td>Keys line, page count or the empty text.</td></tr>
+        <tr><td><code>.slash-menu__footer</code></td><td>Footer line. Not used by the built menu; the empty text is a disabled option.</td></tr>
       </tbody></table>
     </section>
 
@@ -349,7 +352,7 @@
         <li>Requirements L2-088 AC7 to AC9, L2-090 AC1 and L2-099 AC3.</li>
         <li>CSS: the <code>.slash-menu*</code> rules in <code>assets/components.css</code>.</li>
       </ul>
-      <p>Drift: the mock's hints ("Just start writing", "Big section heading") differ from the library's <code>BLOCK_TYPES</code> descriptions ("Plain text.", "A big section heading."); the library's wording is the source. The mock's text box lacked <code>aria-expanded</code>; it is required by the combobox pattern.</p>
+      <p>Drift, now fixed in the mocks: the hints ("Just start writing", "Big section heading") differed from the library's <code>BLOCK_TYPES</code> descriptions ("Plain text.", "A big section heading."); the mock grouped the options and added a "Link to page" option and a keys footer, none of which the built menu has; page suggestions showed an owner line, but they carry only the icon and title.</p>
     </section>
 
     <footer class="ds-footer"><span>FaithTech Community design system · extracted from <a href="../../mocks/index.html">docs/mocks</a> on 2026-10-22</span><a href="#top">Back to top</a></footer>

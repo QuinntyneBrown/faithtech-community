@@ -12,54 +12,69 @@ skinparam class {
 title Class structure — Image blocks
 class NotePage {
   +Guid Id
-  +IReadOnlyList<NoteImage> Images
-  +AddImage(image: NoteImage): void
+  +Guid OwnerId
+  +DateTimeOffset? ArchivedAt
 }
 class NoteImage {
+  +{static} MaxAlt = 250
+  +{static} MaxBytes = 5 MB
   +Guid Id
   +Guid PageId
-  +string BlobName
+  +string BlobName  (notes/{pageId}/{imageId}.{ext})
   +string ContentType
   +long Size
-  +DateTimeOffset AddedAt
+  +DateTimeOffset UploadedAt
 }
-NotePage "1" *-- "*" NoteImage
-class NoteImageTypes <<static>> {
-  +{static} MaxBytes = 5 MB
-  +{static} Detect(header: ReadOnlySpan<byte>): (ext, contentType)?
-}
+NoteImage --> NotePage : PageId
 class NoteImagesHandler {
-  +UploadAsync(id, file: UploadedFile): Task<(Result, NoteImageDto?)>
-  +OpenAsync(id, imageId): Task<(Result, NoteImageContent?)>
+  +Refusal = "Use a JPEG, PNG or WebP image up to 5 MB."
+  +UploadAsync(pageId, upload: NoteImageUpload?): Task<(Result, NoteImageUploadedDto?, bool StorageDown)>
+  +ReadAsync(pageId, imageId): Task<NoteImageContent?>
 }
-class NoteImageDto <<record>> {
-  +Guid Id
-  +string ContentType
-  +long Size
+class NoteImageUpload <<record>> {
+  +string FileName
+  +long Length
+  +Func<Stream> Open
+}
+class NoteImageUploadedDto <<record>> {
+  +Guid ImageId
 }
 class NoteImageContent <<record>> {
   +Stream Content
   +string ContentType
 }
+interface IImageProcessor {
+  +ProcessAsync(content, fileName): Task<ImageProcessingResult>
+}
+class ProcessedImage <<record>> {
+  +byte[] Content
+  +string ContentType
+  +string Extension
+}
 interface IFileStorage {
   +SaveAsync(key, stream, contentType): Task
   +OpenReadAsync(key): Task<Stream>
-  +DeleteAsync(key): Task
+}
+class NoteAccess {
+  +FindAsync(id, caller): Task<NotePage?>
+  +CanChange(page, caller): bool
 }
 class NoteBlock <<record>> {
   +string Type = "image"
   +Guid? ImageId
   +string? Alt
-  +string? Caption
 }
-class NoteBlocksValidator {
-  +Validate(page, blocks): Result
+class NoteBlocksValidator <<static>> {
+  +Check(blocks, images: page's image ids): Dictionary<string, string[]>
 }
+NoteImagesHandler --> NoteAccess
+NoteImagesHandler --> IImageProcessor
+IImageProcessor ..> ProcessedImage
 NoteImagesHandler --> IFileStorage
-NoteImagesHandler ..> NoteImageTypes
-NoteImagesHandler --> NotePage : AddImage
-NoteImagesHandler ..> NoteImageDto
+NoteImagesHandler ..> NoteImageUpload
+NoteImagesHandler ..> NoteImage : adds
+NoteImagesHandler ..> NoteImageUploadedDto
 NoteImagesHandler ..> NoteImageContent
 NoteBlocksValidator ..> NoteBlock : alt required (1..250)
-NoteBlocksValidator ..> NoteImage : ImageId in page.Images
+NoteBlocksValidator ..> NoteImage : ImageId uploaded to this page
 @enduml

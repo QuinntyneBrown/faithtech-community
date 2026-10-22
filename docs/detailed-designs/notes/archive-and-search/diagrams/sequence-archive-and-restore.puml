@@ -32,7 +32,7 @@ box "Backend — FaithTech.Community.Infrastructure" #FFF4E5
 end box
 actor -> page : Archive… (page menu)
 page -> dlg : Open
-actor -> dlg : Archive page
+actor -> dlg : Archive (focus starts on Cancel)
 dlg -> svc : archive(id)
 svc -> ep : POST /api/notes/{id}/archive
 ep -> h : ArchiveAsync(id)
@@ -40,6 +40,8 @@ alt not visible
   ep --> svc : 404
 else not owner or System Admin
   ep --> svc : 403
+else already archived
+  ep --> svc : 409 "It’s already archived."
 else may change
   h -> h : page.Archive(now) — child pages untouched (L2-095)
   opt override
@@ -47,7 +49,7 @@ else may change
   end
   h -> db : One save
   ep --> svc : 204
-  page --> actor : Navigate to /notes; toast "Archived {title}" with "Undo" (restore)
+  page --> actor : Navigate to /notes; toast "{title} archived",\n"Restore it from Archived." with "Undo" (restores and reopens the page)
 end
 == Later ==
 actor -> page : Open /notes/archived
@@ -59,8 +61,12 @@ actor -> dlg : Restore
 dlg -> svc : restore(id)
 svc -> ep : POST /api/notes/{id}/restore
 ep -> h : RestoreAsync(id)
-h -> h : page.Restore(); override audited as note.restored
-h -> db : One save
-ep --> svc : 204
-page --> actor : Row leaves the list; toast "Restored {title}"
+alt not archived
+  ep --> svc : 409 "It isn’t archived."
+else archived
+  h -> h : page.Restore(); override audited as note.restored
+  h -> db : One save
+  ep --> svc : 204
+  page --> actor : Row leaves the list; toast "{title} restored" with "View"
+end
 @enduml

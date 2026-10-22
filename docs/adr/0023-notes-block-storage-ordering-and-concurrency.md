@@ -16,8 +16,8 @@ The design had to settle how blocks are stored, how their order is kept, how two
 
 ### Blocks are one JSON document on the page row
 
-- `NotePage.Content` holds the whole block list as a JSON array, serialised by `NoteJson` from the `NoteBlock` and `NoteSpan` records with `System.Text.Json`, camelCase names and nulls omitted. The column is `text`: nothing queries inside it, and `text` behaves the same in PostgreSQL and the EF Core in-memory provider the backend tests use.
-- The server validates the document on every save (`NoteBlocksValidator`: types, limits, URL schemes, alt text, image ownership) and normalises it, so the stored shape is always one the editor can render.
+- `NotePage.Content` holds the whole block list as a JSON array, serialised by `NoteContent` from the `NoteBlock` and `NoteSpan` records with `System.Text.Json`, camelCase names and nulls omitted. The column is `text`: nothing queries inside it, and `text` behaves the same in PostgreSQL and the EF Core in-memory provider the backend tests use.
+- The server validates the document on every save (`NoteBlocksValidator`: types, limits, URL schemes, alt text, image ownership) and refuses the whole save on any error, so the stored shape is always one the editor can render. The only rewrite on save is clearing the text of page-link spans.
 - Rejected: **a `NoteBlocks` table** (one row per block). It would turn every keystroke-driven save into a multi-row diff, need an order column, and cost a join on every read, for no query that needs a single block. Rejected: **per-block operations** (`POST /blocks`, `PATCH /blocks/{id}`, `move`). They pay off only when several people edit one page at once, which is deferred, and they multiply endpoints, validation paths and fake-backend work.
 
 ### Whole-page saves; order is array order
@@ -28,21 +28,25 @@ The design had to settle how blocks are stored, how their order is kept, how two
 
 ### Integer version with 409 on conflict
 
-- `NotePage.Version` starts at 1 and increments on every save. A save names the version it was based on; a mismatch answers `409` with the stored version, who saved it and when, and nothing is overwritten. The client stops autosaving and shows the conflict banner with *Reload page*.
+- `NotePage.Version` starts at 1 and increments on every content save; sharing, moving, archiving and image uploads leave it alone, so they never cause a conflict. A save names the version it was based on; a mismatch answers `409` with `currentVersion`, `updatedByName`, `updatedByYou` and `updatedAt`, and nothing is overwritten. The client stops autosaving and shows the conflict banner with *Reload page*.
 - `Version` is also an EF Core concurrency token, so two requests that pass the check at the same moment cannot both commit; the loser maps to the same `409`.
 - Conflicts arise between two tabs or devices of the owner, or between the owner and a System Admin override.
 - Rejected: **last write wins**. It silently loses work from the other tab. Rejected: **an ETag over the block content** (`If-Match`). A hash is costlier to compute than an integer, says nothing a reader can show ("saved by … at …"), and the integer already serves as a validator.
 
 ### Links table rebuilt on save
 
-- `NoteLinks (SourceId, TargetId)` holds one row per distinct page linked from a page. Every save deletes the source's rows and inserts the current set, in the same transaction as the content, skipping self-links and ids that match no page.
+- `NoteLinks (SourceId, TargetId)` holds one row per distinct page linked from a page. Every save brings the source's rows in line with its current page links (removing the dropped ones, adding the new ones), in the same transaction as the content, skipping self-links and ids that match no page.
 - Page-link spans are stored with empty text; the title is filled at read time (ADR 0025).
 - Backlinks are one indexed query on `TargetId`, joined to the visibility predicate, with no JSON parsing.
 
 ### Body text for search
 
-- `BodyText` is derived on save from the title, every block's text, image alt text and link-card captions, joined with line breaks and truncated to 100,000 characters to stay within PostgreSQL's `tsvector` size limit.
-- `SearchVectors` adds a generated, GIN-indexed `SearchVector` over `Title` and `BodyText` (ADR 0016), so a save, archive or restore is searchable at once with no reindex job.
+- `BodyText` is derived on save from the text of every text-bearing block, leaving out page-link spans, plus link-card captions, joined with line breaks. Image alt text is not included, and linked pages' titles never are (ADR 0025).
+- `SearchVectors` adds a generated, GIN-indexed `SearchVector` over `Title` and `BodyText` (ADR 0016), so a save is searchable at once with no reindex job; archive and restore act through the visibility predicate. The Notes list's search box matches the same document.
+
+## As built
+
+Implemented as decided, in one migration (`20261022160730_Notes`). `NoteImages` is its own table keyed by `PageId`, and the share rows carry a generated key so rows added to a loaded page insert. Text over the `tsvector` limit is not truncated; the 500-block and 10,000-character limits keep a page well inside it.
 
 ## Consequences
 

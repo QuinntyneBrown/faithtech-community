@@ -18,7 +18,7 @@ actor "Owner" as actor
 box "Frontend — FaithTech Community web app (components library)" #E0F2FE
   participant "BlockEditorComponent" as ed
   participant "CDK drag-drop" as dd
-  participant "LiveAnnouncer" as live
+  participant "Polite live region" as live
 end box
 box "Frontend — FaithTech Community web app (notes library)" #E0F2FE
   participant "NotePage" as page
@@ -33,9 +33,9 @@ dd --> actor : Drop indicator line between blocks (cdkDragPlaceholder)
 actor -> dd : Drop below block 5
 dd -> ed : cdkDropListDropped(previousIndex 1, currentIndex 5)
 ed -> ed : moveItemInArray(blocks, 1, 5) (L2-089)
-ed -> live : "Moved Heading 2 to position 6 of 9"
-ed -> page : changes(blocks)
-page -> auto : changed(snapshot)
+ed -> live : "Moved Heading 2 “Run sheet” to position 6 of 9"
+ed -> page : blocksChange(blocks)
+page -> auto : changed()
 auto -> ep : PUT /api/notes/{id} after 800 ms; order is array order
 ep --> auto : 200 { version }
 @enduml

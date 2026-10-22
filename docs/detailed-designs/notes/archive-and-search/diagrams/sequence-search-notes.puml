@@ -40,7 +40,7 @@ src -> acc : Visible(NotePages, caller) — not archived (L2-096)
 src -> fts : Match(visible, term, p => p.Title + " " + p.BodyText)
 fts -> db : SearchVector @@ to_tsquery('onbo:*'), ORDER BY ts_rank, LIMIT 10
 db --> src : Rows
-src --> gs : SearchResultItem(title or "Untitled", "{owner} · edited {date} · {excerpt}",\n/notes/{id}, badge Private | Shared | Shared with you)
+src --> gs : SearchResultItem("{icon} {title or Untitled}",\n"{owner | you} · edited {date}[ · {excerpt when the match is not in the title}]",\n/notes/{id}, badge Private | Shared | Shared with you)
 gs --> ep : Group "Note" after "Resource"
 ep --> svc : 200 SearchResultsDto
 page --> actor : "Notes (N)" group and "See all in Notes" (/notes?q=onboarding)

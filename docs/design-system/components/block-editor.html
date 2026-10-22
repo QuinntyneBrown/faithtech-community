@@ -48,6 +48,7 @@
       <li><a href="../components/person-picker.html">Person picker</a></li>
       <li><a href="../components/type-icon.html">Type icon</a></li>
       <li><a href="../components/sticker-picker.html">Estimate card picker</a></li>
+      <li><a href="../components/emoji-picker.html">Emoji picker</a></li>
       <li><a href="../components/top-bar.html">Top bar</a></li>
       <li><a href="../components/tab-bar.html">Tab bar</a></li>
       <li><a href="../components/tabs.html">Tabs</a></li>
@@ -144,7 +145,7 @@
           <span class="ds-callout" style="left: 58%; top: 84%;" aria-hidden="true">7</span>
         </figure>
         <ol class="ds-anatomy__list">
-          <li><div><b>Icon</b><small><code>.block-editor__icon</code>: the page's emoji, 64px, a button that opens Page settings ("Change the icon, now 🛠️"). With no icon the owner sees a ghost "Add an icon" button; readers see nothing.</small></div></li>
+          <li><div><b>Icon</b><small><code>.block-editor__icon</code>: the page's emoji, 64px, a button that opens Page settings ("Change the icon, now 🛠️"). With no icon nothing is shown; the owner adds one from Page settings in "More actions".</small></div></li>
           <li><div><b>Page title</b> (<code>ft-page-title</code>)<small><code>.block-editor__title</code>: a single-line text box labelled "Page title" with the placeholder "Untitled", inside the page's only <code>&lt;h1&gt;</code>. At most 200 characters; Enter moves to the first block; paste is plain text on one line.</small></div></li>
           <li><div><b>Meta line</b><small><code>.block-editor__meta</code>: owner, parent and the edited time, <code>--text-body-sm</code> muted.</small></div></li>
           <li><div><b>Drag handle</b><small><code>.block__handle</code>: a 24px button (32px on touch) with the grip icon, labelled "Move or open the menu for block {n} of {total}, {type}". Hidden until the row is hovered or focused; always shown on touch screens.</small></div></li>
@@ -219,7 +220,7 @@ Kestrel Labs, 4th floor, Studio B</code></pre></div>
           <tr><td>Bulleted, Numbered list (<code>bulleted</code>, <code>numbered</code>)</td><td><code>&lt;li&gt;</code> in a shared <code>&lt;ul&gt;</code> / <code>&lt;ol&gt;</code></td><td>Enter continues the list; Enter in an empty item turns it into Text.</td></tr>
           <tr><td>To-do (<code>todo</code>)</td><td>Checkbox + text box</td><td>The checkbox's name is the block's text; checked shows muted and struck through. Read-only: disabled checkbox showing its state.</td></tr>
           <tr><td>Quote (<code>quote</code>)</td><td><code>&lt;blockquote&gt;</code></td><td>Muted italic with a 4px strong border.</td></tr>
-          <tr><td>Callout (<code>callout</code>)</td><td>Tinted box with an emoji</td><td>Icon defaults to 💡, changed from the block menu; decorative (<code>aria-hidden</code>). Read-only it is <code>role="note"</code>.</td></tr>
+          <tr><td>Callout (<code>callout</code>)</td><td>Tinted box with an emoji</td><td>Icon defaults to 💡, changed from the block menu; decorative (<code>aria-hidden</code>), in edit and read views alike.</td></tr>
           <tr><td>Code (<code>code</code>)</td><td><code>&lt;pre&gt;&lt;code&gt;</code></td><td>Plain text exactly as typed, monospace, no highlighting, no inline formatting; long lines scroll inside the block.</td></tr>
           <tr><td>Divider (<code>divider</code>)</td><td><code>&lt;hr&gt;</code></td><td>No text; selected, moved and deleted through its handle.</td></tr>
           <tr><td>Image (<code>image</code>)</td><td><code>&lt;figure&gt;&lt;img alt&gt;</code></td><td>Uploaded through "Add an image"; alt text is required. Never wider than the column, at most 28rem tall.</td></tr>
@@ -239,7 +240,7 @@ Kestrel Labs, 4th floor, Studio B</code></pre></div>
               <div class="block block--h1"><div class="block__text">Before judging</div></div>
               <ol class="block-group"><li class="block block--numbered"><div class="block__text">Read the brief for each challenge</div></li><li class="block block--numbered"><div class="block__text">Agree with your fellow judge what “done” looks like</div></li></ol>
               <div class="block block--todo"><div class="todo todo--done"><span class="todo__check"><input type="checkbox" checked disabled aria-label="Scores entered in the rubric"></span><div class="block__text">Scores entered in the rubric</div></div></div>
-              <div class="block block--callout"><div class="callout" role="note"><span class="callout__icon" aria-hidden="true">💡</span><div class="block__text">Scores go in the judging rubric in Resources, never on this page.</div></div></div>
+              <div class="block block--callout"><div class="callout"><span class="callout__icon" aria-hidden="true">💡</span><div class="block__text">Scores go in the judging rubric in Resources, never on this page.</div></div></div>
             </div>
           </div>
         </div>
@@ -250,7 +251,7 @@ Kestrel Labs, 4th floor, Studio B</code></pre></div>
       <p><code>ft-page-title</code> is the title part on its own, so the page and the editor share one implementation. It is a <code>contenteditable="plaintext-only"</code> span with <code>role="textbox"</code> inside the <code>&lt;h1&gt;</code>; read-only it is plain heading text, and an empty title reads "Untitled" in <code>--color-fg-subtle</code>.</p>
       <div class="ds-example">
         <div class="ds-example__canvas ds-example__canvas--stack">
-          <div class="block-editor" style="padding-bottom: 0; max-width: 100%;"><div class="block-editor__head"><button class="btn btn--ghost btn--sm" type="button">Add an icon</button><div class="block-editor__title"><span contenteditable="true" role="textbox" aria-label="Page title" aria-placeholder="Untitled" data-placeholder="Untitled"></span></div><p class="block-editor__meta">Owned by you · created just now</p></div></div>
+          <div class="block-editor" style="padding-bottom: 0; max-width: 100%;"><div class="block-editor__head"><div class="block-editor__title"><span contenteditable="plaintext-only" role="textbox" tabindex="0" aria-label="Page title" aria-placeholder="Untitled" data-placeholder="Untitled"></span></div></div></div>
         </div>
         <div class="ds-example__caption"><span>A new page (<code>pages/note/new</code>): focus starts in the empty title.</span></div>
       </div>
@@ -277,23 +278,19 @@ Kestrel Labs, 4th floor, Studio B</code></pre></div>
       <p>The handle opens the block menu, a <a href="menu.html">menu</a> anchored under the handle. It offers Turn into (a submenu of the text-bearing types), Move up, Move down, Duplicate and Delete; a Callout adds <b>Change icon</b> and an Image adds <b>Edit alt text</b>. Move up is disabled on the first block and Move down on the last.</p>
       <div class="ds-example">
         <div class="ds-example__canvas">
-          <ul class="menu menu--static" role="menu" aria-label="Callout, block 4 of 12, actions" style="min-width: 16rem;">
-            <li role="none"><button class="menu__item" role="menuitem" type="button" aria-haspopup="menu" aria-expanded="false" data-state="focus">Turn into<svg class="icon icon--sm menu__chevron" aria-hidden="true" viewBox="0 0 24 24"><path d="m9 6 6 6-6 6"/></svg></button></li>
+          <ul class="menu menu--static" role="menu" aria-label="Block actions" style="min-width: 16rem;">
+            <li role="none"><button class="menu__item" role="menuitem" type="button" aria-haspopup="menu" aria-expanded="false" data-state="focus">Turn into</button></li>
             <li role="none"><button class="menu__item" role="menuitem" type="button">Change icon</button></li>
-            <li role="none" class="menu__divider" aria-hidden="true"></li>
-            <li role="none"><button class="menu__item" role="menuitem" type="button" aria-keyshortcuts="Alt+Shift+ArrowUp">Move up<kbd class="menu__shortcut">Alt+Shift+↑</kbd></button></li>
-            <li role="none"><button class="menu__item" role="menuitem" type="button" aria-keyshortcuts="Alt+Shift+ArrowDown">Move down<kbd class="menu__shortcut">Alt+Shift+↓</kbd></button></li>
+            <li role="none"><button class="menu__item" role="menuitem" type="button" aria-keyshortcuts="Alt+Shift+ArrowUp">Move up<span class="menu__shortcut" aria-hidden="true">Alt+Shift+↑</span></button></li>
+            <li role="none"><button class="menu__item" role="menuitem" type="button" aria-keyshortcuts="Alt+Shift+ArrowDown">Move down<span class="menu__shortcut" aria-hidden="true">Alt+Shift+↓</span></button></li>
             <li role="none"><button class="menu__item" role="menuitem" type="button">Duplicate</button></li>
-            <li role="none" class="menu__divider" aria-hidden="true"></li>
             <li role="none"><button class="menu__item menu__item--danger" role="menuitem" type="button">Delete</button></li>
           </ul>
-          <ul class="menu menu--static" role="menu" aria-label="Image, block 1 of 12, actions" style="min-width: 16rem;">
+          <ul class="menu menu--static" role="menu" aria-label="Block actions" style="min-width: 16rem;">
             <li role="none"><button class="menu__item" role="menuitem" type="button">Edit alt text</button></li>
-            <li role="none" class="menu__divider" aria-hidden="true"></li>
-            <li role="none"><button class="menu__item" role="menuitem" type="button" aria-keyshortcuts="Alt+Shift+ArrowUp" aria-disabled="true">Move up<kbd class="menu__shortcut">Alt+Shift+↑</kbd></button></li>
-            <li role="none"><button class="menu__item" role="menuitem" type="button" aria-keyshortcuts="Alt+Shift+ArrowDown">Move down<kbd class="menu__shortcut">Alt+Shift+↓</kbd></button></li>
+            <li role="none"><button class="menu__item" role="menuitem" type="button" aria-keyshortcuts="Alt+Shift+ArrowUp" aria-disabled="true">Move up<span class="menu__shortcut" aria-hidden="true">Alt+Shift+↑</span></button></li>
+            <li role="none"><button class="menu__item" role="menuitem" type="button" aria-keyshortcuts="Alt+Shift+ArrowDown">Move down<span class="menu__shortcut" aria-hidden="true">Alt+Shift+↓</span></button></li>
             <li role="none"><button class="menu__item" role="menuitem" type="button">Duplicate</button></li>
-            <li role="none" class="menu__divider" aria-hidden="true"></li>
             <li role="none"><button class="menu__item menu__item--danger" role="menuitem" type="button">Delete</button></li>
           </ul>
         </div>
@@ -450,18 +447,42 @@ Kestrel Labs, 4th floor, Studio B</code></pre></div>
     </section>
 
     <section class="ds-section" id="code"><h2><a href="#code">Code</a></h2>
-      <pre><code>&lt;!-- Angular: notes page (composition in the notes library) --&gt;
-&lt;ft-page-title [value]="title()" [readonly]="!canEdit()" (valueChange)="rename($event)" (submitted)="editor.focusFirst()" /&gt;
-&lt;ft-block-editor #editor
-  [blocks]="blocks()"                    &lt;!-- EditorBlock[]; the API's blocks fit structurally --&gt;
-  [readonly]="!canEdit() || paused()"
-  (blocksChange)="changed($event)" /&gt;     &lt;!-- the notes library debounces this into autosave --&gt;</code></pre>
-      <p>The library owns the editing model (<code>EditorBlock</code>, <code>EditorSpan</code>, <code>BLOCK_TYPES</code> and the span helpers in <code>block-editor/editor-model.ts</code>) and knows no API. The <code>notes</code> library maps the page in, answers the editor's requests for a dialog (Add an image, Add a link card, Add a link, Edit alt text, Change icon) and for page-link suggestions, and runs autosave. The component's own API docs are the reference for the exact inputs and outputs.</p>
+      <pre><code>&lt;!-- Angular: the notes page (composition in the notes library) --&gt;
+&lt;ft-page-title
+  [value]="title()" [readonly]="!editable() || !!stop()"
+  (valueChange)="onTitle($event)" (submitted)="toFirstBlock()" /&gt;
+&lt;ft-block-editor
+  [blocks]="editorBlocks()"                 &lt;!-- readonly EditorBlock[]; the editor edits a copy --&gt;
+  [readonly]="!editable() || !!stop()"      &lt;!-- read view: h2-h4, real ul/ol, blockquote, no handles --&gt;
+  [pageLink]="pageLink"                     &lt;!-- PageLinkResolver: span -&gt; { text, icon, href } or "Private page" --&gt;
+  [pageSearch]="pageSearch"                 &lt;!-- (q) =&gt; Promise&lt;PageLinkItem[]&gt;, for "[[" --&gt;
+  [imageSrc]="imageSrc"                     &lt;!-- (imageId) =&gt; Promise&lt;url&gt;, fetched with the member's token --&gt;
+  (blocksChange)="onBlocks($event)"         &lt;!-- EditorBlock[] on every change; the page autosaves --&gt;
+  (refused)="refused($event)"               &lt;!-- e.g. "A page holds up to 500 blocks. Start a new page inside this one." --&gt;
+  (blockRequested)="request($event)"        &lt;!-- { type: 'link' | 'image', index, replace }: open the dialog --&gt;
+  (linkRequested)="link($event)"            &lt;!-- { index, start, end, href }: open Add a link / Edit link --&gt;
+  (blockEditRequested)="editBlock($event)"  &lt;!-- { index, block }: Change icon (callout) or Edit alt text (image) --&gt;
+/&gt;
+
+// Methods the page calls back with: focusFirst(), place(request, block),
+// update(index, block), applyLink(request, href | null)</code></pre>
+      <p>The library owns the editing model (<code>EditorBlock</code>, <code>EditorSpan</code>, <code>BLOCK_TYPES</code> and the span helpers in <code>block-editor/editor-model.ts</code>) and knows no API. The <code>notes</code> library maps the page in, answers the editor's requests for a dialog (Add an image, Add a link card, Add a link, Edit alt text, Change icon) and for page-link suggestions, and runs autosave. The component's own API docs are the reference for the exact types.</p>
+      <table class="ds-table"><thead><tr><th scope="col">Built behaviour</th><th scope="col">How</th></tr></thead><tbody>
+        <tr><td>Text boxes</td><td>One stable <code>contenteditable</code> per text block: <code>role="textbox"</code>, <code>aria-multiline="true"</code>, named by its type ("Text", "Heading 1", "Bulleted list", "To-do", "Quote", "Callout", "Code"). Rich text is built from text nodes (no <code>innerHTML</code>) and read back to spans.</td></tr>
+        <tr><td>Empty-block hint</td><td>"Type / for blocks, or [[ to link a page" on the only empty block, as <code>aria-placeholder</code> and <code>data-placeholder</code>.</td></tr>
+        <tr><td>Handle</td><td>A button labelled "Move or open the menu for block {n} of {total}, {type}": CDK drag handle and CDK menu trigger; the CDK placeholder is the drop indicator line.</td></tr>
+        <tr><td>Block menu</td><td>CDK menu "Block actions" of <code>ft-menu-item</code>s: Turn into (submenu "Turn into"; Enter or → opens it), Change icon (callout), Edit alt text (image), Move up / Move down (<code>shortcut</code> Alt+Shift+↑/↓, disabled at the ends), Duplicate, Delete (<code>danger</code>).</td></tr>
+        <tr><td>Keyboard</td><td>Enter splits, continues lists and to-dos, and turns an empty list item into Text; Shift+Enter (and Enter in Code) inserts a line break; Backspace at the start deletes an empty block or joins with the previous one; arrows at the edges move between blocks; Alt+Shift+↑/↓ in a text box or on a handle moves the block. Markdown: <code>#&nbsp;</code>, <code>##&nbsp;</code>, <code>###&nbsp;</code>, <code>-&nbsp;</code>, <code>*&nbsp;</code>, <code>1.&nbsp;</code>, <code>[]&nbsp;</code>, <code>&gt;&nbsp;</code>, <code>```</code>, <code>---</code>.</td></tr>
+        <tr><td>Moves</td><td>A polite live region reads "Moved {type} “{first four words}” to position {n} of {total}", for example "Moved To-do “Pick up the name” to position 4 of 12".</td></tr>
+        <tr><td>Popups</td><td>"/" opens <a href="slash-menu.html"><code>ft-slash-menu</code></a> "Insert a block"; "[[" opens it as "Link to a page". Selecting text opens <a href="format-toolbar.html"><code>ft-format-toolbar</code></a>. The text box carries <code>aria-controls</code> and <code>aria-activedescendant</code> while a list is open.</td></tr>
+        <tr><td>Read view</td><td>Headings h2–h4, real <code>ul</code>/<code>ol</code>, <code>blockquote</code>, a focusable <code>pre</code> named "Code", a disabled checkbox named by its text, link cards named "{caption or host} (opens in a new tab)" with the host hidden from the name, images with their alt text.</td></tr>
+      </tbody></table>
+      <p>Known limitation: with a mouse, the CDK opens the "Turn into" submenu on hover, and a click then toggles it closed; Enter and → open it reliably.</p>
       <table class="ds-table"><thead><tr><th scope="col">Class / attribute</th><th scope="col">Effect</th></tr></thead><tbody>
         <tr><td><code>.block-editor</code></td><td>The surface: centred column of measure + handle width; sets <code>--block-handle-size</code>.</td></tr>
         <tr><td><code>.block-editor--readonly</code></td><td>Drops the handle column and indents.</td></tr>
-        <tr><td><code>.block-editor--disabled</code></td><td>Paused after a conflict: dims and blocks pointer input.</td></tr>
-        <tr><td><code>.block-editor__head</code>, <code>__icon</code>, <code>__title</code>, <code>__meta</code></td><td>Icon, title (<code>ft-page-title</code>) and meta line.</td></tr>
+        <tr><td><code>.block-editor--disabled</code></td><td>Not used by the build: after a 409 or 403 the page renders the read view (<code>[readonly]</code>) under the conflict or access banner.</td></tr>
+        <tr><td><code>.block-editor__head</code>, <code>__icon</code>, <code>__title</code></td><td>Icon and title (<code>ft-page-title</code>). <code>__meta</code> is kept in the CSS but the built page shows no meta line.</td></tr>
         <tr><td><code>.block-editor__blocks</code></td><td>The "Page content" group; resets the list counter.</td></tr>
         <tr><td><code>.block-editor__live</code></td><td>Visually hidden polite live region for moves.</td></tr>
         <tr><td><code>.block-editor__section</code></td><td>A section under the blocks (<a href="page-links.html">page links</a>), aligned with the text column.</td></tr>
@@ -479,7 +500,7 @@ Kestrel Labs, 4th floor, Studio B</code></pre></div>
         <tr><td><code>[contenteditable][data-placeholder]</code></td><td>Shows the placeholder while the region is empty.</td></tr>
       </tbody></table>
       <h3>Icon picker</h3>
-      <p>The page icon (Page settings) and a callout's icon (Change icon) are chosen from a grid of emoji radios (<code>.emoji-grid</code> of <code>.swatch</code>, each <code>&lt;input type="radio"&gt;</code> named by the emoji's name, such as "Blue book"), with "No icon" first for pages. There is no library component for it yet: add one to <code>components</code> before building the note-settings dialog, rather than hand-writing it in <code>notes</code>.</p>
+      <p>The page icon (Page settings, with "No icon") and a callout's icon (Change icon, without "No icon") use <a href="emoji-picker.html"><code>ft-emoji-picker</code></a>.</p>
     </section>
 
     <section class="ds-section" id="sources"><h2><a href="#sources">Sources</a></h2>
@@ -488,7 +509,7 @@ Kestrel Labs, 4th floor, Studio B</code></pre></div>
         <li>Requirements L2-086 to L2-091, L2-097 and L2-099; ADR 0023 (storage and ordering) and ADR 0024 (editor on contenteditable with Angular CDK).</li>
         <li>CSS: the "Notes: block editor" rules at the end of <code>assets/components.css</code>.</li>
       </ul>
-      <p>Drift resolved in favour of the requirements (the mocks are older): handles read "Move or open menu for {type} block" (now "Move or open the menu for block {n} of {total}, {type}"); text boxes were named "{type} block" (now the type alone); the empty-block hint lacked "or"; the keyboard-move announcement lacked the block's first words; the image caption's "Edit alt text" opened the add-image dialog (it is now a block-menu item opening its own "Edit alt text" dialog).</p>
+      <p>Drift resolved in favour of the requirements and the build, and since fixed in the mocks: handles read "Move or open menu for {type} block" (now "Move or open the menu for block {n} of {total}, {type}"); text boxes were named "{type} block" (now the type alone); the empty-block hint lacked "or"; the keyboard-move announcement lacked the block's first words; the image caption's "Edit alt text" opened the add-image dialog (it is now a block-menu item opening its own <a href="../../mocks/dialogs/edit-alt-text/default.html">Edit alt text</a> dialog); headings in the editor are text boxes, not <code>h2</code>–<code>h4</code>; the page shows no meta line and no "Add an icon" button.</p>
     </section>
 
     <footer class="ds-footer"><span>FaithTech Community design system · extracted from <a href="../../mocks/index.html">docs/mocks</a> on 2026-10-22</span><a href="#top">Back to top</a></footer>

@@ -32,32 +32,38 @@ box "Backend — FaithTech.Community.Infrastructure" #FFF4E5
   database "Community database" as db
 end box
 actor -> ed : Types in a block
-ed -> page : changes(blocks)
-page -> auto : changed({ title, icon, blocks })
+ed -> page : blocksChange(blocks)
+page -> auto : changed()
 auto -> auto : Restart the 800 ms timer (L2-086)
 ...800 ms with no change...
 auto -> auto : No save in flight: take the latest snapshot
-auto --> page : status Saving…
+auto --> page : state saving: "Saving…"
 auto -> svc : save(id, { title, icon, blocks, version: 7 })
 svc -> ep : PUT /api/notes/{id}
 ep -> h : HandleAsync(id, request)
 h -> db : Load page (NoteAccess.FindAsync)
 alt not visible
   ep --> svc : 404
+  auto -> auto : stopped = missing
+  page --> actor : "This page isn't available"
 else visible but caller cannot change it
   ep --> svc : 403
+  auto -> auto : stopped = forbidden
+  page --> actor : "You can't change this page" and "Reload page"
+else archived
+  ep --> svc : 400 "Restore this page before you change it."
 else request.Version != page.Version (L2-094)
-  h --> ep : Conflict(version 8, updatedBy, updatedAt)
-  ep --> svc : 409 ProblemDetails { version, updatedBy, updatedAt }
-  auto -> auto : Stop autosaving; keep local blocks
-  page --> actor : Conflict banner and "Reload page"; editor read-only
+  h --> ep : Conflict(currentVersion 8, updatedByName,\nupdatedByYou, updatedAt)
+  ep --> svc : 409 ProblemDetails "This page changed somewhere else."\n{ currentVersion, updatedByName, updatedByYou, updatedAt }
+  auto -> auto : stopped = conflict; autosave stops
+  page --> actor : Latest local blocks read-only, banner\n"{Who} saved a newer version at {time}" and "Reload page"
 else versions match
-  h -> val : Validate(page, blocks)
+  h -> val : Check(blocks, page's image ids);\ntitle, icon and new page links
   alt invalid
     ep --> svc : 400 ValidationProblem
-    auto --> page : status Couldn't save, Retry
+    auto --> page : state failed: "Couldn't save" and Retry
   else valid
-    h -> h : Normalise (strip page-link text), BodyText,\nrebuild NoteLinks, Version = 8
+    h -> h : Strip page-link text, BodyText,\nrebuild NoteLinks, NotePage.Save: Version = 8
     h -> db : One save; Version is the concurrency token
     alt another save committed first
       db --> h : DbUpdateConcurrencyException
@@ -65,7 +71,7 @@ else versions match
     else committed
       ep --> svc : 200 NoteSavedDto { version: 8, updatedAt }
       auto -> auto : version = 8; if changes arrived while in flight, save again
-      auto --> page : status Saved
+      auto --> page : state saved: "Saved"
     end
   end
 end

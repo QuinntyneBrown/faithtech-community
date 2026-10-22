@@ -28,14 +28,15 @@ box "Backend — FaithTech.Community.Application and Domain" #ECFDF3
   participant "NoteBlocksValidator" as val
 end box
 box "Backend — FaithTech.Community.Infrastructure" #FFF4E5
-  participant "AzureBlobFileStorage" as fs
+  participant "IImageProcessor (SkiaImageProcessor)" as ip
+  participant "IFileStorage (Azure Blob)" as fs
   database "Community database" as db
 end box
-actor -> dlg : "/image" → Add an image: choose file, "Describe this image"
-alt no alt text
-  dlg --> actor : "Describe this image" error (L2-097)
+actor -> dlg : "/image" → Add an image: choose a file, enter Alt text
+alt no alt text, or over 250 characters
+  dlg --> actor : "Describe this image" or the length error (L2-097)
 else wrong type or over 5 MB (checked in the browser first)
-  dlg --> actor : "Choose a JPEG, PNG or WebP image of 5 MB or less."
+  dlg --> actor : "Use a JPEG, PNG or WebP image up to 5 MB."
 else valid
   dlg -> svc : uploadImage(id, file)
   svc -> ep : POST /api/notes/{id}/images (multipart file)
@@ -44,19 +45,27 @@ else valid
     ep --> svc : 404
   else not owner or System Admin
     ep --> svc : 403
-  else over 5 MB or magic bytes not JPEG / PNG / WebP
-    ep --> svc : 400 ValidationProblem
+  else archived
+    ep --> svc : 400 "Restore this page before you change it."
+  else empty, over 5 MB or not .jpg, .jpeg, .png or .webp
+    ep --> svc : 400 "Use a JPEG, PNG or WebP image up to 5 MB."
   else ok
-    h -> fs : SaveAsync("notes/{pageId}/{imageId}.{ext}", stream, contentType)
+    h -> ip : ProcessAsync(stream, fileName)
+    alt real format does not match, or cannot be decoded
+      ep --> svc : 400 (same message)
+    end
+    ip --> h : ProcessedImage (resized, metadata stripped)
+    h -> fs : SaveAsync("notes/{pageId}/{imageId}.{ext}", bytes, contentType)
     alt storage fails
-      ep --> svc : 503 "We couldn't upload the image. Try again."
+      ep --> svc : 503 "We couldn't store the image. Try again in a minute."
+      dlg --> actor : "Image not added" and "Try again"
     else stored
-      h -> db : page.AddImage(NoteImage); save (Version unchanged)
-      ep --> svc : 201 NoteImageDto
+      h -> db : Add NoteImage row; save (page Version unchanged)
+      ep --> svc : 201 { imageId }
       dlg -> page : close({ imageId, alt })
-      page -> page : editor.insertBlock(i, { type: image, imageId, alt })
+      page -> page : editor.place(request, { type: image, imageId, alt })
       page -> ep : PUT /api/notes/{id} (autosave)
-      ep -> val : ImageId in page.Images; alt 1..250 characters, else 400
+      ep -> val : ImageId uploaded to this page; alt 1..250 characters, else 400
     end
   end
 end

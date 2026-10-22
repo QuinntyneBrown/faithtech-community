@@ -33,39 +33,51 @@ class NotePage {
   +DateTimeOffset? ArchivedAt
   +NotePage(ownerId, title, parentId, now)
   +Save(title, icon, content, bodyText, by, now): void
+  +Touch(by, now): void
 }
 NotePage --> NoteVisibility
 class NoteAccess {
   +bool IsSystemAdmin
+  +List<Role> Roles
   +CallerAsync(): Task<Guid>
-  +IsVerifiedAsync(caller): Task<bool>
+  +VerifiedAsync(caller): Task<Result?>
   +Visible(pages, caller): IQueryable<NotePage>
   +FindAsync(id, caller): Task<NotePage?>
   +CanChange(page, caller): bool
   +IsOverride(page, caller): bool
 }
+class NoteViews {
+  +DetailAsync(page, caller): Task<NotePageDto>
+  +SummariesAsync(pages, caller): Task<IReadOnlyList<NotePageSummaryDto>>
+}
 class ListNotesHandler {
   +PageSize = 25
+  +{static} Document: Expression<Func<NotePage, string>>
   +HandleAsync(query: ListNotesQuery): Task<(Result, PagedResult<NotePageSummaryDto>?)>
 }
 class ListNotesQuery <<record>> {
   +string? Q
-  +string Owner  (all | mine | shared)
+  +string? Owner  (all | mine | shared)
   +int Page
 }
+class CreateNoteCommand <<record>> {
+  +string? Title
+  +Guid? ParentId
+}
 class CreateNoteHandler {
-  +HandleAsync(request: CreateNoteRequest): Task<(Result, NotePageDto?)>
+  +HandleAsync(command: CreateNoteCommand): Task<(Result, NotePageDto?)>
 }
 class GetNoteHandler {
   +HandleAsync(id: Guid): Task<NotePageDto?>
 }
 class SaveNoteHandler {
-  +HandleAsync(id: Guid, request: SaveNoteRequest): Task<(Result, NoteSavedDto?)>
+  +ConflictMessage = "This page changed somewhere else."
+  +HandleAsync(id: Guid, command: SaveNoteCommand): Task<(Result, NoteSavedDto?)>
 }
-class SaveNoteRequest <<record>> {
-  +string Title
+class SaveNoteCommand <<record>> {
+  +string? Title
   +string? Icon
-  +IReadOnlyList<NoteBlock> Blocks
+  +IReadOnlyList<NoteBlock>? Blocks
   +int Version
 }
 class NoteSavedDto <<record>> {
@@ -76,43 +88,56 @@ class NotePageSummaryDto <<record>> {
   +Guid Id
   +string Title
   +string? Icon
-  +NoteOwnerDto Owner
-  +NoteVisibility Visibility
-  +string? Badge
+  +Guid OwnerId
+  +string OwnerName
+  +bool IsOwn
+  +string Visibility
+  +bool SharedWithYou
   +DateTimeOffset UpdatedAt
-  +string UpdatedBy
+  +string UpdatedByName
+  +string? ParentTitle
 }
 class NotePageDto <<record>> {
-  +Guid Id
-  +string Title
-  +string? Icon
+  +(every summary field)
+  +Guid? ParentId
+  +string? SharedVia
+  +NoteAudienceDto Audience
   +IReadOnlyList<NoteBlock> Blocks
   +int Version
-  +NoteOwnerDto Owner
-  +NoteVisibility Visibility
-  +DateTimeOffset UpdatedAt
-  +string UpdatedBy
+  +DateTimeOffset CreatedAt
   +DateTimeOffset? ArchivedAt
-  +IReadOnlyList<NoteCrumbDto> Breadcrumb
-  +IReadOnlyList<NoteRefDto> Children
-  +IReadOnlyList<NoteRefDto> Backlinks
-  +NoteAudienceDto? Audience
   +bool CanEdit
-  +bool IsOwn
+  +bool IsAdminView
+  +IReadOnlyList<NotePageRefDto> Breadcrumb
+  +IReadOnlyList<NotePageRefDto> Children
+  +IReadOnlyList<NotePageRefDto> Backlinks
+  +IReadOnlyList<NotePageRefDto> Links
 }
-class NoteBlocksValidator {
-  +Validate(page: NotePage, blocks): Result
-  +Normalise(blocks): IReadOnlyList<NoteBlock>
+class NoteBlocksValidator <<static>> {
+  +Check(blocks, images): Dictionary<string, string[]>
+  +BodyText(blocks): string
+}
+class "NoteAutosave (TypeScript)" as NoteAutosave {
+  +state: signal<unsaved | saving | saved | failed>
+  +stopped: signal<conflict | forbidden | missing | null>
+  +changed(): void
+  +retry(): void
+  +reset(version): void
+  +cancel(): void
 }
 ListNotesHandler ..> ListNotesQuery
-ListNotesHandler ..> NotePageSummaryDto
 ListNotesHandler --> NoteAccess : Visible
-CreateNoteHandler --> NoteAccess : IsVerifiedAsync
+ListNotesHandler --> NoteViews : SummariesAsync
+CreateNoteHandler ..> CreateNoteCommand
+CreateNoteHandler --> NoteAccess : VerifiedAsync, FindAsync
 GetNoteHandler --> NoteAccess : FindAsync
-GetNoteHandler ..> NotePageDto
-SaveNoteHandler --> NoteAccess : CanChange
+GetNoteHandler --> NoteViews : DetailAsync
+NoteViews ..> NotePageDto
+NoteViews ..> NotePageSummaryDto
+SaveNoteHandler --> NoteAccess : CanChange, IsOverride
 SaveNoteHandler --> NoteBlocksValidator
-SaveNoteHandler ..> SaveNoteRequest
+SaveNoteHandler ..> SaveNoteCommand
 SaveNoteHandler ..> NoteSavedDto
 SaveNoteHandler --> NotePage : Save
+NoteAutosave ..> SaveNoteCommand : sends as JSON
 @enduml

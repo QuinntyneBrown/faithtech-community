@@ -39,19 +39,19 @@ h -> acc : FindAsync(id, caller)
 acc -> db : Visible page, or archived for owner / System Admin
 alt missing, archived or not visible (L2-092)
   ep --> svc : 404
-  page --> actor : "This page isn't available" and "Back to Notes"
+  page --> actor : "This page isn't available" and "Browse notes"
 else found
-  opt System Admin opens a Private or Shared page they do not own (L2-098)
+  opt System Admin opens a Private, Shared or archived page they do not own (L2-098)
     h -> audit : Record(note.opened, NotePage, id)
     h -> db : Save the audit entry
   end
-  h -> db : Owner, breadcrumb, children, backlinks, page-link titles
-  h -> h : canEdit = owner or System Admin, and not archived
+  h -> db : NoteViews.DetailAsync: owner, audience, breadcrumb,\nchildren, backlinks, page-link titles (NoteRefs)
+  h -> h : canEdit = owner or System Admin; isAdminView
   ep --> svc : 200 NotePageDto
-  alt canEdit
+  alt canEdit and not archived
     page --> actor : Editable title, icon and ft-block-editor
   else reader
-    page --> actor : Read-only view (ft-block-editor readonly)
+    page --> actor : Read-only view (ft-block-editor readonly)\nand the banner that applies
   end
 end
 @enduml

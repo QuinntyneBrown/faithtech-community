@@ -17,7 +17,7 @@ skinparam package {
 actor "Owner" as actor
 box "Frontend — FaithTech Community web app (components library)" #E0F2FE
   participant "BlockEditorComponent" as ed
-  participant "PageLinkMenuComponent" as plm
+  participant "SlashMenuComponent\n(Link to a page)" as plm
 end box
 box "Frontend — FaithTech Community web app (notes library and api library)" #E0F2FE
   participant "NotePage" as page
@@ -27,27 +27,31 @@ box "Backend — FaithTech.Community.Api" #D1FADF
   participant "NotesEndpoints" as ep
 end box
 box "Backend — FaithTech.Community.Application and Domain" #ECFDF3
-  participant "NoteLinkSuggestionsHandler" as h
+  participant "LinkSuggestionsHandler" as h
   participant "SaveNoteHandler" as save
 end box
 box "Backend — FaithTech.Community.Infrastructure" #FFF4E5
   database "Community database" as db
 end box
 actor -> ed : Types "[[run"
-ed -> page : pageLinkSearch("run") (input function)
+ed -> page : pageSearch("run") (input function)
 page -> svc : linkSuggestions("run", exclude: id)
 svc -> ep : GET /api/notes/links?q=run&exclude={id}
 ep -> h : HandleAsync("run", id)
-h -> db : NoteAccess.Visible, not archived, title contains "run", at most 8
-ep --> svc : 200 [NoteLinkOptionDto]
+h -> db : NoteAccess.Visible (active only), title contains "run",\nmost recently edited first, at most 10
+ep --> svc : 200 [NotePageRefDto]
 ed -> plm : options
-plm --> actor : "Builders Night run sheet · Ana Silva"
+plm --> actor : "📋 Builders Night run sheet"
 actor -> plm : Enter
-plm -> ed : picked(option)
+plm -> ed : chosen(pageId)
 ed -> ed : Replace "[[run" with span { text: title, pageId } (L2-090)
-ed -> page : changes(blocks)
+ed -> page : blocksChange(blocks)
 page -> ep : PUT /api/notes/{id} (autosave)
 ep -> save : HandleAsync
-save -> save : Strip span text for pageId spans (stored as "")
-save -> db : Delete NoteLinks where SourceId = id;\ninsert distinct existing targets, not self
+alt new target the saver may not open, or no such page
+  ep --> page : 400 "Link to a page you can open."
+else allowed
+  save -> save : Store pageId spans with text ""
+  save -> db : Remove NoteLinks no longer linked;\nadd new existing targets, not self
+end
 @enduml

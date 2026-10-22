@@ -31,7 +31,7 @@ box "Backend — FaithTech.Community.Infrastructure" #FFF4E5
   database "Community database" as db
 end box
 actor -> dlg : Share → Shared; pick Hannah Kim; tick Volunteer; Save
-dlg -> svc : share(id, { visibility: Shared, memberIds, roles })
+dlg -> svc : setVisibility(id, { visibility: Shared, memberIds, roles })
 svc -> ep : PUT /api/notes/{id}/visibility
 ep -> h : HandleAsync(id, request)
 h -> db : NoteAccess.FindAsync
@@ -39,20 +39,24 @@ alt not visible
   ep --> svc : 404
 else visible, caller is not owner or System Admin (re-share)
   ep --> svc : 403 (L2-093)
-else Shared with no member and no role, unknown member or role not offered
+else archived
+  ep --> svc : 400 "Restore this page before you change it."
+else unknown visibility, role not offered or unknown member
+  ep --> svc : 400 field error
+else Shared with no member and no role
   ep --> svc : 400 "Choose at least one person or role, or pick another visibility."
 else may change
   h -> n : before = RecipientsAsync(page)
   h -> h : page.SetAudience(Shared, members, roles)
-  h -> n : NotifyAsync(page, actor, alreadyReached: before)
-  n -> db : Named members + current holders of named roles,\nminus owner and suspended
-  n -> pub : PublishAsync(new recipients, NotePageShared,\n"{Owner} shared {title} with you", /notes/{id}, owner, email)
   opt System Admin override (L2-098)
     h -> h : IAuditLog.Record(note.shared, before audience, after audience)
   end
+  h -> n : NotifyAsync(page, caller, alreadyReached: before)
+  n -> db : Named members + current holders of named roles,\nwith an account, minus owner and suspended
+  n -> pub : PublishAsync(new recipients, NotePageShared,\n"{Owner} shared {title} with you", /notes/{id}, caller, email)
   h -> db : One save: audience, notifications, outbox, audit
-  ep --> svc : 200 NoteAudienceDto
-  dlg --> actor : Close; toast "Shared"; page lists the audience
+  ep --> svc : 200 NotePageDto
+  dlg --> actor : Close; toast "Sharing updated for {title}"
 end
 note over db
   Shared → Private or Global clears the audience and notifies nobody.

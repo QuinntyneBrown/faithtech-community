@@ -15,7 +15,8 @@ class NotePage {
   +Guid OwnerId
   +Guid? ParentId
   +string Title
-  +MoveTo(parentId: Guid?, by, now): void
+  +string? Icon
+  +MoveTo(parentId: Guid?): void
 }
 class NoteLink {
   +Guid SourceId
@@ -27,52 +28,53 @@ NoteLink --> NotePage : TargetId
 class NoteSpan <<record>> {
   +string Text
   +Guid? PageId
-  +bool? CanOpen
 }
-class NoteCrumbDto <<record>> {
+class NotePageRefDto <<record>> {
   +Guid? Id
   +string Title
-  +bool CanOpen
-}
-class NoteRefDto <<record>> {
-  +Guid Id
-  +string Title
   +string? Icon
 }
-class NoteLinkOptionDto <<record>> {
-  +Guid Id
-  +string Title
-  +string? Icon
-  +string OwnerName
+class NoteRefs {
+  +{static} PrivatePage = "Private page"
+  +{static} Untitled = "Untitled"
+  +VisibleAsync(ids, caller): Task<Dictionary<Guid, NotePageRefDto>>
+  +{static} LinkedIds(blocks): IEnumerable<Guid>
+  +{static} Resolve(blocks, visible): IReadOnlyList<NoteBlock>
+  +BreadcrumbAsync(page, caller): Task<IReadOnlyList<NotePageRefDto>>
+  +ChildrenAsync(pageId, caller): Task<IReadOnlyList<NotePageRefDto>>
+  +BacklinksAsync(pageId, caller): Task<IReadOnlyList<NotePageRefDto>>
 }
-class NoteLinkResolver {
-  +{static} PrivateTitle = "Private page"
-  +FillAsync(blocks, caller): Task<IReadOnlyList<NoteBlock>>
-  +BreadcrumbAsync(page, caller): Task<IReadOnlyList<NoteCrumbDto>>
-  +ChildrenAsync(page, caller): Task<IReadOnlyList<NoteRefDto>>
-  +BacklinksAsync(page, caller): Task<IReadOnlyList<NoteRefDto>>
+class NoteViews {
+  +DetailAsync(page, caller): Task<NotePageDto>
 }
-class NoteLinkSuggestionsHandler {
-  +MaxResults = 8
-  +HandleAsync(q, exclude): Task<IReadOnlyList<NoteLinkOptionDto>>
+class LinkSuggestionsHandler {
+  +Limit = 10
+  +HandleAsync(q, exclude): Task<IReadOnlyList<NotePageRefDto>>
+}
+class ParentOptionsHandler {
+  +Limit = 50
+  +HandleAsync(id, q): Task<IReadOnlyList<NotePageRefDto>?>
 }
 class MoveNoteHandler {
-  +OptionsAsync(id, q): Task<(Result, IReadOnlyList<NoteRefDto>?)>
-  +HandleAsync(id, parentId): Task<(Result, NotePageDto?)>
-  -IsDescendantAsync(candidate, page): Task<bool>
+  +HandleAsync(id, command: MoveNoteCommand): Task<(Result, NotePageDto?)>
+  +{static} DescendantsAsync(db, pageId): Task<HashSet<Guid>>
 }
 class NoteAccess {
   +Visible(pages, caller): IQueryable<NotePage>
+  +FindAsync(id, caller): Task<NotePage?>
 }
-NoteLinkResolver --> NoteAccess
-NoteLinkResolver ..> NoteCrumbDto
-NoteLinkResolver ..> NoteRefDto
-NoteLinkResolver ..> NoteSpan : fills Text, CanOpen
-NoteLinkSuggestionsHandler --> NoteAccess
-NoteLinkSuggestionsHandler ..> NoteLinkOptionDto
+class SaveNoteHandler {
+  +LinkMessage = "Link to a page you can open."
+}
+NoteViews --> NoteRefs
+NoteRefs --> NoteAccess : Visible
+NoteRefs ..> NotePageRefDto
+NoteRefs ..> NoteSpan : fills Text
+LinkSuggestionsHandler --> NoteAccess : Visible
+LinkSuggestionsHandler ..> NotePageRefDto
+ParentOptionsHandler --> MoveNoteHandler : DescendantsAsync
 MoveNoteHandler --> NotePage : MoveTo
-class GetNoteHandler
-GetNoteHandler --> NoteLinkResolver
-class SaveNoteHandler
+MoveNoteHandler --> NoteAccess : FindAsync
+SaveNoteHandler --> NoteRefs : VisibleAsync (new targets)
 SaveNoteHandler ..> NoteLink : rebuilds
 @enduml

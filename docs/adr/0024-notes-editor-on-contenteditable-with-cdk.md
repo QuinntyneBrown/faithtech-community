@@ -7,7 +7,7 @@
 
 ## Context
 
-Docs & notes needs a block editor: eleven block types, inline marks, links, markdown shortcuts, a slash menu, page-link autocomplete, reordering by drag and by keyboard, and a read-only view. `AGENTS.md` requires every reusable UI piece to live once in `components`, at WCAG 2.2 AA, with no HTTP in `components`, Angular CDK for overlays and dialogs, and no inline forms in pages.
+Docs & notes needs a block editor: thirteen block types, inline marks, links, markdown shortcuts, a slash menu, page-link autocomplete, reordering by drag and by keyboard, and a read-only view. `AGENTS.md` requires every reusable UI piece to live once in `components`, at WCAG 2.2 AA, with no HTTP in `components`, Angular CDK for overlays and dialogs, and no inline forms in pages.
 
 The design had to settle whether to build the editor or adopt one, how it fits the "no inline forms" rule, how a keyboard or screen-reader user reorders blocks, and how formatting is captured without storing HTML.
 
@@ -15,27 +15,31 @@ The design had to settle whether to build the editor or adopt one, how it fits t
 
 ### Own editor in `components`, on contenteditable and the CDK
 
-- `BlockEditorComponent` (`ft-block-editor`) lives in `components`. Each text block is its own `contenteditable` element; the block list is an Angular-rendered array, so block-level structure (type, order, insertion, deletion) is Angular state, and the browser edits only the text inside one block.
-- Angular CDK provides the rest: `DragDropModule` for reordering by handle with a drop indicator, `Overlay` for the slash menu, page-link menu and formatting toolbar, `CdkMenu` (through `ft-menu`) for the block menu, `Dialog` (through `ft-dialog`) for every form, and `LiveAnnouncer` for move announcements.
-- The editor takes blocks and two functions as inputs (`pageLinkSearch`, `imageSrc`) and emits changes and requests, so it has no HTTP calls and no dependency on `api`.
+- `BlockEditorComponent` (`ft-block-editor`) lives in `components`. Each text block is its own stable `contenteditable` text box; the block list is an Angular-rendered array, so block-level structure (type, order, insertion, deletion) is Angular state, and the browser edits only the text inside one block. Typing is read back from the DOM, so the text box is not re-rendered under the caret.
+- Angular CDK provides drag-drop for reordering by handle with a drop indicator, `CdkMenu` for the block menu and its *Turn into* submenu, and `Dialog` (through `ft-dialog`) for every form. The slash menu, the `[[` suggestions (both `ft-slash-menu`) and the formatting toolbar are positioned inside the editor, and a polite live region in the editor announces moves.
+- The editor takes blocks and three functions as inputs (`pageLink`, `pageSearch`, `imageSrc`) and emits `blocksChange` and requests (`blockRequested`, `linkRequested`, `blockEditRequested`, `refused`), so it has no HTTP calls and no dependency on `api`.
 - Rejected: **ProseMirror and TipTap**. A schema-driven document model is more than one-owner block pages need; they add a large dependency with its own DOM ownership that fights Angular change detection; and their drag handles and menus would still need building to the design system and to WCAG 2.5.7. Rejected: **Quill**. It is a single rich-text field, not blocks, and its HTML-delta model does not map to the JSON block shape of ADR 0023. Rejected: **Editor.js**. It is block-based but plugin-driven, renders its own toolbars and menus outside the design system, and its keyboard and screen-reader support could not be brought to AA without forking it.
 
 ### A content editor is not a form
 
 - The "no inline forms in pages" rule targets forms: fields, validation and a submit. The editing surface is a document being written, saved continuously, with no submit; it is a content editor, not a form.
-- Every form the feature needs is a CDK dialog: share, page settings (title and icon), move, archive, restore, add image, add link and add link card. The page title is editable in place as the document's heading, and *Page settings* offers the same edit as a dialog.
+- Every form the feature needs is a CDK dialog: share, page settings (title and icon), change icon, move, archive, restore, add image, edit alt text, add link and add link card. The page title is editable in place as the document's heading, and *Page settings* offers the same edit as a dialog.
 
 ### Keyboard alternative to dragging (WCAG 2.5.7)
 
-- Every block has a handle button that is both the drag handle and the trigger of the block menu: *Turn into*, *Move up*, *Move down*, *Duplicate*, *Delete*.
+- Every block has a handle button that is both the drag handle and the trigger of the block menu: *Turn into*, *Change icon* (callout), *Edit alt text* (image), *Move up*, *Move down*, *Duplicate*, *Delete*.
 - Alt+Shift+↑ and Alt+Shift+↓ move the focused block one position and keep the caret in it.
-- A polite live region announces "Moved {block} to position {n} of {total}", and the edge case "already at position {n} of {total}".
+- A polite live region announces "Moved {block} to position {n} of {total}", where {block} is the type and up to four first words. At either end nothing moves and nothing is announced; *Move up* and *Move down* are disabled there.
 
 ### Formatting through a toolbar, shortcuts and a serializer
 
 - A formatting toolbar appears over a selection (Bold, Italic, Underline, Strikethrough, Inline code, Link) with the shortcuts Ctrl+B, Ctrl+I, Ctrl+U, Ctrl+Shift+S, Ctrl+E and Ctrl+K. Alt+F10 moves focus into the toolbar.
-- `RichTextSerializer` converts between a block's DOM and its spans. It renders text nodes inside a fixed set of elements (`strong`, `em`, `u`, `s`, `code`, `a`) and never assigns `innerHTML`; it does not use `document.execCommand`. Paste inserts plain text only.
+- `rich-text.ts` and `RichTextDirective` convert between a block's DOM and its spans. They build text nodes inside a fixed set of elements (`strong`, `em`, `u`, `s`, `code`, `a`) with `createElement` and never assign `innerHTML`; marks are applied on character offsets by `editor-model.ts`, not with `document.execCommand` (used only to insert plain text when pasting into the title). Paste inserts plain text only.
 - Markdown shortcuts at the start of a block and the slash menu cover block types; `[[` opens page-link autocomplete.
+
+## As built
+
+The editor, `ft-slash-menu`, `ft-format-toolbar`, `ft-page-links`, `ft-page-title`, `ft-save-status` and `ft-emoji-picker` are in `components`, documented in `docs/design-system/components/block-editor.html` and its sibling pages. Known limitation: with a mouse, the CDK menu opens *Turn into* on hover and a click then closes it; Enter and → open it reliably.
 
 ## Consequences
 

@@ -23,7 +23,7 @@ box "Backend — FaithTech.Community.Api" #D1FADF
 end box
 box "Backend — FaithTech.Community.Application and Domain" #ECFDF3
   participant "GetNoteHandler" as h
-  participant "NoteLinkResolver" as r
+  participant "NoteViews / NoteRefs" as r
   participant "NoteAccess" as acc
 end box
 box "Backend — FaithTech.Community.Infrastructure" #FFF4E5
@@ -33,15 +33,15 @@ actor -> page : Open /notes/{id}
 page -> ep : GET /api/notes/{id}
 ep -> h : HandleAsync(id)
 h -> db : Page (visible to the reader)
-h -> r : FillAsync(blocks, caller)
+h -> r : DetailAsync(page, caller)
 r -> acc : Visible(NotePages, caller)
-r -> db : Titles of visible targets among the page-link ids
-r -> r : Visible target: text = current title, canOpen = true\nMissing, archived or hidden: text = "Private page", canOpen = false (L2-090)
-h -> r : BreadcrumbAsync(page, caller)
-r -> db : Walk ParentId upwards
-r -> r : Hidden ancestor: { id: null, "Private page", canOpen: false } (L2-091)
-h -> r : ChildrenAsync / BacklinksAsync
-r -> db : Children: ParentId = id AND visible\nBacklinks: NoteLinks.TargetId = id AND source visible
+r -> db : VisibleAsync(page-link ids): titles of visible targets
+r -> r : Resolve: visible target -> current title (also in links[])\nmissing, archived or hidden -> "Private page", not in links[] (L2-090)
+r -> r : BreadcrumbAsync(page, caller)
+r -> db : Walk ParentId upwards (at most 50)
+r -> r : Hidden or archived ancestor: { id: null, "Private page" } (L2-091)
+r -> r : ChildrenAsync / BacklinksAsync
+r -> db : Children: ParentId = id AND visible\nBacklinks: NoteLinks.TargetId = id AND source visible\n(both most recently edited first)
 r --> h : Only visible pages; hidden ones are not counted
 ep --> page : 200 NotePageDto
 page --> actor : Links (hidden ones as plain "Private page"),\n"Notes › … › title", "Pages inside", "Linked from"

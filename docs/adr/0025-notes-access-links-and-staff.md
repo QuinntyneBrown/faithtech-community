@@ -21,10 +21,10 @@ Docs & notes pages hold drafts and team knowledge. `docs/proposals/notes.md` fix
 
 ### Every verified member may create; only the owner changes
 
-- Any signed-in member with a verified email may create pages; no role is needed. Create, share and image upload refuse an unverified caller with `403`.
+- Any signed-in member with a verified email may create pages; no role is needed. Create refuses an unverified caller with `403`; changes to a page the caller already owns do not check verification.
 - Only the owner edits, shares, moves, archives and restores a page. Readers of Shared and Global pages get a read-only view and cannot re-share.
 - **City Leads and every other lead have no special rights** over other members' pages. Pages are personal work, not city data.
-- **System Admin** may do anything to any page. Every action on a page they do not own, and every opening of a Private or Shared page they do not own, writes an audit entry: `note.opened`, `note.edited` (one per save, holding versions and title, not content), `note.shared`, `note.moved`, `note.archived`, `note.restored`.
+- **System Admin** may do anything to any page. Every action on a page they do not own, and every opening of a Private, Shared or archived page they do not own, writes an audit entry: `note.opened`, `note.edited` (one per save, holding versions and title, not content), `note.shared`, `note.moved`, `note.archived`, `note.restored`.
 
 ### The Staff carve-out is extended
 
@@ -33,7 +33,8 @@ Docs & notes pages hold drafts and team knowledge. `docs/proposals/notes.md` fix
 ### Page-link titles are resolved at read time
 
 - Page-link spans store only the target id. On every read the server fills the target's current title when the viewer may open it, and "Private page" (not linked) otherwise. A renamed page shows its new title everywhere with no rewrite, and a title never reaches a viewer who may not open the page.
-- A missing, archived or hidden target all read "Private page", so a link reveals nothing about existence.
+- A missing, archived or hidden target all read "Private page", so a link reveals nothing about existence. An archived target reads "Private page" for its owner too.
+- A save may keep a page link already on the page, but a new link shall point to a page the saver may open; otherwise it answers `400` "Link to a page you can open.", the same for a page that does not exist.
 
 ### Backlinks, children and breadcrumbs show only visible pages
 
@@ -42,7 +43,7 @@ Docs & notes pages hold drafts and team knowledge. `docs/proposals/notes.md` fix
 
 ### A parent belongs to the same owner
 
-- A page's parent shall be owned by the page's owner, be active, and be neither the page nor one of its descendants. Otherwise the move or create answers `400` "Choose another page.", the same answer for a parent the caller cannot see.
+- A page's parent shall be owned by the page's owner, be active, and be neither the page nor one of its descendants. Otherwise the move or create answers `400` "Choose another page."; a parent the caller cannot open answers `404`, as any page they cannot open does.
 - Keeping a subtree under one owner means the only person who can rearrange it is the person who owns all of it, and a member can never attach a page under someone else's page.
 
 ### Archive is a soft delete without purge

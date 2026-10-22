@@ -32,7 +32,7 @@ end box
 actor -> page : Open /notes/{id}
 page -> ep : GET /api/notes/{id}
 alt anonymous
-  ep --> page : 401 (RequireAuthorization)
+  ep --> page : 401 (authentication required by default)
 else signed in
   ep -> h : HandleAsync(id)
   h -> acc : FindAsync(id, caller)
@@ -40,10 +40,10 @@ else signed in
   alt no row (Staff and City Leads included: no read-all)
     ep --> page : 404
   else row
-    opt System Admin, not owner, page Private or Shared
+    opt System Admin, not owner, page Private, Shared or archived
       h -> audit : note.opened
     end
-    ep --> page : 200 NotePageDto { canEdit = owner or System Admin }
+    ep --> page : 200 NotePageDto { canEdit = owner or System Admin, isAdminView }
   end
 end
 actor -> page : Edits (owner, or System Admin on someone else's page)
