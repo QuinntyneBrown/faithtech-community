@@ -7,7 +7,7 @@ public static class TeamEndpoints
 {
     public static IEndpointRouteBuilder MapTeamEndpoints(this IEndpointRouteBuilder app)
     {
-        app.MapGet("/api/team", async (string? role, string? city, ListTeamHandler handler, CancellationToken cancellationToken) =>
+        app.MapGet("/api/team", async (string? role, string? city, string? after, int? pageSize, ListTeamHandler handler, CancellationToken cancellationToken) =>
         {
             TeamRoleFilter? filter = null;
             if (!string.IsNullOrEmpty(role))
@@ -21,7 +21,9 @@ public static class TeamEndpoints
                 filter = Enum.Parse<TeamRoleFilter>(role, ignoreCase: true);
             }
 
-            return Results.Ok(await handler.HandleAsync(new ListTeamQuery(filter, city), cancellationToken));
+            return await handler.HandleAsync(new ListTeamQuery(filter, city, after, pageSize), cancellationToken) is { } page
+                ? Results.Ok(page)
+                : Results.ValidationProblem(new Dictionary<string, string[]> { ["after"] = ["That page link is out of date. Reload the list."] });
         });
 
         return app;
