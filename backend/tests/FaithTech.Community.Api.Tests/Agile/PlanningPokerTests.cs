@@ -104,6 +104,41 @@ public class PlanningPokerTests(CommunityApiFactory factory) : IClassFixture<Com
     }
 
     [Fact]
+    public async Task Given_a_system_admin_when_they_run_a_session_in_any_workspace_then_it_succeeds_and_each_action_is_audited()
+    {
+        var cast = await factory.AddCastAsync();
+        var story = await factory.AddStoryAsync(cast.WorkspaceId, "Kiosk");
+        var admin = factory.AdminClient(cast);
+
+        var start = await admin.PostAsJsonAsync(
+            $"/api/workspaces/{cast.WorkspaceId}/poker-sessions", new { StoryIds = new[] { story }, InvitedIds = new[] { cast.Member.ProfileId } });
+        var session = (await start.Content.ReadFromJsonAsync<Session>())!;
+        var vote = await admin.PutAsJsonAsync($"/api/poker-sessions/{session.Id}/vote", new { Value = "5" });
+        var reveal = await admin.PostAsync($"/api/poker-sessions/{session.Id}/reveal", null);
+        var points = await admin.PostAsJsonAsync($"/api/poker-sessions/{session.Id}/points", new { Points = 5 });
+
+        Assert.Equal(
+            (HttpStatusCode.Created, HttpStatusCode.NoContent, HttpStatusCode.NoContent, HttpStatusCode.NoContent),
+            (start.StatusCode, vote.StatusCode, reveal.StatusCode, points.StatusCode));
+        Assert.Equal((cast.Admin.ProfileId, true), (session.FacilitatorId, session.CanVote));
+        Assert.Equal(5, (await factory.LoadItemAsync(story)).StoryPoints);
+        var entries = await factory.WithDbAsync(db => db.AuditEntries.Where(a => a.TargetId == session.Id.ToString()).ToListAsync());
+        Assert.Equal(["poker.points.set", "poker.revealed", "poker.started", "poker.voted"], entries.Select(e => e.Action).Order());
+        Assert.All(entries, e => Assert.Equal(cast.Admin.ProfileId, e.ActorId));
+    }
+
+    [Fact]
+    public async Task Given_a_member_running_a_session_then_nothing_is_audited()
+    {
+        var (cast, _, _, id) = await StartAsync();
+
+        await factory.MemberClient(cast).PutAsJsonAsync($"/api/poker-sessions/{id}/vote", new { Value = "5" });
+        await factory.MemberClient(cast).PostAsync($"/api/poker-sessions/{id}/reveal", null);
+
+        Assert.False(await factory.WithDbAsync(db => db.AuditEntries.AnyAsync(a => a.TargetId == id.ToString())));
+    }
+
+    [Fact]
     public async Task Given_no_session_when_a_member_opens_planning_poker_then_204()
     {
         var cast = await factory.AddCastAsync();

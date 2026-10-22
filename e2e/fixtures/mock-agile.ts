@@ -583,7 +583,6 @@ export class MockAgile {
     access: MockAccess,
   ) {
     if (access === 'Staff') return route.fulfill({ status: 403 });
-    if (!this.isMember(workspace, caller!.profileId)) return route.fulfill({ status: 403 });
     const storyIds = (body['storyIds'] as string[] | undefined) ?? [];
     if (!storyIds.length)
       return invalid(route, 'StoryIds', 'Choose at least one story to estimate.');
@@ -993,8 +992,8 @@ export class MockAgile {
 
   access(workspace: MockWorkspace, caller: MockAccount): MockAccess {
     if (workspace.ownerId === caller.profileId) return 'Owner';
-    if (workspace.memberIds.includes(caller.profileId)) return 'Member';
     if (caller.roles.includes('SystemAdmin')) return 'Admin';
+    if (workspace.memberIds.includes(caller.profileId)) return 'Member';
     if (caller.roles.includes('Staff')) return 'Staff';
     return 'Outsider';
   }

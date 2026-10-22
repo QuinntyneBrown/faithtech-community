@@ -51,10 +51,19 @@ public class PokerSessionTests
     }
 
     [Fact]
-    public void Only_workspace_members_can_facilitate_or_be_invited()
+    public void Only_workspace_members_can_be_invited()
     {
-        Assert.Throws<InvalidOperationException>(() => new PokerSession(_workspace, [_first], Guid.NewGuid(), [_voter]));
         Assert.Throws<InvalidOperationException>(() => new PokerSession(_workspace, [_first], _facilitator, [Guid.NewGuid()]));
+    }
+
+    [Fact]
+    public void A_facilitator_from_outside_the_workspace_is_the_applications_decision_and_takes_part()
+    {
+        var admin = Guid.NewGuid();
+
+        var session = new PokerSession(_workspace, [_first], admin, [_voter]);
+
+        Assert.True(session.IsParticipant(admin));
     }
 
     [Fact]

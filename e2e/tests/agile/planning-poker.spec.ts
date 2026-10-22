@@ -182,6 +182,35 @@ test.describe('Planning Poker', () => {
     await expect(poker.end).toHaveCount(0);
   });
 
+  test('a System Admin starts and facilitates a session in any workspace', async ({
+    page,
+    api,
+    axe,
+  }) => {
+    const { ws } = team(api);
+    const priya = api.addAccount({
+      email: 'priya@example.org',
+      name: 'Priya Shah',
+      roles: ['SystemAdmin'],
+    });
+    const poker = new PlanningPokerPage(page);
+    await api.signInAs(priya, `/workspaces/${ws.id}/poker`);
+    await expect(poker.noSession).toBeVisible();
+
+    await poker.startSession.click();
+    const dialog = new StartPokerDialog(page);
+    await dialog.story('Volunteer check-in kiosk').check();
+    await dialog.member('Ruth Alvarez').check();
+    await dialog.start.click();
+
+    await expect(dialog.dialog).toBeHidden();
+    await expect(poker.frame.subtitle).toHaveText(
+      'Planning Poker · live · facilitator: Priya Shah',
+    );
+    await expect(poker.deck).not.toHaveCount(0);
+    await axe.check();
+  });
+
   test('Staff watch but do not vote', async ({ page, api, axe }) => {
     const { marcus, ws, briefs } = team(api);
     const daniel = api.addAccount({

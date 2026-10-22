@@ -89,8 +89,9 @@ public record PokerSessionDto(
 
 /// <summary>
 /// Planning Poker (L2-038, ADR 0012). Any member starts a session and facilitates it; invitees vote; only the
-/// facilitator reveals, re-votes, sets points and ends it. Staff and System Admin watch. Every change is saved,
-/// then broadcast as a bare "changed" so clients re-read.
+/// facilitator reveals, re-votes, sets points and ends it. Staff watch. A System Admin may do anything a member
+/// may, as an audited override (L2-031 AC7, ADR 0011). Every change is saved, then broadcast as a bare "changed"
+/// so clients re-read.
 /// </summary>
 public class PlanningPokerHandler(
     IApplicationDbContext db,
@@ -106,11 +107,6 @@ public class PlanningPokerHandler(
         if (refusal is not null)
         {
             return (refusal, null);
-        }
-
-        if (!workspace.IsMember(caller.ProfileId))
-        {
-            return (Result.Forbidden(), null);
         }
 
         var invited = (command.InvitedIds ?? []).Distinct().Where(id => id != caller.ProfileId).ToList();
@@ -134,6 +130,7 @@ public class PlanningPokerHandler(
         var stories = ids.Select(id => found.Single(s => s.Id == id)).ToList();
         var session = new PokerSession(workspace, stories, caller.ProfileId, invited);
         db.PokerSessions.Add(session);
+        policy.AuditOverride(caller, "poker.started", "PokerSession", session.Id, null, new { StoryIds = ids, InvitedIds = invited });
 
         var name = await db.Profiles.Where(p => p.Id == caller.ProfileId).Select(p => p.Name).SingleAsync(cancellationToken);
         var first = AgileNotifier.FirstName(name);
@@ -174,7 +171,7 @@ public class PlanningPokerHandler(
     }
 
     public Task<Result> VoteAsync(Guid sessionId, CastVoteCommand command, CancellationToken cancellationToken = default) =>
-        ChangeAsync(sessionId, facilitatorOnly: false, (session, caller) =>
+        ChangeAsync(sessionId, "poker.voted", facilitatorOnly: false, (session, caller) =>
         {
             if (!session.IsParticipant(caller.ProfileId))
             {
@@ -195,28 +192,28 @@ public class PlanningPokerHandler(
         }, cancellationToken);
 
     public Task<Result> RevealAsync(Guid sessionId, CancellationToken cancellationToken = default) =>
-        ChangeAsync(sessionId, facilitatorOnly: true, (session, caller) =>
+        ChangeAsync(sessionId, "poker.revealed", facilitatorOnly: true, (session, caller) =>
         {
             session.Reveal(caller.ProfileId);
             return Task.FromResult<Result?>(null);
         }, cancellationToken);
 
     public Task<Result> RevoteAsync(Guid sessionId, CancellationToken cancellationToken = default) =>
-        ChangeAsync(sessionId, facilitatorOnly: true, (session, caller) =>
+        ChangeAsync(sessionId, "poker.revoted", facilitatorOnly: true, (session, caller) =>
         {
             session.Revote(caller.ProfileId);
             return Task.FromResult<Result?>(null);
         }, cancellationToken);
 
     public Task<Result> EndAsync(Guid sessionId, CancellationToken cancellationToken = default) =>
-        ChangeAsync(sessionId, facilitatorOnly: true, (session, caller) =>
+        ChangeAsync(sessionId, "poker.ended", facilitatorOnly: true, (session, caller) =>
         {
             session.End(caller.ProfileId);
             return Task.FromResult<Result?>(null);
         }, cancellationToken);
 
     public Task<Result> SetPointsAsync(Guid sessionId, SetPointsCommand command, CancellationToken cancellationToken = default) =>
-        ChangeAsync(sessionId, facilitatorOnly: true, async (session, caller) =>
+        ChangeAsync(sessionId, "poker.points.set", facilitatorOnly: true, async (session, caller) =>
         {
             var story = await db.WorkItems.SingleOrDefaultAsync(i => i.Id == session.CurrentStoryId, cancellationToken);
             if (story is null)
@@ -229,7 +226,7 @@ public class PlanningPokerHandler(
         }, cancellationToken);
 
     private async Task<Result> ChangeAsync(
-        Guid sessionId, bool facilitatorOnly, Func<PokerSession, WorkspaceCaller, Task<Result?>> change, CancellationToken cancellationToken)
+        Guid sessionId, string action, bool facilitatorOnly, Func<PokerSession, WorkspaceCaller, Task<Result?>> change, CancellationToken cancellationToken)
     {
         var (session, caller, refusal) = await LoadAsync(sessionId, write: true, cancellationToken);
         if (refusal is not null)
@@ -252,11 +249,13 @@ public class PlanningPokerHandler(
             return Result.Conflict("Votes are already revealed. Wait for a re-vote.");
         }
 
+        var before = new { session.Round, session.IsRevealed, StoryId = session.CurrentStoryId };
         if (await change(session, caller) is { } problem)
         {
             return problem;
         }
 
+        policy.AuditOverride(caller, action, "PokerSession", session.Id, before, new { session.Round, session.IsRevealed, StoryId = session.CurrentStoryId });
         await db.SaveChangesAsync(cancellationToken);
         await broadcaster.PokerChangedAsync(session.Id, cancellationToken);
         return Result.Ok();
