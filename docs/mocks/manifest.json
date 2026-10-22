@@ -440,7 +440,9 @@
         "loading",
         "empty",
         "error",
-        "no-results"
+        "no-results",
+        "more",
+        "more-error"
       ],
       "not_applicable": {}
     },

@@ -13,6 +13,7 @@ This design describes the shared measures that keep FaithTech Community responsi
 
 - **`PageRequest`** / **`PagedResult<T>`** — Application types shared by every list query. `PageRequest` clamps `PageSize` to a maximum of 100.
 - **`ToPagedResultAsync`** — Infrastructure `IQueryable` extension that applies `Skip`/`Take` and a count in the database.
+- **Keyset pages** — lists that grow at the top while someone reads them, or that people page through with filters, use a keyset continuation instead of a page number. A page returns `{ items, next, totalCount }`, where `next` encodes the sort key of the last row. The invites list (newest first, then id) and the team list (lower-cased name, then id, ADR 0015) work this way. They clamp the page size to the same maximum of 100, default to 50, and answer `400` for a continuation they did not give out.
 - **Read queries** — use `AsNoTracking()` and projections to DTOs, so only needed columns load.
 - **Indexes** — EF Core migrations add indexes for foreign keys, sort keys and the Postgres full-text `tsvector` columns used by search.
 - **Shell routes** — the app shell lazy-loads each feature library with `loadChildren`, keeping the initial bundle small.

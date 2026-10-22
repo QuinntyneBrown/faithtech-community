@@ -10,6 +10,7 @@ import {
   isLead,
 } from '@faithtech-community/api';
 import {
+  AlertComponent,
   AvatarComponent,
   BadgeComponent,
   ButtonComponent,
@@ -41,6 +42,7 @@ const ROLE_CHIPS: { label: string; value: TeamRoleFilter | null }[] = [
   selector: 'ft-team-page',
   imports: [
     ReactiveFormsModule,
+    AlertComponent,
     AvatarComponent,
     BadgeComponent,
     ButtonComponent,
@@ -73,6 +75,14 @@ export class TeamPage {
   private readonly cities = signal<string[]>([]);
   private readonly selectedCity = signal<string | null>(null);
   private request = 0;
+  /** The continuation for the next page; null once every matching member is shown. */
+  protected readonly next = signal<string | null>(null);
+  protected readonly total = signal(0);
+  protected readonly loadingMore = signal(false);
+  protected readonly moreFailed = signal(false);
+  protected readonly count = computed(
+    () => `Showing ${this.members().length} of ${this.total()} members`,
+  );
 
   protected readonly canInvite = computed(() => isLead(this.callerRoles()));
   protected readonly cityOptions = computed<SelectOption[]>(() => [
@@ -121,10 +131,35 @@ export class TeamPage {
     void this.load();
   }
 
+  /** Appends the next page; a failure keeps what is shown and says so next to Show more. */
+  protected async loadMore(): Promise<void> {
+    const after = this.next();
+    if (!after || this.loadingMore()) return;
+    const request = this.request;
+    this.loadingMore.set(true);
+    this.moreFailed.set(false);
+    try {
+      const list = await firstValueFrom(
+        this.team.list({ role: this.role(), city: this.selectedCity() }, after),
+      );
+      if (request !== this.request) return;
+      this.members.update((members) => [...members, ...list.members]);
+      this.cities.set(list.cities);
+      this.next.set(list.next);
+      this.total.set(list.totalCount);
+    } catch {
+      if (request === this.request) this.moreFailed.set(true);
+    } finally {
+      if (request === this.request) this.loadingMore.set(false);
+    }
+  }
+
   private async load(): Promise<void> {
     // Only the latest request may update the page, so a slow answer never overwrites a newer filter.
     const request = ++this.request;
     this.state.set('loading');
+    this.loadingMore.set(false);
+    this.moreFailed.set(false);
     try {
       const list = await firstValueFrom(
         this.team.list({ role: this.role(), city: this.selectedCity() }),
@@ -132,6 +167,8 @@ export class TeamPage {
       if (request !== this.request) return;
       this.members.set(list.members);
       this.cities.set(list.cities);
+      this.next.set(list.next);
+      this.total.set(list.totalCount);
       this.state.set('loaded');
     } catch {
       if (request === this.request) this.state.set('error');

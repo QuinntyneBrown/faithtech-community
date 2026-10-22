@@ -741,7 +741,8 @@ export class MockApi {
     const team = [...this.profiles.values()].filter((p) =>
       p.roles.some((r) => TEAM_ROLES.includes(r)),
     );
-    const members = team
+    const key = (p: MockProfile) => `${p.name.toLowerCase()}|${p.id}`;
+    const matching = team
       .filter((p) =>
         role === 'leads'
           ? p.roles.some((r) => TEAM_LEAD_ROLES.includes(r))
@@ -750,18 +751,31 @@ export class MockApi {
             : true,
       )
       .filter((p) => !city || p.homeCity?.trim().toLowerCase() === city)
-      .sort((a, b) => a.name.localeCompare(b.name, undefined, { sensitivity: 'base' }))
-      .map((p) => ({
-        profileId: p.id,
-        name: p.name,
-        homeCity: p.homeCity,
-        photoUrl: p.photos.find((photo) => photo.isFeatured)?.url ?? null,
-        roles: p.roles,
-      }));
+      .sort((a, b) => key(a).localeCompare(key(b)));
+    // Pages as ListTeamHandler does (ADR 0015): by lower-cased name then id, 50 a page, at most 100.
+    const size = Math.min(100, Math.max(1, Number(url.searchParams.get('pageSize') ?? 50) || 50));
+    const after = url.searchParams.get('after');
+    const rest = after ? matching.filter((p) => key(p).localeCompare(after) > 0) : matching;
+    const page = rest.slice(0, size);
+    const members = page.map((p) => ({
+      profileId: p.id,
+      name: p.name,
+      homeCity: p.homeCity,
+      photoUrl: p.photos.find((photo) => photo.isFeatured)?.url ?? null,
+      roles: p.roles,
+    }));
     const cities = [
       ...new Set(team.map((p) => p.homeCity?.trim()).filter((c): c is string => !!c)),
     ].sort((a, b) => a.localeCompare(b));
-    return route.fulfill({ status: 200, json: { members, cities } });
+    return route.fulfill({
+      status: 200,
+      json: {
+        members,
+        cities,
+        next: rest.length > size ? key(page[page.length - 1]) : null,
+        totalCount: matching.length,
+      },
+    });
   }
 
   /**

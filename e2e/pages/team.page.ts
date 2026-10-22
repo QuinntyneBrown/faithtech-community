@@ -11,6 +11,9 @@ export class TeamPage {
   readonly loadError: Locator;
   readonly tryAgain: Locator;
   readonly showEveryone: Locator;
+  readonly count: Locator;
+  readonly showMore: Locator;
+  readonly moreFailed: Locator;
 
   constructor(private readonly page: Page) {
     this.heading = page.getByRole('heading', { level: 1 });
@@ -22,10 +25,18 @@ export class TeamPage {
     this.loadError = page.getByRole('heading', { name: 'We couldn’t load the team' });
     this.tryAgain = page.getByRole('button', { name: 'Try again' });
     this.showEveryone = page.getByRole('button', { name: 'Show everyone' });
+    this.count = page.getByRole('status').filter({ hasText: /^Showing \d+ of \d+ members$/ });
+    this.showMore = page.getByRole('button', { name: 'Show more members' });
+    this.moreFailed = page.getByRole('alert').filter({ hasText: 'We couldn’t load more members' });
   }
 
   async open(): Promise<void> {
     await this.page.goto('/team');
+  }
+
+  /** Back to the top, as after reading a long list; the sticky top bar otherwise overlaps rows. */
+  async scrollToTop(): Promise<void> {
+    await this.page.evaluate(() => window.scrollTo(0, 0));
   }
 
   roleFilter(label: 'All' | 'Leads' | 'Volunteers'): Locator {

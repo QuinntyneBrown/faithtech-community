@@ -15,7 +15,7 @@ L2-019 asks for a team list with name, photo and roles, a role filter (Leads or 
 - `GET /api/team?role=Leads|Volunteers&city=` requires a signed-in caller. **Leads** are City, Event, Create and Communications Lead (`TeamRoles.Leads`); **Volunteers** is the Volunteer role. An unknown role filter answers `400`.
 - The city filter matches the profile's home city, ignoring case and surrounding spaces. It is a filter, not a permission boundary: data stays global.
 - The response is `{ members, cities }`. `cities` lists every team member's home city, whatever the filters, so the city select keeps its options while filtered.
-- Members are sorted by name (case-insensitive). There is no paging: the team is a few dozen people per city; paging is deferred until it is not.
+- Members are sorted by name (case-insensitive). ~~There is no paging~~: superseded by ADR 0015, which pages the list (at most 100 a page, L2-046 AC3).
 - Each member carries every role they hold (a Create Lead who is also a Product Engineer shows both badges) and the URL of their featured photo, or `null`.
 - The avatar component gains a photo: with `src` it shows the image (decorative, `alt=""`, because the name is printed beside it) and falls back to initials without one.
 - The page opens on **All** and **All cities**. Leads and System Admins see **Invite someone**, a link to `/invites`, because the team library cannot depend on the invites library.
