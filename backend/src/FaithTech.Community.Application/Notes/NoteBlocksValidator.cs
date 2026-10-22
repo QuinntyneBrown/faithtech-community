@@ -13,7 +13,10 @@ public static class NoteBlocksValidator
     public const string LinkCardMessage = "Use a link that starts with https://.";
     public const string HyperlinkMessage = "Use a link that starts with https:// or mailto:";
 
-    public static Dictionary<string, string[]> Check(IReadOnlyList<NoteBlock> blocks)
+    public const string AltMessage = "Describe this image";
+
+    /// <param name="images">The images uploaded to this page; an image block must use one of them (L2-097 AC7).</param>
+    public static Dictionary<string, string[]> Check(IReadOnlyList<NoteBlock> blocks, IReadOnlySet<Guid>? images = null)
     {
         var errors = new Dictionary<string, string[]>();
         if (blocks.Count > MaxBlocks)
@@ -25,7 +28,7 @@ public static class NoteBlocksValidator
         var ids = new HashSet<string>();
         for (var i = 0; i < blocks.Count; i++)
         {
-            if (Problem(blocks[i], ids) is { } problem)
+            if (Problem(blocks[i], ids, images ?? new HashSet<Guid>()) is { } problem)
             {
                 errors[$"Blocks[{i}]"] = [problem];
             }
@@ -34,7 +37,7 @@ public static class NoteBlocksValidator
         return errors;
     }
 
-    private static string? Problem(NoteBlock block, HashSet<string> ids)
+    private static string? Problem(NoteBlock block, HashSet<string> ids, IReadOnlySet<Guid> images)
     {
         if (string.IsNullOrWhiteSpace(block.Id) || block.Id.Length > MaxBlockId || !ids.Add(block.Id))
         {
@@ -66,6 +69,9 @@ public static class NoteBlocksValidator
         {
             NoteBlockTypes.Link when !IsHttps(block.Url) => LinkCardMessage,
             NoteBlockTypes.Link when block.Caption?.Length > MaxCaption => $"Use {MaxCaption} characters or fewer for the caption.",
+            NoteBlockTypes.Image when string.IsNullOrWhiteSpace(block.Alt) => AltMessage,
+            NoteBlockTypes.Image when block.Alt!.Trim().Length > NoteImage.MaxAlt => $"Use {NoteImage.MaxAlt} characters or fewer for the alt text.",
+            NoteBlockTypes.Image when block.ImageId is not { } image || !images.Contains(image) => "Add the image to this page first.",
             NoteBlockTypes.Callout when block.Icon is not null && !NoteFields.IsEmoji(block.Icon) => "Choose a single emoji for the icon.",
             _ => null,
         };

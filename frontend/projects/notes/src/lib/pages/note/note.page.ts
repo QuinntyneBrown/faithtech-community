@@ -53,8 +53,11 @@ import {
   AddLinkDialog,
   LinkCard,
   LinkChoice,
+  AddImageDialog,
+  AddedImage,
   ArchiveNoteDialog,
   ChangeIconDialog,
+  EditAltTextDialog,
   MoveNoteDialog,
   NoteSettingsDialog,
   PageSettings,
@@ -148,6 +151,13 @@ export class NotePage {
       ? { text: target.title, icon: target.icon, href: `/notes/${target.id}` }
       : { text: 'Private page', icon: null, href: null };
   };
+  /** Images are fetched with the member's token and shown from object URLs (ADR 0017's pattern). */
+  private readonly imageUrls: string[] = [];
+  protected readonly imageSrc = async (imageId: string): Promise<string> => {
+    const url = URL.createObjectURL(await firstValueFrom(this.notes.image(this.id, imageId)));
+    this.imageUrls.push(url);
+    return url;
+  };
   protected readonly pageSearch = async (q: string): Promise<PageLinkItem[]> => {
     const found = await firstValueFrom(this.notes.linkSuggestions(q, this.id));
     found.forEach((f) => f.id && this.known.set(f.id, f));
@@ -167,7 +177,10 @@ export class NotePage {
         this.id = params.get('id') ?? '';
         void this.load(true);
       });
-    inject(DestroyRef).onDestroy(() => this.autosave()?.cancel());
+    inject(DestroyRef).onDestroy(() => {
+      this.autosave()?.cancel();
+      this.imageUrls.forEach((url) => URL.revokeObjectURL(url));
+    });
   }
 
   /** "Reload page" after a conflict or an access change (L2-094 AC4, AC6). */
@@ -196,7 +209,12 @@ export class NotePage {
 
   /** A link card or image the editor asked for, filled in through its dialog. */
   protected request(request: BlockRequest): void {
-    if (request.type !== 'link') return;
+    if (request.type === 'image') {
+      this.dialogs.open<AddedImage>(AddImageDialog, { data: this.id }).closed.subscribe((image) => {
+        if (image) this.editor()?.place(request, { id: newBlockId(), type: 'image', ...image });
+      });
+      return;
+    }
     this.dialogs.open<LinkCard>(AddLinkCardDialog).closed.subscribe((card) => {
       if (card) this.editor()?.place(request, { id: newBlockId(), type: 'link', ...card });
     });
@@ -297,6 +315,14 @@ export class NotePage {
 
   /** A callout's Change icon from its block menu (L2-087 AC6). */
   protected editBlock({ index, block }: { index: number; block: EditorBlock }): void {
+    if (block.type === 'image') {
+      this.dialogs
+        .open<string>(EditAltTextDialog, { data: block.alt ?? '' })
+        .closed.subscribe((alt) => {
+          if (alt) this.editor()?.update(index, { ...block, alt });
+        });
+      return;
+    }
     if (block.type !== 'callout') return;
     this.dialogs
       .open<string>(ChangeIconDialog, { data: block.icon ?? '💡' })

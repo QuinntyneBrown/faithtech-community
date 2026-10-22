@@ -158,6 +158,8 @@ export class BlockEditorComponent {
   readonly readonly = input(false);
   /** How page links show to this viewer; the page resolves them from the API's text. */
   readonly pageLink = input<PageLinkResolver | undefined>(undefined);
+  /** Loads an image block's picture as a URL the page may show (L2-097 AC5); the page fetches it with its token. */
+  readonly imageSrc = input<((imageId: string) => Promise<string>) | undefined>(undefined);
   /** Finds pages to link by title for "[[" (L2-090 AC1); without it "[[" is plain text. */
   readonly pageSearch = input<((q: string) => Promise<PageLinkItem[]>) | undefined>(undefined);
   readonly blocksChange = output<EditorBlock[]>();
@@ -222,7 +224,28 @@ export class BlockEditorComponent {
     }));
   });
 
+  /** Loaded image URLs by image id. */
+  private readonly images = signal<ReadonlyMap<string, string>>(new Map());
+  private readonly requested = new Set<string>();
+
+  protected imageUrl(block: EditorBlock): string | null {
+    return block.imageId ? (this.images().get(block.imageId) ?? null) : null;
+  }
+
   constructor() {
+    // Each image block's picture is loaded once, through the page (L2-097 AC5).
+    effect(() => {
+      const load = this.imageSrc();
+      for (const block of this.items()) {
+        const id = block.type === 'image' ? block.imageId : null;
+        if (!load || !id || this.requested.has(id)) continue;
+        this.requested.add(id);
+        void load(id).then(
+          (url) => this.images.update((images) => new Map(images).set(id, url)),
+          () => this.requested.delete(id),
+        );
+      }
+    });
     // An empty page starts with one empty Text block (L2-086 AC4).
     effect(() => {
       const blocks = this.blocks();

@@ -71,6 +71,8 @@ public class CommunityDbContext(DbContextOptions<CommunityDbContext> options)
 
     public DbSet<NoteLink> NoteLinks => Set<NoteLink>();
 
+    public DbSet<NoteImage> NoteImages => Set<NoteImage>();
+
     protected override void OnModelCreating(ModelBuilder builder)
     {
         base.OnModelCreating(builder);
@@ -404,6 +406,14 @@ public class CommunityDbContext(DbContextOptions<CommunityDbContext> options)
         {
             link.HasKey(l => new { l.SourceId, l.TargetId });
             link.HasIndex(l => l.TargetId);
+        });
+
+        builder.Entity<NoteImage>(image =>
+        {
+            image.Property(i => i.Id).ValueGeneratedNever();
+            image.Property(i => i.BlobName).HasMaxLength(200);
+            image.Property(i => i.ContentType).HasMaxLength(100);
+            image.HasIndex(i => i.PageId);
         });
     }
 

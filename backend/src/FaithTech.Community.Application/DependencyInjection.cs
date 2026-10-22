@@ -123,6 +123,7 @@ public static class DependencyInjection
         services.AddScoped<GetNoteHandler>();
         services.AddScoped<SaveNoteHandler>();
         services.AddScoped<NoteRefs>();
+        services.AddScoped<NoteImagesHandler>();
         services.AddScoped<ArchiveNoteHandler>();
         services.AddScoped<ShareNoteHandler>();
         services.AddScoped<NoteShareNotifier>();

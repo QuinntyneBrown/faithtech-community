@@ -55,6 +55,11 @@ export interface NotesContext {
 }
 
 const PAGE_SIZE = 25;
+/** A 1×1 PNG standing in for every stored image, so no request leaves the browser. */
+const PNG = Buffer.from(
+  'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mN8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg==',
+  'base64',
+);
 const DAY = 24 * 60 * 60 * 1000;
 const MAX_TITLE = 200;
 const SHAREABLE = [
@@ -89,6 +94,8 @@ const TYPES = [
  */
 export class MockNotes {
   readonly pages: MockNote[] = [];
+  /** Uploaded images by id, with the page they belong to (NoteImages). */
+  readonly images = new Map<string, { pageId: string; content: Buffer; contentType: string }>();
   private counter = 0;
 
   constructor(private readonly context: NotesContext) {}
@@ -160,6 +167,15 @@ export class MockNotes {
     if (method === 'PUT' && match[2] === 'visibility') {
       if (!canChange) return route.fulfill({ status: 403 });
       return this.share(route, note, caller, body);
+    }
+    if (method === 'GET' && match[2] === 'images' && match[3]) {
+      const image = this.images.get(match[3]);
+      if (!image || image.pageId !== note.id) return route.fulfill({ status: 404 });
+      return route.fulfill({ status: 200, body: image.content, contentType: image.contentType });
+    }
+    if (method === 'POST' && match[2] === 'images') {
+      if (!canChange) return route.fulfill({ status: 403 });
+      return this.upload(route, note);
     }
     if (method === 'GET' && match[2] === 'parent-options')
       return this.json(route, 200, this.parentOptions(note, url));
@@ -344,6 +360,28 @@ export class MockNotes {
     return this.json(route, 200, rows);
   }
 
+  /** An image already uploaded to a page; returns its id. */
+  addImage(n: MockNote): string {
+    const id = `image-${this.images.size + 1}`;
+    this.images.set(id, { pageId: n.id, content: PNG, contentType: 'image/png' });
+    return id;
+  }
+
+  /** Image upload (L2-097 AC3, AC4): JPEG, PNG or WebP up to 5 MB, checked by its leading bytes. */
+  private upload(route: Route, n: MockNote) {
+    const data = route.request().postDataBuffer() ?? Buffer.alloc(0);
+    const name = /filename="([^"]*)"/.exec(data.toString('latin1'))?.[1] ?? '';
+    const isImage =
+      /\.(png|jpe?g|webp)$/i.test(name) &&
+      (data.includes(Buffer.from([0x89, 0x50, 0x4e, 0x47])) ||
+        data.includes(Buffer.from([0xff, 0xd8, 0xff])) ||
+        data.includes(Buffer.from('WEBP')));
+    if (!isImage || data.length > 5 * 1024 * 1024 + 4096)
+      return this.invalid(route, { File: ['Use a JPEG, PNG or WebP image up to 5 MB.'] });
+    const id = this.addImage(n);
+    return this.json(route, 201, { imageId: id });
+  }
+
   /** Share (L2-093): the visibility and audience, and a notification for each new recipient. */
   private share(route: Route, n: MockNote, caller: MockAccount, body: Record<string, unknown>) {
     const visibility = body['visibility'] as MockNoteVisibility;
@@ -483,6 +521,9 @@ export class MockNotes {
       return 'Use a link that starts with https://.';
     if ((b.text ?? []).some((t) => t.href && !/^(https:\/\/[^\s/]+|mailto:\S+)/.test(t.href)))
       return 'Use a link that starts with https:// or mailto:';
+    if (b.type === 'image' && !(b.alt ?? '').trim()) return 'Describe this image';
+    if (b.type === 'image' && !this.images.has(b.imageId ?? ''))
+      return 'Add the image to this page first.';
     if ((b.caption ?? '').length > 200) return 'Use 200 characters or fewer for the caption.';
     return null;
   }

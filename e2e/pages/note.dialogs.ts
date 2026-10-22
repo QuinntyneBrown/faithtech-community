@@ -127,3 +127,35 @@ export class ConfirmNoteDialog {
     this.cancel = this.dialog.getByRole('button', { name: 'Cancel', exact: true });
   }
 }
+
+/** "Add an image" (docs/mocks/dialogs/add-image). */
+export class AddImageDialog {
+  readonly dialog: Locator;
+  readonly fileInput: Locator;
+  readonly alt: Locator;
+  readonly add: Locator;
+
+  constructor(page: Page) {
+    this.dialog = page.getByRole('dialog', { name: 'Add an image' });
+    this.fileInput = this.dialog.locator('input[type=file]');
+    this.alt = this.dialog.getByRole('textbox', { name: 'Alt text' });
+    this.add = this.dialog.getByRole('button', { name: 'Add image' });
+  }
+
+  async choose(file: { name: string; mimeType: string; buffer: Buffer }): Promise<void> {
+    await this.fileInput.setInputFiles(file);
+  }
+}
+
+/** "Edit alt text" for an image block. */
+export class AltTextDialog {
+  readonly dialog: Locator;
+  readonly alt: Locator;
+  readonly save: Locator;
+
+  constructor(page: Page) {
+    this.dialog = page.getByRole('dialog', { name: 'Edit alt text' });
+    this.alt = this.dialog.getByRole('textbox', { name: 'Alt text' });
+    this.save = this.dialog.getByRole('button', { name: 'Save', exact: true });
+  }
+}

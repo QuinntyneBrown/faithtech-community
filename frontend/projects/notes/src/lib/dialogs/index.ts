@@ -6,3 +6,5 @@ export * from './note-settings';
 export * from './change-icon';
 export * from './archive-note';
 export * from './restore-note';
+export * from './add-image';
+export * from './edit-alt-text';

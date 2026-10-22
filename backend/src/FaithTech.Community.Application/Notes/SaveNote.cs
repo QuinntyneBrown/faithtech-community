@@ -40,7 +40,8 @@ public class SaveNoteHandler(IApplicationDbContext db, NoteAccess access, NoteRe
         }
 
         var blocks = command.Blocks ?? [];
-        var errors = NoteBlocksValidator.Check(blocks);
+        var images = (await db.NoteImages.Where(i => i.PageId == page.Id).Select(i => i.Id).ToListAsync(cancellationToken)).ToHashSet();
+        var errors = NoteBlocksValidator.Check(blocks, images);
         if (NoteFields.TitleError(command.Title) is { } titleError)
         {
             errors["Title"] = [titleError];

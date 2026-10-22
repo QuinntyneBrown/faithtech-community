@@ -90,7 +90,11 @@
     }
     @case ('image') {
       <figure class="block block--image image-block">
-        <ng-content select="[ftBlockImage]" />
+        @if (imageUrl(block); as src) {
+          <img [src]="src" [alt]="block.alt ?? ''" />
+        } @else {
+          <span class="image-block__loading" role="img" [attr.aria-label]="block.alt ?? ''"></span>
+        }
       </figure>
     }
     @default {

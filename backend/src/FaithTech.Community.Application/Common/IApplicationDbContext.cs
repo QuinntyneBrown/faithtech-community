@@ -61,5 +61,7 @@ public interface IApplicationDbContext
 
     DbSet<NoteLink> NoteLinks { get; }
 
+    DbSet<NoteImage> NoteImages { get; }
+
     Task<int> SaveChangesAsync(CancellationToken cancellationToken = default);
 }

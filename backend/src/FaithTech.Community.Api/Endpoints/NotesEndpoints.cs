@@ -1,4 +1,5 @@
 using FaithTech.Community.Application.Notes;
+using Microsoft.AspNetCore.Mvc;
 
 namespace FaithTech.Community.Api.Endpoints;
 
@@ -8,6 +9,9 @@ namespace FaithTech.Community.Api.Endpoints;
 /// </summary>
 public static class NotesEndpoints
 {
+    /// <summary>One 5 MB image, plus the form fields.</summary>
+    private const long NoteImageLimit = Domain.Notes.NoteImage.MaxBytes + 1024 * 1024;
+
     public static IEndpointRouteBuilder MapNotesEndpoints(this IEndpointRouteBuilder app)
     {
         var notes = app.MapGroup("/api/notes");
@@ -52,6 +56,45 @@ public static class NotesEndpoints
         {
             var (result, page) = await handler.HandleAsync(id, command, cancellationToken);
             return result.ToHttp(() => Results.Ok(page));
+        });
+
+        notes.MapPost("/{id:guid}/images", async (Guid id, HttpRequest request, NoteImagesHandler handler, CancellationToken cancellationToken) =>
+            {
+                NoteImageUpload? upload = null;
+                if (request.HasFormContentType)
+                {
+                    try
+                    {
+                        var form = await request.ReadFormAsync(cancellationToken);
+                        if (form.Files.GetFile("file") is { } file)
+                        {
+                            upload = new NoteImageUpload(file.FileName, file.Length, file.OpenReadStream);
+                        }
+                    }
+                    catch (InvalidDataException)
+                    {
+                        upload = null;
+                    }
+                }
+
+                var (result, image, storageDown) = await handler.UploadAsync(id, upload, cancellationToken);
+                return storageDown
+                    ? Results.Problem("We couldn’t store the image. Try again in a minute.", statusCode: StatusCodes.Status503ServiceUnavailable)
+                    : result.ToHttp(() => Results.Created($"/api/notes/{id}/images/{image!.ImageId}", image));
+            })
+            .DisableAntiforgery()
+            .WithMetadata(new RequestSizeLimitAttribute(NoteImageLimit), new RequestFormLimitsAttribute { MultipartBodyLengthLimit = NoteImageLimit });
+
+        notes.MapGet("/{id:guid}/images/{imageId:guid}", async (Guid id, Guid imageId, HttpContext http, NoteImagesHandler handler, CancellationToken cancellationToken) =>
+        {
+            if (await handler.ReadAsync(id, imageId, cancellationToken) is not { } image)
+            {
+                return Results.NotFound();
+            }
+
+            http.Response.Headers.XContentTypeOptions = "nosniff";
+            http.Response.Headers.CacheControl = "private, max-age=3600";
+            return Results.File(image.Content, image.ContentType);
         });
 
         notes.MapGet("/{id:guid}", async (Guid id, GetNoteHandler handler, CancellationToken cancellationToken) =>
