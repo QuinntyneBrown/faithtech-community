@@ -15,3 +15,27 @@ export function formatTimestamp(value: Date | string): string {
   const pad = (n: number) => String(n).padStart(2, '0');
   return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())} ${pad(d.getHours())}:${pad(d.getMinutes())}`;
 }
+
+const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+
+/** "Nov": the short month of a date badge, in local time. Three letters on every engine. */
+export function formatMonth(value: Date | string): string {
+  return MONTHS[new Date(value).getMonth()];
+}
+
+/** "6:30 pm" in local time, the mocks' time format. */
+export function formatTime(value: Date | string): string {
+  const d = new Date(value);
+  const hours = d.getHours() % 12 || 12;
+  return `${hours}:${String(d.getMinutes()).padStart(2, '0')} ${d.getHours() < 12 ? 'am' : 'pm'}`;
+}
+
+/** "Sat 14 – Sun 15 Nov" across days (the month once when shared), or "Fri 6 Nov" for one day. */
+export function formatDayRange(start: Date | string, end: Date | string): string {
+  const from = new Date(start);
+  const to = new Date(end);
+  if (from.toDateString() === to.toDateString()) return formatDay(from);
+  const first = formatDay(from);
+  const sameMonth = from.getMonth() === to.getMonth() && from.getFullYear() === to.getFullYear();
+  return `${sameMonth ? first.slice(0, first.lastIndexOf(' ')) : first} – ${formatDay(to)}`;
+}

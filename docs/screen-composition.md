@@ -4,7 +4,7 @@ Which `@faithtech-community/components` parts build each screen, and what is bui
 
 **Local UI** is markup a feature library writes itself. It is limited to page composition: headings that belong to the page, sections and the glue between `api` services and components. Anything reusable goes into `components` first (`AGENTS.md`).
 
-Coverage: the profiles screens (`profile`, `edit-profile`, `delete-photo`), the admin screens (`admin-users`, `audit-log`, `add-role`, `remove-role`, `suspend-user`), the invites screens (`invites`, `accept-invite`, `send-invite`), the team list (`team`), the Appearance card of settings (`settings`), the contacts screens (`contacts`, `contact`, `contact-form`, `archived-contacts`, `add-note`, `archive-contact`, `delete-contact`, `link-contact`), the partners screens (`partners`, `partner`, `partner-form`, `add-partner`, `move-partner`) and the agile screens (`workspaces`, `team-board`, `backlog`, `work-item`, `workspace-settings`, `planning-poker` and their dialogs). Other screens are added here as their features are built.
+Coverage: the profiles screens (`profile`, `edit-profile`, `delete-photo`), the admin screens (`admin-users`, `audit-log`, `add-role`, `remove-role`, `suspend-user`), the invites screens (`invites`, `accept-invite`, `send-invite`), the team list (`team`), the events list (`events`), the Appearance card of settings (`settings`), the contacts screens (`contacts`, `contact`, `contact-form`, `archived-contacts`, `add-note`, `archive-contact`, `delete-contact`, `link-contact`), the partners screens (`partners`, `partner`, `partner-form`, `add-partner`, `move-partner`) and the agile screens (`workspaces`, `team-board`, `backlog`, `work-item`, `workspace-settings`, `planning-poker` and their dialogs). Other screens are added here as their features are built.
 
 ## Shell
 
@@ -144,6 +144,11 @@ Coverage: the profiles screens (`profile`, `edit-profile`, `delete-photo`), the 
 - Opens `StartPokerDialog`. Changes arrive through `AGILE_LIVE_SERVICE.watchPokerSession` and the page re-reads the session (ADR 0012).
 - Local: the "Now estimating" overline and story heading.
 
+### Events — `/events` (`pages/events`: default, member, loading, empty, no-results, error)
+
+- Library: `PageHeaderComponent` ("Events", "Builders nights, hackathons and gatherings across every city") with *New event* (`ButtonComponent` `primary` link to `/events/new` with `IconComponent` `add`, Event Leads, City Leads and System Admins only; `member` hides it), `ChipGroupComponent` "Filter events" of `ChipComponent` toggles (Upcoming, Past, Hackathons, Online; one pressed), `FormFieldComponent` + `SelectComponent` (City: All cities and every city with an event), `CardComponent` `flush` + `ListComponent` "Events" of `EventCardComponent` (date leaf from `formatMonth`, title linking to `/events/:id`, meta "date · time · city · venue or Online · N going" from `formatDayRange` and `formatTime`, `public`, `members` or `cancelled` badge), `ListSkeletonComponent` `leading="date-badge"` (4 rows), `EmptyStateComponent` (empty with *New event* for event managers; no-results "No upcoming events in {city}" with *Show all cities* or *Show upcoming events*; error with *Try again*).
+- Local: none beyond composition.
+
 ## Dialogs
 
 | Dialog (mock: states) | Surface | Library | Local |
@@ -180,6 +185,7 @@ None for profiles. Admin and invites use `ToastService` success toasts on the in
 3. Nothing reusable: every profiles screen is composed from the library. `PictureListComponent` gained a per-photo `pending` flag for photos chosen but not saved yet, and a `storing` flag for saved photos whose image is still being written while storage is down (design system: `components/picture-list.html`).
 4. Agile added to the library rather than building locally: `IconTileComponent` (the list rows' leading icon, now that `ft-sticker` is gone), the checkbox group's `legendHidden`, the card header actions slot (`ftCardActions`), the Kanban card `kind` and `moveTarget` inputs, the Kanban board's phone column tabs, and the top bar's tighter link padding between 1024px and 1279px. `CheckboxGroupComponent`, the tree's disclosure button, `EstimatePickerComponent`, `EstimateCardComponent` and `DangerZoneComponent` were already there.
 5. Contacts and partners added to the library rather than building locally: `PageHeaderComponent` gained an `ftPageHeaderSubtitle` slot, `TextFieldComponent` gained `initialFocus` (the delete-contact confirmation) and `KanbanCardComponent`'s name link keeps a 24px target for rich subtitles such as the partner's stage badge. Everything else is composed from existing components; the add-partner dialog and the partner form share their field rules in the feature's `partner-fields.ts`.
+6. Events added to the library: `formatTime` ("6:30 pm"), `formatMonth` ("Nov") and `formatDayRange` ("Sat 14 – Sun 15 Nov") join the date formats.
 
 ### Settings — `/settings` (`pages/settings`: Appearance card only so far)
 

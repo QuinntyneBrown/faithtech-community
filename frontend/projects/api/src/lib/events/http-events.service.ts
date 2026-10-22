@@ -19,8 +19,8 @@ import { toHttpParams } from '../shared';
 import {
   EventDetailDto,
   EventFilter,
+  EventListDto,
   EventRequest,
-  EventSummaryDto,
   EventsService,
   GuestRsvpRequest,
   PublicEventDto,
@@ -31,9 +31,9 @@ export class HttpEventsService implements EventsService {
   private readonly http = inject(HttpClient);
   private readonly api = inject(API_BASE_URL);
 
-  listEvents(filter: EventFilter): Observable<EventSummaryDto[]> {
-    return this.http.get<EventSummaryDto[]>(`${this.api}/events`, {
-      params: toHttpParams({ ...filter }),
+  listEvents(filter: EventFilter): Observable<EventListDto> {
+    return this.http.get<EventListDto>(`${this.api}/events`, {
+      params: toHttpParams({ filter: filter.filter, city: filter.city }),
     });
   }
 
