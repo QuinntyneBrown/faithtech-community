@@ -1,4 +1,6 @@
+using System.Security.Cryptography;
 using FaithTech.Community.Infrastructure.Persistence;
+using FaithTech.Community.Infrastructure.PrivatePreview;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Npgsql;
@@ -10,13 +12,19 @@ public static class CliApp
     /// <summary>The environment variable that carries the load-test members' password, never the command line.</summary>
     public const string LoadTestPasswordVariable = "LOADTEST_PASSWORD";
 
+    public const int MinWallPassphraseLength = 16;
+
     public static async Task<int> RunAsync(
         string[] args,
         Action<DbContextOptionsBuilder> configureDatabase,
         string webAppOrigin,
-        Func<string, string?>? environment = null)
+        Func<string, string?>? environment = null,
+        TextReader? input = null,
+        TextWriter? output = null)
     {
         environment ??= Environment.GetEnvironmentVariable;
+        input ??= Console.In;
+        output ??= Console.Out;
         await using var services = new ServiceCollection()
             .AddDbContext<CommunityDbContext>(options => configureDatabase(options.UseOpenIddict()))
             .AddScoped<CommunitySeeder>()
@@ -46,15 +54,37 @@ public static class CliApp
                 return await SeedLoadUsersAsync(scope.ServiceProvider.GetRequiredService<CommunitySeeder>(), args[1], environment(LoadTestPasswordVariable));
             case "seed-search-records" when args.Length == 2:
                 return await SeedSearchRecordsAsync(scope.ServiceProvider.GetRequiredService<CommunitySeeder>(), args[1]);
+            case "wall-hash":
+                return await WallHashAsync(input, output);
+            case "wall-key":
+                await output.WriteLineAsync(Convert.ToBase64String(RandomNumberGenerator.GetBytes(32)));
+                return 0;
             case "reset":
                 NpgsqlConnection.ClearAllPools();
                 await db.Database.EnsureDeletedAsync();
                 await CreateSchemaAsync(db);
                 return 0;
             default:
-                Console.Error.WriteLine("Usage: faithtech-community <migrate|seed|reset|grant-admin <email>|seed-load-users <count>|seed-search-records <count>>");
+                Console.Error.WriteLine("Usage: faithtech-community <migrate|seed|reset|grant-admin <email>|seed-load-users <count>|seed-search-records <count>|wall-hash|wall-key>");
                 return 1;
         }
+    }
+
+    /// <summary>
+    /// Hashes the private-preview passphrase read from standard input (never an argument, so it stays out of shell
+    /// history) for PrivatePreview:PassphraseHash; the passphrase itself is never printed or stored (L2-090).
+    /// </summary>
+    private static async Task<int> WallHashAsync(TextReader input, TextWriter output)
+    {
+        var passphrase = (await input.ReadLineAsync())?.TrimEnd('\r') ?? string.Empty;
+        if (passphrase.Length < MinWallPassphraseLength)
+        {
+            Console.Error.WriteLine($"Give a passphrase of at least {MinWallPassphraseLength} characters on standard input.");
+            return 1;
+        }
+
+        await output.WriteLineAsync(new Pbkdf2PassphraseHasher().Hash(passphrase));
+        return 0;
     }
 
     /// <summary>Only for an isolated performance environment: never run it against a database real people use.</summary>

@@ -1,5 +1,6 @@
 using System.Security.Cryptography;
 using System.Text;
+using FaithTech.Community.Application.Common;
 using FaithTech.Community.Application.PrivatePreview;
 using Microsoft.Extensions.Options;
 
@@ -10,7 +11,11 @@ namespace FaithTech.Community.Api.Middleware.PrivatePreview;
 /// so until the visitor holds a valid unlock nothing but the exempt paths is reached and every response is one the
 /// gate writes itself: the wall page for a navigation, an empty 403 for anything else, never a redirect.
 /// </summary>
-public class PrivatePreviewGateMiddleware(RequestDelegate next, IOptions<PrivatePreviewOptions> options)
+public class PrivatePreviewGateMiddleware(
+    RequestDelegate next,
+    IOptions<PrivatePreviewOptions> options,
+    IOptions<WebAppOptions> webApp,
+    IOptions<MarketingOptions> marketing)
 {
     public const string UnlockPath = "/__wall/unlock";
     public const string UnlockCookie = "__Secure-unlock";
@@ -36,6 +41,13 @@ public class PrivatePreviewGateMiddleware(RequestDelegate next, IOptions<Private
 
         if ((readOnly && request.Path == "/health/live")
             || context.RequestServices.GetRequiredService<IUnlockTokens>().IsValid(request.Cookies[UnlockCookie]))
+        {
+            await next(context);
+            return;
+        }
+
+        // A CORS preflight never carries cookies; one from our own origins goes on to the CORS policy (L2-086 AC3).
+        if (IsOwnPreflight(request))
         {
             await next(context);
             return;
@@ -112,6 +124,13 @@ public class PrivatePreviewGateMiddleware(RequestDelegate next, IOptions<Private
             || (Uri.TryCreate(origin, UriKind.Absolute, out var uri) && string.Equals(uri.Authority, request.Host.Value, StringComparison.OrdinalIgnoreCase));
         return tokenMatches && originMatches;
     }
+
+    private bool IsOwnPreflight(HttpRequest request) =>
+        HttpMethods.IsOptions(request.Method)
+        && request.Headers.ContainsKey("Access-Control-Request-Method")
+        && request.Headers.Origin.ToString() is { Length: > 0 } origin
+        && (string.Equals(origin, webApp.Value.Origin, StringComparison.OrdinalIgnoreCase)
+            || string.Equals(origin, marketing.Value.Origin, StringComparison.OrdinalIgnoreCase));
 
     private static bool IsNavigation(HttpRequest request) =>
         request.Headers.Accept.Any(value => value?.Contains("text/html", StringComparison.OrdinalIgnoreCase) == true);
