@@ -4,6 +4,7 @@ using FaithTech.Community.Application.Contacts;
 using FaithTech.Community.Application.Events;
 using FaithTech.Community.Application.Identity;
 using FaithTech.Community.Application.Invites;
+using FaithTech.Community.Application.Notifications;
 using FaithTech.Community.Application.Partners;
 using FaithTech.Community.Application.Profiles;
 using FaithTech.Community.Application.Team;
@@ -28,6 +29,7 @@ public static class DependencyInjection
         services.AddScoped<RequestPasswordResetHandler>();
         services.AddScoped<ResetPasswordHandler>();
         services.AddScoped<ProfileAccess>();
+        services.AddScoped<ListActivityHandler>();
         services.AddScoped<GetProfileHandler>();
         services.AddScoped<ListPeopleHandler>();
         services.AddScoped<UpdateProfileHandler>();
