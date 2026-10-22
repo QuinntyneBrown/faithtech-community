@@ -1,6 +1,7 @@
 using System.Text.Json;
 using FaithTech.Community.Application.Identity;
 using FaithTech.Community.Domain.Admin;
+using FaithTech.Community.Domain.Events;
 using FaithTech.Community.Domain.Profiles;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -98,6 +99,49 @@ public class CommunitySeeder(IOpenIddictApplicationManager applications, Communi
             db.Profiles.Add(profile);
             db.Users.Add(user);
             created++;
+        }
+
+        await db.SaveChangesAsync(cancellationToken);
+        return created;
+    }
+
+    public const int MaxSearchRecords = 1_000_000;
+
+    /// <summary>The title prefix of the events seed-search-records creates, so they are easy to find and remove.</summary>
+    public const string SearchRecordPrefix = "Load search event ";
+
+    private static readonly string[] SearchWords =
+        ["shelter", "hackathon", "builders", "prayer", "planning", "mentoring", "students", "design", "data", "health"];
+
+    /// <summary>
+    /// Creates members-only events "Load search event 000001" onwards with varied words, so the performance
+    /// environment holds 100,000 indexed records for the search load test (L2-026 AC5, eng/load-test.js).
+    /// Idempotent: existing ones are kept. Returns how many were created.
+    /// </summary>
+    public async Task<int> SeedSearchRecordsAsync(int count, CancellationToken cancellationToken = default)
+    {
+        var existing = (await db.Events.Where(e => e.Title.StartsWith(SearchRecordPrefix)).Select(e => e.Title).ToListAsync(cancellationToken))
+            .ToHashSet();
+        var starts = time.GetUtcNow().AddDays(30);
+        var created = 0;
+        for (var i = 1; i <= count; i++)
+        {
+            var title = $"{SearchRecordPrefix}{i:000000}";
+            if (existing.Contains(title))
+            {
+                continue;
+            }
+
+            var words = $"{SearchWords[i % SearchWords.Length]} {SearchWords[i / SearchWords.Length % SearchWords.Length]}";
+            db.Events.Add(new Event(
+                title, $"A {words} evening.", EventType.Gathering, starts, starts.AddHours(2), $"City {i % 50:00}",
+                EventFormat.InPerson, "Load venue", null, null, EventVisibility.MembersOnly, Guid.Empty));
+            created++;
+            if (created % 1000 == 0)
+            {
+                await db.SaveChangesAsync(cancellationToken);
+                db.ChangeTracker.Clear();
+            }
         }
 
         await db.SaveChangesAsync(cancellationToken);

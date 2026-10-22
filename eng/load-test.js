@@ -16,6 +16,9 @@
 //        k6 run -e BASE_URL=https://<api> -e WEB_ORIGIN=https://<web app> \
 //               -e LOADTEST_PASSWORD=<same password> -e SUMMARY_PATH=load-test-summary.json eng/load-test.js
 //
+// Search (L2-026 AC5): also seed 100,000 searchable records before the run, so search runs over them:
+//        dotnet run --project backend/src/FaithTech.Community.Cli -- seed-search-records 100000
+//
 // Every request in the measured scenario must answer 2xx: any other status counts as a failure,
 // and the thresholds fail the run. Reads are the member's own session, profile and the team list.
 // The write is a real, authorized change that persists: each member updates their own profile's
@@ -27,6 +30,8 @@ import encoding from "k6/encoding";
 import { check, fail, sleep } from "k6";
 
 const BASE_URL = __ENV.BASE_URL || "https://localhost:5001";
+// Words the seeded members and search records carry, so searches match a realistic share of the records.
+const SEARCH_TERMS = ["shelter", "hackathon builders", "load", "prayer", "students design"];
 const WEB_ORIGIN = __ENV.WEB_ORIGIN || "http://localhost:4200";
 const PASSWORD = __ENV.LOADTEST_PASSWORD;
 const VUS = Number(__ENV.VUS || 200);
@@ -45,6 +50,8 @@ export const options = {
   thresholds: {
     "http_req_duration{scenario:members,kind:read}": ["p(95)<300"],
     "http_req_duration{scenario:members,kind:write}": ["p(95)<600"],
+    // L2-026 AC5: global search answers under 500 ms at p95 over 100,000 indexed records.
+    "http_req_duration{scenario:members,kind:search}": ["p(95)<500"],
     "http_req_failed{scenario:members}": ["rate==0"],
     "checks{scenario:members}": ["rate==1"],
   },
@@ -78,6 +85,14 @@ export default function (data) {
   check(read(`${BASE_URL}/api/team?pageSize=50`), {
     "team page is 200": (r) => r.status === 200,
   });
+  const term = SEARCH_TERMS[__ITER % SEARCH_TERMS.length];
+  check(
+    http.get(`${BASE_URL}/api/search?q=${encodeURIComponent(term)}`, {
+      headers: auth,
+      tags: { kind: "search" },
+    }),
+    { "search is 200": (r) => r.status === 200 },
+  );
 
   const bio = `Load run ${RUN_ID}, iteration ${__ITER}.`;
   const write = http.put(

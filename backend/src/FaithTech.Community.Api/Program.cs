@@ -78,6 +78,7 @@ app.MapPeopleEndpoints();
 app.MapEventsEndpoints();
 app.MapNotificationsEndpoints();
 app.MapAnnouncementsEndpoints();
+app.MapSearchEndpoints();
 app.MapAccountEndpoints();
 app.MapAuthorizationEndpoints();
 
