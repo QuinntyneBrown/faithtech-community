@@ -1,6 +1,6 @@
 import { HttpErrorResponse } from '@angular/common/http';
 import { TestBed } from '@angular/core/testing';
-import { INVITES_SERVICE, InviteDto } from '@faithtech-community/api';
+import { INVITES_SERVICE, InviteDto, InvitePage } from '@faithtech-community/api';
 import { DialogService, ToastService } from '@faithtech-community/components';
 import { Observable, of, throwError } from 'rxjs';
 
@@ -39,7 +39,18 @@ const expired = invite({
   expiresAt: '2026-10-01T12:00:00Z',
 });
 
-async function setup(list: () => Observable<InviteDto[]>, dialogResult?: InviteDto) {
+function page(
+  items: InviteDto[],
+  next: string | null = null,
+  totalCount = items.length,
+): InvitePage {
+  return { items, next, totalCount };
+}
+
+async function setup(
+  list: (after?: string | null) => Observable<InvitePage>,
+  dialogResult?: InviteDto,
+) {
   const service = {
     listInvites: vi.fn(list),
     resendInvite: vi.fn(() => of(invite({ id: 'i9', email: 'felix.wu@example.org' }))),
@@ -74,7 +85,7 @@ async function setup(list: () => Observable<InviteDto[]>, dialogResult?: InviteD
 
 describe('InvitesPage', () => {
   it('lists every invite with its role, dates and status', async () => {
-    const { host, items } = await setup(() => of([pending, accepted, expired]));
+    const { host, items } = await setup(() => of(page([pending, accepted, expired])));
 
     expect(host.querySelector('h1')!.textContent).toContain('Invites');
     const [first, second, third] = items();
@@ -88,7 +99,7 @@ describe('InvitesPage', () => {
 
   it('offers Resend only on expired invites and sends a new one', async () => {
     const { service, toasts, button, items, settle } = await setup(() =>
-      of([pending, accepted, expired]),
+      of(page([pending, accepted, expired])),
     );
     expect(button('Resend invite to nate.oyelaran@example.org')).toBeUndefined();
 
@@ -104,7 +115,10 @@ describe('InvitesPage', () => {
 
   it('opens the send dialog and adds the new invite to the top', async () => {
     const sent = invite({ id: 'i8', email: 'new.person@example.org' });
-    const { dialogs, toasts, button, items, settle } = await setup(() => of([accepted]), sent);
+    const { dialogs, toasts, button, items, settle } = await setup(
+      () => of(page([accepted])),
+      sent,
+    );
 
     button('Invite someone')!.click();
     await settle();
@@ -117,9 +131,64 @@ describe('InvitesPage', () => {
   });
 
   it('shows the empty state with an invite action', async () => {
-    const { host, button } = await setup(() => of([]));
+    const { host, button } = await setup(() => of(page([])));
     expect(host.textContent).toContain('No invites sent');
     expect(button('Invite someone')).toBeDefined();
+  });
+
+  it('shows how many invites there are and loads the next page on Show more', async () => {
+    const pages: Record<string, InvitePage> = {
+      first: page([pending, accepted], 'cursor-2', 3),
+      'cursor-2': page([expired]),
+    };
+    const { host, service, button, items, settle } = await setup((after) =>
+      of(pages[after ?? 'first']),
+    );
+    expect(host.textContent).toContain('Showing 2 of 3 invites');
+
+    button('Show more invites')!.click();
+    await settle();
+
+    expect(service.listInvites).toHaveBeenLastCalledWith('cursor-2');
+    expect(items()).toHaveLength(3);
+    expect(items()[2]).toContain('felix.wu@example.org');
+    expect(host.textContent).toContain('Showing 3 of 3 invites');
+    expect(button('Show more invites')).toBeUndefined();
+  });
+
+  it('keeps the list when the next page fails and lets the lead try again', async () => {
+    let fail = true;
+    const { host, button, items, settle } = await setup((after) => {
+      if (!after) return of(page([pending, accepted], 'cursor-2', 3));
+      return fail ? throwError(() => new HttpErrorResponse({ status: 500 })) : of(page([expired]));
+    });
+
+    button('Show more invites')!.click();
+    await settle();
+
+    expect(items()).toHaveLength(2);
+    expect(host.querySelector('[role="alert"]')!.textContent).toContain(
+      'We couldn’t load more invites. Try again.',
+    );
+    fail = false;
+    button('Show more invites')!.click();
+    await settle();
+    expect(items()).toHaveLength(3);
+    expect(host.querySelector('[role="alert"]')).toBeNull();
+  });
+
+  it('counts a sent invite in the total without disturbing the next page', async () => {
+    const sent = invite({ id: 'i8', email: 'new.person@example.org' });
+    const { host, button, settle } = await setup(
+      (after) => of(after ? page([expired]) : page([accepted], 'cursor-2', 2)),
+      sent,
+    );
+
+    button('Invite someone')!.click();
+    await settle();
+
+    expect(host.textContent).toContain('Showing 2 of 3 invites');
+    expect(button('Show more invites')).toBeDefined();
   });
 
   it('shows the error state with a retry', async () => {

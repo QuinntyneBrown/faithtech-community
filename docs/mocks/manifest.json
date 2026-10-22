@@ -478,7 +478,9 @@
         "default",
         "loading",
         "empty",
-        "error"
+        "error",
+        "more",
+        "more-error"
       ],
       "not_applicable": {}
     },

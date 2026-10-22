@@ -1,12 +1,14 @@
-import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
 import { INVITES_SERVICE, InviteDto, InviteStatus, ROLE_LABELS } from '@faithtech-community/api';
 import {
+  AlertComponent,
   BadgeComponent,
   BadgeVariant,
   BreadcrumbComponent,
   BreadcrumbItemComponent,
   ButtonComponent,
   CardComponent,
+  ClusterComponent,
   DialogService,
   EmptyStateComponent,
   IconComponent,
@@ -34,11 +36,13 @@ const BADGES: Record<InviteStatus, { variant: BadgeVariant; label: string }> = {
 @Component({
   selector: 'ft-invites-page',
   imports: [
+    AlertComponent,
     BadgeComponent,
     BreadcrumbComponent,
     BreadcrumbItemComponent,
     ButtonComponent,
     CardComponent,
+    ClusterComponent,
     EmptyStateComponent,
     IconComponent,
     ListComponent,
@@ -58,6 +62,14 @@ export class InvitesPage {
   protected readonly state = signal<State>('loading');
   protected readonly list = signal<InviteDto[]>([]);
   protected readonly resending = signal<string | null>(null);
+  /** The continuation for the next page; null once every invite is shown. */
+  protected readonly next = signal<string | null>(null);
+  protected readonly total = signal(0);
+  protected readonly loadingMore = signal(false);
+  protected readonly moreFailed = signal(false);
+  protected readonly count = computed(
+    () => `Showing ${this.list().length} of ${this.total()} invites`,
+  );
 
   constructor() {
     void this.load();
@@ -88,6 +100,7 @@ export class InvitesPage {
     const sent = await firstValueFrom(ref.closed);
     if (!sent) return;
     this.list.update((list) => [sent, ...list]);
+    this.total.update((total) => total + 1);
     this.state.set('loaded');
     this.toasts.show({ variant: 'success', heading: `Invite sent to ${sent.email}` });
   }
@@ -98,6 +111,7 @@ export class InvitesPage {
     try {
       const sent = await firstValueFrom(this.invites.resendInvite(invite.id));
       this.list.update((list) => [sent, ...list]);
+      this.total.update((total) => total + 1);
       this.toasts.show({
         variant: 'success',
         heading: 'Invite sent again',
@@ -118,10 +132,34 @@ export class InvitesPage {
     return value ? formatDay(value) : '';
   }
 
+  /** Appends the next page. A failure keeps what is shown and says so next to Show more. */
+  protected async loadMore(): Promise<void> {
+    const after = this.next();
+    if (!after || this.loadingMore()) return;
+    this.loadingMore.set(true);
+    this.moreFailed.set(false);
+    try {
+      const page = await firstValueFrom(this.invites.listInvites(after));
+      // Invites sent from this page are already at the top; skip them if a page repeats one.
+      const shown = new Set(this.list().map((i) => i.id));
+      this.list.update((list) => [...list, ...page.items.filter((i) => !shown.has(i.id))]);
+      this.next.set(page.next);
+      this.total.set(Math.max(page.totalCount, this.list().length));
+    } catch {
+      this.moreFailed.set(true);
+    } finally {
+      this.loadingMore.set(false);
+    }
+  }
+
   private async load(): Promise<void> {
     this.state.set('loading');
+    this.moreFailed.set(false);
     try {
-      this.list.set(await firstValueFrom(this.invites.listInvites()));
+      const page = await firstValueFrom(this.invites.listInvites());
+      this.list.set(page.items);
+      this.next.set(page.next);
+      this.total.set(page.totalCount);
       this.state.set('loaded');
     } catch {
       this.state.set('error');

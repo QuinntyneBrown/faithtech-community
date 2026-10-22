@@ -53,6 +53,42 @@ test.describe('Send invites', () => {
     await expect(invites.items.first()).toContainText('Pending');
   });
 
+  test('more than a page of invites is shown 50 at a time with Show more', async ({
+    page,
+    api,
+    axe,
+  }) => {
+    const grace = api.addAccount({ email: 'grace@example.org', roles: ['CityLead'] });
+    for (let i = 0; i < 60; i++) {
+      api.addInvite({ email: `person${i}@example.org`, invitedBy: grace.profileId }, 1 + i / 100);
+    }
+    const invites = new InvitesPage(page);
+    await api.signInAs(grace, '/invites');
+
+    await expect(invites.items).toHaveCount(50);
+    await expect(invites.count).toHaveText('Showing 50 of 60 invites');
+    await axe.check();
+
+    let fail = true;
+    api.on('GET', '/api/invites', (route) => {
+      if (!fail) return api.fallback(route);
+      fail = false;
+      // The connection drops; a 500 would go to the system error page instead.
+      return route.abort('failed');
+    });
+    await invites.showMore.click();
+    await expect(invites.moreFailed).toBeVisible();
+    await expect(invites.items).toHaveCount(50);
+    await axe.check();
+
+    await invites.showMore.click();
+    await expect(invites.items).toHaveCount(60);
+    await expect(invites.count).toHaveText('Showing 60 of 60 invites');
+    await expect(invites.showMore).toHaveCount(0);
+    await expect(invites.moreFailed).toHaveCount(0);
+    await expect(invites.items.last()).toContainText('person59@example.org');
+  });
+
   test('a City Lead invites someone with a role they may grant and a note', async ({
     page,
     api,

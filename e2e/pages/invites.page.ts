@@ -8,6 +8,9 @@ export class InvitesPage {
   readonly empty: Locator;
   readonly loadError: Locator;
   readonly toast: Locator;
+  readonly count: Locator;
+  readonly showMore: Locator;
+  readonly moreFailed: Locator;
 
   constructor(private readonly page: Page) {
     this.heading = page.getByRole('heading', { level: 1 });
@@ -16,6 +19,9 @@ export class InvitesPage {
     this.empty = page.getByRole('heading', { name: 'No invites sent' });
     this.loadError = page.getByRole('heading', { name: 'We couldn’t load invites' });
     this.toast = page.locator('ft-toast');
+    this.count = page.getByRole('status').filter({ hasText: /^Showing \d+ of \d+ invites$/ });
+    this.showMore = page.getByRole('button', { name: 'Show more invites' });
+    this.moreFailed = page.getByRole('alert').filter({ hasText: 'We couldn’t load more invites' });
   }
 
   async open(): Promise<void> {

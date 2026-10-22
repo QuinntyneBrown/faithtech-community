@@ -17,8 +17,11 @@ public static class InvitesEndpoints
             })
             .Validate<SendInviteCommand>();
 
-        invites.MapGet("", async (ManageInvitesHandler handler, CancellationToken cancellationToken) =>
-            await handler.ListAsync(cancellationToken) is { } list ? Results.Ok(list) : Results.Forbid());
+        invites.MapGet("", async (string? after, int? pageSize, ManageInvitesHandler handler, CancellationToken cancellationToken) =>
+        {
+            var (result, page) = await handler.ListAsync(after, pageSize, cancellationToken);
+            return result.ToHttp(() => Results.Ok(page));
+        });
 
         invites.MapPost("/{id:guid}/resend", async (Guid id, ManageInvitesHandler handler, CancellationToken cancellationToken) =>
         {
