@@ -37,7 +37,7 @@ public class WebProtectionTests(CommunityApiFactory factory) : IClassFixture<Com
         Assert.Equal(CommunityApiFactory.WebAppOrigin, Header(response, "Access-Control-Allow-Origin"));
     }
 
-    // Traces to: L2-060 AC3. The marketing page signs in from its own origin and needs the session cookie.
+    // Traces to: L2-072 AC3. The marketing page signs in from its own origin and needs the session cookie.
     [Fact]
     public async Task Preflight_from_the_marketing_origin_is_allowed_with_credentials()
     {

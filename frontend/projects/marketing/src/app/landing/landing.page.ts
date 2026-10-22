@@ -50,7 +50,7 @@ const BROCHURE_TRANSCRIPT =
   'Join FaithTech Community. It’s free, and it takes a minute.';
 
 /**
- * The marketing page (L2-055), matching docs/mocks/pages/marketing. It collects credentials and
+ * The marketing page (L2-067), matching docs/mocks/pages/marketing. It collects credentials and
  * hands the session to the community app, which completes PKCE (ADR 0017).
  */
 @Component({
@@ -130,7 +130,7 @@ export class LandingPage implements OnInit {
   }
 
   ngOnInit(): void {
-    // A member whose session the community app keeps on this device goes straight there (L2-055 AC6).
+    // A member whose session the community app keeps on this device goes straight there (L2-067 AC6).
     if (this.auth.hasKeptSession()) {
       this.handingOff.set({ emailVerified: true });
       this.redirect(`${this.communityOrigin}${appPath(this.returnUrl())}`);

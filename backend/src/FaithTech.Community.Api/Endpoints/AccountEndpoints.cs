@@ -47,7 +47,7 @@ public static class AccountEndpoints
         account.MapPost("/sign-in", SignInAsync).Validate<SignInCommand>().AllowAnonymous();
         account.MapPost("/sign-out", SignOutAsync);
 
-        // Google sign-in for the marketing page (L2-059, ADR 0018): browser redirects, so anonymous by opt-in.
+        // Google sign-in for the marketing page (L2-071, ADR 0018): browser redirects, so anonymous by opt-in.
         account.MapGet("/google/start", StartGoogleSignIn).AllowAnonymous();
         account.MapGet("/google/callback", CompleteGoogleSignInAsync).AllowAnonymous();
 

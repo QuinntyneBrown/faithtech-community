@@ -1,4 +1,4 @@
-// Traces to: L2-055, L2-057
+// Traces to: L2-067, L2-069
 import { TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
 import { AUTH_SERVICE, BROWSER_REDIRECT, SignInOutcome } from '@faithtech-community/api';
@@ -88,7 +88,7 @@ describe('LandingPage', () => {
     expect(el.textContent).toContain('Your email isn’t verified yet');
   });
 
-  // Traces to: L2-059
+  // Traces to: L2-071
   it('starts Google sign-in with the page asked for and shows the button busy', async () => {
     const fixture = TestBed.createComponent(LandingPage);
     fixture.componentRef.setInput('returnUrl', '/events');
@@ -116,7 +116,7 @@ describe('LandingPage', () => {
     );
   });
 
-  // Traces to: L2-055 AC6
+  // Traces to: L2-067 AC6
   it('sends a member with a kept session straight to the community app', async () => {
     kept = true;
     const fixture = TestBed.createComponent(LandingPage);

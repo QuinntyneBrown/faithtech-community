@@ -6,7 +6,7 @@
 //              brochure.en.vtt (one caption per narration paragraph)
 // Usage: node eng/videos/brochure/build.mjs [--engine edge|espeak] [--check]
 // Needs node, ffmpeg, ffprobe, the e2e packages (npm --prefix e2e ci) and the chosen voice.
-// Fails when the video is longer than 30 seconds (L2-056 AC1).
+// Fails when the video is longer than 30 seconds (L2-068 AC1).
 import { execFileSync } from 'node:child_process';
 import { mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { createRequire } from 'node:module';
@@ -104,7 +104,7 @@ for (const slide of slides) {
   at += slide.seconds;
 }
 if (at > MAX_SECONDS) {
-  console.error(`The brochure is ${at.toFixed(1)} s; it must be ${MAX_SECONDS} s or less (L2-056).`);
+  console.error(`The brochure is ${at.toFixed(1)} s; it must be ${MAX_SECONDS} s or less (L2-068).`);
   process.exit(1);
 }
 await capture(slides);
@@ -138,7 +138,7 @@ writeFileSync(
 
 const total = duration(webm);
 if (total > MAX_SECONDS) {
-  console.error(`The brochure is ${total.toFixed(1)} s; it must be ${MAX_SECONDS} s or less (L2-056).`);
+  console.error(`The brochure is ${total.toFixed(1)} s; it must be ${MAX_SECONDS} s or less (L2-068).`);
   process.exit(1);
 }
 console.log(`brochure.webm ${total.toFixed(1)} s (${engine}), poster and captions written to ${out}`);

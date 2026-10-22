@@ -48,8 +48,8 @@ No schema change: `CommunityDbContext` derives from `IdentityDbContext<Community
 
 | L2 ID | Refines (L1) | Requirement |
 |-------|--------------|-------------|
-| `L2-059` | `L1-001` | Google sign-in: create, link, unverified, suspended, bad state or token, configuration. |
-| `L2-060` | `L1-015`, `L1-020` | Rate limit, no enumeration difference between the Google and password paths. |
+| `L2-071` | `L1-001` | Google sign-in: create, link, unverified, suspended, bad state or token, configuration. |
+| `L2-072` | `L1-015`, `L1-021` | Rate limit, no enumeration difference between the Google and password paths. |
 
 ### Acceptance criteria
 
@@ -83,7 +83,7 @@ The handler depends on the provider port and the shared suspension rule; logins 
 
 ### Behaviour — continue with Google
 
-State and nonce are checked before any account is touched (`L2-059`).
+State and nonce are checked before any account is touched (`L2-071`).
 
 ![Sequence diagram for Google sign-in](diagrams/sequence-google-sign-in.png)
 

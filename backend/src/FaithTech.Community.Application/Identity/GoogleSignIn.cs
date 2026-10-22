@@ -39,7 +39,7 @@ public record GoogleSignInResult(CommunityUser? User, GoogleSignInError? Error)
 }
 
 /// <summary>
-/// Signs in, links or creates an account from a Google identity (L2-059, ADR 0018). A Google login is linked only
+/// Signs in, links or creates an account from a Google identity (L2-071, ADR 0018). A Google login is linked only
 /// to an account whose email Google has verified; a new account has no role, a verified email and no password.
 /// </summary>
 public class GoogleSignInHandler(

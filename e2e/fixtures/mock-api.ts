@@ -162,7 +162,7 @@ export class MockApi {
   readonly partners = new MockPartners(this);
   /** Global search over the other fakes, with the server's permission rules (L2-026). */
   readonly search = new MockSearch(this);
-  /** Google sign-in: Google itself and the API's Google endpoints (L2-059). */
+  /** Google sign-in: Google itself and the API's Google endpoints (L2-071). */
   readonly google = new MockGoogle(this, (account) => (this.session = account));
 
   constructor(private readonly page: Page) {}
@@ -259,7 +259,7 @@ export class MockApi {
     this.storing.clear();
   }
 
-  /** The marketing page's brochure video cannot be fetched, as when the file is missing (L2-056 AC4). */
+  /** The marketing page's brochure video cannot be fetched, as when the file is missing (L2-068 AC4). */
   async breakBrochureVideo(): Promise<void> {
     await this.page.route('**/brochure/brochure.webm', (route) => route.fulfill({ status: 404 }));
   }
@@ -298,7 +298,7 @@ export class MockApi {
     const request = route.request();
     const url = new URL(request.url());
     const method = request.method();
-    // The marketing page calls the API from its own origin, as the real CORS policy allows (L2-060 AC3).
+    // The marketing page calls the API from its own origin, as the real CORS policy allows (L2-072 AC3).
     const origin = request.headers()['origin'];
     if (origin && ALLOWED_ORIGINS.includes(origin)) {
       route = withCors(route, origin);

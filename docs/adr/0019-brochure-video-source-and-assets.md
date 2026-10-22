@@ -2,7 +2,7 @@
 
 - Status: Accepted
 - Date: 2026-10-22
-- Requirements: L2-056
+- Requirements: L2-068
 - Designs: `docs/detailed-designs/marketing/landing-page`
 
 ## Context
