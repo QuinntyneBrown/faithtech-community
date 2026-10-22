@@ -1,8 +1,10 @@
 using FaithTech.Community.Api.Middleware.PrivatePreview;
+using FaithTech.Community.Application.PrivatePreview;
+using Microsoft.Extensions.Options;
 
 namespace FaithTech.Community.Api.Middleware;
 
-public class SecurityHeadersMiddleware(RequestDelegate next)
+public class SecurityHeadersMiddleware(RequestDelegate next, IOptions<PrivatePreviewOptions> privatePreview)
 {
     public Task InvokeAsync(HttpContext context)
     {
@@ -16,6 +18,12 @@ public class SecurityHeadersMiddleware(RequestDelegate next)
             headers.XContentTypeOptions = "nosniff";
             headers.XFrameOptions = "DENY";
             headers["Referrer-Policy"] = "no-referrer";
+            if (privatePreview.Value.Enabled)
+            {
+                // Nothing behind the wall is for search engines, locked or not (L2-091 AC1).
+                headers["X-Robots-Tag"] = "noindex, nofollow";
+            }
+
             return Task.CompletedTask;
         });
         return next(context);

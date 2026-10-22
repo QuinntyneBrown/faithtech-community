@@ -11,6 +11,8 @@ using Serilog;
 using Serilog.Events;
 
 var builder = WebApplication.CreateBuilder(args);
+// No server banner on any response (L2-091 AC1).
+builder.WebHost.ConfigureKestrel(options => options.AddServerHeader = false);
 
 builder.Services.AddSerilog((services, logger) => logger
     // The Serilog request log replaces ASP.NET Core's per-request events, which carry raw paths.
