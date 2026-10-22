@@ -34,6 +34,7 @@
 }
 
 .ft-picture-list__item {
+  container-type: inline-size;
   display: flex;
   flex-direction: column;
   align-items: flex-start;
@@ -54,6 +55,15 @@
   inset-block-start: var(--space-1);
   inset-inline-start: var(--space-1);
   display: inline-flex;
+}
+
+// On a thumbnail too narrow for the badge and Remove side by side (it depends on the font), the
+// Remove drops to the bottom-right corner so the two never overlap.
+@container (inline-size < 10rem) {
+  .ft-picture-list__item:has(.ft-picture-list__featured) .ft-picture-list__remove {
+    inset-block-start: auto;
+    inset-block-end: var(--space-1);
+  }
 }
 
 .ft-picture-list__remove {
