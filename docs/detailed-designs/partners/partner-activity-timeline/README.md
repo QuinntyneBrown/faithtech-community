@@ -43,7 +43,7 @@ The timeline replaces the partner page's Stage history list (`partners/manage-pa
 ### Infrastructure (`FaithTech.Community.Infrastructure/Persistence/`)
 
 - **`CommunityDbContext`** and **`IApplicationDbContext`** — gain `DbSet<PartnerActivity> PartnerActivities`. Mapping: table `PartnerActivities`; `Kind`, `FromStage` and `ToStage` as text (max 16); `Summary` max 2,000; `NextStep` max 200; index `(PartnerId, OccurredOn, OccurredAt, LoggedAtUtc)`; filtered index on `PartnerId` where `NextStep IS NOT NULL`; foreign key to `Partners` with cascade delete. `Partner.Version` is an `int` concurrency token.
-- **Migration `PartnerActivitiesAndMerge`** (in `Persistence/Migrations/`, applied by the Cli project) — creates `PartnerActivities` and `PartnerDuplicateDismissals`, adds `Version` (default `0`), `ArchivedAtUtc`, `MergedIntoId`, `MergedById` and `MergedAtUtc` to `Partners` and `MergedFromPartnerId` to `PartnerStageChanges`, then backfills with SQL:
+- **Migrations `PartnerActivities`, `PartnerStageMoveActivities` and `PartnerDuplicatesAndMerge`** (in `Persistence/Migrations/`, applied by the Cli project; planned as one `PartnerActivitiesAndMerge` and split as the slices landed, see Open questions) — together they create `PartnerActivities` and `PartnerDuplicateDismissals`, adds `Version` (default `0`), `ArchivedAtUtc`, `MergedIntoId`, `MergedById` and `MergedAtUtc` to `Partners` and `MergedFromPartnerId` to `PartnerStageChanges`, then backfills with SQL:
 
   ```sql
   INSERT INTO "PartnerActivities" ("Id", "PartnerId", "Kind", "Summary", "OccurredOn", "OccurredAt",
@@ -195,7 +195,7 @@ The feature realizes the following level-2 (L2) requirements. Each L2 requiremen
 2. Given Staff, when they view a partner, then they see the timeline without "Log activity", and `POST /api/partners/{id}/activities` answers 403 (`L2-017` AC3, `L2-066` AC3).
 3. Given a signed-in member without a lead role, Staff or System Admin, when they call either activity endpoint, then the response is 403 (`L2-017` AC4).
 4. Given an anonymous visitor, when they call either activity endpoint, then the response is 401 (`L2-042` AC1).
-5. Given a System Admin without a lead role, when they log an activity, then an audit entry `PartnerActivityLogged` records them, the partner and the activity (`L2-041`); a lead's own logging is not audited.
+5. Given a System Admin without a lead role, when they log an activity, then an audit entry `partner.activity.logged` records them, the partner and the activity (`L2-041`); a lead's own logging is not audited.
 6. Given an archived partner (`L2-089`), when a lead tries to log an activity on it, then the request is refused and the partner page shows no "Log activity".
 
 ## Diagrams

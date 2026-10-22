@@ -68,7 +68,7 @@ The timeline entries this feature writes (Merged, Restored) and the activity row
 ### Infrastructure (`FaithTech.Community.Infrastructure/Persistence/`)
 
 - **`CommunityDbContext`** — `Partner.Version` is a concurrency token (`IsConcurrencyToken()`), with an index on `ArchivedAtUtc`. `DbSet<PartnerDuplicateDismissal> PartnerDuplicateDismissals` maps to `PartnerDuplicateDismissals` with a unique index on `(LowerPartnerId, HigherPartnerId)` and cascade-delete foreign keys to `Partners`. `PartnerStageChange.MergedFromPartnerId` and `PartnerActivity.MergedFromPartnerId` are indexed.
-- **Migration `PartnerActivitiesAndMerge`** — the one migration shared with `partners/partner-activity-timeline`; it adds the columns, the table and the indexes above.
+- **Migration `PartnerDuplicatesAndMerge`** — after `PartnerActivities` and `PartnerStageMoveActivities` from `partners/partner-activity-timeline` (the planned shared `PartnerActivitiesAndMerge` was split as the slices landed); it adds the columns, the table and the indexes above.
 
 ### API (`FaithTech.Community.Api/Endpoints/PartnersEndpoints.cs`)
 
@@ -150,7 +150,7 @@ Missing from `components` today: the `merge` icon (see `partners/partner-activit
 
 ### Fake backend (`e2e/fixtures/mock-partners.ts`)
 
-- `MockPartner` gains `version`, `archivedAtUtc`, `mergedIntoId`, `mergedById` and `mergedAtUtc`; `MockActivity` and `MockStageChange` gain `mergedFromPartnerId`; `MockPartners` gains `dismissals: { lower: string; higher: string; byId: string; atUtc: string }[]` and `audit` (or a hook into the shared mock audit log) for merge and restore entries.
+- `MockPartner` gains `version`, `archivedAtUtc`, `mergedIntoId`, `mergedById` and `mergedAtUtc`; `MockActivity` gains `mergedFromPartnerId` (the fake keeps stage moves as activities, so there is no separate stage-change record); `MockPartners` gains `dismissals: MockDismissal[]` (`{ lower, higher, byId, atUtc }`) and writes merge, restore and admin dismissal entries through the shared fake audit log (`addAuditEntry`).
 - A `normaliseHost` and `normaliseName` pair in `e2e/fixtures/partner-duplicates.ts` mirrors `PartnerDuplicateRules` for the fake.
 - Routes: `GET /api/partners/{id}/duplicates`; `POST /api/partners/{id}/duplicates/{otherId}/dismissal`; `POST /api/partners/{keepId}/merge` with the same checks, order, messages and status codes as the handler, including `409` on a version mismatch; `POST /api/partners/{id}/restore` for System Admin only. `board()` and the search fake leave archived partners out; `dto()` returns `archived` and `canRestore`.
 - `bumpVersion(partnerId)` lets a spec simulate "someone moved it while you were comparing".
@@ -215,8 +215,8 @@ The feature realizes the following level-2 (L2) requirements. Each L2 requiremen
 
 1. Given a City Lead, Event Lead, Create Lead, Communications Lead or System Admin, when they merge two partners, then the merge is allowed.
 2. Given Staff or any other signed-in member, when they call the merge endpoint, then the response is 403 and nothing changes; an anonymous visitor gets 401.
-3. Given any merge, when it completes, then an audit entry `PartnersMerged` records who merged, both partners and the chosen values, whoever performed it (`L2-041`).
-4. Given a System Admin on an archived partner's page, when they choose Restore and confirm, then `POST /api/partners/{id}/restore` un-archives it, moves back every timeline entry and stage change that came from it, writes a system entry on both partners, and writes an audit entry `PartnerRestored`.
+3. Given any merge, when it completes, then an audit entry `partners.merged` records who merged, both partners and the chosen values, whoever performed it (`L2-041`).
+4. Given a System Admin on an archived partner's page, when they choose Restore and confirm, then `POST /api/partners/{id}/restore` un-archives it, moves back every timeline entry and stage change that came from it, writes a system entry on both partners, and writes an audit entry `partner.restored`.
 5. Given any caller other than a System Admin, lead roles included, when they view an archived partner, then no Restore control is shown; when they call the restore endpoint, then the response is 403 and nothing changes.
 6. Given a restore whose records changed since the page loaded, when the System Admin confirms, then the API answers 409 and nothing is changed.
 
