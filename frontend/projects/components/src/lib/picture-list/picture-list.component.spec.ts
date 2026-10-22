@@ -114,6 +114,25 @@ describe('PictureListComponent', () => {
     for (const input of inputs) expect(input.classList).toContain('input--sm');
   });
 
+  it('shows a saved photo that is still storing as a described placeholder with a status note', async () => {
+    const { fixture, cmp, host, all } = await setup();
+    cmp.photos.set([
+      { id: 'a', url: null, alt: 'Grace at Builders Night', featured: true, storing: true },
+      { id: 'b', url: null, alt: 'The team', featured: false, storing: true },
+    ]);
+    fixture.detectChanges();
+    const items = all('li');
+    expect(items).toHaveLength(2);
+    expect(items[0].querySelector('[role="img"]')!.getAttribute('aria-label')).toBe(
+      'Grace at Builders Night',
+    );
+    const statuses = Array.from(items[0].querySelectorAll('[role="status"]'));
+    expect(statuses.map((n) => n.textContent).join(' ')).toContain(
+      'Saved. It shows on your profile once it finishes storing.',
+    );
+    expect(host.textContent).toContain('Featured');
+  });
+
   it('asks for a description when one is missing', async () => {
     const { fixture, cmp, host } = await setup();
     cmp.photos.set([{ url: '/1.jpg', alt: '', featured: true }]);

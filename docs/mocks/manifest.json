@@ -184,6 +184,7 @@
         "too-large",
         "wrong-type",
         "pending",
+        "storing",
         "full",
         "empty",
         "forbidden"

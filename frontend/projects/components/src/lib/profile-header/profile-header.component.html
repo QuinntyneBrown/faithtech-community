@@ -53,7 +53,7 @@
     <section class="ft-profile-header__photos" aria-labelledby="ft-profile-header-photos">
       <h2 id="ft-profile-header-photos" class="ft-profile-header__photos-title">Photos</h2>
       <ul class="ft-profile-header__strip">
-        @for (photo of photos(); track photo.url) {
+        @for (photo of photos(); track $index) {
           <li><ft-photo [src]="photo.url" [alt]="photo.alt" /></li>
         }
       </ul>
