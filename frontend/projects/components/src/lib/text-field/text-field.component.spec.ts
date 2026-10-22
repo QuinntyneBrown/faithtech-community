@@ -11,6 +11,7 @@ import { TextFieldComponent } from './text-field.component';
     [action]="action"
     [readonly]="readonly"
     [size]="size"
+    [initialFocus]="initialFocus"
     [inputId]="inputId"
     label="Field"
     (actionClick)="clicks = clicks + 1"
@@ -23,6 +24,7 @@ class HostComponent {
   readonly = false;
   size: 'sm' | 'md' | 'lg' = 'md';
   inputId: string | null = null;
+  initialFocus = false;
   clicks = 0;
 }
 
@@ -82,6 +84,12 @@ describe('TextFieldComponent', () => {
 
   it('uses the given input id when there is no ft-form-field', () => {
     expect(setup({ inputId: 'global-q' }).input().id).toBe('global-q');
+  });
+
+  it("marks the input as the dialog's first focus only when asked", () => {
+    expect(setup().input().hasAttribute('cdkFocusInitial')).toBe(false);
+    TestBed.resetTestingModule();
+    expect(setup({ initialFocus: true }).input().hasAttribute('cdkFocusInitial')).toBe(true);
   });
 
   it('has no trailing button by default', () => {

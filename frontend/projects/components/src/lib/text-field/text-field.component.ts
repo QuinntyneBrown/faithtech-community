@@ -1,4 +1,5 @@
 import {
+  booleanAttribute,
   ChangeDetectionStrategy,
   Component,
   computed,
@@ -42,6 +43,8 @@ export class TextFieldComponent implements ControlValueAccessor {
   /** Accessible name when the field is used without ft-form-field. */
   readonly label = input<string | null>(null);
   readonly action = input<TextFieldAction | null>(null);
+  /** Takes focus when the dialog that holds it opens (CDK `cdkFocusInitial`). */
+  readonly initialFocus = input(false, { transform: booleanAttribute });
   readonly actionClick = output<void>();
 
   protected readonly value = signal('');

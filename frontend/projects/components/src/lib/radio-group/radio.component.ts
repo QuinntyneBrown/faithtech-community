@@ -1,4 +1,11 @@
-import { ChangeDetectionStrategy, Component, computed, inject, input } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  booleanAttribute,
+  computed,
+  inject,
+  input,
+} from '@angular/core';
 import { RadioGroupComponent } from './radio-group.component';
 
 /** A native radio drawn as a choice row. Must sit inside ft-radio-group. */
@@ -15,6 +22,8 @@ export class RadioComponent {
   /** Optional small line saying what the option means. */
   readonly description = input('');
   readonly disabled = input(false);
+  /** Takes focus when the dialog that holds it opens (CDK `cdkFocusInitial`). */
+  readonly initialFocus = input(false, { transform: booleanAttribute });
 
   protected readonly checked = computed(() => this.group.value() === this.value());
   protected readonly isDisabled = computed(() => this.disabled() || this.group.disabled());

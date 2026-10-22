@@ -326,7 +326,7 @@
         <tr><td><kbd>↑</kbd> <kbd>↓</kbd></td><td>Moves between radios (Remove role, Move partner, Start a sprint) and select options.</td></tr>
       </tbody></table>
       <h3>Focus</h3>
-      <p>On open, focus goes to the first field (Email, Reason, Message to attendees) or, for confirmations, to Cancel so a stray Enter is safe. Mocks mark it with <code>autofocus</code>; in the app, set <code>initialFocus</code> on that <code>ft-button</code> or <code>ft-textarea</code>. On close, focus returns to the button that opened it (Invite, Remove role, Archive). On invalid, focus moves to the first invalid field; on failed, the alert is announced and focus stays where it was.</p>
+      <p>On open, focus goes to the first field (Email, Reason, Message to attendees) or, for confirmations, to Cancel so a stray Enter is safe. Mocks mark it with <code>autofocus</code>; in the app, set <code>initialFocus</code> on that <code>ft-button</code>, <code>ft-text-field</code>, <code>ft-textarea</code> or <code>ft-radio</code> (Send invite sets it on Email, Add role on the first role). Without it the Close button, first in the dialog, would take focus. On close, focus returns to the button that opened it (Invite, Remove role, Archive). On invalid, focus moves to the first invalid field; on failed, the alert is announced and focus stays where it was.</p>
       <h3>Labelling</h3>
       <p>The title names the dialog and the subject: "Invite someone to FaithTech", "Suspend Leah Thompson?". The close button is <code>aria-label="Close"</code>. Icons are <code>aria-hidden</code>; the title and the danger button's words carry the warning.</p>
       <h3>Contrast</h3>
