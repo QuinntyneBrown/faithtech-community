@@ -6,13 +6,14 @@ namespace FaithTech.Community.Application.Notifications;
 
 /// <summary>
 /// A notification's email: its subject and content, any attachments, and for announcements the per-recipient
-/// unsubscribe path that the footer links to.
+/// unsubscribe path that the footer links to. The correlation id defaults to each recipient's notification id.
 /// </summary>
 public record NotificationEmail(
     string Subject,
     EmailContent Content,
     IReadOnlyList<EmailAttachment>? Attachments = null,
-    Func<Guid, string>? UnsubscribePath = null);
+    Func<Guid, string>? UnsubscribePath = null,
+    string? CorrelationId = null);
 
 /// <summary>
 /// The one way features raise notifications: in-app always, email when given (L2-027, L2-028, ADR 0015). Both are
@@ -70,7 +71,7 @@ public class NotificationPublisher(IApplicationDbContext db, IEmailSender emails
                 : email.Content with { UnsubscribePath = email.UnsubscribePath(recipient.ProfileId) };
             await emails.SendAsync(
                 new EmailMessage(
-                    recipient.Email!, email.Subject, content, kind.ToString(), added[recipient.ProfileId].Id.ToString(), email.Attachments),
+                    recipient.Email!, email.Subject, content, kind.ToString(), email.CorrelationId ?? added[recipient.ProfileId].Id.ToString(), email.Attachments),
                 cancellationToken);
         }
     }

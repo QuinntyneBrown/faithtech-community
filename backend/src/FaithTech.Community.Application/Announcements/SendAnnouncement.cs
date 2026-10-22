@@ -10,7 +10,7 @@ using Microsoft.Extensions.Options;
 
 namespace FaithTech.Community.Application.Announcements;
 
-/// <summary>Everyone, holders of any of <see cref="Roles"/>, or one event's RSVP list (refused until events store RSVPs).</summary>
+/// <summary>Everyone, holders of any of <see cref="Roles"/>, or the members on the RSVP list of event <see cref="EventId"/>.</summary>
 public record AudienceRequest(string? Kind, string[]? Roles = null, Guid? EventId = null);
 
 public record SendAnnouncementCommand(string? Subject, string? Body, AudienceRequest? Audience, bool AlsoEmail = true);
@@ -20,12 +20,17 @@ public record AnnouncementSentDto(Guid Id, int RecipientCount, int EmailCount);
 
 public class AudienceRequestValidator : AbstractValidator<AudienceRequest>
 {
-    public AudienceRequestValidator()
+    public const string ChooseEvent = "Choose an event.";
+
+    public AudienceRequestValidator(IApplicationDbContext db)
     {
         RuleFor(x => x.Kind).Cascade(CascadeMode.Stop)
             .Must(kind => Enum.TryParse<AudienceKind>(kind, out var parsed) && Enum.IsDefined(parsed) && !int.TryParse(kind, out _))
-            .WithMessage("Choose who to send it to.")
-            .NotEqual(nameof(AudienceKind.EventRsvps)).WithMessage("Event audiences arrive with events.");
+            .WithMessage("Choose who to send it to.");
+        RuleFor(x => x.EventId).Cascade(CascadeMode.Stop)
+            .NotNull().WithMessage(ChooseEvent)
+            .MustAsync((id, cancellationToken) => db.Events.AnyAsync(e => e.Id == id, cancellationToken)).WithMessage(ChooseEvent)
+            .When(x => x.Kind == nameof(AudienceKind.EventRsvps));
         RuleFor(x => x.Roles).Cascade(CascadeMode.Stop)
             .Must(roles => roles is { Length: > 0 }).WithMessage("Choose at least one role.")
             .Must(roles => roles!.All(r => Enum.TryParse<Role>(r, out var role) && Enum.IsDefined(role) && !int.TryParse(r, out _)))
@@ -39,7 +44,7 @@ public class SendAnnouncementValidator : AbstractValidator<SendAnnouncementComma
     public const int MaxSubject = 150;
     public const int MaxBody = 5000;
 
-    public SendAnnouncementValidator()
+    public SendAnnouncementValidator(IApplicationDbContext db)
     {
         RuleFor(x => x.Subject).Cascade(CascadeMode.Stop)
             .Must(s => !string.IsNullOrWhiteSpace(s)).WithMessage("Add a subject so people know what it’s about.")
@@ -49,7 +54,7 @@ public class SendAnnouncementValidator : AbstractValidator<SendAnnouncementComma
             .Must(b => b!.Trim().Length <= MaxBody).WithMessage($"Use {MaxBody} characters or fewer for the message.");
         RuleFor(x => x.Audience).Cascade(CascadeMode.Stop)
             .NotNull().WithMessage("Choose who to send it to.")
-            .SetValidator(new AudienceRequestValidator()!);
+            .SetValidator(new AudienceRequestValidator(db)!);
     }
 }
 
@@ -58,10 +63,12 @@ public class AnnouncementAudiences(IApplicationDbContext db, ICurrentUser curren
 {
     public bool CanSend => current.HasRole(Role.CommunicationsLead) || current.HasRole(Role.SystemAdmin);
 
-    public static AnnouncementAudience ToAudience(AudienceRequest request) =>
-        Enum.Parse<AudienceKind>(request.Kind!) == AudienceKind.Roles
-            ? AnnouncementAudience.ForRoles([.. request.Roles!.Select(Enum.Parse<Role>)])
-            : AnnouncementAudience.Everyone();
+    public static AnnouncementAudience ToAudience(AudienceRequest request) => Enum.Parse<AudienceKind>(request.Kind!) switch
+    {
+        AudienceKind.Roles => AnnouncementAudience.ForRoles([.. request.Roles!.Select(Enum.Parse<Role>)]),
+        AudienceKind.EventRsvps => AnnouncementAudience.ForEventRsvps(request.EventId!.Value),
+        _ => AnnouncementAudience.Everyone(),
+    };
 
     public IQueryable<Guid> RecipientIds(AnnouncementAudience audience)
     {
@@ -70,6 +77,12 @@ public class AnnouncementAudiences(IApplicationDbContext db, ICurrentUser curren
         {
             var roles = audience.Roles.ToList();
             members = members.Where(p => p.Roles.Any(r => roles.Contains(r.Role)));
+        }
+        else if (audience.Kind == AudienceKind.EventRsvps)
+        {
+            // Members on the RSVP list; guests have no account, so no in-app notification to receive.
+            var going = db.Events.Where(e => e.Id == audience.EventId).SelectMany(e => e.Rsvps).Select(r => r.ProfileId);
+            members = members.Where(p => going.Contains(p.Id));
         }
 
         return members.Select(p => p.Id);

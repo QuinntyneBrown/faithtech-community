@@ -1,6 +1,7 @@
 // Traces to: L2-029
 using System.Net;
 using System.Net.Http.Json;
+using FaithTech.Community.Api.Tests.Events;
 using FaithTech.Community.Api.Tests.Profiles;
 using FaithTech.Community.Domain.Notifications;
 using FaithTech.Community.Domain.Profiles;
@@ -83,21 +84,47 @@ public class SendAnnouncementTests(CommunityApiFactory factory) : IClassFixture<
         Assert.Equal(NotificationKind.Announcement, (await NotificationsOfAsync(engineer)).Single().Kind);
     }
 
+    // AC1, "one event's RSVP list": the members who RSVP'd and are not suspended; guests have no in-app inbox.
     [Fact]
-    public async Task An_event_audience_is_refused_until_events_store_rsvps()
+    public async Task Sending_to_an_events_rsvp_list_notifies_only_its_members()
     {
         var hannah = await factory.AddMemberAsync("Hannah Kim");
+        var leah = await factory.AddMemberAsync("Leah Thompson");
+        var paused = await factory.AddMemberAsync("Paused Member", p => p.Suspend("Paused", DateTime.UtcNow));
+        var stranger = await factory.AddMemberAsync("Not Going");
+        var hackathon = await factory.AddEventAsync(
+            "Hackathon: Tech for Shelters", TimeSpan.FromDays(14), members: [leah.ProfileId, paused.ProfileId], guests: [("Abby Chen", "abby@example.org")]);
+        var client = factory.ClientFor(hannah, Role.CommunicationsLead);
+        var audience = new { Kind = "EventRsvps", EventId = hackathon.Id };
 
-        var response = await factory.ClientFor(hannah, Role.CommunicationsLead).PostAsJsonAsync("/api/announcements", new
+        var count = await client.PostAsJsonAsync("/api/announcements/recipient-count", audience);
+        var response = await client.PostAsJsonAsync("/api/announcements", new { Subject = "Hackathon", Body = "See you there.", Audience = audience });
+
+        Assert.Equal(1, (await count.Content.ReadFromJsonAsync<CountResponse>())!.Count);
+        Assert.Equal(HttpStatusCode.Created, response.StatusCode);
+        Assert.Equal(1, (await response.Content.ReadFromJsonAsync<SentResponse>())!.RecipientCount);
+        Assert.Single(await NotificationsOfAsync(leah));
+        Assert.Empty(await NotificationsOfAsync(paused));
+        Assert.Empty(await NotificationsOfAsync(stranger));
+    }
+
+    [Fact]
+    public async Task An_event_audience_needs_a_known_event()
+    {
+        var hannah = await factory.AddMemberAsync("Hannah Kim");
+        var client = factory.ClientFor(hannah, Role.CommunicationsLead);
+
+        var missing = await client.PostAsJsonAsync("/api/announcements/recipient-count", new { Kind = "EventRsvps" });
+        var unknown = await client.PostAsJsonAsync("/api/announcements", new
         {
             Subject = "Hackathon",
             Body = "See you there.",
             Audience = new { Kind = "EventRsvps", EventId = Guid.NewGuid() },
         });
 
-        Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
-        var problem = await response.Content.ReadFromJsonAsync<ValidationProblemDetails>();
-        Assert.Equal(["Event audiences arrive with events."], problem!.Errors["Audience.Kind"]);
+        Assert.Equal(["Choose an event."], (await missing.Content.ReadFromJsonAsync<ValidationProblemDetails>())!.Errors["EventId"]);
+        Assert.Equal(HttpStatusCode.BadRequest, unknown.StatusCode);
+        Assert.Equal(["Choose an event."], (await unknown.Content.ReadFromJsonAsync<ValidationProblemDetails>())!.Errors["Audience.EventId"]);
     }
 
     // AC2: Given an empty subject or body, when they send, then inline errors are shown.

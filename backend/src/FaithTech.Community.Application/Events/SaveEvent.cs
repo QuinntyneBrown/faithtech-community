@@ -74,13 +74,16 @@ public class SaveEventValidator : AbstractValidator<SaveEventCommand>
 }
 
 /// <summary>
-/// Creates and edits events for event managers (L2-020). An edit raises the event's sequence (L2-024) and tells
-/// every member who RSVP'd that it changed (AC4). A System Admin acting without an event role is audited.
+/// Creates and edits events for event managers (L2-020). An edit raises the event's sequence (L2-024), tells every
+/// member who RSVP'd that it changed in the app (AC4), and emails everyone who RSVP'd, guests too, the new details with
+/// the updated .ics (L2-028). A System Admin acting without an event role is audited.
 /// </summary>
 public class SaveEventHandler(
     IApplicationDbContext db,
     EventPermissions permissions,
     INotificationPublisher notifications,
+    IIcsCalendarWriter calendar,
+    IEmailSender email,
     IAuditLog audit)
 {
     public async Task<(Result Result, Guid? Id)> CreateAsync(SaveEventCommand command, CancellationToken cancellationToken = default)
@@ -127,12 +130,31 @@ public class SaveEventHandler(
         existing.Update(
             details.Title, details.Description, details.Type, command.StartsAt, command.EndsAt, details.City,
             details.Format, details.Venue, details.OnlineLink, command.Capacity, details.Visibility);
+        var link = $"/events/{existing.Id}";
+        var subject = $"Changed: {existing.Title}";
+        var attachments = new[] { EventEmails.Calendar(existing, calendar) };
+        EmailContent Content(string path) => new(
+            "This event has changed",
+            [
+                $"The hosts updated {existing.Title}. Here are the new details:",
+                $"{EventEmails.When(existing)}\n{EventEmails.Where(existing)}",
+                "The attached calendar file updates it in your calendar.",
+            ],
+            new EmailAction("See the event", path));
         await notifications.PublishAsync(
             existing.Rsvps.Select(r => r.ProfileId).OfType<Guid>().Where(p => p != actor).ToList(),
             NotificationKind.EventChanged,
             $"{existing.Title} changed. Check the new details.",
-            $"/events/{existing.Id}",
+            link,
+            email: new NotificationEmail(subject, Content(link), attachments, CorrelationId: existing.Id.ToString()),
             cancellationToken: cancellationToken);
+        foreach (var guest in existing.Rsvps.Where(r => r.IsGuest).Select(r => r.GuestEmail!).Distinct(StringComparer.OrdinalIgnoreCase))
+        {
+            await email.SendAsync(
+                new EmailMessage(
+                    guest, subject, Content($"/public/events/{existing.Id}"), nameof(NotificationKind.EventChanged), existing.Id.ToString(), attachments),
+                cancellationToken);
+        }
 
         if (permissions.IsAdminOverride)
         {

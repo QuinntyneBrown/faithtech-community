@@ -215,6 +215,36 @@ public class EventAuthoringTests(CommunityApiFactory factory) : IClassFixture<Co
         });
     }
 
+    // L2-028: "an event cancelled or changed" emails. Everyone who RSVP'd, guests too, gets the new details and the
+    // updated .ics, whose raised sequence replaces the old entry in their calendar (L2-024).
+    [Fact]
+    public async Task Editing_emails_everyone_who_rsvpd_the_new_details_and_the_updated_calendar_file()
+    {
+        var lead = await factory.AddMemberAsync("Grace Okonkwo");
+        var leah = await factory.AddMemberAsync("Leah Thompson");
+        var guest = $"{Guid.NewGuid():N}@example.org";
+        var existing = await factory.AddEventAsync(
+            "Builders Night", TimeSpan.FromDays(7), members: [leah.ProfileId, lead.ProfileId], guests: [("Abby Chen", guest)]);
+
+        var response = await factory.ClientFor(lead, Role.EventLead).PutAsJsonAsync($"/api/events/{existing.Id}",
+            Request(title: "Builders Night", venue: "Trinity Community Centre"));
+
+        Assert.Equal(HttpStatusCode.NoContent, response.StatusCode);
+        foreach (var address in new[] { await factory.EmailOfAsync(leah), guest })
+        {
+            var email = Assert.Single(factory.Emails.SentTo(address));
+            Assert.Equal("Changed: Builders Night", email.Subject);
+            Assert.Equal(("EventChanged", existing.Id.ToString()), (email.Kind, email.CorrelationId));
+            Assert.Contains("Trinity Community Centre", email.Body);
+            Assert.Contains("Trinity Community Centre", email.HtmlBody);
+            var ics = Assert.Single(email.Attachments!);
+            Assert.Contains("SEQUENCE:1", ics.Content);
+        }
+
+        // The lead who made the change is not told about it.
+        Assert.Empty(factory.Emails.SentTo(await factory.EmailOfAsync(lead)));
+    }
+
     [Fact]
     public async Task A_System_Admin_acting_without_an_event_role_is_audited()
     {
