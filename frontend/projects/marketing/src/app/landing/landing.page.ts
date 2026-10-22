@@ -1,6 +1,7 @@
 import {
   ChangeDetectionStrategy,
   Component,
+  OnInit,
   ElementRef,
   Injector,
   afterNextRender,
@@ -73,7 +74,7 @@ const BROCHURE_TRANSCRIPT =
   styleUrl: './landing.page.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class LandingPage {
+export class LandingPage implements OnInit {
   private readonly router = inject(Router);
   private readonly auth = inject(AUTH_SERVICE);
   private readonly redirect = inject(BROWSER_REDIRECT);
@@ -126,6 +127,14 @@ export class LandingPage {
   protected show(form: 'join' | 'sign-in'): void {
     const join = form === 'join' ? '' : null;
     void this.router.navigate([], { queryParams: { join }, queryParamsHandling: 'merge' });
+  }
+
+  ngOnInit(): void {
+    // A member whose session the community app keeps on this device goes straight there (L2-055 AC6).
+    if (this.auth.hasKeptSession()) {
+      this.handingOff.set({ emailVerified: true });
+      this.redirect(`${this.communityOrigin}${appPath(this.returnUrl())}`);
+    }
   }
 
   /** One flow for "Sign in with Google" and "Sign up with Google": the browser leaves for Google. */

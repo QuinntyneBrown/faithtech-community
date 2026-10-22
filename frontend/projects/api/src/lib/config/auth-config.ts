@@ -12,6 +12,11 @@ export interface AuthConfig {
   scope: string;
   redirectUri: string;
   postLogoutRedirectUri: string;
+  /**
+   * Domain of the non-secret "kept session" hint cookie the marketing page reads (ADR 0017), such as
+   * faithtech.community; unset keeps it host-only, which localhost shares across ports.
+   */
+  sessionHintDomain?: string;
 }
 
 // Matches the public client seeded by the Cli (CommunitySeeder).

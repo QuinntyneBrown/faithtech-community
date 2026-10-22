@@ -53,6 +53,11 @@ export interface AuthService {
    */
   signInWithGoogle(returnUrl?: string, keepSignedIn?: boolean): void;
   signOut(): Observable<void>;
+  /**
+   * True when the community app keeps a "Keep me signed in" session on this device (the session hint,
+   * ADR 0017). It only decides a redirect; the community app validates the session itself.
+   */
+  hasKeptSession(): boolean;
   loadCurrentUser(): Observable<CurrentUser>;
   /** On app start: exchanges a stored refresh token and loads the member; false when there is no session. */
   restoreSession(): Promise<boolean>;

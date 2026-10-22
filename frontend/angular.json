@@ -45,7 +45,13 @@
                   "maximumError": "8kB"
                 }
               ],
-              "outputHashing": "all"
+              "outputHashing": "all",
+              "fileReplacements": [
+                {
+                  "replace": "projects/faithtech-community/src/environments/session-hint-domain.ts",
+                  "with": "projects/faithtech-community/src/environments/session-hint-domain.production.ts"
+                }
+              ]
             },
             "development": {
               "optimization": false,

@@ -11,10 +11,12 @@ describe('LandingPage', () => {
   let redirects: string[];
   let outcome: Observable<SignInOutcome>;
   let google: [string | undefined, boolean | undefined][];
+  let kept: boolean;
 
   beforeEach(() => {
     redirects = [];
     google = [];
+    kept = false;
     outcome = of({ succeeded: true, emailVerified: true });
     TestBed.configureTestingModule({
       providers: [
@@ -26,6 +28,7 @@ describe('LandingPage', () => {
           useValue: {
             signInWithPassword: () => outcome,
             signInWithGoogle: (url?: string, keep?: boolean) => google.push([url, keep]),
+            hasKeptSession: () => kept,
           },
         },
       ],
@@ -111,5 +114,15 @@ describe('LandingPage', () => {
     expect((fixture.nativeElement as HTMLElement).textContent).toContain(
       'This account is suspended',
     );
+  });
+
+  // Traces to: L2-055 AC6
+  it('sends a member with a kept session straight to the community app', async () => {
+    kept = true;
+    const fixture = TestBed.createComponent(LandingPage);
+    fixture.componentRef.setInput('returnUrl', '/events');
+    await fixture.whenStable();
+
+    expect(redirects).toEqual(['https://app.faithtech.test/events']);
   });
 });

@@ -22,6 +22,7 @@ import {
   SignUpRequest,
 } from './auth.service';
 import { OidcAuthClient } from './oidc-auth-client.service';
+import { hasSessionHint } from './session-hint';
 
 /** Wraps the account endpoints and delegates session handling to OidcAuthClient. */
 @Injectable()
@@ -66,6 +67,10 @@ export class HttpAuthService implements AuthService {
   signInWithGoogle(returnUrl = '/', keepSignedIn = false): void {
     const query = new URLSearchParams({ returnUrl, keepSignedIn: String(keepSignedIn) });
     this.redirect(`${this.base}/account/google/start?${query}`);
+  }
+
+  hasKeptSession(): boolean {
+    return hasSessionHint();
   }
 
   signOut(): Observable<void> {
