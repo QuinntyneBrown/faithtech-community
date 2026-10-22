@@ -1,5 +1,6 @@
 import { ChangeDetectionStrategy, Component, input, output } from '@angular/core';
 import { LogoMarkComponent } from '../logo-mark';
+import { TextFieldComponent } from '../text-field';
 
 export interface TopBarLink {
   label: string;
@@ -19,7 +20,7 @@ let nextId = 0;
  */
 @Component({
   selector: 'ft-top-bar',
-  imports: [LogoMarkComponent],
+  imports: [LogoMarkComponent, TextFieldComponent],
   templateUrl: './top-bar.component.html',
   styleUrl: './top-bar.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -43,8 +44,10 @@ export class TopBarComponent {
 
   protected readonly searchId = `ft-top-bar-search-${nextId++}`;
 
-  protected onSearch(event: Event, value: string): void {
+  protected onSearch(event: Event): void {
     event.preventDefault();
-    this.searchSubmit.emit(value.trim());
+    const form = event.target as HTMLFormElement;
+    const field = form.elements.namedItem('q') as HTMLInputElement | null;
+    this.searchSubmit.emit((field?.value ?? '').trim());
   }
 }

@@ -17,6 +17,7 @@ FaithTech Community runs on phones and desktops and in light and dark themes. Th
 - **`ThemeService`** — `components` service that applies `data-theme="light|dark"` on `<html>`. With preference `system` it follows `matchMedia('(prefers-color-scheme: dark)')`.
 - **Appearance setting** — the settings page (`SettingsPage` in the `notifications` library, mock `pages/settings`) has an *Appearance* card: a `CardComponent` holding a `RadioGroupComponent` with *Light*, *Dark* and *Match my device* (`light`, `dark`, `system`). Choosing one calls `ThemeService.set()` at once; it is not part of the account form's *Save settings*.
 - **Theme preference storage** — browser storage only (`localStorage` key `ft-theme`, read by `ThemeService` on start), so the choice is per device and needs no API. Decided here as the simplest option that fits the existing `ThemeService`; a per-profile preference can follow if members ask for it.
+- **Control sizes** — `TextFieldComponent` takes `size` `sm` (36px), `md` (44px, default) or `lg` (52px) from the `--control-height-*` tokens, as `ButtonComponent` does. `TopBarComponent` composes the small field for its search (an `inputId` keeps its visually hidden `<label for>`), `PictureListComponent` the small field for photo descriptions, and the Search page takes the large one.
 - **Touch targets** — interactive components set a minimum of 24x24 CSS pixels through a size token.
 - **Playwright viewport projects** — the e2e suite runs layout specs at one width per breakpoint in Chromium and asserts no horizontal page scroll.
 
