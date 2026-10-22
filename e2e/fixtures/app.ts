@@ -25,30 +25,47 @@ export const test = base.extend<{ api: MockApi; axe: Axe }>({
 });
 
 async function checkAccessibility(page: Page): Promise<void> {
-  // A dialog or toast fading in reads as low contrast; check the screen as it settles.
-  // Endless ones (a busy pulse) never finish, so only finite animations are awaited; so are
-  // long ones such as a toast's 6-second timer bar, which also pauses while hovered or focused.
-  await page.evaluate(() =>
-    Promise.all(
-      document
-        .getAnimations()
-        .filter((a) => {
-          const timing = a.effect?.getComputedTiming();
-          return (
-            a.playState === 'running' &&
-            timing?.iterations !== Infinity &&
-            Number(timing?.endTime ?? 0) <= 1000
-          );
-        })
-        .map((a) => a.finished.catch(() => undefined)),
-    ),
-  );
+  await settle(page);
   const results = await new AxeBuilder({ page })
     .withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa', 'wcag22a', 'wcag22aa'])
     .analyze();
   expect(
     results.violations.map((v) => `${v.id}: ${v.nodes.map((n) => n.target.join(' ')).join(', ')}`),
   ).toEqual([]);
+}
+
+/**
+ * Waits until the screen is at rest before axe reads it, so axe judges what a person sees:
+ * - a dialog or toast fading in reads as low contrast, so short running animations are awaited.
+ *   Endless ones (a busy pulse) never finish, and long ones such as a toast's 6-second timer bar,
+ *   which also pauses while hovered or focused, would outlive the toast, so neither is awaited;
+ * - content partly under the sticky top bar reads as a too-small target (a breadcrumb link
+ *   after the page scrolled to Save or to an error summary), so once any smooth scroll has
+ *   stopped, the page is read from the top, where the top bar covers nothing. Focus is kept.
+ */
+async function settle(page: Page): Promise<void> {
+  await page.evaluate(async () => {
+    const entering = document.getAnimations().filter((animation) => {
+      const timing = animation.effect?.getComputedTiming();
+      return (
+        animation.playState === 'running' &&
+        timing?.iterations !== Infinity &&
+        Number(timing?.endTime ?? 0) <= 1000
+      );
+    });
+    await Promise.all(entering.map((animation) => animation.finished.catch(() => undefined)));
+
+    const frame = () => new Promise((resolve) => requestAnimationFrame(resolve));
+    let last = '';
+    for (let still = 0; still < 3;) {
+      await frame();
+      const position = `${window.scrollX},${window.scrollY}`;
+      still = position === last ? still + 1 : 0;
+      last = position;
+    }
+    window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
+    await frame();
+  });
 }
 
 export { expect };

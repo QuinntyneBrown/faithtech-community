@@ -37,7 +37,8 @@ export class PlanningPokerPage {
     this.finalPoints = page.getByRole('combobox', { name: 'Final points' });
     this.setPoints = page.getByRole('button', { name: 'Set points' });
     this.end = page.getByRole('button', { name: 'End session' });
-    this.toast = page.locator('ft-toast');
+    // The newest toast: an earlier one may still be counting down beside it.
+    this.toast = page.locator('ft-toast').last();
     this.voteFailed = page.locator('ft-alert').filter({ hasText: 'We couldn’t save your vote' });
     this.deckError = page.getByText('Voting has closed on this story. Your vote wasn’t counted.');
   }

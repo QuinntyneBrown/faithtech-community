@@ -18,7 +18,8 @@ export class InvitesPage {
     this.items = page.getByRole('list', { name: 'Invites' }).getByRole('listitem');
     this.empty = page.getByRole('heading', { name: 'No invites sent' });
     this.loadError = page.getByRole('heading', { name: 'We couldn’t load invites' });
-    this.toast = page.locator('ft-toast');
+    // The newest toast: an earlier one may still be counting down beside it.
+    this.toast = page.locator('ft-toast').last();
     this.count = page.getByRole('status').filter({ hasText: /^Showing \d+ of \d+ invites$/ });
     this.showMore = page.getByRole('button', { name: 'Show more invites' });
     this.moreFailed = page.getByRole('alert').filter({ hasText: 'We couldn’t load more invites' });
