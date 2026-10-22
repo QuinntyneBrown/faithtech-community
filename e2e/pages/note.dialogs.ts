@@ -114,3 +114,16 @@ export class IconDialog {
     return this.dialog.getByRole('radio', { name, exact: true });
   }
 }
+
+/** "Archive {title}?" and "Restore {title}?" (docs/mocks/dialogs/archive-note, restore-note). */
+export class ConfirmNoteDialog {
+  readonly dialog: Locator;
+  readonly confirm: Locator;
+  readonly cancel: Locator;
+
+  constructor(page: Page, action: 'Archive' | 'Restore', title: string) {
+    this.dialog = page.getByRole('dialog', { name: `${action} ${title}?` });
+    this.confirm = this.dialog.getByRole('button', { name: action, exact: true });
+    this.cancel = this.dialog.getByRole('button', { name: 'Cancel', exact: true });
+  }
+}

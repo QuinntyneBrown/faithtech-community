@@ -1,0 +1,20 @@
+<ft-dialog
+  [heading]="'Archive ' + page.title + '?'"
+  description="It disappears for everyone who can see it today. Pages inside it stay where they are."
+  icon="archive"
+  [busy]="busy()"
+  (closed)="ref.close()"
+>
+  @if (failed()) {
+    <ft-alert status="danger" heading="Not archived">
+      We couldn’t reach FaithTech. Nothing changed — try again.
+    </ft-alert>
+  }
+  <p>You can restore it from Archived at any time.</p>
+  <ft-button ftDialogFooter initialFocus [disabled]="busy()" (click)="ref.close()"
+    >Cancel</ft-button
+  >
+  <ft-button ftDialogFooter variant="primary" [loading]="busy()" (click)="confirm()">
+    {{ busy() ? 'Archiving…' : failed() ? 'Try again' : 'Archive' }}
+  </ft-button>
+</ft-dialog>

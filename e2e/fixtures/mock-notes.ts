@@ -133,6 +133,7 @@ export class MockNotes {
     }
     if (method === 'GET' && id === 'links') return this.suggestions(route, url, caller);
     if (method === 'GET' && id === 'members') return this.members(route, url);
+    if (method === 'GET' && id === 'archived') return this.archived(route, caller);
 
     const note = this.find(id, caller);
     if (!note) return route.fulfill({ status: 404 });
@@ -143,6 +144,19 @@ export class MockNotes {
       if (!canChange) return route.fulfill({ status: 403 });
       return this.save(route, note, caller, body);
     }
+    if (method === 'POST' && (match[2] === 'archive' || match[2] === 'restore')) {
+      if (!canChange) return route.fulfill({ status: 403 });
+      const archive = match[2] === 'archive';
+      if (!!note.archivedAt === archive)
+        return this.json(route, 409, {
+          status: 409,
+          detail: archive ? 'It’s already archived.' : 'It isn’t archived.',
+        });
+      note.archivedAt = archive ? this.context.now.toISOString() : null;
+      return route.fulfill({ status: 204 });
+    }
+    if (note.archivedAt && method === 'PUT')
+      return this.invalid(route, { Version: ['Restore this page before you change it.'] });
     if (method === 'PUT' && match[2] === 'visibility') {
       if (!canChange) return route.fulfill({ status: 403 });
       return this.share(route, note, caller, body);
@@ -275,6 +289,19 @@ export class MockNotes {
     }
     n.parentId = parentId;
     return this.json(route, 200, this.dto(n, caller));
+  }
+
+  private archived(route: Route, caller: MockAccount) {
+    const rows = this.pages
+      .filter((n) => n.ownerId === caller.profileId && n.archivedAt)
+      .sort((a, b) => b.archivedAt!.localeCompare(a.archivedAt!))
+      .map((n) => ({
+        id: n.id,
+        title: n.title || 'Untitled',
+        icon: n.icon,
+        archivedAt: n.archivedAt,
+      }));
+    return this.json(route, 200, rows);
   }
 
   /** Share (L2-093): the visibility and audience, and a notification for each new recipient. */

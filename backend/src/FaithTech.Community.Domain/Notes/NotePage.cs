@@ -90,6 +90,11 @@ public class NotePage
         _roles.AddRange(keepRoles.Where(r => _roles.All(x => x.Role != r)).Select(r => new NoteShareRole(Id, r)));
     }
 
+    /// <summary>A soft delete: the page leaves every list and read but its owner's and System Admin's (L2-095).</summary>
+    public void Archive(DateTimeOffset now) => ArchivedAt = now;
+
+    public void Restore() => ArchivedAt = null;
+
     /// <summary>Puts the page inside another page of the same owner, or at the top level (L2-091).</summary>
     public void MoveTo(Guid? parentId) => ParentId = parentId;
 

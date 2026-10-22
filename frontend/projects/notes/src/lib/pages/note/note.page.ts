@@ -42,6 +42,7 @@ import {
   SaveStatusComponent,
   SkeletonComponent,
   ToastService,
+  formatDay,
   formatTime,
   newBlockId,
 } from '@faithtech-community/components';
@@ -52,10 +53,12 @@ import {
   AddLinkDialog,
   LinkCard,
   LinkChoice,
+  ArchiveNoteDialog,
   ChangeIconDialog,
   MoveNoteDialog,
   NoteSettingsDialog,
   PageSettings,
+  RestoreNoteDialog,
   MoveResult,
   ShareNoteDialog,
 } from '../../dialogs';
@@ -101,6 +104,7 @@ export class NotePage {
   protected readonly loadedBlocks = signal<NoteBlock[]>([]);
   protected readonly editable = computed(() => !!this.page()?.canEdit && !this.page()?.archivedAt);
   protected readonly titleOf = titleOf;
+  protected readonly formatDay = formatDay;
   protected readonly autosave = signal<NoteAutosave | null>(null);
   /** Autosave stopped on a 409, 403 or 404: editing pauses and the page says why (L2-094). */
   protected readonly stop = computed(() => this.autosave()?.stopped() ?? null);
@@ -122,6 +126,8 @@ export class NotePage {
     { kind: 'item', id: 'settings', label: 'Page settings', icon: 'settings' },
     { kind: 'item', id: 'inside', label: 'New page inside', icon: 'add' },
     { kind: 'item', id: 'move', label: 'Move', icon: 'move' },
+    { kind: 'divider' },
+    { kind: 'item', id: 'archive', label: 'Archive', icon: 'archive' },
   ]);
   /** What a recipient of a Shared page is told (L2-092 AC7). */
   protected readonly sharedBanner = computed(() => {
@@ -230,6 +236,51 @@ export class NotePage {
     if (id === 'settings') this.settings();
     if (id === 'inside') void this.newPageInside();
     if (id === 'move') this.move();
+    if (id === 'archive') this.archive();
+  }
+
+  /** Archives the page and goes back to Notes, with Undo (L2-095 AC1). */
+  protected archive(): void {
+    const title = titleOf({ title: this.title() });
+    this.dialogs
+      .open<boolean>(ArchiveNoteDialog, { data: { id: this.id, title } })
+      .closed.subscribe((archived) => {
+        if (!archived) return;
+        const id = this.id;
+        this.autosave()?.cancel();
+        void this.router.navigate(['/notes']);
+        this.toasts.show({
+          variant: 'info',
+          heading: `${title} archived`,
+          text: 'Restore it from Archived.',
+          actionLabel: 'Undo',
+          onAction: () => void this.undoArchive(id, title),
+        });
+      });
+  }
+
+  private async undoArchive(id: string, title: string): Promise<void> {
+    try {
+      await firstValueFrom(this.notes.restore(id));
+      await this.router.navigate(['/notes', id]);
+    } catch {
+      this.toasts.show({
+        variant: 'danger',
+        heading: `${title} wasn’t restored`,
+        text: 'We couldn’t reach FaithTech. It’s still archived.',
+      });
+    }
+  }
+
+  /** Restores an archived page from its banner (L2-095 AC6). */
+  protected restore(): void {
+    this.dialogs
+      .open<boolean>(RestoreNoteDialog, {
+        data: { id: this.id, title: titleOf({ title: this.title() }) },
+      })
+      .closed.subscribe((restored) => {
+        if (restored) void this.load(false);
+      });
   }
 
   /** The title and icon, saved through autosave (L2-086 AC3). */

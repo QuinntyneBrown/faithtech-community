@@ -1,0 +1,49 @@
+<ft-breadcrumb>
+  <ft-breadcrumb-item href="/notes">Notes</ft-breadcrumb-item>
+  <ft-breadcrumb-item>Archived</ft-breadcrumb-item>
+</ft-breadcrumb>
+<ft-page-header
+  title="Archived pages"
+  subtitle="Only you can see these. Restore a page to put it back where it was."
+/>
+
+@switch (state()) {
+  @case ('loading') {
+    <ft-list-skeleton label="Loading archived pages" [rows]="3" />
+  }
+  @case ('error') {
+    <ft-empty-state
+      variant="error"
+      heading="We couldn’t load your archived pages"
+      text="Nothing has been deleted. Check your connection and try again."
+    >
+      <ft-button actions variant="primary" (click)="retry()">
+        <ft-icon name="try-again" /> Try again
+      </ft-button>
+    </ft-empty-state>
+  }
+  @case ('loaded') {
+    @if (list().length === 0) {
+      <ft-empty-state
+        icon="archive"
+        heading="Nothing archived"
+        text="When you archive a page it waits here until you restore it."
+      >
+        <ft-button actions href="/notes">Back to Notes</ft-button>
+      </ft-empty-state>
+    } @else {
+      <ft-card variant="flush">
+        <ft-list label="Archived pages">
+          @for (note of list(); track note.id) {
+            <ft-list-item [label]="note.title" [href]="'/notes/' + note.id" [meta]="meta(note)">
+              <ft-icon-tile leading name="notes" [emoji]="note.icon" />
+              <ft-button trailing [object]="note.title" (click)="restore(note)"
+                ><ft-icon name="restore" /> Restore</ft-button
+              >
+            </ft-list-item>
+          }
+        </ft-list>
+      </ft-card>
+    }
+  }
+}

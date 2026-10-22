@@ -27,6 +27,15 @@ public static class NotesEndpoints
         notes.MapGet("/links", async (string? q, Guid? exclude, LinkSuggestionsHandler handler, CancellationToken cancellationToken) =>
             Results.Ok(await handler.HandleAsync(q, exclude, cancellationToken)));
 
+        notes.MapGet("/archived", async (ArchiveNoteHandler handler, CancellationToken cancellationToken) =>
+            Results.Ok(await handler.ListAsync(cancellationToken)));
+
+        notes.MapPost("/{id:guid}/archive", async (Guid id, ArchiveNoteHandler handler, CancellationToken cancellationToken) =>
+            (await handler.ArchiveAsync(id, cancellationToken)).ToHttp(Results.NoContent));
+
+        notes.MapPost("/{id:guid}/restore", async (Guid id, ArchiveNoteHandler handler, CancellationToken cancellationToken) =>
+            (await handler.RestoreAsync(id, cancellationToken)).ToHttp(Results.NoContent));
+
         notes.MapGet("/members", async (string? q, NoteMembersHandler handler, CancellationToken cancellationToken) =>
             Results.Ok(await handler.HandleAsync(q, cancellationToken)));
 
