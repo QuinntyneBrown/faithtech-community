@@ -1,5 +1,5 @@
 # syntax=docker/dockerfile:1
-# The production API image (ADR 0023): the API, the identity server and both Angular production builds, served by
+# The production API image (ADR 0026): the API, the identity server and both Angular production builds, served by
 # host behind the private-preview wall. Build from the repository root:
 #   docker build -f backend/deploy/api.Dockerfile -t faithtech-community-api .
 

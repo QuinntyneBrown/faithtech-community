@@ -4,7 +4,7 @@ import { PrivatePreviewPage } from '../../pages/private-preview.page';
 import { SignInPage } from '../../pages/sign-in.page';
 import { BREAKPOINTS, hasHorizontalScroll, undersizedTargets } from '../../pages/viewport';
 
-// Traces to: L2-085, L2-086, L2-087, L2-088, L2-089, L2-093 (docs/detailed-designs/platform/private-preview-wall).
+// Traces to: L2-100, L2-101, L2-102, L2-103, L2-104, L2-108 (docs/detailed-designs/platform/private-preview-wall).
 // The wall is the server's; the fake (fixtures/mock-wall.ts) serves the same wall.html, so this suite exercises the
 // real page. Every other spec runs as the owner who has already unlocked.
 test.describe('Private preview wall', () => {

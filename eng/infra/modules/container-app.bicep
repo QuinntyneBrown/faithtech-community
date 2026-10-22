@@ -1,5 +1,5 @@
 // The API container app: API, identity server, SignalR hub and both Angular builds, behind the private-preview wall
-// (ADR 0023). Declared as a module so main.bicep can deploy it twice in one run: once to add the custom domains
+// (ADR 0026). Declared as a module so main.bicep can deploy it twice in one run: once to add the custom domains
 // unbound, so their managed certificates can be issued, and once to bind them.
 
 @description('Container app name.')
@@ -79,7 +79,7 @@ resource app 'Microsoft.App/containerApps@2024-03-01' = {
           ]
         }
       ]
-      // One replica: the wall's lockout state and the Data Protection key ring live in the process (ADR 0023).
+      // One replica: the wall's lockout state and the Data Protection key ring live in the process (ADR 0026).
       scale: {
         minReplicas: 1
         maxReplicas: 1

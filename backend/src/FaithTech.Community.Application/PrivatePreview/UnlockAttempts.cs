@@ -1,10 +1,10 @@
 namespace FaithTech.Community.Application.PrivatePreview;
 
 /// <summary>
-/// Brute-force protection for the wall (L2-088). Five refusals from one address within 15 minutes pause that address
+/// Brute-force protection for the wall (L2-103). Five refusals from one address within 15 minutes pause that address
 /// for 1 minute, then 2, 4, 8… up to 60; a hundred refusals from everywhere pause everyone for 15 minutes, doubling up
 /// to 4 hours. A success, or 24 hours without a refusal, starts an address over. The state is in memory, so the API
-/// runs as one replica while the wall is on (ADR 0023).
+/// runs as one replica while the wall is on (ADR 0026).
 /// </summary>
 public class UnlockAttempts(TimeProvider time)
 {

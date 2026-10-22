@@ -1,4 +1,4 @@
-# Backend and deployment assets: tests, both container images and the Azure templates (ADR 0023).
+# Backend and deployment assets: tests, both container images and the Azure templates (ADR 0026).
 name: Backend
 
 on:

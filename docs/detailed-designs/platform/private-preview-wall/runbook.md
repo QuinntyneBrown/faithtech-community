@@ -1,6 +1,6 @@
 # Runbook: deploy behind the private-preview wall
 
-What the owner runs and supplies to put FaithTech Community on `app.faithtech.community` and `www.faithtech.community` behind the private-preview wall (ADR 0023, `README.md` in this folder). Nothing here is automated from the repository: it creates Azure resources, DNS records and production secrets, which cannot be undone from a pull request. Every command is for Bash (Azure Cloud Shell, macOS, Linux or WSL) with the Azure CLI signed in (`az login`).
+What the owner runs and supplies to put FaithTech Community on `app.faithtech.community` and `www.faithtech.community` behind the private-preview wall (ADR 0026, `README.md` in this folder). Nothing here is automated from the repository: it creates Azure resources, DNS records and production secrets, which cannot be undone from a pull request. Every command is for Bash (Azure Cloud Shell, macOS, Linux or WSL) with the Azure CLI signed in (`az login`).
 
 ## What the owner supplies
 
@@ -148,5 +148,5 @@ Set the GitHub variable `PRIVATE_PREVIEW_ENABLED` = `false` and run **Deploy**. 
 
 ## Known limits
 
-- One replica: lockouts and the Data Protection key ring are in memory, so a restart clears lockouts and invalidates outstanding verification, reset and unsubscribe links (ADR 0023; persisting the key ring is deferred).
+- One replica: lockouts and the Data Protection key ring are in memory, so a restart clears lockouts and invalidates outstanding verification, reset and unsubscribe links (ADR 0026; persisting the key ring is deferred).
 - The apex `faithtech.community` is not served or redirected (deferred).

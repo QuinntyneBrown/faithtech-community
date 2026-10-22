@@ -72,7 +72,7 @@ public static class CliApp
 
     /// <summary>
     /// Hashes the private-preview passphrase read from standard input (never an argument, so it stays out of shell
-    /// history) for PrivatePreview:PassphraseHash; the passphrase itself is never printed or stored (L2-090).
+    /// history) for PrivatePreview:PassphraseHash; the passphrase itself is never printed or stored (L2-105).
     /// </summary>
     private static async Task<int> WallHashAsync(TextReader input, TextWriter output)
     {

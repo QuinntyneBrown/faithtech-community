@@ -1,7 +1,7 @@
 /* ---------- Scope: neutral accent ---------------------------------------
    For pages that must not carry the brand: the private-preview wall served
    before anything else (docs/design-system/patterns/private-preview-wall.html,
-   ADR 0023). Put data-accent="neutral" on <html>; the accent, link and focus
+   ADR 0026). Put data-accent="neutral" on <html>; the accent, link and focus
    roles become greys, every other role is unchanged. Load it after tokens.css so it
    wins over the theme selectors there at equal specificity. Kept out of
    tokens.css because tokens.json exports themes, not scopes.

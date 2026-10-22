@@ -1,6 +1,6 @@
 namespace FaithTech.Community.Application.PrivatePreview;
 
-/// <summary>Salted, slow hashing of the owner's passphrase (L2-087 AC4, L2-090).</summary>
+/// <summary>Salted, slow hashing of the owner's passphrase (L2-102 AC4, L2-105).</summary>
 public interface IPassphraseHasher
 {
     /// <summary>A new encoded hash of <paramref name="passphrase"/> with a fresh salt.</summary>

@@ -6,7 +6,7 @@ public static class ReturnUrls
 
     /// <summary>
     /// <paramref name="value"/> when it is a path on this host (one leading slash, no backslash or control character,
-    /// at most 2,048 characters); otherwise <c>/</c>, so the unlock can never redirect off-site (L2-087 AC2).
+    /// at most 2,048 characters); otherwise <c>/</c>, so the unlock can never redirect off-site (L2-102 AC2).
     /// </summary>
     public static string Local(string? value) =>
         value is { Length: > 0 and <= MaxLength }

@@ -70,7 +70,7 @@ public class CommunityApiFactory : WebApplicationFactory<Program>, IAsyncLifetim
         builder.UseSetting("RateLimits:GuestRsvpPerHour", "100000");
         // Tests dispatch the outbox explicitly.
         builder.UseSetting("Outbox:Enabled", "false");
-        // The private-preview wall is off, as in Development; tests/PrivatePreview turns it on (ADR 0023).
+        // The private-preview wall is off, as in Development; tests/PrivatePreview turns it on (ADR 0026).
         builder.UseSetting("PrivatePreview:Enabled", "false");
         builder.ConfigureTestServices(services =>
         {

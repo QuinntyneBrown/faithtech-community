@@ -5,7 +5,7 @@ import { join } from 'node:path';
 import { Page, Request, Route } from '@playwright/test';
 
 /**
- * The server's private-preview wall (PrivatePreviewGateMiddleware, ADR 0023) for the two dev servers. It renders the
+ * The server's private-preview wall (PrivatePreviewGateMiddleware, ADR 0026) for the two dev servers. It renders the
  * API's own wall.html the way WallPage does, so the browser runs the real page, and answers the gate's contract:
  * locked navigations get the wall (403), anything else an empty 403, POST /__wall/unlock checks the passphrase and the
  * CSRF value, five refusals lock out, and a success sets __Secure-unlock and 303s to a local return URL.

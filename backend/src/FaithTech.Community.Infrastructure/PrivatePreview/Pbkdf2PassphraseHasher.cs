@@ -4,7 +4,7 @@ using FaithTech.Community.Application.PrivatePreview;
 
 namespace FaithTech.Community.Infrastructure.PrivatePreview;
 
-/// <summary>PBKDF2-HMAC-SHA256, encoded <c>pbkdf2-sha256$iterations$salt$hash</c> in base64 (ADR 0023).</summary>
+/// <summary>PBKDF2-HMAC-SHA256, encoded <c>pbkdf2-sha256$iterations$salt$hash</c> in base64 (ADR 0026).</summary>
 public class Pbkdf2PassphraseHasher : IPassphraseHasher
 {
     public const int Iterations = 600_000;

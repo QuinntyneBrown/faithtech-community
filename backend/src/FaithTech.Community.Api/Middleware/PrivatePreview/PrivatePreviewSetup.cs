@@ -6,7 +6,7 @@ public static class PrivatePreviewSetup
 {
     public static IServiceCollection AddPrivatePreview(this IServiceCollection services, IConfiguration configuration)
     {
-        // With the wall on, the API fails closed: no start without a full-strength hash and a 256-bit key (L2-087 AC7).
+        // With the wall on, the API fails closed: no start without a full-strength hash and a 256-bit key (L2-102 AC7).
         services.AddOptions<PrivatePreviewOptions>()
             .Bind(configuration.GetSection(PrivatePreviewOptions.Section))
             .Validate<IPassphraseHasher>(

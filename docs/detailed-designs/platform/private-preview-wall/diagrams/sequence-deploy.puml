@@ -24,9 +24,9 @@ wf -> arm : Deploy main.bicep without images: shared resources
 wf -> acr : Push api and cli images tagged with the commit
 wf -> arm : Deploy with the Cli image: migrate and seed jobs
 wf -> cli : Start the migrate job and wait
-cli -> db : Apply EF migrations (never the API, L2-094 #3)
+cli -> db : Apply EF migrations (never the API, L2-109 #3)
 wf -> cli : Start the seed job and wait
-cli -> db : web client, admin roster, starter resources (L2-094 #4)
+cli -> db : web client, admin roster, starter resources (L2-109 #4)
 wf -> arm : Deploy with the API image
 arm -> api : New revision on the commit tag
 api --> arm : Healthy on /health/live

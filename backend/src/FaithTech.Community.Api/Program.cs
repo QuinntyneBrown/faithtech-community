@@ -11,7 +11,7 @@ using Serilog;
 using Serilog.Events;
 
 var builder = WebApplication.CreateBuilder(args);
-// No server banner on any response (L2-091 AC1).
+// No server banner on any response (L2-106 AC1).
 builder.WebHost.ConfigureKestrel(options => options.AddServerHeader = false);
 
 builder.Services.AddSerilog((services, logger) => logger
@@ -56,7 +56,7 @@ app.UseSerilogRequestLogging(options =>
 app.UsePrivatePreview();
 app.UseExceptionHandler();
 app.UseStatusCodePages();
-// Both Angular builds by host, in the production container only (L2-093).
+// Both Angular builds by host, in the production container only (L2-108).
 app.UseStaticSites(app.Configuration);
 app.UseCors(WebProtectionSetup.WebAppCorsPolicy);
 app.UseAuthentication();

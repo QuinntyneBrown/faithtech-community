@@ -4,7 +4,7 @@ using Microsoft.Extensions.FileProviders;
 
 namespace FaithTech.Community.Api.Middleware;
 
-/// <summary>Where the production container keeps the two Angular builds (backend/deploy/api.Dockerfile, ADR 0023).</summary>
+/// <summary>Where the production container keeps the two Angular builds (backend/deploy/api.Dockerfile, ADR 0026).</summary>
 public class StaticSitesOptions
 {
     public const string Section = "StaticSites";
@@ -20,7 +20,7 @@ public class StaticSitesOptions
 }
 
 /// <summary>
-/// Serves both Angular builds by host behind the private-preview wall (L2-093). API paths always go on to the API.
+/// Serves both Angular builds by host behind the private-preview wall (L2-108). API paths always go on to the API.
 /// Nothing is configured in development or in the tests, where the Angular dev servers serve the apps.
 /// </summary>
 public static class StaticSitesSetup
@@ -68,7 +68,7 @@ public static class StaticSitesSetup
                         }
                         else
                         {
-                            // Private: nothing behind the wall may sit in a shared cache (L2-093 AC2).
+                            // Private: nothing behind the wall may sit in a shared cache (L2-108 AC2).
                             file.Context.Response.Headers.CacheControl = "private, max-age=31536000, immutable";
                         }
                     },

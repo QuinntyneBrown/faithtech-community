@@ -8,7 +8,7 @@ using Microsoft.Extensions.DependencyInjection.Extensions;
 
 namespace FaithTech.Community.Api.Tests.PrivatePreview;
 
-// Traces to: L2-086, L2-087.
+// Traces to: L2-101, L2-102.
 public class UnlockTests(PrivatePreviewApiFactory factory) : IClassFixture<PrivatePreviewApiFactory>
 {
     [Fact]

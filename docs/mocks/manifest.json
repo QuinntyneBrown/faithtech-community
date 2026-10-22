@@ -45,9 +45,9 @@
       "title": "Private preview wall",
       "route": "app.faithtech.community and www.faithtech.community, any path while locked",
       "requirements": [
-        "L2-085",
-        "L2-087",
-        "L2-088"
+        "L2-100",
+        "L2-102",
+        "L2-103"
       ],
       "states": [
         "default",

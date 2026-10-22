@@ -7,7 +7,7 @@ using Microsoft.Extensions.Options;
 namespace FaithTech.Community.Api.Middleware.PrivatePreview;
 
 /// <summary>
-/// The private-preview wall (ADR 0023, L2-085 to L2-089). Runs before routing, the exception handler and static files,
+/// The private-preview wall (ADR 0026, L2-100 to L2-104). Runs before routing, the exception handler and static files,
 /// so until the visitor holds a valid unlock nothing but the exempt paths is reached and every response is one the
 /// gate writes itself: the wall page for a navigation, an empty 403 for anything else, never a redirect.
 /// </summary>
@@ -46,7 +46,7 @@ public class PrivatePreviewGateMiddleware(
             return;
         }
 
-        // A CORS preflight never carries cookies; one from our own origins goes on to the CORS policy (L2-086 AC3).
+        // A CORS preflight never carries cookies; one from our own origins goes on to the CORS policy (L2-101 AC3).
         if (IsOwnPreflight(request))
         {
             await next(context);

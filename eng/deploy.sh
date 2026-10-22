@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Deploys FaithTech Community to Azure (ADR 0023): shared resources, images, migrations, then the API.
+# Deploys FaithTech Community to Azure (ADR 0026): shared resources, images, migrations, then the API.
 # Run by .github/workflows/deploy.yml, or by the owner from a shell signed in with `az login`.
 #
 # Required environment:

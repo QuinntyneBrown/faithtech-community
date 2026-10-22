@@ -4,7 +4,7 @@ using Microsoft.AspNetCore.Hosting;
 
 namespace FaithTech.Community.Api.Tests.PrivatePreview;
 
-// Traces to: L2-085 AC2, AC3, L2-091.
+// Traces to: L2-100 AC2, AC3, L2-106.
 public class WallHeadersTests(PrivatePreviewApiFactory factory) : IClassFixture<PrivatePreviewApiFactory>
 {
     public static TheoryData<string, string> Responses() => new()

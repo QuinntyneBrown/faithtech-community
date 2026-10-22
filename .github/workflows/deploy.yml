@@ -1,4 +1,4 @@
-# Deploys to Azure Container Apps behind the private-preview wall (ADR 0023). Before the first run the owner follows
+# Deploys to Azure Container Apps behind the private-preview wall (ADR 0026). Before the first run the owner follows
 # docs/detailed-designs/platform/private-preview-wall/runbook.md: an Azure federated credential for this repository,
 # the secrets and variables below, the Key Vault secrets and the DNS records.
 #   Secrets:   AZURE_CLIENT_ID, AZURE_TENANT_ID, AZURE_SUBSCRIPTION_ID, POSTGRES_ADMIN_PASSWORD

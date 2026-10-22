@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Hosting;
 
 namespace FaithTech.Community.Api.Tests.PrivatePreview;
 
-// Traces to: L2-086 AC3, L2-089, L2-090.
+// Traces to: L2-101 AC3, L2-104, L2-105.
 public class UnlockCookieTests(PrivatePreviewApiFactory factory) : IClassFixture<PrivatePreviewApiFactory>
 {
     /// <summary>"another passphrase for the owner", hashed by wall-hash.</summary>

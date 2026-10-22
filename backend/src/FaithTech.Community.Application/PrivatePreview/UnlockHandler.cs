@@ -14,9 +14,9 @@ public enum UnlockStatus
 public record UnlockOutcome(UnlockStatus Status, string? Token = null, DateTimeOffset? ExpiresAt = null);
 
 /// <summary>
-/// Checks the owner's passphrase (L2-087). Every refusal costs one full hash, whether the passphrase was wrong, empty,
+/// Checks the owner's passphrase (L2-102). Every refusal costs one full hash, whether the passphrase was wrong, empty,
 /// too long or the form was forged, so neither the response nor its timing says which check failed. A locked-out
-/// address is not checked at all (L2-088). Nothing typed is ever logged.
+/// address is not checked at all (L2-103). Nothing typed is ever logged.
 /// </summary>
 public class UnlockHandler(
     UnlockAttempts attempts,

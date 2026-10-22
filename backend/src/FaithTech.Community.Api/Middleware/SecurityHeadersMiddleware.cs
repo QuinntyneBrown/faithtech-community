@@ -20,7 +20,7 @@ public class SecurityHeadersMiddleware(RequestDelegate next, IOptions<PrivatePre
             headers["Referrer-Policy"] = "no-referrer";
             if (privatePreview.Value.Enabled)
             {
-                // Nothing behind the wall is for search engines, locked or not (L2-091 AC1).
+                // Nothing behind the wall is for search engines, locked or not (L2-106 AC1).
                 headers["X-Robots-Tag"] = "noindex, nofollow";
             }
 

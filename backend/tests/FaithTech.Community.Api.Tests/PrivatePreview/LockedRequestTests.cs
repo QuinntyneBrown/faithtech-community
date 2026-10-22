@@ -3,7 +3,7 @@ using System.Net.Http.Headers;
 
 namespace FaithTech.Community.Api.Tests.PrivatePreview;
 
-// Traces to: L2-085, L2-086, L2-092.
+// Traces to: L2-100, L2-101, L2-107.
 public class LockedRequestTests(PrivatePreviewApiFactory factory) : IClassFixture<PrivatePreviewApiFactory>
 {
     [Theory]

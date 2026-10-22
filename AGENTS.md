@@ -34,7 +34,7 @@ faithtech-community/
 │   ├── Directory.Packages.props      # Central NuGet package versions
 │   ├── global.json                   # Pinned .NET SDK
 │   ├── deploy/                       # Dockerfiles (API with both Angular builds, Cli) and the
-│   │                                 # local compose file (ADR 0023)
+│   │                                 # local compose file (ADR 0026)
 │   ├── src/
 │   │   ├── FaithTech.Community.Domain/          # Entities, value objects, roles. Zero dependencies.
 │   │   │                                        # One folder per feature, named as in Application/,
@@ -162,7 +162,7 @@ Non-obvious rules:
 - Seed data is idempotent and safe to re-run.
 - Endpoints require authentication by default. Anonymous access, such as public event pages and guest RSVP, must be opted into explicitly per endpoint.
 - Keep request logging outside the exception-handling middleware so handled response statuses are logged correctly.
-- While `PrivatePreview:Enabled` is on (the default; Development turns it off), `PrivatePreviewGateMiddleware` refuses every request without a valid unlock before routing, authentication and static files (ADR 0023). Keep it ahead of them in `Program.cs`. It is a gate in front of the permission rules, never a replacement for them.
+- While `PrivatePreview:Enabled` is on (the default; Development turns it off), `PrivatePreviewGateMiddleware` refuses every request without a valid unlock before routing, authentication and static files (ADR 0026). Keep it ahead of them in `Program.cs`. It is a gate in front of the permission rules, never a replacement for them.
 - Keep secrets out of the repo; use configuration and environment variables.
 
 ### Tests

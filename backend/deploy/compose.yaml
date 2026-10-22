@@ -1,4 +1,4 @@
-# Local services and a smoke test of the production images with the private-preview wall on (ADR 0023). Never used in
+# Local services and a smoke test of the production images with the private-preview wall on (ADR 0026). Never used in
 # production.
 #   Development services only:  docker compose -f backend/deploy/compose.yaml up -d postgres azurite
 #   Whole stack from the images: docker compose -f backend/deploy/compose.yaml up --build --wait

@@ -8,7 +8,7 @@ using Serilog.Core;
 
 namespace FaithTech.Community.Api.Tests.PrivatePreview;
 
-// Traces to: L2-088.
+// Traces to: L2-103.
 public class BruteForceTests(PrivatePreviewApiFactory factory) : IClassFixture<PrivatePreviewApiFactory>
 {
     internal const string Wrong = "synthetic-wrong-passphrase-for-logs";
@@ -145,7 +145,7 @@ public class BruteForceTests(PrivatePreviewApiFactory factory) : IClassFixture<P
     }
 }
 
-// Traces to: L2-088 AC3. Its own fixture: a global lockout shuts everyone out.
+// Traces to: L2-103 AC3. Its own fixture: a global lockout shuts everyone out.
 public class GlobalLockoutTests(PrivatePreviewApiFactory factory) : IClassFixture<PrivatePreviewApiFactory>
 {
     [Fact]
@@ -188,7 +188,7 @@ public class StaticLoggerCollection
     public const string Name = "Serilog static logger";
 }
 
-// Traces to: L2-088 AC4.
+// Traces to: L2-103 AC4.
 [Collection(StaticLoggerCollection.Name)]
 public class UnlockLoggingTests(PrivatePreviewApiFactory factory) : IClassFixture<PrivatePreviewApiFactory>
 {

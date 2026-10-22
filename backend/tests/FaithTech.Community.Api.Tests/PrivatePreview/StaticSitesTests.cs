@@ -4,7 +4,7 @@ using Microsoft.AspNetCore.Mvc.Testing;
 
 namespace FaithTech.Community.Api.Tests.PrivatePreview;
 
-/// <summary>The production container serves both Angular builds by host, behind the wall (L2-093).</summary>
+/// <summary>The production container serves both Angular builds by host, behind the wall (L2-108).</summary>
 public sealed class StaticSitesApiFactory : PrivatePreviewApiFactory
 {
     public string Root { get; } = Directory.CreateTempSubdirectory("sites-").FullName;
@@ -42,7 +42,7 @@ public sealed class StaticSitesApiFactory : PrivatePreviewApiFactory
     }
 }
 
-// Traces to: L2-086 AC1, L2-091 AC4, L2-093.
+// Traces to: L2-101 AC1, L2-106 AC4, L2-108.
 public class StaticSitesTests(StaticSitesApiFactory factory) : IClassFixture<StaticSitesApiFactory>
 {
     [Theory]

@@ -9,7 +9,7 @@ namespace FaithTech.Community.Infrastructure.PrivatePreview;
 
 /// <summary>
 /// <c>w1.&lt;expiry, unix seconds&gt;.&lt;HMAC-SHA256&gt;</c>, keyed by <c>PrivatePreview:SigningKey</c>. The server checks the
-/// expiry itself, and replacing the key invalidates every token (L2-089, L2-090).
+/// expiry itself, and replacing the key invalidates every token (L2-104, L2-105).
 /// </summary>
 public class HmacUnlockTokens(IOptions<PrivatePreviewOptions> options, TimeProvider time) : IUnlockTokens
 {

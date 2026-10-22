@@ -1,8 +1,8 @@
-# 0023. Private preview wall and hosting
+# 0026. Private preview wall and hosting
 
 - Status: Accepted
 - Date: 2026-10-22
-- Requirements: L1-022, L2-085 to L2-094
+- Requirements: L1-023, L2-100 to L2-109
 - Designs: `docs/detailed-designs/platform/private-preview-wall`, `docs/detailed-designs/platform/server-authorization`
 
 ## Context

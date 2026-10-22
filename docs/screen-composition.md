@@ -22,7 +22,7 @@ Coverage: the profiles screens (`profile`, `edit-profile`, `delete-photo`), the 
 
 ### Private preview wall — any path on `app.` and `www.faithtech.community` while locked, rendered by the server (`pages/private-preview`: default, busy, invalid, locked-out, error, redirect)
 
-- Not an Angular screen: the API's private-preview gate renders it before either app bundle may load, so it cannot use `@faithtech-community/components` (ADR 0023). It composes the design system's classes instead: auth layout, `card`, `field` with `field__error`, `alert` (`warning` for locked-out, `danger` for error) and `btn btn--primary btn--lg btn--block`, under the neutral accent scope (`data-accent="neutral"`, design system `patterns/private-preview-wall.html`).
+- Not an Angular screen: the API's private-preview gate renders it before either app bundle may load, so it cannot use `@faithtech-community/components` (ADR 0026). It composes the design system's classes instead: auth layout, `card`, `field` with `field__error`, `alert` (`warning` for locked-out, `danger` for error) and `btn btn--primary btn--lg btn--block`, under the neutral accent scope (`data-accent="neutral"`, design system `patterns/private-preview-wall.html`).
 - Local (server template `backend/src/FaithTech.Community.Api/Middleware/PrivatePreview/wall.html`): the inline, nonce-protected copy of those rules read by role, the plain-HTML form (`csrf`, `returnUrl`, `passphrase`) and the small script that shows the busy state. No logo, product name, description, favicon or brand colour.
 
 ### Sign in — `/sign-in` (`pages/sign-in`: default, invalid, busy, locked, error, suspended)

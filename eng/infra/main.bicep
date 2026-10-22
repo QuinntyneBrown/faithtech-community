@@ -1,4 +1,4 @@
-// FaithTech Community on Azure Container Apps (ADR 0023, docs/detailed-designs/platform/private-preview-wall).
+// FaithTech Community on Azure Container Apps (ADR 0026, docs/detailed-designs/platform/private-preview-wall).
 // One container app serves app.faithtech.community (community app, API, identity server) and
 // www.faithtech.community (marketing page) behind the private-preview wall. Every secret lives in Key Vault; this
 // template holds none. Runbook: docs/detailed-designs/platform/private-preview-wall/runbook.md.
@@ -31,7 +31,7 @@ param cliImage string = ''
 @allowed(['none', 'issue', 'bound'])
 param customDomainsStage string = 'none'
 
-@description('The private-preview wall. Set to false to lift it (L2-092).')
+@description('The private-preview wall. Set to false to lift it (L2-107).')
 param privatePreviewEnabled bool = true
 
 @description('Adds the Google sign-in secrets (google-client-id, google-client-secret) to the app.')
@@ -207,7 +207,7 @@ var appSecrets = [for secret in secretNames: {
 var appEnv = concat(
   [
     { name: 'ASPNETCORE_ENVIRONMENT', value: 'Production' }
-    // The client address is the last X-Forwarded-For entry, which the ingress appends (L2-088 AC5).
+    // The client address is the last X-Forwarded-For entry, which the ingress appends (L2-103 AC5).
     { name: 'ASPNETCORE_FORWARDEDHEADERS_ENABLED', value: 'true' }
     { name: 'WebApp__Origin', value: appOrigin }
     { name: 'Marketing__Origin', value: wwwOrigin }

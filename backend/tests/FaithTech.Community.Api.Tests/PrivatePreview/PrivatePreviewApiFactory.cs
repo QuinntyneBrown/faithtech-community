@@ -7,7 +7,7 @@ using Microsoft.AspNetCore.Mvc.Testing;
 
 namespace FaithTech.Community.Api.Tests.PrivatePreview;
 
-/// <summary>The API with the private-preview wall on, as production runs it (ADR 0023).</summary>
+/// <summary>The API with the private-preview wall on, as production runs it (ADR 0026).</summary>
 public class PrivatePreviewApiFactory : CommunityApiFactory
 {
     /// <summary>The owner's passphrase in these tests; production keeps only its hash, in Key Vault.</summary>
