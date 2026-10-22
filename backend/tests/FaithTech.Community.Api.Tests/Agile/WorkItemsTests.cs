@@ -299,6 +299,64 @@ public class WorkItemsTests(CommunityApiFactory factory) : IClassFixture<Communi
     }
 
     [Fact]
+    public async Task Given_a_system_admin_when_they_edit_move_and_comment_on_an_item_then_each_action_is_audited()
+    {
+        var cast = await factory.AddCastAsync(WorkspaceMethod.Kanban);
+        var story = await factory.AddStoryAsync(cast.WorkspaceId, "Kiosk");
+        var admin = factory.AdminClient(cast);
+
+        var edit = await admin.PutAsJsonAsync($"/api/items/{story}", new { Title = "Kiosk v2", Description = "", Status = "ToDo", StoryPoints = 3 });
+        var move = await admin.PutAsJsonAsync($"/api/items/{story}/status", new { Status = "InProgress" });
+        var comment = await admin.PostAsJsonAsync($"/api/items/{story}/comments", new { Body = "Checked with the venue." });
+
+        Assert.Equal((HttpStatusCode.NoContent, HttpStatusCode.NoContent, HttpStatusCode.Created), (edit.StatusCode, move.StatusCode, comment.StatusCode));
+        var entries = await factory.WithDbAsync(db => db.AuditEntries.Where(a => a.TargetId == story.ToString()).ToListAsync());
+        Assert.Equal(["workitem.commented", "workitem.moved", "workitem.updated"], entries.Select(e => e.Action).Order());
+        Assert.All(entries, e => Assert.Equal(cast.Admin.ProfileId, e.ActorId));
+    }
+
+    [Fact]
+    public async Task Given_a_title_of_exactly_200_characters_when_created_then_it_is_accepted()
+    {
+        var cast = await factory.AddCastAsync();
+        var title = new string('k', 200);
+
+        var story = await CreatedAsync(await factory.MemberClient(cast).PostAsJsonAsync(
+            $"/api/workspaces/{cast.WorkspaceId}/items", New("Story", title, description: "Fits exactly.")));
+
+        var read = (await factory.MemberClient(cast).GetFromJsonAsync<Item>($"/api/items/{story.Id}"))!;
+        Assert.Equal((title, "Fits exactly."), (read.Title, read.Description));
+    }
+
+    [Fact]
+    public async Task Given_an_item_reassigned_on_edit_then_the_new_assignee_is_notified_and_a_task_can_be_assigned_too()
+    {
+        var cast = await factory.AddCastAsync();
+        var story = await CreatedAsync(await factory.OwnerClient(cast).PostAsJsonAsync($"/api/workspaces/{cast.WorkspaceId}/items", New("Story", "Kiosk")));
+        var task = await CreatedAsync(await factory.OwnerClient(cast).PostAsJsonAsync($"/api/workspaces/{cast.WorkspaceId}/items", New("Task", "Buy tablets", story.Id)));
+
+        var edit = await factory.OwnerClient(cast).PutAsJsonAsync($"/api/items/{story.Id}", new { Title = "Kiosk", Description = "", Status = "ToDo", AssigneeId = cast.Member.ProfileId });
+        var taskEdit = await factory.OwnerClient(cast).PutAsJsonAsync($"/api/items/{task.Id}", new { Title = "Buy tablets", Description = "", AssigneeId = cast.Member.ProfileId });
+
+        Assert.Equal((HttpStatusCode.NoContent, HttpStatusCode.NoContent), (edit.StatusCode, taskEdit.StatusCode));
+        var notifications = await factory.WithDbAsync(db => db.Notifications.Where(n => n.RecipientId == cast.Member.ProfileId && n.Kind == NotificationKind.WorkItemAssigned).ToListAsync());
+        Assert.Equal(["Grace Okonkwo assigned you Buy tablets", "Grace Okonkwo assigned you Kiosk"], notifications.Select(n => n.Title).Order());
+        Assert.Equal(cast.Member.ProfileId, (await factory.LoadItemAsync(task.Id)).AssigneeId);
+    }
+
+    [Fact]
+    public async Task Given_a_member_who_is_not_the_owner_when_they_change_an_epics_status_then_403()
+    {
+        var cast = await factory.AddCastAsync();
+        var epic = await CreatedAsync(await factory.OwnerClient(cast).PostAsJsonAsync($"/api/workspaces/{cast.WorkspaceId}/items", New("Epic", "Owner's epic")));
+
+        var response = await factory.MemberClient(cast).PutAsJsonAsync($"/api/items/{epic.Id}/status", new { Status = "Done" });
+
+        Assert.Equal(HttpStatusCode.Forbidden, response.StatusCode);
+        Assert.Equal(WorkItemStatus.ToDo, (await factory.LoadItemAsync(epic.Id)).Status);
+    }
+
+    [Fact]
     public async Task Given_the_backlog_when_shown_then_initiatives_epics_and_stories_appear_as_a_tree_that_can_be_filtered()
     {
         var cast = await factory.AddCastAsync();

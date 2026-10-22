@@ -66,10 +66,12 @@ export class StartPokerDialog {
   readonly dialog: Locator;
   readonly start: Locator;
   readonly storyError: Locator;
+  readonly failed: Locator;
 
   constructor(page: Page) {
     this.dialog = page.getByRole('dialog', { name: 'Start a Planning Poker session' });
     this.start = this.dialog.getByRole('button', { name: /^Start and invite/ });
+    this.failed = this.dialog.locator('ft-alert').filter({ hasText: 'That didn’t work' });
     this.storyError = this.dialog.getByText('Choose at least one story to estimate.', {
       exact: true,
     });

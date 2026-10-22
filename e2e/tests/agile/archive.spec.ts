@@ -138,6 +138,7 @@ test.describe('Archive and ownership', () => {
     await expect(admin.needsOwner).toContainText(
       'Grace Okonkwo no longer holds the City Lead role but owns Toronto team.',
     );
+    await axe.check();
     await admin.workspaceSettings('Toronto team').click();
 
     const settings = new WorkspaceSettingsPage(page);

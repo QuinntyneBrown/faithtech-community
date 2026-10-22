@@ -16,39 +16,50 @@ skinparam package {
 }
 actor "Workspace member or Staff" as actor
 box "Frontend — FaithTech Community web app (agile library)" #E0F2FE
-  participant "TeamBoardPage" as page
+  participant "BoardPage" as page
   participant "AgileService (AGILE_SERVICE)" as svc
-  participant "AgileLiveService" as live
+  participant "SignalRAgileLiveService (AGILE_LIVE_SERVICE)" as live
 end box
 box "Backend — FaithTech.Community.Api" #D1FADF
-  participant "BoardEndpoints" as ep
+  participant "WorkItemsEndpoints" as ep
+  participant "AgileHub" as hub
 end box
 box "Backend — FaithTech.Community.Application and Domain" #ECFDF3
-  participant "GetBoardHandler" as h
+  participant "BoardHandler" as h
   participant "WorkspaceAccessPolicy" as pol
 end box
 box "Backend — FaithTech.Community.Infrastructure" #FFF4E5
-  participant "AgileHub" as hub
   participant "CommunityDbContext" as ctx
   database "Community database" as db
 end box
-actor -> page : Open board
-page -> svc : getBoard(workspaceId)
-svc -> ep : GET /workspaces/{id}/board
-ep -> h : Send GetBoardQuery
-h -> pol : EnsureCanRead(workspaceId)
-pol --> h : Allowed
-alt Scrum workspace
-h -> ctx : Stories in active sprint only (L2-034 AC3)
-else Kanban workspace
-h -> ctx : All non-archived stories
-end
-ctx -> db : SELECT stories with task counts
+actor -> page : Open /workspaces/{id}
+page -> svc : getBoard(workspaceId, filter?)
+svc -> ep : GET /api/workspaces/{id}/board?initiativeId|epicId|noEpic
+ep -> h : GetAsync(workspaceId, initiativeId, epicId, noEpic)
+h -> pol : LoadAsync(workspaceId)
+alt outsider
+pol --> h : Outsider
+h --> ep : null
+ep --> svc : 404 Not Found
+svc --> page : Not found
+else caller may read
+pol --> h : Caller
+h -> ctx : Work items of the workspace; active sprint for Scrum
+ctx -> db : SELECT
 db --> ctx : Rows
-h --> ep : BoardDto with To Do, In Progress, Done (L2-034 AC1)
+alt Scrum workspace
+h -> h : Stories in the active sprint only, filter ignored (L2-034 AC3)
+else Kanban workspace
+h -> h : All non-archived stories, narrowed by initiative, epic or no epic
+end
+h --> ep : BoardDto: To Do, In Progress, Done with task counts (L2-034 AC1)
 ep --> svc : 200 OK
 svc --> page : Board
-page -> live : Join workspace group
-live -> hub : Subscribe
-page --> actor : Render columns, or tabs at XS (L2-034 AC4)
+page -> live : watchBoard(workspaceId)
+live -> hub : WatchBoard(workspaceId)
+hub -> pol : LoadAsync(workspaceId)
+pol --> hub : Caller may read
+hub -> hub : Add connection to group board:{workspaceId}
+page --> actor : KanbanBoardComponent renders columns, or tabs below sm 640px (L2-034 AC4)
+end
 @enduml

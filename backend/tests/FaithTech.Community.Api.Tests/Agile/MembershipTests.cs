@@ -82,6 +82,24 @@ public class MembershipTests(CommunityApiFactory factory) : IClassFixture<Commun
     }
 
     [Fact]
+    public async Task Given_a_suspended_volunteer_when_the_owner_adds_them_then_400_and_they_do_not_join()
+    {
+        var cast = await factory.AddCastAsync();
+        var jonah = await factory.AddWithRolesAsync("Jonah Bell", Role.Volunteer);
+        await factory.WithDbAsync(async db =>
+        {
+            (await db.Profiles.SingleAsync(p => p.Id == jonah.ProfileId)).Suspend("Spam", DateTime.UtcNow);
+            return await db.SaveChangesAsync();
+        });
+
+        var response = await factory.OwnerClient(cast).PostAsJsonAsync(
+            $"/api/workspaces/{cast.WorkspaceId}/members", new { ProfileIds = new[] { jonah.ProfileId } });
+
+        Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+        Assert.False((await factory.LoadWorkspaceAsync(cast.WorkspaceId)).IsMember(jonah.ProfileId));
+    }
+
+    [Fact]
     public async Task Given_a_system_admin_when_they_add_and_remove_members_then_it_succeeds_and_each_action_is_audited()
     {
         var cast = await factory.AddCastAsync();
@@ -95,6 +113,23 @@ public class MembershipTests(CommunityApiFactory factory) : IClassFixture<Commun
         var entries = await factory.WithDbAsync(db => db.AuditEntries.Where(a => a.TargetId == cast.WorkspaceId.ToString()).ToListAsync());
         Assert.Equal(["workspace.member.added", "workspace.member.removed"], entries.Select(e => e.Action).Order());
         Assert.All(entries, e => Assert.Equal(cast.Admin.ProfileId, e.ActorId));
+    }
+
+    [Fact]
+    public async Task Given_a_system_admin_who_belongs_to_the_workspace_when_they_rename_it_then_it_succeeds_and_is_audited()
+    {
+        var owner = await factory.AddWithRolesAsync("Grace Okonkwo", Role.CityLead);
+        var priya = await factory.AddWithRolesAsync("Priya Shah", Role.SystemAdmin, Role.Volunteer);
+        var workspaceId = await factory.AddWorkspaceAsync(owner, "Toronto team", WorkspaceMethod.Scrum, priya);
+        var admin = factory.ClientFor(priya, Role.SystemAdmin, Role.Volunteer);
+
+        var response = await admin.PutAsJsonAsync($"/api/workspaces/{workspaceId}", new { Name = "Toronto builders" });
+
+        Assert.Equal(HttpStatusCode.NoContent, response.StatusCode);
+        var workspace = (await admin.GetFromJsonAsync<WorkspacesTests.Detail>($"/api/workspaces/{workspaceId}"))!;
+        Assert.Equal(("Toronto builders", "Admin", true), (workspace.Name, workspace.Access, workspace.CanManage));
+        var entry = await factory.WithDbAsync(db => db.AuditEntries.SingleAsync(a => a.TargetId == workspaceId.ToString()));
+        Assert.Equal(("workspace.renamed", priya.ProfileId), (entry.Action, entry.ActorId));
     }
 
     [Fact]

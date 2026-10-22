@@ -25,6 +25,7 @@ class Sprint {
   +DateOnly EndDate
   +SprintState State
   +int? CompletedPoints
+  +int? CommittedPoints
   ~Start(): void
   +Close(stories: IEnumerable<WorkItem>): void
 }
@@ -32,35 +33,67 @@ class WorkItem {
   +Guid? SprintId
   +WorkItemStatus Status
   +int? StoryPoints
+  +bool IsArchived
   +MoveToSprint(sprint: Sprint): void
+  ~ReturnToBacklog(): void
 }
-class StartSprintCommand {
-  +Guid WorkspaceId
-  +string Name
-  +string Goal
-  +DateOnly StartDate
-  +DateOnly EndDate
-}
-class CloseSprintCommand {
-  +Guid SprintId
-}
-class MoveStoriesToSprintCommand {
-  +Guid SprintId
-  +List<Guid> StoryIds
-}
-class StartSprintHandler
-class CloseSprintHandler
-class MoveStoriesToSprintHandler
 class Workspace {
+  +WorkspaceMethod Method
   +StartSprint(sprint: Sprint, sprints: IEnumerable<Sprint>, stories: IEnumerable<WorkItem>): void
 }
+class StartSprintCommand <<record>> {
+  +string? Name
+  +string? Goal
+  +DateOnly? StartDate
+  +DateOnly? EndDate
+  +IReadOnlyList<Guid>? StoryIds
+}
+class AddStoriesToSprintCommand <<record>> {
+  +IReadOnlyList<Guid>? StoryIds
+}
+class StartSprintValidator
+class AddStoriesToSprintValidator
+class SprintsHandler {
+  +{static} RecentSprints: int = 3
+  +GetAsync(workspaceId: Guid): Task<SprintsDto?>
+  +StartAsync(workspaceId: Guid, cmd: StartSprintCommand): Task<(Result, Guid?)>
+  +AddStoriesAsync(workspaceId: Guid, sprintId: Guid, cmd: AddStoriesToSprintCommand): Task<Result>
+  +CloseAsync(workspaceId: Guid, sprintId: Guid): Task<Result>
+}
+class SprintsDto <<record>> {
+  +SprintDto? Active
+  +IReadOnlyList<SprintDto> History
+  +int? AverageCompletedPoints
+  +IReadOnlyList<SprintCandidateDto> Candidates
+}
+class SprintDto <<record>> {
+  +string State
+  +int StoryCount
+  +int Points
+  +int? CompletedPoints
+  +int? CommittedPoints
+}
+class SprintCandidateDto <<record>> {
+  +Guid Id
+  +string Title
+  +int? StoryPoints
+  +string Status
+  +string? ReturnedFrom
+}
+class WorkspaceAccessPolicy
 Workspace "1" *-- "*" Sprint
 Sprint "0..1" o-- "*" WorkItem : stories
 Sprint --> SprintState
-StartSprintHandler ..> StartSprintCommand : handles
-CloseSprintHandler ..> CloseSprintCommand : handles
-MoveStoriesToSprintHandler ..> MoveStoriesToSprintCommand : handles
-StartSprintHandler --> Sprint
-CloseSprintHandler --> Sprint
-MoveStoriesToSprintHandler --> WorkItem : sets SprintId
+Workspace ..> Sprint : closes active, starts new
+StartSprintValidator ..> StartSprintCommand : validates
+AddStoriesToSprintValidator ..> AddStoriesToSprintCommand : validates
+SprintsHandler ..> StartSprintCommand : handles
+SprintsHandler ..> AddStoriesToSprintCommand : handles
+SprintsHandler --> WorkspaceAccessPolicy : authorizes with
+SprintsHandler --> Workspace : StartSprint
+SprintsHandler --> Sprint : creates, Close
+SprintsHandler --> WorkItem : MoveToSprint
+SprintsHandler ..> SprintsDto : returns
+SprintsDto *-- SprintDto
+SprintsDto *-- SprintCandidateDto
 @enduml

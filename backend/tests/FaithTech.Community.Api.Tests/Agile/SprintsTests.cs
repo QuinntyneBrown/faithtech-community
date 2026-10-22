@@ -60,17 +60,39 @@ public class SprintsTests(CommunityApiFactory factory) : IClassFixture<Community
         Assert.NotEqual(first, (await factory.LoadItemAsync(unfinished)).SprintId);
     }
 
+    [Fact]
+    public async Task Given_an_archived_done_story_in_the_active_sprint_when_the_next_sprint_starts_then_the_closing_sprint_counts_it_as_a_direct_close_would()
+    {
+        var cast = await factory.AddCastAsync();
+        var first = await factory.AddSprintAsync(cast.WorkspaceId, "Sprint 7");
+        var archivedDone = await factory.AddStoryAsync(cast.WorkspaceId, "Registration page", WorkItemStatus.Done, 6, first);
+        await factory.AddStoryAsync(cast.WorkspaceId, "Shelter briefs", WorkItemStatus.InProgress, 8, first);
+        var next = await factory.AddStoryAsync(cast.WorkspaceId, "Kiosk", points: 5);
+        Assert.Equal(HttpStatusCode.NoContent, (await factory.OwnerClient(cast).PostAsync($"/api/items/{archivedDone}/archive", null)).StatusCode);
+
+        var response = await factory.OwnerClient(cast).PostAsJsonAsync(
+            $"/api/workspaces/{cast.WorkspaceId}/sprints", Start("Sprint 8", "Hackathon weekend", [next]));
+
+        Assert.Equal(HttpStatusCode.Created, response.StatusCode);
+        var closed = await factory.WithDbAsync(db => db.Sprints.AsNoTracking().SingleAsync(s => s.Id == first));
+        Assert.Equal((SprintState.Closed, (int?)6, (int?)14), (closed.State, closed.CompletedPoints, closed.CommittedPoints));
+    }
+
     [Theory]
+    [InlineData("name", "Name", "Give the sprint a name.")]
     [InlineData("", "Goal", "Write a goal so the team knows what done looks like.")]
+    [InlineData("start", "StartDate", "Choose when the sprint starts.")]
     [InlineData("end", "EndDate", "Choose an end date after the start date.")]
     [InlineData("none", "StoryIds", "Choose at least one story.")]
-    public async Task Given_a_missing_goal_an_end_before_the_start_or_no_story_when_starting_then_400(string problem, string field, string message)
+    public async Task Given_a_missing_name_goal_or_start_an_end_before_the_start_or_no_story_when_starting_then_400(string problem, string field, string message)
     {
         var cast = await factory.AddCastAsync();
         var story = await factory.AddStoryAsync(cast.WorkspaceId, "Kiosk", points: 5);
         var body = problem switch
         {
+            "name" => Start(" ", "Goal", [story]),
             "" => Start("Sprint 8", " ", [story]),
+            "start" => new { Name = "Sprint 8", Goal = "Goal", EndDate = "2026-11-14", StoryIds = new[] { story } },
             "end" => Start("Sprint 8", "Goal", [story], "2026-11-14", "2026-11-03"),
             _ => Start("Sprint 8", "Goal", []),
         };
@@ -162,10 +184,11 @@ public class SprintsTests(CommunityApiFactory factory) : IClassFixture<Community
     }
 
     [Fact]
-    public async Task Given_closed_sprints_when_the_history_is_viewed_then_each_shows_goal_dates_and_points_with_the_average()
+    public async Task Given_closed_sprints_when_the_history_is_viewed_then_each_shows_goal_dates_and_points_with_the_average_of_the_last_three()
     {
         var cast = await factory.AddCastAsync();
-        foreach (var (name, done, open, start) in new[] { ("Sprint 4", 24, 0, new DateOnly(2026, 9, 8)), ("Sprint 5", 18, 8, new DateOnly(2026, 9, 22)), ("Sprint 6", 21, 2, new DateOnly(2026, 10, 6)) })
+        // Sprint 3 is older than the last three, so it shows in the history but stays out of the average.
+        foreach (var (name, done, open, start) in new[] { ("Sprint 3", 3, 0, new DateOnly(2026, 8, 25)), ("Sprint 4", 24, 0, new DateOnly(2026, 9, 8)), ("Sprint 5", 18, 8, new DateOnly(2026, 9, 22)), ("Sprint 6", 21, 2, new DateOnly(2026, 10, 6)) })
         {
             var sprint = await factory.AddSprintAsync(cast.WorkspaceId, name, SprintState.Active, start: start, end: start.AddDays(11));
             await factory.AddStoryAsync(cast.WorkspaceId, $"{name} done", WorkItemStatus.Done, done, sprint);
@@ -179,7 +202,7 @@ public class SprintsTests(CommunityApiFactory factory) : IClassFixture<Community
 
         var sprints = (await factory.StaffClient(cast).GetFromJsonAsync<Sprints>($"/api/workspaces/{cast.WorkspaceId}/sprints"))!;
 
-        Assert.Equal(["Sprint 6", "Sprint 5", "Sprint 4"], sprints.History.Select(s => s.Name));
+        Assert.Equal(["Sprint 6", "Sprint 5", "Sprint 4", "Sprint 3"], sprints.History.Select(s => s.Name));
         Assert.Equal((21, 23, "Hackathon ready for registration"), (sprints.History[0].CompletedPoints!.Value, sprints.History[0].CommittedPoints!.Value, sprints.History[0].Goal));
         Assert.Equal(21, sprints.AverageCompletedPoints);
     }

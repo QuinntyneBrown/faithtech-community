@@ -21,30 +21,47 @@ box "Frontend — FaithTech Community web app (agile library)" #E0F2FE
   participant "AgileService (AGILE_SERVICE)" as svc
 end box
 box "Backend — FaithTech.Community.Api" #D1FADF
-  participant "PokerEndpoints" as ep
+  participant "WorkItemsEndpoints" as ep
 end box
 box "Backend — FaithTech.Community.Application and Domain" #ECFDF3
-  participant "StartPokerSessionHandler" as h
+  participant "PlanningPokerHandler" as h
   participant "WorkspaceAccessPolicy" as pol
   participant "PokerSession" as ent
+  participant "AgileNotifier" as ntf
 end box
 box "Backend — FaithTech.Community.Infrastructure" #FFF4E5
-  participant "NotificationService" as ntf
   participant "CommunityDbContext" as ctx
   database "Community database" as db
+  participant "IEmailSender" as mail
 end box
-actor -> dlg : Choose story and invite members
-dlg -> svc : startPokerSession(storyId, inviteeIds)
-svc -> ep : POST /items/{id}/poker-sessions
-ep -> h : Send StartPokerSessionCommand
-h -> pol : EnsureMember(workspaceId)
-pol --> h : Allowed (Staff 403, outsider 404)
-h -> ent : Create with FacilitatorId = caller (L2-038 AC1)
-h -> ctx : SaveChanges
-ctx -> db : INSERT poker_session
-h -> ntf : Notify invitees in-app and by email (L2-038 AC1)
-h --> ep : SessionDto
+actor -> page : Start session
+page -> dlg : Open
+actor -> dlg : Choose one or more stories and invite members
+dlg -> svc : startPokerSession(workspaceId, { storyIds, invitedIds })
+svc -> ep : POST /api/workspaces/{id}/poker-sessions
+ep -> ep : StartPokerValidator (at least one story)
+ep -> h : StartAsync(workspaceId, command)
+h -> pol : AuthorizeAsync(workspaceId, manage: false)
+pol --> h : Caller (outsider 404, Staff 403; System Admin passes as override)
+h -> h : Invitees are members; stories belong to the workspace (400 otherwise)
+h -> ctx : Open session in this workspace?
+alt a session is already running
+h --> ep : 409 "A Planning Poker session is already running in this workspace."
+ep --> svc : ProblemDetails
+svc --> dlg : Show the 409 detail
+else no open session
+h -> ent : new PokerSession(workspace, stories, caller, invited) (L2-038 AC1)
+h -> pol : AuditOverride(caller, "poker.started") when the caller is a System Admin
+h -> ntf : Notify(caller, invitee, PlanningPokerInvite, ...) per invitee (L2-038 AC1)
+h -> ctx : SaveChangesAsync
+ctx -> db : INSERT poker_session, notifications
+h -> ntf : SendEmailsAsync
+ntf -> mail : Invite email per invitee
+h --> ep : PokerSessionDto (caller is facilitator)
 ep --> svc : 201 Created
-svc --> page : Navigate to session
-page --> actor : Show session as facilitator
+svc --> dlg : Session
+dlg --> page : Close with session
+page -> page : Show session and watch it live
+page --> actor : Facilitator controls
+end
 @enduml

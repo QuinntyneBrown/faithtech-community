@@ -21,13 +21,7 @@
     @case ('loaded') {
       @if (workspace(); as ws) {
         @if (!ws.canManage) {
-          <ft-empty-state
-            heading="Only the owner changes settings"
-            [text]="
-              ws.ownerName +
-              ' owns this workspace. You can still add stories, move cards and vote in Planning Poker.'
-            "
-          >
+          <ft-empty-state heading="Only the owner changes settings" [text]="ownerOnlyText()">
             <ft-button actions variant="primary" [href]="'/workspaces/' + ws.id"
               >Back to the board</ft-button
             >

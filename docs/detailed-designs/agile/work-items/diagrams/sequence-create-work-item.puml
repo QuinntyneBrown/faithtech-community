@@ -17,51 +17,71 @@ skinparam package {
 actor "Workspace member" as actor
 box "Frontend — FaithTech Community web app (agile library)" #E0F2FE
   participant "BacklogPage" as page
-  participant "NewWorkItemDialog" as dlg
+  participant "WorkItemDialog" as dlg
   participant "AgileService (AGILE_SERVICE)" as svc
 end box
 box "Backend — FaithTech.Community.Api" #D1FADF
   participant "WorkItemsEndpoints" as ep
+  participant "ValidationEndpointFilter\n<CreateWorkItemCommand>" as filt
 end box
 box "Backend — FaithTech.Community.Application and Domain" #ECFDF3
-  participant "CreateWorkItemHandler" as h
-  participant "WorkItemValidator" as val
+  participant "CreateWorkItemValidator" as val
+  participant "WorkItemsHandler" as h
   participant "WorkspaceAccessPolicy" as pol
   participant "WorkItem" as ent
+  participant "AgileNotifier" as ntf
 end box
 box "Backend — FaithTech.Community.Infrastructure" #FFF4E5
-  participant "NotificationService" as ntf
   participant "CommunityDbContext" as ctx
   database "Community database" as db
+  participant "IEmailSender\n(OutboxEmailSender)" as mail
 end box
 actor -> page : Choose "New item"
-page -> dlg : Open dialog
-actor -> dlg : Enter kind, title, parent, assignee
-opt title empty
-dlg --> actor : Inline error on title (L2-033 AC5)
+page -> dlg : Open WorkItemDialog (create)
+actor -> dlg : Enter kind, title, parent, assignee, points
+opt title empty, or task without a story
+dlg --> actor : Inline error (L2-033 AC5; L2-032 AC3)
 end
-dlg -> svc : createItem(workspaceId, request)
-svc -> ep : POST /workspaces/{id}/items
-ep -> h : Send CreateWorkItemCommand
-h -> pol : EnsureMember(workspaceId)
-pol --> h : Allowed (Staff 403, outsider 404)
-h -> val : Validate title <= 200, parent kind, task has story parent, assignee is member
-alt invalid
-val --> h : Errors (L2-032 AC1, AC3; L2-033 AC4)
-h --> ep : Validation failure
-ep --> svc : 400 ProblemDetails
+dlg -> svc : createWorkItem(workspaceId, request)
+svc -> ep : POST /api/workspaces/{id}/items
+ep -> filt : Validate body
+filt -> val : ValidateAsync(CreateWorkItemCommand)
+alt kind, title, description or points invalid
+val --> filt : Errors (L2-033 AC1)
+filt --> svc : 400 ValidationProblem (per field)
 svc --> dlg : Field errors
 dlg --> actor : Show inline errors
 else valid
-h -> ent : Create item with fields (L2-033 AC1, AC2)
-h -> ctx : SaveChanges
-ctx -> db : INSERT work_item
-opt assignee set
-h -> ntf : Notify assignee in-app and by email (L2-033 AC3)
+filt -> h : CreateAsync(workspaceId, command)
+h -> pol : AuthorizeAsync(workspaceId, manage = NeedsManage(kind))
+pol --> h : Workspace and caller (outsider 404, Staff or member without the right 403)
+h -> ctx : Load parent by ParentId
+ctx -> db : SELECT
+db --> ctx : Parent or none
+h -> h : WorkItemRules.ParentProblem(kind, parent) (L2-032 AC1, AC2, AC3)
+h -> h : workspace.IsMember(AssigneeId) (L2-033 AC4)
+alt parent link or assignee invalid
+h --> ep : Result.Invalid("ParentId" | "AssigneeId")
+ep --> svc : 400 ValidationProblem
+svc --> dlg : Field errors
+dlg --> actor : Show inline errors
+else valid
+h -> ent : new WorkItem(workspaceId, kind, title, description, parent)
+h -> ent : Assign(assigneeId, workspace); SetStoryPoints (stories)
+opt assignee set and not the caller
+h -> ntf : Notify(actor, assignee, WorkItemAssigned, ...) (L2-033 AC3)
+ntf -> ctx : Add Notification
 end
-h --> ep : WorkItemDto
-ep --> svc : 201 Created
-svc --> page : Item
-page --> actor : Show item in backlog tree
+h -> pol : AuditOverride(caller, "workitem.created", ...) (System Admin only)
+h -> ctx : SaveChangesAsync
+ctx -> db : INSERT work item (and notification) in one transaction
+h -> ntf : SendEmailsAsync
+ntf -> mail : SendAsync(assignment email)
+h --> ep : (Result.Ok, WorkItemDto)
+ep --> svc : 201 Created /api/items/{id}
+svc --> dlg : WorkItemDto
+dlg --> page : Close with created item
+page --> actor : Toast and refreshed backlog tree
+end
 end
 @enduml

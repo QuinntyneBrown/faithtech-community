@@ -5,6 +5,7 @@ skinparam shadowing false
 skinparam roundcorner 12
 skinparam defaultFontName Arial
 skinparam ArrowColor #344054
+skinparam maxMessageSize 240
 skinparam rectangle {
   BorderColor #344054
   FontColor #101828
@@ -22,36 +23,57 @@ box "Frontend — FaithTech Community web app (agile library)" #E0F2FE
 end box
 box "Backend — FaithTech.Community.Api" #D1FADF
   participant "WorkspacesEndpoints" as ep
+  participant "ValidationEndpointFilter\n<SwitchMethodCommand>" as filt
 end box
 box "Backend — FaithTech.Community.Application and Domain" #ECFDF3
-  participant "SwitchMethodHandler" as h
+  participant "WorkspaceSettingsHandler" as h
   participant "WorkspaceAccessPolicy" as pol
-  participant "Workspace" as ent
+  participant "Workspace" as ws
+  participant "Sprint" as sp
+  participant "WorkItem (stories)" as wi
 end box
 box "Backend — FaithTech.Community.Infrastructure" #FFF4E5
   participant "CommunityDbContext" as ctx
   database "Community database" as db
 end box
-actor -> page : Choose the other method
-page -> dlg : Open confirmation stating consequences
-actor -> dlg : Confirm
-dlg -> svc : switchMethod(workspaceId, target)
-svc -> ep : PUT /workspaces/{id}/method
-ep -> h : Send SwitchMethodCommand
-h -> pol : EnsureOwner(workspaceId)
-pol --> h : Allowed (non-owner 403)
-h -> ctx : Load workspace, open sprints, stories
+actor -> page : Choose "Switch method"
+page -> dlg : Open with the workspace
+actor -> dlg : Pick the other method (confirm disabled while unchanged)
+dlg --> actor : States the consequences of the target method
+actor -> dlg : Confirm "Switch to <method>"
+dlg -> svc : switchMethod(workspaceId, method)
+svc -> ep : PUT /api/workspaces/{id}/method
+ep -> filt : Validate body (SwitchMethodValidator: Scrum or Kanban)
+filt -> h : SwitchMethodAsync(workspaceId, command)
+h -> pol : AuthorizeAsync(workspaceId, manage = true)
+pol --> h : Workspace and caller (non-owner 403, outsider 404)
+alt target equals the current method
+h --> ep : Result.Conflict
+ep --> svc : 409 Problem
+svc --> dlg : Error alert
+else method changes
+h -> ctx : Load the workspace's sprints and every story (IgnoreQueryFilters)
 ctx -> db : SELECT
 db --> ctx : Rows
+h -> ws : SwitchMethod(target, sprints, stories)
 alt Scrum to Kanban
-h -> ent : SwitchMethod(Kanban): statuses kept, open sprints closed (L2-036 AC1)
-else Kanban to Scrum
-h -> ent : SwitchMethod(Scrum): stories not Done placed in backlog (L2-036 AC2)
+loop each sprint not Closed
+ws -> sp : Close(stories): record CompletedPoints and CommittedPoints (L2-036 AC1)
+sp -> wi : ReturnToBacklog() for stories not Done; statuses unchanged
 end
-h -> ctx : SaveChanges
-ctx -> db : UPDATE workspace, sprints, work_items in one transaction
-h --> ep : WorkspaceDto
-ep --> svc : 200 OK
-svc --> page : Updated workspace
-page --> actor : Show new method
+else Kanban to Scrum
+loop each story not Done
+ws -> wi : ReturnToBacklog(): SprintId = null (L2-036 AC2)
+end
+end
+ws -> ws : Method = target
+h -> pol : AuditOverride(caller, "workspace.method.switched", before, after) (System Admin only)
+h -> ctx : SaveChangesAsync
+ctx -> db : UPDATE workspace, sprints and work items in one transaction
+h --> ep : Result.Ok
+ep --> svc : 204 No Content
+svc --> dlg : Done
+dlg --> page : Close with the new method
+page --> actor : Toast; settings show the new method
+end
 @enduml

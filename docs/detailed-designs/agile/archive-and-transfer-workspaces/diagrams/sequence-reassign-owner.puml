@@ -15,48 +15,83 @@ skinparam package {
   BackgroundColor #F9FAFB
 }
 actor "System Admin" as actor
-box "Frontend — FaithTech Community web app (agile library)" #E0F2FE
-  participant "WorkspaceSettingsPage" as page
+box "Frontend — FaithTech Community web app" #E0F2FE
+  participant "AdminUsersPage\n(admin library)" as adminpage
+  participant "WorkspaceSettingsPage\n(agile library)" as page
   participant "ReassignOwnerDialog" as dlg
-  participant "AgileService (AGILE_SERVICE)" as svc
+  participant "AgileService\n(AGILE_SERVICE)" as svc
 end box
 box "Backend — FaithTech.Community.Api" #D1FADF
   participant "WorkspacesEndpoints" as ep
 end box
 box "Backend — FaithTech.Community.Application and Domain" #ECFDF3
+  participant "ChangeRolesHandler\n(Admin)" as roles
   participant "CityLeadRoleRemovedHandler" as evt
-  participant "ReassignWorkspaceOwnerHandler" as h
+  participant "AgileNotifier" as ntf
+  participant "WorkspacesHandler" as list
+  participant "ArchiveHandler" as h
+  participant "WorkspaceAccessPolicy" as pol
   participant "Workspace" as ent
+  participant "IAuditLog" as audit
 end box
 box "Backend — FaithTech.Community.Infrastructure" #FFF4E5
-  participant "NotificationService" as ntf
-  participant "AuditLog" as audit
   participant "CommunityDbContext" as ctx
-  database "Community database" as db
+  participant "OutboxEmailSender" as email
+  database "Community\ndatabase" as db
 end box
-evt <- evt : CityLeadRoleRemoved raised by role removal
-evt -> ctx : Find workspaces owned by profile
+== City Lead role removed from a workspace owner ==
+actor -> adminpage : Remove City Lead\nfrom a user
+adminpage -> roles : DELETE role\n(admin endpoints)
+roles -> roles : Profile.RemoveRole(CityLead)\nraises CityLeadRoleRemoved
+roles -> evt : HandleAsync(removed)
+evt -> ctx : Workspaces WHERE OwnerId = profile\n(query filter: live only)
 ctx -> db : SELECT
-db --> ctx : Workspaces
-evt -> ntf : Notify System Admin in-app and by email (L2-037 AC2)
-ntf --> actor : Notification
-actor -> page : Open workspace from notification
-page -> dlg : Open reassign owner
+db --> ctx : Live workspaces
+evt -> ctx : System Admin profiles,\nnot suspended
+evt -> ntf : Notify(WorkspaceOwnerLostCityLead,\n/workspaces/{id}/settings)\nper workspace per System Admin\n(L2-037 AC2)
+roles -> ctx : SaveChanges
+ctx -> db : UPDATE profile_roles,\nINSERT notifications
+roles -> evt : SendEmailsAsync()
+evt -> ntf : SendEmailsAsync()
+ntf -> email : SendAsync per\nSystem Admin (outbox)
+ntf --> actor : In-app notification and email
+== Admin users page ==
+adminpage -> svc : listWorkspaces()
+svc -> ep : GET /api/workspaces
+ep -> list : ListAsync()
+list --> adminpage : WorkspaceSummaryDto[] with needsNewOwner\n(live workspaces only)
+adminpage --> actor : "A workspace needs a new owner"\n→ Open workspace settings
+== Reassign from workspace settings ==
+actor -> page : Open /workspaces/{id}/settings
+page --> actor : "This workspace needs a new owner"\nwith "Reassign owner" (access Admin)
+actor -> page : Choose "Reassign owner"
+page -> dlg : Open dialog
+dlg -> svc : listOwnerCandidates(workspaceId)
+svc -> ep : GET /api/workspaces/{id}/owner-candidates
+ep -> h : OwnerCandidatesAsync(id)
+h -> pol : LoadAsync(id); IsSystemAdmin
+h --> dlg : Non-suspended City Leads\nother than the current owner
 actor -> dlg : Choose a City Lead
-dlg -> svc : reassignOwner(workspaceId, newOwnerId)
-svc -> ep : PUT /workspaces/{id}/owner
-ep -> h : Send ReassignWorkspaceOwnerCommand
-alt caller not System Admin, or new owner not City Lead
-h --> ep : 403 / 400
-ep --> svc : ProblemDetails
-svc --> dlg : Error
+dlg -> svc : reassignOwner(workspaceId, ownerId)
+svc -> ep : PUT /api/workspaces/{id}/owner
+ep -> ep : Validate ReassignOwnerCommand
+ep -> h : ReassignOwnerAsync(id, command)
+h -> pol : LoadAsync(id); IsSystemAdmin
+alt caller cannot read the workspace
+h --> ep : 404
+else caller is not System Admin
+h --> ep : 403
+else chosen profile is suspended or not a City Lead
+h --> ep : Invalid (OwnerId)\n"Choose a City Lead."
+ep --> dlg : 400 ValidationProblem
 else valid
-h -> ent : ReassignOwner(newOwnerId) (L2-037 AC2)
+h -> ent : ReassignOwner(newOwner, now)\nformer owner stays a member (L2-037 AC2)
+h -> pol : Audit("workspace.owner.reassigned")\nalways
+pol -> audit : Record
 h -> ctx : SaveChanges
-ctx -> db : UPDATE workspace owner
-h -> audit : Record admin action
-h --> ep : Result
+ctx -> db : UPDATE workspaces SET owner_id;\nworkspace_members; INSERT audit_entries
+h --> ep : Ok
 ep --> svc : 204 No Content
-svc --> page : Owner updated
+svc --> page : Owner updated; alert gone
 end
 @enduml

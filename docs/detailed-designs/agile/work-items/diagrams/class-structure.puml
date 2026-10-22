@@ -54,36 +54,58 @@ class Comment {
 class WorkItemHierarchy {
   +{static} CanParent(parent: WorkItemKind, child: WorkItemKind): bool
 }
-class CreateWorkItemCommand {
-  +Guid WorkspaceId
-  +WorkItemKind Kind
-  +string Title
-  +string Description
+class CreateWorkItemCommand <<record>> {
+  +string? Kind
+  +string? Title
+  +string? Description
   +Guid? ParentId
   +Guid? AssigneeId
   +int? StoryPoints
 }
-class UpdateWorkItemCommand
-class CreateWorkItemHandler {
-  +Handle(cmd: CreateWorkItemCommand): Task<WorkItemDto>
+class UpdateWorkItemCommand <<record>> {
+  +string? Title
+  +string? Description
+  +Guid? AssigneeId
+  +int? StoryPoints
+  +string? Status
 }
-class UpdateWorkItemHandler {
-  +Handle(cmd: UpdateWorkItemCommand): Task<WorkItemDto>
+class SetDoneCommand <<record>> {
+  +bool Done
 }
-class GetBacklogHandler {
-  +Handle(q: GetBacklogQuery): Task<BacklogTreeDto>
+class AddCommentCommand <<record>> {
+  +string? Body
 }
-class WorkItemValidator
+class WorkItemsHandler {
+  +CreateAsync(workspaceId: Guid, cmd: CreateWorkItemCommand): Task<(Result, WorkItemDto?)>
+  +GetAsync(itemId: Guid): Task<WorkItemDto?>
+  +UpdateAsync(itemId: Guid, cmd: UpdateWorkItemCommand): Task<Result>
+  +SetDoneAsync(itemId: Guid, cmd: SetDoneCommand): Task<Result>
+  +AddCommentAsync(itemId: Guid, cmd: AddCommentCommand): Task<(Result, CommentDto?)>
+  +BacklogAsync(workspaceId: Guid, initiativeId: Guid?, epicId: Guid?, noEpic: bool): Task<IReadOnlyList<BacklogNodeDto>?>
+}
+class WorkItemRules <<static>> {
+  +{static} NeedsManage(kind: WorkItemKind): bool
+  +{static} ParentProblem(kind: WorkItemKind, parent: WorkItem?, workspaceId: Guid): string?
+}
+class CreateWorkItemValidator
+class UpdateWorkItemValidator
+class AddCommentValidator
+class WorkspaceAccessPolicy
+class AgileNotifier
 WorkItem "1" *-- "*" Comment
 WorkItem "0..1" o-- "*" WorkItem : parent / children
 WorkItem --> WorkItemKind
 WorkItem --> WorkItemStatus
 WorkItem ..> WorkItemHierarchy
-CreateWorkItemHandler ..> CreateWorkItemCommand : handles
-UpdateWorkItemHandler ..> UpdateWorkItemCommand : handles
-CreateWorkItemHandler ..> WorkItemValidator
-UpdateWorkItemHandler ..> WorkItemValidator
-CreateWorkItemHandler --> WorkItem : creates
-UpdateWorkItemHandler --> WorkItem : mutates
-GetBacklogHandler ..> WorkItem : reads
+CreateWorkItemValidator ..> CreateWorkItemCommand : validates
+UpdateWorkItemValidator ..> UpdateWorkItemCommand : validates
+AddCommentValidator ..> AddCommentCommand : validates
+WorkItemsHandler ..> CreateWorkItemCommand : handles
+WorkItemsHandler ..> UpdateWorkItemCommand : handles
+WorkItemsHandler ..> SetDoneCommand : handles
+WorkItemsHandler ..> AddCommentCommand : handles
+WorkItemsHandler ..> WorkItemRules
+WorkItemsHandler --> WorkspaceAccessPolicy : authorizes with
+WorkItemsHandler --> AgileNotifier : notifies assignee
+WorkItemsHandler --> WorkItem : creates, mutates, reads
 @enduml
