@@ -1,7 +1,19 @@
-/*
- * SCAFFOLD: placeholder, not the implementation.
- * Generated from AGENTS.md and:
- *   - docs/mocks/pages/home (no detailed design yet: TO CONFIRM which library owns it)
- * Overwrite with the encapsulated styles for this component. Read tokens by role
- * (var(--color-...)), never hex values. Delete this comment when implemented.
- */
+:host {
+  display: block;
+  margin-block-start: var(--space-4);
+}
+
+ft-page-header,
+.staff {
+  margin-block-end: var(--space-4);
+}
+
+.subtitle-skeleton {
+  inline-size: 16rem;
+  max-inline-size: 100%;
+}
+
+.muted {
+  margin: 0;
+  color: var(--color-fg-muted);
+}

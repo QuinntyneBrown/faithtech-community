@@ -14,6 +14,12 @@ Coverage: the profiles screens (`profile`, `edit-profile`, `delete-photo`), the 
 
 ## Pages
 
+### Home — `/` (`pages/home`: default, loading, empty, error, activity-error, pipeline-zero, pipeline-error, staff, coming-up-empty)
+
+- Library: `PageHeaderComponent` (greeting and "{date} · {n} events coming up"; a `SkeletonComponent` in `ftPageHeaderSubtitle` while loading) with *New event* (`ButtonComponent` `primary`, `IconComponent` `add`) and *Add contact* (`IconComponent` `contacts`) in `ftPageHeaderActions`, `AlertComponent` info ("You’re viewing as Staff"), `SplitComponent` + `StackComponent`, `CardComponent` `flush` "Coming up" with `ListComponent` of `EventCardComponent` and `CardFooterComponent` (*All events* `LinkComponent`; "Nothing coming up yet."), `ListSkeletonComponent` `leading="date-badge"` (loading), `CardComponent` "Partner pipeline" with *Open board* `LinkComponent` in `ftCardActions`, `ClusterComponent` of `StatComponent` (`loading` skeleton values) or a danger `AlertComponent` with *Try again*, `CardComponent` "Recent activity" with `FeedComponent` (ready, loading, empty, error with *Try again*) of `FeedItemComponent` (`formatFeedTime` meta, a `LinkComponent` to the item), `EmptyStateComponent` error variant ("We couldn’t load your home page" with *Try again*). The no-role state is a `GridComponent` `auto` of three `CardComponent`s with `ButtonComponent` links (*Edit profile*, *Browse events*, *Meet the team*) above the Recent activity card.
+- Lives in the app as the shell's landing route ([ADR 0016](adr/0016-home-page-lives-in-the-app-shell.md)); services: `EVENTS_SERVICE`, `PARTNERS_SERVICE`, `ACTIVITY_SERVICE`.
+- Local: the `<aside aria-label="Activity">` and the muted lines of text.
+
 ### Profile — `/people/:id`, `/people/me` (`pages/profile`: default, own, loading, empty, error, not-found)
 
 - Library: `ProfileHeaderComponent` (featured photo, or initials without one, in an XL `AvatarComponent`, name as the `h1`, `BadgeComponent` roles, home city, bio, photo strip of `PhotoComponent`), `ButtonComponent` (*Edit profile*, *Add photos*, *Try again*, *Go home*), `EmptyStateComponent` (no photos on the own profile; error variant for load failure; not-found).
