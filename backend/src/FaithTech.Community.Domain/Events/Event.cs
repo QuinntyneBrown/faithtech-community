@@ -63,9 +63,10 @@ public class Event
 
     public IReadOnlyCollection<Rsvp> Rsvps => _rsvps;
 
-    public int RsvpCount => _rsvps.Count;
+    /// <summary>People who RSVP'd. Walk-ins did not, so they are left out and never take a seat (L2-121 AC3).</summary>
+    public int RsvpCount => _rsvps.Count(r => !r.IsWalkIn);
 
-    public bool IsFull => Capacity is not null && _rsvps.Count >= Capacity;
+    public bool IsFull => Capacity is not null && RsvpCount >= Capacity;
 
     public void Update(
         string title,
@@ -112,6 +113,83 @@ public class Event
         var existing = _rsvps.FirstOrDefault(r => string.Equals(r.GuestEmail, email, StringComparison.OrdinalIgnoreCase));
         return existing ?? AddRsvp(new Rsvp(Id, null, name, email, now), now);
     }
+
+    /// <summary>Check-in opens a day before the start and does not close (L2-119 AC6).</summary>
+    public static readonly TimeSpan CheckInOpensBefore = TimeSpan.FromHours(24);
+
+    public DateTimeOffset CheckInOpensAt => StartsAt - CheckInOpensBefore;
+
+    /// <summary>A cancelled event has no check-in window.</summary>
+    public bool IsCheckInOpen(DateTimeOffset now) => !IsCancelled && now >= CheckInOpensAt;
+
+    /// <summary>Everyone who checked in, walk-ins included.</summary>
+    public int CheckedInCount => _rsvps.Count(r => r.IsCheckedIn);
+
+    /// <summary>Everyone on the check-in list: every RSVP and every walk-in.</summary>
+    public int AttendeeCount => _rsvps.Count;
+
+    /// <summary>Marks an attendee of this event present at the door (L2-119).</summary>
+    public Rsvp CheckIn(Guid rsvpId, Guid byId, DateTimeOffset now)
+    {
+        EnsureCheckInOpen(now);
+        var rsvp = Attendee(rsvpId);
+        rsvp.CheckIn(byId, now);
+        return rsvp;
+    }
+
+    /// <summary>Clears an attendee's check-in (L2-119 AC2).</summary>
+    public Rsvp UndoCheckIn(Guid rsvpId, DateTimeOffset now)
+    {
+        EnsureCheckInOpen(now);
+        var rsvp = Attendee(rsvpId);
+        rsvp.UndoCheckIn();
+        return rsvp;
+    }
+
+    /// <summary>
+    /// Adds someone at the door (L2-120). It skips the capacity and has-started rules that close RSVPs, and reuses
+    /// the member's RSVP, or a guest RSVP with the same email, rather than adding a second row.
+    /// </summary>
+    public (Rsvp Rsvp, bool Reused) AddWalkIn(
+        string name, string? email, Guid? profileId, bool checkInNow, Guid byId, DateTimeOffset now)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(name);
+        EnsureCheckInOpen(now);
+        email = string.IsNullOrWhiteSpace(email) ? null : email.Trim();
+        var existing = profileId is { } member
+            ? _rsvps.FirstOrDefault(r => r.ProfileId == member)
+            : email is null ? null : _rsvps.FirstOrDefault(r => string.Equals(r.GuestEmail, email, StringComparison.OrdinalIgnoreCase));
+        var rsvp = existing ?? (profileId is not null
+            ? new Rsvp(Id, profileId, null, null, now, isWalkIn: true)
+            : new Rsvp(Id, null, name.Trim(), email, now, isWalkIn: true));
+        if (existing is null)
+        {
+            _rsvps.Add(rsvp);
+        }
+
+        if (checkInNow)
+        {
+            rsvp.CheckIn(byId, now);
+        }
+
+        return (rsvp, existing is not null);
+    }
+
+    private void EnsureCheckInOpen(DateTimeOffset now)
+    {
+        if (IsCancelled)
+        {
+            throw new InvalidOperationException("The event is cancelled.");
+        }
+
+        if (now < CheckInOpensAt)
+        {
+            throw new InvalidOperationException("Check-in has not opened yet.");
+        }
+    }
+
+    private Rsvp Attendee(Guid rsvpId) =>
+        _rsvps.FirstOrDefault(r => r.Id == rsvpId) ?? throw new InvalidOperationException("There is no such RSVP.");
 
     public void CancelRsvp(Guid profileId) =>
         RemoveRsvp(_rsvps.FirstOrDefault(r => r.ProfileId == profileId));

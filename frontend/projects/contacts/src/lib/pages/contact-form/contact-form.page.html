@@ -39,6 +39,15 @@
         <ft-card>
           <ft-stack>
             <ft-error-summary [errors]="summary()" action="save" />
+            @if (duplicate(); as d) {
+              <ft-alert status="warning" heading="You already have a contact with this email">
+                {{ duplicateText(d) }} Open it to add to those notes, or save this as a separate
+                contact.
+                <ft-button ftAlertActions variant="primary" [href]="'/contacts/' + d.id"
+                  >Open {{ d.name }}</ft-button
+                >
+              </ft-alert>
+            }
             @if (member(); as name) {
               <ft-alert status="info" [heading]="name + ' is already a member'">
                 This email belongs to an existing profile. Save the contact linked to their profile,
@@ -55,6 +64,7 @@
             </ft-form-field>
             <ft-form-field
               #emailField
+              (focusout)="checkDuplicate()"
               label="Email"
               [optional]="true"
               help="If they ever sign up with this email, we’ll let you know."
@@ -86,8 +96,20 @@
             }
             <ft-form-actions>
               <ft-button variant="ghost" [href]="cancelHref()">Cancel</ft-button>
-              <ft-button type="submit" variant="primary" [loading]="busy()">
-                {{ busy() ? 'Saving…' : member() ? 'Save and link' : 'Save contact' }}
+              <ft-button
+                type="submit"
+                [variant]="duplicate() && !member() ? 'secondary' : 'primary'"
+                [loading]="busy()"
+              >
+                {{
+                  busy()
+                    ? 'Saving…'
+                    : member()
+                      ? 'Save and link'
+                      : duplicate()
+                        ? 'Save as a new contact'
+                        : 'Save contact'
+                }}
               </ft-button>
             </ft-form-actions>
           </ft-stack>

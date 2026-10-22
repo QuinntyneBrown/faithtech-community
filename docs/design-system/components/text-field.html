@@ -164,6 +164,14 @@
         <details class="ds-example__code"><summary>HTML</summary><pre><code>&lt;div class="field"&gt;&lt;label class="field__label" for="v-pw"&gt;Password&lt;/label&gt;&lt;div class="input-group"&gt;&lt;input class="input" id="v-pw" name="v-pw" type="password" autocomplete="current-password" value="harbour-26"&gt;&lt;button class="btn btn--ghost btn--icon input-group__btn" type="button" aria-label="Show password" aria-pressed="false"&gt;&lt;svg class="icon" aria-hidden="true" viewBox="0 0 24 24"&gt;&lt;path d="M2 12s3.5-6 10-6 10 6 10 6-3.5 6-10 6S2 12 2 12z"/&gt;&lt;circle cx="12" cy="12" r="3"/&gt;&lt;/svg&gt;&lt;/button&gt;&lt;/div&gt;&lt;/div&gt;
           &lt;div class="field"&gt;&lt;label class="field__label" for="v-share"&gt;Link&lt;/label&gt;&lt;div class="input-group"&gt;&lt;input class="input" id="v-share" type="url" readonly value="https://community.faithtech.example/e/toronto-builders-night"&gt;&lt;button class="btn btn--ghost btn--icon input-group__btn" type="button" aria-label="Copy link"&gt;&lt;svg class="icon" aria-hidden="true" viewBox="0 0 24 24"&gt;&lt;path d="M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1-1"/&gt;&lt;/svg&gt;&lt;/button&gt;&lt;/div&gt;&lt;/div&gt;</code></pre></details>
       </div>
+      <h3>With a character counter</h3>
+      <div class="ds-example">
+        <div class="ds-example__canvas ds-example__canvas--stack" style="max-width: 28rem;">
+          <div class="field"><label class="field__label" for="v-next">Next step <span class="optional">(optional)</span></label><input class="input" id="v-next" name="v-next" type="text" autocomplete="off" value="Send credit-line wording" aria-describedby="v-next-count v-next-help"><div class="field__count" id="v-next-count">176 characters left</div><div class="field__help" id="v-next-help">Shown on the partner card so any lead can pick it up.</div></div>
+          <div class="field"><label class="field__label" for="v-wname">Name</label><input class="input" id="v-wname" name="v-wname" type="text" autocomplete="off" value="Mira Chen" aria-describedby="v-wname-count"><div class="field__count" id="v-wname-count">91 characters left</div></div>
+        </div>
+        <div class="ds-example__caption"><span>From <code>dialogs/log-activity</code> (Next step, 200 characters) and the walk-in name (100 characters). A text field with a limit counts down under the input like a <a href="textarea.html">textarea</a>: "176 characters left", "1 character left", then "3 characters too many" in <code>.field__count--over</code>. Text is never cut off; saving shows the field error. The counter is joined by <code>aria-describedby</code> before the help and error. In Angular, <code>&lt;ft-text-field [maxlength]="200"&gt;</code>; <code>min</code> and <code>max</code> pass to a date input (an activity date capped at today).</span></div>
+      </div>
     </section>
 
     <section class="ds-section" id="sizes"><h2><a href="#sizes">Sizes</a></h2>
@@ -298,6 +306,7 @@
         <tr><td><code>.input-group</code></td><td>Positions one trailing button inside the input.</td></tr>
         <tr><td><code>.input-group__btn</code></td><td>The trailing icon button; accent when <code>aria-pressed="true"</code>.</td></tr>
         <tr><td><code>aria-invalid="true"</code>, <code>readonly</code>, <code>disabled</code></td><td>States.</td></tr>
+        <tr><td><code>.field__count</code>, <code>.field__count--over</code></td><td>Character counter under a field with a limit (<code>maxlength</code> on <code>ft-text-field</code>); danger once over it.</td></tr>
       </tbody></table>
     </section>
 

@@ -37,7 +37,7 @@ test('global search has a Notes group with only the pages the member may open', 
   const search = new SearchPage(page);
   await search.searchFor('kestrel');
 
-  expect(await search.groupHeadings()).toEqual(['Notes (2)']);
+  await expect.poll(() => search.groupHeadings()).toEqual(['Notes (2)']);
   await expect(search.groups).toContainText('Marcus Lee');
   await expect(search.groups).toContainText('Confirm the room with Kestrel Labs');
   await expect(search.groups).toContainText('Private');

@@ -10,7 +10,11 @@ import { HttpTestingController, provideHttpClientTesting } from '@angular/common
 import { TestBed } from '@angular/core/testing';
 import { Router } from '@angular/router';
 
-import { HANDLES_FORBIDDEN, httpErrorInterceptor } from './http-error.interceptor';
+import {
+  HANDLES_FORBIDDEN,
+  HANDLES_SERVER_ERROR,
+  httpErrorInterceptor,
+} from './http-error.interceptor';
 import { problemDetails } from './problem-details';
 
 describe('httpErrorInterceptor', () => {
@@ -51,6 +55,18 @@ describe('httpErrorInterceptor', () => {
 
     expect(navigate).not.toHaveBeenCalled();
     expect(status).toBe(403);
+  });
+
+  it('leaves 500 to a caller that ignores its own failure', () => {
+    let status = 0;
+    http
+      .get('/api/x', { context: new HttpContext().set(HANDLES_SERVER_ERROR, true) })
+      .subscribe({ error: (e) => (status = e.status) });
+
+    controller.expectOne('/api/x').flush({}, { status: 500, statusText: 'Server Error' });
+
+    expect(navigate).not.toHaveBeenCalled();
+    expect(status).toBe(500);
   });
 
   it('sends 500 to the error page with the correlation id as reference', () => {

@@ -1,0 +1,67 @@
+@startuml
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 8
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam class {
+  BorderColor #344054
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+title Class structure — Possible duplicate contact
+
+class Contact <<Domain entity>> {
+  +Guid Id
+  +Guid OwnerId
+  +string Name
+  +string? Email
+  +string? Organization
+  +Guid? LinkedProfileId
+  +DateTime CreatedAtUtc
+  +DateTime? ArchivedAtUtc
+}
+class ContactNote <<Domain entity>> {
+  +Guid Id
+  +Guid ContactId
+  +string Body
+}
+Contact "1" *-- "*" ContactNote : notes
+
+class FindDuplicateContactQuery {
+  +string? Email
+  +Guid? ExcludeId
+}
+class FindDuplicateContactHandler <<Application handler>> {
+  +HandleAsync(query: FindDuplicateContactQuery): Task<(Result, DuplicateContactDto?)>
+}
+class ContactAccess <<Application service>> {
+  +bool CanKeepContacts
+  +CallerProfileIdAsync(): Task<Guid?>
+}
+class DuplicateContactDto {
+  +Guid Id
+  +string Name
+  +string? Organization
+  +string Email
+  +DateTime AddedAtUtc
+  +int NoteCount
+  +bool IsArchived
+}
+interface ContactsService <<api library>> {
+  +findDuplicate(email: string, excludeId?: string): Observable<DuplicateContactDto | null>
+}
+class HttpContactsService
+class ContactFormPage <<contacts library>> {
+  #duplicate: Signal<DuplicateContactDto | null>
+  #checkedEmail: Signal<string | null>
+  #checkDuplicate(): Promise<void>
+  #save(): Promise<void>
+}
+FindDuplicateContactHandler ..> FindDuplicateContactQuery : handles
+FindDuplicateContactHandler ..> ContactAccess
+FindDuplicateContactHandler ..> Contact : reads own
+FindDuplicateContactHandler ..> DuplicateContactDto : returns
+HttpContactsService ..|> ContactsService
+ContactFormPage ..> ContactsService : CONTACTS_SERVICE
+@enduml

@@ -1,11 +1,15 @@
-<label class="switch">
+<label class="switch" [class.switch--label-hidden]="labelHidden()">
   <input
     type="checkbox"
     role="switch"
     [checked]="checked()"
     [disabled]="disabled()"
+    [attr.aria-describedby]="description() ? descriptionId : null"
     (change)="onToggle($event)"
     (blur)="onBlur()"
   />
-  <span class="text"><ng-content /></span>
+  <span class="text" [class.visually-hidden]="labelHidden()"><ng-content /></span>
 </label>
+@if (description(); as text) {
+  <p class="description" [id]="descriptionId">{{ text }}</p>
+}

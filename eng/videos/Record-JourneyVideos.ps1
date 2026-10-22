@@ -168,11 +168,15 @@ function Complete-Video([string] $Slug) {
     # Playwright saves the page's video into the test's output folder once the context closes.
     $take = Get-ChildItem (Join-Path $RunDir 'playwright') -Directory -Filter "$Slug.story.ts-*" |
         Get-ChildItem -Filter 'video.webm' | Select-Object -First 1
-    # Playwright shortens and hashes the folder name of a long test title; the run folder holds one take.
+    # Playwright shortens a long folder name to the start of the file name, a hash and the end of the
+    # test title (the slug), e.g. "duplicate-detection-and-me-45fa0-plicate-detection-and-merge".
     if (-not $take) {
+        $n = [Math]::Min(16, $Slug.Length)
+        $head = $Slug.Substring(0, $n)
+        $tail = $Slug.Substring($Slug.Length - $n)
         $take = Get-ChildItem (Join-Path $RunDir 'playwright') -Directory |
-            Get-ChildItem -Filter 'video.webm' | Sort-Object LastWriteTime -Descending |
-            Select-Object -First 1
+            Where-Object { $_.Name.StartsWith($head) -and $_.Name.EndsWith($tail) } |
+            Get-ChildItem -Filter 'video.webm' | Select-Object -First 1
     }
     if (-not $take) { throw "No video was saved for $Slug" }
     Copy-Item $take.FullName $raw -Force

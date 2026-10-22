@@ -1,0 +1,61 @@
+@startuml
+title UML sequence behaviour — Export the report
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+actor "Staff or System Admin" as actor
+box "Frontend — FaithTech Community web app (reports library)" #E0F2FE
+  participant "ReportsPage" as page
+end box
+box "Frontend — FaithTech Community web app (api library)" #E0F2FE
+  participant "HttpReportsService" as svc
+end box
+box "Backend — FaithTech.Community.Api" #D1FADF
+  participant "ReportsEndpoints" as ep
+end box
+box "Backend — FaithTech.Community.Application and Domain" #ECFDF3
+  participant "ExportReportHandler" as x
+  participant "GetReportHandler" as h
+end box
+box "Backend — FaithTech.Community.Infrastructure" #FFF4E5
+  participant "CsvWriter" as csv
+  database "Community database" as db
+end box
+actor -> page : Choose Export CSV
+page --> actor : "Exporting…", busy, cannot be pressed again (L2-128 AC4)
+page -> svc : exportCsv({ city, period })
+svc -> ep : GET /api/reports/export.csv?city&period
+ep -> x : HandleAsync(GetReportQuery)
+x -> h : HandleAsync(GetReportQuery)
+h -> db : Same access check, filters and aggregates as the page
+db --> h : Aggregated rows
+alt not Staff or System Admin, or invalid filters
+  h --> x : Forbidden or Invalid
+  x --> ep : Result
+  ep --> svc : 403 or 400 (L2-128 AC2)
+else
+  h --> x : ReportDto
+  x -> x : Rows: header, Figures, Members by city, New members by month, Partner pipeline, Events and attendance
+  x -> csv : Write(rows)
+  csv -> csv : Quote every cell; double quotes; prefix ' on = + - @ tab CR; CRLF (L2-128 AC3)
+  csv --> x : CSV text
+  x --> ep : CsvFile(faithtech-report-{city}-{period}-{date}.csv)
+  ep --> svc : 200 text/csv, UTF-8 with BOM, attachment (L2-128 AC1)
+  svc --> page : Blob
+  page --> actor : Download the file
+end
+opt export fails
+  page --> actor : Danger toast "We couldn’t export the report" with Try again (L2-128 AC4)
+end
+@enduml

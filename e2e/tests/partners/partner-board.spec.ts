@@ -1,4 +1,4 @@
-// Traces to: L2-018 (docs/detailed-designs/partners/partner-kanban-board)
+// Traces to: L2-018, L2-110 AC7 (docs/detailed-designs/partners/partner-kanban-board)
 import { expect, test } from '../../fixtures/app';
 import { MovePartnerDialog } from '../../pages/move-partner.dialog';
 import { PartnerPage } from '../../pages/partner.page';
@@ -57,8 +57,9 @@ test.describe('Partner Kanban board', () => {
     await partners.card('Kestrel Labs').getByRole('link').click();
     const partner = new PartnerPage(page);
     await expect(partner.stage).toHaveText('Confirmed');
-    await expect(partner.history.first()).toContainText(
-      'Grace Okonkwo moved Kestrel Labs from In funnel to Confirmed: “Contract signed.”',
+    await expect(partner.entries.first()).toContainText('Stage moved · Grace Okonkwo');
+    await expect(partner.entries.first()).toContainText(
+      'Moved Kestrel Labs from In funnel to Confirmed: “Contract signed.”',
     );
   });
 
@@ -89,7 +90,10 @@ test.describe('Partner Kanban board', () => {
     await dialog.confirm.click();
 
     await expect(partner.stage).toHaveText('In funnel');
-    await expect(partner.history).toHaveCount(1);
+    await expect(partner.entries.first()).toContainText(
+      'Moved Summit Cloud from Confirmed to In funnel',
+    );
+    expect(await partner.entryTypes()).toEqual(['Stage moved', 'Added to the pipeline']);
   });
 
   test('on a phone the stages are tabs with one column at a time', async ({ page, api, axe }) => {

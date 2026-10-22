@@ -7,8 +7,6 @@ namespace FaithTech.Community.Api.Tests.Partners;
 /// <summary>Partners created through the API, and the shapes the partners endpoints answer with.</summary>
 public static class PartnerClients
 {
-    public sealed record StageChange(string From, string To, Guid MovedById, string MovedByName, DateTime MovedAtUtc, string? Note);
-
     public sealed record Partner(
         Guid Id,
         string Name,
@@ -21,16 +19,52 @@ public static class PartnerClients
         string? Phone,
         string? Notes,
         string Stage,
-        StageChange[] History,
-        bool CanEdit);
+        bool CanEdit,
+        DateOnly? LastActivityOn,
+        string? NextStep,
+        DateOnly? NextStepDue,
+        bool CanLogActivity,
+        int Version = 0,
+        Archived? Archived = null,
+        bool CanRestore = false);
 
-    public sealed record Card(Guid Id, string Name, string? ContactName, string? Offering);
+    /// <summary>Who merged an archived partner, when and into which partner (L2-114 AC7).</summary>
+    public sealed record Archived(
+        Guid MergedIntoId,
+        string MergedIntoName,
+        int MergedIntoVersion,
+        Guid MergedById,
+        string MergedByName,
+        DateTime MergedAtUtc);
+
+    public sealed record Card(Guid Id, string Name, string? ContactName, string? Offering, string? NextStep, DateOnly? NextStepDue);
 
     public sealed record Column(string Stage, int Count, Card[] Cards);
 
     public sealed record Board(Column[] Columns, bool CanEdit);
 
     public sealed record Owner(Guid ProfileId, string Name);
+
+    public sealed record Activity(
+        Guid Id,
+        string Kind,
+        string? Summary,
+        string Text,
+        DateOnly OccurredOn,
+        TimeOnly? OccurredAt,
+        string? NextStep,
+        DateOnly? NextStepDue,
+        Guid LoggedById,
+        string LoggedByName,
+        DateTime LoggedAtUtc,
+        string? FromStage,
+        string? ToStage,
+        Guid? RelatedPartnerId = null,
+        string? RelatedPartnerName = null,
+        Guid? MergedFromPartnerId = null,
+        string? MergedFromPartnerName = null);
+
+    public sealed record ActivityPage(Activity[] Items, string? Before);
 
     public static object NewPartner(string name, string? stage = null, Guid? ownerId = null, string? email = null) => new
     {
@@ -52,4 +86,65 @@ public static class PartnerClients
         response.EnsureSuccessStatusCode();
         return (await response.Content.ReadFromJsonAsync<Partner>())!;
     }
+
+    /// <summary>A partner with only the details a duplicate check reads, added by the lead.</summary>
+    public static async Task<Partner> AddPartnerAsync(
+        this CommunityApiFactory factory, ProfileClients.Member lead, string name, string? website, string? email = null)
+    {
+        var response = await factory.ClientFor(lead, Role.CityLead).PostAsJsonAsync("/api/partners", new
+        {
+            Name = name,
+            Website = website,
+            Email = email,
+        });
+        response.EnsureSuccessStatusCode();
+        return (await response.Content.ReadFromJsonAsync<Partner>())!;
+    }
+
+    public sealed record Duplicate(Guid Id, string Name, string Reason, string MatchedOn, string? AddedByName, DateOnly? AddedOn);
+
+    public sealed record Duplicates(Duplicate[] Matches);
+
+    public static async Task<Duplicates> DuplicatesAsync(this HttpClient client, Guid partnerId) =>
+        (await client.GetFromJsonAsync<Duplicates>($"/api/partners/{partnerId}/duplicates"))!;
+
+    public static Task<HttpResponseMessage> DismissDuplicateAsync(this HttpClient client, Guid partnerId, Guid otherId) =>
+        client.PostAsync($"/api/partners/{partnerId}/duplicates/{otherId}/dismissal", null);
+
+    /// <summary>A merge request with the versions the caller saw; a missing choice keeps the kept record's value.</summary>
+    public static object MergeBody(Partner kept, Partner other, object? choices = null, int? keepVersion = null, int? otherVersion = null) => new
+    {
+        OtherId = other.Id,
+        KeepVersion = keepVersion ?? kept.Version,
+        OtherVersion = otherVersion ?? other.Version,
+        Choices = choices ?? new { },
+    };
+
+    public static Task<HttpResponseMessage> MergeAsync(this HttpClient client, Guid keepId, object body) =>
+        client.PostAsJsonAsync($"/api/partners/{keepId}/merge", body);
+
+    public static async Task<Partner> GetPartnerAsync(this HttpClient client, Guid id) =>
+        (await client.GetFromJsonAsync<Partner>($"/api/partners/{id}"))!;
+
+    public static object NewActivity(
+        string kind = "Call",
+        string? summary = "Called Nadia about the contract.",
+        string? occurredOn = null,
+        string? occurredAt = null,
+        string? nextStep = null,
+        string? nextStepDue = null) => new
+    {
+        Kind = kind,
+        Summary = summary,
+        OccurredOn = occurredOn,
+        OccurredAt = occurredAt,
+        NextStep = nextStep,
+        NextStepDue = nextStepDue,
+    };
+
+    public static Task<HttpResponseMessage> LogActivityAsync(this HttpClient client, Guid partnerId, object activity) =>
+        client.PostAsJsonAsync($"/api/partners/{partnerId}/activities", activity);
+
+    public static async Task<ActivityPage> ActivitiesAsync(this HttpClient client, Guid partnerId, string query = "") =>
+        (await client.GetFromJsonAsync<ActivityPage>($"/api/partners/{partnerId}/activities{query}"))!;
 }

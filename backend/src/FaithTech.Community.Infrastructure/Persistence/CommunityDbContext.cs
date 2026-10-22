@@ -50,6 +50,10 @@ public class CommunityDbContext(DbContextOptions<CommunityDbContext> options)
 
     public DbSet<PartnerStageChange> PartnerStageChanges => Set<PartnerStageChange>();
 
+    public DbSet<PartnerActivity> PartnerActivities => Set<PartnerActivity>();
+
+    public DbSet<PartnerDuplicateDismissal> PartnerDuplicateDismissals => Set<PartnerDuplicateDismissal>();
+
     public DbSet<Workspace> Workspaces => Set<Workspace>();
 
     public DbSet<WorkItem> WorkItems => Set<WorkItem>();
@@ -82,6 +86,8 @@ public class CommunityDbContext(DbContextOptions<CommunityDbContext> options)
         {
             profile.Property(p => p.Name).HasMaxLength(200);
             profile.Property(p => p.HomeCity).HasMaxLength(100);
+            // Reports group and filter members by home city (ADR 0030).
+            profile.HasIndex(p => p.HomeCity);
             profile.Property(p => p.Bio).HasMaxLength(400);
             profile.Property(p => p.SuspendedReason).HasMaxLength(500);
             profile.Ignore(p => p.DomainEvents);
@@ -239,6 +245,10 @@ public class CommunityDbContext(DbContextOptions<CommunityDbContext> options)
             partner.Property(p => p.Notes).HasMaxLength(2000);
             partner.Property(p => p.Stage).HasConversion<string>().HasMaxLength(16);
             partner.HasIndex(p => p.Stage);
+            // Merge and restore compare versions; a race the check misses fails at SaveChanges (ADR 0028).
+            partner.Property(p => p.Version).IsConcurrencyToken();
+            partner.HasIndex(p => p.ArchivedAtUtc);
+            partner.Ignore(p => p.IsArchived);
             partner.HasMany(p => p.StageChanges).WithOne().HasForeignKey(c => c.PartnerId).OnDelete(DeleteBehavior.Cascade);
             partner.Navigation(p => p.StageChanges).UsePropertyAccessMode(PropertyAccessMode.Field);
         });
@@ -251,6 +261,33 @@ public class CommunityDbContext(DbContextOptions<CommunityDbContext> options)
             change.Property(c => c.To).HasConversion<string>().HasMaxLength(16);
             change.Property(c => c.Note).HasMaxLength(500);
             change.HasIndex(c => new { c.PartnerId, c.MovedAtUtc });
+            change.HasIndex(c => c.MergedFromPartnerId);
+        });
+
+        builder.Entity<PartnerActivity>(activity =>
+        {
+            activity.ToTable("PartnerActivities");
+            activity.Property(a => a.Id).ValueGeneratedNever();
+            activity.Property(a => a.Kind).HasConversion<string>().HasMaxLength(16);
+            activity.Property(a => a.FromStage).HasConversion<string>().HasMaxLength(16);
+            activity.Property(a => a.ToStage).HasConversion<string>().HasMaxLength(16);
+            activity.Property(a => a.Summary).HasMaxLength(2000);
+            activity.Property(a => a.NextStep).HasMaxLength(200);
+            activity.HasIndex(a => new { a.PartnerId, a.OccurredOn, a.OccurredAt, a.LoggedAtUtc });
+            activity.HasIndex(a => a.PartnerId, "IX_PartnerActivities_PartnerId_NextStep").HasFilter("\"NextStep\" IS NOT NULL");
+            activity.HasIndex(a => a.StageChangeId);
+            activity.HasIndex(a => a.MergedFromPartnerId);
+            activity.HasOne<Partner>().WithMany().HasForeignKey(a => a.PartnerId).OnDelete(DeleteBehavior.Cascade);
+        });
+
+        builder.Entity<PartnerDuplicateDismissal>(dismissal =>
+        {
+            dismissal.ToTable("PartnerDuplicateDismissals");
+            dismissal.Property(d => d.Id).ValueGeneratedNever();
+            dismissal.HasIndex(d => new { d.LowerPartnerId, d.HigherPartnerId }).IsUnique();
+            dismissal.HasIndex(d => d.HigherPartnerId);
+            dismissal.HasOne<Partner>().WithMany().HasForeignKey(d => d.LowerPartnerId).OnDelete(DeleteBehavior.Cascade);
+            dismissal.HasOne<Partner>().WithMany().HasForeignKey(d => d.HigherPartnerId).OnDelete(DeleteBehavior.Cascade);
         });
 
         ConfigureAgile(builder);
@@ -269,6 +306,9 @@ public class CommunityDbContext(DbContextOptions<CommunityDbContext> options)
             ev.Property(e => e.CancellationReason).HasMaxLength(500);
             ev.Ignore(e => e.RsvpCount);
             ev.Ignore(e => e.IsFull);
+            ev.Ignore(e => e.CheckedInCount);
+            ev.Ignore(e => e.AttendeeCount);
+            ev.Ignore(e => e.CheckInOpensAt);
             ev.HasIndex(e => e.StartsAt);
             ev.HasMany(e => e.Rsvps).WithOne().HasForeignKey(r => r.EventId).OnDelete(DeleteBehavior.Cascade);
             ev.Navigation(e => e.Rsvps).HasField("_rsvps").UsePropertyAccessMode(PropertyAccessMode.Field);
@@ -281,6 +321,7 @@ public class CommunityDbContext(DbContextOptions<CommunityDbContext> options)
             rsvp.Property(r => r.GuestName).HasMaxLength(200);
             rsvp.Property(r => r.GuestEmail).HasMaxLength(256);
             rsvp.Ignore(r => r.IsGuest);
+            rsvp.Ignore(r => r.IsCheckedIn);
             rsvp.Property(r => r.CancelTokenHash).HasMaxLength(64);
             rsvp.HasIndex(r => r.CancelTokenHash).IsUnique().HasFilter("\"CancelTokenHash\" IS NOT NULL");
             rsvp.HasIndex(r => new { r.EventId, r.ProfileId }).IsUnique().HasFilter("\"ProfileId\" IS NOT NULL");

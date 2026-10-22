@@ -3,3 +3,4 @@ export * from './event';
 export * from './event-form';
 export * from './guest-cancel-rsvp';
 export * from './public-event';
+export * from './event-check-in';

@@ -54,6 +54,8 @@ public static class CliApp
                 return await SeedLoadUsersAsync(scope.ServiceProvider.GetRequiredService<CommunitySeeder>(), args[1], environment(LoadTestPasswordVariable));
             case "seed-search-records" when args.Length == 2:
                 return await SeedSearchRecordsAsync(scope.ServiceProvider.GetRequiredService<CommunitySeeder>(), args[1]);
+            case "seed-report-records" when args.Length == 2:
+                return await SeedReportRecordsAsync(scope.ServiceProvider.GetRequiredService<CommunitySeeder>(), args[1]);
             case "wall-hash":
                 return await WallHashAsync(input, output);
             case "wall-key":
@@ -65,7 +67,7 @@ public static class CliApp
                 await CreateSchemaAsync(db);
                 return 0;
             default:
-                Console.Error.WriteLine("Usage: faithtech-community <migrate|seed|reset|grant-admin <email>|seed-load-users <count>|seed-search-records <count>|wall-hash|wall-key>");
+                Console.Error.WriteLine("Usage: faithtech-community <migrate|seed|reset|grant-admin <email>|seed-load-users <count>|seed-search-records <count>|seed-report-records <members>|wall-hash|wall-key>");
                 return 1;
         }
     }
@@ -118,6 +120,20 @@ public static class CliApp
 
         var created = await seeder.SeedSearchRecordsAsync(records);
         Console.WriteLine($"{records} searchable load-test events ready ({created} new).");
+        return 0;
+    }
+
+    /// <summary>Only for an isolated performance environment: never run it against a database real people use.</summary>
+    private static async Task<int> SeedReportRecordsAsync(CommunitySeeder seeder, string count)
+    {
+        if (!int.TryParse(count, out var members) || members is < 1 or > CommunitySeeder.MaxReportMembers)
+        {
+            Console.Error.WriteLine($"Give a member count from 1 to {CommunitySeeder.MaxReportMembers}.");
+            return 1;
+        }
+
+        var created = await seeder.SeedReportRecordsAsync(members);
+        Console.WriteLine($"{members} report members, {members / 10} events and {members / 10 * 50} RSVPs ready ({created} new members).");
         return 0;
     }
 

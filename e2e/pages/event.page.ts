@@ -23,6 +23,8 @@ export class EventPage {
   readonly loading: Locator;
   readonly loadError: Locator;
   readonly tryAgain: Locator;
+  readonly checkIn: Locator;
+  readonly viewCheckIn: Locator;
 
   constructor(private readonly page: Page) {
     this.heading = page.getByRole('heading', { level: 1 });
@@ -46,6 +48,8 @@ export class EventPage {
     this.loading = page.getByRole('status', { name: 'Loading event' });
     this.loadError = page.getByRole('heading', { name: 'We couldn’t load this event' });
     this.tryAgain = page.getByRole('button', { name: 'Try again' });
+    this.checkIn = page.getByRole('link', { name: 'Check in', exact: true });
+    this.viewCheckIn = page.getByRole('link', { name: 'View check-in' });
   }
 
   async open(id: string): Promise<void> {

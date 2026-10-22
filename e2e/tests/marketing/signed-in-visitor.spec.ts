@@ -1,6 +1,7 @@
 import { expect, test } from '../../fixtures/app';
 import { AppShell } from '../../pages/app-shell.page';
 import { MarketingPage } from '../../pages/marketing.page';
+import { SignInPage } from '../../pages/sign-in.page';
 
 // Traces to: L2-074 AC6 (docs/detailed-designs/marketing/landing-page, ADR 0018).
 test.describe('A member who is already signed in', () => {
@@ -40,6 +41,8 @@ test.describe('A member who is already signed in', () => {
     await expect(page).toHaveURL('http://localhost:4200/');
 
     await new AppShell(page).signOut('Grace Okonkwo');
+    // Sign-out clears the kept-session hint before it lands on sign in; leaving earlier races it.
+    await expect(new SignInPage(page).heading).toBeVisible();
     await marketing.open();
 
     await expect(marketing.heading).toBeVisible();

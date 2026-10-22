@@ -1,0 +1,86 @@
+@startuml
+title UML sequence behaviour — View the report
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+actor "Staff or System Admin" as actor
+box "Frontend — FaithTech Community web app (reports library)" #E0F2FE
+  participant "ReportsPage" as page
+end box
+box "Frontend — FaithTech Community web app (api library)" #E0F2FE
+  participant "HttpReportsService" as svc
+end box
+box "Backend — FaithTech.Community.Api" #D1FADF
+  participant "ReportsEndpoints" as ep
+end box
+box "Backend — FaithTech.Community.Application and Domain" #ECFDF3
+  participant "GetReportHandler" as h
+  participant "ReportAccess" as access
+end box
+box "Backend — FaithTech.Community.Infrastructure" #FFF4E5
+  database "Community database" as db
+end box
+actor -> page : Open /reports?city=&period= (defaults: All cities, Last 30 days, L2-124 AC1)
+page --> actor : Skeleton figures, charts and tables; aria-busy (L2-127 AC1)
+page -> svc : getReport({ city, period })
+svc -> ep : GET /api/reports?city&period (bearer token, HANDLES_FORBIDDEN)
+alt anonymous
+  ep --> svc : 401 (fallback policy, L2-123 AC3)
+  svc --> page : Sign-in redirect
+else signed in
+  ep -> h : HandleAsync(GetReportQuery)
+  h -> access : CanRead
+  alt not Staff or System Admin
+    h --> ep : Forbidden
+    ep --> svc : 403 (L2-123 AC2)
+    svc --> page : HttpErrorResponse 403
+    page --> actor : "Reports are for Staff and System Admin" (L2-127 AC4)
+  else Staff or System Admin
+    h -> h : ReportPeriod.Resolve(period, TimeProvider): From, To = now
+    h -> db : Distinct member home cities and event cities
+    db --> h : City list
+    alt unknown period or city
+      h --> ep : Invalid
+      ep --> svc : 400 problem details
+      svc --> page : HttpErrorResponse 400
+      page -> page : Navigate to defaults (replaceUrl); warning alert (L2-124 AC5)
+    else valid filters
+      h -> db : Count members (verified, not suspended) and new joins (L2-125 AC1)
+      h -> db : Count held and cancelled events; RSVPs and check-ins, walk-ins excluded (AC2, AC3)
+      h -> db : Group non-archived partners by owner city and stage (AC4)
+      h -> db : Count announcements by sender city (AC5)
+      h -> db : Group members by home city and by join month (L2-126 AC1, AC2)
+      h -> db : Events in the period and next 30 days, top 50, correlated RSVP counts (L2-126 AC5)
+      db --> h : Aggregated rows only; contacts never read (L2-125 AC6, L2-129 AC2)
+      h -> h : Top four cities and Other, fill months, percentages, IsEmpty
+      h --> ep : ReportDto
+      ep --> svc : 200 OK
+      svc --> page : Report
+      alt IsEmpty
+        page --> actor : "Nothing to report for {city} in the {period}" (L2-127 AC2)
+      else
+        page --> actor : Figures with context lines, bar charts, tables (L2-125, L2-126)
+      end
+    end
+  end
+end
+opt request fails or cannot reach the API
+  page --> actor : Error state with Try again, same filters (L2-127 AC3)
+end
+opt choose new filters and Apply
+  actor -> page : Pick city and period; Apply
+  page -> page : router.navigate([], { queryParams: { city, period } }) (L2-124 AC4)
+  page -> svc : getReport({ city, period })
+end
+@enduml

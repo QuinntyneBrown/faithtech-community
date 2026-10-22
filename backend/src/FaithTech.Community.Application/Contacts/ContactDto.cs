@@ -46,6 +46,9 @@ public record ContactDto(
     DateTime CreatedAtUtc,
     IReadOnlyList<ContactPhotoDto> Photos);
 
+/// <summary>The caller's own contact with the same email as the contact form (L2-116): the oldest, active or archived.</summary>
+public record DuplicateContactDto(Guid Id, string Name, string? Organization, string Email, DateTime AddedAtUtc, int NoteCount, bool IsArchived);
+
 /// <summary>Builds contact DTOs: the linked profile's name and photo, and any verified member with the same email.</summary>
 public class ContactViews(IApplicationDbContext db, IPhotoStorage storage)
 {

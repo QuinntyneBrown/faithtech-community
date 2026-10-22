@@ -80,6 +80,8 @@ a:hover, a[data-state="hover"] { color: var(--color-fg-link-hover); text-decorat
 /* Filter row above a list: chip group and select, spaced from the list below. */
 .filter-bar { align-items: flex-end; margin-bottom: var(--space-4); }
 .filter-bar > .select { width: auto; flex: 0 1 14rem; }
+/* An action pushed to the end of the filter row, such as Export CSV (ftFilterBarEnd). */
+.filter-bar__end { margin-inline-start: auto; }
 .grid { display: grid; gap: var(--layout-gutter); grid-template-columns: repeat(var(--layout-columns), minmax(0, 1fr)); }
 .grid--auto { grid-template-columns: repeat(auto-fill, minmax(min(100%, 18rem), 1fr)); }
 /* Two equal columns at every width: a Starts/Ends or start/end date pair in a form (<ft-grid [columns]="2">). */
@@ -200,6 +202,8 @@ fieldset.card > legend { display: contents; }
 .choice input[aria-invalid="true"] { border-color: var(--color-danger-solid); }
 .choice__text { display: flex; flex-direction: column; gap: var(--space-0-5); }
 .choice__text small { color: var(--color-fg-muted); }
+/* A wrapping row of short choices (ft-radio-group orientation="inline"): 16px between choices, 8px between wrapped lines. */
+.choice-row { display: flex; flex-wrap: wrap; column-gap: var(--space-4); row-gap: var(--space-2); }
 
 /* ---------- Form layout ------------------------------------------------------ */
 .form-actions { display: flex; flex-wrap: wrap; gap: var(--space-3); justify-content: flex-end; padding-top: var(--space-4); }
@@ -628,6 +632,7 @@ label.bubble__text { cursor: pointer; }
 .switch input:checked:hover, .switch input[data-state="checked"]:hover { background: var(--color-accent-hover); }
 .switch input:checked::before, .switch input[data-state="checked"]::before { translate: calc(var(--size-icon-md) * 0.75) 0; }
 .switch input:focus-visible, .switch input[data-state="focus"] { outline: var(--focus-ring-width) solid var(--color-focus-ring); outline-offset: var(--space-0-5); }
+.switch__description { margin: 0; padding-inline-start: calc(var(--size-icon-md) * 1.75 + var(--space-3)); }
 .switch input:disabled, .switch input[data-state="disabled"] { background: var(--color-border-default); cursor: not-allowed; }
 .switch input:disabled + * { color: var(--color-fg-disabled); }
 .switch__text { display: flex; flex-direction: column; gap: var(--space-0-5); }

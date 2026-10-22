@@ -102,7 +102,7 @@ public class AcceptInviteHandler(
                 return Result.Conflict("An account already uses this email. Sign in to accept the invite.");
             }
 
-            profile = new Profile(command.Name!.Trim());
+            profile = new Profile(command.Name!.Trim(), now.UtcDateTime);
             db.Profiles.Add(profile);
             // The invite reached this address, so the email counts as verified (L2-011 AC1).
             var user = new CommunityUser { UserName = invite.Email, Email = invite.Email, EmailConfirmed = true, ProfileId = profile.Id };

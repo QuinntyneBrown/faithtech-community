@@ -23,10 +23,12 @@ import {
   SkeletonComponent,
   StackComponent,
   ToastService,
+  formatDay,
 } from '@faithtech-community/components';
 import { firstValueFrom } from 'rxjs';
 
 import { AddPartnerDialog, MovePartnerData, MovePartnerDialog } from '../../dialogs';
+import { localDate } from '../partner/partner-timeline';
 
 type State = 'loading' | 'loaded' | 'error' | 'forbidden';
 
@@ -80,6 +82,13 @@ export class PartnersPage {
 
   protected caption(card: PartnerCardDto): string {
     return [card.contactName, card.offering].filter(Boolean).join(' · ');
+  }
+
+  /** "Next: Send credit-line wording · Wed 22 Oct" when the partner has a next step (L2-111 AC6). */
+  protected detail(card: PartnerCardDto): string | null {
+    if (!card.nextStep) return null;
+    const due = card.nextStepDue ? ` · ${formatDay(localDate(card.nextStepDue))}` : '';
+    return `Next: ${card.nextStep}${due}`;
   }
 
   protected retry(): void {
@@ -173,5 +182,7 @@ function toCard(partner: PartnerDto): PartnerCardDto {
     name: partner.name,
     contactName: partner.contactName,
     offering: partner.offering,
+    nextStep: partner.nextStep,
+    nextStepDue: partner.nextStepDue,
   };
 }

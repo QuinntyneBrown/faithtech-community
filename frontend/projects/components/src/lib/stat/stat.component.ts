@@ -9,7 +9,7 @@ export type StatVariant = 'number' | 'text';
 /**
  * A label over a large number or short value, such as "Lead" over "4". Values in words take
  * `variant="text"`, a smaller style. While `loading`, the label stays and a skeleton stands in
- * for the value. A zero count reads "0". Lay a row of stats out with `<ft-cluster gap="8">`.
+ * for the value (and for the `context` line, when there is one). A zero count reads "0". Lay a row of stats out with `<ft-cluster gap="8">`.
  */
 @Component({
   selector: 'ft-stat',
@@ -28,6 +28,8 @@ export class StatComponent {
   readonly value = input.required<string | number>();
   readonly variant = input<StatVariant>('number');
   readonly loading = input(false);
+  /** A caption under the value saying what it is relative to, such as "+18 in the last 30 days". */
+  readonly context = input<string | null>(null);
 
   protected readonly labelId = `ft-stat-label-${nextId++}`;
 }

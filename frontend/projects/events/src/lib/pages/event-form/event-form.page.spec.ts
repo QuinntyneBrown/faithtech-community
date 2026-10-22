@@ -32,6 +32,9 @@ const existing: EventDetailDto = {
   canManage: true,
   canExportRsvps: true,
   rsvps: [],
+  checkedInCount: null,
+  canCheckIn: false,
+  canViewCheckIn: false,
 };
 
 interface Overrides {

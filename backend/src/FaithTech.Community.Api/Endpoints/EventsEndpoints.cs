@@ -4,7 +4,7 @@ using FaithTech.Community.Application.Events;
 
 namespace FaithTech.Community.Api.Endpoints;
 
-/// <summary>Events (L2-020 to L2-025). Every route requires authentication unless it opts out explicitly.</summary>
+/// <summary>Events (L2-020 to L2-025) and check-in (L2-117 to L2-122). Every route requires authentication unless it opts out explicitly.</summary>
 public static class EventsEndpoints
 {
     public static IEndpointRouteBuilder MapEventsEndpoints(this IEndpointRouteBuilder app)
@@ -58,6 +58,38 @@ public static class EventsEndpoints
         events.MapGet("/{id:guid}/rsvps.csv", async (Guid id, RsvpHandler handler, CancellationToken cancellationToken) =>
         {
             var (result, file) = await handler.ExportAsync(id, cancellationToken);
+            return result.ToHttp(() => Results.File(Encoding.UTF8.GetBytes(file!.Content), "text/csv", file.FileName));
+        });
+
+        // Check-in at the door (L2-117 to L2-119): lead roles and System Admins write, Staff read.
+        events.MapGet("/{id:guid}/check-in", async (Guid id, CheckInHandler handler, CancellationToken cancellationToken) =>
+        {
+            var (result, checkIn) = await handler.GetAsync(id, cancellationToken);
+            return result.ToHttp(() => Results.Ok(checkIn));
+        });
+
+        events.MapPut("/{id:guid}/check-ins/{rsvpId:guid}", async (Guid id, Guid rsvpId, CheckInHandler handler, CancellationToken cancellationToken) =>
+        {
+            var (result, attendee) = await handler.CheckInAsync(id, rsvpId, cancellationToken);
+            return result.ToHttp(() => Results.Ok(attendee));
+        });
+
+        events.MapDelete("/{id:guid}/check-ins/{rsvpId:guid}", async (Guid id, Guid rsvpId, CheckInHandler handler, CancellationToken cancellationToken) =>
+            (await handler.UndoAsync(id, rsvpId, cancellationToken)).ToHttp(Results.NoContent));
+
+        // A new walk-in answers 201; a reused RSVP answers 200 (L2-120 AC5).
+        events.MapPost("/{id:guid}/walk-ins", async (Guid id, AddWalkInCommand command, AddWalkInHandler handler, CancellationToken cancellationToken) =>
+            {
+                var (result, walkIn) = await handler.HandleAsync(id, command, cancellationToken);
+                return result.ToHttp(() => walkIn!.Reused
+                    ? Results.Ok(walkIn)
+                    : Results.Created($"/api/events/{id}/check-in", walkIn));
+            })
+            .Validate<AddWalkInCommand>();
+
+        events.MapGet("/{id:guid}/check-ins.csv", async (Guid id, ExportCheckInsHandler handler, CancellationToken cancellationToken) =>
+        {
+            var (result, file) = await handler.HandleAsync(id, cancellationToken);
             return result.ToHttp(() => Results.File(Encoding.UTF8.GetBytes(file!.Content), "text/csv", file.FileName));
         });
 

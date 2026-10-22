@@ -1,0 +1,68 @@
+@startuml
+title UML sequence behaviour — Open the check-in page
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+actor "Signed-in user" as actor
+box "Frontend — FaithTech Community web app (events library)" #E0F2FE
+  participant "EventCheckInPage" as page
+  participant "HttpCheckInService" as svc
+end box
+box "Backend — FaithTech.Community.Api" #D1FADF
+  participant "EventsEndpoints" as ep
+end box
+box "Backend — FaithTech.Community.Application and Domain" #ECFDF3
+  participant "CheckInHandler" as h
+  participant "EventPermissions" as perm
+end box
+box "Backend — FaithTech.Community.Infrastructure" #FFF4E5
+  database "Community database" as db
+end box
+
+actor -> page : Open /events/{id}/check-in
+page --> actor : Skeleton rows (L2-121 AC4)
+page -> svc : getCheckIn(id)
+svc -> ep : GET /api/events/{id}/check-in
+alt anonymous
+  ep --> svc : 401
+  svc --> page : Redirect to sign in (L2-117 AC4)
+else signed in
+  ep -> h : GetAsync(id)
+  h -> perm : CanViewCheckIn
+  alt member without a lead role, Staff or System Admin
+    perm --> h : false
+    h --> ep : Forbidden
+    ep --> svc : 403
+    svc --> page : Error
+    page --> actor : Forbidden page (L2-117 AC3)
+  else lead, System Admin or Staff
+    perm --> h : true
+    h -> db : Load event, RSVP rows and member names
+    db --> h : Event with rows
+    h -> perm : CanCheckIn, CanSeeGuestEmails
+    perm --> h : true for leads and System Admin; false for Staff
+    h -> h : Order RSVP'd rows, then walk-ins; mask guest emails for Staff; set IsOpen from window (L2-118 AC1, L2-117 AC6)
+    h --> ep : CheckInDto
+    ep --> svc : 200 OK
+    svc --> page : Check-in data
+    alt cancelled or window not open
+      page --> actor : Alert; switches disabled (L2-119 AC5, AC6)
+    else Staff
+      page --> actor : Read-only list; no Add walk-in or Export CSV (L2-117 AC2)
+    else lead or System Admin
+      page --> actor : Meter, search and switches
+    end
+  end
+end
+@enduml

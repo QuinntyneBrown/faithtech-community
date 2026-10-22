@@ -1,0 +1,26 @@
+:host {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: var(--space-3);
+  margin-block-end: var(--space-4);
+}
+
+.ft-filter-bar__filters {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: var(--space-3);
+}
+
+.ft-filter-bar__end {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: var(--space-3);
+  margin-inline-start: auto;
+}
+
+.ft-filter-bar__end:empty {
+  display: none;
+}

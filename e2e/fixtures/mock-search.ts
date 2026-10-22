@@ -87,6 +87,8 @@ export class MockSearch {
     const partners =
       roles.some((r) => LEADS.includes(r)) || readsAll
         ? this.context.partners.partners
+            // Merged (archived) partners are never found (L2-114 AC4).
+            .filter((p) => !p.archivedAtUtc)
             .filter((p) => matches(p.name, p.offering, p.contactName, p.notes))
             .map((p) =>
               item(

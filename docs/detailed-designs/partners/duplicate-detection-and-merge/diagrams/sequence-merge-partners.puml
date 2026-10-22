@@ -1,0 +1,82 @@
+@startuml
+title UML sequence behaviour — Merge partners
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+actor "Lead" as actor
+box "Frontend — FaithTech Community web app (partners library)" #E0F2FE
+  participant "PartnerPage" as page
+  participant "MergePartnersDialog" as dlg
+  participant "HttpPartnersService" as svc
+end box
+box "Backend — FaithTech.Community.Api" #D1FADF
+  participant "PartnersEndpoints" as ep
+  participant "MergePartnersValidator" as v
+end box
+box "Backend — FaithTech.Community.Application and Domain" #ECFDF3
+  participant "MergePartnersHandler" as h
+  participant "PartnerAccess" as acc
+  participant "Partner (kept, other)" as ent
+end box
+box "Backend — FaithTech.Community.Infrastructure" #FFF4E5
+  participant "AuditLog" as audit
+  database "Community database" as db
+end box
+actor -> page : Choose Compare and merge
+page -> svc : get(otherId)
+page -> dlg : Open with kept and other PartnerDto (with versions)
+dlg --> actor : Differing fields side by side, kept values selected (L2-114 AC1)
+actor -> dlg : Choose values, then Merge partners
+dlg -> dlg : Busy; button cannot be pressed again (L2-114 AC6)
+dlg -> svc : merge(keptId, {otherId, keepVersion, otherVersion, choices})
+svc -> ep : POST /api/partners/{keepId}/merge
+ep -> v : Validate
+ep -> h : MergeAsync(keepId, command)
+h -> acc : CanWrite
+alt Staff or other member
+  ep --> svc : 403, nothing changes (L2-115 AC2)
+else same id
+  ep --> svc : 400
+else permitted
+  h -> db : Load both with activities and stage changes
+  alt unknown
+    ep --> svc : 404
+  else either archived, or a version differs
+    ep --> svc : 409 "Someone changed {name} while you were comparing..." (L2-114 AC5)
+  else joined notes over 2,000 characters
+    ep --> svc : 400 Notes
+  else ready
+    h -> ent : kept.AbsorbMerge(chosen values, kept notes + other notes) (AC1, AC2)
+    h -> ent : Every activity and stage change of other: MoveTo(kept.Id),\nMergedFromPartnerId set once (AC3)
+    h -> ent : Add PartnerActivity.Merged "Merged {other} into {kept}" (AC3)
+    h -> ent : other.ArchiveAsMergedInto(kept.Id, caller, now); both Version + 1
+    h -> acc : Audit(actor, kept, "partners.merged", both snapshots, choices)
+    acc -> audit : Record, whoever merged (L2-115 AC3)
+    h -> db : One SaveChanges (Version concurrency token)
+    alt concurrency exception
+      ep --> svc : 409, nothing changed
+    else saved
+      ep --> svc : 200 kept PartnerDto
+      svc --> dlg : Partner
+      dlg --> page : Close with the kept partner
+      page --> actor : Kept partner with both timelines and the Merged entry;\ntoast "Merged {other} into {kept}"; other gone from board, search, duplicates (AC4)
+    end
+  end
+end
+opt 409 or other failure
+  dlg --> actor : Danger alert "Partners not merged" and "Reload and try again"
+  actor -> dlg : Reload and try again
+  dlg -> svc : get(keptId), get(otherId); choices reset
+end
+@enduml

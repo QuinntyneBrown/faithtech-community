@@ -5,7 +5,7 @@ import { Observable } from 'rxjs';
 import { HANDLES_FORBIDDEN } from '../errors';
 import { apiTestProviders } from '../shared/api-test-providers';
 import { HttpPartnersService } from './http-partners.service';
-import { PARTNERS_SERVICE, PartnerRequest } from './partners.service';
+import { LogPartnerActivityRequest, PARTNERS_SERVICE, PartnerRequest } from './partners.service';
 
 const request: PartnerRequest = {
   name: 'Kestrel Labs',
@@ -16,6 +16,15 @@ const request: PartnerRequest = {
   email: null,
   phone: null,
   notes: null,
+};
+
+const activity: LogPartnerActivityRequest = {
+  kind: 'Call',
+  summary: 'Called Nadia about the contract.',
+  occurredOn: '2026-10-21',
+  occurredAt: '14:15',
+  nextStep: 'Send credit-line wording',
+  nextStepDue: '2026-10-22',
 };
 
 describe('HttpPartnersService', () => {
@@ -51,6 +60,49 @@ describe('HttpPartnersService', () => {
       'POST',
       '/api/partners/x1/stage',
       { to: 'Confirmed', note: 'Contract signed.' },
+    ],
+    ['activities', () => service.activities('x1'), 'GET', '/api/partners/x1/activities', undefined],
+    [
+      'activities with a filter and a cursor',
+      () => service.activities('x1', 'Stage', 'abc'),
+      'GET',
+      '/api/partners/x1/activities?kind=Stage&before=abc',
+      undefined,
+    ],
+    [
+      'logActivity',
+      () => service.logActivity('x1', activity),
+      'POST',
+      '/api/partners/x1/activities',
+      activity,
+    ],
+    ['duplicates', () => service.duplicates('x1'), 'GET', '/api/partners/x1/duplicates', undefined],
+    [
+      'dismissDuplicate',
+      () => service.dismissDuplicate('x1', 'x2'),
+      'POST',
+      '/api/partners/x1/duplicates/x2/dismissal',
+      null,
+    ],
+    [
+      'merge',
+      () =>
+        service.merge('x1', {
+          otherId: 'x2',
+          keepVersion: 3,
+          otherVersion: 1,
+          choices: { phone: 'other' },
+        }),
+      'POST',
+      '/api/partners/x1/merge',
+      { otherId: 'x2', keepVersion: 3, otherVersion: 1, choices: { phone: 'other' } },
+    ],
+    [
+      'restore',
+      () => service.restore('x2', { version: 2, mergedIntoVersion: 4 }),
+      'POST',
+      '/api/partners/x2/restore',
+      { version: 2, mergedIntoVersion: 4 },
     ],
   ])('%s', (_name, call, method, url, body) => {
     (call() as Observable<unknown>).subscribe();

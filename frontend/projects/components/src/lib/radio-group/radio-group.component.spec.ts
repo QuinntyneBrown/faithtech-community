@@ -86,3 +86,53 @@ describe('RadioGroupComponent', () => {
     expect(radios().every((r) => r.getAttribute('aria-invalid') === 'true')).toBe(true);
   });
 });
+
+// Traces to: Log activity type choices (components/radio-group.html, Inline row of short choices).
+// Given short choices such as Call, Email, Meeting and Note, When the group is inline, Then the
+// radios sit in one wrapping row inside the same labelled radiogroup; by default they stack.
+@Component({
+  imports: [RadioGroupComponent, RadioComponent, ReactiveFormsModule],
+  template: `<ft-radio-group legend="Type" [orientation]="orientation" [formControl]="ctrl">
+    <ft-radio value="call">Call</ft-radio>
+    <ft-radio value="email">Email</ft-radio>
+  </ft-radio-group>`,
+})
+class OrientationHostComponent {
+  ctrl = new FormControl('call');
+  orientation: 'stack' | 'inline' = 'inline';
+}
+
+describe('RadioGroupComponent orientation', () => {
+  function setup(orientation: 'stack' | 'inline' | null) {
+    const fixture = TestBed.createComponent(OrientationHostComponent);
+    if (orientation) fixture.componentInstance.orientation = orientation;
+    fixture.detectChanges();
+    const host: HTMLElement = fixture.nativeElement;
+    return { host, options: host.querySelector('.ft-radio-group__options') as HTMLElement };
+  }
+
+  it('lays short choices out inline in the same radiogroup', () => {
+    const { host, options } = setup('inline');
+    expect(options.classList.contains('ft-radio-group__options--inline')).toBe(true);
+    expect(options.closest('fieldset')?.getAttribute('role')).toBe('radiogroup');
+    expect(options.querySelectorAll('input[type=radio]').length).toBe(2);
+    expect(host.querySelector('legend')?.textContent).toContain('Type');
+  });
+
+  it('stacks the choices when orientation is stack', () => {
+    const { options } = setup('stack');
+    expect(options.classList.contains('ft-radio-group__options--inline')).toBe(false);
+  });
+});
+
+describe('RadioGroupComponent default orientation', () => {
+  it('stacks by default', () => {
+    const fixture = TestBed.createComponent(HostComponent);
+    fixture.detectChanges();
+    const options = (fixture.nativeElement as HTMLElement).querySelector(
+      '.ft-radio-group__options',
+    );
+    expect(options).not.toBeNull();
+    expect(options!.classList.contains('ft-radio-group__options--inline')).toBe(false);
+  });
+});

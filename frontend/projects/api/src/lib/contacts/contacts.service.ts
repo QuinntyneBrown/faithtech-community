@@ -77,6 +77,17 @@ export interface ContactPhoto {
   isStored: boolean;
 }
 
+/** The caller's own contact with the same email, active or archived (L2-116). */
+export interface DuplicateContactDto {
+  id: string;
+  name: string;
+  organization: string | null;
+  email: string;
+  addedAtUtc: string;
+  noteCount: number;
+  isArchived: boolean;
+}
+
 export interface ContactNoteDto {
   id: string;
   body: string;
@@ -104,6 +115,11 @@ export interface ContactsService {
   getNotes(contactId: string): Observable<ContactNoteDto[]>;
   addNote(contactId: string, body: string): Observable<ContactNoteDto>;
   link(contactId: string, profileId: string, discardNotes: boolean): Observable<ContactDto>;
+  /**
+   * The caller's own contact with this email, trimmed and case-insensitive, excluding the contact being
+   * edited; null when there is none (204). Never another lead's contact (L2-116).
+   */
+  findDuplicate(email: string, excludeId?: string): Observable<DuplicateContactDto | null>;
   /** JPEG, PNG or WebP up to 5 MB with a description; at most 10. 400 errors are keyed File or AltText. */
   uploadPhoto(contactId: string, file: File, altText: string): Observable<ContactPhoto>;
   describePhoto(contactId: string, photoId: string, altText: string): Observable<void>;

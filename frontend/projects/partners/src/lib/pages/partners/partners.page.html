@@ -73,6 +73,7 @@
                   [title]="card.name"
                   [href]="'/partners/' + card.id"
                   [caption]="caption(card)"
+                  [detail]="detail(card)"
                   [movable]="b.canEdit"
                   (moveRequested)="moveWithDialog(card, column.stage)"
                 />

@@ -98,3 +98,15 @@
     outline-offset: var(--focus-ring-offset);
   }
 }
+
+.field__count {
+  margin-block-start: var(--space-1);
+  font: var(--text-body-sm);
+  font-variant-numeric: tabular-nums;
+  color: var(--color-fg-muted);
+}
+
+.field__count--over {
+  color: var(--color-danger-fg);
+  font-weight: var(--font-weight-semibold);
+}

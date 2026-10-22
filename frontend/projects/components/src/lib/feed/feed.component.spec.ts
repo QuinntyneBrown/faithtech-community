@@ -129,3 +129,34 @@ describe('FeedComponent states', () => {
     expect(feed.querySelectorAll('ft-feed-item').length).toBe(1);
   });
 });
+
+// Traces to: partner activity timeline (components/feed.html, Typed activity; Merged and moved
+// entries).
+// Given a typed timeline entry, When it has an icon, Then a small decorative icon tile for its
+// type leads the entry in place of the author's avatar.
+@Component({
+  imports: [FeedComponent, FeedItemComponent],
+  template: `<ft-feed label="Activity">
+    <ft-feed-item actor="Grace Okonkwo" icon="call" meta="Today, 2:15 pm"
+      ><strong>Call</strong> · Grace Okonkwo</ft-feed-item
+    >
+  </ft-feed>`,
+})
+class TypedHostComponent {}
+
+describe('FeedItemComponent with an icon', () => {
+  it('leads with a small decorative icon tile instead of the avatar', () => {
+    const fixture = TestBed.createComponent(TypedHostComponent);
+    fixture.detectChanges();
+    const item = (fixture.nativeElement as HTMLElement).querySelector('ft-feed-item')!;
+    const tile = item.querySelector('ft-icon-tile') as HTMLElement;
+    expect(tile).not.toBeNull();
+    expect(tile.classList.contains('ft-icon-tile--sm')).toBe(true);
+    expect(tile.getAttribute('aria-hidden')).toBe('true');
+    expect(tile.querySelector('path')?.getAttribute('d')).toContain('M5 4h4');
+    expect(item.querySelector('ft-avatar')).toBeNull();
+    expect(item.querySelector('.ft-feed-item__body')?.textContent).toContain(
+      'Call · Grace Okonkwo',
+    );
+  });
+});

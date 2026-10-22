@@ -71,6 +71,10 @@ export const ICONS: Readonly<Record<string, string>> = {
     "<circle cx='9' cy='8' r='4'/><path d='M2 21a7 7 0 0 1 14 0M16 3.5a4 4 0 0 1 0 7.5M22 21a7 7 0 0 0-4-6.3'/>",
   transfer: "<path d='M4 8h14l-4-4M20 16H6l4 4'/>",
   suspended: "<circle cx='12' cy='12' r='9'/><path d='M5.6 5.6l12.8 12.8'/>",
+  call: "<path d='M5 4h4l2 5-2.5 1.5a11 11 0 0 0 5 5L15 13l5 2v4a2 2 0 0 1-2 2A16 16 0 0 1 3 6a2 2 0 0 1 2-2z'/>",
+  merge: "<path d='M7 3v6a5 5 0 0 0 5 5 5 5 0 0 1 5 5v2M7 21v-6M17 3v3'/>",
+  reports: "<path d='M4 20V10M10 20V4M16 20v-7M22 20H2'/>",
+  'walk-in': "<circle cx='10' cy='8' r='4'/><path d='M3 21a7 7 0 0 1 14 0M19 8v6M16 11h6'/>",
 };
 
 export const ICON_NAMES = Object.keys(ICONS);

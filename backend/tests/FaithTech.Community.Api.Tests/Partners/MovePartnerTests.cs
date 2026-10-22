@@ -36,16 +36,17 @@ public class MovePartnerTests(CommunityApiFactory factory) : IClassFixture<Commu
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
         var moved = (await response.Content.ReadFromJsonAsync<Partner>())!;
         Assert.Equal("Confirmed", moved.Stage);
-        var change = Assert.Single(moved.History);
+        var change = (await factory.ClientFor(grace, Role.CityLead).ActivitiesAsync(partner.Id, "?kind=Stage")).Items
+            .Single(a => a.Kind == "StageMoved");
         Assert.Equal(
-            new StageChange("InFunnel", "Confirmed", marcus.ProfileId, "Marcus Lee", movedAt, "Contract signed."),
-            change);
+            ("InFunnel", "Confirmed", marcus.ProfileId, "Marcus Lee", movedAt, "Contract signed."),
+            (change.FromStage, change.ToStage, change.LoggedById, change.LoggedByName, change.LoggedAtUtc, change.Summary));
         var board = (await factory.ClientFor(grace, Role.CityLead).GetFromJsonAsync<Board>("/api/partners"))!;
         Assert.Contains(board.Columns.Single(c => c.Stage == "Confirmed").Cards, c => c.Id == partner.Id);
     }
 
     [Fact]
-    public async Task Any_stage_can_move_to_any_other_and_history_is_newest_first()
+    public async Task Any_stage_can_move_to_any_other_and_the_moves_are_newest_first()
     {
         var grace = await factory.AddMemberAsync("Grace Okonkwo");
         var partner = await factory.CreatePartnerAsync(grace, "Summit Cloud");
@@ -55,9 +56,10 @@ public class MovePartnerTests(CommunityApiFactory factory) : IClassFixture<Commu
         factory.Time.Advance(TimeSpan.FromMinutes(5));
         var response = await client.PostAsJsonAsync($"/api/partners/{partner.Id}/stage", new { To = "Lead" });
 
-        var moved = (await response.Content.ReadFromJsonAsync<Partner>())!;
-        Assert.Equal(["Confirmed→Lead", "Lead→Confirmed"], moved.History.Select(h => $"{h.From}→{h.To}"));
-        Assert.Null(moved.History[0].Note);
+        Assert.Equal("Lead", (await response.Content.ReadFromJsonAsync<Partner>())!.Stage);
+        var moves = (await client.ActivitiesAsync(partner.Id, "?kind=Stage")).Items.Where(a => a.Kind == "StageMoved").ToList();
+        Assert.Equal(["Confirmed→Lead", "Lead→Confirmed"], moves.Select(h => $"{h.FromStage}→{h.ToStage}"));
+        Assert.Null(moves[0].Summary);
     }
 
     [Fact]

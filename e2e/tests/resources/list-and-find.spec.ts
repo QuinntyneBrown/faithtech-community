@@ -130,7 +130,7 @@ test.describe('Resources: list, filter and find', () => {
     await resources.tag.selectOption('hackathon');
     await expect(resources.filterLine).toHaveText('2 resources tagged “hackathon”');
     await resources.type('Deck').click();
-    expect(await resources.titles()).toEqual(['Kickoff deck']);
+    await expect.poll(() => resources.titles()).toEqual(['Kickoff deck']);
     await axe.check();
 
     await resources.clearFilters.click();

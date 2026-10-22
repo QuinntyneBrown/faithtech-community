@@ -269,6 +269,7 @@
       </tbody></table>
       <h3>Focus</h3>
       <p><code>html</code> has <code>scroll-padding-top</code> equal to the top bar plus <code>--space-4</code>, and <code>.has-tabbar</code> reserves the tab bar, so focused content is never hidden under sticky bars.</p>
+      <p>The page header's <code>&lt;h1&gt;</code> carries <code>tabindex="-1"</code>, so it can take focus without becoming a tab stop. When an action removes the control that had focus, move focus to the title so the keyboard user is not dropped to the top of the document: after "Not the same" hides the possible-duplicate alert on a partner, the page calls <code>focusTitle()</code> on <code>ft-page-header</code>. The toast announces what happened.</p>
       <h3>Labelling</h3>
       <p>The page header holds the page's only <code>&lt;h1&gt;</code>. On auth pages the <code>&lt;h1&gt;</code> sits in the auth card. Sections and asides are named by their visible heading or an <code>aria-label</code>.</p>
       <h3>Contrast</h3>

@@ -1,0 +1,35 @@
+WEBVTT
+
+00:00:00.000 --> 00:00:12.000
+In this video you find a partner that was added twice and merge the two records into one. The app is real; the server is a local stand-in, and the organisations are made up.
+
+00:00:12.000 --> 00:00:24.000
+Two leads added Kestrel Labs. The partner page warns that it may be the same partner as Kestrel Labs Inc., says who added it and when, and why it matched: the same website.
+
+00:00:24.000 --> 00:00:34.000
+Compare and merge opens a dialog that lists only the fields that differ, side by side. The values of the partner you are on are chosen to start with.
+
+00:00:34.000 --> 00:00:44.000
+Fields that are the same on both are kept as they are, and the notes are joined. Here Grace keeps the other record's phone number and hands the partner to Esther.
+
+00:00:44.000 --> 00:00:52.000
+Merge partners keeps one record. A message confirms it, the warning is gone, and a Merged entry tops the timeline.
+
+00:00:52.000 --> 00:01:02.000
+Both timelines are now on one partner. Entries that came from the other record say so, and Details shows the values Grace chose.
+
+00:01:02.000 --> 00:01:13.000
+The other record is archived, not deleted. Its page says who merged it, when and into which partner, and it can no longer be edited or logged against.
+
+00:01:13.000 --> 00:01:23.000
+Sometimes a match is wrong. These are two different churches with the same name, so Grace chooses Not the same, and no lead is warned about this pair again.
+
+00:01:23.000 --> 00:01:32.000
+If a merge was a mistake, a System Admin can open the archived record and choose Restore. The dialog explains what comes back.
+
+00:01:32.000 --> 00:01:41.000
+The partner is its own record again at its old stage, its own entries move back, and a Restored entry tops its timeline.
+
+00:01:41.000 --> 00:01:52.000
+That is duplicate detection and merge: possible duplicates flagged, merged without losing anything, wrong matches dismissed, and merges that can be undone.
+

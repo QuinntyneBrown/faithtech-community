@@ -55,13 +55,16 @@ WebVTT caption file, a poster frame and the narration text it was spoken from.
 | [Contact notes](contact-notes/video.webm) · [poster](contact-notes/poster.png) · [captions](contact-notes/captions.vtt) · [narration](contact-notes/narration.md) | 0:57 | `pwsh eng/videos/Record-JourneyVideos.ps1 -Journey contact-notes` |
 | [Archive, restore and delete contacts](archive-restore-delete-contacts/video.webm) · [poster](archive-restore-delete-contacts/poster.png) · [captions](archive-restore-delete-contacts/captions.vtt) · [narration](archive-restore-delete-contacts/narration.md) | 1:07 | `pwsh eng/videos/Record-JourneyVideos.ps1 -Journey archive-restore-delete-contacts` |
 | [Link a contact on sign-up](link-contact-on-sign-up/video.webm) · [poster](link-contact-on-sign-up/poster.png) · [captions](link-contact-on-sign-up/captions.vtt) · [narration](link-contact-on-sign-up/narration.md) | 1:09 | `pwsh eng/videos/Record-JourneyVideos.ps1 -Journey link-contact-on-sign-up` |
+| [A possible duplicate contact](possible-duplicate-contact/video.webm) · [poster](possible-duplicate-contact/poster.png) · [captions](possible-duplicate-contact/captions.vtt) · [narration](possible-duplicate-contact/narration.md) | 1:09 | `pwsh eng/videos/Record-JourneyVideos.ps1 -Journey possible-duplicate-contact` |
 
 ### Partners
 
 | Video | Length | Rerun alone |
 |---|---|---|
-| [Manage partners](manage-partners/video.webm) · [poster](manage-partners/poster.png) · [captions](manage-partners/captions.vtt) · [narration](manage-partners/narration.md) | 1:20 | `pwsh eng/videos/Record-JourneyVideos.ps1 -Journey manage-partners` |
-| [The partner board](partner-kanban-board/video.webm) · [poster](partner-kanban-board/poster.png) · [captions](partner-kanban-board/captions.vtt) · [narration](partner-kanban-board/narration.md) | 1:05 | `pwsh eng/videos/Record-JourneyVideos.ps1 -Journey partner-kanban-board` |
+| [Manage partners](manage-partners/video.webm) · [poster](manage-partners/poster.png) · [captions](manage-partners/captions.vtt) · [narration](manage-partners/narration.md) | 1:24 | `pwsh eng/videos/Record-JourneyVideos.ps1 -Journey manage-partners` |
+| [The partner board](partner-kanban-board/video.webm) · [poster](partner-kanban-board/poster.png) · [captions](partner-kanban-board/captions.vtt) · [narration](partner-kanban-board/narration.md) | 1:12 | `pwsh eng/videos/Record-JourneyVideos.ps1 -Journey partner-kanban-board` |
+| [The partner activity timeline](partner-activity-timeline/video.webm) · [poster](partner-activity-timeline/poster.png) · [captions](partner-activity-timeline/captions.vtt) · [narration](partner-activity-timeline/narration.md) | 1:27 | `pwsh eng/videos/Record-JourneyVideos.ps1 -Journey partner-activity-timeline` |
+| [Duplicate partners and merge](duplicate-detection-and-merge/video.webm) · [poster](duplicate-detection-and-merge/poster.png) · [captions](duplicate-detection-and-merge/captions.vtt) · [narration](duplicate-detection-and-merge/narration.md) | 1:55 | `pwsh eng/videos/Record-JourneyVideos.ps1 -Journey duplicate-detection-and-merge` |
 
 ### Team
 
@@ -73,12 +76,13 @@ WebVTT caption file, a poster frame and the narration text it was spoken from.
 
 | Video | Length | Rerun alone |
 |---|---|---|
-| [Create and edit events](create-and-edit-events/video.webm) · [poster](create-and-edit-events/poster.png) · [captions](create-and-edit-events/captions.vtt) · [narration](create-and-edit-events/narration.md) | 1:20 | `pwsh eng/videos/Record-JourneyVideos.ps1 -Journey create-and-edit-events` |
+| [Create and edit events](create-and-edit-events/video.webm) · [poster](create-and-edit-events/poster.png) · [captions](create-and-edit-events/captions.vtt) · [narration](create-and-edit-events/narration.md) | 1:23 | `pwsh eng/videos/Record-JourneyVideos.ps1 -Journey create-and-edit-events` |
 | [Event list and filters](event-list-and-filter/video.webm) · [poster](event-list-and-filter/poster.png) · [captions](event-list-and-filter/captions.vtt) · [narration](event-list-and-filter/narration.md) | 1:13 | `pwsh eng/videos/Record-JourneyVideos.ps1 -Journey event-list-and-filter` |
 | [RSVP to an event](rsvp/video.webm) · [poster](rsvp/poster.png) · [captions](rsvp/captions.vtt) · [narration](rsvp/narration.md) | 1:09 | `pwsh eng/videos/Record-JourneyVideos.ps1 -Journey rsvp` |
 | [Cancel an event](cancel-events/video.webm) · [poster](cancel-events/poster.png) · [captions](cancel-events/captions.vtt) · [narration](cancel-events/narration.md) | 1:00 | `pwsh eng/videos/Record-JourneyVideos.ps1 -Journey cancel-events` |
 | [Public events and guest RSVP](public-events-and-guest-rsvp/video.webm) · [poster](public-events-and-guest-rsvp/poster.png) · [captions](public-events-and-guest-rsvp/captions.vtt) · [narration](public-events-and-guest-rsvp/narration.md) | 1:05 | `pwsh eng/videos/Record-JourneyVideos.ps1 -Journey public-events-and-guest-rsvp` |
 | [Add an event to your calendar](calendar-export/video.webm) · [poster](calendar-export/poster.png) · [captions](calendar-export/captions.vtt) · [narration](calendar-export/narration.md) | 0:54 | `pwsh eng/videos/Record-JourneyVideos.ps1 -Journey calendar-export` |
+| [Check in at the door](event-check-in/video.webm) · [poster](event-check-in/poster.png) · [captions](event-check-in/captions.vtt) · [narration](event-check-in/narration.md) | 1:35 | `pwsh eng/videos/Record-JourneyVideos.ps1 -Journey event-check-in` |
 
 ### Search
 
@@ -105,6 +109,12 @@ WebVTT caption file, a poster frame and the narration text it was spoken from.
 | Video | Length | Rerun alone |
 |---|---|---|
 | [Docs & notes](docs-and-notes/video.webm) · [poster](docs-and-notes/poster.png) · [captions](docs-and-notes/captions.vtt) · [narration](docs-and-notes/narration.md) | 1:25 | `pwsh eng/videos/Record-JourneyVideos.ps1 -Journey docs-and-notes` |
+
+### Reports
+
+| Video | Length | Rerun alone |
+|---|---|---|
+| [Reports](reports-dashboard/video.webm) · [poster](reports-dashboard/poster.png) · [captions](reports-dashboard/captions.vtt) · [narration](reports-dashboard/narration.md) | 1:40 | `pwsh eng/videos/Record-JourneyVideos.ps1 -Journey reports-dashboard` |
 
 ### Admin
 

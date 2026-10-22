@@ -39,7 +39,8 @@ public static class SignUpRules
 public class SignUpHandler(
     UserManager<CommunityUser> users,
     IApplicationDbContext db,
-    VerificationEmails verificationEmails)
+    VerificationEmails verificationEmails,
+    TimeProvider time)
 {
     public async Task<Result> HandleAsync(SignUpCommand command, CancellationToken cancellationToken = default)
     {
@@ -58,7 +59,7 @@ public class SignUpHandler(
             return null;
         }
 
-        var profile = new Profile(command.Name.Trim());
+        var profile = new Profile(command.Name.Trim(), time.GetUtcNow().UtcDateTime);
         db.Profiles.Add(profile);
         var user = new CommunityUser { UserName = command.Email, Email = command.Email, ProfileId = profile.Id };
 

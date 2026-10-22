@@ -1,0 +1,51 @@
+@startuml
+!include <C4/C4_Component>
+LAYOUT_WITH_LEGEND()
+title Components — Event check-in
+
+Container_Boundary(spa, "Web app") {
+  Component(page, "EventCheckInPage", "Angular page (events library)", "Attendance meter, search, rows with switches")
+  Component(dlg, "AddWalkInDialog", "CDK Dialog (events library)", "Name, optional email, Check them in now")
+  Component(evpage, "EventPage", "Angular page (events library)", "{n} checked in; Check in link")
+  Component(ui, "ft-list-item, ft-switch, ft-progress, ft-toast", "components library", "Row with trailing switch, meter, toast with Undo")
+  Component(svc, "CheckInService / CHECK_IN_SERVICE", "TypeScript contract and token (api library)", "Contract the page depends on")
+  Component(http, "HttpCheckInService", "Angular service (api library)", "HTTP implementation")
+}
+Container_Boundary(api, "Community API") {
+  Component(ep, "EventsEndpoints", "ASP.NET Core minimal API", "check-in, check-ins, walk-ins, check-ins.csv; no business logic")
+  Component(ci, "CheckInHandler", "Application handler", "Get, check in, undo; window and cancelled refusals")
+  Component(wi, "AddWalkInHandler", "Application handler", "Links verified members, reuses RSVPs")
+  Component(ex, "ExportCheckInsHandler", "Application handler", "Attendance CSV")
+  Component(get, "GetEventHandler", "Application query handler", "CheckedInCount, CanCheckIn")
+  Component(perm, "EventPermissions", "Application service", "CanCheckIn, CanViewCheckIn, IsCheckInOverride")
+  Component(ev, "Event / Rsvp", "Domain aggregate", "CheckIn, UndoCheckIn, AddWalkIn")
+  Component(csv, "ICsvWriter / CsvWriter", "Application contract, Infrastructure service", "RFC 4180 with formula guard")
+  Component(audit, "IAuditLog", "Application contract", "Override audit entries")
+  Component(ctx, "CommunityDbContext", "EF Core DbContext", "Events and Rsvps")
+}
+ContainerDb(db, "Community database", "PostgreSQL", "Events, RSVPs and audit log")
+Rel(page, svc, "Calls")
+Rel(dlg, svc, "Calls addWalkIn")
+Rel(page, dlg, "Opens")
+Rel(page, ui, "Composes")
+Rel(svc, http, "Implemented by")
+Rel(http, ep, "JSON/HTTPS")
+Rel(evpage, ep, "GET /api/events/{id} via EVENTS_SERVICE")
+Rel(ep, ci, "Dispatches")
+Rel(ep, wi, "Dispatches")
+Rel(ep, ex, "Dispatches")
+Rel(ep, get, "Dispatches")
+Rel(ci, perm, "Checks")
+Rel(wi, perm, "Checks")
+Rel(ex, perm, "Checks")
+Rel(ci, ev, "Calls")
+Rel(wi, ev, "Calls")
+Rel(ex, csv, "Writes with")
+Rel(ci, audit, "Records overrides")
+Rel(wi, audit, "Records overrides")
+Rel(ci, ctx, "Reads and writes")
+Rel(wi, ctx, "Reads and writes")
+Rel(ex, ctx, "Reads")
+Rel(get, ctx, "Reads")
+Rel(ctx, db, "SQL")
+@enduml

@@ -1,13 +1,18 @@
-// Traces to: L2-013, L2-067
+// Traces to: L2-013, L2-067, L2-116
 import { HttpErrorResponse } from '@angular/common/http';
 import { TestBed } from '@angular/core/testing';
 import { Router } from '@angular/router';
 import { By } from '@angular/platform-browser';
-import { CONTACTS_SERVICE, ContactDto, ContactPhoto } from '@faithtech-community/api';
+import {
+  CONTACTS_SERVICE,
+  ContactDto,
+  ContactPhoto,
+  DuplicateContactDto,
+} from '@faithtech-community/api';
 import { PictureListComponent } from '@faithtech-community/components';
-import { Observable, of, throwError } from 'rxjs';
+import { NEVER, Observable, of, throwError } from 'rxjs';
 
-import { ContactFormPage } from './contact-form.page';
+import { ContactFormPage, DUPLICATE_CHECK_TIMEOUT_MS } from './contact-form.page';
 
 const saved: ContactDto = {
   id: 'c9',
@@ -34,12 +39,14 @@ async function setup(
     get?: () => Observable<ContactDto>;
     update?: () => Observable<ContactDto>;
     uploadPhoto?: (id: string, file: File, alt: string) => Observable<ContactPhoto>;
+    findDuplicate?: () => Observable<DuplicateContactDto | null>;
   } = {},
 ) {
   const service = {
     create: vi.fn(options.create ?? (() => of(saved))),
     get: vi.fn(options.get ?? (() => of(saved))),
     update: vi.fn(options.update ?? (() => of(saved))),
+    findDuplicate: vi.fn(options.findDuplicate ?? (() => of(null))),
     uploadPhoto: vi.fn(
       options.uploadPhoto ??
         ((_id: string, _file: File, altText: string) =>
@@ -77,6 +84,8 @@ async function setup(
   };
   const save = async () => {
     host.querySelector('form')!.dispatchEvent(new Event('submit'));
+    // The save awaits the duplicate check (L2-116) before it calls the service.
+    await new Promise((resolve) => setTimeout(resolve));
     await settle();
   };
   const text = () => host.textContent!.replace(/\s+/g, ' ');
@@ -87,12 +96,122 @@ async function setup(
     pictures()!.picked.emit(files);
     await settle();
   };
-  return { host, service, router, field, type, save, text, settle, pictures, choose };
+  const blurEmail = async () => {
+    field('Email').closest('ft-form-field')!.dispatchEvent(new FocusEvent('focusout'));
+    await settle();
+  };
+  return { host, service, router, field, type, save, text, settle, pictures, choose, blurEmail };
 }
+
+const nadia: DuplicateContactDto = {
+  id: 'c2',
+  name: 'Nadia Petrov',
+  organization: 'Kestrel Labs',
+  email: 'nadia@kestrel.example',
+  addedAtUtc: '2026-10-06T12:00:00Z',
+  noteCount: 2,
+  isArchived: false,
+};
 
 const photo = (name: string) => new File(['x'], name, { type: 'image/png' });
 
 describe('ContactFormPage', () => {
+  describe('possible duplicate (L2-116)', () => {
+    it('checks the email when it loses focus and warns about a match', async () => {
+      const { service, type, blurEmail, text, host } = await setup({
+        findDuplicate: () => of(nadia),
+      });
+      type('Email', ' Nadia@Kestrel.example ');
+
+      await blurEmail();
+
+      expect(service.findDuplicate).toHaveBeenCalledWith('Nadia@Kestrel.example', undefined);
+      expect(text()).toContain(
+        'Nadia Petrov (Kestrel Labs) is in your contacts with nadia@kestrel.example, added Tue 6 Oct with 2 notes.',
+      );
+      expect(host.querySelector('a[href="/contacts/c2"]')?.textContent).toContain(
+        'Open Nadia Petrov',
+      );
+      expect(text()).toContain('Save as a new contact');
+    });
+
+    it('does not check a malformed email, nor the same email twice', async () => {
+      const { service, type, blurEmail } = await setup();
+      type('Email', 'nadia@');
+      await blurEmail();
+      type('Email', 'nadia@kestrel.example');
+      await blurEmail();
+      await blurEmail();
+
+      expect(service.findDuplicate).toHaveBeenCalledTimes(1);
+    });
+
+    it('excludes the contact being edited', async () => {
+      const { service, blurEmail } = await setup({ id: 'c9' });
+
+      await blurEmail();
+
+      expect(service.findDuplicate).toHaveBeenCalledWith('kwame.asante@example.org', 'c9');
+    });
+
+    it('clears the warning when the email changes', async () => {
+      const { type, blurEmail, text, settle } = await setup({ findDuplicate: () => of(nadia) });
+      type('Email', 'nadia@kestrel.example');
+      await blurEmail();
+      expect(text()).toContain('You already have a contact with this email');
+
+      type('Email', 'someone@else.example');
+      await settle();
+
+      expect(text()).not.toContain('You already have a contact with this email');
+      expect(text()).toContain('Save contact');
+    });
+
+    it('checks an unchecked email before save and stops that save on a match', async () => {
+      const { service, type, save, text } = await setup({ findDuplicate: () => of(nadia) });
+      type('Name', 'Nadia P.');
+      type('Email', 'nadia@kestrel.example');
+
+      await save();
+
+      expect(service.create).not.toHaveBeenCalled();
+      expect(text()).toContain('You already have a contact with this email');
+
+      await save();
+
+      expect(service.create).toHaveBeenCalledTimes(1);
+      expect(service.findDuplicate).toHaveBeenCalledTimes(1);
+    });
+
+    it('saves when the check fails', async () => {
+      const { service, type, save } = await setup({
+        findDuplicate: () => throwError(() => new HttpErrorResponse({ status: 500 })),
+      });
+      type('Name', 'Nadia P.');
+      type('Email', 'nadia@kestrel.example');
+
+      await save();
+
+      expect(service.create).toHaveBeenCalledTimes(1);
+    });
+
+    it('saves when the check does not answer in time', async () => {
+      vi.useFakeTimers();
+      try {
+        const { service, type, host } = await setup({ findDuplicate: () => NEVER });
+        type('Name', 'Nadia P.');
+        type('Email', 'nadia@kestrel.example');
+
+        host.querySelector('form')!.dispatchEvent(new Event('submit'));
+        await vi.advanceTimersByTimeAsync(DUPLICATE_CHECK_TIMEOUT_MS);
+
+        expect(service.create).toHaveBeenCalledTimes(1);
+      } finally {
+        vi.useRealTimers();
+      }
+    });
+  });
+
   describe('photos', () => {
     it('saves the contact, then uploads its chosen photos featured first, and opens it', async () => {
       const { service, router, type, save, choose, pictures } = await setup();

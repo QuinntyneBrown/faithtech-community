@@ -12,7 +12,13 @@ import { InlineMessageComponent } from '../inline-message/inline-message.compone
 
 let nextId = 0;
 
-/** One choice from a few visible options: a fieldset with a legend and ft-radio children. */
+/** `stack` (default) puts one choice per line; `inline` lays short choices out in a wrapping row. */
+export type RadioGroupOrientation = 'stack' | 'inline';
+
+/**
+ * One choice from a few visible options: a fieldset with a legend and ft-radio children. Short
+ * one-word choices (Call, Email, Meeting, Note) may sit in one row with `orientation="inline"`.
+ */
 @Component({
   selector: 'ft-radio-group',
   imports: [InlineMessageComponent],
@@ -35,6 +41,7 @@ export class RadioGroupComponent implements ControlValueAccessor {
   readonly error = input('');
   /** Announces the choice as required (`aria-required` on the radiogroup). */
   readonly required = input(false, { transform: booleanAttribute });
+  readonly orientation = input<RadioGroupOrientation>('stack');
 
   readonly value = signal<string | null>(null);
   readonly disabled = signal(false);

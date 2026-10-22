@@ -1,0 +1,19 @@
+:host {
+  display: block;
+  margin-block-start: var(--space-4);
+}
+
+ft-page-header {
+  display: block;
+  margin-block-end: var(--space-4);
+}
+
+.search {
+  margin: 0;
+}
+
+.caption {
+  margin: 0;
+  color: var(--color-fg-muted);
+  font: var(--text-caption);
+}

@@ -39,20 +39,22 @@ public static class EventClients
             visibility,
             createdBy ?? Guid.NewGuid());
 
-        // RSVPs can only be taken before the start, so take them "earlier" than any start in the tests.
+        // RSVPs can only be taken before the start, so take them "earlier" than any start in the tests, a minute
+        // apart so the RSVP order is the order given: anonymous RSVPs, then members, then guests.
+        var at = starts.AddDays(-30);
         for (var i = 0; i < rsvps; i++)
         {
-            created.Rsvp(Guid.NewGuid(), starts.AddDays(-30));
+            created.Rsvp(Guid.NewGuid(), at = at.AddMinutes(1));
         }
 
         foreach (var member in members ?? [])
         {
-            created.Rsvp(member, starts.AddDays(-30));
+            created.Rsvp(member, at = at.AddMinutes(1));
         }
 
         foreach (var (name, email) in guests ?? [])
         {
-            created.GuestRsvp(name, email, starts.AddDays(-30));
+            created.GuestRsvp(name, email, at = at.AddMinutes(1));
         }
 
         if (cancelledBecause is not null)
