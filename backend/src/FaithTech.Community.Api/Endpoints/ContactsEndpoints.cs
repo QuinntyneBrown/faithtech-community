@@ -81,6 +81,18 @@ public static class ContactsEndpoints
             .DisableAntiforgery()
             .WithMetadata(new RequestSizeLimitAttribute(PhotoRequestLimit), new RequestFormLimitsAttribute { MultipartBodyLengthLimit = PhotoRequestLimit });
 
+        contacts.MapPut("/{id:guid}/photos/{photoId:guid}", async (
+                Guid id, Guid photoId, DescribePhotoCommand command, ContactPhotosHandler handler, CancellationToken cancellationToken) =>
+            (await handler.DescribeAsync(id, photoId, command, cancellationToken)).ToHttp(Results.NoContent));
+
+        contacts.MapPut("/{id:guid}/photos/{photoId:guid}/featured", async (
+                Guid id, Guid photoId, ContactPhotosHandler handler, CancellationToken cancellationToken) =>
+            (await handler.FeatureAsync(id, photoId, cancellationToken)).ToHttp(Results.NoContent));
+
+        contacts.MapDelete("/{id:guid}/photos/{photoId:guid}", async (
+                Guid id, Guid photoId, ContactPhotosHandler handler, CancellationToken cancellationToken) =>
+            (await handler.DeleteAsync(id, photoId, cancellationToken)).ToHttp(Results.NoContent));
+
         return app;
     }
 }

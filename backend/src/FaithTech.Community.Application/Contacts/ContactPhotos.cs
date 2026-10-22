@@ -2,6 +2,7 @@ using FaithTech.Community.Application.Common;
 using FaithTech.Community.Application.Profiles;
 using FaithTech.Community.Domain.Contacts;
 using FaithTech.Community.Domain.Profiles;
+using Microsoft.EntityFrameworkCore;
 
 namespace FaithTech.Community.Application.Contacts;
 
@@ -53,6 +54,107 @@ public class ContactPhotosHandler(
         }
 
         return (result, photo);
+    }
+
+    /// <summary>Changes a photo's description (L2-056 AC4).</summary>
+    public async Task<Result> DescribeAsync(Guid contactId, Guid photoId, DescribePhotoCommand command, CancellationToken cancellationToken = default)
+    {
+        var (kind, contact, actor) = await access.AuthorizeAsync(contactId, cancellationToken: cancellationToken);
+        var photo = contact?.Photos.SingleOrDefault(p => p.Id == photoId);
+        if (contact is null || photo is null)
+        {
+            return Result.NotFound();
+        }
+
+        var altText = command.AltText?.Trim() ?? string.Empty;
+        if (PhotoDescription.Check(altText) is { } error)
+        {
+            return Result.Invalid("AltText", error);
+        }
+
+        var before = new { Photo = photo.Id, photo.AltText };
+        photo.Describe(altText);
+        access.AuditOverride(kind, actor, contact, "contact.photo-described", before, new { Photo = photo.Id, photo.AltText });
+        await db.SaveChangesAsync(cancellationToken);
+        return Result.Ok();
+    }
+
+    /// <summary>Makes one photo the contact's only featured photo (L2-056 AC3).</summary>
+    public async Task<Result> FeatureAsync(Guid contactId, Guid photoId, CancellationToken cancellationToken = default)
+    {
+        var (refused, contact, photo, kind, actor) = await FindLeasedAsync(contactId, photoId, cancellationToken);
+        if (refused is not null)
+        {
+            return refused;
+        }
+
+        var before = contact.Photos.SingleOrDefault(p => p.IsFeatured)?.Id;
+        contact.Feature(photo.Id);
+        access.AuditOverride(kind, actor, contact, "contact.photo-featured", new { Featured = before }, new { Featured = photo.Id });
+        contact.PhotoLease.Release();
+        await db.SaveChangesAsync(cancellationToken);
+        return Result.Ok();
+    }
+
+    /// <summary>Removes a photo and its blob; the newest remaining photo takes over as featured (L2-056 AC5, AC6).</summary>
+    public async Task<Result> DeleteAsync(Guid contactId, Guid photoId, CancellationToken cancellationToken = default)
+    {
+        var (refused, contact, photo, kind, actor) = await FindLeasedAsync(contactId, photoId, cancellationToken);
+        if (refused is not null)
+        {
+            return refused;
+        }
+
+        contact.RemovePhoto(photo.Id);
+        contact.PhotoLease.Release();
+        access.AuditOverride(kind, actor, contact, "contact.photo-deleted", new { Photo = photo.Id, photo.AltText });
+        await db.SaveChangesAsync(cancellationToken);
+        await DeleteBlobsAsync(db, storage, time, [photo], cancellationToken);
+        return Result.Ok();
+    }
+
+    /// <summary>
+    /// Deletes the blobs of photos whose rows are already gone: a photo still storing drops its queued write, and a
+    /// delete that fails is queued for retry, so a removed photo never leaves an orphan blob (ADR 0002, ADR 0013).
+    /// </summary>
+    internal static async Task DeleteBlobsAsync(
+        IApplicationDbContext db, IPhotoStorage storage, TimeProvider time, IReadOnlyCollection<ContactPhoto> photos, CancellationToken cancellationToken)
+    {
+        var storing = photos.Where(p => !p.IsStored).Select(p => p.Id).ToList();
+        if (storing.Count > 0)
+        {
+            db.PhotoBlobTasks.RemoveRange(await db.PhotoBlobTasks.Where(t => storing.Contains(t.PhotoId)).ToListAsync(cancellationToken));
+        }
+
+        foreach (var photo in photos.Where(p => p.IsStored))
+        {
+            try
+            {
+                await storage.DeleteAsync(photo.BlobName, cancellationToken);
+            }
+            catch (Exception exception) when (exception is not OperationCanceledException)
+            {
+                db.PhotoBlobTasks.Add(PhotoBlobTask.Delete(photo.Id, photo.BlobName, time.GetUtcNow()));
+            }
+        }
+
+        await db.SaveChangesAsync(cancellationToken);
+    }
+
+    /// <summary>Loads a photo the caller may change and takes the contact's photo lease, or the result that refuses it.</summary>
+    private async Task<(Result? Refused, Contact Contact, ContactPhoto Photo, ContactAccessKind Kind, Guid Actor)> FindLeasedAsync(
+        Guid contactId, Guid photoId, CancellationToken cancellationToken)
+    {
+        var (kind, contact, actor) = await access.AuthorizeAsync(contactId, cancellationToken: cancellationToken);
+        var photo = contact?.Photos.SingleOrDefault(p => p.Id == photoId);
+        if (contact is null || photo is null)
+        {
+            return (Result.NotFound(), null!, null!, kind, actor);
+        }
+
+        return await leases.TakeAsync(contact.PhotoLease, cancellationToken)
+            ? (null, contact, photo, kind, actor)
+            : (Result.Conflict(PhotoLeases.ChangedMeanwhile), null!, null!, kind, actor);
     }
 
     private async Task<(Result Result, ContactPhotoDto? Photo)> AddAsync(
