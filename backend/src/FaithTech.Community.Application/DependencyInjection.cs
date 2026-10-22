@@ -25,6 +25,7 @@ public static class DependencyInjection
         services.AddScoped<ResetPasswordHandler>();
         services.AddScoped<ProfileAccess>();
         services.AddScoped<GetProfileHandler>();
+        services.AddScoped<ListPeopleHandler>();
         services.AddScoped<UpdateProfileHandler>();
         services.AddScoped<UploadPhotoHandler>();
         services.AddScoped<PhotoAccess>();
