@@ -22,7 +22,7 @@ The anonymous endpoints are opted in explicitly. A members-only event requested 
 - **`GuestRsvpHandler`** — calls `Event.GuestRsvp(name, email, now)`, which refuses cancelled, full or started events and keeps a single RSVP per event and case-insensitive email; the handler then sends the confirmation email with the `.ics`. No account is created.
 - **`IIcsCalendarWriter`** and **`IEmailSender`** — Infrastructure services for the attachment and delivery.
 
-Email normalization rules beyond case folding are `<TO SUPPLY>`.
+Emails are trimmed and compared without regard to case; nothing else is normalised.
 
 ## Requirements
 
@@ -86,3 +86,12 @@ The rate limiter rejects the eleventh guest RSVP from one IP address within an h
 Decisions recorded while building the Domain layer (`FaithTech.Community.Domain`):
 
 - The guest cancel link (`L2-023` AC6) removes the RSVP through `Event.CancelGuestRsvp(rsvpId)`, which only removes guest RSVPs.
+
+Decisions recorded while building the slice:
+
+- The share link is `/public/events/{id}` in the web app, inside a public shell (brand and *Sign in*, which returns to `/events/{id}`). The API answers 404 for a members-only or unknown event, and the page sends the visitor to `/sign-in?returnUrl=/events/{id}` (AC3), so the API never reveals that a members-only event exists.
+- `PublicEventDto` carries no RSVP list, no host's personal name ("Hosted by FaithTech {city}") and no joining link; an online event's link goes to people who RSVP in their confirmation.
+- `POST /api/public/events/{id}/rsvps` validates the name and email ("Enter your name so the host knows who’s coming.", "Enter an email like name@example.org."), answers 204, 404 or 409 with the refusal ("This event is full." and the rest, as for members), and creates no account. The same email again keeps the one RSVP (AC5) and sends a fresh confirmation, so a guest who lost theirs can get another.
+- Each confirmation carries a new cancel link, `/public/events/{id}/cancel-rsvp?token=…`. The token is 32 random bytes; `Rsvp.CancelTokenHash` keeps only its SHA-256 hash, so only the latest email can cancel. The link opens a page that asks the guest to confirm (docs/mocks/pages/guest-cancel-rsvp), because mail scanners follow links; `POST /api/public/events/{id}/rsvps/cancel` then cancels (204) or answers 404 for an unknown or used link.
+- The `guest-rsvp` rate-limit policy (fixed window, 10 an hour per IP address, `RateLimits:GuestRsvpPerHour`) covers the guest RSVP and the guest cancel endpoints; the page explains a 429.
+- Event managers see a *Public page* card on the event page of a public event, with the link to copy ("Link copied" toast) and *Preview public page*.

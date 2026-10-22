@@ -253,21 +253,42 @@
       "id": "public-event",
       "kind": "page",
       "title": "Public event page",
-      "route": "/e/:slug",
+      "route": "/public/events/:id",
       "requirements": [
         "L2-023",
         "L2-024"
       ],
       "states": [
         "default",
+        "loading",
         "invalid",
         "error",
         "success",
+        "full",
         "cancelled"
       ],
       "not_applicable": {
-        "loading": "Rendered on the server so it can be shared and indexed.",
         "empty": "A public page always has an event."
+      }
+    },
+    {
+      "id": "guest-cancel-rsvp",
+      "kind": "page",
+      "title": "Cancel a guest RSVP",
+      "route": "/public/events/:id/cancel-rsvp",
+      "requirements": [
+        "L2-023"
+      ],
+      "states": [
+        "default",
+        "busy",
+        "success",
+        "invalid",
+        "error"
+      ],
+      "not_applicable": {
+        "loading": "The page needs nothing loaded before it asks; the event header comes from the public event.",
+        "empty": "There is no collection on this page."
       }
     },
     {
