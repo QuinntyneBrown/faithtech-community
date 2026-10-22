@@ -2,9 +2,9 @@
 !include <C4/C4_Context>
 LAYOUT_WITH_LEGEND()
 title System Context — Contact notes
-Person(lead, "City Lead", "Lead who owns contacts, partners and team roles")
+Person(lead, "Lead", "City, Event, Create or Communications Lead who keeps private contacts")
 Person(admin, "System Admin", "Holds full override across the site")
 System(community, "FaithTech Community", "Community site for FaithTech staff, leads, volunteers, builders and partners")
 Rel(lead, community, "Adds and reads private contact notes using")
-Rel(admin, community, "Adds and reads private contact notes using")
+Rel(admin, community, "Reads and adds any contact's notes by override, audited, using")
 @enduml

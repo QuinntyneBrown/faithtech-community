@@ -22,31 +22,44 @@ box "Frontend — FaithTech Community web app (partners library)" #E0F2FE
 end box
 box "Backend — FaithTech.Community.Api" #D1FADF
   participant "PartnersEndpoints" as ep
+  participant "MovePartnerValidator" as v
 end box
 box "Backend — FaithTech.Community.Application and Domain" #ECFDF3
   participant "MovePartnerHandler" as h
+  participant "PartnerAccess" as acc
   participant "Partner" as ent
 end box
 box "Backend — FaithTech.Community.Infrastructure" #FFF4E5
   database "Community database" as db
 end box
 alt pointer
-  actor -> page : Drag card to another column
-else keyboard or Move to
-  actor -> page : Focus card and choose Move to (L2-018 AC3)
-  page -> dlg : Open
-  actor -> dlg : Choose stage
-  dlg --> page : Stage
+  actor -> page : Drag card to another column (KanbanCardDrop)
+  page -> svc : move(id, to)
+else keyboard or Move button
+  actor -> page : Focus card and choose Move (L2-018 AC3)
+  page -> dlg : Open with {partnerId, name, stage}
+  actor -> dlg : Choose another stage and an optional note
+  dlg -> svc : move(id, to, note)
 end
-page -> svc : move(id, stage)
 svc -> ep : POST /api/partners/{id}/stage
-ep -> h : Send MovePartnerCommand
-h -> h : PartnerAccessPolicy.CanWrite (L2-017 AC3)
-h -> db : Load Partner
-h -> ent : MoveTo(stage, caller, nowUtc) (L2-018 AC2)
-h -> db : Save Partner and PartnerStageChange
-h --> ep : PartnerDto
-ep --> svc : 200 OK
-svc --> page : Updated card
-page --> actor : Card in new column, counts updated, move announced
+ep -> v : Validate To and Note
+ep -> h : MoveAsync(id, command)
+h -> acc : CanWrite
+alt Staff or no lead role
+  ep --> svc : 403 (L2-017 AC3)
+else unknown partner
+  ep --> svc : 404
+else already at that stage
+  ep --> svc : 409 "{name} is already at that stage."
+else permitted
+  h -> db : Load Partner with StageChanges
+  h -> ent : MoveTo(to, caller, nowUtc, note) (L2-018 AC2)
+  h -> acc : AuditAdminWrite(actor, partner, "partner.moved")
+  h -> db : Save Partner and new PartnerStageChange
+  h --> ep : PartnerDto
+  ep --> svc : 200 OK
+  svc --> page : Moved partner (the dialog closes with it)
+  page --> actor : Card in new column, counts updated, "{name} moved to {stage}" announced
+end
+note over page : A failed drag leaves the card where it was and shows a toast;\na failed dialog move shows an alert in the dialog
 @enduml

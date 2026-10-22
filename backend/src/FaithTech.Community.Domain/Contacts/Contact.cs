@@ -6,10 +6,11 @@ public class Contact
 
     private Contact() { }
 
-    public Contact(Guid ownerId, string name, string? email, string? phone, string? organization, string? city)
+    public Contact(Guid ownerId, string name, string? email, string? phone, string? organization, string? city, DateTime createdAtUtc)
     {
         Id = Guid.NewGuid();
         OwnerId = ownerId;
+        CreatedAtUtc = createdAtUtc;
         Update(name, email, phone, organization, city);
     }
 
@@ -26,6 +27,8 @@ public class Contact
     public string? Organization { get; private set; }
 
     public string? City { get; private set; }
+
+    public DateTime CreatedAtUtc { get; private set; }
 
     public Guid? LinkedProfileId { get; private set; }
 

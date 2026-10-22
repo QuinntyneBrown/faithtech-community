@@ -19,6 +19,10 @@
 }
 
 .ft-kanban__link {
+  display: inline-flex;
+  align-items: center;
+  // The name is a target on its own line, so it keeps the WCAG 2.2 minimum height.
+  min-block-size: var(--target-min);
   color: var(--color-fg-link);
   font: var(--text-label);
   overflow-wrap: anywhere;

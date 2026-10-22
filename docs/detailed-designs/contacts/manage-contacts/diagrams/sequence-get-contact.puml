@@ -23,30 +23,38 @@ box "Backend — FaithTech.Community.Api" #D1FADF
   participant "ContactsEndpoints" as ep
 end box
 box "Backend — FaithTech.Community.Application and Domain" #ECFDF3
-  participant "GetContactHandler" as h
-  participant "ContactAccessPolicy" as pol
+  participant "ManageContactsHandler" as h
+  participant "ContactAccess" as acc
+  participant "ContactViews" as views
 end box
 box "Backend — FaithTech.Community.Infrastructure" #FFF4E5
   participant "AuditLog" as audit
   database "Community database" as db
 end box
-actor -> page : Open contact URL
-page -> svc : get(id)
+actor -> page : Open /contacts/{id}
+page -> svc : get(id) and getNotes(id)
 svc -> ep : GET /api/contacts/{id}
-ep -> h : Send GetContactQuery
-h -> db : Load Contact
-h -> pol : CanAccess(caller, contact)
-alt Owner
+ep -> h : GetAsync(id)
+h -> acc : AuthorizeAsync(id)
+acc -> db : Load caller's profile id and the Contact
+alt NotFound (unknown id, or any other user including Staff)
+  acc --> h : NotFound, no contact
+  h --> ep : null
+  ep --> svc : 404 (L2-012 AC1)
+  svc --> page : Error
+  page --> actor : Not-found state
+else Owner or AdminOverride
+  acc --> h : Access kind, Contact, actor
+  h -> acc : AuditOverride(kind, actor, contact, "contact.viewed")
+  opt AdminOverride
+    acc -> audit : Record contact.viewed, target type Contact (L2-012 AC2)
+  end
+  h -> db : Save changes
+  h -> views : ToDtoAsync(contact, isOwn = Owner)
+  views -> db : Linked profile name and photo, member match, note count
   h --> ep : ContactDto
   ep --> svc : 200 OK
-else AdminOverride
-  h -> audit : Write audit entry (L2-012 AC2)
-  h --> ep : ContactDto
-  ep --> svc : 200 OK
-else NotFound (any other user, including Staff)
-  h --> ep : Not found (L2-012 AC1)
-  ep --> svc : 404 ProblemDetails
+  svc --> page : Contact
+  page --> actor : Contact; "your access is recorded" when isOwn is false
 end
-svc --> page : Result
-page --> actor : Contact or not-found page
 @enduml

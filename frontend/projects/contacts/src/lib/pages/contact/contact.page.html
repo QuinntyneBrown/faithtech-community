@@ -1,7 +1,126 @@
-<!--
-  SCAFFOLD: placeholder, not the implementation.
-  Generated from AGENTS.md and:
-    - docs/detailed-designs/contacts/manage-contacts
-    - docs/detailed-designs/contacts/contact-notes
-  Overwrite this template with the expected implementation, then delete this comment.
--->
+@switch (state()) {
+  @case ('loading') {
+    <ft-breadcrumb>
+      <ft-breadcrumb-item href="/contacts">Contacts</ft-breadcrumb-item>
+      <ft-breadcrumb-item>Contact</ft-breadcrumb-item>
+    </ft-breadcrumb>
+    <ft-page-header title="Contact" />
+    <ft-split>
+      <ft-card ftSplitMain heading="Your notes" aria-busy="true" aria-label="Loading notes">
+        <ft-stack>
+          <ft-note [loading]="true" />
+          <ft-note [loading]="true" />
+        </ft-stack>
+      </ft-card>
+      <ft-card ftSplitAside heading="Details">
+        <ft-description-list [loading]="true">
+          <ft-description-list-item label="Email" />
+          <ft-description-list-item label="Phone" />
+          <ft-description-list-item label="Organisation" />
+          <ft-description-list-item label="City" />
+          <ft-description-list-item label="Added" />
+        </ft-description-list>
+      </ft-card>
+    </ft-split>
+  }
+  @case ('not-found') {
+    <h1 class="visually-hidden">Contact</h1>
+    <ft-empty-state
+      heading="We couldn’t find that contact"
+      text="It may have been deleted, or it belongs to another lead. Contacts are private to the lead who added them."
+    >
+      <ft-button actions variant="primary" href="/contacts">Back to contacts</ft-button>
+    </ft-empty-state>
+  }
+  @case ('error') {
+    <h1 class="visually-hidden">Contact</h1>
+    <ft-empty-state
+      variant="error"
+      heading="We couldn’t load this contact"
+      text="Check your connection and try again. If it keeps happening, we’ve already been told about it."
+    >
+      <ft-button actions variant="primary" (click)="retry()">Try again</ft-button>
+    </ft-empty-state>
+  }
+  @case ('loaded') {
+    @if (contact(); as c) {
+      <ft-breadcrumb>
+        <ft-breadcrumb-item href="/contacts">Contacts</ft-breadcrumb-item>
+        <ft-breadcrumb-item>{{ c.name }}</ft-breadcrumb-item>
+      </ft-breadcrumb>
+      <ft-page-header [title]="c.name" [subtitle]="subtitle()">
+        <ft-button ftPageHeaderActions [href]="'/contacts/' + c.id + '/edit'">
+          <ft-icon name="edit" /> Edit
+        </ft-button>
+        @if (!c.archivedAtUtc) {
+          <ft-button ftPageHeaderActions variant="ghost" (click)="archive(c)">
+            <ft-icon name="archive" /> Archive
+          </ft-button>
+        }
+      </ft-page-header>
+
+      @if (match(); as member) {
+        <ft-alert status="info" [heading]="member.name + ' has joined FaithTech'">
+          Their new profile uses the same email as this contact. Link them to see their profile and
+          keep your private notes.
+          <ft-button ftAlertActions variant="primary" (click)="link(c)"
+            >Link to their profile</ft-button
+          >
+          <ft-button ftAlertActions variant="ghost" (click)="dismiss()">Not them</ft-button>
+        </ft-alert>
+      }
+      @if (justLinked()) {
+        <ft-alert status="success" [heading]="'Linked to ' + c.name + '’s member profile'">
+          Name and photos now come from their profile. Your notes are still only visible to you.
+        </ft-alert>
+      }
+
+      <ft-split>
+        <section ftSplitMain class="notes" aria-labelledby="notes-heading">
+          <ft-card>
+            <ft-stack>
+              <h2 id="notes-heading" class="notes__heading">
+                Your notes <ft-badge><ft-icon name="locked" size="sm" /> Private</ft-badge>
+              </h2>
+              <div>
+                <ft-button variant="primary" size="sm" (click)="addNote(c)">
+                  <ft-icon name="add" size="sm" /> Add note
+                </ft-button>
+              </div>
+              @for (note of notes(); track note.id) {
+                <ft-note [date]="day(note.createdAtUtc)">{{ note.body }}</ft-note>
+              } @empty {
+                <p class="text-muted">No notes yet. Only you will see what you write here.</p>
+              }
+            </ft-stack>
+          </ft-card>
+        </section>
+        <ft-card ftSplitAside heading="Details">
+          <ft-stack>
+            @if (c.photoUrl) {
+              <ft-photo class="photo" [src]="c.photoUrl" [alt]="c.photoAltText ?? c.name" />
+            }
+            <ft-description-list>
+              <ft-description-list-item label="Email" [missing]="!c.email">
+                <ft-link [href]="'mailto:' + c.email">{{ c.email }}</ft-link>
+              </ft-description-list-item>
+              <ft-description-list-item label="Phone" [missing]="!c.phone">{{
+                c.phone
+              }}</ft-description-list-item>
+              <ft-description-list-item label="Organisation" [missing]="!c.organization">{{
+                c.organization
+              }}</ft-description-list-item>
+              <ft-description-list-item label="City" [missing]="!c.city">{{
+                c.city
+              }}</ft-description-list-item>
+              <ft-description-list-item label="Added">{{ added(c) }}</ft-description-list-item>
+            </ft-description-list>
+            @if (c.linkedProfileId; as profileId) {
+              <ft-link [href]="'/people/' + profileId">View their profile</ft-link>
+            }
+          </ft-stack>
+        </ft-card>
+      </ft-split>
+    }
+  }
+}

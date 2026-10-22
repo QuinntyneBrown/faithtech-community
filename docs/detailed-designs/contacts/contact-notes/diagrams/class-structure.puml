@@ -14,14 +14,15 @@ class Contact {
   +Guid Id
   +Guid OwnerId
   +string Name
-  +string Email
-  +string Phone
-  +string Organization
-  +string City
+  +string? Email
+  +string? Phone
+  +string? Organization
+  +string? City
   +Guid? LinkedProfileId
   +DateTime? ArchivedAtUtc
   +bool IsArchived
   +bool CanBeDeleted
+  +IReadOnlyCollection<ContactNote> Notes
   +Update(name, email, phone, organization, city): void
   +AddNote(body: string, nowUtc: DateTime): ContactNote
   +Archive(nowUtc: DateTime): void
@@ -34,30 +35,55 @@ class ContactNote {
   +string Body
   +DateTime CreatedAtUtc
 }
-class ContactAccessPolicy {
-  +CanAccess(caller: ICurrentUser, contact: Contact): AccessResult
+enum ContactAccessKind {
+  Owner
+  AdminOverride
+  NotFound
+}
+class ContactAccess {
+  +bool CanKeepContacts
+  +CallerProfileIdAsync(): Task<Guid?>
+  +AuthorizeAsync(contactId: Guid, withNotes: bool = false): Task<(ContactAccessKind, Contact?, Guid Actor)>
+  +AuditOverride(access: ContactAccessKind, actor: Guid, contact: Contact, action: string, before: object? = null, after: object? = null): void
 }
 interface ICurrentUser {
-  +Guid ProfileId
-  +bool IsSystemAdmin
-  +bool HoldsLeadRole
+  +Guid? UserId
+  +IReadOnlyCollection<Role> Roles
+  +HasRole(role: Role): bool
+}
+class LeadRoles <<static>> {
+  +{static} All: IReadOnlyList<Role>
+  +{static} HoldsLeadRole(current: ICurrentUser): bool
+}
+interface IAuditLog {
+  +Record(actorId: Guid, action: string, targetType: string, targetId: string, before: object?, after: object?): void
 }
 Contact "1" *-- "*" ContactNote
-ContactAccessPolicy ..> Contact
-ContactAccessPolicy ..> ICurrentUser
+ContactAccess ..> Contact : loads
+ContactAccess ..> ContactAccessKind : returns
+ContactAccess ..> ICurrentUser
+ContactAccess ..> LeadRoles
+ContactAccess ..> IAuditLog : AdminOverride only
 
-class AddContactNoteCommand {
-  +Guid ContactId
+class AddContactNoteCommand <<record>> {
+  +string? Body
+}
+class AddContactNoteValidator {
+  Body required, at most ContactRules.MaxNote (2,000)
+}
+class ContactNotesHandler {
+  +ListAsync(contactId: Guid): Task<IReadOnlyList<ContactNoteDto>?>
+  +AddAsync(contactId: Guid, command: AddContactNoteCommand): Task<(Result, ContactNoteDto?)>
+}
+class ContactNoteDto <<record>> {
+  +Guid Id
   +string Body
+  +DateTime CreatedAtUtc
+  +{static} From(note: ContactNote): ContactNoteDto
 }
-class AddContactNoteHandler {
-  +Handle(command: AddContactNoteCommand): Task<ContactNoteDto>
-}
-class GetContactNotesHandler {
-  +Handle(query: GetContactNotesQuery): Task<IReadOnlyList<ContactNoteDto>>
-}
-AddContactNoteHandler ..> AddContactNoteCommand : handles
-AddContactNoteHandler --> ContactAccessPolicy
-GetContactNotesHandler --> ContactAccessPolicy
-AddContactNoteHandler --> ContactNote : creates
+AddContactNoteValidator ..> AddContactNoteCommand
+ContactNotesHandler ..> AddContactNoteCommand : handles
+ContactNotesHandler --> ContactAccess
+ContactNotesHandler --> Contact : AddNote
+ContactNotesHandler ..> ContactNoteDto : returns
 @enduml

@@ -2,7 +2,7 @@
 !include <C4/C4_Container>
 LAYOUT_WITH_LEGEND()
 title Containers — Link a contact on sign-up
-Person(lead, "City Lead", "Lead who owns contacts, partners and team roles")
+Person(lead, "Lead", "City, Event, Create or Communications Lead who keeps private contacts")
 System_Boundary(community, "FaithTech Community") {
   Container(web, "Web app", "Angular", "Shell, contacts feature library, api and components libraries")
   Container(api, "Community API", "ASP.NET Core", "FaithTech.Community.Api with Application, Domain and Infrastructure")

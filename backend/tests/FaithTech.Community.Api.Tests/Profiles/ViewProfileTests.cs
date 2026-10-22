@@ -83,7 +83,7 @@ public class ViewProfileTests(CommunityApiFactory factory) : IClassFixture<Commu
     public async Task Unlinked_private_contact_requested_as_a_profile_is_404(bool asSystemAdmin)
     {
         var grace = await factory.AddMemberAsync("Grace Okonkwo");
-        var contact = new Contact(grace.ProfileId, "Tomás Ortega", "tomas@example.org", null, null, "Toronto");
+        var contact = new Contact(grace.ProfileId, "Tomás Ortega", "tomas@example.org", null, null, "Toronto", DateTime.UtcNow);
         var jonah = await factory.AddMemberAsync("Jonah Bell");
         var client = asSystemAdmin ? factory.ClientFor(jonah, Role.SystemAdmin) : factory.ClientFor(jonah);
 

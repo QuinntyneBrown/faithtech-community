@@ -11,7 +11,7 @@ public static class ResultMapper
         ResultStatus.NotFound => Results.NotFound(),
         ResultStatus.Forbidden when result.Detail is null => Results.Forbid(),
         ResultStatus.Forbidden => Results.Problem(result.Detail, statusCode: StatusCodes.Status403Forbidden),
-        ResultStatus.Conflict => Results.Problem(result.Detail, statusCode: StatusCodes.Status409Conflict),
+        ResultStatus.Conflict => Results.Problem(result.Detail, statusCode: StatusCodes.Status409Conflict, extensions: result.Extensions),
         ResultStatus.TooManyRequests => Results.Problem(result.Detail, statusCode: StatusCodes.Status429TooManyRequests),
         _ => throw new ArgumentOutOfRangeException(nameof(result)),
     };

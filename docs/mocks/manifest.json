@@ -384,7 +384,8 @@
         "empty",
         "error",
         "read-only",
-        "dragging"
+        "dragging",
+        "tabs"
       ],
       "not_applicable": {}
     },
@@ -404,6 +405,25 @@
       ],
       "not_applicable": {
         "empty": "A partner page always has a partner; a missing one is the 404 page."
+      }
+    },
+    {
+      "id": "partner-form",
+      "kind": "page",
+      "title": "Edit partner",
+      "route": "/partners/:id/edit",
+      "requirements": [
+        "L2-017"
+      ],
+      "states": [
+        "default",
+        "loading",
+        "invalid",
+        "busy",
+        "error"
+      ],
+      "not_applicable": {
+        "empty": "A form, not a collection."
       }
     },
     {
@@ -1031,6 +1051,22 @@
       "not_applicable": {
         "invalid": "A confirmation with no input to validate."
       }
+    },
+    {
+      "id": "add-note",
+      "kind": "dialog",
+      "title": "Add note",
+      "opens_from": "contact",
+      "requirements": [
+        "L2-014"
+      ],
+      "states": [
+        "default",
+        "invalid",
+        "busy",
+        "failed"
+      ],
+      "not_applicable": {}
     },
     {
       "id": "archive-contact",

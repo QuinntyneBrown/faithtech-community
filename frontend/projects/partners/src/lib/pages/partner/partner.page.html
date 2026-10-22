@@ -1,6 +1,112 @@
-<!--
-  SCAFFOLD: placeholder, not the implementation.
-  Generated from AGENTS.md and:
-    - docs/detailed-designs/partners/manage-partners
-  Overwrite this template with the expected implementation, then delete this comment.
--->
+@switch (state()) {
+  @case ('loading') {
+    <ft-breadcrumb>
+      <ft-breadcrumb-item href="/partners">Partners</ft-breadcrumb-item>
+      <ft-breadcrumb-item>Partner</ft-breadcrumb-item>
+    </ft-breadcrumb>
+    <ft-page-header title="Partner" />
+    <ft-split aria-busy="true" aria-label="Loading partner">
+      <ft-card ftSplitMain>
+        <ft-stack>
+          <ft-skeleton shape="title" />
+          <ft-skeleton />
+          <ft-skeleton />
+        </ft-stack>
+      </ft-card>
+      <ft-card ftSplitAside>
+        <ft-stack>
+          <ft-skeleton shape="title" />
+          <ft-skeleton />
+          <ft-skeleton />
+        </ft-stack>
+      </ft-card>
+    </ft-split>
+  }
+  @case ('not-found') {
+    <h1 class="visually-hidden">Partner</h1>
+    <ft-empty-state
+      heading="We couldn’t find that partner"
+      text="It may have been removed from the pipeline."
+    >
+      <ft-button actions variant="primary" href="/partners">Back to partners</ft-button>
+    </ft-empty-state>
+  }
+  @case ('error') {
+    <h1 class="visually-hidden">Partner</h1>
+    <ft-empty-state
+      variant="error"
+      heading="We couldn’t load this partner"
+      text="Check your connection and try again. If it keeps happening, we’ve already been told about it."
+    >
+      <ft-button actions variant="primary" (click)="retry()">Try again</ft-button>
+    </ft-empty-state>
+  }
+  @case ('loaded') {
+    @if (partner(); as p) {
+      <ft-breadcrumb>
+        <ft-breadcrumb-item href="/partners">Partners</ft-breadcrumb-item>
+        <ft-breadcrumb-item>{{ p.name }}</ft-breadcrumb-item>
+      </ft-breadcrumb>
+      <ft-page-header [title]="p.name">
+        <span ftPageHeaderSubtitle>
+          <ft-badge [variant]="badges[p.stage]">{{ labels[p.stage] }}</ft-badge>
+          @if (p.offering) {
+            · {{ p.offering }}
+          }
+        </span>
+        @if (p.canEdit) {
+          <ft-button ftPageHeaderActions (click)="move(p)">
+            <ft-icon name="move" /> Move stage
+          </ft-button>
+        }
+        <!-- One root node per @if, so each button is projected into the actions slot. -->
+        @if (p.canEdit) {
+          <ft-button ftPageHeaderActions variant="ghost" [href]="'/partners/' + p.id + '/edit'">
+            <ft-icon name="edit" /> Edit
+          </ft-button>
+        }
+      </ft-page-header>
+
+      <ft-split>
+        <ft-card ftSplitMain heading="Stage history">
+          @if (p.history.length) {
+            <ft-feed label="Stage history">
+              @for (change of p.history; track change.movedAtUtc) {
+                <ft-feed-item [actor]="change.movedByName" [meta]="day(change.movedAtUtc)">
+                  {{ moved(p, change) }}
+                </ft-feed-item>
+              }
+            </ft-feed>
+          } @else {
+            <p class="text-muted">No stage changes yet. Moves on the board are recorded here.</p>
+          }
+        </ft-card>
+        <ft-card ftSplitAside heading="Details">
+          <ft-description-list>
+            <ft-description-list-item label="Contact" [missing]="!p.contactName">{{
+              p.contactName
+            }}</ft-description-list-item>
+            <ft-description-list-item label="Email" [missing]="!p.email">
+              <ft-link [href]="'mailto:' + p.email">{{ p.email }}</ft-link>
+            </ft-description-list-item>
+            <ft-description-list-item label="Phone" [missing]="!p.phone">{{
+              p.phone
+            }}</ft-description-list-item>
+            <ft-description-list-item label="Website" [missing]="!p.website">{{
+              p.website
+            }}</ft-description-list-item>
+            <ft-description-list-item label="Offering" [missing]="!p.offering">{{
+              p.offering
+            }}</ft-description-list-item>
+            <ft-description-list-item label="Owner" [missing]="!p.ownerName">{{
+              p.ownerName
+            }}</ft-description-list-item>
+            <ft-description-list-item label="Notes" [missing]="!p.notes">{{
+              p.notes
+            }}</ft-description-list-item>
+          </ft-description-list>
+        </ft-card>
+      </ft-split>
+    }
+  }
+}

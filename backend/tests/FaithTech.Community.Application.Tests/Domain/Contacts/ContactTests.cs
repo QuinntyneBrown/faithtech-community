@@ -8,7 +8,7 @@ public class ContactTests
     private static readonly DateTime Now = new(2026, 10, 21, 12, 0, 0, DateTimeKind.Utc);
     private static readonly Guid Owner = Guid.NewGuid();
 
-    private static Contact NewContact() => new(Owner, "Grace Hopper", "grace@example.org", "555-0100", "Navy", "Arlington");
+    private static Contact NewContact() => new(Owner, "Grace Hopper", "grace@example.org", "555-0100", "Navy", "Arlington", Now);
 
     [Fact]
     public void A_contact_belongs_to_the_lead_who_created_it()
@@ -20,12 +20,13 @@ public class ContactTests
             (contact.OwnerId, contact.Name, contact.Email, contact.Phone, contact.Organization, contact.City));
         Assert.False(contact.IsArchived);
         Assert.Null(contact.LinkedProfileId);
+        Assert.Equal(Now, contact.CreatedAtUtc);
     }
 
     [Fact]
     public void A_contact_needs_a_name()
     {
-        Assert.Throws<ArgumentException>(() => new Contact(Owner, " ", null, null, null, null));
+        Assert.Throws<ArgumentException>(() => new Contact(Owner, " ", null, null, null, null, Now));
     }
 
     [Fact]
