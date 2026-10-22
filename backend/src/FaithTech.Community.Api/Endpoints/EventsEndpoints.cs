@@ -87,6 +87,12 @@ public static class EventsEndpoints
             })
             .Validate<AddWalkInCommand>();
 
+        events.MapGet("/{id:guid}/check-ins.csv", async (Guid id, ExportCheckInsHandler handler, CancellationToken cancellationToken) =>
+        {
+            var (result, file) = await handler.HandleAsync(id, cancellationToken);
+            return result.ToHttp(() => Results.File(Encoding.UTF8.GetBytes(file!.Content), "text/csv", file.FileName));
+        });
+
         events.MapGet("/{id:guid}/calendar.ics", async (Guid id, GetEventCalendarHandler handler, CancellationToken cancellationToken) =>
             await handler.ForMemberAsync(id, cancellationToken) is { } file ? Calendar(file) : Results.NotFound());
 

@@ -62,6 +62,7 @@ async function setup(
     getCheckIn: vi.fn(get),
     checkIn: vi.fn(save),
     undoCheckIn: vi.fn(() => of(undefined)),
+    exportAttendance: vi.fn(() => of(new Blob(['csv']))),
   };
   const toasts = { show: vi.fn() };
   const dialogs = { open: vi.fn(() => ({ closed: of(walkIn) })) };
@@ -282,5 +283,40 @@ describe('EventCheckInPage', () => {
     );
 
     expect(page.host.textContent).toContain('We couldn’t find that event');
+  });
+
+  // L2-097 AC1, AC4: Export CSV downloads the attendance; a failure offers Try again.
+  it('exports the attendance and toasts the file name', async () => {
+    URL.createObjectURL = vi.fn(() => 'blob:csv');
+    URL.revokeObjectURL = vi.fn();
+    const page = await setup();
+
+    page.button('Export CSV')!.click();
+    await page.settle();
+
+    expect(page.service.exportAttendance).toHaveBeenCalledWith('e1');
+    expect(page.toasts.show).toHaveBeenCalledWith(
+      expect.objectContaining({
+        variant: 'success',
+        heading: 'Attendance exported',
+        text: 'toronto-builders-night-attendance.csv is in your downloads.',
+      }),
+    );
+  });
+
+  it('offers Try again when the export fails', async () => {
+    const page = await setup();
+    page.service.exportAttendance.mockImplementation(() => throwError(() => new Error('offline')));
+
+    page.button('Export CSV')!.click();
+    await page.settle();
+
+    expect(page.toasts.show).toHaveBeenCalledWith(
+      expect.objectContaining({
+        variant: 'danger',
+        heading: 'We couldn’t export the attendance',
+        actionLabel: 'Try again',
+      }),
+    );
   });
 });

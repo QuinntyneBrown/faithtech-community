@@ -303,6 +303,8 @@ export class MockEvents {
     const checkIns = /^\/api\/events\/([^/]+)\/check-ins\/([^/]+)$/.exec(url.pathname);
     if (checkIns && (method === 'PUT' || method === 'DELETE'))
       return this.checkIn(route, checkIns[1], checkIns[2], method === 'PUT', caller);
+    const csv = /^\/api\/events\/([^/]+)\/check-ins\.csv$/.exec(url.pathname);
+    if (csv && method === 'GET') return this.exportAttendance(route, csv[1], caller);
     const walkIns = /^\/api\/events\/([^/]+)\/walk-ins$/.exec(url.pathname);
     if (walkIns && method === 'POST') return this.addWalkIn(route, walkIns[1], body, caller);
     return false;
@@ -346,6 +348,55 @@ export class MockEvents {
         walkIns: attendees.filter((a) => a.isWalkIn).length,
         attendees,
       },
+    });
+  }
+
+  /** The attendance CSV the export last wrote for an event, for assertions. */
+  attendanceCsv(eventId: string): string {
+    const written = this.attendance.get(eventId);
+    if (written === undefined) throw new Error(`No attendance was exported for ${eventId}`);
+    return written;
+  }
+
+  private readonly attendance = new Map<string, string>();
+
+  /**
+   * GET /api/events/{id}/check-ins.csv (L2-097): lead roles and System Admins. CsvWriter's rules: every cell
+   * quoted, CRLF, and a formula guard on cells starting with =, +, -, @, a tab or a carriage return.
+   */
+  private exportAttendance(route: Route, id: string, caller: EventsCaller | null): Promise<void> {
+    if (!caller) return route.fulfill({ status: 401 });
+    if (!seesEmails(caller)) return route.fulfill({ status: 403 });
+    const event = this.events.find((e) => e.id === id);
+    if (!event) return route.fulfill({ status: 404 });
+    const minute = (iso: string) => iso.slice(0, 16).replace('T', ' ');
+    const cell = (value: string | null) => {
+      const guarded = /^[=+\-@\t\r]/.test(value ?? '') ? `'${value}` : (value ?? '');
+      return `"${guarded.replace(/"/g, '""')}"`;
+    };
+    const rows = [...event.rsvps]
+      .sort(
+        (a, b) =>
+          Number(!!a.isWalkIn) - Number(!!b.isWalkIn) || a.createdAt.localeCompare(b.createdAt),
+      )
+      .map((r) => [
+        this.rsvpName(r),
+        r.isWalkIn ? 'Walk-in' : r.profileId ? 'Member' : 'Guest',
+        r.guestEmail,
+        minute(r.createdAt),
+        r.checkedInAt ? minute(r.checkedInAt) : null,
+      ]);
+    const body = [['Name', 'Type', 'Email', "RSVP'd (UTC)", 'Checked in (UTC)'], ...rows]
+      .map((row) => row.map(cell).join(',') + '\r\n')
+      .join('');
+    this.attendance.set(id, body);
+    return route.fulfill({
+      status: 200,
+      headers: {
+        'content-disposition': `attachment; filename=${slug(event.title)}-attendance.csv`,
+      },
+      contentType: 'text/csv',
+      body,
     });
   }
 

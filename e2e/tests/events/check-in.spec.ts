@@ -231,7 +231,7 @@ test.describe('Event check-in access and states', () => {
     await expect(page.getByText('abby.brooks@example.org')).toHaveCount(0);
     for (const toggle of await checkIn.switches.all()) await expect(toggle).toBeDisabled();
     await expect(checkIn.addWalkIn).toHaveCount(0);
-    await expect(page.getByRole('button', { name: 'Export CSV' })).toHaveCount(0);
+    await expect(checkIn.exportCsv).toHaveCount(0);
     await expect(checkIn.search).toHaveAttribute('placeholder', 'Find by name');
     await checkIn.search.fill('brooks@example');
     await expect(checkIn.attendees).toHaveCount(0);
@@ -384,5 +384,60 @@ test.describe('Event check-in access and states', () => {
     await expect(eventPage.fact('Going')).toHaveText('3 people');
     await expect(eventPage.checkIn).toHaveCount(0);
     await expect(eventPage.viewCheckIn).toHaveCount(0);
+  });
+});
+
+test.describe('Export attendance', () => {
+  // L2-097 AC1: Given a lead on the check-in page, when they choose Export CSV, then the attendance downloads
+  // with one row per attendee. L2-097 AC4: while it is prepared, Export CSV is busy and cannot be pressed again.
+  test('a lead exports the attendance as CSV', async ({ page, api, axe }) => {
+    const event = tonight(api);
+    event.rsvps[0].checkedInAt = api.now.toISOString();
+    let release: () => void = () => undefined;
+    const held = new Promise<void>((resolve) => (release = resolve));
+    api.on('GET', `/api/events/${event.id}/check-ins.csv`, async (route) => {
+      await held;
+      return api.fallback(route);
+    });
+    const checkIn = new EventCheckInPage(page);
+    await api.signInAs(lead(api), `/events/${event.id}/check-in`);
+
+    const download = page.waitForEvent('download');
+    await checkIn.exportCsv.click();
+    await expect(checkIn.exportCsv).toHaveText('Exporting…');
+    await expect(checkIn.exportCsv).toHaveAttribute('aria-busy', 'true');
+    await axe.check();
+    release();
+
+    expect((await download).suggestedFilename()).toBe('toronto-builders-night-attendance.csv');
+    await expect(checkIn.toast('Attendance exported')).toContainText(
+      'toronto-builders-night-attendance.csv is in your downloads.',
+    );
+    expect(api.callsTo('GET', `/api/events/${event.id}/check-ins.csv`)).toHaveLength(1);
+    const lines = api.events.attendanceCsv(event.id).trimEnd().split('\r\n');
+    expect(lines[0]).toBe('"Name","Type","Email","RSVP\'d (UTC)","Checked in (UTC)"');
+    expect(lines[1]).toBe('"Ruth Alvarez","Member","","2026-10-16 12:00","2026-10-21 12:00"');
+    expect(lines[2]).toBe('"Abby Brooks","Guest","abby.brooks@example.org","2026-10-17 12:00",""');
+  });
+
+  // L2-097 AC4: when the export fails, a danger toast offers Try again.
+  test('a failed export offers Try again', async ({ page, api, axe }) => {
+    const event = tonight(api);
+    let fail = true;
+    api.on('GET', `/api/events/${event.id}/check-ins.csv`, (route) =>
+      fail ? route.abort('failed') : api.fallback(route),
+    );
+    const checkIn = new EventCheckInPage(page);
+    await api.signInAs(lead(api), `/events/${event.id}/check-in`);
+
+    await checkIn.exportCsv.click();
+
+    const toast = checkIn.toast('We couldn’t export the attendance');
+    await expect(toast).toContainText('Check your connection and try again.');
+    await axe.check();
+    fail = false;
+    const download = page.waitForEvent('download');
+    await toast.getByRole('button', { name: 'Try again' }).click();
+    expect((await download).suggestedFilename()).toBe('toronto-builders-night-attendance.csv');
   });
 });

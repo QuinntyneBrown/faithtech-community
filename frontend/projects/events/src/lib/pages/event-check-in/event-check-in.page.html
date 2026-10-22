@@ -68,6 +68,17 @@
             <ft-icon name="walk-in" /> Add walk-in
           </ft-button>
         }
+        <!-- One element per block: a block with several roots cannot project into the actions slot. -->
+        @if (c.canExport) {
+          <ft-button
+            ftPageHeaderActions
+            variant="ghost"
+            [loading]="exporting()"
+            (click)="exportCsv()"
+          >
+            <ft-icon name="export" /> {{ exporting() ? 'Exporting…' : 'Export CSV' }}
+          </ft-button>
+        }
       </ft-page-header>
 
       <ft-stack>

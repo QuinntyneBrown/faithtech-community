@@ -40,6 +40,7 @@ import {
 } from '@faithtech-community/components';
 import { firstValueFrom } from 'rxjs';
 
+import { fileSlug as slug, saveFile as save } from '../../download';
 import {
   CancelEventData,
   CancelEventDialog,
@@ -299,23 +300,4 @@ export class EventPage {
       if (id === this.id()) this.state.set('error');
     }
   }
-}
-
-/** Hands a downloaded file to the browser under the given name. */
-function save(blob: Blob, fileName: string): void {
-  const url = URL.createObjectURL(blob);
-  const link = document.createElement('a');
-  link.href = url;
-  link.download = fileName;
-  link.click();
-  URL.revokeObjectURL(url);
-}
-
-/** The same file-name slug as the server's EventFileNames. */
-function slug(title: string): string {
-  const words = title
-    .toLowerCase()
-    .replace(/[^a-z0-9]+/g, '-')
-    .replace(/^-+|-+$/g, '');
-  return words.slice(0, 60).replace(/-+$/, '') || 'event';
 }

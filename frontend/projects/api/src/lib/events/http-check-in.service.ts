@@ -46,4 +46,11 @@ export class HttpCheckInService implements CheckInService {
       context: this.save,
     });
   }
+
+  exportAttendance(eventId: string): Observable<Blob> {
+    return this.http.get(`${this.api}/events/${eventId}/check-ins.csv`, {
+      responseType: 'blob',
+      context: this.save,
+    });
+  }
 }

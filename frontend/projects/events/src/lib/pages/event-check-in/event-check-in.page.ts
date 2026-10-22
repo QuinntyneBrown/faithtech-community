@@ -43,6 +43,7 @@ import {
 import { firstValueFrom } from 'rxjs';
 
 import { AddWalkInData, AddWalkInDialog } from '../../dialogs';
+import { fileSlug, saveFile } from '../../download';
 
 type State = 'loading' | 'loaded' | 'error' | 'forbidden' | 'not-found';
 
@@ -89,6 +90,7 @@ export class EventCheckInPage {
   protected readonly state = signal<State>('loading');
   protected readonly checkIn = signal<CheckInDto | null>(null);
   protected readonly attendees = signal<CheckInAttendeeDto[]>([]);
+  protected readonly exporting = signal(false);
   protected readonly query = new FormControl('', { nonNullable: true });
   private readonly term = toSignal(this.query.valueChanges, { initialValue: '' });
   /** Saves for one attendee run in order, so a quick on-off-on lands as the last choice. */
@@ -180,6 +182,32 @@ export class EventCheckInPage {
       this.save(a, on, previous),
     );
     this.saves.set(a.rsvpId, queued);
+  }
+
+  /** Downloads the attendance CSV; Export CSV stays busy until it is saved (L2-097 AC4). */
+  protected async exportCsv(): Promise<void> {
+    const c = this.checkIn();
+    if (!c || this.exporting()) return;
+    this.exporting.set(true);
+    const fileName = `${fileSlug(c.title)}-attendance.csv`;
+    try {
+      saveFile(await firstValueFrom(this.service.exportAttendance(c.eventId)), fileName);
+      this.toasts.show({
+        variant: 'success',
+        heading: 'Attendance exported',
+        text: `${fileName} is in your downloads.`,
+      });
+    } catch {
+      this.toasts.show({
+        variant: 'danger',
+        heading: 'We couldn’t export the attendance',
+        text: 'Check your connection and try again.',
+        actionLabel: 'Try again',
+        onAction: () => void this.exportCsv(),
+      });
+    } finally {
+      this.exporting.set(false);
+    }
   }
 
   /** Opens Add walk-in, with the unmatched search term as the name when there is one (L2-093 AC3). */

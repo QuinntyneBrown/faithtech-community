@@ -64,6 +64,8 @@ export interface CheckInService {
   undoCheckIn(eventId: string, rsvpId: string): Observable<void>;
   /** 400 with field errors; a verified member's email links the row; an existing RSVP is reused. */
   addWalkIn(eventId: string, request: WalkInRequest): Observable<WalkInResultDto>;
+  /** The attendance as CSV, for lead roles and System Admins; Staff get 403 (L2-097). */
+  exportAttendance(eventId: string): Observable<Blob>;
 }
 
 export const CHECK_IN_SERVICE = new InjectionToken<CheckInService>('CHECK_IN_SERVICE');

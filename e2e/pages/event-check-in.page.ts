@@ -17,6 +17,7 @@ export class EventCheckInPage {
   readonly toasts: Locator;
   readonly undo: Locator;
   readonly addWalkIn: Locator;
+  readonly exportCsv: Locator;
   readonly readOnly: Locator;
   readonly cancelled: Locator;
   readonly notOpen: Locator;
@@ -40,6 +41,7 @@ export class EventCheckInPage {
     this.toasts = page.locator('ft-toast-region ft-toast');
     this.undo = this.toasts.getByRole('button', { name: 'Undo' });
     this.addWalkIn = page.locator('ft-page-header').getByRole('button', { name: 'Add walk-in' });
+    this.exportCsv = page.getByRole('button', { name: /^(Export CSV|Exporting…)$/ });
     this.readOnly = page.locator('ft-alert').filter({ hasText: 'Read-only for Staff' });
     this.cancelled = page
       .locator('ft-alert')

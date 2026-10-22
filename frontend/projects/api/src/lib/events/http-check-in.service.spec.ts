@@ -34,6 +34,16 @@ describe('HttpCheckInService', () => {
     req.flush(null);
   });
 
+  it('downloads the attendance CSV as a blob, leaving failures to the page', () => {
+    service.exportAttendance('e1').subscribe();
+
+    const req = controller.expectOne('/api/events/e1/check-ins.csv');
+    expect(req.request.method).toBe('GET');
+    expect(req.request.responseType).toBe('blob');
+    expect(req.request.context.get(HANDLES_SERVER_ERROR)).toBe(true);
+    req.flush(new Blob(['csv']));
+  });
+
   it('adds a walk-in, leaving a failed save to the dialog', () => {
     const request = { name: 'Mira Chen', email: null, checkInNow: true };
     service.addWalkIn('e1', request).subscribe();
