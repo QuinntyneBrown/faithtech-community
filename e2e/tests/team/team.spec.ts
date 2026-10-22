@@ -128,4 +128,51 @@ test.describe('Team list', () => {
 
     await expect(page).toHaveURL(/\/sign-in/);
   });
+  test('a large team is shown 50 at a time, filtered before paging, with Show more members', async ({
+    page,
+    api,
+    axe,
+  }) => {
+    for (let i = 0; i < 70; i++) {
+      const account = api.addAccount({
+        email: `member${i}@example.org`,
+        name: `Member ${String(i).padStart(3, '0')}`,
+        roles: [i % 2 === 0 ? 'Volunteer' : 'EventLead'],
+      });
+      api.profiles.get(account.profileId)!.homeCity = i < 60 ? 'Toronto' : 'Halifax';
+    }
+    const viewer = api.addAccount({ email: 'leah@example.org', name: 'Leah Thompson' });
+    const team = new TeamPage(page);
+    await api.signInAs(viewer, '/team');
+
+    await expect(team.members).toHaveCount(50);
+    await expect(team.count).toHaveText('Showing 50 of 70 members');
+    await expect(team.city.locator('option', { hasText: 'Halifax' })).toHaveCount(1);
+    await axe.check();
+
+    let fail = true;
+    api.on('GET', '/api/team', (route) => {
+      if (!fail || !new URL(route.request().url()).searchParams.has('after')) {
+        return api.fallback(route);
+      }
+      fail = false;
+      // The connection drops; a 500 would go to the system error page instead.
+      return route.abort('failed');
+    });
+    await team.showMore.click();
+    await expect(team.moreFailed).toBeVisible();
+    await expect(team.members).toHaveCount(50);
+    // Axe reads the list where it was left, with a row half under the sticky top bar.
+    await team.scrollUnderTopBar('Member 020');
+    await axe.check();
+
+    await team.showMore.click();
+    await expect(team.members).toHaveCount(70);
+    await expect(team.count).toHaveText('Showing 70 of 70 members');
+    await expect(team.showMore).toHaveCount(0);
+
+    await team.roleFilter('Volunteers').click();
+    await expect(team.count).toHaveText('Showing 35 of 35 members');
+    await expect(team.showMore).toHaveCount(0);
+  });
 });

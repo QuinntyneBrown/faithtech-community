@@ -12,43 +12,74 @@ skinparam class {
 title Class structure — Board
 
 class BoardDto {
-  +WorkspaceMethod Method
-  +Guid? ActiveSprintId
-  +List<BoardColumnDto> Columns
+  +string Method
+  +BoardSprintDto? Sprint
+  +IReadOnlyList<BoardColumnDto> Columns
+}
+class BoardSprintDto {
+  +Guid Id
+  +string Name
+  +string Goal
+  +DateOnly StartDate
+  +DateOnly EndDate
+  +int CompletedPoints
+  +int TotalPoints
 }
 class BoardColumnDto {
-  +WorkItemStatus Status
-  +List<CardDto> Cards
+  +string Status
+  +IReadOnlyList<BoardCardDto> Cards
 }
-class CardDto {
-  +Guid StoryId
+class BoardCardDto {
+  +Guid Id
   +string Title
   +Guid? AssigneeId
+  +string? AssigneeName
   +int? StoryPoints
   +int TasksDone
   +int TasksTotal
 }
 class MoveCardCommand {
-  +Guid StoryId
-  +WorkItemStatus Status
+  +string? Status
 }
-class GetBoardHandler {
-  +Handle(q: GetBoardQuery): Task<BoardDto>
+class MoveCardValidator
+class BoardHandler {
+  +GetAsync(workspaceId: Guid, initiativeId: Guid?, epicId: Guid?, noEpic: bool): Task<BoardDto?>
+  +MoveAsync(itemId: Guid, command: MoveCardCommand): Task<Result>
 }
-class MoveCardHandler {
-  +Handle(cmd: MoveCardCommand): Task<Result>
+class WorkspaceAccessPolicy {
+  +LoadAsync(workspaceId: Guid): Task<(Workspace?, WorkspaceCaller)>
+  +AuthorizeAsync(workspaceId: Guid, manage: bool): Task<(Workspace, WorkspaceCaller, Result?)>
+  +AuditOverride(caller: WorkspaceCaller, action: string, ...): void
 }
 interface IBoardNotifier {
-  +CardMovedAsync(workspaceId: Guid, storyId: Guid, status: WorkItemStatus): Task
+  +CardMovedAsync(workspaceId: Guid, itemId: Guid, status: string): Task
 }
-class SignalRBoardNotifier
-class WorkItem
+class SignalRAgileNotifier {
+  +CardMovedAsync(workspaceId: Guid, itemId: Guid, status: string): Task
+  +PokerChangedAsync(sessionId: Guid): Task
+}
+class AgileHub {
+  +WatchBoard(workspaceId: Guid): Task
+  +WatchPokerSession(sessionId: Guid): Task
+  {static} +BoardGroup(workspaceId: Guid): string
+}
+class WorkItemsEndpoints <<static>>
+class WorkItem {
+  +WorkItemStatus Status
+  +SetStatus(status: WorkItemStatus): void
+}
 BoardDto "1" *-- "3" BoardColumnDto
-BoardColumnDto "1" *-- "*" CardDto
-GetBoardHandler ..> BoardDto : returns
-GetBoardHandler ..> WorkItem : reads
-MoveCardHandler ..> MoveCardCommand : handles
-MoveCardHandler --> WorkItem : sets Status
-MoveCardHandler ..> IBoardNotifier
-SignalRBoardNotifier ..|> IBoardNotifier
+BoardDto "1" o-- "0..1" BoardSprintDto
+BoardColumnDto "1" *-- "*" BoardCardDto
+MoveCardValidator ..> MoveCardCommand : validates
+WorkItemsEndpoints ..> BoardHandler : dispatches
+BoardHandler ..> BoardDto : returns
+BoardHandler ..> WorkItem : reads
+BoardHandler ..> MoveCardCommand : handles
+BoardHandler --> WorkItem : sets Status
+BoardHandler --> WorkspaceAccessPolicy
+BoardHandler --> IBoardNotifier
+SignalRAgileNotifier ..|> IBoardNotifier
+SignalRAgileNotifier ..> AgileHub : IHubContext<AgileHub>
+AgileHub --> WorkspaceAccessPolicy
 @enduml

@@ -1,4 +1,5 @@
 using System.Net;
+using System.Text;
 using System.Text.RegularExpressions;
 using FaithTech.Community.Application.Common;
 using MimeKit;
@@ -13,15 +14,39 @@ public static partial class EmailMime
         var mime = new MimeMessage
         {
             Subject = message.Subject,
-            Body = new MultipartAlternative
-            {
-                new TextPart("plain") { Text = message.Body },
-                new TextPart("html") { Text = Html(message.Body) },
-            },
+            Body = Body(message),
         };
         mime.From.Add(MailboxAddress.Parse(from));
         mime.To.Add(MailboxAddress.Parse(message.To));
         return mime;
+    }
+
+    // The text and HTML alternatives, wrapped with any attachments (such as an RSVP's .ics) in multipart/mixed.
+    private static MimeEntity Body(EmailMessage message)
+    {
+        var alternatives = new MultipartAlternative
+        {
+            new TextPart("plain") { Text = message.Body },
+            new TextPart("html") { Text = Html(message.Body) },
+        };
+        if (message.Attachments is not { Count: > 0 } attachments)
+        {
+            return alternatives;
+        }
+
+        var mixed = new Multipart("mixed") { alternatives };
+        foreach (var attachment in attachments)
+        {
+            mixed.Add(new MimePart(ContentType.Parse(attachment.ContentType))
+            {
+                Content = new MimeContent(new MemoryStream(Encoding.UTF8.GetBytes(attachment.Content))),
+                ContentDisposition = new ContentDisposition(ContentDisposition.Attachment),
+                ContentTransferEncoding = ContentEncoding.Base64,
+                FileName = attachment.FileName,
+            });
+        }
+
+        return mixed;
     }
 
     // Paragraphs from blank lines, everything escaped, and links made clickable.

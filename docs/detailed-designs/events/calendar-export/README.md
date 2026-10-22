@@ -16,13 +16,13 @@ A user may download the `.ics` of any event that user may see: members-only even
 ## Description
 
 - **`EventPage`** and **`PublicEventPage`** — pages in the `events` library that offer the download link.
-- **`EventsService` / `EVENTS_SERVICE`** — `calendarUrl(id)` returns the download URL for the event; the browser fetches the file directly.
+- **`EventsService` / `EVENTS_SERVICE`** — `downloadCalendar(id)` fetches a member's copy with their sign-in, and `calendarUrl(id, { isPublic: true })` returns the public download URL that the browser opens directly.
 - **`EventsEndpoints`** — maps `GET /api/events/{id}/calendar.ics` (authenticated) and `GET /api/public/events/{id}/calendar.ics` (explicit `AllowAnonymous`, public events only). Both return `text/calendar`.
 - **`GetEventCalendarHandler`** — Application handler that checks the caller may see the event, then asks `IIcsCalendarWriter` for the file.
 - **`IcsCalendarWriter`** — Infrastructure implementation of `IIcsCalendarWriter`. It writes one `VEVENT` with `UID` derived from `Event.Id`, `DTSTART`/`DTEND` in UTC, `SUMMARY`, `LOCATION` (venue) or `URL` (online link), `SEQUENCE` from `Event.Sequence`, and `STATUS:CANCELLED` when the event is cancelled.
 - **`Event.Sequence`** — integer that the edit and cancel handlers increment.
 
-The UID domain suffix is `<TO SUPPLY>`.
+The UID is `{event id}@faithtech.community`.
 
 ## Requirements
 
@@ -76,3 +76,10 @@ The handler checks visibility before writing the file. The writer emits a stable
 Decisions recorded while building the Domain layer (`FaithTech.Community.Domain`):
 
 - `Event.Update` and `Event.Cancel` each increment `Sequence` once; the writer reads it unchanged.
+
+Decisions recorded while building the slice:
+
+- A member's download needs their access token, which a plain link cannot carry, so the event page fetches the file through `downloadCalendar` and saves it as `{event-slug}.ics`. The public page links `GET /api/public/events/{id}/calendar.ics` directly.
+- The public copy's `URL` is the public event page, and an online event's joining link is left out of it: the link is for people who RSVP, whose confirmation `.ics` carries it.
+- A cancelled event keeps its download, labelled *Update your calendar (.ics)*, so a calendar that already holds the event can take the higher `SEQUENCE` and `STATUS:CANCELLED` (`L2-024` AC2). The cancelled mocks show it.
+- `IcsCalendarWriter` writes CRLF lines folded at 75 octets without splitting a character, escapes text values, and stamps `DTSTAMP` from the clock.

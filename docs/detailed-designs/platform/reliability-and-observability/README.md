@@ -14,7 +14,7 @@ The middleware order is fixed: request logging sits outside the exception-handli
 ## Description
 
 - **`CorrelationIdMiddleware`** — reads `X-Correlation-ID` or generates one, stores it in `HttpContext.TraceIdentifier` and the log scope, and echoes it in the response header.
-- **Request logging** — `UseSerilogRequestLogging` or equivalent (`<TO SUPPLY>`) registered before `UseExceptionHandler`, so it observes the final status.
+- **Request logging** — `UseSerilogRequestLogging` registered before `UseExceptionHandler`, so it observes the final status. It writes through this host's Serilog logger and logs `RequestMethod`, the redacted `RequestPath`, `StatusCode`, `Elapsed` and the `CorrelationId` from the log context (see `LogRedaction` in the input-validation design).
 - **`UseExceptionHandler`** with **`ProblemDetailsExceptionHandler`** — converts unhandled exceptions to a 500 problem details body that includes the correlation ID as `traceId`.
 - **Log redaction** — structured log enrichers exclude personal data such as names, emails and request bodies.
 - **Health checks** — `AddHealthChecks()` with a `live` check (no dependencies) and `ready` checks for PostgreSQL and Azure Blob storage, mapped to `/health/live` and `/health/ready` as anonymous endpoints.

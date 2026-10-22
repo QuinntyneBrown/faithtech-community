@@ -11,9 +11,9 @@ export class HttpTeamService implements TeamService {
   private readonly http = inject(HttpClient);
   private readonly base = inject(API_BASE_URL);
 
-  list(filters: TeamFilters = {}): Observable<TeamListDto> {
+  list(filters: TeamFilters = {}, after?: string | null): Observable<TeamListDto> {
     return this.http.get<TeamListDto>(`${this.base}/team`, {
-      params: toHttpParams({ role: filters.role, city: filters.city }),
+      params: toHttpParams({ role: filters.role, city: filters.city, after }),
     });
   }
 }

@@ -109,10 +109,8 @@ export class PlanningPokerPage {
     label: String(p),
   }));
 
-  protected readonly canStart = computed(() => {
-    const access = this.workspace()?.access;
-    return access === 'Owner' || access === 'Member';
-  });
+  /** Owner, member or System Admin (an audited override, ADR 0011); Staff only watch. */
+  protected readonly canStart = computed(() => this.workspace()?.canEdit === true);
   protected readonly facilitatorFirstName = computed(() =>
     firstName(this.session()?.facilitatorName ?? ''),
   );

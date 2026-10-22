@@ -16,44 +16,63 @@ skinparam package {
 }
 actor "Workspace member" as actor
 box "Frontend — FaithTech Community web app (agile library)" #E0F2FE
-  participant "TeamBoardPage" as page
+  participant "BoardPage" as page
+  participant "MoveCardDialog" as dlg
   participant "AgileService (AGILE_SERVICE)" as svc
-  participant "AgileLiveService" as live
+  participant "SignalRAgileLiveService (AGILE_LIVE_SERVICE)" as live
 end box
 box "Backend — FaithTech.Community.Api" #D1FADF
-  participant "BoardEndpoints" as ep
+  participant "WorkItemsEndpoints" as ep
+  participant "SignalRAgileNotifier" as bc
+  participant "AgileHub" as hub
 end box
 box "Backend — FaithTech.Community.Application and Domain" #ECFDF3
-  participant "MoveCardHandler" as h
+  participant "BoardHandler" as h
   participant "WorkspaceAccessPolicy" as pol
   participant "WorkItem" as ent
 end box
 box "Backend — FaithTech.Community.Infrastructure" #FFF4E5
-  participant "AgileHub" as hub
   participant "CommunityDbContext" as ctx
   database "Community database" as db
 end box
-actor -> page : Drag card, or press keys to move it to another column
-page -> page : Move card optimistically and announce the move
-page -> svc : moveCard(storyId, status)
-svc -> ep : PUT /items/{id}/status
-ep -> h : Send MoveCardCommand
-h -> pol : EnsureMember(workspaceId)
+alt drag
+actor -> page : Drag card to another column
+page -> page : Place the card at once
+page -> svc : moveCard(itemId, status)
+else keyboard
+actor -> page : Press the card's Move button
+page -> dlg : Open with item and current status
+actor -> dlg : Choose To Do / In Progress / Done, Move
+dlg -> svc : moveCard(itemId, status)
+end
+svc -> ep : PUT /api/items/{id}/status
+ep -> ep : MoveCardValidator (To Do, In Progress or Done)
+ep -> h : MoveAsync(itemId, command)
+h -> ctx : Load work item (404 when missing)
+h -> pol : AuthorizeAsync(workspaceId, manage: false)
 alt Staff or outsider
-pol --> h : Forbidden or NotFound
-h --> ep : 403 / 404
+pol --> h : 403 Forbidden or 404 Not Found
+h --> ep : Refusal
 ep --> svc : ProblemDetails
 svc --> page : Error
-page --> actor : Revert card and show error
-else member
-pol --> h : Allowed
-h -> ent : Set Status (L2-034 AC2)
-h -> ctx : SaveChanges
+page --> actor : Danger toast, reload the board
+else member (or System Admin override)
+pol --> h : Caller
+alt item is a task
+h --> ep : 409 "A task is ticked off on its story, not moved on the board."
+else story
+h -> ent : SetStatus(status) (L2-034 AC2)
+h -> pol : AuditOverride(caller, "workitem.moved") for a System Admin
+h -> ctx : SaveChangesAsync
 ctx -> db : UPDATE work_item
-h -> hub : CardMoved to workspace group
-hub -> live : Push CardMoved to other viewers within 2 s (L2-034 AC2)
-h --> ep : Result
+h -> bc : CardMovedAsync(workspaceId, itemId, status) via IBoardNotifier
+bc -> hub : Group board:{workspaceId}
+hub -> live : CardMoved(itemId, status) to other viewers within 2 s (L2-034 AC2)
+live --> page : { kind: 'moved' }
+page -> svc : getBoard(workspaceId) in other viewers' browsers
+h --> ep : Ok
 ep --> svc : 204 No Content
-svc --> page : Confirmed
+svc --> page : Confirmed; announce "moved to ..."
+end
 end
 @enduml

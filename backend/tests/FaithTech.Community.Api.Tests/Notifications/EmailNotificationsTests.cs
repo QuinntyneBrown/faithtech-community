@@ -97,6 +97,7 @@ public partial class EmailNotificationsTests(CommunityApiFactory factory) : ICla
         var subject = kind == NotificationKind.Announcement ? "Announcement" : "Role changed";
         await scope.ServiceProvider.GetRequiredService<INotificationPublisher>().PublishAsync(
             recipients, kind, subject, "/announcements", "Hannah Kim", new NotificationEmail(subject, $"{subject}.", footer));
+        await scope.ServiceProvider.GetRequiredService<IApplicationDbContext>().SaveChangesAsync();
     }
 
     private static async Task DispatchAsync(WebApplicationFactory<Program> app)

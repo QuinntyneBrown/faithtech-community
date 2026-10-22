@@ -112,6 +112,16 @@ export class WorkspaceSettingsPage {
   protected readonly archived = signal<ArchivedItemDto[]>([]);
   protected readonly kindBadges = KIND_BADGES;
 
+  /** Members may still write stories and cards; Staff only read (L2-051 AC3, L2-031 AC5). */
+  protected readonly ownerOnlyText = computed(() => {
+    const ws = this.workspace();
+    if (!ws) return '';
+    const owns = `${ws.ownerName} owns this workspace.`;
+    return ws.canEdit
+      ? `${owns} You can still add stories, move cards and vote in Planning Poker.`
+      : owns;
+  });
+
   protected readonly subtitle = computed(() => {
     const access = this.workspace()?.access;
     return access === 'Owner'

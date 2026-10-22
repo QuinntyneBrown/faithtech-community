@@ -132,7 +132,6 @@ public class SendAnnouncementHandler(
         var recipients = await audiences.RecipientIds(audience).ToListAsync(cancellationToken);
         announcement.AddRecipients(recipients);
         db.Announcements.Add(announcement);
-        await db.SaveChangesAsync(cancellationToken);
 
         var origin = webApp.Value.Origin;
         var email = command.AlsoEmail
@@ -141,6 +140,7 @@ public class SendAnnouncementHandler(
             : null;
         await notifications.PublishAsync(
             recipients, NotificationKind.Announcement, $"{senderName} sent “{subject}”", "/announcements", senderName, email, cancellationToken);
+        await db.SaveChangesAsync(cancellationToken);
         var emailCount = command.AlsoEmail
             ? await db.Profiles.CountAsync(p => recipients.Contains(p.Id) && !p.AnnouncementEmailsOptedOut, cancellationToken)
             : 0;

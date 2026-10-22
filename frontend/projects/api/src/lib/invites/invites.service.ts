@@ -18,6 +18,13 @@ export interface InviteDto {
   revokedAt: string | null;
 }
 
+/** A page of invites, newest first. `next` continues the list and is null on the last page. */
+export interface InvitePage {
+  items: InviteDto[];
+  next: string | null;
+  totalCount: number;
+}
+
 export interface SendInviteRequest {
   email: string;
   preassignedRole?: Role | null;
@@ -45,8 +52,11 @@ export interface NewAccount {
 export interface InvitesService {
   /** Leads and System Admins. 400 Email, 403 with a detail (role or unverified), 429 over 50 a day. */
   sendInvite(request: SendInviteRequest): Observable<InviteDto>;
-  /** Every lead's invites, newest first. */
-  listInvites(): Observable<InviteDto[]>;
+  /**
+   * Every lead's invites, newest first, 50 a page. Pass the previous page's `next` to continue;
+   * invites sent meanwhile never shift later pages.
+   */
+  listInvites(after?: string | null): Observable<InvitePage>;
   /** An expired invite only: sends a new one with a new 14-day link. */
   resendInvite(id: string): Observable<InviteDto>;
   /** A pending invite only. */

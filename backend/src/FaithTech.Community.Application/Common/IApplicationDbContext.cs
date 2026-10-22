@@ -3,6 +3,7 @@ using FaithTech.Community.Domain.Admin;
 using FaithTech.Community.Domain.Agile;
 using FaithTech.Community.Domain.Announcements;
 using FaithTech.Community.Domain.Contacts;
+using FaithTech.Community.Domain.Events;
 using FaithTech.Community.Domain.Invites;
 using FaithTech.Community.Domain.Notifications;
 using FaithTech.Community.Domain.Partners;
@@ -42,6 +43,7 @@ public interface IApplicationDbContext
     DbSet<PokerSession> PokerSessions { get; }
 
     DbSet<PhotoBlobTask> PhotoBlobTasks { get; }
+    DbSet<Event> Events { get; }
 
     DbSet<Announcement> Announcements { get; }
 

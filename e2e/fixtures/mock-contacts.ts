@@ -6,7 +6,11 @@ export interface ContactsContext {
   accounts: Map<string, { email: string; verified: boolean; profileId: string }>;
   profiles: Map<
     string,
-    { id: string; name: string; photos: { url: string; altText: string; isFeatured: boolean }[] }
+    {
+      id: string;
+      name: string;
+      photos: { url: string | null; altText: string; isFeatured: boolean }[];
+    }
   >;
 }
 

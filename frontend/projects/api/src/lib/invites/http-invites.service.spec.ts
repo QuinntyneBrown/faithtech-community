@@ -33,10 +33,10 @@ describe('HttpInvitesService', () => {
       '/api/invites',
       { email: 'a@b.c', preassignedRole: 'Volunteer', note: 'Hi' },
     ],
-    ['listInvites', () => service.listInvites(), 'GET', '/api/invites', undefined],
     ['resendInvite', () => service.resendInvite('i1'), 'POST', '/api/invites/i1/resend', null],
     ['revokeInvite', () => service.revokeInvite('i1'), 'POST', '/api/invites/i1/revoke', null],
-    ['getInvite', () => service.getInvite('t-k'), 'GET', '/api/invites/by-token/t-k', undefined],
+    // The token goes in the body, never the URL, so it cannot reach request logs (L2-043).
+    ['getInvite', () => service.getInvite('t-k'), 'POST', '/api/invites/lookup', { token: 't-k' }],
     [
       'accept as a new account',
       () => service.acceptInvite('tok', { name: 'Ada', password: 'pw' }),
@@ -58,6 +58,19 @@ describe('HttpInvitesService', () => {
     expect(req.request.method).toBe(method);
     if (body !== undefined) expect(req.request.body).toEqual(body);
     req.flush(null);
+  });
+
+  it('asks for the first page, then continues after the previous page', () => {
+    service.listInvites().subscribe();
+    service.listInvites('123_abc').subscribe();
+
+    const first = controller.expectOne((r) => r.url === '/api/invites' && !r.params.has('after'));
+    const next = controller.expectOne(
+      (r) => r.url === '/api/invites' && r.params.get('after') === '123_abc',
+    );
+    expect(first.request.method).toBe('GET');
+    first.flush({ items: [], next: null, totalCount: 0 });
+    next.flush({ items: [], next: null, totalCount: 0 });
   });
 
   it('lets the send dialog show a refusal itself', () => {

@@ -4,9 +4,11 @@ import { Observable } from 'rxjs';
 
 import { API_BASE_URL } from '../config';
 import { HANDLES_FORBIDDEN } from '../errors';
+import { toHttpParams } from '../shared';
 import {
   InviteDto,
   InviteLookupDto,
+  InvitePage,
   InvitesService,
   NewAccount,
   SendInviteRequest,
@@ -23,8 +25,8 @@ export class HttpInvitesService implements InvitesService {
     return this.http.post<InviteDto>(this.base, request, { context: this.context });
   }
 
-  listInvites(): Observable<InviteDto[]> {
-    return this.http.get<InviteDto[]>(this.base);
+  listInvites(after?: string | null): Observable<InvitePage> {
+    return this.http.get<InvitePage>(this.base, { params: toHttpParams({ after }) });
   }
 
   resendInvite(id: string): Observable<InviteDto> {
@@ -38,7 +40,8 @@ export class HttpInvitesService implements InvitesService {
   }
 
   getInvite(token: string): Observable<InviteLookupDto> {
-    return this.http.get<InviteLookupDto>(`${this.base}/by-token/${encodeURIComponent(token)}`);
+    // The token is a credential: it goes in the body so it never appears in a URL or request log.
+    return this.http.post<InviteLookupDto>(`${this.base}/lookup`, { token });
   }
 
   acceptInvite(token: string, account?: NewAccount): Observable<void> {

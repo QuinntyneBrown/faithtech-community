@@ -1,8 +1,162 @@
-<!--
-  SCAFFOLD: placeholder, not the implementation.
-  Generated from AGENTS.md and:
-    - docs/detailed-designs/events/rsvp
-    - docs/detailed-designs/events/cancel-events
-    - docs/detailed-designs/events/calendar-export
-  Overwrite this template with the expected implementation, then delete this comment.
--->
+@switch (state()) {
+  @case ('loading') {
+    <ft-breadcrumb>
+      <ft-breadcrumb-item href="/events">Events</ft-breadcrumb-item>
+      <ft-breadcrumb-item>Event</ft-breadcrumb-item>
+    </ft-breadcrumb>
+    <ft-page-header title="Event" />
+    <div class="loading" role="status" aria-busy="true" aria-label="Loading event">
+      @for (card of [1, 2]; track card) {
+        <ft-card>
+          <ft-stack>
+            <ft-skeleton shape="title" />
+            <ft-skeleton />
+            <ft-skeleton />
+          </ft-stack>
+        </ft-card>
+      }
+    </div>
+  }
+  @case ('error') {
+    <ft-empty-state
+      variant="error"
+      [headingLevel]="1"
+      heading="We couldn’t load this event"
+      text="Check your connection and try again. If it keeps happening, we’ve already been told about it."
+    >
+      <ft-button actions variant="primary" (click)="retry()">
+        <ft-icon name="try-again" /> Try again
+      </ft-button>
+    </ft-empty-state>
+  }
+  @case ('loaded') {
+    @if (event(); as e) {
+      <ft-breadcrumb>
+        <ft-breadcrumb-item href="/events">Events</ft-breadcrumb-item>
+        <ft-breadcrumb-item>{{ e.title }}</ft-breadcrumb-item>
+      </ft-breadcrumb>
+      <ft-page-header [title]="e.title" [subtitle]="when()">
+        @if (canRsvp()) {
+          <ft-button ftPageHeaderActions variant="primary" [loading]="rsvping()" (click)="rsvp()">
+            <ft-icon name="done" /> {{ rsvping() ? 'RSVPing…' : 'RSVP' }}
+          </ft-button>
+        }
+        <ft-button ftPageHeaderActions [loading]="downloading()" (click)="addToCalendar()">
+          <ft-icon name="export" />
+          {{ e.isCancelled ? 'Update your calendar (.ics)' : 'Add to calendar (.ics)' }}
+        </ft-button>
+        @if (e.canManage && !e.isCancelled) {
+          <ft-button ftPageHeaderActions [href]="'/events/' + e.id + '/edit'">
+            <ft-icon name="edit" /> Edit
+          </ft-button>
+        }
+        <!-- One element per block: a block with several roots cannot project into the actions slot. -->
+        @if (e.canManage && !e.isCancelled) {
+          <ft-button ftPageHeaderActions variant="danger" (click)="cancelEvent()">
+            <ft-icon name="close" /> Cancel event
+          </ft-button>
+        }
+      </ft-page-header>
+
+      <ft-stack>
+        @if (e.isCancelled) {
+          <ft-alert status="danger" heading="This event was cancelled">{{
+            cancellation()
+          }}</ft-alert>
+        } @else if (e.callerHasRsvp) {
+          <ft-alert status="success" heading="You’re going">
+            We’ve emailed you a confirmation with a calendar invite.
+            <ft-button ftAlertActions (click)="cancelRsvp()">Cancel my RSVP</ft-button>
+          </ft-alert>
+        } @else if (refusal(); as message) {
+          <ft-alert status="danger" heading="You’re not on the list">{{ message }}</ft-alert>
+        } @else if (e.isFull) {
+          <ft-alert status="info" heading="This event is full">
+            Everyone it has room for has RSVP’d.
+          </ft-alert>
+        }
+
+        <ft-split>
+          <ft-stack ftSplitMain>
+            <ft-card heading="About this event">
+              <ft-stack>
+                @if (e.description) {
+                  <p class="description">{{ e.description }}</p>
+                }
+                <ft-description-list>
+                  <ft-description-list-item label="Where">{{ where() }}</ft-description-list-item>
+                  <ft-description-list-item label="Format">{{
+                    e.format === 'Online' ? 'Online' : 'In person'
+                  }}</ft-description-list-item>
+                  @if (host(); as h) {
+                    <ft-description-list-item label="Hosted by">{{ h }}</ft-description-list-item>
+                  }
+                  <ft-description-list-item label="Visibility">{{
+                    e.visibility === 'Public'
+                      ? 'Public · anyone can register'
+                      : 'Members only · signed-in members can RSVP'
+                  }}</ft-description-list-item>
+                  <ft-description-list-item label="Going"
+                    >{{ e.rsvpCount }} {{ e.rsvpCount === 1 ? 'person' : 'people' }}
+                    @if (e.capacity) {
+                      of {{ e.capacity }}
+                    }
+                  </ft-description-list-item>
+                </ft-description-list>
+              </ft-stack>
+            </ft-card>
+
+            @if (e.rsvps; as rsvps) {
+              <ft-card variant="flush" [heading]="'Going (' + e.rsvpCount + ')'">
+                @if (e.canExportRsvps) {
+                  <ft-button
+                    ftCardActions
+                    variant="ghost"
+                    [loading]="exporting()"
+                    (click)="exportCsv()"
+                  >
+                    <ft-icon name="export" /> {{ exporting() ? 'Exporting…' : 'Export CSV' }}
+                  </ft-button>
+                }
+                @if (rsvps.length) {
+                  <ft-list label="Going">
+                    @for (rsvp of rsvps; track $index) {
+                      <ft-list-item [label]="rsvp.name" [meta]="meta(rsvp)">
+                        <ft-avatar leading size="sm" [name]="rsvp.name" [color]="color(rsvp)" />
+                        @if (rsvp.isGuest) {
+                          <ft-badge trailing>Guest</ft-badge>
+                        }
+                      </ft-list-item>
+                    }
+                  </ft-list>
+                } @else {
+                  <p class="none">No one has RSVP’d yet.</p>
+                }
+                <p class="footer">Only leads and Staff see this list. Attendees see the count.</p>
+              </ft-card>
+            }
+          </ft-stack>
+          <ft-stack ftSplitAside>
+            @if (e.canManage && e.visibility === 'Public' && !e.isCancelled) {
+              <ft-card heading="Public page">
+                <ft-stack>
+                  <p class="muted">Anyone with this link can RSVP without an account.</p>
+                  <ft-form-field label="Link">
+                    <ft-text-field
+                      type="url"
+                      [readonly]="true"
+                      action="copy"
+                      [formControl]="shareLink"
+                      (actionClick)="copyLink()"
+                    />
+                  </ft-form-field>
+                  <ft-link [href]="publicPath()">Preview public page</ft-link>
+                </ft-stack>
+              </ft-card>
+            }
+          </ft-stack>
+        </ft-split>
+      </ft-stack>
+    }
+  }
+}

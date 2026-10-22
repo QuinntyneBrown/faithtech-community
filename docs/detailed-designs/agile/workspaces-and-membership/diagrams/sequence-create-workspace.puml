@@ -24,28 +24,58 @@ box "Backend — FaithTech.Community.Api" #D1FADF
   participant "WorkspacesEndpoints" as ep
 end box
 box "Backend — FaithTech.Community.Application and Domain" #ECFDF3
-  participant "CreateWorkspaceHandler" as h
+  participant "WorkspaceSettingsHandler" as sh
+  participant "WorkspacesHandler" as h
+  participant "WorkspaceAccessPolicy" as pol
+  participant "WorkspaceMembership" as mem
   participant "Workspace" as ent
+  participant "AgileNotifier" as ntf
 end box
 box "Backend — FaithTech.Community.Infrastructure" #FFF4E5
   participant "CommunityDbContext" as ctx
+  participant "OutboxEmailSender" as email
   database "Community database" as db
 end box
 actor -> page : Choose "New workspace"
 page -> dlg : Open dialog
-actor -> dlg : Enter name and method (Scrum or Kanban)
-dlg -> svc : createWorkspace(name, method)
-svc -> ep : POST /workspaces
-ep -> h : Send CreateWorkspaceCommand
-alt caller is City Lead or System Admin
-h -> ent : Create with OwnerId = caller (L2-031 AC1)
-h -> ctx : Add workspace
-ctx -> db : INSERT workspace
+dlg -> svc : listMemberCandidates()
+svc -> ep : GET /api/workspaces/candidates
+ep -> sh : CandidatesAsync(null)
+sh --> ep : Team members but the caller (City Lead or System Admin only)
+ep --> dlg : 200 MemberCandidateDto[]
+actor -> dlg : Enter name, method (Scrum or Kanban), optional members
+dlg -> svc : createWorkspace({ name, method, memberIds })
+svc -> ep : POST /api/workspaces
+ep -> ep : Validate CreateWorkspaceCommand (CreateWorkspaceValidator)
+ep -> h : CreateAsync(command)
+alt caller holds City Lead or System Admin
+h -> pol : CallerProfileIdAsync()
+pol --> h : owner profile id
+h -> ent : new Workspace(name, method, owner) (L2-031 AC1)
+h -> mem : AddMembersAsync(workspace, owner, memberIds)
+mem -> ctx : Load profiles
+ctx -> db : SELECT
+db --> ctx : Rows
+alt every profile holds a lead or volunteer role and is not suspended
+mem -> ent : AddMember(profile, now) for each
+mem -> ntf : Notify(WorkspaceMemberAdded, /workspaces/{id}) for each
+mem --> h : added ids
+h -> ctx : Workspaces.Add; SaveChanges
+ctx -> db : INSERT workspace, members, notifications
 db --> ctx : Committed
+h -> ntf : SendEmailsAsync()
+ntf -> email : SendAsync per member (outbox)
+h -> h : GetAsync(workspace.Id)
 h --> ep : WorkspaceDto
 ep --> svc : 201 Created
 svc --> page : Workspace
 page --> actor : Open new workspace
+else a profile is not eligible
+mem --> h : null
+h --> ep : Invalid (MemberIds)
+ep --> dlg : 400 ValidationProblem
+dlg --> actor : Show field error
+end
 else any other role
 h --> ep : Forbidden
 ep --> svc : 403 ProblemDetails

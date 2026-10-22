@@ -21,7 +21,8 @@ export class PartnersPage {
     this.readOnly = page.locator('ft-alert', { hasText: 'Read-only for Staff' });
     this.empty = page.getByRole('heading', { name: 'Start your partner pipeline' });
     this.forbidden = page.getByRole('heading', { name: 'The partner pipeline is for leads' });
-    this.toast = page.locator('ft-toast');
+    // The newest toast: an earlier one may still be counting down beside it.
+    this.toast = page.locator('ft-toast').last();
     this.stageTabs = page.getByRole('tablist', { name: 'Partner pipeline columns' });
     this.announcement = page.locator('ft-kanban-board [aria-live="polite"]');
   }

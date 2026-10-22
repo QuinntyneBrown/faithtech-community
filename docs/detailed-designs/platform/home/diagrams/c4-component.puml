@@ -1,0 +1,26 @@
+@startuml
+!include <C4/C4_Component>
+LAYOUT_WITH_LEGEND()
+title Components — Home
+Container_Boundary(web, "Web app") {
+  Component(page, "HomePage", "Angular page (app)", "Greeting, Coming up, Partner pipeline, Recent activity")
+  Component(ev, "HttpEventsService", "Angular service", "EVENTS_SERVICE")
+  Component(pa, "HttpPartnersService", "Angular service", "PARTNERS_SERVICE")
+  Component(ac, "HttpActivityService", "Angular service", "ACTIVITY_SERVICE")
+}
+Container_Boundary(api, "Community API") {
+  Component(eep, "EventsEndpoints", "Minimal API", "GET /api/events?filter=Upcoming")
+  Component(pep, "PartnersEndpoints", "Minimal API", "GET /api/partners")
+  Component(aep, "ActivityEndpoints", "Minimal API", "GET /api/activity")
+  Component(h, "ListActivityHandler", "Application handler", "The caller's newest notifications")
+  ComponentDb(db, "CommunityDbContext", "PostgreSQL", "EF Core context over the Community database")
+}
+Rel(page, ev, "Calls")
+Rel(page, pa, "Calls (leads, Staff, System Admin)")
+Rel(page, ac, "Calls")
+Rel(ev, eep, "GET", "JSON/HTTPS")
+Rel(pa, pep, "GET", "JSON/HTTPS")
+Rel(ac, aep, "GET", "JSON/HTTPS")
+Rel(aep, h, "Sends query")
+Rel(h, db, "Queries", "EF Core")
+@enduml

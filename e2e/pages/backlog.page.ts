@@ -25,7 +25,8 @@ export class BacklogPage {
     this.newItem = page.getByRole('button', { name: 'New item' }).first();
     this.empty = page.getByRole('heading', { name: 'Nothing in the backlog' });
     this.loadError = page.getByRole('heading', { name: 'We couldn’t load the backlog' });
-    this.toast = page.locator('ft-toast');
+    // The newest toast: an earlier one may still be counting down beside it.
+    this.toast = page.locator('ft-toast').last();
     this.sprint = page.getByRole('region', { name: /^Sprint \d+ ·/ });
     this.startSprint = page.getByRole('button', { name: 'Start sprint' });
     this.treeView = page.getByRole('button', { name: 'Tree', exact: true });

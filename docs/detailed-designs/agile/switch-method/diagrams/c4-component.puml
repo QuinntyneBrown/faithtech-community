@@ -5,22 +5,28 @@ title Components — Switch method
 
 Container_Boundary(web, "Web app") {
   Component(page, "WorkspaceSettingsPage", "Angular page", "Method control")
-  Component(dlg, "SwitchMethodDialog", "CDK Dialog", "Confirms the switch")
-  Component(svc, "AgileService", "api library", "AGILE_SERVICE token")
+  Component(dlg, "SwitchMethodDialog", "CDK Dialog", "Scrum/Kanban choice; confirms the switch")
+  Component(svc, "AgileService", "api library", "AGILE_SERVICE token, HttpAgileService")
 }
 Container_Boundary(api, "Community API") {
-  Component(ep, "WorkspacesEndpoints", "Minimal API", "PUT /workspaces/{id}/method")
-  Component(h, "SwitchMethodHandler", "Application", "Applies the switch")
-  Component(pol, "WorkspaceAccessPolicy", "Application", "Owner check")
-  Component(ent, "Workspace", "Domain entity", "SwitchMethod rules")
+  Component(ep, "WorkspacesEndpoints", "Minimal API", "PUT /api/workspaces/{id}/method")
+  Component(val, "SwitchMethodValidator", "Application (FluentValidation)", "Scrum or Kanban; run by ValidationEndpointFilter")
+  Component(h, "WorkspaceSettingsHandler", "Application", "SwitchMethodAsync: owner only, 409 when unchanged")
+  Component(pol, "WorkspaceAccessPolicy", "Application", "Owner check; audits a System Admin override")
+  Component(ws, "Workspace", "Domain entity", "SwitchMethod rules")
+  Component(sp, "Sprint", "Domain entity", "Close records points")
+  Component(wi, "WorkItem", "Domain entity", "ReturnToBacklog clears SprintId")
   ComponentDb(db, "Community database", "PostgreSQL", "Agile tables")
 }
 
 Rel(page, dlg, "Opens")
 Rel(dlg, svc, "Calls")
 Rel(svc, ep, "Calls", "JSON/HTTPS")
-Rel(ep, h, "Dispatches")
+Rel(ep, val, "Validates body with")
+Rel(ep, h, "Calls")
 Rel(h, pol, "Checks owner")
-Rel(h, ent, "Calls SwitchMethod")
+Rel(h, ws, "Calls SwitchMethod")
+Rel(ws, sp, "Closes non-closed sprints (to Kanban)")
+Rel(ws, wi, "Returns unfinished stories to the backlog (to Scrum)")
 Rel(h, db, "Persists", "EF Core")
 @enduml

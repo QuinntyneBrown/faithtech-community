@@ -43,7 +43,7 @@
 <fieldset class="stack"><legend class="field__label">Format</legend>
 <label class="choice"><input type="radio" name="fmt" checked><span class="choice__text">In person</span></label>
 <label class="choice"><input type="radio" name="fmt"><span class="choice__text">Online<small>We’ll show the joining link to people who RSVP</small></span></label></fieldset>
-<div class="field"><label class="field__label" for="ef-city">City</label><select class="select" id="ef-city" name="ef-city"><option selected>Toronto</option><option>Austin</option><option>Vancouver</option></select></div>
+<div class="field"><label class="field__label" for="ef-city">City</label><input class="input" id="ef-city" name="ef-city" type="text" value="Toronto" autocomplete="address-level2" required></div>
 <div class="field"><label class="field__label" for="ef-venue">Venue address</label><input class="input" id="ef-venue" name="ef-venue" type="text" required aria-invalid="true" aria-describedby="ef-venue-error"><div class="field__error" id="ef-venue-error">Enter a venue address, or choose Online.</div></div>
 </section>
 <section class="card stack" aria-labelledby="v"><h2 class="card__title" id="v">Who can see and RSVP</h2>

@@ -52,7 +52,7 @@ describe('authInterceptor', () => {
 
   it.each([
     '/api/public/events/1',
-    '/api/invites/by-token?token=x',
+    '/api/invites/lookup',
     '/api/announcements/unsubscribe',
     '/api/account/sign-in',
     '/api/account/sign-up',

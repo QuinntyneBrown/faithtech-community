@@ -17,6 +17,7 @@ export class WorkspaceSettingsPage {
   readonly method: Locator;
   readonly archivedItems: Locator;
   readonly archiveWorkspace: Locator;
+  readonly ownerOnlyText: Locator;
   readonly needsOwner: Locator;
   readonly reassignOwner: Locator;
 
@@ -30,7 +31,12 @@ export class WorkspaceSettingsPage {
     this.membersHeading = page.getByRole('heading', { name: /^Members/ });
     this.addMembers = page.getByRole('button', { name: 'Add members' });
     this.ownerOnly = page.getByRole('heading', { name: 'Only the owner changes settings' });
-    this.toast = page.locator('ft-toast');
+    this.ownerOnlyText = page
+      .locator('ft-empty-state')
+      .filter({ has: this.ownerOnly })
+      .locator('p');
+    // The newest toast: an earlier one may still be counting down beside it.
+    this.toast = page.locator('ft-toast').last();
     this.method = page.locator('ft-description-list-item').filter({ hasText: 'Method' });
     this.archivedItems = page.getByRole('list', { name: 'Archived items' }).getByRole('listitem');
     this.archiveWorkspace = page.getByRole('button', { name: 'Archive workspace' });

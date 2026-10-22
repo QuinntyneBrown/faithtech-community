@@ -144,7 +144,8 @@ public class TeamListTests(CommunityApiFactory factory) : IClassFixture<Communit
             return member;
         }
 
-        public string Url(string query = "") => "/api/team" + query;
+        // Tests share one database, so ask for the largest page to see every member they added.
+        public string Url(string query = "") => "/api/team" + (query.Length == 0 ? "?pageSize=100" : query + "&pageSize=100");
 
         public bool Owns(TeamMemberResponse member) => _ids.Contains(member.ProfileId);
 

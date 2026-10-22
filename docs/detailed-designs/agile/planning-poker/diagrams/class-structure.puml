@@ -12,33 +12,41 @@ skinparam class {
 title Class structure — Planning Poker
 
 enum DeckValue {
-  One
-  Two
-  Three
-  Five
-  Eight
-  Thirteen
-  TwentyOne
-  Unknown
+  One = 1
+  Two = 2
+  Three = 3
+  Five = 5
+  Eight = 8
+  Thirteen = 13
+  TwentyOne = 21
+  Unknown = 0
 }
 class PokerSession {
   +Guid Id
   +Guid WorkspaceId
   +List<Guid> StoryIds
+  +int CurrentStoryIndex
   +Guid? CurrentStoryId
   +Guid FacilitatorId
+  +List<Guid> InvitedIds
   +int Round
   +bool IsRevealed
+  +bool IsClosed
   +bool IsComplete
-  +List<Guid> InvitedIds
+  +Guid? LastStoryId
+  +int? LastPoints
   +PokerSession(workspace: Workspace, stories: IReadOnlyList<WorkItem>, facilitatorId: Guid, invitedIds: IEnumerable<Guid>)
+  +IsParticipant(profileId: Guid): bool
   +CurrentVoteOf(profileId: Guid): DeckValue?
   +CastVote(profileId: Guid, value: DeckValue): void
+  +WithdrawVote(profileId: Guid): void
   +Reveal(by: Guid): void
   +Revote(by: Guid): void
   +SetFinalPoints(by: Guid, points: int, story: WorkItem): void
+  +End(by: Guid): void
 }
 class PokerVote {
+  +Guid SessionId
   +Guid ProfileId
   +int Round
   +DeckValue Value
@@ -46,33 +54,54 @@ class PokerVote {
 class WorkItem {
   +int? StoryPoints
 }
-class PlanningPokerHub {
-  +Join(sessionId: Guid): Task
-  +Vote(sessionId: Guid, value: DeckValue): Task
-  +Reveal(sessionId: Guid): Task
-  +Revote(sessionId: Guid): Task
-  +SetPoints(sessionId: Guid, points: int): Task
+class PokerDeck <<static>> {
+  +int[] Points
+  +TryParse(value: string, out card: DeckValue): bool
+  +Text(card: DeckValue): string
+}
+class PlanningPokerHandler {
+  +StartAsync(workspaceId: Guid, command: StartPokerCommand): Task<(Result, PokerSessionDto?)>
+  +CurrentAsync(workspaceId: Guid): Task<(Result, PokerSessionDto?)>
+  +GetAsync(sessionId: Guid): Task<PokerSessionDto?>
+  +VoteAsync(sessionId: Guid, command: CastVoteCommand): Task<Result>
+  +RevealAsync(sessionId: Guid): Task<Result>
+  +RevoteAsync(sessionId: Guid): Task<Result>
+  +SetPointsAsync(sessionId: Guid, command: SetPointsCommand): Task<Result>
+  +EndAsync(sessionId: Guid): Task<Result>
+}
+class WorkspaceAccessPolicy {
+  +LoadAsync(workspaceId: Guid): Task<(Workspace?, WorkspaceCaller)>
+  +AuthorizeAsync(workspaceId: Guid, manage: bool): Task<(Workspace, WorkspaceCaller, Result?)>
+  +AuditOverride(caller: WorkspaceCaller, action: string, ...): void
+}
+class AgileNotifier {
+  +Notify(actor: Guid, recipient: Guid, kind: NotificationKind, title: string, linkPath: string, subject: string, body: string): void
+  +SendEmailsAsync(): Task
 }
 interface IPokerBroadcaster {
-  +VoteCastAsync(sessionId: Guid, profileId: Guid): Task
-  +VotesRevealedAsync(sessionId: Guid, votes: IReadOnlyList<PokerVote>): Task
-  +RevoteStartedAsync(sessionId: Guid): Task
-  +PointsSetAsync(sessionId: Guid, points: int): Task
+  +PokerChangedAsync(sessionId: Guid): Task
 }
-class SignalRPokerBroadcaster
-class CastVoteHandler
-class RevealVotesHandler
-class SetFinalPointsHandler
+class SignalRAgileNotifier {
+  +PokerChangedAsync(sessionId: Guid): Task
+  +CardMovedAsync(workspaceId: Guid, itemId: Guid, status: string): Task
+}
+class AgileHub {
+  +WatchBoard(workspaceId: Guid): Task
+  +WatchPokerSession(sessionId: Guid): Task
+  {static} +PokerGroup(sessionId: Guid): string
+}
+class WorkItemsEndpoints <<static>>
 PokerSession "1" *-- "*" PokerVote
 PokerVote --> DeckValue
 PokerSession ..> WorkItem : sets StoryPoints
-PlanningPokerHub ..> CastVoteHandler
-PlanningPokerHub ..> RevealVotesHandler
-PlanningPokerHub ..> SetFinalPointsHandler
-CastVoteHandler --> PokerSession
-RevealVotesHandler --> PokerSession
-SetFinalPointsHandler --> PokerSession
-CastVoteHandler ..> IPokerBroadcaster
-RevealVotesHandler ..> IPokerBroadcaster
-SignalRPokerBroadcaster ..|> IPokerBroadcaster
+PokerDeck ..> DeckValue
+WorkItemsEndpoints ..> PlanningPokerHandler : dispatches
+PlanningPokerHandler --> PokerSession
+PlanningPokerHandler ..> PokerDeck
+PlanningPokerHandler --> WorkspaceAccessPolicy
+PlanningPokerHandler --> AgileNotifier
+PlanningPokerHandler --> IPokerBroadcaster
+SignalRAgileNotifier ..|> IPokerBroadcaster
+SignalRAgileNotifier ..> AgileHub : IHubContext<AgileHub>
+AgileHub --> WorkspaceAccessPolicy
 @enduml

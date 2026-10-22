@@ -1,5 +1,6 @@
 using System.Net;
 using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace FaithTech.Community.Api.Tests.Platform;
@@ -59,9 +60,27 @@ public class WebProtectionTests(CommunityApiFactory factory) : IClassFixture<Com
         Assert.Equal(HttpStatusCode.OK, (await client.SendAsync(MeRequest(Guid.NewGuid().ToString()))).StatusCode);
     }
 
-    private HttpClient AuthenticatedClient() => factory.WithWebHostBuilder(b => b.ConfigureServices(s => s
-        .AddAuthentication(TestAuthHandler.SchemeName)
-        .AddScheme<AuthenticationSchemeOptions, TestAuthHandler>(TestAuthHandler.SchemeName, null))).CreateClient();
+    [Fact]
+    public async Task An_isolated_performance_environment_can_raise_the_per_user_limit_explicitly()
+    {
+        var client = AuthenticatedClient(b => b.UseSetting("RateLimits:PerMinute", "150"));
+        var heavyUser = Guid.NewGuid().ToString();
+
+        for (var i = 0; i < 150; i++)
+        {
+            Assert.Equal(HttpStatusCode.OK, (await client.SendAsync(MeRequest(heavyUser))).StatusCode);
+        }
+
+        Assert.Equal(HttpStatusCode.TooManyRequests, (await client.SendAsync(MeRequest(heavyUser))).StatusCode);
+    }
+
+    private HttpClient AuthenticatedClient(Action<IWebHostBuilder>? configure = null) => factory.WithWebHostBuilder(b =>
+    {
+        configure?.Invoke(b);
+        b.ConfigureServices(s => s
+            .AddAuthentication(TestAuthHandler.SchemeName)
+            .AddScheme<AuthenticationSchemeOptions, TestAuthHandler>(TestAuthHandler.SchemeName, null));
+    }).CreateClient();
 
     private static HttpRequestMessage MeRequest(string userId)
     {

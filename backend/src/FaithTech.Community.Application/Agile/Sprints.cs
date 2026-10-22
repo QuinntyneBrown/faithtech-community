@@ -21,7 +21,10 @@ public record SprintDto(
 /// <summary>A story the next sprint can take: from the backlog, or unfinished in the active sprint.</summary>
 public record SprintCandidateDto(Guid Id, string Title, int? StoryPoints, string Status, string? ReturnedFrom);
 
-/// <summary>The sprints of a Scrum workspace (L2-035): the active one, the closed history newest first and its average.</summary>
+/// <summary>
+/// The sprints of a Scrum workspace (L2-035): the active one, the closed history newest first, and the average
+/// completed points of the last three closed sprints, which guides the next one.
+/// </summary>
 public record SprintsDto(
     SprintDto? Active,
     IReadOnlyList<SprintDto> History,
@@ -62,6 +65,9 @@ public class AddStoriesToSprintValidator : AbstractValidator<AddStoriesToSprintC
 /// <summary>Starts, plans and closes sprints in a Scrum workspace (L2-035). Only the owner starts and closes them.</summary>
 public class SprintsHandler(IApplicationDbContext db, WorkspaceAccessPolicy policy)
 {
+    /// <summary>How many closed sprints the "recent average" looks back over.</summary>
+    public const int RecentSprints = 3;
+
     public async Task<SprintsDto?> GetAsync(Guid workspaceId, CancellationToken cancellationToken = default)
     {
         var (workspace, caller) = await policy.LoadAsync(workspaceId, cancellationToken);
@@ -92,7 +98,7 @@ public class SprintsHandler(IApplicationDbContext db, WorkspaceAccessPolicy poli
         return new SprintsDto(
             active is null ? null : Dto(active),
             [.. history.Select(Dto)],
-            history.Count == 0 ? null : (int)Math.Round(history.Average(s => s.CompletedPoints ?? 0)),
+            history.Count == 0 ? null : (int)Math.Round(history.Take(RecentSprints).Average(s => s.CompletedPoints ?? 0), MidpointRounding.AwayFromZero),
             candidates);
     }
 
@@ -113,8 +119,12 @@ public class SprintsHandler(IApplicationDbContext db, WorkspaceAccessPolicy poli
             return (Result.Conflict("Sprints run only in a Scrum workspace."), null);
         }
 
-        var stories = await db.WorkItems.Where(i => i.WorkspaceId == workspaceId && i.Kind == WorkItemKind.Story).ToListAsync(cancellationToken);
-        var chosen = stories.Where(s => command.StoryIds!.Contains(s.Id)).ToList();
+        // Archived stories still count toward the sprint they were in when it closes, as a direct close counts them;
+        // only live stories can be chosen for the new sprint.
+        var stories = await db.WorkItems.IgnoreQueryFilters()
+            .Where(i => i.WorkspaceId == workspaceId && i.Kind == WorkItemKind.Story)
+            .ToListAsync(cancellationToken);
+        var chosen = stories.Where(s => !s.IsArchived && command.StoryIds!.Contains(s.Id)).ToList();
         if (chosen.Count != command.StoryIds!.Distinct().Count())
         {
             return (Result.Invalid("StoryIds", "Choose stories from this workspace."), null);

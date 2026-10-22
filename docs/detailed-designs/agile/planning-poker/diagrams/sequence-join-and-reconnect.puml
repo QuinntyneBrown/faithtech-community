@@ -17,47 +17,60 @@ skinparam package {
 actor "Signed-in user" as actor
 box "Frontend — FaithTech Community web app (agile library)" #E0F2FE
   participant "PlanningPokerPage" as page
-  participant "PlanningPokerService" as live
+  participant "AgileService (AGILE_SERVICE)" as svc
+  participant "SignalRAgileLiveService (AGILE_LIVE_SERVICE)" as live
 end box
 box "Backend — FaithTech.Community.Api" #D1FADF
-  participant "PlanningPokerHub" as hub
+  participant "WorkItemsEndpoints" as ep
+  participant "AgileHub" as hub
 end box
 box "Backend — FaithTech.Community.Application and Domain" #ECFDF3
-  participant "JoinPokerSessionHandler" as h
+  participant "PlanningPokerHandler" as h
   participant "WorkspaceAccessPolicy" as pol
 end box
 box "Backend — FaithTech.Community.Infrastructure" #FFF4E5
   participant "CommunityDbContext" as ctx
   database "Community database" as db
 end box
-actor -> page : Open session
-page -> live : connect and join(sessionId)
-live -> hub : Join
-hub -> h : JoinPokerSessionCommand
-h -> pol : Resolve(workspaceId)
+actor -> page : Open /workspaces/{id}/poker
+page -> svc : getCurrentPokerSession(workspaceId)
+svc -> ep : GET /api/workspaces/{id}/poker-sessions/current
+ep -> h : CurrentAsync(workspaceId)
+h -> pol : LoadAsync(workspaceId)
 alt outsider
 pol --> h : Outsider
-h --> hub : Refused (L2-038 AC7)
-hub --> live : Error
-live --> page : Show refusal
-else Staff
-pol --> h : StaffReader
-h --> hub : Join as watcher, voting disabled (L2-038 AC7)
-else member
-pol --> h : Member
-h -> ctx : Load session state and caller's vote in current round
+h --> ep : 404 Not Found (L2-038 AC7)
+ep --> svc : ProblemDetails
+svc --> page : Not found
+else Staff, member or System Admin
+pol --> h : Caller
+h -> ctx : Open session, votes, names
 ctx -> db : SELECT
-db --> ctx : State
-h --> hub : SessionState with caller's own vote
-hub -> hub : Add connection to session group
-hub --> live : SessionState
-live --> page : Render deck and voted markers
+db --> ctx : Rows
+h --> ep : PokerSessionDto with CanVote (false for Staff and non-participants) and MyVote (L2-038 AC7)
+ep --> svc : 200 OK, or 204 when none is running
+svc --> page : Session
+page -> live : watchPokerSession(sessionId)
+live -> hub : WatchPokerSession(sessionId)
+hub -> pol : LoadAsync(workspaceId of the session)
+alt caller may read the workspace
+pol --> hub : Caller
+hub -> hub : Add connection to group poker:{sessionId}
+hub --> live : Joined
+else outsider
+hub --> live : HubException "You're not a member of this workspace." (L2-038 AC7)
+end
+page --> actor : Deck (disabled for watchers) and voted markers
 end
 == Connection lost ==
-live -> live : Automatic reconnect
-live -> hub : Join again
-hub -> h : JoinPokerSessionCommand
-h --> hub : SessionState with current vote intact (L2-038 AC8)
-hub --> live : SessionState
-live --> page : Restore selection
+live -> live : Automatic reconnect (@microsoft/signalr)
+live -> hub : WatchPokerSession(sessionId) again (the server forgot the group)
+hub --> live : Joined
+live --> page : Emit (resync)
+page -> svc : getCurrentPokerSession(workspaceId)
+svc -> ep : GET /api/workspaces/{id}/poker-sessions/current
+ep -> h : CurrentAsync(workspaceId)
+h --> ep : PokerSessionDto with the caller's own vote intact (L2-038 AC8)
+ep --> svc : 200 OK
+svc --> page : Restore selection
 @enduml

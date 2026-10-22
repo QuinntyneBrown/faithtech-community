@@ -23,25 +23,32 @@ box "Backend — FaithTech.Community.Api" #D1FADF
   participant "WorkItemsEndpoints" as ep
 end box
 box "Backend — FaithTech.Community.Application and Domain" #ECFDF3
-  participant "GetBacklogHandler" as h
+  participant "WorkItemsHandler" as h
   participant "WorkspaceAccessPolicy" as pol
 end box
 box "Backend — FaithTech.Community.Infrastructure" #FFF4E5
   participant "CommunityDbContext" as ctx
   database "Community database" as db
 end box
-actor -> page : Open backlog, optionally pick initiative or epic filter
-page -> svc : getBacklog(workspaceId, filter)
-svc -> ep : GET /workspaces/{id}/backlog?initiative=&epic=
-ep -> h : Send GetBacklogQuery
-h -> pol : EnsureCanRead(workspaceId)
-pol --> h : Allowed
-h -> ctx : Query non-archived initiatives, epics, stories
-ctx -> db : SELECT
+actor -> page : Open backlog, optionally pick an initiative, an epic or "no epic"
+page -> svc : getBacklog(workspaceId, filter: BacklogFilter)
+svc -> ep : GET /api/workspaces/{id}/backlog?initiativeId=&epicId=&noEpic=
+ep -> h : BacklogAsync(workspaceId, initiativeId, epicId, noEpic)
+h -> pol : LoadAsync(workspaceId)
+pol --> h : Workspace and caller
+alt workspace missing or caller cannot read
+h --> ep : null
+ep --> svc : 404 Not Found
+else caller can read
+h -> ctx : Load the workspace's live items (archived ones filtered out)
+ctx -> db : SELECT work items, assignee names
 db --> ctx : Rows
-h -> h : Build tree and apply filter (L2-032 AC4)
-h --> ep : BacklogTreeDto
+h -> h : Group children under parents; roots = items without a visible parent
+h -> h : Apply filter: one initiative's or epic's subtree, or stories with no epic (L2-032 AC4)
+h -> h : Order each level by kind then title; drop tasks from the roots
+h --> ep : IReadOnlyList<BacklogNodeDto> (stories keep their SprintId)
 ep --> svc : 200 OK
 svc --> page : Tree
 page --> actor : Render expandable tree
+end
 @enduml

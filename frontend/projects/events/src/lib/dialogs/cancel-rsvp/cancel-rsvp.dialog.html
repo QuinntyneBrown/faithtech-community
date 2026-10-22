@@ -1,6 +1,18 @@
-<!--
-  SCAFFOLD: placeholder, not the implementation.
-  Generated from AGENTS.md and:
-    - docs/detailed-designs/events/rsvp
-  Overwrite this template with the expected implementation, then delete this comment.
--->
+<ft-dialog
+  heading="Cancel your RSVP?"
+  [description]="description()"
+  [busy]="busy()"
+  (closed)="ref.close(false)"
+>
+  @if (failed()) {
+    <ft-alert status="danger" heading="RSVP not cancelled">
+      We couldn’t reach FaithTech. Nothing was changed — try again.
+    </ft-alert>
+  }
+  <ft-button ftDialogFooter initialFocus [disabled]="busy()" (click)="ref.close(false)"
+    >Keep my RSVP</ft-button
+  >
+  <ft-button ftDialogFooter variant="danger" [loading]="busy()" (click)="confirm()">
+    {{ busy() ? 'Cancelling your RSVP…' : 'Cancel my RSVP' }}
+  </ft-button>
+</ft-dialog>

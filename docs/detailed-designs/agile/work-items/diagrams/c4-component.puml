@@ -5,16 +5,17 @@ title Components — Work items
 
 Container_Boundary(web, "Web app") {
   Component(page, "BacklogPage / WorkItemPage", "Angular page", "Tree, filters and item detail")
-  Component(dlg, "NewWorkItemDialog", "CDK Dialog", "Creates an item")
-  Component(svc, "AgileService", "api library", "AGILE_SERVICE token")
+  Component(dlg, "WorkItemDialog", "CDK Dialog", "Creates or edits an item")
+  Component(svc, "AgileService", "api library", "AGILE_SERVICE token, HttpAgileService")
 }
 Container_Boundary(api, "Community API") {
-  Component(ep, "WorkItemsEndpoints", "Minimal API", "Maps item and comment routes")
-  Component(h, "Work item handlers", "Application", "Create, update, comment, backlog query")
-  Component(val, "WorkItemValidator", "Application", "Title, hierarchy and assignee rules")
-  Component(pol, "WorkspaceAccessPolicy", "Application", "Membership check")
+  Component(ep, "WorkItemsEndpoints", "Minimal API", "Item, backlog and comment routes")
+  Component(val, "CreateWorkItemValidator / UpdateWorkItemValidator", "Application (FluentValidation)", "Kind, title, description, points, status; run by ValidationEndpointFilter")
+  Component(h, "WorkItemsHandler", "Application", "Create, get, update, set done, comment, backlog")
+  Component(pol, "WorkspaceAccessPolicy", "Application", "Owner, member, Staff, System Admin, outsider")
+  Component(ntf, "AgileNotifier", "Application", "In-app notification and email to the assignee")
   Component(ent, "WorkItem", "Domain entity", "Hierarchy and fields")
-  Component(ntf, "INotificationService", "Infrastructure", "In-app and email")
+  Component(mail, "IEmailSender", "Infrastructure (OutboxEmailSender)", "Queues the email")
   ComponentDb(db, "Community database", "PostgreSQL", "Agile tables")
 }
 
@@ -22,10 +23,11 @@ Rel(page, dlg, "Opens")
 Rel(page, svc, "Calls")
 Rel(dlg, svc, "Calls")
 Rel(svc, ep, "Calls", "JSON/HTTPS")
-Rel(ep, h, "Dispatches")
-Rel(h, val, "Validates with")
+Rel(ep, val, "Validates body with")
+Rel(ep, h, "Calls")
 Rel(h, pol, "Checks access")
 Rel(h, ent, "Creates and mutates")
 Rel(h, ntf, "Notifies assignee")
+Rel(ntf, mail, "Sends email via")
 Rel(h, db, "Persists", "EF Core")
 @enduml

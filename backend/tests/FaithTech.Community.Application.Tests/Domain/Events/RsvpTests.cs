@@ -126,4 +126,24 @@ public class RsvpTests
     {
         Assert.Throws<InvalidOperationException>(() => NewEvent().CancelGuestRsvp(Guid.NewGuid()));
     }
+
+    [Fact]
+    public void A_guest_rsvp_holds_the_hash_of_its_latest_cancel_link()
+    {
+        var gathering = NewEvent();
+        var rsvp = gathering.GuestRsvp("Grace", "grace@example.org", Before);
+
+        rsvp.IssueCancelToken("first-hash");
+        rsvp.IssueCancelToken("second-hash");
+
+        Assert.Equal("second-hash", rsvp.CancelTokenHash);
+    }
+
+    [Fact]
+    public void A_member_rsvp_has_no_cancel_link()
+    {
+        var rsvp = NewEvent().Rsvp(Guid.NewGuid(), Before);
+
+        Assert.Throws<InvalidOperationException>(() => rsvp.IssueCancelToken("hash"));
+    }
 }

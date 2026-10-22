@@ -1,3 +1,4 @@
+using System.Text.Json;
 using FaithTech.Community.Application.Common;
 using FaithTech.Community.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
@@ -36,6 +37,9 @@ public class OutboxMessage
     public DateTimeOffset? FailedAt { get; set; }
 
     public string? LastError { get; set; }
+
+    /// <summary>The message's attachments as JSON, such as an RSVP's .ics; null when there are none.</summary>
+    public string? AttachmentsJson { get; set; }
 }
 
 /// <summary>Queues email so the action that triggered it commits even when the provider is down.</summary>
@@ -49,6 +53,7 @@ public class OutboxEmailSender(CommunityDbContext db, TimeProvider time) : IEmai
             To = message.To,
             Subject = message.Subject,
             Body = message.Body,
+            AttachmentsJson = message.Attachments is { Count: > 0 } attachments ? JsonSerializer.Serialize(attachments) : null,
             CreatedAt = now,
             NextAttemptAt = now,
         });
@@ -78,7 +83,8 @@ public class EmailOutboxDispatcher(
         {
             try
             {
-                await transport.SendAsync(new EmailMessage(message.To, message.Subject, message.Body), cancellationToken);
+                var attachments = message.AttachmentsJson is { } json ? JsonSerializer.Deserialize<List<EmailAttachment>>(json) : null;
+                await transport.SendAsync(new EmailMessage(message.To, message.Subject, message.Body, attachments), cancellationToken);
                 message.SentAt = time.GetUtcNow();
             }
             catch (Exception exception) when (exception is not OperationCanceledException)

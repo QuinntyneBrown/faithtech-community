@@ -1,15 +1,3 @@
-/*
- * EARLY IMPLEMENTATION: written ahead of the vertical slices to get a head start.
- * Contracts and DTOs follow docs/detailed-designs/ but may change as each feature is
- * implemented end to end (spec -> design -> mock -> ATDD slice).
- * Sources:
- *   - docs/detailed-designs/events/event-list-and-filter
- *   - docs/detailed-designs/events/create-and-edit-events
- *   - docs/detailed-designs/events/rsvp
- *   - docs/detailed-designs/events/cancel-events
- *   - docs/detailed-designs/events/public-events-and-guest-rsvp
- *   - docs/detailed-designs/events/calendar-export
- */
 import { HttpTestingController } from '@angular/common/http/testing';
 import { TestBed } from '@angular/core/testing';
 import { Observable } from 'rxjs';
@@ -21,13 +9,14 @@ import { HttpEventsService } from './http-events.service';
 const event: EventRequest = {
   title: 'Builders night',
   description: 'Hack',
-  type: 'Standard',
+  type: 'BuildersNight',
   startsAt: '2026-11-01T18:00:00Z',
   endsAt: '2026-11-01T20:00:00Z',
   city: 'Toronto',
   format: 'InPerson',
   venue: 'HQ',
   onlineLink: null,
+  capacity: 60,
   visibility: 'MembersOnly',
 };
 
@@ -52,6 +41,13 @@ describe('HttpEventsService', () => {
       '/api/events?city=Toronto',
       undefined,
     ],
+    [
+      'listEvents by filter and city',
+      () => service.listEvents({ filter: 'Past', city: 'Austin' }),
+      'GET',
+      '/api/events?filter=Past&city=Austin',
+      undefined,
+    ],
     ['getEvent', () => service.getEvent('e1'), 'GET', '/api/events/e1', undefined],
     ['createEvent', () => service.createEvent(event), 'POST', '/api/events', event],
     ['updateEvent', () => service.updateEvent('e1', event), 'PUT', '/api/events/e1', event],
@@ -65,6 +61,14 @@ describe('HttpEventsService', () => {
     ['rsvp', () => service.rsvp('e1'), 'POST', '/api/events/e1/rsvps', undefined],
     ['cancelRsvp', () => service.cancelRsvp('e1'), 'DELETE', '/api/events/e1/rsvps/me', undefined],
     [
+      'downloadCalendar',
+      () => service.downloadCalendar('e1'),
+      'GET',
+      '/api/events/e1/calendar.ics',
+      undefined,
+    ],
+    ['exportRsvps', () => service.exportRsvps('e1'), 'GET', '/api/events/e1/rsvps.csv', undefined],
+    [
       'getPublicEvent',
       () => service.getPublicEvent('e1'),
       'GET',
@@ -77,6 +81,13 @@ describe('HttpEventsService', () => {
       'POST',
       '/api/public/events/e1/rsvps',
       { name: 'Guest', email: 'g@h.io' },
+    ],
+    [
+      'cancelGuestRsvp',
+      () => service.cancelGuestRsvp('e1', 'secret'),
+      'POST',
+      '/api/public/events/e1/rsvps/cancel',
+      { token: 'secret' },
     ],
   ])('%s', (_name, call, method, url, body) => {
     (call() as Observable<unknown>).subscribe();

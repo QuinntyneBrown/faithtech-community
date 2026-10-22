@@ -19,3 +19,18 @@ ft-page-header {
 .city {
   inline-size: 12rem;
 }
+
+.more {
+  margin-block-start: var(--space-3);
+}
+
+.count {
+  margin: 0;
+  color: var(--color-fg-muted);
+  font: var(--text-caption);
+}
+
+ft-alert {
+  display: block;
+  margin-block-start: var(--space-3);
+}

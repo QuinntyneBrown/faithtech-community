@@ -445,6 +445,125 @@ namespace FaithTech.Community.Infrastructure.Persistence.Migrations
                     b.ToTable("ContactNotes");
                 });
 
+            modelBuilder.Entity("FaithTech.Community.Domain.Events.Event", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("CancellationReason")
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)");
+
+                    b.Property<DateTimeOffset?>("CancelledAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid?>("CancelledById")
+                        .HasColumnType("uuid");
+
+                    b.Property<int?>("Capacity")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("City")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<Guid>("CreatedById")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasMaxLength(4000)
+                        .HasColumnType("character varying(4000)");
+
+                    b.Property<DateTimeOffset>("EndsAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Format")
+                        .IsRequired()
+                        .HasMaxLength(16)
+                        .HasColumnType("character varying(16)");
+
+                    b.Property<bool>("IsCancelled")
+                        .HasColumnType("boolean");
+
+                    b.Property<string>("OnlineLink")
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)");
+
+                    b.Property<int>("Sequence")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTimeOffset>("StartsAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
+
+                    b.Property<string>("Type")
+                        .IsRequired()
+                        .HasMaxLength(32)
+                        .HasColumnType("character varying(32)");
+
+                    b.Property<string>("Venue")
+                        .HasMaxLength(300)
+                        .HasColumnType("character varying(300)");
+
+                    b.Property<string>("Visibility")
+                        .IsRequired()
+                        .HasMaxLength(16)
+                        .HasColumnType("character varying(16)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("StartsAt");
+
+                    b.ToTable("Events");
+                });
+
+            modelBuilder.Entity("FaithTech.Community.Domain.Events.Rsvp", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("CancelTokenHash")
+                        .HasMaxLength(64)
+                        .HasColumnType("character varying(64)");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid>("EventId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("GuestEmail")
+                        .HasMaxLength(256)
+                        .HasColumnType("character varying(256)");
+
+                    b.Property<string>("GuestName")
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
+
+                    b.Property<Guid?>("ProfileId")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CancelTokenHash")
+                        .IsUnique()
+                        .HasFilter("\"CancelTokenHash\" IS NOT NULL");
+
+                    b.HasIndex("EventId", "GuestEmail");
+
+                    b.HasIndex("EventId", "ProfileId")
+                        .IsUnique()
+                        .HasFilter("\"ProfileId\" IS NOT NULL");
+
+                    b.ToTable("Rsvps", (string)null);
+                });
+
             modelBuilder.Entity("FaithTech.Community.Domain.Invites.Invite", b =>
                 {
                     b.Property<Guid>("Id")
@@ -706,6 +825,9 @@ namespace FaithTech.Community.Infrastructure.Persistence.Migrations
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
+
+                    b.Property<string>("AttachmentsJson")
+                        .HasColumnType("text");
 
                     b.Property<int>("Attempts")
                         .HasColumnType("integer");
@@ -1289,6 +1411,15 @@ namespace FaithTech.Community.Infrastructure.Persistence.Migrations
                         .IsRequired();
                 });
 
+            modelBuilder.Entity("FaithTech.Community.Domain.Events.Rsvp", b =>
+                {
+                    b.HasOne("FaithTech.Community.Domain.Events.Event", null)
+                        .WithMany("Rsvps")
+                        .HasForeignKey("EventId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
             modelBuilder.Entity("FaithTech.Community.Domain.Partners.PartnerStageChange", b =>
                 {
                     b.HasOne("FaithTech.Community.Domain.Partners.Partner", null)
@@ -1469,6 +1600,11 @@ namespace FaithTech.Community.Infrastructure.Persistence.Migrations
             modelBuilder.Entity("FaithTech.Community.Domain.Contacts.Contact", b =>
                 {
                     b.Navigation("Notes");
+                });
+
+            modelBuilder.Entity("FaithTech.Community.Domain.Events.Event", b =>
+                {
+                    b.Navigation("Rsvps");
                 });
 
             modelBuilder.Entity("FaithTech.Community.Domain.Partners.Partner", b =>

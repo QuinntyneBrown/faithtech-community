@@ -32,6 +32,24 @@ public class ReassignOwnerTests(CommunityApiFactory factory) : IClassFixture<Com
     }
 
     [Fact]
+    public async Task Given_an_archived_workspace_whose_owner_lost_city_lead_then_it_is_not_flagged_until_it_is_restored()
+    {
+        var cast = await factory.AddCastAsync();
+        await factory.OwnerClient(cast).PostAsync($"/api/workspaces/{cast.WorkspaceId}/archive", null);
+
+        await factory.AdminClient(cast).DeleteAsync($"/api/profiles/{cast.Owner.ProfileId}/roles/CityLead");
+
+        var archived = (await factory.AdminClient(cast).GetFromJsonAsync<WorkspacesTests.Summary[]>("/api/workspaces"))!.Single(w => w.Id == cast.WorkspaceId);
+        Assert.Equal((true, false), (archived.IsArchived, archived.NeedsNewOwner));
+        Assert.False(await factory.WithDbAsync(db => db.Notifications.AnyAsync(n => n.Kind == NotificationKind.WorkspaceOwnerLostCityLead && n.LinkPath.Contains(cast.WorkspaceId.ToString()))));
+
+        await factory.AdminClient(cast).PostAsync($"/api/workspaces/{cast.WorkspaceId}/restore", null);
+
+        var restored = (await factory.AdminClient(cast).GetFromJsonAsync<WorkspacesTests.Summary[]>("/api/workspaces"))!.Single(w => w.Id == cast.WorkspaceId);
+        Assert.Equal((false, true), (restored.IsArchived, restored.NeedsNewOwner));
+    }
+
+    [Fact]
     public async Task Given_a_workspace_needing_an_owner_when_a_system_admin_reassigns_it_to_a_city_lead_then_the_former_owner_stays_a_member_and_it_is_audited()
     {
         var cast = await factory.AddCastAsync();

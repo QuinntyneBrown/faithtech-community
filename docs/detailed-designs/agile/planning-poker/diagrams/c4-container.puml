@@ -14,8 +14,8 @@ System_Ext(email, "Email provider", "SMTP/SendGrid")
 
 Rel(member, web, "Uses", "HTTPS")
 Rel(staff, web, "Uses", "HTTPS")
-Rel(web, api, "Calls", "JSON/HTTPS")
-Rel(api, web, "Pushes live updates to", "SignalR")
+Rel(web, api, "Starts, votes, reveals, re-votes, sets points, ends; re-reads the session", "JSON/HTTPS")
+Rel(api, web, "Pushes PokerChanged to", "SignalR (AgileHub, ADR 0012)")
 Rel(api, db, "Reads and writes", "EF Core")
 Rel(api, email, "Sends email via", "SMTP")
 @enduml

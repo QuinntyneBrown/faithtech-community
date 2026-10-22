@@ -5,6 +5,7 @@ skinparam shadowing false
 skinparam roundcorner 12
 skinparam defaultFontName Arial
 skinparam ArrowColor #344054
+skinparam maxMessageSize 240
 skinparam rectangle {
   BorderColor #344054
   FontColor #101828
@@ -21,40 +22,72 @@ box "Frontend — FaithTech Community web app (agile library)" #E0F2FE
   participant "AgileService (AGILE_SERVICE)" as svc
 end box
 box "Backend — FaithTech.Community.Api" #D1FADF
-  participant "SprintsEndpoints" as ep
+  participant "WorkspacesEndpoints" as ep
+  participant "ValidationEndpointFilter\n<StartSprintCommand>" as filt
 end box
 box "Backend — FaithTech.Community.Application and Domain" #ECFDF3
-  participant "StartSprintHandler" as h
+  participant "StartSprintValidator" as val
+  participant "SprintsHandler" as h
   participant "WorkspaceAccessPolicy" as pol
+  participant "Workspace" as ws
   participant "Sprint" as ent
+  participant "WorkItem (stories)" as wi
 end box
 box "Backend — FaithTech.Community.Infrastructure" #FFF4E5
   participant "CommunityDbContext" as ctx
   database "Community database" as db
 end box
 actor -> page : Choose "Start sprint"
-page -> dlg : Open dialog
-actor -> dlg : Enter name, goal, start and end date
-dlg -> svc : startSprint(workspaceId, request)
-svc -> ep : POST /workspaces/{id}/sprints
-ep -> h : Send StartSprintCommand
-h -> pol : EnsureOwner(workspaceId)
-pol --> h : Allowed (non-owner 403)
-h -> ctx : Any active sprint in workspace
-ctx -> db : SELECT
-db --> ctx : Result
-alt end date not after start date, or a sprint is already active
-h --> ep : Validation failure (L2-035 AC1)
-ep --> svc : 400 / 409 ProblemDetails
+page -> svc : getSprints(workspaceId)
+svc -> ep : GET /api/workspaces/{id}/sprints
+ep -> h : GetAsync(workspaceId)
+h --> page : SprintsDto (active, history, average of last 3, candidates)
+page -> dlg : Open with workspace and SprintsDto
+actor -> dlg : Enter name, goal, dates; tick stories
+dlg --> actor : Chosen points total and recent average (L2-035 AC6)
+opt goal empty or no story chosen
+dlg --> actor : Inline error (L2-035 AC6)
+end
+dlg -> svc : startSprint(workspaceId, {name, goal, startDate, endDate, storyIds})
+svc -> ep : POST /api/workspaces/{id}/sprints
+ep -> filt : Validate body
+filt -> val : ValidateAsync(StartSprintCommand)
+alt name, goal, dates or stories invalid
+val --> filt : Errors (end date not after start, no story) (L2-035 AC1, AC6)
+filt --> svc : 400 ValidationProblem (per field)
+svc --> dlg : Field errors
+dlg --> actor : Show inline errors
+else valid
+filt -> h : StartAsync(workspaceId, command)
+h -> pol : AuthorizeAsync(workspaceId, manage = true)
+pol --> h : Workspace and caller (non-owner 403, outsider 404)
+alt workspace is not Scrum
+h --> ep : Result.Conflict
+ep --> svc : 409 Problem
 svc --> dlg : Error
 dlg --> actor : Show error
-else valid
-h -> ent : Start() sets State = Active (L2-035 AC1)
-h -> ctx : SaveChanges
-ctx -> db : INSERT or UPDATE sprint (unique active index)
-h --> ep : SprintDto
-ep --> svc : 201 Created
-svc --> page : Sprint
-page --> actor : Show active sprint
+else Scrum
+h -> ctx : Load every story (IgnoreQueryFilters) and the sprints
+ctx -> db : SELECT
+db --> ctx : Rows
+h -> h : chosen = live stories in StoryIds (400 "StoryIds" when one is missing or archived)
+h -> ent : new Sprint(workspaceId, name, goal, startDate, endDate) — State = Planned
+h -> ws : StartSprint(sprint, sprints, stories)
+opt a sprint is active
+ws -> ent : active.Close(stories): record CompletedPoints and CommittedPoints; unfinished stories return to the backlog (L2-035 AC3, AC5)
+end
+ws -> ent : sprint.Start(): State = Active (L2-035 AC1)
+loop each chosen story
+h -> wi : MoveToSprint(sprint)
+end
+h -> pol : AuditOverride(caller, "sprint.started", ...) (System Admin only)
+h -> ctx : SaveChangesAsync
+ctx -> db : INSERT sprint; UPDATE closed sprint and stories in one transaction (unique active index)
+h --> ep : (Result.Ok, sprintId)
+ep --> svc : 201 Created { id }
+svc --> dlg : Done
+dlg --> page : Close with the sprint's name
+page --> actor : Toast; active sprint card and history refreshed
+end
 end
 @enduml

@@ -6,27 +6,34 @@ Sprints apply only to workspaces that use the Scrum method.
 
 > **sprint** — time-boxed iteration with a name, a goal, a start date and an end date after the start date
 >
-> **planned sprint** — sprint created but not yet started
+> **active sprint** — the one sprint of a workspace that is running; its stories are the board
+>
+> **committed story points** — sum of the story points of every story the sprint held when it closed, Done or not
 >
 > **completed story points** — sum of the story points of the stories that were Done when the sprint closed
+>
+> **recent average** — average completed points of the last three closed sprints, rounded half away from zero
 
-The workspace owner starts and closes sprints; at most one sprint is active at a time. Members move stories from the backlog into the planned or active sprint. When the owner closes the active sprint, every story that is not Done returns to the backlog and the sprint records its completed story points. The sprint history lists the completed points per sprint; there is no burndown chart.
+The workspace owner starts and closes sprints; at most one sprint is active at a time. There is no separately "planned" sprint in v1: the owner chooses the sprint's stories in the Start sprint dialog, and the sprint is created and activated in the same request. Members add further stories to the active sprint from the work item page. When the owner closes the active sprint, every story that is not Done returns to the backlog and the sprint records its completed and committed story points. The sprint history on the backlog page lists "completed N of M points" per sprint and the recent average; there is no burndown chart.
 
 ## Description
 
-- **`BacklogPage`** — shows the backlog and the planned or active sprint, and lets members move stories into a sprint (mock `docs/mocks/pages/backlog`). It also shows sprint history.
-- **`StartSprintDialog`** — CDK Dialog for name, goal, start date and end date (mock `docs/mocks/dialogs/start-sprint`).
-- **`CloseSprintDialog`** — CDK Dialog that confirms closing and states how many stories return to the backlog (mock `docs/mocks/dialogs/close-sprint`).
-- **`AgileService`** — `api` contract (`AGILE_SERVICE`, `HttpAgileService`).
-- **`SprintsEndpoints`** — minimal API mapping for `/workspaces/{id}/sprints`.
-- **`StartSprintCommand`** / **`StartSprintHandler`** — owner only; calls `Workspace.StartSprint(sprint, sprints, stories)`, which runs only in a Scrum workspace and closes the active sprint first, so no second sprint is ever active (`L2-035` AC1, AC5).
-- **`MoveStoriesToSprintCommand`** / **`MoveStoriesToSprintHandler`** — any member; assigns stories to the planned or active sprint through `WorkItem.MoveToSprint`, which takes only stories of the same workspace and refuses a closed sprint.
-- **`CloseSprintCommand`** / **`CloseSprintHandler`** — owner only; returns unfinished stories to the backlog and records completed points.
-- **`GetSprintHistoryQuery`** — lists closed sprints with completed points.
+- **`BacklogPage`** — shows the backlog tree, the active sprint card (name, goal, story count, points, end date) and, behind the "Sprint history" chip, the closed sprints newest first with the recent average; its "Start sprint" button (owner only) opens `StartSprintDialog` (mock `docs/mocks/pages/backlog`). There is no move-to-sprint control on the backlog page itself.
+- **`WorkItemPage`** — on a story outside a sprint in a Scrum workspace, shows "Backlog · Add to <sprint>" while a sprint is active; any member can add the story (`addStoriesToSprint`). A story in a sprint shows its sprint name (mock `docs/mocks/pages/work-item`).
+- **`BoardPage`** — shows the active sprint and its "Close sprint" button (owner only), which opens `CloseSprintDialog` with the unfinished cards; it can also open `StartSprintDialog` when no sprint runs (see `agile/board`).
+- **`StartSprintDialog`** — CDK Dialog for name, goal, start date, end date and the stories to take (`SprintsDto.Candidates`: backlog stories and the unfinished stories of the active sprint, marked "returned from <sprint>"); it shows the chosen stories' points total and the recent average, and inline errors for an empty goal or no story chosen (mock `docs/mocks/dialogs/start-sprint`).
+- **`CloseSprintDialog`** — CDK Dialog that confirms closing, states the completed-of-committed points and lists the unfinished stories that return to the backlog (mock `docs/mocks/dialogs/close-sprint`).
+- **`AgileService`** — `api` contract (`AGILE_SERVICE`, `HttpAgileService`): `getSprints`, `startSprint`, `addStoriesToSprint`, `closeSprint`.
+- **`WorkspacesEndpoints`** — minimal API mapping for `GET`/`POST /api/workspaces/{id}/sprints`, `POST /api/workspaces/{id}/sprints/{sprintId}/stories` and `POST /api/workspaces/{id}/sprints/{sprintId}/close`. `StartSprintValidator` and `AddStoriesToSprintValidator` run through `ValidationEndpointFilter<T>` before the handler.
+- **`SprintsHandler`** — Application handler. `GetAsync` returns `SprintsDto` (`Active`, `History` newest first, `AverageCompletedPoints`, `Candidates`); `StartAsync` (owner only, Scrum only else `409`) loads every story with `IgnoreQueryFilters`, creates the `Sprint`, calls `Workspace.StartSprint(sprint, sprints, stories)` and moves the chosen live stories in with `WorkItem.MoveToSprint`; `AddStoriesAsync` (any member) moves stories into a non-closed sprint and answers `409` for a closed one; `CloseAsync` (owner only) loads the sprint's stories with `IgnoreQueryFilters` and calls `Sprint.Close`. `RecentSprints = 3` sets how far the recent average looks back.
+- **`StartSprintCommand`** / **`StartSprintValidator`** — name (required, 100 chars), goal (required, 200 chars), start date, end date after the start date, at least one story (`L2-035` AC1, AC6).
+- **`AddStoriesToSprintCommand`** / **`AddStoriesToSprintValidator`** — at least one story id; the handler requires stories of the same workspace.
+- **`SprintsDto`**, **`SprintDto`**, **`SprintCandidateDto`** — DTO contracts in `Sprints.cs`.
 - **`WorkspaceAccessPolicy`** — Application service shared by every agile handler. It resolves the caller from `ICurrentUser` and classifies the caller as owner, member, Staff, System Admin or outsider for a workspace. Outsiders receive 404, Staff and non-owner members receive 403 on writes they lack, and System Admin actions pass and are written to the audit log (`L2-031`, `L2-042`).
-- **`Sprint`** — Domain entity with `Name`, `Goal`, `StartDate`, `EndDate`, `State` and `CompletedPoints`. The constructor requires a name, a goal and an end date after the start date; `Close(stories)` sums the points of its Done stories and returns the rest to the backlog.
-- **`SprintState`** — enumeration `Planned`, `Active`, `Closed`.
-- A partial unique index on `(WorkspaceId) WHERE State = 'Active'` in `CommunityDbContext` backs the one-active-sprint rule.
+- **`Sprint`** — Domain entity with `Name`, `Goal`, `StartDate`, `EndDate`, `State`, `CompletedPoints` and `CommittedPoints`. The constructor requires a name, a goal and an end date after the start date; `Close(stories)` records the completed and committed points of the stories whose `SprintId` is the sprint's and returns the unfinished ones to the backlog; `Start()` (internal, called by `Workspace.StartSprint`) moves `Planned` to `Active`.
+- **`SprintState`** — enumeration `Planned`, `Active`, `Closed`. `Planned` is the state a new `Sprint` is in before `Workspace.StartSprint` activates it inside the same request; no sprint is persisted as planned.
+- **`Workspace.StartSprint(sprint, sprints, stories)`** — Domain method: Scrum only, closes the active sprint with `Sprint.Close` and starts the new one, so no second sprint is ever active (`L2-035` AC1, AC5).
+- A partial unique index `IX_Sprints_WorkspaceId_Active` on `(WorkspaceId) WHERE State = 'Active'` in `CommunityDbContext` backs the one-active-sprint rule.
 
 ## Requirements
 
@@ -51,7 +58,7 @@ The feature realizes the following level-2 (L2) requirements. Each L2 requiremen
 
 ### System context
 
-The owner starts and closes sprints; members plan stories into them.
+The owner starts and closes sprints; members add stories to the active sprint.
 
 ![C4 system context for sprints](diagrams/c4-context.png)
 
@@ -63,38 +70,40 @@ The `agile` library calls the Community API, which stores sprints and story assi
 
 ### Components
 
-`SprintsEndpoints` dispatches to the sprint handlers, which check owner or member access and mutate `Sprint` and its stories.
+`WorkspacesEndpoints` runs `StartSprintValidator` or `AddStoriesToSprintValidator` through the validation filter, then calls `SprintsHandler`, which checks owner or member access with `WorkspaceAccessPolicy` and mutates `Workspace`, `Sprint` and the stories.
 
 ![C4 component view for sprints](diagrams/c4-component.png)
 
 ### Class structure
 
-A `Workspace` composes its `Sprint` records; each sprint aggregates the stories whose `SprintId` points to it.
+A `Workspace` composes its `Sprint` records and starts them; each sprint aggregates the stories whose `SprintId` points to it. `SprintsHandler` handles every sprint command and the sprints query.
 
 ![Class diagram for sprints](diagrams/class-structure.png)
 
 ### Behaviour — start a sprint
 
-The owner starts a sprint; the handler validates the dates and refuses a second active sprint (`L2-035`).
+The owner starts a sprint with its stories; `StartSprintValidator` checks the fields, `Workspace.StartSprint` closes the active sprint first and activates the new one, then the chosen stories move in (`L2-035`).
 
 ![Sequence diagram: start a sprint](diagrams/sequence-start-sprint.png)
 
-### Behaviour — move stories into a sprint
+### Behaviour — add a story to the active sprint
 
-Any member moves stories from the backlog into the planned or active sprint (`L2-035`).
+Any member adds a backlog story to the active sprint from the work item page; a closed sprint answers `409` (`L2-035`).
 
-![Sequence diagram: move stories into a sprint](diagrams/sequence-plan-stories.png)
+![Sequence diagram: add a story to the active sprint](diagrams/sequence-plan-stories.png)
 
 ### Behaviour — close a sprint
 
-Closing returns unfinished stories to the backlog and records the completed points shown in sprint history (`L2-035`).
+From the board, the owner confirms in `CloseSprintDialog`; `Sprint.Close` returns unfinished stories to the backlog and records the completed and committed points shown in sprint history (`L2-035`).
 
 ![Sequence diagram: close a sprint](diagrams/sequence-close-sprint.png)
 
 ## Open questions
 
-Decisions recorded while building the Domain layer (`FaithTech.Community.Domain`):
+Decisions recorded while building the feature:
 
 - Starting a sprint is a `Workspace` operation so the one-active-sprint rule holds in the Domain as well as in the partial unique index. A planned sprint may also be closed (used by a switch to Kanban). Domain rule violations throw `InvalidOperationException` (a broken rule) or `ArgumentException` (invalid input); there is no shared domain exception type. Handlers check permissions and preconditions first and map any remaining violation to a `400` or `409` result.
-- `Sprint.CommittedPoints` is recorded when a sprint closes: the points of every story the sprint held, Done or not. The sprint history shows completed of committed points, and the average of the last three closed sprints guides the next sprint.
-- Starting a sprint closes the active one first and then moves the chosen stories in, so the closing sprint's committed points do not include them.
+- There is no separately planned sprint in v1. `SprintState.Planned` exists only as the state a new `Sprint` holds before `Workspace.StartSprint` activates it inside the same request. The owner chooses the stories in the Start sprint dialog; members add further stories to the active sprint from the work item page ("Add to <sprint>", `POST .../sprints/{id}/stories`, any member; a closed sprint answers `409`). The backlog page shows the tree, the active sprint card and the history, with no move-to-sprint control of its own. Resolved.
+- `Sprint.Close` records `CompletedPoints` and `CommittedPoints`: the points of every story the sprint held, Done or not. The sprint history shows "completed N of M points".
+- The recent average is the average completed points of the last three closed sprints (`SprintsHandler.RecentSprints`, rounded half away from zero), shown in the backlog history and in the Start sprint dialog. Resolved.
+- When the owner starts the next sprint, the active sprint closes first and counts every story it held, archived stories included, exactly as a direct close does (both paths load with `IgnoreQueryFilters`); then the chosen stories, including any it left unfinished, join the new sprint, so the closing sprint's committed points do not include them. Only live stories can be chosen for the new sprint. Resolved.

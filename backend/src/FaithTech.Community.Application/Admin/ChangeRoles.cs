@@ -112,12 +112,9 @@ public class ChangeRolesHandler(
         }
 
         profile.ClearDomainEvents();
-        await db.SaveChangesAsync(cancellationToken);
-
-        await cityLeadRemoved.SendEmailsAsync(cancellationToken);
         if (title is not null)
         {
-            // The owner hears about it in the app and by email (L2-009 AC1).
+            // The owner hears about it in the app and by email (L2-009 AC1), committed with the change.
             await notifications.PublishAsync(
                 [profileId],
                 NotificationKind.RoleChanged,
@@ -128,6 +125,8 @@ public class ChangeRolesHandler(
                 cancellationToken);
         }
 
+        await db.SaveChangesAsync(cancellationToken);
+        await cityLeadRemoved.SendEmailsAsync(cancellationToken);
         return (Result.Ok(), after);
     }
 

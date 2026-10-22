@@ -4,6 +4,7 @@ using FaithTech.Community.Domain.Admin;
 using FaithTech.Community.Domain.Agile;
 using FaithTech.Community.Domain.Announcements;
 using FaithTech.Community.Domain.Contacts;
+using FaithTech.Community.Domain.Events;
 using FaithTech.Community.Domain.Invites;
 using FaithTech.Community.Domain.Notifications;
 using FaithTech.Community.Domain.Partners;
@@ -51,6 +52,7 @@ public class CommunityDbContext(DbContextOptions<CommunityDbContext> options)
     public DbSet<PokerSession> PokerSessions => Set<PokerSession>();
 
     public DbSet<PhotoBlobTask> PhotoBlobTasks => Set<PhotoBlobTask>();
+    public DbSet<Event> Events => Set<Event>();
 
     public DbSet<Announcement> Announcements => Set<Announcement>();
 
@@ -234,6 +236,38 @@ public class CommunityDbContext(DbContextOptions<CommunityDbContext> options)
                 recipient.HasIndex(r => r.ProfileId);
             });
             announcement.Navigation(a => a.Recipients).UsePropertyAccessMode(PropertyAccessMode.Field);
+        });
+
+        builder.Entity<Event>(ev =>
+        {
+            ev.Property(e => e.Id).ValueGeneratedNever();
+            ev.Property(e => e.Title).HasMaxLength(200);
+            ev.Property(e => e.Description).HasMaxLength(4000);
+            ev.Property(e => e.Type).HasConversion<string>().HasMaxLength(32);
+            ev.Property(e => e.City).HasMaxLength(100);
+            ev.Property(e => e.Format).HasConversion<string>().HasMaxLength(16);
+            ev.Property(e => e.Venue).HasMaxLength(300);
+            ev.Property(e => e.OnlineLink).HasMaxLength(500);
+            ev.Property(e => e.Visibility).HasConversion<string>().HasMaxLength(16);
+            ev.Property(e => e.CancellationReason).HasMaxLength(500);
+            ev.Ignore(e => e.RsvpCount);
+            ev.Ignore(e => e.IsFull);
+            ev.HasIndex(e => e.StartsAt);
+            ev.HasMany(e => e.Rsvps).WithOne().HasForeignKey(r => r.EventId).OnDelete(DeleteBehavior.Cascade);
+            ev.Navigation(e => e.Rsvps).HasField("_rsvps").UsePropertyAccessMode(PropertyAccessMode.Field);
+        });
+
+        builder.Entity<Rsvp>(rsvp =>
+        {
+            rsvp.ToTable("Rsvps");
+            rsvp.Property(r => r.Id).ValueGeneratedNever();
+            rsvp.Property(r => r.GuestName).HasMaxLength(200);
+            rsvp.Property(r => r.GuestEmail).HasMaxLength(256);
+            rsvp.Ignore(r => r.IsGuest);
+            rsvp.Property(r => r.CancelTokenHash).HasMaxLength(64);
+            rsvp.HasIndex(r => r.CancelTokenHash).IsUnique().HasFilter("\"CancelTokenHash\" IS NOT NULL");
+            rsvp.HasIndex(r => new { r.EventId, r.ProfileId }).IsUnique().HasFilter("\"ProfileId\" IS NOT NULL");
+            rsvp.HasIndex(r => new { r.EventId, r.GuestEmail });
         });
 
         builder.Entity<CommunityUser>()

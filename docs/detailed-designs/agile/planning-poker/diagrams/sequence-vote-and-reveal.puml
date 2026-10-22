@@ -17,55 +17,90 @@ skinparam package {
 actor "Participant" as actor
 box "Frontend — FaithTech Community web app (agile library)" #E0F2FE
   participant "PlanningPokerPage" as page
-  participant "PlanningPokerService" as live
+  participant "AgileService (AGILE_SERVICE)" as svc
+  participant "SignalRAgileLiveService (AGILE_LIVE_SERVICE)" as live
 end box
 box "Backend — FaithTech.Community.Api" #D1FADF
-  participant "PlanningPokerHub" as hub
+  participant "WorkItemsEndpoints" as ep
+  participant "SignalRAgileNotifier" as bc
+  participant "AgileHub" as hub
 end box
 box "Backend — FaithTech.Community.Application and Domain" #ECFDF3
-  participant "Poker handlers" as h
+  participant "PlanningPokerHandler" as h
   participant "WorkspaceAccessPolicy" as pol
   participant "PokerSession" as ent
 end box
 box "Backend — FaithTech.Community.Infrastructure" #FFF4E5
-  participant "SignalRPokerBroadcaster" as bc
   participant "CommunityDbContext" as ctx
   database "Community database" as db
 end box
 actor -> page : Pick card (1, 2, 3, 5, 8, 13, 21, ?)
-page -> live : vote(sessionId, value)
-live -> hub : Vote
-hub -> h : CastVoteCommand
-h -> pol : EnsureMember (Staff may watch, not vote) (L2-038 AC7)
-h -> ent : CastVote(profileId, value)
-h -> ctx : SaveChanges
-ctx -> db : UPSERT poker_vote
-h -> bc : VoteCast(profileId) without value
-bc -> live : Push to session group within 2 s (L2-038 AC2)
-live --> page : Mark participant as voted
-alt caller is facilitator
-actor -> page : Reveal
-page -> live : reveal(sessionId)
-live -> hub : Reveal
-hub -> h : RevealVotesCommand
-h -> ent : Reveal(by)
-h -> bc : VotesRevealed(votes) (L2-038 AC3)
-bc -> live : Push all votes
-opt re-vote
-page -> live : revote(sessionId)
-hub -> h : RevoteCommand
-h -> ent : Revote(by): clear votes, Round + 1 (L2-038 AC4)
-h -> bc : RevoteStarted
+page -> svc : vote(sessionId, value)
+svc -> ep : PUT /api/poker-sessions/{id}/vote
+ep -> h : VoteAsync(sessionId, command)
+h -> pol : LoadAsync(workspaceId)
+pol --> h : Caller (outsider 404, Staff write 403) (L2-038 AC7)
+alt caller is not the facilitator or an invitee
+h --> ep : 403 Forbidden (L2-038 AC7)
+else votes already revealed
+h --> ep : 409 "Votes are already revealed. Wait for a re-vote." (L2-038 AC10)
+ep --> svc : ProblemDetails
+svc --> page : Restore saved vote, show why under the deck
+else voting open
+h -> ent : CastVote(profileId, value), or WithdrawVote when value is null
+h -> pol : AuditOverride(caller, "poker.voted") for a System Admin
+h -> ctx : SaveChangesAsync
+ctx -> db : INSERT or UPDATE poker_vote
+h -> bc : PokerChangedAsync(sessionId) via IPokerBroadcaster
+bc -> hub : Group poker:{sessionId}
+hub -> live : PokerChanged(sessionId) within 2 s (L2-038 AC2)
+h --> ep : Ok
+ep --> svc : 204 No Content
+svc --> page : Re-read session
+live --> page : Re-read session
+page -> svc : getCurrentPokerSession(workspaceId)
+svc -> ep : GET /api/workspaces/{id}/poker-sessions/current
+ep -> h : CurrentAsync(workspaceId)
+h --> ep : PokerSessionDto: HasVoted per participant, values withheld except the caller's own (L2-038 AC2)
+ep --> svc : 200 OK
+svc --> page : Mark voters, keep values hidden
 end
-page -> live : setPoints(sessionId, points)
-hub -> h : SetFinalPointsCommand
-h -> ent : SetFinalPoints(by, points, story) (L2-038 AC5)
-h -> ctx : SaveChanges
-ctx -> db : UPDATE work_item story_points
-h -> bc : PointsSet
-else caller is not facilitator
-hub -> h : Reveal, Revote or SetFinalPoints
-h --> hub : Refused (L2-038 AC6)
-hub --> live : Error
+== Facilitator only ==
+alt caller is the facilitator
+actor -> page : Reveal votes
+page -> svc : revealVotes(sessionId)
+svc -> ep : POST /api/poker-sessions/{id}/reveal
+ep -> h : RevealAsync(sessionId)
+h -> ent : Reveal(by) (L2-038 AC3)
+h -> ctx : SaveChangesAsync
+h -> bc : PokerChangedAsync(sessionId)
+bc -> hub : Group poker:{sessionId}
+hub -> live : PokerChanged(sessionId)
+live --> page : Re-read: every vote value is now returned (L2-038 AC3)
+opt re-vote
+page -> svc : revote(sessionId)
+svc -> ep : POST /api/poker-sessions/{id}/revote
+ep -> h : RevoteAsync(sessionId)
+h -> ent : Revote(by): clear votes, Round + 1 (L2-038 AC4)
+h -> ctx : SaveChangesAsync
+h -> bc : PokerChangedAsync(sessionId)
+end
+page -> svc : setFinalPoints(sessionId, points)
+svc -> ep : POST /api/poker-sessions/{id}/points
+ep -> h : SetPointsAsync(sessionId, command)
+h -> ent : SetFinalPoints(by, points, story): story points, next story (L2-038 AC5)
+h -> ctx : SaveChangesAsync
+ctx -> db : UPDATE work_item story_points, poker_session
+h -> bc : PokerChangedAsync(sessionId)
+bc -> hub : Group poker:{sessionId}
+hub -> live : PokerChanged(sessionId)
+live --> page : Re-read: last story and points, next story
+else caller is not the facilitator
+page -> svc : revealVotes, revote, setFinalPoints or endPokerSession
+svc -> ep : POST /api/poker-sessions/{id}/reveal | /revote | /points | /end
+ep -> h : RevealAsync | RevoteAsync | SetPointsAsync | EndAsync
+h --> ep : 403 Forbidden (L2-038 AC6)
+ep --> svc : ProblemDetails
+svc --> page : Error toast
 end
 @enduml

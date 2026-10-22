@@ -7,12 +7,17 @@ using FaithTech.Community.Application.Agile;
 using FaithTech.Community.Infrastructure;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Serilog;
+using Serilog.Events;
 
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddSerilog((services, logger) => logger
+    // The Serilog request log replaces ASP.NET Core's per-request events, which carry raw paths.
+    .MinimumLevel.Override("Microsoft.AspNetCore", LogEventLevel.Warning)
     .ReadFrom.Configuration(builder.Configuration)
+    .ReadFrom.Services(services)
     .Enrich.FromLogContext()
+    .Enrich.With<LogRedaction.Enricher>()
     .WriteTo.Console());
 
 builder.Services.AddProblemDetails(options => options.CustomizeProblemDetails = context =>
@@ -31,7 +36,12 @@ var app = builder.Build();
 app.UseMiddleware<CorrelationIdMiddleware>();
 app.UseMiddleware<SecurityHeadersMiddleware>();
 // Request logging sits outside the exception handler so it records the final status.
-app.UseSerilogRequestLogging();
+app.UseSerilogRequestLogging(options =>
+{
+    LogRedaction.Configure(options);
+    // This host's logger rather than the static one, which another host in the process may have replaced.
+    options.Logger = app.Services.GetRequiredService<Serilog.ILogger>();
+});
 app.UseExceptionHandler();
 app.UseStatusCodePages();
 app.UseCors(WebProtectionSetup.WebAppCorsPolicy);
@@ -54,12 +64,14 @@ app.MapInvitesEndpoints();
 app.MapContactsEndpoints();
 app.MapPartnersEndpoints();
 app.MapTeamEndpoints();
+app.MapActivityEndpoints();
 app.MapWorkspacesEndpoints();
 app.MapWorkItemsEndpoints();
 app.MapHub<AgileHub>("/hubs/agile");
 app.MapPeopleEndpoints();
 app.MapNotificationsEndpoints();
 app.MapAnnouncementsEndpoints();
+app.MapEventsEndpoints();
 app.MapAccountEndpoints();
 app.MapAuthorizationEndpoints();
 

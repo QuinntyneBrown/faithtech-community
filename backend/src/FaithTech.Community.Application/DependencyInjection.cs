@@ -1,11 +1,12 @@
 using FaithTech.Community.Application.Admin;
 using FaithTech.Community.Application.Agile;
-using FaithTech.Community.Application.Contacts;
 using FaithTech.Community.Application.Announcements;
+using FaithTech.Community.Application.Contacts;
+using FaithTech.Community.Application.Events;
 using FaithTech.Community.Application.Identity;
 using FaithTech.Community.Application.Invites;
-using FaithTech.Community.Application.Partners;
 using FaithTech.Community.Application.Notifications;
+using FaithTech.Community.Application.Partners;
 using FaithTech.Community.Application.Profiles;
 using FaithTech.Community.Application.Team;
 using FluentValidation;
@@ -32,6 +33,7 @@ public static class DependencyInjection
         services.AddScoped<RequestPasswordResetHandler>();
         services.AddScoped<ResetPasswordHandler>();
         services.AddScoped<ProfileAccess>();
+        services.AddScoped<ListActivityHandler>();
         services.AddScoped<GetProfileHandler>();
         services.AddScoped<ListPeopleHandler>();
         services.AddScoped<UpdateProfileHandler>();
@@ -81,6 +83,14 @@ public static class DependencyInjection
         services.AddScoped<ListAnnouncementsHandler>();
         services.AddScoped<AnnouncementEmailOptOutHandler>();
         services.AddScoped<UnsubscribeHandler>();
+        services.AddScoped<EventPermissions>();
+        services.AddScoped<ListEventsHandler>();
+        services.AddScoped<SaveEventHandler>();
+        services.AddScoped<GetEventHandler>();
+        services.AddScoped<RsvpHandler>();
+        services.AddScoped<PublicEventsHandler>();
+        services.AddScoped<GetEventCalendarHandler>();
+        services.AddScoped<CancelEventHandler>();
         services.TryAddSingleton(TimeProvider.System);
         return services;
     }

@@ -37,7 +37,8 @@ export class PlanningPokerPage {
     this.finalPoints = page.getByRole('combobox', { name: 'Final points' });
     this.setPoints = page.getByRole('button', { name: 'Set points' });
     this.end = page.getByRole('button', { name: 'End session' });
-    this.toast = page.locator('ft-toast');
+    // The newest toast: an earlier one may still be counting down beside it.
+    this.toast = page.locator('ft-toast').last();
     this.voteFailed = page.locator('ft-alert').filter({ hasText: 'We couldn’t save your vote' });
     this.deckError = page.getByText('Voting has closed on this story. Your vote wasn’t counted.');
   }
@@ -66,10 +67,12 @@ export class StartPokerDialog {
   readonly dialog: Locator;
   readonly start: Locator;
   readonly storyError: Locator;
+  readonly failed: Locator;
 
   constructor(page: Page) {
     this.dialog = page.getByRole('dialog', { name: 'Start a Planning Poker session' });
     this.start = this.dialog.getByRole('button', { name: /^Start and invite/ });
+    this.failed = this.dialog.locator('ft-alert').filter({ hasText: 'That didn’t work' });
     this.storyError = this.dialog.getByText('Choose at least one story to estimate.', {
       exact: true,
     });

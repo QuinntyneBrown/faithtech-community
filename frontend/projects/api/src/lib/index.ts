@@ -3,6 +3,7 @@
  * Contracts and DTOs follow docs/detailed-designs/ but may change as each feature is
  * implemented end to end (spec -> design -> mock -> ATDD slice).
  */
+export * from './activity';
 export * from './admin';
 export * from './agile';
 export * from './announcements';

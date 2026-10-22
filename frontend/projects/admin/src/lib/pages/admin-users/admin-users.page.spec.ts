@@ -9,7 +9,7 @@ import {
   WorkspaceSummaryDto,
 } from '@faithtech-community/api';
 import { avatarColorFor, DialogService } from '@faithtech-community/components';
-import { Observable, of, throwError } from 'rxjs';
+import { Observable, of, Subject, throwError } from 'rxjs';
 
 import { SuspendUserDialog } from '../../dialogs';
 import { AdminUsersPage } from './admin-users.page';
@@ -70,6 +70,99 @@ async function setup(
 }
 
 describe('AdminUsersPage', () => {
+  // L2-040: only the newest search may fill the table (responses can arrive out of order).
+  describe('out-of-order responses', () => {
+    const many = (prefix: string) =>
+      Array.from({ length: 25 }, (_, i) => ({
+        ...grace,
+        id: `${prefix}${i}`,
+        name: `${prefix} ${i}`,
+      }));
+
+    function controlled() {
+      const pending = new Map<string, Subject<PagedResult<AdminUserSummary>>>();
+      const search = (term: string, p = 1) => {
+        const s = new Subject<PagedResult<AdminUserSummary>>();
+        pending.set(`${term}:${p}`, s);
+        return s.asObservable();
+      };
+      const reply = (key: string, result: PagedResult<AdminUserSummary> | HttpErrorResponse) => {
+        const s = pending.get(key)!;
+        if (result instanceof HttpErrorResponse) s.error(result);
+        else {
+          s.next(result);
+          s.complete();
+        }
+      };
+      return { search, reply };
+    }
+
+    async function searchFor(host: HTMLElement, term: string, settle: () => Promise<void>) {
+      const input = host.querySelector<HTMLInputElement>('input[type="search"]')!;
+      input.value = term;
+      input.dispatchEvent(new Event('input'));
+      host.querySelector('form')!.dispatchEvent(new Event('submit'));
+      await settle();
+    }
+
+    it('keeps the newest search when an older one answers last', async () => {
+      const api = controlled();
+      const { host, settle } = await setup(api.search);
+      api.reply(':1', page([grace]));
+      await settle();
+
+      await searchFor(host, 'alpha', settle);
+      await searchFor(host, 'beta', settle);
+      api.reply('beta:1', page([victor]));
+      await settle();
+      api.reply('alpha:1', page(many('Alpha'), 40));
+      await settle();
+
+      const rows = Array.from(host.querySelectorAll('tbody tr')).map((r) => r.textContent);
+      expect(rows).toHaveLength(1);
+      expect(rows[0]).toContain('Victor Kane');
+      expect(host.querySelector<HTMLInputElement>('input[type="search"]')!.value).toBe('beta');
+      expect(host.textContent).not.toContain('Show more users');
+    });
+
+    it('drops a show-more that was pending when a new search started', async () => {
+      const api = controlled();
+      const { host, button, settle } = await setup(api.search);
+      api.reply(':1', page(many('All'), 60));
+      await settle();
+
+      button('Show more users')!.click();
+      await settle();
+      await searchFor(host, 'beta', settle);
+      api.reply('beta:1', page([victor]));
+      await settle();
+      api.reply(':2', { ...page(many('More'), 60), page: 2 });
+      await settle();
+
+      const rows = Array.from(host.querySelectorAll('tbody tr')).map((r) => r.textContent);
+      expect(rows).toHaveLength(1);
+      expect(rows[0]).toContain('Victor Kane');
+      expect(host.textContent).not.toContain('Show more users');
+    });
+
+    it('does not let an older failure replace the newest results', async () => {
+      const api = controlled();
+      const { host, settle } = await setup(api.search);
+      api.reply(':1', page([grace]));
+      await settle();
+
+      await searchFor(host, 'alpha', settle);
+      await searchFor(host, 'beta', settle);
+      api.reply('beta:1', page([victor]));
+      await settle();
+      api.reply('alpha:1', new HttpErrorResponse({ status: 500 }));
+      await settle();
+
+      expect(host.textContent).toContain('Victor Kane');
+      expect(host.textContent).not.toContain('We couldn’t load users');
+    });
+  });
+
   it('flags each live workspace whose owner lost City Lead, linking to its settings (L2-037 AC2)', async () => {
     const { host } = await setup(() => of(page([grace])), true, [
       {

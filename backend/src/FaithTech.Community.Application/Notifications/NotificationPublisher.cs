@@ -7,10 +7,13 @@ namespace FaithTech.Community.Application.Notifications;
 /// <summary>A notification's email: subject and plain-text body, plus an optional per-recipient footer.</summary>
 public record NotificationEmail(string Subject, string Text, Func<Guid, string>? Footer = null);
 
-/// <summary>The one way features raise notifications: in-app always, email when given (L2-027, L2-028, ADR 0009).</summary>
+/// <summary>
+/// The one way features raise notifications: in-app always, email when given (L2-027, L2-028, ADR 0015). Both are
+/// added to the caller's unit of work, so the caller's SaveChanges commits them with the change they report.
+/// </summary>
 public interface INotificationPublisher
 {
-    /// <summary>Saves one notification per recipient profile, then queues each recipient's email.</summary>
+    /// <summary>Adds one notification per recipient profile and queues each recipient's email; the caller saves.</summary>
     Task PublishAsync(
         IReadOnlyCollection<Guid> recipientProfileIds,
         NotificationKind kind,
@@ -39,7 +42,6 @@ public class NotificationPublisher(IApplicationDbContext db, IEmailSender emails
             db.Notifications.Add(new Notification(recipient, kind, title, linkPath, now, actorName));
         }
 
-        await db.SaveChangesAsync(cancellationToken);
         if (email is null)
         {
             return;

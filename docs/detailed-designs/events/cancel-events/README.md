@@ -19,10 +19,10 @@ Cancelling notifies everyone who RSVP'd: members by email and in-app notificatio
 - **`EventsEndpoints`** — maps `POST /api/events/{id}/cancel`.
 - **`CancelEventCommand` / `CancelEventHandler`** — checks `EventPermissions.CanManageEvents`, calls `Event.Cancel(reason)`, records in-app notifications for member RSVPs, and queues emails to every member and guest who RSVP'd.
 - **`Event.Cancel(reason)`** — rejects an empty reason and an event already cancelled, then sets `IsCancelled`, stores the reason and increments `Sequence`. The RSVP handlers refuse cancelled events.
-- **`IEmailSender`** — Infrastructure email service. Delivery is asynchronous through an outbox; the outbox mechanism is `<TO SUPPLY>`.
+- **`IEmailSender`** — Infrastructure email service. Delivery is asynchronous through the email outbox (`OutboxEmailSender` queues, `EmailOutboxDispatcher` sends and retries).
 - **`INotificationPublisher`** — records in-app notifications.
 
-The maximum length of the cancellation reason is `<TO SUPPLY>`.
+The cancellation reason is at most 500 characters.
 
 ## Requirements
 
@@ -77,3 +77,11 @@ The manager confirms in `CancelEventDialog`. The handler marks the event cancell
 Decisions recorded while building the Domain layer (`FaithTech.Community.Domain`):
 
 - The reason is required, as `L2-025` states; the earlier "optional reason" wording is corrected. Resolved.
+
+Decisions recorded while building the slice:
+
+- `POST /api/events/{id}/cancel` takes `{ reason }`. The validator runs first: an empty reason is 400 on `Reason` with "Tell attendees why, so they aren’t left guessing." (AC3), and over 500 characters is 400. Then a caller who may not manage events gets 403, an unknown event 404 and an event already cancelled 409 "This event is already cancelled."; success is 204.
+- `Event.Cancel(reason, cancelledById, cancelledAt)` also records who cancelled and when, so the event page reads "Esther Nakamura cancelled it on Tue 20 Oct: “…” Everyone who RSVP’d was emailed." (`EventDetailDto.cancelledByName`, `cancelledAt`).
+- Members who RSVP'd get an `EventCancelled` in-app notification through `INotificationPublisher`, the notifications feature's seam (not the person who cancelled, ADR 0011). Every member and guest who RSVP'd gets an email, "Cancelled: {title}", with the reason and the cancelled `.ics` attached, which carries `STATUS:CANCELLED` and the higher `SEQUENCE` so calendars drop the event.
+- A System Admin who holds neither Event Lead nor City Lead is audited (`event.cancelled`).
+- The dialog's description counts who will hear: "All {n} people who RSVP’d get an email; the {m} members also get an in-app notification", or "No one has RSVP’d yet". After cancelling, the page shows a success toast, "Event cancelled", and the cancelled state; Edit and Cancel event go away and the calendar download becomes *Update your calendar (.ics)*.

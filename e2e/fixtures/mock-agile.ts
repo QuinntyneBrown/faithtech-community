@@ -583,7 +583,6 @@ export class MockAgile {
     access: MockAccess,
   ) {
     if (access === 'Staff') return route.fulfill({ status: 403 });
-    if (!this.isMember(workspace, caller!.profileId)) return route.fulfill({ status: 403 });
     const storyIds = (body['storyIds'] as string[] | undefined) ?? [];
     if (!storyIds.length)
       return invalid(route, 'StoryIds', 'Choose at least one story to estimate.');
@@ -889,8 +888,12 @@ export class MockAgile {
     return {
       active: active ? dto(active) : null,
       history: history.map(dto),
+      // The server averages the last three closed sprints, rounding halves up.
       averageCompletedPoints: history.length
-        ? Math.round(history.reduce((n, sp) => n + (sp.completedPoints ?? 0), 0) / history.length)
+        ? Math.round(
+            history.slice(0, 3).reduce((n, sp) => n + (sp.completedPoints ?? 0), 0) /
+              Math.min(history.length, 3),
+          )
         : null,
       candidates,
     };
@@ -993,8 +996,8 @@ export class MockAgile {
 
   access(workspace: MockWorkspace, caller: MockAccount): MockAccess {
     if (workspace.ownerId === caller.profileId) return 'Owner';
-    if (workspace.memberIds.includes(caller.profileId)) return 'Member';
     if (caller.roles.includes('SystemAdmin')) return 'Admin';
+    if (workspace.memberIds.includes(caller.profileId)) return 'Member';
     if (caller.roles.includes('Staff')) return 'Staff';
     return 'Outsider';
   }

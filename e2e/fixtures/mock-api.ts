@@ -3,6 +3,7 @@ import { Page, Route } from '@playwright/test';
 import { MockAgile } from './mock-agile';
 import { MockContacts } from './mock-contacts';
 import { MockPartners } from './mock-partners';
+import { MockEvents } from './mock-events';
 
 export interface MockAccount {
   name: string;
@@ -35,9 +36,13 @@ export interface MockProfile {
   photos: MockPhoto[];
 }
 
-/** A tiny square SVG standing in for a stored photo, so no request leaves the browser. */
-export function photoUrl(colour = '#7c5cff'): string {
-  const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="8" height="8"><rect width="8" height="8" fill="${colour}"/></svg>`;
+/**
+ * A tiny square SVG standing in for a stored photo, so no request leaves the browser. Give each
+ * photo its own `id`: stored photos never share a URL, and the photo list keys its items by URL.
+ */
+export function photoUrl(colour = '#7c5cff', id = ''): string {
+  const name = id ? ` id="${id}"` : '';
+  const svg = `<svg xmlns="http://www.w3.org/2000/svg"${name} width="8" height="8"><rect width="8" height="8" fill="${colour}"/></svg>`;
   return `data:image/svg+xml,${encodeURIComponent(svg)}`;
 }
 
@@ -52,6 +57,16 @@ export interface MockInvite {
   expiresAt: string;
   acceptedAt: string | null;
   revokedAt: string | null;
+}
+
+/** A row of the Notifications table: addressed to one member (backend Domain/Notifications). */
+export interface MockNotification {
+  id: string;
+  recipientId: string;
+  kind: string;
+  title: string;
+  linkPath: string;
+  createdAt: string;
 }
 
 export interface MockAuditEntry {
@@ -92,8 +107,15 @@ export class MockApi {
   readonly profiles = new Map<string, MockProfile>();
   readonly invites: MockInvite[] = [];
   readonly audit: MockAuditEntry[] = [];
+  /** Notifications seeded for home's Recent activity; the events fake records its own. */
+  readonly notifications: MockNotification[] = [];
   /** "Now" for invite status, matching the mocks' 21 October 2026. */
   now = new Date(Date.UTC(2026, 9, 21, 12));
+  /** The events fake (fixtures/mock-events.ts), sharing this fake's clock. */
+  readonly events = new MockEvents(
+    () => this.now,
+    (id) => this.profiles.get(id),
+  );
   readonly calls: {
     method: string;
     path: string;
@@ -112,7 +134,8 @@ export class MockApi {
   photoStorageDown = false;
   private readonly storing = new Map<MockPhoto, string>();
   /** The stored URL of an uploaded photo; the journey videos swap in the image that was chosen. */
-  uploadedPhotoUrl: (file: string) => string = () => photoUrl();
+  uploadedPhotoUrl: (file: string) => string = (file) =>
+    photoUrl(undefined, `upload-${this.uploads}-${file}`);
   /** Private contacts (ADR 0014). */
   readonly contacts = new MockContacts(this);
   /** The shared partner pipeline (ADR 0014). */
@@ -169,6 +192,27 @@ export class MockApi {
       ...invite,
     };
     this.invites.push(full);
+    return full;
+  }
+
+  /** Stops the browser's clock at the fake's "now", for screens that print today's date or greet by time. */
+  async freezeBrowserClock(): Promise<void> {
+    await this.page.clock.setFixedTime(this.now);
+  }
+
+  /** A notification for `recipientId`, `minutesAgo` before the fake's "now". */
+  addNotification(
+    notification: Partial<MockNotification> & { recipientId: string; title: string },
+    minutesAgo = 0,
+  ): MockNotification {
+    const full: MockNotification = {
+      id: `notification-${this.notifications.length + 1}`,
+      kind: 'InviteAccepted',
+      linkPath: '/',
+      createdAt: new Date(this.now.getTime() - minutesAgo * 60 * 1000).toISOString(),
+      ...notification,
+    };
+    this.notifications.push(full);
     return full;
   }
 
@@ -253,6 +297,8 @@ export class MockApi {
         caller: this.caller(authorization),
       });
     }
+    const events = this.events.handle(route, method, url, body, this.caller(authorization));
+    if (events) return events;
     const profileRoute = /^\/api\/profiles\/([^/]+)$/.exec(url.pathname);
     if (method === 'GET' && profileRoute) {
       return this.getProfile(route, profileRoute[1], authorization);
@@ -274,9 +320,6 @@ export class MockApi {
     if (method === 'POST' && inviteAction) {
       return this.inviteAction(route, inviteAction[1], inviteAction[2], authorization);
     }
-    const byToken = /^\/api\/invites\/by-token\/([^/]+)$/.exec(url.pathname);
-    if (method === 'GET' && byToken)
-      return this.lookUpInvite(route, decodeURIComponent(byToken[1]));
 
     switch (`${method} ${url.pathname}`) {
       case 'GET /api/admin/users':
@@ -285,14 +328,18 @@ export class MockApi {
         return this.auditLog(route, url, authorization);
       case 'GET /api/admin/audit/export':
         return this.auditExport(route, url, authorization);
+      case 'GET /api/activity':
+        return this.activity(route, authorization);
       case 'GET /api/team':
         return this.listTeam(route, url, authorization);
       case 'GET /api/people':
         return this.listPeople(route, url, authorization);
       case 'GET /api/invites':
-        return this.listInvites(route, authorization);
+        return this.listInvites(route, url, authorization);
       case 'POST /api/invites':
         return this.sendInvite(route, body, authorization);
+      case 'POST /api/invites/lookup':
+        return this.lookUpInvite(route, String(body['token'] ?? ''));
       case 'POST /api/invites/accept':
         return this.acceptInvite(route, body, authorization);
       case 'POST /api/account/sign-in':
@@ -395,6 +442,29 @@ export class MockApi {
   /** The signed-in caller, or null when the bearer token is missing or stale (the API's 401). */
   private caller(authorization: string | undefined): MockAccount | null {
     return this.signedIn && authorization === 'Bearer access-token' ? this.signedIn : null;
+  }
+
+  /** ActivityEndpoints: the ten newest notifications addressed to the caller (L2-049 AC7). */
+  private activity(route: Route, authorization: string | undefined) {
+    const caller = this.caller(authorization);
+    if (!caller) return route.fulfill({ status: 401 });
+    const recorded = this.events.notifications.map((n, i) => ({
+      ...n,
+      id: `event-notification-${i + 1}`,
+      createdAt: this.now.toISOString(),
+    }));
+    const items = [...this.notifications, ...recorded]
+      .filter((n) => n.recipientId === caller.profileId)
+      .sort((a, b) => b.createdAt.localeCompare(a.createdAt))
+      .slice(0, 10)
+      .map((n) => ({
+        id: n.id,
+        kind: n.kind,
+        text: n.title,
+        linkPath: n.linkPath,
+        occurredAt: n.createdAt,
+      }));
+    return route.fulfill({ status: 200, json: items });
   }
 
   /** ProfilesEndpoints: GET /api/profiles/me and /api/profiles/{id} (L2-005). */
@@ -729,7 +799,8 @@ export class MockApi {
     const team = [...this.profiles.values()].filter((p) =>
       p.roles.some((r) => TEAM_ROLES.includes(r)),
     );
-    const members = team
+    const key = (p: MockProfile) => `${p.name.toLowerCase()}|${p.id}`;
+    const matching = team
       .filter((p) =>
         role === 'leads'
           ? p.roles.some((r) => TEAM_LEAD_ROLES.includes(r))
@@ -738,26 +809,55 @@ export class MockApi {
             : true,
       )
       .filter((p) => !city || p.homeCity?.trim().toLowerCase() === city)
-      .sort((a, b) => a.name.localeCompare(b.name, undefined, { sensitivity: 'base' }))
-      .map((p) => ({
-        profileId: p.id,
-        name: p.name,
-        homeCity: p.homeCity,
-        photoUrl: p.photos.find((photo) => photo.isFeatured)?.url ?? null,
-        roles: p.roles,
-      }));
+      .sort((a, b) => key(a).localeCompare(key(b)));
+    // Pages as ListTeamHandler does (ADR 0015): by lower-cased name then id, 50 a page, at most 100.
+    const size = Math.min(100, Math.max(1, Number(url.searchParams.get('pageSize') ?? 50) || 50));
+    const after = url.searchParams.get('after');
+    const rest = after ? matching.filter((p) => key(p).localeCompare(after) > 0) : matching;
+    const page = rest.slice(0, size);
+    const members = page.map((p) => ({
+      profileId: p.id,
+      name: p.name,
+      homeCity: p.homeCity,
+      photoUrl: p.photos.find((photo) => photo.isFeatured)?.url ?? null,
+      roles: p.roles,
+    }));
     const cities = [
       ...new Set(team.map((p) => p.homeCity?.trim()).filter((c): c is string => !!c)),
     ].sort((a, b) => a.localeCompare(b));
-    return route.fulfill({ status: 200, json: { members, cities } });
+    return route.fulfill({
+      status: 200,
+      json: {
+        members,
+        cities,
+        next: rest.length > size ? key(page[page.length - 1]) : null,
+        totalCount: matching.length,
+      },
+    });
   }
 
-  private listInvites(route: Route, authorization: string | undefined) {
+  /**
+   * GET /api/invites?after&pageSize: newest first (ties by id), 50 a page and at most 100, with a
+   * keyset `next` like ManageInvitesHandler, so invites sent meanwhile never shift later pages.
+   */
+  private listInvites(route: Route, url: URL, authorization: string | undefined) {
     const caller = this.caller(authorization);
     if (!caller) return route.fulfill({ status: 401 });
     if (!caller.roles.some((r) => LEAD_ROLES.includes(r))) return route.fulfill({ status: 403 });
-    const invites = [...this.invites].sort((a, b) => b.createdAt.localeCompare(a.createdAt));
-    return route.fulfill({ status: 200, json: invites.map((i) => this.inviteDto(i)) });
+    const key = (i: MockInvite) => `${i.createdAt}_${i.id}`;
+    const invites = [...this.invites].sort((a, b) => key(b).localeCompare(key(a)));
+    const size = Math.min(100, Math.max(1, Number(url.searchParams.get('pageSize') ?? 50) || 50));
+    const after = url.searchParams.get('after');
+    const rest = after ? invites.filter((i) => key(i).localeCompare(after) < 0) : invites;
+    const items = rest.slice(0, size);
+    return route.fulfill({
+      status: 200,
+      json: {
+        items: items.map((i) => this.inviteDto(i)),
+        next: rest.length > size ? key(items[items.length - 1]) : null,
+        totalCount: invites.length,
+      },
+    });
   }
 
   /** POST /api/invites: role limits, verified sender and 50 per 24 hours (L2-010). */
@@ -832,7 +932,7 @@ export class MockApi {
     return route.fulfill({ status: 201, json: this.inviteDto(renewed) });
   }
 
-  /** GET /api/invites/by-token/{token}: anonymous (ADR 0006). */
+  /** POST /api/invites/lookup with { token }: anonymous (ADR 0006); the token never goes in the URL. */
   private lookUpInvite(route: Route, token: string) {
     const invite = this.invites.find((i) => i.token === token);
     if (!invite) return route.fulfill({ status: 404 });

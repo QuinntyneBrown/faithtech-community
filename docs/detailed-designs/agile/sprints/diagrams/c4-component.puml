@@ -4,24 +4,31 @@ LAYOUT_WITH_LEGEND()
 title Components — Sprints
 
 Container_Boundary(web, "Web app") {
-  Component(page, "BacklogPage", "Angular page", "Backlog, sprint panel, history")
-  Component(dlg, "StartSprintDialog / CloseSprintDialog", "CDK Dialog", "Start and close")
-  Component(svc, "AgileService", "api library", "AGILE_SERVICE token")
+  Component(page, "BacklogPage / BoardPage / WorkItemPage", "Angular pages", "Active sprint card and history; Close sprint; Add to sprint")
+  Component(dlg, "StartSprintDialog / CloseSprintDialog", "CDK Dialog", "Start with stories; confirm close")
+  Component(svc, "AgileService", "api library", "AGILE_SERVICE token, HttpAgileService")
 }
 Container_Boundary(api, "Community API") {
-  Component(ep, "SprintsEndpoints", "Minimal API", "Sprint routes")
-  Component(h, "Sprint handlers", "Application", "Start, move stories, close, history")
-  Component(pol, "WorkspaceAccessPolicy", "Application", "Owner and member checks")
-  Component(ent, "Sprint", "Domain entity", "Sprint state and points")
-  ComponentDb(db, "Community database", "PostgreSQL", "Agile tables")
+  Component(ep, "WorkspacesEndpoints", "Minimal API", "/api/workspaces/{id}/sprints routes")
+  Component(val, "StartSprintValidator / AddStoriesToSprintValidator", "Application (FluentValidation)", "Name, goal, dates, at least one story; run by ValidationEndpointFilter")
+  Component(h, "SprintsHandler", "Application", "GetAsync, StartAsync, AddStoriesAsync, CloseAsync")
+  Component(pol, "WorkspaceAccessPolicy", "Application", "Owner (manage) and member checks")
+  Component(ws, "Workspace", "Domain entity", "StartSprint: Scrum only, closes the active sprint, one active at a time")
+  Component(ent, "Sprint", "Domain entity", "State, Close records completed and committed points")
+  Component(wi, "WorkItem", "Domain entity", "MoveToSprint, SprintId")
+  ComponentDb(db, "Community database", "PostgreSQL", "Agile tables; partial unique index on active sprints")
 }
 
 Rel(page, dlg, "Opens")
 Rel(page, svc, "Calls")
 Rel(dlg, svc, "Calls")
 Rel(svc, ep, "Calls", "JSON/HTTPS")
-Rel(ep, h, "Dispatches")
+Rel(ep, val, "Validates body with")
+Rel(ep, h, "Calls")
 Rel(h, pol, "Checks access")
-Rel(h, ent, "Creates and mutates")
+Rel(h, ws, "StartSprint")
+Rel(ws, ent, "Close / Start")
+Rel(h, ent, "Creates, Close")
+Rel(h, wi, "MoveToSprint")
 Rel(h, db, "Persists", "EF Core")
 @enduml

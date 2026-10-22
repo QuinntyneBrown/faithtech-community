@@ -1,5 +1,5 @@
 @startuml
-title UML sequence behaviour — Add a workspace member
+title UML sequence behaviour — Add workspace members
 skinparam backgroundColor #FFFFFF
 skinparam shadowing false
 skinparam roundcorner 12
@@ -17,49 +17,74 @@ skinparam package {
 actor "Workspace owner" as actor
 box "Frontend — FaithTech Community web app (agile library)" #E0F2FE
   participant "WorkspaceSettingsPage" as page
-  participant "AddWorkspaceMemberDialog" as dlg
+  participant "AddWorkspaceMembersDialog" as dlg
   participant "AgileService (AGILE_SERVICE)" as svc
 end box
 box "Backend — FaithTech.Community.Api" #D1FADF
   participant "WorkspacesEndpoints" as ep
 end box
 box "Backend — FaithTech.Community.Application and Domain" #ECFDF3
-  participant "AddWorkspaceMemberHandler" as h
+  participant "WorkspaceSettingsHandler" as h
   participant "WorkspaceAccessPolicy" as pol
+  participant "WorkspaceMembership" as mem
   participant "Workspace" as ent
+  participant "AgileNotifier" as ntf
+  participant "IAuditLog" as audit
 end box
 box "Backend — FaithTech.Community.Infrastructure" #FFF4E5
-  participant "NotificationService" as ntf
   participant "CommunityDbContext" as ctx
+  participant "OutboxEmailSender" as email
   database "Community database" as db
 end box
-actor -> page : Choose "Add member"
+actor -> page : Choose "Add members"
 page -> dlg : Open dialog
-dlg -> svc : searchEligibleMembers(term)
-svc --> dlg : Profiles with a lead or volunteer role (L2-031 AC2)
-actor -> dlg : Select profile
-dlg -> svc : addMember(workspaceId, profileId)
-svc -> ep : POST /workspaces/{id}/members
-ep -> h : Send AddWorkspaceMemberCommand
-h -> pol : EnsureOwner(workspaceId)
-alt outsider
-pol --> h : NotFound (L2-031 AC6)
-h --> ep : 404
-else member, not owner, or Staff
-pol --> h : Forbidden (L2-031 AC4, AC5)
-h --> ep : 403
-else owner or System Admin
-pol --> h : Allowed (System Admin action audited, L2-031 AC7)
-h -> ctx : Load workspace and profile roles
+dlg -> svc : listMemberCandidates(workspaceId)
+svc -> ep : GET /api/workspaces/{id}/candidates
+ep -> h : CandidatesAsync(id)
+h -> pol : AuthorizeAsync(id, manage: true)
+pol --> h : workspace, caller
+h --> ep : Non-suspended lead or volunteer profiles not yet in the workspace (L2-031 AC2)
+ep --> dlg : 200 MemberCandidateDto[]
+actor -> dlg : Select one or more profiles
+dlg -> svc : addMembers(workspaceId, profileIds)
+svc -> ep : POST /api/workspaces/{id}/members
+ep -> ep : Validate AddWorkspaceMembersCommand
+ep -> h : AddMembersAsync(id, command)
+h -> pol : AuthorizeAsync(id, manage: true)
+pol -> ctx : Load workspace with members
 ctx -> db : SELECT
 db --> ctx : Rows
-h -> ent : AddMember(profileId) after lead/volunteer role check
+pol -> pol : Classify: Owner → Admin → Member → Staff → Outsider
+alt outsider or unknown workspace
+pol --> h : NotFound (L2-031 AC6)
+h --> ep : 404
+else member who is not the owner, or Staff
+pol --> h : Forbidden (L2-031 AC4, AC5)
+h --> ep : 403
+else owner or System Admin (CanManage)
+pol --> h : workspace, caller
+h -> mem : AddMembersAsync(workspace, caller.ProfileId, profileIds)
+mem -> ctx : Load profiles
+alt every profile holds a lead or volunteer role and is not suspended
+mem -> ent : AddMember(profile, now) for each
+mem -> ntf : Notify(WorkspaceMemberAdded, /workspaces/{id}) for each
+mem --> h : added ids
+opt caller is System Admin override (L2-031 AC7)
+h -> pol : AuditOverride("workspace.member.added")
+pol -> audit : Record
+end
 h -> ctx : SaveChanges
-ctx -> db : INSERT workspace_member
-h -> ntf : Notify added member in-app and by email
-h --> ep : Result
+ctx -> db : INSERT workspace_members, notifications
+h -> ntf : SendEmailsAsync()
+ntf -> email : SendAsync per member (outbox)
+h --> ep : Ok
 ep --> svc : 204 No Content
 svc --> page : Refresh members
-page --> actor : Show member in list
+page --> actor : Show members in list
+else a profile is not eligible
+mem --> h : null
+h --> ep : Invalid (ProfileIds)
+ep --> dlg : 400 ValidationProblem
+end
 end
 @enduml

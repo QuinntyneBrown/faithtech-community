@@ -13,10 +13,12 @@ public class PokerSession
             throw new InvalidOperationException("A session estimates one or more stories of the workspace.");
         }
 
-        var invited = invitedIds.Distinct().ToList();
-        if (!workspace.IsMember(facilitatorId) || invited.Any(id => !workspace.IsMember(id)))
+        // Who may facilitate is the Application's permission decision (a member, or a System Admin override);
+        // the session itself only insists that everyone invited belongs to the workspace.
+        var invited = invitedIds.Distinct().Where(id => id != facilitatorId).ToList();
+        if (invited.Any(id => !workspace.IsMember(id)))
         {
-            throw new InvalidOperationException("Only workspace members can take part in a session.");
+            throw new InvalidOperationException("Only workspace members can be invited to a session.");
         }
 
         Id = Guid.NewGuid();

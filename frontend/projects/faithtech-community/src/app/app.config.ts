@@ -6,6 +6,7 @@ import {
 } from '@angular/core';
 import { provideRouter, withComponentInputBinding } from '@angular/router';
 import { AUTH_SERVICE, provideApi } from '@faithtech-community/api';
+import { ThemeService } from '@faithtech-community/components';
 
 import { routes } from './app.routes';
 
@@ -17,5 +18,9 @@ export const appConfig: ApplicationConfig = {
     provideApi('/api'),
     // Resume a stored session before the first navigation so guards see it.
     provideAppInitializer(() => inject(AUTH_SERVICE).restoreSession()),
+    // Apply the theme saved on this device (Settings > Appearance) before the first page paints.
+    provideAppInitializer(() => {
+      inject(ThemeService);
+    }),
   ],
 };

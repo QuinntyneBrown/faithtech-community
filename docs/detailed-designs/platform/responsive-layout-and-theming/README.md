@@ -4,7 +4,7 @@
 
 FaithTech Community runs on phones and desktops and in light and dark themes. This design describes the shared layout grid, breakpoints and theme switching that the app shell and the `components` library provide.
 
-- **breakpoint** — named viewport width threshold: XS <576px, SM >=576px, MD >=768px, LG >=992px, XL >=1200px
+- **breakpoint** — named viewport width threshold, from the design system tokens (`--layout-breakpoint-*`) that `BreakpointService` implements: XS <640px, SM >=640px, MD >=768px, LG >=1024px, XL >=1280px
 - **theme** — set of colour token values; light and dark themes define the same role names
 - **theme preference** — member choice of `system`, `light` or `dark`; `system` follows `prefers-color-scheme`
 
@@ -17,7 +17,7 @@ FaithTech Community runs on phones and desktops and in light and dark themes. Th
 - **`BreakpointService`** — `components` wrapper over CDK `BreakpointObserver` exposing the current named breakpoint as a signal.
 - **`ThemeService`** — `components` service that applies `data-theme="light|dark"` on `<html>`. With preference `system` it follows `matchMedia('(prefers-color-scheme: dark)')`.
 - **Appearance setting** — the settings page (`SettingsPage` in the `notifications` library, mock `pages/settings`) has an *Appearance* card: a `CardComponent` holding a `RadioGroupComponent` with *Light*, *Dark* and *Match my device* (`light`, `dark`, `system`). Choosing one calls `ThemeService.set()` at once; it is not part of the account form's *Save settings*.
-- **Theme preference storage** — browser storage only (`localStorage` key `ft-theme`, read by `ThemeService` on start), so the choice is per device and needs no API. Decided here as the simplest option that fits the existing `ThemeService`; a per-profile preference can follow if members ask for it.
+- **Theme preference storage** — browser storage only (`localStorage` key `ft-theme`, read by `ThemeService` on start; the app creates `ThemeService` in an app initializer, so the saved theme applies on whatever page loads first, not only on Settings), so the choice is per device and needs no API. Decided here as the simplest option that fits the existing `ThemeService`; a per-profile preference can follow if members ask for it.
 - **Control sizes** — `TextFieldComponent` takes `size` `sm` (36px), `md` (44px, default) or `lg` (52px) from the `--control-height-*` tokens, as `ButtonComponent` does. `TopBarComponent` composes the small field for its search (an `inputId` keeps its visually hidden `<label for>`), `PictureListComponent` the small field for photo descriptions, and the Search page takes the large one.
 - **Toasts clear the tab bar** — `TabBarComponent` registers with `TabBarPresence` (in `components`) while it is rendered; `ToastRegionComponent` reads it and, below 768px, sits 16px above the tab bar and its safe area. Without a tab bar (auth and public pages) the region keeps its 16px margin; from 640px it is 24rem wide, 24px from the bottom-right corner.
 - **Touch targets** — interactive components set a minimum of 24x24 CSS pixels through a size token.

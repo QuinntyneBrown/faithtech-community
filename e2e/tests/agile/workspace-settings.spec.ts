@@ -113,7 +113,32 @@ test.describe('Workspace settings', () => {
     await api.signInAs(ruth, `/workspaces/${workspace.id}/settings`);
 
     await expect(settings.ownerOnly).toBeVisible();
+    await expect(settings.ownerOnlyText).toHaveText(
+      'Grace Okonkwo owns this workspace. You can still add stories, move cards and vote in Planning Poker.',
+    );
     await expect(settings.frame.section('Settings')).toHaveCount(0);
+    await expect(settings.addMembers).toHaveCount(0);
+    await axe.check();
+  });
+
+  test('Staff see that only the owner changes settings, without being offered writes', async ({
+    page,
+    api,
+    axe,
+  }) => {
+    const { workspace } = cast(api);
+    const daniel = api.addAccount({
+      email: 'daniel@example.org',
+      name: 'Daniel Reyes',
+      roles: ['Staff'],
+    });
+    const settings = new WorkspaceSettingsPage(page);
+
+    await api.signInAs(daniel, `/workspaces/${workspace.id}/settings`);
+
+    await expect(settings.ownerOnly).toBeVisible();
+    await expect(settings.frame.readOnly).toBeVisible();
+    await expect(settings.ownerOnlyText).toHaveText('Grace Okonkwo owns this workspace.');
     await expect(settings.addMembers).toHaveCount(0);
     await axe.check();
   });

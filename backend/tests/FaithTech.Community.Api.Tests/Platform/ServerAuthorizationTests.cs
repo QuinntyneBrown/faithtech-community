@@ -4,6 +4,7 @@ using System.Text.RegularExpressions;
 using FaithTech.Community.Api.Tests.Profiles;
 using FaithTech.Community.Domain.Profiles;
 using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -13,6 +14,8 @@ public partial class ServerAuthorizationTests(CommunityApiFactory factory) : ICl
 {
     // Endpoints the design marks anonymous (L2-042 AC1), plus the health probes (L2-047), the invite link (L2-011)
     // and the announcement unsubscribe link (L2-030 AC3).
+    // Endpoints the design marks anonymous (L2-042 AC1), plus the health probes (L2-047), the invite link (L2-011) and
+    // public events with guest RSVP (L2-023).
     private static readonly string[] AnonymousRoutes =
     [
         "health/live",
@@ -27,15 +30,20 @@ public partial class ServerAuthorizationTests(CommunityApiFactory factory) : ICl
         "connect/logout",
         "connect/revoke",
         "api/account/sign-in",
-        "api/invites/by-token/{token}",
+        "api/invites/lookup",
         "api/invites/accept",
         "api/announcements/unsubscribe",
+        "api/public/events/{id:guid}",
+        "api/public/events/{id:guid}/rsvps",
+        "api/public/events/{id:guid}/rsvps/cancel",
+        "api/public/events/{id:guid}/calendar.ics",
     ];
 
     [Fact]
     public async Task Every_endpoint_returns_401_without_authentication_unless_marked_anonymous()
     {
-        var client = factory.CreateClient();
+        // One request per endpoint from one address: more endpoints than the global limit of 100 a minute.
+        var client = factory.WithWebHostBuilder(b => b.UseSetting("RateLimits:PerMinute", "100000")).CreateClient();
         var endpoints = factory.Services.GetRequiredService<EndpointDataSource>().Endpoints.OfType<RouteEndpoint>()
             .SelectMany(e => (e.Metadata.GetMetadata<HttpMethodMetadata>()?.HttpMethods ?? ["GET"])
                 .Select(method => (method, route: e.RoutePattern.RawText!.TrimStart('/'))))

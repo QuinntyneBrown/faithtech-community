@@ -93,7 +93,7 @@ public class WorkspacesHandler(
             sprints.GetValueOrDefault(w.Id),
             w.Members.Select(m => m.ProfileId).Append(w.OwnerId).Distinct().Count(),
             w.IsArchived,
-            NeedsNewOwner(owners.GetValueOrDefault(w.OwnerId))))];
+            !w.IsArchived && NeedsNewOwner(owners.GetValueOrDefault(w.OwnerId))))];
     }
 
     /// <summary>The workspace with its members, or null when the caller may not see it (404, L2-042 AC2).</summary>
@@ -141,7 +141,10 @@ public class WorkspacesHandler(
             NeedsNewOwner(owner));
     }
 
-    /// <summary>An owner must hold City Lead (or be a System Admin); otherwise System Admin reassigns it (L2-037 AC2).</summary>
+    /// <summary>
+    /// An owner must hold City Lead (or be a System Admin); otherwise System Admin reassigns it (L2-037 AC2). An archived
+    /// workspace is not flagged: nobody can act on it until it is restored, and then it is (ADR 0011).
+    /// </summary>
     private static bool NeedsNewOwner(Profile? owner) =>
         owner is null || (!owner.HasRole(Role.CityLead) && !owner.HasRole(Role.SystemAdmin));
 }
@@ -149,12 +152,12 @@ public class WorkspacesHandler(
 /// <summary>Adds members to a workspace and notifies each of them (L2-031 AC2).</summary>
 public class WorkspaceMembership(IApplicationDbContext db, AgileNotifier notifier, TimeProvider time)
 {
-    /// <summary>Adds the profiles and queues their notifications; null (nothing added) when one is not on the team.</summary>
+    /// <summary>Adds the profiles and queues their notifications; null (nothing added) when one is not on the team or is suspended.</summary>
     public async Task<IReadOnlyList<Guid>?> AddMembersAsync(Workspace workspace, Guid actor, IReadOnlyList<Guid> profileIds, CancellationToken cancellationToken)
     {
         var ids = profileIds.Distinct().Where(id => !workspace.IsMember(id)).ToList();
         var profiles = await db.Profiles.Where(p => ids.Contains(p.Id)).ToListAsync(cancellationToken);
-        if (profiles.Count != ids.Count || !profiles.All(TeamRoles.IsTeamMember))
+        if (profiles.Count != ids.Count || !profiles.All(p => TeamRoles.IsTeamMember(p) && !p.IsSuspended))
         {
             return null;
         }

@@ -8,5 +8,5 @@ Person(member, "Workspace member", "Lead or volunteer added to a workspace")
 System(ftc, "FaithTech Community", "Community site with Agile team workspaces")
 
 Rel(lead, ftc, "Starts and closes sprints in")
-Rel(member, ftc, "Plans stories into sprints in")
+Rel(member, ftc, "Adds stories to the active sprint in")
 @enduml

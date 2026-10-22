@@ -30,7 +30,7 @@ The slice runs from the event form page to the database.
 - **`INotificationPublisher`** — Application contract from the notifications subsystem that records in-app notifications. Its implementation lives in Infrastructure.
 - **`CommunityDbContext`** — EF Core context in Infrastructure that persists events and RSVPs.
 
-The exact city list source is `<TO SUPPLY>`.
+The city is free text, trimmed; the events list offers every city that has an event as its filter.
 
 ## Requirements
 
@@ -95,3 +95,11 @@ Decisions recorded while building the Domain layer (`FaithTech.Community.Domain`
 - Event types follow `L2-020`: Gathering, Builders night, Hackathon, Prayer & planning and Panel, replacing the earlier `Standard`/`Hackathon` pair. Resolved.
 - Capacity: `L2-020` AC1 and AC5 define an optional capacity; `Event.Capacity` is nullable and `Event.IsFull` refuses RSVPs at capacity. Resolved.
 - Domain rule violations throw `InvalidOperationException` (a broken rule) or `ArgumentException` (invalid input); there is no shared domain exception type. Handlers check permissions and preconditions first and map any remaining violation to a `400` or `409` result.
+
+Decisions recorded while building the slice:
+
+- The endpoints run `SaveEventValidator` (one validator for `SaveEventCommand`, used by create and edit) before the handler, so an invalid request is 400 for anyone signed in; a valid request from a role that may not manage events is 403. The validator's words are the form's inline errors: "The end time must be after the start time.", "Enter a venue address, or choose Online.", "Enter the joining link, or choose In person.", "Give the event a title people will recognise.", "Enter the city the event is in." and "Capacity must be at least 1, or leave it empty for no limit.". A joining link must be an `http` or `https` address.
+- The venue is kept only for in-person events and the link only for online ones. On the form, choosing Online swaps the Venue address field for a Joining link field.
+- `POST /api/events` answers 201 with `{ id }` and the event's location; `PUT /api/events/{id}` answers 204, 404 for an unknown event and 409 for a cancelled one. `GET /api/events/{id}` returns `EventDetailDto` (every field, RSVP count, cancelled state and `canManage`) for any signed-in member; the edit form loads from it, and the RSVP slice extends it.
+- `INotificationPublisher` is the notifications subsystem's seam: `DbNotificationPublisher` adds a `Notification` row to the unit of work, which the bell will read when the notifications feature is built. Members are not notified of their own edit (ADR 0011). The "event changed" email of `L2-028` arrives with the notifications feature.
+- A System Admin who holds neither Event Lead nor City Lead is acting on admin authority, so their create and edit are audited (`event.created`, `event.updated`).

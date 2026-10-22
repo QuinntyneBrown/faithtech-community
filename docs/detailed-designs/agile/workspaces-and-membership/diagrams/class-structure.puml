@@ -17,10 +17,19 @@ enum WorkspaceMethod {
 }
 enum WorkspaceAccess {
   Outsider
-  StaffReader
+  Staff
+  Admin
   Member
   Owner
-  SystemAdmin
+}
+class WorkspaceCaller <<record>> {
+  +Guid ProfileId
+  +WorkspaceAccess Access
+  +bool CanRead
+  +bool CanEdit
+  +bool CanManage
+  +bool IsOverride
+  +Refuse(manage: bool): Result?
 }
 class Workspace {
   +Guid Id
@@ -32,61 +41,83 @@ class Workspace {
   +IsMember(profileId: Guid): bool
   +AddMember(profile: Profile, now: DateTimeOffset): void
   +RemoveMember(profileId: Guid, items: IEnumerable<WorkItem>): void
+  +SwitchMethod(target: WorkspaceMethod, sprints, stories): void
 }
 class WorkspaceMember {
   +Guid WorkspaceId
   +Guid ProfileId
   +DateTimeOffset AddedAt
 }
-class CreateWorkspaceCommand {
-  +string Name
-  +WorkspaceMethod Method
+class CreateWorkspaceCommand <<record>> {
+  +string? Name
+  +string? Method
+  +IReadOnlyList<Guid>? MemberIds
 }
-class AddWorkspaceMemberCommand {
-  +Guid WorkspaceId
-  +Guid ProfileId
+class AddWorkspaceMembersCommand <<record>> {
+  +IReadOnlyList<Guid>? ProfileIds
 }
-class RemoveWorkspaceMemberCommand {
-  +Guid WorkspaceId
-  +Guid ProfileId
+class RenameWorkspaceCommand <<record>> {
+  +string? Name
 }
-class CreateWorkspaceHandler {
-  +Handle(cmd: CreateWorkspaceCommand): Task<WorkspaceDto>
+class SwitchMethodCommand <<record>> {
+  +string? Method
 }
-class AddWorkspaceMemberHandler {
-  +Handle(cmd: AddWorkspaceMemberCommand): Task<Result>
+class WorkspacesHandler {
+  +CreateAsync(command: CreateWorkspaceCommand): Task<(Result, WorkspaceDto?)>
+  +ListAsync(): Task<IReadOnlyList<WorkspaceSummaryDto>>
+  +GetAsync(id: Guid): Task<WorkspaceDto?>
 }
-class RemoveWorkspaceMemberHandler {
-  +Handle(cmd: RemoveWorkspaceMemberCommand): Task<Result>
+class WorkspaceMembership {
+  +AddMembersAsync(workspace: Workspace, actor: Guid, profileIds): Task<IReadOnlyList<Guid>?>
+}
+class WorkspaceSettingsHandler {
+  +AddMembersAsync(workspaceId: Guid, command: AddWorkspaceMembersCommand): Task<Result>
+  +RemoveMemberAsync(workspaceId: Guid, profileId: Guid): Task<Result>
+  +RenameAsync(workspaceId: Guid, command: RenameWorkspaceCommand): Task<Result>
+  +SwitchMethodAsync(workspaceId: Guid, command: SwitchMethodCommand): Task<Result>
+  +CandidatesAsync(workspaceId: Guid?): Task<(Result, IReadOnlyList<MemberCandidateDto>?)>
 }
 class WorkspaceAccessPolicy {
-  +Resolve(workspaceId: Guid): Task<WorkspaceAccess>
-  +EnsureCanRead(workspaceId: Guid): Task
-  +EnsureMember(workspaceId: Guid): Task
-  +EnsureOwner(workspaceId: Guid): Task
+  +bool ReadsEverything
+  +bool IsSystemAdmin
+  +CallerProfileIdAsync(): Task<Guid?>
+  +Classify(workspace: Workspace, caller: Guid?): WorkspaceAccess
+  +Visible(workspaces: IQueryable<Workspace>, caller: Guid?): IQueryable<Workspace>
+  +LoadAsync(workspaceId: Guid, includeArchived: bool): Task<(Workspace?, WorkspaceCaller)>
+  +AuthorizeAsync(workspaceId: Guid, manage: bool, includeArchived: bool): Task<(Workspace, WorkspaceCaller, Result?)>
+  +Audit(caller, action, targetType, targetId, before, after): void
+  +AuditOverride(caller, action, targetType, targetId, before, after): void
 }
 interface ICurrentUser {
-  +Guid ProfileId
-  +IReadOnlySet<Role> Roles
+  +Guid? UserId
+  +IReadOnlyCollection<Role> Roles
+  +HasRole(role: Role): bool
 }
-interface INotificationService {
-  +NotifyAsync(profileId: Guid, notification: Notification): Task
+class AgileNotifier {
+  +Notify(actor, recipient, kind, title, linkPath, subject, body): void
+  +SendEmailsAsync(): Task
 }
 interface IAuditLog {
-  +RecordAsync(entry: AuditEntry): Task
+  +Record(actorId, action, targetType, targetId, before, after): void
 }
 Workspace "1" *-- "*" WorkspaceMember
 Workspace --> WorkspaceMethod
-CreateWorkspaceHandler ..> CreateWorkspaceCommand : handles
-AddWorkspaceMemberHandler ..> AddWorkspaceMemberCommand : handles
-RemoveWorkspaceMemberHandler ..> RemoveWorkspaceMemberCommand : handles
-CreateWorkspaceHandler --> Workspace : creates
-AddWorkspaceMemberHandler --> Workspace : mutates
-RemoveWorkspaceMemberHandler --> Workspace : mutates
-AddWorkspaceMemberHandler ..> WorkspaceAccessPolicy
-RemoveWorkspaceMemberHandler ..> WorkspaceAccessPolicy
-AddWorkspaceMemberHandler ..> INotificationService
+WorkspaceCaller --> WorkspaceAccess
+WorkspacesHandler ..> CreateWorkspaceCommand : handles
+WorkspaceSettingsHandler ..> AddWorkspaceMembersCommand : handles
+WorkspaceSettingsHandler ..> RenameWorkspaceCommand : handles
+WorkspaceSettingsHandler ..> SwitchMethodCommand : handles
+WorkspacesHandler --> Workspace : creates, reads
+WorkspaceSettingsHandler --> Workspace : mutates
+WorkspaceMembership --> Workspace : AddMember
+WorkspacesHandler ..> WorkspaceMembership
+WorkspaceSettingsHandler ..> WorkspaceMembership
+WorkspacesHandler ..> WorkspaceAccessPolicy
+WorkspaceSettingsHandler ..> WorkspaceAccessPolicy
+WorkspaceAccessPolicy --> WorkspaceCaller : returns
 WorkspaceAccessPolicy ..> ICurrentUser
 WorkspaceAccessPolicy ..> IAuditLog
-WorkspaceAccessPolicy --> WorkspaceAccess
+WorkspaceMembership ..> AgileNotifier
+WorkspacesHandler ..> AgileNotifier : SendEmailsAsync
+WorkspaceSettingsHandler ..> AgileNotifier : SendEmailsAsync
 @enduml
