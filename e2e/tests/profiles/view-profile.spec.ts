@@ -122,7 +122,11 @@ test.describe('View a profile', () => {
     await expect(new ProfilePage(page).heading).toHaveText('Grace Okonkwo');
   });
 
-  test('shows skeletons while the profile loads', async ({ page, api }) => {
+  test('shows skeletons while the profile loads, accessible in both themes', async ({
+    page,
+    api,
+    axe,
+  }) => {
     const grace = api.addAccount({ email: 'grace@example.org' });
     let release!: () => void;
     const held = new Promise<void>((resolve) => (release = resolve));
@@ -133,6 +137,11 @@ test.describe('View a profile', () => {
     const profile = new ProfilePage(page);
     await api.signInAs(grace, '/people/slow');
 
+    await expect(profile.loading).toBeVisible();
+    // Checked while the request is still held, so the loading state itself is scanned.
+    await axe.check();
+    await page.emulateMedia({ colorScheme: 'dark' });
+    await axe.check();
     await expect(profile.loading).toBeVisible();
     release();
     await expect(profile.notFound).toBeVisible();
