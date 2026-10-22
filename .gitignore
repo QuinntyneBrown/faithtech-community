@@ -7,3 +7,4 @@ __pycache__/
 
 # Journey video recording runs (eng/videos/Record-JourneyVideos.ps1)
 eng/videos/.run/
+.cache/

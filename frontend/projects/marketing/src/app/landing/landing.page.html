@@ -5,7 +5,18 @@
         eyebrow="FaithTech Community"
         heading="Build with people who share your faith"
         lead="Meet the builders, leads and volunteers in your city, show up to events and hackathons together, and work on projects that serve your neighbours."
-      />
+      >
+        <ft-video-player
+          ftHeroMedia
+          src="/brochure/brochure.webm"
+          poster="/brochure/brochure-poster.jpg"
+          posterAlt="FaithTech builders pairing at a hackathon table"
+          captions="/brochure/brochure.en.vtt"
+          label="FaithTech Community in 21 seconds"
+          caption="FaithTech Community in 21 seconds · captions on"
+          [transcript]="transcript"
+        />
+      </ft-landing-hero>
       <section class="landing__section" aria-labelledby="why-join">
         <h2 id="why-join">Why join</h2>
         <ft-grid [auto]="true">

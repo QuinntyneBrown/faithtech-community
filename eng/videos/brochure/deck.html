@@ -1,0 +1,125 @@
+<!doctype html>
+<html lang="en" data-theme="light">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=1280, initial-scale=1" />
+    <title>FaithTech Community brochure deck</title>
+    <!-- Design-system tokens and mock photos only (ADR 0019); build.mjs shows one slide at a time. -->
+    <link rel="stylesheet" href="../../../docs/design-system/tokens/tokens.css" />
+    <style>
+      html,
+      body {
+        margin: 0;
+        width: 1280px;
+        height: 720px;
+        overflow: hidden;
+        background: var(--color-bg-canvas);
+        color: var(--color-fg-default);
+        font: var(--text-body-lg);
+      }
+      section {
+        display: none;
+        position: absolute;
+        inset: 0;
+        grid-template-columns: 1fr 1fr;
+        align-items: center;
+        gap: var(--space-12);
+        padding: var(--space-16);
+        box-sizing: border-box;
+      }
+      section.current {
+        display: grid;
+      }
+      .copy {
+        display: flex;
+        flex-direction: column;
+        gap: var(--space-5);
+      }
+      .eyebrow {
+        font: var(--text-overline);
+        letter-spacing: var(--letter-spacing-wide);
+        text-transform: uppercase;
+        color: var(--color-fg-accent);
+        margin: 0;
+      }
+      h1,
+      h2 {
+        font: var(--text-display);
+        letter-spacing: var(--letter-spacing-tight);
+        margin: 0;
+      }
+      p {
+        margin: 0;
+        color: var(--color-fg-muted);
+      }
+      img {
+        width: 100%;
+        aspect-ratio: 4 / 3;
+        object-fit: cover;
+        border-radius: var(--radius-xl);
+        box-shadow: var(--shadow-3);
+      }
+      .brand {
+        display: flex;
+        align-items: center;
+        gap: var(--space-3);
+        font: var(--text-h3);
+      }
+      .brand img {
+        width: var(--size-avatar-lg);
+        aspect-ratio: 1;
+        box-shadow: none;
+        border-radius: var(--radius-md);
+      }
+      .cta {
+        display: inline-block;
+        align-self: flex-start;
+        padding: var(--space-4) var(--space-8);
+        border-radius: var(--radius-full);
+        background: var(--color-accent);
+        color: var(--color-fg-on-accent);
+        font: var(--text-h4);
+      }
+    </style>
+  </head>
+  <body>
+    <section id="title">
+      <div class="copy">
+        <div class="brand">
+          <img src="../../../docs/mocks/assets/logo.svg" alt="" />FaithTech
+        </div>
+        <h1>Build with people who share your faith</h1>
+      </div>
+      <img src="../../../docs/mocks/assets/photos/hackathon.jpg" alt="" />
+    </section>
+    <section id="team">
+      <div class="copy">
+        <p class="eyebrow">Find your city team</p>
+        <h2>Builders, leads and volunteers near you</h2>
+      </div>
+      <img src="../../../docs/mocks/assets/photos/team.jpg" alt="" />
+    </section>
+    <section id="events">
+      <div class="copy">
+        <p class="eyebrow">Show up together</p>
+        <h2>Builders nights and hackathons</h2>
+      </div>
+      <img src="../../../docs/mocks/assets/photos/whiteboard-talk.jpg" alt="" />
+    </section>
+    <section id="build">
+      <div class="copy">
+        <p class="eyebrow">Build what matters</p>
+        <h2>Projects that serve your neighbours</h2>
+      </div>
+      <img src="../../../docs/mocks/assets/photos/hackathon-pairing.jpg" alt="" />
+    </section>
+    <section id="join">
+      <div class="copy">
+        <p class="eyebrow">FaithTech Community</p>
+        <h2>It’s free, and it takes a minute</h2>
+        <span class="cta">Join now at faithtech.community</span>
+      </div>
+      <img src="../../../docs/mocks/assets/photos/city.jpg" alt="" />
+    </section>
+  </body>
+</html>

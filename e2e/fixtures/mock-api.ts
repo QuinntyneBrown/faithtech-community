@@ -234,6 +234,11 @@ export class MockApi {
     this.storing.clear();
   }
 
+  /** The marketing page's brochure video cannot be fetched, as when the file is missing (L2-056 AC4). */
+  async breakBrochureVideo(): Promise<void> {
+    await this.page.route('**/brochure/brochure.webm', (route) => route.fulfill({ status: 404 }));
+  }
+
   /** Replaces the default behaviour of one endpoint, e.g. on('POST', '/api/account/sign-up', ...). */
   on(method: string, path: string, handler: Handler): void {
     this.overrides.set(`${method} ${path}`, handler);

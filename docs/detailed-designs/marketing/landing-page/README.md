@@ -2,7 +2,7 @@
 
 ## Overview
 
-The marketing page is FaithTech Community's public front door at `www.faithtech.community`. A visitor learns what the community is from a split hero and a 28-second brochure video, then signs in, signs up or continues with Google without leaving the page, and lands in the community app with a real authorization code + PKCE session.
+The marketing page is FaithTech Community's public front door at `www.faithtech.community`. A visitor learns what the community is from a split hero and a 21-second brochure video, then signs in, signs up or continues with Google without leaving the page, and lands in the community app with a real authorization code + PKCE session.
 
 **Marketing app** — the second Angular application in the workspace, `frontend/projects/marketing/`, served on its own host (ADR 0017)
 
@@ -41,8 +41,8 @@ Composition follows a split product hero (headline and video beside the sign-in 
 
 ### Brochure video
 
-- Source in `eng/videos/brochure/`: `script.md` (the narration, 28 seconds), `deck.html` (a timed slide deck using the design-system tokens and mock photos) and `build.mjs` (edge-tts narration and WebVTT captions, Playwright frame capture, ffmpeg mux) (ADR 0019). `node eng/videos/brochure/build.mjs` fails when the result is longer than 30 seconds.
-- Shipped assets: `frontend/projects/marketing/public/brochure/brochure.mp4`, `brochure-poster.jpg` and `brochure.en.vtt`. The transcript text on the page is the script.
+- Source in `eng/videos/brochure/`: `script.md` (the narration, 21 seconds), `deck.html` (a timed slide deck using the design-system tokens and mock photos) and `build.mjs` (edge-tts narration and WebVTT captions, Playwright frame capture, ffmpeg mux) (ADR 0019). `node eng/videos/brochure/build.mjs` fails when the result is longer than 30 seconds.
+- Shipped assets: `frontend/projects/marketing/public/brochure/brochure.webm`, `brochure-poster.jpg` and `brochure.en.vtt`. The transcript text on the page is the script.
 - `VideoPlayerComponent` renders `<video controls preload="none" poster>` with a default English captions track and no `autoplay`; on the media `error` event it swaps to the poster image with a warning alert and opens the transcript.
 
 ### Security and privacy

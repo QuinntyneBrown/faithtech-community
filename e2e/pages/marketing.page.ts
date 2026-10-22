@@ -16,6 +16,12 @@ export class MarketingPage {
   readonly callToAction: Locator;
   readonly callToActionJoin: Locator;
   readonly footer: Locator;
+  readonly video: Locator;
+  readonly videoCaption: Locator;
+  readonly transcript: Locator;
+  readonly transcriptToggle: Locator;
+  readonly videoUnavailable: Locator;
+  readonly videoPoster: Locator;
 
   constructor(private readonly page: Page) {
     this.heading = page.getByRole('heading', {
@@ -32,6 +38,63 @@ export class MarketingPage {
     this.callToAction = page.getByRole('region', { name: 'Ready to build with us?' });
     this.callToActionJoin = this.callToAction.getByRole('button', { name: 'Join now' });
     this.footer = page.getByRole('contentinfo');
+    this.video = page.locator('video');
+    this.videoCaption = page.locator('figure figcaption');
+    this.transcriptToggle = page.getByText('Read the transcript');
+    this.transcript = page.locator('details').filter({ has: this.transcriptToggle });
+    this.videoUnavailable = page.getByRole('status').filter({
+      hasText: 'This video can’t play right now',
+    });
+    this.videoPoster = page.getByRole('img', { name: /FaithTech builders/ });
+  }
+
+  /** Starts the brochure as a visitor pressing its Play control would. */
+  async playVideo(): Promise<void> {
+    await this.video.evaluate((v: HTMLVideoElement) => v.play().catch(() => undefined));
+  }
+
+  /** What the visitor's browser knows about the brochure: playing state, captions and length. */
+  videoState(): Promise<{
+    paused: boolean;
+    autoplay: boolean;
+    muted: boolean;
+    controls: boolean;
+    poster: string;
+    captions: { kind: string; language: string; mode: string }[];
+  }> {
+    return this.video.evaluate((v: HTMLVideoElement) => ({
+      paused: v.paused,
+      autoplay: v.autoplay,
+      muted: v.muted,
+      controls: v.controls,
+      poster: v.poster,
+      captions: [...v.textTracks].map((t) => ({
+        kind: t.kind,
+        language: t.language,
+        mode: t.mode,
+      })),
+    }));
+  }
+
+  /** The brochure file's length in seconds, read from its metadata. */
+  videoDuration(): Promise<number> {
+    return this.video.evaluate(
+      (v: HTMLVideoElement) =>
+        new Promise<number>((resolve, reject) => {
+          const probe = document.createElement('video');
+          probe.preload = 'metadata';
+          probe.onloadedmetadata = () => resolve(probe.duration);
+          probe.onerror = () => reject(new Error('The brochure did not load.'));
+          probe.src = v.currentSrc || v.src;
+        }),
+    );
+  }
+
+  /** Animations running on the page, which a reduced-motion visitor must not see. */
+  runningAnimations(): Promise<number> {
+    return this.page.evaluate(
+      () => document.getAnimations().filter((a) => a.playState === 'running').length,
+    );
   }
 
   async open(query = ''): Promise<void> {
