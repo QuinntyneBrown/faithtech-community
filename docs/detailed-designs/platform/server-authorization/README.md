@@ -15,7 +15,8 @@ The domain rules in `AGENTS.md` define what each role may see: private contacts 
 
 - **Fallback authorization policy** — configured in `Program.cs` with `RequireAuthenticatedUser()`, so every endpoint answers 401 to an unauthenticated call by default.
 - **`AllowAnonymous` endpoints** — public events, guest RSVP, sign-up, sign-in, password reset, verification, invite acceptance and announcement unsubscribe. No other endpoint carries the marker.
-- **`ICurrentUser`** — Application abstraction exposing `UserId`, `Roles`, `IsAuthenticated` and `HasRole(Role)`. `HttpCurrentUser` in the Api project reads it from the OpenIddict-validated principal.
+- **`ICurrentUser`** — Application abstraction exposing `UserId`, `Roles`, `IsAuthenticated` and `HasRole(Role)`. `HttpCurrentUser` in the Api project takes `UserId` from the OpenIddict-validated principal's subject. It takes `Roles` from `CurrentRolesMiddleware`, which runs right after authentication and loads the caller's roles from their profile on every request.
+- **Role freshness policy** — the server never authorizes with the role claims inside a token. Those claims are a snapshot from the moment the token was issued and survive refresh. Instead, every request reads the caller's current profile roles. A removed City Lead or System Admin role stops working on the very next call, even with an old access token or one obtained by refreshing it. An added role works at once. `/api/me` returns the current roles, and the web app reloads them whenever it restores the session. Role changes therefore need no token revocation, and role assignment limits, last-admin protection, notifications and auditing are unchanged (`L2-009`, `L2-042` AC4).
 - **`IPermissionFilters`** — Application service with query extensions such as `VisibleContacts(ICurrentUser)` and `VisibleWorkItems(ICurrentUser)` that compose `IQueryable` predicates, so list, search and export filters run in SQL.
 - **`AuthorizationRules`** — Application helpers for write checks such as `CanAssignRole(actor, role)` and `CanWrite(actor)` (false for Staff-only callers).
 - **`NotFoundOrForbidden` convention** — handlers that load by ID through a permission filter return `Result.NotFound` when the filtered query finds nothing; endpoints map it to 404.
@@ -36,6 +37,7 @@ The feature realizes the following level-2 (L2) requirements. Each L2 requiremen
 1. Given any API endpoint, when it is called without authentication, then the response is 401, except for the endpoints explicitly marked anonymous: public events, guest RSVP, sign-up, sign-in, password reset, verification, invite acceptance and announcement unsubscribe.
 2. Given a resource the caller is not permitted to see, when it is requested by ID, then the response is 404, not 403, so that its existence is not revealed.
 3. Given a list, search or export, when it is built, then the permission filters are applied in the database query, not after loading the data.
+4. Given a role added to or removed from a user, when that user next calls the API, including with an access or refresh token issued before the change, then the server authorizes with the profile's current roles, and `/api/me` reports them.
 
 ## Diagrams
 
