@@ -19,7 +19,7 @@ type SaveState = 'idle' | 'saving' | 'saved' | 'failed';
 /**
  * Settings (mock `pages/settings`). Appearance applies the chosen theme at once and remembers it
  * on this device (L2-045 AC6). "Email me announcements" saves the announcement email opt-out when it is
- * flipped (L2-030 AC2, ADR 0015). The account card joins when its design is built.
+ * flipped (L2-030 AC2, ADR 0016). The account card joins when its design is built.
  */
 @Component({
   selector: 'ft-settings-page',

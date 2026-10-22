@@ -1,4 +1,4 @@
-# 0015. Notifications, announcements and search: the open questions
+# 0016. Notifications, announcements and search: the open questions
 
 - Status: Accepted
 - Date: 2026-10-22

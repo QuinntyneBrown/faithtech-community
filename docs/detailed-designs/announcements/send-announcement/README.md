@@ -20,7 +20,7 @@ Each recipient receives an in-app notification and, unless the recipient opted o
 - **`Announcement`** — Domain entity with `Subject`, `Body`, `Audience`, `SenderId`, `SentAt` and `AlsoEmail`, plus `AnnouncementRecipient` rows, added once each through `AddRecipients`, that record who received it.
 - **`INotificationPublisher`** — creates the in-app notification and enqueues the email, honouring the opt-out (`L2-028`).
 
-Sends to large audiences run in one request that stores the announcement, the recipients, their notifications and their queued emails in one save; the outbox worker delivers the emails. A background fan-out job is deferred (ADR 0015).
+Sends to large audiences run in one request that stores the announcement, the recipients, their notifications and their queued emails in one save; the outbox worker delivers the emails. A background fan-out job is deferred (ADR 0016).
 
 ## Requirements
 

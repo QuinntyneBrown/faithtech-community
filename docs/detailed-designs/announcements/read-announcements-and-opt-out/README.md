@@ -20,7 +20,7 @@ The unsubscribe endpoint is one of the anonymous endpoints listed in `L2-042`.
 - **`UnsubscribeFromAnnouncementsCommand`** / **`UnsubscribeFromAnnouncementsHandler`** — validates the token through `IUnsubscribeTokenService` and sets the opt-out for the profile it names.
 - **`IUnsubscribeTokenService`** — Infrastructure service that issues and verifies tokens with ASP.NET Data Protection.
 
-The token is time-limited to one year. The email link opens the anonymous `UnsubscribePage` (`/unsubscribe?token=`, mock `pages/unsubscribe`: default, success, error) in the `announcements` library, which posts the token; a `GET` never changes anything (ADR 0015).
+The token is time-limited to one year. The email link opens the anonymous `UnsubscribePage` (`/unsubscribe?token=`, mock `pages/unsubscribe`: default, success, error) in the `announcements` library, which posts the token; a `GET` never changes anything (ADR 0016).
 
 ## Requirements
 

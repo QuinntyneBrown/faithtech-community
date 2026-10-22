@@ -19,12 +19,12 @@ import {
 } from '@faithtech-community/components';
 import { filter, firstValueFrom } from 'rxjs';
 
-/** How often the bell reloads while the tab is visible (ADR 0015). */
+/** How often the bell reloads while the tab is visible (ADR 0016). */
 export const NOTIFICATIONS_REFRESH_MS = 60_000;
 
 /**
  * The top bar's bell and panel (L2-027). Lives in the shell, not in the notifications library, so the shell
- * imports no feature library eagerly (ADR 0015). Reloads on every navigation and once a minute.
+ * imports no feature library eagerly (ADR 0016). Reloads on every navigation and once a minute.
  */
 @Component({
   selector: 'ft-shell-notifications',

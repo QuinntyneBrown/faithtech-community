@@ -5,26 +5,6 @@ using Microsoft.Extensions.Options;
 
 namespace FaithTech.Community.Application.Notifications;
 
-/// <summary>The email form of a notification. The link to the related item is appended to the body.</summary>
-public record NotificationEmail(string Subject, string Body);
-
-/// <summary>
-/// The one way new features raise notifications (L2-027, L2-028): an in-app notification per recipient and,
-/// when the source has an email form, a queued email. Both join the caller's unit of work; the caller saves.
-/// </summary>
-public interface INotificationPublisher
-{
-    /// <summary>Returns how many emails were queued.</summary>
-    Task<int> PublishAsync(
-        IReadOnlyCollection<Guid> recipientIds,
-        NotificationKind kind,
-        string title,
-        string linkPath,
-        Guid? actorId,
-        Func<Guid, NotificationEmail?>? email,
-        CancellationToken cancellationToken = default);
-}
-
 /// <summary>
 /// Only announcement emails can be turned off: a recipient with <c>AnnouncementEmailsOptedOut</c> still gets the
 /// in-app notification and every other kind of email (L2-028 AC3).
@@ -32,6 +12,9 @@ public interface INotificationPublisher
 public class NotificationPublisher(IApplicationDbContext db, IEmailQueue emails, IOptions<WebAppOptions> webApp, TimeProvider time)
     : INotificationPublisher
 {
+    public void Publish(Guid recipientProfileId, NotificationKind kind, string title, string linkPath) =>
+        db.Notifications.Add(new Notification(recipientProfileId, kind, title, linkPath, time.GetUtcNow()));
+
     public async Task<int> PublishAsync(
         IReadOnlyCollection<Guid> recipientIds,
         NotificationKind kind,

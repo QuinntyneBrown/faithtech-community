@@ -23,7 +23,7 @@ export interface NotificationDto {
   linkPath: string;
   createdAt: string;
   readAt: string | null;
-  /** The member whose action raised it, when there is one (ADR 0015). */
+  /** The member whose action raised it, when there is one (ADR 0016). */
   actorId: string | null;
   actorName: string | null;
 }

@@ -70,7 +70,7 @@ public class AnnouncementAccess(ICurrentUser current)
 }
 
 /// <summary>
-/// Resolves an audience to the members who receive it: members with an account who are not suspended (ADR 0015).
+/// Resolves an audience to the members who receive it: members with an account who are not suspended (ADR 0016).
 /// Guests who RSVP'd have no account, so an RSVP audience counts members only.
 /// </summary>
 public class AudienceResolver(IApplicationDbContext db)

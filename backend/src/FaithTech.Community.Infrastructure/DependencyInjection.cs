@@ -10,7 +10,6 @@ using FaithTech.Community.Infrastructure.Admin;
 using FaithTech.Community.Infrastructure.Calendar;
 using FaithTech.Community.Infrastructure.Email;
 using FaithTech.Community.Infrastructure.Identity;
-using FaithTech.Community.Infrastructure.Notifications;
 using FaithTech.Community.Infrastructure.Persistence;
 using FaithTech.Community.Infrastructure.Storage;
 using Microsoft.AspNetCore.DataProtection;
@@ -79,7 +78,6 @@ public static class DependencyInjection
 
         services.AddHttpContextAccessor();
         services.AddScoped<IAuditLog, AuditLog>();
-        services.AddScoped<INotificationPublisher, DbNotificationPublisher>();
         services.AddSingleton<IIcsCalendarWriter, IcsCalendarWriter>();
 
         services.AddScoped<CommunitySeeder>();

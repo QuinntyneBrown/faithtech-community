@@ -65,7 +65,7 @@ const SENDERS: Role[] = ['CommunicationsLead', 'SystemAdmin'];
 
 /**
  * Compose and send an announcement (L2-029, mock `pages/compose-announcement`). The send button shows how
- * many people the chosen audience reaches; Communications Leads and System Admins only (ADR 0015).
+ * many people the chosen audience reaches; Communications Leads and System Admins only (ADR 0016).
  */
 @Component({
   selector: 'ft-compose-announcement-page',

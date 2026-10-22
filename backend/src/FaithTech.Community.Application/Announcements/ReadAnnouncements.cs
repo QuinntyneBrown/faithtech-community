@@ -18,7 +18,7 @@ public record AnnouncementListItem(
 public record AnnouncementEmailOptOut(bool OptedOut);
 
 /// <summary>
-/// The announcements sent to the caller, newest first (L2-030 AC1), plus those the caller sent (ADR 0015).
+/// The announcements sent to the caller, newest first (L2-030 AC1), plus those the caller sent (ADR 0016).
 /// </summary>
 public class ListMyAnnouncementsHandler(IApplicationDbContext db, ICurrentUser current)
 {
@@ -95,7 +95,7 @@ public class AnnouncementEmailOptOutHandler(IApplicationDbContext db, ICurrentUs
 }
 
 /// <summary>
-/// Signed, single-purpose unsubscribe tokens for announcement emails (L2-030 AC3, ADR 0015). A token names one
+/// Signed, single-purpose unsubscribe tokens for announcement emails (L2-030 AC3, ADR 0016). A token names one
 /// profile and works for a year; it can do nothing but turn that profile's announcement emails off.
 /// </summary>
 public interface IUnsubscribeTokens

@@ -12,7 +12,7 @@ type State = 'working' | 'done' | 'invalid';
 
 /**
  * The page an announcement email's unsubscribe link opens (L2-030 AC3, mock `pages/unsubscribe`). Anonymous:
- * it posts the link's signed token, so no sign-in is needed and a link scanner's GET changes nothing (ADR 0015).
+ * it posts the link's signed token, so no sign-in is needed and a link scanner's GET changes nothing (ADR 0016).
  */
 @Component({
   selector: 'ft-unsubscribe-page',

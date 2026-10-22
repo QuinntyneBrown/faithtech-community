@@ -26,7 +26,7 @@ const SENDERS: Role[] = ['CommunicationsLead', 'SystemAdmin'];
 
 /**
  * The announcements sent to the member, newest first (L2-030, mock `pages/announcements`). Communications
- * Leads and System Admins also see what they sent, and New announcement (ADR 0015).
+ * Leads and System Admins also see what they sent, and New announcement (ADR 0016).
  */
 @Component({
   selector: 'ft-announcements-page',

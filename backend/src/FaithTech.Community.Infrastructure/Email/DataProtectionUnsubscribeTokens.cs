@@ -7,7 +7,7 @@ namespace FaithTech.Community.Infrastructure.Email;
 
 /// <summary>
 /// Unsubscribe tokens protected with ASP.NET Data Protection under their own purpose, so no other signed value
-/// in the system is accepted as one. The payload is the profile id and the time of issue (ADR 0015).
+/// in the system is accepted as one. The payload is the profile id and the time of issue (ADR 0016).
 /// </summary>
 public class DataProtectionUnsubscribeTokens(IDataProtectionProvider provider, TimeProvider time) : IUnsubscribeTokens
 {

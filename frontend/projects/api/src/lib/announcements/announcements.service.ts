@@ -27,7 +27,7 @@ export interface AnnouncementSent {
   emailCount: number;
 }
 
-/** An announcement sent to the caller, or by them (L2-030, ADR 0015). */
+/** An announcement sent to the caller, or by them (L2-030, ADR 0016). */
 export interface AnnouncementDto {
   id: string;
   subject: string;
