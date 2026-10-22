@@ -44,6 +44,6 @@ Ordered by value to the user. Effort and completion come from [estimates](estima
 | 37 | Merge duplicate partners | Spot a partner added twice, merge the two records without losing history, or mark them as different. | 6 | 100 |
 | 38 | Avoid duplicate contacts | The contact form warns a lead who already keeps a contact with the same email. | 2 | 100 |
 | 39 | Check in at the door | Leads check attendees in, add walk-ins and export the attendance. | 6 | 100 |
-| 40 | Read the reports | Staff and System Admins see city figures, charts and tables, filter them and export CSV. | 7 | 95 |
+| 40 | Read the reports | Staff and System Admins see city figures, charts and tables, filter them and export CSV. | 7 | 100 |
 
 Journeys 33 to 35 (Resources) are not yet recorded in [`videos/journeys/`](videos/journeys/README.md); record them with `pwsh eng/videos/Record-JourneyVideos.ps1` once the screens are built. The app shell tour needs re-recording too, because the shell gains the Resources nav item.
