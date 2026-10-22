@@ -12,6 +12,7 @@ import { CheckboxComponent } from './checkbox.component';
     hint="Only people with a lead or volunteer role can be added."
     [formControl]="ctrl"
     [error]="error"
+    [legendHidden]="hidden"
   >
     <ft-checkbox value="marcus" description="Event Lead">Marcus Lee</ft-checkbox>
     <ft-checkbox value="hannah" description="Communications Lead">Hannah Kim</ft-checkbox>
@@ -21,6 +22,7 @@ import { CheckboxComponent } from './checkbox.component';
 class HostComponent {
   ctrl = new FormControl<string[]>(['marcus', 'ruth'], { nonNullable: true });
   error = '';
+  hidden = false;
 }
 
 describe('CheckboxGroupComponent', () => {
@@ -74,6 +76,17 @@ describe('CheckboxGroupComponent', () => {
     cmp.ctrl.disable();
     fixture.detectChanges();
     expect(boxes().every((b) => b.disabled)).toBe(true);
+  });
+
+  it('can hide its legend visually while keeping the group named', () => {
+    const { fixture, cmp, host } = setup();
+    expect(host.querySelector('legend')!.classList.contains('visually-hidden')).toBe(false);
+    cmp.hidden = true;
+    fixture.changeDetectorRef.markForCheck();
+    fixture.detectChanges();
+    const legend = host.querySelector('legend')!;
+    expect(legend.classList.contains('visually-hidden')).toBe(true);
+    expect(legend.textContent).toContain('Members');
   });
 
   it('shows a group error described by the fieldset', () => {

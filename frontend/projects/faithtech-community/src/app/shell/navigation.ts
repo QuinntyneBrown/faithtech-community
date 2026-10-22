@@ -18,8 +18,7 @@ const has =
 
 /**
  * Every section in the order the top bar, the tab bar and the menu show them
- * (docs/adr/0009-shell-navigation-by-role.md). The mock's Workspaces joins when the Agile feature
- * has a route.
+ * (docs/adr/0009-shell-navigation-by-role.md).
  */
 export const SECTIONS: readonly Section[] = [
   { label: 'Home', href: '/', icon: 'home', opens: anyone },
@@ -32,6 +31,14 @@ export const SECTIONS: readonly Section[] = [
     href: '/partners',
     icon: 'partners',
     opens: (roles) => isLead(roles) || roles.includes('Staff'),
+  },
+  // Workspaces are for leads and volunteers; Staff and System Admin see all of them (L2-050).
+  {
+    label: 'Workspaces',
+    href: '/workspaces',
+    icon: 'workspaces',
+    secondary: true,
+    opens: (roles) => isLead(roles) || has('Volunteer', 'Staff', 'SystemAdmin')(roles),
   },
   { label: 'Team', href: '/team', icon: 'team', secondary: true, opens: anyone },
   {

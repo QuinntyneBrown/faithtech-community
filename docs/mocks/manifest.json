@@ -653,7 +653,9 @@
         "staff",
         "loading",
         "empty",
-        "error"
+        "error",
+        "empty-member",
+        "archived"
       ],
       "not_applicable": {}
     },
@@ -672,7 +674,8 @@
         "invalid",
         "loading",
         "error",
-        "forbidden"
+        "forbidden",
+        "needs-owner"
       ],
       "not_applicable": {
         "empty": "A workspace always has at least its owner."
@@ -696,7 +699,8 @@
         "loading",
         "empty",
         "error",
-        "forbidden"
+        "forbidden",
+        "phone"
       ],
       "not_applicable": {}
     },
@@ -739,7 +743,8 @@
         "empty",
         "loading",
         "error",
-        "forbidden"
+        "forbidden",
+        "not-in-sprint"
       ],
       "not_applicable": {}
     },
@@ -865,7 +870,9 @@
         "task",
         "invalid",
         "busy",
-        "failed"
+        "failed",
+        "invalid-title",
+        "edit"
       ],
       "not_applicable": {}
     },
@@ -1167,6 +1174,23 @@
       ],
       "not_applicable": {
         "invalid": "A stage is always selected."
+      }
+    },
+    {
+      "id": "move-card",
+      "kind": "dialog",
+      "title": "Move card",
+      "opens_from": "team-board",
+      "requirements": [
+        "L2-034"
+      ],
+      "states": [
+        "default",
+        "busy",
+        "failed"
+      ],
+      "not_applicable": {
+        "invalid": "A column is always selected."
       }
     },
     {

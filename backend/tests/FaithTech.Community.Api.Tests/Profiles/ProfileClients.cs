@@ -1,6 +1,8 @@
+using System.Runtime.CompilerServices;
 using FaithTech.Community.Application.Identity;
 using FaithTech.Community.Domain.Profiles;
 using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace FaithTech.Community.Api.Tests.Profiles;
@@ -35,12 +37,16 @@ public static class ProfileClients
         });
     }
 
+    // One test-auth server per fixture: building a server per client made every test pay for a host start.
+    private static readonly ConditionalWeakTable<CommunityApiFactory, WebApplicationFactory<Program>> TestAuthServers = new();
+
     /// <summary>A client authenticated as the member, carrying the given roles in its token.</summary>
     public static HttpClient ClientFor(this CommunityApiFactory factory, Member member, params Role[] roles)
     {
-        var client = factory.WithWebHostBuilder(b => b.ConfigureServices(s => s
+        var server = TestAuthServers.GetValue(factory, f => f.WithWebHostBuilder(b => b.ConfigureServices(s => s
             .AddAuthentication(TestAuthHandler.SchemeName)
-            .AddScheme<AuthenticationSchemeOptions, TestAuthHandler>(TestAuthHandler.SchemeName, null))).CreateClient();
+            .AddScheme<AuthenticationSchemeOptions, TestAuthHandler>(TestAuthHandler.SchemeName, null))));
+        var client = server.CreateClient();
         client.DefaultRequestHeaders.Add(TestAuthHandler.Header, $"{member.UserId};{string.Join(',', roles)}");
         return client;
     }

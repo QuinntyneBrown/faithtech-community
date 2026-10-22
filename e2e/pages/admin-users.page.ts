@@ -9,6 +9,7 @@ export class AdminUsersPage {
   readonly forbidden: Locator;
   readonly clearSearch: Locator;
   readonly auditLogTab: Locator;
+  readonly needsOwner: Locator;
 
   constructor(private readonly page: Page) {
     this.heading = page.getByRole('heading', { level: 1 });
@@ -17,9 +18,16 @@ export class AdminUsersPage {
     this.loadError = page.getByRole('heading', { name: 'We couldn’t load users' });
     this.forbidden = page.getByRole('heading', { name: 'This area is for System Admins' });
     this.clearSearch = page.getByRole('button', { name: 'Clear search' });
+    this.needsOwner = page.locator('ft-alert').filter({ hasText: 'A workspace needs a new owner' });
     this.auditLogTab = page.getByRole('navigation', { name: 'Admin sections' }).getByRole('link', {
       name: 'Audit log',
     });
+  }
+
+  workspaceSettings(workspace: string): Locator {
+    return this.needsOwner
+      .filter({ hasText: workspace })
+      .getByRole('link', { name: 'Open workspace settings' });
   }
 
   async open(): Promise<void> {

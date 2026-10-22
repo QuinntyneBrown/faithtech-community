@@ -1,0 +1,16 @@
+/* Feature libraries build against ./dist, so build components and api first (npm run build:libs). */
+{
+  "extends": "../../tsconfig.json",
+  "compilerOptions": {
+    "outDir": "../../out-tsc/lib",
+    "declaration": true,
+    "declarationMap": true,
+    "types": [],
+    "paths": {
+      "@faithtech-community/components": ["../../dist/components"],
+      "@faithtech-community/api": ["../../dist/api"]
+    }
+  },
+  "include": ["src/**/*.ts"],
+  "exclude": ["**/*.spec.ts"]
+}

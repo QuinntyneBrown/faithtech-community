@@ -1,4 +1,7 @@
 <div class="ft-kanban__card" [class.ft-kanban__card--movable]="movable()">
+  @if (kind(); as k) {
+    <ft-badge [variant]="kindVariant()">{{ k }}</ft-badge>
+  }
   <a class="ft-kanban__link" [attr.href]="href()">{{ title() }}</a>
   @if (caption()) {
     <span class="ft-kanban__caption">{{ caption() }}</span>
@@ -7,7 +10,7 @@
     <ft-button
       variant="ghost"
       size="sm"
-      [label]="'Move ' + title() + ' to another stage'"
+      [label]="'Move ' + title() + ' to ' + moveTarget()"
       (click)="moveRequested.emit(cardId())"
     >
       <ft-icon name="move" size="sm" />

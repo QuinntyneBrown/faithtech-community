@@ -161,6 +161,43 @@ public class PokerSessionTests
         Assert.Null(_first.StoryPoints);
     }
 
+    [Fact]
+    public void A_participant_can_withdraw_their_vote_before_the_reveal()
+    {
+        var session = NewSession();
+        session.CastVote(_voter, DeckValue.Eight);
+
+        session.WithdrawVote(_voter);
+
+        Assert.Null(session.CurrentVoteOf(_voter));
+        session.Reveal(_facilitator);
+        Assert.Throws<InvalidOperationException>(() => session.WithdrawVote(_voter));
+    }
+
+    [Fact]
+    public void Setting_the_points_remembers_the_last_estimate_for_everyone_to_see()
+    {
+        var session = NewSession();
+
+        session.SetFinalPoints(_facilitator, 8, _first);
+
+        Assert.Equal(((Guid?)_first.Id, (int?)8, false), (session.LastStoryId, session.LastPoints, session.IsClosed));
+        session.SetFinalPoints(_facilitator, 3, _second);
+        Assert.Equal((true, true), (session.IsComplete, session.IsClosed));
+    }
+
+    [Fact]
+    public void Only_the_facilitator_ends_a_session_early()
+    {
+        var session = NewSession();
+
+        Assert.Throws<InvalidOperationException>(() => session.End(_voter));
+        session.End(_facilitator);
+
+        Assert.Equal((true, true, (Guid?)null), (session.IsClosed, session.IsComplete, session.CurrentStoryId));
+        Assert.Throws<InvalidOperationException>(() => session.CastVote(_voter, DeckValue.One));
+    }
+
     [Theory]
     [InlineData(DeckValue.One, 1)]
     [InlineData(DeckValue.Two, 2)]

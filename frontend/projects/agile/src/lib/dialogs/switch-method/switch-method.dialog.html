@@ -1,0 +1,29 @@
+<ft-dialog
+  [heading]="'Switch ' + data.workspace.name + ' to ' + target() + '?'"
+  [description]="description()"
+  icon="settings"
+  [busy]="busy()"
+  (closed)="ref.close()"
+>
+  @if (failed()) {
+    <ft-alert status="danger" heading="That didn’t work">
+      We couldn’t reach FaithTech. Nothing was changed — try again.
+    </ft-alert>
+  }
+  <ft-radio-group legend="Method" [formControl]="method">
+    <ft-radio value="Scrum" description="Sprints with a name, goal and dates">Scrum</ft-radio>
+    <ft-radio value="Kanban" description="Continuous flow on To Do → In Progress → Done"
+      >Kanban</ft-radio
+    >
+  </ft-radio-group>
+  <ft-button ftDialogFooter [disabled]="busy()" (click)="ref.close()">Cancel</ft-button>
+  <ft-button
+    ftDialogFooter
+    variant="primary"
+    [disabled]="unchanged()"
+    [loading]="busy()"
+    (click)="switch()"
+  >
+    Switch to {{ target() }}
+  </ft-button>
+</ft-dialog>

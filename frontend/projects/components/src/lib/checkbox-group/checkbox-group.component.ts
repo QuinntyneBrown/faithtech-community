@@ -41,6 +41,8 @@ export class CheckboxGroupComponent implements ControlValueAccessor {
   /** A line under the legend saying who or what can be chosen. */
   readonly hint = input('');
   readonly error = input('');
+  /** Hide the legend visually when a visible heading already names the group (a story's Tasks). */
+  readonly legendHidden = input(false);
 
   readonly value = signal<readonly string[]>([]);
   readonly disabled = signal(false);

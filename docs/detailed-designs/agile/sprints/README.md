@@ -96,3 +96,5 @@ Closing returns unfinished stories to the backlog and records the completed poin
 Decisions recorded while building the Domain layer (`FaithTech.Community.Domain`):
 
 - Starting a sprint is a `Workspace` operation so the one-active-sprint rule holds in the Domain as well as in the partial unique index. A planned sprint may also be closed (used by a switch to Kanban). Domain rule violations throw `InvalidOperationException` (a broken rule) or `ArgumentException` (invalid input); there is no shared domain exception type. Handlers check permissions and preconditions first and map any remaining violation to a `400` or `409` result.
+- `Sprint.CommittedPoints` is recorded when a sprint closes: the points of every story the sprint held, Done or not. The sprint history shows completed of committed points, and the average of the last three closed sprints guides the next sprint.
+- Starting a sprint closes the active one first and then moves the chosen stories in, so the closing sprint's committed points do not include them.

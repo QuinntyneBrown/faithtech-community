@@ -1,0 +1,84 @@
+<ft-page-header title="Workspaces" [subtitle]="subtitle()">
+  @if (canCreate()) {
+    <ft-button ftPageHeaderActions variant="primary" (click)="create()">
+      <ft-icon name="add" /> New workspace
+    </ft-button>
+  }
+</ft-page-header>
+
+@if (isStaff()) {
+  <ft-alert status="info" heading="Read-only for Staff">
+    You can see every workspace, item and sprint but can’t change them.
+  </ft-alert>
+}
+
+@switch (state()) {
+  @case ('loading') {
+    <ft-list-skeleton label="Loading workspaces" [rows]="3" />
+  }
+  @case ('error') {
+    <ft-empty-state
+      variant="error"
+      heading="We couldn’t load your workspaces"
+      text="Check your connection and try again. If it keeps happening, we’ve already been told about it."
+    >
+      <ft-button actions variant="primary" (click)="retry()">Try again</ft-button>
+    </ft-empty-state>
+  }
+  @case ('loaded') {
+    @if (list().length === 0 && archived().length === 0) {
+      @if (canCreate()) {
+        <ft-empty-state
+          icon="workspaces"
+          heading="Create your first workspace"
+          text="Plan your team’s work with Scrum sprints or a Kanban board. You choose who’s in it from your leads and volunteers."
+        >
+          <ft-button actions variant="primary" (click)="create()">New workspace</ft-button>
+        </ft-empty-state>
+      } @else {
+        <ft-empty-state
+          icon="workspaces"
+          heading="No workspaces yet"
+          text="When a City Lead adds you to a workspace, it shows up here."
+        />
+      }
+    } @else {
+      @if (list().length) {
+        <ft-card variant="flush">
+          <ft-list label="Workspaces">
+            @for (workspace of list(); track workspace.id) {
+              <ft-list-item
+                [label]="workspace.name"
+                [href]="'/workspaces/' + workspace.id"
+                [meta]="meta(workspace)"
+              >
+                <ft-icon-tile leading name="workspaces" />
+                @if (workspace.isOwner) {
+                  <ft-badge trailing variant="info">Owner</ft-badge>
+                }
+              </ft-list-item>
+            }
+          </ft-list>
+        </ft-card>
+      }
+      @if (archived().length) {
+        <ft-card variant="flush" heading="Archived">
+          <ft-list label="Archived workspaces">
+            @for (workspace of archived(); track workspace.id) {
+              <ft-list-item [label]="workspace.name" [meta]="archivedMeta(workspace)">
+                <ft-icon-tile leading name="workspaces" />
+                <ft-button
+                  trailing
+                  [label]="'Restore ' + workspace.name"
+                  (click)="restore(workspace)"
+                >
+                  <ft-icon name="restore" /> Restore
+                </ft-button>
+              </ft-list-item>
+            }
+          </ft-list>
+        </ft-card>
+      }
+    }
+  }
+}

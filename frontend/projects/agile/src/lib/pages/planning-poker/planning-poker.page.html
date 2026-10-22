@@ -1,0 +1,123 @@
+<ft-workspace-frame
+  [workspaceId]="id()"
+  [workspace]="workspace()"
+  section="poker"
+  [subtitle]="subtitle()"
+  [notFound]="state() === 'not-found'"
+>
+  @if (session()?.isFacilitator) {
+    <ft-button ftWorkspaceActions variant="ghost" [disabled]="busy()" (click)="end()">
+      End session
+    </ft-button>
+    @if (!session()?.isRevealed) {
+      <ft-button ftWorkspaceActions variant="primary" [loading]="busy()" (click)="reveal()">
+        Reveal votes
+      </ft-button>
+    }
+  }
+  @switch (state()) {
+    @case ('loading') {
+      <ft-list-skeleton label="Loading Planning Poker" [rows]="3" />
+    }
+    @case ('error') {
+      <ft-empty-state
+        variant="error"
+        heading="We couldn’t load Planning Poker"
+        text="Check your connection and try again. If it keeps happening, we’ve already been told about it."
+      >
+        <ft-button actions variant="primary" (click)="retry()">Try again</ft-button>
+      </ft-empty-state>
+    }
+    @case ('loaded') {
+      @if (session(); as s) {
+        <ft-split>
+          <ft-stack ftSplitMain>
+            <ft-card>
+              <p class="overline">Now estimating · {{ s.storyNumber }} of {{ s.storyCount }}</p>
+              <h2 class="story">
+                <ft-badge variant="success">Story</ft-badge>
+                {{ s.story.title }}
+              </h2>
+              @if (s.story.description) {
+                <p class="text-muted description">{{ s.story.description }}</p>
+              }
+            </ft-card>
+
+            @if (status(); as st) {
+              <ft-alert [status]="st.status" [heading]="st.heading">{{ st.text }}</ft-alert>
+            }
+
+            @if (s.isFacilitator && s.isRevealed) {
+              <ft-card heading="You’re the facilitator">
+                <ft-cluster gap="3">
+                  <div class="final">
+                    <ft-form-field label="Final points">
+                      <ft-select [formControl]="finalPoints" [options]="pointOptions" />
+                    </ft-form-field>
+                  </div>
+                  <ft-button variant="primary" [loading]="busy()" (click)="setPoints()">
+                    Set points
+                  </ft-button>
+                  <ft-button [disabled]="busy()" (click)="revote()">Re-vote</ft-button>
+                </ft-cluster>
+              </ft-card>
+            }
+
+            @if (s.canVote) {
+              @if (voteFailed(); as text) {
+                <ft-alert status="danger" heading="We couldn’t save your vote">{{ text }}</ft-alert>
+              }
+              <ft-card>
+                <ft-estimate-picker
+                  label="Your vote"
+                  [(value)]="chosen"
+                  [disabled]="s.isRevealed || busy()"
+                  [error]="voteError()"
+                  (valueChange)="vote($event)"
+                />
+              </ft-card>
+            } @else if (workspace()?.access === 'Staff') {
+              <ft-alert status="info" heading="Watching as Staff">
+                You can follow the session live, but only workspace members vote.
+              </ft-alert>
+            } @else {
+              <ft-alert status="info" heading="Watching this session">
+                Only invited members vote. Ask {{ facilitatorFirstName() }} to invite you next time.
+              </ft-alert>
+            }
+          </ft-stack>
+
+          <ft-card
+            ftSplitAside
+            variant="flush"
+            [heading]="'Votes (' + s.participants.length + ' invited)'"
+          >
+            <ft-list label="Votes">
+              @for (p of s.participants; track p.profileId) {
+                <ft-list-item [label]="title(p)">
+                  <ft-avatar leading size="sm" [name]="p.name" />
+                  <ft-estimate-card
+                    trailing
+                    [person]="p.name"
+                    [vote]="tile(p)"
+                    [revealed]="s.isRevealed"
+                  />
+                </ft-list-item>
+              }
+            </ft-list>
+          </ft-card>
+        </ft-split>
+      } @else {
+        <ft-empty-state
+          icon="team"
+          heading="No session running"
+          text="Any member can start one: pick stories, invite people, and vote together. Votes stay hidden until the facilitator reveals them."
+        >
+          @if (canStart()) {
+            <ft-button actions variant="primary" (click)="start()">Start a session</ft-button>
+          }
+        </ft-empty-state>
+      }
+    }
+  }
+</ft-workspace-frame>

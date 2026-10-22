@@ -16,7 +16,7 @@ The mocks hand-copied the top bar and tab bar per persona, and the sets disagree
   - Home, Events, Team, Announcements: every member.
   - Contacts: any lead role or System Admin (private contacts, L2-012).
   - Partners: any lead role, Staff or System Admin (L2-017).
-  - Workspaces (mocks only until the Agile feature has a route): any lead role, Volunteer, Staff or System Admin.
+  - Workspaces: any lead role, Volunteer, Staff or System Admin (L2-050, ADR 0010).
   - People: City Lead, Staff or System Admin (L2-053).
   - Admin: System Admin (L2-040).
 - The phone tab bar is Home, Events, Search, the member's next section, then **More**: a button that opens the menu (nav drawer) of every section the member may open. More is the current tab (`aria-current="true"`) whenever the page is outside the four link tabs, so a phone user always sees where they are.

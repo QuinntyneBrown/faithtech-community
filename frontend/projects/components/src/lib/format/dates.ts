@@ -4,9 +4,9 @@
  */
 const DAY = new Intl.DateTimeFormat('en-GB', { weekday: 'short', day: 'numeric', month: 'short' });
 
-/** "Tue 20 Oct", without the comma some engines put after the weekday. */
+/** "Tue 20 Oct", without the comma some engines put after the weekday, and "Sep", not en-GB's "Sept". */
 export function formatDay(value: Date | string): string {
-  return DAY.format(new Date(value)).replace(',', '');
+  return DAY.format(new Date(value)).replace(',', '').replace('Sept', 'Sep');
 }
 
 /** "2026-10-21 10:05" in local time, for logs where entries sort by time. */

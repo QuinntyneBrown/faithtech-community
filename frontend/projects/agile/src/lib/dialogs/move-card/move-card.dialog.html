@@ -1,0 +1,24 @@
+<ft-dialog
+  [heading]="'Move ' + data.title"
+  description="Everyone watching the board sees it move."
+  icon="move"
+  [busy]="busy()"
+  (closed)="ref.close()"
+>
+  @if (failed()) {
+    <ft-alert status="danger" heading="That didn’t work">
+      We couldn’t reach FaithTech. Nothing was changed — try again.
+    </ft-alert>
+  }
+  <ft-radio-group legend="Column" [formControl]="status">
+    @for (s of statuses; track s) {
+      <ft-radio [value]="s" [description]="s === data.status ? 'Current column' : ''">{{
+        labels[s]
+      }}</ft-radio>
+    }
+  </ft-radio-group>
+  <ft-button ftDialogFooter [disabled]="busy()" (click)="ref.close()">Cancel</ft-button>
+  <ft-button ftDialogFooter variant="primary" [loading]="busy()" (click)="move()">
+    Move to {{ labels[status.value] }}
+  </ft-button>
+</ft-dialog>

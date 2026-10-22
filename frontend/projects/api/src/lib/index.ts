@@ -4,6 +4,7 @@
  * implemented end to end (spec -> design -> mock -> ATDD slice).
  */
 export * from './admin';
+export * from './agile';
 export * from './announcements';
 export * from './auth';
 export * from './config';

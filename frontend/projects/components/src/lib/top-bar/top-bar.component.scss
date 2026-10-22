@@ -136,6 +136,13 @@ a:focus-visible,
   }
 }
 
+// Every link fits from 1024px, Workspaces and Admin included: tighter links until 1280px.
+@media (min-width: 64rem) and (max-width: 79.99rem) {
+  .top-bar__link {
+    padding-inline: var(--space-2);
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   .top-bar__link {
     transition: none;

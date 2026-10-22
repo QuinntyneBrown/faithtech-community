@@ -7,6 +7,7 @@ import {
   input,
   output,
   OnInit,
+  signal,
 } from '@angular/core';
 import { BadgeComponent } from '../badge/badge.component';
 
@@ -33,6 +34,12 @@ let nextId = 0;
   styleUrl: './kanban-column.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
   hostDirectives: [CdkDropList],
+  host: {
+    '[attr.hidden]': 'hiddenOnPhone() ? "" : null',
+    '[attr.id]': 'panelId',
+    '[attr.role]': 'labelledBy() ? "tabpanel" : null',
+    '[attr.aria-labelledby]': 'labelledBy()',
+  },
 })
 export class KanbanColumnComponent implements OnInit {
   private readonly dropList = inject(CdkDropList);
@@ -45,7 +52,13 @@ export class KanbanColumnComponent implements OnInit {
 
   readonly cardDropped = output<KanbanCardDrop>();
 
-  protected readonly headingId = `ft-kanban-column-${nextId++}`;
+  protected readonly headingId = `ft-kanban-column-${nextId}`;
+  /** The tab panel id when the board shows its columns as tabs. */
+  readonly panelId = `ft-kanban-panel-${nextId++}`;
+  /** Set by ft-kanban-board: at XS only the chosen column shows. */
+  readonly hiddenOnPhone = signal(false);
+  /** Set by ft-kanban-board to its tab's id while the columns are tabs. */
+  readonly labelledBy = signal<string | null>(null);
 
   constructor() {
     effect(() => {

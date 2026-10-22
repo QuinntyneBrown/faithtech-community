@@ -116,7 +116,7 @@ public class SprintTests
 
         sprint.Close([done, alsoDone, inProgress, elsewhere]);
 
-        Assert.Equal((SprintState.Closed, (int?)8), (sprint.State, sprint.CompletedPoints));
+        Assert.Equal((SprintState.Closed, (int?)8, (int?)16), (sprint.State, sprint.CompletedPoints, sprint.CommittedPoints));
         Assert.Equal(((Guid?)sprint.Id, (Guid?)null), (done.SprintId, inProgress.SprintId));
         Assert.Equal(WorkItemStatus.InProgress, inProgress.Status);
     }

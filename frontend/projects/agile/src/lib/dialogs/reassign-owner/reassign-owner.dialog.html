@@ -1,0 +1,24 @@
+<ft-dialog
+  [heading]="'Choose a new owner for ' + data.workspace.name"
+  [description]="description"
+  icon="admin"
+  [busy]="busy()"
+  (closed)="ref.close()"
+>
+  <form (submit)="$event.preventDefault(); reassign()" ftFormErrorFocus novalidate>
+    <ft-stack>
+      @if (failed()) {
+        <ft-alert status="danger" heading="That didn’t work">
+          We couldn’t reach FaithTech. Nothing was changed — try again.
+        </ft-alert>
+      }
+      <ft-form-field label="New owner (City Leads only)" [error]="ownerError()">
+        <ft-select [formControl]="owner" [options]="options()" placeholder="Choose a City Lead" />
+      </ft-form-field>
+    </ft-stack>
+  </form>
+  <ft-button ftDialogFooter [disabled]="busy()" (click)="ref.close()">Cancel</ft-button>
+  <ft-button ftDialogFooter variant="primary" [loading]="busy()" (click)="reassign()">
+    Reassign owner
+  </ft-button>
+</ft-dialog>

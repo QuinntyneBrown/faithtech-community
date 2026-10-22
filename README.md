@@ -5,7 +5,7 @@
 # FaithTech Community
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
-[![Status: design phase](https://img.shields.io/badge/status-design%20phase-orange.svg)](#project-status)
+[![Status: in development](https://img.shields.io/badge/status-in%20development-orange.svg)](#project-status)
 [![Accessibility: WCAG 2.2 AA](https://img.shields.io/badge/a11y-WCAG%202.2%20AA-green.svg)](#accessibility)
 
 FaithTech Community is an open-source community platform for [FaithTech](https://faithtech.com)
@@ -13,8 +13,8 @@ staff, city leads, volunteers, builders, event attendees and partners. Anyone ca
 profile. Leads get the tools to run a city: events, private contacts, a partner pipeline, their team
 and Agile workspaces with Planning Poker.
 
-> **Project status:** design phase. The product decisions, HTML mocks and agent instructions are in
-> place; the application code is not written yet. See [Project status](#project-status).
+> **Project status:** in development. Requirements, designs, mocks and the design system are in place,
+> and v1 is being built feature by feature. See [Project status](#project-status).
 
 ## Contents
 
@@ -187,9 +187,9 @@ Exact commands will be kept up to date here as each part of the stack is added.
 |---|---|
 | Product brief and decisions | ✅ Done |
 | HTML mocks for every screen and state | ✅ Done |
-| Requirements (`docs/specs/`) | ⏳ Next |
-| Detailed designs and design system | ⏳ Planned |
-| v1 implementation | ⏳ Planned |
+| Requirements (`docs/specs/`) | ✅ Done |
+| Detailed designs and design system | ✅ Done |
+| v1 implementation | 🚧 59% ([estimates](docs/estimates/README.md)): platform, identity, profiles, admin, invites, team and Agile workspaces are built |
 | v2: hackathon teams, projects and judging | 🗓️ Later |
 
 ## Accessibility

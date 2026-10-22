@@ -37,6 +37,9 @@ public class Sprint
 
     public int? CompletedPoints { get; private set; }
 
+    /// <summary>The points of every story in the sprint when it closed, done or not ("completed N of M").</summary>
+    public int? CommittedPoints { get; private set; }
+
     public void Close(IEnumerable<WorkItem> stories)
     {
         if (State == SprintState.Closed)
@@ -46,6 +49,7 @@ public class Sprint
 
         var sprintStories = stories.Where(s => s.SprintId == Id).ToList();
         CompletedPoints = sprintStories.Where(s => s.Status == WorkItemStatus.Done).Sum(s => s.StoryPoints ?? 0);
+        CommittedPoints = sprintStories.Sum(s => s.StoryPoints ?? 0);
         foreach (var story in sprintStories.Where(s => s.Status != WorkItemStatus.Done))
         {
             story.ReturnToBacklog();

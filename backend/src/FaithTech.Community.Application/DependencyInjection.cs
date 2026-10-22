@@ -1,4 +1,5 @@
 using FaithTech.Community.Application.Admin;
+using FaithTech.Community.Application.Agile;
 using FaithTech.Community.Application.Identity;
 using FaithTech.Community.Application.Invites;
 using FaithTech.Community.Application.Profiles;
@@ -42,6 +43,17 @@ public static class DependencyInjection
         services.AddScoped<ManageInvitesHandler>();
         services.AddScoped<AcceptInviteHandler>();
         services.AddScoped<ListTeamHandler>();
+        services.AddScoped<WorkspaceAccessPolicy>();
+        services.AddScoped<AgileNotifier>();
+        services.AddScoped<WorkspaceMembership>();
+        services.AddScoped<WorkspacesHandler>();
+        services.AddScoped<WorkspaceSettingsHandler>();
+        services.AddScoped<WorkItemsHandler>();
+        services.AddScoped<BoardHandler>();
+        services.AddScoped<SprintsHandler>();
+        services.AddScoped<ArchiveHandler>();
+        services.AddScoped<CityLeadRoleRemovedHandler>();
+        services.AddScoped<PlanningPokerHandler>();
         services.TryAddSingleton(TimeProvider.System);
         return services;
     }

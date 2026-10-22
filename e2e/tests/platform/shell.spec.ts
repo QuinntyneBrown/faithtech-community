@@ -11,7 +11,7 @@ test.describe('App shell', () => {
 
     await api.signInAs(api.addAccount({ email: 'grace@example.org', roles: ['CityLead'] }));
 
-    for (const name of ['Home', 'Events', 'Contacts', 'Partners', 'Team', 'People']) {
+    for (const name of ['Home', 'Events', 'Contacts', 'Partners', 'Workspaces', 'Team', 'People']) {
       await expect(shell.navLink(name)).toBeVisible();
     }
     await expect(shell.navLink('Home')).toHaveAttribute('aria-current', 'page');
@@ -24,22 +24,41 @@ test.describe('App shell', () => {
   const byRole: { roles: string[]; nav: string[]; tabs: string[] }[] = [
     {
       roles: ['CityLead'],
-      nav: ['Home', 'Events', 'Contacts', 'Partners', 'Team', 'Announcements', 'People'],
+      nav: [
+        'Home',
+        'Events',
+        'Contacts',
+        'Partners',
+        'Workspaces',
+        'Team',
+        'Announcements',
+        'People',
+      ],
       tabs: ['Home', 'Events', 'Search', 'Contacts'],
     },
     {
       roles: ['Staff'],
-      nav: ['Home', 'Events', 'Partners', 'Team', 'Announcements', 'People'],
+      nav: ['Home', 'Events', 'Partners', 'Workspaces', 'Team', 'Announcements', 'People'],
       tabs: ['Home', 'Events', 'Search', 'Partners'],
     },
     {
       roles: ['EventLead'],
-      nav: ['Home', 'Events', 'Contacts', 'Partners', 'Team', 'Announcements'],
+      nav: ['Home', 'Events', 'Contacts', 'Partners', 'Workspaces', 'Team', 'Announcements'],
       tabs: ['Home', 'Events', 'Search', 'Contacts'],
     },
     {
       roles: ['SystemAdmin'],
-      nav: ['Home', 'Events', 'Contacts', 'Partners', 'Team', 'Announcements', 'People', 'Admin'],
+      nav: [
+        'Home',
+        'Events',
+        'Contacts',
+        'Partners',
+        'Workspaces',
+        'Team',
+        'Announcements',
+        'People',
+        'Admin',
+      ],
       tabs: ['Home', 'Events', 'Search', 'Contacts'],
     },
     {
@@ -103,6 +122,7 @@ test.describe('App shell', () => {
       'Events',
       'Contacts',
       'Partners',
+      'Workspaces',
       'Team',
       'Announcements',
       'People',

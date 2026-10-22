@@ -1,0 +1,48 @@
+@if (notFound()) {
+  <h1 class="visually-hidden">Workspace</h1>
+  <ft-empty-state
+    icon="workspaces"
+    heading="You’re not a member of this workspace"
+    text="Workspaces are for the leads and volunteers their owner adds. Ask the workspace owner if you’d like to join."
+  >
+    <ft-button actions variant="primary" href="/">Back to home</ft-button>
+  </ft-empty-state>
+} @else {
+  <ft-breadcrumb>
+    <ft-breadcrumb-item href="/workspaces">Workspaces</ft-breadcrumb-item>
+    <ft-breadcrumb-item>{{ workspace()?.name ?? 'Workspace' }}</ft-breadcrumb-item>
+  </ft-breadcrumb>
+  <ft-page-header [title]="workspace()?.name ?? 'Workspace'" [subtitle]="subtitle()">
+    <div ftPageHeaderActions class="actions"><ng-content select="[ftWorkspaceActions]" /></div>
+  </ft-page-header>
+  <ft-tabs label="Workspace sections">
+    <ft-tab
+      label="Board"
+      [href]="'/workspaces/' + workspaceId()"
+      [current]="section() === 'board'"
+    />
+    <ft-tab
+      label="Backlog"
+      [href]="'/workspaces/' + workspaceId() + '/backlog'"
+      [current]="section() === 'backlog'"
+    />
+    <ft-tab
+      label="Planning Poker"
+      [href]="'/workspaces/' + workspaceId() + '/poker'"
+      [current]="section() === 'poker'"
+    />
+    @if (workspace()?.canManage) {
+      <ft-tab
+        label="Settings"
+        [href]="'/workspaces/' + workspaceId() + '/settings'"
+        [current]="section() === 'settings'"
+      />
+    }
+  </ft-tabs>
+  @if (workspace()?.access === 'Staff' && section() !== 'poker') {
+    <ft-alert status="info" heading="Read-only for Staff">
+      You can see every workspace, item and sprint but can’t change them.
+    </ft-alert>
+  }
+  <ng-content />
+}

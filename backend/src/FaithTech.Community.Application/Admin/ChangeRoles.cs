@@ -1,3 +1,4 @@
+using FaithTech.Community.Application.Agile;
 using FaithTech.Community.Application.Common;
 using FaithTech.Community.Application.Profiles;
 using FaithTech.Community.Domain.Profiles;
@@ -14,6 +15,7 @@ public class ChangeRolesHandler(
     ProfileAccess access,
     IAuditLog audit,
     RoleChangeNotifier notifier,
+    CityLeadRoleRemovedHandler cityLeadRemoved,
     TimeProvider time)
 {
     public const string LastSystemAdminMessage = "There must always be at least one System Admin.";
@@ -82,9 +84,14 @@ public class ChangeRolesHandler(
             notifier.Notify(profileId, title);
         }
 
-        // Removing City Lead raises CityLeadRoleRemoved; its workspace handler is part of the Agile design, so it is cleared here.
+        foreach (var removed in profile.DomainEvents.OfType<CityLeadRoleRemoved>())
+        {
+            await cityLeadRemoved.HandleAsync(removed, cancellationToken);
+        }
+
         profile.ClearDomainEvents();
         await db.SaveChangesAsync(cancellationToken);
+        await cityLeadRemoved.SendEmailsAsync(cancellationToken);
         if (title is not null)
         {
             await notifier.EmailAsync(profileId, title, cancellationToken);

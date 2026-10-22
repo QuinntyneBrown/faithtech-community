@@ -1,0 +1,18 @@
+<ft-dialog
+  [heading]="'Archive “' + data.item.title + '”?'"
+  [description]="description"
+  tone="danger"
+  icon="archive"
+  [busy]="busy()"
+  (closed)="ref.close()"
+>
+  @if (failed()) {
+    <ft-alert status="danger" heading="That didn’t work">
+      We couldn’t reach FaithTech. Nothing was changed — try again.
+    </ft-alert>
+  }
+  <ft-button ftDialogFooter [disabled]="busy()" (click)="ref.close()">Cancel</ft-button>
+  <ft-button ftDialogFooter variant="danger" [loading]="busy()" (click)="archive()">
+    Archive
+  </ft-button>
+</ft-dialog>

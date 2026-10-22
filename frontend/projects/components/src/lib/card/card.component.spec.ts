@@ -9,7 +9,8 @@ import { CardComponent, CardVariant } from './card.component';
     [heading]="heading()"
     [headingLevel]="level()"
     [busy]="busy()"
-    ><p class="inner">Body</p></ft-card
+    ><button ftCardActions type="button">Add members</button>
+    <p class="inner">Body</p></ft-card
   >`,
 })
 class HostComponent {
@@ -46,6 +47,13 @@ describe('CardComponent', () => {
     fixture.detectChanges();
     expect(card().querySelector('h3')).not.toBeNull();
     expect(card().querySelector('h2')).toBeNull();
+  });
+
+  it('puts a header action beside the title', () => {
+    const { card } = setup();
+    const header = card().querySelector('.ft-card__header')!;
+    expect(header.querySelector('h2')!.textContent).toContain('Recent activity');
+    expect(header.querySelector('button')!.textContent).toContain('Add members');
   });
 
   it('has no landmark role without a heading', () => {

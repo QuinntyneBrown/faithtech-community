@@ -2,6 +2,7 @@ import { CdkDropList } from '@angular/cdk/drag-drop';
 import { Component, signal } from '@angular/core';
 import { By } from '@angular/platform-browser';
 import { TestBed } from '@angular/core/testing';
+import { BreakpointService } from '../breakpoint/breakpoint.service';
 import { KanbanBoardComponent } from './kanban-board.component';
 import { KanbanCardComponent } from './kanban-card.component';
 import { KanbanColumnComponent, KanbanCardDrop } from './kanban-column.component';
@@ -39,7 +40,10 @@ class HostComponent {
   moves: unknown[] = [];
 }
 
-function setup() {
+function setup(breakpoint = 'lg') {
+  TestBed.configureTestingModule({
+    providers: [{ provide: BreakpointService, useValue: { current: signal(breakpoint) } }],
+  });
   const fixture = TestBed.createComponent(HostComponent);
   fixture.detectChanges();
   const host: HTMLElement = fixture.nativeElement;
@@ -84,5 +88,44 @@ describe('KanbanBoardComponent', () => {
     const { host, fixture } = setup();
     host.querySelector<HTMLButtonElement>('button')!.click();
     expect(fixture.componentInstance.moves).toEqual(['maple']);
+  });
+
+  it('shows every column and no tabs above XS', () => {
+    const { host } = setup('md');
+    expect(host.querySelector('[role="tablist"]')).toBeNull();
+    expect(host.querySelectorAll('ft-kanban-column:not([hidden])')).toHaveLength(3);
+  });
+
+  it('shows the columns as tabs at XS, one visible at a time (L2-018 AC4, L2-034 AC4)', () => {
+    const { fixture, host } = setup('base');
+    const tabs = Array.from(host.querySelectorAll<HTMLButtonElement>('[role="tab"]'));
+    expect(host.querySelector('[role="tablist"]')!.getAttribute('aria-label')).toBe(
+      'Partner pipeline columns',
+    );
+    expect(tabs.map((t) => t.textContent!.trim())).toEqual([
+      'Lead 1',
+      'In funnel 0',
+      'Confirmed 0',
+    ]);
+    expect(tabs.map((t) => t.getAttribute('aria-selected'))).toEqual(['true', 'false', 'false']);
+    const visible = () =>
+      Array.from(host.querySelectorAll('ft-kanban-column'))
+        .filter((c) => !c.hasAttribute('hidden'))
+        .map((c) => c.querySelector('h2')!.textContent!.trim());
+    expect(visible()).toEqual(['Lead']);
+
+    tabs[2].click();
+    fixture.detectChanges();
+    expect(visible()).toEqual(['Confirmed']);
+    expect(tabs[2].getAttribute('aria-selected')).toBe('true');
+  });
+
+  it('moves between column tabs with the arrow keys', () => {
+    const { fixture, host } = setup('base');
+    const tabs = () => Array.from(host.querySelectorAll<HTMLButtonElement>('[role="tab"]'));
+    tabs()[0].dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowLeft', bubbles: true }));
+    fixture.detectChanges();
+    expect(tabs()[2].getAttribute('aria-selected')).toBe('true');
+    expect(tabs().map((t) => t.tabIndex)).toEqual([-1, -1, 0]);
   });
 });

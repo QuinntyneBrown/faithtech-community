@@ -1,0 +1,56 @@
+<ft-dialog
+  [heading]="heading"
+  [description]="
+    editing
+      ? 'Changes are saved for everyone in ' + data.workspace.name + '.'
+      : 'Each level sits only under the level directly above it.'
+  "
+  icon="add"
+  [busy]="busy()"
+  (closed)="ref.close()"
+>
+  <form [formGroup]="form" (submit)="$event.preventDefault(); submit()" ftFormErrorFocus>
+    <ft-stack>
+      @if (failed()) {
+        <ft-alert status="danger" heading="That didn’t work">
+          We couldn’t reach FaithTech. Nothing was changed — try again.
+        </ft-alert>
+      }
+      @if (!editing) {
+        <ft-radio-group legend="Type" formControlName="kind">
+          @for (k of kinds; track k.kind) {
+            <ft-radio [value]="k.kind" [description]="k.hint">{{ k.kind }}</ft-radio>
+          }
+        </ft-radio-group>
+        @if (!data.workspace.canManage) {
+          <p class="text-caption">Only the owner creates initiatives and epics.</p>
+        }
+      }
+      <ft-form-field label="Title" [error]="titleError()">
+        <ft-text-field formControlName="title" autocomplete="off" />
+      </ft-form-field>
+      @if (!editing && parent(); as p) {
+        <ft-form-field [label]="p.label" [error]="parentError()">
+          <ft-select formControlName="parentId" [options]="parentOptions()" />
+        </ft-form-field>
+      }
+      <ft-form-field label="Assignee" [error]="assigneeError()">
+        <ft-select formControlName="assigneeId" [options]="assigneeOptions" />
+      </ft-form-field>
+      @if (kind() === 'Story') {
+        <ft-form-field label="Story points" help="Or estimate it together in Planning Poker.">
+          <ft-select formControlName="storyPoints" [options]="pointOptions" />
+        </ft-form-field>
+      }
+      @if (kind() !== 'Task') {
+        <ft-form-field label="Description" [optional]="true">
+          <ft-textarea formControlName="description" [rows]="3" />
+        </ft-form-field>
+      }
+    </ft-stack>
+  </form>
+  <ft-button ftDialogFooter [disabled]="busy()" (click)="ref.close()">Cancel</ft-button>
+  <ft-button ftDialogFooter variant="primary" [loading]="busy()" (click)="submit()">
+    {{ editing ? (busy() ? 'Save…' : 'Save') : busy() ? 'Create…' : 'Create' }}
+  </ft-button>
+</ft-dialog>
