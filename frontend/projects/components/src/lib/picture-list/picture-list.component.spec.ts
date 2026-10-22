@@ -81,6 +81,17 @@ describe('PictureListComponent', () => {
     expect(buttonByName('Feature photo 2')).toBeDefined();
   });
 
+  it('leads Add photos with the add icon and Feature with the star, both decorative', async () => {
+    const { addButton, buttonByName } = await setup();
+    const add = addButton().querySelector('ft-icon svg')!;
+    expect(add.getAttribute('aria-hidden')).toBe('true');
+    expect(add.innerHTML).toContain('M12 5v14M5 12h14');
+    const star = buttonByName('Feature photo 2').querySelector('ft-icon svg')!;
+    expect(star.getAttribute('aria-hidden')).toBe('true');
+    expect(star.innerHTML).toContain('m12 3 2.8 5.7');
+    expect(addButton().textContent!.trim()).toBe('Add photos');
+  });
+
   it('overlays the Featured badge on the featured thumbnail', async () => {
     const { host } = await setup();
     const badge = host.querySelectorAll('li')[0].querySelector('ft-badge')!;
