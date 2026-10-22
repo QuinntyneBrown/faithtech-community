@@ -82,3 +82,25 @@ describe('AlertComponent', () => {
     expect(fixture.componentInstance.dismissals).toBe(1);
   });
 });
+
+// Traces to: record-state alerts (components/alert.html, Record state).
+// Given a cancelled event whose check-in page loads with a danger alert describing that state,
+// When the alert is polite, Then it uses role="status" and keeps the danger look, because
+// nothing just failed.
+@Component({
+  imports: [AlertComponent],
+  template: `<ft-alert status="danger" heading="This event was cancelled" polite>
+    Check-in is closed.
+  </ft-alert>`,
+})
+class RecordStateHostComponent {}
+
+describe('AlertComponent polite', () => {
+  it('gives a danger record-state alert role=status', () => {
+    const fixture = TestBed.createComponent(RecordStateHostComponent);
+    fixture.detectChanges();
+    const alert = (fixture.nativeElement as HTMLElement).querySelector('.alert')!;
+    expect(alert.getAttribute('role')).toBe('status');
+    expect(alert.classList).toContain('alert--danger');
+  });
+});
