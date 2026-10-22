@@ -272,6 +272,25 @@
       }
     },
     {
+      "id": "event-check-in",
+      "kind": "page",
+      "title": "Event check-in",
+      "route": "/events/:id/check-in",
+      "requirements": [
+        "L2-022"
+      ],
+      "states": [
+        "default",
+        "checked-in",
+        "no-results",
+        "done",
+        "loading",
+        "empty",
+        "error"
+      ],
+      "not_applicable": {}
+    },
+    {
       "id": "public-event",
       "kind": "page",
       "title": "Public event page",
@@ -400,6 +419,7 @@
         "invalid",
         "full",
         "duplicate",
+        "possible-duplicate",
         "busy",
         "error"
       ],
@@ -455,6 +475,8 @@
       ],
       "states": [
         "default",
+        "activity-empty",
+        "duplicate",
         "loading",
         "error"
       ],
@@ -636,6 +658,22 @@
       "not_applicable": {
         "empty": "There is always at least one System Admin account."
       }
+    },
+    {
+      "id": "reports",
+      "kind": "page",
+      "title": "Reports",
+      "route": "/reports",
+      "requirements": [],
+      "states": [
+        "default",
+        "filtered",
+        "loading",
+        "empty",
+        "error",
+        "forbidden"
+      ],
+      "not_applicable": {}
     },
     {
       "id": "audit-log",
@@ -1095,6 +1133,23 @@
       }
     },
     {
+      "id": "check-in-walk-in",
+      "kind": "dialog",
+      "title": "Add walk-in",
+      "opens_from": "event-check-in",
+      "requirements": [
+        "L2-022",
+        "L2-023"
+      ],
+      "states": [
+        "default",
+        "invalid",
+        "busy",
+        "failed"
+      ],
+      "not_applicable": {}
+    },
+    {
       "id": "sign-out-everywhere",
       "kind": "dialog",
       "title": "Sign out everywhere",
@@ -1330,6 +1385,40 @@
       }
     },
     {
+      "id": "log-activity",
+      "kind": "dialog",
+      "title": "Log activity",
+      "opens_from": "partner",
+      "requirements": [
+        "L2-017",
+        "L2-018"
+      ],
+      "states": [
+        "default",
+        "invalid",
+        "busy",
+        "failed"
+      ],
+      "not_applicable": {}
+    },
+    {
+      "id": "merge-partners",
+      "kind": "dialog",
+      "title": "Merge partners",
+      "opens_from": "partner",
+      "requirements": [
+        "L2-017"
+      ],
+      "states": [
+        "default",
+        "busy",
+        "failed"
+      ],
+      "not_applicable": {
+        "invalid": "A value is always chosen for every field; there is nothing to validate."
+      }
+    },
+    {
       "id": "move-card",
       "kind": "dialog",
       "title": "Move card",
@@ -1357,6 +1446,7 @@
       "states": [
         "default",
         "invalid",
+        "duplicate",
         "busy",
         "failed"
       ],
