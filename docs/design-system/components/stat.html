@@ -150,6 +150,18 @@
         </div>
         <div class="ds-example__caption"><span>From the Toronto team board, Sprint 7. Text values (the goal, the end date) take <code>.stat__value--text</code>.</span></div>
       </div>
+      <h3>Report row with context lines</h3>
+      <div class="ds-example">
+        <div class="ds-example__canvas">
+          <div class="cluster stat-row"><div class="stat"><span class="stat__label">Members</span><span class="stat__value">412</span><span class="text-caption">+18 in the last 30 days</span></div><div class="stat"><span class="stat__label">Events held</span><span class="stat__value">9</span><span class="text-caption">1 cancelled</span></div><div class="stat"><span class="stat__label">RSVPs</span><span class="stat__value">286</span><span class="text-caption">81% checked in</span></div><div class="stat"><span class="stat__label">Partners confirmed</span><span class="stat__value">5</span><span class="text-caption">of 12 in the pipeline</span></div><div class="stat"><span class="stat__label">Announcements</span><span class="stat__value">4</span><span class="text-caption">sent by leads</span></div></div>
+        </div>
+        <div class="ds-example__caption"><span>From Reports (All cities, last 30 days). Each stat adds a <code>.text-caption</code> line under the value that says what the number is relative to. In Angular, <code>&lt;ft-stat label="Members" value="412" context="+18 in the last 30 days"&gt;</code>.</span></div>
+        <details class="ds-example__code"><summary>HTML</summary><pre><code>&lt;div class="stat"&gt;
+  &lt;span class="stat__label"&gt;Members&lt;/span&gt;
+  &lt;span class="stat__value"&gt;412&lt;/span&gt;
+  &lt;span class="text-caption"&gt;+18 in the last 30 days&lt;/span&gt;
+&lt;/div&gt;</code></pre></details>
+      </div>
     </section>
 
     <section class="ds-section" id="sizes"><h2><a href="#sizes">Sizes</a></h2>
@@ -173,6 +185,7 @@
     <section class="ds-section" id="responsive"><h2><a href="#responsive">Responsive behaviour</a></h2>
       <ul>
         <li>The row is a <code>.cluster</code>, so stats wrap onto a new line on narrow screens instead of shrinking.</li>
+        <li>The five-stat report row wraps to two lines at tablet width and to two columns of stats on a phone. Context lines wrap under their value and never truncate.</li>
         <li>On a 360px phone the sprint goal takes its own line and points and end date share the next.</li>
       </ul>
     </section>
@@ -197,7 +210,8 @@
         <li>Labels are the name of the thing counted, sentence case: "In funnel", "Completed points".</li>
         <li>Write ratios as "6 of 24", not "6/24" or "25%".</li>
         <li>Dates use the house format, "Fri 31 Oct".</li>
-        <li>Three or four stats per row at most.</li>
+        <li>Three or four stats per row. A report header may hold five when each has a context line (Reports).</li>
+        <li>Context lines are short and relative: "+18 in the last 30 days", "of 12 in the pipeline", "81% checked in". Use a percentage only when it compares two counts already on the page.</li>
       </ul>
     </section>
 
@@ -205,6 +219,8 @@
       <div class="ds-dodont">
         <figure class="ds-do"><div class="ds-example__canvas"><div class="stat"><span class="stat__label">Confirmed</span><span class="stat__value">5</span></div></div><figcaption>Label first, then the value.</figcaption></figure>
         <figure class="ds-dont"><div class="ds-example__canvas"><div class="stat"><span class="stat__value">5</span></div></div><figcaption>A bare number; nobody knows it means confirmed partners.</figcaption></figure>
+        <figure class="ds-do"><div class="ds-example__canvas"><div class="stat"><span class="stat__label">Partners confirmed</span><span class="stat__value">5</span><span class="text-caption">of 12 in the pipeline</span></div></div><figcaption>Give a report number its denominator in the context line.</figcaption></figure>
+        <figure class="ds-dont"><div class="ds-example__canvas"><div class="stat"><span class="stat__label">Partners confirmed</span><span class="stat__value">42%</span></div></div><figcaption>A bare percentage that hides how many partners that is.</figcaption></figure>
       </div>
     </section>
 
@@ -242,6 +258,7 @@
         <li><a href="../../mocks/pages/home/staff.html">pages/home/staff</a></li>
         <li><a href="../../mocks/pages/home/loading.html">pages/home/loading</a>, <a href="../../mocks/pages/home/pipeline-zero.html">pipeline-zero</a> and <a href="../../mocks/pages/home/pipeline-error.html">pipeline-error</a> (stat row loading, zero and error)</li>
         <li><a href="../../mocks/pages/team-board/default.html">pages/team-board/default</a> (sprint strip)</li>
+        <li><a href="../../mocks/pages/reports/default.html">pages/reports/default</a>, <a href="../../mocks/pages/reports/filtered.html">filtered</a> and <a href="../../mocks/pages/reports/loading.html">loading</a> (report row with context lines; loading uses <code>.skeleton--stat</code>)</li>
         <li><a href="../../mocks/pages/team-board/member.html">pages/team-board/member</a></li>
         <li><a href="../../mocks/pages/team-board/staff.html">pages/team-board/staff</a></li>
       </ul>

@@ -138,7 +138,7 @@
     </section>
 
     <section class="ds-section" id="variants"><h2><a href="#variants">Variants</a></h2>
-      <p>There is one variant. It is off unless the page says otherwise.</p>
+      <p>There is one variant. It is off unless the page says otherwise. It appears in two placements: as a form row with visible text, and trailing a list row.</p>
       <div class="ds-example">
         <div class="ds-example__canvas ds-example__canvas--stack">
           <label class="switch"><input type="checkbox" name="remember" checked><span class="switch__text">Keep me signed in on this device</span></label>
@@ -149,6 +149,12 @@
         <details class="ds-example__code"><summary>HTML</summary><pre><code>&lt;label class="switch"&gt;&lt;input type="checkbox" name="remember" checked&gt;&lt;span class="switch__text"&gt;Keep me signed in on this device&lt;/span&gt;&lt;/label&gt;
           &lt;label class="switch"&gt;&lt;input type="checkbox" name="n3"&gt;&lt;span class="switch__text"&gt;Email me announcements&lt;/span&gt;&lt;/label&gt;&lt;p class="text-caption"&gt;You’ll always get account emails like password resets.&lt;/p&gt;
           &lt;label class="switch"&gt;&lt;input type="checkbox" name="email" checked&gt;&lt;span class="switch__text"&gt;Also send by email (respects each person’s opt-out)&lt;/span&gt;&lt;/label&gt;</code></pre></details>
+      </div>
+      <h3>Trailing a list row (saves on toggle)</h3>
+      <div class="ds-example">
+        <div class="ds-example__canvas ds-example__canvas--stack"><ul class="list card card--flush" aria-label="Attendees (example)"><li class="list__item"><span class="avatar avatar--sm avatar--sage" aria-hidden="true">JB<img class="avatar__img" src="../../mocks/assets/photos/people/jonah-bell.jpg" alt=""></span><div class="list__body"><div class="list__title">Jonah Bell</div><div class="list__meta">Member · Checked in 6:41 pm</div></div><label class="switch"><input type="checkbox" checked><span class="switch__text visually-hidden">Checked in: Jonah Bell</span></label></li><li class="list__item"><span class="avatar avatar--sm avatar--rose" aria-hidden="true">LT<img class="avatar__img" src="../../mocks/assets/photos/people/leah-thompson.jpg" alt=""></span><div class="list__body"><div class="list__title">Leah Thompson</div><div class="list__meta">Member · Not here yet</div></div><label class="switch"><input type="checkbox"><span class="switch__text visually-hidden">Checked in: Leah Thompson</span></label></li></ul></div>
+        <div class="ds-example__caption"><span>From event check-in. The row already shows the person, so the switch text is <code>.visually-hidden</code> but still names them. This switch saves at once with no Save button. When it saves, the meta line changes to "Checked in 6:44 pm" and a success <a href="toast.html">toast</a> confirms it: "Leah Thompson is checked in · 6:44 pm · 13 of 34 here." with an Undo action (<code>event-check-in/checked-in</code>). The mocks don't show a failed save.</span></div>
+        <details class="ds-example__code"><summary>HTML</summary><pre><code>&lt;label class="switch"&gt;&lt;input type="checkbox" checked&gt;&lt;span class="switch__text visually-hidden"&gt;Checked in: Jonah Bell&lt;/span&gt;&lt;/label&gt;</code></pre></details>
       </div>
     </section>
 
@@ -198,6 +204,7 @@
       <p>The shared focus ring on <code>:focus-visible</code>, offset from the track so it never touches the thumb.</p>
       <h3>Labelling</h3>
       <p>The visible text is the accessible name because the input sits inside its <code>label</code>. No <code>aria-label</code> is needed. A related caption (Settings) should be joined with <code>aria-describedby</code>.</p>
+      <p>A switch that trails a list row keeps its <code>label</code> but hides the text with <code>.visually-hidden</code>. The text must name the row ("Checked in: Leah Thompson"), because ten switches all called "Checked in" cannot be told apart in a screen reader's form-controls list.</p>
       <h3>Contrast</h3>
       <div class="ds-example__canvas ds-example__canvas--stack" style="padding: 0; gap: var(--space-2);"><div class="ds-pair"><span>Track on vs surface</span><span class="ds-pair__ratio" data-contrast="--color-accent|--color-bg-surface" data-min="3"></span></div><div class="ds-pair"><span>Track off vs surface</span><span class="ds-pair__ratio" data-contrast="--color-border-strong|--color-bg-surface" data-min="3"></span></div><div class="ds-pair"><span>Thumb vs track on</span><span class="ds-pair__ratio" data-contrast="--color-bg-surface|--color-accent" data-min="3"></span></div><div class="ds-pair"><span>Focus ring vs surface</span><span class="ds-pair__ratio" data-contrast="--color-focus-ring|--color-bg-surface" data-min="3"></span></div></div>
       <h3>Motion</h3>
@@ -210,6 +217,7 @@
       <ul>
         <li>The label says what happens when it is on, as a statement: "Keep me signed in on this device", "Email me announcements".</li>
         <li>Put a short qualifier in brackets in the label only when it changes the meaning: "(respects each person’s opt-out)".</li>
+        <li>A row switch's hidden label is "{state}: {name}", for example "Checked in: Abby Brooks".</li>
         <li>A switch is on by default only where the page says so: sign in and the announcement email are; the Settings opt-out reflects the saved value.</li>
       </ul>
     </section>
@@ -260,6 +268,7 @@
         <li><a href="../../mocks/pages/sign-in/default.html">pages/sign-in/default</a> ("Keep me signed in on this device")</li>
         <li><a href="../../mocks/pages/settings/default.html">pages/settings/default</a> and <a href="../../mocks/pages/settings/success.html">success</a> ("Email me announcements")</li>
         <li><a href="../../mocks/pages/compose-announcement/default.html">pages/compose-announcement/default</a> ("Also send by email")</li>
+        <li><a href="../../mocks/pages/event-check-in/default.html">pages/event-check-in/default</a> and <a href="../../mocks/pages/event-check-in/checked-in.html">checked-in</a> ("Checked in: {name}", trailing a list row, saves on toggle)</li>
       </ul>
       <p>Drift noticed in the mocks: the Settings caption ("You’ll always get account emails like password resets.") is not joined to the switch with <code>aria-describedby</code>; the "Email me when" card heading holds a single switch whose label repeats "Email me"; no mock shows a disabled switch.</p>
     </section>
