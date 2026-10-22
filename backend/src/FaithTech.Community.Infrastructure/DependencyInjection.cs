@@ -3,7 +3,9 @@ using FaithTech.Community.Application.Admin;
 using FaithTech.Community.Application.Common;
 using FaithTech.Community.Application.Identity;
 using FaithTech.Community.Application.Profiles;
+using FaithTech.Community.Application.Announcements;
 using FaithTech.Community.Infrastructure.Admin;
+using FaithTech.Community.Infrastructure.Announcements;
 using FaithTech.Community.Infrastructure.Email;
 using FaithTech.Community.Infrastructure.Identity;
 using FaithTech.Community.Infrastructure.Persistence;
@@ -71,6 +73,7 @@ public static class DependencyInjection
 
         services.AddHttpContextAccessor();
         services.AddScoped<IAuditLog, AuditLog>();
+        services.AddSingleton<IUnsubscribeTokens, DataProtectionUnsubscribeTokens>();
 
         services.AddScoped<CommunitySeeder>();
 

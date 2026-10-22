@@ -106,6 +106,7 @@ public class SendAnnouncementHandler(
     IValidator<SendAnnouncementCommand> validator,
     INotificationPublisher notifications,
     IOptions<WebAppOptions> webApp,
+    IUnsubscribeTokens unsubscribe,
     TimeProvider time)
 {
     public async Task<(Result Result, AnnouncementSentDto? Sent)> HandleAsync(SendAnnouncementCommand command, CancellationToken cancellationToken = default)
@@ -135,7 +136,8 @@ public class SendAnnouncementHandler(
 
         var origin = webApp.Value.Origin;
         var email = command.AlsoEmail
-            ? new NotificationEmail(subject, $"{senderName} sent an announcement to FaithTech Community.\n\n{body}\n\nRead it in the app: {origin}/announcements")
+            ? new NotificationEmail(subject, $"{senderName} sent an announcement to FaithTech Community.\n\n{body}\n\nRead it in the app: {origin}/announcements",
+                id => $"Don’t want announcement emails? Unsubscribe: {origin}/unsubscribe?token={Uri.EscapeDataString(unsubscribe.Issue(id))}")
             : null;
         await notifications.PublishAsync(
             recipients, NotificationKind.Announcement, $"{senderName} sent “{subject}”", "/announcements", senderName, email, cancellationToken);

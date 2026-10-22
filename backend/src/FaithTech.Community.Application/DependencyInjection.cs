@@ -78,6 +78,9 @@ public static class DependencyInjection
         services.AddScoped<AnnouncementAudiences>();
         services.AddScoped<CountAnnouncementRecipientsHandler>();
         services.AddScoped<SendAnnouncementHandler>();
+        services.AddScoped<ListAnnouncementsHandler>();
+        services.AddScoped<AnnouncementEmailOptOutHandler>();
+        services.AddScoped<UnsubscribeHandler>();
         services.TryAddSingleton(TimeProvider.System);
         return services;
     }
