@@ -222,7 +222,7 @@ Exact commands will be kept up to date here as each part of the stack is added.
 | HTML mocks for every screen and state | ✅ Done |
 | Requirements (`docs/specs/`) | ✅ Done |
 | Detailed designs and design system | ✅ Done |
-| v1 implementation | 🚧 97% ([estimates](docs/estimates/README.md)): profiles, admin, invites, contacts, partners, team, events, notifications, announcements, Agile workspaces, resources and the marketing page with Google sign-in are built; search, platform and identity are nearly done |
+| v1 implementation | 🚧 97% ([estimates](docs/estimates/README.md)): profiles, admin, invites, contacts, partners, team, events, notifications, announcements, Agile workspaces, resources, the marketing page with Google sign-in and the private-preview wall with its deployment assets are built; search, platform and identity are nearly done |
 | v2: hackathon teams, projects and judging | 🗓️ Later |
 
 ## Accessibility
