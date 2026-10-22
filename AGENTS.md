@@ -137,7 +137,7 @@ Rules (MUST be followed):
 - Profiles are visible to signed-in members only. Public events are the only content anonymous visitors see (shareable page, guest RSVP, `.ics`).
 - Every query, search result and endpoint must enforce these permissions on the server. Never rely on the UI to hide data.
 
-v1 features: profiles and photos (max 10, one featured, alt text required), invites (expire after 14 days), contacts (soft-delete archive and restore, linked when the person signs up), partner Kanban (Lead -> In Funnel -> Confirmed), team, events (hackathon is an event type), global search, notifications (in-app + email), announcements (with email opt-out), resources (uploads and https links, type and tags, private/shared/global visibility, archive with 30-day purge). Hackathon teams, projects and judging are v2. Do not build them yet.
+v1 features: profiles and photos (max 10, one featured, alt text required), invites (expire after 14 days), connect links (a City Lead's reusable QR code that never expires and can be replaced; not an invite), contacts (soft-delete archive and restore, linked when the person signs up), partner Kanban (Lead -> In Funnel -> Confirmed), team, events (hackathon is an event type), global search, notifications (in-app + email), announcements (with email opt-out), resources (uploads and https links, type and tags, private/shared/global visibility, archive with 30-day purge). Hackathon teams, projects and judging are v2. Do not build them yet.
 
 ## Backend architecture
 

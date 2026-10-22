@@ -10,5 +10,6 @@
       "glob": "**/*.scss",
       "output": "styles"
     }
-  ]
+  ],
+  "allowedNonPeerDependencies": ["qrcode-generator"]
 }

@@ -84,6 +84,19 @@ class Notification {
 interface IEmailSender {
   +SendAsync(message: EmailMessage): Task
 }
+class PendingConnection <<Domain entity>> {
+  +Guid ProfileId
+  +Guid LeadId
+  +DateTimeOffset CreatedAt
+}
+class ContactConnector {
+  +RequestAsync(leadId: Guid, profileId: Guid): Task<ConnectOutcome>
+  +ConnectAsync(leadId: Guid, profileId: Guid): Task<bool>
+}
+ContactSignedUpHandler --> ContactConnector : pending connections first
+ContactConnector ..> PendingConnection : adds, removes
+ContactConnector ..> Contact : creates, links, restores
+ContactConnector ..> Notification : "{name} connected with you"
 class LinkContactCommand <<record>> {
   +Guid ProfileId
   +bool DiscardNotes = false

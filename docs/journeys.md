@@ -25,14 +25,15 @@ Ordered by value to the user. Effort and completion come from [estimates](estima
 | 18 | Create and edit events | Leads publish and update events, including hackathons. | 4 | 100 |
 | 19 | Cancel events | Leads cancel an event and attendees are told. | 4 | 100 |
 | 20 | Send invites | Leads invite people to sign up and track invitations. | 5 | 0 |
-| 21 | Send announcements | Leads write announcements and send them to chosen audiences. | 4 | 0 |
-| 22 | Manage private contacts | Leads keep private contacts and notes, visible only to them. | 14 | 0 |
-| 23 | Archive and restore contacts | Remove contacts safely, restore them, or delete permanently. | 4 | 0 |
-| 24 | Link contact on sign-up | Connect a private contact to their profile when they join. | 4 | 0 |
-| 25 | Run the partner pipeline | Move partners across a Lead, In Funnel and Confirmed Kanban board. | 8 | 0 |
-| 26 | Assign roles | Leads and admins grant or remove roles within permitted limits. | 5 | 0 |
-| 27 | Suspend users | Admins suspend and reinstate accounts that break community rules. | 4 | 0 |
-| 28 | Administer users and override | Admins manage users and override anything, with every action recorded. | 4 | 0 |
-| 29 | Review the audit log | Admins review who did what, and when. | 4 | 0 |
-| 30 | Use a fast, accessible, secure site | Responsive, themed, accessible, validated and reliable on every screen. | 21 | 78 |
-| 31 | Plan work in the agile workspace | Organize and track team work in a shared agile workspace. | 36 | 0 |
+| 21 | Connect by QR code | City Leads show a QR code; people who scan it join and become their contacts. | 6 | 100 |
+| 22 | Send announcements | Leads write announcements and send them to chosen audiences. | 4 | 0 |
+| 23 | Manage private contacts | Leads keep private contacts and notes, visible only to them. | 14 | 0 |
+| 24 | Archive and restore contacts | Remove contacts safely, restore them, or delete permanently. | 4 | 0 |
+| 25 | Link contact on sign-up | Connect a private contact to their profile when they join, automatically through a QR code. | 6 | 0 |
+| 26 | Run the partner pipeline | Move partners across a Lead, In Funnel and Confirmed Kanban board. | 8 | 0 |
+| 27 | Assign roles | Leads and admins grant or remove roles within permitted limits. | 5 | 0 |
+| 28 | Suspend users | Admins suspend and reinstate accounts that break community rules. | 4 | 0 |
+| 29 | Administer users and override | Admins manage users and override anything, with every action recorded. | 4 | 0 |
+| 30 | Review the audit log | Admins review who did what, and when. | 4 | 0 |
+| 31 | Use a fast, accessible, secure site | Responsive, themed, accessible, validated and reliable on every screen. | 21 | 78 |
+| 32 | Plan work in the agile workspace | Organize and track team work in a shared agile workspace. | 36 | 0 |

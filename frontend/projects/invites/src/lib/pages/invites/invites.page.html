@@ -3,6 +3,11 @@
   <ft-breadcrumb-item>Invites</ft-breadcrumb-item>
 </ft-breadcrumb>
 <ft-page-header title="Invites" subtitle="Sent by you and other leads">
+  @if (hasQrCode()) {
+    <ft-button ftPageHeaderActions (click)="showQrCode()">
+      <ft-icon name="qr" /> My QR code
+    </ft-button>
+  }
   <ft-button ftPageHeaderActions variant="primary" (click)="inviteSomeone()">
     <ft-icon name="invite" /> Invite someone
   </ft-button>

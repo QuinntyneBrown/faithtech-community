@@ -1,0 +1,52 @@
+@startuml
+title UML sequence behaviour — Connect automatically
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+actor "Person" as p
+box "Backend — Application and Domain" #ECFDF3
+  participant "ConnectHandler /\nConfirmEmailHandler /\nGoogleSignInHandler" as src
+  participant "ContactSignedUpHandler" as csu
+  participant "ContactConnector" as cc
+end box
+box "Backend — Infrastructure" #FFF4E5
+  database "Community database" as db
+  participant "Email outbox" as mail
+end box
+alt signed-in member opens the link (ConnectHandler.ConnectAsync)
+  src -> cc : RequestAsync(lead, profile)
+  alt person is the lead
+    cc --> src : OwnCode (L2-082 AC5)
+  else email not verified
+    cc -> db : Add PendingConnection(profile, lead)
+    cc --> src : Pending (L2-084 AC6)
+  else verified
+    cc -> cc : ConnectAsync(lead, profile)
+    cc --> src : Connected
+  end
+else email becomes verified (verify-email link, Google)
+  src -> csu : HandleAsync(EmailVerified(profile, email))
+  csu -> db : PendingConnections for profile
+  loop each pending connection
+    csu -> cc : ConnectAsync(lead, profile)
+    csu -> db : Remove PendingConnection
+  end
+  csu -> db : Other leads' unlinked contacts with the email → "just joined" (L2-015, L2-084 AC7)
+end
+group ContactConnector.ConnectAsync(lead, profile)
+  cc -> db : Lead's contact linked to profile?
+  alt already linked
+    cc --> cc : nothing (L2-084 AC3)
+  else lead has an unlinked contact with that email (archived or not)
+    cc -> db : Restore if archived; LinkTo(profile), notes kept (AC2)
+  else
+    cc -> db : Add Contact(owner = lead, profile name, email) linked (AC1)
+  end
+  cc -> db : Add Notification(lead, ContactSignedUp, "{name} connected with you", /contacts/{id})
+  cc -> mail : Enqueue email to the lead (AC4)
+  cc -> db : Save changes (one unit of work)
+end
+note over db : The contact is private to the lead and System Admin\nlike every contact (ContactAccess, L2-012, AC5)
+@enduml

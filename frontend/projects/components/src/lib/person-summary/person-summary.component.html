@@ -1,0 +1,5 @@
+<ft-avatar [name]="name()" [src]="photoUrl()" [color]="color()" [size]="size()" />
+<p class="ft-person-summary__name">{{ name() }}</p>
+@if (meta(); as text) {
+  <p class="ft-person-summary__meta">{{ text }}</p>
+}

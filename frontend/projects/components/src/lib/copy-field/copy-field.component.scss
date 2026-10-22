@@ -1,0 +1,30 @@
+:host {
+  display: block;
+}
+
+.ft-copy-field {
+  display: flex;
+  gap: var(--space-2);
+  align-items: stretch;
+}
+
+.ft-copy-field ft-text-field {
+  flex: 1;
+  min-inline-size: 0;
+}
+
+.ft-copy-field ft-text-field ::ng-deep input {
+  font-family: var(--font-family-mono);
+  font-size: var(--font-size-sm);
+  text-overflow: ellipsis;
+}
+
+.ft-copy-field__status {
+  margin: var(--space-1) 0 0;
+  font: var(--text-caption);
+  color: var(--color-success-fg);
+}
+
+.ft-copy-field__status:empty {
+  margin: 0;
+}

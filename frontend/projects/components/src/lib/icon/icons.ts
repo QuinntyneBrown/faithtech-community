@@ -22,6 +22,10 @@ export const ICONS: Readonly<Record<string, string>> = {
   'remove-member':
     "<circle cx='9' cy='8' r='4'/><path d='M2 21a7 7 0 0 1 14 0M17 8l5 5M22 8l-5 5'/>",
   invite: "<path d='M22 2 11 13M22 2l-7 20-4-9-9-4z'/>",
+  qr: "<rect x='3' y='3' width='7' height='7' rx='1'/><rect x='14' y='3' width='7' height='7' rx='1'/><rect x='3' y='14' width='7' height='7' rx='1'/><path d='M14 14h3v3h-3zM20 14v.01M14 20h.01M17 20h4v-3'/>",
+  copy: "<rect x='9' y='9' width='12' height='12' rx='2'/><path d='M5 15V5a2 2 0 0 1 2-2h10'/>",
+  download: "<path d='M12 3v12M7 10l5 5 5-5M4 21h16'/>",
+  refresh: "<path d='M21 12a9 9 0 1 1-3-6.7L21 8M21 3v5h-5'/>",
   workspaces: "<path d='M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01'/>",
   'planning-poker':
     "<path d='m12 3 2.8 5.7 6.2.9-4.5 4.4 1 6.2L12 17.3 6.5 20.2l1-6.2L3 9.6l6.2-.9z'/>",

@@ -46,7 +46,7 @@ and Agile workspaces with Planning Poker.
 | **Global search** | People, events, partners, work items and your own private contacts, filtered by what you are allowed to see. |
 | **Announcements** | Send to everyone, to holders of a role, or to an event's RSVP list, in-app and by email (with opt-out). |
 | **Notifications** | In-app bell plus email for the events that matter. |
-| **Invites** | Leads invite people by email with an optional pre-assigned role. Invites expire after 14 days. |
+| **Invites** | Leads invite people by email with an optional pre-assigned role. Invites expire after 14 days. City Leads also have **My QR code**: a reusable link that never expires (and can be replaced) which lets someone they meet join and become their private contact automatically once their email is verified. |
 | **Administration** | System Admins suspend users, assign any role, reassign workspace owners, and every admin action is written to an audit log. |
 
 Hackathon teams, projects and judging are planned for v2.

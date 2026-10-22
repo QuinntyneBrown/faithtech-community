@@ -466,6 +466,28 @@ namespace FaithTech.Community.Infrastructure.Persistence.Migrations
                     b.ToTable("ContactNotes");
                 });
 
+            modelBuilder.Entity("FaithTech.Community.Domain.Contacts.PendingConnection", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid>("LeadId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("ProfileId")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ProfileId", "LeadId")
+                        .IsUnique();
+
+                    b.ToTable("PendingConnections");
+                });
+
             modelBuilder.Entity("FaithTech.Community.Domain.Events.Event", b =>
                 {
                     b.Property<Guid>("Id")
@@ -592,6 +614,38 @@ namespace FaithTech.Community.Infrastructure.Persistence.Migrations
                         .HasFilter("\"ProfileId\" IS NOT NULL");
 
                     b.ToTable("Rsvps", (string)null);
+                });
+
+            modelBuilder.Entity("FaithTech.Community.Domain.Invites.ConnectLink", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTimeOffset>("IssuedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid>("OwnerId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("ProtectedToken")
+                        .IsRequired()
+                        .HasMaxLength(1024)
+                        .HasColumnType("character varying(1024)");
+
+                    b.Property<string>("TokenHash")
+                        .IsRequired()
+                        .HasMaxLength(64)
+                        .HasColumnType("character varying(64)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("OwnerId")
+                        .IsUnique();
+
+                    b.HasIndex("TokenHash")
+                        .IsUnique();
+
+                    b.ToTable("ConnectLinks");
                 });
 
             modelBuilder.Entity("FaithTech.Community.Domain.Invites.Invite", b =>

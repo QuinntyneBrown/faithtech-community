@@ -1053,3 +1053,25 @@ mark { background: var(--color-warning-bg); color: inherit; border-radius: var(-
 .site-footer__inner { display: flex; flex-wrap: wrap; gap: var(--space-3) var(--space-6); align-items: center; justify-content: space-between; }
 .site-footer__links { display: flex; flex-wrap: wrap; gap: var(--space-2) var(--space-5); list-style: none; margin: 0; padding: 0; }
 .site-footer__links a { color: var(--color-fg-muted); display: inline-flex; align-items: center; min-height: var(--target-min); }
+
+/* ---------- QR code ----------------------------------------------------------- */
+/* Dark modules on a light plate in both themes; the plate's padding is the quiet zone (4 modules). */
+.qr-code { display: inline-flex; flex-direction: column; align-items: center; gap: var(--space-2); margin: 0; }
+.qr-code__plate { display: block; padding: var(--space-4); background: var(--color-code-plate); border-radius: var(--radius-md);
+  border: var(--border-width-hairline) solid var(--color-border-default); line-height: 0; }
+.qr-code__plate svg, .qr-code__plate img { display: block; width: var(--qr-size, 12rem); height: var(--qr-size, 12rem); color: var(--color-code-module); }
+.qr-code--sm { --qr-size: 8rem; }
+.qr-code--lg { --qr-size: 16rem; }
+.qr-code__caption { color: var(--color-fg-muted); font: var(--text-caption); text-align: center; }
+.qr-code--busy .qr-code__plate { opacity: 0.4; }
+
+/* ---------- Copy field (read-only value with a Copy button) ------------------- */
+.copy-field { display: flex; gap: var(--space-2); align-items: stretch; }
+.copy-field .input { flex: 1; min-width: 0; font-family: var(--font-family-mono); font-size: var(--font-size-sm); text-overflow: ellipsis; }
+.copy-field .btn { flex: none; }
+.copy-field__status { color: var(--color-success-fg); font: var(--text-caption); }
+
+/* ---------- Person summary (centred avatar, name and meta; the connect page) - */
+.person-summary { display: flex; flex-direction: column; align-items: center; gap: var(--space-2); text-align: center; }
+.person-summary__name { font: var(--text-h4); margin: 0; }
+.person-summary__meta { color: var(--color-fg-muted); font: var(--text-body-sm); margin: 0; }

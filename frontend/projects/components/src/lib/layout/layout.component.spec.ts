@@ -19,7 +19,7 @@ import { StackComponent, StackWidth } from './stack.component';
   template: `
     <ft-container><i class="c">c</i></ft-container>
     <ft-stack [gap]="gap()" [width]="width()"><i class="s">s</i></ft-stack>
-    <ft-cluster [between]="between()"><i>x</i></ft-cluster>
+    <ft-cluster [between]="between()" [center]="center()"><i>x</i></ft-cluster>
     <ft-grid [columns]="columns()" [auto]="auto()"><i>g</i></ft-grid>
     <ft-split
       ><div ftSplitMain>main</div>
@@ -42,6 +42,7 @@ class HostComponent {
   gap = signal('4');
   width = signal<StackWidth | null>(null);
   between = signal(false);
+  center = signal(false);
   columns = signal<number | null>(null);
   auto = signal(false);
 }
@@ -87,6 +88,15 @@ describe('layout primitives', () => {
     cmp.between.set(true);
     fixture.detectChanges();
     expect(c.classList).toContain('ft-cluster--between');
+  });
+
+  it('cluster toggles the center modifier', () => {
+    const { fixture, cmp, host } = setup();
+    const c = host.querySelector('ft-cluster') as HTMLElement;
+    expect(c.classList).not.toContain('ft-cluster--center');
+    cmp.center.set(true);
+    fixture.detectChanges();
+    expect(c.classList).toContain('ft-cluster--center');
   });
 
   it('grid sets explicit columns or auto-fill', () => {

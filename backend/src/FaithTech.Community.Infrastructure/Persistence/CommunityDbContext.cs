@@ -36,7 +36,11 @@ public class CommunityDbContext(DbContextOptions<CommunityDbContext> options)
 
     public DbSet<Invite> Invites => Set<Invite>();
 
+    public DbSet<ConnectLink> ConnectLinks => Set<ConnectLink>();
+
     public DbSet<Contact> Contacts => Set<Contact>();
+
+    public DbSet<PendingConnection> PendingConnections => Set<PendingConnection>();
 
     public DbSet<ContactNote> ContactNotes => Set<ContactNote>();
 
@@ -141,6 +145,21 @@ public class CommunityDbContext(DbContextOptions<CommunityDbContext> options)
             notification.Property(n => n.LinkPath).HasMaxLength(300);
             notification.Ignore(n => n.IsRead);
             notification.HasIndex(n => new { n.RecipientId, n.CreatedAt });
+        });
+
+        builder.Entity<PendingConnection>(pending =>
+        {
+            pending.Property(p => p.Id).ValueGeneratedNever();
+            pending.HasIndex(p => new { p.ProfileId, p.LeadId }).IsUnique();
+        });
+
+        builder.Entity<ConnectLink>(link =>
+        {
+            link.Property(l => l.Id).ValueGeneratedNever();
+            link.HasIndex(l => l.OwnerId).IsUnique();
+            link.Property(l => l.TokenHash).HasMaxLength(64);
+            link.HasIndex(l => l.TokenHash).IsUnique();
+            link.Property(l => l.ProtectedToken).HasMaxLength(1024);
         });
 
         builder.Entity<Invite>(invite =>

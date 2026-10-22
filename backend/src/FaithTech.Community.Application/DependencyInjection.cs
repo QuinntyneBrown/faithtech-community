@@ -53,12 +53,15 @@ public static class DependencyInjection
         services.AddScoped<InviteSender>();
         services.AddScoped<ManageInvitesHandler>();
         services.AddScoped<AcceptInviteHandler>();
+        services.AddScoped<ConnectLinkHandler>();
+        services.AddScoped<ConnectHandler>();
         services.AddScoped<ContactAccess>();
         services.AddScoped<ContactViews>();
         services.AddScoped<ManageContactsHandler>();
         services.AddScoped<ContactPhotosHandler>();
         services.AddScoped<ContactNotesHandler>();
         services.AddScoped<ArchiveContactsHandler>();
+        services.AddScoped<ContactConnector>();
         services.AddScoped<ContactSignedUpHandler>();
         services.AddScoped<LinkContactHandler>();
         services.AddScoped<PartnerAccess>();

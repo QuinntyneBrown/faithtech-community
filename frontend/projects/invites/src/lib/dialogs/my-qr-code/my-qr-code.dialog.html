@@ -1,0 +1,83 @@
+@if (step() === 'confirm') {
+  <ft-dialog
+    heading="Make a new QR code?"
+    description="Your current code and link will stop working."
+    icon="qr"
+    (closed)="ref.close()"
+  >
+    <ft-stack>
+      <ft-alert status="warning" heading="The old code stops working">
+        Anyone who scans the current QR code or opens the current link will see that it no longer
+        works. Printed or shared copies will need the new code.
+      </ft-alert>
+      <p>People who already connected stay in your contacts.</p>
+    </ft-stack>
+    <ft-button ftDialogFooter initialFocus (click)="step.set('code')">Keep this code</ft-button>
+    <ft-button ftDialogFooter variant="danger" (click)="replace()">
+      <ft-icon name="refresh" /> Make a new code
+    </ft-button>
+  </ft-dialog>
+} @else {
+  <ft-dialog
+    heading="My QR code"
+    description="Show this to someone you meet so they can join and connect with you."
+    icon="qr"
+    [busy]="busy()"
+    (closed)="ref.close()"
+  >
+    <ft-stack>
+      @if (replaceFailed()) {
+        <ft-alert status="danger" heading="New code not made">
+          We couldn’t reach FaithTech. Your current code still works — try again.
+        </ft-alert>
+      }
+      @if (replaced()) {
+        <ft-alert status="success" heading="New code ready">
+          The old code and link no longer work. Share this one instead.
+        </ft-alert>
+      }
+      @if (url(); as link) {
+        <ft-cluster [center]="true">
+          <ft-qr-code
+            [value]="link"
+            alt="QR code for your connect link"
+            caption="Scan with a phone camera"
+            [busy]="busy()"
+          />
+        </ft-cluster>
+        <ft-copy-field
+          label="Your connect link"
+          [value]="link"
+          help="The QR code opens this link. It works for anyone, any number of times, until you make a new code."
+          [disabled]="busy()"
+          (copied)="copied()"
+        />
+        <p class="text-body-sm">
+          When someone scans it they can join FaithTech Community with their email. Once their email
+          is verified they’re added to your private contacts, linked to their profile, and you get a
+          notification. The link gives no role.
+        </p>
+        <div>
+          <ft-button variant="ghost" size="sm" [loading]="busy()" (click)="step.set('confirm')">
+            <ft-icon name="refresh" /> {{ busy() ? 'Making a new code…' : 'Make a new code' }}
+          </ft-button>
+        </div>
+      } @else if (loadFailed()) {
+        <ft-alert status="danger" heading="We couldn’t load your code">
+          Check your connection and try again.
+        </ft-alert>
+        <div>
+          <ft-button (click)="load()">Try again</ft-button>
+        </div>
+      } @else {
+        <ft-cluster [center]="true" role="status" aria-label="Loading your QR code">
+          <ft-skeleton shape="square" width="14rem" height="14rem" />
+        </ft-cluster>
+      }
+    </ft-stack>
+    <ft-button ftDialogFooter [disabled]="busy() || !url()" (click)="download()">
+      <ft-icon name="download" /> Download image
+    </ft-button>
+    <ft-button ftDialogFooter variant="primary" initialFocus (click)="ref.close()">Done</ft-button>
+  </ft-dialog>
+}

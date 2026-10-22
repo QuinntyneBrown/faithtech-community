@@ -26,7 +26,11 @@ public interface IApplicationDbContext
 
     DbSet<Invite> Invites { get; }
 
+    DbSet<ConnectLink> ConnectLinks { get; }
+
     DbSet<Contact> Contacts { get; }
+
+    DbSet<PendingConnection> PendingConnections { get; }
 
     DbSet<ContactNote> ContactNotes { get; }
 

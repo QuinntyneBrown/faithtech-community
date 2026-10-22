@@ -1,0 +1,35 @@
+@startuml
+!include <C4/C4_Component>
+LAYOUT_WITH_LEGEND()
+title Components — Connect by QR code
+Container_Boundary(web, "Web app") {
+  Component(invites, "InvitesPage", "Angular page (invites library)", "My QR code button for City Leads and System Admins")
+  Component(dlg, "MyQrCodeDialog", "Angular CDK Dialog (invites library)", "QR code, copy, download, make a new code")
+  Component(page, "ConnectPage", "Angular page (invites library)", "/meet/:token: lead, sign-up form, connect")
+  Component(svc, "HttpConnectService", "Angular service (api library)", "CONNECT_SERVICE")
+  Component(lib, "QrCodeComponent, CopyFieldComponent, PersonSummaryComponent", "components library", "Design-system components")
+}
+Container_Boundary(api, "Community API") {
+  Component(ep, "ConnectEndpoints", "ASP.NET Core minimal API", "/api/connect/link, /lookup, /sign-up, /api/connect")
+  Component(links, "ConnectLinkHandler", "Application handler (Invites)", "Get or issue, replace, look up")
+  Component(conn, "ConnectHandler", "Application handler (Invites)", "Sign up through the link; connect a signed-in member")
+  Component(signup, "SignUpHandler", "Application handler (Identity)", "L2-001 account creation and verification email")
+  Component(connector, "ContactConnector", "Application service (Contacts)", "Pending or immediate contact link")
+  Component(prot, "DataProtectionConnectTokens", "Infrastructure", "IConnectTokenProtector")
+  ComponentDb(db, "CommunityDbContext", "PostgreSQL", "ConnectLinks, PendingConnections")
+}
+Rel(invites, dlg, "Opens with DialogService")
+Rel(dlg, lib, "Composes")
+Rel(page, lib, "Composes")
+Rel(dlg, svc, "getMyLink(), replaceMyLink()")
+Rel(page, svc, "lookUp(), signUp(), connect()")
+Rel(svc, ep, "Sends request", "JSON/HTTPS")
+Rel(ep, links, "GetOrIssueAsync, ReplaceAsync, LookUpAsync")
+Rel(ep, conn, "SignUpAsync, ConnectAsync")
+Rel(links, prot, "Protect / Unprotect")
+Rel(conn, links, "FindOwnerAsync")
+Rel(conn, signup, "CreateAsync")
+Rel(conn, connector, "RequestAsync")
+Rel(links, db, "Persists", "EF Core")
+Rel(conn, db, "Adds PendingConnection", "EF Core")
+@enduml

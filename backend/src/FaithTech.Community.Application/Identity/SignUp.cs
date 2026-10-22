@@ -13,17 +13,27 @@ public class SignUpValidator : AbstractValidator<SignUpCommand>
 {
     public SignUpValidator(IBreachedPasswordChecker breachedPasswords)
     {
-        // The same limit as the profile editor, so a new member can always save their name unchanged.
-        RuleFor(x => x.Name).Cascade(CascadeMode.Stop)
+        RuleFor(x => x.Name).CommunityName();
+        RuleFor(x => x.Email).CommunityEmail();
+        RuleFor(x => x.Password).CommunityPassword(breachedPasswords);
+    }
+}
+
+/// <summary>The L2-001 name and email rules, shared by every form that creates an account.</summary>
+public static class SignUpRules
+{
+    // The same limit as the profile editor, so a new member can always save their name unchanged.
+    public static IRuleBuilderOptions<T, string> CommunityName<T>(this IRuleBuilderInitial<T, string> rule) =>
+        rule.Cascade(CascadeMode.Stop)
             .Must(name => !string.IsNullOrWhiteSpace(name)).WithMessage("Enter your name.")
             .Must(name => name.Trim().Length <= UpdateProfileValidator.MaxName)
             .WithMessage($"Use {UpdateProfileValidator.MaxName} characters or fewer for your name.");
-        RuleFor(x => x.Email).Cascade(CascadeMode.Stop)
+
+    public static IRuleBuilderOptions<T, string> CommunityEmail<T>(this IRuleBuilderInitial<T, string> rule) =>
+        rule.Cascade(CascadeMode.Stop)
             .NotEmpty().WithMessage("Enter your email address.")
             .EmailAddress().WithMessage("Enter an email address like name@example.com.")
             .MaximumLength(256);
-        RuleFor(x => x.Password).CommunityPassword(breachedPasswords);
-    }
 }
 
 public class SignUpHandler(
@@ -33,10 +43,19 @@ public class SignUpHandler(
 {
     public async Task<Result> HandleAsync(SignUpCommand command, CancellationToken cancellationToken = default)
     {
-        // Same outcome whether or not the email is registered, so the form discloses nothing.
+        await CreateAsync(command, cancellationToken);
+        return Result.Ok();
+    }
+
+    /// <summary>
+    /// Creates the account and sends the verification email; null when the email is already registered.
+    /// Callers answer the same either way, so the form discloses nothing (L2-001 AC2).
+    /// </summary>
+    public async Task<CommunityUser?> CreateAsync(SignUpCommand command, CancellationToken cancellationToken = default)
+    {
         if (await users.FindByEmailAsync(command.Email) is not null)
         {
-            return Result.Ok();
+            return null;
         }
 
         var profile = new Profile(command.Name.Trim());
@@ -49,14 +68,14 @@ public class SignUpHandler(
         {
             if (created.Errors.Any(e => e.Code is nameof(IdentityErrorDescriber.DuplicateEmail) or nameof(IdentityErrorDescriber.DuplicateUserName)))
             {
-                return Result.Ok();
+                return null;
             }
 
             throw new InvalidOperationException($"Account creation failed: {string.Join(", ", created.Errors.Select(e => e.Code))}");
         }
 
         await verificationEmails.SendAsync(user, cancellationToken);
-        return Result.Ok();
+        return user;
     }
 }
 

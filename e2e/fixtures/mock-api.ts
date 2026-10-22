@@ -2,6 +2,7 @@ import { Page, Route } from '@playwright/test';
 
 import { MockAgile } from './mock-agile';
 import { MockAnnouncements } from './mock-announcements';
+import { MockConnect } from './mock-connect';
 import { MockContacts } from './mock-contacts';
 import { MockPartners } from './mock-partners';
 import { MockEvents } from './mock-events';
@@ -158,6 +159,8 @@ export class MockApi {
     photoUrl(undefined, `upload-${this.uploads}-${file}`);
   /** Private contacts (ADR 0014). */
   readonly contacts = new MockContacts(this);
+  /** City Leads' connect links: My QR code and the connect page (ADR 0021). */
+  readonly connect = new MockConnect(this);
   /** The shared partner pipeline (ADR 0014). */
   readonly partners = new MockPartners(this);
   /** Global search over the other fakes, with the server's permission rules (L2-026). */
@@ -314,6 +317,8 @@ export class MockApi {
     if (override) return override(route, body);
 
     const authorization = request.headers()['authorization'];
+    const connect = this.connect.handle(route, method, url, body, this.caller(authorization));
+    if (connect) return connect;
     const contacts = this.contacts.handle(route, method, url, body, this.caller(authorization));
     if (contacts) return contacts;
     const partners = this.partners.handle(route, method, url, body, this.caller(authorization));
@@ -408,12 +413,24 @@ export class MockApi {
       case 'POST /api/account/forgot-password':
         return route.fulfill({ status: 202 });
       case 'POST /api/account/verify-email':
+        // ConfirmEmailHandler: the verify link carries user-{profileId} for accounts the fake created.
+        this.verifyEmail(String(body['userId'] ?? ''));
+        return route.fulfill({ status: 200, json: {} });
       case 'POST /api/account/reset-password':
         return route.fulfill({ status: 200, json: {} });
       default:
         this.unrecognised.push(`${method} ${url.pathname}`);
         return route.abort('failed');
     }
+  }
+
+  /** Marks the account verified and connects it to the leads whose connect link it used (L2-084). */
+  private verifyEmail(userId: string): void {
+    const profileId = userId.replace(/^user-/, '');
+    const account = [...this.accounts.values()].find((a) => a.profileId === profileId);
+    if (!account || account.verified) return;
+    account.verified = true;
+    this.connect.verified(profileId);
   }
 
   private signIn(route: Route, body: Record<string, unknown>) {

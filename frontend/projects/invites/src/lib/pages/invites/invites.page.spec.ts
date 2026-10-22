@@ -1,10 +1,17 @@
 import { HttpErrorResponse } from '@angular/common/http';
+import { signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
-import { INVITES_SERVICE, InviteDto, InvitePage } from '@faithtech-community/api';
+import {
+  AUTH_SERVICE,
+  INVITES_SERVICE,
+  InviteDto,
+  InvitePage,
+  Role,
+} from '@faithtech-community/api';
 import { DialogService, ToastService } from '@faithtech-community/components';
 import { Observable, of, throwError } from 'rxjs';
 
-import { SendInviteDialog } from '../../dialogs';
+import { MyQrCodeDialog, SendInviteDialog } from '../../dialogs';
 import { InvitesPage } from './invites.page';
 
 function invite(overrides: Partial<InviteDto>): InviteDto {
@@ -50,6 +57,7 @@ function page(
 async function setup(
   list: (after?: string | null) => Observable<InvitePage>,
   dialogResult?: InviteDto,
+  roles: Role[] = ['CityLead'],
 ) {
   const service = {
     listInvites: vi.fn(list),
@@ -62,6 +70,7 @@ async function setup(
       { provide: INVITES_SERVICE, useValue: service },
       { provide: DialogService, useValue: dialogs },
       { provide: ToastService, useValue: toasts },
+      { provide: AUTH_SERVICE, useValue: { roles: signal(roles) } },
     ],
   });
   const fixture = TestBed.createComponent(InvitesPage);
@@ -128,6 +137,25 @@ describe('InvitesPage', () => {
     expect(toasts.show).toHaveBeenCalledWith(
       expect.objectContaining({ heading: 'Invite sent to new.person@example.org' }),
     );
+  });
+
+  it.each<[Role[], boolean]>([
+    [['CityLead'], true],
+    [['SystemAdmin'], true],
+    [['EventLead'], false],
+    [['CommunicationsLead', 'Volunteer'], false],
+  ])('with roles %j shows My QR code: %s', async (roles, shown) => {
+    const { button } = await setup(() => of(page([pending])), undefined, roles);
+    expect(button('My QR code') !== undefined).toBe(shown);
+  });
+
+  it('opens My QR code in a dialog', async () => {
+    const { dialogs, button, settle } = await setup(() => of(page([pending])));
+
+    button('My QR code')!.click();
+    await settle();
+
+    expect(dialogs.open).toHaveBeenCalledWith(MyQrCodeDialog, expect.anything());
   });
 
   it('shows the empty state with an invite action', async () => {

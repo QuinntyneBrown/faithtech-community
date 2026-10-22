@@ -1,0 +1,19 @@
+<figure
+  class="ft-qr-code"
+  [class]="'ft-qr-code ft-qr-code--' + size()"
+  [class.ft-qr-code--busy]="busy()"
+>
+  <span class="ft-qr-code__plate">
+    <svg
+      [attr.viewBox]="'0 0 ' + count() + ' ' + count()"
+      role="img"
+      [attr.aria-label]="alt()"
+      shape-rendering="crispEdges"
+    >
+      <path fill="currentColor" [attr.d]="path()" />
+    </svg>
+  </span>
+  @if (caption(); as text) {
+    <figcaption class="ft-qr-code__caption">{{ text }}</figcaption>
+  }
+</figure>

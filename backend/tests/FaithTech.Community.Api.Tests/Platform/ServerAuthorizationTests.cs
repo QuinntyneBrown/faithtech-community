@@ -13,7 +13,7 @@ namespace FaithTech.Community.Api.Tests.Platform;
 public partial class ServerAuthorizationTests(CommunityApiFactory factory) : IClassFixture<CommunityApiFactory>
 {
     // Endpoints the design marks anonymous (L2-042 AC1), plus the health probes (L2-047), the invite link (L2-011) and
-    // public events with guest RSVP (L2-023).
+    // public events with guest RSVP (L2-023) and the connect link lookup and sign-up.
     private static readonly string[] AnonymousRoutes =
     [
         "health/live",
@@ -30,6 +30,8 @@ public partial class ServerAuthorizationTests(CommunityApiFactory factory) : ICl
         "api/account/sign-in",
         "api/invites/lookup",
         "api/invites/accept",
+        "api/connect/lookup",
+        "api/connect/sign-up",
         "api/public/events/{id:guid}",
         "api/public/events/{id:guid}/rsvps",
         "api/public/events/{id:guid}/rsvps/cancel",
