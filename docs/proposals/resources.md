@@ -2,7 +2,7 @@
 
 A searchable home for the decks, logos, images, training materials and templates that FaithTech leads need, inside FaithTech Community.
 
-- Status: agreed, awaiting requirements
+- Status: agreed; requirements written as `L1-020` and `L2-055` to `L2-066` in `docs/specs/`, awaiting detailed design
 - Date: 2026-10-22
 - Next step: run `docs/prompts/resources-prompt.md`, which carries these decisions and produces `L1-020 Resources (RES)` and its L2 entries in `docs/specs/`, then mocks, detailed design and estimate, before any code.
 
