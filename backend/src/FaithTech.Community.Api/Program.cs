@@ -77,6 +77,7 @@ app.MapHub<AgileHub>("/hubs/agile");
 app.MapPeopleEndpoints();
 app.MapEventsEndpoints();
 app.MapNotificationsEndpoints();
+app.MapAnnouncementsEndpoints();
 app.MapAccountEndpoints();
 app.MapAuthorizationEndpoints();
 

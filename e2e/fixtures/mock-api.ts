@@ -1,6 +1,7 @@
 import { Page, Route } from '@playwright/test';
 
 import { MockAgile } from './mock-agile';
+import { MockAnnouncements } from './mock-announcements';
 import { MockContacts } from './mock-contacts';
 import { MockPartners } from './mock-partners';
 import { MockEvents } from './mock-events';
@@ -119,6 +120,8 @@ export class MockApi {
   );
   /** In-app notifications (L2-027), sharing this fake's clock. */
   readonly notifications = new MockNotifications(() => this.now);
+  /** Announcements and the announcement email opt-out (L2-029, L2-030). */
+  readonly announcements = new MockAnnouncements(this);
   readonly calls: {
     method: string;
     path: string;
@@ -304,6 +307,14 @@ export class MockApi {
     if (events) return events;
     const notifications = this.notifications.handle(route, method, url, this.caller(authorization));
     if (notifications) return notifications;
+    const announcements = this.announcements.handle(
+      route,
+      method,
+      url,
+      body,
+      this.caller(authorization),
+    );
+    if (announcements) return announcements;
     const profileRoute = /^\/api\/profiles\/([^/]+)$/.exec(url.pathname);
     if (method === 'GET' && profileRoute) {
       return this.getProfile(route, profileRoute[1], authorization);

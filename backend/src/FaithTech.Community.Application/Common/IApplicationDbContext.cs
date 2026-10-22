@@ -1,6 +1,7 @@
 using FaithTech.Community.Application.Identity;
 using FaithTech.Community.Domain.Admin;
 using FaithTech.Community.Domain.Agile;
+using FaithTech.Community.Domain.Announcements;
 using FaithTech.Community.Domain.Contacts;
 using FaithTech.Community.Domain.Events;
 using FaithTech.Community.Domain.Invites;
@@ -43,6 +44,8 @@ public interface IApplicationDbContext
 
     DbSet<PhotoBlobTask> PhotoBlobTasks { get; }
     DbSet<Event> Events { get; }
+
+    DbSet<Announcement> Announcements { get; }
 
     Task<int> SaveChangesAsync(CancellationToken cancellationToken = default);
 }

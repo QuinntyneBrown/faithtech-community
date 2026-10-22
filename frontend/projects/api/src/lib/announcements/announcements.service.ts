@@ -1,28 +1,30 @@
-/*
- * EARLY IMPLEMENTATION: written ahead of the vertical slices to get a head start.
- * Contracts and DTOs follow docs/detailed-designs/ but may change as each feature is
- * implemented end to end (spec -> design -> mock -> ATDD slice).
- * Sources:
- *   - docs/detailed-designs/announcements/send-announcement
- *   - docs/detailed-designs/announcements/read-announcements-and-opt-out
- */
 import { InjectionToken } from '@angular/core';
 import { Observable } from 'rxjs';
 
 import { PagedResult, Role } from '../shared';
 
-export type AudienceKind = 'Everyone' | 'Role' | 'EventRsvps';
+export type AudienceKind = 'Everyone' | 'Roles' | 'EventRsvps';
 
+/** Everyone, the holders of one or more roles, or one event's RSVP list (L2-029). */
 export interface AnnouncementAudience {
   kind: AudienceKind;
-  role: Role | null;
-  eventId: string | null;
+  roles?: Role[];
+  eventId?: string;
 }
 
 export interface SendAnnouncementRequest {
   subject: string;
   body: string;
+  /** "Also send by email": on by default; each recipient's opt-out still applies. */
+  alsoEmail: boolean;
   audience: AnnouncementAudience;
+}
+
+/** Who a sent announcement reached: everyone in the app, and how many of them by email. */
+export interface AnnouncementSent {
+  id: string;
+  recipientCount: number;
+  emailCount: number;
 }
 
 export interface AnnouncementDto {
@@ -32,15 +34,11 @@ export interface AnnouncementDto {
   sentAt: string;
 }
 
-/**
- * Contract for the announcements API. Pages depend on ANNOUNCEMENTS_SERVICE, never on HttpAnnouncementsService.
- * TODO(slice): the design takes one role (L2-029 says several) and has no "also send by email" flag;
- * AnnouncementPage is undefined so PagedResult is assumed; there is no endpoint to read the current opt-out.
- */
+/** Contract for the announcements API. Pages depend on ANNOUNCEMENTS_SERVICE, never on HttpAnnouncementsService. */
 export interface AnnouncementsService {
   list(page?: number): Observable<PagedResult<AnnouncementDto>>;
   countRecipients(audience: AnnouncementAudience): Observable<number>;
-  send(announcement: SendAnnouncementRequest): Observable<{ id: string }>;
+  send(announcement: SendAnnouncementRequest): Observable<AnnouncementSent>;
   setEmailOptOut(optedOut: boolean): Observable<void>;
   /** Anonymous: opens from the email footer link with a signed token. */
   unsubscribe(token: string): Observable<void>;
