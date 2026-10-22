@@ -19,12 +19,12 @@ Search never widens what a user may open. The server filters every group by perm
 - **`SearchEndpoints`** — maps `GET /api/search?q=` with authentication required.
 - **`GlobalSearchQuery`** — query carrying the term.
 - **`GlobalSearchValidator`** — rejects terms shorter than 2 characters, so no search runs (`L2-026`).
-- **`GlobalSearchHandler`** — Application handler that resolves the caller's permissions from `ICurrentUser` into a `SearchScope` and asks `ISearchIndex` for each permitted group.
-- **`SearchScope`** — value object stating which groups the caller may see and the owner filter for contacts and the workspace filter for work items.
-- **`ISearchIndex`** — Application contract for searching. **`PostgresSearchIndex`** in Infrastructure implements it with `websearch_to_tsquery`, `ts_rank` and GIN-indexed `tsvector` columns on each searchable table, applying the scope filters inside the SQL.
+- **`GlobalSearchHandler`** — Application handler that asks one `ISearchSource` per result kind for the caller's matches and returns the non-empty groups in a fixed order: people, events, partners, contacts, work items.
+- **`ISearchSource`** — Application contract for one searchable kind. Each source (`PeopleSearchSource`, `EventsSearchSource`, `PartnersSearchSource`, `ContactsSearchSource`, `WorkItemsSearchSource`) starts from a query already filtered by what the caller may open, using the feature's own access rules (`PartnerAccess`, `WorkspaceAccessPolicy`, the caller's profile id for contacts), then asks `IFullTextSearch` to match the term. A later feature plugs in a new kind by registering a source.
+- **`IFullTextSearch`** — Application contract that filters and ranks a query by a term. **`PostgresFullTextSearch`** in Infrastructure matches a generated, GIN-indexed `tsvector` column (`SearchVector`) on each searchable table with `websearch_to_tsquery('english', term)` and orders by `ts_rank`, so the permission filter and the text match run in one SQL statement. Backend tests use an in-memory implementation that matches the same fields case-insensitively (ADR 0015).
 - **`SearchResultsDto`** — grouped results, each item carrying kind, id, title, snippet and route.
 
-The p95 target is under 500 ms with 100,000 indexed records. The per-group result limit is `<TO SUPPLY>`.
+The p95 target is under 500 ms with 100,000 indexed records; it needs PostgreSQL, so it is checked with `eng/load-test.js` against a seeded stack rather than in the backend tests. Each group returns at most 10 results, best match first (ADR 0015).
 
 ## Requirements
 
@@ -60,18 +60,18 @@ The `SearchPage` calls the Community API, which runs PostgreSQL full-text search
 
 ### Components
 
-`GlobalSearchHandler` turns caller roles into a `SearchScope`, and `PostgresSearchIndex` applies that scope inside the SQL so unpermitted rows never leave the database.
+Each `ISearchSource` filters by the caller's permissions, and `PostgresFullTextSearch` adds the text match to the same SQL, so unpermitted rows never leave the database.
 
 ![C4 component view for global search](diagrams/c4-component.png)
 
 ### Class structure
 
-`SearchScope.For` derives visibility from `ICurrentUser`. `PostgresSearchIndex` realizes `ISearchIndex` and returns `SearchResultsDto` grouped by `SearchResultKind`.
+Each `ISearchSource` derives visibility from `ICurrentUser`; `PostgresFullTextSearch` realizes `IFullTextSearch`; the handler returns `SearchResultsDto` grouped by `SearchResultKind`.
 
 ![Class diagram for global search](diagrams/class-structure.png)
 
 ### Behaviour — search across the community
 
-Terms under 2 characters stop at the page or validator with a hint. Valid terms run full-text search filtered by `SearchScope`, and the page groups results or shows an empty state (`L2-026`).
+Terms under 2 characters stop at the page or validator with a hint. Valid terms run full-text search filtered by each source's permissions, and the page groups results or shows an empty state (`L2-026`).
 
 ![Sequence diagram: search across the community](diagrams/sequence-search.png)

@@ -61,6 +61,24 @@
       }
     },
     {
+      "id": "unsubscribe",
+      "kind": "page",
+      "title": "Unsubscribe",
+      "route": "/unsubscribe",
+      "requirements": [
+        "L2-030"
+      ],
+      "states": [
+        "default",
+        "success",
+        "error"
+      ],
+      "not_applicable": {
+        "loading": "The default state is the short wait while the link is checked.",
+        "empty": "This screen has no collection that could be empty."
+      }
+    },
+    {
       "id": "forgot-password",
       "kind": "page",
       "title": "Forgot password",
@@ -205,7 +223,8 @@
         "loading",
         "empty",
         "error",
-        "no-results"
+        "no-results",
+        "invalid"
       ],
       "not_applicable": {}
     },
