@@ -836,11 +836,22 @@ namespace FaithTech.Community.Infrastructure.Persistence.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
+                    b.Property<string>("CorrelationId")
+                        .HasMaxLength(64)
+                        .HasColumnType("character varying(64)");
+
                     b.Property<DateTimeOffset>("CreatedAt")
                         .HasColumnType("timestamp with time zone");
 
                     b.Property<DateTimeOffset?>("FailedAt")
                         .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("HtmlBody")
+                        .HasColumnType("text");
+
+                    b.Property<string>("Kind")
+                        .HasMaxLength(64)
+                        .HasColumnType("character varying(64)");
 
                     b.Property<string>("LastError")
                         .HasMaxLength(500)

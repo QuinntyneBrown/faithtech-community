@@ -7,7 +7,8 @@ namespace FaithTech.Community.Application.Agile;
 
 /// <summary>
 /// In-app notifications and emails for workspace additions, assignments and Planning Poker invites (L2-027, L2-028).
-/// <see cref="Notify"/> adds the notification to the unit of work; call <see cref="SendEmailsAsync"/> once it is saved.
+/// <see cref="Notify"/> adds the notification to the unit of work; call <see cref="QueueEmailsAsync"/> before the save that commits
+/// the action, so the outbox rows are saved with it.
 /// Nobody is notified about their own action (ADR 0011).
 /// </summary>
 public class AgileNotifier(IApplicationDbContext db, IEmailSender email, IOptions<WebAppOptions> webApp, TimeProvider time)
@@ -25,7 +26,7 @@ public class AgileNotifier(IApplicationDbContext db, IEmailSender email, IOption
         _emails.Add((recipient, subject, $"{body}\n\n{webApp.Value.Origin}{linkPath}"));
     }
 
-    public async Task SendEmailsAsync(CancellationToken cancellationToken = default)
+    public async Task QueueEmailsAsync(CancellationToken cancellationToken = default)
     {
         var recipients = _emails.Select(e => e.Recipient).Distinct().ToList();
         var addresses = await db.Users.Where(u => recipients.Contains(u.ProfileId))

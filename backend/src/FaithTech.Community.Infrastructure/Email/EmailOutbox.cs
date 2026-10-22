@@ -23,7 +23,17 @@ public class OutboxMessage
 
     public string Subject { get; set; } = string.Empty;
 
+    /// <summary>The plain-text part.</summary>
     public string Body { get; set; } = string.Empty;
+
+    /// <summary>The HTML alternative, rendered from the same template as <see cref="Body"/>.</summary>
+    public string? HtmlBody { get; set; }
+
+    /// <summary>What the email reports, such as a <c>NotificationKind</c> name or <c>EmailVerification</c>.</summary>
+    public string? Kind { get; set; }
+
+    /// <summary>The record the email is about (a notification, invite or event id), for tracing a delivery.</summary>
+    public string? CorrelationId { get; set; }
 
     public DateTimeOffset CreatedAt { get; set; }
 
@@ -42,10 +52,14 @@ public class OutboxMessage
     public string? AttachmentsJson { get; set; }
 }
 
-/// <summary>Queues email so the action that triggered it commits even when the provider is down.</summary>
+/// <summary>
+/// Queues email in the caller's unit of work: the outbox row is added, not saved, so the caller's SaveChanges commits
+/// it together with the action it reports (L2-028, issue #174). The action then commits even when the provider is
+/// down, and no action commits without its email.
+/// </summary>
 public class OutboxEmailSender(CommunityDbContext db, TimeProvider time) : IEmailSender
 {
-    public async Task SendAsync(EmailMessage message, CancellationToken cancellationToken = default)
+    public Task SendAsync(EmailMessage message, CancellationToken cancellationToken = default)
     {
         var now = time.GetUtcNow();
         db.OutboxMessages.Add(new OutboxMessage
@@ -57,7 +71,7 @@ public class OutboxEmailSender(CommunityDbContext db, TimeProvider time) : IEmai
             CreatedAt = now,
             NextAttemptAt = now,
         });
-        await db.SaveChangesAsync(cancellationToken);
+        return Task.CompletedTask;
     }
 }
 

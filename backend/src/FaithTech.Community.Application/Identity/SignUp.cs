@@ -60,7 +60,8 @@ public class SignUpHandler(
     }
 }
 
-public class VerificationEmails(UserManager<CommunityUser> users, IEmailSender email, IOptions<WebAppOptions> webApp)
+public class VerificationEmails(
+    UserManager<CommunityUser> users, IEmailSender email, IApplicationDbContext db, IOptions<WebAppOptions> webApp)
 {
     public async Task SendAsync(CommunityUser user, CancellationToken cancellationToken = default)
     {
@@ -71,5 +72,6 @@ public class VerificationEmails(UserManager<CommunityUser> users, IEmailSender e
             "Verify your FaithTech Community email",
             $"Confirm your email address to finish setting up your account:\n\n{link}\n\nThis link expires in 24 hours."),
             cancellationToken);
+        await db.SaveChangesAsync(cancellationToken);
     }
 }

@@ -93,7 +93,6 @@ public class InviteSender(
         var token = InviteTokens.New();
         var invite = new Invite(address, InviteTokens.Hash(token), role, sender.Id, now, note);
         db.Invites.Add(invite);
-        await db.SaveChangesAsync(cancellationToken);
 
         var asRole = role is { } granted ? $" as a {RoleLabels.Of(granted)}" : string.Empty;
         var personal = note is null ? string.Empty : $"\n\n“{note}”\n— {sender.Name}";
@@ -104,6 +103,7 @@ public class InviteSender(
             $"Accept the invite:\n\n{webApp.Value.Origin}/accept-invite/{token}\n\n" +
             "This link works once and expires in 14 days."),
             cancellationToken);
+        await db.SaveChangesAsync(cancellationToken);
         return (Result.Ok(), InviteDto.From(invite, sender.Name, now));
     }
 }

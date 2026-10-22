@@ -103,13 +103,13 @@ public class PublicEventsHandler(
         var rsvp = e.GuestRsvp(name, address, time.GetUtcNow());
         var token = GuestRsvpTokens.New();
         rsvp.IssueCancelToken(GuestRsvpTokens.Hash(token));
-        await db.SaveChangesAsync(cancellationToken);
 
         var origin = webApp.Value.Origin;
         await email.SendAsync(
             rsvps.Confirmation(e, rsvp.GuestEmail!, $"{origin}/public/events/{e.Id}",
                 $"Can’t come after all? Cancel your RSVP: {origin}/public/events/{e.Id}/cancel-rsvp?token={token}"),
             cancellationToken);
+        await db.SaveChangesAsync(cancellationToken);
         return Result.Ok();
     }
 

@@ -125,8 +125,8 @@ public class ChangeRolesHandler(
                 cancellationToken);
         }
 
+        await cityLeadRemoved.QueueEmailsAsync(cancellationToken);
         await db.SaveChangesAsync(cancellationToken);
-        await cityLeadRemoved.SendEmailsAsync(cancellationToken);
         return (Result.Ok(), after);
     }
 

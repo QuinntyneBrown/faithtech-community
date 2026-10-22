@@ -33,8 +33,6 @@ public class ContactSignedUpHandler(IApplicationDbContext db, IEmailSender email
                 contact.OwnerId, NotificationKind.ContactSignedUp, Title(contact.Name), $"/contacts/{contact.Id}", now));
         }
 
-        await db.SaveChangesAsync(cancellationToken);
-
         var owners = matches.Select(m => m.OwnerId).Distinct().ToList();
         var addresses = await db.Users.Where(u => owners.Contains(u.ProfileId))
             .ToDictionaryAsync(u => u.ProfileId, u => u.Email, cancellationToken);
@@ -53,6 +51,8 @@ public class ContactSignedUpHandler(IApplicationDbContext db, IEmailSender email
                 "Your notes stay private to you."),
                 cancellationToken);
         }
+
+        await db.SaveChangesAsync(cancellationToken);
     }
 
     private static string Title(string name) => $"{name} just joined FaithTech";

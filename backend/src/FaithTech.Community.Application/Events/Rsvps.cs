@@ -56,7 +56,6 @@ public class RsvpHandler(
         var title = $"You’re going to {e.Title}";
         var link = $"/events/{e.Id}";
         await notifications.PublishAsync([me], NotificationKind.RsvpConfirmed, title, link, cancellationToken: cancellationToken);
-        await db.SaveChangesAsync(cancellationToken);
 
         var address = await db.Users.Where(u => u.ProfileId == me).Select(u => u.Email).SingleOrDefaultAsync(cancellationToken);
         if (address is not null)
@@ -64,6 +63,7 @@ public class RsvpHandler(
             await email.SendAsync(Confirmation(e, address, $"{webApp.Value.Origin}{link}"), cancellationToken);
         }
 
+        await db.SaveChangesAsync(cancellationToken);
         return Result.Ok();
     }
 

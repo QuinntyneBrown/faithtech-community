@@ -26,7 +26,8 @@ public class CommunityApiFactory : WebApplicationFactory<Program>, IAsyncLifetim
     private readonly InMemoryDatabaseRoot _databaseRoot = new();
     private readonly string _databaseName = Guid.NewGuid().ToString();
 
-    public FakeEmailSender Emails { get; } = new();
+    /// <summary>The emails committed to the outbox.</summary>
+    public QueuedEmails Emails => new(this);
 
     public FakeTimeProvider Time { get; } = new(DateTimeOffset.UtcNow);
 
@@ -36,6 +37,9 @@ public class CommunityApiFactory : WebApplicationFactory<Program>, IAsyncLifetim
 
     /// <summary>Lets a test overlap saves from concurrent requests.</summary>
     public SaveChangesGate SaveGate { get; } = new();
+
+    /// <summary>Lets a test make a save fail, as a lost connection or a constraint would.</summary>
+    public SaveFailures SaveFailures { get; } = new();
 
     public FakeAgileNotifier Live { get; } = new();
 
@@ -63,10 +67,9 @@ public class CommunityApiFactory : WebApplicationFactory<Program>, IAsyncLifetim
             services.AddDbContext<CommunityDbContext>(options => options
                 .UseInMemoryDatabase(_databaseName, _databaseRoot)
                 .UseOpenIddict()
-                .AddInterceptors(SaveGate));
+                .AddInterceptors(SaveGate, SaveFailures));
 
             services.AddSingleton<BlobServiceClient>(Blobs);
-            services.AddSingleton<IEmailSender>(Emails);
             services.AddSingleton<IPhotoStorage>(Photos);
             services.AddSingleton<TimeProvider>(Time);
             services.AddSingleton<IBreachedPasswordChecker, FakeBreachedPasswordChecker>();
