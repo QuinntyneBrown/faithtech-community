@@ -15,7 +15,7 @@ skinparam package {
   BackgroundColor #F9FAFB
 }
 actor "Member" as actor
-box "Frontend — FaithTech Community web app (announcements library)" #E0F2FE
+box "Frontend — FaithTech Community web app (announcements and notifications libraries)" #E0F2FE
   participant "AnnouncementsPage / SettingsPage" as page
   participant "HttpAnnouncementsService" as client
 end box
@@ -24,27 +24,27 @@ box "Backend — FaithTech.Community.Api" #D1FADF
 end box
 box "Backend — FaithTech.Community.Application and Domain" #ECFDF3
   participant "ListMyAnnouncementsHandler" as list
-  participant "SetAnnouncementEmailOptOutHandler" as opt
+  participant "AnnouncementEmailOptOutHandler" as opt
 end box
 box "Backend — FaithTech.Community.Infrastructure" #FFF4E5
   database "Community database" as db
 end box
 actor -> page : Open announcements
 page -> client : list()
-client -> ep : GET /announcements
-ep -> list : Send ListMyAnnouncementsQuery
-list -> db : Join recipients on caller, order by SentAt desc (L2-030 #1)
+client -> ep : GET /api/announcements?page=1
+ep -> list : ListAsync(page)
+list -> db : Recipients include caller or caller sent it, order by SentAt desc, 25 a page (L2-030 #1)
 db --> list : Page
-list --> ep : AnnouncementPage
+list --> ep : PagedResult<AnnouncementListItem>
 ep --> client : 200
 client --> page : Render list
 actor -> page : Turn off announcement emails in settings
 page -> client : setEmailOptOut(true)
-client -> ep : PUT /me/announcement-email-opt-out
-ep -> opt : Send SetAnnouncementEmailOptOutCommand
+client -> ep : PUT /api/me/announcement-email-opt-out
+ep -> opt : SetAsync({ optedOut: true })
 opt -> db : Update Profile.AnnouncementEmailsOptedOut (L2-030 #2)
 db --> opt : Saved
-opt --> ep : Success
+opt --> ep : Ok
 ep --> client : 204
 client --> page : Preference saved
 page --> actor : Toast announced

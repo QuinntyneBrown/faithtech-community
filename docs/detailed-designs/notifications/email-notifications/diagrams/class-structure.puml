@@ -10,51 +10,64 @@ skinparam class {
   BackgroundColor #F9FAFB
 }
 title Class structure — Email notifications
-class EmailMessage {
+class EmailMessage <<record>> {
   +string To
   +string Subject
-  +string HtmlBody
-  +string TextBody
-  +NotificationKind Kind
-  +string CorrelationId
+  +string Body
+  +IReadOnlyList<EmailAttachment>? Attachments
+  +string? HtmlBody
 }
-enum OutboxStatus {
-  Pending
-  Sent
-  Failed
-}
-class OutboxEmail {
+class OutboxMessage {
   +Guid Id
-  +EmailMessage Message
-  +OutboxStatus Status
-  +int Attempts
+  +string To
+  +string Subject
+  +string Body
+  +string? HtmlBody
+  +string? AttachmentsJson
+  +DateTimeOffset CreatedAt
   +DateTimeOffset NextAttemptAt
+  +int Attempts
+  +DateTimeOffset? SentAt
+  +DateTimeOffset? FailedAt
   +string? LastError
-  +RecordFailure(error: string, now: DateTimeOffset): void
-  +MarkSent(): void
 }
 interface IEmailQueue {
-  +EnqueueAsync(m: EmailMessage): Task
+  +Enqueue(m: EmailMessage): void
 }
+class OutboxEmailQueue
 interface IEmailSender {
   +SendAsync(m: EmailMessage): Task
 }
-class EmailTemplateRenderer {
-  +Render(kind: NotificationKind, model: object): EmailMessage
+class OutboxEmailSender
+class EmailTemplateRenderer <<static>> {
+  +Render(subject: string, textBody: string): string
 }
-class EmailDeliveryWorker {
-  +int MaxAttempts = 5
-  +ExecuteAsync(ct: CancellationToken): Task
+class EmailOutboxDispatcher {
+  +MaxAttempts: int = 5
+  +DispatchPendingAsync(ct: CancellationToken): Task
 }
+class EmailOutboxWorker <<BackgroundService>> {
+  #ExecuteAsync(ct: CancellationToken): Task
+}
+interface IEmailTransport {
+  +SendAsync(m: EmailMessage): Task
+}
+class SmtpEmailTransport
 class Profile {
   +bool AnnouncementEmailsOptedOut
 }
-interface INotificationPublisher
+interface INotificationPublisher {
+  +PublishAsync(recipientIds, kind, title, linkPath, actorId, email): Task<int>
+}
 INotificationPublisher ..> IEmailQueue : uses
 INotificationPublisher ..> Profile : checks opt-out
-IEmailQueue ..> EmailTemplateRenderer : uses
-OutboxEmail *-- EmailMessage
-OutboxEmail --> OutboxStatus
-EmailDeliveryWorker ..> OutboxEmail : reads / updates
-EmailDeliveryWorker ..> IEmailSender : uses
+OutboxEmailQueue ..|> IEmailQueue
+OutboxEmailSender ..|> IEmailSender
+OutboxEmailSender ..> OutboxEmailQueue : enqueues and saves
+OutboxEmailQueue ..> EmailTemplateRenderer : renders HtmlBody
+OutboxEmailQueue ..> OutboxMessage : adds
+EmailOutboxWorker ..> EmailOutboxDispatcher : runs
+EmailOutboxDispatcher ..> OutboxMessage : reads / updates
+EmailOutboxDispatcher ..> IEmailTransport : uses
+SmtpEmailTransport ..|> IEmailTransport
 @enduml

@@ -23,35 +23,42 @@ box "Backend — FaithTech.Community.Application and Domain" #ECFDF3
   participant "INotificationPublisher" as pub
 end box
 box "Backend — FaithTech.Community.Infrastructure" #FFF4E5
+  participant "OutboxEmailQueue" as q
   participant "EmailTemplateRenderer" as r
   database "Community database" as db
-  participant "EmailDeliveryWorker" as w
-  participant "IEmailSender" as s
+  participant "EmailOutboxWorker" as w
+  participant "EmailOutboxDispatcher" as d
+  participant "SmtpEmailTransport" as s
 end box
 participant "Email provider" as prov
 actor -> ep : State-changing request (e.g. cancel event)
 ep -> h : Send command
-h -> pub : PublishAsync(recipient, kind)
-alt kind is Announcement and recipient opted out (L2-028 #3)
-  pub --> h : In-app notification only
-else
-  pub -> r : Render HTML + plain text, HTTPS links (L2-028 #2)
-  r --> pub : EmailMessage
-  pub -> db : Insert OutboxEmail (Pending)
+h -> pub : PublishAsync(recipients, kind, title, linkPath, actorId, email)
+pub -> db : Add in-app Notification per recipient
+loop each recipient with an email address
+  alt kind is Announcement and recipient opted out (L2-028 #3)
+    pub -> pub : Skip email
+  else
+    pub -> q : Enqueue(EmailMessage), link on WebApp:Origin (HTTPS, L2-028 #2)
+    q -> r : Render(subject, textBody)
+    r --> q : HTML part
+    q -> db : Add OutboxMessage (NextAttemptAt = now)
+  end
 end
-h -> db : Commit action and outbox in one unit of work
+h -> db : Save action, notifications and outbox in one unit of work
 h --> ep : Success
 ep --> actor : Response
-loop every poll interval
-  w -> db : Load due Pending rows
-  w -> s : SendAsync(message)
-  s -> prov : SMTP send
+loop every 10 seconds
+  w -> d : DispatchPendingAsync()
+  d -> db : Load due rows (SentAt and FailedAt null, NextAttemptAt <= now)
+  d -> s : SendAsync(message)
+  s -> prov : SMTP send (text + HTML alternative)
   alt delivered
     prov --> s : Accepted
-    w -> db : MarkSent (within 2 minutes, L2-028 #1)
+    d -> db : Set SentAt (within 2 minutes, L2-028 #1)
   else failure
     prov --> s : Error
-    w -> db : RecordFailure, schedule retry (max 5 attempts)
+    d -> db : Attempts++, LastError, NextAttemptAt = now + 2^n min (max 1 h);\nFailedAt after 5 attempts
   end
 end
 @enduml

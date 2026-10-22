@@ -24,6 +24,7 @@ box "Backend — FaithTech.Community.Api" #D1FADF
 end box
 box "Backend — FaithTech.Community.Application and Domain" #ECFDF3
   participant "SendAnnouncementHandler" as h
+  participant "AudienceResolver" as aud
   participant "INotificationPublisher" as pub
 end box
 box "Backend — FaithTech.Community.Infrastructure" #FFF4E5
@@ -31,31 +32,37 @@ box "Backend — FaithTech.Community.Infrastructure" #FFF4E5
 end box
 actor -> page : Choose audience
 page -> client : countRecipients(audience)
-client -> ep : POST /announcements/recipient-count
-ep -> db : Count audience members
-db --> ep : n
+client -> ep : POST /api/announcements/recipient-count
+ep -> ep : AudienceRequestValidator
+ep -> h : CountAsync(AudienceRequest)
+h -> h : AnnouncementAccess.CanSend, else 403
+h -> aud : FromRequestAsync, RecipientIds
+aud -> db : Count active members in audience
+db --> h : n
+h --> ep : Ok, n
 ep --> client : 200 { count }
 client --> page : Show recipient count (L2-029 #4)
 actor -> page : Send
-page -> client : send(subject, body, audience)
-client -> ep : POST /announcements
-alt empty subject or body
+page -> client : send({ subject, body, audience, alsoEmail })
+client -> ep : POST /api/announcements
+alt empty subject or body (SendAnnouncementValidator)
   ep --> client : 400 ProblemDetails per field
   client --> page : Inline errors (L2-029 #2)
 else valid
-  ep -> h : Send SendAnnouncementCommand
+  ep -> h : SendAsync(SendAnnouncementCommand)
   alt caller lacks Communications Lead or System Admin
     h --> ep : Forbidden
     ep --> client : 403 (L2-029 #3)
   else authorized
-    h -> db : Insert Announcement and recipients
-    loop each recipient
-      h -> pub : Publish Announcement notification (L2-029 #1)
-      pub -> db : Insert Notification; enqueue email unless opted out
-    end
-    h -> db : Commit
-    h --> ep : Announcement id
-    ep --> client : 201
+    h -> aud : FromRequestAsync, RecipientIds
+    aud -> db : Query active members in audience
+    db --> h : Recipient ids
+    h -> db : Add Announcement with AnnouncementRecipient rows
+    h -> pub : PublishAsync(recipients, Announcement, ...) (L2-029 #1)
+    pub -> db : Add Notification per recipient;\nenqueue email with unsubscribe link unless opted out
+    h -> db : Save changes (one save)
+    h --> ep : AnnouncementSent
+    ep --> client : 201 { id, recipientCount, emailCount }
     client --> page : Sent confirmation
   end
 end
