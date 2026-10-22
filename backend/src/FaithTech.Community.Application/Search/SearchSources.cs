@@ -3,7 +3,9 @@ using FaithTech.Community.Application.Agile;
 using FaithTech.Community.Application.Common;
 using FaithTech.Community.Application.Contacts;
 using FaithTech.Community.Application.Partners;
+using FaithTech.Community.Application.Resources;
 using FaithTech.Community.Domain.Events;
+using FaithTech.Community.Domain.Resources;
 using Microsoft.EntityFrameworkCore;
 
 namespace FaithTech.Community.Application.Search;
@@ -121,5 +123,59 @@ public class WorkItemsSearchSource(IApplicationDbContext db, IFullTextSearch tex
             .ToListAsync(cancellationToken);
         return [.. rows.Select(i => new SearchResultItem(
             i.Id, i.Title, Snippets.Join(i.Kind.ToString(), i.Workspace, i.Status.ToString()), $"/workspaces/{i.WorkspaceId}/items/{i.Id}"))];
+    }
+}
+
+/// <summary>Resources the caller may open (L2-065): visibility is the base query (ADR 0017), never archived ones.</summary>
+public class ResourcesSearchSource(IApplicationDbContext db, IFullTextSearch text, ResourceAccess access) : ISearchSource
+{
+    public SearchResultKind Kind => SearchResultKind.Resource;
+
+    public async Task<IReadOnlyList<SearchResultItem>> SearchAsync(string term, Guid caller, int limit, CancellationToken cancellationToken = default)
+    {
+        var roles = access.Roles;
+        var rows = await text
+            .Match(access.Visible(db.Resources.AsNoTracking(), caller), term, ListResourcesHandler.Document)
+            .Take(limit)
+            .Select(r => new
+            {
+                r.Id,
+                r.Title,
+                r.Description,
+                r.Type,
+                r.Visibility,
+                r.OwnerId,
+                Extension = r.File == null ? null : r.File.Extension,
+                FileName = r.File == null ? null : r.File.FileName,
+                r.LinkHost,
+                Tags = r.Tags.Select(t => t.Tag).ToList(),
+                Owner = db.Profiles.Where(p => p.Id == r.OwnerId).Select(p => p.Name).FirstOrDefault(),
+                SharedWithCaller = r.SharedMembers.Any(m => m.ProfileId == caller) || r.SharedRoles.Any(x => roles.Contains(x.Role)),
+            })
+            .ToListAsync(cancellationToken);
+        return [.. rows.Select(r => new SearchResultItem(
+            r.Id,
+            r.Title,
+            Snippets.Join(r.Type.ToString(), r.Extension?.ToUpperInvariant() ?? r.LinkHost, r.Owner, Why(term, r.Title, r.Tags, r.Description, r.FileName)),
+            $"/resources/{r.Id}",
+            Badge: r.Visibility switch
+            {
+                ResourceVisibility.Private => "Private",
+                ResourceVisibility.Shared when r.OwnerId != caller && r.SharedWithCaller => "Shared with you",
+                ResourceVisibility.Shared => "Shared",
+                _ => null,
+            }))];
+    }
+
+    /// <summary>"tagged launch" or "description mentions sponsors"; nothing when the title already shows the match.</summary>
+    private static string? Why(string term, string title, IReadOnlyList<string> tags, string? description, string? fileName)
+    {
+        var word = term.Split(' ', StringSplitOptions.RemoveEmptyEntries)[0];
+        bool Has(string? value) => value?.Contains(word, StringComparison.OrdinalIgnoreCase) == true;
+        return Has(title) ? null
+            : tags.FirstOrDefault(Has) is { } tag ? $"tagged {tag}"
+            : Has(description) ? $"description mentions {word}"
+            : Has(fileName) ? "file name matches"
+            : null;
     }
 }

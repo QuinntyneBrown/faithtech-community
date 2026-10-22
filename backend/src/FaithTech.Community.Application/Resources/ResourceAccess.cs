@@ -25,6 +25,9 @@ public class ResourceAccess(IApplicationDbContext db, ICurrentUser current)
 
     public bool IsSystemAdmin => current.HasRole(Role.SystemAdmin);
 
+    /// <summary>The caller's roles now, for matching role audiences inside a query.</summary>
+    public List<Role> Roles => [.. current.Roles];
+
     /// <summary>The caller's profile id, or <see cref="Guid.Empty"/> when there is none.</summary>
     public async Task<Guid> CallerAsync(CancellationToken cancellationToken = default) =>
         _caller ??= current.UserId is { } userId

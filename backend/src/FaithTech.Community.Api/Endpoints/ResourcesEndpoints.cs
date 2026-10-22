@@ -31,6 +31,15 @@ public static class ResourcesEndpoints
         resources.MapGet("/owner-candidates", async (string? q, ResourceMembersHandler handler, CancellationToken cancellationToken) =>
             await handler.OwnerCandidatesAsync(q, cancellationToken) is { } members ? Results.Ok(members) : Results.Forbid());
 
+        resources.MapGet("/archived", async (ArchiveResourceHandler handler, CancellationToken cancellationToken) =>
+            Results.Ok(await handler.ListAsync(cancellationToken)));
+
+        resources.MapPost("/{id:guid}/archive", async (Guid id, ArchiveResourceHandler handler, CancellationToken cancellationToken) =>
+            (await handler.ArchiveAsync(id, cancellationToken)).ToHttp(Results.NoContent));
+
+        resources.MapPost("/{id:guid}/restore", async (Guid id, ArchiveResourceHandler handler, CancellationToken cancellationToken) =>
+            (await handler.RestoreAsync(id, cancellationToken)).ToHttp(Results.NoContent));
+
         resources.MapGet("/{id:guid}", async (Guid id, GetResourceHandler handler, CancellationToken cancellationToken) =>
             await handler.HandleAsync(id, cancellationToken) is { } resource ? Results.Ok(resource) : Results.NotFound());
 

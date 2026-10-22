@@ -113,12 +113,14 @@ public static class DependencyInjection
         services.AddScoped<ReplaceFileHandler>();
         services.AddScoped<ResourceStorageRetryHandler>();
         services.AddScoped<PurgeArchivedResourcesHandler>();
+        services.AddScoped<ArchiveResourceHandler>();
         services.AddScoped<GlobalSearchHandler>();
         services.AddScoped<ISearchSource, PeopleSearchSource>();
         services.AddScoped<ISearchSource, EventsSearchSource>();
         services.AddScoped<ISearchSource, PartnersSearchSource>();
         services.AddScoped<ISearchSource, ContactsSearchSource>();
         services.AddScoped<ISearchSource, WorkItemsSearchSource>();
+        services.AddScoped<ISearchSource, ResourcesSearchSource>();
         services.TryAddSingleton(TimeProvider.System);
         return services;
     }
