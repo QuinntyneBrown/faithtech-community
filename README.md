@@ -153,6 +153,10 @@ dotnet run --project backend/src/FaithTech.Community.Cli -- grant-admin you@exam
 # Run the API
 dotnet run --project backend/src/FaithTech.Community.Api
 
+# Isolated performance environment only: 200 verified load-test members, then the k6 run
+# (see docs/detailed-designs/platform/performance, "Load test")
+LOADTEST_PASSWORD=<12+ characters> dotnet run --project backend/src/FaithTech.Community.Cli -- seed-load-users 200
+
 # Run the Angular app
 cd frontend && npm ci && npm start
 ```
