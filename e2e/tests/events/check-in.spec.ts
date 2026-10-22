@@ -2,6 +2,7 @@
 import { expect, test } from '../../fixtures/app';
 import { MockApi } from '../../fixtures/mock-api';
 import { EventCheckInPage } from '../../pages/event-check-in.page';
+import { EventPage } from '../../pages/event.page';
 import { BREAKPOINTS, hasHorizontalScroll, undersizedTargets } from '../../pages/viewport';
 
 test.use({ timezoneId: 'America/Toronto' });
@@ -211,5 +212,177 @@ test.describe('Event check-in', () => {
     expect(toggle!.y + toggle!.height).toBeLessThanOrEqual(row!.y + row!.height);
     expect(await hasHorizontalScroll(page)).toBe(false);
     expect(await undersizedTargets(page)).toEqual([]);
+  });
+});
+
+test.describe('Event check-in access and states', () => {
+  // L2-092 AC2: Given Staff, when they open the check-in page, then they see the attendees and counts
+  // read-only: switches disabled, no Add walk-in or Export CSV, no guest emails. L2-093 AC2: Staff match on name.
+  test('Staff see the list read-only without guest emails', async ({ page, api, axe }) => {
+    const event = tonight(api);
+    const sam = api.addAccount({ email: 'sam@example.org', roles: ['Staff'] });
+    const checkIn = new EventCheckInPage(page);
+    await api.signInAs(sam, `/events/${event.id}/check-in`);
+
+    await expect(checkIn.readOnly).toContainText(
+      'You can see who’s here. Leads check people in, add walk-ins and export the list, which carries guest emails.',
+    );
+    await expect(checkIn.attendee('Abby Brooks')).toContainText('Guest · Not here yet');
+    await expect(page.getByText('abby.brooks@example.org')).toHaveCount(0);
+    for (const toggle of await checkIn.switches.all()) await expect(toggle).toBeDisabled();
+    await expect(checkIn.addWalkIn).toHaveCount(0);
+    await expect(page.getByRole('button', { name: 'Export CSV' })).toHaveCount(0);
+    await expect(checkIn.search).toHaveAttribute('placeholder', 'Find by name');
+    await checkIn.search.fill('brooks@example');
+    await expect(checkIn.attendees).toHaveCount(0);
+    await expect(checkIn.emptyAction(/as a walk-in/)).toHaveCount(0);
+    await checkIn.search.fill('');
+    await axe.check();
+  });
+
+  // L2-092 AC3: Given a signed-in member without a lead role, Staff or System Admin, when they open the
+  // check-in page, then the forbidden page is shown.
+  test('a member without a lead role sees that check-in is for event leads', async ({
+    page,
+    api,
+    axe,
+  }) => {
+    const event = tonight(api);
+    const leah = api.addAccount({ email: 'leah@example.org', roles: ['Attendee'] });
+    const checkIn = new EventCheckInPage(page);
+    await api.signInAs(leah, `/events/${event.id}/check-in`);
+
+    await expect(checkIn.forbidden).toBeVisible();
+    await expect(checkIn.heading).toHaveText('Check-in');
+    await expect(checkIn.backToEvent).toHaveAttribute('href', `/events/${event.id}`);
+    await axe.check();
+  });
+
+  test('an unknown event says it can’t be found', async ({ page, api, axe }) => {
+    const checkIn = new EventCheckInPage(page);
+    await api.signInAs(lead(api), '/events/event-404/check-in');
+
+    await expect(page.getByRole('heading', { name: 'We couldn’t find that event' })).toBeVisible();
+    await expect(checkIn.heading).toHaveText('Check-in');
+    await axe.check();
+  });
+
+  // L2-092 AC4: Given an anonymous visitor, when they open the check-in page, then they are sent to sign in.
+  test('an anonymous visitor is sent to sign in', async ({ page, api }) => {
+    const event = tonight(api);
+    const checkIn = new EventCheckInPage(page);
+
+    await checkIn.open(event.id);
+
+    await expect(page).toHaveURL(
+      `/sign-in?returnUrl=${encodeURIComponent(`/events/${event.id}/check-in`)}`,
+    );
+  });
+
+  // L2-092 AC1: a System Admin without a lead role checks attendees in too (the server audits it).
+  test('a System Admin checks an attendee in', async ({ page, api }) => {
+    const event = tonight(api);
+    const priya = api.addAccount({ email: 'priya@example.org', roles: ['SystemAdmin'] });
+    const checkIn = new EventCheckInPage(page);
+    await api.signInAs(priya, `/events/${event.id}/check-in`);
+
+    await checkIn.switchFor('Ruth Alvarez').click();
+
+    await expect(checkIn.attendee('Ruth Alvarez')).toContainText('Checked in 8:00 am');
+  });
+
+  // L2-094 AC5: Given a cancelled event, when a lead opens its check-in page, then it says the event is
+  // cancelled and the switches are disabled.
+  test('a cancelled event says no one can be checked in', async ({ page, api, axe }) => {
+    const event = tonight(api);
+    event.isCancelled = true;
+    event.cancellationReason = 'The venue flooded.';
+    const checkIn = new EventCheckInPage(page);
+    await api.signInAs(lead(api), `/events/${event.id}/check-in`);
+
+    await expect(checkIn.cancelled).toContainText('The RSVP list stays here for reference.');
+    await expect(checkIn.openEvent).toHaveAttribute('href', `/events/${event.id}`);
+    await expect(page.locator('ft-page-header').getByText('Cancelled')).toBeVisible();
+    for (const toggle of await checkIn.switches.all()) await expect(toggle).toBeDisabled();
+    await expect(checkIn.addWalkIn).toHaveCount(0);
+    await axe.check();
+  });
+
+  // L2-094 AC6: Given an event that starts more than 24 hours from now, then the switches are disabled and
+  // the page says when check-in opens.
+  test('check-in has not opened until 24 hours before the start', async ({ page, api, axe }) => {
+    const event = tonight(api);
+    event.startsAt = '2026-10-22T22:30:00.000Z';
+    event.endsAt = '2026-10-23T01:00:00.000Z';
+    const checkIn = new EventCheckInPage(page);
+    await api.signInAs(lead(api), `/events/${event.id}/check-in`);
+
+    await expect(checkIn.notOpen).toHaveText(
+      'Check-in opens Wed 21 Oct at 6:30 pm, 24 hours before the event.',
+    );
+    for (const toggle of await checkIn.switches.all()) await expect(toggle).toBeDisabled();
+    await expect(checkIn.addWalkIn).toBeDisabled();
+    await axe.check();
+  });
+
+  // L2-094 AC7: Given every attendee is checked in, when the list renders, then it shows "Everyone's here",
+  // without promising any follow-up email.
+  test('everyone checked in shows Everyone’s here', async ({ page, api, axe }) => {
+    const event = tonight(api);
+    for (const rsvp of event.rsvps.slice(0, 2)) rsvp.checkedInAt = api.now.toISOString();
+    const checkIn = new EventCheckInPage(page);
+    await api.signInAs(lead(api), `/events/${event.id}/check-in`);
+    await expect(checkIn.everyonesHere).toHaveCount(0);
+
+    await checkIn.switchFor('Jonah Bell').click();
+
+    await expect(checkIn.everyonesHere).toContainText('All 3 who RSVP’d are checked in.');
+    await expect(checkIn.everyonesHere).not.toContainText('email');
+    await expect(checkIn.meter).toHaveAccessibleName('3 of 3 checked in');
+    await axe.check();
+  });
+
+  // L2-096 AC1, AC2: the event page shows "{n} checked in" to leads, Staff and System Admins once anyone is
+  // checked in, and L2-092 AC1 offers leads Check in; Staff get View check-in; members get neither.
+  test('the event page shows attendance and the way into check-in', async ({ page, api }) => {
+    const event = tonight(api);
+    const eventPage = new EventPage(page);
+    const grace = lead(api);
+    await api.signInAs(grace, `/events/${event.id}`);
+
+    await expect(eventPage.fact('Going')).toHaveText('3 people');
+    await expect(eventPage.checkIn).toHaveAttribute('href', `/events/${event.id}/check-in`);
+    await expect(eventPage.viewCheckIn).toHaveCount(0);
+
+    event.rsvps[0].checkedInAt = api.now.toISOString();
+    await eventPage.open(event.id);
+    await expect(eventPage.fact('Going')).toHaveText('3 people · 1 checked in');
+    await expect(eventPage.rsvpListHeading).toHaveCount(0);
+    await expect(page.getByRole('heading', { name: 'Going (3) · 1 checked in' })).toBeVisible();
+    await expect(eventPage.attendee('Ruth Alvarez')).toContainText('Member · Checked in 8:00 am');
+  });
+
+  test('Staff get View check-in', async ({ page, api }) => {
+    const event = tonight(api);
+    event.rsvps[0].checkedInAt = api.now.toISOString();
+    const eventPage = new EventPage(page);
+    const sam = api.addAccount({ email: 'sam@example.org', roles: ['Staff'] });
+    await api.signInAs(sam, `/events/${event.id}`);
+
+    await expect(eventPage.viewCheckIn).toHaveAttribute('href', `/events/${event.id}/check-in`);
+    await expect(eventPage.checkIn).toHaveCount(0);
+    await expect(eventPage.fact('Going')).toHaveText('3 people · 1 checked in');
+  });
+
+  test('members see no attendance and no way into check-in', async ({ page, api }) => {
+    const event = tonight(api);
+    event.rsvps[0].checkedInAt = api.now.toISOString();
+    const eventPage = new EventPage(page);
+    const leah = api.addAccount({ email: 'leah@example.org', roles: ['Attendee'] });
+    await api.signInAs(leah, `/events/${event.id}`);
+
+    await expect(eventPage.fact('Going')).toHaveText('3 people');
+    await expect(eventPage.checkIn).toHaveCount(0);
+    await expect(eventPage.viewCheckIn).toHaveCount(0);
   });
 });

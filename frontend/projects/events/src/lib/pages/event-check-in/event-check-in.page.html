@@ -28,6 +28,22 @@
       <ft-button actions variant="ghost" [href]="'/events/' + id()">Back to the event</ft-button>
     </ft-empty-state>
   }
+  @case ('forbidden') {
+    <h1 class="visually-hidden">Check-in</h1>
+    <ft-empty-state
+      icon="locked"
+      heading="Check-in is for event leads"
+      text="City, Event, Create and Communications Leads check people in at the door. Your RSVP is safe on the event page."
+    >
+      <ft-button actions variant="primary" [href]="'/events/' + id()">Back to the event</ft-button>
+    </ft-empty-state>
+  }
+  @case ('not-found') {
+    <h1 class="visually-hidden">Check-in</h1>
+    <ft-empty-state heading="We couldn’t find that event" text="It may have been removed.">
+      <ft-button actions variant="primary" href="/events">Back to events</ft-button>
+    </ft-empty-state>
+  }
   @case ('loaded') {
     @if (checkIn(); as c) {
       <ft-breadcrumb>
@@ -35,8 +51,14 @@
         <ft-breadcrumb-item [href]="'/events/' + c.eventId">{{ c.title }}</ft-breadcrumb-item>
         <ft-breadcrumb-item>Check-in</ft-breadcrumb-item>
       </ft-breadcrumb>
-      <ft-page-header [title]="'Check-in · ' + c.title" [subtitle]="subtitle()">
-        @if (c.canEdit) {
+      <ft-page-header
+        [title]="'Check-in · ' + c.title"
+        [subtitle]="c.isCancelled ? null : subtitle()"
+      >
+        <span ftPageHeaderSubtitle
+          >{{ subtitle() }} · <ft-badge variant="danger">Cancelled</ft-badge></span
+        >
+        @if (c.canEdit && !c.isCancelled) {
           <ft-button
             ftPageHeaderActions
             variant="primary"
@@ -49,6 +71,26 @@
       </ft-page-header>
 
       <ft-stack>
+        @if (c.isCancelled) {
+          <ft-alert
+            status="danger"
+            polite
+            heading="This event was cancelled, so no one can be checked in"
+          >
+            The RSVP list stays here for reference.
+            <ft-button ftAlertActions variant="ghost" [href]="'/events/' + c.eventId">
+              Open the event
+            </ft-button>
+          </ft-alert>
+        } @else if (!c.isOpen) {
+          <ft-alert status="info" [heading]="opens()" />
+        }
+        @if (!c.canEdit) {
+          <ft-alert status="info" heading="Read-only for Staff">
+            You can see who’s here. Leads check people in, add walk-ins and export the list, which
+            carries guest emails.
+          </ft-alert>
+        }
         <ft-card>
           <ft-progress
             heading="Checked in"
@@ -58,6 +100,10 @@
             [label]="checkedIn() + ' of ' + going() + ' checked in'"
           />
         </ft-card>
+
+        @if (everyone(); as text) {
+          <ft-alert status="success" heading="Everyone’s here">{{ text }}</ft-alert>
+        }
 
         @if (attendees().length) {
           <form class="search" role="search" (submit)="$event.preventDefault()">

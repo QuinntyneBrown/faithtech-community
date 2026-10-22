@@ -131,6 +131,7 @@ public class Event
     /// <summary>Marks an attendee of this event present at the door (L2-094).</summary>
     public Rsvp CheckIn(Guid rsvpId, Guid byId, DateTimeOffset now)
     {
+        EnsureCheckInOpen(now);
         var rsvp = Attendee(rsvpId);
         rsvp.CheckIn(byId, now);
         return rsvp;
@@ -139,6 +140,7 @@ public class Event
     /// <summary>Clears an attendee's check-in (L2-094 AC2).</summary>
     public Rsvp UndoCheckIn(Guid rsvpId, DateTimeOffset now)
     {
+        EnsureCheckInOpen(now);
         var rsvp = Attendee(rsvpId);
         rsvp.UndoCheckIn();
         return rsvp;
@@ -152,6 +154,7 @@ public class Event
         string name, string? email, Guid? profileId, bool checkInNow, Guid byId, DateTimeOffset now)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(name);
+        EnsureCheckInOpen(now);
         email = string.IsNullOrWhiteSpace(email) ? null : email.Trim();
         var existing = profileId is { } member
             ? _rsvps.FirstOrDefault(r => r.ProfileId == member)
@@ -170,6 +173,19 @@ public class Event
         }
 
         return (rsvp, existing is not null);
+    }
+
+    private void EnsureCheckInOpen(DateTimeOffset now)
+    {
+        if (IsCancelled)
+        {
+            throw new InvalidOperationException("The event is cancelled.");
+        }
+
+        if (now < CheckInOpensAt)
+        {
+            throw new InvalidOperationException("Check-in has not opened yet.");
+        }
     }
 
     private Rsvp Attendee(Guid rsvpId) =>

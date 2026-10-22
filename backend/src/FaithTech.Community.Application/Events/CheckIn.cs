@@ -1,3 +1,4 @@
+using FaithTech.Community.Application.Admin;
 using FaithTech.Community.Application.Common;
 using FaithTech.Community.Domain.Events;
 using Microsoft.EntityFrameworkCore;
@@ -44,8 +45,29 @@ public record CheckInDto(
 /// Check-in at the door (L2-092 to L2-094, ADR 0025): lead roles and System Admins check attendees in and undo;
 /// Staff read the list without guest emails. The check-in is stored on the attendee's RSVP row.
 /// </summary>
-public class CheckInHandler(IApplicationDbContext db, EventPermissions permissions, TimeProvider time)
+public class CheckInHandler(IApplicationDbContext db, EventPermissions permissions, IAuditLog audit, TimeProvider time)
 {
+    public const string Cancelled = "This event was cancelled.";
+    public const string NotOpen = "Check-in hasn’t opened yet.";
+
+    /// <summary>
+    /// Why the event takes no check-in writes, or null when it does (L2-094 AC5, AC6). The not-yet-open conflict
+    /// carries <c>opensAt</c>.
+    /// </summary>
+    public static Result? Refusal(Event e, DateTimeOffset now) =>
+        e.IsCancelled ? Result.Conflict(Cancelled)
+        : now < e.CheckInOpensAt ? Result.Conflict(NotOpen, new Dictionary<string, object?> { ["opensAt"] = e.CheckInOpensAt })
+        : null;
+
+    /// <summary>A System Admin without a lead role writing a check-in is audited (L2-092 AC5).</summary>
+    public void AuditOverride(Guid actor, string action, Event e, Rsvp rsvp, string name)
+    {
+        if (permissions.IsCheckInOverride)
+        {
+            audit.Record(actor, action, "Event", e.Id.ToString(), null, new { RsvpId = rsvp.Id, Name = name });
+        }
+    }
+
     public async Task<(Result Result, CheckInDto? CheckIn)> GetAsync(Guid id, CancellationToken cancellationToken = default)
     {
         if (!permissions.CanViewCheckIn)
@@ -86,9 +108,16 @@ public class CheckInHandler(IApplicationDbContext db, EventPermissions permissio
             return (Result.NotFound(), null);
         }
 
+        if (Refusal(e, time.GetUtcNow()) is { } refusal)
+        {
+            return (refusal, null);
+        }
+
         var rsvp = e.CheckIn(rsvpId, actor, time.GetUtcNow());
+        var attendee = await AttendeeAsync(rsvp, cancellationToken);
+        AuditOverride(actor, "event.checked_in", e, rsvp, attendee.Name);
         await db.SaveChangesAsync(cancellationToken);
-        return (Result.Ok(), await AttendeeAsync(rsvp, cancellationToken));
+        return (Result.Ok(), attendee);
     }
 
     /// <summary>One attendee as the caller may see them, with a member's profile name.</summary>
@@ -98,7 +127,7 @@ public class CheckInHandler(IApplicationDbContext db, EventPermissions permissio
     /// <summary>Clears the attendee's check-in (L2-094 AC2).</summary>
     public async Task<Result> UndoAsync(Guid id, Guid rsvpId, CancellationToken cancellationToken = default)
     {
-        if (!permissions.CanCheckIn)
+        if (!permissions.CanCheckIn || await permissions.CallerProfileIdAsync(cancellationToken) is not { } actor)
         {
             return Result.Forbidden();
         }
@@ -109,7 +138,13 @@ public class CheckInHandler(IApplicationDbContext db, EventPermissions permissio
             return Result.NotFound();
         }
 
-        e.UndoCheckIn(rsvpId, time.GetUtcNow());
+        if (Refusal(e, time.GetUtcNow()) is { } refusal)
+        {
+            return refusal;
+        }
+
+        var rsvp = e.UndoCheckIn(rsvpId, time.GetUtcNow());
+        AuditOverride(actor, "event.check_in_undone", e, rsvp, (await AttendeeAsync(rsvp, cancellationToken)).Name);
         await db.SaveChangesAsync(cancellationToken);
         return Result.Ok();
     }

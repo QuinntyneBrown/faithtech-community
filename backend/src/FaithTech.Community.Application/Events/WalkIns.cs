@@ -55,6 +55,11 @@ public class AddWalkInHandler(IApplicationDbContext db, EventPermissions permiss
             return (Result.NotFound(), null);
         }
 
+        if (CheckInHandler.Refusal(e, time.GetUtcNow()) is { } refusal)
+        {
+            return (refusal, null);
+        }
+
         var email = string.IsNullOrWhiteSpace(command.Email) ? null : command.Email.Trim();
         Guid? member = null;
         if (email is not null)
@@ -65,7 +70,9 @@ public class AddWalkInHandler(IApplicationDbContext db, EventPermissions permiss
         }
 
         var (rsvp, reused) = e.AddWalkIn(command.Name!, email, member, command.CheckInNow, actor, time.GetUtcNow());
+        var attendee = await checkIns.AttendeeAsync(rsvp, cancellationToken);
+        checkIns.AuditOverride(actor, "event.walk_in_added", e, rsvp, attendee.Name);
         await db.SaveChangesAsync(cancellationToken);
-        return (Result.Ok(), new WalkInResultDto(await checkIns.AttendeeAsync(rsvp, cancellationToken), reused));
+        return (Result.Ok(), new WalkInResultDto(attendee, reused));
     }
 }

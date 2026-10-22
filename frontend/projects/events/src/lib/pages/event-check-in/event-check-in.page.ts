@@ -1,3 +1,4 @@
+import { HttpErrorResponse } from '@angular/common/http';
 import {
   ChangeDetectionStrategy,
   Component,
@@ -16,6 +17,7 @@ import {
   WalkInResultDto,
 } from '@faithtech-community/api';
 import {
+  AlertComponent,
   AvatarComponent,
   BadgeComponent,
   BreadcrumbComponent,
@@ -42,7 +44,7 @@ import { firstValueFrom } from 'rxjs';
 
 import { AddWalkInData, AddWalkInDialog } from '../../dialogs';
 
-type State = 'loading' | 'loaded' | 'error';
+type State = 'loading' | 'loaded' | 'error' | 'forbidden' | 'not-found';
 
 /**
  * Check-in at the door (L2-092 to L2-094), matching docs/mocks/pages/event-check-in: every attendee in RSVP order
@@ -54,6 +56,7 @@ type State = 'loading' | 'loaded' | 'error';
   imports: [
     FormsModule,
     ReactiveFormsModule,
+    AlertComponent,
     AvatarComponent,
     BadgeComponent,
     BreadcrumbComponent,
@@ -122,6 +125,23 @@ export class EventCheckInPage {
       (_m, space: string, c: string) => space + c.toUpperCase(),
     ),
   );
+  /** "Check-in opens Wed 5 Nov at 6:30 pm, 24 hours before the event." (L2-094 AC6). */
+  protected readonly opens = computed(() => {
+    const c = this.checkIn();
+    if (!c) return '';
+    return `Check-in opens ${formatDay(c.checkInOpensAt)} at ${formatTime(c.checkInOpensAt)}, 24 hours before the event.`;
+  });
+  /** "Everyone’s here" once every attendee is in; it promises no follow-up email (L2-094 AC7). */
+  protected readonly everyone = computed(() => {
+    const going = this.going();
+    if (!going || this.checkedIn() < going) return null;
+    const w = this.walkIns();
+    const walkIns = `${w} walk-in${w === 1 ? '' : 's'}`;
+    const rsvped = going - w;
+    if (!rsvped) return `${walkIns} checked in. Attendance now shows on the event page.`;
+    const plus = w ? `, plus ${walkIns}` : '';
+    return `All ${rsvped} who RSVP’d are checked in${plus}. Attendance now shows on the event page.`;
+  });
   protected readonly editable = computed(() => {
     const c = this.checkIn();
     return !!c && c.canEdit && c.isOpen;
@@ -235,8 +255,10 @@ export class EventCheckInPage {
       this.checkIn.set(checkIn);
       this.attendees.set(checkIn.attendees);
       this.state.set('loaded');
-    } catch {
-      if (id === this.id()) this.state.set('error');
+    } catch (error) {
+      if (id !== this.id()) return;
+      const status = error instanceof HttpErrorResponse ? error.status : 0;
+      this.state.set(status === 403 ? 'forbidden' : status === 404 ? 'not-found' : 'error');
     }
   }
 }

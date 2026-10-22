@@ -142,4 +142,35 @@ public class EventCheckInTests
 
         Assert.Throws<ArgumentException>(() => e.AddWalkIn(" ", null, null, checkInNow: true, Lead, AtTheDoor));
     }
+
+    // L2-094 AC5: a cancelled event takes no check-in writes.
+    [Fact]
+    public void A_cancelled_event_refuses_check_ins_undo_and_walk_ins()
+    {
+        var (e, rsvp) = EventWithAGuest();
+        e.CheckIn(rsvp.Id, Lead, AtTheDoor);
+        e.Cancel("The venue flooded.");
+
+        Assert.False(e.IsCheckInOpen(AtTheDoor));
+        Assert.Throws<InvalidOperationException>(() => e.CheckIn(rsvp.Id, Lead, AtTheDoor));
+        Assert.Throws<InvalidOperationException>(() => e.UndoCheckIn(rsvp.Id, AtTheDoor));
+        Assert.Throws<InvalidOperationException>(() => e.AddWalkIn("Mira Chen", null, null, true, Lead, AtTheDoor));
+        Assert.True(rsvp.IsCheckedIn);
+    }
+
+    // L2-094 AC6: check-in opens 24 hours before the start and does not close.
+    [Fact]
+    public void Check_in_opens_24_hours_before_the_start_and_stays_open()
+    {
+        var (e, rsvp) = EventWithAGuest();
+        var early = Start.AddHours(-24).AddMinutes(-1);
+
+        Assert.Equal(Start.AddHours(-24), e.CheckInOpensAt);
+        Assert.False(e.IsCheckInOpen(early));
+        Assert.Throws<InvalidOperationException>(() => e.CheckIn(rsvp.Id, Lead, early));
+        Assert.Throws<InvalidOperationException>(() => e.UndoCheckIn(rsvp.Id, early));
+        Assert.Throws<InvalidOperationException>(() => e.AddWalkIn("Mira Chen", null, null, true, Lead, early));
+        Assert.True(e.IsCheckInOpen(Start.AddHours(-24)));
+        Assert.True(e.IsCheckInOpen(Start.AddDays(2)));
+    }
 }

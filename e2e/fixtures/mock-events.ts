@@ -78,6 +78,10 @@ const seesEmails = (c: EventsCaller) =>
 /** Walk-ins did not RSVP: RSVP counts, lists and the RSVP export leave them out (L2-096 AC3). */
 const rsvped = (event: MockEvent) => event.rsvps.filter((r) => !r.isWalkIn);
 
+/** Event.CheckInOpensAt: a day before the start. */
+const checkInOpensAt = (event: MockEvent) =>
+  new Date(new Date(event.startsAt).getTime() - 24 * 60 * 60 * 1000).toISOString();
+
 const utc = (iso: string) =>
   new Date(iso)
     .toISOString()
@@ -315,9 +319,7 @@ export class MockEvents {
     if (!seesList(caller)) return route.fulfill({ status: 403 });
     const event = this.events.find((e) => e.id === id);
     if (!event) return route.fulfill({ status: 404 });
-    const opensAt = new Date(
-      new Date(event.startsAt).getTime() - 24 * 60 * 60 * 1000,
-    ).toISOString();
+    const opensAt = checkInOpensAt(event);
     const attendees = [...event.rsvps]
       .sort(
         (a, b) =>
@@ -345,6 +347,23 @@ export class MockEvents {
         attendees,
       },
     });
+  }
+
+  /** CheckInHandler.Refusal (L2-094 AC5, AC6): a cancelled or not yet open event takes no check-in writes. */
+  private checkInRefusal(route: Route, event: MockEvent): Promise<void> | null {
+    if (event.isCancelled)
+      return route.fulfill({
+        status: 409,
+        json: { status: 409, detail: 'This event was cancelled.' },
+      });
+    const opensAt = checkInOpensAt(event);
+    if (this.now().toISOString() < opensAt) {
+      return route.fulfill({
+        status: 409,
+        json: { status: 409, detail: 'Check-in hasn’t opened yet.', opensAt },
+      });
+    }
+    return null;
   }
 
   /** CheckInAttendeeDto: guest emails only for leads and System Admins. */
@@ -384,6 +403,8 @@ export class MockEvents {
     if (!seesEmails(caller)) return route.fulfill({ status: 403 });
     const event = this.events.find((e) => e.id === id);
     if (!event) return route.fulfill({ status: 404 });
+    const refused = this.checkInRefusal(route, event);
+    if (refused) return refused;
     const member = email ? this.verifiedMember(email) : undefined;
     let rsvp = member
       ? event.rsvps.find((r) => r.profileId === member)
@@ -425,6 +446,8 @@ export class MockEvents {
     const event = this.events.find((e) => e.id === id);
     const rsvp = event?.rsvps.find((r) => r.id === rsvpId);
     if (!event || !rsvp) return route.fulfill({ status: 404 });
+    const refused = this.checkInRefusal(route, event);
+    if (refused) return refused;
     if (this.failCheckIn) {
       this.failCheckIn = false;
       return route.fulfill({ status: 500 });
@@ -765,6 +788,9 @@ export class MockEvents {
       callerHasRsvp: event.rsvps.some((r) => r.profileId === caller.profileId),
       canManage: canManage(caller),
       canExportRsvps: seesEmails(caller),
+      checkedInCount: seesList(caller) ? event.rsvps.filter((r) => r.checkedInAt).length : null,
+      canCheckIn: seesEmails(caller),
+      canViewCheckIn: seesList(caller),
       rsvps: seesList(caller)
         ? rsvped(event)
             .sort((a, b) => b.createdAt.localeCompare(a.createdAt))
@@ -774,6 +800,7 @@ export class MockEvents {
               isGuest: r.profileId === null,
               guestEmail: r.profileId === null && seesEmails(caller) ? r.guestEmail : null,
               rsvpedAt: r.createdAt,
+              checkedInAt: r.checkedInAt ?? null,
             }))
         : null,
     };

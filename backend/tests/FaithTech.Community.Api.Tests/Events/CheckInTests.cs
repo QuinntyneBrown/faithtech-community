@@ -1,9 +1,10 @@
-// Traces to: L2-092, L2-093, L2-094 (docs/detailed-designs/events/event-check-in)
+// Traces to: L2-092, L2-093, L2-094, L2-096 (docs/detailed-designs/events/event-check-in)
 using System.Net;
 using System.Net.Http.Json;
 using System.Text.Json;
 using FaithTech.Community.Api.Tests.Profiles;
 using FaithTech.Community.Domain.Profiles;
+using Microsoft.EntityFrameworkCore;
 
 namespace FaithTech.Community.Api.Tests.Events;
 
@@ -175,5 +176,120 @@ public class CheckInTests(CommunityApiFactory factory) : IClassFixture<Community
         var saved = (await factory.LoadEventAsync(eventId)).Rsvps.Single(r => r.Id == rsvpId);
         Assert.Equal((null, null), (saved.CheckedInAt, saved.CheckedInById));
         Assert.Equal(0, (await first.GetFromJsonAsync<JsonElement>($"/api/events/{eventId}/check-in")).GetProperty("checkedIn").GetInt32());
+    }
+
+    // L2-092 AC5: Given a System Admin without a lead role, when they check in or undo, then each write is
+    // recorded in the audit log.
+    [Fact]
+    public async Task A_System_Admin_without_a_lead_role_is_audited_and_a_lead_is_not()
+    {
+        var (eventId, _, _) = await EventWithRsvpsAsync();
+        var priya = await factory.AddMemberAsync("Priya Shah");
+        var admin = factory.ClientFor(priya, Role.SystemAdmin);
+        var rsvpId = await RsvpIdAsync(admin, eventId, "Abby Brooks");
+
+        await admin.PutAsync($"/api/events/{eventId}/check-ins/{rsvpId}", null);
+        await admin.DeleteAsync($"/api/events/{eventId}/check-ins/{rsvpId}");
+        var esther = await factory.AddMemberAsync("Esther Nakamura");
+        var both = factory.ClientFor(esther, Role.SystemAdmin, Role.CityLead);
+        await both.PutAsync($"/api/events/{eventId}/check-ins/{rsvpId}", null);
+
+        var entries = await factory.WithDbAsync(db => db.AuditEntries.AsNoTracking()
+            .Where(a => a.TargetId == eventId.ToString()).ToListAsync());
+        Assert.Equal(["event.check_in_undone", "event.checked_in"], entries.Select(a => a.Action).Order());
+        Assert.All(entries, a => Assert.Equal(("Event", priya.ProfileId), (a.TargetType, a.ActorId)));
+        var checkedIn = entries.Single(a => a.Action == "event.checked_in");
+        Assert.Contains("Abby Brooks", checkedIn.AfterJson);
+        Assert.Contains(rsvpId.ToString(), checkedIn.AfterJson);
+    }
+
+    // L2-094 AC5: Given a cancelled event, when a lead opens its check-in page, then it says the event is
+    // cancelled, and any check-in write answers 409.
+    [Fact]
+    public async Task A_cancelled_event_shows_cancelled_and_refuses_check_in_writes_with_409()
+    {
+        var (eventId, _, _) = await EventWithRsvpsAsync();
+        var lead = await factory.AddMemberAsync("Grace Okonkwo");
+        var client = factory.ClientFor(lead, Role.EventLead);
+        var rsvpId = await RsvpIdAsync(client, eventId, "Abby Brooks");
+        await client.PutAsync($"/api/events/{eventId}/check-ins/{rsvpId}", null);
+        await factory.CancelEventAsync(eventId, "The venue flooded.");
+
+        var page = await client.GetFromJsonAsync<JsonElement>($"/api/events/{eventId}/check-in");
+        var put = await client.PutAsync($"/api/events/{eventId}/check-ins/{rsvpId}", null);
+        var delete = await client.DeleteAsync($"/api/events/{eventId}/check-ins/{rsvpId}");
+
+        Assert.Equal((true, false, "The venue flooded."), (page.GetProperty("isCancelled").GetBoolean(),
+            page.GetProperty("isOpen").GetBoolean(), page.GetProperty("cancellationReason").GetString()));
+        foreach (var response in new[] { put, delete })
+        {
+            Assert.Equal(HttpStatusCode.Conflict, response.StatusCode);
+            Assert.Equal("This event was cancelled.", (await response.Content.ReadFromJsonAsync<JsonElement>()).GetProperty("detail").GetString());
+        }
+
+        Assert.NotNull((await factory.LoadEventAsync(eventId)).Rsvps.Single(r => r.Id == rsvpId).CheckedInAt);
+    }
+
+    // L2-094 AC6: Given an event that starts more than 24 hours from now, when a lead tries to check someone in,
+    // then the response is 409 and the page says when check-in opens.
+    [Fact]
+    public async Task Check_in_opens_24_hours_before_the_start()
+    {
+        var e = await factory.AddEventAsync("Toronto Builders Night", TimeSpan.FromHours(25), guests: [("Abby Brooks", "abby@example.org")]);
+        var lead = await factory.AddMemberAsync("Grace Okonkwo");
+        var client = factory.ClientFor(lead, Role.EventLead);
+        var page = await client.GetFromJsonAsync<JsonElement>($"/api/events/{e.Id}/check-in");
+        var rsvpId = page.GetProperty("attendees")[0].GetProperty("rsvpId").GetGuid();
+
+        var response = await client.PutAsync($"/api/events/{e.Id}/check-ins/{rsvpId}", null);
+
+        Assert.False(page.GetProperty("isOpen").GetBoolean());
+        Assert.Equal(e.StartsAt.AddHours(-24), page.GetProperty("checkInOpensAt").GetDateTimeOffset());
+        Assert.Equal(HttpStatusCode.Conflict, response.StatusCode);
+        var problem = await response.Content.ReadFromJsonAsync<JsonElement>();
+        Assert.Equal("Check-in hasn’t opened yet.", problem.GetProperty("detail").GetString());
+        Assert.Equal(e.StartsAt.AddHours(-24), problem.GetProperty("opensAt").GetDateTimeOffset());
+        Assert.Equal(HttpStatusCode.Conflict, (await client.DeleteAsync($"/api/events/{e.Id}/check-ins/{rsvpId}")).StatusCode);
+
+        factory.Time.Advance(TimeSpan.FromHours(1));
+        Assert.Equal(HttpStatusCode.OK, (await client.PutAsync($"/api/events/{e.Id}/check-ins/{rsvpId}", null)).StatusCode);
+    }
+
+    // L2-096 AC1: Given an event with at least one check-in, when a lead, Staff or System Admin opens the event page,
+    // then the check-in count is shown; L2-096 AC2: members get no count. L2-092 AC1: leads are offered Check in.
+    [Theory]
+    [InlineData(Role.EventLead, 1, true, true)]
+    [InlineData(Role.SystemAdmin, 1, true, true)]
+    [InlineData(Role.Staff, 1, false, true)]
+    [InlineData(Role.Attendee, null, false, false)]
+    public async Task The_event_page_carries_the_check_in_count_and_what_the_caller_may_do(
+        Role role, int? count, bool canCheckIn, bool canViewCheckIn)
+    {
+        var (eventId, _, _) = await EventWithRsvpsAsync();
+        var grace = await factory.AddMemberAsync("Grace Okonkwo");
+        var lead = factory.ClientFor(grace, Role.EventLead);
+        await lead.PutAsync($"/api/events/{eventId}/check-ins/{await RsvpIdAsync(lead, eventId, "Ruth Alvarez")}", null);
+        var viewer = await factory.AddMemberAsync("Leah Thompson");
+
+        var json = await factory.ClientFor(viewer, role).GetFromJsonAsync<JsonElement>($"/api/events/{eventId}");
+
+        var checkedIn = json.GetProperty("checkedInCount");
+        Assert.Equal(count, checkedIn.ValueKind == JsonValueKind.Null ? null : checkedIn.GetInt32());
+        Assert.Equal((canCheckIn, canViewCheckIn), (json.GetProperty("canCheckIn").GetBoolean(), json.GetProperty("canViewCheckIn").GetBoolean()));
+    }
+
+    // docs/mocks/pages/event/attendance: the RSVP list on the event page says when each attendee checked in.
+    [Fact]
+    public async Task The_event_pages_rsvp_list_carries_each_check_in_time()
+    {
+        var (eventId, _, _) = await EventWithRsvpsAsync();
+        var grace = await factory.AddMemberAsync("Grace Okonkwo");
+        var lead = factory.ClientFor(grace, Role.EventLead);
+        await lead.PutAsync($"/api/events/{eventId}/check-ins/{await RsvpIdAsync(lead, eventId, "Ruth Alvarez")}", null);
+
+        var rsvps = (await lead.GetFromJsonAsync<JsonElement>($"/api/events/{eventId}")).GetProperty("rsvps").EnumerateArray().ToList();
+
+        Assert.Equal(factory.Time.GetUtcNow(), rsvps.Single(r => r.GetProperty("name").GetString() == "Ruth Alvarez").GetProperty("checkedInAt").GetDateTimeOffset());
+        Assert.Equal(JsonValueKind.Null, rsvps.Single(r => r.GetProperty("name").GetString() == "Jonah Bell").GetProperty("checkedInAt").ValueKind);
     }
 }

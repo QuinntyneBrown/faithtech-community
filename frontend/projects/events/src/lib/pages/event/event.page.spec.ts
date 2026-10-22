@@ -34,6 +34,9 @@ function detail(overrides: Partial<EventDetailDto> = {}): EventDetailDto {
     canManage: false,
     canExportRsvps: false,
     rsvps: null,
+    checkedInCount: null,
+    canCheckIn: false,
+    canViewCheckIn: false,
     ...overrides,
   };
 }
@@ -48,6 +51,7 @@ const lead = detail({
       isGuest: false,
       guestEmail: null,
       rsvpedAt: new Date(2026, 9, 20, 9).toISOString(),
+      checkedInAt: null,
     },
     {
       profileId: null,
@@ -55,6 +59,7 @@ const lead = detail({
       isGuest: true,
       guestEmail: 'abby.brooks@example.org',
       rsvpedAt: new Date(2026, 9, 17, 9).toISOString(),
+      checkedInAt: null,
     },
   ],
 });
@@ -357,5 +362,35 @@ describe('EventPage', () => {
     const page = await setup();
 
     expect(page.button('Cancel event')).toBeUndefined();
+  });
+
+  // L2-096 AC1, L2-092 AC1: leads see the check-in count beside the RSVP count and are offered Check in.
+  it('shows leads the check-in count and Check in', async () => {
+    const page = await setup();
+    await page.show({
+      ...lead,
+      checkedInCount: 1,
+      canCheckIn: true,
+      canViewCheckIn: true,
+      rsvps: lead.rsvps!.map((r, i) =>
+        i === 0 ? { ...r, checkedInAt: new Date(2026, 10, 6, 18, 41).toISOString() } : r,
+      ),
+    });
+
+    expect(page.fact('Going')).toBe('34 people · 1 checked in');
+    expect(page.host.textContent).toContain('Going (34) · 1 checked in');
+    expect(page.host.textContent).toContain('Member · Checked in 6:41 pm');
+    expect(page.link('Check in')!.getAttribute('href')).toBe('/events/e1/check-in');
+    expect(page.link('View check-in')).toBeUndefined();
+  });
+
+  // L2-096 AC2: no count before anyone checks in; Staff get View check-in.
+  it('offers Staff View check-in and shows no count before anyone checks in', async () => {
+    const page = await setup();
+    await page.show({ ...lead, checkedInCount: 0, canViewCheckIn: true });
+
+    expect(page.fact('Going')).toBe('34 people');
+    expect(page.link('View check-in')!.getAttribute('href')).toBe('/events/e1/check-in');
+    expect(page.link('Check in')).toBeUndefined();
   });
 });

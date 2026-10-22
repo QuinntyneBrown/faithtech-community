@@ -52,6 +52,8 @@ export interface RsvpDto {
   isGuest: boolean;
   guestEmail: string | null;
   rsvpedAt: string;
+  /** When they were checked in at the door, if they were (L2-096). */
+  checkedInAt: string | null;
 }
 
 /** One event as its page and the edit form show it, with whether the caller may manage it. */
@@ -82,6 +84,11 @@ export interface EventDetailDto {
   canExportRsvps: boolean;
   /** Null unless the caller is a lead, Staff or System Admin; attendees see only the count. */
   rsvps: RsvpDto[] | null;
+  /** Everyone checked in, walk-ins included; null for callers who don't see the RSVP list (L2-096). */
+  checkedInCount: number | null;
+  /** Lead roles and System Admins check people in; Staff only view the check-in page (L2-092). */
+  canCheckIn: boolean;
+  canViewCheckIn: boolean;
 }
 
 /** A public event as anyone with the link sees it: no RSVP list and no joining link (L2-023). */

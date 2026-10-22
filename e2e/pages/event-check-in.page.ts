@@ -17,6 +17,12 @@ export class EventCheckInPage {
   readonly toasts: Locator;
   readonly undo: Locator;
   readonly addWalkIn: Locator;
+  readonly readOnly: Locator;
+  readonly cancelled: Locator;
+  readonly notOpen: Locator;
+  readonly everyonesHere: Locator;
+  readonly forbidden: Locator;
+  readonly openEvent: Locator;
 
   constructor(private readonly page: Page) {
     this.heading = page.getByRole('heading', { level: 1 });
@@ -34,10 +40,23 @@ export class EventCheckInPage {
     this.toasts = page.locator('ft-toast-region ft-toast');
     this.undo = this.toasts.getByRole('button', { name: 'Undo' });
     this.addWalkIn = page.locator('ft-page-header').getByRole('button', { name: 'Add walk-in' });
+    this.readOnly = page.locator('ft-alert').filter({ hasText: 'Read-only for Staff' });
+    this.cancelled = page
+      .locator('ft-alert')
+      .filter({ hasText: 'This event was cancelled, so no one can be checked in' });
+    this.notOpen = page.locator('ft-alert').filter({ hasText: /^Check-in opens / });
+    this.everyonesHere = page.locator('ft-alert').filter({ hasText: 'Everyone’s here' });
+    this.forbidden = page.getByRole('heading', { name: 'Check-in is for event leads' });
+    this.openEvent = page.getByRole('link', { name: 'Open the event' });
   }
 
   async open(id: string): Promise<void> {
     await this.page.goto(`/events/${id}/check-in`);
+  }
+
+  /** Every switch on the list. */
+  get switches(): Locator {
+    return this.page.getByRole('switch');
   }
 
   attendee(name: string): Locator {

@@ -1,4 +1,4 @@
-// Traces to: L2-095, L2-096 AC3 (docs/detailed-designs/events/event-check-in)
+// Traces to: L2-095, L2-092 AC5, L2-094 AC6, L2-096 AC3 (docs/detailed-designs/events/event-check-in)
 using System.Net;
 using System.Net.Http.Json;
 using System.Text.Json;
@@ -209,5 +209,39 @@ public class WalkInTests(CommunityApiFactory factory) : IClassFixture<CommunityA
 
         Assert.Equal(HttpStatusCode.NoContent, response.StatusCode);
         Assert.Single(await factory.QueuedEmailsToAsync("abby@example.org"));
+    }
+
+    // L2-095 AC8: Given a cancelled event, when a walk-in is submitted, then the response is 409.
+    // L2-094 AC6: walk-ins keep to the same 24-hour window as check-ins.
+    [Fact]
+    public async Task A_cancelled_or_not_yet_open_event_refuses_walk_ins_with_409()
+    {
+        var cancelled = await factory.AddEventAsync("Panel", Soon, cancelledBecause: "The venue flooded.");
+        var early = await factory.AddEventAsync("Hackathon", TimeSpan.FromDays(3));
+        var client = await LeadAsync();
+
+        var toCancelled = await AddWalkInAsync(client, cancelled.Id, new { name = "Mira Chen" });
+        var toEarly = await AddWalkInAsync(client, early.Id, new { name = "Mira Chen" });
+
+        Assert.Equal(HttpStatusCode.Conflict, toCancelled.StatusCode);
+        Assert.Equal("This event was cancelled.", (await toCancelled.Content.ReadFromJsonAsync<JsonElement>()).GetProperty("detail").GetString());
+        Assert.Equal(HttpStatusCode.Conflict, toEarly.StatusCode);
+        Assert.Equal("Check-in hasn’t opened yet.", (await toEarly.Content.ReadFromJsonAsync<JsonElement>()).GetProperty("detail").GetString());
+        Assert.Empty((await factory.LoadEventAsync(cancelled.Id)).Rsvps);
+        Assert.Empty((await factory.LoadEventAsync(early.Id)).Rsvps);
+    }
+
+    // L2-092 AC5: Given a System Admin without a lead role, when they add a walk-in, then it is audited.
+    [Fact]
+    public async Task A_System_Admin_adding_a_walk_in_without_a_lead_role_is_audited()
+    {
+        var e = await factory.AddEventAsync("Toronto Builders Night", Soon);
+        var priya = await factory.AddMemberAsync("Priya Shah");
+
+        await AddWalkInAsync(factory.ClientFor(priya, Role.SystemAdmin), e.Id, new { name = "Mira Chen" });
+
+        var entry = await factory.WithDbAsync(db => db.AuditEntries.AsNoTracking().SingleAsync(a => a.TargetId == e.Id.ToString()));
+        Assert.Equal(("event.walk_in_added", "Event", priya.ProfileId), (entry.Action, entry.TargetType, entry.ActorId));
+        Assert.Contains("Mira Chen", entry.AfterJson);
     }
 }
