@@ -82,6 +82,24 @@ public class MembershipTests(CommunityApiFactory factory) : IClassFixture<Commun
     }
 
     [Fact]
+    public async Task Given_a_suspended_volunteer_when_the_owner_adds_them_then_400_and_they_do_not_join()
+    {
+        var cast = await factory.AddCastAsync();
+        var jonah = await factory.AddWithRolesAsync("Jonah Bell", Role.Volunteer);
+        await factory.WithDbAsync(async db =>
+        {
+            (await db.Profiles.SingleAsync(p => p.Id == jonah.ProfileId)).Suspend("Spam", DateTime.UtcNow);
+            return await db.SaveChangesAsync();
+        });
+
+        var response = await factory.OwnerClient(cast).PostAsJsonAsync(
+            $"/api/workspaces/{cast.WorkspaceId}/members", new { ProfileIds = new[] { jonah.ProfileId } });
+
+        Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+        Assert.False((await factory.LoadWorkspaceAsync(cast.WorkspaceId)).IsMember(jonah.ProfileId));
+    }
+
+    [Fact]
     public async Task Given_a_system_admin_when_they_add_and_remove_members_then_it_succeeds_and_each_action_is_audited()
     {
         var cast = await factory.AddCastAsync();
