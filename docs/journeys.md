@@ -11,18 +11,18 @@ Ordered by value to the user. Effort and completion come from [estimates](estima
 | 5 | View profiles | Browse member profiles to learn who is in the community. | 2 | 0 |
 | 6 | Edit own profile | Keep your details current so others can find and know you. | 3 | 0 |
 | 7 | Manage profile photos | Upload up to ten photos, choose a featured one, add alt text. | 5 | 0 |
-| 8 | Find events | Browse and filter upcoming events across the community. | 3 | 0 |
-| 9 | RSVP to events | Tell organizers you are coming to an event. | 5 | 0 |
+| 8 | Find events | Browse and filter upcoming events across the community. | 3 | 100 |
+| 9 | RSVP to events | Tell organizers you are coming to an event. | 5 | 100 |
 | 10 | Search everything | Find people, events and partners from one global search box. | 4 | 0 |
-| 11 | Public events and guest RSVP | Share event pages with anyone; guests RSVP without an account. | 4 | 0 |
-| 12 | Add events to calendar | Download an .ics file to put an event in your calendar. | 3 | 0 |
+| 11 | Public events and guest RSVP | Share event pages with anyone; guests RSVP without an account. | 4 | 100 |
+| 12 | Add events to calendar | Download an .ics file to put an event in your calendar. | 3 | 100 |
 | 13 | Receive in-app notifications | See what needs your attention in the bell, and set preferences. | 5 | 0 |
 | 14 | Receive email notifications | Get important updates by email, controlled by your preferences. | 4 | 0 |
 | 15 | Read announcements | Read leadership announcements and opt out of announcement emails. | 4 | 0 |
 | 16 | Accept an invite | Join the community through an invitation within fourteen days. | 3 | 0 |
 | 17 | Browse the team | See the city team members and their roles. | 2 | 0 |
-| 18 | Create and edit events | Leads publish and update events, including hackathons. | 4 | 0 |
-| 19 | Cancel events | Leads cancel an event and attendees are told. | 4 | 0 |
+| 18 | Create and edit events | Leads publish and update events, including hackathons. | 4 | 100 |
+| 19 | Cancel events | Leads cancel an event and attendees are told. | 4 | 100 |
 | 20 | Send invites | Leads invite people to sign up and track invitations. | 5 | 0 |
 | 21 | Send announcements | Leads write announcements and send them to chosen audiences. | 4 | 0 |
 | 22 | Manage private contacts | Leads keep private contacts and notes, visible only to them. | 14 | 0 |
