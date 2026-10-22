@@ -292,7 +292,7 @@ export class MockApi {
       case 'GET /api/people':
         return this.listPeople(route, url, authorization);
       case 'GET /api/invites':
-        return this.listInvites(route, authorization);
+        return this.listInvites(route, url, authorization);
       case 'POST /api/invites':
         return this.sendInvite(route, body, authorization);
       case 'POST /api/invites/lookup':
@@ -756,12 +756,28 @@ export class MockApi {
     return route.fulfill({ status: 200, json: { members, cities } });
   }
 
-  private listInvites(route: Route, authorization: string | undefined) {
+  /**
+   * GET /api/invites?after&pageSize: newest first (ties by id), 50 a page and at most 100, with a
+   * keyset `next` like ManageInvitesHandler, so invites sent meanwhile never shift later pages.
+   */
+  private listInvites(route: Route, url: URL, authorization: string | undefined) {
     const caller = this.caller(authorization);
     if (!caller) return route.fulfill({ status: 401 });
     if (!caller.roles.some((r) => LEAD_ROLES.includes(r))) return route.fulfill({ status: 403 });
-    const invites = [...this.invites].sort((a, b) => b.createdAt.localeCompare(a.createdAt));
-    return route.fulfill({ status: 200, json: invites.map((i) => this.inviteDto(i)) });
+    const key = (i: MockInvite) => `${i.createdAt}_${i.id}`;
+    const invites = [...this.invites].sort((a, b) => key(b).localeCompare(key(a)));
+    const size = Math.min(100, Math.max(1, Number(url.searchParams.get('pageSize') ?? 50) || 50));
+    const after = url.searchParams.get('after');
+    const rest = after ? invites.filter((i) => key(i).localeCompare(after) < 0) : invites;
+    const items = rest.slice(0, size);
+    return route.fulfill({
+      status: 200,
+      json: {
+        items: items.map((i) => this.inviteDto(i)),
+        next: rest.length > size ? key(items[items.length - 1]) : null,
+        totalCount: invites.length,
+      },
+    });
   }
 
   /** POST /api/invites: role limits, verified sender and 50 per 24 hours (L2-010). */

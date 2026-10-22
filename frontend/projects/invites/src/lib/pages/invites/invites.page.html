@@ -50,6 +50,15 @@
           }
         </ft-list>
       </ft-card>
+      <ft-cluster class="more" [between]="true">
+        <p class="count" role="status">{{ count() }}</p>
+        @if (next()) {
+          <ft-button [loading]="loadingMore()" (click)="loadMore()">Show more invites</ft-button>
+        }
+      </ft-cluster>
+      @if (moreFailed()) {
+        <ft-alert status="danger" heading="We couldn’t load more invites. Try again." />
+      }
     }
   }
 }
