@@ -18,6 +18,26 @@ export interface MockStageChange {
   note: string | null;
 }
 
+export type MockActivityKind =
+  'Call' | 'Email' | 'Meeting' | 'Note' | 'Added' | 'StageMoved' | 'Merged' | 'Restored';
+
+/** One row of PartnerActivities. */
+export interface MockActivity {
+  id: string;
+  kind: MockActivityKind;
+  summary: string | null;
+  /** yyyy-MM-dd. */
+  occurredOn: string;
+  /** HH:mm:ss or null. */
+  occurredAt: string | null;
+  nextStep: string | null;
+  nextStepDue: string | null;
+  loggedById: string;
+  loggedAtUtc: string;
+  fromStage: MockStage | null;
+  toStage: MockStage | null;
+}
+
 /** A partner as the Partners table holds it. */
 export interface MockPartner {
   id: string;
@@ -31,11 +51,14 @@ export interface MockPartner {
   notes: string | null;
   stage: MockStage;
   history: MockStageChange[];
+  activities: MockActivity[];
 }
 
 const STAGES: MockStage[] = ['Lead', 'InFunnel', 'Confirmed'];
 const LEAD_ROLES = ['CityLead', 'EventLead', 'CreateLead', 'CommunicationsLead'];
 const EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+const LOGGED: MockActivityKind[] = ['Call', 'Email', 'Meeting', 'Note'];
+const DAY = 24 * 60 * 60 * 1000;
 
 /**
  * PartnersEndpoints in the browser (backend/src/FaithTech.Community.Api/Endpoints/PartnersEndpoints.cs):
@@ -58,11 +81,34 @@ export class MockPartners {
       notes: null,
       stage: 'Lead',
       history: [],
+      activities: [],
       ...partner,
     };
     this.partners.push(full);
     return full;
   }
+
+  /** Seeds a timeline entry for a test; the defaults are a Note logged at the fake's "now". */
+  addActivity(partner: MockPartner, activity: Partial<MockActivity> = {}): MockActivity {
+    const full: MockActivity = {
+      id: `activity-${this.activityCount++}`,
+      kind: 'Note',
+      summary: 'Checked in.',
+      occurredOn: this.context.now.toISOString().slice(0, 10),
+      occurredAt: null,
+      nextStep: null,
+      nextStepDue: null,
+      loggedById: '',
+      loggedAtUtc: this.context.now.toISOString(),
+      fromStage: null,
+      toStage: null,
+      ...activity,
+    };
+    partner.activities.push(full);
+    return full;
+  }
+
+  private activityCount = 1;
 
   /** Answers a /api/partners request, or returns false when the path is not a partners route. */
   handle(
@@ -127,7 +173,63 @@ export class MockPartners {
       partner.stage = to;
       return route.fulfill({ status: 200, json: this.dto(partner, canWrite) });
     }
+    if (method === 'GET' && action === 'activities')
+      return route.fulfill({ status: 200, json: this.timeline(partner) });
+    if (method === 'POST' && action === 'activities') {
+      const errors = this.validateActivity(body);
+      if (errors) return route.fulfill({ status: 400, json: { status: 400, errors } });
+      const nextStep = String(body['nextStep'] ?? '').trim() || null;
+      const time = (body['occurredAt'] as string | null) || null;
+      const activity = this.addActivity(partner, {
+        kind: body['kind'] as MockActivityKind,
+        summary: String(body['summary']).trim(),
+        occurredOn: String(body['occurredOn']),
+        occurredAt: time ? `${time.slice(0, 5)}:00` : null,
+        nextStep,
+        nextStepDue: nextStep ? (body['nextStepDue'] as string | null) || null : null,
+        loggedById: caller.profileId,
+      });
+      return route.fulfill({
+        status: 201,
+        headers: { location: `/api/partners/${partner.id}/activities/${activity.id}` },
+        json: this.activityDto(activity),
+      });
+    }
     return route.fulfill({ status: 405 });
+  }
+
+  /** PartnerTimelineOrder: date, time (none as 00:00), log time, id; all newest first. */
+  private timeline(partner: MockPartner) {
+    const key = (a: MockActivity) =>
+      `${a.occurredOn}|${a.occurredAt ?? '00:00:00'}|${a.loggedAtUtc}|${a.id.padStart(16, '0')}`;
+    const items = [...partner.activities].sort((a, b) => key(b).localeCompare(key(a)));
+    return { items: items.map((a) => this.activityDto(a)), before: null };
+  }
+
+  private activityDto(activity: MockActivity) {
+    const name = this.context.profiles.get(activity.loggedById)?.name ?? 'A former member';
+    return { ...activity, text: activity.summary ?? '', loggedByName: name };
+  }
+
+  /** LogPartnerActivityValidator; "today" is the UTC date plus one day. */
+  private validateActivity(body: Record<string, unknown>): Record<string, string[]> | null {
+    const errors: Record<string, string[]> = {};
+    if (!LOGGED.includes(body['kind'] as MockActivityKind))
+      errors['Kind'] = ['Choose call, email, meeting or note.'];
+    const summary = String(body['summary'] ?? '').trim();
+    if (!summary) errors['Summary'] = ['Say what happened.'];
+    else if (summary.length > 2000)
+      errors['Summary'] = ['Use 2,000 characters or fewer for what happened.'];
+    const occurredOn = (body['occurredOn'] as string | null) ?? '';
+    const latest = new Date(this.context.now.getTime() + DAY).toISOString().slice(0, 10);
+    if (!occurredOn) errors['OccurredOn'] = ['Enter the date it happened.'];
+    else if (occurredOn > latest) errors['OccurredOn'] = ['Choose today or an earlier date.'];
+    const nextStep = String(body['nextStep'] ?? '').trim();
+    if (nextStep.length > 200)
+      errors['NextStep'] = ['Use 200 characters or fewer for the next step.'];
+    if (body['nextStepDue'] && !nextStep)
+      errors['NextStepDue'] = ['Add the next step, or clear its due date.'];
+    return Object.keys(errors).length ? errors : null;
   }
 
   private board(canEdit: boolean) {
@@ -181,8 +283,9 @@ export class MockPartners {
 
   private dto(partner: MockPartner, canEdit: boolean) {
     const name = (id: string | null) => (id ? (this.context.profiles.get(id)?.name ?? null) : null);
+    const { activities: _activities, ...record } = partner;
     return {
-      ...partner,
+      ...record,
       ownerName: name(partner.ownerId),
       history: [...partner.history]
         .sort((a, b) => b.movedAtUtc.localeCompare(a.movedAtUtc))

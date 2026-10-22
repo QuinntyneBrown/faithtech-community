@@ -4,15 +4,24 @@ import { Locator, Page } from '@playwright/test';
 export class PartnerPage {
   readonly heading: Locator;
   readonly stage: Locator;
+  readonly subtitle: Locator;
   readonly edit: Locator;
   readonly moveStage: Locator;
+  readonly logActivity: Locator;
+  /** The shared activity timeline, newest first (L2-086). */
+  readonly timeline: Locator;
+  readonly entries: Locator;
   readonly history: Locator;
 
   constructor(private readonly page: Page) {
     this.heading = page.getByRole('heading', { level: 1 });
     this.stage = page.locator('ft-page-header ft-badge');
+    this.subtitle = page.locator('[ftPageHeaderSubtitle]');
     this.edit = page.getByRole('link', { name: 'Edit' });
     this.moveStage = page.getByRole('button', { name: 'Move stage' });
+    this.logActivity = page.locator('ft-page-header').getByRole('button', { name: 'Log activity' });
+    this.timeline = page.getByRole('list', { name: 'Activity' });
+    this.entries = this.timeline.getByRole('listitem');
     this.history = page.getByRole('list', { name: 'Stage history' }).getByRole('listitem');
   }
 

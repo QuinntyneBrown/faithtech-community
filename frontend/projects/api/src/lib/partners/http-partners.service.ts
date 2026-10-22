@@ -5,7 +5,10 @@ import { Observable } from 'rxjs';
 import { API_BASE_URL } from '../config';
 import { HANDLES_FORBIDDEN } from '../errors';
 import {
+  LogPartnerActivityRequest,
   NewPartnerRequest,
+  PartnerActivityDto,
+  PartnerActivityPageDto,
   PartnerBoardDto,
   PartnerDto,
   PartnerOwnerDto,
@@ -43,5 +46,13 @@ export class HttpPartnersService implements PartnersService {
 
   move(id: string, to: PartnerStage, note: string | null = null): Observable<PartnerDto> {
     return this.http.post<PartnerDto>(`${this.base}/${id}/stage`, { to, note });
+  }
+
+  activities(id: string): Observable<PartnerActivityPageDto> {
+    return this.http.get<PartnerActivityPageDto>(`${this.base}/${id}/activities`);
+  }
+
+  logActivity(id: string, activity: LogPartnerActivityRequest): Observable<PartnerActivityDto> {
+    return this.http.post<PartnerActivityDto>(`${this.base}/${id}/activities`, activity);
   }
 }

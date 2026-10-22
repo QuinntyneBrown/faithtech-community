@@ -1,0 +1,23 @@
+<ft-feed
+  label="Activity"
+  loadingLabel="Loading activity"
+  emptyText="No activity yet."
+  errorHeading="We couldn’t load the activity"
+  [state]="state()"
+  [retrying]="retrying()"
+  (retry)="retry()"
+>
+  @for (activity of items(); track activity.id) {
+    <ft-feed-item
+      [actor]="activity.loggedByName"
+      [icon]="icons[activity.kind]"
+      [meta]="meta(activity)"
+    >
+      <strong>{{ labels[activity.kind] }}</strong> · {{ activity.loggedByName }}<br />
+      {{ activity.text }}
+      @if (activity.nextStep) {
+        <div class="next-step">Next: {{ activity.nextStep }}{{ due(activity) }}</div>
+      }
+    </ft-feed-item>
+  }
+</ft-feed>

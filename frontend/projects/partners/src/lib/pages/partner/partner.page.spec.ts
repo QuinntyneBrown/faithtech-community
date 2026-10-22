@@ -5,18 +5,19 @@ import { PARTNERS_SERVICE, PartnerDto } from '@faithtech-community/api';
 import { DialogService, ToastService } from '@faithtech-community/components';
 import { Observable, of, throwError } from 'rxjs';
 
-import { MovePartnerDialog } from '../../dialogs';
+import { LogActivityDialog, MovePartnerDialog } from '../../dialogs';
 import { partnerDto } from '../../testing';
 import { PartnerPage } from './partner.page';
 
 async function setup(get: () => Observable<PartnerDto>, dialogResult?: unknown) {
-  const service = { get: vi.fn(get) };
+  const service = { get: vi.fn(get), activities: vi.fn(() => of({ items: [], before: null })) };
   const dialogs = { open: vi.fn(() => ({ closed: of(dialogResult) })) };
+  const toasts = { show: vi.fn() };
   TestBed.configureTestingModule({
     providers: [
       { provide: PARTNERS_SERVICE, useValue: service },
       { provide: DialogService, useValue: dialogs },
-      { provide: ToastService, useValue: { show: vi.fn() } },
+      { provide: ToastService, useValue: toasts },
     ],
   });
   const fixture = TestBed.createComponent(PartnerPage);
@@ -31,7 +32,7 @@ async function setup(get: () => Observable<PartnerDto>, dialogResult?: unknown) 
   const text = () => host.textContent!.replace(/\s+/g, ' ');
   const link = (name: string) =>
     Array.from(host.querySelectorAll('a')).find((a) => a.textContent?.trim() === name);
-  return { host, service, dialogs, text, link, settle };
+  return { host, service, dialogs, toasts, text, link, settle };
 }
 
 describe('PartnerPage', () => {
@@ -130,5 +131,25 @@ describe('PartnerPage', () => {
 
     const values = Array.from(host.querySelectorAll('dd')).map((d) => d.textContent!.trim());
     expect([values[2], values[3]]).toEqual(['Not added', 'Not added']);
+  });
+
+  it('logs an activity, confirms it and reloads the timeline', async () => {
+    const logged = { id: 'a1', kind: 'Call' };
+    const { host, service, dialogs, toasts, settle } = await setup(() => of(partnerDto()), logged);
+    expect(service.activities).toHaveBeenCalledTimes(1);
+
+    Array.from(host.querySelectorAll('button'))
+      .find((b) => b.textContent?.trim() === 'Log activity')!
+      .click();
+    await settle();
+
+    expect(dialogs.open).toHaveBeenCalledWith(LogActivityDialog, {
+      data: { partnerId: 'x1', name: 'Kestrel Labs' },
+    });
+    expect(toasts.show).toHaveBeenCalledWith({
+      variant: 'success',
+      heading: 'Call logged for Kestrel Labs',
+    });
+    expect(service.activities).toHaveBeenCalledTimes(2);
   });
 });

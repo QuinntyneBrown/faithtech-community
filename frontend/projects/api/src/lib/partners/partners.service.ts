@@ -38,6 +38,71 @@ export interface PartnerStageChangeDto {
   note: string | null;
 }
 
+export const LOGGED_ACTIVITY_KINDS = ['Call', 'Email', 'Meeting', 'Note'] as const;
+/** The kinds a lead logs. */
+export type LoggedActivityKind = (typeof LOGGED_ACTIVITY_KINDS)[number];
+
+export const PARTNER_ACTIVITY_KINDS = [
+  ...LOGGED_ACTIVITY_KINDS,
+  'Added',
+  'StageMoved',
+  'Merged',
+  'Restored',
+] as const;
+/** Logged kinds plus the entries the system writes when a partner is added, moved, merged or restored. */
+export type PartnerActivityKind = (typeof PARTNER_ACTIVITY_KINDS)[number];
+
+/** How each kind is named on the timeline. */
+export const PARTNER_ACTIVITY_LABELS: Record<PartnerActivityKind, string> = {
+  Call: 'Call',
+  Email: 'Email',
+  Meeting: 'Meeting',
+  Note: 'Note',
+  Added: 'Added to the pipeline',
+  StageMoved: 'Stage moved',
+  Merged: 'Merged',
+  Restored: 'Restored',
+};
+
+/** One entry on a partner's shared timeline (L2-086). */
+export interface PartnerActivityDto {
+  id: string;
+  kind: PartnerActivityKind;
+  /** What was logged; the move note on a Stage moved entry. */
+  summary: string | null;
+  /** The sentence the timeline shows. */
+  text: string;
+  /** yyyy-MM-dd. */
+  occurredOn: string;
+  /** HH:mm:ss, or null when no time was given. */
+  occurredAt: string | null;
+  nextStep: string | null;
+  nextStepDue: string | null;
+  loggedById: string;
+  loggedByName: string;
+  loggedAtUtc: string;
+  fromStage: PartnerStage | null;
+  toStage: PartnerStage | null;
+}
+
+/** Newest first; `before` asks for the next, older page and is null on the last one. */
+export interface PartnerActivityPageDto {
+  items: PartnerActivityDto[];
+  before: string | null;
+}
+
+export interface LogPartnerActivityRequest {
+  kind: LoggedActivityKind;
+  summary: string;
+  /** yyyy-MM-dd, not after today. */
+  occurredOn: string;
+  /** HH:mm, optional. */
+  occurredAt: string | null;
+  nextStep: string | null;
+  /** Only with a next step. */
+  nextStepDue: string | null;
+}
+
 export interface PartnerDto {
   id: string;
   name: string;
@@ -94,6 +159,10 @@ export interface PartnersService {
   update(id: string, partner: PartnerRequest): Observable<PartnerDto>;
   /** Any stage to any other; the move is recorded with the optional note. 409 for the current stage. */
   move(id: string, to: PartnerStage, note?: string | null): Observable<PartnerDto>;
+  /** The shared timeline, newest first, 50 at a time (L2-086). */
+  activities(id: string): Observable<PartnerActivityPageDto>;
+  /** Logs a call, email, meeting or note (L2-085). 400 keyed by field, 403 for Staff. */
+  logActivity(id: string, activity: LogPartnerActivityRequest): Observable<PartnerActivityDto>;
 }
 
 export const PARTNERS_SERVICE = new InjectionToken<PartnersService>('PARTNERS_SERVICE');

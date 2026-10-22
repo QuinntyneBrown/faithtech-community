@@ -5,7 +5,7 @@ import { Observable } from 'rxjs';
 import { HANDLES_FORBIDDEN } from '../errors';
 import { apiTestProviders } from '../shared/api-test-providers';
 import { HttpPartnersService } from './http-partners.service';
-import { PARTNERS_SERVICE, PartnerRequest } from './partners.service';
+import { LogPartnerActivityRequest, PARTNERS_SERVICE, PartnerRequest } from './partners.service';
 
 const request: PartnerRequest = {
   name: 'Kestrel Labs',
@@ -16,6 +16,15 @@ const request: PartnerRequest = {
   email: null,
   phone: null,
   notes: null,
+};
+
+const activity: LogPartnerActivityRequest = {
+  kind: 'Call',
+  summary: 'Called Nadia about the contract.',
+  occurredOn: '2026-10-21',
+  occurredAt: '14:15',
+  nextStep: 'Send credit-line wording',
+  nextStepDue: '2026-10-22',
 };
 
 describe('HttpPartnersService', () => {
@@ -51,6 +60,14 @@ describe('HttpPartnersService', () => {
       'POST',
       '/api/partners/x1/stage',
       { to: 'Confirmed', note: 'Contract signed.' },
+    ],
+    ['activities', () => service.activities('x1'), 'GET', '/api/partners/x1/activities', undefined],
+    [
+      'logActivity',
+      () => service.logActivity('x1', activity),
+      'POST',
+      '/api/partners/x1/activities',
+      activity,
     ],
   ])('%s', (_name, call, method, url, body) => {
     (call() as Observable<unknown>).subscribe();

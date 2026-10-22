@@ -796,6 +796,65 @@ namespace FaithTech.Community.Infrastructure.Persistence.Migrations
                     b.ToTable("Partners");
                 });
 
+            modelBuilder.Entity("FaithTech.Community.Domain.Partners.PartnerActivity", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("FromStage")
+                        .HasMaxLength(16)
+                        .HasColumnType("character varying(16)");
+
+                    b.Property<string>("Kind")
+                        .IsRequired()
+                        .HasMaxLength(16)
+                        .HasColumnType("character varying(16)");
+
+                    b.Property<DateTime>("LoggedAtUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid>("LoggedById")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("NextStep")
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
+
+                    b.Property<DateOnly?>("NextStepDue")
+                        .HasColumnType("date");
+
+                    b.Property<TimeOnly?>("OccurredAt")
+                        .HasColumnType("time without time zone");
+
+                    b.Property<DateOnly>("OccurredOn")
+                        .HasColumnType("date");
+
+                    b.Property<Guid>("PartnerId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid?>("StageChangeId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Summary")
+                        .HasMaxLength(2000)
+                        .HasColumnType("character varying(2000)");
+
+                    b.Property<string>("ToStage")
+                        .HasMaxLength(16)
+                        .HasColumnType("character varying(16)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("StageChangeId");
+
+                    b.HasIndex("PartnerId", "OccurredOn", "OccurredAt", "LoggedAtUtc");
+
+                    b.HasIndex(new[] { "PartnerId" }, "IX_PartnerActivities_PartnerId_NextStep")
+                        .HasFilter("\"NextStep\" IS NOT NULL");
+
+                    b.ToTable("PartnerActivities", (string)null);
+                });
+
             modelBuilder.Entity("FaithTech.Community.Domain.Partners.PartnerStageChange", b =>
                 {
                     b.Property<Guid>("Id")
@@ -1712,6 +1771,15 @@ namespace FaithTech.Community.Infrastructure.Persistence.Migrations
                     b.HasOne("FaithTech.Community.Domain.Events.Event", null)
                         .WithMany("Rsvps")
                         .HasForeignKey("EventId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("FaithTech.Community.Domain.Partners.PartnerActivity", b =>
+                {
+                    b.HasOne("FaithTech.Community.Domain.Partners.Partner", null)
+                        .WithMany()
+                        .HasForeignKey("PartnerId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });

@@ -49,6 +49,8 @@ public class CommunityDbContext(DbContextOptions<CommunityDbContext> options)
 
     public DbSet<PartnerStageChange> PartnerStageChanges => Set<PartnerStageChange>();
 
+    public DbSet<PartnerActivity> PartnerActivities => Set<PartnerActivity>();
+
     public DbSet<Workspace> Workspaces => Set<Workspace>();
 
     public DbSet<WorkItem> WorkItems => Set<WorkItem>();
@@ -244,6 +246,21 @@ public class CommunityDbContext(DbContextOptions<CommunityDbContext> options)
             change.Property(c => c.To).HasConversion<string>().HasMaxLength(16);
             change.Property(c => c.Note).HasMaxLength(500);
             change.HasIndex(c => new { c.PartnerId, c.MovedAtUtc });
+        });
+
+        builder.Entity<PartnerActivity>(activity =>
+        {
+            activity.ToTable("PartnerActivities");
+            activity.Property(a => a.Id).ValueGeneratedNever();
+            activity.Property(a => a.Kind).HasConversion<string>().HasMaxLength(16);
+            activity.Property(a => a.FromStage).HasConversion<string>().HasMaxLength(16);
+            activity.Property(a => a.ToStage).HasConversion<string>().HasMaxLength(16);
+            activity.Property(a => a.Summary).HasMaxLength(2000);
+            activity.Property(a => a.NextStep).HasMaxLength(200);
+            activity.HasIndex(a => new { a.PartnerId, a.OccurredOn, a.OccurredAt, a.LoggedAtUtc });
+            activity.HasIndex(a => a.PartnerId, "IX_PartnerActivities_PartnerId_NextStep").HasFilter("\"NextStep\" IS NOT NULL");
+            activity.HasIndex(a => a.StageChangeId);
+            activity.HasOne<Partner>().WithMany().HasForeignKey(a => a.PartnerId).OnDelete(DeleteBehavior.Cascade);
         });
 
         ConfigureAgile(builder);

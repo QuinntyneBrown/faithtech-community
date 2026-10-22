@@ -32,6 +32,23 @@ public static class PartnerClients
 
     public sealed record Owner(Guid ProfileId, string Name);
 
+    public sealed record Activity(
+        Guid Id,
+        string Kind,
+        string? Summary,
+        string Text,
+        DateOnly OccurredOn,
+        TimeOnly? OccurredAt,
+        string? NextStep,
+        DateOnly? NextStepDue,
+        Guid LoggedById,
+        string LoggedByName,
+        DateTime LoggedAtUtc,
+        string? FromStage,
+        string? ToStage);
+
+    public sealed record ActivityPage(Activity[] Items, string? Before);
+
     public static object NewPartner(string name, string? stage = null, Guid? ownerId = null, string? email = null) => new
     {
         Name = name,
@@ -52,4 +69,26 @@ public static class PartnerClients
         response.EnsureSuccessStatusCode();
         return (await response.Content.ReadFromJsonAsync<Partner>())!;
     }
+
+    public static object NewActivity(
+        string kind = "Call",
+        string? summary = "Called Nadia about the contract.",
+        string? occurredOn = null,
+        string? occurredAt = null,
+        string? nextStep = null,
+        string? nextStepDue = null) => new
+    {
+        Kind = kind,
+        Summary = summary,
+        OccurredOn = occurredOn,
+        OccurredAt = occurredAt,
+        NextStep = nextStep,
+        NextStepDue = nextStepDue,
+    };
+
+    public static Task<HttpResponseMessage> LogActivityAsync(this HttpClient client, Guid partnerId, object activity) =>
+        client.PostAsJsonAsync($"/api/partners/{partnerId}/activities", activity);
+
+    public static async Task<ActivityPage> ActivitiesAsync(this HttpClient client, Guid partnerId, string query = "") =>
+        (await client.GetFromJsonAsync<ActivityPage>($"/api/partners/{partnerId}/activities{query}"))!;
 }

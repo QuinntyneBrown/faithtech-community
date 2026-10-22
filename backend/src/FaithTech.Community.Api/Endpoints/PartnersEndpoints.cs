@@ -42,6 +42,20 @@ public static class PartnersEndpoints
             })
             .Validate<MovePartnerCommand>();
 
+        // The shared activity timeline (L2-085, L2-086). Logged entries are never edited or deleted.
+        partners.MapGet("/{id:guid}/activities", async (Guid id, PartnerTimelineHandler handler, CancellationToken cancellationToken) =>
+        {
+            var (result, page) = await handler.ListAsync(id, cancellationToken);
+            return result.ToHttp(() => Results.Ok(page));
+        });
+
+        partners.MapPost("/{id:guid}/activities", async (Guid id, LogPartnerActivityCommand command, LogPartnerActivityHandler handler, CancellationToken cancellationToken) =>
+            {
+                var (result, activity) = await handler.LogAsync(id, command, cancellationToken);
+                return result.ToHttp(() => Results.Created($"/api/partners/{id}/activities/{activity!.Id}", activity));
+            })
+            .Validate<LogPartnerActivityCommand>();
+
         return app;
     }
 }

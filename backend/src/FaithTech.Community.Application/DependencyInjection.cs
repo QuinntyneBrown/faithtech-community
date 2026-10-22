@@ -69,6 +69,9 @@ public static class DependencyInjection
         services.AddScoped<PartnerViews>();
         services.AddScoped<ManagePartnersHandler>();
         services.AddScoped<MovePartnerHandler>();
+        services.AddScoped<PartnerTimelineViews>();
+        services.AddScoped<PartnerTimelineHandler>();
+        services.AddScoped<LogPartnerActivityHandler>();
         services.AddScoped<ListTeamHandler>();
         services.AddScoped<WorkspaceAccessPolicy>();
         services.AddScoped<AgileNotifier>();

@@ -2,7 +2,9 @@ import { HttpErrorResponse } from '@angular/common/http';
 import { ChangeDetectionStrategy, Component, effect, inject, input, signal } from '@angular/core';
 import {
   PARTNERS_SERVICE,
+  PARTNER_ACTIVITY_LABELS,
   PARTNER_STAGE_LABELS,
+  PartnerActivityDto,
   PartnerDto,
   PartnerStage,
   PartnerStageChangeDto,
@@ -26,11 +28,18 @@ import {
   SkeletonComponent,
   SplitComponent,
   StackComponent,
+  ToastService,
   formatDay,
 } from '@faithtech-community/components';
 import { firstValueFrom } from 'rxjs';
 
-import { MovePartnerData, MovePartnerDialog } from '../../dialogs';
+import {
+  LogActivityData,
+  LogActivityDialog,
+  MovePartnerData,
+  MovePartnerDialog,
+} from '../../dialogs';
+import { PartnerTimelineComponent } from './partner-timeline';
 
 type State = 'loading' | 'loaded' | 'not-found' | 'error';
 
@@ -58,6 +67,7 @@ export const STAGE_BADGES: Record<PartnerStage, BadgeVariant> = {
     IconComponent,
     LinkComponent,
     PageHeaderComponent,
+    PartnerTimelineComponent,
     SkeletonComponent,
     SplitComponent,
     StackComponent,
@@ -69,6 +79,7 @@ export const STAGE_BADGES: Record<PartnerStage, BadgeVariant> = {
 export class PartnerPage {
   private readonly partners = inject(PARTNERS_SERVICE);
   private readonly dialogs = inject(DialogService);
+  private readonly toasts = inject(ToastService);
 
   /** Route parameter. */
   readonly id = input.required<string>();
@@ -77,6 +88,8 @@ export class PartnerPage {
   protected readonly partner = signal<PartnerDto | null>(null);
   protected readonly labels = PARTNER_STAGE_LABELS;
   protected readonly badges = STAGE_BADGES;
+  /** Bumped after a log or a move so the timeline fetches its first page again. */
+  protected readonly timelineReload = signal(0);
 
   constructor() {
     effect(() => void this.load(this.id()));
@@ -96,7 +109,23 @@ export class PartnerPage {
       data: { partnerId: partner.id, name: partner.name, stage: partner.stage },
     });
     const moved = await firstValueFrom(ref.closed);
-    if (moved) this.partner.set(moved);
+    if (moved) {
+      this.partner.set(moved);
+      this.timelineReload.update((n) => n + 1);
+    }
+  }
+
+  protected async logActivity(partner: PartnerDto): Promise<void> {
+    const ref = this.dialogs.open<PartnerActivityDto, LogActivityData>(LogActivityDialog, {
+      data: { partnerId: partner.id, name: partner.name },
+    });
+    const logged = await firstValueFrom(ref.closed);
+    if (!logged) return;
+    this.toasts.show({
+      variant: 'success',
+      heading: `${PARTNER_ACTIVITY_LABELS[logged.kind]} logged for ${partner.name}`,
+    });
+    this.timelineReload.update((n) => n + 1);
   }
 
   protected retry(): void {
