@@ -17,7 +17,7 @@ Notifications
 - The unread count and the panel's latest notices load when the shell opens, on every navigation and every 60 seconds while the tab is visible. Server push (SignalR) is deferred.
 - A notification may name an **actor**, the member whose action raised it. The list returns the actor's name and profile id so the notice shows their initials in the avatar colour from ADR 0008; without an actor it shows "FaithTech". The notice's whole title is the link to the related item.
 - `GET /api/notifications` takes `unreadOnly` and `page` and returns 50 newest first with `totalCount`, `unreadCount` and `hasMore`. Marking read and "Mark all as read" only touch the caller's own notifications; anyone else's id answers `404`.
-- Sources call `INotificationPublisher`: `Publish` adds one in-app notification (events use it for changes and RSVP confirmations), and `PublishAsync` adds one per recipient and queues each recipient's email in the same unit of work (announcements use it). The triggers built before this feature (role changes, invites, contacts, Agile) keep their own notifiers, which already queue email through the outbox; moving them onto the publisher is a refactor left for later.
+- Sources call `INotificationPublisher`: `Publish` adds one in-app notification (events use it for changes, cancellations and RSVP confirmations), and `PublishAsync` adds one per recipient and queues each recipient's email in the same unit of work (announcements use it). The triggers built before this feature (role changes, invites, contacts, Agile) keep their own notifiers, which already queue email through the outbox; moving them onto the publisher is a refactor left for later.
 
 Email
 
@@ -58,7 +58,7 @@ Search
 ## Deferred
 
 - Server push (SignalR) for the unread count; the shell polls once a minute.
-- `EventCancelled` is never raised yet: cancelling an event is not built. `Invite` has no in-app form, because an invitee has no account; the invite email is sent by the invites feature.
+- `Invite` has no in-app form, because an invitee has no account; the invite email is sent by the invites feature.
 - Role changes, invites, contacts and Agile keep their own notifiers and plain-text emails (which still get the rendered HTML part through the outbox); moving them onto `INotificationPublisher.PublishAsync`, and per-kind email templates, are later refactors.
 - A background fan-out job for very large announcement audiences.
 - Searching contact notes, and a measured search p95 on PostgreSQL with 100,000 records (the load test and `seed-search-records` are ready).
