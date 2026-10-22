@@ -6,3 +6,4 @@
 | contact-notes | 4 days | 100% | B |
 | link-contact-on-sign-up | 4 days | 100% | B |
 | manage-contacts | 6 days | 100% | B- |
+| contact-photos | 8 days | 0% | Not graded (no journey yet) |
