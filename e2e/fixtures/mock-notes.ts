@@ -354,8 +354,25 @@ export class MockNotes {
     return n.blocks.map((b) => (b.text ?? []).map((s) => s.text).join(''));
   }
 
-  /** A whole-page save (L2-086 AC8). */
+  /** Someone else saves the page, as another tab or a System Admin would. */
+  editElsewhere(n: MockNote, by: string, text: string): void {
+    n.blocks = [{ id: n.blocks[0]?.id ?? 'b', type: 'paragraph', text: [{ text }] }];
+    n.version += 1;
+    n.updatedById = by;
+    n.updatedAt = this.context.now.toISOString();
+  }
+
+  /** A whole-page save (L2-086 AC8), refused with 409 when based on an older version (L2-094). */
   private save(route: Route, n: MockNote, caller: MockAccount, body: Record<string, unknown>) {
+    if (body['version'] !== n.version)
+      return this.json(route, 409, {
+        status: 409,
+        detail: 'This page changed somewhere else.',
+        currentVersion: n.version,
+        updatedByName: this.name(n.updatedById),
+        updatedByYou: n.updatedById === caller.profileId,
+        updatedAt: n.updatedAt,
+      });
     const blocks = (body['blocks'] as MockBlock[] | undefined) ?? [];
     const title = String(body['title'] ?? '').trim();
     if (blocks.length > 500)

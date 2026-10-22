@@ -4,6 +4,7 @@ import {
   Component,
   DestroyRef,
   computed,
+  effect,
   inject,
   signal,
   viewChild,
@@ -13,6 +14,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import {
   NOTES_SERVICE,
   NoteBlock,
+  NoteConflict,
   NotePageDto,
   NotePageRef,
   ROLE_LABELS,
@@ -40,6 +42,7 @@ import {
   SaveStatusComponent,
   SkeletonComponent,
   ToastService,
+  formatTime,
   newBlockId,
 } from '@faithtech-community/components';
 import { firstValueFrom } from 'rxjs';
@@ -98,7 +101,22 @@ export class NotePage {
   protected readonly loadedBlocks = signal<NoteBlock[]>([]);
   protected readonly editable = computed(() => !!this.page()?.canEdit && !this.page()?.archivedAt);
   protected readonly titleOf = titleOf;
-  protected autosave: NoteAutosave | null = null;
+  protected readonly autosave = signal<NoteAutosave | null>(null);
+  /** Autosave stopped on a 409, 403 or 404: editing pauses and the page says why (L2-094). */
+  protected readonly stop = computed(() => this.autosave()?.stopped() ?? null);
+  /** The blocks as last edited, shown read-only while editing is paused. */
+  private readonly latest = signal<NoteBlock[]>([]);
+  protected readonly editorBlocks = computed(() =>
+    this.stop() ? this.latest() : this.loadedBlocks(),
+  );
+  protected readonly conflictText = computed(() => {
+    const stop = this.stop();
+    if (stop?.kind !== 'conflict') return '';
+    const body = stop.body as Partial<NoteConflict> | null;
+    const who = body?.updatedByYou ? 'You' : (body?.updatedByName ?? 'Someone');
+    const at = body?.updatedAt ? ` at ${formatTime(body.updatedAt)}` : '';
+    return `${who} saved a newer version${at}. Your last changes weren’t saved.`;
+  });
   protected readonly creating = signal(false);
   protected readonly actions = computed<MenuEntry[]>(() => [
     { kind: 'item', id: 'settings', label: 'Page settings', icon: 'settings' },
@@ -133,13 +151,22 @@ export class NotePage {
   private id = '';
 
   constructor() {
+    // A page archived or hidden while it is edited is no longer available (L2-094 AC7).
+    effect(() => {
+      if (this.stop()?.kind === 'missing') this.state.set('missing');
+    });
     inject(ActivatedRoute)
       .paramMap.pipe(takeUntilDestroyed(inject(DestroyRef)))
       .subscribe((params) => {
         this.id = params.get('id') ?? '';
         void this.load(true);
       });
-    inject(DestroyRef).onDestroy(() => this.autosave?.cancel());
+    inject(DestroyRef).onDestroy(() => this.autosave()?.cancel());
+  }
+
+  /** "Reload page" after a conflict or an access change (L2-094 AC4, AC6). */
+  protected reload(): void {
+    void this.load(false);
   }
 
   protected retry(): void {
@@ -148,12 +175,13 @@ export class NotePage {
 
   protected onTitle(value: string): void {
     this.title.set(value);
-    this.autosave?.changed();
+    this.autosave()?.changed();
   }
 
   protected onBlocks(blocks: EditorBlock[]): void {
     this.blocks = blocks as NoteBlock[];
-    this.autosave?.changed();
+    this.latest.set(this.blocks);
+    this.autosave()?.changed();
   }
 
   protected toFirstBlock(): void {
@@ -212,7 +240,7 @@ export class NotePage {
         if (!settings) return;
         this.title.set(settings.title);
         this.icon.set(settings.icon);
-        this.autosave?.changed();
+        this.autosave()?.changed();
       });
   }
 
@@ -272,7 +300,7 @@ export class NotePage {
 
   private async load(focusTitle: boolean): Promise<void> {
     this.state.set('loading');
-    this.autosave?.cancel();
+    this.autosave()?.cancel();
     try {
       const page = await firstValueFrom(this.notes.get(this.id));
       this.known.clear();
@@ -282,11 +310,13 @@ export class NotePage {
       this.icon.set(page.icon);
       this.blocks = page.blocks;
       this.loadedBlocks.set(page.blocks);
-      this.autosave = new NoteAutosave(
+      this.latest.set(page.blocks);
+      const autosave = new NoteAutosave(
         page.version,
         () => ({ title: this.title(), icon: this.icon(), blocks: this.blocks }),
         (save) => this.notes.save(this.id, save),
       );
+      this.autosave.set(autosave);
       this.state.set('loaded');
       if (focusTitle && page.canEdit && !page.title) {
         setTimeout(() => this.titleBox()?.focus());

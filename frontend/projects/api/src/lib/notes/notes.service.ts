@@ -132,6 +132,8 @@ export interface NoteSaved {
 export interface NoteConflict {
   currentVersion: number;
   updatedByName: string;
+  /** The caller saved it, in another tab or on another device. */
+  updatedByYou: boolean;
   updatedAt: string;
 }
 

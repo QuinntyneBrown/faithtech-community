@@ -621,12 +621,15 @@ export class BlockEditorComponent {
       top: rect.bottom - box.top + 4,
       left: Math.max(0, Math.min(rect.left - box.left, box.width - 352)),
     });
-    if (pages) this.searchPages('');
+    if (pages) {
+      this.pageResults.set([]);
+      this.searchPages('');
+    }
   }
 
+  /** Keeps the previous suggestions until the new ones arrive, so Enter always has something to choose. */
   private searchPages(query: string): void {
     const run = ++this.searchRun;
-    this.pageResults.set([]);
     void this.pageSearch()?.(query.trim()).then((found) => {
       if (run === this.searchRun) this.pageResults.set(found.filter((p) => p.id));
     });

@@ -1,8 +1,9 @@
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpContext } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
 import { Observable } from 'rxjs';
 
 import { API_BASE_URL } from '../config';
+import { HANDLES_FORBIDDEN } from '../errors';
 import { PagedResult, toHttpParams } from '../shared';
 import {
   ArchivedNote,
@@ -22,6 +23,8 @@ import {
 export class HttpNotesService implements NotesService {
   private readonly http = inject(HttpClient);
   private readonly base = `${inject(API_BASE_URL)}/notes`;
+  /** The notes pages show their own refusal (L2-094 AC6), so a 403 is not sent to the forbidden page. */
+  private readonly context = new HttpContext().set(HANDLES_FORBIDDEN, true);
 
   list(query: NoteQuery): Observable<PagedResult<NotePageSummary>> {
     return this.http.get<PagedResult<NotePageSummary>>(this.base, {
@@ -45,15 +48,21 @@ export class HttpNotesService implements NotesService {
   }
 
   save(id: string, page: NoteSave): Observable<NoteSaved> {
-    return this.http.put<NoteSaved>(`${this.base}/${id}`, page);
+    return this.http.put<NoteSaved>(`${this.base}/${id}`, page, { context: this.context });
   }
 
   setVisibility(id: string, change: NoteVisibilityChange): Observable<NotePageDto> {
-    return this.http.put<NotePageDto>(`${this.base}/${id}/visibility`, change);
+    return this.http.put<NotePageDto>(`${this.base}/${id}/visibility`, change, {
+      context: this.context,
+    });
   }
 
   move(id: string, parentId: string | null): Observable<NotePageDto> {
-    return this.http.put<NotePageDto>(`${this.base}/${id}/parent`, { parentId });
+    return this.http.put<NotePageDto>(
+      `${this.base}/${id}/parent`,
+      { parentId },
+      { context: this.context },
+    );
   }
 
   archive(id: string): Observable<void> {
@@ -87,7 +96,9 @@ export class HttpNotesService implements NotesService {
   uploadImage(id: string, file: File): Observable<NoteImageUploaded> {
     const form = new FormData();
     form.append('file', file, file.name);
-    return this.http.post<NoteImageUploaded>(`${this.base}/${id}/images`, form);
+    return this.http.post<NoteImageUploaded>(`${this.base}/${id}/images`, form, {
+      context: this.context,
+    });
   }
 
   image(id: string, imageId: string): Observable<Blob> {
