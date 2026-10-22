@@ -216,7 +216,7 @@
       "route": "/search",
       "requirements": [
         "L2-026",
-        "L1-020"
+        "L2-065"
       ],
       "states": [
         "default",
@@ -1340,7 +1340,7 @@
       "opens_from": "home",
       "requirements": [
         "L2-027",
-        "L1-020"
+        "L2-061"
       ],
       "states": [
         "info",
@@ -1362,7 +1362,7 @@
       "requirements": [
         "L2-028",
         "L2-030",
-        "L1-020"
+        "L2-061"
       ],
       "states": [
         "info",
@@ -1383,7 +1383,9 @@
       "title": "Resources",
       "route": "/resources",
       "requirements": [
-        "L1-020"
+        "L2-055",
+        "L2-060",
+        "L2-066"
       ],
       "states": [
         "default",
@@ -1404,7 +1406,11 @@
       "title": "Resource",
       "route": "/resources/:id",
       "requirements": [
-        "L1-020"
+        "L2-056",
+        "L2-060",
+        "L2-061",
+        "L2-063",
+        "L2-064"
       ],
       "states": [
         "default",
@@ -1431,7 +1437,7 @@
       "title": "Archived resources",
       "route": "/resources/archived",
       "requirements": [
-        "L1-020"
+        "L2-063"
       ],
       "states": [
         "default",
@@ -1449,7 +1455,10 @@
       "title": "Add resource",
       "opens_from": "resources",
       "requirements": [
-        "L1-020"
+        "L2-057",
+        "L2-058",
+        "L2-059",
+        "L2-061"
       ],
       "states": [
         "default",
@@ -1469,7 +1478,8 @@
       "title": "Edit resource",
       "opens_from": "resource",
       "requirements": [
-        "L1-020"
+        "L2-059",
+        "L2-062"
       ],
       "states": [
         "default",
@@ -1486,7 +1496,7 @@
       "title": "Archive resource",
       "opens_from": "resource",
       "requirements": [
-        "L1-020"
+        "L2-063"
       ],
       "states": [
         "default",
@@ -1503,7 +1513,7 @@
       "title": "Transfer resource owner",
       "opens_from": "resource",
       "requirements": [
-        "L1-020"
+        "L2-064"
       ],
       "states": [
         "default",
@@ -1519,7 +1529,9 @@
       "title": "Resource toast",
       "opens_from": "resources",
       "requirements": [
-        "L1-020"
+        "L2-057",
+        "L2-063",
+        "L2-054"
       ],
       "states": [
         "success",
