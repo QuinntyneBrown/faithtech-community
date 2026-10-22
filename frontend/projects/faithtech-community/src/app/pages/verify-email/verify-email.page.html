@@ -50,7 +50,7 @@
           }
 
           @if (!knownEmail()) {
-            <ft-form-field label="Email" [error]="emailError()">
+            <ft-form-field required label="Email" [error]="emailError()">
               <ft-text-field [formControl]="emailControl" type="email" autocomplete="email" />
             </ft-form-field>
           }

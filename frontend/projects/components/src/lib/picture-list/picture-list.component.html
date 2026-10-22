@@ -65,7 +65,11 @@
           @if (photo.featured) {
             <ft-badge variant="success">Featured</ft-badge>
           }
-          <ft-form-field [label]="'Photo ' + (i + 1) + ' description'" [error]="altError(photo)">
+          <ft-form-field
+            required
+            [label]="'Photo ' + (i + 1) + ' description'"
+            [error]="altError(photo)"
+          >
             <ft-text-field
               size="sm"
               [ngModel]="photo.alt"

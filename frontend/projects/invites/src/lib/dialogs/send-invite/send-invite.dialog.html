@@ -15,7 +15,7 @@
       @if (refusal(); as message) {
         <ft-alert status="danger" heading="You can’t send this invite">{{ message }}</ft-alert>
       }
-      <ft-form-field label="Email" [error]="emailError()">
+      <ft-form-field required label="Email" [error]="emailError()">
         <ft-text-field
           type="email"
           formControlName="email"

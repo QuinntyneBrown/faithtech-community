@@ -31,10 +31,10 @@
               </ft-alert>
             }
           }
-          <ft-form-field label="Email" [error]="error('email')">
+          <ft-form-field required label="Email" [error]="error('email')">
             <ft-text-field formControlName="email" type="email" autocomplete="email" />
           </ft-form-field>
-          <ft-form-field label="Password" [error]="error('password')">
+          <ft-form-field required label="Password" [error]="error('password')">
             <ft-text-field
               formControlName="password"
               type="password"

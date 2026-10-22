@@ -9,6 +9,7 @@ import { FormFieldComponent, FormFieldWidth } from './form-field.component';
   template: `<ft-form-field
     [label]="label()"
     [optional]="optional()"
+    [required]="required()"
     [help]="help()"
     [error]="error()"
     [width]="width()"
@@ -19,6 +20,7 @@ import { FormFieldComponent, FormFieldWidth } from './form-field.component';
 class HostComponent {
   readonly label = signal('Email');
   readonly optional = signal(false);
+  readonly required = signal(false);
   readonly help = signal('');
   readonly error = signal('');
   readonly width = signal<FormFieldWidth>('auto');
@@ -34,6 +36,16 @@ function setup() {
 }
 
 describe('FormFieldComponent', () => {
+  it('announces the control as required only when the field is required', () => {
+    const { fixture, cmp, q } = setup();
+    expect(q('input')!.getAttribute('aria-required')).toBeNull();
+    cmp.required.set(true);
+    fixture.detectChanges();
+    expect(q('input')!.getAttribute('aria-required')).toBe('true');
+    // Validation stays with the page: no native required, so no browser bubble blocks submit.
+    expect(q<HTMLInputElement>('input')!.required).toBe(false);
+  });
+
   it('shows a visible label tied to the control by for/id', () => {
     const { q } = setup();
     const label = q<HTMLLabelElement>('label')!;

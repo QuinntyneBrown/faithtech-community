@@ -54,6 +54,7 @@ export class TextFieldComponent implements ControlValueAccessor {
   protected readonly id = computed(() => this.field?.controlId() ?? this.inputId());
   protected readonly describedBy = computed(() => this.field?.describedBy() ?? null);
   protected readonly invalid = computed(() => (this.field?.invalid() ? 'true' : null));
+  protected readonly required = computed(() => (this.field?.required() ? 'true' : null));
   protected readonly ariaLabel = computed(() => (this.field ? null : this.label()));
   protected readonly effectiveType = computed(() =>
     this.action() === 'reveal' && this.revealed() ? 'text' : this.type(),
