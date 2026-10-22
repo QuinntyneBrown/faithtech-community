@@ -8,6 +8,4 @@
 | sprints | 6 days | 100% |
 | switch-method | 3 days | 100% |
 | work-items | 5 days | 100% |
-| workspaces-and-membership | 7 days | 95% |
-
-Workspaces and membership is short of 100% only for search: work items reach global search once the search subsystem exists (L2-031 AC6, ADR 0011).
+| workspaces-and-membership | 7 days | 90% |
