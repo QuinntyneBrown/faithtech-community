@@ -6,6 +6,7 @@ import {
   formatTime,
   formatTimeRange,
   formatTimestamp,
+  formatWhen,
 } from './dates';
 
 describe('date formats', () => {
@@ -64,5 +65,11 @@ describe('date formats', () => {
     expect(formatFeedTime(new Date(2026, 0, 1, 0, 30), new Date(2026, 0, 2, 8))).toBe(
       'Yesterday, 12:30 am',
     );
+  });
+
+  it('writes a notice time as "Today, 11:42 am" today and as a day before that', () => {
+    const now = new Date(2026, 9, 22, 15);
+    expect(formatWhen(new Date(2026, 9, 22, 11, 42), now)).toBe('Today, 11:42 am');
+    expect(formatWhen(new Date(2026, 9, 20, 9), now)).toBe('Tue 20 Oct');
   });
 });

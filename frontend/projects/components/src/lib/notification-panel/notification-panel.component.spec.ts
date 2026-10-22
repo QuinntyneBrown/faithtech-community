@@ -1,6 +1,7 @@
 import { Component, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
-import { Notice, NotificationPanelComponent } from './notification-panel.component';
+import { Notice } from '../notice-list/notice-list.component';
+import { NotificationPanelComponent } from './notification-panel.component';
 
 const NOTICES: Notice[] = [
   {

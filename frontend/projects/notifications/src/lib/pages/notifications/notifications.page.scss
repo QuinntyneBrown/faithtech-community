@@ -1,7 +1,9 @@
-/*
- * SCAFFOLD: placeholder, not the implementation.
- * Generated from AGENTS.md and:
- *   - docs/detailed-designs/notifications/in-app-notifications
- * Overwrite with the encapsulated styles for this component. Read tokens by role
- * (var(--color-...)), never hex values. Delete this comment when implemented.
- */
+.filters {
+  margin-block-end: var(--space-4);
+}
+
+.more {
+  display: flex;
+  justify-content: center;
+  margin-block-start: var(--space-4);
+}

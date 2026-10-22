@@ -23,6 +23,7 @@ import {
 import { filter, firstValueFrom, map } from 'rxjs';
 
 import { Section, sectionsFor, tabsFor } from './navigation';
+import { ShellNotificationsComponent } from './shell-notifications.component';
 
 /** The signed-in chrome around every member page (docs/design-system/patterns/navigation.html). */
 @Component({
@@ -38,6 +39,7 @@ import { Section, sectionsFor, tabsFor } from './navigation';
     ButtonComponent,
     ContainerComponent,
     MenuComponent,
+    ShellNotificationsComponent,
   ],
   templateUrl: './app-shell.component.html',
   styleUrl: './app-shell.component.scss',

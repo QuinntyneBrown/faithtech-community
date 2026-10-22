@@ -4,6 +4,7 @@ import { MockAgile } from './mock-agile';
 import { MockContacts } from './mock-contacts';
 import { MockPartners } from './mock-partners';
 import { MockEvents } from './mock-events';
+import { MockNotifications } from './mock-notifications';
 
 export interface MockAccount {
   name: string;
@@ -116,6 +117,8 @@ export class MockApi {
     () => this.now,
     (id) => this.profiles.get(id),
   );
+  /** In-app notifications (L2-027), sharing this fake's clock. */
+  readonly notifications = new MockNotifications(() => this.now);
   readonly calls: {
     method: string;
     path: string;
@@ -299,6 +302,8 @@ export class MockApi {
     }
     const events = this.events.handle(route, method, url, body, this.caller(authorization));
     if (events) return events;
+    const notifications = this.notifications.handle(route, method, url, this.caller(authorization));
+    if (notifications) return notifications;
     const profileRoute = /^\/api\/profiles\/([^/]+)$/.exec(url.pathname);
     if (method === 'GET' && profileRoute) {
       return this.getProfile(route, profileRoute[1], authorization);

@@ -1,10 +1,3 @@
-/*
- * EARLY IMPLEMENTATION: written ahead of the vertical slices to get a head start.
- * Contracts and DTOs follow docs/detailed-designs/ but may change as each feature is
- * implemented end to end (spec -> design -> mock -> ATDD slice).
- * Sources:
- *   - docs/detailed-designs/notifications/in-app-notifications
- */
 import { InjectionToken } from '@angular/core';
 import { Observable } from 'rxjs';
 
@@ -13,10 +6,12 @@ export type NotificationKind =
   | 'EventCancelled'
   | 'EventChanged'
   | 'Invite'
+  | 'InviteAccepted'
   | 'RsvpConfirmed'
   | 'RoleChanged'
   | 'WorkItemAssigned'
   | 'WorkspaceMemberAdded'
+  | 'WorkspaceOwnerLostCityLead'
   | 'PlanningPokerInvite'
   | 'Announcement';
 
@@ -28,23 +23,29 @@ export interface NotificationDto {
   linkPath: string;
   createdAt: string;
   readAt: string | null;
+  /** The member whose action raised it, when there is one (ADR 0015). */
+  actorId: string | null;
+  actorName: string | null;
 }
 
+/** The caller's notifications, newest first, 50 to a page (L2-027). */
 export interface NotificationPage {
   items: NotificationDto[];
-  unreadCount: number;
   page: number;
   pageSize: number;
   totalCount: number;
+  unreadCount: number;
+  hasMore: boolean;
 }
 
-/**
- * Contract for the notifications API. Pages depend on NOTIFICATIONS_SERVICE, never on HttpNotificationsService.
- * TODO(slice): NotificationPage and the unread-count body are undefined in the design; the refresh mechanism
- * (polling vs push) is open and will live in the feature container, not here.
- */
+export interface NotificationQuery {
+  page?: number;
+  unreadOnly?: boolean;
+}
+
+/** Contract for the notifications API. Pages depend on NOTIFICATIONS_SERVICE, never on HttpNotificationsService. */
 export interface NotificationsService {
-  list(page?: number): Observable<NotificationPage>;
+  list(query?: NotificationQuery): Observable<NotificationPage>;
   unreadCount(): Observable<number>;
   markRead(id: string): Observable<void>;
   markAllRead(): Observable<void>;
