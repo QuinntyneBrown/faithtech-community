@@ -11,6 +11,10 @@ import { check, sleep } from 'k6';
 
 const BASE_URL = __ENV.BASE_URL || 'https://localhost:5001';
 const ACCESS_TOKEN = __ENV.ACCESS_TOKEN;
+// SCENARIO=search runs only global search, for L2-026 AC5: p95 under 500 ms with 100,000 indexed records
+// (seed them as docs/detailed-designs/search/global-search describes).
+const SEARCH_ONLY = __ENV.SCENARIO === 'search';
+const SEARCH_TERMS = ['member', 'city 4', 'builder 99', 'shelter', 'grace'];
 
 export const options = {
   scenarios: {
@@ -23,6 +27,7 @@ export const options = {
   thresholds: {
     'http_req_duration{kind:read}': ['p(95)<300'],
     'http_req_duration{kind:write}': ['p(95)<600'],
+    'http_req_duration{kind:search}': ['p(95)<500'],
     http_req_failed: ['rate<0.01'],
   },
   insecureSkipTLSVerify: true,
@@ -34,6 +39,17 @@ export function setup() {
 
 export default function () {
   const auth = { headers: { Authorization: `Bearer ${ACCESS_TOKEN}` } };
+
+  const term = SEARCH_TERMS[__ITER % SEARCH_TERMS.length];
+  const search = http.get(`${BASE_URL}/api/search?q=${encodeURIComponent(term)}`, {
+    ...auth,
+    tags: { kind: 'search' },
+  });
+  check(search, { 'search is 200': (r) => r.status === 200 });
+  if (SEARCH_ONLY) {
+    sleep(1);
+    return;
+  }
 
   const me = http.get(`${BASE_URL}/api/me`, { ...auth, tags: { kind: 'read' } });
   check(me, { 'me is 200': (r) => r.status === 200 });

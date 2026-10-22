@@ -4,11 +4,13 @@ using FaithTech.Community.Application.Common;
 using FaithTech.Community.Application.Identity;
 using FaithTech.Community.Application.Profiles;
 using FaithTech.Community.Application.Announcements;
+using FaithTech.Community.Application.Search;
 using FaithTech.Community.Infrastructure.Admin;
 using FaithTech.Community.Infrastructure.Announcements;
 using FaithTech.Community.Infrastructure.Email;
 using FaithTech.Community.Infrastructure.Identity;
 using FaithTech.Community.Infrastructure.Persistence;
+using FaithTech.Community.Infrastructure.Search;
 using FaithTech.Community.Infrastructure.Storage;
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Identity;
@@ -74,6 +76,7 @@ public static class DependencyInjection
         services.AddHttpContextAccessor();
         services.AddScoped<IAuditLog, AuditLog>();
         services.AddSingleton<IUnsubscribeTokens, DataProtectionUnsubscribeTokens>();
+        services.AddSingleton<IFullTextSearch, PostgresFullTextSearch>();
 
         services.AddScoped<CommunitySeeder>();
 

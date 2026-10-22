@@ -60,6 +60,7 @@ app.MapHub<AgileHub>("/hubs/agile");
 app.MapPeopleEndpoints();
 app.MapNotificationsEndpoints();
 app.MapAnnouncementsEndpoints();
+app.MapSearchEndpoints();
 app.MapAccountEndpoints();
 app.MapAuthorizationEndpoints();
 

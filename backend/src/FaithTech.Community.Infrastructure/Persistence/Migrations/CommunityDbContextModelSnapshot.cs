@@ -6,6 +6,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
+using NpgsqlTypes;
 
 #nullable disable
 
@@ -284,6 +285,11 @@ namespace FaithTech.Community.Infrastructure.Persistence.Migrations
                     b.Property<Guid?>("ParentId")
                         .HasColumnType("uuid");
 
+                    b.Property<NpgsqlTsVector>("SearchVector")
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("tsvector")
+                        .HasComputedColumnSql("to_tsvector('simple', coalesce(\"Title\", '') || ' ' || coalesce(\"Description\", ''))", true);
+
                     b.Property<Guid?>("SprintId")
                         .HasColumnType("uuid");
 
@@ -308,6 +314,10 @@ namespace FaithTech.Community.Infrastructure.Persistence.Migrations
                     b.HasIndex("AssigneeId");
 
                     b.HasIndex("ParentId");
+
+                    b.HasIndex("SearchVector");
+
+                    NpgsqlIndexBuilderExtensions.HasMethod(b.HasIndex("SearchVector"), "GIN");
 
                     b.HasIndex("SprintId");
 
@@ -413,9 +423,18 @@ namespace FaithTech.Community.Infrastructure.Persistence.Migrations
                         .HasMaxLength(200)
                         .HasColumnType("character varying(200)");
 
+                    b.Property<NpgsqlTsVector>("SearchVector")
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("tsvector")
+                        .HasComputedColumnSql("to_tsvector('simple', coalesce(\"Name\", '') || ' ' || coalesce(\"Email\", '') || ' ' || coalesce(\"Organization\", '') || ' ' || coalesce(\"City\", ''))", true);
+
                     b.HasKey("Id");
 
                     b.HasIndex("Email");
+
+                    b.HasIndex("SearchVector");
+
+                    NpgsqlIndexBuilderExtensions.HasMethod(b.HasIndex("SearchVector"), "GIN");
 
                     b.HasIndex("OwnerId", "ArchivedAtUtc");
 
@@ -569,6 +588,11 @@ namespace FaithTech.Community.Infrastructure.Persistence.Migrations
                         .HasMaxLength(200)
                         .HasColumnType("character varying(200)");
 
+                    b.Property<NpgsqlTsVector>("SearchVector")
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("tsvector")
+                        .HasComputedColumnSql("to_tsvector('simple', coalesce(\"Name\", '') || ' ' || coalesce(\"Offering\", '') || ' ' || coalesce(\"ContactName\", '') || ' ' || coalesce(\"Notes\", ''))", true);
+
                     b.Property<string>("Stage")
                         .IsRequired()
                         .HasMaxLength(16)
@@ -579,6 +603,10 @@ namespace FaithTech.Community.Infrastructure.Persistence.Migrations
                         .HasColumnType("character varying(200)");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("SearchVector");
+
+                    NpgsqlIndexBuilderExtensions.HasMethod(b.HasIndex("SearchVector"), "GIN");
 
                     b.HasIndex("Stage");
 
@@ -689,6 +717,11 @@ namespace FaithTech.Community.Infrastructure.Persistence.Migrations
                         .HasMaxLength(200)
                         .HasColumnType("character varying(200)");
 
+                    b.Property<NpgsqlTsVector>("SearchVector")
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("tsvector")
+                        .HasComputedColumnSql("to_tsvector('simple', coalesce(\"Name\", '') || ' ' || coalesce(\"HomeCity\", '') || ' ' || coalesce(\"Bio\", ''))", true);
+
                     b.Property<DateTime?>("SuspendedAtUtc")
                         .HasColumnType("timestamp with time zone");
 
@@ -697,6 +730,10 @@ namespace FaithTech.Community.Infrastructure.Persistence.Migrations
                         .HasColumnType("character varying(500)");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("SearchVector");
+
+                    NpgsqlIndexBuilderExtensions.HasMethod(b.HasIndex("SearchVector"), "GIN");
 
                     b.ToTable("Profiles");
                 });
