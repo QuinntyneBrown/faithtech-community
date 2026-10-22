@@ -2,6 +2,7 @@ using FaithTech.Community.Application.Admin;
 using FaithTech.Community.Application.Common;
 using FaithTech.Community.Application.Contacts;
 using FaithTech.Community.Application.Identity;
+using FaithTech.Community.Application.Profiles;
 using FaithTech.Community.Domain.Identity;
 using FaithTech.Community.Domain.Invites;
 using FaithTech.Community.Domain.Notifications;
@@ -30,7 +31,8 @@ public class AcceptInviteValidator : AbstractValidator<AcceptInviteCommand>
         {
             RuleFor(x => x.Name).Cascade(CascadeMode.Stop)
                 .Must(name => !string.IsNullOrWhiteSpace(name)).WithMessage("Enter your name.")
-                .Must(name => name!.Trim().Length <= 200).WithMessage("Use 200 characters or fewer for your name.");
+                .Must(name => name!.Trim().Length <= UpdateProfileValidator.MaxName)
+                .WithMessage($"Use {UpdateProfileValidator.MaxName} characters or fewer for your name.");
             RuleFor(x => x.Password!).CommunityPassword(breachedPasswords);
         });
     }

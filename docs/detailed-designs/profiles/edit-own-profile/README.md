@@ -8,7 +8,7 @@ Each member maintains the name, home city and bio on their own profile. *Edit ow
 
 **System Admin override** — the System Admin's permission to change any profile, recorded in the audit log
 
-The edit happens on the dedicated `edit-profile` screen at `/people/me/edit`, not inline, in line with the frontend conventions. A name is required and shall not exceed 100 characters; a bio shall not exceed 400 characters.
+The edit happens on the dedicated `edit-profile` screen at `/people/me/edit`, not inline, in line with the frontend conventions. A name is required and shall not exceed 100 characters; a bio shall not exceed 400 characters. Sign-up and invite sign-up apply the same name limit, so a new member can always save their name unchanged. A name stored before that rule that is longer than 100 characters is shown in full and never truncated; saving shows the inline name error and focuses the field, and the member shortens it themselves (`L2-006` AC2).
 
 ## Description
 

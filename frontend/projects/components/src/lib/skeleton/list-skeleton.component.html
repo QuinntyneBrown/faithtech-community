@@ -1,9 +1,12 @@
-@for (item of items(); track item) {
-  <div class="ft-list-skeleton__row">
-    <ft-skeleton [shape]="leading()" />
-    <div class="ft-list-skeleton__body">
-      <ft-skeleton shape="title" />
-      <ft-skeleton />
-    </div>
-  </div>
-}
+<!-- Rows are list items, as the rows that replace them are; the empty placeholder list is hidden. -->
+<ul class="ft-list-skeleton__list" aria-hidden="true">
+  @for (item of items(); track item) {
+    <li class="ft-list-skeleton__row">
+      <ft-skeleton [shape]="leading()" />
+      <div class="ft-list-skeleton__body">
+        <ft-skeleton shape="title" />
+        <ft-skeleton />
+      </div>
+    </li>
+  }
+</ul>

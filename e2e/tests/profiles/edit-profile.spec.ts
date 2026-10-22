@@ -79,6 +79,23 @@ test.describe('Edit own profile', () => {
     expect(api.callsTo('PUT', `/api/profiles/${grace.profileId}`)).toHaveLength(0);
   });
 
+  test('a stored name over 100 characters is kept in full and the member is asked to shorten it', async ({
+    page,
+    api,
+  }) => {
+    const longName = 'a'.repeat(150);
+    const grace = api.addAccount({ email: 'grace@example.org', name: longName });
+    const edit = new EditProfilePage(page);
+    await api.signInAs(grace, '/people/me/edit');
+
+    await edit.fill({ homeCity: 'Toronto' });
+    await edit.save.click();
+
+    await expect(edit.nameError).toHaveText('Use 100 characters or fewer for your name.');
+    await expect(edit.name).toHaveValue(longName);
+    expect(api.callsTo('PUT', `/api/profiles/${grace.profileId}`)).toHaveLength(0);
+  });
+
   test('the bio counts the characters left and says how many too many once over 400', async ({
     page,
     api,

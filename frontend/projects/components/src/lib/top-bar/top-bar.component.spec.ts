@@ -70,6 +70,14 @@ describe('TopBarComponent', () => {
     expect(cmp.searched).toBe('toronto');
   });
 
+  it('composes the shared small text field for search', () => {
+    const { q } = setup();
+    const input = q<HTMLInputElement>('ft-text-field input[type=search]');
+    expect(input.classList).toContain('input--sm');
+    expect(input.name).toBe('q');
+    expect(input.placeholder).toBe('Search people, events, partners');
+  });
+
   it('projects the actions slot', () => {
     expect(setup().q('.slot')).toBeTruthy();
   });

@@ -128,17 +128,19 @@
       <h3>Skeleton list</h3>
       <div class="ds-example">
         <div class="ds-example__canvas ds-example__canvas--stack">
-          <div class="card card--flush" aria-busy="true" aria-label="Loading contacts" style="width: 100%;"><div class="list__item"><span class="skeleton avatar avatar--sm" aria-hidden="true"></span><div class="list__body"><span class="skeleton skeleton--title" aria-hidden="true"></span><span class="skeleton skeleton--text" aria-hidden="true"></span></div></div><div class="list__item"><span class="skeleton avatar avatar--sm" aria-hidden="true"></span><div class="list__body"><span class="skeleton skeleton--title" aria-hidden="true"></span><span class="skeleton skeleton--text" aria-hidden="true"></span></div></div><div class="list__item"><span class="skeleton avatar avatar--sm" aria-hidden="true"></span><div class="list__body"><span class="skeleton skeleton--title" aria-hidden="true"></span><span class="skeleton skeleton--text" aria-hidden="true"></span></div></div></div>
+          <div class="card card--flush" aria-busy="true" aria-label="Loading contacts" style="width: 100%;"><ul class="list" aria-hidden="true"><li class="list__item"><span class="skeleton avatar avatar--sm" aria-hidden="true"></span><div class="list__body"><span class="skeleton skeleton--title" aria-hidden="true"></span><span class="skeleton skeleton--text" aria-hidden="true"></span></div></li><li class="list__item"><span class="skeleton avatar avatar--sm" aria-hidden="true"></span><div class="list__body"><span class="skeleton skeleton--title" aria-hidden="true"></span><span class="skeleton skeleton--text" aria-hidden="true"></span></div></li><li class="list__item"><span class="skeleton avatar avatar--sm" aria-hidden="true"></span><div class="list__body"><span class="skeleton skeleton--title" aria-hidden="true"></span><span class="skeleton skeleton--text" aria-hidden="true"></span></div></li></ul></div>
         </div>
         <div class="ds-example__caption"><span>pages/contacts/loading. The heading "Contacts", Archived and Add contact are already on screen above it.</span></div>
         <details class="ds-example__code"><summary>HTML</summary><pre><code>&lt;div class="card card--flush" aria-busy="true" aria-label="Loading contacts"&gt;
-  &lt;div class="list__item"&gt;
-    &lt;span class="skeleton avatar avatar--sm" aria-hidden="true"&gt;&lt;/span&gt;
-    &lt;div class="list__body"&gt;
-      &lt;span class="skeleton skeleton--title" aria-hidden="true"&gt;&lt;/span&gt;
-      &lt;span class="skeleton skeleton--text" aria-hidden="true"&gt;&lt;/span&gt;
-    &lt;/div&gt;
-  &lt;/div&gt;
+  &lt;ul class="list" aria-hidden="true"&gt;
+    &lt;li class="list__item"&gt;
+      &lt;span class="skeleton avatar avatar--sm" aria-hidden="true"&gt;&lt;/span&gt;
+      &lt;div class="list__body"&gt;
+        &lt;span class="skeleton skeleton--title" aria-hidden="true"&gt;&lt;/span&gt;
+        &lt;span class="skeleton skeleton--text" aria-hidden="true"&gt;&lt;/span&gt;
+      &lt;/div&gt;
+    &lt;/li&gt;
+  &lt;/ul&gt;
 &lt;/div&gt;</code></pre></details>
       </div>
       <h3>Busy button and results in place</h3>
