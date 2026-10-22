@@ -206,6 +206,12 @@
           <tr><td>Success</td><td>Either go to the saved item with a toast, or show a <code>.card--success</code> with what happened and the next steps.</td></tr>
         </tbody>
       </table></div>
+      <h3>Possible duplicate before saving</h3>
+      <p>When what has been typed matches an existing record, show a warning <a href="../components/alert.html">alert</a> at the top of the form. Keep everything that was typed, and offer to open the existing record. Saving anyway stays possible.</p>
+      <ul>
+        <li>Contact form: "You already have a contact with this email". Only the lead's own contacts are checked, so private contacts never leak (<code>contact-form/possible-duplicate</code>).</li>
+        <li>Partner: "This may be the same partner as “Kestrel Labs Inc.”" with Compare and merge, Open and Not the same. The merge dialog asks for a value per field that differs (<code>partner/duplicate</code>, <code>dialogs/merge-partners</code>).</li>
+      </ul>
     </section>
 
     <section class="ds-section" id="responsive"><h2><a href="#responsive">Responsive behaviour</a></h2>
@@ -256,6 +262,7 @@
     <section class="ds-section" id="sources"><h2><a href="#sources">Sources</a></h2>
       <ul>
         <li>Contact form: <a href="../../mocks/pages/contact-form/default.html">default</a>, <a href="../../mocks/pages/contact-form/invalid.html">invalid</a>, <a href="../../mocks/pages/contact-form/busy.html">busy</a>, <a href="../../mocks/pages/contact-form/duplicate.html">duplicate</a>, <a href="../../mocks/pages/contact-form/error.html">error</a>, <a href="../../mocks/pages/contact-form/edit.html">edit</a></li>
+        <li>Duplicates: <a href="../../mocks/pages/contact-form/possible-duplicate.html">contact-form/possible-duplicate</a>, <a href="../../mocks/pages/partner/duplicate.html">partner/duplicate</a>, <a href="../../mocks/dialogs/merge-partners/default.html">dialogs/merge-partners</a></li>
         <li>Partner form: <a href="../../mocks/pages/partner-form/default.html">default</a>, <a href="../../mocks/pages/partner-form/invalid.html">invalid</a>, <a href="../../mocks/pages/partner-form/busy.html">busy</a>, <a href="../../mocks/pages/partner-form/error.html">error</a>, <a href="../../mocks/pages/partner-form/loading.html">loading</a>; add note: <a href="../../mocks/dialogs/add-note/default.html">default</a>, <a href="../../mocks/dialogs/add-note/invalid.html">invalid</a></li>
         <li>Event form: <a href="../../mocks/pages/event-form/default.html">default</a>, <a href="../../mocks/pages/event-form/invalid.html">invalid</a>, <a href="../../mocks/pages/event-form/busy.html">busy</a></li>
         <li>Account: <a href="../../mocks/pages/sign-up/invalid.html">sign-up/invalid</a>, <a href="../../mocks/pages/sign-in/invalid.html">sign-in/invalid</a>, <a href="../../mocks/pages/reset-password/invalid.html">reset-password/invalid</a>, <a href="../../mocks/pages/settings/default.html">settings/default</a>, <a href="../../mocks/pages/settings/invalid.html">settings/invalid</a></li>

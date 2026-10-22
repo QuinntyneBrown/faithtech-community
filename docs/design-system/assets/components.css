@@ -429,6 +429,10 @@ body:has(.tabbar:not(.tabbar--static)) .toast-region { bottom: calc(var(--layout
 .progress-row { display: flex; align-items: center; gap: var(--space-3); }
 .progress-row .progress { flex: 1; }
 .progress-row__label { font: var(--text-label); color: var(--color-fg-muted); font-variant-numeric: tabular-nums; white-space: nowrap; }
+/* Bar chart: a list of progress rows sharing one label column, sized by the longest label (Reports). */
+.progress-chart { display: grid; grid-template-columns: max-content minmax(0, 1fr) max-content; gap: var(--space-3); margin: 0; padding: 0; list-style: none; }
+.progress-chart > .progress-row { display: grid; grid-template-columns: subgrid; grid-column: 1 / -1; }
+.progress-chart .progress-row__label:last-child { text-align: end; }
 
 /* ---------- Skeleton, inline status, empty state ------------------------------------ */
 .skeleton { display: block; background: linear-gradient(90deg, var(--color-bg-subtle) 25%, var(--color-bg-subtle-hover) 37%, var(--color-bg-subtle) 63%); background-size: 400% 100%; border-radius: var(--radius-sm); animation: shimmer var(--duration-loop) var(--ease-standard) infinite; min-height: 1em; }

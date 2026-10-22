@@ -176,6 +176,13 @@
         </div>
         <div class="ds-example__caption"><span>Staff session (persistent), email verified (dismissible), unverified email (persistent, with action), suspended account (persistent).</span></div>
       </div>
+      <h3>Possible duplicate</h3>
+      <p>A warning alert at the top of a record or form when the record may already exist. The title names the other record, the text gives the evidence (who added it, when, and what matched), and the actions resolve it. The first action is primary.</p>
+      <div class="ds-example">
+        <div class="ds-example__canvas ds-example__canvas--stack"><div class="alert alert--warning" role="status"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><path d="M12 3 2 20h20zM12 10v4M12 17h.01"/></svg><div class="alert__body"><div class="alert__title">This may be the same partner as “Kestrel Labs Inc.”</div><div class="alert__text">Esther Nakamura added Kestrel Labs Inc. on Mon 13 Oct with the same website, kestrel.example. Merging keeps one record and moves both activity timelines into it.</div><div class="alert__actions"><button class="btn btn--primary" type="button">Compare and merge</button><a class="btn btn--ghost" href="../../mocks/pages/partner/default.html">Open Kestrel Labs Inc.</a><button class="btn btn--ghost" type="button">Not the same</button></div></div></div><div class="alert alert--warning" role="status"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><path d="M12 3 2 20h20zM12 10v4M12 17h.01"/></svg><div class="alert__body"><div class="alert__title">You already have a contact with this email</div><div class="alert__text">Nadia Petrov (Kestrel Labs) is in your contacts with nadia@kestrel.example, added Mon 6 Oct with 2 notes. Open it to add to those notes, or save this as a separate contact.</div><div class="alert__actions"><a class="btn btn--primary" href="../../mocks/pages/contact/default.html">Open Nadia Petrov</a></div></div></div></div>
+        <div class="ds-example__caption"><span>Partner Kestrel Labs (same website: Compare and merge opens the merge dialog, Open shows the other record, Not the same dismisses the alert for good) and the new-contact form (same email in your own contacts: Open, or keep saving).</span></div>
+        <details class="ds-example__code"><summary>HTML</summary><pre><code>&lt;div class="alert alert--warning" role="status"&gt;&lt;svg class="icon" aria-hidden="true" viewBox="0 0 24 24"&gt;&lt;path d="M12 3 2 20h20zM12 10v4M12 17h.01"/&gt;&lt;/svg&gt;&lt;div class="alert__body"&gt;&lt;div class="alert__title"&gt;This may be the same partner as “Kestrel Labs Inc.”&lt;/div&gt;&lt;div class="alert__text"&gt;Esther Nakamura added Kestrel Labs Inc. on Mon 13 Oct with the same website, kestrel.example. Merging keeps one record and moves both activity timelines into it.&lt;/div&gt;&lt;div class="alert__actions"&gt;&lt;button class="btn btn--primary" type="button"&gt;Compare and merge&lt;/button&gt;&lt;a class="btn btn--ghost" href="../../mocks/pages/partner/default.html"&gt;Open Kestrel Labs Inc.&lt;/a&gt;&lt;button class="btn btn--ghost" type="button"&gt;Not the same&lt;/button&gt;&lt;/div&gt;&lt;/div&gt;&lt;/div&gt;</code></pre></details>
+      </div>
       <h3>Form summary</h3>
       <p>A danger alert with <code>.form-summary</code> lists each error as a link to its field. Title: "Fix N things to &lt;verb&gt;". See <a href="form-layout.html">form layout</a>.</p>
       <div class="ds-example">
@@ -330,6 +337,7 @@
         <li><a href="../../mocks/pages/edit-profile/success.html">pages/edit-profile/success</a>, <a href="../../mocks/pages/event/cancelled.html">pages/event/cancelled</a></li>
         <li><a href="../../mocks/pages/event-form/invalid.html">pages/event-form/invalid</a>, <a href="../../mocks/pages/settings/invalid.html">pages/settings/invalid</a> (form summary)</li>
         <li><a href="../../mocks/dialogs/add-role/failed.html">dialogs/add-role/failed</a> (alert inside a dialog)</li>
+        <li><a href="../../mocks/pages/partner/duplicate.html">pages/partner/duplicate</a> and <a href="../../mocks/pages/contact-form/possible-duplicate.html">pages/contact-form/possible-duplicate</a> (possible duplicate). Drift: both mocks omit the leading warning icon and <code>role="status"</code>, which are restored here.</li>
       </ul>
 
     </section>

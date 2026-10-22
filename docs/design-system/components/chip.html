@@ -140,8 +140,9 @@
         <div class="ds-example__canvas ds-example__canvas--stack">
           <div class="cluster" role="group" aria-label="Filter events"><button class="chip" type="button" aria-pressed="true">Upcoming</button><button class="chip" type="button" aria-pressed="false">Past</button><button class="chip" type="button" aria-pressed="false">Hackathons</button><button class="chip" type="button" aria-pressed="false">Online</button></div>
           <div class="cluster" role="group" aria-label="Filter team"><button class="chip" type="button" aria-pressed="true">All</button><button class="chip" type="button" aria-pressed="false">Leads</button><button class="chip" type="button" aria-pressed="false">Volunteers</button></div>
+          <div class="card stack"><div class="cluster cluster--between"><h4 class="card__title">Activity</h4><div class="cluster cluster--tight" role="group" aria-label="Show"><button class="chip" type="button" aria-pressed="true">All</button><button class="chip" type="button" aria-pressed="false">Calls</button><button class="chip" type="button" aria-pressed="false">Emails</button><button class="chip" type="button" aria-pressed="false">Meetings</button><button class="chip" type="button" aria-pressed="false">Notes</button><button class="chip" type="button" aria-pressed="false">Stage moves</button></div></div></div>
         </div>
-        <div class="ds-example__caption"><span>From Events and Team. Pressing one chip un-presses the others and refilters the list below; the result count is announced politely.</span></div>
+        <div class="ds-example__caption"><span>From Events, Team and the partner Activity card. In a card header the group is <code>.cluster--tight</code> and sits opposite the title. It filters the <a href="feed.html">feed</a> by entry type and wraps under the title on phones. Pressing one chip un-presses the others and refilters the list below; the result count is announced politely.</span></div>
         <details class="ds-example__code"><summary>HTML</summary><pre><code>&lt;div class="cluster cluster--between filter-bar"&gt;
   &lt;div class="cluster" role="group" aria-label="Filter events"&gt;
     &lt;button class="chip" type="button" aria-pressed="true"&gt;Upcoming&lt;/button&gt;
@@ -281,6 +282,7 @@
         <li><a href="../../mocks/pages/events/no-results.html">pages/events/no-results</a></li>
         <li><a href="../../mocks/pages/team/default.html">pages/team/default</a> (All, Leads, Volunteers)</li>
         <li><a href="../../mocks/pages/team/no-results.html">pages/team/no-results</a> (Volunteers pressed)</li>
+        <li><a href="../../mocks/pages/partner/default.html">pages/partner/default</a> (All, Calls, Emails, Meetings, Notes, Stage moves)</li>
         <li><a href="../../mocks/pages/backlog/default.html">pages/backlog/default</a> (Tree view chip)</li>
         <li><a href="../../mocks/pages/backlog/sprints.html">pages/backlog/sprints</a> (Sprint history view chip)</li>
       </ul>

@@ -54,10 +54,10 @@ The mocks were styled with the Shelfie design system unchanged plus FaithTech ad
 | [Card](components/card.html) | Surfaces for grouped content. |
 | [Dialog](components/dialog.html) | CDK dialogs: default, destructive, form, busy, failed; the shared role dialog. |
 | [Notification panel](components/notification-panel.html) | Bell panel with unread notices. |
-| [List](components/list.html) | People, contacts and invites lists. |
+| [List](components/list.html) | People, contacts, invites and check-in lists. |
 | [Table](components/table.html) | Audit log and admin tables. |
 | [Description list](components/description-list.html) | Profile and contact facts. |
-| [Activity feed](components/feed.html) | Activity on contacts and partners. |
+| [Activity feed](components/feed.html) | Activity on contacts, and typed partner activity. |
 | [Backlog tree](components/tree.html) | Initiatives, epics, stories, tasks. |
 | [Kanban board](components/kanban.html) | Partner pipeline and team board. |
 | [Event card](components/event-card.html) | Date badge, title, meta, cancelled. |
@@ -71,12 +71,12 @@ The mocks were styled with the Shelfie design system unchanged plus FaithTech ad
 | [Logo mark](components/logo-mark.html) | FaithTech mark on auth screens. |
 | [Badge](components/badge.html) | Roles, status, counts. |
 | [Chip](components/chip.html) | Filter toggles. |
-| [Stat](components/stat.html) | Label and value. |
+| [Stat](components/stat.html) | Label, value and context line. |
 | [Estimate card](components/sticker.html) | Revealed planning poker votes. |
 | [Toast](components/toast.html) | Info, success, warning, danger; with action. |
 | [Alert and banner](components/alert.html) | Inline alerts and page banners. |
 | [Inline message](components/inline-message.html) | Field errors and save status. |
-| [Progress](components/progress.html) | Determinate progress. |
+| [Progress](components/progress.html) | Determinate progress, attendance meter and bar chart. |
 | [Skeleton](components/skeleton.html) | Loading placeholders, including the loading list. |
 | [Empty state](components/empty-state.html) | First-run, no results, error; page-level heading for full-page errors. |
 | [Error page](components/error-page.html) | 404, 403, 500, offline. |
@@ -109,6 +109,7 @@ Each component page documents variants, sizes and the full state matrix in both 
 
 ## Changelog
 
+- 2026-10-22 — Dynamics 365 adoptions (Reports, event check-in, partner activity, duplicates and merge). These mocks use only existing classes, so there are no new components and no new tokens; the contrast check is unchanged at 210 pairs. Added `.progress-chart` (`components.css`), a bar chart whose rows share one label column through subgrid and replaces the mocks' inline `min-width: 5.5rem`. Documented new uses: [Stat](components/stat.html) report row with context lines (up to five), [Progress](components/progress.html) attendance meter and bar chart (chart tracks are `aria-hidden`), [List](components/list.html) check-in rows with a trailing [Switch](components/switch.html) that saves on toggle, typed partner activity on [Activity feed](components/feed.html) (replaces the History example) with [Chip](components/chip.html) type filters, the possible-duplicate [Alert](components/alert.html), the merge-partners, log-activity and walk-in [dialogs](components/dialog.html), and the report [Table](components/table.html). Patterns: Report (lists and tables), possible duplicate (forms), save on toggle (feedback), and the new empty, error and forbidden states. Also fixed four existing checker failures: Tomás's photos on person card and photo gallery pointed at deleted `.svg` files, photo gallery lacked variants, sizes and do/don't sections, and type icon used a raw `#e6f4ea`.
 - 2026-10-22 — Connect by QR code: added QR code, copy field and person summary (`components.css`) and two semantic tokens, `--color-code-plate` and `--color-code-module`, that the dark theme deliberately leaves alone so a QR code stays readable by any camera.
 - 2026-10-22 — Contact photos and the contacts card grid (L2-067 to L2-073). Added: person card and person grid (`.person-grid`, `.person-card*`; cover tints reuse `--color-tint-*`, photo `--size-cover-lg`, no new tokens) and photo gallery (`.photo-gallery*`). Picture list gains a `contact` subject (contact wording, "Describe this photo." for a missing description, Feature on chosen photos before they are saved), `featurable` and `pendingNote`. Button gains the accent `outline` variant (the card's View profile pill) and avatar the `2xl` size (the card's initials). In Angular: `ft-person-card`, `ft-person-grid`, `ft-person-card-skeleton` and `ft-photo-gallery`.
 - 2026-10-21 — First extraction. Tokens inherited from Shelfie unchanged except comments. Added: select, tabs, notification panel, description list, backlog tree, Kanban board, event card, profile header, search results, note (from `ui-extra.css`). Select chevron redrawn with `currentColor` (was raw `#888`). Added state hooks: event card title hover, select hover/disabled, tab hover, tree row hover, `stat__value--text`, square checkboxes in `.choice`. Renamed for FaithTech: sticker → Estimate card, sticker picker → Estimate card picker (class names unchanged). Dropped Shelfie-only components (book cover, streak, trophy, celebration and others) and the e-mail foundation.
@@ -180,8 +181,27 @@ The marketing page mocks (`docs/mocks/pages/marketing`) added the [landing hero]
 | pages/event-form | Visibility legend was visually hidden | Fixed: the legend is visible (`legend.field__label`) |
 | pages/settings | Email switch caption not joined with `aria-describedby`; only "Sign out everywhere" | Documented on Switch and Menu |
 | dialogs/remove-role | A single pre-checked radio | Logged |
+| pages/reports | Chart labels use inline `min-width: 5.5rem` (18 times) | `.progress-chart` shares one label column; flagged for the mocks |
+| pages/reports | Chart bars are `role="progressbar"` with `aria-valuemax` = overall total while the fill is scaled to the largest bar ("Toronto: 186 of 412" reads as a full bar) | Chart tracks are `aria-hidden`; the row text carries the value. Flagged for the mocks |
+| pages/reports | Card titles in `.card--flush` repeat its padding inline | Dropped: `.card--flush > .card__title` already pads |
+| pages/reports | No requirement IDs in `manifest.json` | Flagged for the specs |
+| pages/reports | Five stats in one row where Content allowed four | Rule widened: a report row may hold five when each has a context line |
+| pages/event-check-in/done | 36 of 36 shown in accent, not `.progress--complete` | Documented: a full attendance meter takes the complete variant |
+| pages/partner/duplicate, contact-form/possible-duplicate | Warning alert without its icon or `role="status"` | Restored on the Alert page |
+| dialogs/merge-partners | Per-field choices sit in a `.cluster--tight` row, so each radio crowds the previous label at 1280px | Logged: stacked `.choice` rows (radio group) would read better |
+
 
 ## Verification
+
+Run on 2026-10-22 after the Dynamics 365 update:
+
+```sh
+python .claude/skills/writing-html-mocks/scripts/check_mocks.py docs/mocks            # 92 screens, 506 mocks, 0 errors (28 requirement-ID warnings in the mocks)
+python .claude/skills/extracting-design-systems/scripts/check_contrast.py docs/design-system/tokens/tokens.css   # 210 passed, 0 failed, 0 unresolved
+python .claude/skills/extracting-design-systems/scripts/check_design_system.py docs/design-system                 # 80 pages (59 components, 8 patterns), 0 errors, 0 warnings
+```
+
+Screenshots: index plus the changed component and pattern pages (progress, stat, photo gallery, feed, list, switch, alert, dialog, table, chip, lists and tables) at 360 and 1280 px in both themes: no horizontal overflow, no broken images, no console errors. The bar chart keeps its label column at 360px.
 
 Run on 2026-10-21:
 
