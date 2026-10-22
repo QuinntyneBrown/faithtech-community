@@ -1,10 +1,22 @@
-import { Component } from '@angular/core';
+import { Component, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
+import { TabBarComponent } from '../tab-bar';
 import { ToastRegionComponent } from './toast-region.component';
 import { ToastService } from './toast.service';
 
 @Component({ imports: [ToastRegionComponent], template: '<ft-toast-region />' })
 class HostComponent {}
+
+@Component({
+  imports: [ToastRegionComponent, TabBarComponent],
+  template: `@if (tabBar()) {
+      <ft-tab-bar />
+    }
+    <ft-toast-region />`,
+})
+class TabBarHostComponent {
+  readonly tabBar = signal(true);
+}
 
 describe('ToastService', () => {
   beforeEach(() => vi.useFakeTimers());
@@ -75,6 +87,16 @@ describe('ToastRegionComponent', () => {
     TestBed.inject(ToastService).show({ variant: 'warning', heading: 'No connection' });
     fixture.detectChanges();
     expect(host.querySelectorAll('ft-toast').length).toBe(1);
+  });
+
+  it('sits above the phone tab bar only while one is rendered', () => {
+    const fixture = TestBed.createComponent(TabBarHostComponent);
+    fixture.detectChanges();
+    const region = (fixture.nativeElement as HTMLElement).querySelector('ft-toast-region')!;
+    expect(region.classList).toContain('ft-toast-region--above-tab-bar');
+    fixture.componentInstance.tabBar.set(false);
+    fixture.detectChanges();
+    expect(region.classList).not.toContain('ft-toast-region--above-tab-bar');
   });
 
   it('collapses more than three toasts into a "+N more" line', () => {
