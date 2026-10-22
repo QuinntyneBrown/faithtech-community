@@ -1,14 +1,25 @@
 import { HttpErrorResponse } from '@angular/common/http';
-import { ChangeDetectionStrategy, Component, effect, inject, input, signal } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  computed,
+  effect,
+  inject,
+  input,
+  signal,
+  viewChild,
+} from '@angular/core';
 import {
   PARTNERS_SERVICE,
   PARTNER_ACTIVITY_LABELS,
   PARTNER_STAGE_LABELS,
   PartnerActivityDto,
   PartnerDto,
+  PartnerDuplicateDto,
   PartnerStage,
 } from '@faithtech-community/api';
 import {
+  AlertComponent,
   BadgeComponent,
   BadgeVariant,
   BreadcrumbComponent,
@@ -54,6 +65,7 @@ export const STAGE_BADGES: Record<PartnerStage, BadgeVariant> = {
 @Component({
   selector: 'ft-partner-page',
   imports: [
+    AlertComponent,
     BadgeComponent,
     BreadcrumbComponent,
     BreadcrumbItemComponent,
@@ -88,6 +100,11 @@ export class PartnerPage {
   protected readonly badges = STAGE_BADGES;
   /** Bumped after a log or a move so the timeline fetches its first page again. */
   protected readonly timelineReload = signal(0);
+  /** Undismissed possible duplicates, by name; the first takes the alert (L2-088). */
+  protected readonly duplicates = signal<PartnerDuplicateDto[]>([]);
+  protected readonly duplicate = computed(() => this.duplicates()[0] ?? null);
+  protected readonly dismissing = signal(false);
+  private readonly header = viewChild(PageHeaderComponent);
 
   constructor() {
     effect(() => void this.load(this.id()));
@@ -129,6 +146,41 @@ export class PartnerPage {
     this.timelineReload.update((n) => n + 1);
   }
 
+  protected duplicateHeading(match: PartnerDuplicateDto): string {
+    const more = this.duplicates().length - 1;
+    return `This may be the same partner as “${match.name}”${more > 0 ? ` and ${more} more` : ''}`;
+  }
+
+  /** "{added by} added {other} on {day} with the same {website|name}, {matched on}." */
+  protected duplicateAdded(match: PartnerDuplicateDto): string | null {
+    if (!match.addedByName || !match.addedOn) return null;
+    const what = match.reason === 'Website' ? 'website' : 'name';
+    return `${match.addedByName} added ${match.name} on ${this.localDay(match.addedOn)} with the same ${what}, ${match.matchedOn}.`;
+  }
+
+  /** "Not the same": the pair is dismissed for every lead and the next match, if any, takes the alert. */
+  protected async notTheSame(partner: PartnerDto, match: PartnerDuplicateDto): Promise<void> {
+    if (this.dismissing()) return;
+    this.dismissing.set(true);
+    try {
+      await firstValueFrom(this.partners.dismissDuplicate(partner.id, match.id));
+      await this.loadDuplicates(partner.id);
+      // The button that had focus is gone with the alert.
+      this.header()?.focusTitle();
+      this.toasts.show({
+        variant: 'success',
+        heading: `Marked ${match.name} as a different partner`,
+      });
+    } catch {
+      this.toasts.show({
+        variant: 'danger',
+        heading: `Couldn’t mark ${match.name} as a different partner. Try again.`,
+      });
+    } finally {
+      this.dismissing.set(false);
+    }
+  }
+
   protected retry(): void {
     void this.load(this.id());
   }
@@ -141,11 +193,22 @@ export class PartnerPage {
     }
   }
 
+  /** Advisory: when the check fails the page shows without the alert. */
+  private async loadDuplicates(id: string): Promise<void> {
+    try {
+      this.duplicates.set((await firstValueFrom(this.partners.duplicates(id))).matches);
+    } catch {
+      this.duplicates.set([]);
+    }
+  }
+
   private async load(id: string): Promise<void> {
     this.state.set('loading');
+    this.duplicates.set([]);
     try {
       this.partner.set(await firstValueFrom(this.partners.get(id)));
       this.state.set('loaded');
+      void this.loadDuplicates(id);
     } catch (error) {
       this.state.set(
         error instanceof HttpErrorResponse && error.status === 404 ? 'not-found' : 'error',

@@ -1,7 +1,12 @@
-// Traces to: L2-017, L2-018
+// Traces to: L2-017, L2-018, L2-088
 import { HttpErrorResponse } from '@angular/common/http';
 import { TestBed } from '@angular/core/testing';
-import { PARTNERS_SERVICE, PartnerActivityDto, PartnerDto } from '@faithtech-community/api';
+import {
+  PARTNERS_SERVICE,
+  PartnerActivityDto,
+  PartnerDto,
+  PartnerDuplicateDto,
+} from '@faithtech-community/api';
 import { DialogService, ToastService } from '@faithtech-community/components';
 import { Observable, of, throwError } from 'rxjs';
 
@@ -13,8 +18,22 @@ async function setup(
   get: () => Observable<PartnerDto>,
   dialogResult?: unknown,
   items: PartnerActivityDto[] = [],
+  matches: PartnerDuplicateDto[] | 'fails' = [],
 ) {
-  const service = { get: vi.fn(get), activities: vi.fn(() => of({ items, before: null })) };
+  let duplicates = matches === 'fails' ? [] : matches;
+  const service = {
+    get: vi.fn(get),
+    activities: vi.fn(() => of({ items, before: null })),
+    duplicates: vi.fn(() =>
+      matches === 'fails'
+        ? throwError(() => new HttpErrorResponse({ status: 500 }))
+        : of({ matches: duplicates }),
+    ),
+    dismissDuplicate: vi.fn(() => {
+      duplicates = duplicates.slice(1);
+      return of(undefined);
+    }),
+  };
   const dialogs = { open: vi.fn(() => ({ closed: of(dialogResult) })) };
   const toasts = { show: vi.fn() };
   TestBed.configureTestingModule({
@@ -38,8 +57,27 @@ async function setup(
   const text = () => host.textContent!.replace(/\s+/g, ' ');
   const link = (name: string) =>
     Array.from(host.querySelectorAll('a')).find((a) => a.textContent?.trim() === name);
-  return { host, service, dialogs, toasts, text, link, settle };
+  const button = (name: string) =>
+    Array.from(host.querySelectorAll('button')).find((b) => b.textContent?.trim() === name);
+  return { host, service, dialogs, toasts, text, link, button, settle };
 }
+
+const kestrelInc: PartnerDuplicateDto = {
+  id: 'x2',
+  name: 'Kestrel Labs Inc.',
+  reason: 'Website',
+  matchedOn: 'kestrel.example',
+  addedByName: 'Esther Nakamura',
+  addedOn: '2026-10-13',
+};
+const kestrelLtd: PartnerDuplicateDto = {
+  id: 'x3',
+  name: 'Kestrel Labs Ltd',
+  reason: 'Name',
+  matchedOn: 'Kestrel Labs Ltd',
+  addedByName: null,
+  addedOn: null,
+};
 
 describe('PartnerPage', () => {
   it('shows the partner’s stage, details and Edit', async () => {
@@ -169,5 +207,78 @@ describe('PartnerPage', () => {
       heading: 'Call logged for Kestrel Labs',
     });
     expect(service.activities).toHaveBeenCalledTimes(2);
+  });
+
+  it('warns about the first possible duplicate with who added it, when and why', async () => {
+    const { host, text, link, button } = await setup(
+      () => of(partnerDto()),
+      undefined,
+      [],
+      [kestrelInc, kestrelLtd],
+    );
+
+    const alert = host.querySelector('ft-alert')!;
+    expect(alert.querySelector('[role="status"]')).toBeTruthy();
+    expect(text()).toContain('This may be the same partner as “Kestrel Labs Inc.” and 1 more');
+    expect(text()).toContain(
+      'Esther Nakamura added Kestrel Labs Inc. on Tue 13 Oct with the same website, kestrel.example.',
+    );
+    expect(text()).toContain('Merging keeps one record and moves both activity timelines into it.');
+    expect(link('Open Kestrel Labs Inc.')!.getAttribute('href')).toBe('/partners/x2');
+    expect(button('Not the same')).toBeTruthy();
+  });
+
+  it('names a name match without the added line when the match has no Added entry', async () => {
+    const { text } = await setup(() => of(partnerDto()), undefined, [], [kestrelLtd]);
+
+    expect(text()).toContain('This may be the same partner as “Kestrel Labs Ltd”');
+    expect(text()).not.toContain('and 1 more');
+    expect(text()).not.toContain(' added ');
+  });
+
+  it('shows Staff the alert without Not the same', async () => {
+    const { host, button } = await setup(
+      () => of(partnerDto({ canEdit: false, canLogActivity: false })),
+      undefined,
+      [],
+      [kestrelInc],
+    );
+
+    expect(host.querySelector('ft-alert')).toBeTruthy();
+    expect(button('Not the same')).toBeUndefined();
+  });
+
+  it('shows no alert without a possible duplicate', async () => {
+    const { host } = await setup(() => of(partnerDto()));
+
+    expect(host.querySelector('ft-alert')).toBeNull();
+  });
+
+  it('marks a pair as not the same, then the next match takes the alert', async () => {
+    const { service, toasts, text, button, settle } = await setup(
+      () => of(partnerDto()),
+      undefined,
+      [],
+      [kestrelInc, kestrelLtd],
+    );
+
+    button('Not the same')!.click();
+    await settle();
+    await settle();
+
+    expect(service.dismissDuplicate).toHaveBeenCalledWith('x1', 'x2');
+    expect(toasts.show).toHaveBeenCalledWith({
+      variant: 'success',
+      heading: 'Marked Kestrel Labs Inc. as a different partner',
+    });
+    expect(text()).toContain('This may be the same partner as “Kestrel Labs Ltd”');
+    expect(document.activeElement?.tagName).toBe('H1');
+  });
+
+  it('keeps the page without the alert when the duplicate check fails', async () => {
+    const { host, text } = await setup(() => of(partnerDto()), undefined, [], 'fails');
+
+    expect(host.querySelector('ft-alert')).toBeNull();
+    expect(text()).toContain('Venue for Builders Night');
   });
 });

@@ -56,6 +56,16 @@ public static class PartnersEndpoints
             })
             .Validate<LogPartnerActivityCommand>();
 
+        // Possible duplicates and "Not the same" (L2-088, ADR 0023).
+        partners.MapGet("/{id:guid}/duplicates", async (Guid id, PartnerDuplicatesHandler handler, CancellationToken cancellationToken) =>
+        {
+            var (result, duplicates) = await handler.ListAsync(id, cancellationToken);
+            return result.ToHttp(() => Results.Ok(duplicates));
+        });
+
+        partners.MapPost("/{id:guid}/duplicates/{otherId:guid}/dismissal", async (Guid id, Guid otherId, PartnerDuplicatesHandler handler, CancellationToken cancellationToken) =>
+            (await handler.DismissAsync(id, otherId, cancellationToken)).ToHttp(Results.NoContent));
+
         return app;
     }
 }

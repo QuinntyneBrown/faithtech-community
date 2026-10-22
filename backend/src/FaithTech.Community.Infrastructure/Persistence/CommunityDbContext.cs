@@ -51,6 +51,8 @@ public class CommunityDbContext(DbContextOptions<CommunityDbContext> options)
 
     public DbSet<PartnerActivity> PartnerActivities => Set<PartnerActivity>();
 
+    public DbSet<PartnerDuplicateDismissal> PartnerDuplicateDismissals => Set<PartnerDuplicateDismissal>();
+
     public DbSet<Workspace> Workspaces => Set<Workspace>();
 
     public DbSet<WorkItem> WorkItems => Set<WorkItem>();
@@ -234,6 +236,10 @@ public class CommunityDbContext(DbContextOptions<CommunityDbContext> options)
             partner.Property(p => p.Notes).HasMaxLength(2000);
             partner.Property(p => p.Stage).HasConversion<string>().HasMaxLength(16);
             partner.HasIndex(p => p.Stage);
+            // Merge and restore compare versions; a race the check misses fails at SaveChanges (ADR 0024).
+            partner.Property(p => p.Version).IsConcurrencyToken();
+            partner.HasIndex(p => p.ArchivedAtUtc);
+            partner.Ignore(p => p.IsArchived);
             partner.HasMany(p => p.StageChanges).WithOne().HasForeignKey(c => c.PartnerId).OnDelete(DeleteBehavior.Cascade);
             partner.Navigation(p => p.StageChanges).UsePropertyAccessMode(PropertyAccessMode.Field);
         });
@@ -246,6 +252,7 @@ public class CommunityDbContext(DbContextOptions<CommunityDbContext> options)
             change.Property(c => c.To).HasConversion<string>().HasMaxLength(16);
             change.Property(c => c.Note).HasMaxLength(500);
             change.HasIndex(c => new { c.PartnerId, c.MovedAtUtc });
+            change.HasIndex(c => c.MergedFromPartnerId);
         });
 
         builder.Entity<PartnerActivity>(activity =>
@@ -260,7 +267,18 @@ public class CommunityDbContext(DbContextOptions<CommunityDbContext> options)
             activity.HasIndex(a => new { a.PartnerId, a.OccurredOn, a.OccurredAt, a.LoggedAtUtc });
             activity.HasIndex(a => a.PartnerId, "IX_PartnerActivities_PartnerId_NextStep").HasFilter("\"NextStep\" IS NOT NULL");
             activity.HasIndex(a => a.StageChangeId);
+            activity.HasIndex(a => a.MergedFromPartnerId);
             activity.HasOne<Partner>().WithMany().HasForeignKey(a => a.PartnerId).OnDelete(DeleteBehavior.Cascade);
+        });
+
+        builder.Entity<PartnerDuplicateDismissal>(dismissal =>
+        {
+            dismissal.ToTable("PartnerDuplicateDismissals");
+            dismissal.Property(d => d.Id).ValueGeneratedNever();
+            dismissal.HasIndex(d => new { d.LowerPartnerId, d.HigherPartnerId }).IsUnique();
+            dismissal.HasIndex(d => d.HigherPartnerId);
+            dismissal.HasOne<Partner>().WithMany().HasForeignKey(d => d.LowerPartnerId).OnDelete(DeleteBehavior.Cascade);
+            dismissal.HasOne<Partner>().WithMany().HasForeignKey(d => d.HigherPartnerId).OnDelete(DeleteBehavior.Cascade);
         });
 
         ConfigureAgile(builder);

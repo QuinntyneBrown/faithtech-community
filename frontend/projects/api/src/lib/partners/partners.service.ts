@@ -119,6 +119,26 @@ export interface PartnerDto {
   canLogActivity: boolean;
 }
 
+/** Why two partners may be the same: equal website hosts, else equal names (ADR 0023). */
+export type DuplicateReason = 'Website' | 'Name';
+
+/** A possible duplicate of the partner (L2-088). */
+export interface PartnerDuplicateDto {
+  id: string;
+  name: string;
+  reason: DuplicateReason;
+  /** The shared host for Website; the other partner's name as written for Name. */
+  matchedOn: string;
+  /** Who added the other partner and when (yyyy-MM-dd); null when it has no Added entry. */
+  addedByName: string | null;
+  addedOn: string | null;
+}
+
+/** Undismissed matches, by name; the first takes the partner page's alert. */
+export interface PartnerDuplicatesDto {
+  matches: PartnerDuplicateDto[];
+}
+
 export interface PartnerCardDto {
   id: string;
   name: string;
@@ -167,6 +187,10 @@ export interface PartnersService {
   ): Observable<PartnerActivityPageDto>;
   /** Logs a call, email, meeting or note (L2-085). 400 keyed by field, 403 for Staff. */
   logActivity(id: string, activity: LogPartnerActivityRequest): Observable<PartnerActivityDto>;
+  /** Possible duplicates of the partner (L2-088); empty for an archived partner. */
+  duplicates(id: string): Observable<PartnerDuplicatesDto>;
+  /** "Not the same": stored once for the pair, for every lead. 403 for Staff. */
+  dismissDuplicate(id: string, otherId: string): Observable<void>;
 }
 
 export const PARTNERS_SERVICE = new InjectionToken<PartnersService>('PARTNERS_SERVICE');

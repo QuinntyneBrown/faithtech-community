@@ -3,7 +3,7 @@ import { Injectable, inject } from '@angular/core';
 import { Observable } from 'rxjs';
 
 import { API_BASE_URL } from '../config';
-import { HANDLES_FORBIDDEN } from '../errors';
+import { HANDLES_FORBIDDEN, HANDLES_SERVER_ERROR } from '../errors';
 import {
   LogPartnerActivityRequest,
   NewPartnerRequest,
@@ -12,6 +12,7 @@ import {
   PartnerActivityPageDto,
   PartnerBoardDto,
   PartnerDto,
+  PartnerDuplicatesDto,
   PartnerOwnerDto,
   PartnerRequest,
   PartnerStage,
@@ -24,6 +25,8 @@ export class HttpPartnersService implements PartnersService {
   private readonly base = `${inject(API_BASE_URL)}/partners`;
   // The partners page shows its own forbidden state for callers who may not see the pipeline.
   private readonly context = new HttpContext().set(HANDLES_FORBIDDEN, true);
+  // The duplicate check is advisory: the partner page shows without it when it fails.
+  private readonly advisory = new HttpContext().set(HANDLES_SERVER_ERROR, true);
 
   getBoard(): Observable<PartnerBoardDto> {
     return this.http.get<PartnerBoardDto>(this.base, { context: this.context });
@@ -62,5 +65,15 @@ export class HttpPartnersService implements PartnersService {
 
   logActivity(id: string, activity: LogPartnerActivityRequest): Observable<PartnerActivityDto> {
     return this.http.post<PartnerActivityDto>(`${this.base}/${id}/activities`, activity);
+  }
+
+  duplicates(id: string): Observable<PartnerDuplicatesDto> {
+    return this.http.get<PartnerDuplicatesDto>(`${this.base}/${id}/duplicates`, {
+      context: this.advisory,
+    });
+  }
+
+  dismissDuplicate(id: string, otherId: string): Observable<void> {
+    return this.http.post<void>(`${this.base}/${id}/duplicates/${otherId}/dismissal`, null);
   }
 }

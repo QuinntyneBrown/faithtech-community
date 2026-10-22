@@ -76,6 +76,14 @@ describe('HttpPartnersService', () => {
       '/api/partners/x1/activities',
       activity,
     ],
+    ['duplicates', () => service.duplicates('x1'), 'GET', '/api/partners/x1/duplicates', undefined],
+    [
+      'dismissDuplicate',
+      () => service.dismissDuplicate('x1', 'x2'),
+      'POST',
+      '/api/partners/x1/duplicates/x2/dismissal',
+      null,
+    ],
   ])('%s', (_name, call, method, url, body) => {
     (call() as Observable<unknown>).subscribe();
 

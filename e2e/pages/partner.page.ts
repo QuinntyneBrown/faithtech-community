@@ -22,6 +22,10 @@ export class PartnerPage {
   /** The empty state's own Log activity button. */
   readonly emptyLogActivity: Locator;
   readonly timelineError: Locator;
+  /** "This may be the same partner as “{other}”" (L2-088). */
+  readonly duplicateAlert: Locator;
+  readonly compareAndMerge: Locator;
+  readonly notTheSame: Locator;
 
   constructor(private readonly page: Page) {
     this.heading = page.getByRole('heading', { level: 1 });
@@ -43,6 +47,16 @@ export class PartnerPage {
     this.timelineError = page
       .getByRole('alert')
       .filter({ hasText: 'We couldn’t load the activity' });
+    this.duplicateAlert = page
+      .getByRole('status')
+      .filter({ hasText: 'This may be the same partner as' });
+    this.compareAndMerge = this.duplicateAlert.getByRole('button', { name: 'Compare and merge' });
+    this.notTheSame = this.duplicateAlert.getByRole('button', { name: 'Not the same' });
+  }
+
+  /** The duplicate alert's "Open {other}" link. */
+  openDuplicate(name: string): Locator {
+    return this.duplicateAlert.getByRole('link', { name: `Open ${name}` });
   }
 
   filter(name: string): Locator {

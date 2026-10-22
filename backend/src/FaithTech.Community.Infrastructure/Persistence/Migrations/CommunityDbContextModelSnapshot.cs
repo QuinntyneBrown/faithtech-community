@@ -743,6 +743,9 @@ namespace FaithTech.Community.Infrastructure.Persistence.Migrations
                     b.Property<Guid>("Id")
                         .HasColumnType("uuid");
 
+                    b.Property<DateTime?>("ArchivedAtUtc")
+                        .HasColumnType("timestamp with time zone");
+
                     b.Property<string>("ContactName")
                         .HasMaxLength(200)
                         .HasColumnType("character varying(200)");
@@ -750,6 +753,15 @@ namespace FaithTech.Community.Infrastructure.Persistence.Migrations
                     b.Property<string>("Email")
                         .HasMaxLength(256)
                         .HasColumnType("character varying(256)");
+
+                    b.Property<DateTime?>("MergedAtUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid?>("MergedById")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid?>("MergedIntoId")
+                        .HasColumnType("uuid");
 
                     b.Property<string>("Name")
                         .IsRequired()
@@ -781,11 +793,17 @@ namespace FaithTech.Community.Infrastructure.Persistence.Migrations
                         .HasMaxLength(16)
                         .HasColumnType("character varying(16)");
 
+                    b.Property<int>("Version")
+                        .IsConcurrencyToken()
+                        .HasColumnType("integer");
+
                     b.Property<string>("Website")
                         .HasMaxLength(200)
                         .HasColumnType("character varying(200)");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("ArchivedAtUtc");
 
                     b.HasIndex("SearchVector");
 
@@ -816,6 +834,9 @@ namespace FaithTech.Community.Infrastructure.Persistence.Migrations
                     b.Property<Guid>("LoggedById")
                         .HasColumnType("uuid");
 
+                    b.Property<Guid?>("MergedFromPartnerId")
+                        .HasColumnType("uuid");
+
                     b.Property<string>("NextStep")
                         .HasMaxLength(200)
                         .HasColumnType("character varying(200)");
@@ -832,6 +853,9 @@ namespace FaithTech.Community.Infrastructure.Persistence.Migrations
                     b.Property<Guid>("PartnerId")
                         .HasColumnType("uuid");
 
+                    b.Property<Guid?>("RelatedPartnerId")
+                        .HasColumnType("uuid");
+
                     b.Property<Guid?>("StageChangeId")
                         .HasColumnType("uuid");
 
@@ -845,6 +869,8 @@ namespace FaithTech.Community.Infrastructure.Persistence.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("MergedFromPartnerId");
+
                     b.HasIndex("StageChangeId");
 
                     b.HasIndex("PartnerId", "OccurredOn", "OccurredAt", "LoggedAtUtc");
@@ -853,6 +879,33 @@ namespace FaithTech.Community.Infrastructure.Persistence.Migrations
                         .HasFilter("\"NextStep\" IS NOT NULL");
 
                     b.ToTable("PartnerActivities", (string)null);
+                });
+
+            modelBuilder.Entity("FaithTech.Community.Domain.Partners.PartnerDuplicateDismissal", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime>("DismissedAtUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid>("DismissedById")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("HigherPartnerId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("LowerPartnerId")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("HigherPartnerId");
+
+                    b.HasIndex("LowerPartnerId", "HigherPartnerId")
+                        .IsUnique();
+
+                    b.ToTable("PartnerDuplicateDismissals", (string)null);
                 });
 
             modelBuilder.Entity("FaithTech.Community.Domain.Partners.PartnerStageChange", b =>
@@ -864,6 +917,9 @@ namespace FaithTech.Community.Infrastructure.Persistence.Migrations
                         .IsRequired()
                         .HasMaxLength(16)
                         .HasColumnType("character varying(16)");
+
+                    b.Property<Guid?>("MergedFromPartnerId")
+                        .HasColumnType("uuid");
 
                     b.Property<DateTime>("MovedAtUtc")
                         .HasColumnType("timestamp with time zone");
@@ -884,6 +940,8 @@ namespace FaithTech.Community.Infrastructure.Persistence.Migrations
                         .HasColumnType("character varying(16)");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("MergedFromPartnerId");
 
                     b.HasIndex("PartnerId", "MovedAtUtc");
 
@@ -1780,6 +1838,21 @@ namespace FaithTech.Community.Infrastructure.Persistence.Migrations
                     b.HasOne("FaithTech.Community.Domain.Partners.Partner", null)
                         .WithMany()
                         .HasForeignKey("PartnerId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("FaithTech.Community.Domain.Partners.PartnerDuplicateDismissal", b =>
+                {
+                    b.HasOne("FaithTech.Community.Domain.Partners.Partner", null)
+                        .WithMany()
+                        .HasForeignKey("HigherPartnerId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("FaithTech.Community.Domain.Partners.Partner", null)
+                        .WithMany()
+                        .HasForeignKey("LowerPartnerId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });

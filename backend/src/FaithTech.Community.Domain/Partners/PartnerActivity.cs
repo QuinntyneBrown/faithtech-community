@@ -70,6 +70,12 @@ public class PartnerActivity
     /// <summary>The stage change a StageMoved entry mirrors.</summary>
     public Guid? StageChangeId { get; private set; }
 
+    /// <summary>The other partner of a Merged or Restored entry.</summary>
+    public Guid? RelatedPartnerId { get; private set; }
+
+    /// <summary>The partner this entry was first written on, when a merge moved it (ADR 0024).</summary>
+    public Guid? MergedFromPartnerId { get; private set; }
+
     public static PartnerActivity Log(
         Guid partnerId,
         PartnerActivityKind kind,

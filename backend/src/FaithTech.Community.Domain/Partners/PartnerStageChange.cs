@@ -28,4 +28,7 @@ public class PartnerStageChange
     public DateTime MovedAtUtc { get; private set; }
 
     public string? Note { get; private set; }
+
+    /// <summary>The partner this change was first recorded on, when a merge moved it (ADR 0024).</summary>
+    public Guid? MergedFromPartnerId { get; private set; }
 }

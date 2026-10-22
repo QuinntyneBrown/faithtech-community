@@ -44,6 +44,20 @@ public class Partner
 
     public IReadOnlyCollection<PartnerStageChange> StageChanges => _stageChanges;
 
+    /// <summary>The concurrency token merge and restore compare (ADR 0024).</summary>
+    public int Version { get; private set; }
+
+    /// <summary>Set when a merge archived this record into another one (ADR 0024).</summary>
+    public DateTime? ArchivedAtUtc { get; private set; }
+
+    public Guid? MergedIntoId { get; private set; }
+
+    public Guid? MergedById { get; private set; }
+
+    public DateTime? MergedAtUtc { get; private set; }
+
+    public bool IsArchived => ArchivedAtUtc is not null;
+
     public void Update(
         string name,
         string? website,

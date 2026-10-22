@@ -1,11 +1,29 @@
 import { Route } from '@playwright/test';
 
 import { MockCaller } from './mock-contacts';
+import { match as duplicateMatch, normaliseHost } from './partner-duplicates';
 
 /** What MockApi shares with the partners fake: "now" and the profiles that can own or move partners. */
 export interface PartnersContext {
   now: Date;
   profiles: Map<string, { id: string; name: string; roles: string[] }>;
+  addAuditEntry(entry: {
+    action: string;
+    summary: string;
+    actorId?: string;
+    actorName?: string;
+    targetType?: string;
+    targetId?: string;
+    after?: string | null;
+  }): void;
+}
+
+/** One row of PartnerDuplicateDismissals: the pair, lower id first (L2-088 AC6). */
+export interface MockDismissal {
+  lower: string;
+  higher: string;
+  byId: string;
+  atUtc: string;
 }
 
 export type MockStage = 'Lead' | 'InFunnel' | 'Confirmed';
@@ -92,6 +110,8 @@ function text(partner: MockPartner, activity: MockActivity): string {
  */
 export class MockPartners {
   readonly partners: MockPartner[] = [];
+  /** "Not the same" pairs; seed one with `dismiss`. */
+  readonly dismissals: MockDismissal[] = [];
 
   constructor(private readonly context: PartnersContext) {}
 
@@ -145,6 +165,13 @@ export class MockPartners {
 
   private activityCount = 1;
 
+  /** Stores "Not the same" for the pair, as PartnerDuplicateDismissal.For does. */
+  dismiss(a: string, b: string, byId = ''): void {
+    const [lower, higher] = a < b ? [a, b] : [b, a];
+    if (this.dismissals.some((d) => d.lower === lower && d.higher === higher)) return;
+    this.dismissals.push({ lower, higher, byId, atUtc: this.context.now.toISOString() });
+  }
+
   /** Answers a /api/partners request, or returns false when the path is not a partners route. */
   handle(
     route: Route,
@@ -153,10 +180,12 @@ export class MockPartners {
     body: Record<string, unknown>,
     caller: MockCaller | null,
   ): Promise<void> | false {
-    const match = /^\/api\/partners(?:\/([^/]+))?(?:\/([^/]+))?$/.exec(url.pathname);
+    const match = /^\/api\/partners(?:\/([^/]+))?(?:\/([^/]+))?(?:\/([^/]+)\/(dismissal))?$/.exec(
+      url.pathname,
+    );
     if (!match) return false;
     if (!caller) return route.fulfill({ status: 401 });
-    const [, id, action] = match;
+    const [, id, action, otherId, dismissal] = match;
     const canWrite = caller.roles.some((r) => LEAD_ROLES.includes(r) || r === 'SystemAdmin');
     const canRead = canWrite || caller.roles.includes('Staff');
     if (!canRead) return route.fulfill({ status: 403 });
@@ -177,6 +206,27 @@ export class MockPartners {
 
     const partner = this.partners.find((p) => p.id === id);
     if (!partner) return route.fulfill({ status: 404 });
+    if (method === 'GET' && action === 'duplicates' && !otherId)
+      return route.fulfill({ status: 200, json: { matches: this.duplicates(partner) } });
+    if (method === 'POST' && action === 'duplicates' && dismissal) {
+      if (otherId === partner.id) return route.fulfill({ status: 400, json: { status: 400 } });
+      const other = this.partners.find((p) => p.id === otherId);
+      if (!other) return route.fulfill({ status: 404 });
+      this.dismiss(partner.id, other.id, caller.profileId);
+      // PartnerAccess.AuditAdminWrite: a System Admin without a lead role is audited.
+      if (!caller.roles.some((r) => LEAD_ROLES.includes(r))) {
+        this.context.addAuditEntry({
+          action: 'partner.duplicate.dismissed',
+          summary: `Marked ${partner.name} and ${other.name} as different partners`,
+          actorId: caller.profileId,
+          actorName: this.context.profiles.get(caller.profileId)?.name ?? 'A former member',
+          targetType: 'Partner',
+          targetId: partner.id,
+          after: JSON.stringify({ OtherId: other.id }),
+        });
+      }
+      return route.fulfill({ status: 204 });
+    }
     if (method === 'GET' && !action)
       return route.fulfill({ status: 200, json: this.dto(partner, canWrite) });
     if (method === 'PUT' && !action) {
@@ -238,6 +288,32 @@ export class MockPartners {
       });
     }
     return route.fulfill({ status: 405 });
+  }
+
+  /** PartnerDuplicatesHandler.ListAsync: undismissed matches by name, with each one's Added entry. */
+  private duplicates(partner: MockPartner) {
+    const dismissed = (other: MockPartner) =>
+      this.dismissals.some(
+        (d) =>
+          (d.lower === partner.id && d.higher === other.id) ||
+          (d.lower === other.id && d.higher === partner.id),
+      );
+    return this.partners
+      .filter((p) => p.id !== partner.id && !dismissed(p))
+      .map((p) => ({ other: p, reason: duplicateMatch(partner, p) }))
+      .filter((m) => m.reason !== null)
+      .sort((a, b) => a.other.name.localeCompare(b.other.name))
+      .map(({ other, reason }) => {
+        const added = other.activities.find((a) => a.kind === 'Added');
+        return {
+          id: other.id,
+          name: other.name,
+          reason,
+          matchedOn: reason === 'Website' ? normaliseHost(other.website) : other.name,
+          addedByName: added ? (this.context.profiles.get(added.loggedById)?.name ?? null) : null,
+          addedOn: added?.occurredOn ?? null,
+        };
+      });
   }
 
   /** PartnerTimelineOrder and PartnerTimelineFilter, 50 a page; `before` is the last entry's id here. */

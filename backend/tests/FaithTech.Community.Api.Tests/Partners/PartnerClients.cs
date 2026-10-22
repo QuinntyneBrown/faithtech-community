@@ -71,6 +71,30 @@ public static class PartnerClients
         return (await response.Content.ReadFromJsonAsync<Partner>())!;
     }
 
+    /// <summary>A partner with only the details a duplicate check reads, added by the lead.</summary>
+    public static async Task<Partner> AddPartnerAsync(
+        this CommunityApiFactory factory, ProfileClients.Member lead, string name, string? website, string? email = null)
+    {
+        var response = await factory.ClientFor(lead, Role.CityLead).PostAsJsonAsync("/api/partners", new
+        {
+            Name = name,
+            Website = website,
+            Email = email,
+        });
+        response.EnsureSuccessStatusCode();
+        return (await response.Content.ReadFromJsonAsync<Partner>())!;
+    }
+
+    public sealed record Duplicate(Guid Id, string Name, string Reason, string MatchedOn, string? AddedByName, DateOnly? AddedOn);
+
+    public sealed record Duplicates(Duplicate[] Matches);
+
+    public static async Task<Duplicates> DuplicatesAsync(this HttpClient client, Guid partnerId) =>
+        (await client.GetFromJsonAsync<Duplicates>($"/api/partners/{partnerId}/duplicates"))!;
+
+    public static Task<HttpResponseMessage> DismissDuplicateAsync(this HttpClient client, Guid partnerId, Guid otherId) =>
+        client.PostAsync($"/api/partners/{partnerId}/duplicates/{otherId}/dismissal", null);
+
     public static object NewActivity(
         string kind = "Call",
         string? summary = "Called Nadia about the contract.",
