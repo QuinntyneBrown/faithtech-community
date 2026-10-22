@@ -9,17 +9,30 @@ public class FakePhotoStorage : IPhotoStorage
 
     public ConcurrentDictionary<string, (byte[] Content, string ContentType)> Blobs { get; } = new();
 
+    /// <summary>When set, every save and delete fails as an unreachable storage account would.</summary>
+    public bool Down { get; set; }
+
     public string GetReadUrl(string key) => BaseUrl + key;
 
     public Task SaveAsync(string key, byte[] content, string contentType, CancellationToken cancellationToken = default)
     {
+        ThrowIfDown();
         Blobs[key] = (content, contentType);
         return Task.CompletedTask;
     }
 
     public Task DeleteAsync(string key, CancellationToken cancellationToken = default)
     {
+        ThrowIfDown();
         Blobs.TryRemove(key, out _);
         return Task.CompletedTask;
+    }
+
+    private void ThrowIfDown()
+    {
+        if (Down)
+        {
+            throw new IOException("Blob storage is unavailable.");
+        }
     }
 }

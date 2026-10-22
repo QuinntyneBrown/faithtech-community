@@ -5,10 +5,13 @@ import { Role } from '../shared';
 
 export interface PhotoDto {
   id: string;
-  url: string;
+  /** Null while `isStored` is false. */
+  url: string | null;
   altText: string;
   isFeatured: boolean;
   uploadedAt: string;
+  /** False when the photo is saved but storage was down; the server writes the image later (L2-047). */
+  isStored: boolean;
 }
 
 /** A profile as a signed-in member sees it (L2-005). Photos are newest first. */

@@ -11,6 +11,7 @@ const PNG = Buffer.from(
   'base64',
 );
 const image = (name: string) => ({ name, mimeType: 'image/png', buffer: PNG });
+const STORING = 'Saved. It shows on your profile once it finishes storing.';
 
 test.describe('Manage profile photos', () => {
   test('a photo with a description uploads on save and is shown on the profile', async ({
@@ -41,6 +42,39 @@ test.describe('Manage profile photos', () => {
     await profile.open('me');
     await expect(profile.photos).toHaveCount(1);
     await expect(profile.photos.first()).toHaveAttribute('alt', 'Grace speaking at Builders Night');
+    await expect(profile.avatarPhoto).toBeVisible();
+  });
+
+  test('a photo saved while storage is down shows as storing until it is stored', async ({
+    page,
+    api,
+    axe,
+  }) => {
+    const grace = api.addAccount({ email: 'grace@example.org', name: 'Grace Okonkwo' });
+    api.photoStorageDown = true;
+    const edit = new EditProfilePage(page);
+    await api.signInAs(grace, '/people/me/edit');
+
+    await edit.choosePhotos([image('builders-night.png')]);
+    await edit.description(0).fill('Grace speaking at Builders Night');
+    await edit.save.click();
+
+    await expect(edit.savedToast).toBeVisible();
+    await expect(edit.photo(0)).toContainText(STORING);
+    await expect(edit.photo(0)).toContainText('Featured');
+    await axe.check();
+
+    const profile = new ProfilePage(page);
+    await profile.open('me');
+    await expect(profile.photos).toHaveCount(1);
+    await expect(profile.photos.first()).toHaveAccessibleName('Grace speaking at Builders Night');
+    await expect(profile.avatarPhoto).toHaveCount(0);
+    await axe.check();
+
+    api.storePendingPhotos();
+    await edit.open();
+    await expect(edit.photo(0)).not.toContainText(STORING);
+    await profile.open('me');
     await expect(profile.avatarPhoto).toBeVisible();
   });
 

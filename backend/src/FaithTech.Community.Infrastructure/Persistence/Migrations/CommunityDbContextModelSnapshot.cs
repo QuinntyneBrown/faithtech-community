@@ -411,6 +411,50 @@ namespace FaithTech.Community.Infrastructure.Persistence.Migrations
                     b.ToTable("Notifications");
                 });
 
+            modelBuilder.Entity("FaithTech.Community.Domain.Profiles.PhotoBlobTask", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<int>("Attempts")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("BlobName")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
+
+                    b.Property<byte[]>("Content")
+                        .HasColumnType("bytea");
+
+                    b.Property<string>("ContentType")
+                        .HasMaxLength(32)
+                        .HasColumnType("character varying(32)");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<DateTimeOffset>("NextAttemptAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid>("PhotoId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Work")
+                        .IsRequired()
+                        .HasMaxLength(16)
+                        .HasColumnType("character varying(16)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("NextAttemptAt");
+
+                    b.HasIndex("PhotoId");
+
+                    b.ToTable("PhotoBlobTasks");
+                });
+
             modelBuilder.Entity("FaithTech.Community.Domain.Profiles.Profile", b =>
                 {
                     b.Property<Guid>("Id")
@@ -989,6 +1033,9 @@ namespace FaithTech.Community.Infrastructure.Persistence.Migrations
                                 .HasColumnType("character varying(200)");
 
                             b1.Property<bool>("IsFeatured")
+                                .HasColumnType("boolean");
+
+                            b1.Property<bool>("IsStored")
                                 .HasColumnType("boolean");
 
                             b1.Property<Guid>("ProfileId")

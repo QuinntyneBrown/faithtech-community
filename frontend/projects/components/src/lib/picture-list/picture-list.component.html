@@ -40,7 +40,7 @@
 
   @if (photos().length > 0) {
     <ul class="ft-picture-list__grid">
-      @for (photo of photos(); track photo.url; let i = $index) {
+      @for (photo of photos(); track photo.id ?? photo.url ?? $index; let i = $index) {
         <li class="ft-picture-list__item">
           <ft-photo
             [src]="photo.url"
@@ -78,6 +78,11 @@
           </ft-form-field>
           @if (photo.error) {
             <p class="ft-picture-list__note ft-picture-list__note--error">{{ photo.error }}</p>
+          }
+          @if (photo.storing) {
+            <p class="ft-picture-list__note" role="status">
+              Saved. It shows on your profile once it finishes storing.
+            </p>
           }
           @if (photo.pending) {
             <p class="ft-picture-list__note">

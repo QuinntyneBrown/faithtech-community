@@ -46,13 +46,14 @@ type State = 'loading' | 'loaded' | 'error' | 'forbidden';
 interface PhotoItem {
   id: string | null;
   file: File | null;
-  url: string;
+  url: string | null;
   alt: string;
   savedAlt: string;
   featured: boolean;
   uploadedAt: string;
   state?: PhotoState;
   error?: string;
+  storing?: boolean;
 }
 
 const FIELDS: Field[] = ['name', 'homeCity', 'bio'];
@@ -159,7 +160,9 @@ export class EditProfilePage {
 
   protected readonly listPhotos = computed<PictureListPhoto[]>(() =>
     this.photos().map((p, i) => ({
+      id: p.id,
       url: p.url,
+      storing: p.storing,
       alt: p.alt,
       featured: p.featured,
       pending: p.id === null && p.state === undefined,
@@ -375,6 +378,7 @@ function savedPhoto(photo: PhotoDto): PhotoItem {
     savedAlt: photo.altText,
     featured: photo.isFeatured,
     uploadedAt: photo.uploadedAt,
+    storing: !photo.isStored,
   };
 }
 
@@ -392,8 +396,8 @@ function previewUrl(file: File): string {
   return typeof URL.createObjectURL === 'function' ? URL.createObjectURL(file) : '';
 }
 
-function revokePreview(url: string): void {
-  if (url.startsWith('blob:')) URL.revokeObjectURL(url);
+function revokePreview(url: string | null): void {
+  if (url?.startsWith('blob:')) URL.revokeObjectURL(url);
 }
 
 /** The first message of a 400 from the photo endpoints, or the fallback. */
