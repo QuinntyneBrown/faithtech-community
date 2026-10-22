@@ -7,6 +7,7 @@ public static class WebProtectionSetup
 {
     public const string WebAppCorsPolicy = "web-app";
     public const string AuthRateLimitPolicy = "auth";
+    public const string GuestRsvpRateLimitPolicy = "guest-rsvp";
 
     public static IServiceCollection AddWebProtections(this IServiceCollection services, IConfiguration configuration)
     {
@@ -33,6 +34,13 @@ public static class WebProtectionSetup
             var authPermitLimit = configuration.GetValue("RateLimits:AuthPerMinute", 20);
             options.AddPolicy(AuthRateLimitPolicy, context =>
                 RateLimitPartition.GetFixedWindowLimiter($"auth:{context.Connection.RemoteIpAddress}", _ => Window(authPermitLimit)));
+
+            // 10 guest RSVPs (and guest cancellations) an hour per IP address (L2-023 AC4).
+            var guestPermitLimit = configuration.GetValue("RateLimits:GuestRsvpPerHour", 10);
+            options.AddPolicy(GuestRsvpRateLimitPolicy, context =>
+                RateLimitPartition.GetFixedWindowLimiter(
+                    $"guest-rsvp:{context.Connection.RemoteIpAddress}",
+                    _ => new FixedWindowRateLimiterOptions { PermitLimit = guestPermitLimit, Window = TimeSpan.FromHours(1), QueueLimit = 0 }));
         });
         return services;
     }

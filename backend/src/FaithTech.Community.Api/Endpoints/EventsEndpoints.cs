@@ -1,4 +1,5 @@
 using System.Text;
+using FaithTech.Community.Api.Middleware;
 using FaithTech.Community.Application.Events;
 
 namespace FaithTech.Community.Api.Endpoints;
@@ -55,6 +56,21 @@ public static class EventsEndpoints
             var (result, file) = await handler.ExportAsync(id, cancellationToken);
             return result.ToHttp(() => Results.File(Encoding.UTF8.GetBytes(file!.Content), "text/csv", file.FileName));
         });
+
+        // The share link and guest RSVP are for anonymous visitors, public events only (L2-023).
+        var publicEvents = app.MapGroup("/api/public/events").AllowAnonymous();
+
+        publicEvents.MapGet("/{id:guid}", async (Guid id, PublicEventsHandler handler, CancellationToken cancellationToken) =>
+            await handler.GetAsync(id, cancellationToken) is { } found ? Results.Ok(found) : Results.NotFound());
+
+        publicEvents.MapPost("/{id:guid}/rsvps", async (Guid id, GuestRsvpCommand command, PublicEventsHandler handler, CancellationToken cancellationToken) =>
+                (await handler.RsvpAsync(id, command, cancellationToken)).ToHttp(Results.NoContent))
+            .Validate<GuestRsvpCommand>()
+            .RequireRateLimiting(WebProtectionSetup.GuestRsvpRateLimitPolicy);
+
+        publicEvents.MapPost("/{id:guid}/rsvps/cancel", async (Guid id, CancelGuestRsvpCommand command, PublicEventsHandler handler, CancellationToken cancellationToken) =>
+                (await handler.CancelAsync(id, command, cancellationToken)).ToHttp(Results.NoContent))
+            .RequireRateLimiting(WebProtectionSetup.GuestRsvpRateLimitPolicy);
 
         return app;
     }
