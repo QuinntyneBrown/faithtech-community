@@ -44,6 +44,17 @@ export class AppShell {
     this.notificationPanel = page.getByRole('dialog', { name: 'Notifications' });
   }
 
+  /** The top bar's search box (wider screens). */
+  get topSearch(): Locator {
+    return this.page.locator('header').getByRole('search').getByRole('searchbox');
+  }
+
+  /** Searches from the top bar, as a member does from any page. */
+  async searchFromTopBar(term: string): Promise<void> {
+    await this.topSearch.fill(term);
+    await this.topSearch.press('Enter');
+  }
+
   /** A notice in the open bell panel, found by its link text. */
   panelNotice(title: string): Locator {
     return this.notificationPanel.getByRole('link', { name: title, exact: true });

@@ -6,6 +6,7 @@ import { MockContacts } from './mock-contacts';
 import { MockPartners } from './mock-partners';
 import { MockEvents } from './mock-events';
 import { MockNotifications } from './mock-notifications';
+import { MockSearch } from './mock-search';
 
 export interface MockAccount {
   name: string;
@@ -146,6 +147,8 @@ export class MockApi {
   readonly contacts = new MockContacts(this);
   /** The shared partner pipeline (ADR 0014). */
   readonly partners = new MockPartners(this);
+  /** Global search over the other fakes, with the server's permission rules (L2-026). */
+  readonly search = new MockSearch(this);
 
   constructor(private readonly page: Page) {}
 
@@ -315,6 +318,8 @@ export class MockApi {
       this.caller(authorization),
     );
     if (announcements) return announcements;
+    const search = this.search.handle(route, method, url, this.caller(authorization));
+    if (search) return search;
     const profileRoute = /^\/api\/profiles\/([^/]+)$/.exec(url.pathname);
     if (method === 'GET' && profileRoute) {
       return this.getProfile(route, profileRoute[1], authorization);

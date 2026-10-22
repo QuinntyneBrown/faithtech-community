@@ -50,6 +50,8 @@ export class FormFieldComponent {
   readonly help = input('');
   readonly error = input('');
   readonly width = input<FormFieldWidth>('auto');
+  /** Hides the label visually, as a search box under a heading does; it still names the control. */
+  readonly labelHidden = input(false);
 
   readonly controlId = computed(() => `${this.uid}-control`);
   readonly helpId = computed(() => `${this.uid}-help`);

@@ -1,4 +1,4 @@
-<label class="label" [attr.for]="controlId()">
+<label class="label" [class.visually-hidden]="labelHidden()" [attr.for]="controlId()">
   {{ label() }}
   @if (optional()) {
     <span class="optional">(optional)</span>

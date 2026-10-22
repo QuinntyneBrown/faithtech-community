@@ -27,6 +27,7 @@ class FocusFormHostComponent {
     [help]="help()"
     [error]="error()"
     [width]="width()"
+    [labelHidden]="labelHidden()"
   >
     <ft-text-field [formControl]="ctrl" />
   </ft-form-field>`,
@@ -38,6 +39,7 @@ class HostComponent {
   readonly help = signal('');
   readonly error = signal('');
   readonly width = signal<FormFieldWidth>('auto');
+  readonly labelHidden = signal(false);
   readonly ctrl = new FormControl('');
 }
 
@@ -90,6 +92,15 @@ describe('FormFieldComponent', () => {
     expect(label.textContent).toContain('Email');
     expect(input.id).toBeTruthy();
     expect(label.htmlFor).toBe(input.id);
+  });
+
+  it('can hide the label visually while keeping it as the accessible name', () => {
+    const { fixture, cmp, q } = setup();
+    cmp.labelHidden.set(true);
+    fixture.detectChanges();
+    const label = q<HTMLLabelElement>('label')!;
+    expect(label.classList.contains('visually-hidden')).toBe(true);
+    expect(label.htmlFor).toBe(q<HTMLInputElement>('input')!.id);
   });
 
   it('marks optional fields in the label and required ones not', () => {
