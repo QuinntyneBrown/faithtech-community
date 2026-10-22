@@ -1,5 +1,6 @@
-// Traces to: L2-020, L2-021, L2-022, L2-023 with L2-045 AC1 (docs/detailed-designs/platform/responsive-layout-and-theming)
+// Traces to: L2-020 to L2-025 with L2-045 AC1 (docs/detailed-designs/platform/responsive-layout-and-theming)
 import { expect, test } from '../../fixtures/app';
+import { CancelEventDialog } from '../../pages/cancel-event.dialog';
 import { EventFormPage } from '../../pages/event-form.page';
 import { EventPage } from '../../pages/event.page';
 import { EventsPage } from '../../pages/events.page';
@@ -85,5 +86,22 @@ for (const name of Object.keys(BREAKPOINTS) as BreakpointName[]) {
     await expect(cancelPage.question).toBeVisible();
     expect(await hasHorizontalScroll(page), 'guest cancel').toBe(false);
     expect(await undersizedTargets(page), 'guest cancel').toEqual([]);
+  });
+}
+
+for (const name of Object.keys(BREAKPOINTS) as BreakpointName[]) {
+  test(`the cancel event dialog fits and keeps 24px targets at ${name}`, async ({ page, api }) => {
+    await page.setViewportSize(BREAKPOINTS[name]);
+    const grace = api.addAccount({ email: 'grace@example.org', roles: ['EventLead'] });
+    const event = api.events.add({ title: 'Hackathon: Tech for Shelters, a weekend of building' });
+    api.events.addRsvps(event, 12);
+
+    await api.signInAs(grace, `/events/${event.id}`);
+    await new EventPage(page).cancelEvent.click();
+    const dialog = new CancelEventDialog(page);
+    await dialog.confirm.click();
+    await expect(dialog.message).toHaveAttribute('aria-invalid', 'true');
+    expect(await hasHorizontalScroll(page), 'cancel event').toBe(false);
+    expect(await undersizedTargets(page), 'cancel event').toEqual([]);
   });
 }

@@ -27,6 +27,8 @@ export interface MockEvent {
   visibility: 'MembersOnly' | 'Public';
   isCancelled: boolean;
   cancellationReason: string | null;
+  cancelledById?: string | null;
+  cancelledAt?: string | null;
   sequence: number;
   createdById: string;
   rsvps: MockRsvp[];
@@ -260,6 +262,8 @@ export class MockEvents {
     const one = /^\/api\/events\/([^/]+)$/.exec(url.pathname);
     if (one && method === 'GET') return this.get(route, one[1], caller);
     if (one && method === 'PUT') return this.update(route, one[1], body, caller);
+    const cancel = /^\/api\/events\/([^/]+)\/cancel$/.exec(url.pathname);
+    if (cancel && method === 'POST') return this.cancelEvent(route, cancel[1], body, caller);
     const ics = /^\/api\/(public\/)?events\/([^/]+)\/calendar\.ics$/.exec(url.pathname);
     if (ics && method === 'GET') return this.calendar(route, ics[2], !!ics[1], caller);
     const publicRoute = /^\/api\/public\/events\/([^/]+)(\/rsvps(?:\/cancel)?)?$/.exec(
@@ -278,6 +282,67 @@ export class MockEvents {
     if (rsvps && method === 'GET' && rsvps[2] === '.csv')
       return this.exportRsvps(route, rsvps[1], caller);
     return false;
+  }
+
+  /** POST /api/events/{id}/cancel (L2-025): event managers, a required reason, everyone who RSVP'd told. */
+  private cancelEvent(
+    route: Route,
+    id: string,
+    body: Record<string, unknown>,
+    caller: EventsCaller | null,
+  ): Promise<void> {
+    if (!caller) return route.fulfill({ status: 401 });
+    const reason = text(body['reason']);
+    if (!reason || reason.length > 500) {
+      return route.fulfill({
+        status: 400,
+        json: {
+          status: 400,
+          errors: {
+            Reason: [
+              reason
+                ? 'Use 500 characters or fewer for the message.'
+                : 'Tell attendees why, so they aren’t left guessing.',
+            ],
+          },
+        },
+      });
+    }
+    if (!canManage(caller)) return route.fulfill({ status: 403 });
+    const event = this.events.find((e) => e.id === id);
+    if (!event) return route.fulfill({ status: 404 });
+    if (event.isCancelled) {
+      return route.fulfill({
+        status: 409,
+        json: { status: 409, detail: 'This event is already cancelled.' },
+      });
+    }
+    event.isCancelled = true;
+    event.cancellationReason = reason;
+    event.cancelledById = caller.profileId;
+    event.cancelledAt = this.now().toISOString();
+    event.sequence++;
+    for (const rsvp of event.rsvps) {
+      if (rsvp.profileId && rsvp.profileId !== caller.profileId) {
+        this.notifications.push({
+          recipientId: rsvp.profileId,
+          kind: 'EventCancelled',
+          title: `${event.title} was cancelled`,
+          linkPath: `/events/${event.id}`,
+        });
+      }
+      // Members' addresses live with their accounts; the fake names them by profile.
+      const to = rsvp.guestEmail ?? (rsvp.profileId ? `profile:${rsvp.profileId}` : null);
+      if (to) {
+        this.emails.push({
+          to,
+          subject: `Cancelled: ${event.title}`,
+          body: `${event.title} is cancelled. The hosts said: “${reason}”`,
+          attachment: { fileName: `${slug(event.title)}.ics`, contentType: 'text/calendar' },
+        });
+      }
+    }
+    return route.fulfill({ status: 204 });
   }
 
   /** GET /api/events/{id}/calendar.ics and /api/public/events/{id}/calendar.ics (L2-024). */
@@ -533,6 +598,10 @@ export class MockEvents {
       isFull: event.capacity !== null && event.rsvps.length >= event.capacity,
       isCancelled: event.isCancelled,
       cancellationReason: event.cancellationReason,
+      cancelledByName: event.cancelledById
+        ? (this.profile(event.cancelledById)?.name ?? null)
+        : null,
+      cancelledAt: event.cancelledAt ?? null,
       hostName: host?.name ?? null,
       hostRole: HOST_ROLES.find(([role]) => host?.roles.includes(role))?.[1] ?? null,
       callerHasRsvp: event.rsvps.some((r) => r.profileId === caller.profileId),

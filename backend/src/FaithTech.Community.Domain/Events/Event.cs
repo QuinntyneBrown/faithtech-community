@@ -53,6 +53,10 @@ public class Event
 
     public string? CancellationReason { get; private set; }
 
+    public Guid? CancelledById { get; private set; }
+
+    public DateTimeOffset? CancelledAt { get; private set; }
+
     public int Sequence { get; private set; }
 
     public Guid CreatedById { get; private set; }
@@ -80,7 +84,7 @@ public class Event
         Sequence++;
     }
 
-    public void Cancel(string reason)
+    public void Cancel(string reason, Guid? cancelledById = null, DateTimeOffset? cancelledAt = null)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(reason);
         if (IsCancelled)
@@ -90,6 +94,8 @@ public class Event
 
         IsCancelled = true;
         CancellationReason = reason;
+        CancelledById = cancelledById;
+        CancelledAt = cancelledAt;
         Sequence++;
     }
 

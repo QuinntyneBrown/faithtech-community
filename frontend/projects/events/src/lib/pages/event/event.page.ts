@@ -39,7 +39,12 @@ import {
 } from '@faithtech-community/components';
 import { firstValueFrom } from 'rxjs';
 
-import { CancelRsvpData, CancelRsvpDialog } from '../../dialogs';
+import {
+  CancelEventData,
+  CancelEventDialog,
+  CancelRsvpData,
+  CancelRsvpDialog,
+} from '../../dialogs';
 
 type State = 'loading' | 'loaded' | 'error';
 
@@ -110,6 +115,15 @@ export class EventPage {
   protected readonly publicPath = computed(() => `/public/events/${this.id()}`);
   protected readonly publicUrl = computed(() => `${location.origin}${this.publicPath()}`);
   protected readonly shareLink = new FormControl('', { nonNullable: true });
+  /** "Esther Nakamura cancelled it on Tue 20 Oct: “…” Everyone who RSVP’d was emailed." */
+  protected readonly cancellation = computed(() => {
+    const e = this.event();
+    if (!e) return '';
+    const who = e.cancelledByName ?? 'A lead';
+    const when = e.cancelledAt ? ` on ${formatDay(e.cancelledAt)}` : '';
+    const why = e.cancellationReason ? `: “${e.cancellationReason}”` : '.';
+    return `${who} cancelled it${when}${why} Everyone who RSVP’d was emailed.`;
+  });
   protected readonly started = computed(() => {
     const e = this.event();
     return !!e && new Date(e.startsAt).getTime() <= Date.now();
@@ -206,6 +220,26 @@ export class EventPage {
     } finally {
       this.downloading.set(false);
     }
+  }
+
+  protected async cancelEvent(): Promise<void> {
+    const e = this.event();
+    if (!e) return;
+    const ref = this.dialogs.open<boolean, CancelEventData>(CancelEventDialog, {
+      data: {
+        eventId: e.id,
+        title: e.title,
+        rsvpCount: e.rsvpCount,
+        memberCount: (e.rsvps ?? []).filter((r) => !r.isGuest).length,
+      },
+    });
+    if (!(await firstValueFrom(ref.closed))) return;
+    this.toasts.show({
+      variant: 'success',
+      heading: 'Event cancelled',
+      text: 'Everyone who RSVP’d is being told.',
+    });
+    await this.load(this.id(), false);
   }
 
   protected async exportCsv(): Promise<void> {

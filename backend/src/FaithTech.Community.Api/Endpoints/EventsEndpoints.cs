@@ -45,6 +45,10 @@ public static class EventsEndpoints
                 (await handler.UpdateAsync(id, command, cancellationToken)).ToHttp(Results.NoContent))
             .Validate<SaveEventCommand>();
 
+        events.MapPost("/{id:guid}/cancel", async (Guid id, CancelEventCommand command, CancelEventHandler handler, CancellationToken cancellationToken) =>
+                (await handler.HandleAsync(id, command, cancellationToken)).ToHttp(Results.NoContent))
+            .Validate<CancelEventCommand>();
+
         events.MapPost("/{id:guid}/rsvps", async (Guid id, RsvpHandler handler, CancellationToken cancellationToken) =>
             (await handler.RsvpAsync(id, cancellationToken)).ToHttp(Results.NoContent));
 

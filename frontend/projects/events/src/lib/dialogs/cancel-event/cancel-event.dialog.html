@@ -1,6 +1,26 @@
-<!--
-  SCAFFOLD: placeholder, not the implementation.
-  Generated from AGENTS.md and:
-    - docs/detailed-designs/events/cancel-events
-  Overwrite this template with the expected implementation, then delete this comment.
--->
+<ft-dialog
+  [heading]="'Cancel ' + data.title + '?'"
+  [description]="description()"
+  icon="close"
+  tone="danger"
+  [busy]="busy()"
+  (closed)="ref.close(false)"
+>
+  <ft-stack>
+    @if (failed()) {
+      <ft-alert status="danger" heading="Event not cancelled">
+        We couldn’t reach FaithTech. Nothing was changed — try again.
+      </ft-alert>
+    }
+    @if (refusal(); as message) {
+      <ft-alert status="danger" heading="Event not cancelled">{{ message }}</ft-alert>
+    }
+    <ft-form-field required label="Message to attendees" [error]="error()">
+      <ft-textarea [formControl]="reason" [rows]="3" initialFocus [readonly]="busy()" />
+    </ft-form-field>
+  </ft-stack>
+  <ft-button ftDialogFooter [disabled]="busy()" (click)="ref.close(false)">Keep event</ft-button>
+  <ft-button ftDialogFooter variant="danger" [loading]="busy()" (click)="confirm()">
+    {{ busy() ? 'Cancelling event…' : 'Cancel event' }}
+  </ft-button>
+</ft-dialog>

@@ -1,15 +1,3 @@
-/*
- * EARLY IMPLEMENTATION: written ahead of the vertical slices to get a head start.
- * Contracts and DTOs follow docs/detailed-designs/ but may change as each feature is
- * implemented end to end (spec -> design -> mock -> ATDD slice).
- * Sources:
- *   - docs/detailed-designs/events/event-list-and-filter
- *   - docs/detailed-designs/events/create-and-edit-events
- *   - docs/detailed-designs/events/rsvp
- *   - docs/detailed-designs/events/cancel-events
- *   - docs/detailed-designs/events/public-events-and-guest-rsvp
- *   - docs/detailed-designs/events/calendar-export
- */
 import { InjectionToken } from '@angular/core';
 import { Observable } from 'rxjs';
 
@@ -84,6 +72,8 @@ export interface EventDetailDto {
   isFull: boolean;
   isCancelled: boolean;
   cancellationReason: string | null;
+  cancelledByName: string | null;
+  cancelledAt: string | null;
   hostName: string | null;
   /** "Event Lead", "City Lead" or "System Admin". */
   hostRole: string | null;
@@ -132,7 +122,8 @@ export interface EventsService {
   getEvent(id: string): Observable<EventDetailDto>;
   createEvent(event: EventRequest): Observable<{ id: string }>;
   updateEvent(id: string, event: EventRequest): Observable<void>;
-  cancelEvent(id: string, reason?: string | null): Observable<void>;
+  /** Event managers; the reason is required (L2-025). 409 when already cancelled. */
+  cancelEvent(id: string, reason: string): Observable<void>;
   /** Idempotent. 409 with a detail when the event is cancelled, started or full. */
   rsvp(id: string): Observable<void>;
   cancelRsvp(id: string): Observable<void>;
