@@ -91,6 +91,21 @@ export class EditProfilePage {
     return this.photoItems.nth(index);
   }
 
+  /** The photo's thumbnail image. */
+  thumbnail(index: number): Locator {
+    return this.photo(index).getByRole('img');
+  }
+
+  /** The "Featured" badge, on the featured photo only. */
+  featuredBadge(): Locator {
+    return this.photosGroup.getByText('Featured', { exact: true });
+  }
+
+  /** The list item of the featured photo. */
+  featuredPhoto(): Locator {
+    return this.photoItems.filter({ has: this.page.getByText('Featured', { exact: true }) });
+  }
+
   description(index: number): Locator {
     return this.page.getByLabel(`Photo ${index + 1} description`);
   }
