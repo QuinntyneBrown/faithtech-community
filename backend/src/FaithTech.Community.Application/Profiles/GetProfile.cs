@@ -26,7 +26,7 @@ public class GetProfileHandler(IApplicationDbContext db, ProfileAccess access, I
     {
         var photos = profile.Photos
             .OrderByDescending(p => p.UploadedAt)
-            .Select(p => new PhotoDto(p.Id, storage.GetReadUrl(p.BlobName), p.AltText, p.IsFeatured, p.UploadedAt))
+            .Select(p => PhotoDto.From(p, storage))
             .ToList();
         return new ProfileDto(
             profile.Id,

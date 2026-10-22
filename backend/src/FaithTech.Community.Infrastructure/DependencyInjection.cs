@@ -67,6 +67,7 @@ public static class DependencyInjection
         services.AddSingleton(_ => new BlobServiceClient(configuration.GetConnectionString("Blobs")));
         services.AddSingleton<IPhotoStorage, AzureBlobPhotoStorage>();
         services.AddSingleton<IImageProcessor, SkiaImageProcessor>();
+        services.AddHostedService<PhotoStorageRetryWorker>();
 
         services.AddHttpContextAccessor();
         services.AddScoped<IAuditLog, AuditLog>();
