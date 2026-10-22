@@ -1,0 +1,40 @@
+<article
+  class="ft-person-card"
+  [class]="'ft-person-card ft-person-card--' + color()"
+  [attr.aria-labelledby]="nameId"
+>
+  <div class="ft-person-card__cover" aria-hidden="true"></div>
+  <div class="ft-person-card__photo">
+    <ft-avatar class="ft-person-card__initials" size="2xl" [name]="name()" [color]="color()" />
+    @if (photo(); as src) {
+      <img class="ft-person-card__img" [src]="src" [alt]="photoAlt()" (error)="photoFailed(src)" />
+    }
+  </div>
+  <div class="ft-person-card__body">
+    <h2 class="ft-person-card__name">
+      <span [id]="nameId">{{ name() }}</span>
+      <ng-content select="[badge]" />
+    </h2>
+    @if (subtitle()) {
+      <p class="ft-person-card__subtitle">{{ subtitle() }}</p>
+    }
+    @if (secondary()) {
+      <p class="ft-person-card__secondary">{{ secondary() }}</p>
+    }
+  </div>
+  <div class="ft-person-card__action">
+    <ft-button variant="outline" [block]="true" [href]="href()" [object]="name()">{{
+      actionLabel()
+    }}</ft-button>
+  </div>
+  @if (dismissLabel(); as label) {
+    <button
+      class="ft-person-card__dismiss"
+      type="button"
+      [attr.aria-label]="label"
+      (click)="dismissed.emit()"
+    >
+      <ft-icon name="close" />
+    </button>
+  }
+</article>

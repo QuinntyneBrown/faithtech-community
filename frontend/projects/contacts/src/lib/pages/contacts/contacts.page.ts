@@ -4,17 +4,17 @@ import { FormControl, ReactiveFormsModule } from '@angular/forms';
 import { CONTACTS_SERVICE, ContactStatus, ContactSummary } from '@faithtech-community/api';
 import {
   AlertComponent,
-  AvatarComponent,
+  avatarColorFor,
   BadgeComponent,
   BadgeVariant,
   ButtonComponent,
-  CardComponent,
   EmptyStateComponent,
+  formatDay,
   IconComponent,
-  ListComponent,
-  ListItemComponent,
-  ListSkeletonComponent,
   PageHeaderComponent,
+  PersonCardComponent,
+  PersonCardSkeletonComponent,
+  PersonGridComponent,
   TextFieldComponent,
 } from '@faithtech-community/components';
 import { firstValueFrom } from 'rxjs';
@@ -27,22 +27,23 @@ const BADGES: Record<ContactStatus, { variant: BadgeVariant; label: string }> = 
   Member: { variant: 'info', label: 'Member' },
 };
 
-/** A lead's private contacts with search (L2-012, L2-013), matching docs/mocks/pages/contacts. */
+/**
+ * A lead's private contacts as a grid of person cards, with search (L2-012, L2-013, L2-060), matching
+ * docs/mocks/pages/contacts.
+ */
 @Component({
   selector: 'ft-contacts-page',
   imports: [
     ReactiveFormsModule,
     AlertComponent,
-    AvatarComponent,
     BadgeComponent,
     ButtonComponent,
-    CardComponent,
     EmptyStateComponent,
     IconComponent,
-    ListComponent,
-    ListItemComponent,
-    ListSkeletonComponent,
     PageHeaderComponent,
+    PersonCardComponent,
+    PersonCardSkeletonComponent,
+    PersonGridComponent,
     TextFieldComponent,
   ],
   templateUrl: './contacts.page.html',
@@ -56,6 +57,8 @@ export class ContactsPage {
   protected readonly term = signal('');
   protected readonly state = signal<State>('loading');
   protected readonly list = signal<ContactSummary[]>([]);
+  /** Browser-loadable photo URLs by contact id; a private photo is fetched with the token (ADR 0017). */
+  protected readonly photos = signal<Record<string, string>>({});
 
   protected readonly subtitle = computed(() => {
     const count = this.list().length;
@@ -78,6 +81,17 @@ export class ContactsPage {
     return [contact.organization, contact.city].filter(Boolean).join(' · ');
   }
 
+  protected secondary(contact: ContactSummary): string {
+    if (contact.noteCount > 0) {
+      return `${contact.noteCount} ${contact.noteCount === 1 ? 'note' : 'notes'}`;
+    }
+    return `Added ${formatDay(new Date(contact.createdAtUtc))}`;
+  }
+
+  protected color(contact: ContactSummary) {
+    return avatarColorFor(contact.id);
+  }
+
   protected search(): void {
     this.term.set(this.query.value.trim());
     void this.load();
@@ -92,10 +106,23 @@ export class ContactsPage {
     try {
       this.list.set(await firstValueFrom(this.contacts.list(this.term() || undefined)));
       this.state.set('loaded');
+      this.loadPhotos();
     } catch (error) {
       this.state.set(
         error instanceof HttpErrorResponse && error.status === 403 ? 'forbidden' : 'error',
       );
+    }
+  }
+
+  /** Each card shows its initials until its photo has loaded, and keeps them if it cannot. */
+  private loadPhotos(): void {
+    for (const contact of this.list()) {
+      const url = contact.photoUrl;
+      if (!url || this.photos()[contact.id]) continue;
+      this.contacts.photoImage(url).subscribe({
+        next: (src) => this.photos.update((all) => ({ ...all, [contact.id]: src })),
+        error: () => undefined,
+      });
     }
   }
 }

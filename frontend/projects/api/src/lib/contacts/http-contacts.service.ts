@@ -1,6 +1,6 @@
 import { HttpClient, HttpContext } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
-import { Observable } from 'rxjs';
+import { Observable, catchError, map, of, shareReplay, throwError } from 'rxjs';
 
 import { API_BASE_URL } from '../config';
 import { HANDLES_FORBIDDEN } from '../errors';
@@ -17,7 +17,9 @@ import {
 @Injectable()
 export class HttpContactsService implements ContactsService {
   private readonly http = inject(HttpClient);
-  private readonly base = `${inject(API_BASE_URL)}/contacts`;
+  private readonly api = inject(API_BASE_URL);
+  private readonly base = `${this.api}/contacts`;
+  private readonly images = new Map<string, Observable<string>>();
   // The contacts page shows its own "private to each lead" state for callers without a lead role.
   private readonly context = new HttpContext().set(HANDLES_FORBIDDEN, true);
 
@@ -69,5 +71,25 @@ export class HttpContactsService implements ContactsService {
       profileId,
       discardNotes,
     });
+  }
+
+  photoImage(url: string): Observable<string> {
+    if (!url.startsWith('/api/contacts/')) return of(url);
+    let image = this.images.get(url);
+    if (!image) {
+      image = this.http
+        .get(`${this.api}${url.slice('/api'.length)}`, { responseType: 'blob' })
+        .pipe(
+          map((blob) => URL.createObjectURL(blob)),
+          // A failed fetch is not remembered, so the next request tries again.
+          catchError((error: unknown) => {
+            this.images.delete(url);
+            return throwError(() => error);
+          }),
+          shareReplay(1),
+        );
+      this.images.set(url, image);
+    }
+    return image;
   }
 }

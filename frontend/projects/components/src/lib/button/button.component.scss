@@ -99,6 +99,18 @@
   --btn-bg-active: var(--color-danger-solid-hover);
 }
 
+/* Accent outline: the person card's View profile pill (components/person-card.html). */
+.ft-button--outline {
+  --btn-fg: var(--color-fg-accent);
+  --btn-border: var(--color-accent);
+  --btn-bg-hover: var(--color-accent-subtle);
+  --btn-bg-active: var(--color-accent-subtle-hover);
+
+  &:hover {
+    color: var(--color-fg-accent);
+  }
+}
+
 .ft-button--ghost {
   --btn-bg: transparent;
   --btn-border: transparent;

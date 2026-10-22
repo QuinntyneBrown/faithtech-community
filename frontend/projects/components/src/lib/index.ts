@@ -34,6 +34,7 @@ export * from './note';
 export * from './notice-list';
 export * from './notification-bell';
 export * from './notification-panel';
+export * from './person-card';
 export * from './photo';
 export * from './picture-list';
 export * from './profile-header';

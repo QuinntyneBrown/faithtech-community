@@ -2,7 +2,7 @@ import { ChangeDetectionStrategy, Component, computed, input, signal } from '@an
 import { NgTemplateOutlet } from '@angular/common';
 
 export type AvatarColor = 'plain' | 'sky' | 'sun' | 'lilac' | 'sage' | 'rose' | 'mint' | 'peach';
-export type AvatarSize = 'sm' | 'md' | 'lg' | 'xl';
+export type AvatarSize = 'sm' | 'md' | 'lg' | 'xl' | '2xl';
 
 /**
  * Initials on a person's colour. Always decorative (aria-hidden): the name is printed beside it.

@@ -50,6 +50,12 @@
   font-size: var(--font-size-xl);
 }
 
+/* The person card's photo (components/person-card.html). */
+.ft-avatar--2xl {
+  --avatar-size: var(--size-cover-lg);
+  font: var(--text-h3);
+}
+
 .ft-avatar--sky {
   background: var(--color-cover-sky);
   color: var(--color-fg-on-cover);

@@ -70,4 +70,49 @@ describe('HttpContactsService', () => {
 
     expect(controller.expectOne('/api/contacts').request.context.get(HANDLES_FORBIDDEN)).toBe(true);
   });
+
+  describe('photoImage', () => {
+    let created: Blob[];
+
+    beforeEach(() => {
+      created = [];
+      URL.createObjectURL = vi.fn((blob: Blob) => {
+        created.push(blob);
+        return `blob:image-${created.length}`;
+      });
+    });
+
+    it('fetches a private contact photo through the API, with the token, as an object URL', () => {
+      const urls: string[] = [];
+      service.photoImage('/api/contacts/c1/photos/p1/image').subscribe((url) => urls.push(url));
+
+      const req = controller.expectOne('/api/contacts/c1/photos/p1/image');
+      expect(req.request.method).toBe('GET');
+      expect(req.request.responseType).toBe('blob');
+      req.flush(new Blob(['svg'], { type: 'image/svg+xml' }));
+
+      expect(urls).toEqual(['blob:image-1']);
+    });
+
+    it('fetches each photo once per session', () => {
+      service.photoImage('/api/contacts/c1/photos/p1/image').subscribe();
+      controller.expectOne('/api/contacts/c1/photos/p1/image').flush(new Blob(['a']));
+
+      const urls: string[] = [];
+      service.photoImage('/api/contacts/c1/photos/p1/image').subscribe((url) => urls.push(url));
+
+      controller.expectNone('/api/contacts/c1/photos/p1/image');
+      expect(urls).toEqual(['blob:image-1']);
+    });
+
+    it('passes a linked member’s photo URL through unchanged', () => {
+      const urls: string[] = [];
+      service
+        .photoImage('https://photos.example/profiles/p1.jpg?sig=x')
+        .subscribe((url) => urls.push(url));
+
+      controller.expectNone(() => true);
+      expect(urls).toEqual(['https://photos.example/profiles/p1.jpg?sig=x']);
+    });
+  });
 });

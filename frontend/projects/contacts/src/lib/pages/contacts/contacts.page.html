@@ -35,7 +35,7 @@
 
   @switch (state()) {
     @case ('loading') {
-      <ft-list-skeleton label="Loading contacts" [rows]="4" />
+      <ft-person-card-skeleton label="Loading contacts" [cards]="4" />
     }
     @case ('error') {
       <ft-empty-state
@@ -68,25 +68,26 @@
           </ft-button>
         </ft-empty-state>
       } @else {
-        <ft-card variant="flush">
-          <ft-list label="Contacts">
-            @for (contact of list(); track contact.id) {
-              <ft-list-item
-                [label]="contact.name"
-                [href]="'/contacts/' + contact.id"
-                [meta]="meta(contact)"
-              >
-                <ft-avatar leading size="sm" [name]="contact.name" />
-                <ft-badge trailing [variant]="badge(contact).variant">
-                  @if (contact.status === 'Private') {
-                    <ft-icon name="locked" size="sm" />
-                  }
-                  {{ badge(contact).label }}
-                </ft-badge>
-              </ft-list-item>
-            }
-          </ft-list>
-        </ft-card>
+        <ft-person-grid label="Contacts">
+          @for (contact of list(); track contact.id) {
+            <ft-person-card
+              [name]="contact.name"
+              [photoSrc]="photos()[contact.id] ?? null"
+              [photoAlt]="contact.photoAltText ?? ''"
+              [color]="color(contact)"
+              [subtitle]="meta(contact)"
+              [secondary]="secondary(contact)"
+              [href]="'/contacts/' + contact.id"
+            >
+              <ft-badge badge [variant]="badge(contact).variant">
+                @if (contact.status === 'Private') {
+                  <ft-icon name="locked" size="sm" />
+                }
+                {{ badge(contact).label }}
+              </ft-badge>
+            </ft-person-card>
+          }
+        </ft-person-grid>
       }
     }
   }

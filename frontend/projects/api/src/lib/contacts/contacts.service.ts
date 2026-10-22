@@ -28,6 +28,14 @@ export interface ContactSummary {
   status: ContactStatus;
   /** Set on archived contacts only. */
   archivedAtUtc: string | null;
+  /**
+   * The card's photo (L2-060): the linked member's featured photo, or else the contact's own, whose URL is an
+   * API path that must be loaded through `photoImage` (ADR 0017). Null when there is none, or it is storing.
+   */
+  photoUrl: string | null;
+  photoAltText: string | null;
+  noteCount: number;
+  createdAtUtc: string;
 }
 
 /** A verified member who uses the contact's email, offered for linking (L2-015). */
@@ -83,6 +91,11 @@ export interface ContactsService {
   getNotes(contactId: string): Observable<ContactNoteDto[]>;
   addNote(contactId: string, body: string): Observable<ContactNoteDto>;
   link(contactId: string, profileId: string, discardNotes: boolean): Observable<ContactDto>;
+  /**
+   * An image URL the browser can show. A contact photo's URL is an API path that needs the bearer token, so
+   * its image is fetched and returned as an object URL, once per session; any other URL is returned as it is.
+   */
+  photoImage(url: string): Observable<string>;
 }
 
 export const CONTACTS_SERVICE = new InjectionToken<ContactsService>('CONTACTS_SERVICE');

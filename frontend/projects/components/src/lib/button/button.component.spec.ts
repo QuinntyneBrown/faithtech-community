@@ -20,7 +20,7 @@ import { ButtonComponent } from './button.component';
   >`,
 })
 class HostComponent {
-  variant = signal<'primary' | 'secondary' | 'ghost' | 'danger'>('secondary');
+  variant = signal<'primary' | 'secondary' | 'outline' | 'ghost' | 'danger'>('secondary');
   size = signal<'sm' | 'md' | 'lg'>('md');
   type = signal<'button' | 'submit' | 'reset'>('button');
   disabled = signal(false);
@@ -42,6 +42,13 @@ function setup() {
 }
 
 describe('ButtonComponent', () => {
+  it('offers the accent outline variant used by the person card', () => {
+    const { fixture, cmp, q } = setup();
+    cmp.variant.set('outline');
+    fixture.detectChanges();
+    expect(q('button').classList.contains('ft-button--outline')).toBe(true);
+  });
+
   it('renders a native button with the projected label as its name', () => {
     const { q } = setup();
     const btn = q<HTMLButtonElement>('button');
