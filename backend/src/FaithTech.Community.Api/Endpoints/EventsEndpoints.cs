@@ -29,6 +29,9 @@ public static class EventsEndpoints
             return Results.Ok(await handler.HandleAsync(new ListEventsQuery(parsed, city), cancellationToken));
         });
 
+        events.MapGet("/{id:guid}", async (Guid id, GetEventHandler handler, CancellationToken cancellationToken) =>
+            await handler.HandleAsync(id, cancellationToken) is { } found ? Results.Ok(found) : Results.NotFound());
+
         events.MapPost("", async (SaveEventCommand command, SaveEventHandler handler, CancellationToken cancellationToken) =>
             {
                 var (result, id) = await handler.CreateAsync(command, cancellationToken);
