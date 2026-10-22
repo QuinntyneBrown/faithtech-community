@@ -74,6 +74,11 @@ export class AuditLogPage {
   protected readonly exporting = signal(false);
   private readonly page = signal(1);
   private readonly selected = signal<AuditCategory | null>(null);
+  /**
+   * Bumped by every new load (category change, retry); a response that belongs to an older one is
+   * dropped, so out-of-order answers never mix with the entries on screen.
+   */
+  private generation = 0;
 
   protected readonly rows = computed(() =>
     this.entries().map((e) => ({
@@ -106,17 +111,19 @@ export class AuditLogPage {
 
   protected async loadMore(): Promise<void> {
     if (this.loadingMore()) return;
+    const generation = this.generation;
     this.loadingMore.set(true);
     try {
       const next = this.page() + 1;
       const result = await firstValueFrom(this.audit.getEntries(this.filters(), next));
+      if (generation !== this.generation) return;
       this.entries.update((entries) => [...entries, ...result.items]);
       this.total.set(result.totalCount);
       this.page.set(next);
     } catch {
-      this.state.set('error');
+      if (generation === this.generation) this.state.set('error');
     } finally {
-      this.loadingMore.set(false);
+      if (generation === this.generation) this.loadingMore.set(false);
     }
   }
 
@@ -154,14 +161,18 @@ export class AuditLogPage {
   }
 
   private async load(): Promise<void> {
+    const generation = ++this.generation;
     this.state.set('loading');
+    this.loadingMore.set(false);
     try {
       const result = await firstValueFrom(this.audit.getEntries(this.filters(), 1));
+      if (generation !== this.generation) return;
       this.entries.set(result.items);
       this.total.set(result.totalCount);
       this.page.set(1);
       this.state.set('loaded');
     } catch (error) {
+      if (generation !== this.generation) return;
       const forbidden = error instanceof HttpErrorResponse && error.status === 403;
       this.state.set(forbidden ? 'forbidden' : 'error');
     }

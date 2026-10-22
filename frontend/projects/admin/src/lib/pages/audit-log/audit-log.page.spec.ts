@@ -63,6 +63,93 @@ async function setup(
 }
 
 describe('AuditLogPage', () => {
+  // L2-041: only the newest category may fill the log (responses can arrive out of order).
+  describe('out-of-order responses', () => {
+    function controlled() {
+      const pending = new Map<string, Subject<PagedResult<AuditEntry>>>();
+      const getEntries = (filters: AuditFilters, p = 1) => {
+        const s = new Subject<PagedResult<AuditEntry>>();
+        pending.set(`${filters.category ?? 'all'}:${p}`, s);
+        return s.asObservable();
+      };
+      const reply = (key: string, result: PagedResult<AuditEntry> | HttpErrorResponse) => {
+        const s = pending.get(key)!;
+        if (result instanceof HttpErrorResponse) s.error(result);
+        else {
+          s.next(result);
+          s.complete();
+        }
+      };
+      return { getEntries, reply };
+    }
+    const choose = (host: HTMLElement, value: string) => {
+      const select = host.querySelector('select')!;
+      select.value = value;
+      select.dispatchEvent(new Event('change'));
+    };
+    const rows = (host: HTMLElement) =>
+      Array.from(host.querySelectorAll('tbody tr')).map((r) => r.textContent!);
+
+    it('keeps the newest category when an older one answers last', async () => {
+      const api = controlled();
+      const { host, settle } = await setup(api.getEntries);
+      api.reply('all:1', page([entry('Everything')]));
+      await settle();
+
+      choose(host, 'roles');
+      await settle();
+      choose(host, 'suspensions');
+      await settle();
+      api.reply('suspensions:1', page([], 0));
+      await settle();
+      api.reply('roles:1', page([entry('Granted Staff to Daniel Reyes')], 80));
+      await settle();
+
+      expect(rows(host)).toEqual([]);
+      expect(host.textContent).toContain('No suspensions in the last 90 days');
+      expect(host.textContent).not.toContain('Show older entries');
+    });
+
+    it('drops a show-more that was pending when the category changed', async () => {
+      const api = controlled();
+      const { host, button, settle } = await setup(api.getEntries);
+      const fifty = Array.from({ length: 50 }, (_, i) => entry(`All ${i}`));
+      api.reply('all:1', page(fifty, 120));
+      await settle();
+
+      button('Show older entries')!.click();
+      await settle();
+      choose(host, 'suspensions');
+      await settle();
+      api.reply('suspensions:1', page([entry('Suspended Victor Kane')]));
+      await settle();
+      api.reply('all:2', page([entry('Late page')], 120, 2));
+      await settle();
+
+      expect(rows(host)).toHaveLength(1);
+      expect(rows(host)[0]).toContain('Suspended Victor Kane');
+    });
+
+    it('does not let an older failure replace the newest entries', async () => {
+      const api = controlled();
+      const { host, settle } = await setup(api.getEntries);
+      api.reply('all:1', page([entry('Everything')]));
+      await settle();
+
+      choose(host, 'roles');
+      await settle();
+      choose(host, 'suspensions');
+      await settle();
+      api.reply('suspensions:1', page([entry('Suspended Victor Kane')]));
+      await settle();
+      api.reply('roles:1', new HttpErrorResponse({ status: 500 }));
+      await settle();
+
+      expect(host.textContent).toContain('Suspended Victor Kane');
+      expect(host.textContent).not.toContain('We couldn’t load');
+    });
+  });
+
   it('shows when, who and what for each entry', async () => {
     const { host } = await setup(() => of(page([entry('Granted City Lead to Esther Nakamura')])));
 
