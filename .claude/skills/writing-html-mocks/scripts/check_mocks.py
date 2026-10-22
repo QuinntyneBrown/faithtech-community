@@ -385,8 +385,28 @@ def write_readme(root: Path, coverage: dict, manifest: dict) -> None:
     readme.write_text(text, encoding="utf-8")
 
 
+TOKENS_CANDIDATES = (
+    "../design-system/tokens/tokens.css",
+    "../design-system/tokens.css",
+    "assets/tokens.css",
+)
+
+
+def tokens_href(root: Path) -> str:
+    """Relative link from the gallery index to the tokens stylesheet that exists on disk.
+
+    The design system's tokens are preferred over a local copy, so the gallery
+    reads the same tokens as the mocks.
+    """
+    for candidate in TOKENS_CANDIDATES:
+        if (root / candidate).resolve().is_file():
+            return candidate
+    return TOKENS_CANDIDATES[-1]
+
+
 def write_index(root: Path, coverage: dict, manifest: dict) -> None:
     title = manifest.get("project", "Project")
+    tokens = tokens_href(root)
     sections = []
     for kind, rows in coverage.items():
         if not rows:
@@ -416,7 +436,7 @@ def write_index(root: Path, coverage: dict, manifest: dict) -> None:
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>{title} mocks</title>
-<link rel="stylesheet" href="assets/tokens.css">
+<link rel="stylesheet" href="{tokens}">
 <style>
   body {{ margin: 0; font: var(--text-body); color: var(--color-fg-default); background: var(--color-bg-canvas); }}
   header {{ padding: var(--space-6) var(--layout-margin); border-bottom: 1px solid var(--color-border-default); display: flex; gap: var(--space-4); align-items: center; flex-wrap: wrap; }}
