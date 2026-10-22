@@ -13,6 +13,11 @@ export class NotePage {
   readonly toolbar: Locator;
   readonly blockMenu: Locator;
   readonly announcement: Locator;
+  readonly pageSuggestions: Locator;
+  readonly linkedFrom: Locator;
+  readonly pagesInside: Locator;
+  readonly newPageInside: Locator;
+  readonly moreActions: Locator;
   readonly slashOptions: Locator;
   readonly saveStatus: Locator;
   readonly banner: Locator;
@@ -29,6 +34,11 @@ export class NotePage {
     this.textBlocks = this.content.getByRole('textbox');
     this.retry = page.getByRole('button', { name: 'Retry' });
     this.blockMenu = page.getByRole('menu').last();
+    this.pageSuggestions = page.getByRole('listbox', { name: 'Link to a page' });
+    this.linkedFrom = page.getByRole('region', { name: 'Linked from' });
+    this.pagesInside = page.getByRole('region', { name: 'Pages inside' });
+    this.newPageInside = page.getByRole('button', { name: 'New page inside' });
+    this.moreActions = page.getByRole('button', { name: 'More actions' });
     this.announcement = page.locator('[data-move-announcement]');
     this.toolbar = page.getByRole('toolbar', { name: 'Formatting' });
     this.slashMenu = page.getByRole('listbox', { name: 'Insert a block' });

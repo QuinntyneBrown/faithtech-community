@@ -90,6 +90,9 @@ public class NotePage
         _roles.AddRange(keepRoles.Where(r => _roles.All(x => x.Role != r)).Select(r => new NoteShareRole(Id, r)));
     }
 
+    /// <summary>Puts the page inside another page of the same owner, or at the top level (L2-091).</summary>
+    public void MoveTo(Guid? parentId) => ParentId = parentId;
+
     /// <summary>Records who changed the page and when, and moves the version on.</summary>
     public void Touch(Guid by, DateTimeOffset now)
     {

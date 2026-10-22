@@ -24,6 +24,18 @@ public static class NotesEndpoints
             return result.ToHttp(() => Results.Created($"/api/notes/{created!.Id}", created));
         });
 
+        notes.MapGet("/links", async (string? q, Guid? exclude, LinkSuggestionsHandler handler, CancellationToken cancellationToken) =>
+            Results.Ok(await handler.HandleAsync(q, exclude, cancellationToken)));
+
+        notes.MapGet("/{id:guid}/parent-options", async (Guid id, string? q, ParentOptionsHandler handler, CancellationToken cancellationToken) =>
+            await handler.HandleAsync(id, q, cancellationToken) is { } options ? Results.Ok(options) : Results.NotFound());
+
+        notes.MapPut("/{id:guid}/parent", async (Guid id, MoveNoteCommand command, MoveNoteHandler handler, CancellationToken cancellationToken) =>
+        {
+            var (result, page) = await handler.HandleAsync(id, command, cancellationToken);
+            return result.ToHttp(() => Results.Ok(page));
+        });
+
         notes.MapGet("/{id:guid}", async (Guid id, GetNoteHandler handler, CancellationToken cancellationToken) =>
             await handler.HandleAsync(id, cancellationToken) is { } page ? Results.Ok(page) : Results.NotFound());
 

@@ -24,7 +24,21 @@ public class CreateNoteHandler(IApplicationDbContext db, NoteAccess access, Note
             return (Result.Invalid("Title", error), null);
         }
 
-        var page = new NotePage(caller, command.Title, null, time.GetUtcNow());
+        if (command.ParentId is { } parentId)
+        {
+            var parent = await access.FindAsync(parentId, caller, cancellationToken);
+            if (parent is null)
+            {
+                return (Result.NotFound(), null);
+            }
+
+            if (parent.OwnerId != caller || parent.IsArchived)
+            {
+                return (Result.Invalid("ParentId", NoteFields.ParentMessage), null);
+            }
+        }
+
+        var page = new NotePage(caller, command.Title, command.ParentId, time.GetUtcNow());
         db.NotePages.Add(page);
         await db.SaveChangesAsync(cancellationToken);
         return (Result.Ok(), await views.DetailAsync(page, caller, cancellationToken));
@@ -33,6 +47,9 @@ public class CreateNoteHandler(IApplicationDbContext db, NoteAccess access, Note
 
 public static class NoteFields
 {
+    public const string ParentMessage = "Choose another page.";
+    public const string ArchivedMessage = "Restore this page before you change it.";
+
     /// <summary>One emoji: a single user-perceived character that is a symbol (L2-086 AC3, L2-087 AC6).</summary>
     public static bool IsEmoji(string value)
     {

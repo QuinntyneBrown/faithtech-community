@@ -33,3 +33,22 @@ export class LinkDialog {
     this.remove = this.dialog.getByRole('button', { name: 'Remove link' });
   }
 }
+
+/** "Move {title}" (docs/mocks/dialogs/move-note). */
+export class MoveNoteDialog {
+  readonly dialog: Locator;
+  readonly search: Locator;
+  readonly topLevel: Locator;
+  readonly move: Locator;
+
+  constructor(page: Page, title: string) {
+    this.dialog = page.getByRole('dialog', { name: `Move ${title}` });
+    this.search = this.dialog.getByRole('searchbox', { name: 'Search your pages' });
+    this.topLevel = this.dialog.getByRole('radio', { name: 'Top level (no parent)' });
+    this.move = this.dialog.getByRole('button', { name: 'Move', exact: true });
+  }
+
+  option(title: string): Locator {
+    return this.dialog.getByRole('radio', { name: new RegExp(`^${title}`) });
+  }
+}

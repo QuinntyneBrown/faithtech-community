@@ -70,6 +70,8 @@ export interface NotePageSummary {
   sharedWithYou: boolean;
   updatedAt: string;
   updatedByName: string;
+  /** The parent's title, "Private page" when the viewer cannot open it, or null at the top level. */
+  parentTitle: string | null;
 }
 
 /** A page in a breadcrumb, a child list or backlinks; `id` is null for "Private page". */
@@ -104,6 +106,8 @@ export interface NotePageDto extends NotePageSummary {
   breadcrumb: NotePageRef[];
   children: NotePageRef[];
   backlinks: NotePageRef[];
+  /** The page-link targets the viewer may open; any other page link reads "Private page". */
+  links: NotePageRef[];
 }
 
 export interface NoteQuery {
@@ -171,6 +175,8 @@ export interface NotesService {
   restore(id: string): Observable<void>;
   archived(): Observable<ArchivedNote[]>;
   linkSuggestions(q: string, exclude?: string): Observable<NotePageRef[]>;
+  /** The pages this page can move under: the owner's own, but not itself or its descendants. */
+  parentOptions(id: string, q?: string): Observable<NotePageRef[]>;
   members(q: string): Observable<NoteMember[]>;
   uploadImage(id: string, file: File): Observable<NoteImageUploaded>;
   image(id: string, imageId: string): Observable<Blob>;

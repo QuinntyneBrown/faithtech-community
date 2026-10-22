@@ -9,8 +9,8 @@ import {
   viewChild,
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { ActivatedRoute } from '@angular/router';
-import { NOTES_SERVICE, NoteBlock, NotePageDto } from '@faithtech-community/api';
+import { ActivatedRoute, Router } from '@angular/router';
+import { NOTES_SERVICE, NoteBlock, NotePageDto, NotePageRef } from '@faithtech-community/api';
 import {
   BlockEditorComponent,
   BlockRequest,
@@ -21,7 +21,13 @@ import {
   DialogService,
   EditorBlock,
   EmptyStateComponent,
+  EditorSpan,
   IconComponent,
+  MenuComponent,
+  MenuEntry,
+  PageLinkItem,
+  PageLinkView,
+  PageLinksComponent,
   PageTitleComponent,
   SaveStatusComponent,
   SkeletonComponent,
@@ -30,7 +36,14 @@ import {
 } from '@faithtech-community/components';
 import { firstValueFrom } from 'rxjs';
 
-import { AddLinkCardDialog, AddLinkDialog, LinkCard, LinkChoice } from '../../dialogs';
+import {
+  AddLinkCardDialog,
+  AddLinkDialog,
+  LinkCard,
+  LinkChoice,
+  MoveNoteDialog,
+  MoveResult,
+} from '../../dialogs';
 import { NoteAutosave } from '../../note-autosave';
 import { titleOf } from '../../note-format';
 
@@ -46,6 +59,8 @@ type State = 'loading' | 'loaded' | 'missing' | 'error';
     ButtonComponent,
     EmptyStateComponent,
     IconComponent,
+    MenuComponent,
+    PageLinksComponent,
     PageTitleComponent,
     SaveStatusComponent,
     SkeletonComponent,
@@ -58,6 +73,7 @@ export class NotePage {
   private readonly notes = inject(NOTES_SERVICE);
   private readonly toasts = inject(ToastService);
   private readonly dialogs = inject(DialogService);
+  private readonly router = inject(Router);
   private readonly titleBox = viewChild(PageTitleComponent);
   private readonly editor = viewChild(BlockEditorComponent);
 
@@ -70,6 +86,25 @@ export class NotePage {
   protected readonly editable = computed(() => !!this.page()?.canEdit && !this.page()?.archivedAt);
   protected readonly titleOf = titleOf;
   protected autosave: NoteAutosave | null = null;
+  protected readonly creating = signal(false);
+  protected readonly actions = computed<MenuEntry[]>(() => [
+    { kind: 'item', id: 'inside', label: 'New page inside', icon: 'add' },
+    { kind: 'item', id: 'move', label: 'Move', icon: 'move' },
+  ]);
+  /** Pages the viewer may open by id: the API's link targets plus every "[[" suggestion seen since. */
+  private readonly known = new Map<string, NotePageRef>();
+  /** How a page link shows: the target's title and icon, or "Private page" (L2-090 AC2, AC3). */
+  protected readonly pageLink = (span: EditorSpan): PageLinkView => {
+    const target = span.pageId ? this.known.get(span.pageId) : undefined;
+    return target
+      ? { text: target.title, icon: target.icon, href: `/notes/${target.id}` }
+      : { text: 'Private page', icon: null, href: null };
+  };
+  protected readonly pageSearch = async (q: string): Promise<PageLinkItem[]> => {
+    const found = await firstValueFrom(this.notes.linkSuggestions(q, this.id));
+    found.forEach((f) => f.id && this.known.set(f.id, f));
+    return found;
+  };
   private blocks: NoteBlock[] = [];
   private id = '';
 
@@ -118,6 +153,51 @@ export class NotePage {
       });
   }
 
+  protected act(id: string): void {
+    if (id === 'inside') void this.newPageInside();
+    if (id === 'move') this.move();
+  }
+
+  /** Creates a page inside this one and opens it (L2-085 AC7). */
+  protected async newPageInside(): Promise<void> {
+    if (this.creating()) return;
+    this.creating.set(true);
+    try {
+      const child = await firstValueFrom(this.notes.create(null, this.id));
+      await this.router.navigate(['/notes', child.id]);
+    } catch {
+      this.toasts.show({
+        variant: 'danger',
+        heading: 'Page not created',
+        text: 'We couldn’t reach FaithTech. Try again.',
+      });
+    } finally {
+      this.creating.set(false);
+    }
+  }
+
+  /** Moves the page under another of the owner's pages, or to the top level (L2-091 AC3, AC4). */
+  protected move(): void {
+    const page = this.page()!;
+    this.dialogs
+      .open<MoveResult>(MoveNoteDialog, { data: { ...page, title: this.title() } })
+      .closed.subscribe((moved) => {
+        if (!moved) return;
+        this.page.set({
+          ...page,
+          parentId: moved.page.parentId,
+          breadcrumb: moved.page.breadcrumb,
+        });
+        this.toasts.show({
+          variant: 'success',
+          heading: `${titleOf({ title: this.title() })} moved`,
+          text: moved.parentTitle
+            ? `It’s now inside ${moved.parentTitle}.`
+            : 'It’s now at the top level.',
+        });
+      });
+  }
+
   protected refused(message: string): void {
     this.toasts.show({ variant: 'warning', heading: 'Block not added', text: message });
   }
@@ -127,6 +207,8 @@ export class NotePage {
     this.autosave?.cancel();
     try {
       const page = await firstValueFrom(this.notes.get(this.id));
+      this.known.clear();
+      page.links.forEach((l) => l.id && this.known.set(l.id, l));
       this.page.set(page);
       this.title.set(page.title);
       this.icon.set(page.icon);

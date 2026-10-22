@@ -1,0 +1,15 @@
+<section class="ft-page-links" [attr.aria-label]="heading()">
+  <h2 class="ft-page-links__title">{{ heading() }}</h2>
+  @if (pages().length) {
+    <ft-list [label]="heading()">
+      @for (page of pages(); track page.id ?? $index) {
+        <ft-list-item [label]="page.title" [href]="page.id ? basePath() + page.id : null">
+          <ft-icon-tile leading size="sm" name="notes" [emoji]="page.icon" />
+        </ft-list-item>
+      }
+    </ft-list>
+  } @else {
+    <p class="ft-page-links__empty">{{ emptyText() }}</p>
+  }
+  <ng-content />
+</section>

@@ -224,8 +224,10 @@
     @if (popup(); as menu) {
       <ft-slash-menu
         class="ft-block-editor__popup"
-        label="Insert a block"
-        emptyText="No matching blocks"
+        [label]="menu.kind === 'slash' ? 'Insert a block' : 'Link to a page'"
+        [emptyText]="
+          menu.kind === 'slash' ? 'No matching blocks' : 'No pages match “' + menu.query + '”'
+        "
         [listId]="menuId"
         [options]="options()"
         [active]="menu.active"

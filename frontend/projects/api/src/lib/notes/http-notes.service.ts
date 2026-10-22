@@ -74,6 +74,12 @@ export class HttpNotesService implements NotesService {
     });
   }
 
+  parentOptions(id: string, q?: string): Observable<NotePageRef[]> {
+    return this.http.get<NotePageRef[]>(`${this.base}/${id}/parent-options`, {
+      params: toHttpParams({ q: q || undefined }),
+    });
+  }
+
   members(q: string): Observable<NoteMember[]> {
     return this.http.get<NoteMember[]>(`${this.base}/members`, { params: toHttpParams({ q }) });
   }

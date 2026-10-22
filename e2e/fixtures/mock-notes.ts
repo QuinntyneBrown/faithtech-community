@@ -122,6 +122,7 @@ export class MockNotes {
       if (method === 'GET') return this.list(route, url, caller);
       if (method === 'POST') return this.create(route, caller, body);
     }
+    if (method === 'GET' && id === 'links') return this.suggestions(route, url, caller);
 
     const note = this.find(id, caller);
     if (!note) return route.fulfill({ status: 404 });
@@ -131,6 +132,12 @@ export class MockNotes {
     if (method === 'PUT' && !match[2]) {
       if (!canChange) return route.fulfill({ status: 403 });
       return this.save(route, note, caller, body);
+    }
+    if (method === 'GET' && match[2] === 'parent-options')
+      return this.json(route, 200, this.parentOptions(note, url));
+    if (method === 'PUT' && match[2] === 'parent') {
+      if (!canChange) return route.fulfill({ status: 403 });
+      return this.move(route, note, caller, body);
     }
     return route.fulfill({ status: 405 });
   }
@@ -206,8 +213,73 @@ export class MockNotes {
     const title = typeof body['title'] === 'string' ? body['title'].trim() : '';
     if (title.length > MAX_TITLE)
       return this.invalid(route, { Title: ['Use 200 characters or fewer for the title.'] });
-    const note = this.add({ title, ownerId: caller.profileId });
+    const parentId = (body['parentId'] as string | null) ?? null;
+    if (parentId) {
+      const parent = this.find(parentId, caller);
+      if (!parent) return route.fulfill({ status: 404 });
+      if (parent.ownerId !== caller.profileId || parent.archivedAt)
+        return this.invalid(route, { ParentId: ['Choose another page.'] });
+    }
+    const note = this.add({ title, ownerId: caller.profileId, parentId });
     return this.json(route, 201, this.dto(note, caller));
+  }
+
+  /** "[[" suggestions (L2-090 AC1): up to 10 visible pages by title, most recently edited first. */
+  private suggestions(route: Route, url: URL, caller: MockAccount) {
+    const q = (url.searchParams.get('q') ?? '').trim().toLowerCase();
+    const exclude = url.searchParams.get('exclude');
+    const found = this.visible(caller)
+      .filter((n) => n.id !== exclude && n.title.toLowerCase().includes(q))
+      .slice(0, 10)
+      .map((n) => this.ref(n));
+    return this.json(route, 200, found);
+  }
+
+  private parentOptions(n: MockNote, url: URL) {
+    const q = (url.searchParams.get('q') ?? '').trim().toLowerCase();
+    const excluded = this.descendants(n.id).add(n.id);
+    return this.pages
+      .filter((p) => p.ownerId === n.ownerId && !p.archivedAt && !excluded.has(p.id))
+      .filter((p) => p.title.toLowerCase().includes(q))
+      .sort((a, b) => a.title.localeCompare(b.title))
+      .map((p) => this.ref(p));
+  }
+
+  /** Move (L2-091 AC5): only under an active page of the same owner, never under itself or below. */
+  private move(route: Route, n: MockNote, caller: MockAccount, body: Record<string, unknown>) {
+    const parentId = (body['parentId'] as string | null) ?? null;
+    if (parentId) {
+      const parent = this.find(parentId, caller);
+      if (!parent) return route.fulfill({ status: 404 });
+      if (
+        parent.ownerId !== n.ownerId ||
+        parent.archivedAt ||
+        parent.id === n.id ||
+        this.descendants(n.id).has(parent.id)
+      )
+        return this.invalid(route, { ParentId: ['Choose another page.'] });
+    }
+    n.parentId = parentId;
+    return this.json(route, 200, this.dto(n, caller));
+  }
+
+  private descendants(id: string): Set<string> {
+    const found = new Set<string>();
+    let frontier = [id];
+    while (frontier.length) {
+      frontier = this.pages
+        .filter((p) => p.parentId && frontier.includes(p.parentId) && !found.has(p.id))
+        .map((p) => p.id);
+      frontier.forEach((f) => found.add(f));
+    }
+    return found;
+  }
+
+  /** A page by icon and title, or "Private page" with no id (ADR 0025). */
+  private ref(n: MockNote | undefined, caller?: MockAccount) {
+    if (!n || (caller && (n.archivedAt || !this.mayOpen(n, caller))))
+      return { id: null, title: 'Private page', icon: null };
+    return { id: n.id, title: n.title || 'Untitled', icon: n.icon };
   }
 
   /** The plain text of each block, for assertions. */
@@ -225,12 +297,28 @@ export class MockNotes {
       });
     if (title.length > MAX_TITLE)
       return this.invalid(route, { Title: ['Use 200 characters or fewer for the title.'] });
+    const linked = new Set(n.blocks.flatMap((b) => (b.text ?? []).map((t) => t.pageId)));
+    const newLinks = blocks
+      .flatMap((b) => (b.text ?? []).map((t) => t.pageId))
+      .filter((id): id is string => !!id && !linked.has(id));
+    if (
+      newLinks.some(
+        (id) =>
+          this.ref(
+            this.pages.find((p) => p.id === id),
+            caller,
+          ).id === null,
+      )
+    )
+      return this.invalid(route, { Blocks: ['Link to a page you can open.'] });
     const refused = blocks.findIndex((b) => this.problem(b));
     if (refused >= 0)
       return this.invalid(route, { [`Blocks[${refused}]`]: [this.problem(blocks[refused])!] });
     n.title = title;
     n.icon = (body['icon'] as string | null) ?? null;
     n.blocks = blocks.map((b) => this.stored(b));
+    // Page links are stored without their text (ADR 0025).
+    n.blocks.forEach((b) => b.text?.forEach((t) => t.pageId && (t.text = '')));
     n.version += 1;
     n.updatedAt = this.context.now.toISOString();
     n.updatedById = caller.profileId;
@@ -266,6 +354,12 @@ export class MockNotes {
         n.ownerId !== caller.profileId && n.visibility === 'Shared' && this.sharedWith(n, caller),
       updatedAt: n.updatedAt,
       updatedByName: this.name(n.updatedById),
+      parentTitle: n.parentId
+        ? this.ref(
+            this.pages.find((p) => p.id === n.parentId),
+            caller,
+          ).title
+        : null,
     };
   }
 
@@ -294,16 +388,59 @@ export class MockNotes {
           count: [...this.context.accounts.values()].filter((a) => a.roles.includes(role)).length,
         })),
       },
-      blocks: n.blocks,
+      blocks: n.blocks.map((b) =>
+        b.text
+          ? {
+              ...b,
+              text: b.text.map((t) =>
+                t.pageId
+                  ? {
+                      ...t,
+                      text: this.ref(
+                        this.pages.find((p) => p.id === t.pageId),
+                        caller,
+                      ).title,
+                    }
+                  : t,
+              ),
+            }
+          : b,
+      ),
       version: n.version,
       createdAt: n.createdAt,
       archivedAt: n.archivedAt,
       canEdit: own || admin,
       isAdminView: !own && admin,
-      breadcrumb: [],
-      children: [],
-      backlinks: [],
+      breadcrumb: this.ancestors(n).map((a) => this.ref(a, caller)),
+      children: this.pages
+        .filter((c) => c.parentId === n.id && !c.archivedAt && this.mayOpen(c, caller))
+        .sort((a, b) => b.updatedAt.localeCompare(a.updatedAt))
+        .map((c) => this.ref(c)),
+      backlinks: this.visible(caller)
+        .filter(
+          (p) => p.id !== n.id && p.blocks.some((b) => b.text?.some((t) => t.pageId === n.id)),
+        )
+        .map((p) => this.ref(p)),
+      links: [...new Set(n.blocks.flatMap((b) => (b.text ?? []).map((t) => t.pageId)))]
+        .map((id) =>
+          this.ref(
+            this.pages.find((p) => p.id === id),
+            caller,
+          ),
+        )
+        .filter((r) => r.id !== null),
     };
+  }
+
+  private ancestors(n: MockNote): (MockNote | undefined)[] {
+    const chain: (MockNote | undefined)[] = [];
+    let parentId = n.parentId;
+    while (parentId && chain.length < 50) {
+      const parent = this.pages.find((p) => p.id === parentId);
+      chain.unshift(parent);
+      parentId = parent?.parentId ?? null;
+    }
+    return chain;
   }
 
   name(profileId: string): string {

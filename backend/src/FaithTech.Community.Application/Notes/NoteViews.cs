@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore;
 namespace FaithTech.Community.Application.Notes;
 
 /// <summary>Builds the note DTOs as the caller sees them.</summary>
-public class NoteViews(IApplicationDbContext db, ICurrentUser current, NoteAccess access)
+public class NoteViews(IApplicationDbContext db, ICurrentUser current, NoteAccess access, NoteRefs refs)
 {
     public const string FormerMember = "A former member";
 
@@ -23,6 +23,8 @@ public class NoteViews(IApplicationDbContext db, ICurrentUser current, NoteAcces
             roleCounts.Add(new NoteAudienceRoleDto(role.ToString(), count));
         }
 
+        var blocks = NoteContent.Read(page.Content);
+        var links = await refs.VisibleAsync([.. NoteRefs.LinkedIds(blocks)], caller, cancellationToken);
         var isOwn = page.OwnerId == caller;
         var sharedVia = SharedVia(page, caller, isOwn);
         string Name(Guid id) => profiles.TryGetValue(id, out var p) ? p.Name : FormerMember;
@@ -41,7 +43,7 @@ public class NoteViews(IApplicationDbContext db, ICurrentUser current, NoteAcces
                 [.. page.SharedMembers.Where(m => profiles.ContainsKey(m.ProfileId)).Select(m => profiles[m.ProfileId])
                     .Select(p => new NoteAudienceMemberDto(p.Id, p.Name, p.HomeCity)).OrderBy(m => m.Name)],
                 roleCounts),
-            NoteContent.Read(page.Content),
+            NoteRefs.Resolve(blocks, links),
             page.Version,
             page.CreatedAt,
             page.UpdatedAt,
@@ -49,9 +51,10 @@ public class NoteViews(IApplicationDbContext db, ICurrentUser current, NoteAcces
             page.ArchivedAt,
             access.CanChange(page, caller),
             access.IsOverride(page, caller),
-            [],
-            [],
-            []);
+            await refs.BreadcrumbAsync(page, caller, cancellationToken),
+            await refs.ChildrenAsync(page.Id, caller, cancellationToken),
+            await refs.BacklinksAsync(page.Id, caller, cancellationToken),
+            [.. links.Values]);
     }
 
     /// <summary>The list rows with owner and editor names in one query.</summary>
@@ -70,8 +73,10 @@ public class NoteViews(IApplicationDbContext db, ICurrentUser current, NoteAcces
                 SharedWithCaller = p.SharedMembers.Any(m => m.ProfileId == caller) || p.SharedRoles.Any(x => roles.Contains(x.Role)),
                 p.UpdatedAt,
                 Editor = db.Profiles.Where(x => x.Id == p.UpdatedById).Select(x => x.Name).FirstOrDefault(),
+                p.ParentId,
             })
             .ToListAsync(cancellationToken);
+        var parents = await refs.VisibleAsync([.. rows.Where(r => r.ParentId is not null).Select(r => r.ParentId!.Value).Distinct()], caller, cancellationToken);
         return [.. rows.Select(r => new NotePageSummaryDto(
             r.Id,
             r.Title,
@@ -82,7 +87,8 @@ public class NoteViews(IApplicationDbContext db, ICurrentUser current, NoteAcces
             r.Visibility.ToString(),
             r.OwnerId != caller && r.Visibility == NoteVisibility.Shared && r.SharedWithCaller,
             r.UpdatedAt,
-            r.Editor ?? FormerMember))];
+            r.Editor ?? FormerMember,
+            r.ParentId is { } parent ? parents.GetValueOrDefault(parent)?.Title ?? NoteRefs.PrivatePage : null))];
     }
 
     private string? SharedVia(NotePage page, Guid caller, bool isOwn)

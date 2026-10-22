@@ -14,6 +14,7 @@ const page: NotePageSummary = {
   sharedWithYou: false,
   updatedAt: '2026-10-20T12:00:00Z',
   updatedByName: 'Grace Okonkwo',
+  parentTitle: null,
 };
 
 describe('note format', () => {
@@ -25,6 +26,9 @@ describe('note format', () => {
   it('shows when it was edited and by whose page, "you" for the member’s own', () => {
     expect(editedLine(page)).toBe('Edited Tue 20 Oct · Grace Okonkwo');
     expect(editedLine({ ...page, isOwn: true })).toBe('Edited Tue 20 Oct · you');
+    expect(editedLine({ ...page, parentTitle: 'Private page' })).toBe(
+      'Edited Tue 20 Oct · Grace Okonkwo · in Private page',
+    );
   });
 
   it('badges visibility from the viewer’s side and nothing for Global', () => {

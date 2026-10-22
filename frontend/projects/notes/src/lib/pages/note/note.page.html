@@ -34,14 +34,24 @@
     </ft-empty-state>
   }
   @case ('loaded') {
+    @let p = page()!;
     <ft-breadcrumb>
       <ft-breadcrumb-item href="/notes">Notes</ft-breadcrumb-item>
+      @for (ancestor of p.breadcrumb; track $index) {
+        <ft-breadcrumb-item [href]="ancestor.id ? '/notes/' + ancestor.id : null">{{
+          ancestor.title
+        }}</ft-breadcrumb-item>
+      }
       <ft-breadcrumb-item>{{ titleOf({ title: title() }) }}</ft-breadcrumb-item>
     </ft-breadcrumb>
     <header class="head">
       @if (editable() && autosave) {
         <div class="toolbar">
           <ft-save-status [state]="autosave.state()" (retry)="autosave.retry()" />
+          <span class="spacer"></span>
+          <ft-menu label="More actions" [entries]="actions()" (itemSelected)="act($event)">
+            <ft-icon name="more" />
+          </ft-menu>
         </div>
       }
       <ft-page-title
@@ -54,10 +64,26 @@
     <ft-block-editor
       [blocks]="loadedBlocks()"
       [readonly]="!editable()"
+      [pageLink]="pageLink"
+      [pageSearch]="pageSearch"
       (blocksChange)="onBlocks($event)"
       (refused)="refused($event)"
       (blockRequested)="request($event)"
       (linkRequested)="link($event)"
+    />
+    @if (editable() || p.children.length) {
+      <ft-page-links heading="Pages inside" [pages]="p.children" emptyText="No pages inside yet.">
+        @if (editable()) {
+          <ft-button size="sm" [loading]="creating()" (click)="newPageInside()">
+            <ft-icon name="add" /> New page inside
+          </ft-button>
+        }
+      </ft-page-links>
+    }
+    <ft-page-links
+      heading="Linked from"
+      [pages]="p.backlinks"
+      emptyText="No pages link here yet."
     />
   }
 }

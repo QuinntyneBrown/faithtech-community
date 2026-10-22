@@ -25,6 +25,7 @@ import {
 
 import { FormatMark, FormatToolbarComponent } from '../format-toolbar/format-toolbar.component';
 import { MenuItemComponent } from '../menu/menu-item.component';
+import { PageLinkItem } from '../page-links/page-links.component';
 import { SlashMenuComponent, SlashMenuOption } from '../slash-menu/slash-menu.component';
 import {
   BLOCK_TYPES,
@@ -40,6 +41,7 @@ import {
   normalise,
   plainText,
   hasMark,
+  insertSpans,
   linkAt,
   removeRange,
   setHref,
@@ -75,6 +77,8 @@ interface ViewGroup {
 
 /** The slash menu while it is open: the block, where the "/" is, and the typed filter. */
 interface Popup {
+  /** "/" opens the slash menu, "[[" the page-link suggestions. */
+  kind: 'slash' | 'pages';
   index: number;
   start: number;
   query: string;
@@ -154,6 +158,8 @@ export class BlockEditorComponent {
   readonly readonly = input(false);
   /** How page links show to this viewer; the page resolves them from the API's text. */
   readonly pageLink = input<PageLinkResolver | undefined>(undefined);
+  /** Finds pages to link by title for "[[" (L2-090 AC1); without it "[[" is plain text. */
+  readonly pageSearch = input<((q: string) => Promise<PageLinkItem[]>) | undefined>(undefined);
   readonly blocksChange = output<EditorBlock[]>();
   /** The editor refused a change, such as a 501st block (L2-086 AC11). */
   readonly refused = output<string>();
@@ -198,8 +204,15 @@ export class BlockEditorComponent {
     return numbers;
   });
   /** The slash menu's options, filtered by what was typed after the "/" (L2-088 AC7). */
+  /** The latest "[[" suggestions for what was typed (L2-090 AC1). */
+  private readonly pageResults = signal<PageLinkItem[]>([]);
+  private searchRun = 0;
   protected readonly options = computed<SlashMenuOption[]>(() => {
-    const query = this.popup()?.query.trim().toLowerCase() ?? '';
+    const popup = this.popup();
+    if (popup?.kind === 'pages') {
+      return this.pageResults().map((p) => ({ id: p.id!, label: p.title, glyph: p.icon ?? '📄' }));
+    }
+    const query = popup?.query.trim().toLowerCase() ?? '';
     return BLOCK_TYPES.filter((t) => t.label.toLowerCase().includes(query)).map((t) => ({
       id: t.type,
       label: t.label,
@@ -540,9 +553,10 @@ export class BlockEditorComponent {
   }
 
   /** Chooses a slash-menu option by click. */
-  protected choose(type: string): void {
+  protected choose(id: string): void {
     const popup = this.popup();
-    if (popup) this.insertFromSlash(popup, type as EditorBlockType);
+    if (popup?.kind === 'pages') this.insertPageLink(popup, id);
+    else if (popup) this.insertFromSlash(popup, id as EditorBlockType);
   }
 
   /** ↑, ↓, Enter, Escape and Tab while the slash menu is open (L2-088 AC7). Returns whether it handled the key. */
@@ -560,8 +574,7 @@ export class BlockEditorComponent {
         return true;
       case 'Enter':
         event.preventDefault();
-        if (count > 0)
-          this.insertFromSlash(popup, this.options()[popup.active].id as EditorBlockType);
+        if (count > 0) this.choose(this.options()[popup.active].id);
         return true;
       case 'Escape':
         event.preventDefault();
@@ -579,28 +592,58 @@ export class BlockEditorComponent {
     const text = plainText(spans);
     const popup = this.popup();
     if (popup?.index === index) {
-      const query = text.slice(popup.start + 1, caret);
-      if (caret <= popup.start || text[popup.start] !== '/' || /\s/.test(query))
-        this.popup.set(null);
-      else this.popup.set({ ...popup, query, active: 0 });
+      const marker = popup.kind === 'slash' ? '/' : '[[';
+      const query = text.slice(popup.start + marker.length, caret);
+      const broken =
+        caret < popup.start + marker.length ||
+        text.slice(popup.start, popup.start + marker.length) !== marker ||
+        (popup.kind === 'slash' ? /\s/.test(query) : /[\]\n]/.test(query));
+      if (broken) this.popup.set(null);
+      else {
+        this.popup.set({ ...popup, query, active: 0 });
+        if (popup.kind === 'pages') this.searchPages(query);
+      }
       return;
     }
     const block = this.items()[index];
-    const opens =
-      text[caret - 1] === '/' &&
-      (caret === 1 || /\s/.test(text[caret - 2])) &&
-      block.type !== 'code';
-    if (!opens) return;
+    if (block.type === 'code') return;
+    const slash = text[caret - 1] === '/' && (caret === 1 || /\s/.test(text[caret - 2]));
+    const pages = !!this.pageSearch() && text.slice(caret - 2, caret) === '[[';
+    if (!slash && !pages) return;
     const rect = caretRect(el);
     const box = this.host.getBoundingClientRect();
     this.popup.set({
+      kind: slash ? 'slash' : 'pages',
       index,
-      start: caret - 1,
+      start: caret - (slash ? 1 : 2),
       query: '',
       active: 0,
       top: rect.bottom - box.top + 4,
       left: Math.max(0, Math.min(rect.left - box.left, box.width - 352)),
     });
+    if (pages) this.searchPages('');
+  }
+
+  private searchPages(query: string): void {
+    const run = ++this.searchRun;
+    this.pageResults.set([]);
+    void this.pageSearch()?.(query.trim()).then((found) => {
+      if (run === this.searchRun) this.pageResults.set(found.filter((p) => p.id));
+    });
+  }
+
+  /** Replaces the typed "[[term" with a link to the chosen page (L2-090 AC1). */
+  private insertPageLink(popup: Popup, id: string): void {
+    this.popup.set(null);
+    const page = this.pageResults().find((p) => p.id === id);
+    const block = this.items()[popup.index];
+    if (!page || !block) return;
+    const caret = popup.start + 2 + popup.query.length;
+    const rest = removeRange(block.text ?? [], popup.start, caret);
+    this.change(popup.index, {
+      text: insertSpans(rest, popup.start, [{ text: page.title, pageId: id }]),
+    });
+    this.focusBlock(popup.index, popup.start + page.title.length);
   }
 
   /** Turns the block into the chosen type when only the command was typed, or inserts one below (L2-088 AC8). */

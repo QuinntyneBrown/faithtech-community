@@ -13,7 +13,8 @@ public record NotePageSummaryDto(
     string Visibility,
     bool SharedWithYou,
     DateTimeOffset UpdatedAt,
-    string UpdatedByName);
+    string UpdatedByName,
+    string? ParentTitle);
 
 /// <summary>A page named in a breadcrumb, a child list, backlinks or link suggestions. A page the viewer cannot open has no id and reads "Private page".</summary>
 public record NotePageRefDto(Guid? Id, string Title, string? Icon);
@@ -24,7 +25,10 @@ public record NoteAudienceRoleDto(string Role, int Count);
 
 public record NoteAudienceDto(IReadOnlyList<NoteAudienceMemberDto> Members, IReadOnlyList<NoteAudienceRoleDto> Roles);
 
-/// <summary>The page as the viewer sees it (L2-086 to L2-098): its blocks with page links resolved, and where it sits.</summary>
+/// <summary>
+/// The page as the viewer sees it (L2-086 to L2-098): its blocks with page links resolved, and where it sits.
+/// <c>Links</c> names the link targets the viewer may open; any other page link reads "Private page".
+/// </summary>
 public record NotePageDto(
     Guid Id,
     string Title,
@@ -47,4 +51,5 @@ public record NotePageDto(
     bool IsAdminView,
     IReadOnlyList<NotePageRefDto> Breadcrumb,
     IReadOnlyList<NotePageRefDto> Children,
-    IReadOnlyList<NotePageRefDto> Backlinks);
+    IReadOnlyList<NotePageRefDto> Backlinks,
+    IReadOnlyList<NotePageRefDto> Links);

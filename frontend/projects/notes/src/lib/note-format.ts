@@ -6,9 +6,10 @@ export function titleOf(page: { title: string }): string {
   return page.title.trim() || 'Untitled';
 }
 
-/** "Edited Tue 21 Oct · you" (L2-085 AC2). */
+/** "Edited Tue 21 Oct · you · in Toronto playbook" (L2-085 AC2). */
 export function editedLine(page: NotePageSummary): string {
-  return `Edited ${formatDay(page.updatedAt)} · ${page.isOwn ? 'you' : page.ownerName}`;
+  const parent = page.parentTitle ? ` · in ${page.parentTitle}` : '';
+  return `Edited ${formatDay(page.updatedAt)} · ${page.isOwn ? 'you' : page.ownerName}${parent}`;
 }
 
 /** The visibility badge from the viewer's side, nothing for Global (L2-085 AC3). */

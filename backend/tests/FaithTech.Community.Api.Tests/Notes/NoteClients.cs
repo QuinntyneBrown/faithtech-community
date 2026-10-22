@@ -21,7 +21,8 @@ public static class NoteClients
         string Visibility,
         bool SharedWithYou,
         DateTimeOffset UpdatedAt,
-        string UpdatedByName);
+        string UpdatedByName,
+        string? ParentTitle);
 
     public sealed record SummaryPage(Summary[] Items, int Page, int PageSize, int TotalCount);
 
@@ -55,7 +56,8 @@ public static class NoteClients
         bool IsAdminView,
         PageRef[] Breadcrumb,
         PageRef[] Children,
-        PageRef[] Backlinks);
+        PageRef[] Backlinks,
+        PageRef[] Links);
 
     public sealed record Saved(int Version, DateTimeOffset UpdatedAt);
 
@@ -65,6 +67,15 @@ public static class NoteClients
         response.EnsureSuccessStatusCode();
         return (await response.Content.ReadFromJsonAsync<Detail>())!;
     }
+
+    /// <summary>A page shared with the given members and roles, set straight in the database.</summary>
+    public static async Task ShareInDbAsync(this CommunityApiFactory factory, Guid pageId, Guid[] members, Role[] roles) =>
+        await factory.WithDbAsync(async db =>
+        {
+            var stored = await db.NotePages.SingleAsync(p => p.Id == pageId);
+            stored.SetAudience(NoteVisibility.Shared, members, roles);
+            return await db.SaveChangesAsync();
+        });
 
     public static async Task<Detail> AddNoteAsync(
         this CommunityApiFactory factory, ProfileClients.Member owner, string title, string visibility = "Private", params Role[] roles)

@@ -69,6 +69,8 @@ public class CommunityDbContext(DbContextOptions<CommunityDbContext> options)
 
     public DbSet<NotePage> NotePages => Set<NotePage>();
 
+    public DbSet<NoteLink> NoteLinks => Set<NoteLink>();
+
     protected override void OnModelCreating(ModelBuilder builder)
     {
         base.OnModelCreating(builder);
@@ -377,9 +379,12 @@ public class CommunityDbContext(DbContextOptions<CommunityDbContext> options)
             page.HasIndex(p => p.ParentId);
             page.OwnsMany(p => p.SharedMembers, member =>
             {
+                // A generated key, so a member added to a loaded page is inserted, not updated.
                 member.ToTable("NoteShareMembers");
                 member.WithOwner().HasForeignKey(m => m.PageId);
-                member.HasKey(m => new { m.PageId, m.ProfileId });
+                member.Property<int>("Id").ValueGeneratedOnAdd();
+                member.HasKey("Id");
+                member.HasIndex(m => new { m.PageId, m.ProfileId }).IsUnique();
                 member.HasIndex(m => m.ProfileId);
             });
             page.Navigation(p => p.SharedMembers).HasField("_members").UsePropertyAccessMode(PropertyAccessMode.Field);
@@ -387,10 +392,18 @@ public class CommunityDbContext(DbContextOptions<CommunityDbContext> options)
             {
                 role.ToTable("NoteShareRoles");
                 role.WithOwner().HasForeignKey(x => x.PageId);
-                role.HasKey(x => new { x.PageId, x.Role });
+                role.Property<int>("Id").ValueGeneratedOnAdd();
+                role.HasKey("Id");
                 role.Property(x => x.Role).HasConversion<string>().HasMaxLength(32);
+                role.HasIndex(x => new { x.PageId, x.Role }).IsUnique();
             });
             page.Navigation(p => p.SharedRoles).HasField("_roles").UsePropertyAccessMode(PropertyAccessMode.Field);
+        });
+
+        builder.Entity<NoteLink>(link =>
+        {
+            link.HasKey(l => new { l.SourceId, l.TargetId });
+            link.HasIndex(l => l.TargetId);
         });
     }
 

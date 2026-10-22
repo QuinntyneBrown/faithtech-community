@@ -63,6 +63,13 @@ describe('HttpNotesService', () => {
       '/api/notes/links?q=run&exclude=n1',
       undefined,
     ],
+    [
+      'parentOptions',
+      () => service.parentOptions('n1', 'play'),
+      'GET',
+      '/api/notes/n1/parent-options?q=play',
+      undefined,
+    ],
     ['members', () => service.members('dan'), 'GET', '/api/notes/members?q=dan', undefined],
   ])('%s', (_name, call, method, url, body) => {
     (call() as Observable<unknown>).subscribe();

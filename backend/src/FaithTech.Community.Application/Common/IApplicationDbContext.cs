@@ -59,5 +59,7 @@ public interface IApplicationDbContext
 
     DbSet<NotePage> NotePages { get; }
 
+    DbSet<NoteLink> NoteLinks { get; }
+
     Task<int> SaveChangesAsync(CancellationToken cancellationToken = default);
 }
