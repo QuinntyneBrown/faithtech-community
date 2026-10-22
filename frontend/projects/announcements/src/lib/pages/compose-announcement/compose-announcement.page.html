@@ -37,6 +37,9 @@
           <ft-radio value="Roles" description="Choose one or more roles below">
             People with a role
           </ft-radio>
+          <ft-radio value="EventRsvps" description="Members who RSVP’d to one upcoming event">
+            An event’s RSVP list
+          </ft-radio>
         </ft-radio-group>
         @if (byRole()) {
           <ft-checkbox-group
@@ -49,6 +52,15 @@
               <ft-checkbox [value]="role.value">{{ role.label }}</ft-checkbox>
             }
           </ft-checkbox-group>
+        }
+        @if (byEvent()) {
+          <ft-form-field #eventField label="Event" [error]="error('event')">
+            <ft-select
+              formControlName="eventId"
+              [options]="eventOptions()"
+              placeholder="Choose an event"
+            />
+          </ft-form-field>
         }
         <ft-form-field #subjectField label="Subject" [error]="error('subject')">
           <ft-text-field formControlName="subject" />

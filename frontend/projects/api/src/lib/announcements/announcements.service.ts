@@ -8,6 +8,8 @@ export type AudienceKind = 'Everyone' | 'Roles' | 'EventRsvps';
 
 export interface AnnouncementAudience {
   kind: AudienceKind;
+  /** The event whose RSVP list receives it when `kind` is `EventRsvps`. */
+  eventId?: string;
   /** One or more roles when `kind` is `Roles`. */
   roles?: Role[];
 }

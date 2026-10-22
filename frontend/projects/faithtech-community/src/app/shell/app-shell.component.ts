@@ -130,6 +130,10 @@ export class AppShellComponent {
         takeUntilDestroyed(),
       )
       .subscribe(() => void this.readUnread());
+    // Marking read on the Notifications page, or anywhere else, recounts the bell (L2-027 AC3).
+    this.notifications.readChanged
+      .pipe(takeUntilDestroyed())
+      .subscribe(() => void this.readUnread());
     interval(UNREAD_POLL_MS)
       .pipe(takeUntilDestroyed())
       .subscribe(() => {

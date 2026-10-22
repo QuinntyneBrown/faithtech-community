@@ -4,10 +4,15 @@ import { Locator, Page } from '@playwright/test';
 export class SettingsPage {
   readonly heading: Locator;
   readonly appearance: Locator;
+  /** "Email me announcements" under "Email me when" (L2-030 AC2). */
+  readonly announcementEmails: Locator;
 
   constructor(private readonly page: Page) {
     this.heading = page.getByRole('heading', { level: 1, name: 'Settings' });
     this.appearance = page.getByRole('region', { name: 'Appearance' });
+    this.announcementEmails = page
+      .getByRole('region', { name: 'Email me when' })
+      .getByRole('switch', { name: 'Email me announcements' });
   }
 
   /** A theme option under Appearance: "Light", "Dark" or "Match my device". */

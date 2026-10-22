@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Compose announcement · event — FaithTech Community mocks</title>
+<meta name="mock:kind" content="page">
+<meta name="mock:screen" content="compose-announcement">
+<meta name="mock:state" content="event">
+<meta name="mock:requirements" content="L2-029">
+<meta name="description" content="Compose an announcement to everyone, a role, or an event’s RSVPs.">
+<link rel="stylesheet" href="../../../design-system/tokens/tokens.css">
+<link rel="stylesheet" href="../../../design-system/assets/components.css">
+<link rel="stylesheet" href="../../assets/mock.css">
+</head>
+<body>
+<a class="skip-link" href="#main">Skip to content</a>
+<div class="has-tabbar">
+<header class="topbar">
+  <a class="topbar__brand" href="../../pages/home/default.html"><img class="topbar__mark" src="../../assets/logo.svg" alt="" width="32" height="32"> FaithTech</a>
+  <nav class="topbar__nav" aria-label="Primary"><a class="nav-link" href="../../pages/home/default.html">Home</a><a class="nav-link" href="../../pages/events/default.html">Events</a><a class="nav-link" href="../../pages/contacts/default.html">Contacts</a><a class="nav-link" href="../../pages/partners/default.html">Partners</a><a class="nav-link" href="../../pages/workspaces/default.html">Workspaces</a><a class="nav-link nav-link--secondary" href="../../pages/team/default.html">Team</a><a class="nav-link nav-link--secondary" href="../../pages/announcements/default.html" aria-current="page">Announcements</a><button class="nav-link nav-link--more" type="button" popovertarget="nav-drawer" aria-haspopup="dialog">More</button></nav>
+  <span class="topbar__spacer"></span>
+  <form class="topbar__search" role="search" action="../../pages/search/default.html">
+    <label class="visually-hidden" for="global-q">Search FaithTech</label>
+    <input class="input input--sm" id="global-q" name="q" type="search" placeholder="Search people, events, partners">
+  </form>
+  <div class="bell-anchor">
+    <button class="btn btn--ghost btn--icon" type="button" data-href="../../notifications/bell/unread.html" aria-label="Notifications, 3 unread" aria-haspopup="dialog" aria-expanded="false"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><path d="M6 16V11a6 6 0 0 1 12 0v5l2 2H4zM10 20a2 2 0 0 0 4 0"/></svg><span class="badge badge--count" aria-hidden="true">3</span></button>
+    
+  </div>
+  <button class="avatar-trigger" type="button" popovertarget="account-menu" aria-haspopup="menu" aria-label="Account menu for Hannah Kim"><span class="avatar avatar--sm avatar--lilac" aria-hidden="true">HK</span></button><ul class="menu menu--account" id="account-menu" role="menu" aria-label="Account menu for Hannah Kim" popover><li role="none" class="menu__header"><span class="menu__title">Hannah Kim</span><span class="text-caption">Communications Lead · Toronto</span></li><li role="none" class="menu__divider" aria-hidden="true"></li><li role="none"><a class="menu__item" role="menuitem" href="../../pages/profile/own.html"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></svg>Your profile</a></li><li role="none"><a class="menu__item" role="menuitem" href="../../pages/settings/default.html"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19 12a7 7 0 0 0-.1-1l2-1.5-2-3.4-2.3.9a7 7 0 0 0-1.7-1L14.5 3h-5l-.4 2.4a7 7 0 0 0-1.7 1L5.1 5.5l-2 3.4 2 1.5a7 7 0 0 0 0 2l-2 1.5 2 3.4 2.3-.9a7 7 0 0 0 1.7 1l.4 2.4h5l.4-2.4a7 7 0 0 0 1.7-1l2.3.9 2-3.4-2-1.5c.1-.3.1-.7.1-1z"/></svg>Settings</a></li><li role="none" class="menu__divider" aria-hidden="true"></li><li role="none"><a class="menu__item" role="menuitem" href="../../pages/sign-in/default.html"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><path d="M15 4h4v16h-4M10 17l5-5-5-5M15 12H3"/></svg>Sign out</a></li></ul>
+<div class="nav-drawer" id="nav-drawer" role="dialog" aria-label="Main menu" popover><div class="nav-drawer__header"><span class="nav-drawer__title">Main menu</span><button class="btn btn--ghost btn--icon" type="button" popovertarget="nav-drawer" popovertargetaction="hide" aria-label="Close menu"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18"/></svg></button></div><nav class="nav-drawer__nav" aria-label="All sections"><a class="nav-drawer__link" href="../../pages/home/default.html"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><path d="M3 12 12 3l9 9M5 10v10h14V10"/></svg>Home</a><a class="nav-drawer__link" href="../../pages/events/default.html"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/></svg>Events</a><a class="nav-drawer__link" href="../../pages/contacts/default.html"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="2"/><circle cx="9" cy="11" r="2.5"/><path d="M5.5 17a3.5 3.5 0 0 1 7 0M15 9h3M15 13h3"/></svg>Contacts</a><a class="nav-drawer__link" href="../../pages/partners/default.html"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><path d="M2 12l4-4 4 2 4-4 4 4 4 2M6 8v7l4 4 2-2 2 2 4-4v-5"/></svg>Partners</a><a class="nav-drawer__link" href="../../pages/workspaces/default.html"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"/></svg>Workspaces</a><a class="nav-drawer__link" href="../../pages/team/default.html"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><circle cx="9" cy="8" r="4"/><path d="M2 21a7 7 0 0 1 14 0M16 3.5a4 4 0 0 1 0 7.5M22 21a7 7 0 0 0-4-6.3"/></svg>Team</a><a class="nav-drawer__link" href="../../pages/announcements/default.html" aria-current="page"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><path d="M3 11v2a1 1 0 0 0 1 1h3l6 4V6L7 10H4a1 1 0 0 0-1 1zM17 9a4 4 0 0 1 0 6"/></svg>Announcements</a></nav></div></header>
+<main id="main" class="container">
+<nav aria-label="Breadcrumb"><ol class="breadcrumb"><li><a href="../../pages/announcements/default.html">Announcements</a></li><li aria-current="page">New announcement</li></ol></nav><div class="page-header"><div><h1>New announcement</h1></div></div>
+<form class="card stack form-width--md" action="success.html" method="get" novalidate>
+<fieldset class="stack"><legend class="field__label">Send to</legend>
+<label class="choice"><input type="radio" name="aud"><span class="choice__text">Everyone<small>612 members</small></span></label>
+<label class="choice"><input type="radio" name="aud"><span class="choice__text">People with a role<small>Choose one or more roles below</small></span></label>
+<label class="choice"><input type="radio" name="aud" checked><span class="choice__text">An event’s RSVP list<small>Members who RSVP’d to one upcoming event</small></span></label></fieldset>
+<div class="field"><label class="field__label" for="an-event">Event</label><select class="select" id="an-event" name="an-event" required><option value="">Choose an event</option><option selected>Hackathon: Tech for Shelters · Sat 14 Nov</option><option>Toronto Builders Night · Thu 6 Nov</option><option>Austin Faith &amp; AI Panel · Thu 30 Oct</option></select></div>
+<div class="field"><label class="field__label" for="an-subject">Subject</label><input class="input" id="an-subject" name="an-subject" type="text" value="Hackathon check-in opens at 8:30" required></div>
+<div class="field"><label class="field__label" for="an-body">Message</label><textarea class="textarea" id="an-body" name="an-body" rows="6" required>Doors open at 8:30 on Saturday at Trinity Community Centre. Bring a laptop and a charger; breakfast is on us.</textarea></div>
+<label class="switch"><input type="checkbox" name="email" checked><span class="switch__text">Also send by email (respects each person’s opt-out)</span></label>
+<div class="form-actions cluster"><a class="btn btn--ghost" href="../../pages/announcements/default.html">Cancel</a><button class="btn btn--primary" type="submit"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><path d="M22 2 11 13M22 2l-7 20-4-9-9-4z"/></svg>Send to 18 people</button></div></form>
+</main>
+<nav class="tabbar" aria-label="Primary, phone"><a href="../../pages/home/default.html"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><path d="M3 12 12 3l9 9M5 10v10h14V10"/></svg>Home</a><a href="../../pages/events/default.html"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/></svg>Events</a><a href="../../pages/search/default.html"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>Search</a><a href="../../pages/contacts/default.html"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="2"/><circle cx="9" cy="11" r="2.5"/><path d="M5.5 17a3.5 3.5 0 0 1 7 0M15 9h3M15 13h3"/></svg>Contacts</a><button type="button" popovertarget="nav-drawer" aria-haspopup="dialog" aria-current="true"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><circle cx="5" cy="12" r="1.5"/><circle cx="12" cy="12" r="1.5"/><circle cx="19" cy="12" r="1.5"/></svg>More</button></nav>
+</div>
+
+<nav class="mock-bar" aria-label="Mock navigation">
+  <a class="mock-bar__home" href="../../index.html" aria-label="All mocks">⌂</a>
+  <span class="mock-bar__screen">Compose announcement</span>
+  <ul class="mock-bar__states"><li><a href="default.html" aria-current="page">default</a></li><li><a href="invalid.html">invalid</a></li><li><a href="busy.html">busy</a></li><li><a href="error.html">error</a></li><li><a href="success.html">success</a></li></ul>
+  <button type="button" data-theme-toggle aria-pressed="false">☾ Dark</button>
+  <button type="button" data-chrome-toggle aria-label="Hide mock chrome">×</button>
+</nav>
+<script src="../../assets/mock.js"></script>
+</body>
+</html>

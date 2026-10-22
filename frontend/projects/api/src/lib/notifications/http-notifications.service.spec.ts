@@ -59,4 +59,20 @@ describe('HttpNotificationsService', () => {
     expect(all.request.method).toBe('POST');
     all.flush(null);
   });
+
+  it('says when notices were marked read, so the bell can recount wherever it happened', () => {
+    let changes = 0;
+    service.readChanged.subscribe(() => changes++);
+
+    service.markRead('n1').subscribe();
+    controller.expectOne('/api/notifications/n1/read').flush(null);
+    service.markAllRead().subscribe();
+    controller.expectOne('/api/notifications/read-all').flush(null);
+    service.markAllRead().subscribe({ error: () => undefined });
+    controller
+      .expectOne('/api/notifications/read-all')
+      .flush(null, { status: 500, statusText: 'Server Error' });
+
+    expect(changes).toBe(2);
+  });
 });

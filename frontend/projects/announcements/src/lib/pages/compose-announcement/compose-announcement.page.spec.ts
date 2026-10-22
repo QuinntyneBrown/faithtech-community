@@ -6,6 +6,8 @@ import {
   ANNOUNCEMENTS_SERVICE,
   AnnouncementAudience,
   AnnouncementSent,
+  EVENTS_SERVICE,
+  EventSummaryDto,
   SendAnnouncementRequest,
 } from '@faithtech-community/api';
 import { Observable, of, Subject, throwError } from 'rxjs';
@@ -14,7 +16,24 @@ import { ComposeAnnouncementPage } from './compose-announcement.page';
 
 function counts(audience: AnnouncementAudience): Observable<number> {
   if (audience.kind === 'Everyone') return of(612);
+  if (audience.kind === 'EventRsvps') return of(18);
   return of((audience.roles ?? []).length * 20 + 1);
+}
+
+function upcoming(id: string, title: string, startsAt: string): EventSummaryDto {
+  return {
+    id,
+    title,
+    type: 'Hackathon',
+    startsAt,
+    endsAt: startsAt,
+    city: 'Toronto',
+    format: 'InPerson',
+    venue: 'Trinity Community Centre',
+    visibility: 'Public',
+    rsvpCount: 18,
+    isCancelled: false,
+  } as EventSummaryDto;
 }
 
 async function setup(
@@ -25,10 +44,22 @@ async function setup(
     countRecipients: vi.fn(counts),
     send: vi.fn<(request: SendAnnouncementRequest) => Observable<AnnouncementSent>>(() => send()),
   };
+  const events = {
+    listEvents: vi.fn(() =>
+      of({
+        events: [
+          upcoming('e1', 'Hackathon: Tech for Shelters', '2026-11-14T14:00:00Z'),
+          upcoming('e2', 'Toronto Builders Night', '2026-11-06T23:30:00Z'),
+        ],
+        cities: ['Toronto'],
+      }),
+    ),
+  };
   TestBed.configureTestingModule({
     providers: [
       provideRouter([{ path: '**', children: [] }]),
       { provide: ANNOUNCEMENTS_SERVICE, useValue: service },
+      { provide: EVENTS_SERVICE, useValue: events },
     ],
   });
   const fixture = TestBed.createComponent(ComposeAnnouncementPage);
@@ -95,6 +126,44 @@ describe('ComposeAnnouncementPage', () => {
       roles: ['Volunteer', 'Attendee'],
     });
     expect(button('Send to 41 people')).toBeDefined();
+  });
+
+  it('sends to one upcoming event’s RSVP list and counts it first', async () => {
+    const { check, button, service, host, field, settle, submit, type } = await setup();
+
+    await check('An event’s RSVP list');
+    const select = field('Event') as unknown as HTMLSelectElement;
+    const options = Array.from(select.options).map((o) => o.textContent?.trim());
+    expect(options).toEqual([
+      'Choose an event',
+      'Toronto Builders Night · Fri 6 Nov',
+      'Hackathon: Tech for Shelters · Sat 14 Nov',
+    ]);
+    select.value = 'e1';
+    select.dispatchEvent(new Event('change'));
+    await settle();
+
+    expect(service.countRecipients).toHaveBeenLastCalledWith({ kind: 'EventRsvps', eventId: 'e1' });
+    expect(button('Send to 18 people')).toBeDefined();
+    await type('Subject', 'Check-in opens at 8:30');
+    await type('Message', 'Bring a laptop.');
+    await submit();
+    expect(service.send).toHaveBeenCalledWith(
+      expect.objectContaining({ audience: { kind: 'EventRsvps', eventId: 'e1' } }),
+    );
+    expect(host.textContent).toContain('Sent to');
+  });
+
+  it('asks for an event when sending to an RSVP list', async () => {
+    const { check, type, submit, service, host } = await setup();
+    await check('An event’s RSVP list');
+    await type('Subject', 'Hackathon');
+    await type('Message', 'See you there.');
+
+    await submit();
+
+    expect(service.send).not.toHaveBeenCalled();
+    expect(host.textContent).toContain('Choose an event.');
   });
 
   it('shows inline errors for an empty subject and message and sends nothing', async () => {

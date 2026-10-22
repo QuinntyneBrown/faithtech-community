@@ -13,6 +13,8 @@ import {
   ANNOUNCEMENTS_SERVICE,
   AnnouncementAudience,
   AnnouncementSent,
+  AudienceKind,
+  EVENTS_SERVICE,
   ROLE_LABELS,
   ROLES,
   Role,
@@ -35,25 +37,30 @@ import {
   PageHeaderComponent,
   RadioComponent,
   RadioGroupComponent,
+  SelectComponent,
+  SelectOption,
   StackComponent,
   SwitchComponent,
   TextFieldComponent,
   TextareaComponent,
+  formatDay,
 } from '@faithtech-community/components';
 import { distinctUntilChanged, firstValueFrom, map, startWith } from 'rxjs';
 
-type Field = 'subject' | 'body' | 'roles';
+type Field = 'subject' | 'body' | 'roles' | 'event';
 
 const MESSAGES: Record<Field, string> = {
   subject: 'Add a subject so people know what it’s about.',
   body: 'Write a message of at least one sentence.',
   roles: 'Choose at least one role.',
+  event: 'Choose an event.',
 };
 /** Server field names (FluentValidation) to the page's fields. */
 const SERVER_FIELDS: Record<string, Field> = {
   Subject: 'subject',
   Body: 'body',
   'Audience.Roles': 'roles',
+  'Audience.EventId': 'event',
 };
 
 /** Compose and send an announcement (L2-029), matching docs/mocks/pages/compose-announcement. */
@@ -77,6 +84,7 @@ const SERVER_FIELDS: Record<string, Field> = {
     PageHeaderComponent,
     RadioComponent,
     RadioGroupComponent,
+    SelectComponent,
     StackComponent,
     SwitchComponent,
     TextFieldComponent,
@@ -88,15 +96,19 @@ const SERVER_FIELDS: Record<string, Field> = {
 })
 export class ComposeAnnouncementPage {
   private readonly announcements = inject(ANNOUNCEMENTS_SERVICE);
+  private readonly eventsService = inject(EVENTS_SERVICE);
+  private eventsRequested = false;
   private readonly errorFocus = viewChild(FormErrorFocusDirective);
   private readonly subjectField = viewChild('subjectField', { read: FormFieldComponent });
   private readonly bodyField = viewChild('bodyField', { read: FormFieldComponent });
+  private readonly eventField = viewChild('eventField', { read: FormFieldComponent });
 
   protected readonly roles = ROLES.map((role) => ({ value: role, label: ROLE_LABELS[role] }));
 
   protected readonly form = inject(NonNullableFormBuilder).group({
-    kind: ['Everyone' as 'Everyone' | 'Roles'],
+    kind: ['Everyone' as AudienceKind],
     roles: [[] as Role[]],
+    eventId: [''],
     subject: [''],
     body: [''],
     alsoEmail: [true],
@@ -107,6 +119,9 @@ export class ComposeAnnouncementPage {
     { initialValue: { kind: 'Everyone' } as AnnouncementAudience },
   );
   protected readonly byRole = computed(() => this.audience().kind === 'Roles');
+  protected readonly byEvent = computed(() => this.audience().kind === 'EventRsvps');
+  /** Upcoming events that have not been cancelled, soonest first: "Hackathon: Tech for Shelters · Sat 14 Nov". */
+  protected readonly eventOptions = signal<SelectOption[]>([]);
 
   protected readonly everyoneCount = signal<number | null>(null);
   protected readonly recipientCount = signal<number | null>(null);
@@ -123,7 +138,7 @@ export class ComposeAnnouncementPage {
     this.version();
     this.audience();
     const server = this.serverErrors();
-    return (['roles', 'subject', 'body'] as Field[])
+    return (['roles', 'event', 'subject', 'body'] as Field[])
       .map((field) => ({ field, message: server[field] ?? this.clientError(field) }))
       .filter((e) => e.message !== '');
   });
@@ -162,7 +177,11 @@ export class ComposeAnnouncementPage {
         startWith(JSON.stringify({ kind: 'Everyone' })),
         distinctUntilChanged(),
       )
-      .subscribe((key) => void this.count(JSON.parse(key) as AnnouncementAudience));
+      .subscribe((key) => {
+        const audience = JSON.parse(key) as AnnouncementAudience;
+        if (audience.kind === 'EventRsvps') this.loadEvents();
+        void this.count(audience);
+      });
   }
 
   protected error(field: Field): string {
@@ -210,7 +229,10 @@ export class ComposeAnnouncementPage {
 
   private async count(audience: AnnouncementAudience): Promise<void> {
     const request = ++this.countRequest;
-    if (audience.kind === 'Roles' && !audience.roles?.length) {
+    if (
+      (audience.kind === 'Roles' && !audience.roles?.length) ||
+      (audience.kind === 'EventRsvps' && !audience.eventId)
+    ) {
       this.recipientCount.set(0);
       return;
     }
@@ -222,11 +244,34 @@ export class ComposeAnnouncementPage {
     }
   }
 
-  private audienceOf(value: { kind: string; roles: Role[] }): AnnouncementAudience {
+  private audienceOf(value: {
+    kind: string;
+    roles: Role[];
+    eventId: string;
+  }): AnnouncementAudience {
     // Keep the roles in the order the page lists them.
-    return value.kind === 'Roles'
-      ? { kind: 'Roles', roles: ROLES.filter((r) => value.roles.includes(r)) }
+    if (value.kind === 'Roles') {
+      return { kind: 'Roles', roles: ROLES.filter((r) => value.roles.includes(r)) };
+    }
+    return value.kind === 'EventRsvps'
+      ? { kind: 'EventRsvps', eventId: value.eventId || undefined }
       : { kind: 'Everyone' };
+  }
+
+  /** The upcoming events, once, the first time the RSVP-list audience is chosen. */
+  private loadEvents(): void {
+    if (this.eventsRequested) return;
+    this.eventsRequested = true;
+    void firstValueFrom(this.eventsService.listEvents({ filter: 'Upcoming' })).then(
+      (list) =>
+        this.eventOptions.set(
+          list.events
+            .filter((e) => !e.isCancelled)
+            .sort((a, b) => a.startsAt.localeCompare(b.startsAt))
+            .map((e) => ({ value: e.id, label: `${e.title} · ${formatDay(e.startsAt)}` })),
+        ),
+      () => (this.eventsRequested = false),
+    );
   }
 
   private clientError(field: Field): string {
@@ -235,11 +280,15 @@ export class ComposeAnnouncementPage {
     if (field === 'roles') {
       return value.kind === 'Roles' && !value.roles.length ? MESSAGES.roles : '';
     }
+    if (field === 'event') {
+      return value.kind === 'EventRsvps' && !value.eventId ? MESSAGES.event : '';
+    }
     return value[field].trim() === '' ? MESSAGES[field] : '';
   }
 
   private fieldOf(field: Field): string {
     if (field === 'roles') return 'an-roles';
+    if (field === 'event') return this.eventField()?.controlId() ?? '';
     return (field === 'subject' ? this.subjectField() : this.bodyField())?.controlId() ?? '';
   }
 }

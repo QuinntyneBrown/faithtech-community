@@ -45,6 +45,8 @@ export interface NotificationsService {
   unreadCount(): Observable<number>;
   markRead(id: string): Observable<void>;
   markAllRead(): Observable<void>;
+  /** Emits after notices are marked read, wherever that happened, so the bell can recount. */
+  readonly readChanged: Observable<void>;
 }
 
 export const NOTIFICATIONS_SERVICE = new InjectionToken<NotificationsService>(

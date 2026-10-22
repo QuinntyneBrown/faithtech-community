@@ -8,7 +8,7 @@ import {
   NotificationDto,
   NotificationPage,
 } from '@faithtech-community/api';
-import { of } from 'rxjs';
+import { of, Subject } from 'rxjs';
 
 import { AppShellComponent } from './app-shell.component';
 
@@ -39,6 +39,7 @@ async function setup(unread = 2, items = ITEMS) {
     ),
     markRead: vi.fn(() => of(undefined)),
     markAllRead: vi.fn(() => of(undefined)),
+    readChanged: new Subject<void>(),
   };
   TestBed.configureTestingModule({
     providers: [
@@ -129,6 +130,16 @@ describe('AppShellComponent notifications bell', () => {
 
     expect(service.markAllRead).toHaveBeenCalled();
     expect(bell().getAttribute('aria-label')).toBe('Notifications');
+  });
+
+  it('reads the count again when notices are marked read elsewhere, such as on the Notifications page', async () => {
+    const { service, fixture } = await setup();
+    const before = service.unreadCount.mock.calls.length;
+
+    service.readChanged.next();
+    await fixture.whenStable();
+
+    expect(service.unreadCount.mock.calls.length).toBe(before + 1);
   });
 
   it('reads the count again after each navigation and every minute', async () => {

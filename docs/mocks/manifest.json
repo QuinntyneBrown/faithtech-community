@@ -553,6 +553,7 @@
       ],
       "states": [
         "default",
+        "event",
         "invalid",
         "busy",
         "error",

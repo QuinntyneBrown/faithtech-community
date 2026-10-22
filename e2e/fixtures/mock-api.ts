@@ -5,6 +5,7 @@ import { MockContacts } from './mock-contacts';
 import { MockPartners } from './mock-partners';
 import { MockEvents } from './mock-events';
 import { MockNotification, MockNotifications } from './mock-notifications';
+import { MockSearch } from './mock-search';
 
 export type { MockNotification } from './mock-notifications';
 
@@ -143,6 +144,16 @@ export class MockApi {
         createdAt: this.now.toISOString(),
       })),
     findEvent: (id) => this.events.events.find((e) => e.id === id),
+  });
+
+  /** Global search over the other fakes' records, with the API's permission scope (L2-026). */
+  readonly search = new MockSearch({
+    profiles: () => [...this.profiles.values()],
+    events: () => this.events.events,
+    partners: () => this.partners.partners,
+    contacts: () => this.contacts.contacts,
+    workspaces: () => this.agile.workspaces,
+    items: () => this.agile.items,
   });
 
   /** Notifications seeded for the bell, the notifications page and home's Recent activity. */
@@ -302,6 +313,8 @@ export class MockApi {
     if (events) return events;
     const inbox = this.inbox.handle(route, method, url, body, this.caller(authorization));
     if (inbox) return inbox;
+    const search = this.search.handle(route, method, url, this.caller(authorization));
+    if (search) return search;
     const profileRoute = /^\/api\/profiles\/([^/]+)$/.exec(url.pathname);
     if (method === 'GET' && profileRoute) {
       return this.getProfile(route, profileRoute[1], authorization);
