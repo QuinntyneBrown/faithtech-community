@@ -6,7 +6,6 @@ using FaithTech.Community.Domain.Admin;
 using FaithTech.Community.Domain.Notifications;
 using FaithTech.Community.Domain.Profiles;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Options;
 
 namespace FaithTech.Community.Application.Admin;
 
@@ -20,7 +19,6 @@ public class ChangeRolesHandler(
     IAuditLog audit,
     CityLeadRoleRemovedHandler cityLeadRemoved,
     INotificationPublisher notifications,
-    IOptions<WebAppOptions> webApp,
     TimeProvider time)
 {
     public const string LastSystemAdminMessage = "There must always be at least one System Admin.";
@@ -121,7 +119,9 @@ public class ChangeRolesHandler(
                 title,
                 "/people/me",
                 actorName,
-                new NotificationEmail("Your FaithTech Community roles changed", $"{title}.\n\nSee your profile: {webApp.Value.Origin}/people/me"),
+                new NotificationEmail(
+                    "Your FaithTech Community roles changed",
+                    new EmailContent("Your roles changed", [$"{title}."], new EmailAction("See your profile", "/people/me"))),
                 cancellationToken);
         }
 

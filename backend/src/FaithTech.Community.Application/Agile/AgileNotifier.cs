@@ -1,7 +1,6 @@
 using FaithTech.Community.Application.Common;
 using FaithTech.Community.Domain.Notifications;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Options;
 
 namespace FaithTech.Community.Application.Agile;
 
@@ -11,31 +10,35 @@ namespace FaithTech.Community.Application.Agile;
 /// the action, so the outbox rows are saved with it.
 /// Nobody is notified about their own action (ADR 0011).
 /// </summary>
-public class AgileNotifier(IApplicationDbContext db, IEmailSender email, IOptions<WebAppOptions> webApp, TimeProvider time)
+public class AgileNotifier(IApplicationDbContext db, IEmailSender email, TimeProvider time)
 {
-    private readonly List<(Guid Recipient, string Subject, string Body)> _emails = [];
+    private readonly List<(Notification Notification, string Subject, EmailContent Content)> _emails = [];
 
-    public void Notify(Guid actor, Guid recipient, NotificationKind kind, string title, string linkPath, string subject, string body)
+    /// <summary>The email's action opens <paramref name="linkPath"/>, the same place as the in-app notification.</summary>
+    public void Notify(
+        Guid actor, Guid recipient, NotificationKind kind, string title, string linkPath, string subject, string heading, string body, string actionLabel)
     {
         if (recipient == actor)
         {
             return;
         }
 
-        db.Notifications.Add(new Notification(recipient, kind, title, linkPath, time.GetUtcNow()));
-        _emails.Add((recipient, subject, $"{body}\n\n{webApp.Value.Origin}{linkPath}"));
+        var notification = new Notification(recipient, kind, title, linkPath, time.GetUtcNow());
+        db.Notifications.Add(notification);
+        _emails.Add((notification, subject, new EmailContent(heading, [body], new EmailAction(actionLabel, linkPath))));
     }
 
     public async Task QueueEmailsAsync(CancellationToken cancellationToken = default)
     {
-        var recipients = _emails.Select(e => e.Recipient).Distinct().ToList();
+        var recipients = _emails.Select(e => e.Notification.RecipientId).Distinct().ToList();
         var addresses = await db.Users.Where(u => recipients.Contains(u.ProfileId))
             .ToDictionaryAsync(u => u.ProfileId, u => u.Email, cancellationToken);
-        foreach (var (recipient, subject, body) in _emails)
+        foreach (var (notification, subject, content) in _emails)
         {
-            if (addresses.GetValueOrDefault(recipient) is { } address)
+            if (addresses.GetValueOrDefault(notification.RecipientId) is { } address)
             {
-                await email.SendAsync(new EmailMessage(address, subject, body), cancellationToken);
+                await email.SendAsync(
+                    new EmailMessage(address, subject, content, notification.Kind.ToString(), notification.Id.ToString()), cancellationToken);
             }
         }
 

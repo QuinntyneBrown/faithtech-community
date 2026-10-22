@@ -73,14 +73,16 @@ public partial class EmailNotificationsTests(CommunityApiFactory factory) : ICla
     }
 
     [Fact]
-    public async Task Each_recipient_gets_their_own_footer()
+    public async Task Each_recipient_gets_their_own_unsubscribe_link()
     {
         var ruth = await factory.AddMemberAsync("Ruth Alvarez");
         var app = factory.WithWebHostBuilder(_ => { });
 
-        await PublishAsync(app, [ruth.ProfileId], NotificationKind.Announcement, footer: id => $"Footer for {id}");
+        await PublishAsync(app, [ruth.ProfileId], NotificationKind.Announcement, unsubscribe: id => $"/unsubscribe?token=for-{id}");
 
-        Assert.EndsWith($"Footer for {ruth.ProfileId}", factory.Emails.SentTo(AddressOf(ruth)).Single().Body);
+        var email = factory.Emails.SentTo(AddressOf(ruth)).Single();
+        Assert.EndsWith($"{CommunityApiFactory.WebAppOrigin}/unsubscribe?token=for-{ruth.ProfileId}", email.Body);
+        Assert.Contains($"href=\"{CommunityApiFactory.WebAppOrigin}/unsubscribe?token=for-{ruth.ProfileId}\"", email.HtmlBody);
     }
 
     private WebApplicationFactory<Program> WithOutbox(IEmailTransport transport) =>
@@ -91,12 +93,12 @@ public partial class EmailNotificationsTests(CommunityApiFactory factory) : ICla
         }));
 
     private static async Task PublishAsync(
-        WebApplicationFactory<Program> app, Guid[] recipients, NotificationKind kind, Func<Guid, string>? footer = null)
+        WebApplicationFactory<Program> app, Guid[] recipients, NotificationKind kind, Func<Guid, string>? unsubscribe = null)
     {
         await using var scope = app.Services.CreateAsyncScope();
         var subject = kind == NotificationKind.Announcement ? "Announcement" : "Role changed";
         await scope.ServiceProvider.GetRequiredService<INotificationPublisher>().PublishAsync(
-            recipients, kind, subject, "/announcements", "Hannah Kim", new NotificationEmail(subject, $"{subject}.", footer));
+            recipients, kind, subject, "/announcements", "Hannah Kim", new NotificationEmail(subject, new EmailContent(subject, [$"{subject}."]), UnsubscribePath: unsubscribe));
         await scope.ServiceProvider.GetRequiredService<IApplicationDbContext>().SaveChangesAsync();
     }
 
@@ -118,9 +120,9 @@ public partial class EmailNotificationsTests(CommunityApiFactory factory) : ICla
 
         public List<string> Attempts { get; } = [];
 
-        public List<EmailMessage> Delivered { get; } = [];
+        public List<OutgoingEmail> Delivered { get; } = [];
 
-        public Task SendAsync(EmailMessage message, CancellationToken cancellationToken = default)
+        public Task SendAsync(OutgoingEmail message, CancellationToken cancellationToken = default)
         {
             lock (this)
             {

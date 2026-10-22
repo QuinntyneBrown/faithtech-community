@@ -8,7 +8,7 @@ namespace FaithTech.Community.Infrastructure.Email;
 /// <summary>Sends through SMTP, which also covers the SendGrid SMTP relay.</summary>
 public class SmtpEmailTransport(IOptions<SmtpOptions> options) : IEmailTransport
 {
-    public async Task SendAsync(EmailMessage message, CancellationToken cancellationToken = default)
+    public async Task SendAsync(OutgoingEmail message, CancellationToken cancellationToken = default)
     {
         var smtp = options.Value;
         var mime = EmailMime.Build(message, smtp.From);

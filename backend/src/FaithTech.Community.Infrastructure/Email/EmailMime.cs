@@ -1,15 +1,16 @@
-using System.Net;
 using System.Text;
-using System.Text.RegularExpressions;
-using FaithTech.Community.Application.Common;
 using MimeKit;
 
 namespace FaithTech.Community.Infrastructure.Email;
 
-/// <summary>Builds the message the provider receives: the plain-text body and an HTML alternative derived from it (L2-028 AC2).</summary>
-public static partial class EmailMime
+/// <summary>
+/// Builds the message the provider receives: the plain-text part and its HTML alternative as
+/// <c>multipart/alternative</c> (L2-028 AC2), wrapped with any attachments, such as an RSVP's .ics, in
+/// <c>multipart/mixed</c> (L2-022 AC1).
+/// </summary>
+public static class EmailMime
 {
-    public static MimeMessage Build(EmailMessage message, string from)
+    public static MimeMessage Build(OutgoingEmail message, string from)
     {
         var mime = new MimeMessage
         {
@@ -21,13 +22,12 @@ public static partial class EmailMime
         return mime;
     }
 
-    // The text and HTML alternatives, wrapped with any attachments (such as an RSVP's .ics) in multipart/mixed.
-    private static MimeEntity Body(EmailMessage message)
+    private static MimeEntity Body(OutgoingEmail message)
     {
         var alternatives = new MultipartAlternative
         {
-            new TextPart("plain") { Text = message.Body },
-            new TextPart("html") { Text = Html(message.Body) },
+            new TextPart("plain") { Text = message.Text },
+            new TextPart("html") { Text = message.Html },
         };
         if (message.Attachments is not { Count: > 0 } attachments)
         {
@@ -48,17 +48,4 @@ public static partial class EmailMime
 
         return mixed;
     }
-
-    // Paragraphs from blank lines, everything escaped, and links made clickable.
-    private static string Html(string text)
-    {
-        var paragraphs = text.Replace("\r\n", "\n")
-            .Split("\n\n", StringSplitOptions.RemoveEmptyEntries)
-            .Select(p => Links().Replace(WebUtility.HtmlEncode(p.Trim()), m => $"<a href=\"{m.Value}\">{m.Value}</a>").Replace("\n", "<br>"))
-            .Select(p => $"<p>{p}</p>");
-        return $"<!doctype html><html><body>{string.Concat(paragraphs)}</body></html>";
-    }
-
-    [GeneratedRegex(@"https?://[^\s<>""]+")]
-    private static partial Regex Links();
 }

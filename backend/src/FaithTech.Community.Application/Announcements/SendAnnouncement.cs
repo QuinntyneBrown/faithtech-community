@@ -105,7 +105,6 @@ public class SendAnnouncementHandler(
     ProfileAccess access,
     IValidator<SendAnnouncementCommand> validator,
     INotificationPublisher notifications,
-    IOptions<WebAppOptions> webApp,
     IUnsubscribeTokens unsubscribe,
     TimeProvider time)
 {
@@ -133,10 +132,15 @@ public class SendAnnouncementHandler(
         announcement.AddRecipients(recipients);
         db.Announcements.Add(announcement);
 
-        var origin = webApp.Value.Origin;
+        // The mock's email (notifications/email/announcement): the subject, the message's paragraphs, a link to read it
+        // in the app and, per recipient, the unsubscribe link (L2-030 AC3).
+        var paragraphs = body.Replace("\r\n", "\n", StringComparison.Ordinal)
+            .Split("\n\n", StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
         var email = command.AlsoEmail
-            ? new NotificationEmail(subject, $"{senderName} sent an announcement to FaithTech Community.\n\n{body}\n\nRead it in the app: {origin}/announcements",
-                id => $"Don’t want announcement emails? Unsubscribe: {origin}/unsubscribe?token={Uri.EscapeDataString(unsubscribe.Issue(id))}")
+            ? new NotificationEmail(
+                subject,
+                new EmailContent(subject, [$"From {senderName}:", .. paragraphs], new EmailAction("Read in FaithTech", "/announcements")),
+                UnsubscribePath: id => $"/unsubscribe?token={Uri.EscapeDataString(unsubscribe.Issue(id))}")
             : null;
         await notifications.PublishAsync(
             recipients, NotificationKind.Announcement, $"{senderName} sent “{subject}”", "/announcements", senderName, email, cancellationToken);

@@ -344,6 +344,8 @@ public class WorkItemsHandler(
             $"{actorName} assigned you {item.Title}",
             $"/workspaces/{workspace.Id}/items/{item.Id}",
             $"{AgileNotifier.FirstName(actorName)} assigned you: {item.Title}",
-            $"{actorName} assigned you “{item.Title}”{points} in the {workspace.Name} workspace.\n\nOpen the {item.Kind.ToString().ToLowerInvariant()}:");
+            $"You’ve been assigned a {item.Kind.ToString().ToLowerInvariant()}",
+            $"{actorName} assigned you “{item.Title}”{points} in the {workspace.Name} workspace.",
+            $"Open the {item.Kind.ToString().ToLowerInvariant()}");
     }
 }

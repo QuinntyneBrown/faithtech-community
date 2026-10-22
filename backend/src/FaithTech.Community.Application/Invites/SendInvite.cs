@@ -1,10 +1,10 @@
 using FaithTech.Community.Application.Admin;
 using FaithTech.Community.Application.Common;
 using FaithTech.Community.Domain.Invites;
+using FaithTech.Community.Domain.Notifications;
 using FaithTech.Community.Domain.Profiles;
 using FluentValidation;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Options;
 
 namespace FaithTech.Community.Application.Invites;
 
@@ -31,7 +31,6 @@ public class InviteSender(
     ICurrentUser current,
     RoleAssignmentPolicy policy,
     IEmailSender email,
-    IOptions<WebAppOptions> webApp,
     TimeProvider time)
 {
     public const int MaxPerDay = 50;
@@ -95,13 +94,20 @@ public class InviteSender(
         db.Invites.Add(invite);
 
         var asRole = role is { } granted ? $" as a {RoleLabels.Of(granted)}" : string.Empty;
-        var personal = note is null ? string.Empty : $"\n\n“{note}”\n— {sender.Name}";
-        await email.SendAsync(new EmailMessage(
-            address,
-            $"{sender.Name} invited you to FaithTech Community",
-            $"{sender.Name} invited you to join FaithTech Community{asRole}.{personal}\n\n" +
-            $"Accept the invite:\n\n{webApp.Value.Origin}/accept-invite/{token}\n\n" +
-            "This link works once and expires in 14 days."),
+        List<string> paragraphs = [$"{sender.Name} invited you to join FaithTech Community{asRole}."];
+        if (note is not null)
+        {
+            paragraphs.Add($"“{note}”\n— {sender.Name}");
+        }
+
+        paragraphs.Add("This link works once and expires in 14 days.");
+        await email.SendAsync(
+            new EmailMessage(
+                address,
+                $"{sender.Name} invited you to FaithTech Community",
+                new EmailContent("You’re invited", paragraphs, new EmailAction("Accept invite", $"/accept-invite/{token}")),
+                nameof(NotificationKind.Invite),
+                invite.Id.ToString()),
             cancellationToken);
         await db.SaveChangesAsync(cancellationToken);
         return (Result.Ok(), InviteDto.From(invite, sender.Name, now));

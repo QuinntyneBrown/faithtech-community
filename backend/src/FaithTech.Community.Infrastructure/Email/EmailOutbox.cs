@@ -12,7 +12,7 @@ namespace FaithTech.Community.Infrastructure.Email;
 /// <summary>Delivers a message to the provider. Only the outbox dispatcher calls it.</summary>
 public interface IEmailTransport
 {
-    Task SendAsync(EmailMessage message, CancellationToken cancellationToken = default);
+    Task SendAsync(OutgoingEmail message, CancellationToken cancellationToken = default);
 }
 
 public class OutboxMessage
@@ -57,16 +57,20 @@ public class OutboxMessage
 /// it together with the action it reports (L2-028, issue #174). The action then commits even when the provider is
 /// down, and no action commits without its email.
 /// </summary>
-public class OutboxEmailSender(CommunityDbContext db, TimeProvider time) : IEmailSender
+public class OutboxEmailSender(CommunityDbContext db, EmailTemplateRenderer renderer, TimeProvider time) : IEmailSender
 {
     public Task SendAsync(EmailMessage message, CancellationToken cancellationToken = default)
     {
         var now = time.GetUtcNow();
+        var (text, html) = renderer.Render(message);
         db.OutboxMessages.Add(new OutboxMessage
         {
             To = message.To,
             Subject = message.Subject,
-            Body = message.Body,
+            Body = text,
+            HtmlBody = html,
+            Kind = message.Kind,
+            CorrelationId = message.CorrelationId,
             AttachmentsJson = message.Attachments is { Count: > 0 } attachments ? JsonSerializer.Serialize(attachments) : null,
             CreatedAt = now,
             NextAttemptAt = now,
@@ -98,7 +102,8 @@ public class EmailOutboxDispatcher(
             try
             {
                 var attachments = message.AttachmentsJson is { } json ? JsonSerializer.Deserialize<List<EmailAttachment>>(json) : null;
-                await transport.SendAsync(new EmailMessage(message.To, message.Subject, message.Body, attachments), cancellationToken);
+                await transport.SendAsync(
+                    new OutgoingEmail(message.To, message.Subject, message.Body, message.HtmlBody ?? $"<pre>{System.Net.WebUtility.HtmlEncode(message.Body)}</pre>", attachments), cancellationToken);
                 message.SentAt = time.GetUtcNow();
             }
             catch (Exception exception) when (exception is not OperationCanceledException)

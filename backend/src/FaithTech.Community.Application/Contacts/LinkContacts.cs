@@ -2,7 +2,6 @@ using FaithTech.Community.Application.Common;
 using FaithTech.Community.Domain.Identity;
 using FaithTech.Community.Domain.Notifications;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Options;
 
 namespace FaithTech.Community.Application.Contacts;
 
@@ -12,7 +11,7 @@ public record LinkContactCommand(Guid ProfileId, bool DiscardNotes = false);
 /// Tells each lead whose private contact just verified their email (L2-015 AC1, AC3): an in-app
 /// notification now and an email. Called once an account's email becomes verified.
 /// </summary>
-public class ContactSignedUpHandler(IApplicationDbContext db, IEmailSender email, IOptions<WebAppOptions> webApp, TimeProvider time)
+public class ContactSignedUpHandler(IApplicationDbContext db, IEmailSender email, TimeProvider time)
 {
     public async Task HandleAsync(EmailVerified verified, CancellationToken cancellationToken = default)
     {
@@ -43,12 +42,19 @@ public class ContactSignedUpHandler(IApplicationDbContext db, IEmailSender email
                 continue;
             }
 
-            await email.SendAsync(new EmailMessage(
-                address,
-                Title(contact.Name),
-                $"{contact.Name}, one of your private contacts, just joined FaithTech Community.\n\n" +
-                $"Link them to their new profile and keep your notes:\n\n{webApp.Value.Origin}/contacts/{contact.Id}\n\n" +
-                "Your notes stay private to you."),
+            await email.SendAsync(
+                new EmailMessage(
+                    address,
+                    Title(contact.Name),
+                    new EmailContent(
+                        "One of your contacts signed up",
+                        [
+                            $"{contact.Name}, one of your private contacts, just joined FaithTech Community. Link them to their new profile and keep your notes.",
+                            "Your notes stay private to you.",
+                        ],
+                        new EmailAction("Review contact", $"/contacts/{contact.Id}")),
+                    nameof(NotificationKind.ContactSignedUp),
+                    contact.Id.ToString()),
                 cancellationToken);
         }
 

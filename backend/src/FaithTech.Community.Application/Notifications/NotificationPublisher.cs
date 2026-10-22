@@ -4,8 +4,15 @@ using Microsoft.EntityFrameworkCore;
 
 namespace FaithTech.Community.Application.Notifications;
 
-/// <summary>A notification's email: subject and plain-text body, plus an optional per-recipient footer.</summary>
-public record NotificationEmail(string Subject, string Text, Func<Guid, string>? Footer = null);
+/// <summary>
+/// A notification's email: its subject and content, any attachments, and for announcements the per-recipient
+/// unsubscribe path that the footer links to.
+/// </summary>
+public record NotificationEmail(
+    string Subject,
+    EmailContent Content,
+    IReadOnlyList<EmailAttachment>? Attachments = null,
+    Func<Guid, string>? UnsubscribePath = null);
 
 /// <summary>
 /// The one way features raise notifications: in-app always, email when given (L2-027, L2-028, ADR 0015). Both are
@@ -37,9 +44,11 @@ public class NotificationPublisher(IApplicationDbContext db, IEmailSender emails
     {
         var now = time.GetUtcNow();
         var recipients = recipientProfileIds.Distinct().ToList();
+        var added = new Dictionary<Guid, Notification>();
         foreach (var recipient in recipients)
         {
-            db.Notifications.Add(new Notification(recipient, kind, title, linkPath, now, actorName));
+            added[recipient] = new Notification(recipient, kind, title, linkPath, now, actorName);
+            db.Notifications.Add(added[recipient]);
         }
 
         if (email is null)
@@ -56,8 +65,13 @@ public class NotificationPublisher(IApplicationDbContext db, IEmailSender emails
             .ToListAsync(cancellationToken);
         foreach (var recipient in addresses)
         {
-            var body = email.Footer is null ? email.Text : $"{email.Text}\n\n{email.Footer(recipient.ProfileId)}";
-            await emails.SendAsync(new EmailMessage(recipient.Email!, email.Subject, body), cancellationToken);
+            var content = email.UnsubscribePath is null
+                ? email.Content
+                : email.Content with { UnsubscribePath = email.UnsubscribePath(recipient.ProfileId) };
+            await emails.SendAsync(
+                new EmailMessage(
+                    recipient.Email!, email.Subject, content, kind.ToString(), added[recipient.ProfileId].Id.ToString(), email.Attachments),
+                cancellationToken);
         }
     }
 }

@@ -5,7 +5,6 @@ using FaithTech.Community.Application.Notifications;
 using FaithTech.Community.Domain.Events;
 using FaithTech.Community.Domain.Notifications;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Options;
 
 namespace FaithTech.Community.Application.Events;
 
@@ -22,7 +21,6 @@ public class RsvpHandler(
     INotificationPublisher notifications,
     IIcsCalendarWriter calendar,
     IEmailSender email,
-    IOptions<WebAppOptions> webApp,
     TimeProvider time)
 {
     public const string Cancelled = "This event was cancelled.";
@@ -60,7 +58,7 @@ public class RsvpHandler(
         var address = await db.Users.Where(u => u.ProfileId == me).Select(u => u.Email).SingleOrDefaultAsync(cancellationToken);
         if (address is not null)
         {
-            await email.SendAsync(Confirmation(e, address, $"{webApp.Value.Origin}{link}"), cancellationToken);
+            await email.SendAsync(Confirmation(e, address, link), cancellationToken);
         }
 
         await db.SaveChangesAsync(cancellationToken);
@@ -120,15 +118,20 @@ public class RsvpHandler(
         e.IsCancelled ? Cancelled : now >= e.StartsAt ? Started : e.IsFull ? Full : null;
 
     /// <summary>The confirmation email with the event's .ics attached (L2-022 AC1, L2-023 AC2).</summary>
-    public EmailMessage Confirmation(Event e, string address, string pageUrl, string? extra = null) => new(
+    public EmailMessage Confirmation(Event e, string address, string pagePath, EmailAction? cancel = null) => new(
         address,
         $"You’re going to {e.Title}",
-        $"You’re going to {e.Title}.\n\n" +
-        $"{e.StartsAt.UtcDateTime.ToString("dddd d MMMM yyyy, HH:mm", CultureInfo.InvariantCulture)} UTC\n" +
-        $"{(e.Format == EventFormat.Online ? e.OnlineLink : $"{e.Venue}, {e.City}")}\n\n" +
-        $"The calendar invite is attached. See the event: {pageUrl}" +
-        (extra is null ? string.Empty : $"\n\n{extra}"),
-        [new EmailAttachment(EventFileNames.Calendar(e.Title), "text/calendar", calendar.Write(e))]);
+        new EmailContent(
+            $"You’re going to {e.Title}",
+            [
+                $"{EventEmails.When(e)}\n{EventEmails.Where(e)}",
+                "The calendar invite (.ics) is attached.",
+            ],
+            new EmailAction("View event", pagePath),
+            SecondaryAction: cancel),
+        nameof(NotificationKind.RsvpConfirmed),
+        e.Id.ToString(),
+        [EventEmails.Calendar(e, calendar)]);
 
     // Quotes a CSV cell when it holds a comma, quote or line break, and neutralises spreadsheet formulas.
     private static string Cell(string value)

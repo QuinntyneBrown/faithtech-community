@@ -4,7 +4,6 @@ using FaithTech.Community.Application.Notifications;
 using FaithTech.Community.Domain.Notifications;
 using FluentValidation;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Options;
 
 namespace FaithTech.Community.Application.Events;
 
@@ -33,7 +32,6 @@ public class CancelEventHandler(
     IIcsCalendarWriter calendar,
     IEmailSender email,
     IAuditLog audit,
-    IOptions<WebAppOptions> webApp,
     TimeProvider time)
 {
     public async Task<Result> HandleAsync(Guid id, CancelEventCommand command, CancellationToken cancellationToken = default)
@@ -70,15 +68,19 @@ public class CancelEventHandler(
         // Everyone who RSVP'd hears why, the person who cancelled included, since their RSVP is cancelled too.
         var addresses = await db.Users.Where(u => members.Contains(u.ProfileId)).Select(u => u.Email!).ToListAsync(cancellationToken);
         addresses.AddRange(e.Rsvps.Where(r => r.IsGuest).Select(r => r.GuestEmail!));
-        var origin = webApp.Value.Origin;
+        var content = new EmailContent(
+            "This event has been cancelled",
+            [
+                $"{e.Title} ({EventEmails.When(e)}) is cancelled. The hosts said: “{reason}”",
+                "The attached calendar file removes it from your calendar.",
+            ],
+            new EmailAction("See the event", link));
         foreach (var address in addresses.Distinct(StringComparer.OrdinalIgnoreCase))
         {
-            await email.SendAsync(new EmailMessage(
-                address,
-                $"Cancelled: {e.Title}",
-                $"{e.Title} is cancelled. The hosts said:\n\n“{reason}”\n\n" +
-                $"The attached calendar file removes it from your calendar. See the event: {origin}{link}",
-                [new EmailAttachment(EventFileNames.Calendar(e.Title), "text/calendar", calendar.Write(e))]),
+            await email.SendAsync(
+                new EmailMessage(
+                    address, $"Cancelled: {e.Title}", content, nameof(NotificationKind.EventCancelled), e.Id.ToString(),
+                    [EventEmails.Calendar(e, calendar)]),
                 cancellationToken);
         }
 

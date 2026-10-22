@@ -120,6 +120,38 @@ public class EmailOutboxTests(CommunityApiFactory factory) : IClassFixture<Commu
         Assert.Contains($"UID:{existing.Id}@faithtech.community", ics.Content);
     }
 
+    // Issue #173 AC2, AC5: both body parts, the kind, the correlation id and the .ics survive persistence, a failed
+    // attempt and the retry that delivers it.
+    [Fact]
+    public async Task A_retried_email_keeps_its_parts_kind_correlation_and_attachment()
+    {
+        var app = OutboxApp();
+        var existing = await factory.AddEventAsync("Builders Night <Toronto>", TimeSpan.FromDays(7));
+        var leah = await factory.AddMemberAsync("Leah Thompson");
+        var address = await factory.EmailOfAsync(leah);
+
+        (await factory.ClientFor(leah).PostAsync($"/api/events/{existing.Id}/rsvps", null)).EnsureSuccessStatusCode();
+        var queued = await factory.WithDbAsync(db => db.OutboxMessages.AsNoTracking().SingleAsync(m => m.To == address));
+        Assert.Equal(("RsvpConfirmed", existing.Id.ToString()), (queued.Kind, queued.CorrelationId));
+
+        _transport.Down = true;
+        await DispatchAsync(app);
+        _transport.Down = false;
+        factory.Time.Advance(TimeSpan.FromMinutes(5));
+        await DispatchAsync(app);
+
+        var attempts = _transport.Attempts.Where(m => m.To == address).ToList();
+        Assert.Equal(2, attempts.Count);
+        var sent = Assert.Single(_transport.Delivered, m => m.To == address);
+        Assert.Equal(attempts[0], sent with { Attachments = attempts[0].Attachments });
+        Assert.Contains("You’re going to Builders Night <Toronto>", sent.Text);
+        Assert.Contains("You’re going to Builders Night &lt;Toronto&gt;", sent.Html);
+        Assert.Contains($"href=\"{CommunityApiFactory.WebAppOrigin}/events/{existing.Id}\"", sent.Html);
+        var ics = Assert.Single(sent.Attachments!);
+        Assert.Equal(attempts[0].Attachments!.Single(), ics);
+        Assert.Contains($"UID:{existing.Id}@faithtech.community", ics.Content);
+    }
+
     private WebApplicationFactory<Program> OutboxApp() =>
         factory.WithWebHostBuilder(b => b.ConfigureTestServices(s =>
         {
@@ -145,11 +177,11 @@ public class EmailOutboxTests(CommunityApiFactory factory) : IClassFixture<Commu
     {
         public bool Down { get; set; }
 
-        public List<EmailMessage> Delivered { get; } = [];
+        public List<OutgoingEmail> Delivered { get; } = [];
 
-        public List<EmailMessage> Attempts { get; } = [];
+        public List<OutgoingEmail> Attempts { get; } = [];
 
-        public Task SendAsync(EmailMessage message, CancellationToken cancellationToken = default)
+        public Task SendAsync(OutgoingEmail message, CancellationToken cancellationToken = default)
         {
             Attempts.Add(message);
             if (Down)

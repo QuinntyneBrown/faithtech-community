@@ -143,7 +143,9 @@ public class PlanningPokerHandler(
                 $"{first} invited you to Planning Poker in {workspace.Name}",
                 $"/workspaces/{workspace.Id}/poker",
                 $"Join Planning Poker in {workspace.Name}",
-                $"{name} invited you to estimate {Count(stories.Count)} in {workspace.Name}, starting with “{stories[0].Title}”. Votes stay hidden until {first} reveals them.\n\nJoin the session:");
+                "Join a Planning Poker session",
+                $"{name} invited you to estimate {Count(stories.Count)} in {workspace.Name}, starting with “{stories[0].Title}”. Votes stay hidden until {first} reveals them.",
+                "Join the session");
         }
 
         await notifier.QueueEmailsAsync(cancellationToken);

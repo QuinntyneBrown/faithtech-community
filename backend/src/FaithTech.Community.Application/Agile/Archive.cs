@@ -208,7 +208,9 @@ public class CityLeadRoleRemovedHandler(IApplicationDbContext db, AgileNotifier 
                     title,
                     $"/workspaces/{workspace.Id}/settings",
                     $"{workspace.Name} needs a new owner",
-                    $"{title}. A workspace owner must be a City Lead, so choose a new owner.\n\nOpen the workspace settings:");
+                    "Choose a new workspace owner",
+                    $"{title}. A workspace owner must be a City Lead, so choose a new owner.",
+                    "Open the workspace settings");
             }
         }
     }

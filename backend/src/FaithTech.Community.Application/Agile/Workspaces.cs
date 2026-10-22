@@ -174,7 +174,9 @@ public class WorkspaceMembership(IApplicationDbContext db, AgileNotifier notifie
                 $"{actorName} added you to the workspace {workspace.Name}",
                 $"/workspaces/{workspace.Id}",
                 $"You’ve been added to {workspace.Name}",
-                $"{actorName} added you to the {workspace.Name} workspace. You can add stories and tasks, move cards, comment and vote in Planning Poker.\n\nOpen the workspace:");
+                $"Welcome to {workspace.Name}",
+                $"{actorName} added you to the {workspace.Name} workspace. You can add stories and tasks, move cards, comment and vote in Planning Poker.",
+                "Open the workspace");
         }
 
         return [.. profiles.Select(p => p.Id)];

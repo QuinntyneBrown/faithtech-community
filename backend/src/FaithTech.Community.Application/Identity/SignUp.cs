@@ -3,7 +3,6 @@ using FaithTech.Community.Application.Profiles;
 using FaithTech.Community.Domain.Profiles;
 using FluentValidation;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.Extensions.Options;
 
 namespace FaithTech.Community.Application.Identity;
 
@@ -61,16 +60,21 @@ public class SignUpHandler(
 }
 
 public class VerificationEmails(
-    UserManager<CommunityUser> users, IEmailSender email, IApplicationDbContext db, IOptions<WebAppOptions> webApp)
+    UserManager<CommunityUser> users, IEmailSender email, IApplicationDbContext db)
 {
     public async Task SendAsync(CommunityUser user, CancellationToken cancellationToken = default)
     {
         var token = await users.GenerateEmailConfirmationTokenAsync(user);
-        var link = $"{webApp.Value.Origin}/verify-email?userId={user.Id}&token={Uri.EscapeDataString(token)}";
-        await email.SendAsync(new EmailMessage(
-            user.Email!,
-            "Verify your FaithTech Community email",
-            $"Confirm your email address to finish setting up your account:\n\n{link}\n\nThis link expires in 24 hours."),
+        await email.SendAsync(
+            new EmailMessage(
+                user.Email!,
+                "Verify your FaithTech Community email",
+                new EmailContent(
+                    "Verify your email",
+                    ["Confirm your email address to finish setting up your account.", "This link expires in 24 hours."],
+                    new EmailAction("Verify email", $"/verify-email?userId={user.Id}&token={Uri.EscapeDataString(token)}")),
+                EmailKinds.EmailVerification,
+                user.Id.ToString()),
             cancellationToken);
         await db.SaveChangesAsync(cancellationToken);
     }

@@ -4,7 +4,6 @@ using FaithTech.Community.Application.Common;
 using FaithTech.Community.Domain.Events;
 using FluentValidation;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Options;
 
 namespace FaithTech.Community.Application.Events;
 
@@ -70,7 +69,6 @@ public class PublicEventsHandler(
     IApplicationDbContext db,
     RsvpHandler rsvps,
     IEmailSender email,
-    IOptions<WebAppOptions> webApp,
     TimeProvider time)
 {
     public async Task<PublicEventDto?> GetAsync(Guid id, CancellationToken cancellationToken = default)
@@ -104,10 +102,9 @@ public class PublicEventsHandler(
         var token = GuestRsvpTokens.New();
         rsvp.IssueCancelToken(GuestRsvpTokens.Hash(token));
 
-        var origin = webApp.Value.Origin;
         await email.SendAsync(
-            rsvps.Confirmation(e, rsvp.GuestEmail!, $"{origin}/public/events/{e.Id}",
-                $"Can’t come after all? Cancel your RSVP: {origin}/public/events/{e.Id}/cancel-rsvp?token={token}"),
+            rsvps.Confirmation(e, rsvp.GuestEmail!, $"/public/events/{e.Id}",
+                new EmailAction("Can’t come after all? Cancel your RSVP", $"/public/events/{e.Id}/cancel-rsvp?token={token}")),
             cancellationToken);
         await db.SaveChangesAsync(cancellationToken);
         return Result.Ok();
