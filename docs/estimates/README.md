@@ -21,12 +21,12 @@
 | [agile](agile.md) | 36 days | 99% | B- |
 | [marketing](marketing.md) | 8 days | 95% | n/a |
 | [resources](resources.md) | 23 days | 99% | — |
-| [notes](notes.md) | 42 days | 94% | — |
+| [notes](notes.md) | 42 days | 98% | — |
 
 ## Roadmap
 
 1. platform and identity: finish the remaining designs
 2. admin, search and agile: finish the remaining designs
 3. marketing page and Google sign-in, and resources: finish the remaining designs
-4. notes: finish block-editor, pages-and-list and archive-and-search
+4. notes: block-editor (the mouse path into the Turn into submenu) and pages-and-list (measure the 500-block read and save latency)
 5. Deferred: notes co-editing, version history, purging archived pages and orphaned-image clean-up
