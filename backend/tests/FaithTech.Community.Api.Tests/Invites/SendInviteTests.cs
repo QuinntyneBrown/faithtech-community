@@ -140,7 +140,7 @@ public class SendInviteTests(CommunityApiFactory factory) : IClassFixture<Commun
             return await db.SaveChangesAsync();
         });
 
-        var invites = (await factory.ClientFor(marcus, Role.EventLead).GetFromJsonAsync<List<InviteDto>>("/api/invites"))!;
+        var invites = (await factory.ClientFor(marcus, Role.EventLead).GetFromJsonAsync<InvitePage>("/api/invites?pageSize=100"))!.Items;
 
         var byId = invites.ToDictionary(i => i.Id);
         Assert.Equal("Pending", byId[pending.Id].Status);
@@ -194,6 +194,8 @@ public class SendInviteTests(CommunityApiFactory factory) : IClassFixture<Commun
         Assert.Equal(HttpStatusCode.Conflict, again.StatusCode);
         Assert.Equal(InviteStatus.Revoked, (await factory.LoadInviteAsync(pending.Id)).Status(factory.Time.GetUtcNow()));
     }
+
+    private sealed record InvitePage(List<InviteDto> Items, string? Next, int TotalCount);
 
     private sealed record InviteDto(Guid Id, string Email, string? PreassignedRole, string Status, string InvitedByName, DateTimeOffset CreatedAt, DateTimeOffset ExpiresAt);
 }
