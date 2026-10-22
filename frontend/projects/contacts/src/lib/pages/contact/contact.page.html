@@ -69,36 +69,93 @@
           <ft-button ftAlertActions variant="ghost" (click)="dismiss()">Not them</ft-button>
         </ft-alert>
       }
+      @if (failedPhotos().length) {
+        <ft-alert
+          status="warning"
+          [heading]="
+            c.name +
+            ' is saved, but ' +
+            failedPhotos().length +
+            (failedPhotos().length === 1 ? ' photo wasn’t added' : ' photos weren’t added')
+          "
+        >
+          We couldn’t upload
+          @for (alt of failedPhotos(); track $index; let last = $last) {
+            “{{ alt }}”{{ last ? '.' : ',' }}
+          }
+          Add {{ failedPhotos().length === 1 ? 'it' : 'them' }} again from this page.
+        </ft-alert>
+      }
       @if (justLinked()) {
         <ft-alert status="success" [heading]="'Linked to ' + c.name + '’s member profile'">
-          Name and photos now come from their profile. Your notes are still only visible to you.
+          Their name and featured photo now come from their profile. Your notes and the photos you
+          added are still only visible to you.
         </ft-alert>
       }
 
       <ft-split>
-        <section ftSplitMain class="notes" aria-labelledby="notes-heading">
-          <ft-card>
-            <ft-stack>
-              <h2 id="notes-heading" class="notes__heading">
-                Your notes <ft-badge><ft-icon name="locked" size="sm" /> Private</ft-badge>
-              </h2>
-              <div>
-                <ft-button variant="primary" size="sm" (click)="addNote(c)">
-                  <ft-icon name="add" size="sm" /> Add note
-                </ft-button>
-              </div>
-              @for (note of notes(); track note.id) {
-                <ft-note [date]="day(note.createdAtUtc)">{{ note.body }}</ft-note>
-              } @empty {
-                <p class="text-muted">No notes yet. Only you will see what you write here.</p>
-              }
-            </ft-stack>
-          </ft-card>
-        </section>
+        <div ftSplitMain class="main">
+          <section class="photos" aria-labelledby="photos-heading">
+            <ft-card>
+              <ft-stack>
+                <div class="photos__head">
+                  <h2 id="photos-heading" class="notes__heading">
+                    Photos <ft-badge>{{ photos().length }} of {{ maxPhotos }}</ft-badge>
+                  </h2>
+                  <ft-button
+                    size="sm"
+                    [disabled]="full()"
+                    [describedBy]="full() ? 'photos-full' : null"
+                    (click)="addPhotos(c)"
+                  >
+                    <ft-icon name="add" size="sm" /> Add photos
+                  </ft-button>
+                </div>
+                @if (full()) {
+                  <p id="photos-full" class="text-muted">
+                    That’s 10 photos, the most a contact can have. Delete one to add another.
+                  </p>
+                }
+                @if (photos().length) {
+                  <ft-photo-gallery
+                    [photos]="galleryPhotos()"
+                    (featured)="featurePhoto(c, $event)"
+                    (describe)="describePhoto(c, $event)"
+                    (remove)="deletePhoto(c, $event)"
+                  />
+                } @else {
+                  <p class="text-muted">
+                    No photos yet. Add one so you recognise {{ firstName() }} next time. Only you
+                    can see them.
+                  </p>
+                }
+              </ft-stack>
+            </ft-card>
+          </section>
+          <section class="notes" aria-labelledby="notes-heading">
+            <ft-card>
+              <ft-stack>
+                <h2 id="notes-heading" class="notes__heading">
+                  Your notes <ft-badge><ft-icon name="locked" size="sm" /> Private</ft-badge>
+                </h2>
+                <div>
+                  <ft-button variant="primary" size="sm" (click)="addNote(c)">
+                    <ft-icon name="add" size="sm" /> Add note
+                  </ft-button>
+                </div>
+                @for (note of notes(); track note.id) {
+                  <ft-note [date]="day(note.createdAtUtc)">{{ note.body }}</ft-note>
+                } @empty {
+                  <p class="text-muted">No notes yet. Only you will see what you write here.</p>
+                }
+              </ft-stack>
+            </ft-card>
+          </section>
+        </div>
         <ft-card ftSplitAside heading="Details">
           <ft-stack>
-            @if (c.photoUrl) {
-              <ft-photo class="photo" [src]="c.photoUrl" [alt]="c.photoAltText ?? c.name" />
+            @if (headerPhoto(); as src) {
+              <ft-photo class="photo" [src]="src" [alt]="c.photoAltText ?? c.name" />
             }
             <ft-description-list>
               <ft-description-list-item label="Email" [missing]="!c.email">

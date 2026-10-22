@@ -17,6 +17,10 @@ function archived(overrides: Partial<ContactSummary>): ContactSummary {
     city: 'Calgary',
     status: 'Private',
     archivedAtUtc: '2026-10-13T12:00:00Z',
+    photoUrl: null,
+    photoAltText: null,
+    noteCount: 0,
+    createdAtUtc: '2026-09-01T12:00:00Z',
     ...overrides,
   };
 }

@@ -25,6 +25,8 @@ import {
   FormErrorFocusDirective,
   FormFieldComponent,
   PageHeaderComponent,
+  PictureListComponent,
+  PictureListPhoto,
   SkeletonComponent,
   StackComponent,
   TextFieldComponent,
@@ -45,11 +47,24 @@ const SUMMARY: Record<string, string> = {
   [NAME_MESSAGE]: 'Enter a name',
   [EMAIL_MESSAGE]: 'Enter a valid email',
 };
+// The photo rules the server checks too (L2-069).
+const MISSING_ALT = 'Describe this photo.';
+const MAX_ALT = 300;
+const LONG_ALT = `Use ${MAX_ALT} characters or fewer to describe this photo.`;
+
+/** A photo chosen on the add-contact form; it uploads after the contact is created (ADR 0017). */
+interface ChosenPhoto {
+  file: File;
+  url: string | null;
+  alt: string;
+  featured: boolean;
+}
 
 /**
  * Add or edit a private contact (L2-013), matching docs/mocks/pages/contact-form. Without `id` it
- * creates a contact with an optional first note, offering "Save and link" when the email belongs to
- * a member; with `id` it edits that contact.
+ * creates a contact with an optional first note and photos (L2-067), offering "Save and link" when the
+ * email belongs to a member; with `id` it edits that contact. Chosen photos upload after the contact is
+ * created, featured first; any that fail are named on the contact page.
  */
 @Component({
   selector: 'ft-contact-form-page',
@@ -66,6 +81,7 @@ const SUMMARY: Record<string, string> = {
     FormErrorFocusDirective,
     FormFieldComponent,
     PageHeaderComponent,
+    PictureListComponent,
     SkeletonComponent,
     StackComponent,
     TextFieldComponent,
@@ -81,6 +97,7 @@ export class ContactFormPage {
   private readonly errorFocus = viewChild(FormErrorFocusDirective);
   private readonly nameField = viewChild('nameField', { read: FormFieldComponent });
   private readonly emailField = viewChild('emailField', { read: FormFieldComponent });
+  private readonly pictureList = viewChild(PictureListComponent);
 
   /** Route parameter when editing. */
   readonly id = input<string>();
@@ -113,12 +130,39 @@ export class ContactFormPage {
       message: server[field] ?? this.clientError(field),
     })).filter((e) => e.message !== '');
   });
-  protected readonly summary = computed<FormError[]>(() =>
-    this.errors().map((e) => ({
+  protected readonly photos = signal<ChosenPhoto[]>([]);
+  protected readonly altErrors = computed(() =>
+    this.photos().map((p) => {
+      if (!this.submitted()) return '';
+      const alt = p.alt.trim();
+      return alt === '' ? MISSING_ALT : alt.length > MAX_ALT ? LONG_ALT : '';
+    }),
+  );
+  protected readonly listPhotos = computed<PictureListPhoto[]>(() =>
+    this.photos().map((p, i) => ({
+      url: p.url,
+      alt: p.alt,
+      featured: p.featured,
+      pending: true,
+      altError: this.altErrors()[i],
+    })),
+  );
+  protected readonly summary = computed<FormError[]>(() => [
+    ...this.errors().map((e) => ({
       message: SUMMARY[e.message] ?? e.message,
       fieldId: this.fieldOf(e.field),
     })),
-  );
+    ...this.altErrors().flatMap((error, i) =>
+      error
+        ? [
+            {
+              message: error === MISSING_ALT ? `Describe photo ${i + 1}` : error,
+              fieldId: this.pictureList()?.descriptionFieldId(i) ?? '',
+            },
+          ]
+        : [],
+    ),
+  ]);
   protected readonly cancelHref = computed(() =>
     this.id() ? `/contacts/${this.id()}` : '/contacts',
   );
@@ -136,6 +180,38 @@ export class ContactFormPage {
     return this.errors().find((e) => e.field === field)?.message ?? '';
   }
 
+  protected pick(files: File[]): void {
+    this.photos.update((list) => [
+      ...list,
+      ...files.map((file, i) => ({
+        file,
+        url: previewUrl(file),
+        alt: '',
+        featured: list.length === 0 && i === 0,
+      })),
+    ]);
+  }
+
+  protected describe({ index, alt }: { index: number; alt: string }): void {
+    this.photos.update((list) => list.map((p, i) => (i === index ? { ...p, alt } : p)));
+  }
+
+  protected feature(index: number): void {
+    this.photos.update((list) => list.map((p, i) => ({ ...p, featured: i === index })));
+  }
+
+  /** A chosen photo is not saved yet, so removing it needs no confirmation. */
+  protected remove(index: number): void {
+    const removed = this.photos()[index];
+    revokePreview(removed?.url ?? null);
+    this.photos.update((list) => {
+      const rest = list.filter((_, i) => i !== index);
+      return removed?.featured && rest.length
+        ? rest.map((p, i) => ({ ...p, featured: i === 0 }))
+        : rest;
+    });
+  }
+
   protected retry(): void {
     const id = this.id();
     if (id) void this.load(id);
@@ -146,7 +222,7 @@ export class ContactFormPage {
     this.serverErrors.set({});
     this.failed.set(false);
     this.version.update((v) => v + 1);
-    if (this.errors().length || this.busy()) {
+    if (this.errors().length || this.altErrors().some(Boolean) || this.busy()) {
       this.errorFocus()?.focusFirstError();
       return;
     }
@@ -171,7 +247,12 @@ export class ContactFormPage {
               linkToMember: this.member() !== null,
             }),
       );
-      await this.router.navigateByUrl(`/contacts/${saved.id}`);
+      if (id || this.photos().length === 0) {
+        await this.router.navigateByUrl(`/contacts/${saved.id}`);
+      } else {
+        const failedPhotos = await this.uploadPhotos(saved.id);
+        await this.router.navigateByUrl(`/contacts/${saved.id}`, { state: { failedPhotos } });
+      }
     } catch (error) {
       const member = memberName(error);
       const fieldErrors = validationErrors(error);
@@ -182,6 +263,21 @@ export class ContactFormPage {
     } finally {
       this.busy.set(false);
     }
+  }
+
+  /** Uploads the chosen photos, featured first so the server features it; returns the descriptions that failed. */
+  private async uploadPhotos(contactId: string): Promise<string[]> {
+    const ordered = [...this.photos()].sort((a, b) => Number(b.featured) - Number(a.featured));
+    const failed: string[] = [];
+    for (const photo of ordered) {
+      try {
+        await firstValueFrom(this.contacts.uploadPhoto(contactId, photo.file, photo.alt.trim()));
+      } catch {
+        failed.push(photo.alt.trim());
+      }
+    }
+    for (const photo of ordered) revokePreview(photo.url);
+    return failed;
   }
 
   private async load(id: string): Promise<void> {
@@ -215,6 +311,14 @@ export class ContactFormPage {
     const formField = field === 'email' ? this.emailField() : this.nameField();
     return formField?.controlId() ?? '';
   }
+}
+
+function previewUrl(file: File): string | null {
+  return typeof URL.createObjectURL === 'function' ? URL.createObjectURL(file) : null;
+}
+
+function revokePreview(url: string | null): void {
+  if (url?.startsWith('blob:')) URL.revokeObjectURL(url);
 }
 
 function blank(value: string): string | null {

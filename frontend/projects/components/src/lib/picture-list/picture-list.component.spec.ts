@@ -7,6 +7,8 @@ import { PictureListComponent, PictureListPhoto } from './picture-list.component
   template: `<ft-picture-list
     [photos]="photos()"
     [max]="max()"
+    [subject]="subject()"
+    [featurable]="featurable()"
     (picked)="picked.push($event)"
     (removed)="removed.push($event)"
     (featured)="featured.push($event)"
@@ -19,6 +21,8 @@ class HostComponent {
     { url: '/2.jpg', alt: 'The team', featured: false },
   ]);
   max = signal(10);
+  subject = signal<'profile' | 'contact'>('profile');
+  featurable = signal(true);
   picked: File[][] = [];
   removed: number[] = [];
   featured: number[] = [];
@@ -273,5 +277,73 @@ describe('PictureListComponent', () => {
     expect(host.textContent).toContain(
       'That’s 2 photos, the most a profile can have. Remove one to add another.',
     );
+  });
+
+  describe('for a contact', () => {
+    async function contactSetup(photos: PictureListPhoto[]) {
+      const s = await setup();
+      s.cmp.subject.set('contact');
+      s.cmp.photos.set(photos);
+      s.fixture.detectChanges();
+      return s;
+    }
+
+    it('words its notes for a private contact', async () => {
+      const { host } = await contactSetup([]);
+      const text = host.textContent!.replace(/\s+/g, ' ');
+      expect(text).toContain('No photos yet. Add one so you recognise them next time.');
+      expect(text).toContain(
+        'The featured photo shows on their card. Only you can see these photos.',
+      );
+    });
+
+    it('says a contact holds at most ten photos', async () => {
+      const { host, addButton } = await contactSetup(
+        Array.from({ length: 10 }, (_, i) => ({
+          url: `/${i}.jpg`,
+          alt: `Photo ${i}`,
+          featured: i === 0,
+          pending: true,
+        })),
+      );
+      expect(addButton().disabled).toBe(true);
+      expect(host.textContent).toContain(
+        'That’s 10 photos, the most a contact can have. Remove one to add another.',
+      );
+    });
+
+    it('lets a chosen photo be featured before it is saved and says when it uploads', async () => {
+      const { cmp, host, all } = await contactSetup([
+        { url: '/1.jpg', alt: 'One', featured: true, pending: true },
+        { url: '/2.jpg', alt: 'Two', featured: false, pending: true },
+      ]);
+      const feature = all<HTMLButtonElement>('button').find(
+        (b) => b.getAttribute('aria-label') === 'Feature photo 2',
+      )!;
+      feature.click();
+      expect(cmp.featured).toEqual([1]);
+      expect(host.textContent).toContain('Not saved yet. It uploads when you save the contact.');
+    });
+
+    it('hides Feature where the server picks the featured photo', async () => {
+      const { fixture, host } = await contactSetup([
+        { url: '/1.jpg', alt: 'One', featured: false, pending: true },
+      ]);
+      fixture.componentRef.instance.featurable.set(false);
+      fixture.detectChanges();
+      expect(host.textContent).not.toContain('Feature');
+    });
+
+    it('asks for a missing description in the server’s words', async () => {
+      const { host } = await contactSetup([{ url: '/1.jpg', alt: '', featured: true }]);
+      expect(host.textContent).toContain('Describe this photo.');
+    });
+
+    it('says a storing photo shows on the contact once stored', async () => {
+      const { host } = await contactSetup([
+        { url: null, alt: 'One', featured: true, storing: true },
+      ]);
+      expect(host.textContent).toContain('Saved. It shows here once it finishes storing.');
+    });
   });
 });

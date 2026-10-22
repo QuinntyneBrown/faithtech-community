@@ -1,0 +1,172 @@
+:host {
+  display: flex;
+  min-inline-size: 0;
+}
+
+.ft-person-card {
+  --person-card-cover: var(--color-bg-subtle);
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  flex: 1;
+  min-inline-size: 0;
+  padding-block-end: var(--space-4);
+  text-align: center;
+  background: var(--color-bg-surface);
+  border: var(--border-width-hairline) solid var(--color-border-default);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-1);
+  overflow: hidden;
+  transition: box-shadow var(--duration-fast) var(--ease-standard);
+
+  &:hover {
+    box-shadow: var(--shadow-2);
+  }
+}
+
+.ft-person-card--sage {
+  --person-card-cover: var(--color-tint-sage);
+}
+
+.ft-person-card--rose {
+  --person-card-cover: var(--color-tint-rose);
+}
+
+.ft-person-card--sky {
+  --person-card-cover: var(--color-tint-sky);
+}
+
+.ft-person-card--sun {
+  --person-card-cover: var(--color-tint-sun);
+}
+
+.ft-person-card--lilac {
+  --person-card-cover: var(--color-tint-lilac);
+}
+
+.ft-person-card--mint {
+  --person-card-cover: var(--color-tint-mint);
+}
+
+.ft-person-card--peach {
+  --person-card-cover: var(--color-tint-peach);
+}
+
+.ft-person-card__cover {
+  align-self: stretch;
+  block-size: var(--size-cover-md);
+  background: var(--person-card-cover);
+  border-block-end: var(--border-width-hairline) solid var(--color-border-default);
+}
+
+.ft-person-card__photo {
+  position: relative;
+  display: grid;
+  inline-size: var(--size-cover-lg);
+  block-size: var(--size-cover-lg);
+  margin-block-start: calc(var(--size-cover-lg) / -2 - var(--space-2));
+  border: var(--border-width-thick) solid var(--color-bg-surface);
+  border-radius: var(--radius-full);
+  box-shadow: var(--shadow-1);
+  background: var(--color-bg-surface);
+  overflow: hidden;
+}
+
+.ft-person-card__img {
+  position: absolute;
+  inset: 0;
+  inline-size: 100%;
+  block-size: 100%;
+  object-fit: cover;
+}
+
+.ft-person-card__body {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-1);
+  inline-size: 100%;
+  min-inline-size: 0;
+  box-sizing: border-box;
+  padding: var(--space-3) var(--space-4) 0;
+}
+
+.ft-person-card__name {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-1) var(--space-2);
+  margin: 0;
+  font: var(--text-h4);
+  overflow-wrap: anywhere;
+}
+
+.ft-person-card__subtitle,
+.ft-person-card__secondary {
+  display: -webkit-box;
+  margin: 0;
+  overflow: hidden;
+  overflow-wrap: anywhere;
+  color: var(--color-fg-muted);
+  -webkit-box-orient: vertical;
+}
+
+.ft-person-card__subtitle {
+  font: var(--text-body);
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+}
+
+.ft-person-card__secondary {
+  font: var(--text-body-sm);
+  -webkit-line-clamp: 1;
+  line-clamp: 1;
+}
+
+.ft-person-card__action {
+  align-self: stretch;
+  margin: var(--space-4) var(--space-4) 0;
+}
+
+.ft-person-card__dismiss {
+  position: absolute;
+  inset-block-start: var(--space-2);
+  inset-inline-end: var(--space-2);
+  display: inline-grid;
+  place-items: center;
+  inline-size: var(--control-height-md);
+  block-size: var(--control-height-md);
+  padding: 0;
+  border: 0;
+  border-radius: var(--radius-full);
+  background: var(--color-bg-inverse);
+  color: var(--color-fg-inverse);
+  opacity: 0.9;
+  cursor: pointer;
+
+  &:hover {
+    opacity: 1;
+    box-shadow: var(--shadow-2);
+  }
+
+  &:focus-visible {
+    outline: var(--focus-ring-width) solid var(--color-focus-ring);
+    outline-offset: var(--focus-ring-offset);
+    opacity: 1;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ft-person-card {
+    transition: none;
+  }
+}
+
+@media (forced-colors: active) {
+  .ft-person-card__dismiss {
+    border: var(--border-width-hairline) solid ButtonText;
+  }
+}

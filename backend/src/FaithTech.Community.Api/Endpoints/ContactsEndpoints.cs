@@ -1,4 +1,6 @@
 using FaithTech.Community.Application.Contacts;
+using FaithTech.Community.Application.Profiles;
+using Microsoft.AspNetCore.Mvc;
 
 namespace FaithTech.Community.Api.Endpoints;
 
@@ -7,6 +9,8 @@ namespace FaithTech.Community.Api.Endpoints;
 /// </summary>
 public static class ContactsEndpoints
 {
+    private const long PhotoRequestLimit = 10 * 1024 * 1024;
+
     public static IEndpointRouteBuilder MapContactsEndpoints(this IEndpointRouteBuilder app)
     {
         var contacts = app.MapGroup("/api/contacts");
@@ -58,6 +62,50 @@ public static class ContactsEndpoints
             var (result, contact) = await handler.LinkAsync(id, command, cancellationToken);
             return result.ToHttp(() => Results.Ok(contact));
         });
+
+        // Contact photos (L2-067 to L2-071). Bearer-token API, so no antiforgery; up to 10 MB is read so a
+        // too-large photo gets the inline 400.
+        contacts.MapPost("/{id:guid}/photos", async (
+                Guid id, IFormFile? file, [FromForm] string? altText, ContactPhotosHandler handler, CancellationToken cancellationToken) =>
+            {
+                if (file is null)
+                {
+                    return Results.ValidationProblem(new Dictionary<string, string[]> { ["File"] = ["Choose a photo to upload."] });
+                }
+
+                await using var content = file.OpenReadStream();
+                var (result, photo) = await handler.UploadAsync(
+                    id, new UploadPhotoCommand(content, file.FileName, file.Length, altText), cancellationToken);
+                return result.ToHttp(() => Results.Created($"/api/contacts/{id}", photo));
+            })
+            .DisableAntiforgery()
+            .WithMetadata(new RequestSizeLimitAttribute(PhotoRequestLimit), new RequestFormLimitsAttribute { MultipartBodyLengthLimit = PhotoRequestLimit });
+
+        // The only way to see a contact photo: the bearer token is required and anyone but the owner and System Admin
+        // gets 404, so a copied URL shows nothing to anyone else (ADR 0017).
+        contacts.MapGet("/{id:guid}/photos/{photoId:guid}/image", async (
+                Guid id, Guid photoId, HttpContext http, ContactPhotosHandler handler, CancellationToken cancellationToken) =>
+            {
+                if (await handler.ReadImageAsync(id, photoId, cancellationToken) is not { } image)
+                {
+                    return Results.NotFound();
+                }
+
+                http.Response.Headers.CacheControl = "private, max-age=300";
+                return Results.File(image.Content, image.ContentType);
+            });
+
+        contacts.MapPut("/{id:guid}/photos/{photoId:guid}", async (
+                Guid id, Guid photoId, DescribePhotoCommand command, ContactPhotosHandler handler, CancellationToken cancellationToken) =>
+            (await handler.DescribeAsync(id, photoId, command, cancellationToken)).ToHttp(Results.NoContent));
+
+        contacts.MapPut("/{id:guid}/photos/{photoId:guid}/featured", async (
+                Guid id, Guid photoId, ContactPhotosHandler handler, CancellationToken cancellationToken) =>
+            (await handler.FeatureAsync(id, photoId, cancellationToken)).ToHttp(Results.NoContent));
+
+        contacts.MapDelete("/{id:guid}/photos/{photoId:guid}", async (
+                Guid id, Guid photoId, ContactPhotosHandler handler, CancellationToken cancellationToken) =>
+            (await handler.DeleteAsync(id, photoId, cancellationToken)).ToHttp(Results.NoContent));
 
         return app;
     }

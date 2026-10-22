@@ -1,0 +1,36 @@
+@startuml
+!include <C4/C4_Component>
+LAYOUT_WITH_LEGEND()
+title Components — Contact photos and the person-card grid
+Container_Boundary(web, "Web app") {
+  Component(list, "ContactsPage", "Angular page (contacts library)", "Person-card grid; × opens ArchiveContactDialog")
+  Component(form, "ContactFormPage", "Angular page (contacts library)", "Photo picker on create; uploads after create")
+  Component(page, "ContactPage", "Angular page (contacts library)", "Photos section and photo dialogs")
+  Component(ui, "PersonCard, PersonGrid, PhotoGallery, PictureList", "components library", "Design-system components, no api dependency")
+  Component(svc, "HttpContactsService", "Angular service (api library)", "Photo calls; photoImage(url) fetches image bytes into object URLs")
+}
+Container_Boundary(api, "Community API") {
+  Component(ep, "ContactsEndpoints", "ASP.NET Core minimal API", "/api/contacts/{id}/photos[/{photoId}[/featured|/image]]")
+  Component(h, "ContactPhotosHandler", "Application handler", "Upload, describe, feature, delete, read image")
+  Component(acc, "ContactAccess", "Application permission check", "Owner, AdminOverride or NotFound; audits overrides")
+  Component(views, "ContactViews", "Application service", "Photo URLs on ContactDto and ContactSummaryDto")
+  Component(shared, "IImageProcessor, IPhotoStorage, PhotoLeases, PhotoDescription", "Application photo abstractions", "Shared with profile photos (ADR 0001, 0002, 0013)")
+  Component(retry, "PhotoStorageRetryHandler", "Application handler", "Retries queued blob saves and deletes for profile and contact photos")
+  ComponentDb(db, "CommunityDbContext", "PostgreSQL", "Contacts, ContactPhotos, PhotoBlobTasks")
+}
+System_Ext(blob, "Azure Blob Storage", "AzureBlobPhotoStorage")
+Rel(list, ui, "Composes")
+Rel(form, ui, "Composes")
+Rel(page, ui, "Composes")
+Rel(list, svc, "list, photoImage")
+Rel(form, svc, "create, uploadPhoto")
+Rel(page, svc, "get, photo calls, photoImage")
+Rel(svc, ep, "Sends request", "HTTPS + bearer token")
+Rel(ep, h, "Calls")
+Rel(h, acc, "Checks L2-070 privacy")
+Rel(h, shared, "Processes, stores, leases")
+Rel(h, db, "Saves", "EF Core")
+Rel(views, db, "Reads")
+Rel(shared, blob, "Saves, reads, deletes")
+Rel(retry, db, "Due tasks")
+@enduml

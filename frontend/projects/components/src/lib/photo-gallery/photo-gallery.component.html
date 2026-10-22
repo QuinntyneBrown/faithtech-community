@@ -1,0 +1,48 @@
+<ul class="ft-photo-gallery">
+  @for (photo of photos(); track photo.id; let i = $index) {
+    <li class="ft-photo-gallery__item" [class.ft-photo-gallery__item--featured]="photo.featured">
+      <div class="ft-photo-gallery__thumb">
+        @if (photo.url && !photo.storing) {
+          <img [src]="photo.url" [alt]="photo.alt" />
+        } @else {
+          <div class="ft-photo-gallery__placeholder">
+            <ft-icon name="photo" />
+            <span class="visually-hidden">{{ photo.alt }}</span>
+          </div>
+        }
+        @if (photo.featured) {
+          <span class="ft-photo-gallery__featured"
+            ><ft-badge variant="success">Featured</ft-badge></span
+          >
+        }
+      </div>
+      <p class="ft-photo-gallery__caption">{{ photo.alt }}</p>
+      @if (photo.storing) {
+        <p class="ft-photo-gallery__note" role="status">
+          Saved. It shows here once it finishes storing.
+        </p>
+      }
+      <div class="ft-photo-gallery__actions">
+        @if (!photo.featured) {
+          <ft-button
+            variant="ghost"
+            size="sm"
+            [object]="'photo ' + (i + 1)"
+            (click)="featured.emit(i)"
+            ><ft-icon name="star" size="sm" /> Feature</ft-button
+          >
+        }
+        <ft-button
+          variant="ghost"
+          size="sm"
+          [object]="'of photo ' + (i + 1)"
+          (click)="describe.emit(i)"
+          ><ft-icon name="edit" size="sm" /> Edit description</ft-button
+        >
+        <ft-button variant="ghost" size="sm" [object]="'photo ' + (i + 1)" (click)="remove.emit(i)"
+          ><ft-icon name="delete" size="sm" /> Delete</ft-button
+        >
+      </div>
+    </li>
+  }
+</ul>

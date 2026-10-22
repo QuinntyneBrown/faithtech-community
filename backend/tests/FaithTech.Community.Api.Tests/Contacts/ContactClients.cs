@@ -1,3 +1,4 @@
+using System.Net.Http.Headers;
 using System.Net.Http.Json;
 using FaithTech.Community.Api.Tests.Profiles;
 using FaithTech.Community.Domain.Profiles;
@@ -10,7 +11,8 @@ public static class ContactClients
     public sealed record ContactMatch(Guid ProfileId, string Name);
 
     public sealed record ContactSummary(
-        Guid Id, string Name, string? Email, string? Organization, string? City, string Status, DateTime? ArchivedAtUtc);
+        Guid Id, string Name, string? Email, string? Organization, string? City, string Status, DateTime? ArchivedAtUtc,
+        string? PhotoUrl = null, string? PhotoAltText = null, int NoteCount = 0, DateTime CreatedAtUtc = default);
 
     public sealed record Contact(
         Guid Id,
@@ -26,7 +28,10 @@ public static class ContactClients
         DateTime? ArchivedAtUtc,
         int NoteCount,
         bool IsOwn,
-        DateTime CreatedAtUtc);
+        DateTime CreatedAtUtc,
+        ContactPhoto[] Photos);
+
+    public sealed record ContactPhoto(Guid Id, string? Url, string AltText, bool IsFeatured, DateTimeOffset UploadedAt, bool IsStored);
 
     public sealed record Note(Guid Id, string Body, DateTime CreatedAtUtc);
 
@@ -43,4 +48,21 @@ public static class ContactClients
 
     public static async Task<ContactSummary[]> ListContactsAsync(this HttpClient client, string? term = null) =>
         (await client.GetFromJsonAsync<ContactSummary[]>(term is null ? "/api/contacts" : $"/api/contacts?q={Uri.EscapeDataString(term)}"))!;
+
+    /// <summary>Uploads a contact photo as the browser does: multipart with the file and its description.</summary>
+    public static Task<HttpResponseMessage> UploadContactPhotoAsync(
+        this HttpClient client, Guid contactId, byte[] content, string fileName, string altText)
+    {
+        var file = new ByteArrayContent(content);
+        file.Headers.ContentType = new MediaTypeHeaderValue("application/octet-stream");
+        var form = new MultipartFormDataContent { { file, "file", fileName }, { new StringContent(altText), "altText" } };
+        return client.PostAsync($"/api/contacts/{contactId}/photos", form);
+    }
+
+    public static async Task<ContactPhoto> AddContactPhotoAsync(this HttpClient client, Guid contactId, string altText = "Tomás at the coffee morning")
+    {
+        var response = await client.UploadContactPhotoAsync(contactId, TestImages.Jpeg(), "photo.jpg", altText);
+        response.EnsureSuccessStatusCode();
+        return (await response.Content.ReadFromJsonAsync<ContactPhoto>())!;
+    }
 }

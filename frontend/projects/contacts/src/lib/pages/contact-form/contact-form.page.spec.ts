@@ -1,8 +1,10 @@
-// Traces to: L2-013
+// Traces to: L2-013, L2-067
 import { HttpErrorResponse } from '@angular/common/http';
 import { TestBed } from '@angular/core/testing';
 import { Router } from '@angular/router';
-import { CONTACTS_SERVICE, ContactDto } from '@faithtech-community/api';
+import { By } from '@angular/platform-browser';
+import { CONTACTS_SERVICE, ContactDto, ContactPhoto } from '@faithtech-community/api';
+import { PictureListComponent } from '@faithtech-community/components';
 import { Observable, of, throwError } from 'rxjs';
 
 import { ContactFormPage } from './contact-form.page';
@@ -22,6 +24,7 @@ const saved: ContactDto = {
   noteCount: 1,
   isOwn: true,
   createdAtUtc: '2026-10-21T12:00:00Z',
+  photos: [],
 };
 
 async function setup(
@@ -30,12 +33,18 @@ async function setup(
     create?: () => Observable<ContactDto>;
     get?: () => Observable<ContactDto>;
     update?: () => Observable<ContactDto>;
+    uploadPhoto?: (id: string, file: File, alt: string) => Observable<ContactPhoto>;
   } = {},
 ) {
   const service = {
     create: vi.fn(options.create ?? (() => of(saved))),
     get: vi.fn(options.get ?? (() => of(saved))),
     update: vi.fn(options.update ?? (() => of(saved))),
+    uploadPhoto: vi.fn(
+      options.uploadPhoto ??
+        ((_id: string, _file: File, altText: string) =>
+          of({ id: 'p1', url: null, altText, isFeatured: false, uploadedAt: '', isStored: true })),
+    ),
   };
   const router = { navigateByUrl: vi.fn(() => Promise.resolve(true)) };
   TestBed.configureTestingModule({
@@ -71,10 +80,112 @@ async function setup(
     await settle();
   };
   const text = () => host.textContent!.replace(/\s+/g, ' ');
-  return { host, service, router, field, type, save, text, settle };
+  const pictures = () =>
+    fixture.debugElement.query(By.directive(PictureListComponent))?.componentInstance as
+      PictureListComponent | undefined;
+  const choose = async (...files: File[]) => {
+    pictures()!.picked.emit(files);
+    await settle();
+  };
+  return { host, service, router, field, type, save, text, settle, pictures, choose };
 }
 
+const photo = (name: string) => new File(['x'], name, { type: 'image/png' });
+
 describe('ContactFormPage', () => {
+  describe('photos', () => {
+    it('saves the contact, then uploads its chosen photos featured first, and opens it', async () => {
+      const { service, router, type, save, choose, pictures } = await setup();
+      type('Name', 'Kwame Asante');
+      const doors = photo('doors.png');
+      const coffee = photo('coffee.png');
+      await choose(doors, coffee);
+      expect(
+        pictures()!
+          .photos()
+          .map((p) => [p.featured, p.pending]),
+      ).toEqual([
+        [true, true],
+        [false, true],
+      ]);
+      pictures()!.altChange.emit({ index: 0, alt: ' At the church doors ' });
+      pictures()!.altChange.emit({ index: 1, alt: 'Pouring coffee' });
+      pictures()!.featured.emit(1);
+
+      await save();
+
+      expect(service.create).toHaveBeenCalled();
+      expect(service.uploadPhoto.mock.calls).toEqual([
+        ['c9', coffee, 'Pouring coffee'],
+        ['c9', doors, 'At the church doors'],
+      ]);
+      await vi.waitFor(() =>
+        expect(router.navigateByUrl).toHaveBeenCalledWith('/contacts/c9', {
+          state: { failedPhotos: [] },
+        }),
+      );
+    });
+
+    it('blocks the save while a chosen photo has no description', async () => {
+      const { service, type, save, choose, text } = await setup();
+      type('Name', 'Kwame Asante');
+      await choose(photo('doors.png'));
+
+      await save();
+
+      expect(service.create).not.toHaveBeenCalled();
+      expect(text()).toContain('Describe this photo.');
+      expect(text()).toContain('Fix 1 thing to save');
+    });
+
+    it('opens the contact naming the photos that failed to upload', async () => {
+      const { router, type, save, choose, pictures } = await setup({
+        uploadPhoto: (_id, _file, alt) =>
+          alt === 'Demo'
+            ? throwError(() => new HttpErrorResponse({ status: 500 }))
+            : of({
+                id: 'p1',
+                url: null,
+                altText: alt,
+                isFeatured: true,
+                uploadedAt: '',
+                isStored: true,
+              }),
+      });
+      type('Name', 'Tomás Ortega');
+      await choose(photo('outside.png'), photo('demo.png'));
+      pictures()!.altChange.emit({ index: 0, alt: 'Outside' });
+      pictures()!.altChange.emit({ index: 1, alt: 'Demo' });
+
+      await save();
+
+      await vi.waitFor(() =>
+        expect(router.navigateByUrl).toHaveBeenCalledWith('/contacts/c9', {
+          state: { failedPhotos: ['Demo'] },
+        }),
+      );
+    });
+
+    it('removes a chosen photo, featuring the next one', async () => {
+      const { choose, pictures, settle } = await setup();
+      await choose(photo('a.png'), photo('b.png'));
+
+      pictures()!.removed.emit(0);
+      await settle();
+
+      expect(
+        pictures()!
+          .photos()
+          .map((p) => p.featured),
+      ).toEqual([true]);
+    });
+
+    it('has no photo picker when editing', async () => {
+      const { pictures } = await setup({ id: 'c9' });
+      expect(pictures()).toBeUndefined();
+    });
+  });
+
   it('creates a contact with a first note and opens it', async () => {
     const { host, service, router, type, save } = await setup();
     expect(host.querySelector('h1')!.textContent).toContain('New contact');

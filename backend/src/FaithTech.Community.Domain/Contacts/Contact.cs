@@ -1,8 +1,13 @@
+using FaithTech.Community.Domain.Profiles;
+
 namespace FaithTech.Community.Domain.Contacts;
 
 public class Contact
 {
+    public const int MaxPhotos = 10;
+
     private readonly List<ContactNote> _notes = [];
+    private readonly List<ContactPhoto> _photos = [];
 
     private Contact() { }
 
@@ -39,6 +44,11 @@ public class Contact
     public bool CanBeDeleted => IsArchived;
 
     public IReadOnlyCollection<ContactNote> Notes => _notes;
+
+    public IReadOnlyCollection<ContactPhoto> Photos => _photos;
+
+    /// <summary>Serializes writes to <see cref="Photos"/> across requests (L2-071 AC3).</summary>
+    public PhotoLease PhotoLease { get; private set; } = new();
 
     public void Update(string name, string? email, string? phone, string? organization, string? city)
     {
@@ -90,4 +100,40 @@ public class Contact
             _notes.Clear();
         }
     }
+
+    /// <summary>Adds a photo; the first one is featured. A contact holds at most <see cref="MaxPhotos"/>.</summary>
+    public void AddPhoto(ContactPhoto photo)
+    {
+        if (_photos.Count >= MaxPhotos)
+        {
+            throw new InvalidOperationException($"A contact holds at most {MaxPhotos} photos.");
+        }
+
+        photo.SetFeatured(_photos.Count == 0);
+        _photos.Add(photo);
+    }
+
+    public void Feature(Guid photoId)
+    {
+        var featured = FindPhoto(photoId);
+        foreach (var photo in _photos)
+        {
+            photo.SetFeatured(photo == featured);
+        }
+    }
+
+    /// <summary>Removes a photo; when it was featured, the most recently uploaded remaining photo takes over.</summary>
+    public void RemovePhoto(Guid photoId)
+    {
+        var removed = FindPhoto(photoId);
+        _photos.Remove(removed);
+        if (removed.IsFeatured && _photos.Count > 0)
+        {
+            Feature(_photos.MaxBy(p => p.UploadedAt)!.Id);
+        }
+    }
+
+    private ContactPhoto FindPhoto(Guid photoId) =>
+        _photos.FirstOrDefault(p => p.Id == photoId)
+            ?? throw new InvalidOperationException("The contact has no such photo.");
 }

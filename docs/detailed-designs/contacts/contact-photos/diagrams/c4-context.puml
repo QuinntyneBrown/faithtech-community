@@ -1,0 +1,12 @@
+@startuml
+!include <C4/C4_Context>
+LAYOUT_WITH_LEGEND()
+title System Context — Contact photos and the person-card grid
+Person(lead, "Lead", "City, Event, Create or Communications Lead who keeps private contacts")
+Person(admin, "System Admin", "Holds full override across the site")
+System(community, "FaithTech Community", "Community site for FaithTech staff, leads, volunteers, builders and partners")
+System_Ext(blob, "Azure Blob Storage", "Holds processed photo images in a private container")
+Rel(lead, community, "Adds, describes, features and deletes photos of their contacts; browses contacts as person cards using")
+Rel(admin, community, "Opens and changes any contact's photos by override, audited, using")
+Rel(community, blob, "Writes, reads and deletes contact photo blobs", "Azure SDK")
+@enduml

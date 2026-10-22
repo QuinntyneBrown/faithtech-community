@@ -25,6 +25,18 @@ export interface MockNote {
   createdAtUtc: string;
 }
 
+/** A contact photo. Its image is served only by the contacts API, to the owner and System Admin (ADR 0017). */
+export interface MockContactPhoto {
+  id: string;
+  altText: string;
+  isFeatured: boolean;
+  uploadedAt: string;
+  /** False while the image waits for storage. */
+  isStored: boolean;
+  /** The colour of the tiny SVG the image route answers with. */
+  colour: string;
+}
+
 /** A private contact as the Contacts table holds it. */
 export interface MockContact {
   id: string;
@@ -38,6 +50,7 @@ export interface MockContact {
   archivedAtUtc: string | null;
   createdAtUtc: string;
   notes: MockNote[];
+  photos: MockContactPhoto[];
 }
 
 const LEAD_ROLES = ['CityLead', 'EventLead', 'CreateLead', 'CommunicationsLead'];
@@ -49,7 +62,12 @@ const EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
  */
 export class MockContacts {
   readonly contacts: MockContact[] = [];
+  /** When true, uploads are saved as storing (L2-071 AC1). */
+  storageDown = false;
+  /** Image requests and whether they carried a caller. */
+  readonly imageRequests: { path: string; signedIn: boolean }[] = [];
   private notes = 0;
+  private photoCount = 0;
 
   constructor(private readonly context: ContactsContext) {}
 
@@ -64,8 +82,11 @@ export class MockContacts {
       archivedAtUtc: null,
       createdAtUtc: this.context.now.toISOString(),
       notes: [],
+      photos: [],
       ...contact,
     };
+    if (full.photos.length > 0 && !full.photos.some((p) => p.isFeatured))
+      full.photos[0].isFeatured = true;
     this.contacts.push(full);
     return full;
   }
@@ -76,6 +97,23 @@ export class MockContacts {
     return { id: `note-${++this.notes}`, body, createdAtUtc: at.toISOString() };
   }
 
+  /** A stored photo uploaded `minutes` after "now"; the first photo of a contact is featured by `add`. */
+  photo(altText: string, minutes = 0, colour = '#0f766e'): MockContactPhoto {
+    return {
+      id: `contact-photo-${++this.photoCount}`,
+      altText,
+      isFeatured: false,
+      uploadedAt: new Date(this.context.now.getTime() + minutes * 60_000).toISOString(),
+      isStored: true,
+      colour,
+    };
+  }
+
+  /** The API path of a photo's image, as ContactPhotoDto.Url gives it. */
+  imageUrl(contact: MockContact, photo: MockContactPhoto): string | null {
+    return photo.isStored ? `/api/contacts/${contact.id}/photos/${photo.id}/image` : null;
+  }
+
   /** Answers a /api/contacts request, or returns false when the path is not a contacts route. */
   handle(
     route: Route,
@@ -84,6 +122,9 @@ export class MockContacts {
     body: Record<string, unknown>,
     caller: MockCaller | null,
   ): Promise<void> | false {
+    const photoRoute =
+      /^\/api\/contacts\/([^/]+)\/photos(?:\/([^/]+))?(?:\/(featured|image))?$/.exec(url.pathname);
+    if (photoRoute) return this.photos(route, method, photoRoute, body, caller, url.pathname);
     const match = /^\/api\/contacts(?:\/([^/]+))?(?:\/([^/]+))?$/.exec(url.pathname);
     if (!match) return false;
     if (!caller) return route.fulfill({ status: 401 });
@@ -152,6 +193,99 @@ export class MockContacts {
       default:
         return route.fulfill({ status: 405 });
     }
+  }
+
+  /** ContactsEndpoints' photo routes: 404 for anyone but the owner and System Admin (L2-070). */
+  private photos(
+    route: Route,
+    method: string,
+    [, id, photoId, action]: RegExpExecArray,
+    body: Record<string, unknown>,
+    caller: MockCaller | null,
+    path: string,
+  ) {
+    if (action === 'image') this.imageRequests.push({ path, signedIn: !!caller });
+    if (!caller) return route.fulfill({ status: 401 });
+    const contact = this.contacts.find((c) => c.id === id);
+    const visible =
+      contact && (contact.ownerId === caller.profileId || caller.roles.includes('SystemAdmin'));
+    if (!contact || !visible) return route.fulfill({ status: 404 });
+    const invalid = (field: string, message: string) =>
+      this.json(route, 400, { status: 400, errors: { [field]: [message] } });
+
+    if (method === 'POST' && !photoId) {
+      const altText = String(body['altText'] ?? '').trim();
+      if (contact.photos.length >= 10) {
+        return invalid(
+          'File',
+          'That’s 10 photos, the most a contact can have. Remove one to add another.',
+        );
+      }
+      if (!altText) return invalid('AltText', 'Describe this photo.');
+      const photo = this.photo(altText, this.photoCount);
+      photo.isStored = !this.storageDown;
+      photo.isFeatured = contact.photos.length === 0;
+      contact.photos.push(photo);
+      return this.json(route, 201, this.photoDto(contact, photo));
+    }
+
+    const photo = contact.photos.find((p) => p.id === photoId);
+    if (!photo) return route.fulfill({ status: 404 });
+    if (method === 'GET' && action === 'image') {
+      if (!photo.isStored) return route.fulfill({ status: 404 });
+      const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="8" height="8"><rect width="8" height="8" fill="${photo.colour}"/></svg>`;
+      return route.fulfill({
+        status: 200,
+        contentType: 'image/svg+xml',
+        headers: { 'cache-control': 'private, max-age=300' },
+        body: svg,
+      });
+    }
+    if (method === 'PUT' && action === 'featured') {
+      for (const p of contact.photos) p.isFeatured = p === photo;
+      return route.fulfill({ status: 204 });
+    }
+    if (method === 'PUT' && !action) {
+      const altText = String(body['altText'] ?? '').trim();
+      if (!altText) return invalid('AltText', 'Describe this photo.');
+      photo.altText = altText;
+      return route.fulfill({ status: 204 });
+    }
+    if (method === 'DELETE' && !action) {
+      contact.photos = contact.photos.filter((p) => p !== photo);
+      if (photo.isFeatured && contact.photos.length > 0) {
+        const newest = [...contact.photos].sort((a, b) =>
+          b.uploadedAt.localeCompare(a.uploadedAt),
+        )[0];
+        newest.isFeatured = true;
+      }
+      return route.fulfill({ status: 204 });
+    }
+    return route.fulfill({ status: 405 });
+  }
+
+  private photoDto(contact: MockContact, photo: MockContactPhoto) {
+    return {
+      id: photo.id,
+      url: this.imageUrl(contact, photo),
+      altText: photo.altText,
+      isFeatured: photo.isFeatured,
+      uploadedAt: photo.uploadedAt,
+      isStored: photo.isStored,
+    };
+  }
+
+  /** The card's or header's photo: the linked member's featured photo, else the contact's own stored one. */
+  private featured(contact: MockContact): { url: string | null; altText: string | null } {
+    const linked = contact.linkedProfileId
+      ? this.context.profiles.get(contact.linkedProfileId)
+      : null;
+    if (linked) {
+      const photo = linked.photos.find((p) => p.isFeatured) ?? null;
+      return { url: photo?.url ?? null, altText: photo?.altText ?? null };
+    }
+    const own = contact.photos.find((p) => p.isFeatured) ?? null;
+    return { url: own ? this.imageUrl(contact, own) : null, altText: own?.altText ?? null };
   }
 
   private list(route: Route, caller: MockCaller, q: string | null) {
@@ -246,6 +380,10 @@ export class MockContacts {
       city: contact.city,
       status: linked ? 'Member' : this.member(contact.email) ? 'SignedUp' : 'Private',
       archivedAtUtc: contact.archivedAtUtc,
+      photoUrl: this.featured(contact).url,
+      photoAltText: this.featured(contact).altText,
+      noteCount: contact.notes.length,
+      createdAtUtc: contact.createdAtUtc,
     };
   }
 
@@ -253,7 +391,7 @@ export class MockContacts {
     const linked = contact.linkedProfileId
       ? this.context.profiles.get(contact.linkedProfileId)
       : null;
-    const photo = linked?.photos.find((p) => p.isFeatured) ?? null;
+    const photo = this.featured(contact);
     const member = linked ? null : this.member(contact.email);
     return {
       id: contact.id,
@@ -263,13 +401,16 @@ export class MockContacts {
       organization: contact.organization,
       city: contact.city,
       linkedProfileId: contact.linkedProfileId,
-      photoUrl: photo?.url ?? null,
-      photoAltText: photo?.altText ?? null,
+      photoUrl: photo.url,
+      photoAltText: photo.altText,
       match: member ? { profileId: member.id, name: member.name } : null,
       archivedAtUtc: contact.archivedAtUtc,
       noteCount: contact.notes.length,
       isOwn: contact.ownerId === caller.profileId,
       createdAtUtc: contact.createdAtUtc,
+      photos: [...contact.photos]
+        .sort((a, b) => b.uploadedAt.localeCompare(a.uploadedAt))
+        .map((p) => this.photoDto(contact, p)),
     };
   }
 

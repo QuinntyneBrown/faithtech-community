@@ -1,6 +1,6 @@
 # Estimates
 
-- Overall effort: 187 days 
+- Overall effort: 195 days
 - Complete: 97%
 - Visual conformance: letter grade (F to A+) of the implemented UI against the HTML mocks and design system (margins, spacing, fonts, borders), from screenshots in `docs/videos/journeys/<journey>/screenshots/`. Subsystem grades are the rounded mean of their designs.
 
@@ -11,7 +11,7 @@
 | [profiles](profiles.md) | 13 days | 100% | B- |
 | [admin](admin.md) | 17 days | 99% | B |
 | [invites](invites.md) | 8 days | 100% | A- |
-| [contacts](contacts.md) | 18 days | 100% | B |
+| [contacts](contacts.md) | 26 days | 100% | B |
 | [partners](partners.md) | 8 days | 100% | B- |
 | [team](team.md) | 2 days | 100% | A- |
 | [events](events.md) | 23 days | 100% | B |
@@ -28,3 +28,4 @@
 4. events and notifications
 5. announcements and search
 6. agile
+7. contact photos and the person-card grid

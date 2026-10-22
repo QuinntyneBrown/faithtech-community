@@ -1,0 +1,18 @@
+@startuml
+!include <C4/C4_Container>
+LAYOUT_WITH_LEGEND()
+title Containers — Contact photos and the person-card grid
+Person(lead, "Lead", "Keeps private contacts")
+Person(admin, "System Admin", "Holds full override across the site")
+System_Boundary(community, "FaithTech Community") {
+  Container(web, "Web app", "Angular", "Shell, contacts feature library, api and components libraries")
+  Container(api, "Community API", "ASP.NET Core", "Contact photo endpoints; serves contact images itself (ADR 0017)")
+  ContainerDb(db, "Community database", "PostgreSQL", "Contacts, ContactPhotos, PhotoBlobTasks, audit log")
+}
+System_Ext(blob, "Azure Blob Storage", "Private photo container")
+Rel(lead, web, "Uses", "HTTPS")
+Rel(admin, web, "Uses", "HTTPS")
+Rel(web, api, "Calls, and fetches contact images", "JSON and image bytes over HTTPS, OAuth2 bearer token")
+Rel(api, db, "Reads and writes", "EF Core")
+Rel(api, blob, "Saves, reads and deletes blobs", "Azure SDK")
+@enduml

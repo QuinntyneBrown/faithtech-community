@@ -56,6 +56,27 @@ describe('HttpContactsService', () => {
       '/api/contacts/c1/link',
       { profileId: 'p9', discardNotes: true },
     ],
+    [
+      'describePhoto',
+      () => service.describePhoto('c1', 'p1', 'At the coffee morning'),
+      'PUT',
+      '/api/contacts/c1/photos/p1',
+      { altText: 'At the coffee morning' },
+    ],
+    [
+      'setFeaturedPhoto',
+      () => service.setFeaturedPhoto('c1', 'p1'),
+      'PUT',
+      '/api/contacts/c1/photos/p1/featured',
+      undefined,
+    ],
+    [
+      'deletePhoto',
+      () => service.deletePhoto('c1', 'p1'),
+      'DELETE',
+      '/api/contacts/c1/photos/p1',
+      undefined,
+    ],
   ])('%s', (_name, call, method, url, body) => {
     (call() as Observable<unknown>).subscribe();
 
@@ -69,5 +90,62 @@ describe('HttpContactsService', () => {
     service.list().subscribe();
 
     expect(controller.expectOne('/api/contacts').request.context.get(HANDLES_FORBIDDEN)).toBe(true);
+  });
+
+  it('uploads a contact photo as multipart with its description', () => {
+    const file = new File(['x'], 'coffee.jpg', { type: 'image/jpeg' });
+    service.uploadPhoto('c1', file, 'At the coffee morning').subscribe();
+
+    const req = controller.expectOne('/api/contacts/c1/photos');
+    expect(req.request.method).toBe('POST');
+    const form = req.request.body as FormData;
+    expect(form.get('file')).toBe(file);
+    expect(form.get('altText')).toBe('At the coffee morning');
+    req.flush(null);
+  });
+
+  describe('photoImage', () => {
+    let created: Blob[];
+
+    beforeEach(() => {
+      created = [];
+      URL.createObjectURL = vi.fn((blob: Blob) => {
+        created.push(blob);
+        return `blob:image-${created.length}`;
+      });
+    });
+
+    it('fetches a private contact photo through the API, with the token, as an object URL', () => {
+      const urls: string[] = [];
+      service.photoImage('/api/contacts/c1/photos/p1/image').subscribe((url) => urls.push(url));
+
+      const req = controller.expectOne('/api/contacts/c1/photos/p1/image');
+      expect(req.request.method).toBe('GET');
+      expect(req.request.responseType).toBe('blob');
+      req.flush(new Blob(['svg'], { type: 'image/svg+xml' }));
+
+      expect(urls).toEqual(['blob:image-1']);
+    });
+
+    it('fetches each photo once per session', () => {
+      service.photoImage('/api/contacts/c1/photos/p1/image').subscribe();
+      controller.expectOne('/api/contacts/c1/photos/p1/image').flush(new Blob(['a']));
+
+      const urls: string[] = [];
+      service.photoImage('/api/contacts/c1/photos/p1/image').subscribe((url) => urls.push(url));
+
+      controller.expectNone('/api/contacts/c1/photos/p1/image');
+      expect(urls).toEqual(['blob:image-1']);
+    });
+
+    it('passes a linked member’s photo URL through unchanged', () => {
+      const urls: string[] = [];
+      service
+        .photoImage('https://photos.example/profiles/p1.jpg?sig=x')
+        .subscribe((url) => urls.push(url));
+
+      controller.expectNone(() => true);
+      expect(urls).toEqual(['https://photos.example/profiles/p1.jpg?sig=x']);
+    });
   });
 });

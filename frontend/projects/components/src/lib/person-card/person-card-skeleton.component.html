@@ -1,0 +1,15 @@
+<div role="status" aria-busy="true" [attr.aria-label]="label()">
+  <ul class="ft-person-grid" aria-hidden="true">
+    @for (card of placeholders(); track card) {
+      <li class="ft-person-card--loading">
+        <span class="ft-person-card-skeleton__cover"></span>
+        <span class="ft-person-card-skeleton__photo ft-person-card-skeleton__shimmer"></span>
+        <span class="ft-person-card-skeleton__line ft-person-card-skeleton__shimmer"></span>
+        <span
+          class="ft-person-card-skeleton__line ft-person-card-skeleton__line--short ft-person-card-skeleton__shimmer"
+        ></span>
+        <span class="ft-person-card-skeleton__pill ft-person-card-skeleton__shimmer"></span>
+      </li>
+    }
+  </ul>
+</div>

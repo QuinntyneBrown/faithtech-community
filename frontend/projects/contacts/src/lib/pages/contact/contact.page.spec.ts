@@ -1,12 +1,25 @@
-// Traces to: L2-012, L2-013
+// Traces to: L2-012, L2-013, L2-067, L2-068
 import { HttpErrorResponse } from '@angular/common/http';
 import { TestBed } from '@angular/core/testing';
-import { CONTACTS_SERVICE, ContactDto, ContactNoteDto } from '@faithtech-community/api';
+import {
+  CONTACTS_SERVICE,
+  ContactDto,
+  ContactNoteDto,
+  ContactPhoto,
+} from '@faithtech-community/api';
 import { Router } from '@angular/router';
+import { Location } from '@angular/common';
 import { DialogService, ToastService } from '@faithtech-community/components';
 import { Observable, of, throwError } from 'rxjs';
 
-import { AddNoteDialog, ArchiveContactDialog, LinkContactDialog } from '../../dialogs';
+import {
+  AddContactPhotoDialog,
+  AddNoteDialog,
+  ArchiveContactDialog,
+  DeleteContactPhotoDialog,
+  EditPhotoDescriptionDialog,
+  LinkContactDialog,
+} from '../../dialogs';
 import { ContactPage } from './contact.page';
 
 function contactDto(overrides: Partial<ContactDto> = {}): ContactDto {
@@ -25,17 +38,24 @@ function contactDto(overrides: Partial<ContactDto> = {}): ContactDto {
     noteCount: 0,
     isOwn: true,
     createdAtUtc: '2026-10-02T12:00:00Z',
+    photos: [],
     ...overrides,
   };
 }
 
 async function setupContactPage(
   get: () => Observable<ContactDto>,
-  options: { notes?: () => Observable<ContactNoteDto[]>; dialogResult?: unknown } = {},
+  options: {
+    notes?: () => Observable<ContactNoteDto[]>;
+    dialogResult?: unknown;
+    navigationState?: unknown;
+  } = {},
 ) {
   const service = {
     get: vi.fn(get),
     getNotes: vi.fn(options.notes ?? (() => of([]))),
+    photoImage: vi.fn((url: string) => of(url.startsWith('/api/') ? `blob:${url}` : url)),
+    setFeaturedPhoto: vi.fn(() => of(undefined)),
   };
   const dialogs = { open: vi.fn(() => ({ closed: of(options.dialogResult) })) };
   const toasts = { show: vi.fn() };
@@ -46,6 +66,7 @@ async function setupContactPage(
       { provide: CONTACTS_SERVICE, useValue: service },
       { provide: DialogService, useValue: dialogs },
       { provide: ToastService, useValue: toasts },
+      { provide: Location, useValue: { getState: () => options.navigationState ?? null } },
     ],
   });
   const fixture = TestBed.createComponent(ContactPage);
@@ -67,7 +88,159 @@ async function setupContactPage(
   return { host, service, dialogs, toasts, router, text, button, settle };
 }
 
+const photo = (id: string, altText: string, extra: Partial<ContactPhoto> = {}): ContactPhoto => ({
+  id,
+  url: `/api/contacts/c1/photos/${id}/image`,
+  altText,
+  isFeatured: false,
+  uploadedAt: '2026-10-20T12:00:00Z',
+  isStored: true,
+  ...extra,
+});
+
 describe('ContactPage', () => {
+  describe('photos', () => {
+    const photos = [
+      photo('p2', 'At the coffee morning'),
+      photo('p1', 'Outside the shelter', { isFeatured: true }),
+    ];
+
+    it('shows the contact’s photos, loaded with the lead’s credentials, and a count', async () => {
+      const { host, service, text } = await setupContactPage(() => of(contactDto({ photos })));
+
+      expect(text()).toContain('2 of 10');
+      const gallery = host.querySelector('ft-photo-gallery')!;
+      const imgs = Array.from(gallery.querySelectorAll('img'));
+      expect(imgs.map((i) => i.getAttribute('src'))).toEqual([
+        'blob:/api/contacts/c1/photos/p2/image',
+        'blob:/api/contacts/c1/photos/p1/image',
+      ]);
+      expect(service.photoImage).toHaveBeenCalledWith('/api/contacts/c1/photos/p2/image');
+    });
+
+    it('says there are no photos yet and offers Add photos', async () => {
+      const { text, button } = await setupContactPage(() => of(contactDto()));
+
+      expect(text()).toContain('No photos yet. Add one so you recognise Tomás next time.');
+      expect(button('Add photos')).toBeDefined();
+    });
+
+    it('opens the add dialog with the room left and shows what was added', async () => {
+      const added = photo('p3', 'Demoing the dashboard');
+      const { dialogs, toasts, button, settle, text } = await setupContactPage(
+        () => of(contactDto({ photos })),
+        { dialogResult: [added] },
+      );
+
+      button('Add photos')!.click();
+      await settle();
+
+      expect(dialogs.open).toHaveBeenCalledWith(AddContactPhotoDialog, {
+        data: { contactId: 'c1', contactName: 'Tomás Ortega', room: 8 },
+      });
+      expect(text()).toContain('3 of 10');
+      expect(toasts.show).toHaveBeenCalledWith(expect.objectContaining({ heading: 'Photo added' }));
+    });
+
+    it('disables Add photos at ten and says why', async () => {
+      const ten = Array.from({ length: 10 }, (_, i) =>
+        photo(`p${i}`, `Photo ${i}`, { isFeatured: i === 0 }),
+      );
+      const { text, button } = await setupContactPage(() => of(contactDto({ photos: ten })));
+
+      expect(button('Add photos')!.hasAttribute('disabled')).toBe(true);
+      expect(text()).toContain(
+        'That’s 10 photos, the most a contact can have. Delete one to add another.',
+      );
+    });
+
+    it('features a photo straight away', async () => {
+      const { service, button, settle, host } = await setupContactPage(() =>
+        of(contactDto({ photos })),
+      );
+
+      button('Feature photo 1')!.click();
+      await settle();
+
+      expect(service.setFeaturedPhoto).toHaveBeenCalledWith('c1', 'p2');
+      const featured = host.querySelector('.ft-photo-gallery__item--featured')!;
+      expect(featured.textContent).toContain('At the coffee morning');
+    });
+
+    it('opens the description dialog and shows the saved description', async () => {
+      const { dialogs, button, settle, text } = await setupContactPage(
+        () => of(contactDto({ photos })),
+        { dialogResult: 'Pouring coffee' },
+      );
+
+      button('Edit description of photo 1')!.click();
+      await settle();
+
+      expect(dialogs.open).toHaveBeenCalledWith(EditPhotoDescriptionDialog, {
+        data: {
+          contactId: 'c1',
+          contactName: 'Tomás Ortega',
+          photo: {
+            id: 'p2',
+            url: 'blob:/api/contacts/c1/photos/p2/image',
+            altText: 'At the coffee morning',
+            featured: false,
+          },
+        },
+      });
+      expect(text()).toContain('Pouring coffee');
+    });
+
+    it('confirms before deleting and reloads the photos afterwards', async () => {
+      let current = photos;
+      const { dialogs, button, settle, service } = await setupContactPage(
+        () => of(contactDto({ photos: current })),
+        { dialogResult: true },
+      );
+      current = [photo('p2', 'At the coffee morning', { isFeatured: true })];
+
+      button('Delete photo 2')!.click();
+      await settle();
+
+      expect(dialogs.open).toHaveBeenCalledWith(DeleteContactPhotoDialog, expect.anything());
+      expect(service.get).toHaveBeenCalledTimes(2);
+    });
+  });
+
+  it('names the photos that did not upload when the contact was created', async () => {
+    const { host, text } = await setupContactPage(() => of(contactDto()), {
+      navigationState: { failedPhotos: ['Tomás demoing the dashboard'] },
+    });
+
+    expect(text()).toContain('Tomás Ortega is saved, but 1 photo wasn’t added');
+    expect(text()).toContain('“Tomás demoing the dashboard”');
+    expect(host.querySelector('ft-alert[status="warning"]')).not.toBeNull();
+  });
+
+  it('shows no photo alert when every photo uploaded', async () => {
+    const { text } = await setupContactPage(() => of(contactDto()), {
+      navigationState: { failedPhotos: [] },
+    });
+
+    expect(text()).not.toContain('wasn’t added');
+  });
+
+  it('loads the contact’s own featured photo with the lead’s credentials', async () => {
+    const { host, service } = await setupContactPage(() =>
+      of(
+        contactDto({
+          photoUrl: '/api/contacts/c1/photos/p1/image',
+          photoAltText: 'Tomás smiling outside the shelter',
+        }),
+      ),
+    );
+
+    expect(service.photoImage).toHaveBeenCalledWith('/api/contacts/c1/photos/p1/image');
+    const img = host.querySelector<HTMLImageElement>('ft-photo img')!;
+    expect(img.getAttribute('src')).toBe('blob:/api/contacts/c1/photos/p1/image');
+    expect(img.getAttribute('alt')).toBe('Tomás smiling outside the shelter');
+  });
+
   it('shows a private contact’s details with Edit', async () => {
     const { host, text, button } = await setupContactPage(() => of(contactDto()));
 
@@ -142,7 +315,7 @@ describe('ContactPage', () => {
       'Wants two staff at the hackathon. | Fri 16 Oct',
       'Met at Builders Night. | Fri 2 Oct',
     ]);
-    expect(host.querySelector('#notes-heading, h2')!.textContent).toContain('Your notes');
+    expect(host.querySelector('#notes-heading')!.textContent).toContain('Your notes');
   });
 
   it('adds a note through the dialog and shows it first', async () => {

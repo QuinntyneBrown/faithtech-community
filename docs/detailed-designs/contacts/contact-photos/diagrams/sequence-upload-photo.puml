@@ -1,0 +1,68 @@
+@startuml
+title UML sequence behaviour — Add a contact photo
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+actor "Lead (owner) or System Admin" as actor
+box "Frontend — FaithTech Community web app (contacts library)" #E0F2FE
+  participant "AddContactPhotoDialog" as dlg
+  participant "HttpContactsService" as svc
+end box
+box "Backend — FaithTech.Community.Api" #D1FADF
+  participant "ContactsEndpoints" as ep
+end box
+box "Backend — FaithTech.Community.Application and Domain" #ECFDF3
+  participant "ContactPhotosHandler" as h
+  participant "ContactAccess" as acc
+  participant "PhotoLeases" as leases
+  participant "IImageProcessor" as img
+end box
+box "Backend — FaithTech.Community.Infrastructure" #FFF4E5
+  participant "IPhotoStorage" as store
+  database "Community database" as db
+end box
+actor -> dlg : Choose photo, describe it, Add photos
+dlg -> svc : uploadPhoto(contactId, file, altText)
+svc -> ep : POST /api/contacts/{id}/photos (multipart, 10 MB request limit)
+ep -> h : UploadAsync(id, command)
+h -> acc : AuthorizeAsync(id, withPhotos)
+alt NotFound (another lead, Staff, any other member, unknown id)
+  acc --> h : NotFound
+  h --> ep : Result.NotFound
+  ep --> svc : 404 (L2-070 AC1)
+else Owner or AdminOverride
+  h -> leases : TakeAsync(contact.PhotoLease)
+  alt Another photo write holds the lease
+    leases --> h : false
+    h --> ep : 409 "Your photos changed while this was saving…" (L2-071 AC3)
+  else Lease taken
+    h -> h : 10-photo limit, description (1–300), 5 MB (L2-069 AC2–4)
+    h -> img : ProcessAsync(content, fileName)
+    img --> h : resized, metadata removed, or refusal (400 File)
+    h -> store : SaveAsync(contacts/{id}/{guid}.ext)
+    alt Storage down
+      h -> h : photo.MarkStoring(); queue PhotoBlobTask Save (L2-071 AC1)
+    end
+    h -> h : contact.AddPhoto(photo) — first photo is featured
+    opt AdminOverride
+      h -> acc : AuditOverride("contact.photo-added") (L2-070 AC4)
+    end
+    h -> db : Save photo, task, audit; release lease
+    h --> ep : ContactPhotoDto (Url = /api/contacts/{id}/photos/{photoId}/image)
+    ep --> svc : 201 Created
+    svc --> dlg : Photo
+    dlg --> actor : Closes; Photos section and count update
+  end
+end
+@enduml

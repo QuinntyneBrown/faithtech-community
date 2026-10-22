@@ -1,0 +1,35 @@
+<ft-dialog
+  [heading]="'Add photos of ' + data.contactName"
+  description="Only you can see these photos."
+  icon="photo"
+  [busy]="busy()"
+  (closed)="close()"
+>
+  <ft-stack>
+    @if (failed()) {
+      <ft-alert status="danger" heading="Photo not added">
+        We couldn’t add this photo. Your choice and description are still here — try again.
+      </ft-alert>
+    }
+    <ft-picture-list
+      subject="contact"
+      [max]="data.room"
+      [featurable]="false"
+      pendingNote="Not added yet. It uploads when you choose Add photos."
+      [photos]="listPhotos()"
+      (picked)="pick($event)"
+      (altChange)="describe($event)"
+      (removed)="remove($event)"
+    />
+  </ft-stack>
+  <ft-button ftDialogFooter [disabled]="busy()" (click)="close()">Cancel</ft-button>
+  <ft-button
+    ftDialogFooter
+    variant="primary"
+    [disabled]="chosen().length === 0"
+    [loading]="busy()"
+    (click)="add()"
+  >
+    {{ busy() ? 'Adding…' : 'Add photos' }}
+  </ft-button>
+</ft-dialog>

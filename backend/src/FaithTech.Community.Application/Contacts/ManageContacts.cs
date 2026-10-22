@@ -1,4 +1,5 @@
 using FaithTech.Community.Application.Common;
+using FaithTech.Community.Application.Profiles;
 using FaithTech.Community.Domain.Contacts;
 using FluentValidation;
 using Microsoft.EntityFrameworkCore;
@@ -58,7 +59,7 @@ public class UpdateContactValidator : AbstractValidator<UpdateContactCommand>
 }
 
 /// <summary>Creates, reads and edits private contacts (L2-012, L2-013).</summary>
-public class ManageContactsHandler(IApplicationDbContext db, ContactAccess access, ContactViews views, TimeProvider time)
+public class ManageContactsHandler(IApplicationDbContext db, ContactAccess access, ContactViews views, IPhotoStorage storage, TimeProvider time)
 {
     public async Task<(Result Result, ContactDto? Contact)> CreateAsync(CreateContactCommand command, CancellationToken cancellationToken = default)
     {
@@ -169,7 +170,14 @@ public class ManageContactsHandler(IApplicationDbContext db, ContactAccess acces
                 c.City,
                 c.LinkedProfileId,
                 c.ArchivedAtUtc,
+                c.CreatedAtUtc,
                 Linked = db.Profiles.Where(p => p.Id == c.LinkedProfileId).Select(p => p.Name).FirstOrDefault(),
+                // The card's photo (L2-072): the member's once linked, otherwise the contact's own; never one still storing.
+                LinkedPhoto = db.Profiles.Where(p => p.Id == c.LinkedProfileId)
+                    .SelectMany(p => p.Photos).Where(p => p.IsFeatured && p.IsStored)
+                    .Select(p => new { p.BlobName, p.AltText }).FirstOrDefault(),
+                OwnPhoto = c.Photos.Where(p => p.IsFeatured && p.IsStored).Select(p => new { p.Id, p.AltText }).FirstOrDefault(),
+                NoteCount = db.ContactNotes.Count(n => n.ContactId == c.Id),
                 SignedUp = c.LinkedProfileId == null && c.Email != null
                     && db.Users.Any(u => u.EmailConfirmed && u.NormalizedEmail == c.Email.ToUpper()),
             })
@@ -181,7 +189,13 @@ public class ManageContactsHandler(IApplicationDbContext db, ContactAccess acces
             r.Organization,
             r.City,
             r.LinkedProfileId is not null ? "Member" : r.SignedUp ? "SignedUp" : "Private",
-            r.ArchivedAtUtc));
+            r.ArchivedAtUtc,
+            r.LinkedProfileId is not null
+                ? r.LinkedPhoto is null ? null : storage.GetReadUrl(r.LinkedPhoto.BlobName)
+                : r.OwnPhoto is null ? null : $"/api/contacts/{r.Id}/photos/{r.OwnPhoto.Id}/image",
+            r.LinkedProfileId is not null ? r.LinkedPhoto?.AltText : r.OwnPhoto?.AltText,
+            r.NoteCount,
+            r.CreatedAtUtc));
         return archived
             ? [.. summaries.OrderByDescending(r => r.ArchivedAtUtc)]
             : [.. summaries.OrderBy(r => r.Name, StringComparer.CurrentCultureIgnoreCase)];

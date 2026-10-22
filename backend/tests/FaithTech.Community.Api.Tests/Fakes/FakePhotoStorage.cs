@@ -21,6 +21,12 @@ public class FakePhotoStorage : IPhotoStorage
         return Task.CompletedTask;
     }
 
+    public Task<StoredImage?> ReadAsync(string key, CancellationToken cancellationToken = default)
+    {
+        ThrowIfDown();
+        return Task.FromResult(Blobs.TryGetValue(key, out var blob) ? new StoredImage(blob.Content, blob.ContentType) : null);
+    }
+
     public Task DeleteAsync(string key, CancellationToken cancellationToken = default)
     {
         ThrowIfDown();
