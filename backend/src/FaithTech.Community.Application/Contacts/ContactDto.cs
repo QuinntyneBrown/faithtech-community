@@ -8,8 +8,22 @@ namespace FaithTech.Community.Application.Contacts;
 /// <summary>A verified member who uses the contact's email (L2-015): offered for linking until the contact is linked.</summary>
 public record ContactMatchDto(Guid ProfileId, string Name);
 
-/// <summary>A row of the contacts list. Status is Private, SignedUp (a verified member uses the email) or Member (linked).</summary>
-public record ContactSummaryDto(Guid Id, string Name, string? Email, string? Organization, string? City, string Status, DateTime? ArchivedAtUtc);
+/// <summary>
+/// A row of the contacts list, shown as a person card (L2-060). Status is Private, SignedUp (a verified member uses the
+/// email) or Member (linked). The photo is the linked member's featured photo, or else the contact's own stored one.
+/// </summary>
+public record ContactSummaryDto(
+    Guid Id,
+    string Name,
+    string? Email,
+    string? Organization,
+    string? City,
+    string Status,
+    DateTime? ArchivedAtUtc,
+    string? PhotoUrl,
+    string? PhotoAltText,
+    int NoteCount,
+    DateTime CreatedAtUtc);
 
 /// <summary>
 /// One contact. Once linked, the name and featured photo come from the member's profile (L2-015 AC2); otherwise

@@ -11,7 +11,8 @@ public static class ContactClients
     public sealed record ContactMatch(Guid ProfileId, string Name);
 
     public sealed record ContactSummary(
-        Guid Id, string Name, string? Email, string? Organization, string? City, string Status, DateTime? ArchivedAtUtc);
+        Guid Id, string Name, string? Email, string? Organization, string? City, string Status, DateTime? ArchivedAtUtc,
+        string? PhotoUrl = null, string? PhotoAltText = null, int NoteCount = 0, DateTime CreatedAtUtc = default);
 
     public sealed record Contact(
         Guid Id,
