@@ -34,9 +34,15 @@ export class TeamPage {
     await this.page.goto('/team');
   }
 
-  /** Back to the top, as after reading a long list; the sticky top bar otherwise overlaps rows. */
-  async scrollToTop(): Promise<void> {
-    await this.page.evaluate(() => window.scrollTo(0, 0));
+  /** Scrolls the page, as when reading a long list, until the member's row passes under the sticky top bar. */
+  async scrollUnderTopBar(name: string): Promise<void> {
+    const row = this.profileLink(name);
+    await row.scrollIntoViewIfNeeded();
+    await row.evaluate((link) => {
+      const bar = document.querySelector('ft-top-bar')!.getBoundingClientRect();
+      const rect = link.getBoundingClientRect();
+      window.scrollBy({ top: rect.top + rect.height / 2 - bar.bottom, behavior: 'instant' });
+    });
   }
 
   roleFilter(label: 'All' | 'Leads' | 'Volunteers'): Locator {

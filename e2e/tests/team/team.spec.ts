@@ -162,7 +162,8 @@ test.describe('Team list', () => {
     await team.showMore.click();
     await expect(team.moreFailed).toBeVisible();
     await expect(team.members).toHaveCount(50);
-    await team.scrollToTop();
+    // Axe reads the list where it was left, with a row half under the sticky top bar.
+    await team.scrollUnderTopBar('Member 020');
     await axe.check();
 
     await team.showMore.click();
