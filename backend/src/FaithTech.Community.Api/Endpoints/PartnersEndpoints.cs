@@ -66,6 +66,14 @@ public static class PartnersEndpoints
         partners.MapPost("/{id:guid}/duplicates/{otherId:guid}/dismissal", async (Guid id, Guid otherId, PartnerDuplicatesHandler handler, CancellationToken cancellationToken) =>
             (await handler.DismissAsync(id, otherId, cancellationToken)).ToHttp(Results.NoContent));
 
+        // Merge keeps one partner and archives the other (L2-089, L2-090, ADR 0024).
+        partners.MapPost("/{keepId:guid}/merge", async (Guid keepId, MergePartnersCommand command, MergePartnersHandler handler, CancellationToken cancellationToken) =>
+            {
+                var (result, partner) = await handler.MergeAsync(keepId, command, cancellationToken);
+                return result.ToHttp(() => Results.Ok(partner));
+            })
+            .Validate<MergePartnersCommand>();
+
         return app;
     }
 }

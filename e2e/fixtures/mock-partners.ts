@@ -46,6 +46,10 @@ export interface MockActivity {
   loggedAtUtc: string;
   fromStage: MockStage | null;
   toStage: MockStage | null;
+  /** The other partner of a Merged or Restored entry. */
+  relatedPartnerId: string | null;
+  /** The partner the entry was first written on, when a merge moved it. */
+  mergedFromPartnerId: string | null;
 }
 
 /** A partner as the Partners table holds it. */
@@ -61,6 +65,12 @@ export interface MockPartner {
   notes: string | null;
   stage: MockStage;
   activities: MockActivity[];
+  /** Every edit, move, merge and restore moves it on (ADR 0024). */
+  version: number;
+  archivedAtUtc: string | null;
+  mergedIntoId: string | null;
+  mergedById: string | null;
+  mergedAtUtc: string | null;
 }
 
 const STAGES: MockStage[] = ['Lead', 'InFunnel', 'Confirmed'];
@@ -89,16 +99,23 @@ function newest(activities: MockActivity[]): MockActivity[] {
   return [...activities].sort((a, b) => key(b).localeCompare(key(a)));
 }
 
-function text(partner: MockPartner, activity: MockActivity): string {
+/** PartnerTimelineViews.Text: {name} is the record the entry was first written on, {other} the related one. */
+function text(name: string, other: string, activity: MockActivity): string {
   switch (activity.kind) {
     case 'Added':
       return !activity.toStage || activity.toStage === 'Lead'
-        ? `Added ${partner.name} as a lead`
-        : `Added ${partner.name} at ${STAGE_LABELS[activity.toStage]}`;
+        ? `Added ${name} as a lead`
+        : `Added ${name} at ${STAGE_LABELS[activity.toStage]}`;
     case 'StageMoved': {
       const note = activity.summary ? `: “${activity.summary}”` : '';
-      return `Moved ${partner.name} from ${STAGE_LABELS[activity.fromStage!]} to ${STAGE_LABELS[activity.toStage!]}${note}`;
+      return `Moved ${name} from ${STAGE_LABELS[activity.fromStage!]} to ${STAGE_LABELS[activity.toStage!]}${note}`;
     }
+    case 'Merged':
+      return `Merged ${other} into ${name}`;
+    case 'Restored':
+      return activity.toStage
+        ? `Restored ${name} from ${other}`
+        : `Restored ${other} as its own partner`;
     default:
       return activity.summary ?? '';
   }
@@ -127,6 +144,11 @@ export class MockPartners {
       notes: null,
       stage: 'Lead',
       activities: [],
+      version: 1,
+      archivedAtUtc: null,
+      mergedIntoId: null,
+      mergedById: null,
+      mergedAtUtc: null,
       ...partner,
     };
     this.partners.push(full);
@@ -157,6 +179,8 @@ export class MockPartners {
       loggedAtUtc: this.context.now.toISOString(),
       fromStage: null,
       toStage: null,
+      relatedPartnerId: null,
+      mergedFromPartnerId: null,
       ...activity,
     };
     partner.activities.push(full);
@@ -164,6 +188,11 @@ export class MockPartners {
   }
 
   private activityCount = 1;
+
+  /** Someone else changed the partner: its version moves on, as an edit or a move would. */
+  bumpVersion(partnerId: string): void {
+    this.partners.find((p) => p.id === partnerId)!.version++;
+  }
 
   /** Stores "Not the same" for the pair, as PartnerDuplicateDismissal.For does. */
   dismiss(a: string, b: string, byId = ''): void {
@@ -201,7 +230,7 @@ export class MockPartners {
       const stage = (body['stage'] as MockStage | undefined) ?? 'Lead';
       const partner = this.add({ ...this.details(body), stage });
       partner.activities[0].loggedById = caller.profileId;
-      return route.fulfill({ status: 201, json: this.dto(partner, canWrite) });
+      return route.fulfill({ status: 201, json: this.dto(partner, canWrite, caller) });
     }
 
     const partner = this.partners.find((p) => p.id === id);
@@ -212,6 +241,13 @@ export class MockPartners {
       if (otherId === partner.id) return route.fulfill({ status: 400, json: { status: 400 } });
       const other = this.partners.find((p) => p.id === otherId);
       if (!other) return route.fulfill({ status: 404 });
+      const merged = [partner, other].find((p) => p.archivedAtUtc);
+      if (merged) {
+        return route.fulfill({
+          status: 409,
+          json: { status: 409, detail: `${merged.name} has already been merged.` },
+        });
+      }
       this.dismiss(partner.id, other.id, caller.profileId);
       // PartnerAccess.AuditAdminWrite: a System Admin without a lead role is audited.
       if (!caller.roles.some((r) => LEAD_ROLES.includes(r))) {
@@ -228,12 +264,28 @@ export class MockPartners {
       return route.fulfill({ status: 204 });
     }
     if (method === 'GET' && !action)
-      return route.fulfill({ status: 200, json: this.dto(partner, canWrite) });
+      return route.fulfill({ status: 200, json: this.dto(partner, canWrite, caller) });
+    // An archived partner refuses edits, moves and logged activities (ADR 0024, L2-087 AC6).
+    const write =
+      method === 'PUT' || (method === 'POST' && ['stage', 'activities'].includes(action));
+    if (partner.archivedAtUtc && write) {
+      const kept = this.partners.find((p) => p.id === partner.mergedIntoId)?.name;
+      const instruction =
+        action === 'activities' ? 'Log it there.' : action === 'stage' ? 'Move it there.' : '';
+      return route.fulfill({
+        status: 409,
+        json: {
+          status: 409,
+          detail: `${partner.name} was merged into ${kept}. ${instruction || 'Change it there.'}`,
+        },
+      });
+    }
     if (method === 'PUT' && !action) {
       const errors = this.validate(body);
       if (errors) return route.fulfill({ status: 400, json: { status: 400, errors } });
       Object.assign(partner, this.details(body));
-      return route.fulfill({ status: 200, json: this.dto(partner, canWrite) });
+      partner.version++;
+      return route.fulfill({ status: 200, json: this.dto(partner, canWrite, caller) });
     }
     if (method === 'POST' && action === 'stage') {
       const to = body['to'] as MockStage;
@@ -258,8 +310,10 @@ export class MockPartners {
         toStage: to,
       });
       partner.stage = to;
-      return route.fulfill({ status: 200, json: this.dto(partner, canWrite) });
+      partner.version++;
+      return route.fulfill({ status: 200, json: this.dto(partner, canWrite, caller) });
     }
+    if (method === 'POST' && action === 'merge') return this.merge(route, partner, body, caller);
     if (method === 'GET' && action === 'activities') {
       const kind = url.searchParams.get('kind');
       if (kind && !FILTERS[kind]) return route.fulfill({ status: 400, json: { status: 400 } });
@@ -290,8 +344,117 @@ export class MockPartners {
     return route.fulfill({ status: 405 });
   }
 
+  /** MergePartnersHandler.MergeAsync: the same checks, order, messages and status codes. */
+  private merge(
+    route: Route,
+    kept: MockPartner,
+    body: Record<string, unknown>,
+    caller: MockCaller,
+  ): Promise<void> {
+    const choices = (body['choices'] ?? {}) as Record<string, string | undefined>;
+    if (Object.values(choices).some((c) => c !== undefined && c !== 'keep' && c !== 'other')) {
+      return route.fulfill({
+        status: 400,
+        json: { status: 400, errors: { Choices: ['Choose which value to keep.'] } },
+      });
+    }
+    if (body['otherId'] === kept.id) {
+      return route.fulfill({
+        status: 400,
+        json: { status: 400, errors: { OtherId: ['Choose two different partners.'] } },
+      });
+    }
+    const other = this.partners.find((p) => p.id === body['otherId']);
+    if (!other) return route.fulfill({ status: 404 });
+    const archived = [kept, other].find((p) => p.archivedAtUtc);
+    if (archived) {
+      return route.fulfill({
+        status: 409,
+        json: { status: 409, detail: `${archived.name} has already been merged.` },
+      });
+    }
+    for (const [partner, seen] of [
+      [kept, body['keepVersion']],
+      [other, body['otherVersion']],
+    ] as const) {
+      if (partner.version !== seen) {
+        return route.fulfill({
+          status: 409,
+          json: {
+            status: 409,
+            detail: `Someone changed ${partner.name} while you were comparing. Nothing was changed; reload and try again.`,
+            partnerId: partner.id,
+          },
+        });
+      }
+    }
+    const notes = [kept.notes, other.notes].filter(Boolean).join('\n\n') || null;
+    if (notes && notes.length > 2000) {
+      return route.fulfill({
+        status: 400,
+        json: {
+          status: 400,
+          errors: {
+            Notes: [
+              'The joined notes are longer than 2,000 characters. Shorten the notes on one partner, then merge.',
+            ],
+          },
+        },
+      });
+    }
+    const pick = <K extends keyof MockPartner>(choice: string, field: K) =>
+      choices[choice] === 'other' ? other[field] : kept[field];
+    const fromStage = kept.stage;
+    Object.assign(kept, {
+      name: pick('name', 'name'),
+      stage: pick('stage', 'stage'),
+      contactName: pick('contactName', 'contactName'),
+      email: pick('email', 'email'),
+      phone: pick('phone', 'phone'),
+      website: pick('website', 'website'),
+      offering: pick('offering', 'offering'),
+      ownerId: pick('owner', 'ownerId'),
+      notes,
+    });
+    kept.version++;
+    for (const activity of other.activities) {
+      activity.mergedFromPartnerId ??= other.id;
+      kept.activities.push(activity);
+    }
+    other.activities = [];
+    const now = this.context.now.toISOString();
+    const changed = fromStage !== kept.stage;
+    this.addActivity(kept, {
+      kind: 'Merged',
+      summary: null,
+      occurredAt: now.slice(11, 19),
+      loggedById: caller.profileId,
+      relatedPartnerId: other.id,
+      fromStage: changed ? fromStage : null,
+      toStage: changed ? kept.stage : null,
+    });
+    Object.assign(other, {
+      archivedAtUtc: now,
+      mergedIntoId: kept.id,
+      mergedById: caller.profileId,
+      mergedAtUtc: now,
+    });
+    other.version++;
+    this.context.addAuditEntry({
+      action: 'partners.merged',
+      summary: `Merged ${other.name} into ${kept.name}`,
+      actorId: caller.profileId,
+      actorName: this.context.profiles.get(caller.profileId)?.name ?? 'A former member',
+      targetType: 'Partner',
+      targetId: kept.id,
+      after: JSON.stringify({ OtherId: other.id, Choices: choices }),
+    });
+    return route.fulfill({ status: 200, json: this.dto(kept, true, caller) });
+  }
+
   /** PartnerDuplicatesHandler.ListAsync: undismissed matches by name, with each one's Added entry. */
   private duplicates(partner: MockPartner) {
+    if (partner.archivedAtUtc) return [];
     const dismissed = (other: MockPartner) =>
       this.dismissals.some(
         (d) =>
@@ -299,7 +462,7 @@ export class MockPartners {
           (d.lower === other.id && d.higher === partner.id),
       );
     return this.partners
-      .filter((p) => p.id !== partner.id && !dismissed(p))
+      .filter((p) => p.id !== partner.id && !p.archivedAtUtc && !dismissed(p))
       .map((p) => ({ other: p, reason: duplicateMatch(partner, p) }))
       .filter((m) => m.reason !== null)
       .sort((a, b) => a.other.name.localeCompare(b.other.name))
@@ -333,7 +496,17 @@ export class MockPartners {
   /** PartnerTimelineViews: the logger's name and the sentence the timeline shows. */
   private activityDto(partner: MockPartner, activity: MockActivity) {
     const name = this.context.profiles.get(activity.loggedById)?.name ?? 'A former member';
-    return { ...activity, text: text(partner, activity), loggedByName: name };
+    const partnerName = (id: string | null) =>
+      id ? (this.partners.find((p) => p.id === id)?.name ?? null) : null;
+    const from = partnerName(activity.mergedFromPartnerId);
+    const related = partnerName(activity.relatedPartnerId);
+    return {
+      ...activity,
+      text: text(from ?? partner.name, related ?? 'another partner', activity),
+      loggedByName: name,
+      relatedPartnerName: related,
+      mergedFromPartnerName: from,
+    };
   }
 
   /** LogPartnerActivityValidator; "today" is the UTC date plus one day. */
@@ -362,7 +535,7 @@ export class MockPartners {
       canEdit,
       columns: STAGES.map((stage) => {
         const cards = this.partners
-          .filter((p) => p.stage === stage)
+          .filter((p) => p.stage === stage && !p.archivedAtUtc)
           .sort((a, b) => a.name.localeCompare(b.name))
           .map((p) => ({
             id: p.id,
@@ -408,10 +581,13 @@ export class MockPartners {
     };
   }
 
-  private dto(partner: MockPartner, canEdit: boolean) {
+  /** PartnerViews.ToDtoAsync: an archived partner says who merged it and is read-only. */
+  private dto(partner: MockPartner, canWrite: boolean, caller?: MockCaller) {
     const name = (id: string | null) => (id ? (this.context.profiles.get(id)?.name ?? null) : null);
-    const { activities, ...record } = partner;
+    const { activities, archivedAtUtc, mergedIntoId, mergedById, mergedAtUtc, ...record } = partner;
     const next = this.nextStep(partner);
+    const kept = this.partners.find((p) => p.id === mergedIntoId);
+    const canEdit = canWrite && !archivedAtUtc;
     return {
       ...record,
       ownerName: name(partner.ownerId),
@@ -420,6 +596,18 @@ export class MockPartners {
       nextStep: next?.nextStep ?? null,
       nextStepDue: next?.nextStepDue ?? null,
       canLogActivity: canEdit,
+      archived:
+        archivedAtUtc && kept
+          ? {
+              mergedIntoId: kept.id,
+              mergedIntoName: kept.name,
+              mergedIntoVersion: kept.version,
+              mergedById: mergedById ?? '',
+              mergedByName: name(mergedById) ?? 'A former member',
+              mergedAtUtc: mergedAtUtc ?? archivedAtUtc,
+            }
+          : null,
+      canRestore: !!archivedAtUtc && !!caller?.roles.includes('SystemAdmin'),
     };
   }
 

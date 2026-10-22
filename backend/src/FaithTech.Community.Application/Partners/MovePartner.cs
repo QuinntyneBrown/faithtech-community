@@ -36,6 +36,11 @@ public class MovePartnerHandler(IApplicationDbContext db, PartnerAccess access, 
             return (Result.NotFound(), null);
         }
 
+        if (partner.IsArchived)
+        {
+            return (await access.ArchivedConflictAsync(partner, "Move it there.", cancellationToken), null);
+        }
+
         PartnerRules.TryParseStage(command.To, out var to);
         if (partner.Stage == to)
         {

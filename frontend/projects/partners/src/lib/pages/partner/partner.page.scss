@@ -8,7 +8,12 @@ ft-page-header {
   margin-block-end: var(--space-4);
 }
 
-.duplicate {
+.page-alert {
   display: block;
   margin-block-end: var(--space-4);
+}
+
+.muted {
+  margin: 0;
+  color: var(--color-fg-muted);
 }

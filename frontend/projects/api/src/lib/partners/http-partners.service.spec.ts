@@ -84,6 +84,19 @@ describe('HttpPartnersService', () => {
       '/api/partners/x1/duplicates/x2/dismissal',
       null,
     ],
+    [
+      'merge',
+      () =>
+        service.merge('x1', {
+          otherId: 'x2',
+          keepVersion: 3,
+          otherVersion: 1,
+          choices: { phone: 'other' },
+        }),
+      'POST',
+      '/api/partners/x1/merge',
+      { otherId: 'x2', keepVersion: 3, otherVersion: 1, choices: { phone: 'other' } },
+    ],
   ])('%s', (_name, call, method, url, body) => {
     (call() as Observable<unknown>).subscribe();
 

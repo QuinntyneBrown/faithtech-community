@@ -110,6 +110,11 @@ public class ManagePartnersHandler(IApplicationDbContext db, PartnerAccess acces
             return (Result.NotFound(), null);
         }
 
+        if (partner.IsArchived)
+        {
+            return (await access.ArchivedConflictAsync(partner, "Change it there.", cancellationToken), null);
+        }
+
         if (await OwnerErrorAsync(command.OwnerId, cancellationToken) is { } invalid)
         {
             return (invalid, null);
@@ -130,7 +135,7 @@ public class ManagePartnersHandler(IApplicationDbContext db, PartnerAccess acces
         return (Result.Ok(), await views.ToDtoAsync(partner, cancellationToken));
     }
 
-    /// <summary>The board: every partner, by stage then name, with a count per stage (L2-018 AC1).</summary>
+    /// <summary>The board: every active partner, by stage then name, with a count per stage (L2-018 AC1, L2-089 AC4).</summary>
     public async Task<PartnerBoardDto?> BoardAsync(CancellationToken cancellationToken = default)
     {
         if (!access.CanRead)
@@ -139,6 +144,7 @@ public class ManagePartnersHandler(IApplicationDbContext db, PartnerAccess acces
         }
 
         var partners = await db.Partners.AsNoTracking()
+            .Where(p => p.ArchivedAtUtc == null)
             .Select(p => new { p.Id, p.Name, p.ContactName, p.Offering, p.Stage })
             .ToListAsync(cancellationToken);
         // One query for every card's next step: the first logged activity with one per partner, in timeline order.
@@ -188,6 +194,6 @@ public class ManagePartnersHandler(IApplicationDbContext db, PartnerAccess acces
         return isLead ? null : Result.Invalid("OwnerId", "Choose a lead as the owner.");
     }
 
-    private static object Snapshot(Partner p) =>
+    internal static object Snapshot(Partner p) =>
         new { p.Name, p.Website, p.Offering, p.OwnerId, p.ContactName, p.Email, p.Phone, p.Notes, Stage = p.Stage.ToString() };
 }

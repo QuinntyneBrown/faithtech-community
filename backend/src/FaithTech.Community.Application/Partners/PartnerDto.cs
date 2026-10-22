@@ -24,7 +24,19 @@ public record PartnerDto(
     DateOnly? LastActivityOn,
     string? NextStep,
     DateOnly? NextStepDue,
-    bool CanLogActivity);
+    bool CanLogActivity,
+    int Version,
+    PartnerArchivedDto? Archived,
+    bool CanRestore);
+
+/// <summary>Who merged an archived partner, when and into which partner (L2-089 AC7); MergedIntoVersion feeds a restore.</summary>
+public record PartnerArchivedDto(
+    Guid MergedIntoId,
+    string MergedIntoName,
+    int MergedIntoVersion,
+    Guid MergedById,
+    string MergedByName,
+    DateTime MergedAtUtc);
 
 public record PartnerCardDto(Guid Id, string Name, string? ContactName, string? Offering, string? NextStep = null, DateOnly? NextStepDue = null);
 
@@ -47,6 +59,18 @@ public class PartnerViews(IApplicationDbContext db, PartnerAccess access)
         var next = await PartnerTimelineOrder.Newest(activities.Where(a => a.NextStep != null))
             .Select(a => new { a.NextStep, a.NextStepDue })
             .FirstOrDefaultAsync(cancellationToken);
+        PartnerArchivedDto? archived = null;
+        if (partner.MergedIntoId is { } keptId)
+        {
+            var kept = await db.Partners.AsNoTracking().Where(p => p.Id == keptId)
+                .Select(p => new { p.Name, p.Version }).SingleAsync(cancellationToken);
+            var by = await db.Profiles.AsNoTracking().Where(p => p.Id == partner.MergedById)
+                .Select(p => p.Name).SingleOrDefaultAsync(cancellationToken);
+            archived = new PartnerArchivedDto(keptId, kept.Name, kept.Version, partner.MergedById ?? Guid.Empty,
+                by ?? "A former member", partner.MergedAtUtc ?? partner.ArchivedAtUtc!.Value);
+        }
+
+        var canWrite = access.CanWrite && !partner.IsArchived;
         return new PartnerDto(
             partner.Id,
             partner.Name,
@@ -59,10 +83,13 @@ public class PartnerViews(IApplicationDbContext db, PartnerAccess access)
             partner.Phone,
             partner.Notes,
             partner.Stage.ToString(),
-            access.CanWrite,
+            canWrite,
             last,
             next?.NextStep,
             next?.NextStepDue,
-            access.CanWrite);
+            canWrite,
+            partner.Version,
+            archived,
+            access.CanRestore && partner.IsArchived);
     }
 }

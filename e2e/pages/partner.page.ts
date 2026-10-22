@@ -26,6 +26,8 @@ export class PartnerPage {
   readonly duplicateAlert: Locator;
   readonly compareAndMerge: Locator;
   readonly notTheSame: Locator;
+  /** "{name} was merged into {kept}" on an archived partner (L2-089 AC7). */
+  readonly archivedAlert: Locator;
 
   constructor(private readonly page: Page) {
     this.heading = page.getByRole('heading', { level: 1 });
@@ -52,6 +54,12 @@ export class PartnerPage {
       .filter({ hasText: 'This may be the same partner as' });
     this.compareAndMerge = this.duplicateAlert.getByRole('button', { name: 'Compare and merge' });
     this.notTheSame = this.duplicateAlert.getByRole('button', { name: 'Not the same' });
+    this.archivedAlert = page.getByRole('status').filter({ hasText: 'was merged into' });
+  }
+
+  /** The archived alert's "Open {kept}" link. */
+  openKept(name: string): Locator {
+    return this.archivedAlert.getByRole('link', { name: `Open ${name}` });
   }
 
   /** The duplicate alert's "Open {other}" link. */

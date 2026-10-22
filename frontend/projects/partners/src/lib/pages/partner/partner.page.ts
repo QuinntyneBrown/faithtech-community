@@ -44,12 +44,19 @@ import { firstValueFrom } from 'rxjs';
 import {
   LogActivityData,
   LogActivityDialog,
+  MergePartnersData,
+  MergePartnersDialog,
   MovePartnerData,
   MovePartnerDialog,
 } from '../../dialogs';
 import { PartnerTimelineComponent, localDate } from './partner-timeline';
 
 type State = 'loading' | 'loaded' | 'not-found' | 'error';
+
+/** Ends a sentence with a full stop, unless it already ends with one (“Kestrel Labs Inc.”). */
+function sentence(text: string): string {
+  return text.endsWith('.') ? text : `${text}.`;
+}
 
 /** Stage badges as the mocks colour them. */
 export const STAGE_BADGES: Record<PartnerStage, BadgeVariant> = {
@@ -60,7 +67,9 @@ export const STAGE_BADGES: Record<PartnerStage, BadgeVariant> = {
 
 /**
  * One partner with its details and shared activity timeline (L2-017, L2-018, L2-086), matching
- * docs/mocks/pages/partner. Log activity opens LogActivityDialog for leads and System Admin.
+ * docs/mocks/pages/partner. Log activity opens LogActivityDialog for leads and System Admin. A
+ * possible duplicate shows a warning with Compare and merge, Open {other} and Not the same
+ * (L2-088, L2-089); an archived (merged) partner shows who merged it instead, read-only.
  */
 @Component({
   selector: 'ft-partner-page',
@@ -151,11 +160,49 @@ export class PartnerPage {
     return `This may be the same partner as “${match.name}”${more > 0 ? ` and ${more} more` : ''}`;
   }
 
+  /** Compare and merge: reads the duplicate, then this page's partner is the kept record (L2-089). */
+  protected async compareAndMerge(partner: PartnerDto, match: PartnerDuplicateDto): Promise<void> {
+    let other: PartnerDto;
+    try {
+      other = await firstValueFrom(this.partners.get(match.id));
+    } catch {
+      this.toasts.show({
+        variant: 'danger',
+        heading: `Couldn’t open ${match.name} to compare. Try again.`,
+      });
+      return;
+    }
+    const ref = this.dialogs.open<PartnerDto, MergePartnersData>(MergePartnersDialog, {
+      data: { kept: partner, other, match },
+    });
+    const merged = await firstValueFrom(ref.closed);
+    if (!merged) return;
+    this.partner.set(merged);
+    this.timelineReload.update((n) => n + 1);
+    void this.loadDuplicates(merged.id);
+    this.toasts.show({
+      variant: 'success',
+      heading: `Merged ${other.name} into ${merged.name}`,
+      text: sentence(`Both timelines are here now. A System Admin can restore ${other.name}`),
+    });
+  }
+
+  /** "{merged by} merged it on {day}. Its activity and stage history are on {kept}." */
+  protected archivedText(partner: PartnerDto): string {
+    const archived = partner.archived!;
+    const day = formatDay(new Date(archived.mergedAtUtc));
+    return sentence(
+      `${archived.mergedByName} merged it on ${day}. Its activity and stage history are on ${archived.mergedIntoName}`,
+    );
+  }
+
   /** "{added by} added {other} on {day} with the same {website|name}, {matched on}." */
   protected duplicateAdded(match: PartnerDuplicateDto): string | null {
     if (!match.addedByName || !match.addedOn) return null;
     const what = match.reason === 'Website' ? 'website' : 'name';
-    return `${match.addedByName} added ${match.name} on ${this.localDay(match.addedOn)} with the same ${what}, ${match.matchedOn}.`;
+    return sentence(
+      `${match.addedByName} added ${match.name} on ${this.localDay(match.addedOn)} with the same ${what}, ${match.matchedOn}`,
+    );
   }
 
   /** "Not the same": the pair is dismissed for every lead and the next match, if any, takes the alert. */
@@ -206,9 +253,11 @@ export class PartnerPage {
     this.state.set('loading');
     this.duplicates.set([]);
     try {
-      this.partner.set(await firstValueFrom(this.partners.get(id)));
+      const partner = await firstValueFrom(this.partners.get(id));
+      this.partner.set(partner);
       this.state.set('loaded');
-      void this.loadDuplicates(id);
+      // An archived partner is never a duplicate (L2-088 AC8).
+      if (!partner.archived) void this.loadDuplicates(id);
     } catch (error) {
       this.state.set(
         error instanceof HttpErrorResponse && error.status === 404 ? 'not-found' : 'error',

@@ -6,6 +6,7 @@ import { API_BASE_URL } from '../config';
 import { HANDLES_FORBIDDEN, HANDLES_SERVER_ERROR } from '../errors';
 import {
   LogPartnerActivityRequest,
+  MergePartnersRequest,
   NewPartnerRequest,
   PartnerActivityDto,
   PartnerActivityFilter,
@@ -75,5 +76,9 @@ export class HttpPartnersService implements PartnersService {
 
   dismissDuplicate(id: string, otherId: string): Observable<void> {
     return this.http.post<void>(`${this.base}/${id}/duplicates/${otherId}/dismissal`, null);
+  }
+
+  merge(keepId: string, request: MergePartnersRequest): Observable<PartnerDto> {
+    return this.http.post<PartnerDto>(`${this.base}/${keepId}/merge`, request);
   }
 }

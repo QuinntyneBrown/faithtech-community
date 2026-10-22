@@ -112,6 +112,35 @@ public class PartnerActivity
     public static PartnerActivity Added(Partner partner, Guid by, DateTime nowUtc) =>
         new(partner.Id, PartnerActivityKind.Added, by, nowUtc) { ToStage = partner.Stage };
 
+    /// <summary>Written on the kept record of a merge, with the stages when the merge changed it (L2-089 AC3).</summary>
+    public static PartnerActivity Merged(Partner kept, Partner other, Guid by, DateTime nowUtc, PartnerStage? fromStage, PartnerStage? toStage) =>
+        new(kept.Id, PartnerActivityKind.Merged, by, nowUtc) { RelatedPartnerId = other.Id, FromStage = fromStage, ToStage = toStage };
+
+    /// <summary>
+    /// Written on both records of a restore (L2-090 AC4). The restored record's entry carries the
+    /// stage it comes back at, which is how the timeline tells the two sides apart.
+    /// </summary>
+    public static PartnerActivity Restored(Partner partner, Partner other, Guid by, DateTime nowUtc, bool isRestoredRecord) =>
+        new(partner.Id, PartnerActivityKind.Restored, by, nowUtc)
+        {
+            RelatedPartnerId = other.Id,
+            ToStage = isRestoredRecord ? partner.Stage : null,
+        };
+
+    /// <summary>A merge moves the entry to the kept record; the first record it was written on is kept through a chain.</summary>
+    public void MoveTo(Guid partnerId)
+    {
+        MergedFromPartnerId ??= PartnerId;
+        PartnerId = partnerId;
+    }
+
+    /// <summary>A restore moves the entry back to the record it was first written on.</summary>
+    public void MoveBack()
+    {
+        PartnerId = MergedFromPartnerId ?? throw new InvalidOperationException("The entry was never moved.");
+        MergedFromPartnerId = null;
+    }
+
     /// <summary>Mirrors a stage change, with its note (L2-085 AC7).</summary>
     public static PartnerActivity StageMoved(PartnerStageChange change) =>
         new(change.PartnerId, PartnerActivityKind.StageMoved, change.MovedBy, change.MovedAtUtc)

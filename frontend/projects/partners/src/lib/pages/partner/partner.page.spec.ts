@@ -1,4 +1,4 @@
-// Traces to: L2-017, L2-018, L2-088
+// Traces to: L2-017, L2-018, L2-088, L2-089
 import { HttpErrorResponse } from '@angular/common/http';
 import { TestBed } from '@angular/core/testing';
 import {
@@ -10,7 +10,7 @@ import {
 import { DialogService, ToastService } from '@faithtech-community/components';
 import { Observable, of, throwError } from 'rxjs';
 
-import { LogActivityDialog, MovePartnerDialog } from '../../dialogs';
+import { LogActivityDialog, MergePartnersDialog, MovePartnerDialog } from '../../dialogs';
 import { partnerDto } from '../../testing';
 import { PartnerPage } from './partner.page';
 
@@ -22,7 +22,9 @@ async function setup(
 ) {
   let duplicates = matches === 'fails' ? [] : matches;
   const service = {
-    get: vi.fn(get),
+    get: vi.fn((id: string) =>
+      id === 'x2' ? of(partnerDto({ id: 'x2', name: 'Kestrel Labs Inc.' })) : get(),
+    ),
     activities: vi.fn(() => of({ items, before: null })),
     duplicates: vi.fn(() =>
       matches === 'fails'
@@ -138,6 +140,10 @@ describe('PartnerPage', () => {
         loggedAtUtc: '2026-10-14T12:00:00Z',
         fromStage: 'Lead',
         toStage: 'InFunnel',
+        relatedPartnerId: null,
+        relatedPartnerName: null,
+        mergedFromPartnerId: null,
+        mergedFromPartnerName: null,
       },
     ]);
 
@@ -280,5 +286,80 @@ describe('PartnerPage', () => {
 
     expect(host.querySelector('ft-alert')).toBeNull();
     expect(text()).toContain('Venue for Builders Night');
+  });
+
+  it('opens Compare and merge with both partners and lands on the merged partner', async () => {
+    const merged = partnerDto({ phone: '416-555-0100', version: 2 });
+    const { service, dialogs, toasts, text, button, settle } = await setup(
+      () => of(partnerDto()),
+      merged,
+      [],
+      [kestrelInc],
+    );
+    expect(service.activities).toHaveBeenCalledTimes(1);
+
+    button('Compare and merge')!.click();
+    await settle();
+    await settle();
+
+    expect(service.get).toHaveBeenCalledWith('x2');
+    expect(dialogs.open).toHaveBeenCalledWith(MergePartnersDialog, {
+      data: {
+        kept: partnerDto(),
+        other: partnerDto({ id: 'x2', name: 'Kestrel Labs Inc.' }),
+        match: kestrelInc,
+      },
+    });
+    expect(toasts.show).toHaveBeenCalledWith({
+      variant: 'success',
+      heading: 'Merged Kestrel Labs Inc. into Kestrel Labs',
+      text: 'Both timelines are here now. A System Admin can restore Kestrel Labs Inc.',
+    });
+    expect(text()).toContain('416-555-0100');
+    expect(service.activities).toHaveBeenCalledTimes(2);
+    expect(service.duplicates).toHaveBeenCalledTimes(2);
+  });
+
+  it('shows Staff no Compare and merge', async () => {
+    const { button } = await setup(
+      () => of(partnerDto({ canEdit: false, canLogActivity: false })),
+      undefined,
+      [],
+      [kestrelInc],
+    );
+
+    expect(button('Compare and merge')).toBeUndefined();
+  });
+
+  it('says who merged an archived partner, when and into which one, read-only', async () => {
+    const archived = partnerDto({
+      id: 'x1',
+      name: 'Kestrel Labs Inc.',
+      canEdit: false,
+      canLogActivity: false,
+      archived: {
+        mergedIntoId: 'x9',
+        mergedIntoName: 'Kestrel Labs',
+        mergedIntoVersion: 4,
+        mergedById: 'p1',
+        mergedByName: 'Grace Okonkwo',
+        mergedAtUtc: '2026-10-21T19:02:44Z',
+      },
+    });
+    const { host, service, text, link, button } = await setup(() => of(archived));
+
+    expect(text()).toContain('Kestrel Labs Inc. was merged into Kestrel Labs');
+    expect(text()).toContain(
+      'Grace Okonkwo merged it on Wed 21 Oct. Its activity and stage history are on Kestrel Labs.',
+    );
+    expect(link('Open Kestrel Labs')!.getAttribute('href')).toBe('/partners/x9');
+    expect(host.querySelector('ft-page-header ft-badge')!.textContent).toContain('Archived');
+    expect(button('Log activity')).toBeUndefined();
+    expect(button('Move stage')).toBeUndefined();
+    expect(link('Edit')).toBeUndefined();
+    expect(button('Restore')).toBeUndefined();
+    expect(service.duplicates).not.toHaveBeenCalled();
+    expect(service.activities).not.toHaveBeenCalled();
+    expect(text()).toContain('This record’s entries moved to Kestrel Labs when it was merged.');
   });
 });

@@ -24,6 +24,10 @@ function entry(id: string, kind: PartnerActivityDto['kind'], text: string): Part
     loggedAtUtc: '2026-10-20T12:00:00Z',
     fromStage: null,
     toStage: null,
+    relatedPartnerId: null,
+    relatedPartnerName: null,
+    mergedFromPartnerId: null,
+    mergedFromPartnerName: null,
   };
 }
 
@@ -96,5 +100,18 @@ describe('PartnerTimelineComponent', () => {
     expect(text()).toContain('No touchpoints yet');
     expect(button('Log activity')).toBeDefined();
     expect(host.querySelectorAll('ft-feed-item')).toHaveLength(1);
+  });
+
+  it('says which partner a merge moved an entry from', async () => {
+    const moved = {
+      ...entry('a1', 'Note', 'Nadia asked about hosting.'),
+      mergedFromPartnerId: 'x2',
+      mergedFromPartnerName: 'Kestrel Labs Inc.',
+    };
+    const { host } = await setup(() => of({ items: [moved], before: null }));
+
+    expect(host.querySelector('ft-feed-item')!.textContent).toContain(
+      'Tue 20 Oct · from Kestrel Labs Inc.',
+    );
   });
 });

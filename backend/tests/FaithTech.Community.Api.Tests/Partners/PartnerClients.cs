@@ -23,7 +23,19 @@ public static class PartnerClients
         DateOnly? LastActivityOn,
         string? NextStep,
         DateOnly? NextStepDue,
-        bool CanLogActivity);
+        bool CanLogActivity,
+        int Version = 0,
+        Archived? Archived = null,
+        bool CanRestore = false);
+
+    /// <summary>Who merged an archived partner, when and into which partner (L2-089 AC7).</summary>
+    public sealed record Archived(
+        Guid MergedIntoId,
+        string MergedIntoName,
+        int MergedIntoVersion,
+        Guid MergedById,
+        string MergedByName,
+        DateTime MergedAtUtc);
 
     public sealed record Card(Guid Id, string Name, string? ContactName, string? Offering, string? NextStep, DateOnly? NextStepDue);
 
@@ -46,7 +58,11 @@ public static class PartnerClients
         string LoggedByName,
         DateTime LoggedAtUtc,
         string? FromStage,
-        string? ToStage);
+        string? ToStage,
+        Guid? RelatedPartnerId = null,
+        string? RelatedPartnerName = null,
+        Guid? MergedFromPartnerId = null,
+        string? MergedFromPartnerName = null);
 
     public sealed record ActivityPage(Activity[] Items, string? Before);
 
@@ -94,6 +110,21 @@ public static class PartnerClients
 
     public static Task<HttpResponseMessage> DismissDuplicateAsync(this HttpClient client, Guid partnerId, Guid otherId) =>
         client.PostAsync($"/api/partners/{partnerId}/duplicates/{otherId}/dismissal", null);
+
+    /// <summary>A merge request with the versions the caller saw; a missing choice keeps the kept record's value.</summary>
+    public static object MergeBody(Partner kept, Partner other, object? choices = null, int? keepVersion = null, int? otherVersion = null) => new
+    {
+        OtherId = other.Id,
+        KeepVersion = keepVersion ?? kept.Version,
+        OtherVersion = otherVersion ?? other.Version,
+        Choices = choices ?? new { },
+    };
+
+    public static Task<HttpResponseMessage> MergeAsync(this HttpClient client, Guid keepId, object body) =>
+        client.PostAsJsonAsync($"/api/partners/{keepId}/merge", body);
+
+    public static async Task<Partner> GetPartnerAsync(this HttpClient client, Guid id) =>
+        (await client.GetFromJsonAsync<Partner>($"/api/partners/{id}"))!;
 
     public static object NewActivity(
         string kind = "Call",

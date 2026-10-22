@@ -19,6 +19,9 @@ export function partnerDto(overrides: Partial<PartnerDto> = {}): PartnerDto {
     nextStep: null,
     nextStepDue: null,
     canLogActivity: true,
+    version: 1,
+    archived: null,
+    canRestore: false,
     ...overrides,
   };
 }

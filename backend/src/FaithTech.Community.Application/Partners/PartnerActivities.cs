@@ -55,6 +55,11 @@ public class LogPartnerActivityHandler(IApplicationDbContext db, PartnerAccess a
             return (Result.NotFound(), null);
         }
 
+        if (partner.IsArchived)
+        {
+            return (await access.ArchivedConflictAsync(partner, "Log it there.", cancellationToken), null);
+        }
+
         PartnerTimelineViews.TryParseLogged(command.Kind, out var kind);
         var actor = await access.CallerProfileIdAsync(cancellationToken);
         var nextStep = PartnerRules.Blank(command.NextStep);

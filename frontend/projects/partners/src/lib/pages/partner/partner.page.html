@@ -49,7 +49,11 @@
       </ft-breadcrumb>
       <ft-page-header [title]="p.name">
         <span ftPageHeaderSubtitle>
-          <ft-badge [variant]="badges[p.stage]">{{ labels[p.stage] }}</ft-badge>
+          @if (p.archived) {
+            <ft-badge variant="neutral">Archived</ft-badge>
+          } @else {
+            <ft-badge [variant]="badges[p.stage]">{{ labels[p.stage] }}</ft-badge>
+          }
           @if (p.offering) {
             · {{ p.offering }}
           }
@@ -75,12 +79,30 @@
         }
       </ft-page-header>
 
+      @if (p.archived; as archived) {
+        <ft-alert
+          class="page-alert"
+          status="info"
+          [heading]="p.name + ' was merged into ' + archived.mergedIntoName"
+        >
+          {{ archivedText(p) }}
+          <ft-button ftAlertActions variant="ghost" [href]="'/partners/' + archived.mergedIntoId">
+            Open {{ archived.mergedIntoName }}
+          </ft-button>
+        </ft-alert>
+      }
+
       @if (duplicate(); as match) {
-        <ft-alert class="duplicate" status="warning" [heading]="duplicateHeading(match)">
+        <ft-alert class="page-alert" status="warning" [heading]="duplicateHeading(match)">
           @if (duplicateAdded(match); as added) {
             {{ added }}
           }
           Merging keeps one record and moves both activity timelines into it.
+          @if (p.canEdit) {
+            <ft-button ftAlertActions variant="primary" (click)="compareAndMerge(p, match)">
+              <ft-icon name="merge" /> Compare and merge
+            </ft-button>
+          }
           <ft-button ftAlertActions variant="ghost" [href]="'/partners/' + match.id">
             Open {{ match.name }}
           </ft-button>
@@ -98,13 +120,25 @@
       }
 
       <ft-split>
-        <ft-partner-timeline
-          ftSplitMain
-          [partnerId]="p.id"
-          [reload]="timelineReload()"
-          [canLog]="p.canLogActivity"
-          (logRequested)="logActivity(p)"
-        />
+        @if (p.archived; as archived) {
+          <ft-card ftSplitMain heading="Activity">
+            <p class="muted">
+              This record’s entries moved to
+              <ft-link [href]="'/partners/' + archived.mergedIntoId">{{
+                archived.mergedIntoName
+              }}</ft-link>
+              when it was merged.
+            </p>
+          </ft-card>
+        } @else {
+          <ft-partner-timeline
+            ftSplitMain
+            [partnerId]="p.id"
+            [reload]="timelineReload()"
+            [canLog]="p.canLogActivity"
+            (logRequested)="logActivity(p)"
+          />
+        }
         <ft-card ftSplitAside heading="Details">
           <ft-description-list>
             <ft-description-list-item label="Contact" [missing]="!p.contactName">{{

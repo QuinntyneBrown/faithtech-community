@@ -73,6 +73,12 @@ export interface PartnerActivityDto {
   loggedAtUtc: string;
   fromStage: PartnerStage | null;
   toStage: PartnerStage | null;
+  /** The other partner of a Merged or Restored entry. */
+  relatedPartnerId: string | null;
+  relatedPartnerName: string | null;
+  /** The partner a merge moved this entry from, shown as "from {name}". */
+  mergedFromPartnerId: string | null;
+  mergedFromPartnerName: string | null;
 }
 
 /** The timeline's type chips: one logged kind, or Stage for Added, Stage moved, Merged and Restored. */
@@ -115,8 +121,48 @@ export interface PartnerDto {
   /** The latest logged activity's next step, with its due date (L2-086 AC6). */
   nextStep: string | null;
   nextStepDue: string | null;
-  /** False for Staff. */
+  /** False for Staff and on an archived partner. */
   canLogActivity: boolean;
+  /** Moved on by every edit, move, merge and restore; a merge sends the version the lead saw. */
+  version: number;
+  /** Set when a merge archived this partner (L2-089 AC7). */
+  archived: PartnerArchivedDto | null;
+  /** System Admin on an archived partner (L2-090 AC5). */
+  canRestore: boolean;
+}
+
+/** Who merged an archived partner, when and into which partner. */
+export interface PartnerArchivedDto {
+  mergedIntoId: string;
+  mergedIntoName: string;
+  /** The kept partner's version, which a restore sends. */
+  mergedIntoVersion: number;
+  mergedById: string;
+  mergedByName: string;
+  mergedAtUtc: string;
+}
+
+/** The fields a merge chooses between, in the dialog's order, with their labels (L2-089 AC1). */
+export const MERGE_FIELDS = [
+  { field: 'name', label: 'Name' },
+  { field: 'stage', label: 'Stage' },
+  { field: 'contactName', label: 'Main contact' },
+  { field: 'email', label: 'Email' },
+  { field: 'phone', label: 'Phone' },
+  { field: 'website', label: 'Website' },
+  { field: 'offering', label: 'Offering' },
+  { field: 'owner', label: 'Owner' },
+] as const;
+export type MergeField = (typeof MERGE_FIELDS)[number]['field'];
+/** "keep" takes the kept record's value, "other" the other record's. */
+export type MergeChoice = 'keep' | 'other';
+
+/** POST /api/partners/{keepId}/merge: the versions the lead saw and a choice per differing field. */
+export interface MergePartnersRequest {
+  otherId: string;
+  keepVersion: number;
+  otherVersion: number;
+  choices: Partial<Record<MergeField, MergeChoice>>;
 }
 
 /** Why two partners may be the same: equal website hosts, else equal names (ADR 0023). */
@@ -191,6 +237,11 @@ export interface PartnersService {
   duplicates(id: string): Observable<PartnerDuplicatesDto>;
   /** "Not the same": stored once for the pair, for every lead. 403 for Staff. */
   dismissDuplicate(id: string, otherId: string): Observable<void>;
+  /**
+   * Keeps `keepId`, archives the other and moves both timelines into the kept partner (L2-089).
+   * 409 when either changed since the lead compared them; 403 for Staff.
+   */
+  merge(keepId: string, request: MergePartnersRequest): Observable<PartnerDto>;
 }
 
 export const PARTNERS_SERVICE = new InjectionToken<PartnersService>('PARTNERS_SERVICE');

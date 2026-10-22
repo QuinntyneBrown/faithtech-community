@@ -26,8 +26,8 @@ test.describe('Possible duplicate partner', () => {
   });
 
   // Given a partner with an undismissed possible duplicate, when a City Lead opens it, then a
-  // warning alert names the match, who added it and when, and why, with Compare and merge (once
-  // merging lands), Open {other} and Not the same (AC1, AC4).
+  // warning alert names the match, who added it and when, and why, with Compare and merge,
+  // Open {other} and Not the same (AC1, AC4).
   test('a City Lead sees the alert naming the match, who added it and when', async ({
     page,
     api,
@@ -47,6 +47,7 @@ test.describe('Possible duplicate partner', () => {
       'Merging keeps one record and moves both activity timelines into it.',
     );
     await expect(partner.notTheSame).toBeVisible();
+    await expect(partner.compareAndMerge).toBeVisible();
     await axe.check();
 
     await partner.openDuplicate('Kestrel Labs Inc.').click();

@@ -1,0 +1,40 @@
+<ft-dialog
+  [heading]="'Merge ' + other().name + ' into ' + kept().name"
+  [description]="'Keep one record for ' + kept().name + '; every lead sees the merged partner.'"
+  icon="merge"
+  [busy]="busy()"
+  (closed)="ref.close()"
+>
+  <ft-stack>
+    @if (failure(); as reason) {
+      <ft-alert status="danger" heading="Partners not merged">{{ reason }}</ft-alert>
+    }
+    <ft-alert status="info" heading="Nothing is lost">
+      Both activity timelines, stage history and notes move into the record you keep. The other
+      record is archived and can be restored by a System Admin.
+    </ft-alert>
+    <p class="intro">
+      @if (added(); as line) {
+        {{ line }}
+      }
+      Choose which value to keep where they differ.
+    </p>
+    @for (row of rows(); track row.field) {
+      <ft-radio-group [legend]="row.label" [formControl]="control(row.field)">
+        <ft-radio value="keep" [description]="kept().name">{{ row.keep }}</ft-radio>
+        <ft-radio value="other" [description]="other().name">{{ row.other }}</ft-radio>
+      </ft-radio-group>
+    }
+    <p class="caption">{{ caption() }}</p>
+  </ft-stack>
+  <ft-button ftDialogFooter [disabled]="busy()" (click)="ref.close()">Cancel</ft-button>
+  @if (failure()) {
+    <ft-button ftDialogFooter variant="primary" [loading]="busy()" (click)="reload()">
+      Reload and try again
+    </ft-button>
+  } @else {
+    <ft-button ftDialogFooter variant="primary" initialFocus [loading]="busy()" (click)="merge()">
+      Merge partners
+    </ft-button>
+  }
+</ft-dialog>

@@ -138,9 +138,13 @@ export class PartnerTimelineComponent {
     void this.load(this.partnerId());
   }
 
+  /** The date (and time), ending "· from {other}" on an entry a merge moved in. */
   protected meta(activity: PartnerActivityDto): string {
     const at = localDate(activity.occurredOn, activity.occurredAt);
-    return activity.occurredAt ? `${formatDay(at)}, ${formatTime(at)}` : formatDay(at);
+    const when = activity.occurredAt ? `${formatDay(at)}, ${formatTime(at)}` : formatDay(at);
+    return activity.mergedFromPartnerName
+      ? `${when} · from ${activity.mergedFromPartnerName}`
+      : when;
   }
 
   protected due(activity: PartnerActivityDto): string {

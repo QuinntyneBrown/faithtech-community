@@ -7,7 +7,10 @@ using Microsoft.EntityFrameworkCore;
 
 namespace FaithTech.Community.Application.Partners;
 
-/// <summary>One timeline entry. Text is the sentence the page shows; Summary is what was logged.</summary>
+/// <summary>
+/// One timeline entry. Text is the sentence the page shows; Summary is what was logged. Related is
+/// the other partner of a Merged or Restored entry; MergedFrom the record a merge moved it from.
+/// </summary>
 public record PartnerActivityDto(
     Guid Id,
     string Kind,
@@ -21,7 +24,11 @@ public record PartnerActivityDto(
     string LoggedByName,
     DateTime LoggedAtUtc,
     string? FromStage,
-    string? ToStage);
+    string? ToStage,
+    Guid? RelatedPartnerId,
+    string? RelatedPartnerName,
+    Guid? MergedFromPartnerId,
+    string? MergedFromPartnerName);
 
 /// <summary>A page of the timeline, newest first.</summary>
 public record PartnerActivityPageDto(IReadOnlyList<PartnerActivityDto> Items, string? Before);
@@ -135,13 +142,20 @@ public class PartnerTimelineViews(IApplicationDbContext db)
         var people = activities.Select(a => a.LoggedById).Distinct().ToList();
         var names = await db.Profiles.AsNoTracking().Where(p => people.Contains(p.Id))
             .ToDictionaryAsync(p => p.Id, p => p.Name, cancellationToken);
+        var partnerIds = activities.SelectMany(a => new[] { a.RelatedPartnerId, a.MergedFromPartnerId })
+            .OfType<Guid>().Distinct().ToList();
+        var partners = partnerIds.Count == 0
+            ? []
+            : await db.Partners.AsNoTracking().Where(p => partnerIds.Contains(p.Id))
+                .ToDictionaryAsync(p => p.Id, p => p.Name, cancellationToken);
+        string? PartnerName(Guid? id) => id is { } known ? partners.GetValueOrDefault(known) : null;
         return
         [
             .. activities.Select(a => new PartnerActivityDto(
                 a.Id,
                 a.Kind.ToString(),
                 a.Summary,
-                Text(partner, a),
+                Text(PartnerName(a.MergedFromPartnerId) ?? partner.Name, PartnerName(a.RelatedPartnerId) ?? "another partner", a),
                 a.OccurredOn,
                 a.OccurredAt,
                 a.NextStep,
@@ -150,18 +164,30 @@ public class PartnerTimelineViews(IApplicationDbContext db)
                 names.GetValueOrDefault(a.LoggedById, "A former member"),
                 a.LoggedAtUtc,
                 a.FromStage?.ToString(),
-                a.ToStage?.ToString())),
+                a.ToStage?.ToString(),
+                a.RelatedPartnerId,
+                PartnerName(a.RelatedPartnerId),
+                a.MergedFromPartnerId,
+                PartnerName(a.MergedFromPartnerId))),
         ];
     }
 
-    /// <summary>The sentence the timeline shows, with the partner's current name.</summary>
-    private static string Text(Partner partner, PartnerActivity activity) => activity.Kind switch
+    /// <summary>
+    /// The sentence the timeline shows, with current names. {name} is the record the entry was first
+    /// written on, so a moved "Added Kestrel Labs Inc. as a lead" keeps its own name; {other} is the
+    /// other partner of a Merged or Restored entry.
+    /// </summary>
+    private static string Text(string name, string other, PartnerActivity activity) => activity.Kind switch
     {
-        PartnerActivityKind.Added when activity.ToStage is null or PartnerStage.Lead => $"Added {partner.Name} as a lead",
-        PartnerActivityKind.Added => $"Added {partner.Name} at {StageLabel(activity.ToStage!.Value)}",
+        PartnerActivityKind.Added when activity.ToStage is null or PartnerStage.Lead => $"Added {name} as a lead",
+        PartnerActivityKind.Added => $"Added {name} at {StageLabel(activity.ToStage!.Value)}",
         PartnerActivityKind.StageMoved =>
-            $"Moved {partner.Name} from {StageLabel(activity.FromStage!.Value)} to {StageLabel(activity.ToStage!.Value)}"
+            $"Moved {name} from {StageLabel(activity.FromStage!.Value)} to {StageLabel(activity.ToStage!.Value)}"
             + (activity.Summary is { } note ? $": “{note}”" : string.Empty),
+        PartnerActivityKind.Merged => $"Merged {other} into {name}",
+        // The restored record's entry carries the stage it came back at; the kept record's has none.
+        PartnerActivityKind.Restored when activity.ToStage is not null => $"Restored {name} from {other}",
+        PartnerActivityKind.Restored => $"Restored {other} as its own partner",
         _ => activity.Summary ?? string.Empty,
     };
 
