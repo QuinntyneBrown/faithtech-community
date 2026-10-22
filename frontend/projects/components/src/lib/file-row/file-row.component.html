@@ -1,0 +1,34 @@
+<ft-icon-tile size="sm" [name]="icon()" />
+<div class="ft-file-row__body">
+  <div class="ft-file-row__name">{{ name() }}</div>
+  @if (meta()) {
+    <div class="ft-file-row__meta">{{ meta() }}</div>
+  }
+  @if (status() === 'uploading') {
+    <ft-progress [value]="progress()" [label]="'Uploading ' + name()" />
+  }
+  @if (statusLabel(); as label) {
+    <div
+      class="ft-file-row__status"
+      [class.ft-file-row__status--danger]="status() === 'failed' || status() === 'refused'"
+    >
+      @if (status() === 'uploaded') {
+        <ft-icon name="success" size="sm" />
+      }
+      {{ label }}
+    </div>
+  }
+  @if (error(); as message) {
+    <ft-inline-message [attr.id]="errorId()">{{ message }}</ft-inline-message>
+  }
+</div>
+@if (removable() && status() !== 'uploading' && status() !== 'uploaded') {
+  <ft-button
+    variant="ghost"
+    size="sm"
+    [iconOnly]="true"
+    [label]="'Remove ' + name()"
+    (click)="removed.emit()"
+    ><ft-icon name="close"
+  /></ft-button>
+}

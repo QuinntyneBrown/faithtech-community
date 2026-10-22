@@ -1,0 +1,23 @@
+<label
+  class="dropzone"
+  [attr.data-state]="dragging() ? 'dragover' : null"
+  [attr.aria-invalid]="invalid() ? 'true' : null"
+  (dragover)="onDragOver($event)"
+  (dragleave)="dragging.set(false)"
+  (drop)="onDrop($event)"
+>
+  <ft-icon-tile name="upload" />
+  <span class="dropzone__title">{{ heading() }}</span>
+  @if (hint()) {
+    <span class="dropzone__text" [id]="hintId">{{ hint() }}</span>
+  }
+  <input
+    class="visually-hidden"
+    type="file"
+    [multiple]="multiple()"
+    [attr.accept]="accept()"
+    [disabled]="disabled()"
+    [attr.aria-describedby]="hint() ? hintId : null"
+    (change)="onChange($event)"
+  />
+</label>

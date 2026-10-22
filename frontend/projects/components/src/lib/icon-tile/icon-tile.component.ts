@@ -17,9 +17,12 @@ export type IconTileSize = 'sm' | 'md';
     'aria-hidden': 'true',
     class: 'ft-icon-tile',
     '[class.ft-icon-tile--sm]': 'size() === "sm"',
+    '[class.ft-icon-tile--image]': '!!src()',
   },
 })
 export class IconTileComponent {
   readonly name = input.required<string>();
   readonly size = input<IconTileSize>('md');
+  /** An image thumbnail shown in place of the icon, such as an Image resource's (design system, type icon). */
+  readonly src = input<string | null>(null);
 }
