@@ -74,6 +74,14 @@ public static class PartnersEndpoints
             })
             .Validate<MergePartnersCommand>();
 
+        // Only a System Admin restores a merged partner (L2-090 AC4 to AC6).
+        partners.MapPost("/{id:guid}/restore", async (Guid id, RestorePartnerCommand command, RestorePartnerHandler handler, CancellationToken cancellationToken) =>
+            {
+                var (result, partner) = await handler.RestoreAsync(id, command, cancellationToken);
+                return result.ToHttp(() => Results.Ok(partner));
+            })
+            .Validate<RestorePartnerCommand>();
+
         return app;
     }
 }

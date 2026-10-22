@@ -201,7 +201,7 @@ test.describe('Merge partners', () => {
     await expect(partner.logActivity).toHaveCount(0);
     await expect(partner.moveStage).toHaveCount(0);
     await expect(partner.edit).toHaveCount(0);
-    await expect(page.getByRole('button', { name: 'Restore' })).toHaveCount(0);
+    await expect(partner.restore).toHaveCount(0);
     await expect(partner.duplicateAlert).toHaveCount(0);
     await axe.check();
 

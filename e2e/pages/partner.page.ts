@@ -28,6 +28,8 @@ export class PartnerPage {
   readonly notTheSame: Locator;
   /** "{name} was merged into {kept}" on an archived partner (L2-089 AC7). */
   readonly archivedAlert: Locator;
+  /** System Admin only, on an archived partner (L2-090 AC4). */
+  readonly restore: Locator;
 
   constructor(private readonly page: Page) {
     this.heading = page.getByRole('heading', { level: 1 });
@@ -55,6 +57,7 @@ export class PartnerPage {
     this.compareAndMerge = this.duplicateAlert.getByRole('button', { name: 'Compare and merge' });
     this.notTheSame = this.duplicateAlert.getByRole('button', { name: 'Not the same' });
     this.archivedAlert = page.getByRole('status').filter({ hasText: 'was merged into' });
+    this.restore = page.locator('ft-page-header').getByRole('button', { name: 'Restore' });
   }
 
   /** The archived alert's "Open {kept}" link. */

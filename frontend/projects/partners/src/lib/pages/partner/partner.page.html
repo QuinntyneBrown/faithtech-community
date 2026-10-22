@@ -61,6 +61,11 @@
             · Last activity {{ localDay(p.lastActivityOn) }}
           }
         </span>
+        @if (p.canRestore) {
+          <ft-button ftPageHeaderActions variant="primary" (click)="restore(p)">
+            <ft-icon name="restore" /> Restore
+          </ft-button>
+        }
         @if (p.canLogActivity) {
           <ft-button ftPageHeaderActions variant="primary" (click)="logActivity(p)">
             <ft-icon name="add" /> Log activity

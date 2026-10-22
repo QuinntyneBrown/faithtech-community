@@ -48,6 +48,8 @@ import {
   MergePartnersDialog,
   MovePartnerData,
   MovePartnerDialog,
+  RestorePartnerData,
+  RestorePartnerDialog,
 } from '../../dialogs';
 import { PartnerTimelineComponent, localDate } from './partner-timeline';
 
@@ -184,6 +186,22 @@ export class PartnerPage {
       variant: 'success',
       heading: `Merged ${other.name} into ${merged.name}`,
       text: sentence(`Both timelines are here now. A System Admin can restore ${other.name}`),
+    });
+  }
+
+  /** System Admin only: the partner becomes active again with its own entries (L2-090 AC4). */
+  protected async restore(partner: PartnerDto): Promise<void> {
+    const ref = this.dialogs.open<PartnerDto, RestorePartnerData>(RestorePartnerDialog, {
+      data: { partner },
+    });
+    const restored = await firstValueFrom(ref.closed);
+    if (!restored) return;
+    this.partner.set(restored);
+    void this.loadDuplicates(restored.id);
+    this.toasts.show({
+      variant: 'success',
+      heading: `${restored.name} restored`,
+      text: `It’s back on the board at ${this.labels[restored.stage]} with its own entries.`,
     });
   }
 

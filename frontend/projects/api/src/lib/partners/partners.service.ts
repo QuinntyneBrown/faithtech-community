@@ -157,6 +157,12 @@ export type MergeField = (typeof MERGE_FIELDS)[number]['field'];
 /** "keep" takes the kept record's value, "other" the other record's. */
 export type MergeChoice = 'keep' | 'other';
 
+/** POST /api/partners/{id}/restore: the archived partner's and the kept partner's versions as loaded. */
+export interface RestorePartnerRequest {
+  version: number;
+  mergedIntoVersion: number;
+}
+
 /** POST /api/partners/{keepId}/merge: the versions the lead saw and a choice per differing field. */
 export interface MergePartnersRequest {
   otherId: string;
@@ -242,6 +248,11 @@ export interface PartnersService {
    * 409 when either changed since the lead compared them; 403 for Staff.
    */
   merge(keepId: string, request: MergePartnersRequest): Observable<PartnerDto>;
+  /**
+   * Makes a merged partner active again and moves its own entries back (L2-090). System Admin
+   * only (403 for everyone else); 409 when either partner changed since the page loaded.
+   */
+  restore(id: string, request: RestorePartnerRequest): Observable<PartnerDto>;
 }
 
 export const PARTNERS_SERVICE = new InjectionToken<PartnersService>('PARTNERS_SERVICE');

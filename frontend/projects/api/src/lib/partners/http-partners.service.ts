@@ -18,6 +18,7 @@ import {
   PartnerRequest,
   PartnerStage,
   PartnersService,
+  RestorePartnerRequest,
 } from './partners.service';
 
 @Injectable()
@@ -80,5 +81,9 @@ export class HttpPartnersService implements PartnersService {
 
   merge(keepId: string, request: MergePartnersRequest): Observable<PartnerDto> {
     return this.http.post<PartnerDto>(`${this.base}/${keepId}/merge`, request);
+  }
+
+  restore(id: string, request: RestorePartnerRequest): Observable<PartnerDto> {
+    return this.http.post<PartnerDto>(`${this.base}/${id}/restore`, request);
   }
 }

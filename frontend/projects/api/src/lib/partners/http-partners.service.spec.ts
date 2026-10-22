@@ -97,6 +97,13 @@ describe('HttpPartnersService', () => {
       '/api/partners/x1/merge',
       { otherId: 'x2', keepVersion: 3, otherVersion: 1, choices: { phone: 'other' } },
     ],
+    [
+      'restore',
+      () => service.restore('x2', { version: 2, mergedIntoVersion: 4 }),
+      'POST',
+      '/api/partners/x2/restore',
+      { version: 2, mergedIntoVersion: 4 },
+    ],
   ])('%s', (_name, call, method, url, body) => {
     (call() as Observable<unknown>).subscribe();
 

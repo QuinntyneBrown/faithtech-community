@@ -1,0 +1,28 @@
+<ft-dialog
+  [heading]="'Restore ' + partner().name + '?'"
+  [description]="description(partner())"
+  icon="restore"
+  [busy]="busy()"
+  (closed)="ref.close()"
+>
+  <ft-stack>
+    @if (failure(); as reason) {
+      <ft-alert status="danger" heading="Partner not restored">{{ reason }}</ft-alert>
+    }
+    <p class="muted">
+      The values chosen in the merge stay on {{ partner().archived?.mergedIntoName }}.
+    </p>
+  </ft-stack>
+  <ft-button ftDialogFooter initialFocus [disabled]="busy()" (click)="ref.close()"
+    >Cancel</ft-button
+  >
+  @if (failure()) {
+    <ft-button ftDialogFooter variant="primary" [loading]="busy()" (click)="reload()">
+      Reload and try again
+    </ft-button>
+  } @else {
+    <ft-button ftDialogFooter variant="primary" [loading]="busy()" (click)="restore()">
+      Restore partner
+    </ft-button>
+  }
+</ft-dialog>

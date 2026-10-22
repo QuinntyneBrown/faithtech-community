@@ -1,4 +1,4 @@
-// Traces to: L2-017, L2-018, L2-088, L2-089
+// Traces to: L2-017, L2-018, L2-088, L2-089, L2-090
 import { HttpErrorResponse } from '@angular/common/http';
 import { TestBed } from '@angular/core/testing';
 import {
@@ -10,7 +10,12 @@ import {
 import { DialogService, ToastService } from '@faithtech-community/components';
 import { Observable, of, throwError } from 'rxjs';
 
-import { LogActivityDialog, MergePartnersDialog, MovePartnerDialog } from '../../dialogs';
+import {
+  LogActivityDialog,
+  MergePartnersDialog,
+  MovePartnerDialog,
+  RestorePartnerDialog,
+} from '../../dialogs';
 import { partnerDto } from '../../testing';
 import { PartnerPage } from './partner.page';
 
@@ -361,5 +366,43 @@ describe('PartnerPage', () => {
     expect(service.duplicates).not.toHaveBeenCalled();
     expect(service.activities).not.toHaveBeenCalled();
     expect(text()).toContain('This record’s entries moved to Kestrel Labs when it was merged.');
+  });
+
+  it('lets a System Admin restore an archived partner', async () => {
+    const archived = partnerDto({
+      name: 'Kestrel Labs Inc.',
+      canEdit: false,
+      canLogActivity: false,
+      canRestore: true,
+      archived: {
+        mergedIntoId: 'x9',
+        mergedIntoName: 'Kestrel Labs',
+        mergedIntoVersion: 4,
+        mergedById: 'p1',
+        mergedByName: 'Grace Okonkwo',
+        mergedAtUtc: '2026-10-21T19:02:44Z',
+      },
+    });
+    const restored = partnerDto({ name: 'Kestrel Labs Inc.', stage: 'Lead' });
+    const { dialogs, toasts, text, button, settle, service } = await setup(
+      () => of(archived),
+      restored,
+    );
+
+    button('Restore')!.click();
+    await settle();
+    await settle();
+
+    expect(dialogs.open).toHaveBeenCalledWith(RestorePartnerDialog, {
+      data: { partner: archived },
+    });
+    expect(toasts.show).toHaveBeenCalledWith({
+      variant: 'success',
+      heading: 'Kestrel Labs Inc. restored',
+      text: 'It’s back on the board at Lead with its own entries.',
+    });
+    expect(text()).not.toContain('was merged into');
+    expect(service.activities).toHaveBeenCalledTimes(1);
+    expect(service.duplicates).toHaveBeenCalledTimes(1);
   });
 });

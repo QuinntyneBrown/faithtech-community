@@ -314,6 +314,8 @@ export class MockPartners {
       return route.fulfill({ status: 200, json: this.dto(partner, canWrite, caller) });
     }
     if (method === 'POST' && action === 'merge') return this.merge(route, partner, body, caller);
+    if (method === 'POST' && action === 'restore')
+      return this.restore(route, partner, body, caller);
     if (method === 'GET' && action === 'activities') {
       const kind = url.searchParams.get('kind');
       if (kind && !FILTERS[kind]) return route.fulfill({ status: 400, json: { status: 400 } });
@@ -402,6 +404,21 @@ export class MockPartners {
         },
       });
     }
+    this.mergeInto(kept, other, caller.profileId, choices, notes);
+    return route.fulfill({ status: 200, json: this.dto(kept, true, caller) });
+  }
+
+  /**
+   * Merges `other` into `kept` as MergePartnersHandler does; a spec may call it to seed an archived
+   * partner. Missing choices keep the kept record's values.
+   */
+  mergeInto(
+    kept: MockPartner,
+    other: MockPartner,
+    byId: string,
+    choices: Record<string, string | undefined> = {},
+    notes = [kept.notes, other.notes].filter(Boolean).join('\n\n') || null,
+  ): void {
     const pick = <K extends keyof MockPartner>(choice: string, field: K) =>
       choices[choice] === 'other' ? other[field] : kept[field];
     const fromStage = kept.stage;
@@ -428,7 +445,7 @@ export class MockPartners {
       kind: 'Merged',
       summary: null,
       occurredAt: now.slice(11, 19),
-      loggedById: caller.profileId,
+      loggedById: byId,
       relatedPartnerId: other.id,
       fromStage: changed ? fromStage : null,
       toStage: changed ? kept.stage : null,
@@ -436,20 +453,96 @@ export class MockPartners {
     Object.assign(other, {
       archivedAtUtc: now,
       mergedIntoId: kept.id,
-      mergedById: caller.profileId,
+      mergedById: byId,
       mergedAtUtc: now,
     });
     other.version++;
     this.context.addAuditEntry({
       action: 'partners.merged',
       summary: `Merged ${other.name} into ${kept.name}`,
-      actorId: caller.profileId,
-      actorName: this.context.profiles.get(caller.profileId)?.name ?? 'A former member',
+      actorId: byId,
+      actorName: this.context.profiles.get(byId)?.name ?? 'A former member',
       targetType: 'Partner',
       targetId: kept.id,
       after: JSON.stringify({ OtherId: other.id, Choices: choices }),
     });
-    return route.fulfill({ status: 200, json: this.dto(kept, true, caller) });
+  }
+
+  /** RestorePartnerHandler.RestoreAsync: rows first written on the partner move back from wherever they are. */
+  private restore(
+    route: Route,
+    partner: MockPartner,
+    body: Record<string, unknown>,
+    caller: MockCaller,
+  ): Promise<void> {
+    if (!caller.roles.includes('SystemAdmin')) return route.fulfill({ status: 403 });
+    if (!partner.archivedAtUtc) {
+      return route.fulfill({
+        status: 409,
+        json: { status: 409, detail: `${partner.name} is not archived.` },
+      });
+    }
+    const kept = this.partners.find((p) => p.id === partner.mergedIntoId)!;
+    if (kept.archivedAtUtc) {
+      return route.fulfill({
+        status: 409,
+        json: { status: 409, detail: `Restore ${kept.name} first.` },
+      });
+    }
+    if (partner.version !== body['version'] || kept.version !== body['mergedIntoVersion']) {
+      return route.fulfill({
+        status: 409,
+        json: {
+          status: 409,
+          detail:
+            'Someone changed these partners since the page loaded. Nothing was changed; reload and try again.',
+        },
+      });
+    }
+    let moved = 0;
+    for (const holder of this.partners) {
+      const back = holder.activities.filter((a) => a.mergedFromPartnerId === partner.id);
+      holder.activities = holder.activities.filter((a) => a.mergedFromPartnerId !== partner.id);
+      for (const activity of back) {
+        activity.mergedFromPartnerId = null;
+        partner.activities.push(activity);
+        moved++;
+      }
+    }
+    Object.assign(partner, {
+      archivedAtUtc: null,
+      mergedIntoId: null,
+      mergedById: null,
+      mergedAtUtc: null,
+    });
+    partner.version++;
+    kept.version++;
+    const at = this.context.now.toISOString().slice(11, 19);
+    this.addActivity(partner, {
+      kind: 'Restored',
+      summary: null,
+      occurredAt: at,
+      loggedById: caller.profileId,
+      relatedPartnerId: kept.id,
+      toStage: partner.stage,
+    });
+    this.addActivity(kept, {
+      kind: 'Restored',
+      summary: null,
+      occurredAt: at,
+      loggedById: caller.profileId,
+      relatedPartnerId: partner.id,
+    });
+    this.context.addAuditEntry({
+      action: 'partner.restored',
+      summary: `Restored ${partner.name} from ${kept.name}`,
+      actorId: caller.profileId,
+      actorName: this.context.profiles.get(caller.profileId)?.name ?? 'A former member',
+      targetType: 'Partner',
+      targetId: partner.id,
+      after: JSON.stringify({ MovedActivities: moved }),
+    });
+    return route.fulfill({ status: 200, json: this.dto(partner, true, caller) });
   }
 
   /** PartnerDuplicatesHandler.ListAsync: undismissed matches by name, with each one's Added entry. */

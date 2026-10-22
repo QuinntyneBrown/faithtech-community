@@ -75,6 +75,7 @@ public static class DependencyInjection
         services.AddScoped<LogPartnerActivityHandler>();
         services.AddScoped<PartnerDuplicatesHandler>();
         services.AddScoped<MergePartnersHandler>();
+        services.AddScoped<RestorePartnerHandler>();
         services.AddScoped<ListTeamHandler>();
         services.AddScoped<WorkspaceAccessPolicy>();
         services.AddScoped<AgileNotifier>();
