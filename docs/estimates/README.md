@@ -1,7 +1,7 @@
 # Estimates
 
 - Overall effort: 184 days
-- Complete: 84%
+- Complete: 86%
 
 | Subsystem | Effort | Complete |
 |---|---|---|
@@ -13,7 +13,7 @@
 | [contacts](contacts.md) | 18 days | 100% |
 | [partners](partners.md) | 8 days | 100% |
 | [team](team.md) | 2 days | 100% |
-| [events](events.md) | 23 days | 83% |
+| [events](events.md) | 23 days | 100% |
 | [notifications](notifications.md) | 9 days | 0% |
 | [announcements](announcements.md) | 8 days | 0% |
 | [search](search.md) | 4 days | 0% |
