@@ -145,12 +145,13 @@ public class AcceptInviteTests(CommunityApiFactory factory) : IClassFixture<Comm
     [InlineData("Ruth", "short", "Password", "Use at least 12 characters.")]
     [InlineData("", "a-long-enough-passphrase", "Name", "Enter your name.")]
     [InlineData(null, null, "Name", "Enter your name.")]
-    public async Task A_new_account_needs_a_name_and_a_valid_password(string? name, string? password, string field, string message)
+    [InlineData(101, "a-long-enough-passphrase", "Name", "Use 100 characters or fewer for your name.")]
+    public async Task A_new_account_needs_a_name_and_a_valid_password(object? name, string? password, string field, string message)
     {
         var grace = await factory.AddMemberAsync("Grace Okonkwo");
         var (_, token) = await factory.AddInviteAsync(grace, $"{Guid.NewGuid():N}@example.org");
 
-        var response = await factory.CreateClient().PostAsJsonAsync("/api/invites/accept", new { Token = token, Name = name, Password = password });
+        var response = await factory.CreateClient().PostAsJsonAsync("/api/invites/accept", new { Token = token, Name = name is int length ? new string('a', length) : (string?)name, Password = password });
 
         Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
         Assert.Equal([message], (await response.Content.ReadFromJsonAsync<ValidationProblemDetails>())!.Errors[field]);

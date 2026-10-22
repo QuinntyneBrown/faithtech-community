@@ -7,7 +7,14 @@ import {
   viewChild,
 } from '@angular/core';
 import { HttpErrorResponse } from '@angular/common/http';
-import { NonNullableFormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
+import {
+  AbstractControl,
+  NonNullableFormBuilder,
+  ReactiveFormsModule,
+  ValidationErrors,
+  ValidatorFn,
+  Validators,
+} from '@angular/forms';
 import { AUTH_SERVICE } from '@faithtech-community/api';
 import {
   AlertComponent,
@@ -26,6 +33,8 @@ type Field = 'name' | 'email' | 'password';
 
 const FIELDS: Field[] = ['name', 'email', 'password'];
 const MIN_PASSWORD = 12;
+// The profile editor's limit, so a new member can always save their name unchanged.
+const MAX_NAME = 100;
 // Loose check that matches the server's validator; the server is the authority.
 const EMAIL = /^[^\s@]+@[^\s@]+$/;
 
@@ -52,7 +61,7 @@ export class SignUpPage {
   private readonly errorFocus = viewChild.required(FormErrorFocusDirective);
 
   protected readonly form = inject(NonNullableFormBuilder).group({
-    name: ['', Validators.required],
+    name: ['', [Validators.required, maxTrimmedLength(MAX_NAME)]],
     email: ['', [Validators.required, Validators.pattern(EMAIL)]],
     password: ['', [Validators.required, Validators.minLength(MIN_PASSWORD)]],
   });
@@ -118,6 +127,9 @@ export class SignUpPage {
         password: 'Enter a password.',
       }[field];
     }
+    if (control.hasError('maxTrimmedLength')) {
+      return `Use ${MAX_NAME} characters or fewer for your name.`;
+    }
     if (control.hasError('pattern')) return 'Enter an email address like name@example.com.';
     if (control.hasError('minlength')) {
       return 'Use at least 12 characters. A short phrase is easiest to remember.';
@@ -136,4 +148,10 @@ function validationErrors(error: unknown): Partial<Record<Field, string>> | null
     if (FIELDS.includes(field) && messages.length) mapped[field] = messages[0];
   }
   return Object.keys(mapped).length ? mapped : null;
+}
+
+/** Matches the server, which trims the name before checking its length. */
+function maxTrimmedLength(max: number): ValidatorFn {
+  return (control: AbstractControl<string>): ValidationErrors | null =>
+    control.value.trim().length > max ? { maxTrimmedLength: true } : null;
 }

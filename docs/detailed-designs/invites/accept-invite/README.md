@@ -19,7 +19,7 @@ Because the invite reached the invited address, signing up with that address cou
 - **`InviteStatus`** — `Pending`, `Accepted`, `Expired`, `Revoked`.
 - **`InviteTokens`** — `Hash(token)` gives the SHA-256 hash used to find the invite; the token itself is never stored (ADR 0006).
 - **`InviteLookupDto`** — `Status`, `Email`, `InviterName`, `InviterCity`, `PreassignedRole` and `HasAccount` (an account already uses the invited email).
-- **`AcceptInviteCommand`** (`Token`, `Name?`, `Password?`) and **`AcceptInviteValidator`** — a name or password marks a new account; the validator then requires a name up to 200 characters and a password that meets the community password rules, including the breached-password check.
+- **`AcceptInviteCommand`** (`Token`, `Name?`, `Password?`) and **`AcceptInviteValidator`** — a name or password marks a new account; the validator then requires a name of at most 100 characters after trimming, the profile editor's limit ("Use 100 characters or fewer for your name."), and a password that meets the community password rules, including the breached-password check.
 - **`AcceptInviteHandler`** — Application handler. `LookUpAsync(token)` returns the `InviteLookupDto`, or `null` for an unknown token, which the endpoint answers with `404`. `AcceptAsync(command)` answers `409` for an invite that is not pending. For a new account it creates the profile and a `CommunityUser` with the invited email and `EmailConfirmed = true`; for a signed-in account it loads that account. It then grants the pre-assigned role through `Profile.AddRole`, marks the invite accepted and adds an `InviteAccepted` notification for the inviter, all saved in one unit of work.
 - **Email mismatch** — a signed-in account whose email differs from the invited email cannot accept (`409` "This invite is for another email.", mock state `wrong-account`; ADR 0006).
 - **Role grant audit** — a role granted through an invite is recorded through `IAuditLog` as `role.granted` with the inviter as actor (ADR 0006). A role the account already holds is not granted again.
@@ -40,6 +40,7 @@ The feature realizes the following level-2 (L2) requirements. Each L2 requiremen
 2. Given an expired, revoked or used invite, when the invitee opens it, then they see an error and a link to normal sign-up.
 3. Given an existing account, when its owner accepts an invite, then the pre-assigned role is added to that account.
 4. Given an invite is accepted, when the acceptance completes, then the inviter receives an in-app notification.
+5. Given a new account, when the invitee enters a name longer than 100 characters after trimming, then the name field shows "Use 100 characters or fewer for your name." and no account is created (`L2-006`).
 
 ## Diagrams
 

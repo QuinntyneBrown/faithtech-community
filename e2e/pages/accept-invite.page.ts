@@ -1,5 +1,7 @@
 import { Locator, Page } from '@playwright/test';
 
+import { fieldError } from './sign-in.page';
+
 /** The invite link at /accept-invite/:token (docs/mocks/pages/accept-invite). */
 export class AcceptInvitePage {
   readonly heading: Locator;
@@ -12,6 +14,7 @@ export class AcceptInvitePage {
   readonly signInToAccept: Locator;
   readonly createAccount: Locator;
   readonly errorSummary: Locator;
+  readonly nameError: Locator;
 
   constructor(private readonly page: Page) {
     this.heading = page.getByRole('heading', { level: 1 });
@@ -24,6 +27,7 @@ export class AcceptInvitePage {
     this.signInToAccept = page.getByRole('button', { name: 'Sign in to accept' });
     this.createAccount = page.getByRole('link', { name: 'Create an account' });
     this.errorSummary = page.locator('ft-alert').filter({ hasText: /Fix \d+ things? to accept/ });
+    this.nameError = fieldError(page, 'Full name');
   }
 
   async open(token: string): Promise<void> {

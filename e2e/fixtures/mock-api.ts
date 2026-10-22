@@ -264,6 +264,9 @@ export class MockApi {
         this.signedIn = null;
         return route.fulfill({ status: 204 });
       case 'POST /api/account/sign-up':
+        if (nameError(body['name']))
+          return validationProblem(route, 'Name', nameError(body['name']));
+        return route.fulfill({ status: 202 });
       case 'POST /api/account/resend-verification':
       case 'POST /api/account/forgot-password':
         return route.fulfill({ status: 202 });
@@ -753,6 +756,7 @@ export class MockApi {
     }
     let account: MockAccount;
     if (body['name'] !== null && body['name'] !== undefined) {
+      if (nameError(body['name'])) return validationProblem(route, 'Name', nameError(body['name']));
       const password = String(body['password'] ?? '');
       if (password.length < 12) {
         return route.fulfill({
@@ -803,6 +807,17 @@ export class MockApi {
 }
 
 /** ResultMapper's 409 problem with a detail for the person. */
+/** The name rule shared by sign-up, invite sign-up and the profile editor. */
+function nameError(value: unknown): string {
+  const name = String(value ?? '').trim();
+  if (!name) return 'Enter your name.';
+  return name.length > 100 ? 'Use 100 characters or fewer for your name.' : '';
+}
+
+function validationProblem(route: Route, field: string, message: string) {
+  return route.fulfill({ status: 400, json: { status: 400, errors: { [field]: [message] } } });
+}
+
 function conflict(route: Route, detail: string) {
   return problemDetail(route, 409, detail);
 }

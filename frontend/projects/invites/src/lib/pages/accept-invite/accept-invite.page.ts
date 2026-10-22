@@ -39,6 +39,8 @@ type View =
   'loading' | 'unreachable' | 'invalid' | 'join' | 'sign-in' | 'existing' | 'wrong-account';
 type Field = 'name' | 'password';
 
+const MAX_NAME = 100;
+
 const MIN_PASSWORD = 12;
 
 const STALE: Record<string, { heading: string; text: (inviter: string) => string }> = {
@@ -222,7 +224,13 @@ export class AcceptInvitePage {
   private clientError(field: Field): string {
     if (!this.submitted()) return '';
     const value = this.form.controls[field].value;
-    if (field === 'name') return value.trim() ? '' : 'Enter your name.';
+    if (field === 'name') {
+      if (!value.trim()) return 'Enter your name.';
+      // The profile editor's limit, so a new member can always save their name unchanged.
+      return value.trim().length > MAX_NAME
+        ? `Use ${MAX_NAME} characters or fewer for your name.`
+        : '';
+    }
     if (!value) return 'Create a password.';
     return value.length < MIN_PASSWORD ? `Use at least ${MIN_PASSWORD} characters.` : '';
   }

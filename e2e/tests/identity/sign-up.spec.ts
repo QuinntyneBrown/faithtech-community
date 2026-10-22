@@ -40,6 +40,22 @@ test.describe('Sign up', () => {
     await axe.check();
   });
 
+  test('a name longer than a profile allows is caught before anything is sent', async ({
+    page,
+    api,
+    axe,
+  }) => {
+    const signUp = new SignUpPage(page);
+    await signUp.open();
+
+    await signUp.create('a'.repeat(101), 'leah@example.org', 'a-long-enough-passphrase');
+
+    await expect(signUp.nameError).toHaveText('Use 100 characters or fewer for your name.');
+    await expect(signUp.name).toBeFocused();
+    expect(api.callsTo('POST', '/api/account/sign-up')).toHaveLength(0);
+    await axe.check();
+  });
+
   test('a breached password reported by the server shows on the password field', async ({
     page,
     api,
