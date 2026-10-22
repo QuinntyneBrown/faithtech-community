@@ -58,8 +58,18 @@ public class UploadPhotoHandler(
         }
 
         var key = $"profiles/{profileId}/{Guid.NewGuid()}{image.Extension}";
-        await storage.SaveAsync(key, image.Content, image.ContentType, cancellationToken);
         var photo = new ProfilePhoto(key, altText, time.GetUtcNow());
+        try
+        {
+            await storage.SaveAsync(key, image.Content, image.ContentType, cancellationToken);
+        }
+        catch (Exception exception) when (exception is not OperationCanceledException)
+        {
+            // Storage is down: keep the photo and write its blob later (L2-047 AC3).
+            photo.MarkStoring();
+            db.PhotoBlobTasks.Add(PhotoBlobTask.Save(photo, image.Content, image.ContentType, time.GetUtcNow()));
+        }
+
         profile.AddPhoto(photo);
         if (editAccess == EditAccess.AdminOverride)
         {
@@ -67,7 +77,7 @@ public class UploadPhotoHandler(
         }
 
         await db.SaveChangesAsync(cancellationToken);
-        return (Result.Ok(), new PhotoDto(photo.Id, storage.GetReadUrl(key), photo.AltText, photo.IsFeatured, photo.UploadedAt));
+        return (Result.Ok(), PhotoDto.From(photo, storage));
     }
 }
 

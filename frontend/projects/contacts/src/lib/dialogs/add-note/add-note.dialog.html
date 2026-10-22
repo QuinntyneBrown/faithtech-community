@@ -12,7 +12,7 @@
           We couldn’t save your note. It’s still here — try again.
         </ft-alert>
       }
-      <ft-form-field label="Note" [error]="error()">
+      <ft-form-field required label="Note" [error]="error()">
         <ft-textarea [formControl]="body" [rows]="4" initialFocus />
       </ft-form-field>
     </ft-stack>

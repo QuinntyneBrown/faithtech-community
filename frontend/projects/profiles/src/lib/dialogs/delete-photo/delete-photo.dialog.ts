@@ -11,7 +11,7 @@ import { firstValueFrom } from 'rxjs';
 
 export interface DeletePhotoData {
   profileId: string;
-  photo: { id: string; url: string; altText: string };
+  photo: { id: string; url: string | null; altText: string };
 }
 
 /**

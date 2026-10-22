@@ -13,7 +13,7 @@
           We couldn’t reach FaithTech. Nothing was changed — try again.
         </ft-alert>
       }
-      <ft-form-field label="Type DELETE to confirm" [error]="error()">
+      <ft-form-field required label="Type DELETE to confirm" [error]="error()">
         <ft-text-field
           [formControl]="confirmation"
           autocomplete="off"

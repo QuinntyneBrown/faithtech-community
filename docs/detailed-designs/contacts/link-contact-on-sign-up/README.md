@@ -17,7 +17,7 @@ The trigger is email verification, not sign-up. Once a new account verifies an e
 - **`LinkContactCommand`** (`ProfileId`, `DiscardNotes`) / **`LinkContactHandler`** — `LinkAsync(id, command)` checks the caller through `ContactAccess.AuthorizeAsync` and that the profile exists (`404` otherwise), refuses an already-linked contact with `409`, calls `Contact.LinkTo(profileId, discardNotes)`, audits `contact.linked` on admin override and saves. Notes are kept unless the lead chose to discard them (`L2-015` AC5).
 - **`ContactDto`** — when `LinkedProfileId` is set, the name and featured photo come from the profile.
 
-Behaviour when two accounts share one contact email over time, or when a linked profile is deleted: deferred, because profiles are not deleted in v1 and a contact links once ([ADR 0013](../../../adr/0013-contacts-and-partners-access-and-open-questions.md)).
+Behaviour when two accounts share one contact email over time, or when a linked profile is deleted: deferred, because profiles are not deleted in v1 and a contact links once ([ADR 0014](../../../adr/0014-contacts-and-partners-access-and-open-questions.md)).
 
 ## Requirements
 

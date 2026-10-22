@@ -18,7 +18,10 @@ import { PhotoComponent, PhotoState } from '../photo/photo.component';
 import { TextFieldComponent } from '../text-field/text-field.component';
 
 export interface PictureListPhoto {
-  url: string;
+  /** Identifies the photo across changes; falls back to `url`. */
+  id?: string | null;
+  /** Null when there is no image to show yet, such as a photo that is still storing. */
+  url: string | null;
   alt: string;
   featured: boolean;
   state?: PhotoState;
@@ -26,6 +29,8 @@ export interface PictureListPhoto {
   error?: string;
   /** Chosen but not saved yet: no Feature action, and a "Not saved yet" note. */
   pending?: boolean;
+  /** Saved, but its image is still being written to storage: a placeholder and a status note. */
+  storing?: boolean;
   /** The description error to show; when absent the list asks for a missing description itself. */
   altError?: string;
 }

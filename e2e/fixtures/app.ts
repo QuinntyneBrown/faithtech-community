@@ -26,12 +26,20 @@ export const test = base.extend<{ api: MockApi; axe: Axe }>({
 
 async function checkAccessibility(page: Page): Promise<void> {
   // A dialog or toast fading in reads as low contrast; check the screen as it settles.
-  // Endless ones (a busy pulse) never finish, so only finite animations are awaited.
+  // Endless ones (a busy pulse) never finish, so only finite animations are awaited; so are
+  // long ones such as a toast's 6-second timer bar, which also pauses while hovered or focused.
   await page.evaluate(() =>
     Promise.all(
       document
         .getAnimations()
-        .filter((a) => a.effect?.getTiming().iterations !== Infinity)
+        .filter((a) => {
+          const timing = a.effect?.getComputedTiming();
+          return (
+            a.playState === 'running' &&
+            timing?.iterations !== Infinity &&
+            Number(timing?.endTime ?? 0) <= 1000
+          );
+        })
         .map((a) => a.finished.catch(() => undefined)),
     ),
   );

@@ -38,5 +38,7 @@ public interface IApplicationDbContext
 
     DbSet<PokerSession> PokerSessions { get; }
 
+    DbSet<PhotoBlobTask> PhotoBlobTasks { get; }
+
     Task<int> SaveChangesAsync(CancellationToken cancellationToken = default);
 }

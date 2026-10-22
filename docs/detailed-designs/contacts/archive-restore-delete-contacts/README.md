@@ -18,7 +18,7 @@ The archived contacts page lists the caller's archived contacts and offers Resto
 - **`Contact.Archive(nowUtc)`** sets `ArchivedAtUtc`; **`Contact.Restore()`** clears it. Each rejects a contact already in the target state. **`Contact.CanBeDeleted`** is true only for an archived contact, and `DeleteAsync` checks it. Active queries filter on `ArchivedAtUtc IS NULL`.
 - **Cascade** — `CommunityDbContext` maps `Contact.Notes` with `OnDelete(Cascade)`, so deleting a `Contact` deletes its `ContactNote` rows.
 
-Archived contacts do not expire automatically ([ADR 0013](../../../adr/0013-contacts-and-partners-access-and-open-questions.md)).
+Archived contacts do not expire automatically ([ADR 0014](../../../adr/0014-contacts-and-partners-access-and-open-questions.md)).
 
 ## Requirements
 
@@ -81,7 +81,7 @@ Decisions recorded while building the Domain layer (`FaithTech.Community.Domain`
 
 - Domain rule violations throw `InvalidOperationException` (a broken rule) or `ArgumentException` (invalid input); there is no shared domain exception type. Handlers check permissions and preconditions first and map any remaining violation to a `400` or `409` result.
 
-Decisions recorded while building the feature ([ADR 0013](../../../adr/0013-contacts-and-partners-access-and-open-questions.md)):
+Decisions recorded while building the feature ([ADR 0014](../../../adr/0014-contacts-and-partners-access-and-open-questions.md)):
 
 - Restoring shows the "Contact restored" toast without the mock's Undo action; archiving again from the contact page undoes a restore.
 - Archive is offered from the contact page; the contacts list has no per-row archive action.

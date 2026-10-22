@@ -55,7 +55,7 @@
                 Something went wrong on our side. Your changes are still here — try again.
               </ft-alert>
             }
-            <ft-form-field #nameField label="Organisation" [error]="error('name')">
+            <ft-form-field #nameField required label="Organisation" [error]="error('name')">
               <ft-text-field formControlName="name" autocomplete="off" />
             </ft-form-field>
             <ft-form-field label="Website" [optional]="true" [error]="error('website')">

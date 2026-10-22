@@ -6,7 +6,8 @@ import { PhotoComponent } from '../photo/photo.component';
 import { SkeletonComponent } from '../skeleton/skeleton.component';
 
 export interface ProfilePhoto {
-  url: string;
+  /** Null while the photo is still storing: shown as a described placeholder. */
+  url: string | null;
   alt: string;
 }
 

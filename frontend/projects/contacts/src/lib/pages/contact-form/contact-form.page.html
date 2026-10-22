@@ -50,7 +50,7 @@
                 Something went wrong on our side. Your details are still here — try again.
               </ft-alert>
             }
-            <ft-form-field #nameField label="Name" [error]="error('name')">
+            <ft-form-field #nameField required label="Name" [error]="error('name')">
               <ft-text-field formControlName="name" autocomplete="off" />
             </ft-form-field>
             <ft-form-field

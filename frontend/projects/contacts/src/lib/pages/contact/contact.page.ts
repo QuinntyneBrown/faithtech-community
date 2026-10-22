@@ -84,7 +84,7 @@ export class ContactPage {
   protected readonly state = signal<State>('loading');
   protected readonly contact = signal<ContactDto | null>(null);
   protected readonly notes = signal<ContactNoteDto[]>([]);
-  /** "Not them" hides the match on this visit only; nothing is stored (ADR 0013). */
+  /** "Not them" hides the match on this visit only; nothing is stored (ADR 0014). */
   protected readonly dismissed = signal(false);
   protected readonly justLinked = signal(false);
   protected readonly match = computed(() => (this.dismissed() ? null : this.contact()?.match));

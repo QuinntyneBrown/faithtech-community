@@ -23,7 +23,7 @@ This feature covers creating, viewing and editing partner records. A new partner
 - **Owner** — optional; it must be a member holding a lead role (`LeadRoles`), otherwise `400` "Choose a lead as the owner." `OwnersAsync` lists those members by name as **`PartnerOwnerDto`**.
 - **`Partner`** — Domain entity; new partners start at `PartnerStage.Lead` unless another stage is chosen. `Update(...)` edits the details but never the stage. `CommunityDbContext` maps it to `Partners` with the stage stored as text.
 
-Which lead roles may write partners: `decisions.txt` lists partners under City Lead, while `L2-017` says "a lead" and refuses only users "without a lead role, Staff or System Admin". `PartnerAccess` grants writes to any lead role and System Admin; the role set is confirmed in [ADR 0013](../../../adr/0013-contacts-and-partners-access-and-open-questions.md).
+Which lead roles may write partners: `decisions.txt` lists partners under City Lead, while `L2-017` says "a lead" and refuses only users "without a lead role, Staff or System Admin". `PartnerAccess` grants writes to any lead role and System Admin; the role set is confirmed in [ADR 0014](../../../adr/0014-contacts-and-partners-access-and-open-questions.md).
 
 ## Requirements
 
@@ -86,5 +86,5 @@ Decisions recorded while building the Domain layer (`FaithTech.Community.Domain`
 
 - `L2-017` adds website, offering and an owner (a lead) to a partner; `Partner` carries `Website`, `Offering` and `OwnerId`. Resolved.
 - Domain rule violations throw `InvalidOperationException` (a broken rule) or `ArgumentException` (invalid input); there is no shared domain exception type. Handlers check permissions and preconditions first and map any remaining violation to a `400` or `409` result.
-- Edit navigates to the new partner form page (`/partners/:id/edit`, mock `pages/partner-form`); the add-partner dialog mock gained website, owner, phone and notes, and the partner page shows stage history without an inline note form ([ADR 0013](../../../adr/0013-contacts-and-partners-access-and-open-questions.md)).
+- Edit navigates to the new partner form page (`/partners/:id/edit`, mock `pages/partner-form`); the add-partner dialog mock gained website, owner, phone and notes, and the partner page shows stage history without an inline note form ([ADR 0014](../../../adr/0014-contacts-and-partners-access-and-open-questions.md)).
 - Only a System Admin acting without a lead role is audited (`partner.created`, `partner.updated`); a lead's changes are not audited, and their moves are recorded in the partner's own stage history.

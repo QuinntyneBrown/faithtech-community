@@ -46,6 +46,8 @@ public class CommunityDbContext(DbContextOptions<CommunityDbContext> options)
 
     public DbSet<PokerSession> PokerSessions => Set<PokerSession>();
 
+    public DbSet<PhotoBlobTask> PhotoBlobTasks => Set<PhotoBlobTask>();
+
     protected override void OnModelCreating(ModelBuilder builder)
     {
         base.OnModelCreating(builder);
@@ -74,6 +76,15 @@ public class CommunityDbContext(DbContextOptions<CommunityDbContext> options)
                 photo.Property(p => p.BlobName).HasMaxLength(200);
                 photo.Property(p => p.AltText).HasMaxLength(300);
             });
+        });
+
+        builder.Entity<PhotoBlobTask>(task =>
+        {
+            task.Property(t => t.Work).HasConversion<string>().HasMaxLength(16);
+            task.Property(t => t.BlobName).HasMaxLength(200);
+            task.Property(t => t.ContentType).HasMaxLength(32);
+            task.HasIndex(t => t.NextAttemptAt);
+            task.HasIndex(t => t.PhotoId);
         });
 
         builder.Entity<VerificationResend>(resend =>

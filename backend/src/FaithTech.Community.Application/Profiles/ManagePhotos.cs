@@ -80,7 +80,7 @@ public class SetFeaturedPhotoHandler(IApplicationDbContext db, PhotoAccess photo
 }
 
 /// <summary>Removes a photo and its blob; the newest remaining photo takes over as featured (L2-007 AC6).</summary>
-public class DeletePhotoHandler(IApplicationDbContext db, PhotoAccess photos, IPhotoStorage storage, IAuditLog audit)
+public class DeletePhotoHandler(IApplicationDbContext db, PhotoAccess photos, IPhotoStorage storage, IAuditLog audit, TimeProvider time)
 {
     public async Task<Result> HandleAsync(Guid profileId, Guid photoId, CancellationToken cancellationToken = default)
     {
@@ -96,9 +96,27 @@ public class DeletePhotoHandler(IApplicationDbContext db, PhotoAccess photos, IP
             audit.Record(actor, "profile.photo.deleted", "Profile", profileId.ToString(), new { photo.Id, photo.AltText }, null);
         }
 
+        if (!photo.IsStored)
+        {
+            // Its blob was never written: drop the queued write instead of deleting anything.
+            db.PhotoBlobTasks.RemoveRange(await db.PhotoBlobTasks.Where(t => t.PhotoId == photo.Id).ToListAsync(cancellationToken));
+            await db.SaveChangesAsync(cancellationToken);
+            return Result.Ok();
+        }
+
         await db.SaveChangesAsync(cancellationToken);
-        // After the save: a failed delete leaves an orphan blob, never a profile pointing at a missing one (ADR 0002).
-        await storage.DeleteAsync(photo.BlobName, cancellationToken);
+        // After the save: a failed delete never leaves a profile pointing at a missing blob (ADR 0002),
+        // and the delete is queued for retry rather than left as an orphan (L2-047 AC3).
+        try
+        {
+            await storage.DeleteAsync(photo.BlobName, cancellationToken);
+        }
+        catch (Exception exception) when (exception is not OperationCanceledException)
+        {
+            db.PhotoBlobTasks.Add(PhotoBlobTask.Delete(photo, time.GetUtcNow()));
+            await db.SaveChangesAsync(cancellationToken);
+        }
+
         return Result.Ok();
     }
 }

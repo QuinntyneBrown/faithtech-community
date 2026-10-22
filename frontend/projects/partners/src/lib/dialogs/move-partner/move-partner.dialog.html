@@ -12,7 +12,7 @@
           We couldn’t reach FaithTech. Nothing was changed — try again.
         </ft-alert>
       }
-      <ft-radio-group legend="Stage" [formControl]="to">
+      <ft-radio-group required legend="Stage" [formControl]="to">
         @for (stage of stages; track stage) {
           <ft-radio
             [value]="stage"

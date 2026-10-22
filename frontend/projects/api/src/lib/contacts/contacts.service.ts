@@ -63,7 +63,7 @@ export interface ContactNoteDto {
 }
 
 /**
- * Contract for the contacts API (L2-012 to L2-016, ADR 0013). Pages depend on CONTACTS_SERVICE,
+ * Contract for the contacts API (L2-012 to L2-016, ADR 0014). Pages depend on CONTACTS_SERVICE,
  * never on HttpContactsService. Contacts are private to the creating lead and System Admin; the
  * server answers 404 for anyone else's contact and 403 for the list to anyone without a lead role.
  */

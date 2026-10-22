@@ -1,4 +1,5 @@
 import {
+  booleanAttribute,
   ChangeDetectionStrategy,
   Component,
   computed,
@@ -32,6 +33,8 @@ export class RadioGroupComponent implements ControlValueAccessor {
   readonly legend = input.required<string>();
   readonly name = input<string | null>(null);
   readonly error = input('');
+  /** Announces the choice as required (`aria-required` on the radiogroup). */
+  readonly required = input(false, { transform: booleanAttribute });
 
   readonly value = signal<string | null>(null);
   readonly disabled = signal(false);

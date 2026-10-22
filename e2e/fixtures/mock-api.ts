@@ -16,10 +16,13 @@ export interface MockAccount {
 
 export interface MockPhoto {
   id: string;
-  url: string;
+  /** Null while the photo is saved but its image is not yet in storage. */
+  url: string | null;
   altText: string;
   isFeatured: boolean;
   uploadedAt: string;
+  /** False while the image waits for storage; seeded photos are stored. */
+  isStored?: boolean;
 }
 
 /** A profile as GET /api/profiles/{id} returns it, without the caller-specific canEdit. */
@@ -105,11 +108,14 @@ export class MockApi {
   private signedIn: MockAccount | null = null;
   private failures = new Map<string, number>();
   private uploads = 0;
+  /** Blob storage is unavailable: uploads are saved as storing, as PhotoStorageRetryHandler would leave them. */
+  photoStorageDown = false;
+  private readonly storing = new Map<MockPhoto, string>();
   /** The stored URL of an uploaded photo; the journey videos swap in the image that was chosen. */
   uploadedPhotoUrl: (file: string) => string = () => photoUrl();
-  /** Private contacts (ADR 0013). */
+  /** Private contacts (ADR 0014). */
   readonly contacts = new MockContacts(this);
-  /** The shared partner pipeline (ADR 0013). */
+  /** The shared partner pipeline (ADR 0014). */
   readonly partners = new MockPartners(this);
 
   constructor(private readonly page: Page) {}
@@ -179,6 +185,15 @@ export class MockApi {
       ipAddress: '10.0.0.1',
       ...entry,
     });
+  }
+
+  /** Storage has recovered and the retry worker has stored every waiting photo. */
+  storePendingPhotos(): void {
+    for (const [photo, url] of this.storing) {
+      photo.url = url;
+      photo.isStored = true;
+    }
+    this.storing.clear();
   }
 
   /** Replaces the default behaviour of one endpoint, e.g. on('POST', '/api/account/sign-up', ...). */
@@ -470,13 +485,16 @@ export class MockApi {
         );
       }
       if (!altText) return invalid('AltText', 'Describe this photo.');
+      const url = this.uploadedPhotoUrl(String(body['file'] ?? ''));
       const photo: MockPhoto = {
         id: `photo-${++this.uploads}`,
-        url: this.uploadedPhotoUrl(String(body['file'] ?? '')),
+        url: this.photoStorageDown ? null : url,
         altText,
         isFeatured: profile.photos.length === 0,
         uploadedAt: new Date(Date.UTC(2026, 9, 21, 12, this.uploads)).toISOString(),
+        isStored: !this.photoStorageDown,
       };
+      if (this.photoStorageDown) this.storing.set(photo, url);
       profile.photos.push(photo);
       this.auditOverride(caller, profile, 'profile.photo.uploaded', null, { AltText: altText });
       return route.fulfill({ status: 201, json: photo });
@@ -890,7 +908,9 @@ export class MockApi {
   }
 
   private profileDto(profile: MockProfile, caller: MockAccount) {
-    const photos = [...profile.photos].sort((a, b) => b.uploadedAt.localeCompare(a.uploadedAt));
+    const photos = [...profile.photos]
+      .sort((a, b) => b.uploadedAt.localeCompare(a.uploadedAt))
+      .map((p) => ({ ...p, isStored: p.isStored ?? true }));
     return {
       ...profile,
       photos,
@@ -901,7 +921,6 @@ export class MockApi {
   }
 }
 
-/** ResultMapper's 409 problem with a detail for the person. */
 /** The name rule shared by sign-up, invite sign-up and the profile editor. */
 function nameError(value: unknown): string {
   const name = String(value ?? '').trim();
@@ -913,6 +932,7 @@ function validationProblem(route: Route, field: string, message: string) {
   return route.fulfill({ status: 400, json: { status: 400, errors: { [field]: [message] } } });
 }
 
+/** ResultMapper's 409 problem with a detail for the person. */
 function conflict(route: Route, detail: string) {
   return problemDetail(route, 409, detail);
 }

@@ -24,6 +24,13 @@ public class ProfilePhoto
 
     public DateTimeOffset UploadedAt { get; private set; }
 
+    /// <summary>False while its blob waits to be written because storage was unavailable (L2-047 AC3).</summary>
+    public bool IsStored { get; private set; } = true;
+
+    public void MarkStoring() => IsStored = false;
+
+    public void MarkStored() => IsStored = true;
+
     public void Describe(string altText)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(altText);

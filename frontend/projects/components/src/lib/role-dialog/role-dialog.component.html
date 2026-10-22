@@ -15,7 +15,7 @@
       <ft-alert status="danger" heading="That change isn’t allowed">{{ message }}</ft-alert>
     }
     @if (choosing) {
-      <ft-radio-group legend="Role" [formControl]="role" [error]="error()">
+      <ft-radio-group required legend="Role" [formControl]="role" [error]="error()">
         @for (option of data.options; track option.value; let first = $first) {
           <ft-radio
             [initialFocus]="first"
