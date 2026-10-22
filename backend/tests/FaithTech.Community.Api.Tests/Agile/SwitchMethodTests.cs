@@ -28,16 +28,22 @@ public class SwitchMethodTests(CommunityApiFactory factory) : IClassFixture<Comm
     [Fact]
     public async Task Given_the_owner_when_they_switch_from_kanban_to_scrum_then_stories_not_done_are_placed_in_the_backlog()
     {
-        var cast = await factory.AddCastAsync(WorkspaceMethod.Kanban);
+        // A Scrum workspace closes its sprint on the way to Kanban; a Done story keeps that sprint. Reopened in
+        // Kanban, it must leave the closed sprint when the workspace returns to Scrum.
+        var cast = await factory.AddCastAsync();
+        var sprint = await factory.AddSprintAsync(cast.WorkspaceId);
+        var reopened = await factory.AddStoryAsync(cast.WorkspaceId, "Registration", WorkItemStatus.Done, 5, sprint);
+        var stillDone = await factory.AddStoryAsync(cast.WorkspaceId, "Venue", WorkItemStatus.Done, 3, sprint);
         var todo = await factory.AddStoryAsync(cast.WorkspaceId, "Kiosk");
-        var started = await factory.AddStoryAsync(cast.WorkspaceId, "Briefs", WorkItemStatus.InProgress);
+        await factory.OwnerClient(cast).PutAsJsonAsync($"/api/workspaces/{cast.WorkspaceId}/method", new { Method = "Kanban" });
+        await factory.MemberClient(cast).PutAsJsonAsync($"/api/items/{reopened}/status", new { Status = "InProgress" });
+        Assert.Equal(sprint, (await factory.LoadItemAsync(reopened)).SprintId);
 
         var response = await factory.OwnerClient(cast).PutAsJsonAsync($"/api/workspaces/{cast.WorkspaceId}/method", new { Method = "Scrum" });
 
         Assert.Equal(HttpStatusCode.NoContent, response.StatusCode);
-        var stories = new[] { await factory.LoadItemAsync(todo), await factory.LoadItemAsync(started) };
-        Assert.All(stories, s => Assert.Null(s.SprintId));
-        Assert.Equal(WorkItemStatus.InProgress, stories[1].Status);
+        Assert.Equal((null, (Guid?)sprint, null), ((await factory.LoadItemAsync(reopened)).SprintId, (await factory.LoadItemAsync(stillDone)).SprintId, (await factory.LoadItemAsync(todo)).SprintId));
+        Assert.Equal(WorkItemStatus.InProgress, (await factory.LoadItemAsync(reopened)).Status);
         Assert.Equal(WorkspaceMethod.Scrum, (await factory.LoadWorkspaceAsync(cast.WorkspaceId)).Method);
     }
 

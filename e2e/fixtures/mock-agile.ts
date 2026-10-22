@@ -888,8 +888,12 @@ export class MockAgile {
     return {
       active: active ? dto(active) : null,
       history: history.map(dto),
+      // The server averages the last three closed sprints, rounding halves up.
       averageCompletedPoints: history.length
-        ? Math.round(history.reduce((n, sp) => n + (sp.completedPoints ?? 0), 0) / history.length)
+        ? Math.round(
+            history.slice(0, 3).reduce((n, sp) => n + (sp.completedPoints ?? 0), 0) /
+              Math.min(history.length, 3),
+          )
         : null,
       candidates,
     };
