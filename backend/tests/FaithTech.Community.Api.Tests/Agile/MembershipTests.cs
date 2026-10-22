@@ -98,6 +98,23 @@ public class MembershipTests(CommunityApiFactory factory) : IClassFixture<Commun
     }
 
     [Fact]
+    public async Task Given_a_system_admin_who_belongs_to_the_workspace_when_they_rename_it_then_it_succeeds_and_is_audited()
+    {
+        var owner = await factory.AddWithRolesAsync("Grace Okonkwo", Role.CityLead);
+        var priya = await factory.AddWithRolesAsync("Priya Shah", Role.SystemAdmin, Role.Volunteer);
+        var workspaceId = await factory.AddWorkspaceAsync(owner, "Toronto team", WorkspaceMethod.Scrum, priya);
+        var admin = factory.ClientFor(priya, Role.SystemAdmin, Role.Volunteer);
+
+        var response = await admin.PutAsJsonAsync($"/api/workspaces/{workspaceId}", new { Name = "Toronto builders" });
+
+        Assert.Equal(HttpStatusCode.NoContent, response.StatusCode);
+        var workspace = (await admin.GetFromJsonAsync<WorkspacesTests.Detail>($"/api/workspaces/{workspaceId}"))!;
+        Assert.Equal(("Toronto builders", "Admin", true), (workspace.Name, workspace.Access, workspace.CanManage));
+        var entry = await factory.WithDbAsync(db => db.AuditEntries.SingleAsync(a => a.TargetId == workspaceId.ToString()));
+        Assert.Equal(("workspace.renamed", priya.ProfileId), (entry.Action, entry.ActorId));
+    }
+
+    [Fact]
     public async Task Given_the_owner_acting_in_their_own_workspace_then_nothing_is_audited()
     {
         var cast = await factory.AddCastAsync();

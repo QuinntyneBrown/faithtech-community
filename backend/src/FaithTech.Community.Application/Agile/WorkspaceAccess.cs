@@ -12,7 +12,7 @@ public enum WorkspaceAccess
 {
     Outsider,
     Staff,
-    /// <summary>A System Admin who neither owns nor belongs to the workspace: every write is an audited override.</summary>
+    /// <summary>A System Admin who does not own the workspace, member or not: every write is an audited override.</summary>
     Admin,
     Member,
     Owner,
@@ -49,10 +49,14 @@ public class WorkspaceAccessPolicy(IApplicationDbContext db, ICurrentUser curren
 
     public Task<Guid?> CallerProfileIdAsync(CancellationToken cancellationToken = default) => profiles.CallerProfileIdAsync(cancellationToken);
 
+    /// <summary>
+    /// Owner first; then System Admin, even when they also belong to the workspace, so every action a System Admin
+    /// takes outside their own workspace succeeds and is audited (L2-031 AC7); then member, Staff and outsider.
+    /// </summary>
     public WorkspaceAccess Classify(Workspace workspace, Guid? caller) =>
         caller is { } me && workspace.OwnerId == me ? WorkspaceAccess.Owner
-            : caller is { } m && workspace.Members.Any(x => x.ProfileId == m) ? WorkspaceAccess.Member
             : current.HasRole(Role.SystemAdmin) ? WorkspaceAccess.Admin
+            : caller is { } m && workspace.Members.Any(x => x.ProfileId == m) ? WorkspaceAccess.Member
             : current.HasRole(Role.Staff) ? WorkspaceAccess.Staff
             : WorkspaceAccess.Outsider;
 
