@@ -1,0 +1,18 @@
+<span class="ft-save-status__text" role="status">
+  @switch (state()) {
+    @case ('saving') {
+      <span class="ft-save-status__spinner" aria-hidden="true"></span>Saving…
+    }
+    @case ('saved') {
+      <ft-icon name="success" size="sm" />Saved
+    }
+  }
+</span>
+<span class="ft-save-status__text ft-save-status__text--failed" role="alert">
+  @if (state() === 'failed') {
+    <ft-icon name="error" size="sm" />Couldn’t save
+  }
+</span>
+@if (state() === 'failed') {
+  <ft-button size="sm" variant="ghost" (click)="retry.emit()">Retry</ft-button>
+}

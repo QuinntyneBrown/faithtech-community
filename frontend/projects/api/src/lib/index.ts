@@ -13,6 +13,7 @@ export * from './contacts';
 export * from './errors';
 export * from './events';
 export * from './invites';
+export * from './notes';
 export * from './notifications';
 export * from './partners';
 export * from './profiles';

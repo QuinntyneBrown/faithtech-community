@@ -1,0 +1,10 @@
+@startuml
+!include <C4/C4_Context>
+LAYOUT_WITH_LEGEND()
+title System Context — Page links, backlinks and nesting
+Person(owner, "Page owner", "Links to other pages, nests and moves their pages")
+Person(reader, "Reader", "Follows links; sees only titles of pages they may open")
+System(community, "FaithTech Community", "Docs & notes resolves links and backlinks per viewer")
+Rel(owner, community, "Inserts page links, moves pages using", "HTTPS")
+Rel(reader, community, "Follows links, reads breadcrumb, Pages inside and Linked from using", "HTTPS")
+@enduml

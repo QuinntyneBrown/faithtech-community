@@ -1,0 +1,12 @@
+@startuml
+!include <C4/C4_Context>
+LAYOUT_WITH_LEGEND()
+title System Context — Notes pages and list
+Person(member, "Signed-in member", "Verified member of any role, Staff included; owns the pages they create")
+Person(admin, "System Admin", "May open and change any page; every override is audited")
+Person_Ext(anon, "Anonymous visitor", "Never sees a page")
+System(community, "FaithTech Community", "Community site; Docs & notes is one feature area")
+Rel(member, community, "Creates, finds, edits and autosaves pages using", "HTTPS")
+Rel(admin, community, "Opens and edits any page using", "HTTPS")
+Rel(anon, community, "Is redirected to sign-in by", "HTTPS")
+@enduml

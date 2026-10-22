@@ -1,0 +1,12 @@
+@startuml
+!include <C4/C4_Context>
+LAYOUT_WITH_LEGEND()
+title System Context — Archive, restore and search pages
+Person(owner, "Page owner", "Archives and restores their pages")
+Person(admin, "System Admin", "Archives and restores any page; audited")
+Person(member, "Signed-in member", "Finds visible pages in global search")
+System(community, "FaithTech Community", "Docs & notes and global search")
+Rel(owner, community, "Archives and restores pages using", "HTTPS")
+Rel(admin, community, "Archives and restores any page using", "HTTPS")
+Rel(member, community, "Searches pages using", "HTTPS")
+@enduml

@@ -1,0 +1,59 @@
+@startuml
+title UML sequence behaviour — Move a page under another page
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+actor "Owner" as actor
+box "Frontend — FaithTech Community web app (notes library)" #E0F2FE
+  participant "MoveNoteDialog" as dlg
+  participant "HttpNotesService" as svc
+end box
+box "Backend — FaithTech.Community.Api" #D1FADF
+  participant "NotesEndpoints" as ep
+end box
+box "Backend — FaithTech.Community.Application and Domain" #ECFDF3
+  participant "MoveNoteHandler" as h
+  participant "IAuditLog" as audit
+end box
+box "Backend — FaithTech.Community.Infrastructure" #FFF4E5
+  database "Community database" as db
+end box
+actor -> dlg : Move… (page menu)
+dlg -> svc : parentOptions(id, q)
+svc -> ep : GET /api/notes/{id}/parent-options?q=
+ep -> h : ParentOptionsHandler.HandleAsync(id, q)
+h -> db : Pages of the same owner, not archived,\nnot the page and not its descendants, by title, at most 50
+ep --> dlg : 200 [NotePageRefDto]
+actor -> dlg : Choose "Volunteer playbook"; Move
+dlg -> svc : move(id, parentId)
+svc -> ep : PUT /api/notes/{id}/parent { parentId }
+ep -> h : HandleAsync(id, { parentId })
+alt page or parent not visible
+  ep --> svc : 404
+else cannot change
+  ep --> svc : 403
+else page archived
+  ep --> svc : 400 "Restore this page before you change it."
+else parent is self, a descendant, archived or another owner's (L2-091)
+  ep --> svc : 400 "Choose another page."
+else valid (null means Top level)
+  h -> h : page.MoveTo(parentId) (Version unchanged)
+  opt System Admin override
+    h -> audit : Record(note.moved, before parent, after parent)
+  end
+  h -> db : One save
+  ep --> svc : 200 NotePageDto (new breadcrumb)
+  dlg --> actor : Close; toast "{title} moved",\n"It's now inside Volunteer playbook."
+end
+@enduml

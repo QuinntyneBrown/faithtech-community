@@ -1,0 +1,10 @@
+<ft-dialog heading="Add a link card" icon="link" (closed)="ref.close()">
+  <ft-form-field required label="Link" help="Must start with https://." [error]="urlError()">
+    <ft-text-field type="url" [formControl]="url" />
+  </ft-form-field>
+  <ft-form-field label="Caption" [optional]="true" [error]="captionError()">
+    <ft-text-field [formControl]="caption" />
+  </ft-form-field>
+  <ft-button ftDialogFooter (click)="ref.close()">Cancel</ft-button>
+  <ft-button ftDialogFooter variant="primary" (click)="add()">Add link card</ft-button>
+</ft-dialog>

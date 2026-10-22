@@ -1,0 +1,41 @@
+@startuml
+title UML sequence behaviour — Move a block with the keyboard (WCAG 2.5.7)
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+actor "Keyboard or screen-reader user" as actor
+box "Frontend — FaithTech Community web app (components library)" #E0F2FE
+  participant "BlockEditorComponent" as ed
+  participant "ft-menu (block menu)" as menu
+  participant "Polite live region" as live
+end box
+box "Frontend — FaithTech Community web app (notes library)" #E0F2FE
+  participant "NotePage" as page
+end box
+alt Alt+Shift+ArrowDown in a text box or on a handle
+  actor -> ed : Alt+Shift+ArrowDown
+else block menu
+  actor -> ed : Tab to the handle "Move or open the menu for block 2 of 9, Heading 2"; Enter
+  ed -> menu : Open "Block actions" (CDK Menu): Turn into, Move up,\nMove down (Alt+Shift+↓), Duplicate, Delete
+  actor -> menu : Move down
+  menu -> ed : move(i, +1)
+end
+alt already last (or first for up)
+  ed -> ed : Nothing moves; nothing is announced\n(Move down is disabled on the last block)
+else moved
+  ed -> ed : moveItemInArray; focus and caret follow the block
+  ed -> live : "Moved Heading 2 “Run sheet” to position 3 of 9" (polite)
+  ed -> page : blocksChange(blocks)
+end
+@enduml

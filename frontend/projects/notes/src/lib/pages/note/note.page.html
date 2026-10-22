@@ -1,0 +1,140 @@
+@switch (state()) {
+  @case ('loading') {
+    <ft-breadcrumb>
+      <ft-breadcrumb-item href="/notes">Notes</ft-breadcrumb-item>
+      <ft-breadcrumb-item>Loading</ft-breadcrumb-item>
+    </ft-breadcrumb>
+    <div class="loading" role="status" aria-label="Loading page">
+      <ft-skeleton shape="title" width="50%" />
+      <ft-skeleton shape="text" width="80%" />
+      <ft-skeleton shape="text" width="70%" />
+    </div>
+  }
+  @case ('missing') {
+    <ft-empty-state
+      icon="notes"
+      [headingLevel]="1"
+      heading="This page isn’t available"
+      text="It may have been archived, or it hasn’t been shared with you. If someone sent you the link, ask them to share it with you."
+    >
+      <ft-button actions variant="primary" href="/notes">Browse notes</ft-button>
+    </ft-empty-state>
+  }
+  @case ('error') {
+    <ft-empty-state
+      variant="error"
+      [headingLevel]="1"
+      heading="We couldn’t load this page"
+      text="Check your connection and try again. If it keeps happening, we’ve already been told about it."
+    >
+      <ft-button actions variant="primary" (click)="retry()">
+        <ft-icon name="try-again" /> Try again
+      </ft-button>
+      <ft-button actions href="/notes">Back to Notes</ft-button>
+    </ft-empty-state>
+  }
+  @case ('loaded') {
+    @let p = page()!;
+    <ft-breadcrumb>
+      <ft-breadcrumb-item href="/notes">Notes</ft-breadcrumb-item>
+      @if (p.archivedAt) {
+        <ft-breadcrumb-item href="/notes/archived">Archived</ft-breadcrumb-item>
+      }
+      @for (ancestor of p.breadcrumb; track $index) {
+        <ft-breadcrumb-item [href]="ancestor.id ? '/notes/' + ancestor.id : null">{{
+          ancestor.title
+        }}</ft-breadcrumb-item>
+      }
+      <ft-breadcrumb-item>{{ titleOf({ title: title() }) }}</ft-breadcrumb-item>
+    </ft-breadcrumb>
+    <header class="head">
+      @if (editable() && autosave(); as saver) {
+        <div class="toolbar">
+          <ft-save-status [state]="saver.state()" (retry)="saver.retry()" />
+          <span class="spacer"></span>
+          <ft-button (click)="share()"><ft-icon name="shared" /> Share</ft-button>
+          <ft-menu label="More actions" [entries]="actions()" (itemSelected)="act($event)">
+            <ft-icon name="more" />
+          </ft-menu>
+        </div>
+      }
+      @if (icon(); as glyph) {
+        @if (editable()) {
+          <button
+            type="button"
+            class="page-icon"
+            [attr.aria-label]="'Change the icon, now ' + glyph"
+            (click)="settings()"
+          >
+            {{ glyph }}
+          </button>
+        } @else {
+          <span class="page-icon" aria-hidden="true">{{ glyph }}</span>
+        }
+      }
+      <ft-page-title
+        [value]="title()"
+        [readonly]="!editable() || !!stop()"
+        (valueChange)="onTitle($event)"
+        (submitted)="toFirstBlock()"
+      />
+    </header>
+    @if (stop()?.kind === 'conflict') {
+      <ft-banner status="danger" heading="This page changed somewhere else">
+        {{ conflictText() }}
+        <ft-button ftAlertActions size="sm" (click)="reload()">Reload page</ft-button>
+      </ft-banner>
+    } @else if (stop()?.kind === 'forbidden') {
+      <ft-banner status="danger" heading="You can’t change this page">
+        Your access changed while you were editing. Your last changes weren’t saved.
+        <ft-button ftAlertActions size="sm" (click)="reload()">Reload page</ft-button>
+      </ft-banner>
+    } @else if (p.archivedAt) {
+      <ft-banner status="warning" [heading]="'Archived ' + formatDay(p.archivedAt)">
+        Only you can see it. Restore it to edit it or let others see it again.
+        <ft-button ftAlertActions size="sm" (click)="restore()">Restore</ft-button>
+      </ft-banner>
+    } @else if (p.isAdminView) {
+      <ft-banner status="info" heading="You’re viewing this as System Admin">
+        {{ p.ownerName }} owns this page. Every change you make is written to the audit log.
+      </ft-banner>
+    } @else if (p.isOwn && p.visibility === 'Private') {
+      <ft-banner status="info" heading="Private">
+        Only you can see this. System Admin can too, and every time they open it, it’s recorded in
+        the audit log.
+      </ft-banner>
+    } @else if (sharedBanner(); as text) {
+      <ft-banner status="info" heading="Shared with you">{{ text }}</ft-banner>
+    } @else if (!p.isOwn && !p.canEdit) {
+      <ft-banner status="info" heading="Read only"
+        >Only {{ p.ownerName }} can change this page.</ft-banner
+      >
+    }
+    <ft-block-editor
+      [blocks]="editorBlocks()"
+      [readonly]="!editable() || !!stop()"
+      [pageLink]="pageLink"
+      [pageSearch]="pageSearch"
+      [imageSrc]="imageSrc"
+      (blocksChange)="onBlocks($event)"
+      (refused)="refused($event)"
+      (blockRequested)="request($event)"
+      (linkRequested)="link($event)"
+      (blockEditRequested)="editBlock($event)"
+    />
+    @if (editable() || p.children.length) {
+      <ft-page-links heading="Pages inside" [pages]="p.children" emptyText="No pages inside yet.">
+        @if (editable()) {
+          <ft-button size="sm" [loading]="creating()" (click)="newPageInside()">
+            <ft-icon name="add" /> New page inside
+          </ft-button>
+        }
+      </ft-page-links>
+    }
+    <ft-page-links
+      heading="Linked from"
+      [pages]="p.backlinks"
+      emptyText="No pages link here yet."
+    />
+  }
+}

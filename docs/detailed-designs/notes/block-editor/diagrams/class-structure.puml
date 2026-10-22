@@ -1,0 +1,116 @@
+@startuml
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 8
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam class {
+  BorderColor #344054
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+title Class structure — Block editor
+class NoteBlock <<record, C#>> {
+  +string Id
+  +string Type
+  +IReadOnlyList<NoteSpan>? Text
+  +bool? Checked
+  +string? Icon
+  +string? Url
+  +string? Caption
+  +Guid? ImageId
+  +string? Alt
+}
+class NoteSpan <<record, C#>> {
+  +string Text
+  +bool? Bold
+  +bool? Italic
+  +bool? Underline
+  +bool? Strike
+  +bool? Code
+  +string? Href
+  +Guid? PageId
+}
+NoteBlock "1" *-- "*" NoteSpan
+class NoteBlockTypes <<static, C#>> {
+  +{static} WithText: paragraph, heading1..3, bulleted, numbered, todo, quote, callout, code
+  +{static} All: WithText + divider, image, link
+}
+class NoteBlocksValidator <<static, C#>> {
+  +{static} MaxBlocks = 500
+  +{static} MaxText = 10000
+  +{static} MaxBlockId = 36
+  +{static} MaxUrl = 2000
+  +{static} MaxCaption = 200
+  +{static} Check(blocks, images): Dictionary<string, string[]>
+  +{static} IsHyperlink(value): bool
+  +{static} IsHttps(value): bool
+  +{static} BodyText(blocks): string
+}
+NoteBlocksValidator ..> NoteBlockTypes
+NoteBlocksValidator ..> NoteBlock
+class NoteContent <<static, C#>> {
+  +{static} Read(content): IReadOnlyList<NoteBlock>
+  +{static} Write(blocks): string
+}
+NoteContent ..> NoteBlock
+
+class BlockEditorComponent <<Angular, ft-block-editor>> {
+  +blocks: input<EditorBlock[]>
+  +readonly: input<boolean>
+  +pageLink: input<PageLinkResolver>
+  +pageSearch: input<(q) => Promise<PageLinkItem[]>>
+  +imageSrc: input<(imageId) => Promise<string>>
+  +blocksChange: output<EditorBlock[]>
+  +refused: output<string>
+  +blockRequested: output<BlockRequest>
+  +linkRequested: output<LinkRequest>
+  +blockEditRequested: output<{ index, block }>
+  +focusFirst(): void
+  +place(request, block): void
+  +update(index, block): void
+  +applyLink(request, href | null): void
+}
+class "rich-text.ts + RichTextDirective" as RichText <<TypeScript>> {
+  +renderSpans(el, spans, pageLink): void
+  +readSpans(el): EditorSpan[]
+  +caretOffset(el): number
+  +selectionOffsets(el): { start, end }
+  +setSelection(el, start, end): void
+}
+class "editor-model.ts" as EditorModel <<TypeScript>> {
+  +BLOCK_TYPES: BlockTypeInfo[13]
+  +shortcutFor(text): { marker, type }
+  +splitSpans(spans, at)
+  +setMark(spans, start, end, mark, on)
+  +setHref(spans, start, end, href)
+  +describeBlock(block): string
+}
+class SlashMenuComponent <<Angular, ft-slash-menu>> {
+  +label: input<string>
+  +listId: input<string>
+  +options: input<SlashMenuOption[]>
+  +active: input<number>
+  +emptyText: input<string>
+  +chosen: output<string>
+}
+class FormatToolbarComponent <<Angular, ft-format-toolbar>> {
+  +pressed: input<Record<FormatMark, boolean>>
+  +hasSelection: input<boolean>
+  +inLink: input<boolean>
+  +format: output<FormatMark>
+  +link: output<void>
+  +removeLink: output<void>
+  +dismissed: output<void>
+  +focus(): void
+}
+class EmojiPickerComponent <<Angular, ft-emoji-picker>> {
+  +legend: input<string>
+  +allowNone: input<boolean>
+}
+BlockEditorComponent --> RichText
+BlockEditorComponent --> EditorModel
+BlockEditorComponent --> SlashMenuComponent : opens on / and [[
+BlockEditorComponent --> FormatToolbarComponent
+BlockEditorComponent ..> NoteBlock : wire shape (TypeScript interface)
+@enduml

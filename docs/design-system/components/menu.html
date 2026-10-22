@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Menu — FaithTech Community design system</title>
-<meta name="description" content="The account menu opens from the avatar in the FaithTech Community top bar: Your profile, Settings and Sign out, on every signed-in page.">
+<meta name="description" content="The account menu opens from the avatar in the FaithTech Community top bar; the same menu carries Notes page and block actions with shortcuts and danger items.">
 <link rel="stylesheet" href="../tokens/tokens.css">
 <link rel="stylesheet" href="../assets/components.css">
 <link rel="stylesheet" href="../assets/ds.css">
@@ -48,6 +48,7 @@
       <li><a href="../components/person-picker.html">Person picker</a></li>
       <li><a href="../components/type-icon.html">Type icon</a></li>
       <li><a href="../components/sticker-picker.html">Estimate card picker</a></li>
+      <li><a href="../components/emoji-picker.html">Emoji picker</a></li>
       <li><a href="../components/top-bar.html">Top bar</a></li>
       <li><a href="../components/tab-bar.html">Tab bar</a></li>
       <li><a href="../components/tabs.html">Tabs</a></li>
@@ -69,6 +70,11 @@
       <li><a href="../components/person-summary.html">Person summary</a></li>
       <li><a href="../components/search-results.html">Search results</a></li>
       <li><a href="../components/note.html">Note</a></li>
+      <li><a href="../components/block-editor.html">Block editor</a></li>
+      <li><a href="../components/slash-menu.html">Slash menu</a></li>
+      <li><a href="../components/format-toolbar.html">Formatting toolbar</a></li>
+      <li><a href="../components/save-status.html">Save status</a></li>
+      <li><a href="../components/page-links.html">Page links</a></li>
       <li><a href="../components/avatar.html">Avatar</a></li>
       <li><a href="../components/qr-code.html">QR code</a></li>
       <li><a href="../components/logo-mark.html">Logo mark</a></li>
@@ -160,6 +166,26 @@
   &lt;li role="none"&gt;&lt;a class="menu__item" role="menuitem" href="/sign-out"&gt;…Sign out&lt;/a&gt;&lt;/li&gt;
 &lt;/ul&gt;</code></pre></details>
       </div>
+      <h3 id="notes-menus">Block and page menus (notes)</h3>
+      <p>Notes uses the same <code>ft-menu</code> for commands on a page ("More actions": Page settings, New page inside, Move, Archive) and on a block (the <a href="block-editor.html">block editor</a>'s handle menu). <code>ft-menu-item</code> carries three inputs for them: <code>shortcut</code> shows the keys at the end of the item (<code>.ft-menu-item__shortcut</code>, <code>aria-hidden</code>) and exposes them as <code>aria-keyshortcuts</code> (↑ and ↓ become ArrowUp and ArrowDown); <code>danger</code> gives a destructive item the danger colour (Delete in the block menu); <code>submenu</code> and <code>submenuData</code> make the item a CDK menu trigger for a nested menu ("Turn into"). "More actions" is an <code>ft-menu</code> with <code>MenuEntry</code> items (Page settings, New page inside, Move, a divider, Archive), each with an icon; Archive is not a danger item there because it opens a confirmation dialog.</p>
+      <div class="ds-example">
+        <div class="ds-example__canvas">
+          <ul class="menu menu--static" role="menu" aria-label="Block actions" style="min-width: 16rem;"><li role="none"><button class="menu__item" role="menuitem" type="button" aria-haspopup="menu" aria-expanded="false">Turn into</button></li><li role="none"><button class="menu__item" role="menuitem" type="button" aria-keyshortcuts="Alt+Shift+ArrowUp">Move up<span class="menu__shortcut" aria-hidden="true">Alt+Shift+↑</span></button></li><li role="none"><button class="menu__item" role="menuitem" type="button" aria-keyshortcuts="Alt+Shift+ArrowDown" data-state="hover">Move down<span class="menu__shortcut" aria-hidden="true">Alt+Shift+↓</span></button></li><li role="none"><button class="menu__item" role="menuitem" type="button">Duplicate</button></li><li role="none"><button class="menu__item menu__item--danger" role="menuitem" type="button">Delete</button></li></ul>
+          <ul class="menu menu--static" role="menu" aria-label="More actions" style="min-width: 14rem;"><li role="none"><button class="menu__item" role="menuitem" type="button">Page settings</button></li><li role="none"><button class="menu__item" role="menuitem" type="button">New page inside</button></li><li role="none"><button class="menu__item" role="menuitem" type="button">Move</button></li><li role="none" class="menu__divider" aria-hidden="true"></li><li role="none"><button class="menu__item" role="menuitem" type="button" data-state="focus">Archive</button></li></ul>
+        </div>
+        <div class="ds-example__caption"><span>The block menu (<code>pages/note/block-menu</code>) and "More actions" (<code>pages/note/default</code>). The trigger for "More actions" is <code>ft-menu</code>'s button labelled "More actions"; the block menu "Block actions" opens from the block's handle. Both return focus to their trigger on Escape.</span></div>
+        <details class="ds-example__code"><summary>HTML</summary><pre><code>&lt;li role="none"&gt;&lt;button class="menu__item" role="menuitem" type="button" aria-keyshortcuts="Alt+Shift+ArrowUp"&gt;
+  Move up&lt;kbd class="menu__shortcut"&gt;Alt+Shift+↑&lt;/kbd&gt;&lt;/button&gt;&lt;/li&gt;
+&lt;li role="none" class="menu__divider" aria-hidden="true"&gt;&lt;/li&gt;
+&lt;li role="none"&gt;&lt;button class="menu__item menu__item--danger" role="menuitem" type="button"&gt;Delete&lt;/button&gt;&lt;/li&gt;</code></pre></details>
+      </div>
+      <ul>
+        <li>Shortcut text is the visible hint; <code>aria-keyshortcuts</code> carries it for assistive technology. It never replaces the label.</li>
+        <li>Danger items are named by their verb ("Delete"); colour is not the only signal, so they sit last. Delete of a block acts at once; Archive of a page opens a confirmation dialog and is a plain item.</li>
+        <li>In Angular these are inputs of <code>MenuItemComponent</code> (<code>ft-menu-item</code>): <code>[shortcut]</code>, <code>[danger]</code> and <code>[submenu]</code>/<code>[submenuData]</code>. Never restyle an item from the <code>notes</code> library.</li>
+        <li>Disabled items (<code>[disabled]</code>, the CDK menu item's disabled state) are used in the block menu only, for Move up on the first block and Move down on the last, so the menu's shape stays stable.</li>
+        <li>With a mouse, the CDK opens a submenu on hover and a click then toggles it closed; Enter and → open it reliably.</li>
+      </ul>
     </section>
 
     <section class="ds-section" id="sizes" data-na="The menu has one size. The trigger is always .avatar--sm (32px) in the top bar."><h2><a href="#sizes">Sizes</a></h2>
@@ -184,7 +210,7 @@
       </div>
       <ul>
         <li><b>Open</b> sets <code>aria-expanded="true"</code> on the trigger and shows the panel below its right edge.</li>
-        <li><b>Disabled</b> (<code>aria-disabled="true"</code>) exists in the CSS but is not used: leave out an item the person cannot use rather than greying it.</li>
+        <li><b>Disabled</b> (<code>aria-disabled="true"</code>): in the account menu leave out an item the person cannot use rather than greying it. The Notes block menu is the one exception (Move up / Move down at the ends, see <a href="#notes-menus">Block and page menus</a>).</li>
         <li>There is no loading or error state. Sign out is a link to the sign-in page; any failure shows there.</li>
       </ul>
     </section>
@@ -270,6 +296,22 @@
 &lt;ul class="menu" role="menu" id="account-menu" aria-label="Account menu for Grace Okonkwo" hidden&gt;
   …
 &lt;/ul&gt;</code></pre>
+      <pre><code>&lt;!-- Angular: account and "More actions" menus --&gt;
+&lt;ft-menu label="More actions" [entries]="actions()" (itemSelected)="act($event)"&gt;
+  &lt;ft-icon name="more" /&gt;                 &lt;!-- the trigger face --&gt;
+&lt;/ft-menu&gt;
+// entries: MenuEntry[] = { kind: 'header', title, caption? } | { kind: 'divider' }
+//                      | { kind: 'item', id, label, icon?, href?, disabled? }
+
+&lt;!-- Angular: a CDK menu of items, such as the block menu --&gt;
+&lt;div cdkMenu aria-label="Block actions"&gt;
+  &lt;button ft-menu-item [submenu]="turnIntoMenu" [submenuData]="{ $implicit: i }"&gt;Turn into&lt;/button&gt;
+  &lt;button ft-menu-item shortcut="Alt+Shift+↑" [disabled]="i === 0" (click)="move(i, -1)"&gt;Move up&lt;/button&gt;
+  &lt;button ft-menu-item [danger]="true" (click)="remove(i)"&gt;Delete&lt;/button&gt;
+&lt;/div&gt;
+// ft-menu-item (a[ft-menu-item], button[ft-menu-item]) inputs:
+//   icon: string | null    shortcut: string | null    danger: boolean
+//   disabled (CdkMenuItem)  submenu / submenuData (CdkMenuTrigger)</code></pre>
       <table class="ds-table"><thead><tr><th scope="col">Class / attribute</th><th scope="col">Effect</th></tr></thead><tbody>
         <tr><td><code>.menu</code></td><td>Raised, absolutely positioned panel.</td></tr>
         <tr><td><code>.menu--static</code></td><td>Documentation only: renders the panel in flow.</td></tr>
@@ -278,7 +320,10 @@
         <tr><td><code>.menu__item</code></td><td>Full-width item with icon and label.</td></tr>
         <tr><td><code>.menu__divider</code></td><td>Hairline separator.</td></tr>
         <tr><td><code>.avatar-trigger</code></td><td>Unstyled button or link around an avatar, with hover ring.</td></tr>
-        <tr><td><code>aria-disabled="true"</code> on an item</td><td>Disabled look; not used in the product.</td></tr>
+        <tr><td><code>aria-disabled="true"</code> on an item</td><td>Disabled look; used only for Move up / Move down at the ends of a Notes page.</td></tr>
+        <tr><td><code>.menu__shortcut</code></td><td>Keyboard shortcut at the end of an item, muted caption type, hidden from assistive technology (the keys are in <code>aria-keyshortcuts</code>). <code>ft-menu-item</code> renders it as <code>.ft-menu-item__shortcut</code>.</td></tr>
+        <tr><td><code>.menu__item--danger</code></td><td>Destructive item in <code>--color-danger-fg</code> (Delete); <code>ft-menu-item</code>'s <code>[danger]</code> sets <code>.ft-menu-item--danger</code>.</td></tr>
+        <tr><td><code>.menu__chevron</code></td><td>Optional trailing chevron for a submenu item in static documentation; the built <code>ft-menu-item</code> shows none (the item has <code>aria-haspopup="menu"</code>).</td></tr>
       </tbody></table>
     </section>
 

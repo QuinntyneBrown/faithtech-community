@@ -1,0 +1,289 @@
+<ng-template #textBox let-block="block" let-i="index">
+  <div
+    class="block__text"
+    data-text
+    contenteditable="true"
+    role="textbox"
+    tabindex="0"
+    aria-multiline="true"
+    [attr.aria-label]="labelOf(block.type)"
+    [attr.aria-placeholder]="placeholderOf(block, i)"
+    [attr.data-placeholder]="placeholderOf(block, i)"
+    [attr.aria-controls]="popup()?.index === i ? menuId : null"
+    [attr.aria-activedescendant]="activeOption(i)"
+    [ftRichText]="block.text"
+    [pageLink]="pageLink()"
+    (input)="onInput(i, $event)"
+    (keydown)="onKeydown(i, $event)"
+    (paste)="onPaste(i, $event)"
+    (blur)="onBlur(i)"
+  ></div>
+</ng-template>
+
+<ng-template #viewText let-block="block">
+  <span
+    class="block__text"
+    [ftRichText]="block.text"
+    [editable]="false"
+    [pageLink]="pageLink()"
+  ></span>
+</ng-template>
+
+<ng-template #viewBlock let-block="block">
+  @switch (block.type) {
+    @case ('heading1') {
+      <h2 class="block block--heading1">
+        <ng-container *ngTemplateOutlet="viewText; context: { block }" />
+      </h2>
+    }
+    @case ('heading2') {
+      <h3 class="block block--heading2">
+        <ng-container *ngTemplateOutlet="viewText; context: { block }" />
+      </h3>
+    }
+    @case ('heading3') {
+      <h4 class="block block--heading3">
+        <ng-container *ngTemplateOutlet="viewText; context: { block }" />
+      </h4>
+    }
+    @case ('quote') {
+      <blockquote class="block block--quote">
+        <ng-container *ngTemplateOutlet="viewText; context: { block }" />
+      </blockquote>
+    }
+    @case ('callout') {
+      <div class="block block--callout callout">
+        <span class="callout__icon" aria-hidden="true">{{ block.icon || '💡' }}</span>
+        <ng-container *ngTemplateOutlet="viewText; context: { block }" />
+      </div>
+    }
+    @case ('code') {
+      <!-- Focusable so a long line that scrolls sideways can be reached by keyboard. -->
+      <pre
+        class="block block--code code-block"
+        tabindex="0"
+        aria-label="Code"
+      ><code>{{ plain(block) }}</code></pre>
+    }
+    @case ('todo') {
+      <div class="block block--todo todo" [class.todo--done]="block.checked">
+        <input
+          type="checkbox"
+          class="todo__check"
+          disabled
+          [checked]="!!block.checked"
+          [attr.aria-label]="plain(block) || 'To-do'"
+        />
+        <ng-container *ngTemplateOutlet="viewText; context: { block }" />
+      </div>
+    }
+    @case ('divider') {
+      <hr class="block block--divider" />
+    }
+    @case ('link') {
+      <a
+        class="block block--link link-card"
+        [href]="block.url"
+        target="_blank"
+        rel="noopener"
+        data-focus
+      >
+        <ft-icon class="link-card__icon" name="external" />
+        <span class="link-card__title">{{ block.caption || hostOf(block.url) }}</span>
+        <span class="visually-hidden"> (opens in a new tab)</span>
+        <span class="link-card__host" aria-hidden="true">{{ hostOf(block.url) }}</span>
+      </a>
+    }
+    @case ('image') {
+      <figure class="block block--image image-block">
+        @if (imageUrl(block); as src) {
+          <img [src]="src" [alt]="block.alt ?? ''" />
+        } @else {
+          <span class="image-block__loading" role="img" [attr.aria-label]="block.alt ?? ''"></span>
+        }
+      </figure>
+    }
+    @default {
+      <p class="block block--paragraph">
+        <ng-container *ngTemplateOutlet="viewText; context: { block }" />
+      </p>
+    }
+  }
+</ng-template>
+
+<section
+  class="ft-block-editor"
+  aria-label="Page content"
+  [class.ft-block-editor--readonly]="readonly()"
+>
+  @if (readonly()) {
+    @for (group of groups(); track group.blocks[0].id) {
+      @switch (group.kind) {
+        @case ('bulleted') {
+          <ul class="block-group">
+            @for (block of group.blocks; track block.id) {
+              <li class="block block--bulleted">
+                <ng-container *ngTemplateOutlet="viewText; context: { block }" />
+              </li>
+            }
+          </ul>
+        }
+        @case ('numbered') {
+          <ol class="block-group">
+            @for (block of group.blocks; track block.id) {
+              <li class="block block--numbered">
+                <ng-container *ngTemplateOutlet="viewText; context: { block }" />
+              </li>
+            }
+          </ol>
+        }
+        @default {
+          <ng-container *ngTemplateOutlet="viewBlock; context: { block: group.blocks[0] }" />
+        }
+      }
+    }
+  } @else {
+    <div class="visually-hidden" aria-live="polite" data-move-announcement>
+      {{ announcement() }}
+    </div>
+    <div
+      class="ft-block-editor__blocks"
+      cdkDropList
+      cdkDropListLockAxis="y"
+      [cdkDropListData]="items()"
+      (cdkDropListDropped)="dropped($event)"
+    >
+      @for (block of items(); track block.id; let i = $index) {
+        <div
+          cdkDrag
+          [cdkDragData]="block"
+          (cdkDragStarted)="dragStarted()"
+          class="block block--{{ block.type }}"
+          [class.callout]="block.type === 'callout'"
+          [class.todo--done]="block.type === 'todo' && block.checked"
+          [attr.data-block-id]="block.id"
+        >
+          <div class="drop-indicator" *cdkDragPlaceholder></div>
+          <button
+            type="button"
+            class="block__handle"
+            cdkDragHandle
+            data-focus
+            [cdkMenuTriggerFor]="blockMenu"
+            [cdkMenuTriggerData]="{ $implicit: i }"
+            [attr.aria-label]="handleLabel(i, block)"
+            (keydown)="onHandleKeydown(i, $event)"
+          >
+            <svg class="block__grip" viewBox="0 0 24 24" aria-hidden="true">
+              <circle cx="9" cy="6" r="1.5" />
+              <circle cx="15" cy="6" r="1.5" />
+              <circle cx="9" cy="12" r="1.5" />
+              <circle cx="15" cy="12" r="1.5" />
+              <circle cx="9" cy="18" r="1.5" />
+              <circle cx="15" cy="18" r="1.5" />
+            </svg>
+          </button>
+          @switch (block.type) {
+            @case ('bulleted') {
+              <span class="block__marker" aria-hidden="true">•</span>
+            }
+            @case ('numbered') {
+              <span class="block__marker" aria-hidden="true">{{ numberOf(block) }}.</span>
+            }
+            @case ('todo') {
+              <input
+                type="checkbox"
+                class="todo__check"
+                [checked]="!!block.checked"
+                [attr.aria-label]="plain(block) || 'To-do'"
+                (change)="toggle(i, $any($event.target).checked)"
+              />
+            }
+            @case ('callout') {
+              <span class="callout__icon" aria-hidden="true">{{ block.icon || '💡' }}</span>
+            }
+          }
+          @if (hasText(block.type)) {
+            <ng-container *ngTemplateOutlet="textBox; context: { block, index: i }" />
+          } @else {
+            @switch (block.type) {
+              @case ('divider') {
+                <hr class="block__divider" />
+              }
+              @default {
+                <ng-container *ngTemplateOutlet="viewBlock; context: { block }" />
+              }
+            }
+          }
+        </div>
+      }
+    </div>
+    @if (selected(); as sel) {
+      <ft-format-toolbar
+        class="ft-block-editor__popup"
+        [style.top.px]="sel.top"
+        [style.left.px]="sel.left"
+        [pressed]="pressed()"
+        [hasSelection]="sel.end > sel.start"
+        [inLink]="!!sel.link"
+        (format)="format($event)"
+        (link)="requestLink()"
+        (removeLink)="removeLink()"
+        (dismissed)="backToText()"
+      />
+    }
+    @if (popup(); as menu) {
+      <ft-slash-menu
+        class="ft-block-editor__popup"
+        [label]="menu.kind === 'slash' ? 'Insert a block' : 'Link to a page'"
+        [emptyText]="
+          menu.kind === 'slash' ? 'No matching blocks' : 'No pages match “' + menu.query + '”'
+        "
+        [listId]="menuId"
+        [options]="options()"
+        [active]="menu.active"
+        [style.top.px]="menu.top"
+        [style.left.px]="menu.left"
+        (chosen)="choose($event)"
+      />
+    }
+  }
+</section>
+
+<ng-template #blockMenu let-i>
+  <div class="ft-block-menu" cdkMenu aria-label="Block actions">
+    @let block = items()[i];
+    @if (hasText(block.type)) {
+      <button ft-menu-item [submenu]="turnIntoMenu" [submenuData]="{ $implicit: i }">
+        Turn into
+      </button>
+    }
+    @if (block.type === 'callout') {
+      <button ft-menu-item (click)="editBlock(i)">Change icon</button>
+    }
+    @if (block.type === 'image') {
+      <button ft-menu-item (click)="editBlock(i)">Edit alt text</button>
+    }
+    <button ft-menu-item shortcut="Alt+Shift+↑" [disabled]="i === 0" (click)="move(i, -1)">
+      Move up
+    </button>
+    <button
+      ft-menu-item
+      shortcut="Alt+Shift+↓"
+      [disabled]="i === items().length - 1"
+      (click)="move(i, 1)"
+    >
+      Move down
+    </button>
+    <button ft-menu-item (click)="duplicate(i)">Duplicate</button>
+    <button ft-menu-item [danger]="true" (click)="remove(i)">Delete</button>
+  </div>
+</ng-template>
+
+<ng-template #turnIntoMenu let-i>
+  <div class="ft-block-menu" cdkMenu aria-label="Turn into">
+    @for (t of textTypes; track t.type) {
+      <button ft-menu-item (click)="turnInto(i, t.type)">{{ t.label }}</button>
+    }
+  </div>
+</ng-template>

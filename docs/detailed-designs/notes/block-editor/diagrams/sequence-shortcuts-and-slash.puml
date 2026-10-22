@@ -1,0 +1,56 @@
+@startuml
+title UML sequence behaviour — Markdown shortcuts and the slash menu
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+actor "Owner" as actor
+box "Frontend — FaithTech Community web app (components library)" #E0F2FE
+  participant "BlockEditorComponent" as ed
+  participant "editor-model.ts" as md
+  participant "SlashMenuComponent" as slash
+  participant "rich-text.ts" as ser
+end box
+box "Frontend — FaithTech Community web app (notes library)" #E0F2FE
+  participant "NotePage" as page
+end box
+actor -> ed : Types "## " at the start of a Text block
+ed -> ser : readSpans(text box)
+ed -> md : shortcutFor("## ")
+md --> ed : { marker: "## ", type: heading2 }
+ed -> ed : Turn the block into Heading 2, keep the caret (L2-088)
+ed -> page : blocksChange(blocks)
+actor -> ed : Types "/" in an empty block
+ed -> slash : "Insert a block" under the caret (inside the editor)\naria-controls and aria-activedescendant on the text box
+actor -> slash : Types "call", ArrowDown, Enter
+alt Escape
+  slash --> ed : closed; "/" stays as text
+else picked Callout
+  slash --> ed : chosen("callout")
+  ed -> ed : Remove "/call"; turn into Callout with icon 💡
+  ed -> page : blocksChange(blocks)
+else picked Image or Link card
+  ed -> page : blockRequested({ type: image | link, index, replace })
+  page -> page : Open AddImageDialog or AddLinkCardDialog
+  page -> ed : place(request, block)
+end
+actor -> ed : Selects text, Ctrl+B
+ed -> ser : selectionOffsets(text box)
+ed -> md : setMark(spans, start, end, bold, on)
+ed -> ser : render spans, restore the selection
+ed -> page : blocksChange(blocks)
+actor -> ed : Ctrl+K
+ed -> page : linkRequested({ index, start, end, href })
+page -> page : Open AddLinkDialog (https:// or mailto:)
+page -> ed : applyLink(request, href); selection restored
+@enduml

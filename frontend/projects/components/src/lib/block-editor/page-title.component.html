@@ -1,0 +1,20 @@
+<h1 class="ft-page-title">
+  @if (readonly()) {
+    <span [class.ft-page-title__untitled]="!value()">{{ value() || placeholder() }}</span>
+  } @else {
+    <span
+      #box
+      class="ft-page-title__box"
+      contenteditable="plaintext-only"
+      role="textbox"
+      tabindex="0"
+      aria-label="Page title"
+      [attr.aria-placeholder]="placeholder()"
+      [attr.data-placeholder]="placeholder()"
+      spellcheck="true"
+      (input)="onInput()"
+      (keydown)="onKeydown($event)"
+      (paste)="onPaste($event)"
+    ></span>
+  }
+</h1>

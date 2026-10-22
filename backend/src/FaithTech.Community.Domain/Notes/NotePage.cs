@@ -1,0 +1,108 @@
+namespace FaithTech.Community.Domain.Notes;
+
+/// <summary>
+/// A page of Docs &amp; notes (L1-022): a title, an optional emoji icon, an optional parent and an ordered list of
+/// blocks kept as one JSON document (ADR 0023). Only the owner (or a System Admin) changes it; every save bumps
+/// <see cref="Version"/>, the optimistic concurrency token.
+/// </summary>
+public class NotePage
+{
+    public const int MaxTitle = 200;
+    public const int MaxIcon = 16;
+
+    private readonly List<NoteShareMember> _members = [];
+    private readonly List<NoteShareRole> _roles = [];
+
+    private NotePage() { }
+
+    public NotePage(Guid ownerId, string? title, Guid? parentId, DateTimeOffset now)
+    {
+        Id = Guid.NewGuid();
+        OwnerId = ownerId;
+        Title = title?.Trim() ?? string.Empty;
+        ParentId = parentId;
+        Visibility = NoteVisibility.Private;
+        CreatedAt = now;
+        UpdatedAt = now;
+        UpdatedById = ownerId;
+        Version = 1;
+    }
+
+    public Guid Id { get; private set; }
+
+    /// <summary>Empty until the owner names it; shown as "Untitled".</summary>
+    public string Title { get; private set; } = string.Empty;
+
+    public string? Icon { get; private set; }
+
+    public Guid OwnerId { get; private set; }
+
+    public Guid? ParentId { get; private set; }
+
+    public NoteVisibility Visibility { get; private set; }
+
+    /// <summary>The blocks as JSON (ADR 0023).</summary>
+    public string Content { get; private set; } = "[]";
+
+    /// <summary>The title and every block's text as plain text, for search.</summary>
+    public string BodyText { get; private set; } = string.Empty;
+
+    public int Version { get; private set; }
+
+    public DateTimeOffset CreatedAt { get; private set; }
+
+    public DateTimeOffset UpdatedAt { get; private set; }
+
+    public Guid UpdatedById { get; private set; }
+
+    public DateTimeOffset? ArchivedAt { get; private set; }
+
+    public IReadOnlyList<NoteShareMember> SharedMembers => _members;
+
+    public IReadOnlyList<NoteShareRole> SharedRoles => _roles;
+
+    public bool IsArchived => ArchivedAt is not null;
+
+    /// <summary>A whole-page save (ADR 0023): the title, icon and blocks replace the old ones and the version moves on.</summary>
+    public void Save(string title, string? icon, string content, string bodyText, Guid by, DateTimeOffset now)
+    {
+        Title = title.Trim();
+        Icon = string.IsNullOrWhiteSpace(icon) ? null : icon.Trim();
+        Content = content;
+        BodyText = bodyText;
+        Touch(by, now);
+    }
+
+    /// <summary>Sets the visibility and, for Shared, the named members and roles; any other visibility clears them.</summary>
+    public void SetAudience(NoteVisibility visibility, IReadOnlyCollection<Guid> members, IReadOnlyCollection<Profiles.Role> roles)
+    {
+        if (visibility == NoteVisibility.Shared && members.Count == 0 && roles.Count == 0)
+        {
+            throw new ArgumentException("A shared page needs at least one member or role.");
+        }
+
+        Visibility = visibility;
+        var keepMembers = visibility == NoteVisibility.Shared ? members : [];
+        var keepRoles = visibility == NoteVisibility.Shared ? roles : [];
+        _members.RemoveAll(m => !keepMembers.Contains(m.ProfileId));
+        _roles.RemoveAll(r => !keepRoles.Contains(r.Role));
+        _members.AddRange(keepMembers.Where(m => _members.All(x => x.ProfileId != m)).Select(m => new NoteShareMember(Id, m)));
+        _roles.AddRange(keepRoles.Where(r => _roles.All(x => x.Role != r)).Select(r => new NoteShareRole(Id, r)));
+    }
+
+    /// <summary>A soft delete: the page leaves every list and read but its owner's and System Admin's (L2-095).</summary>
+    public void Archive(DateTimeOffset now) => ArchivedAt = now;
+
+    public void Restore() => ArchivedAt = null;
+
+    /// <summary>Puts the page inside another page of the same owner, or at the top level (L2-091).</summary>
+    public void MoveTo(Guid? parentId) => ParentId = parentId;
+
+    /// <summary>Records who changed the page and when, and moves the version on.</summary>
+    public void Touch(Guid by, DateTimeOffset now)
+    {
+        UpdatedAt = now;
+        UpdatedById = by;
+        Version++;
+    }
+}

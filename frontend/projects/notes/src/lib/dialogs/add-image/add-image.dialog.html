@@ -1,0 +1,32 @@
+<ft-dialog heading="Add an image" icon="image" [busy]="busy()" (closed)="ref.close()">
+  @if (failed()) {
+    <ft-alert status="danger" heading="Image not added">
+      We couldn’t reach FaithTech. Nothing changed — try again.
+    </ft-alert>
+  }
+  <ft-form-field label="Image" [labelHidden]="true" [error]="fileError()">
+    <ft-file-dropzone
+      heading="Choose an image"
+      hint="JPEG, PNG or WebP, up to 5 MB."
+      accept="image/jpeg,image/png,image/webp"
+      [multiple]="false"
+      [invalid]="!!fileError()"
+      (filesChosen)="choose($event)"
+    />
+  </ft-form-field>
+  @if (file(); as chosen) {
+    <p class="chosen">{{ chosen.name }}</p>
+  }
+  <ft-form-field
+    required
+    label="Alt text"
+    help="Describe what’s in the image for someone who can’t see it."
+    [error]="altProblem()"
+  >
+    <ft-text-field [formControl]="alt" />
+  </ft-form-field>
+  <ft-button ftDialogFooter [disabled]="busy()" (click)="ref.close()">Cancel</ft-button>
+  <ft-button ftDialogFooter variant="primary" [loading]="busy()" (click)="add()">
+    {{ busy() ? 'Uploading…' : failed() ? 'Try again' : 'Add image' }}
+  </ft-button>
+</ft-dialog>

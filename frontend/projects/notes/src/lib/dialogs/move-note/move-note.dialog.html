@@ -1,0 +1,30 @@
+<ft-dialog
+  [heading]="'Move ' + title"
+  description="Choose where this page lives. Only your own pages are listed."
+  icon="move"
+  [busy]="busy()"
+  (closed)="ref.close()"
+>
+  @if (failed()) {
+    <ft-alert status="danger" heading="Not moved">
+      We couldn’t reach FaithTech. Nothing changed — try again.
+    </ft-alert>
+  }
+  <ft-form-field label="Search your pages">
+    <ft-text-field type="search" [formControl]="search" />
+  </ft-form-field>
+  <ft-radio-group legend="Put it inside" [formControl]="parent">
+    <ft-radio value="" [description]="isCurrent(null) ? 'Current' : ''"
+      >Top level (no parent)</ft-radio
+    >
+    @for (option of options(); track option.id) {
+      <ft-radio [value]="option.id!" [description]="isCurrent(option.id) ? 'Current' : ''">
+        {{ option.icon ? option.icon + ' ' : '' }}{{ option.title }}
+      </ft-radio>
+    }
+  </ft-radio-group>
+  <ft-button ftDialogFooter [disabled]="busy()" (click)="ref.close()">Cancel</ft-button>
+  <ft-button ftDialogFooter variant="primary" [loading]="busy()" (click)="move()">
+    {{ busy() ? 'Moving…' : failed() ? 'Try again' : 'Move' }}
+  </ft-button>
+</ft-dialog>

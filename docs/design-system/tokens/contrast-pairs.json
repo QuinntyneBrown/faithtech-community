@@ -666,6 +666,36 @@
       "bg": "--color-bg-surface",
       "min": 3,
       "note": "Google sign-in button outline on a card"
+    },
+    {
+      "fg": "--color-fg-accent",
+      "bg": "--color-accent-subtle-hover",
+      "min": 4.5,
+      "note": "page link text on hover (notes)"
+    },
+    {
+      "fg": "--color-success-icon",
+      "bg": "--color-bg-surface",
+      "min": 3,
+      "note": "Saved check in the notes save status"
+    },
+    {
+      "fg": "--color-danger-icon",
+      "bg": "--color-bg-surface",
+      "min": 3,
+      "note": "Couldn’t save icon in the notes save status"
+    },
+    {
+      "fg": "--color-focus-ring",
+      "bg": "--color-bg-surface-sunken",
+      "min": 3,
+      "note": "focus ring on a notes code block"
+    },
+    {
+      "fg": "--color-fg-subtle",
+      "bg": "--color-bg-subtle",
+      "min": 3,
+      "note": "notes block handle icon on a hovered row"
     }
   ]
 }

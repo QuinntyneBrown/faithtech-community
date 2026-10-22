@@ -25,4 +25,6 @@ export class IconTileComponent {
   readonly size = input<IconTileSize>('md');
   /** An image thumbnail shown in place of the icon, such as an Image resource's (design system, type icon). */
   readonly src = input<string | null>(null);
+  /** An emoji shown in place of the icon, such as a note page's icon (design system, list: icon tile). */
+  readonly emoji = input<string | null>(null);
 }

@@ -1,0 +1,16 @@
+@for (tool of tools(); track tool.id; let i = $index) {
+  <button
+    type="button"
+    class="ft-format-toolbar__btn"
+    [class.ft-format-toolbar__btn--code]="tool.id === 'code'"
+    [attr.aria-label]="tool.label"
+    [attr.aria-pressed]="isPressed(tool)"
+    [attr.aria-keyshortcuts]="tool.shortcut ? tool.shortcut.replace('Ctrl', 'Control') : null"
+    [attr.title]="tool.shortcut ? tool.label + ' (' + tool.shortcut + ')' : tool.label"
+    [tabindex]="i === focused() ? 0 : -1"
+    (mousedown)="$event.preventDefault()"
+    (click)="use(tool)"
+  >
+    <span aria-hidden="true">{{ tool.glyph }}</span>
+  </button>
+}

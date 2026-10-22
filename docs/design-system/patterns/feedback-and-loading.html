@@ -48,6 +48,7 @@
       <li><a href="../components/person-picker.html">Person picker</a></li>
       <li><a href="../components/type-icon.html">Type icon</a></li>
       <li><a href="../components/sticker-picker.html">Estimate card picker</a></li>
+      <li><a href="../components/emoji-picker.html">Emoji picker</a></li>
       <li><a href="../components/top-bar.html">Top bar</a></li>
       <li><a href="../components/tab-bar.html">Tab bar</a></li>
       <li><a href="../components/tabs.html">Tabs</a></li>
@@ -69,6 +70,11 @@
       <li><a href="../components/person-summary.html">Person summary</a></li>
       <li><a href="../components/search-results.html">Search results</a></li>
       <li><a href="../components/note.html">Note</a></li>
+      <li><a href="../components/block-editor.html">Block editor</a></li>
+      <li><a href="../components/slash-menu.html">Slash menu</a></li>
+      <li><a href="../components/format-toolbar.html">Formatting toolbar</a></li>
+      <li><a href="../components/save-status.html">Save status</a></li>
+      <li><a href="../components/page-links.html">Page links</a></li>
       <li><a href="../components/avatar.html">Avatar</a></li>
       <li><a href="../components/qr-code.html">QR code</a></li>
       <li><a href="../components/logo-mark.html">Logo mark</a></li>
@@ -134,6 +140,7 @@
           <tr><td>Sent, and it can't be undone</td><td>Success card with what happened and what to do next</td><td>compose-announcement/success</td></tr>
           <tr><td>A row control saves on its own (no Save button)</td><td>The row's text changes at once and a success toast confirms, with Undo</td><td>event-check-in/checked-in: "Leah Thompson is checked in · 6:44 pm · 13 of 34 here."</td></tr>
           <tr><td>A whole task is complete</td><td>Success alert above the list, which stays usable</td><td>event-check-in/done: "Everyone’s here"</td></tr>
+          <tr><td>Content saves itself as the person types</td><td><a href="../components/save-status.html">Save status</a> line; a banner when editing must stop (<a href="#autosave">Autosave and edit conflicts</a>)</td><td>note/saving, note/save-failed, note/conflict</td></tr>
           <tr><td>The save failed</td><td>Danger alert in context. Nothing typed is lost</td><td>"Invite not sent · Nothing was changed — try again." The title names what was not saved.</td></tr>
         </tbody>
       </table></div>
@@ -185,7 +192,34 @@
         </div>
         <div class="ds-example__caption"><span>pages/compose-announcement/success.</span></div>
       </div>
-    </section>
+          <h3 id="autosave">Autosave and edit conflicts</h3>
+      <p>A Notes page saves itself: the whole page is sent 800 ms after the last change, one save at a time, with the version it was based on (ADR 0023). There is no Save button, so the <a href="../components/save-status.html">save status</a> beside the page's actions carries the feedback, and anything that stops editing becomes a banner above the title.</p>
+      <div class="ds-example">
+        <div class="ds-example__canvas ds-example__canvas--stack">
+          <div class="cluster"><span class="badge">Global</span><p class="save-status save-status--saving">Saving…</p></div>
+          <div class="cluster"><span class="badge">Global</span><p class="save-status save-status--failed"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v6M12 16.5v.5"/></svg>Couldn’t save</p><button class="btn btn--sm" type="button">Retry</button></div>
+          <div class="alert alert--warning" style="width: 100%;"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><path d="M12 3 2 20h20zM12 10v4M12 17h.01"/></svg><div class="alert__body"><div class="alert__title">This page changed somewhere else</div><div class="alert__text">Priya Shah saved a newer version at 10:47 am. Your last changes weren’t saved.</div><div class="alert__actions"><button class="btn btn--primary" type="button">Reload page</button></div></div></div>
+          <div class="alert alert--danger" style="width: 100%;"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><path d="M12 3 2 20h20zM12 10v4M12 17h.01"/></svg><div class="alert__body"><div class="alert__title">You can’t change this page</div><div class="alert__text">Your access changed while you were editing. Your last changes weren’t saved.</div><div class="alert__actions"><button class="btn btn--primary" type="button">Reload page</button></div></div></div>
+        </div>
+        <div class="ds-example__caption"><span>pages/note/saving, save-failed, conflict and forbidden.</span></div>
+      </div>
+      <div class="ds-table-wrap"><table class="ds-table">
+        <thead><tr><th scope="col">Save answer</th><th scope="col">What the person sees</th><th scope="col">Editor</th><th scope="col">Announced</th></tr></thead>
+        <tbody>
+          <tr><td>In flight</td><td>"Saving…"</td><td>Keeps editing; a newer change waits and goes with the new version.</td><td>Polite</td></tr>
+          <tr><td>200</td><td>"Saved"</td><td>Keeps the new version for the next save.</td><td>Polite</td></tr>
+          <tr><td>Network or 5xx</td><td>"Couldn’t save" with Retry</td><td>Edits stay; Retry or the next change resends the whole page.</td><td>Assertive</td></tr>
+          <tr><td>409 conflict</td><td>Warning banner "This page changed somewhere else", "{Who} saved a newer version at {time}. Your last changes weren’t saved." with Reload page ({Who} is "You" for another tab)</td><td>Autosave stops; blocks become read-only but stay selectable so text can be copied. Never resends on its own.</td><td>Assertive</td></tr>
+          <tr><td>403</td><td>Danger banner "You can’t change this page" with Reload page</td><td>Editing stops.</td><td>Assertive</td></tr>
+          <tr><td>404</td><td>The page is replaced by "This page isn’t available"</td><td>Gone.</td><td>Page change</td></tr>
+        </tbody>
+      </table></div>
+      <ul>
+        <li>Never overwrite silently and never auto-merge: the person decides by reloading, after copying anything they need.</li>
+        <li>The banner sits above the title, inside the editor's column, and the editor scrolls so the focused block is not hidden behind it (WCAG 2.4.11).</li>
+        <li>No toast for an autosave: it would interrupt every few seconds.</li>
+      </ul>
+</section>
 
     <section class="ds-section" id="states"><h2><a href="#states">States</a></h2>
       <div class="ds-matrix"><table>
@@ -257,6 +291,7 @@
         <li>Loading: <a href="../../mocks/pages/contacts/loading.html">contacts/loading</a>, <a href="../../mocks/pages/profile/loading.html">profile/loading</a>, <a href="../../mocks/pages/events/loading.html">events/loading</a>, <a href="../../mocks/pages/audit-log/loading.html">audit-log/loading</a>, <a href="../../mocks/pages/partners/loading.html">partners/loading</a>, <a href="../../mocks/pages/backlog/loading.html">backlog/loading</a></li>
         <li>Busy: <a href="../../mocks/pages/contact-form/busy.html">contact-form/busy</a>, <a href="../../mocks/pages/sign-up/busy.html">sign-up/busy</a>, <a href="../../mocks/pages/settings/busy.html">settings/busy</a>, <a href="../../mocks/dialogs/delete-contact/busy.html">delete-contact/busy</a></li>
         <li>Upload: <a href="../../mocks/pages/edit-profile/uploading.html">edit-profile/uploading</a>, <a href="../../mocks/pages/edit-profile/too-large.html">edit-profile/too-large</a></li>
+        <li>Autosave and conflicts: <a href="../../mocks/pages/note/saving.html">note/saving</a>, <a href="../../mocks/pages/note/save-failed.html">note/save-failed</a>, <a href="../../mocks/pages/note/conflict.html">note/conflict</a>, <a href="../../mocks/pages/note/forbidden.html">note/forbidden</a> (L2-086 AC8 and AC9, L2-094)</li>
         <li>Save on toggle: <a href="../../mocks/pages/event-check-in/checked-in.html">event-check-in/checked-in</a>, <a href="../../mocks/pages/event-check-in/done.html">event-check-in/done</a></li>
         <li>Results: <a href="../../mocks/pages/edit-profile/success.html">edit-profile/success</a>, <a href="../../mocks/pages/settings/success.html">settings/success</a>, <a href="../../mocks/pages/compose-announcement/success.html">compose-announcement/success</a>, <a href="../../mocks/dialogs/delete-contact/failed.html">delete-contact/failed</a>, <a href="../../mocks/pages/compose-announcement/error.html">compose-announcement/error</a></li>
       </ul>

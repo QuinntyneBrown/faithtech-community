@@ -1,0 +1,44 @@
+<ft-dialog [heading]="'Share ' + title" icon="shared" [busy]="busy()" (closed)="ref.close()">
+  @if (failed()) {
+    <ft-alert status="danger" heading="Sharing not changed">
+      We couldn’t reach FaithTech. Nothing changed — try again.
+    </ft-alert>
+  }
+  <ft-radio-group
+    legend="Who can see it"
+    [formControl]="form.controls.visibility"
+    [error]="visibility() === 'Shared' ? '' : error()"
+  >
+    <ft-radio value="Private" description="Only you (and System Admin).">Private</ft-radio>
+    <ft-radio value="Shared" description="You and the people and roles you choose."
+      >Shared</ft-radio
+    >
+    <ft-radio value="Global" description="Every signed-in member can find it.">Global</ft-radio>
+  </ft-radio-group>
+  @if (visibility() === 'Shared') {
+    <fieldset class="share">
+      <legend>Share with</legend>
+      <ft-form-field label="People" [error]="error()">
+        <ft-person-picker
+          [formControl]="form.controls.members"
+          [options]="people()"
+          [loading]="searching()"
+          listLabel="Members"
+          (query)="searchPeople($event)"
+        />
+      </ft-form-field>
+      <ft-checkbox-group legend="Roles" [formControl]="form.controls.roles">
+        @for (role of roles; track role.value) {
+          <ft-checkbox [value]="role.value">{{ role.label }}</ft-checkbox>
+        }
+      </ft-checkbox-group>
+      <p class="note">
+        Everyone you add gets a notification. They can read it, but can’t change it or share it on.
+      </p>
+    </fieldset>
+  }
+  <ft-button ftDialogFooter [disabled]="busy()" (click)="ref.close()">Cancel</ft-button>
+  <ft-button ftDialogFooter variant="primary" [loading]="busy()" (click)="save()">
+    {{ busy() ? 'Saving…' : failed() ? 'Try again' : 'Save' }}
+  </ft-button>
+</ft-dialog>

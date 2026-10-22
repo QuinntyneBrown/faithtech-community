@@ -1,0 +1,17 @@
+<ft-dialog
+  [heading]="'Restore ' + page.title + '?'"
+  description="It comes back to Notes with the same visibility, people and place as before."
+  icon="restore"
+  [busy]="busy()"
+  (closed)="ref.close()"
+>
+  @if (failed()) {
+    <ft-alert status="danger" heading="Not restored">
+      We couldn’t reach FaithTech. It’s still archived — try again.
+    </ft-alert>
+  }
+  <ft-button ftDialogFooter [disabled]="busy()" (click)="ref.close()">Cancel</ft-button>
+  <ft-button ftDialogFooter variant="primary" [loading]="busy()" (click)="confirm()">
+    {{ busy() ? 'Restoring…' : failed() ? 'Try again' : 'Restore' }}
+  </ft-button>
+</ft-dialog>

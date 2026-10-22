@@ -47,8 +47,8 @@ describe('IconComponent', () => {
     expect(svg.querySelector('path, circle, rect')).toBeNull();
   });
 
-  it('ships the full 58 icon set', () => {
-    expect(ICON_NAMES.length).toBe(58);
+  it('ships the full 59 icon set', () => {
+    expect(ICON_NAMES.length).toBe(59);
     for (const name of ICON_NAMES) {
       expect(setup({ name }).svg.innerHTML.length).toBeGreaterThan(0);
     }

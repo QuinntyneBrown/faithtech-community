@@ -30,3 +30,15 @@
   color: var(--color-fg-disabled);
   cursor: not-allowed;
 }
+
+:host(.ft-menu-item--danger) {
+  color: var(--color-danger-fg);
+}
+
+.ft-menu-item__shortcut {
+  margin-inline-start: auto;
+  padding-inline-start: var(--space-4);
+  color: var(--color-fg-muted);
+  font: var(--text-caption);
+  white-space: nowrap;
+}

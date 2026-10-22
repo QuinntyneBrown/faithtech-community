@@ -1,0 +1,31 @@
+:host {
+  display: block;
+}
+
+.ft-page-title {
+  margin: 0;
+  font: var(--text-h1);
+  color: var(--color-fg-default);
+  overflow-wrap: anywhere;
+}
+
+.ft-page-title__box {
+  display: block;
+  min-block-size: 1lh;
+  border-radius: var(--radius-sm);
+  outline: none;
+
+  &:focus-visible {
+    outline: var(--focus-ring-width) solid var(--color-accent);
+    outline-offset: var(--focus-ring-offset);
+  }
+
+  &:empty::before {
+    content: attr(data-placeholder);
+    color: var(--color-fg-muted);
+  }
+}
+
+.ft-page-title__untitled {
+  color: var(--color-fg-muted);
+}

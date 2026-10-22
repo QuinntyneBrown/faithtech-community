@@ -48,6 +48,7 @@
       <li><a href="../components/person-picker.html">Person picker</a></li>
       <li><a href="../components/type-icon.html">Type icon</a></li>
       <li><a href="../components/sticker-picker.html">Estimate card picker</a></li>
+      <li><a href="../components/emoji-picker.html">Emoji picker</a></li>
       <li><a href="../components/top-bar.html">Top bar</a></li>
       <li><a href="../components/tab-bar.html">Tab bar</a></li>
       <li><a href="../components/tabs.html">Tabs</a></li>
@@ -69,6 +70,11 @@
       <li><a href="../components/person-summary.html">Person summary</a></li>
       <li><a href="../components/search-results.html">Search results</a></li>
       <li><a href="../components/note.html">Note</a></li>
+      <li><a href="../components/block-editor.html">Block editor</a></li>
+      <li><a href="../components/slash-menu.html">Slash menu</a></li>
+      <li><a href="../components/format-toolbar.html">Formatting toolbar</a></li>
+      <li><a href="../components/save-status.html">Save status</a></li>
+      <li><a href="../components/page-links.html">Page links</a></li>
       <li><a href="../components/avatar.html">Avatar</a></li>
       <li><a href="../components/qr-code.html">QR code</a></li>
       <li><a href="../components/logo-mark.html">Logo mark</a></li>
@@ -172,6 +178,16 @@
         <div class="ds-example__canvas ds-example__canvas--stack"><ul class="list card card--flush" aria-label="Attendees"><li class="list__item"><span class="avatar avatar--sm avatar--sage" aria-hidden="true">JB<img class="avatar__img" src="../../mocks/assets/photos/people/jonah-bell.jpg" alt=""></span><div class="list__body"><div class="list__title">Jonah Bell</div><div class="list__meta">Member · Checked in 6:41 pm</div></div><label class="switch"><input type="checkbox" checked><span class="switch__text visually-hidden">Checked in: Jonah Bell</span></label></li><li class="list__item"><span class="avatar avatar--sm avatar--rose" aria-hidden="true">LT<img class="avatar__img" src="../../mocks/assets/photos/people/leah-thompson.jpg" alt=""></span><div class="list__body"><div class="list__title">Leah Thompson</div><div class="list__meta">Member · Not here yet</div></div><label class="switch"><input type="checkbox"><span class="switch__text visually-hidden">Checked in: Leah Thompson</span></label></li></ul></div>
         <div class="ds-example__caption"><span>From event check-in. Each row ends in a <a href="switch.html">switch</a> whose label is visually hidden and names the person ("Checked in: Leah Thompson"). The meta line carries the state in words: "Checked in 6:41 pm" or "Not here yet". Guests show their email because they have no profile.</span></div>
         <details class="ds-example__code"><summary>HTML</summary><pre><code>&lt;li class="list__item"&gt;&lt;span class="avatar avatar--sm avatar--sage" aria-hidden="true"&gt;JB&lt;img class="avatar__img" src="../../mocks/assets/photos/people/jonah-bell.jpg" alt=""&gt;&lt;/span&gt;&lt;div class="list__body"&gt;&lt;div class="list__title"&gt;Jonah Bell&lt;/div&gt;&lt;div class="list__meta"&gt;Member · Checked in 6:41 pm&lt;/div&gt;&lt;/div&gt;&lt;label class="switch"&gt;&lt;input type="checkbox" checked&gt;&lt;span class="switch__text visually-hidden"&gt;Checked in: Jonah Bell&lt;/span&gt;&lt;/label&gt;&lt;/li&gt;</code></pre></details>
+      </div>
+
+      <h3 id="icon-tile-emoji">Emoji icon tile (notes)</h3>
+      <div class="ds-example">
+        <div class="ds-example__canvas ds-example__canvas--stack"><ul class="list card card--flush" aria-label="Notes pages"><li class="list__item"><span class="icon-tile icon-tile--emoji" aria-hidden="true">📘</span><div class="list__body"><a class="list__title" href="../../mocks/pages/note/default.html">Toronto city team playbook</a><div class="list__meta">Edited Tue 21 Oct · you</div></div></li><li class="list__item"><span class="icon-tile icon-tile--emoji" aria-hidden="true">🤝</span><div class="list__body"><a class="list__title" href="../../mocks/pages/note/private.html">Partner meeting notes — Shopify, 14 Oct</a><div class="list__meta">Edited Mon 20 Oct · you</div><div><span class="badge">Private</span></div></div></li><li class="list__item"><span class="icon-tile icon-tile--emoji icon-tile--sm" aria-hidden="true">🛠️</span><div class="list__body"><a class="list__title" href="../../mocks/pages/note/nested.html">Builders Night run sheet</a><div class="list__meta">Edited Tue 21 Oct · you</div></div></li></ul></div>
+        <div class="ds-example__caption"><span>From <code>pages/notes/default</code> and the Pages inside section of <code>pages/note/default</code>. <code>ft-icon-tile</code>'s <code>emoji</code> input shows a page's emoji in place of the icon (<code>.icon-tile--emoji</code>: <code>--font-size-xl</code> on <code>--color-bg-subtle</code>, so the emoji's own colours read in both themes). Both sizes work; a page with no emoji falls back to the default page icon through <code>name</code>. Decorative like every icon tile: the title names the row.</span></div>
+        <details class="ds-example__code"><summary>HTML</summary><pre><code>&lt;span class="icon-tile icon-tile--emoji" aria-hidden="true"&gt;📘&lt;/span&gt;
+&lt;!-- Angular --&gt;
+&lt;ft-icon-tile name="notes" [emoji]="page.icon" /&gt;
+&lt;ft-icon-tile name="notes" [emoji]="child.icon" size="sm" /&gt;</code></pre></details>
       </div>
 
       <p><code>.list</code> on its own sits inside a card that already has a heading (Home "Coming up", Search groups); <code>.list.card.card--flush</code> is the list as its own card.</p>
@@ -295,6 +311,7 @@
         <tr><td><code>.list__item</code></td><td>Padded row with a divider; flex, centred.</td></tr>
         <tr><td><code>.list__body</code>, <code>.list__title</code>, <code>.list__meta</code></td><td>Growing body, label-weight title, muted meta.</td></tr>
         <tr><td><code>.icon-tile</code>, <code>.icon-tile--sm</code></td><td>Decorative rounded-square icon leading a row that is not a person: 40px, or 32px beside small avatars (search). Never use <code>.estimate-card</code> for this.</td></tr>
+        <tr><td><code>.icon-tile--emoji</code> (<code>[emoji]</code> on <code>ft-icon-tile</code>)</td><td>Shows an emoji instead of the icon, on <code>--color-bg-subtle</code>: a Notes page's icon in the Notes list, Pages inside, Linked from and search.</td></tr>
         <tr><td><code>.list__meta.cluster</code></td><td>Meta line of badges.</td></tr>
         <tr><td><code>.list__item:has(.list__title[href]):hover</code></td><td>Tints a link row; <code>data-state="hover"</code> forces it in static pages. <code>&lt;ft-list-item [href]&gt;</code> does the same through <code>.ft-list-item--link</code>.</td></tr>
         <tr><td><code>aria-busy="true"</code></td><td>On the container while skeleton rows show.</td></tr>

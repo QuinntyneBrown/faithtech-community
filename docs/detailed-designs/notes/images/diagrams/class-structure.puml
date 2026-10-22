@@ -1,0 +1,80 @@
+@startuml
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 8
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam class {
+  BorderColor #344054
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+title Class structure — Image blocks
+class NotePage {
+  +Guid Id
+  +Guid OwnerId
+  +DateTimeOffset? ArchivedAt
+}
+class NoteImage {
+  +{static} MaxAlt = 250
+  +{static} MaxBytes = 5 MB
+  +Guid Id
+  +Guid PageId
+  +string BlobName  (notes/{pageId}/{imageId}.{ext})
+  +string ContentType
+  +long Size
+  +DateTimeOffset UploadedAt
+}
+NoteImage --> NotePage : PageId
+class NoteImagesHandler {
+  +Refusal = "Use a JPEG, PNG or WebP image up to 5 MB."
+  +UploadAsync(pageId, upload: NoteImageUpload?): Task<(Result, NoteImageUploadedDto?, bool StorageDown)>
+  +ReadAsync(pageId, imageId): Task<NoteImageContent?>
+}
+class NoteImageUpload <<record>> {
+  +string FileName
+  +long Length
+  +Func<Stream> Open
+}
+class NoteImageUploadedDto <<record>> {
+  +Guid ImageId
+}
+class NoteImageContent <<record>> {
+  +Stream Content
+  +string ContentType
+}
+interface IImageProcessor {
+  +ProcessAsync(content, fileName): Task<ImageProcessingResult>
+}
+class ProcessedImage <<record>> {
+  +byte[] Content
+  +string ContentType
+  +string Extension
+}
+interface IFileStorage {
+  +SaveAsync(key, stream, contentType): Task
+  +OpenReadAsync(key): Task<Stream>
+}
+class NoteAccess {
+  +FindAsync(id, caller): Task<NotePage?>
+  +CanChange(page, caller): bool
+}
+class NoteBlock <<record>> {
+  +string Type = "image"
+  +Guid? ImageId
+  +string? Alt
+}
+class NoteBlocksValidator <<static>> {
+  +Check(blocks, images: page's image ids): Dictionary<string, string[]>
+}
+NoteImagesHandler --> NoteAccess
+NoteImagesHandler --> IImageProcessor
+IImageProcessor ..> ProcessedImage
+NoteImagesHandler --> IFileStorage
+NoteImagesHandler ..> NoteImageUpload
+NoteImagesHandler ..> NoteImage : adds
+NoteImagesHandler ..> NoteImageUploadedDto
+NoteImagesHandler ..> NoteImageContent
+NoteBlocksValidator ..> NoteBlock : alt required (1..250)
+NoteBlocksValidator ..> NoteImage : ImageId uploaded to this page
+@enduml

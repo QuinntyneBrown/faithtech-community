@@ -42,7 +42,7 @@ faithtech-community/
 │   │   │                                        # checks; one folder per feature (Identity/,
 │   │   │                                        # Profiles/, Contacts/, Partners/, Team/, Events/, Search/,
 │   │   │                                        # Notifications/, Announcements/, Invites/, Admin/,
-│   │   │                                        # Resources/, Agile/)
+│   │   │                                        # Resources/, Notes/, Agile/)
 │   │   ├── FaithTech.Community.Infrastructure/  # DbContext, EF migrations, Postgres full-text
 │   │   │                                        # search, Azure Blob, email, .ics, image resizing,
 │   │   │                                        # OpenIddict stores, audit log, seeder
@@ -77,6 +77,8 @@ faithtech-community/
 │       ├── admin/                    # Feature library: System Admin roles, suspension, audit log
 │       ├── resources/                # Feature library: resources list, resource page, archived view,
 │       │                             # add/edit/archive/transfer dialogs
+│       ├── notes/                    # Feature library: Docs & notes page list, block page editor,
+│       │                             # archived view, share/settings/move/archive/image/link dialogs
 │       └── agile/                    # Feature library: workspaces, backlog, board, sprints,
 │                                     # work items, Planning Poker
 ├── e2e/                              # Playwright suite (Chromium only)
@@ -132,12 +134,12 @@ Rules (MUST be followed):
 - Data is global with no city boundary. **Exception:** private contacts and their notes are visible only to the lead who created them and to System Admin.
 - A profile can hold several global roles. New users start with no role.
 - City Leads may add/remove Lead, Volunteer, Product Engineer and Attendee roles. Only System Admin grants or removes City Lead, Staff and System Admin.
-- Staff is read-only across everything except private contacts and the resources Staff own: Staff may add resources and edit, share, archive and restore their own; every other Staff write is refused.
+- Staff is read-only across everything except private contacts and the resources and note pages Staff own: Staff may add resources and note pages and edit, share, archive and restore their own; every other Staff write is refused.
 - System Admin can override anything; every admin action goes to the audit log.
 - Profiles are visible to signed-in members only. Public events are the only content anonymous visitors see (shareable page, guest RSVP, `.ics`).
 - Every query, search result and endpoint must enforce these permissions on the server. Never rely on the UI to hide data.
 
-v1 features: profiles and photos (max 10, one featured, alt text required), invites (expire after 14 days), connect links (a City Lead's reusable QR code that never expires and can be replaced; not an invite), contacts (soft-delete archive and restore, linked when the person signs up), partner Kanban (Lead -> In Funnel -> Confirmed), team, events (hackathon is an event type), global search, notifications (in-app + email), announcements (with email opt-out), resources (uploads and https links, type and tags, private/shared/global visibility, archive with 30-day purge). Hackathon teams, projects and judging are v2. Do not build them yet.
+v1 features: profiles and photos (max 10, one featured, alt text required), invites (expire after 14 days), connect links (a City Lead's reusable QR code that never expires and can be replaced; not an invite), contacts (soft-delete archive and restore, linked when the person signs up), partner Kanban (Lead -> In Funnel -> Confirmed), team, events (hackathon is an event type), global search, notifications (in-app + email), announcements (with email opt-out), resources (uploads and https links, type and tags, private/shared/global visibility, archive with 30-day purge), docs & notes (block-based pages with formatting, drag-and-drop and keyboard reorder, page links, backlinks and nesting; private/shared/global visibility, default private; archive and restore). Hackathon teams, projects and judging are v2. Do not build them yet.
 
 ## Backend architecture
 

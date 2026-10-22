@@ -22,6 +22,8 @@ Search never widens what a user may open. The server filters every group by perm
 - **`IFullTextSearch`** — Application contract that filters and ranks a query by a term. **`PostgresFullTextSearch`** in Infrastructure matches a generated, GIN-indexed `tsvector` column (`SearchVector`) on each searchable table with a prefix query of the term's words (`to_tsquery('english', 'gra:* & she:*')`) and orders by `ts_rank`, so the permission filter and the text match run in one SQL statement. Backend tests use an in-memory implementation that matches the same fields case-insensitively (ADR 0016).
 - **`SearchResultsDto`** — grouped results, each item carrying id, title, snippet, route and, where it applies, the event's start and a badge ("Private", a partner's stage, "Public" or "Cancelled").
 
+- **`NotesSearchSource`** — Docs & notes adds the kind `Note` after `Resource`, shown as the **Notes** group: pages from `NoteAccess.Visible` (never archived) matched on title and body text, at most 10, routed to `/notes/{id}` with a "Private", "Shared" or "Shared with you" badge (`L2-096`, `notes/archive-and-search`).
+
 The p95 target is under 500 ms with 100,000 indexed records; it needs PostgreSQL, so it is checked with `eng/load-test.js` in the isolated performance environment after `seed-search-records 100000` rather than in the backend tests (ADR 0016). Contact notes are not searched yet.
 
 ## Requirements

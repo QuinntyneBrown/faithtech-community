@@ -1,0 +1,14 @@
+@startuml
+!include <C4/C4_Container>
+LAYOUT_WITH_LEGEND()
+title Containers — Archive, restore and search pages
+Person(member, "Member", "Owner or searcher")
+System_Boundary(community, "FaithTech Community") {
+  Container(web, "Web app", "Angular", "notes library (archive-note, restore-note dialogs, ArchivedNotesPage); search library (Notes group)")
+  Container(api, "Community API", "ASP.NET Core", "ArchiveNoteHandler, GlobalSearchHandler with NotesSearchSource")
+  ContainerDb(db, "Community database", "PostgreSQL", "NotePages.ArchivedAt, generated SearchVector (Title, BodyText) with GIN index")
+}
+Rel(member, web, "Uses", "HTTPS")
+Rel(web, api, "POST /api/notes/{id}/archive | /restore, GET /api/notes/archived, GET /api/search?q=", "JSON/HTTPS")
+Rel(api, db, "Reads and writes; full-text match", "EF Core, tsquery")
+@enduml
