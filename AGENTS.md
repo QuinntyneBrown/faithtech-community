@@ -92,6 +92,7 @@ faithtech-community/
     ├── videos/
     │   └── journeys/                 # Narrated demo videos (WebM, poster, captions, narration text)
     ├── adr/                          # Architecture decision records (NNNN-title.md)
+    ├── proposals/                    # Feature proposals: problem, decisions, scope and phases, agreed before specs are written
     └── prompts/                      # Ready-to-run implementation prompts for features
 ```
 
