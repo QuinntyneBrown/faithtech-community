@@ -23,6 +23,12 @@ builder.Services.AddSerilog((services, logger) => logger
 builder.Services.AddProblemDetails(options => options.CustomizeProblemDetails = context =>
     context.ProblemDetails.Extensions["traceId"] = context.HttpContext.TraceIdentifier);
 builder.Services.AddApplication(builder.Configuration);
+// Email links are built on the web app's origin, so outside Development it must be HTTPS (L2-028 AC2).
+builder.Services.AddOptions<FaithTech.Community.Application.Common.WebAppOptions>()
+    .Validate(
+        o => builder.Environment.IsDevelopment() || o.Origin.StartsWith("https://", StringComparison.OrdinalIgnoreCase),
+        "WebApp:Origin must be an https:// URL outside Development, so every link in an email uses HTTPS.")
+    .ValidateOnStart();
 builder.Services.AddInfrastructure(builder.Configuration);
 builder.Services.AddCommunityAuthentication(builder.Configuration, builder.Environment);
 builder.Services.AddWebProtections(builder.Configuration);

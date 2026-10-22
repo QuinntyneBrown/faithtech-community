@@ -810,6 +810,9 @@ namespace FaithTech.Community.Infrastructure.Persistence.Migrations
                     b.Property<DateTimeOffset?>("FailedAt")
                         .HasColumnType("timestamp with time zone");
 
+                    b.Property<string>("HtmlBody")
+                        .HasColumnType("text");
+
                     b.Property<string>("LastError")
                         .HasMaxLength(500)
                         .HasColumnType("character varying(500)");

@@ -25,6 +25,9 @@ public class OutboxMessage
 
     public string Body { get; set; } = string.Empty;
 
+    /// <summary>The HTML part, rendered from <see cref="Body"/> when the message is queued.</summary>
+    public string? HtmlBody { get; set; }
+
     public DateTimeOffset CreatedAt { get; set; }
 
     public DateTimeOffset NextAttemptAt { get; set; }
@@ -43,9 +46,19 @@ public class OutboxMessage
 }
 
 /// <summary>Queues email so the action that triggered it commits even when the provider is down.</summary>
-public class OutboxEmailSender(CommunityDbContext db, TimeProvider time) : IEmailSender
+public class OutboxEmailSender(OutboxEmailQueue queue, CommunityDbContext db) : IEmailSender
 {
     public async Task SendAsync(EmailMessage message, CancellationToken cancellationToken = default)
+    {
+        queue.Enqueue(message);
+        await db.SaveChangesAsync(cancellationToken);
+    }
+}
+
+/// <summary>Adds the message, with its HTML part, to the caller's unit of work; it is queued when the caller saves.</summary>
+public class OutboxEmailQueue(CommunityDbContext db, TimeProvider time) : IEmailQueue
+{
+    public void Enqueue(EmailMessage message)
     {
         var now = time.GetUtcNow();
         db.OutboxMessages.Add(new OutboxMessage
@@ -54,10 +67,10 @@ public class OutboxEmailSender(CommunityDbContext db, TimeProvider time) : IEmai
             Subject = message.Subject,
             Body = message.Body,
             AttachmentsJson = message.Attachments is { Count: > 0 } attachments ? JsonSerializer.Serialize(attachments) : null,
+            HtmlBody = message.HtmlBody ?? EmailTemplateRenderer.Render(message.Subject, message.Body),
             CreatedAt = now,
             NextAttemptAt = now,
         });
-        await db.SaveChangesAsync(cancellationToken);
     }
 }
 
@@ -84,7 +97,8 @@ public class EmailOutboxDispatcher(
             try
             {
                 var attachments = message.AttachmentsJson is { } json ? JsonSerializer.Deserialize<List<EmailAttachment>>(json) : null;
-                await transport.SendAsync(new EmailMessage(message.To, message.Subject, message.Body, attachments), cancellationToken);
+                await transport.SendAsync(
+                    new EmailMessage(message.To, message.Subject, message.Body, attachments, message.HtmlBody), cancellationToken);
                 message.SentAt = time.GetUtcNow();
             }
             catch (Exception exception) when (exception is not OperationCanceledException)

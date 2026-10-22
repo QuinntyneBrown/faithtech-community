@@ -63,6 +63,8 @@ public static class DependencyInjection
         services.AddScoped<IVerificationResendLog, VerificationResendLog>();
         services.AddScoped<ITokenRevocation, TokenRevocation>();
         services.Configure<SmtpOptions>(configuration.GetSection(SmtpOptions.Section));
+        services.AddScoped<OutboxEmailQueue>();
+        services.AddScoped<IEmailQueue>(sp => sp.GetRequiredService<OutboxEmailQueue>());
         services.AddScoped<IEmailSender, OutboxEmailSender>();
         services.AddScoped<IEmailTransport, SmtpEmailTransport>();
         services.AddScoped<EmailOutboxDispatcher>();
