@@ -77,7 +77,7 @@ faithtech-community/
 ├── e2e/                              # Playwright suite (Chromium only)
 │   ├── playwright.config.ts
 │   ├── pages/                        # Page objects: one per screen, owning selectors
-│   ├── fixtures/                     # Test fixtures and seeded data helpers
+│   ├── fixtures/                     # Test fixtures, the fake backend (routed API + auth) and seeded data
 │   └── tests/                        # Specs by feature, including axe accessibility checks
 ├── eng/                              # Developer and CI scripts (start stack, run tests, deploy)
 │   ├── infra/                        # Infrastructure as code for Azure
@@ -176,6 +176,18 @@ All backend tests MUST use a fake database: the EF Core in-memory provider, with
 - Run frontend tests in Chromium only. Do not configure or run Firefox, WebKit or any other browser.
 - Run axe accessibility checks on every screen.
 - Journey demo videos (`docs/videos/journeys/`) are recorded by `pwsh eng/videos/Record-JourneyVideos.ps1`. Their stories reuse `e2e/pages/` and `e2e/fixtures/`, but they are recordings, not tests: keep them out of `e2e/tests/` and the acceptance run. Re-record a journey when its screens change.
+
+### The backend is faked (MANDATORY)
+
+**The full Playwright suite MUST pass with no backend running.** No API, no PostgreSQL, no identity server, no blob storage, no SMTP and no Docker. The suite exercises the real Angular app against a fake backend that the tests own.
+
+- Every HTTP call the app makes is intercepted with Playwright route handling (`page.route` / `context.route`) and answered by a fake API implemented in `e2e/fixtures/`. The fake owns an in-memory data set, seeded per test, and answers the same contracts the real API exposes (status codes, response shapes, validation errors, permission failures).
+- Authentication is faked too: the fake API answers the OIDC discovery, authorization, token and userinfo requests so the app completes its real sign-in flow against the fake. Tests sign in as a role (System Admin, City Lead, Staff, Volunteer, anonymous visitor) through a fixture, never by hand-editing storage or bypassing the app's auth code.
+- Fake behavior lives in `e2e/fixtures/`, never in page objects or specs. A spec arranges state through a fixture, drives the app through page objects and asserts what the user sees.
+- A request the fake does not recognise MUST fail the test loudly (an unrouted request is a bug, not a pass-through). Never let a request fall through to a real network.
+- Playwright's `webServer` starts only the Angular app. It MUST NOT start the API, the Cli project, a database or any container.
+- A spec that needs the real backend, a seeded database or any external service is out of scope for `e2e/`; that behavior belongs in the backend integration tests under `backend/tests/`.
+- Keep the fake in step with the API: when an endpoint, DTO or permission rule changes, update the fake in the same change so the e2e suite reflects the real contract.
 
 ## Incremental implementation and ATDD (MANDATORY)
 
