@@ -58,11 +58,9 @@ else permitted
   h -> audit : Record(actor, "role.granted", "Profile", id, before roles, after roles) (L2-041)
   opt pol.NotifiesOwner and caller is not the owner
     h -> notify : Notify(owner, title) adds RoleChanged notification (L2-009 AC1)
+    h -> notify : QueueEmailAsync(owner, title) queues the email
   end
   h -> db : Save changes in one unit of work
-  opt owner notified
-    h -> notify : EmailAsync(owner, title)
-  end
   h --> ep : Updated role set
   ep --> svc : 200 OK
   svc --> page : Roles

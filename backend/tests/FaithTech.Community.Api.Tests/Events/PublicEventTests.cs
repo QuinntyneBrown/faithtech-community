@@ -77,7 +77,7 @@ public partial class PublicEventTests(CommunityApiFactory factory) : IClassFixtu
         var rsvp = Assert.Single((await factory.LoadEventAsync(existing.Id)).Rsvps);
         Assert.Equal(("Abby Brooks", email, (Guid?)null), (rsvp.GuestName, rsvp.GuestEmail, rsvp.ProfileId));
         Assert.Equal(users, await factory.WithDbAsync(db => db.Users.CountAsync()));
-        var sent = Assert.Single(factory.Emails.SentTo(email));
+        var sent = Assert.Single(await factory.QueuedEmailsToAsync(email));
         Assert.Equal("You’re going to Toronto Builders Night", sent.Subject);
         Assert.Matches(CancelLink(), sent.Body);
         var ics = Assert.Single(sent.Attachments!);
@@ -137,7 +137,7 @@ public partial class PublicEventTests(CommunityApiFactory factory) : IClassFixtu
         var email = $"{Guid.NewGuid():N}@example.org";
         var client = factory.CreateClient();
         await client.PostAsJsonAsync($"/api/public/events/{existing.Id}/rsvps", new { name = "Abby Brooks", email });
-        var link = CancelLink().Match(Assert.Single(factory.Emails.SentTo(email)).Body);
+        var link = CancelLink().Match(Assert.Single(await factory.QueuedEmailsToAsync(email)).Body);
         Assert.Equal(existing.Id.ToString(), link.Groups["id"].Value);
 
         var cancel = await client.PostAsJsonAsync($"/api/public/events/{existing.Id}/rsvps/cancel", new { token = link.Groups["token"].Value });

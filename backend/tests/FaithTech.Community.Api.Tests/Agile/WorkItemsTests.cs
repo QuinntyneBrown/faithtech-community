@@ -182,7 +182,7 @@ public class WorkItemsTests(CommunityApiFactory factory) : IClassFixture<Communi
         var notification = await factory.WithDbAsync(db => db.Notifications.SingleAsync(n => n.RecipientId == cast.Member.ProfileId));
         Assert.Equal((NotificationKind.WorkItemAssigned, "Grace Okonkwo assigned you Volunteer check-in kiosk", $"/workspaces/{cast.WorkspaceId}/items/{story.Id}"),
             (notification.Kind, notification.Title, notification.LinkPath));
-        var email = Assert.Single(factory.Emails.SentTo(await factory.EmailOfAsync(cast.Member)));
+        var email = Assert.Single(await factory.QueuedEmailsToAsync(await factory.EmailOfAsync(cast.Member)));
         Assert.Equal("Grace assigned you: Volunteer check-in kiosk", email.Subject);
         Assert.Contains("in the Toronto team workspace", email.Body);
     }

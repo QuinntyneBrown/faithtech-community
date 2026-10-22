@@ -31,7 +31,7 @@ public class CancelEventHandler(
     EventPermissions permissions,
     INotificationPublisher notifications,
     IIcsCalendarWriter calendar,
-    IEmailSender email,
+    IEmailQueue emails,
     IAuditLog audit,
     IOptions<WebAppOptions> webApp,
     TimeProvider time)
@@ -68,23 +68,22 @@ public class CancelEventHandler(
             audit.Record(actor, "event.cancelled", "Event", e.Id.ToString(), null, new { Reason = reason });
         }
 
-        await db.SaveChangesAsync(cancellationToken);
-
         // Everyone who RSVP'd hears why, the person who cancelled included, since their RSVP is cancelled too.
         var addresses = await db.Users.Where(u => members.Contains(u.ProfileId)).Select(u => u.Email!).ToListAsync(cancellationToken);
         addresses.AddRange(e.Rsvps.Where(r => r.IsGuest).Select(r => r.GuestEmail!));
         var origin = webApp.Value.Origin;
         foreach (var address in addresses.Distinct(StringComparer.OrdinalIgnoreCase))
         {
-            await email.SendAsync(new EmailMessage(
+            emails.Enqueue(new EmailMessage(
                 address,
                 $"Cancelled: {e.Title}",
                 $"{e.Title} is cancelled. The hosts said:\n\n“{reason}”\n\n" +
                 $"The attached calendar file removes it from your calendar. See the event: {origin}{link}",
-                [new EmailAttachment(EventFileNames.Calendar(e.Title), "text/calendar", calendar.Write(e))]),
-                cancellationToken);
+                [new EmailAttachment(EventFileNames.Calendar(e.Title), "text/calendar", calendar.Write(e))]));
         }
 
+        // The cancellation, the notifications and the emails commit together (L2-028, L2-047).
+        await db.SaveChangesAsync(cancellationToken);
         return Result.Ok();
     }
 }

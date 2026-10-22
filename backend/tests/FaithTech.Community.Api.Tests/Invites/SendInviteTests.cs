@@ -23,7 +23,7 @@ public class SendInviteTests(CommunityApiFactory factory) : IClassFixture<Commun
         Assert.Equal(HttpStatusCode.Created, response.StatusCode);
         var dto = (await response.Content.ReadFromJsonAsync<InviteDto>())!;
         Assert.Equal(("Pending", "ProductEngineer", "Grace Okonkwo"), (dto.Status, dto.PreassignedRole, dto.InvitedByName));
-        var message = Assert.Single(factory.Emails.SentTo(email));
+        var message = Assert.Single(await factory.QueuedEmailsToAsync(email));
         Assert.Contains("Grace Okonkwo invited you to join FaithTech Community as a Product Engineer", message.Body);
         Assert.Contains("Loved your demo at Builders Night!", message.Body);
         Assert.Contains($"{CommunityApiFactory.WebAppOrigin}/accept-invite/", message.Body);
@@ -120,7 +120,7 @@ public class SendInviteTests(CommunityApiFactory factory) : IClassFixture<Commun
 
         Assert.Equal(HttpStatusCode.TooManyRequests, limited.StatusCode);
         Assert.Equal("You’ve sent 50 invites in the last 24 hours. Try again tomorrow.", (await limited.Content.ReadFromJsonAsync<ProblemDetails>())!.Detail);
-        Assert.Empty(factory.Emails.SentTo("one-more@example.org"));
+        Assert.Empty(await factory.QueuedEmailsToAsync("one-more@example.org"));
 
         factory.Time.Advance(TimeSpan.FromHours(1) + TimeSpan.FromMinutes(1));
         Assert.Equal(HttpStatusCode.Created, (await client.PostAsJsonAsync("/api/invites", new { Email = "one-more@example.org" })).StatusCode);
@@ -163,7 +163,7 @@ public class SendInviteTests(CommunityApiFactory factory) : IClassFixture<Commun
         var dto = (await response.Content.ReadFromJsonAsync<InviteDto>())!;
         Assert.NotEqual(expired.Id, dto.Id);
         Assert.Equal(("Pending", "Attendee", email), (dto.Status, dto.PreassignedRole, dto.Email));
-        var token = InviteClients.TokenFrom(Assert.Single(factory.Emails.SentTo(email)).Body);
+        var token = InviteClients.TokenFrom(Assert.Single(await factory.QueuedEmailsToAsync(email)).Body);
         Assert.NotEqual(oldToken, token);
         var renewed = await factory.LoadInviteAsync(dto.Id);
         Assert.Equal(factory.Time.GetUtcNow().AddDays(14), renewed.ExpiresAt);

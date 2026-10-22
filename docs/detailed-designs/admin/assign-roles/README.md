@@ -24,7 +24,7 @@ The slice runs from the profile page in the web app to the `ProfileRole` rows in
 - **`Role`** — Domain enumeration of the nine global roles. **`Profile`** — Domain entity that owns a set of `ProfileRole` entries (role, who granted it, when) and enforces no duplicates: `AddRole(role, grantedBy, nowUtc)` rejects a role already held and `RemoveRole(role)` rejects one not held. Removing City Lead raises the **`CityLeadRoleRemoved`** domain event in `Profile.DomainEvents` (`L2-037`).
 - **`ICurrentUser`** — caller user id and roles, read from the access token.
 - **`IAuditLog`** — `Record(actorId, action, targetType, targetId, before, after)` adds an entry with the before and after role sets; `AuditLog` stamps the UTC time and IP address (`L2-041`).
-- **`RoleChangeNotifier`** — Application service. `Notify(ownerProfileId, title)` adds an in-app `Notification` (`RoleChanged`) to the unit of work; `EmailAsync(ownerProfileId, title)` emails the owner through `IEmailSender` after the change is saved.
+- **`RoleChangeNotifier`** — Application service. `Notify(ownerProfileId, title)` adds an in-app `Notification` (`RoleChanged`) to the unit of work; `QueueEmailAsync(ownerProfileId, title)` queues the owner's email through `IEmailQueue` in the same unit of work, so the role change, its notification and its email are saved together.
 - **`RoleLabels`** — Application helper that gives each `Role` its display name for notification titles and audit summaries.
 - **`GrantSystemAdminAsync`** — `CommunitySeeder` method behind the Cli `grant-admin <email>` command. It grants the first System Admin and writes a `role.granted` entry with an empty actor id and IP address `cli`.
 

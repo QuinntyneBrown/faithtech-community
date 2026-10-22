@@ -30,7 +30,7 @@ public class InviteSender(
     IApplicationDbContext db,
     ICurrentUser current,
     RoleAssignmentPolicy policy,
-    IEmailSender email,
+    IEmailQueue emails,
     IOptions<WebAppOptions> webApp,
     TimeProvider time)
 {
@@ -93,17 +93,17 @@ public class InviteSender(
         var token = InviteTokens.New();
         var invite = new Invite(address, InviteTokens.Hash(token), role, sender.Id, now, note);
         db.Invites.Add(invite);
-        await db.SaveChangesAsync(cancellationToken);
 
+        // The invite and its email are saved together, so neither exists without the other (L2-028, L2-047).
         var asRole = role is { } granted ? $" as a {RoleLabels.Of(granted)}" : string.Empty;
         var personal = note is null ? string.Empty : $"\n\n“{note}”\n— {sender.Name}";
-        await email.SendAsync(new EmailMessage(
+        emails.Enqueue(new EmailMessage(
             address,
             $"{sender.Name} invited you to FaithTech Community",
             $"{sender.Name} invited you to join FaithTech Community{asRole}.{personal}\n\n" +
             $"Accept the invite:\n\n{webApp.Value.Origin}/accept-invite/{token}\n\n" +
-            "This link works once and expires in 14 days."),
-            cancellationToken);
+            "This link works once and expires in 14 days."));
+        await db.SaveChangesAsync(cancellationToken);
         return (Result.Ok(), InviteDto.From(invite, sender.Name, now));
     }
 }

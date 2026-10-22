@@ -69,8 +69,8 @@ interface ICurrentUser {
 interface IAuditLog {
   +Record(actorId: Guid, action: string, targetType: string, targetId: string, before: object?, after: object?): void
 }
-interface IEmailSender {
-  +SendAsync(message: EmailMessage): Task
+interface IEmailQueue {
+  +Enqueue(message: EmailMessage): void
 }
 Profile "1" *-- "*" ProfileRole
 ProfileRole --> Role
@@ -82,5 +82,5 @@ ChangeRolesHandler ..> ProfileAccess : actor id
 ChangeRolesHandler ..> IAuditLog
 ChangeRolesHandler ..> RoleChangeNotifier
 RoleAssignmentPolicy ..> ICurrentUser
-RoleChangeNotifier ..> IEmailSender
+RoleChangeNotifier ..> IEmailQueue
 @enduml

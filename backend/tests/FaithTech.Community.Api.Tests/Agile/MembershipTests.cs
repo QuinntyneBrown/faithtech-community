@@ -27,7 +27,7 @@ public class MembershipTests(CommunityApiFactory factory) : IClassFixture<Commun
         Assert.True((await factory.LoadWorkspaceAsync(cast.WorkspaceId)).IsMember(marcus.ProfileId));
         var notification = await factory.WithDbAsync(db => db.Notifications.SingleAsync(n => n.RecipientId == marcus.ProfileId));
         Assert.Equal(NotificationKind.WorkspaceMemberAdded, notification.Kind);
-        Assert.Single(factory.Emails.SentTo(await factory.EmailOfAsync(marcus)));
+        Assert.Single(await factory.QueuedEmailsToAsync(await factory.EmailOfAsync(marcus)));
     }
 
     [Theory]

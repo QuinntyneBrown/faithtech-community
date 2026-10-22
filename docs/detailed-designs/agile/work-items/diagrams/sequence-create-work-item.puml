@@ -34,7 +34,7 @@ end box
 box "Backend — FaithTech.Community.Infrastructure" #FFF4E5
   participant "CommunityDbContext" as ctx
   database "Community database" as db
-  participant "IEmailSender\n(OutboxEmailSender)" as mail
+  participant "IEmailQueue\n(OutboxEmailQueue)" as mail
 end box
 actor -> page : Choose "New item"
 page -> dlg : Open WorkItemDialog (create)
@@ -73,10 +73,10 @@ h -> ntf : Notify(actor, assignee, WorkItemAssigned, ...) (L2-033 AC3)
 ntf -> ctx : Add Notification
 end
 h -> pol : AuditOverride(caller, "workitem.created", ...) (System Admin only)
+h -> ntf : QueueEmailsAsync
+ntf -> mail : Enqueue(assignment email)
 h -> ctx : SaveChangesAsync
-ctx -> db : INSERT work item (and notification) in one transaction
-h -> ntf : SendEmailsAsync
-ntf -> mail : SendAsync(assignment email)
+ctx -> db : INSERT work item, notification and outbox row in one transaction
 h --> ep : (Result.Ok, WorkItemDto)
 ep --> svc : 201 Created /api/items/{id}
 svc --> dlg : WorkItemDto

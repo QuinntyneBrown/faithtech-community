@@ -100,6 +100,7 @@ public class ChangeRolesHandler(
                 ? $"{actorName} added the {RoleLabels.Of(role)} role to your profile"
                 : $"{actorName} removed the {RoleLabels.Of(role)} role from your profile";
             notifier.Notify(profileId, title);
+            await notifier.QueueEmailAsync(profileId, title, cancellationToken);
         }
 
         foreach (var removed in profile.DomainEvents.OfType<CityLeadRoleRemoved>())
@@ -107,14 +108,10 @@ public class ChangeRolesHandler(
             await cityLeadRemoved.HandleAsync(removed, cancellationToken);
         }
 
+        await cityLeadRemoved.QueueEmailsAsync(cancellationToken);
         profile.ClearDomainEvents();
+        // The role change, its audit entry, the notifications and the emails commit together (L2-028, L2-047).
         await db.SaveChangesAsync(cancellationToken);
-
-        await cityLeadRemoved.SendEmailsAsync(cancellationToken);
-        if (title is not null)
-        {
-            await notifier.EmailAsync(profileId, title, cancellationToken);
-        }
 
         return (Result.Ok(), after);
     }

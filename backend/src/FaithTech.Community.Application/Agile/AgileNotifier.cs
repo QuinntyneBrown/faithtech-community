@@ -7,10 +7,10 @@ namespace FaithTech.Community.Application.Agile;
 
 /// <summary>
 /// In-app notifications and emails for workspace additions, assignments and Planning Poker invites (L2-027, L2-028).
-/// <see cref="Notify"/> adds the notification to the unit of work; call <see cref="SendEmailsAsync"/> once it is saved.
-/// Nobody is notified about their own action (ADR 0011).
+/// <see cref="Notify"/> adds the notification to the unit of work; call <see cref="QueueEmailsAsync"/> before saving, so
+/// the emails commit with the change they report (L2-028). Nobody is notified about their own action (ADR 0011).
 /// </summary>
-public class AgileNotifier(IApplicationDbContext db, IEmailSender email, IOptions<WebAppOptions> webApp, TimeProvider time)
+public class AgileNotifier(IApplicationDbContext db, IEmailQueue emails, IOptions<WebAppOptions> webApp, TimeProvider time)
 {
     private readonly List<(Guid Recipient, string Subject, string Body)> _emails = [];
 
@@ -25,7 +25,8 @@ public class AgileNotifier(IApplicationDbContext db, IEmailSender email, IOption
         _emails.Add((recipient, subject, $"{body}\n\n{webApp.Value.Origin}{linkPath}"));
     }
 
-    public async Task SendEmailsAsync(CancellationToken cancellationToken = default)
+    /// <summary>Queues the collected emails in the unit of work; the caller saves.</summary>
+    public async Task QueueEmailsAsync(CancellationToken cancellationToken = default)
     {
         var recipients = _emails.Select(e => e.Recipient).Distinct().ToList();
         var addresses = await db.Users.Where(u => recipients.Contains(u.ProfileId))
@@ -34,7 +35,7 @@ public class AgileNotifier(IApplicationDbContext db, IEmailSender email, IOption
         {
             if (addresses.GetValueOrDefault(recipient) is { } address)
             {
-                await email.SendAsync(new EmailMessage(address, subject, body), cancellationToken);
+                emails.Enqueue(new EmailMessage(address, subject, body));
             }
         }
 

@@ -1,3 +1,4 @@
+using System.Text.Json;
 using Azure.Storage.Blobs;
 using FaithTech.Community.Api.Tests.Fakes;
 using FaithTech.Community.Application.Agile;
@@ -5,6 +6,7 @@ using FaithTech.Community.Application.Common;
 using FaithTech.Community.Application.Identity;
 using FaithTech.Community.Application.Profiles;
 using FaithTech.Community.Application.Search;
+using FaithTech.Community.Infrastructure.Email;
 using FaithTech.Community.Infrastructure.Persistence;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
@@ -38,6 +40,9 @@ public class CommunityApiFactory : WebApplicationFactory<Program>, IAsyncLifetim
     /// <summary>Lets a test overlap saves from concurrent requests.</summary>
     public SaveChangesGate SaveGate { get; } = new();
 
+    /// <summary>Lets a test fail one save before anything is written, as a lost connection would.</summary>
+    public SaveFailures SaveFailures { get; } = new();
+
     public FakeAgileNotifier Live { get; } = new();
 
     public async Task InitializeAsync()
@@ -64,7 +69,7 @@ public class CommunityApiFactory : WebApplicationFactory<Program>, IAsyncLifetim
             services.AddDbContext<CommunityDbContext>(options => options
                 .UseInMemoryDatabase(_databaseName, _databaseRoot)
                 .UseOpenIddict()
-                .AddInterceptors(SaveGate));
+                .AddInterceptors(SaveGate, SaveFailures));
 
             services.AddSingleton<BlobServiceClient>(Blobs);
             services.AddSingleton<IEmailSender>(Emails);
@@ -82,6 +87,17 @@ public class CommunityApiFactory : WebApplicationFactory<Program>, IAsyncLifetim
         await using var scope = Services.CreateAsyncScope();
         return await query(scope.ServiceProvider.GetRequiredService<CommunityDbContext>());
     }
+
+    /// <summary>The emails queued in the outbox for <paramref name="address"/>, oldest first, as the producer composed them.</summary>
+    public Task<IReadOnlyList<EmailMessage>> QueuedEmailsToAsync(string address) =>
+        WithDbAsync(async db =>
+        {
+            var rows = await db.OutboxMessages.Where(m => m.To == address).OrderBy(m => m.CreatedAt).ToListAsync();
+            return (IReadOnlyList<EmailMessage>)rows.Select(m => new EmailMessage(
+                m.To, m.Subject, m.Body,
+                m.AttachmentsJson is { } json ? JsonSerializer.Deserialize<List<EmailAttachment>>(json) : null,
+                m.HtmlBody)).ToList();
+        });
 
     public new Task DisposeAsync() => base.DisposeAsync().AsTask();
 }

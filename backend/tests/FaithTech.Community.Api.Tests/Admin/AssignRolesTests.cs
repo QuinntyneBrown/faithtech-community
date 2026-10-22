@@ -33,7 +33,7 @@ public class AssignRolesTests(CommunityApiFactory factory) : IClassFixture<Commu
         var notification = await factory.WithDbAsync(db => db.Notifications.SingleAsync(n => n.RecipientId == ruth.ProfileId));
         Assert.Equal(NotificationKind.RoleChanged, notification.Kind);
         Assert.Contains("Grace Okonkwo", notification.Title);
-        Assert.Single(factory.Emails.SentTo(await EmailOfAsync(ruth)));
+        Assert.Single(await factory.QueuedEmailsToAsync(await EmailOfAsync(ruth)));
     }
 
     [Fact]

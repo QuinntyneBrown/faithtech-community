@@ -65,8 +65,8 @@ public class WorkspaceSettingsHandler(
         }
 
         policy.AuditOverride(caller, "workspace.member.added", "Workspace", workspace.Id, null, new { ProfileIds = added });
+        await notifier.QueueEmailsAsync(cancellationToken);
         await db.SaveChangesAsync(cancellationToken);
-        await notifier.SendEmailsAsync(cancellationToken);
         return Result.Ok();
     }
 

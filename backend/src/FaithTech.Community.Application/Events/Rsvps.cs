@@ -21,7 +21,7 @@ public class RsvpHandler(
     EventPermissions permissions,
     INotificationPublisher notifications,
     IIcsCalendarWriter calendar,
-    IEmailSender email,
+    IEmailQueue emails,
     IOptions<WebAppOptions> webApp,
     TimeProvider time)
 {
@@ -56,14 +56,15 @@ public class RsvpHandler(
         var title = $"You’re going to {e.Title}";
         var link = $"/events/{e.Id}";
         notifications.Publish(me, NotificationKind.RsvpConfirmed, title, link);
-        await db.SaveChangesAsync(cancellationToken);
 
         var address = await db.Users.Where(u => u.ProfileId == me).Select(u => u.Email).SingleOrDefaultAsync(cancellationToken);
         if (address is not null)
         {
-            await email.SendAsync(Confirmation(e, address, $"{webApp.Value.Origin}{link}"), cancellationToken);
+            emails.Enqueue(Confirmation(e, address, $"{webApp.Value.Origin}{link}"));
         }
 
+        // The RSVP, its notification and its confirmation commit together (L2-028).
+        await db.SaveChangesAsync(cancellationToken);
         return Result.Ok();
     }
 

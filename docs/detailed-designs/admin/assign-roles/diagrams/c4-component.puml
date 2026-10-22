@@ -27,5 +27,5 @@ Rel(h, prof, "Adds or removes ProfileRole")
 Rel(h, audit, "Records role.granted or role.removed")
 Rel(h, notify, "Notifies owner when caller is a City Lead")
 Rel(h, db, "Persists", "EF Core")
-Rel(notify, email, "Sends email via", "IEmailSender")
+Rel(notify, email, "Queues email in the unit of work via", "IEmailQueue")
 @enduml
