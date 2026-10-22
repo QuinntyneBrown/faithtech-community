@@ -12,19 +12,19 @@ Other features create notifications through one Application service, so every so
 
 ## Description
 
-- **`NotificationBellComponent`** and **`NotificationPanelComponent`** — component in the `components` library that renders the bell button (a `<button aria-haspopup="dialog">`, never a link, with `aria-expanded` and, while open, `aria-controls` naming the panel), the unread badge and the panel shell. It receives items and the count through inputs and emits `open` and `markAllRead` events; it makes no HTTP calls.
+- **`NotificationBellComponent`** and **`NotificationPanelComponent`** — components in the `components` library. The bell renders a `<button aria-haspopup="dialog">`, never a link, with `aria-expanded` and, while open, `aria-controls` naming the panel, and the unread count; the panel shows the latest notices, "Mark all read" and "See all". They receive items and the count through inputs and emit events; they make no HTTP calls.
+- **`NoticeListComponent`** — the `.notice` rows (initials, the notice's title as the link to its item, time and "Unread") in `components`, used by the panel and the page. With `deferNavigation` it cancels the link's own navigation so the host marks the notice read first.
+- **`ShellNotificationsComponent`** — glue in the app shell (`faithtech-community/src/app/shell`) that feeds the bell and panel from `NotificationsService`. It reloads on every navigation and every 60 seconds while the tab is visible, marks an opened notice read and then navigates to its `LinkPath`. It is not in the `notifications` library, because the shell never imports a feature library eagerly (ADR 0016).
 - **`NotificationsPage`** — page in the `notifications` feature library (mock `pages/notifications`). It lists notifications newest first, 50 at a time with a **Show older notifications** button, filters to **All** or **Unread** (mock `pages/notifications/unread`), shows the empty state when none exist, and offers "Mark all as read".
-- **`AppShellComponent`** bell glue — the app shell composes the bell and panel with `NotificationsService` (ADR 0016). It is not in the `notifications` library, because the shell never imports a feature library eagerly.
 - **`NotificationsService`** / **`NOTIFICATIONS_SERVICE`** / **`HttpNotificationsService`** — API client contract, injection token and HTTP implementation in the `api` library.
 - **`NotificationsEndpoints`** — minimal API mapping in `FaithTech.Community.Api` for `GET /api/notifications?unreadOnly=&page=`, `GET /api/notifications/unread-count`, `POST /api/notifications/{id}/read` and `POST /api/notifications/read-all`. Another member's notification id answers `404`.
-- **`ListNotificationsQuery`** / **`ListNotificationsHandler`** — returns a page of 50 of the caller's notifications ordered by `CreatedAt` descending, filtered by recipient (and, with `unreadOnly`, by a null `ReadAt`) in the database query.
-- **`MarkNotificationReadCommand`** / **`MarkNotificationReadHandler`** and **`MarkAllNotificationsReadCommand`** / **`MarkAllNotificationsReadHandler`** — set `ReadAt` on one or all of the caller's unread notifications.
-- **`INotificationPublisher`** — Application service other features call to create a notification and, when the notification kind has an email form, enqueue the email.
-- **`Notification`** — Domain entity with `RecipientId`, `Kind`, `Title` (required), `LinkPath` (required), an optional `ActorId` (the member whose action raised it; the notice shows their initials), `CreatedAt` and `ReadAt`. `MarkRead(at)` keeps the first read time.
+- **`InAppNotificationsHandler`** — lists a page of 50 of the caller's notifications ordered by `CreatedAt` descending, filtered by recipient (and, with `unreadOnly`, by a null `ReadAt`) in the database query, with `totalCount`, `unreadCount`, `hasMore` and each actor's name; counts the unread; and sets `ReadAt` on one or all of the caller's unread notifications.
+- **`INotificationPublisher`** — Application service other features call: `Publish` adds one in-app notification; `PublishAsync` adds one per recipient and queues their email (email notifications design).
+- **`Notification`** — Domain entity with `RecipientId`, `Kind`, `Title` (required), `LinkPath` (required), an optional `ActorId` (the member whose action raised it; the notice shows their initials, or "FaithTech" without one), `CreatedAt` and `ReadAt`. `MarkRead(at)` keeps the first read time.
 - **`NotificationKind`** — enumeration of notification sources, listed in `L2-028`.
-- **`CommunityDbContext`** — persists `Notification` rows in the `notifications` table.
+- **`CommunityDbContext`** — persists `Notification` rows in the `Notifications` table, indexed by recipient and time.
 
-The shell reloads the unread count and the panel's latest notices on every navigation and every 60 seconds while the tab is visible; server push is deferred (ADR 0016).
+Server push for the unread count is deferred (ADR 0016).
 
 ## Requirements
 
