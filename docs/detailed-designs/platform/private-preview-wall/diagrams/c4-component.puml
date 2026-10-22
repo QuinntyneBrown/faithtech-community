@@ -1,0 +1,31 @@
+@startuml
+!include <C4/C4_Component>
+LAYOUT_WITH_LEGEND()
+title Components — Private preview wall
+Container_Boundary(api, "FaithTech.Community.Api") {
+  Component(hdr, "SecurityHeadersMiddleware", "Middleware", "HSTS, nosniff, frame, referrer; X-Robots-Tag while the wall is on; per-response CSP")
+  Component(gate, "PrivatePreviewGateMiddleware", "Middleware", "Exempt paths, unlock form, cookie check, wall page or empty 403")
+  Component(page, "WallPage", "Embedded wall.html", "Nonce, CSRF value, return URL, state")
+  Component(sites, "Static sites", "Middleware", "Community and marketing builds by host, SPA fallback, app CSP")
+  Component(rest, "CORS, authentication, authorization, endpoints, hub", "ASP.NET Core", "Unchanged rules after the wall")
+}
+Container_Boundary(app, "FaithTech.Community.Application") {
+  Component(handler, "UnlockHandler", "Handler", "Lockout first, then constant-cost check")
+  Component(attempts, "UnlockAttempts", "Singleton policy", "Per-address and global lockouts")
+  Component(urls, "ReturnUrls", "Helper", "Local paths only")
+}
+Container_Boundary(infra, "FaithTech.Community.Infrastructure") {
+  Component(hasher, "Pbkdf2PassphraseHasher", "IPassphraseHasher", "PBKDF2-SHA256, fixed-time compare")
+  Component(tokens, "HmacUnlockTokens", "IUnlockTokens", "HMAC-SHA256 token with expiry")
+}
+Rel(hdr, gate, "Then")
+Rel(gate, page, "Renders")
+Rel(gate, handler, "POST /__wall/unlock")
+Rel(gate, tokens, "Validates cookie with")
+Rel(gate, urls, "Sanitises returnUrl with")
+Rel(handler, attempts, "Checks and records")
+Rel(handler, hasher, "Verifies")
+Rel(handler, tokens, "Issues")
+Rel(gate, sites, "Then, when unlocked")
+Rel(sites, rest, "Then, for API paths")
+@enduml

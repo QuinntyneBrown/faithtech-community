@@ -1,0 +1,39 @@
+@startuml
+title UML sequence behaviour — A request while locked
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+actor "Visitor without an unlock" as actor
+box "Frontend — browser (no app bundle has loaded)" #E0F2FE
+  participant "Browser" as browser
+end box
+box "Backend — FaithTech.Community.Api" #D1FADF
+  participant "SecurityHeadersMiddleware" as hdr
+  participant "PrivatePreviewGateMiddleware" as gate
+  participant "WallPage" as page
+  participant "Static sites, CORS, auth, endpoints, hub" as rest
+end box
+box "Backend — FaithTech.Community.Infrastructure" #FFF4E5
+  participant "HmacUnlockTokens" as tokens
+end box
+actor -> browser : Open https://app.faithtech.community/events/42
+browser -> hdr : GET /events/42 (Accept: text/html)
+hdr -> gate : Next (X-Robots-Tag, HSTS, nosniff added, L2-091 #1)
+alt /robots.txt or /health/live
+  gate --> browser : Disallow: / or Healthy (L2-086 #2, L2-091 #3)
+else cookie __Secure-unlock present
+  gate -> tokens : IsValid(token)
+  tokens --> gate : false (expired, other key, tampered, L2-089 #3)
+end
+alt CORS preflight from WebApp or Marketing origin
+  gate -> rest : Next (L2-086 #3)
+else navigation (GET or HEAD accepting text/html)
+  gate -> page : Render default state, new nonce and CSRF value
+  page --> browser : 403, wall page, no-store, Set-Cookie __Host-wall (L2-085 #1, L2-089 #4)
+else API, /connect, /hubs, static file, anything else
+  gate --> browser : 403, empty body, no redirect (L2-085 #5, L2-086 #1)
+end
+browser --> actor : "Private preview" and the passphrase field
+@enduml

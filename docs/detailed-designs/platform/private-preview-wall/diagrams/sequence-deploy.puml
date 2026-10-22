@@ -1,0 +1,33 @@
+@startuml
+title UML sequence behaviour — Deploy
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+actor "Owner" as actor
+box "CI — GitHub Actions" #E0F2FE
+  participant "deploy.yml" as wf
+end box
+box "Azure — resource group" #D1FADF
+  participant "Container registry" as acr
+  participant "ARM (main.bicep)" as arm
+  participant "Cli job" as cli
+  participant "API container app" as api
+end box
+box "Azure — data" #FFF4E5
+  database "PostgreSQL" as db
+end box
+actor -> wf : Run workflow (or push to main when DEPLOY_ENABLED)
+wf -> wf : dotnet test; build both images
+wf -> acr : Push api and cli images tagged with the commit
+wf -> arm : Deploy main.bicep (no secrets in parameters)
+arm --> wf : Resources up to date
+wf -> cli : Start job with "migrate"
+cli -> db : Apply EF migrations (never the API, L2-094 #3)
+wf -> cli : Start job with "seed"
+cli -> db : web client, admin roster, starter resources (L2-094 #4)
+wf -> api : Update image to the commit tag
+api --> wf : New revision healthy on /health/live
+wf --> actor : Deployed behind the wall
+@enduml

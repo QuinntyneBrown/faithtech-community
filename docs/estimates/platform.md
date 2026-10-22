@@ -7,6 +7,7 @@
 | home | 3 days | 100% | C+ |
 | input-validation-and-web-protections | 3 days | 85% | n/a |
 | performance | 3 days | 60% | n/a |
+| private-preview-wall | 9 days | 0% | n/a |
 | reliability-and-observability | 4 days | 85% | n/a |
 | responsive-layout-and-theming | 3 days | 85% | C+ |
 | server-authorization | 3 days | 40% | n/a |
