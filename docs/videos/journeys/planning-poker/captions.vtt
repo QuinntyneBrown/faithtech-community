@@ -1,0 +1,26 @@
+WEBVTT
+
+00:00:00.000 --> 00:00:13.000
+In this video you are a workspace member who facilitates a Planning Poker session, so the team can estimate stories together. The app is real; the server is a local stand-in, and the people are made up.
+
+00:00:13.000 --> 00:00:19.000
+The Planning Poker tab starts with no session running, and a button to start one.
+
+00:00:19.000 --> 00:00:30.000
+Choose the stories to estimate and the members to invite. If you forget the stories, you are reminded. Start and invite, and the first story is up for estimating.
+
+00:00:30.000 --> 00:00:37.000
+Pick a card from the deck. As teammates vote, you see who has voted, live, but never what they chose.
+
+00:00:37.000 --> 00:00:50.000
+When everyone has voted, the facilitator reveals them all at once. If the votes differ, the page shows the range and suggests the highest and lowest voters explain their thinking.
+
+00:00:50.000 --> 00:00:57.000
+After the discussion, start a re-vote. Everyone chooses again, and this time the team agrees on eight.
+
+00:00:57.000 --> 00:01:04.000
+Set the final points, and they are saved to the story. The session moves straight on to the next one.
+
+00:01:04.000 --> 00:01:12.000
+That is Planning Poker: private votes, a reveal for everyone together, and points saved to each story.
+

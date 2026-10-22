@@ -14,7 +14,7 @@ against without a database and identity server.
 
 ## Decision
 
-- **Layout.** Videos, posters, captions and narration text live in `docs/videos/journeys/`. The
+- **Layout.** Each journey has a folder in `docs/videos/journeys/` holding `video.webm`, `poster.png`, `captions.vtt` and `narration.md`. The
   recording tooling lives in `eng/videos/`. Both folders are added to the layout tree in
   `AGENTS.md`.
 - **Driver.** Each journey is a Playwright "story" (`eng/videos/journeys/<slug>.story.ts`) run by
@@ -29,7 +29,7 @@ against without a database and identity server.
   acceptance tests do. Profile photos are illustrations drawn on a canvas in the browser
   (`eng/videos/photos.ts`); the fake's optional `uploadedPhotoUrl` hook returns the uploaded
   picture instead of its default placeholder square, so the video shows what was uploaded.
-- **Narration.** One `<slug>-narration.md` per journey: `## step-id: Chapter title` followed by one
+- **Narration.** One `<slug>/narration.md` per journey: `## step-id: Chapter title` followed by one
   paragraph. The same text is the on-screen caption, the WebVTT caption and the source of the voice
   track. `pronunciations.json` holds spoken replacements. Voice: `en-US-AndrewMultilingualNeural`
   via the free `edge-tts` package (`EDGE_VOICE` overrides it). No second voice is used.

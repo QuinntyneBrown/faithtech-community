@@ -1,0 +1,26 @@
+WEBVTT
+
+00:00:00.000 --> 00:00:12.000
+In this video you are a City Lead who sets up a workspace for your team and manages who belongs to it. The app is real; the server is a local stand-in, and the people are made up.
+
+00:00:12.000 --> 00:00:19.000
+Your workspaces page starts empty, with an invitation to create your first workspace.
+
+00:00:19.000 --> 00:00:30.000
+The New workspace dialog asks for a name, a method, and who should join. Only leads and volunteers can be picked. Leave the name empty and you are asked to give one.
+
+00:00:30.000 --> 00:00:40.000
+Name it Toronto team, keep Scrum, pick Ruth, and create it. It appears in your list at once, with its method and member count.
+
+00:00:40.000 --> 00:00:48.000
+Open the workspace and go to its Settings. The owner sees every member listed, and is the only person who can change them.
+
+00:00:48.000 --> 00:00:58.000
+Add members offers the leads and volunteers who are not in yet. Choose Marcus, confirm, and he joins with his role shown beside his name.
+
+00:00:58.000 --> 00:01:06.000
+Removing someone asks you to confirm, because they lose access straight away. Confirm, and Ruth is gone from the list.
+
+00:01:06.000 --> 00:01:15.000
+That is workspaces and membership: the owner creates the workspace and chooses its members, and only members can see it.
+

@@ -1,0 +1,23 @@
+WEBVTT
+
+00:00:00.000 --> 00:00:10.000
+In this video you look through the people directory and change someone's roles. The app is real; the server is a local stand-in, and the people are made up.
+
+00:00:10.000 --> 00:00:20.000
+People and roles lists every member with their photo, their roles and their home city. Someone who has not been given a role yet shows No role yet.
+
+00:00:20.000 --> 00:00:29.000
+Some people hold roles that only a System Admin can change, such as Staff. Those rows say so, and they have no remove button for you.
+
+00:00:29.000 --> 00:00:40.000
+Type a name or an email address and press Enter to narrow the list. If nobody matches, you see a friendly message, with a way to invite them instead.
+
+00:00:40.000 --> 00:00:49.000
+To give someone a role, choose Add role on their row. You can pick any role a City Lead may grant, and the list updates right away, without a reload.
+
+00:00:50.000 --> 00:00:58.000
+Removing a role works the same way. The app asks you to confirm first, and then the person goes back to having no role.
+
+00:00:58.000 --> 00:01:08.000
+That is the people directory: search the whole community, and add or remove everyday roles, while protected roles stay with System Admin.
+

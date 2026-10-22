@@ -1,8 +1,8 @@
 # Estimates: identity
 
-| Design | Effort | Complete |
-|---|---|---|
-| email-verification | 4 days | 90% |
-| password-reset | 4 days | 100% |
-| sign-in-and-sign-out | 5 days | 100% |
-| sign-up | 4 days | 100% |
+| Design | Effort | Complete | Visual conformance |
+|---|---|---|---|
+| email-verification | 4 days | 90% | n/a |
+| password-reset | 4 days | 100% | B+ |
+| sign-in-and-sign-out | 5 days | 100% | A- |
+| sign-up | 4 days | 100% | A- |

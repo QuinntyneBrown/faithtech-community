@@ -16,6 +16,9 @@
 .PARAMETER Journey
     Slugs to record. Defaults to every journey.
 
+.PARAMETER Missing
+    Record only the journeys that have no video.webm yet.
+
 .EXAMPLE
     pwsh eng/videos/Record-JourneyVideos.ps1
 .EXAMPLE
@@ -24,6 +27,7 @@
 [CmdletBinding()]
 param(
     [string[]] $Journey,
+    [switch] $Missing,
     [int] $Port = 4310
 )
 
@@ -32,14 +36,16 @@ Set-StrictMode -Version Latest
 
 $Root = (Resolve-Path (Join-Path $PSScriptRoot '..' '..')).Path
 $OutDir = Join-Path $Root 'docs' 'videos' 'journeys'
-$RunDir = Join-Path $PSScriptRoot '.run'
+$RunDir = if ($env:DEMO_RUN_ROOT) { $env:DEMO_RUN_ROOT } else { Join-Path $PSScriptRoot '.run' }
 $Python = if ($env:PYTHON) { $env:PYTHON } elseif ($IsWindows) { 'python' } else { 'python3' }
 $Voice = if ($env:EDGE_VOICE) { $env:EDGE_VOICE } else { 'en-US-AndrewMultilingualNeural' }
 $MarginSeconds = 0.7
-$AllJourneys = 'sign-up', 'verify-email', 'sign-in-and-sign-out', 'password-reset', 'app-shell-tour',
-'error-and-system-pages', 'view-profile', 'edit-own-profile', 'manage-profile-photos'
+$AllJourneys = Get-ChildItem (Join-Path $PSScriptRoot 'journeys') -Filter '*.story.ts' |
+    ForEach-Object { $_.Name -replace '\.story\.ts$', '' } | Sort-Object
 # Accepts "-Journey a,b" from PowerShell and "-Journey a,b" passed as one string by other shells.
 $Journey = if ($Journey) { $Journey -split ',' | ForEach-Object Trim | Where-Object { $_ } } else { $AllJourneys }
+if ($Missing) { $Journey = @($Journey | Where-Object { -not (Test-Path (Join-Path $OutDir $_ 'video.webm')) }) }
+if (-not $Journey) { Write-Host 'Nothing to record.'; return }
 foreach ($slug in $Journey) {
     if ($slug -notin $AllJourneys) { throw "Unknown journey '$slug'. Choose from: $($AllJourneys -join ', ')" }
 }
@@ -78,7 +84,7 @@ function Get-Duration([string] $Path) {
 
 # Narration files: "# Title", then "## step-id: Chapter title" and one paragraph per step.
 function Read-Narration([string] $Slug) {
-    $lines = Get-Content -LiteralPath (Join-Path $OutDir "$Slug-narration.md") -Encoding utf8
+    $lines = Get-Content -LiteralPath (Join-Path $OutDir $Slug 'narration.md') -Encoding utf8
     $title = ($lines | Where-Object { $_ -match '^# ' } | Select-Object -First 1) -replace '^# ', ''
     $clips = [Collections.Generic.List[object]]::new()
     $current = $null
@@ -90,7 +96,7 @@ function Read-Narration([string] $Slug) {
             $current.text = ("$($current.text) $($line.Trim())").Trim()
         }
     }
-    if (-not $title -or $clips.Count -eq 0) { throw "$Slug-narration.md has no title or steps" }
+    if (-not $title -or $clips.Count -eq 0) { throw "$Slug/narration.md has no title or steps" }
     return [ordered]@{ slug = $Slug; title = $title; clips = $clips }
 }
 
@@ -162,6 +168,12 @@ function Complete-Video([string] $Slug) {
     # Playwright saves the page's video into the test's output folder once the context closes.
     $take = Get-ChildItem (Join-Path $RunDir 'playwright') -Directory -Filter "$Slug.story.ts-*" |
         Get-ChildItem -Filter 'video.webm' | Select-Object -First 1
+    # Playwright shortens and hashes the folder name of a long test title; the run folder holds one take.
+    if (-not $take) {
+        $take = Get-ChildItem (Join-Path $RunDir 'playwright') -Directory |
+            Get-ChildItem -Filter 'video.webm' | Sort-Object LastWriteTime -Descending |
+            Select-Object -First 1
+    }
     if (-not $take) { throw "No video was saved for $Slug" }
     Copy-Item $take.FullName $raw -Force
     $length = Get-Duration $raw
@@ -200,9 +212,9 @@ function Complete-Video([string] $Slug) {
     }
     $metaFile = Join-Path $dir 'chapters.txt'
     Set-Content -Encoding utf8NoBOM $metaFile ($meta -join "`n")
-    Set-Content -Encoding utf8NoBOM (Join-Path $stage "$Slug.vtt") ($vtt -join "`n")
+    Set-Content -Encoding utf8NoBOM (Join-Path $stage "captions.vtt") ($vtt -join "`n")
 
-    $video = Join-Path $stage "$Slug.webm"
+    $video = Join-Path $stage "video.webm"
     Invoke-Tool ffmpeg @('-y', '-v', 'error', '-i', $raw, '-i', $audio, '-f', 'ffmetadata', '-i', $metaFile,
         '-map', '0:v:0', '-map', '1:a:0', '-map_metadata', '2', '-map_chapters', '2',
         '-c', 'copy', '-metadata:s:a:0', 'language=eng', $video) | Out-Null
@@ -210,7 +222,7 @@ function Complete-Video([string] $Slug) {
     $poster = $steps | Where-Object poster | Select-Object -First 1
     $posterAt = $poster.start + $poster.duration * 0.8
     Invoke-Tool ffmpeg @('-y', '-v', 'error', '-ss', "$posterAt", '-i', $video, '-frames:v', '1',
-        (Join-Path $stage "$Slug-poster.png")) | Out-Null
+        (Join-Path $stage "poster.png")) | Out-Null
 
     Test-Video $Slug $video $steps
     $steps | Select-Object id, chapter, start, duration |
@@ -241,15 +253,17 @@ function Publish-Video([string] $Slug) {
     $stage = Join-Path $RunDir $Slug 'stage'
     $backup = Join-Path $RunDir $Slug 'backup'
     New-Item -ItemType Directory -Force -Path $backup | Out-Null
+    $dest = Join-Path $OutDir $Slug
+    New-Item -ItemType Directory -Force -Path $dest | Out-Null
     $files = Get-ChildItem $stage -File
     foreach ($f in $files) {
-        $target = Join-Path $OutDir $f.Name
+        $target = Join-Path $dest $f.Name
         if (Test-Path $target) { Copy-Item $target $backup -Force }
     }
     try {
-        foreach ($f in $files) { Copy-Item $f.FullName $OutDir -Force }
+        foreach ($f in $files) { Copy-Item $f.FullName $dest -Force }
     } catch {
-        Get-ChildItem $backup -File | Copy-Item -Destination $OutDir -Force
+        Get-ChildItem $backup -File | Copy-Item -Destination $dest -Force
         throw
     }
 }

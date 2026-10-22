@@ -2,6 +2,7 @@
 
 Ordered by value to the user. Effort and completion come from [estimates](estimates/README.md).
 
+
 | # | Name | Description | Effort (days) | Completion (%) |
 |---|---|---|---|---|
 | 1 | Sign up | Create an account with email and password to join the community. | 4 | 100 |

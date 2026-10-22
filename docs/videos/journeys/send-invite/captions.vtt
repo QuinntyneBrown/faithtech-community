@@ -1,0 +1,26 @@
+WEBVTT
+
+00:00:00.000 --> 00:00:11.000
+In this video you invite a new person to FaithTech and see how invites are tracked. The app is real; the server is a local stand-in, and the people are made up.
+
+00:00:11.000 --> 00:00:20.000
+The Invites page lists every invite that leads have sent, with the role it comes with and its status: Pending, Accepted or Expired.
+
+00:00:20.000 --> 00:00:29.000
+An invite expires after fourteen days. Choose Resend on an expired one and it goes out again, and returns to Pending.
+
+00:00:29.000 --> 00:00:36.000
+To invite someone new, choose Invite someone. A dialog opens with the cursor already in the Email field.
+
+00:00:36.000 --> 00:00:43.000
+If the address is not complete, the dialog tells you what to fix before anything is sent.
+
+00:00:43.000 --> 00:00:51.000
+Enter their email, choose a role they will join with, from the ones you are allowed to grant, and add a short personal note.
+
+00:00:51.000 --> 00:01:00.000
+Choose Send invite. The dialog closes, a confirmation appears, and the new invite shows at the top of the list, waiting for them.
+
+00:01:00.000 --> 00:01:08.000
+That is sending an invite: an email, an optional role and a note, with every invite and its status in one list.
+

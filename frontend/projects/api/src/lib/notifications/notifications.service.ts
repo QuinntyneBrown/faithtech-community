@@ -45,6 +45,8 @@ export interface NotificationQuery {
 
 /** Contract for the notifications API. Pages depend on NOTIFICATIONS_SERVICE, never on HttpNotificationsService. */
 export interface NotificationsService {
+  /** Emits after a notification or all of them are marked read, so the top bar's bell can refresh. */
+  readonly changed?: Observable<void>;
   list(query?: NotificationQuery): Observable<NotificationPage>;
   unreadCount(): Observable<number>;
   markRead(id: string): Observable<void>;

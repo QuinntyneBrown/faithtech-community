@@ -1,0 +1,20 @@
+WEBVTT
+
+00:00:00.000 --> 00:00:12.000
+In this video you are a System Admin reading the audit log, the record of everything admins have done. The app is real; the server is a local stand-in, and the people are made up.
+
+00:00:12.000 --> 00:00:22.000
+Each entry shows when it happened, who did it, and what they did, such as granting the City Lead role to someone. The newest entries come first.
+
+00:00:22.000 --> 00:00:29.000
+Choose Export CSV and the log downloads as a spreadsheet file, and a message confirms it.
+
+00:00:29.000 --> 00:00:38.000
+The Action filter narrows the log to one kind of action. If nothing of that kind happened in the last ninety days, you are told so.
+
+00:00:38.000 --> 00:00:42.000
+Choose Show all actions and every entry comes back.
+
+00:00:42.000 --> 00:00:52.000
+That is the audit log: when, who and what for every admin action, with filtering and export, and only for System Admins.
+

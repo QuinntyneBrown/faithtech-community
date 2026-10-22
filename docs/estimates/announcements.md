@@ -1,6 +1,6 @@
 # Estimates: announcements
 
-| Design | Effort | Complete |
-|---|---|---|
-| read-announcements-and-opt-out | 4 days | 100% |
-| send-announcement | 4 days | 100% |
+| Design | Effort | Complete | Visual conformance |
+|---|---|---|---|
+| read-announcements-and-opt-out | 4 days | 100% | B- |
+| send-announcement | 4 days | 100% | B- |

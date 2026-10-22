@@ -1,0 +1,23 @@
+WEBVTT
+
+00:00:00.000 --> 00:00:11.000
+In this video you act as a System Admin and look after every account in the community. The app is real; the server is a local stand-in, and the people are made up.
+
+00:00:11.000 --> 00:00:19.000
+Only System Admins see the Admin link in the top bar. It opens the list of every user account.
+
+00:00:19.000 --> 00:00:28.000
+Each row shows a person's roles and their status: active, suspended, or unverified because they have not confirmed their email yet.
+
+00:00:28.000 --> 00:00:39.000
+Type a name or an email address and press Enter to narrow the list. If nothing matches, you are told so, and clearing the search brings everyone back.
+
+00:00:39.000 --> 00:00:48.000
+A name in the list takes you to that person's profile, where System Admins see an Edit profile button that other members never get.
+
+00:00:48.000 --> 00:00:57.000
+The editor says plainly that you are editing someone else's profile. You change their bio and save, and the change is written to the audit log.
+
+00:00:57.000 --> 00:01:08.000
+That is the admin user list: every account with its roles and status, quick search, and the power to correct any profile, with every change on record.
+

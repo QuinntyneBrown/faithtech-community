@@ -103,6 +103,20 @@ test.describe('In-app notifications', () => {
     await expect(notifications.markAllRead).toHaveCount(0);
   });
 
+  test('Mark all as read on the page clears the bell in the top bar', async ({ page, api }) => {
+    const grace = api.addAccount({ email: 'grace@example.org' });
+    api.notifications.add({ recipientId: grace.profileId, title: 'One' });
+    api.notifications.add({ recipientId: grace.profileId, title: 'Two' });
+    const shell = new AppShell(page);
+    const notifications = new NotificationsPage(page);
+    await api.signInAs(grace, '/notifications');
+    await expect(shell.bell).toHaveAccessibleName('Notifications, 2 unread');
+
+    await notifications.markAllRead.click();
+
+    await expect(shell.bell).toHaveAccessibleName('Notifications');
+  });
+
   test('a member with no notifications sees the empty state', async ({ page, api, axe }) => {
     const notifications = new NotificationsPage(page);
     await api.signInAs(api.addAccount({ email: 'grace@example.org' }), '/notifications');

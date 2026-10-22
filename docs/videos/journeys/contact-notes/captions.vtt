@@ -1,0 +1,23 @@
+WEBVTT
+
+00:00:00.000 --> 00:00:09.000
+In this video you keep notes on a private contact. The app is real; the server is a local stand-in, and the people are made up.
+
+00:00:09.000 --> 00:00:16.000
+Open a contact and you see their details and the notes you wrote before, each with its date.
+
+00:00:16.000 --> 00:00:21.000
+Choose Add note. A dialog opens, with the cursor ready in the note field.
+
+00:00:21.000 --> 00:00:28.000
+If you try to add an empty note, the dialog asks you to write something first, and nothing is saved.
+
+00:00:28.000 --> 00:00:33.000
+Write what you want to remember, such as what the person asked for, and choose Add note.
+
+00:00:33.000 --> 00:00:40.000
+The dialog closes and your note appears at the top of the list, with today's date, above the older one.
+
+00:00:41.000 --> 00:00:49.000
+That is contact notes: quick to add, dated, newest first, and visible only to you and System Admin.
+

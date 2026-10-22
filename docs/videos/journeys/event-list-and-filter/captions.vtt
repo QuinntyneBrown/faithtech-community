@@ -1,0 +1,26 @@
+WEBVTT
+
+00:00:00.000 --> 00:00:11.000
+In this video you browse the events list and narrow it down with filters. The app is real; the server is a local stand-in, and the events are made up.
+
+00:00:11.000 --> 00:00:24.000
+The list opens on upcoming events, soonest first. Each one shows its date, city, where it happens, how many people are going, and whether it is public. Leads also see a New event button.
+
+00:00:24.000 --> 00:00:30.000
+A cancelled event stays on the list, clearly marked as cancelled, so nobody turns up by mistake.
+
+00:00:30.000 --> 00:00:34.000
+The Past filter switches to events that have already happened.
+
+00:00:34.000 --> 00:00:44.000
+Hackathons shows only hackathons, and Online shows only events you can join from home. Choosing a filter replaces the one before it.
+
+00:00:44.000 --> 00:00:51.000
+Go back to Upcoming and choose a city, such as Toronto, to see only events there.
+
+00:00:51.000 --> 00:00:59.000
+When a combination has no events, you get a plain message saying so, and one button to show all cities again.
+
+00:00:59.000 --> 00:01:06.000
+That is the events list: upcoming first, cancelled events marked, and quick filters by time, type and city.
+
