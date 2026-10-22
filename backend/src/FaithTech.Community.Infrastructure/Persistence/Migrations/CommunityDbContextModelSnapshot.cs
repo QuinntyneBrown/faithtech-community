@@ -141,6 +141,26 @@ namespace FaithTech.Community.Infrastructure.Persistence.Migrations
                     b.ToTable("AuditEntries");
                 });
 
+            modelBuilder.Entity("FaithTech.Community.Domain.Admin.SystemAdminRoster", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTimeOffset?>("LeaseExpiresAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid?>("LeaseHolder")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("Version")
+                        .IsConcurrencyToken()
+                        .HasColumnType("uuid");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("SystemAdminRosters");
+                });
+
             modelBuilder.Entity("FaithTech.Community.Domain.Agile.PokerSession", b =>
                 {
                     b.Property<Guid>("Id")
