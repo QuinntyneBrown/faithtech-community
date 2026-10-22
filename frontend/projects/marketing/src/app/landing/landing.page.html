@@ -34,11 +34,22 @@
               technology.
             </p>
             <ft-sign-up-form
+              divider="or"
               [busy]="busy()"
               [unreachable]="unreachable()"
               [serverErrors]="serverErrors()"
               (submitted)="signUp($event)"
-            />
+            >
+              <ft-button
+                ftAuthAlternatives
+                variant="google"
+                size="lg"
+                [block]="true"
+                [loading]="googleBusy()"
+                (click)="continueWithGoogle()"
+                >Sign up with Google</ft-button
+              >
+            </ft-sign-up-form>
             <p class="text-center">
               Already a member?
               <ft-button variant="ghost" size="sm" (click)="show('sign-in')">Sign in</ft-button>
@@ -46,11 +57,22 @@
           } @else {
             <h2 #panelHeading tabindex="-1">Sign in</h2>
             <ft-sign-in-form
+              divider="or"
               [busy]="busy()"
               [failure]="failure()"
               [forgotPasswordHref]="communityOrigin + '/forgot-password'"
               (submitted)="signIn($event)"
-            />
+            >
+              <ft-button
+                ftAuthAlternatives
+                variant="google"
+                size="lg"
+                [block]="true"
+                [loading]="googleBusy()"
+                (click)="continueWithGoogle()"
+                >Sign in with Google</ft-button
+              >
+            </ft-sign-in-form>
             <p class="text-center">
               New to FaithTech?
               <ft-button variant="ghost" size="sm" (click)="show('join')">Join now</ft-button>

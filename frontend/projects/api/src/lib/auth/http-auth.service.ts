@@ -13,6 +13,7 @@ import { Injectable, computed, inject, signal } from '@angular/core';
 import { Observable, catchError, firstValueFrom, map, of, switchMap, tap, throwError } from 'rxjs';
 
 import { API_BASE_URL } from '../config';
+import { BROWSER_REDIRECT } from './browser-redirect';
 import {
   AuthService,
   CurrentUser,
@@ -28,6 +29,7 @@ export class HttpAuthService implements AuthService {
   private readonly http = inject(HttpClient);
   private readonly base = inject(API_BASE_URL);
   private readonly oidc = inject(OidcAuthClient);
+  private readonly redirect = inject(BROWSER_REDIRECT);
 
   private readonly user = signal<CurrentUser | null>(null);
 
@@ -59,6 +61,11 @@ export class HttpAuthService implements AuthService {
             : throwError(() => error);
         }),
       );
+  }
+
+  signInWithGoogle(returnUrl = '/', keepSignedIn = false): void {
+    const query = new URLSearchParams({ returnUrl, keepSignedIn: String(keepSignedIn) });
+    this.redirect(`${this.base}/account/google/start?${query}`);
   }
 
   signOut(): Observable<void> {

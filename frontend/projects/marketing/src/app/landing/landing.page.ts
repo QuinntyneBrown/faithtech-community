@@ -83,6 +83,8 @@ export class LandingPage {
   readonly returnUrl = input<string>();
   /** Present (`?join`) when the panel shows the sign-up form. */
   readonly join = input<string>();
+  /** How Google sign-in ended when the API sent the visitor back (`?google=failed|suspended`). */
+  readonly google = input<string>();
 
   /** The brochure's narration (eng/videos/brochure/script.md), shown as its transcript. */
   protected readonly transcript = BROCHURE_TRANSCRIPT;
@@ -94,10 +96,20 @@ export class LandingPage {
   protected readonly unreachable = signal(false);
   protected readonly serverErrors = signal<SignUpFieldErrors>({});
   protected readonly sentTo = signal<string | null>(null);
+  protected readonly googleBusy = signal(false);
   private readonly panelHeading = viewChild<ElementRef<HTMLElement>>('panelHeading');
+  private readonly signInForm = viewChild(SignInFormComponent);
 
   constructor() {
     const injector = inject(Injector);
+    // The API's Google outcome arrives once, in the URL the visitor comes back to (ADR 0018).
+    effect(() => {
+      const outcome = this.google();
+      untracked(() => {
+        if (outcome === 'suspended') this.failure.set('suspended');
+        else if (outcome === 'failed') this.failure.set('google_failed');
+      });
+    });
     let first = true;
     // Join now and Sign in switch the panel in place: take the visitor to its heading.
     effect(() => {
@@ -114,6 +126,16 @@ export class LandingPage {
   protected show(form: 'join' | 'sign-in'): void {
     const join = form === 'join' ? '' : null;
     void this.router.navigate([], { queryParams: { join }, queryParamsHandling: 'merge' });
+  }
+
+  /** One flow for "Sign in with Google" and "Sign up with Google": the browser leaves for Google. */
+  protected continueWithGoogle(): void {
+    if (this.googleBusy()) return;
+    this.googleBusy.set(true);
+    this.auth.signInWithGoogle(
+      appPath(this.returnUrl()),
+      this.signInForm()?.keepSignedIn() ?? false,
+    );
   }
 
   protected verifyEmailLink(email: string): string {

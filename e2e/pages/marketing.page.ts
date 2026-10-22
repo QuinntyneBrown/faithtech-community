@@ -44,6 +44,8 @@ export class MarketingPage {
   readonly nameError: Locator;
   readonly checkInbox: Locator;
   readonly sendAgain: Locator;
+  readonly signInWithGoogle: Locator;
+  readonly signUpWithGoogle: Locator;
 
   constructor(private readonly page: Page) {
     this.heading = page.getByRole('heading', {
@@ -85,10 +87,14 @@ export class MarketingPage {
     this.panelJoin = this.panel.getByRole('button', { name: 'Join now' });
     this.panelSignIn = this.panel.getByRole('button', { name: 'Sign in', exact: true });
     this.name = this.panel.getByLabel('Full name');
-    this.createAccount = this.panel.getByRole('button', { name: /Create account|Creating account/ });
+    this.createAccount = this.panel.getByRole('button', {
+      name: /Create account|Creating account/,
+    });
     this.nameError = fieldError(page, 'Full name');
     this.checkInbox = page.getByRole('heading', { level: 2, name: 'Check your inbox' });
     this.sendAgain = this.panel.getByRole('link', { name: 'send it again' });
+    this.signInWithGoogle = this.panel.getByRole('button', { name: 'Sign in with Google' });
+    this.signUpWithGoogle = this.panel.getByRole('button', { name: 'Sign up with Google' });
   }
 
   /** Signs in from the hero panel and waits for the API's answer. */

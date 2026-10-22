@@ -1,5 +1,8 @@
-<ng-template #content
-  ><ng-content />
+<ng-template #content>
+  @if (variant() === 'google') {
+    <img class="ft-button__brand" [src]="googleMark" alt="" width="18" height="18" />
+  }
+  <ng-content />
   @if (object(); as obj) {
     <span class="ft-button__object"> {{ obj }}</span>
   }

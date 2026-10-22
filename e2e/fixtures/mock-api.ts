@@ -5,6 +5,7 @@ import { MockAnnouncements } from './mock-announcements';
 import { MockContacts } from './mock-contacts';
 import { MockPartners } from './mock-partners';
 import { MockEvents } from './mock-events';
+import { MockGoogle } from './mock-google';
 import { MockNotification, MockNotifications } from './mock-notifications';
 import { MockSearch } from './mock-search';
 
@@ -161,6 +162,8 @@ export class MockApi {
   readonly partners = new MockPartners(this);
   /** Global search over the other fakes, with the server's permission rules (L2-026). */
   readonly search = new MockSearch(this);
+  /** Google sign-in: Google itself and the API's Google endpoints (L2-059). */
+  readonly google = new MockGoogle(this, (account) => (this.session = account));
 
   constructor(private readonly page: Page) {}
 
@@ -281,6 +284,7 @@ export class MockApi {
 
   async install(): Promise<void> {
     await this.page.route(/\/(api|connect)\//, (route) => this.handle(route));
+    await this.page.route('https://accounts.google.com/**', (route) => this.google.consent(route));
     await this.page.route(/\/hubs\/agile\/negotiate/, (route) => this.agile.negotiate(route));
     await this.page.routeWebSocket(/\/hubs\/agile/, (ws) => this.agile.hub(ws));
   }
@@ -383,6 +387,10 @@ export class MockApi {
         return this.acceptInvite(route, body, authorization);
       case 'POST /api/account/sign-in':
         return this.signIn(route, body);
+      case 'GET /api/account/google/start':
+        return this.google.start(route, url);
+      case 'GET /api/account/google/callback':
+        return this.google.callback(route, url);
       case 'GET /connect/authorize':
         return this.authorize(route, url);
       case 'POST /connect/token':

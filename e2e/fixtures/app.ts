@@ -57,7 +57,7 @@ async function settle(page: Page): Promise<void> {
 
     const frame = () => new Promise((resolve) => requestAnimationFrame(resolve));
     let last = '';
-    for (let still = 0; still < 3; ) {
+    for (let still = 0; still < 3;) {
       await frame();
       const position = `${window.scrollX},${window.scrollY}`;
       still = position === last ? still + 1 : 0;

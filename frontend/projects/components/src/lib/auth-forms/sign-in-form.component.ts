@@ -78,6 +78,11 @@ export class SignInFormComponent {
     });
   }
 
+  /** Whether "Keep me signed in on this device" is ticked, for the other ways in (Google). */
+  keepSignedIn(): boolean {
+    return this.form.controls.keepSignedIn.value;
+  }
+
   protected error(field: 'email' | 'password'): string {
     if (this.failure() === 'invalid_credentials' && field === 'password') {
       return 'Email or password is wrong. Check both and try again.';

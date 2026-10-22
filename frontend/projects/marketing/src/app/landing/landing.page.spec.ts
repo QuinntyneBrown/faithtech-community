@@ -10,16 +10,24 @@ import { LandingPage } from './landing.page';
 describe('LandingPage', () => {
   let redirects: string[];
   let outcome: Observable<SignInOutcome>;
+  let google: [string | undefined, boolean | undefined][];
 
   beforeEach(() => {
     redirects = [];
+    google = [];
     outcome = of({ succeeded: true, emailVerified: true });
     TestBed.configureTestingModule({
       providers: [
         provideRouter([]),
         { provide: COMMUNITY_ORIGIN, useValue: 'https://app.faithtech.test' },
         { provide: BROWSER_REDIRECT, useValue: (url: string) => redirects.push(url) },
-        { provide: AUTH_SERVICE, useValue: { signInWithPassword: () => outcome } },
+        {
+          provide: AUTH_SERVICE,
+          useValue: {
+            signInWithPassword: () => outcome,
+            signInWithGoogle: (url?: string, keep?: boolean) => google.push([url, keep]),
+          },
+        },
       ],
     });
   });
@@ -75,5 +83,33 @@ describe('LandingPage', () => {
     const el = await signInWith(undefined);
 
     expect(el.textContent).toContain('Your email isn’t verified yet');
+  });
+
+  // Traces to: L2-059
+  it('starts Google sign-in with the page asked for and shows the button busy', async () => {
+    const fixture = TestBed.createComponent(LandingPage);
+    fixture.componentRef.setInput('returnUrl', '/events');
+    await fixture.whenStable();
+    const el = fixture.nativeElement as HTMLElement;
+    const button = () =>
+      [...el.querySelectorAll('button')].find((b) =>
+        b.textContent?.includes('Sign in with Google'),
+      )!;
+
+    button().click();
+    await fixture.whenStable();
+
+    expect(google).toEqual([['/events', false]]);
+    expect(button().getAttribute('aria-busy')).toBe('true');
+  });
+
+  it('shows how Google sign-in ended when the visitor comes back', async () => {
+    const fixture = TestBed.createComponent(LandingPage);
+    fixture.componentRef.setInput('google', 'suspended');
+    await fixture.whenStable();
+
+    expect((fixture.nativeElement as HTMLElement).textContent).toContain(
+      'This account is suspended',
+    );
   });
 });
