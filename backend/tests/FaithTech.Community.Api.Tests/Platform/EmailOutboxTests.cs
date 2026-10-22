@@ -1,7 +1,10 @@
 using System.Net;
 using System.Net.Http.Json;
 using FaithTech.Community.Application.Common;
+using FaithTech.Community.Api.Tests.Events;
+using FaithTech.Community.Api.Tests.Profiles;
 using FaithTech.Community.Infrastructure.Email;
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.AspNetCore.TestHost;
 using Microsoft.EntityFrameworkCore;
@@ -93,6 +96,28 @@ public class EmailOutboxTests(CommunityApiFactory factory) : IClassFixture<Commu
         var row = await factory.WithDbAsync(db => db.OutboxMessages.SingleAsync(m => m.To == email));
         Assert.NotNull(row.SentAt);
         Assert.Null(row.FailedAt);
+    }
+
+    // L2-022 AC1: the RSVP confirmation keeps its .ics attachment through the outbox to the provider.
+    [Fact]
+    public async Task A_queued_email_keeps_its_calendar_attachment_until_it_is_sent()
+    {
+        var app = OutboxApp();
+        var existing = await factory.AddEventAsync("Toronto Builders Night", TimeSpan.FromDays(7));
+        var leah = await factory.AddMemberAsync("Leah Thompson");
+        var address = await factory.EmailOfAsync(leah);
+        var client = app.WithWebHostBuilder(b => b.ConfigureServices(s => s
+            .AddAuthentication(TestAuthHandler.SchemeName)
+            .AddScheme<AuthenticationSchemeOptions, TestAuthHandler>(TestAuthHandler.SchemeName, null))).CreateClient();
+        client.DefaultRequestHeaders.Add(TestAuthHandler.Header, $"{leah.UserId};");
+
+        (await client.PostAsync($"/api/events/{existing.Id}/rsvps", null)).EnsureSuccessStatusCode();
+        await DispatchAsync(app);
+
+        var sent = Assert.Single(_transport.Delivered, m => m.To == address);
+        var ics = Assert.Single(sent.Attachments!);
+        Assert.Equal(("toronto-builders-night.ics", "text/calendar"), (ics.FileName, ics.ContentType));
+        Assert.Contains($"UID:{existing.Id}@faithtech.community", ics.Content);
     }
 
     private WebApplicationFactory<Program> OutboxApp() =>

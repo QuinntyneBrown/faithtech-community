@@ -8,9 +8,19 @@ namespace FaithTech.Community.Application.Events;
 public class EventPermissions(ICurrentUser current, IApplicationDbContext db)
 {
     private static readonly Role[] Managers = [Role.EventLead, Role.CityLead, Role.SystemAdmin];
+    private static readonly Role[] Leads = [Role.CityLead, Role.EventLead, Role.CreateLead, Role.CommunicationsLead];
 
     /// <summary>Event Leads, City Leads and System Admins create, edit and cancel events.</summary>
     public bool CanManageEvents => Managers.Any(current.HasRole);
+
+    /// <summary>Leads, Staff and System Admins see who RSVP'd; everyone else sees the count (L2-022 AC3, AC4).</summary>
+    public bool CanSeeRsvpList => Leads.Any(current.HasRole) || current.HasRole(Role.Staff) || current.HasRole(Role.SystemAdmin);
+
+    /// <summary>Guest emails are for leads and System Admins only, not Staff (L2-022 AC4).</summary>
+    public bool CanSeeGuestEmails => Leads.Any(current.HasRole) || current.HasRole(Role.SystemAdmin);
+
+    /// <summary>Leads and System Admins export the RSVP list as CSV (L2-022 AC5).</summary>
+    public bool CanExportRsvps => CanSeeGuestEmails;
 
     /// <summary>A System Admin acting without an event role is overriding, and is audited.</summary>
     public bool IsAdminOverride =>

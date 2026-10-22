@@ -1,3 +1,4 @@
+using System.Text;
 using FaithTech.Community.Application.Events;
 
 namespace FaithTech.Community.Api.Endpoints;
@@ -42,6 +43,18 @@ public static class EventsEndpoints
         events.MapPut("/{id:guid}", async (Guid id, SaveEventCommand command, SaveEventHandler handler, CancellationToken cancellationToken) =>
                 (await handler.UpdateAsync(id, command, cancellationToken)).ToHttp(Results.NoContent))
             .Validate<SaveEventCommand>();
+
+        events.MapPost("/{id:guid}/rsvps", async (Guid id, RsvpHandler handler, CancellationToken cancellationToken) =>
+            (await handler.RsvpAsync(id, cancellationToken)).ToHttp(Results.NoContent));
+
+        events.MapDelete("/{id:guid}/rsvps/me", async (Guid id, RsvpHandler handler, CancellationToken cancellationToken) =>
+            (await handler.CancelAsync(id, cancellationToken)).ToHttp(Results.NoContent));
+
+        events.MapGet("/{id:guid}/rsvps.csv", async (Guid id, RsvpHandler handler, CancellationToken cancellationToken) =>
+        {
+            var (result, file) = await handler.ExportAsync(id, cancellationToken);
+            return result.ToHttp(() => Results.File(Encoding.UTF8.GetBytes(file!.Content), "text/csv", file.FileName));
+        });
 
         return app;
     }
