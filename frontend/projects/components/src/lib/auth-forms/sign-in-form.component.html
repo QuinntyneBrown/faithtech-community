@@ -1,0 +1,57 @@
+<form [formGroup]="form" (ngSubmit)="submit()" ftFormErrorFocus novalidate>
+  <ft-stack>
+    @switch (failure()) {
+      @case ('invalid_credentials') {
+        <ft-alert status="danger" heading="We couldn’t sign you in" [focusable]="true">
+          Email or password is wrong
+        </ft-alert>
+      }
+      @case ('locked_out') {
+        <ft-alert status="warning" heading="Too many attempts" [focusable]="true">
+          For your safety we’ve paused sign-in for this account for 15 minutes. You can reset your
+          password now instead.
+          <ft-link ftAlertActions [href]="forgotPasswordHref()">Reset password</ft-link>
+        </ft-alert>
+      }
+      @case ('suspended') {
+        <ft-alert status="danger" heading="This account is suspended" [focusable]="true">
+          A System Admin has suspended this account, so you can’t sign in. If you think this is a
+          mistake, email support&#64;faithtech.example.
+        </ft-alert>
+      }
+      @case ('unreachable') {
+        <ft-alert status="danger" heading="We couldn’t reach FaithTech" [focusable]="true">
+          Something went wrong on our side. Your details are still here — try again in a moment.
+        </ft-alert>
+      }
+      @case ('google_failed') {
+        <ft-alert status="danger" heading="Google sign-in didn’t finish" [focusable]="true">
+          We couldn’t confirm your Google account. Try again, or sign in with your email and
+          password.
+        </ft-alert>
+      }
+    }
+    <ng-content select="[ftAuthAlternatives]" />
+    @if (divider(); as text) {
+      <p class="auth-form__divider">{{ text }}</p>
+    }
+    <ft-form-field required label="Email" [error]="error('email')">
+      <ft-text-field formControlName="email" type="email" autocomplete="email" />
+    </ft-form-field>
+    <ft-form-field required label="Password" [error]="error('password')">
+      <ft-text-field
+        formControlName="password"
+        type="password"
+        autocomplete="current-password"
+        action="reveal"
+      />
+    </ft-form-field>
+    <ft-switch formControlName="keepSignedIn">Keep me signed in on this device</ft-switch>
+    <ft-button type="submit" variant="primary" size="lg" [block]="true" [loading]="busy()">
+      {{ busy() ? 'Signing in…' : 'Sign in' }}
+    </ft-button>
+    <p class="text-center">
+      <ft-link [href]="forgotPasswordHref()">Forgot your password?</ft-link>
+    </p>
+  </ft-stack>
+</form>
