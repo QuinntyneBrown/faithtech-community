@@ -200,6 +200,10 @@ public class SendAnnouncementTests(CommunityApiFactory factory) : IClassFixture<
         });
 
         Assert.Equal(HttpStatusCode.Created, response.StatusCode);
+        var sent = await response.Content.ReadFromJsonAsync<SentResponse>();
+        var holders = await factory.WithDbAsync(db => db.Profiles.Where(p => !p.IsSuspended && p.Roles.Any(r => r.Role == role)).ToListAsync());
+        Assert.Equal(holders.Count, sent!.RecipientCount);
+        Assert.Equal(holders.Count(p => !p.AnnouncementEmailsOptedOut), sent.EmailCount);
         var email = Assert.Single(factory.Emails.SentTo(await AddressOfAsync(grace)));
         Assert.Equal("City lead call moves to Thursday", email.Subject);
         Assert.Contains("Same link as always.", email.Body);
@@ -218,6 +222,7 @@ public class SendAnnouncementTests(CommunityApiFactory factory) : IClassFixture<
             .PostAsJsonAsync("/api/announcements", Everyone(alsoEmail: false, subject: "In-app only"));
 
         Assert.Equal(HttpStatusCode.Created, response.StatusCode);
+        Assert.Equal(0, (await response.Content.ReadFromJsonAsync<SentResponse>())!.EmailCount);
         Assert.DoesNotContain(factory.Emails.SentTo(await AddressOfAsync(ruth)), m => m.Subject == "In-app only");
         Assert.Single(await NotificationsOfAsync(ruth));
     }
@@ -228,7 +233,7 @@ public class SendAnnouncementTests(CommunityApiFactory factory) : IClassFixture<
     private Task<string> AddressOfAsync(ProfileClients.Member member) =>
         factory.WithDbAsync(db => db.Users.Where(u => u.Id == member.UserId).Select(u => u.Email!).SingleAsync());
 
-    public sealed record SentResponse(Guid Id, int RecipientCount);
+    public sealed record SentResponse(Guid Id, int RecipientCount, int EmailCount);
 
     public sealed record CountResponse(int Count);
 }

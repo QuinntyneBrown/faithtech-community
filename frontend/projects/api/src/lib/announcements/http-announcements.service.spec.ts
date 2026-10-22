@@ -1,11 +1,3 @@
-/*
- * EARLY IMPLEMENTATION: written ahead of the vertical slices to get a head start.
- * Contracts and DTOs follow docs/detailed-designs/ but may change as each feature is
- * implemented end to end (spec -> design -> mock -> ATDD slice).
- * Sources:
- *   - docs/detailed-designs/announcements/send-announcement
- *   - docs/detailed-designs/announcements/read-announcements-and-opt-out
- */
 import { HttpTestingController } from '@angular/common/http/testing';
 import { TestBed } from '@angular/core/testing';
 import { Observable } from 'rxjs';
@@ -32,29 +24,41 @@ describe('HttpAnnouncementsService', () => {
   it('counts recipients for an audience', () => {
     let count = -1;
     service
-      .countRecipients({ kind: 'Role', role: 'Volunteer', eventId: null })
+      .countRecipients({ kind: 'Roles', roles: ['Volunteer', 'Attendee'] })
       .subscribe((c) => (count = c));
 
     const req = controller.expectOne('/api/announcements/recipient-count');
     expect(req.request.method).toBe('POST');
-    expect(req.request.body).toEqual({ kind: 'Role', role: 'Volunteer', eventId: null });
+    expect(req.request.body).toEqual({ kind: 'Roles', roles: ['Volunteer', 'Attendee'] });
     req.flush({ count: 12 });
     expect(count).toBe(12);
   });
 
+  it('reads the caller’s announcement email opt-out', () => {
+    let optedOut: boolean | null = null;
+    service.emailOptOut().subscribe((value) => (optedOut = value));
+
+    const req = controller.expectOne('/api/me/announcement-email-opt-out');
+    expect(req.request.method).toBe('GET');
+    req.flush({ optedOut: true });
+    expect(optedOut).toBe(true);
+  });
+
   it.each([
     ['list', () => service.list(), 'GET', '/api/announcements?page=1', undefined],
+    ['list page 2', () => service.list(2), 'GET', '/api/announcements?page=2', undefined],
     [
       'send',
       () =>
         service.send({
           subject: 'Hi',
           body: 'All',
-          audience: { kind: 'Everyone', role: null, eventId: null },
+          audience: { kind: 'Everyone' },
+          alsoEmail: true,
         }),
       'POST',
       '/api/announcements',
-      { subject: 'Hi', body: 'All', audience: { kind: 'Everyone', role: null, eventId: null } },
+      { subject: 'Hi', body: 'All', audience: { kind: 'Everyone' }, alsoEmail: true },
     ],
     [
       'setEmailOptOut',

@@ -42,6 +42,7 @@ export const ICONS: Readonly<Record<string, string>> = {
     "<path d='M3 11v2a1 1 0 0 0 1 1h3l6 4V6L7 10H4a1 1 0 0 0-1 1zM17 9a4 4 0 0 1 0 6'/>",
   export: "<path d='M12 3v12m0 0-4-4m4 4 4-4M4 17v3h16v-3'/>",
   edit: "<path d='M4 20h4L19 9l-4-4L4 16zM14 6l4 4'/>",
+  send: "<path d='M22 2 11 13M22 2l-7 20-4-9-9-4z'/>",
   email: "<rect x='3' y='5' width='18' height='14' rx='2'/><path d='m3 7 9 6 9-6'/>",
   offline:
     "<path d='M2 2l20 20M8.5 16.5a5 5 0 0 1 7 0M5 12.5a10 10 0 0 1 5-2.7M19 12.5a10 10 0 0 0-2.1-1.5M2 8.8a15 15 0 0 1 4.2-2.6M22 8.8A15 15 0 0 0 11 5M12 20h.01'/>",

@@ -15,7 +15,8 @@ public record AudienceRequest(string? Kind, string[]? Roles = null, Guid? EventI
 
 public record SendAnnouncementCommand(string? Subject, string? Body, AudienceRequest? Audience, bool AlsoEmail = true);
 
-public record AnnouncementSentDto(Guid Id, int RecipientCount);
+/// <summary><see cref="EmailCount"/> is how many recipients also get it by email: none without Also send by email.</summary>
+public record AnnouncementSentDto(Guid Id, int RecipientCount, int EmailCount);
 
 public class AudienceRequestValidator : AbstractValidator<AudienceRequest>
 {
@@ -138,6 +139,9 @@ public class SendAnnouncementHandler(
             : null;
         await notifications.PublishAsync(
             recipients, NotificationKind.Announcement, $"{senderName} sent “{subject}”", "/announcements", senderName, email, cancellationToken);
-        return (Result.Ok(), new AnnouncementSentDto(announcement.Id, recipients.Count));
+        var emailCount = command.AlsoEmail
+            ? await db.Profiles.CountAsync(p => recipients.Contains(p.Id) && !p.AnnouncementEmailsOptedOut, cancellationToken)
+            : 0;
+        return (Result.Ok(), new AnnouncementSentDto(announcement.Id, recipients.Count, emailCount));
     }
 }
