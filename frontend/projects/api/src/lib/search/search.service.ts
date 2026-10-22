@@ -2,7 +2,8 @@ import { InjectionToken } from '@angular/core';
 import { Observable } from 'rxjs';
 
 /** The result groups, in the order the API returns them (L2-026 AC1). */
-export type SearchResultKind = 'Person' | 'Event' | 'Partner' | 'Contact' | 'WorkItem' | 'Resource';
+export type SearchResultKind =
+  'Person' | 'Event' | 'Partner' | 'Contact' | 'WorkItem' | 'Resource' | 'Note';
 
 export interface SearchResultItem {
   id: string;

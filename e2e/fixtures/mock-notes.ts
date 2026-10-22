@@ -224,6 +224,46 @@ export class MockNotes {
     return this.json(route, 200, { items, page, pageSize: PAGE_SIZE, totalCount: rows.length });
   }
 
+  /** The search group (L2-096): what the caller may open, never archived. */
+  searchItems(words: string[], caller: MockAccount) {
+    return this.visible(caller)
+      .filter((n) => words.every((w) => this.text(n).includes(w)))
+      .map((n) => {
+        const body = this.text(n).slice(n.title.length + 1);
+        const at = body.indexOf(words[0]);
+        const inTitle = n.title.toLowerCase().includes(words[0]);
+        const plain = n.blocks
+          .map((b) =>
+            (b.text ?? [])
+              .filter((t) => !t.pageId)
+              .map((t) => t.text)
+              .join(''),
+          )
+          .join(' ');
+        return {
+          id: n.id,
+          title: `${n.icon ? n.icon + ' ' : ''}${n.title || 'Untitled'}`,
+          snippet: [
+            n.ownerId === caller.profileId ? 'you' : this.name(n.ownerId),
+            `edited ${n.updatedAt.slice(0, 10)}`,
+            !inTitle && at >= 0 ? plain.slice(Math.max(0, at - 40), at + 80) : null,
+          ]
+            .filter(Boolean)
+            .join(' · '),
+          route: `/notes/${n.id}`,
+          startsAt: null,
+          badge:
+            n.visibility === 'Private'
+              ? 'Private'
+              : n.visibility === 'Shared'
+                ? n.ownerId === caller.profileId
+                  ? 'Shared'
+                  : 'Shared with you'
+                : null,
+        };
+      });
+  }
+
   /** The searchable text: title and the text of every block, never linked pages' titles (L2-096 AC3). */
   text(n: MockNote): string {
     const blocks = n.blocks.map((b) =>

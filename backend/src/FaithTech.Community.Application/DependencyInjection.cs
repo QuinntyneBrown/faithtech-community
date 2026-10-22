@@ -137,6 +137,7 @@ public static class DependencyInjection
         services.AddScoped<ISearchSource, ContactsSearchSource>();
         services.AddScoped<ISearchSource, WorkItemsSearchSource>();
         services.AddScoped<ISearchSource, ResourcesSearchSource>();
+        services.AddScoped<ISearchSource, NotesSearchSource>();
         services.TryAddSingleton(TimeProvider.System);
         return services;
     }

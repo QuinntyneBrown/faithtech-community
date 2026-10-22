@@ -1,6 +1,7 @@
 using FaithTech.Community.Domain.Agile;
 using FaithTech.Community.Domain.Contacts;
 using FaithTech.Community.Domain.Events;
+using FaithTech.Community.Domain.Notes;
 using FaithTech.Community.Domain.Partners;
 using FaithTech.Community.Domain.Profiles;
 using FaithTech.Community.Domain.Resources;
@@ -25,6 +26,7 @@ public static class SearchVectors
         Add<Contact>(builder, "Name", "Email", "Organization", "City");
         Add<WorkItem>(builder, "Title", "Description");
         Add<Resource>(builder, "Title", "Description", "TagText", "File_FileName");
+        Add<NotePage>(builder, "Title", "BodyText");
     }
 
     private static void Add<T>(ModelBuilder builder, params string[] columns) where T : class

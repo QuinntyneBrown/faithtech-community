@@ -43,6 +43,7 @@ const TITLES: Record<SearchResultKind, string> = {
   Contact: 'Your private contacts',
   WorkItem: 'Work items in your workspaces',
   Resource: 'Resources',
+  Note: 'Notes',
 };
 const RESOURCE_ICONS: Record<string, string> = {
   Deck: 'deck',
@@ -147,7 +148,9 @@ function toGroup(group: SearchResultGroup, term: string): SearchGroup {
     more:
       group.kind === 'Resource'
         ? { label: 'See all in Resources', href: `/resources?q=${encodeURIComponent(term)}` }
-        : undefined,
+        : group.kind === 'Note'
+          ? { label: 'See all in Notes', href: `/notes?q=${encodeURIComponent(term)}` }
+          : undefined,
   };
 }
 
@@ -188,6 +191,14 @@ function toView(kind: SearchResultKind, item: SearchResultItem): ResultView {
       return {
         ...base,
         icon: RESOURCE_ICONS[item.snippet.split(' · ')[0]] ?? 'resources',
+        badge: item.badge ?? undefined,
+        badgeVariant: item.badge === 'Private' ? 'neutral' : 'info',
+      };
+    // Notes: the page's icon is in its title, so the tile shows the page glyph (L2-096 AC1).
+    case 'Note':
+      return {
+        ...base,
+        icon: 'notes',
         badge: item.badge ?? undefined,
         badgeVariant: item.badge === 'Private' ? 'neutral' : 'info',
       };
