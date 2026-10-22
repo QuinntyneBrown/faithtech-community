@@ -1,0 +1,60 @@
+@startuml
+title UML sequence behaviour — Export attendance
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+actor "Lead or System Admin" as actor
+box "Frontend — FaithTech Community web app (events library)" #E0F2FE
+  participant "EventCheckInPage" as page
+  participant "HttpCheckInService" as svc
+end box
+box "Backend — FaithTech.Community.Api" #D1FADF
+  participant "EventsEndpoints" as ep
+end box
+box "Backend — FaithTech.Community.Application and Domain" #ECFDF3
+  participant "ExportCheckInsHandler" as h
+  participant "EventPermissions" as perm
+end box
+box "Backend — FaithTech.Community.Infrastructure" #FFF4E5
+  participant "CsvWriter" as csv
+  database "Community database" as db
+end box
+
+actor -> page : Export CSV
+page -> page : Button busy; second press ignored (L2-097 AC4)
+page -> svc : exportAttendance(eventId)
+svc -> ep : GET /api/events/{id}/check-ins.csv
+ep -> h : ExportAsync(id)
+h -> perm : CanCheckIn
+alt Staff or member without a lead role
+  perm --> h : false
+  h --> ep : Forbidden
+  ep --> svc : 403 (401 when anonymous) (L2-097 AC2)
+else lead or System Admin
+  perm --> h : true
+  h -> db : Load event, rows and member names
+  db --> h : Rows
+  h -> csv : Write(Name, Type, Email, RSVP'd (UTC), Checked in (UTC); one row per attendee) (L2-097 AC1)
+  csv -> csv : RFC 4180 quoting; apostrophe before = + - @ (L2-097 AC3)
+  csv --> h : CSV text
+  h --> ep : CsvFile {slug}-attendance.csv
+  ep --> svc : 200 text/csv
+  svc --> page : Blob
+  page --> actor : File saved; button ready
+end
+alt failure
+  svc --> page : Error
+  page --> actor : Danger toast with Try again (L2-097 AC4)
+end
+@enduml

@@ -1,0 +1,80 @@
+@startuml
+title UML sequence behaviour — Check in and undo
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+actor "Lead or System Admin" as actor
+box "Frontend — FaithTech Community web app (events library)" #E0F2FE
+  participant "EventCheckInPage" as page
+  participant "ToastService" as toast
+  participant "HttpCheckInService" as svc
+end box
+box "Backend — FaithTech.Community.Api" #D1FADF
+  participant "EventsEndpoints" as ep
+end box
+box "Backend — FaithTech.Community.Application and Domain" #ECFDF3
+  participant "CheckInHandler" as h
+  participant "Event" as ev
+  participant "IAuditLog" as audit
+end box
+box "Backend — FaithTech.Community.Infrastructure" #FFF4E5
+  database "Community database" as db
+end box
+
+actor -> page : Turn on "Check in {name}"
+page -> page : Show switch on; queue save for this row
+page -> svc : checkIn(eventId, rsvpId)
+svc -> ep : PUT /api/events/{id}/check-ins/{rsvpId}
+ep -> h : CheckInAsync(id, rsvpId)
+h -> h : CanCheckIn, else 403 (L2-092 AC2)
+h -> db : Load event with rows
+db --> h : Event
+alt cancelled or before the window
+  h --> ep : Conflict
+  ep --> svc : 409 ProblemDetails (L2-094 AC5, AC6)
+  svc --> page : Error
+  page -> page : Revert switch
+  page -> toast : Danger "{name}'s check-in wasn't saved"
+else open
+  h -> ev : CheckIn(rsvpId, caller, now)
+  ev -> ev : Keep the first time when already checked in (L2-094 AC4)
+  opt System Admin without a lead role
+    h -> audit : Record event.checked_in (L2-092 AC5)
+  end
+  h -> db : Save
+  db --> h : Committed
+  h --> ep : CheckInAttendeeDto
+  ep --> svc : 200 OK
+  svc --> page : Attendee with CheckedInAt
+  page --> actor : "Checked in 6:41 pm"; meter rises
+  page -> toast : Success "{name} is checked in" with Undo (L2-094 AC1)
+end
+alt network failure or 5xx
+  svc --> page : Error
+  page -> page : Revert switch (L2-094 AC3)
+  page -> toast : Danger "{name}'s check-in wasn't saved"
+end
+actor -> toast : Undo (or turn the switch off)
+toast -> page : onAction
+page -> svc : undoCheckIn(eventId, rsvpId)
+svc -> ep : DELETE /api/events/{id}/check-ins/{rsvpId}
+ep -> h : UndoAsync(id, rsvpId)
+h -> ev : UndoCheckIn(rsvpId, now)
+h -> db : Save
+db --> h : Committed
+h --> ep : Success
+ep --> svc : 204 No Content
+svc --> page : Done
+page --> actor : "Not here yet"; meter falls (L2-094 AC2)
+@enduml

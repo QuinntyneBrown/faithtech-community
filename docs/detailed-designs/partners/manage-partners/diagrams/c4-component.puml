@@ -5,7 +5,7 @@ title Components — Manage partners
 Container_Boundary(web, "Web app") {
   Component(board, "PartnersPage", "Angular page (partners library)", "/partners: board with the Add partner action")
   Component(dlg, "AddPartnerDialog", "Angular CDK Dialog (partners library)", "Every L2-017 field and a stage, Lead by default")
-  Component(page, "PartnerPage", "Angular page (partners library)", "/partners/:id: details and stage history")
+  Component(page, "PartnerPage", "Angular page (partners library)", "/partners/:id: details and activity timeline")
   Component(form, "PartnerFormPage", "Angular page (partners library)", "/partners/:id/edit: details without the stage")
   Component(fields, "partner-fields.ts", "TypeScript module (partners library)", "Shared form, request mapping and error mapping")
   Component(svc, "HttpPartnersService", "Angular service (api library)", "Implements PartnersService (PARTNERS_SERVICE)")

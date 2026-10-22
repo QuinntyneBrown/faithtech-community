@@ -1,0 +1,11 @@
+@startuml
+!include <C4/C4_Context>
+LAYOUT_WITH_LEGEND()
+title System Context — Possible duplicate contact
+
+Person(lead, "Lead", "City, Event, Create or Communications Lead who keeps private contacts")
+Person(admin, "System Admin", "Keeps their own contacts; checked against those only")
+System(ftc, "FaithTech Community", "Community site for FaithTech members, leads and partners")
+Rel(lead, ftc, "Is warned of a contact they already keep with the same email in", "HTTPS")
+Rel(admin, ftc, "Is warned only about their own contacts in", "HTTPS")
+@enduml

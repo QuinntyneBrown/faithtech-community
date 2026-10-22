@@ -1,0 +1,12 @@
+@startuml
+!include <C4/C4_Context>
+LAYOUT_WITH_LEGEND()
+title System Context — Duplicate detection and merge
+Person(lead, "Lead", "City, Event, Create or Communications Lead who works the partner pipeline")
+Person(admin, "System Admin", "Merges like a lead; the only role that restores a merged partner")
+Person(staff, "Staff", "Read-only across everything except private contacts")
+System(community, "FaithTech Community", "Community site for FaithTech staff, leads, volunteers, builders and partners")
+Rel(lead, community, "Sees possible duplicates, dismisses and merges partners using")
+Rel(admin, community, "Merges and restores partners using")
+Rel(staff, community, "Sees duplicate warnings and archived partners read-only using")
+@enduml

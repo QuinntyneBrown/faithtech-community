@@ -78,19 +78,14 @@ class PartnerDto <<record>> {
   +string? Phone
   +string? Notes
   +string Stage
-  +IReadOnlyList<PartnerStageChangeDto> History
+  +int Version
+  +DateOnly? LastActivityOn
+  +string? NextStep
+  +DateOnly? NextStepDue
   +bool CanEdit
-}
-class PartnerStageChangeDto <<record>> {
-  +string From
-  +string To
-  +Guid MovedById
-  +string MovedByName
-  +DateTime MovedAtUtc
-  +string? Note
+  +bool CanLogActivity
 }
 PartnerViews ..> PartnerDto : builds
-PartnerDto "1" *-- "*" PartnerStageChangeDto : newest first
 
 class PartnerCommand <<record>> {
   +string? Name

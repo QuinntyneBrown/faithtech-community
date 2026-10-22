@@ -1,0 +1,161 @@
+@startuml
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 8
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam class {
+  BorderColor #344054
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+title Class structure — Reports dashboard
+class Profile {
+  +Guid Id
+  +string? HomeCity
+  +bool IsSuspended
+  +DateTime? JoinedAtUtc
+  +Profile(name: string, joinedAtUtc: DateTime? = null)
+}
+class CommunityUser {
+  +Guid ProfileId
+  +bool EmailConfirmed
+}
+class Event {
+  +DateTimeOffset StartsAt
+  +string City
+  +bool IsCancelled
+  +IReadOnlyCollection<Rsvp> Rsvps
+}
+class Rsvp {
+  +Guid EventId
+  +DateTimeOffset? CheckedInAt
+  +bool IsWalkIn
+}
+class Partner {
+  +Guid? OwnerId
+  +PartnerStage Stage
+  +bool IsArchived
+}
+class Announcement {
+  +Guid SenderId
+  +DateTimeOffset SentAt
+}
+interface IApplicationDbContext {
+  +DbSet<Profile> Profiles
+  +DbSet<CommunityUser> Users
+  +DbSet<Event> Events
+  +DbSet<Partner> Partners
+  +DbSet<Announcement> Announcements
+}
+interface ICurrentUser {
+  +HasRole(role: Role): bool
+}
+class ReportAccess {
+  +CanRead: bool
+}
+class ReportPeriod <<static>> {
+  +Default: string = "last-30-days"
+  +Keys: IReadOnlyList<string>
+  +Resolve(key: string?, time: TimeProvider): ReportWindow?
+}
+class ReportWindow <<record>> {
+  +string Key
+  +DateTimeOffset? From
+  +DateTimeOffset To
+}
+class GetReportQuery <<record>> {
+  +string? City
+  +string? Period
+}
+class GetReportHandler {
+  +MaxEvents: int = 50
+  +MaxMonths: int = 12
+  +NamedCities: int = 4
+  +HandleAsync(query: GetReportQuery): Task<(Result, ReportDto?)>
+}
+class ExportReportHandler {
+  +HandleAsync(query: GetReportQuery): Task<(Result, CsvFile?)>
+}
+class ReportDto <<record>> {
+  +string? City
+  +string Period
+  +DateTimeOffset? From
+  +DateTimeOffset To
+  +IReadOnlyList<string> Cities
+  +bool IsEmpty
+  +ReportFiguresDto Figures
+  +IReadOnlyList<ChartRowDto> MembersByCity
+  +IReadOnlyList<MonthRowDto> NewMembersByMonth
+  +IReadOnlyList<PipelineRowDto> PartnerPipeline
+  +IReadOnlyList<EventRowDto> Events
+}
+class ReportFiguresDto <<record>> {
+  +MembersFigure Members
+  +EventsHeldFigure EventsHeld
+  +RsvpsFigure Rsvps
+  +PartnersFigure PartnersConfirmed
+  +CountFigure Announcements
+}
+class ChartRowDto <<record>> {
+  +string Label
+  +int Value
+}
+class MonthRowDto <<record>> {
+  +string Month
+  +string Label
+  +int Value
+  +bool SoFar
+}
+class PipelineRowDto <<record>> {
+  +string City
+  +int Lead
+  +int InFunnel
+  +int Confirmed
+}
+class EventRowDto <<record>> {
+  +Guid Id
+  +string Title
+  +DateTimeOffset StartsAt
+  +string City
+  +string Status
+  +int? Going
+  +int? CheckedIn
+  +int? CheckedInPercent
+}
+interface ICsvWriter {
+  +Write(rows: IEnumerable<IReadOnlyList<string?>>): string
+}
+class CsvWriter {
+  +Write(rows: IEnumerable<IReadOnlyList<string?>>): string
+}
+class CsvFile <<record>> {
+  +string FileName
+  +string Content
+}
+GetReportHandler --> IApplicationDbContext
+GetReportHandler --> ReportAccess
+GetReportHandler ..> ReportPeriod : resolves
+ReportPeriod ..> ReportWindow : returns
+GetReportHandler ..> GetReportQuery : handles
+GetReportHandler ..> ReportDto : returns
+ReportAccess --> ICurrentUser
+ExportReportHandler --> GetReportHandler
+ExportReportHandler --> ICsvWriter
+ExportReportHandler ..> CsvFile : returns
+CsvWriter ..|> ICsvWriter
+ReportDto *-- ReportFiguresDto
+ReportDto *-- "*" ChartRowDto
+ReportDto *-- "*" MonthRowDto
+ReportDto *-- "*" PipelineRowDto
+ReportDto *-- "*" EventRowDto
+IApplicationDbContext ..> Profile
+IApplicationDbContext ..> CommunityUser
+IApplicationDbContext ..> Event
+IApplicationDbContext ..> Partner
+IApplicationDbContext ..> Announcement
+CommunityUser "1" -- "1" Profile : ProfileId
+Event "1" *-- "*" Rsvp
+Partner "*" --> "0..1" Profile : OwnerId (city)
+Announcement "*" --> "1" Profile : SenderId (city)
+@enduml

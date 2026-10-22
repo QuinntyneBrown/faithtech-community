@@ -55,7 +55,8 @@ else permitted
   h -> db : Load Partner with StageChanges
   h -> ent : MoveTo(to, caller, nowUtc, note) (L2-018 AC2)
   h -> acc : AuditAdminWrite(actor, partner, "partner.moved")
-  h -> db : Save Partner and new PartnerStageChange
+  h -> h : PartnerActivity.StageMoved(change) (L2-085 AC7)
+  h -> db : Save Partner, new PartnerStageChange and StageMoved activity
   h --> ep : PartnerDto
   ep --> svc : 200 OK
   svc --> page : Moved partner (the dialog closes with it)

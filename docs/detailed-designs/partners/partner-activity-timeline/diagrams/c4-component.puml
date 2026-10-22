@@ -1,0 +1,43 @@
+@startuml
+!include <C4/C4_Component>
+LAYOUT_WITH_LEGEND()
+title Components — Partner activity timeline
+Container_Boundary(web, "Web app") {
+  Component(page, "PartnerPage", "Angular page (partners library)", "/partners/:id: header with Last activity, Activity card, Details with Next step")
+  Component(timeline, "PartnerTimelineComponent", "Angular component (partners library)", "Type chips, ft-feed of entries, Show older")
+  Component(dlg, "LogActivityDialog", "Angular CDK Dialog (partners library)", "Type, what happened, date, time, next step, due")
+  Component(board, "PartnersPage", "Angular page (partners library)", "Kanban cards with a next-step line")
+  Component(lib, "components library", "Angular library", "ft-chip-group, ft-feed, ft-feed-item, ft-radio-group, ft-alert, ToastService, ft-kanban-card")
+  Component(svc, "HttpPartnersService", "Angular service (api library)", "Implements PartnersService (PARTNERS_SERVICE): activities, logActivity")
+}
+Container_Boundary(api, "Community API") {
+  Component(ep, "PartnersEndpoints", "ASP.NET Core minimal API", "GET, POST /api/partners/{id}/activities")
+  Component(val, "LogPartnerActivityValidator", "FluentValidation", "Kind, summary, date, next step, due")
+  Component(log, "LogPartnerActivityHandler", "Application handler", "LogAsync")
+  Component(list, "PartnerTimelineHandler", "Application handler", "ListAsync with PartnerTimelineFilter, PartnerTimelineOrder, TimelineCursor")
+  Component(views, "PartnerTimelineViews", "Application service", "PartnerActivityDto with names and display text")
+  Component(mp, "ManagePartnersHandler / MovePartnerHandler", "Application handlers", "Write Added and StageMoved entries")
+  Component(acc, "PartnerAccess", "Application permission check", "CanRead, CanWrite, AuditAdminWrite")
+  Component(audit, "AuditLog", "Infrastructure service", "Implements IAuditLog")
+  ComponentDb(db, "CommunityDbContext", "PostgreSQL", "PartnerActivities, Partners, PartnerStageChanges")
+}
+Rel(page, timeline, "Hosts")
+Rel(page, dlg, "Opens with DialogService")
+Rel(page, lib, "Composes")
+Rel(timeline, lib, "Composes")
+Rel(dlg, lib, "Composes")
+Rel(board, lib, "Composes")
+Rel(timeline, svc, "activities(id, kind, before)")
+Rel(dlg, svc, "logActivity(id, request)")
+Rel(svc, ep, "Sends request", "JSON/HTTPS")
+Rel(ep, val, "Validates body (400)")
+Rel(ep, log, "POST")
+Rel(ep, list, "GET")
+Rel(log, acc, "CanWrite, AuditAdminWrite (L2-087)")
+Rel(list, acc, "CanRead (L2-087)")
+Rel(list, views, "Builds rows")
+Rel(mp, db, "Adds system entries in the same SaveChanges")
+Rel(acc, audit, "partner.activity.logged by admin right")
+Rel(log, db, "Persists", "EF Core")
+Rel(list, db, "Queries", "EF Core")
+@enduml

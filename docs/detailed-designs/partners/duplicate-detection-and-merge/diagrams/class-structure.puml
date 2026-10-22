@@ -1,0 +1,157 @@
+@startuml
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 8
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam class {
+  BorderColor #344054
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+title Class structure — Duplicate detection and merge
+class Partner {
+  +Guid Id
+  +string Name
+  +string? Website
+  +PartnerStage Stage
+  +string? Notes
+  +int Version
+  +DateTime? ArchivedAtUtc
+  +Guid? MergedIntoId
+  +Guid? MergedById
+  +DateTime? MergedAtUtc
+  +bool IsArchived
+  +AbsorbMerge(values: PartnerMergeValues, notes: string?): void
+  +ArchiveAsMergedInto(keptId: Guid, by: Guid, nowUtc: DateTime): void
+  +Restore(): void
+  +TouchForRestore(): void
+}
+class PartnerMergeValues <<record>> {
+  +string Name
+  +PartnerStage Stage
+  +string? ContactName
+  +string? Email
+  +string? Phone
+  +string? Website
+  +string? Offering
+  +Guid? OwnerId
+}
+class PartnerActivity {
+  +Guid PartnerId
+  +Guid? MergedFromPartnerId
+  +MoveTo(partnerId: Guid): void
+  +MoveBack(): void
+}
+class PartnerStageChange {
+  +Guid PartnerId
+  +Guid? MergedFromPartnerId
+  +MoveTo(partnerId: Guid): void
+  +MoveBack(): void
+}
+class PartnerDuplicateDismissal {
+  +Guid Id
+  +Guid LowerPartnerId
+  +Guid HigherPartnerId
+  +Guid DismissedById
+  +DateTime DismissedAtUtc
+  +{static} For(a: Guid, b: Guid, by: Guid, nowUtc: DateTime): PartnerDuplicateDismissal
+}
+Partner "1" *-- "*" PartnerActivity
+Partner "1" *-- "*" PartnerStageChange
+Partner ..> PartnerMergeValues
+Partner "0..1" --> "0..1" Partner : MergedIntoId
+PartnerDuplicateDismissal --> "2" Partner : ordered pair
+
+enum DuplicateReason {
+  Website
+  Name
+}
+class PartnerKey <<record>> {
+  +Guid Id
+  +string? Host
+  +string? Name
+  +{static} From(id, name, website): PartnerKey
+}
+class PartnerDuplicateRules <<static>> {
+  +{static} NormaliseHost(website: string?): string?
+  +{static} NormaliseName(name: string?): string?
+  +{static} Match(a: PartnerKey, b: PartnerKey): DuplicateReason?
+}
+class PartnerDuplicatesHandler {
+  +ListAsync(id: Guid): Task<(Result, PartnerDuplicatesDto?)>
+  +DismissAsync(id: Guid, otherId: Guid): Task<Result>
+}
+class MergeChoices <<record>> {
+  +string? Name
+  +string? Stage
+  +string? ContactName
+  +string? Email
+  +string? Phone
+  +string? Website
+  +string? Offering
+  +string? Owner
+}
+class MergePartnersCommand <<record>> {
+  +Guid OtherId
+  +int KeepVersion
+  +int OtherVersion
+  +MergeChoices? Choices
+}
+class MergePartnersValidator
+class MergePartnersHandler {
+  +MergeAsync(keepId: Guid, command): Task<(Result, PartnerDto?)>
+}
+class RestorePartnerCommand <<record>> {
+  +int Version
+  +int MergedIntoVersion
+}
+class RestorePartnerHandler {
+  +RestoreAsync(id: Guid, command): Task<(Result, PartnerDto?)>
+}
+class PartnerAccess {
+  +bool CanRead
+  +bool CanWrite
+  +bool CanRestore
+  +AuditAdminWrite(actor, partner, action, before, after): void
+  +Audit(actor, partner, action, before, after): void
+}
+interface IAuditLog {
+  +Record(actorId, action, targetType, targetId, before, after): void
+}
+class PartnerDuplicateDto <<record>> {
+  +Guid Id
+  +string Name
+  +string Reason
+  +string MatchedOn
+  +string? AddedByName
+  +DateOnly? AddedOn
+}
+class PartnerDuplicatesDto <<record>> {
+  +IReadOnlyList<PartnerDuplicateDto> Matches
+}
+class PartnerArchivedDto <<record>> {
+  +Guid MergedIntoId
+  +string MergedIntoName
+  +int MergedIntoVersion
+  +Guid MergedById
+  +string MergedByName
+  +DateTime MergedAtUtc
+}
+PartnerDuplicateRules ..> PartnerKey
+PartnerDuplicateRules ..> DuplicateReason
+PartnerDuplicatesHandler ..> PartnerDuplicateRules
+PartnerDuplicatesHandler --> PartnerAccess
+PartnerDuplicatesHandler ..> PartnerDuplicateDismissal : reads, creates
+PartnerDuplicatesHandler ..> PartnerDuplicatesDto : builds
+PartnerDuplicatesDto "1" *-- "*" PartnerDuplicateDto
+MergePartnersCommand *-- MergeChoices
+MergePartnersValidator ..> MergePartnersCommand
+MergePartnersHandler ..> MergePartnersCommand : handles
+MergePartnersHandler --> PartnerAccess
+MergePartnersHandler ..> Partner : absorbs, archives
+RestorePartnerHandler ..> RestorePartnerCommand : handles
+RestorePartnerHandler --> PartnerAccess
+RestorePartnerHandler ..> Partner : restores
+PartnerAccess ..> IAuditLog
+@enduml
