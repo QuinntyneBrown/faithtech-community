@@ -1,6 +1,7 @@
 using System.Net;
 using System.Net.Http.Json;
 using FaithTech.Community.Api.Tests.Fakes;
+using FaithTech.Community.Api.Tests.Profiles;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -66,6 +67,33 @@ public class SignUpTests(CommunityApiFactory factory) : IClassFixture<CommunityA
 
         var problem = await AssertValidationProblem(response);
         Assert.Equal(["Email", "Name", "Password"], problem.Errors.Keys.Order());
+    }
+
+    [Fact]
+    public async Task Name_longer_than_the_profile_limit_is_rejected_and_no_account_is_created()
+    {
+        var email = UniqueEmail();
+
+        var response = await SignUp(new string('a', 101), email, OidcFlow.Password);
+
+        var problem = await AssertValidationProblem(response);
+        Assert.Equal(["Use 100 characters or fewer for your name."], problem.Errors["Name"]);
+        Assert.False(await factory.WithDbAsync(db => db.Users.AnyAsync(u => u.Email == email)));
+    }
+
+    [Fact]
+    public async Task Name_at_the_profile_limit_can_be_saved_unchanged_in_the_profile_editor()
+    {
+        var email = UniqueEmail();
+        var name = new string('a', 100);
+        (await SignUp(name, email, OidcFlow.Password)).EnsureSuccessStatusCode();
+        var member = await factory.WithDbAsync(db => db.Users.Where(u => u.Email == email)
+            .Select(u => new ProfileClients.Member(u.Id, u.ProfileId)).SingleAsync());
+
+        var response = await factory.ClientFor(member).PutAsJsonAsync($"/api/profiles/{member.ProfileId}",
+            new { Name = name, HomeCity = "Toronto", Bio = "" });
+
+        Assert.Equal(HttpStatusCode.NoContent, response.StatusCode);
     }
 
     [Fact]

@@ -38,6 +38,26 @@ test.describe('Accept an invite', () => {
     await expect(profile.roles).toHaveText(['Volunteer']);
   });
 
+  test('a name longer than a profile allows is caught before anything is sent', async ({
+    page,
+    api,
+    axe,
+  }) => {
+    const grace = api.addAccount({ email: 'grace@example.org', name: 'Grace Okonkwo' });
+    const invite = api.addInvite({ email: 'ruth.alvarez@example.org', invitedBy: grace.profileId });
+    const accept = new AcceptInvitePage(page);
+    await accept.open(invite.token);
+
+    await accept.name.fill('a'.repeat(101));
+    await accept.password.fill('a-long-enough-passphrase');
+    await accept.acceptAndJoin.click();
+
+    await expect(accept.nameError).toHaveText('Use 100 characters or fewer for your name.');
+    await expect(accept.name).toBeFocused();
+    expect(api.callsTo('POST', '/api/invites/accept')).toHaveLength(0);
+    await axe.check();
+  });
+
   test('an existing member signs in to accept and the role is added', async ({ page, api }) => {
     const grace = api.addAccount({ email: 'grace@example.org', name: 'Grace Okonkwo' });
     const jonah = api.addAccount({

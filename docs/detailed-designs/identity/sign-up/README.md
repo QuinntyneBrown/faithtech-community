@@ -19,7 +19,7 @@ The slice runs from the `sign-up` mock page to the database and the email provid
 - **`AccountEndpoints`** — minimal API route group in `FaithTech.Community.Api`. It maps the account routes, opts each one into anonymous access explicitly, and forwards the request to the Application handler. It holds no business logic.
 - **`CommunityDbContext`** — EF Core context in `FaithTech.Community.Infrastructure`. It stores ASP.NET Identity users alongside community data in PostgreSQL.
 - **`SignUpCommand`** — request carrying `Name`, `Email` and `Password`.
-- **`SignUpValidator`** — validator in the Application `Profiles/` folder `<TO SUPPLY: final folder for account handlers>`. It requires every field, checks the email format and requires a password of at least 12 characters.
+- **`SignUpValidator`** — validator in the Application `Profiles/` folder `<TO SUPPLY: final folder for account handlers>`. It requires every field, limits the trimmed name to the profile editor's 100 characters (`UpdateProfileValidator.MaxName`, "Use 100 characters or fewer for your name."), checks the email format and requires a password of at least 12 characters. The sign-up page applies the same name rule before submitting.
 - **`IBreachedPasswordChecker`** — Application abstraction implemented in Infrastructure. It reports whether a password appears in a breached-password list. The source of the list is `<TO SUPPLY>`.
 - **`SignUpHandler`** — Application handler. It creates the account through `UserManager<CommunityUser>` with no role, creates the empty `Profile`, issues a verification token and queues the verification email. When the email already exists, it returns the same result without creating anything.
 - **`CommunityUser`** — ASP.NET Identity user extended with `ProfileId`.
@@ -43,6 +43,7 @@ The feature realizes the following level-2 (L2) requirements. Each L2 requiremen
 3. Given a password shorter than 12 characters or found in a breached-password list, when the visitor submits, then the form shows an inline error on the password field and no account is created.
 4. Given an empty or malformed field, when the visitor submits, then each invalid field shows an inline error, focus moves to the first invalid field, and the error is announced to screen readers.
 5. Given the form is submitting, when the request is in flight, then the submit button is disabled and shows a busy state.
+6. Given a name longer than 100 characters after trimming, when the visitor submits, then the name field shows "Use 100 characters or fewer for your name." and no account is created, so every new name can be saved unchanged in the profile editor (`L2-006`).
 
 ## Diagrams
 
