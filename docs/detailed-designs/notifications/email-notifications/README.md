@@ -15,13 +15,13 @@ The outbox decouples the triggering action from delivery. The triggering action 
 - **`IEmailQueue`** — Application abstraction. `EnqueueAsync(EmailMessage)` adds a message to the outbox inside the caller's unit of work.
 - **`EmailMessage`** — value object with `To`, `Subject`, `HtmlBody`, `TextBody`, `Kind` and `CorrelationId`.
 - **`EmailTemplateRenderer`** — Infrastructure service that renders each `NotificationKind` template into HTML and plain-text parts and builds every link from the configured HTTPS base URL. Templates use the design system's `.email` classes (`docs/design-system/patterns/notifications.html`); the HTML part is produced by inlining those rules with the light-theme token values from `tokens.css`, so no colour, size or font is typed into a template.
-- **`OutboxEmail`** — Infrastructure persistence entity with `Status`, `Attempts`, `NextAttemptAt` and `LastError`.
-- **`EmailDeliveryWorker`** — hosted background service in Infrastructure. It polls due outbox rows, calls `IEmailSender`, and on failure schedules a retry with backoff, up to 5 attempts.
+- **`OutboxEmail`** — Infrastructure persistence entity (`OutboxMessage`) with `Attempts`, `NextAttemptAt`, `SentAt`, `FailedAt` (terminal: the retry budget is spent) and `LastError`.
+- **`EmailDeliveryWorker`** — hosted background service in Infrastructure. It polls due outbox rows, calls `IEmailSender`, and on failure schedules a retry with backoff, up to 5 attempts in all including the first send, after which the row is marked failed.
 - **`IEmailSender`** / **`SmtpEmailSender`** — Infrastructure sender that delivers through SMTP or SendGrid, chosen by configuration.
 - **`INotificationPublisher`** — Application service that writes the in-app `Notification` and, for kinds with an email form, calls `IEmailQueue`. For `NotificationKind.Announcement` it skips recipients whose `AnnouncementEmailsOptedOut` flag is set.
 - **`CommunityDbContext`** — holds the `email_outbox` table.
 
-The worker poll interval and backoff schedule are `<TO SUPPLY>`; they shall keep first delivery within 2 minutes.
+The worker polls every 10 seconds (`Outbox:IntervalSeconds`), so a newly queued email is first sent within 2 minutes whenever the provider is healthy. The retry budget is **5 delivery attempts in all, counting the first send** (`EmailOutboxDispatcher.MaxAttempts`). After failed attempt *n* the next attempt is due 2<sup>*n*</sup> minutes later, capped at one hour, so the attempts fall at about 0, 2, 6, 14 and 30 minutes. When the fifth attempt fails, the row gets `FailedAt` and the dispatcher never selects it again. The failure stays observable in the outbox row (`Attempts`, `FailedAt`, `LastError` with the recipient address replaced by `[recipient]`) and in an error log entry that names only the message id. A message sent within the budget gets `SentAt` and is never dispatched again.
 
 ## Requirements
 
@@ -35,7 +35,7 @@ The feature realizes the following level-2 (L2) requirements. Each L2 requiremen
 
 **`L2-028` — Email notifications**
 
-1. Given a triggering action, when it completes, then the email is queued and sent within 2 minutes, retrying on failure up to 5 times.
+1. Given a triggering action, when it completes, then the email is queued and sent within 2 minutes, retrying on failure for up to 5 delivery attempts in all, counting the first send, after which it is marked failed and not retried.
 2. Given an email, when it is rendered, then it includes a plain-text part, and every link uses HTTPS.
 3. Given a user who opted out of announcement emails, when an announcement is sent, then no announcement email reaches them, but other notification emails still do.
 
