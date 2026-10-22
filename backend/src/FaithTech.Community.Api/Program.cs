@@ -56,6 +56,8 @@ app.UseSerilogRequestLogging(options =>
 app.UsePrivatePreview();
 app.UseExceptionHandler();
 app.UseStatusCodePages();
+// Both Angular builds by host, in the production container only (L2-093).
+app.UseStaticSites(app.Configuration);
 app.UseCors(WebProtectionSetup.WebAppCorsPolicy);
 app.UseAuthentication();
 app.UseMiddleware<CurrentRolesMiddleware>();
