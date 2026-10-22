@@ -1,8 +1,22 @@
 import { Component, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
+import { FormErrorFocusDirective } from '../form-error-focus';
 import { TextFieldComponent } from '../text-field/text-field.component';
 import { FormFieldComponent, FormFieldWidth } from './form-field.component';
+
+@Component({
+  imports: [FormFieldComponent, TextFieldComponent, FormErrorFocusDirective, ReactiveFormsModule],
+  template: `<form ftFormErrorFocus>
+    <ft-form-field label="Email" [error]="error()">
+      <ft-text-field [formControl]="ctrl" />
+    </ft-form-field>
+  </form>`,
+})
+class FocusFormHostComponent {
+  readonly error = signal('');
+  readonly ctrl = new FormControl('');
+}
 
 @Component({
   imports: [FormFieldComponent, TextFieldComponent, ReactiveFormsModule],
@@ -36,6 +50,29 @@ function setup() {
 }
 
 describe('FormFieldComponent', () => {
+  it('announces errors through a polite live region that is there before any error', () => {
+    const { fixture, cmp, q } = setup();
+    const region = q<HTMLElement>('[aria-live="polite"]')!;
+    expect(region).toBeTruthy();
+    expect(region.textContent!.trim()).toBe('');
+    cmp.error.set('Enter an email like name@example.org.');
+    fixture.detectChanges();
+    expect(q('[aria-live="polite"]')).toBe(region);
+    expect(region.querySelector('ft-inline-message')!.textContent).toContain('Enter an email');
+    cmp.error.set('');
+    fixture.detectChanges();
+    expect(region.textContent!.trim()).toBe('');
+  });
+
+  it('leaves announcing to focus inside a form that moves focus to its errors', () => {
+    const fixture = TestBed.createComponent(FocusFormHostComponent);
+    fixture.componentInstance.error.set('Enter an email.');
+    fixture.detectChanges();
+    const host: HTMLElement = fixture.nativeElement;
+    expect(host.querySelector('ft-inline-message')).toBeTruthy();
+    expect(host.querySelector('[aria-live]')).toBeNull();
+  });
+
   it('announces the control as required only when the field is required', () => {
     const { fixture, cmp, q } = setup();
     expect(q('input')!.getAttribute('aria-required')).toBeNull();

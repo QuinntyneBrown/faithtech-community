@@ -8,6 +8,8 @@
 @if (help()) {
   <div class="field__help" [id]="helpId()">{{ help() }}</div>
 }
-@if (error()) {
-  <ft-inline-message [id]="errorId()">{{ error() }}</ft-inline-message>
-}
+<div class="field__errors" [attr.aria-live]="announce ? 'polite' : null">
+  @if (error()) {
+    <ft-inline-message [id]="errorId()">{{ error() }}</ft-inline-message>
+  }
+</div>
