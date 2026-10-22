@@ -1,0 +1,60 @@
+# Local smoke test of the production images with the private-preview wall on (ADR 0023). Never used in production.
+#   docker compose -f backend/deploy/compose.yaml up --build --wait
+#   open http://app.localhost:8080 or http://www.localhost:8080 and unlock with "local smoke test passphrase".
+# Uses throwaway development secrets only: the wall hash below is of "local smoke test passphrase" and the key is
+# random. Production secrets live in Key Vault (docs/detailed-designs/platform/private-preview-wall/runbook.md).
+name: faithtech-community-smoke
+
+x-community: &community
+  ConnectionStrings__Community: Host=postgres;Port=5432;Database=faithtech_community;Username=postgres;Password=postgres
+  WebApp__Origin: http://app.localhost:8080
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_PASSWORD: postgres
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 2s
+      retries: 30
+
+  azurite:
+    image: mcr.microsoft.com/azure-storage/azurite:3.35.0
+    command: azurite-blob --blobHost 0.0.0.0 --skipApiVersionCheck
+
+  migrate:
+    build: { context: ../.., dockerfile: backend/deploy/cli.Dockerfile }
+    image: faithtech-community-cli:local
+    command: ["migrate"]
+    environment: *community
+    depends_on:
+      postgres: { condition: service_healthy }
+
+  seed:
+    image: faithtech-community-cli:local
+    command: ["seed"]
+    environment: *community
+    depends_on:
+      migrate: { condition: service_completed_successfully }
+
+  api:
+    build: { context: ../.., dockerfile: backend/deploy/api.Dockerfile }
+    image: faithtech-community-api:local
+    ports: ["8080:8080"]
+    environment:
+      <<: *community
+      # Development keeps OpenIddict's ephemeral keys and allows http origins; everything else is production-shaped.
+      ASPNETCORE_ENVIRONMENT: Development
+      ConnectionStrings__Blobs: UseDevelopmentStorage=true;DevelopmentStorageProxyUri=http://azurite
+      Marketing__Origin: http://www.localhost:8080
+      Smtp__Host: localhost
+      PrivatePreview__Enabled: "true"
+      PrivatePreview__PassphraseHash: pbkdf2-sha256$$600000$$PvxUWWjPK+jvB9wexynOFA==$$jpHONZCQ6YcwnGF4rs9C+AdNBSmkxQPPSesg2UfM07w=
+      PrivatePreview__SigningKey: DNqda7Mxuxq8VWHxk3in190OcF48uMZ60DbAl5nOWdY=
+      # Host-only here: app.localhost and www.localhost each unlock separately. Production sets faithtech.community.
+      PrivatePreview__CookieDomain: ""
+      StaticSites__ImageOrigins: http://localhost:10000
+    depends_on:
+      seed: { condition: service_completed_successfully }
+      azurite: { condition: service_started }
