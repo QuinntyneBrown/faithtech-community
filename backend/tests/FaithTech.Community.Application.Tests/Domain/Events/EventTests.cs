@@ -91,6 +91,18 @@ public class EventTests
     }
 
     [Fact]
+    public void Cancelling_records_who_cancelled_and_when()
+    {
+        var cancelled = NewEvent();
+        var by = Guid.NewGuid();
+        var at = Start.AddDays(-3);
+
+        cancelled.Cancel("Venue flooded", by, at);
+
+        Assert.Equal(((Guid?)by, (DateTimeOffset?)at), (cancelled.CancelledById, cancelled.CancelledAt));
+    }
+
+    [Fact]
     public void Cancelling_needs_a_reason()
     {
         Assert.Throws<ArgumentException>(() => NewEvent().Cancel(""));

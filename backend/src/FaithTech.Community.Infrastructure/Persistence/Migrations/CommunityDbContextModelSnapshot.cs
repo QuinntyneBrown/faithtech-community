@@ -423,6 +423,12 @@ namespace FaithTech.Community.Infrastructure.Persistence.Migrations
                         .HasMaxLength(500)
                         .HasColumnType("character varying(500)");
 
+                    b.Property<DateTimeOffset?>("CancelledAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid?>("CancelledById")
+                        .HasColumnType("uuid");
+
                     b.Property<int?>("Capacity")
                         .HasColumnType("integer");
 

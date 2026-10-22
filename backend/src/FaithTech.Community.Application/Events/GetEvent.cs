@@ -29,6 +29,8 @@ public record EventDetailDto(
     bool IsFull,
     bool IsCancelled,
     string? CancellationReason,
+    string? CancelledByName,
+    DateTimeOffset? CancelledAt,
     string? HostName,
     string? HostRole,
     bool CallerHasRsvp,
@@ -51,6 +53,9 @@ public class GetEventHandler(IApplicationDbContext db, EventPermissions permissi
 
         var caller = await permissions.CallerProfileIdAsync(cancellationToken);
         var host = await db.Profiles.AsNoTracking().SingleOrDefaultAsync(p => p.Id == e.CreatedById, cancellationToken);
+        var cancelledBy = e.CancelledById is { } by
+            ? await db.Profiles.AsNoTracking().Where(p => p.Id == by).Select(p => p.Name).SingleOrDefaultAsync(cancellationToken)
+            : null;
         var hostRole = host is null ? null : HostRoles.Where(host.HasRole).Select(r => (Role?)r).FirstOrDefault();
 
         IReadOnlyList<RsvpDto>? rsvps = null;
@@ -70,7 +75,7 @@ public class GetEventHandler(IApplicationDbContext db, EventPermissions permissi
         return new EventDetailDto(
             e.Id, e.Title, e.Description, e.Type.ToString(), e.StartsAt, e.EndsAt, e.City, e.Format.ToString(), e.Venue,
             e.OnlineLink, e.Capacity, e.Visibility.ToString(), e.RsvpCount, e.IsFull, e.IsCancelled, e.CancellationReason,
-            host?.Name, hostRole is { } role ? RoleLabels.Of(role) : null,
+            cancelledBy, e.CancelledAt, host?.Name, hostRole is { } role ? RoleLabels.Of(role) : null,
             caller is { } me && e.Rsvps.Any(r => r.ProfileId == me),
             permissions.CanManageEvents, permissions.CanExportRsvps, rsvps);
     }
