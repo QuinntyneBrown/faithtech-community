@@ -78,9 +78,9 @@ public class Resource
         new(id, title, description, type, ownerId, now) { File = file };
 
     public static Resource ForLink(
-        string title, string? description, ResourceType type, Guid ownerId, Uri link, DateTimeOffset now)
+        string title, string? description, ResourceType type, Guid ownerId, Uri link, DateTimeOffset now, Guid? id = null)
     {
-        var resource = new Resource(Guid.NewGuid(), title, description, type, ownerId, now);
+        var resource = new Resource(id ?? Guid.NewGuid(), title, description, type, ownerId, now);
         resource.SetLink(link);
         return resource;
     }
