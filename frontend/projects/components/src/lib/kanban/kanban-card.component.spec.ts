@@ -12,12 +12,14 @@ import { KanbanCardComponent } from './kanban-card.component';
       title="Kestrel Labs"
       href="/partners/kestrel-labs"
       caption="Hosting Builders Night · contract review"
+      [detail]="detail()"
       [movable]="movable()"
       (moveRequested)="moves.push($event)"
     />
   </ul>`,
 })
 class HostComponent {
+  detail = signal<string | null>(null);
   movable = signal(true);
   moves: unknown[] = [];
 }
@@ -89,5 +91,25 @@ describe('KanbanCardComponent', () => {
     fixture.detectChanges();
     expect(host.querySelector('button')).toBeNull();
     expect(host.querySelector('a')).not.toBeNull();
+  });
+
+  // Traces to: partner pipeline next step (components/kanban.html, Card with a next step).
+  // Given a partner whose latest activity has a next step, When its card renders, Then a second
+  // caption line "Next: …" follows the caption in reading order; without one no line shows.
+  it('shows the next-step detail line after the caption', () => {
+    const { fixture, cmp, host } = setup();
+    cmp.detail.set('Next: Send credit-line wording · Wed 22 Oct');
+    fixture.detectChanges();
+    const captions = Array.from(host.querySelectorAll('.ft-kanban__caption'));
+    expect(captions.map((c) => c.textContent?.trim())).toEqual([
+      'Hosting Builders Night · contract review',
+      'Next: Send credit-line wording · Wed 22 Oct',
+    ]);
+  });
+
+  it('shows no detail line when there is no next step', () => {
+    const { host } = setup();
+    expect(host.querySelectorAll('.ft-kanban__caption').length).toBe(1);
+    expect(host.textContent).not.toContain('Next:');
   });
 });
