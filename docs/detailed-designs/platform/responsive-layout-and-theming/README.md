@@ -4,7 +4,7 @@
 
 FaithTech Community runs on phones and desktops and in light and dark themes. This design describes the shared layout grid, breakpoints and theme switching that the app shell and the `components` library provide.
 
-- **breakpoint** — named viewport width threshold: XS <576px, SM >=576px, MD >=768px, LG >=992px, XL >=1200px
+- **breakpoint** — named viewport width threshold, from the design system tokens (`--layout-breakpoint-*`) that `BreakpointService` implements: XS <640px, SM >=640px, MD >=768px, LG >=1024px, XL >=1280px
 - **theme** — set of colour token values; light and dark themes define the same role names
 - **theme preference** — member choice of `system`, `light` or `dark`; `system` follows `prefers-color-scheme`
 
