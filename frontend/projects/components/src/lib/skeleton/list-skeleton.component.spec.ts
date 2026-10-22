@@ -32,6 +32,20 @@ describe('ListSkeletonComponent', () => {
     expect(rows.length).toBe(2);
   });
 
+  // Given a list is loading, when its placeholder renders, then the rows are items of a real list,
+  // as the rows that replace them are, and the empty placeholder list is hidden from assistive tech.
+  it('renders its rows as items of a list hidden from assistive technology', () => {
+    const fixture = TestBed.createComponent(ListSkeletonComponent);
+    fixture.componentRef.setInput('label', 'Loading contacts');
+    fixture.componentRef.setInput('rows', 3);
+    fixture.detectChanges();
+    const host: HTMLElement = fixture.nativeElement;
+
+    const list = host.querySelector('ul');
+    expect(list?.getAttribute('aria-hidden')).toBe('true');
+    expect(list?.querySelectorAll(':scope > li.ft-list-skeleton__row').length).toBe(3);
+  });
+
   it('leads each row with a round avatar placeholder by default', () => {
     const fixture = TestBed.createComponent(ListSkeletonComponent);
     fixture.componentRef.setInput('label', 'Loading users');

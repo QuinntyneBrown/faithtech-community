@@ -133,12 +133,12 @@
       </div>
       <div class="ds-example">
         <div class="ds-example__canvas ds-example__canvas--stack">
-          <p style="text-align: center;"><a href="../../mocks/pages/forgot-password/default.html">Forgot your password?</a></p>
+          <p class="text-center"><a href="../../mocks/pages/forgot-password/default.html">Forgot your password?</a></p>
           <div class="cluster cluster--between" style="width: 100%;"><h3 class="section-title">Partner pipeline</h3><a href="../../mocks/pages/partners/default.html">Open board</a></div>
           <dl class="facts"><div><dt>Epic</dt><dd><a href="../../mocks/pages/backlog/default.html">Tech for Shelters hackathon</a></dd></div><div><dt>Event</dt><dd><a href="../../mocks/pages/public-event/default.html">Preview public page</a></dd></div></dl>
         </div>
         <div class="ds-example__caption"><span>Standalone: on its own line under a form, at the end of a card header, or as the value in a facts list. The text must make sense out of context.</span></div>
-        <details class="ds-example__code"><summary>HTML</summary><pre><code>&lt;p style="text-align: center;"&gt;&lt;a href="/forgot-password"&gt;Forgot your password?&lt;/a&gt;&lt;/p&gt;
+        <details class="ds-example__code"><summary>HTML</summary><pre><code>&lt;p class="text-center"&gt;&lt;a href="/forgot-password"&gt;Forgot your password?&lt;/a&gt;&lt;/p&gt;
 &lt;div class="cluster cluster--between"&gt;&lt;h2&gt;Partner pipeline&lt;/h2&gt;&lt;a href="/partners"&gt;Open board&lt;/a&gt;&lt;/div&gt;
 &lt;dd&gt;&lt;a href="/workspaces/toronto-team/epics/tech-for-shelters"&gt;Tech for Shelters hackathon&lt;/a&gt;&lt;/dd&gt;</code></pre></details>
       </div>
@@ -257,7 +257,7 @@ a:hover { color: var(--color-fg-link-hover); text-decoration-thickness: var(--bo
         <li><a href="../../mocks/pages/settings/invalid.html">pages/settings/invalid</a> (error-summary links)</li>
         <li><a href="../../mocks/pages/partners/default.html">pages/partners/default</a>, <a href="../../mocks/pages/people/default.html">pages/people/default</a> and <a href="../../mocks/pages/invites/default.html">pages/invites/default</a> (repeated row links "Move", "Add role", "Resend" with a visually hidden object)</li>
       </ul>
-      <p>Drift noticed in the mocks: centred standalone links use an inline <code>style="text-align: center;"</code> on their paragraph.</p>
+      <p>A centred standalone link sits in <code>&lt;p class="text-center"&gt;</code>, the same utility in the mocks and in Angular.</p>
       <p>A link that closes a flush card ("All events" on Home) sits in <code>.card__footer</code> (<code>&lt;ft-card-footer&gt;</code> in Angular), which pads it to line up with the list rows.</p>
     </section>
 

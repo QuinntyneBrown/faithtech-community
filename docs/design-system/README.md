@@ -155,7 +155,7 @@ Each component page documents variants, sizes and the full state matrix in both 
 | pages/* forms | Error summary is a `ul` with inline padding; CSS styles `.form-summary ol` | Documented: `ol` |
 | pages/* forms | Optional marker was `span.text-muted`, not `.optional` | Fixed: mocks and `ft-form-field` use `.optional` (`--color-fg-subtle`) |
 | pages/compose-announcement | Only field labelled "(optional)"; `rows="2"` overridden | Logged; `rows` fixed: the textarea has no minimum height |
-| pages/edit-profile | 400-character bio limit has no counter; show-password never pressed | Documented on Textarea and Text field |
+| pages/edit-profile | 400-character bio limit had no counter; show-password never pressed | Fixed: `.field__count` counter and over-limit state; sign-in/invalid shows the pressed toggle |
 | pages/event-form | Visibility legend was visually hidden | Fixed: the legend is visible (`legend.field__label`) |
 | pages/settings | Email switch caption not joined with `aria-describedby`; only "Sign out everywhere" | Documented on Switch and Menu |
 | dialogs/remove-role | A single pre-checked radio | Logged |

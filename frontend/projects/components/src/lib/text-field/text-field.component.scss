@@ -3,13 +3,23 @@
 }
 
 .group {
+  --field-height: var(--control-height-md);
+
   position: relative;
+}
+
+.group--sm {
+  --field-height: var(--control-height-sm);
+}
+
+.group--lg {
+  --field-height: var(--control-height-lg);
 }
 
 .input {
   inline-size: 100%;
   box-sizing: border-box;
-  block-size: var(--control-height-md);
+  block-size: var(--field-height);
   padding-inline: var(--space-3);
   font: var(--text-body);
   color: var(--color-fg-default);
@@ -37,15 +47,24 @@
   }
 }
 
+.input--sm {
+  padding-block: var(--space-1);
+  font-size: var(--font-size-sm);
+}
+
+.input--lg {
+  font-size: var(--font-size-lg);
+}
+
 .group--action .input {
-  padding-inline-end: calc(var(--control-height-sm) + var(--space-2));
+  padding-inline-end: var(--field-height);
 }
 
 .action {
   position: absolute;
   inset-block: var(--space-1);
   inset-inline-end: var(--space-1);
-  inline-size: calc(var(--control-height-md) - var(--space-2));
+  inline-size: calc(var(--field-height) - var(--space-2));
   display: inline-flex;
   align-items: center;
   justify-content: center;

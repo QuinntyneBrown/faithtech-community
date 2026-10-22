@@ -103,8 +103,9 @@
         <li><b><code>.container</code></b>: the page width (max 1280px) and side margins. <code>main</code> on every signed-in page.</li>
         <li><b><code>.stack</code></b>: children in a column, 16px apart. Cards, forms, dialog bodies.</li>
         <li><b><code>.cluster</code></b>: children in a wrapping row, 12px apart, vertically centred. Button rows, role badges, stats. <b><code>.cluster--between</code></b> pushes the ends apart (a card title with an "Open board" link). <b><code>.cluster--tight</code></b> closes the gap to 4px for a run of role badges in a list row's meta line (<code>&lt;ft-cluster gap="1"&gt;</code> in Angular). <b><code>.cluster--snug</code></b> sets it to 8px for an avatar beside a name, or a row of actions, in a table cell (<code>&lt;ft-cluster gap="2"&gt;</code>).</li>
-        <li><b><code>.grid</code></b>: the token column grid; a form can set <code>--layout-columns: 2</code> for a Starts/Ends pair. <b><code>.grid--auto</code></b> fills with 18rem-minimum cards instead.</li>
-        <li><b><code>.split</code></b>: one column on phones, main and aside at 2:1 from 1024px. Home, event, contact and partner pages.</li>
+        <li><b><code>.grid</code></b>: the token column grid. <b><code>.grid--pair</code></b> gives two equal columns at every width for a Starts/Ends pair in a form (<code>&lt;ft-grid [columns]="2"&gt;</code> in Angular). <b><code>.grid--auto</code></b> fills with 18rem-minimum cards instead.</li>
+        <li><b><code>.split</code></b>: one column on phones, main and aside at 2:1 from 1024px. Home, event, contact and partner pages. It keeps 16px from a banner or alert above it; after a page header the margins collapse to the header's 24px.</li>
+        <li><b><code>.page-start</code></b>: the first block of a page with no page header, such as the profile head card, starts 24px below the top bar, where a page header would.</li>
         <li><b><code>.page-header</code></b> (title, subtitle, actions) and <b><code>.section</code></b> (vertical rhythm between page sections).</li>
         <li><b><code>.auth-layout</code></b> + <b><code>.auth-card</code></b>: the centred card on sign in, sign up, accept invite, verify email, forgot and reset password, with the <a href="logo-mark.html">logo mark</a> above it.</li>
       </ul>
@@ -171,13 +172,13 @@
       <h3>Grid</h3>
       <div class="ds-example">
         <div class="ds-example__canvas ds-example__canvas--stack ds-example__canvas--canvas">
-          <div class="grid" style="--layout-columns: 2;"><div class="field"><label class="field__label" for="lay-start">Starts</label><input class="input" id="lay-start" type="datetime-local" value="2026-11-06T18:30"></div><div class="field"><label class="field__label" for="lay-end">Ends</label><input class="input" id="lay-end" type="datetime-local" value="2026-11-06T21:00"></div></div>
+          <div class="grid grid--pair"><div class="field"><label class="field__label" for="lay-start">Starts</label><input class="input" id="lay-start" type="datetime-local" value="2026-11-06T18:30"></div><div class="field"><label class="field__label" for="lay-end">Ends</label><input class="input" id="lay-end" type="datetime-local" value="2026-11-06T21:00"></div></div>
           <div class="grid grid--auto">
             <div class="card stack"><span class="skeleton skeleton--title" aria-hidden="true"></span><span class="skeleton skeleton--text" aria-hidden="true"></span></div>
             <div class="card stack"><span class="skeleton skeleton--title" aria-hidden="true"></span><span class="skeleton skeleton--text" aria-hidden="true"></span></div>
           </div>
         </div>
-        <div class="ds-example__caption"><span><code>.grid</code> with two columns (event form, Starts and Ends) and <code>.grid--auto</code>, as many 18rem cards as fit (loading states for profile, event and partner).</span></div>
+        <div class="ds-example__caption"><span><code>.grid.grid--pair</code> (event form, Starts and Ends) and <code>.grid--auto</code>, as many 18rem cards as fit (loading states for profile, event and partner).</span></div>
       </div>
       <h3>Page header and section</h3>
       <div class="ds-example">
@@ -197,12 +198,12 @@
             <div class="auth-card stack">
               <div class="logo"><span class="logo-mark"><img src="../assets/logo.svg" alt="FaithTech" width="64" height="64"></span></div>
               <div class="card stack">
-                <span class="hero__title" style="text-align: center;">Welcome back</span>
+                <span class="hero__title text-center">Welcome back</span>
                 <div class="field"><label class="field__label" for="lay-email">Email</label><input class="input" id="lay-email" type="email" autocomplete="email" value="grace.okonkwo@example.org"></div>
                 <button class="btn btn--primary btn--lg btn--block" type="button">Sign in</button>
-                <p style="text-align: center;"><a href="../../mocks/pages/forgot-password/default.html">Forgot your password?</a></p>
+                <p class="text-center"><a href="../../mocks/pages/forgot-password/default.html">Forgot your password?</a></p>
               </div>
-              <p class="text-caption" style="text-align: center;">New to FaithTech? <a href="../../mocks/pages/sign-up/default.html">Create an account</a></p>
+              <p class="text-caption text-center">New to FaithTech? <a href="../../mocks/pages/sign-up/default.html">Create an account</a></p>
             </div>
           </div>
         </div>
@@ -273,7 +274,7 @@
         <figure class="ds-do"><div class="ds-example__canvas"><code>&lt;div class="split"&gt;</code></div><figcaption>Use <code>.split</code> for main and aside; it is one column on phones.</figcaption></figure>
         <figure class="ds-dont"><div class="ds-example__canvas"><code>&lt;div class="split" style="margin-top: var(--space-4);"&gt;</code></div><figcaption>Don't add one-off margins; the page header already spaces what follows it.</figcaption></figure>
         <figure class="ds-do"><div class="ds-example__canvas"><code>&lt;section class="section"&gt;</code></div><figcaption>Use <code>.section</code> to space page sections.</figcaption></figure>
-        <figure class="ds-dont"><div class="ds-example__canvas"><code>&lt;div class="card stack" style="margin-top: var(--space-6);"&gt;</code></div><figcaption>Inline margins to push a card down, as on the profile page.</figcaption></figure>
+        <figure class="ds-dont"><div class="ds-example__canvas"><code>&lt;div class="card stack" style="margin-top: var(--space-6);"&gt;</code></div><figcaption>Inline margins to push a card down; a page with no header starts with <code>.page-start</code>.</figcaption></figure>
       </div>
     </section>
 
@@ -311,11 +312,12 @@
         <tr><td><code>.stack</code></td><td>Column, 16px gap.</td></tr>
         <tr><td><code>.cluster</code> / <code>.cluster--between</code></td><td>Wrapping row, 12px gap / ends apart.</td></tr>
         <tr><td><code>.cluster--tight</code> / <code>.cluster--snug</code></td><td>4px gap (role badges in a meta line) / 8px gap (avatar and name, or actions, in a table cell).</td></tr>
-        <tr><td><code>.grid</code> / <code>.grid--auto</code></td><td>Token column grid (override with <code>--layout-columns</code>) / auto-fill 18rem columns.</td></tr>
-        <tr><td><code>.split</code></td><td>One column, then 2fr / 1fr from 1024px.</td></tr>
+        <tr><td><code>.grid</code> / <code>.grid--auto</code> / <code>.grid--pair</code></td><td>Token column grid / auto-fill 18rem columns / two equal columns for a form pair.</td></tr>
+        <tr><td><code>.split</code></td><td>One column, then 2fr / 1fr from 1024px; 16px above.</td></tr>
+        <tr><td><code>.page-start</code></td><td>24px above the first block of a page with no page header.</td></tr>
         <tr><td><code>.page-header</code> (+ <code>.subtitle</code>)</td><td>Title block and actions, wraps.</td></tr>
         <tr><td><code>.section</code></td><td><code>--space-8</code> above and below.</td></tr>
-        <tr><td><code>.auth-layout</code> / <code>.auth-card</code> (+ <code>.logo</code>)</td><td>Full-height centring / 26rem card column.</td></tr>
+        <tr><td><code>.auth-layout</code> / <code>.auth-card</code> (+ <code>.logo</code>)</td><td>Full-height centring / 26rem card column. Its heading and footer links take <code>.text-center</code>.</td></tr>
       </tbody></table>
       <p><code>.span-*</code>, <code>.sticky-aside</code> and <code>.divider</code> are still in <code>components.css</code> (inherited from Shelfie) but no FaithTech mock uses them.</p>
     </section>
@@ -331,10 +333,6 @@
       </ul>
       <p>Drift noticed in the mocks:</p>
       <ul>
-        <li>Inline spacing on layout wrappers: <code>.split</code> with <code>style="margin-top: var(--space-4);"</code> on Home, a profile card with <code>margin-top: var(--space-6)</code>.</li>
-        <li>The two-column form grid overrides <code>--layout-columns: 2</code> inline in four event-form mocks; it should be a named modifier.</li>
-        <li>Auth pages centre text with inline <code>style="text-align: center;"</code> on the heading and footer links.</li>
-        <li>Loading skeletons size themselves inline (<code>style="width: 12rem; display: inline-block;"</code>, <code>style="flex:1;"</code>).</li>
       </ul>
     </section>
 

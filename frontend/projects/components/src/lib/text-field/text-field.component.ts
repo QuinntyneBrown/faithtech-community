@@ -12,6 +12,8 @@ import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 import { FormFieldComponent } from '../form-field/form-field.component';
 
 export type TextFieldAction = 'reveal' | 'copy';
+/** Small 36px (top bar search, compact rows), medium 44px (forms), large 52px (Search page). */
+export type TextFieldSize = 'sm' | 'md' | 'lg';
 
 /**
  * One line of text. Place it inside ft-form-field for the visible label, help
@@ -34,6 +36,9 @@ export class TextFieldComponent implements ControlValueAccessor {
   readonly autocomplete = input<string | null>(null);
   readonly readonly = input(false);
   readonly name = input<string | null>(null);
+  readonly size = input<TextFieldSize>('md');
+  /** Id of the native input when a visible label outside ft-form-field points at it. */
+  readonly inputId = input<string | null>(null);
   /** Accessible name when the field is used without ft-form-field. */
   readonly label = input<string | null>(null);
   readonly action = input<TextFieldAction | null>(null);
@@ -43,7 +48,7 @@ export class TextFieldComponent implements ControlValueAccessor {
   protected readonly disabled = signal(false);
   protected readonly revealed = signal(false);
 
-  protected readonly id = computed(() => this.field?.controlId() ?? null);
+  protected readonly id = computed(() => this.field?.controlId() ?? this.inputId());
   protected readonly describedBy = computed(() => this.field?.describedBy() ?? null);
   protected readonly invalid = computed(() => (this.field?.invalid() ? 'true' : null));
   protected readonly ariaLabel = computed(() => (this.field ? null : this.label()));

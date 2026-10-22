@@ -100,6 +100,69 @@ public class SignInTests(CommunityApiFactory factory) : IClassFixture<CommunityA
     }
 
     [Fact]
+    public async Task Failures_spread_beyond_the_fifteen_minute_window_do_not_lock_the_account()
+    {
+        var email = await _flow.CreateAccountAsync();
+        for (var i = 0; i < 5; i++)
+        {
+            await _flow.SignInAsync(email, "not-the-right-password");
+            factory.Time.Advance(TimeSpan.FromMinutes(4));
+        }
+
+        Assert.Equal(HttpStatusCode.OK, (await _flow.SignInAsync(email)).StatusCode);
+    }
+
+    [Fact]
+    public async Task Five_failures_inside_the_window_lock_out_until_fifteen_minutes_have_passed()
+    {
+        var email = await _flow.CreateAccountAsync();
+        for (var i = 0; i < 5; i++)
+        {
+            await _flow.SignInAsync(email, "not-the-right-password");
+            factory.Time.Advance(TimeSpan.FromMinutes(3));
+        }
+
+        factory.Time.Advance(TimeSpan.FromMinutes(14) - TimeSpan.FromMinutes(3));
+        await AssertSignInError(await _flow.SignInAsync(email), "locked_out");
+
+        factory.Time.Advance(TimeSpan.FromMinutes(2));
+        Assert.Equal(HttpStatusCode.OK, (await _flow.SignInAsync(email)).StatusCode);
+    }
+
+    [Fact]
+    public async Task Failures_before_an_elapsed_lockout_do_not_count_towards_the_next_one()
+    {
+        var email = await _flow.CreateAccountAsync();
+        for (var i = 0; i < 5; i++)
+        {
+            await _flow.SignInAsync(email, "not-the-right-password");
+        }
+
+        factory.Time.Advance(TimeSpan.FromMinutes(16));
+        await AssertSignInError(await _flow.SignInAsync(email, "not-the-right-password"), "invalid_credentials");
+
+        Assert.Equal(HttpStatusCode.OK, (await _flow.SignInAsync(email)).StatusCode);
+    }
+
+    [Fact]
+    public async Task Successful_sign_in_clears_earlier_failures_from_the_window()
+    {
+        var email = await _flow.CreateAccountAsync();
+        for (var i = 0; i < 4; i++)
+        {
+            await _flow.SignInAsync(email, "not-the-right-password");
+        }
+
+        (await _flow.SignInAsync(email)).EnsureSuccessStatusCode();
+        for (var i = 0; i < 4; i++)
+        {
+            await _flow.SignInAsync(email, "not-the-right-password");
+        }
+
+        Assert.Equal(HttpStatusCode.OK, (await _flow.SignInAsync(email)).StatusCode);
+    }
+
+    [Fact]
     public async Task Suspended_account_is_refused()
     {
         var email = await _flow.CreateAccountAsync();

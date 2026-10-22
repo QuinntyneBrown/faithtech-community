@@ -35,6 +35,8 @@ h4 { font: var(--text-h4); }
 p { max-width: var(--layout-measure); text-wrap: pretty; }
 small { font: var(--text-body-sm); }
 .text-muted { color: var(--color-fg-muted); }
+/* Centred text: an auth page's heading and footer links, a standalone link under a form. */
+.text-center { text-align: center; }
 .text-caption { font: var(--text-caption); color: var(--color-fg-muted); }
 .overline { font: var(--text-overline); letter-spacing: var(--letter-spacing-wide); text-transform: uppercase; color: var(--color-fg-muted); }
 .truncate { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
@@ -79,6 +81,8 @@ a:hover, a[data-state="hover"] { color: var(--color-fg-link-hover); text-decorat
 .filter-bar { align-items: flex-end; margin-bottom: var(--space-4); }
 .grid { display: grid; gap: var(--layout-gutter); grid-template-columns: repeat(var(--layout-columns), minmax(0, 1fr)); }
 .grid--auto { grid-template-columns: repeat(auto-fill, minmax(min(100%, 18rem), 1fr)); }
+/* Two equal columns at every width: a Starts/Ends or start/end date pair in a form (<ft-grid [columns]="2">). */
+.grid--pair { --layout-columns: 2; }
 /* Column spans: full width until lg, then the named span of 12. */
 .span-full, .span-4, .span-5, .span-7, .span-8 { grid-column: 1 / -1; }
 @media (min-width: 64rem) {
@@ -88,6 +92,8 @@ a:hover, a[data-state="hover"] { color: var(--color-fg-link-hover); text-decorat
 }
 .page-header { display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between; gap: var(--space-4); margin-block: var(--space-6); }
 .page-header .subtitle { color: var(--color-fg-muted); margin-top: var(--space-1); }
+/* The first block of a page with no .page-header (the profile head card): 24px below the top bar, as a page header sits. */
+.page-start { margin-top: var(--space-6); }
 .section { margin-block: var(--space-8); }
 /* Form widths: cap a page form, the success card that replaces it, or a danger zone. Sizes follow .field--sm/md/lg; <ft-stack width="sm|md|lg"> in Angular. */
 .form-width--sm { width: 100%; max-width: 40rem; }
@@ -154,6 +160,9 @@ a:hover, a[data-state="hover"] { color: var(--color-fg-link-hover); text-decorat
 .field__label { font: var(--text-label); color: var(--color-fg-default); display: flex; gap: var(--space-1); }
 .field__label .optional { color: var(--color-fg-subtle); font-weight: var(--font-weight-regular); }
 .field__help { font: var(--text-body-sm); color: var(--color-fg-muted); }
+/* Character counter under a textarea with a limit (bio): characters left, or how many too many. */
+.field__count { font: var(--text-body-sm); color: var(--color-fg-muted); font-variant-numeric: tabular-nums; }
+.field__count--over { color: var(--color-danger-fg); font-weight: var(--font-weight-semibold); }
 .field__error { font: var(--text-body-sm); color: var(--color-danger-fg); display: flex; gap: var(--space-1); align-items: flex-start; }
 .field__error::before { content: "⚠"; flex: none; }
 .input, .textarea {
@@ -424,6 +433,10 @@ body:has(.tabbar:not(.tabbar--static)) .toast-region { bottom: calc(var(--layout
 .skeleton--text:last-child { width: 60%; }
 .skeleton--title { height: 1.5em; width: 40%; }
 .skeleton--rect { border-radius: var(--radius-md); }
+/* A Kanban card still loading (<ft-skeleton shape="card">). */
+.skeleton--card { height: var(--space-16); border-radius: var(--radius-md); }
+/* One line inside running text, such as a page header's subtitle while it loads. */
+.skeleton--subtitle { display: inline-block; width: 12rem; }
 /* Stands in for a stat value (a count) while it loads; the stat label stays. */
 .skeleton--stat { width: var(--size-avatar-md); height: var(--size-avatar-sm); border-radius: var(--radius-md); }
 /* Square placeholder the size of .date-badge, leading an event row while it loads. */
@@ -867,7 +880,8 @@ mark { background: var(--color-warning-bg); color: inherit; border-radius: var(-
 .photo-strip img { width: 100%; aspect-ratio: 1; object-fit: cover; border-radius: var(--radius-md); display: block; }
 
 /* ---------- Two-column layout helper ------------------------------------------ */
-.split { display: grid; gap: var(--layout-gutter); grid-template-columns: minmax(0, 1fr); align-items: start; }
+/* 16px below what comes before it (a banner or alert); after a .page-header the margins collapse to its 24px. */
+.split { display: grid; gap: var(--layout-gutter); grid-template-columns: minmax(0, 1fr); align-items: start; margin-top: var(--space-4); }
 @media (min-width: 64rem) { .split { grid-template-columns: minmax(0, 2fr) minmax(0, 1fr); } }
 
 /* ---------- Topbar extras ----------------------------------------------------- */

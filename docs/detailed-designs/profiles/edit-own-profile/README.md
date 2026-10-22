@@ -8,11 +8,11 @@ Each member maintains the name, home city and bio on their own profile. *Edit ow
 
 **System Admin override** — the System Admin's permission to change any profile, recorded in the audit log
 
-The edit happens on the dedicated `edit-profile` screen at `/people/me/edit`, not inline, in line with the frontend conventions. A name is required and shall not exceed 100 characters; a bio shall not exceed 400 characters.
+The edit happens on the dedicated `edit-profile` screen at `/people/me/edit`, not inline, in line with the frontend conventions. A name is required and shall not exceed 100 characters; a bio shall not exceed 400 characters. Sign-up and invite sign-up apply the same name limit, so a new member can always save their name unchanged. A name stored before that rule that is longer than 100 characters is shown in full and never truncated; saving shows the inline name error and focuses the field, and the member shortens it themselves (`L2-006` AC2).
 
 ## Description
 
-- **`EditProfilePage`** — page in the `profiles` feature library, matching the `edit-profile` mock. It uses `FormFieldComponent`, `TextFieldComponent` and `TextareaComponent`, an `ErrorSummaryComponent` and inline errors on a failed save, a `FormActionsComponent` row that puts the ghost *Cancel* link first and the busy *Save profile* button last, end-aligned like a dialog footer, and `ToastService` for the "Profile saved" toast.
+- **`EditProfilePage`** — page in the `profiles` feature library, matching the `edit-profile` mock. It uses `FormFieldComponent`, `TextFieldComponent` and `TextareaComponent` (with `maxlength` 400 on the bio, which shows the characters-left counter), an `ErrorSummaryComponent` and inline errors on a failed save, a `FormActionsComponent` row that puts the ghost *Cancel* link first and the busy *Save profile* button last, end-aligned like a dialog footer, and `ToastService` for the "Profile saved" toast.
 - **`ProfilesService`** — contract in the `api` library, provided through the `PROFILES_SERVICE` injection token and implemented by `HttpProfilesService`.
 - **`ProfilesEndpoints`** — minimal API route group in `FaithTech.Community.Api` under `/api/profiles`. Its endpoints require authentication by default and hold no business logic.
 - **`ICurrentUser`** — Application abstraction exposing the caller's user id and roles. **`ProfileAccess`** resolves the caller's profile from `CommunityUser.ProfileId` and decides owner, System Admin (audited) or forbidden (ADR 0004).
@@ -38,6 +38,7 @@ The feature realizes the following level-2 (L2) requirements. Each L2 requiremen
 2. Given an empty name or a name longer than 100 characters, when they save, then an inline error is shown and nothing is saved.
 3. Given a user who is not a System Admin, when they try to edit another user's profile through the API, then the response is 403.
 4. Given a bio longer than 400 characters, when they save, then an inline error is shown.
+5. Given the bio field, when the user types, then a counter under it shows how many of the 400 characters are left; once the bio is longer than 400 characters it says how many characters too many, in the danger colour, and nothing is cut off.
 
 ## Diagrams
 

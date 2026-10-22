@@ -67,6 +67,7 @@
           }
           <ft-form-field [label]="'Photo ' + (i + 1) + ' description'" [error]="altError(photo)">
             <ft-text-field
+              size="sm"
               [ngModel]="photo.alt"
               (ngModelChange)="altChange.emit({ index: i, alt: $event })"
             />

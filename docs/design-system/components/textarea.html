@@ -183,6 +183,12 @@
         <li><b>Read-only</b> and <b>disabled</b> are not used in the mocks; shown for completeness.</li>
       </ul>
       <div class="field"><label class="field__label" for="st-inv">Reason (recorded in the audit log)</label><textarea class="textarea" id="st-inv" name="st-inv" rows="3" required aria-invalid="true" aria-describedby="st-inv-error"></textarea><div class="field__error" id="st-inv-error">Give a reason so other admins understand.</div></div>
+      <h3>With a character counter</h3>
+      <p>A textarea with a limit (the 400-character bio) shows a <code>.field__count</code> line under it that counts down as the person types. Past the limit it says how many characters to remove and turns danger with <code>.field__count--over</code>; nothing is cut off, and saving shows the field error (<a href="../../mocks/pages/edit-profile/default.html">edit-profile/default</a>, <a href="../../mocks/pages/edit-profile/invalid.html">edit-profile/invalid</a>).</p>
+      <div class="ds-example"><div class="ds-example__canvas ds-example__canvas--stack" style="max-width: 32rem;">
+        <div class="field"><label class="field__label" for="cn-bio">Bio <span class="optional">(optional)</span></label><textarea class="textarea" id="cn-bio" name="cn-bio" rows="4" aria-describedby="cn-bio-count cn-bio-help">City Lead for FaithTech Toronto. Product manager by day, convener of builders by night. Ask me about our shelter-tech hackathon.</textarea><div class="field__count" id="cn-bio-count">272 characters left</div><div class="field__help" id="cn-bio-help">Up to 400 characters.</div></div>
+        <div class="field"><label class="field__label" for="cn-bio-over">Bio <span class="optional">(optional)</span></label><textarea class="textarea" id="cn-bio-over" name="cn-bio-over" rows="4" aria-invalid="true" aria-describedby="cn-bio-over-count cn-bio-over-help cn-bio-over-error">City Lead for FaithTech Toronto. Product manager by day, convener of builders by night. Ask me about our shelter-tech hackathon, the Lantern Foundation grant we are writing, the volunteer check-in kiosk Samuel is prototyping, and the monthly Builders Night at Kestrel Labs. I love hearing what churches and shelters need, and pairing them with designers, developers and product people who want to serve with their craft. Coffee is on me.</textarea><div class="field__count field__count--over" id="cn-bio-over-count">37 characters too many</div><div class="field__help" id="cn-bio-over-help">Up to 400 characters.</div><div class="field__error" id="cn-bio-over-error">Use 400 characters or fewer for your bio.</div></div>
+      </div><div class="ds-example__caption"><span>Under the limit, and 37 characters over after a save.</span></div></div>
     </section>
 
 
@@ -209,7 +215,7 @@
       <h3>Focus</h3>
       <p>The shared focus ring with no offset, and the border takes the ring colour.</p>
       <h3>Labelling</h3>
-      <p>Every textarea has a visible label that says what to write: "Message to attendees", not "Message". A limit is in the help text, so it is read before typing.</p>
+      <p>Every textarea has a visible label that says what to write: "Message to attendees", not "Message". A limit is in the help text, so it is read before typing. The counter is joined by <code>aria-describedby</code> and is not a live region, so it is read on focus, not on every keystroke.</p>
       <h3>Contrast</h3>
       <div class="ds-example__canvas ds-example__canvas--stack" style="padding: 0; gap: var(--space-2);"><div class="ds-pair"><span>Text on field</span><span class="ds-pair__ratio" data-contrast="--color-fg-default|--color-bg-surface" data-min="4.5"></span></div><div class="ds-pair"><span>Border on surface</span><span class="ds-pair__ratio" data-contrast="--color-border-strong|--color-bg-surface" data-min="3"></span></div><div class="ds-pair"><span>Invalid border on surface</span><span class="ds-pair__ratio" data-contrast="--color-danger-solid|--color-bg-surface" data-min="3"></span></div><div class="ds-pair"><span>Text in a dialog</span><span class="ds-pair__ratio" data-contrast="--color-fg-default|--color-bg-surface-raised" data-min="4.5"></span></div><div class="ds-pair"><span>Focus ring on surface</span><span class="ds-pair__ratio" data-contrast="--color-focus-ring|--color-bg-surface" data-min="3"></span></div></div>
       <h3>Motion</h3>
@@ -222,7 +228,7 @@
       <ul>
         <li>Label what to write and who reads it: "Message to attendees", "Note for the history", "Reason (recorded in the audit log)".</li>
         <li>Say who can see private text in the help or nearby copy: contact notes are visible only to the lead who wrote them and System Admin.</li>
-        <li>State a limit in help ("Up to 400 characters.") rather than cutting text off.</li>
+        <li>State a limit in help ("Up to 400 characters.") rather than cutting text off, and count it: "272 characters left", "1 character left", "37 characters too many".</li>
         <li>Prefill with a useful draft only when the product knows one; never with placeholder filler.</li>
       </ul>
     </section>
@@ -263,6 +269,7 @@
         <tr><td><code>.textarea</code></td><td>Multi-line field; shares tokens with <code>.input</code>.</td></tr>
         <tr><td><code>rows</code></td><td>Initial height; there is no minimum, so it is exact.</td></tr>
         <tr><td><code>aria-invalid="true"</code>, <code>readonly</code>, <code>disabled</code></td><td>States.</td></tr>
+        <tr><td><code>.field__count</code>, <code>.field__count--over</code></td><td>Character counter under a textarea with a limit; danger once over it.</td></tr>
       </tbody></table>
     </section>
 
@@ -277,7 +284,6 @@
         <li><a href="../../mocks/pages/contact/default.html">pages/contact/default</a> (inline note composer)</li>
         <li><a href="../../mocks/pages/work-item/default.html">pages/work-item/default</a> (comment composer)</li>
       </ul>
-      <p>Drift noticed in the mocks: the 400-character bio limit has no counter or over-limit state.</p>
     </section>
 
     <footer class="ds-footer"><span>FaithTech Community design system · extracted from <a href="../../mocks/index.html">docs/mocks</a> on 2026-10-21</span><a href="#top">Back to top</a></footer>

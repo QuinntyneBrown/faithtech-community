@@ -1,4 +1,5 @@
 using FaithTech.Community.Application.Common;
+using FaithTech.Community.Application.Profiles;
 using FaithTech.Community.Domain.Profiles;
 using FluentValidation;
 using Microsoft.AspNetCore.Identity;
@@ -12,7 +13,11 @@ public class SignUpValidator : AbstractValidator<SignUpCommand>
 {
     public SignUpValidator(IBreachedPasswordChecker breachedPasswords)
     {
-        RuleFor(x => x.Name).NotEmpty().WithMessage("Enter your name.").MaximumLength(200);
+        // The same limit as the profile editor, so a new member can always save their name unchanged.
+        RuleFor(x => x.Name).Cascade(CascadeMode.Stop)
+            .Must(name => !string.IsNullOrWhiteSpace(name)).WithMessage("Enter your name.")
+            .Must(name => name.Trim().Length <= UpdateProfileValidator.MaxName)
+            .WithMessage($"Use {UpdateProfileValidator.MaxName} characters or fewer for your name.");
         RuleFor(x => x.Email).Cascade(CascadeMode.Stop)
             .NotEmpty().WithMessage("Enter your email address.")
             .EmailAddress().WithMessage("Enter an email address like name@example.com.")

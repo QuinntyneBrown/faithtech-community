@@ -63,7 +63,7 @@
               help="Up to 400 characters."
               [error]="error('bio')"
             >
-              <ft-textarea formControlName="bio" [rows]="4" />
+              <ft-textarea formControlName="bio" [rows]="4" [maxlength]="400" />
             </ft-form-field>
           </ft-stack>
         </ft-card>

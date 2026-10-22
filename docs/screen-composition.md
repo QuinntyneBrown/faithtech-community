@@ -4,7 +4,7 @@ Which `@faithtech-community/components` parts build each screen, and what is bui
 
 **Local UI** is markup a feature library writes itself. It is limited to page composition: headings that belong to the page, sections and the glue between `api` services and components. Anything reusable goes into `components` first (`AGENTS.md`).
 
-Coverage: the profiles screens (`profile`, `edit-profile`, `delete-photo`), the admin screens (`admin-users`, `audit-log`, `add-role`, `remove-role`, `suspend-user`), the invites screens (`invites`, `accept-invite`, `send-invite`), the team list (`team`) and the agile screens (`workspaces`, `team-board`, `backlog`, `work-item`, `workspace-settings`, `planning-poker` and their dialogs). Other screens are added here as their features are built.
+Coverage: the profiles screens (`profile`, `edit-profile`, `delete-photo`), the admin screens (`admin-users`, `audit-log`, `add-role`, `remove-role`, `suspend-user`), the invites screens (`invites`, `accept-invite`, `send-invite`), the team list (`team`), the Appearance card of settings (`settings`) and the agile screens (`workspaces`, `team-board`, `backlog`, `work-item`, `workspace-settings`, `planning-poker` and their dialogs). Other screens are added here as their features are built.
 
 ## Shell
 
@@ -126,3 +126,9 @@ None for profiles. Admin and invites use `ToastService` success toasts on the in
 2. Team added to the library: `AvatarComponent` `src` shows a member's featured photo over the initials (ADR 0007), and `ListItemComponent` gained a `[meta]` slot for the role-badge meta line (`components/list.html`).
 3. Nothing reusable: every profiles screen is composed from the library. `PictureListComponent` gained a per-photo `pending` flag for photos chosen but not saved yet (design system: `components/picture-list.html`).
 4. Agile added to the library rather than building locally: `IconTileComponent` (the list rows' leading icon, now that `ft-sticker` is gone), the checkbox group's `legendHidden`, the card header actions slot (`ftCardActions`), the Kanban card `kind` and `moveTarget` inputs, the Kanban board's phone column tabs, and the top bar's tighter link padding between 1024px and 1279px. `CheckboxGroupComponent`, the tree's disclosure button, `EstimatePickerComponent`, `EstimateCardComponent` and `DangerZoneComponent` were already there.
+
+### Settings — `/settings` (`pages/settings`: Appearance card only so far)
+
+- Library: `PageHeaderComponent` ("Settings"), `StackComponent` `width="md"`, `CardComponent` heading "Appearance" holding `RadioGroupComponent` (legend "Theme") with `RadioComponent` *Light*, *Dark* and *Match my device* (with its description), bound to `ThemeService` from `components` (L2-045 AC6).
+- The Account and Email me when cards and Sign out everywhere join when their designs are built.
+- Local: the caption "Changes straight away and is remembered on this device."
