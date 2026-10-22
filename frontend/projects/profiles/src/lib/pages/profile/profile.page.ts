@@ -12,13 +12,8 @@ import {
   AUTH_SERVICE,
   PROFILES_SERVICE,
   ProfileDto,
-  ROLES,
   ROLES_SERVICE,
-  ROLE_DESCRIPTIONS,
   ROLE_LABELS,
-  Role,
-  assignableRoles,
-  problemDetails,
 } from '@faithtech-community/api';
 import {
   avatarColorFor,
@@ -28,10 +23,10 @@ import {
   IconComponent,
   ProfileHeaderComponent,
   ProfilePhoto,
-  RoleDialogComponent,
-  RoleDialogData,
 } from '@faithtech-community/components';
 import { firstValueFrom } from 'rxjs';
+
+import { RoleMode, addableRoles, openRoleDialog, removableRoles } from '../../role-actions';
 
 type State = 'loading' | 'loaded' | 'not-found' | 'error';
 
@@ -49,7 +44,6 @@ export class ProfilePage {
   private readonly dialogs = inject(DialogService);
   /** Roles the caller may change on anyone's profile (L2-009, ADR 0005). */
   private readonly callerRoles = inject(AUTH_SERVICE).roles;
-  private readonly assignable = computed(() => assignableRoles(this.callerRoles()));
 
   /** Route parameter: a profile id, or "me". */
   readonly id = input.required<string>();
@@ -64,13 +58,15 @@ export class ProfilePage {
   );
 
   /** Roles that could be added: assignable and not yet held. */
-  protected readonly canAdd = computed(() =>
-    this.assignable().filter((r) => !this.profile()?.roles.includes(r)),
-  );
+  protected readonly canAdd = computed(() => {
+    const profile = this.profile();
+    return profile ? addableRoles(this.callerRoles(), profile) : [];
+  });
   /** Held roles the caller may remove. */
-  protected readonly canRemove = computed(() =>
-    ROLES.filter((r) => this.profile()?.roles.includes(r) && this.assignable().includes(r)),
-  );
+  protected readonly canRemove = computed(() => {
+    const profile = this.profile();
+    return profile ? removableRoles(this.callerRoles(), profile) : [];
+  });
 
   constructor() {
     effect(() => void this.load(this.id()));
@@ -81,54 +77,19 @@ export class ProfilePage {
   }
 
   protected addRole(): void {
-    this.openRoleDialog('add', this.canAdd());
+    this.openRoleDialog('add');
   }
 
   protected removeRole(): void {
-    this.openRoleDialog('remove', this.canRemove());
+    this.openRoleDialog('remove');
   }
 
-  private openRoleDialog(mode: 'add' | 'remove', roles: Role[]): void {
+  private openRoleDialog(mode: RoleMode): void {
     const profile = this.profile();
     if (!profile) return;
-    const held = profile.roles.map((r) => ROLE_LABELS[r]);
-    const data: RoleDialogData = {
-      mode,
-      name: profile.name,
-      description:
-        mode === 'add'
-          ? `${profile.name} ${held.length ? `holds ${held.join(', ')}` : 'has no role yet'}. People can hold several roles at once.`
-          : `${profile.name} stays a member and keeps any other roles. The change is recorded in the audit log.`,
-      options: roles.map((r) => ({
-        value: r,
-        label: ROLE_LABELS[r],
-        description: ROLE_DESCRIPTIONS[r],
-      })),
-      caption:
-        mode === 'add' && !this.callerRoles().includes('SystemAdmin')
-          ? 'City Lead, Staff and System Admin can only be granted by a System Admin.'
-          : undefined,
-      submit: (role) => this.changeRole(profile.id, mode, role as Role),
-    };
-    this.dialogs.open(RoleDialogComponent, { data });
-  }
-
-  /** Resolves to null once the badges show the new roles, or to the server's refusal. */
-  private async changeRole(id: string, mode: 'add' | 'remove', role: Role): Promise<string | null> {
-    try {
-      const call =
-        mode === 'add'
-          ? this.rolesService.addRole(id, role)
-          : this.rolesService.removeRole(id, role);
-      const roles = await firstValueFrom(call);
-      this.profile.update((p) => (p ? { ...p, roles } : p));
-      return null;
-    } catch (error) {
-      if (error instanceof HttpErrorResponse && (error.status === 403 || error.status === 409)) {
-        return problemDetails(error)?.detail ?? 'You can’t make that change.';
-      }
-      throw error;
-    }
+    openRoleDialog(this.dialogs, this.rolesService, this.callerRoles(), profile, mode, (roles) =>
+      this.profile.update((p) => (p ? { ...p, roles } : p)),
+    );
   }
 
   private async load(id: string): Promise<void> {
