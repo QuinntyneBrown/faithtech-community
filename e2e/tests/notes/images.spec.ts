@@ -56,7 +56,7 @@ test.describe('Notes: image blocks', () => {
       note.content.getByRole('img', { name: 'Two builders pairing at the whiteboard' }),
     ).toBeVisible();
     await expect(note.saveStatus).toHaveText('Saved');
-    expect(sheet.blocks[0].alt).toBe('Two builders pairing at the whiteboard');
+    await expect.poll(() => sheet.blocks[0].alt).toBe('Two builders pairing at the whiteboard');
   });
 
   test('readers see the image with its alt text', async ({ page, api }) => {
