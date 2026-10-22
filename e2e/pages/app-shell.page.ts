@@ -13,6 +13,9 @@ export class AppShell {
   readonly drawer: Locator;
   readonly closeDrawer: Locator;
   readonly tabBar: Locator;
+  /** The live region in the bottom corner that holds every toast. */
+  readonly toastRegion: Locator;
+  readonly toasts: Locator;
 
   constructor(private readonly page: Page) {
     this.verifyBanner = page.locator('ft-banner').filter({ hasText: 'Verify your email' });
@@ -25,6 +28,8 @@ export class AppShell {
     this.tabBar = page.getByRole('navigation', { name: 'Primary, phone' });
     this.moreTab = this.tabBar.getByRole('button', { name: 'More' });
     this.moreLink = this.primaryNav.getByRole('button', { name: 'More' });
+    this.toastRegion = page.locator('ft-toast-region');
+    this.toasts = this.toastRegion.locator('ft-toast');
   }
 
   /** The top bar's avatar, a menu button named "Account menu for {name}". */
