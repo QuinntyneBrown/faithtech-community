@@ -14,6 +14,7 @@ public class UploadPhotoHandler(
     IImageProcessor images,
     IPhotoStorage storage,
     IAuditLog audit,
+    PhotoLeases leases,
     TimeProvider time)
 {
     public const long MaxBytes = 5 * 1024 * 1024;
@@ -34,6 +35,28 @@ public class UploadPhotoHandler(
             return (Result.NotFound(), null);
         }
 
+        // Hold the profile's photo lease while counting and adding, so overlapping uploads cannot pass
+        // the limit or both become featured.
+        if (!await leases.TakeAsync(profile, cancellationToken))
+        {
+            return (Result.Conflict(PhotoLeases.ChangedMeanwhile), null);
+        }
+
+        // A refusal releases the lease; a success releases it in the same save as the photo. After an
+        // unexpected error the context may hold unsaved changes, so the lease is left to expire instead.
+        var (result, photo) = await UploadAsync(profile, command, editAccess, actor, cancellationToken);
+        if (photo is null)
+        {
+            await leases.ReleaseAsync(profile, cancellationToken);
+        }
+
+        return (result, photo);
+    }
+
+    private async Task<(Result Result, PhotoDto? Photo)> UploadAsync(
+        Profile profile, UploadPhotoCommand command, EditAccess editAccess, Guid actor, CancellationToken cancellationToken)
+    {
+        var profileId = profile.Id;
         if (profile.Photos.Count >= Profile.MaxPhotos)
         {
             return (Result.Invalid("File", $"That’s {Profile.MaxPhotos} photos, the most a profile can have. Remove one to add another."), null);
@@ -76,6 +99,7 @@ public class UploadPhotoHandler(
             audit.Record(actor, "profile.photo.uploaded", "Profile", profileId.ToString(), null, new { photo.Id, photo.AltText });
         }
 
+        profile.PhotoLease.Release();
         await db.SaveChangesAsync(cancellationToken);
         return (Result.Ok(), PhotoDto.From(photo, storage));
     }

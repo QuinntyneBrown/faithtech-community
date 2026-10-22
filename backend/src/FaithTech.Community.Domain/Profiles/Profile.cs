@@ -25,6 +25,9 @@ public class Profile
 
     public IReadOnlyCollection<ProfilePhoto> Photos => _photos;
 
+    /// <summary>Serializes writes to <see cref="Photos"/> across requests.</summary>
+    public PhotoLease PhotoLease { get; private set; } = new();
+
     public string? HomeCity { get; private set; }
 
     public string? Bio { get; private set; }

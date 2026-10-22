@@ -78,6 +78,13 @@ public class CommunityDbContext(DbContextOptions<CommunityDbContext> options)
                 photo.Property(p => p.BlobName).HasMaxLength(200);
                 photo.Property(p => p.AltText).HasMaxLength(300);
             });
+            profile.OwnsOne(p => p.PhotoLease, lease =>
+            {
+                lease.ToTable("PhotoLeases");
+                lease.WithOwner().HasForeignKey("ProfileId");
+                lease.Property(l => l.Version).IsConcurrencyToken();
+            });
+            profile.Navigation(p => p.PhotoLease).IsRequired();
         });
 
         builder.Entity<PhotoBlobTask>(task =>

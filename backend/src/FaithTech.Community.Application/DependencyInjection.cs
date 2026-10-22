@@ -31,6 +31,7 @@ public static class DependencyInjection
         services.AddScoped<ListPeopleHandler>();
         services.AddScoped<UpdateProfileHandler>();
         services.AddScoped<UploadPhotoHandler>();
+        services.AddScoped<PhotoLeases>();
         services.AddScoped<PhotoAccess>();
         services.AddScoped<DescribePhotoHandler>();
         services.AddScoped<SetFeaturedPhotoHandler>();

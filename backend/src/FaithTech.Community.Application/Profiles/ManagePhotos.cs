@@ -8,8 +8,26 @@ namespace FaithTech.Community.Application.Profiles;
 public record DescribePhotoCommand(string? AltText);
 
 /// <summary>Loads a photo the caller may change, or the result that refuses it (ADR 0004).</summary>
-public class PhotoAccess(IApplicationDbContext db, ProfileAccess access)
+public class PhotoAccess(IApplicationDbContext db, ProfileAccess access, PhotoLeases leases)
 {
+    /// <summary>
+    /// Like <see cref="FindAsync"/>, and also takes the profile's photo lease, for writes that must not
+    /// overlap (feature, delete). The caller releases it in the save that makes its change.
+    /// </summary>
+    public async Task<(Result? Refused, Profile Profile, ProfilePhoto Photo, EditAccess Access, Guid Actor)> FindLeasedAsync(
+        Guid profileId, Guid photoId, CancellationToken cancellationToken)
+    {
+        var found = await FindAsync(profileId, photoId, cancellationToken);
+        if (found.Refused is not null)
+        {
+            return found;
+        }
+
+        return await leases.TakeAsync(found.Profile, cancellationToken)
+            ? found
+            : (Result.Conflict(PhotoLeases.ChangedMeanwhile), null!, null!, found.Access, found.Actor);
+    }
+
     public async Task<(Result? Refused, Profile Profile, ProfilePhoto Photo, EditAccess Access, Guid Actor)> FindAsync(
         Guid profileId, Guid photoId, CancellationToken cancellationToken)
     {
@@ -61,7 +79,7 @@ public class SetFeaturedPhotoHandler(IApplicationDbContext db, PhotoAccess photo
 {
     public async Task<Result> HandleAsync(Guid profileId, Guid photoId, CancellationToken cancellationToken = default)
     {
-        var (refused, profile, photo, access, actor) = await photos.FindAsync(profileId, photoId, cancellationToken);
+        var (refused, profile, photo, access, actor) = await photos.FindLeasedAsync(profileId, photoId, cancellationToken);
         if (refused is not null)
         {
             return refused;
@@ -74,6 +92,7 @@ public class SetFeaturedPhotoHandler(IApplicationDbContext db, PhotoAccess photo
             audit.Record(actor, "profile.photo.featured", "Profile", profileId.ToString(), new { Featured = before, Photo = photo.Id }, new { Featured = photo.Id });
         }
 
+        profile.PhotoLease.Release();
         await db.SaveChangesAsync(cancellationToken);
         return Result.Ok();
     }
@@ -84,13 +103,14 @@ public class DeletePhotoHandler(IApplicationDbContext db, PhotoAccess photos, IP
 {
     public async Task<Result> HandleAsync(Guid profileId, Guid photoId, CancellationToken cancellationToken = default)
     {
-        var (refused, profile, photo, access, actor) = await photos.FindAsync(profileId, photoId, cancellationToken);
+        var (refused, profile, photo, access, actor) = await photos.FindLeasedAsync(profileId, photoId, cancellationToken);
         if (refused is not null)
         {
             return refused;
         }
 
         profile.RemovePhoto(photo.Id);
+        profile.PhotoLease.Release();
         if (access == EditAccess.AdminOverride)
         {
             audit.Record(actor, "profile.photo.deleted", "Profile", profileId.ToString(), new { photo.Id, photo.AltText }, null);
