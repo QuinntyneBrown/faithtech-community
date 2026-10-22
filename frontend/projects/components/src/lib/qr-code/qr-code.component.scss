@@ -1,0 +1,48 @@
+:host {
+  display: inline-flex;
+}
+
+.ft-qr-code {
+  --qr-size: 12rem;
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-2);
+  margin: 0;
+}
+
+.ft-qr-code--sm {
+  --qr-size: 8rem;
+}
+
+.ft-qr-code--lg {
+  --qr-size: 16rem;
+}
+
+/* The plate's padding is the quiet zone; it stays light in both themes so any camera reads it. */
+.ft-qr-code__plate {
+  display: block;
+  padding: var(--space-4);
+  line-height: 0;
+  background: var(--color-code-plate);
+  border: var(--border-width-hairline) solid var(--color-border-default);
+  border-radius: var(--radius-md);
+  transition: opacity var(--duration-base) var(--ease-standard);
+}
+
+.ft-qr-code__plate svg {
+  display: block;
+  inline-size: var(--qr-size);
+  block-size: var(--qr-size);
+  color: var(--color-code-module);
+}
+
+.ft-qr-code--busy .ft-qr-code__plate {
+  opacity: 0.4;
+}
+
+.ft-qr-code__caption {
+  font: var(--text-caption);
+  color: var(--color-fg-muted);
+  text-align: center;
+}

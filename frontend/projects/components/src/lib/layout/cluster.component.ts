@@ -1,6 +1,6 @@
 import { ChangeDetectionStrategy, Component, input } from '@angular/core';
 
-/** Children in a wrapping, vertically centred row. `between` pushes the ends apart. */
+/** Children in a wrapping, vertically centred row. `between` pushes the ends apart; `center` centres them. */
 @Component({
   selector: 'ft-cluster',
   templateUrl: './cluster.component.html',
@@ -8,10 +8,12 @@ import { ChangeDetectionStrategy, Component, input } from '@angular/core';
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: {
     '[class.ft-cluster--between]': 'between()',
+    '[class.ft-cluster--center]': 'center()',
     '[style.--ft-cluster-gap]': '"var(--space-" + gap() + ")"',
   },
 })
 export class ClusterComponent {
   readonly between = input(false);
+  readonly center = input(false);
   readonly gap = input('3');
 }

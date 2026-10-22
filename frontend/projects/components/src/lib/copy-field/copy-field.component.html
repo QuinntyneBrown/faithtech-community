@@ -1,0 +1,19 @@
+<ft-form-field [label]="label()" [help]="help()">
+  <div class="ft-copy-field" #field>
+    <ft-text-field [formControl]="control" [readonly]="true" />
+    <ft-button [disabled]="disabled()" (click)="copy(field)">
+      <ft-icon [name]="state() === 'copied' ? 'done' : 'copy'" />
+      {{ state() === 'copied' ? 'Copied' : copyLabel() }}
+    </ft-button>
+  </div>
+</ft-form-field>
+<p class="ft-copy-field__status" role="status">
+  @switch (state()) {
+    @case ('copied') {
+      Link copied to the clipboard.
+    }
+    @case ('refused') {
+      Select the link and copy it.
+    }
+  }
+</p>

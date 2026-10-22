@@ -1,0 +1,56 @@
+@startuml
+title UML sequence behaviour — Show and replace my QR code
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+actor "City Lead" as lead
+box "Frontend — invites library" #E0F2FE
+  participant "InvitesPage" as page
+  participant "MyQrCodeDialog" as dlg
+  participant "HttpConnectService" as svc
+end box
+box "Backend — FaithTech.Community.Api" #D1FADF
+  participant "ConnectEndpoints" as ep
+end box
+box "Backend — Application and Domain" #ECFDF3
+  participant "ConnectLinkHandler" as h
+end box
+box "Backend — Infrastructure" #FFF4E5
+  participant "IConnectTokenProtector" as prot
+  database "Community database" as db
+end box
+lead -> page : My QR code (City Lead or System Admin only, L2-080 AC1)
+page -> dlg : DialogService.open
+dlg -> svc : getMyLink()
+svc -> ep : GET /api/connect/link
+ep -> h : GetOrIssueAsync()
+alt caller is not a City Lead or System Admin
+  h --> ep : Forbidden
+  ep --> svc : 403 (L2-080 AC2)
+else
+  h -> db : ConnectLink where OwnerId = caller
+  alt none yet
+    h -> h : token = InviteTokens.New()
+    h -> prot : Protect(token)
+    h -> db : Add ConnectLink(owner, Hash(token), protected, now)
+  else existing
+    h -> prot : Unprotect(ProtectedToken)
+  end
+  h --> ep : {web app}/meet/{token}
+  ep --> svc : 200 { url }
+  svc --> dlg : url
+  dlg --> lead : QR code, link, Copy, Download (L2-080 AC3-5)
+end
+lead -> dlg : Make a new code → confirm
+dlg -> svc : replaceMyLink()
+svc -> ep : POST /api/connect/link
+ep -> h : ReplaceAsync()
+h -> prot : Protect(newToken)
+h -> db : ConnectLink.Replace(Hash(newToken), protected, now)
+note right of db : The old hash is gone, so the old link\nlooks up as unknown (L2-081 AC3)
+h --> ep : new url
+ep --> svc : 200 { url }
+dlg --> lead : New code ready
+@enduml

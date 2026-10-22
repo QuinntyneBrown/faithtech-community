@@ -4,6 +4,7 @@ import { Locator, Page } from '@playwright/test';
 export class InvitesPage {
   readonly heading: Locator;
   readonly inviteSomeone: Locator;
+  readonly myQrCode: Locator;
   readonly items: Locator;
   readonly empty: Locator;
   readonly loadError: Locator;
@@ -15,6 +16,7 @@ export class InvitesPage {
   constructor(private readonly page: Page) {
     this.heading = page.getByRole('heading', { level: 1 });
     this.inviteSomeone = page.getByRole('button', { name: 'Invite someone' }).first();
+    this.myQrCode = page.getByRole('button', { name: 'My QR code' });
     this.items = page.getByRole('list', { name: 'Invites' }).getByRole('listitem');
     this.empty = page.getByRole('heading', { name: 'No invites sent' });
     this.loadError = page.getByRole('heading', { name: 'We couldn’t load invites' });

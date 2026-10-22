@@ -241,6 +241,10 @@
   --color-tint-lilac: var(--palette-cover-lilac-tint);
   --color-tint-mint: var(--palette-cover-mint-tint);
   --color-tint-peach: var(--palette-cover-peach-tint);
+  /* Machine-readable codes (QR): dark modules on a light plate in every theme, so any camera reads them.
+     Deliberately not overridden by the dark theme. */
+  --color-code-plate: var(--palette-white);
+  --color-code-module: var(--palette-black);
 
   /* ---------- Semantic: typography roles ------------------------------- */
   --text-display: var(--font-weight-bold) var(--font-size-5xl) / var(--line-height-tight) var(--font-family-display);

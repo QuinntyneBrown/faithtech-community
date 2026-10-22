@@ -1,0 +1,60 @@
+@startuml
+title UML sequence behaviour — Open the connect page and sign up
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+actor "New person" as p
+box "Frontend — invites library" #E0F2FE
+  participant "ConnectPage" as page
+  participant "HttpConnectService" as svc
+end box
+box "Backend — FaithTech.Community.Api" #D1FADF
+  participant "ConnectEndpoints" as ep
+end box
+box "Backend — Application and Domain" #ECFDF3
+  participant "ConnectLinkHandler" as links
+  participant "ConnectHandler" as h
+  participant "SignUpHandler" as su
+  participant "ContactConnector" as cc
+end box
+database "Community database" as db
+p -> page : Open /meet/{token}
+page -> svc : lookUp(token)
+svc -> ep : POST /api/connect/lookup { token } (anonymous, rate-limited)
+ep -> links : LookUpAsync(token)
+links -> db : ConnectLink by SHA-256 hash; owner profile, roles, featured photo
+alt unknown, replaced, owner suspended or no longer City Lead / System Admin
+  ep --> svc : 404
+  page --> p : This code no longer works · Create an account (L2-082 AC3)
+else valid
+  ep --> svc : 200 { leadName, leadPhotoUrl, leadCity, leadRole }
+  alt visitor is signed in
+    page -> svc : connect(token)
+    svc -> ep : POST /api/connect { token }
+    ep -> h : ConnectAsync(token)
+    h -> cc : RequestAsync(lead, caller)
+    cc --> h : Connected | Pending | OwnCode
+    ep --> svc : 200 { outcome, leadName }
+    page --> p : You’re connected / Almost connected / Your QR code works (L2-082 AC4-5)
+  else anonymous
+    page --> p : Connect with Grace, sign-up form (L2-082 AC1)
+    p -> page : Create account and connect
+    page -> svc : signUp({ token, name, email, password })
+    svc -> ep : POST /api/connect/sign-up
+    ep -> h : SignUpAsync(command) (L2-001 rules by the validator)
+    h -> links : FindOwnerAsync(token)
+    h -> su : CreateAsync(name, email, password)
+    alt email already has an account
+      su --> h : null
+    else created (no role, verification email sent)
+      su --> h : user
+      h -> db : Add PendingConnection(profile, lead)
+    end
+    ep --> svc : 202 either way (L2-083 AC2)
+    page --> p : Check your email
+    note over db : Verifying the email links the contact\n(link a contact on sign-up, L2-084)
+  end
+end
+@enduml

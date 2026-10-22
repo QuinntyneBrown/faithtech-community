@@ -30,6 +30,7 @@ The mocks were styled with the Shelfie design system unchanged plus FaithTech ad
 | [Menu](components/menu.html) | Account menu off the avatar. |
 | [Form field](components/form-field.html) | Label, help, error wrapper. |
 | [Text field](components/text-field.html) | Text, email, password, search, input group. |
+| [Copy field](components/copy-field.html) | Read-only value with a Copy button and a Copied state. |
 | [Textarea](components/textarea.html) | Bios, notes, announcement body. |
 | [Select](components/select.html) | Native select for roles, cities, event types. |
 | [Radio group](components/radio-group.html) | Choice rows with descriptions. |
@@ -57,9 +58,11 @@ The mocks were styled with the Shelfie design system unchanged plus FaithTech ad
 | [Event card](components/event-card.html) | Date badge, title, meta, cancelled. |
 | [Person card](components/person-card.html) | Cover band, round photo or initials, name and status, View profile link, dismiss; 1/2/4-column person grid. |
 | [Profile header](components/profile-header.html) | Avatar, name, roles, photo strip. |
+| [Person summary](components/person-summary.html) | Centred avatar, name and meta: who you connect with. |
 | [Search results](components/search-results.html) | Grouped global search with highlights. |
 | [Note](components/note.html) | Private notes on contacts. |
 | [Avatar](components/avatar.html) | Initials, colours, sizes, trigger. |
+| [QR code](components/qr-code.html) | Dark modules on a light plate in both themes, quiet zone, alt text required. |
 | [Logo mark](components/logo-mark.html) | FaithTech mark on auth screens. |
 | [Badge](components/badge.html) | Roles, status, counts. |
 | [Chip](components/chip.html) | Filter toggles. |
@@ -101,6 +104,7 @@ Each component page documents variants, sizes and the full state matrix in both 
 
 ## Changelog
 
+- 2026-10-22 — Connect by QR code: added QR code, copy field and person summary (`components.css`) and two semantic tokens, `--color-code-plate` and `--color-code-module`, that the dark theme deliberately leaves alone so a QR code stays readable by any camera.
 - 2026-10-22 — Contact photos and the contacts card grid (L2-067 to L2-073). Added: person card and person grid (`.person-grid`, `.person-card*`; cover tints reuse `--color-tint-*`, photo `--size-cover-lg`, no new tokens) and photo gallery (`.photo-gallery*`). Picture list gains a `contact` subject (contact wording, "Describe this photo." for a missing description, Feature on chosen photos before they are saved), `featurable` and `pendingNote`. Button gains the accent `outline` variant (the card's View profile pill) and avatar the `2xl` size (the card's initials). In Angular: `ft-person-card`, `ft-person-grid`, `ft-person-card-skeleton` and `ft-photo-gallery`.
 - 2026-10-21 — First extraction. Tokens inherited from Shelfie unchanged except comments. Added: select, tabs, notification panel, description list, backlog tree, Kanban board, event card, profile header, search results, note (from `ui-extra.css`). Select chevron redrawn with `currentColor` (was raw `#888`). Added state hooks: event card title hover, select hover/disabled, tab hover, tree row hover, `stat__value--text`, square checkboxes in `.choice`. Renamed for FaithTech: sticker → Estimate card, sticker picker → Estimate card picker (class names unchanged). Dropped Shelfie-only components (book cover, streak, trophy, celebration and others) and the e-mail foundation.
 

@@ -1,0 +1,174 @@
+<ng-template #leadSummary>
+  @if (lead(); as l) {
+    <ft-person-summary
+      [name]="l.leadName"
+      [meta]="meta()"
+      [photoUrl]="l.leadPhotoUrl"
+      [color]="color()"
+    />
+  }
+</ng-template>
+<ft-auth-layout>
+  <ft-card>
+    @switch (view()) {
+      @case ('loading') {
+        <h1 class="visually-hidden">Connect</h1>
+        <ft-stack role="status" aria-busy="true" aria-label="Loading who you’re connecting with">
+          <ft-skeleton shape="avatar" size="xl" />
+          <ft-skeleton shape="title" />
+          <ft-skeleton />
+        </ft-stack>
+      }
+      @case ('unreachable') {
+        <ft-stack>
+          <h1 class="text-center">We couldn’t load this page</h1>
+          <ft-alert status="danger" heading="FaithTech didn’t answer">
+            Check your connection and try again. Nothing was changed.
+          </ft-alert>
+          <ft-button variant="primary" size="lg" [block]="true" (click)="retry()"
+            >Try again</ft-button
+          >
+        </ft-stack>
+      }
+      @case ('invalid') {
+        <ft-stack>
+          <h1 class="text-center">This code no longer works</h1>
+          <ft-alert status="warning" heading="Link not recognised">
+            The person who shared it may have made a new code. Ask them for the new one, or join
+            FaithTech on your own.
+          </ft-alert>
+          <ft-button variant="primary" size="lg" [block]="true" href="/sign-up"
+            >Create an account</ft-button
+          >
+        </ft-stack>
+      }
+      @case ('connected') {
+        <ft-stack>
+          <h1 class="text-center">You’re connected</h1>
+          <ng-container *ngTemplateOutlet="leadSummary" />
+          <ft-alert status="success" [heading]="'Connected with ' + lead()!.leadName">
+            {{ firstName() }} has been told, and you’re in {{ firstName() }}’s contacts. Nothing
+            about your role changed.
+          </ft-alert>
+          <ft-button variant="primary" size="lg" [block]="true" href="/"
+            >Go to FaithTech Community</ft-button
+          >
+        </ft-stack>
+      }
+      @case ('pending') {
+        <ft-stack>
+          <h1 class="text-center">Almost connected</h1>
+          <ng-container *ngTemplateOutlet="leadSummary" />
+          <ft-alert status="info" heading="Verify your email to finish">
+            You’ll be connected with {{ firstName() }} as soon as you open the link we emailed you.
+            Didn’t get it? <ft-link href="/verify-email">Send it again</ft-link>.
+          </ft-alert>
+          <ft-button variant="primary" size="lg" [block]="true" href="/"
+            >Go to FaithTech Community</ft-button
+          >
+        </ft-stack>
+      }
+      @case ('own-code') {
+        <ft-stack>
+          <h1 class="text-center">Your QR code works</h1>
+          <ng-container *ngTemplateOutlet="leadSummary" />
+          <ft-alert status="info" heading="This is your own code">
+            Show it to someone you meet: when they scan it, they can join and connect with you.
+            Nothing was changed.
+          </ft-alert>
+          <ft-button variant="primary" size="lg" [block]="true" href="/"
+            >Go to FaithTech Community</ft-button
+          >
+        </ft-stack>
+      }
+      @case ('sent') {
+        <ft-stack>
+          <h1 class="text-center">Check your email</h1>
+          <ng-container *ngTemplateOutlet="leadSummary" />
+          <p class="text-center">
+            We sent a link to <strong>{{ sentTo() }}</strong
+            >. Open it to verify your email; then you’re connected with {{ firstName() }}.
+          </p>
+          <p class="text-caption text-center">
+            If that address already has an account, sign in instead — you’ll be connected straight
+            away.
+          </p>
+          <ft-button size="lg" [block]="true" [href]="signInLink()">Sign in</ft-button>
+        </ft-stack>
+      }
+      @default {
+        @if (lead(); as l) {
+          <ft-stack>
+            <h1 class="text-center">Connect with {{ firstName() }}</h1>
+            <ng-container *ngTemplateOutlet="leadSummary" />
+            <p class="text-center text-muted">
+              Join FaithTech Community — builders, leads, volunteers, partners and anyone curious
+              about faith and technology.
+            </p>
+            <form [formGroup]="form" (ngSubmit)="signUp()" ftFormErrorFocus novalidate>
+              <ft-stack>
+                @if (failed()) {
+                  <ft-alert status="danger" heading="We couldn’t create your account">
+                    Something went wrong on our side. Nothing was saved — try again in a moment.
+                  </ft-alert>
+                } @else if (errors().length) {
+                  <ft-alert status="danger" [heading]="summaryHeading()">
+                    <ol>
+                      @for (e of errors(); track e.field) {
+                        <li>{{ e.message }}</li>
+                      }
+                    </ol>
+                  </ft-alert>
+                }
+                <ft-form-field required label="Full name" [error]="error('name')">
+                  <ft-text-field formControlName="name" autocomplete="name" [readonly]="busy()" />
+                </ft-form-field>
+                <ft-form-field required label="Email" [error]="error('email')">
+                  <ft-text-field
+                    formControlName="email"
+                    type="email"
+                    autocomplete="email"
+                    [readonly]="busy()"
+                  />
+                </ft-form-field>
+                <ft-form-field
+                  required
+                  label="Password"
+                  help="At least 12 characters."
+                  [error]="error('password')"
+                >
+                  <ft-text-field
+                    formControlName="password"
+                    type="password"
+                    autocomplete="new-password"
+                    action="reveal"
+                    [readonly]="busy()"
+                  />
+                </ft-form-field>
+                <ft-button
+                  type="submit"
+                  variant="primary"
+                  size="lg"
+                  [block]="true"
+                  [loading]="busy()"
+                >
+                  {{ busy() ? 'Creating your account…' : 'Create account and connect' }}
+                </ft-button>
+              </ft-stack>
+            </form>
+            <p class="text-caption text-center">
+              When your account is ready, {{ firstName() }} is told and you’re added to
+              {{ firstName() }}’s contacts at FaithTech, linked to your profile. You won’t be given
+              a role.
+            </p>
+          </ft-stack>
+        }
+      }
+    }
+  </ft-card>
+  @if (view() === 'join') {
+    <p class="text-caption text-center">
+      Already have an account? <ft-link [href]="signInLink()">Sign in to connect</ft-link>
+    </p>
+  }
+</ft-auth-layout>

@@ -1,0 +1,12 @@
+@startuml
+!include <C4/C4_Context>
+LAYOUT_WITH_LEGEND()
+title System Context — Connect by QR code
+Person(lead, "City Lead", "Shows their QR code to someone they meet")
+Person(visitor, "New person", "Scans the code and joins")
+System(community, "FaithTech Community", "Community site for FaithTech staff, leads, volunteers, builders and partners")
+System_Ext(email, "Email provider", "Delivers verification and notification email")
+Rel(lead, community, "Shows and replaces their QR code using")
+Rel(visitor, community, "Opens the connect link and signs up using")
+Rel(community, email, "Sends email via", "SMTP/SendGrid")
+@enduml

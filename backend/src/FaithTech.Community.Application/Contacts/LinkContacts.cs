@@ -10,12 +10,18 @@ public record LinkContactCommand(Guid ProfileId, bool DiscardNotes = false);
 
 /// <summary>
 /// Tells each lead whose private contact just verified their email (L2-015 AC1, AC3): an in-app
-/// notification now and an email. Called once an account's email becomes verified.
+/// notification now and an email. Called once an account's email becomes verified, after connecting the
+/// leads whose connect link the person used.
 /// </summary>
-public class ContactSignedUpHandler(IApplicationDbContext db, IEmailQueue emails, IOptions<WebAppOptions> webApp, TimeProvider time)
+public class ContactSignedUpHandler(
+    IApplicationDbContext db, ContactConnector connector, IEmailQueue emails, IOptions<WebAppOptions> webApp, TimeProvider time)
 {
     public async Task HandleAsync(EmailVerified verified, CancellationToken cancellationToken = default)
     {
+        // A person who used a lead's connect link becomes that lead's contact first (L2-084, ADR 0022),
+        // so the match below no longer sees the contact it just linked.
+        await connector.ConnectPendingAsync(verified.ProfileId, cancellationToken);
+
         var normalized = verified.Email.Trim().ToUpperInvariant();
         var matches = await db.Contacts.AsNoTracking()
             .Where(c => c.LinkedProfileId == null && c.ArchivedAtUtc == null && c.Email != null && c.Email.ToUpper() == normalized)

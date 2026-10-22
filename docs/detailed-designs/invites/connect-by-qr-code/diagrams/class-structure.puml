@@ -1,0 +1,92 @@
+@startuml
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 8
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam class {
+  BorderColor #344054
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+title Class structure — Connect by QR code
+class ConnectLink <<Domain entity>> {
+  +Guid Id
+  +Guid OwnerId
+  +string TokenHash
+  +string ProtectedToken
+  +DateTimeOffset IssuedAt
+  +Replace(tokenHash: string, protectedToken: string, now: DateTimeOffset): void
+}
+class PendingConnection <<Domain entity>> {
+  +Guid Id
+  +Guid ProfileId
+  +Guid LeadId
+  +DateTimeOffset CreatedAt
+}
+class InviteTokens <<static>> {
+  +{static} New(): string
+  +{static} Hash(token: string): string
+}
+interface IConnectTokenProtector {
+  +Protect(token: string): string
+  +Unprotect(protectedToken: string): string
+}
+class DataProtectionConnectTokens
+class ConnectLinkDto <<record>> {
+  +string Url
+}
+class ConnectLookupDto <<record>> {
+  +Guid LeadProfileId
+  +string LeadName
+  +string? LeadPhotoUrl
+  +string? LeadCity
+  +string LeadRole
+}
+class ConnectLinkHandler {
+  +CanHaveLink: bool
+  +GetOrIssueAsync(): Task<(Result, ConnectLinkDto?)>
+  +ReplaceAsync(): Task<(Result, ConnectLinkDto?)>
+  +LookUpAsync(token: string): Task<ConnectLookupDto?>
+  +FindOwnerAsync(token: string): Task<Guid?>
+}
+class ConnectSignUpCommand <<record>> {
+  +string? Token
+  +string Name
+  +string Email
+  +string Password
+}
+class ConnectResultDto <<record>> {
+  +string Outcome
+  +string LeadName
+}
+enum ConnectOutcome <<Contacts>> {
+  Connected
+  Pending
+  OwnCode
+}
+class ConnectHandler {
+  +SignUpAsync(command: ConnectSignUpCommand): Task<Result>
+  +ConnectAsync(token: string): Task<(Result, ConnectResultDto?)>
+}
+class SignUpHandler {
+  +HandleAsync(command: SignUpCommand): Task<Result>
+  +CreateAsync(command: SignUpCommand): Task<CommunityUser?>
+}
+class ContactConnector {
+  +RequestAsync(leadId: Guid, profileId: Guid): Task<ConnectOutcome>
+}
+DataProtectionConnectTokens ..|> IConnectTokenProtector
+ConnectLinkHandler ..> ConnectLink : issues, replaces, finds by hash
+ConnectLinkHandler ..> InviteTokens
+ConnectLinkHandler --> IConnectTokenProtector
+ConnectLinkHandler ..> ConnectLinkDto
+ConnectLinkHandler ..> ConnectLookupDto
+ConnectHandler --> ConnectLinkHandler : FindOwnerAsync
+ConnectHandler --> SignUpHandler : CreateAsync
+ConnectHandler --> ContactConnector
+ConnectHandler ..> PendingConnection : new account
+ConnectHandler ..> ConnectSignUpCommand
+ConnectHandler ..> ConnectResultDto
+ContactConnector ..> ConnectOutcome
+@enduml

@@ -1,5 +1,11 @@
 import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
-import { INVITES_SERVICE, InviteDto, InviteStatus, ROLE_LABELS } from '@faithtech-community/api';
+import {
+  AUTH_SERVICE,
+  INVITES_SERVICE,
+  InviteDto,
+  InviteStatus,
+  ROLE_LABELS,
+} from '@faithtech-community/api';
 import {
   AlertComponent,
   BadgeComponent,
@@ -21,7 +27,7 @@ import {
 } from '@faithtech-community/components';
 import { firstValueFrom } from 'rxjs';
 
-import { SendInviteDialog } from '../../dialogs';
+import { MyQrCodeDialog, SendInviteDialog } from '../../dialogs';
 
 type State = 'loading' | 'loaded' | 'error';
 
@@ -58,6 +64,12 @@ export class InvitesPage {
   private readonly invites = inject(INVITES_SERVICE);
   private readonly dialogs = inject(DialogService);
   private readonly toasts = inject(ToastService);
+  private readonly roles = inject(AUTH_SERVICE).roles;
+
+  /** Only City Leads and System Admins have a connect link (L2-080 AC1, AC2). */
+  protected readonly hasQrCode = computed(() =>
+    this.roles().some((role) => role === 'CityLead' || role === 'SystemAdmin'),
+  );
 
   protected readonly state = signal<State>('loading');
   protected readonly list = signal<InviteDto[]>([]);
@@ -103,6 +115,10 @@ export class InvitesPage {
     this.total.update((total) => total + 1);
     this.state.set('loaded');
     this.toasts.show({ variant: 'success', heading: `Invite sent to ${sent.email}` });
+  }
+
+  protected showQrCode(): void {
+    this.dialogs.open(MyQrCodeDialog, {});
   }
 
   protected async resend(invite: InviteDto): Promise<void> {

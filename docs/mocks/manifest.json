@@ -177,6 +177,32 @@
       }
     },
     {
+      "id": "connect",
+      "kind": "page",
+      "title": "Connect",
+      "route": "/meet/:token",
+      "requirements": [
+        "L2-082",
+        "L2-083",
+        "L2-084"
+      ],
+      "states": [
+        "default",
+        "loading",
+        "invalid",
+        "error",
+        "busy",
+        "email-exists",
+        "signed-in",
+        "pending",
+        "own-code"
+      ],
+      "not_applicable": {
+        "empty": "This screen has no collection that could be empty.",
+        "success": "A new account's success is the email-exists \"check your email\" outcome (L2-001 AC2); a member's is signed-in."
+      }
+    },
+    {
       "id": "home",
       "kind": "page",
       "title": "Home",
@@ -589,7 +615,8 @@
       "title": "Invites",
       "route": "/invites",
       "requirements": [
-        "L2-010"
+        "L2-010",
+        "L2-080"
       ],
       "states": [
         "default",
@@ -1373,6 +1400,30 @@
       "not_applicable": {}
     },
     {
+      "id": "my-qr-code",
+      "kind": "dialog",
+      "title": "My QR code",
+      "opens_from": "invites",
+      "requirements": [
+        "L2-080",
+        "L2-081"
+      ],
+      "states": [
+        "default",
+        "loading",
+        "load-error",
+        "copied",
+        "regenerate-confirm",
+        "busy",
+        "regenerated",
+        "error"
+      ],
+      "not_applicable": {
+        "forbidden": "Only City Leads and System Admins see the My QR code button, so the dialog never opens for anyone else (L2-080 AC2).",
+        "invalid": "Nothing is typed in the dialog; the link is read-only."
+      }
+    },
+    {
       "id": "suspend-user",
       "kind": "dialog",
       "title": "Suspend user",
@@ -1542,7 +1593,8 @@
         "unread",
         "agile",
         "empty",
-        "resource-shared"
+        "resource-shared",
+        "connected"
       ],
       "not_applicable": {}
     },
@@ -1565,7 +1617,8 @@
         "assigned",
         "workspace-added",
         "poker-invite",
-        "resource-shared"
+        "resource-shared",
+        "connected"
       ],
       "not_applicable": {}
     },

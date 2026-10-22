@@ -34,6 +34,11 @@ export const routes: Routes = [
     path: 'accept-invite',
     loadChildren: () => import('@faithtech-community/invites').then((m) => m.ACCEPT_INVITE_ROUTES),
   },
+  // A City Lead's QR code opens /meet/:token; /connect/* belongs to the identity server (ADR 0021).
+  {
+    path: 'meet',
+    loadChildren: () => import('@faithtech-community/invites').then((m) => m.CONNECT_ROUTES),
+  },
   // The unsubscribe link in announcement emails works without a sign-in (L2-030 AC3).
   {
     path: 'unsubscribe',

@@ -24,7 +24,12 @@ import { EVENTS_SERVICE, HttpEventsService } from './events';
 import { SEARCH_SERVICE, HttpSearchService } from './search';
 import { NOTIFICATIONS_SERVICE, HttpNotificationsService } from './notifications';
 import { ANNOUNCEMENTS_SERVICE, HttpAnnouncementsService } from './announcements';
-import { INVITES_SERVICE, HttpInvitesService } from './invites';
+import {
+  CONNECT_SERVICE,
+  HttpConnectService,
+  INVITES_SERVICE,
+  HttpInvitesService,
+} from './invites';
 import {
   AGILE_LIVE_SERVICE,
   AGILE_SERVICE,
@@ -63,6 +68,7 @@ export function provideApi(baseUrl: string, auth: Partial<AuthConfig> = {}): Env
     { provide: NOTIFICATIONS_SERVICE, useClass: HttpNotificationsService },
     { provide: ANNOUNCEMENTS_SERVICE, useClass: HttpAnnouncementsService },
     { provide: INVITES_SERVICE, useClass: HttpInvitesService },
+    { provide: CONNECT_SERVICE, useClass: HttpConnectService },
     { provide: ADMIN_USERS_SERVICE, useClass: HttpAdminUsersService },
     { provide: AUDIT_LOG_SERVICE, useClass: HttpAuditLogService },
     { provide: ROLES_SERVICE, useClass: HttpRolesService },

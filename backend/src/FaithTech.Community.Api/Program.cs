@@ -67,6 +67,7 @@ app.MapAuditLogEndpoints();
 app.MapRolesEndpoints();
 app.MapAdminUsersEndpoints();
 app.MapInvitesEndpoints();
+app.MapConnectEndpoints();
 app.MapContactsEndpoints();
 app.MapPartnersEndpoints();
 app.MapTeamEndpoints();
