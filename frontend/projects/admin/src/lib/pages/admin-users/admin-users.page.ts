@@ -102,6 +102,11 @@ export class AdminUsersPage {
   protected readonly loadingMore = signal(false);
   protected readonly working = signal<string | null>(null);
   private readonly page = signal(1);
+  /**
+   * Bumped by every new search; a response (first page or show-more) that belongs to an older
+   * search is dropped, so out-of-order answers never mix with the rows on screen.
+   */
+  private generation = 0;
 
   protected readonly rows = computed(() => this.list() as unknown as Record<string, unknown>[]);
   protected readonly hasMore = computed(() => this.list().length < this.total());
@@ -140,17 +145,19 @@ export class AdminUsersPage {
 
   protected async loadMore(): Promise<void> {
     if (this.loadingMore()) return;
+    const generation = this.generation;
     this.loadingMore.set(true);
     try {
       const next = this.page() + 1;
       const result = await firstValueFrom(this.users.search(this.term(), next));
+      if (generation !== this.generation) return;
       this.list.update((list) => [...list, ...result.items]);
       this.total.set(result.totalCount);
       this.page.set(next);
     } catch {
-      this.state.set('error');
+      if (generation === this.generation) this.state.set('error');
     } finally {
-      this.loadingMore.set(false);
+      if (generation === this.generation) this.loadingMore.set(false);
     }
   }
 
@@ -179,14 +186,18 @@ export class AdminUsersPage {
   }
 
   private async load(): Promise<void> {
+    const generation = ++this.generation;
     this.state.set('loading');
+    this.loadingMore.set(false);
     try {
       const result = await firstValueFrom(this.users.search(this.term(), 1));
+      if (generation !== this.generation) return;
       this.list.set(result.items);
       this.total.set(result.totalCount);
       this.page.set(1);
       this.state.set('loaded');
     } catch (error) {
+      if (generation !== this.generation) return;
       const forbidden = error instanceof HttpErrorResponse && error.status === 403;
       this.state.set(forbidden ? 'forbidden' : 'error');
     }
