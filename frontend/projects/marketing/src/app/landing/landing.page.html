@@ -1,3 +1,28 @@
 <main id="main" tabindex="-1">
-  <h1>Build with people who share your faith</h1>
+  <ft-container>
+    <div class="landing">
+      <ft-landing-hero
+        eyebrow="FaithTech Community"
+        heading="Build with people who share your faith"
+        lead="Meet the builders, leads and volunteers in your city, show up to events and hackathons together, and work on projects that serve your neighbours."
+      />
+      <section class="landing__section" aria-labelledby="why-join">
+        <h2 id="why-join">Why join</h2>
+        <ft-grid [auto]="true">
+          <ft-benefit icon="team" heading="Find your city team">
+            See who builds near you, from first-time volunteers to city leads.
+          </ft-benefit>
+          <ft-benefit icon="events" heading="Show up together">
+            RSVP to builders nights and hackathons, and add them to your calendar.
+          </ft-benefit>
+          <ft-benefit icon="workspaces" heading="Build what matters">
+            Plan projects with your team that serve churches, shelters and neighbours.
+          </ft-benefit>
+        </ft-grid>
+      </section>
+      <ft-cta-band heading="Ready to build with us?" text="It’s free, and it takes a minute.">
+        <ft-button variant="primary" size="lg" (click)="join()">Join now</ft-button>
+      </ft-cta-band>
+    </div>
+  </ft-container>
 </main>

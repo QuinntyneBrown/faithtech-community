@@ -1,0 +1,21 @@
+main {
+  display: block;
+  outline: none;
+}
+
+.landing {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-12);
+  padding-block: var(--space-8) var(--space-12);
+}
+
+.landing__section {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+h2 {
+  margin: 0;
+}

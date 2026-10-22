@@ -1,0 +1,5 @@
+<h2 class="cta-band__title" [id]="headingId">{{ heading() }}</h2>
+@if (text(); as line) {
+  <p class="cta-band__text">{{ line }}</p>
+}
+<ng-content />
