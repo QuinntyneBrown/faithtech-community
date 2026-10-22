@@ -1,4 +1,4 @@
-# 0010. Photo blob work is retried from the database
+# 0013. Photo blob work is retried from the database
 
 - Status: Accepted
 - Date: 2026-10-22
