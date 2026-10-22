@@ -36,7 +36,8 @@ The mocks were styled with the Shelfie design system unchanged plus FaithTech ad
 | [Checkbox group](components/checkbox-group.html) | Several choices: member and story pickers. |
 | [Switch](components/switch.html) | Notification and email preferences. |
 | [Form layout](components/form-layout.html) | Actions bar, error summary, danger zone. |
-| [Picture list](components/picture-list.html) | Profile photos: up to 10, one featured, alt text. |
+| [Picture list](components/picture-list.html) | Profile and contact photos: up to 10, one featured, alt text. |
+| [Photo gallery](components/photo-gallery.html) | Saved photos with descriptions; Feature, Edit description and Delete open dialogs. |
 | [Estimate card picker](components/sticker-picker.html) | Planning poker vote cards. |
 | [Top bar](components/top-bar.html) | App header with nav, search, bell and avatar. |
 | [Tab bar](components/tab-bar.html) | Phone navigation. |
@@ -54,6 +55,7 @@ The mocks were styled with the Shelfie design system unchanged plus FaithTech ad
 | [Backlog tree](components/tree.html) | Initiatives, epics, stories, tasks. |
 | [Kanban board](components/kanban.html) | Partner pipeline and team board. |
 | [Event card](components/event-card.html) | Date badge, title, meta, cancelled. |
+| [Person card](components/person-card.html) | Cover band, round photo or initials, name and status, View profile link, dismiss; 1/2/4-column person grid. |
 | [Profile header](components/profile-header.html) | Avatar, name, roles, photo strip. |
 | [Search results](components/search-results.html) | Grouped global search with highlights. |
 | [Note](components/note.html) | Private notes on contacts. |
@@ -95,6 +97,7 @@ Each component page documents variants, sizes and the full state matrix in both 
 
 ## Changelog
 
+- 2026-10-22 — Contact photos and the contacts card grid (L2-055 to L2-061). Added: person card and person grid (`.person-grid`, `.person-card*`; cover tints reuse `--color-tint-*`, photo `--size-cover-lg`, no new tokens) and photo gallery (`.photo-gallery*`). Picture list gains a `contact` subject: contact wording, "Describe this photo." for a missing description, and Feature on chosen photos before they are saved.
 - 2026-10-21 — First extraction. Tokens inherited from Shelfie unchanged except comments. Added: select, tabs, notification panel, description list, backlog tree, Kanban board, event card, profile header, search results, note (from `ui-extra.css`). Select chevron redrawn with `currentColor` (was raw `#888`). Added state hooks: event card title hover, select hover/disabled, tab hover, tree row hover, `stat__value--text`, square checkboxes in `.choice`. Renamed for FaithTech: sticker → Estimate card, sticker picker → Estimate card picker (class names unchanged). Dropped Shelfie-only components (book cover, streak, trophy, celebration and others) and the e-mail foundation.
 
 ## Drift found in the mocks
