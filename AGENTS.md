@@ -42,9 +42,9 @@ faithtech-community/
 │   │   │                                        # checks; one folder per feature (Identity/,
 │   │   │                                        # Profiles/, Contacts/, Partners/, Team/, Events/, Search/,
 │   │   │                                        # Notifications/, Announcements/, Invites/, Admin/,
-│   │   │                                        # Resources/, Agile/)
+│   │   │                                        # Resources/, Agile/, Reports/)
 │   │   ├── FaithTech.Community.Infrastructure/  # DbContext, EF migrations, Postgres full-text
-│   │   │                                        # search, Azure Blob, email, .ics, image resizing,
+│   │   │                                        # search, Azure Blob, email, .ics, CSV, image resizing,
 │   │   │                                        # OpenIddict stores, audit log, seeder
 │   │   ├── FaithTech.Community.Api/             # Endpoints, Program.cs, DI composition,
 │   │   │                                        # middleware. No business logic.
@@ -77,13 +77,16 @@ faithtech-community/
 │       ├── admin/                    # Feature library: System Admin roles, suspension, audit log
 │       ├── resources/                # Feature library: resources list, resource page, archived view,
 │       │                             # add/edit/archive/transfer dialogs
-│       └── agile/                    # Feature library: workspaces, backlog, board, sprints,
-│                                     # work items, Planning Poker
+│       ├── agile/                    # Feature library: workspaces, backlog, board, sprints,
+│       │                             # work items, Planning Poker
+│       └── reports/                  # Feature library: the fixed, read-only Reports page for Staff
+│                                     # and System Admin (filters, figures, charts, tables, CSV export)
 ├── e2e/                              # Playwright suite (Chromium only)
 │   ├── playwright.config.ts
 │   ├── pages/                        # Page objects: one per screen, owning selectors
 │   ├── fixtures/                     # Test fixtures, the fake backend (routed API + auth) and seeded data
-│   └── tests/                        # Specs by feature, including axe accessibility checks
+│   └── tests/                        # Specs by feature (one folder per feature, including reports/),
+│                                     # including axe accessibility checks
 ├── eng/                              # Developer and CI scripts (start stack, run tests, deploy)
 │   ├── infra/                        # Infrastructure as code for Azure
 │   └── videos/                       # Journey video recording: PowerShell entry point,
@@ -105,7 +108,7 @@ faithtech-community/
 
 Rules (MUST be followed):
 
-- Every feature uses the same name in `Application/`, `frontend/projects/`, `docs/specs/` and `docs/detailed-designs/`. The Agile workspaces subsystem is named `agile` (`Domain/Agile/`, `Application/Agile/`, `frontend/projects/agile/`, `docs/detailed-designs/agile/`; ADR 0010).
+- Every feature uses the same name in `Application/`, `frontend/projects/`, `docs/specs/` and `docs/detailed-designs/`. The Agile workspaces subsystem is named `agile` (`Domain/Agile/`, `Application/Agile/`, `frontend/projects/agile/`, `docs/detailed-designs/agile/`; ADR 0010). Reports is named `reports` (`Application/Reports/`, `frontend/projects/reports/`, `docs/detailed-designs/reports/`, `docs/estimates/reports.md`, `e2e/tests/reports/`; ADR 0027); it reads other features' entities and needs no `Domain/Reports/`.
 - EF Core migrations live only in `Infrastructure/Persistence/Migrations/` and are applied by the Cli project, never by the API.
 - .NET tests live only under `backend/tests/`. Angular unit tests (`*.spec.ts`) sit next to the code they test. Playwright tests live only in `e2e/`.
 - Each frontend feature is its own library project under `frontend/projects/<feature>/`, exposing its routes, pages and dialogs through its public API (`public-api.ts`). The app lazy-loads it from the shell.
