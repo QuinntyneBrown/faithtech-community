@@ -1,0 +1,23 @@
+<ft-dialog
+  [heading]="'Archive ' + resource.title + '?'"
+  description="It disappears for everyone who can see it today."
+  icon="archive"
+  [busy]="busy()"
+  (closed)="ref.close()"
+>
+  @if (failed()) {
+    <ft-alert status="danger" heading="Not archived">
+      We couldn’t reach FaithTech. Nothing changed — try again.
+    </ft-alert>
+  }
+  <p>
+    You can restore it from Archived for 30 days. After {{ purgeDay }} it’s deleted for good, file
+    and all.
+  </p>
+  <ft-button ftDialogFooter initialFocus [disabled]="busy()" (click)="ref.close()"
+    >Cancel</ft-button
+  >
+  <ft-button ftDialogFooter variant="primary" [loading]="busy()" (click)="confirm()">
+    {{ busy() ? 'Archiving…' : failed() ? 'Try again' : 'Archive' }}
+  </ft-button>
+</ft-dialog>

@@ -14,6 +14,7 @@ import { ButtonComponent } from './button.component';
     [iconOnly]="iconOnly()"
     [label]="label()"
     [href]="href()"
+    [target]="target()"
     [object]="object()"
     [initialFocus]="initialFocus()"
     >Publish event</ft-button
@@ -31,6 +32,7 @@ class HostComponent {
   iconOnly = signal(false);
   label = signal<string | null>(null);
   href = signal<string | null>(null);
+  target = signal<string | null>(null);
   object = signal<string | null>(null);
   initialFocus = signal(false);
 }
@@ -70,6 +72,15 @@ describe('ButtonComponent', () => {
     cmp.size.set(s);
     fixture.detectChanges();
     expect(q('button').classList.contains(`ft-button--${s}`)).toBe(true);
+  });
+
+  it('opens a new tab with rel noopener when the target is _blank', () => {
+    const { fixture, cmp, q } = setup();
+    cmp.href.set('https://canva.com/');
+    cmp.target.set('_blank');
+    fixture.detectChanges();
+    const link = q<HTMLAnchorElement>('a');
+    expect([link.target, link.rel]).toEqual(['_blank', 'noopener']);
   });
 
   it('supports submit type', () => {

@@ -131,6 +131,34 @@ describe('SearchPage', () => {
     expect(host.textContent).toContain('Story · Toronto team · In progress');
   });
 
+  it('lists resources with their type icon and badge, and links to the Resources page', async () => {
+    const { host, headings } = await setup('launch', () =>
+      of({
+        groups: [
+          {
+            kind: 'Resource',
+            items: [
+              {
+                id: 'r1',
+                title: 'Austin launch retro',
+                snippet: 'Deck · KEY · Esther Nakamura · tagged launch',
+                route: '/resources/r1',
+                startsAt: null,
+                badge: 'Shared with you',
+              },
+            ],
+          },
+        ],
+      } as SearchResultsDto),
+    );
+
+    expect(headings()).toEqual(['Resources (1)']);
+    expect(host.textContent).toContain('Shared with you');
+    expect(host.querySelector('a[href="/resources?q=launch"]')!.textContent).toContain(
+      'See all in Resources',
+    );
+  });
+
   it('suggests other terms when nothing matches', async () => {
     const { host } = await setup('zebra crossing', () => of({ groups: [] }));
 

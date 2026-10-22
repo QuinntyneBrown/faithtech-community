@@ -13,7 +13,9 @@ export type NotificationKind =
   | 'WorkspaceMemberAdded'
   | 'WorkspaceOwnerLostCityLead'
   | 'PlanningPokerInvite'
-  | 'Announcement';
+  | 'Announcement'
+  | 'ResourceShared'
+  | 'ResourceOwnershipTransferred';
 
 export interface NotificationDto {
   id: string;

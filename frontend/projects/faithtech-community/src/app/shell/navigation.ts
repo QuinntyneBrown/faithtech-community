@@ -48,6 +48,14 @@ export const SECTIONS: readonly Section[] = [
     secondary: true,
     opens: anyone,
   },
+  // Decks, logos, training and templates, for every signed-in member (L2-055).
+  {
+    label: 'Resources',
+    href: '/resources',
+    icon: 'resources',
+    secondary: true,
+    opens: anyone,
+  },
   // The people directory (L2-053).
   {
     label: 'People',

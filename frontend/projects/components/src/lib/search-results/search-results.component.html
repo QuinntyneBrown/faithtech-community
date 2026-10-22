@@ -43,6 +43,9 @@
           </li>
         }
       </ul>
+      @if (group.more; as more) {
+        <a class="ft-search-group__more" [attr.href]="more.href">{{ more.label }}</a>
+      }
     </section>
   }
 </div>

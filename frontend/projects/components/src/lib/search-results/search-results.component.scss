@@ -82,3 +82,9 @@ mark {
   background: var(--color-warning-bg);
   color: inherit;
 }
+
+.ft-search-group__more {
+  display: inline-block;
+  margin-block-start: var(--space-2);
+  font: var(--text-label);
+}
