@@ -54,6 +54,12 @@ public static class ResourcesEndpoints
             .DisableAntiforgery()
             .WithMetadata(new RequestSizeLimitAttribute(UploadRequestLimit), new RequestFormLimitsAttribute { MultipartBodyLengthLimit = UploadRequestLimit });
 
+        resources.MapPost("/links", async (AddLinkCommand command, AddLinkHandler handler, CancellationToken cancellationToken) =>
+        {
+            var (result, added) = await handler.HandleAsync(command, cancellationToken);
+            return result.ToHttp(() => Results.Created($"/api/resources/{added!.Id}", added));
+        });
+
         resources.MapPut("/{id:guid}", async (Guid id, EditResourceCommand command, EditResourceHandler handler, CancellationToken cancellationToken) =>
         {
             var (result, resource) = await handler.HandleAsync(id, command, cancellationToken);

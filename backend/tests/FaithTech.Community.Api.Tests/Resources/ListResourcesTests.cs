@@ -39,6 +39,7 @@ public class ListResourcesTests : IAsyncLifetime
     {
         var grace = await factory.AddMemberAsync("Grace Okonkwo");
         await factory.AddFileAsync(grace, Deck("hackathon-kickoff.pptx"), tags: ["hackathon", "events"]);
+        factory.Time.Advance(TimeSpan.FromMinutes(1));
         await factory.AddFileAsync(grace, new Upload("judging-rubric.pdf", Pdf), new Dictionary<string, string> { ["description"] = "How judges score a hackathon." }, ["hackathon"]);
         await factory.AddFileAsync(grace, Deck("city-launch.pptx"), tags: ["launch"]);
         var client = factory.ClientFor(await factory.AddMemberAsync("Samuel Mensah"));

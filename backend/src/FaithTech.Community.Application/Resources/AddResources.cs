@@ -123,6 +123,48 @@ public class AddResourcesHandler(
     }
 }
 
+public record AddLinkCommand(
+    string? Url, string? Title, string? Description, string? Type, IReadOnlyList<string>? Tags, string? Visibility,
+    IReadOnlyList<Guid>? MemberIds, IReadOnlyList<string>? Roles)
+{
+    public ResourceFieldsInput Fields => new(Title, Description, Type, Tags, Visibility, MemberIds, Roles);
+}
+
+/// <summary>Adds one https link (L2-058). The URL is never fetched; the owner is shown so a dead link has someone to ask.</summary>
+public class AddLinkHandler(
+    IApplicationDbContext db, AddResourcesHandler contributors, ResourceAccess access, ResourceFieldRules rules, ResourceViews views,
+    ShareNotifier share, TimeProvider time)
+{
+    public async Task<(Result Result, ResourceDto? Added)> HandleAsync(AddLinkCommand command, CancellationToken cancellationToken = default)
+    {
+        if (await contributors.ContributorAsync(cancellationToken) is { } refusal)
+        {
+            return (refusal, null);
+        }
+
+        var (fields, errors) = await rules.CheckAsync(command.Fields, titleRequired: true, cancellationToken);
+        if (!ResourceLinks.TryParse(command.Url, out var link))
+        {
+            errors["Url"] = [ResourceLinks.Message];
+        }
+
+        if (fields is null || errors.Count > 0)
+        {
+            return (ResourceResults.Invalid(errors), null);
+        }
+
+        var caller = await access.CallerAsync(cancellationToken);
+        var resource = Resource.ForLink(fields.Title!, fields.Description, fields.Type!.Value, caller, link!, time.GetUtcNow());
+        resource.SetOwner(caller, await contributors.OwnerRoleAsync(caller, cancellationToken));
+        resource.SetTags(fields.Tags);
+        resource.SetAudience(fields.Audience);
+        db.Resources.Add(resource);
+        await share.NotifyAsync([resource], caller, cancellationToken);
+        await db.SaveChangesAsync(cancellationToken);
+        return (Result.Ok(), await views.DetailAsync(resource, caller, cancellationToken));
+    }
+}
+
 /// <summary>
 /// Stores an upload's blob and thumbnail. When storage is down the file is kept in a retry task and the resource is
 /// saved as storing (ADR 0013, ADR 0017).
