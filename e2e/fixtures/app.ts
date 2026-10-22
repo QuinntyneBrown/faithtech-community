@@ -39,9 +39,9 @@ async function checkAccessibility(page: Page): Promise<void> {
  * - a dialog or toast fading in reads as low contrast, so short running animations are awaited.
  *   Endless ones (a busy pulse) never finish, and long ones such as a toast's 6-second timer bar,
  *   which also pauses while hovered or focused, would outlive the toast, so neither is awaited;
- * - content partly under the sticky top bar reads as a too-small target (a breadcrumb link
- *   after the page scrolled to Save or to an error summary), so once any smooth scroll has
- *   stopped, the page is read from the top, where the top bar covers nothing. Focus is kept.
+ * - a smooth scroll (to Save, to an error summary) is awaited until it stops. The page is read
+ *   where it was left, never scrolled back to the top: content passing under the top bar must
+ *   pass axe as it is, which the fixed top bar ensures.
  */
 async function settle(page: Page): Promise<void> {
   await page.evaluate(async () => {
@@ -63,8 +63,6 @@ async function settle(page: Page): Promise<void> {
       still = position === last ? still + 1 : 0;
       last = position;
     }
-    window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
-    await frame();
   });
 }
 

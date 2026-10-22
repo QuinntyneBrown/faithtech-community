@@ -245,7 +245,7 @@
         <li>Base (phones): brand, spacer, bell, avatar. The <a href="tab-bar.html">tab bar</a> carries Home, Events, Search, Contacts and Partners.</li>
         <li>768px to 1023px: <code>.topbar__nav</code> appears with the five primary links; <code>.nav-link--secondary</code> (Team, Announcements, People) stays hidden so the row never wraps. The tab bar hides.</li>
         <li>1024px and up: the secondary links and <code>.topbar__search</code> (<code>--layout-topbar-search-width</code>, 14rem) appear. Nav links never wrap (<code>white-space: nowrap</code>).</li>
-        <li>The capsule is <code>position: sticky; top: var(--space-2)</code> at <code>--z-sticky</code>; <code>scroll-padding-top</code> on <code>html</code> keeps focused fields clear of it.</li>
+        <li>The capsule floats <code>--space-2</code> below the top of the viewport at <code>--z-sticky</code>. In the component it is pinned (<code>position: fixed</code>) over a placeholder that reserves its height plus <code>--space-2</code>, so it looks the same as the mocks&rsquo; sticky capsule but content scrolls beneath it as beneath the tab bar: a link passing under the bar is not an obscured target (WCAG 2.5.8). <code>scroll-padding-top</code> on <code>html</code> keeps focused fields clear of it.</li>
       </ul>
     </section>
 
