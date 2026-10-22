@@ -34,6 +34,12 @@ describe('HttpNotificationsService', () => {
     controller.expectOne('/api/notifications?page=3').flush(null);
   });
 
+  it('lists only unread notifications when asked', () => {
+    service.list(2, true).subscribe();
+
+    controller.expectOne('/api/notifications?page=2&unreadOnly=true').flush(null);
+  });
+
   it('reads the unread count', () => {
     let count = -1;
     service.unreadCount().subscribe((c) => (count = c));

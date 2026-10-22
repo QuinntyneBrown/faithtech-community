@@ -4,6 +4,8 @@ import { NOTIFICATIONS_SERVICE, NotificationDto } from '@faithtech-community/api
 import {
   ButtonComponent,
   CardComponent,
+  ChipComponent,
+  ClusterComponent,
   EmptyStateComponent,
   IconComponent,
   ListSkeletonComponent,
@@ -21,6 +23,8 @@ type State = 'loading' | 'loaded' | 'error';
   imports: [
     ButtonComponent,
     CardComponent,
+    ChipComponent,
+    ClusterComponent,
     EmptyStateComponent,
     IconComponent,
     ListSkeletonComponent,
@@ -41,6 +45,8 @@ export class NotificationsPage {
   private readonly total = signal(0);
   private readonly page = signal(1);
   protected readonly loadingMore = signal(false);
+  /** All or Unread (L2-027 AC5). */
+  protected readonly unreadOnly = signal(false);
 
   protected readonly notices = computed(() => this.items().map((n) => toNotice(n)));
   protected readonly hasMore = computed(() => this.items().length < this.total());
@@ -52,6 +58,12 @@ export class NotificationsPage {
     void this.load();
   }
 
+  protected show(unreadOnly: boolean): void {
+    if (this.unreadOnly() === unreadOnly) return;
+    this.unreadOnly.set(unreadOnly);
+    void this.load();
+  }
+
   protected retry(): void {
     void this.load();
   }
@@ -59,7 +71,9 @@ export class NotificationsPage {
   protected async showMore(): Promise<void> {
     this.loadingMore.set(true);
     try {
-      const next = await firstValueFrom(this.notifications.list(this.page() + 1));
+      const next = await firstValueFrom(
+        this.notifications.list(this.page() + 1, this.unreadOnly()),
+      );
       this.page.set(next.page);
       this.items.update((items) => [...items, ...next.items]);
       this.unread.set(next.unreadCount);
@@ -101,7 +115,7 @@ export class NotificationsPage {
   private async load(): Promise<void> {
     this.state.set('loading');
     try {
-      const first = await firstValueFrom(this.notifications.list(1));
+      const first = await firstValueFrom(this.notifications.list(1, this.unreadOnly()));
       this.page.set(1);
       this.items.set(first.items);
       this.unread.set(first.unreadCount);

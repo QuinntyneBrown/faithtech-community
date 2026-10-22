@@ -11,8 +11,10 @@ export class HttpNotificationsService implements NotificationsService {
   private readonly http = inject(HttpClient);
   private readonly base = `${inject(API_BASE_URL)}/notifications`;
 
-  list(page = 1): Observable<NotificationPage> {
-    return this.http.get<NotificationPage>(this.base, { params: toHttpParams({ page }) });
+  list(page = 1, unreadOnly = false): Observable<NotificationPage> {
+    return this.http.get<NotificationPage>(this.base, {
+      params: toHttpParams({ page, unreadOnly: unreadOnly || null }),
+    });
   }
 
   unreadCount(): Observable<number> {

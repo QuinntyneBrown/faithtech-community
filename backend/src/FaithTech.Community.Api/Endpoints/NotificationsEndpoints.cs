@@ -9,8 +9,8 @@ public static class NotificationsEndpoints
     {
         var notifications = app.MapGroup("/api/notifications");
 
-        notifications.MapGet("", async (int? page, ManageNotificationsHandler handler, CancellationToken cancellationToken) =>
-            Results.Ok(await handler.ListAsync(page ?? 1, cancellationToken)));
+        notifications.MapGet("", async (int? page, bool? unreadOnly, ManageNotificationsHandler handler, CancellationToken cancellationToken) =>
+            Results.Ok(await handler.ListAsync(page ?? 1, unreadOnly ?? false, cancellationToken)));
 
         notifications.MapGet("/unread-count", async (ManageNotificationsHandler handler, CancellationToken cancellationToken) =>
             Results.Ok(new { Count = await handler.UnreadCountAsync(cancellationToken) }));

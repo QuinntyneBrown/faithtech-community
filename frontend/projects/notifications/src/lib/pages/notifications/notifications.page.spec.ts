@@ -20,10 +20,10 @@ function notice(id: string, overrides: Partial<NotificationDto> = {}): Notificat
 }
 
 function page(items: NotificationDto[], unreadCount: number, totalCount = items.length, n = 1) {
-  return { items, unreadCount, page: n, pageSize: 20, totalCount } satisfies NotificationPage;
+  return { items, unreadCount, page: n, pageSize: 50, totalCount } satisfies NotificationPage;
 }
 
-async function setup(list: (page: number) => Observable<NotificationPage>) {
+async function setup(list: (page: number, unreadOnly?: boolean) => Observable<NotificationPage>) {
   const service = {
     list: vi.fn(list),
     unreadCount: vi.fn(() => of(0)),
@@ -108,18 +108,41 @@ describe('NotificationsPage', () => {
     expect(button('Mark all as read')).toBeUndefined();
   });
 
-  it('shows more notifications from the next page', async () => {
-    const first = Array.from({ length: 20 }, (_, i) => notice(`a${i}`));
+  it('appends the next 50 with Show older notifications until none are left', async () => {
+    const first = Array.from({ length: 50 }, (_, i) => notice(`a${i}`));
     const { button, service, settle, items } = await setup((n) =>
-      of(n === 1 ? page(first, 21, 21) : page([notice('last')], 21, 21, 2)),
+      of(n === 1 ? page(first, 51, 51) : page([notice('last')], 51, 51, 2)),
     );
+    expect(service.list).toHaveBeenCalledWith(1, false);
+    expect(items()).toHaveLength(50);
 
-    button('Show more notifications')!.click();
+    button('Show older notifications')!.click();
     await settle();
 
-    expect(service.list).toHaveBeenLastCalledWith(2);
-    expect(items()).toHaveLength(21);
-    expect(button('Show more notifications')).toBeUndefined();
+    expect(service.list).toHaveBeenLastCalledWith(2, false);
+    expect(items()).toHaveLength(51);
+    expect(button('Show older notifications')).toBeUndefined();
+  });
+
+  it('lists only unread notifications with Unread, and every one again with All', async () => {
+    const read = notice('r', { readAt: '2026-10-17T10:00:00Z' });
+    const { button, service, settle, items } = await setup((_, unreadOnly) =>
+      of(unreadOnly ? page([notice('u')], 1) : page([notice('u'), read], 1)),
+    );
+    expect(button('All')!.getAttribute('aria-pressed')).toBe('true');
+
+    button('Unread')!.click();
+    await settle();
+
+    expect(service.list).toHaveBeenLastCalledWith(1, true);
+    expect(button('Unread')!.getAttribute('aria-pressed')).toBe('true');
+    expect(items()).toHaveLength(1);
+
+    button('All')!.click();
+    await settle();
+
+    expect(service.list).toHaveBeenLastCalledWith(1, false);
+    expect(items()).toHaveLength(2);
   });
 
   it('offers Try again when the notifications cannot load', async () => {

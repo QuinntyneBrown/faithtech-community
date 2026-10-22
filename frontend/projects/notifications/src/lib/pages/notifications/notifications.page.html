@@ -9,6 +9,11 @@
   </ft-button>
 </ft-page-header>
 
+<ft-cluster gap="2" class="filters" role="group" aria-label="Show notifications">
+  <ft-chip [pressed]="!unreadOnly()" (click)="show(false)">All</ft-chip>
+  <ft-chip [pressed]="unreadOnly()" (click)="show(true)">Unread</ft-chip>
+</ft-cluster>
+
 @switch (state()) {
   @case ('loading') {
     <ft-list-skeleton label="Loading notifications" [rows]="4" />
@@ -36,7 +41,7 @@
       @if (hasMore()) {
         <div class="more">
           <ft-button [loading]="loadingMore()" (click)="showMore()"
-            >Show more notifications</ft-button
+            >Show older notifications</ft-button
           >
         </div>
       }

@@ -12,15 +12,17 @@ public record NotificationPageDto(IReadOnlyList<NotificationDto> Items, int Unre
 /// <summary>The caller's own notifications only: every query filters by recipient in the database (L2-027).</summary>
 public class ManageNotificationsHandler(IApplicationDbContext db, ProfileAccess access, TimeProvider time)
 {
-    public const int PageSize = 20;
+    public const int PageSize = 50;
 
-    public async Task<NotificationPageDto> ListAsync(int page, CancellationToken cancellationToken = default)
+    /// <summary>A page of 50, newest first; <paramref name="unreadOnly"/> lists only the unread ones (L2-027 AC5, AC6).</summary>
+    public async Task<NotificationPageDto> ListAsync(int page, bool unreadOnly = false, CancellationToken cancellationToken = default)
     {
         var request = new PageRequest(page, PageSize);
         var mine = await MineAsync(cancellationToken);
-        var total = await mine.CountAsync(cancellationToken);
         var unread = await mine.CountAsync(n => n.ReadAt == null, cancellationToken);
-        var items = await mine
+        var listed = unreadOnly ? mine.Where(n => n.ReadAt == null) : mine;
+        var total = await listed.CountAsync(cancellationToken);
+        var items = await listed
             .OrderByDescending(n => n.CreatedAt)
             .Skip(request.Skip)
             .Take(request.PageSize)

@@ -50,21 +50,52 @@ public class InAppNotificationsTests(CommunityApiFactory factory) : IClassFixtur
         Assert.NotNull(page.Items[2].ReadAt);
     }
 
+    // AC6: Given more than 50 notifications, when the page loads, then the newest 50 are listed with "Show older
+    // notifications", which appends the next 50 and disappears when none are left.
     [Fact]
-    public async Task Notifications_come_twenty_to_a_page()
+    public async Task Notifications_come_fifty_to_a_page()
     {
         var grace = await factory.AddMemberAsync("Grace Okonkwo");
-        for (var i = 0; i < 23; i++)
+        await factory.WithDbAsync(async db =>
         {
-            await AddAsync(grace, $"Notice {i:00}", Monday.AddMinutes(i));
-        }
+            for (var i = 0; i < 53; i++)
+            {
+                db.Notifications.Add(new Notification(grace.ProfileId, NotificationKind.Announcement, $"Notice {i:00}", "/announcements", Monday.AddMinutes(i)));
+            }
 
-        var second = await factory.ClientFor(grace).GetFromJsonAsync<NotificationPageResponse>("/api/notifications?page=2");
+            return await db.SaveChangesAsync();
+        });
+        var client = factory.ClientFor(grace);
 
+        var first = await client.GetFromJsonAsync<NotificationPageResponse>("/api/notifications");
+        var second = await client.GetFromJsonAsync<NotificationPageResponse>("/api/notifications?page=2");
+
+        Assert.Equal(50, first!.Items.Length);
+        Assert.Equal("Notice 52", first.Items[0].Title);
         Assert.Equal(["Notice 02", "Notice 01", "Notice 00"], second!.Items.Select(n => n.Title));
         Assert.Equal(2, second.Page);
-        Assert.Equal(20, second.PageSize);
-        Assert.Equal(23, second.TotalCount);
+        Assert.Equal(50, second.PageSize);
+        Assert.Equal(53, second.TotalCount);
+    }
+
+    // AC5: Given the notifications page, when the user chooses "Unread", then only unread notifications are
+    // listed, and "All" lists every notification again.
+    [Fact]
+    public async Task Unread_only_lists_the_unread_notifications_and_counts_them()
+    {
+        var grace = await factory.AddMemberAsync("Grace Okonkwo");
+        await AddAsync(grace, "Read", Monday.AddHours(2), read: true);
+        await AddAsync(grace, "Unread newer", Monday.AddHours(1));
+        await AddAsync(grace, "Unread older", Monday);
+        var client = factory.ClientFor(grace);
+
+        var unread = await client.GetFromJsonAsync<NotificationPageResponse>("/api/notifications?unreadOnly=true");
+        var all = await client.GetFromJsonAsync<NotificationPageResponse>("/api/notifications?unreadOnly=false");
+
+        Assert.Equal(["Unread newer", "Unread older"], unread!.Items.Select(n => n.Title));
+        Assert.Equal(2, unread.TotalCount);
+        Assert.Equal(2, unread.UnreadCount);
+        Assert.Equal(["Read", "Unread newer", "Unread older"], all!.Items.Select(n => n.Title));
     }
 
     // AC2: Given the panel, when the user opens a notification, then it is marked read and they are taken to

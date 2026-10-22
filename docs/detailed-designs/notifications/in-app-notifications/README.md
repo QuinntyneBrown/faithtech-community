@@ -25,7 +25,7 @@ Other features create notifications through one Application service, so every so
 - **`NotificationKind`** — enumeration of notification sources, listed in `L2-028`.
 - **`CommunityDbContext`** — persists `Notification` rows in the `notifications` table.
 
-The shell reads the unread count on load, after every navigation and every 60 seconds while the tab is visible; server push is deferred (ADR 0015). `GET /notifications` returns `{ items, unreadCount, page, pageSize, totalCount }` with 20 per page; another member's notification id answers `404`.
+The shell reads the unread count on load, after every navigation and every 60 seconds while the tab is visible; server push is deferred (ADR 0015). `GET /notifications` returns `{ items, unreadCount, page, pageSize, totalCount }` with 50 per page; another member's notification id answers `404`.
 
 ## Requirements
 
