@@ -179,5 +179,5 @@ test.describe('View a profile', () => {
 });
 
 function photo(id: string, altText: string, isFeatured: boolean, day: string) {
-  return { id, altText, isFeatured, url: photoUrl(), uploadedAt: `${day}T10:00:00Z` };
+  return { id, altText, isFeatured, url: photoUrl(undefined, id), uploadedAt: `${day}T10:00:00Z` };
 }

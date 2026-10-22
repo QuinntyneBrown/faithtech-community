@@ -17,7 +17,7 @@ for (const name of Object.keys(BREAKPOINTS) as BreakpointName[]) {
     const grace = api.addAccount({ email: 'grace@example.org', name: 'Grace Okonkwo' });
     api.profiles.get(grace.profileId)!.photos = Array.from({ length: 4 }, (_, i) => ({
       id: `photo-${i}`,
-      url: photoUrl(),
+      url: photoUrl(undefined, `photo-${i}`),
       altText: `Photo ${i}`,
       isFeatured: i === 0,
       uploadedAt: `2026-10-0${i + 1}T10:00:00Z`,

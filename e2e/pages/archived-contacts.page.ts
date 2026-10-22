@@ -11,7 +11,8 @@ export class ArchivedContactsPage {
     this.heading = page.getByRole('heading', { level: 1 });
     this.items = page.getByRole('list', { name: 'Archived contacts' }).getByRole('listitem');
     this.empty = page.getByRole('heading', { name: 'Nothing archived' });
-    this.toast = page.locator('ft-toast');
+    // The newest toast: an earlier one may still be counting down beside it.
+    this.toast = page.locator('ft-toast').last();
   }
 
   async open(): Promise<void> {

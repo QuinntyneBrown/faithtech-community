@@ -36,9 +36,13 @@ export interface MockProfile {
   photos: MockPhoto[];
 }
 
-/** A tiny square SVG standing in for a stored photo, so no request leaves the browser. */
-export function photoUrl(colour = '#7c5cff'): string {
-  const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="8" height="8"><rect width="8" height="8" fill="${colour}"/></svg>`;
+/**
+ * A tiny square SVG standing in for a stored photo, so no request leaves the browser. Give each
+ * photo its own `id`: stored photos never share a URL, and the photo list keys its items by URL.
+ */
+export function photoUrl(colour = '#7c5cff', id = ''): string {
+  const name = id ? ` id="${id}"` : '';
+  const svg = `<svg xmlns="http://www.w3.org/2000/svg"${name} width="8" height="8"><rect width="8" height="8" fill="${colour}"/></svg>`;
   return `data:image/svg+xml,${encodeURIComponent(svg)}`;
 }
 
@@ -118,7 +122,8 @@ export class MockApi {
   photoStorageDown = false;
   private readonly storing = new Map<MockPhoto, string>();
   /** The stored URL of an uploaded photo; the journey videos swap in the image that was chosen. */
-  uploadedPhotoUrl: (file: string) => string = () => photoUrl();
+  uploadedPhotoUrl: (file: string) => string = (file) =>
+    photoUrl(undefined, `upload-${this.uploads}-${file}`);
   /** Private contacts (ADR 0014). */
   readonly contacts = new MockContacts(this);
   /** The shared partner pipeline (ADR 0014). */

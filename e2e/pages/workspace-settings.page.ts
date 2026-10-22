@@ -35,7 +35,8 @@ export class WorkspaceSettingsPage {
       .locator('ft-empty-state')
       .filter({ has: this.ownerOnly })
       .locator('p');
-    this.toast = page.locator('ft-toast');
+    // The newest toast: an earlier one may still be counting down beside it.
+    this.toast = page.locator('ft-toast').last();
     this.method = page.locator('ft-description-list-item').filter({ hasText: 'Method' });
     this.archivedItems = page.getByRole('list', { name: 'Archived items' }).getByRole('listitem');
     this.archiveWorkspace = page.getByRole('button', { name: 'Archive workspace' });

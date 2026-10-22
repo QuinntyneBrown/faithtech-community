@@ -310,7 +310,7 @@ function withPhotos(api: MockApi, profileId: string, count: number, featured = '
     const letter = String.fromCharCode(97 + i);
     return {
       id: `photo-${letter}`,
-      url: photoUrl(),
+      url: photoUrl(undefined, `photo-${letter}`),
       altText: `Photo ${letter}`,
       isFeatured: `photo-${letter}` === featured,
       uploadedAt: `2026-10-${String(i + 1).padStart(2, '0')}T10:00:00Z`,

@@ -43,7 +43,8 @@ export class WorkItemPage {
     this.readOnly = page.locator('ft-alert').filter({ hasText: 'Read-only for Staff' });
     this.notMember = page.getByRole('heading', { name: 'You’re not a member of this workspace' });
     this.loadError = page.getByRole('heading', { name: /^We couldn’t load this/ });
-    this.toast = page.locator('ft-toast');
+    // The newest toast: an earlier one may still be counting down beside it.
+    this.toast = page.locator('ft-toast').last();
     this.addToSprint = page.getByRole('button', { name: /^Add to Sprint/ });
     this.archive = page.getByRole('button', { name: 'Archive', exact: true });
   }
