@@ -45,8 +45,11 @@
   </ft-banner>
 }
 
+<!-- Every member page sits in the content container, as the mocks' <main class="container">. -->
 <main id="main" tabindex="-1" [class.with-tab-bar]="phone()">
-  <router-outlet />
+  <ft-container>
+    <router-outlet />
+  </ft-container>
 </main>
 
 @if (phone()) {

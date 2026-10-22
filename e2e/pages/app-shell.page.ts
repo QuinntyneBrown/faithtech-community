@@ -15,6 +15,8 @@ export class AppShell {
   readonly tabBar: Locator;
   /** The live region in the bottom corner that holds every toast. */
   readonly toastRegion: Locator;
+  /** The routed page's header, which spans the content column. */
+  readonly pageHeader: Locator;
   readonly toasts: Locator;
   /** The main landmark, where focus lands when nothing better is left. */
   readonly main: Locator;
@@ -31,6 +33,7 @@ export class AppShell {
     this.moreTab = this.tabBar.getByRole('button', { name: 'More' });
     this.moreLink = this.primaryNav.getByRole('button', { name: 'More' });
     this.toastRegion = page.locator('ft-toast-region');
+    this.pageHeader = page.getByRole('main').locator('ft-page-header');
     this.toasts = this.toastRegion.locator('ft-toast');
     this.main = page.getByRole('main');
   }
