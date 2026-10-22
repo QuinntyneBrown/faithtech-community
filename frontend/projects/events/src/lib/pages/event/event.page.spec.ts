@@ -5,7 +5,7 @@ import { EVENTS_SERVICE, EventDetailDto } from '@faithtech-community/api';
 import { DialogService, ToastService } from '@faithtech-community/components';
 import { Observable, of, throwError } from 'rxjs';
 
-import { CancelRsvpDialog } from '../../dialogs';
+import { CancelEventDialog, CancelRsvpDialog } from '../../dialogs';
 import { EventPage } from './event.page';
 
 function detail(overrides: Partial<EventDetailDto> = {}): EventDetailDto {
@@ -26,6 +26,8 @@ function detail(overrides: Partial<EventDetailDto> = {}): EventDetailDto {
     isFull: false,
     isCancelled: false,
     cancellationReason: null,
+    cancelledByName: null,
+    cancelledAt: null,
     hostName: 'Marcus Lee',
     hostRole: 'Event Lead',
     callerHasRsvp: false,
@@ -247,12 +249,24 @@ describe('EventPage', () => {
     click.mockRestore();
   });
 
-  it('shows a cancelled event as cancelled with its reason and no RSVP', async () => {
+  it('shows a cancelled event as cancelled with who, when and why, and no RSVP', async () => {
     const page = await setup();
-    await page.show(detail({ isCancelled: true, cancellationReason: 'Our venue fell through.' }));
+    await page.show(
+      detail({
+        isCancelled: true,
+        cancellationReason: 'Our venue fell through.',
+        cancelledByName: 'Esther Nakamura',
+        cancelledAt: new Date(2026, 9, 20, 9).toISOString(),
+        canManage: true,
+      }),
+    );
 
     expect(page.host.textContent).toContain('This event was cancelled');
-    expect(page.host.textContent).toContain('Our venue fell through.');
+    expect(page.host.textContent).toContain(
+      'Esther Nakamura cancelled it on Tue 20 Oct: “Our venue fell through.” Everyone who RSVP’d was emailed.',
+    );
+    expect(page.button('Cancel event')).toBeUndefined();
+    expect(page.link('Edit')).toBeUndefined();
     expect(page.button('RSVP')).toBeUndefined();
     expect(page.button('Update your calendar (.ics)')).toBeTruthy();
   });
@@ -315,5 +329,33 @@ describe('EventPage', () => {
     expect(page.service.downloadCalendar).toHaveBeenCalledWith('e1');
     expect(names).toEqual(['toronto-builders-night.ics']);
     click.mockRestore();
+  });
+
+  it('lets an event manager cancel the event through the dialog (L2-025 AC1)', async () => {
+    const page = await setup();
+    await page.show(lead);
+
+    page.service.getEvent.mockImplementation(() =>
+      of({ ...lead, isCancelled: true, cancellationReason: 'Our venue fell through.' }),
+    );
+    page.button('Cancel event')!.click();
+    await page.settle();
+
+    expect(page.dialogs.open).toHaveBeenCalledWith(
+      CancelEventDialog,
+      expect.objectContaining({
+        data: { eventId: 'e1', title: 'Toronto Builders Night', rsvpCount: 34, memberCount: 1 },
+      }),
+    );
+    expect(page.toasts.show).toHaveBeenCalledWith(
+      expect.objectContaining({ heading: 'Event cancelled' }),
+    );
+    expect(page.host.textContent).toContain('This event was cancelled');
+  });
+
+  it('offers no Cancel event to members who cannot manage events', async () => {
+    const page = await setup();
+
+    expect(page.button('Cancel event')).toBeUndefined();
   });
 });

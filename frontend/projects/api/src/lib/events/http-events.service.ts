@@ -1,15 +1,3 @@
-/*
- * EARLY IMPLEMENTATION: written ahead of the vertical slices to get a head start.
- * Contracts and DTOs follow docs/detailed-designs/ but may change as each feature is
- * implemented end to end (spec -> design -> mock -> ATDD slice).
- * Sources:
- *   - docs/detailed-designs/events/event-list-and-filter
- *   - docs/detailed-designs/events/create-and-edit-events
- *   - docs/detailed-designs/events/rsvp
- *   - docs/detailed-designs/events/cancel-events
- *   - docs/detailed-designs/events/public-events-and-guest-rsvp
- *   - docs/detailed-designs/events/calendar-export
- */
 import { HttpClient } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
 import { Observable } from 'rxjs';
@@ -49,7 +37,7 @@ export class HttpEventsService implements EventsService {
     return this.http.put<void>(`${this.api}/events/${id}`, event);
   }
 
-  cancelEvent(id: string, reason: string | null = null): Observable<void> {
+  cancelEvent(id: string, reason: string): Observable<void> {
     return this.http.post<void>(`${this.api}/events/${id}/cancel`, { reason });
   }
 
