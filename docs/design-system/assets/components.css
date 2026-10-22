@@ -970,3 +970,49 @@ mark { background: var(--color-warning-bg); color: inherit; border-radius: var(-
 .file-preview .icon-tile { width: var(--size-avatar-xl); height: var(--size-avatar-xl); color: var(--color-fg-accent); }
 .file-preview__name { font: var(--text-label); overflow-wrap: anywhere; }
 .file-preview__meta { font: var(--text-body-sm); color: var(--color-fg-muted); }
+/* ---------- Person card (L2-061): a person in a grid of cards ------------------------------------------ */
+/* Cover band (decorative, the person's colour tint), a large round photo or initials overlapping it, the name with its status
+   badge, a two-line subtitle, a secondary line and a full-width outlined pill link. A round dismiss button sits on the cover. */
+.person-grid { list-style: none; margin: 0; padding: 0; display: grid; gap: var(--space-4); grid-template-columns: minmax(0, 1fr); }
+@media (min-width: 40rem) { .person-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (min-width: 64rem) { .person-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); } }
+.person-grid > li { display: flex; min-width: 0; }
+.person-card { --person-card-cover: var(--color-bg-subtle); position: relative; display: flex; flex-direction: column; align-items: center; flex: 1; min-width: 0; text-align: center; background: var(--color-bg-surface); border: var(--border-width-hairline) solid var(--color-border-default); border-radius: var(--radius-lg); box-shadow: var(--shadow-1); overflow: hidden; padding-bottom: var(--space-4); transition: box-shadow var(--duration-fast) var(--ease-standard); }
+.person-card:hover, .person-card[data-state="hover"] { box-shadow: var(--shadow-2); }
+.person-card--sage { --person-card-cover: var(--color-tint-sage); }
+.person-card--rose { --person-card-cover: var(--color-tint-rose); }
+.person-card--sky { --person-card-cover: var(--color-tint-sky); }
+.person-card--sun { --person-card-cover: var(--color-tint-sun); }
+.person-card--lilac { --person-card-cover: var(--color-tint-lilac); }
+.person-card--mint { --person-card-cover: var(--color-tint-mint); }
+.person-card--peach { --person-card-cover: var(--color-tint-peach); }
+.person-card__cover { align-self: stretch; height: var(--size-cover-md); background: var(--person-card-cover); border-bottom: var(--border-width-hairline) solid var(--color-border-default); }
+.person-card__photo { --avatar-size: var(--size-cover-lg); margin-top: calc(var(--size-cover-lg) / -2 - var(--space-2)); border: var(--border-width-thick) solid var(--color-bg-surface); box-shadow: var(--shadow-1); font: var(--text-h3); }
+.person-card__photo img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; border-radius: inherit; }
+.person-card__body { display: flex; flex-direction: column; align-items: center; gap: var(--space-1); padding: var(--space-3) var(--space-4) 0; min-width: 0; width: 100%; flex: 1; }
+.person-card__name { display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: var(--space-1) var(--space-2); margin: 0; font: var(--text-h4); overflow-wrap: anywhere; }
+.person-card__subtitle, .person-card__secondary { margin: 0; overflow: hidden; display: -webkit-box; -webkit-box-orient: vertical; overflow-wrap: anywhere; }
+.person-card__subtitle { -webkit-line-clamp: 2; line-clamp: 2; color: var(--color-fg-muted); font: var(--text-body); }
+.person-card__secondary { -webkit-line-clamp: 1; line-clamp: 1; color: var(--color-fg-muted); font: var(--text-body-sm); }
+.person-card__action { align-self: stretch; margin: var(--space-4) var(--space-4) 0; }
+.person-card__action .btn { --btn-border: var(--color-accent); --btn-fg: var(--color-fg-accent); border-radius: var(--radius-full); }
+.person-card__action .btn:hover, .person-card__action .btn[data-state="hover"] { --btn-bg: var(--color-accent-subtle); }
+.person-card__dismiss { position: absolute; top: var(--space-2); right: var(--space-2); display: inline-grid; place-items: center; width: var(--control-height-md); height: var(--control-height-md); padding: 0; border: 0; border-radius: var(--radius-full); background: var(--color-bg-inverse); color: var(--color-fg-inverse); cursor: pointer; opacity: 0.9; }
+.person-card__dismiss:hover, .person-card__dismiss[data-state="hover"] { opacity: 1; box-shadow: var(--shadow-2); }
+.person-card__dismiss:focus-visible, .person-card__dismiss[data-state="focus"] { outline: var(--focus-ring-width) solid var(--color-focus-ring); outline-offset: var(--focus-ring-offset); opacity: 1; }
+.person-card--loading .person-card__photo { background: var(--color-bg-subtle); border-radius: var(--radius-full); }
+.person-card--loading .skeleton--text { width: 70%; margin-inline: auto; }
+.person-card--loading .skeleton--pill { align-self: stretch; height: var(--control-height-md); margin: var(--space-4) var(--space-4) 0; border-radius: var(--radius-full); }
+@media (prefers-reduced-motion: reduce) { .person-card { transition: none; } }
+@media (forced-colors: active) { .person-card__dismiss { border: var(--border-width-hairline) solid ButtonText; } }
+
+/* ---------- Photo gallery (L2-056): saved photos with their descriptions and actions --------------------- */
+.photo-gallery__grid { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 10rem), 1fr)); gap: var(--space-4); }
+.photo-gallery__item { display: flex; flex-direction: column; gap: var(--space-2); min-width: 0; }
+.photo-gallery__thumb { position: relative; aspect-ratio: 1; border-radius: var(--radius-md); overflow: hidden; background: var(--color-bg-subtle); border: var(--border-width-hairline) solid var(--color-border-default); }
+.photo-gallery__item--featured .photo-gallery__thumb { box-shadow: 0 0 0 var(--border-width-thick) var(--color-accent); }
+.photo-gallery__thumb img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.photo-gallery__thumb .badge { position: absolute; left: var(--space-1); bottom: var(--space-1); }
+.photo-gallery__placeholder { display: grid; place-items: center; height: 100%; padding: var(--space-2); color: var(--color-fg-muted); font: var(--text-caption); text-align: center; }
+.photo-gallery__caption { margin: 0; font: var(--text-body-sm); overflow-wrap: anywhere; }
+.photo-gallery__actions { display: flex; flex-wrap: wrap; gap: var(--space-1); }
