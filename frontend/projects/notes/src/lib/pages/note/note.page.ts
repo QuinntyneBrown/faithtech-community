@@ -13,9 +13,11 @@ import { ActivatedRoute } from '@angular/router';
 import { NOTES_SERVICE, NoteBlock, NotePageDto } from '@faithtech-community/api';
 import {
   BlockEditorComponent,
+  BlockRequest,
   BreadcrumbComponent,
   BreadcrumbItemComponent,
   ButtonComponent,
+  DialogService,
   EditorBlock,
   EmptyStateComponent,
   IconComponent,
@@ -23,9 +25,11 @@ import {
   SaveStatusComponent,
   SkeletonComponent,
   ToastService,
+  newBlockId,
 } from '@faithtech-community/components';
 import { firstValueFrom } from 'rxjs';
 
+import { AddLinkCardDialog, LinkCard } from '../../dialogs';
 import { NoteAutosave } from '../../note-autosave';
 import { titleOf } from '../../note-format';
 
@@ -52,6 +56,7 @@ type State = 'loading' | 'loaded' | 'missing' | 'error';
 export class NotePage {
   private readonly notes = inject(NOTES_SERVICE);
   private readonly toasts = inject(ToastService);
+  private readonly dialogs = inject(DialogService);
   private readonly titleBox = viewChild(PageTitleComponent);
   private readonly editor = viewChild(BlockEditorComponent);
 
@@ -93,6 +98,14 @@ export class NotePage {
 
   protected toFirstBlock(): void {
     this.editor()?.focusFirst();
+  }
+
+  /** A link card or image the editor asked for, filled in through its dialog. */
+  protected request(request: BlockRequest): void {
+    if (request.type !== 'link') return;
+    this.dialogs.open<LinkCard>(AddLinkCardDialog).closed.subscribe((card) => {
+      if (card) this.editor()?.place(request, { id: newBlockId(), type: 'link', ...card });
+    });
   }
 
   protected refused(message: string): void {

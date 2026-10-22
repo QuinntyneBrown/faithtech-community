@@ -57,6 +57,21 @@ export interface NotesContext {
 const PAGE_SIZE = 25;
 const DAY = 24 * 60 * 60 * 1000;
 const MAX_TITLE = 200;
+const TYPES = [
+  'paragraph',
+  'heading1',
+  'heading2',
+  'heading3',
+  'bulleted',
+  'numbered',
+  'todo',
+  'quote',
+  'callout',
+  'code',
+  'divider',
+  'image',
+  'link',
+];
 
 /**
  * NotesEndpoints in the browser (backend/src/FaithTech.Community.Api/Endpoints/NotesEndpoints.cs, ADR 0025):
@@ -210,6 +225,9 @@ export class MockNotes {
       });
     if (title.length > MAX_TITLE)
       return this.invalid(route, { Title: ['Use 200 characters or fewer for the title.'] });
+    const refused = blocks.findIndex((b) => this.problem(b));
+    if (refused >= 0)
+      return this.invalid(route, { [`Blocks[${refused}]`]: [this.problem(blocks[refused])!] });
     n.title = title;
     n.icon = (body['icon'] as string | null) ?? null;
     n.blocks = blocks.map((b) => this.stored(b));
@@ -217,6 +235,15 @@ export class MockNotes {
     n.updatedAt = this.context.now.toISOString();
     n.updatedById = caller.profileId;
     return this.json(route, 200, { version: n.version, updatedAt: n.updatedAt });
+  }
+
+  /** The server's block rules (NoteBlocksValidator): known types, https link cards, captions. */
+  private problem(b: MockBlock): string | null {
+    if (!TYPES.includes(b.type)) return 'Choose a block type from the list.';
+    if (b.type === 'link' && !/^https:\/\/[^\s/]+/.test(b.url ?? ''))
+      return 'Use a link that starts with https://.';
+    if ((b.caption ?? '').length > 200) return 'Use 200 characters or fewer for the caption.';
+    return null;
   }
 
   /** A block as the server stores it: nulls dropped. */

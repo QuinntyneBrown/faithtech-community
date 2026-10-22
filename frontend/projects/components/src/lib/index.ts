@@ -56,6 +56,7 @@ export * from './select';
 export * from './site-footer';
 export * from './skeleton';
 export * from './skip-link';
+export * from './slash-menu';
 export * from './stat';
 export * from './switch';
 export * from './tab-bar';

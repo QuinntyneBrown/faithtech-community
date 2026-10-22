@@ -9,11 +9,14 @@
     [attr.aria-label]="labelOf(block.type)"
     [attr.aria-placeholder]="placeholderOf(block, i)"
     [attr.data-placeholder]="placeholderOf(block, i)"
+    [attr.aria-controls]="popup()?.index === i ? menuId : null"
+    [attr.aria-activedescendant]="activeOption(i)"
     [ftRichText]="block.text"
     [pageLink]="pageLink()"
     (input)="onInput(i, $event)"
     (keydown)="onKeydown(i, $event)"
     (paste)="onPaste(i, $event)"
+    (blur)="onBlur(i)"
   ></div>
 </ng-template>
 
@@ -78,6 +81,7 @@
         [href]="block.url"
         target="_blank"
         rel="noopener"
+        data-focus
         [attr.aria-label]="(block.caption || hostOf(block.url)) + ' (opens in a new tab)'"
       >
         <span class="link-card__title">{{ block.caption || block.url }}</span>
@@ -130,56 +134,58 @@
     }
   } @else {
     @for (block of items(); track block.id; let i = $index) {
-      <div class="block block--{{ block.type }}" [attr.data-block-id]="block.id">
+      <div
+        class="block block--{{ block.type }}"
+        [class.callout]="block.type === 'callout'"
+        [class.todo--done]="block.type === 'todo' && block.checked"
+        [attr.data-block-id]="block.id"
+      >
         @switch (block.type) {
-          @case ('heading1') {
-            <h2 class="block__heading">
-              <ng-container *ngTemplateOutlet="textBox; context: { block, index: i }" />
-            </h2>
-          }
-          @case ('heading2') {
-            <h3 class="block__heading">
-              <ng-container *ngTemplateOutlet="textBox; context: { block, index: i }" />
-            </h3>
-          }
-          @case ('heading3') {
-            <h4 class="block__heading">
-              <ng-container *ngTemplateOutlet="textBox; context: { block, index: i }" />
-            </h4>
-          }
           @case ('bulleted') {
             <span class="block__marker" aria-hidden="true">•</span>
-            <ng-container *ngTemplateOutlet="textBox; context: { block, index: i }" />
           }
           @case ('numbered') {
             <span class="block__marker" aria-hidden="true">{{ numberOf(block) }}.</span>
-            <ng-container *ngTemplateOutlet="textBox; context: { block, index: i }" />
+          }
+          @case ('todo') {
+            <input
+              type="checkbox"
+              class="todo__check"
+              [checked]="!!block.checked"
+              [attr.aria-label]="plain(block) || 'To-do'"
+              (change)="toggle(i, $any($event.target).checked)"
+            />
           }
           @case ('callout') {
-            <div class="callout">
-              <span class="callout__icon" aria-hidden="true">{{ block.icon || '💡' }}</span>
-              <ng-container *ngTemplateOutlet="textBox; context: { block, index: i }" />
-            </div>
+            <span class="callout__icon" aria-hidden="true">{{ block.icon || '💡' }}</span>
           }
-          @case ('code') {
-            <pre
-              class="code-block"
-            ><ng-container *ngTemplateOutlet="textBox; context: { block, index: i }" /></pre>
-          }
-          @case ('divider') {
-            <hr class="block__divider" />
-          }
-          @case ('link') {
-            <ng-container *ngTemplateOutlet="viewBlock; context: { block }" />
-          }
-          @case ('image') {
-            <ng-container *ngTemplateOutlet="viewBlock; context: { block }" />
-          }
-          @default {
-            <ng-container *ngTemplateOutlet="textBox; context: { block, index: i }" />
+        }
+        @if (hasText(block.type)) {
+          <ng-container *ngTemplateOutlet="textBox; context: { block, index: i }" />
+        } @else {
+          @switch (block.type) {
+            @case ('divider') {
+              <hr class="block__divider" />
+            }
+            @default {
+              <ng-container *ngTemplateOutlet="viewBlock; context: { block }" />
+            }
           }
         }
       </div>
+    }
+    @if (popup(); as menu) {
+      <ft-slash-menu
+        class="ft-block-editor__popup"
+        label="Insert a block"
+        emptyText="No matching blocks"
+        [listId]="menuId"
+        [options]="options()"
+        [active]="menu.active"
+        [style.top.px]="menu.top"
+        [style.left.px]="menu.left"
+        (chosen)="choose($event)"
+      />
     }
   }
 </section>

@@ -8,6 +8,9 @@ public static class NoteBlocksValidator
     public const int MaxBlocks = 500;
     public const int MaxText = 10_000;
     public const int MaxBlockId = 36;
+    public const int MaxUrl = 2000;
+    public const int MaxCaption = 200;
+    public const string LinkCardMessage = "Use a link that starts with https://.";
 
     public static Dictionary<string, string[]> Check(IReadOnlyList<NoteBlock> blocks)
     {
@@ -53,8 +56,21 @@ public static class NoteBlocksValidator
             return $"A block holds up to {MaxText:N0} characters.";
         }
 
-        return null;
+        return block.Type switch
+        {
+            NoteBlockTypes.Link when !IsHttps(block.Url) => LinkCardMessage,
+            NoteBlockTypes.Link when block.Caption?.Length > MaxCaption => $"Use {MaxCaption} characters or fewer for the caption.",
+            NoteBlockTypes.Callout when block.Icon is not null && !NoteFields.IsEmoji(block.Icon) => "Choose a single emoji for the icon.",
+            _ => null,
+        };
     }
+
+    /// <summary>An absolute https URL of at most 2,000 characters (L2-087 AC9).</summary>
+    public static bool IsHttps(string? value) =>
+        value is { Length: > 0 and <= MaxUrl }
+        && Uri.TryCreate(value, UriKind.Absolute, out var uri)
+        && uri.Scheme == Uri.UriSchemeHttps
+        && !string.IsNullOrEmpty(uri.Host);
 
     /// <summary>The page's searchable text: the title and the blocks' own text, never linked pages' titles (L2-096 AC3).</summary>
     public static string BodyText(IReadOnlyList<NoteBlock> blocks) =>

@@ -11,6 +11,11 @@
     --block-handle-size: var(--target-comfortable);
   }
 
+  .ft-block-editor__popup {
+    position: absolute;
+    z-index: var(--z-dropdown);
+  }
+
   .block {
     position: relative;
     display: flex;
@@ -58,12 +63,6 @@
     }
   }
 
-  .block__heading {
-    flex: 1;
-    min-inline-size: 0;
-    margin: 0;
-  }
-
   .block--heading1 {
     margin-block-start: var(--space-6);
     .block__text {
@@ -103,6 +102,17 @@
     border-radius: 0;
     color: var(--color-fg-muted);
     font-style: italic;
+  }
+
+  .block.block--code > .block__text {
+    padding: var(--space-3) var(--space-4);
+    border-radius: var(--radius-md);
+    background: var(--color-bg-surface-sunken);
+    border: var(--border-width-hairline) solid var(--color-border-default);
+    font: var(--text-code);
+    white-space: pre;
+    overflow-x: auto;
+    overflow-wrap: normal;
   }
 
   .callout {

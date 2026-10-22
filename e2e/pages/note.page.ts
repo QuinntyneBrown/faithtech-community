@@ -9,6 +9,8 @@ export class NotePage {
   readonly blocks: Locator;
   readonly textBlocks: Locator;
   readonly retry: Locator;
+  readonly slashMenu: Locator;
+  readonly slashOptions: Locator;
   readonly saveStatus: Locator;
   readonly banner: Locator;
   readonly missing: Locator;
@@ -23,6 +25,8 @@ export class NotePage {
     this.blocks = this.content.locator('.block');
     this.textBlocks = this.content.getByRole('textbox');
     this.retry = page.getByRole('button', { name: 'Retry' });
+    this.slashMenu = page.getByRole('listbox', { name: 'Insert a block' });
+    this.slashOptions = this.slashMenu.getByRole('option');
     this.saveStatus = page.locator('ft-save-status');
     this.banner = page.locator('ft-banner');
     this.missing = page.getByRole('heading', { name: 'This page isn’t available' });
@@ -32,6 +36,18 @@ export class NotePage {
 
   async open(id: string): Promise<void> {
     await this.page.goto(`/notes/${id}`);
+  }
+
+  textBlockNamed(type: string): Locator {
+    return this.content.getByRole('textbox', { name: type, exact: true });
+  }
+
+  slashOption(name: string): Locator {
+    return this.slashMenu.getByRole('option', { name: new RegExp(`^${name}`) });
+  }
+
+  checkbox(name: string): Locator {
+    return this.content.getByRole('checkbox', { name });
   }
 
   textBlock(index: number): Locator {

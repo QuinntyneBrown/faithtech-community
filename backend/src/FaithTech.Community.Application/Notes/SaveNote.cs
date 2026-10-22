@@ -35,6 +35,11 @@ public class SaveNoteHandler(IApplicationDbContext db, NoteAccess access, TimePr
             errors["Title"] = [titleError];
         }
 
+        if (command.Icon is { Length: > 0 } icon && !NoteFields.IsEmoji(icon))
+        {
+            errors["Icon"] = ["Choose a single emoji for the icon."];
+        }
+
         if (errors.Count > 0)
         {
             return (new Result(ResultStatus.Invalid, errors), null);

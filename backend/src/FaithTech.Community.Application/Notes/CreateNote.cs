@@ -33,6 +33,19 @@ public class CreateNoteHandler(IApplicationDbContext db, NoteAccess access, Note
 
 public static class NoteFields
 {
+    /// <summary>One emoji: a single user-perceived character that is a symbol (L2-086 AC3, L2-087 AC6).</summary>
+    public static bool IsEmoji(string value)
+    {
+        if (value.Length > NotePage.MaxIcon || new System.Globalization.StringInfo(value).LengthInTextElements != 1)
+        {
+            return false;
+        }
+
+        var first = System.Text.Rune.GetRuneAt(value, 0);
+        return System.Text.Rune.GetUnicodeCategory(first) is System.Globalization.UnicodeCategory.OtherSymbol
+            || first.Value >= 0x1F000;
+    }
+
     public static string? TitleError(string? title) =>
         title?.Trim().Length > NotePage.MaxTitle ? $"Use {NotePage.MaxTitle} characters or fewer for the title." : null;
 }
