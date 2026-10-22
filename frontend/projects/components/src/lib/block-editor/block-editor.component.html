@@ -58,7 +58,12 @@
       </div>
     }
     @case ('code') {
-      <pre class="block block--code code-block"><code>{{ plain(block) }}</code></pre>
+      <!-- Focusable so a long line that scrolls sideways can be reached by keyboard. -->
+      <pre
+        class="block block--code code-block"
+        tabindex="0"
+        aria-label="Code"
+      ><code>{{ plain(block) }}</code></pre>
     }
     @case ('todo') {
       <div class="block block--todo todo" [class.todo--done]="block.checked">
@@ -82,10 +87,10 @@
         target="_blank"
         rel="noopener"
         data-focus
-        [attr.aria-label]="(block.caption || hostOf(block.url)) + ' (opens in a new tab)'"
       >
-        <span class="link-card__title">{{ block.caption || block.url }}</span>
-        <span class="link-card__host">{{ hostOf(block.url) }}</span>
+        <span class="link-card__title">{{ block.caption || hostOf(block.url) }}</span>
+        <span class="visually-hidden"> (opens in a new tab)</span>
+        <span class="link-card__host" aria-hidden="true">{{ hostOf(block.url) }}</span>
       </a>
     }
     @case ('image') {

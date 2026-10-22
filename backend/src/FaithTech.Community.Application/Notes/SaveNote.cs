@@ -1,3 +1,4 @@
+using FaithTech.Community.Application.Admin;
 using FaithTech.Community.Application.Common;
 using FaithTech.Community.Domain.Notes;
 using Microsoft.EntityFrameworkCore;
@@ -12,7 +13,7 @@ public record NoteSavedDto(int Version, DateTimeOffset UpdatedAt);
 /// A whole-page save (L2-086 AC8, ADR 0023): the title, icon and the full ordered block list replace the stored
 /// ones. Only the owner or a System Admin; everyone else who can read the page is refused.
 /// </summary>
-public class SaveNoteHandler(IApplicationDbContext db, NoteAccess access, NoteRefs refs, TimeProvider time)
+public class SaveNoteHandler(IApplicationDbContext db, NoteAccess access, NoteRefs refs, IAuditLog audit, TimeProvider time)
 {
     public async Task<(Result Result, NoteSavedDto? Saved)> HandleAsync(Guid id, SaveNoteCommand command, CancellationToken cancellationToken = default)
     {
@@ -66,9 +67,15 @@ public class SaveNoteHandler(IApplicationDbContext db, NoteAccess access, NoteRe
             return (new Result(ResultStatus.Invalid, errors), null);
         }
 
+        var before = new { page.Version, page.Title };
         blocks = WithoutLinkText(blocks);
         await RebuildLinksAsync(page.Id, targets, cancellationToken);
         page.Save(command.Title ?? string.Empty, command.Icon, NoteContent.Write(blocks), NoteBlocksValidator.BodyText(blocks), caller, time.GetUtcNow());
+        if (access.IsOverride(page, caller))
+        {
+            audit.Record(caller, "note.edited", nameof(NotePage), page.Id.ToString(), before, new { page.Version, page.Title });
+        }
+
         try
         {
             await db.SaveChangesAsync(cancellationToken);

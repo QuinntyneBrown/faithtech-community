@@ -14,7 +14,7 @@ public record ShareNoteCommand(string? Visibility, IReadOnlyList<Guid>? MemberId
 /// Who can see a page (L2-093): Private, Shared with members and roles, or Global. Only the owner or a System
 /// Admin; the new recipients are told in-app and by email in the same save (L2-093 AC5, AC6).
 /// </summary>
-public class ShareNoteHandler(IApplicationDbContext db, NoteAccess access, NoteViews views, NoteShareNotifier notifier)
+public class ShareNoteHandler(IApplicationDbContext db, NoteAccess access, NoteViews views, NoteShareNotifier notifier, IAuditLog audit)
 {
     public const string AudienceMessage = "Choose at least one person or role, or pick another visibility.";
 
@@ -65,11 +65,24 @@ public class ShareNoteHandler(IApplicationDbContext db, NoteAccess access, NoteV
         }
 
         var reached = await notifier.RecipientsAsync(page, cancellationToken);
+        var before = Audience(page);
         page.SetAudience(visibility, members, roles);
+        if (access.IsOverride(page, caller))
+        {
+            audit.Record(caller, "note.shared", nameof(NotePage), page.Id.ToString(), before, Audience(page));
+        }
+
         await notifier.NotifyAsync(page, caller, reached, cancellationToken);
         await db.SaveChangesAsync(cancellationToken);
         return (Result.Ok(), await views.DetailAsync(page, caller, cancellationToken));
     }
+
+    private static object Audience(NotePage page) => new
+    {
+        Visibility = page.Visibility.ToString(),
+        Members = page.SharedMembers.Select(m => m.ProfileId).ToList(),
+        Roles = page.SharedRoles.Select(r => r.Role.ToString()).ToList(),
+    };
 }
 
 /// <summary>

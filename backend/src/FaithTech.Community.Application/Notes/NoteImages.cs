@@ -1,3 +1,4 @@
+using FaithTech.Community.Application.Admin;
 using FaithTech.Community.Application.Common;
 using FaithTech.Community.Application.Profiles;
 using FaithTech.Community.Application.Resources;
@@ -17,7 +18,7 @@ public record NoteImageContent(Stream Content, string ContentType);
 /// the photo processor (ADR 0001), stored behind <see cref="IFileStorage"/> and streamed under the page's
 /// visibility. Only the page's owner or a System Admin uploads.
 /// </summary>
-public class NoteImagesHandler(IApplicationDbContext db, NoteAccess access, IImageProcessor images, IFileStorage storage, TimeProvider time)
+public class NoteImagesHandler(IApplicationDbContext db, NoteAccess access, IImageProcessor images, IFileStorage storage, IAuditLog audit, TimeProvider time)
 {
     public const string Refusal = "Use a JPEG, PNG or WebP image up to 5 MB.";
     private static readonly string[] Extensions = [".jpg", ".jpeg", ".png", ".webp"];
@@ -65,6 +66,11 @@ public class NoteImagesHandler(IApplicationDbContext db, NoteAccess access, IIma
         }
 
         db.NoteImages.Add(stored);
+        if (access.IsOverride(page, caller))
+        {
+            audit.Record(caller, "note.edited", nameof(NotePage), page.Id.ToString(), null, new { ImageAdded = stored.Id });
+        }
+
         await db.SaveChangesAsync(cancellationToken);
         return (Result.Ok(), new NoteImageUploadedDto(stored.Id), false);
     }

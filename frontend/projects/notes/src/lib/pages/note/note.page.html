@@ -79,12 +79,7 @@
         (submitted)="toFirstBlock()"
       />
     </header>
-    @if (p.archivedAt) {
-      <ft-banner status="warning" [heading]="'Archived ' + formatDay(p.archivedAt)">
-        Only you can see it. Restore it to edit it or let others see it again.
-        <ft-button ftAlertActions size="sm" (click)="restore()">Restore</ft-button>
-      </ft-banner>
-    } @else if (stop()?.kind === 'conflict') {
+    @if (stop()?.kind === 'conflict') {
       <ft-banner status="danger" heading="This page changed somewhere else">
         {{ conflictText() }}
         <ft-button ftAlertActions size="sm" (click)="reload()">Reload page</ft-button>
@@ -93,6 +88,15 @@
       <ft-banner status="danger" heading="You can’t change this page">
         Your access changed while you were editing. Your last changes weren’t saved.
         <ft-button ftAlertActions size="sm" (click)="reload()">Reload page</ft-button>
+      </ft-banner>
+    } @else if (p.archivedAt) {
+      <ft-banner status="warning" [heading]="'Archived ' + formatDay(p.archivedAt)">
+        Only you can see it. Restore it to edit it or let others see it again.
+        <ft-button ftAlertActions size="sm" (click)="restore()">Restore</ft-button>
+      </ft-banner>
+    } @else if (p.isAdminView) {
+      <ft-banner status="info" heading="You’re viewing this as System Admin">
+        {{ p.ownerName }} owns this page. Every change you make is written to the audit log.
       </ft-banner>
     } @else if (p.isOwn && p.visibility === 'Private') {
       <ft-banner status="info" heading="Private">

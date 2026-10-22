@@ -1,3 +1,4 @@
+using FaithTech.Community.Application.Admin;
 using FaithTech.Community.Application.Common;
 using FaithTech.Community.Domain.Notes;
 using Microsoft.EntityFrameworkCore;
@@ -10,7 +11,7 @@ public record MoveNoteCommand(Guid? ParentId);
 /// Puts a page inside another page of the same owner, or at the top level (L2-091 AC4, AC5). Never under itself
 /// or one of its descendants, and never under an archived page.
 /// </summary>
-public class MoveNoteHandler(IApplicationDbContext db, NoteAccess access, NoteViews views)
+public class MoveNoteHandler(IApplicationDbContext db, NoteAccess access, NoteViews views, IAuditLog audit)
 {
     public async Task<(Result Result, NotePageDto? Page)> HandleAsync(Guid id, MoveNoteCommand command, CancellationToken cancellationToken = default)
     {
@@ -44,6 +45,11 @@ public class MoveNoteHandler(IApplicationDbContext db, NoteAccess access, NoteVi
             {
                 return (Result.Invalid("ParentId", NoteFields.ParentMessage), null);
             }
+        }
+
+        if (access.IsOverride(page, caller))
+        {
+            audit.Record(caller, "note.moved", nameof(NotePage), page.Id.ToString(), new { page.ParentId }, new { command.ParentId });
         }
 
         page.MoveTo(command.ParentId);

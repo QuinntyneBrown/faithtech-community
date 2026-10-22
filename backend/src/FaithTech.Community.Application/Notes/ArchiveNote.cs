@@ -1,4 +1,6 @@
+using FaithTech.Community.Application.Admin;
 using FaithTech.Community.Application.Common;
+using FaithTech.Community.Domain.Notes;
 using Microsoft.EntityFrameworkCore;
 
 namespace FaithTech.Community.Application.Notes;
@@ -10,7 +12,7 @@ public record ArchivedNoteDto(Guid Id, string Title, string? Icon, DateTimeOffse
 /// Archive and restore (L2-095): the owner or a System Admin. An archived page is hidden from everyone else, so
 /// restoring one you cannot see is not found; its child pages are untouched.
 /// </summary>
-public class ArchiveNoteHandler(IApplicationDbContext db, NoteAccess access, TimeProvider time)
+public class ArchiveNoteHandler(IApplicationDbContext db, NoteAccess access, IAuditLog audit, TimeProvider time)
 {
     public Task<Result> ArchiveAsync(Guid id, CancellationToken cancellationToken = default) =>
         ChangeAsync(id, archive: true, cancellationToken);
@@ -55,6 +57,11 @@ public class ArchiveNoteHandler(IApplicationDbContext db, NoteAccess access, Tim
         else
         {
             page.Restore();
+        }
+
+        if (access.IsOverride(page, caller))
+        {
+            audit.Record(caller, archive ? "note.archived" : "note.restored", nameof(NotePage), page.Id.ToString(), null, new { page.Title });
         }
 
         await db.SaveChangesAsync(cancellationToken);
