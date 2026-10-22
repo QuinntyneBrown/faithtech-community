@@ -14,4 +14,6 @@ public enum NotificationKind
     WorkspaceOwnerLostCityLead,
     PlanningPokerInvite,
     Announcement,
+    ResourceShared,
+    ResourceOwnershipTransferred,
 }

@@ -7,6 +7,7 @@ using FaithTech.Community.Application.Identity;
 using FaithTech.Community.Application.Invites;
 using FaithTech.Community.Application.Notifications;
 using FaithTech.Community.Application.Profiles;
+using FaithTech.Community.Application.Resources;
 using FaithTech.Community.Application.Search;
 using FaithTech.Community.Infrastructure.Admin;
 using FaithTech.Community.Infrastructure.Calendar;
@@ -91,6 +92,8 @@ public static class DependencyInjection
         services.AddSingleton<IPhotoStorage, AzureBlobPhotoStorage>();
         services.AddSingleton<IImageProcessor, SkiaImageProcessor>();
         services.AddHostedService<PhotoStorageRetryWorker>();
+        services.AddSingleton<IFileStorage, AzureBlobFileStorage>();
+        services.AddHostedService<ResourceMaintenanceWorker>();
 
         services.AddHttpContextAccessor();
         services.AddScoped<IAuditLog, AuditLog>();

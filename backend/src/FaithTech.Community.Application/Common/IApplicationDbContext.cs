@@ -8,6 +8,7 @@ using FaithTech.Community.Domain.Invites;
 using FaithTech.Community.Domain.Notifications;
 using FaithTech.Community.Domain.Partners;
 using FaithTech.Community.Domain.Profiles;
+using FaithTech.Community.Domain.Resources;
 using Microsoft.EntityFrameworkCore;
 
 namespace FaithTech.Community.Application.Common;
@@ -50,6 +51,10 @@ public interface IApplicationDbContext
     DbSet<Event> Events { get; }
 
     DbSet<Announcement> Announcements { get; }
+
+    DbSet<Resource> Resources { get; }
+
+    DbSet<ResourceBlobTask> ResourceBlobTasks { get; }
 
     Task<int> SaveChangesAsync(CancellationToken cancellationToken = default);
 }

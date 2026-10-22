@@ -10,4 +10,7 @@ public record ImageProcessingResult(ProcessedImage? Image, string? Error);
 public interface IImageProcessor
 {
     Task<ImageProcessingResult> ProcessAsync(Stream content, string fileName, CancellationToken cancellationToken = default);
+
+    /// <summary>A PNG fitted inside <paramref name="maxEdge"/>, upright, for a resource image (ADR 0017); null if it cannot be decoded.</summary>
+    Task<byte[]?> ThumbnailAsync(Stream content, int maxEdge, CancellationToken cancellationToken = default);
 }

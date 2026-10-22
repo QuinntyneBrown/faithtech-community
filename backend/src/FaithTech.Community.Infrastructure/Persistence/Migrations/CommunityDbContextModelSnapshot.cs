@@ -921,6 +921,130 @@ namespace FaithTech.Community.Infrastructure.Persistence.Migrations
                     b.ToTable("Profiles");
                 });
 
+            modelBuilder.Entity("FaithTech.Community.Domain.Resources.Resource", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTimeOffset>("AddedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<DateTimeOffset?>("ArchivedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Description")
+                        .HasMaxLength(1000)
+                        .HasColumnType("character varying(1000)");
+
+                    b.Property<DateTimeOffset?>("FileReplacedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid?>("FileReplacedById")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("LinkHost")
+                        .HasMaxLength(255)
+                        .HasColumnType("character varying(255)");
+
+                    b.Property<string>("LinkUrl")
+                        .HasMaxLength(2000)
+                        .HasColumnType("character varying(2000)");
+
+                    b.Property<Guid>("OwnerId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("OwnerRole")
+                        .HasMaxLength(32)
+                        .HasColumnType("character varying(32)");
+
+                    b.Property<NpgsqlTsVector>("SearchVector")
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("tsvector")
+                        .HasComputedColumnSql("to_tsvector('english', coalesce(\"Title\", '') || ' ' || coalesce(\"Description\", '') || ' ' || coalesce(\"TagText\", '') || ' ' || coalesce(\"File_FileName\", ''))", true);
+
+                    b.Property<string>("TagText")
+                        .IsRequired()
+                        .HasMaxLength(2000)
+                        .HasColumnType("character varying(2000)");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasMaxLength(120)
+                        .HasColumnType("character varying(120)");
+
+                    b.Property<string>("Type")
+                        .IsRequired()
+                        .HasMaxLength(16)
+                        .HasColumnType("character varying(16)");
+
+                    b.Property<DateTimeOffset?>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid?>("UpdatedById")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Visibility")
+                        .IsRequired()
+                        .HasMaxLength(16)
+                        .HasColumnType("character varying(16)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("OwnerId");
+
+                    b.HasIndex("SearchVector");
+
+                    NpgsqlIndexBuilderExtensions.HasMethod(b.HasIndex("SearchVector"), "GIN");
+
+                    b.HasIndex("ArchivedAt", "AddedAt");
+
+                    b.ToTable("Resources");
+                });
+
+            modelBuilder.Entity("FaithTech.Community.Domain.Resources.ResourceBlobTask", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<int>("Attempts")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("BlobName")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
+
+                    b.Property<byte[]>("Content")
+                        .HasColumnType("bytea");
+
+                    b.Property<string>("ContentType")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<DateTimeOffset>("NextAttemptAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid>("ResourceId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Work")
+                        .IsRequired()
+                        .HasMaxLength(16)
+                        .HasColumnType("character varying(16)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("NextAttemptAt");
+
+                    b.HasIndex("ResourceId");
+
+                    b.ToTable("ResourceBlobTasks");
+                });
+
             modelBuilder.Entity("FaithTech.Community.Infrastructure.Email.OutboxMessage", b =>
                 {
                     b.Property<Guid>("Id")
@@ -1692,6 +1816,115 @@ namespace FaithTech.Community.Infrastructure.Persistence.Migrations
                     b.Navigation("Photos");
 
                     b.Navigation("Roles");
+                });
+
+            modelBuilder.Entity("FaithTech.Community.Domain.Resources.Resource", b =>
+                {
+                    b.OwnsOne("FaithTech.Community.Domain.Resources.ResourceFile", "File", b1 =>
+                        {
+                            b1.Property<Guid>("ResourceId")
+                                .HasColumnType("uuid");
+
+                            b1.Property<string>("BlobName")
+                                .IsRequired()
+                                .HasMaxLength(200)
+                                .HasColumnType("character varying(200)");
+
+                            b1.Property<string>("ContentType")
+                                .IsRequired()
+                                .HasMaxLength(100)
+                                .HasColumnType("character varying(100)");
+
+                            b1.Property<string>("Extension")
+                                .IsRequired()
+                                .HasMaxLength(8)
+                                .HasColumnType("character varying(8)");
+
+                            b1.Property<string>("FileName")
+                                .IsRequired()
+                                .HasMaxLength(255)
+                                .HasColumnType("character varying(255)");
+
+                            b1.Property<bool>("IsStored")
+                                .HasColumnType("boolean");
+
+                            b1.Property<long>("Size")
+                                .HasColumnType("bigint");
+
+                            b1.Property<string>("ThumbnailBlobName")
+                                .HasMaxLength(200)
+                                .HasColumnType("character varying(200)");
+
+                            b1.HasKey("ResourceId");
+
+                            b1.ToTable("Resources");
+
+                            b1.WithOwner()
+                                .HasForeignKey("ResourceId");
+                        });
+
+                    b.OwnsMany("FaithTech.Community.Domain.Resources.ResourceShareMember", "SharedMembers", b1 =>
+                        {
+                            b1.Property<Guid>("ResourceId")
+                                .HasColumnType("uuid");
+
+                            b1.Property<Guid>("ProfileId")
+                                .ValueGeneratedOnAdd()
+                                .HasColumnType("uuid");
+
+                            b1.HasKey("ResourceId", "ProfileId");
+
+                            b1.HasIndex("ProfileId");
+
+                            b1.ToTable("ResourceShareMembers", (string)null);
+
+                            b1.WithOwner()
+                                .HasForeignKey("ResourceId");
+                        });
+
+                    b.OwnsMany("FaithTech.Community.Domain.Resources.ResourceShareRole", "SharedRoles", b1 =>
+                        {
+                            b1.Property<Guid>("ResourceId")
+                                .HasColumnType("uuid");
+
+                            b1.Property<string>("Role")
+                                .HasMaxLength(32)
+                                .HasColumnType("character varying(32)");
+
+                            b1.HasKey("ResourceId", "Role");
+
+                            b1.ToTable("ResourceShareRoles", (string)null);
+
+                            b1.WithOwner()
+                                .HasForeignKey("ResourceId");
+                        });
+
+                    b.OwnsMany("FaithTech.Community.Domain.Resources.ResourceTag", "Tags", b1 =>
+                        {
+                            b1.Property<Guid>("ResourceId")
+                                .HasColumnType("uuid");
+
+                            b1.Property<string>("Tag")
+                                .HasMaxLength(40)
+                                .HasColumnType("character varying(40)");
+
+                            b1.HasKey("ResourceId", "Tag");
+
+                            b1.HasIndex("Tag");
+
+                            b1.ToTable("ResourceTags", (string)null);
+
+                            b1.WithOwner()
+                                .HasForeignKey("ResourceId");
+                        });
+
+                    b.Navigation("File");
+
+                    b.Navigation("SharedMembers");
+
+                    b.Navigation("SharedRoles");
+
+                    b.Navigation("Tags");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<System.Guid>", b =>
