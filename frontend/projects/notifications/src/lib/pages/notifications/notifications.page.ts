@@ -13,7 +13,7 @@ import {
   NoticeListComponent,
   PageHeaderComponent,
   avatarColorFor,
-  formatWhen,
+  formatFeedTime,
 } from '@faithtech-community/components';
 import { firstValueFrom } from 'rxjs';
 
@@ -134,7 +134,7 @@ function toNotice(n: NotificationDto): Notice {
     text: '',
     linkText: n.title,
     href: n.linkPath,
-    meta: formatWhen(n.createdAt),
+    meta: formatFeedTime(n.createdAt),
     unread: !n.readAt,
   };
 }

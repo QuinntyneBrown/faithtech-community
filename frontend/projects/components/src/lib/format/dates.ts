@@ -60,9 +60,3 @@ export function formatTimeRange(start: Date | string, end: Date | string): strin
   const shared = first.slice(-2) === last.slice(-2);
   return `${formatDay(from)} ${year} · ${shared ? first.slice(0, -3) : first} – ${last}`;
 }
-
-/** "Today, 11:42 am" for a moment earlier today, otherwise "Mon 20 Oct": the notices' time format. */
-export function formatWhen(value: Date | string, now: Date = new Date()): string {
-  const d = new Date(value);
-  return d.toDateString() === now.toDateString() ? `Today, ${formatTime(d)}` : formatDay(d);
-}
