@@ -129,8 +129,8 @@ public class WorkItemsHandler(
         db.WorkItems.Add(item);
         await NotifyAssigneeAsync(caller.ProfileId, null, item, workspace, cancellationToken);
         policy.AuditOverride(caller, "workitem.created", "WorkItem", item.Id, null, new { Kind = kind.ToString(), item.Title, WorkspaceId = workspaceId });
+        await notifier.QueueEmailsAsync(cancellationToken);
         await db.SaveChangesAsync(cancellationToken);
-        await notifier.SendEmailsAsync(cancellationToken);
         return (Result.Ok(), await GetAsync(item.Id, cancellationToken));
     }
 
@@ -175,8 +175,8 @@ public class WorkItemsHandler(
 
         await NotifyAssigneeAsync(caller.ProfileId, previousAssignee, item, workspace, cancellationToken);
         policy.AuditOverride(caller, "workitem.updated", "WorkItem", item.Id, before, Snapshot(item));
+        await notifier.QueueEmailsAsync(cancellationToken);
         await db.SaveChangesAsync(cancellationToken);
-        await notifier.SendEmailsAsync(cancellationToken);
         if (item.Status != previousStatus)
         {
             await board.CardMovedAsync(item.WorkspaceId, item.Id, item.Status.ToString(), cancellationToken);

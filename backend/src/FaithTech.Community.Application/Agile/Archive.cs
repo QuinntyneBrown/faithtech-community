@@ -213,5 +213,5 @@ public class CityLeadRoleRemovedHandler(IApplicationDbContext db, AgileNotifier 
         }
     }
 
-    public Task SendEmailsAsync(CancellationToken cancellationToken = default) => notifier.SendEmailsAsync(cancellationToken);
+    public Task QueueEmailsAsync(CancellationToken cancellationToken = default) => notifier.QueueEmailsAsync(cancellationToken);
 }

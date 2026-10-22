@@ -57,8 +57,8 @@ public class WorkspacesHandler(
         }
 
         db.Workspaces.Add(workspace);
+        await notifier.QueueEmailsAsync(cancellationToken);
         await db.SaveChangesAsync(cancellationToken);
-        await notifier.SendEmailsAsync(cancellationToken);
         return (Result.Ok(), await GetAsync(workspace.Id, cancellationToken));
     }
 

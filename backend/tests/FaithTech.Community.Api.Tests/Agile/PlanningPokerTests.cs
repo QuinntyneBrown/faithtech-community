@@ -60,7 +60,7 @@ public class PlanningPokerTests(CommunityApiFactory factory) : IClassFixture<Com
         var notification = await factory.WithDbAsync(db => db.Notifications
             .SingleAsync(n => n.RecipientId == cast.Owner.ProfileId && n.Kind == NotificationKind.PlanningPokerInvite));
         Assert.Equal(("Ruth invited you to Planning Poker in Toronto team", $"/workspaces/{cast.WorkspaceId}/poker"), (notification.Title, notification.LinkPath));
-        Assert.Single(factory.Emails.SentTo(await factory.EmailOfAsync(cast.Owner)));
+        Assert.Single(await factory.QueuedEmailsToAsync(await factory.EmailOfAsync(cast.Owner)));
     }
 
     [Fact]

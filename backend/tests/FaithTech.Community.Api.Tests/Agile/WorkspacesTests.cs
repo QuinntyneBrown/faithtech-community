@@ -62,7 +62,7 @@ public class WorkspacesTests(CommunityApiFactory factory) : IClassFixture<Commun
         {
             var notification = await factory.WithDbAsync(db => db.Notifications.SingleAsync(n => n.RecipientId == member.ProfileId));
             Assert.Equal(("Grace Okonkwo added you to the workspace Hackathon ops", $"/workspaces/{created.Id}"), (notification.Title, notification.LinkPath));
-            var email = Assert.Single(factory.Emails.SentTo(await factory.EmailOfAsync(member)));
+            var email = Assert.Single(await factory.QueuedEmailsToAsync(await factory.EmailOfAsync(member)));
             Assert.Equal("You’ve been added to Hackathon ops", email.Subject);
             Assert.Contains($"{CommunityApiFactory.WebAppOrigin}/workspaces/{created.Id}", email.Body);
         }

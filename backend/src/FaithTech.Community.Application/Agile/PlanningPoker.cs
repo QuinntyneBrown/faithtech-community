@@ -146,8 +146,8 @@ public class PlanningPokerHandler(
                 $"{name} invited you to estimate {Count(stories.Count)} in {workspace.Name}, starting with “{stories[0].Title}”. Votes stay hidden until {first} reveals them.\n\nJoin the session:");
         }
 
+        await notifier.QueueEmailsAsync(cancellationToken);
         await db.SaveChangesAsync(cancellationToken);
-        await notifier.SendEmailsAsync(cancellationToken);
         return (Result.Ok(), await DtoAsync(session, caller, cancellationToken));
     }
 

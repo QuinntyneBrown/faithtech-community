@@ -14,7 +14,7 @@
 | [partners](partners.md) | 8 days | 100% |
 | [team](team.md) | 2 days | 100% |
 | [events](events.md) | 23 days | 100% |
-| [notifications](notifications.md) | 9 days | 98% |
+| [notifications](notifications.md) | 9 days | 100% |
 | [announcements](announcements.md) | 8 days | 100% |
 | [search](search.md) | 4 days | 90% |
 | [agile](agile.md) | 36 days | 99% |

@@ -40,7 +40,7 @@ public class RsvpTests(CommunityApiFactory factory) : IClassFixture<CommunityApi
         var notification = await factory.WithDbAsync(db => db.Notifications.AsNoTracking().SingleAsync(n => n.RecipientId == leah.ProfileId));
         Assert.Equal((NotificationKind.RsvpConfirmed, "You’re going to Toronto Builders Night", $"/events/{existing.Id}"),
             (notification.Kind, notification.Title, notification.LinkPath));
-        var email = Assert.Single(factory.Emails.SentTo(address));
+        var email = Assert.Single(await factory.QueuedEmailsToAsync(address));
         Assert.Equal("You’re going to Toronto Builders Night", email.Subject);
         Assert.Contains($"{CommunityApiFactory.WebAppOrigin}/events/{existing.Id}", email.Body);
         var ics = Assert.Single(email.Attachments!);
@@ -62,7 +62,7 @@ public class RsvpTests(CommunityApiFactory factory) : IClassFixture<CommunityApi
 
         Assert.Equal(HttpStatusCode.NoContent, again.StatusCode);
         Assert.Single((await factory.LoadEventAsync(existing.Id)).Rsvps);
-        Assert.Single(factory.Emails.SentTo(address));
+        Assert.Single(await factory.QueuedEmailsToAsync(address));
     }
 
     // L2-020 AC5: Given an event at capacity, when anyone tries to RSVP, then the RSVP is refused with a

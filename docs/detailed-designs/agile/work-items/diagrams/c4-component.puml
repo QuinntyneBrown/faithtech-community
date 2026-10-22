@@ -15,7 +15,7 @@ Container_Boundary(api, "Community API") {
   Component(pol, "WorkspaceAccessPolicy", "Application", "Owner, member, Staff, System Admin, outsider")
   Component(ntf, "AgileNotifier", "Application", "In-app notification and email to the assignee")
   Component(ent, "WorkItem", "Domain entity", "Hierarchy and fields")
-  Component(mail, "IEmailSender", "Infrastructure (OutboxEmailSender)", "Queues the email")
+  Component(mail, "IEmailQueue", "Infrastructure (OutboxEmailQueue)", "Queues the email in the unit of work")
   ComponentDb(db, "Community database", "PostgreSQL", "Agile tables")
 }
 
@@ -28,6 +28,6 @@ Rel(ep, h, "Calls")
 Rel(h, pol, "Checks access")
 Rel(h, ent, "Creates and mutates")
 Rel(h, ntf, "Notifies assignee")
-Rel(ntf, mail, "Sends email via")
+Rel(ntf, mail, "Enqueue")
 Rel(h, db, "Persists", "EF Core")
 @enduml

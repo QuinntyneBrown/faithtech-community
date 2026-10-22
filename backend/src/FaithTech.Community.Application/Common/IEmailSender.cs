@@ -7,6 +7,11 @@ public record EmailAttachment(string FileName, string ContentType, string Conten
 public record EmailMessage(
     string To, string Subject, string Body, IReadOnlyList<EmailAttachment>? Attachments = null, string? HtmlBody = null);
 
+/// <summary>
+/// Queues one email and saves at once. Only the identity flows use it: Identity has already saved the account before a
+/// verification or reset token exists, and those emails can be requested again. Every action that changes
+/// community data queues through <see cref="IEmailQueue"/> instead, inside its own unit of work.
+/// </summary>
 public interface IEmailSender
 {
     Task SendAsync(EmailMessage message, CancellationToken cancellationToken = default);

@@ -12,7 +12,7 @@ public record LinkContactCommand(Guid ProfileId, bool DiscardNotes = false);
 /// Tells each lead whose private contact just verified their email (L2-015 AC1, AC3): an in-app
 /// notification now and an email. Called once an account's email becomes verified.
 /// </summary>
-public class ContactSignedUpHandler(IApplicationDbContext db, IEmailSender email, IOptions<WebAppOptions> webApp, TimeProvider time)
+public class ContactSignedUpHandler(IApplicationDbContext db, IEmailQueue emails, IOptions<WebAppOptions> webApp, TimeProvider time)
 {
     public async Task HandleAsync(EmailVerified verified, CancellationToken cancellationToken = default)
     {
@@ -33,8 +33,6 @@ public class ContactSignedUpHandler(IApplicationDbContext db, IEmailSender email
                 contact.OwnerId, NotificationKind.ContactSignedUp, Title(contact.Name), $"/contacts/{contact.Id}", now));
         }
 
-        await db.SaveChangesAsync(cancellationToken);
-
         var owners = matches.Select(m => m.OwnerId).Distinct().ToList();
         var addresses = await db.Users.Where(u => owners.Contains(u.ProfileId))
             .ToDictionaryAsync(u => u.ProfileId, u => u.Email, cancellationToken);
@@ -45,14 +43,16 @@ public class ContactSignedUpHandler(IApplicationDbContext db, IEmailSender email
                 continue;
             }
 
-            await email.SendAsync(new EmailMessage(
+            emails.Enqueue(new EmailMessage(
                 address,
                 Title(contact.Name),
                 $"{contact.Name}, one of your private contacts, just joined FaithTech Community.\n\n" +
                 $"Link them to their new profile and keep your notes:\n\n{webApp.Value.Origin}/contacts/{contact.Id}\n\n" +
-                "Your notes stay private to you."),
-                cancellationToken);
+                "Your notes stay private to you."));
         }
+
+        // The notifications and emails commit together (L2-028).
+        await db.SaveChangesAsync(cancellationToken);
     }
 
     private static string Title(string name) => $"{name} just joined FaithTech";

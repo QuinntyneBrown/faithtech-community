@@ -36,7 +36,7 @@ box "Backend — FaithTech.Community.Application and Domain" #ECFDF3
 end box
 box "Backend — FaithTech.Community.Infrastructure" #FFF4E5
   participant "CommunityDbContext" as ctx
-  participant "OutboxEmailSender" as email
+  participant "OutboxEmailQueue" as email
   database "Community\ndatabase" as db
 end box
 == City Lead role removed from a workspace owner ==
@@ -49,11 +49,11 @@ ctx -> db : SELECT
 db --> ctx : Live workspaces
 evt -> ctx : System Admin profiles,\nnot suspended
 evt -> ntf : Notify(WorkspaceOwnerLostCityLead,\n/workspaces/{id}/settings)\nper workspace per System Admin\n(L2-037 AC2)
+roles -> evt : QueueEmailsAsync()
+evt -> ntf : QueueEmailsAsync()
+ntf -> email : Enqueue per\nSystem Admin (outbox row)
 roles -> ctx : SaveChanges
-ctx -> db : UPDATE profile_roles,\nINSERT notifications
-roles -> evt : SendEmailsAsync()
-evt -> ntf : SendEmailsAsync()
-ntf -> email : SendAsync per\nSystem Admin (outbox)
+ctx -> db : UPDATE profile_roles,\nINSERT notifications and outbox\nin one transaction
 ntf --> actor : In-app notification and email
 == Admin users page ==
 adminpage -> svc : listWorkspaces()

@@ -123,7 +123,7 @@ public class CancelEventTests(CommunityApiFactory factory) : IClassFixture<Commu
         Assert.Equal(HttpStatusCode.NoContent, response.StatusCode);
         foreach (var address in new[] { await factory.EmailOfAsync(ruth), await factory.EmailOfAsync(jonah), guestEmail })
         {
-            var email = Assert.Single(factory.Emails.SentTo(address));
+            var email = Assert.Single(await factory.QueuedEmailsToAsync(address));
             Assert.Equal("Cancelled: Toronto Builders Night", email.Subject);
             Assert.Contains(Reason, email.Body);
             var ics = Assert.Single(email.Attachments!);

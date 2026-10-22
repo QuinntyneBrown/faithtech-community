@@ -32,7 +32,7 @@ end box
 box "Backend — FaithTech.Community.Infrastructure" #FFF4E5
   participant "CommunityDbContext" as ctx
   database "Community database" as db
-  participant "IEmailSender" as mail
+  participant "IEmailQueue" as mail
 end box
 actor -> page : Start session
 page -> dlg : Open
@@ -53,10 +53,10 @@ else no open session
 h -> ent : new PokerSession(workspace, stories, caller, invited) (L2-038 AC1)
 h -> pol : AuditOverride(caller, "poker.started") when the caller is a System Admin
 h -> ntf : Notify(caller, invitee, PlanningPokerInvite, ...) per invitee (L2-038 AC1)
+h -> ntf : QueueEmailsAsync
+ntf -> mail : Enqueue invite email per invitee
 h -> ctx : SaveChangesAsync
-ctx -> db : INSERT poker_session, notifications
-h -> ntf : SendEmailsAsync
-ntf -> mail : Invite email per invitee
+ctx -> db : INSERT poker_session, notifications, outbox in one transaction
 h --> ep : PokerSessionDto (caller is facilitator)
 ep --> svc : 201 Created
 svc --> dlg : Session
