@@ -320,12 +320,14 @@
       "requirements": [
         "L2-022",
         "L2-024",
-        "L2-025"
+        "L2-025",
+        "L2-096"
       ],
       "states": [
         "default",
         "rsvped",
         "lead",
+        "attendance",
         "link-copied",
         "cancelled",
         "loading",
@@ -341,16 +343,26 @@
       "title": "Event check-in",
       "route": "/events/:id/check-in",
       "requirements": [
-        "L2-022"
+        "L2-022",
+        "L2-092",
+        "L2-093",
+        "L2-094",
+        "L2-095",
+        "L2-096",
+        "L2-097"
       ],
       "states": [
         "default",
         "checked-in",
+        "save-failed",
         "no-results",
         "done",
+        "read-only",
+        "cancelled",
         "loading",
         "empty",
-        "error"
+        "error",
+        "forbidden"
       ],
       "not_applicable": {}
     },
@@ -474,7 +486,8 @@
       "requirements": [
         "L2-013",
         "L2-067",
-        "L2-069"
+        "L2-069",
+        "L2-091"
       ],
       "states": [
         "default",
@@ -515,7 +528,8 @@
       "route": "/partners",
       "requirements": [
         "L2-017",
-        "L2-018"
+        "L2-018",
+        "L2-086"
       ],
       "states": [
         "default",
@@ -535,12 +549,22 @@
       "route": "/partners/:id",
       "requirements": [
         "L2-017",
-        "L2-018"
+        "L2-018",
+        "L2-085",
+        "L2-086",
+        "L2-087",
+        "L2-088",
+        "L2-089",
+        "L2-090"
       ],
       "states": [
         "default",
+        "filtered",
         "activity-empty",
         "duplicate",
+        "merged",
+        "not-the-same",
+        "archived",
         "loading",
         "error"
       ],
@@ -729,10 +753,19 @@
       "kind": "page",
       "title": "Reports",
       "route": "/reports",
-      "requirements": [],
+      "requirements": [
+        "L2-098",
+        "L2-099",
+        "L2-100",
+        "L2-101",
+        "L2-102",
+        "L2-103",
+        "L2-104"
+      ],
       "states": [
         "default",
         "filtered",
+        "city",
         "loading",
         "empty",
         "error",
@@ -1203,8 +1236,8 @@
       "title": "Add walk-in",
       "opens_from": "event-check-in",
       "requirements": [
-        "L2-022",
-        "L2-023"
+        "L2-023",
+        "L2-095"
       ],
       "states": [
         "default",
@@ -1479,8 +1512,8 @@
       "title": "Log activity",
       "opens_from": "partner",
       "requirements": [
-        "L2-017",
-        "L2-018"
+        "L2-085",
+        "L2-087"
       ],
       "states": [
         "default",
@@ -1496,12 +1529,14 @@
       "title": "Merge partners",
       "opens_from": "partner",
       "requirements": [
-        "L2-017"
+        "L2-089",
+        "L2-090"
       ],
       "states": [
         "default",
         "busy",
-        "failed"
+        "failed",
+        "conflict"
       ],
       "not_applicable": {
         "invalid": "A value is always chosen for every field; there is nothing to validate."

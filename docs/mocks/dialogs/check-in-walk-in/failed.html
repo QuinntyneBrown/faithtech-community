@@ -7,7 +7,7 @@
 <meta name="mock:kind" content="dialog">
 <meta name="mock:screen" content="check-in-walk-in">
 <meta name="mock:state" content="failed">
-<meta name="mock:requirements" content="L2-022 L2-023">
+<meta name="mock:requirements" content="L2-023 L2-095">
 <meta name="description" content="The save failed; the typed details are kept and a retry is offered.">
 <link rel="stylesheet" href="../../../design-system/tokens/tokens.css">
 <link rel="stylesheet" href="../../../design-system/assets/components.css">
@@ -45,7 +45,7 @@
       <p id="dlg-desc" class="dialog__description">For someone at the door who didn’t RSVP.</p></div>
       <button class="btn btn--ghost btn--icon" type="button" aria-label="Close"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18"/></svg></button>
     </div>
-    <div class="dialog__body stack"><div class="alert alert--danger" role="alert"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 8v4M12 16h.01"/></svg><div class="alert__body"><div class="alert__title">Walk-in not added</div><div class="alert__text">We couldn’t reach the server. Mira is not on the list yet; try again.</div></div></div><div class="field"><label class="field__label" for="wi-name">Name</label><input class="input" id="wi-name" name="wi-name" type="text" value="Mira Chen" required autocomplete="off"></div><div class="field"><label class="field__label" for="wi-email">Email <span class="optional">(optional)</span></label><input class="input" id="wi-email" name="wi-email" type="email" value="mira.chen@example.org" aria-describedby="wi-email-help"><div class="field__help" id="wi-email-help">Used once, to send the recap. A member’s email links the check-in to their profile.</div></div><label class="switch"><input type="checkbox" checked><span class="switch__text">Check them in now<small>Adds them to the RSVP list as present, 6:58 pm.</small></span></label></div>
+    <div class="dialog__body stack"><div class="alert alert--danger" role="alert"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 8v4M12 16h.01"/></svg><div class="alert__body"><div class="alert__title">Walk-in not added</div><div class="alert__text">We couldn’t reach the server. Mira is not on the list yet; try again.</div></div></div><div class="field"><label class="field__label" for="wi-name">Name</label><input class="input" id="wi-name" name="wi-name" type="text" value="Mira Chen" required autocomplete="off"></div><div class="field"><label class="field__label" for="wi-email">Email <span class="optional">(optional)</span></label><input class="input" id="wi-email" name="wi-email" type="email" value="mira.chen@example.org" aria-describedby="wi-email-help"><div class="field__help" id="wi-email-help">A member’s email links the check-in to their profile.</div></div><label class="switch"><input type="checkbox" checked><span class="switch__text">Check them in now<small>Adds them to the RSVP list as present, 6:58 pm.</small></span></label></div>
     <div class="dialog__footer"><button class="btn" type="button">Cancel</button><button class="btn btn--primary" type="button" autofocus>Try again</button></div>
   </div>
 </div>
