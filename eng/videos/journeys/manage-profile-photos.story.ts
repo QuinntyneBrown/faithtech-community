@@ -2,29 +2,26 @@ import { expect, test } from '../../../e2e/fixtures/app';
 import { DeletePhotoDialog } from '../../../e2e/pages/delete-photo.dialog';
 import { EditProfilePage } from '../../../e2e/pages/edit-profile.page';
 import { ProfilePage } from '../../../e2e/pages/profile.page';
-import { drawPicture, SCENE_ALT } from '../photos';
+import { loadPicture, SCENE_ALT } from '../photos';
 import { Presenter, typeInto } from '../presenter';
 
 // Journey: manage profile photos (docs/detailed-designs/profiles/manage-profile-photos, L2-007).
-// The pictures are drawn in the browser; the fake API stores the uploaded picture as a data URL.
+// The pictures are demo photos from the mocks; the fake API stores the uploaded picture as a data URL.
 test('manage-profile-photos', async ({ page, api }) => {
   const show = await Presenter.start(page, 'manage-profile-photos');
   const profile = new ProfilePage(page);
   const edit = new EditProfilePage(page);
   const dialog = new DeletePhotoDialog(page);
   const leah = api.addAccount({ name: 'Leah Thompson', email: 'leah@example.org' });
-  const sunset = await drawPicture(page, 'sunset');
-  const workshop = await drawPicture(page, 'workshop');
-  const pictures = new Map([sunset, workshop].map((p) => [p.name, p.dataUrl]));
+  const portrait = loadPicture('leah-thompson');
+  const city = loadPicture('city');
+  const pictures = new Map([portrait, city].map((p) => [p.name, p.dataUrl]));
   api.uploadedPhotoUrl = (file) => pictures.get(file) ?? '';
 
   await show.card(
     'opening',
     'opening',
-    [
-      'Up to ten photos, each one described',
-      'Recorded against a local fake API · illustrated pictures',
-    ],
+    ['Up to ten photos, each one described', 'Recorded against a local fake API · demo photos'],
     () => api.signInAs(leah, '/people/me/edit'),
   );
 
@@ -33,7 +30,7 @@ test('manage-profile-photos', async ({ page, api }) => {
     async () => {
       await expect(edit.heading).toBeVisible();
       await edit.photosGroup.scrollIntoViewIfNeeded();
-      await edit.choosePhotos([workshop, sunset]);
+      await edit.choosePhotos([portrait, city]);
       await expect(edit.photoItems).toHaveCount(2);
       await expect(edit.photo(0)).toContainText('Not saved yet');
       await edit.photosGroup.evaluate((group) => group.scrollIntoView({ block: 'center' }));
@@ -50,8 +47,8 @@ test('manage-profile-photos', async ({ page, api }) => {
   await show.step(
     'describe',
     async () => {
-      await typeInto(edit.description(0), SCENE_ALT.workshop);
-      await typeInto(edit.description(1), SCENE_ALT.sunset);
+      await typeInto(edit.description(0), SCENE_ALT['leah-thompson']);
+      await typeInto(edit.description(1), SCENE_ALT.city);
       await edit.save.click();
       await expect(edit.savedToast).toBeVisible();
       await expect(edit.photosGroup.getByText('Featured', { exact: true })).toHaveCount(1);

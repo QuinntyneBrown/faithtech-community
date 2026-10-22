@@ -1,7 +1,7 @@
 # Manage profile photos
 
 ## opening: Opening
-In this video you add, describe, feature and remove photos on your profile. The app is real; the server is a local stand-in, and the pictures are made-up illustrations.
+In this video you add, describe, feature and remove photos on your profile. The app is real; the server is a local stand-in, and the photos are demo photos: a generated portrait and a city skyline.
 
 ## add: Add photos
 On Edit profile, the Photos section holds up to ten photos. You choose Add photos and pick two pictures. They appear straight away, marked Not saved yet.

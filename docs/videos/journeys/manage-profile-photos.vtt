@@ -1,26 +1,26 @@
 WEBVTT
 
-00:00:00.000 --> 00:00:12.000
-In this video you add, describe, feature and remove photos on your profile. The app is real; the server is a local stand-in, and the pictures are made-up illustrations.
+00:00:00.000 --> 00:00:15.000
+In this video you add, describe, feature and remove photos on your profile. The app is real; the server is a local stand-in, and the photos are demo photos: a generated portrait and a city skyline.
 
-00:00:13.000 --> 00:00:24.000
+00:00:15.000 --> 00:00:27.000
 On Edit profile, the Photos section holds up to ten photos. You choose Add photos and pick two pictures. They appear straight away, marked Not saved yet.
 
-00:00:24.000 --> 00:00:36.000
+00:00:27.000 --> 00:00:38.000
 Every photo needs a description, for people using screen readers. If you save without one, nothing is uploaded, and the form points you to the photo to describe.
 
-00:00:36.000 --> 00:00:44.000
+00:00:38.000 --> 00:00:47.000
 You describe each picture in a few words, and save. Both photos upload, and your first photo becomes your featured photo.
 
-00:00:44.000 --> 00:00:52.000
+00:00:47.000 --> 00:00:55.000
 To change which photo leads your profile, you choose Feature on another one. Only one photo is featured at a time.
 
-00:00:52.000 --> 00:01:00.000
+00:00:55.000 --> 00:01:03.000
 To remove a saved photo, you choose Remove. A dialog asks you to confirm, so nothing is deleted by accident.
 
-00:01:00.000 --> 00:01:07.000
+00:01:03.000 --> 00:01:10.000
 On your profile, your featured photo now sits beside your name, with your photos below.
 
-00:01:07.000 --> 00:01:16.000
+00:01:10.000 --> 00:01:19.000
 That is managing photos: up to ten, each one described, one featured, and removed only when you confirm.
 

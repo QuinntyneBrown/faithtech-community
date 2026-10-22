@@ -39,7 +39,7 @@ test('sign-in-and-sign-out', async ({ page, api }) => {
   await show.step('sign-in', async () => {
     await typeInto(signIn.password, account.password);
     await signIn.submit.click();
-    await expect(shell.signOut).toBeVisible();
+    await expect(shell.accountMenu(account.name)).toBeVisible();
   });
 
   await show.step(
@@ -52,7 +52,7 @@ test('sign-in-and-sign-out', async ({ page, api }) => {
   );
 
   await show.step('sign-out', async () => {
-    await shell.signOut.click();
+    await shell.signOut(account.name);
     await expect(signIn.heading).toBeVisible();
     expect(api.callsTo('POST', '/api/account/sign-out')).toHaveLength(1);
   });
