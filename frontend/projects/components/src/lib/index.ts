@@ -20,6 +20,7 @@ export * from './event-card';
 export * from './feed';
 export * from './file-dropzone';
 export * from './file-row';
+export * from './filter-bar';
 export * from './form-error-focus';
 export * from './format';
 export * from './form-field';
