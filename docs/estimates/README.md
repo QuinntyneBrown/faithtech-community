@@ -1,7 +1,7 @@
 # Estimates
 
-- Overall effort: 240 days
-- Complete: 97%
+- Overall effort: 266 days
+- Complete: 88%
 - Visual conformance: letter grade (F to A+) of the implemented UI against the HTML mocks and design system (margins, spacing, fonts, borders), from screenshots in `docs/videos/journeys/<journey>/screenshots/`. Subsystem grades are the rounded mean of their designs. The marketing page and Google sign-in have no journey screenshots yet, so they are not graded (n/a).
 
 | Subsystem | Effort | Complete | Visual conformance |
@@ -11,16 +11,17 @@
 | [profiles](profiles.md) | 13 days | 100% | B- |
 | [admin](admin.md) | 17 days | 99% | B |
 | [invites](invites.md) | 14 days | 100% | A- |
-| [contacts](contacts.md) | 28 days | 100% | B |
-| [partners](partners.md) | 8 days | 100% | B- |
+| [contacts](contacts.md) | 30 days | 93% | B |
+| [partners](partners.md) | 19 days | 42% | B- |
 | [team](team.md) | 2 days | 100% | A- |
-| [events](events.md) | 23 days | 100% | B |
+| [events](events.md) | 29 days | 79% | B |
 | [notifications](notifications.md) | 9 days | 100% | B- |
 | [announcements](announcements.md) | 8 days | 100% | B- |
 | [search](search.md) | 4 days | 90% | B |
 | [agile](agile.md) | 36 days | 99% | B- |
 | [marketing](marketing.md) | 8 days | 95% | n/a |
 | [resources](resources.md) | 23 days | 99% | — |
+| [reports](reports.md) | 7 days | 0% | n/a |
 
 ## Roadmap
 
@@ -33,3 +34,4 @@
 7. contact photos and the person-card grid
 8. marketing page and Google sign-in
 9. resources
+10. Dynamics adoptions: partner activity timeline, duplicate detection and merge, event check-in, reports

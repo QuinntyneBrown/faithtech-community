@@ -4,3 +4,5 @@
 |---|---|---|---|
 | manage-partners | 4 days | 100% | B- |
 | partner-kanban-board | 4 days | 100% | C+ |
+| partner-activity-timeline | 5 days | 0% | Not graded (no journey yet) |
+| duplicate-detection-and-merge | 6 days | 0% | Not graded (no journey yet) |
