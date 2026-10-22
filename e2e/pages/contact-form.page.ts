@@ -11,8 +11,11 @@ export class ContactFormPage {
   readonly firstNote: Locator;
   readonly save: Locator;
   readonly saveAndLink: Locator;
+  readonly saveAsNew: Locator;
   readonly summary: Locator;
   readonly memberAlert: Locator;
+  /** The possible duplicate warning (L2-091). */
+  readonly duplicateAlert: Locator;
   readonly photosGroup: Locator;
   readonly addPhotos: Locator;
   readonly photoItems: Locator;
@@ -29,7 +32,11 @@ export class ContactFormPage {
     this.save = page.getByRole('button', { name: 'Save contact' });
     this.saveAndLink = page.getByRole('button', { name: 'Save and link' });
     this.summary = page.locator('ft-error-summary');
+    this.saveAsNew = page.getByRole('button', { name: 'Save as a new contact' });
     this.memberAlert = page.locator('ft-alert', { hasText: 'is already a member' });
+    this.duplicateAlert = page.getByRole('status').filter({
+      hasText: 'You already have a contact with this email',
+    });
     this.photosGroup = page.getByRole('group', { name: 'Photos' });
     this.addPhotos = this.photosGroup.getByRole('button', { name: 'Add photos' });
     this.photoItems = this.photosGroup.getByRole('listitem');
@@ -65,6 +72,11 @@ export class ContactFormPage {
   /** A note in the photos group, such as a file the browser refused. */
   note(text: string): Locator {
     return this.photosGroup.getByText(text);
+  }
+
+  /** The duplicate warning's "Open {name}" action. */
+  openDuplicate(name: string): Locator {
+    return this.duplicateAlert.getByRole('link', { name: `Open ${name}` });
   }
 
   error(text: string): Locator {

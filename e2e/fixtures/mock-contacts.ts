@@ -64,6 +64,8 @@ export class MockContacts {
   readonly contacts: MockContact[] = [];
   /** When true, uploads are saved as storing (L2-071 AC1). */
   storageDown = false;
+  /** How the duplicate check answers (L2-091 AC7): normally, with a 500, or after 5 seconds. */
+  duplicateCheck: 'ok' | 'fail' | 'slow' = 'ok';
   /** Image requests and whether they carried a caller. */
   readonly imageRequests: { path: string; signedIn: boolean }[] = [];
   private notes = 0;
@@ -125,6 +127,9 @@ export class MockContacts {
     const photoRoute =
       /^\/api\/contacts\/([^/]+)\/photos(?:\/([^/]+))?(?:\/(featured|image))?$/.exec(url.pathname);
     if (photoRoute) return this.photos(route, method, photoRoute, body, caller, url.pathname);
+    // Ahead of the "/api/contacts/{id}" pattern, which would read "duplicates" as an id.
+    if (url.pathname === '/api/contacts/duplicates' && method === 'GET')
+      return this.duplicates(route, url, caller);
     const match = /^\/api\/contacts(?:\/([^/]+))?(?:\/([^/]+))?$/.exec(url.pathname);
     if (!match) return false;
     if (!caller) return route.fulfill({ status: 401 });
@@ -193,6 +198,41 @@ export class MockContacts {
       default:
         return route.fulfill({ status: 405 });
     }
+  }
+
+  /**
+   * FindDuplicateContactHandler: the caller's own contacts only, System Admin included, active or archived,
+   * the email trimmed and compared case-insensitively, the oldest match; 204 for none (L2-091).
+   */
+  private async duplicates(route: Route, url: URL, caller: MockCaller | null) {
+    if (!caller) return route.fulfill({ status: 401 });
+    if (!caller.roles.some((r) => LEAD_ROLES.includes(r) || r === 'SystemAdmin'))
+      return route.fulfill({ status: 403 });
+    if (this.duplicateCheck === 'fail') return route.fulfill({ status: 500 });
+    if (this.duplicateCheck === 'slow') await new Promise((resolve) => setTimeout(resolve, 5000));
+    const email = (url.searchParams.get('email') ?? '').trim().toLowerCase();
+    const excludeId = url.searchParams.get('excludeId');
+    const match = email
+      ? this.contacts
+          .filter(
+            (c) =>
+              c.ownerId === caller.profileId &&
+              c.email?.toLowerCase() === email &&
+              c.id !== excludeId,
+          )
+          .sort((a, b) => a.createdAtUtc.localeCompare(b.createdAtUtc))[0]
+      : undefined;
+    if (!match) return route.fulfill({ status: 204 });
+    const linked = match.linkedProfileId ? this.context.profiles.get(match.linkedProfileId) : null;
+    return this.json(route, 200, {
+      id: match.id,
+      name: linked?.name ?? match.name,
+      organization: match.organization,
+      email: match.email,
+      addedAtUtc: match.createdAtUtc,
+      noteCount: match.notes.length,
+      isArchived: !!match.archivedAtUtc,
+    });
   }
 
   /** ContactsEndpoints' photo routes: 404 for anyone but the owner and System Admin (L2-070). */

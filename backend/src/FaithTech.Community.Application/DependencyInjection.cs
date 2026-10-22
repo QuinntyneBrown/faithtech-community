@@ -65,6 +65,7 @@ public static class DependencyInjection
         services.AddScoped<ContactConnector>();
         services.AddScoped<ContactSignedUpHandler>();
         services.AddScoped<LinkContactHandler>();
+        services.AddScoped<FindDuplicateContactHandler>();
         services.AddScoped<PartnerAccess>();
         services.AddScoped<PartnerViews>();
         services.AddScoped<ManagePartnersHandler>();

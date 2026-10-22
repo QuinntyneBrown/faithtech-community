@@ -3,7 +3,7 @@ import { Injectable, inject } from '@angular/core';
 import { Observable, catchError, map, of, shareReplay, throwError } from 'rxjs';
 
 import { API_BASE_URL } from '../config';
-import { HANDLES_FORBIDDEN } from '../errors';
+import { HANDLES_FORBIDDEN, HANDLES_SERVER_ERROR } from '../errors';
 import { toHttpParams } from '../shared';
 import {
   ContactDto,
@@ -13,6 +13,7 @@ import {
   ContactSummary,
   ContactsService,
   CreateContactRequest,
+  DuplicateContactDto,
 } from './contacts.service';
 
 @Injectable()
@@ -23,6 +24,10 @@ export class HttpContactsService implements ContactsService {
   private readonly images = new Map<string, Observable<string>>();
   // The contacts page shows its own "private to each lead" state for callers without a lead role.
   private readonly context = new HttpContext().set(HANDLES_FORBIDDEN, true);
+  // The duplicate check is advice: the form ignores its failure and saves anyway (L2-091 AC7).
+  private readonly advisory = new HttpContext()
+    .set(HANDLES_FORBIDDEN, true)
+    .set(HANDLES_SERVER_ERROR, true);
 
   list(term?: string): Observable<ContactSummary[]> {
     return this.http.get<ContactSummary[]>(this.base, {
@@ -72,6 +77,16 @@ export class HttpContactsService implements ContactsService {
       profileId,
       discardNotes,
     });
+  }
+
+  findDuplicate(email: string, excludeId?: string): Observable<DuplicateContactDto | null> {
+    return this.http
+      .get<DuplicateContactDto | null>(`${this.base}/duplicates`, {
+        params: toHttpParams({ email, excludeId }),
+        observe: 'response',
+        context: this.advisory,
+      })
+      .pipe(map((response) => (response.status === 204 ? null : response.body)));
   }
 
   uploadPhoto(contactId: string, file: File, altText: string): Observable<ContactPhoto> {

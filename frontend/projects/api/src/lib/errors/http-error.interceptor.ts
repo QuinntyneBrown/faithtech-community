@@ -14,6 +14,12 @@ import { catchError, throwError } from 'rxjs';
 export const HANDLES_FORBIDDEN = new HttpContextToken<boolean>(() => false);
 
 /**
+ * Set on an advisory request whose failure the caller ignores, such as the contact form's duplicate
+ * check (L2-091 AC7), so a 500 does not leave the page for the error page.
+ */
+export const HANDLES_SERVER_ERROR = new HttpContextToken<boolean>(() => false);
+
+/**
  * Routes 403 and 500 to the system pages. Every other status, including 401 (handled by
  * authInterceptor), is left to the calling page. The error is always rethrown.
  */
@@ -24,7 +30,7 @@ export const httpErrorInterceptor: HttpInterceptorFn = (req, next) => {
       if (error instanceof HttpErrorResponse) {
         if (error.status === 403 && !req.context.get(HANDLES_FORBIDDEN)) {
           void router.navigate(['/forbidden']);
-        } else if (error.status === 500) {
+        } else if (error.status === 500 && !req.context.get(HANDLES_SERVER_ERROR)) {
           void router.navigate(['/error'], {
             state: { referenceId: error.headers.get('X-Correlation-ID') },
           });
