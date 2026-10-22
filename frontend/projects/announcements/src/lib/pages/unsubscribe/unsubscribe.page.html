@@ -1,0 +1,33 @@
+<ft-auth-layout>
+  <ft-card>
+    @switch (state()) {
+      @case ('busy') {
+        <ft-stack aria-busy="true">
+          <h1>Unsubscribing…</h1>
+          <p role="status">Turning off announcement emails.</p>
+          <ft-skeleton />
+        </ft-stack>
+      }
+      @case ('done') {
+        <ft-empty-state
+          icon="success"
+          [headingLevel]="1"
+          heading="You’re unsubscribed"
+          text="You won’t get announcement emails any more. You’ll still see announcements in the app, and we’ll still email you about your account, invites and events."
+        >
+          <ft-button actions variant="primary" href="/settings">Open settings</ft-button>
+        </ft-empty-state>
+      }
+      @case ('invalid') {
+        <ft-empty-state
+          variant="error"
+          [headingLevel]="1"
+          heading="This unsubscribe link doesn’t work"
+          text="It may be incomplete or out of date. Sign in and turn off announcement emails in settings instead."
+        >
+          <ft-button actions variant="primary" href="/settings">Sign in to settings</ft-button>
+        </ft-empty-state>
+      }
+    }
+  </ft-card>
+</ft-auth-layout>

@@ -3,6 +3,7 @@ import { ChangeDetectionStrategy, Component, input } from '@angular/core';
 /**
  * One list row: optional leading slot (avatar or icon), a title that is a link when `href` is set,
  * a muted meta line (text through `meta`, or rich content such as role badges through the `[meta]` slot)
+ * an optional message under them through `text` (announcements; line breaks kept)
  * and an optional trailing slot (badge). Slots: `[leading]`, `[meta]`, `[trailing]`.
  * A row whose title is a link tints on hover; focus stays on the title link's ring.
  */
@@ -17,4 +18,5 @@ export class ListItemComponent {
   readonly label = input.required<string>();
   readonly href = input<string | null>(null);
   readonly meta = input<string | null>(null);
+  readonly text = input<string | null>(null);
 }

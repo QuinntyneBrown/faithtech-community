@@ -1,0 +1,29 @@
+<ft-page-header title="Settings" />
+
+@switch (state()) {
+  @case ('loading') {
+    <ft-card class="narrow">
+      <ft-stack role="status" aria-busy="true" aria-label="Loading your settings">
+        <ft-skeleton shape="title" />
+        <ft-skeleton />
+      </ft-stack>
+    </ft-card>
+  }
+  @case ('error') {
+    <ft-empty-state
+      variant="error"
+      heading="We couldn’t load your settings"
+      text="Check your connection and try again."
+    >
+      <ft-button actions variant="primary" (click)="retry()">Try again</ft-button>
+    </ft-empty-state>
+  }
+  @case ('loaded') {
+    <ft-card class="narrow" heading="Email me when" [headingLevel]="2">
+      <ft-stack>
+        <ft-switch [formControl]="announcementEmails">Email me announcements</ft-switch>
+        <p class="caption">You’ll always get account emails like password resets.</p>
+      </ft-stack>
+    </ft-card>
+  }
+}

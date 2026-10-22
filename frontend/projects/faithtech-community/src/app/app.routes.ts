@@ -30,6 +30,11 @@ export const routes: Routes = [
     path: 'accept-invite',
     loadChildren: () => import('@faithtech-community/invites').then((m) => m.ACCEPT_INVITE_ROUTES),
   },
+  {
+    path: 'unsubscribe',
+    loadChildren: () =>
+      import('@faithtech-community/announcements').then((m) => m.UNSUBSCRIBE_ROUTES),
+  },
   { path: 'forbidden', component: ForbiddenPage },
   { path: 'error', component: ServerErrorPage },
   {
@@ -74,7 +79,7 @@ export const routes: Routes = [
       {
         path: 'settings',
         loadChildren: () =>
-          import('@faithtech-community/notifications').then((m) => m.SETTINGS_ROUTES),
+          import('@faithtech-community/announcements').then((m) => m.SETTINGS_ROUTES),
       },
       {
         path: 'announcements',

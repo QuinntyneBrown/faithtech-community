@@ -12,10 +12,12 @@ import { ListItemComponent } from './list-item.component';
     </ft-list-item>
     <ft-list-item label="nate@example.org" />
     <ft-list-item label="Grace Okonkwo"><span meta class="role">City Lead</span></ft-list-item>
+    <ft-list-item label="Builders Night moves" meta="To Everyone" [text]="message" />
   </ft-list>`,
 })
 class HostComponent {
   flush = signal(true);
+  message = 'Same time, new place.\nDoors open at 6:30.';
 }
 
 function setup() {
@@ -31,7 +33,7 @@ describe('ListComponent', () => {
     expect(list.getAttribute('role')).toBe('list');
     expect(list.getAttribute('aria-label')).toBe('Contacts');
     const items = el.querySelectorAll('ft-list-item');
-    expect(items.length).toBe(3);
+    expect(items.length).toBe(4);
     expect(items[0].getAttribute('role')).toBe('listitem');
   });
 
@@ -82,5 +84,14 @@ describe('ListItemComponent', () => {
     const item = el.querySelectorAll('ft-list-item')[1];
     expect(item.querySelector('.ft-list-item__meta:not(.ft-list-item__meta-slot)')).toBeNull();
     expect(item.querySelector('.ft-list-item__meta-slot')?.childNodes.length).toBe(0);
+  });
+
+  it('shows a message under the title and meta when given text, and nothing otherwise', () => {
+    const { el } = setup();
+    const items = el.querySelectorAll('ft-list-item');
+    const text = items[3].querySelector('.ft-list-item__text')!;
+    expect(text.tagName).toBe('P');
+    expect(text.textContent).toBe('Same time, new place.\nDoors open at 6:30.');
+    expect(items[0].querySelector('.ft-list-item__text')).toBeNull();
   });
 });

@@ -9,5 +9,8 @@
     <div class="ft-list-item__meta">{{ m }}</div>
   }
   <div class="ft-list-item__meta ft-list-item__meta-slot"><ng-content select="[meta]" /></div>
+  @if (text(); as t) {
+    <p class="ft-list-item__text">{{ t }}</p>
+  }
 </div>
 <span class="ft-list-item__trailing"><ng-content select="[trailing]" /></span>
