@@ -2,6 +2,7 @@ using FaithTech.Community.Api.Authentication;
 using FaithTech.Community.Api.Endpoints;
 using FaithTech.Community.Api.Hubs;
 using FaithTech.Community.Api.Middleware;
+using FaithTech.Community.Api.Middleware.PrivatePreview;
 using FaithTech.Community.Application;
 using FaithTech.Community.Application.Agile;
 using FaithTech.Community.Infrastructure;
@@ -32,6 +33,7 @@ builder.Services.AddOptions<FaithTech.Community.Application.Common.WebAppOptions
 builder.Services.AddInfrastructure(builder.Configuration);
 builder.Services.AddCommunityAuthentication(builder.Configuration, builder.Environment);
 builder.Services.AddWebProtections(builder.Configuration);
+builder.Services.AddPrivatePreview(builder.Configuration);
 builder.Services.AddSignalR();
 builder.Services.AddScoped<SignalRAgileNotifier>();
 builder.Services.AddScoped<IBoardNotifier>(sp => sp.GetRequiredService<SignalRAgileNotifier>());
@@ -48,6 +50,8 @@ app.UseSerilogRequestLogging(options =>
     // This host's logger rather than the static one, which another host in the process may have replaced.
     options.Logger = app.Services.GetRequiredService<Serilog.ILogger>();
 });
+// The wall sits before the exception handler, status code pages and routing, so a locked request reaches nothing.
+app.UsePrivatePreview();
 app.UseExceptionHandler();
 app.UseStatusCodePages();
 app.UseCors(WebProtectionSetup.WebAppCorsPolicy);

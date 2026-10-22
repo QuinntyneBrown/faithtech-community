@@ -1,0 +1,114 @@
+<!doctype html>
+<html lang="en" data-accent="neutral">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<meta name="color-scheme" content="light dark">
+<title>Private preview</title>
+<link rel="icon" href="data:,">
+<style nonce="{{nonce}}">
+:root {
+  --palette-white: #ffffff; --palette-gray-25: #fbfbfc; --palette-gray-50: #f6f7f9; --palette-gray-100: #eef0f3;
+  --palette-gray-150: #e9ecf1; --palette-gray-200: #dfe3e8; --palette-gray-350: #b3bac5; --palette-gray-475: #8d97a5;
+  --palette-gray-500: #677080; --palette-gray-600: #5e6675; --palette-gray-700: #444b58; --palette-gray-750: #2f3640;
+  --palette-gray-800: #2c323c; --palette-gray-900: #1a1e26; --palette-gray-950: #0f1216;
+  --palette-red-50: #fdecec; --palette-red-300: #f59b96; --palette-red-500: #d93a30; --palette-red-600: #c42c22;
+  --palette-red-700: #a0221b; --palette-red-950: #3a110d;
+  --palette-amber-50: #fff6e5; --palette-amber-300: #f7c15c; --palette-amber-500: #b26f00; --palette-amber-700: #8a5300;
+  --palette-amber-950: #2e1d05;
+  --color-bg-canvas: var(--palette-gray-50); --color-bg-surface: var(--palette-white);
+  --color-fg-default: var(--palette-gray-900); --color-fg-muted: var(--palette-gray-600);
+  --color-border-default: var(--palette-gray-200); --color-border-strong: var(--palette-gray-500);
+  --color-accent: var(--palette-gray-900); --color-accent-hover: var(--palette-gray-800); --color-accent-active: var(--palette-gray-700);
+  --color-fg-on-accent: var(--palette-white); --color-focus-ring: var(--palette-gray-900);
+  --color-danger-bg: var(--palette-red-50); --color-danger-fg: var(--palette-red-700); --color-danger-border: var(--palette-red-300);
+  --color-danger-icon: var(--palette-red-500); --color-danger-solid: var(--palette-red-600);
+  --color-warning-bg: var(--palette-amber-50); --color-warning-fg: var(--palette-amber-700); --color-warning-border: var(--palette-amber-300);
+  --color-warning-icon: var(--palette-amber-500);
+  --shadow-color: 20 25 35; --shadow-1: 0 1px 2px rgb(var(--shadow-color) / 0.08);
+  --font-family-sans: ui-rounded, "SF Pro Rounded", "Nunito", "Segoe UI", system-ui, -apple-system, Roboto, "Helvetica Neue", Arial, sans-serif;
+  --text-h1: 700 2.25rem / 1.2 var(--font-family-sans); --text-body: 400 1rem / 1.5 var(--font-family-sans);
+  --text-body-sm: 400 0.875rem / 1.5 var(--font-family-sans); --text-label: 500 0.875rem / 1.5 var(--font-family-sans);
+  --space-1: 0.25rem; --space-2: 0.5rem; --space-3: 0.75rem; --space-4: 1rem; --space-6: 1.5rem; --space-24: 6rem;
+  --layout-margin: var(--space-4); --radius-md: 0.75rem; --radius-lg: 1.5rem; --radius-full: 9999px;
+  --border-width-hairline: 1px; --focus-ring-width: 2px; --control-height-md: 2.75rem; --control-height-lg: 3.25rem;
+  --duration-fast: 120ms; --ease-standard: cubic-bezier(0.2, 0, 0, 1);
+  color-scheme: light;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --color-bg-canvas: var(--palette-gray-950); --color-bg-surface: var(--palette-gray-900);
+    --color-fg-default: var(--palette-gray-150); --color-fg-muted: var(--palette-gray-350);
+    --color-border-default: var(--palette-gray-750); --color-border-strong: var(--palette-gray-475);
+    --color-accent: var(--palette-gray-150); --color-accent-hover: var(--palette-gray-100); --color-accent-active: var(--palette-gray-25);
+    --color-fg-on-accent: var(--palette-gray-900); --color-focus-ring: var(--palette-gray-150);
+    --color-danger-bg: var(--palette-red-950); --color-danger-fg: var(--palette-red-300); --color-danger-border: var(--palette-red-700);
+    --color-danger-icon: var(--palette-red-300); --color-danger-solid: var(--palette-red-300);
+    --color-warning-bg: var(--palette-amber-950); --color-warning-fg: var(--palette-amber-300); --color-warning-border: var(--palette-amber-700);
+    --color-warning-icon: var(--palette-amber-300);
+    --shadow-color: 0 0 0; --shadow-1: 0 1px 2px rgb(var(--shadow-color) / 0.4);
+    color-scheme: dark;
+  }
+}
+@media (min-width: 48rem) { :root { --layout-margin: 2rem; } }
+*, *::before, *::after { box-sizing: border-box; }
+body { margin: 0; min-height: 100dvh; font: var(--text-body); color: var(--color-fg-default); background: var(--color-bg-canvas); -webkit-font-smoothing: antialiased; }
+h1, p { margin: 0; }
+h1 { font: var(--text-h1); letter-spacing: -0.01em; text-wrap: balance; }
+.skip-link { position: absolute; left: var(--space-4); top: calc(-1 * var(--space-24)); padding: var(--space-2) var(--space-4); background: var(--color-bg-surface); color: var(--color-fg-default); border-radius: var(--radius-md); }
+.skip-link:focus-visible { top: var(--space-4); outline: var(--focus-ring-width) solid var(--color-focus-ring); }
+.auth-layout { min-height: 100dvh; display: grid; place-items: center; padding: var(--space-6) var(--layout-margin); }
+.card { width: 100%; max-width: 26rem; background: var(--color-bg-surface); border: var(--border-width-hairline) solid var(--color-border-default); border-radius: var(--radius-lg); box-shadow: var(--shadow-1); padding: var(--space-6); }
+.stack { display: flex; flex-direction: column; gap: var(--space-4); }
+.text-center { text-align: center; }
+.field { display: flex; flex-direction: column; gap: var(--space-1); }
+.field__label { font: var(--text-label); color: var(--color-fg-default); }
+.field__error { font: var(--text-body-sm); color: var(--color-danger-fg); display: flex; gap: var(--space-1); }
+.field__error::before { content: "\26A0"; flex: none; }
+.input { width: 100%; min-height: var(--control-height-md); padding: var(--space-2) var(--space-3); font: var(--text-body); color: var(--color-fg-default); background: var(--color-bg-surface); border: var(--border-width-hairline) solid var(--color-border-strong); border-radius: var(--radius-md); }
+.input:hover { border-color: var(--color-fg-muted); }
+.input:focus-visible { outline: var(--focus-ring-width) solid var(--color-focus-ring); outline-offset: 0; border-color: var(--color-focus-ring); }
+.input[aria-invalid="true"] { border-color: var(--color-danger-solid); box-shadow: inset 0 0 0 var(--border-width-hairline) var(--color-danger-solid); }
+.alert { display: flex; gap: var(--space-3); padding: var(--space-4); border: var(--border-width-hairline) solid var(--alert-border); border-left-width: var(--space-1); border-radius: var(--radius-md); background: var(--alert-bg); color: var(--alert-fg); }
+.alert--warning { --alert-bg: var(--color-warning-bg); --alert-fg: var(--color-warning-fg); --alert-border: var(--color-warning-border); --alert-icon: var(--color-warning-icon); }
+.alert--danger { --alert-bg: var(--color-danger-bg); --alert-fg: var(--color-danger-fg); --alert-border: var(--color-danger-border); --alert-icon: var(--color-danger-icon); }
+.alert .icon { width: 1.25rem; height: 1.25rem; flex: none; margin-top: 0.125rem; fill: none; stroke: var(--alert-icon); stroke-width: 2; stroke-linecap: round; }
+.alert__body { flex: 1; display: flex; flex-direction: column; gap: var(--space-1); }
+.alert__title { font: var(--text-label); }
+.btn { display: flex; width: 100%; align-items: center; justify-content: center; min-height: var(--control-height-lg); padding: 0 var(--space-6); font: var(--text-label); font-size: 1.125rem; line-height: 1; color: var(--color-fg-on-accent); background: var(--color-accent); border: var(--border-width-hairline) solid var(--color-accent); border-radius: var(--radius-full); cursor: pointer; transition: background-color var(--duration-fast) var(--ease-standard); }
+.btn:hover { background: var(--color-accent-hover); box-shadow: var(--shadow-1); }
+.btn:active { background: var(--color-accent-active); }
+.btn:focus-visible { outline: var(--focus-ring-width) solid var(--color-focus-ring); outline-offset: 2px; }
+.btn[aria-disabled="true"] { opacity: 0.5; cursor: not-allowed; }
+@media (prefers-reduced-motion: reduce) { .btn { transition: none; } }
+</style>
+</head>
+<body>
+<a class="skip-link" href="#main">Skip to content</a>
+<main id="main" class="auth-layout">
+  <div class="card stack">
+    <h1 class="text-center">Private preview</h1>
+    <p class="text-center">This site is not open yet. Enter the passphrase to continue.</p>
+    <form class="stack" method="post" action="/__wall/unlock" novalidate>
+      {{alert}}
+      <input type="hidden" name="csrf" value="{{csrf}}">
+      <input type="hidden" name="returnUrl" value="{{returnUrl}}">
+      <div class="field">
+        <label class="field__label" for="passphrase">Passphrase</label>
+        <input class="input" id="passphrase" name="passphrase" type="password" autocomplete="current-password" required{{fieldAttributes}}>
+        {{fieldError}}
+      </div>
+      <button class="btn" type="submit">Unlock</button>
+    </form>
+  </div>
+</main>
+<script nonce="{{nonce}}">
+document.querySelector('form').addEventListener('submit', function (event) {
+  var button = event.target.querySelector('button');
+  if (button.getAttribute('aria-busy') === 'true') { event.preventDefault(); return; }
+  button.setAttribute('aria-busy', 'true'); button.setAttribute('aria-disabled', 'true'); button.textContent = 'Checking…';
+});
+</script>
+</body>
+</html>
