@@ -29,3 +29,34 @@
 ft-page-links {
   margin-block-start: var(--space-8);
 }
+
+ft-banner {
+  display: block;
+  margin-block-end: var(--space-4);
+}
+
+.page-icon {
+  display: inline-grid;
+  place-items: center;
+  min-inline-size: var(--target-comfortable);
+  min-block-size: var(--target-comfortable);
+  margin-block-end: var(--space-2);
+  padding: 0;
+  border: 0;
+  border-radius: var(--radius-md);
+  background: none;
+  font-size: var(--font-size-4xl);
+  line-height: 1;
+}
+
+button.page-icon {
+  cursor: pointer;
+
+  &:hover {
+    background: var(--color-bg-subtle);
+  }
+
+  &:focus-visible {
+    outline: var(--focus-ring-width) solid var(--color-focus-ring);
+  }
+}

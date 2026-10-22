@@ -13,6 +13,7 @@ export * from './chip';
 export * from './connectivity';
 export * from './description-list';
 export * from './dialog';
+export * from './emoji-picker';
 export * from './empty-state';
 export * from './error-page';
 export * from './estimate-card';

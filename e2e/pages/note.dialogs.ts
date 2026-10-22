@@ -52,3 +52,65 @@ export class MoveNoteDialog {
     return this.dialog.getByRole('radio', { name: new RegExp(`^${title}`) });
   }
 }
+
+/** "Share {title}" (docs/mocks/dialogs/share-note). */
+export class ShareNoteDialog {
+  readonly dialog: Locator;
+  readonly people: Locator;
+  readonly peopleSuggestions: Locator;
+  readonly save: Locator;
+
+  constructor(page: Page, title: string) {
+    this.dialog = page.getByRole('dialog', { name: `Share ${title}` });
+    this.people = this.dialog.getByRole('combobox', { name: 'People' });
+    this.peopleSuggestions = this.dialog.getByRole('listbox', { name: 'Members' });
+    this.save = this.dialog.getByRole('button', { name: 'Save', exact: true });
+  }
+
+  visibility(name: 'Private' | 'Shared' | 'Global'): Locator {
+    return this.dialog.getByRole('radio', { name: new RegExp(`^${name}`) });
+  }
+
+  role(name: string): Locator {
+    return this.dialog
+      .getByRole('group', { name: 'Roles' })
+      .getByRole('checkbox', { name, exact: true });
+  }
+
+  async sharePerson(query: string, name: string): Promise<void> {
+    await this.people.fill(query);
+    await this.peopleSuggestions.getByRole('option', { name: new RegExp(name) }).click();
+  }
+}
+
+/** "Page settings" (docs/mocks/dialogs/note-settings). */
+export class PageSettingsDialog {
+  readonly dialog: Locator;
+  readonly title: Locator;
+  readonly save: Locator;
+
+  constructor(page: Page) {
+    this.dialog = page.getByRole('dialog', { name: 'Page settings' });
+    this.title = this.dialog.getByRole('textbox', { name: 'Title' });
+    this.save = this.dialog.getByRole('button', { name: 'Save', exact: true });
+  }
+
+  icon(name: string): Locator {
+    return this.dialog.getByRole('radio', { name, exact: true });
+  }
+}
+
+/** "Change icon" for a callout. */
+export class IconDialog {
+  readonly dialog: Locator;
+  readonly save: Locator;
+
+  constructor(page: Page) {
+    this.dialog = page.getByRole('dialog', { name: 'Change icon' });
+    this.save = this.dialog.getByRole('button', { name: 'Save', exact: true });
+  }
+
+  icon(name: string): Locator {
+    return this.dialog.getByRole('radio', { name, exact: true });
+  }
+}

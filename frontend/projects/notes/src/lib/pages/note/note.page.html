@@ -49,10 +49,25 @@
         <div class="toolbar">
           <ft-save-status [state]="autosave.state()" (retry)="autosave.retry()" />
           <span class="spacer"></span>
+          <ft-button (click)="share()"><ft-icon name="shared" /> Share</ft-button>
           <ft-menu label="More actions" [entries]="actions()" (itemSelected)="act($event)">
             <ft-icon name="more" />
           </ft-menu>
         </div>
+      }
+      @if (icon(); as glyph) {
+        @if (editable()) {
+          <button
+            type="button"
+            class="page-icon"
+            [attr.aria-label]="'Change the icon, now ' + glyph"
+            (click)="settings()"
+          >
+            {{ glyph }}
+          </button>
+        } @else {
+          <span class="page-icon" aria-hidden="true">{{ glyph }}</span>
+        }
       }
       <ft-page-title
         [value]="title()"
@@ -61,6 +76,18 @@
         (submitted)="toFirstBlock()"
       />
     </header>
+    @if (p.isOwn && p.visibility === 'Private') {
+      <ft-banner status="info" heading="Private">
+        Only you can see this. System Admin can too, and every time they open it, it’s recorded in
+        the audit log.
+      </ft-banner>
+    } @else if (sharedBanner(); as text) {
+      <ft-banner status="info" heading="Shared with you">{{ text }}</ft-banner>
+    } @else if (!p.isOwn && !p.canEdit) {
+      <ft-banner status="info" heading="Read only"
+        >Only {{ p.ownerName }} can change this page.</ft-banner
+      >
+    }
     <ft-block-editor
       [blocks]="loadedBlocks()"
       [readonly]="!editable()"
@@ -70,6 +97,7 @@
       (refused)="refused($event)"
       (blockRequested)="request($event)"
       (linkRequested)="link($event)"
+      (blockEditRequested)="editBlock($event)"
     />
     @if (editable() || p.children.length) {
       <ft-page-links heading="Pages inside" [pages]="p.children" emptyText="No pages inside yet.">

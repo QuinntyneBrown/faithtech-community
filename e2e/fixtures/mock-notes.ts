@@ -57,6 +57,15 @@ export interface NotesContext {
 const PAGE_SIZE = 25;
 const DAY = 24 * 60 * 60 * 1000;
 const MAX_TITLE = 200;
+const SHAREABLE = [
+  'CityLead',
+  'EventLead',
+  'CreateLead',
+  'CommunicationsLead',
+  'Volunteer',
+  'ProductEngineer',
+  'Staff',
+];
 const TYPES = [
   'paragraph',
   'heading1',
@@ -123,6 +132,7 @@ export class MockNotes {
       if (method === 'POST') return this.create(route, caller, body);
     }
     if (method === 'GET' && id === 'links') return this.suggestions(route, url, caller);
+    if (method === 'GET' && id === 'members') return this.members(route, url);
 
     const note = this.find(id, caller);
     if (!note) return route.fulfill({ status: 404 });
@@ -132,6 +142,10 @@ export class MockNotes {
     if (method === 'PUT' && !match[2]) {
       if (!canChange) return route.fulfill({ status: 403 });
       return this.save(route, note, caller, body);
+    }
+    if (method === 'PUT' && match[2] === 'visibility') {
+      if (!canChange) return route.fulfill({ status: 403 });
+      return this.share(route, note, caller, body);
     }
     if (method === 'GET' && match[2] === 'parent-options')
       return this.json(route, 200, this.parentOptions(note, url));
@@ -261,6 +275,59 @@ export class MockNotes {
     }
     n.parentId = parentId;
     return this.json(route, 200, this.dto(n, caller));
+  }
+
+  /** Share (L2-093): the visibility and audience, and a notification for each new recipient. */
+  private share(route: Route, n: MockNote, caller: MockAccount, body: Record<string, unknown>) {
+    const visibility = body['visibility'] as MockNoteVisibility;
+    if (!['Private', 'Shared', 'Global'].includes(visibility))
+      return this.invalid(route, { Visibility: ['Choose who can see it.'] });
+    const memberIds = visibility === 'Shared' ? ((body['memberIds'] as string[]) ?? []) : [];
+    const roles = visibility === 'Shared' ? ((body['roles'] as string[]) ?? []) : [];
+    if (roles.some((r) => !SHAREABLE.includes(r)))
+      return this.invalid(route, { Roles: ['Choose roles from the list.'] });
+    if (visibility === 'Shared' && memberIds.length === 0 && roles.length === 0)
+      return this.invalid(route, {
+        Visibility: ['Choose at least one person or role, or pick another visibility.'],
+      });
+    const reached = this.recipients(n);
+    Object.assign(n, { visibility, memberIds, roles });
+    const owner = this.name(n.ownerId);
+    for (const recipient of this.recipients(n).filter((id) => !reached.includes(id))) {
+      this.context.notifications.add({
+        recipientId: recipient,
+        kind: 'NotePageShared',
+        title: `${owner} shared ${n.title || 'Untitled'} with you`,
+        linkPath: `/notes/${n.id}`,
+        actorId: caller.profileId,
+        actorName: caller.name,
+      });
+    }
+    return this.json(route, 200, this.dto(n, caller));
+  }
+
+  /** Named members and current holders of named roles, without the owner and suspended members. */
+  private recipients(n: MockNote): string[] {
+    if (n.visibility !== 'Shared') return [];
+    return [...this.context.accounts.values()]
+      .filter((a) => !a.suspended && a.profileId !== n.ownerId)
+      .filter((a) => n.memberIds.includes(a.profileId) || a.roles.some((r) => n.roles.includes(r)))
+      .map((a) => a.profileId);
+  }
+
+  private members(route: Route, url: URL) {
+    const q = (url.searchParams.get('q') ?? '').toLowerCase();
+    const people = [...this.context.accounts.values()]
+      .filter((a) => !a.suspended && a.name.toLowerCase().includes(q))
+      .sort((a, b) => a.name.localeCompare(b.name))
+      .slice(0, 10)
+      .map((a) => ({
+        id: a.profileId,
+        name: a.name,
+        city: this.context.profiles.get(a.profileId)?.homeCity ?? null,
+        roles: [...a.roles].sort(),
+      }));
+    return this.json(route, 200, people);
   }
 
   private descendants(id: string): Set<string> {

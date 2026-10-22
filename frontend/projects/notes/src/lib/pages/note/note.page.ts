@@ -10,8 +10,16 @@ import {
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, Router } from '@angular/router';
-import { NOTES_SERVICE, NoteBlock, NotePageDto, NotePageRef } from '@faithtech-community/api';
 import {
+  NOTES_SERVICE,
+  NoteBlock,
+  NotePageDto,
+  NotePageRef,
+  ROLE_LABELS,
+  Role,
+} from '@faithtech-community/api';
+import {
+  BannerComponent,
   BlockEditorComponent,
   BlockRequest,
   LinkRequest,
@@ -41,8 +49,12 @@ import {
   AddLinkDialog,
   LinkCard,
   LinkChoice,
+  ChangeIconDialog,
   MoveNoteDialog,
+  NoteSettingsDialog,
+  PageSettings,
   MoveResult,
+  ShareNoteDialog,
 } from '../../dialogs';
 import { NoteAutosave } from '../../note-autosave';
 import { titleOf } from '../../note-format';
@@ -53,6 +65,7 @@ type State = 'loading' | 'loaded' | 'missing' | 'error';
 @Component({
   selector: 'ft-note-page',
   imports: [
+    BannerComponent,
     BlockEditorComponent,
     BreadcrumbComponent,
     BreadcrumbItemComponent,
@@ -88,9 +101,20 @@ export class NotePage {
   protected autosave: NoteAutosave | null = null;
   protected readonly creating = signal(false);
   protected readonly actions = computed<MenuEntry[]>(() => [
+    { kind: 'item', id: 'settings', label: 'Page settings', icon: 'settings' },
     { kind: 'item', id: 'inside', label: 'New page inside', icon: 'add' },
     { kind: 'item', id: 'move', label: 'Move', icon: 'move' },
   ]);
+  /** What a recipient of a Shared page is told (L2-092 AC7). */
+  protected readonly sharedBanner = computed(() => {
+    const p = this.page();
+    if (!p?.sharedVia) return null;
+    const via =
+      p.sharedVia === 'you'
+        ? 'you'
+        : `everyone who has the ${ROLE_LABELS[p.sharedVia as Role] ?? p.sharedVia} role`;
+    return `${p.ownerName} shared this with ${via}. You can read it, but only ${p.ownerName} can change it.`;
+  });
   /** Pages the viewer may open by id: the API's link targets plus every "[[" suggestion seen since. */
   private readonly known = new Map<string, NotePageRef>();
   /** How a page link shows: the target's title and icon, or "Private page" (L2-090 AC2, AC3). */
@@ -153,9 +177,53 @@ export class NotePage {
       });
   }
 
+  /** Who can see the page (L2-093). */
+  protected share(): void {
+    const page = this.page()!;
+    this.dialogs
+      .open<NotePageDto>(ShareNoteDialog, { data: { ...page, title: this.title() } })
+      .closed.subscribe((shared) => {
+        if (!shared) return;
+        this.page.set({ ...page, visibility: shared.visibility, audience: shared.audience });
+        this.toasts.show({
+          variant: 'success',
+          heading: `Sharing updated for ${titleOf({ title: this.title() })}`,
+          text:
+            shared.visibility === 'Private'
+              ? 'Only you can see it now.'
+              : shared.visibility === 'Global'
+                ? 'Every signed-in member can find it now.'
+                : 'The people you chose can read it now.',
+        });
+      });
+  }
+
   protected act(id: string): void {
+    if (id === 'settings') this.settings();
     if (id === 'inside') void this.newPageInside();
     if (id === 'move') this.move();
+  }
+
+  /** The title and icon, saved through autosave (L2-086 AC3). */
+  protected settings(): void {
+    this.dialogs
+      .open<PageSettings>(NoteSettingsDialog, { data: { title: this.title(), icon: this.icon() } })
+      .closed.subscribe((settings) => {
+        if (!settings) return;
+        this.title.set(settings.title);
+        this.icon.set(settings.icon);
+        this.autosave?.changed();
+      });
+  }
+
+  /** A callout's Change icon from its block menu (L2-087 AC6). */
+  protected editBlock({ index, block }: { index: number; block: EditorBlock }): void {
+    if (block.type !== 'callout') return;
+    this.dialogs
+      .open<string>(ChangeIconDialog, { data: block.icon ?? '💡' })
+      .closed.subscribe((icon) => {
+        if (icon) this.editor()?.update(index, { ...block, icon });
+      });
   }
 
   /** Creates a page inside this one and opens it (L2-085 AC7). */

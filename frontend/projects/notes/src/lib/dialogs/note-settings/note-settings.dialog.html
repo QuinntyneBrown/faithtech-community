@@ -1,0 +1,12 @@
+<ft-dialog heading="Page settings" icon="settings" (closed)="ref.close()">
+  <ft-form-field
+    label="Title"
+    help="Leave it empty and the page shows as “Untitled”."
+    [error]="error()"
+  >
+    <ft-text-field [formControl]="title" />
+  </ft-form-field>
+  <ft-emoji-picker legend="Icon" [formControl]="icon" />
+  <ft-button ftDialogFooter (click)="ref.close()">Cancel</ft-button>
+  <ft-button ftDialogFooter variant="primary" (click)="save()">Save</ft-button>
+</ft-dialog>

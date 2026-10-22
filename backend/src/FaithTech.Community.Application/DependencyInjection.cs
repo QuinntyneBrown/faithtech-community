@@ -123,6 +123,9 @@ public static class DependencyInjection
         services.AddScoped<GetNoteHandler>();
         services.AddScoped<SaveNoteHandler>();
         services.AddScoped<NoteRefs>();
+        services.AddScoped<ShareNoteHandler>();
+        services.AddScoped<NoteShareNotifier>();
+        services.AddScoped<NoteMembersHandler>();
         services.AddScoped<MoveNoteHandler>();
         services.AddScoped<ParentOptionsHandler>();
         services.AddScoped<LinkSuggestionsHandler>();

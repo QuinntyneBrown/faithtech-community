@@ -18,6 +18,8 @@ export class NotePage {
   readonly pagesInside: Locator;
   readonly newPageInside: Locator;
   readonly moreActions: Locator;
+  readonly share: Locator;
+  readonly icon: Locator;
   readonly slashOptions: Locator;
   readonly saveStatus: Locator;
   readonly banner: Locator;
@@ -38,6 +40,8 @@ export class NotePage {
     this.linkedFrom = page.getByRole('region', { name: 'Linked from' });
     this.pagesInside = page.getByRole('region', { name: 'Pages inside' });
     this.newPageInside = page.getByRole('button', { name: 'New page inside' });
+    this.icon = page.locator('.page-icon');
+    this.share = page.getByRole('button', { name: 'Share', exact: true });
     this.moreActions = page.getByRole('button', { name: 'More actions' });
     this.announcement = page.locator('[data-move-announcement]');
     this.toolbar = page.getByRole('toolbar', { name: 'Formatting' });

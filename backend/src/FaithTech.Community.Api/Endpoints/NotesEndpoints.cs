@@ -27,6 +27,15 @@ public static class NotesEndpoints
         notes.MapGet("/links", async (string? q, Guid? exclude, LinkSuggestionsHandler handler, CancellationToken cancellationToken) =>
             Results.Ok(await handler.HandleAsync(q, exclude, cancellationToken)));
 
+        notes.MapGet("/members", async (string? q, NoteMembersHandler handler, CancellationToken cancellationToken) =>
+            Results.Ok(await handler.HandleAsync(q, cancellationToken)));
+
+        notes.MapPut("/{id:guid}/visibility", async (Guid id, ShareNoteCommand command, ShareNoteHandler handler, CancellationToken cancellationToken) =>
+        {
+            var (result, page) = await handler.HandleAsync(id, command, cancellationToken);
+            return result.ToHttp(() => Results.Ok(page));
+        });
+
         notes.MapGet("/{id:guid}/parent-options", async (Guid id, string? q, ParentOptionsHandler handler, CancellationToken cancellationToken) =>
             await handler.HandleAsync(id, q, cancellationToken) is { } options ? Results.Ok(options) : Results.NotFound());
 
