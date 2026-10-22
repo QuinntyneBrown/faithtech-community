@@ -20,6 +20,7 @@ export type EventType = 'Gathering' | 'BuildersNight' | 'Hackathon' | 'PrayerAnd
 export type EventFormat = 'InPerson' | 'Online';
 export type EventVisibility = 'MembersOnly' | 'Public';
 
+/** The event form's fields, for create and edit (L2-020). */
 export interface EventRequest {
   title: string;
   description: string;
@@ -30,6 +31,8 @@ export interface EventRequest {
   format: EventFormat;
   venue: string | null;
   onlineLink: string | null;
+  /** Null for no limit. */
+  capacity: number | null;
   visibility: EventVisibility;
 }
 
@@ -61,13 +64,24 @@ export interface RsvpDto {
   isGuest: boolean;
 }
 
+/** One event as its page and the edit form show it, with whether the caller may manage it. */
 export interface EventDetailDto {
   id: string;
   title: string;
+  description: string;
+  type: EventType;
+  startsAt: string;
+  endsAt: string;
+  city: string;
+  format: EventFormat;
+  venue: string | null;
+  onlineLink: string | null;
+  capacity: number | null;
+  visibility: EventVisibility;
   rsvpCount: number;
-  callerHasRsvp: boolean;
-  /** Null for attendees; the full list is for leads. */
-  rsvps: RsvpDto[] | null;
+  isCancelled: boolean;
+  cancellationReason: string | null;
+  canManage: boolean;
 }
 
 export interface PublicEventDto {
@@ -96,8 +110,7 @@ export interface EventFilter {
 
 /**
  * Contract for the events API. Pages depend on EVENTS_SERVICE, never on HttpEventsService.
- * TODO(slice): the designs' DTOs are thin (EventDetailDto lacks description, dates, venue); L2 adds capacity,
- * upcoming/past/hackathon/online filters, richer event types, RSVP CSV export and guest cancel links.
+ * TODO(slice): RSVP lists, RSVP CSV export and guest cancel links join with the rsvp and public-event slices.
  * TODO(slice): the members-only .ics link carries no bearer token; it may need a blob fetch or signed URL.
  */
 export interface EventsService {
@@ -118,6 +131,15 @@ export interface EventsService {
   /** Download url for the browser to open directly; no request is made. */
   calendarUrl(id: string, options?: { isPublic?: boolean }): string;
 }
+
+/** The event types in the form's order, with the words people read (L2-020 AC1). */
+export const EVENT_TYPE_LABELS: Record<EventType, string> = {
+  Gathering: 'Gathering',
+  BuildersNight: 'Builders night',
+  Hackathon: 'Hackathon',
+  PrayerAndPlanning: 'Prayer & planning',
+  Panel: 'Panel',
+};
 
 const EVENT_MANAGERS: readonly Role[] = ['EventLead', 'CityLead', 'SystemAdmin'];
 

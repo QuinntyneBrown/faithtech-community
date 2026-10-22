@@ -28,6 +28,7 @@ const event: EventRequest = {
   format: 'InPerson',
   venue: 'HQ',
   onlineLink: null,
+  capacity: 60,
   visibility: 'MembersOnly',
 };
 

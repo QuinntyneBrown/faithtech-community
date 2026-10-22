@@ -1,6 +1,132 @@
-<!--
-  SCAFFOLD: placeholder, not the implementation.
-  Generated from AGENTS.md and:
-    - docs/detailed-designs/events/create-and-edit-events
-  Overwrite this template with the expected implementation, then delete this comment.
--->
+<ft-breadcrumb>
+  <ft-breadcrumb-item href="/events">Events</ft-breadcrumb-item>
+  @if (editing() && event(); as e) {
+    <ft-breadcrumb-item [href]="'/events/' + e.id">{{ e.title }}</ft-breadcrumb-item>
+  }
+  <ft-breadcrumb-item>{{ heading() }}</ft-breadcrumb-item>
+</ft-breadcrumb>
+<ft-page-header [title]="heading()" />
+
+@switch (state()) {
+  @case ('loading') {
+    <ft-stack width="lg">
+      <div role="status" aria-busy="true" aria-label="Loading event">
+        <ft-stack>
+          @for (card of [1, 2, 3]; track card) {
+            <ft-card>
+              <ft-stack>
+                <ft-skeleton shape="title" />
+                <ft-skeleton />
+                <ft-skeleton />
+              </ft-stack>
+            </ft-card>
+          }
+        </ft-stack>
+      </div>
+    </ft-stack>
+  }
+  @case ('error') {
+    <ft-empty-state
+      variant="error"
+      heading="We couldn’t load this event"
+      text="It may have been removed, or the connection dropped. Try again."
+    >
+      <ft-button actions variant="primary" (click)="retry()">Try again</ft-button>
+      <ft-button actions href="/events">Back to events</ft-button>
+    </ft-empty-state>
+  }
+  @case ('loaded') {
+    <form [formGroup]="form" (ngSubmit)="save()" ftFormErrorFocus novalidate>
+      <ft-stack width="lg">
+        <ft-error-summary [errors]="summary()" [action]="editing() ? 'save' : 'publish'" />
+        @if (failed()) {
+          <ft-alert
+            status="danger"
+            [heading]="
+              editing() ? 'We couldn’t save your changes' : 'We couldn’t publish this event'
+            "
+          >
+            Something went wrong on our side. Your details are still here — try again.
+          </ft-alert>
+        }
+        <ft-card heading="Details">
+          <ft-stack>
+            <ft-form-field required label="Title" [error]="error('title')">
+              <ft-text-field formControlName="title" autocomplete="off" />
+            </ft-form-field>
+            <ft-form-field label="Type" [error]="error('type')">
+              <ft-select formControlName="type" [options]="typeOptions" />
+            </ft-form-field>
+            <ft-form-field label="Description" [optional]="true" [error]="error('description')">
+              <ft-textarea formControlName="description" [rows]="4" />
+            </ft-form-field>
+          </ft-stack>
+        </ft-card>
+        <ft-card heading="When and where">
+          <ft-stack>
+            <ft-grid [columns]="2" class="pair">
+              <ft-form-field required label="Starts" [error]="error('startsAt')">
+                <ft-text-field type="datetime-local" formControlName="startsAt" />
+              </ft-form-field>
+              <ft-form-field required label="Ends" [error]="error('endsAt')">
+                <ft-text-field type="datetime-local" formControlName="endsAt" />
+              </ft-form-field>
+            </ft-grid>
+            <ft-radio-group legend="Format" formControlName="format">
+              <ft-radio value="InPerson">In person</ft-radio>
+              <ft-radio value="Online" description="We’ll show the joining link to people who RSVP"
+                >Online</ft-radio
+              >
+            </ft-radio-group>
+            <ft-form-field required label="City" [error]="error('city')">
+              <ft-text-field formControlName="city" autocomplete="address-level2" />
+            </ft-form-field>
+            @if (online()) {
+              <ft-form-field required label="Joining link" [error]="error('onlineLink')">
+                <ft-text-field type="url" formControlName="onlineLink" autocomplete="off" />
+              </ft-form-field>
+            } @else {
+              <ft-form-field required label="Venue address" [error]="error('venue')">
+                <ft-text-field formControlName="venue" autocomplete="street-address" />
+              </ft-form-field>
+            }
+          </ft-stack>
+        </ft-card>
+        <ft-card heading="Who can see and RSVP">
+          <ft-stack>
+            <ft-radio-group legend="Visibility" formControlName="visibility">
+              <ft-radio
+                value="Public"
+                description="Anyone with the link can see it and RSVP, even without an account"
+                >Public</ft-radio
+              >
+              <ft-radio
+                value="MembersOnly"
+                description="Only people signed in to FaithTech can see and RSVP"
+                >Members only</ft-radio
+              >
+            </ft-radio-group>
+            <ft-form-field
+              label="Capacity"
+              [optional]="true"
+              help="Leave empty for no limit."
+              [error]="error('capacity')"
+            >
+              <ft-text-field type="number" formControlName="capacity" />
+            </ft-form-field>
+          </ft-stack>
+        </ft-card>
+        <ft-form-actions>
+          <ft-button variant="ghost" [href]="cancelHref()">Cancel</ft-button>
+          <ft-button type="submit" variant="primary" [loading]="busy()">
+            @if (editing()) {
+              {{ busy() ? 'Saving…' : 'Save changes' }}
+            } @else {
+              {{ busy() ? 'Publishing…' : 'Publish event' }}
+            }
+          </ft-button>
+        </ft-form-actions>
+      </ft-stack>
+    </form>
+  }
+}

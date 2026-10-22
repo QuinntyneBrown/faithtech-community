@@ -256,7 +256,7 @@ export class MockApi {
         caller: this.caller(authorization),
       });
     }
-    const events = this.events.handle(route, method, url, this.caller(authorization));
+    const events = this.events.handle(route, method, url, body, this.caller(authorization));
     if (events) return events;
     const profileRoute = /^\/api\/profiles\/([^/]+)$/.exec(url.pathname);
     if (method === 'GET' && profileRoute) {
