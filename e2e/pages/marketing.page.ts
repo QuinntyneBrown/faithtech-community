@@ -36,6 +36,14 @@ export class MarketingPage {
   readonly passwordError: Locator;
   readonly resetPassword: Locator;
   readonly handOff: Locator;
+  readonly joinHeading: Locator;
+  readonly panelJoin: Locator;
+  readonly panelSignIn: Locator;
+  readonly name: Locator;
+  readonly createAccount: Locator;
+  readonly nameError: Locator;
+  readonly checkInbox: Locator;
+  readonly sendAgain: Locator;
 
   constructor(private readonly page: Page) {
     this.heading = page.getByRole('heading', {
@@ -73,6 +81,14 @@ export class MarketingPage {
     this.passwordError = fieldError(page, 'Password');
     this.resetPassword = this.panel.getByRole('link', { name: 'Reset password' });
     this.handOff = page.getByRole('heading', { level: 2, name: 'Signing you in…' });
+    this.joinHeading = page.getByRole('heading', { level: 2, name: 'Join FaithTech' });
+    this.panelJoin = this.panel.getByRole('button', { name: 'Join now' });
+    this.panelSignIn = this.panel.getByRole('button', { name: 'Sign in', exact: true });
+    this.name = this.panel.getByLabel('Full name');
+    this.createAccount = this.panel.getByRole('button', { name: /Create account|Creating account/ });
+    this.nameError = fieldError(page, 'Full name');
+    this.checkInbox = page.getByRole('heading', { level: 2, name: 'Check your inbox' });
+    this.sendAgain = this.panel.getByRole('link', { name: 'send it again' });
   }
 
   /** Signs in from the hero panel and waits for the API's answer. */
@@ -87,6 +103,18 @@ export class MarketingPage {
     const response = this.page.waitForResponse('**/api/account/sign-in');
     await this.signInButton.click();
     await response;
+  }
+
+  /** Fills in and submits the join form in the hero panel. */
+  async join(name: string, email: string, password: string): Promise<void> {
+    await this.name.fill(name);
+    await this.email.fill(email);
+    await this.password.fill(password);
+    await this.createAccount.click();
+  }
+
+  sentTo(email: string): Locator {
+    return this.panel.getByText(`We sent a link to ${email}`);
   }
 
   /** Submits the sign-in form without filling anything in, so no request is made. */

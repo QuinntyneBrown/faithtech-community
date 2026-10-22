@@ -1,6 +1,24 @@
-import { ChangeDetectionStrategy, Component, computed, inject, input, signal } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  ElementRef,
+  Injector,
+  afterNextRender,
+  computed,
+  effect,
+  inject,
+  input,
+  signal,
+  untracked,
+  viewChild,
+} from '@angular/core';
 import { Router } from '@angular/router';
-import { AUTH_SERVICE, BROWSER_REDIRECT } from '@faithtech-community/api';
+import {
+  AUTH_SERVICE,
+  BROWSER_REDIRECT,
+  SignUpFieldErrors,
+  signUpFieldErrors,
+} from '@faithtech-community/api';
 import {
   AlertComponent,
   BenefitComponent,
@@ -8,11 +26,15 @@ import {
   CardComponent,
   ContainerComponent,
   CtaBandComponent,
+  EmptyStateComponent,
   GridComponent,
   LandingHeroComponent,
+  LinkComponent,
   SignInCredentials,
   SignInFormComponent,
   SignInFormFailure,
+  SignUpDetails,
+  SignUpFormComponent,
   VideoPlayerComponent,
 } from '@faithtech-community/components';
 import { firstValueFrom } from 'rxjs';
@@ -39,9 +61,12 @@ const BROCHURE_TRANSCRIPT =
     CardComponent,
     ContainerComponent,
     CtaBandComponent,
+    EmptyStateComponent,
     GridComponent,
     LandingHeroComponent,
+    LinkComponent,
     SignInFormComponent,
+    SignUpFormComponent,
     VideoPlayerComponent,
   ],
   templateUrl: './landing.page.html',
@@ -66,9 +91,50 @@ export class LandingPage {
   protected readonly failure = signal<SignInFormFailure | null>(null);
   /** Set once the API has accepted the credentials, while the browser moves to the community app. */
   protected readonly handingOff = signal<{ emailVerified: boolean } | null>(null);
+  protected readonly unreachable = signal(false);
+  protected readonly serverErrors = signal<SignUpFieldErrors>({});
+  protected readonly sentTo = signal<string | null>(null);
+  private readonly panelHeading = viewChild<ElementRef<HTMLElement>>('panelHeading');
 
-  protected showJoin(): void {
-    void this.router.navigate([], { queryParams: { join: '' }, queryParamsHandling: 'merge' });
+  constructor() {
+    const injector = inject(Injector);
+    let first = true;
+    // Join now and Sign in switch the panel in place: take the visitor to its heading.
+    effect(() => {
+      this.joining();
+      if (first) {
+        first = false;
+        return;
+      }
+      untracked(() => this.failure.set(null));
+      afterNextRender(() => this.panelHeading()?.nativeElement.focus(), { injector });
+    });
+  }
+
+  protected show(form: 'join' | 'sign-in'): void {
+    const join = form === 'join' ? '' : null;
+    void this.router.navigate([], { queryParams: { join }, queryParamsHandling: 'merge' });
+  }
+
+  protected verifyEmailLink(email: string): string {
+    return `${this.communityOrigin}/verify-email?email=${encodeURIComponent(email)}`;
+  }
+
+  protected async signUp(request: SignUpDetails): Promise<void> {
+    if (this.busy()) return;
+    this.serverErrors.set({});
+    this.unreachable.set(false);
+    this.busy.set(true);
+    try {
+      await firstValueFrom(this.auth.signUp(request));
+      this.sentTo.set(request.email);
+    } catch (error) {
+      const fieldErrors = signUpFieldErrors(error);
+      if (fieldErrors) this.serverErrors.set(fieldErrors);
+      else this.unreachable.set(true);
+    } finally {
+      this.busy.set(false);
+    }
   }
 
   protected async signIn({ email, password, keepSignedIn }: SignInCredentials): Promise<void> {

@@ -15,8 +15,36 @@
               </ft-alert>
             }
             <p class="text-muted">Taking you to FaithTech Community.</p>
+          } @else if (sentTo(); as email) {
+            <ft-empty-state
+              icon="invite"
+              heading="Check your inbox"
+              [headingLevel]="2"
+              [text]="'We sent a link to ' + email"
+            >
+              <p actions class="text-caption">
+                Open it within 24 hours to finish creating your account. Didn’t get it? Check spam,
+                or <ft-link [href]="verifyEmailLink(email)">send it again</ft-link>
+              </p>
+            </ft-empty-state>
+          } @else if (joining()) {
+            <h2 #panelHeading tabindex="-1">Join FaithTech</h2>
+            <p class="text-muted">
+              Free for builders, leads, volunteers, partners and anyone curious about faith and
+              technology.
+            </p>
+            <ft-sign-up-form
+              [busy]="busy()"
+              [unreachable]="unreachable()"
+              [serverErrors]="serverErrors()"
+              (submitted)="signUp($event)"
+            />
+            <p class="text-center">
+              Already a member?
+              <ft-button variant="ghost" size="sm" (click)="show('sign-in')">Sign in</ft-button>
+            </p>
           } @else {
-            <h2>Sign in</h2>
+            <h2 #panelHeading tabindex="-1">Sign in</h2>
             <ft-sign-in-form
               [busy]="busy()"
               [failure]="failure()"
@@ -25,7 +53,7 @@
             />
             <p class="text-center">
               New to FaithTech?
-              <ft-button variant="ghost" size="sm" (click)="showJoin()">Join now</ft-button>
+              <ft-button variant="ghost" size="sm" (click)="show('join')">Join now</ft-button>
             </p>
           }
         </ft-card>
@@ -55,7 +83,7 @@
         </ft-grid>
       </section>
       <ft-cta-band heading="Ready to build with us?" text="It’s free, and it takes a minute.">
-        <ft-button variant="primary" size="lg" (click)="showJoin()">Join now</ft-button>
+        <ft-button variant="primary" size="lg" (click)="show('join')">Join now</ft-button>
       </ft-cta-band>
     </div>
   </ft-container>
