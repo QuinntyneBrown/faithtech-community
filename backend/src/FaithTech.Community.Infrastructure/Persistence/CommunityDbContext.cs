@@ -11,6 +11,7 @@ using FaithTech.Community.Domain.Partners;
 using FaithTech.Community.Domain.Profiles;
 using FaithTech.Community.Infrastructure.Email;
 using FaithTech.Community.Infrastructure.Identity;
+using FaithTech.Community.Infrastructure.Search;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
@@ -207,6 +208,11 @@ public class CommunityDbContext(DbContextOptions<CommunityDbContext> options)
         });
 
         ConfigureAgile(builder);
+        // Search columns are Postgres-only; tests on the in-memory provider match text without them (ADR 0017).
+        if (Database.IsNpgsql())
+        {
+            SearchVectors.Configure(builder);
+        }
 
         builder.Entity<Announcement>(announcement =>
         {

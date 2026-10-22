@@ -32,6 +32,10 @@ const PASSWORD = __ENV.LOADTEST_PASSWORD;
 const VUS = Number(__ENV.VUS || 200);
 const RUN_ID = __ENV.RUN_ID || `${Date.now()}`;
 const REDIRECT_URI = `${WEB_ORIGIN}/auth/callback`;
+// SCENARIO=search runs only global search, for L2-026 AC5: p95 under 500 ms with 100,000 indexed
+// records (seed them as docs/detailed-designs/search/global-search describes).
+const SEARCH_ONLY = __ENV.SCENARIO === "search";
+const SEARCH_TERMS = ["member", "city 4", "builder 99", "shelter", "grace"];
 
 export const options = {
   setupTimeout: "10m",
@@ -47,6 +51,7 @@ export const options = {
     "http_req_duration{scenario:members,kind:write}": ["p(95)<600"],
     "http_req_failed{scenario:members}": ["rate==0"],
     "checks{scenario:members}": ["rate==1"],
+    "http_req_duration{scenario:members,kind:search}": ["p(95)<500"],
   },
   insecureSkipTLSVerify: true,
 };
@@ -70,6 +75,17 @@ export default function (data) {
   const auth = { Authorization: `Bearer ${member.token}` };
   const read = (url) =>
     http.get(url, { headers: auth, tags: { kind: "read" } });
+
+  if (SEARCH_ONLY) {
+    const term = SEARCH_TERMS[__ITER % SEARCH_TERMS.length];
+    const search = http.get(
+      `${BASE_URL}/api/search?q=${encodeURIComponent(term)}`,
+      { headers: auth, tags: { kind: "search" } },
+    );
+    check(search, { "search is 200": (r) => r.status === 200 });
+    sleep(1);
+    return;
+  }
 
   check(read(`${BASE_URL}/api/me`), { "me is 200": (r) => r.status === 200 });
   check(read(`${BASE_URL}/api/profiles/me`), {

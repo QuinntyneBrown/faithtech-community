@@ -18,10 +18,10 @@ Search never widens what a user may open. The server filters every group by perm
 - **`SearchService` / `SEARCH_SERVICE`** — API client contract and token in the `api` library; `HttpSearchService.search(term)` calls the API.
 - **`SearchEndpoints`** — maps `GET /api/search?q=` with authentication required.
 - **`GlobalSearchQuery`** — query carrying the term.
-- **`GlobalSearchValidator`** — rejects terms shorter than 2 characters, so no search runs (`L2-026`).
-- **`GlobalSearchHandler`** — Application handler that resolves the caller's permissions from `ICurrentUser` into a `SearchScope` and asks `ISearchIndex` for each permitted group.
-- **`SearchScope`** — value object stating which groups the caller may see and the owner filter for contacts and the workspace filter for work items.
-- **`ISearchSource`** — Application contract, one per result kind (ADR 0017). **`PostgresPeopleSearch`** in Infrastructure implements the people source with a prefix `to_tsquery('simple', …)`, `ts_rank` and a GIN expression index on the profile's name, home city and bio. Events, partners, contacts and work items register their sources when those features are built, applying the scope filters inside their SQL.
+- **`GlobalSearchHandler`** — Application handler that trims the term, answers `400` under 2 characters so no search runs (`L2-026`), resolves the caller's permissions from `ICurrentUser` into a `SearchScope`, and asks every registered `ISearchSource`, leaving out empty groups.
+- **`SearchScope`** — value object holding the caller's profile id, whether partners are visible (lead roles, Staff, System Admin) and whether every workspace is (Staff, System Admin).
+- **`ISearchSource`** — Application contract, one per result kind (ADR 0017): `PeopleSearchSource`, `PartnerSearchSource`, `ContactSearchSource` (the caller's own active contacts only) and `WorkItemSearchSource` (active items in the caller's active workspaces). Each applies its permission rule in LINQ before matching text. Events register a source when the events feature stores them.
+- **`IFullTextSearch`** — Application contract for the text match. **`PostgresFullTextSearch`** in Infrastructure matches a stored, generated, GIN-indexed `SearchVector` column (`to_tsvector('simple', …)`) against a prefix `to_tsquery` (`grace:* & tor:*`) and orders by `ts_rank`. Backend tests use an in-memory matcher with the same documents.
 - **`SearchResultsDto`** — grouped results, each item carrying kind, id, title, snippet and route.
 
 Each group returns at most 10 results. The p95 target is under 500 ms with 100,000 indexed records. It is verified outside the test suite, because backend tests use an in-memory source: seed a local database with
@@ -68,18 +68,18 @@ The `SearchPage` calls the Community API, which runs PostgreSQL full-text search
 
 ### Components
 
-`GlobalSearchHandler` turns caller roles into a `SearchScope`, and `PostgresSearchIndex` applies that scope inside the SQL so unpermitted rows never leave the database.
+`GlobalSearchHandler` turns caller roles into a `SearchScope`; each `ISearchSource` applies that scope in its query, and `PostgresFullTextSearch` matches text inside the same SQL, so unpermitted rows never leave the database.
 
 ![C4 component view for global search](diagrams/c4-component.png)
 
 ### Class structure
 
-`SearchScope.For` derives visibility from `ICurrentUser`. `PostgresSearchIndex` realizes `ISearchIndex` and returns `SearchResultsDto` grouped by `SearchResultKind`.
+`SearchScope.For` derives visibility from `ICurrentUser`. Each `ISearchSource` returns hits of one `SearchResultKind` through `IFullTextSearch`, realized by `PostgresFullTextSearch`; the handler returns `SearchResultsDto` grouped by kind.
 
 ![Class diagram for global search](diagrams/class-structure.png)
 
 ### Behaviour — search across the community
 
-Terms under 2 characters stop at the page or validator with a hint. Valid terms run full-text search filtered by `SearchScope`, and the page groups results or shows an empty state (`L2-026`).
+Terms under 2 characters stop at the page or the handler with a hint. Valid terms run full-text search filtered by `SearchScope`, and the page groups results or shows an empty state (`L2-026`).
 
 ![Sequence diagram: search across the community](diagrams/sequence-search.png)

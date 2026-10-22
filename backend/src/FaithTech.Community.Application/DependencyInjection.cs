@@ -8,6 +8,7 @@ using FaithTech.Community.Application.Invites;
 using FaithTech.Community.Application.Notifications;
 using FaithTech.Community.Application.Partners;
 using FaithTech.Community.Application.Profiles;
+using FaithTech.Community.Application.Search;
 using FaithTech.Community.Application.Team;
 using FluentValidation;
 using Microsoft.Extensions.Configuration;
@@ -91,6 +92,12 @@ public static class DependencyInjection
         services.AddScoped<PublicEventsHandler>();
         services.AddScoped<GetEventCalendarHandler>();
         services.AddScoped<CancelEventHandler>();
+        services.AddScoped<ISearchSource, PeopleSearchSource>();
+        services.AddScoped<ISearchSource, EventSearchSource>();
+        services.AddScoped<ISearchSource, PartnerSearchSource>();
+        services.AddScoped<ISearchSource, ContactSearchSource>();
+        services.AddScoped<ISearchSource, WorkItemSearchSource>();
+        services.AddScoped<GlobalSearchHandler>();
         services.TryAddSingleton(TimeProvider.System);
         return services;
     }

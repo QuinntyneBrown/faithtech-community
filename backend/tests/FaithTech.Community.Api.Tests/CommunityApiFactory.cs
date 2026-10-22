@@ -4,6 +4,7 @@ using FaithTech.Community.Application.Agile;
 using FaithTech.Community.Application.Common;
 using FaithTech.Community.Application.Identity;
 using FaithTech.Community.Application.Profiles;
+using FaithTech.Community.Application.Search;
 using FaithTech.Community.Infrastructure.Persistence;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
@@ -73,6 +74,8 @@ public class CommunityApiFactory : WebApplicationFactory<Program>, IAsyncLifetim
             services.AddSingleton<IPhotoStorage>(Photos);
             services.AddSingleton<TimeProvider>(Time);
             services.AddSingleton<IBreachedPasswordChecker, FakeBreachedPasswordChecker>();
+            // Postgres full-text search runs only against Postgres; the scope filters stay real (ADR 0017).
+            services.AddSingleton<IFullTextSearch, InMemoryFullTextSearch>();
             services.AddSingleton<IBoardNotifier>(Live);
             services.AddSingleton<IPokerBroadcaster>(Live);
         });
