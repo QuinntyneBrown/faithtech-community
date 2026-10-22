@@ -4,8 +4,12 @@
     role="switch"
     [checked]="checked()"
     [disabled]="disabled()"
+    [attr.aria-describedby]="description() ? descriptionId : null"
     (change)="onToggle($event)"
     (blur)="onBlur()"
   />
   <span class="text" [class.visually-hidden]="labelHidden()"><ng-content /></span>
 </label>
+@if (description(); as text) {
+  <p class="description" [id]="descriptionId">{{ text }}</p>
+}

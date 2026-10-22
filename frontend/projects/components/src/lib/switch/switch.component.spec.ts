@@ -96,6 +96,57 @@ describe('SwitchComponent', () => {
     });
   });
 
+  // Traces to: design system, switch (Labelling: a related caption is joined with aria-describedby);
+  // L2-095 (Add walk-in dialog, "Check them in now").
+  // Given a switch with a description, When it renders, Then the description shows as caption text
+  // outside the label (so it is not part of the name) and the input is described by it.
+  describe('with a description', () => {
+    @Component({
+      imports: [SwitchComponent, ReactiveFormsModule],
+      template: `<ft-switch
+        [formControl]="ctrl"
+        description="Adds them to the attendance list as present."
+        >Check them in now</ft-switch
+      >`,
+    })
+    class DescribedHostComponent {
+      ctrl = new FormControl(true);
+    }
+
+    it('shows the caption and joins it to the switch with aria-describedby', () => {
+      const fixture = TestBed.createComponent(DescribedHostComponent);
+      fixture.detectChanges();
+      const host: HTMLElement = fixture.nativeElement;
+      const input = host.querySelector('input')!;
+      const id = input.getAttribute('aria-describedby');
+      expect(id).toBeTruthy();
+      const caption = host.querySelector(`#${id}`)!;
+      expect(caption.textContent?.trim()).toBe('Adds them to the attendance list as present.');
+      expect(host.querySelector('label')!.contains(caption)).toBe(false);
+      expect(host.querySelector('label')!.textContent?.trim()).toBe('Check them in now');
+    });
+
+    it('gives each switch its own caption id', () => {
+      const a = TestBed.createComponent(DescribedHostComponent);
+      const b = TestBed.createComponent(DescribedHostComponent);
+      a.detectChanges();
+      b.detectChanges();
+      const idA = (a.nativeElement as HTMLElement)
+        .querySelector('input')!
+        .getAttribute('aria-describedby');
+      const idB = (b.nativeElement as HTMLElement)
+        .querySelector('input')!
+        .getAttribute('aria-describedby');
+      expect(idA).not.toBe(idB);
+    });
+  });
+
+  it('has no caption or aria-describedby without a description', () => {
+    const { host, input } = setup();
+    expect(input().hasAttribute('aria-describedby')).toBe(false);
+    expect(host.querySelector('.description')).toBeNull();
+  });
+
   it('shows the text by default', () => {
     const { host } = setup();
     expect(host.querySelector('.text')!.classList.contains('visually-hidden')).toBe(false);

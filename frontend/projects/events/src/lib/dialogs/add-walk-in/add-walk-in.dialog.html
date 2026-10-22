@@ -23,7 +23,11 @@
       >
         <ft-text-field type="email" formControlName="email" autocomplete="off" />
       </ft-form-field>
-      <ft-switch formControlName="checkInNow">Check them in now</ft-switch>
+      <ft-switch
+        formControlName="checkInNow"
+        description="Adds them to the attendance list as present."
+        >Check them in now</ft-switch
+      >
     </ft-stack>
   </form>
   <ft-button ftDialogFooter [disabled]="busy()" (click)="ref.close()">Cancel</ft-button>

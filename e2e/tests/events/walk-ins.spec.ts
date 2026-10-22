@@ -29,7 +29,8 @@ function lead(api: MockApi) {
 
 test.describe('Walk-ins', () => {
   // L2-095 AC1: Given a lead on the check-in page, when they choose "Add walk-in", then a dialog asks for a name
-  // (required) and an optional email, with "Check them in now" on by default.
+  // (required) and an optional email, with "Check them in now" on by default and described by
+  // "Adds them to the attendance list as present." (aria-describedby).
   // L2-095 AC2: when the lead saves, the walk-in is added to the end of the list, checked in with the time.
   test('a lead adds a walk-in who is checked in at once', async ({ page, api, axe }) => {
     const event = tonight(api);
@@ -44,6 +45,9 @@ test.describe('Walk-ins', () => {
       'A member’s email links the check-in to their profile.',
     );
     await expect(dialog.checkInNow).toBeChecked();
+    await expect(dialog.checkInNow).toHaveAccessibleDescription(
+      'Adds them to the attendance list as present.',
+    );
     await axe.check();
 
     await dialog.name.fill('Mira Chen');
