@@ -9,7 +9,7 @@ namespace FaithTech.Community.Application.Contacts;
 public record ContactMatchDto(Guid ProfileId, string Name);
 
 /// <summary>
-/// A row of the contacts list, shown as a person card (L2-060). Status is Private, SignedUp (a verified member uses the
+/// A row of the contacts list, shown as a person card (L2-072). Status is Private, SignedUp (a verified member uses the
 /// email) or Member (linked). The photo is the linked member's featured photo, or else the contact's own stored one.
 /// </summary>
 public record ContactSummaryDto(
@@ -27,7 +27,7 @@ public record ContactSummaryDto(
 
 /// <summary>
 /// One contact. Once linked, the name and featured photo come from the member's profile (L2-015 AC2); otherwise
-/// the featured photo is the contact's own. <c>Photos</c> are the contact's own photos, newest first (L2-056).
+/// the featured photo is the contact's own. <c>Photos</c> are the contact's own photos, newest first (L2-068).
 /// </summary>
 public record ContactDto(
     Guid Id,

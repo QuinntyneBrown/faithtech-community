@@ -62,7 +62,7 @@ const EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
  */
 export class MockContacts {
   readonly contacts: MockContact[] = [];
-  /** When true, uploads are saved as storing (L2-059 AC1). */
+  /** When true, uploads are saved as storing (L2-071 AC1). */
   storageDown = false;
   /** Image requests and whether they carried a caller. */
   readonly imageRequests: { path: string; signedIn: boolean }[] = [];
@@ -195,7 +195,7 @@ export class MockContacts {
     }
   }
 
-  /** ContactsEndpoints' photo routes: 404 for anyone but the owner and System Admin (L2-058). */
+  /** ContactsEndpoints' photo routes: 404 for anyone but the owner and System Admin (L2-070). */
   private photos(
     route: Route,
     method: string,

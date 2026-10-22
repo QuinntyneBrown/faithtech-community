@@ -1,4 +1,4 @@
-// Traces to: L2-059
+// Traces to: L2-071
 using System.Net;
 using System.Net.Http.Json;
 using FaithTech.Community.Api.Tests.Profiles;
@@ -9,7 +9,7 @@ using static FaithTech.Community.Api.Tests.Contacts.ContactClients;
 
 namespace FaithTech.Community.Api.Tests.Contacts;
 
-/// <summary>Overlapping photo writes on one contact keep the 10-photo limit and exactly one featured photo (L2-059 AC3).</summary>
+/// <summary>Overlapping photo writes on one contact keep the 10-photo limit and exactly one featured photo (L2-071 AC3).</summary>
 public class ContactPhotoConcurrencyTests(CommunityApiFactory factory) : IClassFixture<CommunityApiFactory>
 {
     private const string ChangedMeanwhile = "Your photos changed while this was saving. Reload and try again.";

@@ -172,7 +172,7 @@ public class ManageContactsHandler(IApplicationDbContext db, ContactAccess acces
                 c.ArchivedAtUtc,
                 c.CreatedAtUtc,
                 Linked = db.Profiles.Where(p => p.Id == c.LinkedProfileId).Select(p => p.Name).FirstOrDefault(),
-                // The card's photo (L2-060): the member's once linked, otherwise the contact's own; never one still storing.
+                // The card's photo (L2-072): the member's once linked, otherwise the contact's own; never one still storing.
                 LinkedPhoto = db.Profiles.Where(p => p.Id == c.LinkedProfileId)
                     .SelectMany(p => p.Photos).Where(p => p.IsFeatured && p.IsStored)
                     .Select(p => new { p.BlobName, p.AltText }).FirstOrDefault(),

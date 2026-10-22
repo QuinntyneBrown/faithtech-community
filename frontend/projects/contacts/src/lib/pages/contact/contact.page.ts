@@ -55,13 +55,13 @@ import {
   PhotoRef,
 } from '../../dialogs';
 
-// A contact holds at most 10 photos (L2-056 AC2).
+// A contact holds at most 10 photos (L2-068 AC2).
 const MAX_PHOTOS = 10;
 
 type State = 'loading' | 'loaded' | 'not-found' | 'error';
 
 /**
- * One private contact, its photos and its private notes (L2-012 to L2-015, L2-056), matching
+ * One private contact, its photos and its private notes (L2-012 to L2-015, L2-068), matching
  * docs/mocks/pages/contact: a contact whose email a new member verified offers Link to their profile.
  * Photos are added, described and deleted through dialogs; featuring is immediate.
  */
@@ -95,7 +95,7 @@ export class ContactPage {
   private readonly dialogs = inject(DialogService);
   private readonly toasts = inject(ToastService);
   private readonly router = inject(Router);
-  /** Descriptions of photos chosen on the add-contact form that failed to upload (L2-055 AC6). */
+  /** Descriptions of photos chosen on the add-contact form that failed to upload (L2-067 AC6). */
   protected readonly failedPhotos = signal<string[]>(failedPhotosIn(inject(Location).getState()));
   /** The header photo as the browser can load it; a private photo is fetched with the token (ADR 0017). */
   protected readonly headerPhoto = signal<string | null>(null);

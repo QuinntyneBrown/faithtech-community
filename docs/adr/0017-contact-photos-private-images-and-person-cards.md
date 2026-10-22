@@ -2,7 +2,7 @@
 
 - Status: Accepted
 - Date: 2026-10-22
-- Requirements: L2-055, L2-056, L2-057, L2-058, L2-059, L2-060, L2-061
+- Requirements: L2-067, L2-068, L2-069, L2-070, L2-071, L2-072, L2-073
 - Design: `docs/detailed-designs/contacts/contact-photos`
 - Refines: ADR 0002 (for contact photos), ADR 0013, ADR 0014
 

@@ -1,4 +1,4 @@
-// Traces to: L2-058, L2-060
+// Traces to: L2-070, L2-072
 using System.Net;
 using FaithTech.Community.Api.Tests.Profiles;
 using FaithTech.Community.Domain.Profiles;

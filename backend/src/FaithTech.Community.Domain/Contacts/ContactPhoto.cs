@@ -1,6 +1,6 @@
 namespace FaithTech.Community.Domain.Contacts;
 
-/// <summary>A photo of a private contact (L2-055, L2-056); as private as the contact.</summary>
+/// <summary>A photo of a private contact (L2-067, L2-068); as private as the contact.</summary>
 public class ContactPhoto
 {
     private ContactPhoto() { }
@@ -25,7 +25,7 @@ public class ContactPhoto
 
     public DateTimeOffset UploadedAt { get; private set; }
 
-    /// <summary>False while its blob waits to be written because storage was unavailable (L2-059 AC1).</summary>
+    /// <summary>False while its blob waits to be written because storage was unavailable (L2-071 AC1).</summary>
     public bool IsStored { get; private set; } = true;
 
     public void MarkStoring() => IsStored = false;

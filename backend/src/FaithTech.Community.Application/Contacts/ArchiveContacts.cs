@@ -45,7 +45,7 @@ public class ArchiveContactsHandler(IApplicationDbContext db, ContactAccess acce
         return Result.Ok();
     }
 
-    /// <summary>Only an archived contact can be deleted; its notes and photos go with it, and then the photos' blobs (L2-058 AC6).</summary>
+    /// <summary>Only an archived contact can be deleted; its notes and photos go with it, and then the photos' blobs (L2-070 AC6).</summary>
     public async Task<Result> DeleteAsync(Guid id, CancellationToken cancellationToken = default)
     {
         var (kind, contact, actor) = await access.AuthorizeAsync(id, withNotes: true, cancellationToken);

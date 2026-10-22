@@ -169,7 +169,7 @@ public class CommunityDbContext(DbContextOptions<CommunityDbContext> options)
             // Deleting a contact deletes its notes (L2-016 AC3).
             contact.HasMany(c => c.Notes).WithOne().HasForeignKey(n => n.ContactId).OnDelete(DeleteBehavior.Cascade);
             contact.Navigation(c => c.Notes).UsePropertyAccessMode(PropertyAccessMode.Field);
-            // Photos are owned, so deleting a contact deletes them too (L2-058 AC6).
+            // Photos are owned, so deleting a contact deletes them too (L2-070 AC6).
             contact.OwnsMany(c => c.Photos, photo =>
             {
                 photo.ToTable("ContactPhotos");

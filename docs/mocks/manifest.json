@@ -341,8 +341,8 @@
       "requirements": [
         "L2-012",
         "L2-013",
-        "L2-060",
-        "L2-061"
+        "L2-072",
+        "L2-073"
       ],
       "states": [
         "default",
@@ -363,9 +363,9 @@
         "L2-012",
         "L2-014",
         "L2-015",
-        "L2-056",
-        "L2-058",
-        "L2-059"
+        "L2-068",
+        "L2-070",
+        "L2-071"
       ],
       "states": [
         "default",
@@ -390,8 +390,8 @@
       "route": "/contacts/new",
       "requirements": [
         "L2-013",
-        "L2-055",
-        "L2-057"
+        "L2-067",
+        "L2-069"
       ],
       "states": [
         "default",
@@ -1150,8 +1150,8 @@
       "title": "Add contact photo",
       "opens_from": "contact",
       "requirements": [
-        "L2-056",
-        "L2-057"
+        "L2-068",
+        "L2-069"
       ],
       "states": [
         "default",
@@ -1168,7 +1168,7 @@
       "title": "Edit photo description",
       "opens_from": "contact",
       "requirements": [
-        "L2-056"
+        "L2-068"
       ],
       "states": [
         "default",
@@ -1184,7 +1184,7 @@
       "title": "Delete contact photo",
       "opens_from": "contact",
       "requirements": [
-        "L2-056"
+        "L2-068"
       ],
       "states": [
         "default",

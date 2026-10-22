@@ -32,22 +32,22 @@ box "Backend — FaithTech.Community.Infrastructure" #FFF4E5
 end box
 actor -> page : Open /contacts
 page -> svc : list()
-svc --> page : ContactSummaryDto[] with PhotoUrl and PhotoAltText (L2-060)
+svc --> page : ContactSummaryDto[] with PhotoUrl and PhotoAltText (L2-072)
 loop each card whose PhotoUrl is a contacts API path
   page -> svc : photoImage(photoUrl)
   svc -> ep : GET /api/contacts/{id}/photos/{photoId}/image with bearer token
   alt No token
-    ep --> svc : 401 (L2-058 AC2)
+    ep --> svc : 401 (L2-070 AC2)
   else Signed in
     ep -> h : ReadImageAsync(id, photoId)
     h -> acc : AuthorizeAsync(id, withPhotos)
     alt NotFound, photo unknown or still storing
       h --> ep : null
-      ep --> svc : 404 (L2-058 AC1, AC3)
+      ep --> svc : 404 (L2-070 AC1, AC3)
       svc --> page : Error; card keeps the initials
     else Owner or AdminOverride
       opt AdminOverride
-        h -> acc : AuditOverride("contact.photo-viewed") and save (L2-058 AC4)
+        h -> acc : AuditOverride("contact.photo-viewed") and save (L2-070 AC4)
       end
       h -> store : ReadAsync(blobName)
       store --> h : bytes and content type

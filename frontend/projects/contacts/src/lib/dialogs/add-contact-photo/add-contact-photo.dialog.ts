@@ -24,12 +24,12 @@ interface Chosen {
   alt: string;
 }
 
-// The server's description rule (L2-057).
+// The server's description rule (L2-069).
 const MISSING_ALT = 'Describe this photo.';
 const MAX_ALT = 300;
 
 /**
- * Adds photos to a contact (L2-056 AC2), matching docs/mocks/dialogs/add-contact-photo: choose up to the
+ * Adds photos to a contact (L2-068 AC2), matching docs/mocks/dialogs/add-contact-photo: choose up to the
  * room left, describe each, and they upload one by one. Closes with the photos that were added; on a
  * failure it stays open with the rest of the choice.
  */

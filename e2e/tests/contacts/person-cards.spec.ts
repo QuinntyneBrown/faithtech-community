@@ -1,4 +1,4 @@
-// Traces to: L2-060, L2-061, L2-058 AC3 (docs/detailed-designs/contacts/contact-photos)
+// Traces to: L2-072, L2-073, L2-070 AC3 (docs/detailed-designs/contacts/contact-photos)
 import { expect, test } from '../../fixtures/app';
 import { photoUrl } from '../../fixtures/mock-api';
 import { AppShell } from '../../pages/app-shell.page';
@@ -63,7 +63,7 @@ test.describe('Contacts as person cards', () => {
     await expect(card.badge).toHaveText('Signed up');
     await expect(card.subtitle).toHaveText('Harbour Light Shelter · Toronto');
     await expect(card.secondary).toHaveText('2 notes');
-    // The private image was fetched with the lead's credentials through the contacts API (L2-058 AC3).
+    // The private image was fetched with the lead's credentials through the contacts API (L2-070 AC3).
     expect(api.contacts.imageRequests).toContainEqual({
       path: `/api/contacts/${tomas.id}/photos/${tomas.photos[0].id}/image`,
       signedIn: true,

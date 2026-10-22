@@ -20,7 +20,7 @@ public record ContactPhotoDto(Guid Id, string? Url, string AltText, bool IsFeatu
 }
 
 /// <summary>
-/// Adds and manages a private contact's photos (L2-055 to L2-059). Only the owner and System Admin get past
+/// Adds and manages a private contact's photos (L2-067 to L2-071). Only the owner and System Admin get past
 /// <see cref="ContactAccess"/>; everyone else gets 404. Uses the photo pipeline's abstractions, not the profile handlers.
 /// </summary>
 public class ContactPhotosHandler(
@@ -40,7 +40,7 @@ public class ContactPhotosHandler(
             return (Result.NotFound(), null);
         }
 
-        // Hold the contact's photo lease while counting and adding (L2-059 AC3).
+        // Hold the contact's photo lease while counting and adding (L2-071 AC3).
         if (!await leases.TakeAsync(contact.PhotoLease, cancellationToken))
         {
             return (Result.Conflict(PhotoLeases.ChangedMeanwhile), null);
@@ -58,7 +58,7 @@ public class ContactPhotosHandler(
 
     /// <summary>
     /// The image of a stored photo for the owner or a System Admin (audited); null for anyone else, an unknown photo or
-    /// one still storing, so a shared URL never shows the image to someone else (L2-058 AC1-4).
+    /// one still storing, so a shared URL never shows the image to someone else (L2-070 AC1-4).
     /// </summary>
     public async Task<StoredImage?> ReadImageAsync(Guid contactId, Guid photoId, CancellationToken cancellationToken = default)
     {
@@ -78,7 +78,7 @@ public class ContactPhotosHandler(
         return await storage.ReadAsync(photo.BlobName, cancellationToken);
     }
 
-    /// <summary>Changes a photo's description (L2-056 AC4).</summary>
+    /// <summary>Changes a photo's description (L2-068 AC4).</summary>
     public async Task<Result> DescribeAsync(Guid contactId, Guid photoId, DescribePhotoCommand command, CancellationToken cancellationToken = default)
     {
         var (kind, contact, actor) = await access.AuthorizeAsync(contactId, cancellationToken: cancellationToken);
@@ -101,7 +101,7 @@ public class ContactPhotosHandler(
         return Result.Ok();
     }
 
-    /// <summary>Makes one photo the contact's only featured photo (L2-056 AC3).</summary>
+    /// <summary>Makes one photo the contact's only featured photo (L2-068 AC3).</summary>
     public async Task<Result> FeatureAsync(Guid contactId, Guid photoId, CancellationToken cancellationToken = default)
     {
         var (refused, contact, photo, kind, actor) = await FindLeasedAsync(contactId, photoId, cancellationToken);
@@ -118,7 +118,7 @@ public class ContactPhotosHandler(
         return Result.Ok();
     }
 
-    /// <summary>Removes a photo and its blob; the newest remaining photo takes over as featured (L2-056 AC5, AC6).</summary>
+    /// <summary>Removes a photo and its blob; the newest remaining photo takes over as featured (L2-068 AC5, AC6).</summary>
     public async Task<Result> DeleteAsync(Guid contactId, Guid photoId, CancellationToken cancellationToken = default)
     {
         var (refused, contact, photo, kind, actor) = await FindLeasedAsync(contactId, photoId, cancellationToken);
@@ -212,7 +212,7 @@ public class ContactPhotosHandler(
         }
         catch (Exception exception) when (exception is not OperationCanceledException)
         {
-            // Storage is down: keep the photo and write its blob later (L2-059 AC1, ADR 0013).
+            // Storage is down: keep the photo and write its blob later (L2-071 AC1, ADR 0013).
             photo.MarkStoring();
             db.PhotoBlobTasks.Add(PhotoBlobTask.Save(photo.Id, photo.BlobName, image.Content, image.ContentType, time.GetUtcNow()));
         }

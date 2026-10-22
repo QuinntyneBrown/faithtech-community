@@ -20,11 +20,11 @@ export interface PhotoRef {
   photo: { id: string; url: string | null; altText: string; featured: boolean };
 }
 
-// Mirrors the server's description rule (L2-057).
+// Mirrors the server's description rule (L2-069).
 const MAX_ALT = 300;
 
 /**
- * Changes a contact photo's description (L2-056 AC4), matching docs/mocks/dialogs/edit-photo-description.
+ * Changes a contact photo's description (L2-068 AC4), matching docs/mocks/dialogs/edit-photo-description.
  * Closes with the saved description.
  */
 @Component({

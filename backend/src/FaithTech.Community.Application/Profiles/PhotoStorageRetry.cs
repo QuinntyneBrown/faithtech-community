@@ -6,7 +6,7 @@ using Microsoft.Extensions.Logging;
 namespace FaithTech.Community.Application.Profiles;
 
 /// <summary>
-/// Retries blob work that failed while storage was down (L2-047 AC3, L2-059), for profile and contact photos. A write makes its photo
+/// Retries blob work that failed while storage was down (L2-047 AC3, L2-071), for profile and contact photos. A write makes its photo
 /// available; a delete removes the blob of a photo that is already gone. Each task is keyed to one
 /// photo and one blob name, so a retry never creates another photo.
 /// </summary>

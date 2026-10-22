@@ -47,7 +47,7 @@ public class Contact
 
     public IReadOnlyCollection<ContactPhoto> Photos => _photos;
 
-    /// <summary>Serializes writes to <see cref="Photos"/> across requests (L2-059 AC3).</summary>
+    /// <summary>Serializes writes to <see cref="Photos"/> across requests (L2-071 AC3).</summary>
     public PhotoLease PhotoLease { get; private set; } = new();
 
     public void Update(string name, string? email, string? phone, string? organization, string? city)

@@ -32,7 +32,7 @@ const BADGES: Record<ContactStatus, { variant: BadgeVariant; label: string }> = 
 };
 
 /**
- * A lead's private contacts as a grid of person cards, with search (L2-012, L2-013, L2-060), matching
+ * A lead's private contacts as a grid of person cards, with search (L2-012, L2-013, L2-072), matching
  * docs/mocks/pages/contacts.
  */
 @Component({
@@ -102,7 +102,7 @@ export class ContactsPage {
     return avatarColorFor(contact.id);
   }
 
-  /** The card's ×: confirms first, then removes the archived card (L2-061). */
+  /** The card's ×: confirms first, then removes the archived card (L2-073). */
   protected async archive(contact: ContactSummary): Promise<void> {
     const ref = this.dialogs.open<boolean, ContactRef>(ArchiveContactDialog, {
       data: { contactId: contact.id, name: contact.name },

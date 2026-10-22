@@ -63,7 +63,7 @@ public static class ContactsEndpoints
             return result.ToHttp(() => Results.Ok(contact));
         });
 
-        // Contact photos (L2-055 to L2-059). Bearer-token API, so no antiforgery; up to 10 MB is read so a
+        // Contact photos (L2-067 to L2-071). Bearer-token API, so no antiforgery; up to 10 MB is read so a
         // too-large photo gets the inline 400.
         contacts.MapPost("/{id:guid}/photos", async (
                 Guid id, IFormFile? file, [FromForm] string? altText, ContactPhotosHandler handler, CancellationToken cancellationToken) =>

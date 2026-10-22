@@ -1,4 +1,4 @@
-// Traces to: L2-055, L2-057 AC2 (docs/detailed-designs/contacts/contact-photos)
+// Traces to: L2-067, L2-069 AC2 (docs/detailed-designs/contacts/contact-photos)
 import { expect, test } from '../../fixtures/app';
 import { ContactFormPage } from '../../pages/contact-form.page';
 import { ContactPage } from '../../pages/contact.page';

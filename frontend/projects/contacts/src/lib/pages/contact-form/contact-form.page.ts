@@ -47,7 +47,7 @@ const SUMMARY: Record<string, string> = {
   [NAME_MESSAGE]: 'Enter a name',
   [EMAIL_MESSAGE]: 'Enter a valid email',
 };
-// The photo rules the server checks too (L2-057).
+// The photo rules the server checks too (L2-069).
 const MISSING_ALT = 'Describe this photo.';
 const MAX_ALT = 300;
 const LONG_ALT = `Use ${MAX_ALT} characters or fewer to describe this photo.`;
@@ -62,7 +62,7 @@ interface ChosenPhoto {
 
 /**
  * Add or edit a private contact (L2-013), matching docs/mocks/pages/contact-form. Without `id` it
- * creates a contact with an optional first note and photos (L2-055), offering "Save and link" when the
+ * creates a contact with an optional first note and photos (L2-067), offering "Save and link" when the
  * email belongs to a member; with `id` it edits that contact. Chosen photos upload after the contact is
  * created, featured first; any that fail are named on the contact page.
  */

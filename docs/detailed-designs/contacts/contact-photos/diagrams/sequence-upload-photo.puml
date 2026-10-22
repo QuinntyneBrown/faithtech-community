@@ -40,23 +40,23 @@ h -> acc : AuthorizeAsync(id, withPhotos)
 alt NotFound (another lead, Staff, any other member, unknown id)
   acc --> h : NotFound
   h --> ep : Result.NotFound
-  ep --> svc : 404 (L2-058 AC1)
+  ep --> svc : 404 (L2-070 AC1)
 else Owner or AdminOverride
   h -> leases : TakeAsync(contact.PhotoLease)
   alt Another photo write holds the lease
     leases --> h : false
-    h --> ep : 409 "Your photos changed while this was saving…" (L2-059 AC3)
+    h --> ep : 409 "Your photos changed while this was saving…" (L2-071 AC3)
   else Lease taken
-    h -> h : 10-photo limit, description (1–300), 5 MB (L2-057 AC2–4)
+    h -> h : 10-photo limit, description (1–300), 5 MB (L2-069 AC2–4)
     h -> img : ProcessAsync(content, fileName)
     img --> h : resized, metadata removed, or refusal (400 File)
     h -> store : SaveAsync(contacts/{id}/{guid}.ext)
     alt Storage down
-      h -> h : photo.MarkStoring(); queue PhotoBlobTask Save (L2-059 AC1)
+      h -> h : photo.MarkStoring(); queue PhotoBlobTask Save (L2-071 AC1)
     end
     h -> h : contact.AddPhoto(photo) — first photo is featured
     opt AdminOverride
-      h -> acc : AuditOverride("contact.photo-added") (L2-058 AC4)
+      h -> acc : AuditOverride("contact.photo-added") (L2-070 AC4)
     end
     h -> db : Save photo, task, audit; release lease
     h --> ep : ContactPhotoDto (Url = /api/contacts/{id}/photos/{photoId}/image)

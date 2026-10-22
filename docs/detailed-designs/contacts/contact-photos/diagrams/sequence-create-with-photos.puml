@@ -24,9 +24,9 @@ box "Backend — FaithTech.Community.Api" #D1FADF
   participant "ContactsEndpoints" as ep
 end box
 actor -> pick : Choose photos, describe each, Feature one
-pick -> pick : Refuse wrong type or > 5 MB; at most 10 (L2-055 AC4, L2-057 AC2)
+pick -> pick : Refuse wrong type or > 5 MB; at most 10 (L2-067 AC4, L2-069 AC2)
 actor -> form : Save contact
-form -> form : Validate details and every description ("Describe this photo.", L2-055 AC3)
+form -> form : Validate details and every description ("Describe this photo.", L2-067 AC3)
 form -> svc : create(contact)
 svc -> ep : POST /api/contacts
 ep --> svc : 201 ContactDto
@@ -41,8 +41,8 @@ loop chosen photos, featured first (ADR 0017)
   end
 end
 alt Every photo uploaded
-  form --> actor : Navigate to /contacts/{id} (L2-055 AC5)
+  form --> actor : Navigate to /contacts/{id} (L2-067 AC5)
 else Some failed
-  form --> actor : Navigate to /contacts/{id} with the failed descriptions; photo-failed alert (L2-055 AC6)
+  form --> actor : Navigate to /contacts/{id} with the failed descriptions; photo-failed alert (L2-067 AC6)
 end
 @enduml

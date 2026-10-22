@@ -1,4 +1,4 @@
-// Traces to: L2-055, L2-056, L2-057, L2-058
+// Traces to: L2-067, L2-068, L2-069, L2-070
 using System.Net;
 using System.Net.Http.Json;
 using System.Text;
@@ -26,7 +26,7 @@ public class UploadContactPhotoTests(CommunityApiFactory factory) : IClassFixtur
         Assert.True(photo.IsFeatured);
         Assert.True(photo.IsStored);
         Assert.Equal("Tomás at the coffee morning", photo.AltText);
-        // The URL is the authenticated API, never a storage link (L2-058 AC3).
+        // The URL is the authenticated API, never a storage link (L2-070 AC3).
         Assert.Equal($"/api/contacts/{contact.Id}/photos/{photo.Id}/image", photo.Url);
         var key = Assert.Single(factory.Photos.Blobs.Keys, k => k.StartsWith($"contacts/{contact.Id}/"));
         Assert.EndsWith(".jpg", key);

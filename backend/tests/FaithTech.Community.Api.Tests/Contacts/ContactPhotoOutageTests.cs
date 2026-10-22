@@ -1,4 +1,4 @@
-// Traces to: L2-059, L2-047
+// Traces to: L2-071, L2-047
 using System.Net;
 using System.Net.Http.Json;
 using FaithTech.Community.Application.Profiles;
@@ -10,7 +10,7 @@ using static FaithTech.Community.Api.Tests.Contacts.ContactClients;
 
 namespace FaithTech.Community.Api.Tests.Contacts;
 
-/// <summary>Contact photo actions still succeed while blob storage is down, and the blob work is retried (L2-059).</summary>
+/// <summary>Contact photo actions still succeed while blob storage is down, and the blob work is retried (L2-071).</summary>
 public class ContactPhotoOutageTests(CommunityApiFactory factory) : IClassFixture<CommunityApiFactory>
 {
     [Fact]

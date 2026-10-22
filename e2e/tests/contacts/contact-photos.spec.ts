@@ -1,4 +1,4 @@
-// Traces to: L2-056, L2-058, L2-059 (docs/detailed-designs/contacts/contact-photos)
+// Traces to: L2-068, L2-070, L2-071 (docs/detailed-designs/contacts/contact-photos)
 import { expect, test } from '../../fixtures/app';
 import { AppShell } from '../../pages/app-shell.page';
 import {

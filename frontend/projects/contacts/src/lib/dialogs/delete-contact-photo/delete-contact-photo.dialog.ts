@@ -12,7 +12,7 @@ import { firstValueFrom } from 'rxjs';
 import { PhotoRef } from '../edit-photo-description';
 
 /**
- * Confirms deleting a contact photo (L2-056 AC5, AC6), matching docs/mocks/dialogs/delete-contact-photo.
+ * Confirms deleting a contact photo (L2-068 AC5, AC6), matching docs/mocks/dialogs/delete-contact-photo.
  * Closes with true once the photo is deleted.
  */
 @Component({

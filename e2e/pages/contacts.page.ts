@@ -44,7 +44,7 @@ export class ContactsPage {
     return this.items.filter({ hasText: name });
   }
 
-  /** A person card (L2-060), found by the contact's name heading. */
+  /** A person card (L2-072), found by the contact's name heading. */
   card(name: string): PersonCard {
     const root = this.page.getByRole('article', { name });
     return {
