@@ -280,7 +280,8 @@
       "route": "/search",
       "requirements": [
         "L2-026",
-        "L2-065"
+        "L2-065",
+        "L2-096"
       ],
       "states": [
         "default",
@@ -290,7 +291,8 @@
         "error",
         "no-results",
         "invalid",
-        "resources"
+        "resources",
+        "notes"
       ],
       "not_applicable": {}
     },
@@ -1606,7 +1608,8 @@
       "requirements": [
         "L2-028",
         "L2-030",
-        "L2-061"
+        "L2-061",
+        "L2-093"
       ],
       "states": [
         "info",
@@ -1618,6 +1621,7 @@
         "workspace-added",
         "poker-invite",
         "resource-shared",
+        "note-shared",
         "connected"
       ],
       "not_applicable": {}
@@ -1692,6 +1696,89 @@
       ],
       "not_applicable": {
         "forbidden": "Everyone sees only their own archived resources; System Admin sees all of them through the same page."
+      }
+    },
+    {
+      "id": "notes",
+      "kind": "page",
+      "title": "Notes",
+      "route": "/notes",
+      "requirements": [
+        "L2-085",
+        "L2-092"
+      ],
+      "states": [
+        "default",
+        "loading",
+        "empty",
+        "error",
+        "no-results",
+        "shared-with-me"
+      ],
+      "not_applicable": {
+        "forbidden": "Every signed-in member can open Notes and sees only the pages they may read; anonymous visitors are sent to sign in."
+      }
+    },
+    {
+      "id": "note",
+      "kind": "page",
+      "title": "Note page",
+      "route": "/notes/:id",
+      "requirements": [
+        "L2-086",
+        "L2-087",
+        "L2-088",
+        "L2-089",
+        "L2-090",
+        "L2-091",
+        "L2-094",
+        "L2-097",
+        "L2-098",
+        "L2-099"
+      ],
+      "states": [
+        "default",
+        "new",
+        "block-menu",
+        "slash-menu",
+        "toolbar",
+        "page-link",
+        "dragging",
+        "keyboard-move",
+        "saving",
+        "save-failed",
+        "conflict",
+        "read-only",
+        "private",
+        "backlinks",
+        "nested",
+        "admin",
+        "archived",
+        "forbidden",
+        "loading",
+        "error",
+        "not-found"
+      ],
+      "not_applicable": {
+        "empty": "A page with no content yet is the new state: it always has a title and one block to type in."
+      }
+    },
+    {
+      "id": "archived-notes",
+      "kind": "page",
+      "title": "Archived pages",
+      "route": "/notes/archived",
+      "requirements": [
+        "L2-095"
+      ],
+      "states": [
+        "default",
+        "loading",
+        "empty",
+        "error"
+      ],
+      "not_applicable": {
+        "forbidden": "Everyone sees only their own archived pages; there is nothing to refuse."
       }
     },
     {
@@ -1770,6 +1857,138 @@
       "not_applicable": {}
     },
     {
+      "id": "share-note",
+      "kind": "dialog",
+      "title": "Share page",
+      "opens_from": "note",
+      "requirements": [
+        "L2-093"
+      ],
+      "states": [
+        "default",
+        "shared",
+        "invalid",
+        "busy",
+        "failed"
+      ],
+      "not_applicable": {}
+    },
+    {
+      "id": "note-settings",
+      "kind": "dialog",
+      "title": "Page settings",
+      "opens_from": "note",
+      "requirements": [
+        "L2-086"
+      ],
+      "states": [
+        "default",
+        "invalid",
+        "busy"
+      ],
+      "not_applicable": {}
+    },
+    {
+      "id": "move-note",
+      "kind": "dialog",
+      "title": "Move page",
+      "opens_from": "note",
+      "requirements": [
+        "L2-091"
+      ],
+      "states": [
+        "default",
+        "empty",
+        "busy"
+      ],
+      "not_applicable": {
+        "invalid": "A parent is always chosen (the current one, or Top level), and pages it can’t go inside aren’t offered, so there is nothing to fix."
+      }
+    },
+    {
+      "id": "archive-note",
+      "kind": "dialog",
+      "title": "Archive page",
+      "opens_from": "note",
+      "requirements": [
+        "L2-095"
+      ],
+      "states": [
+        "default",
+        "busy",
+        "failed"
+      ],
+      "not_applicable": {
+        "invalid": "A confirmation with no input to validate."
+      }
+    },
+    {
+      "id": "restore-note",
+      "kind": "dialog",
+      "title": "Restore page",
+      "opens_from": "archived-notes",
+      "requirements": [
+        "L2-095"
+      ],
+      "states": [
+        "default",
+        "busy",
+        "failed"
+      ],
+      "not_applicable": {
+        "invalid": "A confirmation with no input to validate."
+      }
+    },
+    {
+      "id": "add-image",
+      "kind": "dialog",
+      "title": "Add an image",
+      "opens_from": "note",
+      "requirements": [
+        "L2-097"
+      ],
+      "states": [
+        "default",
+        "invalid",
+        "busy",
+        "failed"
+      ],
+      "not_applicable": {}
+    },
+    {
+      "id": "add-link",
+      "kind": "dialog",
+      "title": "Add a link",
+      "opens_from": "note",
+      "requirements": [
+        "L2-088"
+      ],
+      "states": [
+        "default",
+        "invalid",
+        "edit"
+      ],
+      "not_applicable": {
+        "busy": "The link is applied in the editor; nothing is sent until autosave, whose states the note page shows (saving, save-failed)."
+      }
+    },
+    {
+      "id": "add-link-card",
+      "kind": "dialog",
+      "title": "Add a link card",
+      "opens_from": "note",
+      "requirements": [
+        "L2-087"
+      ],
+      "states": [
+        "default",
+        "invalid"
+      ],
+      "not_applicable": {
+        "busy": "The card is added in the editor; nothing is sent until autosave, whose states the note page shows (saving, save-failed)."
+      }
+    },
+    {
       "id": "resource-toast",
       "kind": "notification",
       "title": "Resource toast",
@@ -1788,6 +2007,25 @@
         "restored"
       ],
       "not_applicable": {}
+    },
+    {
+      "id": "note-toast",
+      "kind": "notification",
+      "title": "Notes toast",
+      "opens_from": "notes",
+      "requirements": [
+        "L2-095"
+      ],
+      "states": [
+        "archived",
+        "restored",
+        "danger"
+      ],
+      "not_applicable": {
+        "info": "The info toast is the archived state; Notes toasts only report archive and restore.",
+        "success": "The success toast is the restored state.",
+        "warning": "Archiving and restoring a page either succeed or fail; there is no partial outcome to warn about."
+      }
     }
   ]
 }
