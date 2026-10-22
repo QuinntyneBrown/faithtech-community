@@ -58,8 +58,19 @@ describe('HttpAnnouncementsService', () => {
     expect(sent).toEqual({ id: 'a1', recipientCount: 41, emailCount: 38 });
   });
 
+  it('reads the announcement email opt-out', () => {
+    let optedOut: boolean | undefined;
+    service.getEmailOptOut().subscribe((o) => (optedOut = o));
+
+    const req = controller.expectOne('/api/me/announcement-email-opt-out');
+    expect(req.request.method).toBe('GET');
+    req.flush({ optedOut: true });
+    expect(optedOut).toBe(true);
+  });
+
   it.each([
     ['list', () => service.list(), 'GET', '/api/announcements?page=1', undefined],
+    ['list a page', () => service.list(2), 'GET', '/api/announcements?page=2', undefined],
     [
       'setEmailOptOut',
       () => service.setEmailOptOut(true),

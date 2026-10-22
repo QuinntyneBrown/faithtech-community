@@ -5,6 +5,7 @@ using FaithTech.Community.Domain.Notifications;
 using FaithTech.Community.Domain.Profiles;
 using FluentValidation;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
 
 namespace FaithTech.Community.Application.Announcements;
 
@@ -117,6 +118,8 @@ public class SendAnnouncementHandler(
     AnnouncementAccess access,
     AudienceResolver audiences,
     INotificationPublisher publisher,
+    IUnsubscribeTokens unsubscribe,
+    IOptions<WebAppOptions> webApp,
     TimeProvider time)
 {
     public const string LinkPath = "/announcements";
@@ -161,9 +164,14 @@ public class SendAnnouncementHandler(
             subject,
             LinkPath,
             sender,
-            command.AlsoEmail ? _ => new NotificationEmail(subject, body) : null,
+            command.AlsoEmail ? recipient => new NotificationEmail(subject, EmailBody(body, recipient)) : null,
             cancellationToken);
         await db.SaveChangesAsync(cancellationToken);
         return (Result.Ok(), new AnnouncementSent(announcement.Id, recipients.Count, emails));
     }
+
+    /// <summary>The message with each recipient's own unsubscribe link (L2-030 AC3).</summary>
+    private string EmailBody(string body, Guid recipient) =>
+        $"{body}\n\nUnsubscribe from announcement emails (no sign-in needed): "
+        + $"{webApp.Value.Origin}/unsubscribe?token={Uri.EscapeDataString(unsubscribe.Issue(recipient))}";
 }

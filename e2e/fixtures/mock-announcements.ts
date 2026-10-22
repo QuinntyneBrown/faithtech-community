@@ -35,6 +35,8 @@ export class MockAnnouncements {
   readonly announcements: MockAnnouncement[] = [];
   /** Profile ids of members who turned announcement emails off (L2-030). */
   readonly optedOut = new Set<string>();
+  /** Unsubscribe tokens from announcement emails, and the profile each one names. */
+  readonly tokens = new Map<string, string>();
 
   constructor(private readonly context: AnnouncementsContext) {}
 
@@ -45,8 +47,35 @@ export class MockAnnouncements {
     body: Record<string, unknown>,
     caller: MockAccount | null,
   ): Promise<void> | undefined {
-    if (!url.pathname.startsWith('/api/announcements')) return undefined;
+    const optOut = url.pathname === '/api/me/announcement-email-opt-out';
+    if (!url.pathname.startsWith('/api/announcements') && !optOut) return undefined;
+    if (method === 'POST' && url.pathname === '/api/announcements/unsubscribe') {
+      // Anonymous: the token is the credential (L2-030 AC3).
+      const profileId = this.tokens.get(String(body['token'] ?? ''));
+      if (!profileId) {
+        return route.fulfill({
+          status: 400,
+          json: { status: 400, errors: { Token: ['This unsubscribe link doesn’t work.'] } },
+        });
+      }
+      this.optedOut.add(profileId);
+      return route.fulfill({ status: 204 });
+    }
     if (!caller) return route.fulfill({ status: 401 });
+    if (optOut && method === 'GET') {
+      return route.fulfill({
+        status: 200,
+        json: { optedOut: this.optedOut.has(caller.profileId) },
+      });
+    }
+    if (optOut && method === 'PUT') {
+      if (body['optedOut']) this.optedOut.add(caller.profileId);
+      else this.optedOut.delete(caller.profileId);
+      return route.fulfill({ status: 204 });
+    }
+    if (method === 'GET' && url.pathname === '/api/announcements') {
+      return this.list(route, url, caller);
+    }
     const sender = caller.roles.some((r) => SENDERS.includes(r));
 
     if (method === 'POST' && url.pathname === '/api/announcements/recipient-count') {
@@ -105,6 +134,31 @@ export class MockAnnouncements {
     };
     this.announcements.push(full);
     return full;
+  }
+
+  /** GET /api/announcements: those sent to the caller or by them, newest first, 25 to a page. */
+  private list(route: Route, url: URL, caller: MockAccount): Promise<void> {
+    const page = Math.max(1, Number(url.searchParams.get('page') ?? '1'));
+    const mine = this.announcements
+      .filter((a) => a.senderId === caller.profileId || a.recipientIds.includes(caller.profileId))
+      .sort((a, b) => b.sentAt.localeCompare(a.sentAt));
+    const accounts = [...this.context.accounts.values()];
+    const items = mine.slice((page - 1) * 25, page * 25).map((a) => ({
+      id: a.id,
+      subject: a.subject,
+      body: a.body,
+      sentAt: a.sentAt,
+      senderName: accounts.find((x) => x.profileId === a.senderId)?.name ?? '',
+      audienceKind: a.audience.kind,
+      roles: a.audience.roles ?? [],
+      eventTitle:
+        this.context.events.events.find((e) => e.id === a.audience.eventId)?.title ?? null,
+      recipientCount: a.recipientIds.length,
+    }));
+    return route.fulfill({
+      status: 200,
+      json: { items, page, pageSize: 25, totalCount: mine.length },
+    });
   }
 
   private recipients(

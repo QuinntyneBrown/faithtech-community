@@ -27,11 +27,19 @@ export interface AnnouncementSent {
   emailCount: number;
 }
 
+/** An announcement sent to the caller, or by them (L2-030, ADR 0015). */
 export interface AnnouncementDto {
   id: string;
   subject: string;
   body: string;
   sentAt: string;
+  senderName: string;
+  audienceKind: AudienceKind;
+  /** The chosen roles of a role audience. */
+  roles: Role[];
+  /** The event of an RSVP audience. */
+  eventTitle: string | null;
+  recipientCount: number;
 }
 
 /** Contract for the announcements API. Pages depend on ANNOUNCEMENTS_SERVICE, never on HttpAnnouncementsService. */
@@ -39,6 +47,8 @@ export interface AnnouncementsService {
   list(page?: number): Observable<PagedResult<AnnouncementDto>>;
   countRecipients(audience: AnnouncementAudience): Observable<number>;
   send(announcement: SendAnnouncementRequest): Observable<AnnouncementSent>;
+  /** Whether the caller turned announcement emails off. */
+  getEmailOptOut(): Observable<boolean>;
   setEmailOptOut(optedOut: boolean): Observable<void>;
   /** Anonymous: opens from the email footer link with a signed token. */
   unsubscribe(token: string): Observable<void>;

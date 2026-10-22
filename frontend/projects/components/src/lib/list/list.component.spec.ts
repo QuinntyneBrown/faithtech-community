@@ -18,6 +18,15 @@ class HostComponent {
   flush = signal(true);
 }
 
+@Component({
+  imports: [ListComponent, ListItemComponent],
+  template: `<ft-list label="Announcements">
+    <ft-list-item label="Welcome" description="Team formation opens Monday." />
+    <ft-list-item label="No text" />
+  </ft-list>`,
+})
+class DescriptionHostComponent {}
+
 function setup() {
   const fixture = TestBed.createComponent(HostComponent);
   fixture.detectChanges();
@@ -82,5 +91,15 @@ describe('ListItemComponent', () => {
     const item = el.querySelectorAll('ft-list-item')[1];
     expect(item.querySelector('.ft-list-item__meta:not(.ft-list-item__meta-slot)')).toBeNull();
     expect(item.querySelector('.ft-list-item__meta-slot')?.childNodes.length).toBe(0);
+  });
+
+  it('shows a description under the meta line, in body text, only when given', () => {
+    const fixture = TestBed.createComponent(DescriptionHostComponent);
+    fixture.detectChanges();
+    const descriptions = (fixture.nativeElement as HTMLElement).querySelectorAll(
+      '.ft-list-item__description',
+    );
+    expect(descriptions).toHaveLength(1);
+    expect(descriptions[0].textContent!.trim()).toBe('Team formation opens Monday.');
   });
 });

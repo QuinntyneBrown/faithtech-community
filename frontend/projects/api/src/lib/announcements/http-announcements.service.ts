@@ -33,6 +33,12 @@ export class HttpAnnouncementsService implements AnnouncementsService {
     return this.http.post<AnnouncementSent>(`${this.api}/announcements`, announcement);
   }
 
+  getEmailOptOut(): Observable<boolean> {
+    return this.http
+      .get<{ optedOut: boolean }>(`${this.api}/me/announcement-email-opt-out`)
+      .pipe(map((r) => r.optedOut));
+  }
+
   setEmailOptOut(optedOut: boolean): Observable<void> {
     return this.http.put<void>(`${this.api}/me/announcement-email-opt-out`, { optedOut });
   }

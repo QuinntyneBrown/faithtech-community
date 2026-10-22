@@ -31,6 +31,12 @@ export const routes: Routes = [
     path: 'accept-invite',
     loadChildren: () => import('@faithtech-community/invites').then((m) => m.ACCEPT_INVITE_ROUTES),
   },
+  // The unsubscribe link in announcement emails works without a sign-in (L2-030 AC3).
+  {
+    path: 'unsubscribe',
+    loadChildren: () =>
+      import('@faithtech-community/announcements').then((m) => m.UNSUBSCRIBE_ROUTES),
+  },
   { path: 'forbidden', component: ForbiddenPage },
   { path: 'error', component: ServerErrorPage },
   {

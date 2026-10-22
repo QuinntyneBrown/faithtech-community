@@ -1,5 +1,6 @@
 using Azure.Storage.Blobs;
 using FaithTech.Community.Application.Admin;
+using FaithTech.Community.Application.Announcements;
 using FaithTech.Community.Application.Common;
 using FaithTech.Community.Application.Events;
 using FaithTech.Community.Application.Identity;
@@ -68,6 +69,7 @@ public static class DependencyInjection
         services.AddScoped<IEmailSender, OutboxEmailSender>();
         services.AddScoped<IEmailTransport, SmtpEmailTransport>();
         services.AddScoped<EmailOutboxDispatcher>();
+        services.AddSingleton<IUnsubscribeTokens, DataProtectionUnsubscribeTokens>();
         services.AddHostedService<EmailOutboxWorker>();
 
         services.AddSingleton(_ => new BlobServiceClient(configuration.GetConnectionString("Blobs")));
