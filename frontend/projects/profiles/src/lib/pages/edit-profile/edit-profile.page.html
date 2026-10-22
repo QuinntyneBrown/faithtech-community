@@ -8,7 +8,7 @@
 @switch (state()) {
   @case ('loading') {
     <ft-page-header title="Edit profile" />
-    <div class="loading" aria-busy="true" aria-label="Loading your profile">
+    <div class="loading" role="status" aria-busy="true" aria-label="Loading your profile">
       @for (card of [1, 2]; track card) {
         <ft-card>
           <ft-stack>

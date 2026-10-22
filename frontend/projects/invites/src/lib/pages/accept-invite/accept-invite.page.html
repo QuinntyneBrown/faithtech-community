@@ -3,7 +3,7 @@
     @switch (view()) {
       @case ('loading') {
         <h1 class="visually-hidden">Accept invite</h1>
-        <ft-stack aria-busy="true" aria-label="Checking your invite">
+        <ft-stack role="status" aria-busy="true" aria-label="Checking your invite">
           <ft-skeleton shape="title" />
           <ft-skeleton />
         </ft-stack>

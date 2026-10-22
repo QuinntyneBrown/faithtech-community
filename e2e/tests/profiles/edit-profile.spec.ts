@@ -178,6 +178,12 @@ test.describe('Edit own profile', () => {
     await api.signInAs(grace, '/people/me/edit');
 
     await expect(edit.loading).toBeVisible();
+    // Checked while the request is still held, in both themes.
+    await axe.check();
+    await page.emulateMedia({ colorScheme: 'dark' });
+    await axe.check();
+    await page.emulateMedia({ colorScheme: 'light' });
+    await expect(edit.loading).toBeVisible();
     release();
     await expect(edit.loadError).toBeVisible();
     await axe.check();

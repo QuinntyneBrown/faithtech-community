@@ -13,6 +13,8 @@ import { SkeletonComponent } from './skeleton.component';
   styleUrl: './list-skeleton.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: {
+    // A status, so its aria-label is allowed and the wait is announced politely.
+    role: 'status',
     'aria-busy': 'true',
     '[attr.aria-label]': 'label()',
   },
