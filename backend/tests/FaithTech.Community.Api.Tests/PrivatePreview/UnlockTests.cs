@@ -80,6 +80,45 @@ public class UnlockTests(PrivatePreviewApiFactory factory) : IClassFixture<Priva
         Assert.Equal(HttpStatusCode.OK, (await factory.Browser(CommunityApiFactory.MarketingOrigin).SendAsync(request)).StatusCode);
     }
 
+    // Under Referrer-Policy: no-referrer, which every response carries, Chromium sends "Origin: null" on the wall's own
+    // form post; Sec-Fetch-Site still says it came from this origin.
+    [Fact]
+    public async Task The_wall_form_posted_by_a_browser_under_no_referrer_unlocks()
+    {
+        var form = await factory.OpenWallAsync();
+        var request = new HttpRequestMessage(HttpMethod.Post, "/__wall/unlock")
+        {
+            Content = new FormUrlEncodedContent([new("csrf", form.Csrf), new("returnUrl", "/"), new("passphrase", PrivatePreviewApiFactory.Passphrase)]),
+        };
+        request.Headers.Add("Cookie", form.Cookie);
+        request.Headers.Add("Origin", "null");
+        request.Headers.Add("Sec-Fetch-Site", "same-origin");
+
+        var response = await factory.Browser().SendAsync(request);
+
+        Assert.Equal(HttpStatusCode.SeeOther, response.StatusCode);
+    }
+
+    [Theory]
+    [InlineData("null", "cross-site")]
+    [InlineData("null", "same-site")]
+    [InlineData("https://evil.example", "same-origin")]
+    public async Task A_post_from_anywhere_else_is_refused_even_with_the_right_token(string origin, string fetchSite)
+    {
+        var form = await factory.OpenWallAsync();
+        var request = new HttpRequestMessage(HttpMethod.Post, "/__wall/unlock")
+        {
+            Content = new FormUrlEncodedContent([new("csrf", form.Csrf), new("returnUrl", "/"), new("passphrase", PrivatePreviewApiFactory.Passphrase)]),
+        };
+        request.Headers.Add("Cookie", form.Cookie);
+        request.Headers.Add("Origin", origin);
+        request.Headers.Add("Sec-Fetch-Site", fetchSite);
+
+        var response = await factory.Browser().SendAsync(request);
+
+        Assert.Equal(HttpStatusCode.Forbidden, response.StatusCode);
+    }
+
     public static TheoryData<string, string?, bool, string?> Refusals() => new()
     {
         { "wrong passphrase", "correct horse battery stapler", true, null },

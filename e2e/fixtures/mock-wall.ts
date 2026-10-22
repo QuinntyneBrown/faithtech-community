@@ -87,7 +87,9 @@ export class MockWall {
     const csrf = (await this.page.context().cookies(request.url())).find(
       (c) => c.name === '__Host-wall',
     )?.value;
-    const genuine = !!csrf && csrf === form.get('csrf');
+    const headers = await request.allHeaders();
+    const url = new URL(request.url());
+    const genuine = !!csrf && csrf === form.get('csrf') && fromThisOrigin(headers, url);
     if (!genuine || form.get('passphrase') !== this.passphrase) {
       this.failures++;
       return this.wall(route, 'invalid', returnUrl, 403);
@@ -151,6 +153,8 @@ export class MockWall {
         'cache-control': 'no-store',
         'content-security-policy': `default-src 'none'; style-src 'nonce-${nonce}'; script-src 'nonce-${nonce}'; img-src data:; form-action 'self'; frame-ancestors 'none'; base-uri 'none'`,
         'x-robots-tag': 'noindex, nofollow',
+        // As SecurityHeadersMiddleware sends on every response: it makes Chromium post the form with Origin: null.
+        'referrer-policy': 'no-referrer',
         'set-cookie': `__Host-wall=${csrf}; Path=/; HttpOnly; Secure; SameSite=Strict`,
       },
       body: html,
@@ -163,6 +167,18 @@ const WARNING_ICON =
 
 function alert(variant: string, title: string, text: string): string {
   return `<div class="alert alert--${variant}" role="alert">${WARNING_ICON}<div class="alert__body"><div class="alert__title">${title}</div><p>${text}</p></div></div>`;
+}
+
+/**
+ * As PrivatePreviewGateMiddleware.IsGenuine: Sec-Fetch-Site, when sent, says same-origin, and Origin is this origin,
+ * or null (Chromium's Origin under no-referrer) or missing.
+ */
+function fromThisOrigin(headers: Record<string, string>, url: URL): boolean {
+  const site = headers['sec-fetch-site'];
+  const origin = headers['origin'];
+  return (
+    (!site || site === 'same-origin') && (!origin || origin === 'null' || origin === url.origin)
+  );
 }
 
 /** As ReturnUrls.Local: a path on this host, or "/". */

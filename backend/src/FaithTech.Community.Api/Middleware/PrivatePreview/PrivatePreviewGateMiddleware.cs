@@ -113,16 +113,22 @@ public class PrivatePreviewGateMiddleware(
         }
     }
 
-    /// <summary>The form came from our own wall page: its CSRF value matches the host-only cookie, and any Origin is this host.</summary>
+    /// <summary>
+    /// The form came from our own wall page: its CSRF value matches the host-only, SameSite=Strict cookie, and the
+    /// browser says the post came from this origin. Under Referrer-Policy: no-referrer browsers send "Origin: null" on
+    /// a same-origin form post, so a null or missing Origin counts only when Sec-Fetch-Site (if sent) is same-origin.
+    /// </summary>
     private static bool IsGenuine(HttpRequest request, string? csrf)
     {
         var cookie = request.Cookies[WallPage.CsrfCookie];
         var tokenMatches = !string.IsNullOrEmpty(cookie) && !string.IsNullOrEmpty(csrf)
             && CryptographicOperations.FixedTimeEquals(Encoding.UTF8.GetBytes(cookie), Encoding.UTF8.GetBytes(csrf));
         var origin = request.Headers.Origin.ToString();
-        var originMatches = origin.Length == 0
-            || (Uri.TryCreate(origin, UriKind.Absolute, out var uri) && string.Equals(uri.Authority, request.Host.Value, StringComparison.OrdinalIgnoreCase));
-        return tokenMatches && originMatches;
+        var fetchSite = request.Headers["Sec-Fetch-Site"].ToString();
+        var sameOrigin = (fetchSite.Length == 0 || fetchSite == "same-origin")
+            && (origin.Length == 0 || origin == "null"
+                || (Uri.TryCreate(origin, UriKind.Absolute, out var uri) && string.Equals(uri.Authority, request.Host.Value, StringComparison.OrdinalIgnoreCase)));
+        return tokenMatches && sameOrigin;
     }
 
     private bool IsOwnPreflight(HttpRequest request) =>
