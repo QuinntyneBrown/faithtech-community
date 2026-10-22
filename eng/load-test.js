@@ -19,6 +19,13 @@
 // Search (L2-026 AC5): also seed 100,000 searchable records before the run, so search runs over them:
 //        dotnet run --project backend/src/FaithTech.Community.Cli -- seed-search-records 100000
 //
+// Reports (L2-104 AC1): the reports scenario reads GET /api/reports and the CSV export for every period, as a System
+// Admin, under 1 second at p95 over 10,000 members, 1,000 events and 50,000 RSVPs. Before the run, seed that volume,
+// one more load-test member than VUS, and make that member a System Admin (Staff cannot be granted from the Cli):
+//        dotnet run --project backend/src/FaithTech.Community.Cli -- seed-report-records 10000
+//        LOADTEST_PASSWORD=<same password> dotnet run --project backend/src/FaithTech.Community.Cli -- seed-load-users 201
+//        dotnet run --project backend/src/FaithTech.Community.Cli -- grant-admin load-201@loadtest.invalid
+//
 // Every request in the measured scenario must answer 2xx: any other status counts as a failure,
 // and the thresholds fail the run. Reads are the member's own session, profile and the team list.
 // The write is a real, authorized change that persists: each member updates their own profile's
@@ -37,6 +44,8 @@ const PASSWORD = __ENV.LOADTEST_PASSWORD;
 const VUS = Number(__ENV.VUS || 200);
 const RUN_ID = __ENV.RUN_ID || `${Date.now()}`;
 const REDIRECT_URI = `${WEB_ORIGIN}/auth/callback`;
+const REPORT_PERIODS = ["last-30-days", "last-90-days", "this-year", "all-time"];
+const REPORT_CITIES = ["", "Toronto", "Vancouver"];
 
 export const options = {
   setupTimeout: "10m",
@@ -46,13 +55,23 @@ export const options = {
       vus: VUS,
       duration: __ENV.DURATION || "5m",
     },
+    reports: {
+      executor: "constant-vus",
+      vus: 1,
+      duration: __ENV.DURATION || "5m",
+      exec: "reports",
+    },
   },
   thresholds: {
     "http_req_duration{scenario:members,kind:read}": ["p(95)<300"],
     "http_req_duration{scenario:members,kind:write}": ["p(95)<600"],
     // L2-026 AC5: global search answers under 500 ms at p95 over 100,000 indexed records.
     "http_req_duration{scenario:members,kind:search}": ["p(95)<500"],
+    // L2-104 AC1: the report and its export answer under 1 second at p95.
+    "http_req_duration{scenario:reports,kind:report}": ["p(95)<1000"],
     "http_req_failed{scenario:members}": ["rate==0"],
+    "http_req_failed{scenario:reports}": ["rate==0"],
+    "checks{scenario:reports}": ["rate==1"],
     "checks{scenario:members}": ["rate==1"],
   },
   insecureSkipTLSVerify: true,
@@ -69,7 +88,27 @@ export function setup() {
   for (let i = 1; i <= VUS; i++) {
     members.push(signIn(`load-${String(i).padStart(3, "0")}@loadtest.invalid`));
   }
-  return { members };
+  // The System Admin who reads the reports: the member after the last VU (see the Reports steps above).
+  const admin = signIn(`load-${String(VUS + 1).padStart(3, "0")}@loadtest.invalid`);
+  return { members, admin };
+}
+
+/** The reports scenario: one System Admin cycling through every period and a few cities. */
+export function reports(data) {
+  const auth = { Authorization: `Bearer ${data.admin.token}` };
+  const period = REPORT_PERIODS[__ITER % REPORT_PERIODS.length];
+  const city = REPORT_CITIES[__ITER % REPORT_CITIES.length];
+  const query = `city=${encodeURIComponent(city)}&period=${period}`;
+  const tags = { kind: "report" };
+  check(http.get(`${BASE_URL}/api/reports?${query}`, { headers: auth, tags }), {
+    "report is 200": (r) => r.status === 200,
+  });
+  check(
+    http.get(`${BASE_URL}/api/reports/export.csv?${query}`, { headers: auth, tags }),
+    { "report export is 200": (r) => r.status === 200 },
+  );
+  // About 40 requests a minute, inside the per-member limit.
+  sleep(2);
 }
 
 export default function (data) {
@@ -184,6 +223,7 @@ export function handleSummary(data) {
   const line = [
     `reads p95 ${p95("http_req_duration{scenario:members,kind:read}")} ms (< 300)`,
     `writes p95 ${p95("http_req_duration{scenario:members,kind:write}")} ms (< 600)`,
+    `reports p95 ${p95("http_req_duration{scenario:reports,kind:report}")} ms (< 1000)`,
     `failed requests ${data.metrics["http_req_failed{scenario:members}"]?.values?.rate}`,
   ].join(", ");
   return {
