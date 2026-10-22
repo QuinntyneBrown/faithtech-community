@@ -1,4 +1,7 @@
 <div class="ft-progress-row">
+  @if (heading(); as text) {
+    <span class="ft-progress-heading">{{ text }}</span>
+  }
   <div
     class="ft-progress"
     [class.ft-progress--lg]="size() === 'lg'"

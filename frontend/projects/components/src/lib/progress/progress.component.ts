@@ -2,7 +2,8 @@ import { ChangeDetectionStrategy, Component, computed, input } from '@angular/co
 
 /**
  * Read-only progress bar for a known total. Pass `label` (the accessible name, in words) and
- * optionally a visible `caption` such as "6 of 24 points". Turns success green when complete.
+ * optionally a visible `caption` such as "6 of 24 points". A `heading` leads the row with the
+ * measure's name, such as "Checked in" on the attendance meter. Turns success green when complete.
  */
 @Component({
   selector: 'ft-progress',
@@ -16,6 +17,8 @@ export class ProgressComponent {
   readonly label = input.required<string>();
   readonly size = input<'md' | 'lg'>('md');
   readonly caption = input<string | null>(null);
+  /** Leading label naming the measure ("Checked in"); the caption then carries the count. */
+  readonly heading = input<string | null>(null);
 
   protected readonly percent = computed(() => {
     const max = this.max();
