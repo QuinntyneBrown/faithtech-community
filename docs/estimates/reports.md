@@ -2,5 +2,5 @@
 
 | Design | Effort | Complete | Visual conformance |
 |---|---|---|---|
-| reports-dashboard | 7 days | 100% | Not graded (no journey yet) |
+| reports-dashboard | 7 days | 100% | B |
 
