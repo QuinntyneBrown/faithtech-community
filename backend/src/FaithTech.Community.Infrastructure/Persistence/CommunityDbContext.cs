@@ -26,6 +26,8 @@ public class CommunityDbContext(DbContextOptions<CommunityDbContext> options)
 
     public DbSet<AuditEntry> AuditEntries => Set<AuditEntry>();
 
+    public DbSet<SystemAdminRoster> SystemAdminRosters => Set<SystemAdminRoster>();
+
     public DbSet<Notification> Notifications => Set<Notification>();
 
     public DbSet<Invite> Invites => Set<Invite>();
@@ -91,6 +93,12 @@ public class CommunityDbContext(DbContextOptions<CommunityDbContext> options)
         {
             resend.Property(r => r.NormalizedEmail).HasMaxLength(256);
             resend.HasIndex(r => new { r.NormalizedEmail, r.RequestedAt });
+        });
+
+        builder.Entity<SystemAdminRoster>(roster =>
+        {
+            roster.Property(r => r.Id).ValueGeneratedNever();
+            roster.Property(r => r.Version).IsConcurrencyToken();
         });
 
         builder.Entity<OutboxMessage>(message =>

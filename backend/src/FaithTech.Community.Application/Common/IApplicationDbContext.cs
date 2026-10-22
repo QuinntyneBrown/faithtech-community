@@ -18,6 +18,8 @@ public interface IApplicationDbContext
 
     DbSet<AuditEntry> AuditEntries { get; }
 
+    DbSet<SystemAdminRoster> SystemAdminRosters { get; }
+
     DbSet<Notification> Notifications { get; }
 
     DbSet<Invite> Invites { get; }
