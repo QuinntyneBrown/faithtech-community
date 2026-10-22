@@ -63,9 +63,10 @@ public class Event
 
     public IReadOnlyCollection<Rsvp> Rsvps => _rsvps;
 
-    public int RsvpCount => _rsvps.Count;
+    /// <summary>People who RSVP'd. Walk-ins did not, so they are left out and never take a seat (L2-096 AC3).</summary>
+    public int RsvpCount => _rsvps.Count(r => !r.IsWalkIn);
 
-    public bool IsFull => Capacity is not null && _rsvps.Count >= Capacity;
+    public bool IsFull => Capacity is not null && RsvpCount >= Capacity;
 
     public void Update(
         string title,
@@ -141,6 +142,34 @@ public class Event
         var rsvp = Attendee(rsvpId);
         rsvp.UndoCheckIn();
         return rsvp;
+    }
+
+    /// <summary>
+    /// Adds someone at the door (L2-095). It skips the capacity and has-started rules that close RSVPs, and reuses
+    /// the member's RSVP, or a guest RSVP with the same email, rather than adding a second row.
+    /// </summary>
+    public (Rsvp Rsvp, bool Reused) AddWalkIn(
+        string name, string? email, Guid? profileId, bool checkInNow, Guid byId, DateTimeOffset now)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(name);
+        email = string.IsNullOrWhiteSpace(email) ? null : email.Trim();
+        var existing = profileId is { } member
+            ? _rsvps.FirstOrDefault(r => r.ProfileId == member)
+            : email is null ? null : _rsvps.FirstOrDefault(r => string.Equals(r.GuestEmail, email, StringComparison.OrdinalIgnoreCase));
+        var rsvp = existing ?? (profileId is not null
+            ? new Rsvp(Id, profileId, null, null, now, isWalkIn: true)
+            : new Rsvp(Id, null, name.Trim(), email, now, isWalkIn: true));
+        if (existing is null)
+        {
+            _rsvps.Add(rsvp);
+        }
+
+        if (checkInNow)
+        {
+            rsvp.CheckIn(byId, now);
+        }
+
+        return (rsvp, existing is not null);
     }
 
     private Rsvp Attendee(Guid rsvpId) =>

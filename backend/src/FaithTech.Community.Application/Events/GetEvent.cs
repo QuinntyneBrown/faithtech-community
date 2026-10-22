@@ -61,11 +61,13 @@ public class GetEventHandler(IApplicationDbContext db, EventPermissions permissi
         IReadOnlyList<RsvpDto>? rsvps = null;
         if (permissions.CanSeeRsvpList)
         {
-            var memberIds = e.Rsvps.Select(r => r.ProfileId).OfType<Guid>().ToList();
+            // Walk-ins did not RSVP, so the RSVP list leaves them out (L2-096 AC3).
+            var rsvped = e.Rsvps.Where(r => !r.IsWalkIn).ToList();
+            var memberIds = rsvped.Select(r => r.ProfileId).OfType<Guid>().ToList();
             var names = await db.Profiles.AsNoTracking().Where(p => memberIds.Contains(p.Id))
                 .ToDictionaryAsync(p => p.Id, p => p.Name, cancellationToken);
             var emails = permissions.CanSeeGuestEmails;
-            rsvps = [.. e.Rsvps
+            rsvps = [.. rsvped
                 .OrderByDescending(r => r.CreatedAt)
                 .Select(r => r.IsGuest
                     ? new RsvpDto(null, r.GuestName!, true, emails ? r.GuestEmail : null, r.CreatedAt)

@@ -9,13 +9,20 @@ import {
 } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { FormControl, FormsModule, ReactiveFormsModule } from '@angular/forms';
-import { CHECK_IN_SERVICE, CheckInAttendeeDto, CheckInDto } from '@faithtech-community/api';
+import {
+  CHECK_IN_SERVICE,
+  CheckInAttendeeDto,
+  CheckInDto,
+  WalkInResultDto,
+} from '@faithtech-community/api';
 import {
   AvatarComponent,
+  BadgeComponent,
   BreadcrumbComponent,
   BreadcrumbItemComponent,
   ButtonComponent,
   CardComponent,
+  DialogService,
   EmptyStateComponent,
   IconComponent,
   ListComponent,
@@ -33,6 +40,8 @@ import {
 } from '@faithtech-community/components';
 import { firstValueFrom } from 'rxjs';
 
+import { AddWalkInData, AddWalkInDialog } from '../../dialogs';
+
 type State = 'loading' | 'loaded' | 'error';
 
 /**
@@ -46,6 +55,7 @@ type State = 'loading' | 'loaded' | 'error';
     FormsModule,
     ReactiveFormsModule,
     AvatarComponent,
+    BadgeComponent,
     BreadcrumbComponent,
     BreadcrumbItemComponent,
     ButtonComponent,
@@ -68,6 +78,7 @@ type State = 'loading' | 'loaded' | 'error';
 export class EventCheckInPage {
   private readonly service = inject(CHECK_IN_SERVICE);
   private readonly toasts = inject(ToastService);
+  private readonly dialogs = inject(DialogService);
 
   /** Route parameter. */
   readonly id = input.required<string>();
@@ -92,13 +103,25 @@ export class EventCheckInPage {
   protected readonly checkedIn = computed(
     () => this.attendees().filter((a) => a.checkedInAt).length,
   );
-  /** "Wed 21 Oct · 6:30 pm · Kestrel Labs". */
+  protected readonly walkIns = computed(() => this.attendees().filter((a) => a.isWalkIn).length);
+  /** "Wed 21 Oct · 6:30 pm · Kestrel Labs", then "· 2 walk-ins" once any are added. */
   protected readonly subtitle = computed(() => {
     const c = this.checkIn();
     if (!c) return '';
     const where = c.format === 'Online' ? 'Online' : c.venue;
-    return [formatDay(c.startsAt), formatTime(c.startsAt), where].filter(Boolean).join(' · ');
+    const n = this.walkIns();
+    const walkIns = n ? `${n} walk-in${n === 1 ? '' : 's'}` : null;
+    return [formatDay(c.startsAt), formatTime(c.startsAt), where, walkIns]
+      .filter(Boolean)
+      .join(' · ');
   });
+  /** "Mira" for the search "mira": the name the no-results action offers to add. */
+  protected readonly termAsName = computed(() =>
+    this.searchTerm().replace(
+      /(^|\s)(\S)/g,
+      (_m, space: string, c: string) => space + c.toUpperCase(),
+    ),
+  );
   protected readonly editable = computed(() => {
     const c = this.checkIn();
     return !!c && c.canEdit && c.isOpen;
@@ -121,9 +144,9 @@ export class EventCheckInPage {
     return avatarColorFor(a.profileId);
   }
 
-  /** "Member · Checked in 6:41 pm", "Guest · {email} · Not here yet". */
+  /** "Member · Checked in 6:41 pm", "Guest · {email} · Not here yet", "Walk-in · {email} · …". */
   protected meta(a: CheckInAttendeeDto): string {
-    const kind = a.isGuest ? 'Guest' : 'Member';
+    const kind = a.isWalkIn ? 'Walk-in' : a.isGuest ? 'Guest' : 'Member';
     const status = a.checkedInAt ? `Checked in ${formatTime(a.checkedInAt)}` : 'Not here yet';
     return [kind, a.email, status].filter(Boolean).join(' · ');
   }
@@ -137,6 +160,35 @@ export class EventCheckInPage {
       this.save(a, on, previous),
     );
     this.saves.set(a.rsvpId, queued);
+  }
+
+  /** Opens Add walk-in, with the unmatched search term as the name when there is one (L2-093 AC3). */
+  protected async addWalkIn(name?: string): Promise<void> {
+    const ref = this.dialogs.open<WalkInResultDto, AddWalkInData>(AddWalkInDialog, {
+      data: name ? { eventId: this.id(), name } : { eventId: this.id() },
+    });
+    const result = await firstValueFrom(ref.closed);
+    if (!result) return;
+    const { attendee: a, reused } = result;
+    if (this.find(a.rsvpId)) this.patch(a.rsvpId, a);
+    else this.attendees.update((all) => [...all, a]);
+    if (name) this.clearSearch();
+    const here = `${this.checkedIn()} of ${this.going()} here.`;
+    this.toasts.show(
+      a.checkedInAt
+        ? {
+            variant: 'success',
+            heading: reused
+              ? `${a.name} already RSVP’d and is checked in`
+              : `${a.name} is checked in`,
+            text: `${formatTime(a.checkedInAt)} · ${here}`,
+          }
+        : {
+            variant: 'success',
+            heading: reused ? `${a.name} already RSVP’d` : `${a.name} is on the list`,
+            text: 'Turn on their switch when they’re here.',
+          },
+    );
   }
 
   private async save(a: CheckInAttendeeDto, on: boolean, previous: string | null): Promise<void> {

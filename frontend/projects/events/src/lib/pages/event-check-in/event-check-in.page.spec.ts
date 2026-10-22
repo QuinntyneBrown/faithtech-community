@@ -1,9 +1,10 @@
 // Traces to: L2-093, L2-094 (docs/detailed-designs/events/event-check-in)
 import { TestBed } from '@angular/core/testing';
 import { CHECK_IN_SERVICE, CheckInAttendeeDto, CheckInDto } from '@faithtech-community/api';
-import { ToastService } from '@faithtech-community/components';
+import { DialogService, ToastService } from '@faithtech-community/components';
 import { Observable, of, throwError } from 'rxjs';
 
+import { AddWalkInDialog } from '../../dialogs';
 import { EventCheckInPage } from './event-check-in.page';
 
 function attendee(overrides: Partial<CheckInAttendeeDto>): CheckInAttendeeDto {
@@ -51,17 +52,22 @@ function checkIn(overrides: Partial<CheckInDto> = {}): CheckInDto {
   };
 }
 
-async function setup(save: () => Observable<CheckInAttendeeDto> = () => of(attendee({}))) {
+async function setup(
+  save: () => Observable<CheckInAttendeeDto> = () => of(attendee({})),
+  walkIn: unknown = undefined,
+) {
   const service = {
     getCheckIn: vi.fn(() => of(checkIn())),
     checkIn: vi.fn(save),
     undoCheckIn: vi.fn(() => of(undefined)),
   };
   const toasts = { show: vi.fn() };
+  const dialogs = { open: vi.fn(() => ({ closed: of(walkIn) })) };
   TestBed.configureTestingModule({
     providers: [
       { provide: CHECK_IN_SERVICE, useValue: service },
       { provide: ToastService, useValue: toasts },
+      { provide: DialogService, useValue: dialogs },
     ],
   });
   const fixture = TestBed.createComponent(EventCheckInPage);
@@ -90,7 +96,9 @@ async function setup(save: () => Observable<CheckInAttendeeDto> = () => of(atten
     input.dispatchEvent(new Event('input'));
     await settle();
   };
-  return { fixture, host, service, toasts, names, toggle, search, settle };
+  const button = (label: string) =>
+    Array.from(host.querySelectorAll('button')).find((b) => b.textContent?.trim() === label);
+  return { fixture, host, service, toasts, dialogs, names, toggle, search, settle, button };
 }
 
 describe('EventCheckInPage', () => {
@@ -157,6 +165,51 @@ describe('EventCheckInPage', () => {
         heading: 'Couldn’t save Ruth Alvarez’s check-in. Try again.',
         actionLabel: 'Try again',
       }),
+    );
+  });
+
+  it('opens Add walk-in from no results with the term as the name and appends the walk-in', async () => {
+    const mira = attendee({
+      rsvpId: 'r3',
+      profileId: null,
+      name: 'Mira',
+      isGuest: true,
+      isWalkIn: true,
+      checkedInAt: new Date(2026, 10, 6, 18, 58).toISOString(),
+    });
+    const page = await setup(undefined, { attendee: mira, reused: false });
+
+    await page.search('mira');
+    page.button('Add “Mira” as a walk-in')!.click();
+    await page.settle();
+
+    expect(page.dialogs.open).toHaveBeenCalledWith(AddWalkInDialog, {
+      data: { eventId: 'e1', name: 'Mira' },
+    });
+    expect(page.names()).toEqual(['Ruth Alvarez', 'Abby Brooks', 'Mira']);
+    expect(page.host.textContent).toContain('Walk-in · Checked in 6:58 pm');
+    expect(page.toasts.show).toHaveBeenCalledWith(
+      expect.objectContaining({ variant: 'success', heading: 'Mira is checked in' }),
+    );
+  });
+
+  it('updates a reused RSVP in place', async () => {
+    const abby = attendee({
+      rsvpId: 'r2',
+      profileId: null,
+      name: 'Abby Brooks',
+      isGuest: true,
+      email: 'abby.brooks@example.org',
+      checkedInAt: new Date(2026, 10, 6, 18, 58).toISOString(),
+    });
+    const page = await setup(undefined, { attendee: abby, reused: true });
+
+    page.button('Add walk-in')!.click();
+    await page.settle();
+
+    expect(page.names()).toEqual(['Ruth Alvarez', 'Abby Brooks']);
+    expect(page.toasts.show).toHaveBeenCalledWith(
+      expect.objectContaining({ heading: 'Abby Brooks already RSVP’d and is checked in' }),
     );
   });
 });

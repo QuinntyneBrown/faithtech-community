@@ -39,6 +39,19 @@ export interface CheckInDto {
   attendees: CheckInAttendeeDto[];
 }
 
+/** Someone at the door who didn't RSVP (L2-095). `checkInNow` is on by default. */
+export interface WalkInRequest {
+  name: string;
+  email: string | null;
+  checkInNow: boolean;
+}
+
+/** The walk-in's row, and whether an RSVP they already had was reused (L2-095 AC5). */
+export interface WalkInResultDto {
+  attendee: CheckInAttendeeDto;
+  reused: boolean;
+}
+
 /**
  * Contract for check-in at the door (docs/detailed-designs/events/event-check-in). Pages depend on
  * CHECK_IN_SERVICE, never on HttpCheckInService.
@@ -49,6 +62,8 @@ export interface CheckInService {
   /** Idempotent: an attendee already checked in keeps the first time. */
   checkIn(eventId: string, rsvpId: string): Observable<CheckInAttendeeDto>;
   undoCheckIn(eventId: string, rsvpId: string): Observable<void>;
+  /** 400 with field errors; a verified member's email links the row; an existing RSVP is reused. */
+  addWalkIn(eventId: string, request: WalkInRequest): Observable<WalkInResultDto>;
 }
 
 export const CHECK_IN_SERVICE = new InjectionToken<CheckInService>('CHECK_IN_SERVICE');

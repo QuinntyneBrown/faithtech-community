@@ -35,7 +35,18 @@
         <ft-breadcrumb-item [href]="'/events/' + c.eventId">{{ c.title }}</ft-breadcrumb-item>
         <ft-breadcrumb-item>Check-in</ft-breadcrumb-item>
       </ft-breadcrumb>
-      <ft-page-header [title]="'Check-in · ' + c.title" [subtitle]="subtitle()" />
+      <ft-page-header [title]="'Check-in · ' + c.title" [subtitle]="subtitle()">
+        @if (c.canEdit) {
+          <ft-button
+            ftPageHeaderActions
+            variant="primary"
+            [disabled]="!editable()"
+            (click)="addWalkIn()"
+          >
+            <ft-icon name="walk-in" /> Add walk-in
+          </ft-button>
+        }
+      </ft-page-header>
 
       <ft-stack>
         <ft-card>
@@ -65,6 +76,9 @@
                 @for (a of shown(); track a.rsvpId) {
                   <ft-list-item [label]="a.name" [meta]="meta(a)">
                     <ft-avatar leading size="sm" [name]="a.name" [color]="color(a)" />
+                    @if (a.isWalkIn) {
+                      <ft-badge trailing variant="info">Walk-in</ft-badge>
+                    }
                     <ft-switch
                       trailing
                       labelHidden
@@ -88,6 +102,11 @@
               [heading]="'Nobody called “' + searchTerm() + '” has RSVP’d'"
               text="They may have come with a friend or RSVP’d under another email. Add them as a walk-in and they’re checked in at once."
             >
+              @if (editable()) {
+                <ft-button actions variant="primary" (click)="addWalkIn(termAsName())">
+                  Add “{{ termAsName() }}” as a walk-in
+                </ft-button>
+              }
               <ft-button actions variant="ghost" (click)="clearSearch()">Clear search</ft-button>
             </ft-empty-state>
           }
@@ -95,7 +114,13 @@
           <ft-empty-state
             heading="Nobody has RSVP’d yet"
             text="When people RSVP they appear here. Anyone who turns up anyway can be added as a walk-in."
-          />
+          >
+            @if (editable()) {
+              <ft-button actions variant="primary" (click)="addWalkIn()">
+                <ft-icon name="walk-in" /> Add walk-in
+              </ft-button>
+            }
+          </ft-empty-state>
         }
       </ft-stack>
     }

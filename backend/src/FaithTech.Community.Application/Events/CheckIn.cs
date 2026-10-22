@@ -88,8 +88,12 @@ public class CheckInHandler(IApplicationDbContext db, EventPermissions permissio
 
         var rsvp = e.CheckIn(rsvpId, actor, time.GetUtcNow());
         await db.SaveChangesAsync(cancellationToken);
-        return (Result.Ok(), Attendee(rsvp, await NamesAsync([rsvp], cancellationToken)));
+        return (Result.Ok(), await AttendeeAsync(rsvp, cancellationToken));
     }
+
+    /// <summary>One attendee as the caller may see them, with a member's profile name.</summary>
+    public async Task<CheckInAttendeeDto> AttendeeAsync(Rsvp rsvp, CancellationToken cancellationToken = default) =>
+        Attendee(rsvp, await NamesAsync([rsvp], cancellationToken));
 
     /// <summary>Clears the attendee's check-in (L2-094 AC2).</summary>
     public async Task<Result> UndoAsync(Guid id, Guid rsvpId, CancellationToken cancellationToken = default)

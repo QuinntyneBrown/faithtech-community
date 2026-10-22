@@ -4,7 +4,13 @@ import { Observable } from 'rxjs';
 
 import { API_BASE_URL } from '../config';
 import { HANDLES_FORBIDDEN, HANDLES_SERVER_ERROR } from '../errors';
-import { CheckInAttendeeDto, CheckInDto, CheckInService } from './check-in.service';
+import {
+  CheckInAttendeeDto,
+  CheckInDto,
+  CheckInService,
+  WalkInRequest,
+  WalkInResultDto,
+} from './check-in.service';
 
 @Injectable()
 export class HttpCheckInService implements CheckInService {
@@ -31,6 +37,12 @@ export class HttpCheckInService implements CheckInService {
 
   undoCheckIn(eventId: string, rsvpId: string): Observable<void> {
     return this.http.delete<void>(`${this.api}/events/${eventId}/check-ins/${rsvpId}`, {
+      context: this.save,
+    });
+  }
+
+  addWalkIn(eventId: string, request: WalkInRequest): Observable<WalkInResultDto> {
+    return this.http.post<WalkInResultDto>(`${this.api}/events/${eventId}/walk-ins`, request, {
       context: this.save,
     });
   }

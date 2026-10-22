@@ -75,6 +75,9 @@ const seesList = (c: EventsCaller) =>
 const seesEmails = (c: EventsCaller) =>
   c.roles.some((r) => LEADS.includes(r) || r === 'SystemAdmin');
 
+/** Walk-ins did not RSVP: RSVP counts, lists and the RSVP export leave them out (L2-096 AC3). */
+const rsvped = (event: MockEvent) => event.rsvps.filter((r) => !r.isWalkIn);
+
 const utc = (iso: string) =>
   new Date(iso)
     .toISOString()
@@ -187,6 +190,8 @@ export class MockEvents {
   constructor(
     private readonly now: () => Date,
     private readonly profile: (id: string) => EventsProfile | undefined = () => undefined,
+    /** The profile of the verified account with this email, as AddWalkInHandler looks it up. */
+    private readonly verifiedMember: (email: string) => string | undefined = () => undefined,
   ) {}
 
   /** An event as a lead would create it; give `startsInDays` relative to the fake's "now". */
@@ -294,6 +299,8 @@ export class MockEvents {
     const checkIns = /^\/api\/events\/([^/]+)\/check-ins\/([^/]+)$/.exec(url.pathname);
     if (checkIns && (method === 'PUT' || method === 'DELETE'))
       return this.checkIn(route, checkIns[1], checkIns[2], method === 'PUT', caller);
+    const walkIns = /^\/api\/events\/([^/]+)\/walk-ins$/.exec(url.pathname);
+    if (walkIns && method === 'POST') return this.addWalkIn(route, walkIns[1], body, caller);
     return false;
   }
 
@@ -352,6 +359,57 @@ export class MockEvents {
       rsvpedAt: r.createdAt,
       checkedInAt: r.checkedInAt ?? null,
     };
+  }
+
+  /**
+   * POST /api/events/{id}/walk-ins (L2-095): AddWalkInValidator's rules and words; a verified member's email
+   * links the row; an existing RSVP is reused (200); no capacity or start check and no confirmation email.
+   */
+  private addWalkIn(
+    route: Route,
+    id: string,
+    body: Record<string, unknown>,
+    caller: EventsCaller | null,
+  ): Promise<void> {
+    if (!caller) return route.fulfill({ status: 401 });
+    const name = text(body['name']);
+    const email = text(body['email']);
+    const errors: Record<string, string[]> = {};
+    if (!name) errors['Name'] = ['Enter their name so the list shows who came.'];
+    else if (name.length > 100) errors['Name'] = ['Use 100 characters or fewer for the name.'];
+    if (email && (email.length > 256 || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)))
+      errors['Email'] = ['Enter an email like name@example.com, or leave it empty.'];
+    if (Object.keys(errors).length)
+      return route.fulfill({ status: 400, json: { status: 400, errors } });
+    if (!seesEmails(caller)) return route.fulfill({ status: 403 });
+    const event = this.events.find((e) => e.id === id);
+    if (!event) return route.fulfill({ status: 404 });
+    const member = email ? this.verifiedMember(email) : undefined;
+    let rsvp = member
+      ? event.rsvps.find((r) => r.profileId === member)
+      : email
+        ? event.rsvps.find((r) => r.guestEmail?.toLowerCase() === email.toLowerCase())
+        : undefined;
+    const reused = !!rsvp;
+    if (!rsvp) {
+      rsvp = {
+        id: `${event.id}-rsvp-${event.rsvps.length + 1}`,
+        profileId: member ?? null,
+        guestName: member ? null : name,
+        guestEmail: member ? null : email || null,
+        createdAt: this.now().toISOString(),
+        isWalkIn: true,
+      };
+      event.rsvps.push(rsvp);
+    }
+    if (body['checkInNow'] !== false && !rsvp.checkedInAt) {
+      rsvp.checkedInAt = this.now().toISOString();
+      rsvp.checkedInById = caller.profileId;
+    }
+    return route.fulfill({
+      status: reused ? 200 : 201,
+      json: { attendee: this.attendee(rsvp, caller), reused },
+    });
   }
 
   /** PUT and DELETE /api/events/{id}/check-ins/{rsvpId} (L2-094): leads and System Admins. */
@@ -486,8 +544,8 @@ export class MockEvents {
         city: event.city,
         format: event.format,
         venue: event.venue,
-        rsvpCount: event.rsvps.length,
-        isFull: event.capacity !== null && event.rsvps.length >= event.capacity,
+        rsvpCount: rsvped(event).length,
+        isFull: event.capacity !== null && rsvped(event).length >= event.capacity,
         isCancelled: event.isCancelled,
         cancellationReason: event.cancellationReason,
       },
@@ -549,7 +607,7 @@ export class MockEvents {
   refusal(event: MockEvent): string | null {
     if (event.isCancelled) return 'This event was cancelled.';
     if (this.now().toISOString() >= event.startsAt) return 'This event has already started.';
-    if (event.capacity !== null && event.rsvps.length >= event.capacity)
+    if (event.capacity !== null && rsvped(event).length >= event.capacity)
       return 'This event is full.';
     return null;
   }
@@ -600,7 +658,7 @@ export class MockEvents {
     if (!seesEmails(caller)) return route.fulfill({ status: 403 });
     const event = this.events.find((e) => e.id === id);
     if (!event) return route.fulfill({ status: 404 });
-    const rows = event.rsvps.map((r) =>
+    const rows = rsvped(event).map((r) =>
       [this.rsvpName(r), r.profileId ? 'Member' : 'Guest', r.guestEmail ?? '', r.createdAt].join(
         ',',
       ),
@@ -694,8 +752,8 @@ export class MockEvents {
       onlineLink: event.onlineLink,
       capacity: event.capacity,
       visibility: event.visibility,
-      rsvpCount: event.rsvps.length,
-      isFull: event.capacity !== null && event.rsvps.length >= event.capacity,
+      rsvpCount: rsvped(event).length,
+      isFull: event.capacity !== null && rsvped(event).length >= event.capacity,
       isCancelled: event.isCancelled,
       cancellationReason: event.cancellationReason,
       cancelledByName: event.cancelledById
@@ -708,7 +766,7 @@ export class MockEvents {
       canManage: canManage(caller),
       canExportRsvps: seesEmails(caller),
       rsvps: seesList(caller)
-        ? [...event.rsvps]
+        ? rsvped(event)
             .sort((a, b) => b.createdAt.localeCompare(a.createdAt))
             .map((r) => ({
               profileId: r.profileId,
@@ -760,7 +818,7 @@ export class MockEvents {
         format: e.format,
         venue: e.venue,
         visibility: e.visibility,
-        rsvpCount: e.rsvps.length,
+        rsvpCount: rsvped(e).length,
         isCancelled: e.isCancelled,
       }));
     const cities = [...new Set(this.events.map((e) => e.city.trim()).filter((c) => c))].sort(

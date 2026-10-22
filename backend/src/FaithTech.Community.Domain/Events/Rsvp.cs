@@ -4,8 +4,10 @@ public class Rsvp
 {
     private Rsvp() { }
 
-    internal Rsvp(Guid eventId, Guid? profileId, string? guestName, string? guestEmail, DateTimeOffset createdAt)
+    internal Rsvp(
+        Guid eventId, Guid? profileId, string? guestName, string? guestEmail, DateTimeOffset createdAt, bool isWalkIn = false)
     {
+        IsWalkIn = isWalkIn;
         Id = Guid.NewGuid();
         EventId = eventId;
         ProfileId = profileId;

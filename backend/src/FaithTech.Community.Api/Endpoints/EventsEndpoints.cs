@@ -77,6 +77,16 @@ public static class EventsEndpoints
         events.MapDelete("/{id:guid}/check-ins/{rsvpId:guid}", async (Guid id, Guid rsvpId, CheckInHandler handler, CancellationToken cancellationToken) =>
             (await handler.UndoAsync(id, rsvpId, cancellationToken)).ToHttp(Results.NoContent));
 
+        // A new walk-in answers 201; a reused RSVP answers 200 (L2-095 AC5).
+        events.MapPost("/{id:guid}/walk-ins", async (Guid id, AddWalkInCommand command, AddWalkInHandler handler, CancellationToken cancellationToken) =>
+            {
+                var (result, walkIn) = await handler.HandleAsync(id, command, cancellationToken);
+                return result.ToHttp(() => walkIn!.Reused
+                    ? Results.Ok(walkIn)
+                    : Results.Created($"/api/events/{id}/check-in", walkIn));
+            })
+            .Validate<AddWalkInCommand>();
+
         events.MapGet("/{id:guid}/calendar.ics", async (Guid id, GetEventCalendarHandler handler, CancellationToken cancellationToken) =>
             await handler.ForMemberAsync(id, cancellationToken) is { } file ? Calendar(file) : Results.NotFound());
 

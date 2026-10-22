@@ -34,6 +34,17 @@ describe('HttpCheckInService', () => {
     req.flush(null);
   });
 
+  it('adds a walk-in, leaving a failed save to the dialog', () => {
+    const request = { name: 'Mira Chen', email: null, checkInNow: true };
+    service.addWalkIn('e1', request).subscribe();
+
+    const req = controller.expectOne('/api/events/e1/walk-ins');
+    expect(req.request.method).toBe('POST');
+    expect(req.request.body).toEqual(request);
+    expect(req.request.context.get(HANDLES_SERVER_ERROR)).toBe(true);
+    req.flush(null);
+  });
+
   // The page shows its own forbidden state, and a failed save reverts the switch instead of leaving the page.
   it('leaves 403 on the list and failed saves to the page', () => {
     service.getCheckIn('e1').subscribe();

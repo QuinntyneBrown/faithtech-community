@@ -16,6 +16,7 @@ export class EventCheckInPage {
   readonly clearSearch: Locator;
   readonly toasts: Locator;
   readonly undo: Locator;
+  readonly addWalkIn: Locator;
 
   constructor(private readonly page: Page) {
     this.heading = page.getByRole('heading', { level: 1 });
@@ -32,6 +33,7 @@ export class EventCheckInPage {
     this.clearSearch = page.getByRole('button', { name: 'Clear search' });
     this.toasts = page.locator('ft-toast-region ft-toast');
     this.undo = this.toasts.getByRole('button', { name: 'Undo' });
+    this.addWalkIn = page.locator('ft-page-header').getByRole('button', { name: 'Add walk-in' });
   }
 
   async open(id: string): Promise<void> {
@@ -45,6 +47,11 @@ export class EventCheckInPage {
   /** The switch labelled "Check in {name}" (L2-093 AC6). */
   switchFor(name: string): Locator {
     return this.page.getByRole('switch', { name: `Check in ${name}` });
+  }
+
+  /** "Add walk-in" in an empty state, or "Add “{term}” as a walk-in" when no one matches. */
+  emptyAction(name: string | RegExp): Locator {
+    return this.empty.getByRole('button', { name });
   }
 
   toast(heading: string): Locator {

@@ -133,6 +133,10 @@ export class MockApi {
   readonly events = new MockEvents(
     () => this.now,
     (id) => this.profiles.get(id),
+    (email) => {
+      const account = this.accounts.get(email.toLowerCase());
+      return account?.verified ? account.profileId : undefined;
+    },
   );
   /** In-app notifications (L2-027) for the bell, the notifications page and home's Recent activity. */
   readonly notifications = new MockNotifications(() => this.now);

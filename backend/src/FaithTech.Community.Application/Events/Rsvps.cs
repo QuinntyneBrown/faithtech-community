@@ -100,11 +100,13 @@ public class RsvpHandler(
             return (Result.NotFound(), null);
         }
 
-        var memberIds = e.Rsvps.Select(r => r.ProfileId).OfType<Guid>().ToList();
+        // Walk-ins did not RSVP; the attendance export lists them (L2-096 AC3, L2-097).
+        var rsvped = e.Rsvps.Where(r => !r.IsWalkIn).ToList();
+        var memberIds = rsvped.Select(r => r.ProfileId).OfType<Guid>().ToList();
         var names = await db.Profiles.AsNoTracking().Where(p => memberIds.Contains(p.Id))
             .ToDictionaryAsync(p => p.Id, p => p.Name, cancellationToken);
         var csv = new StringBuilder("Name,Member or guest,Guest email,RSVP'd (UTC)\r\n");
-        foreach (var r in e.Rsvps.OrderBy(r => r.CreatedAt))
+        foreach (var r in rsvped.OrderBy(r => r.CreatedAt))
         {
             var name = r.IsGuest ? r.GuestName! : names.GetValueOrDefault(r.ProfileId!.Value, "A former member");
             csv.Append(Cell(name)).Append(',')
