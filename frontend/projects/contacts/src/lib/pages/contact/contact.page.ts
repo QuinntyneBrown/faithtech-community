@@ -8,6 +8,7 @@ import {
   input,
   signal,
 } from '@angular/core';
+import { Location } from '@angular/common';
 import { Router } from '@angular/router';
 import { CONTACTS_SERVICE, ContactDto, ContactNoteDto } from '@faithtech-community/api';
 import {
@@ -77,6 +78,10 @@ export class ContactPage {
   private readonly dialogs = inject(DialogService);
   private readonly toasts = inject(ToastService);
   private readonly router = inject(Router);
+  /** Descriptions of photos chosen on the add-contact form that failed to upload (L2-055 AC6). */
+  protected readonly failedPhotos = signal<string[]>(failedPhotosIn(inject(Location).getState()));
+  /** The header photo as the browser can load it; a private photo is fetched with the token (ADR 0017). */
+  protected readonly headerPhoto = signal<string | null>(null);
 
   /** Route parameter. */
   readonly id = input.required<string>();
@@ -131,6 +136,7 @@ export class ContactPage {
     const linked = await firstValueFrom(ref.closed);
     if (!linked) return;
     this.contact.set(linked);
+    this.loadHeaderPhoto(linked);
     this.justLinked.set(true);
     this.notes.set(await firstValueFrom(this.contacts.getNotes(contact.id)));
   }
@@ -166,10 +172,25 @@ export class ContactPage {
       this.contact.set(contact);
       this.notes.set(notes);
       this.state.set('loaded');
+      this.loadHeaderPhoto(contact);
     } catch (error) {
       this.state.set(
         error instanceof HttpErrorResponse && error.status === 404 ? 'not-found' : 'error',
       );
     }
   }
+
+  private loadHeaderPhoto(contact: ContactDto): void {
+    this.headerPhoto.set(null);
+    if (!contact.photoUrl) return;
+    this.contacts.photoImage(contact.photoUrl).subscribe({
+      next: (src) => this.headerPhoto.set(src),
+      error: () => undefined,
+    });
+  }
+}
+
+function failedPhotosIn(state: unknown): string[] {
+  const failed = (state as { failedPhotos?: unknown } | null)?.failedPhotos;
+  return Array.isArray(failed) ? failed.filter((f): f is string => typeof f === 'string') : [];
 }

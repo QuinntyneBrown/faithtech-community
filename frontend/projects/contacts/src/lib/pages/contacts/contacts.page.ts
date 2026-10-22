@@ -64,7 +64,7 @@ export class ContactsPage {
   protected readonly state = signal<State>('loading');
   protected readonly list = signal<ContactSummary[]>([]);
   /** Browser-loadable photo URLs by contact id; a private photo is fetched with the token (ADR 0017). */
-  protected readonly photos = signal<Record<string, string>>({});
+  protected readonly photos = signal<Partial<Record<string, string>>>({});
 
   protected readonly subtitle = computed(() => {
     const count = this.list().length;
@@ -92,6 +92,10 @@ export class ContactsPage {
       return `${contact.noteCount} ${contact.noteCount === 1 ? 'note' : 'notes'}`;
     }
     return `Added ${formatDay(new Date(contact.createdAtUtc))}`;
+  }
+
+  protected photoOf(contact: ContactSummary): string | null {
+    return this.photos()[contact.id] ?? null;
   }
 
   protected color(contact: ContactSummary) {

@@ -72,7 +72,7 @@
           @for (contact of list(); track contact.id) {
             <ft-person-card
               [name]="contact.name"
-              [photoSrc]="photos()[contact.id] ?? null"
+              [photoSrc]="photoOf(contact)"
               [photoAlt]="contact.photoAltText ?? ''"
               [color]="color(contact)"
               [subtitle]="meta(contact)"

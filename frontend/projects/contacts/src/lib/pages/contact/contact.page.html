@@ -69,6 +69,23 @@
           <ft-button ftAlertActions variant="ghost" (click)="dismiss()">Not them</ft-button>
         </ft-alert>
       }
+      @if (failedPhotos().length) {
+        <ft-alert
+          status="warning"
+          [heading]="
+            c.name +
+            ' is saved, but ' +
+            failedPhotos().length +
+            (failedPhotos().length === 1 ? ' photo wasn’t added' : ' photos weren’t added')
+          "
+        >
+          We couldn’t upload
+          @for (alt of failedPhotos(); track $index; let last = $last) {
+            “{{ alt }}”{{ last ? '.' : ',' }}
+          }
+          Add {{ failedPhotos().length === 1 ? 'it' : 'them' }} again from this page.
+        </ft-alert>
+      }
       @if (justLinked()) {
         <ft-alert status="success" [heading]="'Linked to ' + c.name + '’s member profile'">
           Name and photos now come from their profile. Your notes are still only visible to you.
@@ -97,8 +114,8 @@
         </section>
         <ft-card ftSplitAside heading="Details">
           <ft-stack>
-            @if (c.photoUrl) {
-              <ft-photo class="photo" [src]="c.photoUrl" [alt]="c.photoAltText ?? c.name" />
+            @if (headerPhoto(); as src) {
+              <ft-photo class="photo" [src]="src" [alt]="c.photoAltText ?? c.name" />
             }
             <ft-description-list>
               <ft-description-list-item label="Email" [missing]="!c.email">

@@ -14,6 +14,7 @@ export class ContactPage {
   readonly notThem: Locator;
   readonly linkedAlert: Locator;
   readonly notes: Locator;
+  readonly photoFailedAlert: Locator;
 
   constructor(private readonly page: Page) {
     this.heading = page.getByRole('heading', { level: 1 });
@@ -28,6 +29,7 @@ export class ContactPage {
     this.notThem = page.getByRole('button', { name: 'Not them' });
     this.linkedAlert = page.locator('ft-alert', { hasText: 'member profile' });
     this.notes = page.locator('ft-note');
+    this.photoFailedAlert = page.locator('ft-alert', { hasText: 'wasn’t added' });
   }
 
   async open(id: string): Promise<void> {

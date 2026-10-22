@@ -53,7 +53,7 @@ export interface ContactDto {
   organization: string | null;
   city: string | null;
   linkedProfileId: string | null;
-  /** The linked member's featured photo. */
+  /** The linked member's featured photo, or else the contact's own (an API path, see `photoImage`). */
   photoUrl: string | null;
   photoAltText: string | null;
   match: ContactMatch | null;
@@ -62,6 +62,19 @@ export interface ContactDto {
   /** False when a System Admin opens another lead's contact (audited). */
   isOwn: boolean;
   createdAtUtc: string;
+  /** The contact's own photos, newest first (L2-056). */
+  photos: ContactPhoto[];
+}
+
+/** A contact photo. `url` is an API path to load through `photoImage`; null while it is storing. */
+export interface ContactPhoto {
+  id: string;
+  url: string | null;
+  altText: string;
+  isFeatured: boolean;
+  uploadedAt: string;
+  /** False while the image waits for storage (L2-059). */
+  isStored: boolean;
 }
 
 export interface ContactNoteDto {
@@ -91,6 +104,12 @@ export interface ContactsService {
   getNotes(contactId: string): Observable<ContactNoteDto[]>;
   addNote(contactId: string, body: string): Observable<ContactNoteDto>;
   link(contactId: string, profileId: string, discardNotes: boolean): Observable<ContactDto>;
+  /** JPEG, PNG or WebP up to 5 MB with a description; at most 10. 400 errors are keyed File or AltText. */
+  uploadPhoto(contactId: string, file: File, altText: string): Observable<ContactPhoto>;
+  describePhoto(contactId: string, photoId: string, altText: string): Observable<void>;
+  setFeaturedPhoto(contactId: string, photoId: string): Observable<void>;
+  /** The newest remaining photo becomes featured when the featured one is deleted. */
+  deletePhoto(contactId: string, photoId: string): Observable<void>;
   /**
    * An image URL the browser can show. A contact photo's URL is an API path that needs the bearer token, so
    * its image is fetched and returned as an object URL, once per session; any other URL is returned as it is.

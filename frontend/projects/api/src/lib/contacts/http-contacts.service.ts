@@ -8,6 +8,7 @@ import { toHttpParams } from '../shared';
 import {
   ContactDto,
   ContactNoteDto,
+  ContactPhoto,
   ContactRequest,
   ContactSummary,
   ContactsService,
@@ -71,6 +72,25 @@ export class HttpContactsService implements ContactsService {
       profileId,
       discardNotes,
     });
+  }
+
+  uploadPhoto(contactId: string, file: File, altText: string): Observable<ContactPhoto> {
+    const form = new FormData();
+    form.append('file', file);
+    form.append('altText', altText);
+    return this.http.post<ContactPhoto>(`${this.base}/${contactId}/photos`, form);
+  }
+
+  describePhoto(contactId: string, photoId: string, altText: string): Observable<void> {
+    return this.http.put<void>(`${this.base}/${contactId}/photos/${photoId}`, { altText });
+  }
+
+  setFeaturedPhoto(contactId: string, photoId: string): Observable<void> {
+    return this.http.put<void>(`${this.base}/${contactId}/photos/${photoId}/featured`, null);
+  }
+
+  deletePhoto(contactId: string, photoId: string): Observable<void> {
+    return this.http.delete<void>(`${this.base}/${contactId}/photos/${photoId}`);
   }
 
   photoImage(url: string): Observable<string> {

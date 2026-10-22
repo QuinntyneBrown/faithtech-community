@@ -56,6 +56,27 @@ describe('HttpContactsService', () => {
       '/api/contacts/c1/link',
       { profileId: 'p9', discardNotes: true },
     ],
+    [
+      'describePhoto',
+      () => service.describePhoto('c1', 'p1', 'At the coffee morning'),
+      'PUT',
+      '/api/contacts/c1/photos/p1',
+      { altText: 'At the coffee morning' },
+    ],
+    [
+      'setFeaturedPhoto',
+      () => service.setFeaturedPhoto('c1', 'p1'),
+      'PUT',
+      '/api/contacts/c1/photos/p1/featured',
+      undefined,
+    ],
+    [
+      'deletePhoto',
+      () => service.deletePhoto('c1', 'p1'),
+      'DELETE',
+      '/api/contacts/c1/photos/p1',
+      undefined,
+    ],
   ])('%s', (_name, call, method, url, body) => {
     (call() as Observable<unknown>).subscribe();
 
@@ -69,6 +90,18 @@ describe('HttpContactsService', () => {
     service.list().subscribe();
 
     expect(controller.expectOne('/api/contacts').request.context.get(HANDLES_FORBIDDEN)).toBe(true);
+  });
+
+  it('uploads a contact photo as multipart with its description', () => {
+    const file = new File(['x'], 'coffee.jpg', { type: 'image/jpeg' });
+    service.uploadPhoto('c1', file, 'At the coffee morning').subscribe();
+
+    const req = controller.expectOne('/api/contacts/c1/photos');
+    expect(req.request.method).toBe('POST');
+    const form = req.request.body as FormData;
+    expect(form.get('file')).toBe(file);
+    expect(form.get('altText')).toBe('At the coffee morning');
+    req.flush(null);
   });
 
   describe('photoImage', () => {

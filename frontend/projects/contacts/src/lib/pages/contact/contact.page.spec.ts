@@ -1,8 +1,9 @@
-// Traces to: L2-012, L2-013
+// Traces to: L2-012, L2-013, L2-055, L2-056
 import { HttpErrorResponse } from '@angular/common/http';
 import { TestBed } from '@angular/core/testing';
 import { CONTACTS_SERVICE, ContactDto, ContactNoteDto } from '@faithtech-community/api';
 import { Router } from '@angular/router';
+import { Location } from '@angular/common';
 import { DialogService, ToastService } from '@faithtech-community/components';
 import { Observable, of, throwError } from 'rxjs';
 
@@ -25,17 +26,23 @@ function contactDto(overrides: Partial<ContactDto> = {}): ContactDto {
     noteCount: 0,
     isOwn: true,
     createdAtUtc: '2026-10-02T12:00:00Z',
+    photos: [],
     ...overrides,
   };
 }
 
 async function setupContactPage(
   get: () => Observable<ContactDto>,
-  options: { notes?: () => Observable<ContactNoteDto[]>; dialogResult?: unknown } = {},
+  options: {
+    notes?: () => Observable<ContactNoteDto[]>;
+    dialogResult?: unknown;
+    navigationState?: unknown;
+  } = {},
 ) {
   const service = {
     get: vi.fn(get),
     getNotes: vi.fn(options.notes ?? (() => of([]))),
+    photoImage: vi.fn((url: string) => of(url.startsWith('/api/') ? `blob:${url}` : url)),
   };
   const dialogs = { open: vi.fn(() => ({ closed: of(options.dialogResult) })) };
   const toasts = { show: vi.fn() };
@@ -46,6 +53,7 @@ async function setupContactPage(
       { provide: CONTACTS_SERVICE, useValue: service },
       { provide: DialogService, useValue: dialogs },
       { provide: ToastService, useValue: toasts },
+      { provide: Location, useValue: { getState: () => options.navigationState ?? null } },
     ],
   });
   const fixture = TestBed.createComponent(ContactPage);
@@ -68,6 +76,40 @@ async function setupContactPage(
 }
 
 describe('ContactPage', () => {
+  it('names the photos that did not upload when the contact was created', async () => {
+    const { host, text } = await setupContactPage(() => of(contactDto()), {
+      navigationState: { failedPhotos: ['Tomás demoing the dashboard'] },
+    });
+
+    expect(text()).toContain('Tomás Ortega is saved, but 1 photo wasn’t added');
+    expect(text()).toContain('“Tomás demoing the dashboard”');
+    expect(host.querySelector('ft-alert[status="warning"]')).not.toBeNull();
+  });
+
+  it('shows no photo alert when every photo uploaded', async () => {
+    const { text } = await setupContactPage(() => of(contactDto()), {
+      navigationState: { failedPhotos: [] },
+    });
+
+    expect(text()).not.toContain('wasn’t added');
+  });
+
+  it('loads the contact’s own featured photo with the lead’s credentials', async () => {
+    const { host, service } = await setupContactPage(() =>
+      of(
+        contactDto({
+          photoUrl: '/api/contacts/c1/photos/p1/image',
+          photoAltText: 'Tomás smiling outside the shelter',
+        }),
+      ),
+    );
+
+    expect(service.photoImage).toHaveBeenCalledWith('/api/contacts/c1/photos/p1/image');
+    const img = host.querySelector<HTMLImageElement>('ft-photo img')!;
+    expect(img.getAttribute('src')).toBe('blob:/api/contacts/c1/photos/p1/image');
+    expect(img.getAttribute('alt')).toBe('Tomás smiling outside the shelter');
+  });
+
   it('shows a private contact’s details with Edit', async () => {
     const { host, text, button } = await setupContactPage(() => of(contactDto()));
 
@@ -129,6 +171,7 @@ describe('ContactPage', () => {
             id: 'n2',
             body: 'Wants two staff at the hackathon.',
             createdAtUtc: '2026-10-16T12:00:00Z',
+            photos: [],
           },
           { id: 'n1', body: 'Met at Builders Night.', createdAtUtc: '2026-10-02T12:00:00Z' },
         ]),

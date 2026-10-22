@@ -23,14 +23,14 @@
 
   @if (full()) {
     <p class="ft-picture-list__note" [id]="noteId">
-      That’s {{ max() }} photos, the most a profile can have. Remove one to add another.
+      That’s {{ max() }} photos, the most a {{ subject() }} can have. Remove one to add another.
     </p>
   } @else {
     <p class="ft-picture-list__note">
       @if (photos().length === 0) {
-        No photos yet. Add one so people recognise you at events.
+        {{ copy().empty }}
       }
-      JPEG, PNG or WebP up to 5 MB. Your featured photo is your picture everywhere on FaithTech.
+      {{ copy().note }}
     </p>
   }
 
@@ -83,14 +83,13 @@
           }
           @if (photo.storing) {
             <p class="ft-picture-list__note" role="status">
-              Saved. It shows on your profile once it finishes storing.
+              {{ copy().storing }}
             </p>
           }
           @if (photo.pending) {
-            <p class="ft-picture-list__note">
-              Not saved yet. It uploads when you save your profile.
-            </p>
-          } @else if (!photo.featured) {
+            <p class="ft-picture-list__note">{{ pendingText() }}</p>
+          }
+          @if (!photo.featured && (!photo.pending || subject() === 'contact')) {
             <ft-button
               variant="ghost"
               size="sm"

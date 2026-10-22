@@ -75,6 +75,14 @@
               <ft-form-field label="First note" [optional]="true" [error]="error('notes')">
                 <ft-textarea formControlName="notes" [rows]="3" />
               </ft-form-field>
+              <ft-picture-list
+                subject="contact"
+                [photos]="listPhotos()"
+                (picked)="pick($event)"
+                (altChange)="describe($event)"
+                (featured)="feature($event)"
+                (removed)="remove($event)"
+              />
             }
             <ft-form-actions>
               <ft-button variant="ghost" [href]="cancelHref()">Cancel</ft-button>
