@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="en" data-accent="neutral">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Private preview · busy — mocks</title>
+<meta name="mock:kind" content="page">
+<meta name="mock:screen" content="private-preview">
+<meta name="mock:state" content="busy">
+<meta name="mock:requirements" content="L2-085 L2-087 L2-088">
+<meta name="robots" content="noindex, nofollow">
+<link rel="stylesheet" href="../../../design-system/tokens/tokens.css">
+<link rel="stylesheet" href="../../../design-system/tokens/neutral-accent.css">
+<link rel="stylesheet" href="../../../design-system/assets/components.css">
+<link rel="stylesheet" href="../../assets/mock.css">
+</head>
+<body>
+<a class="skip-link" href="#main">Skip to content</a>
+<main id="main" class="auth-layout">
+  <div class="auth-card stack">
+    <div class="card stack"><h1 class="text-center">Private preview</h1>
+<p class="text-center">This site is not open yet. Enter the passphrase to continue.</p>
+<form class="stack" action="../../pages/private-preview/redirect.html" method="get" novalidate>
+  
+  <div class="field"><label class="field__label" for="passphrase">Passphrase</label><input class="input" id="passphrase" name="passphrase" type="password" autocomplete="current-password" required value="correct horse battery staple" readonly></div>
+  <button class="btn btn--primary btn--lg btn--block" type="submit" aria-busy="true" aria-disabled="true">Checking…</button>
+</form></div>
+  </div>
+</main>
+<p class="mock-note" style="top: 4rem; right: 1rem;">While the passphrase is checked the button reads “Checking…” and ignores further presses. Without JavaScript the form still posts; only this busy hint is lost.</p>
+
+<nav class="mock-bar" aria-label="Mock navigation">
+  <a class="mock-bar__home" href="../../index.html" aria-label="All mocks">⌂</a>
+  <span class="mock-bar__screen">Private preview</span>
+  <ul class="mock-bar__states"><li><a href="default.html">default</a></li><li><a href="busy.html" aria-current="page">busy</a></li><li><a href="invalid.html">invalid</a></li><li><a href="locked-out.html">locked-out</a></li><li><a href="error.html">error</a></li><li><a href="redirect.html">redirect</a></li></ul>
+  <button type="button" data-theme-toggle aria-pressed="false">☾ Dark</button>
+  <button type="button" data-chrome-toggle aria-label="Hide mock chrome">×</button>
+</nav>
+<script src="../../assets/mock.js"></script>
+</body>
+</html>

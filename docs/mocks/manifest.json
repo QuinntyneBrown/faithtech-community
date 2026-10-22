@@ -40,6 +40,29 @@
       }
     },
     {
+      "id": "private-preview",
+      "kind": "page",
+      "title": "Private preview wall",
+      "route": "app.faithtech.community and www.faithtech.community, any path while locked",
+      "requirements": [
+        "L2-085",
+        "L2-087",
+        "L2-088"
+      ],
+      "states": [
+        "default",
+        "busy",
+        "invalid",
+        "locked-out",
+        "error",
+        "redirect"
+      ],
+      "not_applicable": {
+        "loading": "Served whole by the server before any application bundle; nothing is fetched.",
+        "empty": "This screen has no collection that could be empty."
+      }
+    },
+    {
       "id": "sign-in",
       "kind": "page",
       "title": "Sign in",
