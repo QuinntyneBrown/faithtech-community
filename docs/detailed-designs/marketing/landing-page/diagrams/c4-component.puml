@@ -4,7 +4,7 @@ LAYOUT_WITH_LEGEND()
 title Components — Marketing app
 
 Container_Boundary(mkt, "Marketing app") {
-  Component(shell, "MarketingApp + routes", "Angular", "Skip link, top bar (Join now, Sign in), footer; '' -> LandingPage")
+  Component(shell, "MarketingAppComponent + routes", "Angular", "Skip link, top bar (Join now, Sign in), footer; '' -> LandingPage")
   Component(page, "LandingPage", "Angular page", "Hero copy, panel switch (?join), Google outcome (?google=), hand-off")
   Component(origin, "COMMUNITY_ORIGIN", "Injection token", "Community app origin from build configuration")
 }

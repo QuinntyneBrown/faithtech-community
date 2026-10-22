@@ -26,7 +26,7 @@ Composition follows a split product hero (headline and video beside the sign-in 
 
 ### Marketing app
 
-- **`MarketingApp`** — the shell: `SkipLinkComponent`, `TopBarComponent` `anonymous` with *Join now* and *Sign in*, the router outlet and `SiteFooterComponent`. Routes: `''` → `LandingPage`; `'**'` → redirect to `''`.
+- **`MarketingAppComponent`** — the shell: `SkipLinkComponent`, `TopBarComponent` `anonymous` with *Join now* and *Sign in*, the router outlet and `SiteFooterComponent`. Routes: `''` → `LandingPage`; `'**'` → redirect to `''`.
 - **`LandingPage`** — composes `LandingHeroComponent` with the panel (`CardComponent` holding `SignInFormComponent` or `SignUpFormComponent`, the Google button in `ftAuthAlternatives`) and the media (`VideoPlayerComponent`), three benefit cards and the call-to-action band. Query parameters drive its state: `join` shows the sign-up form, `google=failed|suspended` shows the Google outcome, `returnUrl` is carried into the hand-off. On first render it calls `AUTH_SERVICE.hasKeptSession()` and replaces the location with the community app home when it is true (L2-055 AC6).
 - **Sign in** — the page posts through `AUTH_SERVICE.signInWithPassword`, shows the same failures as the app's sign-in page through `SignInFormComponent`, and on success shows "Signing you in…" (with the unverified notice when `emailVerified` is false) and navigates to `${COMMUNITY_ORIGIN}/auth/continue?returnUrl=…&keepSignedIn=1|0`. Only app-relative `returnUrl`s (`/…`, not `//…`) are carried.
 - **Sign up** — `AUTH_SERVICE.signUp`, `signUpFieldErrors` from `api` for server validation, "Check your inbox" with a link to `${COMMUNITY_ORIGIN}/verify-email?email=…` to send it again.
