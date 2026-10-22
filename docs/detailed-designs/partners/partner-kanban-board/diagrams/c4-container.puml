@@ -2,7 +2,7 @@
 !include <C4/C4_Container>
 LAYOUT_WITH_LEGEND()
 title Containers — Partner Kanban board
-Person(lead, "City Lead", "Lead who owns contacts, partners and team roles")
+Person(lead, "Lead", "City, Event, Create or Communications Lead who works the partner pipeline")
 Person(staff, "Staff", "Read-only across everything except private contacts")
 System_Boundary(community, "FaithTech Community") {
   Container(web, "Web app", "Angular", "Shell, partners feature library, api and components libraries")

@@ -6,7 +6,9 @@
 >
   <legend>{{ legend() }}</legend>
   <ng-content />
-  @if (error()) {
-    <ft-inline-message [id]="errorId">{{ error() }}</ft-inline-message>
-  }
+  <div class="errors" aria-live="polite">
+    @if (error()) {
+      <ft-inline-message [id]="errorId">{{ error() }}</ft-inline-message>
+    }
+  </div>
 </fieldset>

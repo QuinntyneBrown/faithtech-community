@@ -9,13 +9,21 @@
 .page-header__title {
   margin: 0;
   color: var(--color-fg-default);
-  font: var(--text-h2);
+  // The page's one h1 takes the h1 role, as in the mocks' .page-header h1.
+  font: var(--text-h1);
+  letter-spacing: var(--letter-spacing-tight);
+  text-wrap: balance;
+  overflow-wrap: anywhere;
 }
 
 .page-header__subtitle {
   margin: var(--space-1) 0 0;
   color: var(--color-fg-muted);
   font: var(--text-body);
+}
+
+.page-header__subtitle--slot:empty {
+  display: none;
 }
 
 .page-header__actions {

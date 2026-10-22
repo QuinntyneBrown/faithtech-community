@@ -15,34 +15,48 @@ skinparam package {
   BackgroundColor #F9FAFB
 }
 actor "New member" as actor
-box "Frontend — FaithTech Community web app (app shell — sign-up and email verification)" #E0F2FE
+box "Frontend — FaithTech Community web app (app shell — email verification)" #E0F2FE
   participant "VerifyEmailPage" as page
   participant "HttpAuthService" as svc
 end box
 box "Backend — FaithTech.Community.Api" #D1FADF
-  participant "AuthEndpoints" as ep
+  participant "AccountEndpoints" as ep
 end box
 box "Backend — FaithTech.Community.Application and Domain" #ECFDF3
-  participant "VerifyEmailHandler" as v
+  participant "ConfirmEmailHandler" as v
   participant "ContactSignedUpHandler" as evt
 end box
 box "Backend — FaithTech.Community.Infrastructure" #FFF4E5
-  participant "NotificationDispatcher" as notify
   database "Community database" as db
+  participant "IEmailSender" as mail
 end box
 actor -> page : Open verification link
-page -> svc : verify(token)
-svc -> ep : POST /api/auth/verify-email
-ep -> v : Send VerifyEmailCommand (L2-002)
-v -> db : Mark email verified
-v -> evt : Publish EmailVerified
-evt -> db : Find unlinked contacts where lower(email) matches
-db --> evt : Matching contacts
-loop each matching contact
-  evt -> notify : ContactSignedUp to owning lead, in-app and email (L2-015 AC1)
+page -> svc : confirmEmail(userId, token)
+svc -> ep : POST /api/account/verify-email
+ep -> v : HandleAsync(ConfirmEmailCommand) (L2-002)
+v -> db : UserManager.ConfirmEmailAsync
+alt bad, used or expired token
+  v --> ep : Invalid
+  ep --> svc : 400
+else verified
+  v -> evt : HandleAsync(EmailVerified(profileId, email))
+  note right of evt : AcceptInviteHandler makes the same call\nwhen an invite creates a new, verified account
+  evt -> db : Active, unlinked contacts where upper(Email) = verified email
+  db --> evt : Matching contacts
+  opt any match
+    loop each matching contact
+      evt -> db : Add Notification(owner, ContactSignedUp, "{name} just joined FaithTech", /contacts/{id})
+    end
+    evt -> db : Save changes
+    evt -> db : Owners' email addresses
+    loop each matching contact
+      evt -> mail : SendAsync(email to the owning lead with the contact link) (L2-015 AC1)
+    end
+  end
+  v --> ep : Ok
+  ep --> svc : 200 OK
+  svc --> page : Done
+  page --> actor : Email verified
 end
-v --> ep : Verified
-ep --> svc : 200 OK
-svc --> page : Done
-page --> actor : Continue to sign in
+note over evt : An unverified sign-up never reaches this handler,\nso no lead is told (L2-015 AC3)
 @enduml

@@ -2,7 +2,7 @@
 !include <C4/C4_Container>
 LAYOUT_WITH_LEGEND()
 title Containers — Manage private contacts
-Person(lead, "City Lead", "Lead who owns contacts, partners and team roles")
+Person(lead, "Lead", "City, Event, Create or Communications Lead who keeps private contacts")
 Person(admin, "System Admin", "Holds full override across the site")
 System_Boundary(community, "FaithTech Community") {
   Container(web, "Web app", "Angular", "Shell, contacts feature library, api and components libraries")

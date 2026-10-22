@@ -48,6 +48,13 @@ public class CommunitySeeder(IOpenIddictApplicationManager applications, Communi
         {
             await applications.UpdateAsync(existing, descriptor, cancellationToken);
         }
+
+        // The concurrency token that guards the last System Admin (ChangeRolesHandler).
+        if (!await db.SystemAdminRosters.AnyAsync(r => r.Id == SystemAdminRoster.SingletonId, cancellationToken))
+        {
+            db.SystemAdminRosters.Add(new SystemAdminRoster());
+            await db.SaveChangesAsync(cancellationToken);
+        }
     }
 
     /// <summary>

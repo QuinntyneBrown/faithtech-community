@@ -1,25 +1,21 @@
-/*
- * EARLY IMPLEMENTATION: written ahead of the vertical slices to get a head start.
- * Contracts and DTOs follow docs/detailed-designs/ but may change as each feature is
- * implemented end to end (spec -> design -> mock -> ATDD slice).
- * Sources:
- *   - docs/detailed-designs/partners/manage-partners
- *   - docs/detailed-designs/partners/partner-kanban-board
- */
 import { HttpTestingController } from '@angular/common/http/testing';
 import { TestBed } from '@angular/core/testing';
 import { Observable } from 'rxjs';
 
+import { HANDLES_FORBIDDEN } from '../errors';
 import { apiTestProviders } from '../shared/api-test-providers';
 import { HttpPartnersService } from './http-partners.service';
 import { PARTNERS_SERVICE, PartnerRequest } from './partners.service';
 
 const request: PartnerRequest = {
-  name: 'Acme',
-  contactName: 'Wile',
-  email: '',
-  phone: '',
-  notes: '',
+  name: 'Kestrel Labs',
+  website: 'kestrel.example',
+  offering: 'Venue for Builders Night',
+  ownerId: 'p1',
+  contactName: 'Nadia Petrov',
+  email: null,
+  phone: null,
+  notes: null,
 };
 
 describe('HttpPartnersService', () => {
@@ -40,14 +36,21 @@ describe('HttpPartnersService', () => {
   it.each([
     ['getBoard', () => service.getBoard(), 'GET', '/api/partners', undefined],
     ['get', () => service.get('x1'), 'GET', '/api/partners/x1', undefined],
-    ['create', () => service.create(request), 'POST', '/api/partners', request],
+    ['owners', () => service.owners(), 'GET', '/api/partners/owners', undefined],
+    [
+      'create',
+      () => service.create({ ...request, stage: 'InFunnel' }),
+      'POST',
+      '/api/partners',
+      { ...request, stage: 'InFunnel' },
+    ],
     ['update', () => service.update('x1', request), 'PUT', '/api/partners/x1', request],
     [
       'move',
-      () => service.move('x1', 'Confirmed'),
+      () => service.move('x1', 'Confirmed', 'Contract signed.'),
       'POST',
       '/api/partners/x1/stage',
-      { to: 'Confirmed' },
+      { to: 'Confirmed', note: 'Contract signed.' },
     ],
   ])('%s', (_name, call, method, url, body) => {
     (call() as Observable<unknown>).subscribe();
@@ -56,5 +59,11 @@ describe('HttpPartnersService', () => {
     expect(req.request.method).toBe(method);
     if (body !== undefined) expect(req.request.body).toEqual(body);
     req.flush(null);
+  });
+
+  it('lets the partners page show its own forbidden state', () => {
+    service.getBoard().subscribe();
+
+    expect(controller.expectOne('/api/partners').request.context.get(HANDLES_FORBIDDEN)).toBe(true);
   });
 });

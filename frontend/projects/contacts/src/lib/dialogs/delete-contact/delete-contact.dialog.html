@@ -1,6 +1,36 @@
-<!--
-  SCAFFOLD: placeholder, not the implementation.
-  Generated from AGENTS.md and:
-    - docs/detailed-designs/contacts/archive-restore-delete-contacts
-  Overwrite this template with the expected implementation, then delete this comment.
--->
+<ft-dialog
+  [heading]="'Delete ' + data.name + ' for good?'"
+  description="This removes the contact and all your notes. It can’t be undone."
+  icon="delete"
+  tone="danger"
+  [busy]="busy()"
+  (closed)="ref.close(false)"
+>
+  <form (submit)="$event.preventDefault(); confirm()">
+    <ft-stack>
+      @if (failed()) {
+        <ft-alert status="danger" heading="Contact not deleted">
+          We couldn’t reach FaithTech. Nothing was changed — try again.
+        </ft-alert>
+      }
+      <ft-form-field required label="Type DELETE to confirm" [error]="error()">
+        <ft-text-field
+          [formControl]="confirmation"
+          autocomplete="off"
+          initialFocus
+          (focusout)="blurred()"
+        />
+      </ft-form-field>
+    </ft-stack>
+  </form>
+  <ft-button ftDialogFooter [disabled]="busy()" (click)="ref.close(false)">Cancel</ft-button>
+  <ft-button
+    ftDialogFooter
+    variant="danger"
+    [disabled]="!confirmed()"
+    [loading]="busy()"
+    (click)="confirm()"
+  >
+    {{ busy() ? 'Delete permanently…' : 'Delete permanently' }}
+  </ft-button>
+</ft-dialog>

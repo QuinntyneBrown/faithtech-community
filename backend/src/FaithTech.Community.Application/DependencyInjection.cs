@@ -1,7 +1,9 @@
 using FaithTech.Community.Application.Admin;
 using FaithTech.Community.Application.Agile;
+using FaithTech.Community.Application.Contacts;
 using FaithTech.Community.Application.Identity;
 using FaithTech.Community.Application.Invites;
+using FaithTech.Community.Application.Partners;
 using FaithTech.Community.Application.Profiles;
 using FaithTech.Community.Application.Team;
 using FluentValidation;
@@ -43,6 +45,17 @@ public static class DependencyInjection
         services.AddScoped<InviteSender>();
         services.AddScoped<ManageInvitesHandler>();
         services.AddScoped<AcceptInviteHandler>();
+        services.AddScoped<ContactAccess>();
+        services.AddScoped<ContactViews>();
+        services.AddScoped<ManageContactsHandler>();
+        services.AddScoped<ContactNotesHandler>();
+        services.AddScoped<ArchiveContactsHandler>();
+        services.AddScoped<ContactSignedUpHandler>();
+        services.AddScoped<LinkContactHandler>();
+        services.AddScoped<PartnerAccess>();
+        services.AddScoped<PartnerViews>();
+        services.AddScoped<ManagePartnersHandler>();
+        services.AddScoped<MovePartnerHandler>();
         services.AddScoped<ListTeamHandler>();
         services.AddScoped<WorkspaceAccessPolicy>();
         services.AddScoped<AgileNotifier>();

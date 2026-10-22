@@ -1,4 +1,6 @@
 using FaithTech.Community.Application.Common;
+using FaithTech.Community.Application.Contacts;
+using FaithTech.Community.Domain.Identity;
 using FluentValidation;
 using Microsoft.AspNetCore.Identity;
 
@@ -15,7 +17,7 @@ public class ConfirmEmailValidator : AbstractValidator<ConfirmEmailCommand>
     }
 }
 
-public class ConfirmEmailHandler(UserManager<CommunityUser> users)
+public class ConfirmEmailHandler(UserManager<CommunityUser> users, ContactSignedUpHandler contactSignedUp)
 {
     public const string InvalidLinkMessage = "This link has expired or has already been used.";
 
@@ -29,6 +31,8 @@ public class ConfirmEmailHandler(UserManager<CommunityUser> users)
             return Result.Invalid("Token", InvalidLinkMessage);
         }
 
+        // Only a verified email is matched against private contacts (L2-015 AC3).
+        await contactSignedUp.HandleAsync(new EmailVerified(user.ProfileId, user.Email!));
         return Result.Ok();
     }
 }

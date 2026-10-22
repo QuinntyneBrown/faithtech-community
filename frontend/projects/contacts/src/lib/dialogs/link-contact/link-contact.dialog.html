@@ -1,6 +1,37 @@
-<!--
-  SCAFFOLD: placeholder, not the implementation.
-  Generated from AGENTS.md and:
-    - docs/detailed-designs/contacts/link-contact-on-sign-up
-  Overwrite this template with the expected implementation, then delete this comment.
--->
+<ft-dialog
+  [heading]="'Link to ' + data.member.name + '’s profile?'"
+  description="Their name and photos will come from their own profile from now on."
+  icon="link"
+  [busy]="busy()"
+  (closed)="ref.close()"
+>
+  <ft-stack>
+    @if (failed()) {
+      <ft-alert status="danger" heading="Profile not linked">
+        We couldn’t link the profile. Nothing was changed — try again.
+      </ft-alert>
+    }
+    <ft-cluster gap="2">
+      <ft-avatar size="sm" [name]="data.member.name" />
+      <div>
+        <strong>{{ data.member.name }}</strong>
+        <div class="text-caption">Member{{ data.email ? ' · ' + data.email : '' }}</div>
+      </div>
+    </ft-cluster>
+    <ft-radio-group legend="Your notes" [formControl]="notes">
+      <ft-radio
+        value="keep"
+        [description]="'Recommended. ' + data.member.name + ' and everyone else never see them.'"
+        [disabled]="busy()"
+        >Keep my notes private to me</ft-radio
+      >
+      <ft-radio value="discard" [description]="discardText" [disabled]="busy()"
+        >Discard my notes</ft-radio
+      >
+    </ft-radio-group>
+  </ft-stack>
+  <ft-button ftDialogFooter [disabled]="busy()" (click)="ref.close()">Cancel</ft-button>
+  <ft-button ftDialogFooter variant="primary" initialFocus [loading]="busy()" (click)="link()">
+    {{ busy() ? 'Link profile…' : 'Link profile' }}
+  </ft-button>
+</ft-dialog>

@@ -1,8 +1,10 @@
 using FaithTech.Community.Application.Identity;
 using FaithTech.Community.Domain.Admin;
 using FaithTech.Community.Domain.Agile;
+using FaithTech.Community.Domain.Contacts;
 using FaithTech.Community.Domain.Invites;
 using FaithTech.Community.Domain.Notifications;
+using FaithTech.Community.Domain.Partners;
 using FaithTech.Community.Domain.Profiles;
 using Microsoft.EntityFrameworkCore;
 
@@ -16,9 +18,19 @@ public interface IApplicationDbContext
 
     DbSet<AuditEntry> AuditEntries { get; }
 
+    DbSet<SystemAdminRoster> SystemAdminRosters { get; }
+
     DbSet<Notification> Notifications { get; }
 
     DbSet<Invite> Invites { get; }
+
+    DbSet<Contact> Contacts { get; }
+
+    DbSet<ContactNote> ContactNotes { get; }
+
+    DbSet<Partner> Partners { get; }
+
+    DbSet<PartnerStageChange> PartnerStageChanges { get; }
 
     DbSet<Workspace> Workspaces { get; }
 

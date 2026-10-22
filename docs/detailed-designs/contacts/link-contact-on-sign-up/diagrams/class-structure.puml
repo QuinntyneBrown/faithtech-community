@@ -14,14 +14,15 @@ class Contact {
   +Guid Id
   +Guid OwnerId
   +string Name
-  +string Email
-  +string Phone
-  +string Organization
-  +string City
+  +string? Email
+  +string? Phone
+  +string? Organization
+  +string? City
   +Guid? LinkedProfileId
   +DateTime? ArchivedAtUtc
   +bool IsArchived
   +bool CanBeDeleted
+  +IReadOnlyCollection<ContactNote> Notes
   +Update(name, email, phone, organization, city): void
   +AddNote(body: string, nowUtc: DateTime): ContactNote
   +Archive(nowUtc: DateTime): void
@@ -34,39 +35,79 @@ class ContactNote {
   +string Body
   +DateTime CreatedAtUtc
 }
-class ContactAccessPolicy {
-  +CanAccess(caller: ICurrentUser, contact: Contact): AccessResult
+enum ContactAccessKind {
+  Owner
+  AdminOverride
+  NotFound
+}
+class ContactAccess {
+  +bool CanKeepContacts
+  +CallerProfileIdAsync(): Task<Guid?>
+  +AuthorizeAsync(contactId: Guid, withNotes: bool = false): Task<(ContactAccessKind, Contact?, Guid Actor)>
+  +AuditOverride(access: ContactAccessKind, actor: Guid, contact: Contact, action: string, before: object? = null, after: object? = null): void
 }
 interface ICurrentUser {
-  +Guid ProfileId
-  +bool IsSystemAdmin
-  +bool HoldsLeadRole
+  +Guid? UserId
+  +IReadOnlyCollection<Role> Roles
+  +HasRole(role: Role): bool
+}
+class LeadRoles <<static>> {
+  +{static} All: IReadOnlyList<Role>
+  +{static} HoldsLeadRole(current: ICurrentUser): bool
+}
+interface IAuditLog {
+  +Record(actorId: Guid, action: string, targetType: string, targetId: string, before: object?, after: object?): void
 }
 Contact "1" *-- "*" ContactNote
-ContactAccessPolicy ..> Contact
-ContactAccessPolicy ..> ICurrentUser
+ContactAccess ..> Contact : loads
+ContactAccess ..> ContactAccessKind : returns
+ContactAccess ..> ICurrentUser
+ContactAccess ..> LeadRoles
+ContactAccess ..> IAuditLog : AdminOverride only
 
-class EmailVerified {
+class EmailVerified <<Domain record>> {
   +Guid ProfileId
   +string Email
 }
-class ContactSignedUpHandler {
-  +Handle(event: EmailVerified): Task
+class ConfirmEmailHandler {
+  +HandleAsync(command: ConfirmEmailCommand): Task<Result>
 }
-class LinkContactCommand {
-  +Guid ContactId
+class AcceptInviteHandler {
+  +HandleAsync(command: AcceptInviteCommand): Task<Result>
+}
+class ContactSignedUpHandler {
+  +HandleAsync(verified: EmailVerified): Task
+}
+class Notification {
+  +Notification(recipientId: Guid, kind: NotificationKind, title: string, linkPath: string, createdAt: DateTimeOffset)
+}
+interface IEmailSender {
+  +SendAsync(message: EmailMessage): Task
+}
+class LinkContactCommand <<record>> {
   +Guid ProfileId
+  +bool DiscardNotes = false
 }
 class LinkContactHandler {
-  +Handle(command: LinkContactCommand): Task<ContactDto>
+  +LinkAsync(id: Guid, command: LinkContactCommand): Task<(Result, ContactDto?)>
 }
-interface INotificationService {
-  +Notify(profileId: Guid, notification: Notification): Task
+class ContactViews {
+  +ToDtoAsync(contact: Contact, isOwn: bool): Task<ContactDto>
+  +MatchAsync(email: string?): Task<ContactMatchDto?>
 }
+class ContactMatchDto <<record>> {
+  +Guid ProfileId
+  +string Name
+}
+ConfirmEmailHandler ..> ContactSignedUpHandler : after verification
+AcceptInviteHandler ..> ContactSignedUpHandler : new account
 ContactSignedUpHandler ..> EmailVerified : handles
-ContactSignedUpHandler ..> INotificationService
-ContactSignedUpHandler ..> Contact : finds
+ContactSignedUpHandler ..> Contact : finds by email
+ContactSignedUpHandler ..> Notification : ContactSignedUp, /contacts/{id}
+ContactSignedUpHandler ..> IEmailSender
 LinkContactHandler ..> LinkContactCommand : handles
-LinkContactHandler --> ContactAccessPolicy
+LinkContactHandler --> ContactAccess
+LinkContactHandler --> ContactViews
 LinkContactHandler --> Contact : LinkTo
+ContactViews ..> ContactMatchDto : match
 @enduml

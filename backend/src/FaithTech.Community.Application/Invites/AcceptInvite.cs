@@ -1,7 +1,9 @@
 using FaithTech.Community.Application.Admin;
 using FaithTech.Community.Application.Common;
+using FaithTech.Community.Application.Contacts;
 using FaithTech.Community.Application.Identity;
 using FaithTech.Community.Application.Profiles;
+using FaithTech.Community.Domain.Identity;
 using FaithTech.Community.Domain.Invites;
 using FaithTech.Community.Domain.Notifications;
 using FaithTech.Community.Domain.Profiles;
@@ -42,6 +44,7 @@ public class AcceptInviteHandler(
     UserManager<CommunityUser> users,
     ICurrentUser current,
     IAuditLog audit,
+    ContactSignedUpHandler contactSignedUp,
     TimeProvider time)
 {
     public async Task<InviteLookupDto?> LookUpAsync(string token, CancellationToken cancellationToken = default)
@@ -120,6 +123,12 @@ public class AcceptInviteHandler(
         }
 
         await db.SaveChangesAsync(cancellationToken);
+        if (command.IsNewAccount)
+        {
+            // The new account is verified on creation, so it is matched against private contacts now (L2-015).
+            await contactSignedUp.HandleAsync(new EmailVerified(profile.Id, invite.Email), cancellationToken);
+        }
+
         return Result.Ok();
     }
 

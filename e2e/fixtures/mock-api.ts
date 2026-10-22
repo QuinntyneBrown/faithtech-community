@@ -1,6 +1,8 @@
 import { Page, Route } from '@playwright/test';
 
 import { MockAgile } from './mock-agile';
+import { MockContacts } from './mock-contacts';
+import { MockPartners } from './mock-partners';
 
 export interface MockAccount {
   name: string;
@@ -111,6 +113,10 @@ export class MockApi {
   private readonly storing = new Map<MockPhoto, string>();
   /** The stored URL of an uploaded photo; the journey videos swap in the image that was chosen. */
   uploadedPhotoUrl: (file: string) => string = () => photoUrl();
+  /** Private contacts (ADR 0014). */
+  readonly contacts = new MockContacts(this);
+  /** The shared partner pipeline (ADR 0014). */
+  readonly partners = new MockPartners(this);
 
   constructor(private readonly page: Page) {}
 
@@ -233,6 +239,10 @@ export class MockApi {
     if (override) return override(route, body);
 
     const authorization = request.headers()['authorization'];
+    const contacts = this.contacts.handle(route, method, url, body, this.caller(authorization));
+    if (contacts) return contacts;
+    const partners = this.partners.handle(route, method, url, body, this.caller(authorization));
+    if (partners) return partners;
     if (this.agile.handles(url.pathname)) {
       return this.agile.handle({
         route,

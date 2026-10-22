@@ -36,6 +36,7 @@ app.UseExceptionHandler();
 app.UseStatusCodePages();
 app.UseCors(WebProtectionSetup.WebAppCorsPolicy);
 app.UseAuthentication();
+app.UseMiddleware<CurrentRolesMiddleware>();
 app.UseRateLimiter();
 app.UseAuthorization();
 
@@ -50,6 +51,8 @@ app.MapAuditLogEndpoints();
 app.MapRolesEndpoints();
 app.MapAdminUsersEndpoints();
 app.MapInvitesEndpoints();
+app.MapContactsEndpoints();
+app.MapPartnersEndpoints();
 app.MapTeamEndpoints();
 app.MapWorkspacesEndpoints();
 app.MapWorkItemsEndpoints();

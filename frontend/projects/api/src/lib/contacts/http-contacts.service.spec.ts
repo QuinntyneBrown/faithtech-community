@@ -1,27 +1,19 @@
-/*
- * EARLY IMPLEMENTATION: written ahead of the vertical slices to get a head start.
- * Contracts and DTOs follow docs/detailed-designs/ but may change as each feature is
- * implemented end to end (spec -> design -> mock -> ATDD slice).
- * Sources:
- *   - docs/detailed-designs/contacts/manage-contacts
- *   - docs/detailed-designs/contacts/contact-notes
- *   - docs/detailed-designs/contacts/archive-restore-delete-contacts
- *   - docs/detailed-designs/contacts/link-contact-on-sign-up
- */
 import { HttpTestingController } from '@angular/common/http/testing';
 import { TestBed } from '@angular/core/testing';
 import { Observable } from 'rxjs';
 
+import { HANDLES_FORBIDDEN } from '../errors';
 import { apiTestProviders } from '../shared/api-test-providers';
 import { CONTACTS_SERVICE, CreateContactRequest } from './contacts.service';
 import { HttpContactsService } from './http-contacts.service';
 
 const request: CreateContactRequest = {
-  name: 'Grace',
-  email: 'g@h.io',
-  phone: '',
-  organization: 'Navy',
-  notes: '',
+  name: 'Kwame Asante',
+  email: 'kwame.asante@example.org',
+  phone: null,
+  organization: 'Maple Street Church',
+  city: 'Toronto',
+  notes: 'Pastor.',
 };
 
 describe('HttpContactsService', () => {
@@ -57,7 +49,13 @@ describe('HttpContactsService', () => {
       '/api/contacts/c1/notes',
       { body: 'Met at the summit' },
     ],
-    ['link', () => service.link('c1', 'p9'), 'POST', '/api/contacts/c1/link', { profileId: 'p9' }],
+    [
+      'link',
+      () => service.link('c1', 'p9', true),
+      'POST',
+      '/api/contacts/c1/link',
+      { profileId: 'p9', discardNotes: true },
+    ],
   ])('%s', (_name, call, method, url, body) => {
     (call() as Observable<unknown>).subscribe();
 
@@ -65,5 +63,11 @@ describe('HttpContactsService', () => {
     expect(req.request.method).toBe(method);
     if (body !== undefined) expect(req.request.body).toEqual(body);
     req.flush(null);
+  });
+
+  it('lets the contacts page show its own forbidden state', () => {
+    service.list().subscribe();
+
+    expect(controller.expectOne('/api/contacts').request.context.get(HANDLES_FORBIDDEN)).toBe(true);
   });
 });

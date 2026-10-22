@@ -14,14 +14,15 @@ class Contact {
   +Guid Id
   +Guid OwnerId
   +string Name
-  +string Email
-  +string Phone
-  +string Organization
-  +string City
+  +string? Email
+  +string? Phone
+  +string? Organization
+  +string? City
   +Guid? LinkedProfileId
   +DateTime? ArchivedAtUtc
   +bool IsArchived
   +bool CanBeDeleted
+  +IReadOnlyCollection<ContactNote> Notes
   +Update(name, email, phone, organization, city): void
   +AddNote(body: string, nowUtc: DateTime): ContactNote
   +Archive(nowUtc: DateTime): void
@@ -34,40 +35,117 @@ class ContactNote {
   +string Body
   +DateTime CreatedAtUtc
 }
-class ContactAccessPolicy {
-  +CanAccess(caller: ICurrentUser, contact: Contact): AccessResult
+enum ContactAccessKind {
+  Owner
+  AdminOverride
+  NotFound
+}
+class ContactAccess {
+  +bool CanKeepContacts
+  +CallerProfileIdAsync(): Task<Guid?>
+  +AuthorizeAsync(contactId: Guid, withNotes: bool = false): Task<(ContactAccessKind, Contact?, Guid Actor)>
+  +AuditOverride(access: ContactAccessKind, actor: Guid, contact: Contact, action: string, before: object? = null, after: object? = null): void
 }
 interface ICurrentUser {
-  +Guid ProfileId
-  +bool IsSystemAdmin
-  +bool HoldsLeadRole
+  +Guid? UserId
+  +IReadOnlyCollection<Role> Roles
+  +HasRole(role: Role): bool
+}
+class LeadRoles <<static>> {
+  +{static} All: IReadOnlyList<Role>
+  +{static} HoldsLeadRole(current: ICurrentUser): bool
+}
+interface IAuditLog {
+  +Record(actorId: Guid, action: string, targetType: string, targetId: string, before: object?, after: object?): void
 }
 Contact "1" *-- "*" ContactNote
-ContactAccessPolicy ..> Contact
-ContactAccessPolicy ..> ICurrentUser
+ContactAccess ..> Contact : loads
+ContactAccess ..> ContactAccessKind : returns
+ContactAccess ..> ICurrentUser
+ContactAccess ..> LeadRoles
+ContactAccess ..> IAuditLog : AdminOverride only
 
-class CreateContactCommand {
+class CreateContactCommand <<record>> {
+  +string? Name
+  +string? Email
+  +string? Phone
+  +string? Organization
+  +string? City
+  +string? Notes
+  +bool LinkToMember
+}
+class UpdateContactCommand <<record>> {
+  +string? Name
+  +string? Email
+  +string? Phone
+  +string? Organization
+  +string? City
+}
+class ContactRules <<static>> {
+  +MaxName = 200
+  +MaxEmail = 256
+  +MaxField = 200
+  +MaxNote = 2000
+  +{static} Details(...): void
+}
+class CreateContactValidator
+class UpdateContactValidator
+class ManageContactsHandler {
+  +CreateAsync(command: CreateContactCommand): Task<(Result, ContactDto?)>
+  +GetAsync(id: Guid): Task<ContactDto?>
+  +UpdateAsync(id: Guid, command: UpdateContactCommand): Task<(Result, ContactDto?)>
+  +ListAsync(term: string?): Task<IReadOnlyList<ContactSummaryDto>?>
+  +ListArchivedAsync(): Task<IReadOnlyList<ContactSummaryDto>?>
+}
+class ContactViews {
+  +ToDtoAsync(contact: Contact, isOwn: bool): Task<ContactDto>
+  +MatchAsync(email: string?): Task<ContactMatchDto?>
+}
+class ContactDto <<record>> {
+  +Guid Id
   +string Name
-  +string Email
-  +string Phone
-  +string Organization
-  +string Notes
+  +string? Email
+  +string? Phone
+  +string? Organization
+  +string? City
+  +Guid? LinkedProfileId
+  +string? PhotoUrl
+  +string? PhotoAltText
+  +ContactMatchDto? Match
+  +DateTime? ArchivedAtUtc
+  +int NoteCount
+  +bool IsOwn
 }
-class ContactValidator {
-  +Validate(command: CreateContactCommand): ValidationResult
+class ContactSummaryDto <<record>> {
+  +Guid Id
+  +string Name
+  +string? Email
+  +string? Organization
+  +string? City
+  +string Status
+  +DateTime? ArchivedAtUtc
 }
-class CreateContactHandler {
-  +Handle(command: CreateContactCommand): Task<ContactDto>
+class ContactMatchDto <<record>> {
+  +Guid ProfileId
+  +string Name
 }
-class ListContactsHandler {
-  +Handle(query: ListContactsQuery): Task<IReadOnlyList<ContactSummary>>
+class Result <<record>> {
+  +ResultStatus Status
+  +string? Detail
+  +IReadOnlyDictionary<string, object?>? Extensions
+  +{static} Conflict(detail: string, extensions = null): Result
 }
-class GetContactHandler {
-  +Handle(query: GetContactQuery): Task<ContactDto>
-}
-ContactValidator ..> CreateContactCommand
-CreateContactHandler ..> CreateContactCommand : handles
-CreateContactHandler --> Contact : creates
-GetContactHandler --> ContactAccessPolicy
-ListContactsHandler ..> ICurrentUser
+CreateContactValidator ..> CreateContactCommand
+UpdateContactValidator ..> UpdateContactCommand
+CreateContactValidator ..> ContactRules
+UpdateContactValidator ..> ContactRules
+ManageContactsHandler ..> CreateContactCommand : handles
+ManageContactsHandler ..> UpdateContactCommand : handles
+ManageContactsHandler --> ContactAccess
+ManageContactsHandler --> ContactViews
+ManageContactsHandler --> Contact : creates, updates
+ManageContactsHandler ..> Result : 409 with memberName
+ManageContactsHandler ..> ContactSummaryDto : lists
+ContactViews ..> ContactDto : builds
+ContactDto --> ContactMatchDto
 @enduml

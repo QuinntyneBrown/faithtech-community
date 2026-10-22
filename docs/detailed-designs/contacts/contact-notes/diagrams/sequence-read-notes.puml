@@ -14,7 +14,7 @@ skinparam package {
   FontColor #101828
   BackgroundColor #F9FAFB
 }
-actor "City Lead" as actor
+actor "Lead" as actor
 box "Frontend — FaithTech Community web app (contacts library)" #E0F2FE
   participant "ContactPage" as page
   participant "HttpContactsService" as svc
@@ -23,25 +23,33 @@ box "Backend — FaithTech.Community.Api" #D1FADF
   participant "ContactsEndpoints" as ep
 end box
 box "Backend — FaithTech.Community.Application and Domain" #ECFDF3
-  participant "GetContactNotesHandler" as h
-  participant "ContactAccessPolicy" as pol
+  participant "ContactNotesHandler" as h
+  participant "ContactAccess" as acc
 end box
 box "Backend — FaithTech.Community.Infrastructure" #FFF4E5
   participant "AuditLog" as audit
   database "Community database" as db
 end box
-actor -> page : Open contact
-page -> svc : getNotes(contactId)
+actor -> page : Open /contacts/{id}
+page -> svc : get(id) and getNotes(id)
 svc -> ep : GET /api/contacts/{id}/notes
-ep -> h : Send GetContactNotesQuery
-h -> db : Load Contact
-h -> pol : CanAccess(caller, contact) (L2-014 AC2)
-alt AdminOverride
-  h -> audit : Write audit entry
+ep -> h : ListAsync(contactId)
+h -> acc : AuthorizeAsync(contactId)
+alt NotFound
+  h --> ep : null
+  ep --> svc : 404
+  svc --> page : Error
+  page --> actor : Not-found state
+else Owner or AdminOverride
+  h -> acc : AuditOverride(kind, actor, contact, "contact.notes-viewed")
+  opt AdminOverride
+    acc -> audit : Record contact.notes-viewed
+  end
+  h -> db : Save changes
+  h -> db : Select notes where ContactId = id order by CreatedAtUtc desc
+  h --> ep : ContactNoteDto list, also for a linked contact (L2-014 AC2)
+  ep --> svc : 200 OK
+  svc --> page : Notes
+  page --> actor : Notes newest first
 end
-h -> db : Select notes order by CreatedAtUtc desc
-h --> ep : Notes
-ep --> svc : 200 OK
-svc --> page : Notes
-page --> actor : Notes newest first
 @enduml

@@ -9,11 +9,9 @@ public class HttpCurrentUser(IHttpContextAccessor accessor) : ICurrentUser
     public Guid? UserId =>
         Guid.TryParse(accessor.HttpContext?.User.FindFirst(OpenIddictConstants.Claims.Subject)?.Value, out var id) ? id : null;
 
+    /// <summary>The caller's current roles, read from their profile by <see cref="CurrentRolesMiddleware"/>; never the token's role claims.</summary>
     public IReadOnlyCollection<Role> Roles =>
-        accessor.HttpContext?.User.FindAll(OpenIddictConstants.Claims.Role)
-            .Select(c => Enum.TryParse<Role>(c.Value, out var role) ? role : (Role?)null)
-            .OfType<Role>()
-            .ToArray() ?? [];
+        accessor.HttpContext?.Items[CurrentRolesMiddleware.ItemKey] as Role[] ?? [];
 
     public bool IsAuthenticated => accessor.HttpContext?.User.Identity?.IsAuthenticated == true;
 

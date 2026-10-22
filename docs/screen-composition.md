@@ -4,13 +4,13 @@ Which `@faithtech-community/components` parts build each screen, and what is bui
 
 **Local UI** is markup a feature library writes itself. It is limited to page composition: headings that belong to the page, sections and the glue between `api` services and components. Anything reusable goes into `components` first (`AGENTS.md`).
 
-Coverage: the profiles screens (`profile`, `edit-profile`, `delete-photo`), the admin screens (`admin-users`, `audit-log`, `add-role`, `remove-role`, `suspend-user`), the invites screens (`invites`, `accept-invite`, `send-invite`), the team list (`team`), the Appearance card of settings (`settings`) and the agile screens (`workspaces`, `team-board`, `backlog`, `work-item`, `workspace-settings`, `planning-poker` and their dialogs). Other screens are added here as their features are built.
+Coverage: the profiles screens (`profile`, `edit-profile`, `delete-photo`), the admin screens (`admin-users`, `audit-log`, `add-role`, `remove-role`, `suspend-user`), the invites screens (`invites`, `accept-invite`, `send-invite`), the team list (`team`), the Appearance card of settings (`settings`), the contacts screens (`contacts`, `contact`, `contact-form`, `archived-contacts`, `add-note`, `archive-contact`, `delete-contact`, `link-contact`), the partners screens (`partners`, `partner`, `partner-form`, `add-partner`, `move-partner`) and the agile screens (`workspaces`, `team-board`, `backlog`, `work-item`, `workspace-settings`, `planning-poker` and their dialogs). Other screens are added here as their features are built.
 
 ## Shell
 
 | Part | Library | Local |
 |---|---|---|
-| App shell around `/people/**`, `/team`, `/admin/**`, `/invites`, `/workspaces/**` | `TopBarComponent` with the account menu (`MenuComponent` "Account menu for {name}" whose face is an `AvatarComponent`: *Your profile* → `/people/me`, *Settings* → `/settings`, *Sign out*), `NavDrawerComponent`, `TabBarComponent` (top bar, tab bar and menu all from `shell/navigation.ts`, one rule by role, ADR 0012), `SkipLinkComponent`, `ToastRegionComponent` (in `AppShellComponent`). System Admins get an **Admin** link (secondary) to `/admin`. | — |
+| App shell around `/people/**`, `/team`, `/admin/**`, `/invites`, `/contacts/**`, `/partners/**`, `/workspaces/**` | `TopBarComponent` with the account menu (`MenuComponent` "Account menu for {name}" whose face is an `AvatarComponent`: *Your profile* → `/people/me`, *Settings* → `/settings`, *Sign out*), `NavDrawerComponent`, `TabBarComponent` (top bar, tab bar and menu all from `shell/navigation.ts`, one rule by role, ADR 0012), `SkipLinkComponent`, `ToastRegionComponent` (in `AppShellComponent`). System Admins get an **Admin** link (secondary) to `/admin`. | — |
 
 ## Pages
 
@@ -63,6 +63,46 @@ Coverage: the profiles screens (`profile`, `edit-profile`, `delete-photo`), the 
 - Library: `PageHeaderComponent` ("Team", "Everyone with a lead or volunteer role") with *Invite someone* (`ButtonComponent` `primary` link to `/invites`, leads and System Admins only; `member` hides it), `ClusterComponent` of `ChipComponent` toggles (All, Leads, Volunteers; one pressed) and `FormFieldComponent` + `SelectComponent` (City: All cities and every team member's home city), `CardComponent` `flush` + `ListComponent` + `ListItemComponent` (name linking to `/people/:id`, leading `AvatarComponent` `sm` with the featured photo through `src`, `[meta]` slot holding a `BadgeComponent` `role` per role), `ListSkeletonComponent` (5 rows), `EmptyStateComponent` (empty with *Invite someone* for leads; no-results "No {volunteers|leads|team members} in {city} yet" with *Show everyone*; error with *Try again*).
 - Local: none beyond composition.
 
+### Contacts — `/contacts` (`pages/contacts`: default, loading, empty, error, no-results, forbidden)
+
+- Library: `PageHeaderComponent` ("Private to you · {n} contacts") with ghost *Archived* and primary *Add contact* (`ButtonComponent` `href`, `IconComponent` `archive`, `add`), `AlertComponent` info ("{name} just joined FaithTech" with *Review*), `TextFieldComponent` `type="search"` labelled "Search contacts", `CardComponent` `flush` + `ListComponent` + `ListItemComponent` (link to the contact, "{organisation} · {city}" meta, leading `AvatarComponent`, trailing `BadgeComponent` — Private `neutral` with `locked` icon, Signed up `success`, Member `info`), `ListSkeletonComponent`, `EmptyStateComponent` (empty with *Add your first contact*; no-results "No contacts match “{term}”" with *View archived contacts*; error with *Try again*; forbidden "Contacts are private to each lead" with *Back to home*).
+- The list is cards at every width; there is no table (ADR 0014).
+- Local: the search `<form role="search">`; the visually hidden `h1` of the forbidden state.
+
+### Contact — `/contacts/:id` (`pages/contact`: default, loading, error, match, linked)
+
+- Library: `BreadcrumbComponent`, `PageHeaderComponent` (subtitle "Private contact · only you can see this", "Member · linked profile" or, for a System Admin, "Another lead’s private contact · your access is recorded") with *Edit* (`href`) and ghost *Archive*, `AlertComponent` (match "{name} has joined FaithTech" with *Link to their profile* and *Not them*; linked success), `SplitComponent`, `CardComponent` (notes; Details), `BadgeComponent` Private, `ButtonComponent` *Add note*, `NoteComponent` with `formatDay`, `DescriptionListComponent` + `DescriptionListItemComponent` (Email as a `mailto:` `LinkComponent`, Phone, Organisation, City — a missing one reads "Not added" through `[missing]` — and Added "{day} by you"; `[loading]` skeleton values while loading), `NoteComponent` `[loading]` note-shaped skeletons, `PhotoComponent` (the linked member's featured photo), `LinkComponent` *View their profile*, `EmptyStateComponent` (not found, error).
+- Opens `AddNoteDialog`, `ArchiveContactDialog` and `LinkContactDialog` through `DialogService`; archiving returns to `/contacts` with a `ToastService` success toast.
+- Local: the notes section heading.
+
+### Add / edit contact — `/contacts/new`, `/contacts/:id/edit` (`pages/contact-form`: default, edit, invalid, duplicate, busy, error)
+
+- Library: `BreadcrumbComponent`, `PageHeaderComponent`, `StackComponent` `width="sm"` holding `CardComponent`, `ErrorSummaryComponent` ("Fix N things to save"), `FormErrorFocusDirective`, `AlertComponent` (duplicate "{name} is already a member"; error), `FormFieldComponent` + `TextFieldComponent` (Name, Email with help, Phone, Organisation, City), `TextareaComponent` (First note, create only), `FormActionsComponent` + `ButtonComponent` (*Cancel*, then *Save contact* or *Save and link*), `SkeletonComponent`, `EmptyStateComponent` error.
+- Local: the `<form>` element.
+
+### Archived contacts — `/contacts/archived` (`pages/archived-contacts`: default, loading, empty, error)
+
+- Library: `BreadcrumbComponent`, `PageHeaderComponent`, `CardComponent` `flush` + `ListComponent` + `ListItemComponent` ("Archived {day} · {city}" meta, leading `AvatarComponent`, trailing `ClusterComponent` with *Restore* and ghost *Delete*, each naming the contact through the button's visually hidden `object`), `ListSkeletonComponent`, `EmptyStateComponent` (Nothing archived with *Back to contacts*; error; forbidden), `ToastService` ("Contact restored", "Contact deleted").
+- Opens `DeleteContactDialog` through `DialogService`.
+- Local: none beyond composition.
+
+### Partners — `/partners` (`pages/partners`: default, loading, empty, error, read-only, dragging, tabs)
+
+- Library: `PageHeaderComponent` ("Shared by every lead · {n} partners") with *Add partner* for lead roles and System Admin, `AlertComponent` info "Read-only for Staff", `KanbanBoardComponent` (label "Partner pipeline", polite `announcement` after each move) + `KanbanColumnComponent` (Lead, In funnel, Confirmed with counts; `cardDropped`) + `KanbanCardComponent` (link, "{contact} · {offering}" caption, *Move* when the caller can edit), the board's own column tabs below 640px ("Partner pipeline columns": Lead, In funnel, Confirmed with counts, one column at a time), `CardComponent` + `SkeletonComponent` (loading), `EmptyStateComponent` (Start your partner pipeline; error; forbidden "The partner pipeline is for leads"), `ToastService`.
+- Opens `AddPartnerDialog` and `MovePartnerDialog` through `DialogService`.
+- Local: the column template rendered in both layouts (declared inside the board so the columns share its drop-list group).
+
+### Partner — `/partners/:id` (`pages/partner`: default, loading, error)
+
+- Library: `BreadcrumbComponent`, `PageHeaderComponent` with the `ftPageHeaderSubtitle` slot (`BadgeComponent` stage — Lead `neutral`, In funnel `warning`, Confirmed `success` — and the offering), *Move stage* and ghost *Edit* for lead roles and System Admin, `SplitComponent`, `CardComponent` (Stage history; Details), `FeedComponent` + `FeedItemComponent` ("{who} moved {partner} from {stage} to {stage}: “{note}”", `formatDay`), `DescriptionListComponent` (Contact, Email as a `mailto:` link, Phone, Website, Offering, Owner, Notes; a missing one reads "Not added"), `SkeletonComponent`, `EmptyStateComponent` (not found, error).
+- Opens `MovePartnerDialog` through `DialogService`.
+- Local: none beyond composition.
+
+### Edit partner — `/partners/:id/edit` (`pages/partner-form`: default, loading, invalid, busy, error)
+
+- Library: `BreadcrumbComponent`, `PageHeaderComponent`, `StackComponent` `width="sm"` holding `CardComponent`, `ErrorSummaryComponent`, `FormErrorFocusDirective`, `AlertComponent` (error), `FormFieldComponent` + `TextFieldComponent` (Organisation, Website, What they could offer, Main contact, Email, Phone), `SelectComponent` (Owner: "No owner" and the members with a lead role), `TextareaComponent` (Notes), `FormActionsComponent` + `ButtonComponent` (*Cancel*, then *Save partner*), `SkeletonComponent`, `EmptyStateComponent` (error; read-only for Staff).
+- Local: the `<form>` element.
+
 ### Workspaces — `/workspaces` (`pages/workspaces`: default, member, staff, empty, empty-member, loading, error, archived)
 
 - Library: `PageHeaderComponent` with *New workspace* (City Lead, System Admin), `AlertComponent` (Read-only for Staff), `CardComponent` `flush` + `ListComponent` + `ListItemComponent` (`IconTileComponent` leading, "Owner: … · Scrum · Sprint 7 active · 5 members" meta, `BadgeComponent` *Owner*), a second card *Archived* with *Restore* (`ButtonComponent`, `IconComponent` `restore`), `ListSkeletonComponent`, `EmptyStateComponent` (empty for leads and for members; error).
@@ -112,6 +152,12 @@ Coverage: the profiles screens (`profile`, `edit-profile`, `delete-photo`), the 
 | Add role, Remove role (`dialogs/add-role`: default, invalid, busy, failed; `dialogs/remove-role`: default, busy, failed) | `DialogService` | `RoleDialogComponent` (one component, `mode` add or remove, ADR 0005): `DialogComponent`, `RadioGroupComponent` + `RadioComponent` with role descriptions, `AlertComponent` (failed; refusal such as the last System Admin), `ButtonComponent` (*Cancel*, *Add role* primary or *Remove role* danger, with `loading`) | — (opened from the profile page with a `submit` that calls `ROLES_SERVICE`) |
 | Suspend user (`dialogs/suspend-user`: default, invalid, busy, failed) | `DialogService` | `DialogComponent` (`tone="danger"`, `icon="suspended"`), `FormFieldComponent` + `TextareaComponent` (reason), `AlertComponent`, `ButtonComponent` (*Cancel*, *Suspend* danger) | — (`SuspendUserDialog` in `admin`) |
 | Send invite (`dialogs/send-invite`: default, invalid, busy, failed, limited) | `DialogService` | `DialogComponent` (`icon="invite"`), `FormFieldComponent` + `TextFieldComponent` (Email), `SelectComponent` (Join with role: only `assignableRoles`, hidden when none), `TextareaComponent` (Personal note, optional), `AlertComponent` (failed; limited: "You can’t send this invite" with the server's message), `ButtonComponent` | The `<form>` element (`SendInviteDialog` in `invites`) |
+| Add note (`dialogs/add-note`: default, invalid, busy, failed) | `DialogService` | `DialogComponent` (`icon="edit"`), `FormFieldComponent` + `TextareaComponent` (Note, 1–2,000 characters), `AlertComponent` (failed), `ButtonComponent` (*Cancel*, *Add note*) | The `<form>` element (`AddNoteDialog` in `contacts`) |
+| Archive contact (`dialogs/archive-contact`: default, busy, failed) | `DialogService` | `DialogComponent` (`icon="archive"`), `AlertComponent`, `ButtonComponent` (*Cancel*, *Archive*) | — (`ArchiveContactDialog` in `contacts`) |
+| Delete contact permanently (`dialogs/delete-contact`: default, invalid, busy, failed) | `DialogService` | `DialogComponent` (`tone="danger"`, `icon="delete"`), `FormFieldComponent` + `TextFieldComponent` ("Type DELETE to confirm", `initialFocus`, error after leaving the field), `AlertComponent`, `ButtonComponent` (*Cancel*, *Delete permanently* `danger`, disabled until the text is exactly DELETE) | The `<form>` element (`DeleteContactDialog` in `contacts`) |
+| Link contact to profile (`dialogs/link-contact`: default, busy, failed) | `DialogService` | `DialogComponent` (`icon="link"`), `ClusterComponent` + `AvatarComponent` (the member), `RadioGroupComponent` + `RadioComponent` (keep or discard the notes), `AlertComponent`, `ButtonComponent` (*Cancel*, *Link profile*) | — (`LinkContactDialog` in `contacts`) |
+| Add partner (`dialogs/add-partner`: default, invalid, busy, failed) | `DialogService` | `DialogComponent` (`icon="partners"`), `FormFieldComponent` + `TextFieldComponent` (Organisation, Website, Main contact, Email, Phone), `SelectComponent` (Stage, Lead by default; Owner), `TextareaComponent` (What they could offer, Notes), `AlertComponent`, `ButtonComponent` | The `<form>` element (`AddPartnerDialog` in `partners`) |
+| Move partner (`dialogs/move-partner`: default, busy, failed) | `DialogService` | `DialogComponent` (`icon="move"`), `RadioGroupComponent` + `RadioComponent` (the three stages, the current one marked "Current stage"), `FormFieldComponent` + `TextareaComponent` (Note for the history), `AlertComponent`, `ButtonComponent` (*Cancel*, *Move to {stage}*, disabled for the current stage) | The `<form>` element (`MovePartnerDialog` in `partners`) |
 | Create workspace (`dialogs/create-workspace`: default, invalid, busy, failed) | `DialogService` | `DialogComponent`, `FormFieldComponent` + `TextFieldComponent` (Name), `RadioGroupComponent` + `RadioComponent` (Scrum, Kanban), `CheckboxGroupComponent` + `CheckboxComponent` (members), `AlertComponent`, `ButtonComponent` | — (`agile`) |
 | Add members, Remove member (`dialogs/add-workspace-members`, `dialogs/remove-workspace-member`) | `DialogService` | `DialogComponent`, `CheckboxGroupComponent` (candidates), `AlertComponent`, `ButtonComponent` (danger for remove) | — |
 | New and edit work item (`dialogs/new-work-item`: default, invalid, busy, failed, edit) | `DialogService` | `DialogComponent`, `RadioGroupComponent` (kind), `FormFieldComponent` + `TextFieldComponent` / `TextareaComponent` / `SelectComponent` (parent, assignee, points, status), `FormErrorFocusDirective`, `AlertComponent`, `ButtonComponent` | — |
@@ -125,7 +171,7 @@ Coverage: the profiles screens (`profile`, `edit-profile`, `delete-photo`), the 
 
 ## Notifications
 
-None for profiles. Admin and invites use `ToastService` success toasts on the invites page; role changes and accepted invites raise in-app notifications that the notifications feature will show. Agile screens use `ToastService` toasts for saves, moves, archive and restore; member additions, assignments, Planning Poker invites and an owner losing City Lead raise in-app notifications and emails.
+None for profiles. Admin and invites use `ToastService` success toasts on the invites page; role changes and accepted invites raise in-app notifications that the notifications feature will show. Agile screens use `ToastService` toasts for saves, moves, archive and restore; member additions, assignments, Planning Poker invites and an owner losing City Lead raise in-app notifications and emails. Contacts and partners use `ToastService` toasts (archived, restored, deleted, partner added, a failed drag); a contact who verifies their email raises a `ContactSignedUp` in-app notification and an email to the owning lead.
 
 ## Summary of local UI to build
 
@@ -133,6 +179,7 @@ None for profiles. Admin and invites use `ToastService` success toasts on the in
 2. Team added to the library: `AvatarComponent` `src` shows a member's featured photo over the initials (ADR 0007), and `ListItemComponent` gained a `[meta]` slot for the role-badge meta line (`components/list.html`).
 3. Nothing reusable: every profiles screen is composed from the library. `PictureListComponent` gained a per-photo `pending` flag for photos chosen but not saved yet, and a `storing` flag for saved photos whose image is still being written while storage is down (design system: `components/picture-list.html`).
 4. Agile added to the library rather than building locally: `IconTileComponent` (the list rows' leading icon, now that `ft-sticker` is gone), the checkbox group's `legendHidden`, the card header actions slot (`ftCardActions`), the Kanban card `kind` and `moveTarget` inputs, the Kanban board's phone column tabs, and the top bar's tighter link padding between 1024px and 1279px. `CheckboxGroupComponent`, the tree's disclosure button, `EstimatePickerComponent`, `EstimateCardComponent` and `DangerZoneComponent` were already there.
+5. Contacts and partners added to the library rather than building locally: `PageHeaderComponent` gained an `ftPageHeaderSubtitle` slot, `TextFieldComponent` gained `initialFocus` (the delete-contact confirmation) and `KanbanCardComponent`'s name link keeps a 24px target for rich subtitles such as the partner's stage badge. Everything else is composed from existing components; the add-partner dialog and the partner form share their field rules in the feature's `partner-fields.ts`.
 
 ### Settings — `/settings` (`pages/settings`: Appearance card only so far)
 

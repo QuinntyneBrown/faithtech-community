@@ -38,8 +38,8 @@ and Agile workspaces with Planning Poker.
 |---|---|
 | **Profiles** | Every member has a profile with a name, bio and up to 10 photos (one featured, alt text required). Profiles are visible to signed-in members. |
 | **Events** | Members-only or public events with city, venue and an online/in-person flag. Public events get a shareable page with guest RSVP (no account needed) and an `.ics` download. Cancelling notifies everyone who RSVP'd. Hackathons are an event type. |
-| **Contacts** | City Leads keep private contacts and notes. When a contact signs up with the same verified email, the lead is notified and can link to the real profile while keeping their notes. Archive and restore. |
-| **Partner pipeline** | One shared Kanban board for all leads: Lead → In Funnel → Confirmed. |
+| **Contacts** | Leads keep private contacts and notes, visible only to them and System Admin. When a contact signs up with the same verified email, the lead is notified and can link to the real profile while keeping their notes. Archive and restore. |
+| **Partner pipeline** | One shared Kanban board for all leads: Lead → In Funnel → Confirmed, moved by drag or keyboard with each move recorded. Staff see it read-only. |
 | **Team** | Everyone holding a lead or volunteer role. |
 | **Agile workspaces** | City Leads create Scrum or Kanban workspaces for their leads and volunteers, with an Initiative → Epic → Story → Task hierarchy, sprints and live Planning Poker. |
 | **Global search** | People, events, partners, work items and your own private contacts, filtered by what you are allowed to see. |

@@ -14,7 +14,7 @@ skinparam package {
   FontColor #101828
   BackgroundColor #F9FAFB
 }
-actor "City Lead" as actor
+actor "Lead" as actor
 box "Frontend — FaithTech Community web app (contacts library)" #E0F2FE
   participant "ContactsPage" as list
   participant "HttpContactsService" as svc
@@ -23,26 +23,32 @@ box "Backend — FaithTech.Community.Api" #D1FADF
   participant "ContactsEndpoints" as ep
 end box
 box "Backend — FaithTech.Community.Application and Domain" #ECFDF3
-  participant "ListContactsHandler" as h
+  participant "ManageContactsHandler" as h
+  participant "ContactAccess" as acc
 end box
 box "Backend — FaithTech.Community.Infrastructure" #FFF4E5
-  participant "ContactSearch" as search
   database "Community database" as db
 end box
-actor -> list : Open contacts or type a search term
+actor -> list : Open /contacts or search for a term
 list -> svc : list(term)
 svc -> ep : GET /api/contacts?q=term
-ep -> h : Send ListContactsQuery
-h -> search : Find(ownerId = caller, term) (L2-012 AC3)
-search -> db : Filter active contacts on name, email, organization
-db --> search : Rows
-search --> h : Matches within 500 ms (L2-013 AC3)
-h --> ep : ContactSummary list
-ep --> svc : 200 OK
-svc --> list : Contacts
-alt none
-  list --> actor : Empty state inviting to add a contact (L2-013 AC4)
-else some
-  list --> actor : Table, or cards at XS (L2-013 AC5)
+ep -> h : ListAsync(term)
+h -> acc : CanKeepContacts, CallerProfileIdAsync()
+alt no lead role and not System Admin
+  h --> ep : null
+  ep --> svc : 403
+  svc --> list : Error
+  list --> actor : Forbidden state
+else may keep contacts
+  h -> db : OwnerId = caller AND ArchivedAtUtc IS NULL (L2-012 AC3)\nand, with a term, lower(name, email, organization or note body) contains term
+  db --> h : Rows with linked profile name and signed-up flag
+  h --> ep : ContactSummaryDto list by name, status Private, SignedUp or Member (L2-013 AC3)
+  ep --> svc : 200 OK
+  svc --> list : Contacts
+  alt none
+    list --> actor : Empty state inviting to add a contact (L2-013 AC4)
+  else some
+    list --> actor : List of cards at every width (L2-013 AC5); alert for a contact who signed up
+  end
 end
 @enduml

@@ -34,6 +34,9 @@ public class CommunityApiFactory : WebApplicationFactory<Program>, IAsyncLifetim
 
     public FakePhotoStorage Photos { get; } = new();
 
+    /// <summary>Lets a test overlap saves from concurrent requests.</summary>
+    public SaveChangesGate SaveGate { get; } = new();
+
     public FakeAgileNotifier Live { get; } = new();
 
     public async Task InitializeAsync()
@@ -58,7 +61,8 @@ public class CommunityApiFactory : WebApplicationFactory<Program>, IAsyncLifetim
             services.RemoveAll<DbContextOptions<CommunityDbContext>>();
             services.AddDbContext<CommunityDbContext>(options => options
                 .UseInMemoryDatabase(_databaseName, _databaseRoot)
-                .UseOpenIddict());
+                .UseOpenIddict()
+                .AddInterceptors(SaveGate));
 
             services.AddSingleton<BlobServiceClient>(Blobs);
             services.AddSingleton<IEmailSender>(Emails);

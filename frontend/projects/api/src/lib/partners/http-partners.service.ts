@@ -1,19 +1,14 @@
-/*
- * EARLY IMPLEMENTATION: written ahead of the vertical slices to get a head start.
- * Contracts and DTOs follow docs/detailed-designs/ but may change as each feature is
- * implemented end to end (spec -> design -> mock -> ATDD slice).
- * Sources:
- *   - docs/detailed-designs/partners/manage-partners
- *   - docs/detailed-designs/partners/partner-kanban-board
- */
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpContext } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
 import { Observable } from 'rxjs';
 
 import { API_BASE_URL } from '../config';
+import { HANDLES_FORBIDDEN } from '../errors';
 import {
+  NewPartnerRequest,
   PartnerBoardDto,
   PartnerDto,
+  PartnerOwnerDto,
   PartnerRequest,
   PartnerStage,
   PartnersService,
@@ -23,16 +18,22 @@ import {
 export class HttpPartnersService implements PartnersService {
   private readonly http = inject(HttpClient);
   private readonly base = `${inject(API_BASE_URL)}/partners`;
+  // The partners page shows its own forbidden state for callers who may not see the pipeline.
+  private readonly context = new HttpContext().set(HANDLES_FORBIDDEN, true);
 
   getBoard(): Observable<PartnerBoardDto> {
-    return this.http.get<PartnerBoardDto>(this.base);
+    return this.http.get<PartnerBoardDto>(this.base, { context: this.context });
   }
 
   get(id: string): Observable<PartnerDto> {
     return this.http.get<PartnerDto>(`${this.base}/${id}`);
   }
 
-  create(partner: PartnerRequest): Observable<PartnerDto> {
+  owners(): Observable<PartnerOwnerDto[]> {
+    return this.http.get<PartnerOwnerDto[]>(`${this.base}/owners`);
+  }
+
+  create(partner: NewPartnerRequest): Observable<PartnerDto> {
     return this.http.post<PartnerDto>(this.base, partner);
   }
 
@@ -40,7 +41,7 @@ export class HttpPartnersService implements PartnersService {
     return this.http.put<PartnerDto>(`${this.base}/${id}`, partner);
   }
 
-  move(id: string, to: PartnerStage): Observable<PartnerDto> {
-    return this.http.post<PartnerDto>(`${this.base}/${id}/stage`, { to });
+  move(id: string, to: PartnerStage, note: string | null = null): Observable<PartnerDto> {
+    return this.http.post<PartnerDto>(`${this.base}/${id}/stage`, { to, note });
   }
 }
