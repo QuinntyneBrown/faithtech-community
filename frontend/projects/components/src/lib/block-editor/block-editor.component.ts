@@ -149,7 +149,7 @@ let nextId = 0;
   ],
   host: { '(document:selectionchange)': 'trackSelection()' },
   templateUrl: './block-editor.component.html',
-  styleUrl: './block-editor.component.scss',
+  styleUrls: ['./block-editor.component.scss', './block-content.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
   encapsulation: ViewEncapsulation.None,
 })
