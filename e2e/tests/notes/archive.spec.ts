@@ -90,6 +90,7 @@ test.describe('Notes: archive and restore', () => {
     await axe.check();
     await note.banner.getByRole('button', { name: 'Restore' }).click();
     await new ConfirmNoteDialog(page, 'Restore', 'Run sheet').confirm.click();
+    await expect(note.toast).toContainText('Run sheet restored');
     await expect(note.textBlock(0)).toHaveText('Doors open at 6');
   });
 

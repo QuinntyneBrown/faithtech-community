@@ -64,6 +64,15 @@ export class NotePage {
     await this.page.goto(`/notes/${id}`);
   }
 
+  /** Whether leaving now would ask first, as the browser does when a page cancels `beforeunload`. */
+  leavingIsGuarded(): Promise<boolean> {
+    return this.page.evaluate(() => {
+      const event = new Event('beforeunload', { cancelable: true });
+      window.dispatchEvent(event);
+      return event.defaultPrevented;
+    });
+  }
+
   textBlockNamed(type: string): Locator {
     return this.content.getByRole('textbox', { name: type, exact: true });
   }
@@ -115,7 +124,7 @@ export class NotePage {
   }
 
   /** Drags block `from` (1-based) by its handle onto block `to`'s place, in small steps as a person would. */
-  async drag(from: number, to: number): Promise<void> {
+  async drag(from: number, to: number, options: { cancel?: boolean } = {}): Promise<void> {
     const handle = await this.handle(from).boundingBox();
     const target = await this.blocks.nth(to - 1).boundingBox();
     if (!handle || !target) throw new Error('Block not on screen');
@@ -125,6 +134,7 @@ export class NotePage {
       steps: 5,
     });
     await this.page.mouse.move(handle.x + handle.width / 2, target.y + 2, { steps: 20 });
+    if (options.cancel) await this.page.keyboard.press('Escape');
     await this.page.mouse.up();
   }
 

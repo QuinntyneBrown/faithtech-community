@@ -88,6 +88,7 @@
         rel="noopener"
         data-focus
       >
+        <ft-icon class="link-card__icon" name="external" />
         <span class="link-card__title">{{ block.caption || hostOf(block.url) }}</span>
         <span class="visually-hidden"> (opens in a new tab)</span>
         <span class="link-card__host" aria-hidden="true">{{ hostOf(block.url) }}</span>
@@ -156,6 +157,7 @@
         <div
           cdkDrag
           [cdkDragData]="block"
+          (cdkDragStarted)="dragStarted()"
           class="block block--{{ block.type }}"
           [class.callout]="block.type === 'callout'"
           [class.todo--done]="block.type === 'todo' && block.checked"

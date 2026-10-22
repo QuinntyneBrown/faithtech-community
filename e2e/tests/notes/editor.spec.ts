@@ -66,6 +66,19 @@ test.describe('Notes: write a page with autosave', () => {
     expect(api.notes.texts(sheet)).toEqual(['Doors open', ' at 6']);
   });
 
+  test('leaving with changes not yet saved is guarded', async ({ page, api }) => {
+    const grace = api.addAccount({ email: 'grace@example.org', roles: ['CityLead'] });
+    const sheet = api.notes.add({ title: 'Run sheet', ownerId: grace.profileId });
+    await api.signInAs(grace, `/notes/${sheet.id}`);
+    const note = new NotePage(page);
+
+    await note.textBlock(0).click();
+    await page.keyboard.type('Doors');
+    expect(await note.leavingIsGuarded()).toBe(true);
+    await expect(note.saveStatus).toHaveText('Saved');
+    expect(await note.leavingIsGuarded()).toBe(false);
+  });
+
   test('a failed save keeps the edits and Retry sends the page again', async ({
     page,
     api,

@@ -24,6 +24,7 @@ import {
 } from '@angular/core';
 
 import { FormatMark, FormatToolbarComponent } from '../format-toolbar/format-toolbar.component';
+import { IconComponent } from '../icon/icon.component';
 import { MenuItemComponent } from '../menu/menu-item.component';
 import { PageLinkItem } from '../page-links/page-links.component';
 import { SlashMenuComponent, SlashMenuOption } from '../slash-menu/slash-menu.component';
@@ -142,6 +143,7 @@ let nextId = 0;
     CdkMenu,
     CdkMenuTrigger,
     FormatToolbarComponent,
+    IconComponent,
     MenuItemComponent,
     NgTemplateOutlet,
     RichTextDirective,
@@ -280,8 +282,24 @@ export class BlockEditorComponent {
     if (caret !== null) this.focusBlock(to, caret);
   }
 
+  /** Escape while dragging cancels the drag: the block drops back where it was (L2-089 AC2). */
+  private dragCancelled = false;
+
+  protected dragStarted(): void {
+    this.dragCancelled = false;
+    const cancel = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') this.dragCancelled = true;
+    };
+    document.addEventListener('keydown', cancel, true);
+    document.addEventListener(
+      'pointerup',
+      () => document.removeEventListener('keydown', cancel, true),
+      { once: true, capture: true },
+    );
+  }
+
   protected dropped(event: CdkDragDrop<EditorBlock[]>): void {
-    if (event.previousIndex === event.currentIndex) return;
+    if (this.dragCancelled || event.previousIndex === event.currentIndex) return;
     const items = [...this.items()];
     moveItemInArray(items, event.previousIndex, event.currentIndex);
     this.commit(items);

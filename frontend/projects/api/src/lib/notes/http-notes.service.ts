@@ -37,10 +37,11 @@ export class HttpNotesService implements NotesService {
   }
 
   create(title?: string | null, parentId?: string | null): Observable<NotePageDto> {
-    return this.http.post<NotePageDto>(this.base, {
-      title: title ?? null,
-      parentId: parentId ?? null,
-    });
+    return this.http.post<NotePageDto>(
+      this.base,
+      { title: title ?? null, parentId: parentId ?? null },
+      { context: this.context },
+    );
   }
 
   get(id: string): Observable<NotePageDto> {

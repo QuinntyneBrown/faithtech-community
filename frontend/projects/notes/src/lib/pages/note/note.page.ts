@@ -66,6 +66,7 @@ import {
   ShareNoteDialog,
 } from '../../dialogs';
 import { NoteAutosave } from '../../note-autosave';
+import { createRefusal } from '../../note-errors';
 import { titleOf } from '../../note-format';
 
 type State = 'loading' | 'loaded' | 'missing' | 'error';
@@ -177,8 +178,14 @@ export class NotePage {
         this.id = params.get('id') ?? '';
         void this.load(true);
       });
+    // Changes not yet saved go out when the page is left inside the app, and leaving the tab asks first.
+    const guard = (event: BeforeUnloadEvent) => {
+      if (this.autosave()?.pending()) event.preventDefault();
+    };
+    window.addEventListener('beforeunload', guard);
     inject(DestroyRef).onDestroy(() => {
-      this.autosave()?.cancel();
+      window.removeEventListener('beforeunload', guard);
+      this.autosave()?.flush();
       this.imageUrls.forEach((url) => URL.revokeObjectURL(url));
     });
   }
@@ -297,7 +304,13 @@ export class NotePage {
         data: { id: this.id, title: titleOf({ title: this.title() }) },
       })
       .closed.subscribe((restored) => {
-        if (restored) void this.load(false);
+        if (!restored) return;
+        this.toasts.show({
+          variant: 'success',
+          heading: `${titleOf({ title: this.title() })} restored`,
+          text: 'It’s back in Notes, with the same visibility as before.',
+        });
+        void this.load(false);
       });
   }
 
@@ -338,11 +351,11 @@ export class NotePage {
     try {
       const child = await firstValueFrom(this.notes.create(null, this.id));
       await this.router.navigate(['/notes', child.id]);
-    } catch {
+    } catch (error) {
       this.toasts.show({
         variant: 'danger',
         heading: 'Page not created',
-        text: 'We couldn’t reach FaithTech. Try again.',
+        text: createRefusal(error),
       });
     } finally {
       this.creating.set(false);

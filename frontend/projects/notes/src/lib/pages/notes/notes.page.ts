@@ -30,6 +30,7 @@ import {
 } from '@faithtech-community/components';
 import { debounceTime, distinctUntilChanged, firstValueFrom } from 'rxjs';
 
+import { createRefusal } from '../../note-errors';
 import { badgeOf, editedLine, titleOf } from '../../note-format';
 
 type State = 'loading' | 'loaded' | 'error';
@@ -132,11 +133,11 @@ export class NotesPage {
     try {
       const page = await firstValueFrom(this.notes.create());
       await this.router.navigate(['/notes', page.id]);
-    } catch {
+    } catch (error) {
       this.toasts.show({
         variant: 'danger',
         heading: 'Page not created',
-        text: 'We couldn’t reach FaithTech. Try again.',
+        text: createRefusal(error),
       });
     } finally {
       this.creating.set(false);

@@ -124,6 +124,7 @@ test.describe('Notes: block types, shortcuts and the slash menu', () => {
     const card = note.content.getByRole('link', { name: 'Volunteer rota (opens in a new tab)' });
     await expect(card).toHaveAttribute('href', 'https://docs.google.com/spreadsheets/d/1');
     await expect(card).toHaveAttribute('rel', 'noopener');
+    await expect(card.locator('ft-icon')).toHaveCount(1);
     await expect(note.saveStatus).toHaveText('Saved');
     expect(sheet.blocks.map((b) => b.type)).toContain('link');
   });

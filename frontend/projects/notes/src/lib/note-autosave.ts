@@ -55,6 +55,17 @@ export class NoteAutosave {
     this.state.set('unsaved');
   }
 
+  /** Whether there are changes not yet saved, or a save in flight. */
+  pending(): boolean {
+    return !this.stopped() && (this.dirty || this.inFlight);
+  }
+
+  /** Sends waiting changes now, as when the page is left (L2-086 AC8). */
+  flush(): void {
+    this.cancel();
+    void this.sendNow();
+  }
+
   cancel(): void {
     if (this.timer) clearTimeout(this.timer);
     this.timer = null;
@@ -62,10 +73,10 @@ export class NoteAutosave {
 
   private schedule(delay: number): void {
     this.cancel();
-    this.timer = setTimeout(() => void this.flush(), delay);
+    this.timer = setTimeout(() => void this.sendNow(), delay);
   }
 
-  private async flush(): Promise<void> {
+  private async sendNow(): Promise<void> {
     this.timer = null;
     if (this.inFlight || !this.dirty || this.stopped()) return;
     this.inFlight = true;

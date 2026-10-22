@@ -109,6 +109,21 @@ test.describe('Notes: list and create', () => {
     await expect(notes.empty).toBeVisible();
   });
 
+  test('a member whose email is not verified is told to verify it before creating a page', async ({
+    page,
+    api,
+  }) => {
+    const samuel = api.addAccount({ email: 'samuel@example.org', verified: false });
+    await api.signInAs(samuel, '/notes');
+    const notes = new NotesPage(page);
+
+    await notes.newPage.click();
+
+    await expect(notes.toast).toContainText('Verify your email before creating pages.');
+    await expect(page).toHaveURL('/notes');
+    expect(api.notes.pages).toHaveLength(0);
+  });
+
   test('sends an anonymous visitor to sign in', async ({ page }) => {
     await page.goto('/notes');
     await expect(page).toHaveURL(/\/sign-in\?returnUrl=%2Fnotes/);

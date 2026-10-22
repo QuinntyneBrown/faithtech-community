@@ -119,6 +119,10 @@
     }
   }
 
+  .link-card__icon {
+    color: var(--color-fg-accent);
+  }
+
   .link-card__title {
     font: var(--text-label);
     text-decoration: underline;

@@ -84,6 +84,18 @@ test.describe('Notes: reorder blocks by drag and by keyboard', () => {
     expect(sheet.blocks.map((b) => b.id)).toEqual(['c', 'a', 'b']);
   });
 
+  test('Escape during a drag cancels it and nothing moves', async ({ page, api }) => {
+    const grace = api.addAccount({ email: 'grace@example.org', roles: ['CityLead'] });
+    const sheet = api.notes.add({ title: 'Run sheet', ownerId: grace.profileId, blocks });
+    await api.signInAs(grace, `/notes/${sheet.id}`);
+    const note = new NotePage(page);
+
+    await note.drag(3, 1, { cancel: true });
+
+    await expect(note.textBlocks).toHaveText(['Doors open at 6', 'Run sheet', 'Order food for 40']);
+    expect(api.callsTo('PUT', `/api/notes/${sheet.id}`)).toHaveLength(0);
+  });
+
   test('readers get no handles or move shortcuts', async ({ page, api }) => {
     const grace = api.addAccount({ email: 'grace@example.org', roles: ['CityLead'] });
     const marcus = api.addAccount({ email: 'marcus@example.org', name: 'Marcus Lee' });
