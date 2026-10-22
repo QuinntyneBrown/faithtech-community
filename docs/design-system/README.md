@@ -73,7 +73,7 @@ The mocks were styled with the Shelfie design system unchanged plus FaithTech ad
 | [Empty state](components/empty-state.html) | First-run, no results, error; page-level heading for full-page errors. |
 | [Error page](components/error-page.html) | 404, 403, 500, offline. |
 | [Landing hero](components/landing-hero.html) | Split hero for the marketing page. |
-| [Video player](components/video-player.html) | Self-hosted video with captions and transcript. |
+| [Video player](components/video-player.html) | Self-hosted video with captions. |
 | [Sign-in and sign-up forms](components/auth-forms.html) | Shared sign-in and sign-up forms, Google button. |
 | [Site footer](components/site-footer.html) | Marketing page footer. |
 

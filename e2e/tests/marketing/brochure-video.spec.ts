@@ -31,18 +31,13 @@ test.describe('Brochure video', () => {
     expect(seconds).toBeLessThanOrEqual(30);
   });
 
-  test('the transcript gives the whole narration as text', async ({ page }) => {
+  test('offers no transcript; the captions carry the narration', async ({ page }) => {
     const marketing = new MarketingPage(page);
+
     await marketing.open();
 
-    await marketing.transcriptToggle.click();
-
-    await expect(marketing.transcript).toContainText(
-      'FaithTech is a community of Christians who build with technology.',
-    );
-    await expect(marketing.transcript).toContainText(
-      'Join FaithTech Community. It’s free, and it takes a minute.',
-    );
+    await expect(marketing.video).toBeVisible();
+    await expect(marketing.transcriptToggle).toHaveCount(0);
   });
 
   test('with reduced motion nothing moves until the visitor acts', async ({ page, axe }) => {
@@ -57,11 +52,7 @@ test.describe('Brochure video', () => {
     await axe.check();
   });
 
-  test('a video that cannot play leaves the poster, a message and the transcript', async ({
-    page,
-    api,
-    axe,
-  }) => {
+  test('a video that cannot play leaves the poster and a message', async ({ page, api, axe }) => {
     await api.breakBrochureVideo();
     const marketing = new MarketingPage(page);
     await marketing.open();
@@ -70,7 +61,7 @@ test.describe('Brochure video', () => {
 
     await expect(marketing.videoUnavailable).toBeVisible();
     await expect(marketing.videoPoster).toBeVisible();
-    await expect(marketing.transcript).toHaveAttribute('open', '');
+    await expect(marketing.transcriptToggle).toHaveCount(0);
     await axe.check();
   });
 });

@@ -12,7 +12,6 @@ import { VideoPlayerComponent } from './video-player.component';
     captions="/brochure/brochure.en.vtt"
     label="FaithTech Community in 21 seconds"
     caption="FaithTech Community in 21 seconds · captions on"
-    transcript="FaithTech is a community of Christians who build with technology."
   />`,
 })
 class HostComponent {}
@@ -38,14 +37,11 @@ describe('VideoPlayerComponent', () => {
     expect(track.srclang).toBe('en');
   });
 
-  it('keeps the transcript closed until asked', () => {
-    const details = setup().el.querySelector('details')!;
-
-    expect(details.open).toBe(false);
-    expect(details.textContent).toContain('build with technology');
+  it('offers no transcript', () => {
+    expect(setup().el.querySelector('details')).toBeNull();
   });
 
-  it('falls back to the poster, a message and the open transcript when the video fails', () => {
+  it('falls back to the poster and a message when the video fails', () => {
     const { fixture, el } = setup();
 
     el.querySelector('video')!.dispatchEvent(new Event('error'));
@@ -54,6 +50,6 @@ describe('VideoPlayerComponent', () => {
     expect(el.querySelector('video')).toBeNull();
     expect(el.querySelector('img')?.getAttribute('alt')).toBe('Builders at a hackathon');
     expect(el.querySelector('ft-alert')?.textContent).toContain('This video can’t play right now');
-    expect(el.querySelector('details')?.open).toBe(true);
+    expect(el.querySelector('ft-alert')?.textContent).toContain('Please try again later.');
   });
 });

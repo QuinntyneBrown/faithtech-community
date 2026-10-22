@@ -41,7 +41,7 @@ class SignUpFormComponent {
   +submitted: SignUpDetails
 }
 class VideoPlayerComponent {
-  +src, poster, captions, label, caption, transcript
+  +src, poster, captions, label, caption
   #unavailable: boolean
 }
 class LandingHeroComponent {

@@ -1038,8 +1038,6 @@ mark { background: var(--color-warning-bg); color: inherit; border-radius: var(-
 .video-player__frame video, .video-player__frame img { width: 100%; height: 100%; object-fit: cover; }
 .video-player__unavailable { position: absolute; inset: auto var(--space-3) var(--space-3); }
 .video-player__caption { display: flex; flex-wrap: wrap; gap: var(--space-1) var(--space-3); align-items: baseline; font: var(--text-body-sm); color: var(--color-fg-muted); }
-.video-player__transcript summary { cursor: pointer; color: var(--color-fg-link); text-decoration: underline; min-height: var(--target-min); display: inline-flex; align-items: center; }
-.video-player__transcript p { margin-top: var(--space-2); max-width: var(--layout-measure); }
 
 /* Google's "Sign in with Google" button: its own brand fill, border and full-colour mark in both themes. */
 .btn--google { --btn-bg: var(--color-social-google-bg); --btn-fg: var(--color-social-google-fg); --btn-border: var(--color-social-google-border); --btn-bg-hover: color-mix(in srgb, var(--color-social-google-fg) 8%, var(--color-social-google-bg)); --btn-bg-active: color-mix(in srgb, var(--color-social-google-fg) 12%, var(--color-social-google-bg)); font-weight: var(--font-weight-medium); }

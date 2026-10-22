@@ -20,7 +20,6 @@ export class MarketingPage {
   readonly footer: Locator;
   readonly video: Locator;
   readonly videoCaption: Locator;
-  readonly transcript: Locator;
   readonly transcriptToggle: Locator;
   readonly videoUnavailable: Locator;
   readonly videoPoster: Locator;
@@ -65,7 +64,6 @@ export class MarketingPage {
     this.video = page.locator('video');
     this.videoCaption = page.locator('figure figcaption');
     this.transcriptToggle = page.getByText('Read the transcript');
-    this.transcript = page.locator('details').filter({ has: this.transcriptToggle });
     this.videoUnavailable = page.getByRole('status').filter({
       hasText: 'This video can’t play right now',
     });
