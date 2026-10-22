@@ -223,7 +223,7 @@
         <tr><td><kbd>Esc</kbd></td><td>Dismisses the toast that holds focus.</td></tr>
       </tbody></table>
       <h3>Focus</h3>
-      <p>Toasts never take focus when they appear. If the focused toast is dismissed or times out, focus returns to the element that triggered it (the RSVP button, say) or to <code>main</code>.</p>
+      <p>Toasts never take focus when they appear. If the focused toast is dismissed or times out, focus returns to the element that triggered it (the RSVP button, say) or to <code>main</code> when that element is gone or disabled. In Angular, <code>ToastService.show</code> remembers the focused element and <code>ft-toast-region</code> restores focus once the toast leaves; focus outside a toast is never moved.</p>
       <h3>Labelling</h3>
       <p>The icon is <code>aria-hidden</code>; the title says the status in words. The dismiss button is named "Dismiss". The timer bar is <code>aria-hidden</code>. Action labels make sense alone: "View invites", not "Go".</p>
       <h3>Contrast</h3>
