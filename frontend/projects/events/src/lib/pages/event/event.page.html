@@ -129,7 +129,25 @@
               </ft-card>
             }
           </ft-stack>
-          <ft-stack ftSplitAside></ft-stack>
+          <ft-stack ftSplitAside>
+            @if (e.canManage && e.visibility === 'Public' && !e.isCancelled) {
+              <ft-card heading="Public page">
+                <ft-stack>
+                  <p class="muted">Anyone with this link can RSVP without an account.</p>
+                  <ft-form-field label="Link">
+                    <ft-text-field
+                      type="url"
+                      [readonly]="true"
+                      action="copy"
+                      [formControl]="shareLink"
+                      (actionClick)="copyLink()"
+                    />
+                  </ft-form-field>
+                  <ft-link [href]="publicPath()">Preview public page</ft-link>
+                </ft-stack>
+              </ft-card>
+            }
+          </ft-stack>
         </ft-split>
       </ft-stack>
     }

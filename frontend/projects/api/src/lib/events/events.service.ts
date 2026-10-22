@@ -94,15 +94,21 @@ export interface EventDetailDto {
   rsvps: RsvpDto[] | null;
 }
 
+/** A public event as anyone with the link sees it: no RSVP list and no joining link (L2-023). */
 export interface PublicEventDto {
   id: string;
   title: string;
   description: string;
+  type: EventType;
   startsAt: string;
   endsAt: string;
+  city: string;
+  format: EventFormat;
   venue: string | null;
-  onlineLink: string | null;
+  rsvpCount: number;
+  isFull: boolean;
   isCancelled: boolean;
+  cancellationReason: string | null;
 }
 
 export interface GuestRsvpRequest {
@@ -120,7 +126,6 @@ export interface EventFilter {
 
 /**
  * Contract for the events API. Pages depend on EVENTS_SERVICE, never on HttpEventsService.
- * TODO(slice): guest cancel links join with the public-event slice.
  * TODO(slice): the members-only .ics link carries no bearer token; it may need a blob fetch or signed URL.
  */
 export interface EventsService {
@@ -135,10 +140,12 @@ export interface EventsService {
   /** The RSVP list as CSV, for leads and System Admins. */
   exportRsvps(id: string): Observable<Blob>;
 
-  /** Anonymous. 404 for members-only events. */
+  /** Anonymous. 404 for members-only and unknown events, which the page sends to sign in. */
   getPublicEvent(id: string): Observable<PublicEventDto>;
-  /** Anonymous. Rate limited (429). */
+  /** Anonymous. One RSVP per email; 409 when cancelled, started or full; 429 past 10 an hour. */
   rsvpAsGuest(id: string, guest: GuestRsvpRequest): Observable<void>;
+  /** Anonymous. Cancels with the token from the confirmation's cancel link; 404 for an unknown or used link. */
+  cancelGuestRsvp(id: string, token: string): Observable<void>;
 
   /** Download url for the browser to open directly; no request is made. */
   calendarUrl(id: string, options?: { isPublic?: boolean }): string;

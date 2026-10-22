@@ -227,6 +227,8 @@ public class CommunityDbContext(DbContextOptions<CommunityDbContext> options)
             rsvp.Property(r => r.GuestName).HasMaxLength(200);
             rsvp.Property(r => r.GuestEmail).HasMaxLength(256);
             rsvp.Ignore(r => r.IsGuest);
+            rsvp.Property(r => r.CancelTokenHash).HasMaxLength(64);
+            rsvp.HasIndex(r => r.CancelTokenHash).IsUnique().HasFilter("\"CancelTokenHash\" IS NOT NULL");
             rsvp.HasIndex(r => new { r.EventId, r.ProfileId }).IsUnique().HasFilter("\"ProfileId\" IS NOT NULL");
             rsvp.HasIndex(r => new { r.EventId, r.GuestEmail });
         });

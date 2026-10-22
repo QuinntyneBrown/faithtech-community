@@ -13,7 +13,7 @@ import {
   SignUpPage,
   VerifyEmailPage,
 } from './pages';
-import { AppShellComponent } from './shell';
+import { AppShellComponent, PublicShellComponent } from './shell';
 
 export const routes: Routes = [
   { path: 'sign-in', component: SignInPage },
@@ -24,6 +24,7 @@ export const routes: Routes = [
   { path: 'reset-password', component: ResetPasswordPage },
   {
     path: 'public/events',
+    component: PublicShellComponent,
     loadChildren: () => import('@faithtech-community/events').then((m) => m.PUBLIC_EVENT_ROUTES),
   },
   {

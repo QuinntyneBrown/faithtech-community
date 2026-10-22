@@ -13,6 +13,9 @@ export class EventPage {
   readonly rsvpList: Locator;
   readonly rsvpListHeading: Locator;
   readonly exportCsv: Locator;
+  readonly publicLink: Locator;
+  readonly copyLink: Locator;
+  readonly previewPublicPage: Locator;
   readonly loading: Locator;
   readonly loadError: Locator;
   readonly tryAgain: Locator;
@@ -29,6 +32,9 @@ export class EventPage {
     this.rsvpList = page.getByRole('list', { name: 'Going' }).getByRole('listitem');
     this.rsvpListHeading = page.getByRole('heading', { name: /^Going \(\d+\)$/ });
     this.exportCsv = page.getByRole('button', { name: 'Export CSV' });
+    this.publicLink = page.getByLabel('Link', { exact: true });
+    this.copyLink = page.getByRole('button', { name: 'Copy link' });
+    this.previewPublicPage = page.getByRole('link', { name: 'Preview public page' });
     this.loading = page.getByRole('status', { name: 'Loading event' });
     this.loadError = page.getByRole('heading', { name: 'We couldn’t load this event' });
     this.tryAgain = page.getByRole('button', { name: 'Try again' });

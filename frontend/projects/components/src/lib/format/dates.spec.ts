@@ -1,4 +1,11 @@
-import { formatDay, formatDayRange, formatMonth, formatTime, formatTimestamp } from './dates';
+import {
+  formatDay,
+  formatDayRange,
+  formatMonth,
+  formatTime,
+  formatTimeRange,
+  formatTimestamp,
+} from './dates';
 
 describe('date formats', () => {
   it('writes a day as "Tue 20 Oct", the mocks’ format', () => {
@@ -34,5 +41,17 @@ describe('date formats', () => {
       'Sat 31 Oct – Sun 1 Nov',
     );
     expect(formatDayRange(new Date(2026, 10, 6, 18), new Date(2026, 10, 6, 21))).toBe('Fri 6 Nov');
+  });
+
+  it('writes when an event runs, with the year: "Fri 6 Nov 2026 · 6:30 – 9:00 pm"', () => {
+    expect(formatTimeRange(new Date(2026, 10, 6, 18, 30), new Date(2026, 10, 6, 21))).toBe(
+      'Fri 6 Nov 2026 · 6:30 – 9:00 pm',
+    );
+    expect(formatTimeRange(new Date(2026, 10, 6, 10), new Date(2026, 10, 6, 13))).toBe(
+      'Fri 6 Nov 2026 · 10:00 am – 1:00 pm',
+    );
+    expect(formatTimeRange(new Date(2026, 10, 14, 9), new Date(2026, 10, 15, 17))).toBe(
+      'Sat 14 – Sun 15 Nov 2026',
+    );
   });
 });

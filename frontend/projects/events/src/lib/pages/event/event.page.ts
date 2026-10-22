@@ -8,6 +8,7 @@ import {
   input,
   signal,
 } from '@angular/core';
+import { FormControl, ReactiveFormsModule } from '@angular/forms';
 import { EVENTS_SERVICE, EventDetailDto, RsvpDto, problemDetails } from '@faithtech-community/api';
 import {
   AlertComponent,
@@ -21,18 +22,20 @@ import {
   DescriptionListItemComponent,
   DialogService,
   EmptyStateComponent,
+  FormFieldComponent,
   IconComponent,
+  LinkComponent,
   ListComponent,
   ListItemComponent,
   PageHeaderComponent,
   SkeletonComponent,
   SplitComponent,
   StackComponent,
+  TextFieldComponent,
   ToastService,
   avatarColorFor,
   formatDay,
-  formatDayRange,
-  formatTime,
+  formatTimeRange,
 } from '@faithtech-community/components';
 import { firstValueFrom } from 'rxjs';
 
@@ -47,6 +50,7 @@ type State = 'loading' | 'loaded' | 'error';
 @Component({
   selector: 'ft-event-page',
   imports: [
+    ReactiveFormsModule,
     AlertComponent,
     AvatarComponent,
     BadgeComponent,
@@ -57,13 +61,16 @@ type State = 'loading' | 'loaded' | 'error';
     DescriptionListComponent,
     DescriptionListItemComponent,
     EmptyStateComponent,
+    FormFieldComponent,
     IconComponent,
+    LinkComponent,
     ListComponent,
     ListItemComponent,
     PageHeaderComponent,
     SkeletonComponent,
     SplitComponent,
     StackComponent,
+    TextFieldComponent,
   ],
   templateUrl: './event.page.html',
   styleUrl: './event.page.scss',
@@ -86,7 +93,7 @@ export class EventPage {
 
   protected readonly when = computed(() => {
     const e = this.event();
-    return e ? when(e) : '';
+    return e ? formatTimeRange(e.startsAt, e.endsAt) : '';
   });
   protected readonly where = computed(() => {
     const e = this.event();
@@ -98,6 +105,10 @@ export class EventPage {
     if (!e?.hostName) return null;
     return e.hostRole ? `${e.hostName}, ${e.hostRole}` : e.hostName;
   });
+  /** The share link anyone can open (L2-023 AC1). */
+  protected readonly publicPath = computed(() => `/public/events/${this.id()}`);
+  protected readonly publicUrl = computed(() => `${location.origin}${this.publicPath()}`);
+  protected readonly shareLink = new FormControl('', { nonNullable: true });
   protected readonly started = computed(() => {
     const e = this.event();
     return !!e && new Date(e.startsAt).getTime() <= Date.now();
@@ -159,6 +170,23 @@ export class EventPage {
     await this.load(this.id(), false);
   }
 
+  protected async copyLink(): Promise<void> {
+    try {
+      await navigator.clipboard.writeText(this.publicUrl());
+      this.toasts.show({
+        variant: 'success',
+        heading: 'Link copied',
+        text: `Anyone with the link can see ${this.event()?.title} and RSVP.`,
+      });
+    } catch {
+      this.toasts.show({
+        variant: 'danger',
+        heading: 'We couldn’t copy the link',
+        text: 'Select the link and copy it yourself.',
+      });
+    }
+  }
+
   protected async exportCsv(): Promise<void> {
     const e = this.event();
     if (!e || this.exporting()) return;
@@ -196,23 +224,12 @@ export class EventPage {
       const event = await firstValueFrom(this.events.getEvent(id));
       if (id !== this.id()) return;
       this.event.set(event);
+      this.shareLink.setValue(this.publicUrl());
       this.state.set('loaded');
     } catch {
       if (id === this.id()) this.state.set('error');
     }
   }
-}
-
-/** "Fri 6 Nov 2026 · 6:30 – 9:00 pm", or "Sat 14 – Sun 15 Nov 2026" across days. */
-function when(e: EventDetailDto): string {
-  const start = new Date(e.startsAt);
-  const end = new Date(e.endsAt);
-  const year = start.getFullYear();
-  if (start.toDateString() !== end.toDateString()) return `${formatDayRange(start, end)} ${year}`;
-  const from = formatTime(start);
-  const to = formatTime(end);
-  const sameHalf = from.slice(-2) === to.slice(-2);
-  return `${formatDay(start)} ${year} · ${sameHalf ? from.slice(0, -3) : from} – ${to}`;
 }
 
 /** The same file-name slug as the server's EventFileNames. */

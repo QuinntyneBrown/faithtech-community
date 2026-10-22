@@ -491,6 +491,10 @@ namespace FaithTech.Community.Infrastructure.Persistence.Migrations
                     b.Property<Guid>("Id")
                         .HasColumnType("uuid");
 
+                    b.Property<string>("CancelTokenHash")
+                        .HasMaxLength(64)
+                        .HasColumnType("character varying(64)");
+
                     b.Property<DateTimeOffset>("CreatedAt")
                         .HasColumnType("timestamp with time zone");
 
@@ -509,6 +513,10 @@ namespace FaithTech.Community.Infrastructure.Persistence.Migrations
                         .HasColumnType("uuid");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("CancelTokenHash")
+                        .IsUnique()
+                        .HasFilter("\"CancelTokenHash\" IS NOT NULL");
 
                     b.HasIndex("EventId", "GuestEmail");
 

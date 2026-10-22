@@ -1,7 +1,118 @@
-<!--
-  SCAFFOLD: placeholder, not the implementation.
-  Generated from AGENTS.md and:
-    - docs/detailed-designs/events/public-events-and-guest-rsvp
-    - docs/detailed-designs/events/calendar-export
-  Overwrite this template with the expected implementation, then delete this comment.
--->
+@switch (state()) {
+  @case ('loading') {
+    <ft-page-header overline="Public event" title="Event" />
+    <div class="loading" role="status" aria-busy="true" aria-label="Loading event">
+      @for (card of [1, 2]; track card) {
+        <ft-card>
+          <ft-stack>
+            <ft-skeleton shape="title" />
+            <ft-skeleton />
+            <ft-skeleton />
+          </ft-stack>
+        </ft-card>
+      }
+    </div>
+  }
+  @case ('error') {
+    <ft-empty-state
+      variant="error"
+      [headingLevel]="1"
+      heading="We couldn’t load this event"
+      text="Check your connection and try again. If it keeps happening, we’ve already been told about it."
+    >
+      <ft-button actions variant="primary" (click)="retry()">
+        <ft-icon name="try-again" /> Try again
+      </ft-button>
+    </ft-empty-state>
+  }
+  @case ('loaded') {
+    @if (event(); as e) {
+      <ft-page-header [overline]="overline()" [title]="e.title" [subtitle]="subtitle()" />
+      <ft-stack>
+        @if (e.isCancelled) {
+          <ft-alert status="danger" heading="This event was cancelled">{{
+            e.cancellationReason
+          }}</ft-alert>
+        }
+        <ft-split>
+          <ft-card ftSplitMain heading="About">
+            <ft-stack>
+              @if (e.description) {
+                <p class="description">{{ e.description }}</p>
+              }
+              <ft-description-list>
+                <ft-description-list-item label="Where">{{ where() }}</ft-description-list-item>
+                <ft-description-list-item label="Hosted by"
+                  >FaithTech {{ e.city }}</ft-description-list-item
+                >
+              </ft-description-list>
+            </ft-stack>
+          </ft-card>
+          <div ftSplitAside>
+            @if (confirmed(); as guest) {
+              <ft-card variant="success" [heading]="'You’re on the list, ' + guest.firstName">
+                <ft-stack role="status">
+                  <p class="text">
+                    We sent a confirmation to <strong>{{ guest.email }}</strong
+                    >. If plans change, use the link in that email to cancel.
+                  </p>
+                  <div class="actions">
+                    <ft-button variant="ghost" href="/sign-up"
+                      >Create a FaithTech account</ft-button
+                    >
+                  </div>
+                </ft-stack>
+              </ft-card>
+            } @else if (!e.isCancelled) {
+              <ft-card heading="RSVP">
+                <ft-stack>
+                  @if (e.isFull) {
+                    <p class="muted">{{ e.rsvpCount }} people are going.</p>
+                    <ft-alert status="info" heading="This event is full">
+                      Everyone it has room for has RSVP’d. Watch FaithTech {{ e.city }} for the next
+                      one.
+                    </ft-alert>
+                  } @else {
+                    <p class="muted">
+                      No account needed. {{ e.rsvpCount }}
+                      {{ e.rsvpCount === 1 ? 'person is' : 'people are' }} going.
+                    </p>
+                    <form [formGroup]="form" (ngSubmit)="rsvp()" ftFormErrorFocus novalidate>
+                      <ft-stack>
+                        <ft-error-summary [errors]="summary()" action="RSVP" />
+                        @if (failure(); as f) {
+                          <ft-alert status="danger" [heading]="f.heading">{{ f.text }}</ft-alert>
+                        }
+                        <ft-form-field required label="Your name" [error]="error('name')">
+                          <ft-text-field formControlName="name" autocomplete="name" />
+                        </ft-form-field>
+                        <ft-form-field
+                          required
+                          label="Email"
+                          help="We’ll send your confirmation and any changes here."
+                          [error]="error('email')"
+                        >
+                          <ft-text-field
+                            type="email"
+                            formControlName="email"
+                            autocomplete="email"
+                          />
+                        </ft-form-field>
+                        <ft-button type="submit" variant="primary" size="lg" [loading]="busy()">
+                          {{ busy() ? 'Sending your RSVP…' : 'I’m going' }}
+                        </ft-button>
+                      </ft-stack>
+                    </form>
+                  }
+                  <p class="caption">
+                    Already a member? <a [attr.href]="signInHref()">Sign in to RSVP</a>
+                  </p>
+                </ft-stack>
+              </ft-card>
+            }
+          </div>
+        </ft-split>
+      </ft-stack>
+    }
+  }
+}

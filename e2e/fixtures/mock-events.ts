@@ -7,6 +7,8 @@ export interface MockRsvp {
   guestName: string | null;
   guestEmail: string | null;
   createdAt: string;
+  /** The secret in a guest's cancel link (the server keeps only its hash). */
+  cancelToken?: string;
 }
 
 /** An event as the Events table holds it (FaithTech.Community.Domain.Events.Event). */
@@ -227,6 +229,15 @@ export class MockEvents {
     const one = /^\/api\/events\/([^/]+)$/.exec(url.pathname);
     if (one && method === 'GET') return this.get(route, one[1], caller);
     if (one && method === 'PUT') return this.update(route, one[1], body, caller);
+    const publicRoute = /^\/api\/public\/events\/([^/]+)(\/rsvps(?:\/cancel)?)?$/.exec(
+      url.pathname,
+    );
+    if (publicRoute && method === 'GET' && !publicRoute[2])
+      return this.getPublic(route, publicRoute[1]);
+    if (publicRoute && method === 'POST' && publicRoute[2] === '/rsvps')
+      return this.guestRsvp(route, publicRoute[1], body);
+    if (publicRoute && method === 'POST' && publicRoute[2] === '/rsvps/cancel')
+      return this.cancelGuest(route, publicRoute[1], body);
     const rsvps = /^\/api\/events\/([^/]+)\/rsvps(\/me|\.csv)?$/.exec(url.pathname);
     if (rsvps && method === 'POST' && !rsvps[2]) return this.rsvp(route, rsvps[1], caller);
     if (rsvps && method === 'DELETE' && rsvps[2] === '/me')
@@ -234,6 +245,88 @@ export class MockEvents {
     if (rsvps && method === 'GET' && rsvps[2] === '.csv')
       return this.exportRsvps(route, rsvps[1], caller);
     return false;
+  }
+
+  /** Guest RSVPs and cancellations taken in this test: the guest-rsvp limit is 10 an hour per address. */
+  guestRequests = 0;
+
+  private publicEvent(id: string): MockEvent | undefined {
+    return this.events.find((e) => e.id === id && e.visibility === 'Public');
+  }
+
+  /** GET /api/public/events/{id} (L2-023 AC1, AC3): anonymous; members-only and unknown are 404. */
+  private getPublic(route: Route, id: string): Promise<void> {
+    const event = this.publicEvent(id);
+    if (!event) return route.fulfill({ status: 404 });
+    return route.fulfill({
+      status: 200,
+      json: {
+        id: event.id,
+        title: event.title,
+        description: event.description,
+        type: event.type,
+        startsAt: event.startsAt,
+        endsAt: event.endsAt,
+        city: event.city,
+        format: event.format,
+        venue: event.venue,
+        rsvpCount: event.rsvps.length,
+        isFull: event.capacity !== null && event.rsvps.length >= event.capacity,
+        isCancelled: event.isCancelled,
+        cancellationReason: event.cancellationReason,
+      },
+    });
+  }
+
+  private limited(route: Route): Promise<void> | null {
+    if (++this.guestRequests > 10) return route.fulfill({ status: 429 });
+    return null;
+  }
+
+  /** POST /api/public/events/{id}/rsvps (L2-023 AC2, AC4, AC5): no account, one RSVP per email. */
+  private guestRsvp(route: Route, id: string, body: Record<string, unknown>): Promise<void> {
+    const limited = this.limited(route);
+    if (limited) return limited;
+    const name = text(body['name']);
+    const email = text(body['email']);
+    const errors: Record<string, string[]> = {};
+    if (!name) errors['Name'] = ['Enter your name so the host knows who’s coming.'];
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email))
+      errors['Email'] = ['Enter an email like name@example.org.'];
+    if (Object.keys(errors).length)
+      return route.fulfill({ status: 400, json: { status: 400, errors } });
+    const event = this.publicEvent(id);
+    if (!event) return route.fulfill({ status: 404 });
+    let rsvp = event.rsvps.find((r) => r.guestEmail?.toLowerCase() === email.toLowerCase());
+    if (!rsvp) {
+      const refusal = this.refusal(event);
+      if (refusal) return route.fulfill({ status: 409, json: { status: 409, detail: refusal } });
+      rsvp = this.addGuest(event, name, email, 0);
+    }
+    rsvp.cancelToken = `cancel-${rsvp.id}-${this.emails.length + 1}`;
+    const confirmation = this.confirmation(event, email);
+    confirmation.body += ` Cancel: /public/events/${event.id}/cancel-rsvp?token=${rsvp.cancelToken}`;
+    this.emails.push(confirmation);
+    return route.fulfill({ status: 204 });
+  }
+
+  /** POST /api/public/events/{id}/rsvps/cancel (L2-023 AC6): the cancel link's token, no sign-in. */
+  private cancelGuest(route: Route, id: string, body: Record<string, unknown>): Promise<void> {
+    const limited = this.limited(route);
+    if (limited) return limited;
+    const event = this.events.find((e) => e.id === id);
+    const rsvp = event?.rsvps.find((r) => r.cancelToken && r.cancelToken === body['token']);
+    if (!event || !rsvp) return route.fulfill({ status: 404 });
+    event.rsvps = event.rsvps.filter((r) => r !== rsvp);
+    return route.fulfill({ status: 204 });
+  }
+
+  /** The cancel link in the latest confirmation sent to a guest, as a path in the web app. */
+  cancelLinkFor(email: string): string {
+    const body = [...this.emails].reverse().find((m) => m.to === email)?.body ?? '';
+    const link = / Cancel: (\S+)$/.exec(body)?.[1];
+    if (!link) throw new Error(`No cancel link was sent to ${email}`);
+    return link;
   }
 
   /** RsvpHandler.Refusal: why the event takes no new RSVPs. */

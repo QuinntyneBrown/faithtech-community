@@ -13,4 +13,6 @@ import { ChangeDetectionStrategy, Component, input } from '@angular/core';
 export class PageHeaderComponent {
   readonly title = input.required<string>();
   readonly subtitle = input<string | null>(null);
+  /** Small uppercase line above the title, such as "FaithTech Toronto · Public event" (`.overline`). */
+  readonly overline = input<string | null>(null);
 }
