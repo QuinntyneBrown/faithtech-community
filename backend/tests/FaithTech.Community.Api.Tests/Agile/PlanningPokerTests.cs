@@ -1,8 +1,10 @@
 // Traces to: L2-038, L2-027, L2-028
 using System.Net;
 using System.Net.Http.Json;
+using FaithTech.Community.Api.Tests.Profiles;
 using FaithTech.Community.Domain.Agile;
 using FaithTech.Community.Domain.Notifications;
+using FaithTech.Community.Domain.Profiles;
 using Microsoft.EntityFrameworkCore;
 
 namespace FaithTech.Community.Api.Tests.Agile;
@@ -256,7 +258,7 @@ public class PlanningPokerTests(CommunityApiFactory factory) : IClassFixture<Com
     }
 
     [Fact]
-    public async Task Given_the_facilitator_when_they_end_the_session_or_set_the_last_points_then_no_session_is_running()
+    public async Task Given_the_facilitator_when_they_end_the_session_then_no_session_is_running()
     {
         var (cast, _, _, id) = await StartAsync();
 
@@ -265,6 +267,53 @@ public class PlanningPokerTests(CommunityApiFactory factory) : IClassFixture<Com
         Assert.Equal(HttpStatusCode.NoContent, (await factory.MemberClient(cast).GetAsync($"/api/workspaces/{cast.WorkspaceId}/poker-sessions/current")).StatusCode);
         var stored = await factory.WithDbAsync(db => db.PokerSessions.AsNoTracking().SingleAsync(s => s.Id == id));
         Assert.True(stored.IsClosed);
+    }
+
+    [Fact]
+    public async Task Given_the_last_story_when_the_facilitator_sets_its_points_then_the_session_completes_and_a_new_one_can_start()
+    {
+        var (cast, first, second, id) = await StartAsync();
+        var facilitator = factory.MemberClient(cast);
+
+        await facilitator.PostAsJsonAsync($"/api/poker-sessions/{id}/points", new { Points = 8 });
+        var last = await facilitator.PostAsJsonAsync($"/api/poker-sessions/{id}/points", new { Points = 3 });
+
+        Assert.Equal(HttpStatusCode.NoContent, last.StatusCode);
+        Assert.Equal(((int?)8, (int?)3), ((await factory.LoadItemAsync(first)).StoryPoints, (await factory.LoadItemAsync(second)).StoryPoints));
+        Assert.Equal(HttpStatusCode.NoContent, (await facilitator.GetAsync($"/api/workspaces/{cast.WorkspaceId}/poker-sessions/current")).StatusCode);
+        Assert.Equal(HttpStatusCode.NotFound, (await facilitator.GetAsync($"/api/poker-sessions/{id}")).StatusCode);
+        var again = await facilitator.PostAsJsonAsync(
+            $"/api/workspaces/{cast.WorkspaceId}/poker-sessions", new { StoryIds = new[] { first }, InvitedIds = Array.Empty<Guid>() });
+        Assert.Equal(HttpStatusCode.Created, again.StatusCode);
+    }
+
+    [Fact]
+    public async Task Given_revealed_votes_when_a_late_vote_arrives_then_409_says_why_and_the_vote_is_not_counted()
+    {
+        var (cast, _, _, id) = await StartAsync();
+        await factory.MemberClient(cast).PostAsync($"/api/poker-sessions/{id}/reveal", null);
+
+        var response = await factory.OwnerClient(cast).PutAsJsonAsync($"/api/poker-sessions/{id}/vote", new { Value = "5" });
+
+        Assert.Equal(HttpStatusCode.Conflict, response.StatusCode);
+        Assert.Contains("Votes are already revealed", await response.Content.ReadAsStringAsync());
+        Assert.Null((await factory.WithDbAsync(db => db.PokerSessions.AsNoTracking().SingleAsync(s => s.Id == id))).CurrentVoteOf(cast.Owner.ProfileId));
+    }
+
+    [Fact]
+    public async Task Given_a_member_who_was_not_invited_when_they_vote_before_or_after_the_reveal_then_403()
+    {
+        var (cast, _, _, id) = await StartAsync();
+        var uninvited = await factory.AddWithRolesAsync("Hannah Kim", Role.Volunteer);
+        await factory.OwnerClient(cast).PostAsJsonAsync($"/api/workspaces/{cast.WorkspaceId}/members", new { ProfileIds = new[] { uninvited.ProfileId } });
+        var client = factory.ClientFor(uninvited, Role.Volunteer);
+
+        var before = await client.PutAsJsonAsync($"/api/poker-sessions/{id}/vote", new { Value = "5" });
+        await factory.MemberClient(cast).PostAsync($"/api/poker-sessions/{id}/reveal", null);
+        var after = await client.PutAsJsonAsync($"/api/poker-sessions/{id}/vote", new { Value = "5" });
+
+        Assert.Equal((HttpStatusCode.Forbidden, HttpStatusCode.Forbidden), (before.StatusCode, after.StatusCode));
+        Assert.False((await CurrentAsync(client, cast.WorkspaceId))!.CanVote);
     }
 
     [Fact]

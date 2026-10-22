@@ -182,6 +182,29 @@ test.describe('Planning Poker', () => {
     await expect(poker.end).toHaveCount(0);
   });
 
+  test('starting while someone else just started a session says so', async ({ page, api, axe }) => {
+    const { marcus, ws } = team(api);
+    api.on('POST', `/api/workspaces/${ws.id}/poker-sessions`, (route) =>
+      route.fulfill({
+        status: 409,
+        json: { detail: 'A Planning Poker session is already running in this workspace.' },
+      }),
+    );
+    const poker = new PlanningPokerPage(page);
+    await api.signInAs(marcus, `/workspaces/${ws.id}/poker`);
+
+    await poker.startSession.click();
+    const dialog = new StartPokerDialog(page);
+    await dialog.story('Volunteer check-in kiosk').check();
+    await dialog.start.click();
+
+    await expect(dialog.failed).toContainText(
+      'A Planning Poker session is already running in this workspace.',
+    );
+    await expect(dialog.dialog).toBeVisible();
+    await axe.check();
+  });
+
   test('a System Admin starts and facilitates a session in any workspace', async ({
     page,
     api,

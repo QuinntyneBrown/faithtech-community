@@ -24,6 +24,8 @@ import { firstValueFrom } from 'rxjs';
 
 import { points } from '../../work-item-labels';
 
+const GENERIC_FAILURE = 'We couldn’t reach FaithTech. Nothing was changed — try again.';
+
 export interface StartPokerData {
   workspace: WorkspaceDto;
   /** Stories that are not Done, in backlog order. */
@@ -64,7 +66,8 @@ export class StartPokerDialog {
   protected readonly storyError = signal('');
   protected readonly inviteError = signal('');
   protected readonly busy = signal(false);
-  protected readonly failed = signal(false);
+  /** The failure alert's text, or null when the last attempt did not fail. */
+  protected readonly failed = signal<string | null>(null);
 
   protected estimate(story: BacklogNodeDto): string {
     return story.storyPoints === null ? 'Not estimated' : points(story.storyPoints);
@@ -85,7 +88,7 @@ export class StartPokerDialog {
       return;
     }
     this.busy.set(true);
-    this.failed.set(false);
+    this.failed.set(null);
     try {
       const invitedIds = this.members
         .map((m) => m.profileId)
@@ -101,8 +104,11 @@ export class StartPokerDialog {
         this.storyError.set(errors?.['StoryIds']?.[0] ?? '');
         this.inviteError.set(errors?.['InvitedIds']?.[0] ?? '');
         this.errorFocus().focusFirstError();
+      } else if (error instanceof HttpErrorResponse && error.status === 409) {
+        // Someone else started a session first (L2-038, ADR 0012).
+        this.failed.set(problemDetails(error)?.detail ?? GENERIC_FAILURE);
       } else {
-        this.failed.set(true);
+        this.failed.set(GENERIC_FAILURE);
       }
     } finally {
       this.busy.set(false);

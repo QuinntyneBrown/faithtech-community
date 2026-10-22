@@ -173,11 +173,6 @@ public class PlanningPokerHandler(
     public Task<Result> VoteAsync(Guid sessionId, CastVoteCommand command, CancellationToken cancellationToken = default) =>
         ChangeAsync(sessionId, "poker.voted", facilitatorOnly: false, (session, caller) =>
         {
-            if (!session.IsParticipant(caller.ProfileId))
-            {
-                return Task.FromResult<Result?>(Result.Forbidden());
-            }
-
             if (command.Value is null)
             {
                 session.WithdrawVote(caller.ProfileId);
@@ -239,7 +234,9 @@ public class PlanningPokerHandler(
             return Result.Conflict("This session has ended.");
         }
 
-        if (facilitatorOnly && caller.ProfileId != session.FacilitatorId)
+        // Who may act is settled before what state the round is in, so an uninvited member is told 403 both
+        // before and after the reveal, and only a participant's late vote gets the 409 (L2-038 AC6, AC7, AC10).
+        if (facilitatorOnly ? caller.ProfileId != session.FacilitatorId : !session.IsParticipant(caller.ProfileId))
         {
             return Result.Forbidden();
         }

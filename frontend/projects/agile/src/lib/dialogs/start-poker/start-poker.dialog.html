@@ -7,10 +7,8 @@
 >
   <form [formGroup]="form" (submit)="$event.preventDefault(); start()" ftFormErrorFocus>
     <ft-stack>
-      @if (failed()) {
-        <ft-alert status="danger" heading="That didn’t work">
-          We couldn’t reach FaithTech. Nothing was changed — try again.
-        </ft-alert>
+      @if (failed(); as message) {
+        <ft-alert status="danger" heading="That didn’t work">{{ message }}</ft-alert>
       }
       <ft-checkbox-group
         legend="Stories to estimate"
