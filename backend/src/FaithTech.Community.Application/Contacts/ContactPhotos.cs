@@ -56,6 +56,28 @@ public class ContactPhotosHandler(
         return (result, photo);
     }
 
+    /// <summary>
+    /// The image of a stored photo for the owner or a System Admin (audited); null for anyone else, an unknown photo or
+    /// one still storing, so a shared URL never shows the image to someone else (L2-058 AC1-4).
+    /// </summary>
+    public async Task<StoredImage?> ReadImageAsync(Guid contactId, Guid photoId, CancellationToken cancellationToken = default)
+    {
+        var (kind, contact, actor) = await access.AuthorizeAsync(contactId, cancellationToken: cancellationToken);
+        var photo = contact?.Photos.SingleOrDefault(p => p.Id == photoId);
+        if (contact is null || photo is not { IsStored: true })
+        {
+            return null;
+        }
+
+        if (kind == ContactAccessKind.AdminOverride)
+        {
+            access.AuditOverride(kind, actor, contact, "contact.photo-viewed", after: new { contact.Name, Photo = photo.Id });
+            await db.SaveChangesAsync(cancellationToken);
+        }
+
+        return await storage.ReadAsync(photo.BlobName, cancellationToken);
+    }
+
     /// <summary>Changes a photo's description (L2-056 AC4).</summary>
     public async Task<Result> DescribeAsync(Guid contactId, Guid photoId, DescribePhotoCommand command, CancellationToken cancellationToken = default)
     {

@@ -81,6 +81,20 @@ public static class ContactsEndpoints
             .DisableAntiforgery()
             .WithMetadata(new RequestSizeLimitAttribute(PhotoRequestLimit), new RequestFormLimitsAttribute { MultipartBodyLengthLimit = PhotoRequestLimit });
 
+        // The only way to see a contact photo: the bearer token is required and anyone but the owner and System Admin
+        // gets 404, so a copied URL shows nothing to anyone else (ADR 0017).
+        contacts.MapGet("/{id:guid}/photos/{photoId:guid}/image", async (
+                Guid id, Guid photoId, HttpContext http, ContactPhotosHandler handler, CancellationToken cancellationToken) =>
+            {
+                if (await handler.ReadImageAsync(id, photoId, cancellationToken) is not { } image)
+                {
+                    return Results.NotFound();
+                }
+
+                http.Response.Headers.CacheControl = "private, max-age=300";
+                return Results.File(image.Content, image.ContentType);
+            });
+
         contacts.MapPut("/{id:guid}/photos/{photoId:guid}", async (
                 Guid id, Guid photoId, DescribePhotoCommand command, ContactPhotosHandler handler, CancellationToken cancellationToken) =>
             (await handler.DescribeAsync(id, photoId, command, cancellationToken)).ToHttp(Results.NoContent));
