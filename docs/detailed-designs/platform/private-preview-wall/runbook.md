@@ -1,6 +1,6 @@
 # Runbook: deploy behind the private-preview wall
 
-What the owner runs and supplies to put FaithTech Community on `app.faithtech.community` and `www.faithtech.community` behind the private-preview wall (ADR 0026, `README.md` in this folder). Nothing here is automated from the repository: it creates Azure resources, DNS records and production secrets, which cannot be undone from a pull request. Every command is for Bash (Azure Cloud Shell, macOS, Linux or WSL) with the Azure CLI signed in (`az login`).
+What the owner runs and supplies to put FaithTech Community on `app.faithtech.community` and `www.faithtech.community` behind the private-preview wall (ADR 0026, `README.md` in this folder). Nothing here is automated from the repository: it creates Azure resources, DNS records and production secrets, which cannot be undone from a pull request. Every command is for Bash (Azure Cloud Shell, macOS, Linux or WSL) with the Azure CLI signed in (`az login`) and, for step 1, the GitHub CLI signed in (`gh auth login`). Azure Cloud Shell has no Docker: there, build the images with `az acr build --registry <registry> --image <name:tag> --file <Dockerfile> .` instead of `docker build`/`docker push`, and make the wall's hash with `dotnet run --project backend/src/FaithTech.Community.Cli -- wall-hash`.
 
 ## What the owner supplies
 
@@ -26,7 +26,12 @@ az group create --name "$RG" --location "$LOCATION"
 # An app registration that GitHub Actions signs in as, with no client secret (OpenID Connect).
 APP_ID=$(az ad app create --display-name faithtech-community-deploy --query appId --output tsv)
 az ad sp create --id "$APP_ID"
-az ad app federated-credential create --id "$APP_ID" --parameters "{\"name\":\"production\",\"issuer\":\"https://token.actions.githubusercontent.com\",\"subject\":\"repo:$REPO:environment:production\",\"audiences\":[\"api://AzureADTokenExchange\"]}"
+# GitHub presents the subject with the owner and repository IDs appended (`repo:Owner@<owner-id>/Repo@<repo-id>:...`),
+# so the credential must carry that exact subject; the plain `repo:Owner/Repo:...` form is rejected (AADSTS700213).
+OWNER_ID=$(gh api "users/${REPO%%/*}" --jq .id)
+REPO_ID=$(gh api "repos/$REPO" --jq .id)
+SUBJECT="repo:${REPO%%/*}@$OWNER_ID/${REPO##*/}@$REPO_ID:environment:production"
+az ad app federated-credential create --id "$APP_ID" --parameters "{\"name\":\"production\",\"issuer\":\"https://token.actions.githubusercontent.com\",\"subject\":\"$SUBJECT\",\"audiences\":[\"api://AzureADTokenExchange\"]}"
 RG_ID=$(az group show --name "$RG" --query id --output tsv)
 az role assignment create --assignee "$APP_ID" --role Contributor --scope "$RG_ID"
 # The template grants the app's identity AcrPull and Key Vault Secrets User, so the deployer must assign roles.
