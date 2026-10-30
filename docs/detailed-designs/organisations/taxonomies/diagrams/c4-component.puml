@@ -1,0 +1,46 @@
+@startuml
+!include <C4/C4_Component>
+LAYOUT_WITH_LEGEND()
+title Components — Taxonomies
+Container_Boundary(web, "Web app") {
+  Component(page, "TaxonomiesPage", "Angular page (organisations library)", "Partner stages, Event types, Resource types sections")
+  Component(dlg, "AddListEntryDialog / RenameListEntryDialog / ArchiveListEntryDialog", "Angular CDK Dialogs (organisations library)", "Shared by the three lists")
+  Component(board, "PartnersPage", "Angular page (partners library)", "One KanbanColumn per PartnerColumnDto")
+  Component(kanban, "KanbanBoard / KanbanColumn / KanbanCard", "components library", "Columns as data; tabs below 640px")
+  Component(pickers, "EventFormPage, EventsPage, ResourceDetailsComponent, ResourcesPage", "Angular pages (feature libraries)", "Type pickers and filters from the organisation's lists")
+  Component(svc, "HttpOrganisationService", "Angular service (api library)", "get() and the per-list add, rename, reorder, archive, setInitial, setKind")
+}
+Container_Boundary(api, "Community API") {
+  Component(ep, "OrganisationEndpoints", "ASP.NET Core minimal API", "GET /api/organisation; /partner-stages, /event-types, /resource-types routes")
+  Component(get, "GetOrganisationHandler", "Application handler", "Active entries in order for every member")
+  Component(manage, "ManagePartnerStagesHandler / ManageEventTypesHandler / ManageResourceTypesHandler", "Application handlers", "Add, rename, reorder, archive, set initial, set kind")
+  Component(rules, "TaxonomyRules", "Application rule", "Name at most 40, unique among active; archival guards")
+  Component(pboard, "ManagePartnersHandler / MovePartnerHandler", "Application handlers", "Columns per active stage; moves by stage key")
+  Component(resolver, "ResourceTypeResolver", "Application rule", "Guessed key to the organisation's type, else other")
+  Component(report, "GetReportHandler", "Application handler", "Counts partners by stage kind")
+  Component(entries, "PartnerStage / EventType / ResourceType", "Domain entities", "Key, name, sort order, archived; IsInitial and Kind on stages")
+  Component(audit, "AuditLog", "Infrastructure service", "taxonomy.updated")
+  ComponentDb(db, "CommunityDbContext", "PostgreSQL", "PartnerStages, EventTypes, ResourceTypes; Partners.StageId, Events.TypeId, Resources.TypeId")
+}
+Rel(page, dlg, "Opens")
+Rel(dlg, svc, "List writes")
+Rel(page, svc, "List reads, reorder, setInitial, setKind")
+Rel(board, kanban, "Composes")
+Rel(board, svc, "get() for stages")
+Rel(pickers, svc, "get() for types")
+Rel(svc, ep, "Sends request", "JSON/HTTPS")
+Rel(ep, get, "GET /api/organisation")
+Rel(ep, manage, "List commands")
+Rel(manage, rules, "Validates (400, 409)")
+Rel(manage, entries, "Creates and mutates")
+Rel(manage, audit, "Record")
+Rel(ep, pboard, "Board and move")
+Rel(pboard, entries, "Reads stages")
+Rel(ep, resolver, "Via AddResourcesHandler")
+Rel(resolver, entries, "Reads resource types")
+Rel(report, entries, "Reads stage kinds")
+Rel(get, db, "Reads", "EF Core")
+Rel(manage, db, "Saves", "EF Core")
+Rel(pboard, db, "Reads and writes partners", "EF Core")
+Rel(audit, db, "Adds AuditEntry", "EF Core")
+@enduml

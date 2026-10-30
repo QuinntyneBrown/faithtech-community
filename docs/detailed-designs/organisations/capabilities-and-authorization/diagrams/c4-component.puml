@@ -1,0 +1,37 @@
+@startuml
+!include <C4/C4_Component>
+LAYOUT_WITH_LEGEND()
+title Components — Capabilities and authorization
+Container_Boundary(web, "Web app") {
+  Component(nav, "navigation.ts", "App shell", "Sections keyed on capabilities")
+  Component(auth, "HttpAuthService", "Angular service (api library)", "Loads /api/me with capabilities")
+}
+Container_Boundary(api, "Community API") {
+  Component(mw, "CurrentRolesMiddleware", "ASP.NET Core middleware", "Computes the caller's capabilities per request")
+  Component(cu, "HttpCurrentUser", "ICurrentUser", "Capabilities and Has(capability)")
+  Component(caps, "ProfileCapabilities", "Application query", "Union of non-archived held definitions")
+  Component(ep, "Feature endpoints", "Minimal API", "/api/me, /api/organisation/capabilities, feature routes")
+  Component(access, "Feature access classes", "Application", "EventPermissions, WorkspaceAccessPolicy, ContactAccess, PartnerAccess, ReportAccess, ResourceAccess, NoteAccess")
+  Component(rules, "AuthorizationRules", "Application helper", "IsOverride(actor, capability)")
+  Component(guard, "LastAdministratorGuard", "Application service", "Lease on OrganisationAdminRoster; counts administrators")
+  Component(detect, "CapabilityLossDetector", "Application service", "Raises CapabilityLost per lost capability")
+  Component(lost, "CapabilityLostHandler", "Application handler (Agile)", "Notifies administrators: WorkspaceOwnerLostCapability")
+  Component(cat, "Capability", "Domain catalogue", "19 constants with descriptions")
+  Component(audit, "AuditLog", "Infrastructure service", "Records overrides")
+  ComponentDb(db, "CommunityDbContext", "PostgreSQL", "RoleDefinitions, ProfileRoles, OrganisationAdminRosters")
+}
+Rel(auth, ep, "GET /api/me", "JSON/HTTPS")
+Rel(nav, auth, "Reads capabilities")
+Rel(mw, caps, "OfAsync(profileId)")
+Rel(caps, db, "Joins ProfileRoles to RoleDefinitions", "EF Core")
+Rel(mw, cu, "Stores set in HttpContext.Items")
+Rel(ep, access, "Asks before any read or write")
+Rel(access, cu, "Has(capability)")
+Rel(access, rules, "IsOverride")
+Rel(access, audit, "Records override")
+Rel(access, cat, "Names capabilities")
+Rel(guard, db, "Takes lease, counts administrators", "EF Core")
+Rel(detect, caps, "Remaining capabilities")
+Rel(detect, lost, "CapabilityLost(OwnWorkspaces)")
+Rel(lost, db, "Adds notifications", "EF Core")
+@enduml

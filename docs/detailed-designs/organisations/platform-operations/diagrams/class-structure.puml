@@ -1,0 +1,107 @@
+@startuml
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 8
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam class {
+  BorderColor #344054
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+title Class structure — Platform operations
+class PlatformOptions {
+  +string? DefaultOrganisationSlug
+  +string[] Operators
+}
+interface IPlatformOperators {
+  +IsOperator(email: string): bool
+}
+class PlatformAuditEntry {
+  +Guid Id
+  +string OperatorEmail
+  +string Source
+  +string Action
+  +string? OrganisationSlug
+  +string Target
+  +string? DetailsJson
+  +DateTime OccurredAtUtc
+}
+interface IPlatformAuditLog {
+  +Record(action: string, organisationSlug: string?, target: string, details: object?): void
+}
+class Organisation {
+  +Guid Id
+  +string Slug
+  +string Host
+  +OrganisationStatus Status
+  +Suspend(reason: string, nowUtc: DateTime): void
+  +Lift(): void
+}
+class OrganisationAdminRoster {
+  +Guid OrganisationId
+  +Guid Version
+  +Guid? LeaseHolder
+  +DateTimeOffset? LeaseExpiresAt
+}
+class ProvisionOrganisationCommand {
+  +string Slug
+  +string Host
+  +string Name
+  +string ShortName
+  +string? ChapterLabelSingular
+  +string? ChapterLabelPlural
+  +string AdminEmail
+}
+class ProvisionOrganisationValidator {
+  +Validate(command: ProvisionOrganisationCommand): ValidationResult
+}
+class ProvisionOrganisationHandler {
+  +HandleAsync(command: ProvisionOrganisationCommand): Task<Result<OrganisationSummary>>
+}
+class SuspendOrganisationHandler {
+  +HandleAsync(slug: string, reason: string): Task<Result>
+}
+class LiftOrganisationHandler {
+  +HandleAsync(slug: string): Task<Result>
+}
+class LockAccountHandler {
+  +LockAsync(email: string, reason: string): Task<Result>
+  +UnlockAsync(email: string): Task<Result>
+}
+class OrganisationSummary {
+  +string Slug
+  +string Host
+  +string Name
+  +string ShortName
+  +OrganisationStatus Status
+  +int AdministratorCount
+}
+class RoleDefinition
+class Invite
+class OrganisationScope {
+  +RunAs(organisationId: Guid): IDisposable
+}
+interface ITokenRevocation {
+  +RevokeAllAsync(userId: Guid): Task
+  +RevokeOrganisationAsync(organisationId: Guid): Task
+}
+IPlatformOperators ..> PlatformOptions : reads
+IPlatformAuditLog ..> PlatformAuditEntry : adds
+ProvisionOrganisationHandler ..> ProvisionOrganisationCommand : handles
+ProvisionOrganisationHandler ..> ProvisionOrganisationValidator : uses
+ProvisionOrganisationHandler --> Organisation : creates
+ProvisionOrganisationHandler --> RoleDefinition : Administrator, Member
+ProvisionOrganisationHandler --> OrganisationAdminRoster : creates
+ProvisionOrganisationHandler --> Invite : first administrator
+ProvisionOrganisationHandler --> OrganisationScope : RunAs
+ProvisionOrganisationHandler --> IPlatformAuditLog : organisation.provisioned
+ProvisionOrganisationHandler ..> OrganisationSummary : returns
+SuspendOrganisationHandler --> Organisation : Suspend
+SuspendOrganisationHandler --> ITokenRevocation : RevokeOrganisationAsync
+SuspendOrganisationHandler --> IPlatformAuditLog : organisation.suspended
+LiftOrganisationHandler --> Organisation : Lift
+LiftOrganisationHandler --> IPlatformAuditLog : organisation.lifted
+LockAccountHandler --> ITokenRevocation : RevokeAllAsync
+LockAccountHandler --> IPlatformAuditLog : account.locked / unlocked
+@enduml

@@ -1,0 +1,12 @@
+@startuml
+!include <C4/C4_Context>
+LAYOUT_WITH_LEGEND()
+title System Context — Chapters
+Person(settings, "Settings holder", "Holds ManageOrganisationSettings; defines the chapter label and chapters")
+Person(grantor, "Grantor", "Holds AssignRoles; may be chapter-scoped by their own tags")
+Person(member, "Member", "Signed-in profile holder in the organisation")
+System(community, "FaithTech Community", "Multi-organisation community platform; FaithTech is the first organisation")
+Rel(settings, community, "Defines chapters and the label using")
+Rel(grantor, community, "Tags role assignments with chapters using")
+Rel(member, community, "Filters lists and picks a home chapter using")
+@enduml

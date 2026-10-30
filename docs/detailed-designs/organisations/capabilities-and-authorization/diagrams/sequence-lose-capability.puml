@@ -1,0 +1,82 @@
+@startuml
+title UML sequence behaviour — Lose a capability
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+actor "Holder of AssignRoles or ManageRoles" as actor
+box "Frontend — FaithTech Community web app (profiles or organisations library)" #E0F2FE
+  participant "ProfilePage or RolesPage" as page
+end box
+box "Backend — FaithTech.Community.Api" #D1FADF
+  participant "RolesEndpoints or RoleDefinitionsEndpoints" as ep
+end box
+box "Backend — FaithTech.Community.Application and Domain" #ECFDF3
+  participant "ChangeRolesHandler or UpdateRoleDefinitionHandler" as h
+  participant "LastAdministratorGuard" as guard
+  participant "CapabilityLossDetector" as detect
+  participant "Profile" as prof
+  participant "CapabilityLostHandler" as lost
+  participant "ConnectLinkHandler" as link
+end box
+box "Backend — FaithTech.Community.Infrastructure" #FFF4E5
+  participant "AuditLog" as audit
+  database "Community database" as db
+end box
+actor -> page : Remove a role, or edit a definition's capabilities
+page -> ep : DELETE /api/profiles/{id}/roles/{roleId} or PUT /api/organisation/roles/{id}
+ep -> h : Handle
+opt the change takes AdministerOrganisation away from someone
+  h -> guard : TakeLeaseAsync()
+  guard -> db : Save OrganisationAdminRoster with new Version
+  alt another request holds the lease
+    db --> guard : Concurrency failure
+    guard --> h : null
+    h --> ep : 409 "Someone else changed administrator roles at the same time. Reload and try again." (L2-139 AC2)
+  else lease taken
+    h -> guard : WouldLeaveNoneAsync(...)
+    guard -> db : Count active, unsuspended holders of a non-archived definition with AdministerOrganisation
+    alt none would remain
+      guard --> h : true
+      h -> guard : Release()
+      h --> ep : 409 "There must always be at least one administrator."; nothing changed, audited or notified (L2-139 AC1)
+    else at least one remains
+      guard --> h : false
+    end
+  end
+end
+h -> detect : LostAsync(affected profiles, removed capabilities)
+detect -> db : Remaining non-archived definitions per profile
+db --> detect : Capability sets
+detect --> h : CapabilityLost per capability no other role still gives (L2-139 AC3)
+h -> prof : Apply change; DomainEvents hold CapabilityLost
+h -> audit : Record role.removed or role.updated (L2-041)
+loop each CapabilityLost(OwnWorkspaces)
+  h -> lost : HandleAsync
+  lost -> db : Workspaces owned by the profile; administrators
+  lost -> db : Add WorkspaceOwnerLostCapability notification per administrator (L2-139 AC4)
+end
+h -> guard : Release()
+h -> db : Save changes in one unit of work
+h -> lost : QueueEmailsAsync()
+h --> ep : Result.Ok
+ep --> page : 200
+page --> actor : Roles or definition updated
+== Next connect link lookup ==
+link -> db : Owner's current capabilities
+alt owner lacks ConnectLink or is suspended
+  link --> link : Answer unknown (L2-139 AC5, L2-082 AC3)
+else owner holds ConnectLink
+  link --> link : Answer the owner's name, photo, chapter and roles
+end
+@enduml

@@ -1,0 +1,14 @@
+@startuml
+!include <C4/C4_Context>
+LAYOUT_WITH_LEGEND()
+title System Context — Organisation settings
+Person(settings, "Settings holder", "Holds ManageOrganisationSettings; changes name, short name, chapter label, chapters and taxonomies")
+Person(rolemgr, "Role manager", "Holds ManageRoles; defines roles and grant rules")
+Person(admin, "Administrator", "Holds AdministerOrganisation; changes everything and reads the whole organisation audit")
+Person_Ext(operator, "Platform operator", "Outside every organisation; audited in the platform audit log only")
+System(community, "FaithTech Community", "Multi-organisation community platform; FaithTech is the first organisation")
+Rel(settings, community, "Changes organisation settings using")
+Rel(rolemgr, community, "Defines roles using")
+Rel(admin, community, "Administers and reads the organisation audit using")
+Rel(operator, community, "Provisions, suspends and lifts organisations through the operator API")
+@enduml

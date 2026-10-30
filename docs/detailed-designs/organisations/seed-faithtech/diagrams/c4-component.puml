@@ -1,0 +1,24 @@
+@startuml
+!include <C4/C4_Component>
+LAYOUT_WITH_LEGEND()
+title Components — Seed FaithTech
+Container_Boundary(cli, "Cli") {
+  Component(app, "CliApp", ".NET console", "migrate, seed, grant-admin <email> [organisation-slug]")
+}
+Container_Boundary(infra, "Community API (Infrastructure)") {
+  Component(seeder, "CommunitySeeder", "Infrastructure service", "SeedAsync, SeedOrganisationAsync, GrantAdministratorAsync, SeedStarterResourcesAsync")
+  Component(seed, "FaithTechSeed", "Static seed data", "Organisation, nine definitions, grant rules, stages, event types, resource types")
+  Component(mig, "OrganisationsAndCapabilities migration", "EF Core migration", "New tables; stamps OrganisationId; maps roles, stages, types; creates chapters; moves the roster")
+  Component(oidc, "OpenIddictApplicationManager", "OpenIddict", "Registers the web client")
+  Component(org, "Organisation, RoleDefinition, PartnerStage, EventType, ResourceType, Chapter, OrganisationAdminRoster", "Domain aggregates", "The records the seed and migration create")
+  ComponentDb(db, "CommunityDbContext", "PostgreSQL", "EF Core context over the Community database")
+}
+Rel(app, mig, "migrate: Database.Migrate()")
+Rel(app, seeder, "seed: SeedAsync(webAppOrigin); grant-admin: GrantAdministratorAsync")
+Rel(seeder, seed, "Reads")
+Rel(seeder, org, "Creates when missing")
+Rel(seeder, oidc, "Creates or updates the web client")
+Rel(seeder, db, "Finds by key or id; inserts; saves", "EF Core")
+Rel(mig, seed, "Shares fixed ids and keys")
+Rel(mig, db, "DDL and backfill SQL", "EF Core")
+@enduml

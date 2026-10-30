@@ -1,0 +1,72 @@
+@startuml
+title UML sequence behaviour — Add a chapter
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+actor "Settings holder" as actor
+box "Frontend — FaithTech Community web app (organisations library)" #E0F2FE
+  participant "ChaptersPage" as page
+  participant "AddChapterDialog" as dlg
+end box
+box "Frontend — FaithTech Community web app (api library)" #E0F2FE
+  participant "HttpOrganisationService" as svc
+end box
+box "Backend — FaithTech.Community.Api" #D1FADF
+  participant "OrganisationEndpoints" as ep
+end box
+box "Backend — FaithTech.Community.Application and Domain" #ECFDF3
+  participant "ManageChaptersHandler" as h
+  participant "ChapterRules" as rules
+  participant "Chapter" as ent
+end box
+box "Backend — FaithTech.Community.Infrastructure" #FFF4E5
+  participant "AuditLog" as audit
+  database "Community database" as db
+end box
+actor -> page : Choose "Add a {chapter}"
+page -> dlg : Open
+actor -> dlg : Enter the name and save
+dlg -> svc : addChapter(name)
+svc -> ep : POST /api/organisation/chapters { name }
+ep -> h : AddAsync(AddChapterCommand)
+alt caller lacks ManageOrganisationSettings
+  h --> ep : Forbidden
+  ep --> svc : 403 (L2-140 AC7)
+  svc --> dlg : Error
+  dlg --> actor : Forbidden message
+else chapters are off
+  ep --> svc : 409 "Turn {chapters} on in General first"
+else permitted
+  h -> db : Load organisation and active chapters
+  db --> h : ChapterLabel and chapters
+  h -> rules : Validate(name, active)
+  alt empty, over 60 characters or a duplicate ignoring case
+    rules --> h : Invalid("name")
+    ep --> svc : 400 ValidationProblem (L2-140 AC4)
+    svc --> dlg : Field error
+    dlg --> actor : Inline error; nothing saved
+  else valid
+    h -> ent : new Chapter(organisationId, name, sortOrder = last + 1)
+    h -> audit : Record(actor, "chapter.added", "Chapter", id, null, { Name, SortOrder }) (L2-152 AC1)
+    h -> db : Save chapter and audit entry in one unit of work
+    db --> h : Committed
+    h --> ep : ChapterDto
+    ep --> svc : 201 Created (L2-140 AC3)
+    svc --> dlg : Chapter
+    dlg --> page : Close with the new chapter
+    page --> actor : Row appended; toast "{name} added"; pickers refresh on next get()
+  end
+end
+note over dlg : A network failure keeps the dialog open with the input and offers "Try again" (L2-147 AC5)
+@enduml

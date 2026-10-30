@@ -1,0 +1,12 @@
+@startuml
+!include <C4/C4_Context>
+LAYOUT_WITH_LEGEND()
+title System Context — Accounts and memberships
+Person(member, "Person with one account", "Holds a profile in each organisation they belong to")
+System(platform, "FaithTech Community platform", "One identity server for every host; a profile per organisation")
+System_Ext(google, "Google", "External sign-in for the global account")
+System_Ext(email, "Email provider", "Verification and invite email on the organisation's host")
+Rel(member, platform, "Signs in on any organisation host; switches between them", "HTTPS")
+Rel(platform, google, "Verifies a Google account", "OIDC")
+Rel(platform, email, "Sends verification and invites", "SMTP")
+@enduml

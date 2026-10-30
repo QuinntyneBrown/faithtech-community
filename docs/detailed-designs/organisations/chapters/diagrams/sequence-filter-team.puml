@@ -1,0 +1,66 @@
+@startuml
+title UML sequence behaviour — Filter the team by chapter
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+actor "Member" as actor
+box "Frontend — FaithTech Community web app (team library)" #E0F2FE
+  participant "TeamPage" as page
+end box
+box "Frontend — FaithTech Community web app (api library)" #E0F2FE
+  participant "HttpOrganisationService" as org
+  participant "HttpTeamService" as svc
+end box
+box "Backend — FaithTech.Community.Api" #D1FADF
+  participant "OrganisationEndpoints" as oep
+  participant "TeamEndpoints" as ep
+end box
+box "Backend — FaithTech.Community.Application and Domain" #ECFDF3
+  participant "GetOrganisationHandler" as gh
+  participant "ListTeamHandler" as h
+end box
+box "Backend — FaithTech.Community.Infrastructure" #FFF4E5
+  database "Community database" as db
+end box
+actor -> page : Open /team
+page -> org : get()
+org -> oep : GET /api/organisation
+oep -> gh : HandleAsync()
+gh -> db : Load label and active chapters in order
+db --> gh : Chapters
+gh --> oep : OrganisationDto
+oep --> org : 200 OK
+org --> page : Label and chapters
+alt chapters are off
+  page --> actor : No chapter select; the list is organisation-wide (L2-142 AC3)
+else chapters are on
+  page --> actor : Select "All {Chapters}" and the active chapters in order (L2-142 AC1)
+  actor -> page : Choose a chapter
+  page -> page : Put chapter= in the URL
+  page -> svc : list({ role?, chapter })
+  svc -> ep : GET /api/team?role=&chapter=&after=&pageSize=
+  ep -> ep : Require signed-in member (401 anonymous)
+  ep -> h : Send ListTeamQuery
+  h -> db : Profiles with a ShowOnTeam role, where ChapterId = chapter, ordered and paged (L2-142 AC2)
+  db --> h : Page of profiles with roles, photos and chapter name
+  h --> ep : TeamListDto: members, next, totalCount
+  ep --> svc : 200 OK
+  svc --> page : Team list
+  alt no members
+    page --> actor : "No team members in {chapter} yet" (L2-142 AC5)
+  else members
+    page --> actor : Rows with "{role} · {chapter}" badges (L2-141 AC3)
+  end
+end
+@enduml

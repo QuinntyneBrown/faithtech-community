@@ -1,0 +1,64 @@
+@startuml
+title UML sequence behaviour — Resolve a request
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+actor "Member or visitor" as actor
+box "Frontend — browser (community or marketing app, or no bundle yet)" #E0F2FE
+  participant "Browser" as browser
+end box
+box "Backend — FaithTech.Community.Api" #D1FADF
+  participant "PrivatePreviewGateMiddleware" as gate
+  participant "OrganisationResolutionMiddleware" as resolve
+  participant "SystemPages" as pages
+  participant "Static sites, CORS, authentication, endpoints, hub" as rest
+end box
+box "Backend — FaithTech.Community.Application" #ECFDF3
+  participant "IOrganisationResolver" as resolver
+  participant "ICurrentOrganisation" as cur
+end box
+box "Backend — FaithTech.Community.Infrastructure" #FFF4E5
+  database "Community database" as db
+end box
+actor -> browser : Open https://{host}/events/42
+browser -> gate : GET /events/42 (unlocked cookie present)
+gate -> resolve : Next (ADR 0026, the wall is platform-wide)
+alt GET /health/live
+  resolve -> rest : Next (L2-131 #2)
+else Development and host is localhost
+  resolve -> resolve : Use Platform:DefaultOrganisationSlug (L2-131 #4)
+else public host in Marketing:Sites
+  resolve -> resolve : Organisation = entry's slug, host kind = public (L2-134 #3)
+else community host
+  resolve -> resolver : ResolveByHostAsync(host); token, header, cookie and body ignored (L2-131 #5)
+  resolver -> db : SELECT ... FROM Organisations WHERE Host = @host
+  db --> resolver : Organisation or none
+  resolver --> resolve : Result
+end
+alt no organisation
+  resolve -> pages : Render unknown-host page for a navigation
+  pages --> browser : 404, neutral page, no-store; empty 404 for any other request (L2-131 #2)
+else status Suspended
+  resolve -> pages : Render suspended page for a navigation
+  pages --> browser : 503, neutral page; empty 503 for any other request (L2-131 #3, L2-150 #1)
+else Active
+  resolve -> cur : HttpContext.Items = organisation, host kind (L2-131 #1)
+  resolve -> rest : Next
+  rest -> rest : CORS allows only this organisation's origins (L2-131 #6)
+  rest -> db : Every query carries OrganisationId = @current (L2-130 #2)
+  db --> rest : Rows of this organisation only; another organisation's id is not found (L2-130 #3)
+  rest --> browser : Page, API response or 404
+end
+browser --> actor : Result
+@enduml

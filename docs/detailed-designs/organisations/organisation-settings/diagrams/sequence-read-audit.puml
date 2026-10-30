@@ -1,0 +1,74 @@
+@startuml
+title UML sequence behaviour — Read the organisation audit
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+actor "Administrator or settings holder" as actor
+box "Frontend — FaithTech Community web app (admin library)" #E0F2FE
+  participant "AuditLogPage" as page
+end box
+box "Frontend — FaithTech Community web app (api library)" #E0F2FE
+  participant "HttpAuditLogService" as svc
+end box
+box "Backend — FaithTech.Community.Api" #D1FADF
+  participant "AuditLogEndpoints" as ep
+end box
+box "Backend — FaithTech.Community.Application and Domain" #ECFDF3
+  participant "GetAuditEntriesHandler" as q
+  participant "AuditReadScope" as scope
+end box
+box "Backend — FaithTech.Community.Infrastructure" #FFF4E5
+  database "Community database" as db
+end box
+actor -> page : Open /admin/audit-log or /organisation/audit
+page -> page : Offer only the categories the caller's capabilities allow (L2-152 AC2, AC3)
+actor -> page : Choose a category, for example Chapters
+page -> svc : getEntries({ category: "chapters" }, page)
+svc -> ep : GET /api/admin/audit?category=chapters&page= (HANDLES_FORBIDDEN)
+ep -> q : HandleAsync(GetAuditEntriesQuery)
+q -> scope : For(current)
+alt no ManageRoles, ManageOrganisationSettings or AdministerOrganisation
+  scope --> q : null
+  ep --> svc : 403 (L2-041 AC4)
+  svc --> page : HttpErrorResponse 403
+  page --> actor : Forbidden state
+else category outside the caller's scope
+  scope --> q : Allows(category) = false
+  ep --> svc : 403 (L2-152 AC3)
+  svc --> page : HttpErrorResponse 403
+  page --> actor : Forbidden state
+else permitted
+  scope --> q : All, or the categories the caller may change
+  q -> db : AuditEntries of the current organisation only (query filter, L2-152 AC4), actions of the category or of every allowed category, from 90 days ago, newest first, 50 a page
+  db --> q : Entries
+  q -> db : Load actor and target names
+  q --> ep : PagedResult<AuditEntryDto> with summaries ("Renamed Toronto to Toronto East")
+  ep --> svc : 200 OK
+  svc --> page : Entries
+  page --> actor : When, Who, What; Show older entries when more remain
+end
+opt Export CSV
+  actor -> page : Choose Export CSV
+  page -> svc : exportCsv({ category })
+  svc -> ep : GET /api/admin/audit/export?category=
+  ep -> q : HandleAllAsync(GetAuditEntriesQuery)
+  q -> scope : Same scope
+  q -> db : Same filters, up to 10,000 rows
+  q --> ep : AuditEntryDto list
+  ep --> svc : 200 text/csv audit-log.csv (L2-152 AC2)
+  svc --> page : Blob
+  page --> actor : Download audit-log.csv
+end
+note over db : Platform operator actions live in PlatformAuditEntries, read only by GET /api/platform/audit (L2-152 AC4)
+@enduml

@@ -1,0 +1,136 @@
+@startuml
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 8
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam class {
+  BorderColor #344054
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+title Class structure — Capabilities and authorization
+class Capability <<static>> {
+  +{static} ManageEvents: string
+  +{static} ViewAttendees: string
+  +{static} ManageAttendance: string
+  +{static} KeepContacts: string
+  +{static} ViewPartners: string
+  +{static} ManagePartners: string
+  +{static} InviteMembers: string
+  +{static} ConnectLink: string
+  +{static} OwnWorkspaces: string
+  +{static} JoinWorkspaces: string
+  +{static} ReadAllWorkspaces: string
+  +{static} ViewPeopleDirectory: string
+  +{static} AssignRoles: string
+  +{static} SendAnnouncements: string
+  +{static} AddResources: string
+  +{static} ViewReports: string
+  +{static} ManageRoles: string
+  +{static} ManageOrganisationSettings: string
+  +{static} AdministerOrganisation: string
+  +{static} All: IReadOnlyList<CapabilityInfo>
+  +{static} IsKnown(value: string): bool
+}
+class CapabilityInfo <<record>> {
+  +string Key
+  +string Description
+}
+interface ICurrentUser {
+  +Guid? UserId
+  +bool IsAuthenticated
+  +IReadOnlyCollection<HeldRole> Roles
+  +IReadOnlySet<string> Capabilities
+  +Has(capability: string): bool
+}
+class HeldRole <<record>> {
+  +Guid RoleDefinitionId
+  +string Name
+  +Guid? ChapterId
+}
+class HttpCurrentUser
+class CurrentRolesMiddleware {
+  +{static} ItemKey: string
+  +InvokeAsync(context: HttpContext, caps: ProfileCapabilities): Task
+}
+class ProfileCapabilities {
+  +OfAsync(profileId: Guid): Task<IReadOnlySet<string>>
+}
+class AuthorizationRules <<static>> {
+  +{static} IsOverride(actor: ICurrentUser, capability: string): bool
+}
+class RoleDefinition {
+  +Guid Id
+  +Guid OrganisationId
+  +string Name
+  +IReadOnlySet<string> Capabilities
+  +DateTimeOffset? ArchivedAt
+}
+class Profile {
+  +Guid Id
+  +Guid OrganisationId
+  +IReadOnlyCollection<ProfileRole> Roles
+  +IReadOnlyList<object> DomainEvents
+  +RemoveRole(definitionId: Guid, chapterId: Guid?, lost: IEnumerable<string>): void
+}
+class ProfileRole {
+  +Guid ProfileId
+  +Guid RoleDefinitionId
+  +Guid? ChapterId
+  +Guid GrantedBy
+  +DateTime GrantedAtUtc
+}
+class CapabilityLost <<record>> {
+  +Guid ProfileId
+  +string Capability
+}
+class CapabilityLossDetector {
+  +LostAsync(profileIds: IEnumerable<Guid>, removed: IEnumerable<string>): Task<IReadOnlyList<CapabilityLost>>
+}
+class CapabilityLostHandler {
+  +HandleAsync(lost: CapabilityLost): Task
+  +QueueEmailsAsync(): Task
+}
+class OrganisationAdminRoster {
+  +{static} LeaseLength: TimeSpan
+  +Guid OrganisationId
+  +Guid Version
+  +Guid? LeaseHolder
+  +DateTimeOffset? LeaseExpiresAt
+  +TryTake(holder: Guid, now: DateTimeOffset): bool
+  +Release(): void
+}
+class LastAdministratorGuard {
+  +{static} LastAdministratorMessage: string
+  +{static} ConcurrentChangeMessage: string
+  +TakeLeaseAsync(): Task<OrganisationAdminRoster?>
+  +WouldLeaveNoneAsync(excludingProfile: Guid?, excludingDefinition: Guid?): Task<bool>
+}
+class "Feature access classes" as access {
+  EventPermissions
+  WorkspaceAccessPolicy
+  ContactAccess
+  PartnerAccess
+  ReportAccess
+  ResourceAccess
+  NoteAccess
+}
+ICurrentUser <|.. HttpCurrentUser
+ICurrentUser --> HeldRole
+CurrentRolesMiddleware ..> ProfileCapabilities : computes set
+CurrentRolesMiddleware ..> HttpCurrentUser : fills via HttpContext.Items
+ProfileCapabilities ..> RoleDefinition : unions
+Capability --> CapabilityInfo
+RoleDefinition ..> Capability : carries keys of
+Profile "1" *-- "*" ProfileRole
+ProfileRole --> RoleDefinition
+Profile ..> CapabilityLost : raises
+CapabilityLossDetector ..> ProfileCapabilities
+CapabilityLossDetector ..> CapabilityLost : produces
+CapabilityLostHandler ..> CapabilityLost : handles OwnWorkspaces
+AuthorizationRules ..> ICurrentUser
+access ..> ICurrentUser : Has(capability)
+access ..> AuthorizationRules : IsOverride
+LastAdministratorGuard --> OrganisationAdminRoster : takes lease
+@enduml

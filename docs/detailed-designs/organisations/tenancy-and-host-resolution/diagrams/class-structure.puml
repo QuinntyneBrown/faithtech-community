@@ -1,0 +1,97 @@
+@startuml
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 8
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam class {
+  BorderColor #344054
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+title Class structure — Tenancy and host resolution
+enum OrganisationStatus {
+  Provisioning
+  Active
+  Suspended
+}
+class Organisation {
+  +Guid Id
+  +string Slug
+  +string Host
+  +string Name
+  +string ShortName
+  +string? ChapterLabelSingular
+  +string? ChapterLabelPlural
+  +OrganisationStatus Status
+  +string? SuspendedReason
+  +DateTime? SuspendedAtUtc
+  +DateTime CreatedAtUtc
+  +Rename(name: string, shortName: string): void
+  +SetChapterLabel(singular: string?, plural: string?): void
+  +Suspend(reason: string, nowUtc: DateTime): void
+  +Lift(): void
+}
+interface IOrganisationScoped {
+  +Guid OrganisationId
+}
+class Profile
+class Event
+class AuditEntry
+interface ICurrentOrganisation {
+  +Guid Id
+  +string Slug
+  +string Name
+  +string ShortName
+  +string Host
+  +string Origin
+  +ChapterLabel? ChapterLabel
+  +OrganisationStatus Status
+}
+interface IOrganisationResolver {
+  +ResolveByHostAsync(host: string): Task<Organisation?>
+}
+class HttpCurrentOrganisation
+class OrganisationScope {
+  +RunAs(organisationId: Guid): IDisposable
+}
+class OrganisationResolutionMiddleware {
+  +InvokeAsync(context: HttpContext): Task
+}
+class SystemPages {
+  +WriteUnknownHostAsync(context: HttpContext): Task
+  +WriteSuspendedAsync(context: HttpContext): Task
+}
+class PlatformOptions {
+  +string? DefaultOrganisationSlug
+  +string[] Operators
+}
+class MarketingSiteOptions {
+  +IDictionary<string, MarketingSite> Sites
+}
+class MarketingSite {
+  +string OrganisationSlug
+  +string Headline
+  +string BrochureUrl
+  +string Footer
+}
+class CommunityDbContext {
+  -Guid _organisationId
+  +SaveChangesAsync(): Task<int>
+  #OnModelCreating(builder: ModelBuilder): void
+}
+Organisation --> OrganisationStatus : has
+IOrganisationScoped <|.. Profile
+IOrganisationScoped <|.. Event
+IOrganisationScoped <|.. AuditEntry
+ICurrentOrganisation <|.. HttpCurrentOrganisation
+ICurrentOrganisation <|.. OrganisationScope
+OrganisationResolutionMiddleware --> IOrganisationResolver : resolves host
+OrganisationResolutionMiddleware --> SystemPages : renders
+OrganisationResolutionMiddleware ..> PlatformOptions : default slug
+OrganisationResolutionMiddleware ..> MarketingSiteOptions : public hosts
+MarketingSiteOptions "1" *-- "*" MarketingSite
+IOrganisationResolver ..> Organisation : returns
+CommunityDbContext --> ICurrentOrganisation : filters and stamps by
+CommunityDbContext ..> IOrganisationScoped : applies to
+@enduml

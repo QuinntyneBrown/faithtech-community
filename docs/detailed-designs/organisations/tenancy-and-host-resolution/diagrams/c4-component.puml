@@ -1,0 +1,42 @@
+@startuml
+!include <C4/C4_Component>
+LAYOUT_WITH_LEGEND()
+title Components — Tenancy and host resolution
+Container_Boundary(api, "FaithTech.Community.Api") {
+  Component(gate, "PrivatePreviewGateMiddleware", "Middleware", "Platform-wide wall, unchanged")
+  Component(resolve, "OrganisationResolutionMiddleware", "Middleware", "Host to organisation; 404 unknown, 503 suspended; sets HttpContext.Items")
+  Component(pages, "SystemPages", "Embedded unknown-host.html and suspended.html", "Neutral pages, nonce CSP")
+  Component(sites, "StaticSitesSetup", "Middleware", "Community or marketing build by host kind")
+  Component(cors, "WebProtectionSetup", "CORS policy", "Current organisation's community and public origins only")
+  Component(cur, "HttpCurrentOrganisation", "ICurrentOrganisation", "Reads the resolved organisation from the request")
+  Component(site, "SiteEndpoints", "Minimal API, anonymous", "GET /api/site: name, short name, chapter label, marketing entry")
+  Component(hub, "AgileHub", "SignalR", "Groups named {organisationId}:board:{id}")
+}
+Container_Boundary(app, "FaithTech.Community.Application") {
+  Component(icur, "ICurrentOrganisation", "Abstraction", "Id, slug, name, short name, host, origin, chapter label, status")
+  Component(resolver, "IOrganisationResolver", "Abstraction", "ResolveByHostAsync(host)")
+  Component(scope, "OrganisationScope", "Scoped service", "Ambient organisation for workers and the Cli")
+  Component(opts, "PlatformOptions and MarketingSiteOptions", "Options", "Platform:DefaultOrganisationSlug, Marketing:Sites")
+}
+Container_Boundary(infra, "FaithTech.Community.Infrastructure") {
+  ComponentDb(ctx, "CommunityDbContext", "EF Core", "Global filter on OrganisationId; stamps added scoped entities on save")
+  Component(blob, "AzureBlobPhotoStorage and AzureBlobFileStorage", "Storage", "Keys prefixed {organisationId}/")
+  Component(mail, "EmailOutbox and EmailTemplateRenderer", "Email", "Organisation name as sender, footer and link origin")
+  Component(ics, "IcsCalendarWriter", "Calendar", "PRODID and organiser from the organisation")
+}
+Rel(gate, resolve, "Then, when unlocked")
+Rel(resolve, resolver, "Resolves the host with")
+Rel(resolve, opts, "Reads default slug and public hosts")
+Rel(resolve, pages, "Renders for unknown or suspended")
+Rel(resolve, sites, "Then, for a resolved host")
+Rel(sites, cors, "Then, for API paths")
+Rel(cur, icur, "Realises")
+Rel(scope, icur, "Realises outside a request")
+Rel(ctx, icur, "Filters and stamps by")
+Rel(blob, icur, "Prefixes keys by")
+Rel(mail, scope, "Sets per outbox row")
+Rel(ics, icur, "Names the organiser from")
+Rel(site, icur, "Answers from")
+Rel(hub, icur, "Scopes groups by")
+Rel(resolver, ctx, "Reads Organisations by Host")
+@enduml

@@ -1,0 +1,42 @@
+@startuml
+!include <C4/C4_Component>
+LAYOUT_WITH_LEGEND()
+title Components — Platform operations
+Container_Boundary(api, "FaithTech.Community.Api") {
+  Component(ep, "PlatformEndpoints", "Minimal API group /api/platform", "organisations, suspend, lift, accounts lock and unlock, audit")
+  Component(filter, "RequireOperator", "Endpoint filter", "Empty 404 for any caller not in Platform:Operators")
+}
+Container_Boundary(cli, "FaithTech.Community.Cli") {
+  Component(org, "org commands", "CliApp", "create, suspend, lift, audit; --operator required")
+}
+Container_Boundary(app, "FaithTech.Community.Application/Organisations/Platform") {
+  Component(ops, "IPlatformOperators", "Abstraction over PlatformOptions", "IsOperator(email)")
+  Component(prov, "ProvisionOrganisationHandler", "Handler", "Validate, idempotent, defaults, roster, break-glass invite")
+  Component(susp, "SuspendOrganisationHandler and LiftOrganisationHandler", "Handlers", "Status, revoke the organisation's sessions, audit")
+  Component(lock, "LockAccountHandler", "Handler", "IsLocked on the account, revoke everything, audit")
+  Component(audit, "IPlatformAuditLog", "Abstraction", "Record(action, slug, target, details)")
+  Component(scope, "OrganisationScope", "Scoped service", "RunAs(new organisation) while writing its defaults")
+  Component(revoke, "ITokenRevocation", "Abstraction", "RevokeOrganisationAsync, RevokeAllAsync")
+}
+Container_Boundary(infra, "FaithTech.Community.Infrastructure") {
+  ComponentDb(ctx, "CommunityDbContext", "EF Core", "Organisations, PlatformAuditEntries (no filter), scoped defaults")
+  Component(outbox, "OutboxEmailQueue", "Email", "Sends the invite under the new organisation; skips suspended organisations")
+}
+Rel(ep, filter, "Guarded by")
+Rel(filter, ops, "IsOperator(caller email)")
+Rel(org, ops, "IsOperator(--operator)")
+Rel(ep, prov, "POST organisations")
+Rel(org, prov, "org create")
+Rel(ep, susp, "suspend, lift")
+Rel(org, susp, "org suspend, org lift")
+Rel(ep, lock, "lock, unlock")
+Rel(prov, scope, "RunAs(organisation.Id)")
+Rel(prov, ctx, "Organisation, roles, taxonomies, roster, invite in one save")
+Rel(prov, audit, "organisation.provisioned")
+Rel(susp, revoke, "RevokeOrganisationAsync")
+Rel(susp, audit, "organisation.suspended / lifted")
+Rel(lock, revoke, "RevokeAllAsync")
+Rel(lock, audit, "account.locked / unlocked")
+Rel(audit, ctx, "PlatformAuditEntries")
+Rel(prov, outbox, "Invite email on the new host")
+@enduml

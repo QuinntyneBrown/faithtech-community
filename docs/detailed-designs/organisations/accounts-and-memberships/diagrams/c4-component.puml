@@ -1,0 +1,42 @@
+@startuml
+!include <C4/C4_Component>
+LAYOUT_WITH_LEGEND()
+title Components — Accounts and memberships
+Container_Boundary(web, "Community app (app shell and api library)") {
+  Component(shell, "AppShellComponent", "Angular", "Account menu: roles caption, Switch organisation links")
+  Component(nam, "NotAMemberPage", "Angular", "You're not a member of {organisation}; sign out; other memberships")
+  Component(authsvc, "HttpAuthService", "api library", "Loads /api/me; capabilities and notAMember signals")
+}
+Container_Boundary(api, "FaithTech.Community.Api") {
+  Component(authn, "Authentication (OpenIddict)", "Middleware", "Validates the token; subject is the account")
+  Component(roles, "CurrentRolesMiddleware", "Middleware", "Loads the membership in the current organisation on every request")
+  Component(policy, "Fallback policy with MembershipRequirement", "Authorization", "403 for an authenticated non-member")
+  Component(meep, "MeEndpoints", "Minimal API", "GET /api/me")
+  Component(authz, "AuthorizationEndpoints", "Identity server", "Refuses locked accounts and suspended memberships; stamps authorizations")
+}
+Container_Boundary(app, "FaithTech.Community.Application") {
+  Component(cu, "ICurrentUser", "Abstraction", "UserId, Membership, ProfileId, Capabilities, Has(capability)")
+  Component(me, "MeHandler", "Handler", "Organisation, profile, roles, capabilities, grantable roles, chapter, memberships")
+  Component(signup, "SignUpHandler and EmailVerificationHandler", "Handlers", "Account once; profile in the host organisation")
+  Component(invite, "AcceptInviteHandler", "Handler", "Profile in the inviter's organisation")
+  Component(susp, "SuspensionHandler", "Handler", "Suspends the membership; revokes this organisation's sessions")
+  Component(revoke, "ITokenRevocation", "Abstraction", "RevokeAllAsync(user), RevokeAsync(user, organisation)")
+}
+Container_Boundary(infra, "FaithTech.Community.Infrastructure") {
+  ComponentDb(ctx, "CommunityDbContext", "EF Core", "Profiles filtered by organisation; unique (OrganisationId, UserId)")
+}
+Rel(shell, authsvc, "Reads currentUser and memberships")
+Rel(nam, authsvc, "Reads notAMember")
+Rel(authsvc, meep, "GET /api/me")
+Rel(authn, roles, "Then")
+Rel(roles, ctx, "Profile where UserId = subject, in the current organisation")
+Rel(roles, policy, "Then")
+Rel(policy, meep, "Admits members; /api/me admits non-members")
+Rel(meep, me, "Dispatches")
+Rel(me, cu, "Reads membership")
+Rel(me, ctx, "Other memberships of the account")
+Rel(signup, ctx, "Creates account and profile")
+Rel(invite, ctx, "Creates profile")
+Rel(susp, revoke, "RevokeAsync(user, organisation)")
+Rel(authz, ctx, "Checks IsLocked and the membership's IsSuspended")
+@enduml

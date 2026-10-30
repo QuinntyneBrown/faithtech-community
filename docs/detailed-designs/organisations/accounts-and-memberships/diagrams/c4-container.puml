@@ -1,0 +1,14 @@
+@startuml
+!include <C4/C4_Container>
+LAYOUT_WITH_LEGEND()
+title Containers — Accounts and memberships
+Person(member, "Member", "Browser on app.{organisation A} and app.{organisation B}")
+System_Boundary(platform, "FaithTech Community platform") {
+  Container(web, "Community app", "Angular", "Shell: account menu with Switch organisation, not-a-member page; api library loads /api/me")
+  Container(api, "Community API and identity server", "ASP.NET Core, OpenIddict", "CurrentRolesMiddleware loads the membership; MeHandler; authorizations stamped per organisation")
+  ContainerDb(db, "Community database", "PostgreSQL", "AspNetUsers (global) and Profiles (OrganisationId, UserId)")
+}
+Rel(member, web, "Uses on each organisation host", "HTTPS")
+Rel(web, api, "PKCE sign-in per host; GET /api/me", "JSON/HTTPS")
+Rel(api, db, "Reads the account and the profile in the current organisation", "EF Core")
+@enduml

@@ -1,0 +1,57 @@
+@startuml
+title UML sequence behaviour — Render organisation copy
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+actor "Member" as actor
+box "Frontend — community app (app shell and api library)" #E0F2FE
+  participant "AppShellComponent" as shell
+  participant "OrganisationTitleStrategy" as title
+  participant "AuthService" as auth
+end box
+box "Backend — FaithTech.Community.Api" #D1FADF
+  participant "MeEndpoints" as me
+  participant "HttpCurrentOrganisation" as cur
+end box
+box "Backend — FaithTech.Community.Application" #ECFDF3
+  participant "Feature handler" as handler
+  participant "OrganisationScope" as scope
+end box
+box "Backend — FaithTech.Community.Infrastructure" #FFF4E5
+  participant "OutboxEmailQueue" as outbox
+  participant "EmailTemplateRenderer" as renderer
+  database "Community database" as db
+end box
+participant "Email provider" as mail
+actor -> shell : App loads or restores the session
+shell -> auth : loadCurrentUser()
+auth -> me : GET /api/me
+me -> cur : Name, short name, chapter label, origin
+me --> auth : organisation { name, shortName, chapterLabel, host } (L2-133 #1)
+auth --> shell : currentUser
+shell -> shell : Top bar product name = short name (L2-133 #2)
+shell -> title : Route activates
+title --> actor : Document title "{page} · {short name}" (L2-134 #2)
+shell --> actor : Copy reads "{name}" and "{short name}", never a constant (L2-134 #1)
+== An email, later, outside any request ==
+handler -> outbox : Queue message; row stamped with OrganisationId (L2-130 #1)
+outbox -> db : Load due rows with their OrganisationId
+db --> outbox : Row
+outbox -> scope : RunAs(row.OrganisationId)
+outbox -> renderer : Render(message)
+renderer -> scope : Name, short name, origin
+renderer --> outbox : Sender "{name}", subject prefix, footer, links on https://{host}, "Open in {short name}" (L2-130 #6, L2-134 #5)
+outbox -> mail : Send
+mail --> outbox : Accepted
+@enduml

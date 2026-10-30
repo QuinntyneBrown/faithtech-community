@@ -1,0 +1,48 @@
+@startuml
+title UML sequence behaviour — Migrate existing data
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+actor "Deployment operator" as actor
+box "Backend — FaithTech.Community.Cli" #D1FADF
+  participant "CliApp" as cli
+end box
+box "Backend — FaithTech.Community.Infrastructure" #FFF4E5
+  participant "OrganisationsAndCapabilities migration" as mig
+  participant "FaithTechSeed" as seed
+  database "Community database" as db
+end box
+actor -> cli : faithtech-community migrate
+cli -> mig : Database.Migrate() applies pending migrations in one transaction
+mig -> db : Create Organisations, RoleDefinitions, RoleCapabilities, RoleGrantRules, Chapters, PartnerStages, EventTypes, ResourceTypes, OrganisationAdminRosters
+mig -> seed : Fixed ids and keys
+mig -> db : Insert FaithTech organisation, definitions, grant rules, stages, event types, resource types
+mig -> db : Add OrganisationId to every scoped table; backfill FaithTech id; set NOT NULL (L2-151 AC4)
+mig -> db : Recreate unique indexes with OrganisationId first (L2-130 AC4)
+mig -> db : ProfileRoles: add RoleDefinitionId, ChapterId; map Role value to definition of the same name; drop Role (L2-151 AC4)
+mig -> db : ResourceShareRoles, NoteShareRoles, announcement audiences: map Role value to definition id
+mig -> db : Partners.Stage, Events.Type, Resources.Type: map enumeration value to entry of the same name; drop column (L2-151 AC4)
+mig -> db : Distinct trimmed, case-folded HomeCity and Events.City values
+db --> mig : Values
+mig -> db : Insert one Chapter per value; set Profiles.ChapterId and Events.ChapterId on exact match (L2-141 AC6)
+mig -> mig : Unmatched values set to none and written to the migration log
+mig -> db : Drop HomeCity and City; IX_Profiles_HomeCity becomes IX_Profiles_ChapterId
+mig -> db : Move SystemAdminRosters singleton to OrganisationAdminRosters(FaithTech); drop SystemAdminRosters
+mig -> db : Leave OpenIddict tables untouched; web client keeps https://app.faithtech.community (L2-151 AC4)
+db --> mig : Commit
+mig --> cli : Applied
+cli --> actor : Exit 0; migration log lists unmatched cities
+== Next request to the API ==
+actor -> db : CurrentRolesMiddleware computes a City Lead's capabilities from the city-lead definition (L2-151 AC5)
+@enduml

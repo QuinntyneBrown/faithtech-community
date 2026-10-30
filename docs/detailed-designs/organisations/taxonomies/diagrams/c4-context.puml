@@ -1,0 +1,12 @@
+@startuml
+!include <C4/C4_Context>
+LAYOUT_WITH_LEGEND()
+title System Context — Taxonomies
+Person(settings, "Settings holder", "Holds ManageOrganisationSettings; defines stages and types")
+Person(lead, "Partner manager", "Holds ManagePartners; moves partners across the organisation's stages")
+Person(member, "Member", "Picks event and resource types and filters by them")
+System(community, "FaithTech Community", "Multi-organisation community platform; FaithTech is the first organisation")
+Rel(settings, community, "Defines partner stages, event types and resource types using")
+Rel(lead, community, "Moves partners between stages using")
+Rel(member, community, "Picks and filters by type using")
+@enduml
