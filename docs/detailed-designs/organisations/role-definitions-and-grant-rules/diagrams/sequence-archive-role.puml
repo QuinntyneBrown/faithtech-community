@@ -1,0 +1,78 @@
+@startuml
+title UML sequence behaviour — Archive a role
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+actor "Holder of ManageRoles" as actor
+box "Frontend — Community web app (organisations and components libraries)" #E0F2FE
+  participant "RolesPage" as page
+  participant "ArchiveRoleDialogComponent" as dlg
+end box
+box "Frontend — Community web app (api library)" #E0F2FE
+  participant "HttpRoleDefinitionsService" as svc
+end box
+box "Backend — FaithTech.Community.Api" #D1FADF
+  participant "RoleDefinitionsEndpoints" as ep
+end box
+box "Backend — FaithTech.Community.Application and Domain" #ECFDF3
+  participant "ArchiveRoleDefinitionHandler" as h
+  participant "LastAdministratorGuard" as guard
+  participant "RoleDefinition" as def
+end box
+box "Backend — FaithTech.Community.Infrastructure" #FFF4E5
+  participant "AuditLog" as audit
+  database "Community database" as db
+end box
+actor -> page : Choose "Archive" on a definition
+page -> dlg : Open with the role name and submit
+actor -> dlg : Confirm
+dlg -> page : submit()
+page -> svc : archive(id)
+svc -> ep : POST /api/organisation/roles/{id}/archive (HANDLES_FORBIDDEN)
+ep -> h : HandleAsync(id)
+alt caller lacks ManageRoles (L2-136 AC8)
+  h --> ep : Forbidden
+  ep --> svc : 403
+else
+  h -> db : Definition in the current organisation; count active holders; grant rules, share audiences and announcement audiences naming it
+  alt holders remain (L2-136 AC4)
+    h --> ep : Conflict "{n} members hold this role. Remove it from them first."
+    ep --> svc : 409 ProblemDetails
+  else still referenced (L2-136 AC4)
+    h --> ep : Conflict naming the grant rule, share audience or announcement audience
+    ep --> svc : 409 ProblemDetails
+  else unused
+    opt definition carries AdministerOrganisation (L2-136 AC5, L2-139 AC1, AC2)
+      h -> guard : TakeLeaseAsync()
+      guard --> h : Roster, or null for 409 "Someone else changed administrator roles at the same time. Reload and try again."
+      h -> guard : WouldLeaveNoneAsync(excludingDefinition: id)
+      guard --> h : true for 409 "There must always be at least one administrator."
+    end
+    h -> def : Archive(now)
+    h -> audit : Record(actor, "role.archived", "RoleDefinition", id, before, after) under roles (L2-152)
+    h -> guard : Release()
+    h -> db : Save changes in one unit of work
+    h --> ep : Ok
+    ep --> svc : 204
+  end
+end
+svc --> page : Result or error
+alt archived
+  page --> dlg : null
+  dlg --> actor : Close; success toast; the role leaves the list and every picker
+else refused
+  page --> dlg : Message
+  dlg --> actor : Show the reason; dialog stays open
+end
+@enduml

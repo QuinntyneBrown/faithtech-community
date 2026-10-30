@@ -2,8 +2,8 @@
 !include <C4/C4_Container>
 LAYOUT_WITH_LEGEND()
 title Containers — Suspend users
-Person(admin, "System Admin", "Holds full override across the site")
-System_Boundary(community, "FaithTech Community") {
+Person(admin, "Administrator", "Holds AdministerOrganisation; overrides any record, audited")
+System_Boundary(community, "Community platform") {
   Container(web, "Web app", "Angular", "Shell, admin feature library, api and components libraries")
   Container(api, "Community API", "ASP.NET Core", "FaithTech.Community.Api with Application, Domain and Infrastructure")
   ContainerDb(db, "Community database", "PostgreSQL", "Profiles, roles, contacts, partners and audit log")

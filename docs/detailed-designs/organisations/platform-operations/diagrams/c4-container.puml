@@ -1,0 +1,18 @@
+@startuml
+!include <C4/C4_Container>
+LAYOUT_WITH_LEGEND()
+title Containers — Platform operations
+Person(operator, "Platform operator", "Signed in on any active host, or at a terminal")
+System_Boundary(platform, "Community platform") {
+  Container(api, "API container app", "ASP.NET Core", "PlatformEndpoints under /api/platform with RequireOperator; OrganisationResolutionMiddleware answers 503 for a suspended host")
+  Container(cli, "Cli job", "FaithTech.Community.Cli", "org create, org suspend, org lift, org audit; seed provisions FaithTech")
+  ContainerDb(db, "Community database", "PostgreSQL", "Organisations, PlatformAuditEntries (unscoped), scoped defaults per organisation")
+}
+Container_Ext(mail, "Email provider", "SMTP", "First-administrator invite")
+Rel(operator, api, "POST /api/platform/...", "JSON/HTTPS")
+Rel(operator, cli, "org ... --operator <email>", "terminal")
+Rel(api, db, "Provisions, suspends, lifts, audits", "EF Core")
+Rel(cli, db, "Same handlers, OrganisationScope instead of a request", "EF Core")
+Rel(api, mail, "Invite through the outbox")
+Rel(cli, mail, "Invite through the outbox")
+@enduml

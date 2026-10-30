@@ -4,7 +4,7 @@ LAYOUT_WITH_LEGEND()
 title Containers — Accept an invite
 
 Person(invitee, "Invitee", "Person who received an invite email")
-System_Boundary(ftc, "FaithTech Community") {
+System_Boundary(ftc, "Community platform") {
   Container(spa, "Web app", "Angular", "Shell, invites feature library, api and components libraries")
   Container(api, "Community API", "ASP.NET Core", "FaithTech.Community.Api with Application, Domain and Infrastructure")
   ContainerDb(db, "Community database", "PostgreSQL", "Accounts, profiles, invites and audit log")

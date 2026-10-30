@@ -14,8 +14,8 @@ skinparam package {
   FontColor #101828
   BackgroundColor #F9FAFB
 }
-actor "Lead or System Admin" as actor
-box "Frontend — FaithTech Community web app (contacts library)" #E0F2FE
+actor "Member with KeepContacts or Administrator" as actor
+box "Frontend — Community web app (contacts library)" #E0F2FE
   participant "ContactFormPage" as page
   participant "HttpContactsService" as svc
 end box
@@ -36,12 +36,12 @@ page -> svc : findDuplicate(email, excludeId)
 svc -> ep : GET /api/contacts/duplicates?email=&excludeId=
 ep -> h : Send FindDuplicateContactQuery
 h -> acc : CanKeepContacts and CallerProfileIdAsync
-alt anonymous or no lead role and not System Admin
+alt anonymous or caller lacks KeepContacts
   acc --> h : refused
   h --> ep : Forbidden
   ep --> svc : 401 or 403 (L2-116 AC8)
   svc --> page : Error; no warning
-else lead or System Admin
+else holder of KeepContacts
   acc --> h : caller profile id
   h -> db : Contacts where OwnerId = caller and lower(Email) = lower(trim(email)) and Id <> excludeId, active or archived (L2-116 AC1, AC6)
   db --> h : Oldest match with note count, or none
@@ -50,7 +50,7 @@ else lead or System Admin
     ep --> svc : 200 OK
     svc --> page : Match
     page --> actor : Warning alert with Open {name}; save reads "Save as a new contact" (L2-116 AC2)
-  else no own match, including another lead's contact
+  else no own match, including another member's contact
     h --> ep : No match
     ep --> svc : 204 No Content (L2-116 AC5)
     svc --> page : null

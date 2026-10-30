@@ -14,8 +14,8 @@ skinparam package {
   FontColor #101828
   BackgroundColor #F9FAFB
 }
-actor "Event Lead / City Lead" as actor
-box "Frontend — FaithTech Community web app (events library)" #E0F2FE
+actor "Member with ManageEvents" as actor
+box "Frontend — Community platform web app (events library)" #E0F2FE
   participant "EventFormPage" as page
   participant "HttpEventsService" as svc
 end box
@@ -38,15 +38,15 @@ page -> svc : createEvent(request)
 svc -> ep : POST /api/events
 ep -> ep : Require authenticated user
 ep -> h : Send CreateEventCommand
-h -> perm : CanManageEvents(currentUser)
-alt not Event Lead, City Lead or System Admin
+h -> perm : CanManageEvents: Has(ManageEvents) (L2-135 AC2)
+alt caller lacks ManageEvents
   perm --> h : false
   h --> ep : Forbidden
-  ep --> svc : 403 ProblemDetails (L2-020)
+  ep --> svc : 403 ProblemDetails (L2-020 AC3)
   svc --> page : Error
   page --> actor : Show permission error
 else permitted
-  h -> val : Validate (L2-020 date, venue, link rules)
+  h -> val : Validate (L2-020 date, venue, link rules; type from the organisation's list, L2-145 AC2)
   alt invalid
     val --> h : Field errors
     h --> ep : Validation failure
@@ -54,7 +54,10 @@ else permitted
     svc --> page : Field errors
     page --> actor : Inline errors, focus first invalid field
   else valid
-    h -> ev : new Event(...)
+    h -> ev : new Event(...) with the organisation, type and optional chapter (L2-141 AC2)
+    opt allowed only by AdministerOrganisation
+      h -> db : Record audit entry event.created (L2-135 AC5)
+    end
     h -> db : Insert event
     db --> h : Committed
     h --> ep : Event id

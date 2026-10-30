@@ -15,7 +15,7 @@ skinparam package {
   BackgroundColor #F9FAFB
 }
 actor "Account holder" as actor
-box "Frontend — FaithTech Community web app (faithtech-community library)" #E0F2FE
+box "Frontend — Community web app (faithtech-community library)" #E0F2FE
   participant "VerifyEmailPage" as page
   participant "AuthService" as client
 end box
@@ -35,7 +35,7 @@ client -> ep : POST /api/account/confirm-email
 ep -> h : Send ConfirmEmailCommand
 h -> db : Load user and token state
 alt token valid and younger than 24 hours
-  h -> db : Set EmailConfirmed = true (L2-002)
+  h -> db : Set EmailConfirmed = true (L2-002); add a profile in ICurrentOrganisation when missing (L2-132 #1)
   h --> ep : Confirmed
   ep --> client : 204 No Content
   page --> actor : Navigate to sign in (L2-002)

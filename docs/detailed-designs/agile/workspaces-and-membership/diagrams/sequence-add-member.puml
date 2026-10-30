@@ -15,7 +15,7 @@ skinparam package {
   BackgroundColor #F9FAFB
 }
 actor "Workspace owner" as actor
-box "Frontend — FaithTech Community web app (agile library)" #E0F2FE
+box "Frontend — Community platform web app (agile library)" #E0F2FE
   participant "WorkspaceSettingsPage" as page
   participant "AddWorkspaceMembersDialog" as dlg
   participant "AgileService (AGILE_SERVICE)" as svc
@@ -43,7 +43,7 @@ svc -> ep : GET /api/workspaces/{id}/candidates
 ep -> h : CandidatesAsync(id)
 h -> pol : AuthorizeAsync(id, manage: true)
 pol --> h : workspace, caller
-h --> ep : Non-suspended lead or volunteer profiles not yet in the workspace (L2-031 AC2)
+h --> ep : Non-suspended profiles holding JoinWorkspaces not yet in the workspace (L2-031 AC2)
 ep --> dlg : 200 MemberCandidateDto[]
 actor -> dlg : Select one or more profiles
 dlg -> svc : addMembers(workspaceId, profileIds)
@@ -54,22 +54,22 @@ h -> pol : AuthorizeAsync(id, manage: true)
 pol -> ctx : Load workspace with members
 ctx -> db : SELECT
 db --> ctx : Rows
-pol -> pol : Classify: Owner → Admin → Member → Staff → Outsider
+pol -> pol : Classify: Owner → Admin → Member → Reader → Outsider
 alt outsider or unknown workspace
 pol --> h : NotFound (L2-031 AC6)
 h --> ep : 404
-else member who is not the owner, or Staff
+else member who is not the owner, or Reader
 pol --> h : Forbidden (L2-031 AC4, AC5)
 h --> ep : 403
-else owner or System Admin (CanManage)
+else owner or administrator (CanManage)
 pol --> h : workspace, caller
 h -> mem : AddMembersAsync(workspace, caller.ProfileId, profileIds)
 mem -> ctx : Load profiles
-alt every profile holds a lead or volunteer role and is not suspended
+alt every profile holds JoinWorkspaces and is not suspended
 mem -> ent : AddMember(profile, now) for each
 mem -> ntf : Notify(WorkspaceMemberAdded, /workspaces/{id}) for each
 mem --> h : added ids
-opt caller is System Admin override (L2-031 AC7)
+opt caller is an AdministerOrganisation override (L2-031 AC7, L2-135 AC5)
 h -> pol : AuditOverride("workspace.member.added")
 pol -> audit : Record
 end

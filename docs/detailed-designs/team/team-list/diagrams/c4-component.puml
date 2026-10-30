@@ -3,13 +3,13 @@
 LAYOUT_WITH_LEGEND()
 title Components — Team list
 Container_Boundary(web, "Web app") {
-  Component(page, "TeamPage", "Angular page", "Lists team members with a role filter")
+  Component(page, "TeamPage", "Angular page", "Lists team members with role and {chapter} filters")
   Component(svc, "HttpTeamService", "Angular service", "Implements TeamService")
 }
 Container_Boundary(api, "Community API") {
   Component(ep, "TeamEndpoints", "ASP.NET Core minimal API", "GET /api/team")
-  Component(h, "ListTeamHandler", "Application handler", "Derives team from roles")
-  Component(roles, "TeamRoles", "Domain constant", "Lead and volunteer roles")
+  Component(h, "ListTeamHandler", "Application handler", "Derives team from roles flagged ShowOnTeam")
+  Component(roles, "RoleDefinition", "Domain entity (Organisations)", "ShowOnTeam flag on the organisation's roles")
   ComponentDb(db, "CommunityDbContext", "PostgreSQL", "EF Core context over the Community database")
 }
 Rel(page, svc, "Calls")

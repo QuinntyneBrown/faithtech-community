@@ -4,9 +4,9 @@ LAYOUT_WITH_LEGEND()
 title System Context — Image blocks
 Person(owner, "Page owner", "Adds images with alt text")
 Person(reader, "Reader", "Sees images of pages visible to them")
-System(community, "FaithTech Community", "Stores and streams note images under page visibility")
+System(community, "Community platform", "Stores and streams note images under page visibility")
 System_Ext(blob, "Azure Blob storage", "Private container behind IFileStorage")
 Rel(owner, community, "Uploads JPEG, PNG or WebP up to 5 MB using", "HTTPS")
 Rel(reader, community, "Views images using", "HTTPS")
-Rel(community, blob, "Saves and reads notes/{pageId}/{imageId}.{ext}", "HTTPS")
+Rel(community, blob, "Saves and reads {organisationId}/notes/{pageId}/{imageId}.{ext}", "HTTPS")
 @enduml

@@ -14,8 +14,8 @@ skinparam package {
   FontColor #101828
   BackgroundColor #F9FAFB
 }
-actor "Lead" as actor
-box "Frontend — FaithTech Community web app (partners library)" #E0F2FE
+actor "Member with ManagePartners" as actor
+box "Frontend — Community web app (partners library)" #E0F2FE
   participant "PartnerPage" as page
   participant "LogActivityDialog" as dlg
   participant "HttpPartnersService" as svc
@@ -49,8 +49,8 @@ else valid
     svc --> dlg : Field errors
   else valid body
     ep -> h : LogAsync(id, command)
-    h -> acc : CanWrite
-    alt Staff or no lead role
+    h -> acc : CanWrite: Has(ManagePartners)
+    alt lacks ManagePartners
       h --> ep : Forbidden (L2-112 AC2, AC3)
       ep --> svc : 403
     else permitted
@@ -62,7 +62,7 @@ else valid
       else active
         h -> h : PartnerActivity.Log(..., caller, nowUtc) (L2-110 AC2)
         h -> acc : AuditAdminWrite(actor, partner, "partner.activity.logged")
-        acc -> audit : Record, only for a System Admin without a lead role (L2-112 AC5)
+        acc -> audit : Record, only on override by AdministerOrganisation without ManagePartners (L2-112 AC5)
         h -> db : Insert PartnerActivity (and audit entry) in one SaveChanges
         h -> views : ToDto(activity)
         ep --> svc : 201 PartnerActivityDto

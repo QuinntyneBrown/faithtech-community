@@ -6,8 +6,8 @@ Container_Boundary(api, "Community API") {
   Component(ep, "AnnouncementsEndpoints", "Minimal API", "Maps /api/announcements routes")
   Component(val, "SendAnnouncementValidator", "Validator", "Subject, body and AudienceRequest")
   Component(send, "SendAnnouncementHandler", "Application handler", "CountAsync and SendAsync: authorizes, stores and fans out")
-  Component(access, "AnnouncementAccess", "Application service", "CanSend: Communications Lead or System Admin")
-  Component(aud, "AudienceResolver", "Application service", "Resolves audience to recipient ids")
+  Component(access, "AnnouncementAccess", "Application service", "CanSend: Has(SendAnnouncements)")
+  Component(aud, "AudienceResolver", "Application service", "Resolves audience to recipient ids within the organisation")
   Component(pub, "INotificationPublisher", "Application service", "In-app notification and email")
   ComponentDb(db, "CommunityDbContext", "EF Core", "announcements, recipients, outbox")
 }

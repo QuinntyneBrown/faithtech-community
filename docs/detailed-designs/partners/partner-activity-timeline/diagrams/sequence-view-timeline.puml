@@ -14,8 +14,8 @@ skinparam package {
   FontColor #101828
   BackgroundColor #F9FAFB
 }
-actor "Lead, Staff or System Admin" as actor
-box "Frontend — FaithTech Community web app (partners library)" #E0F2FE
+actor "Member with ViewPartners" as actor
+box "Frontend — Community web app (partners library)" #E0F2FE
   participant "PartnerPage" as page
   participant "PartnerTimelineComponent" as tl
   participant "HttpPartnersService" as svc
@@ -38,8 +38,8 @@ page -> tl : Render with partnerId, All chip pressed (L2-111 AC3)
 tl -> svc : activities(id)
 svc -> ep : GET /api/partners/{id}/activities
 ep -> h : ListAsync(id, kind: null, before: null)
-h -> acc : CanRead
-alt not a lead, Staff or System Admin
+h -> acc : CanRead: Has(ViewPartners) or Has(ManagePartners)
+alt lacks ViewPartners
   ep --> svc : 403 (L2-112 AC3)
 else anonymous
   ep --> svc : 401 (L2-112 AC4)
@@ -50,7 +50,7 @@ else permitted
   ep --> svc : 200 {items, before}
   svc --> tl : Page
   alt no items
-    tl --> actor : Empty state with Log activity for leads (L2-111 AC5)
+    tl --> actor : Empty state with Log activity for holders of ManagePartners (L2-111 AC5)
   else items
     tl --> actor : Same shared entries for every reader (L2-111 AC1);\ntype in text beside its icon (L2-111 AC9)
   end

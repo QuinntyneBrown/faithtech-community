@@ -13,6 +13,7 @@ title Class structure — Possible duplicate contact
 
 class Contact <<Domain entity>> {
   +Guid Id
+  +Guid OrganisationId
   +Guid OwnerId
   +string Name
   +string? Email

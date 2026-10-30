@@ -15,7 +15,7 @@ skinparam package {
   BackgroundColor #F9FAFB
 }
 actor "Workspace member" as actor
-box "Frontend — FaithTech Community web app (agile library)" #E0F2FE
+box "Frontend — Community platform web app (agile library)" #E0F2FE
   participant "WorkItemPage" as page
   participant "AgileService (AGILE_SERVICE)" as svc
 end box
@@ -42,7 +42,7 @@ svc -> ep : POST /api/workspaces/{id}/sprints/{sprintId}/stories
 ep -> filt : Validate body (at least one story id)
 filt -> h : AddStoriesAsync(workspaceId, sprintId, command)
 h -> pol : AuthorizeAsync(workspaceId, manage = false)
-pol --> h : Workspace and caller (Staff 403, outsider 404)
+pol --> h : Workspace and caller (Reader 403, outsider 404)
 h -> ctx : Load sprint of this workspace
 ctx -> db : SELECT
 db --> ctx : Sprint or none
@@ -58,7 +58,7 @@ h -> ctx : Load the stories by id, same workspace, Kind = Story
 ctx -> db : SELECT
 db --> ctx : Rows (400 "StoryIds" when any is missing)
 h -> wi : MoveToSprint(sprint): SprintId = sprint.Id (L2-035 AC2)
-h -> pol : AuditOverride(caller, "sprint.stories.added", ...) (System Admin only)
+h -> pol : AuditOverride(caller, "sprint.stories.added", ...) (AdministerOrganisation override only, L2-135 AC5)
 h -> ctx : SaveChangesAsync
 ctx -> db : UPDATE work item
 h --> ep : Result.Ok

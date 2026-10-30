@@ -4,14 +4,18 @@ LAYOUT_WITH_LEGEND()
 title Components — Error and system pages
 Container_Boundary(web, "Web app") {
   Component(router, "Shell routes", "Angular router", "Wildcard to NotFoundPage")
-  Component(int, "httpErrorInterceptor", "api library", "Routes 403 and 500 responses")
-  Component(pages, "NotFoundPage, ForbiddenPage, ServerErrorPage", "Angular app", "System pages")
+  Component(int, "httpErrorInterceptor", "api library", "Routes 403 (forbidden or not-a-member) and 500 responses")
+  Component(pages, "NotFoundPage, ForbiddenPage, ServerErrorPage, NotAMemberPage", "Angular app", "System pages")
   Component(conn, "ConnectivityService", "components library", "online signal")
   Component(banner, "BannerComponent", "components library", "Offline banner")
 }
-Container(api, "Community API", "ASP.NET Core", "Returns status and X-Correlation-ID")
+Container_Boundary(api, "Community API") {
+  Component(org, "OrganisationResolutionMiddleware", "ASP.NET Core middleware", "Unknown-host 404 and suspended 503 pages before the apps (L2-131)")
+  Component(pipe, "API pipeline", "ASP.NET Core", "Returns status and X-Correlation-ID")
+}
 Rel(router, pages, "Routes to")
-Rel(int, api, "Observes responses from")
+Rel(int, pipe, "Observes responses from")
 Rel(int, router, "Navigates via")
+Rel(org, pipe, "Admits resolved hosts to")
 Rel(conn, banner, "Shows/hides")
 @enduml

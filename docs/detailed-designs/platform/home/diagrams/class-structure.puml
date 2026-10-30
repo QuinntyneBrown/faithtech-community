@@ -29,15 +29,25 @@ class Notification {
   +string LinkPath
   +DateTimeOffset CreatedAt
 }
+class PartnerStageDto {
+  +string Key
+  +string Name
+  +int SortOrder
+  +string Kind
+}
 class HomePage {
   -events: EventsService
   -partners: PartnersService
+  -organisation: OrganisationService
   -activity: ActivityService
+  +capabilities: Signal<Capability[]>
   +greeting: string
   +comingUp: EventRow[]
+  +stages: PartnerStageDto[]
   +pipeline: PartnerColumnDto[]
   +feed: ActivityItemDto[]
 }
+HomePage ..> PartnerStageDto : one stat per active stage
 ListActivityHandler --> Notification : reads the caller's
 ListActivityHandler ..> ActivityItemDto : returns
 HomePage ..> ActivityItemDto : shows

@@ -12,7 +12,7 @@ Container_Boundary(api, "Community API") {
   Component(ep, "WorkspacesEndpoints", "Minimal API", "PUT /api/workspaces/{id}/method")
   Component(val, "SwitchMethodValidator", "Application (FluentValidation)", "Scrum or Kanban; run by ValidationEndpointFilter")
   Component(h, "WorkspaceSettingsHandler", "Application", "SwitchMethodAsync: owner only, 409 when unchanged")
-  Component(pol, "WorkspaceAccessPolicy", "Application", "Owner check; audits a System Admin override")
+  Component(pol, "WorkspaceAccessPolicy", "Application", "Owner check; audits an AdministerOrganisation override")
   Component(ws, "Workspace", "Domain entity", "SwitchMethod rules")
   Component(sp, "Sprint", "Domain entity", "Close records points")
   Component(wi, "WorkItem", "Domain entity", "ReturnToBacklog clears SprintId")

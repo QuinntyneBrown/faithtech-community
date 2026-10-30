@@ -10,20 +10,39 @@ skinparam class {
   BackgroundColor #F9FAFB
 }
 title Class structure — Server authorization
+interface ICurrentOrganisation {
+  +Guid Id
+  +string Slug
+  +string Name
+}
+class OrganisationResolutionMiddleware {
+  +InvokeAsync(context: HttpContext): Task
+}
 interface ICurrentUser {
   +Guid? UserId
-  +IReadOnlySet<Role> Roles
+  +IReadOnlyCollection<HeldRole> Roles
+  +IReadOnlySet<string> Capabilities
   +bool IsAuthenticated
-  +HasRole(role: Role): bool
+  +Has(capability: string): bool
 }
 class HttpCurrentUser
+class CurrentRolesMiddleware {
+  +InvokeAsync(context: HttpContext): Task
+}
+class Capability <<static>> {
+  +{static} All: IReadOnlyList<string>
+  +{static} AdministerOrganisation: string
+}
 interface IPermissionFilters {
   +VisibleContacts(q: IQueryable<Contact>, u: ICurrentUser): IQueryable<Contact>
   +VisibleWorkItems(q: IQueryable<WorkItem>, u: ICurrentUser): IQueryable<WorkItem>
 }
 class AuthorizationRules {
-  +CanAssignRole(actor: ICurrentUser, role: Role): bool
-  +CanWrite(actor: ICurrentUser): bool
+  +{static} CanWrite(actor: ICurrentUser, capability: string): bool
+  +{static} IsOverride(actor: ICurrentUser, capability: string): bool
+}
+class CommunityDbContext {
+  +global query filter on ICurrentOrganisation
 }
 enum ResultStatus {
   Ok
@@ -38,8 +57,13 @@ class ResultMapper {
   +ToHttp(r: Result): IResult
 }
 ICurrentUser <|.. HttpCurrentUser
+OrganisationResolutionMiddleware ..> ICurrentOrganisation : sets
+CurrentRolesMiddleware ..> ICurrentOrganisation : loads profile in
+CurrentRolesMiddleware ..> HttpCurrentUser : fills capabilities
+HttpCurrentUser ..> Capability : set of
 IPermissionFilters ..> ICurrentUser : uses
 AuthorizationRules ..> ICurrentUser : uses
+CommunityDbContext ..> ICurrentOrganisation : filters by
 Result --> ResultStatus
 ResultMapper ..> Result : maps
 @enduml

@@ -15,7 +15,7 @@ skinparam package {
   BackgroundColor #F9FAFB
 }
 actor "Owner" as actor
-box "Frontend — FaithTech Community web app (notes library)" #E0F2FE
+box "Frontend — Community web app (notes library)" #E0F2FE
   participant "ShareNoteDialog" as dlg
   participant "HttpNotesService" as svc
 end box
@@ -30,25 +30,25 @@ end box
 box "Backend — FaithTech.Community.Infrastructure" #FFF4E5
   database "Community database" as db
 end box
-actor -> dlg : Share → Shared; pick Hannah Kim; tick Volunteer; Save
-dlg -> svc : setVisibility(id, { visibility: Shared, memberIds, roles })
+actor -> dlg : Share → Shared; pick Hannah Kim; tick a role definition; Save
+dlg -> svc : setVisibility(id, { visibility: Shared, memberIds, roleIds })
 svc -> ep : PUT /api/notes/{id}/visibility
 ep -> h : HandleAsync(id, request)
 h -> db : NoteAccess.FindAsync
 alt not visible
   ep --> svc : 404
-else visible, caller is not owner or System Admin (re-share)
+else visible, caller is not owner or AdministerOrganisation (re-share)
   ep --> svc : 403 (L2-093)
 else archived
   ep --> svc : 400 "Restore this page before you change it."
-else unknown visibility, role not offered or unknown member
+else unknown visibility, role archived or of another organisation, or unknown member
   ep --> svc : 400 field error
 else Shared with no member and no role
   ep --> svc : 400 "Choose at least one person or role, or pick another visibility."
 else may change
   h -> n : before = RecipientsAsync(page)
   h -> h : page.SetAudience(Shared, members, roles)
-  opt System Admin override (L2-098)
+  opt AdministerOrganisation override (L2-098, L2-135 AC5)
     h -> h : IAuditLog.Record(note.shared, before audience, after audience)
   end
   h -> n : NotifyAsync(page, caller, alreadyReached: before)

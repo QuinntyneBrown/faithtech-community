@@ -4,11 +4,11 @@ LAYOUT_WITH_LEGEND()
 title Containers — Marketing page
 
 Person(visitor, "Visitor")
-System_Boundary(ftc, "FaithTech Community") {
-  Container(mkt, "Marketing app", "Angular (frontend/projects/marketing)", "www.faithtech.community: hero, brochure video, sign-in and sign-up panel")
-  Container(spa, "Community app", "Angular (frontend/projects/faithtech-community)", "WebApp:Origin: owns the PKCE session; /auth/continue and /auth/callback")
-  Container(api, "Community API", "ASP.NET Core + OpenIddict", "/api/account/* (rate limited), /connect/*; CORS allows WebApp:Origin and Marketing:Origin with credentials")
-  ContainerDb(db, "Community database", "PostgreSQL", "Accounts, profiles, external logins, OpenIddict tokens")
+System_Boundary(ftc, "Community platform") {
+  Container(mkt, "Marketing app", "Angular (frontend/projects/marketing)", "www.{organisation host}: hero, brochure video, sign-in and sign-up panel from per-host configuration")
+  Container(spa, "Community app", "Angular (frontend/projects/faithtech-community)", "Organisation community host: owns the PKCE session; /auth/continue and /auth/callback")
+  Container(api, "Community API", "ASP.NET Core + OpenIddict", "/api/account/* (rate limited), /connect/*; CORS allows the current organisation's community and public origins with credentials")
+  ContainerDb(db, "Community database", "PostgreSQL", "Accounts, organisations, profiles per organisation, external logins, OpenIddict tokens")
 }
 System_Ext(google, "Google", "accounts.google.com, oauth2.googleapis.com")
 Rel(visitor, mkt, "Opens", "HTTPS")

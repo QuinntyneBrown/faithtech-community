@@ -2,18 +2,19 @@
 
 ## Overview
 
-*Check-in* records who actually came to an event. At the door, a lead opens the event's check-in page on a phone, finds each attendee and turns on the switch beside their name. People who turn up without an RSVP are added as *walk-ins*. After the event, the lead exports the attendance as CSV, and the event page and Reports show how many came.
+*Check-in* records who actually came to an event. At the door, a holder of `ManageAttendance` opens the event's check-in page on a phone, finds each attendee and turns on the switch beside their name. People who turn up without an RSVP are added as *walk-ins*. After the event, the holder exports the attendance as CSV, and the event page and Reports show how many came.
 
 Key terms:
 
 - **attendee** — anyone on the check-in list: a member or guest who RSVP'd ([RSVP](../rsvp/README.md), [public events and guest RSVP](../public-events-and-guest-rsvp/README.md)), or a walk-in
 - **check-in** — the time an attendee was marked present and who marked them, stored on their RSVP row
-- **walk-in** — an RSVP row created at the door by a lead; it skips the capacity and has-started rules that close RSVPs, its email is optional, and it sends no confirmation
+- **walk-in** — an RSVP row created at the door by a holder of `ManageAttendance`; it skips the capacity and has-started rules that close RSVPs, its email is optional, and it sends no confirmation
 - **check-in window** — check-in opens 24 hours before the event starts and does not close; a cancelled event has no window
-- **lead roles** — City Lead, Event Lead, Create Lead and Communications Lead (`LeadRoles`, ADR 0014)
-- **admin override** — a System Admin without a lead role writing a check-in; each such write is audited (`L2-041`)
+- **`ManageAttendance`** — capability that permits checking attendees in, undoing, adding walk-ins and exporting (`L2-135`; seeded as City Lead, Event Lead, Create Lead and Communications Lead in FaithTech; ADR 0014 refined by ADR 0033)
+- **`ViewAttendees`** — capability that opens the check-in page read-only, without guest emails (`L2-117` AC2)
+- **admin override** — a holder of `AdministerOrganisation` without `ManageAttendance` writing a check-in; each such write is audited (`L2-041`, `L2-135` AC5)
 
-Lead roles and System Admin check attendees in, undo, add walk-ins and export. Staff open the same page read-only and never see guest emails, matching the RSVP list rule (`L2-022` AC4). Other members get `403` and the forbidden page; anonymous visitors get `401` and sign in.
+Holders of `ManageAttendance` check attendees in, undo, add walk-ins and export. Holders of `ViewAttendees` without `ManageAttendance` open the same page read-only and never see guest emails, matching the RSVP list rule (`L2-022` AC4). Other members get `403` and the forbidden page; anonymous visitors get `401` and sign in.
 
 The check-in is stored on the `Rsvp` row rather than in a separate table ([ADR 0029](../../../adr/0029-check-in-storage-on-the-rsvp.md)). One row per attendee carries both "said they would come" and "came", so the check-in list, the attendance export and the Reports check-in rate (`L2-125`) read one table.
 
@@ -40,32 +41,32 @@ The slice runs from the check-in page in the `events` feature library to the `Rs
 
 ### Persistence (`FaithTech.Community.Infrastructure`)
 
-- `CommunityDbContext` maps `CheckedInAt` (`timestamptz`, null), `CheckedInById` (`uuid`, null, no foreign key, like `CancelledById`) and `IsWalkIn` (`boolean`, not null, default `false`) on `Rsvps`. `GuestEmail` is already nullable in the schema; no column change is needed for email-less walk-ins.
+- `CommunityDbContext` maps `CheckedInAt` (`timestamptz`, null), `CheckedInById` (`uuid`, null, no foreign key, like `CancelledById`) and `IsWalkIn` (`boolean`, not null, default `false`) on `Rsvps`. `GuestEmail` is already nullable in the schema; no column change is needed for email-less walk-ins. Every query is scoped by the context's global filter on `ICurrentOrganisation`.
 - Migration `Infrastructure/Persistence/Migrations/{timestamp}_EventCheckIn.cs` adds the three columns. Existing rows become not-walk-in and not checked in. The Cli project applies it; the API never does.
 - The existing indexes (`EventId, ProfileId` unique for members, `EventId, GuestEmail`) serve the walk-in reuse lookups. Reports adds its own index on `Rsvp.EventId` if needed (`L2-129`).
 
 ### Application (`FaithTech.Community.Application/Events/`)
 
 - **`EventPermissions`** gains:
-  - `CanCheckIn` — a lead role or System Admin (the same set as `CanSeeGuestEmails`);
-  - `CanViewCheckIn` — `CanCheckIn` or Staff (the same set as `CanSeeRsvpList`);
-  - `IsCheckInOverride` — System Admin holding no lead role. The existing `IsAdminOverride` checks only Event and City Lead, because only they manage events; check-in is open to every lead role, so it needs its own rule.
+  - `CanCheckIn` — `ICurrentUser.Has(Capability.ManageAttendance)` (the same set as `CanSeeGuestEmails`);
+  - `CanViewCheckIn` — `Has(Capability.ViewAttendees)` or `CanCheckIn` (the same set as `CanSeeRsvpList`);
+  - `IsCheckInOverride` — `AuthorizationRules.IsOverride(actor, ManageAttendance)`. The existing `IsAdminOverride` is `IsOverride(actor, ManageEvents)`; check-in is governed by a different capability, so it needs its own rule.
 - **`CheckInHandler`** (`CheckIn.cs`):
   - `GetAsync(eventId)` returns `Result.Forbidden()` unless `CanViewCheckIn`, `NotFound` for an unknown event, else `CheckInDto` (`L2-117` AC6, `L2-118` AC1). Attendees are ordered by `CreatedAt` with walk-ins after every RSVP'd row. Guest emails are filled in only when `CanSeeGuestEmails`.
   - `CheckInAsync(eventId, rsvpId)` and `UndoAsync(eventId, rsvpId)` return `Forbidden` unless `CanCheckIn`, `NotFound` for an unknown event or an RSVP on another event, and `Conflict` from `Refusal(e, now)` before calling the domain (`L2-119` AC5, AC6). When `IsCheckInOverride`, each write records an audit entry (`event.checked_in` or `event.check_in_undone`, target `Event`, with the RSVP id and name, `L2-117` AC5). The check-in answers the updated `CheckInAttendeeDto`, so the row shows the server's time.
   - `static string? Refusal(Event e, DateTimeOffset now)` returns `"This event was cancelled."` or `"Check-in hasn't opened yet."`; the opening conflict carries an `opensAt` extension through `Result.Conflict(detail, extensions)`.
 - **`AddWalkInCommand`** (`Name`, `Email`, `CheckInNow = true`), **`AddWalkInValidator`** and **`AddWalkInHandler`** (`WalkIns.cs`):
   - The validator requires a name ("Enter their name so the list shows who came."), at most 100 characters after trimming ("Use 100 characters or fewer for the name."), and an optional well-formed email of at most 256 characters ("Enter an email like name@example.com, or leave it empty.") (`L2-120` AC3).
-  - The handler returns `Forbidden` unless `CanCheckIn` (Staff `403`, `L2-120` AC8) and `Conflict` from `CheckInHandler.Refusal`. It looks up a verified account by email (`db.Users` where `EmailConfirmed` and `NormalizedEmail` equals the upper-cased email, as `ContactViews.MatchAsync` does) and passes its `ProfileId` to `Event.AddWalkIn` (`L2-120` AC4). It sends no RSVP confirmation and publishes no notification (`L2-120` AC7). An override is audited as `event.walk_in_added`.
+  - The handler returns `Forbidden` unless `CanCheckIn` (a caller without `ManageAttendance` `403`, `L2-120` AC8) and `Conflict` from `CheckInHandler.Refusal`. It looks up a verified account by email (`db.Users` where `EmailConfirmed` and `NormalizedEmail` equals the upper-cased email, as `ContactViews.MatchAsync` does) and passes the id of its profile in the current organisation to `Event.AddWalkIn` (`L2-120` AC4). It sends no RSVP confirmation and publishes no notification (`L2-120` AC7). An override is audited as `event.walk_in_added`.
   - It answers `WalkInResultDto` with the attendee and `Reused`.
-- **`ExportCheckInsHandler`** (`ExportCheckIns.cs`) returns `Forbidden` unless `CanCheckIn` (Staff `403`, `L2-122` AC2) and builds `CsvFile("{event-slug}-attendance.csv", ...)` through `ICsvWriter` with the header `Name, Type, Email, RSVP'd (UTC), Checked in (UTC)`. Type is `Walk-in` for a walk-in, else `Member` or `Guest`. Email is the guest email; members have none. Times use `yyyy-MM-dd HH:mm`; an attendee not checked in leaves the last cell empty (`L2-122` AC1).
+- **`ExportCheckInsHandler`** (`ExportCheckIns.cs`) returns `Forbidden` unless `CanCheckIn` (a caller without `ManageAttendance` `403`, `L2-122` AC2) and builds `CsvFile("{event-slug}-attendance.csv", ...)` through `ICsvWriter` with the header `Name, Type, Email, RSVP'd (UTC), Checked in (UTC)`. Type is `Walk-in` for a walk-in, else `Member` or `Guest`. Email is the guest email; members have none. Times use `yyyy-MM-dd HH:mm`; an attendee not checked in leaves the last cell empty (`L2-122` AC1).
 - **`GetEventHandler`** — `EventDetailDto` gains `int? CheckedInCount` (set when `CanSeeRsvpList`, else null), `bool CanCheckIn` and `bool CanViewCheckIn`. Its `Rsvps` list leaves walk-ins out, keeping the RSVP list as it was (`L2-022`).
 - **`ListEventsHandler`** — the list's count projects `e.Rsvps.Count(r => !r.IsWalkIn)`.
 - **`RsvpHandler.ExportAsync`** — leaves walk-ins out and writes through `ICsvWriter`; see below.
 
 DTOs (records in `CheckIn.cs`):
 
-- `CheckInDto(Guid EventId, string Title, DateTimeOffset StartsAt, string City, string Format, string? Venue, bool IsCancelled, string? CancellationReason, DateTimeOffset CheckInOpensAt, bool IsOpen, bool CanEdit, bool CanExport, int Going, int CheckedIn, int WalkIns, IReadOnlyList<CheckInAttendeeDto> Attendees)` — `Going` counts every attendee, walk-ins included, so "36 of 36" reads true when everyone is in.
+- `CheckInDto(Guid EventId, string Title, DateTimeOffset StartsAt, string? ChapterName, string Format, string? Venue, bool IsCancelled, string? CancellationReason, DateTimeOffset CheckInOpensAt, bool IsOpen, bool CanEdit, bool CanExport, int Going, int CheckedIn, int WalkIns, IReadOnlyList<CheckInAttendeeDto> Attendees)` — `Going` counts every attendee, walk-ins included, so "36 of 36" reads true when everyone is in.
 - `CheckInAttendeeDto(Guid RsvpId, Guid? ProfileId, string Name, bool IsGuest, bool IsWalkIn, string? Email, DateTimeOffset RsvpedAt, DateTimeOffset? CheckedInAt)`.
 - `WalkInResultDto(CheckInAttendeeDto Attendee, bool Reused)`.
 
@@ -101,11 +102,11 @@ Every route requires authentication (the default), so an anonymous caller gets `
   - an `ft-alert` when the event is cancelled ("This event was cancelled, so no one can be checked in", danger, `polite`) or the window has not opened ("Check-in opens {day} at {time}, 24 hours before the event.", info), with every switch disabled (`L2-119` AC5, AC6);
   - a search form (`role="search"`) with `ft-text-field type="search"` labelled "Find an attendee", filtering on each input event by name, or name or email, case-insensitively (`L2-118` AC2);
   - `ft-list` of `ft-list-item` rows: `ft-avatar` leading, the name as label, meta "Member", "Guest · {email}" or "Walk-in", then "Checked in {time}" or "Not here yet"; `ft-switch` trailing, bound with `[ngModel]`, `[disabled]` when not `canEdit` or not open, and a visually hidden label "Check in {name}" (`L2-118` AC5, AC6);
-  - `ft-empty-state` for no RSVPs ("Nobody has RSVP'd yet", with "Add walk-in" for leads, `L2-118` AC4), for no matches ("Nobody called “{term}” has RSVP'd", with "Add “{term}” as a walk-in" and "Clear search", `L2-118` AC3), and a success `ft-alert` "Everyone's here" naming the walk-in count, with no promise of a follow-up email (`L2-119` AC7);
+  - `ft-empty-state` for no RSVPs ("Nobody has RSVP'd yet", with "Add walk-in" for holders of `ManageAttendance`, `L2-118` AC4), for no matches ("Nobody called “{term}” has RSVP'd", with "Add “{term}” as a walk-in" and "Clear search", `L2-118` AC3), and a success `ft-alert` "Everyone's here" naming the walk-in count, with no promise of a follow-up email (`L2-119` AC7);
   - `ft-list-skeleton` while loading, `ft-empty-state` with "Try again" and "Back to the event" on error, `ft-error-page` on `403` and the not-found page on `404` (`L2-121` AC4, `L2-117` AC3).
   Toggling a switch updates the row at once and sends `checkIn` or `undoCheckIn`. Saves for one row run in order (a promise chain per RSVP id); both endpoints are idempotent, so repeats are harmless. On success the row takes the server's time and a success toast says "{name} is checked in" with "{time} · {n} of {total} here." and an "Undo" action (`ToastService.show({ actionLabel, onAction })`, `L2-119` AC1, AC2). On failure the switch returns to its previous state and a danger toast says "Couldn’t save {name}’s check-in. Try again." with "The switch is back {on|off}; nothing was saved." and a *Try again* action (`L2-119` AC3). Times are shown in the browser's time zone with the date helpers in `components` (`format/dates.ts`).
 - **`AddWalkInDialog`** (`dialogs/add-walk-in/`, mock `docs/mocks/dialogs/check-in-walk-in/*`) — `ft-dialog` opened through the CDK `DialogService` with title "Add a walk-in", a required name (prefilled from the search term when opened from no results), an optional email with the help "A member's email links the check-in to their profile.", and an `ft-switch` "Check them in now" on by default, described by "Adds them to the attendance list as present." (its `description` input, joined with `aria-describedby`). The primary button reads "Add and check in", or "Add walk-in" when the switch is off. It shows inline errors and an error summary for `400` (`invalid`), a busy button (`busy`) and a danger alert "Walk-in not added" with "Try again" on failure (`failed`). It closes with the `WalkInResultDto`; the page appends a new row or updates a reused one and toasts "{name} is checked in" or "{name} already RSVP'd and is checked in".
-- **`EventPage`** — shows "{n} checked in" beside the RSVP count when `checkedInCount > 0` (`L2-121` AC1, AC2), and a "Check in" button when `canCheckIn`, or a "View check-in" link when only `canViewCheckIn` (Staff).
+- **`EventPage`** — shows "{n} checked in" beside the RSVP count when `checkedInCount > 0` (`L2-121` AC1, AC2), and a "Check in" button when `canCheckIn`, or a "View check-in" link when only `canViewCheckIn` (a holder of `ViewAttendees` without `ManageAttendance`).
 - **`EVENTS_ROUTES`** gains `{ path: ':id/check-in', component: EventCheckInPage, title: 'Check-in' }`.
 
 ### Components (`frontend/projects/components/`)
@@ -128,7 +129,7 @@ The page composes existing components. Three need small extensions, made in `com
 ### Tests
 
 - `backend/tests/FaithTech.Community.Application.Tests/Domain/Events/EventCheckInTests.cs` — check in keeps the first time; undo clears; cancelled and early writes throw; walk-ins skip capacity and has-started; reuse by member and by guest email; `RsvpCount` and `IsFull` ignore walk-ins.
-- `backend/tests/FaithTech.Community.Api.Tests/Events/CheckInTests.cs`, `WalkInTests.cs` and `CheckInExportTests.cs` — every role (each lead role, System Admin with and without a lead role, Staff, member, anonymous) against every route; Staff see no emails; `409` for cancelled and early; the audit entry for an override; walk-in linking, reuse, validation and no confirmation email; CSV columns, quoting and the formula guard.
+- `backend/tests/FaithTech.Community.Api.Tests/Events/CheckInTests.cs`, `WalkInTests.cs` and `CheckInExportTests.cs` — every capability set (`ManageAttendance`, `ViewAttendees` alone, `AdministerOrganisation` with and without `ManageAttendance`, no capability, anonymous) against every route, with the FaithTech seed as the regression case; `ViewAttendees` alone sees no emails; `409` for cancelled and early; the audit entry for an override; walk-in linking, reuse, validation and no confirmation email; CSV columns, quoting and the formula guard.
 - `backend/tests/FaithTech.Community.Infrastructure.Tests/Csv/CsvWriterTests.cs` — quoting, doubled quotes, line breaks, nulls and the four guarded prefixes. The existing `RsvpTests` prove the RSVP export is unchanged.
 - `e2e/tests/events/check-in.spec.ts` and `walk-ins.spec.ts`, with page objects `e2e/pages/event-check-in.page.ts` and `e2e/pages/add-walk-in.dialog.ts` and additions to `e2e/pages/event.page.ts` — access per role, list order, search, check in and undo with toast, failed save, cancelled and not-open states, everyone's here, empty, no results, loading and error, walk-in dialog states, export, the event page count, the XS layout and an axe check on each state.
 
@@ -138,74 +139,86 @@ The feature realizes the following level-2 (L2) requirements. Each refines a lev
 
 | L2 ID | Refines (L1) | Requirement |
 |-------|--------------|-------------|
-| `L2-117` | `L1-008` | Check-in access. Check-in at the door is on `/events/{id}/check-in` and stores the check-in on the RSVP (ADR 0029). |
+| `L2-117` | `L1-008` | Check-in access |
 | `L2-118` | `L1-008` | Check-in list and search |
 | `L2-119` | `L1-008` | Check in and undo |
 | `L2-120` | `L1-008` | Add a walk-in |
 | `L2-121` | `L1-008` | Attendance on the event page and check-in states |
 | `L2-122` | `L1-008` | Export attendance |
+| `L2-135` | `L1-026`, `L1-015` | Capability catalogue and server authorisation |
 
 ### Acceptance criteria
 
 **`L2-117` — Check-in access**
 
-1. Given a City Lead, Event Lead, Create Lead, Communications Lead or System Admin, when they open an event, then it offers "Check in", and the check-in page lets them check attendees in, undo and add walk-ins.
-2. Given Staff, when they open the check-in page, then they see the attendees and counts read-only: the switches are disabled, "Add walk-in" and "Export CSV" are not shown, guest emails are not shown (`L2-022` AC4), and every check-in write answers 403.
-3. Given a signed-in member without one of those roles, Staff or System Admin, when they open the check-in page or call a check-in endpoint, then the response is 403 and the forbidden page is shown (`L2-048` AC2).
+1. Given a holder of `ManageAttendance`, when they open an event, then it offers "Check in", and the check-in page lets them check attendees in, undo and add walk-ins.
+2. Given a holder of `ViewAttendees` without `ManageAttendance`, when they open the check-in page, then they see the attendees and counts read-only: the switches are disabled, "Add walk-in" and "Export CSV" are not shown, guest emails are not shown (`L2-022` AC4), and every check-in write answers 403.
+3. Given a signed-in member who holds neither `ViewAttendees` nor `ManageAttendance`, when they open the check-in page or call a check-in endpoint, then the response is 403 and the forbidden page is shown (`L2-048` AC2).
 4. Given an anonymous visitor, when they open the check-in page or call a check-in endpoint, then the response is 401 and they are sent to sign in.
-5. Given a System Admin without a lead role, when they check in, undo or add a walk-in, then each write is recorded in the audit log (`L2-041`).
+5. Given a holder of `AdministerOrganisation` without `ManageAttendance`, when they check in, undo or add a walk-in, then each write is an override and is recorded in the audit log (`L2-041`, `L2-135` AC5).
 6. Given `GET /api/events/{id}/check-in`, when it answers, then it carries whether the caller can edit, and guest emails only for callers who may see them.
 
 **`L2-118` — Check-in list and search**
 
 1. Given an event with RSVPs, when the check-in page loads, then it lists every member and guest who RSVP'd, in RSVP order, then walk-ins in the order they were added, with the event's title, date, and counts of going and checked in.
-2. Given a search term, when the lead types, then the list narrows to attendees whose name or email contains it, case-insensitively, without pressing a button; Staff match on name only.
-3. Given a search with no matches, when the list is shown, then it says no one matches and offers "Add walk-in" to leads.
-4. Given an event with no RSVPs, when the page loads, then an empty state says no one has RSVP'd yet and offers "Add walk-in" to leads.
+2. Given a search term, when a holder of `ManageAttendance` types, then the list narrows to attendees whose name or email contains it, case-insensitively, without pressing a button; a holder of `ViewAttendees` without `ManageAttendance` matches on name only.
+3. Given a search with no matches, when the list is shown, then it says no one matches and offers "Add walk-in" to holders of `ManageAttendance`.
+4. Given an event with no RSVPs, when the page loads, then an empty state says no one has RSVP'd yet and offers "Add walk-in" to holders of `ManageAttendance`.
 5. Given an XS viewport, when the check-in page is shown, then each attendee is one row with the name and a trailing switch with a touch target of at least 24x24 CSS pixels, the search stays at the top, and there is no horizontal page scroll (`L2-045` AC1).
 6. Given a keyboard or screen-reader user, when they reach a switch, then it is labelled "Check in {name}" and announces whether it is on.
 
 **`L2-119` — Check in and undo**
 
-1. Given a lead or System Admin, when they turn on an attendee's switch, then `PUT /api/events/{id}/check-ins/{rsvpId}` saves the check-in at once with the time and who checked them in, the row shows "Checked in {time}" (for example "Checked in 6:41 pm"), the checked-in count rises, and a success toast offers "Undo" (`L2-054` AC2).
-2. Given a checked-in attendee, when the lead turns the switch off or chooses "Undo", then `DELETE /api/events/{id}/check-ins/{rsvpId}` clears the check-in, the time is removed and the count falls.
+1. Given a holder of `ManageAttendance`, when they turn on an attendee's switch, then `PUT /api/events/{id}/check-ins/{rsvpId}` saves the check-in at once with the time and who checked them in, the row shows "Checked in {time}" (for example "Checked in 6:41 pm"), the checked-in count rises, and a success toast offers "Undo" (`L2-054` AC2).
+2. Given a checked-in attendee, when the holder of `ManageAttendance` turns the switch off or chooses "Undo", then `DELETE /api/events/{id}/check-ins/{rsvpId}` clears the check-in, the time is removed and the count falls.
 3. Given a check-in or undo that fails to save, when the API answers with an error or cannot be reached, then the switch returns to its previous state and a danger toast says it was not saved.
 4. Given an attendee already checked in, when the check-in is saved again, then the original time is kept.
-5. Given a cancelled event (`L2-025`), when a lead opens its check-in page, then it says the event is cancelled and the switches are disabled, and any check-in write answers 409.
-6. Given an event that starts more than 24 hours from now, when a lead tries to check someone in, then the response is 409, the switches are disabled, and the page says when check-in opens ("Check-in opens {day} at {time}, 24 hours before the event.").
+5. Given a cancelled event (`L2-025`), when a holder of `ManageAttendance` opens its check-in page, then it says the event is cancelled and the switches are disabled, and any check-in write answers 409.
+6. Given an event that starts more than 24 hours from now, when a holder of `ManageAttendance` tries to check someone in, then the response is 409, the switches are disabled, and the page says when check-in opens ("Check-in opens {day} at {time}, 24 hours before the event.").
 7. Given every attendee is checked in, when the list renders, then it shows "Everyone's here", without promising any follow-up email.
 
 **`L2-120` — Add a walk-in**
 
-1. Given a lead or System Admin on the check-in page, when they choose "Add walk-in", then a dialog asks for a name (required) and an optional email, with "Check them in now" on by default.
-2. Given a name, when the lead saves, then `POST /api/events/{id}/walk-ins` adds the walk-in to the end of the list marked as a walk-in, checked in with the time when "Check them in now" is on, and not checked in when it is off.
-3. Given no name, a name over 100 characters after trimming, or an invalid email, when the lead saves, then the field shows an inline error and nothing is saved.
-4. Given an email that belongs to a verified member's account, when the walk-in is saved, then the row is linked to that member's profile and shows as a member, not a guest.
+1. Given a holder of `ManageAttendance` on the check-in page, when they choose "Add walk-in", then a dialog asks for a name (required) and an optional email, with "Check them in now" on by default.
+2. Given a name, when the holder saves, then `POST /api/events/{id}/walk-ins` adds the walk-in to the end of the list marked as a walk-in, checked in with the time when "Check them in now" is on, and not checked in when it is off.
+3. Given no name, a name over 100 characters after trimming, or an invalid email, when the holder saves, then the field shows an inline error and nothing is saved.
+4. Given an email that belongs to a verified member's account, when the walk-in is saved, then the row is linked to that member's profile in the organisation and shows as a member, not a guest.
 5. Given the member or email already has an RSVP for the event, when the walk-in is saved, then that RSVP is reused, and checked in when "Check them in now" is on, rather than a second row being created.
 6. Given an event at capacity (`L2-020` AC5) or one that has started, when a walk-in is added, then it is still added: walk-ins skip the capacity and has-started rules.
 7. Given a walk-in is added, when it is saved, then no RSVP confirmation email is sent (`L2-022` AC1), and the walk-in is left out of the Reports RSVPs figure and check-in rate (`L2-125` AC3).
-8. Given Staff or a cancelled event, when a walk-in is submitted, then the response is 403 or 409 respectively.
+8. Given a caller without `ManageAttendance` (a holder of `ViewAttendees` included) or a cancelled event, when a walk-in is submitted, then the response is 403 or 409 respectively.
 
 **`L2-121` — Attendance on the event page and check-in states**
 
-1. Given an event with at least one check-in, when a lead, Staff or System Admin opens the event page, then "{n} checked in" is shown beside the RSVP count.
-2. Given an event with no check-ins, or a member without those roles, when the event page is shown, then no check-in count is shown.
+1. Given an event with at least one check-in, when a holder of `ViewAttendees` or `ManageAttendance` opens the event page, then "{n} checked in" is shown beside the RSVP count.
+2. Given an event with no check-ins, or a member who holds neither `ViewAttendees` nor `ManageAttendance`, when the event page is shown, then no check-in count is shown.
 3. Given the event list (`L2-021`) and the public event page (`L2-023`), when they render, then they are unchanged by check-in.
 4. Given the check-in page is loading, when data has not arrived, then skeleton rows are shown; when the load fails, then an error offers "Try again".
-5. Given another lead checks someone in, when this lead reloads the page, then the check-in is shown.
+5. Given another holder of `ManageAttendance` checks someone in, when this holder reloads the page, then the check-in is shown.
 
 **`L2-122` — Export attendance**
 
-1. Given a lead or System Admin on the check-in page, when they choose "Export CSV", then `GET /api/events/{id}/check-ins.csv` downloads one row per attendee with name, type (Member, Guest or Walk-in), email, RSVP'd at and checked in at (empty when not checked in).
-2. Given Staff, a member without a lead role, or an anonymous visitor, when they request the export, then the response is 403, or 401 for the anonymous visitor.
+1. Given a holder of `ManageAttendance` on the check-in page, when they choose "Export CSV", then `GET /api/events/{id}/check-ins.csv` downloads one row per attendee with name, type (Member, Guest or Walk-in), email, RSVP'd at and checked in at (empty when not checked in).
+2. Given a holder of `ViewAttendees` without `ManageAttendance`, any other member without `ManageAttendance`, or an anonymous visitor, when they request the export, then the response is 403, or 401 for the anonymous visitor.
 3. Given a cell that starts with `=`, `+`, `-` or `@`, when the CSV is written, then the cell is guarded so spreadsheets do not run it as a formula, and values are quoted per RFC 4180 (`L2-128` AC3).
 4. Given an export in progress, when the file is being prepared, then "Export CSV" is busy and cannot be pressed again; when it fails, a danger toast offers "Try again".
+
+**`L2-135` — Capability catalogue and server authorisation**
+
+1. Given the platform, when `GET /api/organisation/capabilities` is called by any member, then it lists exactly: `ManageEvents`, `ViewAttendees`, `ManageAttendance`, `KeepContacts`, `ViewPartners`, `ManagePartners`, `InviteMembers`, `ConnectLink`, `OwnWorkspaces`, `JoinWorkspaces`, `ReadAllWorkspaces`, `ViewPeopleDirectory`, `AssignRoles`, `SendAnnouncements`, `AddResources`, `ViewReports`, `ManageRoles`, `ManageOrganisationSettings`, `AdministerOrganisation`, each with a one-line description, and no organisation can add, rename or remove one.
+2. Given a request, when the server authorises it, then it checks the caller's capabilities, computed on that request from the union of the capabilities of every non-archived role the caller's profile holds in the current organisation, and never compares a role name.
+3. Given a holder of `AdministerOrganisation`, when any capability is checked, then it is held.
+4. Given an action that needs a capability the caller lacks, when it is called, then the response is 403 (or 404 where `L2-042` AC2 hides existence), and nothing changes.
+5. Given an action the caller is allowed only because they hold `AdministerOrganisation` (they lack the specific capability, or do not own the record), when it succeeds, then it is an override and an audit entry is written (`L2-041`); given the caller holds the specific capability or owns the record, then it is not audited (role changes excepted, `L2-138` AC5).
+6. Given every signed-in member of the organisation, when they view profiles, the team, events and announcements, RSVP, open resources and notes visible to them, create their own notes, search, or edit their own profile and settings, then no capability is required.
+7. Given the frontend, when it decides what to show, then it reads capabilities from `/api/me`, never role names, and hiding is a convenience only: the server refuses what the member may not do.
+
 
 ## Diagrams
 
 ### System context
 
-Leads and System Admins check attendees in at the door; Staff view attendance read-only. Check-in involves no external system: walk-ins receive no email.
+Holders of `ManageAttendance` check attendees in at the door; holders of `ViewAttendees` view attendance read-only. Check-in involves no external system: walk-ins receive no email.
 
 ![C4 system context for event check-in](diagrams/c4-context.png)
 
@@ -247,7 +260,7 @@ A verified member's email links the row to their profile, and an existing RSVP i
 
 ### Behaviour — export attendance
 
-Only lead roles and System Admin may export, because the file carries guest emails (`L2-122`).
+Only holders of `ManageAttendance` may export, because the file carries guest emails (`L2-122`).
 
 ![Sequence diagram: export attendance](diagrams/sequence-export-attendance.png)
 
@@ -256,15 +269,15 @@ Only lead roles and System Admin may export, because the file carries guest emai
 Decisions recorded while designing the feature ([ADR 0029](../../../adr/0029-check-in-storage-on-the-rsvp.md)):
 
 - **Walk-ins and RSVP counts.** `RsvpCount`, `IsFull`, the event list count, the event page's RSVP list and the RSVP CSV leave walk-ins out, so check-in changes none of them (`L2-121` AC3) and a walk-in never takes a seat that closes RSVPs. The check-in page's "going" counts every attendee, walk-ins included, as the `done` mock shows ("36 of 36"). `CallerHasRsvp` still sees a member's own walk-in row, so a member who walked in can cancel it like an RSVP.
-- **Window for walk-ins.** Adding a walk-in obeys the same 24-hour window as a check-in, so a lead cannot add walk-ins days ahead. `L2-120` AC8 names only the cancelled `409`; the window `409` follows from `L2-119` AC6.
-- **No closing time.** Check-in stays open after the event ends, so a lead can correct the record the next day.
+- **Window for walk-ins.** Adding a walk-in obeys the same 24-hour window as a check-in, so a holder of `ManageAttendance` cannot add walk-ins days ahead. `L2-120` AC8 names only the cancelled `409`; the window `409` follows from `L2-119` AC6.
+- **No closing time.** Check-in stays open after the event ends, so the record can be corrected the next day.
 - **Member emails.** Only guest emails appear on the page and in the CSV; a member row has no email, as on the RSVP list. Searching by email therefore finds guests only. A walk-in linked to a member uses the member's profile name, not the typed name.
 - **CSV type column.** A walk-in reads `Walk-in` whether it is linked to a member or not; the type column has one value per row. The CSV has no "checked in by" column; `CheckedInById` is kept for the audit trail and future use.
 - **Switch label.** `L2-118` AC6 says "Check in {name}"; the mocks and the design system's switch page say "Checked in: {name}". The requirement wins; the design system page should be updated.
 - **Progress colour.** The `done` mock leaves the meter accent; the design system marks that as drift. The page uses the complete variant.
 - **Mock "Showing 10 of 34".** The `checked-in` mock caption implies paging; `L2-118` AC1 lists every attendee. The page lists all rows with no paging; an event's RSVPs are small enough to filter in the browser.
-- **Staff entry point.** The mocks show no way for Staff to reach the read-only page. The event page offers Staff a "View check-in" link. The `event-check-in/read-only`, `cancelled`, `save-failed` and `forbidden` mocks and `event/attendance` cover these states; a not-yet-open state is added as `event-check-in/not-open`.
-- **Concurrency.** Two leads toggling the same row converge on the last write; `PUT` keeps the first time. A walk-in race on the same member is caught by the unique `(EventId, ProfileId)` index and answered `409`, after which the page reloads.
+- **Read-only entry point.** The mocks show no way for a holder of `ViewAttendees` without `ManageAttendance` to reach the read-only page. The event page offers them a "View check-in" link. The `event-check-in/read-only`, `cancelled`, `save-failed` and `forbidden` mocks and `event/attendance` cover these states; a not-yet-open state is added as `event-check-in/not-open`.
+- **Concurrency.** Two holders of `ManageAttendance` toggling the same row converge on the last write; `PUT` keeps the first time. A walk-in race on the same member is caught by the unique `(EventId, ProfileId)` index and answered `409`, after which the page reloads.
 - **Event attendees as an announcement audience.** `SendAnnouncement` selects members by RSVP row, so a member walk-in now receives event announcements. That is left as is: they attended.
 - **Walk-in without a check-in.** Neither the design nor the mocks name the toast for a walk-in added with *Check them in now* off. It reads "{name} is on the list" ("{name} already RSVP'd" when reused) with "Turn on their switch when they're here."
 - **Walk-in linking in the fake.** The e2e fake looks verified members up by account email (`MockEvents`' `verifiedMember` callback) rather than adding an email to `EventsProfile`.
@@ -275,3 +288,4 @@ Decisions recorded while designing the feature ([ADR 0029](../../../adr/0029-che
 - **Not-open conflict detail.** The 409 detail is "Check-in hasn’t opened yet." with a typographic apostrophe, like the API's other messages.
 - **CSV quoting and the RSVP export.** `CsvWriter` quotes every cell (not only cells holding a comma, quote or line break) and also guards cells starting with a tab or a carriage return, as agreed for the shared writer. Because of that, moving `RsvpHandler.ExportAsync` onto it would change the RSVP export's bytes (its header and plain cells are unquoted today, which `RsvpTests` assert), so the RSVP export keeps its own `Cell` method for now.
 - **`ICsvWriter` signature.** Resolved: one `Write(rows)` method serves both exports; the Reports export writes its sections, separated by blank rows, through it.
+- Capabilities: the former lead-role set became `ManageAttendance`, the former read-only set `ViewAttendees`, and the admin override `AuthorizationRules.IsOverride(actor, ManageAttendance)`; the forbidden copy "Check-in is for event leads" is kept until the mocks are revisited (ADR 0033).

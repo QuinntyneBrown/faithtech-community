@@ -1,0 +1,109 @@
+@startuml
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 8
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam class {
+  BorderColor #344054
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+title Class structure — Accounts and memberships
+class CommunityUser {
+  +Guid Id
+  +string Email
+  +bool EmailConfirmed
+  +string PasswordHash
+  +bool IsLocked
+  +string? LockedReason
+  +DateTime? LockedAtUtc
+  +DateTimeOffset? FailedAccessWindowStartedAt
+}
+class Organisation {
+  +Guid Id
+  +string Slug
+  +string Host
+  +string Name
+  +string ShortName
+}
+class Profile {
+  +Guid Id
+  +Guid OrganisationId
+  +Guid UserId
+  +string Name
+  +Guid? ChapterId
+  +bool IsSuspended
+  +string? SuspendedReason
+  +DateTime? SuspendedAtUtc
+  +IReadOnlyCollection<ProfileRole> Roles
+  +Suspend(reason: string, nowUtc: DateTime): void
+  +Reinstate(): void
+}
+class ProfileRole {
+  +Guid ProfileId
+  +Guid RoleDefinitionId
+  +Guid? ChapterId
+}
+class CurrentMembership {
+  +Guid ProfileId
+  +IReadOnlyList<HeldRole> Roles
+  +IReadOnlySet<string> Capabilities
+  +IReadOnlyList<Guid> GrantableRoleIds
+  +Guid? ChapterId
+}
+interface ICurrentUser {
+  +Guid? UserId
+  +bool IsAuthenticated
+  +CurrentMembership? Membership
+  +Guid? ProfileId
+  +IReadOnlySet<string> Capabilities
+  +bool IsMember
+  +Has(capability: string): bool
+}
+class HttpCurrentUser
+class CurrentRolesMiddleware {
+  +InvokeAsync(context: HttpContext, db: IApplicationDbContext): Task
+}
+class MembershipRequirement
+class MeHandler {
+  +HandleAsync(): Task<Result<MeResponse>>
+}
+class MeResponse {
+  +OrganisationSummary Organisation
+  +Guid ProfileId
+  +string Name
+  +string Email
+  +bool EmailVerified
+  +HeldRole[] Roles
+  +string[] Capabilities
+  +Guid[] GrantableRoleIds
+  +ChapterSummary? Chapter
+  +MembershipLink[] Memberships
+}
+class MembershipLink {
+  +string Name
+  +string Host
+}
+interface ITokenRevocation {
+  +RevokeAllAsync(userId: Guid): Task
+  +RevokeAsync(userId: Guid, organisationId: Guid): Task
+}
+class SuspensionHandler {
+  +SuspendAsync(profileId: Guid, command: SuspendUserCommand): Task<Result>
+  +ReinstateAsync(profileId: Guid): Task<Result>
+}
+CommunityUser "1" --> "0..*" Profile : memberships
+Organisation "1" --> "0..*" Profile : members
+Profile "1" *-- "0..*" ProfileRole
+ICurrentUser <|.. HttpCurrentUser
+ICurrentUser --> CurrentMembership : exposes
+CurrentRolesMiddleware ..> CurrentMembership : builds
+CurrentRolesMiddleware --> Profile : loads in current organisation
+MembershipRequirement ..> ICurrentUser : requires IsMember
+MeHandler ..> ICurrentUser : reads
+MeHandler ..> MeResponse : returns
+MeResponse "1" *-- "*" MembershipLink
+SuspensionHandler --> Profile : suspends
+SuspensionHandler --> ITokenRevocation : revokes per organisation
+@enduml

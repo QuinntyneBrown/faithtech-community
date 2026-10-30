@@ -1,0 +1,16 @@
+@startuml
+!include <C4/C4_Container>
+LAYOUT_WITH_LEGEND()
+title Containers — Chapters
+Person(settings, "Settings holder", "Holds ManageOrganisationSettings")
+Person(member, "Member", "Signed-in profile holder")
+System_Boundary(community, "FaithTech Community") {
+  Container(web, "Web app", "Angular", "Shell; organisations, team, events, profiles and admin feature libraries; api and components libraries")
+  Container(api, "Community API", "ASP.NET Core", "FaithTech.Community.Api with Application, Domain and Infrastructure")
+  ContainerDb(db, "Community database", "PostgreSQL", "Organisations, chapters, profiles, events, roles and audit log")
+}
+Rel(settings, web, "Uses", "HTTPS")
+Rel(member, web, "Uses", "HTTPS")
+Rel(web, api, "Calls", "JSON/HTTPS, OAuth2 bearer token")
+Rel(api, db, "Reads and writes", "EF Core")
+@enduml

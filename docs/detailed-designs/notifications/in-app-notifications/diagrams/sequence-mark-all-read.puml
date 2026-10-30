@@ -15,7 +15,7 @@ skinparam package {
   BackgroundColor #F9FAFB
 }
 actor "Member" as actor
-box "Frontend — FaithTech Community web app (notifications library)" #E0F2FE
+box "Frontend — Community web app (notifications library)" #E0F2FE
   participant "NotificationsPage" as page
   participant "HttpNotificationsService" as client
 end box
@@ -32,7 +32,7 @@ actor -> page : Choose "Mark all as read"
 page -> client : markAllRead()
 client -> ep : POST /api/notifications/read-all
 ep -> h : MarkAllReadAsync()
-h -> db : Load caller's notifications where ReadAt is null
+h -> db : Load caller's notifications in the organisation where ReadAt is null
 db --> h : Unread notifications
 h -> db : MarkRead(now) on each, save changes (L2-027 #3)
 h --> ep : Success

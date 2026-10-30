@@ -9,12 +9,12 @@ Container_Boundary(web, "Web app") {
   Component(svc, "HttpResourcesService", "Angular service (api library)", "members(q), add, addLink, update")
 }
 Container_Boundary(api, "Community API") {
-  Component(ep, "ResourcesEndpoints", "ASP.NET Core minimal API", "GET /api/resources/members; POST, PUT with visibility, memberIds, roles")
-  Component(mem, "ResourceMembersHandler", "Application handler", "Active members matching a name, with role and city")
+  Component(ep, "ResourcesEndpoints", "ASP.NET Core minimal API", "GET /api/resources/members; POST, PUT with visibility, memberIds, roleIds")
+  Component(mem, "ResourceMembersHandler", "Application handler", "Active members matching a name, with role and chapter")
   Component(h, "Add / AddLink / EditResource handlers", "Application handlers", "Build ResourceAudience; SetAudience returns what is new")
   Component(notifier, "ShareNotifier", "Application service", "New recipients: members + current role holders, minus owner and suspended")
   Component(pub, "NotificationPublisher", "Implements INotificationPublisher", "In-app notifications and queued emails")
-  Component(acc, "ResourceAccess", "Application permission rule", "CanEdit: owner or System Admin; Visible: live roles")
+  Component(acc, "ResourceAccess", "Application permission rule", "CanEdit: owner or AdministerOrganisation; Visible: live role definitions")
   Component(audit, "AuditLog", "Implements IAuditLog", "resource.shared on override")
   ComponentDb(db, "CommunityDbContext", "PostgreSQL", "Share rows, Notifications, EmailOutbox")
 }

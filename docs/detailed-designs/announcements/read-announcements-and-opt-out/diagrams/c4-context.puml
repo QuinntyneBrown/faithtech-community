@@ -3,7 +3,7 @@
 LAYOUT_WITH_LEGEND()
 title System Context — Read announcements and opt out
 Person(member, "Member", "Signed-in community member")
-System(ftc, "FaithTech Community", "Community site for FaithTech staff, leads, volunteers, builders and partners")
+System(ftc, "Community platform", "Hosts each organisation's members, events, partners and resources")
 System_Ext(email, "Email provider", "SMTP/SendGrid email delivery")
 Rel(member, ftc, "Reads announcements and sets preference using")
 Rel(ftc, email, "Sends announcement email with unsubscribe link via", "SMTP")

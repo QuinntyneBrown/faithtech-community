@@ -3,7 +3,7 @@
 LAYOUT_WITH_LEGEND()
 title Containers — Responsive layout and theming
 Person(member, "Member", "Signed-in community member")
-System_Boundary(ftc, "FaithTech Community") {
+System_Boundary(ftc, "Community platform") {
   Container(web, "Web app", "Angular", "Shell, components feature library, api and components libraries")
   Container(api, "Community API", "ASP.NET Core", "FaithTech.Community.Api with Application, Domain and Infrastructure")
   ContainerDb(db, "Community database", "PostgreSQL", "Persistent community data")

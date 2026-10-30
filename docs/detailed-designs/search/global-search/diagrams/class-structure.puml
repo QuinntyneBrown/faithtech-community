@@ -19,6 +19,11 @@ class GlobalSearchHandler {
 }
 interface ICurrentUser {
   +Guid? UserId
+  +IReadOnlySet<string> Capabilities
+  +Has(capability: string): bool
+}
+interface ICurrentOrganisation {
+  +Guid Id
 }
 interface ISearchSource {
   +SearchResultKind Kind
@@ -72,6 +77,8 @@ ContactsSearchSource ..|> ISearchSource
 WorkItemsSearchSource ..|> ISearchSource
 ISearchSource --> SearchResultKind
 ISearchSource ..> IFullTextSearch : uses
+ISearchSource ..> ICurrentUser : Has(capability)
+ISearchSource ..> ICurrentOrganisation : base query scoped by the global filter
 PostgresFullTextSearch ..|> IFullTextSearch
 PostgresFullTextSearch ..> SearchVectors : matches column
 SearchResultsDto "1" *-- "*" SearchResultGroup

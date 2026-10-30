@@ -14,7 +14,7 @@ Container_Boundary(api, "Community API") {
   Component(hub, "AgileHub", "SignalR hub (/hubs/agile)", "WatchPokerSession joins poker:{sessionId}; no business logic")
   Component(bc, "SignalRAgileNotifier", "Api, IPokerBroadcaster", "Sends PokerChanged(sessionId) to the group")
   Component(h, "PlanningPokerHandler", "Application", "Start, current, get, vote, reveal, re-vote, set points, end")
-  Component(pol, "WorkspaceAccessPolicy", "Application", "Member, Staff, System Admin and outsider checks; audits overrides")
+  Component(pol, "WorkspaceAccessPolicy", "Application", "Member, Reader, Admin (AdministerOrganisation) and outsider checks; audits overrides")
   Component(ntf, "AgileNotifier", "Application", "In-app invite notifications and email")
   Component(ent, "PokerSession", "Domain entity", "Stories, rounds and votes")
   ComponentDb(db, "Community database", "PostgreSQL", "Agile tables")

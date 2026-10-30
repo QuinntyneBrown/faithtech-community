@@ -53,6 +53,19 @@ class EventPermissions <<Application service>> {
   +bool IsCheckInOverride «new»
   +CallerProfileIdAsync(): Task<Guid?>
 }
+interface ICurrentUser {
+  +IReadOnlySet<string> Capabilities
+  +Has(capability: string): bool
+}
+interface ICurrentOrganisation {
+  +Guid Id
+}
+class AuthorizationRules <<static>> {
+  +{static} IsOverride(actor: ICurrentUser, capability: string): bool
+}
+EventPermissions ..> ICurrentUser : Has(ManageAttendance), Has(ViewAttendees)
+EventPermissions ..> AuthorizationRules : IsCheckInOverride
+EventPermissions ..> ICurrentOrganisation
 class CheckInHandler <<Application handler>> {
   +GetAsync(eventId: Guid): Task<(Result, CheckInDto?)>
   +CheckInAsync(eventId: Guid, rsvpId: Guid): Task<(Result, CheckInAttendeeDto?)>

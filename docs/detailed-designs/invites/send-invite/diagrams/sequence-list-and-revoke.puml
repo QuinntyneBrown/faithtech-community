@@ -14,11 +14,11 @@ skinparam package {
   FontColor #101828
   BackgroundColor #F9FAFB
 }
-actor "Lead" as actor
-box "Frontend — FaithTech Community web app (invites library)" #E0F2FE
+actor "Inviter" as actor
+box "Frontend — Community web app (invites library)" #E0F2FE
   participant "InvitesPage" as page
 end box
-box "Frontend — FaithTech Community web app (api library)" #E0F2FE
+box "Frontend — Community web app (api library)" #E0F2FE
   participant "HttpInvitesService" as client
 end box
 box "Backend — FaithTech.Community.Api" #D1FADF
@@ -38,7 +38,7 @@ page -> client : listInvites()
 client -> ep : GET /api/invites
 ep -> h : ListAsync()
 h -> sender : CanInvite
-alt not a lead or System Admin
+alt caller lacks InviteMembers (L2-010 AC3)
   h --> ep : null
   ep --> client : 403
 else permitted

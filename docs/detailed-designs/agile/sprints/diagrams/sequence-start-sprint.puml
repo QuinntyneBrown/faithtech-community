@@ -16,7 +16,7 @@ skinparam package {
   BackgroundColor #F9FAFB
 }
 actor "Workspace owner" as actor
-box "Frontend — FaithTech Community web app (agile library)" #E0F2FE
+box "Frontend — Community platform web app (agile library)" #E0F2FE
   participant "BacklogPage" as page
   participant "StartSprintDialog" as dlg
   participant "AgileService (AGILE_SERVICE)" as svc
@@ -80,7 +80,7 @@ ws -> ent : sprint.Start(): State = Active (L2-035 AC1)
 loop each chosen story
 h -> wi : MoveToSprint(sprint)
 end
-h -> pol : AuditOverride(caller, "sprint.started", ...) (System Admin only)
+h -> pol : AuditOverride(caller, "sprint.started", ...) (AdministerOrganisation override only, L2-135 AC5)
 h -> ctx : SaveChangesAsync
 ctx -> db : INSERT sprint; UPDATE closed sprint and stories in one transaction (unique active index)
 h --> ep : (Result.Ok, sprintId)

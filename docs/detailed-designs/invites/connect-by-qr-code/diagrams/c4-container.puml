@@ -2,9 +2,9 @@
 !include <C4/C4_Container>
 LAYOUT_WITH_LEGEND()
 title Containers — Connect by QR code
-Person(lead, "City Lead", "Shows the QR code")
+Person(lead, "Member with ConnectLink", "Shows the QR code")
 Person(visitor, "New person", "Opens /meet/{token}")
-System_Boundary(community, "FaithTech Community") {
+System_Boundary(community, "Community platform") {
   Container(web, "Web app", "Angular", "Invites feature library (MyQrCodeDialog, ConnectPage), api and components libraries")
   Container(api, "Community API", "ASP.NET Core", "FaithTech.Community.Api with Application, Domain and Infrastructure")
   ContainerDb(db, "Community database", "PostgreSQL", "ConnectLinks, PendingConnections, profiles, contacts, notifications")

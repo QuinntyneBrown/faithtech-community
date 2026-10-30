@@ -8,7 +8,7 @@ Container_Boundary(api, "Community API") {
   Component(ep, "ProfilesEndpoints", "Minimal API", "PUT /api/profiles/{id}")
   Component(val, "UpdateProfileValidator", "Validator", "Name 1 to 100 characters")
   Component(h, "UpdateProfileHandler", "Application handler", "Authorizes and renames")
-  Component(cu, "ICurrentUser", "Application abstraction", "Caller identity and roles")
+  Component(cu, "ICurrentUser", "Application abstraction", "Caller identity and capabilities")
   Component(au, "IAuditLog", "Infrastructure service", "Records admin overrides")
   ComponentDb(db, "CommunityDbContext", "EF Core / PostgreSQL", "Profiles and audit log")
 }

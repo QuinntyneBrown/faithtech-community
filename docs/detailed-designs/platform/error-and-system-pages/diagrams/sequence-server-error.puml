@@ -15,7 +15,7 @@ skinparam package {
   BackgroundColor #F9FAFB
 }
 actor "Member" as actor
-box "Frontend — FaithTech Community web app (app shell library)" #E0F2FE
+box "Frontend — Community web app (app shell library)" #E0F2FE
   participant "Feature page" as page
   participant "httpErrorInterceptor" as int
   participant "ServerErrorPage" as err

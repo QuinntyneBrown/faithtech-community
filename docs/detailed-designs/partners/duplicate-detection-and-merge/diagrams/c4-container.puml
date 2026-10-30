@@ -2,9 +2,9 @@
 !include <C4/C4_Container>
 LAYOUT_WITH_LEGEND()
 title Containers — Duplicate detection and merge
-Person(lead, "Lead", "City, Event, Create or Communications Lead, or System Admin")
-Person(staff, "Staff", "Read-only across everything except private contacts")
-System_Boundary(community, "FaithTech Community") {
+Person(lead, "Member with ManagePartners", "Dismisses and merges duplicates")
+Person(staff, "Member with view capabilities", "Holds ViewPartners without ManagePartners; sees warnings read-only")
+System_Boundary(community, "Community platform") {
   Container(web, "Web app", "Angular", "Shell, partners feature library, api and components libraries")
   Container(api, "Community API", "ASP.NET Core", "FaithTech.Community.Api with Application, Domain and Infrastructure")
   ContainerDb(db, "Community database", "PostgreSQL", "Partners with versions and archive fields, activities, stage changes, dismissals and audit log")

@@ -15,7 +15,7 @@ skinparam package {
   BackgroundColor #F9FAFB
 }
 actor "Email recipient" as actor
-box "Frontend — FaithTech Community web app (announcements library)" #E0F2FE
+box "Frontend — Community web app (announcements library)" #E0F2FE
   participant "UnsubscribePage" as page
   participant "HttpAnnouncementsService" as client
 end box
@@ -29,7 +29,7 @@ box "Backend — FaithTech.Community.Infrastructure" #FFF4E5
   participant "DataProtectionUnsubscribeTokens" as tok
   database "Community database" as db
 end box
-actor -> page : Open email link /unsubscribe?token= (anonymous, GET changes nothing)
+actor -> page : Open email link /unsubscribe?token= on the organisation's host (anonymous, GET changes nothing, L2-130 AC6)
 page -> client : unsubscribe(token)
 client -> ep : POST /api/announcements/unsubscribe { token } (anonymous, rate-limited)
 ep -> h : UnsubscribeAsync(UnsubscribeCommand)

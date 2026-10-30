@@ -2,10 +2,10 @@
 !include <C4/C4_Context>
 LAYOUT_WITH_LEGEND()
 title System Context — Archive, restore, purge and transfer resources
-Person(owner, "Owner", "Contributor who owns the resource")
-Person(admin, "System Admin", "Overrides anything on a resource and transfers ownership, audited")
-Person(newowner, "New owner", "Contributor who receives a transferred resource")
-System(community, "FaithTech Community", "Community site for FaithTech staff, leads, volunteers, builders and partners")
+Person(owner, "Owner", "Member with AddResources who owns the resource")
+Person(admin, "Administrator", "Holds AdministerOrganisation: overrides anything on a resource and transfers ownership, audited")
+Person(newowner, "New owner", "Member with AddResources who receives a transferred resource")
+System(community, "Community platform", "Community site for an organisation's members and partners")
 System_Ext(blob, "Azure Blob Storage", "Private resources container")
 System_Ext(mail, "Email provider", "SMTP / SendGrid")
 Rel(owner, community, "Archives and restores own resources using")

@@ -14,7 +14,7 @@ class Partner {
   +Guid Id
   +string Name
   +string? Website
-  +PartnerStage Stage
+  +string StageKey
   +string? Notes
   +int Version
   +DateTime? ArchivedAtUtc
@@ -29,7 +29,7 @@ class Partner {
 }
 class PartnerMergeValues <<record>> {
   +string Name
-  +PartnerStage Stage
+  +string StageKey
   +string? ContactName
   +string? Email
   +string? Phone

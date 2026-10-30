@@ -2,7 +2,7 @@
 
 ## Overview
 
-Every FaithTech Community screen shall meet WCAG 2.2 AA. Accessibility comes from one place: the `components` library, which every feature composes its screens from. This design describes how that library, the shell and the end-to-end suite together satisfy `L2-044`.
+Every Community platform screen shall meet WCAG 2.2 AA. Accessibility comes from one place: the `components` library, which every feature composes its screens from. This design describes how that library, the shell and the end-to-end suite together satisfy `L2-044`.
 
 - **live region** — element with `aria-live` whose content changes are announced by screen readers
 - **focus trap** — dialog behaviour that keeps keyboard focus inside the dialog until it closes, then returns it to the opener
@@ -45,7 +45,7 @@ The feature realizes the following level-2 (L2) requirements. Each L2 requiremen
 
 ### System context
 
-Members who use assistive technology use FaithTech Community through the same screens as every other member.
+Members who use assistive technology use the Community platform through the same screens as every other member.
 
 ![C4 system context for accessibility](diagrams/c4-context.png)
 

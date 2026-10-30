@@ -3,7 +3,7 @@
 LAYOUT_WITH_LEGEND()
 title Containers — Private preview wall and deployment
 Person(owner, "Owner", "Browser holding the __Secure-unlock cookie")
-System_Boundary(ftc, "FaithTech Community on Azure Container Apps") {
+System_Boundary(ftc, "Community platform on Azure Container Apps") {
   Container(api, "API container app", "ASP.NET Core, image backend/deploy/api.Dockerfile", "Private preview gate, API, identity server, SignalR hub, community app and marketing builds served by host")
   Container(cli, "Cli job", "Container Apps job, image backend/deploy/cli.Dockerfile", "migrate and seed before each rollout")
   ContainerDb(db, "Community database", "Azure Database for PostgreSQL", "Persistent community data")
@@ -11,7 +11,7 @@ System_Boundary(ftc, "FaithTech Community on Azure Container Apps") {
   Container(kv, "Key Vault", "Azure Key Vault", "Connection strings, certificates, SMTP, Google, passphrase hash, signing key")
 }
 Container_Ext(acr, "Container registry", "Azure Container Registry", "API and Cli images")
-Rel(owner, api, "app. and www.", "HTTPS, managed certificates")
+Rel(owner, api, "Each organisation's community and public host", "HTTPS, managed certificates")
 Rel(api, db, "Reads and writes", "EF Core, TLS")
 Rel(api, blobs, "Stores and signs URLs for")
 Rel(cli, db, "Migrates and seeds", "EF Core, TLS")

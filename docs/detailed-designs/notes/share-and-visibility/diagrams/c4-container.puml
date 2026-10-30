@@ -2,9 +2,9 @@
 !include <C4/C4_Container>
 LAYOUT_WITH_LEGEND()
 title Containers — Page visibility and sharing
-Person(owner, "Owner", "Member or System Admin")
+Person(owner, "Owner", "Member, or an administrator")
 Person(recipient, "Recipient", "Named member or role holder")
-System_Boundary(community, "FaithTech Community") {
+System_Boundary(community, "Community platform") {
   Container(web, "Web app", "Angular", "share-note dialog (ft-radio-group, ft-person-picker, ft-checkbox-group); shell bell")
   Container(api, "Community API", "ASP.NET Core", "ShareNoteHandler, NoteShareNotifier, NoteAccess, INotificationPublisher, outbox worker")
   ContainerDb(db, "Community database", "PostgreSQL", "NoteShareMembers, NoteShareRoles, Notifications, EmailOutbox, AuditEntries")

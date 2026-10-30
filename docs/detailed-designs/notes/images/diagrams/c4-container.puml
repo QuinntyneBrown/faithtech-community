@@ -3,7 +3,7 @@
 LAYOUT_WITH_LEGEND()
 title Containers — Image blocks
 Person(owner, "Owner", "Adds images")
-System_Boundary(community, "FaithTech Community") {
+System_Boundary(community, "Community platform") {
   Container(web, "Web app", "Angular", "add-image and edit-alt-text dialogs (ft-file-dropzone, ft-text-field); ft-block-editor image block")
   Container(api, "Community API", "ASP.NET Core", "NoteImagesHandler, IImageProcessor, NoteBlocksValidator")
   ContainerDb(db, "Community database", "PostgreSQL", "NoteImages (PageId, BlobName, ContentType, Size)")

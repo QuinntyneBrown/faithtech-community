@@ -14,8 +14,8 @@ skinparam package {
   FontColor #101828
   BackgroundColor #F9FAFB
 }
-actor "Contributor" as actor
-box "Frontend — FaithTech Community web app (resources library)" #E0F2FE
+actor "Member with AddResources" as actor
+box "Frontend — Community web app (resources library)" #E0F2FE
   participant "AddResourceDialog" as dlg
   participant "HttpResourcesService" as svc
 end box
@@ -48,21 +48,21 @@ loop each file, one request at a time
   dlg --> actor : "Uploading k of 6…", row progress (AC8)
   ep -> v : Validate details
   ep -> h : AddAsync(files, details)
-  alt not a contributor
+  alt caller lacks AddResources
     h --> ep : Forbidden
-    ep --> svc : 403 (AC2)
+    ep --> svc : 403 (AC2, L2-135 AC4)
   else email not verified
     ep --> svc : 403 "Verify your email" (AC3)
   else more than 20 files, or a file fails extension, size or signature
     h -> types : Check(fileName, size, leading bytes)
     ep --> svc : 400 naming the file (AC6, AC7)
   else valid
-    h -> h : Resource.ForFile(owner = caller, title from file name, type from extension); SetTags; SetAudience
+    h -> h : Resource.ForFile(owner = caller, title from file name, type key from extension mapped to the organisation's ResourceType, L2-146 AC3); SetTags; SetAudience
     opt PNG, JPEG, GIF or WebP
       h -> img : ThumbnailAsync(stream)
       img --> h : 480 px PNG
     end
-    h -> store : SaveAsync(resources/{id}/{blobId}.{ext}) and thumbnail
+    h -> store : SaveAsync({organisationId}/resources/{id}/{blobId}.{ext}) and thumbnail (L2-130 AC5)
     alt storage unavailable
       h -> h : File.MarkStoring(); add ResourceBlobTask.Save with the bytes (AC11)
     end

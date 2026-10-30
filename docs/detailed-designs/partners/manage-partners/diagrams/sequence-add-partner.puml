@@ -14,8 +14,8 @@ skinparam package {
   FontColor #101828
   BackgroundColor #F9FAFB
 }
-actor "Lead" as actor
-box "Frontend — FaithTech Community web app (partners library)" #E0F2FE
+actor "Member with ManagePartners" as actor
+box "Frontend — Community web app (partners library)" #E0F2FE
   participant "PartnersPage" as board
   participant "AddPartnerDialog" as dlg
   participant "HttpPartnersService" as svc
@@ -36,7 +36,7 @@ actor -> board : Choose Add partner
 board -> dlg : Open
 dlg -> svc : owners()
 svc -> ep : GET /api/partners/owners
-ep --> svc : 200 members holding a lead role
+ep --> svc : 200 members holding ManagePartners
 actor -> dlg : Enter details, owner and stage, then save
 dlg -> dlg : clientErrors: name required, email well formed
 dlg -> svc : create({...details, stage})
@@ -48,21 +48,21 @@ alt invalid
   dlg --> actor : Inline errors
 else valid
   ep -> h : CreateAsync(command)
-  h -> acc : CanWrite
-  alt Staff or no lead role
+  h -> acc : CanWrite: Has(ManagePartners)
+  alt lacks ManagePartners
     h --> ep : Forbidden (L2-017 AC3, AC4)
     ep --> svc : 403
     svc --> dlg : Error
     dlg --> actor : Failed alert
   else permitted
-    h -> db : Owner, when given, holds a lead role?
-    alt owner is not a lead
-      h --> ep : Invalid OwnerId "Choose a lead as the owner."
+    h -> db : Owner, when given, holds ManagePartners?
+    alt owner lacks ManagePartners
+      h --> ep : Invalid OwnerId "Choose someone who can manage partners as the owner."
       ep --> svc : 400
     else
-      h -> h : new Partner(..., stage or Lead) (L2-017 AC1)
+      h -> h : new Partner(..., stage or the initial stage) (L2-017 AC1, L2-144 AC3)
       h -> h : PartnerActivity.Added(partner, caller, nowUtc) (L2-110 AC6)
-      h -> acc : AuditAdminWrite(actor, partner, "partner.created")
+      h -> acc : AuditAdminWrite(actor, partner, "partner.created") when IsOverride (L2-135 AC5)
       h -> db : Insert Partner and its Added activity
       h -> views : ToDtoAsync(partner)
       h --> ep : PartnerDto

@@ -2,9 +2,9 @@
 
 ## Project overview
 
-FaithTech Community is a full-stack community site for FaithTech staff, leads, volunteers, builders, event attendees and partners. Anyone can sign up and create a profile. The .NET backend owns persistence, permissions and authentication; the Angular frontend provides the app; Playwright covers end-to-end behavior and accessibility.
+FaithTech Community is a multi-tenant community platform: one deployment hosts many organisations, each with its own host, members, roles, chapters, vocabulary and data. An organisation's staff, leads, volunteers, builders, event attendees and partners use it; anyone can sign up on an organisation's host and get a profile there. FaithTech is the first organisation and is seed data, not code (`docs/proposals/organisations.md`, ADRs 0032 to 0035). The .NET backend owns persistence, permissions and authentication; the Angular frontend provides the app; Playwright covers end-to-end behavior and accessibility.
 
-`idea.txt` is the original brief. `decisions.txt` holds the agreed decisions and wins where the two differ.
+`docs/proposals/` holds the agreed decisions; a proposal wins over the original brief where they differ.
 
 ## Repository layout (MANDATORY)
 
@@ -22,7 +22,6 @@ faithtech-community/
 ├── README.md                         # Product overview, setup and development commands
 ├── LICENSE                           # MIT
 ├── CONTRIBUTING.md, CODE_OF_CONDUCT.md, SECURITY.md, SUPPORT.md   # Community health files
-├── idea.txt, decisions.txt           # Original brief and agreed decisions
 ├── .github/
 │   ├── workflows/                    # CI: build, test, lint, format, container image publish
 │   ├── ISSUE_TEMPLATE/               # Bug report and feature request templates
@@ -43,7 +42,8 @@ faithtech-community/
 │   │   │                                        # checks; one folder per feature (Identity/,
 │   │   │                                        # Profiles/, Contacts/, Partners/, Team/, Events/, Search/,
 │   │   │                                        # Notifications/, Announcements/, Invites/, Admin/,
-│   │   │                                        # Resources/, Notes/, Agile/, PrivatePreview/, Reports/)
+│   │   │                                        # Resources/, Notes/, Agile/, PrivatePreview/, Reports/,
+│   │   │                                        # Organisations/ with its Platform/ sub-folder for operators)
 │   │   ├── FaithTech.Community.Infrastructure/  # DbContext, EF migrations, Postgres full-text
 │   │   │                                        # search, Azure Blob, email, .ics, CSV, image resizing,
 │   │   │                                        # OpenIddict stores, audit log, seeder, private-preview
@@ -83,13 +83,16 @@ faithtech-community/
 │       │                             # archived view, share/settings/move/archive/image/link dialogs
 │       ├── agile/                    # Feature library: workspaces, backlog, board, sprints,
 │       │                             # work items, Planning Poker
-│       └── reports/                  # Feature library: the fixed, read-only Reports page for Staff
-│                                     # and System Admin (filters, figures, charts, tables, CSV export)
+│       ├── reports/                  # Feature library: the fixed, read-only Reports page
+│       │                             # (filters, figures, charts, tables, CSV export)
+│       └── organisations/            # Feature library: Organisation settings (general, roles and
+│                                     # grant rules, chapters, stages & types), the organisation
+│                                     # switcher and the unknown-host / not-a-member pages
 ├── e2e/                              # Playwright suite (Chromium only)
 │   ├── playwright.config.ts
 │   ├── pages/                        # Page objects: one per screen, owning selectors
 │   ├── fixtures/                     # Test fixtures, the fake backend (routed API + auth) and seeded data
-│   └── tests/                        # Specs by feature (one folder per feature, including reports/),
+│   └── tests/                        # Specs by feature (one folder per feature, including reports/ and organisations/),
 │                                     # including axe accessibility checks
 ├── eng/                              # Developer and CI scripts (start stack, run tests, deploy.sh)
 │   ├── infra/                        # Infrastructure as code for Azure (Bicep: main.bicep, modules/)
@@ -112,7 +115,7 @@ faithtech-community/
 
 Rules (MUST be followed):
 
-- Every feature uses the same name in `Application/`, `frontend/projects/`, `docs/specs/` and `docs/detailed-designs/`. The Agile workspaces subsystem is named `agile` (`Domain/Agile/`, `Application/Agile/`, `frontend/projects/agile/`, `docs/detailed-designs/agile/`; ADR 0010). Reports is named `reports` (`Application/Reports/`, `frontend/projects/reports/`, `docs/detailed-designs/reports/`, `docs/estimates/reports.md`, `e2e/tests/reports/`; ADR 0031); it reads other features' entities and needs no `Domain/Reports/`.
+- Every feature uses the same name in `Application/`, `frontend/projects/`, `docs/specs/` and `docs/detailed-designs/`. The Agile workspaces subsystem is named `agile` (`Domain/Agile/`, `Application/Agile/`, `frontend/projects/agile/`, `docs/detailed-designs/agile/`; ADR 0010). Reports is named `reports` (`Application/Reports/`, `frontend/projects/reports/`, `docs/detailed-designs/reports/`, `docs/estimates/reports.md`, `e2e/tests/reports/`; ADR 0031); it reads other features' entities and needs no `Domain/Reports/`. Organisations is named `organisations` (`Domain/Organisations/`, `Application/Organisations/`, `frontend/projects/organisations/`, `docs/detailed-designs/organisations/`, `docs/estimates/organisations.md`, `e2e/tests/organisations/`; ADR 0032); platform-operator code lives in its `Platform/` sub-folder and the Cli, never in a subsystem of its own.
 - EF Core migrations live only in `Infrastructure/Persistence/Migrations/` and are applied by the Cli project, never by the API.
 - .NET tests live only under `backend/tests/`. Angular unit tests (`*.spec.ts`) sit next to the code they test. Playwright tests live only in `e2e/`.
 - Each frontend feature is its own library project under `frontend/projects/<feature>/`, exposing its routes, pages and dialogs through its public API (`public-api.ts`). The app lazy-loads it from the shell.
@@ -136,15 +139,18 @@ Rules (MUST be followed):
 
 ## Domain rules (do not break)
 
-- Data is global with no city boundary. **Exception:** private contacts and their notes are visible only to the lead who created them and to System Admin.
-- A profile can hold several global roles. New users start with no role.
-- City Leads may add/remove Lead, Volunteer, Product Engineer and Attendee roles. Only System Admin grants or removes City Lead, Staff and System Admin.
-- Staff is read-only across everything except private contacts and the resources and note pages Staff own: Staff may add resources and note pages and edit, share, archive and restore their own; every other Staff write is refused.
-- System Admin can override anything; every admin action goes to the audit log.
-- Profiles are visible to signed-in members only. Public events are the only content anonymous visitors see (shareable page, guest RSVP, `.ics`).
+- Every record belongs to exactly one organisation, resolved from the request host. Nothing crosses organisations; an id from another organisation is not found. Accounts are global; a member has one profile per organisation they belong to (ADR 0032).
+- Within an organisation, data is organisation-wide. Chapters (an organisation's optional, labelled subdivisions, such as cities or campuses) tag and filter; they never hide anything (ADR 0034). **Exception:** private contacts and their notes are visible only to the member who created them and to an administrator override.
+- Permissions are capabilities, never role names (ADR 0033). The platform defines the capability catalogue (`docs/proposals/organisations.md`); an organisation defines its roles as named bundles of capabilities plus grant rules saying which roles may grant which. A profile can hold several roles, each optionally tagged with a chapter. New profiles hold no role.
+- A role may be granted or removed only by a holder of `AssignRoles` whose role a grant rule allows to grant it, or by a holder of `AdministerOrganisation`, who may grant anything. A role carrying `AdministerOrganisation` can only be granted by `AdministerOrganisation`. An organisation always keeps at least one active administrator.
+- A caller without the write capability for an action gets 403. There is no "read-only role" rule: a role with only view capabilities is read-only by construction (FaithTech's seeded Staff role is one).
+- `AdministerOrganisation` can override anything; every override (an action allowed only because of that capability) and every role change goes to the audit log.
+- Platform operators provision, suspend and lift organisations and read the platform audit log. They never read organisation data.
+- Profiles are visible to signed-in members of the organisation only. Public events are the only content anonymous visitors see (shareable page, guest RSVP, `.ics`).
 - Every query, search result and endpoint must enforce these permissions on the server. Never rely on the UI to hide data.
+- FaithTech's roles (City Lead, Event Lead, Create Lead, Communications Lead, Staff, Volunteer, Product Engineer, Attendee, System Admin), its chapter label "City", its partner stages (Lead, In Funnel, Confirmed), event types and resource types are the seed in `L2-151`. Code never names them.
 
-v1 features: profiles and photos (max 10, one featured, alt text required), invites (expire after 14 days), connect links (a City Lead's reusable QR code that never expires and can be replaced; not an invite), contacts (soft-delete archive and restore, linked when the person signs up), partner Kanban (Lead -> In Funnel -> Confirmed), team, events (hackathon is an event type), global search, notifications (in-app + email), announcements (with email opt-out), resources (uploads and https links, type and tags, private/shared/global visibility, archive with 30-day purge), docs & notes (block-based pages with formatting, drag-and-drop and keyboard reorder, page links, backlinks and nesting; private/shared/global visibility, default private; archive and restore). Hackathon teams, projects and judging are v2. Do not build them yet.
+v1 features: organisations (host per organisation, settings for name, chapter label, roles and grant rules, chapters, partner stages, event types and resource types; organisation switcher; operator provisioning and suspension), profiles and photos (max 10, one featured, alt text required), invites (expire after 14 days), connect links (a reusable QR code for holders of `ConnectLink` that never expires and can be replaced; not an invite), contacts (soft-delete archive and restore, linked when the person signs up), partner Kanban (one column per organisation stage), team, events (types per organisation), global search, notifications (in-app + email), announcements (with email opt-out), resources (uploads and https links, type and tags, private/shared/global visibility, archive with 30-day purge), docs & notes (block-based pages with formatting, drag-and-drop and keyboard reorder, page links, backlinks and nesting; private/shared/global visibility, default private; archive and restore), reports. Hackathon teams, projects and judging are v2. Do not build them yet.
 
 ## Backend architecture
 
@@ -166,11 +172,13 @@ Non-obvious rules:
 - Endpoints require authentication by default. Anonymous access, such as public event pages and guest RSVP, must be opted into explicitly per endpoint.
 - Keep request logging outside the exception-handling middleware so handled response statuses are logged correctly.
 - While `PrivatePreview:Enabled` is on (the default; Development turns it off), `PrivatePreviewGateMiddleware` refuses every request without a valid unlock before routing, authentication and static files (ADR 0026). Keep it ahead of them in `Program.cs`. It is a gate in front of the permission rules, never a replacement for them.
+- `OrganisationResolutionMiddleware` runs right after the wall and before authentication, static files and routing (ADR 0032). It resolves the host to the organisation and sets `ICurrentOrganisation`; every scoped query filters on it through the DbContext's global query filter. Never resolve an organisation from a token, a header or a body.
+- Handlers check `ICurrentUser.Has(capability)`, computed from the caller's current roles in the current organisation on every request. Never compare a role name.
 - Keep secrets out of the repo; use configuration and environment variables.
 
 ### Tests
 
-Backend behavior is covered by integration tests against the API. Write tests for authorization rules alongside each feature, especially private-contact visibility and role-assignment limits.
+Backend behavior is covered by integration tests against the API. Write tests for authorization rules alongside each feature, especially private-contact visibility, grant rules and organisation isolation (a caller in one organisation never sees another's records). Tests arrange a caller by capability set, and use the FaithTech seed as the regression case.
 
 All backend tests MUST use a fake database: the EF Core in-memory provider, with a uniquely named database per test fixture. Tests MUST NOT depend on Docker, Testcontainers, a running PostgreSQL or any other external service; fake external dependencies (blob storage, email, breached-password checks, time) behind their abstractions.
 
@@ -199,7 +207,7 @@ All backend tests MUST use a fake database: the EF Core in-memory provider, with
 **The full Playwright suite MUST pass with no backend running.** No API, no PostgreSQL, no identity server, no blob storage, no SMTP and no Docker. The suite exercises the real Angular app against a fake backend that the tests own.
 
 - Every HTTP call the app makes is intercepted with Playwright route handling (`page.route` / `context.route`) and answered by a fake API implemented in `e2e/fixtures/`. The fake owns an in-memory data set, seeded per test, and answers the same contracts the real API exposes (status codes, response shapes, validation errors, permission failures).
-- Authentication is faked too: the fake API answers the OIDC discovery, authorization, token and userinfo requests so the app completes its real sign-in flow against the fake. Tests sign in as a role (System Admin, City Lead, Staff, Volunteer, anonymous visitor) through a fixture, never by hand-editing storage or bypassing the app's auth code.
+- Authentication is faked too: the fake API answers the OIDC discovery, authorization, token and userinfo requests so the app completes its real sign-in flow against the fake. Tests sign in through a fixture as a seeded FaithTech role (System Admin, City Lead, Staff, Volunteer) or as a member with an explicit capability set, or stay an anonymous visitor; never by hand-editing storage or bypassing the app's auth code. The fake holds the FaithTech role definitions and grant rules as data and answers one organisation per host.
 - Fake behavior lives in `e2e/fixtures/`, never in page objects or specs. A spec arranges state through a fixture, drives the app through page objects and asserts what the user sees.
 - A request the fake does not recognise MUST fail the test loudly (an unrouted request is a bug, not a pass-through). Never let a request fall through to a real network.
 - Every test runs as the owner who has already unlocked the private-preview wall; a spec puts the visitor in front of it with `api.wall.lock()` (`e2e/fixtures/mock-wall.ts`, which renders the API's own `wall.html`).

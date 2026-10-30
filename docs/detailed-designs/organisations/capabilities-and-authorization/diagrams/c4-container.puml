@@ -1,0 +1,18 @@
+@startuml
+!include <C4/C4_Container>
+LAYOUT_WITH_LEGEND()
+title Containers — Capabilities and authorization
+Person(member, "Member", "Holds roles whose definitions carry capabilities")
+Person(admin, "Administrator", "Holds AdministerOrganisation")
+System_Boundary(platform, "Community platform") {
+  Container(web, "Web app", "Angular", "Shell navigation keyed on capabilities from /api/me; api and components libraries")
+  Container(api, "Community API", "ASP.NET Core", "CurrentRolesMiddleware computes capabilities per request; access classes authorise")
+  ContainerDb(db, "Community database", "PostgreSQL", "Organisations, role definitions, profile roles, admin rosters, audit log")
+}
+System_Ext(email, "Email provider", "SMTP/SendGrid")
+Rel(member, web, "Uses", "HTTPS")
+Rel(admin, web, "Uses", "HTTPS")
+Rel(web, api, "GET /api/me, feature calls", "JSON/HTTPS, OAuth2 bearer token")
+Rel(api, db, "Reads held definitions and capabilities; writes audit entries", "EF Core")
+Rel(api, email, "Queues notification email via", "SMTP/SendGrid")
+@enduml

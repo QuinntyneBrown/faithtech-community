@@ -1,0 +1,158 @@
+@startuml
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 8
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam class {
+  BorderColor #344054
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+title Class structure — Taxonomies
+enum PartnerStageKind {
+  Open
+  Confirmed
+}
+class PartnerStage {
+  +Guid Id
+  +Guid OrganisationId
+  +string Key
+  +string Name
+  +int SortOrder
+  +bool IsArchived
+  +bool IsInitial
+  +PartnerStageKind Kind
+  +Rename(name: string): void
+  +MoveTo(sortOrder: int): void
+  +MarkInitial(initial: bool): void
+  +SetKind(kind: PartnerStageKind): void
+  +Archive(): void
+}
+class EventType {
+  +Guid Id
+  +Guid OrganisationId
+  +string Key
+  +string Name
+  +int SortOrder
+  +bool IsArchived
+  +Rename(name: string): void
+  +MoveTo(sortOrder: int): void
+  +Archive(): void
+}
+class ResourceType {
+  +Guid Id
+  +Guid OrganisationId
+  +string Key
+  +string Name
+  +int SortOrder
+  +bool IsArchived
+  +Rename(name: string): void
+  +MoveTo(sortOrder: int): void
+  +Archive(): void
+}
+class Partner {
+  +Guid Id
+  +string Name
+  +Guid StageId
+  +int Version
+  +IReadOnlyCollection<PartnerStageChange> StageChanges
+  +MoveTo(stage: PartnerStage, by: Guid, nowUtc: DateTime, note: string?): void
+}
+class PartnerStageChange {
+  +Guid Id
+  +Guid PartnerId
+  +string From
+  +string To
+  +Guid MovedBy
+  +DateTime MovedAtUtc
+  +string? Note
+}
+class Event {
+  +Guid Id
+  +string Title
+  +Guid TypeId
+}
+class Resource {
+  +Guid Id
+  +string Title
+  +Guid TypeId
+}
+class TaxonomyRules {
+  +MaxName = 40
+  +ValidateName(name: string, active: IEnumerable<string>): Result
+  +DeriveKey(name: string, existing: IEnumerable<string>): string
+}
+class ManagePartnerStagesHandler {
+  +AddAsync(command: AddEntryCommand): Task<(Result, TaxonomyEntryDto?)>
+  +RenameAsync(id: Guid, command: RenameEntryCommand): Task<(Result, TaxonomyEntryDto?)>
+  +ReorderAsync(command: ReorderEntriesCommand): Task<Result>
+  +SetInitialAsync(id: Guid): Task<Result>
+  +SetKindAsync(id: Guid, kind: PartnerStageKind): Task<Result>
+  +ArchiveAsync(id: Guid): Task<Result>
+}
+class ManageEventTypesHandler {
+  +AddAsync(command: AddEntryCommand): Task<(Result, TaxonomyEntryDto?)>
+  +RenameAsync(id: Guid, command: RenameEntryCommand): Task<(Result, TaxonomyEntryDto?)>
+  +ReorderAsync(command: ReorderEntriesCommand): Task<Result>
+  +ArchiveAsync(id: Guid): Task<Result>
+}
+class ManageResourceTypesHandler {
+  +AddAsync(command: AddEntryCommand): Task<(Result, TaxonomyEntryDto?)>
+  +RenameAsync(id: Guid, command: RenameEntryCommand): Task<(Result, TaxonomyEntryDto?)>
+  +ReorderAsync(command: ReorderEntriesCommand): Task<Result>
+  +ArchiveAsync(id: Guid): Task<Result>
+}
+class ResourceTypeResolver {
+  +ResolveAsync(key: string): Task<ResourceType>
+}
+class ResourceFileTypes {
+  +{static} GuessType(fileName: string): string
+}
+class TaxonomyEntryDto <<record>> {
+  +Guid Id
+  +string Key
+  +string Name
+  +int SortOrder
+  +bool IsArchived
+  +bool? IsInitial
+  +string? Kind
+  +int ReferenceCount
+}
+class OrganisationDto <<record>> {
+  +IReadOnlyList<TaxonomyEntryDto> PartnerStages
+  +IReadOnlyList<TaxonomyEntryDto> EventTypes
+  +IReadOnlyList<TaxonomyEntryDto> ResourceTypes
+}
+class PartnerColumnDto <<record>> {
+  +Guid StageId
+  +string Key
+  +string Name
+  +string Kind
+  +bool IsArchived
+  +int Count
+  +IReadOnlyList<PartnerCardDto> Cards
+}
+interface IAuditLog {
+  +Record(actorId: Guid, action: string, targetType: string, targetId: string, before: object?, after: object?): void
+}
+PartnerStage --> PartnerStageKind
+Partner "*" --> "1" PartnerStage : StageId
+Partner "1" *-- "*" PartnerStageChange
+PartnerStageChange ..> PartnerStage : From / To hold keys
+Event "*" --> "1" EventType : TypeId
+Resource "*" --> "1" ResourceType : TypeId
+ManagePartnerStagesHandler --> TaxonomyRules
+ManageEventTypesHandler --> TaxonomyRules
+ManageResourceTypesHandler --> TaxonomyRules
+ManagePartnerStagesHandler --> PartnerStage : creates / mutates
+ManageEventTypesHandler --> EventType : creates / mutates
+ManageResourceTypesHandler --> ResourceType : creates / mutates
+ManagePartnerStagesHandler ..> IAuditLog : taxonomy.updated
+ManageEventTypesHandler ..> IAuditLog : taxonomy.updated
+ManageResourceTypesHandler ..> IAuditLog : taxonomy.updated
+ResourceTypeResolver --> ResourceType : by key, else other
+ResourceTypeResolver ..> ResourceFileTypes : key from GuessType
+OrganisationDto "1" *-- "*" TaxonomyEntryDto
+PartnerColumnDto ..> PartnerStage : one per active stage
+@enduml

@@ -15,7 +15,7 @@ skinparam package {
   BackgroundColor #F9FAFB
 }
 actor "Signed-in member" as actor
-box "Frontend — FaithTech Community web app (resources library)" #E0F2FE
+box "Frontend — Community web app (resources library)" #E0F2FE
   participant "ResourcesPage" as list
   participant "HttpResourcesService" as svc
 end box
@@ -43,11 +43,13 @@ par list and tags
     h -> acc : Visible(Resources, caller)
     note right of acc
       ArchivedAt IS NULL AND (Global OR OwnerId = caller
-      OR caller is System Admin OR caller in ResourceShareMembers
-      OR a ResourceShareRole the caller holds now) (L2-060)
+      OR caller Has(AdministerOrganisation) OR caller in ResourceShareMembers
+      OR a ResourceShareRole the caller holds now) (L2-060);
+      the organisation filter is already applied (L2-130 AC2);
+      the organisation filter is already applied (L2-130 AC2)
     end note
     opt type or tag
-      h -> h : WHERE Type = type; EXISTS ResourceTag = tag
+      h -> h : WHERE ResourceType.Key = type; EXISTS ResourceTag = tag
     end
     opt q
       h -> fts : Match(query, q, Title + Description + TagText + FileName)
@@ -67,7 +69,7 @@ else
 end
 svc --> list : Page and tags
 alt total = 0 and no filters
-  list --> actor : "No resources yet"; "Add the first resource" for contributors (L2-055 AC8)
+  list --> actor : "No resources yet"; "Add the first resource" for holders of AddResources (L2-055 AC8)
 else total = 0 with a term
   list --> actor : "No resources match “{term}”" with Clear search (L2-055 AC7)
 else results

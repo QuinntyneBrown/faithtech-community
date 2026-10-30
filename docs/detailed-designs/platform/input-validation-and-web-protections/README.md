@@ -2,7 +2,7 @@
 
 ## Overview
 
-FaithTech Community accepts input from members and anonymous visitors, so every request passes the same set of protections before any business rule runs. This design describes the shared validation pipeline and the HTTP protections configured once in `FaithTech.Community.Api`.
+The Community platform accepts input from members and anonymous visitors, so every request passes the same set of protections before any business rule runs. This design describes the shared validation pipeline and the HTTP protections configured once in `FaithTech.Community.Api`.
 
 - **validation problem details** — RFC 9457 response body with an `errors` map from field name to messages
 - **security headers** — HSTS, Content-Security-Policy, `X-Content-Type-Options` and frame protection added to every response
@@ -15,7 +15,7 @@ Output encoding is the frontend's responsibility: Angular templates encode inter
 - **`ValidationEndpointFilter`** — endpoint filter in the Api project that resolves the `IValidator<T>` for the request body, runs it before the handler, and returns `Results.ValidationProblem` (400) on failure, so nothing is saved.
 - **Feature validators** — `<Verb><Noun>Validator` classes in each Application feature folder. The validation library is `<TO SUPPLY>`.
 - **`SecurityHeadersMiddleware`** — adds `Strict-Transport-Security`, a `Content-Security-Policy` with no `unsafe-inline` in `script-src`, `X-Content-Type-Options: nosniff` and `frame-ancestors 'none'` with `X-Frame-Options: DENY`.
-- **CORS policy** — `AddCors` with a single named policy allowing only the configured web app origin; state-changing cross-origin requests from other origins fail the preflight.
+- **CORS policy** — `AddCors` with a single named policy allowing only the current organisation's community and public origins, resolved from the request host by `OrganisationResolutionMiddleware` (`L2-131` AC6); state-changing cross-origin requests from other origins, including another organisation's, fail the preflight. Every query a handler runs is scoped by the DbContext's global filter on `ICurrentOrganisation`.
 - **Rate limiter** — `AddRateLimiter` with a per-user fixed window of 100 requests per minute and an `auth` policy of 20 requests per minute per IP address applied to the sign-in, sign-up, reset and verification endpoints. Rejections return 429.
 - **Secret handling** — secrets come from configuration and environment variables. Credentials (passwords, reset, verification and invite tokens) travel only in request bodies, which are never logged, so none of them is ever part of a URL. The invite lookup is `POST /api/invites/lookup` with `{ token }`. The request log records method, path, status, elapsed time and correlation ID, and never headers, cookies or bodies. `LogRedaction` replaces any credential segment that a stale client still puts in a path (`/by-token/{token}`) with `[redacted]`, both in the request log and in the `RequestPath`/`Path` scope properties. ASP.NET Core's own per-request events, which carry raw paths, are logged only at Warning and above.
 - **Angular output encoding** — templates use interpolation and property binding only; `bypassSecurityTrust*` is not used.
@@ -43,7 +43,7 @@ The feature realizes the following level-2 (L2) requirements. Each L2 requiremen
 
 ### System context
 
-Every caller sends requests to FaithTech Community through the same protections.
+Every caller sends requests to the Community platform through the same protections.
 
 ![C4 system context for input validation and web protections](diagrams/c4-context.png)
 

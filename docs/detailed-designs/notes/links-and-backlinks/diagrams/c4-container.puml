@@ -3,7 +3,7 @@
 LAYOUT_WITH_LEGEND()
 title Containers — Page links, backlinks and nesting
 Person(member, "Member", "Owner or reader")
-System_Boundary(community, "FaithTech Community") {
+System_Boundary(community, "Community platform") {
   Container(web, "Web app", "Angular", "ft-slash-menu ([[), ft-page-links, ft-breadcrumb, move-note dialog")
   Container(api, "Community API", "ASP.NET Core", "GetNoteHandler, NoteRefs, LinkSuggestionsHandler, ParentOptionsHandler, MoveNoteHandler, SaveNoteHandler")
   ContainerDb(db, "Community database", "PostgreSQL", "NotePages.ParentId, NoteLinks (SourceId, TargetId)")

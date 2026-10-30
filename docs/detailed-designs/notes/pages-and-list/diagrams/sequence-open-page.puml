@@ -14,8 +14,8 @@ skinparam package {
   FontColor #101828
   BackgroundColor #F9FAFB
 }
-actor "Member or System Admin" as actor
-box "Frontend — FaithTech Community web app (notes library)" #E0F2FE
+actor "Member or administrator" as actor
+box "Frontend — Community web app (notes library)" #E0F2FE
   participant "NotePage" as page
   participant "HttpNotesService" as svc
 end box
@@ -36,17 +36,17 @@ page -> svc : get(id)
 svc -> ep : GET /api/notes/{id}
 ep -> h : HandleAsync(id)
 h -> acc : FindAsync(id, caller)
-acc -> db : Visible page, or archived for owner / System Admin
+acc -> db : Visible page, or archived for owner / AdministerOrganisation
 alt missing, archived or not visible (L2-092)
   ep --> svc : 404
   page --> actor : "This page isn't available" and "Browse notes"
 else found
-  opt System Admin opens a Private, Shared or archived page they do not own (L2-098)
+  opt AdministerOrganisation override opens a Private, Shared or archived page they do not own (L2-098, L2-135 AC5)
     h -> audit : Record(note.opened, NotePage, id)
     h -> db : Save the audit entry
   end
   h -> db : NoteViews.DetailAsync: owner, audience, breadcrumb,\nchildren, backlinks, page-link titles (NoteRefs)
-  h -> h : canEdit = owner or System Admin; isAdminView
+  h -> h : canEdit = owner or Has(AdministerOrganisation); isAdminView
   ep --> svc : 200 NotePageDto
   alt canEdit and not archived
     page --> actor : Editable title, icon and ft-block-editor

@@ -1,0 +1,82 @@
+@startuml
+title UML sequence behaviour — Move a partner between organisation stages
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+actor "Partner manager" as actor
+box "Frontend — Community web app (partners library)" #E0F2FE
+  participant "PartnersPage" as page
+  participant "MovePartnerDialog" as dlg
+end box
+box "Frontend — Community web app (api library)" #E0F2FE
+  participant "HttpOrganisationService" as org
+  participant "HttpPartnersService" as svc
+end box
+box "Backend — FaithTech.Community.Api" #D1FADF
+  participant "PartnersEndpoints" as ep
+  participant "MovePartnerValidator" as v
+end box
+box "Backend — FaithTech.Community.Application and Domain" #ECFDF3
+  participant "ManagePartnersHandler" as bh
+  participant "MovePartnerHandler" as h
+  participant "Partner" as ent
+end box
+box "Backend — FaithTech.Community.Infrastructure" #FFF4E5
+  database "Community database" as db
+end box
+actor -> page : Open /partners
+page -> org : get()
+org --> page : Active stages in order with kind and initial
+page -> svc : getBoard()
+svc -> ep : GET /api/partners
+ep -> bh : BoardAsync()
+bh -> db : Active stages in order; non-archived partners grouped by StageId
+db --> bh : Stages and partners
+bh -> bh : One PartnerColumnDto per active stage; then "Archived stage: {name}" for archived stages still holding partners (L2-144 AC3, AC4)
+bh --> ep : PartnerBoardDto
+ep --> svc : 200 OK
+svc --> page : Columns
+page --> actor : One KanbanColumn per column, tabs below 640px; archived-stage column has no drop target
+alt pointer
+  actor -> page : Drag a card to another column
+  page -> svc : move(id, to: stage key)
+else keyboard or Move button
+  actor -> page : Focus card and choose Move
+  page -> dlg : Open with the active stages from get()
+  actor -> dlg : Choose a stage and an optional note
+  dlg -> svc : move(id, to: stage key, note)
+end
+svc -> ep : POST /api/partners/{id}/stage { to, note }
+ep -> v : Validate: to is an active stage key of the organisation; note at most 500
+alt unknown or archived key
+  ep --> svc : 400 (L2-144 AC4)
+  svc --> page : Error
+  page --> actor : Card stays; toast "That didn’t work"
+else valid
+  ep -> h : MoveAsync(id, command)
+  h -> db : Load Partner with StageChanges and the target PartnerStage
+  alt already at that stage
+    ep --> svc : 409 "{name} is already at that stage."
+  else permitted
+    h -> ent : MoveTo(stage, caller, nowUtc, note): StageId = stage.Id; append PartnerStageChange(From = old key, To = new key) (L2-144 AC6)
+    h -> db : Save partner, stage change and StageMoved activity
+    db --> h : Committed
+    h --> ep : PartnerDto with the current stage name
+    ep --> svc : 200 OK
+    svc --> page : Moved partner
+    page --> actor : Card in the new column; counts updated; "{name} moved to {stage}" announced
+  end
+end
+note over bh : Home's pipeline card and Reports sum "confirmed" over columns whose Kind is Confirmed (L2-144 AC5)
+@enduml

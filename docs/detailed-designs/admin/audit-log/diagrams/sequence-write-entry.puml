@@ -14,8 +14,8 @@ skinparam package {
   FontColor #101828
   BackgroundColor #F9FAFB
 }
-actor "System Admin or City Lead" as actor
-box "Frontend — FaithTech Community web app" #E0F2FE
+actor "Administrator or holder of AssignRoles" as actor
+box "Frontend — Community web app" #E0F2FE
   participant "Page or dialog" as page
   participant "Feature service" as svc
 end box
@@ -29,14 +29,14 @@ box "Backend — FaithTech.Community.Infrastructure" #FFF4E5
   participant "AuditLog" as audit
   database "Community database" as db
 end box
-actor -> page : Perform admin action or role change
+actor -> page : Perform an override, role change, suspension or settings change
 page -> svc : Request
 svc -> ep : HTTPS request
 ep -> h : Call handler
 h -> db : Load target and capture before values
 h -> h : Apply change and capture after values
 h -> audit : Record(actorId, action, targetType, targetId, before, after) (L2-041 AC1)
-audit -> audit : Serialize before and after to JSON; stamp UTC time and request IP address
+audit -> audit : Serialize before and after to JSON; stamp UTC time, request IP address and ICurrentOrganisation
 audit -> db : Add AuditEntry to the unit of work
 h -> db : SaveChanges: change and entry in one unit of work
 db --> h : Commit

@@ -1,0 +1,139 @@
+@startuml
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 8
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam class {
+  BorderColor #344054
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+title Class structure — Chapters
+class Organisation {
+  +Guid Id
+  +string Slug
+  +string Host
+  +string Name
+  +string ShortName
+  +ChapterLabel? ChapterLabel
+  +SetChapterLabel(label: ChapterLabel?): void
+}
+class ChapterLabel <<value object>> {
+  +string Singular
+  +string Plural
+}
+class Chapter {
+  +Guid Id
+  +Guid OrganisationId
+  +string Name
+  +int SortOrder
+  +bool IsArchived
+  +Rename(name: string): void
+  +MoveTo(sortOrder: int): void
+  +Archive(): void
+}
+class Profile {
+  +Guid Id
+  +Guid OrganisationId
+  +string Name
+  +Guid? ChapterId
+  +string? Bio
+  +IReadOnlyCollection<ProfileRole> Roles
+  +Update(name: string, chapterId: Guid?, bio: string?): void
+  +AddRole(definition: RoleDefinition, chapterId: Guid?, grantedBy: Guid, nowUtc: DateTime): void
+}
+class ProfileRole {
+  +Guid ProfileId
+  +Guid RoleDefinitionId
+  +Guid? ChapterId
+  +Guid GrantedBy
+  +DateTime GrantedAtUtc
+}
+class RoleDefinition {
+  +Guid Id
+  +string Name
+  +bool ChapterScopable
+}
+class Event {
+  +Guid Id
+  +Guid OrganisationId
+  +string Title
+  +Guid? ChapterId
+}
+class Contact {
+  +Guid Id
+  +string? City
+}
+class ChapterRules {
+  +MaxName = 60
+  +Validate(name: string, active: IEnumerable<Chapter>): Result
+}
+class AddChapterCommand <<record>> {
+  +string? Name
+}
+class RenameChapterCommand <<record>> {
+  +string? Name
+}
+class ReorderChaptersCommand <<record>> {
+  +IReadOnlyList<Guid> ChapterIds
+}
+class ManageChaptersHandler {
+  +AddAsync(command: AddChapterCommand): Task<(Result, ChapterDto?)>
+  +RenameAsync(id: Guid, command: RenameChapterCommand): Task<(Result, ChapterDto?)>
+  +ReorderAsync(command: ReorderChaptersCommand): Task<Result>
+  +ArchiveAsync(id: Guid): Task<Result>
+}
+class GetOrganisationHandler {
+  +HandleAsync(): Task<OrganisationDto>
+}
+class OrganisationDto <<record>> {
+  +string Name
+  +string ShortName
+  +ChapterLabelDto? ChapterLabel
+  +IReadOnlyList<ChapterOptionDto> Chapters
+}
+class ChapterDto <<record>> {
+  +Guid Id
+  +string Name
+  +int SortOrder
+  +bool IsArchived
+  +int MemberCount
+}
+class RoleGrantPolicy {
+  +GrantorScope Scope
+  +CanGrant(definition: RoleDefinition, chapterId: Guid?): bool
+  +CanRemove(assignment: ProfileRole): bool
+}
+class GrantorScope <<record>> {
+  +bool Anywhere
+  +IReadOnlySet<Guid> ChapterIds
+}
+interface ICurrentUser {
+  +Guid? UserId
+  +IReadOnlySet<string> Capabilities
+  +Has(capability: string): bool
+}
+interface IAuditLog {
+  +Record(actorId: Guid, action: string, targetType: string, targetId: string, before: object?, after: object?): void
+}
+Organisation *-- ChapterLabel
+Organisation "1" *-- "*" Chapter
+Profile "0..1" --> "1" Chapter : ChapterId
+Event "0..1" --> "1" Chapter : ChapterId
+ProfileRole "0..1" --> "1" Chapter : ChapterId
+ProfileRole --> RoleDefinition
+Profile "1" *-- "*" ProfileRole
+ManageChaptersHandler ..> AddChapterCommand : handles
+ManageChaptersHandler ..> RenameChapterCommand : handles
+ManageChaptersHandler ..> ReorderChaptersCommand : handles
+ManageChaptersHandler --> ChapterRules
+ManageChaptersHandler --> Chapter : creates / mutates
+ManageChaptersHandler ..> ICurrentUser : ManageOrganisationSettings
+ManageChaptersHandler ..> IAuditLog : chapter.*
+ManageChaptersHandler ..> ChapterDto : returns
+GetOrganisationHandler ..> OrganisationDto : returns
+RoleGrantPolicy *-- GrantorScope
+RoleGrantPolicy ..> ICurrentUser
+RoleGrantPolicy ..> ProfileRole : caller's tagged grantor assignments
+@enduml

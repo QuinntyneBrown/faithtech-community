@@ -28,15 +28,21 @@ interface IBreachedPasswordChecker {
 interface IEmailSender {
   +SendAsync(message: EmailMessage): Task
 }
+interface ICurrentOrganisation {
+  +Guid Id
+  +string Name
+  +string Host
+}
 class CommunityUser {
   +Guid Id
   +string Email
   +bool EmailConfirmed
   +string PasswordHash
-  +Guid ProfileId
 }
 class Profile {
   +Guid Id
+  +Guid OrganisationId
+  +Guid UserId
   +string Name
   +IReadOnlyCollection<ProfileRole> Roles
 }
@@ -44,6 +50,8 @@ SignUpHandler ..> SignUpCommand : handles
 SignUpHandler ..> SignUpValidator : uses
 SignUpHandler ..> IBreachedPasswordChecker : uses
 SignUpHandler ..> IEmailSender : uses
+SignUpHandler ..> ICurrentOrganisation : stamps profile with
 SignUpHandler --> CommunityUser : creates
-CommunityUser "1" --> "1" Profile : owns
+SignUpHandler --> Profile : creates in the organisation
+CommunityUser "1" --> "0..*" Profile : one per organisation
 @enduml

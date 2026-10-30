@@ -5,10 +5,10 @@ skinparam shadowing false
 skinparam defaultFontName Arial
 skinparam ArrowColor #344054
 actor "Visitor" as actor
-box "Marketing app (www.faithtech.community)" #FEF3C7
+box "Marketing app (organisation public host)" #FEF3C7
   participant "LandingPage" as page
 end box
-box "Community app (WebApp:Origin)" #E0F2FE
+box "Community app (organisation community host)" #E0F2FE
   participant "AuthContinuePage" as cont
   participant "OidcAuthClient" as client
   participant "AuthCallbackPage" as cb
@@ -21,9 +21,9 @@ end box
 actor -> page : Email, password, Keep me signed in
 page -> acc : POST /api/account/sign-in (credentials: include)
 acc -> h : SignInCommand
-alt invalid / locked / suspended
+alt invalid / locked / membership suspended
   h --> acc : SignInError
-  acc --> page : 400 { code } (L2-076 AC2-AC4)
+  acc --> page : 400 { code } (L2-076 AC2-AC4, L2-132 AC5-AC6)
   page --> actor : Same alert as the app's sign-in page
 else succeeded
   acc --> page : 200 { emailVerified }, Set-Cookie ftc.session (SameSite=Lax)
@@ -33,6 +33,6 @@ else succeeded
   authz --> cb : 302 /auth/callback?code&state (ftc.session cookie sent)
   cb -> authz : POST /connect/token (code_verifier)
   authz --> cb : Access and refresh tokens; kept session writes ftc.signed-in hint
-  cb --> actor : Home, or the returnUrl page (L2-076 AC1, AC5)
+  cb --> actor : Home, or the returnUrl page (L2-076 AC1, AC5); not-a-member page without a profile in the organisation (L2-132 AC3)
 end
 @enduml

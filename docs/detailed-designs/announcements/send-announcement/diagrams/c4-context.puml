@@ -2,8 +2,8 @@
 !include <C4/C4_Context>
 LAYOUT_WITH_LEGEND()
 title System Context — Send an announcement
-Person(comms, "Communications Lead", "Sends announcements")
-System(ftc, "FaithTech Community", "Community site for FaithTech staff, leads, volunteers, builders and partners")
+Person(comms, "Member with SendAnnouncements", "Sends announcements")
+System(ftc, "Community platform", "Hosts each organisation's members, events, partners and resources")
 System_Ext(email, "Email provider", "SMTP/SendGrid email delivery")
 Rel(comms, ftc, "Composes and sends announcements using")
 Rel(ftc, email, "Sends announcement email via", "SMTP")

@@ -3,8 +3,8 @@
 LAYOUT_WITH_LEGEND()
 title System Context — Switch method
 
-Person(lead, "City Lead", "Owns Agile workspaces")
-System(ftc, "FaithTech Community", "Community site with Agile team workspaces")
+Person(lead, "Member with OwnWorkspaces", "Holds OwnWorkspaces; owns Agile workspaces")
+System(ftc, "Community platform", "Community site with Agile team workspaces")
 
 Rel(lead, ftc, "Switches the method of a workspace in")
 @enduml

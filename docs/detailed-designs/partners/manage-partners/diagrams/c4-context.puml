@@ -2,9 +2,9 @@
 !include <C4/C4_Context>
 LAYOUT_WITH_LEGEND()
 title System Context — Manage partners
-Person(lead, "Lead", "City, Event, Create or Communications Lead who works the partner pipeline")
-Person(staff, "Staff", "Read-only across everything except private contacts")
-System(community, "FaithTech Community", "Community site for FaithTech staff, leads, volunteers, builders and partners")
+Person(lead, "Member with ManagePartners", "Works the partner pipeline")
+Person(staff, "Member with view capabilities", "Holds ViewPartners without ManagePartners; reads the pipeline")
+System(community, "Community platform", "Hosts each organisation's members, events, partners and resources")
 Rel(lead, community, "Records and views partner organizations using")
 Rel(staff, community, "Views partner organizations read-only using")
 @enduml

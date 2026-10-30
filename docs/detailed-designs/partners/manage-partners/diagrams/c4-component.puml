@@ -4,7 +4,7 @@ LAYOUT_WITH_LEGEND()
 title Components — Manage partners
 Container_Boundary(web, "Web app") {
   Component(board, "PartnersPage", "Angular page (partners library)", "/partners: board with the Add partner action")
-  Component(dlg, "AddPartnerDialog", "Angular CDK Dialog (partners library)", "Every L2-017 field and a stage, Lead by default")
+  Component(dlg, "AddPartnerDialog", "Angular CDK Dialog (partners library)", "Every L2-017 field and a stage, the initial stage by default")
   Component(page, "PartnerPage", "Angular page (partners library)", "/partners/:id: details and activity timeline")
   Component(form, "PartnerFormPage", "Angular page (partners library)", "/partners/:id/edit: details without the stage")
   Component(fields, "partner-fields.ts", "TypeScript module (partners library)", "Shared form, request mapping and error mapping")
@@ -30,6 +30,6 @@ Rel(ep, val, "Validates body (400)")
 Rel(ep, h, "Calls")
 Rel(h, acc, "Checks L2-017 access")
 Rel(h, views, "Builds PartnerDto")
-Rel(acc, audit, "partner.created, partner.updated by admin right")
+Rel(acc, audit, "partner.created, partner.updated on override (L2-135 AC5)")
 Rel(h, db, "Persists", "EF Core")
 @enduml

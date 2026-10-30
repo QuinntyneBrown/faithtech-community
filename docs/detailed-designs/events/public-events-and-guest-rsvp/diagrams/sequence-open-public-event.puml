@@ -15,7 +15,7 @@ skinparam package {
   BackgroundColor #F9FAFB
 }
 actor "Anonymous visitor" as actor
-box "Frontend — FaithTech Community web app (events library)" #E0F2FE
+box "Frontend — Community platform web app (events library)" #E0F2FE
   participant "PublicEventPage" as page
   participant "HttpEventsService" as svc
 end box
@@ -39,7 +39,7 @@ alt visibility is Public
   h --> ep : PublicEventDto
   ep --> svc : 200 OK
   svc --> page : Event
-  page --> actor : Show event and guest RSVP form (L2-023)
+  page --> actor : Show event headed "Hosted by {organisation name}" and guest RSVP form (L2-023, L2-134 AC1)
 else members-only
   h --> ep : NotPublic
   ep --> svc : 404 ProblemDetails

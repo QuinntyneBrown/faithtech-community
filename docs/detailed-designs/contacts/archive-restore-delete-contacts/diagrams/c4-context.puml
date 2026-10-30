@@ -2,7 +2,7 @@
 !include <C4/C4_Context>
 LAYOUT_WITH_LEGEND()
 title System Context — Archive, restore and delete contacts
-Person(lead, "Lead", "City, Event, Create or Communications Lead who keeps private contacts")
-System(community, "FaithTech Community", "Community site for FaithTech staff, leads, volunteers, builders and partners")
+Person(lead, "Member with KeepContacts", "Holder of the KeepContacts capability who keeps private contacts")
+System(community, "Community platform", "Community site for an organisation's members, builders and partners")
 Rel(lead, community, "Archives, restores and deletes private contacts using")
 @enduml

@@ -1,0 +1,20 @@
+@startuml
+!include <C4/C4_Container>
+LAYOUT_WITH_LEGEND()
+title Containers — Tenancy and host resolution
+Person(member, "Member", "Browser on app.{organisation}")
+Person(visitor, "Visitor", "Browser on www.{organisation}")
+System_Boundary(platform, "Community platform") {
+  Container(api, "API container app", "ASP.NET Core", "Wall, OrganisationResolutionMiddleware, static sites by host kind, identity server, API, hub")
+  Container(web, "Community app", "Angular build", "Served on every organisation's community host; reads /api/site and /api/me")
+  Container(mkt, "Marketing app", "Angular build", "Served on every configured public host; reads /api/site")
+  ContainerDb(db, "Community database", "PostgreSQL", "Organisations table; OrganisationId on every scoped table; global query filter")
+  ContainerDb(blobs, "Blob storage", "Azure Storage", "Keys prefixed {organisationId}/")
+}
+Rel(member, api, "Requests on the community host", "HTTPS")
+Rel(visitor, api, "Requests on the public host", "HTTPS")
+Rel(api, web, "Serves when the host is a community host")
+Rel(api, mkt, "Serves when the host is a public host")
+Rel(api, db, "Resolves the host; reads and writes filtered rows", "EF Core")
+Rel(api, blobs, "Stores under the organisation prefix")
+@enduml

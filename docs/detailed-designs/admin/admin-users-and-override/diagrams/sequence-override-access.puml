@@ -14,8 +14,8 @@ skinparam package {
   FontColor #101828
   BackgroundColor #F9FAFB
 }
-actor "System Admin" as actor
-box "Frontend — FaithTech Community web app (profiles library)" #E0F2FE
+actor "Administrator" as actor
+box "Frontend — Community web app (profiles library)" #E0F2FE
   participant "EditProfilePage" as page
   participant "HttpProfilesService" as svc
 end box
@@ -42,8 +42,8 @@ alt caller is the owner
   h -> db : SaveChanges (no audit entry)
   h --> ep : Ok
   ep --> svc : 204 No Content
-else caller is System Admin
-  access --> h : AdminOverride, actor (L2-040 AC2)
+else caller holds AdministerOrganisation
+  access --> h : AdminOverride, actor (L2-040 AC2, L2-135 AC5 IsOverride)
   h -> db : Load and change profile
   h -> audit : Record(actor, "profile.updated", "Profile", id, before, after) (L2-041)
   audit -> db : Add AuditEntry to the unit of work

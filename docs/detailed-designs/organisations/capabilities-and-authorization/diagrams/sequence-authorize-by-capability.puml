@@ -1,0 +1,67 @@
+@startuml
+title UML sequence behaviour — Authorise a request by capability
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+actor "Member" as actor
+box "Frontend — Community web app (feature library)" #E0F2FE
+  participant "Feature page" as page
+  participant "Http<Feature>Service" as client
+end box
+box "Backend — FaithTech.Community.Api" #D1FADF
+  participant "CurrentRolesMiddleware" as mw
+  participant "<Feature>Endpoints" as ep
+end box
+box "Backend — FaithTech.Community.Application and Domain" #ECFDF3
+  participant "ProfileCapabilities" as caps
+  participant "<Feature>Access" as access
+  participant "AuthorizationRules" as rules
+  participant "<Feature>Handler" as h
+end box
+box "Backend — FaithTech.Community.Infrastructure" #FFF4E5
+  participant "AuditLog" as audit
+  database "Community database" as db
+end box
+actor -> page : Use a feature control shown for a capability (L2-135 AC7)
+page -> client : Typed request
+client -> mw : HTTPS request with bearer token
+mw -> caps : OfAsync(caller profile in current organisation)
+caps -> db : Join ProfileRoles to non-archived RoleDefinitions
+db --> caps : Held definitions and their capabilities
+caps --> mw : Union of capabilities (L2-135 AC2)
+mw -> mw : Store capabilities and held roles in HttpContext.Items
+mw -> ep : Admit
+ep -> h : Dispatch
+h -> access : Has(capability)?
+alt capability held, or AdministerOrganisation held (L2-135 AC3)
+  access -> rules : IsOverride(actor, capability)
+  rules --> access : true only when allowed by AdministerOrganisation alone
+  access --> h : Allowed
+  h -> db : Read or write within the organisation filter
+  opt override (L2-135 AC5)
+    h -> audit : Record(actor, action, target, before, after) (L2-041)
+  end
+  h -> db : Save changes in one unit of work
+  h --> ep : Result.Ok
+  ep --> client : 200
+else capability missing (L2-135 AC4)
+  access --> h : Refused
+  h --> ep : Result.Forbidden, or Result.NotFound where existence is hidden (L2-042 AC2)
+  ep --> client : 403 or 404; nothing changed
+  client --> page : Error
+  page -> page : Reload /api/me when the shell believed the action allowed (L2-133 AC5)
+end
+client --> page : Feature result
+page --> actor : Present result
+@enduml

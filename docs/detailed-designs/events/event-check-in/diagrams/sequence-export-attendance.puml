@@ -14,8 +14,8 @@ skinparam package {
   FontColor #101828
   BackgroundColor #F9FAFB
 }
-actor "Lead or System Admin" as actor
-box "Frontend — FaithTech Community web app (events library)" #E0F2FE
+actor "Member with ManageAttendance" as actor
+box "Frontend — Community platform web app (events library)" #E0F2FE
   participant "EventCheckInPage" as page
   participant "HttpCheckInService" as svc
 end box
@@ -36,12 +36,12 @@ page -> page : Button busy; second press ignored (L2-122 AC4)
 page -> svc : exportAttendance(eventId)
 svc -> ep : GET /api/events/{id}/check-ins.csv
 ep -> h : ExportAsync(id)
-h -> perm : CanCheckIn
-alt Staff or member without a lead role
+h -> perm : CanCheckIn: Has(ManageAttendance)
+alt caller lacks ManageAttendance
   perm --> h : false
   h --> ep : Forbidden
   ep --> svc : 403 (401 when anonymous) (L2-122 AC2)
-else lead or System Admin
+else ManageAttendance held
   perm --> h : true
   h -> db : Load event, rows and member names
   db --> h : Rows

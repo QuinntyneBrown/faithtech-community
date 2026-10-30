@@ -1,0 +1,12 @@
+@startuml
+!include <C4/C4_Context>
+LAYOUT_WITH_LEGEND()
+title System Context — Capabilities and authorization
+Person(member, "Member", "Signed-in profile holder in one organisation; holds zero or more roles")
+Person(admin, "Administrator", "Member whose roles carry AdministerOrganisation")
+System(platform, "Community platform", "Hosts many organisations; authorises every request by capability")
+System_Ext(email, "Email provider", "Delivers notification email")
+Rel(member, platform, "Uses features their capabilities allow")
+Rel(admin, platform, "Overrides any record, audited")
+Rel(platform, email, "Sends WorkspaceOwnerLostCapability email via", "SMTP/SendGrid")
+@enduml

@@ -1,0 +1,71 @@
+@startuml
+title UML sequence behaviour — Guess a resource type
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+actor "Contributor" as actor
+box "Frontend — Community web app (resources library)" #E0F2FE
+  participant "AddResourceDialog" as dlg
+  participant "ResourceDetailsComponent" as details
+end box
+box "Frontend — Community web app (api library)" #E0F2FE
+  participant "HttpOrganisationService" as org
+  participant "HttpResourcesService" as svc
+end box
+box "Backend — FaithTech.Community.Api" #D1FADF
+  participant "ResourcesEndpoints" as ep
+end box
+box "Backend — FaithTech.Community.Application and Domain" #ECFDF3
+  participant "AddResourcesHandler" as h
+  participant "ResourceFileTypes" as ft
+  participant "ResourceTypeResolver" as resolver
+end box
+box "Backend — FaithTech.Community.Infrastructure" #FFF4E5
+  database "Community database" as db
+end box
+actor -> dlg : Choose "Add resource" and drop one file
+dlg -> org : get()
+org --> dlg : Active resource types in order
+dlg -> details : Show Type select from the active types (L2-146 AC2)
+details -> details : Client guess by key from the extension (ResourceFileRules)
+alt the organisation has an active type with that key
+  details --> actor : Type preselected, "Guessed from .{ext} — change it if it’s wrong."
+else the key is missing or archived
+  details --> actor : Type preselected as the organisation's Other
+end
+actor -> dlg : Submit
+dlg -> svc : add(file, details with typeId)
+svc -> ep : POST /api/resources (multipart)
+ep -> h : AddAsync(files, details)
+h -> h : Contributor and file checks (L2-057)
+alt details carry a typeId
+  h -> db : Load the ResourceType by id in this organisation
+  alt archived or unknown
+    ep --> svc : 400 "Choose a type."
+  end
+else no typeId (batch upload)
+  h -> ft : GuessType(fileName)
+  ft --> h : Key: deck, logo, image, training, template, document or other
+  h -> resolver : ResolveAsync(key)
+  resolver -> db : Active ResourceType with that key, else the one keyed other (L2-146 AC3)
+  db --> resolver : ResourceType
+  resolver --> h : TypeId
+end
+h -> db : Save Resource with TypeId and the rest of L2-057
+db --> h : Committed
+h --> ep : ResourceDto[] with the type name
+ep --> svc : 201 Created
+svc --> dlg : Created resource
+dlg --> actor : Toast "{title} added"
+@enduml

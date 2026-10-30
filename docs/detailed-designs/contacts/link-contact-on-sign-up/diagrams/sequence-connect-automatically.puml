@@ -17,7 +17,7 @@ box "Backend — Infrastructure" #FFF4E5
 end box
 alt signed-in member opens the link (ConnectHandler.ConnectAsync)
   src -> cc : RequestAsync(lead, profile)
-  alt person is the lead
+  alt person is the owner
     cc --> src : OwnCode (L2-082 AC5)
   else email not verified
     cc -> db : Add PendingConnection(profile, lead)
@@ -33,20 +33,20 @@ else email becomes verified (verify-email link, Google)
     csu -> cc : ConnectAsync(lead, profile)
     csu -> db : Remove PendingConnection
   end
-  csu -> db : Other leads' unlinked contacts with the email → "just joined" (L2-015, L2-084 AC7)
+  csu -> db : Other members' unlinked contacts with the email → "just joined" (L2-015, L2-084 AC7)
 end
 group ContactConnector.ConnectAsync(lead, profile)
-  cc -> db : Lead's contact linked to profile?
+  cc -> db : Owner's contact linked to profile?
   alt already linked
     cc --> cc : nothing (L2-084 AC3)
-  else lead has an unlinked contact with that email (archived or not)
+  else owner has an unlinked contact with that email (archived or not)
     cc -> db : Restore if archived; LinkTo(profile), notes kept (AC2)
   else
     cc -> db : Add Contact(owner = lead, profile name, email) linked (AC1)
   end
   cc -> db : Add Notification(lead, ContactSignedUp, "{name} connected with you", /contacts/{id})
-  cc -> mail : Enqueue email to the lead (AC4)
+  cc -> mail : Enqueue email to the owner (AC4)
   cc -> db : Save changes (one unit of work)
 end
-note over db : The contact is private to the lead and System Admin\nlike every contact (ContactAccess, L2-012, AC5)
+note over db : The contact is private to the owner and, as an audited override,\nadministrators, like every contact (ContactAccess, L2-012, AC5)
 @enduml

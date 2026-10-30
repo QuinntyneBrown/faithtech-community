@@ -1,0 +1,77 @@
+@startuml
+title UML sequence behaviour — Define a role
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+actor "Holder of ManageRoles" as actor
+box "Frontend — Community web app (organisations and components libraries)" #E0F2FE
+  participant "RolesPage" as page
+  participant "DefineRoleDialogComponent" as dlg
+end box
+box "Frontend — Community web app (api library)" #E0F2FE
+  participant "HttpRoleDefinitionsService" as svc
+end box
+box "Backend — FaithTech.Community.Api" #D1FADF
+  participant "RoleDefinitionsEndpoints" as ep
+end box
+box "Backend — FaithTech.Community.Application and Domain" #ECFDF3
+  participant "DefineRoleHandler" as h
+  participant "RoleDefinitionValidator" as val
+  participant "RoleDefinition" as def
+end box
+box "Backend — FaithTech.Community.Infrastructure" #FFF4E5
+  participant "AuditLog" as audit
+  database "Community database" as db
+end box
+actor -> page : Choose "Define a role"
+page -> dlg : Open with the capability catalogue, chapter label and submit
+actor -> dlg : Enter name, description, capabilities, flags; confirm (L2-136 AC1)
+dlg -> dlg : Inline errors for an empty or too-long name (L2-136 AC3)
+dlg -> page : submit(command)
+page -> svc : define(command)
+svc -> ep : POST /api/organisation/roles (HANDLES_FORBIDDEN)
+ep -> h : HandleAsync(command)
+alt caller lacks ManageRoles (L2-136 AC8)
+  h --> ep : Forbidden
+  ep --> svc : 403
+else caller adds AdministerOrganisation without holding it (L2-136 AC7)
+  h --> ep : Forbidden "Only an administrator can grant administration."
+  ep --> svc : 403 ProblemDetails
+else
+  h -> val : ValidateAsync(command)
+  val -> db : Any non-archived definition with this name, ignoring case?
+  db --> val : Result
+  alt invalid
+    val --> h : Invalid(field, message)
+    h --> ep : Invalid
+    ep --> svc : 400 ProblemDetails (L2-136 AC3, L2-043 AC1)
+  else valid
+    val --> h : Ok
+    h -> def : new RoleDefinition(organisation, name, description, capabilities, flags)
+    h -> audit : Record(actor, "role.defined", "RoleDefinition", id, null, after) under roles (L2-152)
+    h -> db : Save changes in one unit of work
+    h --> ep : Definition
+    ep --> svc : 201 RoleDefinitionDto
+  end
+end
+svc --> page : Result or error
+alt saved
+  page --> dlg : null
+  dlg --> actor : Close; success toast "Role defined" (L2-054)
+  page -> page : Add the definition to the list without reload
+else refused
+  page --> dlg : Message
+  dlg --> actor : Show the message; dialog stays open with the input
+end
+@enduml

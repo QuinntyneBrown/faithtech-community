@@ -15,7 +15,7 @@ skinparam package {
   BackgroundColor #F9FAFB
 }
 actor "Signed-in user" as actor
-box "Frontend — FaithTech Community web app (agile library)" #E0F2FE
+box "Frontend — Community platform web app (agile library)" #E0F2FE
   participant "PlanningPokerPage" as page
   participant "AgileService (AGILE_SERVICE)" as svc
   participant "SignalRAgileLiveService (AGILE_LIVE_SERVICE)" as live
@@ -42,12 +42,12 @@ pol --> h : Outsider
 h --> ep : 404 Not Found (L2-038 AC7)
 ep --> svc : ProblemDetails
 svc --> page : Not found
-else Staff, member or System Admin
+else Reader, member or administrator
 pol --> h : Caller
 h -> ctx : Open session, votes, names
 ctx -> db : SELECT
 db --> ctx : Rows
-h --> ep : PokerSessionDto with CanVote (false for Staff and non-participants) and MyVote (L2-038 AC7)
+h --> ep : PokerSessionDto with CanVote (false for Readers and non-participants) and MyVote (L2-038 AC7)
 ep --> svc : 200 OK, or 204 when none is running
 svc --> page : Session
 page -> live : watchPokerSession(sessionId)

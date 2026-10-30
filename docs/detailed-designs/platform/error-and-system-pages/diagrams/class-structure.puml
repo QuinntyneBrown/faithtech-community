@@ -15,6 +15,15 @@ class ForbiddenPage
 class ServerErrorPage {
   +referenceId: string
 }
+class NotAMemberPage {
+  +organisationName: string
+  +otherMemberships: Membership[]
+}
+class OrganisationResolutionMiddleware {
+  +InvokeAsync(context: HttpContext): Task
+  -UnknownHostPage(): 404
+  -SuspendedPage(): 503
+}
 class httpErrorInterceptor {
   +intercept(req, next): Observable<HttpEvent>
 }
@@ -27,5 +36,6 @@ class BannerComponent {
 }
 httpErrorInterceptor ..> ServerErrorPage : navigates to
 httpErrorInterceptor ..> ForbiddenPage : navigates to
+httpErrorInterceptor ..> NotAMemberPage : navigates to on reason not-a-member
 BannerComponent ..> ConnectivityService : shown by shell from
 @enduml

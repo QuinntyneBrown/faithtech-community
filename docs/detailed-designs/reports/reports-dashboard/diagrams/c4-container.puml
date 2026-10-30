@@ -2,8 +2,8 @@
 !include <C4/C4_Container>
 LAYOUT_WITH_LEGEND()
 title Containers — Reports dashboard
-Person(staff, "Staff or System Admin", "Reads city-level numbers")
-System_Boundary(community, "FaithTech Community") {
+Person(staff, "Member with ViewReports", "Reads organisation-wide numbers by chapter")
+System_Boundary(community, "Community platform") {
   Container(web, "Web app", "Angular", "Shell, reports feature library, api and components libraries")
   Container(api, "Community API", "ASP.NET Core", "FaithTech.Community.Api with Application, Domain and Infrastructure")
   Container(cli, "Community Cli", ".NET console", "Applies the JoinedAtUtc migration; seeds the load-test volume")

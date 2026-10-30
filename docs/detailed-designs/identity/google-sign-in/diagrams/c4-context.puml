@@ -4,7 +4,7 @@ LAYOUT_WITH_LEGEND()
 title System context — Google sign-in
 
 Person(visitor, "Visitor", "Has a Google account")
-System(ftc, "FaithTech Community", "Marketing page, community app and Community API")
+System(ftc, "Community platform", "Marketing page, community app and Community API, one per organisation host")
 System_Ext(google, "Google", "OpenID Connect provider: consent, token endpoint, signing keys")
 Rel(visitor, ftc, "Continues with Google", "HTTPS")
 Rel(visitor, google, "Chooses an account, consents", "HTTPS")

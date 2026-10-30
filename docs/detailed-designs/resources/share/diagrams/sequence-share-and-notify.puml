@@ -15,7 +15,7 @@ skinparam package {
   BackgroundColor #F9FAFB
 }
 actor "Owner" as actor
-box "Frontend — FaithTech Community web app (resources library)" #E0F2FE
+box "Frontend — Community web app (resources library)" #E0F2FE
   participant "EditResourceDialog" as dlg
   participant "HttpResourcesService" as svc
 end box
@@ -37,21 +37,21 @@ actor -> dlg : Type "ha"
 dlg -> svc : members("ha")
 svc -> ep : GET /api/resources/members?q=ha
 ep -> mem : MembersAsync("ha")
-mem -> db : Active members by name, with role and city
+mem -> db : Active members by name, with role and chapter
 ep --> svc : 200 [ResourceMemberDto]
-dlg --> actor : "Matching members": Hannah Kim · Communications Lead · Toronto
-actor -> dlg : Pick Hannah; tick City Lead; Save
+dlg --> actor : "Matching members": Hannah Kim · {role} · {chapter} (L2-142 AC4)
+actor -> dlg : Pick Hannah; tick a role definition; Save
 alt no member and no role
   dlg --> actor : "Choose at least one person or role, or pick another visibility."
 else audience chosen
-  dlg -> svc : update(id, {visibility: Shared, memberIds, roles})
+  dlg -> svc : update(id, {visibility: Shared, memberIds, roleIds})
   svc -> ep : PUT /api/resources/{id}
   ep -> h : EditAsync(id, command)
-  alt caller is not owner or System Admin (a recipient)
+  alt caller is not owner or AdministerOrganisation (a recipient)
     ep --> svc : 403 (L2-061 AC4)
   else may edit
     h -> h : before = current audience
-    h -> h : SetAudience(Shared(members, roles)) returns new members and new roles
+    h -> h : SetAudience(Shared(members, roleIds)) returns new members and new roles
     h -> n : NotifyAsync(resource, owner, before, newMembers, newRoles)
     n -> db : Current holders of new roles; suspended flags
     n -> n : new members + role holders, de-duplicated,\nminus owner, suspended, and anyone already reached by before (AC3)

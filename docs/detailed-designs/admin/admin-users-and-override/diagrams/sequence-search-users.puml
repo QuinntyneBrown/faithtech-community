@@ -14,11 +14,11 @@ skinparam package {
   FontColor #101828
   BackgroundColor #F9FAFB
 }
-actor "System Admin" as actor
-box "Frontend — FaithTech Community web app (admin library)" #E0F2FE
+actor "Administrator" as actor
+box "Frontend — Community web app (admin library)" #E0F2FE
   participant "AdminUsersPage" as page
 end box
-box "Frontend — FaithTech Community web app (api library)" #E0F2FE
+box "Frontend — Community web app (api library)" #E0F2FE
   participant "HttpAdminUsersService" as svc
 end box
 box "Backend — FaithTech.Community.Api" #D1FADF
@@ -35,13 +35,13 @@ actor -> page : Enter search term
 page -> svc : search(term, page)
 svc -> ep : GET /api/admin/users?q=term&page=n (HANDLES_FORBIDDEN)
 ep -> h : HandleAsync(term, page)
-h -> cur : HasRole(SystemAdmin)
-alt not System Admin
+h -> cur : Has(AdministerOrganisation)
+alt caller lacks AdministerOrganisation
   h --> ep : null
   ep --> svc : 403
   svc --> page : HttpErrorResponse 403
   page --> actor : Show the page's forbidden state
-else System Admin
+else caller holds AdministerOrganisation
   h -> db : Match name or email, order by name, take 25 (L2-040 AC1)
   db --> h : Accounts with roles, suspension and email confirmation
   h --> ep : PagedResult<AdminUserSummary>

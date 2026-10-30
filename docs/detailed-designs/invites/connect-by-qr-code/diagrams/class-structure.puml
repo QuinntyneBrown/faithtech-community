@@ -12,6 +12,7 @@ skinparam class {
 title Class structure — Connect by QR code
 class ConnectLink <<Domain entity>> {
   +Guid Id
+  +Guid OrganisationId
   +Guid OwnerId
   +string TokenHash
   +string ProtectedToken
@@ -40,7 +41,7 @@ class ConnectLookupDto <<record>> {
   +Guid LeadProfileId
   +string LeadName
   +string? LeadPhotoUrl
-  +string? LeadCity
+  +string? LeadChapter
   +string LeadRole
 }
 class ConnectLinkHandler {

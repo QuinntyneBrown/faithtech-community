@@ -1,0 +1,131 @@
+@startuml
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 8
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam class {
+  BorderColor #344054
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+title Class structure — Organisation settings
+enum OrganisationStatus {
+  Provisioning
+  Active
+  Suspended
+}
+class Organisation {
+  +Guid Id
+  +string Slug
+  +string Host
+  +string Name
+  +string ShortName
+  +OrganisationStatus Status
+  +ChapterLabel? ChapterLabel
+  +Rename(name: string, shortName: string): void
+  +SetChapterLabel(label: ChapterLabel?): void
+}
+class ChapterLabel <<value object>> {
+  +string Singular
+  +string Plural
+}
+class UpdateOrganisationCommand <<record>> {
+  +string? Name
+  +string? ShortName
+  +string? ChapterLabelSingular
+  +string? ChapterLabelPlural
+}
+class UpdateOrganisationValidator {
+  +MaxLabel = 30
+}
+class UpdateOrganisationHandler {
+  +HandleAsync(command: UpdateOrganisationCommand): Task<(Result, OrganisationDto?)>
+}
+class GetOrganisationHandler {
+  +HandleAsync(): Task<OrganisationDto>
+}
+class OrganisationDto <<record>> {
+  +string Name
+  +string ShortName
+  +ChapterLabelDto? ChapterLabel
+  +IReadOnlyList<ChapterOptionDto> Chapters
+  +IReadOnlyList<TaxonomyEntryDto> PartnerStages
+  +IReadOnlyList<TaxonomyEntryDto> EventTypes
+  +IReadOnlyList<TaxonomyEntryDto> ResourceTypes
+  +IReadOnlyList<RoleOptionDto> Roles
+}
+interface ICurrentOrganisation {
+  +Guid Id
+  +string Slug
+}
+interface ICurrentUser {
+  +Guid? UserId
+  +IReadOnlySet<string> Capabilities
+  +Has(capability: string): bool
+}
+interface IAuditLog {
+  +Record(actorId: Guid, action: string, targetType: string, targetId: string, before: object?, after: object?): void
+}
+class AuditEntry {
+  +Guid Id
+  +Guid OrganisationId
+  +Guid ActorId
+  +string Action
+  +string TargetType
+  +string TargetId
+  +string? BeforeJson
+  +string? AfterJson
+  +DateTime OccurredAtUtc
+  +string IpAddress
+}
+class PlatformAuditEntry {
+  +Guid Id
+  +string Actor
+  +string Action
+  +string TargetSlug
+  +DateTime OccurredAtUtc
+}
+class OrganisationAuditCategories <<static>> {
+  +{static} Organisation = "organisation"
+  +{static} Roles = "roles"
+  +{static} Chapters = "chapters"
+  +{static} Taxonomies = "taxonomies"
+  +{static} ActionsOf(category: string): Func<string, bool>
+}
+class AuditReadScope <<record>> {
+  +bool All
+  +IReadOnlySet<string> Categories
+  +{static} For(current: ICurrentUser): AuditReadScope?
+  +Allows(category: string?): bool
+}
+class GetAuditEntriesQuery <<record>> {
+  +string? Category
+  +Guid? Actor
+  +DateTime? From
+  +DateTime? To
+  +int Page
+}
+class GetAuditEntriesHandler {
+  +HandleAsync(query: GetAuditEntriesQuery): Task<PagedResult<AuditEntryDto>?>
+  +HandleAllAsync(query: GetAuditEntriesQuery): Task<IReadOnlyList<AuditEntryDto>?>
+}
+Organisation --> OrganisationStatus
+Organisation *-- ChapterLabel
+UpdateOrganisationValidator ..> UpdateOrganisationCommand
+UpdateOrganisationHandler ..> UpdateOrganisationCommand : handles
+UpdateOrganisationHandler --> Organisation : Rename / SetChapterLabel
+UpdateOrganisationHandler ..> ICurrentUser : ManageOrganisationSettings
+UpdateOrganisationHandler ..> ICurrentOrganisation
+UpdateOrganisationHandler ..> IAuditLog : organisation.updated
+UpdateOrganisationHandler ..> OrganisationDto : returns
+GetOrganisationHandler ..> ICurrentOrganisation
+GetOrganisationHandler ..> OrganisationDto : returns
+GetAuditEntriesHandler ..> GetAuditEntriesQuery : handles
+GetAuditEntriesHandler --> AuditReadScope
+GetAuditEntriesHandler --> OrganisationAuditCategories
+GetAuditEntriesHandler --> AuditEntry : reads own organisation only
+AuditReadScope ..> ICurrentUser
+AuditReadScope --> OrganisationAuditCategories
+PlatformAuditEntry ..> AuditEntry : separate table, never read here
+@enduml

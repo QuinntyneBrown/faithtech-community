@@ -2,12 +2,12 @@
 !include <C4/C4_Context>
 LAYOUT_WITH_LEGEND()
 title System Context — Assign roles
-Person(lead, "City Lead", "Lead who owns contacts, partners and team roles")
-Person(admin, "System Admin", "Holds full override across the site")
+Person(grantor, "Member with AssignRoles", "Grants and removes the roles their grant rules allow")
+Person(admin, "Administrator", "Holds AdministerOrganisation; grants any role")
 Person(member, "Member", "Signed-in profile holder")
-System(community, "FaithTech Community", "Community site for FaithTech staff, leads, volunteers, builders and partners")
+System(community, "Community platform", "Community site for an organisation's members and partners")
 System_Ext(email, "Email provider", "Delivers notification email")
-Rel(lead, community, "Views and changes profile roles using")
+Rel(grantor, community, "Views and changes profile roles using")
 Rel(admin, community, "Views and changes profile roles using")
 Rel(member, community, "Views and changes profile roles using")
 Rel(community, email, "Sends notification email via", "SMTP/SendGrid")

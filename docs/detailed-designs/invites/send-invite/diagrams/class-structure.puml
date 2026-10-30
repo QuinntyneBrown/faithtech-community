@@ -15,7 +15,8 @@ class Invite {
   +Guid Id
   +string Email
   +string TokenHash
-  +Role? PreassignedRole
+  +Guid OrganisationId
+  +Guid? PreassignedRoleId
   +Guid InvitedBy
   +DateTimeOffset CreatedAt
   +DateTimeOffset ExpiresAt
@@ -35,7 +36,7 @@ enum InviteStatus {
 }
 class SendInviteCommand <<record>> {
   +string? Email
-  +string? PreassignedRole
+  +Guid? PreassignedRoleId
   +string? Note
 }
 class SendInviteValidator {
@@ -45,7 +46,7 @@ class InviteSender {
   +MaxPerDay: int = 50
   +bool CanInvite
   +SendAsync(command: SendInviteCommand): Task<(Result, InviteDto?)>
-  +CreateAsync(address: string, role: Role?, note: string?): Task<(Result, InviteDto?)>
+  +CreateAsync(address: string, roleId: Guid?, note: string?): Task<(Result, InviteDto?)>
 }
 class ManageInvitesHandler {
   +ListAsync(): Task<IReadOnlyList<InviteDto>?>
@@ -55,7 +56,8 @@ class ManageInvitesHandler {
 class InviteDto <<record>> {
   +Guid Id
   +string Email
-  +string? PreassignedRole
+  +Guid? PreassignedRoleId
+  +string? PreassignedRoleName
   +string Status
   +string InvitedByName
   +DateTimeOffset CreatedAt
@@ -67,20 +69,25 @@ class InviteTokens <<static>> {
   +New(): string
   +Hash(token: string): string
 }
-class RoleAssignmentPolicy {
-  +CanChange(role: Role): bool
+class RoleGrantPolicy {
+  +CanGrant(roleDefinitionId: Guid): bool
 }
 interface ICurrentUser {
   +Guid? UserId
-  +HasRole(role: Role): bool
+  +IReadOnlySet<string> Capabilities
+  +Has(capability: string): bool
+}
+interface ICurrentOrganisation {
+  +Guid Id
 }
 interface IEmailSender {
   +SendAsync(message: EmailMessage): Task
 }
 SendInviteValidator ..> SendInviteCommand : validates
 InviteSender ..> SendInviteCommand : handles
-InviteSender --> RoleAssignmentPolicy : uses
+InviteSender --> RoleGrantPolicy : uses
 InviteSender ..> ICurrentUser : uses
+InviteSender ..> ICurrentOrganisation : scopes
 InviteSender ..> IEmailSender : uses
 InviteSender ..> InviteTokens : uses
 InviteSender --> Invite : creates

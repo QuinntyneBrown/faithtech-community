@@ -14,8 +14,8 @@ skinparam package {
   FontColor #101828
   BackgroundColor #F9FAFB
 }
-actor "System Admin" as actor
-box "Frontend — FaithTech Community web app (partners library)" #E0F2FE
+actor "Administrator" as actor
+box "Frontend — Community web app (partners library)" #E0F2FE
   participant "PartnerPage" as page
   participant "RestorePartnerDialog" as dlg
   participant "HttpPartnersService" as svc
@@ -42,10 +42,10 @@ actor -> dlg : Confirm Restore
 dlg -> svc : restore(id, {version, mergedIntoVersion})
 svc -> ep : POST /api/partners/{id}/restore
 ep -> h : RestoreAsync(id, command)
-h -> acc : CanRestore
-alt not a System Admin (lead roles included)
+h -> acc : CanRestore: Has(AdministerOrganisation)
+alt lacks AdministerOrganisation (ManagePartners included)
   ep --> svc : 403, nothing changes (L2-115 AC5)
-else System Admin
+else AdministerOrganisation
   h -> db : Load partner and its kept partner
   alt unknown
     ep --> svc : 404

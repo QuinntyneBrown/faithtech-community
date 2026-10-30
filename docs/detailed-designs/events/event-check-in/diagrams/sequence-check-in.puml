@@ -14,8 +14,8 @@ skinparam package {
   FontColor #101828
   BackgroundColor #F9FAFB
 }
-actor "Lead or System Admin" as actor
-box "Frontend — FaithTech Community web app (events library)" #E0F2FE
+actor "Member with ManageAttendance" as actor
+box "Frontend — Community platform web app (events library)" #E0F2FE
   participant "EventCheckInPage" as page
   participant "ToastService" as toast
   participant "HttpCheckInService" as svc
@@ -37,7 +37,7 @@ page -> page : Show switch on; queue save for this row
 page -> svc : checkIn(eventId, rsvpId)
 svc -> ep : PUT /api/events/{id}/check-ins/{rsvpId}
 ep -> h : CheckInAsync(id, rsvpId)
-h -> h : CanCheckIn, else 403 (L2-117 AC2)
+h -> h : CanCheckIn: Has(ManageAttendance), else 403 (L2-117 AC2)
 h -> db : Load event with rows
 db --> h : Event
 alt cancelled or before the window
@@ -49,8 +49,8 @@ alt cancelled or before the window
 else open
   h -> ev : CheckIn(rsvpId, caller, now)
   ev -> ev : Keep the first time when already checked in (L2-119 AC4)
-  opt System Admin without a lead role
-    h -> audit : Record event.checked_in (L2-117 AC5)
+  opt IsOverride(ManageAttendance)
+    h -> audit : Record event.checked_in (L2-117 AC5, L2-135 AC5)
   end
   h -> db : Save
   db --> h : Committed

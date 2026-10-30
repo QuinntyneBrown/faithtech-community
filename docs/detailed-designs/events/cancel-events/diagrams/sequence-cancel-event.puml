@@ -14,8 +14,8 @@ skinparam package {
   FontColor #101828
   BackgroundColor #F9FAFB
 }
-actor "Event Lead / City Lead" as actor
-box "Frontend — FaithTech Community web app (events library)" #E0F2FE
+actor "Member with ManageEvents" as actor
+box "Frontend — Community platform web app (events library)" #E0F2FE
   participant "EventPage" as page
   participant "CancelEventDialog" as dlg
   participant "HttpEventsService" as svc
@@ -41,8 +41,8 @@ dlg -> dlg : Busy state
 dlg -> svc : cancelEvent(id, reason)
 svc -> ep : POST /api/events/{id}/cancel
 ep -> h : Send CancelEventCommand
-h -> perm : CanManageEvents(currentUser)
-alt not permitted
+h -> perm : CanManageEvents: Has(ManageEvents) (L2-025 AC1)
+alt caller lacks ManageEvents
   h --> ep : Forbidden
   ep --> svc : 403 ProblemDetails
   svc --> dlg : Error
@@ -52,6 +52,9 @@ else permitted
   db --> h : Event
   h -> ev : Cancel(reason); refuse new RSVPs; Sequence += 1 (L2-025)
   h -> notif : Publish EventCancelled to member RSVPs (L2-025)
+  opt allowed only by AdministerOrganisation
+    h -> db : Record audit entry event.cancelled (L2-135 AC5)
+  end
   h -> db : Save event and notifications
   db --> h : Committed
   h -> mail : Email every member and guest who RSVP'd (L2-025)

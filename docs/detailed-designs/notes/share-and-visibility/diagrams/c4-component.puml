@@ -3,7 +3,7 @@
 LAYOUT_WITH_LEGEND()
 title Components — Page visibility and sharing
 Container_Boundary(web, "Web app") {
-  Component(dlg, "ShareNoteDialog", "CDK dialog (notes library)", "Who can see it: Private, Shared, Global; People; Roles")
+  Component(dlg, "ShareNoteDialog", "CDK dialog (notes library)", "Who can see it: Private, Shared, Global; People; the organisation's roles")
   Component(picker, "ft-person-picker, ft-radio-group, ft-checkbox-group", "components library", "Form controls")
   Component(svc, "HttpNotesService", "api library", "members(q), setVisibility(id, change)")
 }

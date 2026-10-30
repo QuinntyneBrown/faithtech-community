@@ -15,12 +15,14 @@ skinparam package {
   BackgroundColor #F9FAFB
 }
 actor "Any caller" as actor
-box "Frontend — FaithTech Community web app (feature library)" #E0F2FE
+box "Frontend — Community web app (feature library)" #E0F2FE
   participant "Feature page" as page
   participant "Http<Feature>Service" as client
 end box
 box "Backend — FaithTech.Community.Api" #D1FADF
+  participant "OrganisationResolutionMiddleware" as org
   participant "Authorization middleware" as mw
+  participant "CurrentRolesMiddleware" as roles
   participant "<Feature>Endpoints" as ep
   participant "ResultMapper" as map
 end box
@@ -33,21 +35,27 @@ box "Backend — FaithTech.Community.Infrastructure" #FFF4E5
 end box
 actor -> page : Open item
 page -> client : get(id)
-client -> mw : GET /<feature>/{id}
+client -> org : GET /<feature>/{id}
+org -> org : Resolve host to ICurrentOrganisation (L2-131 #1)
+org -> mw : Admit
 alt no valid token and endpoint not AllowAnonymous
   mw --> client : 401 (L2-042 #1)
 else authenticated
-  mw -> ep : Admit
+  mw -> roles : Admit
+  roles -> db : Load profile in the organisation and its non-archived role definitions
+  roles -> roles : Compute Capabilities (L2-135 #2)
+  roles -> ep : Admit
   ep -> h : Send Get<Item>Query
+  h -> h : Has(capability) where the action needs one (L2-135 #4: 403 when missing)
   h -> pf : Visible<Items>(query, currentUser)
   pf --> h : Filtered IQueryable
-  h -> db : SELECT ... WHERE id = @id AND <permission filter> (L2-042 #3)
+  h -> db : SELECT ... WHERE id = @id AND OrganisationId = @org AND <permission filter> (L2-042 #3, L2-130 #2)
   alt row returned
     db --> h : Item
     h --> ep : Result.Ok
     ep -> map : ToHttp
     map --> client : 200
-  else not visible to caller
+  else not visible to caller or in another organisation
     db --> h : none
     h --> ep : Result.NotFound
     ep -> map : ToHttp

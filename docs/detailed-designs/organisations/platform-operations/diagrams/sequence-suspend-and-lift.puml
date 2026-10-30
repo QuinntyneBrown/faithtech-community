@@ -1,0 +1,74 @@
+@startuml
+title UML sequence behaviour — Suspend and lift an organisation
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+actor "Platform operator" as actor
+actor "Member of the organisation" as member
+box "Frontend — operator's HTTP client or terminal; member's browser" #E0F2FE
+  participant "curl or faithtech-community org" as client
+  participant "Browser on app.{organisation}" as browser
+end box
+box "Backend — FaithTech.Community.Api or Cli" #D1FADF
+  participant "PlatformEndpoints with RequireOperator / CliApp org" as ep
+  participant "OrganisationResolutionMiddleware" as resolve
+end box
+box "Backend — FaithTech.Community.Application/Organisations/Platform" #ECFDF3
+  participant "SuspendOrganisationHandler / LiftOrganisationHandler" as h
+  participant "ITokenRevocation" as revoke
+  participant "IPlatformAuditLog" as audit
+end box
+box "Backend — FaithTech.Community.Infrastructure" #FFF4E5
+  database "Community database" as db
+  participant "Workers (purge, retry, outbox)" as workers
+end box
+actor -> client : Suspend {slug} with a reason
+client -> ep : POST /api/platform/organisations/{slug}/suspend, or org suspend --operator
+alt not an operator
+  ep --> client : Empty 404 (L2-150 #5)
+else operator
+  ep -> h : HandleAsync(slug, reason)
+  h -> db : Organisation by slug
+  db --> h : Organisation (Active)
+  h -> h : organisation.Suspend(reason, now)
+  h -> revoke : RevokeOrganisationAsync(organisation.Id): authorizations stamped with it
+  revoke -> db : Revoke tokens of this organisation only; other memberships untouched (L2-150 #1, #2)
+  h -> audit : organisation.suspended, target slug, details { reason } (L2-148 #4)
+  h -> db : SaveChanges
+  h --> ep : Ok
+  ep --> client : 204, or "Organisation {slug} suspended"
+end
+== While suspended ==
+member -> browser : Open https://app.{organisation}/
+browser -> resolve : GET / (unlocked)
+resolve -> db : Organisation by host
+db --> resolve : Status Suspended
+resolve --> browser : 503 neutral suspended page; empty 503 for API, static files and /connect (L2-131 #3, L2-150 #1)
+workers -> db : Due rows joined to Organisations
+db --> workers : Rows of suspended organisations excluded; not failed (L2-150 #4)
+== Lift ==
+actor -> client : Lift {slug}
+client -> ep : POST /api/platform/organisations/{slug}/lift, or org lift --operator
+ep -> h : HandleAsync(slug)
+h -> db : Organisation by slug
+h -> h : organisation.Lift()
+h -> audit : organisation.lifted (L2-148 #4)
+h -> db : SaveChanges
+ep --> client : 204, or "Organisation {slug} lifted"
+member -> browser : Open https://app.{organisation}/ again
+browser -> resolve : GET /
+resolve -> db : Organisation by host
+db --> resolve : Status Active
+resolve --> browser : App served; members sign in again (L2-150 #3)
+@enduml

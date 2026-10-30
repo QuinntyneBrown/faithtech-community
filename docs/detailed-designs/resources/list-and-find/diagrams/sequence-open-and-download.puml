@@ -15,7 +15,7 @@ skinparam package {
   BackgroundColor #F9FAFB
 }
 actor "Signed-in member" as actor
-box "Frontend — FaithTech Community web app (resources library)" #E0F2FE
+box "Frontend — Community web app (resources library)" #E0F2FE
   participant "ResourcePage" as page
   participant "HttpResourcesService" as svc
 end box
@@ -44,7 +44,7 @@ alt not found, archived for someone else, or not visible
   ep --> svc : 404 (L2-060 AC1, AC2)
   page --> actor : "This resource isn’t available" with Browse resources (L2-056 AC8)
 else visible
-  opt System Admin, not the owner, Private or Shared
+  opt AdministerOrganisation override: not the owner, Private or Shared (L2-135 AC5)
     get -> audit : Record resource.opened (L2-060 AC5)
     get -> db : Save
   end
@@ -56,7 +56,7 @@ else visible
     svc -> ep : GET /api/resources/{id}/thumbnail
     ep -> dl : ThumbnailAsync(id)
     dl -> acc : VisibleOrOwnArchived
-    dl -> store : OpenReadAsync(resources/{id}/{blobId}-thumb.png)
+    dl -> store : OpenReadAsync({organisationId}/resources/{id}/{blobId}-thumb.png)
     ep --> svc : 200 image/png
     svc --> page : Blob
     page --> actor : <img src=object URL alt={owner's alt text}> (L2-056 AC3)
@@ -73,7 +73,7 @@ alt file resource
   else file not yet stored (storage was down)
     ep --> svc : 409 "This file is still uploading. Try again in a minute."
   else stored
-    opt System Admin override
+    opt AdministerOrganisation override
       dl -> audit : Record resource.downloaded
     end
     dl -> store : OpenReadAsync(BlobName)

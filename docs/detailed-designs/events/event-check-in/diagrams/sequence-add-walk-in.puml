@@ -14,8 +14,8 @@ skinparam package {
   FontColor #101828
   BackgroundColor #F9FAFB
 }
-actor "Lead or System Admin" as actor
-box "Frontend — FaithTech Community web app (events library)" #E0F2FE
+actor "Member with ManageAttendance" as actor
+box "Frontend — Community platform web app (events library)" #E0F2FE
   participant "EventCheckInPage" as page
   participant "AddWalkInDialog" as dlg
   participant "HttpCheckInService" as svc
@@ -45,7 +45,7 @@ alt no name, name over 100 characters or invalid email
   dlg --> actor : Inline errors; nothing saved (L2-120 AC3)
 else valid
   ep -> h : HandleAsync(id, command)
-  h -> h : CanCheckIn, else 403; Refusal, else 409 (L2-120 AC8)
+  h -> h : CanCheckIn: Has(ManageAttendance), else 403; Refusal, else 409 (L2-120 AC8)
   h -> db : Load event with rows; find verified account by email
   db --> h : Event, optional member profile id
   h -> ev : AddWalkIn(name, email, profileId, checkInNow, caller, now)
@@ -54,7 +54,7 @@ else valid
   else new
     ev --> h : New IsWalkIn row, member-linked when the email is verified (L2-120 AC4); capacity and started not checked (L2-120 AC6)
   end
-  h -> h : No confirmation email or notification (L2-120 AC7); audit when override
+  h -> h : No confirmation email or notification (L2-120 AC7); audit when IsOverride(ManageAttendance) (L2-135 AC5)
   h -> db : Save
   db --> h : Committed
   h --> ep : WalkInResultDto

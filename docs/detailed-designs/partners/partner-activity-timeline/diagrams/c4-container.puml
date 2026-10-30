@@ -2,9 +2,9 @@
 !include <C4/C4_Container>
 LAYOUT_WITH_LEGEND()
 title Containers — Partner activity timeline
-Person(lead, "Lead", "City, Event, Create or Communications Lead, or System Admin")
-Person(staff, "Staff", "Read-only across everything except private contacts")
-System_Boundary(community, "FaithTech Community") {
+Person(lead, "Member with ManagePartners", "Logs activities on partners")
+Person(staff, "Member with view capabilities", "Holds ViewPartners without ManagePartners; reads timelines")
+System_Boundary(community, "Community platform") {
   Container(web, "Web app", "Angular", "Shell, partners feature library, api and components libraries")
   Container(api, "Community API", "ASP.NET Core", "FaithTech.Community.Api with Application, Domain and Infrastructure")
   Container(cli, "Cli", ".NET console", "Applies the PartnerActivitiesAndMerge migration and its backfill")

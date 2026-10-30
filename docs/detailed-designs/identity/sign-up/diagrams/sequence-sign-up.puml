@@ -15,7 +15,7 @@ skinparam package {
   BackgroundColor #F9FAFB
 }
 actor "Anonymous visitor" as actor
-box "Frontend — FaithTech Community web app (faithtech-community library)" #E0F2FE
+box "Frontend — Community web app (faithtech-community library)" #E0F2FE
   participant "SignUpPage" as page
   participant "AuthService" as client
 end box
@@ -30,14 +30,14 @@ box "Backend — FaithTech.Community.Infrastructure" #FFF4E5
   database "Community database" as db
 end box
 participant "Email provider" as mail
-actor -> page : Submit name, email and password
+actor -> page : Submit name, email and password on the organisation's host
 page -> page : Validate fields inline (L2-001)
 alt invalid field
   page --> actor : Inline errors, focus first invalid field, announce (L2-001)
 else valid
   page -> page : Disable submit, show busy state (L2-001)
   page -> client : signUp(request)
-  client -> ep : POST /api/account/sign-up
+  client -> ep : POST /api/account/sign-up (host resolved to ICurrentOrganisation, L2-131)
   ep -> h : Send SignUpCommand
   h -> bp : Check password length and breach list (L2-001)
   alt short or breached password
@@ -49,10 +49,10 @@ else valid
   else accepted
     h -> db : Find user by email
     alt email unused
-      h -> db : Create user and profile with no role (L2-001)
-      h -> mail : Send verification email
+      h -> db : Create user and a profile with no role in the current organisation (L2-001, L2-132 #1)
+      h -> mail : Send verification email in the organisation's name (L2-134)
     else email already registered
-      h -> h : Create nothing; keep outcome identical (L2-001)
+      h -> h : Create nothing; keep outcome identical; the account gains a profile here on verification (L2-001 #2)
     end
     h --> ep : Accepted
     ep --> client : 202 Accepted

@@ -15,7 +15,7 @@ skinparam package {
   BackgroundColor #F9FAFB
 }
 actor "Workspace owner" as actor
-box "Frontend — FaithTech Community web app (agile library)" #E0F2FE
+box "Frontend — Community platform web app (agile library)" #E0F2FE
   participant "BoardPage" as page
   participant "CloseSprintDialog" as dlg
   participant "AgileService (AGILE_SERVICE)" as svc
@@ -61,7 +61,7 @@ loop each story not Done
 ent -> wi : ReturnToBacklog(): SprintId = null
 end
 ent -> ent : State = Closed
-h -> pol : AuditOverride(caller, "sprint.closed", ...) (System Admin only)
+h -> pol : AuditOverride(caller, "sprint.closed", ...) (AdministerOrganisation override only, L2-135 AC5)
 h -> ctx : SaveChangesAsync
 ctx -> db : UPDATE sprint and work items in one transaction
 h --> ep : Result.Ok
