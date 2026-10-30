@@ -1,0 +1,161 @@
+@startuml
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 8
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam class {
+  BorderColor #344054
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+title Class structure — Partner activity timeline
+enum PartnerActivityKind {
+  Call
+  Email
+  Meeting
+  Note
+  Added
+  StageMoved
+  Merged
+  Restored
+}
+enum PartnerStage {
+  Lead
+  InFunnel
+  Confirmed
+}
+class Partner {
+  +Guid Id
+  +string Name
+  +PartnerStage Stage
+  +int Version
+  +DateTime? ArchivedAtUtc
+  +Guid? MergedIntoId
+  +IReadOnlyCollection<PartnerStageChange> StageChanges
+  +Update(...): void
+  +MoveTo(stage, by, nowUtc, note): void
+}
+class PartnerStageChange {
+  +Guid Id
+  +Guid PartnerId
+  +PartnerStage From
+  +PartnerStage To
+  +Guid MovedBy
+  +DateTime MovedAtUtc
+  +string? Note
+  +Guid? MergedFromPartnerId
+}
+class PartnerActivity {
+  +Guid Id
+  +Guid PartnerId
+  +PartnerActivityKind Kind
+  +string? Summary
+  +DateOnly OccurredOn
+  +TimeOnly? OccurredAt
+  +string? NextStep
+  +DateOnly? NextStepDue
+  +Guid LoggedById
+  +DateTime LoggedAtUtc
+  +PartnerStage? FromStage
+  +PartnerStage? ToStage
+  +Guid? RelatedPartnerId
+  +Guid? StageChangeId
+  +Guid? MergedFromPartnerId
+  +{static} Log(partnerId, kind, summary, occurredOn, occurredAt, nextStep, nextStepDue, by, nowUtc): PartnerActivity
+  +{static} Added(partner, by, nowUtc): PartnerActivity
+  +{static} StageMoved(change: PartnerStageChange): PartnerActivity
+  +{static} Merged(kept, other, by, nowUtc, from, to): PartnerActivity
+  +{static} Restored(partner, other, by, nowUtc): PartnerActivity
+  +MoveTo(partnerId: Guid): void
+  +MoveBack(): void
+}
+Partner "1" *-- "*" PartnerStageChange
+Partner "1" *-- "*" PartnerActivity
+PartnerActivity --> PartnerActivityKind
+PartnerActivity ..> PartnerStageChange : StageChangeId mirrors
+PartnerActivity --> PartnerStage
+
+class LogPartnerActivityCommand <<record>> {
+  +string? Kind
+  +string? Summary
+  +DateOnly? OccurredOn
+  +TimeOnly? OccurredAt
+  +string? NextStep
+  +DateOnly? NextStepDue
+}
+class LogPartnerActivityValidator
+class LogPartnerActivityHandler {
+  +LogAsync(partnerId: Guid, command): Task<(Result, PartnerActivityDto?)>
+}
+class PartnerTimelineHandler {
+  +ListAsync(partnerId: Guid, kind: string?, before: string?): Task<(Result, PartnerActivityPageDto?)>
+}
+class PartnerTimelineFilter <<static>> {
+  +{static} TryParse(kind: string?, out kinds: PartnerActivityKind[]?): bool
+}
+class PartnerTimelineOrder <<static>> {
+  +{static} Newest(query: IQueryable<PartnerActivity>): IOrderedQueryable<PartnerActivity>
+  +{static} OlderThan(query, cursor: TimelineCursor): IQueryable<PartnerActivity>
+}
+class TimelineCursor <<record>> {
+  +DateOnly OccurredOn
+  +TimeOnly? OccurredAt
+  +DateTime LoggedAtUtc
+  +Guid Id
+  +{static} Encode(activity): string
+  +{static} TryDecode(value: string?, out cursor): bool
+}
+class PartnerTimelineViews {
+  +ToDtosAsync(partner: Partner, rows): Task<IReadOnlyList<PartnerActivityDto>>
+}
+class PartnerAccess {
+  +bool CanRead
+  +bool CanWrite
+  +AuditAdminWrite(actor, partner, action, before, after): void
+}
+class PartnerActivityDto <<record>> {
+  +Guid Id
+  +string Kind
+  +string? Summary
+  +string Text
+  +DateOnly OccurredOn
+  +TimeOnly? OccurredAt
+  +string? NextStep
+  +DateOnly? NextStepDue
+  +Guid LoggedById
+  +string LoggedByName
+  +DateTime LoggedAtUtc
+  +string? FromStage
+  +string? ToStage
+  +Guid? RelatedPartnerId
+  +string? RelatedPartnerName
+  +Guid? MergedFromPartnerId
+}
+class PartnerActivityPageDto <<record>> {
+  +IReadOnlyList<PartnerActivityDto> Items
+  +string? Before
+}
+class PartnerDto <<record>> {
+  +Guid Id
+  +string Name
+  +string Stage
+  +int Version
+  +DateOnly? LastActivityOn
+  +string? NextStep
+  +DateOnly? NextStepDue
+  +bool CanEdit
+  +bool CanLogActivity
+}
+LogPartnerActivityValidator ..> LogPartnerActivityCommand
+LogPartnerActivityHandler ..> LogPartnerActivityCommand : handles
+LogPartnerActivityHandler --> PartnerAccess
+LogPartnerActivityHandler ..> PartnerActivity : creates
+PartnerTimelineHandler --> PartnerAccess
+PartnerTimelineHandler ..> PartnerTimelineFilter
+PartnerTimelineHandler ..> PartnerTimelineOrder
+PartnerTimelineHandler ..> TimelineCursor
+PartnerTimelineHandler --> PartnerTimelineViews
+PartnerTimelineViews ..> PartnerActivityDto : builds
+PartnerActivityPageDto "1" *-- "*" PartnerActivityDto
+@enduml

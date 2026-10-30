@@ -35,10 +35,12 @@ import {
   ToastService,
   avatarColorFor,
   formatDay,
+  formatTime,
   formatTimeRange,
 } from '@faithtech-community/components';
 import { firstValueFrom } from 'rxjs';
 
+import { fileSlug as slug, saveFile as save } from '../../download';
 import {
   CancelEventData,
   CancelEventDialog,
@@ -124,6 +126,23 @@ export class EventPage {
     const why = e.cancellationReason ? `: “${e.cancellationReason}”` : '.';
     return `${who} cancelled it${when}${why} Everyone who RSVP’d was emailed.`;
   });
+  /** "34 people of 40", then "· 36 checked in" for leads and Staff once anyone is checked in. */
+  protected readonly going = computed(() => {
+    const e = this.event();
+    if (!e) return '';
+    const people = `${e.rsvpCount} ${e.rsvpCount === 1 ? 'person' : 'people'}`;
+    const capacity = e.capacity ? ` of ${e.capacity}` : '';
+    const checkedIn = e.checkedInCount ? ` · ${e.checkedInCount} checked in` : '';
+    return `${people}${capacity}${checkedIn}`;
+  });
+  /** "Going (34)", then "Going (34) · 36 checked in" once anyone is checked in (L2-121 AC1). */
+  protected readonly goingHeading = computed(() => {
+    const e = this.event();
+    if (!e) return '';
+    return e.checkedInCount
+      ? `Going (${e.rsvpCount}) · ${e.checkedInCount} checked in`
+      : `Going (${e.rsvpCount})`;
+  });
   protected readonly started = computed(() => {
     const e = this.event();
     return !!e && new Date(e.startsAt).getTime() <= Date.now();
@@ -147,7 +166,9 @@ export class EventPage {
   }
 
   protected meta(rsvp: RsvpDto): string {
-    const day = `RSVP’d ${formatDay(rsvp.rsvpedAt)}`;
+    const day = rsvp.checkedInAt
+      ? `Checked in ${formatTime(rsvp.checkedInAt)}`
+      : `RSVP’d ${formatDay(rsvp.rsvpedAt)}`;
     if (!rsvp.isGuest) return `Member · ${day}`;
     return rsvp.guestEmail ? `Guest · ${rsvp.guestEmail} · ${day}` : `Guest · ${day}`;
   }
@@ -279,23 +300,4 @@ export class EventPage {
       if (id === this.id()) this.state.set('error');
     }
   }
-}
-
-/** Hands a downloaded file to the browser under the given name. */
-function save(blob: Blob, fileName: string): void {
-  const url = URL.createObjectURL(blob);
-  const link = document.createElement('a');
-  link.href = url;
-  link.download = fileName;
-  link.click();
-  URL.revokeObjectURL(url);
-}
-
-/** The same file-name slug as the server's EventFileNames. */
-function slug(title: string): string {
-  const words = title
-    .toLowerCase()
-    .replace(/[^a-z0-9]+/g, '-')
-    .replace(/^-+|-+$/g, '');
-  return words.slice(0, 60).replace(/-+$/, '') || 'event';
 }

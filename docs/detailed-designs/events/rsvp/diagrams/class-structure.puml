@@ -46,8 +46,8 @@ class Event <<Domain entity>> {
   +string? CancellationReason
   +int Sequence
   +Guid CreatedById
-  +int RsvpCount
-  +bool IsFull
+  +int RsvpCount «excludes walk-ins»
+  +bool IsFull «excludes walk-ins»
   +Update(title, description, type, startsAt, endsAt, city, format, venue, onlineLink, capacity, visibility): void
   +Cancel(reason: string): void
   +Rsvp(profileId: Guid, now: DateTimeOffset): Rsvp
@@ -66,6 +66,9 @@ class Rsvp <<Domain entity>> {
   +string? GuestName
   +string? GuestEmail
   +DateTimeOffset CreatedAt
+  +DateTimeOffset? CheckedInAt
+  +Guid? CheckedInById
+  +bool IsWalkIn
   +bool IsGuest
 }
 Event "1" *-- "*" Rsvp : rsvps

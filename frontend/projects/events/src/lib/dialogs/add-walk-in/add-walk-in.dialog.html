@@ -1,0 +1,45 @@
+<ft-dialog
+  heading="Add a walk-in"
+  description="For someone at the door who didn’t RSVP."
+  icon="walk-in"
+  [busy]="busy()"
+  (closed)="ref.close()"
+>
+  <form [formGroup]="form" (submit)="$event.preventDefault(); save()">
+    <ft-stack>
+      @if (failed()) {
+        <ft-alert status="danger" heading="Walk-in not added">
+          We couldn’t reach the server. {{ sentName() }} is not on the list yet; try again.
+        </ft-alert>
+      }
+      <ft-form-field required label="Name" [error]="error('name')">
+        <ft-text-field formControlName="name" autocomplete="off" [maxlength]="maxName" />
+      </ft-form-field>
+      <ft-form-field
+        label="Email"
+        [optional]="true"
+        help="A member’s email links the check-in to their profile."
+        [error]="error('email')"
+      >
+        <ft-text-field type="email" formControlName="email" autocomplete="off" />
+      </ft-form-field>
+      <ft-switch
+        formControlName="checkInNow"
+        description="Adds them to the attendance list as present."
+        >Check them in now</ft-switch
+      >
+    </ft-stack>
+  </form>
+  <ft-button ftDialogFooter [disabled]="busy()" (click)="ref.close()">Cancel</ft-button>
+  <ft-button ftDialogFooter variant="primary" initialFocus [loading]="busy()" (click)="save()">
+    @if (busy()) {
+      Adding…
+    } @else if (failed()) {
+      Try again
+    } @else if (checkInNow()) {
+      Add and check in
+    } @else {
+      Add walk-in
+    }
+  </ft-button>
+</ft-dialog>

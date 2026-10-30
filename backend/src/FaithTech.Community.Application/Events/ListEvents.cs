@@ -59,7 +59,7 @@ public class ListEventsHandler(IApplicationDbContext db, TimeProvider time)
             : events.OrderBy(e => e.StartsAt);
         // Enums leave the database as values and become names here, so the query stays translatable.
         var rows = await events
-            .Select(e => new { e.Id, e.Title, e.Type, e.StartsAt, e.EndsAt, e.City, e.Format, e.Venue, e.Visibility, Rsvps = e.Rsvps.Count, e.IsCancelled })
+            .Select(e => new { e.Id, e.Title, e.Type, e.StartsAt, e.EndsAt, e.City, e.Format, e.Venue, e.Visibility, Rsvps = e.Rsvps.Count(r => !r.IsWalkIn), e.IsCancelled })
             .ToListAsync(cancellationToken);
 
         var cities = await db.Events.AsNoTracking().Select(e => e.City).Distinct().ToListAsync(cancellationToken);

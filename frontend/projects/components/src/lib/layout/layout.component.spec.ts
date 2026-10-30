@@ -141,4 +141,17 @@ describe('layout primitives', () => {
     );
     expect(host.querySelector('ft-page-header.rich .page-header__overline')).toBeNull();
   });
+
+  it('page header moves focus to its h1 when asked, without adding it to the tab order', () => {
+    const { fixture, host } = setup();
+    const header = fixture.debugElement
+      .queryAll((el) => el.name === 'ft-page-header')[2]
+      .injector.get(PageHeaderComponent);
+    const h1 = host.querySelector<HTMLElement>('ft-page-header.rich h1')!;
+
+    header.focusTitle();
+
+    expect(document.activeElement).toBe(h1);
+    expect(h1.getAttribute('tabindex')).toBe('-1');
+  });
 });

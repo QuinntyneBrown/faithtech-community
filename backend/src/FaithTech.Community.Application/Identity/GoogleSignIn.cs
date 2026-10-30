@@ -46,7 +46,8 @@ public class GoogleSignInHandler(
     UserManager<CommunityUser> users,
     IApplicationDbContext db,
     IGoogleIdentityProvider google,
-    ContactSignedUpHandler contactSignedUp)
+    ContactSignedUpHandler contactSignedUp,
+    TimeProvider time)
 {
     public const string LoginProvider = "Google";
 
@@ -101,7 +102,7 @@ public class GoogleSignInHandler(
 
     private async Task<CommunityUser> CreateAsync(GoogleIdentity identity, CancellationToken cancellationToken)
     {
-        var profile = new Profile(ProfileName(identity));
+        var profile = new Profile(ProfileName(identity), time.GetUtcNow().UtcDateTime);
         db.Profiles.Add(profile);
         var user = new CommunityUser { UserName = identity.Email, Email = identity.Email, EmailConfirmed = true, ProfileId = profile.Id };
 

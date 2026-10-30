@@ -6,6 +6,9 @@
   @if (caption()) {
     <span class="ft-kanban__caption">{{ caption() }}</span>
   }
+  @if (detail(); as d) {
+    <span class="ft-kanban__caption">{{ d }}</span>
+  }
   @if (movable()) {
     <ft-button
       variant="ghost"

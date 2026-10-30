@@ -1,0 +1,24 @@
+:host {
+  display: block;
+}
+
+ft-empty-state {
+  display: block;
+  margin-block-end: var(--space-4);
+}
+
+.next-step {
+  font: var(--text-caption);
+  color: var(--color-fg-muted);
+}
+
+.older {
+  display: inline-block;
+  margin-block-start: var(--space-3);
+}
+
+.caption {
+  margin-block: var(--space-3) 0;
+  font: var(--text-caption);
+  color: var(--color-fg-muted);
+}

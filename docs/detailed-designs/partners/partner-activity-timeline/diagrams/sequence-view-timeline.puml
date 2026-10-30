@@ -1,0 +1,73 @@
+@startuml
+title UML sequence behaviour — View and page the partner timeline
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+actor "Lead, Staff or System Admin" as actor
+box "Frontend — FaithTech Community web app (partners library)" #E0F2FE
+  participant "PartnerPage" as page
+  participant "PartnerTimelineComponent" as tl
+  participant "HttpPartnersService" as svc
+end box
+box "Backend — FaithTech.Community.Api" #D1FADF
+  participant "PartnersEndpoints" as ep
+end box
+box "Backend — FaithTech.Community.Application and Domain" #ECFDF3
+  participant "PartnerTimelineHandler" as h
+  participant "PartnerAccess" as acc
+  participant "PartnerTimelineViews" as views
+end box
+box "Backend — FaithTech.Community.Infrastructure" #FFF4E5
+  database "Community database" as db
+end box
+actor -> page : Open /partners/{id}
+page -> svc : get(id)
+svc --> page : PartnerDto with lastActivityOn, nextStep, canLogActivity
+page -> tl : Render with partnerId, All chip pressed (L2-111 AC3)
+tl -> svc : activities(id)
+svc -> ep : GET /api/partners/{id}/activities
+ep -> h : ListAsync(id, kind: null, before: null)
+h -> acc : CanRead
+alt not a lead, Staff or System Admin
+  ep --> svc : 403 (L2-112 AC3)
+else anonymous
+  ep --> svc : 401 (L2-112 AC4)
+else permitted
+  h -> db : PartnerActivities for the partner, PartnerTimelineOrder, take 51 (L2-111 AC2)
+  h -> views : ToDtos(first 50) with names and text
+  h -> h : before = TimelineCursor.Encode(50th) when a 51st exists
+  ep --> svc : 200 {items, before}
+  svc --> tl : Page
+  alt no items
+    tl --> actor : Empty state with Log activity for leads (L2-111 AC5)
+  else items
+    tl --> actor : Same shared entries for every reader (L2-111 AC1);\ntype in text beside its icon (L2-111 AC9)
+  end
+end
+opt Pick a chip
+  actor -> tl : Choose Calls, Emails, Meetings, Notes or Stage moves
+  tl -> svc : activities(id, kind)
+  svc -> ep : GET /api/partners/{id}/activities?kind=Stage
+  ep --> svc : 200 Added, StageMoved, Merged and Restored only (L2-111 AC3)
+end
+opt Show older (before is set)
+  actor -> tl : Choose Show older
+  tl -> svc : activities(id, kind, before)
+  svc -> ep : GET /api/partners/{id}/activities?kind=&before={cursor}
+  ep -> h : ListAsync(id, kind, before)
+  h -> db : Entries strictly older than the cursor in PartnerTimelineOrder
+  ep --> svc : 200 next 50, no repeats or gaps (L2-111 AC4)
+  tl --> actor : Appended below
+end
+@enduml

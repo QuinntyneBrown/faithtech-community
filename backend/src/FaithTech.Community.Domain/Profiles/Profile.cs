@@ -10,11 +10,13 @@ public class Profile
 
     private Profile() { }
 
-    public Profile(string name)
+    /// <param name="joinedAtUtc">When the account was created; set once and never changed (Reports, ADR 0030).</param>
+    public Profile(string name, DateTime? joinedAtUtc = null)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(name);
         Id = Guid.NewGuid();
         Name = name;
+        JoinedAtUtc = joinedAtUtc;
     }
 
     public Guid Id { get; private set; }
@@ -33,6 +35,9 @@ public class Profile
     public string? Bio { get; private set; }
 
     public bool IsSuspended { get; private set; }
+
+    /// <summary>When the account was created; null for profiles created before Reports, which are never "new".</summary>
+    public DateTime? JoinedAtUtc { get; private set; }
 
     public string? SuspendedReason { get; private set; }
 

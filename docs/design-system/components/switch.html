@@ -124,6 +124,7 @@
         <li><b>"Keep me signed in on this device"</b> on sign in, on by default, read when Grace presses Sign in.</li>
         <li><b>"Email me announcements"</b> in Settings, the announcement email opt-out, read when she presses Save settings. A caption under it says account emails always arrive.</li>
         <li><b>"Also send by email (respects each person’s opt-out)"</b> on compose announcement, on by default, read when Hannah presses Send.</li>
+        <li><b>"Check them in now"</b> in the Add a walk-in dialog, on by default, with the description "Adds them to the attendance list as present."</li>
       </ul>
       <p>For a choice between several options use a <a href="radio-group.html">radio group</a>. A switch never needs its own Save button and never acts on its own.</p>
     </section>
@@ -139,7 +140,7 @@
         <ol class="ds-anatomy__list">
           <li><div><b>Track</b><small>The checkbox itself, <code>--size-icon-md</code> tall and 1.75 times as wide, fully round. <code>--color-border-strong</code> when off, <code>--color-accent</code> when on.</small></div></li>
           <li><div><b>Thumb</b><small>A <code>--color-bg-surface</code> circle with <code>--shadow-1</code>. It sits left when off and springs right when on.</small></div></li>
-          <li><div><b>Label</b><small>A short statement in <code>--text-body</code>. An optional <code>small</code> line under it exists in the CSS but is not used; Settings puts its note in a caption after the switch instead.</small></div></li>
+          <li><div><b>Label</b><small>A short statement in <code>--text-body</code>. An optional <code>small</code> line inside the label exists in the CSS but is not used: it would become part of the name. A description goes in a caption after the switch instead (see With a description).</small></div></li>
         </ol>
       </div>
     </section>
@@ -157,11 +158,21 @@
           &lt;label class="switch"&gt;&lt;input type="checkbox" name="n3"&gt;&lt;span class="switch__text"&gt;Email me announcements&lt;/span&gt;&lt;/label&gt;&lt;p class="text-caption"&gt;You’ll always get account emails like password resets.&lt;/p&gt;
           &lt;label class="switch"&gt;&lt;input type="checkbox" name="email" checked&gt;&lt;span class="switch__text"&gt;Also send by email (respects each person’s opt-out)&lt;/span&gt;&lt;/label&gt;</code></pre></details>
       </div>
+      <h3>With a description</h3>
+      <div class="ds-example">
+        <div class="ds-example__canvas ds-example__canvas--stack" style="max-width: 30rem;">
+          <div><label class="switch"><input type="checkbox" name="wi-ex" checked aria-describedby="wi-ex-desc"><span class="switch__text">Check them in now</span></label><p class="text-caption switch__description" id="wi-ex-desc">Adds them to the attendance list as present.</p></div>
+          <div><label class="switch"><input type="checkbox" name="n3-ex" aria-describedby="n3-ex-desc"><span class="switch__text">Email me announcements</span></label><p class="text-caption switch__description" id="n3-ex-desc">You’ll always get account emails like password resets.</p></div>
+        </div>
+        <div class="ds-example__caption"><span>From <code>dialogs/check-in-walk-in</code> and Settings. The description is a <code>--text-caption</code> line in <code>--color-fg-muted</code> under the label text, outside the <code>label</code> so it is not part of the name, and joined to the input with <code>aria-describedby</code>: a screen reader says "Check them in now, switch, on, Adds them to the attendance list as present." In Angular: <code>&lt;ft-switch description="Adds them to the attendance list as present."&gt;Check them in now&lt;/ft-switch&gt;</code>; with no description there is no caption and no <code>aria-describedby</code>.</span></div>
+        <details class="ds-example__code"><summary>HTML</summary><pre><code>&lt;label class="switch"&gt;&lt;input type="checkbox" checked aria-describedby="wi-now-desc"&gt;&lt;span class="switch__text"&gt;Check them in now&lt;/span&gt;&lt;/label&gt;
+&lt;p class="text-caption switch__description" id="wi-now-desc"&gt;Adds them to the attendance list as present.&lt;/p&gt;</code></pre></details>
+      </div>
       <h3>Trailing a list row (saves on toggle)</h3>
       <div class="ds-example">
-        <div class="ds-example__canvas ds-example__canvas--stack"><ul class="list card card--flush" aria-label="Attendees (example)"><li class="list__item"><span class="avatar avatar--sm avatar--sage" aria-hidden="true">JB<img class="avatar__img" src="../../mocks/assets/photos/people/jonah-bell.jpg" alt=""></span><div class="list__body"><div class="list__title">Jonah Bell</div><div class="list__meta">Member · Checked in 6:41 pm</div></div><label class="switch"><input type="checkbox" checked><span class="switch__text visually-hidden">Checked in: Jonah Bell</span></label></li><li class="list__item"><span class="avatar avatar--sm avatar--rose" aria-hidden="true">LT<img class="avatar__img" src="../../mocks/assets/photos/people/leah-thompson.jpg" alt=""></span><div class="list__body"><div class="list__title">Leah Thompson</div><div class="list__meta">Member · Not here yet</div></div><label class="switch"><input type="checkbox"><span class="switch__text visually-hidden">Checked in: Leah Thompson</span></label></li></ul></div>
-        <div class="ds-example__caption"><span>From event check-in. The row already shows the person, so the switch text is <code>.visually-hidden</code> but still names them. This switch saves at once with no Save button. When it saves, the meta line changes to "Checked in 6:44 pm" and a success <a href="toast.html">toast</a> confirms it: "Leah Thompson is checked in · 6:44 pm · 13 of 34 here." with an Undo action (<code>event-check-in/checked-in</code>). The mocks don't show a failed save.</span></div>
-        <details class="ds-example__code"><summary>HTML</summary><pre><code>&lt;label class="switch"&gt;&lt;input type="checkbox" checked&gt;&lt;span class="switch__text visually-hidden"&gt;Checked in: Jonah Bell&lt;/span&gt;&lt;/label&gt;</code></pre></details>
+        <div class="ds-example__canvas ds-example__canvas--stack"><ul class="list card card--flush" aria-label="Attendees (example)"><li class="list__item"><span class="avatar avatar--sm avatar--sage" aria-hidden="true">JB<img class="avatar__img" src="../../mocks/assets/photos/people/jonah-bell.jpg" alt=""></span><div class="list__body"><div class="list__title">Jonah Bell</div><div class="list__meta">Member · Checked in 6:41 pm</div></div><label class="switch"><input type="checkbox" checked><span class="switch__text visually-hidden">Check in Jonah Bell</span></label></li><li class="list__item"><span class="avatar avatar--sm avatar--rose" aria-hidden="true">LT<img class="avatar__img" src="../../mocks/assets/photos/people/leah-thompson.jpg" alt=""></span><div class="list__body"><div class="list__title">Leah Thompson</div><div class="list__meta">Member · Not here yet</div></div><label class="switch"><input type="checkbox"><span class="switch__text visually-hidden">Check in Leah Thompson</span></label></li></ul></div>
+        <div class="ds-example__caption"><span>From event check-in. The row already shows the person, so the switch text is <code>.visually-hidden</code> but still names them as an action: "Check in Leah Thompson" (the mocks said "Checked in: {name}" until 2026-10-22). This switch saves at once with no Save button. When it saves, the meta line changes to "Checked in 6:44 pm" and a success <a href="toast.html">toast</a> confirms it: "Leah Thompson is checked in · 6:44 pm · 13 of 34 here." with an Undo action (<code>event-check-in/checked-in</code>). When the save fails the switch goes back to its old position and a danger toast says so: "Couldn’t save Leah Thompson’s check-in. Try again." with Try again (<code>event-check-in/save-failed</code>). For Staff and on a cancelled event the switches are <code>disabled</code>.</span></div>
+        <details class="ds-example__code"><summary>HTML</summary><pre><code>&lt;label class="switch"&gt;&lt;input type="checkbox" checked&gt;&lt;span class="switch__text visually-hidden"&gt;Check in Jonah Bell&lt;/span&gt;&lt;/label&gt;</code></pre></details>
       </div>
     </section>
 
@@ -182,7 +193,8 @@
       <ul>
         <li><b>Hover</b> darkens the off track to <code>--color-fg-muted</code> and the on track to <code>--color-accent-hover</code>.</li>
         <li><b>Focus</b> draws the shared focus ring around the track.</li>
-        <li><b>Disabled</b> uses <code>--color-border-default</code> for the track and <code>--color-fg-disabled</code> for the label. No mock disables a switch; while a form submits, only its buttons lock.</li>
+        <li><b>Disabled</b> uses <code>--color-border-default</code> for the track and <code>--color-fg-disabled</code> for the label. Check-in disables every switch for Staff (read-only), on a cancelled event and before check-in opens (<code>event-check-in/not-open</code>); while a form submits, only its buttons lock.</li>
+        <li><b>Save on toggle</b>: the switch moves at once. On success the row and a success toast confirm it (with Undo); on failure the switch reverts to its previous position and a danger toast explains. Never leave the switch showing a value that was not saved.</li>
         <li>There is no invalid state: either position is a valid answer.</li>
       </ul>
     </section>
@@ -201,7 +213,7 @@
 
     <section class="ds-section" id="accessibility"><h2><a href="#accessibility">Accessibility</a></h2>
       <h3>Role and pattern</h3>
-      <p>This is a native checkbox styled as a switch (<code>appearance: none</code>). It follows the APG checkbox pattern, not the APG switch pattern. <code>role="switch"</code> is optional and is not used, so assistive technology says "Email me announcements, checked" or "not checked", which matches what the visual shows.</p>
+      <p>This is a native checkbox styled as a switch (<code>appearance: none</code>). In Angular, <code>ft-switch</code> adds <code>role="switch"</code> to the native checkbox, so assistive technology says "Email me announcements, switch, on" or "off", which matches what the visual shows; Space still toggles it as a checkbox. The static mocks leave the role off.</p>
       <h3>Keyboard</h3>
       <table class="ds-table ds-keys"><thead><tr><th scope="col">Key</th><th scope="col">Action</th></tr></thead><tbody>
         <tr><td><kbd>Tab</kbd></td><td>Moves focus to the switch. A disabled switch is skipped.</td></tr>
@@ -210,8 +222,8 @@
       <h3>Focus</h3>
       <p>The shared focus ring on <code>:focus-visible</code>, offset from the track so it never touches the thumb.</p>
       <h3>Labelling</h3>
-      <p>The visible text is the accessible name because the input sits inside its <code>label</code>. No <code>aria-label</code> is needed. A related caption (Settings) should be joined with <code>aria-describedby</code>.</p>
-      <p>A switch that trails a list row keeps its <code>label</code> but hides the text with <code>.visually-hidden</code>. The text must name the row ("Checked in: Leah Thompson"), because ten switches all called "Checked in" cannot be told apart in a screen reader's form-controls list.</p>
+      <p>The visible text is the accessible name because the input sits inside its <code>label</code>. No <code>aria-label</code> is needed. A related caption is joined with <code>aria-describedby</code> (the <code>description</code> input in Angular), never placed inside the label, so the name stays short.</p>
+      <p>A switch that trails a list row keeps its <code>label</code> but hides the text with <code>.visually-hidden</code>. The text must name the row ("Check in Leah Thompson"), because ten switches all called "Checked in" cannot be told apart in a screen reader's form-controls list.</p>
       <h3>Contrast</h3>
       <div class="ds-example__canvas ds-example__canvas--stack" style="padding: 0; gap: var(--space-2);"><div class="ds-pair"><span>Track on vs surface</span><span class="ds-pair__ratio" data-contrast="--color-accent|--color-bg-surface" data-min="3"></span></div><div class="ds-pair"><span>Track off vs surface</span><span class="ds-pair__ratio" data-contrast="--color-border-strong|--color-bg-surface" data-min="3"></span></div><div class="ds-pair"><span>Thumb vs track on</span><span class="ds-pair__ratio" data-contrast="--color-bg-surface|--color-accent" data-min="3"></span></div><div class="ds-pair"><span>Focus ring vs surface</span><span class="ds-pair__ratio" data-contrast="--color-focus-ring|--color-bg-surface" data-min="3"></span></div></div>
       <h3>Motion</h3>
@@ -224,7 +236,7 @@
       <ul>
         <li>The label says what happens when it is on, as a statement: "Keep me signed in on this device", "Email me announcements".</li>
         <li>Put a short qualifier in brackets in the label only when it changes the meaning: "(respects each person’s opt-out)".</li>
-        <li>A row switch's hidden label is "{state}: {name}", for example "Checked in: Abby Brooks".</li>
+        <li>A row switch's hidden label is "{state}: {name}", for example "Check in Abby Brooks".</li>
         <li>A switch is on by default only where the page says so: sign in and the announcement email are; the Settings opt-out reflects the saved value.</li>
       </ul>
     </section>
@@ -264,6 +276,7 @@
       <table class="ds-table"><thead><tr><th scope="col">Class / attribute</th><th scope="col">Effect</th></tr></thead><tbody>
         <tr><td><code>.switch</code></td><td>Row: track plus label, at least <code>--target-min</code> tall.</td></tr>
         <tr><td><code>.switch__text</code></td><td>Label, with an optional <code>small</code> line (unused).</td></tr>
+        <tr><td><code>.switch__description</code> + <code>aria-describedby</code></td><td>Caption under the label text, indented past the track; <code>description</code> on <code>ft-switch</code>.</td></tr>
         <tr><td><code>checked</code>, <code>disabled</code></td><td>States.</td></tr>
         <tr><td><code>data-state="hover|focus|checked|disabled"</code></td><td>Documentation only.</td></tr>
       </tbody></table>
@@ -275,9 +288,10 @@
         <li><a href="../../mocks/pages/sign-in/default.html">pages/sign-in/default</a> ("Keep me signed in on this device")</li>
         <li><a href="../../mocks/pages/settings/default.html">pages/settings/default</a> and <a href="../../mocks/pages/settings/success.html">success</a> ("Email me announcements")</li>
         <li><a href="../../mocks/pages/compose-announcement/default.html">pages/compose-announcement/default</a> ("Also send by email")</li>
-        <li><a href="../../mocks/pages/event-check-in/default.html">pages/event-check-in/default</a> and <a href="../../mocks/pages/event-check-in/checked-in.html">checked-in</a> ("Checked in: {name}", trailing a list row, saves on toggle)</li>
+        <li><a href="../../mocks/dialogs/check-in-walk-in/default.html">dialogs/check-in-walk-in/default</a> ("Check them in now" with a description)</li>
+        <li><a href="../../mocks/pages/event-check-in/default.html">pages/event-check-in/default</a> and <a href="../../mocks/pages/event-check-in/checked-in.html">checked-in</a> ("Check in {name}", trailing a list row, saves on toggle); <a href="../../mocks/pages/event-check-in/save-failed.html">save-failed</a> (reverted), <a href="../../mocks/pages/event-check-in/read-only.html">read-only</a> and <a href="../../mocks/pages/event-check-in/cancelled.html">cancelled</a> (disabled)</li>
       </ul>
-      <p>Drift noticed in the mocks: the Settings caption ("You’ll always get account emails like password resets.") is not joined to the switch with <code>aria-describedby</code>; the "Email me when" card heading holds a single switch whose label repeats "Email me"; no mock shows a disabled switch.</p>
+      <p>Drift noticed in the mocks: the Settings caption ("You’ll always get account emails like password resets.") is not joined to the switch with <code>aria-describedby</code>; the "Email me when" card heading holds a single switch whose label repeats "Email me".</p>
     </section>
 
     <footer class="ds-footer"><span>FaithTech Community design system · extracted from <a href="../../mocks/index.html">docs/mocks</a> on 2026-10-21</span><a href="#top">Back to top</a></footer>

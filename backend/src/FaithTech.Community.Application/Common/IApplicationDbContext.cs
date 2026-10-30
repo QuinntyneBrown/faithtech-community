@@ -40,6 +40,10 @@ public interface IApplicationDbContext
 
     DbSet<PartnerStageChange> PartnerStageChanges { get; }
 
+    DbSet<PartnerActivity> PartnerActivities { get; }
+
+    DbSet<PartnerDuplicateDismissal> PartnerDuplicateDismissals { get; }
+
     DbSet<Workspace> Workspaces { get; }
 
     DbSet<WorkItem> WorkItems { get; }

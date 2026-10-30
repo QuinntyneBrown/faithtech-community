@@ -40,7 +40,7 @@ alt not a lead, Staff or System Admin
   h --> ep : Forbidden (L2-017 AC4)
   ep --> svc : 403
 else permitted
-  h -> db : Load the shared Partner with StageChanges (L2-017 AC2)
+  h -> db : Load the shared Partner (L2-017 AC2)
   alt unknown id
     h --> ep : NotFound
     ep --> svc : 404
@@ -48,11 +48,11 @@ else permitted
     page --> actor : Not-found state
   else found
     h -> views : ToDtoAsync(partner)
-    views -> db : Owner and mover names
-    h --> ep : PartnerDto with history, newest first, and CanEdit
+    views -> db : Owner name, last activity and next step
+    h --> ep : PartnerDto with Version, LastActivityOn, NextStep and CanEdit
     ep --> svc : 200 OK
     svc --> page : Partner
-    page --> actor : Details and history; Edit and Move hidden when CanEdit is false (Staff)
+    page --> actor : Details and the activity timeline (partner-activity-timeline);\nEdit and Move hidden when CanEdit is false (Staff, archived)
   end
 end
 opt Edit (CanEdit)

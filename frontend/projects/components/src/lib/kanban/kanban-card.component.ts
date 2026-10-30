@@ -5,8 +5,9 @@ import { ButtonComponent } from '../button/button.component';
 import { IconComponent } from '../icon/icon.component';
 
 /**
- * A card in a kanban column: an optional kind badge, the name as a link, a caption, and a Move button
- * that names the card.
+ * A card in a kanban column: an optional kind badge, the name as a link, a caption, an optional
+ * second `detail` caption (a partner's "Next: {step} · {due day}"), and a Move button that names
+ * the card.
  * Movable cards can also be dragged with a pointer. Read-only viewers (`movable` false) get
  * neither the button nor the drag. Place inside ft-kanban-column.
  */
@@ -27,6 +28,8 @@ export class KanbanCardComponent {
   readonly title = input.required<string>();
   readonly href = input.required<string>();
   readonly caption = input('');
+  /** A second caption line, such as "Next: Send credit-line wording · Wed 22 Oct". */
+  readonly detail = input<string | null>(null);
   /** Optional kind badge above the title, such as "Story" on an Agile board. */
   readonly kind = input<string | null>(null);
   readonly kindVariant = input<BadgeVariant>('role');

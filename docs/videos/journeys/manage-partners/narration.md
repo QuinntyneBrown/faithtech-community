@@ -16,7 +16,7 @@ Fill in the organisation, its website, the stage it is at, the main contact, wha
 Add the partner and it appears in the stage you chose, with its contact and offer on the card. The page counts the partners for you.
 
 ## partner-page: The partner page
-Open the card to see the whole partner: its stage, its owner, and its contact details.
+Open the card to see the whole partner: its stage, its owner, its contact details, and an activity timeline that starts with the day it was added.
 
 ## edit: Edit
 Choose Edit to change anything. A badly written email is caught first. Fix it, hand the partner to another owner, and save, and the page shows the new details.

@@ -2,7 +2,7 @@ import { HttpTestingController } from '@angular/common/http/testing';
 import { TestBed } from '@angular/core/testing';
 import { Observable } from 'rxjs';
 
-import { HANDLES_FORBIDDEN } from '../errors';
+import { HANDLES_FORBIDDEN, HANDLES_SERVER_ERROR } from '../errors';
 import { apiTestProviders } from '../shared/api-test-providers';
 import { CONTACTS_SERVICE, CreateContactRequest } from './contacts.service';
 import { HttpContactsService } from './http-contacts.service';
@@ -102,6 +102,33 @@ describe('HttpContactsService', () => {
     expect(form.get('file')).toBe(file);
     expect(form.get('altText')).toBe('At the coffee morning');
     req.flush(null);
+  });
+
+  describe('findDuplicate (L2-116)', () => {
+    it('asks for the email, excluding the contact being edited, and maps the match', () => {
+      const answers: unknown[] = [];
+      service.findDuplicate('nadia@kestrel.example', 'c1').subscribe((a) => answers.push(a));
+
+      const req = controller.expectOne(
+        '/api/contacts/duplicates?email=nadia@kestrel.example&excludeId=c1',
+      );
+      expect(req.request.method).toBe('GET');
+      expect(req.request.context.get(HANDLES_SERVER_ERROR)).toBe(true);
+      req.flush({ id: 'c2', name: 'Nadia Petrov' });
+
+      expect(answers).toEqual([{ id: 'c2', name: 'Nadia Petrov' }]);
+    });
+
+    it('maps 204 to null', () => {
+      const answers: unknown[] = [];
+      service.findDuplicate('kwame@example.org').subscribe((a) => answers.push(a));
+
+      controller
+        .expectOne('/api/contacts/duplicates?email=kwame@example.org')
+        .flush(null, { status: 204, statusText: 'No Content' });
+
+      expect(answers).toEqual([null]);
+    });
   });
 
   describe('photoImage', () => {

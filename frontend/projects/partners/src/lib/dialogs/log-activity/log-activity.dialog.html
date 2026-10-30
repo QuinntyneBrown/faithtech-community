@@ -1,0 +1,60 @@
+<ft-dialog
+  [heading]="'Log activity for ' + data.name"
+  [description]="'Every lead sees this on ' + data.name + '’s timeline.'"
+  icon="edit"
+  [busy]="busy()"
+  (closed)="ref.close()"
+>
+  <form [formGroup]="form" (submit)="$event.preventDefault(); save()">
+    <ft-stack>
+      @if (failed()) {
+        <ft-alert status="danger" heading="Activity not logged">
+          We couldn’t reach the server. Your entry is still here; try again.
+        </ft-alert>
+      }
+      <ft-radio-group
+        required
+        legend="Type"
+        orientation="inline"
+        formControlName="kind"
+        [error]="error('kind')"
+      >
+        @for (kind of kinds; track kind) {
+          <ft-radio [value]="kind">{{ kind }}</ft-radio>
+        }
+      </ft-radio-group>
+      <ft-form-field required label="What happened" [error]="error('summary')">
+        <ft-textarea formControlName="summary" [rows]="3" [maxlength]="maxSummary" />
+      </ft-form-field>
+      <ft-grid [columns]="2">
+        <ft-form-field required label="Date" [error]="error('occurredOn')">
+          <ft-text-field type="date" formControlName="occurredOn" [max]="today" />
+        </ft-form-field>
+        <ft-form-field label="Time" [optional]="true">
+          <ft-text-field type="time" formControlName="occurredAt" />
+        </ft-form-field>
+      </ft-grid>
+      <ft-form-field
+        label="Next step"
+        [optional]="true"
+        help="Shown on the partner card so any lead can pick it up."
+        [error]="error('nextStep')"
+      >
+        <ft-text-field formControlName="nextStep" autocomplete="off" [maxlength]="maxNextStep" />
+      </ft-form-field>
+      <ft-form-field label="Next step due" [optional]="true" [error]="error('nextStepDue')">
+        <ft-text-field type="date" formControlName="nextStepDue" [min]="today" />
+      </ft-form-field>
+    </ft-stack>
+  </form>
+  <ft-button ftDialogFooter [disabled]="busy()" (click)="ref.close()">Cancel</ft-button>
+  <ft-button ftDialogFooter variant="primary" initialFocus [loading]="busy()" (click)="save()">
+    @if (busy()) {
+      Logging {{ kind().toLowerCase() }}…
+    } @else if (failed()) {
+      Try again
+    } @else {
+      Log {{ kind().toLowerCase() }}
+    }
+  </ft-button>
+</ft-dialog>

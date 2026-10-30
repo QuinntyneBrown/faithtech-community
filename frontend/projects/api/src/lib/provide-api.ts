@@ -20,9 +20,10 @@ import { CONTACTS_SERVICE, HttpContactsService } from './contacts';
 import { PARTNERS_SERVICE, HttpPartnersService } from './partners';
 import { TEAM_SERVICE, HttpTeamService } from './team';
 import { ACTIVITY_SERVICE, HttpActivityService } from './activity';
-import { EVENTS_SERVICE, HttpEventsService } from './events';
+import { CHECK_IN_SERVICE, EVENTS_SERVICE, HttpCheckInService, HttpEventsService } from './events';
 import { SEARCH_SERVICE, HttpSearchService } from './search';
 import { RESOURCES_SERVICE, HttpResourcesService } from './resources';
+import { REPORTS_SERVICE, HttpReportsService } from './reports';
 import { NOTES_SERVICE, HttpNotesService } from './notes';
 import { NOTIFICATIONS_SERVICE, HttpNotificationsService } from './notifications';
 import { ANNOUNCEMENTS_SERVICE, HttpAnnouncementsService } from './announcements';
@@ -66,8 +67,10 @@ export function provideApi(baseUrl: string, auth: Partial<AuthConfig> = {}): Env
     { provide: TEAM_SERVICE, useClass: HttpTeamService },
     { provide: ACTIVITY_SERVICE, useClass: HttpActivityService },
     { provide: EVENTS_SERVICE, useClass: HttpEventsService },
+    { provide: CHECK_IN_SERVICE, useClass: HttpCheckInService },
     { provide: SEARCH_SERVICE, useClass: HttpSearchService },
     { provide: RESOURCES_SERVICE, useClass: HttpResourcesService },
+    { provide: REPORTS_SERVICE, useClass: HttpReportsService },
     { provide: NOTES_SERVICE, useClass: HttpNotesService },
     { provide: NOTIFICATIONS_SERVICE, useClass: HttpNotificationsService },
     { provide: ANNOUNCEMENTS_SERVICE, useClass: HttpAnnouncementsService },

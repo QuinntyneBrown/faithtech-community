@@ -22,6 +22,8 @@ const board: PartnerBoardDto = {
           name: 'Maple Street Church',
           contactName: 'Kwame Asante',
           offering: 'Venue for spring builders night',
+          nextStep: 'Send credit-line wording',
+          nextStepDue: '2026-10-22',
         },
       ],
     },
@@ -29,7 +31,14 @@ const board: PartnerBoardDto = {
       stage: 'InFunnel',
       count: 1,
       cards: [
-        { id: 'x1', name: 'Kestrel Labs', contactName: null, offering: 'Hosting Builders Night' },
+        {
+          id: 'x1',
+          name: 'Kestrel Labs',
+          contactName: null,
+          offering: 'Hosting Builders Night',
+          nextStep: null,
+          nextStepDue: null,
+        },
       ],
     },
     { stage: 'Confirmed', count: 0, cards: [] },
@@ -94,6 +103,9 @@ describe('PartnersPage', () => {
     expect(host.querySelector('ft-kanban-card')!.textContent).toContain(
       'Kwame Asante · Venue for spring builders night',
     );
+    const cards = host.querySelectorAll('ft-kanban-card');
+    expect(cards[0].textContent).toContain('Next: Send credit-line wording · Thu 22 Oct');
+    expect(cards[1].textContent).not.toContain('Next:');
   });
 
   it('adds a partner through the dialog and puts it in its stage', async () => {

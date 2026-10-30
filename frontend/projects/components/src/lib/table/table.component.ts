@@ -10,6 +10,8 @@ export interface TableColumn {
   mono?: boolean;
   /** Keep the header for assistive tech but hide it visually (action columns). */
   hideHeader?: boolean;
+  /** The column that names each row (a city, an event): its cells are `<th scope="row">`. */
+  rowHeader?: boolean;
   /** Custom cell content; receives the row as the implicit context. */
   template?: TemplateRef<unknown>;
 }

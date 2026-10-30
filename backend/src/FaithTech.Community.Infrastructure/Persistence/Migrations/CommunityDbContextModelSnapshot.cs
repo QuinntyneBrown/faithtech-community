@@ -584,6 +584,12 @@ namespace FaithTech.Community.Infrastructure.Persistence.Migrations
                         .HasMaxLength(64)
                         .HasColumnType("character varying(64)");
 
+                    b.Property<DateTimeOffset?>("CheckedInAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid?>("CheckedInById")
+                        .HasColumnType("uuid");
+
                     b.Property<DateTimeOffset>("CreatedAt")
                         .HasColumnType("timestamp with time zone");
 
@@ -597,6 +603,9 @@ namespace FaithTech.Community.Infrastructure.Persistence.Migrations
                     b.Property<string>("GuestName")
                         .HasMaxLength(200)
                         .HasColumnType("character varying(200)");
+
+                    b.Property<bool>("IsWalkIn")
+                        .HasColumnType("boolean");
 
                     b.Property<Guid?>("ProfileId")
                         .HasColumnType("uuid");
@@ -858,6 +867,9 @@ namespace FaithTech.Community.Infrastructure.Persistence.Migrations
                     b.Property<Guid>("Id")
                         .HasColumnType("uuid");
 
+                    b.Property<DateTime?>("ArchivedAtUtc")
+                        .HasColumnType("timestamp with time zone");
+
                     b.Property<string>("ContactName")
                         .HasMaxLength(200)
                         .HasColumnType("character varying(200)");
@@ -865,6 +877,15 @@ namespace FaithTech.Community.Infrastructure.Persistence.Migrations
                     b.Property<string>("Email")
                         .HasMaxLength(256)
                         .HasColumnType("character varying(256)");
+
+                    b.Property<DateTime?>("MergedAtUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid?>("MergedById")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid?>("MergedIntoId")
+                        .HasColumnType("uuid");
 
                     b.Property<string>("Name")
                         .IsRequired()
@@ -896,11 +917,17 @@ namespace FaithTech.Community.Infrastructure.Persistence.Migrations
                         .HasMaxLength(16)
                         .HasColumnType("character varying(16)");
 
+                    b.Property<int>("Version")
+                        .IsConcurrencyToken()
+                        .HasColumnType("integer");
+
                     b.Property<string>("Website")
                         .HasMaxLength(200)
                         .HasColumnType("character varying(200)");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("ArchivedAtUtc");
 
                     b.HasIndex("SearchVector");
 
@@ -909,6 +936,100 @@ namespace FaithTech.Community.Infrastructure.Persistence.Migrations
                     b.HasIndex("Stage");
 
                     b.ToTable("Partners");
+                });
+
+            modelBuilder.Entity("FaithTech.Community.Domain.Partners.PartnerActivity", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("FromStage")
+                        .HasMaxLength(16)
+                        .HasColumnType("character varying(16)");
+
+                    b.Property<string>("Kind")
+                        .IsRequired()
+                        .HasMaxLength(16)
+                        .HasColumnType("character varying(16)");
+
+                    b.Property<DateTime>("LoggedAtUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid>("LoggedById")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid?>("MergedFromPartnerId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("NextStep")
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
+
+                    b.Property<DateOnly?>("NextStepDue")
+                        .HasColumnType("date");
+
+                    b.Property<TimeOnly?>("OccurredAt")
+                        .HasColumnType("time without time zone");
+
+                    b.Property<DateOnly>("OccurredOn")
+                        .HasColumnType("date");
+
+                    b.Property<Guid>("PartnerId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid?>("RelatedPartnerId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid?>("StageChangeId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Summary")
+                        .HasMaxLength(2000)
+                        .HasColumnType("character varying(2000)");
+
+                    b.Property<string>("ToStage")
+                        .HasMaxLength(16)
+                        .HasColumnType("character varying(16)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("MergedFromPartnerId");
+
+                    b.HasIndex("StageChangeId");
+
+                    b.HasIndex("PartnerId", "OccurredOn", "OccurredAt", "LoggedAtUtc");
+
+                    b.HasIndex(new[] { "PartnerId" }, "IX_PartnerActivities_PartnerId_NextStep")
+                        .HasFilter("\"NextStep\" IS NOT NULL");
+
+                    b.ToTable("PartnerActivities", (string)null);
+                });
+
+            modelBuilder.Entity("FaithTech.Community.Domain.Partners.PartnerDuplicateDismissal", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime>("DismissedAtUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid>("DismissedById")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("HigherPartnerId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("LowerPartnerId")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("HigherPartnerId");
+
+                    b.HasIndex("LowerPartnerId", "HigherPartnerId")
+                        .IsUnique();
+
+                    b.ToTable("PartnerDuplicateDismissals", (string)null);
                 });
 
             modelBuilder.Entity("FaithTech.Community.Domain.Partners.PartnerStageChange", b =>
@@ -920,6 +1041,9 @@ namespace FaithTech.Community.Infrastructure.Persistence.Migrations
                         .IsRequired()
                         .HasMaxLength(16)
                         .HasColumnType("character varying(16)");
+
+                    b.Property<Guid?>("MergedFromPartnerId")
+                        .HasColumnType("uuid");
 
                     b.Property<DateTime>("MovedAtUtc")
                         .HasColumnType("timestamp with time zone");
@@ -940,6 +1064,8 @@ namespace FaithTech.Community.Infrastructure.Persistence.Migrations
                         .HasColumnType("character varying(16)");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("MergedFromPartnerId");
 
                     b.HasIndex("PartnerId", "MovedAtUtc");
 
@@ -1010,6 +1136,9 @@ namespace FaithTech.Community.Infrastructure.Persistence.Migrations
                     b.Property<bool>("IsSuspended")
                         .HasColumnType("boolean");
 
+                    b.Property<DateTime?>("JoinedAtUtc")
+                        .HasColumnType("timestamp with time zone");
+
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasMaxLength(200)
@@ -1028,6 +1157,8 @@ namespace FaithTech.Community.Infrastructure.Persistence.Migrations
                         .HasColumnType("character varying(500)");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("HomeCity");
 
                     b.HasIndex("SearchVector");
 
@@ -1890,6 +2021,30 @@ namespace FaithTech.Community.Infrastructure.Persistence.Migrations
                     b.Navigation("SharedMembers");
 
                     b.Navigation("SharedRoles");
+                });
+
+            modelBuilder.Entity("FaithTech.Community.Domain.Partners.PartnerActivity", b =>
+                {
+                    b.HasOne("FaithTech.Community.Domain.Partners.Partner", null)
+                        .WithMany()
+                        .HasForeignKey("PartnerId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("FaithTech.Community.Domain.Partners.PartnerDuplicateDismissal", b =>
+                {
+                    b.HasOne("FaithTech.Community.Domain.Partners.Partner", null)
+                        .WithMany()
+                        .HasForeignKey("HigherPartnerId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("FaithTech.Community.Domain.Partners.Partner", null)
+                        .WithMany()
+                        .HasForeignKey("LowerPartnerId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("FaithTech.Community.Domain.Partners.PartnerStageChange", b =>

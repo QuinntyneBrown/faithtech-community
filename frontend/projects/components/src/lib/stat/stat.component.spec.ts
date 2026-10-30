@@ -75,4 +75,39 @@ describe('StatComponent', () => {
     const value = setup().querySelector('.ft-stat__value')!;
     expect(value.classList.contains('ft-stat__value--text')).toBe(false);
   });
+
+  // Traces to: Reports stat row (components/stat.html, Report row with context lines).
+  // Given a report stat, When it has a context, Then a caption line under the value says what
+  // the number is relative to; while loading the context is a skeleton too.
+  function contextStat(loading: boolean) {
+    const fixture = TestBed.createComponent(StatComponent);
+    fixture.componentRef.setInput('label', 'Members');
+    fixture.componentRef.setInput('value', 412);
+    fixture.componentRef.setInput('context', '+18 in the last 30 days');
+    fixture.componentRef.setInput('loading', loading);
+    fixture.detectChanges();
+    return fixture.nativeElement as HTMLElement;
+  }
+
+  it('shows the context line under the value', () => {
+    const el = contextStat(false);
+    const parts = Array.from(el.children).map((c) => c.className);
+    expect(el.querySelector('.ft-stat__context')?.textContent?.trim()).toBe(
+      '+18 in the last 30 days',
+    );
+    expect(parts.indexOf('ft-stat__context')).toBeGreaterThan(
+      parts.findIndex((c) => c.includes('ft-stat__value')),
+    );
+  });
+
+  it('keeps the context as a skeleton while loading', () => {
+    const el = contextStat(true);
+    expect(el.querySelector('.ft-stat__context')).toBeNull();
+    expect(el.querySelectorAll('ft-skeleton').length).toBe(2);
+    expect(el.textContent).not.toContain('+18');
+  });
+
+  it('has no context line by default', () => {
+    expect(setup().querySelector('.ft-stat__context')).toBeNull();
+  });
 });

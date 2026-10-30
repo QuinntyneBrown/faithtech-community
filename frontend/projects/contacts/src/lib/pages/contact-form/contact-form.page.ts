@@ -11,7 +11,12 @@ import {
 } from '@angular/core';
 import { NonNullableFormBuilder, ReactiveFormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
-import { CONTACTS_SERVICE, ContactDto, ContactRequest } from '@faithtech-community/api';
+import {
+  CONTACTS_SERVICE,
+  ContactDto,
+  ContactRequest,
+  DuplicateContactDto,
+} from '@faithtech-community/api';
 import {
   AlertComponent,
   BreadcrumbComponent,
@@ -31,6 +36,7 @@ import {
   StackComponent,
   TextFieldComponent,
   TextareaComponent,
+  formatDay,
 } from '@faithtech-community/components';
 import { firstValueFrom } from 'rxjs';
 
@@ -51,6 +57,8 @@ const SUMMARY: Record<string, string> = {
 const MISSING_ALT = 'Describe this photo.';
 const MAX_ALT = 300;
 const LONG_ALT = `Use ${MAX_ALT} characters or fewer to describe this photo.`;
+/** How long a save waits for an unanswered duplicate check before going ahead (L2-116 AC7). */
+export const DUPLICATE_CHECK_TIMEOUT_MS = 2000;
 
 /** A photo chosen on the add-contact form; it uploads after the contact is created (ADR 0017). */
 interface ChosenPhoto {
@@ -117,6 +125,12 @@ export class ContactFormPage {
   protected readonly contact = signal<ContactDto | null>(null);
   /** The member who already uses the email; saving then links the contact to them (L2-013 AC6). */
   protected readonly member = signal<string | null>(null);
+  /** The lead's own contact with this email (L2-116); saving then makes a separate contact. */
+  protected readonly duplicate = signal<DuplicateContactDto | null>(null);
+  /** The email, lower-cased, that `duplicate` answers for. */
+  private readonly checkedEmail = signal<string | null>(null);
+  private check: { email: string; answer: Promise<DuplicateContactDto | null> } | null = null;
+  private saving = false;
   private readonly submitted = signal(false);
   private readonly serverErrors = signal<Partial<Record<Field, string>>>({});
   // Re-evaluated on submit; the form's own state is not a signal.
@@ -172,8 +186,50 @@ export class ContactFormPage {
       const id = this.id();
       if (id) void this.load(id);
     });
-    // A different email may not belong to that member, so ask again.
-    this.form.controls.email.valueChanges.subscribe(() => this.member.set(null));
+    // A different email may not belong to that member, nor match the same contact, so ask again.
+    this.form.controls.email.valueChanges.subscribe((email) => {
+      this.member.set(null);
+      if (email.trim().toLowerCase() !== this.checkedEmail()) {
+        this.duplicate.set(null);
+        this.checkedEmail.set(null);
+      }
+    });
+  }
+
+  /** "{name} ({organisation}) is in your contacts with {email}, added {day} with {n} notes." */
+  protected duplicateText(d: DuplicateContactDto): string {
+    const who = d.organization ? `${d.name} (${d.organization})` : d.name;
+    const where = d.isArchived ? 'your archived contacts' : 'your contacts';
+    const notes =
+      d.noteCount === 0 ? 'no notes' : d.noteCount === 1 ? '1 note' : `${d.noteCount} notes`;
+    return `${who} is in ${where} with ${d.email}, added ${formatDay(d.addedAtUtc)} with ${notes}.`;
+  }
+
+  /**
+   * Checks a well-formed email against the lead's own contacts once per email (L2-116 AC1). A failed
+   * check answers null and is tried again before save; it never shows an error.
+   */
+  protected checkDuplicate(): Promise<DuplicateContactDto | null> | null {
+    const email = this.form.controls.email.value.trim();
+    if (!email || !EMAIL.test(email)) return null;
+    const key = email.toLowerCase();
+    if (this.checkedEmail() === key) return Promise.resolve(this.duplicate());
+    if (this.check?.email === key) return this.check.answer;
+    const answer = firstValueFrom(this.contacts.findDuplicate(email, this.id()))
+      .then((match) => {
+        // A save in progress decides for itself; an answer for an email since changed is stale.
+        if (!this.saving && this.form.controls.email.value.trim().toLowerCase() === key) {
+          this.duplicate.set(match);
+          this.checkedEmail.set(key);
+        }
+        return match;
+      })
+      .catch(() => null)
+      .finally(() => {
+        if (this.check?.email === key) this.check = null;
+      });
+    this.check = { email: key, answer };
+    return answer;
   }
 
   protected error(field: Field): string {
@@ -228,6 +284,35 @@ export class ContactFormPage {
     }
 
     this.busy.set(true);
+    this.saving = true;
+    try {
+      // Before save, an unchecked email is checked (L2-116 AC1); a match stops this save so the lead
+      // sees it once, and a failure or a slow answer lets the save go ahead (AC7).
+      if (!this.duplicate() && (await this.precheck())) return;
+      await this.persist();
+    } finally {
+      this.saving = false;
+      this.busy.set(false);
+    }
+  }
+
+  /** Runs the duplicate check with a timeout; shows and returns a match. */
+  private async precheck(): Promise<boolean> {
+    const pending = this.checkDuplicate();
+    if (!pending) return false;
+    let timer: ReturnType<typeof setTimeout> | undefined;
+    const timedOut = new Promise<null>((resolve) => {
+      timer = setTimeout(() => resolve(null), DUPLICATE_CHECK_TIMEOUT_MS);
+    });
+    const match = await Promise.race([pending, timedOut]);
+    clearTimeout(timer);
+    if (!match) return false;
+    this.duplicate.set(match);
+    this.checkedEmail.set(this.form.controls.email.value.trim().toLowerCase());
+    return true;
+  }
+
+  private async persist(): Promise<void> {
     const value = this.form.getRawValue();
     const details: ContactRequest = {
       name: value.name.trim(),
@@ -260,8 +345,6 @@ export class ContactFormPage {
       else if (fieldErrors) this.serverErrors.set(fieldErrors);
       else this.failed.set(true);
       if (!member) this.errorFocus()?.focusFirstError();
-    } finally {
-      this.busy.set(false);
     }
   }
 

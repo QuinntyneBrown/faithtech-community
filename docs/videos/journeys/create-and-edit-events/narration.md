@@ -13,7 +13,7 @@ If you publish too early, the form lists what needs fixing, and each field expla
 Give the event a title, a type, a description, and start and end times. Add a city and a venue address, choose who can see it, and set a capacity if you want a limit. Then press Publish event.
 
 ## saved: Published
-The event is saved and you land on its page, with every detail you entered.
+The event is saved and you land on its page, with every detail you entered. Leads also get a Check in button here for the day itself.
 
 ## edit: Edit the event
 Edit takes you back to the same form with everything filled in. Here you move the venue and save. Everyone who already RSVPed gets a notification about the change.

@@ -1,8 +1,14 @@
 <span class="ft-stat__label" [id]="labelId">{{ label() }}</span>
 @if (loading()) {
   <ft-skeleton class="ft-stat__skeleton" shape="rect" />
+  @if (context()) {
+    <ft-skeleton class="ft-stat__context-skeleton" />
+  }
 } @else {
   <span class="ft-stat__value" [class.ft-stat__value--text]="variant() === 'text'">{{
     value()
   }}</span>
+  @if (context(); as text) {
+    <span class="ft-stat__context">{{ text }}</span>
+  }
 }

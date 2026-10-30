@@ -123,7 +123,8 @@ public class CommunitySeeder(IOpenIddictApplicationManager applications, Communi
                 continue;
             }
 
-            var profile = new Profile($"Load Tester {i:000}");
+            // Join times spread over the last 18 months, so the Reports load test exercises the month chart.
+            var profile = new Profile($"Load Tester {i:000}", time.GetUtcNow().UtcDateTime.AddDays(-(i * 540 / count)));
             var user = new CommunityUser
             {
                 Id = Guid.NewGuid(),
@@ -139,6 +140,101 @@ public class CommunitySeeder(IOpenIddictApplicationManager applications, Communi
             db.Profiles.Add(profile);
             db.Users.Add(user);
             created++;
+        }
+
+        await db.SaveChangesAsync(cancellationToken);
+        return created;
+    }
+
+    /// <summary>The name and title prefix of the records seed-report-records creates, so they are easy to find.</summary>
+    public const string ReportRecordPrefix = "Report load ";
+
+    public const int MaxReportMembers = 100_000;
+
+    private static readonly string[] ReportCities = ["Austin", "Calgary", "Halifax", "Toronto", "Vancouver", "Winnipeg"];
+
+    /// <summary>
+    /// The Reports volume for the isolated performance environment (L2-129 AC1, eng/load-test.js): verified members
+    /// "Report load member 00001" onwards (report-00001@loadtest.invalid, with no password) across six cities, joined
+    /// over the last 18 months; one event for every ten members, from 335 days ago to 30 days ahead, every twentieth
+    /// cancelled; and 50 member RSVPs on each, 40 of them checked in once the event has started. Idempotent: existing
+    /// records are kept. Returns how many members were created.
+    /// </summary>
+    public async Task<int> SeedReportRecordsAsync(int members, CancellationToken cancellationToken = default)
+    {
+        var now = time.GetUtcNow();
+        var existing = (await db.Profiles.Where(p => p.Name.StartsWith(ReportRecordPrefix)).Select(p => p.Name).ToListAsync(cancellationToken))
+            .ToHashSet();
+        var created = 0;
+        for (var i = 1; i <= members; i++)
+        {
+            var name = $"{ReportRecordPrefix}member {i:00000}";
+            if (existing.Contains(name))
+            {
+                continue;
+            }
+
+            var email = $"report-{i:00000}@{LoadTestDomain}";
+            var profile = new Profile(name, now.UtcDateTime.AddDays(-(i * 540L / members)));
+            profile.Update(name, ReportCities[i % ReportCities.Length], null);
+            db.Profiles.Add(profile);
+            db.Users.Add(new CommunityUser
+            {
+                Id = Guid.NewGuid(),
+                UserName = email,
+                NormalizedUserName = email.ToUpperInvariant(),
+                Email = email,
+                NormalizedEmail = email.ToUpperInvariant(),
+                EmailConfirmed = true,
+                SecurityStamp = Guid.NewGuid().ToString("N"),
+                ProfileId = profile.Id,
+            });
+            created++;
+            if (created % 1000 == 0)
+            {
+                await db.SaveChangesAsync(cancellationToken);
+                db.ChangeTracker.Clear();
+            }
+        }
+
+        await db.SaveChangesAsync(cancellationToken);
+        db.ChangeTracker.Clear();
+
+        var titles = (await db.Events.Where(e => e.Title.StartsWith(ReportRecordPrefix)).Select(e => e.Title).ToListAsync(cancellationToken))
+            .ToHashSet();
+        var events = members / 10;
+        for (var i = 1; i <= events; i++)
+        {
+            var title = $"{ReportRecordPrefix}event {i:00000}";
+            if (titles.Contains(title))
+            {
+                continue;
+            }
+
+            var starts = now.AddDays(30 - (i * 365.0 / events));
+            var e = new Event(
+                title, "A Reports load-test evening.", EventType.Gathering, starts, starts.AddHours(2), ReportCities[i % ReportCities.Length],
+                EventFormat.InPerson, "Load venue", null, null, EventVisibility.MembersOnly, Guid.Empty);
+            var rsvps = Enumerable.Range(0, 50).Select(r => e.Rsvp(Guid.NewGuid(), starts.AddDays(-7).AddMinutes(r))).ToList();
+            if (starts <= now)
+            {
+                foreach (var rsvp in rsvps.Take(40))
+                {
+                    e.CheckIn(rsvp.Id, Guid.Empty, starts);
+                }
+            }
+
+            if (i % 20 == 0)
+            {
+                e.Cancel("Load-test cancellation");
+            }
+
+            db.Events.Add(e);
+            if (i % 100 == 0)
+            {
+                await db.SaveChangesAsync(cancellationToken);
+                db.ChangeTracker.Clear();
+            }
         }
 
         await db.SaveChangesAsync(cancellationToken);

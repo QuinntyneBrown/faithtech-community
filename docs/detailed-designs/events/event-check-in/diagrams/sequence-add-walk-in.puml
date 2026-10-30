@@ -1,0 +1,66 @@
+@startuml
+title UML sequence behaviour — Add a walk-in
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+actor "Lead or System Admin" as actor
+box "Frontend — FaithTech Community web app (events library)" #E0F2FE
+  participant "EventCheckInPage" as page
+  participant "AddWalkInDialog" as dlg
+  participant "HttpCheckInService" as svc
+end box
+box "Backend — FaithTech.Community.Api" #D1FADF
+  participant "EventsEndpoints" as ep
+end box
+box "Backend — FaithTech.Community.Application and Domain" #ECFDF3
+  participant "AddWalkInValidator" as val
+  participant "AddWalkInHandler" as h
+  participant "Event" as ev
+end box
+box "Backend — FaithTech.Community.Infrastructure" #FFF4E5
+  database "Community database" as db
+end box
+
+actor -> page : Add walk-in
+page -> dlg : Open (name prefilled from search)
+actor -> dlg : Name, optional email; "Check them in now" on (L2-120 AC1)
+dlg -> svc : addWalkIn(eventId, {name, email, checkInNow})
+svc -> ep : POST /api/events/{id}/walk-ins
+ep -> val : Validate AddWalkInCommand
+alt no name, name over 100 characters or invalid email
+  val --> ep : Errors
+  ep --> svc : 400 ValidationProblem
+  svc --> dlg : Field errors
+  dlg --> actor : Inline errors; nothing saved (L2-120 AC3)
+else valid
+  ep -> h : HandleAsync(id, command)
+  h -> h : CanCheckIn, else 403; Refusal, else 409 (L2-120 AC8)
+  h -> db : Load event with rows; find verified account by email
+  db --> h : Event, optional member profile id
+  h -> ev : AddWalkIn(name, email, profileId, checkInNow, caller, now)
+  alt member or email already has an RSVP
+    ev --> h : Existing row, checked in when asked (Reused, L2-120 AC5)
+  else new
+    ev --> h : New IsWalkIn row, member-linked when the email is verified (L2-120 AC4); capacity and started not checked (L2-120 AC6)
+  end
+  h -> h : No confirmation email or notification (L2-120 AC7); audit when override
+  h -> db : Save
+  db --> h : Committed
+  h --> ep : WalkInResultDto
+  ep --> svc : 201 Created or 200 OK when reused
+  svc --> dlg : Result
+  dlg --> page : Close with result
+  page --> actor : Row at the end marked Walk-in, or the reused row updated; toast (L2-120 AC2)
+end
+@enduml

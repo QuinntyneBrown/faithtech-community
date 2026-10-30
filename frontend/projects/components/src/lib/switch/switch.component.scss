@@ -11,6 +11,20 @@
   cursor: pointer;
 }
 
+/* The caption lines up under the label text, past the track and the gap. */
+.description {
+  margin: var(--space-1) 0 0;
+  padding-inline-start: calc(var(--size-icon-md) * 1.75 + var(--space-3));
+  font: var(--text-caption);
+  color: var(--color-fg-muted);
+}
+
+/* With its text hidden the track alone is too small to tap, so the label keeps the 24px target. */
+.switch--label-hidden {
+  min-block-size: var(--target-min);
+  min-inline-size: var(--target-min);
+}
+
 input {
   position: relative;
   flex: none;

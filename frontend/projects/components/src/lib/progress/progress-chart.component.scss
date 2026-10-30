@@ -1,0 +1,56 @@
+:host {
+  display: block;
+}
+
+.ft-progress-chart {
+  display: grid;
+  grid-template-columns: max-content minmax(0, 1fr) max-content;
+  gap: var(--space-3);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.ft-progress-chart__row {
+  display: grid;
+  grid-template-columns: subgrid;
+  grid-column: 1 / -1;
+  align-items: center;
+}
+
+.ft-progress-chart__label {
+  font: var(--text-label);
+  color: var(--color-fg-muted);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.ft-progress-chart__value {
+  text-align: end;
+}
+
+.ft-progress-chart__track {
+  inline-size: 100%;
+  block-size: var(--space-2);
+  border-radius: var(--radius-full);
+  background: var(--color-bg-subtle-hover);
+  overflow: hidden;
+}
+
+.ft-progress-chart__bar {
+  block-size: 100%;
+  inline-size: var(--value, 0%);
+  background: var(--color-accent);
+  border-radius: inherit;
+  transition: inline-size var(--duration-slow) var(--ease-standard);
+}
+
+.ft-progress-chart__skeleton {
+  grid-column: 1 / -1;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ft-progress-chart__bar {
+    transition: none;
+  }
+}

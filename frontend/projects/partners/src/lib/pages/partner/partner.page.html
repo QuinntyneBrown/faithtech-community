@@ -49,11 +49,28 @@
       </ft-breadcrumb>
       <ft-page-header [title]="p.name">
         <span ftPageHeaderSubtitle>
-          <ft-badge [variant]="badges[p.stage]">{{ labels[p.stage] }}</ft-badge>
+          @if (p.archived) {
+            <ft-badge variant="neutral">Archived</ft-badge>
+          } @else {
+            <ft-badge [variant]="badges[p.stage]">{{ labels[p.stage] }}</ft-badge>
+          }
           @if (p.offering) {
             · {{ p.offering }}
           }
+          @if (p.lastActivityOn) {
+            · Last activity {{ localDay(p.lastActivityOn) }}
+          }
         </span>
+        @if (p.canRestore) {
+          <ft-button ftPageHeaderActions variant="primary" (click)="restore(p)">
+            <ft-icon name="restore" /> Restore
+          </ft-button>
+        }
+        @if (p.canLogActivity) {
+          <ft-button ftPageHeaderActions variant="primary" (click)="logActivity(p)">
+            <ft-icon name="add" /> Log activity
+          </ft-button>
+        }
         @if (p.canEdit) {
           <ft-button ftPageHeaderActions (click)="move(p)">
             <ft-icon name="move" /> Move stage
@@ -67,20 +84,66 @@
         }
       </ft-page-header>
 
-      <ft-split>
-        <ft-card ftSplitMain heading="Stage history">
-          @if (p.history.length) {
-            <ft-feed label="Stage history">
-              @for (change of p.history; track change.movedAtUtc) {
-                <ft-feed-item [actor]="change.movedByName" [meta]="day(change.movedAtUtc)">
-                  {{ moved(p, change) }}
-                </ft-feed-item>
-              }
-            </ft-feed>
-          } @else {
-            <p class="text-muted">No stage changes yet. Moves on the board are recorded here.</p>
+      @if (p.archived; as archived) {
+        <ft-alert
+          class="page-alert"
+          status="info"
+          [heading]="p.name + ' was merged into ' + archived.mergedIntoName"
+        >
+          {{ archivedText(p) }}
+          <ft-button ftAlertActions variant="ghost" [href]="'/partners/' + archived.mergedIntoId">
+            Open {{ archived.mergedIntoName }}
+          </ft-button>
+        </ft-alert>
+      }
+
+      @if (duplicate(); as match) {
+        <ft-alert class="page-alert" status="warning" [heading]="duplicateHeading(match)">
+          @if (duplicateAdded(match); as added) {
+            {{ added }}
           }
-        </ft-card>
+          Merging keeps one record and moves both activity timelines into it.
+          @if (p.canEdit) {
+            <ft-button ftAlertActions variant="primary" (click)="compareAndMerge(p, match)">
+              <ft-icon name="merge" /> Compare and merge
+            </ft-button>
+          }
+          <ft-button ftAlertActions variant="ghost" [href]="'/partners/' + match.id">
+            Open {{ match.name }}
+          </ft-button>
+          @if (p.canEdit) {
+            <ft-button
+              ftAlertActions
+              variant="ghost"
+              [loading]="dismissing()"
+              (click)="notTheSame(p, match)"
+            >
+              Not the same
+            </ft-button>
+          }
+        </ft-alert>
+      }
+
+      <ft-split>
+        @if (p.archived; as archived) {
+          <ft-card ftSplitMain heading="Activity">
+            <p class="muted">
+              This record’s entries moved to
+              <ft-link [href]="'/partners/' + archived.mergedIntoId">{{
+                archived.mergedIntoName
+              }}</ft-link>
+              when it was merged.
+            </p>
+          </ft-card>
+        } @else {
+          <ft-partner-timeline
+            ftSplitMain
+            [partnerId]="p.id"
+            [reload]="timelineReload()"
+            [canLog]="p.canLogActivity"
+            (logRequested)="logActivity(p)"
+          />
+        }
         <ft-card ftSplitAside heading="Details">
           <ft-description-list>
             <ft-description-list-item label="Contact" [missing]="!p.contactName">{{
@@ -100,6 +163,9 @@
             }}</ft-description-list-item>
             <ft-description-list-item label="Owner" [missing]="!p.ownerName">{{
               p.ownerName
+            }}</ft-description-list-item>
+            <ft-description-list-item label="Next step">{{
+              p.nextStep ? nextStep(p) : 'Not set'
             }}</ft-description-list-item>
             <ft-description-list-item label="Notes" [missing]="!p.notes">{{
               p.notes
