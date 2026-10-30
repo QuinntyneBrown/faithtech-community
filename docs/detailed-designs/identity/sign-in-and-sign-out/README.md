@@ -2,7 +2,7 @@
 
 ## Overview
 
-Every page except public events requires a signed-in session. *Sign in and sign out* covers how the Angular web app obtains, refreshes and revokes tokens against the identity server hosted in the Community API.
+Every page except public events requires a signed-in session. *Sign in and sign out* covers how the Angular web app obtains, refreshes and revokes tokens against the identity server hosted in the Community API. One identity server serves every organisation host; each host is a redirect URI of the one `web` client (`L2-131`, ADR 0032).
 
 **OpenIddict** — OAuth2 and OpenID Connect server library for ASP.NET Core, used here as the identity server
 
@@ -12,21 +12,23 @@ Every page except public events requires a signed-in session. *Sign in and sign 
 
 **failure window** — the 15 minutes starting at the first counted failed attempt, stored as `CommunityUser.FailedAccessWindowStartedAt`; a failure at or after the window's end starts a new window with a count of one
 
+**membership** — the account's profile in the organisation the host resolves to; sign-in refusals for suspension are per membership, and a platform operator's account lock applies on every host (`L2-132` AC5, AC6)
+
 The web app redirects to the sign-in page, which posts credentials to the identity server. On success, the server issues an authorization code that the app exchanges, with its PKCE verifier, for an access token and a refresh token. Sign-out revokes those tokens so that any later API call returns 401.
 
 ## Description
 
-- **`SignInPage`** — Angular page in the app shell, matching the `sign-in` mock. It posts credentials, shows a generic "email or password is incorrect" error, the lockout message, the suspended-account message and the unverified-email notice.
-- **`AppShellComponent` account menu** — the top-bar avatar in the app shell is an `ft-menu` (`MenuComponent` from `components`) named "Account menu for {name}" at every width, holding *Your profile* (`/people/me`), *Settings* (`/settings`) and *Sign out*, which calls `AUTH_SERVICE.signOut()` (mock: every signed-in page, design system `components/menu`).
+- **`SignInPage`** — Angular page in the app shell, matching the `sign-in` mock. It posts credentials, shows a generic "email or password is incorrect" error, the lockout message, the suspended-membership message ("Your membership of {organisation name} is suspended"), the locked-account message and the unverified-email notice. Its copy names the organisation (`L2-134`).
+- **`AppShellComponent` account menu** — the top-bar avatar in the app shell is an `ft-menu` (`MenuComponent` from `components`) named "Account menu for {name}" at every width, holding *Your profile* (`/people/me`), *Settings* (`/settings`), *Switch organisation* when `/api/me` lists more than one membership (the other organisations by name, each a link to its host, `L2-133` AC3, AC4) and *Sign out*, which calls `AUTH_SERVICE.signOut()` (mock: every signed-in page, design system `components/menu`).
 - **`authGuard`** — Angular route guard in the app shell. It stores the requested URL and starts the authorization code + PKCE flow when no valid session exists.
-- **`OidcAuthClient`** — `api` library class behind `AUTH_SERVICE`. It generates the code verifier and challenge, exchanges the code, stores tokens, refreshes silently on 401 or expiry and calls the revocation endpoint on sign-out.
+- **`OidcAuthClient`** — `api` library class behind `AUTH_SERVICE`. It generates the code verifier and challenge, exchanges the code, stores tokens, refreshes silently on 401 or expiry and calls the revocation endpoint on sign-out. After a session is obtained or restored it loads `/api/me`; a `403` with `reason: not-a-member` sends the app to the not-a-member page (`L2-132` AC3, `platform/error-and-system-pages`).
 - **`authInterceptor`** — `api` library HTTP interceptor. It attaches the access token and triggers a silent refresh.
-- **`AuthorizationEndpoints`** — Api route group that hosts the OpenIddict `/connect/authorize`, `/connect/token`, `/connect/revoke` and `/connect/logout` passthrough endpoints.
-- **`SignInCommand`** / **`SignInHandler`** — Application request and handler. The handler checks the password through `UserManager`, refuses suspended accounts and unverified emails, and returns a principal for code issuance. It owns the lockout rule itself, reading the clock from `TimeProvider` (Identity's own lockout checks read the system clock): each wrong password adds to `AccessFailedCount` inside the failure window, or starts a new window when the old one has ended; the fifth failure inside one window sets `LockoutEnd` 15 minutes ahead and clears the count. A successful sign-in, a password reset or a new window after an elapsed lockout starts counting from zero, so failures older than the window never lead to a lockout.
-- **OpenIddict stores** — Infrastructure EF Core stores for applications, authorizations and tokens. Token revocation marks the stored tokens as revoked.
+- **`AuthorizationEndpoints`** — Api route group that hosts the OpenIddict `/connect/authorize`, `/connect/token`, `/connect/revoke` and `/connect/logout` passthrough endpoints. A token never names an organisation; the host decides on every request (`L2-131` AC5).
+- **`SignInCommand`** / **`SignInHandler`** — Application request and handler. The handler checks the password through `UserManager`, refuses an account locked by a platform operator on any host (`L2-148` AC5), refuses a membership suspended in `ICurrentOrganisation` on that host, refuses unverified emails, and returns a principal for code issuance; an account with no profile in the organisation signs in and is shown the not-a-member page by the app. It owns the lockout rule itself, reading the clock from `TimeProvider` (Identity's own lockout checks read the system clock): each wrong password adds to `AccessFailedCount` inside the failure window, or starts a new window when the old one has ended; the fifth failure inside one window sets `LockoutEnd` 15 minutes ahead and clears the count. A successful sign-in, a password reset or a new window after an elapsed lockout starts counting from zero, so failures older than the window never lead to a lockout. Every query on `Profiles` is scoped by the DbContext's global filter on `ICurrentOrganisation`.
+- **OpenIddict stores** — Infrastructure EF Core stores for applications, authorizations and tokens. Token revocation marks the stored tokens as revoked; a membership suspension revokes only the tokens issued for that organisation's host (`L2-039` AC1).
 - **`SignInFormComponent`** — the form itself lives in the `components` library and is shared with the marketing page (`docs/detailed-designs/marketing/landing-page`). `SignInPage` keeps the heading and the hand-off.
 - **`AuthContinuePage`** (`/auth/continue`) — starts PKCE for a session created on the marketing page or by Google sign-in (ADR 0018).
-- **Session hint** — when a kept ("Keep me signed in") refresh token is stored, `OidcAuthClient` writes the non-secret `ftc.signed-in` cookie so the marketing page can send the member to the app; sign-out and a failed restore clear it.
+- **Session hint** — when a kept ("Keep me signed in") refresh token is stored, `OidcAuthClient` writes the non-secret `ftc.signed-in` cookie so the marketing page can send the member to the app; sign-out and a failed restore clear it. The hint is per host; switching organisation opens the other host, where a kept session signs the member in without re-entering credentials (`L2-133` AC3).
 - **Token lifetimes** — access-token and refresh-token lifetimes are `<TO SUPPLY>`.
 
 ## Requirements
@@ -35,27 +37,38 @@ The feature realizes the following level-2 (L2) requirements. Each L2 requiremen
 
 | L2 ID | Refines (L1) | Requirement |
 |-------|--------------|-------------|
-| `L2-003` | `L1-001` | The Angular app signs in with OAuth2 authorization code + PKCE against OpenIddict. |
+| `L2-003` | `L1-001` | Sign in and sign out |
+| `L2-132` | `L1-025`, `L1-001`, `L1-002` | Accounts and memberships |
 
 ### Acceptance criteria
 
-**`L2-003`**
+**`L2-003` — Sign in and sign out**
 
 1. Given a verified account and correct credentials, when the user signs in, then an authorization code is exchanged with PKCE for tokens, and the user lands on the page they first requested, or the home page.
 2. Given incorrect credentials, when the user signs in, then a generic "email or password is incorrect" error is shown.
 3. Given 5 failed attempts within 15 minutes, when a 6th is made, then the account is locked out for 15 minutes; failed attempts older than 15 minutes, or made before a successful sign-in, a password reset or an elapsed lockout, do not count.
-4. Given a suspended account, when the user signs in, then sign-in is refused with a "your account is suspended" message.
+4. Given a membership suspended by a holder of `AdministerOrganisation` (`L2-039`), when the user signs in on that organisation's host, then sign-in is refused with "Your membership of {organisation name} is suspended" (`L2-132` AC5); given an account locked by a platform operator (`L2-148` AC5), when the user signs in on any host, then sign-in is refused with a "your account is suspended" message (`L2-132` AC6).
 5. Given a token request without a valid PKCE code verifier, when it reaches the token endpoint, then it is rejected.
 6. Given a signed-in user, when they sign out, then their tokens are revoked, and any further API call with those tokens returns 401.
 7. Given an expired access token and a valid refresh token, when the app calls the API, then the token is refreshed silently.
 8. Given "Keep me signed in on this device" is not ticked, when the browser session ends, then the refresh token is discarded and the user must sign in again.
-9. Given a signed-in user on any page and at any width, when they open the account menu from their avatar in the top bar, then it offers "Your profile", "Settings" and "Sign out", and "Sign out" ends the session on this device as in criterion 6.
+9. Given a signed-in user on any page and at any width, when they open the account menu from their avatar in the top bar, then it offers "Your profile", "Settings", "Switch organisation" when the account has more than one membership (`L2-133` AC3) and "Sign out", and "Sign out" ends the session on this device as in criterion 6.
+
+**`L2-132` — Accounts and memberships**
+
+1. Given a visitor signs up on an organisation's host (`L2-001`, `L2-078`, `L2-083`), when the account is created, then a profile is created in that organisation, and when the email already has an account, then on verification the existing account gains a profile in that organisation if it has none, with the same `202` outcome either way.
+2. Given an invite (`L2-011`) or a connect link (`L2-083`), when it is accepted, then the profile is created in the inviter's or link owner's organisation, whatever host the acceptor started on.
+3. Given a verified account with no profile in the current organisation, when it signs in on that host, then the not-a-member page is shown ("You're not a member of {organisation name}") with a sign-out link and, when the account has other memberships, links to their hosts; every API call answers 403 and `/api/me` answers 403 with `reason: not-a-member`.
+4. Given an account with profiles in several organisations, when it is used on one host, then only that organisation's profile, roles, capabilities, photos, contacts, notifications and data are visible or counted (`L2-130`).
+5. Given a profile is suspended (`L2-039`), when the account signs in on that organisation's host, then sign-in is refused with "Your membership of {organisation name} is suspended"; on another host where it holds an active profile, sign-in succeeds.
+6. Given an account locked by a platform operator (`L2-148`), when it signs in on any host, then sign-in is refused with the suspended-account message of `L2-003` AC4.
+7. Given a password reset, email verification or Google sign-in (`L2-002`, `L2-004`, `L2-078`), when it completes, then it applies to the account everywhere; it creates no membership.
 
 ## Diagrams
 
 ### System context
 
-The account holder signs in to FaithTech Community. Identity is hosted inside the system, so no external identity provider appears.
+The account holder signs in to the Community platform on an organisation's host. Identity is hosted inside the system, so no external identity provider appears.
 
 ![C4 system context for signing in and out](diagrams/c4-context.png)
 
@@ -67,19 +80,19 @@ The web app runs the authorization code + PKCE flow against the Community API, w
 
 ### Components
 
-`AuthorizationEndpoints` hosts the OpenIddict server endpoints. `SignInHandler` validates credentials, lockout and suspension. The OpenIddict stores persist tokens for revocation.
+`AuthorizationEndpoints` hosts the OpenIddict server endpoints. `SignInHandler` validates credentials, lockout, the account lock and the membership's suspension in the current organisation. The OpenIddict stores persist tokens for revocation.
 
 ![C4 component view for signing in and out](diagrams/c4-component.png)
 
 ### Class structure
 
-`SignInHandler` uses `SignInManager<CommunityUser>`. A `CommunityUser` holds a `Profile` whose suspension state the handler checks. OpenIddict tokens belong to one user.
+`SignInHandler` uses `SignInManager<CommunityUser>`. A `CommunityUser` holds one `Profile` per organisation; the handler checks the suspension state of the profile in `ICurrentOrganisation`. OpenIddict tokens belong to one user.
 
 ![Class diagram for signing in and out](diagrams/class-structure.png)
 
 ### Behaviour — sign in
 
-The app starts the PKCE flow, the handler applies lockout, suspension and credential checks, and the token endpoint rejects any exchange without a valid verifier (`L2-003`).
+The app starts the PKCE flow, the handler applies lockout, account-lock, membership-suspension and credential checks, and the token endpoint rejects any exchange without a valid verifier (`L2-003`).
 
 ![Sequence diagram for sign in](diagrams/sequence-sign-in.png)
 
@@ -88,3 +101,7 @@ The app starts the PKCE flow, the handler applies lockout, suspension and creden
 An expired access token is refreshed silently with the refresh token. Sign-out revokes the stored tokens so that any later call with them returns 401 (`L2-003`).
 
 ![Sequence diagram for refresh tokens and sign out](diagrams/sequence-refresh-and-sign-out.png)
+
+## Open questions
+
+- Capabilities: suspension is checked per membership in the current organisation and the operator's account lock everywhere; the account menu gains "Switch organisation" (ADR 0032).

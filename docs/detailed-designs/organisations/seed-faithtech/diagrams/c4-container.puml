@@ -3,7 +3,7 @@
 LAYOUT_WITH_LEGEND()
 title Containers — Seed FaithTech
 Person(operator, "Deployment operator", "Runs the Cli")
-System_Boundary(platform, "FaithTech Community platform") {
+System_Boundary(platform, "Community platform") {
   Container(cli, "Cli", ".NET console", "FaithTech.Community.Cli: migrate, seed, reset, grant-admin")
   Container(api, "Community API", "ASP.NET Core", "Reads the seeded organisation; never migrates or seeds")
   ContainerDb(db, "Community database", "PostgreSQL", "Organisations, RoleDefinitions, taxonomies, Chapters, OrganisationAdminRosters, OpenIddict tables")

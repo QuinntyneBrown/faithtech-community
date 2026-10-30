@@ -5,7 +5,7 @@ title System Context — Platform operations
 Person(operator, "Platform operator", "Account named in Platform:Operators; belongs to no organisation")
 Person(admin, "First administrator", "Receives the break-glass invite")
 Person(member, "Member of a suspended organisation", "Sees the neutral suspended page")
-System(platform, "FaithTech Community platform", "Operator API under /api/platform and the Cli org commands")
+System(platform, "Community platform", "Operator API under /api/platform and the Cli org commands")
 System_Ext(email, "Email provider", "Delivers the first-administrator invite")
 Rel(operator, platform, "Provisions, suspends, lifts, locks accounts, reads the platform audit", "HTTPS or Cli")
 Rel(platform, email, "Sends the Administrator invite as the new organisation", "SMTP")

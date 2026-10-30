@@ -15,11 +15,11 @@ skinparam package {
   BackgroundColor #F9FAFB
 }
 actor "Settings holder" as actor
-box "Frontend — FaithTech Community web app (organisations library)" #E0F2FE
+box "Frontend — Community web app (organisations library)" #E0F2FE
   participant "ChaptersPage" as page
   participant "AddChapterDialog" as dlg
 end box
-box "Frontend — FaithTech Community web app (api library)" #E0F2FE
+box "Frontend — Community web app (api library)" #E0F2FE
   participant "HttpOrganisationService" as svc
 end box
 box "Backend — FaithTech.Community.Api" #D1FADF

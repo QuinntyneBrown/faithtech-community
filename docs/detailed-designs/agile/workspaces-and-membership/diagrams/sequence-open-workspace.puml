@@ -15,7 +15,7 @@ skinparam package {
   BackgroundColor #F9FAFB
 }
 actor "Signed-in user" as actor
-box "Frontend — FaithTech Community web app (agile library)" #E0F2FE
+box "Frontend — Community platform web app (agile library)" #E0F2FE
   participant "Workspace page\n(backlog, board, settings or Planning Poker)" as page
   participant "WorkspaceFrameComponent" as frame
   participant "AgileService (AGILE_SERVICE)" as svc
@@ -40,7 +40,7 @@ pol -> pol : CallerProfileIdAsync()
 pol -> ctx : Workspaces.SingleOrDefault(id) (query filter hides archived)
 ctx -> db : SELECT workspace, members
 db --> ctx : Rows
-pol -> pol : Classify: Owner → Admin → Member → Staff → Outsider
+pol -> pol : Classify: Owner → Admin → Member → Reader → Outsider
 alt workspace missing, archived, or caller is Outsider
 pol --> h : null or !CanRead
 h --> ep : null (L2-031 AC6)
@@ -48,14 +48,14 @@ ep --> svc : 404
 svc --> page : Not found
 page -> frame : notFound
 frame --> actor : Show not-found state
-else owner, System Admin, member or Staff
+else owner, administrator, member or Reader
 pol --> h : workspace, WorkspaceCaller
 h -> ctx : Load member profiles and assignment counts
 h --> ep : WorkspaceDto(access, canEdit, canManage, needsNewOwner)
 ep --> svc : 200 OK
 svc --> page : Workspace
 page -> frame : workspace
-frame --> actor : Render tabs; "Read-only for Staff" alert when access is Staff (L2-031 AC5)
-page --> actor : Owner controls only when canManage (owner or System Admin, L2-031 AC4)
+frame --> actor : Render tabs; read-only alert when access is Reader (L2-031 AC5)
+page --> actor : Owner controls only when canManage (owner or administrator, L2-031 AC4)
 end
 @enduml

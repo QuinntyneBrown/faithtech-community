@@ -4,7 +4,7 @@ LAYOUT_WITH_LEGEND()
 title Containers — Capabilities and authorization
 Person(member, "Member", "Holds roles whose definitions carry capabilities")
 Person(admin, "Administrator", "Holds AdministerOrganisation")
-System_Boundary(platform, "FaithTech Community platform") {
+System_Boundary(platform, "Community platform") {
   Container(web, "Web app", "Angular", "Shell navigation keyed on capabilities from /api/me; api and components libraries")
   Container(api, "Community API", "ASP.NET Core", "CurrentRolesMiddleware computes capabilities per request; access classes authorise")
   ContainerDb(db, "Community database", "PostgreSQL", "Organisations, role definitions, profile roles, admin rosters, audit log")

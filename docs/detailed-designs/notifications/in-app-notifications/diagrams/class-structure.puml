@@ -20,7 +20,7 @@ enum NotificationKind {
   RoleChanged
   WorkItemAssigned
   WorkspaceMemberAdded
-  WorkspaceOwnerLostCityLead
+  WorkspaceOwnerLostCapability
   PlanningPokerInvite
   Announcement
 }
@@ -58,9 +58,13 @@ interface INotificationPublisher {
 interface ICurrentUser {
   +Guid UserId
 }
+interface ICurrentOrganisation {
+  +Guid Id
+}
 Notification --> NotificationKind : has
 InAppNotificationsHandler ..> NotificationPage : returns
 InAppNotificationsHandler ..> ICurrentUser : uses
+InAppNotificationsHandler ..> ICurrentOrganisation : queries scoped by the global filter
 InAppNotificationsHandler "1" --> "*" Notification : reads / marks read
 INotificationPublisher ..> Notification : creates
 @enduml

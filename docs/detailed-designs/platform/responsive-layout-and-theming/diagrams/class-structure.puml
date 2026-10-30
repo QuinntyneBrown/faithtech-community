@@ -30,11 +30,19 @@ class ThemeService {
   +effectiveTheme: Signal<'light' | 'dark'>
   +setPreference(p: ThemePreference): void
 }
+class Section {
+  +path: string
+  +label: string
+  +opens: Capability[] | 'everyone'
+}
 class AppShellComponent {
   +navCollapsed: Signal<boolean>
+  +organisationShortName: Signal<string>
+  +sections: Signal<Section[]>
 }
 BreakpointService --> Breakpoint
 ThemeService --> ThemePreference
 AppShellComponent ..> BreakpointService : uses
 AppShellComponent ..> ThemeService : uses
+AppShellComponent ..> Section : sectionsFor(capabilities)
 @enduml

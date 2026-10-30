@@ -15,11 +15,11 @@ skinparam package {
   BackgroundColor #F9FAFB
 }
 actor "Holder of ManageRoles" as actor
-box "Frontend — FaithTech Community web app (organisations and components libraries)" #E0F2FE
+box "Frontend — Community web app (organisations and components libraries)" #E0F2FE
   participant "RolesPage" as page
   participant "ArchiveRoleDialogComponent" as dlg
 end box
-box "Frontend — FaithTech Community web app (api library)" #E0F2FE
+box "Frontend — Community web app (api library)" #E0F2FE
   participant "HttpRoleDefinitionsService" as svc
 end box
 box "Backend — FaithTech.Community.Api" #D1FADF

@@ -11,15 +11,15 @@ The unsubscribe endpoint is one of the anonymous endpoints listed in `L2-042`.
 
 ## Description
 
-- **`AnnouncementsPage`** — page in the `announcements` library (mock `pages/announcements`) listing the caller's announcements newest first, 25 at a time: those sent to them and those they sent, each with its message, audience, sender, date and recipient count. Communications Leads and System Admins also get **New announcement**.
+- **`AnnouncementsPage`** — page in the `announcements` library (mock `pages/announcements`) listing the caller's announcements newest first, 25 at a time: those sent to them and those they sent, each with its message, audience, sender, date and recipient count. Holders of `SendAnnouncements` also get **New announcement**.
 - **`SettingsPage`** "Email me when" card — the "Email me announcements" switch on the settings screen (mock `pages/settings`, in the `notifications` library) reads `AnnouncementsService.getEmailOptOut` and saves through `setEmailOptOut` when it is flipped, as the theme does; a failed save puts the switch back and says so. The `components` library provides the switch.
-- **`UnsubscribePage`** — anonymous page in the `announcements` library at `/unsubscribe?token=` (mock `pages/unsubscribe`: default, success, error), outside the signed-in shell. It posts the link's token; a `GET` never changes anything.
+- **`UnsubscribePage`** — anonymous page in the `announcements` library at `/unsubscribe?token=` on the organisation's host (`L2-130` AC6) (mock `pages/unsubscribe`: default, success, error), outside the signed-in shell. It posts the link's token; a `GET` never changes anything.
 - **`AnnouncementsService`** / **`ANNOUNCEMENTS_SERVICE`** / **`HttpAnnouncementsService`** — client contract, token and implementation in the `api` library.
 - **`AnnouncementsEndpoints`** — maps `GET /api/announcements?page=`, `GET` and `PUT /api/me/announcement-email-opt-out`, and the anonymous, rate-limited `POST /api/announcements/unsubscribe` (`204`, or `400` for a token that does not work).
-- **`ListMyAnnouncementsHandler`** — the announcements whose recipients include the caller, or that the caller sent, ordered by `SentAt` descending.
-- **`AnnouncementEmailOptOutHandler`** — reads and sets `Profile.AnnouncementEmailsOptedOut` for the caller.
+- **`ListMyAnnouncementsHandler`** — the announcements whose recipients include the caller, or that the caller sent, within the current organisation through the DbContext's global filter on `ICurrentOrganisation` (`L2-132` AC4), ordered by `SentAt` descending.
+- **`AnnouncementEmailOptOutHandler`** — reads and sets `Profile.AnnouncementEmailsOptedOut` for the caller's profile in the current organisation, so the preference is per membership (`L2-030` AC2).
 - **`UnsubscribeHandler`** — reads the token through `IUnsubscribeTokens` and sets the opt-out for the profile it names.
-- **`IUnsubscribeTokens`** / **`DataProtectionUnsubscribeTokens`** — Application contract and Infrastructure implementation with ASP.NET Data Protection under its own purpose; the payload is the profile id and the time of issue.
+- **`IUnsubscribeTokens`** / **`DataProtectionUnsubscribeTokens`** — Application contract and Infrastructure implementation with ASP.NET Data Protection under its own purpose; the payload is the profile id and the time of issue; a profile is a membership of one organisation, so the token opts out that membership only.
 
 The token works for one year (ADR 0016). It can do nothing but turn one member's announcement emails off.
 
@@ -35,15 +35,15 @@ The feature realizes the following level-2 (L2) requirements. Each L2 requiremen
 
 **`L2-030` — Read announcements and opt out**
 
-1. Given a member, when they open announcements, then they see the announcements sent to them, newest first.
-2. Given settings, when a member turns off announcement emails, then the preference is saved and applies to the next send.
-3. Given an announcement email, when the recipient follows its unsubscribe link, then they are opted out without signing in.
+1. Given a member, when they open announcements, then they see the announcements sent to them in the current organisation, newest first (`L2-132` AC4).
+2. Given settings, when a member turns off announcement emails, then the preference is saved for that organisation and applies to the next send.
+3. Given an announcement email, when the recipient follows its unsubscribe link on the organisation's host (`L2-130` AC6), then they are opted out without signing in.
 
 ## Diagrams
 
 ### System context
 
-A member reads announcements in FaithTech Community and receives announcement email, with an unsubscribe link, through the email provider.
+A member reads announcements on the Community platform and receives announcement email, with an unsubscribe link, through the email provider.
 
 ![C4 system context for read announcements and opt out](diagrams/c4-context.png)
 

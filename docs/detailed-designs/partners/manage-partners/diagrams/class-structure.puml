@@ -10,11 +10,21 @@ skinparam class {
   BackgroundColor #F9FAFB
 }
 title Class structure — Manage partners
-enum PartnerStage {
-  Lead
-  InFunnel
+enum PartnerStageKind {
+  Open
   Confirmed
 }
+class PartnerStage {
+  +Guid Id
+  +Guid OrganisationId
+  +string Key
+  +string Name
+  +int SortOrder
+  +bool IsInitial
+  +PartnerStageKind Kind
+  +bool IsArchived
+}
+PartnerStage --> PartnerStageKind
 class Partner {
   +Guid Id
   +string Name
@@ -25,16 +35,16 @@ class Partner {
   +string? Email
   +string? Phone
   +string? Notes
-  +PartnerStage Stage
+  +string StageKey
   +IReadOnlyCollection<PartnerStageChange> StageChanges
   +Update(name, website, offering, ownerId, contactName, email, phone, notes): void
-  +MoveTo(stage: PartnerStage, by: Guid, nowUtc: DateTime, note: string?): void
+  +MoveTo(stageKey: string, by: Guid, nowUtc: DateTime, note: string?): void
 }
 class PartnerStageChange {
   +Guid Id
   +Guid PartnerId
-  +PartnerStage From
-  +PartnerStage To
+  +string From
+  +string To
   +Guid MovedBy
   +DateTime MovedAtUtc
   +string? Note
@@ -50,21 +60,30 @@ class PartnerViews {
 }
 interface ICurrentUser {
   +Guid? UserId
-  +IReadOnlyCollection<Role> Roles
-  +HasRole(role: Role): bool
+  +IReadOnlyCollection<HeldRole> Roles
+  +IReadOnlySet<string> Capabilities
+  +Has(capability: string): bool
 }
-class LeadRoles <<static>> {
-  +{static} All: IReadOnlyList<Role>
-  +{static} HoldsLeadRole(current: ICurrentUser): bool
+interface ICurrentOrganisation {
+  +Guid Id
+}
+class Capability <<static>> {
+  +{static} ViewPartners: string
+  +{static} ManagePartners: string
+  +{static} AdministerOrganisation: string
+}
+class AuthorizationRules <<static>> {
+  +{static} IsOverride(actor: ICurrentUser, capability: string): bool
 }
 interface IAuditLog {
   +Record(actorId: Guid, action: string, targetType: string, targetId: string, before: object?, after: object?): void
 }
-Partner --> PartnerStage
+Partner --> PartnerStage : StageKey
 Partner "1" *-- "*" PartnerStageChange
 PartnerAccess ..> ICurrentUser
-PartnerAccess ..> LeadRoles
-PartnerAccess ..> IAuditLog : System Admin without a lead role
+PartnerAccess ..> Capability
+PartnerAccess ..> AuthorizationRules : IsOverride
+PartnerAccess ..> IAuditLog : override by AdministerOrganisation
 PartnerViews --> PartnerAccess : CanEdit
 class PartnerDto <<record>> {
   +Guid Id
@@ -101,7 +120,7 @@ class PartnerCommand <<record>> {
 class PartnerRules <<static>> {
   +MaxField = 200
   +MaxNotes = 2000
-  +{static} TryParseStage(value: string?, out stage: PartnerStage): bool
+  +{static} TryResolveStage(key: string?, stages: IReadOnlyList<PartnerStage>, out stage: PartnerStage): bool
 }
 class PartnerValidator
 class ManagePartnersHandler {
@@ -121,6 +140,7 @@ ManagePartnersHandler ..> PartnerCommand : handles
 ManagePartnersHandler --> PartnerAccess
 ManagePartnersHandler --> PartnerViews
 ManagePartnersHandler --> Partner : creates, updates
-ManagePartnersHandler ..> LeadRoles : owner must hold one
+ManagePartnersHandler ..> Capability : owner holds ManagePartners
+ManagePartnersHandler ..> ICurrentOrganisation : queries scoped by the global filter
 ManagePartnersHandler ..> PartnerOwnerDto : lists
 @enduml

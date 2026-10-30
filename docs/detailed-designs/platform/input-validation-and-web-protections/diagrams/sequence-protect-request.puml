@@ -15,7 +15,7 @@ skinparam package {
   BackgroundColor #F9FAFB
 }
 actor "Any caller" as actor
-box "Frontend — FaithTech Community web app (feature library)" #E0F2FE
+box "Frontend — Community web app (feature library)" #E0F2FE
   participant "Feature page" as page
   participant "Http<Feature>Service" as client
 end box
@@ -35,7 +35,7 @@ actor -> page : Submit form
 page -> client : create(body)
 client -> hdr : POST /<feature>
 hdr -> rl : Next (headers added on response, L2-043 #3)
-alt foreign origin
+alt origin not the current organisation's community or public origin
   rl --> client : CORS rejection (L2-043 #4)
 else limit exceeded
   rl --> client : 429 (L2-043 #5)

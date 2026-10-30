@@ -15,7 +15,7 @@ skinparam package {
   BackgroundColor #F9FAFB
 }
 actor "Member" as actor
-box "Frontend — FaithTech Community web app (profiles library)" #E0F2FE
+box "Frontend — Community web app (profiles library)" #E0F2FE
   participant "EditProfilePage" as page
   participant "DeletePhotoDialog" as dlg
   participant "ProfilesService" as client

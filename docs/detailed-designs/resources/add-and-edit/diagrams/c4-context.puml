@@ -2,9 +2,9 @@
 !include <C4/C4_Context>
 LAYOUT_WITH_LEGEND()
 title System Context — Add and edit resources
-Person(contrib, "Contributor", "City, Event, Create or Communications Lead, or Staff: adds resources and edits their own")
-Person(admin, "System Admin", "Adds resources; edits any resource by audited override")
-System(community, "FaithTech Community", "Community site for FaithTech staff, leads, volunteers, builders and partners")
+Person(contrib, "Member with AddResources", "Adds resources and edits their own")
+Person(admin, "Administrator", "Holds AdministerOrganisation: edits any resource by audited override")
+System(community, "Community platform", "Community site for an organisation's members and partners")
 System_Ext(blob, "Azure Blob Storage", "Private resources container: files and image thumbnails")
 System_Ext(linked, "Linked app", "Canva, Google Docs, SharePoint... never contacted by the system")
 Rel(contrib, community, "Uploads files, adds links, edits and replaces files using")

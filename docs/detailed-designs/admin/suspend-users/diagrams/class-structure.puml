@@ -12,6 +12,8 @@ skinparam class {
 title Class structure — Suspend users
 class Profile {
   +Guid Id
+  +Guid OrganisationId
+  +Guid UserId
   +string Name
   +bool IsSuspended
   +string? SuspendedReason
@@ -29,18 +31,28 @@ class SuspensionHandler {
   +SuspendAsync(profileId: Guid, command: SuspendUserCommand): Task<Result>
   +ReinstateAsync(profileId: Guid): Task<Result>
 }
+class LastAdministratorGuard {
+  +TakeLeaseAsync(): Task<Result>
+  +WouldLeaveNoneAsync(excludingProfile: Guid?, excludingDefinition: Guid?): Task<bool>
+  +Release(): void
+}
 interface ITokenRevocation {
-  +RevokeAllAsync(userId: Guid): Task
+  +RevokeAllAsync(userId: Guid, organisationId: Guid): Task
 }
 class TokenRevocation {
-  +RevokeAllAsync(userId: Guid): Task
+  +RevokeAllAsync(userId: Guid, organisationId: Guid): Task
 }
 interface IAuditLog {
   +Record(actorId: Guid, action: string, targetType: string, targetId: string, before: object?, after: object?): void
 }
+interface ICurrentOrganisation {
+  +Guid Id
+  +string Name
+}
 interface ICurrentUser {
   +Guid? UserId
-  +HasRole(role: Role): bool
+  +IReadOnlySet<string> Capabilities
+  +Has(capability: string): bool
 }
 class ProfileAccess {
   +CallerProfileIdAsync(): Task<Guid?>
@@ -48,9 +60,11 @@ class ProfileAccess {
 SuspendUserValidator ..> SuspendUserCommand : validates
 SuspensionHandler ..> SuspendUserCommand : handles
 SuspensionHandler --> Profile : mutates
+SuspensionHandler --> LastAdministratorGuard : L2-139 AC1
 SuspensionHandler ..> ITokenRevocation
 SuspensionHandler ..> IAuditLog
-SuspensionHandler ..> ICurrentUser : requires System Admin
+SuspensionHandler ..> ICurrentUser : requires AdministerOrganisation
+SuspensionHandler ..> ICurrentOrganisation : scoped by
 SuspensionHandler ..> ProfileAccess : actor id
 TokenRevocation ..|> ITokenRevocation
 @enduml

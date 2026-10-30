@@ -4,7 +4,7 @@ LAYOUT_WITH_LEGEND()
 title System Context — Tenancy and host resolution
 Person(member, "Member of an organisation", "Uses the community app on the organisation's community host")
 Person(visitor, "Visitor", "Opens an organisation's public host, or a host that maps to nothing")
-System(platform, "FaithTech Community platform", "One deployment hosting many organisations; the host picks the organisation")
+System(platform, "Community platform", "One deployment hosting many organisations; the host picks the organisation")
 System_Ext(dns, "DNS", "Every organisation's community and public hosts point at the platform")
 System_Ext(email, "Email provider", "Delivers mail under the organisation's name")
 Rel(member, platform, "Uses on {organisation host}", "HTTPS")

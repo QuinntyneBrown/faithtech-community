@@ -11,7 +11,15 @@ skinparam class {
 }
 title Class structure — Marketing page
 
+class MarketingHost <<config>> {
+  +name: string
+  +shortName: string
+  +communityOrigin: string
+  +brochure, poster, captions: string
+  +footer: string
+}
 class LandingPage {
+  +host: MarketingHost
   +returnUrl: string
   +join: string
   +google: 'failed' | 'suspended'
@@ -52,6 +60,7 @@ class AuthContinuePage {
   +keepSignedIn: string
 }
 LandingPage ..> AuthService : AUTH_SERVICE
+LandingPage --> MarketingHost : per-host configuration
 LandingPage *-- LandingHeroComponent
 LandingHeroComponent o-- SignInFormComponent : panel
 LandingHeroComponent o-- SignUpFormComponent : panel

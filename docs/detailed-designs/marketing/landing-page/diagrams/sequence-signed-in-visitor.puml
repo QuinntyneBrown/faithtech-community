@@ -13,10 +13,10 @@ box "Community app" #E0F2FE
   participant "App initializer" as init
   participant "OidcAuthClient" as client
 end box
-actor -> page : Open www.faithtech.community
+actor -> page : Open the organisation's public host
 page -> auth : hasKeptSession()
 auth --> page : ftc.signed-in cookie present
-page -> init : location.replace(community origin + "/") (L2-074 AC6)
+page -> init : location.replace(organisation community origin + "/") (L2-074 AC6)
 init -> client : restoreSession(): refresh token from localStorage
 alt refresh succeeds
   client --> actor : Home

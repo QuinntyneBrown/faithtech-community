@@ -11,12 +11,21 @@ skinparam class {
 }
 title Class structure — Calendar export
 
-enum EventType {
-  Gathering
-  BuildersNight
-  Hackathon
-  PrayerAndPlanning
-  Panel
+class EventType <<organisation list entry>> {
+  +Guid Id
+  +Guid OrganisationId
+  +string Key
+  +string Name
+  +int SortOrder
+  +bool IsArchived
+}
+
+class Chapter <<organisation>> {
+  +Guid Id
+  +Guid OrganisationId
+  +string Name
+  +int SortOrder
+  +bool IsArchived
 }
 
 enum EventFormat {
@@ -31,12 +40,13 @@ enum EventVisibility {
 
 class Event <<Domain entity>> {
   +Guid Id
+  +Guid OrganisationId
   +string Title
   +string Description
-  +EventType Type
+  +Guid EventTypeId
   +DateTimeOffset StartsAt
   +DateTimeOffset EndsAt
-  +string City
+  +Guid? ChapterId
   +EventFormat Format
   +string? Venue
   +string? OnlineLink
@@ -48,14 +58,15 @@ class Event <<Domain entity>> {
   +Guid CreatedById
   +int RsvpCount
   +bool IsFull
-  +Update(title, description, type, startsAt, endsAt, city, format, venue, onlineLink, capacity, visibility): void
+  +Update(title, description, eventTypeId, startsAt, endsAt, chapterId, format, venue, onlineLink, capacity, visibility): void
   +Cancel(reason: string): void
   +Rsvp(profileId: Guid, now: DateTimeOffset): Rsvp
   +GuestRsvp(name: string, email: string, now: DateTimeOffset): Rsvp
   +CancelRsvp(profileId: Guid): void
   +CancelGuestRsvp(rsvpId: Guid): void
 }
-Event --> EventType
+Event --> EventType : type
+Event --> Chapter : optional chapter
 Event --> EventFormat
 Event --> EventVisibility
 
@@ -77,7 +88,13 @@ interface IIcsCalendarWriter {
 class IcsCalendarWriter {
   +Write(event: Event): string
 }
+interface ICurrentOrganisation {
+  +Guid Id
+  +string Name
+  +string Host
+}
 IcsCalendarWriter ..|> IIcsCalendarWriter
+IcsCalendarWriter ..> ICurrentOrganisation : PRODID, ORGANIZER, UID host
 GetEventCalendarHandler ..> GetEventCalendarQuery : handles
 GetEventCalendarHandler ..> IIcsCalendarWriter
 GetEventCalendarHandler ..> Event : reads

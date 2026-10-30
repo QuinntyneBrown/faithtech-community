@@ -15,7 +15,7 @@ skinparam package {
   BackgroundColor #F9FAFB
 }
 actor "Workspace member" as actor
-box "Frontend — FaithTech Community web app (agile library)" #E0F2FE
+box "Frontend — Community platform web app (agile library)" #E0F2FE
   participant "BacklogPage" as page
   participant "WorkItemDialog" as dlg
   participant "AgileService (AGILE_SERVICE)" as svc
@@ -54,7 +54,7 @@ dlg --> actor : Show inline errors
 else valid
 filt -> h : CreateAsync(workspaceId, command)
 h -> pol : AuthorizeAsync(workspaceId, manage = NeedsManage(kind))
-pol --> h : Workspace and caller (outsider 404, Staff or member without the right 403)
+pol --> h : Workspace and caller (outsider 404, Reader or member without the right 403)
 h -> ctx : Load parent by ParentId
 ctx -> db : SELECT
 db --> ctx : Parent or none
@@ -72,7 +72,7 @@ opt assignee set and not the caller
 h -> ntf : Notify(actor, assignee, WorkItemAssigned, ...) (L2-033 AC3)
 ntf -> ctx : Add Notification
 end
-h -> pol : AuditOverride(caller, "workitem.created", ...) (System Admin only)
+h -> pol : AuditOverride(caller, "workitem.created", ...) (AdministerOrganisation override only, L2-135 AC5)
 h -> ntf : QueueEmailsAsync
 ntf -> mail : Enqueue(assignment email)
 h -> ctx : SaveChangesAsync

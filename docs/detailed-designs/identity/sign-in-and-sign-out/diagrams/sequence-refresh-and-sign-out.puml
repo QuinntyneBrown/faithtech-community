@@ -15,7 +15,7 @@ skinparam package {
   BackgroundColor #F9FAFB
 }
 actor "Account holder" as actor
-box "Frontend — FaithTech Community web app (faithtech-community library)" #E0F2FE
+box "Frontend — Community web app (faithtech-community library)" #E0F2FE
   participant "OidcAuthClient" as client
 end box
 box "Backend — FaithTech.Community.Api" #D1FADF
@@ -27,7 +27,7 @@ end box
 group Silent refresh
   actor -> client : Use the app after access token expiry
   client -> ep : POST /connect/token (refresh_token)
-  ep -> db : Validate refresh token
+  ep -> db : Validate refresh token (no organisation claim; the host decides, L2-131 #5)
   ep --> client : New access token (L2-003)
 end
 group Sign out

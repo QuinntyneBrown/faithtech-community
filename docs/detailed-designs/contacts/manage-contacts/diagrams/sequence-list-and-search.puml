@@ -14,8 +14,8 @@ skinparam package {
   FontColor #101828
   BackgroundColor #F9FAFB
 }
-actor "Lead" as actor
-box "Frontend — FaithTech Community web app (contacts library)" #E0F2FE
+actor "Member with KeepContacts" as actor
+box "Frontend — Community web app (contacts library)" #E0F2FE
   participant "ContactsPage" as list
   participant "HttpContactsService" as svc
 end box
@@ -34,7 +34,7 @@ list -> svc : list(term)
 svc -> ep : GET /api/contacts?q=term
 ep -> h : ListAsync(term)
 h -> acc : CanKeepContacts, CallerProfileIdAsync()
-alt no lead role and not System Admin
+alt caller lacks KeepContacts
   h --> ep : null
   ep --> svc : 403
   svc --> list : Error

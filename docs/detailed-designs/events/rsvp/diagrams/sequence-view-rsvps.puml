@@ -1,5 +1,5 @@
 @startuml
-title UML sequence behaviour — View RSVP details by role
+title UML sequence behaviour — View RSVP details by capability
 skinparam backgroundColor #FFFFFF
 skinparam shadowing false
 skinparam roundcorner 12
@@ -15,7 +15,7 @@ skinparam package {
   BackgroundColor #F9FAFB
 }
 actor "Signed-in user" as actor
-box "Frontend — FaithTech Community web app (events library)" #E0F2FE
+box "Frontend — Community platform web app (events library)" #E0F2FE
   participant "EventPage" as page
   participant "HttpEventsService" as svc
 end box
@@ -36,14 +36,14 @@ svc -> ep : GET /api/events/{id}
 ep -> h : Send GetEventQuery
 h -> db : Load event and RSVPs
 db --> h : Event
-h -> perm : CanSeeRsvpList(currentUser)
-alt attendee
+h -> perm : CanSeeRsvpList: Has(ViewAttendees) or Has(ManageAttendance)
+alt neither ViewAttendees nor ManageAttendance
   perm --> h : false
   h -> h : Omit Rsvps; keep RsvpCount (L2-022)
-else lead, Staff or System Admin
+else ViewAttendees or ManageAttendance held
   perm --> h : true
-  h -> perm : CanSeeGuestEmails(currentUser)
-  perm --> h : true for leads and System Admin, false for Staff
+  h -> perm : CanSeeGuestEmails: Has(ManageAttendance)
+  perm --> h : true for ManageAttendance, false for ViewAttendees alone
   h -> h : Include Rsvps; mask guest emails when false (L2-022)
 end
 h --> ep : EventDetailDto

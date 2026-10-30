@@ -4,6 +4,6 @@ LAYOUT_WITH_LEGEND()
 title System Context — Manage profile photos
 
 Person(member, "Member", "Signed-in user with a profile")
-System(ftc, "FaithTech Community", "Community site for FaithTech staff, leads, volunteers, builders and partners")
+System(ftc, "Community platform", "Community site for an organisation's members, builders and partners")
 Rel(member, ftc, "Manages photos in", "HTTPS")
 @enduml

@@ -20,15 +20,25 @@ enum PartnerActivityKind {
   Merged
   Restored
 }
-enum PartnerStage {
-  Lead
-  InFunnel
+enum PartnerStageKind {
+  Open
   Confirmed
 }
+class PartnerStage {
+  +Guid Id
+  +Guid OrganisationId
+  +string Key
+  +string Name
+  +int SortOrder
+  +bool IsInitial
+  +PartnerStageKind Kind
+  +bool IsArchived
+}
+PartnerStage --> PartnerStageKind
 class Partner {
   +Guid Id
   +string Name
-  +PartnerStage Stage
+  +string StageKey
   +int Version
   +DateTime? ArchivedAtUtc
   +Guid? MergedIntoId
@@ -39,8 +49,8 @@ class Partner {
 class PartnerStageChange {
   +Guid Id
   +Guid PartnerId
-  +PartnerStage From
-  +PartnerStage To
+  +string From
+  +string To
   +Guid MovedBy
   +DateTime MovedAtUtc
   +string? Note
@@ -57,8 +67,8 @@ class PartnerActivity {
   +DateOnly? NextStepDue
   +Guid LoggedById
   +DateTime LoggedAtUtc
-  +PartnerStage? FromStage
-  +PartnerStage? ToStage
+  +string? FromStage
+  +string? ToStage
   +Guid? RelatedPartnerId
   +Guid? StageChangeId
   +Guid? MergedFromPartnerId
@@ -74,7 +84,8 @@ Partner "1" *-- "*" PartnerStageChange
 Partner "1" *-- "*" PartnerActivity
 PartnerActivity --> PartnerActivityKind
 PartnerActivity ..> PartnerStageChange : StageChangeId mirrors
-PartnerActivity --> PartnerStage
+Partner --> PartnerStage : StageKey
+PartnerActivity ..> PartnerStage : keys, shown by current name
 
 class LogPartnerActivityCommand <<record>> {
   +string? Kind

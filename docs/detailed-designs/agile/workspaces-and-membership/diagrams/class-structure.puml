@@ -17,7 +17,7 @@ enum WorkspaceMethod {
 }
 enum WorkspaceAccess {
   Outsider
-  Staff
+  Reader
   Admin
   Member
   Owner
@@ -39,7 +39,7 @@ class Workspace {
   +bool IsArchived
   +Rename(name: string): void
   +IsMember(profileId: Guid): bool
-  +AddMember(profile: Profile, now: DateTimeOffset): void
+  +AddMember(profile: Profile, capabilities: IReadOnlySet<string>, now: DateTimeOffset): void
   +RemoveMember(profileId: Guid, items: IEnumerable<WorkItem>): void
   +SwitchMethod(target: WorkspaceMethod, sprints, stories): void
 }
@@ -79,7 +79,7 @@ class WorkspaceSettingsHandler {
 }
 class WorkspaceAccessPolicy {
   +bool ReadsEverything
-  +bool IsSystemAdmin
+  +bool IsAdministrator
   +CallerProfileIdAsync(): Task<Guid?>
   +Classify(workspace: Workspace, caller: Guid?): WorkspaceAccess
   +Visible(workspaces: IQueryable<Workspace>, caller: Guid?): IQueryable<Workspace>
@@ -90,8 +90,18 @@ class WorkspaceAccessPolicy {
 }
 interface ICurrentUser {
   +Guid? UserId
-  +IReadOnlyCollection<Role> Roles
-  +HasRole(role: Role): bool
+  +IReadOnlyCollection<HeldRole> Roles
+  +IReadOnlySet<string> Capabilities
+  +Has(capability: string): bool
+}
+interface ICurrentOrganisation {
+  +Guid Id
+}
+class Capability <<static>> {
+  +{static} OwnWorkspaces: string
+  +{static} JoinWorkspaces: string
+  +{static} ReadAllWorkspaces: string
+  +{static} AdministerOrganisation: string
 }
 class AgileNotifier {
   +Notify(actor, recipient, kind, title, linkPath, subject, body): void
@@ -115,7 +125,10 @@ WorkspaceSettingsHandler ..> WorkspaceMembership
 WorkspacesHandler ..> WorkspaceAccessPolicy
 WorkspaceSettingsHandler ..> WorkspaceAccessPolicy
 WorkspaceAccessPolicy --> WorkspaceCaller : returns
-WorkspaceAccessPolicy ..> ICurrentUser
+WorkspaceAccessPolicy ..> ICurrentUser : Has(capability)
+WorkspaceAccessPolicy ..> ICurrentOrganisation : queries scoped by
+WorkspaceAccessPolicy ..> Capability
+WorkspaceMembership ..> Capability : JoinWorkspaces
 WorkspaceAccessPolicy ..> IAuditLog
 WorkspaceMembership ..> AgileNotifier
 WorkspacesHandler ..> AgileNotifier : SendEmailsAsync

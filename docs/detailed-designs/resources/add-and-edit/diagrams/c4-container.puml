@@ -2,8 +2,8 @@
 !include <C4/C4_Container>
 LAYOUT_WITH_LEGEND()
 title Containers — Add and edit resources
-Person(contrib, "Contributor", "Lead, Staff or System Admin")
-System_Boundary(community, "FaithTech Community") {
+Person(contrib, "Member with AddResources", "Adds and edits own resources")
+System_Boundary(community, "Community platform") {
   Container(web, "Web app", "Angular", "resources feature library: add and edit dialogs; api and components libraries")
   Container(api, "Community API", "ASP.NET Core", "Endpoints, handlers, file rules, image processor, maintenance worker")
   ContainerDb(db, "Community database", "PostgreSQL", "Resources, tags, audiences, ResourceBlobTasks")

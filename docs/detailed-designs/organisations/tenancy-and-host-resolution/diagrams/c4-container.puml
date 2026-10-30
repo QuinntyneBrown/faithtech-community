@@ -4,7 +4,7 @@ LAYOUT_WITH_LEGEND()
 title Containers — Tenancy and host resolution
 Person(member, "Member", "Browser on app.{organisation}")
 Person(visitor, "Visitor", "Browser on www.{organisation}")
-System_Boundary(platform, "FaithTech Community platform") {
+System_Boundary(platform, "Community platform") {
   Container(api, "API container app", "ASP.NET Core", "Wall, OrganisationResolutionMiddleware, static sites by host kind, identity server, API, hub")
   Container(web, "Community app", "Angular build", "Served on every organisation's community host; reads /api/site and /api/me")
   Container(mkt, "Marketing app", "Angular build", "Served on every configured public host; reads /api/site")

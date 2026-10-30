@@ -5,7 +5,7 @@ title Components — Duplicate detection and merge
 Container_Boundary(web, "Web app") {
   Component(page, "PartnerPage", "Angular page (partners library)", "Duplicate warning, archived state")
   Component(merge, "MergePartnersDialog", "Angular CDK Dialog (partners library)", "Per-field choices, busy and failed states")
-  Component(restore, "RestorePartnerDialog", "Angular CDK Dialog (partners library)", "System Admin confirm")
+  Component(restore, "RestorePartnerDialog", "Angular CDK Dialog (partners library)", "Administrator confirm")
   Component(lib, "components library", "Angular library", "ft-alert, ft-radio-group, ft-dialog, ToastService")
   Component(svc, "HttpPartnersService", "Angular service (api library)", "duplicates, dismissDuplicate, merge, restore")
 }

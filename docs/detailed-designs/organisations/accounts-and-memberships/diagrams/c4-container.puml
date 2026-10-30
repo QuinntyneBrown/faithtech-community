@@ -3,7 +3,7 @@
 LAYOUT_WITH_LEGEND()
 title Containers — Accounts and memberships
 Person(member, "Member", "Browser on app.{organisation A} and app.{organisation B}")
-System_Boundary(platform, "FaithTech Community platform") {
+System_Boundary(platform, "Community platform") {
   Container(web, "Community app", "Angular", "Shell: account menu with Switch organisation, not-a-member page; api library loads /api/me")
   Container(api, "Community API and identity server", "ASP.NET Core, OpenIddict", "CurrentRolesMiddleware loads the membership; MeHandler; authorizations stamped per organisation")
   ContainerDb(db, "Community database", "PostgreSQL", "AspNetUsers (global) and Profiles (OrganisationId, UserId)")

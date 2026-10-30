@@ -37,7 +37,7 @@ Rel(log, acc, "CanWrite, AuditAdminWrite (L2-112)")
 Rel(list, acc, "CanRead (L2-112)")
 Rel(list, views, "Builds rows")
 Rel(mp, db, "Adds system entries in the same SaveChanges")
-Rel(acc, audit, "partner.activity.logged by admin right")
+Rel(acc, audit, "partner.activity.logged on override (L2-135 AC5)")
 Rel(log, db, "Persists", "EF Core")
 Rel(list, db, "Queries", "EF Core")
 @enduml

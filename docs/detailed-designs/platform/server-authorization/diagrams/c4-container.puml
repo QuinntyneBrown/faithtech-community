@@ -2,8 +2,8 @@
 !include <C4/C4_Container>
 LAYOUT_WITH_LEGEND()
 title Containers — Server authorization
-Person(user, "Any caller", "Member, Staff, lead, System Admin or anonymous visitor")
-System_Boundary(ftc, "FaithTech Community") {
+Person(user, "Any caller", "Member with any capabilities, administrator or anonymous visitor")
+System_Boundary(ftc, "Community platform") {
   Container(web, "Web app", "Angular", "Shell, app shell feature library, api and components libraries")
   Container(api, "Community API", "ASP.NET Core", "FaithTech.Community.Api with Application, Domain and Infrastructure")
   ContainerDb(db, "Community database", "PostgreSQL", "Persistent community data")

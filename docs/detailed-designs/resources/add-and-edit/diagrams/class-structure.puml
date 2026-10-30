@@ -15,9 +15,10 @@ class Resource {
   +MaxDescription = 1000
   +MaxTag = 40
   +Guid Id
+  +Guid OrganisationId
   +string Title
   +string? Description
-  +ResourceType Type
+  +Guid ResourceTypeId
   +ResourceVisibility Visibility
   +Guid OwnerId
   +DateTimeOffset AddedAt
@@ -71,6 +72,33 @@ class ResourceBlobTask {
   +{static} Delete(resourceId, blobName, now): ResourceBlobTask
   +Failed(now): void
 }
+class ResourceType {
+  +Guid Id
+  +Guid OrganisationId
+  +string Key
+  +string Name
+  +int SortOrder
+  +bool IsArchived
+}
+Resource --> ResourceType : Type
+class ResourceType {
+  +Guid Id
+  +Guid OrganisationId
+  +string Key
+  +string Name
+  +int SortOrder
+  +bool IsArchived
+}
+Resource --> ResourceType : Type
+class ResourceType {
+  +Guid Id
+  +Guid OrganisationId
+  +string Key
+  +string Name
+  +int SortOrder
+  +bool IsArchived
+}
+Resource --> ResourceType : Type
 Resource "1" *-- "0..1" ResourceFile
 Resource "1" *-- "*" ResourceTag
 ResourceBlobTask --> ResourceBlobWork
@@ -81,18 +109,18 @@ class ResourceFileTypes <<static>> {
   +MaxFilesPerAdd = 20
   +{static} Allowed: IReadOnlySet<string>
   +{static} RefusedMessage(fileName): string
-  +{static} TypeFromExtension(ext): ResourceType
+  +{static} TypeKeyFromExtension(ext): string
   +{static} MatchesSignature(ext, leadingBytes): bool
   +{static} Check(fileName, size, leadingBytes): string?
 }
 class ResourceDetails <<record>> {
   +string? Title
   +string? Description
-  +ResourceType? Type
+  +Guid? ResourceTypeId
   +IReadOnlyList<string>? Tags
   +ResourceVisibility Visibility
   +IReadOnlyList<Guid>? MemberIds
-  +IReadOnlyList<Role>? Roles
+  +IReadOnlyList<Guid>? RoleIds
 }
 class AddLinkCommand <<record>> {
   +string? Url
@@ -138,6 +166,14 @@ class ResourceStorageRetryHandler {
   +RetryDueAsync(): Task<int>
 }
 class ResourceAccess <<static>>
+interface ICurrentUser {
+  +Has(capability: string): bool
+}
+interface ICurrentOrganisation {
+  +Guid Id
+}
+ResourceAccess ..> ICurrentUser : Has(AddResources), IsOverride
+ResourceAccess ..> ICurrentOrganisation : query filter
 class ShareNotifier
 AddResourcesHandler --> ResourceFileTypes
 AddResourcesHandler --> IFileStorage

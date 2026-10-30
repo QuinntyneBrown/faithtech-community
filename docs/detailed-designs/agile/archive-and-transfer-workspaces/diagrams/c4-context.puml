@@ -3,9 +3,9 @@
 LAYOUT_WITH_LEGEND()
 title System Context — Archive and transfer workspaces
 
-Person(lead, "City Lead", "Owns Agile workspaces")
-Person(admin, "System Admin", "Full override, audited")
-System(ftc, "FaithTech Community", "Community site with Agile team workspaces")
+Person(lead, "Member with OwnWorkspaces", "Holds OwnWorkspaces; owns Agile workspaces")
+Person(admin, "Administrator", "Holds AdministerOrganisation; overrides any workspace, audited")
+System(ftc, "Community platform", "Community site with Agile team workspaces")
 System_Ext(email, "Email provider", "SMTP/SendGrid")
 
 Rel(lead, ftc, "Archives and restores workspaces and items in")

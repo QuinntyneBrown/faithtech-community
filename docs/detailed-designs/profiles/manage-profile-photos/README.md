@@ -16,12 +16,12 @@ Uploads accept JPEG, PNG or WebP files of 5 MB or less whose content matches the
 - **`DeletePhotoDialog`** — opened through `DialogService` from a saved photo's *Remove* button, matching the `delete-photo` mock (default, busy, failed). It calls `deletePhoto` and closes with the updated profile. A pending photo is removed without a dialog because nothing is stored yet.
 - **`ProfilesService`** — contract in the `api` library, provided through the `PROFILES_SERVICE` injection token and implemented by `HttpProfilesService`.
 - **`ProfilesEndpoints`** — minimal API route group in `FaithTech.Community.Api` under `/api/profiles`. Its endpoints require authentication by default and hold no business logic.
-- **`ICurrentUser`** — Application abstraction exposing the caller's user id and roles; **`ProfileAccess`** decides owner, audited System Admin or 403 (ADR 0004).
+- **`ICurrentUser`** — Application abstraction exposing the caller's user id and capabilities; **`ProfileAccess`** decides owner, audited `AdministerOrganisation` override (`L2-135` AC5) or 403 (ADR 0004). Every query is scoped by the DbContext's global filter on `ICurrentOrganisation`.
 - **`Profile`** — Domain entity holding `Name`, `Roles` and the `Photos` collection.
-- **`UploadPhotoCommand`** / **`UploadPhotoHandler`** — `POST /api/profiles/{id}/photos`, multipart fields `file` and `altText`, answering `201` with the `PhotoDto`. The handler checks permission, the 10-photo limit, alt text ("Describe this photo."), size (5 MB) and content against extension, answering `400` keyed `File` or `AltText` so each shows inline, then resizes, strips metadata, stores the blob under `profiles/{profileId}/{blobId}.{ext}` and adds a `ProfilePhoto`. The first photo becomes featured. If storage refuses the write, the photo is still added with `IsStored = false`, and a `PhotoBlobTask` (`Save`) holding the processed bytes commits in the same save. The response is still `201`, with `isStored: false` and `url: null` (ADR 0013).
+- **`UploadPhotoCommand`** / **`UploadPhotoHandler`** — `POST /api/profiles/{id}/photos`, multipart fields `file` and `altText`, answering `201` with the `PhotoDto`. The handler checks permission, the 10-photo limit, alt text ("Describe this photo."), size (5 MB) and content against extension, answering `400` keyed `File` or `AltText` so each shows inline, then resizes, strips metadata, stores the blob under `{organisationId}/profiles/{profileId}/{blobId}.{ext}` (`L2-130` AC5) and adds a `ProfilePhoto`. The first photo becomes featured. If storage refuses the write, the photo is still added with `IsStored = false`, and a `PhotoBlobTask` (`Save`) holding the processed bytes commits in the same save. The response is still `201`, with `isStored: false` and `url: null` (ADR 0013).
 - **`DescribePhotoCommand`** / **`DescribePhotoHandler`** — `PUT /api/profiles/{id}/photos/{photoId}` with `{ altText }` changes a photo's alt text through `ProfilePhoto.Describe` (L2-007 AC7).
 - **`SetFeaturedPhotoCommand`** / **`SetFeaturedPhotoHandler`** — `PUT /api/profiles/{id}/photos/{photoId}/featured`; make one photo the only featured photo through `Profile.Feature`.
-- **`DeletePhotoCommand`** / **`DeletePhotoHandler`** — `DELETE /api/profiles/{id}/photos/{photoId}`; remove the photo, then its blob. If storage refuses the delete, a `PhotoBlobTask` (`Delete`) is queued. A photo that is still storing has its queued write dropped, so no blob is ever written for it; `Profile.RemovePhoto` promotes the most recent remaining photo when the featured one is removed. Every write answers `403` to anyone but the owner or System Admin, whose override is audited.
+- **`DeletePhotoCommand`** / **`DeletePhotoHandler`** — `DELETE /api/profiles/{id}/photos/{photoId}`; remove the photo, then its blob. If storage refuses the delete, a `PhotoBlobTask` (`Delete`) is queued. A photo that is still storing has its queued write dropped, so no blob is ever written for it; `Profile.RemovePhoto` promotes the most recent remaining photo when the featured one is removed. Every write answers `403` to anyone but the owner or a holder of `AdministerOrganisation`, whose override is audited.
 - **`IImageProcessor`** — Application abstraction implemented with SkiaSharp in Infrastructure (`SkiaImageProcessor`): detects the real format from the bytes, applies the EXIF orientation, resizes to fit 1600 × 1600 without upscaling and re-encodes from pixels so no EXIF, XMP or IPTC metadata survives (ADR 0001).
 - **`PhotoStorageRetryHandler`** / **`PhotoStorageRetryWorker`** — Application handler and Infrastructure hosted service (on the outbox interval, switched off with `Outbox:Enabled`). The handler retries due `PhotoBlobTask`s with exponential backoff capped at one hour. A write marks its photo stored, or is dropped when the photo was deleted meanwhile; a delete removes the blob. Each task names one photo and one blob key, so a retry never adds a photo or breaks the limit or the featured rule (ADR 0013).
 - **`PhotoDto`** — `id`, `url` (null while storing), `altText`, `isFeatured`, `uploadedAt`, `isStored`. `ft-picture-list` shows a storing photo as a described placeholder with a status note (mock `edit-profile/storing`), and the profile page shows the placeholder and keeps the initials avatar until the image is stored.
@@ -35,10 +35,11 @@ The feature realizes the following level-2 (L2) requirements. Each L2 requiremen
 | L2 ID | Refines (L1) | Requirement |
 |-------|--------------|-------------|
 | `L2-007` | `L1-002` | Profile photos |
+| `L2-130` | `L1-025`, `L1-015` | Organisation record and isolation |
 
 ### Acceptance criteria
 
-**`L2-007`**
+**`L2-007` — Profile photos**
 
 1. Given a JPEG, PNG or WebP file of 5 MB or less with alt text, when the user uploads it, then it is resized on the server, stored in blob storage with metadata removed, and shown on the profile within 5 seconds.
 2. Given a file larger than 5 MB, of another type, or whose content does not match its extension, when the user uploads it, then it is rejected with an inline error.
@@ -50,11 +51,21 @@ The feature realizes the following level-2 (L2) requirements. Each L2 requiremen
 8. Given blob storage is unavailable, when the user saves a valid photo, then the photo is kept with its description, counts towards the 10-photo limit and the featured rule, is shown as "Saved. It shows on your profile once it finishes storing.", and appears without uploading again once storage recovers; a photo deleted while storage is down is removed at once and its blob is deleted later (`L2-047`).
 9. Given two photo writes on one profile that overlap (uploads, featuring or deleting), when both settle, then the profile holds at most 10 photos and exactly one featured photo when it has any, and the write that lost is refused with "Your photos changed while this was saving. Reload and try again." and leaves no photo or blob behind.
 
+**`L2-130` — Organisation record and isolation**
+
+1. Given any scoped record, when it is created, then it is stamped with the current organisation, and no request can set a different one.
+2. Given a list, search, export, notification, SignalR group or report, when it is built, then the organisation filter is applied in the database query through the context's global filter, not after loading the data (`L2-042` AC3).
+3. Given a record id that belongs to another organisation, when it is requested by id, by link, by `.ics`, by public event page, by connect link, by invite token or by share, then the response is 404 or the "unknown" outcome the feature already uses, never the record (`L2-042` AC2).
+4. Given a unique rule in any feature (one connect link per owner, one pending connection, unique chapter name, unique role name), when it is enforced, then it is unique within the organisation only, so two organisations may each hold the same value.
+5. Given an uploaded file (photo, contact photo, resource, note image), when it is stored, then its blob path starts with the organisation's id, and it is served only on that organisation's host.
+6. Given an email the system sends, when it is composed, then its sender display name, subject prefix, footer and links use the organisation's name and host, and the unsubscribe link (`L2-028`) works on that host.
+7. Given the audit log, when any entry is written, then it belongs to the organisation and is listed only on that organisation's audit page (`L2-041`).
+
 ## Diagrams
 
 ### System context
 
-Members manage their own photos in FaithTech Community. Photo storage is part of the system, shown at container level.
+Members manage their own photos in the Community platform. Photo storage is part of the system, shown at container level.
 
 ![C4 system context for managing profile photos](diagrams/c4-context.png)
 
@@ -102,3 +113,4 @@ Decisions recorded while implementing the feature:
 - Uploads are sent when the member saves, one request per pending photo, so alt text is always present at upload (AC3). Progress percentages are not reported, so the photo shows "Uploading…" with no bar. `PhotoComponent` shows a `ProgressComponent` bar ("Uploading photo N") above the status line whenever a percentage is supplied, so reporting one later needs no UI change. Resolved. While a photo uploads, `aria-busy` sits on the `PhotoComponent` item that holds the thumbnail and its status line, not on the thumbnail alone. Resolved.
 - Requests up to 10 MB are read so that a too-large photo gets the inline `400` error rather than a bare `413`. Resolved.
 - Reordering photos is not in L2-007 and is not built.
+- Capabilities: the override on another member's photos was decided by role name; it is now `AdministerOrganisation`, and blob paths carry the organisation prefix (ADR 0033, ADR 0032).

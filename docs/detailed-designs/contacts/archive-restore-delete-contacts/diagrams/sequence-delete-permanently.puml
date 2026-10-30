@@ -14,8 +14,8 @@ skinparam package {
   FontColor #101828
   BackgroundColor #F9FAFB
 }
-actor "Lead" as actor
-box "Frontend — FaithTech Community web app (contacts library)" #E0F2FE
+actor "Member with KeepContacts" as actor
+box "Frontend — Community web app (contacts library)" #E0F2FE
   participant "ArchivedContactsPage" as arch
   participant "DeleteContactDialog" as dlg
   participant "HttpContactsService" as svc

@@ -33,11 +33,16 @@ class CommunityUser {
   +Guid Id
   +bool EmailConfirmed
 }
+interface ICurrentOrganisation {
+  +Guid Id
+  +string Name
+}
 interface IEmailSender {
   +SendAsync(message: EmailMessage): Task
 }
 ConfirmEmailHandler ..> ConfirmEmailCommand : handles
 ConfirmEmailHandler --> CommunityUser : confirms
+ConfirmEmailHandler ..> ICurrentOrganisation : adds missing profile in
 ResendVerificationHandler ..> ResendVerificationCommand : handles
 ResendVerificationHandler --> VerificationResendLog : counts
 ResendVerificationHandler ..> IEmailSender : uses

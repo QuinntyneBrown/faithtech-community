@@ -15,7 +15,7 @@ skinparam package {
   BackgroundColor #F9FAFB
 }
 actor "Member" as actor
-box "Frontend — FaithTech Community web app (events library)" #E0F2FE
+box "Frontend — Community platform web app (events library)" #E0F2FE
   participant "EventsPage" as page
   participant "HttpEventsService" as svc
 end box
@@ -29,12 +29,12 @@ box "Backend — FaithTech.Community.Infrastructure" #FFF4E5
   database "Community database" as db
 end box
 
-actor -> page : Open events, optionally choose a city
+actor -> page : Open events, optionally choose a chapter or a type
 page -> page : Show loading state
-page -> svc : listEvents({ city })
-svc -> ep : GET /api/events?city=
+page -> svc : listEvents({ chapter, type })
+svc -> ep : GET /api/events?chapter=&type=
 ep -> h : Send ListEventsQuery
-h -> db : Select upcoming events, city filter, order by StartsAt (L2-021)
+h -> db : Select upcoming events, chapter and type filters, order by StartsAt (L2-021, L2-142, L2-145)
 db --> h : Events with RSVP counts
 h --> ep : EventSummaryDto list
 ep --> svc : 200 OK
@@ -42,6 +42,6 @@ svc --> page : Summaries
 alt no events
   page --> actor : Empty state (L2-021)
 else events
-  page --> actor : Cards with date, city, format, RSVP count; cancelled badge (L2-021)
+  page --> actor : Cards with date, chapter or {Organisation}-wide, format, RSVP count; cancelled badge (L2-021)
 end
 @enduml

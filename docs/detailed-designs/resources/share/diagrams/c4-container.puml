@@ -2,9 +2,9 @@
 !include <C4/C4_Container>
 LAYOUT_WITH_LEGEND()
 title Containers — Share resources with members and roles
-Person(owner, "Owner", "Contributor or System Admin")
+Person(owner, "Owner", "Member with AddResources, or an administrator")
 Person(recipient, "Recipient", "Named member or role holder")
-System_Boundary(community, "FaithTech Community") {
+System_Boundary(community, "Community platform") {
   Container(web, "Web app", "Angular", "resources library dialogs with ft-person-picker; shell bell")
   Container(api, "Community API", "ASP.NET Core", "Resources endpoints, ShareNotifier, INotificationPublisher, email outbox worker")
   ContainerDb(db, "Community database", "PostgreSQL", "ResourceShareMembers, ResourceShareRoles, Notifications, EmailOutbox")

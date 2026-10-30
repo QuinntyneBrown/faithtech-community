@@ -19,18 +19,26 @@ class AdminUserSummary <<record>> {
   +Guid Id
   +string Name
   +string Email
-  +IReadOnlyList<string> Roles
+  +IReadOnlyList<HeldRole> Roles
   +string Status
 }
 class SearchUsersHandler {
   +PageSize: int = 25
   +HandleAsync(term: string?, page: int): Task<PagedResult<AdminUserSummary>?>
 }
+interface ICurrentOrganisation {
+  +Guid Id
+  +string Name
+}
 interface ICurrentUser {
   +Guid? UserId
-  +IReadOnlyCollection<Role> Roles
+  +IReadOnlyCollection<HeldRole> Roles
+  +IReadOnlySet<string> Capabilities
   +bool IsAuthenticated
-  +HasRole(role: Role): bool
+  +Has(capability: string): bool
+}
+class AuthorizationRules <<static>> {
+  +{static} IsOverride(actor: ICurrentUser, capability: string): bool
 }
 enum EditAccess {
   Owner
@@ -48,10 +56,12 @@ class UpdateProfileHandler {
 interface IAuditLog {
   +Record(actorId: Guid, action: string, targetType: string, targetId: string, before: object?, after: object?): void
 }
-SearchUsersHandler ..> ICurrentUser : requires System Admin
+SearchUsersHandler ..> ICurrentUser : requires AdministerOrganisation
+SearchUsersHandler ..> ICurrentOrganisation : scoped by
 SearchUsersHandler ..> AdminUserSummary : returns
 AdminUserSummary ..> UserStatus : Status name
 ProfileAccess ..> ICurrentUser
+ProfileAccess ..> AuthorizationRules : IsOverride
 ProfileAccess ..> EditAccess : returns
 UpdateProfileHandler --> ProfileAccess
 UpdateProfileHandler ..> IAuditLog : Record() when AdminOverride

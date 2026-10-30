@@ -3,7 +3,7 @@
 LAYOUT_WITH_LEGEND()
 title Containers — Platform operations
 Person(operator, "Platform operator", "Signed in on any active host, or at a terminal")
-System_Boundary(platform, "FaithTech Community platform") {
+System_Boundary(platform, "Community platform") {
   Container(api, "API container app", "ASP.NET Core", "PlatformEndpoints under /api/platform with RequireOperator; OrganisationResolutionMiddleware answers 503 for a suspended host")
   Container(cli, "Cli job", "FaithTech.Community.Cli", "org create, org suspend, org lift, org audit; seed provisions FaithTech")
   ContainerDb(db, "Community database", "PostgreSQL", "Organisations, PlatformAuditEntries (unscoped), scoped defaults per organisation")

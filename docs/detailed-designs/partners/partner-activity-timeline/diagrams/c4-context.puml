@@ -2,10 +2,10 @@
 !include <C4/C4_Context>
 LAYOUT_WITH_LEGEND()
 title System Context — Partner activity timeline
-Person(lead, "Lead", "City, Event, Create or Communications Lead who works the partner pipeline")
-Person(admin, "System Admin", "Can override anything; audited when acting without a lead role")
-Person(staff, "Staff", "Read-only across everything except private contacts")
-System(community, "FaithTech Community", "Community site for FaithTech staff, leads, volunteers, builders and partners")
+Person(lead, "Member with ManagePartners", "Works the partner pipeline")
+Person(admin, "Administrator", "Holds AdministerOrganisation; audited when acting without ManagePartners")
+Person(staff, "Member with view capabilities", "Holds ViewPartners without ManagePartners; reads timelines")
+System(community, "Community platform", "Hosts each organisation's members, events, partners and resources")
 Rel(lead, community, "Logs calls, emails, meetings and notes on partners and reads the shared timeline using")
 Rel(admin, community, "Logs activities and reads the timeline using")
 Rel(staff, community, "Reads partner timelines read-only using")

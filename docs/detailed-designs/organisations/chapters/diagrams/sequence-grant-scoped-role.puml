@@ -15,11 +15,11 @@ skinparam package {
   BackgroundColor #F9FAFB
 }
 actor "Grantor" as actor
-box "Frontend — FaithTech Community web app (profiles library)" #E0F2FE
+box "Frontend — Community web app (profiles library)" #E0F2FE
   participant "ProfilePage" as page
   participant "Add-role dialog (components)" as dlg
 end box
-box "Frontend — FaithTech Community web app (api library)" #E0F2FE
+box "Frontend — Community web app (api library)" #E0F2FE
   participant "HttpProfilesService" as svc
 end box
 box "Backend — FaithTech.Community.Api" #D1FADF

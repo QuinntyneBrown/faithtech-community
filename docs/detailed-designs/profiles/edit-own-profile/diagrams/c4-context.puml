@@ -4,8 +4,8 @@ LAYOUT_WITH_LEGEND()
 title System Context — Edit own profile
 
 Person(member, "Member", "Signed-in user with a profile")
-Person(admin, "System Admin", "Holder of the System Admin role")
-System(ftc, "FaithTech Community", "Community site for FaithTech staff, leads, volunteers, builders and partners")
+Person(admin, "Administrator", "Holder of AdministerOrganisation")
+System(ftc, "Community platform", "Community site for an organisation's members, builders and partners")
 Rel(member, ftc, "Edits profiles in", "HTTPS")
 Rel(admin, ftc, "Edits profiles in", "HTTPS")
 @enduml

@@ -15,10 +15,10 @@ skinparam package {
   BackgroundColor #F9FAFB
 }
 actor "Member" as actor
-box "Frontend — FaithTech Community web app (team library)" #E0F2FE
+box "Frontend — Community web app (team library)" #E0F2FE
   participant "TeamPage" as page
 end box
-box "Frontend — FaithTech Community web app (api library)" #E0F2FE
+box "Frontend — Community web app (api library)" #E0F2FE
   participant "HttpOrganisationService" as org
   participant "HttpTeamService" as svc
 end box

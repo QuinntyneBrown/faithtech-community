@@ -18,7 +18,7 @@ enum ResourceVisibility {
 class ResourceAudience <<value object>> {
   +ResourceVisibility Visibility
   +IReadOnlySet<Guid> Members
-  +IReadOnlySet<Role> Roles
+  +IReadOnlySet<Guid> RoleIds
   +{static} Private(): ResourceAudience
   +{static} Global(): ResourceAudience
   +{static} Shared(members, roles): ResourceAudience
@@ -29,7 +29,7 @@ class Resource {
   +ResourceVisibility Visibility
   +IReadOnlyList<ResourceShareMember> SharedMembers
   +IReadOnlyList<ResourceShareRole> SharedRoles
-  +SetAudience(audience: ResourceAudience): (NewMembers: IReadOnlyList<Guid>, NewRoles: IReadOnlyList<Role>)
+  +SetAudience(audience: ResourceAudience): (NewMembers: IReadOnlyList<Guid>, NewRoles: IReadOnlyList<Guid>)
 }
 class ResourceShareMember {
   +Guid ResourceId
@@ -37,8 +37,15 @@ class ResourceShareMember {
 }
 class ResourceShareRole {
   +Guid ResourceId
-  +Role Role
+  +Guid RoleDefinitionId
 }
+class RoleDefinition {
+  +Guid Id
+  +Guid OrganisationId
+  +string Name
+  +bool IsArchived
+}
+ResourceShareRole --> RoleDefinition
 Resource "1" *-- "*" ResourceShareMember
 Resource "1" *-- "*" ResourceShareRole
 Resource ..> ResourceAudience : applies
@@ -78,7 +85,7 @@ class ResourceMemberDto <<record>> {
   +string Initials
   +string? PhotoUrl
   +string? Role
-  +string? City
+  +string? Chapter
 }
 ResourceMembersHandler ..> ResourceMemberDto
 class ResourceAudienceDto <<record>> {
@@ -86,7 +93,8 @@ class ResourceAudienceDto <<record>> {
   +IReadOnlyList<SharedRoleDto> Roles
 }
 class SharedRoleDto <<record>> {
-  +Role Role
+  +Guid RoleId
+  +string Name
   +int HoldersToday
 }
 ResourceAudienceDto --> ResourceMemberDto

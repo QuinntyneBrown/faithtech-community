@@ -16,7 +16,7 @@ skinparam package {
   BackgroundColor #F9FAFB
 }
 actor "Workspace owner" as actor
-box "Frontend — FaithTech Community web app (agile library)" #E0F2FE
+box "Frontend — Community platform web app (agile library)" #E0F2FE
   participant "WorkspaceSettingsPage" as page
   participant "SwitchMethodDialog" as dlg
   participant "AgileService (AGILE_SERVICE)" as svc
@@ -67,7 +67,7 @@ ws -> wi : ReturnToBacklog(): SprintId = null (L2-036 AC2)
 end
 end
 ws -> ws : Method = target
-h -> pol : AuditOverride(caller, "workspace.method.switched", before, after) (System Admin only)
+h -> pol : AuditOverride(caller, "workspace.method.switched", before, after) (AdministerOrganisation override only, L2-135 AC5)
 h -> ctx : SaveChangesAsync
 ctx -> db : UPDATE workspace, sprints and work items in one transaction
 h --> ep : Result.Ok

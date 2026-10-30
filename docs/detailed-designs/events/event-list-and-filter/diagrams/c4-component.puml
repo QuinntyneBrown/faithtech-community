@@ -4,13 +4,13 @@ LAYOUT_WITH_LEGEND()
 title Components — Event list and filter
 
 Container_Boundary(spa, "Web app") {
-  Component(page, "EventsPage", "Angular page (events library)", "List, city filter, empty and cancelled states")
+  Component(page, "EventsPage", "Angular page (events library)", "List, chapter and type filters, empty and cancelled states")
   Component(svc, "EventsService / EVENTS_SERVICE", "TypeScript contract and injection token (api library)", "Contract the pages depend on")
   Component(http, "HttpEventsService", "Angular service (api library)", "HTTP implementation of EventsService")
 }
 Container_Boundary(api, "Community API") {
   Component(ep, "EventsEndpoints", "ASP.NET Core minimal API", "Maps /api/events routes; no business logic")
-  Component(h, "ListEventsHandler", "Application query handler", "Upcoming events, city filter, RSVP counts")
+  Component(h, "ListEventsHandler", "Application query handler", "Upcoming events, chapter and type filters, RSVP counts")
   Component(ctx, "CommunityDbContext", "EF Core DbContext", "Events and RSVPs")
 }
 ContainerDb(db, "Community database", "PostgreSQL", "Events, RSVPs, notifications and outbox")

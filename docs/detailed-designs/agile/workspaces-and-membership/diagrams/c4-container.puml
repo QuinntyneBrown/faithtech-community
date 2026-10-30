@@ -3,11 +3,11 @@
 LAYOUT_WITH_LEGEND()
 title Containers — Agile workspaces and membership
 
-Person(lead, "City Lead", "Owns Agile workspaces")
-Person(member, "Workspace member", "Lead or volunteer added to a workspace")
-Person(staff, "Staff", "Read-only across workspaces")
-Person(admin, "System Admin", "Full override, audited")
-System_Boundary(ftc, "FaithTech Community") {
+Person(lead, "Member with OwnWorkspaces", "Holds OwnWorkspaces; owns Agile workspaces")
+Person(member, "Workspace member", "Member with JoinWorkspaces added to a workspace")
+Person(staff, "Member with view capabilities", "Holds ReadAllWorkspaces; read-only across workspaces")
+Person(admin, "Administrator", "Holds AdministerOrganisation; overrides any workspace, audited")
+System_Boundary(ftc, "Community platform") {
   Container(web, "Web app", "Angular", "Shell, agile feature library, api and components libraries")
   Container(api, "Community API", "ASP.NET Core", "FaithTech.Community.Api with Application, Domain and Infrastructure")
   ContainerDb(db, "Community database", "PostgreSQL", "Workspaces, work items, sprints, poker sessions")

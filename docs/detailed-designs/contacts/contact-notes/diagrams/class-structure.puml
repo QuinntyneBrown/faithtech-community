@@ -12,6 +12,7 @@ skinparam class {
 title Class structure — Contact notes
 class Contact {
   +Guid Id
+  +Guid OrganisationId
   +Guid OwnerId
   +string Name
   +string? Email
@@ -48,12 +49,11 @@ class ContactAccess {
 }
 interface ICurrentUser {
   +Guid? UserId
-  +IReadOnlyCollection<Role> Roles
-  +HasRole(role: Role): bool
+  +IReadOnlySet<string> Capabilities
+  +Has(capability: string): bool
 }
-class LeadRoles <<static>> {
-  +{static} All: IReadOnlyList<Role>
-  +{static} HoldsLeadRole(current: ICurrentUser): bool
+interface ICurrentOrganisation {
+  +Guid Id
 }
 interface IAuditLog {
   +Record(actorId: Guid, action: string, targetType: string, targetId: string, before: object?, after: object?): void
@@ -62,7 +62,7 @@ Contact "1" *-- "*" ContactNote
 ContactAccess ..> Contact : loads
 ContactAccess ..> ContactAccessKind : returns
 ContactAccess ..> ICurrentUser
-ContactAccess ..> LeadRoles
+ContactAccess ..> ICurrentOrganisation : scopes
 ContactAccess ..> IAuditLog : AdminOverride only
 
 class AddContactNoteCommand <<record>> {

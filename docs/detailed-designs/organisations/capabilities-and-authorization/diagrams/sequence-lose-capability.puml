@@ -15,7 +15,7 @@ skinparam package {
   BackgroundColor #F9FAFB
 }
 actor "Holder of AssignRoles or ManageRoles" as actor
-box "Frontend — FaithTech Community web app (profiles or organisations library)" #E0F2FE
+box "Frontend — Community web app (profiles or organisations library)" #E0F2FE
   participant "ProfilePage or RolesPage" as page
 end box
 box "Backend — FaithTech.Community.Api" #D1FADF

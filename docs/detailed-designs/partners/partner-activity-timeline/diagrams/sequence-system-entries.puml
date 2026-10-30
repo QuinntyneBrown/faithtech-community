@@ -14,7 +14,7 @@ skinparam package {
   FontColor #101828
   BackgroundColor #F9FAFB
 }
-actor "Lead" as actor
+actor "Member with ManagePartners" as actor
 box "Backend — FaithTech.Community.Cli" #FEF3F2
   participant "Cli" as cli
 end box
@@ -37,7 +37,7 @@ group Add a partner
   actor -> ep : POST /api/partners
   ep -> mh : CreateAsync(command)
   mh -> ent : new Partner(..., stage)
-  mh -> mh : PartnerActivity.Added(partner, caller, nowUtc)\n"Added {name} as a lead" (L2-110 AC6)
+  mh -> mh : PartnerActivity.Added(partner, caller, nowUtc)\n"Added {name} on {initial stage name}" (L2-110 AC6, L2-144 AC6)
   mh -> db : Insert Partner and the Added activity in one SaveChanges
   ep --> actor : 201 PartnerDto
 end

@@ -2,9 +2,9 @@
 !include <C4/C4_Context>
 LAYOUT_WITH_LEGEND()
 title System Context — Share resources with members and roles
-Person(owner, "Owner", "Contributor who owns the resource; System Admin by audited override")
+Person(owner, "Owner", "Member with AddResources who owns the resource; an administrator by audited override")
 Person(recipient, "Recipient", "Named member, or current holder of a named role")
-System(community, "FaithTech Community", "Community site for FaithTech staff, leads, volunteers, builders and partners")
+System(community, "Community platform", "Community site for an organisation's members and partners")
 System_Ext(mail, "Email provider", "SMTP / SendGrid")
 Rel(owner, community, "Shares a resource with members and roles using")
 Rel(community, recipient, "Shows the ResourceShared notice to")

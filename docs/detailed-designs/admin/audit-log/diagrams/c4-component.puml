@@ -9,9 +9,9 @@ Container_Boundary(web, "Web app") {
 Container_Boundary(api, "Community API") {
   Component(ep, "AuditLogEndpoints", "ASP.NET Core minimal API", "GET /api/admin/audit and /api/admin/audit/export only")
   Component(q, "GetAuditEntriesHandler", "Application handler", "HandleAsync (50 per page) and HandleAllAsync (CSV)")
-  Component(writers, "Role, suspension, invite and profile handlers", "Application handlers", "Call IAuditLog.Record")
-  Component(audit, "AuditLog", "Infrastructure service", "Implements IAuditLog; stamps UTC time and IP address")
-  ComponentDb(db, "CommunityDbContext", "PostgreSQL", "EF Core context over the Community database")
+  Component(writers, "Role, suspension, invite, profile and organisation-settings handlers", "Application handlers", "Call IAuditLog.Record")
+  Component(audit, "AuditLog", "Infrastructure service", "Implements IAuditLog; stamps UTC time, IP address and ICurrentOrganisation")
+  ComponentDb(db, "CommunityDbContext", "PostgreSQL", "EF Core context over the Community database, filtered by ICurrentOrganisation")
 }
 Rel(page, svc, "Calls")
 Rel(svc, ep, "GET", "JSON or CSV over HTTPS")

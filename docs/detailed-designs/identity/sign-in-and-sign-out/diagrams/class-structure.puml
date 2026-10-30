@@ -25,17 +25,26 @@ enum SignInOutcome {
   Succeeded
   InvalidCredentials
   LockedOut
-  Suspended
+  MembershipSuspended
+  AccountLocked
   EmailNotVerified
+}
+interface ICurrentOrganisation {
+  +Guid Id
+  +string Name
+  +string Host
 }
 class CommunityUser {
   +Guid Id
   +bool EmailConfirmed
   +int AccessFailedCount
   +DateTimeOffset? LockoutEnd
+  +bool IsLockedByOperator
 }
 class Profile {
   +Guid Id
+  +Guid OrganisationId
+  +Guid UserId
   +bool IsSuspended
 }
 class OpenIddictToken {
@@ -47,6 +56,7 @@ class OpenIddictToken {
 SignInHandler ..> SignInCommand : handles
 SignInHandler ..> SignInOutcome : returns
 SignInHandler --> CommunityUser : authenticates
-CommunityUser "1" --> "1" Profile
+SignInHandler ..> ICurrentOrganisation : membership checked in
+CommunityUser "1" --> "0..*" Profile : one per organisation
 CommunityUser "1" --> "*" OpenIddictToken : subject of
 @enduml

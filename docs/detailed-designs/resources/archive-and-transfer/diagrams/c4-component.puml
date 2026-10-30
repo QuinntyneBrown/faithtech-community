@@ -11,9 +11,9 @@ Container_Boundary(web, "Web app") {
 Container_Boundary(api, "Community API") {
   Component(ep, "ResourcesEndpoints", "ASP.NET Core minimal API", "POST /{id}/archive, /{id}/restore; GET /archived, /owner-candidates; PUT /{id}/owner")
   Component(arch, "ArchiveResourceHandler", "Application handler", "ArchiveAsync, RestoreAsync, ListArchivedAsync")
-  Component(tr, "TransferOwnershipHandler", "Application handler", "System Admin only; contributor target; audit; notify")
+  Component(tr, "TransferOwnershipHandler", "Application handler", "AdministerOrganisation only; target holds AddResources; audit; notify")
   Component(mem, "ResourceMembersHandler", "Application handler", "OwnerCandidatesAsync")
-  Component(purge, "PurgeArchivedResourcesHandler", "Application handler", "Archived >= 30 days: blobs and row")
+  Component(purge, "PurgeArchivedResourcesHandler", "Application handler", "Archived >= 30 days: blobs and row; skips suspended organisations")
   Component(retry, "ResourceStorageRetryHandler", "Application handler", "Pending Save and Delete")
   Component(worker, "ResourceMaintenanceWorker", "BackgroundService", "Outbox interval, Outbox:Enabled")
   Component(acc, "ResourceAccess", "Application permission rule", "CanEdit, IsAdminOverride")

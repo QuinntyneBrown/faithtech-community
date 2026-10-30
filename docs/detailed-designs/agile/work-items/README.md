@@ -16,7 +16,7 @@ A *work item* is a unit of work inside an Agile workspace (see `agile/workspaces
 >
 > **backlog** — every live initiative, epic and story of the workspace, shown with its parents as a tree; a story in the active sprint stays in the tree, carrying its `SprintId`
 
-The hierarchy is strict: an epic may sit only under an initiative, a story only under an epic, and a task only under a story. Parents are optional except for tasks, which always belong to a story. The parent is chosen when an item is created and is not changed afterwards. Members create and edit stories and tasks, assign one workspace member to each and comment on them; only the owner (or a System Admin override) creates and edits initiatives and epics. An assignee is notified in-app and by email when assigned.
+The hierarchy is strict: an epic may sit only under an initiative, a story only under an epic, and a task only under a story. Parents are optional except for tasks, which always belong to a story. The parent is chosen when an item is created and is not changed afterwards. Members create and edit stories and tasks, assign one workspace member to each and comment on them; only the owner (or an `AdministerOrganisation` override) creates and edits initiatives and epics. An assignee is notified in-app and by email when assigned.
 
 This feature owns the work item model, the work item dialog (create and edit), the work item detail page and the backlog tree. The board, sprints and Planning Poker read and update the same items.
 
@@ -32,7 +32,7 @@ This feature owns the work item model, the work item dialog (create and edit), t
 - **`CreateWorkItemValidator`**, **`UpdateWorkItemValidator`**, **`AddCommentValidator`** — FluentValidation validators: kind is one of the four, title required and at most 200 characters (`TitleRules.WorkItemTitle`), description at most 4000 characters, story points not negative, status one of `ToDo`/`InProgress`/`Done`, comment body required and at most 2000 characters.
 - **`BacklogAsync`** — returns the initiative/epic/story tree as `IReadOnlyList<BacklogNodeDto>`: every live item of the workspace, children under their parent, each level sorted by kind then title, optionally only one initiative's or epic's subtree or only the stories with no epic. An archived parent hides its subtree.
 - **`WorkItemDto`**, **`BacklogNodeDto`**, **`TaskDto`**, **`CommentDto`**, **`WorkItemRefDto`**, **`SprintRefDto`** — DTO contracts in `WorkItemDtos.cs`. `WorkItemDto.CanEdit` tells the page whether the caller may change the item; `CanManage` covers archiving.
-- **`WorkspaceAccessPolicy`** — Application service shared by every agile handler. It resolves the caller from `ICurrentUser` and classifies the caller as owner, member, Staff, System Admin or outsider for a workspace. Outsiders receive 404, Staff and non-owner members receive 403 on writes they lack, and System Admin actions pass and are written to the audit log through `AuditOverride` (`L2-031`, `L2-042`).
+- **`WorkspaceAccessPolicy`** — Application service shared by every agile handler. It resolves the caller from `ICurrentUser` and classifies the caller as owner, member, administrator (`Has(AdministerOrganisation)`), `Reader` (`Has(ReadAllWorkspaces)`) or outsider for a workspace. Outsiders receive 404, Readers and non-owner members receive 403 on writes they lack, and an administrator's actions pass as overrides and are written to the audit log through `AuditOverride` (`L2-031`, `L2-042`, `L2-135` AC5). Every query is scoped to the current organisation by the DbContext's global filter on `ICurrentOrganisation`.
 - **`AgileNotifier`** — Application service that records the in-app `Notification` in the same unit of work and, after `SaveChanges`, sends the email through `IEmailSender`. The assignee is notified on create and on reassignment; nobody is notified about their own action.
 - **`WorkItem`** — Domain entity with `Kind`, `Title`, `Description`, `Status`, `AssigneeId`, `ParentId`, `SprintId`, `StoryPoints` (stories only), `IsDone` (tasks only), `IsArchived` and `Comments`. The constructor requires a title of at most 200 characters and a story parent for a task; `SetParent` enforces `WorkItemHierarchy` and the same workspace; `Assign(profileId, workspace)` rejects a non-member (`L2-033` AC4); `SetStatus` applies to non-task items and `SetDone` to tasks only.
 - **`WorkItemKind`** — enumeration `Initiative`, `Epic`, `Story`, `Task`; `WorkItemHierarchy.CanParent(parent, child)` encodes the allowed links.
@@ -68,7 +68,7 @@ The feature realizes the following level-2 (L2) requirements. Each L2 requiremen
 
 ### System context
 
-Members create and edit work items; Staff read them. The system emails an assignee when an item is assigned.
+Members create and edit work items; holders of `ReadAllWorkspaces` read them. The system emails an assignee when an item is assigned.
 
 ![C4 system context for work items](diagrams/c4-context.png)
 
@@ -110,5 +110,5 @@ Decisions recorded while building the feature:
 - Domain rule violations throw `InvalidOperationException` (a broken rule) or `ArgumentException` (invalid input); there is no shared domain exception type. Handlers check permissions and preconditions first and map any remaining violation to a `400` or `409` result.
 - The parent is set at creation only. `UpdateWorkItemCommand` has no `ParentId` and `WorkItemDialog` hides the parent field when editing; re-parenting is not offered in v1. Resolved.
 - The backlog tree is the whole live hierarchy, not only the stories outside a sprint: `BacklogAsync` includes stories in the active sprint (with their `SprintId`) so the tree never loses a story while a sprint runs. Resolved.
-- Only the owner, or a System Admin override, creates and edits initiatives and epics (`WorkItemRules.NeedsManage`); members get `403`. Resolved.
+- Only the owner, or an `AdministerOrganisation` override, creates and edits initiatives and epics (`WorkItemRules.NeedsManage`); members get `403`. Resolved.
 - The assignee is notified in-app and by email on create and on reassignment through `AgileNotifier`; self-assignment sends nothing. Resolved.

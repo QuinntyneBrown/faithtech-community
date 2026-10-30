@@ -4,8 +4,8 @@ LAYOUT_WITH_LEGEND()
 title System Context — Accept an invite
 
 Person(invitee, "Invitee", "Person who received an invite email")
-Person(inviter, "Inviter", "Lead or System Admin who sent the invite")
-System(ftc, "FaithTech Community", "Community site for FaithTech staff, leads, volunteers, builders and partners")
+Person(inviter, "Inviter", "Member with InviteMembers who sent the invite")
+System(ftc, "Community platform", "Community site for an organisation's members, builders and partners")
 Rel(invitee, ftc, "Accepts invites in", "HTTPS")
 Rel(ftc, inviter, "Shows an InviteAccepted in-app notification to")
 @enduml

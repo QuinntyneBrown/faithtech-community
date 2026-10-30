@@ -2,7 +2,7 @@
 
 ## Overview
 
-A **contact note** — timestamped free-text entry a lead records against one of their private contacts. Notes hold the lead's own observations and follow-ups. They share the contact's visibility: only the owning lead and System Admin may read them.
+A **contact note** — timestamped free-text entry a holder of `KeepContacts` records against one of their private contacts. Notes hold the owner's own observations and follow-ups. They share the contact's visibility: only the owning member and, as an audited override, a holder of `AdministerOrganisation` may read them (`L2-135` AC5).
 
 Notes remain private even after the contact is linked to the person's real profile (`contacts/link-contact-on-sign-up`); linking shows the profile's name and photo on the contact but never exposes the notes to the person or anyone else.
 
@@ -13,7 +13,7 @@ Notes remain private even after the contact is linked to the person's real profi
 - **`ContactsService`** / **`HttpContactsService`** — `getNotes(contactId)` and `addNote(contactId, body)` calling `GET` and `POST /api/contacts/{id}/notes`.
 - **`ContactsEndpoints`** — maps the notes routes. `GET` answers `200` or `404`; `POST` answers `201`, `400` or `404`.
 - **`AddContactNoteCommand`** (`Body`) and **`AddContactNoteValidator`** — the request body and its rule: required, at most `ContactRules.MaxNote` (2,000) characters.
-- **`ContactNotesHandler`** — Application handler in `Contacts/` with `ListAsync(contactId)` and `AddAsync(contactId, command)`. Both call `ContactAccess.AuthorizeAsync`; non-owners receive `404`, and System Admin access is audited through `ContactAccess.AuditOverride` (`contact.notes-viewed`, `contact.note-added`).
+- **`ContactNotesHandler`** — Application handler in `Contacts/` with `ListAsync(contactId)` and `AddAsync(contactId, command)`. Both call `ContactAccess.AuthorizeAsync`; non-owners receive `404`, and `AdministerOrganisation` access is audited as an override through `ContactAccess.AuditOverride` (`contact.notes-viewed`, `contact.note-added`). Every query is scoped by the DbContext's global filter on `ICurrentOrganisation`.
 - **`ContactNoteDto`** — `Id`, `Body` and `CreatedAtUtc`.
 - **`ContactNote`** — Domain entity with `Body` (required) and `CreatedAtUtc`, composed by `Contact` and created only through `Contact.AddNote(body, nowUtc)`. `CommunityDbContext` maps it to `ContactNotes` (body at most 2,000 characters) with an index on contact and time.
 
@@ -31,14 +31,14 @@ The feature realizes the following level-2 (L2) requirements. Each L2 requiremen
 
 **`L2-014` — Contact notes**
 
-1. Given a contact, when the owning lead adds a note, then it is saved with a timestamp and shown newest first.
-2. Given a contact linked to a real profile, when the lead views it, then their private notes are still shown, and are visible only to them and System Admin.
+1. Given a contact, when the owning member adds a note, then it is saved with a timestamp and shown newest first.
+2. Given a contact linked to a real profile, when the owner views it, then their private notes are still shown, and are visible only to them and, as an audited override, to holders of `AdministerOrganisation` (`L2-012` AC2).
 
 ## Diagrams
 
 ### System context
 
-The owning lead writes and reads notes; a System Admin may read and add them by override, audited.
+The owning member writes and reads notes; an administrator may read and add them by override, audited.
 
 ![C4 system context for contact notes](diagrams/c4-context.png)
 
@@ -78,4 +78,5 @@ Decisions recorded while building the Domain layer (`FaithTech.Community.Domain`
 
 - Notes are append-only in the Domain; editing and deleting single notes stay deferred until a requirement defines them.
 - The contact page's inline note form in the original mock is replaced by an Add note button and `AddNoteDialog`; the contact form's first note becomes the first `ContactNote` on create.
-- A note added by a System Admin to another lead's contact is allowed and audited (`contact.note-added`), like reading the notes (`contact.notes-viewed`).
+- A note added by an administrator to another member's contact is allowed and audited (`contact.note-added`), like reading the notes (`contact.notes-viewed`).
+- Capabilities: access was decided by role name through `LeadRoles`; it is now `KeepContacts` with the `AdministerOrganisation` override (ADR 0033).

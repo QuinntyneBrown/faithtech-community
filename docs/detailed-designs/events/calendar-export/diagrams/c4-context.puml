@@ -5,7 +5,7 @@ title System Context — Calendar export
 
 Person(member, "Member", "Signed-in user who browses and RSVPs to events")
 Person_Ext(guest, "Anonymous visitor / Guest", "Opens a public event share link without an account")
-System(ftc, "FaithTech Community", "Community site for FaithTech members, leads and partners")
+System(ftc, "Community platform", "Hosts an organisation's members, events and partners")
 Rel(member, ftc, "Downloads .ics files from", "HTTPS")
 Rel(guest, ftc, "Downloads public event .ics files from", "HTTPS")
 @enduml

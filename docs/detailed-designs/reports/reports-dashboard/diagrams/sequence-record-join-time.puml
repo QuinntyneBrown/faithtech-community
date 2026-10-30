@@ -15,7 +15,7 @@ skinparam package {
   BackgroundColor #F9FAFB
 }
 actor "New member" as actor
-box "Frontend — FaithTech Community web app or marketing app" #E0F2FE
+box "Frontend — Community web app or marketing app" #E0F2FE
   participant "Sign-up, Google, invite or connect page" as page
 end box
 box "Backend — FaithTech.Community.Api" #D1FADF

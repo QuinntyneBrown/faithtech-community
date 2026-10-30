@@ -12,7 +12,7 @@ Container_Boundary(spa, "Web app") {
 Container_Boundary(api, "Community API") {
   Component(ep, "EventsEndpoints", "ASP.NET Core minimal API", "Maps /api/events routes; no business logic")
   Component(h, "CancelEventHandler", "Application handler", "Authorize, cancel, notify RSVPs")
-  Component(perm, "EventPermissions", "Application service", "Event manager role check")
+  Component(perm, "EventPermissions", "Application service", "Has(ManageEvents) and the override rule")
   Component(notif, "INotificationPublisher", "Application contract", "In-app notifications")
   Component(mail, "EmailSender", "Infrastructure service", "Cancellation emails")
   Component(ctx, "CommunityDbContext", "EF Core DbContext", "Events and RSVPs")

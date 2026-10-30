@@ -6,7 +6,8 @@ Container_Boundary(api, "FaithTech.Community.Api") {
   Component(hdr, "SecurityHeadersMiddleware", "Middleware", "HSTS, nosniff, frame, referrer; X-Robots-Tag while the wall is on; per-response CSP")
   Component(gate, "PrivatePreviewGateMiddleware", "Middleware", "Exempt paths, unlock form, cookie check, wall page or empty 403")
   Component(page, "WallPage", "Embedded wall.html", "Nonce, CSRF value, return URL, state")
-  Component(sites, "Static sites", "Middleware", "Community and marketing builds by host, SPA fallback, app CSP")
+  Component(org, "OrganisationResolutionMiddleware", "Middleware", "Host to ICurrentOrganisation; unknown-host and suspended pages (L2-131)")
+  Component(sites, "Static sites", "Middleware", "Community and marketing builds by organisation host, SPA fallback, app CSP")
   Component(rest, "CORS, authentication, authorization, endpoints, hub", "ASP.NET Core", "Unchanged rules after the wall")
 }
 Container_Boundary(app, "FaithTech.Community.Application") {
@@ -26,6 +27,7 @@ Rel(gate, urls, "Sanitises returnUrl with")
 Rel(handler, attempts, "Checks and records")
 Rel(handler, hasher, "Verifies")
 Rel(handler, tokens, "Issues")
-Rel(gate, sites, "Then, when unlocked")
+Rel(gate, org, "Then, when unlocked")
+Rel(org, sites, "Then, for a resolved host")
 Rel(sites, rest, "Then, for API paths")
 @enduml

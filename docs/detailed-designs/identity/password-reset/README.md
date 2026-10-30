@@ -6,7 +6,7 @@ A person who forgets a password shall regain access without staff help. *Passwor
 
 **reset link** — single-use URL carrying an ASP.NET Identity password-reset token, valid for 1 hour
 
-The request step shows the same confirmation whether or not the email belongs to an account, so it does not disclose which emails are registered. A successful reset revokes every existing session for the account.
+The request step shows the same confirmation whether or not the email belongs to an account, so it does not disclose which emails are registered. A successful reset revokes every existing session for the account on every organisation host, because the account is global (`L2-132` AC7); it creates no membership.
 
 ## Description
 
@@ -15,9 +15,9 @@ The request step shows the same confirmation whether or not the email belongs to
 - **`AuthService`** — contract in the `api` library, provided through the `AUTH_SERVICE` injection token and implemented by `HttpAuthService`. It wraps the account endpoints and the OIDC + PKCE client.
 - **`AccountEndpoints`** — minimal API route group in `FaithTech.Community.Api`. It maps the account routes, opts each one into anonymous access explicitly, and forwards the request to the Application handler. It holds no business logic.
 - **`CommunityDbContext`** — EF Core context in `FaithTech.Community.Infrastructure`. It stores ASP.NET Identity users alongside community data in PostgreSQL.
-- **`RequestPasswordResetCommand`** / **`RequestPasswordResetHandler`** — Application request and handler. The handler generates a reset token and sends the email only when the account exists, and returns the same result either way.
+- **`RequestPasswordResetCommand`** / **`RequestPasswordResetHandler`** — Application request and handler. The handler generates a reset token and sends the email only when the account exists, and returns the same result either way. The email is sent in the name of the organisation whose host received the request, with a link to that host (`L2-130` AC6, `L2-134` AC5).
 - **`ResetPasswordCommand`** / **`ResetPasswordHandler`** — Application request and handler. The handler rejects tokens older than 1 hour or already used, applies the sign-up password rules (12 characters minimum, breached-password check), changes the password, updates the security stamp and revokes every OpenIddict token for the account.
-- **`ITokenRevocation`** — Infrastructure service that revokes all stored tokens for a user.
+- **`ITokenRevocation`** — Infrastructure service that revokes all stored tokens for a user, across every organisation host.
 
 ## Requirements
 
@@ -39,7 +39,7 @@ The feature realizes the following level-2 (L2) requirements. Each L2 requiremen
 
 ### System context
 
-The account holder requests and completes a reset in FaithTech Community, which sends reset links through the email provider.
+The account holder requests and completes a reset in the Community platform, which sends reset links through the email provider in the organisation's name.
 
 ![C4 system context for password reset](diagrams/c4-context.png)
 
@@ -72,3 +72,7 @@ The handler sends a reset link only when an account exists, and the page shows t
 A valid link changes the password and revokes every session. An expired or used link shows an error that offers a new link (`L2-004`).
 
 ![Sequence diagram for set a new password](diagrams/sequence-reset-password.png)
+
+## Open questions
+
+- Capabilities: the reset applies to the global account and revokes sessions on every organisation host; the email names the organisation of the host that received the request (ADR 0032).

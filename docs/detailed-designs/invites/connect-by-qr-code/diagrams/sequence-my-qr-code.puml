@@ -5,7 +5,7 @@ skinparam shadowing false
 skinparam roundcorner 12
 skinparam defaultFontName Arial
 skinparam ArrowColor #344054
-actor "City Lead" as lead
+actor "Member with ConnectLink" as lead
 box "Frontend — invites library" #E0F2FE
   participant "InvitesPage" as page
   participant "MyQrCodeDialog" as dlg
@@ -21,12 +21,12 @@ box "Backend — Infrastructure" #FFF4E5
   participant "IConnectTokenProtector" as prot
   database "Community database" as db
 end box
-lead -> page : My QR code (City Lead or System Admin only, L2-080 AC1)
+lead -> page : My QR code (holders of ConnectLink only, L2-080 AC1)
 page -> dlg : DialogService.open
 dlg -> svc : getMyLink()
 svc -> ep : GET /api/connect/link
 ep -> h : GetOrIssueAsync()
-alt caller is not a City Lead or System Admin
+alt caller lacks ConnectLink
   h --> ep : Forbidden
   ep --> svc : 403 (L2-080 AC2)
 else

@@ -15,7 +15,7 @@ skinparam package {
   BackgroundColor #F9FAFB
 }
 actor "Signed-in user" as actor
-box "Frontend — FaithTech Community web app (events library)" #E0F2FE
+box "Frontend — Community platform web app (events library)" #E0F2FE
   participant "EventCheckInPage" as page
   participant "HttpCheckInService" as svc
 end box
@@ -39,28 +39,28 @@ alt anonymous
   svc --> page : Redirect to sign in (L2-117 AC4)
 else signed in
   ep -> h : GetAsync(id)
-  h -> perm : CanViewCheckIn
-  alt member without a lead role, Staff or System Admin
+  h -> perm : CanViewCheckIn: Has(ViewAttendees) or Has(ManageAttendance)
+  alt neither ViewAttendees nor ManageAttendance
     perm --> h : false
     h --> ep : Forbidden
     ep --> svc : 403
     svc --> page : Error
     page --> actor : Forbidden page (L2-117 AC3)
-  else lead, System Admin or Staff
+  else ViewAttendees or ManageAttendance held
     perm --> h : true
     h -> db : Load event, RSVP rows and member names
     db --> h : Event with rows
-    h -> perm : CanCheckIn, CanSeeGuestEmails
-    perm --> h : true for leads and System Admin; false for Staff
-    h -> h : Order RSVP'd rows, then walk-ins; mask guest emails for Staff; set IsOpen from window (L2-118 AC1, L2-117 AC6)
+    h -> perm : CanCheckIn, CanSeeGuestEmails: Has(ManageAttendance)
+    perm --> h : true for ManageAttendance; false for ViewAttendees alone
+    h -> h : Order RSVP'd rows, then walk-ins; mask guest emails without ManageAttendance; set IsOpen from window (L2-118 AC1, L2-117 AC6)
     h --> ep : CheckInDto
     ep --> svc : 200 OK
     svc --> page : Check-in data
     alt cancelled or window not open
       page --> actor : Alert; switches disabled (L2-119 AC5, AC6)
-    else Staff
+    else ViewAttendees alone
       page --> actor : Read-only list; no Add walk-in or Export CSV (L2-117 AC2)
-    else lead or System Admin
+    else ManageAttendance held
       page --> actor : Meter, search and switches
     end
   end

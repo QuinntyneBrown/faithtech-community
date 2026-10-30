@@ -14,8 +14,8 @@ skinparam package {
   FontColor #101828
   BackgroundColor #F9FAFB
 }
-actor "Lead, Staff or System Admin" as actor
-box "Frontend — FaithTech Community web app (partners library)" #E0F2FE
+actor "Member with ViewPartners" as actor
+box "Frontend — Community web app (partners library)" #E0F2FE
   participant "PartnerPage" as page
   participant "HttpPartnersService" as svc
 end box
@@ -36,11 +36,11 @@ svc --> page : PartnerDto (not archived)
 page -> svc : duplicates(id)
 svc -> ep : GET /api/partners/{id}/duplicates
 ep -> h : ListAsync(id)
-h -> acc : CanRead
-alt not a lead, Staff or System Admin
+h -> acc : CanRead: Has(ViewPartners) or Has(ManagePartners)
+alt lacks ViewPartners
   ep --> svc : 403
 else permitted
-  h -> db : (Id, Name, Website) of every partner where ArchivedAtUtc is null (L2-113 AC8)
+  h -> db : (Id, Name, Website) of every partner in the organisation where ArchivedAtUtc is null (L2-113 AC8)
   loop each other active partner
     h -> rules : Match(key(partner), key(other))
     rules --> h : Website when hosts equal (AC1), else Name when names equal (AC2), else none;\nemail domain never compared (AC3)
@@ -49,7 +49,7 @@ else permitted
   h -> db : Added entry (who, when) of each match
   ep --> svc : 200 {matches} ordered by name
   alt at least one match
-    page --> actor : Warning alert (role status, icon) naming the first match,\nwho added it and when, "and N more" (AC4, AC5);\nStaff see it without Compare and merge and Not the same
+    page --> actor : Warning alert (role status, icon) naming the first match,\nwho added it and when, "and N more" (AC4, AC5);\nViewPartners alone sees it without Compare and merge and Not the same
   end
 end
 opt Not the same (canEdit)
@@ -57,15 +57,15 @@ opt Not the same (canEdit)
   page -> svc : dismissDuplicate(id, otherId)
   svc -> ep : POST /api/partners/{id}/duplicates/{otherId}/dismissal
   ep -> h : DismissAsync(id, otherId)
-  h -> acc : CanWrite
-  alt Staff or no lead role
+  h -> acc : CanWrite: Has(ManagePartners)
+  alt lacks ManagePartners
     ep --> svc : 403 (L2-113 AC7)
   else permitted
     h -> db : Insert PartnerDuplicateDismissal.For(id, otherId, caller, now)\nonce per ordered pair (L2-113 AC6)
-    h -> acc : AuditAdminWrite(..., "partner.duplicate.dismissed")
+    h -> acc : AuditAdminWrite(..., "partner.duplicate.dismissed") when IsOverride (L2-135 AC5)
     ep --> svc : 204
     page -> svc : duplicates(id)
-    page --> actor : Alert gone for every lead on both partners; toast; focus to heading
+    page --> actor : Alert gone for every member on both partners; toast; focus to heading
   end
 end
 @enduml

@@ -39,7 +39,7 @@ loop each recipient with an email address
   alt kind is Announcement and recipient opted out (L2-028 #3)
     pub -> pub : Skip email
   else
-    pub -> q : Enqueue(EmailMessage), link on WebApp:Origin (HTTPS, L2-028 #2)
+    pub -> q : Enqueue(EmailMessage), link on the organisation's host,\nsender name and footer from the organisation (HTTPS, L2-028 #2, L2-134 AC5)
     q -> r : Render(subject, textBody)
     r --> q : HTML part
     q -> db : Add OutboxMessage (NextAttemptAt = now)

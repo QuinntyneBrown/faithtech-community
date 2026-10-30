@@ -3,9 +3,9 @@
 LAYOUT_WITH_LEGEND()
 title Containers — Event check-in
 
-Person(lead, "Lead or System Admin", "Checks attendees in at the door")
-Person(staff, "Staff", "Read-only")
-System_Boundary(ftc, "FaithTech Community") {
+Person(lead, "Member with ManageAttendance", "Checks attendees in at the door")
+Person(staff, "Member with view capabilities", "Holds ViewAttendees: read-only")
+System_Boundary(ftc, "Community platform") {
   Container(spa, "Web app", "Angular", "Shell, events feature library, api and components libraries")
   Container(api, "Community API", "ASP.NET Core", "FaithTech.Community.Api with Application, Domain and Infrastructure")
   ContainerDb(db, "Community database", "PostgreSQL", "Events, RSVPs with check-ins and walk-ins, audit log")

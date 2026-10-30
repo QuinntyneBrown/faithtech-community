@@ -14,8 +14,8 @@ skinparam package {
   FontColor #101828
   BackgroundColor #F9FAFB
 }
-actor "Lead" as actor
-box "Frontend — FaithTech Community web app (partners library)" #E0F2FE
+actor "Member with ManagePartners" as actor
+box "Frontend — Community web app (partners library)" #E0F2FE
   participant "PartnerPage" as page
   participant "MergePartnersDialog" as dlg
   participant "HttpPartnersService" as svc
@@ -43,8 +43,8 @@ dlg -> svc : merge(keptId, {otherId, keepVersion, otherVersion, choices})
 svc -> ep : POST /api/partners/{keepId}/merge
 ep -> v : Validate
 ep -> h : MergeAsync(keepId, command)
-h -> acc : CanWrite
-alt Staff or other member
+h -> acc : CanWrite: Has(ManagePartners)
+alt lacks ManagePartners
   ep --> svc : 403, nothing changes (L2-115 AC2)
 else same id
   ep --> svc : 400

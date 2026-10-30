@@ -19,6 +19,7 @@ class NotePage {
   +{static} MaxTitle = 200
   +{static} MaxIcon = 16
   +Guid Id
+  +Guid OrganisationId
   +string Title
   +string? Icon
   +Guid OwnerId
@@ -37,8 +38,8 @@ class NotePage {
 }
 NotePage --> NoteVisibility
 class NoteAccess {
-  +bool IsSystemAdmin
-  +List<Role> Roles
+  +bool IsAdministrator
+  +IReadOnlySet<Guid> HeldRoleIds
   +CallerAsync(): Task<Guid>
   +VerifiedAsync(caller): Task<Result?>
   +Visible(pages, caller): IQueryable<NotePage>
@@ -46,6 +47,15 @@ class NoteAccess {
   +CanChange(page, caller): bool
   +IsOverride(page, caller): bool
 }
+interface ICurrentUser {
+  +IReadOnlySet<string> Capabilities
+  +Has(capability: string): bool
+}
+interface ICurrentOrganisation {
+  +Guid Id
+}
+NoteAccess ..> ICurrentUser : Has(AdministerOrganisation), held roles
+NoteAccess ..> ICurrentOrganisation : query filter
 class NoteViews {
   +DetailAsync(page, caller): Task<NotePageDto>
   +SummariesAsync(pages, caller): Task<IReadOnlyList<NotePageSummaryDto>>

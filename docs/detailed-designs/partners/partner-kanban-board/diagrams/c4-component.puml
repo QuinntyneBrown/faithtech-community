@@ -3,7 +3,7 @@
 LAYOUT_WITH_LEGEND()
 title Components — Partner Kanban board
 Container_Boundary(web, "Web app") {
-  Component(page, "PartnersPage", "Angular page (partners library)", "Three stage columns in the board")
+  Component(page, "PartnersPage", "Angular page (partners library)", "One column per active stage in the board")
   Component(kb, "KanbanBoard / KanbanColumn / KanbanCard", "components library", "CDK drag and drop columns and cards with a Move button; column tabs below 640px")
   Component(bp, "BreakpointService", "components library", "Current breakpoint")
   Component(dlg, "MovePartnerDialog", "Angular CDK Dialog (partners library)", "Stage radio and optional note; keyboard path")
@@ -11,7 +11,7 @@ Container_Boundary(web, "Web app") {
 }
 Container_Boundary(api, "Community API") {
   Component(ep, "PartnersEndpoints", "ASP.NET Core minimal API", "GET /api/partners, POST /api/partners/{id}/stage")
-  Component(val, "MovePartnerValidator", "FluentValidation", "Known stage; note at most 500 characters")
+  Component(val, "MovePartnerValidator", "FluentValidation", "Active stage key; note at most 500 characters")
   Component(bh, "ManagePartnersHandler", "Application handler", "BoardAsync")
   Component(mh, "MovePartnerHandler", "Application handler", "MoveAsync")
   Component(acc, "PartnerAccess", "Application permission check", "CanRead, CanWrite, AuditAdminWrite")
@@ -28,7 +28,7 @@ Rel(ep, val, "Validates move (400)")
 Rel(ep, bh, "BoardAsync")
 Rel(ep, mh, "MoveAsync")
 Rel(bh, acc, "CanRead")
-Rel(mh, acc, "CanWrite; audits admin moves")
+Rel(mh, acc, "CanWrite; audits override moves (L2-135 AC5)")
 Rel(mh, ent, "MoveTo")
 Rel(bh, db, "Reads partners", "EF Core")
 Rel(mh, db, "Saves Partner and PartnerStageChange", "EF Core")

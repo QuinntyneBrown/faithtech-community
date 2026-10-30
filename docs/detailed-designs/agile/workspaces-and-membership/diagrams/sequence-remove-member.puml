@@ -15,7 +15,7 @@ skinparam package {
   BackgroundColor #F9FAFB
 }
 actor "Workspace owner" as actor
-box "Frontend — FaithTech Community web app (agile library)" #E0F2FE
+box "Frontend — Community platform web app (agile library)" #E0F2FE
   participant "WorkspaceSettingsPage" as page
   participant "RemoveWorkspaceMemberDialog" as dlg
   participant "AgileService (AGILE_SERVICE)" as svc
@@ -40,7 +40,7 @@ dlg -> svc : removeMember(workspaceId, profileId)
 svc -> ep : DELETE /api/workspaces/{id}/members/{profileId}
 ep -> h : RemoveMemberAsync(id, profileId)
 h -> pol : AuthorizeAsync(id, manage: true)
-pol --> h : workspace, caller (owner or System Admin; otherwise 404 or 403)
+pol --> h : workspace, caller (owner or administrator; otherwise 404 or 403)
 alt profileId is the owner
 h --> ep : Conflict "The owner can’t be removed from their workspace."
 ep --> svc : 409 ProblemDetails
@@ -53,7 +53,7 @@ ctx -> db : SELECT work_items WHERE assignee_id = profileId
 db --> ctx : Rows
 h -> ent : RemoveMember(profileId, items)
 ent -> ent : Unassign() each item (L2-031 AC8)
-opt caller is System Admin override (L2-031 AC7)
+opt caller is an AdministerOrganisation override (L2-031 AC7, L2-135 AC5)
 h -> pol : AuditOverride("workspace.member.removed")
 pol -> audit : Record
 end

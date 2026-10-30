@@ -6,13 +6,13 @@ title Components — Sign in and sign out
 Container(spa, "Web app", "Angular", "faithtech-community feature library and api client")
 Container_Boundary(api, "Community API") {
   Component(ep, "AuthorizationEndpoints", "Minimal API + OpenIddict", "/connect/authorize, /token, /revoke, /logout")
-  Component(h, "SignInHandler", "Application handler", "Credentials, lockout, suspension, verification")
+  Component(h, "SignInHandler", "Application handler", "Credentials, lockout, operator lock, membership suspension in the current organisation, verification")
   Component(oi, "OpenIddict server", "OpenIddict", "Issues codes and tokens, validates PKCE")
   ComponentDb(db, "CommunityDbContext", "EF Core / PostgreSQL", "Users and OpenIddict token store")
 }
 Rel(spa, ep, "Authorizes and exchanges tokens")
 Rel(ep, h, "Sends SignInCommand")
-Rel(h, db, "Reads user, updates failed count")
+Rel(h, db, "Reads user and the profile in ICurrentOrganisation, updates failed count")
 Rel(ep, oi, "Delegates protocol handling")
 Rel(oi, db, "Stores and revokes tokens")
 @enduml

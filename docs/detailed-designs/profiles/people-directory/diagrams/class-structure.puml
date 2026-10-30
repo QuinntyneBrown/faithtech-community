@@ -12,14 +12,19 @@ skinparam class {
 title Class structure — People directory
 class ListPeopleHandler {
   +{static} int PageSize = 25
-  +HandleAsync(term: string?, page: int): Task<PagedResult<PersonSummary>?>
+  +HandleAsync(term: string?, chapterId: Guid?, page: int): Task<PagedResult<PersonSummary>?>
 }
 class PersonSummary {
   +Guid Id
   +string Name
-  +string? HomeCity
+  +string? Chapter
   +string? PhotoUrl
-  +IReadOnlyList<string> Roles
+  +IReadOnlyList<HeldRole> Roles
+}
+class HeldRole {
+  +Guid RoleDefinitionId
+  +string Name
+  +string? Chapter
 }
 class "PagedResult<T>" as PagedResult {
   +IReadOnlyList<T> Items
@@ -28,26 +33,39 @@ class "PagedResult<T>" as PagedResult {
   +int TotalCount
 }
 interface ICurrentUser {
-  +HasRole(role: Role): bool
+  +Has(capability: string): bool
 }
+interface ICurrentOrganisation {
+  +Guid Id
+}
+
 interface IPhotoStorage {
   +GetReadUrl(blobName: string): string
 }
 class Profile {
   +Guid Id
+  +Guid OrganisationId
+  +Guid UserId
   +string Name
-  +string? HomeCity
+  +Guid? ChapterId
   +IReadOnlyCollection<ProfilePhoto> Photos
   +IReadOnlyCollection<ProfileRole> Roles
 }
+class ProfileRole {
+  +Guid RoleDefinitionId
+  +Guid? ChapterId
+}
 class CommunityUser {
-  +Guid ProfileId
+  +Guid Id
   +string Email
 }
-ListPeopleHandler --> ICurrentUser : City Lead, Staff or System Admin
+ListPeopleHandler --> ICurrentUser : Has(ViewPeopleDirectory)
+ListPeopleHandler --> ICurrentOrganisation : scopes
+Profile "1" *-- "*" ProfileRole
 ListPeopleHandler --> IPhotoStorage
 ListPeopleHandler --> Profile : reads
 ListPeopleHandler --> CommunityUser : matches email
 ListPeopleHandler ..> PagedResult : returns
 PagedResult *-- PersonSummary
+PersonSummary *-- HeldRole
 @enduml

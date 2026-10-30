@@ -15,7 +15,7 @@ skinparam package {
   BackgroundColor #F9FAFB
 }
 actor "Any signed-in user" as actor
-box "Frontend — FaithTech Community web app (contacts library)" #E0F2FE
+box "Frontend — Community web app (contacts library)" #E0F2FE
   participant "ContactPage" as page
   participant "HttpContactsService" as svc
 end box
@@ -37,7 +37,7 @@ svc -> ep : GET /api/contacts/{id}
 ep -> h : GetAsync(id)
 h -> acc : AuthorizeAsync(id)
 acc -> db : Load caller's profile id and the Contact
-alt NotFound (unknown id, or any other user including Staff)
+alt NotFound (unknown id, or any other member, view-only capabilities included)
   acc --> h : NotFound, no contact
   h --> ep : null
   ep --> svc : 404 (L2-012 AC1)
@@ -47,7 +47,7 @@ else Owner or AdminOverride
   acc --> h : Access kind, Contact, actor
   h -> acc : AuditOverride(kind, actor, contact, "contact.viewed")
   opt AdminOverride
-    acc -> audit : Record contact.viewed, target type Contact (L2-012 AC2)
+    acc -> audit : Record contact.viewed, target type Contact (L2-012 AC2, L2-135 AC5)
   end
   h -> db : Save changes
   h -> views : ToDtoAsync(contact, isOwn = Owner)

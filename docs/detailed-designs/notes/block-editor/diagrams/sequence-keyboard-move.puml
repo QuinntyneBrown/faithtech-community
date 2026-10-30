@@ -15,12 +15,12 @@ skinparam package {
   BackgroundColor #F9FAFB
 }
 actor "Keyboard or screen-reader user" as actor
-box "Frontend — FaithTech Community web app (components library)" #E0F2FE
+box "Frontend — Community web app (components library)" #E0F2FE
   participant "BlockEditorComponent" as ed
   participant "ft-menu (block menu)" as menu
   participant "Polite live region" as live
 end box
-box "Frontend — FaithTech Community web app (notes library)" #E0F2FE
+box "Frontend — Community web app (notes library)" #E0F2FE
   participant "NotePage" as page
 end box
 alt Alt+Shift+ArrowDown in a text box or on a handle

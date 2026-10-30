@@ -4,7 +4,7 @@ LAYOUT_WITH_LEGEND()
 title Containers — Public events and guest RSVP
 
 Person_Ext(guest, "Anonymous visitor / Guest", "Opens a public event share link without an account")
-System_Boundary(ftc, "FaithTech Community") {
+System_Boundary(ftc, "Community platform") {
   Container(spa, "Web app", "Angular", "Shell, events feature library, api and components libraries")
   Container(api, "Community API", "ASP.NET Core", "FaithTech.Community.Api with Application, Domain and Infrastructure")
   ContainerDb(db, "Community database", "PostgreSQL", "Events, RSVPs, notifications and outbox")

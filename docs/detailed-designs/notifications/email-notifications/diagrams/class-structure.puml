@@ -19,6 +19,7 @@ class EmailMessage <<record>> {
 }
 class OutboxMessage {
   +Guid Id
+  +Guid OrganisationId
   +string To
   +string Subject
   +string Body
@@ -59,7 +60,13 @@ class Profile {
 interface INotificationPublisher {
   +PublishAsync(recipientIds, kind, title, linkPath, actorId, email): Task<int>
 }
+interface ICurrentOrganisation {
+  +Guid Id
+  +string Name
+  +string Host
+}
 INotificationPublisher ..> IEmailQueue : uses
+INotificationPublisher ..> ICurrentOrganisation : sender name, host and footer
 INotificationPublisher ..> Profile : checks opt-out
 OutboxEmailQueue ..|> IEmailQueue
 OutboxEmailSender ..|> IEmailSender

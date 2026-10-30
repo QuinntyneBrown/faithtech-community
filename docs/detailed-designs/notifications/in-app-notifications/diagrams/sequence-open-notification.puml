@@ -15,7 +15,7 @@ skinparam package {
   BackgroundColor #F9FAFB
 }
 actor "Member" as actor
-box "Frontend — FaithTech Community web app (app shell, components and api libraries)" #E0F2FE
+box "Frontend — Community web app (app shell, components and api libraries)" #E0F2FE
   participant "NotificationBellComponent\n+ NotificationPanelComponent" as bell
   participant "ShellNotificationsComponent" as shell
   participant "HttpNotificationsService" as client
@@ -34,7 +34,7 @@ shell -> client : list() on navigation and every 60 s
 client -> ep : GET /api/notifications
 ep -> ep : Require authenticated caller
 ep -> h : ListAsync(unreadOnly: false, page: 1)
-h -> db : Query by RecipientId, newest first (L2-027 #1)
+h -> db : Query by RecipientId within the organisation (global filter), newest first (L2-027 #1)
 db --> h : Notification page
 h --> ep : NotificationPage
 ep --> client : 200 NotificationPage

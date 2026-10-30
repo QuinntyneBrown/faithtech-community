@@ -4,7 +4,7 @@ LAYOUT_WITH_LEGEND()
 title System Context — Block editor
 Person(owner, "Page owner", "Writes and formats blocks with mouse, keyboard or screen reader")
 Person(reader, "Reader", "Member the page is visible to; sees the read-only view")
-System(community, "FaithTech Community", "Community site; the block editor is part of Docs & notes")
+System(community, "Community platform", "Community site; the block editor is part of Docs & notes")
 Rel(owner, community, "Writes, formats and reorders blocks using", "HTTPS")
 Rel(reader, community, "Reads formatted pages using", "HTTPS")
 @enduml

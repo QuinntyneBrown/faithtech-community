@@ -20,7 +20,7 @@ class NoteImage {
   +{static} MaxBytes = 5 MB
   +Guid Id
   +Guid PageId
-  +string BlobName  (notes/{pageId}/{imageId}.{ext})
+  +string BlobName  ({organisationId}/notes/{pageId}/{imageId}.{ext})
   +string ContentType
   +long Size
   +DateTimeOffset UploadedAt

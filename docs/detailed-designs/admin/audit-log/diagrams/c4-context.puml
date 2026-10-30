@@ -2,7 +2,7 @@
 !include <C4/C4_Context>
 LAYOUT_WITH_LEGEND()
 title System Context — Audit log
-Person(admin, "System Admin", "Holds full override across the site")
-System(community, "FaithTech Community", "Community site for FaithTech staff, leads, volunteers, builders and partners")
+Person(admin, "Administrator", "Holds AdministerOrganisation; overrides any record, audited")
+System(community, "Community platform", "Community site for an organisation's members and partners")
 Rel(admin, community, "Reviews the audit log using")
 @enduml

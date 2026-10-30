@@ -4,9 +4,9 @@ LAYOUT_WITH_LEGEND()
 title System Context — Global search
 
 Person(member, "Member", "Signed-in user who browses and RSVPs to events")
-Person(lead, "Event Lead / City Lead", "Creates, edits and cancels events")
-Person(staff, "Staff", "Read-only across events, sees full RSVP lists")
-System(ftc, "FaithTech Community", "Community site for FaithTech members, leads and partners")
+Person(lead, "Member with KeepContacts or ViewPartners", "Also finds private contacts and partners")
+Person(staff, "Member with view capabilities", "Finds partners and work items read-only")
+System(ftc, "Community platform", "Hosts each organisation's members, events, partners and resources")
 Rel(member, ftc, "Searches", "HTTPS")
 Rel(lead, ftc, "Searches contacts and partners in", "HTTPS")
 Rel(staff, ftc, "Searches", "HTTPS")

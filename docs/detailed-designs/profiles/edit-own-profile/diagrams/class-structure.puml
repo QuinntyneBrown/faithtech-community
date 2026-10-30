@@ -14,7 +14,7 @@ title Class structure — Edit own profile
 class UpdateProfileCommand {
   +Guid ProfileId
   +string Name
-  +string? HomeCity
+  +Guid? ChapterId
   +string? Bio
 }
 class UpdateProfileValidator {
@@ -27,21 +27,27 @@ class UpdateProfileHandler {
 }
 class Profile {
   +Guid Id
+  +Guid OrganisationId
   +string Name
-  +string? HomeCity
+  +Guid? ChapterId
   +string? Bio
-  +Update(name: string, homeCity: string?, bio: string?): void
+  +Update(name: string, chapterId: Guid?, bio: string?): void
 }
 interface ICurrentUser {
   +Guid ProfileId
-  +bool IsSystemAdmin
+  +Has(capability: string): bool
 }
+interface ICurrentOrganisation {
+  +Guid Id
+}
+
 interface IAuditLog {
   +RecordAsync(entry: AuditEntry): Task
 }
 UpdateProfileHandler ..> UpdateProfileCommand : handles
 UpdateProfileHandler ..> UpdateProfileValidator : uses
 UpdateProfileHandler ..> ICurrentUser : uses
+UpdateProfileHandler ..> ICurrentOrganisation : scopes
 UpdateProfileHandler ..> IAuditLog : uses
 UpdateProfileHandler --> Profile : renames
 @enduml

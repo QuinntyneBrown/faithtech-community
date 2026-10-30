@@ -15,10 +15,10 @@ skinparam package {
   BackgroundColor #F9FAFB
 }
 actor "Administrator or settings holder" as actor
-box "Frontend — FaithTech Community web app (admin library)" #E0F2FE
+box "Frontend — Community web app (admin library)" #E0F2FE
   participant "AuditLogPage" as page
 end box
-box "Frontend — FaithTech Community web app (api library)" #E0F2FE
+box "Frontend — Community web app (api library)" #E0F2FE
   participant "HttpAuditLogService" as svc
 end box
 box "Backend — FaithTech.Community.Api" #D1FADF

@@ -5,7 +5,7 @@ title Containers — View a profile
 
 Person(member, "Member", "Signed-in user with a profile")
 Person(visitor, "Anonymous visitor", "Person without a signed-in session")
-System_Boundary(ftc, "FaithTech Community") {
+System_Boundary(ftc, "Community platform") {
   Container(spa, "Web app", "Angular", "Shell, profiles feature library, api and components libraries")
   Container(api, "Community API", "ASP.NET Core", "FaithTech.Community.Api with Application, Domain and Infrastructure")
   ContainerDb(db, "Community database", "PostgreSQL", "Accounts, profiles, invites and audit log")

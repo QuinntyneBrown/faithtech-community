@@ -14,8 +14,8 @@ skinparam package {
   FontColor #101828
   BackgroundColor #F9FAFB
 }
-actor "Lead or Staff" as actor
-box "Frontend — FaithTech Community web app (partners library)" #E0F2FE
+actor "Member with ViewPartners" as actor
+box "Frontend — Community web app (partners library)" #E0F2FE
   participant "PartnersPage" as page
   participant "HttpPartnersService" as svc
 end box
@@ -33,22 +33,22 @@ actor -> page : Open /partners
 page -> svc : getBoard()
 svc -> ep : GET /api/partners
 ep -> h : BoardAsync()
-h -> acc : CanRead
-alt not a lead, Staff or System Admin
+h -> acc : CanRead: Has(ViewPartners) or Has(ManagePartners)
+alt lacks ViewPartners
   h --> ep : null
   ep --> svc : 403 (L2-017 AC4)
   svc --> page : Error
   page --> actor : Forbidden state
 else permitted
-  h -> db : Select Id, Name, ContactName, Offering, Stage of every partner
-  h -> h : One PartnerColumnDto per stage in order, cards by name, with counts
+  h -> db : The organisation's stage list and Id, Name, ContactName, Offering, StageKey\nof every partner (scoped by the global filter on ICurrentOrganisation)
+  h -> h : One PartnerColumnDto per active stage in order, then archived stages still holding partners,\ncards by name, with counts (L2-144 AC3, AC4)
   h --> ep : PartnerBoardDto with CanEdit = PartnerAccess.CanWrite (L2-018 AC1)
   ep --> svc : 200 OK
   svc --> page : Board
   alt BreakpointService.current() is base (below sm, 640px)
     page --> actor : Stage tabs, one KanbanColumn visible (L2-018 AC4)
   else larger
-    page --> actor : Three KanbanColumns side by side; Add partner and Move hidden when CanEdit is false
+    page --> actor : One KanbanColumn per stage side by side; Add partner and Move hidden when CanEdit is false
   end
 end
 @enduml

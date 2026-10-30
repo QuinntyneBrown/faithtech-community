@@ -14,11 +14,11 @@ skinparam package {
   FontColor #101828
   BackgroundColor #F9FAFB
 }
-actor "Lead" as actor
-box "Frontend — FaithTech Community web app (invites library)" #E0F2FE
+actor "Inviter" as actor
+box "Frontend — Community web app (invites library)" #E0F2FE
   participant "SendInviteDialog" as dlg
 end box
-box "Frontend — FaithTech Community web app (api library)" #E0F2FE
+box "Frontend — Community web app (api library)" #E0F2FE
   participant "HttpInvitesService" as client
 end box
 box "Backend — FaithTech.Community.Api" #D1FADF
@@ -26,19 +26,19 @@ box "Backend — FaithTech.Community.Api" #D1FADF
 end box
 box "Backend — FaithTech.Community.Application and Domain" #ECFDF3
   participant "InviteSender" as h
-  participant "RoleAssignmentPolicy" as rp
+  participant "RoleGrantPolicy" as rp
 end box
 box "Backend — FaithTech.Community.Infrastructure" #FFF4E5
   database "Community database" as db
 end box
 participant "Email provider" as mail
 actor -> dlg : Enter email, optional role and note
-dlg -> dlg : Offer only assignableRoles (L2-010 AC2, L2-009)
+dlg -> dlg : Offer only grantableRoleIds from /api/me (L2-010 AC2, L2-137 AC5)
 dlg -> client : sendInvite({ email, preassignedRole, note })
 client -> ep : POST /api/invites (HANDLES_FORBIDDEN)
 ep -> ep : SendInviteValidator (400 on a bad email or long note)
 ep -> h : SendAsync(SendInviteCommand)
-alt caller holds no lead role and is not System Admin
+alt caller lacks InviteMembers
   h --> ep : Forbidden
   ep --> client : 403 (L2-010 AC3)
 else sender's email not verified
@@ -46,7 +46,7 @@ else sender's email not verified
   h --> ep : Forbidden "Verify your email before sending invites."
   ep --> client : 403
 else role not grantable by caller
-  h -> rp : CanChange(role)
+  h -> rp : CanGrant(roleId)
   rp --> h : false
   h --> ep : Forbidden "You can’t give that role."
   ep --> client : 403 (L2-010 AC2)

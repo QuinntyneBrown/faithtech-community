@@ -14,12 +14,12 @@ skinparam package {
   FontColor #101828
   BackgroundColor #F9FAFB
 }
-actor "System Admin" as actor
-box "Frontend — FaithTech Community web app (admin library)" #E0F2FE
+actor "Administrator" as actor
+box "Frontend — Community web app (admin library)" #E0F2FE
   participant "AdminUsersPage" as page
   participant "SuspendUserDialog" as dlg
 end box
-box "Frontend — FaithTech Community web app (api library)" #E0F2FE
+box "Frontend — Community web app (api library)" #E0F2FE
   participant "HttpAdminUsersService" as svc
 end box
 box "Backend — FaithTech.Community.Api" #D1FADF
@@ -27,6 +27,7 @@ box "Backend — FaithTech.Community.Api" #D1FADF
 end box
 box "Backend — FaithTech.Community.Application and Domain" #ECFDF3
   participant "SuspensionHandler" as h
+  participant "LastAdministratorGuard" as guard
   participant "Profile" as acct
 end box
 box "Backend — FaithTech.Community.Infrastructure" #FFF4E5
@@ -34,7 +35,7 @@ box "Backend — FaithTech.Community.Infrastructure" #FFF4E5
   participant "TokenRevocation" as rev
   database "Community database" as db
 end box
-actor -> page : Choose Suspend on a user
+actor -> page : Choose Suspend on a member
 page -> dlg : Open with profile id and name
 actor -> dlg : Enter reason and confirm
 dlg -> dlg : Reason required, up to 500 characters
@@ -42,24 +43,29 @@ dlg -> svc : suspend(profileId, reason)
 svc -> ep : POST /api/admin/users/{id}/suspension { reason } (HANDLES_FORBIDDEN)
 ep -> ep : SuspendUserValidator (400 on a missing or long reason)
 ep -> h : SuspendAsync(id, SuspendUserCommand)
-alt caller is not System Admin
+alt caller lacks AdministerOrganisation
   h --> ep : Forbidden (L2-039 AC3)
   ep --> svc : 403 ProblemDetails
   svc --> dlg : Error
   dlg --> actor : Show the refusal
-else own account or already suspended
+else own membership or already suspended
   h --> ep : Conflict
   ep --> svc : 409 ProblemDetails
   svc --> dlg : Error
   dlg --> actor : Show the server's detail
-else System Admin
-  h -> db : Load Profile
+else profile is the last active administrator
+  h -> guard : TakeLeaseAsync(); WouldLeaveNoneAsync(profile) (L2-139 AC1, AC2)
+  guard -> db : Count active, unsuspended administrators in ICurrentOrganisation
+  h --> ep : Conflict
+  ep --> svc : 409 "There must always be at least one administrator."
+  svc --> dlg : Error
+  dlg --> actor : Show the server's detail
+else caller holds AdministerOrganisation
+  h -> db : Load Profile (scoped by ICurrentOrganisation)
   h -> acct : Suspend(reason, nowUtc)
-  h -> audit : Record(actor, "user.suspended", "Profile", id, before, after with reason) (L2-041)
+  h -> audit : Record(actor, "member.suspended", "Profile", id, before, after with reason) (L2-041)
   h -> db : Save changes in one unit of work
-  loop each account linked to the profile
-    h -> rev : RevokeAllAsync(userId) (L2-039 AC1)
-  end
+  h -> rev : RevokeAllAsync(userId, organisationId) (L2-039 AC1, other memberships untouched)
   h --> ep : Ok
   ep --> svc : 204 No Content
   svc --> dlg : Done

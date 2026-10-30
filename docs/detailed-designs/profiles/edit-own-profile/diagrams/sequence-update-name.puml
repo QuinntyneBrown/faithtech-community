@@ -15,7 +15,7 @@ skinparam package {
   BackgroundColor #F9FAFB
 }
 actor "Member" as actor
-box "Frontend — FaithTech Community web app (profiles library)" #E0F2FE
+box "Frontend — Community web app (profiles library)" #E0F2FE
   participant "EditProfilePage" as page
   participant "ProfilesService" as client
 end box
@@ -37,12 +37,12 @@ else valid
   client -> ep : PUT /api/profiles/{id}
   ep -> h : Send UpdateProfileCommand
   h -> h : Validate name (L2-006)
-  alt caller is not owner and not System Admin
+  alt caller is not owner and lacks AdministerOrganisation (L2-006 AC3)
     h --> ep : Forbidden
     ep --> client : 403 (L2-006)
   else permitted
     h -> db : Load profile
-    h -> ent : Update(name, homeCity, bio)
+    h -> ent : Update(name, chapterId, bio)
     h -> db : Save; audit if admin override
     h --> ep : Updated
     ep --> client : 204 No Content

@@ -3,6 +3,6 @@
 LAYOUT_WITH_LEGEND()
 title System Context — Home
 Person(member, "Member", "Signed-in profile holder")
-System(community, "FaithTech Community", "Community site for FaithTech staff, leads, volunteers, builders and partners")
+System(community, "Community platform", "Community site for an organisation's members and partners")
 Rel(member, community, "Lands on home after signing in")
 @enduml

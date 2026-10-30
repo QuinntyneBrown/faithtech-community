@@ -38,7 +38,7 @@ else not locked out
     handler -> tokens : Issue(now + 7 days)
     tokens --> handler : w1.<expiry>.<mac>
     handler --> gate : Unlocked
-    gate --> form : 303 to the local returnUrl, Set-Cookie __Secure-unlock (L2-102 #1, #2, L2-104 #1, #2)
+    gate --> form : 303 to the local returnUrl, Set-Cookie __Secure-unlock for the cookie domain (L2-102 #1, #2, L2-104 #1, #2)
   else anything else
     handler -> attempts : RecordFailure(client); log without the input (L2-103 #4)
     handler --> gate : Refused

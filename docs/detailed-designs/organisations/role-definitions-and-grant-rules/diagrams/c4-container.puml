@@ -4,7 +4,7 @@ LAYOUT_WITH_LEGEND()
 title Containers — Role definitions and grant rules
 Person(manager, "Holder of ManageRoles", "Defines roles and grant rules")
 Person(grantor, "Holder of AssignRoles", "Assigns roles under the rules")
-System_Boundary(platform, "FaithTech Community platform") {
+System_Boundary(platform, "Community platform") {
   Container(web, "Web app", "Angular", "Shell, organisations and profiles feature libraries, api and components libraries")
   Container(api, "Community API", "ASP.NET Core", "FaithTech.Community.Api with Application, Domain and Infrastructure")
   ContainerDb(db, "Community database", "PostgreSQL", "RoleDefinitions, RoleGrantRules, ProfileRoles, OrganisationAdminRosters, audit log")

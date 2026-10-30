@@ -15,7 +15,7 @@ skinparam package {
   BackgroundColor #F9FAFB
 }
 actor "Participant" as actor
-box "Frontend — FaithTech Community web app (agile library)" #E0F2FE
+box "Frontend — Community platform web app (agile library)" #E0F2FE
   participant "PlanningPokerPage" as page
   participant "AgileService (AGILE_SERVICE)" as svc
   participant "SignalRAgileLiveService (AGILE_LIVE_SERVICE)" as live
@@ -39,7 +39,7 @@ page -> svc : vote(sessionId, value)
 svc -> ep : PUT /api/poker-sessions/{id}/vote
 ep -> h : VoteAsync(sessionId, command)
 h -> pol : LoadAsync(workspaceId)
-pol --> h : Caller (outsider 404, Staff write 403) (L2-038 AC7)
+pol --> h : Caller (outsider 404, Reader write 403) (L2-038 AC7)
 alt caller is not the facilitator or an invitee
 h --> ep : 403 Forbidden (L2-038 AC7)
 else votes already revealed
@@ -48,7 +48,7 @@ ep --> svc : ProblemDetails
 svc --> page : Restore saved vote, show why under the deck
 else voting open
 h -> ent : CastVote(profileId, value), or WithdrawVote when value is null
-h -> pol : AuditOverride(caller, "poker.voted") for a System Admin
+h -> pol : AuditOverride(caller, "poker.voted") for an administrator override (L2-135 AC5)
 h -> ctx : SaveChangesAsync
 ctx -> db : INSERT or UPDATE poker_vote
 h -> bc : PokerChangedAsync(sessionId) via IPokerBroadcaster

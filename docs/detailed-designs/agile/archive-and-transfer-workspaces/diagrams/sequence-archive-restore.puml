@@ -14,8 +14,8 @@ skinparam package {
   FontColor #101828
   BackgroundColor #F9FAFB
 }
-actor "Workspace owner\n(or System Admin)" as actor
-box "Frontend — FaithTech Community web app (agile library)" #E0F2FE
+actor "Workspace owner\n(or administrator)" as actor
+box "Frontend — Community platform web app (agile library)" #E0F2FE
   participant "WorkspaceSettingsPage" as page
   participant "ArchiveWorkspaceDialog" as dlg
   participant "WorkspacesPage" as list
@@ -44,18 +44,18 @@ h -> pol : AuthorizeAsync(id, manage: true, includeArchived: true)
 pol -> ctx : Workspaces.IgnoreQueryFilters().SingleOrDefault(id)
 ctx -> db : SELECT
 db --> ctx : Row
-pol -> pol : Classify: Owner → Admin → Member → Staff → Outsider
-alt caller cannot manage (member, Staff or outsider)
+pol -> pol : Classify: Owner → Admin → Member → Reader → Outsider
+alt caller cannot manage (member, Reader or outsider)
 pol --> h : Refusal
 h --> ep : 404 when the workspace is archived, else 404 or 403
 else already archived
 pol --> h : workspace, caller
 h --> ep : Conflict "This workspace is already archived."
 ep --> svc : 409 ProblemDetails
-else owner or System Admin
+else owner or administrator
 pol --> h : workspace, caller
 h -> ent : Archive() sets IsArchived only (L2-037 AC1)
-opt caller is System Admin override (ADR 0011)
+opt caller is an AdministerOrganisation override (L2-135 AC5)
 h -> pol : AuditOverride("workspace.archived")
 pol -> audit : Record
 end
@@ -66,22 +66,22 @@ h --> ep : Ok
 ep --> svc : 204 No Content
 svc --> dlg : Closed
 page --> actor : Toast "<name> archived"; navigate to /workspaces
-note over ctx, db : The global query filter (!IsArchived) now hides the workspace and its items:\nmembers and Staff get 404; no needsNewOwner flag or admin notification until restored
+note over ctx, db : The global query filter (!IsArchived) now hides the workspace and its items:\nmembers and Readers get 404; no needsNewOwner flag or admin notification until restored
 end
 == Later ==
 actor -> list : Open Workspaces
 list -> svc : listWorkspaces()
 svc -> ep : GET /api/workspaces
-ep --> list : WorkspaceSummaryDto[] (archived rows only for the owner and System Admin)
+ep --> list : WorkspaceSummaryDto[] (archived rows only for the owner and administrators)
 list --> actor : Archived section with "Restore"
 actor -> list : Choose "Restore"
 list -> svc : restoreWorkspace(id)
 svc -> ep : POST /api/workspaces/{id}/restore
 ep -> h : RestoreWorkspaceAsync(id)
 h -> pol : AuthorizeAsync(id, manage: true, includeArchived: true)
-pol --> h : workspace, caller (owner or System Admin)
+pol --> h : workspace, caller (owner or administrator)
 h -> ent : Restore() (L2-037 AC1)
-opt caller is System Admin override (ADR 0011)
+opt caller is an AdministerOrganisation override (L2-135 AC5)
 h -> pol : AuditOverride("workspace.restored")
 pol -> audit : Record
 end

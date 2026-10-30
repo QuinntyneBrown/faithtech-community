@@ -5,7 +5,7 @@ title System Context — View a profile
 
 Person(member, "Member", "Signed-in user with a profile")
 Person(visitor, "Anonymous visitor", "Person without a signed-in session")
-System(ftc, "FaithTech Community", "Community site for FaithTech staff, leads, volunteers, builders and partners")
+System(ftc, "Community platform", "Community site for an organisation's members, builders and partners")
 Rel(member, ftc, "Views profiles in", "HTTPS")
 Rel(visitor, ftc, "Views profiles in", "HTTPS")
 @enduml

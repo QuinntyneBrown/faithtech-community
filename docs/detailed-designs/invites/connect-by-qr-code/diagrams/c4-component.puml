@@ -3,9 +3,9 @@
 LAYOUT_WITH_LEGEND()
 title Components — Connect by QR code
 Container_Boundary(web, "Web app") {
-  Component(invites, "InvitesPage", "Angular page (invites library)", "My QR code button for City Leads and System Admins")
+  Component(invites, "InvitesPage", "Angular page (invites library)", "My QR code button for holders of ConnectLink")
   Component(dlg, "MyQrCodeDialog", "Angular CDK Dialog (invites library)", "QR code, copy, download, make a new code")
-  Component(page, "ConnectPage", "Angular page (invites library)", "/meet/:token: lead, sign-up form, connect")
+  Component(page, "ConnectPage", "Angular page (invites library)", "/meet/:token: owner, sign-up form, connect")
   Component(svc, "HttpConnectService", "Angular service (api library)", "CONNECT_SERVICE")
   Component(lib, "QrCodeComponent, CopyFieldComponent, PersonSummaryComponent", "components library", "Design-system components")
 }

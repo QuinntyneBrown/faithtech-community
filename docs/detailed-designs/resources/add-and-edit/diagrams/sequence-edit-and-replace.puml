@@ -14,8 +14,8 @@ skinparam package {
   FontColor #101828
   BackgroundColor #F9FAFB
 }
-actor "Owner or System Admin" as actor
-box "Frontend — FaithTech Community web app (resources library)" #E0F2FE
+actor "Owner or administrator" as actor
+box "Frontend — Community web app (resources library)" #E0F2FE
   participant "EditResourceDialog" as dlg
   participant "HttpResourcesService" as svc
 end box
@@ -46,11 +46,11 @@ ep -> edit : EditAsync(id, command)
 edit -> acc : VisibleOrOwnArchived; CanEdit
 alt not visible
   ep --> svc : 404
-else visible but not owner or System Admin (Staff and other leads included)
+else visible but not owner or AdministerOrganisation (whatever other capabilities)
   ep --> svc : 403 (AC3, L2-066 AC2)
 else may edit
   edit -> edit : SetDetails, SetTags, SetLink, SetAudience, Touch(caller, now)
-  opt System Admin override
+  opt AdministerOrganisation override (IsOverride, L2-135 AC5)
     edit -> audit : resource.edited with before and after (L2-064 AC1)
   end
   edit -> db : Save
@@ -62,13 +62,13 @@ opt a new file was chosen
   ep -> rep : ReplaceAsync(id, file)
   rep -> acc : CanEdit
   rep -> rep : ResourceFileTypes.Check; thumbnail for an image
-  rep -> store : SaveAsync(resources/{id}/{newBlobId}.{ext})
+  rep -> store : SaveAsync({organisationId}/resources/{id}/{newBlobId}.{ext})
   rep -> rep : ReplaceFile(file, caller, now) returns the old file
   rep -> store : DeleteAsync(old blob and thumbnail)
   alt delete fails
     rep -> rep : Queue ResourceBlobTask.Delete
   end
-  opt System Admin override
+  opt AdministerOrganisation override (IsOverride)
     rep -> audit : resource.file.replaced
   end
   rep -> db : Save; same id and URL (AC2)

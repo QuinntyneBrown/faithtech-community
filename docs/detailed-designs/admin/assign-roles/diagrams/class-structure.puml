@@ -10,49 +10,75 @@ skinparam class {
   BackgroundColor #F9FAFB
 }
 title Class structure — Assign roles
-enum Role {
-  CityLead
-  EventLead
-  CreateLead
-  CommunicationsLead
-  Staff
-  Volunteer
-  ProductEngineer
-  Attendee
-  SystemAdmin
+class Capability <<static>> {
+  +{static} AssignRoles: string
+  +{static} AdministerOrganisation: string
+  +{static} All: IReadOnlyList<string>
+}
+class RoleDefinition {
+  +Guid Id
+  +Guid OrganisationId
+  +string Name
+  +IReadOnlySet<string> Capabilities
+  +bool ChapterScopable
+  +bool IsArchived
+}
+class RoleGrantRule {
+  +Guid GrantorRoleId
+  +Guid GrantableRoleId
 }
 class Profile {
   +Guid Id
+  +Guid OrganisationId
   +string Name
   +IReadOnlyCollection<ProfileRole> Roles
   +IReadOnlyList<object> DomainEvents
-  +AddRole(role: Role, grantedBy: Guid, nowUtc: DateTime): void
-  +RemoveRole(role: Role): void
-  +HasRole(role: Role): bool
+  +AddRole(roleId: Guid, chapterId: Guid?, grantedBy: Guid, nowUtc: DateTime): void
+  +RemoveRole(roleId: Guid, lostCapabilities: IEnumerable<string>): void
+  +HoldsRole(roleId: Guid): bool
   +ClearDomainEvents(): void
 }
-class CityLeadRoleRemoved {
+class CapabilityLost <<record>> {
   +Guid ProfileId
+  +string Capability
 }
 class ProfileRole {
   +Guid ProfileId
-  +Role Role
+  +Guid RoleId
+  +Guid? ChapterId
   +DateTime GrantedAtUtc
   +Guid GrantedBy
 }
-class AssignRoleCommand <<record>> {
-  +string? Role
+class OrganisationAdminRoster {
+  +Guid OrganisationId
+  +uint Version
+  +Guid? LeaseHolder
+  +DateTime? LeaseExpiresAt
+  +TryTake(holder: Guid, now: DateTime): bool
+  +Release(): void
 }
-class RoleAssignmentPolicy {
-  +{static} CityLeadRoles: IReadOnlyList<Role>
+class AssignRoleCommand <<record>> {
+  +Guid? RoleId
+  +Guid? ChapterId
+}
+class RoleGrantPolicy {
   +bool CanChangeRoles
   +bool NotifiesOwner
-  +CanChange(role: Role): bool
+  +IReadOnlyList<Guid> GrantableRoleIds
+  +CanChange(definition: RoleDefinition, chapterId: Guid?): bool
+}
+class LastAdministratorGuard {
+  +TakeLeaseAsync(): Task<Result>
+  +WouldLeaveNoneAsync(excludingProfile: Guid?, excludingDefinition: Guid?): Task<bool>
+  +Release(): void
+}
+class CapabilityLossDetector {
+  +LostAsync(profileIds: IEnumerable<Guid>, removedCapabilities: IEnumerable<string>): Task<IReadOnlyList<CapabilityLost>>
 }
 class ChangeRolesHandler {
-  +LastSystemAdminMessage: string
-  +AssignAsync(profileId: Guid, role: string?): Task<(Result, IReadOnlyList<string>?)>
-  +RemoveAsync(profileId: Guid, role: string?): Task<(Result, IReadOnlyList<string>?)>
+  +LastAdministratorMessage: string
+  +AssignAsync(profileId: Guid, roleId: Guid?, chapterId: Guid?): Task<(Result, IReadOnlyList<HeldRole>?)>
+  +RemoveAsync(profileId: Guid, roleId: Guid): Task<(Result, IReadOnlyList<HeldRole>?)>
 }
 class RoleChangeNotifier {
   +Notify(ownerProfileId: Guid, title: string): void
@@ -61,10 +87,15 @@ class RoleChangeNotifier {
 class ProfileAccess {
   +CallerProfileIdAsync(): Task<Guid?>
 }
+interface ICurrentOrganisation {
+  +Guid Id
+  +string Name
+}
 interface ICurrentUser {
   +Guid? UserId
-  +IReadOnlyCollection<Role> Roles
-  +HasRole(role: Role): bool
+  +IReadOnlyCollection<HeldRole> Roles
+  +IReadOnlySet<string> Capabilities
+  +Has(capability: string): bool
 }
 interface IAuditLog {
   +Record(actorId: Guid, action: string, targetType: string, targetId: string, before: object?, after: object?): void
@@ -73,14 +104,21 @@ interface IEmailQueue {
   +Enqueue(message: EmailMessage): void
 }
 Profile "1" *-- "*" ProfileRole
-ProfileRole --> Role
-Profile ..> CityLeadRoleRemoved : raises
+ProfileRole --> RoleDefinition : references
+RoleDefinition --> Capability : carries
+RoleGrantRule --> RoleDefinition : grantor / grantable
+Profile ..> CapabilityLost : raises
 ChangeRolesHandler ..> AssignRoleCommand : role from body
-ChangeRolesHandler --> RoleAssignmentPolicy
+ChangeRolesHandler --> RoleGrantPolicy
+ChangeRolesHandler --> LastAdministratorGuard
+ChangeRolesHandler ..> CapabilityLossDetector
 ChangeRolesHandler --> Profile : mutates
 ChangeRolesHandler ..> ProfileAccess : actor id
 ChangeRolesHandler ..> IAuditLog
 ChangeRolesHandler ..> RoleChangeNotifier
-RoleAssignmentPolicy ..> ICurrentUser
+RoleGrantPolicy ..> ICurrentUser
+RoleGrantPolicy ..> RoleGrantRule : reads
+RoleGrantPolicy ..> ICurrentOrganisation : scoped by
+LastAdministratorGuard --> OrganisationAdminRoster : leases
 RoleChangeNotifier ..> IEmailQueue
 @enduml

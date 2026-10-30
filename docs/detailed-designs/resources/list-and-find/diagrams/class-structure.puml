@@ -10,14 +10,13 @@ skinparam class {
   BackgroundColor #F9FAFB
 }
 title Class structure — List and find resources
-enum ResourceType {
-  Deck
-  Logo
-  Image
-  Training
-  Template
-  Document
-  Other
+class ResourceType {
+  +Guid Id
+  +Guid OrganisationId
+  +string Key
+  +string Name
+  +int SortOrder
+  +bool IsArchived
 }
 enum ResourceVisibility {
   Private
@@ -26,9 +25,10 @@ enum ResourceVisibility {
 }
 class Resource {
   +Guid Id
+  +Guid OrganisationId
   +string Title
   +string? Description
-  +ResourceType Type
+  +Guid ResourceTypeId
   +ResourceVisibility Visibility
   +Guid OwnerId
   +DateTimeOffset AddedAt
@@ -63,29 +63,33 @@ class ResourceShareMember {
 }
 class ResourceShareRole {
   +Guid ResourceId
-  +Role Role
+  +Guid RoleDefinitionId
 }
 Resource "1" *-- "0..1" ResourceFile
 Resource "1" *-- "*" ResourceTag
 Resource "1" *-- "*" ResourceShareMember
 Resource "1" *-- "*" ResourceShareRole
-Resource --> ResourceType
+Resource --> ResourceType : Type
 Resource --> ResourceVisibility
 
 interface ICurrentUser {
   +Guid? UserId
-  +IReadOnlyCollection<Role> Roles
-  +HasRole(role: Role): bool
+  +IReadOnlyCollection<HeldRole> Roles
+  +IReadOnlySet<string> Capabilities
+  +Has(capability: string): bool
+}
+interface ICurrentOrganisation {
+  +Guid Id
 }
 class ResourceAccess <<static>> {
-  +{static} Contributors: IReadOnlyList<Role>
   +{static} CanContribute(current: ICurrentUser): bool
   +{static} Visible(query: IQueryable<Resource>, caller: Caller): IQueryable<Resource>
   +{static} VisibleOrOwnArchived(query, caller): IQueryable<Resource>
   +{static} CanEdit(resource: Resource, caller: Caller): bool
   +{static} IsAdminOverride(resource: Resource, caller: Caller): bool
 }
-ResourceAccess ..> ICurrentUser : roles now
+ResourceAccess ..> ICurrentUser : Has(AddResources), held roles now
+ResourceAccess ..> ICurrentOrganisation : query filter
 ResourceAccess ..> Resource : filters
 
 interface IFullTextSearch {
@@ -136,7 +140,7 @@ ResourcesSearchSource --> IFullTextSearch
 class ResourceSummaryDto <<record>> {
   +Guid Id
   +string Title
-  +ResourceType Type
+  +ResourceTypeDto Type
   +ResourceVisibility Visibility
   +ResourceOwnerDto Owner
   +DateTimeOffset AddedAt

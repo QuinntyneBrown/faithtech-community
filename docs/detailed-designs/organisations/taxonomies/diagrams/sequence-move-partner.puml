@@ -15,11 +15,11 @@ skinparam package {
   BackgroundColor #F9FAFB
 }
 actor "Partner manager" as actor
-box "Frontend — FaithTech Community web app (partners library)" #E0F2FE
+box "Frontend — Community web app (partners library)" #E0F2FE
   participant "PartnersPage" as page
   participant "MovePartnerDialog" as dlg
 end box
-box "Frontend — FaithTech Community web app (api library)" #E0F2FE
+box "Frontend — Community web app (api library)" #E0F2FE
   participant "HttpOrganisationService" as org
   participant "HttpPartnersService" as svc
 end box
