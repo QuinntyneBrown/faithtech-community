@@ -31,6 +31,9 @@ public class CommunityApiFactory : WebApplicationFactory<Program>, IAsyncLifetim
 
     public const string MarketingOrigin = "https://www.faithtech.test";
 
+    /// <summary>The one account listed in <c>Platform:Operators</c> (L2-148 AC1).</summary>
+    public const string OperatorEmail = "ops@platform.test";
+
     // Shared by servers derived with WithWebHostBuilder, so they see the same data.
     private readonly InMemoryDatabaseRoot _databaseRoot = new();
     private readonly string _databaseName = Guid.NewGuid().ToString();
@@ -82,6 +85,7 @@ public class CommunityApiFactory : WebApplicationFactory<Program>, IAsyncLifetim
         builder.UseSetting("Outbox:Enabled", "false");
         // The private-preview wall is off, as in Development; tests/PrivatePreview turns it on (ADR 0026).
         builder.UseSetting("PrivatePreview:Enabled", "false");
+        builder.UseSetting("Platform:Operators:0", OperatorEmail);
         builder.ConfigureTestServices(services =>
         {
             services.RemoveAll<IDbContextOptionsConfiguration<CommunityDbContext>>();

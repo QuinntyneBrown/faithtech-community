@@ -69,6 +69,8 @@ public class CommunityDbContext : IdentityDbContext<CommunityUser, IdentityRole<
 
     public DbSet<OrganisationAdminRoster> OrganisationAdminRosters => Set<OrganisationAdminRoster>();
 
+    public DbSet<PlatformAuditEntry> PlatformAuditEntries => Set<PlatformAuditEntry>();
+
     public DbSet<Notification> Notifications => Set<Notification>();
 
     public DbSet<Invite> Invites => Set<Invite>();
@@ -254,6 +256,17 @@ public class CommunityDbContext : IdentityDbContext<CommunityUser, IdentityRole<
             entry.Property(e => e.TargetType).HasMaxLength(100);
             entry.Property(e => e.TargetId).HasMaxLength(100);
             entry.Property(e => e.IpAddress).HasMaxLength(45);
+            entry.HasIndex(e => e.OccurredAtUtc);
+        });
+
+        builder.Entity<PlatformAuditEntry>(entry =>
+        {
+            entry.Property(e => e.Id).ValueGeneratedNever();
+            entry.Property(e => e.OperatorEmail).HasMaxLength(256);
+            entry.Property(e => e.Source).HasConversion<string>().HasMaxLength(8);
+            entry.Property(e => e.Action).HasMaxLength(100);
+            entry.Property(e => e.OrganisationSlug).HasMaxLength(40);
+            entry.Property(e => e.Target).HasMaxLength(256);
             entry.HasIndex(e => e.OccurredAtUtc);
         });
 

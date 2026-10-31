@@ -82,6 +82,7 @@ app.MapTaxonomiesEndpoints();
 app.MapSiteEndpoints();
 app.MapProfilesEndpoints();
 app.MapAuditLogEndpoints();
+app.MapPlatformEndpoints();
 app.MapRolesEndpoints();
 app.MapAdminUsersEndpoints();
 app.MapInvitesEndpoints();
