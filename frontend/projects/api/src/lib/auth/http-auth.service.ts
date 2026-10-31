@@ -13,6 +13,7 @@ import { Injectable, computed, inject, signal } from '@angular/core';
 import { Observable, catchError, firstValueFrom, map, of, switchMap, tap, throwError } from 'rxjs';
 
 import { API_BASE_URL } from '../config';
+import type { Role } from '../shared';
 import { HANDLES_FORBIDDEN } from '../errors';
 import { BROWSER_REDIRECT } from './browser-redirect';
 import {
@@ -41,7 +42,8 @@ export class HttpAuthService implements AuthService {
   readonly isAuthenticated = this.oidc.isAuthenticated;
   readonly currentUser = this.user.asReadonly();
   readonly notAMember = this.refused.asReadonly();
-  readonly roles = computed(() => this.user()?.roles ?? []);
+  readonly roles = computed(() => (this.user()?.roles ?? []).map((r) => r.key as Role));
+  readonly capabilities = computed(() => this.user()?.capabilities ?? []);
 
   signIn(returnUrl?: string, keepSignedIn?: boolean): Promise<void> {
     return this.oidc.signIn(returnUrl, keepSignedIn);

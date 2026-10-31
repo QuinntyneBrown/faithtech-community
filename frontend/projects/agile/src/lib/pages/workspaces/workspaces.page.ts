@@ -2,6 +2,7 @@ import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@a
 import {
   AGILE_SERVICE,
   AUTH_SERVICE,
+  hasAny,
   WorkspaceDto,
   WorkspaceSummaryDto,
 } from '@faithtech-community/api';
@@ -51,7 +52,7 @@ type State = 'loading' | 'loaded' | 'error';
 })
 export class WorkspacesPage {
   private readonly agile = inject(AGILE_SERVICE);
-  private readonly roles = inject(AUTH_SERVICE).roles;
+  private readonly capabilities = inject(AUTH_SERVICE).capabilities;
   private readonly dialogs = inject(DialogService);
   private readonly toasts = inject(ToastService);
 
@@ -61,16 +62,16 @@ export class WorkspacesPage {
   /** Listed only to their owner and System Admin, who may restore them (L2-037 AC1). */
   protected readonly archived = computed(() => this.all().filter((w) => w.isArchived));
 
-  /** City Leads and System Admins create workspaces (L2-031 AC1). */
-  protected readonly canCreate = computed(() =>
-    this.roles().some((r) => r === 'CityLead' || r === 'SystemAdmin'),
-  );
+  /** OwnWorkspaces creates workspaces (L2-031 AC1, L2-135 AC7). */
+  protected readonly canCreate = computed(() => hasAny(this.capabilities(), 'OwnWorkspaces'));
+  private readonly isAdmin = computed(() => this.capabilities().includes('AdministerOrganisation'));
+  /** ReadAllWorkspaces without administration reads every workspace without changing it. */
   protected readonly isStaff = computed(
-    () => this.roles().includes('Staff') && !this.roles().includes('SystemAdmin'),
+    () => this.capabilities().includes('ReadAllWorkspaces') && !this.isAdmin(),
   );
   protected readonly subtitle = computed(() => {
     if (this.isStaff()) return 'Every workspace, read-only';
-    if (this.roles().includes('SystemAdmin')) return 'Every workspace';
+    if (this.isAdmin()) return 'Every workspace';
     return this.canCreate() ? 'Workspaces you own or belong to' : 'Workspaces you’ve been added to';
   });
 

@@ -21,6 +21,7 @@ import {
   ROLES,
   ROLE_LABELS,
   Role,
+  hasAny,
 } from '@faithtech-community/api';
 import {
   AlertComponent,
@@ -61,7 +62,6 @@ const SUMMARY: Record<string, string> = {
   [SUBJECT_MESSAGE]: 'Add a subject',
   [BODY_MESSAGE]: 'Write a message',
 };
-const SENDERS: Role[] = ['CommunicationsLead', 'SystemAdmin'];
 
 /**
  * Compose and send an announcement (L2-029, mock `pages/compose-announcement`). The send button shows how
@@ -180,11 +180,7 @@ export class ComposeAnnouncementPage {
   });
 
   constructor() {
-    if (
-      !inject(AUTH_SERVICE)
-        .roles()
-        .some((r) => SENDERS.includes(r))
-    ) {
+    if (!hasAny(inject(AUTH_SERVICE).capabilities(), 'SendAnnouncements')) {
       void this.router.navigateByUrl('/forbidden');
       return;
     }

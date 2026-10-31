@@ -1,4 +1,5 @@
 import { Route } from '@playwright/test';
+import { firstRoleCarrying, holds } from './role-definitions';
 
 /** An RSVP as the Rsvps table holds it: a member's profile id, or a guest's name and email. */
 export interface MockRsvp {
@@ -61,19 +62,10 @@ export interface MockEmail {
 }
 
 const LIST_FILTERS = ['upcoming', 'past', 'hackathons', 'online'];
-const MANAGERS = ['EventLead', 'CityLead', 'SystemAdmin'];
-const LEADS = ['CityLead', 'EventLead', 'CreateLead', 'CommunicationsLead'];
-const HOST_ROLES: [string, string][] = [
-  ['EventLead', 'Event Lead'],
-  ['CityLead', 'City Lead'],
-  ['SystemAdmin', 'System Admin'],
-];
 
 /** EventPermissions: who sees the RSVP list, guest emails and the CSV export (L2-022). */
-const seesList = (c: EventsCaller) =>
-  c.roles.some((r) => LEADS.includes(r) || r === 'Staff' || r === 'SystemAdmin');
-const seesEmails = (c: EventsCaller) =>
-  c.roles.some((r) => LEADS.includes(r) || r === 'SystemAdmin');
+const seesList = (c: EventsCaller) => holds(c, 'ViewAttendees') || holds(c, 'ManageAttendance');
+const seesEmails = (c: EventsCaller) => holds(c, 'ManageAttendance');
 
 /** Walk-ins did not RSVP: RSVP counts, lists and the RSVP export leave them out (L2-121 AC3). */
 const rsvped = (event: MockEvent) => event.rsvps.filter((r) => !r.isWalkIn);
@@ -124,7 +116,7 @@ export function slug(title: string): string {
 const TYPES = ['Gathering', 'BuildersNight', 'Hackathon', 'PrayerAndPlanning', 'Panel'];
 
 function canManage(caller: EventsCaller): boolean {
-  return caller.roles.some((r) => MANAGERS.includes(r));
+  return holds(caller, 'ManageEvents');
 }
 
 const text = (value: unknown) => (typeof value === 'string' ? value.trim() : '');
@@ -835,7 +827,9 @@ export class MockEvents {
         : null,
       cancelledAt: event.cancelledAt ?? null,
       hostName: host?.name ?? null,
-      hostRole: HOST_ROLES.find(([role]) => host?.roles.includes(role))?.[1] ?? null,
+      hostRole: host
+        ? firstRoleCarrying(host.roles, 'ManageEvents', 'AdministerOrganisation')
+        : null,
       callerHasRsvp: event.rsvps.some((r) => r.profileId === caller.profileId),
       canManage: canManage(caller),
       canExportRsvps: seesEmails(caller),

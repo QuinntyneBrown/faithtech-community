@@ -7,6 +7,7 @@ import type { MockEvents } from './mock-events';
 import type { MockPartners } from './mock-partners';
 import type { MockResources } from './mock-resources';
 import type { MockNotes } from './mock-notes';
+import { holds } from './role-definitions';
 
 /** What the search fake reads from the rest of the fake backend. */
 export interface SearchContext {
@@ -20,7 +21,6 @@ export interface SearchContext {
   readonly notes: MockNotes;
 }
 
-const LEADS = ['CityLead', 'EventLead', 'CreateLead', 'CommunicationsLead'];
 const LIMIT = 10;
 
 /**
@@ -66,8 +66,6 @@ export class MockSearch {
       startsAt: extra.startsAt ?? null,
       badge: extra.badge ?? null,
     });
-    const roles = caller.roles;
-    const readsAll = roles.includes('Staff') || roles.includes('SystemAdmin');
     const accounts = [...this.context.accounts.values()];
 
     const people = [...this.context.profiles.values()]
@@ -85,7 +83,7 @@ export class MockSearch {
         }),
       );
     const partners =
-      roles.some((r) => LEADS.includes(r)) || readsAll
+      holds(caller, 'ViewPartners') || holds(caller, 'ManagePartners')
         ? this.context.partners.partners
             // Merged (archived) partners are never found (L2-114 AC4).
             .filter((p) => !p.archivedAtUtc)
@@ -102,27 +100,28 @@ export class MockSearch {
               ),
             )
         : [];
-    const contacts =
-      roles.some((r) => LEADS.includes(r)) || roles.includes('SystemAdmin')
-        ? this.context.contacts.contacts
-            .filter((c) => c.ownerId === caller.profileId && !c.archivedAtUtc)
-            .filter((c) => matches(c.name, c.email, c.organization, c.city))
-            .map((c) =>
-              item(
-                c.id,
-                c.name,
-                [c.organization, c.city].filter(Boolean).join(' · '),
-                `/contacts/${c.id}`,
-                {
-                  badge: 'Private',
-                },
-              ),
-            )
-        : [];
+    const contacts = holds(caller, 'KeepContacts')
+      ? this.context.contacts.contacts
+          .filter((c) => c.ownerId === caller.profileId && !c.archivedAtUtc)
+          .filter((c) => matches(c.name, c.email, c.organization, c.city))
+          .map((c) =>
+            item(
+              c.id,
+              c.name,
+              [c.organization, c.city].filter(Boolean).join(' · '),
+              `/contacts/${c.id}`,
+              {
+                badge: 'Private',
+              },
+            ),
+          )
+      : [];
     const visible = this.context.agile.workspaces.filter(
       (w) =>
         !w.isArchived &&
-        (readsAll || w.ownerId === caller.profileId || w.memberIds.includes(caller.profileId)),
+        (holds(caller, 'ReadAllWorkspaces') ||
+          w.ownerId === caller.profileId ||
+          w.memberIds.includes(caller.profileId)),
     );
     const workItems = this.context.agile.items
       .filter((i) => !i.isArchived && visible.some((w) => w.id === i.workspaceId))

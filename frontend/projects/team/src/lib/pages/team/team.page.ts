@@ -7,7 +7,7 @@ import {
   TEAM_SERVICE,
   TeamMemberDto,
   TeamRoleFilter,
-  isLead,
+  hasAny,
 } from '@faithtech-community/api';
 import {
   AlertComponent,
@@ -64,7 +64,7 @@ const ROLE_CHIPS: { label: string; value: TeamRoleFilter | null }[] = [
 })
 export class TeamPage {
   private readonly team = inject(TEAM_SERVICE);
-  private readonly callerRoles = inject(AUTH_SERVICE).roles;
+  private readonly capabilities = inject(AUTH_SERVICE).capabilities;
 
   protected readonly roleChips = ROLE_CHIPS;
   protected readonly city = new FormControl('', { nonNullable: true });
@@ -84,7 +84,8 @@ export class TeamPage {
     () => `Showing ${this.members().length} of ${this.total()} members`,
   );
 
-  protected readonly canInvite = computed(() => isLead(this.callerRoles()));
+  /** InviteMembers sends invites (L2-010, L2-135 AC7). */
+  protected readonly canInvite = computed(() => hasAny(this.capabilities(), 'InviteMembers'));
   protected readonly cityOptions = computed<SelectOption[]>(() => [
     { value: '', label: 'All cities' },
     ...this.cities().map((c) => ({ value: c, label: c })),

@@ -10,7 +10,9 @@ namespace FaithTech.Community.Api.Tests.Organisations;
 // definitions their profile holds in the host's organisation, and /api/me returns them.
 public class CapabilitiesTests(CommunityApiFactory factory) : IClassFixture<CommunityApiFactory>
 {
-    public sealed record Me(string[] Roles, string[] Capabilities);
+    public sealed record HeldRole(Guid Id, string Key, string Name, Guid? ChapterId, bool IsOversight);
+
+    public sealed record Me(HeldRole[] Roles, string[] Capabilities);
 
     [Fact]
     public async Task A_member_with_no_role_has_no_capability()
@@ -29,7 +31,11 @@ public class CapabilitiesTests(CommunityApiFactory factory) : IClassFixture<Comm
 
         var me = await factory.ClientFor(member, Role.Volunteer, Role.Staff).GetFromJsonAsync<Me>("/api/me");
 
-        Assert.Equal(["Staff", "Volunteer"], me!.Roles.Order());
+        // L2-133 AC1: roles are the held assignments, named by the organisation, in display order.
+        Assert.Equal(
+            [new HeldRole(TestRoles.DefinitionId(Role.Staff), "Staff", "Staff", null, true),
+             new HeldRole(TestRoles.DefinitionId(Role.Volunteer), "Volunteer", "Volunteer", null, false)],
+            me!.Roles);
         Assert.Equal(
             ["AddResources", "JoinWorkspaces", "ReadAllWorkspaces", "ViewAttendees", "ViewPartners", "ViewPeopleDirectory", "ViewReports"],
             me.Capabilities.Order(StringComparer.Ordinal));

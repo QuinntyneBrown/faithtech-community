@@ -133,21 +133,27 @@ describe('HttpAuthService', () => {
     await expect(service.restoreSession()).resolves.toBe(false);
   });
 
-  it('loads the current user and exposes the roles', () => {
+  // L2-133 AC1, L2-135 AC7: the held roles come named by the organisation, with the capabilities they allow.
+  it('loads the current user and exposes the held roles and capabilities', () => {
     const me = {
       id: 'u1',
       profileId: 'p1',
       name: 'Ada',
       email: 'a@b.c',
       emailVerified: false,
-      roles: ['Lead', 'Volunteer'],
+      roles: [
+        { id: 'r1', key: 'EventLead', name: 'Event Lead', chapterId: null, isOversight: false },
+        { id: 'r2', key: 'Volunteer', name: 'Volunteer', chapterId: null, isOversight: false },
+      ],
+      capabilities: ['ManageEvents', 'JoinWorkspaces'],
     };
     service.loadCurrentUser().subscribe();
 
     controller.expectOne('/api/me').flush(me);
 
     expect(service.currentUser()).toEqual(me);
-    expect(service.roles()).toEqual(['Lead', 'Volunteer']);
+    expect(service.roles()).toEqual(['EventLead', 'Volunteer']);
+    expect(service.capabilities()).toEqual(['ManageEvents', 'JoinWorkspaces']);
   });
 
   // Traces to: L2-078

@@ -27,16 +27,6 @@ export const SHAREABLE_ROLES: Role[] = [
   'Staff',
 ];
 
-/** The roles that may add and own resources (L2-057, ADR 0017: Staff is the carve-out). */
-export const RESOURCE_CONTRIBUTOR_ROLES: Role[] = [
-  'CityLead',
-  'EventLead',
-  'CreateLead',
-  'CommunicationsLead',
-  'Staff',
-  'SystemAdmin',
-];
-
 /** A row of the Resources list (L2-055). A link has `linkUrl` and `linkHost`; a file the rest. */
 export interface ResourceSummary {
   id: string;

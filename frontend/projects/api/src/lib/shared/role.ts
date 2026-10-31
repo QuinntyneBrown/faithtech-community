@@ -47,8 +47,6 @@ const CITY_LEAD_ROLES: readonly Role[] = [
   'Attendee',
 ];
 
-const LEAD_ROLES: readonly Role[] = ['CityLead', 'EventLead', 'CreateLead', 'CommunicationsLead'];
-
 /**
  * The roles a caller holding `callerRoles` may grant or remove (L2-009), mirroring the server's
  * RoleAssignmentPolicy (ADR 0005). The server stays the authority and answers 403 for the rest.
@@ -57,9 +55,4 @@ export function assignableRoles(callerRoles: readonly Role[]): Role[] {
   if (callerRoles.includes('SystemAdmin')) return [...ROLES];
   if (callerRoles.includes('CityLead')) return [...CITY_LEAD_ROLES];
   return [];
-}
-
-/** Leads and System Admins may send invites (L2-010). */
-export function isLead(callerRoles: readonly Role[]): boolean {
-  return callerRoles.some((r) => r === 'SystemAdmin' || LEAD_ROLES.includes(r));
 }

@@ -4,6 +4,7 @@ import { signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import {
   AUTH_SERVICE,
+  Capability,
   PEOPLE_SERVICE,
   PagedResult,
   PersonSummary,
@@ -42,6 +43,8 @@ function page(items: PersonSummary[], totalCount = items.length): PagedResult<Pe
 async function setup(
   search: (term: string, page?: number) => Observable<PagedResult<PersonSummary>>,
   callerRoles: Role[] = ['CityLead'],
+  // L2-135 AC7: the page decides from capabilities; the held keys feed the role pickers until slice 14.
+  capabilities: Capability[] = ['AssignRoles', 'ViewPeopleDirectory'],
 ) {
   const service = { search: vi.fn(search) };
   const roles = {
@@ -59,7 +62,10 @@ async function setup(
     providers: [
       { provide: PEOPLE_SERVICE, useValue: service },
       { provide: ROLES_SERVICE, useValue: roles },
-      { provide: AUTH_SERVICE, useValue: { roles: signal(callerRoles) } },
+      {
+        provide: AUTH_SERVICE,
+        useValue: { roles: signal(callerRoles), capabilities: signal(capabilities) },
+      },
       { provide: DialogService, useValue: dialogs },
     ],
   });
@@ -133,7 +139,11 @@ describe('PeoplePage', () => {
   });
 
   it('lets a System Admin change every role', async () => {
-    const { host, row, button } = await setup(() => of(page([grace])), ['SystemAdmin']);
+    const { host, row, button } = await setup(
+      () => of(page([grace])),
+      ['SystemAdmin'],
+      ['AdministerOrganisation'],
+    );
 
     expect(host.textContent).toContain('As System Admin you can assign any role');
     expect(button(row('Grace Okonkwo'), 'Remove a role from Grace Okonkwo')).toBeDefined();
@@ -141,7 +151,11 @@ describe('PeoplePage', () => {
   });
 
   it('shows Staff the list read-only', async () => {
-    const { host, row, button } = await setup(() => of(page([grace, marcus])), ['Staff']);
+    const { host, row, button } = await setup(
+      () => of(page([grace, marcus])),
+      ['Staff'],
+      ['ViewPeopleDirectory'],
+    );
 
     expect(host.textContent).toContain('Read-only for Staff.');
     expect(button(host, 'Invite someone')).toBeUndefined();

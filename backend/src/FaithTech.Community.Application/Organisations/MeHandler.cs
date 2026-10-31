@@ -9,6 +9,12 @@ namespace FaithTech.Community.Application.Organisations;
 /// <summary>Another organisation the account belongs to, as the switcher and the not-a-member page link to it.</summary>
 public sealed record MembershipDto(string Name, string Host);
 
+/// <summary>
+/// A role the caller holds, as the organisation names it (L2-133 AC1). `Key` names it in requests until role pickers use
+/// ids (slice 14); `ChapterId` is the chapter it is tagged with, once chapters exist (slice 21).
+/// </summary>
+public sealed record HeldRoleDto(Guid Id, string Key, string Name, Guid? ChapterId, bool IsOversight);
+
 /// <summary>GET /api/me for a member of the host's organisation (L2-133 AC1).</summary>
 public sealed record MeDto(
     Guid Id,
@@ -16,7 +22,7 @@ public sealed record MeDto(
     string Name,
     string? Email,
     bool EmailVerified,
-    IReadOnlyCollection<string> Roles,
+    IReadOnlyList<HeldRoleDto> Roles,
     MeOrganisationDto Organisation,
     IReadOnlyList<MembershipDto> Memberships,
     IReadOnlyCollection<string> Capabilities);
@@ -53,7 +59,7 @@ public class MeHandler(IApplicationDbContext db, ICurrentUser current, ICurrentO
             name,
             user.Email,
             user.EmailConfirmed,
-            [.. membership.Roles.Select(r => r.Key)],
+            [.. membership.Roles.Select(r => new HeldRoleDto(r.Id, r.Key, r.Name, null, r.IsOversight))],
             MeOrganisationDto.Of(organisation),
             memberships,
             [.. membership.Capabilities.Order(StringComparer.Ordinal)]), null);
