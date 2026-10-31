@@ -20,9 +20,7 @@ public class PartnerAccess(IApplicationDbContext db, ICurrentUser current, IAudi
     public bool CanRestore => current.HasRole(Role.SystemAdmin);
 
     public async Task<Guid> CallerProfileIdAsync(CancellationToken cancellationToken = default) =>
-        current.UserId is { } userId
-            ? await db.Users.Where(u => u.Id == userId).Select(u => u.ProfileId).SingleOrDefaultAsync(cancellationToken)
-            : Guid.Empty;
+        await Task.FromResult(current.ProfileId ?? Guid.Empty);
 
     /// <summary>A System Admin acting without a lead role changes the pipeline by admin right, so it is audited.</summary>
     public void AuditAdminWrite(Guid actor, Partner partner, string action, object? before, object? after)

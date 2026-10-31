@@ -1,12 +1,13 @@
 import { Routes } from '@angular/router';
 
-import { authGuard } from './guards';
+import { authGuard, notAMemberGuard } from './guards';
 import {
   AuthCallbackPage,
   AuthContinuePage,
   ForbiddenPage,
   ForgotPasswordPage,
   HomePage,
+  NotAMemberPage,
   NotFoundPage,
   ResetPasswordPage,
   ServerErrorPage,
@@ -45,6 +46,8 @@ export const routes: Routes = [
     loadChildren: () =>
       import('@faithtech-community/announcements').then((m) => m.UNSUBSCRIBE_ROUTES),
   },
+  // A signed-in account with no profile on this host sees only this page (L2-132 AC3).
+  { path: 'not-a-member', component: NotAMemberPage, canActivate: [notAMemberGuard] },
   { path: 'forbidden', component: ForbiddenPage },
   { path: 'error', component: ServerErrorPage },
   {

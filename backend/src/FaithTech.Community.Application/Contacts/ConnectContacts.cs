@@ -27,7 +27,7 @@ public class ContactConnector(IApplicationDbContext db, IEmailQueue emails, ICur
             return ConnectOutcome.OwnCode;
         }
 
-        if (await db.Users.AnyAsync(u => u.ProfileId == profileId && u.EmailConfirmed, cancellationToken))
+        if (await db.Users.AnyAsync(u => db.Profiles.Any(p => p.Id == profileId && p.UserId == u.Id) && u.EmailConfirmed, cancellationToken))
         {
             await ConnectAsync(leadId, profileId, cancellationToken);
             return ConnectOutcome.Connected;
@@ -66,8 +66,8 @@ public class ContactConnector(IApplicationDbContext db, IEmailQueue emails, ICur
             return false;
         }
 
-        var person = await db.Users.Where(u => u.ProfileId == profileId)
-            .Join(db.Profiles, u => u.ProfileId, p => p.Id, (u, p) => new { p.Name, u.Email })
+        var person = await db.Profiles.Where(p => p.Id == profileId)
+            .Join(db.Users, p => p.UserId, u => (Guid?)u.Id, (p, u) => new { p.Name, u.Email })
             .SingleAsync(cancellationToken);
         var email = person.Email!;
         var normalized = email.Trim().ToUpperInvariant();
@@ -91,7 +91,7 @@ public class ContactConnector(IApplicationDbContext db, IEmailQueue emails, ICur
         contact.LinkTo(profileId);
         var title = $"{person.Name} connected with you";
         db.Notifications.Add(new Notification(leadId, NotificationKind.ContactSignedUp, title, $"/contacts/{contact.Id}", now));
-        if (await db.Users.Where(u => u.ProfileId == leadId).Select(u => u.Email).SingleOrDefaultAsync(cancellationToken) is { } address)
+        if (await db.Users.Where(u => db.Profiles.Any(p => p.Id == leadId && p.UserId == u.Id)).Select(u => u.Email).SingleOrDefaultAsync(cancellationToken) is { } address)
         {
             emails.Enqueue(new EmailMessage(
                 address,

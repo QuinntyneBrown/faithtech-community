@@ -91,7 +91,7 @@ public class ContactViews(IApplicationDbContext db, IPhotoStorage storage)
 
         var normalized = email.Trim().ToUpperInvariant();
         return await db.Users.Where(u => u.EmailConfirmed && u.NormalizedEmail == normalized)
-            .Join(db.Profiles, u => u.ProfileId, p => p.Id, (u, p) => new ContactMatchDto(p.Id, p.Name))
+            .Join(db.Profiles, u => (Guid?)u.Id, p => p.UserId, (u, p) => new ContactMatchDto(p.Id, p.Name))
             .FirstOrDefaultAsync(cancellationToken);
     }
 }

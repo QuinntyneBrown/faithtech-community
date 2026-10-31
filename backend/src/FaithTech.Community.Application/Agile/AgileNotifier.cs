@@ -29,8 +29,9 @@ public class AgileNotifier(IApplicationDbContext db, IEmailQueue emails, ICurren
     public async Task QueueEmailsAsync(CancellationToken cancellationToken = default)
     {
         var recipients = _emails.Select(e => e.Recipient).Distinct().ToList();
-        var addresses = await db.Users.Where(u => recipients.Contains(u.ProfileId))
-            .ToDictionaryAsync(u => u.ProfileId, u => u.Email, cancellationToken);
+        var addresses = await db.Profiles.Where(p => recipients.Contains(p.Id))
+            .Join(db.Users, p => p.UserId, u => (Guid?)u.Id, (p, u) => new { p.Id, u.Email })
+            .ToDictionaryAsync(x => x.Id, x => x.Email, cancellationToken);
         foreach (var (recipient, subject, body) in _emails)
         {
             if (addresses.GetValueOrDefault(recipient) is { } address)

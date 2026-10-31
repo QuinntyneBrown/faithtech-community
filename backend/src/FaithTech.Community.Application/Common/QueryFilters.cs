@@ -11,4 +11,10 @@ public static class QueryFilters
 
     /// <summary>Lift with <c>IgnoreQueryFilters(QueryFilters.ArchivedOnly)</c> to see archived records of this organisation.</summary>
     public static readonly string[] ArchivedOnly = [Archived];
+
+    /// <summary>
+    /// Lifts the organisation filter. Only <c>MeHandler</c> uses it, to list the caller's own memberships of other
+    /// organisations by name and host (L2-132 AC3, L2-133 AC1); nothing else of another organisation is ever read.
+    /// </summary>
+    public static readonly string[] OrganisationOnly = [Organisation];
 }

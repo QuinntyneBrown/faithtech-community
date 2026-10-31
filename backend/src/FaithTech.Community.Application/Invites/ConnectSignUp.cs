@@ -44,7 +44,11 @@ public class ConnectHandler(
             return (Result.NotFound(), null);
         }
 
-        var profileId = await db.Users.Where(u => u.Id == current.UserId).Select(u => u.ProfileId).SingleAsync(cancellationToken);
+        if (current.ProfileId is not { } profileId)
+        {
+            return (Result.NotFound(), null);
+        }
+
         var outcome = await connector.RequestAsync(lead.LeadProfileId, profileId, cancellationToken);
         return (Result.Ok(), new ConnectResultDto(outcome.ToString(), lead.LeadName));
     }
@@ -62,7 +66,8 @@ public class ConnectHandler(
         // A new account waits for its email to be verified before the lead's contact is made (AC3, AC4).
         if (user is not null)
         {
-            db.PendingConnections.Add(new Domain.Contacts.PendingConnection(user.ProfileId, leadId, time.GetUtcNow()));
+            var profileId = await db.Profiles.Where(p => p.UserId == user.Id).Select(p => p.Id).SingleAsync(cancellationToken);
+            db.PendingConnections.Add(new Domain.Contacts.PendingConnection(profileId, leadId, time.GetUtcNow()));
             await db.SaveChangesAsync(cancellationToken);
         }
 

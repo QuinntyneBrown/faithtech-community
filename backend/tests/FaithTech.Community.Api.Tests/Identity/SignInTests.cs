@@ -68,7 +68,7 @@ public class SignInTests(CommunityApiFactory factory) : IClassFixture<CommunityA
         var email = await _flow.CreateAccountAsync();
         var api = _flow.Api((await _flow.SignInAndGetTokensAsync(email)).AccessToken);
         var profileId = await factory.WithDbAsync(db =>
-            db.Users.Where(u => u.Email == email).Select(u => u.ProfileId).SingleAsync());
+            db.Users.Where(u => u.Email == email).Join(db.Profiles, u => (Guid?)u.Id, p => p.UserId, (u, p) => p.Id).SingleAsync());
 
         var me = await api.GetFromJsonAsync<JsonElement>("/api/me");
 
@@ -168,7 +168,7 @@ public class SignInTests(CommunityApiFactory factory) : IClassFixture<CommunityA
         var email = await _flow.CreateAccountAsync();
         await factory.WithDbAsync(async db =>
         {
-            var profileId = await db.Users.Where(u => u.Email == email).Select(u => u.ProfileId).SingleAsync();
+            var profileId = await db.Users.Where(u => u.Email == email).Join(db.Profiles, u => (Guid?)u.Id, p => p.UserId, (u, p) => p.Id).SingleAsync();
             (await db.Profiles.SingleAsync(p => p.Id == profileId)).Suspend("Misuse", DateTime.UtcNow);
             return await db.SaveChangesAsync();
         });

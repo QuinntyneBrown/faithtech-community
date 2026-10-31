@@ -54,7 +54,7 @@ public class RsvpHandler(
         var link = $"/events/{e.Id}";
         notifications.Publish(me, NotificationKind.RsvpConfirmed, title, link);
 
-        var address = await db.Users.Where(u => u.ProfileId == me).Select(u => u.Email).SingleOrDefaultAsync(cancellationToken);
+        var address = await db.Users.Where(u => db.Profiles.Any(p => p.Id == me && p.UserId == u.Id)).Select(u => u.Email).SingleOrDefaultAsync(cancellationToken);
         if (address is not null)
         {
             emails.Enqueue(Confirmation(e, address, $"{organisation.Origin}{link}"));

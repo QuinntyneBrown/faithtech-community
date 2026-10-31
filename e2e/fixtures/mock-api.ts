@@ -10,7 +10,7 @@ import { MockGoogle } from './mock-google';
 import { MockNotification, MockNotifications } from './mock-notifications';
 import { MockReports } from './mock-reports';
 import { MockSearch } from './mock-search';
-import { MockHost } from './mock-host';
+import { MockHost, MockOrganisation } from './mock-host';
 import { MockWall } from './mock-wall';
 import { MockResources } from './mock-resources';
 import { MockNotes } from './mock-notes';
@@ -23,6 +23,11 @@ export interface MockAccount {
   suspended: boolean;
   roles: string[];
   profileId: string;
+  /**
+   * The organisations the account has a profile in (its memberships, ADR 0032). Unset means a member of whichever
+   * organisation the host serves, as every account was before organisations; set, the fake answers per host.
+   */
+  organisations?: MockOrganisation[];
 }
 
 export interface MockPhoto {
@@ -341,6 +346,12 @@ export class MockApi {
     if (override) return override(route, body);
 
     const authorization = request.headers()['authorization'];
+    // MembershipRequirement: a signed-in account with no profile here reaches only /api/me, the account, /connect
+    // and /api/site (L2-132 AC3).
+    const caller = this.caller(authorization);
+    if (caller && !this.isMemberHere(caller) && !openToNonMembers(method, url.pathname)) {
+      return route.fulfill({ status: 403 });
+    }
     const connect = this.connect.handle(route, method, url, body, this.caller(authorization));
     if (connect) return connect;
     const contacts = this.contacts.handle(route, method, url, body, this.caller(authorization));
@@ -526,6 +537,17 @@ export class MockApi {
     if (!account || authorization !== 'Bearer access-token') {
       return route.fulfill({ status: 401 });
     }
+    if (!this.isMemberHere(account)) {
+      return route.fulfill({
+        status: 403,
+        json: {
+          reason: 'not-a-member',
+          organisation: { name: this.host.organisation.name },
+          email: account.email,
+          memberships: (account.organisations ?? []).map((o) => ({ name: o.name, host: o.host })),
+        },
+      });
+    }
     return route.fulfill({
       status: 200,
       json: {
@@ -538,6 +560,14 @@ export class MockApi {
         organisation: this.host.organisation,
       },
     });
+  }
+
+  /** Whether the account has a profile in the organisation the host serves. */
+  private isMemberHere(account: MockAccount): boolean {
+    return (
+      !account.organisations ||
+      account.organisations.some((o) => o.slug === this.host.organisation.slug)
+    );
   }
 
   /** The signed-in caller, or null when the bearer token is missing or stale (the API's 401). */
@@ -1172,4 +1202,14 @@ function parseBody(data: string | null, contentType = ''): Record<string, unknow
   } catch {
     return {};
   }
+}
+
+/** The paths MembershipRequirement leaves open to a signed-in account with no profile on the host. */
+function openToNonMembers(method: string, path: string): boolean {
+  return (
+    (method === 'GET' && path === '/api/me') ||
+    ['/api/account', '/connect', '/api/site', '/api/platform'].some(
+      (p) => path === p || path.startsWith(`${p}/`),
+    )
+  );
 }

@@ -32,7 +32,7 @@ export const FAITHTECH: MockOrganisation = {
   slug: 'faithtech',
   name: 'FaithTech Community',
   shortName: 'FaithTech',
-  host: 'localhost',
+  host: 'app.faithtech.community',
   chapterLabel: { singular: 'City', plural: 'Cities' },
   marketing: {
     headline: 'Build with people who share your faith',
@@ -52,7 +52,7 @@ export const NORTHSIDE: MockOrganisation = {
   slug: 'northside',
   name: 'Northside Makers',
   shortName: 'Northside',
-  host: 'localhost',
+  host: 'community.northside.test',
   chapterLabel: null,
   marketing: {
     headline: 'Make things with your neighbours',

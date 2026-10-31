@@ -16,6 +16,9 @@ namespace FaithTech.Community.Application.Common;
 
 public interface IApplicationDbContext
 {
+    /// <summary>The platform's organisations, which are not scoped (ADR 0032).</summary>
+    DbSet<Domain.Organisations.Organisation> Organisations { get; }
+
     DbSet<Profile> Profiles { get; }
 
     DbSet<CommunityUser> Users { get; }

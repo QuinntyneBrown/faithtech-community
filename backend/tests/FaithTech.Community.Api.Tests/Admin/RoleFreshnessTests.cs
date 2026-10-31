@@ -73,7 +73,7 @@ public class RoleFreshnessTests(CommunityApiFactory factory) : IClassFixture<Com
         var email = await _flow.CreateAccountAsync();
         var profileId = await factory.WithDbAsync(async db =>
         {
-            var id = await db.Users.Where(u => u.Email == email).Select(u => u.ProfileId).SingleAsync();
+            var id = await db.Users.Where(u => u.Email == email).Join(db.Profiles, u => (Guid?)u.Id, p => p.UserId, (u, p) => p.Id).SingleAsync();
             var profile = await db.Profiles.SingleAsync(p => p.Id == id);
             foreach (var role in roles)
             {

@@ -78,7 +78,7 @@ public class AudienceResolver(IApplicationDbContext db)
     public IQueryable<Guid> RecipientIds(AnnouncementAudience audience)
     {
         var members = from user in db.Users
-                      join profile in db.Profiles on user.ProfileId equals profile.Id
+                      join profile in db.Profiles on (Guid?)user.Id equals profile.UserId
                       where !profile.IsSuspended
                       select profile;
         var roles = audience.Roles.ToList();
@@ -150,7 +150,7 @@ public class SendAnnouncementHandler(
             return (Result.Invalid("Audience.EventId", AnnouncementRules.EventMessage), null);
         }
 
-        var sender = await db.Users.Where(u => u.Id == userId).Select(u => u.ProfileId).SingleAsync(cancellationToken);
+        var sender = current.ProfileId ?? throw new InvalidOperationException("The caller has no profile in this organisation.");
         var subject = command.Subject!.Trim();
         var body = command.Body!.Trim();
         var recipients = await audiences.RecipientIds(audience).ToListAsync(cancellationToken);

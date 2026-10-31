@@ -70,8 +70,7 @@ public static class OrganisationScopes
             }
 
             var email = $"{Guid.NewGuid():N}@example.org";
-            db.Profiles.Add(profile);
-            db.Users.Add(new CommunityUser
+            var user = new CommunityUser
             {
                 Id = Guid.NewGuid(),
                 UserName = email,
@@ -79,10 +78,32 @@ public static class OrganisationScopes
                 NormalizedEmail = email.ToUpperInvariant(),
                 NormalizedUserName = email.ToUpperInvariant(),
                 EmailConfirmed = true,
-                ProfileId = profile.Id,
-            });
+            };
+            profile.LinkAccount(user.Id);
+            db.Profiles.Add(profile);
+            db.Users.Add(user);
             await db.SaveChangesAsync();
-            return new ProfileClients.Member(db.Users.Local.Single(u => u.ProfileId == profile.Id).Id, profile.Id);
+            return new ProfileClients.Member(user.Id, profile.Id);
+        });
+
+    /// <summary>
+    /// A second membership for an existing account: a profile in <paramref name="organisation"/> linked to
+    /// <paramref name="userId"/> (ADR 0032). Slice 07 creates these by sign-up, invite and connect link; tests arrange them.
+    /// </summary>
+    public static Task<ProfileClients.Member> AddMembershipAsync(
+        this CommunityApiFactory factory, OtherOrganisation organisation, Guid userId, string name, params Role[] roles) =>
+        factory.WithDbAsync(organisation.Id, async db =>
+        {
+            var profile = new Profile(name);
+            profile.LinkAccount(userId);
+            foreach (var role in roles)
+            {
+                profile.AddRole(role, Guid.Empty, DateTime.UtcNow);
+            }
+
+            db.Profiles.Add(profile);
+            await db.SaveChangesAsync();
+            return new ProfileClients.Member(userId, profile.Id);
         });
 
     /// <summary>

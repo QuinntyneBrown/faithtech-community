@@ -112,5 +112,5 @@ public class SuspendUsersTests(CommunityApiFactory factory) : IClassFixture<Comm
     }
 
     private Task<Guid> ProfileOfAsync(string email) =>
-        factory.WithDbAsync(db => db.Users.Where(u => u.Email == email).Select(u => u.ProfileId).SingleAsync());
+        factory.WithDbAsync(db => db.Users.Where(u => u.Email == email).Join(db.Profiles, u => (Guid?)u.Id, p => p.UserId, (u, p) => p.Id).SingleAsync());
 }

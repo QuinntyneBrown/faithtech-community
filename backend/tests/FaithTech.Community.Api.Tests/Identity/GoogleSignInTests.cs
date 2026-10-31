@@ -70,7 +70,7 @@ public class GoogleSignInTests(CommunityApiFactory factory) : IClassFixture<Comm
         await SignInWithGoogleAsync(Identity(email, name: "Leah Thompson"));
 
         var user = await factory.WithDbAsync(db => db.Users.SingleAsync(u => u.Email == email));
-        var profile = await factory.WithDbAsync(db => db.Profiles.SingleAsync(p => p.Id == user.ProfileId));
+        var profile = await factory.WithDbAsync(db => db.Profiles.SingleAsync(p => p.UserId == user.Id));
         Assert.Equal(factory.Time.GetUtcNow().UtcDateTime, profile.JoinedAtUtc);
     }
 
@@ -123,7 +123,7 @@ public class GoogleSignInTests(CommunityApiFactory factory) : IClassFixture<Comm
         var email = await _flow.CreateAccountAsync();
         await factory.WithDbAsync(async db =>
         {
-            var profileId = await db.Users.Where(u => u.Email == email).Select(u => u.ProfileId).SingleAsync();
+            var profileId = await db.Users.Where(u => u.Email == email).Join(db.Profiles, u => (Guid?)u.Id, p => p.UserId, (u, p) => p.Id).SingleAsync();
             (await db.Profiles.SingleAsync(p => p.Id == profileId)).Suspend("Misuse", DateTime.UtcNow);
             return await db.SaveChangesAsync();
         });

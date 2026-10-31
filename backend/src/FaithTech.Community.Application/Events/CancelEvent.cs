@@ -69,7 +69,8 @@ public class CancelEventHandler(
         }
 
         // Everyone who RSVP'd hears why, the person who cancelled included, since their RSVP is cancelled too.
-        var addresses = await db.Users.Where(u => members.Contains(u.ProfileId)).Select(u => u.Email!).ToListAsync(cancellationToken);
+        var addresses = await db.Profiles.Where(p => members.Contains(p.Id))
+            .Join(db.Users, p => p.UserId, u => (Guid?)u.Id, (p, u) => u.Email!).ToListAsync(cancellationToken);
         // A walk-in may have given no email.
         addresses.AddRange(e.Rsvps.Where(r => r.IsGuest && r.GuestEmail is not null).Select(r => r.GuestEmail!));
         var origin = organisation.Origin;

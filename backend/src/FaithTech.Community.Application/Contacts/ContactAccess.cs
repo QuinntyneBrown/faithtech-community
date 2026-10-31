@@ -22,9 +22,7 @@ public class ContactAccess(IApplicationDbContext db, ICurrentUser current, IAudi
     public bool CanKeepContacts => current.HoldsLeadRole() || current.HasRole(Role.SystemAdmin);
 
     public async Task<Guid?> CallerProfileIdAsync(CancellationToken cancellationToken = default) =>
-        current.UserId is { } userId
-            ? await db.Users.Where(u => u.Id == userId).Select(u => (Guid?)u.ProfileId).SingleOrDefaultAsync(cancellationToken)
-            : null;
+        await Task.FromResult(current.ProfileId);
 
     /// <summary>Loads a contact (with its notes when asked) for the caller, or reports that it must look absent.</summary>
     public async Task<(ContactAccessKind Access, Contact? Contact, Guid Actor)> AuthorizeAsync(

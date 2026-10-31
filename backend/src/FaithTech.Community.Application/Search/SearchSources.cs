@@ -19,7 +19,7 @@ public class PeopleSearchSource(IApplicationDbContext db, IFullTextSearch text) 
     {
         var rows = await text
             .Match(db.Profiles.AsNoTracking(), term, p => p.Name + " " + (p.HomeCity ?? "") + " " + (p.Bio ?? ""))
-            .Where(p => !p.IsSuspended && db.Users.Any(u => u.ProfileId == p.Id))
+            .Where(p => !p.IsSuspended && p.UserId != null)
             .Take(limit)
             .Select(p => new { p.Id, p.Name, p.HomeCity, p.Bio, Roles = p.Roles.Select(r => r.Role).ToList() })
             .ToListAsync(cancellationToken);

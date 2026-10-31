@@ -24,7 +24,7 @@ public class ResourceMembersHandler(IApplicationDbContext db, ResourceAccess acc
     private async Task<IReadOnlyList<ResourceMemberDto>> FindAsync(string? q, bool ownersOnly, CancellationToken cancellationToken)
     {
         var members = from user in db.Users.AsNoTracking()
-                      join profile in db.Profiles.AsNoTracking() on user.ProfileId equals profile.Id
+                      join profile in db.Profiles.AsNoTracking() on (Guid?)user.Id equals profile.UserId
                       where !profile.IsSuspended
                       select profile;
         if (!string.IsNullOrWhiteSpace(q))

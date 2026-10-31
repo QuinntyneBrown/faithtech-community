@@ -11,6 +11,9 @@
 import { HttpTestingController } from '@angular/common/http/testing';
 import { TestBed } from '@angular/core/testing';
 
+import { firstValueFrom } from 'rxjs';
+
+import { HANDLES_FORBIDDEN } from '../errors';
 import { AUTH_SERVICE } from './auth.service';
 import { HttpAuthService } from './http-auth.service';
 import { authTestProviders } from './test-helpers';
@@ -142,6 +145,31 @@ describe('HttpAuthService', () => {
   });
 
   // Traces to: L2-078
+  it('tells a signed-in account with no profile here that it is not a member (L2-132 AC3)', async () => {
+    const loaded = firstValueFrom(service.loadCurrentUser());
+
+    const request = controller.expectOne('/api/me');
+    expect(request.request.context.get(HANDLES_FORBIDDEN)).toBe(true);
+    request.flush(
+      {
+        reason: 'not-a-member',
+        organisation: { name: 'Northside Makers' },
+        email: 'grace@example.org',
+        memberships: [{ name: 'FaithTech Community', host: 'app.faithtech.community' }],
+      },
+      { status: 403, statusText: 'Forbidden' },
+    );
+
+    expect(await loaded).toBeNull();
+    expect(service.currentUser()).toBeNull();
+    expect(service.notAMember()).toEqual({
+      reason: 'not-a-member',
+      organisation: { name: 'Northside Makers' },
+      email: 'grace@example.org',
+      memberships: [{ name: 'FaithTech Community', host: 'app.faithtech.community' }],
+    });
+  });
+
   it('sends the browser to the API to start Google sign-in with where to land', () => {
     service.signInWithGoogle('/events', true);
 

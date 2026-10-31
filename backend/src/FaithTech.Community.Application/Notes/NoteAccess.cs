@@ -25,9 +25,7 @@ public class NoteAccess(IApplicationDbContext db, ICurrentUser current)
 
     /// <summary>The caller's profile id, or <see cref="Guid.Empty"/> when there is none.</summary>
     public async Task<Guid> CallerAsync(CancellationToken cancellationToken = default) =>
-        _caller ??= current.UserId is { } userId
-            ? await db.Users.Where(u => u.Id == userId).Select(u => u.ProfileId).SingleOrDefaultAsync(cancellationToken)
-            : Guid.Empty;
+        _caller ??= await Task.FromResult(current.ProfileId ?? Guid.Empty);
 
     /// <summary>The active pages the caller may open: Global, their own, or Shared with them or a role they hold now.</summary>
     public IQueryable<NotePage> Visible(IQueryable<NotePage> pages, Guid caller)
@@ -67,7 +65,7 @@ public class NoteAccess(IApplicationDbContext db, ICurrentUser current)
     /// <summary>Refuses a caller whose email is not verified (L2-085, as L2-002 AC3).</summary>
     public async Task<Result?> VerifiedAsync(Guid caller, CancellationToken cancellationToken)
     {
-        var verified = await db.Users.Where(u => u.ProfileId == caller).Select(u => u.EmailConfirmed).SingleOrDefaultAsync(cancellationToken);
+        var verified = await db.Users.Where(u => db.Profiles.Any(p => p.Id == caller && p.UserId == u.Id)).Select(u => u.EmailConfirmed).SingleOrDefaultAsync(cancellationToken);
         return verified ? null : Result.Forbidden("Verify your email before creating pages.");
     }
 }
