@@ -113,6 +113,32 @@ test.describe('App shell', () => {
     });
   }
 
+  // L2-133 AC2, L2-135 AC7: the sections follow capabilities, so a role the organisation defines itself opens exactly
+  // what its capabilities allow, whatever its name.
+  test('the sections follow capabilities, not role names', async ({ page, api }) => {
+    const shell = new AppShell(page);
+    await page.setViewportSize(BREAKPOINTS.xl);
+    await api.signInAs(
+      api.addAccount({
+        email: 'grace@example.org',
+        roles: ['Coordinator'],
+        capabilities: ['KeepContacts', 'ViewReports'],
+      }),
+    );
+
+    await expect(shell.navLink('Home')).toBeVisible();
+    expect(await shell.navLabels()).toEqual([
+      'Home',
+      'Events',
+      'Contacts',
+      'Team',
+      'Announcements',
+      'Resources',
+      'Notes',
+      'Reports',
+    ]);
+  });
+
   test('on a page outside the tabs, More is the current tab', async ({ page, api, axe }) => {
     await page.setViewportSize(BREAKPOINTS.xs);
     const shell = new AppShell(page);

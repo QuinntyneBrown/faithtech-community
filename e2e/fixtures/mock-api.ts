@@ -1,5 +1,5 @@
 import { Page, Route } from '@playwright/test';
-import { capabilitiesOf, heldRolesOf } from './role-definitions';
+import { Capability, capabilitiesOf, heldRolesOf } from './role-definitions';
 
 import { MockAgile } from './mock-agile';
 import { MockAnnouncements } from './mock-announcements';
@@ -23,6 +23,11 @@ export interface MockAccount {
   verified: boolean;
   suspended: boolean;
   roles: string[];
+  /**
+   * An explicit capability set, for a member holding a role the test defines (L2-135); unset means the
+   * capabilities of the FaithTech roles in `roles`.
+   */
+  capabilities?: Capability[];
   profileId: string;
   /**
    * The organisations the account has a profile in (its memberships, ADR 0032). Unset means a member of whichever
@@ -579,7 +584,7 @@ export class MockApi {
         emailVerified: account.verified,
         roles: heldRolesOf(account.roles),
         // Computed from the role definitions held, as the API does (L2-135 AC2, L2-133 AC1).
-        capabilities: capabilitiesOf(account.roles),
+        capabilities: account.capabilities ?? capabilitiesOf(account.roles),
         organisation: this.host.organisation,
         // The account's other memberships, for the switcher (L2-133 AC1).
         memberships: (account.organisations ?? [])

@@ -71,7 +71,7 @@ export class AppShellComponent {
   );
 
   /** One rule for every role builds the top bar, the tab bar and the menu (ADR 0009). */
-  private readonly sections = computed(() => sectionsFor(this.auth.roles()));
+  private readonly sections = computed(() => sectionsFor(this.auth.capabilities()));
 
   protected readonly topLinks = computed<TopBarLink[]>(() =>
     this.sections().map((s) => ({ ...this.link(s), secondary: s.secondary })),
@@ -117,7 +117,7 @@ export class AppShellComponent {
     ];
   }
   protected readonly tabs = computed<TabBarItem[]>(() =>
-    tabsFor(this.auth.roles()).map((s) => ({ ...this.link(s), icon: s.icon })),
+    tabsFor(this.auth.capabilities()).map((s) => ({ ...this.link(s), icon: s.icon })),
   );
   /** More is the current tab while the page is outside the link tabs (design system, tab bar). */
   protected readonly moreCurrent = computed(() => !this.tabs().some((t) => t.current));
