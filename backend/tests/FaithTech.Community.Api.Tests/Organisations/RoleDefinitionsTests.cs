@@ -151,7 +151,7 @@ public class RoleDefinitionsTests(CommunityApiFactory factory) : IClassFixture<C
     [Theory]
     [InlineData("", "Name", "Enter a name for the role.")]
     [InlineData("A role name that runs on far longer than the sixty characters allowed", "Name", "Use 60 characters or fewer for the name.")]
-    [InlineData("volunteer", "Name", "Another role is already called that.")]
+    [InlineData("volunteer", "Name", "A role called volunteer already exists. Choose another name.")]
     public async Task An_invalid_name_is_400_on_the_field_and_nothing_is_saved(string name, string field, string message)
     {
         var manager = RolesManager();

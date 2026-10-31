@@ -94,7 +94,7 @@ public class DefineRoleHandler(IApplicationDbContext db, ICurrentUser current, I
         var name = command.Name!.Trim();
         if (await RoleDefinitions.NameTakenAsync(db, name, null, cancellationToken))
         {
-            return (Result.Invalid("Name", RoleDefinitions.NameTakenMessage), null);
+            return (Result.Invalid("Name", RoleDefinitions.NameTaken(name)), null);
         }
 
         var keys = await db.RoleDefinitions.Select(d => d.Key).ToListAsync(cancellationToken);
@@ -145,7 +145,7 @@ public class UpdateRoleDefinitionHandler(
         var name = command.Name!.Trim();
         if (await RoleDefinitions.NameTakenAsync(db, name, id, cancellationToken))
         {
-            return (Result.Invalid("Name", RoleDefinitions.NameTakenMessage), null);
+            return (Result.Invalid("Name", RoleDefinitions.NameTaken(name)), null);
         }
 
         if (definition.Carries(Capability.AdministerOrganisation) && !capabilities.Contains(Capability.AdministerOrganisation))
@@ -215,7 +215,7 @@ public static partial class RoleDefinitions
 {
     public const string OnlyAnAdministratorMessage = "Only an administrator can grant administration.";
 
-    public const string NameTakenMessage = "Another role is already called that.";
+    public static string NameTaken(string name) => $"A role called {name} already exists. Choose another name.";
 
     public static RoleDefinitionDto Dto(RoleDefinition d, int holderCount) => new(
         d.Id,
