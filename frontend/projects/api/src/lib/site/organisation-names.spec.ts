@@ -47,18 +47,20 @@ describe('OrganisationNames', () => {
           name: 'Harbour Builders',
           shortName: 'Harbour',
           host: 'app.harbour.test',
-          chapterLabel: null,
+          chapterLabel: { singular: 'Campus', plural: 'Campuses' },
         },
       },
       site,
     );
 
     expect([n.name(), n.shortName()]).toEqual(['Harbour Builders', 'Harbour']);
+    expect(n.chapterLabel()).toEqual({ singular: 'Campus', plural: 'Campuses' });
   });
 
   it('falls back to a neutral name when neither could be read', () => {
     const n = names(null, null);
 
     expect(n.shortName()).toBe(FALLBACK_ORGANISATION_NAME);
+    expect(n.chapterLabel()).toBeNull();
   });
 });

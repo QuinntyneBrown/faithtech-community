@@ -29,6 +29,14 @@ export class OrganisationNames {
       FALLBACK_ORGANISATION_NAME,
   );
 
+  /** The chapter label, or null while chapters are off (L2-140 AC2). */
+  readonly chapterLabel = computed(() => {
+    const user = this.auth?.currentUser?.();
+    return user?.organisation
+      ? user.organisation.chapterLabel
+      : (this.site?.site()?.chapterLabel ?? null);
+  });
+
   /** "We couldn’t reach {short name}." followed by what happened, for failures the server never answered. */
   unreachable(then = 'Try again.'): string {
     return `We couldn’t reach ${this.shortName()}. ${then}`;

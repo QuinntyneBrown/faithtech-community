@@ -1,0 +1,21 @@
+<ft-dialog
+  [heading]="'Archive ' + name + '?'"
+  [description]="'Members and events keep ' + name + ', but it leaves every picker and filter.'"
+  icon="archive"
+  tone="danger"
+  [busy]="busy()"
+  (closed)="ref.close()"
+>
+  @if (failed()) {
+    <ft-alert status="danger" [heading]="name + ' not archived'">
+      We couldn’t reach {{ names.shortName() }}. Nothing was changed — try again.
+    </ft-alert>
+  }
+  <p>{{ tagged }}</p>
+  <ft-button ftDialogFooter initialFocus [disabled]="busy()" (click)="ref.close()"
+    >Cancel</ft-button
+  >
+  <ft-button ftDialogFooter variant="danger" [loading]="busy()" (click)="archive()">
+    {{ busy() ? 'Archiving…' : failed() ? 'Try again' : 'Archive ' + singular }}
+  </ft-button>
+</ft-dialog>
