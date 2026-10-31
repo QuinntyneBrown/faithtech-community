@@ -25,6 +25,8 @@ export interface CurrentUser {
   roles: HeldRole[];
   /** What the roles allow, computed by the server on every request (L2-135 AC2). */
   capabilities: Capability[];
+  /** The role definition ids the caller may add and remove; every picker offers exactly these (L2-137 AC5). */
+  grantableRoleIds?: string[];
   /** The organisation of the host, from /api/me (L2-133 AC1). */
   organisation?: MeOrganisation;
   /** The account's other active memberships, for the switcher (L2-133 AC1, AC3). */
@@ -79,6 +81,8 @@ export interface AuthService {
   readonly roles: Signal<Role[]>;
   /** The caller's capabilities; every show-or-hide decision reads these, never a role name (L2-135 AC7). */
   readonly capabilities: Signal<Capability[]>;
+  /** The role definition ids the caller may add and remove (L2-137 AC5). */
+  readonly grantableRoleIds: Signal<string[]>;
   /** The signed-in member, loaded from /api/me; null until loaded or when signed out. */
   readonly currentUser: Signal<CurrentUser | null>;
   /** Set when /api/me says the signed-in account has no profile here; the app then shows only the not-a-member page. */

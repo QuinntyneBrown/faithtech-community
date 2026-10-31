@@ -13,7 +13,7 @@ export class RoleDialog {
   constructor(page: Page, heading: string | RegExp) {
     this.dialog = page.getByRole('dialog', { name: heading });
     this.options = this.dialog.getByRole('radio');
-    this.caption = this.dialog.getByText('can only be granted by a System Admin');
+    this.caption = this.dialog.getByText(/role may grant|you can grant any role/);
     this.confirm = this.dialog.getByRole('button', { name: /^(Add|Adding|Remove|Removing) role/ });
     this.cancel = this.dialog.getByRole('button', { name: 'Cancel' });
     this.choiceError = this.dialog.getByText('Choose a role to add.');

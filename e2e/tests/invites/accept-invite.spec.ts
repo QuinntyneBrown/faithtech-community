@@ -79,7 +79,7 @@ test.describe('Accept an invite', () => {
     await accept.acceptInvite.click();
 
     await expect(page).toHaveURL(/\/people\/me$/);
-    await expect(new ProfilePage(page).roles).toHaveText(['Attendee', 'Volunteer']);
+    await expect(new ProfilePage(page).roles).toHaveText(['Volunteer', 'Attendee']);
   });
 
   test('a signed-in member with another email cannot take the invite', async ({

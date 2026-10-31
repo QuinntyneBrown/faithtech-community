@@ -1,7 +1,7 @@
 import { InjectionToken } from '@angular/core';
 import { Observable } from 'rxjs';
 
-import { PagedResult, Role } from '../shared';
+import { PagedResult, ProfileRole } from '../shared';
 
 /** A member as the people directory lists them (L2-053). There is no email: it is matched, never returned. */
 export interface PersonSummary {
@@ -11,7 +11,7 @@ export interface PersonSummary {
   homeCity: string | null;
   /** The featured photo, or null when the member has none. */
   photoUrl: string | null;
-  roles: Role[];
+  roles: ProfileRole[];
 }
 
 /**

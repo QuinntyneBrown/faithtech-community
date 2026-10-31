@@ -1,14 +1,20 @@
 import { Page, Route } from '@playwright/test';
 import {
   Capability,
-  FAITHTECH_ROLES,
+  RoleDefinition,
   canGrant,
   capabilitiesOf,
   carries,
+  defineRole,
   definitionOf,
+  definitionWithId,
+  grantableKeys,
   heldRolesOf,
   holds,
   onTeam,
+  profileRolesOf,
+  resetRoleDefinitions,
+  roleDefinitions,
 } from './role-definitions';
 
 import { MockAgile } from './mock-agile';
@@ -202,6 +208,20 @@ export class MockApi {
   constructor(private readonly page: Page) {
     this.wall = new MockWall(page, ALLOWED_ORIGINS);
     this.host = new MockHost(page, ALLOWED_ORIGINS);
+    // Each test starts from FaithTech's seed; roles a spec defines never reach the next test.
+    resetRoleDefinitions();
+  }
+
+  /** A role the host organisation defines for this test, with any capabilities and grant rules by key (ADR 0033). */
+  defineRole(role: Pick<RoleDefinition, 'key' | 'name'> & Partial<RoleDefinition>): RoleDefinition {
+    return defineRole(role);
+  }
+
+  /** The id of the host organisation's role keyed `key`, as the API and the pickers name it. */
+  roleId(key: string): string {
+    const definition = definitionOf(key);
+    if (!definition) throw new Error(`No role keyed ${key}.`);
+    return definition.id;
   }
 
   addAccount(account: Partial<MockAccount> & { email: string }): MockAccount {
@@ -454,6 +474,8 @@ export class MockApi {
         return this.token(route, body);
       case 'GET /api/me':
         return this.me(route, request.headers()['authorization']);
+      case 'GET /api/organisation':
+        return this.organisation(route, request.headers()['authorization']);
       case 'GET /api/site':
         // The marketing dev server stands in for the public host (Marketing:Origin), the app's for the community host.
         return route.fulfill({
@@ -584,6 +606,8 @@ export class MockApi {
         roles: heldRolesOf(account.roles),
         // Computed from the role definitions held, as the API does (L2-135 AC2, L2-133 AC1).
         capabilities: account.capabilities ?? capabilitiesOf(account.roles),
+        // The roles every picker offers, by RoleGrantPolicy's rule (L2-137 AC5).
+        grantableRoleIds: grantableKeys(account).map((key) => definitionOf(key)!.id),
         organisation: this.host.organisation,
         // The account's other memberships, for the switcher (L2-133 AC1).
         memberships: (account.organisations ?? [])
@@ -768,20 +792,53 @@ export class MockApi {
     return route.abort('failed');
   }
 
-  /** RolesEndpoints: the L2-009 limits and the last System Admin guard. */
+  /** OrganisationEndpoints: GET /api/organisation, its names and roles not archived, for any member (L2-136 AC8). */
+  private organisation(route: Route, authorization: string | undefined) {
+    if (!this.caller(authorization)) return route.fulfill({ status: 401 });
+    const { name, shortName, chapterLabel } = this.host.organisation as {
+      name: string;
+      shortName: string;
+      chapterLabel?: unknown;
+    };
+    return route.fulfill({
+      status: 200,
+      json: {
+        name,
+        shortName,
+        chapterLabel: chapterLabel ?? null,
+        roles: roleDefinitions()
+          .filter((d) => !d.archived)
+          .map((d) => ({
+            id: d.id,
+            key: d.key,
+            name: d.name,
+            description: d.description ?? '',
+            chapterScopable: d.chapterScopable,
+          })),
+      },
+    });
+  }
+
+  /** RolesEndpoints: roles by definition id under the grant rules, and the last administrator guard (L2-138). */
   private roles(
     route: Route,
     method: string,
     profileId: string,
-    roleName: string | undefined,
+    roleId: string | undefined,
     body: Record<string, unknown>,
     authorization: string | undefined,
   ) {
     const caller = this.caller(authorization);
     if (!caller) return route.fulfill({ status: 401 });
-    const role =
-      method === 'POST' ? String(body['role'] ?? '') : decodeURIComponent(roleName ?? '');
-    if (!definitionOf(role)) return route.fulfill({ status: 400 });
+    if (!holds(caller, 'AssignRoles')) return route.fulfill({ status: 403 });
+    const id = method === 'POST' ? String(body['roleId'] ?? '') : decodeURIComponent(roleId ?? '');
+    const definition = definitionWithId(id);
+    if (!definition || definition.archived)
+      return route.fulfill({
+        status: 400,
+        json: { title: 'Invalid', status: 400, errors: { Role: ['Choose a role.'] } },
+      });
+    const role = definition.key;
     if (!canGrant(caller, role)) return route.fulfill({ status: 403 });
     const profile = this.profiles.get(profileId);
     if (!profile) return route.fulfill({ status: 404 });
@@ -798,7 +855,7 @@ export class MockApi {
     for (const account of this.accounts.values()) {
       if (account.profileId === profile.id) account.roles = profile.roles;
     }
-    return route.fulfill({ status: 200, json: profile.roles });
+    return route.fulfill({ status: 200, json: profileRolesOf(profile.roles) });
   }
 
   /** AdminUsersEndpoints: GET /api/admin/users, System Admin only, 25 per page by name. */
@@ -846,7 +903,7 @@ export class MockApi {
         name: profile.name,
         homeCity: profile.homeCity,
         photoUrl: profile.photos.find((photo) => photo.isFeatured)?.url ?? null,
-        roles: profile.roles,
+        roles: profileRolesOf(profile.roles),
       }));
     const items = all.slice((page - 1) * 25, page * 25);
     return route.fulfill({
@@ -985,7 +1042,7 @@ export class MockApi {
     const city = url.searchParams.get('city')?.trim().toLowerCase();
     const team = [...this.profiles.values()].filter((p) => onTeam(p.roles));
     const teamRoles = (p: MockProfile) =>
-      FAITHTECH_ROLES.filter((d) => d.showOnTeam && p.roles.includes(d.key));
+      roleDefinitions().filter((d) => d.showOnTeam && p.roles.includes(d.key));
     const key = (p: MockProfile) => `${p.name.toLowerCase()}|${p.id}`;
     const matching = team
       .filter((p) =>
@@ -1199,6 +1256,7 @@ export class MockApi {
       .map((p) => ({ ...p, isStored: p.isStored ?? true }));
     return {
       ...profile,
+      roles: profileRolesOf(profile.roles),
       photos,
       featuredPhoto: photos.find((p) => p.isFeatured) ?? null,
       isOwn: profile.id === caller.profileId,

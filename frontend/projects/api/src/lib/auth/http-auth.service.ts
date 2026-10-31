@@ -44,6 +44,7 @@ export class HttpAuthService implements AuthService {
   readonly notAMember = this.refused.asReadonly();
   readonly roles = computed(() => (this.user()?.roles ?? []).map((r) => r.key as Role));
   readonly capabilities = computed(() => this.user()?.capabilities ?? []);
+  readonly grantableRoleIds = computed(() => this.user()?.grantableRoleIds ?? []);
 
   signIn(returnUrl?: string, keepSignedIn?: boolean): Promise<void> {
     return this.oidc.signIn(returnUrl, keepSignedIn);

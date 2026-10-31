@@ -38,21 +38,12 @@ export const ROLE_DESCRIPTIONS: Record<Role, string> = {
   SystemAdmin: 'Full administration and the audit log',
 };
 
-const CITY_LEAD_ROLES: readonly Role[] = [
-  'EventLead',
-  'CreateLead',
-  'CommunicationsLead',
-  'Volunteer',
-  'ProductEngineer',
-  'Attendee',
-];
-
 /**
- * The roles a caller holding `callerRoles` may grant or remove (L2-009), mirroring the server's
- * RoleAssignmentPolicy (ADR 0005). The server stays the authority and answers 403 for the rest.
+ * A role a profile holds, by the organisation's definition: what the profile, People and the role routes
+ * answer (L2-138 AC1). `chapterId` is its chapter tag, once chapters exist.
  */
-export function assignableRoles(callerRoles: readonly Role[]): Role[] {
-  if (callerRoles.includes('SystemAdmin')) return [...ROLES];
-  if (callerRoles.includes('CityLead')) return [...CITY_LEAD_ROLES];
-  return [];
+export interface ProfileRole {
+  id: string;
+  name: string;
+  chapterId: string | null;
 }

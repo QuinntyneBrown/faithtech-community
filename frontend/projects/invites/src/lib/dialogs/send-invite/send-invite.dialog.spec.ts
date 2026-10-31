@@ -6,7 +6,7 @@ import {
   AUTH_SERVICE,
   InviteDto,
   INVITES_SERVICE,
-  Role,
+  ORGANISATION_SERVICE,
   SendInviteRequest,
   SITE_SERVICE,
 } from '@faithtech-community/api';
@@ -25,6 +25,27 @@ const FAITHTECH_SITE = {
   load: async () => undefined,
 };
 
+// FaithTech's roles in its order; the dialog offers those the server says the caller may grant.
+const ROLES = [
+  ['CityLead', 'City Lead'],
+  ['EventLead', 'Event Lead'],
+  ['CreateLead', 'Create Lead'],
+  ['CommunicationsLead', 'Communications Lead'],
+  ['Staff', 'Staff'],
+  ['Volunteer', 'Volunteer'],
+  ['ProductEngineer', 'Product Engineer'],
+  ['Attendee', 'Attendee'],
+  ['SystemAdmin', 'System Admin'],
+].map(([key, name]) => ({ id: `id-${key}`, key, name, description: '', chapterScopable: false }));
+const CITY_LEAD_GRANTS = [
+  'EventLead',
+  'CreateLead',
+  'CommunicationsLead',
+  'Volunteer',
+  'ProductEngineer',
+  'Attendee',
+].map((key) => `id-${key}`);
+
 const sent: InviteDto = {
   id: 'i1',
   email: 'nate.oyelaran@example.org',
@@ -39,7 +60,7 @@ const sent: InviteDto = {
 
 function setup(
   sendInvite: (r: SendInviteRequest) => Observable<InviteDto>,
-  roles: Role[] = ['CityLead'],
+  grantableRoleIds: string[] = CITY_LEAD_GRANTS,
 ) {
   const ref = { close: vi.fn(), disableClose: false };
   const service = { sendInvite: vi.fn(sendInvite) };
@@ -48,7 +69,8 @@ function setup(
       { provide: SITE_SERVICE, useValue: FAITHTECH_SITE },
       { provide: DialogRef, useValue: ref },
       { provide: INVITES_SERVICE, useValue: service },
-      { provide: AUTH_SERVICE, useValue: { roles: signal(roles) } },
+      { provide: AUTH_SERVICE, useValue: { grantableRoleIds: signal(grantableRoleIds) } },
+      { provide: ORGANISATION_SERVICE, useValue: { get: () => of({ roles: ROLES }) } },
     ],
   });
   const fixture = TestBed.createComponent(SendInviteDialog);
@@ -101,18 +123,18 @@ describe('SendInviteDialog', () => {
     );
     expect(options).toEqual([
       'No role',
-      'Attendee',
-      'Volunteer',
-      'Product Engineer',
       'Event Lead',
       'Create Lead',
       'Communications Lead',
+      'Volunteer',
+      'Product Engineer',
+      'Attendee',
     ]);
     expect(host.textContent).toContain('The invite link lasts 14 days.');
   });
 
   it('has no role choice for a lead who may not grant roles', () => {
-    const { host } = setup(() => of(sent), ['EventLead']);
+    const { host } = setup(() => of(sent), []);
     expect(host.querySelector('select')).toBeNull();
   });
 

@@ -1,16 +1,16 @@
 import { DialogRef } from '@angular/cdk/dialog';
 import { HttpErrorResponse } from '@angular/common/http';
 import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
 import { NonNullableFormBuilder, ReactiveFormsModule } from '@angular/forms';
 import {
-  assignableRoles,
   AUTH_SERVICE,
   InviteDto,
   INVITES_SERVICE,
+  ORGANISATION_SERVICE,
   OrganisationNames,
   problemDetails,
   Role,
-  ROLE_LABELS,
 } from '@faithtech-community/api';
 import {
   AlertComponent,
@@ -25,24 +25,13 @@ import {
 } from '@faithtech-community/components';
 import { firstValueFrom } from 'rxjs';
 
-// The order the mock lists roles in: the everyday roles first, then the leads, then the admin-only ones.
-const ROLE_ORDER: Role[] = [
-  'Attendee',
-  'Volunteer',
-  'ProductEngineer',
-  'EventLead',
-  'CreateLead',
-  'CommunicationsLead',
-  'CityLead',
-  'Staff',
-  'SystemAdmin',
-];
 // Loose check that matches the server's validator; the server is the authority.
 const EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 /**
  * Invite someone by email with an optional role and note (L2-010), matching docs/mocks/dialogs/send-invite.
- * Offers only the roles the sender may grant. Closes with the new invite.
+ * Offers exactly the roles the server says the sender may grant, in the organisation's order (L2-010 AC2,
+ * L2-137 AC5). Closes with the new invite.
  */
 @Component({
   selector: 'ft-send-invite-dialog',
@@ -64,21 +53,24 @@ export class SendInviteDialog {
   protected readonly organisation = inject(OrganisationNames);
   protected readonly ref = inject<DialogRef<InviteDto>>(DialogRef);
   private readonly invites = inject(INVITES_SERVICE);
-  private readonly callerRoles = inject(AUTH_SERVICE).roles;
+  private readonly grantableRoleIds = inject(AUTH_SERVICE).grantableRoleIds;
+  private readonly organisationRoles = toSignal(inject(ORGANISATION_SERVICE).get(), {
+    initialValue: null,
+  });
 
   protected readonly form = inject(NonNullableFormBuilder).group({
     email: [''],
     role: [''],
     note: [''],
   });
+  // Invites still record the pre-assigned role by its key.
   protected readonly roleOptions = computed<SelectOption[]>(() => {
-    const allowed = assignableRoles(this.callerRoles());
+    const allowed = this.grantableRoleIds();
     return [
       { value: '', label: 'No role' },
-      ...ROLE_ORDER.filter((r) => allowed.includes(r)).map((r) => ({
-        value: r,
-        label: ROLE_LABELS[r],
-      })),
+      ...(this.organisationRoles()?.roles ?? [])
+        .filter((r) => allowed.includes(r.id))
+        .map((r) => ({ value: r.key, label: r.name })),
     ];
   });
   protected readonly submitted = signal(false);

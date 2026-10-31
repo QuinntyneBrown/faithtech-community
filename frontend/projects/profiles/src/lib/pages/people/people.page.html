@@ -11,8 +11,8 @@
 </ng-template>
 <ng-template #rolesCell let-person>
   <ft-cluster gap="1">
-    @for (role of person.roles; track role) {
-      <ft-badge variant="role">{{ roleLabel(role) }}</ft-badge>
+    @for (role of person.roles; track role.id) {
+      <ft-badge variant="role">{{ role.name }}</ft-badge>
     } @empty {
       <span class="text-muted">No role yet</span>
     }
@@ -34,7 +34,7 @@
       >
     }
     @if (person.locked) {
-      <span class="text-caption">Only System Admin can change</span>
+      <span class="text-caption">Only an administrator can change</span>
     }
   </ft-cluster>
 </ng-template>
