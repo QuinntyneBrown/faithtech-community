@@ -6,8 +6,11 @@ using Microsoft.EntityFrameworkCore;
 
 namespace FaithTech.Community.Application.Organisations;
 
-/// <summary>PUT /api/organisation: the General settings. The chapter label joins it with the chapters switch (slice 18).</summary>
-public record UpdateOrganisationCommand(string? Name, string? ShortName);
+/// <summary>The chapter label's two forms, such as City and Cities.</summary>
+public record ChapterLabelCommand(string? Singular, string? Plural);
+
+/// <summary>PUT /api/organisation: the General settings. A null chapter label turns chapters off (L2-140 AC1, AC6).</summary>
+public record UpdateOrganisationCommand(string? Name, string? ShortName, ChapterLabelCommand? ChapterLabel = null);
 
 public class UpdateOrganisationValidator : AbstractValidator<UpdateOrganisationCommand>
 {
@@ -21,12 +24,24 @@ public class UpdateOrganisationValidator : AbstractValidator<UpdateOrganisationC
             .Must(name => !string.IsNullOrWhiteSpace(name)).WithMessage("Enter a short name.")
             .Must(name => name!.Trim().Length <= Organisation.MaxShortNameLength)
             .WithMessage($"Use {Organisation.MaxShortNameLength} characters or fewer for the short name.");
+        When(x => x.ChapterLabel is not null, () =>
+        {
+            RuleFor(x => x.ChapterLabel!.Singular).Cascade(CascadeMode.Stop)
+                .Must(label => !string.IsNullOrWhiteSpace(label)).WithMessage("Enter the singular label too.")
+                .Must(label => label!.Trim().Length <= Organisation.MaxChapterLabelLength)
+                .WithMessage($"Use {Organisation.MaxChapterLabelLength} characters or fewer for the singular label.");
+            RuleFor(x => x.ChapterLabel!.Plural).Cascade(CascadeMode.Stop)
+                .Must(label => !string.IsNullOrWhiteSpace(label)).WithMessage("Enter the plural label too.")
+                .Must(label => label!.Trim().Length <= Organisation.MaxChapterLabelLength)
+                .WithMessage($"Use {Organisation.MaxChapterLabelLength} characters or fewer for the plural label.");
+        });
     }
 }
 
 /// <summary>
-/// Renames the host's organisation for a holder of ManageOrganisationSettings (AdministerOrganisation stands in),
-/// audited as organisation.updated with the names before and after (L2-147 AC3, L2-152 AC1). The new names reach every
+/// Renames the host's organisation and sets or clears its chapter label for a holder of ManageOrganisationSettings
+/// (AdministerOrganisation stands in), audited as organisation.updated with the values before and after (L2-147 AC3,
+/// L2-140 AC1, AC6, L2-152 AC1). Clearing the label keeps every chapter and tag. The new names reach every
 /// page, email and message on the next request, since the host is resolved from the database each time (L2-134).
 /// </summary>
 public class UpdateOrganisationHandler(IApplicationDbContext db, ICurrentUser current, ICurrentOrganisation organisation, IAuditLog audit)
@@ -39,10 +54,12 @@ public class UpdateOrganisationHandler(IApplicationDbContext db, ICurrentUser cu
         }
 
         var entity = await db.Organisations.SingleAsync(o => o.Id == organisation.Id, cancellationToken);
-        var before = new { entity.Name, entity.ShortName };
+        var before = new { entity.Name, entity.ShortName, entity.ChapterLabelSingular, entity.ChapterLabelPlural };
         entity.Rename(command.Name!.Trim(), command.ShortName!.Trim());
+        entity.SetChapterLabel(command.ChapterLabel?.Singular?.Trim(), command.ChapterLabel?.Plural?.Trim());
         audit.Record(
-            membership.ProfileId, "organisation.updated", "Organisation", entity.Id.ToString(), before, new { entity.Name, entity.ShortName });
+            membership.ProfileId, "organisation.updated", "Organisation", entity.Id.ToString(), before,
+            new { entity.Name, entity.ShortName, entity.ChapterLabelSingular, entity.ChapterLabelPlural });
         await db.SaveChangesAsync(cancellationToken);
         return Result.Ok();
     }

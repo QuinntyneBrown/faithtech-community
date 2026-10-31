@@ -10,9 +10,15 @@ namespace FaithTech.Community.Application.Organisations;
 public sealed record OrganisationRoleDto(Guid Id, string Key, string Name, string Description, bool ChapterScopable);
 
 /// <summary>
-/// GET /api/organisation. Chapters and the taxonomies join it in their slices (organisation-settings design).
+/// GET /api/organisation: the names, the chapter label with the active chapters in order (none while chapters are off,
+/// L2-140 AC2) and the roles. The taxonomies join it in their slice (organisation-settings design).
 /// </summary>
-public sealed record OrganisationDto(string Name, string ShortName, ChapterLabelDto? ChapterLabel, IReadOnlyList<OrganisationRoleDto> Roles);
+public sealed record OrganisationDto(
+    string Name,
+    string ShortName,
+    ChapterLabelDto? ChapterLabel,
+    IReadOnlyList<ChapterOptionDto> Chapters,
+    IReadOnlyList<OrganisationRoleDto> Roles);
 
 /// <summary>The host's organisation for any of its members: its names and its roles that are not archived (ADR 0032).</summary>
 public class GetOrganisationHandler(IApplicationDbContext db, ICurrentOrganisation organisation)
@@ -25,6 +31,15 @@ public class GetOrganisationHandler(IApplicationDbContext db, ICurrentOrganisati
             .ThenBy(d => d.Name)
             .Select(d => new OrganisationRoleDto(d.Id, d.Key, d.Name, d.Description, d.ChapterScopable))
             .ToListAsync(cancellationToken);
-        return new OrganisationDto(organisation.Name, organisation.ShortName, ChapterLabelDto.Of(organisation), roles);
+        var label = ChapterLabelDto.Of(organisation);
+        IReadOnlyList<ChapterOptionDto> chapters = label is null
+            ? []
+            : await db.Chapters
+                .Where(c => c.ArchivedAtUtc == null)
+                .OrderBy(c => c.SortOrder)
+                .ThenBy(c => c.Name)
+                .Select(c => new ChapterOptionDto(c.Id, c.Name))
+                .ToListAsync(cancellationToken);
+        return new OrganisationDto(organisation.Name, organisation.ShortName, label, chapters, roles);
     }
 }
