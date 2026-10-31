@@ -1,4 +1,5 @@
 using FaithTech.Community.Application.Common;
+using FaithTech.Community.Application.Organisations;
 using FaithTech.Community.Application.Profiles;
 using FaithTech.Community.Domain.Contacts;
 using FaithTech.Community.Domain.Profiles;
@@ -29,7 +30,8 @@ public class ContactPhotosHandler(
     IImageProcessor images,
     IPhotoStorage storage,
     PhotoLeases leases,
-    TimeProvider time)
+    TimeProvider time,
+    ICurrentOrganisation organisation)
 {
     public async Task<(Result Result, ContactPhotoDto? Photo)> UploadAsync(
         Guid contactId, UploadPhotoCommand command, CancellationToken cancellationToken = default)
@@ -205,7 +207,7 @@ public class ContactPhotosHandler(
             return (Result.Invalid("File", processed.Error!), null);
         }
 
-        var photo = new ContactPhoto($"contacts/{contact.Id}/{Guid.NewGuid()}{image.Extension}", altText, time.GetUtcNow());
+        var photo = new ContactPhoto($"{organisation.Id}/contacts/{contact.Id}/{Guid.NewGuid()}{image.Extension}", altText, time.GetUtcNow());
         try
         {
             await storage.SaveAsync(photo.BlobName, image.Content, image.ContentType, cancellationToken);

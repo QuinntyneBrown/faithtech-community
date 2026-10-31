@@ -3,6 +3,7 @@ using System.Net;
 using System.Net.Http.Headers;
 using System.Net.Http.Json;
 using System.Text;
+using FaithTech.Community.Infrastructure.Persistence.Seed;
 using FaithTech.Community.Api.Tests.Profiles;
 using FaithTech.Community.Domain.Profiles;
 using Microsoft.AspNetCore.Mvc;
@@ -39,7 +40,7 @@ public class ImageBlockTests(CommunityApiFactory factory) : IClassFixture<Commun
 
         Assert.Equal(HttpStatusCode.Created, response.StatusCode);
         var image = (await response.Content.ReadFromJsonAsync<Uploaded>())!;
-        Assert.Contains(factory.Files.Blobs.Keys, k => k.StartsWith($"notes/{page.Id}/{image.ImageId}."));
+        Assert.Contains(factory.Files.Blobs.Keys, k => k.StartsWith($"{FaithTechSeed.OrganisationId}/notes/{page.Id}/{image.ImageId}."));
         var read = await factory.ClientFor(await factory.AddMemberAsync("Marcus Lee")).GetAsync($"/api/notes/{page.Id}/images/{image.ImageId}");
         Assert.Equal(HttpStatusCode.OK, read.StatusCode);
         Assert.StartsWith("image/", read.Content.Headers.ContentType!.MediaType);

@@ -13,13 +13,14 @@ public class NoteImage : IOrganisationScoped
 
     private NoteImage() { }
 
-    public NoteImage(Guid pageId, string extension, string contentType, long size, DateTimeOffset now)
+    public NoteImage(Guid organisationId, Guid pageId, string extension, string contentType, long size, DateTimeOffset now)
     {
         Id = Guid.NewGuid();
+        OrganisationId = organisationId;
         PageId = pageId;
         ContentType = contentType;
         Size = size;
-        BlobName = $"notes/{pageId}/{Id}.{extension}";
+        BlobName = $"{organisationId}/notes/{pageId}/{Id}.{extension}";
         UploadedAt = now;
     }
 

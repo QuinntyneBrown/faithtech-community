@@ -2,6 +2,7 @@
 using System.Net;
 using System.Net.Http.Json;
 using System.Text;
+using FaithTech.Community.Infrastructure.Persistence.Seed;
 using FaithTech.Community.Api.Tests.Profiles;
 using FaithTech.Community.Domain.Profiles;
 using Microsoft.AspNetCore.Mvc;
@@ -28,7 +29,7 @@ public class UploadContactPhotoTests(CommunityApiFactory factory) : IClassFixtur
         Assert.Equal("Tomás at the coffee morning", photo.AltText);
         // The URL is the authenticated API, never a storage link (L2-070 AC3).
         Assert.Equal($"/api/contacts/{contact.Id}/photos/{photo.Id}/image", photo.Url);
-        var key = Assert.Single(factory.Photos.Blobs.Keys, k => k.StartsWith($"contacts/{contact.Id}/"));
+        var key = Assert.Single(factory.Photos.Blobs.Keys, k => k.StartsWith($"{FaithTechSeed.OrganisationId}/contacts/{contact.Id}/"));
         Assert.EndsWith(".jpg", key);
         var (content, contentType) = factory.Photos.Blobs[key];
         Assert.Equal("image/jpeg", contentType);
@@ -77,7 +78,7 @@ public class UploadContactPhotoTests(CommunityApiFactory factory) : IClassFixtur
 
         Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
         Assert.Empty(await PhotosOf(contact.Id));
-        Assert.DoesNotContain(factory.Photos.Blobs.Keys, k => k.StartsWith($"contacts/{contact.Id}/"));
+        Assert.DoesNotContain(factory.Photos.Blobs.Keys, k => k.StartsWith($"{FaithTechSeed.OrganisationId}/contacts/{contact.Id}/"));
     }
 
     [Fact]
@@ -199,7 +200,7 @@ public class UploadContactPhotoTests(CommunityApiFactory factory) : IClassFixtur
         var problem = await AssertValidationProblem(response);
         Assert.Equal([message], problem.Errors[field]);
         Assert.Empty(await PhotosOf(contactId));
-        Assert.DoesNotContain(factory.Photos.Blobs.Keys, k => k.StartsWith($"contacts/{contactId}/"));
+        Assert.DoesNotContain(factory.Photos.Blobs.Keys, k => k.StartsWith($"{FaithTechSeed.OrganisationId}/contacts/{contactId}/"));
     }
 
     private static async Task<ValidationProblemDetails> AssertValidationProblem(HttpResponseMessage response)

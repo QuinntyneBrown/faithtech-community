@@ -2,6 +2,7 @@
 using System.Net;
 using System.Net.Http.Headers;
 using System.Net.Http.Json;
+using FaithTech.Community.Infrastructure.Persistence.Seed;
 using FaithTech.Community.Domain.Profiles;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -31,7 +32,7 @@ public class PhotoConcurrencyTests(CommunityApiFactory factory) : IClassFixture<
         // The refused upload stored no blob: every blob belongs to a photo.
         Assert.Equal(
             profile.Photos.Select(p => p.BlobName).Order(),
-            factory.Photos.Blobs.Keys.Where(k => k.StartsWith($"profiles/{grace.ProfileId}/")).Order());
+            factory.Photos.Blobs.Keys.Where(k => k.StartsWith($"{FaithTechSeed.OrganisationId}/profiles/{grace.ProfileId}/")).Order());
     }
 
     [Fact]
@@ -98,14 +99,14 @@ public class PhotoConcurrencyTests(CommunityApiFactory factory) : IClassFixture<
         {
             for (var i = 0; i < count; i++)
             {
-                var photo = new ProfilePhoto($"profiles/{p.Id}/{i}.jpg", $"Photo {i}", Start.AddDays(i));
+                var photo = new ProfilePhoto($"{FaithTechSeed.OrganisationId}/profiles/{p.Id}/{i}.jpg", $"Photo {i}", Start.AddDays(i));
                 p.AddPhoto(photo);
                 photos.Add(photo.Id);
             }
         });
         for (var i = 0; i < count; i++)
         {
-            factory.Photos.Blobs[$"profiles/{member.ProfileId}/{i}.jpg"] = ([1, 2, 3], "image/jpeg");
+            factory.Photos.Blobs[$"{FaithTechSeed.OrganisationId}/profiles/{member.ProfileId}/{i}.jpg"] = ([1, 2, 3], "image/jpeg");
         }
 
         return (member, [.. photos]);
