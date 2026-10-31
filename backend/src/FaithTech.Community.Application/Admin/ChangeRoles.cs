@@ -14,7 +14,7 @@ public record AssignRoleCommand(string? Role);
 /// <summary>Adds or removes a global role on a profile (L2-008, L2-009), audited (L2-041) and notified.</summary>
 public class ChangeRolesHandler(
     IApplicationDbContext db,
-    RoleAssignmentPolicy policy,
+    RoleGrantPolicy policy,
     ProfileAccess access,
     IAuditLog audit,
     RoleChangeNotifier notifier,
@@ -45,7 +45,7 @@ public class ChangeRolesHandler(
             return (Result.Invalid("Role", "Choose a role."), null);
         }
 
-        if (!await policy.CanChangeAsync(definition, cancellationToken))
+        if (!await policy.CanGrantAsync(definition, cancellationToken))
         {
             return (Result.Forbidden(), null);
         }
@@ -95,7 +95,7 @@ public class ChangeRolesHandler(
         audit.Record(actor, add ? "role.granted" : "role.removed", "Profile", profileId.ToString(), new { Roles = before }, new { Roles = after });
 
         string? title = null;
-        if (policy.NotifiesOwner && actor != profileId)
+        if (actor != profileId && await policy.NotifiesOwnerAsync(definition, cancellationToken))
         {
             var actorName = await db.Profiles.Where(p => p.Id == actor).Select(p => p.Name).SingleOrDefaultAsync(cancellationToken) ?? "A City Lead";
             title = add

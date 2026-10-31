@@ -55,7 +55,7 @@ public static class DependencyInjection
         services.AddScoped<DeletePhotoHandler>();
         services.AddScoped<PhotoStorageRetryHandler>();
         services.AddScoped<GetAuditEntriesHandler>();
-        services.AddScoped<RoleAssignmentPolicy>();
+        services.AddScoped<RoleGrantPolicy>();
         services.AddScoped<RoleChangeNotifier>();
         services.AddScoped<ChangeRolesHandler>();
         services.AddScoped<Organisations.LastAdministratorGuard>();
