@@ -6,6 +6,7 @@ using FaithTech.Community.Api.Tests.Invites;
 using FaithTech.Community.Api.Tests.Profiles;
 using FaithTech.Community.Domain.Invites;
 using FaithTech.Community.Domain.Profiles;
+using FaithTech.Community.Infrastructure.Persistence.Seed;
 using Microsoft.EntityFrameworkCore;
 
 namespace FaithTech.Community.Api.Tests.Organisations;
@@ -170,6 +171,41 @@ public class JoiningTests(CommunityApiFactory factory) : IClassFixture<Community
         var profiles = await ProfilesOf(email);
         Assert.Equal([(northside.Id, "Tomás Ortega")], profiles);
         Assert.StartsWith($"{northside.Origin}/verify-email?", VerificationLink(email));
+    }
+
+    // Traces to: L2-132 AC7. Reset and verification apply to the account everywhere and join nothing.
+    [Fact]
+    public async Task Resetting_a_password_on_another_host_joins_nothing()
+    {
+        var northside = await factory.AddOrganisationAsync();
+        var email = UniqueEmail();
+        await factory.CreateClient().PostAsJsonAsync("/api/account/sign-up", new { name = "Grace Okonkwo", email, password = Password });
+        factory.Emails.Sent.Clear();
+
+        await On(northside).PostAsJsonAsync("/api/account/forgot-password", new { email });
+        var link = Regex.Match(Assert.Single(factory.Emails.SentTo(email)).Body, @"https://\S+/reset-password\?\S+").Value;
+        var query = HttpUtility.ParseQueryString(new Uri(link).Query);
+        var reset = await On(northside).PostAsJsonAsync("/api/account/reset-password",
+            new { userId = query["userId"], token = query["token"], password = "another-long-passphrase" });
+
+        Assert.True(reset.IsSuccessStatusCode);
+        Assert.Equal([FaithTechSeed.OrganisationId], (await ProfilesOf(email)).Select(p => p.OrganisationId));
+    }
+
+    [Fact]
+    public async Task Verifying_an_email_on_another_host_joins_nothing()
+    {
+        var northside = await factory.AddOrganisationAsync();
+        var email = UniqueEmail();
+        await factory.CreateClient().PostAsJsonAsync("/api/account/sign-up", new { name = "Grace Okonkwo", email, password = Password });
+        factory.Emails.Sent.Clear();
+
+        await On(northside).PostAsJsonAsync("/api/account/resend-verification", new { email });
+        var response = await Confirm(On(northside), VerificationLink(email));
+
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+        Assert.True(await factory.WithDbAsync(db => db.Users.Where(u => u.Email == email).Select(u => u.EmailConfirmed).SingleAsync()));
+        Assert.Equal([FaithTechSeed.OrganisationId], (await ProfilesOf(email)).Select(p => p.OrganisationId));
     }
 
     private sealed record ConnectLink(string Url);
