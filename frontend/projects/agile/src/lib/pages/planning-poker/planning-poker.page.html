@@ -76,7 +76,7 @@
                   (valueChange)="vote($event)"
                 />
               </ft-card>
-            } @else if (workspace()?.access === 'Staff') {
+            } @else if (workspace()?.access === 'Reader') {
               <ft-alert status="info" heading="Watching as Staff">
                 You can follow the session live, but only workspace members vote.
               </ft-alert>

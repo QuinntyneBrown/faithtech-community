@@ -87,16 +87,11 @@ public class ResourceFieldRules(IApplicationDbContext db)
             return parsed == ResourceVisibility.Private ? ResourceAudience.Private() : ResourceAudience.Global();
         }
 
-        var roles = new List<Role>();
-        foreach (var value in input.Roles ?? [])
+        var roles = await RoleKeys.DefinitionsAsync(db, input.Roles ?? [], cancellationToken);
+        if (roles is null || !roles.All(RoleKeys.IsShareable))
         {
-            if (!IsName<Role>(value, out var role) || !ResourceAccess.ShareableRoles.Contains(role))
-            {
-                errors["Roles"] = ["Choose roles from the list."];
-                return null;
-            }
-
-            roles.Add(role);
+            errors["Roles"] = ["Choose roles from the list."];
+            return null;
         }
 
         var members = (input.MemberIds ?? []).Distinct().ToList();
@@ -112,7 +107,7 @@ public class ResourceFieldRules(IApplicationDbContext db)
             return null;
         }
 
-        return ResourceAudience.Shared(members, await LegacyRoles.DefinitionsAsync(db, roles, cancellationToken));
+        return ResourceAudience.Shared(members, roles);
     }
 
     private static bool IsName<T>(string? value, out T parsed) where T : struct, Enum =>

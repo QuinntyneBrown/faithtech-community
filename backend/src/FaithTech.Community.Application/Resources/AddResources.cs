@@ -1,3 +1,4 @@
+using FaithTech.Community.Domain.Organisations;
 using FaithTech.Community.Application.Common;
 using FaithTech.Community.Application.Organisations;
 using FaithTech.Community.Domain.Profiles;
@@ -110,10 +111,16 @@ public class AddResourcesHandler(
         return verified ? null : Result.Forbidden("Verify your email before adding resources.");
     }
 
-    public async Task<Role?> OwnerRoleAsync(Guid profileId, CancellationToken cancellationToken)
+    public async Task<string?> OwnerRoleAsync(Guid profileId, CancellationToken cancellationToken)
     {
-        var roles = LegacyRoles.Parse(await db.Profiles.Where(p => p.Id == profileId).SelectMany(p => p.Roles.Select(r => r.Definition!.Key)).ToListAsync(cancellationToken));
-        return ResourceAccess.ContributorRoles.Where(roles.Contains).Select(r => (Role?)r).FirstOrDefault();
+        // The owner's first held role that adds resources, AdministerOrganisation standing in for it.
+        return await db.Profiles.Where(p => p.Id == profileId)
+            .SelectMany(p => p.Roles.Select(r => r.Definition!))
+            .Where(d => d.ArchivedAtUtc == null
+                && (d.Capabilities.Contains(Capability.AddResources) || d.Capabilities.Contains(Capability.AdministerOrganisation)))
+            .OrderBy(d => d.SortOrder)
+            .Select(d => d.Key)
+            .FirstOrDefaultAsync(cancellationToken);
     }
 
     private static string TitleFrom(string fileName)

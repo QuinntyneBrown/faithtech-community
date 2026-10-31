@@ -136,10 +136,11 @@ public class Profile : IOrganisationScoped
     public bool HasRole(Guid roleDefinitionId) => _roles.Any(r => r.RoleDefinitionId == roleDefinitionId);
 
     /// <summary>
-    /// Temporary adapter (removed in slice 11, organisations prompt 11): whether a held definition's key is the former role
-    /// value. Reads the definitions loaded with the profile.
+    /// Whether a held, non-archived definition carries <paramref name="capability"/> itself; AdministerOrganisation does
+    /// not stand in for it here. Needs the definitions loaded, as they are with the profile.
     /// </summary>
-    public bool HasRole(Role role) => _roles.Any(r => r.Definition?.Key == role.ToString());
+    public bool HoldsCapability(string capability) =>
+        _roles.Any(r => r.Definition is { ArchivedAtUtc: null } d && d.Capabilities.Contains(capability));
 
     public void AddRole(RoleDefinition definition, Guid grantedBy, DateTime nowUtc)
     {

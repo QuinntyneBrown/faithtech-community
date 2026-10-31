@@ -17,10 +17,10 @@ public class NoteViews(IApplicationDbContext db, ICurrentUser current, NoteAcces
             .Select(p => new { p.Id, p.Name, p.HomeCity })
             .ToDictionaryAsync(p => p.Id, cancellationToken);
         var roleCounts = new List<NoteAudienceRoleDto>();
-        foreach (var role in NoteAccess.ShareableRoles.Where(r => page.SharedRoles.Any(x => x.Definition?.Key == LegacyRoles.Key(r))))
+        foreach (var role in page.SharedRoles.Select(x => x.Definition!).OrderBy(d => d.SortOrder))
         {
-            var count = await db.Profiles.CountAsync(p => !p.IsSuspended && p.Roles.Any(x => x.Definition!.Key == LegacyRoles.Key(role)), cancellationToken);
-            roleCounts.Add(new NoteAudienceRoleDto(role.ToString(), count));
+            var count = await db.Profiles.CountAsync(p => !p.IsSuspended && p.Roles.Any(x => x.RoleDefinitionId == role.Id), cancellationToken);
+            roleCounts.Add(new NoteAudienceRoleDto(role.Key, count));
         }
 
         var blocks = NoteContent.Read(page.Content);
@@ -103,6 +103,6 @@ public class NoteViews(IApplicationDbContext db, ICurrentUser current, NoteAcces
             return "you";
         }
 
-        return LegacyRoles.Parse(page.SharedRoles.Select(x => x.Definition!.Key)).Where(current.HasRole).Select(x => (Role?)x).FirstOrDefault()?.ToString();
+        return page.SharedRoles.Select(x => x.Definition!).OrderBy(d => d.SortOrder).FirstOrDefault(d => current.HeldRoleIds.Contains(d.Id))?.Key;
     }
 }

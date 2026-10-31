@@ -18,7 +18,7 @@ public static partial class InviteClients
         this CommunityApiFactory factory, ProfileClients.Member inviter, string email, Role? role = null, TimeSpan age = default)
     {
         var token = Guid.NewGuid().ToString("N");
-        var invite = new Invite(email, Hash(token), role, inviter.ProfileId, factory.Time.GetUtcNow() - age);
+        var invite = new Invite(email, Hash(token), role?.ToString(), inviter.ProfileId, factory.Time.GetUtcNow() - age);
         await factory.WithDbAsync(async db =>
         {
             db.Invites.Add(invite);

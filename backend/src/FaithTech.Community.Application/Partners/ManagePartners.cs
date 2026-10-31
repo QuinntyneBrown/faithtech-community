@@ -1,3 +1,4 @@
+using FaithTech.Community.Domain.Organisations;
 using FaithTech.Community.Application.Common;
 using FaithTech.Community.Domain.Partners;
 using FluentValidation;
@@ -168,7 +169,7 @@ public class ManagePartnersHandler(IApplicationDbContext db, PartnerAccess acces
         return new PartnerBoardDto(columns, access.CanWrite);
     }
 
-    /// <summary>Members holding a lead role, by name: the people a partner can be owned by.</summary>
+    /// <summary>Members holding ManagePartners, by name: the people a partner can be owned by.</summary>
     public async Task<IReadOnlyList<PartnerOwnerDto>?> OwnersAsync(CancellationToken cancellationToken = default)
     {
         if (!access.CanRead)
@@ -176,9 +177,8 @@ public class ManagePartnersHandler(IApplicationDbContext db, PartnerAccess acces
             return null;
         }
 
-        var leads = LegacyRoles.Keys(LeadRoles.All);
         var owners = await db.Profiles.AsNoTracking()
-            .Where(p => p.Roles.Any(r => leads.Contains(r.Definition!.Key)))
+            .Where(ProfileHolding.Capability(Capability.ManagePartners))
             .Select(p => new PartnerOwnerDto(p.Id, p.Name))
             .ToListAsync(cancellationToken);
         return [.. owners.OrderBy(o => o.Name, StringComparer.CurrentCultureIgnoreCase)];
@@ -191,8 +191,7 @@ public class ManagePartnersHandler(IApplicationDbContext db, PartnerAccess acces
             return null;
         }
 
-        var leads = LegacyRoles.Keys(LeadRoles.All);
-        var isLead = await db.Profiles.AnyAsync(p => p.Id == owner && p.Roles.Any(r => leads.Contains(r.Definition!.Key)), cancellationToken);
+        var isLead = await db.Profiles.Where(ProfileHolding.Capability(Capability.ManagePartners)).AnyAsync(p => p.Id == owner, cancellationToken);
         return isLead ? null : Result.Invalid("OwnerId", "Choose a lead as the owner.");
     }
 

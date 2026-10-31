@@ -159,12 +159,11 @@ public class AcceptInviteHandler(
     // The organisation's definition of the invite's pre-assigned role (L2-151 AC4); slice 14 stores a definition id.
     private async Task<Domain.Organisations.RoleDefinition?> PreassignedDefinitionAsync(Invite invite, CancellationToken cancellationToken)
     {
-        if (invite.PreassignedRole is not { } role)
+        if (invite.PreassignedRole is not { } key)
         {
             return null;
         }
 
-        var key = LegacyRoles.Key(role);
         return await db.RoleDefinitions.SingleOrDefaultAsync(d => d.Key == key && d.ArchivedAtUtc == null, cancellationToken);
     }
 

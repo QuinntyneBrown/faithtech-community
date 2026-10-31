@@ -9,7 +9,7 @@ public class InviteTests
     private static readonly DateTimeOffset Sent = new(2026, 10, 1, 9, 0, 0, TimeSpan.Zero);
     private static readonly Guid Inviter = Guid.NewGuid();
 
-    private static Invite NewInvite(Role? role = null) => new("grace@example.org", "hash", role, Inviter, Sent);
+    private static Invite NewInvite(Role? role = null) => new("grace@example.org", "hash", role?.ToString(), Inviter, Sent);
 
     [Fact]
     public void A_new_invite_records_who_sent_it_and_expires_after_14_days()
@@ -17,7 +17,7 @@ public class InviteTests
         var invite = NewInvite(Role.Volunteer);
 
         Assert.Equal(
-            ("grace@example.org", "hash", (Role?)Role.Volunteer, Inviter, Sent, Sent.AddDays(14)),
+            ("grace@example.org", "hash", "Volunteer", Inviter, Sent, Sent.AddDays(14)),
             (invite.Email, invite.TokenHash, invite.PreassignedRole, invite.InvitedBy, invite.CreatedAt, invite.ExpiresAt));
     }
 

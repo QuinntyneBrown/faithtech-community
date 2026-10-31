@@ -1,22 +1,36 @@
 using FaithTech.Community.Application.Common;
-using FaithTech.Community.Domain.Profiles;
+using FaithTech.Community.Domain.Organisations;
+using Microsoft.EntityFrameworkCore;
 
 namespace FaithTech.Community.Application.Admin;
 
 /// <summary>
-/// Who may change which role (L2-009): a City Lead the six non-administrative roles, a System Admin any role.
-/// The web app mirrors this in <c>assignableRoles</c> (ADR 0005) only to hide options.
+/// Who may change which role (L2-009, ADR 0033): a holder of AssignRoles the roles a grant rule of one of their roles
+/// allows, never one carrying AdministerOrganisation; a holder of AdministerOrganisation any role. The web app only
+/// hides options (ADR 0005). Slice 14 replaces this with RoleGrantPolicy.
 /// </summary>
-public class RoleAssignmentPolicy(ICurrentUser current)
+public class RoleAssignmentPolicy(IApplicationDbContext db, ICurrentUser current)
 {
-    public static readonly IReadOnlyList<Role> CityLeadRoles =
-        [Role.EventLead, Role.CreateLead, Role.CommunicationsLead, Role.Volunteer, Role.ProductEngineer, Role.Attendee];
+    public bool CanChangeRoles => current.Has(Capability.AssignRoles);
 
-    public bool CanChangeRoles => current.HasRole(Role.SystemAdmin) || current.HasRole(Role.CityLead);
+    public async Task<bool> CanChangeAsync(RoleDefinition definition, CancellationToken cancellationToken = default)
+    {
+        if (current.Capabilities.Contains(Capability.AdministerOrganisation))
+        {
+            return true;
+        }
 
-    public bool CanChange(Role role) =>
-        current.HasRole(Role.SystemAdmin) || (current.HasRole(Role.CityLead) && CityLeadRoles.Contains(role));
+        if (!current.Has(Capability.AssignRoles) || definition.Capabilities.Contains(Capability.AdministerOrganisation))
+        {
+            return false;
+        }
 
-    /// <summary>A City Lead's changes notify the owner; a System Admin's are audited instead (assign-roles design).</summary>
-    public bool NotifiesOwner => !current.HasRole(Role.SystemAdmin) && current.HasRole(Role.CityLead);
+        var held = current.HeldRoleIds.ToList();
+        return await db.RoleDefinitions
+            .Where(d => held.Contains(d.Id) && d.ArchivedAtUtc == null)
+            .AnyAsync(d => d.Grants.Any(g => g.GrantableRoleId == definition.Id), cancellationToken);
+    }
+
+    /// <summary>A grant by rule notifies the owner; an administrator's is audited instead (assign-roles design).</summary>
+    public bool NotifiesOwner => !current.Capabilities.Contains(Capability.AdministerOrganisation);
 }

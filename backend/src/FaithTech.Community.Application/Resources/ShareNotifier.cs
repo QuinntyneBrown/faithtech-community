@@ -54,7 +54,7 @@ public class ShareNotifier(IApplicationDbContext db, INotificationPublisher publ
         var owner = await db.Profiles.Where(p => p.Id == resource.OwnerId).Select(p => p.Name).SingleAsync(cancellationToken);
         var roles = resource.SharedRoles.Select(r => r.RoleDefinitionId).ToList();
         var heldRoles = await db.Profiles.Where(p => recipients.Contains(p.Id))
-            .Select(p => new { p.Id, Roles = p.Roles.Select(r => new HeldShareRole(r.RoleDefinitionId, r.Definition!.Key)).ToList() })
+            .Select(p => new { p.Id, Roles = p.Roles.Select(r => new HeldShareRole(r.RoleDefinitionId, r.Definition!.Name)).ToList() })
             .ToDictionaryAsync(p => p.Id, p => p.Roles, cancellationToken);
         var title = $"{owner} shared {resource.Title} with you";
         await publisher.PublishAsync(

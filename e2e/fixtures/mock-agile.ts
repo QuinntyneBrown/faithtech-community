@@ -3,7 +3,7 @@ import { Route, WebSocketRoute } from '@playwright/test';
 import type { MockAccount, MockProfile } from './mock-api';
 
 export type MockMethod = 'Scrum' | 'Kanban';
-export type MockAccess = 'Owner' | 'Member' | 'Admin' | 'Staff' | 'Outsider';
+export type MockAccess = 'Owner' | 'Member' | 'Admin' | 'Reader' | 'Outsider';
 
 export interface MockWorkspace {
   id: string;
@@ -439,7 +439,7 @@ export class MockAgile {
       );
       if (!sprint) return route.fulfill({ status: 404 });
       if (sprintAction[2] === 'stories') {
-        if (access === 'Staff') return route.fulfill({ status: 403 });
+        if (access === 'Reader') return route.fulfill({ status: 403 });
         for (const id of (request.body['storyIds'] as string[]) ?? [])
           this.items.find((i) => i.id === id)!.sprintId = sprint.id;
         return route.fulfill({ status: 204 });
@@ -473,7 +473,7 @@ export class MockAgile {
   ) {
     const kind = body['kind'] as MockKind;
     const planning = kind === 'Initiative' || kind === 'Epic';
-    if (access === 'Staff' || (planning && access === 'Member'))
+    if (access === 'Reader' || (planning && access === 'Member'))
       return route.fulfill({ status: 403 });
     const title = String(body['title'] ?? '').trim();
     if (!title) return invalid(route, 'Title', 'Give it a title.');
@@ -514,7 +514,7 @@ export class MockAgile {
     const access = workspace ? this.access(workspace, caller!) : 'Outsider';
     if (!item || !workspace || access === 'Outsider') return route.fulfill({ status: 404 });
     const planning = item.kind === 'Initiative' || item.kind === 'Epic';
-    const canEdit = access !== 'Staff' && !(planning && access === 'Member');
+    const canEdit = access !== 'Reader' && !(planning && access === 'Member');
 
     switch (`${method} ${rest}`) {
       case 'GET ':
@@ -544,11 +544,11 @@ export class MockAgile {
         return route.fulfill({ status: 204 });
       }
       case 'PUT /done':
-        if (access === 'Staff') return route.fulfill({ status: 403 });
+        if (access === 'Reader') return route.fulfill({ status: 403 });
         item.isDone = Boolean(body['done']);
         return route.fulfill({ status: 204 });
       case 'POST /comments': {
-        if (access === 'Staff') return route.fulfill({ status: 403 });
+        if (access === 'Reader') return route.fulfill({ status: 403 });
         const text = String(body['body'] ?? '').trim();
         if (!text) return invalid(route, 'Body', 'Write a comment first.');
         const createdAt = new Date(Date.UTC(2026, 9, 21, 12, ++this.comments)).toISOString();
@@ -582,7 +582,7 @@ export class MockAgile {
     workspace: MockWorkspace,
     access: MockAccess,
   ) {
-    if (access === 'Staff') return route.fulfill({ status: 403 });
+    if (access === 'Reader') return route.fulfill({ status: 403 });
     const storyIds = (body['storyIds'] as string[] | undefined) ?? [];
     if (!storyIds.length)
       return invalid(route, 'StoryIds', 'Choose at least one story to estimate.');
@@ -614,7 +614,7 @@ export class MockAgile {
         ? route.fulfill({ status: 404 })
         : route.fulfill({ status: 200, json: this.pokerDto(session, caller!) });
     }
-    if (access === 'Staff') return route.fulfill({ status: 403 });
+    if (access === 'Reader') return route.fulfill({ status: 403 });
     if (session.isClosed) return problem(route, 409, 'This session has ended.');
     const me = caller!.profileId;
     const facilitator = me === session.facilitatorId;
@@ -679,7 +679,7 @@ export class MockAgile {
       facilitatorId: session.facilitatorId,
       facilitatorName: this.nameOf(session.facilitatorId),
       isFacilitator: me === session.facilitatorId,
-      canVote: access !== 'Staff' && ids.includes(me),
+      canVote: access !== 'Reader' && ids.includes(me),
       storyNumber: session.index + 1,
       storyCount: session.storyIds.length,
       story: {
@@ -801,7 +801,7 @@ export class MockAgile {
       comments: [...item.comments]
         .sort((a, b) => b.createdAt.localeCompare(a.createdAt))
         .map((c) => ({ ...c, authorName: this.nameOf(c.authorId) })),
-      canEdit: access !== 'Staff' && !(planning && access === 'Member'),
+      canEdit: access !== 'Reader' && !(planning && access === 'Member'),
       canManage: access === 'Owner' || access === 'Admin',
     };
   }
@@ -998,7 +998,7 @@ export class MockAgile {
     if (workspace.ownerId === caller.profileId) return 'Owner';
     if (caller.roles.includes('SystemAdmin')) return 'Admin';
     if (workspace.memberIds.includes(caller.profileId)) return 'Member';
-    if (caller.roles.includes('Staff')) return 'Staff';
+    if (caller.roles.includes('Staff')) return 'Reader';
     return 'Outsider';
   }
 
@@ -1076,7 +1076,7 @@ export class MockAgile {
       members,
       isArchived: workspace.isArchived,
       access,
-      canEdit: access !== 'Staff',
+      canEdit: access !== 'Reader',
       canManage: access === 'Owner' || access === 'Admin',
       needsNewOwner: summary.needsNewOwner,
     };

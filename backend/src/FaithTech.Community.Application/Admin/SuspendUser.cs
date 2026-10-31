@@ -1,3 +1,4 @@
+using FaithTech.Community.Domain.Organisations;
 using FaithTech.Community.Application.Organisations;
 using FaithTech.Community.Application.Common;
 using FaithTech.Community.Application.Identity;
@@ -34,7 +35,7 @@ public class SuspensionHandler(
 {
     public async Task<Result> SuspendAsync(Guid profileId, SuspendUserCommand command, CancellationToken cancellationToken = default)
     {
-        if (!current.HasRole(Role.SystemAdmin))
+        if (!current.Has(Capability.AdministerOrganisation))
         {
             return Result.Forbidden();
         }
@@ -72,7 +73,7 @@ public class SuspensionHandler(
 
     public async Task<Result> ReinstateAsync(Guid profileId, CancellationToken cancellationToken = default)
     {
-        if (!current.HasRole(Role.SystemAdmin))
+        if (!current.Has(Capability.AdministerOrganisation))
         {
             return Result.Forbidden();
         }

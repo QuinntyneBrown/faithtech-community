@@ -1,31 +1,16 @@
 using FaithTech.Community.Application.Common;
-using FaithTech.Community.Application.Organisations;
+using FaithTech.Community.Application.Tests.Common;
 using FaithTech.Community.Domain.Organisations;
-using FaithTech.Community.Domain.Profiles;
 
 namespace FaithTech.Community.Application.Tests.Organisations;
 
 // Traces to: L2-135 AC2, AC3.
 public class CapabilityCheckTests
 {
-    private sealed class Caller(params string[] capabilities) : ICurrentUser
-    {
-        public Guid? UserId => Guid.NewGuid();
-
-        public CurrentMembership? Membership { get; } =
-            new(Guid.NewGuid(), [], capabilities.ToHashSet(StringComparer.Ordinal));
-
-        public IReadOnlyCollection<Role> Roles => [];
-
-        public bool IsAuthenticated => true;
-
-        public bool HasRole(Role role) => false;
-    }
-
     [Fact]
     public void A_caller_holds_exactly_the_capabilities_of_their_roles()
     {
-        ICurrentUser caller = new Caller(Capability.ManageEvents);
+        ICurrentUser caller = new CallerStub(Capability.ManageEvents);
 
         Assert.True(caller.Has(Capability.ManageEvents));
         Assert.False(caller.Has(Capability.ManagePartners));
@@ -34,7 +19,7 @@ public class CapabilityCheckTests
     [Fact]
     public void An_administrator_holds_every_capability()
     {
-        ICurrentUser caller = new Caller(Capability.AdministerOrganisation);
+        ICurrentUser caller = new CallerStub(Capability.AdministerOrganisation);
 
         Assert.All(Capability.All, c => Assert.True(caller.Has(c.Key)));
     }
@@ -42,7 +27,7 @@ public class CapabilityCheckTests
     [Fact]
     public void A_caller_with_no_membership_holds_nothing()
     {
-        ICurrentUser caller = new Caller();
+        ICurrentUser caller = new CallerStub();
 
         Assert.False(caller.Has(Capability.ManageEvents));
     }

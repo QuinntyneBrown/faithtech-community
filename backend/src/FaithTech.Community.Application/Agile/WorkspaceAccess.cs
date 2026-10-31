@@ -1,3 +1,4 @@
+using FaithTech.Community.Domain.Organisations;
 using FaithTech.Community.Application.Admin;
 using FaithTech.Community.Application.Common;
 using FaithTech.Community.Application.Profiles;
@@ -11,8 +12,9 @@ namespace FaithTech.Community.Application.Agile;
 public enum WorkspaceAccess
 {
     Outsider,
-    Staff,
-    /// <summary>A System Admin who does not own the workspace, member or not: every write is an audited override.</summary>
+    /// <summary>ReadAllWorkspaces without membership: reads everything, changes nothing.</summary>
+    Reader,
+    /// <summary>AdministerOrganisation without owning the workspace, member or not: every write is an audited override.</summary>
     Admin,
     Member,
     Owner,
@@ -43,9 +45,9 @@ public record WorkspaceCaller(Guid ProfileId, WorkspaceAccess Access)
 /// </summary>
 public class WorkspaceAccessPolicy(IApplicationDbContext db, ICurrentUser current, ProfileAccess profiles, IAuditLog audit)
 {
-    public bool ReadsEverything => current.HasRole(Role.Staff) || current.HasRole(Role.SystemAdmin);
+    public bool ReadsEverything => current.Has(Capability.ReadAllWorkspaces);
 
-    public bool IsSystemAdmin => current.HasRole(Role.SystemAdmin);
+    public bool IsSystemAdmin => current.Has(Capability.AdministerOrganisation);
 
     public Task<Guid?> CallerProfileIdAsync(CancellationToken cancellationToken = default) => profiles.CallerProfileIdAsync(cancellationToken);
 
@@ -55,9 +57,9 @@ public class WorkspaceAccessPolicy(IApplicationDbContext db, ICurrentUser curren
     /// </summary>
     public WorkspaceAccess Classify(Workspace workspace, Guid? caller) =>
         caller is { } me && workspace.OwnerId == me ? WorkspaceAccess.Owner
-            : current.HasRole(Role.SystemAdmin) ? WorkspaceAccess.Admin
+            : current.Has(Capability.AdministerOrganisation) ? WorkspaceAccess.Admin
             : caller is { } m && workspace.Members.Any(x => x.ProfileId == m) ? WorkspaceAccess.Member
-            : current.HasRole(Role.Staff) ? WorkspaceAccess.Staff
+            : current.Has(Capability.ReadAllWorkspaces) ? WorkspaceAccess.Reader
             : WorkspaceAccess.Outsider;
 
     /// <summary>The workspaces the caller may read.</summary>

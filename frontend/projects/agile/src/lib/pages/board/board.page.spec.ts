@@ -48,7 +48,7 @@ async function setup(access: WorkspaceDto['access'] = 'Owner') {
         name: 'Toronto team',
         ownerName: 'Grace Okonkwo',
         access,
-        canEdit: access !== 'Staff',
+        canEdit: access !== 'Reader',
       } as WorkspaceDto),
     ),
     getBacklog: vi.fn(() => of([])),
@@ -86,7 +86,7 @@ describe('BoardPage', () => {
   });
 
   it('gives Staff no Move buttons', async () => {
-    const host = await setup('Staff');
+    const host = await setup('Reader');
     expect(host.querySelector('button[aria-label^="Move "]')).toBeNull();
   });
 });

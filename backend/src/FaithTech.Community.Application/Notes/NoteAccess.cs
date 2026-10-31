@@ -1,3 +1,4 @@
+using FaithTech.Community.Domain.Organisations;
 using FaithTech.Community.Application.Common;
 using FaithTech.Community.Domain.Notes;
 using FaithTech.Community.Domain.Profiles;
@@ -12,13 +13,9 @@ namespace FaithTech.Community.Application.Notes;
 /// </summary>
 public class NoteAccess(IApplicationDbContext db, ICurrentUser current)
 {
-    /// <summary>The roles a page can be shared with, as for resources (L2-093).</summary>
-    public static readonly IReadOnlyList<Role> ShareableRoles =
-        [Role.CityLead, Role.EventLead, Role.CreateLead, Role.CommunicationsLead, Role.Volunteer, Role.ProductEngineer, Role.Staff];
-
     private Guid? _caller;
 
-    public bool IsSystemAdmin => current.HasRole(Role.SystemAdmin);
+    public bool IsSystemAdmin => current.Has(Capability.AdministerOrganisation);
 
     /// <summary>The caller's roles now, for matching role audiences inside a query.</summary>
     /// <summary>The held role definitions' ids, which a shared audience names.</summary>

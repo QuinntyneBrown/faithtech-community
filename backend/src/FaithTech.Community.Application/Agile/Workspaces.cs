@@ -1,8 +1,8 @@
+using FaithTech.Community.Domain.Organisations;
 using FaithTech.Community.Application.Common;
 using FaithTech.Community.Domain.Agile;
 using FaithTech.Community.Domain.Notifications;
 using FaithTech.Community.Domain.Profiles;
-using FaithTech.Community.Domain.Team;
 using FluentValidation;
 using Microsoft.EntityFrameworkCore;
 
@@ -38,7 +38,7 @@ public class WorkspacesHandler(
     /// <summary>A City Lead (or System Admin) creates a workspace and owns it; a City Lead may own several.</summary>
     public async Task<(Result Result, WorkspaceDto? Workspace)> CreateAsync(CreateWorkspaceCommand command, CancellationToken cancellationToken = default)
     {
-        if (!current.HasRole(Role.CityLead) && !current.HasRole(Role.SystemAdmin))
+        if (!current.Has(Capability.OwnWorkspaces))
         {
             return (Result.Forbidden(), null);
         }
@@ -142,11 +142,11 @@ public class WorkspacesHandler(
     }
 
     /// <summary>
-    /// An owner must hold City Lead (or be a System Admin); otherwise System Admin reassigns it (L2-037 AC2). An archived
+    /// An owner must hold OwnWorkspaces (or AdministerOrganisation); otherwise System Admin reassigns it (L2-037 AC2). An archived
     /// workspace is not flagged: nobody can act on it until it is restored, and then it is (ADR 0011).
     /// </summary>
     private static bool NeedsNewOwner(Profile? owner) =>
-        owner is null || (!owner.HasRole(Role.CityLead) && !owner.HasRole(Role.SystemAdmin));
+        owner is null || (!owner.HoldsCapability(Capability.OwnWorkspaces) && !owner.HoldsCapability(Capability.AdministerOrganisation));
 }
 
 /// <summary>Adds members to a workspace and notifies each of them (L2-031 AC2).</summary>
@@ -157,7 +157,7 @@ public class WorkspaceMembership(IApplicationDbContext db, AgileNotifier notifie
     {
         var ids = profileIds.Distinct().Where(id => !workspace.IsMember(id)).ToList();
         var profiles = await db.Profiles.Where(p => ids.Contains(p.Id)).ToListAsync(cancellationToken);
-        if (profiles.Count != ids.Count || !profiles.All(p => TeamRoles.IsTeamMember(p) && !p.IsSuspended))
+        if (profiles.Count != ids.Count || !profiles.All(p => p.HoldsCapability(Capability.JoinWorkspaces) && !p.IsSuspended))
         {
             return null;
         }
