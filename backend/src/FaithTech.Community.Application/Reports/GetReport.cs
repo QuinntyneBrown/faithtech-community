@@ -77,7 +77,7 @@ public class GetReportHandler(IApplicationDbContext db, ReportAccess access, Tim
     /// <summary>Profiles whose account has a verified email and is not suspended.</summary>
     private IQueryable<Profile> Members() =>
         from p in db.Profiles.AsNoTracking()
-        join u in db.Users on p.Id equals u.ProfileId
+        join u in db.Users on p.UserId equals (Guid?)u.Id
         where u.EmailConfirmed && !p.IsSuspended
         select p;
 

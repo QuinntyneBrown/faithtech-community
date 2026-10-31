@@ -94,7 +94,10 @@ public class GoogleSignInHandler(
             }
 
             Ensure(await users.UpdateAsync(user));
-            await contactSignedUp.HandleAsync(new EmailVerified(user.ProfileId, user.Email!), cancellationToken);
+            if (await db.Profiles.Where(p => p.UserId == user.Id).Select(p => (Guid?)p.Id).SingleOrDefaultAsync(cancellationToken) is { } profileId)
+            {
+                await contactSignedUp.HandleAsync(new EmailVerified(profileId, user.Email!), cancellationToken);
+            }
         }
 
         return user;
@@ -104,12 +107,13 @@ public class GoogleSignInHandler(
     {
         var profile = new Profile(ProfileName(identity), time.GetUtcNow().UtcDateTime);
         db.Profiles.Add(profile);
-        var user = new CommunityUser { UserName = identity.Email, Email = identity.Email, EmailConfirmed = true, ProfileId = profile.Id };
+        var user = new CommunityUser { Id = Guid.NewGuid(), UserName = identity.Email, Email = identity.Email, EmailConfirmed = true };
+        profile.LinkAccount(user.Id);
 
         // The user store shares the context, so the profile and the account commit together. No role is granted.
         Ensure(await users.CreateAsync(user));
         Ensure(await users.AddLoginAsync(user, new UserLoginInfo(LoginProvider, identity.Subject, "Google")));
-        await contactSignedUp.HandleAsync(new EmailVerified(user.ProfileId, user.Email!), cancellationToken);
+        await contactSignedUp.HandleAsync(new EmailVerified(profile.Id, user.Email!), cancellationToken);
         return user;
     }
 
@@ -133,5 +137,5 @@ public class GoogleSignInHandler(
 public static class AccountStatus
 {
     public static Task<bool> IsSuspendedAsync(IApplicationDbContext db, CommunityUser user, CancellationToken cancellationToken = default) =>
-        db.Profiles.AnyAsync(p => p.Id == user.ProfileId && p.IsSuspended, cancellationToken);
+        db.Profiles.AnyAsync(p => p.UserId == user.Id && p.IsSuspended, cancellationToken);
 }

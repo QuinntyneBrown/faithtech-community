@@ -34,9 +34,9 @@ public class SendAnnouncementTests(CommunityApiFactory factory) : IClassFixture<
         var ruth = await factory.AddMemberAsync("Ruth Alvarez");
         var jonah = await factory.AddMemberAsync("Jonah Bell");
         var client = factory.ClientFor(hannah, Role.CommunicationsLead);
-        var members = await factory.WithDbAsync(db => db.Users.CountAsync(u => db.Profiles.Any(p => p.Id == u.ProfileId && !p.IsSuspended)));
+        var members = await factory.WithDbAsync(db => db.Users.CountAsync(u => db.Profiles.Any(p => p.UserId == u.Id && !p.IsSuspended)));
         var emailable = await factory.WithDbAsync(db =>
-            db.Users.CountAsync(u => db.Profiles.Any(p => p.Id == u.ProfileId && !p.IsSuspended && !p.AnnouncementEmailsOptedOut)));
+            db.Users.CountAsync(u => db.Profiles.Any(p => p.UserId == u.Id && !p.IsSuspended && !p.AnnouncementEmailsOptedOut)));
 
         // When she sends an announcement to everyone
         var response = await client.PostAsJsonAsync("/api/announcements", Announcement(Everyone));

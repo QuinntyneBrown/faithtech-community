@@ -67,7 +67,7 @@ public class InviteSender(
         }
 
         var sender = await db.Users.Where(u => u.Id == current.UserId)
-            .Join(db.Profiles, u => u.ProfileId, p => p.Id, (u, p) => new { p.Id, p.Name, u.EmailConfirmed })
+            .Join(db.Profiles, u => (Guid?)u.Id, p => p.UserId, (u, p) => new { p.Id, p.Name, u.EmailConfirmed })
             .SingleOrDefaultAsync(cancellationToken);
         if (sender is null)
         {

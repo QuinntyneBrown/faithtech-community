@@ -33,7 +33,7 @@ public static class AuthorizationEndpoints
 
         var session = await context.AuthenticateAsync(IdentityConstants.ApplicationScheme);
         var user = session.Succeeded ? await users.GetUserAsync(session.Principal) : null;
-        var profile = user is null ? null : await db.Profiles.AsNoTracking().SingleOrDefaultAsync(p => p.Id == user.ProfileId);
+        var profile = user is null ? null : await db.Profiles.AsNoTracking().SingleOrDefaultAsync(p => p.UserId == user.Id);
 
         if (user is null || profile is null || profile.IsSuspended)
         {

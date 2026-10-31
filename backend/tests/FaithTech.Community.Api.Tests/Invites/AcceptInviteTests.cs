@@ -62,7 +62,7 @@ public class AcceptInviteTests(CommunityApiFactory factory) : IClassFixture<Comm
         var (user, profile) = await factory.WithDbAsync(async db =>
         {
             var u = await db.Users.AsNoTracking().SingleAsync(x => x.Email == email);
-            return (u, await db.Profiles.AsNoTracking().SingleAsync(p => p.Id == u.ProfileId));
+            return (u, await db.Profiles.AsNoTracking().SingleAsync(p => p.UserId == u.Id));
         });
         Assert.True(user.EmailConfirmed);
         Assert.Equal("Ruth Alvarez", profile.Name);
@@ -95,7 +95,7 @@ public class AcceptInviteTests(CommunityApiFactory factory) : IClassFixture<Comm
         var joined = await factory.WithDbAsync(async db =>
         {
             var user = await db.Users.AsNoTracking().SingleAsync(u => u.Email == email);
-            return (await db.Profiles.AsNoTracking().SingleAsync(p => p.Id == user.ProfileId)).JoinedAtUtc;
+            return (await db.Profiles.AsNoTracking().SingleAsync(p => p.UserId == user.Id)).JoinedAtUtc;
         });
         Assert.Equal(factory.Time.GetUtcNow().UtcDateTime, joined);
     }

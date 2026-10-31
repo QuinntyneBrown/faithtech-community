@@ -211,5 +211,5 @@ public class LinkContactTests(CommunityApiFactory factory) : IClassFixture<Commu
         factory.WithDbAsync(db => db.Users.Where(u => u.Id == member.UserId).Select(u => u.Email!).SingleAsync());
 
     private Task<Guid> ProfileOfAsync(string email) =>
-        factory.WithDbAsync(db => db.Users.Where(u => u.Email == email).Select(u => u.ProfileId).SingleAsync());
+        factory.WithDbAsync(db => db.Users.Where(u => u.Email == email).Join(db.Profiles, u => (Guid?)u.Id, p => p.UserId, (u, p) => p.Id).SingleAsync());
 }

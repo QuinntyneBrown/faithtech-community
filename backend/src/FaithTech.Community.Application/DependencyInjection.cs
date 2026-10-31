@@ -32,6 +32,7 @@ public static class DependencyInjection
         services.AddSingleton<UnlockHandler>();
         services.AddValidatorsFromAssemblyContaining<SignUpValidator>();
         services.AddScoped<VerificationEmails>();
+        services.AddScoped<Organisations.MeHandler>();
         services.AddScoped<SignUpHandler>();
         services.AddScoped<ConfirmEmailHandler>();
         services.AddScoped<ResendVerificationHandler>();

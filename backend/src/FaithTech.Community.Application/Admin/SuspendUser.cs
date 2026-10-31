@@ -60,7 +60,7 @@ public class SuspensionHandler(
         await db.SaveChangesAsync(cancellationToken);
 
         // Signed out everywhere: every token and authorization for the account stops working at once.
-        foreach (var userId in await db.Users.Where(u => u.ProfileId == profileId).Select(u => u.Id).ToListAsync(cancellationToken))
+        foreach (var userId in await db.Profiles.Where(p => p.Id == profileId && p.UserId != null).Select(p => p.UserId!.Value).ToListAsync(cancellationToken))
         {
             await revocation.RevokeAllAsync(userId, cancellationToken);
         }

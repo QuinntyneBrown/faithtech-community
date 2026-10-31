@@ -106,7 +106,7 @@ public class AddResourcesHandler(
         }
 
         var caller = await access.CallerAsync(cancellationToken);
-        var verified = await db.Users.Where(u => u.ProfileId == caller).Select(u => u.EmailConfirmed).SingleOrDefaultAsync(cancellationToken);
+        var verified = await db.Users.Where(u => db.Profiles.Any(p => p.Id == caller && p.UserId == u.Id)).Select(u => u.EmailConfirmed).SingleOrDefaultAsync(cancellationToken);
         return verified ? null : Result.Forbidden("Verify your email before adding resources.");
     }
 

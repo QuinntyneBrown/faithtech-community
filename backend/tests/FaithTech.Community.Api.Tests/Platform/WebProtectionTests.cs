@@ -63,11 +63,11 @@ public class WebProtectionTests(CommunityApiFactory factory) : IClassFixture<Com
 
         for (var i = 0; i < 100; i++)
         {
-            Assert.Equal(HttpStatusCode.OK, (await client.SendAsync(MeRequest(heavyUser))).StatusCode);
+            Assert.Equal(HttpStatusCode.OK, (await client.SendAsync(SignedInRequest(heavyUser))).StatusCode);
         }
 
-        Assert.Equal(HttpStatusCode.TooManyRequests, (await client.SendAsync(MeRequest(heavyUser))).StatusCode);
-        Assert.Equal(HttpStatusCode.OK, (await client.SendAsync(MeRequest(Guid.NewGuid().ToString()))).StatusCode);
+        Assert.Equal(HttpStatusCode.TooManyRequests, (await client.SendAsync(SignedInRequest(heavyUser))).StatusCode);
+        Assert.Equal(HttpStatusCode.OK, (await client.SendAsync(SignedInRequest(Guid.NewGuid().ToString()))).StatusCode);
     }
 
     [Fact]
@@ -78,10 +78,10 @@ public class WebProtectionTests(CommunityApiFactory factory) : IClassFixture<Com
 
         for (var i = 0; i < 150; i++)
         {
-            Assert.Equal(HttpStatusCode.OK, (await client.SendAsync(MeRequest(heavyUser))).StatusCode);
+            Assert.Equal(HttpStatusCode.OK, (await client.SendAsync(SignedInRequest(heavyUser))).StatusCode);
         }
 
-        Assert.Equal(HttpStatusCode.TooManyRequests, (await client.SendAsync(MeRequest(heavyUser))).StatusCode);
+        Assert.Equal(HttpStatusCode.TooManyRequests, (await client.SendAsync(SignedInRequest(heavyUser))).StatusCode);
     }
 
     private HttpClient AuthenticatedClient(Action<IWebHostBuilder>? configure = null) => factory.WithWebHostBuilder(b =>
@@ -92,9 +92,11 @@ public class WebProtectionTests(CommunityApiFactory factory) : IClassFixture<Com
             .AddScheme<AuthenticationSchemeOptions, TestAuthHandler>(TestAuthHandler.SchemeName, null));
     }).CreateClient();
 
-    private static HttpRequestMessage MeRequest(string userId)
+    // A signed-in request any account may make, member of the host's organisation or not (L2-132 AC3): the limit is
+    // per account, whatever the endpoint.
+    private static HttpRequestMessage SignedInRequest(string userId)
     {
-        var request = new HttpRequestMessage(HttpMethod.Get, "/api/me");
+        var request = new HttpRequestMessage(HttpMethod.Get, "/api/site");
         request.Headers.Add(TestAuthHandler.Header, userId);
         return request;
     }

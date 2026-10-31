@@ -39,16 +39,17 @@ public class GrantAdminCommandTests
     {
         await using var db = Db();
         var profile = new Profile("Priya Shah");
-        db.Profiles.Add(profile);
-        db.Users.Add(new CommunityUser
+        var user = new CommunityUser
         {
             Id = Guid.NewGuid(),
             UserName = email,
             Email = email,
             NormalizedEmail = email.ToUpperInvariant(),
             NormalizedUserName = email.ToUpperInvariant(),
-            ProfileId = profile.Id,
-        });
+        };
+        profile.LinkAccount(user.Id);
+        db.Profiles.Add(profile);
+        db.Users.Add(user);
         await db.SaveChangesAsync();
         return profile.Id;
     }

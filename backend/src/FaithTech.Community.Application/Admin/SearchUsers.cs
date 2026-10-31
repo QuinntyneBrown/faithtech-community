@@ -27,7 +27,7 @@ public class SearchUsersHandler(IApplicationDbContext db, ICurrentUser current)
         }
 
         var accounts = from user in db.Users.AsNoTracking()
-                       join profile in db.Profiles.AsNoTracking() on user.ProfileId equals profile.Id
+                       join profile in db.Profiles.AsNoTracking() on (Guid?)user.Id equals profile.UserId
                        select new { user, profile };
         if (!string.IsNullOrWhiteSpace(term))
         {

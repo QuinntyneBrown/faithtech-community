@@ -18,9 +18,7 @@ public class ListActivityHandler(IApplicationDbContext db, ICurrentUser current)
     /// <summary>The feed, or null when the caller has no profile.</summary>
     public async Task<IReadOnlyList<ActivityItemDto>?> HandleAsync(CancellationToken cancellationToken = default)
     {
-        var me = current.UserId is { } userId
-            ? await db.Users.Where(u => u.Id == userId).Select(u => (Guid?)u.ProfileId).SingleOrDefaultAsync(cancellationToken)
-            : null;
+        var me = current.ProfileId;
         if (me is null)
         {
             return null;

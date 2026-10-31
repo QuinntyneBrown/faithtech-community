@@ -1,3 +1,4 @@
+using Microsoft.EntityFrameworkCore;
 using FaithTech.Community.Application.Common;
 using FaithTech.Community.Application.Contacts;
 using FaithTech.Community.Domain.Identity;
@@ -17,7 +18,7 @@ public class ConfirmEmailValidator : AbstractValidator<ConfirmEmailCommand>
     }
 }
 
-public class ConfirmEmailHandler(UserManager<CommunityUser> users, ContactSignedUpHandler contactSignedUp)
+public class ConfirmEmailHandler(UserManager<CommunityUser> users, IApplicationDbContext db, ContactSignedUpHandler contactSignedUp)
 {
     public const string InvalidLinkMessage = "This link has expired or has already been used.";
 
@@ -32,7 +33,11 @@ public class ConfirmEmailHandler(UserManager<CommunityUser> users, ContactSigned
         }
 
         // Only a verified email is matched against private contacts (L2-015 AC3).
-        await contactSignedUp.HandleAsync(new EmailVerified(user.ProfileId, user.Email!));
+        // Matched for the membership being verified: the account's profile in this organisation (ADR 0032).
+        if (await db.Profiles.Where(p => p.UserId == user.Id).Select(p => (Guid?)p.Id).SingleOrDefaultAsync() is { } profileId)
+        {
+            await contactSignedUp.HandleAsync(new EmailVerified(profileId, user.Email!));
+        }
         return Result.Ok();
     }
 }

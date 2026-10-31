@@ -34,12 +34,14 @@ public class ReportVolumeTests : IAsyncLifetime
             foreach (var (profile, verified) in profiles)
             {
                 var email = $"{profile.Id:N}@example.org";
-                db.Profiles.Add(profile);
-                db.Users.Add(new CommunityUser
+                var user = new CommunityUser
                 {
                     Id = Guid.NewGuid(), UserName = email, Email = email, NormalizedEmail = email.ToUpperInvariant(),
-                    NormalizedUserName = email.ToUpperInvariant(), EmailConfirmed = verified, ProfileId = profile.Id,
-                });
+                    NormalizedUserName = email.ToUpperInvariant(), EmailConfirmed = verified,
+                };
+                profile.LinkAccount(user.Id);
+                db.Profiles.Add(profile);
+                db.Users.Add(user);
             }
 
             db.Events.AddRange(events);

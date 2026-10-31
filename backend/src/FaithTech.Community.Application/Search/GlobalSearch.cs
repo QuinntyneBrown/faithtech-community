@@ -45,7 +45,7 @@ public interface ISearchSource
 }
 
 /// <summary>Global search (L2-026): every source the caller may use, grouped, at most 10 results a group.</summary>
-public class GlobalSearchHandler(IApplicationDbContext db, ICurrentUser current, IEnumerable<ISearchSource> sources)
+public class GlobalSearchHandler(ICurrentUser current, IEnumerable<ISearchSource> sources)
 {
     public const int MinimumLength = 2;
     public const int MaximumLength = 200;
@@ -65,9 +65,7 @@ public class GlobalSearchHandler(IApplicationDbContext db, ICurrentUser current,
             return (Result.Invalid("q", $"Use {MaximumLength} characters or fewer."), null);
         }
 
-        var caller = current.UserId is { } userId
-            ? await db.Users.Where(u => u.Id == userId).Select(u => u.ProfileId).SingleOrDefaultAsync(cancellationToken)
-            : Guid.Empty;
+        var caller = current.ProfileId ?? Guid.Empty;
         var groups = new List<SearchResultGroup>();
         // One source at a time: they share the request's DbContext.
         foreach (var source in sources.OrderBy(s => s.Kind))

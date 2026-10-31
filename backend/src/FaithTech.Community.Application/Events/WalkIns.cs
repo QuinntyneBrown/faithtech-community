@@ -66,7 +66,7 @@ public class AddWalkInHandler(IApplicationDbContext db, EventPermissions permiss
         {
             var normalized = email.ToUpperInvariant();
             member = await db.Users.Where(u => u.EmailConfirmed && u.NormalizedEmail == normalized)
-                .Select(u => (Guid?)u.ProfileId).FirstOrDefaultAsync(cancellationToken);
+                .Join(db.Profiles, u => (Guid?)u.Id, p => p.UserId, (u, p) => (Guid?)p.Id).FirstOrDefaultAsync(cancellationToken);
         }
 
         var (rsvp, reused) = e.AddWalkIn(command.Name!, email, member, command.CheckInNow, actor, time.GetUtcNow());

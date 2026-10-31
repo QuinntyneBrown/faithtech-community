@@ -5,7 +5,7 @@ using Microsoft.EntityFrameworkCore;
 namespace FaithTech.Community.Application.Events;
 
 /// <summary>Who may do what with events, read from the caller's roles (L2-020, L2-022, L2-025).</summary>
-public class EventPermissions(ICurrentUser current, IApplicationDbContext db)
+public class EventPermissions(ICurrentUser current)
 {
     private static readonly Role[] Managers = [Role.EventLead, Role.CityLead, Role.SystemAdmin];
     private static readonly Role[] Leads = [Role.CityLead, Role.EventLead, Role.CreateLead, Role.CommunicationsLead];
@@ -37,7 +37,5 @@ public class EventPermissions(ICurrentUser current, IApplicationDbContext db)
 
     /// <summary>The caller's profile id, or null for an anonymous caller or an unknown account.</summary>
     public Task<Guid?> CallerProfileIdAsync(CancellationToken cancellationToken = default) =>
-        current.UserId is { } userId
-            ? db.Users.Where(u => u.Id == userId).Select(u => (Guid?)u.ProfileId).SingleOrDefaultAsync(cancellationToken)
-            : Task.FromResult<Guid?>(null);
+        Task.FromResult(current.ProfileId);
 }

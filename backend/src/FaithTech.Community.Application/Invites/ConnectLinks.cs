@@ -124,7 +124,7 @@ public class ConnectLinkHandler(
             return null;
         }
 
-        return await db.Users.Where(u => u.Id == current.UserId).Select(u => (Guid?)u.ProfileId).SingleOrDefaultAsync(cancellationToken);
+        return await Task.FromResult(current.ProfileId);
     }
 
     private ConnectLinkDto ToDto(string token) => new($"{organisation.Origin}/meet/{token}");

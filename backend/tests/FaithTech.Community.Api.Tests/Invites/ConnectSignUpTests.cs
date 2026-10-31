@@ -178,7 +178,7 @@ public class ConnectSignUpTests(CommunityApiFactory factory) : IClassFixture<Com
         factory.WithDbAsync(async db =>
         {
             var user = await db.Users.AsNoTracking().SingleAsync(u => u.Email == email);
-            return (user, await db.Profiles.AsNoTracking().SingleAsync(p => p.Id == user.ProfileId));
+            return (user, await db.Profiles.AsNoTracking().SingleAsync(p => p.UserId == user.Id));
         });
 
     private Task<List<Domain.Contacts.Contact>> ContactsOfAsync(ProfileClients.Member lead) =>

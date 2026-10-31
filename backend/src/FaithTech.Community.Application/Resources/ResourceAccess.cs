@@ -30,9 +30,7 @@ public class ResourceAccess(IApplicationDbContext db, ICurrentUser current)
 
     /// <summary>The caller's profile id, or <see cref="Guid.Empty"/> when there is none.</summary>
     public async Task<Guid> CallerAsync(CancellationToken cancellationToken = default) =>
-        _caller ??= current.UserId is { } userId
-            ? await db.Users.Where(u => u.Id == userId).Select(u => u.ProfileId).SingleOrDefaultAsync(cancellationToken)
-            : Guid.Empty;
+        _caller ??= await Task.FromResult(current.ProfileId ?? Guid.Empty);
 
     /// <summary>The active resources the caller may open: Global, their own, or Shared with them or a role they hold now.</summary>
     public IQueryable<Resource> Visible(IQueryable<Resource> resources, Guid caller)

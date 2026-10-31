@@ -64,9 +64,7 @@ public class ListMyAnnouncementsHandler(IApplicationDbContext db, ICurrentUser c
     }
 
     internal static async Task<Guid> CallerProfileIdAsync(IApplicationDbContext db, ICurrentUser current, CancellationToken cancellationToken) =>
-        current.UserId is { } userId
-            ? await db.Users.Where(u => u.Id == userId).Select(u => u.ProfileId).SingleOrDefaultAsync(cancellationToken)
-            : Guid.Empty;
+        await Task.FromResult(current.ProfileId ?? Guid.Empty);
 }
 
 /// <summary>Reads and sets the caller's announcement email opt-out from Settings (L2-030 AC2).</summary>

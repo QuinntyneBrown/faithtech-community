@@ -27,7 +27,7 @@ public class ShareNotifier(IApplicationDbContext db, INotificationPublisher publ
         var roles = resource.SharedRoles.Select(r => r.Role).ToList();
         var ids = await (
                 from user in db.Users
-                join profile in db.Profiles on user.ProfileId equals profile.Id
+                join profile in db.Profiles on (Guid?)user.Id equals profile.UserId
                 where !profile.IsSuspended && profile.Id != resource.OwnerId
                 where members.Contains(profile.Id) || profile.Roles.Any(r => roles.Contains(r.Role))
                 select profile.Id)
