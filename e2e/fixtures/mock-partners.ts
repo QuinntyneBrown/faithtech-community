@@ -2,6 +2,7 @@ import { Route } from '@playwright/test';
 
 import { MockCaller } from './mock-contacts';
 import { match as duplicateMatch, normaliseHost } from './partner-duplicates';
+import { carries, holds, isOverride } from './role-definitions';
 
 /** What MockApi shares with the partners fake: "now" and the profiles that can own or move partners. */
 export interface PartnersContext {
@@ -74,7 +75,6 @@ export interface MockPartner {
 }
 
 const STAGES: MockStage[] = ['Lead', 'InFunnel', 'Confirmed'];
-const LEAD_ROLES = ['CityLead', 'EventLead', 'CreateLead', 'CommunicationsLead'];
 const EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const LOGGED: MockActivityKind[] = ['Call', 'Email', 'Meeting', 'Note'];
 const DAY = 24 * 60 * 60 * 1000;
@@ -215,8 +215,8 @@ export class MockPartners {
     if (!match) return false;
     if (!caller) return route.fulfill({ status: 401 });
     const [, id, action, otherId, dismissal] = match;
-    const canWrite = caller.roles.some((r) => LEAD_ROLES.includes(r) || r === 'SystemAdmin');
-    const canRead = canWrite || caller.roles.includes('Staff');
+    const canWrite = holds(caller, 'ManagePartners');
+    const canRead = canWrite || holds(caller, 'ViewPartners');
     if (!canRead) return route.fulfill({ status: 403 });
     const writing = method !== 'GET';
     if (writing && !canWrite) return route.fulfill({ status: 403 });
@@ -250,7 +250,7 @@ export class MockPartners {
       }
       this.dismiss(partner.id, other.id, caller.profileId);
       // PartnerAccess.AuditAdminWrite: a System Admin without a lead role is audited.
-      if (!caller.roles.some((r) => LEAD_ROLES.includes(r))) {
+      if (isOverride(caller, 'ManagePartners')) {
         this.context.addAuditEntry({
           action: 'partner.duplicate.dismissed',
           summary: `Marked ${partner.name} and ${other.name} as different partners`,
@@ -475,7 +475,7 @@ export class MockPartners {
     body: Record<string, unknown>,
     caller: MockCaller,
   ): Promise<void> {
-    if (!caller.roles.includes('SystemAdmin')) return route.fulfill({ status: 403 });
+    if (!holds(caller, 'AdministerOrganisation')) return route.fulfill({ status: 403 });
     if (!partner.archivedAtUtc) {
       return route.fulfill({
         status: 409,
@@ -645,7 +645,7 @@ export class MockPartners {
 
   private owners() {
     return [...this.context.profiles.values()]
-      .filter((p) => p.roles.some((r) => LEAD_ROLES.includes(r)))
+      .filter((p) => carries(p.roles, 'ManagePartners'))
       .map((p) => ({ profileId: p.id, name: p.name }))
       .sort((a, b) => a.name.localeCompare(b.name));
   }
@@ -700,7 +700,7 @@ export class MockPartners {
               mergedAtUtc: mergedAtUtc ?? archivedAtUtc,
             }
           : null,
-      canRestore: !!archivedAtUtc && !!caller?.roles.includes('SystemAdmin'),
+      canRestore: !!archivedAtUtc && !!caller && holds(caller, 'AdministerOrganisation'),
     };
   }
 

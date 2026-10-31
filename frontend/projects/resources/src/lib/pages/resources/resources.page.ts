@@ -13,12 +13,12 @@ import { ActivatedRoute, Router } from '@angular/router';
 import {
   AUTH_SERVICE,
   OrganisationNames,
-  RESOURCE_CONTRIBUTOR_ROLES,
   RESOURCE_TYPES,
   ResourceDto,
   RESOURCES_SERVICE,
   ResourceSummary,
   ResourceType,
+  hasAny,
 } from '@faithtech-community/api';
 import {
   BadgeComponent,
@@ -89,7 +89,7 @@ type State = 'loading' | 'loaded' | 'error';
 export class ResourcesPage {
   protected readonly organisation = inject(OrganisationNames);
   private readonly resources = inject(RESOURCES_SERVICE);
-  private readonly roles = inject(AUTH_SERVICE).roles;
+  private readonly capabilities = inject(AUTH_SERVICE).capabilities;
   private readonly dialogs = inject(DialogService);
   private readonly toasts = inject(ToastService);
   private readonly router = inject(Router);
@@ -114,9 +114,8 @@ export class ResourcesPage {
   protected readonly page = signal(1);
   protected readonly loadingMore = signal(false);
 
-  protected readonly canAdd = computed(() =>
-    this.roles().some((r) => RESOURCE_CONTRIBUTOR_ROLES.includes(r)),
-  );
+  /** AddResources adds and owns resources; Staff hold it as the carve-out from read-only (L2-057, ADR 0017). */
+  protected readonly canAdd = computed(() => hasAny(this.capabilities(), 'AddResources'));
   protected readonly filtered = computed(
     () => !!this.type() || !!this.tagChoice() || !!this.term(),
   );

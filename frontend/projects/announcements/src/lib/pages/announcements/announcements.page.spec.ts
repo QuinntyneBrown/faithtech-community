@@ -6,8 +6,8 @@ import {
   ANNOUNCEMENTS_SERVICE,
   AUTH_SERVICE,
   PagedResult,
-  Role,
   SITE_SERVICE,
+  Capability,
 } from '@faithtech-community/api';
 import { Observable, of, throwError } from 'rxjs';
 
@@ -45,14 +45,14 @@ function page(items: AnnouncementDto[], extra: Partial<PagedResult<AnnouncementD
 
 async function setup(
   list: (page: number) => Observable<PagedResult<AnnouncementDto>>,
-  roles: Role[] = [],
+  capabilities: Capability[] = [],
 ) {
   const service = { list: vi.fn(list) };
   TestBed.configureTestingModule({
     providers: [
       { provide: SITE_SERVICE, useValue: FAITHTECH_SITE },
       { provide: ANNOUNCEMENTS_SERVICE, useValue: service },
-      { provide: AUTH_SERVICE, useValue: { roles: signal(roles) } },
+      { provide: AUTH_SERVICE, useValue: { capabilities: signal(capabilities) } },
     ],
   });
   const fixture = TestBed.createComponent(AnnouncementsPage);
@@ -107,7 +107,7 @@ describe('AnnouncementsPage', () => {
     expect(member.host.querySelector('a[href="/announcements/new"]')).toBeNull();
     TestBed.resetTestingModule();
 
-    const lead = await setup(() => of(page([announcement('a')])), ['CommunicationsLead']);
+    const lead = await setup(() => of(page([announcement('a')])), ['SendAnnouncements']);
     expect(lead.host.querySelector('a[href="/announcements/new"]')).not.toBeNull();
   });
 

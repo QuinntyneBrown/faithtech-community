@@ -6,4 +6,5 @@
 export * from './http-params';
 export * from './paging';
 export * from './problem-details';
+export * from './capability';
 export * from './role';

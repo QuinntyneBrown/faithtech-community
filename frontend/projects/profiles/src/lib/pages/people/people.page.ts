@@ -17,6 +17,7 @@ import {
   ROLE_LABELS,
   Role,
   assignableRoles,
+  hasAny,
 } from '@faithtech-community/api';
 import {
   avatarColorFor,
@@ -77,6 +78,7 @@ export class PeoplePage {
   private readonly rolesService = inject(ROLES_SERVICE);
   private readonly dialogs = inject(DialogService);
   private readonly callerRoles = inject(AUTH_SERVICE).roles;
+  private readonly capabilities = inject(AUTH_SERVICE).capabilities;
 
   private readonly memberCell = viewChild.required<TemplateRef<unknown>>('memberCell');
   private readonly rolesCell = viewChild.required<TemplateRef<unknown>>('rolesCell');
@@ -98,14 +100,13 @@ export class PeoplePage {
   private readonly page = signal(1);
   private request = 0;
 
-  /** City Leads and System Admins manage roles; Staff read only (L2-053 AC2). */
-  protected readonly canManage = computed(() => assignableRoles(this.callerRoles()).length > 0);
+  /** AssignRoles manages roles; a viewer of the directory reads it (L2-053 AC2, L2-135 AC7). */
+  protected readonly canManage = computed(() => hasAny(this.capabilities(), 'AssignRoles'));
   protected readonly subtitle = computed(() => {
-    const roles = this.callerRoles();
-    if (roles.includes('SystemAdmin')) {
+    if (this.capabilities().includes('AdministerOrganisation')) {
       return 'As System Admin you can assign any role, including Staff and System Admin.';
     }
-    if (roles.includes('CityLead')) {
+    if (this.canManage()) {
       return 'You can add or remove Lead, Volunteer, Product Engineer and Attendee roles.';
     }
     return 'Read-only for Staff.';

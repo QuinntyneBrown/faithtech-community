@@ -1,5 +1,15 @@
 import { Page, Route } from '@playwright/test';
-import { capabilitiesOf } from './role-definitions';
+import {
+  Capability,
+  FAITHTECH_ROLES,
+  canGrant,
+  capabilitiesOf,
+  carries,
+  definitionOf,
+  heldRolesOf,
+  holds,
+  onTeam,
+} from './role-definitions';
 
 import { MockAgile } from './mock-agile';
 import { MockAnnouncements } from './mock-announcements';
@@ -23,6 +33,11 @@ export interface MockAccount {
   verified: boolean;
   suspended: boolean;
   roles: string[];
+  /**
+   * An explicit capability set, for a member holding a role the test defines (L2-135); unset means the
+   * capabilities of the FaithTech roles in `roles`.
+   */
+  capabilities?: Capability[];
   profileId: string;
   /**
    * The organisations the account has a profile in (its memberships, ADR 0032). Unset means a member of whichever
@@ -93,17 +108,6 @@ export interface MockAuditEntry {
   ipAddress: string;
 }
 
-const CITY_LEAD_ROLES = [
-  'EventLead',
-  'CreateLead',
-  'CommunicationsLead',
-  'Volunteer',
-  'ProductEngineer',
-  'Attendee',
-];
-const LEAD_ROLES = ['CityLead', 'EventLead', 'CreateLead', 'CommunicationsLead', 'SystemAdmin'];
-const TEAM_LEAD_ROLES = ['CityLead', 'EventLead', 'CreateLead', 'CommunicationsLead'];
-const TEAM_ROLES = [...TEAM_LEAD_ROLES, 'Volunteer'];
 const DAY = 24 * 60 * 60 * 1000;
 /** The API's CORS origins (WebApp:Origin and Marketing:Origin), with credentials allowed. */
 const ALLOWED_ORIGINS = ['http://localhost:4200', 'http://localhost:4300'];
@@ -577,9 +581,9 @@ export class MockApi {
         name: account.name,
         email: account.email,
         emailVerified: account.verified,
-        roles: account.roles,
+        roles: heldRolesOf(account.roles),
         // Computed from the role definitions held, as the API does (L2-135 AC2, L2-133 AC1).
-        capabilities: capabilitiesOf(account.roles),
+        capabilities: account.capabilities ?? capabilitiesOf(account.roles),
         organisation: this.host.organisation,
         // The account's other memberships, for the switcher (L2-133 AC1).
         memberships: (account.organisations ?? [])
@@ -643,7 +647,7 @@ export class MockApi {
   ) {
     const caller = this.caller(authorization);
     if (!caller) return route.fulfill({ status: 401 });
-    if (id !== caller.profileId && !caller.roles.includes('SystemAdmin')) {
+    if (id !== caller.profileId && !holds(caller, 'AdministerOrganisation')) {
       return route.fulfill({ status: 403 });
     }
     const profile = this.profiles.get(id);
@@ -696,7 +700,7 @@ export class MockApi {
   ) {
     const caller = this.caller(authorization);
     if (!caller) return route.fulfill({ status: 401 });
-    if (profileId !== caller.profileId && !caller.roles.includes('SystemAdmin')) {
+    if (profileId !== caller.profileId && !holds(caller, 'AdministerOrganisation')) {
       return route.fulfill({ status: 403 });
     }
     const profile = this.profiles.get(profileId);
@@ -777,17 +781,17 @@ export class MockApi {
     if (!caller) return route.fulfill({ status: 401 });
     const role =
       method === 'POST' ? String(body['role'] ?? '') : decodeURIComponent(roleName ?? '');
-    const admin = caller.roles.includes('SystemAdmin');
-    if (!admin && !(caller.roles.includes('CityLead') && CITY_LEAD_ROLES.includes(role))) {
-      return route.fulfill({ status: 403 });
-    }
+    if (!definitionOf(role)) return route.fulfill({ status: 400 });
+    if (!canGrant(caller, role)) return route.fulfill({ status: 403 });
     const profile = this.profiles.get(profileId);
     if (!profile) return route.fulfill({ status: 404 });
     const adding = method === 'POST';
     if (profile.roles.includes(role) === adding)
       return conflict(route, 'They already hold that role.');
-    if (!adding && role === 'SystemAdmin') {
-      const admins = [...this.profiles.values()].filter((p) => p.roles.includes('SystemAdmin'));
+    if (!adding && definitionOf(role)?.capabilities.includes('AdministerOrganisation')) {
+      const admins = [...this.profiles.values()].filter((p) =>
+        carries(p.roles, 'AdministerOrganisation'),
+      );
       if (admins.length <= 1)
         return conflict(route, 'There must always be at least one System Admin.');
     }
@@ -802,7 +806,7 @@ export class MockApi {
   private searchUsers(route: Route, url: URL, authorization: string | undefined) {
     const caller = this.caller(authorization);
     if (!caller) return route.fulfill({ status: 401 });
-    if (!caller.roles.includes('SystemAdmin')) return route.fulfill({ status: 403 });
+    if (!holds(caller, 'AdministerOrganisation')) return route.fulfill({ status: 403 });
     const term = (url.searchParams.get('q') ?? '').toLowerCase();
     const page = Number(url.searchParams.get('page') ?? '1');
     const all = [...this.accounts.values()]
@@ -826,9 +830,7 @@ export class MockApi {
   private listPeople(route: Route, url: URL, authorization: string | undefined) {
     const caller = this.caller(authorization);
     if (!caller) return route.fulfill({ status: 401 });
-    if (!caller.roles.some((r) => ['CityLead', 'Staff', 'SystemAdmin'].includes(r))) {
-      return route.fulfill({ status: 403 });
-    }
+    if (!holds(caller, 'ViewPeopleDirectory')) return route.fulfill({ status: 403 });
     const term = (url.searchParams.get('q') ?? '').trim().toLowerCase();
     const page = Number(url.searchParams.get('page') ?? '1');
     const all = [...this.accounts.values()]
@@ -863,7 +865,7 @@ export class MockApi {
   ) {
     const caller = this.caller(authorization);
     if (!caller) return route.fulfill({ status: 401 });
-    if (!caller.roles.includes('SystemAdmin')) return route.fulfill({ status: 403 });
+    if (!holds(caller, 'AdministerOrganisation')) return route.fulfill({ status: 403 });
     const account = [...this.accounts.values()].find((a) => a.profileId === profileId);
     if (!account) return route.fulfill({ status: 404 });
     if (method === 'POST') {
@@ -899,7 +901,7 @@ export class MockApi {
   private auditLog(route: Route, url: URL, authorization: string | undefined) {
     const caller = this.caller(authorization);
     if (!caller) return route.fulfill({ status: 401 });
-    if (!caller.roles.includes('SystemAdmin')) return route.fulfill({ status: 403 });
+    if (!holds(caller, 'AdministerOrganisation')) return route.fulfill({ status: 403 });
     const page = Number(url.searchParams.get('page') ?? '1');
     const all = this.filteredAudit(url);
     const items = all.slice((page - 1) * 50, page * 50);
@@ -912,7 +914,7 @@ export class MockApi {
   private auditExport(route: Route, url: URL, authorization: string | undefined) {
     const caller = this.caller(authorization);
     if (!caller) return route.fulfill({ status: 401 });
-    if (!caller.roles.includes('SystemAdmin')) return route.fulfill({ status: 403 });
+    if (!holds(caller, 'AdministerOrganisation')) return route.fulfill({ status: 403 });
     const rows = this.filteredAudit(url).map((e) =>
       [
         e.occurredAtUtc,
@@ -954,16 +956,16 @@ export class MockApi {
     const role = url.searchParams.get('role')?.toLowerCase();
     if (role && role !== 'leads' && role !== 'volunteers') return route.fulfill({ status: 400 });
     const city = url.searchParams.get('city')?.trim().toLowerCase();
-    const team = [...this.profiles.values()].filter((p) =>
-      p.roles.some((r) => TEAM_ROLES.includes(r)),
-    );
+    const team = [...this.profiles.values()].filter((p) => onTeam(p.roles));
+    const teamRoles = (p: MockProfile) =>
+      FAITHTECH_ROLES.filter((d) => d.showOnTeam && p.roles.includes(d.key));
     const key = (p: MockProfile) => `${p.name.toLowerCase()}|${p.id}`;
     const matching = team
       .filter((p) =>
         role === 'leads'
-          ? p.roles.some((r) => TEAM_LEAD_ROLES.includes(r))
+          ? teamRoles(p).some((d) => d.capabilities.includes('InviteMembers'))
           : role === 'volunteers'
-            ? p.roles.includes('Volunteer')
+            ? teamRoles(p).some((d) => !d.capabilities.includes('InviteMembers'))
             : true,
       )
       .filter((p) => !city || p.homeCity?.trim().toLowerCase() === city)
@@ -1001,7 +1003,7 @@ export class MockApi {
   private listInvites(route: Route, url: URL, authorization: string | undefined) {
     const caller = this.caller(authorization);
     if (!caller) return route.fulfill({ status: 401 });
-    if (!caller.roles.some((r) => LEAD_ROLES.includes(r))) return route.fulfill({ status: 403 });
+    if (!holds(caller, 'InviteMembers')) return route.fulfill({ status: 403 });
     const key = (i: MockInvite) => `${i.createdAt}_${i.id}`;
     const invites = [...this.invites].sort((a, b) => key(b).localeCompare(key(a)));
     const size = Math.min(100, Math.max(1, Number(url.searchParams.get('pageSize') ?? 50) || 50));
@@ -1026,7 +1028,7 @@ export class MockApi {
   ) {
     const caller = this.caller(authorization);
     if (!caller) return route.fulfill({ status: 401 });
-    if (!caller.roles.some((r) => LEAD_ROLES.includes(r))) return route.fulfill({ status: 403 });
+    if (!holds(caller, 'InviteMembers')) return route.fulfill({ status: 403 });
     const email = String(body['email'] ?? '').trim();
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
       return route.fulfill({
@@ -1038,8 +1040,7 @@ export class MockApi {
     if (!caller.verified) {
       return problemDetail(route, 403, 'Verify your email before sending invites.');
     }
-    const admin = caller.roles.includes('SystemAdmin');
-    if (role && !admin && !(caller.roles.includes('CityLead') && CITY_LEAD_ROLES.includes(role))) {
+    if (role && !canGrant(caller, role)) {
       return problemDetail(route, 403, 'You can’t give that role.');
     }
     const since = new Date(this.now.getTime() - DAY).toISOString();
@@ -1073,7 +1074,7 @@ export class MockApi {
   ) {
     const caller = this.caller(authorization);
     if (!caller) return route.fulfill({ status: 401 });
-    if (!caller.roles.some((r) => LEAD_ROLES.includes(r))) return route.fulfill({ status: 403 });
+    if (!holds(caller, 'InviteMembers')) return route.fulfill({ status: 403 });
     const invite = this.invites.find((i) => i.id === id);
     if (!invite) return route.fulfill({ status: 404 });
     const status = this.inviteStatus(invite);
@@ -1174,7 +1175,7 @@ export class MockApi {
       photos,
       featuredPhoto: photos.find((p) => p.isFeatured) ?? null,
       isOwn: profile.id === caller.profileId,
-      canEdit: profile.id === caller.profileId || caller.roles.includes('SystemAdmin'),
+      canEdit: profile.id === caller.profileId || holds(caller, 'AdministerOrganisation'),
     };
   }
 }

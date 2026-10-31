@@ -72,7 +72,7 @@ interface EventRow {
 })
 export class EventsPage {
   private readonly events = inject(EVENTS_SERVICE);
-  private readonly callerRoles = inject(AUTH_SERVICE).roles;
+  private readonly capabilities = inject(AUTH_SERVICE).capabilities;
 
   protected readonly chips = CHIPS;
   protected readonly city = new FormControl('', { nonNullable: true });
@@ -84,7 +84,7 @@ export class EventsPage {
   private readonly selectedCity = signal<string | null>(null);
   private request = 0;
 
-  protected readonly canManage = computed(() => canManageEvents(this.callerRoles()));
+  protected readonly canManage = computed(() => canManageEvents(this.capabilities()));
   protected readonly cityOptions = computed<SelectOption[]>(() => [
     { value: '', label: 'All cities' },
     ...this.cities().map((c) => ({ value: c, label: c })),

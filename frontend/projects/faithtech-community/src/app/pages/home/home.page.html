@@ -63,7 +63,7 @@
   </ft-page-header>
 
   @if (isStaffOnly()) {
-    <ft-alert class="staff" status="info" heading="You’re viewing as Staff">
+    <ft-alert class="staff" status="info" [heading]="'You’re viewing as ' + oversightRole()">
       You can see everything across every city but can’t make changes. Private contacts stay with
       the lead who created them.
     </ft-alert>

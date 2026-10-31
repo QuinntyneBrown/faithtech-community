@@ -6,7 +6,7 @@ import {
   INVITES_SERVICE,
   InviteDto,
   InvitePage,
-  Role,
+  Capability,
 } from '@faithtech-community/api';
 import { DialogService, ToastService } from '@faithtech-community/components';
 import { Observable, of, throwError } from 'rxjs';
@@ -57,7 +57,7 @@ function page(
 async function setup(
   list: (after?: string | null) => Observable<InvitePage>,
   dialogResult?: InviteDto,
-  roles: Role[] = ['CityLead'],
+  capabilities: Capability[] = ['InviteMembers', 'ConnectLink'],
 ) {
   const service = {
     listInvites: vi.fn(list),
@@ -70,7 +70,7 @@ async function setup(
       { provide: INVITES_SERVICE, useValue: service },
       { provide: DialogService, useValue: dialogs },
       { provide: ToastService, useValue: toasts },
-      { provide: AUTH_SERVICE, useValue: { roles: signal(roles) } },
+      { provide: AUTH_SERVICE, useValue: { capabilities: signal(capabilities) } },
     ],
   });
   const fixture = TestBed.createComponent(InvitesPage);
@@ -139,13 +139,13 @@ describe('InvitesPage', () => {
     );
   });
 
-  it.each<[Role[], boolean]>([
-    [['CityLead'], true],
-    [['SystemAdmin'], true],
-    [['EventLead'], false],
-    [['CommunicationsLead', 'Volunteer'], false],
-  ])('with roles %j shows My QR code: %s', async (roles, shown) => {
-    const { button } = await setup(() => of(page([pending])), undefined, roles);
+  it.each<[Capability[], boolean]>([
+    [['ConnectLink'], true],
+    [['AdministerOrganisation'], true],
+    [['InviteMembers'], false],
+    [['SendAnnouncements', 'JoinWorkspaces'], false],
+  ])('with capabilities %j shows My QR code: %s', async (capabilities, shown) => {
+    const { button } = await setup(() => of(page([pending])), undefined, capabilities);
     expect(button('My QR code') !== undefined).toBe(shown);
   });
 

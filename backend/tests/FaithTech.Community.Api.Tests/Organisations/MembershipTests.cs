@@ -44,11 +44,13 @@ public class MembershipTests(CommunityApiFactory factory) : IClassFixture<Commun
         var client = factory.ClientOn(northside, there);
 
         Assert.DoesNotContain("Tomás Ortega", await client.GetStringAsync("/api/contacts"));
-        Assert.Equal(["CityLead", "Volunteer"], (await client.GetFromJsonAsync<RolesOnly>("/api/me"))!.Roles.Order());
-        Assert.Equal(["CityLead"], (await factory.ClientFor(grace).GetFromJsonAsync<RolesOnly>("/api/me"))!.Roles);
+        Assert.Equal(["CityLead", "Volunteer"], (await client.GetFromJsonAsync<RolesOnly>("/api/me"))!.Roles.Select(r => r.Key).Order());
+        Assert.Equal(["CityLead"], (await factory.ClientFor(grace).GetFromJsonAsync<RolesOnly>("/api/me"))!.Roles.Select(r => r.Key));
     }
 
-    public sealed record RolesOnly(string[] Roles);
+    public sealed record HeldRole(string Key);
+
+    public sealed record RolesOnly(HeldRole[] Roles);
 
     [Fact]
     public async Task A_caller_with_no_profile_on_the_host_is_refused_every_feature()

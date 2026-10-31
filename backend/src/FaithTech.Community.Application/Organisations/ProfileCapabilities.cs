@@ -17,10 +17,10 @@ public class ProfileCapabilities(IApplicationDbContext db)
             .SelectMany(p => p.Roles.Select(r => r.Definition!))
             .Where(d => d.ArchivedAtUtc == null)
             .OrderBy(d => d.SortOrder)
-            .Select(d => new { d.Id, d.Key, d.Name, d.Capabilities })
+            .Select(d => new { d.Id, d.Key, d.Name, d.IsOversight, d.Capabilities })
             .ToListAsync(cancellationToken);
         return (
-            [.. held.Select(d => new HeldRole(d.Id, d.Key, d.Name))],
+            [.. held.Select(d => new HeldRole(d.Id, d.Key, d.Name, d.IsOversight))],
             held.SelectMany(d => d.Capabilities).ToHashSet(StringComparer.Ordinal));
     }
 }

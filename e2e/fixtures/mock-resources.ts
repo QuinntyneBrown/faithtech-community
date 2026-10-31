@@ -2,6 +2,7 @@ import { Route } from '@playwright/test';
 
 import type { MockAccount, MockProfile } from './mock-api';
 import type { MockNotifications } from './mock-notifications';
+import { carries, holds, isShareable } from './role-definitions';
 
 export type MockResourceType =
   'Deck' | 'Logo' | 'Image' | 'Training' | 'Template' | 'Document' | 'Other';
@@ -38,23 +39,6 @@ export interface ResourcesContext {
   readonly now: Date;
 }
 
-const CONTRIBUTORS = [
-  'CityLead',
-  'EventLead',
-  'CreateLead',
-  'CommunicationsLead',
-  'Staff',
-  'SystemAdmin',
-];
-const SHAREABLE = [
-  'CityLead',
-  'EventLead',
-  'CreateLead',
-  'CommunicationsLead',
-  'Volunteer',
-  'ProductEngineer',
-  'Staff',
-];
 const TYPES: MockResourceType[] = [
   'Deck',
   'Logo',
@@ -206,8 +190,8 @@ export class MockResources {
     if (!match) return undefined;
     if (!caller) return route.fulfill({ status: 401 });
     const [, id, action] = match;
-    const contributes = caller.roles.some((r) => CONTRIBUTORS.includes(r));
-    const admin = caller.roles.includes('SystemAdmin');
+    const contributes = holds(caller, 'AddResources');
+    const admin = holds(caller, 'AdministerOrganisation');
 
     if (!id) {
       if (method === 'GET') return this.list(route, url, caller);
@@ -319,7 +303,7 @@ export class MockResources {
     return (
       r.visibility === 'Global' ||
       r.ownerId === caller.profileId ||
-      caller.roles.includes('SystemAdmin') ||
+      holds(caller, 'AdministerOrganisation') ||
       (r.visibility === 'Shared' &&
         (r.memberIds.includes(caller.profileId) ||
           r.roles.some((role) => caller.roles.includes(role))))
@@ -330,7 +314,9 @@ export class MockResources {
     const r = this.resources.find((x) => x.id === id);
     if (!r) return undefined;
     if (r.archivedAt)
-      return r.ownerId === caller.profileId || caller.roles.includes('SystemAdmin') ? r : undefined;
+      return r.ownerId === caller.profileId || holds(caller, 'AdministerOrganisation')
+        ? r
+        : undefined;
     return this.mayOpen(r, caller) ? r : undefined;
   }
 
@@ -389,7 +375,7 @@ export class MockResources {
     const q = (url.searchParams.get('q') ?? '').toLowerCase();
     const people = [...this.context.accounts.values()]
       .filter((a) => !a.suspended && a.name.toLowerCase().includes(q))
-      .filter((a) => !owners || a.roles.some((r) => CONTRIBUTORS.includes(r)))
+      .filter((a) => !owners || carries(a.roles, 'AddResources'))
       .sort((a, b) => a.name.localeCompare(b.name))
       .slice(0, 10)
       .map((a) => ({
@@ -550,7 +536,7 @@ export class MockResources {
     const ownerId = body['ownerId'] as string | null;
     if (!ownerId) return this.invalid(route, { OwnerId: ['Choose who should own it.'] });
     const owner = [...this.context.accounts.values()].find((a) => a.profileId === ownerId);
-    if (!owner || owner.suspended || !owner.roles.some((r) => CONTRIBUTORS.includes(r))) {
+    if (!owner || owner.suspended || !carries(owner.roles, 'AddResources')) {
       return this.invalid(route, {
         OwnerId: ['Choose a lead, Staff member or System Admin; only they can own resources.'],
       });
@@ -602,7 +588,7 @@ export class MockResources {
     if (!['Private', 'Shared', 'Global'].includes(visibility))
       errors['Visibility'] = ['Choose who can see it.'];
     if (visibility === 'Shared') {
-      if (input.roles.some((r) => !SHAREABLE.includes(r)))
+      if (input.roles.some((r) => !isShareable(r)))
         errors['Roles'] = ['Choose roles from the list.'];
       else if (input.memberIds.length === 0 && input.roles.length === 0)
         errors['Visibility'] = [AUDIENCE_MESSAGE];
@@ -682,7 +668,7 @@ export class MockResources {
 
   private dto(r: MockResource, caller: MockAccount) {
     const summary = this.summary(r, caller);
-    const admin = caller.roles.includes('SystemAdmin');
+    const admin = holds(caller, 'AdministerOrganisation');
     const ownerAccount = [...this.context.accounts.values()].find((a) => a.profileId === r.ownerId);
     const sharedVia = summary.sharedWithYou
       ? r.memberIds.includes(caller.profileId)
@@ -718,9 +704,7 @@ export class MockResources {
       canEdit: summary.isOwn || admin,
       canTransfer: admin,
       ownerLostRole:
-        ownerAccount && !ownerAccount.roles.some((role) => CONTRIBUTORS.includes(role))
-          ? 'CityLead'
-          : null,
+        ownerAccount && !carries(ownerAccount.roles, 'AddResources') ? 'CityLead' : null,
     };
   }
 

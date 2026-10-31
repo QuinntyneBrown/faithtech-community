@@ -1,4 +1,4 @@
-import { Role, isLead } from '@faithtech-community/api';
+import { Capability, hasAny } from '@faithtech-community/api';
 
 export interface Section {
   label: string;
@@ -6,39 +6,42 @@ export interface Section {
   icon: string;
   /** Hidden from the top bar between 768px and 1023px (design system, top bar). */
   secondary?: boolean;
-  /** Whether a member holding these roles may open the section; the API refuses the rest. */
-  opens: (roles: readonly Role[]) => boolean;
+  /**
+   * Whether a member holding these capabilities may open the section. Hiding is a convenience; the API refuses
+   * the rest (L2-133 AC2, L2-135 AC7).
+   */
+  opens: (capabilities: readonly Capability[]) => boolean;
 }
 
 const anyone = () => true;
-const has =
-  (...allowed: Role[]) =>
-  (roles: readonly Role[]) =>
-    roles.some((r) => allowed.includes(r));
+const any =
+  (...wanted: Capability[]) =>
+  (capabilities: readonly Capability[]) =>
+    hasAny(capabilities, ...wanted);
 
 /**
- * Every section in the order the top bar, the tab bar and the menu show them
- * (docs/adr/0009-shell-navigation-by-role.md).
+ * Every section in the order the top bar, the tab bar and the menu show them, each opened by capabilities
+ * (docs/adr/0009-shell-navigation-by-role.md as refined by ADR 0033, L2-045 AC4).
  */
 export const SECTIONS: readonly Section[] = [
   { label: 'Home', href: '/', icon: 'home', opens: anyone },
   { label: 'Events', href: '/events', icon: 'events', opens: anyone },
-  // Private contacts belong to the lead who created them; System Admin may see all (L2-012).
-  { label: 'Contacts', href: '/contacts', icon: 'contacts', opens: isLead },
-  // One shared pipeline for leads, read-only for Staff (L2-017).
+  // Private contacts belong to the member who created them (L2-012).
+  { label: 'Contacts', href: '/contacts', icon: 'contacts', opens: any('KeepContacts') },
+  // One shared pipeline, read-only without ManagePartners (L2-017).
   {
     label: 'Partners',
     href: '/partners',
     icon: 'partners',
-    opens: (roles) => isLead(roles) || roles.includes('Staff'),
+    opens: any('ViewPartners', 'ManagePartners'),
   },
-  // Workspaces are for leads and volunteers; Staff and System Admin see all of them (L2-050).
+  // Workspaces for owners and members; ReadAllWorkspaces sees all of them (L2-050).
   {
     label: 'Workspaces',
     href: '/workspaces',
     icon: 'workspaces',
     secondary: true,
-    opens: (roles) => isLead(roles) || has('Volunteer', 'Staff', 'SystemAdmin')(roles),
+    opens: any('OwnWorkspaces', 'JoinWorkspaces', 'ReadAllWorkspaces'),
   },
   { label: 'Team', href: '/team', icon: 'team', secondary: true, opens: anyone },
   {
@@ -70,18 +73,24 @@ export const SECTIONS: readonly Section[] = [
     href: '/people',
     icon: 'team',
     secondary: true,
-    opens: has('CityLead', 'Staff', 'SystemAdmin'),
+    opens: any('ViewPeopleDirectory'),
   },
-  // City-level numbers for Staff and System Admin only (L2-123, ADR 0031).
+  // City-level numbers for ViewReports only (L2-123, ADR 0031).
   {
     label: 'Reports',
     href: '/reports',
     icon: 'reports',
     secondary: true,
-    opens: has('Staff', 'SystemAdmin'),
+    opens: any('ViewReports'),
   },
-  // Only System Admins see the admin area (L2-040).
-  { label: 'Admin', href: '/admin', icon: 'admin', secondary: true, opens: has('SystemAdmin') },
+  // Only administrators see the admin area (L2-040).
+  {
+    label: 'Admin',
+    href: '/admin',
+    icon: 'admin',
+    secondary: true,
+    opens: (capabilities) => capabilities.includes('AdministerOrganisation'),
+  },
 ];
 
 export const SEARCH_SECTION: Section = {
@@ -91,16 +100,16 @@ export const SEARCH_SECTION: Section = {
   opens: anyone,
 };
 
-/** The sections a member holding `roles` may open, in order. */
-export function sectionsFor(roles: readonly Role[]): Section[] {
-  return SECTIONS.filter((s) => s.opens(roles));
+/** The sections a member holding `capabilities` may open, in order. */
+export function sectionsFor(capabilities: readonly Capability[]): Section[] {
+  return SECTIONS.filter((s) => s.opens(capabilities));
 }
 
 /**
  * The phone tab bar's links: Home, Events, Search and the member's next section. A More tab
  * follows them and opens the menu of every section.
  */
-export function tabsFor(roles: readonly Role[]): Section[] {
-  const [home, events, ...rest] = sectionsFor(roles);
+export function tabsFor(capabilities: readonly Capability[]): Section[] {
+  const [home, events, ...rest] = sectionsFor(capabilities);
   return [home, events, SEARCH_SECTION, ...rest.slice(0, 1)];
 }

@@ -5,6 +5,7 @@ import {
   InviteDto,
   InviteStatus,
   ROLE_LABELS,
+  hasAny,
 } from '@faithtech-community/api';
 import {
   AlertComponent,
@@ -64,12 +65,10 @@ export class InvitesPage {
   private readonly invites = inject(INVITES_SERVICE);
   private readonly dialogs = inject(DialogService);
   private readonly toasts = inject(ToastService);
-  private readonly roles = inject(AUTH_SERVICE).roles;
+  private readonly capabilities = inject(AUTH_SERVICE).capabilities;
 
-  /** Only City Leads and System Admins have a connect link (L2-080 AC1, AC2). */
-  protected readonly hasQrCode = computed(() =>
-    this.roles().some((role) => role === 'CityLead' || role === 'SystemAdmin'),
-  );
+  /** ConnectLink holders have a connect link (L2-080 AC1, AC2, L2-135 AC7). */
+  protected readonly hasQrCode = computed(() => hasAny(this.capabilities(), 'ConnectLink'));
 
   protected readonly state = signal<State>('loading');
   protected readonly list = signal<InviteDto[]>([]);

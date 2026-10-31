@@ -38,7 +38,7 @@ its own branch and ends with a pull request. Merge a slice before you start the 
 | 09 | [09-me-endpoint-and-organisation-switcher.md](09-me-endpoint-and-organisation-switcher.md) | `/api/me` memberships, Switch organisation | `L2-133` AC1, AC3, AC4 | Done |
 | 10 | [10-capability-catalogue-and-role-definitions.md](10-capability-catalogue-and-role-definitions.md) | Capability catalogue, role definitions, FaithTech definitions, computed capabilities | `L2-135` AC1, AC2, `L2-151` AC2 | Done |
 | 11 | [11-authorise-by-capability.md](11-authorise-by-capability.md) | Every access class by capability, override audit, `Role` removed | `L2-135` AC3 to AC6, `L2-151` AC5 | Done |
-| 12 | [12-frontend-and-fake-by-capability.md](12-frontend-and-fake-by-capability.md) | Navigation and features by capability, fake computes capabilities | `L2-135` AC7, `L2-133` AC2, AC5 | To do |
+| 12 | [12-frontend-and-fake-by-capability.md](12-frontend-and-fake-by-capability.md) | Navigation and features by capability, fake computes capabilities | `L2-135` AC7, `L2-133` AC2, AC5 | Done |
 | 13 | [13-last-administrator-and-capability-loss.md](13-last-administrator-and-capability-loss.md) | Organisation admin roster, last-administrator guard, `CapabilityLost` | `L2-139` | To do |
 | 14 | [14-assign-roles-under-grant-rules.md](14-assign-roles-under-grant-rules.md) | `RoleGrantPolicy`, role routes by id, `grantableRoleIds`, `GET /api/organisation` | `L2-137` AC4, AC5, `L2-138` | To do |
 | 15 | [15-organisation-section-and-general-settings.md](15-organisation-section-and-general-settings.md) | `organisations` library, Organisation section, General | `L2-147` AC1 to AC5 | To do |

@@ -1,7 +1,7 @@
 namespace FaithTech.Community.Application.Organisations;
 
 /// <summary>A role the caller's profile holds, by definition (ADR 0033).</summary>
-public sealed record HeldRole(Guid Id, string Key, string Name);
+public sealed record HeldRole(Guid Id, string Key, string Name, bool IsOversight = false);
 
 /// <summary>
 /// The caller's membership of the current organisation: the profile their account holds there, its current non-archived
