@@ -7,6 +7,8 @@ import {
   EventFilter,
   EventListDto,
   EventSummaryDto,
+  ChapterLabel,
+  ORGANISATION_SERVICE,
   SITE_SERVICE,
   Capability,
 } from '@faithtech-community/api';
@@ -56,25 +58,40 @@ const hackathon = event({
   venue: 'Trinity Community Centre',
   rsvpCount: 52,
 });
-const all: EventListDto = { events: [panel, builders, hackathon], cities: ['Austin', 'Toronto'] };
-const none: EventListDto = { events: [], cities: [] };
+const all: EventListDto = { events: [panel, builders, hackathon] };
+const none: EventListDto = { events: [] };
+const CITIES: ChapterLabel = { singular: 'City', plural: 'Cities' };
 
 async function setup(
   list: (filter: EventFilter) => Observable<EventListDto>,
   capabilities: Capability[] = ['ManageEvents'],
+  chapterLabel: ChapterLabel | null = CITIES,
 ) {
   const service = { listEvents: vi.fn(list) };
+  const organisation = {
+    name: 'FaithTech Community',
+    shortName: 'FaithTech',
+    chapterLabel,
+    chapters: chapterLabel
+      ? [
+          { id: 'c-toronto', name: 'Toronto' },
+          { id: 'c-austin', name: 'Austin' },
+        ]
+      : [],
+    roles: [],
+  };
   TestBed.configureTestingModule({
     providers: [
       { provide: EVENTS_SERVICE, useValue: service },
       { provide: AUTH_SERVICE, useValue: { capabilities: signal(capabilities) } },
+      { provide: ORGANISATION_SERVICE, useValue: { get: () => of(organisation) } },
       {
         provide: SITE_SERVICE,
         useValue: {
           site: signal({
             name: 'FaithTech Community',
             shortName: 'FaithTech',
-            chapterLabel: { singular: 'City', plural: 'Cities' },
+            chapterLabel,
             communityOrigin: 'https://app.faithtech.test',
           }),
         },
@@ -107,7 +124,7 @@ describe('EventsPage', () => {
   it('lists events with a date badge, a link and a meta line of date, time, city, place and RSVPs', async () => {
     const { host, cards, service } = await setup(() => of(all));
 
-    expect(service.listEvents).toHaveBeenCalledWith({ filter: 'Upcoming', city: null });
+    expect(service.listEvents).toHaveBeenCalledWith({ filter: 'Upcoming', chapterId: null });
     expect(host.querySelector('h1')!.textContent).toContain('Events');
     const [first, second, third] = cards();
     expect(cards()).toHaveLength(3);
@@ -139,34 +156,55 @@ describe('EventsPage', () => {
 
   it('shows Members only for a members-only event', async () => {
     const { cards } = await setup(() =>
-      of({ events: [{ ...builders, visibility: 'MembersOnly' }], cities: [] }),
+      of({ events: [{ ...builders, visibility: 'MembersOnly' }] }),
     );
 
     expect(cards()[0].querySelector('ft-badge')!.textContent!.trim()).toBe('Members only');
   });
 
-  it('applies one chip at a time and the city filter (AC2)', async () => {
+  // Traces to: L2-021 AC2, L2-142 AC2
+  it('applies one chip at a time and the chapter filter (AC2)', async () => {
     const { button, choose, service } = await setup(() => of(all));
     expect(button('Upcoming')!.getAttribute('aria-pressed')).toBe('true');
 
     button('Hackathons')!.click();
     await new Promise((r) => setTimeout(r));
-    expect(service.listEvents).toHaveBeenLastCalledWith({ filter: 'Hackathons', city: null });
+    expect(service.listEvents).toHaveBeenLastCalledWith({ filter: 'Hackathons', chapterId: null });
     expect(button('Hackathons')!.getAttribute('aria-pressed')).toBe('true');
     expect(button('Upcoming')!.getAttribute('aria-pressed')).toBe('false');
 
-    await choose('Austin');
-    expect(service.listEvents).toHaveBeenLastCalledWith({ filter: 'Hackathons', city: 'Austin' });
+    await choose('c-austin');
+    expect(service.listEvents).toHaveBeenLastCalledWith({
+      filter: 'Hackathons',
+      chapterId: 'c-austin',
+    });
+
+    await choose('none');
+    expect(service.listEvents).toHaveBeenLastCalledWith({
+      filter: 'Hackathons',
+      chapterId: 'none',
+    });
   });
 
-  it('offers every city with an event, after All cities', async () => {
+  // Traces to: L2-142 AC1
+  it('offers All cities, the organisation-wide events and the chapters in order', async () => {
     const { select } = await setup(() => of(all));
 
     expect(Array.from(select().options).map((o) => o.textContent!.trim())).toEqual([
       'All cities',
-      'Austin',
+      'FaithTech-wide',
       'Toronto',
+      'Austin',
     ]);
+  });
+
+  // Traces to: L2-142 AC3
+  it('has no chapter filter while chapters are off', async () => {
+    const { select, service, host } = await setup(() => of(all), ['ManageEvents'], null);
+
+    expect(select()).toBeNull();
+    expect(service.listEvents).toHaveBeenLastCalledWith({ filter: 'Upcoming', chapterId: null });
+    expect(host.textContent).not.toContain('city');
   });
 
   it('shows the empty state with New event for an event manager when there are no events (AC3)', async () => {
@@ -186,9 +224,9 @@ describe('EventsPage', () => {
   it('says no upcoming events in the chosen city and offers to show all cities', async () => {
     let answer = all;
     const { host, button, choose, select } = await setup(() => of(answer));
-    answer = { events: [], cities: all.cities };
+    answer = { events: [] };
 
-    await choose('Austin');
+    await choose('c-austin');
     expect(host.textContent).toContain('No upcoming events in Austin');
     expect(host.textContent).toContain('Try another city or include past events.');
 

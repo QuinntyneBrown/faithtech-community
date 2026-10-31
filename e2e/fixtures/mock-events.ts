@@ -55,6 +55,10 @@ export interface EventsChapters {
   pick(chosen: unknown, current: string | null): { chapterId: string | null } | { error: string };
   /** The tag an event a spec adds without one gets: FaithTech's Toronto while chapters are on. */
   defaultId(): string | null;
+  /** The chapter a list filter names; null for none, an unknown id or chapters off (L2-142 AC3). */
+  filterId(value: string | null): string | null;
+  /** Whether chapters are on, so chapter=none narrows to the organisation-wide events. */
+  on(): boolean;
 }
 
 export interface EventsProfile {
@@ -201,6 +205,8 @@ export class MockEvents {
       nameOf: () => null,
       pick: () => ({ chapterId: null }),
       defaultId: () => null,
+      filterId: () => null,
+      on: () => false,
     },
   ) {}
 
@@ -878,7 +884,7 @@ export class MockEvents {
     };
   }
 
-  /** GET /api/events?filter=&city= (L2-021). */
+  /** GET /api/events?filter=&chapter= (L2-021, L2-142): a chapter's id, or none for the organisation-wide events. */
   private list(route: Route, url: URL, caller: EventsCaller | null): Promise<void> {
     if (!caller) return route.fulfill({ status: 401 });
     const filter = (url.searchParams.get('filter') ?? 'upcoming').toLowerCase();
@@ -892,7 +898,9 @@ export class MockEvents {
       });
     }
     const now = this.now().toISOString();
-    const city = url.searchParams.get('city')?.trim().toLowerCase();
+    const chapterParam = url.searchParams.get('chapter');
+    const wide = chapterParam === 'none' && this.chapters.on();
+    const chapter = wide ? null : this.chapters.filterId(chapterParam);
     const matching = this.events
       .filter((e) =>
         filter === 'past'
@@ -901,8 +909,7 @@ export class MockEvents {
             (filter !== 'hackathons' || e.type === 'Hackathon') &&
             (filter !== 'online' || e.format === 'Online'),
       )
-      // Until slice 20 the filter names a chapter, as ListEventsHandler matches it.
-      .filter((e) => !city || this.chapters.nameOf(e.chapterId)?.toLowerCase() === city)
+      .filter((e) => (wide ? e.chapterId === null : !chapter || e.chapterId === chapter))
       .sort((a, b) =>
         filter === 'past'
           ? b.startsAt.localeCompare(a.startsAt)
@@ -922,10 +929,6 @@ export class MockEvents {
         rsvpCount: rsvped(e).length,
         isCancelled: e.isCancelled,
       }));
-    const names = this.events.map((e) => this.chapters.nameOf(e.chapterId));
-    const cities = [...new Set(names.filter((c): c is string => !!c))].sort((a, b) =>
-      a.localeCompare(b, undefined, { sensitivity: 'base' }),
-    );
-    return route.fulfill({ status: 200, json: { events: matching, cities } });
+    return route.fulfill({ status: 200, json: { events: matching } });
   }
 }

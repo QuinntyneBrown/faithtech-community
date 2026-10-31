@@ -35,17 +35,17 @@ describe('HttpEventsService', () => {
   it.each([
     ['listEvents', () => service.listEvents({}), 'GET', '/api/events', undefined],
     [
-      'listEvents by city',
-      () => service.listEvents({ city: 'Toronto' }),
+      'listEvents by chapter',
+      () => service.listEvents({ chapterId: 'c-toronto' }),
       'GET',
-      '/api/events?city=Toronto',
+      '/api/events?chapter=c-toronto',
       undefined,
     ],
     [
-      'listEvents by filter and city',
-      () => service.listEvents({ filter: 'Past', city: 'Austin' }),
+      'listEvents by filter and chapter',
+      () => service.listEvents({ filter: 'Past', chapterId: 'none' }),
       'GET',
-      '/api/events?filter=Past&city=Austin',
+      '/api/events?filter=Past&chapter=none',
       undefined,
     ],
     ['getEvent', () => service.getEvent('e1'), 'GET', '/api/events/e1', undefined],

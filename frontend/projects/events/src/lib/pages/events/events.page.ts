@@ -5,7 +5,10 @@ import {
   EVENTS_SERVICE,
   EventListFilter,
   EventSummaryDto,
+  ORGANISATION_SERVICE,
+  ORGANISATION_WIDE,
   OrganisationNames,
+  chapterFilterOptions,
   canManageEvents,
 } from '@faithtech-community/api';
 import {
@@ -49,7 +52,10 @@ interface EventRow {
   visibility: EventVisibility;
 }
 
-/** Events across every city, filtered by one chip and a city (L2-021), as in docs/mocks/pages/events. */
+/**
+ * Events across the organisation, filtered by one chip and a chapter (L2-021, L2-142), as in docs/mocks/pages/events.
+ * The chapter filter offers the organisation-wide events too, and is absent while chapters are off.
+ */
 @Component({
   selector: 'ft-events-page',
   imports: [
@@ -75,36 +81,71 @@ export class EventsPage {
   private readonly events = inject(EVENTS_SERVICE);
   private readonly organisationNames = inject(OrganisationNames);
   private readonly capabilities = inject(AUTH_SERVICE).capabilities;
+  private readonly organisations = inject(ORGANISATION_SERVICE);
 
   protected readonly chips = CHIPS;
-  protected readonly city = new FormControl('', { nonNullable: true });
+  protected readonly chapter = new FormControl('', { nonNullable: true });
 
   protected readonly state = signal<State>('loading');
   protected readonly rows = signal<EventRow[]>([]);
   protected readonly filter = signal<EventListFilter>('Upcoming');
-  private readonly cities = signal<string[]>([]);
-  private readonly selectedCity = signal<string | null>(null);
+  /** "All {chapters}", "{Organisation}-wide" and the chapters, or none while chapters are off. */
+  protected readonly chapterOptions = signal<SelectOption[]>([]);
+  /** The organisation's singular chapter label, or '' while chapters are off. */
+  protected readonly chapterLabel = computed(
+    () => this.organisationNames.chapterLabel()?.singular ?? '',
+  );
+  protected readonly chaptersLabel = computed(
+    () => this.organisationNames.chapterLabel()?.plural.toLowerCase() ?? '',
+  );
+  private readonly selectedChapter = signal<string | null>(null);
   private request = 0;
 
   protected readonly canManage = computed(() => canManageEvents(this.capabilities()));
-  protected readonly cityOptions = computed<SelectOption[]>(() => [
-    { value: '', label: 'All cities' },
-    ...this.cities().map((c) => ({ value: c, label: c })),
-  ]);
   protected readonly filtered = computed(
-    () => this.filter() !== 'Upcoming' || this.selectedCity() !== null,
+    () => this.filter() !== 'Upcoming' || this.selectedChapter() !== null,
   );
-  /** "No upcoming events in Vancouver", worded as the no-results mock words it. */
+  /**
+   * "No upcoming events in Vancouver", worded as the no-results mock words it (L2-142 AC5), or "No upcoming
+   * FaithTech-wide events" for the organisation-wide option.
+   */
   protected readonly noResultsHeading = computed(() => {
-    const city = this.selectedCity();
+    const id = this.selectedChapter();
     const heading = NO_RESULTS[this.filter()];
-    return city ? `${heading} in ${city}` : heading;
+    const label = id && this.chapterOptions().find((o) => o.value === id)?.label;
+    if (!label) return heading;
+    return id === ORGANISATION_WIDE
+      ? heading.replace(/ events$/, ` ${label} events`)
+      : `${heading} in ${label}`;
   });
+  /** "Try another city or include past events.", or without the chapter while chapters are off. */
+  protected readonly noResultsText = computed(() =>
+    this.chapterLabel()
+      ? `Try another ${this.chapterLabel().toLowerCase()} or include past events.`
+      : 'Try another filter or include past events.',
+  );
+  protected readonly emptyText = computed(
+    () =>
+      `Create the first gathering${this.chapterLabel() ? ` for your ${this.chapterLabel().toLowerCase()}` : ''}. ` +
+      'Public events get a page anyone can RSVP to, even without an account.',
+  );
+  /** "Builders nights, hackathons and gatherings across every city". */
+  protected readonly subtitle = computed(() =>
+    this.chapterLabel()
+      ? `Builders nights, hackathons and gatherings across every ${this.chapterLabel().toLowerCase()}`
+      : 'Builders nights, hackathons and gatherings',
+  );
 
   constructor() {
-    this.city.valueChanges.subscribe((value) => {
-      this.selectedCity.set(value || null);
+    this.chapter.valueChanges.subscribe((value) => {
+      this.selectedChapter.set(value || null);
       void this.load();
+    });
+    this.organisations.get().subscribe({
+      next: (organisation) =>
+        this.chapterOptions.set(chapterFilterOptions(organisation, { organisationWide: true })),
+      // Without the list the events are shown organisation-wide, with no filter.
+      error: () => this.chapterOptions.set([]),
     });
     void this.load();
   }
@@ -115,8 +156,8 @@ export class EventsPage {
     void this.load();
   }
 
-  protected showAllCities(): void {
-    this.city.setValue('');
+  protected showAllChapters(): void {
+    this.chapter.setValue('');
   }
 
   protected showUpcoming(): void {
@@ -133,13 +174,12 @@ export class EventsPage {
     this.state.set('loading');
     try {
       const list = await firstValueFrom(
-        this.events.listEvents({ filter: this.filter(), city: this.selectedCity() }),
+        this.events.listEvents({ filter: this.filter(), chapterId: this.selectedChapter() }),
       );
       if (request !== this.request) return;
       this.rows.set(
         list.events.map((e) => toRow(e, this.organisationNames.chapterPlace(e.chapterName))),
       );
-      this.cities.set(list.cities);
       this.state.set('loaded');
     } catch {
       if (request === this.request) this.state.set('error');

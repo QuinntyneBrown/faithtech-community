@@ -168,6 +168,8 @@ export class MockApi {
       pick: (chosen, current) => this.chapters.pick(chosen, current),
       defaultId: () =>
         this.host.organisation.chapterLabel ? this.chapters.named('Toronto').id : null,
+      filterId: (value) => this.chapters.filterId(value),
+      on: () => !!this.host.organisation.chapterLabel,
     },
   );
   /** In-app notifications (L2-027) for the bell, the notifications page and home's Recent activity. */
