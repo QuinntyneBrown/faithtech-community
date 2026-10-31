@@ -55,6 +55,7 @@ public class CommunitySeeder(IOpenIddictApplicationManager applications, Communi
         }
 
         await SeedOrganisationAsync(cancellationToken);
+        await SeedRoleDefinitionsAsync(cancellationToken);
 
         // The concurrency token that guards the last System Admin (ChangeRolesHandler).
         if (!await db.SystemAdminRosters.AnyAsync(r => r.Id == SystemAdminRoster.SingletonId, cancellationToken))
@@ -72,6 +73,21 @@ public class CommunitySeeder(IOpenIddictApplicationManager applications, Communi
         if (!await db.Organisations.AnyAsync(o => o.Slug == FaithTechSeed.Slug, cancellationToken))
         {
             db.Organisations.Add(FaithTechSeed.Organisation());
+            await db.SaveChangesAsync(cancellationToken);
+        }
+    }
+
+    /// <summary>FaithTech's role definitions, found by key and inserted only when missing, so later edits survive (L2-151 AC2).</summary>
+    private async Task SeedRoleDefinitionsAsync(CancellationToken cancellationToken)
+    {
+        var keys = await db.RoleDefinitions.IgnoreQueryFilters()
+            .Where(d => d.OrganisationId == FaithTechSeed.OrganisationId)
+            .Select(d => d.Key)
+            .ToListAsync(cancellationToken);
+        var missing = FaithTechSeed.RoleDefinitions().Where(d => !keys.Contains(d.Key)).ToList();
+        if (missing.Count > 0)
+        {
+            db.RoleDefinitions.AddRange(missing);
             await db.SaveChangesAsync(cancellationToken);
         }
     }

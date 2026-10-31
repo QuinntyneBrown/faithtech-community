@@ -25,6 +25,76 @@ public static class FaithTechSeed
     /// <summary>The creation time the first migration records for the row.</summary>
     public static readonly DateTime CreatedAtUtc = new(2026, 11, 1, 0, 0, 0, DateTimeKind.Utc);
 
+    /// <summary>A seeded role: its fixed id, the key the migrations map former role values to, and its settings.</summary>
+    public sealed record SeedRole(
+        Guid Id, string Key, string Name, string Description, string[] Capabilities, bool ShowOnTeam, bool ChapterScopable,
+        bool IsOversight, string[] Grants);
+
+    private static readonly string[] CreateLeadCapabilities =
+    [
+        Capability.ViewAttendees, Capability.ManageAttendance, Capability.KeepContacts, Capability.ViewPartners,
+        Capability.ManagePartners, Capability.InviteMembers, Capability.JoinWorkspaces, Capability.AddResources,
+    ];
+
+    /// <summary>
+    /// FaithTech's nine roles in display order (L2-151 AC2). Each key is the former role value, so the migrations map a
+    /// former value to the definition of the same name.
+    /// </summary>
+    public static readonly IReadOnlyList<SeedRole> Roles =
+    [
+        new(new("0f7a1c2e-5b4d-4e8a-9c61-2d3f4a5b7001"), "CityLead", "City Lead", "Leads a city team: events, partners, people and roles.",
+            [
+                Capability.ManageEvents, Capability.ViewAttendees, Capability.ManageAttendance, Capability.KeepContacts,
+                Capability.ViewPartners, Capability.ManagePartners, Capability.InviteMembers, Capability.ConnectLink,
+                Capability.OwnWorkspaces, Capability.JoinWorkspaces, Capability.ViewPeopleDirectory, Capability.AssignRoles,
+                Capability.AddResources,
+            ],
+            ShowOnTeam: true, ChapterScopable: true, IsOversight: false,
+            Grants: ["EventLead", "CreateLead", "CommunicationsLead", "Volunteer", "ProductEngineer", "Attendee"]),
+        new(new("0f7a1c2e-5b4d-4e8a-9c61-2d3f4a5b7002"), "EventLead", "Event Lead", "Runs a city's events.",
+            [
+                Capability.ManageEvents, Capability.ViewAttendees, Capability.ManageAttendance, Capability.KeepContacts,
+                Capability.ViewPartners, Capability.ManagePartners, Capability.InviteMembers, Capability.JoinWorkspaces,
+                Capability.AddResources,
+            ],
+            ShowOnTeam: true, ChapterScopable: true, IsOversight: false, Grants: []),
+        new(new("0f7a1c2e-5b4d-4e8a-9c61-2d3f4a5b7003"), "CreateLead", "Create Lead", "Leads a city's builders.",
+            CreateLeadCapabilities, ShowOnTeam: true, ChapterScopable: true, IsOversight: false, Grants: []),
+        new(new("0f7a1c2e-5b4d-4e8a-9c61-2d3f4a5b7004"), "CommunicationsLead", "Communications Lead", "Tells a city's story and sends announcements.",
+            [.. CreateLeadCapabilities, Capability.SendAnnouncements],
+            ShowOnTeam: true, ChapterScopable: true, IsOversight: false, Grants: []),
+        new(new("0f7a1c2e-5b4d-4e8a-9c61-2d3f4a5b7005"), "Staff", "Staff", "Sees across every city without changing it.",
+            [
+                Capability.ViewAttendees, Capability.ViewPartners, Capability.ReadAllWorkspaces, Capability.ViewPeopleDirectory,
+                Capability.ViewReports, Capability.AddResources,
+            ],
+            ShowOnTeam: false, ChapterScopable: false, IsOversight: true, Grants: []),
+        new(new("0f7a1c2e-5b4d-4e8a-9c61-2d3f4a5b7006"), "Volunteer", "Volunteer", "Helps a city team.",
+            [Capability.JoinWorkspaces], ShowOnTeam: true, ChapterScopable: true, IsOversight: false, Grants: []),
+        new(new("0f7a1c2e-5b4d-4e8a-9c61-2d3f4a5b7007"), "ProductEngineer", "Product Engineer", "Builds with the community.",
+            [], ShowOnTeam: false, ChapterScopable: false, IsOversight: false, Grants: []),
+        new(new("0f7a1c2e-5b4d-4e8a-9c61-2d3f4a5b7008"), "Attendee", "Attendee", "Comes to events.",
+            [], ShowOnTeam: false, ChapterScopable: false, IsOversight: false, Grants: []),
+        new(new("0f7a1c2e-5b4d-4e8a-9c61-2d3f4a5b7009"), "SystemAdmin", "System Admin", "Administers the organisation.",
+            [Capability.AdministerOrganisation], ShowOnTeam: false, ChapterScopable: false, IsOversight: false, Grants: []),
+    ];
+
+    /// <summary>The seeded roles as definitions, with City Lead's grant rules.</summary>
+    public static IReadOnlyList<RoleDefinition> RoleDefinitions()
+    {
+        var ids = Roles.ToDictionary(r => r.Key, r => r.Id);
+        return
+        [
+            .. Roles.Select((role, index) =>
+            {
+                var definition = new RoleDefinition(role.Id, role.Key, role.Name, role.Description, role.Capabilities, index);
+                definition.SetFlags(role.ShowOnTeam, role.ChapterScopable, role.IsOversight);
+                definition.SetGrantableRoles(role.Grants.Select(key => ids[key]));
+                return definition;
+            }),
+        ];
+    }
+
     public static Organisation Organisation()
     {
         var organisation = new Organisation(OrganisationId, Slug, Host, Name, ShortName, CreatedAtUtc);

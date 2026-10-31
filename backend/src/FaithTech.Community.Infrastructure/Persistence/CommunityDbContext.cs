@@ -51,6 +51,8 @@ public class CommunityDbContext : IdentityDbContext<CommunityUser, IdentityRole<
 
     public DbSet<Profile> Profiles => Set<Profile>();
 
+    public DbSet<RoleDefinition> RoleDefinitions => Set<RoleDefinition>();
+
     public DbSet<VerificationResend> VerificationResends => Set<VerificationResend>();
 
     public DbSet<OutboxMessage> OutboxMessages => Set<OutboxMessage>();
@@ -121,6 +123,24 @@ public class CommunityDbContext : IdentityDbContext<CommunityUser, IdentityRole<
             organisation.Property(o => o.ChapterLabelPlural).HasMaxLength(Organisation.MaxChapterLabelLength);
             organisation.Property(o => o.Status).HasConversion<string>().HasMaxLength(16);
             organisation.Property(o => o.SuspendedReason).HasMaxLength(500);
+        });
+
+        builder.Entity<RoleDefinition>(definition =>
+        {
+            definition.Property(d => d.Id).ValueGeneratedNever();
+            definition.Property(d => d.Key).HasMaxLength(RoleDefinition.MaxKeyLength);
+            definition.HasIndex(nameof(IOrganisationScoped.OrganisationId), nameof(RoleDefinition.Key)).IsUnique();
+            definition.Property(d => d.Name).HasMaxLength(RoleDefinition.MaxNameLength);
+            definition.Property(d => d.Description).HasMaxLength(RoleDefinition.MaxDescriptionLength);
+            definition.PrimitiveCollection(d => d.Capabilities);
+            definition.OwnsMany(d => d.Grants, grant =>
+            {
+                grant.ToTable("RoleGrantRules");
+                grant.WithOwner().HasForeignKey(g => g.GrantorRoleId);
+                grant.HasKey(g => new { g.GrantorRoleId, g.GrantableRoleId });
+                grant.HasIndex(g => g.GrantableRoleId);
+            });
+            definition.Navigation(d => d.Grants).UsePropertyAccessMode(PropertyAccessMode.Field);
         });
 
         builder.Entity<Profile>(profile =>
