@@ -433,7 +433,11 @@ export class MockApi {
       case 'GET /api/me':
         return this.me(route, request.headers()['authorization']);
       case 'GET /api/site':
-        return route.fulfill({ status: 200, json: this.host.site(ALLOWED_ORIGINS[0]) });
+        // The marketing dev server stands in for the public host (Marketing:Origin), the app's for the community host.
+        return route.fulfill({
+          status: 200,
+          json: this.host.site(ALLOWED_ORIGINS[0], url.origin === ALLOWED_ORIGINS[1]),
+        });
       case 'POST /api/account/sign-out':
         this.signedIn = null;
         return route.fulfill({ status: 204 });

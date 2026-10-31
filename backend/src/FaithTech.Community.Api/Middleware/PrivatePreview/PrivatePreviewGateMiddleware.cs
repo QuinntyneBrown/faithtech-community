@@ -136,7 +136,9 @@ public class PrivatePreviewGateMiddleware(
         && request.Headers.ContainsKey("Access-Control-Request-Method")
         && request.Headers.Origin.ToString() is { Length: > 0 } origin
         && (string.Equals(origin, webApp.Value.Origin, StringComparison.OrdinalIgnoreCase)
-            || string.Equals(origin, marketing.Value.Origin, StringComparison.OrdinalIgnoreCase));
+            || string.Equals(origin, marketing.Value.Origin, StringComparison.OrdinalIgnoreCase)
+            // Any configured public host; the CORS policy then admits it only on its own organisation's host.
+            || marketing.Value.Sites.Keys.Any(host => string.Equals(origin, $"https://{host}", StringComparison.OrdinalIgnoreCase)));
 
     private static bool IsNavigation(HttpRequest request) =>
         request.Headers.Accept.Any(value => value?.Contains("text/html", StringComparison.OrdinalIgnoreCase) == true);

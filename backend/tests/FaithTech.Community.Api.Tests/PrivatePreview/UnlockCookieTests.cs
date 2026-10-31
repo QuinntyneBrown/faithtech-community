@@ -1,4 +1,5 @@
 using System.Net;
+using FaithTech.Community.Api.Tests.Organisations;
 using Microsoft.AspNetCore.Hosting;
 
 namespace FaithTech.Community.Api.Tests.PrivatePreview;
@@ -117,6 +118,20 @@ public class UnlockCookieTests(PrivatePreviewApiFactory factory) : IClassFixture
 
         Assert.Equal(HttpStatusCode.NoContent, response.StatusCode);
         Assert.Equal(origin, response.Headers.GetValues("Access-Control-Allow-Origin").Single());
+    }
+
+    [Fact]
+    public async Task A_cors_preflight_from_another_organisations_public_host_reaches_its_cors_policy_while_locked()
+    {
+        // Traces to: L2-134 AC3, L2-131 AC6. Each public host's marketing page signs in on its own community host.
+        await factory.AddOrganisationAsync();
+        await using var sites = factory.WithWebHostBuilder(b => b.UseSetting("Marketing:Sites:www.northside.test:OrganisationSlug", "northside"));
+        var client = sites.CreateClient(new() { BaseAddress = new Uri("https://app.northside.test"), AllowAutoRedirect = false });
+
+        var response = await client.SendAsync(Preflight("https://www.northside.test"));
+
+        Assert.Equal(HttpStatusCode.NoContent, response.StatusCode);
+        Assert.Equal("https://www.northside.test", response.Headers.GetValues("Access-Control-Allow-Origin").Single());
     }
 
     [Fact]

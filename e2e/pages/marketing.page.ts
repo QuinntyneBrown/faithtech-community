@@ -8,6 +8,8 @@ export const MARKETING_URL = process.env['E2E_MARKETING_URL'] ?? 'http://localho
 /** The public marketing page at www.faithtech.community (docs/mocks/pages/marketing). */
 export class MarketingPage {
   readonly heading: Locator;
+  /** The hero's heading, whatever the host's headline says. */
+  readonly headline: Locator;
   readonly eyebrow: Locator;
   readonly lead: Locator;
   readonly topBar: Locator;
@@ -51,7 +53,8 @@ export class MarketingPage {
       level: 1,
       name: 'Build with people who share your faith',
     });
-    this.eyebrow = page.getByText('FaithTech Community', { exact: true });
+    this.headline = page.getByRole('heading', { level: 1 });
+    this.eyebrow = this.eyebrowNamed('FaithTech Community');
     this.lead = page.getByText(/^Meet the builders, leads and volunteers in your city/);
     this.topBar = page.getByRole('banner');
     this.topBarJoin = this.topBar.getByRole('button', { name: 'Join now' });
@@ -93,6 +96,11 @@ export class MarketingPage {
     this.sendAgain = this.panel.getByRole('link', { name: 'send it again' });
     this.signInWithGoogle = this.panel.getByRole('button', { name: 'Sign in with Google' });
     this.signUpWithGoogle = this.panel.getByRole('button', { name: 'Sign up with Google' });
+  }
+
+  /** The hero's eyebrow naming the organisation the public host belongs to. */
+  eyebrowNamed(name: string): Locator {
+    return this.page.getByText(name, { exact: true });
   }
 
   /** Signs in from the hero panel and waits for the API's answer. */

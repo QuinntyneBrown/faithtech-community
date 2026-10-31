@@ -31,7 +31,7 @@ its own branch and ends with a pull request. Merge a slice before you start the 
 | 02 | [02-scope-every-record.md](02-scope-every-record.md) | `OrganisationId`, global filter, stamping, per-organisation unique indexes | `L2-130` AC1 to AC4, AC7 | Done |
 | 03 | [03-scope-files-search-and-live-updates.md](03-scope-files-search-and-live-updates.md) | Blob prefixes, search, SignalR groups | `L2-130` AC2, AC5 | Done |
 | 04 | [04-organisation-name-in-copy-titles-and-email.md](04-organisation-name-in-copy-titles-and-email.md) | `/api/site`, short name in shell and titles, email, `.ics` | `L2-134` AC1, AC2, AC4, AC5, `L2-130` AC6 | Done |
-| 05 | [05-marketing-cors-and-static-sites-per-host.md](05-marketing-cors-and-static-sites-per-host.md) | Marketing per public host, static sites by host kind, CORS | `L2-134` AC3, `L2-131` AC6 | To do |
+| 05 | [05-marketing-cors-and-static-sites-per-host.md](05-marketing-cors-and-static-sites-per-host.md) | Marketing per public host, static sites by host kind, CORS | `L2-134` AC3, `L2-131` AC6 | Done |
 | 06 | [06-profile-per-organisation-and-not-a-member.md](06-profile-per-organisation-and-not-a-member.md) | `Profile.UserId`, current membership, not-a-member page | `L2-132` AC3, AC4 | To do |
 | 07 | [07-joining-an-organisation.md](07-joining-an-organisation.md) | Sign-up, invite, connect link and Google create memberships | `L2-132` AC1, AC2, AC7 | To do |
 | 08 | [08-membership-suspension.md](08-membership-suspension.md) | Suspension per membership, revocation per organisation | `L2-132` AC5, `L2-039` | To do |

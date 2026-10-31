@@ -1,4 +1,6 @@
+using FaithTech.Community.Api.Middleware.Organisations;
 using FaithTech.Community.Api.Middleware.PrivatePreview;
+using FaithTech.Community.Application.Organisations;
 using Microsoft.AspNetCore.StaticFiles;
 using Microsoft.Extensions.FileProviders;
 
@@ -9,10 +11,10 @@ public class StaticSitesOptions
 {
     public const string Section = "StaticSites";
 
-    /// <summary>The community app's production build, served on the host of <c>WebApp:Origin</c>.</summary>
+    /// <summary>The community app's production build, served on every organisation's community host.</summary>
     public string? AppRoot { get; set; }
 
-    /// <summary>The marketing page's production build, served on the host of <c>Marketing:Origin</c>.</summary>
+    /// <summary>The marketing page's production build, served on every public host (<c>Marketing:Sites</c>).</summary>
     public string? MarketingRoot { get; set; }
 
     /// <summary>Space-separated origins photos load from (Blob storage, ADR 0002), for the apps' img-src.</summary>
@@ -20,8 +22,9 @@ public class StaticSitesOptions
 }
 
 /// <summary>
-/// Serves both Angular builds by host behind the private-preview wall (L2-108). API paths always go on to the API.
-/// Nothing is configured in development or in the tests, where the Angular dev servers serve the apps.
+/// Serves both Angular builds behind the private-preview wall (L2-108): the community build on a community host and
+/// the marketing build on a public host, as host resolution recorded it (L2-134 AC3). API paths always go on to the
+/// API. Nothing is configured in development or in most tests, where the Angular dev servers serve the apps.
 /// </summary>
 public static class StaticSitesSetup
 {
@@ -35,15 +38,12 @@ public static class StaticSitesSetup
             return app;
         }
 
-        var webAppOrigin = configuration["WebApp:Origin"] ?? throw new InvalidOperationException("WebApp:Origin is not configured.");
-        var marketingOrigin = configuration["Marketing:Origin"] ?? throw new InvalidOperationException("Marketing:Origin is not configured.");
-        var policy = ContentSecurityPolicy(webAppOrigin, options.ImageOrigins);
-        Serve(app, new Uri(webAppOrigin).Authority, options.AppRoot, policy);
-        Serve(app, new Uri(marketingOrigin).Authority, options.MarketingRoot, policy);
+        Serve(app, HostKind.Community, options.AppRoot, options.ImageOrigins);
+        Serve(app, HostKind.Public, options.MarketingRoot, options.ImageOrigins);
         return app;
     }
 
-    private static void Serve(IApplicationBuilder app, string host, string root, string policy)
+    private static void Serve(IApplicationBuilder app, HostKind kind, string root, string? imageOrigins)
     {
         var files = new PhysicalFileProvider(Path.GetFullPath(root));
         var types = new FileExtensionContentTypeProvider();
@@ -51,7 +51,7 @@ public static class StaticSitesSetup
         types.Mappings[".webmanifest"] = "application/manifest+json";
 
         app.MapWhen(
-            context => string.Equals(context.Request.Host.Value, host, StringComparison.OrdinalIgnoreCase)
+            context => context.Items[OrganisationResolutionMiddleware.HostKindItem] is HostKind hostKind && hostKind == kind
                 && !ApiPaths.Any(path => context.Request.Path.StartsWithSegments(path, StringComparison.OrdinalIgnoreCase)),
             site =>
             {
@@ -64,7 +64,7 @@ public static class StaticSitesSetup
                         if (file.File.Name.EndsWith(".html", StringComparison.OrdinalIgnoreCase))
                         {
                             file.Context.Response.Headers.CacheControl = "no-cache";
-                            file.Context.Items[WallPage.ContentSecurityPolicyItem] = policy;
+                            file.Context.Items[WallPage.ContentSecurityPolicyItem] = Policy(file.Context, imageOrigins);
                         }
                         else
                         {
@@ -87,7 +87,7 @@ public static class StaticSitesSetup
                     // An app route such as /events/42: the SPA's index.html, which routes in the browser.
                     context.Response.ContentType = "text/html; charset=utf-8";
                     context.Response.Headers.CacheControl = "no-cache";
-                    context.Items[WallPage.ContentSecurityPolicyItem] = policy;
+                    context.Items[WallPage.ContentSecurityPolicyItem] = Policy(context, imageOrigins);
                     if (!HttpMethods.IsHead(context.Request.Method))
                     {
                         await context.Response.SendFileAsync(index);
@@ -95,6 +95,10 @@ public static class StaticSitesSetup
                 });
             });
     }
+
+    /// <summary>Calls go to the community origin of the organisation the host belongs to, never another's.</summary>
+    private static string Policy(HttpContext context, string? imageOrigins) =>
+        ContentSecurityPolicy(context.RequestServices.GetRequiredService<ICurrentOrganisation>().Origin, imageOrigins);
 
     /// <summary>
     /// The apps' policy: scripts only from this origin; Angular's component styles need inline styles; photos come
