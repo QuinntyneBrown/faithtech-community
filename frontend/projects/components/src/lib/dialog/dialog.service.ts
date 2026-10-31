@@ -12,6 +12,8 @@ export class DialogService {
   open<R = unknown, D = unknown, C = unknown>(
     component: ComponentType<C>,
     config: Partial<DialogConfig<D, DialogRef<R, C>>> = {},
+    /** `wide` is the 44rem panel for a dialog with a two-column body, such as the define-role dialog. */
+    options: { wide?: boolean } = {},
   ): DialogRef<R, C> {
     const sheet = this.isPhone();
     const position = this.overlay.position().global();
@@ -21,7 +23,7 @@ export class DialogService {
       autoFocus: 'first-tabbable',
       restoreFocus: true,
       closeOnNavigation: true,
-      width: sheet ? '100%' : 'min(32rem, calc(100vw - 3rem))',
+      width: sheet ? '100%' : `min(${options.wide ? 44 : 32}rem, calc(100vw - 3rem))`,
       maxWidth: '100vw',
       positionStrategy: sheet
         ? position.bottom().centerHorizontally()

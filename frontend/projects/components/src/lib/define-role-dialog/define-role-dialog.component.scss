@@ -1,0 +1,13 @@
+.options {
+  min-inline-size: 0;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+.options legend {
+  padding: 0;
+  margin-block-end: var(--space-2);
+  font: var(--text-label);
+  color: var(--color-fg-default);
+}
