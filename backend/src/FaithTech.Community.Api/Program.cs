@@ -78,6 +78,7 @@ app.MapMeEndpoints();
 app.MapOrganisationEndpoints();
 app.MapRoleDefinitionsEndpoints();
 app.MapChaptersEndpoints();
+app.MapTaxonomiesEndpoints();
 app.MapSiteEndpoints();
 app.MapProfilesEndpoints();
 app.MapAuditLogEndpoints();
