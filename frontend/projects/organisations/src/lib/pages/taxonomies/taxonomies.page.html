@@ -51,6 +51,26 @@
             }
           </ft-stack>
         </section>
+        <section aria-labelledby="types-heading">
+          <ft-stack gap="3">
+            <h2 class="section-title" id="types-heading">Event types</h2>
+            <p class="text-caption">
+              Events of an archived type keep it; it left the event form and the type filter.
+            </p>
+            @if (types().length === 0) {
+              <ft-empty-state
+                heading="No archived event types"
+                text="Types you archive are listed here."
+              />
+            } @else {
+              <ft-list label="Archived event types">
+                @for (type of types(); track type.id) {
+                  <ft-list-item [label]="type.name" [meta]="archivedTypeMeta(type)" />
+                }
+              </ft-list>
+            }
+          </ft-stack>
+        </section>
       } @else {
         <section aria-labelledby="stages-heading">
           <ft-stack gap="3">
@@ -75,6 +95,35 @@
                   [label]="'More actions for ' + item.title"
                   [entries]="menu(item)"
                   (itemSelected)="act(item, $event)"
+                >
+                  <ft-icon name="more" />
+                </ft-menu>
+              </ng-template>
+            </ft-reorderable-list>
+          </ft-stack>
+        </section>
+        <section aria-labelledby="types-heading">
+          <ft-stack gap="3">
+            <ft-cluster [between]="true">
+              <h2 class="section-title" id="types-heading">Event types</h2>
+              @if (canEdit()) {
+                <ft-button (click)="addType()">Add an event type</ft-button>
+              }
+            </ft-cluster>
+            <p class="text-caption">
+              Offered in this order on the event form and the Events type filter.
+            </p>
+            <ft-reorderable-list
+              label="Event types"
+              [items]="typeRows()"
+              [readonly]="!canEdit()"
+              (reordered)="reorderTypes($event)"
+            >
+              <ng-template ftReorderableActions let-item>
+                <ft-menu
+                  [label]="'More actions for ' + item.title"
+                  [entries]="typeMenu"
+                  (itemSelected)="actOnType(item, $event)"
                 >
                   <ft-icon name="more" />
                 </ft-menu>

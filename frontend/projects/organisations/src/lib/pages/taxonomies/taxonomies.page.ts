@@ -2,6 +2,7 @@ import { DatePipe } from '@angular/common';
 import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
 import {
   AUTH_SERVICE,
+  EventTypeDto,
   ORGANISATION_SERVICE,
   OrganisationNames,
   PartnerStageDto,
@@ -40,11 +41,11 @@ type State = 'loading' | 'loaded' | 'error';
 type Filter = 'active' | 'archived';
 
 /**
- * The Stages & types tab at /organisation/taxonomies (L2-144 AC1, L2-147 AC1), matching docs/mocks/pages/
+ * The Stages & types tab at /organisation/taxonomies (L2-144 AC1, L2-145 AC1, L2-147 AC1), matching docs/mocks/pages/
  * organisation-taxonomies: the organisation's partner stages in board order with their partner counts, which is the
- * initial stage and each stage's kind; add, rename, reorder, set as initial, set the kind and archive for holders of
- * ManageOrganisationSettings, read-only with ManageRoles (L2-147 AC2), and an Archived filter. Event and resource
- * types join it in their slices.
+ * initial stage and each stage's kind, and its event types in form order with their event counts; add, rename,
+ * reorder and archive (plus set as initial and set the kind for stages) for holders of ManageOrganisationSettings,
+ * read-only with ManageRoles (L2-147 AC2), and an Archived filter. Resource types join it in their slice.
  */
 @Component({
   selector: 'ft-taxonomies-page',
@@ -80,6 +81,7 @@ export class TaxonomiesPage {
   protected readonly state = signal<State>('loading');
   protected readonly filter = signal<Filter>('active');
   protected readonly stages = signal<PartnerStageDto[]>([]);
+  protected readonly types = signal<EventTypeDto[]>([]);
   protected readonly canEdit = computed(() =>
     hasAny(this.auth.capabilities(), 'ManageOrganisationSettings'),
   );
@@ -95,6 +97,10 @@ export class TaxonomiesPage {
           : { label: 'Open' },
       ],
     })),
+  );
+
+  protected readonly typeRows = computed<ReorderableItem[]>(() =>
+    this.types().map((t) => ({ id: t.id, title: t.name, meta: events(t.eventCount) })),
   );
 
   constructor() {
@@ -116,6 +122,105 @@ export class TaxonomiesPage {
       ? `Archived ${this.dates.transform(s.archivedAtUtc, 'EEE d MMM')}`
       : 'Archived';
     return `${on} · ${s.partnerCount === 0 ? 'no partners' : partners(s.partnerCount)}`;
+  }
+
+  protected archivedTypeMeta(t: EventTypeDto): string {
+    const on = t.archivedAtUtc
+      ? `Archived ${this.dates.transform(t.archivedAtUtc, 'EEE d MMM')}`
+      : 'Archived';
+    return `${on} · ${t.eventCount === 0 ? 'no events' : `${events(t.eventCount)} keep it`}`;
+  }
+
+  /** An event type's row menu: Rename and Archive (docs/mocks/pages/organisation-taxonomies). */
+  protected readonly typeMenu: MenuEntry[] = [
+    { kind: 'item', id: 'rename', label: 'Rename' },
+    { kind: 'divider' },
+    { kind: 'item', id: 'archive', label: 'Archive', danger: true },
+  ];
+
+  protected actOnType(item: ReorderableItem, action: string): void {
+    const type = this.types().find((t) => t.id === item.id);
+    if (!type) return;
+    if (action === 'rename') this.renameType(type);
+    if (action === 'archive') this.archiveType(type);
+  }
+
+  protected addType(): void {
+    const data: ListEntryNameData<EventTypeDto> = {
+      heading: 'Add an event type',
+      description: 'It’s added at the end of the list and offered on the event form at once.',
+      addLabel: 'Add type',
+      save: (name) => this.organisations.addEventType(name),
+    };
+    this.dialogs.open<EventTypeDto>(ListEntryNameDialog, { data }).closed.subscribe((added) => {
+      if (!added) return;
+      this.toasts.show({
+        variant: 'success',
+        heading: `${added.name} added`,
+        text: 'It’s the last type on the event form.',
+      });
+      void this.load();
+    });
+  }
+
+  /** Saved after each move; a failed save puts the order back. */
+  protected async reorderTypes(ids: string[]): Promise<void> {
+    try {
+      this.types.set(await firstValueFrom(this.organisations.reorderEventTypes(ids)));
+    } catch {
+      this.toasts.show({
+        variant: 'danger',
+        heading: 'Order not saved',
+        text: this.names.unreachable('The order is as it was.'),
+      });
+      void this.load();
+    }
+  }
+
+  private renameType(type: EventTypeDto): void {
+    const data: ListEntryNameData<EventTypeDto> = {
+      heading: `Rename ${type.name}`,
+      description: 'Its events, the event form and the Events type filter show the new name.',
+      name: type.name,
+      save: (name) => this.organisations.renameEventType(type.id, name),
+    };
+    this.dialogs.open<EventTypeDto>(ListEntryNameDialog, { data }).closed.subscribe((renamed) => {
+      if (!renamed) return;
+      this.toasts.show({
+        variant: 'success',
+        heading: `Renamed to ${renamed.name}`,
+        text: 'Its events and the event form show the new name.',
+      });
+      void this.load();
+    });
+  }
+
+  private archiveType(type: EventTypeDto): void {
+    const count =
+      type.eventCount === 0
+        ? `No events are of type ${type.name}.`
+        : type.eventCount === 1
+          ? `1 event is of type ${type.name}.`
+          : `${type.eventCount} events are of type ${type.name}.`;
+    const data: ArchiveListEntryData = {
+      name: type.name,
+      description: `Events of type ${type.name} keep it, but it leaves the event form and the type filter.`,
+      body: count,
+      archiveLabel: 'Archive type',
+      archive: () => this.organisations.archiveEventType(type.id),
+    };
+    this.dialogs.open<boolean>(ArchiveListEntryDialog, { data }).closed.subscribe((done) => {
+      if (!done) return;
+      this.toasts.show({
+        variant: 'success',
+        heading: `${type.name} archived`,
+        text:
+          type.eventCount === 0
+            ? 'It’s listed under Archived.'
+            : `Its ${events(type.eventCount)} keep the type. It’s listed under Archived.`,
+      });
+      void this.load();
+    });
   }
 
   /** The row menu (docs/mocks/pages/organisation-taxonomies/row-menu). */
@@ -267,10 +372,14 @@ export class TaxonomiesPage {
 
   private async load(): Promise<void> {
     this.state.set('loading');
+    const archived = this.filter() === 'archived';
     try {
-      this.stages.set(
-        await firstValueFrom(this.organisations.listPartnerStages(this.filter() === 'archived')),
-      );
+      const [stages, types] = await Promise.all([
+        firstValueFrom(this.organisations.listPartnerStages(archived)),
+        firstValueFrom(this.organisations.listEventTypes(archived)),
+      ]);
+      this.stages.set(stages);
+      this.types.set(types);
       this.state.set('loaded');
     } catch {
       this.state.set('error');
@@ -280,4 +389,8 @@ export class TaxonomiesPage {
 
 function partners(count: number): string {
   return count === 1 ? '1 partner' : `${count} partners`;
+}
+
+function events(count: number): string {
+  return count === 1 ? '1 event' : `${count} events`;
 }
