@@ -50,6 +50,12 @@ export interface NotAMember {
   memberships: Membership[];
 }
 
+/** The part of a verification link that makes an existing account a member of this organisation (L2-132 AC1). */
+export interface JoinLink {
+  name: string;
+  join: string;
+}
+
 export type SignInError = 'invalid_credentials' | 'locked_out' | 'suspended';
 
 export type SignInOutcome =
@@ -93,7 +99,8 @@ export interface AuthService {
   restoreSession(): Promise<boolean>;
 
   signUp(request: SignUpRequest): Observable<void>;
-  confirmEmail(userId: string, token: string): Observable<void>;
+  /** `joining` carries the name and join token of a link that also makes the account a member here (L2-132 AC1). */
+  confirmEmail(userId: string, token: string, joining?: JoinLink): Observable<void>;
   resendVerification(email: string): Observable<void>;
   requestPasswordReset(email: string): Observable<void>;
   resetPassword(userId: string, token: string, password: string): Observable<void>;

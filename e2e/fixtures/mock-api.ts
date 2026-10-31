@@ -461,6 +461,11 @@ export class MockApi {
         return route.fulfill({ status: 202 });
       case 'POST /api/account/verify-email':
         // ConfirmEmailHandler: the verify link carries user-{profileId} for accounts the fake created.
+        if (body['join']) {
+          // A sign-up on this host by an existing account: confirming makes it a member here (L2-132 AC1).
+          this.join(String(body['userId'] ?? ''));
+          return route.fulfill({ status: 200, json: {} });
+        }
         this.verifyEmail(String(body['userId'] ?? ''));
         return route.fulfill({ status: 200, json: {} });
       case 'POST /api/account/reset-password':
@@ -472,6 +477,15 @@ export class MockApi {
   }
 
   /** Marks the account verified and connects it to the leads whose connect link it used (L2-084). */
+  /** Gives the account a profile in the organisation the host serves. */
+  private join(userId: string): void {
+    const profileId = userId.replace(/^user-/, '');
+    const account = [...this.accounts.values()].find((a) => a.profileId === profileId);
+    if (!account?.organisations || this.isMemberHere(account)) return;
+    account.verified = true;
+    account.organisations = [...account.organisations, this.host.organisation];
+  }
+
   private verifyEmail(userId: string): void {
     const profileId = userId.replace(/^user-/, '');
     const account = [...this.accounts.values()].find((a) => a.profileId === profileId);
