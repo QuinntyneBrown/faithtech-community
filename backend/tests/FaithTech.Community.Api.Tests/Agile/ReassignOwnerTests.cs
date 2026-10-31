@@ -1,7 +1,8 @@
-// Traces to: L2-037 AC2, L2-042
+// Traces to: L2-037 AC2, L2-042; L2-139 AC4
 using System.Net;
 using System.Net.Http.Json;
 using FaithTech.Community.Api.Tests.Profiles;
+using FaithTech.Community.Domain.Agile;
 using FaithTech.Community.Domain.Notifications;
 using FaithTech.Community.Domain.Profiles;
 using Microsoft.EntityFrameworkCore;
@@ -15,7 +16,7 @@ public class ReassignOwnerTests(CommunityApiFactory factory) : IClassFixture<Com
     public record OwnerView(string Access, bool NeedsNewOwner);
 
     [Fact]
-    public async Task Given_an_owner_who_loses_city_lead_when_the_role_is_removed_then_each_system_admin_is_notified()
+    public async Task Given_an_owner_who_loses_OwnWorkspaces_when_the_role_is_removed_then_each_administrator_is_notified()
     {
         var cast = await factory.AddCastAsync();
 
@@ -23,12 +24,40 @@ public class ReassignOwnerTests(CommunityApiFactory factory) : IClassFixture<Com
 
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
         var notification = await factory.WithDbAsync(db => db.Notifications
-            .SingleAsync(n => n.RecipientId == cast.Admin.ProfileId && n.Kind == NotificationKind.WorkspaceOwnerLostCityLead));
+            .SingleAsync(n => n.RecipientId == cast.Admin.ProfileId && n.Kind == NotificationKind.WorkspaceOwnerLostCapability));
         Assert.Equal(
-            ("Grace Okonkwo no longer holds the City Lead role but owns Toronto team", $"/workspaces/{cast.WorkspaceId}/settings"),
+            ("Grace Okonkwo no longer holds a role that can own workspaces: Toronto team", $"/workspaces/{cast.WorkspaceId}/settings"),
             (notification.Title, notification.LinkPath));
         var workspace = await factory.AdminClient(cast).GetFromJsonAsync<Workspace>($"/api/workspaces/{cast.WorkspaceId}");
         Assert.True(workspace!.NeedsNewOwner);
+    }
+
+    // L2-139 AC4: one notification per administrator lists every workspace that needs a new owner.
+    [Fact]
+    public async Task Given_an_owner_of_two_workspaces_who_loses_OwnWorkspaces_then_each_administrator_gets_one_notification_listing_both()
+    {
+        var cast = await factory.AddCastAsync();
+        await factory.AddWorkspaceAsync(cast.Owner, "Austin crew", WorkspaceMethod.Kanban, cast.Member);
+
+        await factory.AdminClient(cast).DeleteAsync($"/api/profiles/{cast.Owner.ProfileId}/roles/CityLead");
+
+        var notification = await factory.WithDbAsync(db => db.Notifications
+            .SingleAsync(n => n.RecipientId == cast.Admin.ProfileId && n.Kind == NotificationKind.WorkspaceOwnerLostCapability));
+        Assert.Equal(
+            ("Grace Okonkwo no longer holds a role that can own workspaces: Austin crew, Toronto team", "/workspaces"),
+            (notification.Title, notification.LinkPath));
+    }
+
+    // L2-139 AC6: a role whose capabilities another held role still gives notifies no one.
+    [Fact]
+    public async Task Given_an_owner_who_keeps_OwnWorkspaces_through_another_role_then_no_one_is_notified()
+    {
+        var cast = await factory.AddCastAsync();
+        await factory.AdminClient(cast).PostAsJsonAsync($"/api/profiles/{cast.Owner.ProfileId}/roles", new { Role = "EventLead" });
+
+        await factory.AdminClient(cast).DeleteAsync($"/api/profiles/{cast.Owner.ProfileId}/roles/EventLead");
+
+        Assert.False(await factory.WithDbAsync(db => db.Notifications.AnyAsync(n => n.Kind == NotificationKind.WorkspaceOwnerLostCapability && n.RecipientId == cast.Admin.ProfileId)));
     }
 
     [Fact]
@@ -41,7 +70,7 @@ public class ReassignOwnerTests(CommunityApiFactory factory) : IClassFixture<Com
 
         var archived = (await factory.AdminClient(cast).GetFromJsonAsync<WorkspacesTests.Summary[]>("/api/workspaces"))!.Single(w => w.Id == cast.WorkspaceId);
         Assert.Equal((true, false), (archived.IsArchived, archived.NeedsNewOwner));
-        Assert.False(await factory.WithDbAsync(db => db.Notifications.AnyAsync(n => n.Kind == NotificationKind.WorkspaceOwnerLostCityLead && n.LinkPath.Contains(cast.WorkspaceId.ToString()))));
+        Assert.False(await factory.WithDbAsync(db => db.Notifications.AnyAsync(n => n.Kind == NotificationKind.WorkspaceOwnerLostCapability && n.RecipientId == cast.Admin.ProfileId)));
 
         await factory.AdminClient(cast).PostAsync($"/api/workspaces/{cast.WorkspaceId}/restore", null);
 

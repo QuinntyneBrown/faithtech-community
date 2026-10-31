@@ -96,7 +96,7 @@ public static class DependencyInjection
         services.AddScoped<BoardHandler>();
         services.AddScoped<SprintsHandler>();
         services.AddScoped<ArchiveHandler>();
-        services.AddScoped<CityLeadRoleRemovedHandler>();
+        services.AddScoped<CapabilityLostHandler>();
         services.AddScoped<PlanningPokerHandler>();
         services.AddScoped<EventPermissions>();
         services.AddScoped<ListEventsHandler>();

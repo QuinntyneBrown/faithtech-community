@@ -18,7 +18,7 @@ public class ChangeRolesHandler(
     ProfileAccess access,
     IAuditLog audit,
     RoleChangeNotifier notifier,
-    CityLeadRoleRemovedHandler cityLeadRemoved,
+    CapabilityLostHandler capabilityLost,
     LastAdministratorGuard lastAdministrator,
     TimeProvider time)
 {
@@ -105,12 +105,12 @@ public class ChangeRolesHandler(
             await notifier.QueueEmailAsync(profileId, title, cancellationToken);
         }
 
-        foreach (var removed in profile.DomainEvents.OfType<CapabilityLost>())
+        foreach (var lost in profile.DomainEvents.OfType<CapabilityLost>())
         {
-            await cityLeadRemoved.HandleAsync(removed, cancellationToken);
+            await capabilityLost.HandleAsync(lost, cancellationToken);
         }
 
-        await cityLeadRemoved.QueueEmailsAsync(cancellationToken);
+        await capabilityLost.QueueEmailsAsync(cancellationToken);
         profile.ClearDomainEvents();
         // The role change, its audit entry, the notifications and the emails commit together (L2-028, L2-047).
         await db.SaveChangesAsync(cancellationToken);
