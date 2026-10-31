@@ -2,7 +2,7 @@ using FaithTech.Community.Application.Organisations;
 
 namespace FaithTech.Community.Api.Endpoints;
 
-/// <summary>The organisation's role definitions for the Roles page (L2-136). Archive and grant rules join in slice 17.</summary>
+/// <summary>The organisation's role definitions for the Roles page: list, define, edit, grant rules and archive (L2-136, L2-137).</summary>
 public static class RoleDefinitionsEndpoints
 {
     public static IEndpointRouteBuilder MapRoleDefinitionsEndpoints(this IEndpointRouteBuilder app)
@@ -26,6 +26,18 @@ public static class RoleDefinitionsEndpoints
             var (result, definition) = await handler.HandleAsync(id, command, cancellationToken);
             return result.ToHttp(() => Results.Ok(definition));
         }).Validate<RoleDefinitionCommand>();
+
+        roles.MapPut("/{id:guid}/grants", async (Guid id, GrantRulesCommand command, SetGrantRulesHandler handler, CancellationToken cancellationToken) =>
+        {
+            var (result, definition) = await handler.HandleAsync(id, command, cancellationToken);
+            return result.ToHttp(() => Results.Ok(definition));
+        });
+
+        roles.MapPost("/{id:guid}/archive", async (Guid id, ArchiveRoleDefinitionHandler handler, CancellationToken cancellationToken) =>
+        {
+            var (result, definition) = await handler.HandleAsync(id, cancellationToken);
+            return result.ToHttp(() => Results.Ok(definition));
+        });
 
         return app;
     }
