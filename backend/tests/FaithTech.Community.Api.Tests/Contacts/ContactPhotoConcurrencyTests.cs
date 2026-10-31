@@ -1,6 +1,7 @@
 // Traces to: L2-071
 using System.Net;
 using System.Net.Http.Json;
+using FaithTech.Community.Infrastructure.Persistence.Seed;
 using FaithTech.Community.Api.Tests.Profiles;
 using FaithTech.Community.Domain.Profiles;
 using Microsoft.AspNetCore.Mvc;
@@ -29,7 +30,7 @@ public class ContactPhotoConcurrencyTests(CommunityApiFactory factory) : IClassF
         var photos = await PhotosOf(contactId);
         Assert.Equal(10, photos.Count);
         Assert.Single(photos, p => p.IsFeatured);
-        Assert.Equal(photos.Select(p => p.BlobName).Order(), factory.Photos.Blobs.Keys.Where(k => k.StartsWith($"contacts/{contactId}/")).Order());
+        Assert.Equal(photos.Select(p => p.BlobName).Order(), factory.Photos.Blobs.Keys.Where(k => k.StartsWith($"{FaithTechSeed.OrganisationId}/contacts/{contactId}/")).Order());
     }
 
     [Fact]
@@ -72,7 +73,7 @@ public class ContactPhotoConcurrencyTests(CommunityApiFactory factory) : IClassF
             var ids = new List<Guid>();
             for (var i = 0; i < count; i++)
             {
-                var photo = new Domain.Contacts.ContactPhoto($"contacts/{contact.Id}/{i}.jpg", $"Photo {i}", Start.AddDays(i));
+                var photo = new Domain.Contacts.ContactPhoto($"{FaithTechSeed.OrganisationId}/contacts/{contact.Id}/{i}.jpg", $"Photo {i}", Start.AddDays(i));
                 stored.AddPhoto(photo);
                 ids.Add(photo.Id);
                 factory.Photos.Blobs[photo.BlobName] = ([1, 2, 3], "image/jpeg");

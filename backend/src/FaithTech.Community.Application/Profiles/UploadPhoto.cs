@@ -1,5 +1,6 @@
 using FaithTech.Community.Application.Admin;
 using FaithTech.Community.Application.Common;
+using FaithTech.Community.Application.Organisations;
 using FaithTech.Community.Domain.Profiles;
 using Microsoft.EntityFrameworkCore;
 
@@ -15,7 +16,8 @@ public class UploadPhotoHandler(
     IPhotoStorage storage,
     IAuditLog audit,
     PhotoLeases leases,
-    TimeProvider time)
+    TimeProvider time,
+    ICurrentOrganisation organisation)
 {
     public const long MaxBytes = 5 * 1024 * 1024;
     public const int MaxAltText = 300;
@@ -80,7 +82,8 @@ public class UploadPhotoHandler(
             return (Result.Invalid("File", processed.Error!), null);
         }
 
-        var key = $"profiles/{profileId}/{Guid.NewGuid()}{image.Extension}";
+        // Under the organisation's id, so a blob is only ever reached through its own organisation (L2-130 AC5).
+        var key = $"{organisation.Id}/profiles/{profileId}/{Guid.NewGuid()}{image.Extension}";
         var photo = new ProfilePhoto(key, altText, time.GetUtcNow());
         try
         {

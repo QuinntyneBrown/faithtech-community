@@ -2,6 +2,7 @@
 using System.Net;
 using System.Net.Http.Headers;
 using System.Net.Http.Json;
+using FaithTech.Community.Infrastructure.Persistence.Seed;
 using FaithTech.Community.Domain.Profiles;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -27,7 +28,7 @@ public class UploadPhotoTests(CommunityApiFactory factory) : IClassFixture<Commu
         Assert.True(photo.IsFeatured);
         Assert.Equal("Grace speaking at Builders Night", photo.AltText);
         var key = photo.Url[Fakes.FakePhotoStorage.BaseUrl.Length..];
-        Assert.StartsWith($"profiles/{grace.ProfileId}/", key);
+        Assert.StartsWith($"{FaithTechSeed.OrganisationId}/profiles/{grace.ProfileId}/", key);
         Assert.EndsWith(".jpg", key);
         var (content, contentType) = factory.Photos.Blobs[key];
         Assert.Equal("image/jpeg", contentType);
@@ -127,7 +128,7 @@ public class UploadPhotoTests(CommunityApiFactory factory) : IClassFixture<Commu
         {
             for (var i = 0; i < Profile.MaxPhotos; i++)
             {
-                p.AddPhoto(new ProfilePhoto($"profiles/{p.Id}/{i}.jpg", $"Photo {i}", DateTimeOffset.UtcNow.AddMinutes(i)));
+                p.AddPhoto(new ProfilePhoto($"{FaithTechSeed.OrganisationId}/profiles/{p.Id}/{i}.jpg", $"Photo {i}", DateTimeOffset.UtcNow.AddMinutes(i)));
             }
         });
 
@@ -181,7 +182,7 @@ public class UploadPhotoTests(CommunityApiFactory factory) : IClassFixture<Commu
         var problem = await AssertValidationProblem(response);
         Assert.Equal([message], problem.Errors[field]);
         Assert.Empty((await LoadAsync(owner.ProfileId)).Photos);
-        Assert.DoesNotContain(factory.Photos.Blobs.Keys, k => k.StartsWith($"profiles/{owner.ProfileId}/"));
+        Assert.DoesNotContain(factory.Photos.Blobs.Keys, k => k.StartsWith($"{FaithTechSeed.OrganisationId}/profiles/{owner.ProfileId}/"));
     }
 
     private Task<Profile> LoadAsync(Guid id) =>

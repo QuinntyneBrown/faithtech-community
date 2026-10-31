@@ -2,6 +2,7 @@
 using System.Net;
 using System.Net.Http.Headers;
 using System.Net.Http.Json;
+using FaithTech.Community.Infrastructure.Persistence.Seed;
 using FaithTech.Community.Api.Tests.Organisations;
 using FaithTech.Community.Application.Profiles;
 using Microsoft.AspNetCore.Mvc;
@@ -44,7 +45,7 @@ public class PhotoStorageOutageTests(CommunityApiFactory factory) : IClassFixtur
         Assert.True(single.IsFeatured);
         Assert.Equal(single.Id, stored.FeaturedPhoto!.Id);
         Assert.NotNull(single.Url);
-        Assert.Single(factory.Photos.Blobs, b => b.Key.StartsWith($"profiles/{grace.ProfileId}/"));
+        Assert.Single(factory.Photos.Blobs, b => b.Key.StartsWith($"{FaithTechSeed.OrganisationId}/profiles/{grace.ProfileId}/"));
     }
 
     [Fact]
@@ -113,7 +114,7 @@ public class PhotoStorageOutageTests(CommunityApiFactory factory) : IClassFixtur
         factory.Photos.Down = false;
         factory.Time.Advance(TimeSpan.FromHours(1));
         await RetryAsync();
-        Assert.DoesNotContain(factory.Photos.Blobs, b => b.Key.StartsWith($"profiles/{grace.ProfileId}/"));
+        Assert.DoesNotContain(factory.Photos.Blobs, b => b.Key.StartsWith($"{FaithTechSeed.OrganisationId}/profiles/{grace.ProfileId}/"));
     }
 
     private async Task RetryAsync()
