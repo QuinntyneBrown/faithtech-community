@@ -138,6 +138,8 @@ public class CommunityDbContext : IdentityDbContext<CommunityUser, IdentityRole<
                 grant.ToTable("RoleGrantRules");
                 grant.WithOwner().HasForeignKey(g => g.GrantorRoleId);
                 grant.HasKey(g => new { g.GrantorRoleId, g.GrantableRoleId });
+                // Set by the caller, never generated, so a new rule on a loaded definition is inserted.
+                grant.Property(g => g.GrantableRoleId).ValueGeneratedNever();
                 grant.HasIndex(g => g.GrantableRoleId);
             });
             definition.Navigation(d => d.Grants).UsePropertyAccessMode(PropertyAccessMode.Field);
