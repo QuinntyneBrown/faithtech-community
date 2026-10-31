@@ -1,8 +1,13 @@
+using FaithTech.Community.Domain.Organisations;
+
 namespace FaithTech.Community.Domain.Notes;
 
 /// <summary>An image uploaded to a page for an image block (L2-097), stored behind the file storage abstraction.</summary>
-public class NoteImage
+public class NoteImage : IOrganisationScoped
 {
+    /// <summary>The organisation the record belongs to, stamped when it is saved (ADR 0032).</summary>
+    public Guid OrganisationId { get; private set; }
+
     public const int MaxAlt = 250;
     public const long MaxBytes = 5 * 1024 * 1024;
 

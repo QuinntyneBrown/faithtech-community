@@ -74,10 +74,13 @@ public static class OrganisationScopes
             return new ProfileClients.Member(db.Users.Local.Single(u => u.ProfileId == profile.Id).Id, profile.Id);
         });
 
-    /// <summary>A client on <paramref name="organisation"/>'s host, signed in as <paramref name="member"/>.</summary>
-    public static HttpClient ClientOn(this CommunityApiFactory factory, OtherOrganisation organisation, ProfileClients.Member member, params Role[] roles)
+    /// <summary>
+    /// A client on <paramref name="organisation"/>'s host, signed in as <paramref name="member"/>, whose roles were granted
+    /// when the member was added there.
+    /// </summary>
+    public static HttpClient ClientOn(this CommunityApiFactory factory, OtherOrganisation organisation, ProfileClients.Member member)
     {
-        var client = factory.ClientFor(member, roles);
+        var client = factory.ClientFor(member);
         client.BaseAddress = new Uri(organisation.Origin);
         return client;
     }

@@ -1,7 +1,12 @@
+using FaithTech.Community.Domain.Organisations;
+
 namespace FaithTech.Community.Domain.Contacts;
 
-public class ContactNote
+public class ContactNote : IOrganisationScoped
 {
+    /// <summary>The organisation the record belongs to, stamped when it is saved (ADR 0032).</summary>
+    public Guid OrganisationId { get; private set; }
+
     private ContactNote() { }
 
     internal ContactNote(Guid contactId, string body, DateTime createdAtUtc)

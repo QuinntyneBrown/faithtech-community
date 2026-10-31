@@ -1,9 +1,13 @@
+using FaithTech.Community.Domain.Organisations;
 using FaithTech.Community.Domain.Profiles;
 
 namespace FaithTech.Community.Domain.Invites;
 
-public class Invite
+public class Invite : IOrganisationScoped
 {
+    /// <summary>The organisation the record belongs to, stamped when it is saved (ADR 0032).</summary>
+    public Guid OrganisationId { get; private set; }
+
     public static readonly TimeSpan Lifetime = TimeSpan.FromDays(14);
 
     private Invite() { }

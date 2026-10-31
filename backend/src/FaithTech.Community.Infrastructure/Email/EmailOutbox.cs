@@ -1,5 +1,6 @@
 using System.Text.Json;
 using FaithTech.Community.Application.Common;
+using FaithTech.Community.Domain.Organisations;
 using FaithTech.Community.Infrastructure.Organisations;
 using FaithTech.Community.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
@@ -16,8 +17,11 @@ public interface IEmailTransport
     Task SendAsync(EmailMessage message, CancellationToken cancellationToken = default);
 }
 
-public class OutboxMessage
+public class OutboxMessage : IOrganisationScoped
 {
+    /// <summary>The organisation the record belongs to, stamped when it is saved (ADR 0032).</summary>
+    public Guid OrganisationId { get; private set; }
+
     public Guid Id { get; set; } = Guid.NewGuid();
 
     public string To { get; set; } = string.Empty;

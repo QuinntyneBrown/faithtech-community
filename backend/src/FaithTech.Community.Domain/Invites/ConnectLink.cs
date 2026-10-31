@@ -1,11 +1,16 @@
+using FaithTech.Community.Domain.Organisations;
+
 namespace FaithTech.Community.Domain.Invites;
 
 /// <summary>
 /// A City Lead's reusable connect link, shown as a QR code (ADR 0021). Unlike an invite it is not single-use
 /// and never expires; replacing the token retires the old link.
 /// </summary>
-public class ConnectLink
+public class ConnectLink : IOrganisationScoped
 {
+    /// <summary>The organisation the record belongs to, stamped when it is saved (ADR 0032).</summary>
+    public Guid OrganisationId { get; private set; }
+
     private ConnectLink() { }
 
     public ConnectLink(Guid ownerId, string tokenHash, string protectedToken, DateTimeOffset issuedAt)

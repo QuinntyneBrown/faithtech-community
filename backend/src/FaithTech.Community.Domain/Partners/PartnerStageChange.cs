@@ -1,7 +1,12 @@
+using FaithTech.Community.Domain.Organisations;
+
 namespace FaithTech.Community.Domain.Partners;
 
-public class PartnerStageChange
+public class PartnerStageChange : IOrganisationScoped
 {
+    /// <summary>The organisation the record belongs to, stamped when it is saved (ADR 0032).</summary>
+    public Guid OrganisationId { get; private set; }
+
     private PartnerStageChange() { }
 
     internal PartnerStageChange(Guid partnerId, PartnerStage from, PartnerStage to, Guid movedBy, DateTime movedAtUtc, string? note)

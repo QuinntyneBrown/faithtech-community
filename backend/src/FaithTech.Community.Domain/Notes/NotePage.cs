@@ -1,3 +1,5 @@
+using FaithTech.Community.Domain.Organisations;
+
 namespace FaithTech.Community.Domain.Notes;
 
 /// <summary>
@@ -5,8 +7,11 @@ namespace FaithTech.Community.Domain.Notes;
 /// blocks kept as one JSON document (ADR 0023). Only the owner (or a System Admin) changes it; every save bumps
 /// <see cref="Version"/>, the optimistic concurrency token.
 /// </summary>
-public class NotePage
+public class NotePage : IOrganisationScoped
 {
+    /// <summary>The organisation the record belongs to, stamped when it is saved (ADR 0032).</summary>
+    public Guid OrganisationId { get; private set; }
+
     public const int MaxTitle = 200;
     public const int MaxIcon = 16;
 

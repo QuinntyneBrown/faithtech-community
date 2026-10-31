@@ -1,9 +1,13 @@
+using FaithTech.Community.Domain.Organisations;
 using FaithTech.Community.Domain.Profiles;
 
 namespace FaithTech.Community.Domain.Contacts;
 
-public class Contact
+public class Contact : IOrganisationScoped
 {
+    /// <summary>The organisation the record belongs to, stamped when it is saved (ADR 0032).</summary>
+    public Guid OrganisationId { get; private set; }
+
     public const int MaxPhotos = 10;
 
     private readonly List<ContactNote> _notes = [];

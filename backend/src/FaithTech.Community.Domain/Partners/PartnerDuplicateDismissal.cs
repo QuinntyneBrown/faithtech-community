@@ -1,11 +1,16 @@
+using FaithTech.Community.Domain.Organisations;
+
 namespace FaithTech.Community.Domain.Partners;
 
 /// <summary>
 /// "Not the same": two possible duplicates a lead said are different partners (L2-113 AC6, ADR 0027).
 /// The pair is stored once, lower id first, whichever partner it was chosen from.
 /// </summary>
-public class PartnerDuplicateDismissal
+public class PartnerDuplicateDismissal : IOrganisationScoped
 {
+    /// <summary>The organisation the record belongs to, stamped when it is saved (ADR 0032).</summary>
+    public Guid OrganisationId { get; private set; }
+
     private PartnerDuplicateDismissal() { }
 
     public Guid Id { get; private set; }

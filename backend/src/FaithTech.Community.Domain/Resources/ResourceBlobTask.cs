@@ -1,3 +1,5 @@
+using FaithTech.Community.Domain.Organisations;
+
 namespace FaithTech.Community.Domain.Resources;
 
 public enum ResourceBlobWork
@@ -7,8 +9,11 @@ public enum ResourceBlobWork
 }
 
 /// <summary>Resource blob work that failed while storage was down and is retried later (ADR 0013, ADR 0017).</summary>
-public class ResourceBlobTask
+public class ResourceBlobTask : IOrganisationScoped
 {
+    /// <summary>The organisation the record belongs to, stamped when it is saved (ADR 0032).</summary>
+    public Guid OrganisationId { get; private set; }
+
     private static readonly TimeSpan MaxBackoff = TimeSpan.FromHours(1);
 
     private ResourceBlobTask() { }

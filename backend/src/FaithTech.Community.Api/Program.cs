@@ -8,6 +8,7 @@ using FaithTech.Community.Application;
 using FaithTech.Community.Application.Agile;
 using FaithTech.Community.Infrastructure;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
+using Microsoft.AspNetCore.SignalR;
 using Serilog;
 using Serilog.Events;
 
@@ -38,7 +39,7 @@ builder.Services.AddCommunityAuthentication(builder.Configuration, builder.Envir
 builder.Services.AddWebProtections(builder.Configuration);
 builder.Services.AddPrivatePreview(builder.Configuration);
 builder.Services.AddOrganisationResolution(builder.Configuration);
-builder.Services.AddSignalR();
+builder.Services.AddSignalR(options => options.AddFilter<OrganisationHubFilter>());
 builder.Services.AddScoped<SignalRAgileNotifier>();
 builder.Services.AddScoped<IBoardNotifier>(sp => sp.GetRequiredService<SignalRAgileNotifier>());
 builder.Services.AddScoped<IPokerBroadcaster>(sp => sp.GetRequiredService<SignalRAgileNotifier>());
