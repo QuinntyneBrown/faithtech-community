@@ -17,7 +17,7 @@ public class ResourceTypesTests(CommunityApiFactory factory) : IClassFixture<Com
 
     public sealed record TypeOption(Guid Id, string Key, string Name);
 
-    public sealed record OrganisationView(TypeOption[] ResourceTypes);
+    public sealed record OrganisationView(TypeOption[] ResourceTypes, TypeOption[] ArchivedResourceTypes);
 
     private const string Types = "/api/organisation/resource-types";
 
@@ -165,7 +165,9 @@ public class ResourceTypesTests(CommunityApiFactory factory) : IClassFixture<Com
 
         var archived = Assert.Single(await ListAsync(client, archived: true));
         Assert.Equal(("template", true, 1), (archived.Key, archived.Archived, archived.ResourceCount));
-        Assert.DoesNotContain("template", (await client.GetFromJsonAsync<OrganisationView>("/api/organisation"))!.ResourceTypes.Select(t => t.Key));
+        var organisation = (await client.GetFromJsonAsync<OrganisationView>("/api/organisation"))!;
+        Assert.DoesNotContain("template", organisation.ResourceTypes.Select(t => t.Key));
+        Assert.Equal([("template", "Template")], organisation.ArchivedResourceTypes.Select(t => (t.Key, t.Name)));
         Assert.Equal("Template", (await ResourceAsync(client, poster.Id)).TypeName);
         Assert.Equal(["Poster"], (await client.ListResourcesAsync("?type=template")).Items.Select(i => i.Title));
         Assert.Equal("Choose a type.", await FieldErrorAsync(await client.PostAsJsonAsync("/api/resources/links", LinkBody("Flyer", "template")), "Type"));
