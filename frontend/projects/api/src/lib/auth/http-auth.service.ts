@@ -69,8 +69,9 @@ export class HttpAuthService implements AuthService {
       );
   }
 
-  signInWithGoogle(returnUrl = '/', keepSignedIn = false): void {
+  signInWithGoogle(returnUrl = '/', keepSignedIn = false, signUp = false): void {
     const query = new URLSearchParams({ returnUrl, keepSignedIn: String(keepSignedIn) });
+    if (signUp) query.set('signUp', 'true');
     this.redirect(`${this.base}/account/google/start?${query}`);
   }
 

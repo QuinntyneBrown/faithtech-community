@@ -183,4 +183,12 @@ describe('HttpAuthService', () => {
       '/api/account/google/start?returnUrl=%2Fevents&keepSignedIn=true',
     );
   });
+
+  it('marks a Google start from the sign-up form as a sign-up (L2-132 AC7)', () => {
+    service.signInWithGoogle('/', false, true);
+
+    expect(redirect).toHaveBeenCalledWith(
+      '/api/account/google/start?returnUrl=%2F&keepSignedIn=false&signUp=true',
+    );
+  });
 });

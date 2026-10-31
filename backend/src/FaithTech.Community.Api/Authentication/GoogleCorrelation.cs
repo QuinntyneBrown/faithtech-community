@@ -17,7 +17,8 @@ public class GoogleCorrelation(IDataProtectionProvider dataProtection, TimeProvi
     private readonly ITimeLimitedDataProtector _protector =
         dataProtection.CreateProtector("FaithTech.Community.GoogleSignIn").ToTimeLimitedDataProtector();
 
-    public record Pending(string State, string Nonce, string ReturnUrl, bool KeepSignedIn);
+    /// <summary>SignUp: started from the sign-up form, so the account joins the host's organisation (L2-132 AC7).</summary>
+    public record Pending(string State, string Nonce, string ReturnUrl, bool KeepSignedIn, bool SignUp = false);
 
     public static string NewSecret() => Base64Url(RandomNumberGenerator.GetBytes(32));
 

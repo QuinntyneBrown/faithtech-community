@@ -32,7 +32,7 @@ const FAITHTECH_PUBLIC_SITE = {
 describe('LandingPage', () => {
   let redirects: string[];
   let outcome: Observable<SignInOutcome>;
-  let google: [string | undefined, boolean | undefined][];
+  let google: [string | undefined, boolean | undefined, boolean | undefined][];
   let kept: boolean;
 
   beforeEach(() => {
@@ -50,7 +50,8 @@ describe('LandingPage', () => {
           provide: AUTH_SERVICE,
           useValue: {
             signInWithPassword: () => outcome,
-            signInWithGoogle: (url?: string, keep?: boolean) => google.push([url, keep]),
+            signInWithGoogle: (url?: string, keep?: boolean, signUp?: boolean) =>
+              google.push([url, keep, signUp]),
             hasKeptSession: () => kept,
           },
         },
@@ -125,8 +126,23 @@ describe('LandingPage', () => {
     button().click();
     await fixture.whenStable();
 
-    expect(google).toEqual([['/events', false]]);
+    expect(google).toEqual([['/events', false, false]]);
     expect(button().getAttribute('aria-busy')).toBe('true');
+  });
+
+  // Traces to: L2-132 AC1, AC7. Only the sign-up form's button makes an existing account a member here.
+  it('starts Google from the sign-up form as a sign-up', async () => {
+    const fixture = TestBed.createComponent(LandingPage);
+    fixture.componentRef.setInput('join', '');
+    await fixture.whenStable();
+    const el = fixture.nativeElement as HTMLElement;
+
+    [...el.querySelectorAll('button')]
+      .find((b) => b.textContent?.includes('Sign up with Google'))!
+      .click();
+    await fixture.whenStable();
+
+    expect(google).toEqual([['/', false, true]]);
   });
 
   it('shows how Google sign-in ended when the visitor comes back', async () => {

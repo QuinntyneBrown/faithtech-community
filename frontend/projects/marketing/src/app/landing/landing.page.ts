@@ -137,13 +137,17 @@ export class LandingPage implements OnInit {
     }
   }
 
-  /** One flow for "Sign in with Google" and "Sign up with Google": the browser leaves for Google. */
-  protected continueWithGoogle(): void {
+  /**
+   * One flow for "Sign in with Google" and "Sign up with Google": the browser leaves for Google. From the sign-up
+   * form it is a sign-up, which makes an existing account a member of this organisation (L2-132 AC1, AC7).
+   */
+  protected continueWithGoogle(signUp = false): void {
     if (this.googleBusy()) return;
     this.googleBusy.set(true);
     this.auth.signInWithGoogle(
       appPath(this.returnUrl()),
       this.signInForm()?.keepSignedIn() ?? false,
+      signUp,
     );
   }
 
