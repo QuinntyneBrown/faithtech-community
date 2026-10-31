@@ -1,6 +1,6 @@
 # 0009. Shell navigation follows one rule by role
 
-- Status: Accepted
+- Status: Accepted; refined by ADR 0033 (sections open by capability, not role)
 - Date: 2026-10-21
 - Requirements: L2-045 AC4, L2-012, L2-017, L2-019, L2-030, L2-040, L2-053, L2-123
 - Designs: `docs/detailed-designs/platform/responsive-layout-and-theming`
