@@ -7,7 +7,7 @@
 <meta name="mock:kind" content="page">
 <meta name="mock:screen" content="event-form">
 <meta name="mock:state" content="default">
-<meta name="mock:requirements" content="L2-020">
+<meta name="mock:requirements" content="L2-020 L2-141 L2-145">
 <meta name="description" content="Create or edit an event with visibility, format and location.">
 <link rel="stylesheet" href="../../../design-system/tokens/tokens.css">
 <link rel="stylesheet" href="../../../design-system/assets/components.css">
@@ -43,7 +43,7 @@
 <fieldset class="stack"><legend class="field__label">Format</legend>
 <label class="choice"><input type="radio" name="fmt" checked><span class="choice__text">In person</span></label>
 <label class="choice"><input type="radio" name="fmt"><span class="choice__text">Online<small>We’ll show the joining link to people who RSVP</small></span></label></fieldset>
-<div class="field"><label class="field__label" for="ef-city">City</label><input class="input" id="ef-city" name="ef-city" type="text" value="Toronto" autocomplete="address-level2" required></div>
+<div class="field"><label class="field__label" for="ef-city">City <span class="optional">(optional)</span></label><select class="select" id="ef-city" name="ef-city" aria-describedby="ef-city-help"><option>FaithTech-wide</option><option selected>Toronto</option><option>Austin</option><option>Vancouver</option><option>Calgary</option></select><div class="field__help" id="ef-city-help">Leave it FaithTech-wide for an event open to every city.</div></div>
 <div class="field"><label class="field__label" for="ef-venue">Venue address</label><input class="input" id="ef-venue" name="ef-venue" type="text" value="Kestrel Labs, 220 King St W, Toronto" required></div>
 </section>
 <section class="card stack" aria-labelledby="v"><h2 class="card__title" id="v">Who can see and RSVP</h2>
@@ -61,7 +61,7 @@
 <nav class="mock-bar" aria-label="Mock navigation">
   <a class="mock-bar__home" href="../../index.html" aria-label="All mocks">⌂</a>
   <span class="mock-bar__screen">Create / edit event</span>
-  <ul class="mock-bar__states"><li><a href="default.html" aria-current="page">default</a></li><li><a href="edit.html">edit</a></li><li><a href="loading.html">loading</a></li><li><a href="error.html">error</a></li><li><a href="invalid.html">invalid</a></li><li><a href="busy.html">busy</a></li></ul>
+  <ul class="mock-bar__states"><li><a href="default.html" aria-current="page">default</a></li><li><a href="edit.html">edit</a></li><li><a href="loading.html">loading</a></li><li><a href="error.html">error</a></li><li><a href="invalid.html">invalid</a></li><li><a href="busy.html">busy</a></li><li><a href="chapters-off.html">chapters-off</a></li><li><a href="archived-type.html">archived-type</a></li></ul>
   <button type="button" data-theme-toggle aria-pressed="false">☾ Dark</button>
   <button type="button" data-chrome-toggle aria-label="Hide mock chrome">×</button>
 </nav>
