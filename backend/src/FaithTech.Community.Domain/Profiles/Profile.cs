@@ -136,7 +136,12 @@ public class Profile : IOrganisationScoped
         }
     }
 
+    /// <summary>Whether the profile holds the role at all, tagged or not.</summary>
     public bool HasRole(Guid roleDefinitionId) => _roles.Any(r => r.RoleDefinitionId == roleDefinitionId);
+
+    /// <summary>Whether the profile holds the role with exactly this tag; null asks for the untagged assignment.</summary>
+    public bool HasRole(Guid roleDefinitionId, Guid? chapterId) =>
+        _roles.Any(r => r.RoleDefinitionId == roleDefinitionId && r.ChapterId == chapterId);
 
     /// <summary>
     /// Whether a held, non-archived definition carries <paramref name="capability"/> itself; AdministerOrganisation does
@@ -145,25 +150,35 @@ public class Profile : IOrganisationScoped
     public bool HoldsCapability(string capability) =>
         _roles.Any(r => r.Definition is { ArchivedAtUtc: null } d && d.Capabilities.Contains(capability));
 
-    public void AddRole(RoleDefinition definition, Guid grantedBy, DateTime nowUtc)
+    /// <summary>
+    /// Adds the role, tagged with <paramref name="chapterId"/> when given; only a chapter-scopable definition takes a tag,
+    /// and the same definition and tag are held once (L2-138 AC6, AC7).
+    /// </summary>
+    public void AddRole(RoleDefinition definition, Guid grantedBy, DateTime nowUtc, Guid? chapterId = null)
     {
-        AddRole(definition.Id, grantedBy, nowUtc);
+        if (chapterId is not null && !definition.ChapterScopable)
+        {
+            throw new InvalidOperationException("That role can’t be held for a chapter.");
+        }
+
+        AddRole(definition.Id, grantedBy, nowUtc, chapterId);
         _roles[^1].Definition = definition;
     }
 
-    public void AddRole(Guid roleDefinitionId, Guid grantedBy, DateTime nowUtc)
+    public void AddRole(Guid roleDefinitionId, Guid grantedBy, DateTime nowUtc, Guid? chapterId = null)
     {
-        if (HasRole(roleDefinitionId))
+        if (HasRole(roleDefinitionId, chapterId))
         {
             throw new InvalidOperationException("The profile already holds that role.");
         }
 
-        _roles.Add(new ProfileRole(Id, roleDefinitionId, grantedBy, nowUtc));
+        _roles.Add(new ProfileRole(Id, roleDefinitionId, chapterId, grantedBy, nowUtc));
     }
 
-    public void RemoveRole(Guid roleDefinitionId)
+    /// <summary>Removes the assignment of the role with exactly this tag; null removes the untagged one.</summary>
+    public void RemoveRole(Guid roleDefinitionId, Guid? chapterId = null)
     {
-        var held = _roles.FirstOrDefault(r => r.RoleDefinitionId == roleDefinitionId)
+        var held = _roles.FirstOrDefault(r => r.RoleDefinitionId == roleDefinitionId && r.ChapterId == chapterId)
             ?? throw new InvalidOperationException("The profile does not hold that role.");
 
         _roles.Remove(held);

@@ -2629,10 +2629,10 @@ namespace FaithTech.Community.Infrastructure.Persistence.Migrations
 
                     b.OwnsMany("FaithTech.Community.Domain.Profiles.ProfileRole", "Roles", b1 =>
                         {
-                            b1.Property<Guid>("ProfileId")
+                            b1.Property<Guid>("Id")
                                 .HasColumnType("uuid");
 
-                            b1.Property<Guid>("RoleDefinitionId")
+                            b1.Property<Guid?>("ChapterId")
                                 .HasColumnType("uuid");
 
                             b1.Property<DateTime>("GrantedAtUtc")
@@ -2641,11 +2641,29 @@ namespace FaithTech.Community.Infrastructure.Persistence.Migrations
                             b1.Property<Guid>("GrantedBy")
                                 .HasColumnType("uuid");
 
-                            b1.HasKey("ProfileId", "RoleDefinitionId");
+                            b1.Property<Guid>("ProfileId")
+                                .HasColumnType("uuid");
+
+                            b1.Property<Guid>("RoleDefinitionId")
+                                .HasColumnType("uuid");
+
+                            b1.HasKey("Id");
+
+                            b1.HasIndex("ChapterId");
 
                             b1.HasIndex("RoleDefinitionId");
 
+                            b1.HasIndex("ProfileId", "RoleDefinitionId", "ChapterId")
+                                .IsUnique();
+
+                            NpgsqlIndexBuilderExtensions.AreNullsDistinct(b1.HasIndex("ProfileId", "RoleDefinitionId", "ChapterId"), false);
+
                             b1.ToTable("ProfileRoles", (string)null);
+
+                            b1.HasOne("FaithTech.Community.Domain.Organisations.Chapter", null)
+                                .WithMany()
+                                .HasForeignKey("ChapterId")
+                                .OnDelete(DeleteBehavior.Restrict);
 
                             b1.WithOwner()
                                 .HasForeignKey("ProfileId");
