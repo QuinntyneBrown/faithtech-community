@@ -1,7 +1,8 @@
 <ft-stack>
   <ft-page-header [title]="names.name()" [subtitle]="subtitle()" />
   <ft-tabs label="Organisation settings">
-    <ft-tab label="General" href="/organisation" [current]="true" />
+    <ft-tab label="General" href="/organisation" [current]="tab() === 'general'" />
+    <ft-tab label="Roles" href="/organisation/roles" [current]="tab() === 'roles'" />
   </ft-tabs>
   <router-outlet />
 </ft-stack>

@@ -1,6 +1,6 @@
 import { Component, inject } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
-import { DialogRef } from '@angular/cdk/dialog';
+import { Dialog, DialogRef } from '@angular/cdk/dialog';
 import { DialogComponent } from './dialog.component';
 import { DialogService } from './dialog.service';
 
@@ -39,6 +39,17 @@ describe('DialogService', () => {
     (document.querySelector('button[aria-label="Close"]') as HTMLButtonElement).click();
     expect(await closed).toBe('x');
     expect(document.querySelector('.cdk-dialog-container')).toBeNull();
+  });
+
+  it('opens 32rem wide, or 44rem for a wide dialog', async () => {
+    // jsdom drops min() widths, so read what the service asks the CDK for.
+    const open = vi.spyOn(TestBed.inject(Dialog), 'open');
+    const service = TestBed.inject(DialogService);
+    service.open(ContentComponent);
+    service.open(ContentComponent, {}, { wide: true });
+    await tick();
+    expect(open.mock.calls[0][1]?.width).toContain('32rem');
+    expect(open.mock.calls[1][1]?.width).toContain('44rem');
   });
 
   it('closes on Escape', async () => {

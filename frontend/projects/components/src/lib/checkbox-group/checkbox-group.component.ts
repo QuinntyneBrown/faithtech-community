@@ -24,6 +24,7 @@ let nextId = 0;
   templateUrl: './checkbox-group.component.html',
   styleUrl: './checkbox-group.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
+  host: { '[class.ft-checkbox-group--grid]': 'columns() === 2' },
   providers: [
     {
       provide: NG_VALUE_ACCESSOR,
@@ -43,6 +44,8 @@ export class CheckboxGroupComponent implements ControlValueAccessor {
   readonly error = input('');
   /** Hide the legend visually when a visible heading already names the group (a story's Tasks). */
   readonly legendHidden = input(false);
+  /** Two columns from 48rem, for a long catalogue such as the capability checklist. */
+  readonly columns = input<1 | 2>(1);
 
   readonly value = signal<readonly string[]>([]);
   readonly disabled = signal(false);

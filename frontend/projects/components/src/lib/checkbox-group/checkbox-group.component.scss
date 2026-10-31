@@ -19,6 +19,21 @@ legend {
   color: var(--color-fg-default);
 }
 
+:host(.ft-checkbox-group--grid) fieldset {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  column-gap: var(--space-4);
+
+  @media (min-width: 48rem) {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  > .ft-checkbox-group__hint,
+  > ft-inline-message {
+    grid-column: 1 / -1;
+  }
+}
+
 .ft-checkbox-group__hint {
   margin: 0;
   font: var(--text-caption);

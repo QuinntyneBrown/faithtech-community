@@ -1,5 +1,7 @@
 import { Page, Route } from '@playwright/test';
 import {
+  CAPABILITIES,
+  CAPABILITY_DESCRIPTIONS,
   Capability,
   RoleDefinition,
   canGrant,
@@ -224,6 +226,11 @@ export class MockApi {
     this.failOrganisationUpdate = true;
   }
 
+  /** The account's capabilities as the API computes them on its next request (L2-133 AC5). */
+  capabilitiesOf(account: MockAccount): Capability[] {
+    return account.capabilities ?? capabilitiesOf(account.roles);
+  }
+
   /** The id of the host organisation's role keyed `key`, as the API and the pickers name it. */
   roleId(key: string): string {
     const definition = definitionOf(key);
@@ -438,6 +445,9 @@ export class MockApi {
     );
     if (photos) return this.photos(route, method, photos, body, authorization);
 
+    const definitionRoute = /^\/api\/organisation\/roles(?:\/([^/]+))?$/.exec(url.pathname);
+    if (definitionRoute)
+      return this.roleDefinitionRoutes(route, method, definitionRoute[1], url, body, authorization);
     const roleRoute = /^\/api\/profiles\/([^/]+)\/roles(?:\/([^/]+))?$/.exec(url.pathname);
     if (roleRoute)
       return this.roles(route, method, roleRoute[1], roleRoute[2], body, authorization);
@@ -483,6 +493,12 @@ export class MockApi {
         return this.me(route, request.headers()['authorization']);
       case 'GET /api/organisation':
         return this.organisation(route, request.headers()['authorization']);
+      case 'GET /api/organisation/capabilities':
+        // The platform's catalogue with its descriptions, as OrganisationEndpoints answers it (L2-135 AC1).
+        return route.fulfill({
+          status: 200,
+          json: CAPABILITIES.map((key) => ({ key, description: CAPABILITY_DESCRIPTIONS[key] })),
+        });
       case 'PUT /api/organisation':
         return this.updateOrganisation(route, body, request.headers()['authorization']);
       case 'GET /api/site':
@@ -866,6 +882,151 @@ export class MockApi {
       after: JSON.stringify({ name, shortName }),
     });
     return route.fulfill({ status: 200 });
+  }
+
+  /**
+   * RoleDefinitionsEndpoints (L2-136): the list for either Organisation-section capability, and define and edit for
+   * ManageRoles, with the API's validation, the administration guard and the last-administrator guard. An edit changes
+   * the definition every holder's capabilities are computed from, so it applies on their next request.
+   */
+  private roleDefinitionRoutes(
+    route: Route,
+    method: string,
+    id: string | undefined,
+    url: URL,
+    body: Record<string, unknown>,
+    authorization: string | undefined,
+  ) {
+    const caller = this.caller(authorization);
+    if (!caller) return route.fulfill({ status: 401 });
+    if (method === 'GET' && !id) {
+      if (!holds(caller, 'ManageRoles') && !holds(caller, 'ManageOrganisationSettings'))
+        return route.fulfill({ status: 403 });
+      const archived = url.searchParams.get('archived') === 'true';
+      return route.fulfill({
+        status: 200,
+        json: roleDefinitions()
+          .filter((d) => !!d.archived === archived)
+          .map((d) => this.definitionDto(d)),
+      });
+    }
+    if (!(method === 'POST' && !id) && !(method === 'PUT' && id))
+      return route.fulfill({ status: 405 });
+    if (!holds(caller, 'ManageRoles')) return route.fulfill({ status: 403 });
+    const existing = id ? roleDefinitions().find((d) => d.id === id && !d.archived) : undefined;
+    if (id && !existing) return route.fulfill({ status: 404 });
+
+    const name = String(body['name'] ?? '').trim();
+    const description = String(body['description'] ?? '').trim();
+    const capabilities = (body['capabilities'] as string[] | undefined) ?? [];
+    const errors: Record<string, string[]> = {};
+    if (!name) errors['Name'] = ['Enter a name for the role.'];
+    else if (name.length > 60) errors['Name'] = ['Use 60 characters or fewer for the name.'];
+    if (description.length > 200)
+      errors['Description'] = ['Use 200 characters or fewer for the description.'];
+    if (capabilities.some((c) => !(CAPABILITIES as readonly string[]).includes(c)))
+      errors['Capabilities'] = ['Choose capabilities from the list.'];
+    if (Object.keys(errors).length)
+      return route.fulfill({ status: 400, json: { title: 'Invalid', status: 400, errors } });
+
+    const callerCapabilities = this.capabilitiesOf(caller);
+    const adds = (c: Capability) =>
+      capabilities.includes(c) && !(existing?.capabilities ?? []).includes(c);
+    if (adds('AdministerOrganisation') && !callerCapabilities.includes('AdministerOrganisation'))
+      return route.fulfill({
+        status: 403,
+        json: { status: 403, detail: 'Only an administrator can grant administration.' },
+      });
+    const taken = roleDefinitions().some(
+      (d) => !d.archived && d !== existing && d.name.toLowerCase() === name.toLowerCase(),
+    );
+    if (taken)
+      return route.fulfill({
+        status: 400,
+        json: {
+          title: 'Invalid',
+          status: 400,
+          errors: { Name: [`A role called ${name} already exists. Choose another name.`] },
+        },
+      });
+    if (
+      existing?.capabilities.includes('AdministerOrganisation') &&
+      !capabilities.includes('AdministerOrganisation') &&
+      ![...this.accounts.values()].some(
+        (a) =>
+          !a.suspended &&
+          (a.capabilities
+            ? a.capabilities.includes('AdministerOrganisation')
+            : roleDefinitions().some(
+                (d) =>
+                  d !== existing &&
+                  !d.archived &&
+                  a.roles.includes(d.key) &&
+                  d.capabilities.includes('AdministerOrganisation'),
+              )),
+      )
+    )
+      return route.fulfill({
+        status: 409,
+        json: { status: 409, detail: 'There must always be at least one administrator.' },
+      });
+
+    const values = {
+      name,
+      description,
+      capabilities: CAPABILITIES.filter((c) => capabilities.includes(c)),
+      showOnTeam: body['showOnTeam'] === true,
+      isOversight: body['isOversight'] === true,
+    };
+    const actor = { actorId: caller.profileId, actorName: caller.name };
+    if (existing) {
+      const before = JSON.stringify(this.definitionDto(existing));
+      Object.assign(existing, values);
+      this.addAuditEntry({
+        action: 'role.updated',
+        summary: `Edited ${name}`,
+        targetType: 'RoleDefinition',
+        targetId: existing.id,
+        before,
+        after: JSON.stringify(this.definitionDto(existing)),
+        ...actor,
+      });
+      return route.fulfill({ status: 200, json: this.definitionDto(existing) });
+    }
+    const slug =
+      name
+        .toLowerCase()
+        .replace(/[^a-z0-9]+/g, '-')
+        .replace(/^-|-$/g, '') || 'role';
+    let key = slug;
+    for (let n = 2; roleDefinitions().some((d) => d.key.toLowerCase() === key); n++)
+      key = `${slug}-${n}`;
+    const defined = defineRole({ key, ...values });
+    this.addAuditEntry({
+      action: 'role.defined',
+      summary: `Defined ${name}`,
+      targetType: 'RoleDefinition',
+      targetId: defined.id,
+      after: JSON.stringify(this.definitionDto(defined)),
+      ...actor,
+    });
+    return route.fulfill({ status: 201, json: this.definitionDto(defined) });
+  }
+
+  /** A definition as GET /api/organisation/roles answers it, with how many profiles hold it. */
+  private definitionDto(d: RoleDefinition) {
+    return {
+      id: d.id,
+      key: d.key,
+      name: d.name,
+      description: d.description ?? '',
+      capabilities: CAPABILITIES.filter((c) => d.capabilities.includes(c)),
+      showOnTeam: d.showOnTeam,
+      chapterScopable: d.chapterScopable,
+      isOversight: d.isOversight,
+      holderCount: [...this.profiles.values()].filter((p) => p.roles.includes(d.key)).length,
+      archived: !!d.archived,
+    };
   }
 
   /** RolesEndpoints: roles by definition id under the grant rules, and the last administrator guard (L2-138). */

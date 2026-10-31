@@ -25,7 +25,12 @@ import { SEARCH_SERVICE, HttpSearchService } from './search';
 import { SITE_SERVICE, HttpSiteService } from './site';
 import { RESOURCES_SERVICE, HttpResourcesService } from './resources';
 import { REPORTS_SERVICE, HttpReportsService } from './reports';
-import { ORGANISATION_SERVICE, HttpOrganisationService } from './organisations';
+import {
+  ORGANISATION_SERVICE,
+  HttpOrganisationService,
+  ROLE_DEFINITIONS_SERVICE,
+  HttpRoleDefinitionsService,
+} from './organisations';
 import { NOTES_SERVICE, HttpNotesService } from './notes';
 import { NOTIFICATIONS_SERVICE, HttpNotificationsService } from './notifications';
 import { ANNOUNCEMENTS_SERVICE, HttpAnnouncementsService } from './announcements';
@@ -83,6 +88,7 @@ export function provideApi(baseUrl: string, auth: Partial<AuthConfig> = {}): Env
     { provide: AUDIT_LOG_SERVICE, useClass: HttpAuditLogService },
     { provide: ROLES_SERVICE, useClass: HttpRolesService },
     { provide: ORGANISATION_SERVICE, useClass: HttpOrganisationService },
+    { provide: ROLE_DEFINITIONS_SERVICE, useClass: HttpRoleDefinitionsService },
     { provide: AGILE_SERVICE, useClass: HttpAgileService },
     { provide: AGILE_LIVE_SERVICE, useClass: SignalRAgileLiveService },
   ];

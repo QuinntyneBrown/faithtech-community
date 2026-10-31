@@ -1,5 +1,6 @@
 import { ChangeDetectionStrategy, Component, computed, inject } from '@angular/core';
-import { RouterOutlet } from '@angular/router';
+import { toSignal } from '@angular/core/rxjs-interop';
+import { NavigationEnd, Router, RouterOutlet } from '@angular/router';
 import { AUTH_SERVICE, OrganisationNames } from '@faithtech-community/api';
 import {
   PageHeaderComponent,
@@ -7,10 +8,11 @@ import {
   TabComponent,
   TabsComponent,
 } from '@faithtech-community/components';
+import { filter, map } from 'rxjs';
 
 /**
  * The Organisation section at /organisation (L2-147 AC1), matching docs/mocks/pages/organisation-general: the
- * organisation's name, its host, and a tab per settings page. Only General exists so far.
+ * organisation's name, its host, and a tab per settings page: General and Roles so far.
  */
 @Component({
   selector: 'ft-organisation-page',
@@ -21,6 +23,19 @@ import {
 export class OrganisationPage {
   protected readonly names = inject(OrganisationNames);
   private readonly auth = inject(AUTH_SERVICE);
+
+  private readonly router = inject(Router);
+  private readonly url = toSignal(
+    this.router.events.pipe(
+      filter((e) => e instanceof NavigationEnd),
+      map(() => this.router.url),
+    ),
+    { initialValue: this.router.url },
+  );
+  /** The tab of the current page, for aria-current. */
+  protected readonly tab = computed(() =>
+    this.url().split(/[?#]/)[0].endsWith('/roles') ? 'roles' : 'general',
+  );
 
   protected readonly subtitle = computed(() => {
     const host = this.auth.currentUser()?.organisation?.host;
