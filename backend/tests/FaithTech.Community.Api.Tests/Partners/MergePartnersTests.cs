@@ -37,7 +37,7 @@ public class MergePartnersTests(CommunityApiFactory factory) : IClassFixture<Com
         return (await response.Content.ReadFromJsonAsync<Partner>())!;
     }
 
-    /// <summary>Kestrel Labs (In funnel, owned by Grace) and its duplicate Kestrel Labs Inc. (Lead, owned by Esther).</summary>
+    /// <summary>Kestrel Labs (In Funnel, owned by Grace) and its duplicate Kestrel Labs Inc. (Lead, owned by Esther).</summary>
     private async Task<(ProfileClients.Member Grace, ProfileClients.Member Esther, Partner Kept, Partner Other)> PairAsync()
     {
         var u = Unique();
@@ -53,7 +53,7 @@ public class MergePartnersTests(CommunityApiFactory factory) : IClassFixture<Com
             ContactName = "Nadia Petrov",
             Email = "nadia@kestrel.example",
             Notes = "Studio of 12 developers.",
-            Stage = "InFunnel",
+            Stage = "in-funnel",
         });
         var other = await AddAsync(esther, new
         {
@@ -98,7 +98,7 @@ public class MergePartnersTests(CommunityApiFactory factory) : IClassFixture<Com
 
         var merged = (await response.Content.ReadFromJsonAsync<Partner>())!;
         Assert.Equal(
-            (kept.Name, "Nadia Petrov", "416-555-0199", esther.ProfileId, "InFunnel", kept.Website),
+            (kept.Name, "Nadia Petrov", "416-555-0199", esther.ProfileId, "in-funnel", kept.Website),
             (merged.Name, merged.ContactName, merged.Phone, merged.OwnerId, merged.Stage, merged.Website));
         Assert.Equal("Studio of 12 developers.\n\nMet Nadia at the spring builders night.", merged.Notes);
         Assert.True(merged.Version > kept.Version);
@@ -111,7 +111,7 @@ public class MergePartnersTests(CommunityApiFactory factory) : IClassFixture<Com
         var (grace, esther, kept, other) = await PairAsync();
         var lead = factory.ClientFor(esther, Role.CityLead);
         (await lead.LogActivityAsync(other.Id, NewActivity(summary: "Called about hosting.", occurredOn: Today))).EnsureSuccessStatusCode();
-        (await lead.PostAsJsonAsync($"/api/partners/{other.Id}/stage", new { To = "InFunnel", Note = "Proposal sent." })).EnsureSuccessStatusCode();
+        (await lead.PostAsJsonAsync($"/api/partners/{other.Id}/stage", new { To = "in-funnel", Note = "Proposal sent." })).EnsureSuccessStatusCode();
         other = await lead.GetPartnerAsync(other.Id);
         factory.Time.Advance(TimeSpan.FromMinutes(1));
 
@@ -126,7 +126,7 @@ public class MergePartnersTests(CommunityApiFactory factory) : IClassFixture<Com
         Assert.Equal(["Added", "Call", "StageMoved"], moved.Select(a => a.Kind).Order());
         Assert.All(moved, a => Assert.Equal(other.Name, a.MergedFromPartnerName));
         Assert.Contains(moved, a => a.Text == $"Added {other.Name} as a lead");
-        Assert.Contains(moved, a => a.Text == $"Moved {other.Name} from Lead to In funnel: “Proposal sent.”");
+        Assert.Contains(moved, a => a.Text == $"Moved {other.Name} from Lead to In Funnel: “Proposal sent.”");
         Assert.Contains(timeline, a => a.Kind == "Added" && a.MergedFromPartnerId is null);
         Assert.Empty((await lead.ActivitiesAsync(other.Id)).Items);
         var changes = await factory.WithDbAsync(db => db.PartnerStageChanges.Where(c => c.MergedFromPartnerId == other.Id).ToListAsync());
@@ -140,9 +140,9 @@ public class MergePartnersTests(CommunityApiFactory factory) : IClassFixture<Com
 
         var response = await factory.ClientFor(grace, Role.CityLead).MergeAsync(kept.Id, MergeBody(kept, other, new { Stage = "other" }));
 
-        Assert.Equal("Lead", (await response.Content.ReadFromJsonAsync<Partner>())!.Stage);
+        Assert.Equal("lead", (await response.Content.ReadFromJsonAsync<Partner>())!.Stage);
         var merged = (await factory.ClientFor(grace).ActivitiesAsync(kept.Id)).Items[0];
-        Assert.Equal(("InFunnel", "Lead"), (merged.FromStage, merged.ToStage));
+        Assert.Equal(("in-funnel", "lead"), (merged.FromStage, merged.ToStage));
         Assert.False(await factory.WithDbAsync(db => db.PartnerStageChanges.AnyAsync(c => c.PartnerId == kept.Id)));
     }
 
@@ -193,7 +193,7 @@ public class MergePartnersTests(CommunityApiFactory factory) : IClassFixture<Com
         await lead.MergeAsync(kept.Id, MergeBody(kept, other));
 
         var edit = await lead.PutAsJsonAsync($"/api/partners/{other.Id}", NewPartner("Renamed"));
-        var move = await lead.PostAsJsonAsync($"/api/partners/{other.Id}/stage", new { To = "Confirmed" });
+        var move = await lead.PostAsJsonAsync($"/api/partners/{other.Id}/stage", new { To = "confirmed" });
         var log = await lead.LogActivityAsync(other.Id, NewActivity(occurredOn: Today));
 
         Assert.Equal(
@@ -213,7 +213,7 @@ public class MergePartnersTests(CommunityApiFactory factory) : IClassFixture<Com
         var (grace, _, kept, other) = await PairAsync();
         var lead = factory.ClientFor(grace, Role.CityLead);
         var changed = keptChanged ? kept : other;
-        (await lead.PostAsJsonAsync($"/api/partners/{changed.Id}/stage", new { To = "Confirmed" })).EnsureSuccessStatusCode();
+        (await lead.PostAsJsonAsync($"/api/partners/{changed.Id}/stage", new { To = "confirmed" })).EnsureSuccessStatusCode();
 
         var response = await lead.MergeAsync(kept.Id, MergeBody(kept, other, new { Name = "other" }));
 

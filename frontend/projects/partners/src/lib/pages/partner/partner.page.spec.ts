@@ -91,7 +91,7 @@ describe('PartnerPage', () => {
     const { host, text, link } = await setup(() => of(partnerDto()));
 
     expect(host.querySelector('h1')!.textContent).toContain('Kestrel Labs');
-    expect(host.querySelector('ft-page-header ft-badge')!.textContent).toContain('In funnel');
+    expect(host.querySelector('ft-page-header ft-badge')!.textContent).toContain('In Funnel');
     const facts = Array.from(host.querySelectorAll('dl')).map(
       (dl) =>
         `${dl.querySelector('dt')!.textContent!.trim()}: ${dl.querySelector('dd')!.textContent!.trim()}`,
@@ -135,7 +135,7 @@ describe('PartnerPage', () => {
         id: 'a1',
         kind: 'StageMoved',
         summary: 'Proposal sent.',
-        text: 'Moved Kestrel Labs from Lead to In funnel: “Proposal sent.”',
+        text: 'Moved Kestrel Labs from Lead to In Funnel: “Proposal sent.”',
         occurredOn: '2026-10-14',
         occurredAt: '12:00:00',
         nextStep: null,
@@ -154,7 +154,7 @@ describe('PartnerPage', () => {
 
     const entry = host.querySelector('ft-feed-item')!.textContent!.replace(/\s+/g, ' ');
     expect(entry).toContain('Stage moved · Grace Okonkwo');
-    expect(entry).toContain('Moved Kestrel Labs from Lead to In funnel: “Proposal sent.”');
+    expect(entry).toContain('Moved Kestrel Labs from Lead to In Funnel: “Proposal sent.”');
     expect(entry).toContain('Wed 14 Oct, 12:00 pm');
   });
 
@@ -178,7 +178,11 @@ describe('PartnerPage', () => {
   });
 
   it('moves the partner from its page, shows the new stage and reloads the timeline', async () => {
-    const moved = partnerDto({ stage: 'Confirmed' });
+    const moved = partnerDto({
+      stage: 'confirmed',
+      stageName: 'Confirmed',
+      stageKind: 'Confirmed',
+    });
     const { host, dialogs, service, settle } = await setup(() => of(partnerDto()), moved);
 
     Array.from(host.querySelectorAll('button'))
@@ -187,7 +191,7 @@ describe('PartnerPage', () => {
     await settle();
 
     expect(dialogs.open).toHaveBeenCalledWith(MovePartnerDialog, {
-      data: { partnerId: 'x1', name: 'Kestrel Labs', stage: 'InFunnel' },
+      data: { partnerId: 'x1', name: 'Kestrel Labs', stage: 'in-funnel' },
     });
     expect(host.querySelector('ft-page-header ft-badge')!.textContent).toContain('Confirmed');
     expect(service.activities).toHaveBeenCalledTimes(2);
@@ -383,7 +387,7 @@ describe('PartnerPage', () => {
         mergedAtUtc: '2026-10-21T19:02:44Z',
       },
     });
-    const restored = partnerDto({ name: 'Kestrel Labs Inc.', stage: 'Lead' });
+    const restored = partnerDto({ name: 'Kestrel Labs Inc.', stage: 'lead', stageName: 'Lead' });
     const { dialogs, toasts, text, button, settle, service } = await setup(
       () => of(archived),
       restored,

@@ -69,7 +69,7 @@ public class ReportFiltersTests : IAsyncLifetime
     {
         var staff = await factory.StaffAsync();
         var grace = await factory.AddCityMemberAsync("Grace Okonkwo", "Toronto");
-        await factory.AddReportPartnerAsync("Kestrel Labs", grace.ProfileId, PartnerStage.Confirmed);
+        await factory.AddReportPartnerAsync("Kestrel Labs", grace.ProfileId, "confirmed");
         await factory.AddReportEventAsync("Builders Night", Now.AddDays(-2), "Toronto");
         var toronto = await factory.ChapterIdAsync("Toronto");
         await factory.WithDbAsync(async db =>

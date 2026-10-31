@@ -1,0 +1,32 @@
+<ft-dialog
+  [heading]="'Archive ' + data.name + '?'"
+  [description]="data.description"
+  icon="archive"
+  tone="danger"
+  [busy]="busy()"
+  (closed)="ref.close()"
+>
+  @if (refusal(); as reason) {
+    <ft-alert status="danger" [polite]="true" [heading]="'Can’t archive ' + data.name">
+      {{ reason }}
+      @if (data.fix; as fix) {
+        <ft-link [href]="fix.href">{{ fix.label }}</ft-link>
+      }
+    </ft-alert>
+  } @else if (failed()) {
+    <ft-alert status="danger" [heading]="data.name + ' not archived'">
+      We couldn’t reach {{ names.shortName() }}. Nothing was changed — try again.
+    </ft-alert>
+  }
+  @if (!refusal()) {
+    <p>{{ data.body }}</p>
+  }
+  <ft-button ftDialogFooter initialFocus [disabled]="busy()" (click)="ref.close()">{{
+    refusal() ? 'Close' : 'Cancel'
+  }}</ft-button>
+  @if (!refusal()) {
+    <ft-button ftDialogFooter variant="danger" [loading]="busy()" (click)="archive()">
+      {{ busy() ? 'Archiving…' : failed() ? 'Try again' : data.archiveLabel }}
+    </ft-button>
+  }
+</ft-dialog>

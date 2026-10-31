@@ -68,9 +68,11 @@ public class PartnerActivity : IOrganisationScoped
 
     public DateTime LoggedAtUtc { get; private set; }
 
-    public PartnerStage? FromStage { get; private set; }
+    /// <summary>The key of the stage left (StageMoved, Merged); names are read from the stages when shown (L2-144 AC6).</summary>
+    public string? FromStage { get; private set; }
 
-    public PartnerStage? ToStage { get; private set; }
+    /// <summary>The key of the stage reached (Added, StageMoved, Merged, Restored).</summary>
+    public string? ToStage { get; private set; }
 
     /// <summary>The stage change a StageMoved entry mirrors.</summary>
     public Guid? StageChangeId { get; private set; }
@@ -115,10 +117,10 @@ public class PartnerActivity : IOrganisationScoped
 
     /// <summary>The partner entered the pipeline at its first stage (L2-110 AC6).</summary>
     public static PartnerActivity Added(Partner partner, Guid by, DateTime nowUtc) =>
-        new(partner.Id, PartnerActivityKind.Added, by, nowUtc) { ToStage = partner.Stage };
+        new(partner.Id, PartnerActivityKind.Added, by, nowUtc) { ToStage = partner.Stage?.Key };
 
     /// <summary>Written on the kept record of a merge, with the stages when the merge changed it (L2-114 AC3).</summary>
-    public static PartnerActivity Merged(Partner kept, Partner other, Guid by, DateTime nowUtc, PartnerStage? fromStage, PartnerStage? toStage) =>
+    public static PartnerActivity Merged(Partner kept, Partner other, Guid by, DateTime nowUtc, string? fromStage, string? toStage) =>
         new(kept.Id, PartnerActivityKind.Merged, by, nowUtc) { RelatedPartnerId = other.Id, FromStage = fromStage, ToStage = toStage };
 
     /// <summary>
@@ -129,7 +131,7 @@ public class PartnerActivity : IOrganisationScoped
         new(partner.Id, PartnerActivityKind.Restored, by, nowUtc)
         {
             RelatedPartnerId = other.Id,
-            ToStage = isRestoredRecord ? partner.Stage : null,
+            ToStage = isRestoredRecord ? partner.Stage?.Key : null,
         };
 
     /// <summary>A merge moves the entry to the kept record; the first record it was written on is kept through a chain.</summary>

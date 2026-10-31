@@ -13,6 +13,7 @@ const organisation: OrganisationDto = {
   chapterLabel: null,
   chapters: [],
   roles: [],
+  partnerStages: [],
 };
 
 const withCities: OrganisationDto = {

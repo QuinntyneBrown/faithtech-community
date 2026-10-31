@@ -55,7 +55,7 @@ const RESULTS: SearchResultsDto = {
           snippet: 'Nadia Petrov · funds shelter technology',
           route: '/partners/pa1',
           startsAt: null,
-          badge: 'InFunnel',
+          badge: 'In Funnel',
         },
       ],
     },
@@ -142,7 +142,7 @@ describe('SearchPage', () => {
     expect(host.textContent).toContain('5 results for “shelter”');
     expect(host.querySelector('a[href="/people/p1"]')).not.toBeNull();
     expect(host.textContent).toContain('Sat 14 Nov · Toronto · Trinity Community Centre');
-    expect(host.textContent).toContain('In funnel');
+    expect(host.textContent).toContain('In Funnel');
     expect(host.textContent).toContain('Private');
     expect(host.textContent).toContain('Story · Toronto team · In progress');
   });

@@ -8,6 +8,6 @@
 | organisation-settings | 4 days | 55% | — |
 | platform-operations | 4 days | 0% | — |
 | role-definitions-and-grant-rules | 7 days | 100% | — |
-| seed-faithtech | 4 days | 60% | — |
-| taxonomies | 6 days | 0% | — |
+| seed-faithtech | 4 days | 65% | — |
+| taxonomies | 6 days | 40% | — |
 | tenancy-and-host-resolution | 8 days | 95% | — |

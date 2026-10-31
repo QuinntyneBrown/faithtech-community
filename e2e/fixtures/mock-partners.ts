@@ -1,6 +1,7 @@
 import { Route } from '@playwright/test';
 
 import { MockCaller } from './mock-contacts';
+import { MockPartnerStages } from './mock-partner-stages';
 import { match as duplicateMatch, normaliseHost } from './partner-duplicates';
 import { carries, holds, isOverride } from './role-definitions';
 
@@ -27,7 +28,8 @@ export interface MockDismissal {
   atUtc: string;
 }
 
-export type MockStage = 'Lead' | 'InFunnel' | 'Confirmed';
+/** A stage key, such as FaithTech's lead, in-funnel or confirmed (L2-144). */
+export type MockStage = string;
 
 export type MockActivityKind =
   'Call' | 'Email' | 'Meeting' | 'Note' | 'Added' | 'StageMoved' | 'Merged' | 'Restored';
@@ -74,16 +76,10 @@ export interface MockPartner {
   mergedAtUtc: string | null;
 }
 
-const STAGES: MockStage[] = ['Lead', 'InFunnel', 'Confirmed'];
 const EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const LOGGED: MockActivityKind[] = ['Call', 'Email', 'Meeting', 'Note'];
 const DAY = 24 * 60 * 60 * 1000;
 const PAGE_SIZE = 50;
-const STAGE_LABELS: Record<MockStage, string> = {
-  Lead: 'Lead',
-  InFunnel: 'In funnel',
-  Confirmed: 'Confirmed',
-};
 const FILTERS: Record<string, MockActivityKind[]> = {
   Call: ['Call'],
   Email: ['Email'],
@@ -99,16 +95,28 @@ function newest(activities: MockActivity[]): MockActivity[] {
   return [...activities].sort((a, b) => key(b).localeCompare(key(a)));
 }
 
-/** PartnerTimelineViews.Text: {name} is the record the entry was first written on, {other} the related one. */
-function text(name: string, other: string, activity: MockActivity): string {
+/**
+ * PartnerTimelineViews.Text: {name} is the record the entry was first written on, {other} the related one; stages show
+ * their current names, "(archived)" once archived (L2-144 AC6).
+ */
+function text(
+  name: string,
+  other: string,
+  activity: MockActivity,
+  stages: MockPartnerStages,
+): string {
+  const label = (key: string) => stages.nameOf(key);
   switch (activity.kind) {
-    case 'Added':
-      return !activity.toStage || activity.toStage === 'Lead'
-        ? `Added ${name} as a lead`
-        : `Added ${name} at ${STAGE_LABELS[activity.toStage]}`;
+    case 'Added': {
+      if (!activity.toStage) return `Added ${name}`;
+      if (activity.toStage !== stages.initial().key)
+        return `Added ${name} at ${label(activity.toStage)}`;
+      const initial = label(activity.toStage).toLowerCase();
+      return `Added ${name} as ${/^[aeiou]/.test(initial) ? 'an' : 'a'} ${initial}`;
+    }
     case 'StageMoved': {
       const note = activity.summary ? `: “${activity.summary}”` : '';
-      return `Moved ${name} from ${STAGE_LABELS[activity.fromStage!]} to ${STAGE_LABELS[activity.toStage!]}${note}`;
+      return `Moved ${name} from ${label(activity.fromStage!)} to ${label(activity.toStage!)}${note}`;
     }
     case 'Merged':
       return `Merged ${other} into ${name}`;
@@ -130,7 +138,21 @@ export class MockPartners {
   /** "Not the same" pairs; seed one with `dismiss`. */
   readonly dismissals: MockDismissal[] = [];
 
-  constructor(private readonly context: PartnersContext) {}
+  /** The organisation's stages, seeded with FaithTech's (L2-144, L2-151). */
+  readonly stages: MockPartnerStages;
+
+  constructor(private readonly context: PartnersContext) {
+    // eslint-disable-next-line @typescript-eslint/no-this-alias
+    const partners = this;
+    this.stages = new MockPartnerStages({
+      get now() {
+        return context.now;
+      },
+      partnersOn: (key) =>
+        partners.partners.filter((p) => p.stage === key && !p.archivedAtUtc).length,
+      addAuditEntry: (entry) => context.addAuditEntry(entry),
+    });
+  }
 
   add(partner: Partial<MockPartner> & { name: string }): MockPartner {
     const full: MockPartner = {
@@ -142,7 +164,7 @@ export class MockPartners {
       email: null,
       phone: null,
       notes: null,
-      stage: 'Lead',
+      stage: this.stages.initial().key,
       activities: [],
       version: 1,
       archivedAtUtc: null,
@@ -227,7 +249,13 @@ export class MockPartners {
     if (!id && method === 'POST') {
       const errors = this.validate(body);
       if (errors) return route.fulfill({ status: 400, json: { status: 400, errors } });
-      const stage = (body['stage'] as MockStage | undefined) ?? 'Lead';
+      const chosen = body['stage'] as MockStage | undefined;
+      const stage = chosen ?? this.stages.initial().key;
+      if (!this.stages.active().some((s) => s.key === stage))
+        return route.fulfill({
+          status: 400,
+          json: { status: 400, errors: { Stage: ['Choose a stage from the list.'] } },
+        });
       const partner = this.add({ ...this.details(body), stage });
       partner.activities[0].loggedById = caller.profileId;
       return route.fulfill({ status: 201, json: this.dto(partner, canWrite, caller) });
@@ -289,16 +317,19 @@ export class MockPartners {
     }
     if (method === 'POST' && action === 'stage') {
       const to = body['to'] as MockStage;
-      if (!STAGES.includes(to)) {
+      if (!this.stages.active().some((s) => s.key === to)) {
         return route.fulfill({
           status: 400,
-          json: { status: 400, errors: { To: ['Choose a stage.'] } },
+          json: { status: 400, errors: { To: ['Choose a stage from the list.'] } },
         });
       }
       if (to === partner.stage) {
         return route.fulfill({
           status: 409,
-          json: { status: 409, detail: `The partner is already at the ${to} stage.` },
+          json: {
+            status: 409,
+            detail: `The partner is already at the ${this.stages.nameOf(to)} stage.`,
+          },
         });
       }
       this.addActivity(partner, {
@@ -595,7 +626,7 @@ export class MockPartners {
     const related = partnerName(activity.relatedPartnerId);
     return {
       ...activity,
-      text: text(from ?? partner.name, related ?? 'another partner', activity),
+      text: text(from ?? partner.name, related ?? 'another partner', activity, this.stages),
       loggedByName: name,
       relatedPartnerName: related,
       mergedFromPartnerName: from,
@@ -623,12 +654,17 @@ export class MockPartners {
     return Object.keys(errors).length ? errors : null;
   }
 
+  /** One column per active stage, then each archived stage that still holds partners (L2-144 AC3, AC4). */
   private board(canEdit: boolean) {
+    const held = (key: string) => this.partners.some((p) => p.stage === key && !p.archivedAtUtc);
+    const archived = this.stages.stages
+      .filter((s) => s.archivedAtUtc && held(s.key))
+      .sort((a, b) => a.sortOrder - b.sortOrder);
     return {
       canEdit,
-      columns: STAGES.map((stage) => {
+      columns: [...this.stages.active(), ...archived].map((stage) => {
         const cards = this.partners
-          .filter((p) => p.stage === stage && !p.archivedAtUtc)
+          .filter((p) => p.stage === stage.key && !p.archivedAtUtc)
           .sort((a, b) => a.name.localeCompare(b.name))
           .map((p) => ({
             id: p.id,
@@ -638,7 +674,15 @@ export class MockPartners {
             nextStep: this.nextStep(p)?.nextStep ?? null,
             nextStepDue: this.nextStep(p)?.nextStepDue ?? null,
           }));
-        return { stage, count: cards.length, cards };
+        return {
+          stage: stage.key,
+          stageId: stage.id,
+          name: stage.name,
+          kind: stage.kind,
+          archived: !!stage.archivedAtUtc,
+          count: cards.length,
+          cards,
+        };
       }),
     };
   }
@@ -683,6 +727,8 @@ export class MockPartners {
     const canEdit = canWrite && !archivedAtUtc;
     return {
       ...record,
+      stageName: this.stages.nameOf(partner.stage),
+      stageKind: this.stages.byKey(partner.stage)?.kind ?? 'Open',
       ownerName: name(partner.ownerId),
       canEdit,
       lastActivityOn: newest(activities)[0]?.occurredOn ?? null,

@@ -23,10 +23,10 @@ public class ManagePartnersTests(CommunityApiFactory factory) : IClassFixture<Co
         Assert.Equal(HttpStatusCode.Created, response.StatusCode);
         var partner = (await response.Content.ReadFromJsonAsync<Partner>())!;
         Assert.Equal(
-            (name, "kestrel.example", "Venue for Builders Night", (Guid?)grace.ProfileId, "Grace Okonkwo", "Nadia Petrov", "nadia@kestrel.example", "416-555-0199", "Studio of 12 developers.", "Lead", true),
+            (name, "kestrel.example", "Venue for Builders Night", (Guid?)grace.ProfileId, "Grace Okonkwo", "Nadia Petrov", "nadia@kestrel.example", "416-555-0199", "Studio of 12 developers.", "lead", true),
             (partner.Name, partner.Website, partner.Offering, partner.OwnerId, partner.OwnerName, partner.ContactName, partner.Email, partner.Phone, partner.Notes, partner.Stage, partner.CanEdit));
         var board = (await client.GetFromJsonAsync<Board>("/api/partners"))!;
-        Assert.Contains(board.Columns.Single(c => c.Stage == "Lead").Cards, c => c.Id == partner.Id && c.ContactName == "Nadia Petrov");
+        Assert.Contains(board.Columns.Single(c => c.Stage == "lead").Cards, c => c.Id == partner.Id && c.ContactName == "Nadia Petrov");
     }
 
     [Fact]
@@ -34,9 +34,9 @@ public class ManagePartnersTests(CommunityApiFactory factory) : IClassFixture<Co
     {
         var grace = await factory.AddMemberAsync("Grace Okonkwo");
 
-        var partner = await factory.CreatePartnerAsync(grace, "Lantern Foundation", "InFunnel");
+        var partner = await factory.CreatePartnerAsync(grace, "Lantern Foundation", "in-funnel");
 
-        Assert.Equal("InFunnel", partner.Stage);
+        Assert.Equal(("in-funnel", "In Funnel"), (partner.Stage, partner.StageName));
     }
 
     [Fact]
@@ -51,7 +51,11 @@ public class ManagePartnersTests(CommunityApiFactory factory) : IClassFixture<Co
         var errors = (await response.Content.ReadFromJsonAsync<ValidationProblemDetails>())!.Errors;
         Assert.Equal(["Enter the organisation’s name."], errors["Name"]);
         Assert.Equal(["Enter an email like name@example.org, or leave it empty."], errors["Email"]);
-        Assert.Equal(["Choose Lead, In funnel or Confirmed."], errors["Stage"]);
+        // A stage is checked against the organisation's stages once the details are valid (L2-144 AC4).
+        var unknown = await factory.ClientFor(grace, Role.CityLead).PostAsJsonAsync("/api/partners", NewPartner("Kestrel Labs", stage: "Signed"));
+        Assert.Equal(HttpStatusCode.BadRequest, unknown.StatusCode);
+        var stageErrors = (await unknown.Content.ReadFromJsonAsync<ValidationProblemDetails>())!.Errors;
+        Assert.Equal(["Choose a stage from the list."], stageErrors["Stage"]);
     }
 
     [Fact]
@@ -136,7 +140,7 @@ public class ManagePartnersTests(CommunityApiFactory factory) : IClassFixture<Co
     public async Task Editing_changes_the_details_but_not_the_stage()
     {
         var grace = await factory.AddMemberAsync("Grace Okonkwo");
-        var partner = await factory.CreatePartnerAsync(grace, "Kestrel Labs", "InFunnel");
+        var partner = await factory.CreatePartnerAsync(grace, "Kestrel Labs", "in-funnel");
 
         var response = await factory.ClientFor(grace, Role.EventLead).PutAsJsonAsync($"/api/partners/{partner.Id}", new
         {
@@ -144,12 +148,12 @@ public class ManagePartnersTests(CommunityApiFactory factory) : IClassFixture<Co
             Website = "",
             Offering = "Venue and catering",
             ContactName = "Nadia Petrov",
-            Stage = "Confirmed",
+            Stage = "confirmed",
         });
 
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
         var edited = (await response.Content.ReadFromJsonAsync<Partner>())!;
-        Assert.Equal(("Kestrel Labs Inc.", (string?)null, "Venue and catering", "InFunnel"), (edited.Name, edited.Website, edited.Offering, edited.Stage));
+        Assert.Equal(("Kestrel Labs Inc.", (string?)null, "Venue and catering", "in-funnel"), (edited.Name, edited.Website, edited.Offering, edited.Stage));
     }
 
     [Fact]

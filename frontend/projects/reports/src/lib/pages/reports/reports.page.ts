@@ -235,15 +235,17 @@ export class ReportsPage {
     })),
   );
 
+  /** One column per active partner stage, in the organisation's order (L2-144 AC5). */
   protected readonly pipelineColumns = computed<TableColumn[]>(() => [
     { key: 'chapter', header: this.chapterLabel() || 'Pipeline', rowHeader: true },
-    { key: 'lead', header: 'Lead' },
-    { key: 'inFunnel', header: 'In funnel' },
-    { key: 'confirmed', header: 'Confirmed' },
+    ...(this.report()?.stages ?? []).map((header, i) => ({ key: `stage${i}`, header })),
   ]);
 
-  protected readonly pipelineRows = computed(
-    () => (this.report()?.partnerPipeline ?? []) as unknown as Record<string, unknown>[],
+  protected readonly pipelineRows = computed(() =>
+    (this.report()?.partnerPipeline ?? []).map((row) => ({
+      chapter: row.chapter,
+      ...Object.fromEntries(row.counts.map((count, i) => [`stage${i}`, count])),
+    })),
   );
 
   private readonly eventCell = viewChild<TemplateRef<unknown>>('eventCell');

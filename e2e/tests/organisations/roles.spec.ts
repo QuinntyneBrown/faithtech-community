@@ -19,7 +19,7 @@ test.describe('Organisation settings: Roles', () => {
 
     await roles.rolesTab.click();
     await expect(page).toHaveURL(/\/organisation\/roles$/);
-    await expect(roles.tabs).toHaveText(['General', 'Roles', 'Cities']);
+    await expect(roles.tabs).toHaveText(['General', 'Roles', 'Cities', 'Stages & types']);
     await expect
       .poll(() => roles.names())
       .toEqual([

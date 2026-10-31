@@ -13,12 +13,12 @@
         </ft-alert>
       }
       <ft-radio-group required legend="Stage" [formControl]="to">
-        @for (stage of stages; track stage) {
+        @for (stage of stages(); track stage.key) {
           <ft-radio
-            [value]="stage"
-            [description]="stage === data.stage ? 'Current stage' : ''"
+            [value]="stage.key"
+            [description]="stage.key === data.stage ? 'Current stage' : ''"
             [disabled]="busy()"
-            >{{ label(stage) }}</ft-radio
+            >{{ stage.name }}</ft-radio
           >
         }
       </ft-radio-group>

@@ -24,14 +24,14 @@ public class PartnerTimelineTests(CommunityApiFactory factory) : IClassFixture<C
     {
         var grace = await factory.AddMemberAsync("Grace Okonkwo");
         var lead = await factory.CreatePartnerAsync(grace, "Maple Street Church");
-        var funnel = await factory.CreatePartnerAsync(grace, "Lantern Foundation", "InFunnel");
+        var funnel = await factory.CreatePartnerAsync(grace, "Lantern Foundation", "in-funnel");
         var client = factory.ClientFor(grace, Role.CityLead);
 
         var added = Assert.Single((await client.ActivitiesAsync(lead.Id)).Items);
         Assert.Equal(
-            ("Added", "Added Maple Street Church as a lead", grace.ProfileId, "Grace Okonkwo", Now, DateOnly.FromDateTime(Now), (string?)"Lead"),
+            ("Added", "Added Maple Street Church as a lead", grace.ProfileId, "Grace Okonkwo", Now, DateOnly.FromDateTime(Now), (string?)"lead"),
             (added.Kind, added.Text, added.LoggedById, added.LoggedByName, added.LoggedAtUtc, added.OccurredOn, added.ToStage));
-        Assert.Equal("Added Lantern Foundation at In funnel", Assert.Single((await client.ActivitiesAsync(funnel.Id)).Items).Text);
+        Assert.Equal("Added Lantern Foundation at In Funnel", Assert.Single((await client.ActivitiesAsync(funnel.Id)).Items).Text);
     }
 
     [Fact]
@@ -42,11 +42,11 @@ public class PartnerTimelineTests(CommunityApiFactory factory) : IClassFixture<C
         var client = factory.ClientFor(grace, Role.CityLead);
         factory.Time.Advance(TimeSpan.FromMinutes(1));
 
-        await client.PostAsJsonAsync($"/api/partners/{partner.Id}/stage", new { To = "InFunnel", Note = "Proposal sent." });
+        await client.PostAsJsonAsync($"/api/partners/{partner.Id}/stage", new { To = "in-funnel", Note = "Proposal sent." });
 
         var moved = (await client.ActivitiesAsync(partner.Id)).Items[0];
         Assert.Equal(
-            ("StageMoved", "Moved Kestrel Labs from Lead to In funnel: “Proposal sent.”", "Lead", "InFunnel", "Proposal sent."),
+            ("StageMoved", "Moved Kestrel Labs from Lead to In Funnel: “Proposal sent.”", "lead", "in-funnel", "Proposal sent."),
             (moved.Kind, moved.Text, moved.FromStage, moved.ToStage, moved.Summary));
     }
 
@@ -85,7 +85,7 @@ public class PartnerTimelineTests(CommunityApiFactory factory) : IClassFixture<C
         }
 
         factory.Time.Advance(TimeSpan.FromMinutes(1));
-        await client.PostAsJsonAsync($"/api/partners/{partner.Id}/stage", new { To = "Confirmed" });
+        await client.PostAsJsonAsync($"/api/partners/{partner.Id}/stage", new { To = "confirmed" });
 
         var page = await client.ActivitiesAsync(partner.Id, $"?kind={kind}");
 

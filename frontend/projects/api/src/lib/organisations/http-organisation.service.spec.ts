@@ -15,6 +15,7 @@ const ORGANISATION: OrganisationDto = {
   roles: [
     { id: 'r1', key: 'Volunteer', name: 'Volunteer', description: '', chapterScopable: true },
   ],
+  partnerStages: [],
 };
 
 describe('HttpOrganisationService', () => {
@@ -98,6 +99,53 @@ describe('HttpOrganisationService', () => {
       expect(request.request.context.get(HANDLES_FORBIDDEN)).toBe(true);
       expect(request.request.context.get(HANDLES_SERVER_ERROR)).toBe(true);
       request.flush(chapter);
+      service.get().subscribe();
+      controller.expectOne('/api/organisation').flush(ORGANISATION);
+    });
+  });
+
+  it('lists, adds, changes, reorders and archives partner stages, each write reading the organisation afresh', () => {
+    const stage = {
+      id: 's1',
+      key: 'lead',
+      name: 'Lead',
+      isInitial: true,
+      kind: 'Open',
+      sortOrder: 1,
+      archived: false,
+      archivedAtUtc: null,
+      partnerCount: 4,
+    };
+    const lists: unknown[] = [];
+    service.listPartnerStages().subscribe((l) => lists.push(l));
+    service.listPartnerStages(true).subscribe((l) => lists.push(l));
+    controller.expectOne('/api/organisation/partner-stages').flush([stage]);
+    controller.expectOne('/api/organisation/partner-stages?archived=true').flush([]);
+    expect(lists).toEqual([[stage], []]);
+
+    const writes: (() => Observable<unknown>)[] = [
+      () => service.addPartnerStage('Proposal sent'),
+      () => service.updatePartnerStage('s1', { name: 'New' }),
+      () => service.updatePartnerStage('s1', { kind: 'Confirmed' }),
+      () => service.reorderPartnerStages(['s2', 's1']),
+      () => service.archivePartnerStage('s1'),
+    ];
+    const base = '/api/organisation/partner-stages';
+    const expected = [
+      { method: 'POST', url: base, body: { name: 'Proposal sent' } },
+      { method: 'PUT', url: `${base}/s1`, body: { name: 'New' } },
+      { method: 'PUT', url: `${base}/s1`, body: { kind: 'Confirmed' } },
+      { method: 'PUT', url: `${base}/order`, body: { ids: ['s2', 's1'] } },
+      { method: 'POST', url: `${base}/s1/archive`, body: null },
+    ];
+    writes.forEach((write, i) => {
+      service.get().subscribe();
+      controller.match('/api/organisation').forEach((r) => r.flush(ORGANISATION));
+      write().subscribe();
+      const request = controller.expectOne({ method: expected[i].method, url: expected[i].url });
+      expect(request.request.body).toEqual(expected[i].body);
+      expect(request.request.context.get(HANDLES_FORBIDDEN)).toBe(true);
+      request.flush(stage);
       service.get().subscribe();
       controller.expectOne('/api/organisation').flush(ORGANISATION);
     });

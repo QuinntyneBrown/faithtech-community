@@ -14,6 +14,7 @@ import {
   signal,
 } from '@angular/core';
 
+import { BadgeComponent } from '../badge/badge.component';
 import { ButtonComponent } from '../button/button.component';
 import { IconComponent } from '../icon/icon.component';
 import { ReorderableActionsDirective } from './reorderable-actions.directive';
@@ -27,7 +28,15 @@ import { ReorderableItem } from './reorderable-item';
  */
 @Component({
   selector: 'ft-reorderable-list',
-  imports: [CdkDrag, CdkDragHandle, CdkDropList, NgTemplateOutlet, ButtonComponent, IconComponent],
+  imports: [
+    CdkDrag,
+    CdkDragHandle,
+    CdkDropList,
+    NgTemplateOutlet,
+    BadgeComponent,
+    ButtonComponent,
+    IconComponent,
+  ],
   templateUrl: './reorderable-list.component.html',
   styleUrl: './reorderable-list.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,

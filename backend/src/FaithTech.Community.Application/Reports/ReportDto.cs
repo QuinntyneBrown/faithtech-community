@@ -2,7 +2,8 @@ namespace FaithTech.Community.Application.Reports;
 
 /// <summary>
 /// The whole report in one response (docs/detailed-designs/reports/reports-dashboard). Chapter is null for All
-/// {chapters}; Chapters lists the active chapters for the filter, empty while chapters are off, as is MembersByChapter.
+/// {chapters}; Chapters lists the active chapters for the filter, empty while chapters are off, as is MembersByChapter. Stages
+/// names the active partner stages in order: the pipeline's columns (L2-144 AC5).
 /// </summary>
 public record ReportDto(
     Guid? Chapter,
@@ -16,7 +17,8 @@ public record ReportDto(
     IReadOnlyList<ReportChartRowDto> MembersByChapter,
     IReadOnlyList<ReportMonthRowDto> NewMembersByMonth,
     IReadOnlyList<PartnerPipelineRowDto> PartnerPipeline,
-    IReadOnlyList<ReportEventRowDto> Events);
+    IReadOnlyList<ReportEventRowDto> Events,
+    IReadOnlyList<string> Stages);
 
 public record ReportFiguresDto(
     MembersFigureDto Members,
@@ -45,8 +47,11 @@ public record ReportMonthRowDto(string Month, string Label, int Value, bool SoFa
 /// <summary>An active chapter the report can be filtered by (L2-142 AC1).</summary>
 public record ReportChapterDto(Guid Id, string Name);
 
-/// <summary>Chapter names the row: a chapter, "No {chapter}", or "Partner pipeline" while chapters are off.</summary>
-public record PartnerPipelineRowDto(string Chapter, int Lead, int InFunnel, int Confirmed);
+/// <summary>
+/// Chapter names the row: a chapter, "No {chapter}", or "Partner pipeline" while chapters are off. Counts holds one count
+/// per active stage, in the order of the report's Stages (L2-144 AC5).
+/// </summary>
+public record PartnerPipelineRowDto(string Chapter, IReadOnlyList<int> Counts);
 
 /// <summary>
 /// Status is Held, Upcoming or Cancelled. Going, CheckedIn and CheckedInPercent are null for a cancelled event;

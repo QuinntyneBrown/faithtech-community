@@ -12,11 +12,10 @@ import {
 import {
   PARTNERS_SERVICE,
   PARTNER_ACTIVITY_LABELS,
-  PARTNER_STAGE_LABELS,
   PartnerActivityDto,
   PartnerDto,
   PartnerDuplicateDto,
-  PartnerStage,
+  PartnerStageKind,
 } from '@faithtech-community/api';
 import {
   AlertComponent,
@@ -60,10 +59,9 @@ function sentence(text: string): string {
   return text.endsWith('.') ? text : `${text}.`;
 }
 
-/** Stage badges as the mocks colour them. */
-export const STAGE_BADGES: Record<PartnerStage, BadgeVariant> = {
-  Lead: 'neutral',
-  InFunnel: 'warning',
+/** Stage badges by kind: a confirmed stage in success, any open stage neutral (L2-144 AC5). */
+export const STAGE_BADGES: Record<PartnerStageKind, BadgeVariant> = {
+  Open: 'neutral',
   Confirmed: 'success',
 };
 
@@ -107,7 +105,6 @@ export class PartnerPage {
 
   protected readonly state = signal<State>('loading');
   protected readonly partner = signal<PartnerDto | null>(null);
-  protected readonly labels = PARTNER_STAGE_LABELS;
   protected readonly badges = STAGE_BADGES;
   /** Bumped after a log or a move so the timeline fetches its first page again. */
   protected readonly timelineReload = signal(0);
@@ -201,7 +198,7 @@ export class PartnerPage {
     this.toasts.show({
       variant: 'success',
       heading: `${restored.name} restored`,
-      text: `It’s back on the board at ${this.labels[restored.stage]} with its own entries.`,
+      text: `It’s back on the board at ${restored.stageName} with its own entries.`,
     });
   }
 

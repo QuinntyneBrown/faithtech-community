@@ -8,6 +8,8 @@ import {
   ChapterDto,
   OrganisationDto,
   OrganisationService,
+  PartnerStageChange,
+  PartnerStageDto,
   UpdateOrganisationRequest,
 } from './organisation.service';
 
@@ -72,6 +74,51 @@ export class HttpOrganisationService implements OrganisationService {
     return this.write(
       this.http.post<ChapterDto>(
         `${this.base}/organisation/chapters/${id}/archive`,
+        null,
+        this.options(),
+      ),
+    );
+  }
+
+  listPartnerStages(archived = false): Observable<PartnerStageDto[]> {
+    const query = archived ? '?archived=true' : '';
+    return this.http.get<PartnerStageDto[]>(`${this.base}/organisation/partner-stages${query}`);
+  }
+
+  addPartnerStage(name: string): Observable<PartnerStageDto> {
+    return this.write(
+      this.http.post<PartnerStageDto>(
+        `${this.base}/organisation/partner-stages`,
+        { name },
+        this.options(),
+      ),
+    );
+  }
+
+  updatePartnerStage(id: string, change: PartnerStageChange): Observable<PartnerStageDto> {
+    return this.write(
+      this.http.put<PartnerStageDto>(
+        `${this.base}/organisation/partner-stages/${id}`,
+        change,
+        this.options(),
+      ),
+    );
+  }
+
+  reorderPartnerStages(ids: string[]): Observable<PartnerStageDto[]> {
+    return this.write(
+      this.http.put<PartnerStageDto[]>(
+        `${this.base}/organisation/partner-stages/order`,
+        { ids },
+        this.options(),
+      ),
+    );
+  }
+
+  archivePartnerStage(id: string): Observable<PartnerStageDto> {
+    return this.write(
+      this.http.post<PartnerStageDto>(
+        `${this.base}/organisation/partner-stages/${id}/archive`,
         null,
         this.options(),
       ),

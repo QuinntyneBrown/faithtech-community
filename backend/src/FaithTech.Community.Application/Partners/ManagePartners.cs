@@ -6,7 +6,10 @@ using Microsoft.EntityFrameworkCore;
 
 namespace FaithTech.Community.Application.Partners;
 
-/// <summary>A partner's details (L2-017). Stage applies on create only; an edit never changes it.</summary>
+/// <summary>
+/// A partner's details (L2-017). Stage is a stage key and applies on create only, the initial stage when absent
+/// (L2-144 AC3); an edit never changes it.
+/// </summary>
 public record PartnerCommand(
     string? Name,
     string? Website,
@@ -22,9 +25,6 @@ public static class PartnerRules
 {
     public const int MaxField = 200;
     public const int MaxNotes = 2000;
-
-    public static bool TryParseStage(string? value, out PartnerStage stage) =>
-        Enum.TryParse(value, ignoreCase: false, out stage) && Enum.IsDefined(stage);
 
     public static string? Blank(string? value) => string.IsNullOrWhiteSpace(value) ? null : value.Trim();
 }
@@ -45,9 +45,6 @@ public class PartnerValidator : AbstractValidator<PartnerCommand>
         RuleFor(x => x.Phone).Must(Short).WithMessage($"Use {PartnerRules.MaxField} characters or fewer for the phone.");
         RuleFor(x => x.Notes)
             .Must(n => (n?.Trim().Length ?? 0) <= PartnerRules.MaxNotes).WithMessage($"Use {PartnerRules.MaxNotes} characters or fewer for the notes.");
-        RuleFor(x => x.Stage)
-            .Must(s => PartnerRules.TryParseStage(s, out _)).When(x => !string.IsNullOrEmpty(x.Stage))
-            .WithMessage("Choose Lead, In funnel or Confirmed.");
     }
 
     private static bool Short(string? value) => (value?.Trim().Length ?? 0) <= PartnerRules.MaxField;
@@ -68,7 +65,14 @@ public class ManagePartnersHandler(IApplicationDbContext db, PartnerAccess acces
             return (invalid, null);
         }
 
-        var stage = PartnerRules.TryParseStage(command.Stage, out var chosen) ? chosen : PartnerStage.Lead;
+        var stage = string.IsNullOrEmpty(command.Stage)
+            ? await db.InitialAsync(cancellationToken)
+            : await db.ActiveAsync(command.Stage, cancellationToken);
+        if (stage is null)
+        {
+            return (Result.Invalid("Stage", "Choose a stage from the list."), null);
+        }
+
         var partner = new Partner(
             command.Name!.Trim(),
             PartnerRules.Blank(command.Website),
@@ -136,7 +140,10 @@ public class ManagePartnersHandler(IApplicationDbContext db, PartnerAccess acces
         return (Result.Ok(), await views.ToDtoAsync(partner, cancellationToken));
     }
 
-    /// <summary>The board: every active partner, by stage then name, with a count per stage (L2-018 AC1, L2-114 AC4).</summary>
+    /// <summary>
+    /// The board: one column per active stage in order, then one per archived stage that still holds partners, each with
+    /// its partners by name and their count (L2-018 AC1, L2-114 AC4, L2-144 AC3, AC4).
+    /// </summary>
     public async Task<PartnerBoardDto?> BoardAsync(CancellationToken cancellationToken = default)
     {
         if (!access.CanRead)
@@ -146,7 +153,7 @@ public class ManagePartnersHandler(IApplicationDbContext db, PartnerAccess acces
 
         var partners = await db.Partners.AsNoTracking()
             .Where(p => p.ArchivedAtUtc == null)
-            .Select(p => new { p.Id, p.Name, p.ContactName, p.Offering, p.Stage })
+            .Select(p => new { p.Id, p.Name, p.ContactName, p.Offering, p.StageId })
             .ToListAsync(cancellationToken);
         // One query for every card's next step: the first logged activity with one per partner, in timeline order.
         var steps = (await PartnerTimelineOrder.Newest(db.PartnerActivities.AsNoTracking().Where(a => a.NextStep != null))
@@ -154,16 +161,18 @@ public class ManagePartnersHandler(IApplicationDbContext db, PartnerAccess acces
                 .ToListAsync(cancellationToken))
             .GroupBy(a => a.PartnerId)
             .ToDictionary(g => g.Key, g => g.First());
-        var columns = Enum.GetValues<PartnerStage>()
+        var stages = await db.PartnerStages.AsNoTracking().OrderBy(s => s.SortOrder).ThenBy(s => s.Name).ToListAsync(cancellationToken);
+        var held = partners.Select(p => p.StageId).ToHashSet();
+        var columns = stages.Where(s => !s.IsArchived).Concat(stages.Where(s => s.IsArchived && held.Contains(s.Id)))
             .Select(stage =>
             {
-                var cards = partners.Where(p => p.Stage == stage)
+                var cards = partners.Where(p => p.StageId == stage.Id)
                     .OrderBy(p => p.Name, StringComparer.CurrentCultureIgnoreCase)
                     .Select(p => steps.TryGetValue(p.Id, out var step)
                         ? new PartnerCardDto(p.Id, p.Name, p.ContactName, p.Offering, step.NextStep, step.NextStepDue)
                         : new PartnerCardDto(p.Id, p.Name, p.ContactName, p.Offering))
                     .ToList();
-                return new PartnerColumnDto(stage.ToString(), cards.Count, cards);
+                return new PartnerColumnDto(stage.Key, cards.Count, cards, stage.Id, stage.Name, stage.Kind.ToString(), stage.IsArchived);
             })
             .ToList();
         return new PartnerBoardDto(columns, access.CanWrite);
@@ -196,5 +205,5 @@ public class ManagePartnersHandler(IApplicationDbContext db, PartnerAccess acces
     }
 
     internal static object Snapshot(Partner p) =>
-        new { p.Name, p.Website, p.Offering, p.OwnerId, p.ContactName, p.Email, p.Phone, p.Notes, Stage = p.Stage.ToString() };
+        new { p.Name, p.Website, p.Offering, p.OwnerId, p.ContactName, p.Email, p.Phone, p.Notes, Stage = p.Stage?.Key };
 }

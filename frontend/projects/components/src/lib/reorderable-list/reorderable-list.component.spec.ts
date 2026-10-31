@@ -22,7 +22,12 @@ import { ReorderableActionsDirective } from './reorderable-actions.directive';
 })
 class HostComponent {
   readonly items = signal<ReorderableItem[]>([
-    { id: 'a', title: 'Toronto', meta: '186 members' },
+    {
+      id: 'a',
+      title: 'Toronto',
+      meta: '186 members',
+      badges: [{ label: 'Initial', variant: 'info' }, { label: 'Open' }],
+    },
     { id: 'b', title: 'Austin', meta: '97 members' },
     { id: 'c', title: 'Vancouver', meta: '64 members' },
   ]);
@@ -42,6 +47,14 @@ function setup() {
 }
 
 describe('ReorderableListComponent', () => {
+  it('shows the badges of a row under its meta', () => {
+    const { host } = setup();
+    const badges = host
+      .querySelectorAll('.ft-reorderable-list__item')[0]
+      .querySelectorAll('ft-badge');
+    expect([...badges].map((b) => b.textContent?.trim())).toEqual(['Initial', 'Open']);
+  });
+
   it('lists each row with its meta, move buttons and actions, ends disabled', () => {
     const { host, button, titles } = setup();
     expect(host.querySelector('ul')!.getAttribute('aria-label')).toBe('Cities');

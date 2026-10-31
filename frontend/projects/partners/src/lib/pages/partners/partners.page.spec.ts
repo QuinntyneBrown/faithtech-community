@@ -14,7 +14,11 @@ const board: PartnerBoardDto = {
   canEdit: true,
   columns: [
     {
-      stage: 'Lead',
+      stage: 'lead',
+      stageId: 's1',
+      name: 'Lead',
+      kind: 'Open',
+      archived: false,
       count: 1,
       cards: [
         {
@@ -28,7 +32,11 @@ const board: PartnerBoardDto = {
       ],
     },
     {
-      stage: 'InFunnel',
+      stage: 'in-funnel',
+      stageId: 's2',
+      name: 'In Funnel',
+      kind: 'Open',
+      archived: false,
       count: 1,
       cards: [
         {
@@ -41,7 +49,15 @@ const board: PartnerBoardDto = {
         },
       ],
     },
-    { stage: 'Confirmed', count: 0, cards: [] },
+    {
+      stage: 'confirmed',
+      stageId: 's3',
+      name: 'Confirmed',
+      kind: 'Confirmed',
+      archived: false,
+      count: 0,
+      cards: [],
+    },
   ],
 };
 
@@ -89,14 +105,14 @@ async function setupBoard(
 }
 
 describe('PartnersPage', () => {
-  it('shows the pipeline in three columns with counts', async () => {
+  it('shows one column per stage of the organisation with counts', async () => {
     const { host, text, columns } = await setupBoard(() => of(board));
 
     expect(host.querySelector('h1')!.textContent).toContain('Partners');
     expect(text()).toContain('Shared by every lead · 2 partners');
     expect(columns()).toEqual([
       'Lead 1: Maple Street Church',
-      'In funnel 1: Kestrel Labs',
+      'In Funnel 1: Kestrel Labs',
       'Confirmed 0: ',
     ]);
     expect(host.querySelector('ft-kanban-card a')!.getAttribute('href')).toBe('/partners/x2');
@@ -112,7 +128,8 @@ describe('PartnersPage', () => {
     const created = partnerDto({
       id: 'x9',
       name: 'Lantern Foundation',
-      stage: 'Confirmed',
+      stage: 'confirmed',
+      stageName: 'Confirmed',
       contactName: null,
       offering: null,
     });
@@ -163,7 +180,12 @@ describe('PartnersPage', () => {
   });
 
   it('moves a partner with the Move dialog and announces it', async () => {
-    const moved = partnerDto({ id: 'x2', name: 'Maple Street Church', stage: 'Confirmed' });
+    const moved = partnerDto({
+      id: 'x2',
+      name: 'Maple Street Church',
+      stage: 'confirmed',
+      stageName: 'Confirmed',
+    });
     const { dialogs, button, columns, settle, host } = await setupBoard(
       () => of(structuredClone(board)),
       {
@@ -175,11 +197,11 @@ describe('PartnersPage', () => {
     await settle();
 
     expect(dialogs.open).toHaveBeenCalledWith(MovePartnerDialog, {
-      data: { partnerId: 'x2', name: 'Maple Street Church', stage: 'Lead' },
+      data: { partnerId: 'x2', name: 'Maple Street Church', stage: 'lead' },
     });
     expect(columns()).toEqual([
       'Lead 0: ',
-      'In funnel 1: Kestrel Labs',
+      'In Funnel 1: Kestrel Labs',
       'Confirmed 1: Maple Street Church',
     ]);
     expect(host.querySelector('[aria-live="polite"]')!.textContent).toContain(
@@ -191,20 +213,20 @@ describe('PartnersPage', () => {
     const { service, columns, settle, fixture } = await setupBoard(
       () => of(structuredClone(board)),
       {
-        move: () => of(partnerDto({ id: 'x1', stage: 'Lead' })),
+        move: () => of(partnerDto({ id: 'x1', stage: 'lead', stageName: 'Lead' })),
       },
     );
 
     const column = fixture.debugElement.queryAll((d) => d.name === 'ft-kanban-column')[0];
     column.componentInstance.cardDropped.emit({
       cardId: 'x1',
-      from: 'InFunnel',
-      to: 'Lead',
+      from: 'in-funnel',
+      to: 'lead',
       index: 0,
     });
     await settle();
 
-    expect(service.move).toHaveBeenCalledWith('x1', 'Lead');
+    expect(service.move).toHaveBeenCalledWith('x1', 'lead');
     expect(columns()[0]).toBe('Lead 2: Kestrel Labs, Maple Street Church');
   });
 
@@ -219,16 +241,45 @@ describe('PartnersPage', () => {
     const column = fixture.debugElement.queryAll((d) => d.name === 'ft-kanban-column')[0];
     column.componentInstance.cardDropped.emit({
       cardId: 'x1',
-      from: 'InFunnel',
-      to: 'Lead',
+      from: 'in-funnel',
+      to: 'lead',
       index: 0,
     });
     await settle();
 
-    expect(columns()[1]).toBe('In funnel 1: Kestrel Labs');
+    expect(columns()[1]).toBe('In Funnel 1: Kestrel Labs');
     expect(toasts.show).toHaveBeenCalledWith(
       expect.objectContaining({ variant: 'danger', heading: 'Partner not moved' }),
     );
+  });
+
+  it('lists a partner on an archived stage at the end until it is moved', async () => {
+    const withArchived: PartnerBoardDto = structuredClone(board);
+    withArchived.columns.push({
+      stage: 'prospect',
+      stageId: 's0',
+      name: 'Prospect',
+      kind: 'Open',
+      archived: true,
+      count: 1,
+      cards: [{ ...board.columns[1].cards[0], id: 'x5', name: 'Orchard Trust' }],
+    });
+    const { columns, settle, fixture } = await setupBoard(() => of(withArchived), {
+      move: () =>
+        of(partnerDto({ id: 'x5', name: 'Orchard Trust', stage: 'lead', stageName: 'Lead' })),
+    });
+
+    expect(columns()[3]).toBe('Archived stage: Prospect 1: Orchard Trust');
+    const archived = fixture.debugElement.queryAll((d) => d.name === 'ft-kanban-column')[3];
+    expect(archived.componentInstance.acceptsDrops()).toBe(false);
+
+    fixture.debugElement
+      .queryAll((d) => d.name === 'ft-kanban-column')[0]
+      .componentInstance.cardDropped.emit({ cardId: 'x5', from: 'prospect', to: 'lead', index: 0 });
+    await settle();
+
+    expect(columns()).toHaveLength(3);
+    expect(columns()[0]).toBe('Lead 2: Maple Street Church, Orchard Trust');
   });
 
   it('shows the stages as tabs with one column at a time on a phone', async () => {
@@ -237,12 +288,12 @@ describe('PartnersPage', () => {
     const tabs = Array.from(host.querySelectorAll('[role="tab"]')).map((t) =>
       t.textContent!.replace(/\s+/g, ' ').trim(),
     );
-    expect(tabs).toEqual(['Lead 1', 'In funnel 1', 'Confirmed 0']);
+    expect(tabs).toEqual(['Lead 1', 'In Funnel 1', 'Confirmed 0']);
     expect(columns()).toEqual(['Lead 1: Maple Street Church']);
 
     host.querySelectorAll<HTMLButtonElement>('[role="tab"]')[1].click();
     await settle();
 
-    expect(columns()).toEqual(['In funnel 1: Kestrel Labs']);
+    expect(columns()).toEqual(['In Funnel 1: Kestrel Labs']);
   });
 });

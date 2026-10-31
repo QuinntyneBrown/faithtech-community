@@ -17,6 +17,10 @@ export type MenuEntry =
       caption?: string;
       /** The id of the header of the group the item belongs to. */
       describedBy?: string;
+      /** One choice of a group, such as "Counts as": a menuitemradio, checked or not. */
+      checked?: boolean;
+      /** A destructive item, such as Archive, in the danger colour. */
+      danger?: boolean;
     };
 
 /**

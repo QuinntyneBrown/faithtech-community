@@ -64,8 +64,8 @@ public class ExportReportHandler(GetReportHandler reports, ICsvWriter csv, TimeP
             .. report.NewMembersByMonth.Select(m => (IReadOnlyList<string?>)[m.SoFar ? $"{m.Label} (so far)" : m.Label, Text(m.Value)]),
             [],
             [singular is null ? "Partner pipeline" : $"Partner pipeline by {lower}"],
-            [singular ?? "Pipeline", "Lead", "In funnel", "Confirmed"],
-            .. report.PartnerPipeline.Select(r => (IReadOnlyList<string?>)[r.Chapter, Text(r.Lead), Text(r.InFunnel), Text(r.Confirmed)]),
+            [singular ?? "Pipeline", .. report.Stages],
+            .. report.PartnerPipeline.Select(r => (IReadOnlyList<string?>)[r.Chapter, .. r.Counts.Select(c => Text(c))]),
             [],
             ["Events and attendance"],
             singular is null

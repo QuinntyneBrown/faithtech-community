@@ -12,7 +12,7 @@ test.describe('Possible duplicate partner', () => {
     });
     api.partners.add({
       name: 'Kestrel Labs',
-      stage: 'InFunnel',
+      stage: 'in-funnel',
       website: 'https://kestrel.example',
       offering: 'Venue for Builders Night',
     });

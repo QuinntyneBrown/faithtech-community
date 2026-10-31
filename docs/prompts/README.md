@@ -48,7 +48,7 @@ its own branch and ends with a pull request. Merge a slice before you start the 
 | 19 | [19-chapters-on-profiles-and-events.md](19-chapters-on-profiles-and-events.md) | Home chapter, event chapter, migration from city text | `L2-141` AC1, AC2, AC4 to AC6 | Done |
 | 20 | [20-chapter-filters-and-picker-suffixes.md](20-chapter-filters-and-picker-suffixes.md) | Team, events, People and Reports chapter filters, picker suffixes | `L2-142` | Done |
 | 21 | [21-chapter-tagged-roles-and-scoped-granting.md](21-chapter-tagged-roles-and-scoped-granting.md) | "{role} · {chapter}", chapter-scoped grantors | `L2-141` AC3, `L2-138` AC6, `L2-143` | Done |
-| 22 | [22-partner-stages.md](22-partner-stages.md) | Stages list, board columns, counting by kind, Stages & types tab | `L2-144` | To do |
+| 22 | [22-partner-stages.md](22-partner-stages.md) | Stages list, board columns, counting by kind, Stages & types tab | `L2-144` | Done |
 | 23 | [23-event-types.md](23-event-types.md) | Event types list, form and filter | `L2-145` | To do |
 | 24 | [24-resource-types.md](24-resource-types.md) | Resource types list, guess by key | `L2-146` | To do |
 | 25 | [25-organisation-audit-categories-and-read-scope.md](25-organisation-audit-categories-and-read-scope.md) | Audit categories, partial read scope | `L2-152` AC2, AC3 | To do |

@@ -7,8 +7,8 @@ import {
   canManageEvents,
   EVENTS_SERVICE,
   EventSummaryDto,
+  ORGANISATION_SERVICE,
   OrganisationNames,
-  PARTNER_STAGE_LABELS,
   PARTNERS_SERVICE,
   hasAny,
 } from '@faithtech-community/api';
@@ -110,6 +110,7 @@ export class HomePage {
   private readonly auth = inject(AUTH_SERVICE);
   private readonly events = inject(EVENTS_SERVICE);
   private readonly partners = inject(PARTNERS_SERVICE);
+  private readonly settings = inject(ORGANISATION_SERVICE);
   private readonly activity = inject(ACTIVITY_SERVICE);
 
   /** Notifications carry no actor yet (PR #335), so the organisation speaks for them. */
@@ -156,9 +157,8 @@ export class HomePage {
   });
 
   protected readonly pipelineState = signal<Load>('loading');
-  protected readonly stats = signal<StatRow[]>(
-    Object.values(PARTNER_STAGE_LABELS).map((label) => ({ label, count: 0 })),
-  );
+  /** One count per active stage of the organisation, in its order (L2-144 AC5). */
+  protected readonly stats = signal<StatRow[]>([]);
   protected readonly noPartners = computed(() => this.stats().every((s) => s.count === 0));
   protected readonly retryingPipeline = signal(false);
 
@@ -212,11 +212,21 @@ export class HomePage {
   }
 
   private async loadPipeline(showSkeleton = true): Promise<void> {
-    if (showSkeleton) this.pipelineState.set('loading');
+    if (showSkeleton) {
+      this.pipelineState.set('loading');
+      // The skeleton names the organisation's stages until the board's counts arrive.
+      this.settings.get().subscribe({
+        next: (o) => {
+          if (this.pipelineState() === 'loading')
+            this.stats.set(o.partnerStages.map((s) => ({ label: s.name, count: 0 })));
+        },
+        error: () => undefined,
+      });
+    }
     try {
       const board = await firstValueFrom(this.partners.getBoard());
       this.stats.set(
-        board.columns.map((c) => ({ label: PARTNER_STAGE_LABELS[c.stage], count: c.count })),
+        board.columns.filter((c) => !c.archived).map((c) => ({ label: c.name, count: c.count })),
       );
       this.pipelineState.set('loaded');
     } catch {

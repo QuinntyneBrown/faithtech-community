@@ -5,7 +5,7 @@ import { TestBed } from '@angular/core/testing';
 import { PARTNERS_SERVICE, PartnerDto } from '@faithtech-community/api';
 import { Observable, of, throwError } from 'rxjs';
 
-import { partnerDto } from '../../testing';
+import { organisationWithStages, partnerDto } from '../../testing';
 import { AddPartnerDialog } from './add-partner.dialog';
 
 async function setup(create: () => Observable<PartnerDto>) {
@@ -18,6 +18,7 @@ async function setup(create: () => Observable<PartnerDto>) {
     providers: [
       { provide: DialogRef, useValue: ref },
       { provide: PARTNERS_SERVICE, useValue: service },
+      organisationWithStages(),
     ],
   });
   const fixture = TestBed.createComponent(AddPartnerDialog);
@@ -52,11 +53,16 @@ async function setup(create: () => Observable<PartnerDto>) {
 }
 
 describe('AddPartnerDialog', () => {
-  it('starts at the Lead stage and offers the leads as owners', async () => {
+  it('starts at the initial stage and offers the leads as owners', async () => {
     const { field, text } = await setup(() => of(partnerDto()));
 
     expect(text()).toContain('Partners are shared with every lead.');
-    expect((field('Stage') as HTMLSelectElement).value).toBe('Lead');
+    expect((field('Stage') as HTMLSelectElement).value).toBe('lead');
+    expect(Array.from((field('Stage') as HTMLSelectElement).options).map((o) => o.text)).toEqual([
+      'Lead',
+      'In Funnel',
+      'Confirmed',
+    ]);
     expect(Array.from((field('Owner') as HTMLSelectElement).options).map((o) => o.text)).toEqual([
       'No owner',
       'Grace Okonkwo',
@@ -69,7 +75,7 @@ describe('AddPartnerDialog', () => {
 
     set('Organisation', ' Lantern Foundation ');
     set('Website', 'lantern.example');
-    set('Stage', 'InFunnel');
+    set('Stage', 'in-funnel');
     set('Main contact', 'Ada Mwangi');
     set('Email', 'ada@lantern.example');
     set('What they could offer', 'Grant funding for shelter technology.');
@@ -85,7 +91,7 @@ describe('AddPartnerDialog', () => {
       email: 'ada@lantern.example',
       phone: null,
       notes: null,
-      stage: 'InFunnel',
+      stage: 'in-funnel',
     });
     expect(ref.close).toHaveBeenCalledWith(created);
   });

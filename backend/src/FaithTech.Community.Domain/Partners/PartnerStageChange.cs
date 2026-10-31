@@ -9,7 +9,7 @@ public class PartnerStageChange : IOrganisationScoped
 
     private PartnerStageChange() { }
 
-    internal PartnerStageChange(Guid partnerId, PartnerStage from, PartnerStage to, Guid movedBy, DateTime movedAtUtc, string? note)
+    internal PartnerStageChange(Guid partnerId, string from, string to, Guid movedBy, DateTime movedAtUtc, string? note)
     {
         Id = Guid.NewGuid();
         PartnerId = partnerId;
@@ -24,9 +24,11 @@ public class PartnerStageChange : IOrganisationScoped
 
     public Guid PartnerId { get; private set; }
 
-    public PartnerStage From { get; private set; }
+    /// <summary>The key of the stage the partner left (L2-144 AC6).</summary>
+    public string From { get; private set; } = string.Empty;
 
-    public PartnerStage To { get; private set; }
+    /// <summary>The key of the stage the partner moved to.</summary>
+    public string To { get; private set; } = string.Empty;
 
     public Guid MovedBy { get; private set; }
 

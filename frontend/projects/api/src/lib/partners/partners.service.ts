@@ -1,15 +1,11 @@
 import { InjectionToken } from '@angular/core';
 import { Observable } from 'rxjs';
 
-export const PARTNER_STAGES = ['Lead', 'InFunnel', 'Confirmed'] as const;
-export type PartnerStage = (typeof PARTNER_STAGES)[number];
+/** A partner stage's key: the organisation defines its stages (L2-144); names come from the DTOs. */
+export type PartnerStage = string;
 
-/** How each stage is written on screen. */
-export const PARTNER_STAGE_LABELS: Record<PartnerStage, string> = {
-  Lead: 'Lead',
-  InFunnel: 'In funnel',
-  Confirmed: 'Confirmed',
-};
+/** Whether partners on a stage count as confirmed on Home and in Reports (L2-144 AC5). */
+export type PartnerStageKind = 'Open' | 'Confirmed';
 
 export interface PartnerRequest {
   name: string;
@@ -24,7 +20,7 @@ export interface PartnerRequest {
 }
 
 export interface NewPartnerRequest extends PartnerRequest {
-  /** Lead when left out. */
+  /** A stage key; the initial stage when left out (L2-144 AC3). */
   stage?: PartnerStage;
 }
 
@@ -113,7 +109,11 @@ export interface PartnerDto {
   email: string | null;
   phone: string | null;
   notes: string | null;
+  /** The stage's key. */
   stage: PartnerStage;
+  /** The stage's current name, with "(archived)" once archived (L2-144 AC6). */
+  stageName: string;
+  stageKind: PartnerStageKind;
   /** False for Staff, who see the pipeline read-only. */
   canEdit: boolean;
   /** yyyy-MM-dd of the latest timeline entry (L2-111 AC7). */
@@ -200,13 +200,20 @@ export interface PartnerCardDto {
   nextStepDue: string | null;
 }
 
+/** One column per active stage, then one per archived stage that still holds partners (L2-144 AC3, AC4). */
 export interface PartnerColumnDto {
+  /** The stage's key. */
   stage: PartnerStage;
   count: number;
   cards: PartnerCardDto[];
+  stageId: string;
+  name: string;
+  kind: PartnerStageKind;
+  /** An archived stage's column: "Archived stage: {name}", with no drop target. */
+  archived: boolean;
 }
 
-/** The three stages in order (L2-018 AC1). */
+/** The organisation's stages in order (L2-018 AC1, L2-144 AC3). */
 export interface PartnerBoardDto {
   columns: PartnerColumnDto[];
   canEdit: boolean;

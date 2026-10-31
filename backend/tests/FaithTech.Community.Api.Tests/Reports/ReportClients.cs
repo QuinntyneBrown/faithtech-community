@@ -1,5 +1,6 @@
 using FaithTech.Community.Api.Tests.Organisations;
 using System.Net.Http.Json;
+using System.Text.Json.Serialization;
 using FaithTech.Community.Api.Tests.Profiles;
 using FaithTech.Community.Domain.Announcements;
 using FaithTech.Community.Domain.Contacts;
@@ -36,7 +37,28 @@ public static class ReportClients
 
     public sealed record MonthRow(string Month, string Label, int Value, bool SoFar);
 
-    public sealed record PipelineRow(string Chapter, int Lead, int InFunnel, int Confirmed);
+    /// <summary>A pipeline row: one count per active stage, in the order of the report's stages (L2-144 AC5).</summary>
+    public sealed record PipelineRow
+    {
+        [JsonConstructor]
+        public PipelineRow(string chapter, int[] counts) => (Chapter, Counts) = (chapter, counts);
+
+        /// <summary>A row for FaithTech's seeded stages: Lead, In Funnel and Confirmed.</summary>
+        public PipelineRow(string chapter, int lead, int inFunnel, int confirmed)
+            : this(chapter, [lead, inFunnel, confirmed])
+        {
+        }
+
+        public string Chapter { get; }
+
+        public int[] Counts { get; }
+
+        public bool Equals(PipelineRow? other) => other is not null && Chapter == other.Chapter && Counts.SequenceEqual(other.Counts);
+
+        public override int GetHashCode() => Chapter.GetHashCode();
+
+        public override string ToString() => $"{Chapter}: {string.Join(", ", Counts)}";
+    }
 
     public sealed record EventRow(
         Guid Id, string Title, DateTimeOffset StartsAt, string? Chapter, string Status, int? Going, int? CheckedIn, int? CheckedInPercent);
@@ -55,7 +77,8 @@ public static class ReportClients
         ChartRow[] MembersByChapter,
         MonthRow[] NewMembersByMonth,
         PipelineRow[] PartnerPipeline,
-        EventRow[] Events);
+        EventRow[] Events,
+        string[] Stages);
 
     /// <summary>A new factory on the fixed clock: report figures are global, so each test needs its own data set.</summary>
     public static async Task<CommunityApiFactory> NewFactoryAsync()
@@ -156,10 +179,10 @@ public static class ReportClients
         });
 
     public static Task<Partner> AddReportPartnerAsync(
-        this CommunityApiFactory factory, string name, Guid? ownerId, PartnerStage stage = PartnerStage.Lead, Guid? mergedInto = null) =>
+        this CommunityApiFactory factory, string name, Guid? ownerId, string stage = "lead", Guid? mergedInto = null) =>
         factory.WithDbAsync(async db =>
         {
-            var partner = new Partner(name, null, null, ownerId, null, null, null, null, stage);
+            var partner = new Partner(name, null, null, ownerId, null, null, null, null, await db.PartnerStages.SingleAsync(s => s.Key == stage));
             if (mergedInto is { } kept)
             {
                 partner.ArchiveAsMergedInto(kept, Guid.NewGuid(), Now.UtcDateTime);

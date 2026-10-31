@@ -58,10 +58,10 @@ async function arrange(api: MockApi) {
     endsAt: '2026-04-11T20:00:00Z',
   });
   for (const [name, stage] of [
-    ['Kestrel Labs', 'Lead'],
-    ['Northwind Church', 'Lead'],
-    ['Maple Grants', 'InFunnel'],
-    ['Harbour Trust', 'Confirmed'],
+    ['Kestrel Labs', 'lead'],
+    ['Northwind Church', 'lead'],
+    ['Maple Grants', 'in-funnel'],
+    ['Harbour Trust', 'confirmed'],
   ] as const) {
     api.partners.add({ name, stage });
   }
@@ -140,7 +140,7 @@ test.describe('Home', () => {
     await expect(home.staffBanner).toHaveCount(0);
 
     await expect(home.stat('Lead')).toContainText('2');
-    await expect(home.stat('In funnel')).toContainText('1');
+    await expect(home.stat('In Funnel')).toContainText('1');
     await expect(home.stat('Confirmed')).toContainText('1');
     await expect(home.openBoard).toHaveAttribute('href', '/partners');
 
@@ -307,7 +307,7 @@ test.describe('Home', () => {
     await expect(home.nothingComingUp).toBeVisible();
     await expect(home.allEvents).toBeVisible();
     await expect(home.stat('Lead')).toContainText('0');
-    await expect(home.stat('In funnel')).toContainText('0');
+    await expect(home.stat('In Funnel')).toContainText('0');
     await expect(home.stat('Confirmed')).toContainText('0');
     await expect(home.noPartners).toBeVisible();
     await axe.check();

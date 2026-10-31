@@ -97,15 +97,15 @@ export function seedReportData(api: MockApi): ReportData {
   const kestrel = api.partners.add({
     name: 'Kestrel Labs',
     ownerId: grace.profileId,
-    stage: 'Confirmed',
+    stage: 'confirmed',
   });
-  api.partners.add({ name: 'Maple Church', ownerId: grace.profileId, stage: 'Lead' });
-  api.partners.add({ name: 'Lone Star Studio', ownerId: ruth.profileId, stage: 'InFunnel' });
-  api.partners.add({ name: 'Orphan Co', ownerId: null, stage: 'Confirmed' });
+  api.partners.add({ name: 'Maple Church', ownerId: grace.profileId, stage: 'lead' });
+  api.partners.add({ name: 'Lone Star Studio', ownerId: ruth.profileId, stage: 'in-funnel' });
+  api.partners.add({ name: 'Orphan Co', ownerId: null, stage: 'confirmed' });
   api.partners.add({
     name: 'Kestrel Labs Inc',
     ownerId: grace.profileId,
-    stage: 'Confirmed',
+    stage: 'confirmed',
     archivedAtUtc: daysAgo(api, 2),
     mergedIntoId: kestrel.id,
   });

@@ -5,7 +5,7 @@ using Microsoft.EntityFrameworkCore;
 namespace FaithTech.Community.Application.Partners;
 
 /// <summary>
-/// A partner record. Stage is Lead, InFunnel or Confirmed. LastActivityOn is the latest timeline
+/// A partner record. Stage is the stage key and StageName its current name, with "(archived)" once archived (L2-144 AC6). LastActivityOn is the latest timeline
 /// entry's date; NextStep is the latest logged activity's next step (L2-111 AC6, AC7).
 /// </summary>
 public record PartnerDto(
@@ -27,7 +27,9 @@ public record PartnerDto(
     bool CanLogActivity,
     int Version,
     PartnerArchivedDto? Archived,
-    bool CanRestore);
+    bool CanRestore,
+    string? StageName = null,
+    string? StageKind = null);
 
 /// <summary>Who merged an archived partner, when and into which partner (L2-114 AC7); MergedIntoVersion feeds a restore.</summary>
 public record PartnerArchivedDto(
@@ -40,9 +42,14 @@ public record PartnerArchivedDto(
 
 public record PartnerCardDto(Guid Id, string Name, string? ContactName, string? Offering, string? NextStep = null, DateOnly? NextStepDue = null);
 
-public record PartnerColumnDto(string Stage, int Count, IReadOnlyList<PartnerCardDto> Cards);
+/// <summary>
+/// A board column: the stage's key, its partners and their count, and the stage's id, name, kind (Open or Confirmed)
+/// and whether it is archived, for the "Archived stage: {name}" column (L2-144 AC3, AC4).
+/// </summary>
+public record PartnerColumnDto(
+    string Stage, int Count, IReadOnlyList<PartnerCardDto> Cards, Guid StageId, string Name, string Kind, bool Archived);
 
-/// <summary>The board: the three stages in order with their counts (L2-018 AC1).</summary>
+/// <summary>The board: the organisation's stages in order with their counts (L2-018 AC1, L2-144 AC3).</summary>
 public record PartnerBoardDto(IReadOnlyList<PartnerColumnDto> Columns, bool CanEdit);
 
 public record PartnerOwnerDto(Guid ProfileId, string Name);
@@ -82,7 +89,7 @@ public class PartnerViews(IApplicationDbContext db, PartnerAccess access)
             partner.Email,
             partner.Phone,
             partner.Notes,
-            partner.Stage.ToString(),
+            partner.Stage?.Key ?? string.Empty,
             canWrite,
             last,
             next?.NextStep,
@@ -90,6 +97,8 @@ public class PartnerViews(IApplicationDbContext db, PartnerAccess access)
             canWrite,
             partner.Version,
             archived,
-            access.CanRestore && partner.IsArchived);
+            access.CanRestore && partner.IsArchived,
+            partner.Stage is { IsArchived: true } stage ? $"{stage.Name} (archived)" : partner.Stage?.Name,
+            partner.Stage?.Kind.ToString());
     }
 }

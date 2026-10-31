@@ -70,10 +70,10 @@ public class PartnersSearchSource(IApplicationDbContext db, IFullTextSearch text
             .Match(db.Partners.AsNoTracking().Where(p => p.ArchivedAtUtc == null), term,
                 p => p.Name + " " + (p.Offering ?? "") + " " + (p.ContactName ?? "") + " " + (p.Notes ?? ""))
             .Take(limit)
-            .Select(p => new { p.Id, p.Name, p.ContactName, p.Offering, p.Stage })
+            .Select(p => new { p.Id, p.Name, p.ContactName, p.Offering, Stage = p.Stage!.Name })
             .ToListAsync(cancellationToken);
         return [.. rows.Select(p => new SearchResultItem(
-            p.Id, p.Name, Snippets.Join(p.ContactName, p.Offering), $"/partners/{p.Id}", Badge: p.Stage.ToString()))];
+            p.Id, p.Name, Snippets.Join(p.ContactName, p.Offering), $"/partners/{p.Id}", Badge: p.Stage))];
     }
 }
 

@@ -25,7 +25,7 @@ test.describe('Organisation settings: General', () => {
     await shell.navLink('Organisation').click();
     await expect(page).toHaveURL(/\/organisation$/);
     await expect(general.heading).toHaveText('FaithTech Community');
-    await expect(general.tabs).toHaveText(['General', 'Roles', 'Cities']);
+    await expect(general.tabs).toHaveText(['General', 'Roles', 'Cities', 'Stages & types']);
     await expect(general.value('Name')).toHaveText('FaithTech Community');
     await expect(general.value('Short name')).toHaveText('FaithTech');
     await expect(general.value('Chapters')).toHaveText('On, called City / Cities');

@@ -15,7 +15,7 @@ for (const name of Object.keys(BREAKPOINTS) as BreakpointName[]) {
     const grace = api.addAccount({ email: 'grace@example.org', roles: ['CityLead'] });
     const kestrel = api.partners.add({
       name: 'Kestrel Labs',
-      stage: 'InFunnel',
+      stage: 'in-funnel',
       contactName: 'Nadia Petrov',
       offering: 'Hosting Builders Night · contract review',
     });

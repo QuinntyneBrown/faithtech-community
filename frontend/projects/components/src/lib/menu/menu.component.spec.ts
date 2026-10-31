@@ -84,6 +84,28 @@ describe('MenuComponent', () => {
     expect(item.textContent).toContain('Northside Makers');
   });
 
+  it('renders a choice as a checked menuitemradio and a destructive item in danger', () => {
+    const { fixture, open } = setup();
+    fixture.componentInstance.entries.set([
+      { kind: 'header', title: 'Counts as' },
+      { kind: 'item', id: 'kind:Open', label: 'Open', checked: true },
+      { kind: 'item', id: 'kind:Confirmed', label: 'Confirmed', checked: false },
+      { kind: 'divider' },
+      { kind: 'item', id: 'archive', label: 'Archive', danger: true },
+    ]);
+    fixture.detectChanges();
+    const menu = open()!;
+
+    const radios = [...menu.querySelectorAll('[role="menuitemradio"]')];
+    expect(radios.map((r) => [r.textContent?.trim(), r.getAttribute('aria-checked')])).toEqual([
+      ['Open', 'true'],
+      ['Confirmed', 'false'],
+    ]);
+    const archive = menu.querySelector('[role="menuitem"]')!;
+    expect(archive.textContent?.trim()).toBe('Archive');
+    expect(archive.classList).toContain('ft-menu-item--danger');
+  });
+
   it('emits the item id and closes when an item is chosen', () => {
     const { fixture, open } = setup();
     const menu = open()!;

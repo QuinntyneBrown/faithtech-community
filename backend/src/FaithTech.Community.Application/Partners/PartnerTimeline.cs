@@ -149,13 +149,14 @@ public class PartnerTimelineViews(IApplicationDbContext db)
             : await db.Partners.AsNoTracking().Where(p => partnerIds.Contains(p.Id))
                 .ToDictionaryAsync(p => p.Id, p => p.Name, cancellationToken);
         string? PartnerName(Guid? id) => id is { } known ? partners.GetValueOrDefault(known) : null;
+        var stages = await db.NamesAsync(cancellationToken);
         return
         [
             .. activities.Select(a => new PartnerActivityDto(
                 a.Id,
                 a.Kind.ToString(),
                 a.Summary,
-                Text(PartnerName(a.MergedFromPartnerId) ?? partner.Name, PartnerName(a.RelatedPartnerId) ?? "another partner", a),
+                Text(PartnerName(a.MergedFromPartnerId) ?? partner.Name, PartnerName(a.RelatedPartnerId) ?? "another partner", a, stages),
                 a.OccurredOn,
                 a.OccurredAt,
                 a.NextStep,
@@ -163,8 +164,8 @@ public class PartnerTimelineViews(IApplicationDbContext db)
                 a.LoggedById,
                 names.GetValueOrDefault(a.LoggedById, "A former member"),
                 a.LoggedAtUtc,
-                a.FromStage?.ToString(),
-                a.ToStage?.ToString(),
+                a.FromStage,
+                a.ToStage,
                 a.RelatedPartnerId,
                 PartnerName(a.RelatedPartnerId),
                 a.MergedFromPartnerId,
@@ -175,14 +176,16 @@ public class PartnerTimelineViews(IApplicationDbContext db)
     /// <summary>
     /// The sentence the timeline shows, with current names. {name} is the record the entry was first
     /// written on, so a moved "Added Kestrel Labs Inc. as a lead" keeps its own name; {other} is the
-    /// other partner of a Merged or Restored entry.
+    /// other partner of a Merged or Restored entry. Stages show their current name, with "(archived)" once archived, and
+    /// an entry added on the initial stage reads "as a {stage}" (L2-144 AC6).
     /// </summary>
-    private static string Text(string name, string other, PartnerActivity activity) => activity.Kind switch
+    private static string Text(string name, string other, PartnerActivity activity, StageNames stages) => activity.Kind switch
     {
-        PartnerActivityKind.Added when activity.ToStage is null or PartnerStage.Lead => $"Added {name} as a lead",
-        PartnerActivityKind.Added => $"Added {name} at {StageLabel(activity.ToStage!.Value)}",
+        PartnerActivityKind.Added when activity.ToStage is null => $"Added {name}",
+        PartnerActivityKind.Added when activity.ToStage == stages.InitialKey => $"Added {name} as {AsA(stages.Of(activity.ToStage))}",
+        PartnerActivityKind.Added => $"Added {name} at {stages.Of(activity.ToStage)}",
         PartnerActivityKind.StageMoved =>
-            $"Moved {name} from {StageLabel(activity.FromStage!.Value)} to {StageLabel(activity.ToStage!.Value)}"
+            $"Moved {name} from {stages.Of(activity.FromStage!)} to {stages.Of(activity.ToStage!)}"
             + (activity.Summary is { } note ? $": “{note}”" : string.Empty),
         PartnerActivityKind.Merged => $"Merged {other} into {name}",
         // The restored record's entry carries the stage it came back at; the kept record's has none.
@@ -191,12 +194,12 @@ public class PartnerTimelineViews(IApplicationDbContext db)
         _ => activity.Summary ?? string.Empty,
     };
 
-    public static string StageLabel(PartnerStage stage) => stage switch
+    /// <summary>"a lead", "an applicant": the stage's name in lower case with its article.</summary>
+    private static string AsA(string stage)
     {
-        PartnerStage.Lead => "Lead",
-        PartnerStage.InFunnel => "In funnel",
-        _ => "Confirmed",
-    };
+        var lower = stage.ToLowerInvariant();
+        return ("aeiou".Contains(lower[0]) ? "an " : "a ") + lower;
+    }
 }
 
 /// <summary>The "before" value of a timeline page: the oldest entry shown, as opaque base64url.</summary>

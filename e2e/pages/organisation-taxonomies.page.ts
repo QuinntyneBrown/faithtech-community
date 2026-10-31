@@ -1,0 +1,79 @@
+import { Locator, Page } from '@playwright/test';
+
+/** The Organisation section's Stages & types tab at /organisation/taxonomies (docs/mocks/pages/organisation-taxonomies). */
+export class OrganisationTaxonomiesPage {
+  readonly tab: Locator;
+  readonly active: Locator;
+  readonly archived: Locator;
+  readonly readOnly: Locator;
+  readonly loadError: Locator;
+  readonly tryAgain: Locator;
+  readonly stages: Locator;
+  readonly archivedStages: Locator;
+  readonly addStage: Locator;
+
+  constructor(private readonly page: Page) {
+    this.tab = page
+      .getByRole('navigation', { name: 'Organisation settings' })
+      .getByRole('link', { name: 'Stages & types', exact: true });
+    this.active = page.getByRole('button', { name: 'Active', exact: true });
+    this.archived = page.getByRole('button', { name: 'Archived', exact: true });
+    this.readOnly = page.getByText('You can view these settings but not change them.');
+    this.loadError = page.getByRole('heading', { name: 'We couldn’t load the stages and types' });
+    this.tryAgain = page.getByRole('button', { name: 'Try again' });
+    this.stages = page.getByRole('list', { name: 'Partner stages', exact: true });
+    this.archivedStages = page.getByRole('list', { name: 'Archived partner stages' });
+    this.addStage = page.getByRole('button', { name: 'Add a stage', exact: true });
+  }
+
+  async open(): Promise<void> {
+    await this.page.goto('/organisation/taxonomies');
+  }
+
+  /** The active stage names, in the order the list shows them. */
+  async stageNames(): Promise<string[]> {
+    return (
+      await this.stages
+        .getByRole('listitem')
+        .locator('.ft-reorderable-list__title')
+        .allTextContents()
+    ).map((t) => t.trim());
+  }
+
+  row(name: string): Locator {
+    return this.page
+      .getByRole('main')
+      .getByRole('listitem')
+      .filter({ has: this.page.getByText(name, { exact: true }) });
+  }
+
+  moveDown(name: string): Locator {
+    return this.page.getByRole('button', { name: `Move ${name} down`, exact: true });
+  }
+
+  /** The row's "More actions for {name}" menu button. */
+  menu(name: string): Locator {
+    return this.page.getByRole('button', { name: `More actions for ${name}`, exact: true });
+  }
+
+  /** An item of the open row menu: Rename, Set as initial, Archive, or a "Counts as" choice. */
+  menuItem(label: string): Locator {
+    return this.page
+      .getByRole('menu')
+      .getByRole(/^(Open|Confirmed)$/.test(label) ? 'menuitemradio' : 'menuitem', {
+        name: label,
+        exact: true,
+      });
+  }
+
+  /** Opens the row's menu and chooses an item. */
+  async choose(name: string, item: string): Promise<void> {
+    await this.menu(name).click();
+    await this.menuItem(item).click();
+  }
+
+  /** A success or danger toast by its heading. */
+  toast(heading: string): Locator {
+    return this.page.locator('ft-toast').filter({ hasText: heading });
+  }
+}

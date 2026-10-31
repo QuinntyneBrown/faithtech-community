@@ -31,7 +31,7 @@ export class PartnersPage {
     await this.page.goto('/partners');
   }
 
-  /** A stage column by its heading, e.g. "In funnel". */
+  /** A stage column by its heading, e.g. "In Funnel". */
   column(title: string): Locator {
     return this.board.getByRole('region', { name: title, exact: true });
   }

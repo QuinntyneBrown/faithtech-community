@@ -8,58 +8,58 @@ public class PartnerTests
     private static readonly DateTime Now = new(2026, 10, 21, 12, 0, 0, DateTimeKind.Utc);
     private static readonly Guid Lead = Guid.NewGuid();
 
-    private static Partner NewPartner(PartnerStage stage = PartnerStage.Lead) =>
-        new("Grace Church", "https://grace.example.org", "Venue", Lead, "Pat", "pat@grace.example.org", "555-0100", "Warm intro", stage);
+    private static Partner NewPartner(string stage = "lead") =>
+        new("Grace Church", "https://grace.example.org", "Venue", Lead, "Pat", "pat@grace.example.org", "555-0100", "Warm intro", TestStages.Of(stage));
 
     [Fact]
-    public void A_new_partner_starts_at_the_lead_stage_by_default()
+    public void A_new_partner_starts_on_the_stage_it_is_given()
     {
-        var partner = new Partner("Grace Church", null, null, null, null, null, null, null);
+        var partner = new Partner("Grace Church", null, null, null, null, null, null, null, TestStages.Lead);
 
-        Assert.Equal(PartnerStage.Lead, partner.Stage);
+        Assert.Equal(TestStages.Lead.Id, partner.StageId);
         Assert.Empty(partner.StageChanges);
     }
 
     [Fact]
     public void A_partner_holds_its_details_and_chosen_stage()
     {
-        var partner = NewPartner(PartnerStage.InFunnel);
+        var partner = NewPartner("in-funnel");
 
         Assert.Equal(
-            ("Grace Church", (string?)"https://grace.example.org", (string?)"Venue", (Guid?)Lead, (string?)"Pat", (string?)"pat@grace.example.org", (string?)"555-0100", (string?)"Warm intro", PartnerStage.InFunnel),
-            (partner.Name, partner.Website, partner.Offering, partner.OwnerId, partner.ContactName, partner.Email, partner.Phone, partner.Notes, partner.Stage));
+            ("Grace Church", (string?)"https://grace.example.org", (string?)"Venue", (Guid?)Lead, (string?)"Pat", (string?)"pat@grace.example.org", (string?)"555-0100", (string?)"Warm intro", "in-funnel"),
+            (partner.Name, partner.Website, partner.Offering, partner.OwnerId, partner.ContactName, partner.Email, partner.Phone, partner.Notes, partner.Stage!.Key));
     }
 
     [Fact]
     public void A_partner_needs_a_name()
     {
-        Assert.Throws<ArgumentException>(() => new Partner("", null, null, null, null, null, null, null));
+        Assert.Throws<ArgumentException>(() => new Partner("", null, null, null, null, null, null, null, TestStages.Lead));
     }
 
     [Fact]
     public void Updating_changes_the_details_but_not_the_stage()
     {
-        var partner = NewPartner(PartnerStage.Confirmed);
+        var partner = NewPartner("confirmed");
 
         partner.Update("Grace Community Church", null, "Space and volunteers", null, "Sam", null, null, null);
 
         Assert.Equal(
-            ("Grace Community Church", (string?)"Space and volunteers", (Guid?)null, (string?)"Sam", PartnerStage.Confirmed),
-            (partner.Name, partner.Offering, partner.OwnerId, partner.ContactName, partner.Stage));
+            ("Grace Community Church", (string?)"Space and volunteers", (Guid?)null, (string?)"Sam", "confirmed"),
+            (partner.Name, partner.Offering, partner.OwnerId, partner.ContactName, partner.Stage!.Key));
     }
 
     [Theory]
-    [InlineData(PartnerStage.Lead, PartnerStage.InFunnel)]
-    [InlineData(PartnerStage.InFunnel, PartnerStage.Confirmed)]
-    [InlineData(PartnerStage.Lead, PartnerStage.Confirmed)]
-    [InlineData(PartnerStage.Confirmed, PartnerStage.Lead)]
-    public void Moving_changes_the_stage_and_records_who_when_and_the_note(PartnerStage from, PartnerStage to)
+    [InlineData("lead", "in-funnel")]
+    [InlineData("in-funnel", "confirmed")]
+    [InlineData("lead", "confirmed")]
+    [InlineData("confirmed", "lead")]
+    public void Moving_changes_the_stage_and_records_who_when_and_the_note(string from, string to)
     {
         var partner = NewPartner(from);
 
-        partner.MoveTo(to, Lead, Now, "Signed the letter");
+        partner.MoveTo(TestStages.Of(to), Lead, Now, "Signed the letter");
 
-        Assert.Equal(to, partner.Stage);
+        Assert.Equal(to, partner.Stage!.Key);
         var change = Assert.Single(partner.StageChanges);
         Assert.Equal(
             (partner.Id, from, to, Lead, Now, (string?)"Signed the letter"),
@@ -71,7 +71,7 @@ public class PartnerTests
     {
         var partner = NewPartner();
 
-        Assert.Throws<InvalidOperationException>(() => partner.MoveTo(PartnerStage.Lead, Lead, Now, null));
+        Assert.Throws<InvalidOperationException>(() => partner.MoveTo(TestStages.Lead, Lead, Now, null));
         Assert.Empty(partner.StageChanges);
     }
 }

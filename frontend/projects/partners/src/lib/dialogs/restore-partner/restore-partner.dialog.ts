@@ -2,7 +2,6 @@ import { DIALOG_DATA, DialogRef } from '@angular/cdk/dialog';
 import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
 import {
   OrganisationNames,
-  PARTNER_STAGE_LABELS,
   PartnerDto,
   PARTNERS_SERVICE,
   problemDetails,
@@ -41,10 +40,9 @@ export class RestorePartnerDialog {
   protected readonly partner = signal(this.data.partner);
   protected readonly busy = signal(false);
   protected readonly failure = signal<string | null>(null);
-  protected readonly labels = PARTNER_STAGE_LABELS;
 
   protected description(partner: PartnerDto): string {
-    return `It comes back as its own partner at its old stage, ${this.labels[partner.stage]}, and the timeline entries that came from it move back from ${partner.archived?.mergedIntoName}.`;
+    return `It comes back as its own partner at its old stage, ${partner.stageName}, and the timeline entries that came from it move back from ${partner.archived?.mergedIntoName}.`;
   }
 
   protected async restore(): Promise<void> {
