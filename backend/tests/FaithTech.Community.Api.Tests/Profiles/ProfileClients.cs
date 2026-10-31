@@ -88,4 +88,14 @@ public static class ProfileClients
         client.DefaultRequestHeaders.Add(TestAuthHandler.Header, $"{member.UserId};{string.Join(',', roles)}");
         return client;
     }
+
+    /// <summary>The id of the role definition keyed <paramref name="key"/> in FaithTech, or in <paramref name="organisationId"/>.</summary>
+    public static Guid RoleIdOf(this CommunityApiFactory factory, string key, Guid? organisationId = null) =>
+        factory.WithDbAsync(
+            organisationId ?? Infrastructure.Persistence.Seed.FaithTechSeed.OrganisationId,
+            db => db.RoleDefinitions.Where(d => d.Key == key).Select(d => d.Id).SingleAsync())
+            .GetAwaiter().GetResult();
+
+    public static Guid RoleIdOf(this CommunityApiFactory factory, Role role, Guid? organisationId = null) =>
+        factory.RoleIdOf(role.ToString(), organisationId);
 }

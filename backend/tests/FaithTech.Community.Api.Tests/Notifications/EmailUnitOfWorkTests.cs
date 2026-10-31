@@ -53,7 +53,7 @@ public class EmailUnitOfWorkTests(CommunityApiFactory factory) : IClassFixture<C
         var ruth = await factory.AddMemberAsync("Ruth Alvarez");
         factory.SaveFailures.FailNext(QueuesEmail);
 
-        var response = await ClientFor(grace, Role.CityLead).PostAsJsonAsync($"/api/profiles/{ruth.ProfileId}/roles", new { Role = "Volunteer" });
+        var response = await ClientFor(grace, Role.CityLead).PostAsJsonAsync($"/api/profiles/{ruth.ProfileId}/roles", new { RoleId = factory.RoleIdOf("Volunteer") });
 
         Assert.Equal(HttpStatusCode.InternalServerError, response.StatusCode);
         Assert.False(await factory.WithDbAsync(db => db.Profiles.AnyAsync(p => p.Id == ruth.ProfileId && p.Roles.Any())));

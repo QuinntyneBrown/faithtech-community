@@ -94,8 +94,8 @@ public class TeamListTests(CommunityApiFactory factory) : IClassFixture<Communit
         var lead = factory.ClientFor(grace, Role.CityLead);
         Assert.Equal(["Marcus Lee", "Ruth Alvarez"], team.Mine((await lead.GetFromJsonAsync<TeamListResponse>(team.Url()))!).Select(m => m.Name));
 
-        (await lead.DeleteAsync($"/api/profiles/{ruth.ProfileId}/roles/Volunteer")).EnsureSuccessStatusCode();
-        (await lead.DeleteAsync($"/api/profiles/{marcus.ProfileId}/roles/Volunteer")).EnsureSuccessStatusCode();
+        (await lead.DeleteAsync($"/api/profiles/{ruth.ProfileId}/roles/{factory.RoleIdOf("Volunteer")}")).EnsureSuccessStatusCode();
+        (await lead.DeleteAsync($"/api/profiles/{marcus.ProfileId}/roles/{factory.RoleIdOf("Volunteer")}")).EnsureSuccessStatusCode();
 
         var list = await lead.GetFromJsonAsync<TeamListResponse>(team.Url());
         var marcusRow = Assert.Single(team.Mine(list!));
