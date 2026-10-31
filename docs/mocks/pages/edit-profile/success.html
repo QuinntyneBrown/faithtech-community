@@ -7,7 +7,7 @@
 <meta name="mock:kind" content="page">
 <meta name="mock:screen" content="edit-profile">
 <meta name="mock:state" content="success">
-<meta name="mock:requirements" content="L2-006 L2-007">
+<meta name="mock:requirements" content="L2-006 L2-007 L2-040 L2-141">
 <meta name="description" content="Edit name, bio and up to 10 photos with alt text.">
 <link rel="stylesheet" href="../../../design-system/tokens/tokens.css">
 <link rel="stylesheet" href="../../../design-system/assets/components.css">
@@ -35,7 +35,7 @@
 <form class="stack form-width--lg" action="success.html" method="get" novalidate>
   <section class="card stack" aria-labelledby="about"><h2 class="card__title" id="about">About you</h2>
     <div class="field"><label class="field__label" for="ep-name">Name</label><input class="input" id="ep-name" name="ep-name" type="text" value="Grace Okonkwo" autocomplete="name" required></div>
-    <div class="field"><label class="field__label" for="ep-city">Home city</label><input class="input" id="ep-city" name="ep-city" type="text" value="Toronto" autocomplete="address-level2"></div>
+    <div class="field"><label class="field__label" for="ep-city">Home city <span class="optional">(optional)</span></label><select class="select" id="ep-city" name="ep-city" aria-describedby="ep-city-help"><option>No home city</option><option selected>Toronto</option><option>Austin</option><option>Vancouver</option><option>Calgary</option></select><div class="field__help" id="ep-city-help">Tags you to a city. It never hides anything from you.</div></div>
     <div class="field"><label class="field__label" for="ep-bio">Bio <span class="optional">(optional)</span></label><textarea class="textarea" id="ep-bio" name="ep-bio" rows="4" aria-describedby="ep-bio-count ep-bio-help">City Lead for FaithTech Toronto. Product manager by day, convener of builders by night. Ask me about our shelter-tech hackathon.</textarea><div class="field__count" id="ep-bio-count">272 characters left</div><div class="field__help" id="ep-bio-help">Up to 400 characters.</div></div>
   </section>
   <section class="card"><div class="picture-list" role="group" aria-labelledby="photos"><div class="cluster cluster--between"><h2 class="section-title" id="photos">Photos <span class="badge">4 of 10</span></h2>
@@ -64,7 +64,7 @@
 <nav class="mock-bar" aria-label="Mock navigation">
   <a class="mock-bar__home" href="../../index.html" aria-label="All mocks">⌂</a>
   <span class="mock-bar__screen">Edit profile</span>
-  <ul class="mock-bar__states"><li><a href="default.html">default</a></li><li><a href="admin.html">admin</a></li><li><a href="loading.html">loading</a></li><li><a href="error.html">error</a></li><li><a href="invalid.html">invalid</a></li><li><a href="busy.html">busy</a></li><li><a href="success.html" aria-current="page">success</a></li><li><a href="uploading.html">uploading</a></li><li><a href="too-large.html">too-large</a></li><li><a href="wrong-type.html">wrong-type</a></li><li><a href="pending.html">pending</a></li><li><a href="storing.html">storing</a></li><li><a href="full.html">full</a></li><li><a href="empty.html">empty</a></li><li><a href="forbidden.html">forbidden</a></li></ul>
+  <ul class="mock-bar__states"><li><a href="default.html">default</a></li><li><a href="admin.html">admin</a></li><li><a href="loading.html">loading</a></li><li><a href="error.html">error</a></li><li><a href="invalid.html">invalid</a></li><li><a href="busy.html">busy</a></li><li><a href="success.html" aria-current="page">success</a></li><li><a href="uploading.html">uploading</a></li><li><a href="too-large.html">too-large</a></li><li><a href="wrong-type.html">wrong-type</a></li><li><a href="pending.html">pending</a></li><li><a href="storing.html">storing</a></li><li><a href="full.html">full</a></li><li><a href="empty.html">empty</a></li><li><a href="forbidden.html">forbidden</a></li><li><a href="chapters-off.html">chapters-off</a></li></ul>
   <button type="button" data-theme-toggle aria-pressed="false">☾ Dark</button>
   <button type="button" data-chrome-toggle aria-label="Hide mock chrome">×</button>
 </nav>

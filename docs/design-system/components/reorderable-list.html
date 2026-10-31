@@ -1,0 +1,226 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Reorderable list — FaithTech Community design system</title>
+<meta name="description" content="A list whose order is a setting: drag handle, move up and move down buttons, row actions or a row menu, and a polite announcement after every keyboard move.">
+<link rel="stylesheet" href="../tokens/tokens.css">
+<link rel="stylesheet" href="../assets/components.css">
+<link rel="stylesheet" href="../assets/ds.css">
+</head>
+<body id="top">
+<a class="skip-link" href="#main">Skip to content</a>
+<div class="ds-shell">
+  <nav class="ds-nav" aria-label="Design system">
+    <div class="ds-nav__brand"><a href="../index.html">FaithTech DS</a><button class="ds-theme-toggle" type="button" aria-pressed="false">☾ Dark</button></div>
+    <details open><summary>Foundations</summary><ul>
+      <li><a href="../foundations/color.html">Color</a></li>
+      <li><a href="../foundations/typography.html">Typography</a></li>
+      <li><a href="../foundations/spacing.html">Spacing</a></li>
+      <li><a href="../foundations/layout.html">Layout</a></li>
+      <li><a href="../foundations/elevation.html">Elevation</a></li>
+      <li><a href="../foundations/shape.html">Shape</a></li>
+      <li><a href="../foundations/motion.html">Motion</a></li>
+      <li><a href="../foundations/iconography.html">Iconography</a></li>
+      <li><a href="../foundations/theming.html">Theming</a></li>
+      <li><a href="../foundations/responsive.html">Responsive</a></li>
+      <li><a href="../foundations/accessibility.html">Accessibility</a></li>
+      <li><a href="../foundations/content.html">Content</a></li>
+    </ul></details>
+    <details open><summary>Components</summary><ul>
+      <li><a href="../components/button.html">Button</a></li>
+      <li><a href="../components/link.html">Link</a></li>
+      <li><a href="../components/menu.html">Menu</a></li>
+      <li><a href="../components/form-field.html">Form field</a></li>
+      <li><a href="../components/text-field.html">Text field</a></li>
+      <li><a href="../components/copy-field.html">Copy field</a></li>
+      <li><a href="../components/textarea.html">Textarea</a></li>
+      <li><a href="../components/select.html">Select</a></li>
+      <li><a href="../components/radio-group.html">Radio group</a></li><li><a href="../components/checkbox-group.html">Checkbox group</a></li><li><a href="../components/capability-checklist.html">Capability checklist</a></li>
+      <li><a href="../components/switch.html">Switch</a></li>
+      <li><a href="../components/form-layout.html">Form layout</a></li>
+      <li><a href="../components/picture-list.html">Picture list</a></li>
+      <li><a href="../components/photo-gallery.html">Photo gallery</a></li>
+      <li><a href="../components/file-dropzone.html">File drop zone</a></li>
+      <li><a href="../components/file-row.html">File row</a></li>
+      <li><a href="../components/tag-input.html">Tag input</a></li>
+      <li><a href="../components/person-picker.html">Person picker</a></li>
+      <li><a href="../components/type-icon.html">Type icon</a></li>
+      <li><a href="../components/sticker-picker.html">Estimate card picker</a></li>
+      <li><a href="../components/emoji-picker.html">Emoji picker</a></li>
+      <li><a href="../components/top-bar.html">Top bar</a></li>
+      <li><a href="../components/tab-bar.html">Tab bar</a></li>
+      <li><a href="../components/tabs.html">Tabs</a></li>
+      <li><a href="../components/breadcrumb.html">Breadcrumb</a></li>
+      <li><a href="../components/skip-link.html">Skip link</a></li>
+      <li><a href="../components/layout.html">Layout primitives</a></li>
+      <li><a href="../components/card.html">Card</a></li>
+      <li><a href="../components/dialog.html">Dialog</a></li><li><a href="../components/define-role-dialog.html">Define role dialog</a></li><li><a href="../components/edit-grants-dialog.html">Edit grants dialog</a></li><li><a href="../components/archive-role-dialog.html">Archive role dialog</a></li>
+      <li><a href="../components/notification-panel.html">Notification panel</a></li>
+      <li><a href="../components/list.html">List</a></li><li><a href="../components/reorderable-list.html">Reorderable list</a></li>
+      <li><a href="../components/table.html">Table</a></li>
+      <li><a href="../components/description-list.html">Description list</a></li>
+      <li><a href="../components/feed.html">Activity feed</a></li>
+      <li><a href="../components/tree.html">Backlog tree</a></li>
+      <li><a href="../components/kanban.html">Kanban board</a></li>
+      <li><a href="../components/event-card.html">Event card</a></li>
+      <li><a href="../components/person-card.html">Person card</a></li>
+      <li><a href="../components/profile-header.html">Profile header</a></li>
+      <li><a href="../components/person-summary.html">Person summary</a></li>
+      <li><a href="../components/search-results.html">Search results</a></li>
+      <li><a href="../components/note.html">Note</a></li>
+      <li><a href="../components/block-editor.html">Block editor</a></li>
+      <li><a href="../components/slash-menu.html">Slash menu</a></li>
+      <li><a href="../components/format-toolbar.html">Formatting toolbar</a></li>
+      <li><a href="../components/save-status.html">Save status</a></li>
+      <li><a href="../components/page-links.html">Page links</a></li>
+      <li><a href="../components/avatar.html">Avatar</a></li>
+      <li><a href="../components/qr-code.html">QR code</a></li>
+      <li><a href="../components/logo-mark.html">Logo mark</a></li>
+      <li><a href="../components/badge.html">Badge</a></li>
+      <li><a href="../components/chip.html">Chip</a></li>
+      <li><a href="../components/stat.html">Stat</a></li>
+      <li><a href="../components/sticker.html">Estimate card</a></li>
+      <li><a href="../components/toast.html">Toast</a></li>
+      <li><a href="../components/alert.html">Alert and banner</a></li>
+      <li><a href="../components/inline-message.html">Inline message</a></li>
+      <li><a href="../components/progress.html">Progress</a></li>
+      <li><a href="../components/skeleton.html">Skeleton</a></li>
+      <li><a href="../components/empty-state.html">Empty state</a></li>
+      <li><a href="../components/error-page.html">Error page</a></li>
+      <li><a href="../components/landing-hero.html">Landing hero</a></li>
+      <li><a href="../components/video-player.html">Video player</a></li>
+      <li><a href="../components/auth-forms.html">Sign-in and sign-up forms</a></li>
+      <li><a href="../components/site-footer.html">Site footer</a></li>
+    </ul></details>
+    <details open><summary>Patterns</summary><ul>
+      <li><a href="../patterns/forms.html">Forms</a></li>
+      <li><a href="../patterns/feedback-and-loading.html">Feedback and loading</a></li>
+      <li><a href="../patterns/empty-and-error-states.html">Empty and error states</a></li>
+      <li><a href="../patterns/navigation.html">Navigation and page structure</a></li>
+      <li><a href="../patterns/dialogs-and-overlays.html">Dialogs and overlays</a></li>
+      <li><a href="../patterns/lists-and-tables.html">Lists and tables</a></li>
+      <li><a href="../patterns/notifications.html">Notifications</a></li>
+      <li><a href="../patterns/content-and-tone.html">Content and tone</a></li>
+      <li><a href="../patterns/private-preview-wall.html">Private preview wall</a></li>
+    </ul></details>
+  </nav>
+
+  <main id="main" class="ds-main">
+    <header class="ds-header">
+      <p class="ds-kicker">Component · Data display</p>
+      <h1>Reorderable list</h1>
+      <p class="ds-lead">A list whose order is a setting: drag handle, move up and move down buttons, row actions or a row menu, and a polite announcement after every keyboard move.</p>
+      <div class="ds-meta"><span class="ds-pill ds-pill--ok">WCAG 2.2 AA</span><span class="ds-pill">Status: designed, not built</span><span class="ds-pill">CDK drag and drop</span></div>
+      <ul class="ds-toc">
+        <li><a href="#overview">Overview</a></li><li><a href="#anatomy">Anatomy</a></li><li><a href="#variants">Variants</a></li><li><a href="#sizes">Sizes</a></li><li><a href="#states">States</a></li><li><a href="#responsive">Responsive</a></li><li><a href="#theming">Theming</a></li><li><a href="#accessibility">Accessibility</a></li><li><a href="#content">Content</a></li><li><a href="#do-dont">Do and don't</a></li><li><a href="#tokens">Tokens</a></li><li><a href="#code">Code</a></li><li><a href="#sources">Sources</a></li>
+      </ul>
+    </header>
+
+    <section class="ds-section" id="overview"><h2><a href="#overview">Overview</a></h2>
+      <p>A reorderable list is a <a href="list.html">list</a> whose order is data: an organisation's chapters, partner stages, event types and resource types. Every row can be dragged by its handle or moved one place with its <em>Move up</em> and <em>Move down</em> buttons, and every keyboard move is announced in a polite live region (the <code>L2-089</code> pattern used by the block editor). Row actions sit at the end: Rename and Archive as buttons, or a row menu when there are more.</p>
+      <ul><li><b>Use it</b> when the order of a short list (fewer than about 20 rows) is a setting other screens follow.</li><li><b>Don’t</b> use it for sorting results; that is a sort control on a table.</li></ul>
+    </section>
+
+    <section class="ds-section" id="anatomy"><h2><a href="#anatomy">Anatomy</a></h2>
+      <div class="ds-anatomy">
+        <figure class="ds-anatomy__figure" style="max-width: 36rem;">
+          <ul class="list card card--flush" aria-label="Cities"><li class="list__item"><span class="list__handle" aria-hidden="true"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><circle cx="9" cy="6" r="1"/><circle cx="15" cy="6" r="1"/><circle cx="9" cy="12" r="1"/><circle cx="15" cy="12" r="1"/><circle cx="9" cy="18" r="1"/><circle cx="15" cy="18" r="1"/></svg></span><div class="list__body"><div class="list__title">Toronto</div><div class="list__meta">186 members</div></div><div class="list__actions"><button class="btn btn--ghost btn--icon btn--sm" type="button" aria-label="Move Toronto up" disabled><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><path d="M12 19V5M6 11l6-6 6 6"/></svg></button><button class="btn btn--ghost btn--icon btn--sm" type="button" aria-label="Move Toronto down"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><path d="M12 5v14M6 13l6 6 6-6"/></svg></button><button class="btn btn--ghost btn--sm" type="button">Rename<span class="visually-hidden"> Toronto</span></button><button class="btn btn--ghost btn--sm" type="button">Archive<span class="visually-hidden"> Toronto</span></button></div></li></ul>
+          <span class="ds-callout" style="left: 2%; top: 30%;" aria-hidden="true">1</span><span class="ds-callout" style="left: 12%; top: 30%;" aria-hidden="true">2</span><span class="ds-callout" style="left: 60%; top: 30%;" aria-hidden="true">3</span><span class="ds-callout" style="left: 85%; top: 30%;" aria-hidden="true">4</span>
+        </figure>
+        <ol class="ds-anatomy__list"><li><div><b>Drag handle</b><small><code>.list__handle</code>, decorative (<code>aria-hidden</code>); the buttons are the accessible way to move.</small></div></li><li><div><b>Title and meta</b><small>Name and its count (“186 members”, “4 partners”).</small></div></li><li><div><b>Move buttons</b><small>Icon buttons named “Move {name} up / down”; the first row's up and the last row's down are disabled.</small></div></li><li><div><b>Row actions</b><small><code>.list__actions</code>: Rename and Archive, or a “More actions for {name}” menu.</small></div></li></ol>
+      </div>
+    </section>
+
+    <section class="ds-section" id="variants"><h2><a href="#variants">Variants</a></h2>
+      <div class="ds-example">
+        <div class="ds-example__canvas ds-example__canvas--stack" style="max-width: 40rem;">
+          <ul class="list card card--flush" aria-label="Cities"><li class="list__item"><span class="list__handle" aria-hidden="true"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><circle cx="9" cy="6" r="1"/><circle cx="15" cy="6" r="1"/><circle cx="9" cy="12" r="1"/><circle cx="15" cy="12" r="1"/><circle cx="9" cy="18" r="1"/><circle cx="15" cy="18" r="1"/></svg></span><div class="list__body"><div class="list__title">Toronto</div><div class="list__meta">186 members</div></div><div class="list__actions"><button class="btn btn--ghost btn--icon btn--sm" type="button" aria-label="Move Toronto up" disabled><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><path d="M12 19V5M6 11l6-6 6 6"/></svg></button><button class="btn btn--ghost btn--icon btn--sm" type="button" aria-label="Move Toronto down"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><path d="M12 5v14M6 13l6 6 6-6"/></svg></button><button class="btn btn--ghost btn--sm" type="button">Rename<span class="visually-hidden"> Toronto</span></button><button class="btn btn--ghost btn--sm" type="button">Archive<span class="visually-hidden"> Toronto</span></button></div></li><li class="list__item"><span class="list__handle" aria-hidden="true"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><circle cx="9" cy="6" r="1"/><circle cx="15" cy="6" r="1"/><circle cx="9" cy="12" r="1"/><circle cx="15" cy="12" r="1"/><circle cx="9" cy="18" r="1"/><circle cx="15" cy="18" r="1"/></svg></span><div class="list__body"><div class="list__title">Austin</div><div class="list__meta">97 members</div></div><div class="list__actions"><button class="btn btn--ghost btn--icon btn--sm" type="button" aria-label="Move Austin up"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><path d="M12 19V5M6 11l6-6 6 6"/></svg></button><button class="btn btn--ghost btn--icon btn--sm" type="button" aria-label="Move Austin down"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><path d="M12 5v14M6 13l6 6 6-6"/></svg></button><button class="btn btn--ghost btn--sm" type="button">Rename<span class="visually-hidden"> Austin</span></button><button class="btn btn--ghost btn--sm" type="button">Archive<span class="visually-hidden"> Austin</span></button></div></li><li class="list__item"><span class="list__handle" aria-hidden="true"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><circle cx="9" cy="6" r="1"/><circle cx="15" cy="6" r="1"/><circle cx="9" cy="12" r="1"/><circle cx="15" cy="12" r="1"/><circle cx="9" cy="18" r="1"/><circle cx="15" cy="18" r="1"/></svg></span><div class="list__body"><div class="list__title">Vancouver</div><div class="list__meta">64 members</div></div><div class="list__actions"><button class="btn btn--ghost btn--icon btn--sm" type="button" aria-label="Move Vancouver up"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><path d="M12 19V5M6 11l6-6 6 6"/></svg></button><button class="btn btn--ghost btn--icon btn--sm" type="button" aria-label="Move Vancouver down" disabled><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><path d="M12 5v14M6 13l6 6 6-6"/></svg></button><button class="btn btn--ghost btn--sm" type="button">Rename<span class="visually-hidden"> Vancouver</span></button><button class="btn btn--ghost btn--sm" type="button">Archive<span class="visually-hidden"> Vancouver</span></button></div></li></ul>
+        </div>
+        <div class="ds-example__caption"><span>With Rename and Archive buttons (Chapters).</span></div>
+      </div>
+      <div class="ds-example">
+        <div class="ds-example__canvas ds-example__canvas--stack" style="max-width: 40rem;">
+          <ul class="list card card--flush" aria-label="Partner stages"><li class="list__item"><span class="list__handle" aria-hidden="true"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><circle cx="9" cy="6" r="1"/><circle cx="15" cy="6" r="1"/><circle cx="9" cy="12" r="1"/><circle cx="15" cy="12" r="1"/><circle cx="9" cy="18" r="1"/><circle cx="15" cy="18" r="1"/></svg></span><div class="list__body"><div class="list__title">Lead</div><div class="list__meta">4 partners</div><div class="cluster cluster--tight"><span class="badge badge--info">Initial</span><span class="badge">Open</span></div></div><div class="list__actions"><button class="btn btn--ghost btn--icon btn--sm" type="button" aria-label="Move Lead up" disabled><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><path d="M12 19V5M6 11l6-6 6 6"/></svg></button><button class="btn btn--ghost btn--icon btn--sm" type="button" aria-label="Move Lead down"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><path d="M12 5v14M6 13l6 6 6-6"/></svg></button><div class="menu-anchor"><button class="btn btn--ghost btn--icon btn--sm" type="button" aria-haspopup="menu" aria-label="More actions for Lead"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><circle cx="5" cy="12" r="1.5"/><circle cx="12" cy="12" r="1.5"/><circle cx="19" cy="12" r="1.5"/></svg></button></div></div></li><li class="list__item"><span class="list__handle" aria-hidden="true"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><circle cx="9" cy="6" r="1"/><circle cx="15" cy="6" r="1"/><circle cx="9" cy="12" r="1"/><circle cx="15" cy="12" r="1"/><circle cx="9" cy="18" r="1"/><circle cx="15" cy="18" r="1"/></svg></span><div class="list__body"><div class="list__title">Confirmed</div><div class="list__meta">5 partners</div><div class="cluster cluster--tight"><span class="badge badge--success">Confirmed</span></div></div><div class="list__actions"><button class="btn btn--ghost btn--icon btn--sm" type="button" aria-label="Move Confirmed up"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><path d="M12 19V5M6 11l6-6 6 6"/></svg></button><button class="btn btn--ghost btn--icon btn--sm" type="button" aria-label="Move Confirmed down" disabled><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><path d="M12 5v14M6 13l6 6 6-6"/></svg></button><div class="menu-anchor"><button class="btn btn--ghost btn--icon btn--sm" type="button" aria-haspopup="menu" aria-label="More actions for Confirmed"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><circle cx="5" cy="12" r="1.5"/><circle cx="12" cy="12" r="1.5"/><circle cx="19" cy="12" r="1.5"/></svg></button></div></div></li></ul>
+        </div>
+        <div class="ds-example__caption"><span>With badges and a row menu (Partner stages: Rename, Set as initial, Counts as, Archive).</span></div>
+      </div>
+      <div class="ds-example">
+        <div class="ds-example__canvas ds-example__canvas--stack" style="max-width: 40rem;">
+          <ul class="list card card--flush" aria-label="Cities"><li class="list__item"><div class="list__body"><div class="list__title">Toronto</div><div class="list__meta">186 members</div></div></li><li class="list__item"><div class="list__body"><div class="list__title">Austin</div><div class="list__meta">97 members</div></div></li></ul>
+        </div>
+        <div class="ds-example__caption"><span>Read-only: no handle, no buttons (a holder of the other settings capability, or the Archived filter).</span></div>
+      </div>
+
+    </section>
+
+    <section class="ds-section" id="sizes" data-na="One size."><h2><a href="#sizes">Sizes</a></h2>
+      <p>Not applicable. One row height, from the list.</p>
+    </section>
+
+    <section class="ds-section" id="states"><h2><a href="#states">States</a></h2>
+      <div class="ds-example">
+        <div class="ds-example__canvas ds-example__canvas--stack" style="max-width: 40rem;">
+          <ul class="list card card--flush" aria-label="Cities"><li class="list__item"><span class="list__handle" aria-hidden="true"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><circle cx="9" cy="6" r="1"/><circle cx="15" cy="6" r="1"/><circle cx="9" cy="12" r="1"/><circle cx="15" cy="12" r="1"/><circle cx="9" cy="18" r="1"/><circle cx="15" cy="18" r="1"/></svg></span><div class="list__body"><div class="list__title">Toronto</div><div class="list__meta">186 members</div></div><div class="list__actions"><button class="btn btn--ghost btn--icon btn--sm" type="button" aria-label="Move Toronto up" disabled><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><path d="M12 19V5M6 11l6-6 6 6"/></svg></button><button class="btn btn--ghost btn--icon btn--sm" type="button" aria-label="Move Toronto down"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><path d="M12 5v14M6 13l6 6 6-6"/></svg></button><button class="btn btn--ghost btn--sm" type="button">Rename<span class="visually-hidden"> Toronto</span></button><button class="btn btn--ghost btn--sm" type="button">Archive<span class="visually-hidden"> Toronto</span></button></div></li><li class="list__item list__item--moved"><span class="list__handle" aria-hidden="true"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><circle cx="9" cy="6" r="1"/><circle cx="15" cy="6" r="1"/><circle cx="9" cy="12" r="1"/><circle cx="15" cy="12" r="1"/><circle cx="9" cy="18" r="1"/><circle cx="15" cy="18" r="1"/></svg></span><div class="list__body"><div class="list__title">Vancouver</div><div class="list__meta">64 members</div></div><div class="list__actions"><button class="btn btn--ghost btn--icon btn--sm" type="button" aria-label="Move Vancouver up"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><path d="M12 19V5M6 11l6-6 6 6"/></svg></button><button class="btn btn--ghost btn--icon btn--sm" type="button" aria-label="Move Vancouver down"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><path d="M12 5v14M6 13l6 6 6-6"/></svg></button><button class="btn btn--ghost btn--sm" type="button">Rename<span class="visually-hidden"> Vancouver</span></button><button class="btn btn--ghost btn--sm" type="button">Archive<span class="visually-hidden"> Vancouver</span></button></div></li><li class="list__item"><span class="list__handle" aria-hidden="true"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><circle cx="9" cy="6" r="1"/><circle cx="15" cy="6" r="1"/><circle cx="9" cy="12" r="1"/><circle cx="15" cy="12" r="1"/><circle cx="9" cy="18" r="1"/><circle cx="15" cy="18" r="1"/></svg></span><div class="list__body"><div class="list__title">Austin</div><div class="list__meta">97 members</div></div><div class="list__actions"><button class="btn btn--ghost btn--icon btn--sm" type="button" aria-label="Move Austin up"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><path d="M12 19V5M6 11l6-6 6 6"/></svg></button><button class="btn btn--ghost btn--icon btn--sm" type="button" aria-label="Move Austin down" disabled><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><path d="M12 5v14M6 13l6 6 6-6"/></svg></button><button class="btn btn--ghost btn--sm" type="button">Rename<span class="visually-hidden"> Austin</span></button><button class="btn btn--ghost btn--sm" type="button">Archive<span class="visually-hidden"> Austin</span></button></div></li></ul><p class="text-caption" aria-live="polite">Moved Vancouver up to position 2 of 3.</p>
+        </div>
+        <div class="ds-example__caption"><span>Just moved: <code>.list__item--moved</code> highlights the row, focus stays on its button, and the live region announces the new position (shown here; visually hidden in the product).</span></div>
+      </div>
+      <ul><li><b>Disabled ends</b>: the first row cannot move up and the last cannot move down.</li><li><b>Dragging</b>: the handle shows <code>cursor: grab</code>; the CDK drop list draws its placeholder in the gap.</li><li><b>Saving</b>: the order is saved after each move (<code>PUT …/order</code>); a failed save puts the row back and raises a danger toast with Try again.</li></ul>
+    </section>
+
+    <section class="ds-section" id="responsive"><h2><a href="#responsive">Responsive behaviour</a></h2>
+      <ul><li>Below 40rem the row wraps: the actions move to a line of their own, indented under the title.</li><li>From 40rem the actions stay at the end of the row.</li></ul>
+    </section>
+
+    <section class="ds-section" id="theming"><h2><a href="#theming">Theming</a></h2>
+      <p>The moved row uses <code>--color-accent-subtle</code> with an inset <code>--color-focus-ring</code> in both themes; the handle uses <code>--color-fg-subtle</code>.</p>
+    </section>
+
+    <section class="ds-section" id="accessibility"><h2><a href="#accessibility">Accessibility</a></h2>
+      <h3>Role and pattern</h3><p>A list (<code>ul</code>) named by its heading; drag and drop is an enhancement, never the only way (WCAG 2.5.7 Dragging movements).</p>
+      <h3>Keyboard</h3>
+      <table class="ds-table ds-keys"><thead><tr><th scope="col">Key</th><th scope="col">Action</th></tr></thead><tbody><tr><td><kbd>Tab</kbd></td><td>Moves through each row's buttons.</td></tr><tr><td><kbd>Enter</kbd> / <kbd>Space</kbd> on Move up or Move down</td><td>Moves the row one place, keeps focus on the same button and announces “Moved {name} up to position {n} of {total}.”</td></tr><tr><td><kbd>Enter</kbd> on More actions</td><td>Opens the row menu (menu button pattern).</td></tr></tbody></table>
+      <h3>Motion</h3><p>The highlight fades in; with reduced motion it appears at once.</p>
+    </section>
+
+    <section class="ds-section" id="content"><h2><a href="#content">Content</a></h2>
+      <ul><li>Counts use the noun of the list: “186 members”, “4 partners”, “2 events”.</li><li>The announcement names the row and the position: “Moved Hackathon up to position 2 of 5 event types.”</li></ul>
+    </section>
+
+    <section class="ds-section" id="do-dont"><h2><a href="#do-dont">Do and don't</a></h2>
+      <div class="ds-dodont">
+        <figure class="ds-do"><div class="ds-example__canvas"><ul class="list card card--flush" aria-label="Cities"><li class="list__item"><span class="list__handle" aria-hidden="true"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><circle cx="9" cy="6" r="1"/><circle cx="15" cy="6" r="1"/><circle cx="9" cy="12" r="1"/><circle cx="15" cy="12" r="1"/><circle cx="9" cy="18" r="1"/><circle cx="15" cy="18" r="1"/></svg></span><div class="list__body"><div class="list__title">Toronto</div><div class="list__meta">186 members</div></div><div class="list__actions"><button class="btn btn--ghost btn--icon btn--sm" type="button" aria-label="Move Toronto up" disabled><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><path d="M12 19V5M6 11l6-6 6 6"/></svg></button><button class="btn btn--ghost btn--icon btn--sm" type="button" aria-label="Move Toronto down"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><path d="M12 5v14M6 13l6 6 6-6"/></svg></button><button class="btn btn--ghost btn--sm" type="button">Rename<span class="visually-hidden"> Toronto</span></button><button class="btn btn--ghost btn--sm" type="button">Archive<span class="visually-hidden"> Toronto</span></button></div></li></ul></div><figcaption>Move buttons beside the handle.</figcaption></figure>
+        <figure class="ds-dont"><div class="ds-example__canvas"><ul class="list card card--flush" aria-label="Cities"><li class="list__item"><span class="list__handle" aria-hidden="true"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><circle cx="9" cy="6" r="1"/><circle cx="15" cy="6" r="1"/><circle cx="9" cy="12" r="1"/><circle cx="15" cy="12" r="1"/><circle cx="9" cy="18" r="1"/><circle cx="15" cy="18" r="1"/></svg></span><div class="list__body"><div class="list__title">Toronto</div></div></li></ul></div><figcaption>Drag only: keyboard and switch users can’t reorder.</figcaption></figure>
+      </div>      <div class="ds-dodont">
+        <figure class="ds-do"><div class="ds-example__canvas"><p class="text-caption" aria-live="polite">Moved Vancouver up to position 2 of 4.</p></div><figcaption>Announce the new position.</figcaption></figure>
+        <figure class="ds-dont"><div class="ds-example__canvas"><p>Order saved.</p></div><figcaption>A silent or vague confirmation.</figcaption></figure>
+      </div>
+    </section>
+
+    <section class="ds-section" id="tokens"><h2><a href="#tokens">Tokens</a></h2>
+      <table class="ds-table"><thead><tr><th scope="col">Token</th><th scope="col">Used for</th><th scope="col">Value</th></tr></thead><tbody><tr><td><code>--color-accent-subtle</code></td><td>Moved row background</td><td data-token="--color-accent-subtle"></td></tr><tr><td><code>--color-focus-ring</code></td><td>Moved row outline</td><td data-token="--color-focus-ring"></td></tr><tr><td><code>--color-fg-subtle</code></td><td>Drag handle</td><td data-token="--color-fg-subtle"></td></tr><tr><td><code>--size-icon-md</code></td><td>Handle width</td><td data-token="--size-icon-md"></td></tr><tr><td><code>--space-1</code></td><td>Gap between actions</td><td data-token="--space-1"></td></tr></tbody></table>
+    </section>
+
+    <section class="ds-section" id="code"><h2><a href="#code">Code</a></h2>
+      <pre><code>&lt;ul class="list card card--flush" aria-label="Cities"&gt;
+  &lt;li class="list__item"&gt;&lt;span class="list__handle" aria-hidden="true"&gt;…&lt;/span&gt;
+    &lt;div class="list__body"&gt;&lt;div class="list__title"&gt;Toronto&lt;/div&gt;&lt;div class="list__meta"&gt;186 members&lt;/div&gt;&lt;/div&gt;
+    &lt;div class="list__actions"&gt;&lt;button … aria-label="Move Toronto up" disabled&gt;…&lt;/button&gt;&lt;button … aria-label="Move Toronto down"&gt;…&lt;/button&gt;…&lt;/div&gt;
+  &lt;/li&gt;
+&lt;/ul&gt;
+&lt;p class="visually-hidden" aria-live="polite"&gt;&lt;/p&gt;</code></pre>
+      <p>In Angular: <code>ListComponent</code> with a <code>reorderable</code> input (CDK <code>cdkDropList</code>, the move buttons and the live region) and an <code>(orderChange)</code> output with the new ids; the row actions go in the item's <code>[actions]</code> slot.</p>
+    </section>
+
+    <section class="ds-section" id="sources"><h2><a href="#sources">Sources</a></h2>
+      <p>Extracted from these mocks:</p>
+      <ul><li><a href="../../mocks/pages/organisation-chapters/default.html">pages/organisation-chapters/default</a></li><li><a href="../../mocks/pages/organisation-chapters/moving.html">pages/organisation-chapters/moving</a> (keyboard move)</li><li><a href="../../mocks/pages/organisation-taxonomies/default.html">pages/organisation-taxonomies/default</a> (badges and row menu)</li><li><a href="../../mocks/pages/organisation-taxonomies/row-menu.html">pages/organisation-taxonomies/row-menu</a></li><li><a href="../../mocks/pages/organisation-chapters/read-only.html">pages/organisation-chapters/read-only</a></li></ul>
+    </section>
+
+    <footer class="ds-footer"><span>FaithTech Community design system · extracted from <a href="../../mocks/index.html">docs/mocks</a> on 2026-10-30</span><a href="#top">Back to top</a></footer>
+  </main>
+</div>
+<script src="../assets/ds.js"></script>
+</body>
+</html>

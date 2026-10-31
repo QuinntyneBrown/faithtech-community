@@ -2,9 +2,9 @@
 
 Make the platform organisation-agnostic: one deployment that hosts many organisations, each defining its own roles, chapters and vocabulary as data, with FaithTech as the first organisation.
 
-- Status: agreed; requirements written as `L1-025` to `L1-029` and `L2-130` to `L2-152` in `docs/specs/`, designs in `docs/detailed-designs/organisations/`, ADRs 0032 to 0035. Mocks, estimate, prompt and code follow in later changes.
+- Status: agreed; requirements written as `L1-025` to `L1-029` and `L2-130` to `L2-152` in `docs/specs/`, designs in `docs/detailed-designs/organisations/`, ADRs 0032 to 0035. The mocks (`docs/mocks/pages/organisation-*` and the screens they change), the design-system pages, `docs/screen-composition.md` and the estimate (`docs/estimates/organisations.md`, 52 days, 0% complete) are done (prompt `00`). Code follows in the slices.
 - Date: 2026-10-30
-- Next step: mocks for the organisation settings pages, the switcher and the two new system pages, then `docs/estimates/organisations.md`, then an implementation prompt in `docs/prompts/`, then one acceptance-test-driven slice at a time.
+- Next step: run prompts `01` to `29` in `docs/prompts/` in order (`docs/prompts/README.md`), one acceptance-test-driven slice each.
 
 ## Problem
 

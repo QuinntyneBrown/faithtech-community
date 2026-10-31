@@ -276,7 +276,8 @@
       "requirements": [
         "L2-006",
         "L2-007",
-        "L2-040"
+        "L2-040",
+        "L2-141"
       ],
       "states": [
         "default",
@@ -293,7 +294,8 @@
         "storing",
         "full",
         "empty",
-        "forbidden"
+        "forbidden",
+        "chapters-off"
       ]
     },
     {
@@ -325,7 +327,10 @@
       "title": "Events",
       "route": "/events",
       "requirements": [
-        "L2-021"
+        "L2-021",
+        "L2-141",
+        "L2-142",
+        "L2-145"
       ],
       "states": [
         "default",
@@ -333,7 +338,9 @@
         "loading",
         "empty",
         "error",
-        "no-results"
+        "no-results",
+        "type",
+        "chapters-off"
       ],
       "not_applicable": {}
     },
@@ -442,7 +449,9 @@
       "title": "Create / edit event",
       "route": "/events/new",
       "requirements": [
-        "L2-020"
+        "L2-020",
+        "L2-141",
+        "L2-145"
       ],
       "states": [
         "default",
@@ -450,7 +459,9 @@
         "loading",
         "error",
         "invalid",
-        "busy"
+        "busy",
+        "chapters-off",
+        "archived-type"
       ],
       "not_applicable": {
         "empty": "A new event form starts with sensible defaults, not an empty collection."
@@ -557,7 +568,8 @@
       "requirements": [
         "L2-017",
         "L2-018",
-        "L2-111"
+        "L2-111",
+        "L2-144"
       ],
       "states": [
         "default",
@@ -566,7 +578,9 @@
         "error",
         "read-only",
         "dragging",
-        "tabs"
+        "tabs",
+        "archived-stage",
+        "northside"
       ],
       "not_applicable": {}
     },
@@ -626,7 +640,9 @@
       "title": "Team",
       "route": "/team",
       "requirements": [
-        "L2-019"
+        "L2-019",
+        "L2-141",
+        "L2-142"
       ],
       "states": [
         "default",
@@ -636,7 +652,9 @@
         "error",
         "no-results",
         "more",
-        "more-error"
+        "more-error",
+        "chapters-off",
+        "northside"
       ],
       "not_applicable": {}
     },
@@ -647,7 +665,10 @@
       "route": "/people",
       "requirements": [
         "L2-009",
-        "L2-053"
+        "L2-053",
+        "L2-137",
+        "L2-141",
+        "L2-142"
       ],
       "states": [
         "default",
@@ -656,7 +677,8 @@
         "loading",
         "error",
         "no-results",
-        "forbidden"
+        "forbidden",
+        "chapters-off"
       ],
       "not_applicable": {
         "empty": "The list always contains at least you."
@@ -789,7 +811,8 @@
         "L2-126",
         "L2-127",
         "L2-128",
-        "L2-129"
+        "L2-129",
+        "L2-142"
       ],
       "states": [
         "default",
@@ -801,7 +824,8 @@
         "loading",
         "empty",
         "error",
-        "forbidden"
+        "forbidden",
+        "chapters-off"
       ],
       "not_applicable": {}
     },
@@ -811,7 +835,8 @@
       "title": "Admin · Audit log",
       "route": "/admin/audit",
       "requirements": [
-        "L2-041"
+        "L2-041",
+        "L2-152"
       ],
       "states": [
         "default",
@@ -821,7 +846,9 @@
         "no-results",
         "exporting",
         "exported",
-        "export-failed"
+        "export-failed",
+        "organisation",
+        "partial"
       ],
       "not_applicable": {}
     },
@@ -1420,13 +1447,19 @@
       "title": "Add role",
       "opens_from": "people",
       "requirements": [
-        "L2-009"
+        "L2-009",
+        "L2-137",
+        "L2-138",
+        "L2-141",
+        "L2-143"
       ],
       "states": [
         "default",
         "invalid",
         "busy",
-        "failed"
+        "failed",
+        "chapter",
+        "admin"
       ],
       "not_applicable": {}
     },
@@ -1436,12 +1469,17 @@
       "title": "Remove role",
       "opens_from": "people",
       "requirements": [
-        "L2-009"
+        "L2-009",
+        "L2-138",
+        "L2-139",
+        "L2-141"
       ],
       "states": [
         "default",
         "busy",
-        "failed"
+        "failed",
+        "chapter",
+        "last-admin"
       ],
       "not_applicable": {
         "invalid": "A confirmation with no input to validate."
@@ -2148,6 +2186,386 @@
         "info": "The info toast is the archived state.",
         "success": "The success toasts are the restored, shared and moved states.",
         "warning": "Archiving, restoring, sharing and moving a page either succeed or fail; there is no partial outcome to warn about."
+      }
+    },
+    {
+      "id": "organisation-general",
+      "kind": "page",
+      "title": "Organisation: General",
+      "route": "/organisation",
+      "requirements": [
+        "L2-147",
+        "L2-140",
+        "L2-152"
+      ],
+      "states": [
+        "default",
+        "northside",
+        "chapters-off",
+        "read-only",
+        "loading",
+        "error",
+        "saved"
+      ],
+      "not_applicable": {
+        "empty": "An organisation always has a name and short name; chapters off is the chapters-off state."
+      }
+    },
+    {
+      "id": "organisation-roles",
+      "kind": "page",
+      "title": "Organisation: Roles",
+      "route": "/organisation/roles",
+      "requirements": [
+        "L2-136",
+        "L2-137",
+        "L2-147"
+      ],
+      "states": [
+        "default",
+        "northside",
+        "archived",
+        "empty",
+        "read-only",
+        "loading",
+        "error",
+        "defined"
+      ],
+      "not_applicable": {}
+    },
+    {
+      "id": "organisation-chapters",
+      "kind": "page",
+      "title": "Organisation: Chapters",
+      "route": "/organisation/chapters",
+      "requirements": [
+        "L2-140",
+        "L2-147"
+      ],
+      "states": [
+        "default",
+        "northside",
+        "moving",
+        "archived",
+        "empty",
+        "chapters-off",
+        "read-only",
+        "loading",
+        "error",
+        "saved"
+      ],
+      "not_applicable": {}
+    },
+    {
+      "id": "organisation-taxonomies",
+      "kind": "page",
+      "title": "Organisation: Stages & types",
+      "route": "/organisation/taxonomies",
+      "requirements": [
+        "L2-144",
+        "L2-145",
+        "L2-146",
+        "L2-147"
+      ],
+      "states": [
+        "default",
+        "northside",
+        "row-menu",
+        "moving",
+        "archived",
+        "read-only",
+        "loading",
+        "error",
+        "saved"
+      ],
+      "not_applicable": {
+        "empty": "Every organisation is provisioned with at least one stage, event type and resource type, the last stage can't be archived and resource type Other is protected."
+      }
+    },
+    {
+      "id": "edit-general-settings",
+      "kind": "dialog",
+      "title": "Edit general settings",
+      "requirements": [
+        "L2-140",
+        "L2-147"
+      ],
+      "states": [
+        "default",
+        "invalid",
+        "busy",
+        "failed",
+        "success"
+      ],
+      "not_applicable": {},
+      "opens_from": "organisation-general"
+    },
+    {
+      "id": "turn-chapters-off",
+      "kind": "dialog",
+      "title": "Turn chapters off",
+      "requirements": [
+        "L2-140"
+      ],
+      "states": [
+        "default",
+        "busy",
+        "failed",
+        "success"
+      ],
+      "not_applicable": {
+        "invalid": "A confirmation with no input."
+      },
+      "opens_from": "edit-general-settings"
+    },
+    {
+      "id": "define-role",
+      "kind": "dialog",
+      "title": "Define role",
+      "requirements": [
+        "L2-136",
+        "L2-139"
+      ],
+      "states": [
+        "default",
+        "edit",
+        "chapters-off",
+        "invalid",
+        "admin-forbidden",
+        "last-admin",
+        "busy",
+        "failed",
+        "success"
+      ],
+      "not_applicable": {},
+      "opens_from": "organisation-roles"
+    },
+    {
+      "id": "edit-grants",
+      "kind": "dialog",
+      "title": "Who may grant",
+      "requirements": [
+        "L2-137"
+      ],
+      "states": [
+        "default",
+        "no-assign",
+        "invalid",
+        "busy",
+        "failed",
+        "success"
+      ],
+      "not_applicable": {},
+      "opens_from": "organisation-roles"
+    },
+    {
+      "id": "archive-role",
+      "kind": "dialog",
+      "title": "Archive role",
+      "requirements": [
+        "L2-136"
+      ],
+      "states": [
+        "default",
+        "holders",
+        "in-use",
+        "busy",
+        "failed",
+        "success"
+      ],
+      "not_applicable": {
+        "invalid": "A confirmation with no input; the API's refusals are the holders and in-use states."
+      },
+      "opens_from": "organisation-roles"
+    },
+    {
+      "id": "add-chapter",
+      "kind": "dialog",
+      "title": "Add chapter",
+      "requirements": [
+        "L2-140",
+        "L2-147"
+      ],
+      "states": [
+        "default",
+        "northside",
+        "invalid",
+        "busy",
+        "failed",
+        "success"
+      ],
+      "not_applicable": {},
+      "opens_from": "organisation-chapters"
+    },
+    {
+      "id": "rename-chapter",
+      "kind": "dialog",
+      "title": "Rename chapter",
+      "requirements": [
+        "L2-140",
+        "L2-147"
+      ],
+      "states": [
+        "default",
+        "invalid",
+        "busy",
+        "failed",
+        "success"
+      ],
+      "not_applicable": {},
+      "opens_from": "organisation-chapters"
+    },
+    {
+      "id": "archive-chapter",
+      "kind": "dialog",
+      "title": "Archive chapter",
+      "requirements": [
+        "L2-140",
+        "L2-147"
+      ],
+      "states": [
+        "default",
+        "busy",
+        "failed",
+        "success"
+      ],
+      "not_applicable": {
+        "invalid": "A confirmation with no input."
+      },
+      "opens_from": "organisation-chapters"
+    },
+    {
+      "id": "add-list-entry",
+      "kind": "dialog",
+      "title": "Add list entry",
+      "requirements": [
+        "L2-144",
+        "L2-145",
+        "L2-146"
+      ],
+      "states": [
+        "default",
+        "event-type",
+        "invalid",
+        "busy",
+        "failed",
+        "success"
+      ],
+      "not_applicable": {},
+      "opens_from": "organisation-taxonomies"
+    },
+    {
+      "id": "rename-list-entry",
+      "kind": "dialog",
+      "title": "Rename list entry",
+      "requirements": [
+        "L2-144",
+        "L2-145",
+        "L2-146"
+      ],
+      "states": [
+        "default",
+        "invalid",
+        "busy",
+        "failed",
+        "success"
+      ],
+      "not_applicable": {},
+      "opens_from": "organisation-taxonomies"
+    },
+    {
+      "id": "archive-list-entry",
+      "kind": "dialog",
+      "title": "Archive list entry",
+      "requirements": [
+        "L2-144",
+        "L2-145",
+        "L2-146"
+      ],
+      "states": [
+        "default",
+        "in-use",
+        "busy",
+        "failed",
+        "success"
+      ],
+      "not_applicable": {
+        "invalid": "A confirmation with no input; the API's refusal is the in-use state."
+      },
+      "opens_from": "organisation-taxonomies"
+    },
+    {
+      "id": "account-menu",
+      "kind": "page",
+      "title": "Account menu",
+      "route": "Shell part: the avatar menu on every signed-in page",
+      "requirements": [
+        "L2-133",
+        "L2-003"
+      ],
+      "states": [
+        "default",
+        "single",
+        "northside"
+      ],
+      "not_applicable": {
+        "loading": "Built from /api/me, which the shell has already loaded.",
+        "empty": "The menu always has Your profile, Settings and Sign out.",
+        "error": "The shell's own load error covers it (server-error)."
+      }
+    },
+    {
+      "id": "unknown-host",
+      "kind": "page",
+      "title": "Unknown host",
+      "route": "Any path on a host that maps to no organisation (404)",
+      "requirements": [
+        "L2-131",
+        "L2-048"
+      ],
+      "states": [
+        "default"
+      ],
+      "not_applicable": {
+        "loading": "Served whole by the server; nothing is fetched.",
+        "empty": "No collection.",
+        "error": "It is itself the error outcome."
+      }
+    },
+    {
+      "id": "organisation-suspended",
+      "kind": "page",
+      "title": "Organisation suspended",
+      "route": "Any path on a suspended organisation's hosts (503)",
+      "requirements": [
+        "L2-131",
+        "L2-150"
+      ],
+      "states": [
+        "default"
+      ],
+      "not_applicable": {
+        "loading": "Served whole by the server; nothing is fetched.",
+        "empty": "No collection.",
+        "error": "It is itself the error outcome."
+      }
+    },
+    {
+      "id": "not-a-member",
+      "kind": "page",
+      "title": "Not a member",
+      "route": "Any route, for an account with no profile on this host",
+      "requirements": [
+        "L2-132"
+      ],
+      "states": [
+        "default",
+        "no-other-membership"
+      ],
+      "not_applicable": {
+        "loading": "Shown after /api/me has answered 403 not-a-member.",
+        "empty": "no-other-membership is the variant with no links.",
+        "error": "A failed /api/me shows server-error instead."
       }
     }
   ]
