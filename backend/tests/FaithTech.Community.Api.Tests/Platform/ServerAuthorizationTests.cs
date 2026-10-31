@@ -81,10 +81,12 @@ public partial class ServerAuthorizationTests(CommunityApiFactory factory) : ICl
         var me = await client.GetFromJsonAsync<MeResponse>("/api/me");
 
         Assert.Equal(member.UserId, me!.Id);
-        Assert.Equal(["CityLead", "Staff"], me.Roles);
+        Assert.Equal(["City Lead", "Staff"], me.Roles.Select(r => r.Name));
     }
 
-    private sealed record MeResponse(Guid Id, string[] Roles);
+    private sealed record HeldRole(string Name);
+
+    private sealed record MeResponse(Guid Id, HeldRole[] Roles);
 
     [GeneratedRegex(@"\{[^}]+\}")]
     private static partial Regex RouteParameter();
