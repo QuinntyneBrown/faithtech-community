@@ -55,11 +55,15 @@ export class ReorderableListComponent {
   protected move(item: ReorderableItem, direction: 'up' | 'down'): void {
     const from = this.rows().indexOf(item);
     this.place(from, direction === 'up' ? from - 1 : from + 1);
-    // A row moved to an end disables the button pressed; keep focus on the row's other move button.
+    // Moving the row's element blurs the button pressed, so focus goes back to it, or to the row's other move button
+    // when the move took the row to an end and disabled it.
     afterNextRender(
       () => {
         const pressed = this.button(item, direction);
-        if (pressed?.disabled) this.button(item, direction === 'up' ? 'down' : 'up')?.focus();
+        const target = pressed?.disabled
+          ? this.button(item, direction === 'up' ? 'down' : 'up')
+          : pressed;
+        target?.focus();
       },
       { injector: this.injector },
     );
