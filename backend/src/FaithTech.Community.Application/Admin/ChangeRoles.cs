@@ -1,6 +1,7 @@
 using FaithTech.Community.Domain.Organisations;
 using FaithTech.Community.Application.Agile;
 using FaithTech.Community.Application.Common;
+using FaithTech.Community.Application.Organisations;
 using FaithTech.Community.Application.Profiles;
 using FaithTech.Community.Domain.Admin;
 using FaithTech.Community.Domain.Profiles;
@@ -18,11 +19,9 @@ public class ChangeRolesHandler(
     IAuditLog audit,
     RoleChangeNotifier notifier,
     CityLeadRoleRemovedHandler cityLeadRemoved,
+    LastAdministratorGuard lastAdministrator,
     TimeProvider time)
 {
-    public const string LastSystemAdminMessage = "There must always be at least one System Admin.";
-
-    public const string ConcurrentSystemAdminChangeMessage = "Someone else changed System Admin roles at the same time. Reload and try again.";
 
     public Task<(Result Result, IReadOnlyList<string>? Roles)> AssignAsync(Guid profileId, string? role, CancellationToken cancellationToken = default) =>
         ChangeAsync(profileId, role, add: true, cancellationToken);
@@ -62,26 +61,23 @@ public class ChangeRolesHandler(
             return (Result.Conflict(add ? "They already hold that role." : "They don’t hold that role."), null);
         }
 
-        OrganisationAdminRoster? roster = null;
-        if (!add && definition.Capabilities.Contains(Capability.AdministerOrganisation)
-            && !profile.Roles.Any(r => r.RoleDefinitionId != definition.Id && r.Definition?.Capabilities.Contains(Capability.AdministerOrganisation) == true))
+        if (!add && definition.Capabilities.Contains(Capability.AdministerOrganisation))
         {
-            // Take the roster lease in a save of its own, so no other removal can count the admins until
-            // this one has saved its change; only then is the count safe to trust.
-            roster = await TakeRosterLeaseAsync(cancellationToken);
-            if (roster is null)
+            // The lease first, in a save of its own, so no overlapping change can count the administrators until
+            // this one has saved; only then is the count safe to trust (L2-139 AC1, AC2).
+            if (!await lastAdministrator.TakeLeaseAsync(cancellationToken))
             {
-                return (Result.Conflict(ConcurrentSystemAdminChangeMessage), null);
+                return (Result.Conflict(LastAdministratorGuard.ConcurrentChangeMessage), null);
             }
 
-            if (await db.Profiles.Where(ProfileHolding.Capability(Capability.AdministerOrganisation)).CountAsync(p => !p.IsSuspended, cancellationToken) <= 1)
+            if (await lastAdministrator.WouldLeaveNoneAsync(profile.Id, definition.Id, cancellationToken))
             {
-                roster.Release();
+                lastAdministrator.Release();
                 await db.SaveChangesAsync(cancellationToken);
-                return (Result.Conflict(LastSystemAdminMessage), null);
+                return (Result.Conflict(LastAdministratorGuard.LastAdministratorMessage), null);
             }
 
-            roster.Release();
+            lastAdministrator.Release();
         }
 
         var actor = await access.CallerProfileIdAsync(cancellationToken) ?? Guid.Empty;
@@ -120,33 +116,6 @@ public class ChangeRolesHandler(
         await db.SaveChangesAsync(cancellationToken);
 
         return (Result.Ok(), after);
-    }
-
-    /// <summary>The roster with its lease taken by this request, or null when another removal holds it.</summary>
-    private async Task<OrganisationAdminRoster?> TakeRosterLeaseAsync(CancellationToken cancellationToken)
-    {
-        // The current organisation's roster; an organisation provisioned without one gets it on its first guarded change.
-        var roster = await db.OrganisationAdminRosters.SingleOrDefaultAsync(cancellationToken);
-        if (roster is null)
-        {
-            db.OrganisationAdminRosters.Add(roster = new OrganisationAdminRoster());
-        }
-
-        if (!roster.TryTake(Guid.NewGuid(), time.GetUtcNow()))
-        {
-            return null;
-        }
-
-        try
-        {
-            await db.SaveChangesAsync(cancellationToken);
-            return roster;
-        }
-        catch (DbUpdateException)
-        {
-            // Another removal took the lease between our read and our save.
-            return null;
-        }
     }
 
     private static string[] RoleNames(Profile profile) => [.. profile.Roles.OrderBy(r => r.Definition!.SortOrder).Select(r => r.Definition!.Key)];

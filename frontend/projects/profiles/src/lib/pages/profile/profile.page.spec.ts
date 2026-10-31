@@ -166,7 +166,7 @@ describe('ProfilePage', () => {
         () =>
           new HttpErrorResponse({
             status: 409,
-            error: { detail: 'There must always be at least one System Admin.' },
+            error: { detail: 'There must always be at least one administrator.' },
           }),
       ),
     );
@@ -175,7 +175,7 @@ describe('ProfilePage', () => {
 
     button('Remove a role')!.click();
     expect(await opened().submit('CreateLead')).toBe(
-      'There must always be at least one System Admin.',
+      'There must always be at least one administrator.',
     );
   });
 });

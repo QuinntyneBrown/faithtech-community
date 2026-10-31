@@ -793,7 +793,7 @@ export class MockApi {
         carries(p.roles, 'AdministerOrganisation'),
       );
       if (admins.length <= 1)
-        return conflict(route, 'There must always be at least one System Admin.');
+        return conflict(route, 'There must always be at least one administrator.');
     }
     profile.roles = adding ? [...profile.roles, role] : profile.roles.filter((r) => r !== role);
     for (const account of this.accounts.values()) {

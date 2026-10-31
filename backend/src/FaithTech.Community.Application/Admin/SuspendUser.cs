@@ -31,7 +31,8 @@ public class SuspensionHandler(
     ITokenRevocation revocation,
     IAuditLog audit,
     TimeProvider time,
-    ICurrentOrganisation organisation)
+    ICurrentOrganisation organisation,
+    LastAdministratorGuard lastAdministrator)
 {
     public async Task<Result> SuspendAsync(Guid profileId, SuspendUserCommand command, CancellationToken cancellationToken = default)
     {
@@ -55,6 +56,25 @@ public class SuspensionHandler(
         if (profile.IsSuspended)
         {
             return Result.Conflict("This account is already suspended.");
+        }
+
+        // A suspended administrator no longer counts, so the organisation must keep another (L2-139 AC1, AC2).
+        var guarded = await db.Profiles.Where(p => p.Id == profileId).AnyAsync(ProfileHolding.Capability(Capability.AdministerOrganisation), cancellationToken);
+        if (guarded)
+        {
+            if (!await lastAdministrator.TakeLeaseAsync(cancellationToken))
+            {
+                return Result.Conflict(LastAdministratorGuard.ConcurrentChangeMessage);
+            }
+
+            if (await lastAdministrator.WouldLeaveNoneAsync(excludingProfile: profileId, cancellationToken: cancellationToken))
+            {
+                lastAdministrator.Release();
+                await db.SaveChangesAsync(cancellationToken);
+                return Result.Conflict(LastAdministratorGuard.LastAdministratorMessage);
+            }
+
+            lastAdministrator.Release();
         }
 
         var reason = command.Reason!.Trim();

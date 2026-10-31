@@ -58,6 +58,7 @@ public static class DependencyInjection
         services.AddScoped<RoleAssignmentPolicy>();
         services.AddScoped<RoleChangeNotifier>();
         services.AddScoped<ChangeRolesHandler>();
+        services.AddScoped<Organisations.LastAdministratorGuard>();
         services.AddScoped<SuspensionHandler>();
         services.AddScoped<SearchUsersHandler>();
         services.AddScoped<InviteSender>();
