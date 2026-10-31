@@ -22,12 +22,20 @@ export interface OrganisationDto {
   roles: OrganisationRole[];
 }
 
+/** PUT /api/organisation: the General settings (L2-147). */
+export interface UpdateOrganisationRequest {
+  name: string;
+  shortName: string;
+}
+
 /**
  * Contract for the host organisation's settings. Pages depend on ORGANISATION_SERVICE, never on
- * HttpOrganisationService. `get` is read once and cached for the session.
+ * HttpOrganisationService. `get` is read once and cached for the session; `update` answers 400 with field
+ * errors, or 403 to a caller without ManageOrganisationSettings, and the next `get` reads afresh.
  */
 export interface OrganisationService {
   get(): Observable<OrganisationDto>;
+  update(settings: UpdateOrganisationRequest): Observable<void>;
 }
 
 export const ORGANISATION_SERVICE = new InjectionToken<OrganisationService>('ORGANISATION_SERVICE');

@@ -1,9 +1,14 @@
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpContext } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
-import { Observable, catchError, shareReplay, throwError } from 'rxjs';
+import { Observable, catchError, shareReplay, tap, throwError } from 'rxjs';
 
 import { API_BASE_URL } from '../config';
-import { OrganisationDto, OrganisationService } from './organisation.service';
+import { HANDLES_FORBIDDEN, HANDLES_SERVER_ERROR } from '../errors';
+import {
+  OrganisationDto,
+  OrganisationService,
+  UpdateOrganisationRequest,
+} from './organisation.service';
 
 @Injectable()
 export class HttpOrganisationService implements OrganisationService {
@@ -21,5 +26,13 @@ export class HttpOrganisationService implements OrganisationService {
       shareReplay({ bufferSize: 1, refCount: false }),
     );
     return this.cached;
+  }
+
+  update(settings: UpdateOrganisationRequest): Observable<void> {
+    // A refusal or a failure reaches the dialog, which keeps the input, rather than an error page.
+    const context = new HttpContext().set(HANDLES_FORBIDDEN, true).set(HANDLES_SERVER_ERROR, true);
+    return this.http
+      .put<void>(`${this.base}/organisation`, settings, { context })
+      .pipe(tap(() => (this.cached = null)));
   }
 }
