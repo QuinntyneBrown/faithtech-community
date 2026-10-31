@@ -85,6 +85,7 @@ test.describe('App shell', () => {
         'Notes',
         'People',
         'Reports',
+        'Organisation',
         'Admin',
       ],
       tabs: ['Home', 'Events', 'Search', 'Contacts'],

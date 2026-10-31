@@ -1,0 +1,50 @@
+@if (state() === 'error') {
+  <ft-empty-state
+    variant="error"
+    heading="We couldn’t load these settings"
+    text="Check your connection and try again."
+  >
+    <ft-button actions variant="primary" (click)="retry()">Try again</ft-button>
+  </ft-empty-state>
+} @else {
+  <ft-stack>
+    @if (!canEdit()) {
+      <ft-alert status="info">You can view these settings but not change them.</ft-alert>
+    }
+    <ft-card heading="General">
+      @if (canEdit()) {
+        <ft-button
+          ftCardActions
+          object="general settings"
+          [disabled]="state() === 'loading'"
+          (click)="edit()"
+        >
+          <ft-icon name="edit" /> Edit
+        </ft-button>
+      }
+      <ft-stack>
+        <ft-description-list [loading]="state() === 'loading'">
+          <ft-description-list-item label="Name">{{
+            organisation()?.name
+          }}</ft-description-list-item>
+          <ft-description-list-item label="Short name">{{
+            organisation()?.shortName
+          }}</ft-description-list-item>
+          <ft-description-list-item label="Chapters">{{ chapters() }}</ft-description-list-item>
+        </ft-description-list>
+        <p class="text-caption">
+          The short name is shown in the top bar, page titles and emails. The address is set by the
+          platform operator.
+        </p>
+      </ft-stack>
+    </ft-card>
+    <ft-card heading="Audit">
+      <ft-stack>
+        <p>Every change to these settings is recorded with who made it and when.</p>
+        @if (canReadAudit()) {
+          <p><ft-link href="/admin/audit-log">View the audit log</ft-link></p>
+        }
+      </ft-stack>
+    </ft-card>
+  </ft-stack>
+}

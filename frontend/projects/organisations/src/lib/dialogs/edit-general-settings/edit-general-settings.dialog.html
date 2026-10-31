@@ -1,0 +1,45 @@
+<ft-dialog
+  heading="Edit general settings"
+  description="Changes apply to every page at once and are recorded in the audit log."
+  [busy]="busy()"
+  (closed)="ref.close()"
+>
+  <form [formGroup]="form" (submit)="$event.preventDefault(); save()" ftFormErrorFocus>
+    <ft-stack>
+      @if (failed()) {
+        <ft-alert status="danger" heading="Settings not saved">
+          We couldn’t reach {{ names.shortName() }}. Your changes are still here — try again.
+        </ft-alert>
+      }
+      <ft-form-field
+        label="Name"
+        help="Used in page titles, emails and on public event pages."
+        [error]="nameError()"
+      >
+        <ft-text-field
+          formControlName="name"
+          autocomplete="off"
+          initialFocus
+          [maxlength]="maxName"
+          [readonly]="busy()"
+        />
+      </ft-form-field>
+      <ft-form-field
+        label="Short name"
+        help="Shown in the top bar and the browser tab."
+        [error]="shortNameError()"
+      >
+        <ft-text-field
+          formControlName="shortName"
+          autocomplete="off"
+          [maxlength]="maxShortName"
+          [readonly]="busy()"
+        />
+      </ft-form-field>
+    </ft-stack>
+  </form>
+  <ft-button ftDialogFooter [disabled]="busy()" (click)="ref.close()">Cancel</ft-button>
+  <ft-button ftDialogFooter variant="primary" [loading]="busy()" (click)="save()">
+    {{ busy() ? 'Saving…' : failed() ? 'Try again' : 'Save' }}
+  </ft-button>
+</ft-dialog>
