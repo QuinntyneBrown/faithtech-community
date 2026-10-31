@@ -24,6 +24,8 @@ export interface CurrentUser {
   roles: Role[];
   /** The organisation of the host, from /api/me (L2-133 AC1). */
   organisation?: MeOrganisation;
+  /** The account's other active memberships, for the switcher (L2-133 AC1, AC3). */
+  memberships?: Membership[];
 }
 
 /** The organisation part of /api/me. */

@@ -2,7 +2,7 @@
 
 | Design | Effort | Complete | Visual conformance |
 |---|---|---|---|
-| accounts-and-memberships | 6 days | 75% | — |
+| accounts-and-memberships | 6 days | 90% | — |
 | capabilities-and-authorization | 7 days | 0% | — |
 | chapters | 6 days | 0% | — |
 | organisation-settings | 4 days | 0% | — |
