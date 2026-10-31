@@ -9,7 +9,7 @@ import { HttpEventsService } from './http-events.service';
 const event: EventRequest = {
   title: 'Builders night',
   description: 'Hack',
-  type: 'BuildersNight',
+  type: 'builders-night',
   startsAt: '2026-11-01T18:00:00Z',
   endsAt: '2026-11-01T20:00:00Z',
   chapterId: 'c-toronto',

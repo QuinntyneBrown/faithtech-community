@@ -1,4 +1,6 @@
 import { Route } from '@playwright/test';
+
+import { EventTypesContext, MockEventTypes } from './mock-event-types';
 import { firstRoleCarrying, holds } from './role-definitions';
 
 /** An RSVP as the Rsvps table holds it: a member's profile id, or a guest's name and email. */
@@ -22,7 +24,8 @@ export interface MockEvent {
   id: string;
   title: string;
   description: string;
-  type: 'Gathering' | 'BuildersNight' | 'Hackathon' | 'PrayerAndPlanning' | 'Panel';
+  /** An event type key of the organisation's (L2-145), such as "builders-night". */
+  type: string;
   startsAt: string;
   endsAt: string;
   /** The chapter tag (L2-141); null for an organisation-wide event. */
@@ -74,7 +77,7 @@ export interface MockEmail {
   attachment: { fileName: string; contentType: string } | null;
 }
 
-const LIST_FILTERS = ['upcoming', 'past', 'hackathons', 'online'];
+const LIST_FILTERS = ['upcoming', 'past', 'online'];
 
 /** EventPermissions: who sees the RSVP list, guest emails and the CSV export (L2-022). */
 const seesList = (c: EventsCaller) => holds(c, 'ViewAttendees') || holds(c, 'ManageAttendance');
@@ -128,20 +131,22 @@ export function slug(title: string): string {
     .replace(/^-+|-+$/g, '');
   return words.slice(0, 60).replace(/-+$/, '') || 'event';
 }
-const TYPES = ['Gathering', 'BuildersNight', 'Hackathon', 'PrayerAndPlanning', 'Panel'];
-
 function canManage(caller: EventsCaller): boolean {
   return holds(caller, 'ManageEvents');
 }
 
 const text = (value: unknown) => (typeof value === 'string' ? value.trim() : '');
 
-/** SaveEventValidator's rules and words. */
-function validate(body: Record<string, unknown>): Record<string, string[]> {
+/** SaveEventValidator's rules and words; the type is an active one, or the event's own on edit (L2-145 AC2). */
+function validate(
+  body: Record<string, unknown>,
+  types: MockEventTypes,
+  current: string | null = null,
+): Record<string, string[]> {
   const errors: Record<string, string[]> = {};
   const online = body['format'] === 'Online';
   if (!text(body['title'])) errors['Title'] = ['Give the event a title people will recognise.'];
-  if (!TYPES.includes(String(body['type']))) errors['Type'] = ['Choose a type from the list.'];
+  if (!types.allows(body['type'], current)) errors['Type'] = ['Choose a type from the list.'];
   if (!(String(body['endsAt']) > String(body['startsAt']))) {
     errors['EndsAt'] = ['The end time must be after the start time.'];
   }
@@ -165,7 +170,7 @@ function fields(body: Record<string, unknown>): Partial<MockEvent> {
   return {
     title: text(body['title']),
     description: text(body['description']),
-    type: body['type'] as MockEvent['type'],
+    type: String(body['type']),
     startsAt: new Date(String(body['startsAt'])).toISOString(),
     endsAt: new Date(String(body['endsAt'])).toISOString(),
     format: online ? 'Online' : 'InPerson',
@@ -196,6 +201,9 @@ export class MockEvents {
   /** The next check-in or undo answers 500, to drive the reverted switch and danger toast. */
   private failCheckIn = false;
 
+  /** The organisation's event types, seeded with FaithTech's (L2-145, L2-151). */
+  readonly types: MockEventTypes;
+
   constructor(
     private readonly now: () => Date,
     private readonly profile: (id: string) => EventsProfile | undefined = () => undefined,
@@ -208,7 +216,17 @@ export class MockEvents {
       filterId: () => null,
       on: () => false,
     },
-  ) {}
+    addAuditEntry: EventTypesContext['addAuditEntry'] = () => undefined,
+  ) {
+    const events = this.events;
+    this.types = new MockEventTypes({
+      get now() {
+        return now();
+      },
+      eventsOf: (key) => events.filter((e) => e.type === key).length,
+      addAuditEntry,
+    });
+  }
 
   /** An event as a lead would create it; give `startsInDays` relative to the fake's "now". */
   add(event: Partial<MockEvent> & { title: string }, startsInDays = 7, hours = 2): MockEvent {
@@ -216,7 +234,7 @@ export class MockEvents {
     const full: MockEvent = {
       id: `event-${this.events.length + 1}`,
       description: `About ${event.title}.`,
-      type: 'Gathering',
+      type: 'gathering',
       startsAt: starts.toISOString(),
       endsAt: new Date(starts.getTime() + hours * 60 * 60 * 1000).toISOString(),
       chapterId: 'chapterId' in event ? (event.chapterId ?? null) : this.chapters.defaultId(),
@@ -625,6 +643,7 @@ export class MockEvents {
         title: event.title,
         description: event.description,
         type: event.type,
+        typeName: this.types.nameOf(event.type),
         startsAt: event.startsAt,
         endsAt: event.endsAt,
         chapterName: this.chapters.nameOf(event.chapterId),
@@ -776,7 +795,7 @@ export class MockEvents {
     caller: EventsCaller | null,
   ): Promise<void> {
     if (!caller) return route.fulfill({ status: 401 });
-    const errors = validate(body);
+    const errors = validate(body, this.types);
     const chapter = this.chapters.pick(body['chapterId'], null);
     if ('error' in chapter) errors['ChapterId'] = [chapter.error];
     if (Object.keys(errors).length)
@@ -803,8 +822,8 @@ export class MockEvents {
     caller: EventsCaller | null,
   ): Promise<void> {
     if (!caller) return route.fulfill({ status: 401 });
-    const errors = validate(body);
     const existing = this.events.find((e) => e.id === id);
+    const errors = validate(body, this.types, existing?.type ?? null);
     const chapter = this.chapters.pick(body['chapterId'], existing?.chapterId ?? null);
     if ('error' in chapter) errors['ChapterId'] = [chapter.error];
     if (Object.keys(errors).length)
@@ -842,6 +861,7 @@ export class MockEvents {
       title: event.title,
       description: event.description,
       type: event.type,
+      typeName: this.types.nameOf(event.type),
       startsAt: event.startsAt,
       endsAt: event.endsAt,
       chapterId: event.chapterId,
@@ -884,7 +904,10 @@ export class MockEvents {
     };
   }
 
-  /** GET /api/events?filter=&chapter= (L2-021, L2-142): a chapter's id, or none for the organisation-wide events. */
+  /**
+   * GET /api/events?filter=&chapter=&type= (L2-021, L2-142, L2-145 AC3): a chapter's id, or none for the
+   * organisation-wide events, and a type key.
+   */
   private list(route: Route, url: URL, caller: EventsCaller | null): Promise<void> {
     if (!caller) return route.fulfill({ status: 401 });
     const filter = (url.searchParams.get('filter') ?? 'upcoming').toLowerCase();
@@ -893,7 +916,7 @@ export class MockEvents {
         status: 400,
         json: {
           status: 400,
-          errors: { filter: ['Filter by Upcoming, Past, Hackathons or Online.'] },
+          errors: { filter: ['Filter by Upcoming, Past or Online.'] },
         },
       });
     }
@@ -901,15 +924,17 @@ export class MockEvents {
     const chapterParam = url.searchParams.get('chapter');
     const wide = chapterParam === 'none' && this.chapters.on();
     const chapter = wide ? null : this.chapters.filterId(chapterParam);
+    // type= narrows to one of the organisation's types; a key it does not have is ignored (L2-145 AC3).
+    const typeParam = url.searchParams.get('type');
+    const type = typeParam && this.types.byKey(typeParam) ? typeParam : null;
     const matching = this.events
       .filter((e) =>
         filter === 'past'
           ? e.endsAt <= now
-          : e.endsAt > now &&
-            (filter !== 'hackathons' || e.type === 'Hackathon') &&
-            (filter !== 'online' || e.format === 'Online'),
+          : e.endsAt > now && (filter !== 'online' || e.format === 'Online'),
       )
       .filter((e) => (wide ? e.chapterId === null : !chapter || e.chapterId === chapter))
+      .filter((e) => !type || e.type === type)
       .sort((a, b) =>
         filter === 'past'
           ? b.startsAt.localeCompare(a.startsAt)
@@ -919,6 +944,7 @@ export class MockEvents {
         id: e.id,
         title: e.title,
         type: e.type,
+        typeName: this.types.nameOf(e.type),
         startsAt: e.startsAt,
         endsAt: e.endsAt,
         chapterId: e.chapterId,

@@ -58,6 +58,7 @@ public class CommunitySeeder(IOpenIddictApplicationManager applications, Communi
         await SeedOrganisationAsync(cancellationToken);
         await SeedRoleDefinitionsAsync(cancellationToken);
         await SeedPartnerStagesAsync(cancellationToken);
+        await SeedEventTypesAsync(cancellationToken);
 
         // The concurrency token that guards FaithTech's last administrator (LastAdministratorGuard).
         if (!await db.OrganisationAdminRosters.AnyAsync(cancellationToken))
@@ -107,6 +108,29 @@ public class CommunitySeeder(IOpenIddictApplicationManager applications, Communi
             db.PartnerStages.AddRange(missing);
             await db.SaveChangesAsync(cancellationToken);
         }
+    }
+
+    /// <summary>FaithTech's event types, found by key and inserted only when missing, so later edits survive (L2-151 AC3).</summary>
+    private async Task SeedEventTypesAsync(CancellationToken cancellationToken)
+    {
+        var ids = FaithTechSeed.Types.Select(t => t.Id).ToList();
+        var existing = await db.EventTypes.IgnoreQueryFilters()
+            .Where(t => t.OrganisationId == FaithTechSeed.OrganisationId || ids.Contains(t.Id))
+            .Select(t => new { t.Id, t.Key })
+            .ToListAsync(cancellationToken);
+        var missing = FaithTechSeed.EventTypes().Where(t => !existing.Any(e => e.Id == t.Id || e.Key == t.Key)).ToList();
+        if (missing.Count > 0)
+        {
+            db.EventTypes.AddRange(missing);
+            await db.SaveChangesAsync(cancellationToken);
+        }
+    }
+
+    /// <summary>The organisation's first active event type, for the load-test events; FaithTech's are seeded first if missing.</summary>
+    private async Task<EventType> FirstEventTypeAsync(CancellationToken cancellationToken)
+    {
+        await SeedEventTypesAsync(cancellationToken);
+        return await db.EventTypes.Where(t => t.ArchivedAtUtc == null).OrderBy(t => t.SortOrder).FirstAsync(cancellationToken);
     }
 
     public record StarterResource(Guid Id, string Title, string Description, ResourceType Type, string Url, string[] Tags);
@@ -212,6 +236,7 @@ public class CommunitySeeder(IOpenIddictApplicationManager applications, Communi
     {
         var now = time.GetUtcNow();
         var chapters = await ChapterIdsAsync(ReportCities, cancellationToken);
+        var type = await FirstEventTypeAsync(cancellationToken);
         var existing = (await db.Profiles.Where(p => p.Name.StartsWith(ReportRecordPrefix)).Select(p => p.Name).ToListAsync(cancellationToken))
             .ToHashSet();
         var created = 0;
@@ -263,7 +288,7 @@ public class CommunitySeeder(IOpenIddictApplicationManager applications, Communi
 
             var starts = now.AddDays(30 - (i * 365.0 / events));
             var e = new Event(
-                title, "A Reports load-test evening.", EventType.Gathering, starts, starts.AddHours(2), chapters[ReportCities[i % ReportCities.Length]],
+                title, "A Reports load-test evening.", type, starts, starts.AddHours(2), chapters[ReportCities[i % ReportCities.Length]],
                 EventFormat.InPerson, "Load venue", null, null, EventVisibility.MembersOnly, Guid.Empty);
             var rsvps = Enumerable.Range(0, 50).Select(r => e.Rsvp(Guid.NewGuid(), starts.AddDays(-7).AddMinutes(r))).ToList();
             if (starts <= now)
@@ -279,6 +304,8 @@ public class CommunitySeeder(IOpenIddictApplicationManager applications, Communi
                 e.Cancel("Load-test cancellation");
             }
 
+            // The tracker is cleared every 100 events; the type stays an existing row.
+            db.EventTypes.Attach(type);
             db.Events.Add(e);
             if (i % 100 == 0)
             {
@@ -332,6 +359,7 @@ public class CommunitySeeder(IOpenIddictApplicationManager applications, Communi
             .ToHashSet();
         var starts = time.GetUtcNow().AddDays(30);
         var chapters = await ChapterIdsAsync(Enumerable.Range(0, 50).Select(i => $"City {i:00}"), cancellationToken);
+        var type = await FirstEventTypeAsync(cancellationToken);
         var created = 0;
         for (var i = 1; i <= count; i++)
         {
@@ -342,8 +370,9 @@ public class CommunitySeeder(IOpenIddictApplicationManager applications, Communi
             }
 
             var words = $"{SearchWords[i % SearchWords.Length]} {SearchWords[i / SearchWords.Length % SearchWords.Length]}";
+            db.EventTypes.Attach(type);
             db.Events.Add(new Event(
-                title, $"A {words} evening.", EventType.Gathering, starts, starts.AddHours(2), chapters[$"City {i % 50:00}"],
+                title, $"A {words} evening.", type, starts, starts.AddHours(2), chapters[$"City {i % 50:00}"],
                 EventFormat.InPerson, "Load venue", null, null, EventVisibility.MembersOnly, Guid.Empty));
             created++;
             if (created % 1000 == 0)

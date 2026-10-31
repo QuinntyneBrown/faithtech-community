@@ -4,13 +4,15 @@ using FaithTech.Community.Application.Notifications;
 using FaithTech.Community.Application.Organisations;
 using FaithTech.Community.Domain.Events;
 using FaithTech.Community.Domain.Notifications;
+using FaithTech.Community.Domain.Organisations;
 using FluentValidation;
 using Microsoft.EntityFrameworkCore;
 
 namespace FaithTech.Community.Application.Events;
 
 /// <summary>
-/// The event form's fields, for both create and edit (L2-020). Type, format and visibility are enum names;
+/// The event form's fields, for both create and edit (L2-020). Type is one of the organisation's event type keys
+/// (L2-145 AC2); format and visibility are enum names;
 /// the venue is kept only for in-person events and the link only for online ones. The chapter is optional: none means
 /// organisation-wide (L2-141 AC2).
 /// </summary>
@@ -36,6 +38,7 @@ public class SaveEventValidator : AbstractValidator<SaveEventCommand>
     public const int MaxDescription = 4000;
     public const int MaxVenue = 300;
     public const int MaxLink = 500;
+    public const string ChooseType = "Choose a type from the list.";
 
     public SaveEventValidator()
     {
@@ -45,7 +48,7 @@ public class SaveEventValidator : AbstractValidator<SaveEventCommand>
         RuleFor(x => x.Description)
             .Must(d => (d?.Trim().Length ?? 0) <= MaxDescription).WithMessage($"Use {MaxDescription} characters or fewer for the description.");
         RuleFor(x => x.Type)
-            .Must(IsName<EventType>).WithMessage("Choose a type from the list.");
+            .Must(t => !string.IsNullOrWhiteSpace(t)).WithMessage(ChooseType);
         RuleFor(x => x.EndsAt)
             .Must((command, ends) => ends > command.StartsAt).WithMessage("The end time must be after the start time.");
         RuleFor(x => x.Format)
@@ -95,9 +98,15 @@ public class SaveEventHandler(
             return (refused, null);
         }
 
+        // A new event takes an active type (L2-145 AC2).
+        if (await TypeAsync(command.Type, null, cancellationToken) is not { } type)
+        {
+            return (Result.Invalid(nameof(SaveEventCommand.Type), SaveEventValidator.ChooseType), null);
+        }
+
         var details = Details.From(command);
         var created = new Event(
-            details.Title, details.Description, details.Type, command.StartsAt, command.EndsAt, chapterId,
+            details.Title, details.Description, type, command.StartsAt, command.EndsAt, chapterId,
             details.Format, details.Venue, details.OnlineLink, command.Capacity, details.Visibility, creator);
         db.Events.Add(created);
         if (permissions.IsAdminOverride)
@@ -134,10 +143,16 @@ public class SaveEventHandler(
             return refused;
         }
 
+        // An edit may keep the event's archived type, but not choose another archived one (L2-145 AC2, AC4).
+        if (await TypeAsync(command.Type, existing.TypeId, cancellationToken) is not { } type)
+        {
+            return Result.Invalid(nameof(SaveEventCommand.Type), SaveEventValidator.ChooseType);
+        }
+
         var before = Snapshot(existing);
         var details = Details.From(command);
         existing.Update(
-            details.Title, details.Description, details.Type, command.StartsAt, command.EndsAt, chapterId,
+            details.Title, details.Description, type, command.StartsAt, command.EndsAt, chapterId,
             details.Format, details.Venue, details.OnlineLink, command.Capacity, details.Visibility);
         foreach (var member in existing.Rsvps.Select(r => r.ProfileId).OfType<Guid>().Where(p => p != actor))
         {
@@ -153,6 +168,10 @@ public class SaveEventHandler(
         return Result.Ok();
     }
 
+    /// <summary>The organisation's type with this key: an active one, or the event's current type.</summary>
+    private Task<EventType?> TypeAsync(string? key, Guid? current, CancellationToken cancellationToken) =>
+        db.EventTypes.FirstOrDefaultAsync(t => t.Key == key && (t.ArchivedAtUtc == null || t.Id == current), cancellationToken);
+
     /// <summary>A chapter other than the event's own must be an active one of this organisation (L2-141 AC2).</summary>
     private async Task<Result?> ChapterRefusalAsync(Guid? chapterId, Guid? current, CancellationToken cancellationToken) =>
         chapterId is { } picked && picked != current
@@ -163,7 +182,7 @@ public class SaveEventHandler(
     private static object Snapshot(Event e) => new
     {
         e.Title,
-        Type = e.Type.ToString(),
+        Type = e.Type?.Key,
         e.StartsAt,
         e.EndsAt,
         e.ChapterId,
@@ -176,7 +195,7 @@ public class SaveEventHandler(
 
     /// <summary>The validated command, trimmed and parsed; the field the format does not use is dropped.</summary>
     private sealed record Details(
-        string Title, string Description, EventType Type, EventFormat Format, string? Venue, string? OnlineLink, EventVisibility Visibility)
+        string Title, string Description, EventFormat Format, string? Venue, string? OnlineLink, EventVisibility Visibility)
     {
         public static Details From(SaveEventCommand c)
         {
@@ -184,7 +203,6 @@ public class SaveEventHandler(
             return new Details(
                 c.Title!.Trim(),
                 c.Description?.Trim() ?? string.Empty,
-                Enum.Parse<EventType>(c.Type!),
                 format,
                 format == EventFormat.InPerson ? c.Venue!.Trim() : null,
                 format == EventFormat.Online ? c.OnlineLink!.Trim() : null,

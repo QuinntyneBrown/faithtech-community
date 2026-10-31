@@ -21,7 +21,11 @@ export class HttpEventsService implements EventsService {
 
   listEvents(filter: EventFilter): Observable<EventListDto> {
     return this.http.get<EventListDto>(`${this.api}/events`, {
-      params: toHttpParams({ filter: filter.filter, chapter: filter.chapterId }),
+      params: toHttpParams({
+        filter: filter.filter,
+        chapter: filter.chapterId,
+        type: filter.type,
+      }),
     });
   }
 

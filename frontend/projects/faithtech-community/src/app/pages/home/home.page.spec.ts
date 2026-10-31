@@ -19,7 +19,8 @@ function event(id: string, overrides: Partial<EventSummaryDto> = {}): EventSumma
   return {
     id,
     title: `Event ${id}`,
-    type: 'Gathering',
+    type: 'gathering',
+    typeName: 'Gathering',
     startsAt: new Date(2026, 10, 6, 18, 30).toISOString(),
     endsAt: new Date(2026, 10, 6, 21, 0).toISOString(),
     chapterId: 'c-toronto',

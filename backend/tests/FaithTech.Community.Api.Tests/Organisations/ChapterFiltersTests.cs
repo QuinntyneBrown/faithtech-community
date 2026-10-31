@@ -140,7 +140,7 @@ public class ChapterFiltersTests(CommunityApiFactory factory) : IClassFixture<Co
         {
             title = "Makers Night",
             description = "An evening for makers.",
-            type = "BuildersNight",
+            type = "builders-night",
             startsAt = start,
             endsAt = start.AddHours(2),
             chapterId,

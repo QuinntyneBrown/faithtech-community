@@ -34,7 +34,7 @@ public class EventDetailTests(CommunityApiFactory factory) : IClassFixture<Commu
     public async Task A_member_gets_every_detail_the_edit_form_needs()
     {
         var existing = await factory.AddEventAsync("Prayer & Planning", TimeSpan.FromDays(7), city: "Austin",
-            type: EventType.PrayerAndPlanning, format: EventFormat.Online, visibility: EventVisibility.Public, capacity: 30, rsvps: 2);
+            type: "prayer-and-planning", format: EventFormat.Online, visibility: EventVisibility.Public, capacity: 30, rsvps: 2);
         var member = await factory.AddMemberAsync("Leah Thompson");
 
         var json = await factory.ClientFor(member, Role.Attendee).GetFromJsonAsync<JsonElement>($"/api/events/{existing.Id}");
@@ -42,7 +42,8 @@ public class EventDetailTests(CommunityApiFactory factory) : IClassFixture<Commu
         Assert.Equal(existing.Id, json.GetProperty("id").GetGuid());
         Assert.Equal("Prayer & Planning", json.GetProperty("title").GetString());
         Assert.Equal("About Prayer & Planning.", json.GetProperty("description").GetString());
-        Assert.Equal("PrayerAndPlanning", json.GetProperty("type").GetString());
+        Assert.Equal("prayer-and-planning", json.GetProperty("type").GetString());
+        Assert.Equal("Prayer & planning", json.GetProperty("typeName").GetString());
         Assert.Equal(existing.StartsAt, json.GetProperty("startsAt").GetDateTimeOffset());
         Assert.Equal(existing.EndsAt, json.GetProperty("endsAt").GetDateTimeOffset());
         Assert.Equal("Austin", json.GetProperty("chapterName").GetString());

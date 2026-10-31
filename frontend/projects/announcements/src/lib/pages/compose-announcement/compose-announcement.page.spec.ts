@@ -19,7 +19,8 @@ import { ComposeAnnouncementPage } from './compose-announcement.page';
 const builders: EventSummaryDto = {
   id: 'e1',
   title: 'Toronto Builders Night',
-  type: 'BuildersNight',
+  type: 'builders-night',
+  typeName: 'Builders night',
   startsAt: '2026-11-06T18:00:00Z',
   endsAt: '2026-11-06T21:00:00Z',
   chapterId: 'c-toronto',

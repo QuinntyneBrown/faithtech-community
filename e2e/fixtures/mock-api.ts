@@ -176,6 +176,7 @@ export class MockApi {
       filterId: (value) => this.chapters.filterId(value),
       on: () => !!this.host.organisation.chapterLabel,
     },
+    (entry) => this.addAuditEntry(entry),
   );
   /** In-app notifications (L2-027) for the bell, the notifications page and home's Recent activity. */
   readonly notifications = new MockNotifications(() => this.now);
@@ -463,6 +464,14 @@ export class MockApi {
       this.caller(authorization),
     );
     if (stages) return stages;
+    const eventTypes = this.events.types.handle(
+      route,
+      method,
+      url,
+      body,
+      this.caller(authorization),
+    );
+    if (eventTypes) return eventTypes;
     const search = this.search.handle(route, method, url, this.caller(authorization));
     if (search) return search;
     const profileRoute = /^\/api\/profiles\/([^/]+)$/.exec(url.pathname);
@@ -878,6 +887,7 @@ export class MockApi {
         chapterLabel: chapterLabel ?? null,
         chapters: this.chapters.options(),
         partnerStages: this.partners.stages.options(),
+        eventTypes: this.events.types.options(),
         roles: roleDefinitions()
           .filter((d) => !d.archived)
           .map((d) => ({

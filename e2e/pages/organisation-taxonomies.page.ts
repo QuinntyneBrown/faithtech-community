@@ -11,6 +11,10 @@ export class OrganisationTaxonomiesPage {
   readonly stages: Locator;
   readonly archivedStages: Locator;
   readonly addStage: Locator;
+  readonly types: Locator;
+  readonly typesCaption: Locator;
+  readonly archivedTypes: Locator;
+  readonly addType: Locator;
 
   constructor(private readonly page: Page) {
     this.tab = page
@@ -24,6 +28,12 @@ export class OrganisationTaxonomiesPage {
     this.stages = page.getByRole('list', { name: 'Partner stages', exact: true });
     this.archivedStages = page.getByRole('list', { name: 'Archived partner stages' });
     this.addStage = page.getByRole('button', { name: 'Add a stage', exact: true });
+    this.types = page.getByRole('list', { name: 'Event types', exact: true });
+    this.typesCaption = page.getByText(
+      'Offered in this order on the event form and the Events type filter.',
+    );
+    this.archivedTypes = page.getByRole('list', { name: 'Archived event types' });
+    this.addType = page.getByRole('button', { name: 'Add an event type', exact: true });
   }
 
   async open(): Promise<void> {
@@ -34,6 +44,16 @@ export class OrganisationTaxonomiesPage {
   async stageNames(): Promise<string[]> {
     return (
       await this.stages
+        .getByRole('listitem')
+        .locator('.ft-reorderable-list__title')
+        .allTextContents()
+    ).map((t) => t.trim());
+  }
+
+  /** The active event type names, in the order the list shows them. */
+  async typeNames(): Promise<string[]> {
+    return (
+      await this.types
         .getByRole('listitem')
         .locator('.ft-reorderable-list__title')
         .allTextContents()

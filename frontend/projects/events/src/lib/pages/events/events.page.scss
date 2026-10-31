@@ -16,6 +16,12 @@ ft-page-header {
   margin-block-end: var(--space-4);
 }
 
+.type,
 .city {
   inline-size: 12rem;
+}
+
+/* The type and chapter filters sit together at the end of the row (docs/mocks/pages/events/type). */
+.type {
+  margin-inline-start: auto;
 }

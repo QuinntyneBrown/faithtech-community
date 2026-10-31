@@ -34,12 +34,11 @@ import { firstValueFrom } from 'rxjs';
 
 type State = 'loading' | 'loaded' | 'error';
 
-const CHIPS: EventListFilter[] = ['Upcoming', 'Past', 'Hackathons', 'Online'];
+const CHIPS: EventListFilter[] = ['Upcoming', 'Past', 'Online'];
 
 const NO_RESULTS: Record<EventListFilter, string> = {
   Upcoming: 'No upcoming events',
   Past: 'No past events',
-  Hackathons: 'No upcoming hackathons',
   Online: 'No upcoming online events',
 };
 
@@ -53,8 +52,9 @@ interface EventRow {
 }
 
 /**
- * Events across the organisation, filtered by one chip and a chapter (L2-021, L2-142), as in docs/mocks/pages/events.
- * The chapter filter offers the organisation-wide events too, and is absent while chapters are off.
+ * Events across the organisation, filtered by one chip, a type and a chapter (L2-021, L2-145 AC3, L2-142), as in
+ * docs/mocks/pages/events. The type filter offers "All types" and the organisation's active types; the chapter filter
+ * offers the organisation-wide events too, and is absent while chapters are off.
  */
 @Component({
   selector: 'ft-events-page',
@@ -85,6 +85,9 @@ export class EventsPage {
 
   protected readonly chips = CHIPS;
   protected readonly chapter = new FormControl('', { nonNullable: true });
+  protected readonly type = new FormControl('', { nonNullable: true });
+  /** "All types" and the active types in order (L2-145 AC3). */
+  protected readonly typeOptions = signal<SelectOption[]>([]);
 
   protected readonly state = signal<State>('loading');
   protected readonly rows = signal<EventRow[]>([]);
@@ -99,11 +102,15 @@ export class EventsPage {
     () => this.organisationNames.chapterLabel()?.plural.toLowerCase() ?? '',
   );
   private readonly selectedChapter = signal<string | null>(null);
+  private readonly selectedType = signal<string | null>(null);
   private request = 0;
 
   protected readonly canManage = computed(() => canManageEvents(this.capabilities()));
   protected readonly filtered = computed(
-    () => this.filter() !== 'Upcoming' || this.selectedChapter() !== null,
+    () =>
+      this.filter() !== 'Upcoming' ||
+      this.selectedChapter() !== null ||
+      this.selectedType() !== null,
   );
   /**
    * "No upcoming events in Vancouver", worded as the no-results mock words it (L2-142 AC5), or "No upcoming
@@ -111,7 +118,11 @@ export class EventsPage {
    */
   protected readonly noResultsHeading = computed(() => {
     const id = this.selectedChapter();
-    const heading = NO_RESULTS[this.filter()];
+    const typeKey = this.selectedType();
+    const typeName = typeKey && this.typeOptions().find((o) => o.value === typeKey)?.label;
+    const heading = typeName
+      ? NO_RESULTS[this.filter()].replace(/ events$/, ` ${typeName} events`)
+      : NO_RESULTS[this.filter()];
     const label = id && this.chapterOptions().find((o) => o.value === id)?.label;
     if (!label) return heading;
     return id === ORGANISATION_WIDE
@@ -141,11 +152,23 @@ export class EventsPage {
       this.selectedChapter.set(value || null);
       void this.load();
     });
+    this.type.valueChanges.subscribe((value) => {
+      this.selectedType.set(value || null);
+      void this.load();
+    });
     this.organisations.get().subscribe({
-      next: (organisation) =>
-        this.chapterOptions.set(chapterFilterOptions(organisation, { organisationWide: true })),
-      // Without the list the events are shown organisation-wide, with no filter.
-      error: () => this.chapterOptions.set([]),
+      next: (organisation) => {
+        this.chapterOptions.set(chapterFilterOptions(organisation, { organisationWide: true }));
+        this.typeOptions.set([
+          { value: '', label: 'All types' },
+          ...organisation.eventTypes.map((t) => ({ value: t.key, label: t.name })),
+        ]);
+      },
+      // Without the lists the events are shown organisation-wide and of every type, with no filters.
+      error: () => {
+        this.chapterOptions.set([]);
+        this.typeOptions.set([]);
+      },
     });
     void this.load();
   }
@@ -158,6 +181,10 @@ export class EventsPage {
 
   protected showAllChapters(): void {
     this.chapter.setValue('');
+  }
+
+  protected showAllTypes(): void {
+    this.type.setValue('');
   }
 
   protected showUpcoming(): void {
@@ -174,7 +201,11 @@ export class EventsPage {
     this.state.set('loading');
     try {
       const list = await firstValueFrom(
-        this.events.listEvents({ filter: this.filter(), chapterId: this.selectedChapter() }),
+        this.events.listEvents({
+          filter: this.filter(),
+          chapterId: this.selectedChapter(),
+          type: this.selectedType(),
+        }),
       );
       if (request !== this.request) return;
       this.rows.set(

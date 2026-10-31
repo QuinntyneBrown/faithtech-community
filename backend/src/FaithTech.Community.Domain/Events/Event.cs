@@ -36,7 +36,10 @@ public class Event : IOrganisationScoped
 
     public string Description { get; private set; } = string.Empty;
 
-    public EventType Type { get; private set; }
+    /// <summary>The organisation's event type; an archived one stays on its events (L2-145 AC4).</summary>
+    public Guid TypeId { get; private set; }
+
+    public EventType? Type { get; private set; }
 
     public DateTimeOffset StartsAt { get; private set; }
 
@@ -250,6 +253,7 @@ public class Event : IOrganisationScoped
         EventVisibility visibility)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(title);
+        ArgumentNullException.ThrowIfNull(type);
         if (endsAt < startsAt)
         {
             throw new ArgumentException("An event cannot end before it starts.", nameof(endsAt));
@@ -272,6 +276,7 @@ public class Event : IOrganisationScoped
 
         Title = title;
         Description = description;
+        TypeId = type.Id;
         Type = type;
         StartsAt = startsAt;
         EndsAt = endsAt;

@@ -12,6 +12,11 @@
       <ft-chip [pressed]="filter() === chip" (click)="choose(chip)">{{ chip }}</ft-chip>
     }
   </ft-chip-group>
+  @if (typeOptions().length) {
+    <ft-form-field label="Type" class="type">
+      <ft-select [options]="typeOptions()" [formControl]="type" />
+    </ft-form-field>
+  }
   @if (chapterOptions().length) {
     <ft-form-field [label]="chapterLabel()" class="city">
       <ft-select [options]="chapterOptions()" [formControl]="chapter" />
@@ -42,6 +47,8 @@
             <ft-button actions (click)="showAllChapters()"
               >Show all {{ chaptersLabel() }}</ft-button
             >
+          } @else if (type.value) {
+            <ft-button actions (click)="showAllTypes()">Show all types</ft-button>
           } @else {
             <ft-button actions (click)="showUpcoming()">Show upcoming events</ft-button>
           }

@@ -16,7 +16,7 @@ test('event-list-and-filter', async ({ page, api }) => {
 
   const builders = api.events.add({
     title: 'Toronto Builders Night',
-    type: 'BuildersNight',
+    type: 'builders-night',
     startsAt: '2026-11-06T23:30:00Z',
     endsAt: '2026-11-07T02:00:00Z',
     visibility: 'Public',
@@ -24,7 +24,7 @@ test('event-list-and-filter', async ({ page, api }) => {
   api.events.addRsvps(builders, 34);
   api.events.add({
     title: 'Austin Faith & AI Panel',
-    type: 'Panel',
+    type: 'panel',
     startsAt: '2026-10-30T23:00:00Z',
     endsAt: '2026-10-31T01:00:00Z',
     city: 'Austin',
@@ -36,7 +36,7 @@ test('event-list-and-filter', async ({ page, api }) => {
   });
   const hackathon = api.events.add({
     title: 'Hackathon: Tech for Shelters',
-    type: 'Hackathon',
+    type: 'hackathon',
     startsAt: '2026-11-14T14:00:00Z',
     endsAt: '2026-11-15T22:00:00Z',
     venue: 'Trinity Community Centre',
@@ -55,7 +55,7 @@ test('event-list-and-filter', async ({ page, api }) => {
   });
   api.events.add({
     title: 'Spring hackathon',
-    type: 'Hackathon',
+    type: 'hackathon',
     startsAt: '2026-04-11T14:00:00Z',
     endsAt: '2026-04-12T22:00:00Z',
   });
@@ -88,8 +88,10 @@ test('event-list-and-filter', async ({ page, api }) => {
   });
 
   await show.step('chips', async () => {
-    await events.filter('Hackathons').click();
+    await events.filter('Upcoming').click();
+    await events.type.selectOption({ label: 'Hackathon' });
     await expect.poll(() => events.titles()).toEqual(['Hackathon: Tech for Shelters']);
+    await events.type.selectOption({ label: 'All types' });
     await events.filter('Online').click();
     await expect
       .poll(() => events.titles())

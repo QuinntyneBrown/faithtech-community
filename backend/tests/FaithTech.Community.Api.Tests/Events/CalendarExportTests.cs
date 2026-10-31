@@ -99,7 +99,7 @@ public class CalendarExportTests(CommunityApiFactory factory) : IClassFixture<Co
         {
             title = "Toronto Builders Night",
             description = "New venue.",
-            type = "Gathering",
+            type = "gathering",
             startsAt = existing.StartsAt,
             endsAt = existing.EndsAt,
             chapterId = existing.ChapterId,

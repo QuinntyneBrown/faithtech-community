@@ -15,7 +15,7 @@ public class EventCapabilityTests(CommunityApiFactory factory) : IClassFixture<C
     {
         title,
         description = "An evening for Christians who build.",
-        type = "BuildersNight",
+        type = "builders-night",
         startsAt = factory.Time.GetUtcNow().AddDays(14),
         endsAt = factory.Time.GetUtcNow().AddDays(14).AddHours(2),
         city = "Toronto",

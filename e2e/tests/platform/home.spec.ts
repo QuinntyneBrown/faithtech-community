@@ -39,7 +39,7 @@ async function arrange(api: MockApi) {
   api.events.addRsvps(builders, 34);
   const hackathon = api.events.add({
     title: 'Hackathon: Tech for Shelters',
-    type: 'Hackathon',
+    type: 'hackathon',
     startsAt: '2026-11-14T14:00:00Z',
     endsAt: '2026-11-15T22:00:00Z',
     venue: 'Trinity Community Centre',

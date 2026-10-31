@@ -10,6 +10,7 @@ import {
   OrganisationService,
   PartnerStageChange,
   PartnerStageDto,
+  EventTypeDto,
   UpdateOrganisationRequest,
 } from './organisation.service';
 
@@ -119,6 +120,51 @@ export class HttpOrganisationService implements OrganisationService {
     return this.write(
       this.http.post<PartnerStageDto>(
         `${this.base}/organisation/partner-stages/${id}/archive`,
+        null,
+        this.options(),
+      ),
+    );
+  }
+
+  listEventTypes(archived = false): Observable<EventTypeDto[]> {
+    const query = archived ? '?archived=true' : '';
+    return this.http.get<EventTypeDto[]>(`${this.base}/organisation/event-types${query}`);
+  }
+
+  addEventType(name: string): Observable<EventTypeDto> {
+    return this.write(
+      this.http.post<EventTypeDto>(
+        `${this.base}/organisation/event-types`,
+        { name },
+        this.options(),
+      ),
+    );
+  }
+
+  renameEventType(id: string, name: string): Observable<EventTypeDto> {
+    return this.write(
+      this.http.put<EventTypeDto>(
+        `${this.base}/organisation/event-types/${id}`,
+        { name },
+        this.options(),
+      ),
+    );
+  }
+
+  reorderEventTypes(ids: string[]): Observable<EventTypeDto[]> {
+    return this.write(
+      this.http.put<EventTypeDto[]>(
+        `${this.base}/organisation/event-types/order`,
+        { ids },
+        this.options(),
+      ),
+    );
+  }
+
+  archiveEventType(id: string): Observable<EventTypeDto> {
+    return this.write(
+      this.http.post<EventTypeDto>(
+        `${this.base}/organisation/event-types/${id}/archive`,
         null,
         this.options(),
       ),

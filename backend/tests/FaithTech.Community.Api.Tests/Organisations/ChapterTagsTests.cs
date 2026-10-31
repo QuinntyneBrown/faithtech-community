@@ -25,7 +25,7 @@ public class ChapterTagsTests(CommunityApiFactory factory) : IClassFixture<Commu
     {
         title = "Builders Night",
         description = "An evening for Christians who build.",
-        type = "BuildersNight",
+        type = "builders-night",
         startsAt = Start,
         endsAt = Start.AddHours(2),
         chapterId,

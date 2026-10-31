@@ -23,7 +23,7 @@ public class EventAuthoringTests(CommunityApiFactory factory) : IClassFixture<Co
         DateTimeOffset? starts = null,
         DateTimeOffset? ends = null,
         int? capacity = 60,
-        string type = "BuildersNight",
+        string type = "builders-night",
         string visibility = "Public",
         Guid? chapterId = null) => new
         {
@@ -57,15 +57,15 @@ public class EventAuthoringTests(CommunityApiFactory factory) : IClassFixture<Co
     {
         var lead = await factory.AddMemberAsync("Grace Okonkwo");
 
-        var response = await factory.ClientFor(lead, role).PostAsJsonAsync("/api/events", Request(type: "Hackathon", visibility: "MembersOnly"));
+        var response = await factory.ClientFor(lead, role).PostAsJsonAsync("/api/events", Request(type: "hackathon", visibility: "MembersOnly"));
 
         Assert.Equal(HttpStatusCode.Created, response.StatusCode);
         var id = (await response.Content.ReadFromJsonAsync<JsonElement>()).GetProperty("id").GetGuid();
         Assert.Equal($"/api/events/{id}", response.Headers.Location?.OriginalString);
         var saved = await factory.LoadEventAsync(id);
         Assert.Equal(
-            ("Toronto Builders Night", "An evening for Christians who build.", EventType.Hackathon, Start, Start.AddHours(2.5)),
-            (saved.Title, saved.Description, saved.Type, saved.StartsAt, saved.EndsAt));
+            ("Toronto Builders Night", "An evening for Christians who build.", "hackathon", Start, Start.AddHours(2.5)),
+            (saved.Title, saved.Description, saved.Type!.Key, saved.StartsAt, saved.EndsAt));
         Assert.Equal(
             (EventFormat.InPerson, (string?)"Kestrel Labs, 220 King St W", (string?)null, (int?)60, EventVisibility.MembersOnly, lead.ProfileId),
             (saved.Format, saved.Venue, saved.OnlineLink, saved.Capacity, saved.Visibility, saved.CreatedById));
@@ -114,11 +114,14 @@ public class EventAuthoringTests(CommunityApiFactory factory) : IClassFixture<Co
     [Fact]
     public async Task Blank_title_unknown_type_and_a_capacity_below_one_are_400()
     {
-        var errors = await PostInvalidAsync(Request(title: " ", type: "Party", capacity: 0));
+        var errors = await PostInvalidAsync(Request(title: " ", type: " ", capacity: 0));
 
         Assert.Equal(["Give the event a title people will recognise."], errors["Title"]);
         Assert.Equal(["Choose a type from the list."], errors["Type"]);
         Assert.Equal(["Capacity must be at least 1, or leave it empty for no limit."], errors["Capacity"]);
+
+        // A key the organisation does not have is refused once the rest is valid (L2-145 AC2).
+        Assert.Equal(["Choose a type from the list."], (await PostInvalidAsync(Request(type: "Party")))["Type"]);
     }
 
     [Fact]

@@ -3,8 +3,11 @@ import { Observable } from 'rxjs';
 
 import { Capability, hasAny } from '../shared/capability';
 
-// "Hackathon" is only an event type in v1; teams, projects and judging are v2.
-export type EventType = 'Gathering' | 'BuildersNight' | 'Hackathon' | 'PrayerAndPlanning' | 'Panel';
+/**
+ * An event type key of the organisation's (L2-145), such as FaithTech's "hackathon". Hackathon is only an event type in
+ * v1; teams, projects and judging are v2.
+ */
+export type EventType = string;
 export type EventFormat = 'InPerson' | 'Online';
 export type EventVisibility = 'MembersOnly' | 'Public';
 
@@ -29,6 +32,8 @@ export interface EventSummaryDto {
   id: string;
   title: string;
   type: EventType;
+  /** The type's current name, shown even once it is archived (L2-145 AC4). */
+  typeName: string;
   startsAt: string;
   endsAt: string;
   chapterId: string | null;
@@ -63,6 +68,7 @@ export interface EventDetailDto {
   title: string;
   description: string;
   type: EventType;
+  typeName: string;
   startsAt: string;
   endsAt: string;
   chapterId: string | null;
@@ -99,6 +105,7 @@ export interface PublicEventDto {
   title: string;
   description: string;
   type: EventType;
+  typeName: string;
   startsAt: string;
   endsAt: string;
   chapterName: string | null;
@@ -115,13 +122,15 @@ export interface GuestRsvpRequest {
   email: string;
 }
 
-/** The list's chips (L2-021 AC2): one at a time; Hackathons and Online keep to upcoming events. */
-export type EventListFilter = 'Upcoming' | 'Past' | 'Hackathons' | 'Online';
+/** The list's chips (L2-021 AC2): one at a time; Online keeps to upcoming events. */
+export type EventListFilter = 'Upcoming' | 'Past' | 'Online';
 
 export interface EventFilter {
   filter?: EventListFilter;
   /** A chapter's id, or ORGANISATION_WIDE for events with no chapter; ignored while chapters are off (L2-142). */
   chapterId?: string | null;
+  /** An event type key; combines with the chips (L2-145 AC3). */
+  type?: string | null;
 }
 
 /**
@@ -152,15 +161,6 @@ export interface EventsService {
   /** Download url of a public event's .ics for the browser to open directly; no request is made. */
   calendarUrl(id: string, options?: { isPublic?: boolean }): string;
 }
-
-/** The event types in the form's order, with the words people read (L2-020 AC1). */
-export const EVENT_TYPE_LABELS: Record<EventType, string> = {
-  Gathering: 'Gathering',
-  BuildersNight: 'Builders night',
-  Hackathon: 'Hackathon',
-  PrayerAndPlanning: 'Prayer & planning',
-  Panel: 'Panel',
-};
 
 /** ManageEvents creates, edits and cancels events (L2-020, L2-025, L2-135 AC7). */
 export function canManageEvents(capabilities: readonly Capability[]): boolean {

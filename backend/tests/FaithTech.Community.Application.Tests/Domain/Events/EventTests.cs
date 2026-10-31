@@ -10,7 +10,7 @@ public class EventTests
     internal static readonly Guid Toronto = Guid.NewGuid();
 
     internal static Event NewEvent(int? capacity = null) =>
-        new("Builders night", "Ship something.", EventType.BuildersNight, Start, Start.AddHours(3), Toronto,
+        new("Builders night", "Ship something.", TestEventTypes.BuildersNight, Start, Start.AddHours(3), Toronto,
             EventFormat.InPerson, "The Hub", null, capacity, EventVisibility.Public, Creator);
 
     [Fact]
@@ -19,7 +19,7 @@ public class EventTests
         var created = NewEvent(capacity: 40);
 
         Assert.Equal(
-            ("Builders night", EventType.BuildersNight, Start, Start.AddHours(3), (Guid?)Toronto, EventFormat.InPerson, (string?)"The Hub", (int?)40, EventVisibility.Public, Creator),
+            ("Builders night", TestEventTypes.BuildersNight, Start, Start.AddHours(3), (Guid?)Toronto, EventFormat.InPerson, (string?)"The Hub", (int?)40, EventVisibility.Public, Creator),
             (created.Title, created.Type, created.StartsAt, created.EndsAt, created.ChapterId, created.Format, created.Venue, created.Capacity, created.Visibility, created.CreatedById));
         Assert.Equal((0, false), (created.Sequence, created.IsCancelled));
     }
@@ -27,28 +27,28 @@ public class EventTests
     [Fact]
     public void An_event_needs_a_title()
     {
-        Assert.Throws<ArgumentException>(() => new Event(" ", "", EventType.Gathering, Start, Start.AddHours(1), Toronto,
+        Assert.Throws<ArgumentException>(() => new Event(" ", "", TestEventTypes.Gathering, Start, Start.AddHours(1), Toronto,
             EventFormat.Online, null, "https://meet.example.org", null, EventVisibility.MembersOnly, Creator));
     }
 
     [Fact]
     public void An_event_cannot_end_before_it_starts()
     {
-        Assert.Throws<ArgumentException>(() => new Event("Panel", "", EventType.Panel, Start, Start.AddMinutes(-1), Toronto,
+        Assert.Throws<ArgumentException>(() => new Event("Panel", "", TestEventTypes.Panel, Start, Start.AddMinutes(-1), Toronto,
             EventFormat.Online, null, "https://meet.example.org", null, EventVisibility.MembersOnly, Creator));
     }
 
     [Fact]
     public void An_in_person_event_needs_a_venue()
     {
-        Assert.Throws<ArgumentException>(() => new Event("Panel", "", EventType.Panel, Start, Start.AddHours(1), Toronto,
+        Assert.Throws<ArgumentException>(() => new Event("Panel", "", TestEventTypes.Panel, Start, Start.AddHours(1), Toronto,
             EventFormat.InPerson, " ", null, null, EventVisibility.MembersOnly, Creator));
     }
 
     [Fact]
     public void An_online_event_needs_a_link()
     {
-        Assert.Throws<ArgumentException>(() => new Event("Panel", "", EventType.Panel, Start, Start.AddHours(1), Toronto,
+        Assert.Throws<ArgumentException>(() => new Event("Panel", "", TestEventTypes.Panel, Start, Start.AddHours(1), Toronto,
             EventFormat.Online, "The Hub", null, null, EventVisibility.MembersOnly, Creator));
     }
 
@@ -63,11 +63,11 @@ public class EventTests
     {
         var edited = NewEvent();
 
-        edited.Update("Hackathon", "Build for good.", EventType.Hackathon, Start, Start.AddDays(1), null,
+        edited.Update("Hackathon", "Build for good.", TestEventTypes.Hackathon, Start, Start.AddDays(1), null,
             EventFormat.Online, null, "https://meet.example.org", 100, EventVisibility.MembersOnly);
 
         Assert.Equal(
-            ("Hackathon", EventType.Hackathon, EventFormat.Online, (string?)"https://meet.example.org", (int?)100, EventVisibility.MembersOnly, 1),
+            ("Hackathon", TestEventTypes.Hackathon, EventFormat.Online, (string?)"https://meet.example.org", (int?)100, EventVisibility.MembersOnly, 1),
             (edited.Title, edited.Type, edited.Format, edited.OnlineLink, edited.Capacity, edited.Visibility, edited.Sequence));
     }
 
@@ -76,7 +76,7 @@ public class EventTests
     {
         var edited = NewEvent();
 
-        Assert.Throws<ArgumentException>(() => edited.Update("Builders night", "", EventType.BuildersNight, Start, Start.AddHours(-1),
+        Assert.Throws<ArgumentException>(() => edited.Update("Builders night", "", TestEventTypes.BuildersNight, Start, Start.AddHours(-1),
             Toronto, EventFormat.InPerson, "The Hub", null, null, EventVisibility.Public));
         Assert.Equal((Start.AddHours(3), 0), (edited.EndsAt, edited.Sequence));
     }

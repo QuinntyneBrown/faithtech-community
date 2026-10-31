@@ -12,8 +12,8 @@ A cancelled event stays on the list, clearly marked as cancelled, so nobody turn
 ## past: Past events
 The Past filter switches to events that have already happened.
 
-## chips: Hackathons and online
-Hackathons shows only hackathons, and Online shows only events you can join from home. Choosing a filter replaces the one before it.
+## chips: type and online
+The Type filter offers the organisation’s event types, so Hackathon shows only hackathons, and Online shows only events you can join from home. Choosing a chip replaces the one before it.
 
 ## city: Pick a city
 Go back to Upcoming and choose a city, such as Toronto, to see only events there.

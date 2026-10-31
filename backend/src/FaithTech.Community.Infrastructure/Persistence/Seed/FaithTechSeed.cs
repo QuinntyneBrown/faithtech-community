@@ -113,6 +113,25 @@ public static class FaithTechSeed
     public static IReadOnlyList<PartnerStage> PartnerStages() =>
         [.. Stages.Select((s, index) => new PartnerStage(s.Id, s.Key, s.Name, index + 1, s.IsInitial, s.Kind))];
 
+    /// <summary>A seeded event type: its fixed id and the key the migration maps the former type value to.</summary>
+    public sealed record SeedEventType(Guid Id, string Key, string Name);
+
+    /// <summary>
+    /// FaithTech's event types in order (L2-151 AC3). The keys are what the TaxonomiesFromEnumerations migration maps the
+    /// former Gathering, BuildersNight, Hackathon, PrayerAndPlanning and Panel values to.
+    /// </summary>
+    public static readonly IReadOnlyList<SeedEventType> Types =
+    [
+        new(new("5b8e0f3a-7c1d-4a2e-9f60-1a2b3c4d5e11"), "gathering", "Gathering"),
+        new(new("5b8e0f3a-7c1d-4a2e-9f60-1a2b3c4d5e12"), "builders-night", "Builders night"),
+        new(new("5b8e0f3a-7c1d-4a2e-9f60-1a2b3c4d5e13"), "hackathon", "Hackathon"),
+        new(new("5b8e0f3a-7c1d-4a2e-9f60-1a2b3c4d5e14"), "prayer-and-planning", "Prayer & planning"),
+        new(new("5b8e0f3a-7c1d-4a2e-9f60-1a2b3c4d5e15"), "panel", "Panel"),
+    ];
+
+    public static IReadOnlyList<EventType> EventTypes() =>
+        [.. Types.Select((t, index) => new EventType(t.Id, t.Key, t.Name, index + 1))];
+
     public static Organisation Organisation()
     {
         var organisation = new Organisation(OrganisationId, Slug, Host, Name, ShortName, CreatedAtUtc);
