@@ -6,8 +6,9 @@ namespace FaithTech.Community.Api.Authentication;
 /// <summary>
 /// Part of the fallback policy: a signed-in caller must hold a membership of the host's organisation (L2-132 AC3). An
 /// account is global, so it may sign in on any host; without a profile there it reaches only what it needs to find
-/// out why and to leave: GET /api/me, the account endpoints, /connect, /api/site and the platform operators' API.
-/// Anonymous endpoints opt out of the fallback policy and are unaffected.
+/// out why and to leave: GET /api/me, the account endpoints, /connect, /api/site and the platform operators' API; and to
+/// join by a lead's connect link (POST /api/connect, L2-132 AC2). Anonymous endpoints opt out of the fallback policy and
+/// are unaffected.
 /// </summary>
 public sealed class MembershipRequirement : IAuthorizationRequirement
 {
@@ -15,6 +16,7 @@ public sealed class MembershipRequirement : IAuthorizationRequirement
 
     public static bool IsOpenToNonMembers(HttpRequest request) =>
         (HttpMethods.IsGet(request.Method) && request.Path.Equals("/api/me", StringComparison.OrdinalIgnoreCase))
+        || (HttpMethods.IsPost(request.Method) && request.Path.Equals("/api/connect", StringComparison.OrdinalIgnoreCase))
         || OpenToNonMembers.Any(path => request.Path.StartsWithSegments(path, StringComparison.OrdinalIgnoreCase));
 }
 

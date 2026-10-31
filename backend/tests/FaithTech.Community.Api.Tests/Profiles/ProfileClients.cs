@@ -29,6 +29,7 @@ public static class ProfileClients
                 NormalizedEmail = email.ToUpperInvariant(),
                 NormalizedUserName = email.ToUpperInvariant(),
                 EmailConfirmed = true,
+                SecurityStamp = Guid.NewGuid().ToString(),
             };
             profile.LinkAccount(user.Id);
             db.Profiles.Add(profile);

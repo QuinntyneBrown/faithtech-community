@@ -18,6 +18,7 @@ import { BROWSER_REDIRECT } from './browser-redirect';
 import {
   AuthService,
   CurrentUser,
+  JoinLink,
   NotAMember,
   SignInError,
   SignInOutcome,
@@ -68,8 +69,9 @@ export class HttpAuthService implements AuthService {
       );
   }
 
-  signInWithGoogle(returnUrl = '/', keepSignedIn = false): void {
+  signInWithGoogle(returnUrl = '/', keepSignedIn = false, signUp = false): void {
     const query = new URLSearchParams({ returnUrl, keepSignedIn: String(keepSignedIn) });
+    if (signUp) query.set('signUp', 'true');
     this.redirect(`${this.base}/account/google/start?${query}`);
   }
 
@@ -127,8 +129,8 @@ export class HttpAuthService implements AuthService {
     return this.post('sign-up', request);
   }
 
-  confirmEmail(userId: string, token: string): Observable<void> {
-    return this.post('verify-email', { userId, token });
+  confirmEmail(userId: string, token: string, joining?: JoinLink): Observable<void> {
+    return this.post('verify-email', { userId, token, ...joining });
   }
 
   resendVerification(email: string): Observable<void> {

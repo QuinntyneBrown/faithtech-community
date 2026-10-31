@@ -29,6 +29,12 @@ export class VerifyEmailPage {
     );
   }
 
+  /** Opens the link an existing account gets for signing up on another organisation's host (L2-132 AC1). */
+  async openJoinLink(userId: string, token: string, name: string, join: string): Promise<void> {
+    const query = new URLSearchParams({ userId, token, name, join });
+    await this.page.goto(`/verify-email?${query}`);
+  }
+
   async openPending(email: string): Promise<void> {
     await this.page.goto(`/verify-email?email=${encodeURIComponent(email)}`);
   }

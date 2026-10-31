@@ -352,6 +352,12 @@ export class MockApi {
     if (caller && !this.isMemberHere(caller) && !openToNonMembers(method, url.pathname)) {
       return route.fulfill({ status: 403 });
     }
+    // A lead's connect link belongs to the host's organisation: opening it signed in joins it (L2-132 AC2).
+    if (caller?.organisations && method === 'POST' && url.pathname === '/api/connect') {
+      if (!this.isMemberHere(caller)) {
+        caller.organisations = [...caller.organisations, this.host.organisation];
+      }
+    }
     const connect = this.connect.handle(route, method, url, body, this.caller(authorization));
     if (connect) return connect;
     const contacts = this.contacts.handle(route, method, url, body, this.caller(authorization));
@@ -461,6 +467,11 @@ export class MockApi {
         return route.fulfill({ status: 202 });
       case 'POST /api/account/verify-email':
         // ConfirmEmailHandler: the verify link carries user-{profileId} for accounts the fake created.
+        if (body['join']) {
+          // A sign-up on this host by an existing account: confirming makes it a member here (L2-132 AC1).
+          this.join(String(body['userId'] ?? ''));
+          return route.fulfill({ status: 200, json: {} });
+        }
         this.verifyEmail(String(body['userId'] ?? ''));
         return route.fulfill({ status: 200, json: {} });
       case 'POST /api/account/reset-password':
@@ -472,6 +483,15 @@ export class MockApi {
   }
 
   /** Marks the account verified and connects it to the leads whose connect link it used (L2-084). */
+  /** Gives the account a profile in the organisation the host serves. */
+  private join(userId: string): void {
+    const profileId = userId.replace(/^user-/, '');
+    const account = [...this.accounts.values()].find((a) => a.profileId === profileId);
+    if (!account?.organisations || this.isMemberHere(account)) return;
+    account.verified = true;
+    account.organisations = [...account.organisations, this.host.organisation];
+  }
+
   private verifyEmail(userId: string): void {
     const profileId = userId.replace(/^user-/, '');
     const account = [...this.accounts.values()].find((a) => a.profileId === profileId);
@@ -1208,6 +1228,7 @@ function parseBody(data: string | null, contentType = ''): Record<string, unknow
 function openToNonMembers(method: string, path: string): boolean {
   return (
     (method === 'GET' && path === '/api/me') ||
+    (method === 'POST' && path === '/api/connect') ||
     ['/api/account', '/connect', '/api/site', '/api/platform'].some(
       (p) => path === p || path.startsWith(`${p}/`),
     )

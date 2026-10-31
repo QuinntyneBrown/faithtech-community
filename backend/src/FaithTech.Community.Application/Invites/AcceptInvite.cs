@@ -50,7 +50,8 @@ public class AcceptInviteHandler(
     IAuditLog audit,
     ContactSignedUpHandler contactSignedUp,
     TimeProvider time,
-    ICurrentOrganisation organisation)
+    ICurrentOrganisation organisation,
+    Memberships memberships)
 {
     public async Task<InviteLookupDto?> LookUpAsync(string token, CancellationToken cancellationToken = default)
     {
@@ -124,7 +125,8 @@ public class AcceptInviteHandler(
                 return Result.Conflict("This invite is for another email.");
             }
 
-            profile = await db.Profiles.SingleAsync(p => p.UserId == user.Id, cancellationToken);
+            // The invite is this organisation's, so the account joins it if it is not a member yet (L2-132 AC2).
+            profile = await memberships.JoinAsync(user.Id, user.Email!, cancellationToken);
             Grant(invite, profile, now);
         }
 

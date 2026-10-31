@@ -50,6 +50,12 @@ export interface NotAMember {
   memberships: Membership[];
 }
 
+/** The part of a verification link that makes an existing account a member of this organisation (L2-132 AC1). */
+export interface JoinLink {
+  name: string;
+  join: string;
+}
+
 export type SignInError = 'invalid_credentials' | 'locked_out' | 'suspended';
 
 export type SignInOutcome =
@@ -80,7 +86,8 @@ export interface AuthService {
    * Starts Google sign-in (one flow for signing in and signing up): the browser leaves for the API, then
    * Google, and lands in the community app at returnUrl, or back here with ?google=failed|suspended.
    */
-  signInWithGoogle(returnUrl?: string, keepSignedIn?: boolean): void;
+  /** `signUp` when started from the sign-up form: an existing account then joins the host's organisation (L2-132 AC7). */
+  signInWithGoogle(returnUrl?: string, keepSignedIn?: boolean, signUp?: boolean): void;
   signOut(): Observable<void>;
   /**
    * True when the community app keeps a "Keep me signed in" session on this device (the session hint,
@@ -93,7 +100,8 @@ export interface AuthService {
   restoreSession(): Promise<boolean>;
 
   signUp(request: SignUpRequest): Observable<void>;
-  confirmEmail(userId: string, token: string): Observable<void>;
+  /** `joining` carries the name and join token of a link that also makes the account a member here (L2-132 AC1). */
+  confirmEmail(userId: string, token: string, joining?: JoinLink): Observable<void>;
   resendVerification(email: string): Observable<void>;
   requestPasswordReset(email: string): Observable<void>;
   resetPassword(userId: string, token: string, password: string): Observable<void>;
