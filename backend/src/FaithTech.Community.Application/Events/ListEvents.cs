@@ -5,21 +5,21 @@ using Microsoft.EntityFrameworkCore;
 
 namespace FaithTech.Community.Application.Events;
 
-/// <summary>The list's chips (L2-021 AC2): one applies at a time; Hackathons and Online keep to upcoming events.</summary>
+/// <summary>The list's chips (L2-021 AC2): one applies at a time; Online keeps to upcoming events.</summary>
 public enum EventListFilter
 {
     Upcoming,
     Past,
-    Hackathons,
     Online,
 }
 
 /// <summary>
 /// The chapter filter (L2-142 AC2): a chapter's id lists its events, <c>OrganisationWide</c> the events with no chapter.
 /// Both lapse while chapters are off, and an id the organisation does not have is ignored (L2-142 AC3). A filter,
-/// never a permission boundary (ADR 0034).
+/// never a permission boundary (ADR 0034). <c>Type</c> is an event type key (L2-145 AC3); a key the organisation does not
+/// have is ignored.
 /// </summary>
-public record ListEventsQuery(EventListFilter Filter = EventListFilter.Upcoming, Guid? ChapterId = null, bool OrganisationWide = false);
+public record ListEventsQuery(EventListFilter Filter = EventListFilter.Upcoming, Guid? ChapterId = null, bool OrganisationWide = false, string? Type = null);
 
 /// <summary>
 /// An event as the events list shows it (L2-021): date, chapter (none is organisation-wide), format, RSVP count and the
@@ -29,6 +29,7 @@ public record EventSummaryDto(
     Guid Id,
     string Title,
     string Type,
+    string TypeName,
     DateTimeOffset StartsAt,
     DateTimeOffset EndsAt,
     Guid? ChapterId,
@@ -52,10 +53,14 @@ public class ListEventsHandler(IApplicationDbContext db, TimeProvider time, ICur
         events = query.Filter switch
         {
             EventListFilter.Past => events.Where(e => e.EndsAt <= now),
-            EventListFilter.Hackathons => events.Where(e => e.EndsAt > now && e.Type == EventType.Hackathon),
             EventListFilter.Online => events.Where(e => e.EndsAt > now && e.Format == EventFormat.Online),
             _ => events.Where(e => e.EndsAt > now),
         };
+
+        if (!string.IsNullOrEmpty(query.Type) && await db.EventTypes.AnyAsync(t => t.Key == query.Type, cancellationToken))
+        {
+            events = events.Where(e => e.Type!.Key == query.Type);
+        }
 
         // The chapter query filter hides every chapter while chapters are off, so a chapter filter then lapses.
         if (query.ChapterId is { } chapterId && await db.Chapters.AnyAsync(c => c.Id == chapterId, cancellationToken))
@@ -72,11 +77,11 @@ public class ListEventsHandler(IApplicationDbContext db, TimeProvider time, ICur
             : events.OrderBy(e => e.StartsAt);
         // Enums leave the database as values and become names here, so the query stays translatable.
         var rows = await events
-            .Select(e => new { e.Id, e.Title, e.Type, e.StartsAt, e.EndsAt, ChapterId = e.Chapter == null ? (Guid?)null : e.Chapter.Id, ChapterName = e.Chapter == null ? null : e.Chapter.Name, e.Format, e.Venue, e.Visibility, Rsvps = e.Rsvps.Count(r => !r.IsWalkIn), e.IsCancelled })
+            .Select(e => new { e.Id, e.Title, TypeKey = e.Type!.Key, TypeName = e.Type.Name, e.StartsAt, e.EndsAt, ChapterId = e.Chapter == null ? (Guid?)null : e.Chapter.Id, ChapterName = e.Chapter == null ? null : e.Chapter.Name, e.Format, e.Venue, e.Visibility, Rsvps = e.Rsvps.Count(r => !r.IsWalkIn), e.IsCancelled })
             .ToListAsync(cancellationToken);
         return new EventListDto(
             [.. rows.Select(e => new EventSummaryDto(
-                e.Id, e.Title, e.Type.ToString(), e.StartsAt, e.EndsAt, e.ChapterId, e.ChapterName, e.Format.ToString(), e.Venue,
+                e.Id, e.Title, e.TypeKey, e.TypeName, e.StartsAt, e.EndsAt, e.ChapterId, e.ChapterName, e.Format.ToString(), e.Venue,
                 e.Visibility.ToString(), e.Rsvps, e.IsCancelled))]);
     }
 }

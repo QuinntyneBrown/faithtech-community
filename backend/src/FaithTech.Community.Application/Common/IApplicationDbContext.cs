@@ -50,6 +50,8 @@ public interface IApplicationDbContext
 
     DbSet<PartnerStage> PartnerStages { get; }
 
+    DbSet<EventType> EventTypes { get; }
+
     DbSet<PartnerActivity> PartnerActivities { get; }
 
     DbSet<PartnerDuplicateDismissal> PartnerDuplicateDismissals { get; }

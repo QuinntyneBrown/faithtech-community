@@ -72,6 +72,14 @@ public static class OrganisationScopes
                 await db.SaveChangesAsync();
             }
 
+            // And of FaithTech's event types, with new ids (L2-145).
+            if (!await db.EventTypes.AnyAsync())
+            {
+                db.EventTypes.AddRange(FaithTechSeed.Types.Select((type, index) =>
+                    new EventType(Guid.NewGuid(), type.Key, type.Name, index + 1)));
+                await db.SaveChangesAsync();
+            }
+
             return 0;
         });
         return new OtherOrganisation(id, $"https://{host}");

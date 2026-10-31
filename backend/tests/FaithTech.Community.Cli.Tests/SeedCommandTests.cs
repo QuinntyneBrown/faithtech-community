@@ -106,6 +106,26 @@ public class SeedCommandTests
             (await check.PartnerStages.OrderBy(s => s.SortOrder).ToListAsync()).Select(s => (s.Key, s.Name, s.IsInitial, s.Kind.ToString())));
     }
 
+    // Traces to: L2-151 AC3
+    [Fact]
+    public async Task Seed_defines_FaithTechs_event_types_once_and_keeps_their_later_edits()
+    {
+        Assert.Equal(0, await Run("seed"));
+        await using (var db = Db())
+        {
+            (await db.EventTypes.SingleAsync(t => t.Key == "panel")).Rename("Panel discussion");
+            await db.SaveChangesAsync();
+        }
+
+        Assert.Equal(0, await Run("seed"));
+
+        await using var check = Db();
+        Assert.Equal(
+            [("gathering", "Gathering"), ("builders-night", "Builders night"), ("hackathon", "Hackathon"),
+                ("prayer-and-planning", "Prayer & planning"), ("panel", "Panel discussion")],
+            (await check.EventTypes.OrderBy(t => t.SortOrder).ToListAsync()).Select(t => (t.Key, t.Name)));
+    }
+
     // Traces to: L2-055
     [Fact]
     public async Task Seed_adds_the_starter_resources_once_owned_by_the_first_system_admin()

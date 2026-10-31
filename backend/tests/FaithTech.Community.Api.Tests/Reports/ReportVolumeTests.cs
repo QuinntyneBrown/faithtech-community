@@ -1,4 +1,5 @@
 // Traces to: L2-129 (docs/detailed-designs/reports/reports-dashboard, ADR 0030)
+using FaithTech.Community.Api.Tests.Events;
 using FaithTech.Community.Api.Tests.Organisations;
 using FaithTech.Community.Application.Identity;
 using FaithTech.Community.Domain.Events;
@@ -43,6 +44,7 @@ public class ReportVolumeTests : IAsyncLifetime
             profile.Update(profile.Name, ChapterIds[HomeCities[profile]], null);
         }
 
+        Gathering = await factory.WithDbAsync(db => db.EventTypeAsync());
         var events = Enumerable.Range(0, 1_000).Select(i => Event(i)).ToList();
         await factory.WithDbAsync(async db =>
         {
@@ -59,6 +61,7 @@ public class ReportVolumeTests : IAsyncLifetime
                 db.Users.Add(user);
             }
 
+            db.EventTypes.Attach(Gathering);
             db.Events.AddRange(events);
             return await db.SaveChangesAsync();
         });
@@ -87,6 +90,8 @@ public class ReportVolumeTests : IAsyncLifetime
 
     private readonly Dictionary<string, Guid> ChapterIds = [];
 
+    private FaithTech.Community.Domain.Organisations.EventType Gathering = null!;
+
     private readonly Dictionary<Profile, string> HomeCities = [];
 
     private Profile Member(string name, string city, DateTimeOffset joinedAt)
@@ -101,7 +106,7 @@ public class ReportVolumeTests : IAsyncLifetime
     {
         var starts = Now.AddDays(30 - (i * 430 / 1_000.0));
         var e = new Event(
-            $"Night {i:0000}", "About the night.", EventType.Gathering, starts, starts.AddHours(2), ChapterIds[Cities[i % Cities.Length]],
+            $"Night {i:0000}", "About the night.", Gathering, starts, starts.AddHours(2), ChapterIds[Cities[i % Cities.Length]],
             EventFormat.InPerson, "Kestrel Labs", null, null, EventVisibility.MembersOnly, Guid.NewGuid());
         var taken = Enumerable.Range(0, 3).Select(r => e.Rsvp(Guid.NewGuid(), starts.AddDays(-2).AddMinutes(r))).ToList();
         if (starts <= Now)

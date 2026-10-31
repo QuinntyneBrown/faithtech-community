@@ -87,6 +87,8 @@ public class CommunityDbContext : IdentityDbContext<CommunityUser, IdentityRole<
 
     public DbSet<PartnerStage> PartnerStages => Set<PartnerStage>();
 
+    public DbSet<EventType> EventTypes => Set<EventType>();
+
     public DbSet<PartnerActivity> PartnerActivities => Set<PartnerActivity>();
 
     public DbSet<PartnerDuplicateDismissal> PartnerDuplicateDismissals => Set<PartnerDuplicateDismissal>();
@@ -364,6 +366,16 @@ public class CommunityDbContext : IdentityDbContext<CommunityUser, IdentityRole<
             stage.Ignore(s => s.IsArchived);
         });
 
+        builder.Entity<EventType>(type =>
+        {
+            type.ToTable("EventTypes");
+            type.Property(t => t.Id).ValueGeneratedNever();
+            type.Property(t => t.Key).HasMaxLength(EventType.MaxName);
+            type.Property(t => t.Name).HasMaxLength(EventType.MaxName);
+            type.Ignore(t => t.IsArchived);
+            type.HasIndex(nameof(IOrganisationScoped.OrganisationId), nameof(EventType.Key)).IsUnique();
+        });
+
         builder.Entity<PartnerStageChange>(change =>
         {
             change.ToTable("PartnerStageChanges");
@@ -408,7 +420,8 @@ public class CommunityDbContext : IdentityDbContext<CommunityUser, IdentityRole<
             ev.Property(e => e.Id).ValueGeneratedNever();
             ev.Property(e => e.Title).HasMaxLength(200);
             ev.Property(e => e.Description).HasMaxLength(4000);
-            ev.Property(e => e.Type).HasConversion<string>().HasMaxLength(32);
+            ev.HasOne(e => e.Type).WithMany().HasForeignKey(e => e.TypeId).OnDelete(DeleteBehavior.Restrict);
+            ev.Navigation(e => e.Type).AutoInclude();
             ev.HasOne(e => e.Chapter).WithMany().HasForeignKey(e => e.ChapterId).OnDelete(DeleteBehavior.Restrict);
             ev.HasIndex(e => e.ChapterId);
             ev.Navigation(e => e.Chapter).AutoInclude();

@@ -150,7 +150,7 @@ public static class ReportClients
         factory.WithDbAsync(async db =>
         {
             var e = new Event(
-                title, $"About {title}.", EventType.Gathering, startsAt, startsAt.AddHours(2), await db.ChapterIdAsync(city), EventFormat.InPerson,
+                title, $"About {title}.", await db.EventTypes.SingleAsync(t => t.Key == "gathering"), startsAt, startsAt.AddHours(2), await db.ChapterIdAsync(city), EventFormat.InPerson,
                 "Kestrel Labs", null, null, EventVisibility.MembersOnly, Guid.NewGuid());
             var taken = new List<Rsvp>();
             for (var i = 0; i < rsvps; i++)

@@ -51,7 +51,7 @@ public class FeatureIsolationTests(CommunityApiFactory factory) : IClassFixture<
         var marker = Isolation.Marker();
         var id = await (await northside.PostAsync("/api/events", new
         {
-            title = marker, description = "An evening.", type = "BuildersNight", startsAt = Start, endsAt = Start.AddHours(2),
+            title = marker, description = "An evening.", type = "builders-night", startsAt = Start, endsAt = Start.AddHours(2),
             city = "Toronto", format = "InPerson", venue = "Kestrel Labs", onlineLink = (string?)null, capacity = 60, visibility = "Public",
         })).CreatedIdAsync();
         var admin = await factory.FaithTechAdminAsync();

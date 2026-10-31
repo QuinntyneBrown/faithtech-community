@@ -11,7 +11,7 @@ public static class EventsEndpoints
     {
         var events = app.MapGroup("/api/events");
 
-        events.MapGet("", async (string? filter, string? chapter, ListEventsHandler handler, CancellationToken cancellationToken) =>
+        events.MapGet("", async (string? filter, string? chapter, string? type, ListEventsHandler handler, CancellationToken cancellationToken) =>
         {
             var parsed = EventListFilter.Upcoming;
             if (!string.IsNullOrEmpty(filter))
@@ -21,7 +21,7 @@ public static class EventsEndpoints
                 {
                     return Results.ValidationProblem(new Dictionary<string, string[]>
                     {
-                        ["filter"] = ["Filter by Upcoming, Past, Hackathons or Online."],
+                        ["filter"] = ["Filter by Upcoming, Past or Online."],
                     });
                 }
 
@@ -44,7 +44,7 @@ public static class EventsEndpoints
                 chapterId = id;
             }
 
-            return Results.Ok(await handler.HandleAsync(new ListEventsQuery(parsed, chapterId, organisationWide), cancellationToken));
+            return Results.Ok(await handler.HandleAsync(new ListEventsQuery(parsed, chapterId, organisationWide, type), cancellationToken));
         });
 
         events.MapGet("/{id:guid}", async (Guid id, GetEventHandler handler, CancellationToken cancellationToken) =>

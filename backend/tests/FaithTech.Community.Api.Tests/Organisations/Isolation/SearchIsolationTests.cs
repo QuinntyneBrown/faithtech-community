@@ -25,7 +25,7 @@ public class SearchIsolationTests(CommunityApiFactory factory) : IClassFixture<C
             ("/api/partners", new { Name = $"Kestrel {word}", Website = "kestrel.example", Offering = "Venue", ContactName = "Nadia", Email = "nadia@kestrel.example", Phone = "416-555-0199", Notes = "" }),
             ("/api/events", new
             {
-                title = $"Builders {word}", description = "An evening.", type = "BuildersNight", startsAt = start, endsAt = start.AddHours(2),
+                title = $"Builders {word}", description = "An evening.", type = "builders-night", startsAt = start, endsAt = start.AddHours(2),
                 city = "Toronto", format = "InPerson", venue = "Kestrel Labs", capacity = 60, visibility = "Public",
             }),
             ("/api/resources/links", new { Url = "https://www.canva.com/design/DAF123/edit", Title = $"Poster {word}", Description = "Template", Type = "Template", Tags = new[] { "events" }, Visibility = "Global" }),

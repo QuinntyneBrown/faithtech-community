@@ -1,6 +1,7 @@
 using FaithTech.Community.Api.Tests.Organisations;
 using FaithTech.Community.Api.Tests.Profiles;
 using FaithTech.Community.Domain.Events;
+using FaithTech.Community.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 
 namespace FaithTech.Community.Api.Tests.Events;
@@ -13,7 +14,7 @@ public static class EventClients
         string title,
         TimeSpan startsIn,
         string? city = "Toronto",
-        EventType type = EventType.Gathering,
+        string type = "gathering",
         EventFormat format = EventFormat.InPerson,
         EventVisibility visibility = EventVisibility.MembersOnly,
         int rsvps = 0,
@@ -25,12 +26,13 @@ public static class EventClients
         IEnumerable<(string Name, string Email)>? guests = null)
     {
         var chapterId = await factory.ChapterIdAsync(city);
+        var eventType = await factory.WithDbAsync(db => db.EventTypeAsync(type));
         var now = factory.Time.GetUtcNow();
         var starts = now + startsIn;
         var created = new Event(
             title,
             $"About {title}.",
-            type,
+            eventType,
             starts,
             starts + (lasts ?? TimeSpan.FromHours(2)),
             chapterId,
@@ -66,11 +68,16 @@ public static class EventClients
 
         await factory.WithDbAsync(async db =>
         {
+            db.EventTypes.Attach(eventType);
             db.Events.Add(created);
             return await db.SaveChangesAsync();
         });
         return created;
     }
+
+    /// <summary>The organisation's event type with this key, such as FaithTech's "gathering" (L2-151 AC3).</summary>
+    public static Task<FaithTech.Community.Domain.Organisations.EventType> EventTypeAsync(this CommunityDbContext db, string key = "gathering") =>
+        db.EventTypes.AsNoTracking().SingleAsync(t => t.Key == key);
 
     /// <summary>Cancels an event straight in the database, as the cancel handler would.</summary>
     public static Task CancelEventAsync(this CommunityApiFactory factory, Guid id, string reason) =>

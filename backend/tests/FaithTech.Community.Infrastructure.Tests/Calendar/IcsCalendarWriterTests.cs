@@ -33,8 +33,11 @@ public class IcsCalendarWriterTests
         Assert.DoesNotContain(lines, line => line.Contains("FaithTech", StringComparison.Ordinal));
     }
 
+    private static readonly FaithTech.Community.Domain.Organisations.EventType BuildersNight = new(Guid.NewGuid(), "builders-night", "Builders night", 2);
+    private static readonly FaithTech.Community.Domain.Organisations.EventType PrayerAndPlanning = new(Guid.NewGuid(), "prayer-and-planning", "Prayer & planning", 4);
+
     private static Event InPerson(string title = "Toronto Builders Night") =>
-        new(title, "Demos, then open tables.", EventType.BuildersNight, Start, Start.AddHours(2.5), null,
+        new(title, "Demos, then open tables.", BuildersNight, Start, Start.AddHours(2.5), null,
             EventFormat.InPerson, "Kestrel Labs, 220 King St W", null, null, EventVisibility.Public, Guid.NewGuid());
 
     private static string[] Lines(string ics) => ics.Split("\r\n");
@@ -69,7 +72,7 @@ public class IcsCalendarWriterTests
     [Fact]
     public void An_online_event_carries_its_link_as_the_url_and_no_location()
     {
-        var e = new Event("Prayer & Planning", "", EventType.PrayerAndPlanning, Start, Start.AddHours(1), null,
+        var e = new Event("Prayer & Planning", "", PrayerAndPlanning, Start, Start.AddHours(1), null,
             EventFormat.Online, null, "https://meet.example.org/ft", null, EventVisibility.MembersOnly, Guid.NewGuid());
 
         var lines = Lines(_writer.Write(e));
@@ -81,7 +84,7 @@ public class IcsCalendarWriterTests
     [Fact]
     public void The_public_copy_links_the_public_page_instead_of_the_joining_link()
     {
-        var e = new Event("Prayer & Planning", "", EventType.PrayerAndPlanning, Start, Start.AddHours(1), null,
+        var e = new Event("Prayer & Planning", "", PrayerAndPlanning, Start, Start.AddHours(1), null,
             EventFormat.Online, null, "https://meet.example.org/ft", null, EventVisibility.Public, Guid.NewGuid());
 
         var lines = Lines(_writer.Write(e, "https://app.example/public/events/1"));
@@ -94,7 +97,7 @@ public class IcsCalendarWriterTests
     public void A_changed_or_cancelled_event_carries_a_higher_sequence_and_the_cancelled_status()
     {
         var e = InPerson();
-        e.Update("Toronto Builders Night", "", EventType.BuildersNight, Start, Start.AddHours(3), null,
+        e.Update("Toronto Builders Night", "", BuildersNight, Start, Start.AddHours(3), null,
             EventFormat.InPerson, "Trinity Community Centre", null, null, EventVisibility.Public);
         e.Cancel("The venue flooded.");
 
