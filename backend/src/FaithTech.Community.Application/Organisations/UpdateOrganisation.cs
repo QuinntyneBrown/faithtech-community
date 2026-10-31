@@ -14,7 +14,7 @@ public class UpdateOrganisationValidator : AbstractValidator<UpdateOrganisationC
     public UpdateOrganisationValidator()
     {
         RuleFor(x => x.Name).Cascade(CascadeMode.Stop)
-            .Must(name => !string.IsNullOrWhiteSpace(name)).WithMessage("Enter the organisation’s name.")
+            .Must(name => !string.IsNullOrWhiteSpace(name)).WithMessage("Enter a name.")
             .Must(name => name!.Trim().Length <= Organisation.MaxNameLength)
             .WithMessage($"Use {Organisation.MaxNameLength} characters or fewer for the name.");
         RuleFor(x => x.ShortName).Cascade(CascadeMode.Stop)

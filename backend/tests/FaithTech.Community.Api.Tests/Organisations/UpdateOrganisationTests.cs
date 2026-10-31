@@ -70,7 +70,7 @@ public class UpdateOrganisationTests(CommunityApiFactory factory) : IClassFixtur
     }
 
     [Theory]
-    [InlineData("", "FT", "Name", "Enter the organisation’s name.")]
+    [InlineData("", "FT", "Name", "Enter a name.")]
     [InlineData("FaithTech", "  ", "ShortName", "Enter a short name.")]
     [InlineData("FaithTech", "A short name that is far longer than thirty", "ShortName", "Use 30 characters or fewer for the short name.")]
     public async Task A_blank_or_too_long_name_is_400_on_its_field(string name, string shortName, string field, string message)
