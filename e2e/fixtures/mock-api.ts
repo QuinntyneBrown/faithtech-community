@@ -1435,26 +1435,48 @@ export class MockApi {
     });
   }
 
-  private filteredAudit(url: URL): MockAuditEntry[] {
+  /**
+   * AuditReadScope: every category for AdministerOrganisation, roles for ManageRoles, and organisation, chapters and
+   * taxonomies for ManageOrganisationSettings (L2-152 AC3); null reads nothing.
+   */
+  private auditScope(caller: MockAccount): string[] | 'all' | null {
+    if (holds(caller, 'AdministerOrganisation')) return 'all';
+    const categories = [
+      ...(holds(caller, 'ManageRoles') ? ['roles'] : []),
+      ...(holds(caller, 'ManageOrganisationSettings')
+        ? ['organisation', 'chapters', 'taxonomies']
+        : []),
+    ];
+    return categories.length ? categories : null;
+  }
+
+  /** The caller's filtered entries, or null for a 403 when the category is outside their scope. */
+  private filteredAudit(url: URL, caller: MockAccount): MockAuditEntry[] | null {
+    const scope = this.auditScope(caller);
     const category = url.searchParams.get('category');
+    if (!scope || (scope !== 'all' && category && !scope.includes(category))) return null;
     const matches: Record<string, (action: string) => boolean> = {
       roles: (a) => a.startsWith('role.'),
       suspensions: (a) => a === 'user.suspended' || a === 'user.reinstated',
       contacts: (a) => a.startsWith('contact.'),
       deletions: (a) => a.endsWith('.deleted'),
+      organisation: (a) => a === 'organisation.updated',
+      chapters: (a) => a.startsWith('chapter.'),
+      taxonomies: (a) => a === 'taxonomy.updated',
     };
+    const readable = (action: string) => scope === 'all' || scope.some((c) => matches[c](action));
     return this.audit
-      .filter((e) => !category || matches[category]?.(e.action))
+      .filter((e) => readable(e.action) && (!category || matches[category]?.(e.action)))
       .sort((a, b) => b.occurredAtUtc.localeCompare(a.occurredAtUtc));
   }
 
-  /** AuditLogEndpoints: GET /api/admin/audit, System Admin only, 50 per page. */
+  /** AuditLogEndpoints: GET /api/admin/audit under the caller's AuditReadScope, 50 per page. */
   private auditLog(route: Route, url: URL, authorization: string | undefined) {
     const caller = this.caller(authorization);
     if (!caller) return route.fulfill({ status: 401 });
-    if (!holds(caller, 'AdministerOrganisation')) return route.fulfill({ status: 403 });
+    const all = this.filteredAudit(url, caller);
+    if (!all) return route.fulfill({ status: 403 });
     const page = Number(url.searchParams.get('page') ?? '1');
-    const all = this.filteredAudit(url);
     const items = all.slice((page - 1) * 50, page * 50);
     return route.fulfill({
       status: 200,
@@ -1465,8 +1487,9 @@ export class MockApi {
   private auditExport(route: Route, url: URL, authorization: string | undefined) {
     const caller = this.caller(authorization);
     if (!caller) return route.fulfill({ status: 401 });
-    if (!holds(caller, 'AdministerOrganisation')) return route.fulfill({ status: 403 });
-    const rows = this.filteredAudit(url).map((e) =>
+    const entries = this.filteredAudit(url, caller);
+    if (!entries) return route.fulfill({ status: 403 });
+    const rows = entries.map((e) =>
       [
         e.occurredAtUtc,
         e.actorName,

@@ -58,9 +58,9 @@ export class GeneralPage {
   protected readonly canEdit = computed(() =>
     hasAny(this.auth.capabilities(), 'ManageOrganisationSettings'),
   );
-  /** The audit log is the administrators' (L2-040). */
+  /** Settings holders and role managers read the part of the audit log they may change (L2-152 AC3). */
   protected readonly canReadAudit = computed(() =>
-    this.auth.capabilities().includes('AdministerOrganisation'),
+    hasAny(this.auth.capabilities(), 'ManageRoles', 'ManageOrganisationSettings'),
   );
   protected readonly chapters = computed(() => {
     const label = this.organisation()?.chapterLabel;
