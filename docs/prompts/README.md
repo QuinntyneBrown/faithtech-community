@@ -43,7 +43,7 @@ its own branch and ends with a pull request. Merge a slice before you start the 
 | 14 | [14-assign-roles-under-grant-rules.md](14-assign-roles-under-grant-rules.md) | `RoleGrantPolicy`, role routes by id, `grantableRoleIds`, `GET /api/organisation` | `L2-137` AC4, AC5, `L2-138` | Done |
 | 15 | [15-organisation-section-and-general-settings.md](15-organisation-section-and-general-settings.md) | `organisations` library, Organisation section, General | `L2-147` AC1 to AC5 | Done |
 | 16 | [16-roles-page-define-and-edit.md](16-roles-page-define-and-edit.md) | Roles tab: list, define, edit | `L2-136` AC1 to AC3, AC5 to AC8 | Done |
-| 17 | [17-archive-roles-and-grant-rules.md](17-archive-roles-and-grant-rules.md) | Archive roles, Who may grant | `L2-136` AC4, AC5, `L2-137` AC1 to AC3 | To do |
+| 17 | [17-archive-roles-and-grant-rules.md](17-archive-roles-and-grant-rules.md) | Archive roles, Who may grant | `L2-136` AC4, AC5, `L2-137` AC1 to AC3 | Done |
 | 18 | [18-chapter-label-and-chapters-page.md](18-chapter-label-and-chapters-page.md) | Chapter label on General, Chapters tab | `L2-140` | To do |
 | 19 | [19-chapters-on-profiles-and-events.md](19-chapters-on-profiles-and-events.md) | Home chapter, event chapter, migration from city text | `L2-141` AC1, AC2, AC4 to AC6 | To do |
 | 20 | [20-chapter-filters-and-picker-suffixes.md](20-chapter-filters-and-picker-suffixes.md) | Team, events, People and Reports chapter filters, picker suffixes | `L2-142` | To do |
