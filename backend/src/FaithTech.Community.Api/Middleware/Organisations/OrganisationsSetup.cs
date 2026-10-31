@@ -13,7 +13,6 @@ public static partial class OrganisationsSetup
                 o => SlugPattern().IsMatch(o.DefaultOrganisationSlug ?? string.Empty),
                 "Platform:DefaultOrganisationSlug must be an organisation slug: 3 to 40 lower-case letters, digits and hyphens.")
             .ValidateOnStart();
-        services.AddScoped<ICurrentOrganisation, HttpCurrentOrganisation>();
         return services;
     }
 

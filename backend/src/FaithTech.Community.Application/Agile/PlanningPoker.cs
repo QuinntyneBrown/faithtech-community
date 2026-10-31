@@ -283,7 +283,7 @@ public class PlanningPokerHandler(
     private async Task<PokerSessionDto> DtoAsync(PokerSession session, WorkspaceCaller caller, CancellationToken cancellationToken)
     {
         var storyIds = new[] { session.CurrentStoryId, session.LastStoryId, NextId(session) }.OfType<Guid>().ToList();
-        var stories = await db.WorkItems.IgnoreQueryFilters().AsNoTracking().Where(i => storyIds.Contains(i.Id)).ToDictionaryAsync(i => i.Id, cancellationToken);
+        var stories = await db.WorkItems.IgnoreQueryFilters(QueryFilters.ArchivedOnly).AsNoTracking().Where(i => storyIds.Contains(i.Id)).ToDictionaryAsync(i => i.Id, cancellationToken);
         var people = session.InvitedIds.Prepend(session.FacilitatorId).ToList();
         var names = await db.Profiles.AsNoTracking().Where(p => people.Contains(p.Id)).ToDictionaryAsync(p => p.Id, p => p.Name, cancellationToken);
         string NameOf(Guid id) => names.GetValueOrDefault(id) ?? "A former member";

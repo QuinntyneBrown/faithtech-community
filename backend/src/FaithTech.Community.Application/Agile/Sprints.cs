@@ -121,7 +121,7 @@ public class SprintsHandler(IApplicationDbContext db, WorkspaceAccessPolicy poli
 
         // Archived stories still count toward the sprint they were in when it closes, as a direct close counts them;
         // only live stories can be chosen for the new sprint.
-        var stories = await db.WorkItems.IgnoreQueryFilters()
+        var stories = await db.WorkItems.IgnoreQueryFilters(QueryFilters.ArchivedOnly)
             .Where(i => i.WorkspaceId == workspaceId && i.Kind == WorkItemKind.Story)
             .ToListAsync(cancellationToken);
         var chosen = stories.Where(s => !s.IsArchived && command.StoryIds!.Contains(s.Id)).ToList();
@@ -203,7 +203,7 @@ public class SprintsHandler(IApplicationDbContext db, WorkspaceAccessPolicy poli
             return Result.Conflict("This sprint is already closed.");
         }
 
-        var stories = await db.WorkItems.IgnoreQueryFilters().Where(i => i.SprintId == sprintId).ToListAsync(cancellationToken);
+        var stories = await db.WorkItems.IgnoreQueryFilters(QueryFilters.ArchivedOnly).Where(i => i.SprintId == sprintId).ToListAsync(cancellationToken);
         sprint.Close(stories);
         policy.AuditOverride(caller, "sprint.closed", "Sprint", sprint.Id, null, new { sprint.CompletedPoints, sprint.CommittedPoints });
         await db.SaveChangesAsync(cancellationToken);

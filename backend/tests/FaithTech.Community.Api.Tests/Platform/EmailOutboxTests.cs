@@ -1,5 +1,6 @@
 using System.Net;
 using System.Net.Http.Json;
+using FaithTech.Community.Api.Tests.Organisations;
 using FaithTech.Community.Application.Common;
 using FaithTech.Community.Api.Tests.Events;
 using FaithTech.Community.Api.Tests.Profiles;
@@ -137,7 +138,7 @@ public class EmailOutboxTests(CommunityApiFactory factory) : IClassFixture<Commu
 
     private static async Task DispatchAsync(WebApplicationFactory<Program> app)
     {
-        await using var scope = app.Services.CreateAsyncScope();
+        await using var scope = app.Services.CreateFaithTechScope();
         await scope.ServiceProvider.GetRequiredService<EmailOutboxDispatcher>().DispatchPendingAsync();
     }
 

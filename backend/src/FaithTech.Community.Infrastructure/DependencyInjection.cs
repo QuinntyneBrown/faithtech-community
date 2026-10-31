@@ -109,6 +109,10 @@ public static class DependencyInjection
 
         services.AddScoped<CommunitySeeder>();
         services.AddScoped<Application.Organisations.IOrganisationResolver, Organisations.OrganisationResolver>();
+        // The request's organisation (set from the host) or a worker's (set per row); the context reads it (ADR 0032).
+        services.AddScoped<Application.Organisations.OrganisationScope>();
+        services.AddSingleton<Organisations.OrganisationWork>();
+        services.AddScoped<Application.Organisations.ICurrentOrganisation>(sp => sp.GetRequiredService<Application.Organisations.OrganisationScope>());
 
         services.AddHealthChecks()
             .AddDbContextCheck<CommunityDbContext>("database", tags: [ReadyTag])

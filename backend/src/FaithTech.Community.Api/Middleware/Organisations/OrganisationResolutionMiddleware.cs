@@ -29,7 +29,7 @@ public class OrganisationResolutionMiddleware(
     public const string OrganisationItem = "Organisation";
     public const string HostKindItem = "HostKind";
 
-    public async Task InvokeAsync(HttpContext context, IOrganisationResolver resolver)
+    public async Task InvokeAsync(HttpContext context, IOrganisationResolver resolver, OrganisationScope scope)
     {
         var request = context.Request;
         if ((HttpMethods.IsGet(request.Method) || HttpMethods.IsHead(request.Method)) && request.Path == "/health/live")
@@ -51,6 +51,8 @@ public class OrganisationResolutionMiddleware(
             return;
         }
 
+        // Every query and save in this request is scoped to it from here on (L2-130).
+        scope.Set(organisation);
         context.Items[OrganisationItem] = organisation;
         context.Items[HostKindItem] = kind;
         await next(context);

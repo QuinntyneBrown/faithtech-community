@@ -1,3 +1,5 @@
+using FaithTech.Community.Domain.Organisations;
+
 namespace FaithTech.Community.Domain.Partners;
 
 /// <summary>Call, Email, Meeting and Note are logged by people; the rest are written by the system.</summary>
@@ -27,8 +29,11 @@ public static class PartnerActivityKinds
 /// One dated touchpoint on a partner's shared timeline (L2-110). Logged entries cannot be edited
 /// or deleted in v1; system entries mirror a change to the partner.
 /// </summary>
-public class PartnerActivity
+public class PartnerActivity : IOrganisationScoped
 {
+    /// <summary>The organisation the record belongs to, stamped when it is saved (ADR 0032).</summary>
+    public Guid OrganisationId { get; private set; }
+
     private PartnerActivity() { }
 
     private PartnerActivity(Guid partnerId, PartnerActivityKind kind, Guid by, DateTime nowUtc)

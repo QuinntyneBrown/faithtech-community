@@ -1,3 +1,4 @@
+using FaithTech.Community.Domain.Organisations;
 using FaithTech.Community.Domain.Profiles;
 
 namespace FaithTech.Community.Domain.Resources;
@@ -6,8 +7,11 @@ namespace FaithTech.Community.Domain.Resources;
 /// A deck, logo, image, training or template (L1-020): an uploaded file or an https link, with a type, tags and a
 /// visibility. Only the owner (or a System Admin) changes it; archiving starts a 30-day wait before the purge.
 /// </summary>
-public class Resource
+public class Resource : IOrganisationScoped
 {
+    /// <summary>The organisation the record belongs to, stamped when it is saved (ADR 0032).</summary>
+    public Guid OrganisationId { get; private set; }
+
     public const int MaxTitle = 120;
     public const int MaxDescription = 1000;
     public const int MaxTag = 40;

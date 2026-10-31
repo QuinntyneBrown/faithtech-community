@@ -1,6 +1,8 @@
+using FaithTech.Community.Domain.Organisations;
+
 namespace FaithTech.Community.Domain.Profiles;
 
-public class Profile
+public class Profile : IOrganisationScoped
 {
     public const int MaxPhotos = 10;
 
@@ -20,6 +22,8 @@ public class Profile
     }
 
     public Guid Id { get; private set; }
+
+    public Guid OrganisationId { get; private set; }
 
     public string Name { get; private set; } = string.Empty;
 

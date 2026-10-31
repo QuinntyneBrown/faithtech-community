@@ -1,5 +1,6 @@
 using System.Text.Json;
 using Azure.Storage.Blobs;
+using FaithTech.Community.Api.Tests.Organisations;
 using FaithTech.Community.Api.Tests.Fakes;
 using FaithTech.Community.Application.Agile;
 using FaithTech.Community.Application.Common;
@@ -8,6 +9,7 @@ using FaithTech.Community.Application.Profiles;
 using FaithTech.Community.Application.Resources;
 using FaithTech.Community.Application.Search;
 using FaithTech.Community.Infrastructure.Email;
+using FaithTech.Community.Infrastructure.Organisations;
 using FaithTech.Community.Infrastructure.Persistence;
 using FaithTech.Community.Infrastructure.Persistence.Seed;
 using Microsoft.AspNetCore.Hosting;
@@ -55,7 +57,7 @@ public class CommunityApiFactory : WebApplicationFactory<Program>, IAsyncLifetim
 
     public async Task InitializeAsync()
     {
-        await using var scope = Services.CreateAsyncScope();
+        await using var scope = Services.CreateOrganisationScope(FaithTechSeed.OrganisationId);
         await scope.ServiceProvider.GetRequiredService<CommunitySeeder>().SeedAsync(WebAppOrigin);
 
         // FaithTech's community host is the test web app's host, so requests on it resolve as they do in production;
@@ -102,9 +104,13 @@ public class CommunityApiFactory : WebApplicationFactory<Program>, IAsyncLifetim
         });
     }
 
-    public async Task<T> WithDbAsync<T>(Func<CommunityDbContext, Task<T>> query)
+    /// <summary>Runs <paramref name="query"/> against FaithTech, the organisation every existing test works in.</summary>
+    public Task<T> WithDbAsync<T>(Func<CommunityDbContext, Task<T>> query) => WithDbAsync(FaithTechSeed.OrganisationId, query);
+
+    /// <summary>Runs <paramref name="query"/> with <paramref name="organisationId"/> in scope, as a request on its host would.</summary>
+    public async Task<T> WithDbAsync<T>(Guid organisationId, Func<CommunityDbContext, Task<T>> query)
     {
-        await using var scope = Services.CreateAsyncScope();
+        await using var scope = Services.CreateOrganisationScope(organisationId);
         return await query(scope.ServiceProvider.GetRequiredService<CommunityDbContext>());
     }
 
@@ -122,15 +128,13 @@ public class CommunityApiFactory : WebApplicationFactory<Program>, IAsyncLifetim
     /// <summary>Runs the resource blob retry once, as ResourceMaintenanceWorker would after storage recovers.</summary>
     public async Task RunResourceStorageRetryAsync()
     {
-        await using var scope = Services.CreateAsyncScope();
-        await scope.ServiceProvider.GetRequiredService<ResourceStorageRetryHandler>().RunAsync();
+        await Services.GetRequiredService<OrganisationWork>().ForEachAsync((services, _) => services.GetRequiredService<ResourceStorageRetryHandler>().RunAsync());
     }
 
     /// <summary>Runs the 30-day purge once, as ResourceMaintenanceWorker would.</summary>
     public async Task PurgeArchivedResourcesAsync()
     {
-        await using var scope = Services.CreateAsyncScope();
-        await scope.ServiceProvider.GetRequiredService<PurgeArchivedResourcesHandler>().RunAsync();
+        await Services.GetRequiredService<OrganisationWork>().ForEachAsync((services, _) => services.GetRequiredService<PurgeArchivedResourcesHandler>().RunAsync());
     }
 
     public new Task DisposeAsync() => base.DisposeAsync().AsTask();

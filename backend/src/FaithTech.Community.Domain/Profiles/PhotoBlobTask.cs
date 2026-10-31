@@ -1,3 +1,5 @@
+using FaithTech.Community.Domain.Organisations;
+
 namespace FaithTech.Community.Domain.Profiles;
 
 public enum PhotoBlobWork
@@ -13,8 +15,11 @@ public enum PhotoBlobWork
 /// Blob storage work that failed during a photo action and is retried later, so the action itself
 /// still commits while storage is down (L2-047 AC3).
 /// </summary>
-public class PhotoBlobTask
+public class PhotoBlobTask : IOrganisationScoped
 {
+    /// <summary>The organisation the record belongs to, stamped when it is saved (ADR 0032).</summary>
+    public Guid OrganisationId { get; private set; }
+
     private static readonly TimeSpan MaxBackoff = TimeSpan.FromHours(1);
 
     private PhotoBlobTask() { }

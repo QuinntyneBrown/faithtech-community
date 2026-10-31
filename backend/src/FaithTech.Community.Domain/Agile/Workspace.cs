@@ -1,10 +1,14 @@
+using FaithTech.Community.Domain.Organisations;
 using FaithTech.Community.Domain.Profiles;
 using FaithTech.Community.Domain.Team;
 
 namespace FaithTech.Community.Domain.Agile;
 
-public class Workspace
+public class Workspace : IOrganisationScoped
 {
+    /// <summary>The organisation the record belongs to, stamped when it is saved (ADR 0032).</summary>
+    public Guid OrganisationId { get; private set; }
+
     private readonly List<WorkspaceMember> _members = [];
 
     private Workspace() { }

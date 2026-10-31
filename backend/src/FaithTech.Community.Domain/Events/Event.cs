@@ -1,7 +1,12 @@
+using FaithTech.Community.Domain.Organisations;
+
 namespace FaithTech.Community.Domain.Events;
 
-public class Event
+public class Event : IOrganisationScoped
 {
+    /// <summary>The organisation the record belongs to, stamped when it is saved (ADR 0032).</summary>
+    public Guid OrganisationId { get; private set; }
+
     private readonly List<Rsvp> _rsvps = [];
 
     private Event() { }

@@ -1,7 +1,12 @@
+using FaithTech.Community.Domain.Organisations;
+
 namespace FaithTech.Community.Domain.Agile;
 
-public class Sprint
+public class Sprint : IOrganisationScoped
 {
+    /// <summary>The organisation the record belongs to, stamped when it is saved (ADR 0032).</summary>
+    public Guid OrganisationId { get; private set; }
+
     private Sprint() { }
 
     public Sprint(Guid workspaceId, string name, string goal, DateOnly startDate, DateOnly endDate)
