@@ -2,6 +2,7 @@ using FaithTech.Community.Api.Authentication;
 using FaithTech.Community.Api.Endpoints;
 using FaithTech.Community.Api.Hubs;
 using FaithTech.Community.Api.Middleware;
+using FaithTech.Community.Api.Middleware.Organisations;
 using FaithTech.Community.Api.Middleware.PrivatePreview;
 using FaithTech.Community.Application;
 using FaithTech.Community.Application.Agile;
@@ -36,6 +37,7 @@ builder.Services.AddInfrastructure(builder.Configuration);
 builder.Services.AddCommunityAuthentication(builder.Configuration, builder.Environment);
 builder.Services.AddWebProtections(builder.Configuration);
 builder.Services.AddPrivatePreview(builder.Configuration);
+builder.Services.AddOrganisationResolution(builder.Configuration);
 builder.Services.AddSignalR();
 builder.Services.AddScoped<SignalRAgileNotifier>();
 builder.Services.AddScoped<IBoardNotifier>(sp => sp.GetRequiredService<SignalRAgileNotifier>());
@@ -56,6 +58,8 @@ app.UseSerilogRequestLogging(options =>
 app.UsePrivatePreview();
 app.UseExceptionHandler();
 app.UseStatusCodePages();
+// The host decides the organisation (ADR 0032): an unknown or suspended host reaches no static file, endpoint or hub.
+app.UseOrganisationResolution();
 // Both Angular builds by host, in the production container only (L2-108).
 app.UseStaticSites(app.Configuration);
 app.UseCors(WebProtectionSetup.WebAppCorsPolicy);
