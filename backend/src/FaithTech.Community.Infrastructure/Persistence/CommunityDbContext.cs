@@ -1,4 +1,6 @@
+using System.Linq.Expressions;
 using FaithTech.Community.Application.Common;
+using FaithTech.Community.Application.Organisations;
 using FaithTech.Community.Application.Identity;
 using FaithTech.Community.Domain.Admin;
 using FaithTech.Community.Domain.Agile;
@@ -14,6 +16,7 @@ using FaithTech.Community.Domain.Notes;
 using FaithTech.Community.Domain.Resources;
 using FaithTech.Community.Infrastructure.Email;
 using FaithTech.Community.Infrastructure.Identity;
+using FaithTech.Community.Infrastructure.Persistence.Seed;
 using FaithTech.Community.Infrastructure.Search;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
@@ -22,9 +25,28 @@ using Microsoft.EntityFrameworkCore.ChangeTracking;
 
 namespace FaithTech.Community.Infrastructure.Persistence;
 
-public class CommunityDbContext(DbContextOptions<CommunityDbContext> options)
-    : IdentityDbContext<CommunityUser, IdentityRole<Guid>, Guid>(options), IApplicationDbContext
+public class CommunityDbContext : IdentityDbContext<CommunityUser, IdentityRole<Guid>, Guid>, IApplicationDbContext
 {
+    private readonly ICurrentOrganisation _organisation;
+
+    public CommunityDbContext(DbContextOptions<CommunityDbContext> options, ICurrentOrganisation organisation)
+        : base(options)
+    {
+        _organisation = organisation;
+    }
+
+    /// <summary>
+    /// A context with no organisation scope of its own works as the FaithTech organisation, the platform's first and
+    /// default one: design-time tooling and tests that open the database directly.
+    /// </summary>
+    public CommunityDbContext(DbContextOptions<CommunityDbContext> options)
+        : this(options, DefaultScope())
+    {
+    }
+
+    /// <summary>The current organisation's id, read by every query filter when the query runs.</summary>
+    private Guid CurrentOrganisationId => _organisation.Id;
+
     public DbSet<Organisation> Organisations => Set<Organisation>();
 
     public DbSet<Profile> Profiles => Set<Profile>();
@@ -361,6 +383,72 @@ public class CommunityDbContext(DbContextOptions<CommunityDbContext> options)
             .HasOne<Profile>()
             .WithOne()
             .HasForeignKey<CommunityUser>(u => u.ProfileId);
+
+        ScopeToOrganisation(builder);
+    }
+
+    /// <summary>
+    /// Every organisation-scoped record gets a required, indexed OrganisationId that references its organisation, and a
+    /// named query filter on the current organisation, so every query runs the predicate in SQL (L2-130 AC2) and an id
+    /// from another organisation is not found (AC3). Named, so lifting the archived filter never lifts this one.
+    /// </summary>
+    private void ScopeToOrganisation(ModelBuilder builder)
+    {
+        foreach (var entity in builder.Model.GetEntityTypes()
+            .Where(e => !e.IsOwned() && typeof(IOrganisationScoped).IsAssignableFrom(e.ClrType)).ToList())
+        {
+            var type = builder.Entity(entity.ClrType);
+            type.HasOne(typeof(Organisation)).WithMany().HasForeignKey(nameof(IOrganisationScoped.OrganisationId)).OnDelete(DeleteBehavior.Restrict);
+            type.HasIndex(nameof(IOrganisationScoped.OrganisationId));
+
+            var record = Expression.Parameter(entity.ClrType, "record");
+            var filter = Expression.Lambda(
+                Expression.Equal(
+                    Expression.Property(record, nameof(IOrganisationScoped.OrganisationId)),
+                    Expression.Property(Expression.Constant(this), nameof(CurrentOrganisationId))),
+                record);
+            type.HasQueryFilter(QueryFilters.Organisation, filter);
+        }
+    }
+
+    public override int SaveChanges(bool acceptAllChangesOnSuccess)
+    {
+        StampOrganisation();
+        return base.SaveChanges(acceptAllChangesOnSuccess);
+    }
+
+    public override Task<int> SaveChangesAsync(bool acceptAllChangesOnSuccess, CancellationToken cancellationToken = default)
+    {
+        StampOrganisation();
+        return base.SaveChangesAsync(acceptAllChangesOnSuccess, cancellationToken);
+    }
+
+    /// <summary>
+    /// Stamps every added record with the current organisation, and refuses one that names another, so no request can
+    /// write into an organisation it is not on (L2-130 AC1).
+    /// </summary>
+    private void StampOrganisation()
+    {
+        foreach (var entry in ChangeTracker.Entries<IOrganisationScoped>())
+        {
+            var property = entry.Property(e => e.OrganisationId);
+            if (entry.State == EntityState.Added && property.CurrentValue == Guid.Empty)
+            {
+                property.CurrentValue = _organisation.Id;
+            }
+            else if (entry.State is EntityState.Added or EntityState.Modified && property.CurrentValue != _organisation.Id)
+            {
+                throw new InvalidOperationException(
+                    $"A {entry.Metadata.ClrType.Name} of another organisation cannot be written in this one.");
+            }
+        }
+    }
+
+    private static OrganisationScope DefaultScope()
+    {
+        var scope = new OrganisationScope();
+        scope.RunAs(FaithTechSeed.OrganisationId);
+        return scope;
     }
 
     private static void ConfigureResources(ModelBuilder builder)
@@ -521,7 +609,7 @@ public class CommunityDbContext(DbContextOptions<CommunityDbContext> options)
             workspace.Property(w => w.Name).HasMaxLength(100);
             workspace.Property(w => w.Method).HasConversion<string>().HasMaxLength(16);
             workspace.HasIndex(w => w.OwnerId);
-            workspace.HasQueryFilter(w => !w.IsArchived);
+            workspace.HasQueryFilter(QueryFilters.Archived, w => !w.IsArchived);
             workspace.OwnsMany(w => w.Members, member =>
             {
                 member.ToTable("WorkspaceMembers");
@@ -545,7 +633,7 @@ public class CommunityDbContext(DbContextOptions<CommunityDbContext> options)
             item.HasIndex(i => i.ParentId);
             item.HasIndex(i => i.SprintId);
             item.HasIndex(i => i.AssigneeId);
-            item.HasQueryFilter(i => !i.IsArchived);
+            item.HasQueryFilter(QueryFilters.Archived, i => !i.IsArchived);
             item.OwnsMany(i => i.Comments, comment =>
             {
                 comment.ToTable("WorkItemComments");

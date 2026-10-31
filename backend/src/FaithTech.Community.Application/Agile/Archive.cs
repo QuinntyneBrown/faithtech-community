@@ -49,7 +49,7 @@ public class ArchiveHandler(IApplicationDbContext db, WorkspaceAccessPolicy poli
             return (refusal, null);
         }
 
-        var archived = await db.WorkItems.IgnoreQueryFilters().AsNoTracking()
+        var archived = await db.WorkItems.IgnoreQueryFilters(QueryFilters.ArchivedOnly).AsNoTracking()
             .Where(i => i.WorkspaceId == workspaceId && i.IsArchived)
             .ToListAsync(cancellationToken);
         var archivedIds = archived.Select(i => i.Id).ToHashSet();
@@ -143,7 +143,7 @@ public class ArchiveHandler(IApplicationDbContext db, WorkspaceAccessPolicy poli
 
     private async Task<Result> SetItemArchivedAsync(Guid itemId, bool archive, CancellationToken cancellationToken)
     {
-        var items = db.WorkItems.IgnoreQueryFilters();
+        var items = db.WorkItems.IgnoreQueryFilters(QueryFilters.ArchivedOnly);
         var item = await items.SingleOrDefaultAsync(i => i.Id == itemId, cancellationToken);
         if (item is null)
         {

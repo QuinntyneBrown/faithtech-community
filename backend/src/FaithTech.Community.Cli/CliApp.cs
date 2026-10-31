@@ -1,5 +1,7 @@
 using System.Security.Cryptography;
+using FaithTech.Community.Application.Organisations;
 using FaithTech.Community.Infrastructure.Persistence;
+using FaithTech.Community.Infrastructure.Persistence.Seed;
 using FaithTech.Community.Infrastructure.PrivatePreview;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
@@ -28,6 +30,9 @@ public static class CliApp
         await using var services = new ServiceCollection()
             .AddDbContext<CommunityDbContext>(options => configureDatabase(options.UseOpenIddict()))
             .AddScoped<CommunitySeeder>()
+            // Cli commands work on the FaithTech organisation, the default one (ADR 0032).
+            .AddScoped(_ => FaithTechScope())
+            .AddScoped<ICurrentOrganisation>(sp => sp.GetRequiredService<OrganisationScope>())
             .AddSingleton(TimeProvider.System)
             .AddOpenIddict().AddCore(options => options.UseEntityFrameworkCore().UseDbContext<CommunityDbContext>()).Services
             .BuildServiceProvider();
@@ -70,6 +75,13 @@ public static class CliApp
                 Console.Error.WriteLine("Usage: faithtech-community <migrate|seed|reset|grant-admin <email>|seed-load-users <count>|seed-search-records <count>|seed-report-records <members>|wall-hash|wall-key>");
                 return 1;
         }
+    }
+
+    private static OrganisationScope FaithTechScope()
+    {
+        var scope = new OrganisationScope();
+        scope.RunAs(FaithTechSeed.OrganisationId);
+        return scope;
     }
 
     /// <summary>

@@ -1,4 +1,5 @@
 using FaithTech.Community.Application.Profiles;
+using FaithTech.Community.Infrastructure.Organisations;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -7,7 +8,7 @@ using Microsoft.Extensions.Logging;
 namespace FaithTech.Community.Infrastructure.Storage;
 
 /// <summary>Runs <see cref="PhotoStorageRetryHandler"/> on the outbox interval; disabled with the email outbox.</summary>
-public class PhotoStorageRetryWorker(IServiceScopeFactory scopes, IConfiguration configuration, ILogger<PhotoStorageRetryWorker> logger)
+public class PhotoStorageRetryWorker(OrganisationWork work, IConfiguration configuration, ILogger<PhotoStorageRetryWorker> logger)
     : BackgroundService
 {
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
@@ -22,8 +23,9 @@ public class PhotoStorageRetryWorker(IServiceScopeFactory scopes, IConfiguration
         {
             try
             {
-                await using var scope = scopes.CreateAsyncScope();
-                await scope.ServiceProvider.GetRequiredService<PhotoStorageRetryHandler>().RunAsync(stoppingToken);
+                await work.ForEachAsync(
+                    (services, cancellationToken) => services.GetRequiredService<PhotoStorageRetryHandler>().RunAsync(cancellationToken),
+                    stoppingToken);
             }
             catch (Exception exception) when (exception is not OperationCanceledException)
             {

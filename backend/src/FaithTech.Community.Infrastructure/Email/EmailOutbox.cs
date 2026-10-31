@@ -1,5 +1,6 @@
 using System.Text.Json;
 using FaithTech.Community.Application.Common;
+using FaithTech.Community.Infrastructure.Organisations;
 using FaithTech.Community.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -127,7 +128,7 @@ public class EmailOutboxDispatcher(
     }
 }
 
-public class EmailOutboxWorker(IServiceScopeFactory scopes, IConfiguration configuration, ILogger<EmailOutboxWorker> logger)
+public class EmailOutboxWorker(OrganisationWork work, IConfiguration configuration, ILogger<EmailOutboxWorker> logger)
     : BackgroundService
 {
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
@@ -142,8 +143,9 @@ public class EmailOutboxWorker(IServiceScopeFactory scopes, IConfiguration confi
         {
             try
             {
-                await using var scope = scopes.CreateAsyncScope();
-                await scope.ServiceProvider.GetRequiredService<EmailOutboxDispatcher>().DispatchPendingAsync(stoppingToken);
+                await work.ForEachAsync(
+                    (services, cancellationToken) => services.GetRequiredService<EmailOutboxDispatcher>().DispatchPendingAsync(cancellationToken),
+                    stoppingToken);
             }
             catch (Exception exception) when (exception is not OperationCanceledException)
             {
