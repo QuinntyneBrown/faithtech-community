@@ -5,7 +5,8 @@ export class TeamPage {
   readonly heading: Locator;
   readonly inviteSomeone: Locator;
   readonly members: Locator;
-  readonly city: Locator;
+  /** The chapter filter, labelled with the organisation's singular chapter label. */
+  readonly chapter: Locator;
   readonly skeleton: Locator;
   readonly empty: Locator;
   readonly loadError: Locator;
@@ -19,7 +20,7 @@ export class TeamPage {
     this.heading = page.getByRole('heading', { level: 1 });
     this.inviteSomeone = page.getByRole('link', { name: 'Invite someone' }).first();
     this.members = page.getByRole('list', { name: 'Team' }).getByRole('listitem');
-    this.city = page.getByLabel('City');
+    this.chapter = page.getByRole('combobox');
     this.skeleton = page.getByLabel('Loading team');
     this.empty = page.getByRole('heading', { name: 'No team yet' });
     this.loadError = page.getByRole('heading', { name: 'We couldn’t load the team' });

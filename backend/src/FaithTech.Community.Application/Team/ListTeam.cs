@@ -14,10 +14,11 @@ public enum TeamRoleFilter
 }
 
 /// <summary>
-/// Optional filters and paging. The city is a filter on home city, never a permission boundary (ADR 0007).
+/// Optional filters and paging. The chapter is a filter on the home chapter, never a permission boundary (ADR 0034),
+/// and is ignored while chapters are off or when the organisation has no such chapter (L2-142 AC3).
 /// <c>After</c> is the previous page's <see cref="TeamListDto.Next"/>.
 /// </summary>
-public record ListTeamQuery(TeamRoleFilter? Role = null, string? City = null, string? After = null, int? PageSize = null);
+public record ListTeamQuery(TeamRoleFilter? Role = null, Guid? ChapterId = null, string? After = null, int? PageSize = null);
 
 /// <summary>
 /// Derives the team from current roles on every request, so role changes show at once (L2-019). Filters
@@ -49,10 +50,10 @@ public class ListTeamHandler(IApplicationDbContext db, IPhotoStorage storage)
                 && !r.Definition.Capabilities.Contains(Capability.InviteMembers))),
             _ => team,
         };
-        var city = query.City?.Trim().ToLower();
-        if (!string.IsNullOrEmpty(city))
+        // The chapter query filter hides every chapter while chapters are off, so the filter then lapses.
+        if (query.ChapterId is { } chapterId && await db.Chapters.AnyAsync(c => c.Id == chapterId, cancellationToken))
         {
-            matching = matching.Where(p => p.Chapter != null && p.Chapter.Name.ToLower() == city);
+            matching = matching.Where(p => p.ChapterId == chapterId);
         }
 
         var total = await matching.CountAsync(cancellationToken);
@@ -71,16 +72,7 @@ public class ListTeamHandler(IApplicationDbContext db, IPhotoStorage storage)
             .ToListAsync(cancellationToken);
         var members = rows.Take(size).ToList();
         var next = rows.Count > size ? new TeamCursor(members[^1].Name.ToLower(), members[^1].Id).ToString() : null;
-
-        // Every team member's chapter name, whatever the filters and the page, so the city select keeps its options
-        // until the chapter filter replaces it (slice 20).
-        var cities = (await team.Where(p => p.Chapter != null).Select(p => p.Chapter!.Name).Distinct().ToListAsync(cancellationToken))
-            .Select(h => h!.Trim())
-            .Where(h => h.Length > 0)
-            .Distinct(StringComparer.OrdinalIgnoreCase)
-            .Order(StringComparer.OrdinalIgnoreCase)
-            .ToList();
-        return new TeamListDto([.. members.Select(ToDto)], cities, next, total);
+        return new TeamListDto([.. members.Select(ToDto)], next, total);
     }
 
     private TeamMemberDto ToDto(Profile profile) => new(

@@ -13,7 +13,7 @@ export class HttpTeamService implements TeamService {
 
   list(filters: TeamFilters = {}, after?: string | null): Observable<TeamListDto> {
     return this.http.get<TeamListDto>(`${this.base}/team`, {
-      params: toHttpParams({ role: filters.role, city: filters.city, after }),
+      params: toHttpParams({ role: filters.role, chapter: filters.chapterId, after }),
     });
   }
 }

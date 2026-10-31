@@ -1392,12 +1392,12 @@ export class MockApi {
   }
 
   /** InvitesEndpoints: leads and System Admins see every invite, newest first. */
-  /** TeamEndpoints: GET /api/team?role=&city=, derived from current roles (L2-019, ADR 0007). */
+  /** TeamEndpoints: GET /api/team?role=&chapter=, derived from current roles (L2-019, L2-142). */
   private listTeam(route: Route, url: URL, authorization: string | undefined) {
     if (!this.caller(authorization)) return route.fulfill({ status: 401 });
     const role = url.searchParams.get('role')?.toLowerCase();
     if (role && role !== 'leads' && role !== 'volunteers') return route.fulfill({ status: 400 });
-    const city = url.searchParams.get('city')?.trim().toLowerCase();
+    const chapter = this.chapters.filterId(url.searchParams.get('chapter'));
     const team = [...this.profiles.values()].filter((p) => onTeam(p.roles));
     const teamRoles = (p: MockProfile) =>
       roleDefinitions().filter((d) => d.showOnTeam && p.roles.includes(d.key));
@@ -1410,8 +1410,7 @@ export class MockApi {
             ? teamRoles(p).some((d) => !d.capabilities.includes('InviteMembers'))
             : true,
       )
-      // Until slice 20 the filter names a chapter, as ListTeamHandler matches it.
-      .filter((p) => !city || this.chapters.nameOf(p.chapterId)?.toLowerCase() === city)
+      .filter((p) => !chapter || p.chapterId === chapter)
       .sort((a, b) => key(a).localeCompare(key(b)));
     // Pages as ListTeamHandler does (ADR 0015): by lower-cased name then id, 50 a page, at most 100.
     const size = Math.min(100, Math.max(1, Number(url.searchParams.get('pageSize') ?? 50) || 50));
@@ -1421,20 +1420,14 @@ export class MockApi {
     const members = page.map((p) => ({
       profileId: p.id,
       name: p.name,
-      homeCity: this.chapters.nameOf(p.chapterId),
+      chapterName: this.chapters.nameOf(p.chapterId),
       photoUrl: p.photos.find((photo) => photo.isFeatured)?.url ?? null,
       roles: p.roles,
     }));
-    const cities = [
-      ...new Set(
-        team.map((p) => this.chapters.nameOf(p.chapterId)).filter((c): c is string => !!c),
-      ),
-    ].sort((a, b) => a.localeCompare(b));
     return route.fulfill({
       status: 200,
       json: {
         members,
-        cities,
         next: rest.length > size ? key(page[page.length - 1]) : null,
         totalCount: matching.length,
       },

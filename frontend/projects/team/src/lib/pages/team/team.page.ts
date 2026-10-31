@@ -2,7 +2,9 @@ import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@a
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
 import {
   AUTH_SERVICE,
+  ORGANISATION_SERVICE,
   ROLE_LABELS,
+  chapterFilterOptions,
   Role,
   TEAM_SERVICE,
   TeamMemberDto,
@@ -37,7 +39,10 @@ const ROLE_CHIPS: { label: string; value: TeamRoleFilter | null }[] = [
   { label: 'Volunteers', value: 'Volunteers' },
 ];
 
-/** Everyone with a lead or volunteer role (L2-019), matching docs/mocks/pages/team. */
+/**
+ * Everyone with a lead or volunteer role (L2-019), matching docs/mocks/pages/team. The chapter filter lists the
+ * organisation's chapters, and is absent while chapters are off (L2-142).
+ */
 @Component({
   selector: 'ft-team-page',
   imports: [
@@ -65,15 +70,18 @@ const ROLE_CHIPS: { label: string; value: TeamRoleFilter | null }[] = [
 export class TeamPage {
   private readonly team = inject(TEAM_SERVICE);
   private readonly capabilities = inject(AUTH_SERVICE).capabilities;
+  private readonly organisations = inject(ORGANISATION_SERVICE);
 
   protected readonly roleChips = ROLE_CHIPS;
-  protected readonly city = new FormControl('', { nonNullable: true });
+  protected readonly chapter = new FormControl('', { nonNullable: true });
 
   protected readonly state = signal<State>('loading');
   protected readonly members = signal<TeamMemberDto[]>([]);
   protected readonly role = signal<TeamRoleFilter | null>(null);
-  private readonly cities = signal<string[]>([]);
-  private readonly selectedCity = signal<string | null>(null);
+  /** "All {chapters}" and the chapters, or none while chapters are off. */
+  protected readonly chapterOptions = signal<SelectOption[]>([]);
+  protected readonly chapterLabel = signal('');
+  private readonly selectedChapter = signal<string | null>(null);
   private request = 0;
   /** The continuation for the next page; null once every matching member is shown. */
   protected readonly next = signal<string | null>(null);
@@ -86,25 +94,36 @@ export class TeamPage {
 
   /** InviteMembers sends invites (L2-010, L2-135 AC7). */
   protected readonly canInvite = computed(() => hasAny(this.capabilities(), 'InviteMembers'));
-  protected readonly cityOptions = computed<SelectOption[]>(() => [
-    { value: '', label: 'All cities' },
-    ...this.cities().map((c) => ({ value: c, label: c })),
-  ]);
   protected readonly filtered = computed(
-    () => this.role() !== null || this.selectedCity() !== null,
+    () => this.role() !== null || this.selectedChapter() !== null,
   );
-  /** "No volunteers in Vancouver yet", worded as the no-results mock words it. */
+  /** "No volunteers in Vancouver yet", worded as the no-results mock words it (L2-142 AC5). */
   protected readonly noResultsHeading = computed(() => {
     const role = this.role();
     const who = role ? role.toLowerCase() : 'team members';
-    const city = this.selectedCity();
-    return city ? `No ${who} in ${city} yet` : `No ${who} yet`;
+    const id = this.selectedChapter();
+    const chapter = id && this.chapterOptions().find((o) => o.value === id)?.label;
+    return chapter ? `No ${who} in ${chapter} yet` : `No ${who} yet`;
   });
+  /** "Try a different role or city." */
+  protected readonly noResultsText = computed(() =>
+    this.chapterLabel()
+      ? `Try a different role or ${this.chapterLabel().toLowerCase()}.`
+      : 'Try a different role.',
+  );
 
   constructor() {
-    this.city.valueChanges.subscribe((value) => {
-      this.selectedCity.set(value || null);
+    this.chapter.valueChanges.subscribe((value) => {
+      this.selectedChapter.set(value || null);
       void this.load();
+    });
+    this.organisations.get().subscribe({
+      next: (organisation) => {
+        this.chapterOptions.set(chapterFilterOptions(organisation));
+        this.chapterLabel.set(organisation.chapterLabel?.singular ?? '');
+      },
+      // Without the list the team is shown organisation-wide, with no filter.
+      error: () => this.chapterOptions.set([]),
     });
     void this.load();
   }
@@ -121,8 +140,8 @@ export class TeamPage {
 
   protected showEveryone(): void {
     this.role.set(null);
-    if (this.city.value) {
-      this.city.setValue('');
+    if (this.chapter.value) {
+      this.chapter.setValue('');
     } else {
       void this.load();
     }
@@ -141,11 +160,10 @@ export class TeamPage {
     this.moreFailed.set(false);
     try {
       const list = await firstValueFrom(
-        this.team.list({ role: this.role(), city: this.selectedCity() }, after),
+        this.team.list({ role: this.role(), chapterId: this.selectedChapter() }, after),
       );
       if (request !== this.request) return;
       this.members.update((members) => [...members, ...list.members]);
-      this.cities.set(list.cities);
       this.next.set(list.next);
       this.total.set(list.totalCount);
     } catch {
@@ -163,11 +181,10 @@ export class TeamPage {
     this.moreFailed.set(false);
     try {
       const list = await firstValueFrom(
-        this.team.list({ role: this.role(), city: this.selectedCity() }),
+        this.team.list({ role: this.role(), chapterId: this.selectedChapter() }),
       );
       if (request !== this.request) return;
       this.members.set(list.members);
-      this.cities.set(list.cities);
       this.next.set(list.next);
       this.total.set(list.totalCount);
       this.state.set('loaded');

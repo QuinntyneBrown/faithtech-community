@@ -8,25 +8,24 @@ export type TeamRoleFilter = 'Leads' | 'Volunteers';
 
 export interface TeamFilters {
   role?: TeamRoleFilter | null;
-  /** A home city; matched ignoring case. */
-  city?: string | null;
+  /** A home chapter's id; ignored while chapters are off (L2-142 AC3). */
+  chapterId?: string | null;
 }
 
 export interface TeamMemberDto {
   profileId: string;
   name: string;
-  homeCity: string | null;
+  /** The home chapter's name, or null for none and while chapters are off. */
+  chapterName: string | null;
   /** The featured photo, or null when the member has none. */
   photoUrl: string | null;
   /** Every role the member holds, not only the team roles. */
   roles: Role[];
 }
 
-/** Members sorted by name, and every team member's home city whatever the filters. */
-/** One page of the team by name (ADR 0015); `cities` lists every team member's city whatever the page. */
+/** One page of the team by name (ADR 0015). The chapter filter's options come from the organisation. */
 export interface TeamListDto {
   members: TeamMemberDto[];
-  cities: string[];
   /** Continues the list with the same filters; null on the last page. */
   next: string | null;
   /** How many members match the filters. */

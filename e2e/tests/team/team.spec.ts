@@ -1,6 +1,7 @@
 // Traces to: L2-019 (docs/detailed-designs/team/team-list)
 import { expect, test } from '../../fixtures/app';
 import { MockApi, photoUrl } from '../../fixtures/mock-api';
+import { NORTHSIDE } from '../../fixtures/mock-host';
 import { TeamPage } from '../../pages/team.page';
 
 function addTeam(api: MockApi) {
@@ -69,6 +70,7 @@ test.describe('Team list', () => {
     await expect(page).toHaveURL(/\/people\/profile-\d+$/);
   });
 
+  // Traces to: L2-142 AC1, AC2, AC5
   test('a lead filters by role and city and gets back to everyone', async ({ page, api, axe }) => {
     const { grace } = addTeam(api);
     const team = new TeamPage(page);
@@ -79,18 +81,30 @@ test.describe('Team list', () => {
     await expect(team.roleFilter('Leads')).toHaveAttribute('aria-pressed', 'true');
     await expect.poll(() => team.names()).toEqual(['Grace Okonkwo', 'Marcus Lee', 'Samuel Mensah']);
 
-    await team.city.selectOption('Toronto');
+    await team.chapter.selectOption('Toronto');
     await expect.poll(() => team.names()).toEqual(['Grace Okonkwo', 'Samuel Mensah']);
 
     await team.roleFilter('Volunteers').click();
-    await team.city.selectOption('Austin');
+    await team.chapter.selectOption('Austin');
     await expect(team.noResults('No volunteers in Austin yet')).toBeVisible();
     await axe.check();
 
     await team.showEveryone.click();
     await expect(team.roleFilter('All')).toHaveAttribute('aria-pressed', 'true');
-    await expect(team.city).toHaveValue('');
+    await expect(team.chapter).toHaveValue('');
     await expect(team.members).toHaveCount(4);
+  });
+
+  // Traces to: L2-142 AC3
+  test('with chapters off there is no chapter filter', async ({ page, api, axe }) => {
+    api.host.serve(NORTHSIDE);
+    const { grace } = addTeam(api);
+    const team = new TeamPage(page);
+    await api.signInAs(grace, '/team');
+
+    await expect(team.members).toHaveCount(4);
+    await expect(team.chapter).toHaveCount(0);
+    await axe.check();
   });
 
   test('a profile that loses its last team role drops off the team', async ({ page, api }) => {
@@ -161,7 +175,7 @@ test.describe('Team list', () => {
 
     await expect(team.members).toHaveCount(50);
     await expect(team.count).toHaveText('Showing 50 of 70 members');
-    await expect(team.city.locator('option', { hasText: 'Halifax' })).toHaveCount(1);
+    await expect(team.chapter.locator('option', { hasText: 'Halifax' })).toHaveCount(1);
     await axe.check();
 
     let fail = true;
