@@ -4,6 +4,7 @@ import type { MockAccount, MockProfile } from './mock-api';
 import type { MockAnnouncement } from './mock-announcements';
 import type { MockEvent } from './mock-events';
 import type { MockPartner } from './mock-partners';
+import { holds } from './role-definitions';
 
 /** What the reports fake reads from the rest of the fake backend. It never reads contacts (L2-125 AC6). */
 export interface ReportsContext {
@@ -97,7 +98,7 @@ export class MockReports {
     const exporting = url.pathname === '/api/reports/export.csv';
     if (method !== 'GET' || (url.pathname !== '/api/reports' && !exporting)) return false;
     if (!caller) return route.fulfill({ status: 401 });
-    if (!caller.roles.some((r) => r === 'Staff' || r === 'SystemAdmin')) {
+    if (!holds(caller, 'ViewReports')) {
       return route.fulfill({ status: 403 });
     }
     const result = this.report(url.searchParams.get('city'), url.searchParams.get('period'));

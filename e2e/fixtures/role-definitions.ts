@@ -211,3 +211,15 @@ export function heldRolesOf(roles: readonly string[]): HeldRole[] {
     isOversight: d.isOversight,
   }));
 }
+
+/**
+ * Whether a caller holds a capability, as ICurrentUser.Has answers: an explicit capability set, else the
+ * capabilities of the FaithTech roles held; AdministerOrganisation holds every capability (L2-135 AC2).
+ */
+export function holds(
+  caller: { roles: readonly string[]; capabilities?: readonly Capability[] },
+  capability: Capability,
+): boolean {
+  const held = caller.capabilities ?? capabilitiesOf(caller.roles);
+  return held.includes(capability) || held.includes('AdministerOrganisation');
+}

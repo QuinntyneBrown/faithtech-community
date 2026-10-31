@@ -1,5 +1,6 @@
 import { expect, test } from '../../fixtures/app';
 import { AppShell } from '../../pages/app-shell.page';
+import { ReportsPage } from '../../pages/reports.page';
 import { SignInPage } from '../../pages/sign-in.page';
 import { BREAKPOINTS } from '../../pages/viewport';
 
@@ -137,6 +138,33 @@ test.describe('App shell', () => {
       'Notes',
       'Reports',
     ]);
+  });
+
+  // L2-133 AC5: when the API refuses an action the app believed allowed, the app reloads the member and the
+  // navigation follows the fresh capabilities, without a page load.
+  test('a capability dropped mid-session leaves the navigation after the next refusal', async ({
+    page,
+    api,
+  }) => {
+    const shell = new AppShell(page);
+    await page.setViewportSize(BREAKPOINTS.xl);
+    const account = api.addAccount({
+      email: 'grace@example.org',
+      roles: ['Analyst'],
+      capabilities: ['ViewReports'],
+    });
+    await api.signInAs(account, '/reports');
+    const reports = new ReportsPage(page);
+    await expect(reports.heading).toBeVisible();
+    await expect(shell.navLink('Reports')).toBeVisible();
+    const loads = api.callsTo('GET', '/api/me').length;
+
+    account.capabilities = [];
+    await reports.filter('All cities', 'Last 90 days');
+
+    await expect(reports.forbidden).toBeVisible();
+    await expect(shell.navLink('Reports')).toBeHidden();
+    expect(api.callsTo('GET', '/api/me')).toHaveLength(loads + 1);
   });
 
   test('on a page outside the tabs, More is the current tab', async ({ page, api, axe }) => {
