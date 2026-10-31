@@ -87,6 +87,16 @@ export class AppShell {
     return this.page.getByRole('menu').getByRole('menuitem', { name, exact: true });
   }
 
+  /** The open account menu's "Switch organisation" group header (L2-133 AC3). */
+  get switchOrganisation(): Locator {
+    return this.page.getByRole('menu').getByText('Switch organisation', { exact: true });
+  }
+
+  /** An organisation offered in the open account menu's "Switch organisation" group, by name. */
+  organisationToSwitchTo(name: string): Locator {
+    return this.page.getByRole('menuitem', { name: new RegExp(`^${name}`) });
+  }
+
   /** Opens the account menu and follows "Your profile". */
   async openYourProfile(name: string): Promise<void> {
     await this.accountMenu(name).click();

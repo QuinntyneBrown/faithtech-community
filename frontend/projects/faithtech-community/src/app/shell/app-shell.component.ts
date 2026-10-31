@@ -94,8 +94,31 @@ export class AppShellComponent {
     { kind: 'item', id: 'profile', label: 'Your profile', icon: 'team', href: '/people/me' },
     { kind: 'item', id: 'settings', label: 'Settings', icon: 'settings', href: '/settings' },
     { kind: 'divider' },
+    ...this.switchEntries(),
     { kind: 'item', id: 'sign-out', label: 'Sign out', icon: 'sign-out' },
   ]);
+
+  /**
+   * "Switch organisation": each other membership starts sign-in on its host, which finds the session when the
+   * sign-in cookie reaches it and asks otherwise; absent with one membership (L2-133 AC3, AC4).
+   */
+  private switchEntries(): MenuEntry[] {
+    const memberships = this.user()?.memberships ?? [];
+    if (memberships.length === 0) return [];
+    return [
+      { kind: 'header', id: 'switch-org-h', title: 'Switch organisation' },
+      ...memberships.map((m): MenuEntry => ({
+        kind: 'item',
+        id: `organisation:${m.host}`,
+        label: m.name,
+        caption: m.host,
+        icon: 'switch',
+        href: `https://${m.host}/auth/continue?returnUrl=/`,
+        describedBy: 'switch-org-h',
+      })),
+      { kind: 'divider' },
+    ];
+  }
   protected readonly tabs = computed<TabBarItem[]>(() =>
     tabsFor(this.auth.roles()).map((s) => ({ ...this.link(s), icon: s.icon })),
   );

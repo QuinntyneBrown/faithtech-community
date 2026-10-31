@@ -578,6 +578,10 @@ export class MockApi {
         emailVerified: account.verified,
         roles: account.roles,
         organisation: this.host.organisation,
+        // The account's other memberships, for the switcher (L2-133 AC1).
+        memberships: (account.organisations ?? [])
+          .filter((o) => o.slug !== this.host.organisation.slug)
+          .map((o) => ({ name: o.name, host: o.host })),
       },
     });
   }

@@ -60,6 +60,30 @@ describe('MenuComponent', () => {
     expect(menu.querySelectorAll('.menu__divider[aria-hidden="true"]').length).toBe(2);
   });
 
+  it('renders a group: a header the items are described by, and items with a caption line', () => {
+    const { fixture, open } = setup();
+    fixture.componentInstance.entries.set([
+      { kind: 'header', id: 'switch-org-h', title: 'Switch organisation' },
+      {
+        kind: 'item',
+        id: 'org:northside',
+        label: 'Northside Makers',
+        caption: 'community.northside.test',
+        icon: 'switch',
+        href: 'https://community.northside.test/auth/continue?returnUrl=/',
+        describedBy: 'switch-org-h',
+      },
+    ]);
+    fixture.detectChanges();
+    const menu = open()!;
+
+    const item = menu.querySelector('a[role="menuitem"]')!;
+    expect(menu.querySelector('#switch-org-h')?.textContent).toContain('Switch organisation');
+    expect(item.getAttribute('aria-describedby')).toBe('switch-org-h');
+    expect(item.querySelector('.menu__item-caption')?.textContent).toBe('community.northside.test');
+    expect(item.textContent).toContain('Northside Makers');
+  });
+
   it('emits the item id and closes when an item is chosen', () => {
     const { fixture, open } = setup();
     const menu = open()!;
