@@ -137,7 +137,7 @@ export class AcceptInvitePage {
     return role ? ROLE_LABELS[role] : null;
   });
   protected readonly where = computed(() => {
-    const city = this.invite()?.inviterCity;
+    const city = this.invite()?.inviterChapterName;
     return city ? `${this.organisation.shortName()} ${city}` : this.organisation.shortName();
   });
 

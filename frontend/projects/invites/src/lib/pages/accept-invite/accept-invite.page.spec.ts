@@ -28,7 +28,7 @@ const invite: InviteLookupDto = {
   status: 'Pending',
   email: 'ruth.alvarez@example.org',
   inviterName: 'Grace Okonkwo',
-  inviterCity: 'Toronto',
+  inviterChapterName: 'Toronto',
   preassignedRole: 'Volunteer',
   hasAccount: false,
 };

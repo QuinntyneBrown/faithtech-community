@@ -197,7 +197,7 @@ export class MockConnect {
         leadProfileId: owner.id,
         leadName: owner.name,
         leadPhotoUrl: featured?.url ?? null,
-        leadCity: this.context.chapters.nameOf(owner.chapterId),
+        leadChapterName: this.context.chapters.nameOf(owner.chapterId),
         leadRole: firstRoleCarrying(owner.roles, 'ConnectLink', 'AdministerOrganisation'),
       },
     });

@@ -138,7 +138,7 @@
               @for (member of r.audience.members; track member.id) {
                 <ft-list-item
                   [label]="member.name"
-                  [meta]="'Member' + (member.city ? ' · ' + member.city : '')"
+                  [meta]="'Member' + (member.chapterName ? ' · ' + member.chapterName : '')"
                 >
                   <ft-avatar leading size="sm" [name]="member.name" [color]="colorFor(member.id)" />
                 </ft-list-item>

@@ -11,7 +11,7 @@ export interface ConnectLookupDto {
   leadProfileId: string;
   leadName: string;
   leadPhotoUrl: string | null;
-  leadCity: string | null;
+  leadChapterName: string | null;
   /** "City Lead" or "System Admin". */
   leadRole: string;
 }

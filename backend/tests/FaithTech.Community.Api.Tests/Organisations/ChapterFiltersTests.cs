@@ -113,6 +113,23 @@ public class ChapterFiltersTests(CommunityApiFactory factory) : IClassFixture<Co
         Assert.Contains(people.GetProperty("items").EnumerateArray(), i => i.GetProperty("id").GetGuid() == other.ProfileId);
     }
 
+    // L2-142 AC4: the share and transfer pickers name each member's chapter, and none while chapters are off.
+    [Theory]
+    [InlineData("/api/resources/members?q=Grace")]
+    [InlineData("/api/notes/members?q=Grace")]
+    public async Task Pickers_name_the_chapter_and_drop_it_while_chapters_are_off(string url)
+    {
+        var (client, _, _) = await CampusesAsync();
+
+        var on = Assert.Single((await client.GetFromJsonAsync<JsonElement>(url)).EnumerateArray());
+        await TurnChaptersOffAsync(client);
+        var off = Assert.Single((await client.GetFromJsonAsync<JsonElement>(url)).EnumerateArray());
+
+        Assert.Equal("Downtown", on.GetProperty("chapterName").GetString());
+        Assert.Equal(JsonValueKind.Null, off.GetProperty("chapterName").ValueKind);
+        Assert.False(on.TryGetProperty("city", out _));
+    }
+
     private static List<Guid> Ids(JsonElement list) =>
         [.. list.GetProperty("events").EnumerateArray().Select(e => e.GetProperty("id").GetGuid())];
 

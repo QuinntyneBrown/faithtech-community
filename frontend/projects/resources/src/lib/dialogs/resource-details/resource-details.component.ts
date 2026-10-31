@@ -126,7 +126,7 @@ export class ResourceDetailsComponent implements OnInit {
         members.map((m) => ({
           id: m.id,
           name: m.name,
-          detail: [m.roles.map((r) => ROLE_LABELS[r]).join(', '), m.city]
+          detail: [m.roles.map((r) => ROLE_LABELS[r]).join(', '), m.chapterName]
             .filter(Boolean)
             .join(' · '),
         })),

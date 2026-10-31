@@ -28,7 +28,7 @@ const lead: ConnectLookupDto = {
   leadProfileId: 'p1',
   leadName: 'Grace Okonkwo',
   leadPhotoUrl: 'https://photos.example/grace.jpg',
-  leadCity: 'Toronto',
+  leadChapterName: 'Toronto',
   leadRole: 'City Lead',
 };
 

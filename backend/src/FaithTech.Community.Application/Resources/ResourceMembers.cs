@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore;
 namespace FaithTech.Community.Application.Resources;
 
 /// <summary>A member a resource can be shared with or handed to: name, roles and city (L2-061 AC1, L2-064 AC3).</summary>
-public record ResourceMemberDto(Guid Id, string Name, string? City, IReadOnlyList<string> Roles);
+public record ResourceMemberDto(Guid Id, string Name, string? ChapterName, IReadOnlyList<string> Roles);
 
 /// <summary>
 /// The people picker for sharing (contributors only) and the new-owner picker for a transfer (System Admin only,

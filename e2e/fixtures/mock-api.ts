@@ -1545,7 +1545,7 @@ export class MockApi {
         status: this.inviteStatus(invite),
         email: invite.email,
         inviterName: inviter?.name ?? 'A FaithTech lead',
-        inviterCity: this.chapters.nameOf(inviter?.chapterId),
+        inviterChapterName: this.chapters.nameOf(inviter?.chapterId),
         preassignedRole: invite.preassignedRole,
         hasAccount: this.accounts.has(invite.email.toLowerCase()),
       },

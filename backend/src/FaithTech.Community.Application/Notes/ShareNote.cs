@@ -167,4 +167,4 @@ public class NoteMembersHandler(IApplicationDbContext db)
     }
 }
 
-public record NoteMemberDto(Guid Id, string Name, string? City, IReadOnlyList<string> Roles);
+public record NoteMemberDto(Guid Id, string Name, string? ChapterName, IReadOnlyList<string> Roles);

@@ -11,7 +11,7 @@ public static partial class ConnectClients
 {
     public record LinkBody(string Url);
 
-    public record LookupBody(Guid LeadProfileId, string LeadName, string? LeadPhotoUrl, string? LeadCity, string LeadRole);
+    public record LookupBody(Guid LeadProfileId, string LeadName, string? LeadPhotoUrl, string? LeadChapterName, string LeadRole);
 
     /// <summary>A City Lead's link as "My QR code" shows it; issues one on first use.</summary>
     public static async Task<string> ConnectTokenOfAsync(this CommunityApiFactory factory, ProfileClients.Member lead, Role role = Role.CityLead)

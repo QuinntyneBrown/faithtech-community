@@ -15,7 +15,7 @@ using Microsoft.EntityFrameworkCore;
 namespace FaithTech.Community.Application.Invites;
 
 /// <summary>What the invite link shows before anyone signs in (ADR 0006).</summary>
-public record InviteLookupDto(string Status, string Email, string InviterName, string? InviterCity, string? PreassignedRole, bool HasAccount);
+public record InviteLookupDto(string Status, string Email, string InviterName, string? InviterChapterName, string? PreassignedRole, bool HasAccount);
 
 /// <summary>Accepts an invite: with a name and password as a new account, or without them as the signed-in account.</summary>
 /// <summary>The body of <c>POST /api/invites/lookup</c>: the invite link's token, kept out of the URL.</summary>

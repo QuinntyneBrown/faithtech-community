@@ -188,5 +188,5 @@ public class AcceptInviteTests(CommunityApiFactory factory) : IClassFixture<Comm
     private Task<string> EmailOfAsync(ProfileClients.Member member) =>
         factory.WithDbAsync(db => db.Users.Where(u => u.Id == member.UserId).Select(u => u.Email!).SingleAsync());
 
-    private sealed record Lookup(string Status, string Email, string InviterName, string? InviterCity, string? PreassignedRole, bool HasAccount);
+    private sealed record Lookup(string Status, string Email, string InviterName, string? InviterChapterName, string? PreassignedRole, bool HasAccount);
 }
