@@ -13,6 +13,18 @@ export interface MockOrganisation {
   shortName: string;
   host: string;
   chapterLabel: { singular: string; plural: string } | null;
+  /** The Marketing:Sites entry of its public host, as GET /api/site answers it there (L2-134 AC3). */
+  marketing: {
+    headline: string;
+    brochure: {
+      url: string;
+      posterUrl: string;
+      captionsUrl: string;
+      title: string;
+      posterAlt: string;
+    } | null;
+    footer: string;
+  };
 }
 
 /** FaithTech, the organisation the hosts belong to unless a test serves another (L2-151 seed). */
@@ -22,6 +34,17 @@ export const FAITHTECH: MockOrganisation = {
   shortName: 'FaithTech',
   host: 'localhost',
   chapterLabel: { singular: 'City', plural: 'Cities' },
+  marketing: {
+    headline: 'Build with people who share your faith',
+    brochure: {
+      url: '/brochure/brochure.webm',
+      posterUrl: '/brochure/brochure-poster.jpg',
+      captionsUrl: '/brochure/brochure.en.vtt',
+      title: 'FaithTech Community in 21 seconds',
+      posterAlt: 'FaithTech builders pairing at a hackathon table',
+    },
+    footer: '© 2026 FaithTech',
+  },
 };
 
 /** A second organisation for the specs that prove nothing names FaithTech by fixed text. */
@@ -31,6 +54,11 @@ export const NORTHSIDE: MockOrganisation = {
   shortName: 'Northside',
   host: 'localhost',
   chapterLabel: null,
+  marketing: {
+    headline: 'Make things with your neighbours',
+    brochure: null,
+    footer: '© 2026 Northside Makers',
+  },
 };
 
 /**
@@ -59,10 +87,16 @@ export class MockHost {
     this.organisation = organisation;
   }
 
-  /** GET /api/site on the community host (SiteEndpoints). */
-  site(communityOrigin: string) {
-    const { name, shortName, chapterLabel } = this.organisation;
-    return { name, shortName, chapterLabel, communityOrigin };
+  /**
+   * GET /api/site (SiteEndpoints): the names and community origin on any host, plus the marketing content on the
+   * public host; on the community host those are null, as the API answers.
+   */
+  site(communityOrigin: string, onPublicHost: boolean) {
+    const { name, shortName, chapterLabel, marketing } = this.organisation;
+    const { headline, brochure, footer } = onPublicHost
+      ? marketing
+      : { headline: null, brochure: null, footer: null };
+    return { name, shortName, chapterLabel, communityOrigin, headline, brochure, footer };
   }
 
   /** The hosts map to no organisation. */
