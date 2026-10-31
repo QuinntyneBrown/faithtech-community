@@ -75,9 +75,22 @@ describe('DefineRoleDialogComponent', () => {
       capabilities: ['ViewReports'],
       showOnTeam: true,
       isOversight: false,
+      chapterScopable: false,
     };
     expect(data.submit).toHaveBeenCalledWith(value);
     expect(ref.close).toHaveBeenCalledWith(value);
+  });
+
+  it('offers "Can be held for a city" only while chapters are on, and saves it', async () => {
+    expect(setup().text()).not.toContain('Can be held for a');
+    TestBed.resetTestingModule();
+    const { type, text, button, data, settle, host } = setup({ chapterLabel: 'City' });
+    expect(text()).toContain('Can be held for a city');
+    type('Meet-up Lead');
+    host.querySelectorAll<HTMLInputElement>('input[role="switch"]')[1].click();
+    button(/^Define role$/).click();
+    await settle();
+    expect(data.submit).toHaveBeenCalledWith(expect.objectContaining({ chapterScopable: true }));
   });
 
   it('edits a role from what it holds and says how many hold it', () => {
@@ -89,6 +102,7 @@ describe('DefineRoleDialogComponent', () => {
         capabilities: ['ManageEvents'],
         showOnTeam: false,
         isOversight: true,
+        chapterScopable: false,
         holderCount: 1,
       },
     });

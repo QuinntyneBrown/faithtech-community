@@ -27,6 +27,11 @@ export interface CurrentUser {
   capabilities: Capability[];
   /** The role definition ids the caller may add and remove; every picker offers exactly these (L2-137 AC5). */
   grantableRoleIds?: string[];
+  /**
+   * The chapters a grantor whose grantor role is tagged may grant in; null or absent when they are never scoped: an
+   * untagged grantor, an administrator, or while chapters are off (L2-143, L2-133 AC1).
+   */
+  grantChapterIds?: string[] | null;
   /** The caller's home chapter, or none, and none while chapters are off (L2-133 AC1). */
   chapter?: { id: string; name: string } | null;
   /** The organisation of the host, from /api/me (L2-133 AC1). */

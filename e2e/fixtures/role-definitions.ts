@@ -258,16 +258,42 @@ export interface HeldRole {
 }
 
 /** The held roles, in display order, as /api/me answers them. */
-export function heldRolesOf(roles: readonly string[]): HeldRole[] {
+/**
+ * A profile's chapter tags per held role key (L2-141 AC3): each entry is one assignment, null for an untagged one. A
+ * held role with no entry is held once, untagged.
+ */
+export type RoleChapters = Record<string, (string | null)[]>;
+
+/** The chapter tags of each assignment of `key`: none when not held, one untagged when held without tags. */
+export function tagsOf(
+  roles: readonly string[],
+  key: string,
+  chapters?: RoleChapters,
+): (string | null)[] {
+  if (!roles.includes(key)) return [];
+  const tags = chapters?.[key];
+  return tags?.length ? tags : [null];
+}
+
+/** One entry per assignment, in display order, untagged first. */
+function assignmentsOf(roles: readonly string[], chapters?: RoleChapters) {
   return definitions
     .filter((d) => roles.includes(d.key))
-    .map((d) => ({
-      id: d.id,
-      key: d.key,
-      name: d.name,
-      chapterId: null,
-      isOversight: d.isOversight,
-    }));
+    .flatMap((d) =>
+      [...tagsOf(roles, d.key, chapters)]
+        .sort((a, b) => (a === null ? -1 : b === null ? 1 : 0))
+        .map((chapterId) => ({ d, chapterId })),
+    );
+}
+
+export function heldRolesOf(roles: readonly string[], chapters?: RoleChapters): HeldRole[] {
+  return assignmentsOf(roles, chapters).map(({ d, chapterId }) => ({
+    id: d.id,
+    key: d.key,
+    name: d.name,
+    chapterId,
+    isOversight: d.isOversight,
+  }));
 }
 
 /**
@@ -308,10 +334,29 @@ export function definitionWithId(id: string): RoleDefinition | undefined {
 }
 
 /** The keys of the roles held, as a profile answers them (L2-138 AC1). */
-export function profileRolesOf(roles: readonly string[]) {
-  return definitions
-    .filter((d) => roles.includes(d.key))
-    .map((d) => ({ id: d.id, name: d.name, chapterId: null }));
+/** ProfileRoleDto per assignment; chapterName is null while chapters are off, so the badge reads "{role}". */
+export function profileRolesOf(
+  roles: readonly string[],
+  chapters?: RoleChapters,
+  nameOf: (id: string | null) => string | null = () => null,
+) {
+  return assignmentsOf(roles, chapters).map(({ d, chapterId }) => ({
+    id: d.id,
+    name: d.name,
+    chapterId,
+    chapterName: nameOf(chapterId),
+  }));
+}
+
+/** "{role} · {chapter}" for a tagged assignment, "{role}" otherwise (ProfileRoleDto.Badge). */
+export function roleBadgesOf(
+  roles: readonly string[],
+  chapters: RoleChapters | undefined,
+  nameOf: (id: string | null) => string | null,
+): string[] {
+  return profileRolesOf(roles, chapters, nameOf).map((r) =>
+    r.chapterName ? `${r.name} · ${r.chapterName}` : r.name,
+  );
 }
 
 /**

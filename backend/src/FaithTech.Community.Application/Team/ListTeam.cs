@@ -80,7 +80,9 @@ public class ListTeamHandler(IApplicationDbContext db, IPhotoStorage storage)
         profile.Name,
         profile.Chapter?.Name,
         profile.Photos.FirstOrDefault(p => p.IsFeatured) is { } featured ? storage.GetReadUrl(featured.BlobName) : null,
-        [.. profile.Roles.OrderBy(r => r.Definition!.SortOrder).Select(r => r.Definition!.Key)]);
+        [.. profile.Roles.OrderBy(r => r.Definition!.SortOrder).Select(r => r.Definition!.Key)],
+        [.. profile.Roles.OrderBy(r => r.Definition!.SortOrder).ThenBy(r => r.Chapter?.Name)
+            .Select(r => ProfileRoleDto.Badge(r.Definition!.Name, r.Chapter?.Name))]);
 }
 
 /// <summary>The position after the last member of a page: their lower-cased name and profile id.</summary>

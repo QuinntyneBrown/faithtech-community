@@ -26,6 +26,8 @@ export interface RoleDefinitionRequest {
   capabilities: string[];
   showOnTeam: boolean;
   isOversight: boolean;
+  /** "Can be held for a {chapter}"; the server keeps the current value while chapters are off (L2-136 AC1). */
+  chapterScopable?: boolean;
 }
 
 /** An entry of the platform's capability catalogue, as GET /api/organisation/capabilities answers it. */

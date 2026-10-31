@@ -57,7 +57,7 @@
             <ft-list-item [label]="member.name" [href]="'/people/' + member.profileId">
               <ft-avatar leading size="sm" [name]="member.name" [src]="member.photoUrl" />
               <ft-cluster meta gap="1">
-                @for (label of labels(member.roles); track label) {
+                @for (label of labels(member); track label) {
                   <ft-badge variant="role">{{ label }}</ft-badge>
                 }
               </ft-cluster>

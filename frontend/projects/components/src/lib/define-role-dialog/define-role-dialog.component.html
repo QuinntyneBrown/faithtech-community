@@ -42,6 +42,17 @@
         <legend>Options</legend>
         <ft-stack gap="3">
           <ft-switch formControlName="showOnTeam">Show on the team list</ft-switch>
+          @if (chapter) {
+            <ft-switch
+              formControlName="chapterScopable"
+              [description]="
+                'Each assignment can be tagged with a ' +
+                chapter +
+                '. It never limits what the holder sees.'
+              "
+              >Can be held for a {{ chapter }}</ft-switch
+            >
+          }
           <ft-switch formControlName="isOversight"
             >Oversight role (shows a viewing-as banner)</ft-switch
           >

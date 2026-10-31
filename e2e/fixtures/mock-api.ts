@@ -12,6 +12,9 @@ import {
   definitionWithId,
   grantableKeys,
   heldRolesOf,
+  roleBadgesOf,
+  tagsOf,
+  type RoleChapters,
   holds,
   onTeam,
   profileRolesOf,
@@ -74,6 +77,8 @@ export interface MockProfile {
   chapterId: string | null;
   bio: string | null;
   roles: string[];
+  /** Chapter tags per held role key (L2-141 AC3); a held role with no entry is held once, untagged. */
+  roleChapters?: RoleChapters;
   photos: MockPhoto[];
   /** When the account was created (Profile.JoinedAtUtc); absent for members from before Reports. */
   joinedAtUtc?: string | null;
@@ -229,6 +234,11 @@ export class MockApi {
   /** A role the host organisation defines for this test, with any capabilities and grant rules by key (ADR 0033). */
   defineRole(role: Pick<RoleDefinition, 'key' | 'name'> & Partial<RoleDefinition>): RoleDefinition {
     return defineRole(role);
+  }
+
+  /** The role definition called `name`, for asserting what a define or edit saved. */
+  definitionNamed(name: string): RoleDefinition | undefined {
+    return roleDefinitions().find((d) => d.name === name);
   }
 
   private failOrganisationUpdate = false;
@@ -469,7 +479,7 @@ export class MockApi {
       return this.roleDefinitionRoutes(route, method, definitionRoute[1], url, body, authorization);
     const roleRoute = /^\/api\/profiles\/([^/]+)\/roles(?:\/([^/]+))?$/.exec(url.pathname);
     if (roleRoute)
-      return this.roles(route, method, roleRoute[1], roleRoute[2], body, authorization);
+      return this.roles(route, method, roleRoute[1], roleRoute[2], body, authorization, url);
     const suspension = /^\/api\/admin\/users\/([^/]+)\/suspension$/.exec(url.pathname);
     if (suspension) return this.suspension(route, method, suspension[1], body, authorization);
     const inviteAction = /^\/api\/invites\/([^/]+)\/(resend|revoke)$/.exec(url.pathname);
@@ -647,7 +657,7 @@ export class MockApi {
         name: account.name,
         email: account.email,
         emailVerified: account.verified,
-        roles: heldRolesOf(account.roles),
+        roles: heldRolesOf(account.roles, this.profiles.get(account.profileId)?.roleChapters),
         // Computed from the role definitions held, as the API does (L2-135 AC2, L2-133 AC1).
         capabilities: account.capabilities ?? capabilitiesOf(account.roles),
         // The roles every picker offers, by RoleGrantPolicy's rule (L2-137 AC5).
@@ -655,6 +665,8 @@ export class MockApi {
         organisation: this.host.organisation,
         // The caller's home chapter, for pickers that default to it (L2-141).
         chapter: this.chapterOption(account.profileId),
+        // The chapters a scoped grantor may tag a grant with; null when never scoped (L2-143).
+        grantChapterIds: this.grantChapterIds(account),
         // The account's other memberships, for the switcher (L2-133 AC1).
         memberships: (account.organisations ?? [])
           .filter((o) => o.slug !== this.host.organisation.slug)
@@ -1020,6 +1032,10 @@ export class MockApi {
       capabilities: CAPABILITIES.filter((c) => capabilities.includes(c)),
       showOnTeam: body['showOnTeam'] === true,
       isOversight: body['isOversight'] === true,
+      // "Can be held for a {chapter}": kept as it was while chapters are off and the switch is hidden (L2-136 AC1).
+      chapterScopable: this.host.organisation.chapterLabel
+        ? body['chapterScopable'] === true
+        : (existing?.chapterScopable ?? false),
     };
     const actor = { actorId: caller.profileId, actorName: caller.name };
     if (existing) {
@@ -1187,11 +1203,13 @@ export class MockApi {
     roleId: string | undefined,
     body: Record<string, unknown>,
     authorization: string | undefined,
+    url: URL,
   ) {
     const caller = this.caller(authorization);
     if (!caller) return route.fulfill({ status: 401 });
     if (!holds(caller, 'AssignRoles')) return route.fulfill({ status: 403 });
-    const id = method === 'POST' ? String(body['roleId'] ?? '') : decodeURIComponent(roleId ?? '');
+    const adding = method === 'POST';
+    const id = adding ? String(body['roleId'] ?? '') : decodeURIComponent(roleId ?? '');
     const definition = definitionWithId(id);
     if (!definition || definition.archived)
       return route.fulfill({
@@ -1199,23 +1217,80 @@ export class MockApi {
         json: { title: 'Invalid', status: 400, errors: { Role: ['Choose a role.'] } },
       });
     const role = definition.key;
+    // As ChangeRolesHandler: a tag on add (none while chapters are off), ?chapterId= on remove (L2-143).
+    const label = this.host.organisation.chapterLabel?.singular.toLowerCase();
+    let chapterId = adding
+      ? ((body['chapterId'] as string | null | undefined) ?? null)
+      : url.searchParams.get('chapterId');
+    if (adding && !label) chapterId = null;
+    const invalid = (message: string) =>
+      route.fulfill({
+        status: 400,
+        json: { title: 'Invalid', status: 400, errors: { ChapterId: [message] } },
+      });
+    if (adding && chapterId) {
+      if (!definition.chapterScopable) return invalid('That role can’t be held for a chapter.');
+      if (!this.chapters.options().some((c) => c.id === chapterId))
+        return invalid(`Choose a ${label} from the list.`);
+    }
     if (!canGrant(caller, role)) return route.fulfill({ status: 403 });
+    const scope = this.grantScope(caller, role);
+    if (adding && !chapterId && scope) return invalid(`Choose a ${label}.`);
+    if (scope && !(chapterId && scope.includes(chapterId))) return route.fulfill({ status: 403 });
     const profile = this.profiles.get(profileId);
     if (!profile) return route.fulfill({ status: 404 });
-    const adding = method === 'POST';
-    if (profile.roles.includes(role) === adding)
-      return conflict(route, 'They already hold that role.');
+    const tags = tagsOf(profile.roles, role, profile.roleChapters);
+    if (tags.includes(chapterId) === adding) return conflict(route, 'They already hold that role.');
     if (
       !adding &&
       definitionOf(role)?.capabilities.includes('AdministerOrganisation') &&
       this.wouldLeaveNoAdministrator(profile.id, role)
     )
       return conflict(route, 'There must always be at least one administrator.');
-    profile.roles = adding ? [...profile.roles, role] : profile.roles.filter((r) => r !== role);
+    const next = adding ? [...tags, chapterId] : tags.filter((t) => t !== chapterId);
+    const others = profile.roles.filter((r) => r !== role);
+    profile.roles = next.length ? [...others, role] : others;
+    const { [role]: _, ...rest } = profile.roleChapters ?? {};
+    profile.roleChapters =
+      next.length && next.some((t) => t !== null) ? { ...rest, [role]: next } : rest;
     for (const account of this.accounts.values()) {
       if (account.profileId === profile.id) account.roles = profile.roles;
     }
-    return route.fulfill({ status: 200, json: profileRolesOf(profile.roles) });
+    return route.fulfill({ status: 200, json: this.profileRoles(profile) });
+  }
+
+  /** A profile's held roles as ProfileRoleDto, one per assignment, naming each tag's chapter. */
+  private profileRoles(profile: MockProfile) {
+    return profileRolesOf(profile.roles, profile.roleChapters, (c) => this.chapters.nameOf(c));
+  }
+
+  /**
+   * RoleGrantPolicy.Scope: the chapters within which the caller may grant and remove `key`, or null for anywhere: a role
+   * that is not chapter-scopable, chapters off, an administrator, or an untagged assignment of a grantor role.
+   */
+  private grantScope(caller: MockAccount, key: string): string[] | null {
+    const definition = definitionOf(key);
+    if (!definition?.chapterScopable || !this.host.organisation.chapterLabel) return null;
+    if (holds(caller, 'AdministerOrganisation')) return null;
+    const profile = this.profiles.get(caller.profileId);
+    const tags = roleDefinitions()
+      .filter(
+        (d) => !d.archived && d.capabilities.includes('AssignRoles') && d.grants.includes(key),
+      )
+      .flatMap((d) => tagsOf(caller.roles, d.key, profile?.roleChapters));
+    return tags.includes(null) ? null : tags.filter((t): t is string => t !== null);
+  }
+
+  /** /api/me grantChapterIds: the tags of the caller's grantor roles; null when they are never scoped. */
+  private grantChapterIds(account: MockAccount): string[] | null {
+    if (!this.host.organisation.chapterLabel || holds(account, 'AdministerOrganisation'))
+      return null;
+    const profile = this.profiles.get(account.profileId);
+    const tags = roleDefinitions()
+      .filter((d) => !d.archived && d.capabilities.includes('AssignRoles'))
+      .flatMap((d) => tagsOf(account.roles, d.key, profile?.roleChapters));
+    if (!tags.length || tags.includes(null)) return null;
+    return [...new Set(tags.filter((t): t is string => t !== null))];
   }
 
   /** AdminUsersEndpoints: GET /api/admin/users, System Admin only, 25 per page by name. */
@@ -1266,7 +1341,7 @@ export class MockApi {
         name: profile.name,
         chapterName: this.chapters.nameOf(profile.chapterId),
         photoUrl: profile.photos.find((photo) => photo.isFeatured)?.url ?? null,
-        roles: profileRolesOf(profile.roles),
+        roles: this.profileRoles(profile),
       }));
     const items = all.slice((page - 1) * 25, page * 25);
     return route.fulfill({
@@ -1428,6 +1503,7 @@ export class MockApi {
       chapterName: this.chapters.nameOf(p.chapterId),
       photoUrl: p.photos.find((photo) => photo.isFeatured)?.url ?? null,
       roles: p.roles,
+      roleBadges: roleBadgesOf(p.roles, p.roleChapters, (c) => this.chapters.nameOf(c)),
     }));
     return route.fulfill({
       status: 200,
@@ -1616,7 +1692,7 @@ export class MockApi {
     return {
       ...profile,
       chapterName: this.chapters.nameOf(profile.chapterId),
-      roles: profileRolesOf(profile.roles),
+      roles: this.profileRoles(profile),
       photos,
       featuredPhoto: photos.find((p) => p.isFeatured) ?? null,
       isOwn: profile.id === caller.profileId,

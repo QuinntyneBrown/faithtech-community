@@ -181,7 +181,13 @@ public class CommunityDbContext : IdentityDbContext<CommunityUser, IdentityRole<
             {
                 role.ToTable("ProfileRoles");
                 role.WithOwner().HasForeignKey(r => r.ProfileId);
-                role.HasKey(r => new { r.ProfileId, r.RoleDefinitionId });
+                role.HasKey(r => r.Id);
+                role.Property(r => r.Id).ValueGeneratedNever();
+                // A definition once per chapter tag and once untagged (L2-138 AC7): null tags count as equal.
+                role.HasIndex(r => new { r.ProfileId, r.RoleDefinitionId, r.ChapterId }).IsUnique().AreNullsDistinct(false);
+                role.HasIndex(r => r.ChapterId);
+                role.HasOne(r => r.Chapter).WithMany().HasForeignKey(r => r.ChapterId).OnDelete(DeleteBehavior.Restrict);
+                role.Navigation(r => r.Chapter).AutoInclude();
                 role.HasOne(r => r.Definition).WithMany().HasForeignKey(r => r.RoleDefinitionId).OnDelete(DeleteBehavior.Restrict);
                 // Loaded with every profile, so the held roles' names, flags and capabilities are at hand (ADR 0033).
                 role.Navigation(r => r.Definition).AutoInclude();

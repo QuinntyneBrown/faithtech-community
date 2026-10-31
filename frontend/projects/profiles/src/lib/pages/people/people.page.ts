@@ -17,6 +17,7 @@ import {
   ROLES_SERVICE,
   chapterFilterOptions,
   hasAny,
+  roleBadge,
 } from '@faithtech-community/api';
 import {
   avatarColorFor,
@@ -92,6 +93,8 @@ export class PeoplePage {
   private readonly organisations = inject(ORGANISATION_SERVICE);
   /** The roles the caller may change (L2-137 AC5). */
   private readonly choices = injectRoleChoices();
+  /** "{role} · {chapter}" for a tagged assignment (L2-141 AC3). */
+  protected readonly badge = roleBadge;
 
   private readonly memberCell = viewChild.required<TemplateRef<unknown>>('memberCell');
   private readonly rolesCell = viewChild.required<TemplateRef<unknown>>('rolesCell');

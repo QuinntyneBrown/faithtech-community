@@ -9,6 +9,8 @@ export class RoleDialog {
   readonly cancel: Locator;
   readonly choiceError: Locator;
   readonly refusal: Locator;
+  /** The chapter picker for a chapter-scopable role, labelled with the organisation's chapter label (L2-143). */
+  readonly chapter: Locator;
 
   constructor(page: Page, heading: string | RegExp) {
     this.dialog = page.getByRole('dialog', { name: heading });
@@ -18,6 +20,12 @@ export class RoleDialog {
     this.cancel = this.dialog.getByRole('button', { name: 'Cancel' });
     this.choiceError = this.dialog.getByText('Choose a role to add.');
     this.refusal = this.dialog.locator('ft-alert');
+    this.chapter = this.dialog.getByRole('combobox');
+  }
+
+  /** The chapters the picker offers, in order. */
+  async chapterOptions(): Promise<string[]> {
+    return (await this.chapter.locator('option').allTextContents()).map((t) => t.trim());
   }
 
   option(label: string): Locator {

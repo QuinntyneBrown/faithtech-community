@@ -10,8 +10,14 @@ import { ProfileRole } from '../shared';
  * not held, or the last administrator.
  */
 export interface RolesService {
-  addRole(profileId: string, roleId: string): Observable<ProfileRole[]>;
-  removeRole(profileId: string, roleId: string): Observable<ProfileRole[]>;
+  /** Adds the role, tagged with `chapterId` when given (L2-143). */
+  addRole(profileId: string, roleId: string, chapterId?: string | null): Observable<ProfileRole[]>;
+  /** Removes the assignment with exactly this tag; none removes the untagged one (L2-143 AC2). */
+  removeRole(
+    profileId: string,
+    roleId: string,
+    chapterId?: string | null,
+  ): Observable<ProfileRole[]>;
 }
 
 export const ROLES_SERVICE = new InjectionToken<RolesService>('ROLES_SERVICE');

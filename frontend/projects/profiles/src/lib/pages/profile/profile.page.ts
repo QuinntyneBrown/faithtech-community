@@ -13,6 +13,7 @@ import {
   ProfileDto,
   PROFILES_SERVICE,
   ROLES_SERVICE,
+  roleBadge,
 } from '@faithtech-community/api';
 import {
   avatarColorFor,
@@ -58,7 +59,7 @@ export class ProfilePage {
   protected readonly profile = signal<ProfileDto | null>(null);
 
   protected readonly avatarColor = computed(() => avatarColorFor(this.profile()?.id));
-  protected readonly roles = computed(() => this.profile()?.roles.map((r) => r.name) ?? []);
+  protected readonly roles = computed(() => this.profile()?.roles.map(roleBadge) ?? []);
   protected readonly photos = computed<ProfilePhoto[]>(
     () => this.profile()?.photos.map((p) => ({ url: p.url, alt: p.altText })) ?? [],
   );

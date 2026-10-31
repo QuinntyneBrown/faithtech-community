@@ -21,6 +21,8 @@ export interface TeamMemberDto {
   photoUrl: string | null;
   /** Every role the member holds, not only the team roles. */
   roles: Role[];
+  /** Each held role as its badge reads, "{role} · {chapter}" when tagged (L2-141 AC3). */
+  roleBadges?: string[];
 }
 
 /** One page of the team by name (ADR 0015). The chapter filter's options come from the organisation. */

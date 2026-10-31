@@ -1,5 +1,11 @@
 import { Route } from '@playwright/test';
-import { firstRoleCarrying, holds } from './role-definitions';
+import {
+  firstRoleCarrying,
+  holds,
+  roleDefinitions,
+  tagsOf,
+  type RoleChapters,
+} from './role-definitions';
 
 /** What MockApi shares with the connect fake. */
 export interface ConnectContext {
@@ -37,6 +43,7 @@ export interface ConnectContext {
       name: string;
       chapterId: string | null;
       roles: string[];
+      roleChapters?: RoleChapters;
       photos: { url: string | null; isFeatured: boolean }[];
     }
   >;
@@ -199,8 +206,23 @@ export class MockConnect {
         leadPhotoUrl: featured?.url ?? null,
         leadChapterName: this.context.chapters.nameOf(owner.chapterId),
         leadRole: firstRoleCarrying(owner.roles, 'ConnectLink', 'AdministerOrganisation'),
+        // The link role's chapter tag, an untagged assignment preferred (L2-141 AC3).
+        leadRoleChapterName: this.linkRoleChapterName(owner),
       },
     });
+  }
+
+  private linkRoleChapterName(owner: {
+    roles: string[];
+    roleChapters?: RoleChapters;
+  }): string | null {
+    const role = firstRoleCarrying(owner.roles, 'ConnectLink', 'AdministerOrganisation');
+    const key = roleDefinitions().find((d) => d.name === role)?.key;
+    if (!key) return null;
+    const tags = tagsOf(owner.roles, key, owner.roleChapters);
+    if (tags.includes(null)) return null;
+    const names = tags.map((t) => this.context.chapters.nameOf(t)).filter((n): n is string => !!n);
+    return names.sort((a, b) => a.localeCompare(b))[0] ?? null;
   }
 
   private newToken(): string {

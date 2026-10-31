@@ -14,18 +14,23 @@ export class HttpRolesService implements RolesService {
   // The role dialog shows a refusal itself rather than leaving for the forbidden page.
   private readonly context = new HttpContext().set(HANDLES_FORBIDDEN, true);
 
-  addRole(profileId: string, roleId: string): Observable<ProfileRole[]> {
+  addRole(profileId: string, roleId: string, chapterId?: string | null): Observable<ProfileRole[]> {
     return this.http.post<ProfileRole[]>(
       `${this.base}/${encodeURIComponent(profileId)}/roles`,
-      { roleId },
+      chapterId ? { roleId, chapterId } : { roleId },
       { context: this.context },
     );
   }
 
-  removeRole(profileId: string, roleId: string): Observable<ProfileRole[]> {
+  removeRole(
+    profileId: string,
+    roleId: string,
+    chapterId?: string | null,
+  ): Observable<ProfileRole[]> {
+    const params: Record<string, string> = chapterId ? { chapterId } : {};
     return this.http.delete<ProfileRole[]>(
       `${this.base}/${encodeURIComponent(profileId)}/roles/${encodeURIComponent(roleId)}`,
-      { context: this.context },
+      { context: this.context, params },
     );
   }
 }

@@ -134,9 +134,12 @@ export class RolesPage {
         capabilities: [...definition.capabilities],
         showOnTeam: definition.showOnTeam,
         isOversight: definition.isOversight,
+        chapterScopable: definition.chapterScopable,
         holderCount: definition.holderCount,
       },
       capabilities,
+      // The chapter switch shows only while chapters are on (L2-136 AC1).
+      chapterLabel: this.chapterSingular(),
       submit: (value) =>
         this.save(definition ? this.roles.update(definition.id, value) : this.roles.define(value)),
     };
