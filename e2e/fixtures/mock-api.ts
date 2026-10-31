@@ -788,13 +788,12 @@ export class MockApi {
     const adding = method === 'POST';
     if (profile.roles.includes(role) === adding)
       return conflict(route, 'They already hold that role.');
-    if (!adding && definitionOf(role)?.capabilities.includes('AdministerOrganisation')) {
-      const admins = [...this.profiles.values()].filter((p) =>
-        carries(p.roles, 'AdministerOrganisation'),
-      );
-      if (admins.length <= 1)
-        return conflict(route, 'There must always be at least one administrator.');
-    }
+    if (
+      !adding &&
+      definitionOf(role)?.capabilities.includes('AdministerOrganisation') &&
+      this.wouldLeaveNoAdministrator(profile.id, role)
+    )
+      return conflict(route, 'There must always be at least one administrator.');
     profile.roles = adding ? [...profile.roles, role] : profile.roles.filter((r) => r !== role);
     for (const account of this.accounts.values()) {
       if (account.profileId === profile.id) account.roles = profile.roles;
@@ -877,11 +876,39 @@ export class MockApi {
         });
       }
       if (account === caller) return conflict(route, 'You can’t suspend your own account.');
+      const target = this.profiles.get(profileId);
+      if (
+        target &&
+        carries(target.roles, 'AdministerOrganisation') &&
+        this.wouldLeaveNoAdministrator(profileId)
+      )
+        return conflict(route, 'There must always be at least one administrator.');
       account.suspended = true;
     } else {
       account.suspended = false;
     }
     return route.fulfill({ status: 204 });
+  }
+
+  /**
+   * LastAdministratorGuard.WouldLeaveNoneAsync: whether no unsuspended profile would still hold a role carrying
+   * AdministerOrganisation once `profileId` loses `role`, or stops counting when no role is named (L2-139 AC1).
+   */
+  private wouldLeaveNoAdministrator(profileId: string, role?: string): boolean {
+    const suspended = new Set(
+      [...this.accounts.values()].filter((a) => a.suspended).map((a) => a.profileId),
+    );
+    return ![...this.profiles.values()].some((p) => {
+      if (suspended.has(p.id)) return false;
+      if (p.id !== profileId) return carries(p.roles, 'AdministerOrganisation');
+      return (
+        !!role &&
+        carries(
+          p.roles.filter((r) => r !== role),
+          'AdministerOrganisation',
+        )
+      );
+    });
   }
 
   private filteredAudit(url: URL): MockAuditEntry[] {
