@@ -22,6 +22,13 @@
         @if (item.meta) {
           <div class="ft-reorderable-list__meta">{{ item.meta }}</div>
         }
+        @if (item.badges?.length) {
+          <div class="ft-reorderable-list__badges">
+            @for (badge of item.badges; track badge.label) {
+              <ft-badge [variant]="badge.variant ?? 'neutral'">{{ badge.label }}</ft-badge>
+            }
+          </div>
+        }
       </div>
       @if (!readonly()) {
         <div class="ft-reorderable-list__actions">

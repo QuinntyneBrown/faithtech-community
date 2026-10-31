@@ -49,6 +49,9 @@
                 type="button"
                 [icon]="entry.icon ?? null"
                 [disabled]="entry.disabled ?? false"
+                [danger]="entry.danger ?? false"
+                [attr.role]="entry.checked === undefined ? 'menuitem' : 'menuitemradio'"
+                [attr.aria-checked]="entry.checked === undefined ? null : entry.checked"
                 (click)="itemSelected.emit(entry.id)"
               >
                 {{ entry.label }}

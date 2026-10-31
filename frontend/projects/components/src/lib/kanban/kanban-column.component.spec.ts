@@ -10,6 +10,7 @@ import { KanbanColumnComponent } from './kanban-column.component';
     stage="funnel"
     [count]="count()"
     [emptyText]="empty()"
+    [droppable]="droppable()"
   >
     @for (c of cards(); track c) {
       <ft-kanban-card [cardId]="c" [title]="c" href="/p" />
@@ -20,6 +21,7 @@ class HostComponent {
   count = signal(2);
   empty = signal('No partners at this stage yet');
   cards = signal(['Lantern Foundation', 'Kestrel Labs']);
+  droppable = signal(true);
 }
 
 function setup() {
@@ -36,6 +38,20 @@ describe('KanbanColumnComponent', () => {
     const h = section.querySelector('h2')!;
     expect(h.textContent!.trim()).toBe('In funnel');
     expect(section.getAttribute('aria-labelledby')).toBe(h.id);
+  });
+
+  it('takes no drops when it is not droppable, such as an archived stage', () => {
+    const { fixture, cmp, host } = setup();
+    const column = fixture.debugElement.children[0].injector.get(KanbanColumnComponent);
+    expect(column.acceptsDrops()).toBe(true);
+
+    cmp.droppable.set(false);
+    fixture.detectChanges();
+
+    expect(column.acceptsDrops()).toBe(false);
+    expect(host.querySelector('ft-kanban-column')!.classList).toContain(
+      'ft-kanban__column--closed',
+    );
   });
 
   it('shows the card count in a badge', () => {
