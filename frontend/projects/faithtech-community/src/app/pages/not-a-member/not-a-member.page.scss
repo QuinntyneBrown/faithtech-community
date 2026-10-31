@@ -1,0 +1,19 @@
+.not-a-member {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  text-align: center;
+}
+
+.not-a-member__others {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  text-align: start;
+}
+
+.not-a-member__section-title {
+  margin: 0;
+  /* The section-title role (docs/design-system/foundations/typography.html). */
+  font: var(--text-h4);
+}

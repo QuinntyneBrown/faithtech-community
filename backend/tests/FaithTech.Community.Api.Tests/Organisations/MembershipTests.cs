@@ -19,7 +19,7 @@ public class MembershipTests(CommunityApiFactory factory) : IClassFixture<Commun
 
     public sealed record OtherMembership(string Name, string Host);
 
-    public sealed record NotAMember(string Reason, OrganisationName Organisation, OtherMembership[] Memberships);
+    public sealed record NotAMember(string Reason, OrganisationName Organisation, string? Email, OtherMembership[] Memberships);
 
     [Fact]
     public async Task An_account_with_profiles_in_two_organisations_is_the_hosts_profile_on_each_host()
@@ -103,6 +103,7 @@ public class MembershipTests(CommunityApiFactory factory) : IClassFixture<Commun
         var body = await response.Content.ReadFromJsonAsync<NotAMember>();
         Assert.Equal("not-a-member", body!.Reason);
         Assert.Equal("northside community", body.Organisation.Name);
+        Assert.EndsWith("@example.org", body.Email);
         Assert.Equal([new OtherMembership("FaithTech Community", "app.faithtech.test")], body.Memberships);
     }
 

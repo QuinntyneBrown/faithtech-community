@@ -1,0 +1,25 @@
+<ft-auth-layout>
+  @if (refusal(); as r) {
+    <ft-card>
+      <div class="not-a-member">
+        <h1>You’re not a member of {{ r.organisation.name }}</h1>
+        <p>{{ lead() }}</p>
+        @if (r.memberships.length) {
+          <section class="not-a-member__others" aria-labelledby="other-h">
+            <h2 class="not-a-member__section-title" id="other-h">Your organisations</h2>
+            <ft-card variant="flush">
+              <ft-list>
+                @for (m of r.memberships; track m.host) {
+                  <ft-list-item [label]="m.name" [href]="'https://' + m.host" [meta]="m.host">
+                    <ft-icon-tile leading name="building" />
+                  </ft-list-item>
+                }
+              </ft-list>
+            </ft-card>
+          </section>
+        }
+        <ft-button [block]="true" (click)="signOut()">Sign out</ft-button>
+      </div>
+    </ft-card>
+  }
+</ft-auth-layout>

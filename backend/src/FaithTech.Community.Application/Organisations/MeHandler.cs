@@ -23,7 +23,7 @@ public sealed record MeDto(
 public sealed record NotAMemberOrganisationDto(string Name);
 
 /// <summary>GET /api/me's 403 body for a signed-in account with no membership of the host's organisation (L2-132 AC3).</summary>
-public sealed record NotAMemberDto(string Reason, NotAMemberOrganisationDto Organisation, IReadOnlyList<MembershipDto> Memberships)
+public sealed record NotAMemberDto(string Reason, NotAMemberOrganisationDto Organisation, string? Email, IReadOnlyList<MembershipDto> Memberships)
 {
     public const string NotAMemberReason = "not-a-member";
 }
@@ -42,7 +42,7 @@ public class MeHandler(IApplicationDbContext db, ICurrentUser current, ICurrentO
         var user = await users.FindByIdAsync(userId.ToString());
         if (current.Membership is not { } membership || user is null)
         {
-            return (null, new NotAMemberDto(NotAMemberDto.NotAMemberReason, new NotAMemberOrganisationDto(organisation.Name), memberships));
+            return (null, new NotAMemberDto(NotAMemberDto.NotAMemberReason, new NotAMemberOrganisationDto(organisation.Name), user?.Email, memberships));
         }
 
         var name = await db.Profiles.Where(p => p.Id == membership.ProfileId).Select(p => p.Name).SingleAsync(cancellationToken);
