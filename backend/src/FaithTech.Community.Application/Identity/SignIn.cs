@@ -97,4 +97,16 @@ public interface ITokenRevocation
 {
     /// <summary>Revokes every authorization and token issued to the user.</summary>
     Task RevokeAllAsync(Guid userId, CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Revokes the user's sessions issued on <paramref name="organisationId"/>'s hosts (and any issued before sessions
+    /// were stamped with an organisation), leaving the rest (L2-132 AC5).
+    /// </summary>
+    Task RevokeAsync(Guid userId, Guid organisationId, CancellationToken cancellationToken = default);
+}
+
+/// <summary>Names of the properties stored on an authorization.</summary>
+public static class TokenRevocationProperties
+{
+    public const string OrganisationId = "organisation_id";
 }

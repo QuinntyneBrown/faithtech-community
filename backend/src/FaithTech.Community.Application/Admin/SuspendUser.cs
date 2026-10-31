@@ -1,3 +1,4 @@
+using FaithTech.Community.Application.Organisations;
 using FaithTech.Community.Application.Common;
 using FaithTech.Community.Application.Identity;
 using FaithTech.Community.Application.Profiles;
@@ -28,7 +29,8 @@ public class SuspensionHandler(
     ProfileAccess access,
     ITokenRevocation revocation,
     IAuditLog audit,
-    TimeProvider time)
+    TimeProvider time,
+    ICurrentOrganisation organisation)
 {
     public async Task<Result> SuspendAsync(Guid profileId, SuspendUserCommand command, CancellationToken cancellationToken = default)
     {
@@ -59,10 +61,10 @@ public class SuspensionHandler(
         audit.Record(actor, "user.suspended", "Profile", profileId.ToString(), new { IsSuspended = false }, new { IsSuspended = true, Reason = reason });
         await db.SaveChangesAsync(cancellationToken);
 
-        // Signed out everywhere: every token and authorization for the account stops working at once.
-        foreach (var userId in await db.Profiles.Where(p => p.Id == profileId && p.UserId != null).Select(p => p.UserId!.Value).ToListAsync(cancellationToken))
+        // Signed out of this organisation: its sessions stop working at once, the account's others carry on (L2-132 AC5).
+        if (profile.UserId is { } userId)
         {
-            await revocation.RevokeAllAsync(userId, cancellationToken);
+            await revocation.RevokeAsync(userId, organisation.Id, cancellationToken);
         }
 
         return Result.Ok();

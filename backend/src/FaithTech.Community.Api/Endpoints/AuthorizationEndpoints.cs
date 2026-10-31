@@ -27,7 +27,9 @@ public static class AuthorizationEndpoints
         HttpContext context,
         UserManager<CommunityUser> users,
         IApplicationDbContext db,
-        ICurrentOrganisation organisation)
+        ICurrentOrganisation organisation,
+        IOpenIddictApplicationManager applications,
+        IOpenIddictAuthorizationManager authorizations)
     {
         var request = context.GetOpenIddictServerRequest()
             ?? throw new InvalidOperationException("The OpenID Connect request cannot be retrieved.");
@@ -53,6 +55,24 @@ public static class AuthorizationEndpoints
             .SetClaim(Claims.Name, profile?.Name ?? user.Email)
             .SetClaims(Claims.Role, [.. profile?.Roles.Select(r => r.Role.ToString()) ?? []]);
         identity.SetScopes(request.GetScopes());
+
+        // Each session is stamped with the organisation whose host issued it, so suspending a membership revokes that
+        // organisation's sessions only (L2-132 AC5). The stamp is for revocation; the host still decides the organisation.
+        var application = await applications.FindByClientIdAsync(request.ClientId!)
+            ?? throw new InvalidOperationException("The client application cannot be found.");
+        var descriptor = new OpenIddictAuthorizationDescriptor
+        {
+            ApplicationId = await applications.GetIdAsync(application),
+            CreationDate = DateTimeOffset.UtcNow,
+            Principal = new ClaimsPrincipal(identity),
+            Status = Statuses.Valid,
+            Subject = user.Id.ToString(),
+            Type = AuthorizationTypes.AdHoc,
+        };
+        descriptor.Scopes.UnionWith(request.GetScopes());
+        descriptor.Properties[TokenRevocationProperties.OrganisationId] = System.Text.Json.JsonSerializer.SerializeToElement(organisation.Id);
+        var authorization = await authorizations.CreateAsync(descriptor);
+        identity.SetAuthorizationId(await authorizations.GetIdAsync(authorization));
         identity.SetDestinations(_ => [Destinations.AccessToken, Destinations.IdentityToken]);
 
         return Results.SignIn(new ClaimsPrincipal(identity), authenticationScheme: OpenIddictServerAspNetCoreDefaults.AuthenticationScheme);

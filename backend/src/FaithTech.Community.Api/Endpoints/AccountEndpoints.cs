@@ -1,3 +1,4 @@
+using FaithTech.Community.Application.Organisations;
 using System.Security.Claims;
 using FaithTech.Community.Api.Authentication;
 using FaithTech.Community.Api.Middleware;
@@ -55,7 +56,7 @@ public static class AccountEndpoints
     }
 
     private static async Task<IResult> SignInAsync(
-        SignInCommand command, SignInHandler handler, HttpContext context, CancellationToken ct)
+        SignInCommand command, SignInHandler handler, HttpContext context, ICurrentOrganisation organisation, CancellationToken ct)
     {
         var result = await handler.HandleAsync(command, ct);
         if (!result.Succeeded)
@@ -63,7 +64,8 @@ public static class AccountEndpoints
             var (code, detail) = result.Error switch
             {
                 SignInError.LockedOut => ("locked_out", "Too many failed attempts. Try again in 15 minutes."),
-                SignInError.Suspended => ("suspended", "Your account is suspended."),
+                // Suspension is of this organisation's membership (L2-132 AC5, L2-003 AC4).
+                SignInError.Suspended => ("suspended", $"Your membership of {organisation.Name} is suspended."),
                 _ => ("invalid_credentials", "Email or password is incorrect."),
             };
             return Results.Problem(detail, statusCode: StatusCodes.Status400BadRequest,
