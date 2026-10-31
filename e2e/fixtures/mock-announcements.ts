@@ -3,6 +3,7 @@ import { Route } from '@playwright/test';
 import type { MockAccount } from './mock-api';
 import type { MockEvents } from './mock-events';
 import type { MockNotifications } from './mock-notifications';
+import { holds } from './role-definitions';
 
 /** An announcement as the Announcements table holds it, with its recipients' profile ids. */
 export interface MockAnnouncement {
@@ -23,8 +24,6 @@ export interface AnnouncementsContext {
   readonly notifications: MockNotifications;
   readonly now: Date;
 }
-
-const SENDERS = ['CommunicationsLead', 'SystemAdmin'];
 
 /**
  * Plays the announcements endpoints (backend/src/FaithTech.Community.Api/Endpoints/AnnouncementsEndpoints.cs):
@@ -76,7 +75,7 @@ export class MockAnnouncements {
     if (method === 'GET' && url.pathname === '/api/announcements') {
       return this.list(route, url, caller);
     }
-    const sender = caller.roles.some((r) => SENDERS.includes(r));
+    const sender = holds(caller, 'SendAnnouncements');
 
     if (method === 'POST' && url.pathname === '/api/announcements/recipient-count') {
       if (!sender) return route.fulfill({ status: 403 });

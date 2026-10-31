@@ -1,6 +1,7 @@
 import { Route, WebSocketRoute } from '@playwright/test';
 
 import type { MockAccount, MockProfile } from './mock-api';
+import { carries, holds } from './role-definitions';
 
 export type MockMethod = 'Scrum' | 'Kanban';
 export type MockAccess = 'Owner' | 'Member' | 'Admin' | 'Reader' | 'Outsider';
@@ -85,8 +86,6 @@ const PARENT_PROBLEM: Record<MockKind, string> = {
   Task: 'A task must belong to a story.',
 };
 const KIND_ORDER: MockKind[] = ['Initiative', 'Epic', 'Story', 'Task'];
-
-const TEAM_ROLES = ['CityLead', 'EventLead', 'CreateLead', 'CommunicationsLead', 'Volunteer'];
 
 /** The request the agile fake answers, already parsed by MockApi. */
 export interface AgileRequest {
@@ -409,19 +408,19 @@ export class MockAgile {
         if (!manage) return route.fulfill({ status: 403 });
         return route.fulfill({ status: 200, json: this.archivedItems(workspace) });
       case 'GET /owner-candidates':
-        if (!caller.roles.includes('SystemAdmin')) return route.fulfill({ status: 403 });
+        if (!holds(caller, 'AdministerOrganisation')) return route.fulfill({ status: 403 });
         return route.fulfill({
           status: 200,
           json: [...this.profiles.values()]
-            .filter((p) => p.id !== workspace.ownerId && p.roles.includes('CityLead'))
+            .filter((p) => p.id !== workspace.ownerId && carries(p.roles, 'OwnWorkspaces'))
             .sort((a, b) => a.name.localeCompare(b.name))
             .map((p) => ({ profileId: p.id, name: p.name, roles: p.roles })),
         });
       case 'PUT /owner': {
-        if (!caller.roles.includes('SystemAdmin')) return route.fulfill({ status: 403 });
+        if (!holds(caller, 'AdministerOrganisation')) return route.fulfill({ status: 403 });
         const ownerId = request.body['ownerId'] as string | null;
         if (!ownerId) return invalid(route, 'OwnerId', 'Choose who will own this workspace.');
-        if (!this.profiles.get(ownerId)?.roles.includes('CityLead'))
+        if (!carries(this.profiles.get(ownerId)?.roles ?? [], 'OwnWorkspaces'))
           return invalid(route, 'OwnerId', 'Choose a City Lead.');
         workspace.memberIds = [
           ...workspace.memberIds.filter((id) => id !== ownerId),
@@ -996,18 +995,18 @@ export class MockAgile {
 
   access(workspace: MockWorkspace, caller: MockAccount): MockAccess {
     if (workspace.ownerId === caller.profileId) return 'Owner';
-    if (caller.roles.includes('SystemAdmin')) return 'Admin';
+    if (holds(caller, 'AdministerOrganisation')) return 'Admin';
     if (workspace.memberIds.includes(caller.profileId)) return 'Member';
-    if (caller.roles.includes('Staff')) return 'Reader';
+    if (holds(caller, 'ReadAllWorkspaces')) return 'Reader';
     return 'Outsider';
   }
 
   private list({ route, caller }: AgileRequest) {
-    const all = caller!.roles.some((r) => r === 'Staff' || r === 'SystemAdmin');
+    const all = holds(caller!, 'ReadAllWorkspaces');
     const visible = this.workspaces
       .filter((w) =>
         w.isArchived
-          ? w.ownerId === caller!.profileId || caller!.roles.includes('SystemAdmin')
+          ? w.ownerId === caller!.profileId || holds(caller!, 'AdministerOrganisation')
           : all || this.access(w, caller!) !== 'Outsider',
       )
       .sort((a, b) => a.name.localeCompare(b.name));
@@ -1045,7 +1044,9 @@ export class MockAgile {
         null,
       memberCount: new Set([workspace.ownerId, ...workspace.memberIds]).size,
       isArchived: workspace.isArchived,
-      needsNewOwner: !owner?.roles.some((r) => r === 'CityLead' || r === 'SystemAdmin'),
+      needsNewOwner:
+        !owner ||
+        (!carries(owner.roles, 'OwnWorkspaces') && !carries(owner.roles, 'AdministerOrganisation')),
     };
   }
 
@@ -1090,11 +1091,11 @@ export class MockAgile {
   }
 
   private onTeam(profileId: string): boolean {
-    return this.profiles.get(profileId)?.roles.some((r) => TEAM_ROLES.includes(r)) ?? false;
+    return carries(this.profiles.get(profileId)?.roles ?? [], 'JoinWorkspaces');
   }
 
   private isLeadOrAdmin(caller: MockAccount): boolean {
-    return caller.roles.includes('CityLead') || caller.roles.includes('SystemAdmin');
+    return holds(caller, 'OwnWorkspaces');
   }
 
   private unknown({ route, method, path }: AgileRequest) {

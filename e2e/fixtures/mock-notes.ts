@@ -2,6 +2,7 @@ import { Route } from '@playwright/test';
 
 import type { MockAccount, MockProfile } from './mock-api';
 import type { MockNotifications } from './mock-notifications';
+import { holds, isShareable } from './role-definitions';
 
 export type MockNoteVisibility = 'Private' | 'Shared' | 'Global';
 
@@ -62,15 +63,6 @@ const PNG = Buffer.from(
 );
 const DAY = 24 * 60 * 60 * 1000;
 const MAX_TITLE = 200;
-const SHAREABLE = [
-  'CityLead',
-  'EventLead',
-  'CreateLead',
-  'CommunicationsLead',
-  'Volunteer',
-  'ProductEngineer',
-  'Staff',
-];
 const TYPES = [
   'paragraph',
   'heading1',
@@ -144,7 +136,7 @@ export class MockNotes {
 
     const note = this.find(id, caller);
     if (!note) return route.fulfill({ status: 404 });
-    const admin = caller.roles.includes('SystemAdmin');
+    const admin = holds(caller, 'AdministerOrganisation');
     const canChange = note.ownerId === caller.profileId || admin;
     if (method === 'GET' && !match[2]) return this.json(route, 200, this.dto(note, caller));
     if (method === 'PUT' && !match[2]) {
@@ -197,7 +189,7 @@ export class MockNotes {
     return (
       n.visibility === 'Global' ||
       n.ownerId === caller.profileId ||
-      caller.roles.includes('SystemAdmin') ||
+      holds(caller, 'AdministerOrganisation') ||
       (n.visibility === 'Shared' && this.sharedWith(n, caller))
     );
   }
@@ -210,7 +202,9 @@ export class MockNotes {
     const n = this.pages.find((x) => x.id === id);
     if (!n) return undefined;
     if (n.archivedAt)
-      return n.ownerId === caller.profileId || caller.roles.includes('SystemAdmin') ? n : undefined;
+      return n.ownerId === caller.profileId || holds(caller, 'AdministerOrganisation')
+        ? n
+        : undefined;
     return this.mayOpen(n, caller) ? n : undefined;
   }
 
@@ -389,7 +383,7 @@ export class MockNotes {
       return this.invalid(route, { Visibility: ['Choose who can see it.'] });
     const memberIds = visibility === 'Shared' ? ((body['memberIds'] as string[]) ?? []) : [];
     const roles = visibility === 'Shared' ? ((body['roles'] as string[]) ?? []) : [];
-    if (roles.some((r) => !SHAREABLE.includes(r)))
+    if (roles.some((r) => !isShareable(r)))
       return this.invalid(route, { Roles: ['Choose roles from the list.'] });
     if (visibility === 'Shared' && memberIds.length === 0 && roles.length === 0)
       return this.invalid(route, {
@@ -557,7 +551,7 @@ export class MockNotes {
 
   private dto(n: MockNote, caller: MockAccount) {
     const own = n.ownerId === caller.profileId;
-    const admin = caller.roles.includes('SystemAdmin');
+    const admin = holds(caller, 'AdministerOrganisation');
     const sharedVia =
       own || n.visibility !== 'Shared'
         ? null

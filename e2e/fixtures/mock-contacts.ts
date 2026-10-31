@@ -1,4 +1,5 @@
 import { Route } from '@playwright/test';
+import { holds } from './role-definitions';
 
 /** What MockApi shares with the contacts fake: the signed-in caller and the accounts and profiles. */
 export interface ContactsContext {
@@ -53,7 +54,6 @@ export interface MockContact {
   photos: MockContactPhoto[];
 }
 
-const LEAD_ROLES = ['CityLead', 'EventLead', 'CreateLead', 'CommunicationsLead'];
 const EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 /**
@@ -134,7 +134,7 @@ export class MockContacts {
     if (!match) return false;
     if (!caller) return route.fulfill({ status: 401 });
     const [, id, action] = match;
-    const keeps = caller.roles.some((r) => LEAD_ROLES.includes(r) || r === 'SystemAdmin');
+    const keeps = holds(caller, 'KeepContacts');
 
     if (!id) {
       if (!keeps) return route.fulfill({ status: 403 });
@@ -148,7 +148,7 @@ export class MockContacts {
 
     const contact = this.contacts.find((c) => c.id === id);
     const visible =
-      contact && (contact.ownerId === caller.profileId || caller.roles.includes('SystemAdmin'));
+      contact && (contact.ownerId === caller.profileId || holds(caller, 'AdministerOrganisation'));
     if (!contact || !visible) return route.fulfill({ status: 404 });
 
     switch (`${method} ${action ?? ''}`) {
@@ -206,8 +206,7 @@ export class MockContacts {
    */
   private async duplicates(route: Route, url: URL, caller: MockCaller | null) {
     if (!caller) return route.fulfill({ status: 401 });
-    if (!caller.roles.some((r) => LEAD_ROLES.includes(r) || r === 'SystemAdmin'))
-      return route.fulfill({ status: 403 });
+    if (!holds(caller, 'KeepContacts')) return route.fulfill({ status: 403 });
     if (this.duplicateCheck === 'fail') return route.fulfill({ status: 500 });
     if (this.duplicateCheck === 'slow') await new Promise((resolve) => setTimeout(resolve, 5000));
     const email = (url.searchParams.get('email') ?? '').trim().toLowerCase();
@@ -248,7 +247,7 @@ export class MockContacts {
     if (!caller) return route.fulfill({ status: 401 });
     const contact = this.contacts.find((c) => c.id === id);
     const visible =
-      contact && (contact.ownerId === caller.profileId || caller.roles.includes('SystemAdmin'));
+      contact && (contact.ownerId === caller.profileId || holds(caller, 'AdministerOrganisation'));
     if (!contact || !visible) return route.fulfill({ status: 404 });
     const invalid = (field: string, message: string) =>
       this.json(route, 400, { status: 400, errors: { [field]: [message] } });

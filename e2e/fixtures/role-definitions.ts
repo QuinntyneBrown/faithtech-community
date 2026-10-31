@@ -223,3 +223,64 @@ export function holds(
   const held = caller.capabilities ?? capabilitiesOf(caller.roles);
   return held.includes(capability) || held.includes('AdministerOrganisation');
 }
+
+/**
+ * Whether a profile's own FaithTech roles carry a capability, with no AdministerOrganisation stand-in, as the
+ * API's ProfileHolding filter answers for owners, members and the team.
+ */
+export function carries(roles: readonly string[], capability: Capability): boolean {
+  return FAITHTECH_ROLES.some((d) => roles.includes(d.key) && d.capabilities.includes(capability));
+}
+
+/** Whether a profile holds a role shown on the team (L2-046, ShowOnTeam). */
+export function onTeam(roles: readonly string[]): boolean {
+  return FAITHTECH_ROLES.some((d) => roles.includes(d.key) && d.showOnTeam);
+}
+
+/** The definition of a FaithTech role key, or undefined for a key the seed does not define. */
+export function definitionOf(key: string): RoleDefinition | undefined {
+  return FAITHTECH_ROLES.find((d) => d.key === key);
+}
+
+/**
+ * Whether a caller may grant or remove a role, as RoleAssignmentPolicy answers: AdministerOrganisation grants
+ * anything; otherwise AssignRoles plus a grant rule of a held role, and never a role carrying
+ * AdministerOrganisation (ADR 0033, L2-134).
+ */
+export function canGrant(
+  caller: { roles: readonly string[]; capabilities?: readonly Capability[] },
+  role: string,
+): boolean {
+  const held = caller.capabilities ?? capabilitiesOf(caller.roles);
+  if (held.includes('AdministerOrganisation')) return true;
+  if (!held.includes('AssignRoles')) return false;
+  if (definitionOf(role)?.capabilities.includes('AdministerOrganisation')) return false;
+  return FAITHTECH_ROLES.some((d) => caller.roles.includes(d.key) && d.grants.includes(role));
+}
+
+/** The name of a profile's first role, in display order, carrying any of the capabilities (the API's LinkRole, hostRole). */
+export function firstRoleCarrying(
+  roles: readonly string[],
+  ...capabilities: Capability[]
+): string | null {
+  return (
+    FAITHTECH_ROLES.find(
+      (d) => roles.includes(d.key) && capabilities.some((c) => d.capabilities.includes(c)),
+    )?.name ?? null
+  );
+}
+
+/** An action allowed only through AdministerOrganisation, which the API audits (AuthorizationRules.IsOverride). */
+export function isOverride(
+  caller: { roles: readonly string[]; capabilities?: readonly Capability[] },
+  capability: Capability,
+): boolean {
+  const held = caller.capabilities ?? capabilitiesOf(caller.roles);
+  return held.includes('AdministerOrganisation') && !held.includes(capability);
+}
+
+/** A role a resource or page can be shared with: any defined role but one carrying AdministerOrganisation. */
+export function isShareable(key: string): boolean {
+  const definition = definitionOf(key);
+  return !!definition && !definition.capabilities.includes('AdministerOrganisation');
+}

@@ -1,4 +1,5 @@
 import { Route } from '@playwright/test';
+import { firstRoleCarrying, holds } from './role-definitions';
 
 /** What MockApi shares with the connect fake. */
 export interface ConnectContext {
@@ -74,7 +75,7 @@ export class MockConnect {
   ownerOf(token: string) {
     const link = this.links.find((l) => l.token === token);
     const owner = link && this.context.profiles.get(link.ownerId);
-    return owner && (owner.roles.includes('CityLead') || owner.roles.includes('SystemAdmin'))
+    return owner && firstRoleCarrying(owner.roles, 'ConnectLink', 'AdministerOrganisation')
       ? owner
       : undefined;
   }
@@ -94,9 +95,7 @@ export class MockConnect {
       return this.connectCaller(route, String(body['token'] ?? ''), caller);
     if (url.pathname !== '/api/connect/link') return false;
     if (!caller) return route.fulfill({ status: 401 });
-    if (!caller.roles.includes('CityLead') && !caller.roles.includes('SystemAdmin')) {
-      return route.fulfill({ status: 403 });
-    }
+    if (!holds(caller, 'ConnectLink')) return route.fulfill({ status: 403 });
     let link = this.links.find((l) => l.ownerId === caller.profileId);
     if (method === 'POST') {
       // A new token on the same link: the old one stops working (L2-081 AC3).
@@ -198,7 +197,7 @@ export class MockConnect {
         leadName: owner.name,
         leadPhotoUrl: featured?.url ?? null,
         leadCity: owner.homeCity,
-        leadRole: owner.roles.includes('CityLead') ? 'City Lead' : 'System Admin',
+        leadRole: firstRoleCarrying(owner.roles, 'ConnectLink', 'AdministerOrganisation'),
       },
     });
   }
