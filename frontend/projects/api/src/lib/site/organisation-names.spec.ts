@@ -55,6 +55,10 @@ describe('OrganisationNames', () => {
 
     expect([n.name(), n.shortName()]).toEqual(['Harbour Builders', 'Harbour']);
     expect(n.chapterLabel()).toEqual({ singular: 'Campus', plural: 'Campuses' });
+    expect([n.chapterPlace('Downtown'), n.chapterPlace(null)]).toEqual([
+      'Downtown',
+      'Harbour-wide',
+    ]);
   });
 
   it('falls back to a neutral name when neither could be read', () => {
@@ -62,5 +66,6 @@ describe('OrganisationNames', () => {
 
     expect(n.shortName()).toBe(FALLBACK_ORGANISATION_NAME);
     expect(n.chapterLabel()).toBeNull();
+    expect(n.chapterPlace('Downtown')).toBeNull();
   });
 });

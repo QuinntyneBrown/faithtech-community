@@ -27,7 +27,7 @@ function checkIn(overrides: Partial<CheckInDto> = {}): CheckInDto {
     eventId: 'e1',
     title: 'Toronto Builders Night',
     startsAt: new Date(2026, 10, 6, 18, 30).toISOString(),
-    city: 'Toronto',
+    chapterName: 'Toronto',
     format: 'InPerson',
     venue: 'Kestrel Labs',
     isCancelled: false,

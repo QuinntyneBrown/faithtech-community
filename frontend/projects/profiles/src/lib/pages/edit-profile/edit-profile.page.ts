@@ -12,6 +12,7 @@ import {
 } from '@angular/core';
 import { NonNullableFormBuilder, ReactiveFormsModule } from '@angular/forms';
 import {
+  ORGANISATION_SERVICE,
   OrganisationNames,
   PhotoDto,
   ProfileDto,
@@ -34,17 +35,19 @@ import {
   PhotoState,
   PictureListComponent,
   PictureListPhoto,
+  SelectComponent,
+  SelectOption,
   SkeletonComponent,
   StackComponent,
   TextareaComponent,
   TextFieldComponent,
   ToastService,
 } from '@faithtech-community/components';
-import { firstValueFrom } from 'rxjs';
+import { firstValueFrom, forkJoin } from 'rxjs';
 
 import { DeletePhotoData, DeletePhotoDialog } from '../../dialogs';
 
-type Field = 'name' | 'homeCity' | 'bio';
+type Field = 'name' | 'chapterId' | 'bio';
 type State = 'loading' | 'loaded' | 'error' | 'forbidden';
 
 /** A photo on the page: saved (it has an id) or pending (chosen, uploaded on save). */
@@ -61,12 +64,12 @@ interface PhotoItem {
   storing?: boolean;
 }
 
-const FIELDS: Field[] = ['name', 'homeCity', 'bio'];
-// The server's validators are the authority; these mirror them.
-const MAX: Record<Field, number> = { name: 100, homeCity: 100, bio: 400 };
+const FIELDS: Field[] = ['name', 'chapterId', 'bio'];
+// The server's validators are the authority; these mirror them. The home chapter is a pick, never too long.
+const MAX: Record<Field, number> = { name: 100, chapterId: Infinity, bio: 400 };
 const TOO_LONG: Record<Field, string> = {
   name: 'Use 100 characters or fewer for your name.',
-  homeCity: 'Use 100 characters or fewer for your home city.',
+  chapterId: '',
   bio: 'Use 400 characters or fewer for your bio.',
 };
 const MAX_ALT = 300;
@@ -74,8 +77,9 @@ const MISSING_ALT = 'Describe what’s in the photo for people using screen read
 const LONG_ALT = 'Use 300 characters or fewer to describe this photo.';
 
 /**
- * Edit your own name, home city, bio and photos (L2-006, L2-007), matching
- * docs/mocks/pages/edit-profile. Feature acts at once; Remove confirms first; new photos and
+ * Edit your own name, home chapter, bio and photos (L2-006, L2-007, L2-141 AC1), matching
+ * docs/mocks/pages/edit-profile. The home chapter is a pick of the active chapters, plus the member's own if it
+ * was archived; with chapters off there is no picker (edit-profile/chapters-off). Feature acts at once; Remove confirms first; new photos and
  * changed descriptions are saved with Save profile. A System Admin edits another member's
  * profile here too, at /people/{id}/edit (L2-040, edit-profile/admin); anyone else sees the
  * forbidden state, and the API refuses the change regardless (ADR 0004).
@@ -96,6 +100,7 @@ const LONG_ALT = 'Use 300 characters or fewer to describe this photo.';
     FormFieldComponent,
     PageHeaderComponent,
     PictureListComponent,
+    SelectComponent,
     SkeletonComponent,
     StackComponent,
     TextareaComponent,
@@ -108,12 +113,13 @@ const LONG_ALT = 'Use 300 characters or fewer to describe this photo.';
 export class EditProfilePage {
   protected readonly organisation = inject(OrganisationNames);
   private readonly profiles = inject(PROFILES_SERVICE);
+  private readonly organisations = inject(ORGANISATION_SERVICE);
   private readonly toasts = inject(ToastService);
   private readonly dialogs = inject(DialogService);
   private readonly errorFocus = viewChild(FormErrorFocusDirective);
   private readonly pictureList = viewChild(PictureListComponent);
   private readonly nameField = viewChild('nameField', { read: FormFieldComponent });
-  private readonly homeCityField = viewChild('homeCityField', { read: FormFieldComponent });
+  private readonly chapterField = viewChild('chapterField', { read: FormFieldComponent });
   private readonly bioField = viewChild('bioField', { read: FormFieldComponent });
 
   /** Route parameter: the profile to edit. me/edit has none, so the router binds undefined: "me". */
@@ -121,7 +127,7 @@ export class EditProfilePage {
 
   protected readonly form = inject(NonNullableFormBuilder).group({
     name: [''],
-    homeCity: [''],
+    chapterId: [''],
     bio: [''],
   });
   protected readonly state = signal<State>('loading');
@@ -130,6 +136,11 @@ export class EditProfilePage {
   protected readonly photosFailed = signal(false);
   protected readonly photos = signal<PhotoItem[]>([]);
   protected readonly profile = signal<ProfileDto | null>(null);
+  /** "No home city" and the chapters, or none while chapters are off. */
+  protected readonly chapterOptions = signal<SelectOption[]>([]);
+  protected readonly chapterLabel = computed(
+    () => this.organisation.chapterLabel()?.singular.toLowerCase() ?? '',
+  );
   /** A System Admin editing someone else's profile (L2-040 AC3). */
   protected readonly other = computed(() => this.profile()?.isOwn === false);
   protected readonly title = computed(() => {
@@ -205,16 +216,32 @@ export class EditProfilePage {
 
   protected load(): Promise<void> {
     this.state.set('loading');
-    return firstValueFrom(this.profiles.getProfile(this.id())).then(
-      (profile) => {
+    return firstValueFrom(
+      forkJoin([this.profiles.getProfile(this.id()), this.organisations.get()]),
+    ).then(
+      ([profile, organisation]) => {
         this.profile.set(profile);
+        const label = organisation.chapterLabel?.singular.toLowerCase();
+        const chapters = [...organisation.chapters];
+        // An archived home chapter stays the member's own until they pick another (L2-140 AC5).
+        if (profile.chapterId && !chapters.some((c) => c.id === profile.chapterId)) {
+          chapters.push({ id: profile.chapterId, name: profile.chapterName ?? '' });
+        }
+        this.chapterOptions.set(
+          label
+            ? [
+                { value: '', label: `No home ${label}` },
+                ...chapters.map((c) => ({ value: c.id, label: c.name })),
+              ]
+            : [],
+        );
         if (!profile.canEdit) {
           this.state.set('forbidden');
           return;
         }
         this.form.setValue({
           name: profile.name,
-          homeCity: profile.homeCity ?? '',
+          chapterId: profile.chapterId ?? '',
           bio: profile.bio ?? '',
         });
         this.photos.set(profile.photos.map(savedPhoto));
@@ -292,7 +319,10 @@ export class EditProfilePage {
 
     this.busy.set(true);
     try {
-      await firstValueFrom(this.profiles.updateProfile(profile.id, this.form.getRawValue()));
+      const { name, chapterId, bio } = this.form.getRawValue();
+      await firstValueFrom(
+        this.profiles.updateProfile(profile.id, { name, chapterId: chapterId || null, bio }),
+      );
     } catch (error) {
       const fieldErrors = validationErrors(error);
       if (fieldErrors) this.serverErrors.set(fieldErrors);
@@ -368,7 +398,7 @@ export class EditProfilePage {
   }
 
   private fieldOf(field: Field): string {
-    const formField = { name: this.nameField, homeCity: this.homeCityField, bio: this.bioField }[
+    const formField = { name: this.nameField, chapterId: this.chapterField, bio: this.bioField }[
       field
     ]();
     return formField?.controlId() ?? '';

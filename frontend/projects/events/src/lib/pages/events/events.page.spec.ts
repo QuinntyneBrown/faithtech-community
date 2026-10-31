@@ -7,6 +7,7 @@ import {
   EventFilter,
   EventListDto,
   EventSummaryDto,
+  SITE_SERVICE,
   Capability,
 } from '@faithtech-community/api';
 import { Observable, of, throwError } from 'rxjs';
@@ -20,7 +21,8 @@ function event(overrides: Partial<EventSummaryDto>): EventSummaryDto {
     type: 'BuildersNight',
     startsAt: new Date(2026, 10, 6, 18, 30).toISOString(),
     endsAt: new Date(2026, 10, 6, 21, 0).toISOString(),
-    city: 'Toronto',
+    chapterId: 'c-toronto',
+    chapterName: 'Toronto',
     format: 'InPerson',
     venue: 'Kestrel Labs, 220 King St W',
     visibility: 'Public',
@@ -37,7 +39,8 @@ const panel = event({
   type: 'Panel',
   startsAt: new Date(2026, 9, 30, 19, 0).toISOString(),
   endsAt: new Date(2026, 9, 30, 21, 0).toISOString(),
-  city: 'Austin',
+  chapterId: 'c-austin',
+  chapterName: 'Austin',
   format: 'Online',
   venue: null,
   visibility: 'MembersOnly',
@@ -65,6 +68,17 @@ async function setup(
     providers: [
       { provide: EVENTS_SERVICE, useValue: service },
       { provide: AUTH_SERVICE, useValue: { capabilities: signal(capabilities) } },
+      {
+        provide: SITE_SERVICE,
+        useValue: {
+          site: signal({
+            name: 'FaithTech Community',
+            shortName: 'FaithTech',
+            chapterLabel: { singular: 'City', plural: 'Cities' },
+            communityOrigin: 'https://app.faithtech.test',
+          }),
+        },
+      },
     ],
   });
   const fixture = TestBed.createComponent(EventsPage);

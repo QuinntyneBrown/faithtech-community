@@ -8,14 +8,14 @@ export type EventType = 'Gathering' | 'BuildersNight' | 'Hackathon' | 'PrayerAnd
 export type EventFormat = 'InPerson' | 'Online';
 export type EventVisibility = 'MembersOnly' | 'Public';
 
-/** The event form's fields, for create and edit (L2-020). */
+/** The event form's fields, for create and edit (L2-020). No chapter means organisation-wide (L2-141 AC2). */
 export interface EventRequest {
   title: string;
   description: string;
   type: EventType;
   startsAt: string;
   endsAt: string;
-  city: string;
+  chapterId: string | null;
   format: EventFormat;
   venue: string | null;
   onlineLink: string | null;
@@ -31,7 +31,9 @@ export interface EventSummaryDto {
   type: EventType;
   startsAt: string;
   endsAt: string;
-  city: string;
+  chapterId: string | null;
+  /** Null for an organisation-wide event, and while chapters are off. */
+  chapterName: string | null;
   format: EventFormat;
   venue: string | null;
   visibility: EventVisibility;
@@ -39,7 +41,7 @@ export interface EventSummaryDto {
   isCancelled: boolean;
 }
 
-/** The matching events, and every city that has an event whatever the filters. */
+/** The matching events, and every chapter name that has an event whatever the filters. */
 export interface EventListDto {
   events: EventSummaryDto[];
   cities: string[];
@@ -64,7 +66,8 @@ export interface EventDetailDto {
   type: EventType;
   startsAt: string;
   endsAt: string;
-  city: string;
+  chapterId: string | null;
+  chapterName: string | null;
   format: EventFormat;
   venue: string | null;
   onlineLink: string | null;
@@ -99,7 +102,7 @@ export interface PublicEventDto {
   type: EventType;
   startsAt: string;
   endsAt: string;
-  city: string;
+  chapterName: string | null;
   format: EventFormat;
   venue: string | null;
   rsvpCount: number;
