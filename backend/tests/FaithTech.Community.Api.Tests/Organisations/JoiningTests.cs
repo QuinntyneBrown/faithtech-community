@@ -2,6 +2,10 @@ using System.Net;
 using System.Net.Http.Json;
 using System.Text.RegularExpressions;
 using System.Web;
+using FaithTech.Community.Api.Tests.Invites;
+using FaithTech.Community.Api.Tests.Profiles;
+using FaithTech.Community.Domain.Invites;
+using FaithTech.Community.Domain.Profiles;
 using Microsoft.EntityFrameworkCore;
 
 namespace FaithTech.Community.Api.Tests.Organisations;
@@ -78,6 +82,70 @@ public class JoiningTests(CommunityApiFactory factory) : IClassFixture<Community
         Assert.Equal(HttpStatusCode.Accepted, response.StatusCode);
         Assert.Empty(factory.Emails.SentTo(email));
         Assert.Single(await ProfilesOf(email));
+    }
+
+    // Traces to: L2-132 AC2. The invite belongs to the inviter's organisation and its link carries that host.
+    [Fact]
+    public async Task A_member_elsewhere_accepting_an_invite_gets_a_profile_in_the_inviters_organisation()
+    {
+        var northside = await factory.AddOrganisationAsync();
+        var inviter = await factory.AddMemberAsync(northside, "Ana Lima", Role.CityLead);
+        var grace = await factory.AddMemberAsync("Grace Okonkwo");
+        var email = await factory.WithDbAsync(db => db.Users.Where(u => u.Id == grace.UserId).Select(u => u.Email!).SingleAsync());
+        var (invite, token) = await AddInviteAsync(northside, inviter, email, Role.Volunteer);
+
+        var response = await factory.ClientOn(northside, grace).PostAsJsonAsync("/api/invites/accept", new { Token = token });
+
+        Assert.Equal(HttpStatusCode.NoContent, response.StatusCode);
+        var joined = await factory.WithDbAsync(northside.Id, db => db.Profiles.AsNoTracking().SingleAsync(p => p.UserId == grace.UserId));
+        Assert.Equal("Grace Okonkwo", joined.Name);
+        Assert.Equal([Role.Volunteer], joined.Roles.Select(r => r.Role));
+        Assert.Equal(joined.Id, (await factory.WithDbAsync(northside.Id, db => db.Invites.AsNoTracking().SingleAsync(i => i.Id == invite.Id))).AcceptedBy);
+        Assert.Equal(2, (await ProfilesOf(email)).Count);
+    }
+
+    [Fact]
+    public async Task An_account_that_already_has_a_profile_there_is_linked_not_duplicated()
+    {
+        var northside = await factory.AddOrganisationAsync();
+        var inviter = await factory.AddMemberAsync(northside, "Ana Lima", Role.CityLead);
+        var grace = await factory.AddMemberAsync("Grace Okonkwo");
+        var there = await factory.AddMembershipAsync(northside, grace.UserId, "Grace O.");
+        var email = await factory.WithDbAsync(db => db.Users.Where(u => u.Id == grace.UserId).Select(u => u.Email!).SingleAsync());
+        var (invite, token) = await AddInviteAsync(northside, inviter, email, Role.Volunteer);
+
+        var response = await factory.ClientOn(northside, there).PostAsJsonAsync("/api/invites/accept", new { Token = token });
+
+        Assert.Equal(HttpStatusCode.NoContent, response.StatusCode);
+        Assert.Equal(there.ProfileId, (await factory.WithDbAsync(northside.Id, db => db.Invites.AsNoTracking().SingleAsync(i => i.Id == invite.Id))).AcceptedBy);
+        Assert.Equal(2, (await ProfilesOf(email)).Count);
+    }
+
+    [Fact]
+    public async Task A_new_account_from_an_invite_is_a_member_of_the_inviters_organisation_only()
+    {
+        var northside = await factory.AddOrganisationAsync();
+        var inviter = await factory.AddMemberAsync(northside, "Ana Lima", Role.CityLead);
+        var email = UniqueEmail();
+        var (_, token) = await AddInviteAsync(northside, inviter, email, null);
+
+        var response = await On(northside).PostAsJsonAsync("/api/invites/accept", new { Token = token, Name = "Ruth Alvarez", Password });
+
+        Assert.Equal(HttpStatusCode.NoContent, response.StatusCode);
+        Assert.Equal([(northside.Id, "Ruth Alvarez")], await ProfilesOf(email));
+    }
+
+    private async Task<(Invite Invite, string Token)> AddInviteAsync(
+        OrganisationScopes.OtherOrganisation organisation, ProfileClients.Member inviter, string email, Role? role)
+    {
+        var token = Guid.NewGuid().ToString("N");
+        var invite = new Invite(email, InviteClients.Hash(token), role, inviter.ProfileId, factory.Time.GetUtcNow());
+        await factory.WithDbAsync(organisation.Id, async db =>
+        {
+            db.Invites.Add(invite);
+            return await db.SaveChangesAsync();
+        });
+        return (invite, token);
     }
 
     private HttpClient On(OrganisationScopes.OtherOrganisation organisation)
