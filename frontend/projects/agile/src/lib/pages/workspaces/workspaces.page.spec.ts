@@ -1,6 +1,11 @@
 import { signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
-import { AGILE_SERVICE, AUTH_SERVICE, Role, WorkspaceSummaryDto } from '@faithtech-community/api';
+import {
+  AGILE_SERVICE,
+  AUTH_SERVICE,
+  Capability,
+  WorkspaceSummaryDto,
+} from '@faithtech-community/api';
 import { Observable, of, throwError } from 'rxjs';
 
 import { WorkspacesPage } from './workspaces.page';
@@ -21,11 +26,12 @@ function summary(patch: Partial<WorkspaceSummaryDto>): WorkspaceSummaryDto {
   };
 }
 
-async function setup(roles: Role[], list: () => Observable<WorkspaceSummaryDto[]>) {
+// L2-135 AC7: the page decides from capabilities, never a role name.
+async function setup(capabilities: Capability[], list: () => Observable<WorkspaceSummaryDto[]>) {
   TestBed.configureTestingModule({
     providers: [
       { provide: AGILE_SERVICE, useValue: { listWorkspaces: vi.fn(list) } },
-      { provide: AUTH_SERVICE, useValue: { roles: signal(roles) } },
+      { provide: AUTH_SERVICE, useValue: { capabilities: signal(capabilities) } },
     ],
   });
   const fixture = TestBed.createComponent(WorkspacesPage);
@@ -37,7 +43,7 @@ async function setup(roles: Role[], list: () => Observable<WorkspaceSummaryDto[]
 
 describe('WorkspacesPage', () => {
   it('words each workspace as the mock does', async () => {
-    const host = await setup(['CityLead'], () =>
+    const host = await setup(['OwnWorkspaces'], () =>
       of([
         summary({}),
         summary({ id: 'w2', name: 'Hackathon ops', method: 'Kanban', memberCount: 1 }),
@@ -55,23 +61,23 @@ describe('WorkspacesPage', () => {
     expect(host.querySelectorAll('ft-badge')).toHaveLength(2);
   });
 
-  it('offers New workspace to City Leads only', async () => {
-    const lead = await setup(['CityLead'], () => of([]));
+  it('offers New workspace to holders of OwnWorkspaces only', async () => {
+    const lead = await setup(['OwnWorkspaces'], () => of([]));
     expect(lead.textContent).toContain('Create your first workspace');
     TestBed.resetTestingModule();
-    const volunteer = await setup(['Volunteer'], () => of([]));
+    const volunteer = await setup(['JoinWorkspaces'], () => of([]));
     expect(volunteer.textContent).toContain('No workspaces yet');
     expect(volunteer.textContent).not.toContain('New workspace');
   });
 
-  it('tells Staff the list is read-only', async () => {
-    const host = await setup(['Staff'], () => of([summary({ isOwner: false })]));
+  it('tells a reader of every workspace the list is read-only', async () => {
+    const host = await setup(['ReadAllWorkspaces'], () => of([summary({ isOwner: false })]));
     expect(host.textContent).toContain('Every workspace, read-only');
     expect(host.textContent).toContain('Read-only for Staff');
   });
 
   it('shows an error with Try again when the list fails', async () => {
-    const host = await setup(['CityLead'], () => throwError(() => new Error('down')));
+    const host = await setup(['OwnWorkspaces'], () => throwError(() => new Error('down')));
     expect(host.textContent).toContain('We couldn’t load your workspaces');
   });
 });

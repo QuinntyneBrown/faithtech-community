@@ -9,8 +9,8 @@ import {
   AnnouncementAudience,
   EVENTS_SERVICE,
   EventSummaryDto,
-  Role,
   SendAnnouncementRequest,
+  Capability,
 } from '@faithtech-community/api';
 import { Observable, of, throwError } from 'rxjs';
 
@@ -34,7 +34,7 @@ const COUNTS: Record<string, number> = { Everyone: 612, Roles: 41, EventRsvps: 3
 
 async function setup(
   options: {
-    roles?: Role[];
+    capabilities?: Capability[];
     send?: (r: SendAnnouncementRequest) => Observable<unknown>;
   } = {},
 ) {
@@ -52,7 +52,7 @@ async function setup(
       { provide: EVENTS_SERVICE, useValue: events },
       {
         provide: AUTH_SERVICE,
-        useValue: { roles: signal(options.roles ?? ['CommunicationsLead']) },
+        useValue: { capabilities: signal(options.capabilities ?? ['SendAnnouncements']) },
       },
     ],
   });
@@ -241,7 +241,7 @@ describe('ComposeAnnouncementPage', () => {
   });
 
   it('sends anyone who may not send announcements to the forbidden page', async () => {
-    const { navigate } = await setup({ roles: ['CityLead'] });
+    const { navigate } = await setup({ capabilities: ['ManageEvents'] });
 
     expect(navigate).toHaveBeenCalledWith('/forbidden');
   });

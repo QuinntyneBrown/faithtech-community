@@ -7,10 +7,10 @@ import {
   canManageEvents,
   EVENTS_SERVICE,
   EventSummaryDto,
-  isLead,
   OrganisationNames,
   PARTNER_STAGE_LABELS,
   PARTNERS_SERVICE,
+  hasAny,
 } from '@faithtech-community/api';
 import {
   AlertComponent,
@@ -114,20 +114,25 @@ export class HomePage {
 
   /** Notifications carry no actor yet (PR #335), so the organisation speaks for them. */
   protected readonly actor = computed(() => this.organisation.name());
-  private readonly roles = this.auth.roles;
+  private readonly capabilities = this.auth.capabilities;
+  private readonly heldRoles = computed(() => this.auth.currentUser()?.roles ?? []);
   private readonly firstName = computed(
     () => (this.auth.currentUser()?.name ?? '').trim().split(/\s+/)[0] ?? '',
   );
 
-  protected readonly hasRole = computed(() => this.roles().length > 0);
-  protected readonly canCreateEvents = computed(() => canManageEvents(this.roles()));
-  protected readonly canAddContacts = computed(() => isLead(this.roles()));
-  protected readonly isStaffOnly = computed(
-    () => this.roles().includes('Staff') && !isLead(this.roles()),
+  protected readonly hasRole = computed(() => this.heldRoles().length > 0);
+  protected readonly canCreateEvents = computed(() => canManageEvents(this.capabilities()));
+  protected readonly canAddContacts = computed(() => hasAny(this.capabilities(), 'KeepContacts'));
+  /** The oversight role the banner names, while the member holds nothing that writes (L2-135 AC7). */
+  protected readonly oversightRole = computed(() =>
+    this.canCreateEvents() || this.canAddContacts()
+      ? null
+      : (this.heldRoles().find((r) => r.isOversight)?.name ?? null),
   );
-  /** Leads, Staff and System Admin may open partners (ADR 0009). */
-  protected readonly seesPipeline = computed(
-    () => isLead(this.roles()) || this.roles().includes('Staff'),
+  protected readonly isStaffOnly = computed(() => this.oversightRole() !== null);
+  /** ViewPartners or ManagePartners open the pipeline (ADR 0009). */
+  protected readonly seesPipeline = computed(() =>
+    hasAny(this.capabilities(), 'ViewPartners', 'ManagePartners'),
   );
 
   protected readonly title = computed(() => {

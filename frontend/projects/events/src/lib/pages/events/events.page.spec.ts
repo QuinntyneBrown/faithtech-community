@@ -7,7 +7,7 @@ import {
   EventFilter,
   EventListDto,
   EventSummaryDto,
-  Role,
+  Capability,
 } from '@faithtech-community/api';
 import { Observable, of, throwError } from 'rxjs';
 
@@ -58,13 +58,13 @@ const none: EventListDto = { events: [], cities: [] };
 
 async function setup(
   list: (filter: EventFilter) => Observable<EventListDto>,
-  roles: Role[] = ['EventLead'],
+  capabilities: Capability[] = ['ManageEvents'],
 ) {
   const service = { listEvents: vi.fn(list) };
   TestBed.configureTestingModule({
     providers: [
       { provide: EVENTS_SERVICE, useValue: service },
-      { provide: AUTH_SERVICE, useValue: { roles: signal(roles) } },
+      { provide: AUTH_SERVICE, useValue: { capabilities: signal(capabilities) } },
     ],
   });
   const fixture = TestBed.createComponent(EventsPage);
@@ -163,7 +163,7 @@ describe('EventsPage', () => {
   });
 
   it('hides New event from members who cannot manage events', async () => {
-    const { host, link } = await setup(() => of(none), ['Attendee']);
+    const { host, link } = await setup(() => of(none), []);
 
     expect(host.textContent).toContain('No events yet');
     expect(link('New event')).toBeUndefined();

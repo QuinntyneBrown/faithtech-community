@@ -1,4 +1,4 @@
-import { ROLE_DESCRIPTIONS, ROLES, assignableRoles, isLead } from './role';
+import { ROLE_DESCRIPTIONS, ROLES, assignableRoles } from './role';
 
 describe('assignableRoles', () => {
   it('gives a System Admin every role', () => {
@@ -21,15 +21,6 @@ describe('assignableRoles', () => {
     expect(assignableRoles([])).toEqual([]);
   });
 });
-
-describe('isLead', () => {
-  it('is true for any lead role or System Admin', () => {
-    expect(isLead(['CommunicationsLead'])).toBe(true);
-    expect(isLead(['SystemAdmin'])).toBe(true);
-    expect(isLead(['Staff', 'Volunteer'])).toBe(false);
-  });
-});
-
 it('describes every role', () => {
   expect(ROLES.every((r) => ROLE_DESCRIPTIONS[r].length > 0)).toBe(true);
 });

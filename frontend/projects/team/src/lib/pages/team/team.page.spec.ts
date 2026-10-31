@@ -2,10 +2,10 @@
 import { TestBed } from '@angular/core/testing';
 import {
   AUTH_SERVICE,
-  Role,
   TEAM_SERVICE,
   TeamListDto,
   TeamMemberDto,
+  Capability,
 } from '@faithtech-community/api';
 import { Observable, of, throwError } from 'rxjs';
 import { signal } from '@angular/core';
@@ -40,13 +40,13 @@ const none: TeamListDto = { members: [], cities: [], next: null, totalCount: 0 }
 
 async function setup(
   list: (filters?: unknown, after?: string | null) => Observable<TeamListDto>,
-  roles: Role[] = ['CityLead'],
+  capabilities: Capability[] = ['InviteMembers'],
 ) {
   const service = { list: vi.fn(list) };
   TestBed.configureTestingModule({
     providers: [
       { provide: TEAM_SERVICE, useValue: service },
-      { provide: AUTH_SERVICE, useValue: { roles: signal(roles) } },
+      { provide: AUTH_SERVICE, useValue: { capabilities: signal(capabilities) } },
     ],
   });
   const fixture = TestBed.createComponent(TeamPage);
@@ -98,7 +98,7 @@ describe('TeamPage', () => {
   });
 
   it('hides Invite someone from members who are not leads', async () => {
-    const { link } = await setup(() => of(everyone), ['Volunteer']);
+    const { link } = await setup(() => of(everyone), ['JoinWorkspaces']);
 
     expect(link('Invite someone')).toBeUndefined();
   });

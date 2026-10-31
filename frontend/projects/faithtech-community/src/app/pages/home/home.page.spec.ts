@@ -8,7 +8,7 @@ import {
   EventSummaryDto,
   PARTNERS_SERVICE,
   PartnerBoardDto,
-  Role,
+  Capability,
 } from '@faithtech-community/api';
 import { of, throwError } from 'rxjs';
 
@@ -40,7 +40,14 @@ const board: PartnerBoardDto = {
   ],
 };
 
-async function setup(roles: Role[], events = [event('a'), event('b')]) {
+// L2-135 AC7: home decides from capabilities; the oversight banner from the held roles' flag.
+async function setup(
+  capabilities: Capability[],
+  events = [event('a'), event('b')],
+  roles: { name: string; isOversight: boolean }[] = capabilities.length
+    ? [{ name: 'A role', isOversight: false }]
+    : [],
+) {
   const services = {
     events: { listEvents: vi.fn(() => of({ events, cities: [] })) },
     partners: { getBoard: vi.fn(() => of(board)) },
@@ -51,8 +58,8 @@ async function setup(roles: Role[], events = [event('a'), event('b')]) {
       {
         provide: AUTH_SERVICE,
         useValue: {
-          roles: signal(roles),
-          currentUser: signal({ name: 'Grace Okonkwo', roles, profileId: 'p1' }),
+          capabilities: signal(capabilities),
+          currentUser: signal({ name: 'Grace Okonkwo', roles, capabilities, profileId: 'p1' }),
         },
       },
       { provide: EVENTS_SERVICE, useValue: services.events },
@@ -71,7 +78,7 @@ const text = (el: HTMLElement) => el.textContent?.replace(/\s+/g, ' ') ?? '';
 
 describe('HomePage', () => {
   it('shows a lead the quick actions and the pipeline counts', async () => {
-    const { el } = await setup(['CityLead']);
+    const { el } = await setup(['ManageEvents', 'KeepContacts', 'ViewPartners', 'ManagePartners']);
 
     expect(text(el)).toContain('New event');
     expect(text(el)).toContain('Add contact');
@@ -98,8 +105,10 @@ describe('HomePage', () => {
     expect(services.activity.recent).toHaveBeenCalled();
   });
 
-  it('shows Staff the banner and no write actions', async () => {
-    const { el } = await setup(['Staff']);
+  it('shows an oversight role the banner and no write actions', async () => {
+    const { el } = await setup(['ViewPartners', 'ViewReports'], undefined, [
+      { name: 'Staff', isOversight: true },
+    ]);
 
     expect(text(el)).toContain('You’re viewing as Staff');
     expect(text(el)).not.toContain('New event');
@@ -109,7 +118,7 @@ describe('HomePage', () => {
 
   it('leaves cancelled events out of Coming up and counts the rest', async () => {
     const { el } = await setup(
-      ['Volunteer'],
+      ['JoinWorkspaces'],
       [event('a'), event('b', { isCancelled: true }), event('c'), event('d'), event('e')],
     );
 
@@ -122,7 +131,7 @@ describe('HomePage', () => {
     TestBed.overrideProvider(EVENTS_SERVICE, {
       useValue: { listEvents: () => throwError(() => new Error('offline')) },
     });
-    const { el } = await setup(['CityLead']);
+    const { el } = await setup(['ManageEvents', 'ViewPartners']);
 
     expect(text(el)).toContain('We couldn’t load your home page');
     expect(el.querySelector('ft-event-card')).toBeNull();
