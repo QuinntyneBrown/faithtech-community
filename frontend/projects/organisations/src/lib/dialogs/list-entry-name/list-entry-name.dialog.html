@@ -1,0 +1,35 @@
+<ft-dialog
+  [heading]="data.heading"
+  [description]="data.description"
+  [busy]="busy()"
+  (closed)="ref.close()"
+>
+  <form [formGroup]="form" (submit)="$event.preventDefault(); save()" ftFormErrorFocus>
+    <ft-stack>
+      @if (failed()) {
+        <ft-alert status="danger" heading="Not saved">
+          We couldn’t reach {{ names.shortName() }}. Your changes are still here — try again.
+        </ft-alert>
+      }
+      <ft-form-field label="Name" [error]="nameError()">
+        <ft-text-field
+          formControlName="name"
+          autocomplete="off"
+          initialFocus
+          [maxlength]="maxName"
+          [readonly]="busy()"
+        />
+      </ft-form-field>
+    </ft-stack>
+  </form>
+  <ft-button ftDialogFooter [disabled]="busy()" (click)="ref.close()">Cancel</ft-button>
+  <ft-button ftDialogFooter variant="primary" [loading]="busy()" (click)="save()">
+    @if (busy()) {
+      {{ renaming ? 'Saving…' : 'Adding…' }}
+    } @else if (failed()) {
+      Try again
+    } @else {
+      {{ renaming ? 'Rename' : (data.addLabel ?? 'Add') }}
+    }
+  </ft-button>
+</ft-dialog>

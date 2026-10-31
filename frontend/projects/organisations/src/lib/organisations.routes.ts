@@ -1,8 +1,8 @@
 import { Routes } from '@angular/router';
 
-import { ChaptersPage, GeneralPage, OrganisationPage, RolesPage } from './pages';
+import { ChaptersPage, GeneralPage, OrganisationPage, RolesPage, TaxonomiesPage } from './pages';
 
-/** The Organisation section; the app guards it by capability. The taxonomies join as a tab later. */
+/** The Organisation section; the app guards it by capability. */
 export const ORGANISATION_ROUTES: Routes = [
   {
     path: '',
@@ -11,6 +11,7 @@ export const ORGANISATION_ROUTES: Routes = [
       { path: '', component: GeneralPage },
       { path: 'roles', component: RolesPage },
       { path: 'chapters', component: ChaptersPage },
+      { path: 'taxonomies', component: TaxonomiesPage },
     ],
   },
 ];

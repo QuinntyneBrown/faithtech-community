@@ -13,7 +13,7 @@ import { filter, map } from 'rxjs';
 /**
  * The Organisation section at /organisation (L2-147 AC1), matching docs/mocks/pages/organisation-general: the
  * organisation's name, its host, and a tab per settings page: General, Roles and the chapters under their plural
- * label ("Chapters" while they are off).
+ * label ("Chapters" while they are off), and Stages & types (L2-144).
  */
 @Component({
   selector: 'ft-organisation-page',
@@ -36,7 +36,9 @@ export class OrganisationPage {
   /** The tab of the current page, for aria-current. */
   protected readonly tab = computed(() => {
     const path = this.url().split(/[?#]/)[0];
-    return path.endsWith('/roles') ? 'roles' : path.endsWith('/chapters') ? 'chapters' : 'general';
+    if (path.endsWith('/roles')) return 'roles';
+    if (path.endsWith('/chapters')) return 'chapters';
+    return path.endsWith('/taxonomies') ? 'taxonomies' : 'general';
   });
 
   protected readonly subtitle = computed(() => {
