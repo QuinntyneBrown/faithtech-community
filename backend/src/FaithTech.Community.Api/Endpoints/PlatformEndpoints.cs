@@ -19,6 +19,14 @@ public static class PlatformEndpoints
         platform.MapGet("/audit", async (int? page, int? pageSize, GetPlatformAuditHandler handler, CancellationToken cancellationToken) =>
             Results.Ok(await handler.HandleAsync(page ?? 1, pageSize ?? GetPlatformAuditHandler.DefaultPageSize, cancellationToken)));
 
+        platform.MapPost("/organisations", async (ProvisionOrganisationCommand command, ProvisionOrganisationHandler handler, CancellationToken cancellationToken) =>
+        {
+            var (result, outcome, summary) = await handler.HandleAsync(command, cancellationToken);
+            return result.ToHttp(() => outcome == ProvisionOutcome.Created
+                ? Results.Created($"/api/platform/organisations/{summary!.Slug}", summary)
+                : Results.Ok(summary));
+        }).Validate<ProvisionOrganisationCommand>();
+
         platform.MapGet("/organisations/{slug}", async (string slug, GetOrganisationSummaryHandler handler, CancellationToken cancellationToken) =>
             await handler.HandleAsync(slug, cancellationToken) is { } summary ? Results.Ok(summary) : EmptyNotFound());
 

@@ -45,6 +45,7 @@ public static class CliApp
             .AddScoped<PlatformActor>()
             .AddScoped<IPlatformAuditLog, PlatformAuditLog>()
             .AddScoped<GetPlatformAuditHandler>()
+            .AddScoped<OrganisationSeeder>()
             .AddOpenIddict().AddCore(options => options.UseEntityFrameworkCore().UseDbContext<CommunityDbContext>()).Services
             .BuildServiceProvider();
         await using var scope = services.CreateAsyncScope();

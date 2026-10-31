@@ -152,6 +152,13 @@ public class AcceptInviteHandler(
         }
 
         invite.MarkAccepted(profile.Id, now);
+
+        // Provisioning's invite to the first administrator has no inviter to tell (L2-149 AC2).
+        if (invite.InvitedBy == Guid.Empty)
+        {
+            return;
+        }
+
         db.Notifications.Add(new Notification(
             invite.InvitedBy, NotificationKind.InviteAccepted, $"{profile.Name} accepted your invite", $"/people/{profile.Id}", now));
     }

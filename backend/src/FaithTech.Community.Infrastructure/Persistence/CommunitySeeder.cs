@@ -1,5 +1,6 @@
 using System.Text.Json;
 using FaithTech.Community.Application.Identity;
+using FaithTech.Community.Application.Organisations.Platform;
 using FaithTech.Community.Domain.Admin;
 using FaithTech.Community.Domain.Events;
 using FaithTech.Community.Domain.Organisations;
@@ -14,7 +15,7 @@ using static OpenIddict.Abstractions.OpenIddictConstants;
 namespace FaithTech.Community.Infrastructure.Persistence;
 
 /// <summary>Idempotent seed data: safe to run on every deployment.</summary>
-public class CommunitySeeder(IOpenIddictApplicationManager applications, CommunityDbContext db, TimeProvider time)
+public class CommunitySeeder(IOpenIddictApplicationManager applications, CommunityDbContext db, OrganisationSeeder organisations, TimeProvider time)
 {
     public const string WebClientId = "web";
 
@@ -52,22 +53,16 @@ public class CommunitySeeder(IOpenIddictApplicationManager applications, Communi
         }
         else
         {
+            // Keep the organisation hosts provisioning added (IClientRedirects), so a re-seed never signs them out.
+            var current = new OpenIddictApplicationDescriptor();
+            await applications.PopulateAsync(current, existing, cancellationToken);
+            descriptor.RedirectUris.UnionWith(current.RedirectUris);
+            descriptor.PostLogoutRedirectUris.UnionWith(current.PostLogoutRedirectUris);
             await applications.UpdateAsync(existing, descriptor, cancellationToken);
         }
 
         await SeedOrganisationAsync(cancellationToken);
-        await SeedRoleDefinitionsAsync(cancellationToken);
-        await SeedPartnerStagesAsync(cancellationToken);
-        await SeedEventTypesAsync(cancellationToken);
-        await SeedResourceTypesAsync(cancellationToken);
-
-        // The concurrency token that guards FaithTech's last administrator (LastAdministratorGuard).
-        if (!await db.OrganisationAdminRosters.AnyAsync(cancellationToken))
-        {
-            db.OrganisationAdminRosters.Add(new OrganisationAdminRoster());
-            await db.SaveChangesAsync(cancellationToken);
-        }
-
+        await SeedFaithTechListsAsync(cancellationToken);
         await SeedStarterResourcesAsync(cancellationToken);
     }
 
@@ -81,73 +76,24 @@ public class CommunitySeeder(IOpenIddictApplicationManager applications, Communi
         }
     }
 
-    /// <summary>FaithTech's role definitions, found by key and inserted only when missing, so later edits survive (L2-151 AC2).</summary>
-    private async Task SeedRoleDefinitionsAsync(CancellationToken cancellationToken)
+    /// <summary>
+    /// FaithTech's role definitions, partner stages, event types and resource types and its administrator roster row,
+    /// found by key (or fixed id) and inserted only when missing, so later edits survive (L2-151 AC2, AC3). Provisioning
+    /// gives a new organisation its defaults through the same <see cref="OrganisationSeeder"/> (L2-149).
+    /// </summary>
+    private async Task SeedFaithTechListsAsync(CancellationToken cancellationToken)
     {
-        var keys = await db.RoleDefinitions.IgnoreQueryFilters()
-            .Where(d => d.OrganisationId == FaithTechSeed.OrganisationId)
-            .Select(d => d.Key)
-            .ToListAsync(cancellationToken);
-        var missing = FaithTechSeed.RoleDefinitions().Where(d => !keys.Contains(d.Key)).ToList();
-        if (missing.Count > 0)
-        {
-            db.RoleDefinitions.AddRange(missing);
-            await db.SaveChangesAsync(cancellationToken);
-        }
-    }
-
-    /// <summary>FaithTech's partner stages, found by key and inserted only when missing, so later edits survive (L2-151 AC3).</summary>
-    private async Task SeedPartnerStagesAsync(CancellationToken cancellationToken)
-    {
-        var keys = await db.PartnerStages.IgnoreQueryFilters()
-            .Where(s => s.OrganisationId == FaithTechSeed.OrganisationId)
-            .Select(s => s.Key)
-            .ToListAsync(cancellationToken);
-        var missing = FaithTechSeed.PartnerStages().Where(s => !keys.Contains(s.Key)).ToList();
-        if (missing.Count > 0)
-        {
-            db.PartnerStages.AddRange(missing);
-            await db.SaveChangesAsync(cancellationToken);
-        }
-    }
-
-    /// <summary>FaithTech's event types, found by key and inserted only when missing, so later edits survive (L2-151 AC3).</summary>
-    private async Task SeedEventTypesAsync(CancellationToken cancellationToken)
-    {
-        var ids = FaithTechSeed.Types.Select(t => t.Id).ToList();
-        var existing = await db.EventTypes.IgnoreQueryFilters()
-            .Where(t => t.OrganisationId == FaithTechSeed.OrganisationId || ids.Contains(t.Id))
-            .Select(t => new { t.Id, t.Key })
-            .ToListAsync(cancellationToken);
-        var missing = FaithTechSeed.EventTypes().Where(t => !existing.Any(e => e.Id == t.Id || e.Key == t.Key)).ToList();
-        if (missing.Count > 0)
-        {
-            db.EventTypes.AddRange(missing);
-            await db.SaveChangesAsync(cancellationToken);
-        }
+        await organisations.SeedOrganisationAsync(
+            new OrganisationSeed(FaithTechSeed.RoleDefinitions(), FaithTechSeed.PartnerStages(), FaithTechSeed.EventTypes(), FaithTechSeed.ResourceTypes()),
+            cancellationToken);
+        await db.SaveChangesAsync(cancellationToken);
     }
 
     /// <summary>The organisation's first active event type, for the load-test events; FaithTech's are seeded first if missing.</summary>
     private async Task<EventType> FirstEventTypeAsync(CancellationToken cancellationToken)
     {
-        await SeedEventTypesAsync(cancellationToken);
+        await SeedFaithTechListsAsync(cancellationToken);
         return await db.EventTypes.Where(t => t.ArchivedAtUtc == null).OrderBy(t => t.SortOrder).FirstAsync(cancellationToken);
-    }
-
-    /// <summary>FaithTech's resource types, found by key and inserted only when missing, so later edits survive (L2-151 AC3).</summary>
-    private async Task SeedResourceTypesAsync(CancellationToken cancellationToken)
-    {
-        var ids = FaithTechSeed.ResourceKinds.Select(t => t.Id).ToList();
-        var existing = await db.ResourceTypes.IgnoreQueryFilters()
-            .Where(t => t.OrganisationId == FaithTechSeed.OrganisationId || ids.Contains(t.Id))
-            .Select(t => new { t.Id, t.Key })
-            .ToListAsync(cancellationToken);
-        var missing = FaithTechSeed.ResourceTypes().Where(t => !existing.Any(e => e.Id == t.Id || e.Key == t.Key)).ToList();
-        if (missing.Count > 0)
-        {
-            db.ResourceTypes.AddRange(missing);
-            await db.SaveChangesAsync(cancellationToken);
-        }
     }
 
     /// <summary>A starter link: its type is a resource type key of FaithTech's (L2-151 AC4).</summary>
@@ -178,7 +124,7 @@ public class CommunitySeeder(IOpenIddictApplicationManager applications, Communi
         var existing = await db.Resources.Where(r => ids.Contains(r.Id)).Select(r => r.Id).ToListAsync(cancellationToken);
         var ownerRole = await db.RoleDefinitions.Where(d => d.Capabilities.Contains(Capability.AdministerOrganisation))
             .OrderBy(d => d.SortOrder).Select(d => d.Key).FirstAsync(cancellationToken);
-        await SeedResourceTypesAsync(cancellationToken);
+        await SeedFaithTechListsAsync(cancellationToken);
         var types = await db.ResourceTypes.ToDictionaryAsync(t => t.Key, cancellationToken);
         foreach (var starter in StarterResources.Where(r => !existing.Contains(r.Id)))
         {
@@ -429,7 +375,7 @@ public class CommunitySeeder(IOpenIddictApplicationManager applications, Communi
 
         // The organisation's first role carrying AdministerOrganisation (System Admin in FaithTech's seed), seeded first if
         // the database has not been seeded yet.
-        await SeedRoleDefinitionsAsync(cancellationToken);
+        await SeedFaithTechListsAsync(cancellationToken);
         var administrator = (await db.RoleDefinitions.Where(d => d.ArchivedAtUtc == null).OrderBy(d => d.SortOrder).ToListAsync(cancellationToken))
             .First(d => d.Carries(Capability.AdministerOrganisation));
         var before = profile.Roles.Select(r => r.Definition!.Key).Order().ToArray();

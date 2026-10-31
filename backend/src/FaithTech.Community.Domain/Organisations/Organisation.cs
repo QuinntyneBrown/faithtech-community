@@ -84,6 +84,26 @@ public partial class Organisation
         ChapterLabelPlural = Required(plural, MaxChapterLabelLength, nameof(plural));
     }
 
+    /// <summary>
+    /// A new organisation held as Provisioning while its defaults are written, so no request resolves it until
+    /// <see cref="CompleteProvisioning"/> makes it Active (L2-149 AC1).
+    /// </summary>
+    public static Organisation ForProvisioning(Guid id, string slug, string host, string name, string shortName, DateTime createdAtUtc)
+    {
+        var organisation = new Organisation(id, slug, host, name, shortName, createdAtUtc) { Status = OrganisationStatus.Provisioning };
+        return organisation;
+    }
+
+    public void CompleteProvisioning()
+    {
+        if (Status != OrganisationStatus.Provisioning)
+        {
+            throw new InvalidOperationException("The organisation is not being provisioned.");
+        }
+
+        Status = OrganisationStatus.Active;
+    }
+
     public void Suspend(string reason, DateTime nowUtc)
     {
         if (Status == OrganisationStatus.Suspended)

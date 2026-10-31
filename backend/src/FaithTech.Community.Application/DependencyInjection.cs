@@ -73,6 +73,8 @@ public static class DependencyInjection
         services.AddScoped<Organisations.Platform.GetPlatformAuditHandler>();
         services.AddScoped<Organisations.Platform.GetOrganisationSummaryHandler>();
         services.AddScoped<Organisations.Platform.LockAccountHandler>();
+        services.AddScoped<Organisations.Platform.OrganisationSeeder>();
+        services.AddScoped<Organisations.Platform.ProvisionOrganisationHandler>();
         services.AddScoped<RoleGrantPolicy>();
         services.AddScoped<RoleChangeNotifier>();
         services.AddScoped<ChangeRolesHandler>();
