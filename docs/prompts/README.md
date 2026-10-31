@@ -34,7 +34,7 @@ its own branch and ends with a pull request. Merge a slice before you start the 
 | 05 | [05-marketing-cors-and-static-sites-per-host.md](05-marketing-cors-and-static-sites-per-host.md) | Marketing per public host, static sites by host kind, CORS | `L2-134` AC3, `L2-131` AC6 | Done |
 | 06 | [06-profile-per-organisation-and-not-a-member.md](06-profile-per-organisation-and-not-a-member.md) | `Profile.UserId`, current membership, not-a-member page | `L2-132` AC3, AC4 | Done |
 | 07 | [07-joining-an-organisation.md](07-joining-an-organisation.md) | Sign-up, invite, connect link and Google create memberships | `L2-132` AC1, AC2, AC7 | Done |
-| 08 | [08-membership-suspension.md](08-membership-suspension.md) | Suspension per membership, revocation per organisation | `L2-132` AC5, `L2-039` | To do |
+| 08 | [08-membership-suspension.md](08-membership-suspension.md) | Suspension per membership, revocation per organisation | `L2-132` AC5, `L2-039` | Done |
 | 09 | [09-me-endpoint-and-organisation-switcher.md](09-me-endpoint-and-organisation-switcher.md) | `/api/me` memberships, Switch organisation | `L2-133` AC1, AC3, AC4 | To do |
 | 10 | [10-capability-catalogue-and-role-definitions.md](10-capability-catalogue-and-role-definitions.md) | Capability catalogue, role definitions, FaithTech definitions, computed capabilities | `L2-135` AC1, AC2, `L2-151` AC2 | To do |
 | 11 | [11-authorise-by-capability.md](11-authorise-by-capability.md) | Every access class by capability, override audit, `Role` removed | `L2-135` AC3 to AC6, `L2-151` AC5 | To do |
