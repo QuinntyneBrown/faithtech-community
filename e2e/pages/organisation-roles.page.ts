@@ -12,6 +12,7 @@ export class OrganisationRolesPage {
   readonly readOnly: Locator;
   readonly definedToast: Locator;
   readonly savedToast: Locator;
+  readonly grantsSavedToast: Locator;
 
   constructor(private readonly page: Page) {
     const sections = page.getByRole('navigation', { name: 'Organisation settings' });
@@ -25,6 +26,7 @@ export class OrganisationRolesPage {
     this.readOnly = page.getByText('You can view these settings but not change them.');
     this.definedToast = page.locator('ft-toast').filter({ hasText: 'Role defined' });
     this.savedToast = page.locator('ft-toast').filter({ hasText: 'Role saved' });
+    this.grantsSavedToast = page.locator('ft-toast').filter({ hasText: 'Grant rules saved' });
   }
 
   async open(): Promise<void> {
@@ -46,5 +48,18 @@ export class OrganisationRolesPage {
 
   edit(name: string): Locator {
     return this.page.getByRole('button', { name: `Edit ${name}`, exact: true });
+  }
+
+  whoMayGrant(name: string): Locator {
+    return this.page.getByRole('button', { name: `Who may grant ${name}`, exact: true });
+  }
+
+  archive(name: string): Locator {
+    return this.page.getByRole('button', { name: `Archive ${name}`, exact: true });
+  }
+
+  /** The toast "{role} archived". */
+  archivedToast(name: string): Locator {
+    return this.page.locator('ft-toast').filter({ hasText: `${name} archived` });
   }
 }
