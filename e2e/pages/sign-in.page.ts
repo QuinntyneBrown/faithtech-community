@@ -29,6 +29,11 @@ export class SignInPage {
     this.forgotPassword = page.getByRole('link', { name: 'Forgot your password?' });
   }
 
+  /** The line under the form that offers sign-up, naming the organisation. */
+  newHere(shortName: string): Locator {
+    return this.page.getByText(`New to ${shortName}?`);
+  }
+
   /** Submits without filling anything in, so no request is made. */
   async submitEmpty(): Promise<void> {
     await this.submit.click();

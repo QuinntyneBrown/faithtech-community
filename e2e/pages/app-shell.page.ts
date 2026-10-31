@@ -24,6 +24,8 @@ export class AppShell {
   readonly bell: Locator;
   /** The panel the bell opens. */
   readonly notificationPanel: Locator;
+  /** The top bar's brand link, named with the organisation's short name (L2-134 AC1). */
+  readonly brand: Locator;
 
   constructor(private readonly page: Page) {
     this.verifyBanner = page.locator('ft-banner').filter({ hasText: 'Verify your email' });
@@ -42,6 +44,7 @@ export class AppShell {
     this.main = page.getByRole('main');
     this.bell = page.locator('header').getByRole('button', { name: /^Notifications/ });
     this.notificationPanel = page.getByRole('dialog', { name: 'Notifications' });
+    this.brand = page.getByRole('banner').locator('.top-bar__brand');
   }
 
   /** The top bar's search box (wider screens). */

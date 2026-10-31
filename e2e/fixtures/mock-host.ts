@@ -6,6 +6,33 @@ import { Page, Route } from '@playwright/test';
 
 type SystemPage = 'unknown-host' | 'suspended';
 
+/** An organisation as the API answers it in GET /api/site and the organisation part of /api/me (L2-133 AC1). */
+export interface MockOrganisation {
+  slug: string;
+  name: string;
+  shortName: string;
+  host: string;
+  chapterLabel: { singular: string; plural: string } | null;
+}
+
+/** FaithTech, the organisation the hosts belong to unless a test serves another (L2-151 seed). */
+export const FAITHTECH: MockOrganisation = {
+  slug: 'faithtech',
+  name: 'FaithTech Community',
+  shortName: 'FaithTech',
+  host: 'localhost',
+  chapterLabel: { singular: 'City', plural: 'Cities' },
+};
+
+/** A second organisation for the specs that prove nothing names FaithTech by fixed text. */
+export const NORTHSIDE: MockOrganisation = {
+  slug: 'northside',
+  name: 'Northside Makers',
+  shortName: 'Northside',
+  host: 'localhost',
+  chapterLabel: null,
+};
+
 /**
  * The server's host resolution (OrganisationResolutionMiddleware, ADR 0032) for the two dev servers. It renders the
  * API's own unknown-host.html and suspended.html the way SystemPages does, so the browser runs the real pages:
@@ -19,10 +46,24 @@ export class MockHost {
     suspended: read('suspended.html'),
   };
 
+  /** The organisation the hosts resolve to. */
+  organisation: MockOrganisation = FAITHTECH;
+
   constructor(
     private readonly page: Page,
     private readonly origins: string[],
   ) {}
+
+  /** The hosts belong to `organisation` instead of FaithTech. */
+  serve(organisation: MockOrganisation): void {
+    this.organisation = organisation;
+  }
+
+  /** GET /api/site on the community host (SiteEndpoints). */
+  site(communityOrigin: string) {
+    const { name, shortName, chapterLabel } = this.organisation;
+    return { name, shortName, chapterLabel, communityOrigin };
+  }
 
   /** The hosts map to no organisation. */
   unknown(): Promise<void> {
