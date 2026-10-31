@@ -1,3 +1,4 @@
+using FaithTech.Community.Application.Organisations;
 using FaithTech.Community.Domain.Organisations;
 
 namespace FaithTech.Community.Api.Endpoints;
@@ -11,6 +12,9 @@ public static class OrganisationEndpoints
         // The platform's catalogue, the same in every organisation, for any member (L2-135 AC1).
         app.MapGet("/api/organisation/capabilities", () =>
             Results.Ok(Capability.All.Select(c => new CapabilityDto(c.Key, c.Description))));
+        // The organisation's names and its roles that are not archived, for every member's pickers (L2-136 AC8).
+        app.MapGet("/api/organisation", async (GetOrganisationHandler handler, CancellationToken cancellationToken) =>
+            Results.Ok(await handler.HandleAsync(cancellationToken)));
         return app;
     }
 }
