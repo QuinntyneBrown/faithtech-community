@@ -37,14 +37,14 @@ public class ListTeamHandler(IApplicationDbContext db, IPhotoStorage storage)
             return null;
         }
 
-        var teamRoles = TeamRoles.All.ToList();
-        var leads = TeamRoles.Leads.ToList();
-        var team = db.Profiles.AsNoTracking().Where(p => p.Roles.Any(r => teamRoles.Contains(r.Role)));
+        var teamRoles = LegacyRoles.Keys(TeamRoles.All);
+        var leads = LegacyRoles.Keys(TeamRoles.Leads);
+        var team = db.Profiles.AsNoTracking().Where(p => p.Roles.Any(r => teamRoles.Contains(r.Definition!.Key)));
 
         var matching = query.Role switch
         {
-            TeamRoleFilter.Leads => team.Where(p => p.Roles.Any(r => leads.Contains(r.Role))),
-            TeamRoleFilter.Volunteers => team.Where(p => p.Roles.Any(r => r.Role == Role.Volunteer)),
+            TeamRoleFilter.Leads => team.Where(p => p.Roles.Any(r => leads.Contains(r.Definition!.Key))),
+            TeamRoleFilter.Volunteers => team.Where(p => p.Roles.Any(r => r.Definition!.Key == nameof(Role.Volunteer))),
             _ => team,
         };
         var city = query.City?.Trim().ToLower();
@@ -85,7 +85,7 @@ public class ListTeamHandler(IApplicationDbContext db, IPhotoStorage storage)
         profile.Name,
         profile.HomeCity,
         profile.Photos.FirstOrDefault(p => p.IsFeatured) is { } featured ? storage.GetReadUrl(featured.BlobName) : null,
-        [.. profile.Roles.OrderBy(r => r.Role).Select(r => r.Role.ToString())]);
+        [.. profile.Roles.OrderBy(r => r.Definition!.SortOrder).Select(r => r.Definition!.Key)]);
 }
 
 /// <summary>The position after the last member of a page: their lower-cased name and profile id.</summary>

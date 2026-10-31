@@ -170,13 +170,13 @@ public class WorkspaceSettingsHandler(
             excluded = await policy.CallerProfileIdAsync(cancellationToken) is { } me ? [me] : [];
         }
 
-        var teamRoles = TeamRoles.All.ToList();
+        var teamRoles = LegacyRoles.Keys(TeamRoles.All);
         var profiles = await db.Profiles.AsNoTracking()
-            .Where(p => !p.IsSuspended && p.Roles.Any(r => teamRoles.Contains(r.Role)))
+            .Where(p => !p.IsSuspended && p.Roles.Any(r => teamRoles.Contains(r.Definition!.Key)))
             .OrderBy(p => p.Name)
             .ToListAsync(cancellationToken);
         return (Result.Ok(), [.. profiles
             .Where(p => !excluded.Contains(p.Id))
-            .Select(p => new MemberCandidateDto(p.Id, p.Name, [.. p.Roles.Select(r => r.Role).Order().Select(r => r.ToString())]))]);
+            .Select(p => new MemberCandidateDto(p.Id, p.Name, [.. p.Roles.OrderBy(r => r.Definition!.SortOrder).Select(r => r.Definition!.Key)]))]);
     }
 }

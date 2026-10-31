@@ -55,6 +55,17 @@ public static class OrganisationScopes
             await db.SaveChangesAsync();
             return organisation.Id;
         });
+        // Its own copy of the nine role definitions, so members there can hold roles (ADR 0033).
+        await factory.WithDbAsync(id, async db =>
+        {
+            if (!await db.RoleDefinitions.AnyAsync())
+            {
+                db.RoleDefinitions.AddRange(TestRoles.DefinitionsFor());
+                await db.SaveChangesAsync();
+            }
+
+            return 0;
+        });
         return new OtherOrganisation(id, $"https://{host}");
     }
 
@@ -66,7 +77,8 @@ public static class OrganisationScopes
             var profile = new Profile(name);
             foreach (var role in roles)
             {
-                profile.AddRole(role, Guid.Empty, DateTime.UtcNow);
+                var key = role.ToString();
+                profile.AddRole(await db.RoleDefinitions.SingleAsync(d => d.Key == key), Guid.Empty, DateTime.UtcNow);
             }
 
             var email = $"{Guid.NewGuid():N}@example.org";
@@ -99,7 +111,8 @@ public static class OrganisationScopes
             profile.LinkAccount(userId);
             foreach (var role in roles)
             {
-                profile.AddRole(role, Guid.Empty, DateTime.UtcNow);
+                var key = role.ToString();
+                profile.AddRole(await db.RoleDefinitions.SingleAsync(d => d.Key == key), Guid.Empty, DateTime.UtcNow);
             }
 
             db.Profiles.Add(profile);

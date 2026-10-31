@@ -26,7 +26,7 @@ public class ListNotesHandler(IApplicationDbContext db, NoteAccess access, NoteV
             case "shared":
                 var roles = access.Roles;
                 pages = pages.Where(p => p.OwnerId != caller && p.Visibility == NoteVisibility.Shared
-                    && (p.SharedMembers.Any(m => m.ProfileId == caller) || p.SharedRoles.Any(x => roles.Contains(x.Role))));
+                    && (p.SharedMembers.Any(m => m.ProfileId == caller) || p.SharedRoles.Any(x => roles.Contains(x.RoleDefinitionId))));
                 break;
             default:
                 return (Result.Invalid("owner", "Choose all, mine or shared."), null);

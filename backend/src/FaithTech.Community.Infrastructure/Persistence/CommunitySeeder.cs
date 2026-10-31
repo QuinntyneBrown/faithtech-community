@@ -2,6 +2,7 @@ using System.Text.Json;
 using FaithTech.Community.Application.Identity;
 using FaithTech.Community.Domain.Admin;
 using FaithTech.Community.Domain.Events;
+using FaithTech.Community.Domain.Organisations;
 using FaithTech.Community.Domain.Profiles;
 using FaithTech.Community.Domain.Resources;
 using FaithTech.Community.Infrastructure.Persistence.Seed;
@@ -55,6 +56,7 @@ public class CommunitySeeder(IOpenIddictApplicationManager applications, Communi
         }
 
         await SeedOrganisationAsync(cancellationToken);
+        await SeedRoleDefinitionsAsync(cancellationToken);
 
         // The concurrency token that guards the last System Admin (ChangeRolesHandler).
         if (!await db.SystemAdminRosters.AnyAsync(r => r.Id == SystemAdminRoster.SingletonId, cancellationToken))
@@ -76,6 +78,21 @@ public class CommunitySeeder(IOpenIddictApplicationManager applications, Communi
         }
     }
 
+    /// <summary>FaithTech's role definitions, found by key and inserted only when missing, so later edits survive (L2-151 AC2).</summary>
+    private async Task SeedRoleDefinitionsAsync(CancellationToken cancellationToken)
+    {
+        var keys = await db.RoleDefinitions.IgnoreQueryFilters()
+            .Where(d => d.OrganisationId == FaithTechSeed.OrganisationId)
+            .Select(d => d.Key)
+            .ToListAsync(cancellationToken);
+        var missing = FaithTechSeed.RoleDefinitions().Where(d => !keys.Contains(d.Key)).ToList();
+        if (missing.Count > 0)
+        {
+            db.RoleDefinitions.AddRange(missing);
+            await db.SaveChangesAsync(cancellationToken);
+        }
+    }
+
     public record StarterResource(Guid Id, string Title, string Description, ResourceType Type, string Url, string[] Tags);
 
     /// <summary>Links every member can use from day one (L2-055); fixed ids keep the seed idempotent.</summary>
@@ -92,7 +109,7 @@ public class CommunitySeeder(IOpenIddictApplicationManager applications, Communi
     /// <summary>Adds the starter links once, owned by the first System Admin; until there is one, nothing is added.</summary>
     private async Task SeedStarterResourcesAsync(CancellationToken cancellationToken)
     {
-        var owner = await db.Profiles.Where(p => p.Roles.Any(r => r.Role == Role.SystemAdmin)).OrderBy(p => p.Id).Select(p => (Guid?)p.Id)
+        var owner = await db.Profiles.Where(p => p.Roles.Any(r => r.Definition!.Capabilities.Contains(Capability.AdministerOrganisation))).OrderBy(p => p.Id).Select(p => (Guid?)p.Id)
             .FirstOrDefaultAsync(cancellationToken);
         if (owner is not { } ownerId)
         {
@@ -313,15 +330,20 @@ public class CommunitySeeder(IOpenIddictApplicationManager applications, Communi
         }
 
         var profile = await db.Profiles.SingleAsync(p => p.Id == profileId, cancellationToken);
-        if (profile.HasRole(Role.SystemAdmin))
+        if (profile.Roles.Any(r => r.Definition?.Carries(Capability.AdministerOrganisation) == true))
         {
             return true;
         }
 
-        var before = profile.Roles.Select(r => r.Role.ToString()).Order().ToArray();
+        // The organisation's first role carrying AdministerOrganisation (System Admin in FaithTech's seed), seeded first if
+        // the database has not been seeded yet.
+        await SeedRoleDefinitionsAsync(cancellationToken);
+        var administrator = (await db.RoleDefinitions.Where(d => d.ArchivedAtUtc == null).OrderBy(d => d.SortOrder).ToListAsync(cancellationToken))
+            .First(d => d.Carries(Capability.AdministerOrganisation));
+        var before = profile.Roles.Select(r => r.Definition!.Key).Order().ToArray();
         var now = time.GetUtcNow().UtcDateTime;
-        profile.AddRole(Role.SystemAdmin, Guid.Empty, now);
-        var after = profile.Roles.Select(r => r.Role.ToString()).Order().ToArray();
+        profile.AddRole(administrator, Guid.Empty, now);
+        var after = profile.Roles.Select(r => r.Definition!.Key).Order().ToArray();
         db.AuditEntries.Add(new AuditEntry(
             Guid.Empty, "role.granted", "Profile", profile.Id.ToString(),
             JsonSerializer.Serialize(new { Roles = before }), JsonSerializer.Serialize(new { Roles = after }), now, "cli"));

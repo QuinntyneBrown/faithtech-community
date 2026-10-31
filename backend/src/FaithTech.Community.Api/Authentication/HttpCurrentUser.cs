@@ -18,7 +18,7 @@ public class HttpCurrentUser(IHttpContextAccessor accessor) : ICurrentUser
     public bool IsMember => Membership is not null;
 
     /// <summary>The caller's current roles in this organisation, read from their profile; never the token's role claims.</summary>
-    public IReadOnlyCollection<Role> Roles => Membership?.Roles ?? [];
+    public IReadOnlyCollection<Role> Roles => LegacyRoles.Parse(Membership?.Roles.Select(r => r.Key) ?? []);
 
     public bool IsAuthenticated => accessor.HttpContext?.User.Identity?.IsAuthenticated == true;
 

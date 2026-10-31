@@ -46,13 +46,21 @@ public class ChangeRolesHandler(
             return (Result.Forbidden(), null);
         }
 
+        // The organisation's definition whose key is the former role value (L2-151 AC4); slice 14 takes a definition id.
+        var key = LegacyRoles.Key(role);
+        var definition = await db.RoleDefinitions.SingleOrDefaultAsync(d => d.Key == key && d.ArchivedAtUtc == null, cancellationToken);
+        if (definition is null)
+        {
+            return (Result.Invalid("Role", "Choose a role."), null);
+        }
+
         var profile = await db.Profiles.SingleOrDefaultAsync(p => p.Id == profileId, cancellationToken);
         if (profile is null)
         {
             return (Result.NotFound(), null);
         }
 
-        if (profile.HasRole(role) == add)
+        if (profile.HasRole(definition.Id) == add)
         {
             return (Result.Conflict(add ? "They already hold that role." : "They don’t hold that role."), null);
         }
@@ -68,7 +76,7 @@ public class ChangeRolesHandler(
                 return (Result.Conflict(ConcurrentSystemAdminChangeMessage), null);
             }
 
-            if (await db.Profiles.CountAsync(p => p.Roles.Any(r => r.Role == Role.SystemAdmin), cancellationToken) <= 1)
+            if (await db.Profiles.CountAsync(p => p.Roles.Any(r => r.Definition!.Key == nameof(Role.SystemAdmin)), cancellationToken) <= 1)
             {
                 roster.Release();
                 await db.SaveChangesAsync(cancellationToken);
@@ -82,11 +90,11 @@ public class ChangeRolesHandler(
         var before = RoleNames(profile);
         if (add)
         {
-            profile.AddRole(role, actor, time.GetUtcNow().UtcDateTime);
+            profile.AddRole(definition, actor, time.GetUtcNow().UtcDateTime);
         }
         else
         {
-            profile.RemoveRole(role);
+            profile.RemoveRole(definition.Id);
         }
 
         var after = RoleNames(profile);
@@ -142,5 +150,5 @@ public class ChangeRolesHandler(
         }
     }
 
-    private static string[] RoleNames(Profile profile) => [.. profile.Roles.Select(r => r.Role).Order().Select(r => r.ToString())];
+    private static string[] RoleNames(Profile profile) => [.. profile.Roles.OrderBy(r => r.Definition!.SortOrder).Select(r => r.Definition!.Key)];
 }

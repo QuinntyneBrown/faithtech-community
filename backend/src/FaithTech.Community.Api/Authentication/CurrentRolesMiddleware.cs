@@ -15,18 +15,19 @@ public class CurrentRolesMiddleware(RequestDelegate next)
 {
     public const string ItemKey = "FaithTech.CurrentMembership";
 
-    public async Task InvokeAsync(HttpContext context, IApplicationDbContext db)
+    public async Task InvokeAsync(HttpContext context, IApplicationDbContext db, ProfileCapabilities capabilitiesOf)
     {
         if (context.User.Identity?.IsAuthenticated == true
             && Guid.TryParse(context.User.FindFirst(OpenIddictConstants.Claims.Subject)?.Value, out var userId))
         {
-            var profile = await db.Profiles.AsNoTracking()
+            var profileId = await db.Profiles.AsNoTracking()
                 .Where(p => p.UserId == userId && !p.IsSuspended)
-                .Select(p => new { p.Id, Roles = p.Roles.Select(r => r.Role).ToArray() })
+                .Select(p => (Guid?)p.Id)
                 .SingleOrDefaultAsync(context.RequestAborted);
-            if (profile is not null)
+            if (profileId is { } id)
             {
-                context.Items[ItemKey] = new CurrentMembership(profile.Id, profile.Roles);
+                var (roles, capabilities) = await capabilitiesOf.OfAsync(id, context.RequestAborted);
+                context.Items[ItemKey] = new CurrentMembership(id, roles, capabilities);
             }
         }
 
