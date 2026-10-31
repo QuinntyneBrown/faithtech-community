@@ -39,6 +39,8 @@ public static class DependencyInjection
         services.AddScoped<Organisations.DefineRoleHandler>();
         services.AddScoped<Organisations.UpdateRoleDefinitionHandler>();
         services.AddScoped<Organisations.SetGrantRulesHandler>();
+        services.AddScoped<Organisations.ListChaptersHandler>();
+        services.AddScoped<Organisations.ManageChaptersHandler>();
         services.AddScoped<Organisations.ArchiveRoleDefinitionHandler>();
         services.AddScoped<Organisations.ProfileCapabilities>();
         services.AddScoped<Organisations.Memberships>();

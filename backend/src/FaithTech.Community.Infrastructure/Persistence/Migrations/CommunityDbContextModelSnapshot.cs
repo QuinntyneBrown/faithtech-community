@@ -916,6 +916,41 @@ namespace FaithTech.Community.Infrastructure.Persistence.Migrations
                     b.ToTable("Notifications");
                 });
 
+            modelBuilder.Entity("FaithTech.Community.Domain.Organisations.Chapter", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime?>("ArchivedAtUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(60)
+                        .HasColumnType("character varying(60)");
+
+                    b.Property<string>("NormalizedName")
+                        .IsRequired()
+                        .HasMaxLength(60)
+                        .HasColumnType("character varying(60)");
+
+                    b.Property<Guid>("OrganisationId")
+                        .HasColumnType("uuid");
+
+                    b.Property<int>("SortOrder")
+                        .HasColumnType("integer");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("OrganisationId");
+
+                    b.HasIndex("OrganisationId", "NormalizedName")
+                        .IsUnique()
+                        .HasFilter("\"ArchivedAtUtc\" IS NULL");
+
+                    b.ToTable("Chapters");
+                });
+
             modelBuilder.Entity("FaithTech.Community.Domain.Organisations.Organisation", b =>
                 {
                     b.Property<Guid>("Id")
@@ -2384,6 +2419,15 @@ namespace FaithTech.Community.Infrastructure.Persistence.Migrations
                 });
 
             modelBuilder.Entity("FaithTech.Community.Domain.Notifications.Notification", b =>
+                {
+                    b.HasOne("FaithTech.Community.Domain.Organisations.Organisation", null)
+                        .WithMany()
+                        .HasForeignKey("OrganisationId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("FaithTech.Community.Domain.Organisations.Chapter", b =>
                 {
                     b.HasOne("FaithTech.Community.Domain.Organisations.Organisation", null)
                         .WithMany()

@@ -1,0 +1,97 @@
+@switch (state()) {
+  @case ('loading') {
+    <ft-stack gap="3" aria-busy="true">
+      <ft-skeleton shape="text" />
+      <ft-skeleton shape="text" />
+      <ft-skeleton shape="text" />
+    </ft-stack>
+  }
+  @case ('error') {
+    <ft-empty-state
+      variant="error"
+      heading="We couldn’t load the chapters"
+      text="Check your connection and try again."
+    >
+      <ft-button actions variant="primary" (click)="retry()">Try again</ft-button>
+    </ft-empty-state>
+  }
+  @default {
+    @if (label(); as l) {
+      <ft-stack>
+        @if (!canEdit()) {
+          <ft-alert status="info">You can view these settings but not change them.</ft-alert>
+        }
+        <ft-cluster [between]="true">
+          <ft-chip-group [label]="'Show ' + plural()">
+            <ft-chip [pressed]="filter() === 'active'" (pressedChange)="show('active')"
+              >Active</ft-chip
+            >
+            <ft-chip [pressed]="filter() === 'archived'" (pressedChange)="show('archived')"
+              >Archived</ft-chip
+            >
+          </ft-chip-group>
+          @if (canEdit()) {
+            <ft-button variant="primary" (click)="add()">Add a {{ singular() }}</ft-button>
+          }
+        </ft-cluster>
+
+        @if (filter() === 'archived') {
+          <p class="text-caption">
+            Archived {{ plural() }} are read-only. Records that use them keep showing their name;
+            they are never deleted.
+          </p>
+          @if (chapters().length === 0) {
+            <ft-empty-state
+              [heading]="'No archived ' + plural()"
+              [text]="l.plural + ' you archive are listed here.'"
+            />
+          } @else {
+            <ft-list [label]="'Archived ' + plural()">
+              @for (chapter of chapters(); track chapter.id) {
+                <ft-list-item [label]="chapter.name" [meta]="meta(chapter)" />
+              }
+            </ft-list>
+          }
+        } @else if (chapters().length === 0) {
+          <ft-empty-state
+            [heading]="'No ' + plural() + ' yet'"
+            [text]="
+              'Add your first ' +
+              singular() +
+              ' so members, events and roles can be tagged with it.'
+            "
+          />
+        } @else {
+          <ft-reorderable-list
+            [label]="l.plural"
+            [items]="rows()"
+            [readonly]="!canEdit()"
+            (reordered)="reorder($event)"
+          >
+            <ng-template ftReorderableActions let-item>
+              <ft-button variant="ghost" size="sm" [object]="item.title" (click)="rename(item)"
+                >Rename</ft-button
+              >
+              <ft-button variant="ghost" size="sm" [object]="item.title" (click)="archive(item)"
+                >Archive</ft-button
+              >
+            </ng-template>
+          </ft-reorderable-list>
+          @if (canEdit()) {
+            <p class="text-caption">
+              Drag a {{ singular() }}, or use its move buttons, to change the order. Every picker
+              and filter uses this order.
+            </p>
+          }
+        }
+      </ft-stack>
+    } @else {
+      <ft-empty-state
+        heading="Chapters are off"
+        text="Turn on chapters in General to tag members, events and roles with a city, a campus or a region. Chapters filter lists; they never hide anything."
+      >
+        <ft-link actions href="/organisation">Go to General</ft-link>
+      </ft-empty-state>
+    }
+  }
+}

@@ -33,6 +33,7 @@ import { MockHost, MockOrganisation } from './mock-host';
 import { MockWall } from './mock-wall';
 import { MockResources } from './mock-resources';
 import { MockNotes } from './mock-notes';
+import { MockChapters } from './mock-chapters';
 
 export interface MockAccount {
   name: string;
@@ -198,6 +199,8 @@ export class MockApi {
   readonly reports = new MockReports(this);
   /** Docs & notes: pages, blocks, links and visibility (ADR 0023 to 0025). */
   readonly notes = new MockNotes(this);
+  /** The host organisation's chapters (L2-140); none until a spec adds them. */
+  readonly chapters = new MockChapters(this);
   /** Global search over the other fakes, with the server's permission rules (L2-026). */
   readonly search = new MockSearch(this);
   /** Google sign-in: Google itself and the API's Google endpoints (L2-078). */
@@ -431,6 +434,8 @@ export class MockApi {
     if (reports) return reports;
     const notes = this.notes.handle(route, method, url, body, this.caller(authorization));
     if (notes) return notes;
+    const chapters = this.chapters.handle(route, method, url, body, this.caller(authorization));
+    if (chapters) return chapters;
     const search = this.search.handle(route, method, url, this.caller(authorization));
     if (search) return search;
     const profileRoute = /^\/api\/profiles\/([^/]+)$/.exec(url.pathname);
@@ -832,6 +837,7 @@ export class MockApi {
         name,
         shortName,
         chapterLabel: chapterLabel ?? null,
+        chapters: this.chapters.options(),
         roles: roleDefinitions()
           .filter((d) => !d.archived)
           .map((d) => ({
@@ -865,6 +871,17 @@ export class MockApi {
     if (!shortName) errors['ShortName'] = ['Enter a short name.'];
     else if (shortName.length > 30)
       errors['ShortName'] = ['Use 30 characters or fewer for the short name.'];
+    const label = body['chapterLabel'] as { singular?: string; plural?: string } | null | undefined;
+    const singular = String(label?.singular ?? '').trim();
+    const plural = String(label?.plural ?? '').trim();
+    if (label) {
+      if (!singular) errors['ChapterLabel.Singular'] = ['Enter the singular label too.'];
+      else if (singular.length > 30)
+        errors['ChapterLabel.Singular'] = ['Use 30 characters or fewer for the singular label.'];
+      if (!plural) errors['ChapterLabel.Plural'] = ['Enter the plural label too.'];
+      else if (plural.length > 30)
+        errors['ChapterLabel.Plural'] = ['Use 30 characters or fewer for the plural label.'];
+    }
     if (Object.keys(errors).length)
       return route.fulfill({ status: 400, json: { title: 'Invalid', status: 400, errors } });
     if (this.failOrganisationUpdate) {
@@ -874,8 +891,10 @@ export class MockApi {
     const before = {
       name: this.host.organisation.name,
       shortName: this.host.organisation.shortName,
+      chapterLabel: this.host.organisation.chapterLabel,
     };
-    this.host.organisation = { ...this.host.organisation, name, shortName };
+    const chapterLabel = label ? { singular, plural } : null;
+    this.host.organisation = { ...this.host.organisation, name, shortName, chapterLabel };
     this.addAuditEntry({
       action: 'organisation.updated',
       summary: `Renamed ${before.name} to ${name}`,
@@ -884,7 +903,7 @@ export class MockApi {
       targetType: 'Organisation',
       targetId: this.host.organisation.slug,
       before: JSON.stringify(before),
-      after: JSON.stringify({ name, shortName }),
+      after: JSON.stringify({ name, shortName, chapterLabel }),
     });
     return route.fulfill({ status: 200 });
   }

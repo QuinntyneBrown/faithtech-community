@@ -36,10 +36,44 @@
           [readonly]="busy()"
         />
       </ft-form-field>
+      <ft-switch
+        formControlName="chapters"
+        description="Chapters are labelled subdivisions such as cities or campuses. They tag and filter; they never hide anything."
+        >This organisation has chapters</ft-switch
+      >
+      @if (chaptersOn()) {
+        <ft-form-field
+          label="Singular label"
+          help="For example City or Campus."
+          [error]="singularError()"
+        >
+          <ft-text-field
+            formControlName="singular"
+            autocomplete="off"
+            [maxlength]="maxLabel"
+            [readonly]="busy()"
+          />
+        </ft-form-field>
+        <ft-form-field
+          label="Plural label"
+          help="For example Cities or Campuses."
+          [error]="pluralError()"
+        >
+          <ft-text-field
+            formControlName="plural"
+            autocomplete="off"
+            [maxlength]="maxLabel"
+            [readonly]="busy()"
+          />
+        </ft-form-field>
+        <p class="text-caption">
+          Turning chapters off keeps every chapter and tag; it asks you to confirm first.
+        </p>
+      }
     </ft-stack>
   </form>
   <ft-button ftDialogFooter [disabled]="busy()" (click)="ref.close()">Cancel</ft-button>
   <ft-button ftDialogFooter variant="primary" [loading]="busy()" (click)="save()">
-    {{ busy() ? 'Saving…' : failed() ? 'Try again' : 'Save' }}
+    {{ busy() ? 'Saving…' : failed() ? 'Try again' : 'Save settings' }}
   </ft-button>
 </ft-dialog>

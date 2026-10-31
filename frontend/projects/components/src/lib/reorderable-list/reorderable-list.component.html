@@ -1,0 +1,56 @@
+<ul
+  class="ft-reorderable-list"
+  [attr.aria-label]="label()"
+  cdkDropList
+  [cdkDropListDisabled]="readonly()"
+  (cdkDropListDropped)="dropped($event)"
+>
+  @for (item of rows(); track item.id; let first = $first, last = $last) {
+    <li
+      class="ft-reorderable-list__item"
+      [class.ft-reorderable-list__item--moved]="moved() === item.id"
+      cdkDrag
+      [cdkDragDisabled]="readonly()"
+    >
+      @if (!readonly()) {
+        <span class="ft-reorderable-list__handle" aria-hidden="true" cdkDragHandle>
+          <ft-icon name="drag-handle" />
+        </span>
+      }
+      <div class="ft-reorderable-list__body">
+        <div class="ft-reorderable-list__title">{{ item.title }}</div>
+        @if (item.meta) {
+          <div class="ft-reorderable-list__meta">{{ item.meta }}</div>
+        }
+      </div>
+      @if (!readonly()) {
+        <div class="ft-reorderable-list__actions">
+          <ft-button
+            variant="ghost"
+            size="sm"
+            [iconOnly]="true"
+            [label]="'Move ' + item.title + ' up'"
+            [disabled]="first"
+            (click)="move(item, 'up')"
+          >
+            <ft-icon name="move-up" />
+          </ft-button>
+          <ft-button
+            variant="ghost"
+            size="sm"
+            [iconOnly]="true"
+            [label]="'Move ' + item.title + ' down'"
+            [disabled]="last"
+            (click)="move(item, 'down')"
+          >
+            <ft-icon name="move-down" />
+          </ft-button>
+          @if (actions(); as a) {
+            <ng-container *ngTemplateOutlet="a.template; context: { $implicit: item }" />
+          }
+        </div>
+      }
+    </li>
+  }
+</ul>
+<div class="visually-hidden" aria-live="polite">{{ announcement() }}</div>
