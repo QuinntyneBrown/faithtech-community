@@ -1,3 +1,4 @@
+using FaithTech.Community.Domain.Organisations;
 using FaithTech.Community.Application.Common;
 using FaithTech.Community.Domain.Agile;
 using FaithTech.Community.Domain.Notifications;
@@ -77,7 +78,8 @@ public class ArchiveHandler(IApplicationDbContext db, WorkspaceAccessPolicy poli
         }
 
         var leads = await db.Profiles.AsNoTracking()
-            .Where(p => !p.IsSuspended && p.Id != workspace.OwnerId && p.Roles.Any(r => r.Definition!.Key == nameof(Role.CityLead)))
+            .Where(ProfileHolding.Capability(Capability.OwnWorkspaces))
+            .Where(p => !p.IsSuspended && p.Id != workspace.OwnerId)
             .OrderBy(p => p.Name)
             .ToListAsync(cancellationToken);
         return (Result.Ok(), [.. leads.Select(p => new MemberCandidateDto(p.Id, p.Name, [.. p.Roles.OrderBy(r => r.Definition!.SortOrder).Select(r => r.Definition!.Key)]))]);
@@ -93,7 +95,7 @@ public class ArchiveHandler(IApplicationDbContext db, WorkspaceAccessPolicy poli
         }
 
         var owner = await db.Profiles.SingleOrDefaultAsync(p => p.Id == command.OwnerId, cancellationToken);
-        if (owner is null || owner.IsSuspended || !owner.HasRole(Role.CityLead))
+        if (owner is null || owner.IsSuspended || !owner.HoldsCapability(Capability.OwnWorkspaces))
         {
             return Result.Invalid("OwnerId", NotCityLeadMessage);
         }
@@ -193,7 +195,8 @@ public class CityLeadRoleRemovedHandler(IApplicationDbContext db, AgileNotifier 
 
         var name = await db.Profiles.Where(p => p.Id == removed.ProfileId).Select(p => p.Name).SingleAsync(cancellationToken);
         var admins = await db.Profiles.AsNoTracking()
-            .Where(p => !p.IsSuspended && p.Roles.Any(r => r.Definition!.Key == nameof(Role.SystemAdmin)))
+            .Where(ProfileHolding.Capability(Capability.AdministerOrganisation))
+            .Where(p => !p.IsSuspended)
             .Select(p => p.Id)
             .ToListAsync(cancellationToken);
         foreach (var workspace in workspaces)

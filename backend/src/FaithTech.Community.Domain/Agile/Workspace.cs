@@ -43,9 +43,9 @@ public class Workspace : IOrganisationScoped
 
     public void AddMember(Profile profile, DateTimeOffset now)
     {
-        if (!TeamRoles.IsTeamMember(profile))
+        if (!profile.HoldsCapability(Capability.JoinWorkspaces))
         {
-            throw new InvalidOperationException("Only a profile holding a lead or volunteer role can join a workspace.");
+            throw new InvalidOperationException("Only a profile holding JoinWorkspaces can join a workspace.");
         }
 
         if (IsMember(profile.Id))
@@ -141,7 +141,7 @@ public class Workspace : IOrganisationScoped
     /// </summary>
     public void ReassignOwner(Profile newOwner, DateTimeOffset now)
     {
-        if (!newOwner.HasRole(Role.CityLead))
+        if (!newOwner.HoldsCapability(Capability.OwnWorkspaces))
         {
             throw new InvalidOperationException("A workspace owner must hold the City Lead role.");
         }
