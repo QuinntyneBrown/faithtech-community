@@ -53,7 +53,7 @@ public static class AuthorizationEndpoints
             .SetClaim(Claims.Email, user.Email)
             .SetClaim(Claims.EmailVerified, user.EmailConfirmed)
             .SetClaim(Claims.Name, profile?.Name ?? user.Email)
-            .SetClaims(Claims.Role, [.. profile?.Roles.Select(r => r.Role.ToString()) ?? []]);
+            .SetClaims(Claims.Role, [.. profile?.Roles.Select(r => r.Definition!.Key) ?? []]);
         identity.SetScopes(request.GetScopes());
 
         // Each session is stamped with the organisation whose host issued it, so suspending a membership revokes that

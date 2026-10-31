@@ -134,7 +134,7 @@ public class AssignRolesTests(CommunityApiFactory factory) : IClassFixture<Commu
         // Each fixture shares one database, so clear other admins first to make this the last one.
         await factory.WithDbAsync(async db =>
         {
-            foreach (var p in await db.Profiles.Where(p => p.Roles.Any(r => r.Role == Role.SystemAdmin)).ToListAsync())
+            foreach (var p in await db.Profiles.Where(p => p.Roles.Any(r => r.Definition!.Key == nameof(Role.SystemAdmin))).ToListAsync())
             {
                 p.RemoveRole(Role.SystemAdmin);
             }

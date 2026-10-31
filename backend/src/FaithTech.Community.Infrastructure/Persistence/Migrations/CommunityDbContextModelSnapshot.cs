@@ -2555,9 +2555,8 @@ namespace FaithTech.Community.Infrastructure.Persistence.Migrations
                             b1.Property<Guid>("ProfileId")
                                 .HasColumnType("uuid");
 
-                            b1.Property<string>("Role")
-                                .HasMaxLength(32)
-                                .HasColumnType("character varying(32)");
+                            b1.Property<Guid>("RoleDefinitionId")
+                                .HasColumnType("uuid");
 
                             b1.Property<DateTime>("GrantedAtUtc")
                                 .HasColumnType("timestamp with time zone");
@@ -2565,12 +2564,22 @@ namespace FaithTech.Community.Infrastructure.Persistence.Migrations
                             b1.Property<Guid>("GrantedBy")
                                 .HasColumnType("uuid");
 
-                            b1.HasKey("ProfileId", "Role");
+                            b1.HasKey("ProfileId", "RoleDefinitionId");
+
+                            b1.HasIndex("RoleDefinitionId");
 
                             b1.ToTable("ProfileRoles", (string)null);
 
                             b1.WithOwner()
                                 .HasForeignKey("ProfileId");
+
+                            b1.HasOne("FaithTech.Community.Domain.Organisations.RoleDefinition", "Definition")
+                                .WithMany()
+                                .HasForeignKey("RoleDefinitionId")
+                                .OnDelete(DeleteBehavior.Restrict)
+                                .IsRequired();
+
+                            b1.Navigation("Definition");
                         });
 
                     b.Navigation("PhotoLease")

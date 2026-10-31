@@ -37,7 +37,7 @@ public class LastAdminConcurrencyTests(CommunityApiFactory factory) : IClassFixt
         Assert.Equal(
             "Someone else changed System Admin roles at the same time. Reload and try again.",
             (await refused.Content.ReadFromJsonAsync<ProblemDetails>())!.Detail);
-        Assert.Equal(1, await factory.WithDbAsync(db => db.Profiles.CountAsync(p => p.Roles.Any(r => r.Role == Role.SystemAdmin))));
+        Assert.Equal(1, await factory.WithDbAsync(db => db.Profiles.CountAsync(p => p.Roles.Any(r => r.Definition!.Key == nameof(Role.SystemAdmin)))));
 
         // Only the removal that happened left an audit entry; a System Admin's role changes notify no one,
         // and the refused one added nothing.
@@ -80,7 +80,7 @@ public class LastAdminConcurrencyTests(CommunityApiFactory factory) : IClassFixt
 
     private Task<int> RemoveEveryAdminAsync() => factory.WithDbAsync(async db =>
     {
-        foreach (var p in await db.Profiles.Where(p => p.Roles.Any(r => r.Role == Role.SystemAdmin)).ToListAsync())
+        foreach (var p in await db.Profiles.Where(p => p.Roles.Any(r => r.Definition!.Key == nameof(Role.SystemAdmin))).ToListAsync())
         {
             p.RemoveRole(Role.SystemAdmin);
         }

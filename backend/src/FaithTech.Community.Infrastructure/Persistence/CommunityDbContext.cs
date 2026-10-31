@@ -156,8 +156,10 @@ public class CommunityDbContext : IdentityDbContext<CommunityUser, IdentityRole<
             {
                 role.ToTable("ProfileRoles");
                 role.WithOwner().HasForeignKey(r => r.ProfileId);
-                role.HasKey(r => new { r.ProfileId, r.Role });
-                role.Property(r => r.Role).HasConversion<string>().HasMaxLength(32);
+                role.HasKey(r => new { r.ProfileId, r.RoleDefinitionId });
+                role.HasOne(r => r.Definition).WithMany().HasForeignKey(r => r.RoleDefinitionId).OnDelete(DeleteBehavior.Restrict);
+                // Loaded with every profile, so the held roles' names, flags and capabilities are at hand (ADR 0033).
+                role.Navigation(r => r.Definition).AutoInclude();
             });
             profile.OwnsMany(p => p.Photos, photo =>
             {

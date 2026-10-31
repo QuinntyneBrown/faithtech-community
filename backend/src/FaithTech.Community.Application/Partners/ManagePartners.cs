@@ -176,8 +176,9 @@ public class ManagePartnersHandler(IApplicationDbContext db, PartnerAccess acces
             return null;
         }
 
+        var leads = LegacyRoles.Keys(LeadRoles.All);
         var owners = await db.Profiles.AsNoTracking()
-            .Where(p => p.Roles.Any(r => LeadRoles.All.Contains(r.Role)))
+            .Where(p => p.Roles.Any(r => leads.Contains(r.Definition!.Key)))
             .Select(p => new PartnerOwnerDto(p.Id, p.Name))
             .ToListAsync(cancellationToken);
         return [.. owners.OrderBy(o => o.Name, StringComparer.CurrentCultureIgnoreCase)];
@@ -190,7 +191,8 @@ public class ManagePartnersHandler(IApplicationDbContext db, PartnerAccess acces
             return null;
         }
 
-        var isLead = await db.Profiles.AnyAsync(p => p.Id == owner && p.Roles.Any(r => LeadRoles.All.Contains(r.Role)), cancellationToken);
+        var leads = LegacyRoles.Keys(LeadRoles.All);
+        var isLead = await db.Profiles.AnyAsync(p => p.Id == owner && p.Roles.Any(r => leads.Contains(r.Definition!.Key)), cancellationToken);
         return isLead ? null : Result.Invalid("OwnerId", "Choose a lead as the owner.");
     }
 

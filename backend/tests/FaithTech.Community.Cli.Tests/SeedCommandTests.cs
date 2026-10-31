@@ -92,7 +92,7 @@ public class SeedCommandTests
     public async Task Seed_adds_the_starter_resources_once_owned_by_the_first_system_admin()
     {
         var admin = new FaithTech.Community.Domain.Profiles.Profile("Priya Shah");
-        admin.AddRole(FaithTech.Community.Domain.Profiles.Role.SystemAdmin, Guid.Empty, DateTime.UtcNow);
+        admin.AddRole(FaithTech.Community.Infrastructure.Persistence.Seed.FaithTechSeed.Roles.Single(r => r.Key == "SystemAdmin").Id, Guid.Empty, DateTime.UtcNow);
         await using (var setup = Db())
         {
             setup.Profiles.Add(admin);

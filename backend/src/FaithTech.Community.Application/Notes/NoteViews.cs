@@ -19,7 +19,7 @@ public class NoteViews(IApplicationDbContext db, ICurrentUser current, NoteAcces
         var roleCounts = new List<NoteAudienceRoleDto>();
         foreach (var role in NoteAccess.ShareableRoles.Where(r => page.SharedRoles.Any(x => x.Role == r)))
         {
-            var count = await db.Profiles.CountAsync(p => !p.IsSuspended && p.Roles.Any(x => x.Role == role), cancellationToken);
+            var count = await db.Profiles.CountAsync(p => !p.IsSuspended && p.Roles.Any(x => x.Definition!.Key == LegacyRoles.Key(role)), cancellationToken);
             roleCounts.Add(new NoteAudienceRoleDto(role.ToString(), count));
         }
 

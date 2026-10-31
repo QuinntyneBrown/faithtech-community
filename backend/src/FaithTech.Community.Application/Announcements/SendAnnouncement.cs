@@ -81,11 +81,11 @@ public class AudienceResolver(IApplicationDbContext db)
                       join profile in db.Profiles on (Guid?)user.Id equals profile.UserId
                       where !profile.IsSuspended
                       select profile;
-        var roles = audience.Roles.ToList();
+        var roles = LegacyRoles.Keys(audience.Roles);
         return audience.Kind switch
         {
             AudienceKind.Everyone => members.Select(p => p.Id),
-            AudienceKind.Roles => members.Where(p => p.Roles.Any(r => roles.Contains(r.Role))).Select(p => p.Id),
+            AudienceKind.Roles => members.Where(p => p.Roles.Any(r => roles.Contains(r.Definition!.Key))).Select(p => p.Id),
             AudienceKind.EventRsvps => members
                 .Where(p => db.Events.Where(e => e.Id == audience.EventId).SelectMany(e => e.Rsvps).Any(r => r.ProfileId == p.Id))
                 .Select(p => p.Id),

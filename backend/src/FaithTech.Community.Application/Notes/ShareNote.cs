@@ -99,12 +99,12 @@ public class NoteShareNotifier(IApplicationDbContext db, INotificationPublisher 
         }
 
         var members = page.SharedMembers.Select(m => m.ProfileId).ToList();
-        var roles = page.SharedRoles.Select(r => r.Role).ToList();
+        var roles = LegacyRoles.Keys(page.SharedRoles.Select(r => r.Role));
         var ids = await (
                 from user in db.Users
                 join profile in db.Profiles on (Guid?)user.Id equals profile.UserId
                 where !profile.IsSuspended && profile.Id != page.OwnerId
-                where members.Contains(profile.Id) || profile.Roles.Any(r => roles.Contains(r.Role))
+                where members.Contains(profile.Id) || profile.Roles.Any(r => roles.Contains(r.Definition!.Key))
                 select profile.Id)
             .ToListAsync(cancellationToken);
         return ids.ToHashSet();
@@ -121,8 +121,8 @@ public class NoteShareNotifier(IApplicationDbContext db, INotificationPublisher 
         var owner = await db.Profiles.Where(p => p.Id == page.OwnerId).Select(p => p.Name).SingleAsync(cancellationToken);
         var title = NoteRefs.TitleOf(page.Title);
         var held = await db.Profiles.Where(p => recipients.Contains(p.Id))
-            .Select(p => new { p.Id, Roles = p.Roles.Select(r => r.Role).ToList() })
-            .ToDictionaryAsync(p => p.Id, p => p.Roles, cancellationToken);
+            .Select(p => new { p.Id, Roles = p.Roles.OrderBy(r => r.Definition!.SortOrder).Select(r => r.Definition!.Key).ToList() })
+            .ToDictionaryAsync(p => p.Id, p => LegacyRoles.Parse(p.Roles), cancellationToken);
         var heading = $"{owner} shared {title} with you";
         await publisher.PublishAsync(
             recipients,
@@ -167,7 +167,7 @@ public class NoteMembersHandler(IApplicationDbContext db)
         }
 
         var rows = await members.OrderBy(p => p.Name).ThenBy(p => p.Id).Take(Limit)
-            .Select(p => new { p.Id, p.Name, p.HomeCity, Roles = p.Roles.Select(r => r.Role).ToList() })
+            .Select(p => new { p.Id, p.Name, p.HomeCity, Roles = p.Roles.OrderBy(r => r.Definition!.SortOrder).Select(r => r.Definition!.Key).ToList() })
             .ToListAsync(cancellationToken);
         return [.. rows.Select(r => new NoteMemberDto(r.Id, r.Name, r.HomeCity, [.. r.Roles.Order().Select(x => x.ToString())]))];
     }

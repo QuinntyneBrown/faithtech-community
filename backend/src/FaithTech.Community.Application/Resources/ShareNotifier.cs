@@ -24,12 +24,12 @@ public class ShareNotifier(IApplicationDbContext db, INotificationPublisher publ
         }
 
         var members = resource.SharedMembers.Select(m => m.ProfileId).ToList();
-        var roles = resource.SharedRoles.Select(r => r.Role).ToList();
+        var roles = LegacyRoles.Keys(resource.SharedRoles.Select(r => r.Role));
         var ids = await (
                 from user in db.Users
                 join profile in db.Profiles on (Guid?)user.Id equals profile.UserId
                 where !profile.IsSuspended && profile.Id != resource.OwnerId
-                where members.Contains(profile.Id) || profile.Roles.Any(r => roles.Contains(r.Role))
+                where members.Contains(profile.Id) || profile.Roles.Any(r => roles.Contains(r.Definition!.Key))
                 select profile.Id)
             .ToListAsync(cancellationToken);
         return ids.ToHashSet();
@@ -54,8 +54,8 @@ public class ShareNotifier(IApplicationDbContext db, INotificationPublisher publ
         var owner = await db.Profiles.Where(p => p.Id == resource.OwnerId).Select(p => p.Name).SingleAsync(cancellationToken);
         var roles = resource.SharedRoles.Select(r => r.Role).ToList();
         var heldRoles = await db.Profiles.Where(p => recipients.Contains(p.Id))
-            .Select(p => new { p.Id, Roles = p.Roles.Select(r => r.Role).ToList() })
-            .ToDictionaryAsync(p => p.Id, p => p.Roles, cancellationToken);
+            .Select(p => new { p.Id, Roles = p.Roles.OrderBy(r => r.Definition!.SortOrder).Select(r => r.Definition!.Key).ToList() })
+            .ToDictionaryAsync(p => p.Id, p => LegacyRoles.Parse(p.Roles), cancellationToken);
         var title = $"{owner} shared {resource.Title} with you";
         await publisher.PublishAsync(
             recipients,

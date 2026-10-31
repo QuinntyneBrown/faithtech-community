@@ -22,11 +22,11 @@ public class CurrentRolesMiddleware(RequestDelegate next)
         {
             var profile = await db.Profiles.AsNoTracking()
                 .Where(p => p.UserId == userId && !p.IsSuspended)
-                .Select(p => new { p.Id, Roles = p.Roles.Select(r => r.Role).ToArray() })
+                .Select(p => new { p.Id, Roles = p.Roles.Select(r => r.Definition!.Key).ToArray() })
                 .SingleOrDefaultAsync(context.RequestAborted);
             if (profile is not null)
             {
-                context.Items[ItemKey] = new CurrentMembership(profile.Id, profile.Roles);
+                context.Items[ItemKey] = new CurrentMembership(profile.Id, LegacyRoles.Parse(profile.Roles));
             }
         }
 
