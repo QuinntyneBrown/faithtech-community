@@ -85,7 +85,7 @@ Static HTML mocks for every page, dialog and notification, built from [`idea.txt
 22. The Archive role dialog shows the API's 409 refusals (holders, still in use) inside the dialog with only Close. The last-administrator refusal is drawn where it can happen first: editing System Admin to drop Administer the organisation (`dialogs/define-role/last-admin`) and removing the last System Admin (`dialogs/remove-role/last-admin`).
 23. The team page's role filter is now a select of the organisation's team-list roles (`L2-019` AC2) instead of the All / Leads / Volunteers chips, and the events page's Hackathons chip became a Type select of the organisation's event types (`L2-145` AC3). People gains the City filter (`L2-142` AC1).
 24. A non-administrator who holds Manage roles or Manage organisation settings reaches the audit log from General (`/organisation/audit`); the page is headed "Audit log", has no Admin tabs and offers only the categories they may read (`pages/audit-log/partial`).
-25. Name is up to 80 characters and short name up to 20 (`edit-general-settings`), resolving the organisation-settings design's open question.
+25. Name is up to 100 characters and short name up to 30, as the tenancy design and the provisioning validator say (`edit-general-settings`), resolving the organisation-settings design's open question.
 26. The unknown-host and suspended pages follow the private-preview wall: neutral accent, no logo, product or organisation name.
 
 ## Agile decisions → mocks
