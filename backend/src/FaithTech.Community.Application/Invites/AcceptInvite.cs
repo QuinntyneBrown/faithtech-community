@@ -50,7 +50,8 @@ public class AcceptInviteHandler(
     IAuditLog audit,
     ContactSignedUpHandler contactSignedUp,
     TimeProvider time,
-    ICurrentOrganisation organisation)
+    ICurrentOrganisation organisation,
+    Memberships memberships)
 {
     public async Task<InviteLookupDto?> LookUpAsync(string token, CancellationToken cancellationToken = default)
     {
@@ -125,8 +126,7 @@ public class AcceptInviteHandler(
             }
 
             // The invite is this organisation's, so the account joins it if it is not a member yet (L2-132 AC2).
-            profile = await db.Profiles.SingleOrDefaultAsync(p => p.UserId == user.Id, cancellationToken)
-                ?? await JoinAsync(user, now, cancellationToken);
+            profile = await memberships.JoinAsync(user.Id, user.Email!, cancellationToken);
             Grant(invite, profile, now);
         }
 
@@ -138,21 +138,6 @@ public class AcceptInviteHandler(
         }
 
         return Result.Ok();
-    }
-
-    // A profile here for an account that is a member elsewhere, under the name of its newest other profile; the account
-    // holds no name of its own (ADR 0032).
-    private async Task<Profile> JoinAsync(CommunityUser user, DateTimeOffset now, CancellationToken cancellationToken)
-    {
-        var name = await db.Profiles.IgnoreQueryFilters(QueryFilters.OrganisationOnly)
-            .Where(p => p.UserId == user.Id)
-            .OrderByDescending(p => p.JoinedAtUtc)
-            .Select(p => p.Name)
-            .FirstOrDefaultAsync(cancellationToken);
-        var profile = new Profile(name ?? user.Email!, now.UtcDateTime);
-        profile.LinkAccount(user.Id);
-        db.Profiles.Add(profile);
-        return profile;
     }
 
     // Grants the pre-assigned role, audited with the inviter as actor, marks the invite used and tells the inviter.

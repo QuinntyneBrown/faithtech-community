@@ -352,6 +352,12 @@ export class MockApi {
     if (caller && !this.isMemberHere(caller) && !openToNonMembers(method, url.pathname)) {
       return route.fulfill({ status: 403 });
     }
+    // A lead's connect link belongs to the host's organisation: opening it signed in joins it (L2-132 AC2).
+    if (caller?.organisations && method === 'POST' && url.pathname === '/api/connect') {
+      if (!this.isMemberHere(caller)) {
+        caller.organisations = [...caller.organisations, this.host.organisation];
+      }
+    }
     const connect = this.connect.handle(route, method, url, body, this.caller(authorization));
     if (connect) return connect;
     const contacts = this.contacts.handle(route, method, url, body, this.caller(authorization));
@@ -1222,6 +1228,7 @@ function parseBody(data: string | null, contentType = ''): Record<string, unknow
 function openToNonMembers(method: string, path: string): boolean {
   return (
     (method === 'GET' && path === '/api/me') ||
+    (method === 'POST' && path === '/api/connect') ||
     ['/api/account', '/connect', '/api/site', '/api/platform'].some(
       (p) => path === p || path.startsWith(`${p}/`),
     )

@@ -135,6 +135,45 @@ public class JoiningTests(CommunityApiFactory factory) : IClassFixture<Community
         Assert.Equal([(northside.Id, "Ruth Alvarez")], await ProfilesOf(email));
     }
 
+    // Traces to: L2-132 AC2, ADR 0022. A connect link belongs to its owner's organisation; the contact it makes is there.
+    [Fact]
+    public async Task A_member_elsewhere_opening_a_connect_link_joins_the_owners_organisation_and_is_connected_there()
+    {
+        var northside = await factory.AddOrganisationAsync();
+        var lead = await factory.AddMemberAsync(northside, "Ana Lima", Role.CityLead);
+        var grace = await factory.AddMemberAsync("Grace Okonkwo");
+        var link = await factory.ClientOn(northside, lead).GetFromJsonAsync<ConnectLink>("/api/connect/link");
+        var token = ConnectClients.TokenFrom(link!.Url);
+
+        var response = await factory.ClientOn(northside, grace).PostAsJsonAsync("/api/connect", new { token });
+
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+        var joined = await factory.WithDbAsync(northside.Id, db => db.Profiles.AsNoTracking().SingleAsync(p => p.UserId == grace.UserId));
+        Assert.Equal("Grace Okonkwo", joined.Name);
+        var contact = Assert.Single(await factory.WithDbAsync(northside.Id, db => db.Contacts.AsNoTracking().Where(c => c.OwnerId == lead.ProfileId).ToListAsync()));
+        Assert.Equal(joined.Id, contact.LinkedProfileId);
+        Assert.False(await factory.WithDbAsync(db => db.Contacts.AnyAsync(c => c.LinkedProfileId == joined.Id)));
+    }
+
+    [Fact]
+    public async Task Signing_up_through_a_connect_link_creates_the_profile_in_the_owners_organisation()
+    {
+        var northside = await factory.AddOrganisationAsync();
+        var lead = await factory.AddMemberAsync(northside, "Ana Lima", Role.CityLead);
+        var link = await factory.ClientOn(northside, lead).GetFromJsonAsync<ConnectLink>("/api/connect/link");
+        var email = UniqueEmail();
+
+        var response = await On(northside).PostAsJsonAsync("/api/connect/sign-up",
+            new { token = ConnectClients.TokenFrom(link!.Url), name = "Tomás Ortega", email, password = Password });
+
+        Assert.Equal(HttpStatusCode.Accepted, response.StatusCode);
+        var profiles = await ProfilesOf(email);
+        Assert.Equal([(northside.Id, "Tomás Ortega")], profiles);
+        Assert.StartsWith($"{northside.Origin}/verify-email?", VerificationLink(email));
+    }
+
+    private sealed record ConnectLink(string Url);
+
     private async Task<(Invite Invite, string Token)> AddInviteAsync(
         OrganisationScopes.OtherOrganisation organisation, ProfileClients.Member inviter, string email, Role? role)
     {
