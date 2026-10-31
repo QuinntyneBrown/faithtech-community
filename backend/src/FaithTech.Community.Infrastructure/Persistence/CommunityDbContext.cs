@@ -527,8 +527,9 @@ public class CommunityDbContext : IdentityDbContext<CommunityUser, IdentityRole<
             {
                 role.ToTable("ResourceShareRoles");
                 role.WithOwner().HasForeignKey(x => x.ResourceId);
-                role.HasKey(x => new { x.ResourceId, x.Role });
-                role.Property(x => x.Role).HasConversion<string>().HasMaxLength(32);
+                role.HasKey(x => new { x.ResourceId, x.RoleDefinitionId });
+                role.HasOne(x => x.Definition).WithMany().HasForeignKey(x => x.RoleDefinitionId).OnDelete(DeleteBehavior.Restrict);
+                role.Navigation(x => x.Definition).AutoInclude();
             });
             resource.Navigation(r => r.SharedRoles).HasField("_roles").UsePropertyAccessMode(PropertyAccessMode.Field);
         });
@@ -573,8 +574,9 @@ public class CommunityDbContext : IdentityDbContext<CommunityUser, IdentityRole<
                 role.WithOwner().HasForeignKey(x => x.PageId);
                 role.Property<int>("Id").ValueGeneratedOnAdd();
                 role.HasKey("Id");
-                role.Property(x => x.Role).HasConversion<string>().HasMaxLength(32);
-                role.HasIndex(x => new { x.PageId, x.Role }).IsUnique();
+                role.HasIndex(x => new { x.PageId, x.RoleDefinitionId }).IsUnique();
+                role.HasOne(x => x.Definition).WithMany().HasForeignKey(x => x.RoleDefinitionId).OnDelete(DeleteBehavior.Restrict);
+                role.Navigation(x => x.Definition).AutoInclude();
             });
             page.Navigation(p => p.SharedRoles).HasField("_roles").UsePropertyAccessMode(PropertyAccessMode.Field);
         });
@@ -607,12 +609,12 @@ public class CommunityDbContext : IdentityDbContext<CommunityUser, IdentityRole<
             {
                 audience.Property(x => x.Kind).HasColumnName("AudienceKind").HasConversion<string>().HasMaxLength(16);
                 audience.Property(x => x.EventId).HasColumnName("AudienceEventId");
-                // The chosen roles, stored as "Volunteer,ProductEngineer".
-                audience.Property(x => x.Roles).HasColumnName("AudienceRoles").HasMaxLength(300)
+                // The chosen role definitions, stored as their ids separated by commas.
+                audience.Property(x => x.RoleIds).HasColumnName("AudienceRoles").HasMaxLength(2000)
                     .HasConversion(
                         roles => string.Join(',', roles.Select(r => r.ToString()).Order()),
-                        value => value.Split(',', StringSplitOptions.RemoveEmptyEntries).Select(Enum.Parse<Role>).ToHashSet(),
-                        new ValueComparer<IReadOnlySet<Role>>(
+                        value => value.Split(',', StringSplitOptions.RemoveEmptyEntries).Select(Guid.Parse).ToHashSet(),
+                        new ValueComparer<IReadOnlySet<Guid>>(
                             (a, b) => a!.SetEquals(b!),
                             roles => roles.Aggregate(0, (hash, role) => hash ^ role.GetHashCode()),
                             roles => roles.ToHashSet()));

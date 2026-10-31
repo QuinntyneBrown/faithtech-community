@@ -21,13 +21,18 @@ public class NoteShareRole
 {
     private NoteShareRole() { }
 
-    public NoteShareRole(Guid pageId, Profiles.Role role)
+    public NoteShareRole(Guid pageId, Organisations.RoleDefinition definition)
     {
         PageId = pageId;
-        Role = role;
+        RoleDefinitionId = definition.Id;
+        Definition = definition;
     }
 
     public Guid PageId { get; private set; }
 
-    public Profiles.Role Role { get; private set; }
+    /// <summary>The organisation's role definition named in the audience (ADR 0033).</summary>
+    public Guid RoleDefinitionId { get; private set; }
+
+    /// <summary>The definition, loaded with the page.</summary>
+    public Organisations.RoleDefinition? Definition { get; private set; }
 }

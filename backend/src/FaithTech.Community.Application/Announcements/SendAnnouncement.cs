@@ -81,11 +81,11 @@ public class AudienceResolver(IApplicationDbContext db)
                       join profile in db.Profiles on (Guid?)user.Id equals profile.UserId
                       where !profile.IsSuspended
                       select profile;
-        var roles = LegacyRoles.Keys(audience.Roles);
+        var roles = audience.RoleIds.ToList();
         return audience.Kind switch
         {
             AudienceKind.Everyone => members.Select(p => p.Id),
-            AudienceKind.Roles => members.Where(p => p.Roles.Any(r => roles.Contains(r.Definition!.Key))).Select(p => p.Id),
+            AudienceKind.Roles => members.Where(p => p.Roles.Any(r => roles.Contains(r.RoleDefinitionId))).Select(p => p.Id),
             AudienceKind.EventRsvps => members
                 .Where(p => db.Events.Where(e => e.Id == audience.EventId).SelectMany(e => e.Rsvps).Any(r => r.ProfileId == p.Id))
                 .Select(p => p.Id),
@@ -100,7 +100,7 @@ public class AudienceResolver(IApplicationDbContext db)
         return kind switch
         {
             AudienceKind.Everyone => AnnouncementAudience.Everyone(),
-            AudienceKind.Roles => AnnouncementAudience.ForRoles([.. request.Roles!.Select(Enum.Parse<Role>).Distinct()]),
+            AudienceKind.Roles => AnnouncementAudience.ForRoles([.. (await LegacyRoles.DefinitionsAsync(db, request.Roles!.Select(Enum.Parse<Role>), cancellationToken)).Select(d => d.Id)]),
             _ => await db.Events.AnyAsync(e => e.Id == request.EventId, cancellationToken)
                 ? AnnouncementAudience.ForEventRsvps(request.EventId!.Value)
                 : null,

@@ -1,4 +1,7 @@
+using FaithTech.Community.Application.Common;
+using FaithTech.Community.Domain.Organisations;
 using FaithTech.Community.Domain.Profiles;
+using Microsoft.EntityFrameworkCore;
 
 namespace FaithTech.Community.Application.Common;
 
@@ -11,6 +14,16 @@ public static class LegacyRoles
     public static string Key(Role role) => role.ToString();
 
     public static List<string> Keys(IEnumerable<Role> roles) => [.. roles.Select(Key)];
+
+    /// <summary>The current organisation's non-archived definitions whose keys are <paramref name="roles"/>, tracked.</summary>
+    public static async Task<List<RoleDefinition>> DefinitionsAsync(IApplicationDbContext db, IEnumerable<Role> roles, CancellationToken cancellationToken)
+    {
+        var keys = Keys(roles.Distinct());
+        return await db.RoleDefinitions
+            .Where(d => d.ArchivedAtUtc == null && keys.Contains(d.Key))
+            .OrderBy(d => d.SortOrder)
+            .ToListAsync(cancellationToken);
+    }
 
     /// <summary>The former values among <paramref name="keys"/>, in role order; a key no former value names is skipped.</summary>
     public static List<Role> Parse(IEnumerable<string> keys) =>

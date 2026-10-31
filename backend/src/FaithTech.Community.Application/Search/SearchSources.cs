@@ -151,7 +151,7 @@ public class ResourcesSearchSource(IApplicationDbContext db, IFullTextSearch tex
                 r.LinkHost,
                 Tags = r.Tags.Select(t => t.Tag).ToList(),
                 Owner = db.Profiles.Where(p => p.Id == r.OwnerId).Select(p => p.Name).FirstOrDefault(),
-                SharedWithCaller = r.SharedMembers.Any(m => m.ProfileId == caller) || r.SharedRoles.Any(x => roles.Contains(x.Role)),
+                SharedWithCaller = r.SharedMembers.Any(m => m.ProfileId == caller) || r.SharedRoles.Any(x => roles.Contains(x.RoleDefinitionId)),
             })
             .ToListAsync(cancellationToken);
         return [.. rows.Select(r => new SearchResultItem(

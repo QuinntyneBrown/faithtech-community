@@ -112,7 +112,7 @@ public class ResourceFieldRules(IApplicationDbContext db)
             return null;
         }
 
-        return ResourceAudience.Shared(members, roles);
+        return ResourceAudience.Shared(members, await LegacyRoles.DefinitionsAsync(db, roles, cancellationToken));
     }
 
     private static bool IsName<T>(string? value, out T parsed) where T : struct, Enum =>

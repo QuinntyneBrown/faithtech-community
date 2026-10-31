@@ -79,7 +79,7 @@ public class NotePage : IOrganisationScoped
     }
 
     /// <summary>Sets the visibility and, for Shared, the named members and roles; any other visibility clears them.</summary>
-    public void SetAudience(NoteVisibility visibility, IReadOnlyCollection<Guid> members, IReadOnlyCollection<Profiles.Role> roles)
+    public void SetAudience(NoteVisibility visibility, IReadOnlyCollection<Guid> members, IReadOnlyCollection<Organisations.RoleDefinition> roles)
     {
         if (visibility == NoteVisibility.Shared && members.Count == 0 && roles.Count == 0)
         {
@@ -90,9 +90,9 @@ public class NotePage : IOrganisationScoped
         var keepMembers = visibility == NoteVisibility.Shared ? members : [];
         var keepRoles = visibility == NoteVisibility.Shared ? roles : [];
         _members.RemoveAll(m => !keepMembers.Contains(m.ProfileId));
-        _roles.RemoveAll(r => !keepRoles.Contains(r.Role));
+        _roles.RemoveAll(r => keepRoles.All(k => k.Id != r.RoleDefinitionId));
         _members.AddRange(keepMembers.Where(m => _members.All(x => x.ProfileId != m)).Select(m => new NoteShareMember(Id, m)));
-        _roles.AddRange(keepRoles.Where(r => _roles.All(x => x.Role != r)).Select(r => new NoteShareRole(Id, r)));
+        _roles.AddRange(keepRoles.Where(r => _roles.All(x => x.RoleDefinitionId != r.Id)).Select(r => new NoteShareRole(Id, r)));
     }
 
     /// <summary>A soft delete: the page leaves every list and read but its owner's and System Admin's (L2-095).</summary>

@@ -24,12 +24,12 @@ public class ShareNotifier(IApplicationDbContext db, INotificationPublisher publ
         }
 
         var members = resource.SharedMembers.Select(m => m.ProfileId).ToList();
-        var roles = LegacyRoles.Keys(resource.SharedRoles.Select(r => r.Role));
+        var roles = resource.SharedRoles.Select(r => r.RoleDefinitionId).ToList();
         var ids = await (
                 from user in db.Users
                 join profile in db.Profiles on (Guid?)user.Id equals profile.UserId
                 where !profile.IsSuspended && profile.Id != resource.OwnerId
-                where members.Contains(profile.Id) || profile.Roles.Any(r => roles.Contains(r.Definition!.Key))
+                where members.Contains(profile.Id) || profile.Roles.Any(r => roles.Contains(r.RoleDefinitionId))
                 select profile.Id)
             .ToListAsync(cancellationToken);
         return ids.ToHashSet();
@@ -52,10 +52,10 @@ public class ShareNotifier(IApplicationDbContext db, INotificationPublisher publ
         }
 
         var owner = await db.Profiles.Where(p => p.Id == resource.OwnerId).Select(p => p.Name).SingleAsync(cancellationToken);
-        var roles = resource.SharedRoles.Select(r => r.Role).ToList();
+        var roles = resource.SharedRoles.Select(r => r.RoleDefinitionId).ToList();
         var heldRoles = await db.Profiles.Where(p => recipients.Contains(p.Id))
-            .Select(p => new { p.Id, Roles = p.Roles.OrderBy(r => r.Definition!.SortOrder).Select(r => r.Definition!.Key).ToList() })
-            .ToDictionaryAsync(p => p.Id, p => LegacyRoles.Parse(p.Roles), cancellationToken);
+            .Select(p => new { p.Id, Roles = p.Roles.Select(r => new HeldShareRole(r.RoleDefinitionId, r.Definition!.Key)).ToList() })
+            .ToDictionaryAsync(p => p.Id, p => p.Roles, cancellationToken);
         var title = $"{owner} shared {resource.Title} with you";
         await publisher.PublishAsync(
             recipients,
@@ -67,15 +67,14 @@ public class ShareNotifier(IApplicationDbContext db, INotificationPublisher publ
             cancellationToken);
     }
 
-    private static string Via(Resource resource, Guid recipient, IReadOnlyList<Role> roles, Dictionary<Guid, List<Role>> held)
+    private static string Via(Resource resource, Guid recipient, IReadOnlyList<Guid> roles, Dictionary<Guid, List<HeldShareRole>> held)
     {
         if (resource.SharedMembers.Any(m => m.ProfileId == recipient))
         {
             return "you";
         }
 
-        var role = roles.First(r => held.GetValueOrDefault(recipient)?.Contains(r) == true);
-        return $"everyone who has the {RoleLabels.Of(role)} role, which includes you";
+        return HeldShareRole.Via(roles, held.GetValueOrDefault(recipient) ?? []);
     }
 
     private static string Body(Resource resource, string owner, string via) =>

@@ -1,3 +1,4 @@
+using FaithTech.Community.Application.Common;
 using FaithTech.Community.Application.Organisations;
 using FaithTech.Community.Domain.Profiles;
 
@@ -24,6 +25,9 @@ public interface ICurrentUser
 
     /// <summary>The union of the capabilities of the caller's non-archived roles here, computed on this request.</summary>
     IReadOnlySet<string> Capabilities => Membership?.Capabilities ?? new HashSet<string>();
+
+    /// <summary>The ids of the non-archived role definitions the caller holds here (ADR 0033).</summary>
+    IReadOnlyList<Guid> HeldRoleIds => [.. Membership?.Roles.Select(r => r.Id) ?? []];
 
     bool IsAuthenticated { get; }
 

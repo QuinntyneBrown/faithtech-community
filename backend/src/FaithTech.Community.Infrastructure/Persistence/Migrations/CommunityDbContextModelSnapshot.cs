@@ -2111,10 +2111,10 @@ namespace FaithTech.Community.Infrastructure.Persistence.Migrations
                                 .HasColumnType("character varying(16)")
                                 .HasColumnName("AudienceKind");
 
-                            b1.Property<string>("Roles")
+                            b1.Property<string>("RoleIds")
                                 .IsRequired()
-                                .HasMaxLength(300)
-                                .HasColumnType("character varying(300)")
+                                .HasMaxLength(2000)
+                                .HasColumnType("character varying(2000)")
                                 .HasColumnName("AudienceRoles");
 
                             b1.HasKey("AnnouncementId");
@@ -2348,20 +2348,28 @@ namespace FaithTech.Community.Infrastructure.Persistence.Migrations
                             b1.Property<Guid>("PageId")
                                 .HasColumnType("uuid");
 
-                            b1.Property<string>("Role")
-                                .IsRequired()
-                                .HasMaxLength(32)
-                                .HasColumnType("character varying(32)");
+                            b1.Property<Guid>("RoleDefinitionId")
+                                .HasColumnType("uuid");
 
                             b1.HasKey("Id");
 
-                            b1.HasIndex("PageId", "Role")
+                            b1.HasIndex("RoleDefinitionId");
+
+                            b1.HasIndex("PageId", "RoleDefinitionId")
                                 .IsUnique();
 
                             b1.ToTable("NoteShareRoles", (string)null);
 
                             b1.WithOwner()
                                 .HasForeignKey("PageId");
+
+                            b1.HasOne("FaithTech.Community.Domain.Organisations.RoleDefinition", "Definition")
+                                .WithMany()
+                                .HasForeignKey("RoleDefinitionId")
+                                .OnDelete(DeleteBehavior.Restrict)
+                                .IsRequired();
+
+                            b1.Navigation("Definition");
                         });
 
                     b.Navigation("SharedMembers");
@@ -2665,16 +2673,25 @@ namespace FaithTech.Community.Infrastructure.Persistence.Migrations
                             b1.Property<Guid>("ResourceId")
                                 .HasColumnType("uuid");
 
-                            b1.Property<string>("Role")
-                                .HasMaxLength(32)
-                                .HasColumnType("character varying(32)");
+                            b1.Property<Guid>("RoleDefinitionId")
+                                .HasColumnType("uuid");
 
-                            b1.HasKey("ResourceId", "Role");
+                            b1.HasKey("ResourceId", "RoleDefinitionId");
+
+                            b1.HasIndex("RoleDefinitionId");
 
                             b1.ToTable("ResourceShareRoles", (string)null);
 
                             b1.WithOwner()
                                 .HasForeignKey("ResourceId");
+
+                            b1.HasOne("FaithTech.Community.Domain.Organisations.RoleDefinition", "Definition")
+                                .WithMany()
+                                .HasForeignKey("RoleDefinitionId")
+                                .OnDelete(DeleteBehavior.Restrict)
+                                .IsRequired();
+
+                            b1.Navigation("Definition");
                         });
 
                     b.OwnsMany("FaithTech.Community.Domain.Resources.ResourceTag", "Tags", b1 =>
