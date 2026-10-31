@@ -3,6 +3,10 @@ export const ICONS: Readonly<Record<string, string>> = {
   brand: "<path d='M12 2v20M5 8h14'/><circle cx='12' cy='8' r='9' fill='none' opacity='.35'/>",
   notifications: "<path d='M6 16V11a6 6 0 0 1 12 0v5l2 2H4zM10 20a2 2 0 0 0 4 0'/>",
   move: "<path d='M5 12h14M13 6l6 6-6 6'/>",
+  'move-up': "<path d='M12 19V5M6 11l6-6 6 6'/>",
+  'move-down': "<path d='M12 5v14M6 13l6 6 6-6'/>",
+  'drag-handle':
+    "<circle cx='9' cy='6' r='1'/><circle cx='15' cy='6' r='1'/><circle cx='9' cy='12' r='1'/><circle cx='15' cy='12' r='1'/><circle cx='9' cy='18' r='1'/><circle cx='15' cy='18' r='1'/>",
   home: "<path d='M3 12 12 3l9 9M5 10v10h14V10'/>",
   events: "<rect x='3' y='5' width='18' height='16' rx='2'/><path d='M3 10h18M8 3v4M16 3v4'/>",
   search: "<circle cx='11' cy='11' r='7'/><path d='m20 20-3.5-3.5'/>",

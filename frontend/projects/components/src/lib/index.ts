@@ -60,6 +60,7 @@ export * from './role-dialog';
 export * from './define-role-dialog';
 export * from './edit-grants-dialog';
 export * from './archive-role-dialog';
+export * from './reorderable-list';
 export * from './search-results';
 export * from './select';
 export * from './site-footer';
