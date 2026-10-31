@@ -40,4 +40,22 @@ export class HttpRoleDefinitionsService implements RoleDefinitionsService {
       context: this.writes,
     });
   }
+
+  setGrants(id: string, grantableRoleIds: string[]): Observable<RoleDefinitionDto> {
+    return this.http.put<RoleDefinitionDto>(
+      `${this.base}/organisation/roles/${id}/grants`,
+      { grantableRoleIds },
+      { context: this.writes },
+    );
+  }
+
+  archive(id: string): Observable<RoleDefinitionDto> {
+    return this.http.post<RoleDefinitionDto>(
+      `${this.base}/organisation/roles/${id}/archive`,
+      null,
+      {
+        context: this.writes,
+      },
+    );
+  }
 }

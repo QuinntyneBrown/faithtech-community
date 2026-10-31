@@ -17,6 +17,7 @@ const STEWARD: RoleDefinitionDto = {
   isOversight: false,
   holderCount: 1,
   archived: false,
+  grantableRoleIds: [],
 };
 
 const REQUEST = {
@@ -72,5 +73,23 @@ describe('HttpRoleDefinitionsService', () => {
     }
     post.flush(STEWARD);
     put.flush(STEWARD);
+  });
+
+  it('saves grant rules and archives a role, refusals and failures reaching the dialog', () => {
+    service.setGrants('r1', ['r2']).subscribe();
+    service.archive('r1').subscribe();
+
+    const put = controller.expectOne({ method: 'PUT', url: '/api/organisation/roles/r1/grants' });
+    const post = controller.expectOne({
+      method: 'POST',
+      url: '/api/organisation/roles/r1/archive',
+    });
+    expect(put.request.body).toEqual({ grantableRoleIds: ['r2'] });
+    for (const request of [put.request, post.request]) {
+      expect(request.context.get(HANDLES_FORBIDDEN)).toBe(true);
+      expect(request.context.get(HANDLES_SERVER_ERROR)).toBe(true);
+    }
+    put.flush(STEWARD);
+    post.flush(STEWARD);
   });
 });
