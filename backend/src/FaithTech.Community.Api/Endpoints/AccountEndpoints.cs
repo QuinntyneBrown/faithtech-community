@@ -90,7 +90,8 @@ public static class AccountEndpoints
         IOptions<WebAppOptions> webApp,
         IOptions<MarketingOptions> marketing,
         string? returnUrl,
-        bool? keepSignedIn)
+        bool? keepSignedIn,
+        bool? signUp)
     {
         var state = GoogleCorrelation.NewSecret();
         var nonce = GoogleCorrelation.NewSecret();
@@ -100,7 +101,7 @@ public static class AccountEndpoints
             return Results.Redirect(GoogleOutcome(marketing.Value, "failed"));
         }
 
-        correlation.Write(context, new GoogleCorrelation.Pending(state, nonce, AppPath(returnUrl), keepSignedIn ?? false));
+        correlation.Write(context, new GoogleCorrelation.Pending(state, nonce, AppPath(returnUrl), keepSignedIn ?? false, signUp ?? false));
         return Results.Redirect(authorizationUrl);
     }
 
@@ -120,7 +121,7 @@ public static class AccountEndpoints
             return Results.Redirect(GoogleOutcome(marketing.Value, "failed"));
         }
 
-        var result = await handler.HandleAsync(new GoogleSignInCommand(code, GoogleRedirectUri(webApp.Value), pending.Nonce), ct);
+        var result = await handler.HandleAsync(new GoogleSignInCommand(code, GoogleRedirectUri(webApp.Value), pending.Nonce, pending.SignUp), ct);
         if (!result.Succeeded)
         {
             return Results.Redirect(GoogleOutcome(marketing.Value, result.Error == GoogleSignInError.Suspended ? "suspended" : "failed"));

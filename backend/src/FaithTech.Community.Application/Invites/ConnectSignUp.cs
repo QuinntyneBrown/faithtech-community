@@ -1,3 +1,5 @@
+using Microsoft.AspNetCore.Identity;
+using FaithTech.Community.Application.Organisations;
 using FaithTech.Community.Application.Common;
 using FaithTech.Community.Application.Contacts;
 using FaithTech.Community.Application.Identity;
@@ -34,7 +36,9 @@ public class ConnectHandler(
     ConnectLinkHandler links,
     SignUpHandler signUp,
     ContactConnector connector,
-    TimeProvider time)
+    TimeProvider time,
+    UserManager<CommunityUser> users,
+    Memberships memberships)
 {
     /// <summary>Connects the signed-in member to the link's owner, now or once their email is verified.</summary>
     public async Task<(Result Result, ConnectResultDto? Connection)> ConnectAsync(string token, CancellationToken cancellationToken = default)
@@ -44,13 +48,23 @@ public class ConnectHandler(
             return (Result.NotFound(), null);
         }
 
-        if (current.ProfileId is not { } profileId)
+        if (current.UserId is not { } userId || await users.FindByIdAsync(userId.ToString()) is not { } user)
         {
             return (Result.NotFound(), null);
         }
 
+        // The link is its owner's organisation's, so an account that is not a member yet joins it (L2-132 AC2).
+        var profileId = current.ProfileId ?? await JoinAsync(user, cancellationToken);
+
         var outcome = await connector.RequestAsync(lead.LeadProfileId, profileId, cancellationToken);
         return (Result.Ok(), new ConnectResultDto(outcome.ToString(), lead.LeadName));
+    }
+
+    private async Task<Guid> JoinAsync(CommunityUser user, CancellationToken cancellationToken)
+    {
+        var profile = await memberships.JoinAsync(user.Id, user.Email!, cancellationToken);
+        await db.SaveChangesAsync(cancellationToken);
+        return profile.Id;
     }
 
     public async Task<Result> SignUpAsync(ConnectSignUpCommand command, CancellationToken cancellationToken = default)

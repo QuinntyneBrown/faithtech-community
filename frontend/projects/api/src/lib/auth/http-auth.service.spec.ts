@@ -49,6 +49,12 @@ describe('HttpAuthService', () => {
       { userId: 'u1', token: 'tok' },
     ],
     [
+      'confirmEmail joining this organisation (L2-132 AC1)',
+      () => service.confirmEmail('u1', 'tok', { name: 'Grace O.', join: 'j1' }),
+      '/api/account/verify-email',
+      { userId: 'u1', token: 'tok', name: 'Grace O.', join: 'j1' },
+    ],
+    [
       'resendVerification',
       () => service.resendVerification('a@b.c'),
       '/api/account/resend-verification',
@@ -175,6 +181,14 @@ describe('HttpAuthService', () => {
 
     expect(redirect).toHaveBeenCalledWith(
       '/api/account/google/start?returnUrl=%2Fevents&keepSignedIn=true',
+    );
+  });
+
+  it('marks a Google start from the sign-up form as a sign-up (L2-132 AC7)', () => {
+    service.signInWithGoogle('/', false, true);
+
+    expect(redirect).toHaveBeenCalledWith(
+      '/api/account/google/start?returnUrl=%2F&keepSignedIn=false&signUp=true',
     );
   });
 });

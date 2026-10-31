@@ -1,3 +1,5 @@
+using FaithTech.Community.Domain.Profiles;
+using FaithTech.Community.Application.Organisations;
 using Microsoft.EntityFrameworkCore;
 using FaithTech.Community.Application.Common;
 using FaithTech.Community.Application.Contacts;
@@ -7,7 +9,8 @@ using Microsoft.AspNetCore.Identity;
 
 namespace FaithTech.Community.Application.Identity;
 
-public record ConfirmEmailCommand(Guid UserId, string Token);
+/// <summary>Name and Join are set on a link that also makes an existing account a member of this organisation (L2-132 AC1).</summary>
+public record ConfirmEmailCommand(Guid UserId, string Token, string? Name = null, string? Join = null);
 
 public class ConfirmEmailValidator : AbstractValidator<ConfirmEmailCommand>
 {
@@ -18,13 +21,22 @@ public class ConfirmEmailValidator : AbstractValidator<ConfirmEmailCommand>
     }
 }
 
-public class ConfirmEmailHandler(UserManager<CommunityUser> users, IApplicationDbContext db, ContactSignedUpHandler contactSignedUp)
+public class ConfirmEmailHandler(
+    UserManager<CommunityUser> users,
+    IApplicationDbContext db,
+    ContactSignedUpHandler contactSignedUp,
+    ICurrentOrganisation organisation,
+    TimeProvider time)
 {
     public const string InvalidLinkMessage = "This link has expired or has already been used.";
 
     public async Task<Result> HandleAsync(ConfirmEmailCommand command)
     {
         var user = await users.FindByIdAsync(command.UserId.ToString());
+        if (command.Join is not null)
+        {
+            return await JoinAsync(user, command);
+        }
 
         // A confirmed email means the link was already used; unknown users look the same as bad tokens.
         if (user is null || user.EmailConfirmed || !(await users.ConfirmEmailAsync(user, command.Token)).Succeeded)
@@ -38,6 +50,28 @@ public class ConfirmEmailHandler(UserManager<CommunityUser> users, IApplicationD
         {
             await contactSignedUp.HandleAsync(new EmailVerified(profileId, user.Email!));
         }
+        return Result.Ok();
+    }
+
+    // An existing account confirming a sign-up on this host: the email is confirmed if it was not, and the account
+    // gains a profile here under the name the join token vouches for. A used link finds the profile and is refused.
+    private async Task<Result> JoinAsync(CommunityUser? user, ConfirmEmailCommand command)
+    {
+        var name = command.Name?.Trim() ?? string.Empty;
+        if (user is null
+            || name.Length == 0
+            || await db.Profiles.AnyAsync(p => p.UserId == user.Id)
+            || !await users.VerifyUserTokenAsync(user, users.Options.Tokens.EmailConfirmationTokenProvider, VerificationEmails.JoinPurpose(organisation.Id, name), command.Join!)
+            || !(await users.ConfirmEmailAsync(user, command.Token)).Succeeded)
+        {
+            return Result.Invalid("Token", InvalidLinkMessage);
+        }
+
+        var profile = new Profile(name, time.GetUtcNow().UtcDateTime);
+        profile.LinkAccount(user.Id);
+        db.Profiles.Add(profile);
+        await db.SaveChangesAsync();
+        await contactSignedUp.HandleAsync(new EmailVerified(profile.Id, user.Email!));
         return Result.Ok();
     }
 }
