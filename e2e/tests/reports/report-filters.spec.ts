@@ -1,5 +1,6 @@
 // Traces to: L2-124 (docs/detailed-designs/reports/reports-dashboard, ADR 0030)
 import { expect, test } from '../../fixtures/app';
+import { FAITHTECH } from '../../fixtures/mock-host';
 import { seedReportData } from '../../fixtures/report-data';
 import { ReportsPage } from '../../pages/reports.page';
 
@@ -7,9 +8,9 @@ test.use({ timezoneId: 'America/Toronto' });
 
 test.describe('Report filters', () => {
   // L2-124 AC1: Given no filters in the URL, then the report shows All cities and Last 30 days.
-  // L2-124 AC2: the city filter offers All cities and every city of a verified member or an event, sorted.
+  // L2-124 AC2, L2-142 AC1: the city filter offers All cities and the organisation's active chapters in order.
   // L2-124 AC3: the period filter offers Last 30 days, Last 90 days, This year and All time.
-  test('the report opens on All cities and the last 30 days with every city in use', async ({
+  test('the report opens on All cities and the last 30 days with every active city', async ({
     page,
     api,
     axe,
@@ -20,14 +21,16 @@ test.describe('Report filters', () => {
     await api.signInAs(staff, '/reports');
 
     await expect(reports.subtitle).toContainText('All cities · Last 30 days · updated');
-    await expect(reports.city).toHaveValue('');
-    expect(await reports.cityOptions()).toEqual([
+    await expect(reports.chapter).toHaveValue('');
+    expect(await reports.chapterOptions()).toEqual([
       'All cities',
-      'Austin',
-      'Calgary',
-      'Halifax',
       'Toronto',
+      'Austin',
       'Vancouver',
+      'Halifax',
+      'Moncton',
+      'Regina',
+      'Calgary',
     ]);
     expect(await reports.periodOptions()).toEqual([
       'Last 30 days',
@@ -40,7 +43,7 @@ test.describe('Report filters', () => {
   });
 
   // L2-124 AC4: Given new filters, when the user chooses Apply, then the report reloads for them and the URL
-  // carries ?city=&period=, so the view can be bookmarked and reopened.
+  // carries ?chapter=&period=, so the view can be bookmarked and reopened.
   test('Apply reloads the report and the URL carries the filters for a bookmark', async ({
     page,
     api,
@@ -53,20 +56,22 @@ test.describe('Report filters', () => {
 
     await reports.filter('Toronto', 'Last 90 days');
 
-    await expect(page).toHaveURL('/reports?city=Toronto&period=last-90-days');
+    await expect(page).toHaveURL(
+      `/reports?chapter=${api.chapters.named('Toronto').id}&period=last-90-days`,
+    );
     await expect(reports.subtitle).toContainText('Toronto · Last 90 days');
     await expect(reports.figure('Members')).toContainText('3');
     await axe.check();
 
     await page.reload();
-    await expect(reports.city).toHaveValue('Toronto');
+    await expect(reports.chapter).toHaveValue(api.chapters.named('Toronto').id);
     await expect(reports.period).toHaveValue('last-90-days');
     await expect(reports.figure('Members')).toContainText('3');
   });
 
-  // L2-124 AC5: Given a URL with an unknown city or period, then the server answers 400 and the page falls back to
+  // L2-124 AC5: Given a URL with an unknown chapter or period, then the server answers 400 and the page falls back to
   // the defaults with a message.
-  for (const query of ['?city=Atlantis&period=last-30-days', '?city=&period=last-week']) {
+  for (const query of ['?chapter=atlantis&period=last-30-days', '?chapter=&period=last-week']) {
     test(`an unknown filter falls back to the defaults: ${query}`, async ({ page, api, axe }) => {
       const { staff } = seedReportData(api);
       const reports = new ReportsPage(page);
@@ -75,10 +80,28 @@ test.describe('Report filters', () => {
       await reports.open(query);
 
       await expect(reports.filterAlert).toBeVisible();
-      await expect(page).toHaveURL('/reports?city=&period=last-30-days');
+      await expect(page).toHaveURL('/reports?chapter=&period=last-30-days');
       await expect(reports.subtitle).toContainText('All cities · Last 30 days');
       await expect(reports.figure('Members')).toContainText('9');
       await axe.check();
     });
   }
+
+  // L2-142 AC3: with chapters off there is no city filter, the pipeline is one row and nothing names a city.
+  test('with chapters off the report is organisation-wide', async ({ page, api, axe }) => {
+    const { staff } = seedReportData(api);
+    api.host.serve({ ...FAITHTECH, chapterLabel: null });
+    const reports = new ReportsPage(page);
+
+    await api.signInAs(staff, '/reports');
+
+    await expect(reports.figure('Members')).toContainText('9');
+    await expect(reports.chapter).toHaveCount(0);
+    await expect(reports.subtitle).toContainText('Last 30 days · updated');
+    expect(await reports.tableRows('Partner pipeline')).toEqual([
+      ['Partner pipeline', '1', '1', '2'],
+    ]);
+    await expect(page.getByRole('main')).not.toContainText(/cit(y|ies)/i);
+    await axe.check();
+  });
 });

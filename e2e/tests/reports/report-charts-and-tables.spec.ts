@@ -33,7 +33,7 @@ test.describe('Report charts and tables', () => {
     const reports = new ReportsPage(page);
 
     await api.signInAs(staff, '/reports');
-    await reports.open('?city=Toronto&period=last-30-days');
+    await reports.open(`?chapter=${api.chapters.named('Toronto').id}&period=last-30-days`);
     await expect(reports.subtitle).toContainText('Toronto · Last 30 days');
     expect(await reports.chartRows('Members by city')).toEqual(['Toronto 3']);
     expect(await reports.chartRows('New members by month')).toEqual(['Sep 0', 'Oct so far 1']);
@@ -54,11 +54,13 @@ test.describe('Report charts and tables', () => {
 
     await expect(reports.card('Partner pipeline by city')).toBeVisible();
     expect(await reports.tableRows('Partner pipeline by city')).toEqual([
-      ['Austin', '0', '1', '0'],
-      ['Calgary', '0', '0', '0'],
-      ['Halifax', '0', '0', '0'],
       ['Toronto', '1', '0', '1'],
+      ['Austin', '0', '1', '0'],
       ['Vancouver', '0', '0', '0'],
+      ['Halifax', '0', '0', '0'],
+      ['Moncton', '0', '0', '0'],
+      ['Regina', '0', '0', '0'],
+      ['Calgary', '0', '0', '0'],
       ['No city', '0', '0', '1'],
     ]);
     expect(await reports.tableRows('Events and attendance')).toEqual([

@@ -8,19 +8,23 @@ using Microsoft.EntityFrameworkCore;
 
 namespace FaithTech.Community.Application.Reports;
 
-/// <summary>The filters from <c>?city=&amp;period=</c>; empty means All cities and Last 30 days.</summary>
-public record GetReportQuery(string? City, string? Period);
+/// <summary>
+/// The filters from <c>?chapter=&amp;period=</c>: a chapter's id and a period key; empty means All {chapters} and Last
+/// 30 days. The chapter is ignored while chapters are off (L2-142 AC3).
+/// </summary>
+public record GetReportQuery(string? Chapter, string? Period);
 
 /// <summary>
 /// Computes the report (L2-123 to L2-127) from the definitions in ADR 0030. Every figure is a database aggregate:
 /// a <c>CountAsync</c> or a <c>GroupBy</c>/<c>Count</c> projection, with correlated counts for the events table, so
 /// no query runs per row and no entity is loaded to be counted (L2-129 AC2). Shaping runs in memory over at most one
-/// row per city, stage or month. Private contacts, their notes and pending connections are never read (L2-125 AC6).
+/// row per chapter, stage or month. Private contacts, their notes and pending connections are never read (L2-125 AC6).
 /// </summary>
 public class GetReportHandler(IApplicationDbContext db, ReportAccess access, TimeProvider time, ICurrentOrganisation organisation)
 {
-    public const string NoCity = "No city";
     public const string Other = "Other";
+    /// <summary>The single pipeline row while chapters are off.</summary>
+    public const string WholePipeline = "Partner pipeline";
     public const int MaxEvents = 50;
     public const int MaxMonths = 12;
     public static readonly TimeSpan UpcomingHorizon = TimeSpan.FromDays(30);
@@ -37,39 +41,48 @@ public class GetReportHandler(IApplicationDbContext db, ReportAccess access, Tim
             return (Result.Invalid("period", "Choose Last 30 days, Last 90 days, This year or All time."), null);
         }
 
-        var cities = await CitiesAsync(cancellationToken);
-        var city = string.IsNullOrEmpty(query.City) ? null : query.City;
-        if (city is not null && !cities.Contains(city, StringComparer.Ordinal))
+        var label = organisation.ChapterLabelSingular;
+        var chapters = label is null ? [] : await ChaptersAsync(cancellationToken);
+        ReportChapterDto? chapter = null;
+        if (label is not null && !string.IsNullOrEmpty(query.Chapter))
         {
-            return (Result.Invalid("city", "Choose a city from the list."), null);
+            chapter = Guid.TryParse(query.Chapter, out var id) ? chapters.FirstOrDefault(c => c.Id == id) : null;
+            if (chapter is null)
+            {
+                return (Result.Invalid("chapter", $"Choose a {label.ToLowerInvariant()} from the list."), null);
+            }
         }
 
         var members = Members();
         var events = db.Events.AsNoTracking();
-        if (city is not null)
+        if (chapter is not null)
         {
-            members = members.Where(p => p.Chapter != null && p.Chapter.Name == city);
-            events = events.Where(e => e.Chapter != null && e.Chapter.Name == city);
+            members = members.Where(p => p.ChapterId == chapter.Id);
+            events = events.Where(e => e.ChapterId == chapter.Id);
         }
 
         var membersFigure = await MembersAsync(members, window, cancellationToken);
         var (eventsHeld, rsvps) = await EventFiguresAsync(events, window, cancellationToken);
-        var pipeline = await PartnerPipelineAsync(city, cities, cancellationToken);
+        var noChapter = label is null ? WholePipeline : $"No {label.ToLowerInvariant()}";
+        var pipeline = await PartnerPipelineAsync(chapter, chapters, noChapter, cancellationToken);
         var partners = new PartnersFigureDto(pipeline.Sum(r => r.Confirmed), pipeline.Sum(r => r.Lead + r.InFunnel + r.Confirmed));
-        var announcements = new AnnouncementsFigureDto(await AnnouncementsAsync(city, window, cancellationToken));
-        var membersByCity = await MembersByCityAsync(members, city, membersFigure.Value, cancellationToken);
+        var announcements = new AnnouncementsFigureDto(await AnnouncementsAsync(chapter?.Id, window, cancellationToken));
+        List<ReportChartRowDto> membersByChapter = label is null
+            ? []
+            : await MembersByChapterAsync(members, chapter?.Name, membersFigure.Value, cancellationToken);
         var newMembersByMonth = await NewMembersByMonthAsync(members, window, cancellationToken);
-        var eventRows = await EventRowsAsync(events, window, $"{organisation.ShortName}-wide", cancellationToken);
+        var eventRows = await EventRowsAsync(events, window, label is null ? null : $"{organisation.ShortName}-wide", cancellationToken);
 
         return (Result.Ok(), new ReportDto(
-            city,
+            chapter?.Id,
+            chapter?.Name,
             window.Key,
             window.From,
             window.To,
-            cities,
+            chapters,
             membersFigure.Value == 0 && eventRows.Count == 0,
             new ReportFiguresDto(membersFigure, eventsHeld, rsvps, partners, announcements),
-            membersByCity,
+            membersByChapter,
             newMembersByMonth,
             pipeline,
             eventRows));
@@ -82,18 +95,13 @@ public class GetReportHandler(IApplicationDbContext db, ReportAccess access, Tim
         where u.EmailConfirmed && !p.IsSuspended
         select p;
 
-    /// <summary>
-    /// The chapters that tag a member or an event, by name, ordinal-ignore-case sorted; the city filter matches these
-    /// names until the chapter filter replaces it (slice 20).
-    /// </summary>
-    private async Task<List<string>> CitiesAsync(CancellationToken cancellationToken)
-    {
-        var homeCities = await Members().Where(p => p.Chapter != null)
-            .Select(p => p.Chapter!.Name).Distinct().ToListAsync(cancellationToken);
-        var eventCities = await db.Events.Where(e => e.Chapter != null)
-            .Select(e => e.Chapter!.Name).Distinct().ToListAsync(cancellationToken);
-        return homeCities.Union(eventCities, StringComparer.Ordinal).Order(StringComparer.OrdinalIgnoreCase).ToList();
-    }
+    /// <summary>The organisation's active chapters in its order (L2-142 AC1).</summary>
+    private Task<List<ReportChapterDto>> ChaptersAsync(CancellationToken cancellationToken) =>
+        db.Chapters.AsNoTracking()
+            .Where(c => c.ArchivedAtUtc == null)
+            .OrderBy(c => c.SortOrder).ThenBy(c => c.Name)
+            .Select(c => new ReportChapterDto(c.Id, c.Name))
+            .ToListAsync(cancellationToken);
 
     private static IQueryable<Event> StartingIn(IQueryable<Event> events, ReportWindow window) =>
         window.From is { } from
@@ -126,45 +134,57 @@ public class GetReportHandler(IApplicationDbContext db, ReportAccess access, Tim
         return (new EventsHeldFigureDto(heldCount, cancelled), new RsvpsFigureDto(rsvpCount, checkedIn, Percent(checkedIn, rsvpCount)));
     }
 
-    /// <summary>Lead, In funnel and Confirmed per owner's chapter; the period does not apply (ADR 0030).</summary>
-    private async Task<List<PartnerPipelineRowDto>> PartnerPipelineAsync(string? city, List<string> cities, CancellationToken cancellationToken)
+    /// <summary>
+    /// Lead, In funnel and Confirmed per owner's home chapter; the period does not apply (ADR 0030). Under All
+    /// {chapters}: every active chapter in order, then any archived owner chapter by name, then "No {chapter}" when it
+    /// has partners. While chapters are off (every owner then has no visible chapter) the one row is the whole pipeline.
+    /// </summary>
+    private async Task<List<PartnerPipelineRowDto>> PartnerPipelineAsync(
+        ReportChapterDto? chapter, List<ReportChapterDto> chapters, string noChapter, CancellationToken cancellationToken)
     {
         var groups = await (
                 from p in db.Partners.AsNoTracking()
                 where p.ArchivedAtUtc == null
                 join o in db.Profiles on p.OwnerId equals (Guid?)o.Id into owners
                 from o in owners.DefaultIfEmpty()
-                group p by new { City = o == null || o.Chapter == null ? null : o.Chapter.Name, p.Stage } into g
-                select new { g.Key.City, g.Key.Stage, Count = g.Count() })
+                group p by new
+                {
+                    ChapterId = o == null || o.Chapter == null ? (Guid?)null : o.Chapter.Id,
+                    Name = o == null || o.Chapter == null ? null : o.Chapter.Name,
+                    p.Stage,
+                } into g
+                select new { g.Key.ChapterId, g.Key.Name, g.Key.Stage, Count = g.Count() })
             .ToListAsync(cancellationToken);
-        var byCity = groups
-            .GroupBy(g => string.IsNullOrWhiteSpace(g.City) ? NoCity : g.City, StringComparer.Ordinal)
-            .ToDictionary(g => g.Key, g => g.ToList(), StringComparer.Ordinal);
 
-        PartnerPipelineRowDto Row(string name)
+        PartnerPipelineRowDto Row(string name, Guid? id)
         {
-            var stages = byCity.GetValueOrDefault(name) ?? [];
+            var stages = groups.Where(g => g.ChapterId == id).ToList();
             int Count(PartnerStage stage) => stages.Where(s => s.Stage == stage).Sum(s => s.Count);
             return new PartnerPipelineRowDto(name, Count(PartnerStage.Lead), Count(PartnerStage.InFunnel), Count(PartnerStage.Confirmed));
         }
 
-        if (city is not null)
+        if (chapter is not null)
         {
-            return [Row(city)];
+            return [Row(chapter.Name, chapter.Id)];
         }
 
-        var named = cities.Union(byCity.Keys.Where(k => k != NoCity), StringComparer.Ordinal).Order(StringComparer.OrdinalIgnoreCase);
-        var rows = named.Select(Row).ToList();
-        if (byCity.ContainsKey(NoCity))
+        var rows = chapters.Select(c => Row(c.Name, c.Id)).ToList();
+        var archived = groups
+            .Where(g => g.ChapterId is { } id && chapters.All(c => c.Id != id))
+            .Select(g => (Id: g.ChapterId, Name: g.Name!))
+            .Distinct()
+            .OrderBy(g => g.Name, StringComparer.OrdinalIgnoreCase);
+        rows.AddRange(archived.Select(a => Row(a.Name, a.Id)));
+        if (groups.Any(g => g.ChapterId is null) || noChapter == WholePipeline)
         {
-            rows.Add(Row(NoCity));
+            rows.Add(Row(noChapter, null));
         }
 
         return rows;
     }
 
     /// <summary>Announcements sent in the window; one chapter means the sender's chapter.</summary>
-    private Task<int> AnnouncementsAsync(string? city, ReportWindow window, CancellationToken cancellationToken)
+    private Task<int> AnnouncementsAsync(Guid? chapterId, ReportWindow window, CancellationToken cancellationToken)
     {
         var announcements = db.Announcements.AsNoTracking().Where(a => a.SentAt <= window.To);
         if (window.From is { } from)
@@ -172,21 +192,21 @@ public class GetReportHandler(IApplicationDbContext db, ReportAccess access, Tim
             announcements = announcements.Where(a => a.SentAt >= from);
         }
 
-        if (city is not null)
+        if (chapterId is not null)
         {
-            announcements = announcements.Where(a => db.Profiles.Any(s => s.Id == a.SenderId && s.Chapter != null && s.Chapter.Name == city));
+            announcements = announcements.Where(a => db.Profiles.Any(s => s.Id == a.SenderId && s.ChapterId == chapterId));
         }
 
         return announcements.CountAsync(cancellationToken);
     }
 
-    /// <summary>The four cities with most members (ties by name) and "Other" for the rest and blank cities.</summary>
-    private static async Task<List<ReportChartRowDto>> MembersByCityAsync(
-        IQueryable<Profile> members, string? city, int total, CancellationToken cancellationToken)
+    /// <summary>The four chapters with most members (ties by name) and "Other" for the rest and members with none.</summary>
+    private static async Task<List<ReportChartRowDto>> MembersByChapterAsync(
+        IQueryable<Profile> members, string? chapter, int total, CancellationToken cancellationToken)
     {
-        if (city is not null)
+        if (chapter is not null)
         {
-            return [new ReportChartRowDto(city, total)];
+            return [new ReportChartRowDto(chapter, total)];
         }
 
         var groups = await members.GroupBy(p => p.Chapter == null ? null : p.Chapter.Name).Select(g => new { City = g.Key, Count = g.Count() }).ToListAsync(cancellationToken);
@@ -248,7 +268,7 @@ public class GetReportHandler(IApplicationDbContext db, ReportAccess access, Tim
 
     /// <summary>Events from the start of the window to 30 days after now, newest first, at most 50.</summary>
     private static async Task<List<ReportEventRowDto>> EventRowsAsync(
-        IQueryable<Event> events, ReportWindow window, string organisationWide, CancellationToken cancellationToken)
+        IQueryable<Event> events, ReportWindow window, string? organisationWide, CancellationToken cancellationToken)
     {
         var until = window.To + UpcomingHorizon;
         var listed = window.From is { } from ? events.Where(e => e.StartsAt >= from) : events;

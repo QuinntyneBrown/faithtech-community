@@ -14,6 +14,7 @@ import { NgTemplateOutlet } from '@angular/common';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import {
+  OrganisationNames,
   REPORTS_SERVICE,
   ReportDto,
   ReportEventRowDto,
@@ -68,8 +69,8 @@ function describe(period: ReportPeriod): string {
 }
 
 /**
- * Reports (L2-123 to L2-127), matching docs/mocks/pages/reports: city-level figures, two bar charts and two tables
- * for the filters in the URL (`?city=&period=`). Every number comes from the server (ADR 0030); the page only
+ * Reports (L2-123 to L2-127), matching docs/mocks/pages/reports: figures by chapter, two bar charts and two tables
+ * for the filters in the URL (`?chapter=&period=`). Every number comes from the server (ADR 0030); the page only
  * writes the copy around them. It has no write action.
  */
 @Component({
@@ -105,17 +106,18 @@ export class ReportsPage {
   private readonly router = inject(Router);
   private readonly breakpoints = inject(BreakpointService);
   private readonly toasts = inject(ToastService);
+  private readonly names = inject(OrganisationNames);
 
   /** Query parameters. */
-  readonly city = input<string | undefined>();
+  readonly chapter = input<string | undefined>();
   readonly period = input<string | undefined>();
 
   protected readonly state = signal<State>('loading');
   protected readonly report = signal<ReportDto | null>(null);
-  /** The URL held a city or period the server refused, so the defaults are shown (L2-124 AC5). */
+  /** The URL held a chapter or period the server refused, so the defaults are shown (L2-124 AC5). */
   protected readonly fellBack = signal(false);
   protected readonly exporting = signal(false);
-  protected readonly cityControl = new FormControl('', { nonNullable: true });
+  protected readonly chapterControl = new FormControl('', { nonNullable: true });
   protected readonly periodControl = new FormControl<ReportPeriod>(DEFAULT_PERIOD, {
     nonNullable: true,
   });
@@ -125,28 +127,60 @@ export class ReportsPage {
   private latest = 0;
 
   protected readonly filters = computed<ReportFilters>(() => ({
-    city: this.city() || null,
+    chapter: this.chapter() || null,
     period: (this.period() || DEFAULT_PERIOD) as ReportPeriod,
   }));
 
-  protected readonly cityOptions = computed<SelectOption[]>(() => {
-    const cities = this.report()?.cities ?? [];
-    const city = this.filters().city;
-    const shown = city && !cities.includes(city) ? [city, ...cities] : cities;
-    return shown.map((c) => ({ value: c, label: c }));
-  });
+  /** The organisation's chapter label in lower case ("city", "cities"), or null while chapters are off (L2-140). */
+  protected readonly chapterSingular = computed(
+    () => this.names.chapterLabel()?.singular.toLowerCase() ?? null,
+  );
+  protected readonly chapterLabel = computed(() => this.names.chapterLabel()?.singular ?? '');
+  protected readonly chaptersPlural = computed(
+    () => this.names.chapterLabel()?.plural.toLowerCase() ?? null,
+  );
+  /** "All cities". */
+  protected readonly allChapters = computed(() => `All ${this.chaptersPlural()}`);
 
-  protected readonly cityLabel = computed(() => this.report()?.city ?? 'All cities');
+  /** The active chapters (L2-142 AC1); none while chapters are off, so the filter is not drawn. */
+  protected readonly chapterOptions = computed<SelectOption[]>(() =>
+    this.chapterSingular()
+      ? (this.report()?.chapters ?? []).map((c) => ({ value: c.id, label: c.name }))
+      : [],
+  );
+
+  /** "Partner pipeline by city", or "Partner pipeline" while chapters are off. */
+  protected readonly pipelineHeading = computed(() =>
+    this.chapterSingular() ? `Partner pipeline by ${this.chapterSingular()}` : 'Partner pipeline',
+  );
+  protected readonly pipelineCaption = computed(() =>
+    this.chapterSingular()
+      ? `Partners in each stage, per ${this.chapterSingular()}`
+      : 'Partners in each stage',
+  );
+  protected readonly pipelineFooter = computed(() =>
+    this.chapterSingular()
+      ? `One shared pipeline, a snapshot today; a partner counts for its owner’s home ${this.chapterSingular()}.`
+      : 'One shared pipeline, a snapshot today.',
+  );
+  protected readonly membersHeading = computed(() => `Members by ${this.chapterSingular()}`);
+  protected readonly fallbackHeading = computed(() =>
+    this.chaptersPlural()
+      ? `We couldn’t use that filter, so this shows all ${this.chaptersPlural()} for the last 30 days.`
+      : 'We couldn’t use that filter, so this shows the last 30 days.',
+  );
+
   protected readonly periodText = computed(() => describe(this.report()?.period ?? DEFAULT_PERIOD));
 
-  /** "All cities · Last 30 days · updated today at 3:05 pm". */
+  /** "All cities · Last 30 days · updated today at 3:05 pm"; without the chapter while chapters are off. */
   protected readonly subtitle = computed(() => {
     const r = this.report();
     if (!r || this.state() === 'loading') return null;
     const label = PERIODS.find((p) => p.value === r.period)!.label;
     const to = new Date(r.to);
     const day = to.toDateString() === new Date().toDateString() ? 'today' : formatDay(r.to);
-    return `${r.city ?? 'All cities'} · ${label} · updated ${day} at ${formatTime(to)}`;
+    const scope = this.chapterSingular() ? `${r.chapterName ?? this.allChapters()} · ` : '';
+    return `${scope}${label} · updated ${day} at ${formatTime(to)}`;
   });
 
   protected readonly figures = computed(() => {
@@ -190,8 +224,8 @@ export class ReportsPage {
     'Announcements',
   ];
 
-  protected readonly membersByCity = computed<ProgressChartRow[]>(
-    () => this.report()?.membersByCity ?? [],
+  protected readonly membersByChapter = computed<ProgressChartRow[]>(
+    () => this.report()?.membersByChapter ?? [],
   );
 
   protected readonly newMembersByMonth = computed<ProgressChartRow[]>(() =>
@@ -201,12 +235,12 @@ export class ReportsPage {
     })),
   );
 
-  protected readonly pipelineColumns: TableColumn[] = [
-    { key: 'city', header: 'City', rowHeader: true },
+  protected readonly pipelineColumns = computed<TableColumn[]>(() => [
+    { key: 'chapter', header: this.chapterLabel() || 'Pipeline', rowHeader: true },
     { key: 'lead', header: 'Lead' },
     { key: 'inFunnel', header: 'In funnel' },
     { key: 'confirmed', header: 'Confirmed' },
-  ];
+  ]);
 
   protected readonly pipelineRows = computed(
     () => (this.report()?.partnerPipeline ?? []) as unknown as Record<string, unknown>[],
@@ -217,7 +251,7 @@ export class ReportsPage {
   protected readonly eventColumns = computed<TableColumn[]>(() => [
     { key: 'title', header: 'Event', rowHeader: true, template: this.eventCell() },
     { key: 'date', header: 'Date' },
-    { key: 'city', header: 'City' },
+    ...(this.chapterLabel() ? [{ key: 'chapter', header: this.chapterLabel() }] : []),
     { key: 'going', header: 'Going' },
     { key: 'attendance', header: 'Checked in' },
   ]);
@@ -235,25 +269,31 @@ export class ReportsPage {
   protected readonly emptyHeading = computed(() => {
     const r = this.report();
     if (!r) return '';
-    const city = r.city ?? 'All cities';
+    const scope = this.chapterSingular() ? ` for ${r.chapterName ?? this.allChapters()}` : '';
     return r.period === 'all-time'
-      ? `Nothing to report for ${city} yet`
-      : `Nothing to report for ${city} in the ${describe(r.period)}`;
+      ? `Nothing to report${scope} yet`
+      : `Nothing to report${scope} in the ${describe(r.period)}`;
   });
 
   protected readonly emptyText = computed(() => {
     const r = this.report();
     if (!r) return '';
-    const city = r.city ?? 'any city';
+    const singular = this.chapterSingular();
+    if (!singular) {
+      return r.period === 'all-time'
+        ? 'No one has joined and no events have run yet.'
+        : `No one joined and no events ran in the ${describe(r.period)}. Widen the period.`;
+    }
+    const where = r.chapterName ?? `any ${singular}`;
     return r.period === 'all-time'
-      ? `No one has joined and no events have run in ${city} yet. Pick another city.`
-      : `No one joined and no events ran in ${city} in the ${describe(r.period)}. Widen the period or pick another city.`;
+      ? `No one has joined and no events have run in ${where} yet. Pick another ${singular}.`
+      : `No one joined and no events ran in ${where} in the ${describe(r.period)}. Widen the period or pick another ${singular}.`;
   });
 
   constructor() {
     effect(() => {
       const filters = this.filters();
-      this.cityControl.setValue(filters.city ?? '');
+      this.chapterControl.setValue(filters.chapter ?? '');
       this.periodControl.setValue(filters.period);
       void this.load(filters);
     });
@@ -262,7 +302,7 @@ export class ReportsPage {
   /** Apply: the URL carries both filters, so the view can be bookmarked (L2-124 AC4). */
   protected apply(): void {
     this.fellBack.set(false);
-    this.go(this.cityControl.value || null, this.periodControl.value);
+    this.go(this.chapterControl.value || null, this.periodControl.value);
   }
 
   /** Downloads the report shown as CSV; Export CSV stays busy until it is saved (L2-128 AC4). */
@@ -271,10 +311,16 @@ export class ReportsPage {
     if (!r || this.exporting()) return;
     this.exporting.set(true);
     try {
-      const filters: ReportFilters = { city: r.city, period: r.period };
+      const filters: ReportFilters = { chapter: r.chapter, period: r.period };
       saveFile(
         await firstValueFrom(this.service.exportCsv(filters)),
-        reportFileName(r.city, r.period, r.to),
+        reportFileName(
+          this.names.shortName(),
+          r.chapterName,
+          this.chaptersPlural(),
+          r.period,
+          r.to,
+        ),
       );
     } catch {
       this.toasts.show({
@@ -292,22 +338,22 @@ export class ReportsPage {
     void this.load(this.filters());
   }
 
-  protected showCity(city: string | null): void {
-    this.go(city, this.report()?.period ?? DEFAULT_PERIOD);
+  protected showChapter(chapter: string | null): void {
+    this.go(chapter, this.report()?.period ?? DEFAULT_PERIOD);
   }
 
   protected showPeriod(period: ReportPeriod): void {
-    this.go(this.report()?.city ?? null, period);
+    this.go(this.report()?.chapter ?? null, period);
   }
 
-  private go(city: string | null, period: ReportPeriod, replaceUrl = false): void {
-    const same = city === this.filters().city && period === this.filters().period;
+  private go(chapter: string | null, period: ReportPeriod, replaceUrl = false): void {
+    const same = chapter === this.filters().chapter && period === this.filters().period;
     if (same && !replaceUrl) {
       void this.load(this.filters());
       return;
     }
     void this.router.navigate(['/reports'], {
-      queryParams: { city: city ?? '', period },
+      queryParams: { chapter: chapter ?? '', period },
       replaceUrl,
     });
   }

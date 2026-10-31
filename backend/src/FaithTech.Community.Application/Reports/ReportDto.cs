@@ -1,15 +1,19 @@
 namespace FaithTech.Community.Application.Reports;
 
-/// <summary>The whole report in one response (docs/detailed-designs/reports/reports-dashboard); City is null for All cities.</summary>
+/// <summary>
+/// The whole report in one response (docs/detailed-designs/reports/reports-dashboard). Chapter is null for All
+/// {chapters}; Chapters lists the active chapters for the filter, empty while chapters are off, as is MembersByChapter.
+/// </summary>
 public record ReportDto(
-    string? City,
+    Guid? Chapter,
+    string? ChapterName,
     string Period,
     DateTimeOffset? From,
     DateTimeOffset To,
-    IReadOnlyList<string> Cities,
+    IReadOnlyList<ReportChapterDto> Chapters,
     bool IsEmpty,
     ReportFiguresDto Figures,
-    IReadOnlyList<ReportChartRowDto> MembersByCity,
+    IReadOnlyList<ReportChartRowDto> MembersByChapter,
     IReadOnlyList<ReportMonthRowDto> NewMembersByMonth,
     IReadOnlyList<PartnerPipelineRowDto> PartnerPipeline,
     IReadOnlyList<ReportEventRowDto> Events);
@@ -38,11 +42,16 @@ public record ReportChartRowDto(string Label, int Value);
 /// <summary>Month is "yyyy-MM"; SoFar marks the current month.</summary>
 public record ReportMonthRowDto(string Month, string Label, int Value, bool SoFar);
 
-public record PartnerPipelineRowDto(string City, int Lead, int InFunnel, int Confirmed);
+/// <summary>An active chapter the report can be filtered by (L2-142 AC1).</summary>
+public record ReportChapterDto(Guid Id, string Name);
+
+/// <summary>Chapter names the row: a chapter, "No {chapter}", or "Partner pipeline" while chapters are off.</summary>
+public record PartnerPipelineRowDto(string Chapter, int Lead, int InFunnel, int Confirmed);
 
 /// <summary>
 /// Status is Held, Upcoming or Cancelled. Going, CheckedIn and CheckedInPercent are null for a cancelled event;
 /// CheckedIn and CheckedInPercent for an upcoming one; CheckedInPercent when Going is 0. Walk-ins are excluded.
+/// Chapter is the event's chapter or "{Organisation}-wide", and null while chapters are off.
 /// </summary>
 public record ReportEventRowDto(
-    Guid Id, string Title, DateTimeOffset StartsAt, string City, string Status, int? Going, int? CheckedIn, int? CheckedInPercent);
+    Guid Id, string Title, DateTimeOffset StartsAt, string? Chapter, string Status, int? Going, int? CheckedIn, int? CheckedInPercent);

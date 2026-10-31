@@ -1,4 +1,6 @@
+using FaithTech.Community.Infrastructure.Persistence.Seed;
 // Traces to: L2-128 (docs/detailed-designs/reports/reports-dashboard, ADR 0030)
+using FaithTech.Community.Api.Tests.Organisations;
 using System.Net;
 using System.Text;
 using FaithTech.Community.Api.Tests.Profiles;
@@ -31,7 +33,7 @@ public class ReportExportTests : IAsyncLifetime
         await factory.AddReportPartnerAsync("Kestrel Labs", grace.ProfileId, PartnerStage.Confirmed);
         await factory.AddAnnouncementAsync(grace.ProfileId, Now.AddDays(-1));
 
-        var response = await client.GetAsync("/api/reports/export.csv?city=Toronto&period=last-30-days");
+        var response = await client.GetAsync($"/api/reports/export.csv?chapter={await factory.ChapterIdAsync("Toronto")}&period=last-30-days");
 
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
         Assert.Equal("text/csv", response.Content.Headers.ContentType?.MediaType);
@@ -90,6 +92,32 @@ public class ReportExportTests : IAsyncLifetime
         Assert.Contains("\"Members\",\"1\",\"\"\r\n", csv);
     }
 
+    // L2-142 AC3: with chapters off the export has no chapter row, section or column, and the file is "all".
+    [Fact]
+    public async Task With_chapters_off_the_export_is_organisation_wide()
+    {
+        var client = await factory.StaffAsync();
+        await factory.AddReportEventAsync("Builders Night", Now.AddDays(-2), "Toronto");
+        await factory.WithDbAsync(async db =>
+        {
+            db.Organisations.Single(o => o.Id == FaithTechSeed.OrganisationId).SetChapterLabel(null, null);
+            return await db.SaveChangesAsync();
+        });
+
+        var response = await client.GetAsync("/api/reports/export.csv");
+
+        Assert.Equal("faithtech-report-all-last-30-days-2031-03-15.csv",
+            response.Content.Headers.ContentDisposition?.FileNameStar ?? response.Content.Headers.ContentDisposition?.FileName);
+        var csv = await response.Content.ReadAsStringAsync();
+        Assert.DoesNotContain("City", csv);
+        Assert.Contains(
+            "\"Partner pipeline\"\r\n" +
+            "\"Pipeline\",\"Lead\",\"In funnel\",\"Confirmed\"\r\n" +
+            "\"Partner pipeline\",\"0\",\"0\",\"0\"\r\n",
+            csv);
+        Assert.Contains("\"Event\",\"Date (UTC)\",\"Status\",", csv);
+    }
+
     // L2-128 AC2: Given any other caller, when they request the export, then the response is 403, or 401 when
     // anonymous; an unknown filter is 400 as for the report.
     [Theory]
@@ -111,6 +139,6 @@ public class ReportExportTests : IAsyncLifetime
         var staff = await factory.StaffAsync();
 
         Assert.Equal(HttpStatusCode.Unauthorized, (await factory.CreateClient().GetAsync("/api/reports/export.csv")).StatusCode);
-        Assert.Equal(HttpStatusCode.BadRequest, (await staff.GetAsync("/api/reports/export.csv?city=Atlantis")).StatusCode);
+        Assert.Equal(HttpStatusCode.BadRequest, (await staff.GetAsync("/api/reports/export.csv?chapter=Atlantis")).StatusCode);
     }
 }

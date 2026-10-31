@@ -36,20 +36,23 @@ public static class ReportClients
 
     public sealed record MonthRow(string Month, string Label, int Value, bool SoFar);
 
-    public sealed record PipelineRow(string City, int Lead, int InFunnel, int Confirmed);
+    public sealed record PipelineRow(string Chapter, int Lead, int InFunnel, int Confirmed);
 
     public sealed record EventRow(
-        Guid Id, string Title, DateTimeOffset StartsAt, string City, string Status, int? Going, int? CheckedIn, int? CheckedInPercent);
+        Guid Id, string Title, DateTimeOffset StartsAt, string? Chapter, string Status, int? Going, int? CheckedIn, int? CheckedInPercent);
+
+    public sealed record ChapterOption(Guid Id, string Name);
 
     public sealed record Report(
-        string? City,
+        Guid? Chapter,
+        string? ChapterName,
         string Period,
         DateTimeOffset? From,
         DateTimeOffset To,
-        string[] Cities,
+        ChapterOption[] Chapters,
         bool IsEmpty,
         Figures Figures,
-        ChartRow[] MembersByCity,
+        ChartRow[] MembersByChapter,
         MonthRow[] NewMembersByMonth,
         PipelineRow[] PartnerPipeline,
         EventRow[] Events);

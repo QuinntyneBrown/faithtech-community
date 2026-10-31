@@ -1,4 +1,5 @@
 // Traces to: L2-125 (docs/detailed-designs/reports/reports-dashboard, ADR 0030)
+using FaithTech.Community.Api.Tests.Organisations;
 using FaithTech.Community.Domain.Partners;
 using static FaithTech.Community.Api.Tests.Reports.ReportClients;
 
@@ -32,8 +33,8 @@ public class ReportFiguresTests : IAsyncLifetime
         await factory.AddCityMemberAsync("Suspended Sid", "Toronto", joinedAt: Now.AddDays(-1), suspended: true);
 
         var all = await staff.ReportAsync();
-        var toronto = await staff.ReportAsync("?city=Toronto");
-        var allTime = await staff.ReportAsync("?city=Toronto&period=all-time");
+        var toronto = await staff.ReportAsync($"?chapter={await factory.ChapterIdAsync("Toronto")}");
+        var allTime = await staff.ReportAsync($"?chapter={await factory.ChapterIdAsync("Toronto")}&period=all-time");
 
         Assert.Equal(new MembersFigure(6, 3), all.Figures.Members);
         Assert.Equal(new MembersFigure(4, 2), toronto.Figures.Members);
@@ -54,7 +55,7 @@ public class ReportFiguresTests : IAsyncLifetime
         await factory.AddReportEventAsync("Called off", Now.AddDays(-5), "Toronto", cancelled: true);
 
         var all = await staff.ReportAsync();
-        var toronto = await staff.ReportAsync("?city=Toronto");
+        var toronto = await staff.ReportAsync($"?chapter={await factory.ChapterIdAsync("Toronto")}");
 
         Assert.Equal(new EventsHeldFigure(3, 1), all.Figures.EventsHeld);
         Assert.Equal(new EventsHeldFigure(2, 1), toronto.Figures.EventsHeld);
@@ -72,7 +73,7 @@ public class ReportFiguresTests : IAsyncLifetime
         await factory.AddReportEventAsync("Next week", Now.AddDays(7), "Toronto", rsvps: 4);
 
         var report = await staff.ReportAsync();
-        var toronto = await staff.ReportAsync("?city=Toronto&period=last-30-days");
+        var toronto = await staff.ReportAsync($"?chapter={await factory.ChapterIdAsync("Toronto")}&period=last-30-days");
 
         Assert.Equal(new RsvpsFigure(8, 3, 38), report.Figures.Rsvps);
         Assert.Equal(report.Figures.Rsvps, toronto.Figures.Rsvps);
@@ -105,7 +106,7 @@ public class ReportFiguresTests : IAsyncLifetime
 
         var all = await staff.ReportAsync("?period=last-30-days");
         var allTime = await staff.ReportAsync("?period=all-time");
-        var toronto = await staff.ReportAsync("?city=Toronto");
+        var toronto = await staff.ReportAsync($"?chapter={await factory.ChapterIdAsync("Toronto")}");
 
         Assert.Equal(new PartnersFigure(2, 4), all.Figures.PartnersConfirmed);
         Assert.Equal(all.Figures.PartnersConfirmed, allTime.Figures.PartnersConfirmed);
@@ -125,7 +126,7 @@ public class ReportFiguresTests : IAsyncLifetime
         await factory.AddAnnouncementAsync(mira.ProfileId, Now.AddDays(-1));
 
         Assert.Equal(3, (await staff.ReportAsync()).Figures.Announcements.Value);
-        Assert.Equal(2, (await staff.ReportAsync("?city=Toronto")).Figures.Announcements.Value);
+        Assert.Equal(2, (await staff.ReportAsync($"?chapter={await factory.ChapterIdAsync("Toronto")}")).Figures.Announcements.Value);
         Assert.Equal(4, (await staff.ReportAsync("?period=all-time")).Figures.Announcements.Value);
     }
 
@@ -137,13 +138,13 @@ public class ReportFiguresTests : IAsyncLifetime
         var staff = await factory.StaffAsync();
         var grace = await factory.AddCityMemberAsync("Grace Okonkwo", "Toronto", joinedAt: Now.AddDays(-2));
         await factory.AddReportEventAsync("Builders Night", Now.AddDays(-7), "Toronto", rsvps: 2, checkedIn: 1);
-        var before = await (await staff.GetAsync("/api/reports?city=Toronto")).Content.ReadAsStringAsync();
+        var before = await (await staff.GetAsync($"/api/reports?chapter={await factory.ChapterIdAsync("Toronto")}")).Content.ReadAsStringAsync();
         var beforeAll = await (await staff.GetAsync("/api/reports")).Content.ReadAsStringAsync();
 
         await factory.AddPrivateContactAsync(grace.ProfileId, "Hidden Harriet", "harriet@secret.example", "Toronto");
         await factory.AddPrivateContactAsync(grace.ProfileId, "Quiet Quentin", "quentin@secret.example", "Saskatoon");
 
-        var after = await (await staff.GetAsync("/api/reports?city=Toronto")).Content.ReadAsStringAsync();
+        var after = await (await staff.GetAsync($"/api/reports?chapter={await factory.ChapterIdAsync("Toronto")}")).Content.ReadAsStringAsync();
         var afterAll = await (await staff.GetAsync("/api/reports")).Content.ReadAsStringAsync();
         Assert.Equal(before, after);
         Assert.Equal(beforeAll, afterAll);

@@ -23,7 +23,7 @@ test.describe('Export a report', () => {
       await api.fallback(route);
     });
     await api.signInAs(staff, '/reports');
-    await reports.open('?city=Toronto&period=last-30-days');
+    await reports.open(`?chapter=${api.chapters.named('Toronto').id}&period=last-30-days`);
     await expect(reports.subtitle).toContainText('Toronto · Last 30 days');
 
     const download = page.waitForEvent('download');
