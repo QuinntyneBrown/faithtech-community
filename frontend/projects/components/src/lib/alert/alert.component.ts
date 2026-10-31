@@ -32,7 +32,8 @@ export const ALERT_ICONS: Record<AlertStatus, string> = {
 })
 export class AlertComponent {
   readonly status = input<AlertStatus>('info');
-  readonly heading = input.required<string>();
+  /** Optional: a one-line notice, such as a read-only explanation, has only text. */
+  readonly heading = input<string | null>(null);
   readonly dismissible = input(false);
   /** Lets the alert take focus as a form's error summary (see FormErrorFocusDirective). */
   readonly focusable = input(false);
