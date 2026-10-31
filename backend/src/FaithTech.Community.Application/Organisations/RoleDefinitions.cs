@@ -28,7 +28,12 @@ public sealed record RoleDefinitionDto(
 /// POST and PUT /api/organisation/roles: a definition's name, description, capabilities and flags. The chapter-scopable
 /// flag joins it with chapter tags (slice 21); until then a new role is not scopable and an edit keeps the flag it had.
 /// </summary>
-public record RoleDefinitionCommand(string? Name, string? Description, string[]? Capabilities, bool ShowOnTeam, bool IsOversight);
+/// <remarks>
+/// `ChapterScopable` is the "Can be held for a {chapter}" switch (L2-136 AC1); while chapters are off the dialog hides it
+/// and the server keeps the role's current value (false for a new role).
+/// </remarks>
+public record RoleDefinitionCommand(
+    string? Name, string? Description, string[]? Capabilities, bool ShowOnTeam, bool IsOversight, bool? ChapterScopable = null);
 
 public class RoleDefinitionValidator : AbstractValidator<RoleDefinitionCommand>
 {
@@ -77,7 +82,7 @@ public class ListRoleDefinitionsHandler(IApplicationDbContext db, ICurrentUser c
 }
 
 /// <summary>Defines a role for a holder of ManageRoles, audited as role.defined (L2-136 AC1, AC3, AC7, L2-152).</summary>
-public class DefineRoleHandler(IApplicationDbContext db, ICurrentUser current, IAuditLog audit)
+public class DefineRoleHandler(IApplicationDbContext db, ICurrentUser current, ICurrentOrganisation organisation, IAuditLog audit)
 {
     public async Task<(Result Result, RoleDefinitionDto? Definition)> HandleAsync(
         RoleDefinitionCommand command, CancellationToken cancellationToken = default)
@@ -103,7 +108,7 @@ public class DefineRoleHandler(IApplicationDbContext db, ICurrentUser current, I
         var sortOrder = await db.RoleDefinitions.MaxAsync(d => (int?)d.SortOrder, cancellationToken) ?? 0;
         var definition = new RoleDefinition(
             Guid.NewGuid(), RoleDefinitions.KeyFor(name, keys), name, command.Description ?? string.Empty, capabilities, sortOrder + 1);
-        definition.SetFlags(command.ShowOnTeam, chapterScopable: false, command.IsOversight);
+        definition.SetFlags(command.ShowOnTeam, organisation.ChapterLabelSingular is not null && command.ChapterScopable == true, command.IsOversight);
         db.RoleDefinitions.Add(definition);
         audit.Record(membership.ProfileId, "role.defined", "RoleDefinition", definition.Id.ToString(), null, RoleDefinitions.State(definition));
         await db.SaveChangesAsync(cancellationToken);
@@ -120,6 +125,7 @@ public class DefineRoleHandler(IApplicationDbContext db, ICurrentUser current, I
 public class UpdateRoleDefinitionHandler(
     IApplicationDbContext db,
     ICurrentUser current,
+    ICurrentOrganisation organisation,
     IAuditLog audit,
     LastAdministratorGuard lastAdministrator,
     CapabilityLostHandler capabilityLost)
@@ -171,7 +177,8 @@ public class UpdateRoleDefinitionHandler(
         definition.Rename(name);
         definition.Describe(command.Description);
         definition.SetCapabilities(capabilities);
-        definition.SetFlags(command.ShowOnTeam, definition.ChapterScopable, command.IsOversight);
+        var scopable = organisation.ChapterLabelSingular is null ? definition.ChapterScopable : command.ChapterScopable ?? definition.ChapterScopable;
+        definition.SetFlags(command.ShowOnTeam, scopable, command.IsOversight);
         audit.Record(membership.ProfileId, "role.updated", "RoleDefinition", id.ToString(), before, RoleDefinitions.State(definition));
 
         var holders = await HoldersLosingAsync(id, lost, cancellationToken);

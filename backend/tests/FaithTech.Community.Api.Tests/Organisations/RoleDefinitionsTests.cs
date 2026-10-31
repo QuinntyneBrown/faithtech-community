@@ -233,6 +233,27 @@ public class RoleDefinitionsTests(CommunityApiFactory factory) : IClassFixture<C
         Assert.Contains("\"Name\":\"Lead Usher\"", entry.AfterJson);
     }
 
+    // L2-136 AC1: "Can be held for a {chapter}" is saved on define and on edit.
+    [Fact]
+    public async Task The_chapter_switch_is_saved_on_define_and_edit()
+    {
+        var manager = RolesManager();
+
+        var created = await (await manager.PostAsJsonAsync("/api/organisation/roles", new
+        {
+            Name = "Meet-up Lead", Description = "", Capabilities = new[] { Capability.ManageEvents },
+            ShowOnTeam = true, ChapterScopable = true, IsOversight = false,
+        })).Content.ReadFromJsonAsync<Definition>();
+        var edited = await (await manager.PutAsJsonAsync($"/api/organisation/roles/{created!.Id}", new
+        {
+            Name = "Meet-up Lead", Description = "", Capabilities = new[] { Capability.ManageEvents },
+            ShowOnTeam = true, ChapterScopable = false, IsOversight = false,
+        })).Content.ReadFromJsonAsync<Definition>();
+
+        Assert.True(created.ChapterScopable);
+        Assert.False(edited!.ChapterScopable);
+    }
+
     [Fact]
     public async Task Renaming_onto_another_roles_name_is_400_but_keeping_its_own_is_fine()
     {
