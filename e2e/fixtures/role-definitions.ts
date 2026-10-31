@@ -26,6 +26,29 @@ export const CAPABILITIES = [
 
 export type Capability = (typeof CAPABILITIES)[number];
 
+/** Each capability's one-line description, as the API's catalogue gives it. */
+export const CAPABILITY_DESCRIPTIONS: Record<Capability, string> = {
+  ManageEvents: 'Create, edit and cancel events.',
+  ViewAttendees: "See who has RSVP'd to events and who checked in.",
+  ManageAttendance: 'Check people in, add walk-ins, see guest emails and export RSVPs.',
+  KeepContacts: 'Keep private contacts and notes about people met.',
+  ViewPartners: 'See the partner pipeline.',
+  ManagePartners: 'Add, edit, move and merge partners.',
+  InviteMembers: 'Invite people to join the organisation.',
+  ConnectLink: 'Have a reusable QR code that adds people met as contacts.',
+  OwnWorkspaces: 'Create and own agile workspaces.',
+  JoinWorkspaces: 'Be added as a member of agile workspaces.',
+  ReadAllWorkspaces: 'Read every agile workspace without being a member.',
+  ViewPeopleDirectory: 'See the full people directory, with emails.',
+  AssignRoles: 'Grant and remove the roles the grant rules allow.',
+  SendAnnouncements: 'Compose and send announcements.',
+  AddResources: 'Add resources and share them.',
+  ViewReports: 'See the Reports page and export its figures.',
+  ManageRoles: 'Define, edit and archive roles and their grant rules.',
+  ManageOrganisationSettings: "Edit the organisation's name, chapters, stages and types.",
+  AdministerOrganisation: 'Do anything in the organisation; every override is audited.',
+};
+
 export interface RoleDefinition {
   /** The seed's fixed id, as the API's FaithTechSeed gives it. */
   id: string;
