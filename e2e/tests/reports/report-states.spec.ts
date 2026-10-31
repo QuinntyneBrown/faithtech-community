@@ -36,12 +36,14 @@ test.describe('Report states', () => {
     const reports = new ReportsPage(page);
     await api.signInAs(staff, '/reports');
 
-    await reports.open('?city=Calgary&period=last-30-days');
+    await reports.open(`?chapter=${api.chapters.named('Calgary').id}&period=last-30-days`);
 
     await expect(reports.empty).toHaveText('Nothing to report for Calgary in the last 30 days');
     await axe.check();
     await reports.emptyAction('Last 90 days').click();
-    await expect(page).toHaveURL('/reports?city=Calgary&period=last-90-days');
+    await expect(page).toHaveURL(
+      `/reports?chapter=${api.chapters.named('Calgary').id}&period=last-90-days`,
+    );
     await expect(reports.figure('Events held')).toContainText('1');
   });
 
@@ -58,16 +60,20 @@ test.describe('Report states', () => {
       fail ? route.fulfill({ status: 500 }) : api.fallback(route),
     );
     await api.signInAs(staff, '/reports');
-    await reports.open('?city=Toronto&period=this-year');
+    await reports.open(`?chapter=${api.chapters.named('Toronto').id}&period=this-year`);
 
     await expect(reports.error).toBeVisible();
-    await expect(page).toHaveURL('/reports?city=Toronto&period=this-year');
+    await expect(page).toHaveURL(
+      `/reports?chapter=${api.chapters.named('Toronto').id}&period=this-year`,
+    );
     await axe.check();
 
     fail = false;
     await reports.tryAgain.click();
     await expect(reports.subtitle).toContainText('Toronto · This year');
     await expect(reports.figure('Members')).toContainText('3');
-    await expect(page).toHaveURL('/reports?city=Toronto&period=this-year');
+    await expect(page).toHaveURL(
+      `/reports?chapter=${api.chapters.named('Toronto').id}&period=this-year`,
+    );
   });
 });

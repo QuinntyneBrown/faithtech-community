@@ -195,9 +195,9 @@ public class ShareResourceTests : IAsyncLifetime
         var people = (await factory.ClientFor(grace, Role.CityLead).GetFromJsonAsync<Person[]>("/api/resources/members?q=dan"))!;
         var refused = await factory.ClientFor(await factory.AddMemberAsync("Samuel Mensah"), Role.Volunteer).GetAsync("/api/resources/members?q=dan");
 
-        Assert.Equal([("Daniel Reyes", "Austin")], people.Select(p => (p.Name, p.City)));
+        Assert.Equal([("Daniel Reyes", "Austin")], people.Select(p => (p.Name, p.ChapterName)));
         Assert.Equal(HttpStatusCode.Forbidden, refused.StatusCode);
     }
 
-    public sealed record Person(Guid Id, string Name, string? City, string[] Roles);
+    public sealed record Person(Guid Id, string Name, string? ChapterName, string[] Roles);
 }

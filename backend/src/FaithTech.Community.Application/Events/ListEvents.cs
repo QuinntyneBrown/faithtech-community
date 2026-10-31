@@ -1,4 +1,5 @@
 using FaithTech.Community.Application.Common;
+using FaithTech.Community.Application.Organisations;
 using FaithTech.Community.Domain.Events;
 using Microsoft.EntityFrameworkCore;
 
@@ -14,10 +15,11 @@ public enum EventListFilter
 }
 
 /// <summary>
-/// The city filter matches the chapter's name until the chapter filter replaces it (slice 20); a filter, never a
-/// permission boundary.
+/// The chapter filter (L2-142 AC2): a chapter's id lists its events, <c>OrganisationWide</c> the events with no chapter.
+/// Both lapse while chapters are off, and an id the organisation does not have is ignored (L2-142 AC3). A filter,
+/// never a permission boundary (ADR 0034).
 /// </summary>
-public record ListEventsQuery(EventListFilter Filter = EventListFilter.Upcoming, string? City = null);
+public record ListEventsQuery(EventListFilter Filter = EventListFilter.Upcoming, Guid? ChapterId = null, bool OrganisationWide = false);
 
 /// <summary>
 /// An event as the events list shows it (L2-021): date, chapter (none is organisation-wide), format, RSVP count and the
@@ -37,11 +39,11 @@ public record EventSummaryDto(
     int RsvpCount,
     bool IsCancelled);
 
-/// <summary>The matching events, and every chapter name that has an event whatever the filters.</summary>
-public record EventListDto(IReadOnlyList<EventSummaryDto> Events, IReadOnlyList<string> Cities);
+/// <summary>The matching events. The chapter filter's options come from the organisation's chapter list (L2-142 AC1).</summary>
+public record EventListDto(IReadOnlyList<EventSummaryDto> Events);
 
 /// <summary>Lists events for signed-in members (L2-021). Upcoming means not yet ended, soonest first; past is newest first.</summary>
-public class ListEventsHandler(IApplicationDbContext db, TimeProvider time)
+public class ListEventsHandler(IApplicationDbContext db, TimeProvider time, ICurrentOrganisation organisation)
 {
     public async Task<EventListDto> HandleAsync(ListEventsQuery query, CancellationToken cancellationToken = default)
     {
@@ -55,10 +57,14 @@ public class ListEventsHandler(IApplicationDbContext db, TimeProvider time)
             _ => events.Where(e => e.EndsAt > now),
         };
 
-        var city = query.City?.Trim().ToLowerInvariant();
-        if (!string.IsNullOrEmpty(city))
+        // The chapter query filter hides every chapter while chapters are off, so a chapter filter then lapses.
+        if (query.ChapterId is { } chapterId && await db.Chapters.AnyAsync(c => c.Id == chapterId, cancellationToken))
         {
-            events = events.Where(e => e.Chapter != null && e.Chapter.Name.ToLower() == city);
+            events = events.Where(e => e.ChapterId == chapterId);
+        }
+        else if (query.OrganisationWide && organisation.ChapterLabelSingular is not null)
+        {
+            events = events.Where(e => e.ChapterId == null);
         }
 
         events = query.Filter == EventListFilter.Past
@@ -68,16 +74,9 @@ public class ListEventsHandler(IApplicationDbContext db, TimeProvider time)
         var rows = await events
             .Select(e => new { e.Id, e.Title, e.Type, e.StartsAt, e.EndsAt, ChapterId = e.Chapter == null ? (Guid?)null : e.Chapter.Id, ChapterName = e.Chapter == null ? null : e.Chapter.Name, e.Format, e.Venue, e.Visibility, Rsvps = e.Rsvps.Count(r => !r.IsWalkIn), e.IsCancelled })
             .ToListAsync(cancellationToken);
-
-        var cities = await db.Events.AsNoTracking().Where(e => e.Chapter != null).Select(e => e.Chapter!.Name).Distinct().ToListAsync(cancellationToken);
         return new EventListDto(
             [.. rows.Select(e => new EventSummaryDto(
                 e.Id, e.Title, e.Type.ToString(), e.StartsAt, e.EndsAt, e.ChapterId, e.ChapterName, e.Format.ToString(), e.Venue,
-                e.Visibility.ToString(), e.Rsvps, e.IsCancelled))],
-            [.. cities
-                .Select(c => c.Trim())
-                .Where(c => c.Length > 0)
-                .Distinct(StringComparer.OrdinalIgnoreCase)
-                .Order(StringComparer.OrdinalIgnoreCase)]);
+                e.Visibility.ToString(), e.Rsvps, e.IsCancelled))]);
     }
 }

@@ -4,7 +4,8 @@ import { Locator, Page } from '@playwright/test';
 export class ReportsPage {
   readonly heading: Locator;
   readonly subtitle: Locator;
-  readonly city: Locator;
+  /** The chapter filter, labelled with the organisation's chapter label. */
+  readonly chapter: Locator;
   readonly period: Locator;
   readonly apply: Locator;
   readonly exportCsv: Locator;
@@ -20,7 +21,7 @@ export class ReportsPage {
   constructor(private readonly page: Page) {
     this.heading = page.getByRole('heading', { level: 1 });
     this.subtitle = page.locator('ft-page-header').getByText(/ · /).first();
-    this.city = page.getByRole('combobox', { name: 'City' });
+    this.chapter = page.getByRole('combobox', { name: 'City' });
     this.period = page.getByRole('combobox', { name: 'Period' });
     this.apply = page.getByRole('button', { name: 'Apply' });
     this.exportCsv = page.getByRole('button', { name: /^(Export CSV|Exporting…)$/ });
@@ -41,8 +42,8 @@ export class ReportsPage {
   }
 
   /** Picks the filters and chooses Apply. */
-  async filter(city: string, period: string): Promise<void> {
-    await this.city.selectOption({ label: city });
+  async filter(chapter: string, period: string): Promise<void> {
+    await this.chapter.selectOption({ label: chapter });
     await this.period.selectOption({ label: period });
     await this.apply.click();
   }
@@ -91,9 +92,9 @@ export class ReportsPage {
     return this.card('Events and attendance').getByRole('link', { name: title });
   }
 
-  /** The cities the City filter offers, in order. */
-  async cityOptions(): Promise<string[]> {
-    return (await this.city.locator('option').allTextContents()).map((t) => t.trim());
+  /** The chapters the chapter filter offers, in order. */
+  async chapterOptions(): Promise<string[]> {
+    return (await this.chapter.locator('option').allTextContents()).map((t) => t.trim());
   }
 
   async periodOptions(): Promise<string[]> {

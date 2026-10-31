@@ -35,12 +35,12 @@ public class ReportChartsTests : IAsyncLifetime
         await AddMembersAsync(" ", 1);
 
         var all = await staff.ReportAsync();
-        var toronto = await staff.ReportAsync("?city=Toronto");
+        var toronto = await staff.ReportAsync($"?chapter={await factory.ChapterIdAsync("Toronto")}");
 
         Assert.Equal(
             [new("Toronto", 5), new("Calgary", 3), new("Vancouver", 3), new("Austin", 2), new ChartRow("Other", 3)],
-            all.MembersByCity);
-        Assert.Equal([new ChartRow("Toronto", 5)], toronto.MembersByCity);
+            all.MembersByChapter);
+        Assert.Equal([new ChartRow("Toronto", 5)], toronto.MembersByChapter);
     }
 
     [Fact]
@@ -54,7 +54,7 @@ public class ReportChartsTests : IAsyncLifetime
             return await db.SaveChangesAsync();
         });
 
-        Assert.Equal([new ChartRow("Toronto", 1)], (await staff.ReportAsync()).MembersByCity);
+        Assert.Equal([new ChartRow("Toronto", 1)], (await staff.ReportAsync()).MembersByChapter);
     }
 
     // L2-126 AC2: New members by month shows each UTC calendar month the period touches, at most the last 12,
@@ -70,7 +70,7 @@ public class ReportChartsTests : IAsyncLifetime
         await factory.AddCityMemberAsync("Long ago", "Toronto", joinedAt: new DateTimeOffset(2029, 1, 5, 0, 0, 0, TimeSpan.Zero));
 
         var thirty = await staff.ReportAsync();
-        var ninety = await staff.ReportAsync("?period=last-90-days&city=Toronto");
+        var ninety = await staff.ReportAsync($"?period=last-90-days&chapter={await factory.ChapterIdAsync("Toronto")}");
         var allTime = await staff.ReportAsync("?period=all-time");
 
         Assert.Equal([new("2031-02", "Feb", 1, false), new MonthRow("2031-03", "Mar", 2, true)], thirty.NewMembersByMonth);
@@ -98,11 +98,11 @@ public class ReportChartsTests : IAsyncLifetime
         await factory.AddReportPartnerAsync("Orphan Co", null, PartnerStage.InFunnel);
 
         var all = await staff.ReportAsync();
-        var toronto = await staff.ReportAsync("?city=Toronto");
-        var vancouver = await staff.ReportAsync("?city=Vancouver");
+        var toronto = await staff.ReportAsync($"?chapter={await factory.ChapterIdAsync("Toronto")}");
+        var vancouver = await staff.ReportAsync($"?chapter={await factory.ChapterIdAsync("Vancouver")}");
 
         Assert.Equal(
-            [new("Austin", 0, 1, 0), new("Toronto", 2, 0, 1), new("Vancouver", 0, 0, 0), new PipelineRow("No city", 0, 1, 0)],
+            [new("Toronto", 2, 0, 1), new("Austin", 0, 1, 0), new("Vancouver", 0, 0, 0), new PipelineRow("No city", 0, 1, 0)],
             all.PartnerPipeline);
         Assert.Equal([new PipelineRow("Toronto", 2, 0, 1)], toronto.PartnerPipeline);
         Assert.Equal([new PipelineRow("Vancouver", 0, 0, 0)], vancouver.PartnerPipeline);
@@ -122,7 +122,7 @@ public class ReportChartsTests : IAsyncLifetime
         await factory.AddReportEventAsync("Too old", Now.AddDays(-31), "Toronto");
 
         var report = await staff.ReportAsync();
-        var toronto = await staff.ReportAsync("?city=Toronto");
+        var toronto = await staff.ReportAsync($"?chapter={await factory.ChapterIdAsync("Toronto")}");
 
         Assert.Equal(
             [
@@ -157,7 +157,7 @@ public class ReportChartsTests : IAsyncLifetime
         var staff = await factory.StaffAsync();
         await factory.AddReportEventAsync("Long ago", Now.AddDays(-400), "Calgary");
 
-        Assert.True((await staff.ReportAsync("?city=Calgary")).IsEmpty);
+        Assert.True((await staff.ReportAsync($"?chapter={await factory.ChapterIdAsync("Calgary")}")).IsEmpty);
         Assert.False((await staff.ReportAsync()).IsEmpty);
     }
 }

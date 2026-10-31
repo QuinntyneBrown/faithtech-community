@@ -1,6 +1,7 @@
 // Traces to: L2-053, L2-009 (docs/detailed-designs/profiles/people-directory)
 import { expect, test } from '../../fixtures/app';
 import { MockApi, photoUrl } from '../../fixtures/mock-api';
+import { NORTHSIDE } from '../../fixtures/mock-host';
 import { AppShell } from '../../pages/app-shell.page';
 import { PeoplePage } from '../../pages/people.page';
 import { RoleDialog } from '../../pages/role.dialog';
@@ -32,6 +33,41 @@ function addPeople(api: MockApi) {
 }
 
 test.describe('People and roles', () => {
+  // Traces to: L2-142 AC1, AC2, AC5
+  test('a City Lead narrows People to a city and sees it named when no one is there', async ({
+    page,
+    api,
+    axe,
+  }) => {
+    const { grace } = addPeople(api);
+    api.chapters.named('Austin');
+    const people = new PeoplePage(page);
+    await api.signInAs(grace, '/people');
+    await expect(people.rows).toHaveCount(4);
+    expect(await people.headers()).toContain('City');
+
+    await people.chapter.selectOption('Toronto');
+    await expect.poll(() => people.names()).toEqual(['Marcus Lee']);
+    await axe.check();
+
+    await people.chapter.selectOption('Austin');
+    await expect(people.noOneIn('Austin')).toBeVisible();
+    await axe.check();
+  });
+
+  // Traces to: L2-142 AC3
+  test('with chapters off People has no city filter or column', async ({ page, api, axe }) => {
+    api.host.serve(NORTHSIDE);
+    const { grace } = addPeople(api);
+    const people = new PeoplePage(page);
+    await api.signInAs(grace, '/people');
+
+    await expect(people.rows).toHaveCount(4);
+    await expect(people.chapter).toHaveCount(0);
+    expect(await people.headers()).not.toContain('City');
+    await axe.check();
+  });
+
   test('a City Lead finds members and adds a role from a row without a reload', async ({
     page,
     api,

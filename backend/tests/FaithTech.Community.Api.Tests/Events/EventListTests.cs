@@ -1,4 +1,5 @@
 // Traces to: L2-021
+using FaithTech.Community.Api.Tests.Organisations;
 using System.Net;
 using System.Net.Http.Json;
 using FaithTech.Community.Api.Tests.Profiles;
@@ -30,7 +31,7 @@ public class EventListTests(CommunityApiFactory factory) : IClassFixture<Communi
         await factory.AddEventAsync("Last month's panel", -30 * Day, city, type: EventType.Panel);
         var member = await factory.AddMemberAsync("Leah Thompson");
 
-        var list = await factory.ClientFor(member, Role.Attendee).GetFromJsonAsync<EventListResponse>($"/api/events?city={city}");
+        var list = await factory.ClientFor(member, Role.Attendee).GetFromJsonAsync<EventListResponse>($"/api/events?chapter={await factory.ChapterIdAsync(city)}");
 
         Assert.Equal(["Builders Night", "Advent Build Night"], list!.Events.Select(e => e.Title));
         var first = list.Events[0];
@@ -50,7 +51,7 @@ public class EventListTests(CommunityApiFactory factory) : IClassFixture<Communi
         await factory.AddEventAsync("Hackathon weekend", -Day, city, type: EventType.Hackathon, lasts: 2 * Day);
         var member = await factory.AddMemberAsync("Leah Thompson");
 
-        var list = await factory.ClientFor(member).GetFromJsonAsync<EventListResponse>($"/api/events?city={city}");
+        var list = await factory.ClientFor(member).GetFromJsonAsync<EventListResponse>($"/api/events?chapter={await factory.ChapterIdAsync(city)}");
 
         Assert.Equal(["Hackathon weekend"], list!.Events.Select(e => e.Title));
     }
@@ -73,28 +74,20 @@ public class EventListTests(CommunityApiFactory factory) : IClassFixture<Communi
         await factory.AddEventAsync("Last week's prayer", -7 * Day, city, type: EventType.PrayerAndPlanning, format: EventFormat.Online);
         var member = await factory.AddMemberAsync("Leah Thompson");
 
-        var list = await factory.ClientFor(member).GetFromJsonAsync<EventListResponse>($"/api/events?city={city}{query}");
+        var list = await factory.ClientFor(member).GetFromJsonAsync<EventListResponse>($"/api/events?chapter={await factory.ChapterIdAsync(city)}{query}");
 
         Assert.Equal(expected, list!.Events.Select(e => e.Title));
     }
 
+    // L2-142 AC1: the filter takes a chapter's id; anything else is a validation error.
     [Fact]
-    public async Task The_city_filter_ignores_case_and_spaces_and_cities_list_every_event_city()
+    public async Task A_chapter_that_is_not_an_id_is_400()
     {
-        var city = UniqueCity();
-        var other = UniqueCity();
-        await factory.AddEventAsync("Builders Night", 5 * Day, city);
-        await factory.AddEventAsync("Elsewhere", 5 * Day, other);
-        await factory.AddEventAsync("Old one", -50 * Day, other);
         var member = await factory.AddMemberAsync("Leah Thompson");
-        var client = factory.ClientFor(member);
 
-        var list = await client.GetFromJsonAsync<EventListResponse>($"/api/events?city=%20{city.ToLowerInvariant()}%20");
+        var response = await factory.ClientFor(member).GetAsync("/api/events?chapter=Toronto");
 
-        Assert.Equal(["Builders Night"], list!.Events.Select(e => e.Title));
-        Assert.Contains(city, list.Cities);
-        Assert.Single(list.Cities, c => c == other);
-        Assert.Equal(list.Cities.Order(StringComparer.OrdinalIgnoreCase), list.Cities);
+        Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
     }
 
     [Theory]
@@ -115,7 +108,7 @@ public class EventListTests(CommunityApiFactory factory) : IClassFixture<Communi
     {
         var member = await factory.AddMemberAsync("Leah Thompson");
 
-        var list = await factory.ClientFor(member).GetFromJsonAsync<EventListResponse>($"/api/events?city={UniqueCity()}");
+        var list = await factory.ClientFor(member).GetFromJsonAsync<EventListResponse>($"/api/events?chapter={await factory.ChapterIdAsync(UniqueCity())}");
 
         Assert.Empty(list!.Events);
     }
@@ -129,7 +122,7 @@ public class EventListTests(CommunityApiFactory factory) : IClassFixture<Communi
         await factory.AddEventAsync("Builders Night", 5 * Day, city);
         var member = await factory.AddMemberAsync("Leah Thompson");
 
-        var list = await factory.ClientFor(member).GetFromJsonAsync<EventListResponse>($"/api/events?city={city}");
+        var list = await factory.ClientFor(member).GetFromJsonAsync<EventListResponse>($"/api/events?chapter={await factory.ChapterIdAsync(city)}");
 
         Assert.Equal([true, false], list!.Events.Select(e => e.IsCancelled));
     }
@@ -150,5 +143,5 @@ public class EventListTests(CommunityApiFactory factory) : IClassFixture<Communi
         int RsvpCount,
         bool IsCancelled);
 
-    public sealed record EventListResponse(EventSummaryResponse[] Events, string[] Cities);
+    public sealed record EventListResponse(EventSummaryResponse[] Events);
 }

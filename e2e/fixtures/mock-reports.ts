@@ -14,15 +14,25 @@ export interface ReportsContext {
   readonly partners: { readonly partners: MockPartner[] };
   readonly announcements: { readonly announcements: MockAnnouncement[] };
   readonly now: Date;
-  readonly chapters: { nameOf(id: string | null | undefined): string | null };
-  readonly host: { organisation: { shortName: string } };
+  readonly chapters: {
+    nameOf(id: string | null | undefined): string | null;
+    options(): { id: string; name: string }[];
+  };
+  readonly host: {
+    organisation: {
+      name: string;
+      shortName: string;
+      chapterLabel: { singular: string; plural: string } | null;
+    };
+  };
 }
 
 export type ReportPeriod = 'last-30-days' | 'last-90-days' | 'this-year' | 'all-time';
 
 const PERIODS: ReportPeriod[] = ['last-30-days', 'last-90-days', 'this-year', 'all-time'];
 const DAY = 24 * 60 * 60 * 1000;
-const NO_CITY = 'No city';
+/** The single pipeline row while chapters are off. */
+const WHOLE_PIPELINE = 'Partner pipeline';
 const PERIOD_LABELS: Record<ReportPeriod, string> = {
   'last-30-days': 'Last 30 days',
   'last-90-days': 'Last 90 days',
@@ -31,8 +41,8 @@ const PERIOD_LABELS: Record<ReportPeriod, string> = {
 };
 
 /** EventFileNames.Slug: lower-case letters and digits joined by hyphens. */
-const citySlug = (city: string) =>
-  city
+const slug = (text: string) =>
+  text
     .toLowerCase()
     .replace(/[^a-z0-9]+/g, '-')
     .replace(/^-+|-+$/g, '')
@@ -41,11 +51,12 @@ const citySlug = (city: string) =>
 const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 
 export interface MockReport {
-  city: string | null;
+  chapter: string | null;
+  chapterName: string | null;
   period: ReportPeriod;
   from: string | null;
   to: string;
-  cities: string[];
+  chapters: { id: string; name: string }[];
   isEmpty: boolean;
   figures: {
     members: { value: number; newInPeriod: number | null };
@@ -54,14 +65,14 @@ export interface MockReport {
     partnersConfirmed: { value: number; inPipeline: number };
     announcements: { value: number };
   };
-  membersByCity: { label: string; value: number }[];
+  membersByChapter: { label: string; value: number }[];
   newMembersByMonth: { month: string; label: string; value: number; soFar: boolean }[];
-  partnerPipeline: { city: string; lead: number; inFunnel: number; confirmed: number }[];
+  partnerPipeline: { chapter: string; lead: number; inFunnel: number; confirmed: number }[];
   events: {
     id: string;
     title: string;
     startsAt: string;
-    city: string;
+    chapter: string | null;
     status: 'Held' | 'Upcoming' | 'Cancelled';
     going: number | null;
     checkedIn: number | null;
@@ -69,7 +80,7 @@ export interface MockReport {
   }[];
 }
 
-/** Ordinal-ignore-case, as the server sorts the city list. */
+/** Ordinal-ignore-case, as the server sorts names. */
 const byName = (a: string, b: string) => {
   const x = a.toUpperCase();
   const y = b.toUpperCase();
@@ -103,7 +114,7 @@ export class MockReports {
     if (!holds(caller, 'ViewReports')) {
       return route.fulfill({ status: 403 });
     }
-    const result = this.report(url.searchParams.get('city'), url.searchParams.get('period'));
+    const result = this.report(url.searchParams.get('chapter'), url.searchParams.get('period'));
     if ('field' in result) {
       return route.fulfill({
         status: 400,
@@ -116,11 +127,17 @@ export class MockReports {
     }
     if (!exporting) return route.fulfill({ json: result });
     const date = this.context.now.toISOString().slice(0, 10);
-    const slug = result.city ? citySlug(result.city) : 'all-cities';
+    const plural = this.context.host.organisation.chapterLabel?.plural;
+    const scope = result.chapterName
+      ? slug(result.chapterName)
+      : plural
+        ? slug(`all ${plural}`)
+        : 'all';
+    const organisation = slug(this.context.host.organisation.shortName);
     return route.fulfill({
       status: 200,
       headers: {
-        'content-disposition': `attachment; filename=faithtech-report-${slug}-${result.period}-${date}.csv`,
+        'content-disposition': `attachment; filename=${organisation}-report-${scope}-${result.period}-${date}.csv`,
       },
       contentType: 'text/csv; charset=utf-8',
       body: '\uFEFF' + this.csv(result),
@@ -134,9 +151,14 @@ export class MockReports {
     const f = report.figures;
     const period = PERIOD_LABELS[report.period];
     const describe = period.toLowerCase();
+    const label = this.context.host.organisation.chapterLabel;
+    const singular = label?.singular ?? null;
+    const lower = singular?.toLowerCase();
     const rows: (string | null)[][] = [
-      ['Report', 'FaithTech Community Reports'],
-      ['City', report.city ?? 'All cities'],
+      ['Report', `${this.context.host.organisation.name} Reports`],
+      ...(label
+        ? [[label.singular, report.chapterName ?? `All ${label.plural.toLowerCase()}`]]
+        : []),
       ['Period', period],
       ['From (UTC)', minute(report.from)],
       ['To (UTC)', minute(report.to)],
@@ -162,10 +184,14 @@ export class MockReports {
       ],
       ['Announcements', text(f.announcements.value), 'sent by leads'],
       [],
-      ['Members by city'],
-      ['City', 'Members'],
-      ...report.membersByCity.map((r) => [r.label, text(r.value)]),
-      [],
+      ...(singular
+        ? [
+            [`Members by ${lower}`],
+            [singular, 'Members'],
+            ...report.membersByChapter.map((r) => [r.label, text(r.value)]),
+            [],
+          ]
+        : []),
       ['New members by month'],
       ['Month', 'New members'],
       ...report.newMembersByMonth.map((m) => [
@@ -173,21 +199,23 @@ export class MockReports {
         text(m.value),
       ]),
       [],
-      ['Partner pipeline by city'],
-      ['City', 'Lead', 'In funnel', 'Confirmed'],
+      [singular ? `Partner pipeline by ${lower}` : 'Partner pipeline'],
+      [singular ?? 'Pipeline', 'Lead', 'In funnel', 'Confirmed'],
       ...report.partnerPipeline.map((r) => [
-        r.city,
+        r.chapter,
         text(r.lead),
         text(r.inFunnel),
         text(r.confirmed),
       ]),
       [],
       ['Events and attendance'],
-      ['Event', 'Date (UTC)', 'City', 'Status', 'Going', 'Checked in', 'Checked in %'],
+      singular
+        ? ['Event', 'Date (UTC)', singular, 'Status', 'Going', 'Checked in', 'Checked in %']
+        : ['Event', 'Date (UTC)', 'Status', 'Going', 'Checked in', 'Checked in %'],
       ...report.events.map((e) => [
         e.title,
         minute(e.startsAt),
-        e.city,
+        ...(singular ? [e.chapter] : []),
         e.status,
         text(e.going),
         text(e.checkedIn),
@@ -203,7 +231,7 @@ export class MockReports {
 
   /** The report for the filters, or the filter the server refuses. */
   report(
-    cityParam: string | null,
+    chapterParam: string | null,
     periodParam: string | null,
   ): MockReport | { field: string; message: string } {
     const period = (periodParam || 'last-30-days') as ReportPeriod;
@@ -223,25 +251,31 @@ export class MockReports {
 
     const allMembers = this.members();
     const events = this.context.events.events;
-    const cities = [
-      ...new Set([
-        ...allMembers.map((p) => this.home(p)).filter((c): c is string => !blank(c)),
-        ...events.map((e) => this.place(e)).filter((c): c is string => !blank(c)),
-      ]),
-    ].sort(byName);
-    const city = cityParam || null;
-    if (city !== null && !cities.includes(city)) {
-      return { field: 'city', message: 'Choose a city from the list.' };
+    // The active chapters in order; none, and the filter ignored, while chapters are off (L2-142).
+    const label = this.context.host.organisation.chapterLabel;
+    const chapters = this.context.chapters.options();
+    let chapter: { id: string; name: string } | null = null;
+    if (label && chapterParam) {
+      chapter = chapters.find((c) => c.id === chapterParam) ?? null;
+      if (!chapter)
+        return {
+          field: 'chapter',
+          message: `Choose a ${label.singular.toLowerCase()} from the list.`,
+        };
     }
-
-    // Until slice 20 the filter names a chapter, as GetReportHandler matches it.
+    const city = chapter?.name ?? null;
     const members = city === null ? allMembers : allMembers.filter((p) => this.home(p) === city);
     const cityEvents = city === null ? events : events.filter((e) => this.place(e) === city);
     const started = cityEvents.filter((e) => inWindow(e.startsAt));
     const held = started.filter((e) => !e.isCancelled);
     const rsvps = held.flatMap((e) => e.rsvps).filter((r) => !r.isWalkIn);
     const checkedIn = rsvps.filter((r) => r.checkedInAt).length;
-    const pipeline = this.pipeline(city, cities);
+    const noChapter = label ? `No ${label.singular.toLowerCase()}` : WHOLE_PIPELINE;
+    const pipeline = this.pipeline(
+      city,
+      chapters.map((c) => c.name),
+      noChapter,
+    );
     const sum = (pick: (r: (typeof pipeline)[number]) => number) =>
       pipeline.reduce((total, r) => total + pick(r), 0);
     const announcements = this.context.announcements.announcements.filter(
@@ -250,11 +284,12 @@ export class MockReports {
     const table = this.eventRows(cityEvents, from, now);
 
     return {
-      city,
+      chapter: chapter?.id ?? null,
+      chapterName: city,
       period,
       from: from?.toISOString() ?? null,
       to: now.toISOString(),
-      cities,
+      chapters,
       isEmpty: members.length === 0 && table.length === 0,
       figures: {
         members: {
@@ -273,7 +308,7 @@ export class MockReports {
         },
         announcements: { value: announcements.length },
       },
-      membersByCity: this.membersByCity(members, city),
+      membersByChapter: label ? this.membersByChapter(members, city) : [],
       newMembersByMonth: this.months(members, from, now),
       partnerPipeline: pipeline,
       events: table,
@@ -313,7 +348,7 @@ export class MockReports {
     );
   }
 
-  private membersByCity(members: MockProfile[], city: string | null) {
+  private membersByChapter(members: MockProfile[], city: string | null) {
     if (city !== null) return [{ label: city, value: members.length }];
     const counts = new Map<string, number>();
     for (const home of members.map((m) => this.home(m)).filter((c): c is string => !blank(c))) {
@@ -359,28 +394,33 @@ export class MockReports {
     }));
   }
 
-  /** Lead, In funnel and Confirmed per owner home city; "No city" last; the period does not apply. */
-  private pipeline(city: string | null, cities: string[]) {
+  /**
+   * Lead, In funnel and Confirmed per owner home chapter; the period does not apply. Under All {chapters}: the
+   * active chapters in order, then archived owner chapters by name, then "No {chapter}" when it has partners; while
+   * chapters are off, one "Partner pipeline" row.
+   */
+  private pipeline(city: string | null, chapters: string[], noChapter: string) {
     const rows = new Map<
       string,
-      { city: string; lead: number; inFunnel: number; confirmed: number }
+      { chapter: string; lead: number; inFunnel: number; confirmed: number }
     >();
     const row = (name: string) => {
-      if (!rows.has(name)) rows.set(name, { city: name, lead: 0, inFunnel: 0, confirmed: 0 });
+      if (!rows.has(name)) rows.set(name, { chapter: name, lead: 0, inFunnel: 0, confirmed: 0 });
       return rows.get(name)!;
     };
     for (const p of this.context.partners.partners.filter((x) => !x.archivedAtUtc)) {
       const ownerCity = p.ownerId ? this.homeOf(p.ownerId) : null;
-      const r = row(blank(ownerCity) ? NO_CITY : ownerCity!);
+      const r = row(blank(ownerCity) ? noChapter : ownerCity!);
       if (p.stage === 'Lead') r.lead++;
       else if (p.stage === 'InFunnel') r.inFunnel++;
       else r.confirmed++;
     }
     if (city !== null) return [row(city)];
-    const named = [...new Set([...cities, ...[...rows.keys()].filter((k) => k !== NO_CITY)])]
-      .sort(byName)
-      .map(row);
-    return rows.has(NO_CITY) ? [...named, rows.get(NO_CITY)!] : named;
+    const archived = [...rows.keys()]
+      .filter((k) => k !== noChapter && !chapters.includes(k))
+      .sort(byName);
+    const named = [...chapters, ...archived].map(row);
+    return rows.has(noChapter) || noChapter === WHOLE_PIPELINE ? [...named, row(noChapter)] : named;
   }
 
   /** Events from the start of the window to 30 days after now, newest first, at most 50. */
@@ -396,8 +436,10 @@ export class MockReports {
       .map((e) => {
         const going = e.rsvps.filter((r) => !r.isWalkIn).length;
         const checkedIn = e.rsvps.filter((r) => !r.isWalkIn && r.checkedInAt).length;
-        const city = this.place(e) ?? `${this.context.host.organisation.shortName}-wide`;
-        const base = { id: e.id, title: e.title, startsAt: e.startsAt, city };
+        const chapter = this.context.host.organisation.chapterLabel
+          ? (this.place(e) ?? `${this.context.host.organisation.shortName}-wide`)
+          : null;
+        const base = { id: e.id, title: e.title, startsAt: e.startsAt, chapter };
         if (e.isCancelled) {
           return {
             ...base,

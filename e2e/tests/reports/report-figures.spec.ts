@@ -31,7 +31,7 @@ test.describe('Report figures', () => {
     const reports = new ReportsPage(page);
 
     await api.signInAs(staff, '/reports');
-    await reports.open('?city=Toronto&period=last-30-days');
+    await reports.open(`?chapter=${api.chapters.named('Toronto').id}&period=last-30-days`);
     await expect(reports.subtitle).toContainText('Toronto · Last 30 days');
 
     expect(await reports.figureText('Members')).toBe('Members 3 +1 in the last 30 days');
@@ -50,7 +50,7 @@ test.describe('Report figures', () => {
     const reports = new ReportsPage(page);
 
     await api.signInAs(staff, '/reports');
-    await reports.open('?city=&period=all-time');
+    await reports.open('?chapter=&period=all-time');
     await expect(reports.subtitle).toContainText('All cities · All time');
 
     expect(await reports.figureText('Members')).toBe('Members 9');
@@ -76,6 +76,6 @@ test.describe('Report figures', () => {
     for (const secret of ['Harriet', 'harriet@secret.example', 'Quentin', 'Saskatoon']) {
       await expect(page.getByRole('main')).not.toContainText(secret);
     }
-    expect(await reports.cityOptions()).not.toContain('Saskatoon');
+    expect(await reports.chapterOptions()).not.toContain('Saskatoon');
   });
 });

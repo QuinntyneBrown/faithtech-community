@@ -11,7 +11,7 @@ public static class EventsEndpoints
     {
         var events = app.MapGroup("/api/events");
 
-        events.MapGet("", async (string? filter, string? city, ListEventsHandler handler, CancellationToken cancellationToken) =>
+        events.MapGet("", async (string? filter, string? chapter, ListEventsHandler handler, CancellationToken cancellationToken) =>
         {
             var parsed = EventListFilter.Upcoming;
             if (!string.IsNullOrEmpty(filter))
@@ -28,7 +28,23 @@ public static class EventsEndpoints
                 parsed = Enum.Parse<EventListFilter>(filter, ignoreCase: true);
             }
 
-            return Results.Ok(await handler.HandleAsync(new ListEventsQuery(parsed, city), cancellationToken));
+            // chapter={id} lists one chapter's events; chapter=none the organisation-wide ones (L2-142 AC2).
+            var organisationWide = string.Equals(chapter, "none", StringComparison.OrdinalIgnoreCase);
+            Guid? chapterId = null;
+            if (!string.IsNullOrEmpty(chapter) && !organisationWide)
+            {
+                if (!Guid.TryParse(chapter, out var id))
+                {
+                    return Results.ValidationProblem(new Dictionary<string, string[]>
+                    {
+                        ["chapter"] = ["Filter by a chapter from the list."],
+                    });
+                }
+
+                chapterId = id;
+            }
+
+            return Results.Ok(await handler.HandleAsync(new ListEventsQuery(parsed, chapterId, organisationWide), cancellationToken));
         });
 
         events.MapGet("/{id:guid}", async (Guid id, GetEventHandler handler, CancellationToken cancellationToken) =>

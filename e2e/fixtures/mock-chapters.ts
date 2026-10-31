@@ -68,6 +68,15 @@ export class MockChapters {
   }
 
   /**
+   * The chapter a list filter names, as the list handlers resolve it: null for none, for an unknown id and for every
+   * id while chapters are off, so the list is then organisation-wide (L2-142 AC3).
+   */
+  filterId(value: string | null): string | null {
+    if (!value || !this.context.host.organisation.chapterLabel) return null;
+    return this.chapters.some((c) => c.id === value) ? value : null;
+  }
+
+  /**
    * The tag a profile or event save keeps (L2-141): the current one while chapters are off; otherwise the pick,
    * which must be active unless it is the current tag (L2-140 AC5).
    */

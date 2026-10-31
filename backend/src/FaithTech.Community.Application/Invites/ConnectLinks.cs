@@ -21,7 +21,7 @@ public interface IConnectTokenProtector
 public record ConnectLinkDto(string Url);
 
 /// <summary>Who an anonymous visitor is connecting with (L2-082 AC2).</summary>
-public record ConnectLookupDto(Guid LeadProfileId, string LeadName, string? LeadPhotoUrl, string? LeadCity, string LeadRole);
+public record ConnectLookupDto(Guid LeadProfileId, string LeadName, string? LeadPhotoUrl, string? LeadChapterName, string LeadRole);
 
 /// <summary>The body of <c>POST /api/connect/lookup</c>: the link's token, kept out of the URL.</summary>
 public record ConnectLookupRequest(string? Token);

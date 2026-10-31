@@ -1,8 +1,9 @@
 // Traces to: L2-124, L2-125, L2-127 (docs/detailed-designs/reports/reports-dashboard)
 import { HttpErrorResponse } from '@angular/common/http';
+import { signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { Router, provideRouter } from '@angular/router';
-import { REPORTS_SERVICE, ReportDto } from '@faithtech-community/api';
+import { ChapterLabel, REPORTS_SERVICE, ReportDto, SITE_SERVICE } from '@faithtech-community/api';
 import { ToastService } from '@faithtech-community/components';
 import { Observable, of, throwError } from 'rxjs';
 
@@ -10,11 +11,15 @@ import { ReportsPage } from './reports.page';
 
 function report(overrides: Partial<ReportDto> = {}): ReportDto {
   return {
-    city: null,
+    chapter: null,
+    chapterName: null,
     period: 'last-30-days',
     from: '2026-09-21T12:00:00Z',
     to: '2026-10-21T12:00:00Z',
-    cities: ['Austin', 'Toronto'],
+    chapters: [
+      { id: 'c-toronto', name: 'Toronto' },
+      { id: 'c-austin', name: 'Austin' },
+    ],
     isEmpty: false,
     figures: {
       members: { value: 412, newInPeriod: 18 },
@@ -23,18 +28,18 @@ function report(overrides: Partial<ReportDto> = {}): ReportDto {
       partnersConfirmed: { value: 5, inPipeline: 12 },
       announcements: { value: 4 },
     },
-    membersByCity: [{ label: 'Toronto', value: 186 }],
+    membersByChapter: [{ label: 'Toronto', value: 186 }],
     newMembersByMonth: [
       { month: '2026-09', label: 'Sep', value: 5, soFar: false },
       { month: '2026-10', label: 'Oct', value: 13, soFar: true },
     ],
-    partnerPipeline: [{ city: 'Toronto', lead: 3, inFunnel: 2, confirmed: 4 }],
+    partnerPipeline: [{ chapter: 'Toronto', lead: 3, inFunnel: 2, confirmed: 4 }],
     events: [
       {
         id: 'e1',
         title: 'Vancouver Builders Night',
         startsAt: '2026-10-09T23:00:00Z',
-        city: 'Vancouver',
+        chapter: 'Vancouver',
         status: 'Held',
         going: 41,
         checkedIn: 36,
@@ -45,9 +50,12 @@ function report(overrides: Partial<ReportDto> = {}): ReportDto {
   };
 }
 
+const CITIES: ChapterLabel = { singular: 'City', plural: 'Cities' };
+
 async function setup(
   get: () => Observable<ReportDto> = () => of(report()),
   exportCsv: () => Observable<Blob> = () => of(new Blob(['csv'])),
+  chapterLabel: ChapterLabel | null = CITIES,
 ) {
   const service = { getReport: vi.fn(get), exportCsv: vi.fn(exportCsv) };
   const toasts = { show: vi.fn() };
@@ -56,6 +64,12 @@ async function setup(
       provideRouter([]),
       { provide: REPORTS_SERVICE, useValue: service },
       { provide: ToastService, useValue: toasts },
+      {
+        provide: SITE_SERVICE,
+        useValue: {
+          site: signal({ name: 'FaithTech Community', shortName: 'FaithTech', chapterLabel }),
+        },
+      },
     ],
   });
   const router = TestBed.inject(Router);
@@ -76,7 +90,7 @@ describe('ReportsPage', () => {
   it('asks for All cities and the last 30 days when the URL has no filters', async () => {
     const { service } = await setup();
 
-    expect(service.getReport).toHaveBeenCalledWith({ city: null, period: 'last-30-days' });
+    expect(service.getReport).toHaveBeenCalledWith({ chapter: null, period: 'last-30-days' });
   });
 
   it('writes the context lines from the numbers', async () => {
@@ -128,18 +142,20 @@ describe('ReportsPage', () => {
     const { text, navigate, fixture, settle } = await setup(() =>
       throwError(() => new HttpErrorResponse({ status: 400 })),
     );
-    fixture.componentRef.setInput('city', 'Atlantis');
+    fixture.componentRef.setInput('chapter', 'Atlantis');
     await settle();
 
     expect(navigate).toHaveBeenCalledWith(['/reports'], {
-      queryParams: { city: '', period: 'last-30-days' },
+      queryParams: { chapter: '', period: 'last-30-days' },
       replaceUrl: true,
     });
     expect(text()).toContain('We couldn’t use that filter');
   });
 
   it('says there is nothing to report for an empty city', async () => {
-    const { text } = await setup(() => of(report({ city: 'Calgary', isEmpty: true })));
+    const { text } = await setup(() =>
+      of(report({ chapter: 'c-calgary', chapterName: 'Calgary', isEmpty: true })),
+    );
 
     expect(text()).toContain('Nothing to report for Calgary in the last 30 days');
   });
@@ -150,15 +166,52 @@ describe('ReportsPage', () => {
     const click = vi
       .spyOn(HTMLAnchorElement.prototype, 'click')
       .mockImplementation(() => undefined);
-    const { fixture, service, settle } = await setup(() => of(report({ city: 'Toronto' })));
+    const { fixture, service, settle } = await setup(() =>
+      of(report({ chapter: 'c-toronto', chapterName: 'Toronto' })),
+    );
 
     exportButton(fixture.nativeElement).click();
     await settle();
 
-    expect(service.exportCsv).toHaveBeenCalledWith({ city: 'Toronto', period: 'last-30-days' });
+    expect(service.exportCsv).toHaveBeenCalledWith({
+      chapter: 'c-toronto',
+      period: 'last-30-days',
+    });
     const link = click.mock.contexts[0] as HTMLAnchorElement;
     expect(link.download).toBe('faithtech-report-toronto-last-30-days-2026-10-21.csv');
     click.mockRestore();
+  });
+
+  // Traces to: L2-142 AC1
+  it('filters by the active chapters, labelled from the organisation', async () => {
+    const { fixture, text } = await setup();
+    const select = (fixture.nativeElement as HTMLElement).querySelector('select')!;
+
+    expect(Array.from(select.options).map((o) => o.textContent!.trim())).toEqual([
+      'All cities',
+      'Toronto',
+      'Austin',
+    ]);
+    expect(text()).toContain('Partner pipeline by city');
+    expect(text()).toContain('Members by city');
+  });
+
+  // Traces to: L2-142 AC3
+  it('is organisation-wide with no chapter filter, column or chart while chapters are off', async () => {
+    const { fixture, text } = await setup(
+      () => of(report({ chapters: [], membersByChapter: [] })),
+      undefined,
+      null,
+    );
+    const root = fixture.nativeElement as HTMLElement;
+    const selects = Array.from(root.querySelectorAll('select'));
+
+    expect(selects.map((s) => s.options[0].textContent!.trim())).toEqual(['Last 30 days']);
+    expect(text()).not.toMatch(/city/i);
+    expect(text()).toContain('Partner pipeline');
+    expect(
+      Array.from(root.querySelectorAll('th')).map((th) => th.textContent!.trim()),
+    ).not.toContain('City');
   });
 
   it('offers Try again in a danger toast when the export fails', async () => {

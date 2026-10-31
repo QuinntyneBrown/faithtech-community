@@ -1,5 +1,8 @@
 // Traces to: L2-124 (docs/detailed-designs/reports/reports-dashboard, ADR 0030)
 using System.Net;
+using FaithTech.Community.Infrastructure.Persistence.Seed;
+using FaithTech.Community.Api.Tests.Organisations;
+using FaithTech.Community.Domain.Partners;
 using System.Net.Http.Json;
 using Microsoft.AspNetCore.Mvc;
 using static FaithTech.Community.Api.Tests.Reports.ReportClients;
@@ -21,7 +24,7 @@ public class ReportFiltersTests : IAsyncLifetime
     {
         var report = await (await factory.StaffAsync()).ReportAsync();
 
-        Assert.Null(report.City);
+        Assert.Null(report.Chapter);
         Assert.Equal("last-30-days", report.Period);
         Assert.Equal(Now.AddDays(-30), report.From);
         Assert.Equal(Now, report.To);
@@ -42,34 +45,60 @@ public class ReportFiltersTests : IAsyncLifetime
         Assert.Equal(Now, report.To);
     }
 
-    // L2-124 AC2: the city list is every city used by a verified member's profile or by an event, sorted.
+    // L2-124 AC2, L2-142 AC1: the chapter list is the organisation's active chapters in order, used or not.
     [Fact]
-    public async Task The_city_list_holds_verified_member_cities_and_event_cities_sorted()
+    public async Task The_chapter_list_holds_the_active_chapters_in_order()
     {
         var staff = await factory.StaffAsync();
         await factory.AddCityMemberAsync("Grace Okonkwo", "Toronto");
-        await factory.AddCityMemberAsync("Ruth Alvarez", "austin");
-        await factory.AddCityMemberAsync("Lee Park", "  ");
-        await factory.AddCityMemberAsync("Unverified Una", "Halifax", verified: false);
-        await factory.AddCityMemberAsync("Suspended Sid", "Regina", suspended: true);
-        await factory.AddReportEventAsync("Calgary Builders Night", Now.AddDays(-400), "Calgary", cancelled: true);
-        await factory.AddReportEventAsync("Toronto Builders Night", Now.AddDays(5), "Toronto");
+        await factory.AddChapterAsync("Austin");
+        await factory.AddChapterAsync("Halifax", archived: true);
+        var toronto = await factory.ChapterIdAsync("Toronto");
 
-        var report = await staff.ReportAsync("?city=Toronto");
+        var report = await staff.ReportAsync($"?chapter={toronto}");
 
-        Assert.Equal(["austin", "Calgary", "Toronto"], report.Cities);
-        Assert.Equal("Toronto", report.City);
+        Assert.Equal(["Toronto", "Austin"], report.Chapters.Select(c => c.Name));
+        Assert.Equal(toronto, report.Chapter);
+        Assert.Equal("Toronto", report.ChapterName);
+    }
+
+    // L2-142 AC3: with chapters off the chapter filter is ignored, there is no chapter list or breakdown by chapter,
+    // the pipeline is one row and events name no chapter.
+    [Fact]
+    public async Task With_chapters_off_the_report_is_organisation_wide()
+    {
+        var staff = await factory.StaffAsync();
+        var grace = await factory.AddCityMemberAsync("Grace Okonkwo", "Toronto");
+        await factory.AddReportPartnerAsync("Kestrel Labs", grace.ProfileId, PartnerStage.Confirmed);
+        await factory.AddReportEventAsync("Builders Night", Now.AddDays(-2), "Toronto");
+        var toronto = await factory.ChapterIdAsync("Toronto");
+        await factory.WithDbAsync(async db =>
+        {
+            db.Organisations.Single(o => o.Id == FaithTechSeed.OrganisationId).SetChapterLabel(null, null);
+            return await db.SaveChangesAsync();
+        });
+
+        var report = await staff.ReportAsync($"?chapter={toronto}");
+
+        Assert.Null(report.Chapter);
+        Assert.Empty(report.Chapters);
+        Assert.Empty(report.MembersByChapter);
+        Assert.Equal(2, report.Figures.Members.Value);
+        Assert.Equal([new PipelineRow("Partner pipeline", 0, 0, 1)], report.PartnerPipeline);
+        Assert.Null(Assert.Single(report.Events).Chapter);
     }
 
     // L2-124 AC5: Given an unknown city or period, then the server answers 400 naming the filter.
     [Theory]
     [InlineData("?period=last-week", "period")]
-    [InlineData("?city=Atlantis", "city")]
-    [InlineData("?city=toronto", "city")]
-    public async Task An_unknown_city_or_period_is_400(string query, string field)
+    [InlineData("?chapter=Toronto", "chapter")]
+    [InlineData("?chapter=6f1c0e5e-0000-4000-8000-000000000001", "chapter")]
+    [InlineData("?chapter={archived}", "chapter")]
+    public async Task An_unknown_chapter_or_period_is_400(string query, string field)
     {
         var staff = await factory.StaffAsync();
         await factory.AddCityMemberAsync("Grace Okonkwo", "Toronto");
+        query = query.Replace("{archived}", (await factory.AddChapterAsync("Halifax", archived: true)).Id.ToString());
 
         var response = await staff.GetAsync($"/api/reports{query}");
 
@@ -81,9 +110,9 @@ public class ReportFiltersTests : IAsyncLifetime
     [Fact]
     public async Task An_empty_city_and_period_are_the_defaults()
     {
-        var report = await (await factory.StaffAsync()).ReportAsync("?city=&period=");
+        var report = await (await factory.StaffAsync()).ReportAsync("?chapter=&period=");
 
-        Assert.Null(report.City);
+        Assert.Null(report.Chapter);
         Assert.Equal("last-30-days", report.Period);
     }
 }

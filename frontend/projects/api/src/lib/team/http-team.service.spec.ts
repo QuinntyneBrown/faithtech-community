@@ -19,7 +19,7 @@ describe('HttpTeamService', () => {
   });
 
   it('lists the whole team without filters', () => {
-    const body: TeamListDto = { members: [], cities: ['Toronto'], next: null, totalCount: 0 };
+    const body: TeamListDto = { members: [], next: null, totalCount: 0 };
     let result: TeamListDto | undefined;
     service.list().subscribe((r) => (result = r));
 
@@ -29,27 +29,25 @@ describe('HttpTeamService', () => {
     expect(result).toEqual(body);
   });
 
-  it('filters by role group and city', () => {
-    service.list({ role: 'Volunteers', city: 'Toronto' }).subscribe();
+  it('filters by role group and chapter', () => {
+    service.list({ role: 'Volunteers', chapterId: 'c-toronto' }).subscribe();
 
     controller
-      .expectOne('/api/team?role=Volunteers&city=Toronto')
-      .flush({ members: [], cities: [], next: null, totalCount: 0 });
+      .expectOne('/api/team?role=Volunteers&chapter=c-toronto')
+      .flush({ members: [], next: null, totalCount: 0 });
   });
 
   it('continues after the previous page with the same filters', () => {
-    service.list({ role: 'Leads', city: 'Toronto' }, 'cursor-1').subscribe();
+    service.list({ role: 'Leads', chapterId: 'c-toronto' }, 'cursor-1').subscribe();
 
     controller
-      .expectOne('/api/team?role=Leads&city=Toronto&after=cursor-1')
-      .flush({ members: [], cities: [], next: null, totalCount: 0 });
+      .expectOne('/api/team?role=Leads&chapter=c-toronto&after=cursor-1')
+      .flush({ members: [], next: null, totalCount: 0 });
   });
 
-  it('leaves out an empty city', () => {
-    service.list({ role: 'Leads', city: '' }).subscribe();
+  it('leaves out an empty chapter', () => {
+    service.list({ role: 'Leads', chapterId: '' }).subscribe();
 
-    controller
-      .expectOne('/api/team?role=Leads')
-      .flush({ members: [], cities: [], next: null, totalCount: 0 });
+    controller.expectOne('/api/team?role=Leads').flush({ members: [], next: null, totalCount: 0 });
   });
 });

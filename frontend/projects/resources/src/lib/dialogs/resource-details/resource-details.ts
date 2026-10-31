@@ -28,7 +28,11 @@ export function detailsForm(resource?: ResourceDto): ResourceDetailsForm {
       nonNullable: true,
     }),
     members: new FormControl<PersonOption[]>(
-      (resource?.audience.members ?? []).map((m) => ({ id: m.id, name: m.name, detail: m.city })),
+      (resource?.audience.members ?? []).map((m) => ({
+        id: m.id,
+        name: m.name,
+        detail: m.chapterName,
+      })),
       { nonNullable: true },
     ),
     roles: new FormControl<string[]>(

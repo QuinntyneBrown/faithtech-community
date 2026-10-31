@@ -59,7 +59,11 @@ export class ShareNoteDialog {
   protected readonly form = new FormGroup({
     visibility: new FormControl<NoteVisibility>(this.page.visibility, { nonNullable: true }),
     members: new FormControl<PersonOption[]>(
-      this.page.audience.members.map((m) => ({ id: m.id, name: m.name, detail: m.city ?? '' })),
+      this.page.audience.members.map((m) => ({
+        id: m.id,
+        name: m.name,
+        detail: m.chapterName ?? '',
+      })),
       { nonNullable: true },
     ),
     roles: new FormControl<Role[]>(
@@ -88,7 +92,7 @@ export class ShareNoteDialog {
         members.map((m) => ({
           id: m.id,
           name: m.name,
-          detail: [m.roles.map((r) => ROLE_LABELS[r]).join(', '), m.city]
+          detail: [m.roles.map((r) => ROLE_LABELS[r]).join(', '), m.chapterName]
             .filter(Boolean)
             .join(' · '),
         })),

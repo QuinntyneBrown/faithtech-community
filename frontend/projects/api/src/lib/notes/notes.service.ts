@@ -84,7 +84,8 @@ export interface NotePageRef {
 export interface NoteAudienceMember {
   id: string;
   name: string;
-  city: string | null;
+  /** The home chapter's name; null for none and while chapters are off. */
+  chapterName: string | null;
 }
 
 export interface NoteAudienceRole {
@@ -153,7 +154,8 @@ export interface ArchivedNote {
 export interface NoteMember {
   id: string;
   name: string;
-  city: string | null;
+  /** The home chapter's name; null for none and while chapters are off. */
+  chapterName: string | null;
   roles: Role[];
 }
 

@@ -37,7 +37,7 @@ export interface InviteLookupDto {
   status: InviteStatus;
   email: string;
   inviterName: string;
-  inviterCity: string | null;
+  inviterChapterName: string | null;
   preassignedRole: Role | null;
   /** An account already uses the invited email, so the invitee signs in to accept. */
   hasAccount: boolean;

@@ -4,9 +4,9 @@ import { Observable } from 'rxjs';
 /** The four periods and their URL keys (L2-124 AC3). */
 export type ReportPeriod = 'last-30-days' | 'last-90-days' | 'this-year' | 'all-time';
 
-/** The report's filters, as the URL carries them; `city` is null for All cities. */
+/** The report's filters, as the URL carries them; `chapter` is a chapter's id, or null for All {chapters}. */
 export interface ReportFilters {
-  city: string | null;
+  chapter: string | null;
   period: ReportPeriod;
 }
 
@@ -24,8 +24,9 @@ export interface ReportMonthRowDto {
   soFar: boolean;
 }
 
+/** `chapter` names the row: a chapter, "No {chapter}", or "Partner pipeline" while chapters are off. */
 export interface PartnerPipelineRowDto {
-  city: string;
+  chapter: string;
   lead: number;
   inFunnel: number;
   confirmed: number;
@@ -39,7 +40,8 @@ export interface ReportEventRowDto {
   id: string;
   title: string;
   startsAt: string;
-  city: string;
+  /** The event's chapter or "{Organisation}-wide"; null while chapters are off. */
+  chapter: string | null;
   status: 'Held' | 'Upcoming' | 'Cancelled';
   going: number | null;
   checkedIn: number | null;
@@ -48,11 +50,14 @@ export interface ReportEventRowDto {
 
 /** The whole report (docs/detailed-designs/reports/reports-dashboard, ADR 0030). */
 export interface ReportDto {
-  city: string | null;
+  /** The chosen chapter's id and name, or null for All {chapters}. */
+  chapter: string | null;
+  chapterName: string | null;
   period: ReportPeriod;
   from: string | null;
   to: string;
-  cities: string[];
+  /** The active chapters for the filter (L2-142 AC1); empty while chapters are off. */
+  chapters: { id: string; name: string }[];
   isEmpty: boolean;
   figures: {
     /** `newInPeriod` is null for All time. */
@@ -63,7 +68,8 @@ export interface ReportDto {
     partnersConfirmed: { value: number; inPipeline: number };
     announcements: { value: number };
   };
-  membersByCity: ReportChartRowDto[];
+  /** Empty while chapters are off. */
+  membersByChapter: ReportChartRowDto[];
   newMembersByMonth: ReportMonthRowDto[];
   partnerPipeline: PartnerPipelineRowDto[];
   events: ReportEventRowDto[];
@@ -73,7 +79,7 @@ export interface ReportDto {
  * Contract for Reports (L2-123 to L2-128). Pages depend on REPORTS_SERVICE, never on HttpReportsService.
  */
 export interface ReportsService {
-  /** Staff and System Admins; 403 for everyone else; 400 for an unknown city or period. */
+  /** Holders of ViewReports; 403 for everyone else; 400 for an unknown chapter or period. */
   getReport(filters: ReportFilters): Observable<ReportDto>;
   /** The same report as CSV, one section after another, for Staff and System Admins (L2-128). */
   exportCsv(filters: ReportFilters): Observable<Blob>;

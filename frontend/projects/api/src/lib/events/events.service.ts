@@ -41,10 +41,9 @@ export interface EventSummaryDto {
   isCancelled: boolean;
 }
 
-/** The matching events, and every chapter name that has an event whatever the filters. */
+/** The matching events. The chapter filter's options come from the organisation (L2-142 AC1). */
 export interface EventListDto {
   events: EventSummaryDto[];
-  cities: string[];
 }
 
 /** Someone who RSVP'd. `guestEmail` is null for members, and for Staff (L2-022 AC4). */
@@ -121,7 +120,8 @@ export type EventListFilter = 'Upcoming' | 'Past' | 'Hackathons' | 'Online';
 
 export interface EventFilter {
   filter?: EventListFilter;
-  city?: string | null;
+  /** A chapter's id, or ORGANISATION_WIDE for events with no chapter; ignored while chapters are off (L2-142). */
+  chapterId?: string | null;
 }
 
 /**

@@ -25,7 +25,7 @@ public record ResourceSummaryDto(
     bool IsStored,
     DateTimeOffset AddedAt);
 
-public record AudienceMemberDto(Guid Id, string Name, string? City);
+public record AudienceMemberDto(Guid Id, string Name, string? ChapterName);
 
 /// <summary>A role in the audience, with how many members hold it today (L2-056 AC4).</summary>
 public record AudienceRoleDto(string Role, int Count);

@@ -1,7 +1,4 @@
-<ft-page-header
-  title="Events"
-  subtitle="Builders nights, hackathons and gatherings across every city"
->
+<ft-page-header title="Events" [subtitle]="subtitle()">
   @if (canManage()) {
     <ft-button ftPageHeaderActions variant="primary" href="/events/new">
       <ft-icon name="add" /> New event
@@ -15,9 +12,11 @@
       <ft-chip [pressed]="filter() === chip" (click)="choose(chip)">{{ chip }}</ft-chip>
     }
   </ft-chip-group>
-  <ft-form-field label="City" class="city">
-    <ft-select [options]="cityOptions()" [formControl]="city" />
-  </ft-form-field>
+  @if (chapterOptions().length) {
+    <ft-form-field [label]="chapterLabel()" class="city">
+      <ft-select [options]="chapterOptions()" [formControl]="chapter" />
+    </ft-form-field>
+  }
 </div>
 
 @switch (state()) {
@@ -38,23 +37,17 @@
   @case ('loaded') {
     @if (rows().length === 0) {
       @if (filtered()) {
-        <ft-empty-state
-          icon="events"
-          [heading]="noResultsHeading()"
-          text="Try another city or include past events."
-        >
-          @if (city.value) {
-            <ft-button actions (click)="showAllCities()">Show all cities</ft-button>
+        <ft-empty-state icon="events" [heading]="noResultsHeading()" [text]="noResultsText()">
+          @if (chapter.value) {
+            <ft-button actions (click)="showAllChapters()"
+              >Show all {{ chaptersLabel() }}</ft-button
+            >
           } @else {
             <ft-button actions (click)="showUpcoming()">Show upcoming events</ft-button>
           }
         </ft-empty-state>
       } @else {
-        <ft-empty-state
-          icon="events"
-          heading="No events yet"
-          text="Create the first gathering for your city. Public events get a page anyone can RSVP to, even without an account."
-        >
+        <ft-empty-state icon="events" heading="No events yet" [text]="emptyText()">
           @if (canManage()) {
             <ft-button actions variant="primary" href="/events/new">
               <ft-icon name="add" /> New event

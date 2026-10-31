@@ -2,6 +2,8 @@
 import { TestBed } from '@angular/core/testing';
 import {
   AUTH_SERVICE,
+  ChapterLabel,
+  ORGANISATION_SERVICE,
   TEAM_SERVICE,
   TeamListDto,
   TeamMemberDto,
@@ -16,7 +18,7 @@ function member(overrides: Partial<TeamMemberDto>): TeamMemberDto {
   return {
     profileId: 'p1',
     name: 'Grace Okonkwo',
-    homeCity: 'Toronto',
+    chapterName: 'Toronto',
     photoUrl: 'https://photos.example/grace.jpg',
     roles: ['CityLead'],
     ...overrides,
@@ -32,21 +34,36 @@ const samuel = member({
 });
 const everyone: TeamListDto = {
   members: [grace, samuel],
-  cities: ['Austin', 'Toronto', 'Vancouver'],
   next: null,
   totalCount: 2,
 };
-const none: TeamListDto = { members: [], cities: [], next: null, totalCount: 0 };
+const none: TeamListDto = { members: [], next: null, totalCount: 0 };
+const CITIES: ChapterLabel = { singular: 'City', plural: 'Cities' };
 
 async function setup(
   list: (filters?: unknown, after?: string | null) => Observable<TeamListDto>,
   capabilities: Capability[] = ['InviteMembers'],
+  chapterLabel: ChapterLabel | null = CITIES,
 ) {
+  const organisation = {
+    name: 'FaithTech Community',
+    shortName: 'FaithTech',
+    chapterLabel,
+    chapters: chapterLabel
+      ? [
+          { id: 'c-toronto', name: 'Toronto' },
+          { id: 'c-austin', name: 'Austin' },
+          { id: 'c-vancouver', name: 'Vancouver' },
+        ]
+      : [],
+    roles: [],
+  };
   const service = { list: vi.fn(list) };
   TestBed.configureTestingModule({
     providers: [
       { provide: TEAM_SERVICE, useValue: service },
       { provide: AUTH_SERVICE, useValue: { capabilities: signal(capabilities) } },
+      { provide: ORGANISATION_SERVICE, useValue: { get: () => of(organisation) } },
     ],
   });
   const fixture = TestBed.createComponent(TeamPage);
@@ -75,7 +92,7 @@ describe('TeamPage', () => {
   it('lists every team member with a profile link, photo and role badges', async () => {
     const { host, items, service } = await setup(() => of(everyone));
 
-    expect(service.list).toHaveBeenCalledWith({ role: null, city: null });
+    expect(service.list).toHaveBeenCalledWith({ role: null, chapterId: null });
     expect(host.querySelector('h1')!.textContent).toContain('Team');
     const [first, second] = items();
     const name = first.querySelector('a')!;
@@ -110,28 +127,38 @@ describe('TeamPage', () => {
     button('Volunteers')!.click();
     await settle();
 
-    expect(service.list).toHaveBeenLastCalledWith({ role: 'Volunteers', city: null });
+    expect(service.list).toHaveBeenLastCalledWith({ role: 'Volunteers', chapterId: null });
     expect(button('Volunteers')!.getAttribute('aria-pressed')).toBe('true');
     expect(button('All')!.getAttribute('aria-pressed')).toBe('false');
 
     button('All')!.click();
     await settle();
 
-    expect(service.list).toHaveBeenLastCalledWith({ role: null, city: null });
+    expect(service.list).toHaveBeenLastCalledWith({ role: null, chapterId: null });
   });
 
-  it('filters by a city chosen from every team member’s city', async () => {
-    const { select, choose, service } = await setup(() => of(everyone));
+  // Traces to: L2-142 AC1, AC2
+  it('filters by a chapter chosen from the organisation’s chapters in order', async () => {
+    const { host, select, choose, service } = await setup(() => of(everyone));
+    expect(host.querySelector(`label[for="${select().id}"]`)!.textContent).toContain('City');
     expect(Array.from(select().options).map((o) => o.textContent!.trim())).toEqual([
       'All cities',
-      'Austin',
       'Toronto',
+      'Austin',
       'Vancouver',
     ]);
 
-    await choose('Vancouver');
+    await choose('c-vancouver');
 
-    expect(service.list).toHaveBeenLastCalledWith({ role: null, city: 'Vancouver' });
+    expect(service.list).toHaveBeenLastCalledWith({ role: null, chapterId: 'c-vancouver' });
+  });
+
+  // Traces to: L2-142 AC3
+  it('has no chapter filter while chapters are off', async () => {
+    const { select, service } = await setup(() => of(everyone), ['InviteMembers'], null);
+
+    expect(select()).toBeNull();
+    expect(service.list).toHaveBeenLastCalledWith({ role: null, chapterId: null });
   });
 
   it('shows the empty state with an invite link when there is no team', async () => {
@@ -142,10 +169,10 @@ describe('TeamPage', () => {
   });
 
   it('says no one matches the filters and offers to show everyone', async () => {
-    const lists = [everyone, everyone, { ...none, cities: everyone.cities }, everyone];
+    const lists = [everyone, everyone, none, everyone];
     const { host, button, choose, service, settle } = await setup(() => of(lists.shift()!));
     button('Volunteers')!.click();
-    await choose('Vancouver');
+    await choose('c-vancouver');
 
     expect(host.textContent).toContain('No volunteers in Vancouver yet');
     expect(host.textContent).toContain('Try a different role or city.');
@@ -153,7 +180,7 @@ describe('TeamPage', () => {
     button('Show everyone')!.click();
     await settle();
 
-    expect(service.list).toHaveBeenLastCalledWith({ role: null, city: null });
+    expect(service.list).toHaveBeenLastCalledWith({ role: null, chapterId: null });
     expect(button('All')!.getAttribute('aria-pressed')).toBe('true');
   });
 
@@ -171,7 +198,7 @@ describe('TeamPage', () => {
     button('Show more members')!.click();
     await settle();
 
-    expect(service.list).toHaveBeenLastCalledWith({ role: null, city: null }, 'cursor-2');
+    expect(service.list).toHaveBeenLastCalledWith({ role: null, chapterId: null }, 'cursor-2');
     expect(items()).toHaveLength(3);
     expect(host.textContent).toContain('Showing 3 of 3 members');
     expect(button('Show more members')).toBeUndefined();

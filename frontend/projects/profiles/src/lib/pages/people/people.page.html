@@ -55,14 +55,21 @@
       </ft-button>
     }
   </ft-page-header>
-  <form class="search" role="search" (submit)="$event.preventDefault(); search()">
-    <ft-text-field
-      type="search"
-      label="Search people"
-      placeholder="Search members by name or email"
-      [formControl]="query"
-    />
-  </form>
+  <div class="filters">
+    <form class="search" role="search" (submit)="$event.preventDefault(); search()">
+      <ft-text-field
+        type="search"
+        label="Search people"
+        placeholder="Search members by name or email"
+        [formControl]="query"
+      />
+    </form>
+    @if (chapterOptions().length) {
+      <ft-form-field [label]="chapterLabel()" class="chapter">
+        <ft-select [options]="chapterOptions()" [formControl]="chapter" />
+      </ft-form-field>
+    }
+  </div>
 
   @switch (state()) {
     @case ('loading') {
@@ -80,7 +87,7 @@
     @case ('loaded') {
       @if (list().length === 0) {
         <ft-empty-state
-          [heading]="'No one matches “' + term() + '”'"
+          [heading]="noResultsHeading()"
           text="They may not have joined yet. You can invite them by email."
         >
           @if (canManage()) {

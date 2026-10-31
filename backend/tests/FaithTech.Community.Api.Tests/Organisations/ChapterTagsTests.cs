@@ -155,8 +155,8 @@ public class ChapterTagsTests(CommunityApiFactory factory) : IClassFixture<Commu
             return await db.SaveChangesAsync();
         });
 
-        var team = await factory.ClientFor(samuel).GetFromJsonAsync<JsonElement>("/api/team");
+        var team = await factory.ClientFor(samuel).GetFromJsonAsync<JsonElement>($"/api/team?chapter={vancouver.Id}");
         var row = team.GetProperty("members").EnumerateArray().Single(m => m.GetProperty("profileId").GetGuid() == samuel.ProfileId);
-        Assert.Equal("Vancouver Island", row.GetProperty("homeCity").GetString());
+        Assert.Equal("Vancouver Island", row.GetProperty("chapterName").GetString());
     }
 }

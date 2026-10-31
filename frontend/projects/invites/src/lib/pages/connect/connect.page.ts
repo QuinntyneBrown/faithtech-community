@@ -122,7 +122,7 @@ export class ConnectPage {
   protected readonly firstName = computed(() => this.lead()?.leadName.split(/\s+/)[0] ?? '');
   protected readonly meta = computed(() => {
     const lead = this.lead();
-    return lead ? [lead.leadRole, lead.leadCity].filter(Boolean).join(' · ') : '';
+    return lead ? [lead.leadRole, lead.leadChapterName].filter(Boolean).join(' · ') : '';
   });
   protected readonly color = computed(() => avatarColorFor(this.lead()?.leadProfileId));
   protected readonly signInLink = computed(

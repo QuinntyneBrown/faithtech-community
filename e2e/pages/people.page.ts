@@ -14,12 +14,15 @@ export class PeoplePage {
   readonly backToHome: Locator;
   readonly inviteSomeone: Locator;
   readonly showMore: Locator;
+  /** The chapter filter, labelled with the organisation's singular chapter label. */
+  readonly chapter: Locator;
 
   constructor(private readonly page: Page) {
     this.heading = page.getByRole('heading', { level: 1 });
     this.subtitle = page.locator('ft-page-header p');
     this.search = page.getByRole('searchbox', { name: 'Search people' });
     this.table = page.getByRole('table', { name: 'Members and their roles' });
+    this.chapter = page.getByRole('combobox');
     this.rows = this.table.locator('tbody tr');
     this.skeleton = page.getByLabel('Loading people');
     this.loadError = page.getByRole('heading', { name: 'We couldn’t load people' });
@@ -61,6 +64,16 @@ export class PeoplePage {
 
   noResults(term: string): Locator {
     return this.page.getByRole('heading', { name: `No one matches “${term}”` });
+  }
+
+  /** "No one in {chapter} yet", when a chapter filter matches no one. */
+  noOneIn(chapter: string): Locator {
+    return this.page.getByRole('heading', { name: `No one in ${chapter} yet` });
+  }
+
+  /** The table's column headers. */
+  async headers(): Promise<string[]> {
+    return (await this.table.getByRole('columnheader').allTextContents()).map((h) => h.trim());
   }
 
   async names(): Promise<string[]> {

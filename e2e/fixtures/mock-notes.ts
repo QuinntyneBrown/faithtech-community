@@ -424,7 +424,7 @@ export class MockNotes {
       .map((a) => ({
         id: a.profileId,
         name: a.name,
-        city: this.context.chapters.nameOf(this.context.profiles.get(a.profileId)?.chapterId),
+        chapterName: this.context.chapters.nameOf(this.context.profiles.get(a.profileId)?.chapterId),
         roles: [...a.roles].sort(),
       }));
     return this.json(route, 200, people);
@@ -568,7 +568,7 @@ export class MockNotes {
         members: n.memberIds.map((id) => ({
           id,
           name: this.name(id),
-          city: this.context.chapters.nameOf(this.context.profiles.get(id)?.chapterId),
+          chapterName: this.context.chapters.nameOf(this.context.profiles.get(id)?.chapterId),
         })),
         roles: n.roles.map((role) => ({
           role,

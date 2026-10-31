@@ -68,7 +68,7 @@ public class ReportVolumeTests : IAsyncLifetime
         var toronto = profiles.Where(p => p.Verified && HomeCities[p.Profile] == "Toronto").ToList();
 
         var all = await staff.ReportAsync("?period=last-90-days");
-        var city = await staff.ReportAsync("?city=Toronto&period=all-time");
+        var city = await staff.ReportAsync($"?chapter={await factory.ChapterIdAsync("Toronto")}&period=all-time");
         var export = await staff.GetAsync("/api/reports/export.csv?period=this-year");
 
         Assert.Equal(profiles.Count(p => p.Verified) + 1, all.Figures.Members.Value);
@@ -76,7 +76,7 @@ public class ReportVolumeTests : IAsyncLifetime
         Assert.Equal(held.Count, all.Figures.EventsHeld.Value);
         Assert.Equal(rsvps.Count, all.Figures.Rsvps.Value);
         Assert.Equal(rsvps.Count(r => r.CheckedInAt != null), all.Figures.Rsvps.CheckedIn);
-        Assert.Equal(Cities, all.Cities);
+        Assert.Equal(Cities, all.Chapters.Select(c => c.Name));
         Assert.Equal(50, all.Events.Length);
         Assert.Equal(toronto.Count, city.Figures.Members.Value);
         Assert.Equal(12, city.NewMembersByMonth.Length);

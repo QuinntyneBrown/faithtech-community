@@ -51,7 +51,8 @@ export interface ResourceSummary {
 export interface ResourceAudienceMember {
   id: string;
   name: string;
-  city: string | null;
+  /** The home chapter's name; null for none and while chapters are off. */
+  chapterName: string | null;
 }
 
 export interface ResourceAudienceRole {
@@ -99,7 +100,8 @@ export interface ResourceTagDto {
 export interface ResourceMember {
   id: string;
   name: string;
-  city: string | null;
+  /** The home chapter's name; null for none and while chapters are off. */
+  chapterName: string | null;
   roles: Role[];
 }
 
