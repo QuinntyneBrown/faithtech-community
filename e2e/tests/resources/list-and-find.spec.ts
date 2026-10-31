@@ -27,7 +27,7 @@ test.describe('Resources: list, filter and find', () => {
       {
         title: 'Volunteer training: welcome and safety',
         ownerId: grace.profileId,
-        type: 'Training',
+        type: 'training',
         fileName: 'welcome.pdf',
         size: 3_250_586,
       },
@@ -37,7 +37,7 @@ test.describe('Resources: list, filter and find', () => {
       {
         title: 'Hackathon judging rubric',
         ownerId: marcus.profileId,
-        type: 'Template',
+        type: 'template',
         linkUrl: 'https://docs.google.com/spreadsheets/d/1',
       },
       2,
@@ -46,7 +46,7 @@ test.describe('Resources: list, filter and find', () => {
       {
         title: 'Austin launch retro',
         ownerId: marcus.profileId,
-        type: 'Deck',
+        type: 'deck',
         fileName: 'retro.key',
         size: 33_344_716,
         visibility: 'Shared',
@@ -94,7 +94,7 @@ test.describe('Resources: list, filter and find', () => {
     api.resources.add({
       title: 'City launch deck',
       ownerId: grace.profileId,
-      type: 'Deck',
+      type: 'deck',
       fileName: 'city-launch-deck.pptx',
       size: 4,
     });
@@ -110,17 +110,17 @@ test.describe('Resources: list, filter and find', () => {
   test('filters by type and tag, and clears the filters', async ({ page, api, axe }) => {
     const grace = api.addAccount({ email: 'grace@example.org', roles: ['CityLead'] });
     api.resources.add(
-      { title: 'Kickoff deck', ownerId: grace.profileId, type: 'Deck', tags: ['hackathon'] },
+      { title: 'Kickoff deck', ownerId: grace.profileId, type: 'deck', tags: ['hackathon'] },
       2,
     );
     api.resources.add(
-      { title: 'Judging rubric', ownerId: grace.profileId, type: 'Template', tags: ['hackathon'] },
+      { title: 'Judging rubric', ownerId: grace.profileId, type: 'template', tags: ['hackathon'] },
       1,
     );
     api.resources.add({
       title: 'Launch deck',
       ownerId: grace.profileId,
-      type: 'Deck',
+      type: 'deck',
       tags: ['launch'],
     });
     await api.signInAs(grace, '/resources');

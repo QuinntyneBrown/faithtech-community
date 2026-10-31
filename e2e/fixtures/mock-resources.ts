@@ -2,10 +2,9 @@ import { Route } from '@playwright/test';
 
 import type { MockAccount, MockProfile } from './mock-api';
 import type { MockNotifications } from './mock-notifications';
+import { MockResourceTypes, ResourceTypesContext } from './mock-resource-types';
 import { carries, holds, isShareable } from './role-definitions';
 
-export type MockResourceType =
-  'Deck' | 'Logo' | 'Image' | 'Training' | 'Template' | 'Document' | 'Other';
 export type MockVisibility = 'Private' | 'Shared' | 'Global';
 
 /** A resource as the Resources table holds it, with its file bytes when it is an upload. */
@@ -13,7 +12,8 @@ export interface MockResource {
   id: string;
   title: string;
   description: string | null;
-  type: MockResourceType;
+  /** A resource type key of the organisation's (L2-146). */
+  type: string;
   tags: string[];
   visibility: MockVisibility;
   memberIds: string[];
@@ -38,17 +38,9 @@ export interface ResourcesContext {
   readonly profiles: Map<string, MockProfile>;
   readonly notifications: MockNotifications;
   readonly now: Date;
+  addAuditEntry: ResourceTypesContext['addAuditEntry'];
 }
 
-const TYPES: MockResourceType[] = [
-  'Deck',
-  'Logo',
-  'Image',
-  'Training',
-  'Template',
-  'Document',
-  'Other',
-];
 const EXTENSIONS = [
   'pptx',
   'ppt',
@@ -94,13 +86,14 @@ function extensionOf(fileName: string): string {
   return ext === 'jpeg' ? 'jpg' : ext;
 }
 
-function guessType(fileName: string): MockResourceType {
+/** ResourceFileTypes.GuessType: a resource type key, which ResourceTypeResolver maps to a type (L2-146 AC3). */
+function guessType(fileName: string): string {
   const ext = extensionOf(fileName);
-  if (['pptx', 'ppt', 'key'].includes(ext)) return 'Deck';
-  if (['png', 'jpg', 'gif', 'webp'].includes(ext)) return 'Image';
-  if (ext === 'svg') return 'Logo';
-  if (['pdf', 'docx', 'doc', 'xlsx', 'csv'].includes(ext)) return 'Document';
-  return 'Other';
+  if (['pptx', 'ppt', 'key'].includes(ext)) return 'deck';
+  if (['png', 'jpg', 'gif', 'webp'].includes(ext)) return 'image';
+  if (ext === 'svg') return 'logo';
+  if (['pdf', 'docx', 'doc', 'xlsx', 'csv'].includes(ext)) return 'document';
+  return 'other';
 }
 
 function refusal(fileName: string): string {
@@ -148,7 +141,19 @@ export class MockResources {
   uploadDelayMs = 0;
   private counter = 0;
 
-  constructor(private readonly context: ResourcesContext) {}
+  /** The organisation's resource types, seeded with FaithTech's (L2-146, L2-151). */
+  readonly types: MockResourceTypes;
+
+  constructor(private readonly context: ResourcesContext) {
+    const resources = this.resources;
+    this.types = new MockResourceTypes({
+      get now() {
+        return context.now;
+      },
+      resourcesOf: (key) => resources.filter((r) => r.type === key && !r.archivedAt).length,
+      addAuditEntry: (entry) => context.addAuditEntry(entry),
+    });
+  }
 
   /** A resource as the table holds it; give `daysAgo` to age it. */
   add(
@@ -159,7 +164,7 @@ export class MockResources {
     const full: MockResource = {
       id: `resource-${++this.counter}`,
       description: null,
-      type: 'Document',
+      type: 'document',
       tags: [],
       visibility: 'Global',
       memberIds: [],
@@ -273,7 +278,7 @@ export class MockResources {
           id: r.id,
           title: r.title,
           snippet: [
-            r.type,
+            this.types.nameOf(r.type),
             r.linkUrl ? hostOf(r.linkUrl) : extensionOf(r.fileName!).toUpperCase(),
             this.name(r.ownerId),
             why,
@@ -324,6 +329,8 @@ export class MockResources {
   private list(route: Route, url: URL, caller: MockAccount) {
     const q = (url.searchParams.get('q') ?? '').trim().toLowerCase();
     const type = url.searchParams.get('type');
+    if (type && !this.types.byKey(type))
+      return this.invalid(route, { type: ['Choose a type from the list.'] });
     const tag = url.searchParams.get('tag');
     const page = Number(url.searchParams.get('page') ?? '1');
     const words = q.split(/\s+/).filter(Boolean);
@@ -363,6 +370,7 @@ export class MockResources {
         id: r.id,
         title: r.title,
         type: r.type,
+        typeName: this.types.nameOf(r.type),
         extension: r.fileName ? extensionOf(r.fileName) : null,
         size: r.size,
         linkHost: r.linkUrl ? hostOf(r.linkUrl) : null,
@@ -422,6 +430,7 @@ export class MockResources {
         roles: form.fields['roles'] ?? [],
       },
       false,
+      null,
     );
     if (errors) return this.invalid(route, errors);
     return this.delayed(async () => {
@@ -432,7 +441,7 @@ export class MockResources {
         this.add({
           title: (single && one('title')?.trim()) || file.fileName.replace(/\.[^.]+$/, ''),
           description: one('description')?.trim() || null,
-          type: ((single && one('type')) || guessType(file.fileName)) as MockResourceType,
+          type: (single && one('type')) || this.types.resolveGuess(guessType(file.fileName)),
           tags: this.tagsOf(form.fields['tags']),
           ownerId: caller.profileId,
           fileName: file.fileName,
@@ -461,7 +470,7 @@ export class MockResources {
     body: Record<string, unknown>,
   ) {
     if (!contributes) return route.fulfill({ status: 403 });
-    const errors = this.check(this.input(body), true) ?? {};
+    const errors = this.check(this.input(body), true, null) ?? {};
     const url = String(body['url'] ?? '').trim();
     if (!/^https:\/\/[^\s/]+\.[^\s]+/i.test(url)) errors['Url'] = [LINK_MESSAGE];
     if (Object.keys(errors).length) return this.invalid(route, errors);
@@ -469,7 +478,7 @@ export class MockResources {
     const resource = this.add({
       title: input.title!.trim(),
       description: input.description?.trim() || null,
-      type: input.type as MockResourceType,
+      type: input.type!,
       tags: this.tagsOf(body['tags'] as string[]),
       ownerId: caller.profileId,
       linkUrl: url,
@@ -488,7 +497,7 @@ export class MockResources {
     if (resource.archivedAt)
       return this.json(route, 409, { status: 409, detail: 'Restore it before you edit it.' });
     const input = this.input(body);
-    const errors = this.check(input, true) ?? {};
+    const errors = this.check(input, true, resource.type) ?? {};
     const url = String(body['url'] ?? '').trim();
     if (resource.linkUrl && !/^https:\/\/[^\s/]+\.[^\s]+/i.test(url))
       errors['Url'] = [LINK_MESSAGE];
@@ -578,6 +587,8 @@ export class MockResources {
       roles: string[];
     },
     titleRequired: boolean,
+    /** On edit, the resource's type, which it may keep once archived (L2-146 AC2). */
+    currentType: string | null,
   ): Record<string, string[]> | null {
     const errors: Record<string, string[]> = {};
     const title = input.title?.trim() ?? '';
@@ -585,7 +596,7 @@ export class MockResources {
     else if (title.length > 120) errors['Title'] = ['Use 120 characters or fewer for the title.'];
     if ((input.description?.trim().length ?? 0) > 1000)
       errors['Description'] = ['Use 1,000 characters or fewer for the description.'];
-    if ((titleRequired || input.type) && !TYPES.includes(input.type as MockResourceType))
+    if ((titleRequired || input.type) && !this.types.allows(input.type, currentType))
       errors['Type'] = ['Choose a type.'];
     const visibility = input.visibility || 'Global';
     if (!['Private', 'Shared', 'Global'].includes(visibility))
@@ -649,6 +660,7 @@ export class MockResources {
       id: r.id,
       title: r.title,
       type: r.type,
+      typeName: this.types.nameOf(r.type),
       fileName: r.fileName,
       extension: r.fileName ? extensionOf(r.fileName) : null,
       size: r.size,

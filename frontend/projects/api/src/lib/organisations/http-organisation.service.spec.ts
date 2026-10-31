@@ -17,6 +17,8 @@ const ORGANISATION: OrganisationDto = {
   ],
   partnerStages: [],
   eventTypes: [],
+  resourceTypes: [],
+  archivedResourceTypes: [],
 };
 
 describe('HttpOrganisationService', () => {

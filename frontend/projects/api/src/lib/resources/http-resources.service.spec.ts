@@ -14,7 +14,7 @@ import {
 
 const fields: ResourceFields = {
   title: 'City launch deck',
-  type: 'Deck',
+  type: 'deck',
   tags: ['launch', 'brand'],
   visibility: 'Shared',
   memberIds: ['p2'],
@@ -40,9 +40,9 @@ describe('HttpResourcesService', () => {
     ['list', () => service.list({}), 'GET', '/api/resources', undefined],
     [
       'list filtered',
-      () => service.list({ q: 'deck', type: 'Deck', tag: 'launch', page: 2 }),
+      () => service.list({ q: 'deck', type: 'deck', tag: 'launch', page: 2 }),
       'GET',
-      '/api/resources?q=deck&type=Deck&tag=launch&page=2',
+      '/api/resources?q=deck&type=deck&tag=launch&page=2',
       undefined,
     ],
     ['tags', () => service.tags('lau'), 'GET', '/api/resources/tags?q=lau', undefined],
@@ -102,7 +102,7 @@ describe('HttpResourcesService', () => {
     expect(form.get('files')).toBeInstanceOf(File);
     expect([form.get('title'), form.get('type'), form.get('visibility')]).toEqual([
       'City launch deck',
-      'Deck',
+      'deck',
       'Shared',
     ]);
     expect(form.getAll('tags')).toEqual(['launch', 'brand']);

@@ -46,7 +46,9 @@
     <header class="head">
       <div>
         <h1>{{ r.title }}</h1>
-        <p class="subtitle">{{ r.type }} · added {{ formatDay(r.addedAt) }} by {{ ownerName() }}</p>
+        <p class="subtitle">
+          {{ r.typeName }} · added {{ formatDay(r.addedAt) }} by {{ ownerName() }}
+        </p>
       </div>
       <ft-cluster gap="2" class="actions">
         @if (r.linkUrl) {
@@ -107,7 +109,7 @@
               <span class="preview__name">Link to {{ r.linkHost }}</span>
             } @else {
               <span class="preview__name">{{ r.fileName }}</span>
-              <span class="preview__meta">{{ r.type }} · {{ fileOrHost(r) }}</span>
+              <span class="preview__meta">{{ r.typeName }} · {{ fileOrHost(r) }}</span>
             }
           }
         </div>
@@ -159,7 +161,7 @@
       <aside class="side">
         <h2>Details</h2>
         <ft-description-list>
-          <ft-description-list-item label="Type">{{ r.type }}</ft-description-list-item>
+          <ft-description-list-item label="Type">{{ r.typeName }}</ft-description-list-item>
           @if (r.linkHost) {
             <ft-description-list-item label="Link"
               >{{ r.linkHost }} (opens in a new tab)</ft-description-list-item

@@ -15,6 +15,8 @@ const organisation: OrganisationDto = {
   roles: [],
   partnerStages: [],
   eventTypes: [],
+  resourceTypes: [],
+  archivedResourceTypes: [],
 };
 
 const withCities: OrganisationDto = {

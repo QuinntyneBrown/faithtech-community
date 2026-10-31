@@ -30,7 +30,7 @@ test.describe('Add resources', () => {
     await dialog.choose({ name: 'city-launch-deck.pptx', buffer: Buffer.from('PK deck') });
     await expect(dialog.file('city-launch-deck.pptx')).toContainText('PPTX · 1 KB');
     await expect(dialog.title).toHaveValue('city-launch-deck');
-    await expect(dialog.type).toHaveValue('Deck');
+    await expect(dialog.type).toHaveValue('deck');
     await expect(dialog.dialog).toContainText('Guessed from .pptx — change it if it’s wrong.');
     await dialog.title.fill('City launch deck');
     await dialog.addTag('Launch');
@@ -75,9 +75,9 @@ test.describe('Add resources', () => {
     await expect(resources.toast).toContainText('3 resources added');
     await expect(resources.items).toHaveCount(3);
     expect(api.resources.resources.map((r) => [r.title, r.type, r.visibility, r.tags])).toEqual([
-      ['brand-colours', 'Document', 'Private', ['brand']],
-      ['faithtech-mark', 'Logo', 'Private', ['brand']],
-      ['logo-rules', 'Document', 'Private', ['brand']],
+      ['brand-colours', 'document', 'Private', ['brand']],
+      ['faithtech-mark', 'logo', 'Private', ['brand']],
+      ['logo-rules', 'document', 'Private', ['brand']],
     ]);
   });
 

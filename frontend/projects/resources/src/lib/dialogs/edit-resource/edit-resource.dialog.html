@@ -67,7 +67,7 @@
     </div>
   }
 
-  <ft-resource-details [form]="form" [errors]="errors()" />
+  <ft-resource-details [form]="form" [errors]="errors()" [currentType]="currentType" />
 
   <ft-button ftDialogFooter [disabled]="busy()" (click)="ref.close()">Cancel</ft-button>
   <ft-button ftDialogFooter variant="primary" [loading]="busy()" (click)="save()">{{

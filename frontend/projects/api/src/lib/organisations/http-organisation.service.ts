@@ -11,6 +11,7 @@ import {
   PartnerStageChange,
   PartnerStageDto,
   EventTypeDto,
+  ResourceTypeDto,
   UpdateOrganisationRequest,
 } from './organisation.service';
 
@@ -165,6 +166,51 @@ export class HttpOrganisationService implements OrganisationService {
     return this.write(
       this.http.post<EventTypeDto>(
         `${this.base}/organisation/event-types/${id}/archive`,
+        null,
+        this.options(),
+      ),
+    );
+  }
+
+  listResourceTypes(archived = false): Observable<ResourceTypeDto[]> {
+    const query = archived ? '?archived=true' : '';
+    return this.http.get<ResourceTypeDto[]>(`${this.base}/organisation/resource-types${query}`);
+  }
+
+  addResourceType(name: string): Observable<ResourceTypeDto> {
+    return this.write(
+      this.http.post<ResourceTypeDto>(
+        `${this.base}/organisation/resource-types`,
+        { name },
+        this.options(),
+      ),
+    );
+  }
+
+  renameResourceType(id: string, name: string): Observable<ResourceTypeDto> {
+    return this.write(
+      this.http.put<ResourceTypeDto>(
+        `${this.base}/organisation/resource-types/${id}`,
+        { name },
+        this.options(),
+      ),
+    );
+  }
+
+  reorderResourceTypes(ids: string[]): Observable<ResourceTypeDto[]> {
+    return this.write(
+      this.http.put<ResourceTypeDto[]>(
+        `${this.base}/organisation/resource-types/order`,
+        { ids },
+        this.options(),
+      ),
+    );
+  }
+
+  archiveResourceType(id: string): Observable<ResourceTypeDto> {
+    return this.write(
+      this.http.post<ResourceTypeDto>(
+        `${this.base}/organisation/resource-types/${id}/archive`,
         null,
         this.options(),
       ),
