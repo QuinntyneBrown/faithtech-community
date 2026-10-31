@@ -20,7 +20,7 @@ public class ReassignOwnerTests(CommunityApiFactory factory) : IClassFixture<Com
     {
         var cast = await factory.AddCastAsync();
 
-        var response = await factory.AdminClient(cast).DeleteAsync($"/api/profiles/{cast.Owner.ProfileId}/roles/CityLead");
+        var response = await factory.AdminClient(cast).DeleteAsync($"/api/profiles/{cast.Owner.ProfileId}/roles/{factory.RoleIdOf("CityLead")}");
 
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
         var notification = await factory.WithDbAsync(db => db.Notifications
@@ -39,7 +39,7 @@ public class ReassignOwnerTests(CommunityApiFactory factory) : IClassFixture<Com
         var cast = await factory.AddCastAsync();
         await factory.AddWorkspaceAsync(cast.Owner, "Austin crew", WorkspaceMethod.Kanban, cast.Member);
 
-        await factory.AdminClient(cast).DeleteAsync($"/api/profiles/{cast.Owner.ProfileId}/roles/CityLead");
+        await factory.AdminClient(cast).DeleteAsync($"/api/profiles/{cast.Owner.ProfileId}/roles/{factory.RoleIdOf("CityLead")}");
 
         var notification = await factory.WithDbAsync(db => db.Notifications
             .SingleAsync(n => n.RecipientId == cast.Admin.ProfileId && n.Kind == NotificationKind.WorkspaceOwnerLostCapability));
@@ -53,9 +53,9 @@ public class ReassignOwnerTests(CommunityApiFactory factory) : IClassFixture<Com
     public async Task Given_an_owner_who_keeps_OwnWorkspaces_through_another_role_then_no_one_is_notified()
     {
         var cast = await factory.AddCastAsync();
-        await factory.AdminClient(cast).PostAsJsonAsync($"/api/profiles/{cast.Owner.ProfileId}/roles", new { Role = "EventLead" });
+        await factory.AdminClient(cast).PostAsJsonAsync($"/api/profiles/{cast.Owner.ProfileId}/roles", new { RoleId = factory.RoleIdOf("EventLead") });
 
-        await factory.AdminClient(cast).DeleteAsync($"/api/profiles/{cast.Owner.ProfileId}/roles/EventLead");
+        await factory.AdminClient(cast).DeleteAsync($"/api/profiles/{cast.Owner.ProfileId}/roles/{factory.RoleIdOf("EventLead")}");
 
         Assert.False(await factory.WithDbAsync(db => db.Notifications.AnyAsync(n => n.Kind == NotificationKind.WorkspaceOwnerLostCapability && n.RecipientId == cast.Admin.ProfileId)));
     }
@@ -66,7 +66,7 @@ public class ReassignOwnerTests(CommunityApiFactory factory) : IClassFixture<Com
         var cast = await factory.AddCastAsync();
         await factory.OwnerClient(cast).PostAsync($"/api/workspaces/{cast.WorkspaceId}/archive", null);
 
-        await factory.AdminClient(cast).DeleteAsync($"/api/profiles/{cast.Owner.ProfileId}/roles/CityLead");
+        await factory.AdminClient(cast).DeleteAsync($"/api/profiles/{cast.Owner.ProfileId}/roles/{factory.RoleIdOf("CityLead")}");
 
         var archived = (await factory.AdminClient(cast).GetFromJsonAsync<WorkspacesTests.Summary[]>("/api/workspaces"))!.Single(w => w.Id == cast.WorkspaceId);
         Assert.Equal((true, false), (archived.IsArchived, archived.NeedsNewOwner));
@@ -83,7 +83,7 @@ public class ReassignOwnerTests(CommunityApiFactory factory) : IClassFixture<Com
     {
         var cast = await factory.AddCastAsync();
         var joel = await factory.AddWithRolesAsync("Joel Mbeki", Role.CityLead);
-        await factory.AdminClient(cast).DeleteAsync($"/api/profiles/{cast.Owner.ProfileId}/roles/CityLead");
+        await factory.AdminClient(cast).DeleteAsync($"/api/profiles/{cast.Owner.ProfileId}/roles/{factory.RoleIdOf("CityLead")}");
 
         var response = await factory.AdminClient(cast).PutAsJsonAsync($"/api/workspaces/{cast.WorkspaceId}/owner", new { OwnerId = joel.ProfileId });
 

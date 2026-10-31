@@ -31,11 +31,13 @@ export interface RoleDefinition {
   id: string;
   key: string;
   name: string;
+  description?: string;
   capabilities: Capability[];
   showOnTeam: boolean;
   chapterScopable: boolean;
   isOversight: boolean;
   grants: string[];
+  archived?: boolean;
 }
 
 const CREATE_LEAD: Capability[] = [
@@ -181,13 +183,44 @@ export const FAITHTECH_ROLES: RoleDefinition[] = [
   },
 ];
 
+/**
+ * The host organisation's definitions for the running test: FaithTech's seed, plus any a spec defines with
+ * `api.defineRole`. The fixture resets them for every test, so one test's roles never reach another.
+ */
+let definitions: RoleDefinition[] = [];
+resetRoleDefinitions();
+
+export function resetRoleDefinitions(): void {
+  definitions = FAITHTECH_ROLES.map((d) => ({ ...d, grants: [...d.grants] }));
+}
+
+/** Every definition, archived ones included, in display order. */
+export function roleDefinitions(): readonly RoleDefinition[] {
+  return definitions;
+}
+
+/** Adds a test-defined role (ADR 0033): any name, capabilities and grant rules, by key. */
+export function defineRole(
+  role: Pick<RoleDefinition, 'key' | 'name'> & Partial<RoleDefinition>,
+): RoleDefinition {
+  const definition: RoleDefinition = {
+    id: `role-${role.key}`,
+    description: '',
+    capabilities: [],
+    showOnTeam: false,
+    chapterScopable: false,
+    isOversight: false,
+    grants: [],
+    ...role,
+  };
+  definitions.push(definition);
+  return definition;
+}
+
 /** The union of the capabilities of the held roles, in catalogue order (L2-135 AC2). */
-export function capabilitiesOf(
-  roles: readonly string[],
-  definitions = FAITHTECH_ROLES,
-): Capability[] {
+export function capabilitiesOf(roles: readonly string[]): Capability[] {
   const held = new Set(
-    definitions.filter((d) => roles.includes(d.key)).flatMap((d) => d.capabilities),
+    definitions.filter((d) => !d.archived && roles.includes(d.key)).flatMap((d) => d.capabilities),
   );
   return CAPABILITIES.filter((c) => held.has(c));
 }
@@ -203,13 +236,15 @@ export interface HeldRole {
 
 /** The held roles, in display order, as /api/me answers them. */
 export function heldRolesOf(roles: readonly string[]): HeldRole[] {
-  return FAITHTECH_ROLES.filter((d) => roles.includes(d.key)).map((d) => ({
-    id: d.id,
-    key: d.key,
-    name: d.name,
-    chapterId: null,
-    isOversight: d.isOversight,
-  }));
+  return definitions
+    .filter((d) => roles.includes(d.key))
+    .map((d) => ({
+      id: d.id,
+      key: d.key,
+      name: d.name,
+      chapterId: null,
+      isOversight: d.isOversight,
+    }));
 }
 
 /**
@@ -229,33 +264,82 @@ export function holds(
  * API's ProfileHolding filter answers for owners, members and the team.
  */
 export function carries(roles: readonly string[], capability: Capability): boolean {
-  return FAITHTECH_ROLES.some((d) => roles.includes(d.key) && d.capabilities.includes(capability));
+  return definitions.some(
+    (d) => !d.archived && roles.includes(d.key) && d.capabilities.includes(capability),
+  );
 }
 
 /** Whether a profile holds a role shown on the team (L2-046, ShowOnTeam). */
 export function onTeam(roles: readonly string[]): boolean {
-  return FAITHTECH_ROLES.some((d) => roles.includes(d.key) && d.showOnTeam);
+  return definitions.some((d) => !d.archived && roles.includes(d.key) && d.showOnTeam);
 }
 
-/** The definition of a FaithTech role key, or undefined for a key the seed does not define. */
+/** The definition of a role key, or undefined for a key the organisation does not define. */
 export function definitionOf(key: string): RoleDefinition | undefined {
-  return FAITHTECH_ROLES.find((d) => d.key === key);
+  return definitions.find((d) => d.key === key);
+}
+
+/** The definition with an id, or undefined for an id the organisation does not define. */
+export function definitionWithId(id: string): RoleDefinition | undefined {
+  return definitions.find((d) => d.id === id);
+}
+
+/** The keys of the roles held, as a profile answers them (L2-138 AC1). */
+export function profileRolesOf(roles: readonly string[]) {
+  return definitions
+    .filter((d) => roles.includes(d.key))
+    .map((d) => ({ id: d.id, name: d.name, chapterId: null }));
 }
 
 /**
- * Whether a caller may grant or remove a role, as RoleAssignmentPolicy answers: AdministerOrganisation grants
- * anything; otherwise AssignRoles plus a grant rule of a held role, and never a role carrying
- * AdministerOrganisation (ADR 0033, L2-134).
+ * The keys of the roles a caller may add and remove, as RoleGrantPolicy answers: every role not archived for
+ * AdministerOrganisation; otherwise the grant rules of the held roles that carry AssignRoles, never a role
+ * carrying AdministerOrganisation (ADR 0033, L2-137 AC2-AC4).
  */
+export function grantableKeys(caller: {
+  roles: readonly string[];
+  capabilities?: readonly Capability[];
+}): string[] {
+  const live = definitions.filter((d) => !d.archived);
+  const held = caller.capabilities ?? capabilitiesOf(caller.roles);
+  if (held.includes('AdministerOrganisation')) return live.map((d) => d.key);
+  if (!held.includes('AssignRoles')) return [];
+  const byRule = new Set(
+    live
+      .filter((d) => caller.roles.includes(d.key) && d.capabilities.includes('AssignRoles'))
+      .flatMap((d) => d.grants),
+  );
+  return live
+    .filter((d) => byRule.has(d.key) && !d.capabilities.includes('AdministerOrganisation'))
+    .map((d) => d.key);
+}
+
+/** Whether a caller may grant or remove a role (RoleGrantPolicy.CanGrantAsync). */
 export function canGrant(
   caller: { roles: readonly string[]; capabilities?: readonly Capability[] },
   role: string,
 ): boolean {
+  return grantableKeys(caller).includes(role);
+}
+
+/**
+ * Whether a change is the administrator's, allowed only through AdministerOrganisation and not by a rule the
+ * caller holds: it does not notify the owner (L2-138 AC3).
+ */
+export function actsAsAdministrator(
+  caller: { roles: readonly string[]; capabilities?: readonly Capability[] },
+  role: string,
+): boolean {
   const held = caller.capabilities ?? capabilitiesOf(caller.roles);
-  if (held.includes('AdministerOrganisation')) return true;
-  if (!held.includes('AssignRoles')) return false;
-  if (definitionOf(role)?.capabilities.includes('AdministerOrganisation')) return false;
-  return FAITHTECH_ROLES.some((d) => caller.roles.includes(d.key) && d.grants.includes(role));
+  if (!held.includes('AdministerOrganisation')) return false;
+  return !definitions.some(
+    (d) =>
+      !d.archived &&
+      caller.roles.includes(d.key) &&
+      d.capabilities.includes('AssignRoles') &&
+      d.grants.includes(role) &&
+      !definitionOf(role)?.capabilities.includes('AdministerOrganisation'),
+  );
 }
 
 /** The name of a profile's first role, in display order, carrying any of the capabilities (the API's LinkRole, hostRole). */
@@ -264,8 +348,11 @@ export function firstRoleCarrying(
   ...capabilities: Capability[]
 ): string | null {
   return (
-    FAITHTECH_ROLES.find(
-      (d) => roles.includes(d.key) && capabilities.some((c) => d.capabilities.includes(c)),
+    definitions.find(
+      (d) =>
+        !d.archived &&
+        roles.includes(d.key) &&
+        capabilities.some((c) => d.capabilities.includes(c)),
     )?.name ?? null
   );
 }

@@ -30,7 +30,7 @@ public class SendInviteValidator : AbstractValidator<SendInviteCommand>
 public class InviteSender(
     IApplicationDbContext db,
     ICurrentUser current,
-    RoleAssignmentPolicy policy,
+    RoleGrantPolicy policy,
     IEmailQueue emails,
     ICurrentOrganisation organisation,
     TimeProvider time)
@@ -76,7 +76,7 @@ public class InviteSender(
             return (Result.Invalid("PreassignedRole", "Choose a role from the list."), null);
         }
 
-        if (definition is not null && !await policy.CanChangeAsync(definition, cancellationToken))
+        if (definition is not null && !await policy.CanGrantAsync(definition, cancellationToken))
         {
             return (Result.Forbidden("You can’t give that role."), null);
         }

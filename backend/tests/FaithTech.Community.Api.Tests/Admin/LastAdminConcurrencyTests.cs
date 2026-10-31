@@ -27,8 +27,8 @@ public class LastAdminConcurrencyTests(CommunityApiFactory factory) : IClassFixt
             db.ChangeTracker.Entries<ProfileRole>().Any(e => e.State == EntityState.Deleted)
             || db.ChangeTracker.Entries<OrganisationAdminRoster>().Any(e => e.State == EntityState.Modified));
         var responses = await Task.WhenAll(
-            asPriya.DeleteAsync($"/api/profiles/{samuel.ProfileId}/roles/SystemAdmin"),
-            asSamuel.DeleteAsync($"/api/profiles/{priya.ProfileId}/roles/SystemAdmin"));
+            asPriya.DeleteAsync($"/api/profiles/{samuel.ProfileId}/roles/{factory.RoleIdOf("SystemAdmin")}"),
+            asSamuel.DeleteAsync($"/api/profiles/{priya.ProfileId}/roles/{factory.RoleIdOf("SystemAdmin")}"));
 
         Assert.Equal(
             [HttpStatusCode.OK, HttpStatusCode.Conflict],
@@ -52,7 +52,7 @@ public class LastAdminConcurrencyTests(CommunityApiFactory factory) : IClassFixt
         await RemoveEveryAdminAsync();
         var priya = await factory.AddMemberAsync("Priya Shah", p => p.AddRole(Role.SystemAdmin, Guid.Empty, DateTime.UtcNow));
 
-        var response = await factory.ClientFor(priya, Role.SystemAdmin).DeleteAsync($"/api/profiles/{priya.ProfileId}/roles/SystemAdmin");
+        var response = await factory.ClientFor(priya, Role.SystemAdmin).DeleteAsync($"/api/profiles/{priya.ProfileId}/roles/{factory.RoleIdOf("SystemAdmin")}");
 
         Assert.Equal(HttpStatusCode.Conflict, response.StatusCode);
         Assert.Equal("There must always be at least one administrator.", (await response.Content.ReadFromJsonAsync<ProblemDetails>())!.Detail);
@@ -70,9 +70,9 @@ public class LastAdminConcurrencyTests(CommunityApiFactory factory) : IClassFixt
         });
         var client = factory.ClientFor(priya, Role.SystemAdmin);
 
-        var blocked = await client.DeleteAsync($"/api/profiles/{samuel.ProfileId}/roles/SystemAdmin");
+        var blocked = await client.DeleteAsync($"/api/profiles/{samuel.ProfileId}/roles/{factory.RoleIdOf("SystemAdmin")}");
         factory.Time.Advance(OrganisationAdminRoster.LeaseLength + TimeSpan.FromSeconds(1));
-        var allowed = await client.DeleteAsync($"/api/profiles/{samuel.ProfileId}/roles/SystemAdmin");
+        var allowed = await client.DeleteAsync($"/api/profiles/{samuel.ProfileId}/roles/{factory.RoleIdOf("SystemAdmin")}");
 
         Assert.Equal(HttpStatusCode.Conflict, blocked.StatusCode);
         Assert.Equal(HttpStatusCode.OK, allowed.StatusCode);

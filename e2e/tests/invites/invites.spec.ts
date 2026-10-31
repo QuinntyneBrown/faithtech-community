@@ -106,12 +106,12 @@ test.describe('Send invites', () => {
     await expect(dialog.email).toBeFocused();
     await expect(dialog.role.locator('option')).toHaveText([
       'No role',
-      'Attendee',
-      'Volunteer',
-      'Product Engineer',
       'Event Lead',
       'Create Lead',
       'Communications Lead',
+      'Volunteer',
+      'Product Engineer',
+      'Attendee',
     ]);
     await axe.check();
     await dialog.email.fill('nate@');

@@ -9,6 +9,16 @@ public record PhotoDto(Guid Id, string? Url, string AltText, bool IsFeatured, Da
         new(photo.Id, photo.IsStored ? storage.GetReadUrl(photo.BlobName) : null, photo.AltText, photo.IsFeatured, photo.UploadedAt, photo.IsStored);
 }
 
+/// <summary>
+/// A role a profile holds, by the organisation's definition: what the profile, People and the role routes answer
+/// (L2-138 AC1). <c>ChapterId</c> is its chapter tag, once chapters exist (slice 21).
+/// </summary>
+public record ProfileRoleDto(Guid Id, string Name, Guid? ChapterId)
+{
+    public static IReadOnlyList<ProfileRoleDto> Of(Profile profile) =>
+        [.. profile.Roles.OrderBy(r => r.Definition!.SortOrder).Select(r => new ProfileRoleDto(r.RoleDefinitionId, r.Definition!.Name, null))];
+}
+
 /// <summary>A profile as a signed-in member sees it (L2-005). Photos are newest first.</summary>
 public record ProfileDto(
     Guid Id,
@@ -17,6 +27,6 @@ public record ProfileDto(
     string? Bio,
     PhotoDto? FeaturedPhoto,
     IReadOnlyList<PhotoDto> Photos,
-    IReadOnlyList<string> Roles,
+    IReadOnlyList<ProfileRoleDto> Roles,
     bool IsOwn,
     bool CanEdit);

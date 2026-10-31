@@ -39,9 +39,9 @@ public class GrantRuleTests(CommunityApiFactory factory) : IClassFixture<Communi
         var ruth = await factory.AddMemberAsync("Ruth Alvarez");
         var client = factory.ClientFor(grace);
 
-        var granted = await client.PostAsJsonAsync($"/api/profiles/{ruth.ProfileId}/roles", new { Role = helper.Key });
-        var refused = await client.PostAsJsonAsync($"/api/profiles/{ruth.ProfileId}/roles", new { Role = steward.Key });
-        var removed = await client.DeleteAsync($"/api/profiles/{ruth.ProfileId}/roles/{helper.Key}");
+        var granted = await client.PostAsJsonAsync($"/api/profiles/{ruth.ProfileId}/roles", new { RoleId = helper.Id });
+        var refused = await client.PostAsJsonAsync($"/api/profiles/{ruth.ProfileId}/roles", new { RoleId = steward.Id });
+        var removed = await client.DeleteAsync($"/api/profiles/{ruth.ProfileId}/roles/{helper.Id}");
 
         Assert.Equal((HttpStatusCode.OK, HttpStatusCode.Forbidden, HttpStatusCode.OK), (granted.StatusCode, refused.StatusCode, removed.StatusCode));
     }
@@ -55,7 +55,7 @@ public class GrantRuleTests(CommunityApiFactory factory) : IClassFixture<Communi
         await GrantAsync(grace, grantor);
         var ruth = await factory.AddMemberAsync("Ruth Alvarez");
 
-        var response = await factory.ClientFor(grace).PostAsJsonAsync($"/api/profiles/{ruth.ProfileId}/roles", new { Role = helper.Key });
+        var response = await factory.ClientFor(grace).PostAsJsonAsync($"/api/profiles/{ruth.ProfileId}/roles", new { RoleId = helper.Id });
 
         Assert.Equal(HttpStatusCode.Forbidden, response.StatusCode);
     }
@@ -67,7 +67,7 @@ public class GrantRuleTests(CommunityApiFactory factory) : IClassFixture<Communi
         var ruth = await factory.AddMemberAsync("Ruth Alvarez");
         var admin = factory.ClientWithCapabilities(await factory.AddMemberAsync("Priya Shah"), Capability.AdministerOrganisation);
 
-        var response = await admin.PostAsJsonAsync($"/api/profiles/{ruth.ProfileId}/roles", new { Role = steward.Key });
+        var response = await admin.PostAsJsonAsync($"/api/profiles/{ruth.ProfileId}/roles", new { RoleId = steward.Id });
 
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
     }

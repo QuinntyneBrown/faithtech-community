@@ -180,7 +180,7 @@ public class FeatureIsolationTests(CommunityApiFactory factory) : IClassFixture<
         var admin = await factory.AddMemberAsync(northside, "Ana Lima", Role.SystemAdmin);
         var target = await factory.AddMemberAsync(northside, Isolation.Marker());
         (await factory.ClientOn(northside, admin)
-            .PostAsJsonAsync($"/api/profiles/{target.ProfileId}/roles", new { Role = "Volunteer" })).EnsureSuccessStatusCode();
+            .PostAsJsonAsync($"/api/profiles/{target.ProfileId}/roles", new { RoleId = factory.RoleIdOf("Volunteer", northside.Id) })).EnsureSuccessStatusCode();
         var faithTech = await factory.FaithTechAdminAsync();
 
         await faithTech.AssertListLacksAsync("/api/admin/audit", target.ProfileId.ToString());

@@ -40,7 +40,8 @@ public class ViewProfileTests(CommunityApiFactory factory) : IClassFixture<Commu
         Assert.Equal("Samuel Mensah", profile.Name);
         Assert.Equal("Toronto", profile.HomeCity);
         Assert.Equal("Backend engineer.", profile.Bio);
-        Assert.Equal(["CreateLead", "ProductEngineer"], profile.Roles);
+        Assert.Equal(["Create Lead", "Product Engineer"], profile.Roles.Select(r => r.Name));
+        Assert.Equal([factory.RoleIdOf(Role.CreateLead), factory.RoleIdOf(Role.ProductEngineer)], profile.Roles.Select(r => r.Id));
         Assert.Equal(["The hackathon team", "Samuel at Builders Night"], profile.Photos.Select(p => p.AltText));
         Assert.Equal("Samuel at Builders Night", profile.FeaturedPhoto!.AltText);
         Assert.Equal($"{FakePhotoStorage.BaseUrl}profiles/{samuel.ProfileId}/a.jpg", profile.FeaturedPhoto.Url);
@@ -101,7 +102,9 @@ public class ViewProfileTests(CommunityApiFactory factory) : IClassFixture<Commu
         string? Bio,
         PhotoResponse? FeaturedPhoto,
         PhotoResponse[] Photos,
-        string[] Roles,
+        HeldRole[] Roles,
         bool IsOwn,
         bool CanEdit);
+
+    public sealed record HeldRole(Guid Id, string Name, Guid? ChapterId);
 }

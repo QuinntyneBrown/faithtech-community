@@ -14,9 +14,6 @@ import {
   PEOPLE_SERVICE,
   PersonSummary,
   ROLES_SERVICE,
-  ROLE_LABELS,
-  Role,
-  assignableRoles,
   hasAny,
 } from '@faithtech-community/api';
 import {
@@ -37,7 +34,13 @@ import {
 } from '@faithtech-community/components';
 import { firstValueFrom } from 'rxjs';
 
-import { RoleMode, addableRoles, openRoleDialog, removableRoles } from '../../role-actions';
+import {
+  RoleMode,
+  addableRoles,
+  injectRoleChoices,
+  openRoleDialog,
+  removableRoles,
+} from '../../role-actions';
 
 type State = 'loading' | 'loaded' | 'error' | 'forbidden';
 
@@ -45,7 +48,7 @@ type State = 'loading' | 'loaded' | 'error' | 'forbidden';
 interface PersonRow extends PersonSummary {
   canAdd: boolean;
   canRemove: boolean;
-  /** Holds a role only a System Admin may change. */
+  /** Holds a role only an administrator may change. */
   locked: boolean;
 }
 
@@ -77,8 +80,9 @@ export class PeoplePage {
   private readonly people = inject(PEOPLE_SERVICE);
   private readonly rolesService = inject(ROLES_SERVICE);
   private readonly dialogs = inject(DialogService);
-  private readonly callerRoles = inject(AUTH_SERVICE).roles;
   private readonly capabilities = inject(AUTH_SERVICE).capabilities;
+  /** The roles the caller may change (L2-137 AC5). */
+  private readonly choices = injectRoleChoices();
 
   private readonly memberCell = viewChild.required<TemplateRef<unknown>>('memberCell');
   private readonly rolesCell = viewChild.required<TemplateRef<unknown>>('rolesCell');
@@ -104,23 +108,29 @@ export class PeoplePage {
   protected readonly canManage = computed(() => hasAny(this.capabilities(), 'AssignRoles'));
   protected readonly subtitle = computed(() => {
     if (this.capabilities().includes('AdministerOrganisation')) {
-      return 'As System Admin you can assign any role, including Staff and System Admin.';
+      return 'As an administrator you can assign any role.';
     }
     if (this.canManage()) {
-      return 'You can add or remove Lead, Volunteer, Product Engineer and Attendee roles.';
+      const { roles, grantableRoleIds } = this.choices();
+      const names = roles.filter((r) => grantableRoleIds.includes(r.id)).map((r) => r.name);
+      if (names.length === 0) return 'Your roles can’t add or remove any role.';
+      const list =
+        names.length > 1
+          ? `${names.slice(0, -1).join(', ')} and ${names[names.length - 1]}`
+          : names[0];
+      return `You can add or remove ${list}.`;
     }
     return 'Read-only for Staff.';
   });
 
   protected readonly rows = computed(() => {
-    const caller = this.callerRoles();
+    const choices = this.choices();
     const manage = this.canManage();
-    const assignable = assignableRoles(caller);
     return this.list().map<PersonRow>((p) => ({
       ...p,
-      canAdd: addableRoles(caller, p).length > 0,
-      canRemove: removableRoles(caller, p).length > 0,
-      locked: manage && p.roles.some((r) => !assignable.includes(r)),
+      canAdd: addableRoles(choices, p).length > 0,
+      canRemove: removableRoles(choices, p).length > 0,
+      locked: manage && p.roles.some((r) => !choices.grantableRoleIds.includes(r.id)),
     })) as unknown as Record<string, unknown>[];
   });
   protected readonly hasMore = computed(() => this.list().length < this.total());
@@ -133,10 +143,6 @@ export class PeoplePage {
     return avatarColorFor(person.id);
   }
 
-  protected roleLabel(role: Role): string {
-    return ROLE_LABELS[role];
-  }
-
   protected search(): void {
     this.term.set(this.query.value.trim());
     void this.load();
@@ -147,7 +153,7 @@ export class PeoplePage {
   }
 
   protected changeRoles(person: PersonSummary, mode: RoleMode): void {
-    openRoleDialog(this.dialogs, this.rolesService, this.callerRoles(), person, mode, (roles) =>
+    openRoleDialog(this.dialogs, this.rolesService, this.choices(), person, mode, (roles) =>
       this.list.update((list) => list.map((p) => (p.id === person.id ? { ...p, roles } : p))),
     );
   }

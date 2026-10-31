@@ -33,6 +33,7 @@ public static class DependencyInjection
         services.AddValidatorsFromAssemblyContaining<SignUpValidator>();
         services.AddScoped<VerificationEmails>();
         services.AddScoped<Organisations.MeHandler>();
+        services.AddScoped<Organisations.GetOrganisationHandler>();
         services.AddScoped<Organisations.ProfileCapabilities>();
         services.AddScoped<Organisations.Memberships>();
         services.AddScoped<SignUpHandler>();
@@ -55,7 +56,7 @@ public static class DependencyInjection
         services.AddScoped<DeletePhotoHandler>();
         services.AddScoped<PhotoStorageRetryHandler>();
         services.AddScoped<GetAuditEntriesHandler>();
-        services.AddScoped<RoleAssignmentPolicy>();
+        services.AddScoped<RoleGrantPolicy>();
         services.AddScoped<RoleChangeNotifier>();
         services.AddScoped<ChangeRolesHandler>();
         services.AddScoped<Organisations.LastAdministratorGuard>();

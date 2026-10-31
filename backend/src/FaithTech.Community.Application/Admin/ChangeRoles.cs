@@ -9,12 +9,15 @@ using Microsoft.EntityFrameworkCore;
 
 namespace FaithTech.Community.Application.Admin;
 
-public record AssignRoleCommand(string? Role);
+public record AssignRoleCommand(Guid? RoleId, Guid? ChapterId = null);
 
-/// <summary>Adds or removes a global role on a profile (L2-008, L2-009), audited (L2-041) and notified.</summary>
+/// <summary>
+/// Adds or removes one of the organisation's roles on a profile under its grant rules (L2-138), audited (L2-041) and
+/// notified when a grantor acts under a rule.
+/// </summary>
 public class ChangeRolesHandler(
     IApplicationDbContext db,
-    RoleAssignmentPolicy policy,
+    RoleGrantPolicy policy,
     ProfileAccess access,
     IAuditLog audit,
     RoleChangeNotifier notifier,
@@ -23,29 +26,29 @@ public class ChangeRolesHandler(
     TimeProvider time)
 {
 
-    public Task<(Result Result, IReadOnlyList<string>? Roles)> AssignAsync(Guid profileId, string? role, CancellationToken cancellationToken = default) =>
-        ChangeAsync(profileId, role, add: true, cancellationToken);
+    public Task<(Result Result, IReadOnlyList<ProfileRoleDto>? Roles)> AssignAsync(Guid profileId, AssignRoleCommand command, CancellationToken cancellationToken = default) =>
+        ChangeAsync(profileId, command.RoleId, add: true, cancellationToken);
 
-    public Task<(Result Result, IReadOnlyList<string>? Roles)> RemoveAsync(Guid profileId, string? role, CancellationToken cancellationToken = default) =>
-        ChangeAsync(profileId, role, add: false, cancellationToken);
+    public Task<(Result Result, IReadOnlyList<ProfileRoleDto>? Roles)> RemoveAsync(Guid profileId, Guid roleId, CancellationToken cancellationToken = default) =>
+        ChangeAsync(profileId, roleId, add: false, cancellationToken);
 
-    private async Task<(Result, IReadOnlyList<string>?)> ChangeAsync(Guid profileId, string? roleName, bool add, CancellationToken cancellationToken)
+    private async Task<(Result, IReadOnlyList<ProfileRoleDto>?)> ChangeAsync(Guid profileId, Guid? roleId, bool add, CancellationToken cancellationToken)
     {
         if (!policy.CanChangeRoles)
         {
             return (Result.Forbidden(), null);
         }
 
-        // The organisation's definition with that key; slice 14 takes a definition id.
-        var definition = string.IsNullOrEmpty(roleName)
+        // A role of this organisation that is not archived; another organisation's id is not found (L2-138 AC7).
+        var definition = roleId is null
             ? null
-            : await db.RoleDefinitions.SingleOrDefaultAsync(d => d.Key == roleName && d.ArchivedAtUtc == null, cancellationToken);
+            : await db.RoleDefinitions.SingleOrDefaultAsync(d => d.Id == roleId && d.ArchivedAtUtc == null, cancellationToken);
         if (definition is null)
         {
             return (Result.Invalid("Role", "Choose a role."), null);
         }
 
-        if (!await policy.CanChangeAsync(definition, cancellationToken))
+        if (!await policy.CanGrantAsync(definition, cancellationToken))
         {
             return (Result.Forbidden(), null);
         }
@@ -92,15 +95,14 @@ public class ChangeRolesHandler(
         }
 
         var after = RoleNames(profile);
-        audit.Record(actor, add ? "role.granted" : "role.removed", "Profile", profileId.ToString(), new { Roles = before }, new { Roles = after });
+        // The role and its chapter tag beside both role sets (L2-138 AC5); chapter tags arrive with chapters (slice 21).
+        audit.Record(actor, add ? "role.granted" : "role.removed", "Profile", profileId.ToString(), new { Roles = before }, new { Roles = after, Role = definition.Key, ChapterId = (Guid?)null });
 
         string? title = null;
-        if (policy.NotifiesOwner && actor != profileId)
+        if (actor != profileId && await policy.NotifiesOwnerAsync(definition, cancellationToken))
         {
-            var actorName = await db.Profiles.Where(p => p.Id == actor).Select(p => p.Name).SingleOrDefaultAsync(cancellationToken) ?? "A City Lead";
-            title = add
-                ? $"{actorName} added the {definition.Name} role to your profile"
-                : $"{actorName} removed the {definition.Name} role from your profile";
+            var actorName = await db.Profiles.Where(p => p.Id == actor).Select(p => p.Name).SingleOrDefaultAsync(cancellationToken) ?? "Someone";
+            title = add ? $"{actorName} made you {definition.Name}" : $"{actorName} removed {definition.Name}";
             notifier.Notify(profileId, title);
             await notifier.QueueEmailAsync(profileId, title, cancellationToken);
         }
@@ -115,7 +117,7 @@ public class ChangeRolesHandler(
         // The role change, its audit entry, the notifications and the emails commit together (L2-028, L2-047).
         await db.SaveChangesAsync(cancellationToken);
 
-        return (Result.Ok(), after);
+        return (Result.Ok(), ProfileRoleDto.Of(profile));
     }
 
     private static string[] RoleNames(Profile profile) => [.. profile.Roles.OrderBy(r => r.Definition!.SortOrder).Select(r => r.Definition!.Key)];

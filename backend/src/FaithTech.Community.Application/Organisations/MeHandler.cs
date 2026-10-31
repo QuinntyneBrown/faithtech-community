@@ -1,3 +1,4 @@
+using FaithTech.Community.Application.Admin;
 using FaithTech.Community.Application.Common;
 using FaithTech.Community.Application.Identity;
 using FaithTech.Community.Domain.Organisations;
@@ -25,7 +26,8 @@ public sealed record MeDto(
     IReadOnlyList<HeldRoleDto> Roles,
     MeOrganisationDto Organisation,
     IReadOnlyList<MembershipDto> Memberships,
-    IReadOnlyCollection<string> Capabilities);
+    IReadOnlyCollection<string> Capabilities,
+    IReadOnlyCollection<Guid> GrantableRoleIds);
 
 public sealed record NotAMemberOrganisationDto(string Name);
 
@@ -40,7 +42,8 @@ public sealed record NotAMemberDto(string Reason, NotAMemberOrganisationDto Orga
 /// caller's membership of the host's organisation, or, for an account with none (or only a suspended one), why not and
 /// the account's other active memberships (ADR 0032).
 /// </summary>
-public class MeHandler(IApplicationDbContext db, ICurrentUser current, ICurrentOrganisation organisation, UserManager<CommunityUser> users)
+public class MeHandler(
+    IApplicationDbContext db, ICurrentUser current, ICurrentOrganisation organisation, UserManager<CommunityUser> users, RoleGrantPolicy grants)
 {
     public async Task<(MeDto? Me, NotAMemberDto? NotAMember)> HandleAsync(CancellationToken cancellationToken = default)
     {
@@ -62,7 +65,9 @@ public class MeHandler(IApplicationDbContext db, ICurrentUser current, ICurrentO
             [.. membership.Roles.Select(r => new HeldRoleDto(r.Id, r.Key, r.Name, null, r.IsOversight))],
             MeOrganisationDto.Of(organisation),
             memberships,
-            [.. membership.Capabilities.Order(StringComparer.Ordinal)]), null);
+            [.. membership.Capabilities.Order(StringComparer.Ordinal)],
+            // The roles every picker offers: exactly those the caller may add and remove (L2-137 AC5).
+            [.. await grants.GrantableAsync(cancellationToken)]), null);
     }
 
     /// <summary>The account's active, unsuspended profiles in other active organisations, by name and host.</summary>

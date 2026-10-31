@@ -15,6 +15,7 @@ export * from './events';
 export * from './invites';
 export * from './notes';
 export * from './notifications';
+export * from './organisations';
 export * from './partners';
 export * from './profiles';
 export * from './reports';

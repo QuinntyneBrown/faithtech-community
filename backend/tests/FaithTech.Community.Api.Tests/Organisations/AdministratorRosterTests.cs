@@ -1,5 +1,6 @@
 // Traces to: L2-139 AC2
 using System.Net;
+using FaithTech.Community.Api.Tests.Profiles;
 using Microsoft.EntityFrameworkCore;
 
 namespace FaithTech.Community.Api.Tests.Organisations;
@@ -21,7 +22,7 @@ public class AdministratorRosterTests(CommunityApiFactory factory) : IClassFixtu
             return await db.SaveChangesAsync();
         });
 
-        var response = await factory.ClientOn(northside, ana).DeleteAsync($"/api/profiles/{ben.ProfileId}/roles/SystemAdmin");
+        var response = await factory.ClientOn(northside, ana).DeleteAsync($"/api/profiles/{ben.ProfileId}/roles/{factory.RoleIdOf("SystemAdmin", northside.Id)}");
 
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
     }
