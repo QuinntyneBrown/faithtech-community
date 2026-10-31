@@ -7,18 +7,28 @@
     <ft-button actions variant="primary" href="/">Back to home</ft-button>
   </ft-empty-state>
 } @else {
-  <ft-page-header title="Admin" subtitle="Every action here is recorded in the audit log.">
+  <ft-page-header
+    [title]="inOrganisation ? 'Audit log' : 'Admin'"
+    [subtitle]="inOrganisation ? scopeLine() : 'Every action here is recorded in the audit log.'"
+  >
     <ft-button ftPageHeaderActions [loading]="exporting()" (click)="exportCsv()">
       <ft-icon name="export" /> {{ exporting() ? 'Exporting…' : 'Export CSV' }}
     </ft-button>
   </ft-page-header>
-  <ft-tabs label="Admin sections">
-    <ft-tab label="Users" href="/admin/users" />
-    <ft-tab label="Audit log" href="/admin/audit-log" [current]="true" />
-  </ft-tabs>
+  @if (inOrganisation) {
+    <ft-breadcrumb>
+      <ft-breadcrumb-item href="/organisation">Organisation</ft-breadcrumb-item>
+      <ft-breadcrumb-item>Audit log</ft-breadcrumb-item>
+    </ft-breadcrumb>
+  } @else {
+    <ft-tabs label="Admin sections">
+      <ft-tab label="Users" href="/admin/users" />
+      <ft-tab label="Audit log" href="/admin/audit-log" [current]="true" />
+    </ft-tabs>
+  }
   <div class="filters">
     <ft-form-field label="Action" width="md">
-      <ft-select [options]="categories" [formControl]="category" />
+      <ft-select [options]="categories()" [formControl]="category" />
     </ft-form-field>
   </div>
 
@@ -45,10 +55,17 @@
             <ft-button actions (click)="showAll()">Show all actions</ft-button>
           </ft-empty-state>
         } @else {
-          <ft-empty-state
-            heading="No admin actions yet"
-            text="When a System Admin changes roles, suspends a user or opens a private contact, it’s recorded here."
-          />
+          @if (inOrganisation) {
+            <ft-empty-state
+              heading="No settings changes yet"
+              text="When someone changes these settings, it’s recorded here with who made it and when."
+            />
+          } @else {
+            <ft-empty-state
+              heading="No admin actions yet"
+              text="When a System Admin changes roles, suspends a user or opens a private contact, it’s recorded here."
+            />
+          }
         }
       } @else {
         <ft-table caption="Audit log" [columns]="columns" [rows]="rows()" />

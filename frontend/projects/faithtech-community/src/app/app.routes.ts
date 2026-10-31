@@ -117,6 +117,13 @@ export const routes: Routes = [
         loadChildren: () => import('@faithtech-community/invites').then((m) => m.INVITES_ROUTES),
       },
       {
+        // The admin library's audit page, scoped to what the caller may change (L2-152 AC3).
+        path: 'organisation/audit',
+        canActivate: [capabilityGuard('ManageRoles', 'ManageOrganisationSettings')],
+        data: { context: 'organisation' },
+        loadComponent: () => import('@faithtech-community/admin').then((m) => m.AuditLogPage),
+      },
+      {
         path: 'organisation',
         canActivate: [capabilityGuard('ManageRoles', 'ManageOrganisationSettings')],
         loadChildren: () =>

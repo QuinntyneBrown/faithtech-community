@@ -10,6 +10,7 @@ export class OrganisationGeneralPage {
   readonly loadError: Locator;
   readonly tryAgain: Locator;
   readonly savedToast: Locator;
+  readonly viewAuditLog: Locator;
 
   constructor(private readonly page: Page) {
     this.heading = page.getByRole('heading', { level: 1 });
@@ -23,6 +24,7 @@ export class OrganisationGeneralPage {
     this.loadError = page.getByRole('heading', { name: 'We couldn’t load these settings' });
     this.tryAgain = page.getByRole('button', { name: 'Try again' });
     this.savedToast = page.locator('ft-toast').filter({ hasText: 'Settings saved' });
+    this.viewAuditLog = page.getByRole('link', { name: 'View the audit log' });
   }
 
   async open(): Promise<void> {

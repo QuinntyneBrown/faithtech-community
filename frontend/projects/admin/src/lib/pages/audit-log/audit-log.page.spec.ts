@@ -1,10 +1,14 @@
 import { HttpErrorResponse } from '@angular/common/http';
+import { signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
+import { ActivatedRoute } from '@angular/router';
 import {
   AUDIT_LOG_SERVICE,
+  AUTH_SERVICE,
   AuditEntry,
   AuditFilters,
   AuditLogService,
+  Capability,
   PagedResult,
 } from '@faithtech-community/api';
 import { ToastService } from '@faithtech-community/components';
@@ -35,6 +39,7 @@ function page(items: AuditEntry[], totalCount = items.length, pageNo = 1): Paged
 async function setup(
   getEntries: (filters: AuditFilters, page?: number) => Observable<PagedResult<AuditEntry>>,
   exportCsv: () => Observable<Blob> = () => of(new Blob(['x'])),
+  options: { capabilities?: Capability[]; context?: 'organisation' } = {},
 ) {
   const service = {
     getEntries: vi.fn(getEntries),
@@ -45,6 +50,19 @@ async function setup(
     providers: [
       { provide: AUDIT_LOG_SERVICE, useValue: service },
       { provide: ToastService, useValue: toasts },
+      {
+        provide: AUTH_SERVICE,
+        useValue: {
+          capabilities: signal(options.capabilities ?? ['AdministerOrganisation']),
+          currentUser: signal({
+            organisation: { chapterLabel: { singular: 'Campus', plural: 'Campuses' } },
+          }),
+        },
+      },
+      {
+        provide: ActivatedRoute,
+        useValue: { snapshot: { data: options.context ? { context: options.context } : {} } },
+      },
     ],
   });
   const fixture = TestBed.createComponent(AuditLogPage);
@@ -294,5 +312,55 @@ describe('AuditLogPage', () => {
     toasts.show.mock.calls[0][0].onAction();
     await settle();
     expect(service.exportCsv).toHaveBeenCalledTimes(2);
+  });
+  // L2-152 AC2, AC3: the settings categories, and a partial reader sees only theirs.
+  describe('settings categories', () => {
+    const labels = (host: HTMLElement) =>
+      Array.from(host.querySelectorAll('option')).map((o) => o.textContent?.trim());
+
+    it('offers an administrator every category, chapters under the organisation’s label', async () => {
+      const { host } = await setup(() => of(page([])));
+
+      expect(labels(host)).toEqual([
+        'All actions',
+        'Roles',
+        'Suspensions',
+        'Private contact access',
+        'Deletions',
+        'Organisation',
+        'Campuses',
+        'Stages & types',
+      ]);
+    });
+
+    it('offers a settings manager only theirs, under Organisation rather than Admin', async () => {
+      const { host } = await setup(() => of(page([])), undefined, {
+        capabilities: ['ManageOrganisationSettings'],
+        context: 'organisation',
+      });
+
+      expect(labels(host)).toEqual([
+        'Everything you can see',
+        'Organisation',
+        'Campuses',
+        'Stages & types',
+      ]);
+      expect(host.querySelector('h1')?.textContent).toContain('Audit log');
+      expect(host.textContent).toContain(
+        'You can see the settings you can change: Organisation, Campuses and Stages & types.',
+      );
+      expect(host.querySelector('ft-tabs')).toBeNull();
+      expect(host.querySelector('ft-breadcrumb')?.textContent).toContain('Organisation');
+      expect(host.textContent).toContain('No settings changes yet');
+    });
+
+    it('offers a roles manager the roles category', async () => {
+      const { host } = await setup(() => of(page([])), undefined, {
+        capabilities: ['ManageRoles'],
+        context: 'organisation',
+      });
+
+      expect(labels(host)).toEqual(['Everything you can see', 'Roles']);
+    });
   });
 });

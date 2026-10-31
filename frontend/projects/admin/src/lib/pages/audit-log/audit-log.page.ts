@@ -1,13 +1,19 @@
 import { HttpErrorResponse } from '@angular/common/http';
 import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
+import { ActivatedRoute } from '@angular/router';
 import {
   AUDIT_LOG_SERVICE,
+  AUTH_SERVICE,
   AuditCategory,
   AuditEntry,
   AuditFilters,
+  Capability,
+  OrganisationNames,
 } from '@faithtech-community/api';
 import {
+  BreadcrumbComponent,
+  BreadcrumbItemComponent,
   ButtonComponent,
   ClusterComponent,
   EmptyStateComponent,
@@ -27,19 +33,41 @@ import { firstValueFrom } from 'rxjs';
 
 type State = 'loading' | 'loaded' | 'error' | 'forbidden';
 
-const CATEGORIES: SelectOption[] = [
-  { value: '', label: 'All actions' },
-  { value: 'roles', label: 'Role changes' },
+interface Category {
+  value: AuditCategory;
+  label: string;
+  /** The capability that reads it besides AdministerOrganisation, for the settings categories (L2-152 AC3). */
+  readBy?: Capability;
+}
+
+const CATEGORIES: Category[] = [
+  { value: 'roles', label: 'Roles', readBy: 'ManageRoles' },
   { value: 'suspensions', label: 'Suspensions' },
   { value: 'contacts', label: 'Private contact access' },
   { value: 'deletions', label: 'Deletions' },
+  { value: 'organisation', label: 'Organisation', readBy: 'ManageOrganisationSettings' },
+  { value: 'chapters', label: 'Chapters', readBy: 'ManageOrganisationSettings' },
+  { value: 'taxonomies', label: 'Stages & types', readBy: 'ManageOrganisationSettings' },
 ];
 
-/** The audit log for System Admins (L2-041), matching docs/mocks/pages/audit-log. */
+/** "A", "A and B", "A, B and C". */
+function listOf(labels: string[]): string {
+  return labels.length < 2
+    ? labels.join('')
+    : `${labels.slice(0, -1).join(', ')} and ${labels[labels.length - 1]}`;
+}
+
+/**
+ * The audit log (L2-041, L2-152), matching docs/mocks/pages/audit-log. An administrator reads every category under
+ * Admin; a holder of ManageRoles or ManageOrganisationSettings reads only the categories they may change, at
+ * /organisation/audit (mock `partial`), where the route's `context` is `organisation`.
+ */
 @Component({
   selector: 'ft-audit-log-page',
   imports: [
     ReactiveFormsModule,
+    BreadcrumbComponent,
+    BreadcrumbItemComponent,
     ButtonComponent,
     ClusterComponent,
     EmptyStateComponent,
@@ -58,8 +86,31 @@ const CATEGORIES: SelectOption[] = [
 export class AuditLogPage {
   private readonly audit = inject(AUDIT_LOG_SERVICE);
   private readonly toasts = inject(ToastService);
+  private readonly auth = inject(AUTH_SERVICE);
+  private readonly names = inject(OrganisationNames);
 
-  protected readonly categories = CATEGORIES;
+  /** Opened from the Organisation section rather than Admin (L2-152 AC3). */
+  protected readonly inOrganisation =
+    inject(ActivatedRoute).snapshot.data['context'] === 'organisation';
+  private readonly administrator = computed(() =>
+    this.auth.capabilities().includes('AdministerOrganisation'),
+  );
+  /** The categories the caller may read, the chapters one under the organisation's own label. */
+  private readonly readable = computed(() => {
+    const held = this.auth.capabilities();
+    const plural = this.names.chapterLabel()?.plural;
+    return CATEGORIES.filter(
+      (c) => this.administrator() || (c.readBy !== undefined && held.includes(c.readBy)),
+    ).map((c) => (c.value === 'chapters' && plural ? { ...c, label: plural } : c));
+  });
+  protected readonly categories = computed<SelectOption[]>(() => [
+    { value: '', label: this.administrator() ? 'All actions' : 'Everything you can see' },
+    ...this.readable().map((c) => ({ value: c.value, label: c.label })),
+  ]);
+  protected readonly scopeLine = computed(
+    () =>
+      `You can see the settings you can change: ${listOf(this.readable().map((c) => c.label))}.`,
+  );
   protected readonly category = new FormControl('', { nonNullable: true });
   protected readonly columns: TableColumn[] = [
     { key: 'when', header: 'When', mono: true },
@@ -89,7 +140,7 @@ export class AuditLogPage {
   );
   protected readonly hasMore = computed(() => this.entries().length < this.total());
   protected readonly noResultsHeading = computed(() => {
-    const label = CATEGORIES.find((c) => c.value === this.selected())?.label ?? '';
+    const label = this.readable().find((c) => c.value === this.selected())?.label ?? '';
     return `No ${label.toLowerCase()} in the last 90 days`;
   });
 
