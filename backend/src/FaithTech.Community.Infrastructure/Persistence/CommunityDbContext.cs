@@ -206,18 +206,19 @@ public class CommunityDbContext : IdentityDbContext<CommunityUser, IdentityRole<
             notification.HasIndex(n => new { n.RecipientId, n.CreatedAt });
         });
 
+        // Every unique rule holds within one organisation, so two organisations may each hold the same value (L2-130 AC4).
         builder.Entity<PendingConnection>(pending =>
         {
             pending.Property(p => p.Id).ValueGeneratedNever();
-            pending.HasIndex(p => new { p.ProfileId, p.LeadId }).IsUnique();
+            pending.HasIndex(p => new { p.OrganisationId, p.ProfileId, p.LeadId }).IsUnique();
         });
 
         builder.Entity<ConnectLink>(link =>
         {
             link.Property(l => l.Id).ValueGeneratedNever();
-            link.HasIndex(l => l.OwnerId).IsUnique();
+            link.HasIndex(l => new { l.OrganisationId, l.OwnerId }).IsUnique();
             link.Property(l => l.TokenHash).HasMaxLength(64);
-            link.HasIndex(l => l.TokenHash).IsUnique();
+            link.HasIndex(l => new { l.OrganisationId, l.TokenHash }).IsUnique();
             link.Property(l => l.ProtectedToken).HasMaxLength(1024);
         });
 
@@ -226,7 +227,7 @@ public class CommunityDbContext : IdentityDbContext<CommunityUser, IdentityRole<
             invite.Property(i => i.Id).ValueGeneratedNever();
             invite.Property(i => i.Email).HasMaxLength(256);
             invite.Property(i => i.TokenHash).HasMaxLength(64);
-            invite.HasIndex(i => i.TokenHash).IsUnique();
+            invite.HasIndex(i => new { i.OrganisationId, i.TokenHash }).IsUnique();
             invite.Property(i => i.PreassignedRole).HasConversion<string>().HasMaxLength(32);
             invite.Property(i => i.Note).HasMaxLength(500);
             invite.HasIndex(i => new { i.InvitedBy, i.CreatedAt });
@@ -325,7 +326,7 @@ public class CommunityDbContext : IdentityDbContext<CommunityUser, IdentityRole<
         {
             dismissal.ToTable("PartnerDuplicateDismissals");
             dismissal.Property(d => d.Id).ValueGeneratedNever();
-            dismissal.HasIndex(d => new { d.LowerPartnerId, d.HigherPartnerId }).IsUnique();
+            dismissal.HasIndex(d => new { d.OrganisationId, d.LowerPartnerId, d.HigherPartnerId }).IsUnique();
             dismissal.HasIndex(d => d.HigherPartnerId);
             dismissal.HasOne<Partner>().WithMany().HasForeignKey(d => d.LowerPartnerId).OnDelete(DeleteBehavior.Cascade);
             dismissal.HasOne<Partner>().WithMany().HasForeignKey(d => d.HigherPartnerId).OnDelete(DeleteBehavior.Cascade);
