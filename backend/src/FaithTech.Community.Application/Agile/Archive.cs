@@ -185,8 +185,13 @@ public class ArchiveHandler(IApplicationDbContext db, WorkspaceAccessPolicy poli
 /// </summary>
 public class CityLeadRoleRemovedHandler(IApplicationDbContext db, AgileNotifier notifier)
 {
-    public async Task HandleAsync(CityLeadRoleRemoved removed, CancellationToken cancellationToken = default)
+    public async Task HandleAsync(CapabilityLost removed, CancellationToken cancellationToken = default)
     {
+        if (removed.Capability != Capability.OwnWorkspaces)
+        {
+            return;
+        }
+
         var workspaces = await db.Workspaces.AsNoTracking().Where(w => w.OwnerId == removed.ProfileId).ToListAsync(cancellationToken);
         if (workspaces.Count == 0)
         {

@@ -105,7 +105,7 @@ public class ChangeRolesHandler(
             await notifier.QueueEmailAsync(profileId, title, cancellationToken);
         }
 
-        foreach (var removed in profile.DomainEvents.OfType<CityLeadRoleRemoved>())
+        foreach (var removed in profile.DomainEvents.OfType<CapabilityLost>())
         {
             await cityLeadRemoved.HandleAsync(removed, cancellationToken);
         }

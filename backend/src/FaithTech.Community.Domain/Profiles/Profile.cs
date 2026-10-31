@@ -164,11 +164,13 @@ public class Profile : IOrganisationScoped
             ?? throw new InvalidOperationException("The profile does not hold that role.");
 
         _roles.Remove(held);
-        // The owner of a workspace must be able to own one (ADR 0011); slice 11 generalises this to CapabilityLost.
-        if (held.Definition?.Carries(Capability.OwnWorkspaces) == true
-            && !_roles.Any(r => r.Definition?.Carries(Capability.OwnWorkspaces) == true))
+        // One event per capability the role gave that no remaining, non-archived role still gives (L2-139 AC3).
+        if (held.Definition is { IsArchived: false } removed)
         {
-            _domainEvents.Add(new CityLeadRoleRemoved(Id));
+            foreach (var capability in removed.Capabilities.Where(c => !_roles.Any(r => r.Definition is { IsArchived: false } d && d.Carries(c))))
+            {
+                _domainEvents.Add(new CapabilityLost(Id, capability));
+            }
         }
     }
 
