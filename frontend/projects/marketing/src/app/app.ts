@@ -1,5 +1,6 @@
-import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject } from '@angular/core';
 import { Router, RouterOutlet } from '@angular/router';
+import { OrganisationNames, SITE_SERVICE } from '@faithtech-community/api';
 import {
   ButtonComponent,
   SiteFooterComponent,
@@ -20,6 +21,11 @@ import {
 })
 export class MarketingAppComponent {
   private readonly router = inject(Router);
+  private readonly site = inject(SITE_SERVICE).site;
+  private readonly organisation = inject(OrganisationNames);
+
+  /** The public host's footer line (Marketing:Sites, L2-134 AC3); its organisation's name when there is none. */
+  protected readonly copyright = computed(() => this.site()?.footer ?? this.organisation.name());
 
   /** Switches the hero panel to the sign-up form (`?join`) or back to sign in, keeping the page. */
   protected show(form: 'join' | 'sign-in'): void {

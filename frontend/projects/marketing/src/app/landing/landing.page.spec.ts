@@ -1,11 +1,33 @@
 // Traces to: L2-074, L2-076
 import { TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
-import { AUTH_SERVICE, BROWSER_REDIRECT, SignInOutcome } from '@faithtech-community/api';
+import {
+  AUTH_SERVICE,
+  BROWSER_REDIRECT,
+  SignInOutcome,
+  provideLoadedSite,
+} from '@faithtech-community/api';
 import { Observable, of } from 'rxjs';
 
 import { COMMUNITY_ORIGIN } from '../community-origin';
 import { LandingPage } from './landing.page';
+
+/** GET /api/site on FaithTech's public host: its Marketing:DefaultSite entry (L2-134 AC3). */
+const FAITHTECH_PUBLIC_SITE = {
+  name: 'FaithTech Community',
+  shortName: 'FaithTech',
+  chapterLabel: { singular: 'City', plural: 'Cities' },
+  communityOrigin: 'https://app.faithtech.test',
+  headline: 'Build with people who share your faith',
+  brochure: {
+    url: '/brochure/brochure.webm',
+    posterUrl: '/brochure/brochure-poster.jpg',
+    captionsUrl: '/brochure/brochure.en.vtt',
+    title: 'FaithTech Community in 21 seconds',
+    posterAlt: 'FaithTech builders pairing at a hackathon table',
+  },
+  footer: '© 2026 FaithTech',
+};
 
 describe('LandingPage', () => {
   let redirects: string[];
@@ -21,6 +43,7 @@ describe('LandingPage', () => {
     TestBed.configureTestingModule({
       providers: [
         provideRouter([]),
+        provideLoadedSite(FAITHTECH_PUBLIC_SITE),
         { provide: COMMUNITY_ORIGIN, useValue: 'https://app.faithtech.test' },
         { provide: BROWSER_REDIRECT, useValue: (url: string) => redirects.push(url) },
         {

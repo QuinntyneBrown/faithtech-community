@@ -2,8 +2,8 @@
   <ft-container>
     <div class="landing">
       <ft-landing-hero
-        eyebrow="FaithTech Community"
-        heading="Build with people who share your faith"
+        [eyebrow]="organisation.name()"
+        [heading]="headline()"
         lead="Meet the builders, leads and volunteers in your city, show up to events and hackathons together, and work on projects that serve your neighbours."
       >
         <ft-card ftHeroPanel>
@@ -14,7 +14,7 @@
                 You can look around now. A banner in the app will offer to send the link again.
               </ft-alert>
             }
-            <p class="text-muted">Taking you to FaithTech Community.</p>
+            <p class="text-muted">Taking you to {{ organisation.name() }}.</p>
           } @else if (sentTo(); as email) {
             <ft-empty-state
               icon="invite"
@@ -28,7 +28,7 @@
               </p>
             </ft-empty-state>
           } @else if (joining()) {
-            <h2 #panelHeading tabindex="-1">Join FaithTech</h2>
+            <h2 #panelHeading tabindex="-1">Join {{ organisation.shortName() }}</h2>
             <p class="text-muted">
               Free for builders, leads, volunteers, partners and anyone curious about faith and
               technology.
@@ -74,20 +74,24 @@
               >
             </ft-sign-in-form>
             <p class="text-center">
-              New to FaithTech?
+              New to {{ organisation.shortName() }}?
               <ft-button variant="ghost" size="sm" (click)="show('join')">Join now</ft-button>
             </p>
           }
         </ft-card>
-        <ft-video-player
-          ftHeroMedia
-          src="/brochure/brochure.webm"
-          poster="/brochure/brochure-poster.jpg"
-          posterAlt="FaithTech builders pairing at a hackathon table"
-          captions="/brochure/brochure.en.vtt"
-          label="FaithTech Community in 21 seconds"
-          caption="FaithTech Community in 21 seconds · captions on"
-        />
+        @if (brochure(); as video) {
+          <ft-video-player
+            ftHeroMedia
+            [src]="video.url"
+            [poster]="video.posterUrl ?? ''"
+            [posterAlt]="video.posterAlt ?? ''"
+            [captions]="video.captionsUrl ?? ''"
+            [label]="video.title ?? organisation.name()"
+            [caption]="
+              (video.title ?? organisation.name()) + (video.captionsUrl ? ' · captions on' : '')
+            "
+          />
+        }
       </ft-landing-hero>
       <section class="landing__section" aria-labelledby="why-join">
         <h2 id="why-join">Why join</h2>
