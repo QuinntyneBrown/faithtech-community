@@ -50,7 +50,7 @@ its own branch and ends with a pull request. Merge a slice before you start the 
 | 21 | [21-chapter-tagged-roles-and-scoped-granting.md](21-chapter-tagged-roles-and-scoped-granting.md) | "{role} · {chapter}", chapter-scoped grantors | `L2-141` AC3, `L2-138` AC6, `L2-143` | Done |
 | 22 | [22-partner-stages.md](22-partner-stages.md) | Stages list, board columns, counting by kind, Stages & types tab | `L2-144` | Done |
 | 23 | [23-event-types.md](23-event-types.md) | Event types list, form and filter | `L2-145` | Done |
-| 24 | [24-resource-types.md](24-resource-types.md) | Resource types list, guess by key | `L2-146` | To do |
+| 24 | [24-resource-types.md](24-resource-types.md) | Resource types list, guess by key | `L2-146` | Done |
 | 25 | [25-organisation-audit-categories-and-read-scope.md](25-organisation-audit-categories-and-read-scope.md) | Audit categories, partial read scope | `L2-152` AC2, AC3 | To do |
 | 26 | [26-platform-operators-audit-and-account-lock.md](26-platform-operators-audit-and-account-lock.md) | Operators, platform audit, account lock | `L2-148`, `L2-132` AC6, `L2-152` AC4 | To do |
 | 27 | [27-provision-an-organisation.md](27-provision-an-organisation.md) | `org create` and the operator API | `L2-149` | To do |
