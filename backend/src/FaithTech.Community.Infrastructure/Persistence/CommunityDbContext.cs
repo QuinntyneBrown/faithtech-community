@@ -259,6 +259,8 @@ public class CommunityDbContext : IdentityDbContext<CommunityUser, IdentityRole<
             entry.HasIndex(e => e.OccurredAtUtc);
         });
 
+        builder.Entity<CommunityUser>().Property(u => u.LockedReason).HasMaxLength(500);
+
         builder.Entity<PlatformAuditEntry>(entry =>
         {
             entry.Property(e => e.Id).ValueGeneratedNever();

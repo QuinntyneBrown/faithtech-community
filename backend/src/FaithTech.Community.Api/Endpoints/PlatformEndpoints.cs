@@ -22,6 +22,12 @@ public static class PlatformEndpoints
         platform.MapGet("/organisations/{slug}", async (string slug, GetOrganisationSummaryHandler handler, CancellationToken cancellationToken) =>
             await handler.HandleAsync(slug, cancellationToken) is { } summary ? Results.Ok(summary) : EmptyNotFound());
 
+        platform.MapPost("/accounts/{email}/lock", async (string email, LockAccountCommand command, LockAccountHandler handler, CancellationToken cancellationToken) =>
+            (await handler.LockAsync(email, command, cancellationToken)).ToHttp(Results.NoContent));
+
+        platform.MapPost("/accounts/{email}/unlock", async (string email, LockAccountHandler handler, CancellationToken cancellationToken) =>
+            (await handler.UnlockAsync(email, cancellationToken)).ToHttp(Results.NoContent));
+
         return app;
     }
 

@@ -39,8 +39,8 @@ public static class AuthorizationEndpoints
         var profile = user is null ? null : await db.Profiles.AsNoTracking().SingleOrDefaultAsync(p => p.UserId == user.Id);
 
         // An account with no profile here still gets a session, because the account is global; the app shows it the
-        // not-a-member page and the API refuses it (L2-132 AC3). A suspended membership gets none.
-        if (user is null || profile is { IsSuspended: true })
+        // not-a-member page and the API refuses it (L2-132 AC3). A suspended membership or a locked account gets none.
+        if (user is null || user.IsLocked || profile is { IsSuspended: true })
         {
             // No usable session: send the browser to this host's sign-in page, which comes back here.
             await context.SignOutAsync(IdentityConstants.ApplicationScheme);
