@@ -77,10 +77,10 @@ public class ArchiveHandler(IApplicationDbContext db, WorkspaceAccessPolicy poli
         }
 
         var leads = await db.Profiles.AsNoTracking()
-            .Where(p => !p.IsSuspended && p.Id != workspace.OwnerId && p.Roles.Any(r => r.Role == Role.CityLead))
+            .Where(p => !p.IsSuspended && p.Id != workspace.OwnerId && p.Roles.Any(r => r.Definition!.Key == nameof(Role.CityLead)))
             .OrderBy(p => p.Name)
             .ToListAsync(cancellationToken);
-        return (Result.Ok(), [.. leads.Select(p => new MemberCandidateDto(p.Id, p.Name, [.. p.Roles.Select(r => r.Role).Order().Select(r => r.ToString())]))]);
+        return (Result.Ok(), [.. leads.Select(p => new MemberCandidateDto(p.Id, p.Name, [.. p.Roles.OrderBy(r => r.Definition!.SortOrder).Select(r => r.Definition!.Key)]))]);
     }
 
     /// <summary>System Admin gives the workspace to another City Lead; always audited (L2-037 AC2, L2-041).</summary>
@@ -193,7 +193,7 @@ public class CityLeadRoleRemovedHandler(IApplicationDbContext db, AgileNotifier 
 
         var name = await db.Profiles.Where(p => p.Id == removed.ProfileId).Select(p => p.Name).SingleAsync(cancellationToken);
         var admins = await db.Profiles.AsNoTracking()
-            .Where(p => !p.IsSuspended && p.Roles.Any(r => r.Role == Role.SystemAdmin))
+            .Where(p => !p.IsSuspended && p.Roles.Any(r => r.Definition!.Key == nameof(Role.SystemAdmin)))
             .Select(p => p.Id)
             .ToListAsync(cancellationToken);
         foreach (var workspace in workspaces)

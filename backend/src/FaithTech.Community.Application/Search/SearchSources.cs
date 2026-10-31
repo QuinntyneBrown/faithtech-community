@@ -21,12 +21,12 @@ public class PeopleSearchSource(IApplicationDbContext db, IFullTextSearch text) 
             .Match(db.Profiles.AsNoTracking(), term, p => p.Name + " " + (p.HomeCity ?? "") + " " + (p.Bio ?? ""))
             .Where(p => !p.IsSuspended && p.UserId != null)
             .Take(limit)
-            .Select(p => new { p.Id, p.Name, p.HomeCity, p.Bio, Roles = p.Roles.Select(r => r.Role).ToList() })
+            .Select(p => new { p.Id, p.Name, p.HomeCity, p.Bio, Roles = p.Roles.OrderBy(r => r.Definition!.SortOrder).Select(r => r.Definition!.Key).ToList() })
             .ToListAsync(cancellationToken);
         return [.. rows.Select(p => new SearchResultItem(
             p.Id,
             p.Name,
-            Snippets.Join(string.Join(", ", p.Roles.Order().Select(RoleLabels.Of)), p.HomeCity, Snippets.Short(p.Bio)),
+            Snippets.Join(string.Join(", ", LegacyRoles.Parse(p.Roles).Select(RoleLabels.Of)), p.HomeCity, Snippets.Short(p.Bio)),
             $"/people/{p.Id}"))];
     }
 }
@@ -151,7 +151,7 @@ public class ResourcesSearchSource(IApplicationDbContext db, IFullTextSearch tex
                 r.LinkHost,
                 Tags = r.Tags.Select(t => t.Tag).ToList(),
                 Owner = db.Profiles.Where(p => p.Id == r.OwnerId).Select(p => p.Name).FirstOrDefault(),
-                SharedWithCaller = r.SharedMembers.Any(m => m.ProfileId == caller) || r.SharedRoles.Any(x => roles.Contains(x.Role)),
+                SharedWithCaller = r.SharedMembers.Any(m => m.ProfileId == caller) || r.SharedRoles.Any(x => roles.Contains(x.RoleDefinitionId)),
             })
             .ToListAsync(cancellationToken);
         return [.. rows.Select(r => new SearchResultItem(

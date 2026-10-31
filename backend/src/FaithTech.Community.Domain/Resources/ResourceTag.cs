@@ -36,13 +36,18 @@ public class ResourceShareRole
 {
     private ResourceShareRole() { }
 
-    public ResourceShareRole(Guid resourceId, Profiles.Role role)
+    public ResourceShareRole(Guid resourceId, Organisations.RoleDefinition definition)
     {
         ResourceId = resourceId;
-        Role = role;
+        RoleDefinitionId = definition.Id;
+        Definition = definition;
     }
 
     public Guid ResourceId { get; private set; }
 
-    public Profiles.Role Role { get; private set; }
+    /// <summary>The organisation's role definition named in the audience (ADR 0033).</summary>
+    public Guid RoleDefinitionId { get; private set; }
+
+    /// <summary>The definition, loaded with the resource.</summary>
+    public Organisations.RoleDefinition? Definition { get; private set; }
 }

@@ -23,7 +23,7 @@ public class GrantAdminCommandTests
 
         await using var db = Db();
         var profile = await db.Profiles.SingleAsync(p => p.Id == profileId);
-        Assert.Equal([Role.SystemAdmin], profile.Roles.Select(r => r.Role));
+        Assert.Equal(["SystemAdmin"], profile.Roles.Select(r => r.Definition!.Key));
         var entry = await db.AuditEntries.SingleAsync();
         Assert.Equal(("role.granted", profileId.ToString(), "cli"), (entry.Action, entry.TargetId, entry.IpAddress));
     }

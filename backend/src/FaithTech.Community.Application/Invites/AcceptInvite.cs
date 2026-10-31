@@ -110,7 +110,7 @@ public class AcceptInviteHandler(
             // The invite reached this address, so the email counts as verified (L2-011 AC1).
             var user = new CommunityUser { Id = Guid.NewGuid(), UserName = invite.Email, Email = invite.Email, EmailConfirmed = true };
             profile.LinkAccount(user.Id);
-            Grant(invite, profile, now);
+            Grant(invite, profile, await PreassignedDefinitionAsync(invite, cancellationToken), now);
             var created = await users.CreateAsync(user, command.Password!);
             if (!created.Succeeded)
             {
@@ -127,7 +127,7 @@ public class AcceptInviteHandler(
 
             // The invite is this organisation's, so the account joins it if it is not a member yet (L2-132 AC2).
             profile = await memberships.JoinAsync(user.Id, user.Email!, cancellationToken);
-            Grant(invite, profile, now);
+            Grant(invite, profile, await PreassignedDefinitionAsync(invite, cancellationToken), now);
         }
 
         await db.SaveChangesAsync(cancellationToken);
@@ -141,19 +141,31 @@ public class AcceptInviteHandler(
     }
 
     // Grants the pre-assigned role, audited with the inviter as actor, marks the invite used and tells the inviter.
-    private void Grant(Invite invite, Profile profile, DateTimeOffset now)
+    private void Grant(Invite invite, Profile profile, Domain.Organisations.RoleDefinition? definition, DateTimeOffset now)
     {
-        if (invite.PreassignedRole is { } role && !profile.HasRole(role))
+        if (definition is not null && !profile.HasRole(definition.Id))
         {
-            var before = profile.Roles.Select(r => r.Role).Order().Select(r => r.ToString()).ToArray();
-            profile.AddRole(role, invite.InvitedBy, now.UtcDateTime);
-            var after = profile.Roles.Select(r => r.Role).Order().Select(r => r.ToString()).ToArray();
+            var before = profile.Roles.OrderBy(r => r.Definition!.SortOrder).Select(r => r.Definition!.Key).ToArray();
+            profile.AddRole(definition, invite.InvitedBy, now.UtcDateTime);
+            var after = profile.Roles.OrderBy(r => r.Definition!.SortOrder).Select(r => r.Definition!.Key).ToArray();
             audit.Record(invite.InvitedBy, "role.granted", "Profile", profile.Id.ToString(), new { Roles = before }, new { Roles = after });
         }
 
         invite.MarkAccepted(profile.Id, now);
         db.Notifications.Add(new Notification(
             invite.InvitedBy, NotificationKind.InviteAccepted, $"{profile.Name} accepted your invite", $"/people/{profile.Id}", now));
+    }
+
+    // The organisation's definition of the invite's pre-assigned role (L2-151 AC4); slice 14 stores a definition id.
+    private async Task<Domain.Organisations.RoleDefinition?> PreassignedDefinitionAsync(Invite invite, CancellationToken cancellationToken)
+    {
+        if (invite.PreassignedRole is not { } role)
+        {
+            return null;
+        }
+
+        var key = LegacyRoles.Key(role);
+        return await db.RoleDefinitions.SingleOrDefaultAsync(d => d.Key == key && d.ArchivedAtUtc == null, cancellationToken);
     }
 
     private Task<Invite?> FindAsync(string token, CancellationToken cancellationToken, bool tracked = false)

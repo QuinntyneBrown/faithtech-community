@@ -45,7 +45,7 @@ public class SearchUsersHandler(IApplicationDbContext db, ICurrentUser current)
                 a.profile.Id,
                 a.profile.Name,
                 a.user.Email,
-                Roles = a.profile.Roles.Select(r => r.Role).ToList(),
+                Roles = a.profile.Roles.OrderBy(r => r.Definition!.SortOrder).Select(r => r.Definition!.Key).ToList(),
                 a.profile.IsSuspended,
                 a.user.EmailConfirmed,
             })

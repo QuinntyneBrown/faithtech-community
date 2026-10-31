@@ -118,7 +118,7 @@ public class WorkspacesHandler(
             .Select(pid => new WorkspaceMemberDto(
                 pid,
                 profiles.GetValueOrDefault(pid)?.Name ?? "A former member",
-                profiles.GetValueOrDefault(pid) is { } p ? [.. p.Roles.Select(r => r.Role).Order().Select(r => r.ToString())] : [],
+                profiles.GetValueOrDefault(pid) is { } p ? [.. p.Roles.OrderBy(r => r.Definition!.SortOrder).Select(r => r.Definition!.Key)] : [],
                 pid == workspace.OwnerId,
                 Count(pid, tasks: false),
                 Count(pid, tasks: true),

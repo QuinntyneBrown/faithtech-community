@@ -73,7 +73,8 @@ public static class NoteClients
         await factory.WithDbAsync(async db =>
         {
             var stored = await db.NotePages.SingleAsync(p => p.Id == pageId);
-            stored.SetAudience(NoteVisibility.Shared, members, roles);
+            var ids = roles.Select(TestRoles.DefinitionId).ToList();
+            stored.SetAudience(NoteVisibility.Shared, members, await db.RoleDefinitions.Where(d => ids.Contains(d.Id)).ToListAsync());
             return await db.SaveChangesAsync();
         });
 

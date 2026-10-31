@@ -33,6 +33,7 @@ public static class DependencyInjection
         services.AddValidatorsFromAssemblyContaining<SignUpValidator>();
         services.AddScoped<VerificationEmails>();
         services.AddScoped<Organisations.MeHandler>();
+        services.AddScoped<Organisations.ProfileCapabilities>();
         services.AddScoped<Organisations.Memberships>();
         services.AddScoped<SignUpHandler>();
         services.AddScoped<ConfirmEmailHandler>();

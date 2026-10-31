@@ -11,5 +11,5 @@ public static class TeamRoles
     public static IReadOnlySet<Role> Leads { get; } =
         new HashSet<Role> { Role.CityLead, Role.EventLead, Role.CreateLead, Role.CommunicationsLead };
 
-    public static bool IsTeamMember(Profile profile) => profile.Roles.Any(r => All.Contains(r.Role));
+    public static bool IsTeamMember(Profile profile) => All.Any(profile.HasRole);
 }

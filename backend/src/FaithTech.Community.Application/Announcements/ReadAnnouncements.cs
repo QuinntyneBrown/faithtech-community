@@ -46,6 +46,8 @@ public class ListMyAnnouncementsHandler(IApplicationDbContext db, ICurrentUser c
                 RecipientCount = a.Recipients.Count,
             })
             .ToListAsync(cancellationToken);
+        // Role audiences name definitions; the list still shows their keys until slice 12 (ADR 0033).
+        var keys = await db.RoleDefinitions.AsNoTracking().ToDictionaryAsync(d => d.Id, d => d.Key, cancellationToken);
 
         var items = rows
             .OrderByDescending(r => r.SentAt).ThenByDescending(r => r.Id)
@@ -56,7 +58,7 @@ public class ListMyAnnouncementsHandler(IApplicationDbContext db, ICurrentUser c
                 r.SentAt,
                 r.SenderName ?? string.Empty,
                 r.Audience.Kind.ToString(),
-                [.. r.Audience.Roles.Select(role => role.ToString()).Order()],
+                [.. r.Audience.RoleIds.Select(id => keys.GetValueOrDefault(id)).OfType<string>().Order()],
                 r.EventTitle,
                 r.RecipientCount))
             .ToList();

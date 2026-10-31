@@ -21,7 +21,8 @@ public class NoteAccess(IApplicationDbContext db, ICurrentUser current)
     public bool IsSystemAdmin => current.HasRole(Role.SystemAdmin);
 
     /// <summary>The caller's roles now, for matching role audiences inside a query.</summary>
-    public List<Role> Roles => [.. current.Roles];
+    /// <summary>The held role definitions' ids, which a shared audience names.</summary>
+    public List<Guid> Roles => [.. current.HeldRoleIds];
 
     /// <summary>The caller's profile id, or <see cref="Guid.Empty"/> when there is none.</summary>
     public async Task<Guid> CallerAsync(CancellationToken cancellationToken = default) =>
@@ -36,12 +37,12 @@ public class NoteAccess(IApplicationDbContext db, ICurrentUser current)
             return active;
         }
 
-        var roles = current.Roles.ToList();
+        var roles = current.HeldRoleIds.ToList();
         return active.Where(p =>
             p.Visibility == NoteVisibility.Global
             || p.OwnerId == caller
             || (p.Visibility == NoteVisibility.Shared
-                && (p.SharedMembers.Any(m => m.ProfileId == caller) || p.SharedRoles.Any(x => roles.Contains(x.Role)))));
+                && (p.SharedMembers.Any(m => m.ProfileId == caller) || p.SharedRoles.Any(x => roles.Contains(x.RoleDefinitionId)))));
     }
 
     /// <summary>One page the caller may open; archived ones only for their owner and System Admin (L2-095).</summary>

@@ -21,6 +21,8 @@ public interface IApplicationDbContext
 
     DbSet<Profile> Profiles { get; }
 
+    DbSet<Domain.Organisations.RoleDefinition> RoleDefinitions { get; }
+
     DbSet<CommunityUser> Users { get; }
 
     DbSet<AuditEntry> AuditEntries { get; }

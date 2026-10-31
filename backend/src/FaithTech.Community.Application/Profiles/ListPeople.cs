@@ -46,7 +46,7 @@ public class ListPeopleHandler(IApplicationDbContext db, ICurrentUser current, I
                 a.profile.Name,
                 a.profile.HomeCity,
                 Featured = a.profile.Photos.Where(p => p.IsFeatured).Select(p => p.BlobName).FirstOrDefault(),
-                Roles = a.profile.Roles.Select(r => r.Role).ToList(),
+                Roles = a.profile.Roles.OrderBy(r => r.Definition!.SortOrder).Select(r => r.Definition!.Key).ToList(),
             })
             .ToListAsync(cancellationToken);
 

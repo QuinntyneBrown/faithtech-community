@@ -51,6 +51,8 @@ public class CommunityDbContext : IdentityDbContext<CommunityUser, IdentityRole<
 
     public DbSet<Profile> Profiles => Set<Profile>();
 
+    public DbSet<RoleDefinition> RoleDefinitions => Set<RoleDefinition>();
+
     public DbSet<VerificationResend> VerificationResends => Set<VerificationResend>();
 
     public DbSet<OutboxMessage> OutboxMessages => Set<OutboxMessage>();
@@ -123,6 +125,24 @@ public class CommunityDbContext : IdentityDbContext<CommunityUser, IdentityRole<
             organisation.Property(o => o.SuspendedReason).HasMaxLength(500);
         });
 
+        builder.Entity<RoleDefinition>(definition =>
+        {
+            definition.Property(d => d.Id).ValueGeneratedNever();
+            definition.Property(d => d.Key).HasMaxLength(RoleDefinition.MaxKeyLength);
+            definition.HasIndex(nameof(IOrganisationScoped.OrganisationId), nameof(RoleDefinition.Key)).IsUnique();
+            definition.Property(d => d.Name).HasMaxLength(RoleDefinition.MaxNameLength);
+            definition.Property(d => d.Description).HasMaxLength(RoleDefinition.MaxDescriptionLength);
+            definition.PrimitiveCollection(d => d.Capabilities);
+            definition.OwnsMany(d => d.Grants, grant =>
+            {
+                grant.ToTable("RoleGrantRules");
+                grant.WithOwner().HasForeignKey(g => g.GrantorRoleId);
+                grant.HasKey(g => new { g.GrantorRoleId, g.GrantableRoleId });
+                grant.HasIndex(g => g.GrantableRoleId);
+            });
+            definition.Navigation(d => d.Grants).UsePropertyAccessMode(PropertyAccessMode.Field);
+        });
+
         builder.Entity<Profile>(profile =>
         {
             profile.Property(p => p.Name).HasMaxLength(200);
@@ -136,8 +156,10 @@ public class CommunityDbContext : IdentityDbContext<CommunityUser, IdentityRole<
             {
                 role.ToTable("ProfileRoles");
                 role.WithOwner().HasForeignKey(r => r.ProfileId);
-                role.HasKey(r => new { r.ProfileId, r.Role });
-                role.Property(r => r.Role).HasConversion<string>().HasMaxLength(32);
+                role.HasKey(r => new { r.ProfileId, r.RoleDefinitionId });
+                role.HasOne(r => r.Definition).WithMany().HasForeignKey(r => r.RoleDefinitionId).OnDelete(DeleteBehavior.Restrict);
+                // Loaded with every profile, so the held roles' names, flags and capabilities are at hand (ADR 0033).
+                role.Navigation(r => r.Definition).AutoInclude();
             });
             profile.OwnsMany(p => p.Photos, photo =>
             {
@@ -505,8 +527,9 @@ public class CommunityDbContext : IdentityDbContext<CommunityUser, IdentityRole<
             {
                 role.ToTable("ResourceShareRoles");
                 role.WithOwner().HasForeignKey(x => x.ResourceId);
-                role.HasKey(x => new { x.ResourceId, x.Role });
-                role.Property(x => x.Role).HasConversion<string>().HasMaxLength(32);
+                role.HasKey(x => new { x.ResourceId, x.RoleDefinitionId });
+                role.HasOne(x => x.Definition).WithMany().HasForeignKey(x => x.RoleDefinitionId).OnDelete(DeleteBehavior.Restrict);
+                role.Navigation(x => x.Definition).AutoInclude();
             });
             resource.Navigation(r => r.SharedRoles).HasField("_roles").UsePropertyAccessMode(PropertyAccessMode.Field);
         });
@@ -551,8 +574,9 @@ public class CommunityDbContext : IdentityDbContext<CommunityUser, IdentityRole<
                 role.WithOwner().HasForeignKey(x => x.PageId);
                 role.Property<int>("Id").ValueGeneratedOnAdd();
                 role.HasKey("Id");
-                role.Property(x => x.Role).HasConversion<string>().HasMaxLength(32);
-                role.HasIndex(x => new { x.PageId, x.Role }).IsUnique();
+                role.HasIndex(x => new { x.PageId, x.RoleDefinitionId }).IsUnique();
+                role.HasOne(x => x.Definition).WithMany().HasForeignKey(x => x.RoleDefinitionId).OnDelete(DeleteBehavior.Restrict);
+                role.Navigation(x => x.Definition).AutoInclude();
             });
             page.Navigation(p => p.SharedRoles).HasField("_roles").UsePropertyAccessMode(PropertyAccessMode.Field);
         });
@@ -585,12 +609,12 @@ public class CommunityDbContext : IdentityDbContext<CommunityUser, IdentityRole<
             {
                 audience.Property(x => x.Kind).HasColumnName("AudienceKind").HasConversion<string>().HasMaxLength(16);
                 audience.Property(x => x.EventId).HasColumnName("AudienceEventId");
-                // The chosen roles, stored as "Volunteer,ProductEngineer".
-                audience.Property(x => x.Roles).HasColumnName("AudienceRoles").HasMaxLength(300)
+                // The chosen role definitions, stored as their ids separated by commas.
+                audience.Property(x => x.RoleIds).HasColumnName("AudienceRoles").HasMaxLength(2000)
                     .HasConversion(
                         roles => string.Join(',', roles.Select(r => r.ToString()).Order()),
-                        value => value.Split(',', StringSplitOptions.RemoveEmptyEntries).Select(Enum.Parse<Role>).ToHashSet(),
-                        new ValueComparer<IReadOnlySet<Role>>(
+                        value => value.Split(',', StringSplitOptions.RemoveEmptyEntries).Select(Guid.Parse).ToHashSet(),
+                        new ValueComparer<IReadOnlySet<Guid>>(
                             (a, b) => a!.SetEquals(b!),
                             roles => roles.Aggregate(0, (hash, role) => hash ^ role.GetHashCode()),
                             roles => roles.ToHashSet()));

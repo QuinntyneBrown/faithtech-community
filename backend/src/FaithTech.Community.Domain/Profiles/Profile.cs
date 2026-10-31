@@ -133,25 +133,39 @@ public class Profile : IOrganisationScoped
         }
     }
 
-    public bool HasRole(Role role) => _roles.Any(r => r.Role == role);
+    public bool HasRole(Guid roleDefinitionId) => _roles.Any(r => r.RoleDefinitionId == roleDefinitionId);
 
-    public void AddRole(Role role, Guid grantedBy, DateTime nowUtc)
+    /// <summary>
+    /// Temporary adapter (removed in slice 11, organisations prompt 11): whether a held definition's key is the former role
+    /// value. Reads the definitions loaded with the profile.
+    /// </summary>
+    public bool HasRole(Role role) => _roles.Any(r => r.Definition?.Key == role.ToString());
+
+    public void AddRole(RoleDefinition definition, Guid grantedBy, DateTime nowUtc)
     {
-        if (HasRole(role))
-        {
-            throw new InvalidOperationException($"The profile already holds the {role} role.");
-        }
-
-        _roles.Add(new ProfileRole(Id, role, grantedBy, nowUtc));
+        AddRole(definition.Id, grantedBy, nowUtc);
+        _roles[^1].Definition = definition;
     }
 
-    public void RemoveRole(Role role)
+    public void AddRole(Guid roleDefinitionId, Guid grantedBy, DateTime nowUtc)
     {
-        var held = _roles.FirstOrDefault(r => r.Role == role)
-            ?? throw new InvalidOperationException($"The profile does not hold the {role} role.");
+        if (HasRole(roleDefinitionId))
+        {
+            throw new InvalidOperationException("The profile already holds that role.");
+        }
+
+        _roles.Add(new ProfileRole(Id, roleDefinitionId, grantedBy, nowUtc));
+    }
+
+    public void RemoveRole(Guid roleDefinitionId)
+    {
+        var held = _roles.FirstOrDefault(r => r.RoleDefinitionId == roleDefinitionId)
+            ?? throw new InvalidOperationException("The profile does not hold that role.");
 
         _roles.Remove(held);
-        if (role == Role.CityLead)
+        // The owner of a workspace must be able to own one (ADR 0011); slice 11 generalises this to CapabilityLost.
+        if (held.Definition?.Carries(Capability.OwnWorkspaces) == true
+            && !_roles.Any(r => r.Definition?.Carries(Capability.OwnWorkspaces) == true))
         {
             _domainEvents.Add(new CityLeadRoleRemoved(Id));
         }

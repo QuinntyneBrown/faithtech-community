@@ -112,7 +112,7 @@ public class AddResourcesHandler(
 
     public async Task<Role?> OwnerRoleAsync(Guid profileId, CancellationToken cancellationToken)
     {
-        var roles = await db.Profiles.Where(p => p.Id == profileId).SelectMany(p => p.Roles.Select(r => r.Role)).ToListAsync(cancellationToken);
+        var roles = LegacyRoles.Parse(await db.Profiles.Where(p => p.Id == profileId).SelectMany(p => p.Roles.Select(r => r.Definition!.Key)).ToListAsync(cancellationToken));
         return ResourceAccess.ContributorRoles.Where(roles.Contains).Select(r => (Role?)r).FirstOrDefault();
     }
 

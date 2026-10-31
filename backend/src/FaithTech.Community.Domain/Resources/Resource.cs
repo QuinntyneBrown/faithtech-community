@@ -118,9 +118,9 @@ public class Resource : IOrganisationScoped
     {
         Visibility = audience.Visibility;
         _members.RemoveAll(m => !audience.Members.Contains(m.ProfileId));
-        _roles.RemoveAll(r => !audience.Roles.Contains(r.Role));
+        _roles.RemoveAll(r => !audience.RoleIds.Contains(r.RoleDefinitionId));
         _members.AddRange(audience.Members.Where(m => _members.All(x => x.ProfileId != m)).Select(m => new ResourceShareMember(Id, m)));
-        _roles.AddRange(audience.Roles.Where(r => _roles.All(x => x.Role != r)).Select(r => new ResourceShareRole(Id, r)));
+        _roles.AddRange(audience.Roles.Where(r => _roles.All(x => x.RoleDefinitionId != r.Id)).Select(r => new ResourceShareRole(Id, r)));
     }
 
     public void SetLink(Uri link)

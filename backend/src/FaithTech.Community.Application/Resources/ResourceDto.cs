@@ -75,18 +75,18 @@ public class ResourceViews(IApplicationDbContext db, ICurrentUser current, Resou
     {
         var people = new[] { r.OwnerId, r.UpdatedById, r.FileReplacedById }.OfType<Guid>().Concat(r.SharedMembers.Select(m => m.ProfileId)).Distinct().ToList();
         var profiles = await db.Profiles.AsNoTracking().Where(p => people.Contains(p.Id))
-            .Select(p => new { p.Id, p.Name, p.HomeCity, Roles = p.Roles.Select(x => x.Role).ToList() })
+            .Select(p => new { p.Id, p.Name, p.HomeCity, Roles = p.Roles.OrderBy(x => x.Definition!.SortOrder).Select(x => x.Definition!.Key).ToList() })
             .ToDictionaryAsync(p => p.Id, cancellationToken);
-        var roles = r.SharedRoles.Select(x => x.Role).ToList();
+        var roles = LegacyRoles.Parse(r.SharedRoles.Select(x => x.Definition!.Key));
         var roleCounts = new List<AudienceRoleDto>();
         foreach (var role in ResourceAccess.ShareableRoles.Where(roles.Contains))
         {
-            var count = await db.Profiles.CountAsync(p => !p.IsSuspended && p.Roles.Any(x => x.Role == role), cancellationToken);
+            var count = await db.Profiles.CountAsync(p => !p.IsSuspended && p.Roles.Any(x => x.Definition!.Key == LegacyRoles.Key(role)), cancellationToken);
             roleCounts.Add(new AudienceRoleDto(role.ToString(), count));
         }
 
         var owner = profiles.GetValueOrDefault(r.OwnerId);
-        var ownerContributes = owner is not null && owner.Roles.Any(ResourceAccess.ContributorRoles.Contains);
+        var ownerContributes = owner is not null && LegacyRoles.Parse(owner.Roles).Any(ResourceAccess.ContributorRoles.Contains);
         var isOwn = r.OwnerId == caller;
         var sharedVia = SharedVia(r, caller, isOwn);
         string? Name(Guid? id) => id is { } x && profiles.TryGetValue(x, out var p) ? p.Name : null;
@@ -128,7 +128,7 @@ public class ResourceViews(IApplicationDbContext db, ICurrentUser current, Resou
     /// <summary>The list rows, newest first, with owner names in one query.</summary>
     public async Task<IReadOnlyList<ResourceSummaryDto>> SummariesAsync(IQueryable<Resource> resources, Guid caller, CancellationToken cancellationToken = default)
     {
-        var roles = current.Roles.ToList();
+        var roles = current.HeldRoleIds.ToList();
         var rows = await resources
             .Select(r => new
             {
@@ -144,7 +144,7 @@ public class ResourceViews(IApplicationDbContext db, ICurrentUser current, Resou
                 OwnerName = db.Profiles.Where(p => p.Id == r.OwnerId).Select(p => p.Name).FirstOrDefault(),
                 r.Visibility,
                 SharedWithYou = r.Visibility == ResourceVisibility.Shared && r.OwnerId != caller
-                    && (r.SharedMembers.Any(m => m.ProfileId == caller) || r.SharedRoles.Any(x => roles.Contains(x.Role))),
+                    && (r.SharedMembers.Any(m => m.ProfileId == caller) || r.SharedRoles.Any(x => roles.Contains(x.RoleDefinitionId))),
                 HasThumbnail = r.File != null && r.File.ThumbnailBlobName != null,
                 IsStored = r.File == null || r.File.IsStored,
                 r.AddedAt,
@@ -167,6 +167,6 @@ public class ResourceViews(IApplicationDbContext db, ICurrentUser current, Resou
             return "you";
         }
 
-        return r.SharedRoles.Select(x => x.Role).Where(current.HasRole).Select(x => (Role?)x).FirstOrDefault()?.ToString();
+        return LegacyRoles.Parse(r.SharedRoles.Select(x => x.Definition!.Key)).Where(current.HasRole).Select(x => (Role?)x).FirstOrDefault()?.ToString();
     }
 }
