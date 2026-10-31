@@ -76,6 +76,7 @@ app.MapHealthChecks("/health/ready", new HealthCheckOptions
 }).AllowAnonymous();
 app.MapMeEndpoints();
 app.MapOrganisationEndpoints();
+app.MapRoleDefinitionsEndpoints();
 app.MapSiteEndpoints();
 app.MapProfilesEndpoints();
 app.MapAuditLogEndpoints();
