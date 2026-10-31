@@ -25,6 +25,12 @@ public class Profile : IOrganisationScoped
 
     public Guid OrganisationId { get; private set; }
 
+    /// <summary>
+    /// The account this profile is the membership of (ADR 0032): an account is global and holds at most one profile per
+    /// organisation. Null only for a profile no account has claimed yet.
+    /// </summary>
+    public Guid? UserId { get; private set; }
+
     public string Name { get; private set; } = string.Empty;
 
     public IReadOnlyCollection<ProfileRole> Roles => _roles;
@@ -50,6 +56,17 @@ public class Profile : IOrganisationScoped
     public bool AnnouncementEmailsOptedOut { get; private set; }
 
     public IReadOnlyList<object> DomainEvents => _domainEvents;
+
+    /// <summary>Makes this profile the account's membership of its organisation; a profile belongs to one account only.</summary>
+    public void LinkAccount(Guid userId)
+    {
+        if (UserId is { } linked && linked != userId)
+        {
+            throw new InvalidOperationException("This profile already belongs to another account.");
+        }
+
+        UserId = userId;
+    }
 
     public void Update(string name, string? homeCity, string? bio)
     {

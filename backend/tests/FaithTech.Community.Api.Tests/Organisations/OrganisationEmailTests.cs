@@ -57,7 +57,7 @@ public partial class OrganisationEmailTests(CommunityApiFactory factory) : IClas
         var northside = await factory.AddOrganisationAsync();
         var lead = await factory.AddMemberAsync(northside, "Ana Lima", Role.CommunicationsLead);
         var member = await factory.AddMemberAsync(northside, "Bea Costa");
-        var address = await factory.WithDbAsync(northside.Id, db => db.Users.Where(u => u.ProfileId == member.ProfileId).Select(u => u.Email!).SingleAsync());
+        var address = await factory.WithDbAsync(northside.Id, db => db.Users.Where(u => u.Id == member.UserId).Select(u => u.Email!).SingleAsync());
 
         (await factory.ClientOn(northside, lead).PostAsJsonAsync("/api/announcements",
             new { Subject = "Launch night", Body = "Doors at six.", AlsoEmail = true, Audience = new { Kind = "Everyone" } })).EnsureSuccessStatusCode();

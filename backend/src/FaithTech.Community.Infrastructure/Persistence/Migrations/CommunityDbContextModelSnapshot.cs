@@ -70,9 +70,6 @@ namespace FaithTech.Community.Infrastructure.Persistence.Migrations
                     b.Property<bool>("PhoneNumberConfirmed")
                         .HasColumnType("boolean");
 
-                    b.Property<Guid>("ProfileId")
-                        .HasColumnType("uuid");
-
                     b.Property<string>("SecurityStamp")
                         .HasColumnType("text");
 
@@ -91,9 +88,6 @@ namespace FaithTech.Community.Infrastructure.Persistence.Migrations
                     b.HasIndex("NormalizedUserName")
                         .IsUnique()
                         .HasDatabaseName("UserNameIndex");
-
-                    b.HasIndex("ProfileId")
-                        .IsUnique();
 
                     b.ToTable("AspNetUsers", (string)null);
                 });
@@ -1325,6 +1319,9 @@ namespace FaithTech.Community.Infrastructure.Persistence.Migrations
                         .HasMaxLength(500)
                         .HasColumnType("character varying(500)");
 
+                    b.Property<Guid?>("UserId")
+                        .HasColumnType("uuid");
+
                     b.HasKey("Id");
 
                     b.HasIndex("HomeCity");
@@ -1334,6 +1331,12 @@ namespace FaithTech.Community.Infrastructure.Persistence.Migrations
                     b.HasIndex("SearchVector");
 
                     NpgsqlIndexBuilderExtensions.HasMethod(b.HasIndex("SearchVector"), "GIN");
+
+                    b.HasIndex("UserId");
+
+                    b.HasIndex("OrganisationId", "UserId")
+                        .IsUnique()
+                        .HasFilter("\"UserId\" IS NOT NULL");
 
                     b.ToTable("Profiles");
                 });
@@ -1890,15 +1893,6 @@ namespace FaithTech.Community.Infrastructure.Persistence.Migrations
                     b.ToTable("OpenIddictTokens", (string)null);
                 });
 
-            modelBuilder.Entity("FaithTech.Community.Application.Identity.CommunityUser", b =>
-                {
-                    b.HasOne("FaithTech.Community.Domain.Profiles.Profile", null)
-                        .WithOne()
-                        .HasForeignKey("FaithTech.Community.Application.Identity.CommunityUser", "ProfileId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-                });
-
             modelBuilder.Entity("FaithTech.Community.Domain.Admin.AuditEntry", b =>
                 {
                     b.HasOne("FaithTech.Community.Domain.Organisations.Organisation", null)
@@ -2408,6 +2402,11 @@ namespace FaithTech.Community.Infrastructure.Persistence.Migrations
                         .HasForeignKey("OrganisationId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
+
+                    b.HasOne("FaithTech.Community.Application.Identity.CommunityUser", null)
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Restrict);
 
                     b.OwnsOne("FaithTech.Community.Domain.Profiles.PhotoLease", "PhotoLease", b1 =>
                         {

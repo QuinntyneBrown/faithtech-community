@@ -61,7 +61,8 @@ public class SignUpHandler(
 
         var profile = new Profile(command.Name.Trim(), time.GetUtcNow().UtcDateTime);
         db.Profiles.Add(profile);
-        var user = new CommunityUser { UserName = command.Email, Email = command.Email, ProfileId = profile.Id };
+        var user = new CommunityUser { Id = Guid.NewGuid(), UserName = command.Email, Email = command.Email };
+        profile.LinkAccount(user.Id);
 
         // The user store shares the context, so the profile and the account commit together.
         var created = await users.CreateAsync(user, command.Password);

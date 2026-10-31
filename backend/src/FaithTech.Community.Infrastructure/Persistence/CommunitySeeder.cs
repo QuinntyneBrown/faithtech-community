@@ -147,8 +147,8 @@ public class CommunitySeeder(IOpenIddictApplicationManager applications, Communi
                 NormalizedEmail = normalized,
                 EmailConfirmed = true,
                 SecurityStamp = Guid.NewGuid().ToString("N"),
-                ProfileId = profile.Id,
             };
+            profile.LinkAccount(user.Id);
             user.PasswordHash = hasher.HashPassword(user, password);
             db.Profiles.Add(profile);
             db.Users.Add(user);
@@ -190,8 +190,7 @@ public class CommunitySeeder(IOpenIddictApplicationManager applications, Communi
             var email = $"report-{i:00000}@{LoadTestDomain}";
             var profile = new Profile(name, now.UtcDateTime.AddDays(-(i * 540L / members)));
             profile.Update(name, ReportCities[i % ReportCities.Length], null);
-            db.Profiles.Add(profile);
-            db.Users.Add(new CommunityUser
+            var user = new CommunityUser
             {
                 Id = Guid.NewGuid(),
                 UserName = email,
@@ -200,8 +199,10 @@ public class CommunitySeeder(IOpenIddictApplicationManager applications, Communi
                 NormalizedEmail = email.ToUpperInvariant(),
                 EmailConfirmed = true,
                 SecurityStamp = Guid.NewGuid().ToString("N"),
-                ProfileId = profile.Id,
-            });
+            };
+            profile.LinkAccount(user.Id);
+            db.Profiles.Add(profile);
+            db.Users.Add(user);
             created++;
             if (created % 1000 == 0)
             {
@@ -304,7 +305,8 @@ public class CommunitySeeder(IOpenIddictApplicationManager applications, Communi
     public async Task<bool> GrantSystemAdminAsync(string email, CancellationToken cancellationToken = default)
     {
         var normalized = email.Trim().ToUpperInvariant();
-        var profileId = await db.Users.Where(u => u.NormalizedEmail == normalized).Select(u => (Guid?)u.ProfileId).SingleOrDefaultAsync(cancellationToken);
+        var profileId = await db.Users.Where(u => u.NormalizedEmail == normalized)
+            .Join(db.Profiles, u => (Guid?)u.Id, p => p.UserId, (u, p) => (Guid?)p.Id).SingleOrDefaultAsync(cancellationToken);
         if (profileId is null)
         {
             return false;

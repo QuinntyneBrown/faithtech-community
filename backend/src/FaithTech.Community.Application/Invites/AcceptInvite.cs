@@ -107,7 +107,8 @@ public class AcceptInviteHandler(
             profile = new Profile(command.Name!.Trim(), now.UtcDateTime);
             db.Profiles.Add(profile);
             // The invite reached this address, so the email counts as verified (L2-011 AC1).
-            var user = new CommunityUser { UserName = invite.Email, Email = invite.Email, EmailConfirmed = true, ProfileId = profile.Id };
+            var user = new CommunityUser { Id = Guid.NewGuid(), UserName = invite.Email, Email = invite.Email, EmailConfirmed = true };
+            profile.LinkAccount(user.Id);
             Grant(invite, profile, now);
             var created = await users.CreateAsync(user, command.Password!);
             if (!created.Succeeded)
@@ -123,7 +124,7 @@ public class AcceptInviteHandler(
                 return Result.Conflict("This invite is for another email.");
             }
 
-            profile = await db.Profiles.SingleAsync(p => p.Id == user.ProfileId, cancellationToken);
+            profile = await db.Profiles.SingleAsync(p => p.UserId == user.Id, cancellationToken);
             Grant(invite, profile, now);
         }
 

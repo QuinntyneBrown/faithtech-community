@@ -102,7 +102,7 @@ public class NoteShareNotifier(IApplicationDbContext db, INotificationPublisher 
         var roles = page.SharedRoles.Select(r => r.Role).ToList();
         var ids = await (
                 from user in db.Users
-                join profile in db.Profiles on user.ProfileId equals profile.Id
+                join profile in db.Profiles on (Guid?)user.Id equals profile.UserId
                 where !profile.IsSuspended && profile.Id != page.OwnerId
                 where members.Contains(profile.Id) || profile.Roles.Any(r => roles.Contains(r.Role))
                 select profile.Id)
@@ -157,7 +157,7 @@ public class NoteMembersHandler(IApplicationDbContext db)
     public async Task<IReadOnlyList<NoteMemberDto>> HandleAsync(string? q, CancellationToken cancellationToken = default)
     {
         var members = from user in db.Users.AsNoTracking()
-                      join profile in db.Profiles.AsNoTracking() on user.ProfileId equals profile.Id
+                      join profile in db.Profiles.AsNoTracking() on (Guid?)user.Id equals profile.UserId
                       where !profile.IsSuspended
                       select profile;
         if (!string.IsNullOrWhiteSpace(q))

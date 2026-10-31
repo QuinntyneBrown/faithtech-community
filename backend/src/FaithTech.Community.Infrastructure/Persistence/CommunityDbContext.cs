@@ -380,10 +380,16 @@ public class CommunityDbContext : IdentityDbContext<CommunityUser, IdentityRole<
             SearchVectors.Configure(builder);
         }
 
-        builder.Entity<CommunityUser>()
-            .HasOne<Profile>()
-            .WithOne()
-            .HasForeignKey<CommunityUser>(u => u.ProfileId);
+        // A profile is an account's membership of one organisation: at most one per account per organisation (ADR 0032).
+        builder.Entity<Profile>()
+            .HasOne<CommunityUser>()
+            .WithMany()
+            .HasForeignKey(p => p.UserId)
+            .OnDelete(DeleteBehavior.Restrict);
+        builder.Entity<Profile>()
+            .HasIndex(p => new { p.OrganisationId, p.UserId })
+            .IsUnique()
+            .HasFilter("\"UserId\" IS NOT NULL");
 
         ScopeToOrganisation(builder);
     }

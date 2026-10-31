@@ -35,6 +35,21 @@ export interface MeOrganisation {
   chapterLabel: ChapterLabel | null;
 }
 
+/** Another organisation the account belongs to, by name and host (L2-132 AC3, L2-133). */
+export interface Membership {
+  name: string;
+  host: string;
+}
+
+/** GET /api/me's 403 body for a signed-in account with no profile in the host's organisation (L2-132 AC3). */
+export interface NotAMember {
+  reason: 'not-a-member';
+  organisation: { name: string };
+  /** The account's email, which the not-a-member page says it is signed in as. */
+  email: string | null;
+  memberships: Membership[];
+}
+
 export type SignInError = 'invalid_credentials' | 'locked_out' | 'suspended';
 
 export type SignInOutcome =
@@ -52,6 +67,8 @@ export interface AuthService {
   readonly roles: Signal<Role[]>;
   /** The signed-in member, loaded from /api/me; null until loaded or when signed out. */
   readonly currentUser: Signal<CurrentUser | null>;
+  /** Set when /api/me says the signed-in account has no profile here; the app then shows only the not-a-member page. */
+  readonly notAMember: Signal<NotAMember | null>;
 
   /** Starts the authorization-code + PKCE flow; the browser leaves the app. */
   signIn(returnUrl?: string, keepSignedIn?: boolean): Promise<void>;
@@ -70,7 +87,8 @@ export interface AuthService {
    * ADR 0018). It only decides a redirect; the community app validates the session itself.
    */
   hasKeptSession(): boolean;
-  loadCurrentUser(): Observable<CurrentUser>;
+  /** Loads /api/me; resolves to null, with notAMember set, when the account has no profile here. */
+  loadCurrentUser(): Observable<CurrentUser | null>;
   /** On app start: exchanges a stored refresh token and loads the member; false when there is no session. */
   restoreSession(): Promise<boolean>;
 

@@ -99,8 +99,8 @@ public static class ReportClients
                 NormalizedEmail = email.ToUpperInvariant(),
                 NormalizedUserName = email.ToUpperInvariant(),
                 EmailConfirmed = verified,
-                ProfileId = profile.Id,
             };
+            profile.LinkAccount(user.Id);
             db.Profiles.Add(profile);
             db.Users.Add(user);
             await db.SaveChangesAsync();

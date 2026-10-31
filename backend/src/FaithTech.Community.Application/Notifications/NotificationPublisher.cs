@@ -38,10 +38,10 @@ public class NotificationPublisher(IApplicationDbContext db, IEmailQueue emails,
 
         var addresses = await (
                 from user in db.Users
-                join profile in db.Profiles on user.ProfileId equals profile.Id
-                where recipients.Contains(user.ProfileId) && user.Email != null
+                join profile in db.Profiles on (Guid?)user.Id equals profile.UserId
+                where recipients.Contains(profile.Id) && user.Email != null
                 where kind != NotificationKind.Announcement || !profile.AnnouncementEmailsOptedOut
-                select new { user.ProfileId, user.Email })
+                select new { ProfileId = profile.Id, user.Email })
             .ToListAsync(cancellationToken);
 
         var queued = 0;

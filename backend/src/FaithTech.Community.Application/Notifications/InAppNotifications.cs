@@ -77,7 +77,5 @@ public class InAppNotificationsHandler(IApplicationDbContext db, ICurrentUser cu
     }
 
     private async Task<Guid> CallerProfileIdAsync(CancellationToken cancellationToken) =>
-        current.UserId is { } userId
-            ? await db.Users.Where(u => u.Id == userId).Select(u => u.ProfileId).SingleOrDefaultAsync(cancellationToken)
-            : Guid.Empty;
+        await Task.FromResult(current.ProfileId ?? Guid.Empty);
 }

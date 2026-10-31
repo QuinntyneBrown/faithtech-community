@@ -63,8 +63,8 @@ describe('IconComponent', () => {
     expect(svg.querySelector('path')?.getAttribute('d')).toBe(d);
   });
 
-  it('ships the full 63 icon set', () => {
-    expect(ICON_NAMES.length).toBe(63);
+  it('ships the full 64 icon set', () => {
+    expect(ICON_NAMES.length).toBe(64);
     for (const name of ICON_NAMES) {
       expect(setup({ name }).svg.innerHTML.length).toBeGreaterThan(0);
     }

@@ -18,7 +18,7 @@ public class RoleChangeNotifier(IApplicationDbContext db, IEmailQueue emails, IC
     /// <summary>Queues the email in the unit of work; the caller saves.</summary>
     public async Task QueueEmailAsync(Guid ownerProfileId, string title, CancellationToken cancellationToken = default)
     {
-        var address = await db.Users.Where(u => u.ProfileId == ownerProfileId).Select(u => u.Email).SingleOrDefaultAsync(cancellationToken);
+        var address = await db.Users.Where(u => db.Profiles.Any(p => p.Id == ownerProfileId && p.UserId == u.Id)).Select(u => u.Email).SingleOrDefaultAsync(cancellationToken);
         if (address is null)
         {
             return;

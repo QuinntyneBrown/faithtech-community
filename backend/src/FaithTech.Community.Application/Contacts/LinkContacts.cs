@@ -40,8 +40,9 @@ public class ContactSignedUpHandler(
         }
 
         var owners = matches.Select(m => m.OwnerId).Distinct().ToList();
-        var addresses = await db.Users.Where(u => owners.Contains(u.ProfileId))
-            .ToDictionaryAsync(u => u.ProfileId, u => u.Email, cancellationToken);
+        var addresses = await db.Profiles.Where(p => owners.Contains(p.Id))
+            .Join(db.Users, p => p.UserId, u => (Guid?)u.Id, (p, u) => new { p.Id, u.Email })
+            .ToDictionaryAsync(x => x.Id, x => x.Email, cancellationToken);
         foreach (var contact in matches)
         {
             if (addresses.GetValueOrDefault(contact.OwnerId) is not { } address)
