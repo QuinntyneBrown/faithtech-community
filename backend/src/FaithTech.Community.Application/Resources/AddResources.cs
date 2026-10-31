@@ -1,4 +1,5 @@
 using FaithTech.Community.Application.Common;
+using FaithTech.Community.Application.Organisations;
 using FaithTech.Community.Domain.Profiles;
 using FaithTech.Community.Domain.Resources;
 using Microsoft.EntityFrameworkCore;
@@ -169,7 +170,13 @@ public class AddLinkHandler(
 /// Stores an upload's blob and thumbnail. When storage is down the file is kept in a retry task and the resource is
 /// saved as storing (ADR 0013, ADR 0017).
 /// </summary>
-public class ResourceFileStore(IApplicationDbContext db, IFileStorage storage, Profiles.IImageProcessor images, TimeProvider time, ILogger<ResourceFileStore> logger)
+public class ResourceFileStore(
+    IApplicationDbContext db,
+    IFileStorage storage,
+    Profiles.IImageProcessor images,
+    TimeProvider time,
+    ILogger<ResourceFileStore> logger,
+    ICurrentOrganisation organisation)
 {
     public const int ThumbnailEdge = 480;
 
@@ -190,10 +197,10 @@ public class ResourceFileStore(IApplicationDbContext db, IFileStorage storage, P
     {
         var blobId = Guid.NewGuid();
         var extension = ResourceFileTypes.ExtensionOf(upload.FileName);
-        var key = $"resources/{resourceId}/{blobId}.{extension}";
+        var key = $"{organisation.Id}/resources/{resourceId}/{blobId}.{extension}";
         var contentType = ResourceFileTypes.ContentTypeOf(upload.FileName);
         var thumbnail = ResourceFileTypes.HasThumbnail(upload.FileName) ? await ThumbnailAsync(upload, cancellationToken) : null;
-        var thumbnailKey = thumbnail is null ? null : $"resources/{resourceId}/{blobId}-thumb.png";
+        var thumbnailKey = thumbnail is null ? null : $"{organisation.Id}/resources/{resourceId}/{blobId}-thumb.png";
         var file = new ResourceFile(upload.FileName, upload.Length, contentType, key, thumbnailKey);
         try
         {

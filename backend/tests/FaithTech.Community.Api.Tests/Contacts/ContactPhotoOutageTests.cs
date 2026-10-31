@@ -1,6 +1,7 @@
 // Traces to: L2-071, L2-047
 using System.Net;
 using System.Net.Http.Json;
+using FaithTech.Community.Infrastructure.Persistence.Seed;
 using FaithTech.Community.Api.Tests.Organisations;
 using FaithTech.Community.Application.Profiles;
 using FaithTech.Community.Api.Tests.Profiles;
@@ -46,7 +47,7 @@ public class ContactPhotoOutageTests(CommunityApiFactory factory) : IClassFixtur
     {
         var (client, contact) = await OwnContact();
         var photo = await client.AddContactPhotoAsync(contact.Id);
-        var key = factory.Photos.Blobs.Keys.Single(k => k.StartsWith($"contacts/{contact.Id}/"));
+        var key = factory.Photos.Blobs.Keys.Single(k => k.StartsWith($"{FaithTechSeed.OrganisationId}/contacts/{contact.Id}/"));
         factory.Photos.Down = true;
 
         var response = await client.DeleteAsync($"/api/contacts/{contact.Id}/photos/{photo.Id}");
@@ -65,7 +66,7 @@ public class ContactPhotoOutageTests(CommunityApiFactory factory) : IClassFixtur
     {
         var (client, contact) = await OwnContact();
         await client.AddContactPhotoAsync(contact.Id, "Stored");
-        var key = factory.Photos.Blobs.Keys.Single(k => k.StartsWith($"contacts/{contact.Id}/"));
+        var key = factory.Photos.Blobs.Keys.Single(k => k.StartsWith($"{FaithTechSeed.OrganisationId}/contacts/{contact.Id}/"));
         factory.Photos.Down = true;
         await client.AddContactPhotoAsync(contact.Id, "Storing");
         await client.PostAsync($"/api/contacts/{contact.Id}/archive", null);
@@ -75,9 +76,9 @@ public class ContactPhotoOutageTests(CommunityApiFactory factory) : IClassFixtur
         Assert.Equal(HttpStatusCode.NoContent, response.StatusCode);
         factory.Photos.Down = false;
         await RetryAsync();
-        Assert.DoesNotContain(factory.Photos.Blobs.Keys, k => k.StartsWith($"contacts/{contact.Id}/"));
+        Assert.DoesNotContain(factory.Photos.Blobs.Keys, k => k.StartsWith($"{FaithTechSeed.OrganisationId}/contacts/{contact.Id}/"));
         Assert.False(factory.Photos.Blobs.ContainsKey(key));
-        Assert.Equal(0, await factory.WithDbAsync(db => db.PhotoBlobTasks.CountAsync(t => t.BlobName.StartsWith($"contacts/{contact.Id}/"))));
+        Assert.Equal(0, await factory.WithDbAsync(db => db.PhotoBlobTasks.CountAsync(t => t.BlobName.StartsWith($"{FaithTechSeed.OrganisationId}/contacts/{contact.Id}/"))));
     }
 
     [Fact]

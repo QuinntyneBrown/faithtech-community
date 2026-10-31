@@ -55,7 +55,7 @@ public class NoteImagesHandler(IApplicationDbContext db, NoteAccess access, IIma
             return (Result.Invalid("File", Refusal), null, false);
         }
 
-        var stored = new NoteImage(page.Id, image.Extension.TrimStart('.'), image.ContentType, image.Content.Length, time.GetUtcNow());
+        var stored = new NoteImage(page.OrganisationId, page.Id, image.Extension.TrimStart('.'), image.ContentType, image.Content.Length, time.GetUtcNow());
         try
         {
             await storage.SaveAsync(stored.BlobName, new MemoryStream(image.Content), image.ContentType, cancellationToken);
