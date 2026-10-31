@@ -1,4 +1,5 @@
 using FaithTech.Community.Domain.Organisations;
+using Microsoft.Extensions.Options;
 
 namespace FaithTech.Community.Application.Organisations;
 
@@ -7,10 +8,15 @@ namespace FaithTech.Community.Application.Organisations;
 /// worker's unit of work (set per row from the row's OrganisationId) or a Cli command. Reading it before it is set
 /// throws, so nothing ever runs against no organisation or a guessed one.
 /// </summary>
-public class OrganisationScope : ICurrentOrganisation
+public class OrganisationScope(IOptions<PlatformOptions> platform) : ICurrentOrganisation
 {
     private Guid? _id;
     private Organisation? _organisation;
+
+    public OrganisationScope()
+        : this(Options.Create(new PlatformOptions()))
+    {
+    }
 
     public bool IsSet => _id is not null;
 
@@ -25,6 +31,15 @@ public class OrganisationScope : ICurrentOrganisation
     public string Host => Loaded.Host;
 
     public OrganisationStatus Status => Loaded.Status;
+
+    public string Origin =>
+        platform.Value.DefaultOrganisationOrigin is { Length: > 0 } local && Slug == platform.Value.DefaultOrganisationSlug
+            ? local.TrimEnd('/')
+            : $"https://{Host}";
+
+    public string? ChapterLabelSingular => Loaded.ChapterLabelSingular;
+
+    public string? ChapterLabelPlural => Loaded.ChapterLabelPlural;
 
     private Organisation Loaded => _organisation
         ?? throw new InvalidOperationException(_id is null ? "No organisation is in scope." : "The organisation in scope was set by id only.");

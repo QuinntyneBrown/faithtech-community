@@ -40,6 +40,8 @@ public partial class ServerAuthorizationTests(CommunityApiFactory factory) : ICl
         // Google sign-in (L2-078) redirects to Google without a session; the client follows it to Google's host, which
         // the API does not serve (L2-131 AC2).
         "api/account/google/start",
+        // The organisation's names, read by the pages that render before sign-in (L2-134 AC1).
+        "api/site",
     ];
 
     [Fact]

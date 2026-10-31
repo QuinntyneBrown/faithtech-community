@@ -75,6 +75,7 @@ app.MapHealthChecks("/health/ready", new HealthCheckOptions
     Predicate = check => check.Tags.Contains(FaithTech.Community.Infrastructure.DependencyInjection.ReadyTag),
 }).AllowAnonymous();
 app.MapMeEndpoints();
+app.MapSiteEndpoints();
 app.MapProfilesEndpoints();
 app.MapAuditLogEndpoints();
 app.MapRolesEndpoints();

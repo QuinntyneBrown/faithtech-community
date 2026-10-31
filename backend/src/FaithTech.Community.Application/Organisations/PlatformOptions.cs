@@ -9,4 +9,10 @@ public class PlatformOptions
     /// <c>Marketing:Origin</c> belongs to until marketing sites are configured per host.
     /// </summary>
     public string DefaultOrganisationSlug { get; set; } = "faithtech";
+
+    /// <summary>
+    /// Set only in Development: the origin that stands in for the default organisation's <c>https://{Host}</c>, so
+    /// email links and the community origin keep working on localhost.
+    /// </summary>
+    public string? DefaultOrganisationOrigin { get; set; }
 }
