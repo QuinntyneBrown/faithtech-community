@@ -14,13 +14,14 @@ import { toSignal } from '@angular/core/rxjs-interop';
 import { NonNullableFormBuilder, ReactiveFormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import {
-  EVENTS_SERVICE,
   EVENT_TYPE_LABELS,
   EventDetailDto,
   EventFormat,
   EventRequest,
+  EVENTS_SERVICE,
   EventType,
   EventVisibility,
+  OrganisationNames,
 } from '@faithtech-community/api';
 import {
   AlertComponent,
@@ -148,6 +149,7 @@ const TYPE_OPTIONS: SelectOption[] = (Object.keys(EVENT_TYPE_LABELS) as EventTyp
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class EventFormPage {
+  protected readonly organisation = inject(OrganisationNames);
   private readonly events = inject(EVENTS_SERVICE);
   private readonly router = inject(Router);
   private readonly errorFocus = viewChild(FormErrorFocusDirective);

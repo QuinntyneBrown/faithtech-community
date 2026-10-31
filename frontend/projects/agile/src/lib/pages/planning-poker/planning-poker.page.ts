@@ -14,6 +14,7 @@ import { FormControl, ReactiveFormsModule } from '@angular/forms';
 import {
   AGILE_LIVE_SERVICE,
   AGILE_SERVICE,
+  OrganisationNames,
   PokerCard,
   PokerParticipantDto,
   PokerSessionDto,
@@ -89,6 +90,7 @@ interface Status {
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class PlanningPokerPage {
+  protected readonly organisation = inject(OrganisationNames);
   private readonly agile = inject(AGILE_SERVICE);
   private readonly live = inject(AGILE_LIVE_SERVICE);
   private readonly dialogs = inject(DialogService);
@@ -292,7 +294,7 @@ export class PlanningPokerPage {
       this.toasts.show({
         variant: 'danger',
         heading: 'That didn’t work',
-        text: 'We couldn’t reach FaithTech. Try again.',
+        text: `We couldn’t reach ${this.organisation.shortName()}. Try again.`,
       });
       await this.refresh();
       return false;

@@ -1,4 +1,5 @@
 using System.Globalization;
+using FaithTech.Community.Application.Organisations;
 using FaithTech.Community.Application.Common;
 using FaithTech.Community.Application.Events;
 
@@ -9,7 +10,7 @@ namespace FaithTech.Community.Application.Reports;
 /// section after another with a blank row between, through <see cref="ICsvWriter"/> (every cell quoted, formula
 /// guard). The members context reads "18 new in the last 30 days", so no cell needs the guard to change it.
 /// </summary>
-public class ExportReportHandler(GetReportHandler reports, ICsvWriter csv, TimeProvider time)
+public class ExportReportHandler(GetReportHandler reports, ICsvWriter csv, TimeProvider time, ICurrentOrganisation organisation)
 {
     public async Task<(Result Result, CsvFile? File)> HandleAsync(GetReportQuery query, CancellationToken cancellationToken = default)
     {
@@ -24,7 +25,7 @@ public class ExportReportHandler(GetReportHandler reports, ICsvWriter csv, TimeP
         var f = report.Figures;
         List<IReadOnlyList<string?>> rows =
         [
-            ["Report", "FaithTech Community Reports"],
+            ["Report", $"{organisation.Name} Reports"],
             ["City", report.City ?? "All cities"],
             ["Period", period],
             ["From (UTC)", report.From is { } from ? Utc(from) : null],

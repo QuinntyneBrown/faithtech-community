@@ -4,14 +4,26 @@ import { signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import {
   AUTH_SERVICE,
-  INVITES_SERVICE,
   InviteDto,
+  INVITES_SERVICE,
   Role,
   SendInviteRequest,
+  SITE_SERVICE,
 } from '@faithtech-community/api';
 import { Observable, Subject, of, throwError } from 'rxjs';
 
 import { SendInviteDialog } from './send-invite.dialog';
+
+/** The host's organisation the copy names, as GET /api/site answers it on FaithTech's host. */
+const FAITHTECH_SITE = {
+  site: () => ({
+    name: 'FaithTech Community',
+    shortName: 'FaithTech',
+    chapterLabel: { singular: 'City', plural: 'Cities' },
+    communityOrigin: 'http://localhost:4200',
+  }),
+  load: async () => undefined,
+};
 
 const sent: InviteDto = {
   id: 'i1',
@@ -33,6 +45,7 @@ function setup(
   const service = { sendInvite: vi.fn(sendInvite) };
   TestBed.configureTestingModule({
     providers: [
+      { provide: SITE_SERVICE, useValue: FAITHTECH_SITE },
       { provide: DialogRef, useValue: ref },
       { provide: INVITES_SERVICE, useValue: service },
       { provide: AUTH_SERVICE, useValue: { roles: signal(roles) } },

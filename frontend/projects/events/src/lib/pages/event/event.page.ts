@@ -9,7 +9,13 @@ import {
   signal,
 } from '@angular/core';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
-import { EVENTS_SERVICE, EventDetailDto, RsvpDto, problemDetails } from '@faithtech-community/api';
+import {
+  EventDetailDto,
+  EVENTS_SERVICE,
+  OrganisationNames,
+  problemDetails,
+  RsvpDto,
+} from '@faithtech-community/api';
 import {
   AlertComponent,
   AvatarComponent,
@@ -84,6 +90,7 @@ type State = 'loading' | 'loaded' | 'error';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class EventPage {
+  protected readonly organisation = inject(OrganisationNames);
   private readonly events = inject(EVENTS_SERVICE);
   private readonly dialogs = inject(DialogService);
   private readonly toasts = inject(ToastService);
@@ -183,7 +190,7 @@ export class EventPage {
       this.refusal.set(
         error instanceof HttpErrorResponse && error.status === 409
           ? (problemDetails(error)?.detail ?? 'This event isn’t taking RSVPs.')
-          : 'We couldn’t reach FaithTech, so you’re not on the list yet. Try again.',
+          : `We couldn’t reach ${this.organisation.shortName()}, so you’re not on the list yet. Try again.`,
       );
     } finally {
       this.rsvping.set(false);

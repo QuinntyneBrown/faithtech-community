@@ -3,16 +3,28 @@ import { signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import {
   AUTH_SERVICE,
-  PROFILES_SERVICE,
   ProfileDto,
+  PROFILES_SERVICE,
   ProfilesService,
-  ROLES_SERVICE,
   Role,
+  ROLES_SERVICE,
+  SITE_SERVICE,
 } from '@faithtech-community/api';
 import { avatarColorFor, DialogService, RoleDialogData } from '@faithtech-community/components';
 import { Observable, of, throwError } from 'rxjs';
 
 import { ProfilePage } from './profile.page';
+
+/** The host's organisation the copy names, as GET /api/site answers it on FaithTech's host. */
+const FAITHTECH_SITE = {
+  site: () => ({
+    name: 'FaithTech Community',
+    shortName: 'FaithTech',
+    chapterLabel: { singular: 'City', plural: 'Cities' },
+    communityOrigin: 'http://localhost:4200',
+  }),
+  load: async () => undefined,
+};
 
 const samuel: ProfileDto = {
   id: 'p1',
@@ -41,6 +53,7 @@ function setup(getProfile: (id: string) => Observable<ProfileDto>, callerRoles: 
   };
   TestBed.configureTestingModule({
     providers: [
+      { provide: SITE_SERVICE, useValue: FAITHTECH_SITE },
       { provide: PROFILES_SERVICE, useValue: service },
       { provide: ROLES_SERVICE, useValue: roles },
       { provide: AUTH_SERVICE, useValue: { roles: signal(callerRoles) } },

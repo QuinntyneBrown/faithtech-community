@@ -13,10 +13,11 @@ import { NonNullableFormBuilder, ReactiveFormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import {
   AUTH_SERVICE,
-  INVITES_SERVICE,
   InviteLookupDto,
-  ROLE_LABELS,
+  INVITES_SERVICE,
+  OrganisationNames,
   problemDetails,
+  ROLE_LABELS,
 } from '@faithtech-community/api';
 import {
   AlertComponent,
@@ -89,6 +90,7 @@ const STALE: Record<string, { heading: string; text: (inviter: string) => string
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class AcceptInvitePage {
+  protected readonly organisation = inject(OrganisationNames);
   private readonly invites = inject(INVITES_SERVICE);
   private readonly auth = inject(AUTH_SERVICE);
   private readonly router = inject(Router);
@@ -136,7 +138,7 @@ export class AcceptInvitePage {
   });
   protected readonly where = computed(() => {
     const city = this.invite()?.inviterCity;
-    return city ? `FaithTech ${city}` : 'FaithTech';
+    return city ? `${this.organisation.shortName()} ${city}` : this.organisation.shortName();
   });
 
   protected readonly errors = computed(() => {

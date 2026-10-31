@@ -1,6 +1,10 @@
 import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
 import { Router } from '@angular/router';
-import { NOTIFICATIONS_SERVICE, NotificationDto } from '@faithtech-community/api';
+import {
+  NotificationDto,
+  NOTIFICATIONS_SERVICE,
+  OrganisationNames,
+} from '@faithtech-community/api';
 import {
   ButtonComponent,
   CardComponent,
@@ -41,6 +45,7 @@ type State = 'loading' | 'loaded' | 'error';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class NotificationsPage {
+  protected readonly organisation = inject(OrganisationNames);
   private readonly service = inject(NOTIFICATIONS_SERVICE);
   private readonly router = inject(Router);
 
@@ -53,7 +58,9 @@ export class NotificationsPage {
   private page = 1;
   private request = 0;
 
-  protected readonly notices = computed<Notice[]>(() => this.items().map(toNotice));
+  protected readonly notices = computed<Notice[]>(() =>
+    this.items().map((n) => toNotice(n, this.organisation.shortName())),
+  );
   protected readonly subtitle = computed(() =>
     this.unread() > 0 ? `${this.unread()} unread` : null,
   );
@@ -126,10 +133,10 @@ export class NotificationsPage {
   }
 }
 
-function toNotice(n: NotificationDto): Notice {
+function toNotice(n: NotificationDto, organisation: string): Notice {
   return {
     id: n.id,
-    name: n.actorName ?? 'FaithTech',
+    name: n.actorName ?? organisation,
     color: avatarColorFor(n.actorId),
     text: '',
     linkText: n.title,

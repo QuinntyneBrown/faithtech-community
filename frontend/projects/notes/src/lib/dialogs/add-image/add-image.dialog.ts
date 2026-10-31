@@ -2,7 +2,7 @@ import { DIALOG_DATA, DialogRef } from '@angular/cdk/dialog';
 import { HttpErrorResponse } from '@angular/common/http';
 import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
-import { NOTES_SERVICE } from '@faithtech-community/api';
+import { NOTES_SERVICE, OrganisationNames } from '@faithtech-community/api';
 import {
   AlertComponent,
   ButtonComponent,
@@ -48,6 +48,7 @@ export function altError(alt: string): string {
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class AddImageDialog {
+  protected readonly organisation = inject(OrganisationNames);
   protected readonly ref = inject<DialogRef<AddedImage>>(DialogRef);
   private readonly pageId = inject<string>(DIALOG_DATA);
   private readonly notes = inject(NOTES_SERVICE);

@@ -9,7 +9,7 @@
     <ft-stack>
       @if (failed()) {
         <ft-alert status="danger" heading="Partner not added">
-          We couldn’t reach FaithTech. Nothing was saved — try again.
+          We couldn’t reach {{ organisation.shortName() }}. Nothing was saved — try again.
         </ft-alert>
       }
       <ft-form-field required label="Organisation" [error]="error('name')">

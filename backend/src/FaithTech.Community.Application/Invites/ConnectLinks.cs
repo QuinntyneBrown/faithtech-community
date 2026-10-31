@@ -1,10 +1,10 @@
 using FaithTech.Community.Application.Admin;
 using FaithTech.Community.Application.Common;
+using FaithTech.Community.Application.Organisations;
 using FaithTech.Community.Application.Profiles;
 using FaithTech.Community.Domain.Invites;
 using FaithTech.Community.Domain.Profiles;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Options;
 
 namespace FaithTech.Community.Application.Invites;
 
@@ -31,7 +31,7 @@ public class ConnectLinkHandler(
     ICurrentUser current,
     IConnectTokenProtector protector,
     IPhotoStorage storage,
-    IOptions<WebAppOptions> webApp,
+    ICurrentOrganisation organisation,
     TimeProvider time)
 {
     public bool CanHaveLink => current.HasRole(Role.CityLead) || current.HasRole(Role.SystemAdmin);
@@ -127,5 +127,5 @@ public class ConnectLinkHandler(
         return await db.Users.Where(u => u.Id == current.UserId).Select(u => (Guid?)u.ProfileId).SingleOrDefaultAsync(cancellationToken);
     }
 
-    private ConnectLinkDto ToDto(string token) => new($"{webApp.Value.Origin}/meet/{token}");
+    private ConnectLinkDto ToDto(string token) => new($"{organisation.Origin}/meet/{token}");
 }

@@ -1,6 +1,9 @@
 // Traces to: L2-024, L2-022 AC1
+using FaithTech.Community.Application.Organisations;
 using FaithTech.Community.Domain.Events;
+using FaithTech.Community.Domain.Organisations;
 using FaithTech.Community.Infrastructure.Calendar;
+using FaithTech.Community.Infrastructure.Persistence.Seed;
 using Microsoft.Extensions.Time.Testing;
 
 namespace FaithTech.Community.Infrastructure.Tests.Calendar;
@@ -8,7 +11,27 @@ namespace FaithTech.Community.Infrastructure.Tests.Calendar;
 public class IcsCalendarWriterTests
 {
     private static readonly DateTimeOffset Start = new(2026, 11, 6, 18, 30, 0, TimeSpan.FromHours(-5));
-    private readonly IcsCalendarWriter _writer = new(new FakeTimeProvider(new DateTimeOffset(2026, 10, 21, 12, 0, 0, TimeSpan.Zero)));
+    private readonly IcsCalendarWriter _writer = Writer(FaithTechSeed.Organisation());
+
+    private static IcsCalendarWriter Writer(Organisation organisation)
+    {
+        var scope = new OrganisationScope();
+        scope.Set(organisation);
+        return new IcsCalendarWriter(new FakeTimeProvider(new DateTimeOffset(2026, 10, 21, 12, 0, 0, TimeSpan.Zero)), scope);
+    }
+
+    // L2-134 AC4: the file carries the name of the organisation it was downloaded in.
+    [Fact]
+    public void The_product_id_and_the_organiser_carry_the_organisations_name()
+    {
+        var northside = new Organisation(Guid.NewGuid(), "northside", "app.northside.test", "Northside Makers", "Northside", DateTime.UtcNow);
+
+        var lines = Lines(Writer(northside).Write(InPerson()));
+
+        Assert.Contains("PRODID:-//Northside Makers//Events//EN", lines);
+        Assert.Contains("ORGANIZER;CN=\"Northside Makers\":https://app.northside.test", lines);
+        Assert.DoesNotContain(lines, line => line.Contains("FaithTech", StringComparison.Ordinal));
+    }
 
     private static Event InPerson(string title = "Toronto Builders Night") =>
         new(title, "Demos, then open tables.", EventType.BuildersNight, Start, Start.AddHours(2.5), "Toronto",
@@ -29,6 +52,7 @@ public class IcsCalendarWriterTests
         Assert.Equal("BEGIN:VCALENDAR", lines[0]);
         Assert.Contains("VERSION:2.0", lines);
         Assert.Contains("PRODID:-//FaithTech Community//Events//EN", lines);
+        Assert.Contains("ORGANIZER;CN=\"FaithTech Community\":https://app.faithtech.community", lines);
         Assert.Contains("BEGIN:VEVENT", lines);
         Assert.Contains($"UID:{e.Id}@faithtech.community", lines);
         Assert.Contains("DTSTAMP:20261021T120000Z", lines);

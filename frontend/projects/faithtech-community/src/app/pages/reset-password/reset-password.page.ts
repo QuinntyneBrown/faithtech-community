@@ -8,7 +8,7 @@ import {
   viewChild,
 } from '@angular/core';
 import { NonNullableFormBuilder, ReactiveFormsModule } from '@angular/forms';
-import { AUTH_SERVICE } from '@faithtech-community/api';
+import { AUTH_SERVICE, OrganisationNames } from '@faithtech-community/api';
 import {
   AlertComponent,
   AuthLayoutComponent,
@@ -49,6 +49,7 @@ interface Problem {
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ResetPasswordPage {
+  protected readonly organisation = inject(OrganisationNames);
   private readonly auth = inject(AUTH_SERVICE);
   private readonly errorFocus = viewChild.required(FormErrorFocusDirective);
 

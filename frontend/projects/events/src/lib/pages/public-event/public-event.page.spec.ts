@@ -2,10 +2,21 @@
 import { HttpErrorResponse } from '@angular/common/http';
 import { TestBed } from '@angular/core/testing';
 import { Router } from '@angular/router';
-import { EVENTS_SERVICE, PublicEventDto } from '@faithtech-community/api';
+import { EVENTS_SERVICE, PublicEventDto, SITE_SERVICE } from '@faithtech-community/api';
 import { Observable, of, throwError } from 'rxjs';
 
 import { PublicEventPage } from './public-event.page';
+
+/** The host's organisation the copy names, as GET /api/site answers it on FaithTech's host. */
+const FAITHTECH_SITE = {
+  site: () => ({
+    name: 'FaithTech Community',
+    shortName: 'FaithTech',
+    chapterLabel: { singular: 'City', plural: 'Cities' },
+    communityOrigin: 'http://localhost:4200',
+  }),
+  load: async () => undefined,
+};
 
 function publicEvent(overrides: Partial<PublicEventDto> = {}): PublicEventDto {
   return {
@@ -40,7 +51,12 @@ async function setup(overrides: Overrides = {}) {
         `/api/${options?.isPublic ? 'public/' : ''}events/${id}/calendar.ics`,
     ),
   };
-  TestBed.configureTestingModule({ providers: [{ provide: EVENTS_SERVICE, useValue: service }] });
+  TestBed.configureTestingModule({
+    providers: [
+      { provide: SITE_SERVICE, useValue: FAITHTECH_SITE },
+      { provide: EVENTS_SERVICE, useValue: service },
+    ],
+  });
   const navigate = vi.spyOn(TestBed.inject(Router), 'navigateByUrl').mockResolvedValue(true);
   const fixture = TestBed.createComponent(PublicEventPage);
   fixture.componentRef.setInput('id', 'e1');

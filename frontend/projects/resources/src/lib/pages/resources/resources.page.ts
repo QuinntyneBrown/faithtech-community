@@ -12,10 +12,11 @@ import { FormControl, ReactiveFormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import {
   AUTH_SERVICE,
+  OrganisationNames,
   RESOURCE_CONTRIBUTOR_ROLES,
   RESOURCE_TYPES,
-  RESOURCES_SERVICE,
   ResourceDto,
+  RESOURCES_SERVICE,
   ResourceSummary,
   ResourceType,
 } from '@faithtech-community/api';
@@ -86,6 +87,7 @@ type State = 'loading' | 'loaded' | 'error';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ResourcesPage {
+  protected readonly organisation = inject(OrganisationNames);
   private readonly resources = inject(RESOURCES_SERVICE);
   private readonly roles = inject(AUTH_SERVICE).roles;
   private readonly dialogs = inject(DialogService);
@@ -202,7 +204,7 @@ export class ResourcesPage {
         text:
           error instanceof HttpErrorResponse && error.status === 409
             ? 'This file is still uploading. Try again in a minute.'
-            : 'We couldn’t reach FaithTech. Try again.',
+            : `We couldn’t reach ${this.organisation.shortName()}. Try again.`,
       });
     }
   }

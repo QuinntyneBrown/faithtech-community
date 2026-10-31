@@ -1,7 +1,7 @@
 using FaithTech.Community.Application.Common;
+using FaithTech.Community.Application.Organisations;
 using FluentValidation;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.Extensions.Options;
 
 namespace FaithTech.Community.Application.Identity;
 
@@ -18,7 +18,7 @@ public class RequestPasswordResetValidator : AbstractValidator<RequestPasswordRe
     }
 }
 
-public class RequestPasswordResetHandler(UserManager<CommunityUser> users, IEmailSender email, IOptions<WebAppOptions> webApp)
+public class RequestPasswordResetHandler(UserManager<CommunityUser> users, IEmailSender email, ICurrentOrganisation organisation)
 {
     public async Task<Result> HandleAsync(RequestPasswordResetCommand command, CancellationToken cancellationToken = default)
     {
@@ -30,10 +30,10 @@ public class RequestPasswordResetHandler(UserManager<CommunityUser> users, IEmai
         }
 
         var token = await users.GeneratePasswordResetTokenAsync(user);
-        var link = $"{webApp.Value.Origin}/reset-password?userId={user.Id}&token={Uri.EscapeDataString(token)}";
+        var link = $"{organisation.Origin}/reset-password?userId={user.Id}&token={Uri.EscapeDataString(token)}";
         await email.SendAsync(new EmailMessage(
             user.Email!,
-            "Reset your FaithTech Community password",
+            $"Reset your {organisation.Name} password",
             $"Choose a new password for your account:\n\n{link}\n\nThis link expires in 1 hour. If you did not ask for it, you can ignore this email."),
             cancellationToken);
         return Result.Ok();

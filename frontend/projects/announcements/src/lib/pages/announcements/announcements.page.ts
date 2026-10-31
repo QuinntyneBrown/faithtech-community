@@ -1,10 +1,11 @@
 import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
 import {
+  AnnouncementDto,
   ANNOUNCEMENTS_SERVICE,
   AUTH_SERVICE,
-  AnnouncementDto,
-  ROLE_LABELS,
+  OrganisationNames,
   Role,
+  ROLE_LABELS,
 } from '@faithtech-community/api';
 import {
   ButtonComponent,
@@ -46,6 +47,7 @@ const SENDERS: Role[] = ['CommunicationsLead', 'SystemAdmin'];
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class AnnouncementsPage {
+  protected readonly organisation = inject(OrganisationNames);
   private readonly service = inject(ANNOUNCEMENTS_SERVICE);
   private readonly roles = inject(AUTH_SERVICE).roles;
 

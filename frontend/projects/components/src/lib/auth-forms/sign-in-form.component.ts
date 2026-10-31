@@ -13,6 +13,7 @@ import {
 import { NonNullableFormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 
 import { AlertComponent } from '../alert/alert.component';
+import { ORGANISATION_NAMES } from '../organisation-names/organisation-names';
 import { ButtonComponent } from '../button/button.component';
 import { FormErrorFocusDirective } from '../form-error-focus/form-error-focus.directive';
 import { FormFieldComponent } from '../form-field/form-field.component';
@@ -54,6 +55,7 @@ export interface SignInCredentials {
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class SignInFormComponent {
+  protected readonly organisation = inject(ORGANISATION_NAMES);
   readonly busy = input(false);
   readonly failure = input<SignInFormFailure | null>(null);
   readonly forgotPasswordHref = input('/forgot-password');

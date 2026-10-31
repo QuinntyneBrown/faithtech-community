@@ -25,7 +25,13 @@ public class SmtpEmailTransport(IOptions<SmtpOptions> options) : IEmailTransport
             Subject = message.Subject,
             Body = body.ToMessageBody(),
         };
-        mime.From.Add(MailboxAddress.Parse(smtp.From));
+        var from = MailboxAddress.Parse(smtp.From);
+        if (message.FromName is { Length: > 0 } name)
+        {
+            from.Name = name;
+        }
+
+        mime.From.Add(from);
         mime.To.Add(MailboxAddress.Parse(message.To));
 
         using var client = new SmtpClient();

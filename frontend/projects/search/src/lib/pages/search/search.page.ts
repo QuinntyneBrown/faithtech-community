@@ -11,6 +11,7 @@ import { FormControl, ReactiveFormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import {
   MIN_SEARCH_LENGTH,
+  OrganisationNames,
   SEARCH_SERVICE,
   SearchResultGroup,
   SearchResultItem,
@@ -84,6 +85,7 @@ const STATUSES: Record<string, string> = { ToDo: 'To do', InProgress: 'In progre
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class SearchPage {
+  protected readonly organisation = inject(OrganisationNames);
   private readonly service = inject(SEARCH_SERVICE);
   private readonly router = inject(Router);
 

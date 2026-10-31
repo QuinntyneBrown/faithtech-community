@@ -2,10 +2,11 @@
 import { HttpErrorResponse } from '@angular/common/http';
 import { TestBed } from '@angular/core/testing';
 import {
-  CONTACTS_SERVICE,
   ContactDto,
   ContactNoteDto,
   ContactPhoto,
+  CONTACTS_SERVICE,
+  SITE_SERVICE,
 } from '@faithtech-community/api';
 import { Router } from '@angular/router';
 import { Location } from '@angular/common';
@@ -21,6 +22,17 @@ import {
   LinkContactDialog,
 } from '../../dialogs';
 import { ContactPage } from './contact.page';
+
+/** The host's organisation the copy names, as GET /api/site answers it on FaithTech's host. */
+const FAITHTECH_SITE = {
+  site: () => ({
+    name: 'FaithTech Community',
+    shortName: 'FaithTech',
+    chapterLabel: { singular: 'City', plural: 'Cities' },
+    communityOrigin: 'http://localhost:4200',
+  }),
+  load: async () => undefined,
+};
 
 function contactDto(overrides: Partial<ContactDto> = {}): ContactDto {
   return {
@@ -62,6 +74,7 @@ async function setupContactPage(
   const router = { navigateByUrl: vi.fn(() => Promise.resolve(true)) };
   TestBed.configureTestingModule({
     providers: [
+      { provide: SITE_SERVICE, useValue: FAITHTECH_SITE },
       { provide: Router, useValue: router },
       { provide: CONTACTS_SERVICE, useValue: service },
       { provide: DialogService, useValue: dialogs },

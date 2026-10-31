@@ -12,6 +12,7 @@ import { InjectionToken, Signal } from '@angular/core';
 import { Observable } from 'rxjs';
 
 import { Role } from '../shared';
+import type { ChapterLabel } from '../site/site.service';
 
 export interface CurrentUser {
   id: string;
@@ -21,6 +22,17 @@ export interface CurrentUser {
   email: string | null;
   emailVerified: boolean;
   roles: Role[];
+  /** The organisation of the host, from /api/me (L2-133 AC1). */
+  organisation?: MeOrganisation;
+}
+
+/** The organisation part of /api/me. */
+export interface MeOrganisation {
+  slug: string;
+  name: string;
+  shortName: string;
+  host: string;
+  chapterLabel: ChapterLabel | null;
 }
 
 export type SignInError = 'invalid_credentials' | 'locked_out' | 'suspended';

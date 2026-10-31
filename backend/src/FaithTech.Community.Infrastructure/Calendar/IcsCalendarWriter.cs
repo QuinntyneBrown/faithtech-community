@@ -1,6 +1,7 @@
 using System.Globalization;
 using System.Text;
 using FaithTech.Community.Application.Events;
+using FaithTech.Community.Application.Organisations;
 using FaithTech.Community.Domain.Events;
 
 namespace FaithTech.Community.Infrastructure.Calendar;
@@ -8,9 +9,10 @@ namespace FaithTech.Community.Infrastructure.Calendar;
 /// <summary>
 /// One VEVENT per file (RFC 5545): a UID from the event id that never changes, UTC times, the venue as LOCATION or
 /// the online link as URL, SEQUENCE from <see cref="Event.Sequence"/> and STATUS:CANCELLED once cancelled, so
-/// calendar apps replace the copy they already hold (L2-024).
+/// calendar apps replace the copy they already hold (L2-024). PRODID and ORGANIZER carry the name of the organisation
+/// the file is downloaded in (L2-134 AC4).
 /// </summary>
-public class IcsCalendarWriter(TimeProvider time) : IIcsCalendarWriter
+public class IcsCalendarWriter(TimeProvider time, ICurrentOrganisation organisation) : IIcsCalendarWriter
 {
     private const int MaxLineOctets = 75;
 
@@ -21,7 +23,7 @@ public class IcsCalendarWriter(TimeProvider time) : IIcsCalendarWriter
         {
             "BEGIN:VCALENDAR",
             "VERSION:2.0",
-            "PRODID:-//FaithTech Community//Events//EN",
+            $"PRODID:-//{Text(organisation.Name)}//Events//EN",
             "CALSCALE:GREGORIAN",
             "METHOD:PUBLISH",
             "BEGIN:VEVENT",
@@ -30,6 +32,8 @@ public class IcsCalendarWriter(TimeProvider time) : IIcsCalendarWriter
             $"DTSTART:{Utc(e.StartsAt)}",
             $"DTEND:{Utc(e.EndsAt)}",
             $"SUMMARY:{Text(e.Title)}",
+            // A quoted parameter value cannot hold a double quote (RFC 5545 3.1).
+            $"ORGANIZER;CN=\"{organisation.Name.Replace("\"", string.Empty)}\":{organisation.Origin}",
         };
         if (!string.IsNullOrWhiteSpace(e.Description))
         {

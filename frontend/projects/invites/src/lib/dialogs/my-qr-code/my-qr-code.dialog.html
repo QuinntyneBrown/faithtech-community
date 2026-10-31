@@ -28,7 +28,8 @@
     <ft-stack>
       @if (replaceFailed()) {
         <ft-alert status="danger" heading="New code not made">
-          We couldn’t reach FaithTech. Your current code still works — try again.
+          We couldn’t reach {{ organisation.shortName() }}. Your current code still works — try
+          again.
         </ft-alert>
       }
       @if (replaced()) {
@@ -53,9 +54,9 @@
           (copied)="copied()"
         />
         <p class="text-body-sm">
-          When someone scans it they can join FaithTech Community with their email. Once their email
-          is verified they’re added to your private contacts, linked to their profile, and you get a
-          notification. The link gives no role.
+          When someone scans it they can join {{ organisation.name() }} with their email. Once their
+          email is verified they’re added to your private contacts, linked to their profile, and you
+          get a notification. The link gives no role.
         </p>
         <div>
           <ft-button variant="ghost" size="sm" [loading]="busy()" (click)="step.set('confirm')">

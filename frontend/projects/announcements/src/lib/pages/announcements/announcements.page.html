@@ -40,7 +40,11 @@
         <ft-empty-state
           icon="announcements"
           heading="No announcements yet"
-          text="News from FaithTech shows up here, and in your email unless you turn it off in Settings."
+          [text]="
+            'News from ' +
+            organisation.shortName() +
+            ' shows up here, and in your email unless you turn it off in Settings.'
+          "
         />
       }
     } @else {

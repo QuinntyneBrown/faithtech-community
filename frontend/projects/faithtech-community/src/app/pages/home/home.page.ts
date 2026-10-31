@@ -2,14 +2,15 @@ import { NgTemplateOutlet } from '@angular/common';
 import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
 import {
   ACTIVITY_SERVICE,
-  AUTH_SERVICE,
   ActivityItemDto,
+  AUTH_SERVICE,
+  canManageEvents,
   EVENTS_SERVICE,
   EventSummaryDto,
-  PARTNERS_SERVICE,
-  PARTNER_STAGE_LABELS,
-  canManageEvents,
   isLead,
+  OrganisationNames,
+  PARTNER_STAGE_LABELS,
+  PARTNERS_SERVICE,
 } from '@faithtech-community/api';
 import {
   AlertComponent,
@@ -65,8 +66,6 @@ interface FeedRow {
 
 /** Coming up shows the next three events (docs/mocks/pages/home). */
 const COMING_UP = 3;
-/** Notifications carry no actor yet (PR #335), so the community speaks for them. */
-const SYSTEM_ACTOR = 'FaithTech Community';
 const LONG_DATE = new Intl.DateTimeFormat('en-GB', {
   weekday: 'long',
   day: 'numeric',
@@ -107,12 +106,14 @@ const LONG_DATE = new Intl.DateTimeFormat('en-GB', {
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class HomePage {
+  protected readonly organisation = inject(OrganisationNames);
   private readonly auth = inject(AUTH_SERVICE);
   private readonly events = inject(EVENTS_SERVICE);
   private readonly partners = inject(PARTNERS_SERVICE);
   private readonly activity = inject(ACTIVITY_SERVICE);
 
-  protected readonly actor = SYSTEM_ACTOR;
+  /** Notifications carry no actor yet (PR #335), so the organisation speaks for them. */
+  protected readonly actor = computed(() => this.organisation.name());
   private readonly roles = this.auth.roles;
   private readonly firstName = computed(
     () => (this.auth.currentUser()?.name ?? '').trim().split(/\s+/)[0] ?? '',

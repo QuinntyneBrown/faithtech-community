@@ -116,7 +116,11 @@ public class CommunityApiFactory : WebApplicationFactory<Program>, IAsyncLifetim
 
     /// <summary>The emails queued in the outbox for <paramref name="address"/>, oldest first, as the producer composed them.</summary>
     public Task<IReadOnlyList<EmailMessage>> QueuedEmailsToAsync(string address) =>
-        WithDbAsync(async db =>
+        QueuedEmailsToAsync(FaithTechSeed.OrganisationId, address);
+
+    /// <summary>The emails queued in <paramref name="organisationId"/>'s outbox for <paramref name="address"/>, oldest first.</summary>
+    public Task<IReadOnlyList<EmailMessage>> QueuedEmailsToAsync(Guid organisationId, string address) =>
+        WithDbAsync(organisationId, async db =>
         {
             var rows = await db.OutboxMessages.Where(m => m.To == address).OrderBy(m => m.CreatedAt).ToListAsync();
             return (IReadOnlyList<EmailMessage>)rows.Select(m => new EmailMessage(
