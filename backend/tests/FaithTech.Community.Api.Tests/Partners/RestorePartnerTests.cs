@@ -25,18 +25,18 @@ public class RestorePartnerTests(CommunityApiFactory factory) : IClassFixture<Co
 
     private HttpClient Admin(ProfileClients.Member admin) => factory.ClientFor(admin, Role.SystemAdmin);
 
-    /// <summary>Kestrel Labs (In funnel) with Kestrel Labs Inc. (Lead, one call and one move) merged into it.</summary>
+    /// <summary>Kestrel Labs (In Funnel) with Kestrel Labs Inc. (Lead, one call and one move) merged into it.</summary>
     private async Task<(ProfileClients.Member Grace, Partner Kept, Partner Other)> MergedPairAsync()
     {
         var u = Unique();
         var grace = await factory.AddMemberAsync("Grace Okonkwo");
         var lead = factory.ClientFor(grace, Role.CityLead);
-        var kept = await factory.CreatePartnerAsync(grace, $"Kestrel {u} Labs", "InFunnel");
-        var other = await factory.CreatePartnerAsync(grace, $"Kestrel {u} Labs Inc.", "Lead");
+        var kept = await factory.CreatePartnerAsync(grace, $"Kestrel {u} Labs", "in-funnel");
+        var other = await factory.CreatePartnerAsync(grace, $"Kestrel {u} Labs Inc.", "lead");
         factory.Time.Advance(TimeSpan.FromMinutes(1));
         (await lead.LogActivityAsync(other.Id, NewActivity(summary: "Called about hosting.", occurredOn: Today))).EnsureSuccessStatusCode();
-        (await lead.PostAsJsonAsync($"/api/partners/{other.Id}/stage", new { To = "Confirmed" })).EnsureSuccessStatusCode();
-        (await lead.PostAsJsonAsync($"/api/partners/{other.Id}/stage", new { To = "Lead" })).EnsureSuccessStatusCode();
+        (await lead.PostAsJsonAsync($"/api/partners/{other.Id}/stage", new { To = "confirmed" })).EnsureSuccessStatusCode();
+        (await lead.PostAsJsonAsync($"/api/partners/{other.Id}/stage", new { To = "lead" })).EnsureSuccessStatusCode();
         other = await lead.GetPartnerAsync(other.Id);
         factory.Time.Advance(TimeSpan.FromMinutes(1));
         (await lead.MergeAsync(kept.Id, MergeBody(kept, other, new { Phone = "other" }))).EnsureSuccessStatusCode();
@@ -63,7 +63,7 @@ public class RestorePartnerTests(CommunityApiFactory factory) : IClassFixture<Co
 
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
         var restored = (await response.Content.ReadFromJsonAsync<Partner>())!;
-        Assert.Equal((other.Id, "Lead", (Archived?)null, false), (restored.Id, restored.Stage, restored.Archived, restored.CanRestore));
+        Assert.Equal((other.Id, "lead", (Archived?)null, false), (restored.Id, restored.Stage, restored.Archived, restored.CanRestore));
         Assert.True(restored.Version > other.Version);
         var lead = factory.ClientFor(grace, Role.CityLead);
         var own = (await lead.ActivitiesAsync(other.Id)).Items;

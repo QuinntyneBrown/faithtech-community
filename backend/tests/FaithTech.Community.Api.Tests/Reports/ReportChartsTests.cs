@@ -82,7 +82,7 @@ public class ReportChartsTests : IAsyncLifetime
         Assert.Equal(new MonthRow("2031-03", "Mar 2031", 2, true), allTime.NewMembersByMonth[^1]);
     }
 
-    // L2-126 AC4: Partner pipeline by city lists Lead, In funnel and Confirmed per partner city, alphabetical with
+    // L2-126 AC4: Partner pipeline by city lists Lead, In Funnel and Confirmed per partner city, alphabetical with
     // every city in the list, then "No city" when it has partners; under one city, that city's row.
     [Fact]
     public async Task Partner_pipeline_by_city_counts_each_stage_by_owner_city()
@@ -91,11 +91,11 @@ public class ReportChartsTests : IAsyncLifetime
         var grace = await factory.AddCityMemberAsync("Grace Okonkwo", "Toronto");
         var ruth = await factory.AddCityMemberAsync("Ruth Alvarez", "Austin");
         await factory.AddCityMemberAsync("Mira Chen", "Vancouver");
-        await factory.AddReportPartnerAsync("Kestrel Labs", grace.ProfileId, PartnerStage.Confirmed);
-        await factory.AddReportPartnerAsync("Maple Church", grace.ProfileId, PartnerStage.Lead);
-        await factory.AddReportPartnerAsync("Maple Church Too", grace.ProfileId, PartnerStage.Lead);
-        await factory.AddReportPartnerAsync("Lone Star", ruth.ProfileId, PartnerStage.InFunnel);
-        await factory.AddReportPartnerAsync("Orphan Co", null, PartnerStage.InFunnel);
+        await factory.AddReportPartnerAsync("Kestrel Labs", grace.ProfileId, "confirmed");
+        await factory.AddReportPartnerAsync("Maple Church", grace.ProfileId, "lead");
+        await factory.AddReportPartnerAsync("Maple Church Too", grace.ProfileId, "lead");
+        await factory.AddReportPartnerAsync("Lone Star", ruth.ProfileId, "in-funnel");
+        await factory.AddReportPartnerAsync("Orphan Co", null, "in-funnel");
 
         var all = await staff.ReportAsync();
         var toronto = await staff.ReportAsync($"?chapter={await factory.ChapterIdAsync("Toronto")}");

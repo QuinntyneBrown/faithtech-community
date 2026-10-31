@@ -57,6 +57,7 @@ public class CommunitySeeder(IOpenIddictApplicationManager applications, Communi
 
         await SeedOrganisationAsync(cancellationToken);
         await SeedRoleDefinitionsAsync(cancellationToken);
+        await SeedPartnerStagesAsync(cancellationToken);
 
         // The concurrency token that guards FaithTech's last administrator (LastAdministratorGuard).
         if (!await db.OrganisationAdminRosters.AnyAsync(cancellationToken))
@@ -89,6 +90,21 @@ public class CommunitySeeder(IOpenIddictApplicationManager applications, Communi
         if (missing.Count > 0)
         {
             db.RoleDefinitions.AddRange(missing);
+            await db.SaveChangesAsync(cancellationToken);
+        }
+    }
+
+    /// <summary>FaithTech's partner stages, found by key and inserted only when missing, so later edits survive (L2-151 AC3).</summary>
+    private async Task SeedPartnerStagesAsync(CancellationToken cancellationToken)
+    {
+        var keys = await db.PartnerStages.IgnoreQueryFilters()
+            .Where(s => s.OrganisationId == FaithTechSeed.OrganisationId)
+            .Select(s => s.Key)
+            .ToListAsync(cancellationToken);
+        var missing = FaithTechSeed.PartnerStages().Where(s => !keys.Contains(s.Key)).ToList();
+        if (missing.Count > 0)
+        {
+            db.PartnerStages.AddRange(missing);
             await db.SaveChangesAsync(cancellationToken);
         }
     }

@@ -1036,6 +1036,48 @@ namespace FaithTech.Community.Infrastructure.Persistence.Migrations
                     b.ToTable("OrganisationAdminRosters");
                 });
 
+            modelBuilder.Entity("FaithTech.Community.Domain.Organisations.PartnerStage", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime?>("ArchivedAtUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<bool>("IsInitial")
+                        .HasColumnType("boolean");
+
+                    b.Property<string>("Key")
+                        .IsRequired()
+                        .HasMaxLength(40)
+                        .HasColumnType("character varying(40)");
+
+                    b.Property<string>("Kind")
+                        .IsRequired()
+                        .HasMaxLength(16)
+                        .HasColumnType("character varying(16)");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(40)
+                        .HasColumnType("character varying(40)");
+
+                    b.Property<Guid>("OrganisationId")
+                        .HasColumnType("uuid");
+
+                    b.Property<int>("SortOrder")
+                        .HasColumnType("integer");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("OrganisationId");
+
+                    b.HasIndex("OrganisationId", "Key")
+                        .IsUnique();
+
+                    b.ToTable("PartnerStages", (string)null);
+                });
+
             modelBuilder.Entity("FaithTech.Community.Domain.Organisations.RoleDefinition", b =>
                 {
                     b.Property<Guid>("Id")
@@ -1141,10 +1183,8 @@ namespace FaithTech.Community.Infrastructure.Persistence.Migrations
                         .HasColumnType("tsvector")
                         .HasComputedColumnSql("to_tsvector('english', coalesce(\"Name\", '') || ' ' || coalesce(\"Offering\", '') || ' ' || coalesce(\"ContactName\", '') || ' ' || coalesce(\"Notes\", ''))", true);
 
-                    b.Property<string>("Stage")
-                        .IsRequired()
-                        .HasMaxLength(16)
-                        .HasColumnType("character varying(16)");
+                    b.Property<Guid>("StageId")
+                        .HasColumnType("uuid");
 
                     b.Property<int>("Version")
                         .IsConcurrencyToken()
@@ -1164,7 +1204,7 @@ namespace FaithTech.Community.Infrastructure.Persistence.Migrations
 
                     NpgsqlIndexBuilderExtensions.HasMethod(b.HasIndex("SearchVector"), "GIN");
 
-                    b.HasIndex("Stage");
+                    b.HasIndex("StageId");
 
                     b.ToTable("Partners");
                 });
@@ -1175,8 +1215,8 @@ namespace FaithTech.Community.Infrastructure.Persistence.Migrations
                         .HasColumnType("uuid");
 
                     b.Property<string>("FromStage")
-                        .HasMaxLength(16)
-                        .HasColumnType("character varying(16)");
+                        .HasMaxLength(40)
+                        .HasColumnType("character varying(40)");
 
                     b.Property<string>("Kind")
                         .IsRequired()
@@ -1222,8 +1262,8 @@ namespace FaithTech.Community.Infrastructure.Persistence.Migrations
                         .HasColumnType("character varying(2000)");
 
                     b.Property<string>("ToStage")
-                        .HasMaxLength(16)
-                        .HasColumnType("character varying(16)");
+                        .HasMaxLength(40)
+                        .HasColumnType("character varying(40)");
 
                     b.HasKey("Id");
 
@@ -1282,8 +1322,8 @@ namespace FaithTech.Community.Infrastructure.Persistence.Migrations
 
                     b.Property<string>("From")
                         .IsRequired()
-                        .HasMaxLength(16)
-                        .HasColumnType("character varying(16)");
+                        .HasMaxLength(40)
+                        .HasColumnType("character varying(40)");
 
                     b.Property<Guid?>("MergedFromPartnerId")
                         .HasColumnType("uuid");
@@ -1306,8 +1346,8 @@ namespace FaithTech.Community.Infrastructure.Persistence.Migrations
 
                     b.Property<string>("To")
                         .IsRequired()
-                        .HasMaxLength(16)
-                        .HasColumnType("character varying(16)");
+                        .HasMaxLength(40)
+                        .HasColumnType("character varying(40)");
 
                     b.HasKey("Id");
 
@@ -2451,6 +2491,15 @@ namespace FaithTech.Community.Infrastructure.Persistence.Migrations
                         .IsRequired();
                 });
 
+            modelBuilder.Entity("FaithTech.Community.Domain.Organisations.PartnerStage", b =>
+                {
+                    b.HasOne("FaithTech.Community.Domain.Organisations.Organisation", null)
+                        .WithMany()
+                        .HasForeignKey("OrganisationId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+                });
+
             modelBuilder.Entity("FaithTech.Community.Domain.Organisations.RoleDefinition", b =>
                 {
                     b.HasOne("FaithTech.Community.Domain.Organisations.Organisation", null)
@@ -2487,6 +2536,14 @@ namespace FaithTech.Community.Infrastructure.Persistence.Migrations
                         .HasForeignKey("OrganisationId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
+
+                    b.HasOne("FaithTech.Community.Domain.Organisations.PartnerStage", "Stage")
+                        .WithMany()
+                        .HasForeignKey("StageId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Stage");
                 });
 
             modelBuilder.Entity("FaithTech.Community.Domain.Partners.PartnerActivity", b =>
@@ -2660,7 +2717,7 @@ namespace FaithTech.Community.Infrastructure.Persistence.Migrations
 
                             b1.ToTable("ProfileRoles", (string)null);
 
-                            b1.HasOne("FaithTech.Community.Domain.Organisations.Chapter", null)
+                            b1.HasOne("FaithTech.Community.Domain.Organisations.Chapter", "Chapter")
                                 .WithMany()
                                 .HasForeignKey("ChapterId")
                                 .OnDelete(DeleteBehavior.Restrict);
@@ -2673,6 +2730,8 @@ namespace FaithTech.Community.Infrastructure.Persistence.Migrations
                                 .HasForeignKey("RoleDefinitionId")
                                 .OnDelete(DeleteBehavior.Restrict)
                                 .IsRequired();
+
+                            b1.Navigation("Chapter");
 
                             b1.Navigation("Definition");
                         });

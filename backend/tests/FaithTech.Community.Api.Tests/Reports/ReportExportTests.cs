@@ -30,7 +30,7 @@ public class ReportExportTests : IAsyncLifetime
         var grace = await factory.AddCityMemberAsync("Grace Okonkwo", "Toronto", joinedAt: Now.AddDays(-2));
         await factory.AddReportEventAsync("=HYPERLINK(\"x\")", Now.AddDays(-7), "Toronto", rsvps: 4, checkedIn: 3, walkIns: 1);
         await factory.AddReportEventAsync("Called off", Now.AddDays(-5), "Toronto", rsvps: 2, cancelled: true);
-        await factory.AddReportPartnerAsync("Kestrel Labs", grace.ProfileId, PartnerStage.Confirmed);
+        await factory.AddReportPartnerAsync("Kestrel Labs", grace.ProfileId, "confirmed");
         await factory.AddAnnouncementAsync(grace.ProfileId, Now.AddDays(-1));
 
         var response = await client.GetAsync($"/api/reports/export.csv?chapter={await factory.ChapterIdAsync("Toronto")}&period=last-30-days");
@@ -67,7 +67,7 @@ public class ReportExportTests : IAsyncLifetime
             "\"Mar (so far)\",\"1\"\r\n" +
             "\r\n" +
             "\"Partner pipeline by city\"\r\n" +
-            "\"City\",\"Lead\",\"In funnel\",\"Confirmed\"\r\n" +
+            "\"City\",\"Lead\",\"In Funnel\",\"Confirmed\"\r\n" +
             "\"Toronto\",\"0\",\"0\",\"1\"\r\n" +
             "\r\n" +
             "\"Events and attendance\"\r\n" +
@@ -112,7 +112,7 @@ public class ReportExportTests : IAsyncLifetime
         Assert.DoesNotContain("City", csv);
         Assert.Contains(
             "\"Partner pipeline\"\r\n" +
-            "\"Pipeline\",\"Lead\",\"In funnel\",\"Confirmed\"\r\n" +
+            "\"Pipeline\",\"Lead\",\"In Funnel\",\"Confirmed\"\r\n" +
             "\"Partner pipeline\",\"0\",\"0\",\"0\"\r\n",
             csv);
         Assert.Contains("\"Event\",\"Date (UTC)\",\"Status\",", csv);

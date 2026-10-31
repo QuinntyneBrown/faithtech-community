@@ -87,6 +87,25 @@ public class SeedCommandTests
         Assert.All(definitions.Where(d => d.Name != "City Lead"), d => Assert.Empty(d.Grants));
     }
 
+    // Traces to: L2-151 AC3
+    [Fact]
+    public async Task Seed_defines_FaithTechs_partner_stages_once_and_keeps_their_later_edits()
+    {
+        Assert.Equal(0, await Run("seed"));
+        await using (var db = Db())
+        {
+            (await db.PartnerStages.SingleAsync(s => s.Key == "in-funnel")).Rename("Proposal sent");
+            await db.SaveChangesAsync();
+        }
+
+        Assert.Equal(0, await Run("seed"));
+
+        await using var check = Db();
+        Assert.Equal(
+            [("lead", "Lead", true, "Open"), ("in-funnel", "Proposal sent", false, "Open"), ("confirmed", "Confirmed", false, "Confirmed")],
+            (await check.PartnerStages.OrderBy(s => s.SortOrder).ToListAsync()).Select(s => (s.Key, s.Name, s.IsInitial, s.Kind.ToString())));
+    }
+
     // Traces to: L2-055
     [Fact]
     public async Task Seed_adds_the_starter_resources_once_owned_by_the_first_system_admin()

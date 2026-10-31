@@ -20,10 +20,10 @@ public class Partner : IOrganisationScoped
         string? email,
         string? phone,
         string? notes,
-        PartnerStage stage = PartnerStage.Lead)
+        PartnerStage stage)
     {
         Id = Guid.NewGuid();
-        Stage = stage;
+        SetStage(stage);
         Update(name, website, offering, ownerId, contactName, email, phone, notes);
     }
 
@@ -45,7 +45,11 @@ public class Partner : IOrganisationScoped
 
     public string? Notes { get; private set; }
 
-    public PartnerStage Stage { get; private set; }
+    /// <summary>The partner's stage (L2-144); an archived stage keeps none, so this is active but for history.</summary>
+    public Guid StageId { get; private set; }
+
+    /// <summary>The stage, loaded with the partner.</summary>
+    public PartnerStage? Stage { get; private set; }
 
     public IReadOnlyCollection<PartnerStageChange> StageChanges => _stageChanges;
 
@@ -85,16 +89,29 @@ public class Partner : IOrganisationScoped
         Version++;
     }
 
+    /// <summary>Moves to an active stage, recording both stages' keys so history survives a rename (L2-144 AC4, AC6).</summary>
     public void MoveTo(PartnerStage stage, Guid by, DateTime nowUtc, string? note)
     {
-        if (stage == Stage)
+        if (stage.Id == StageId)
         {
-            throw new InvalidOperationException($"The partner is already at the {stage} stage.");
+            throw new InvalidOperationException($"The partner is already at the {stage.Name} stage.");
         }
 
-        _stageChanges.Add(new PartnerStageChange(Id, Stage, stage, by, nowUtc, note));
-        Stage = stage;
+        if (stage.IsArchived)
+        {
+            throw new InvalidOperationException($"{stage.Name} is archived.");
+        }
+
+        var from = Stage?.Key ?? throw new InvalidOperationException("Load the partner's stage before moving it.");
+        _stageChanges.Add(new PartnerStageChange(Id, from, stage.Key, by, nowUtc, note));
+        SetStage(stage);
         Version++;
+    }
+
+    private void SetStage(PartnerStage stage)
+    {
+        StageId = stage.Id;
+        Stage = stage;
     }
 
     /// <summary>The kept record of a merge takes the chosen values and the joined notes; no stage change is recorded (ADR 0028).</summary>
@@ -102,7 +119,7 @@ public class Partner : IOrganisationScoped
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(values.Name);
         Name = values.Name;
-        Stage = values.Stage;
+        SetStage(values.Stage);
         ContactName = values.ContactName;
         Email = values.Email;
         Phone = values.Phone;

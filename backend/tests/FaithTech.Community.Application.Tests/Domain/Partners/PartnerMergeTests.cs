@@ -9,7 +9,7 @@ public class PartnerMergeTests
     private static readonly Guid Lead = Guid.NewGuid();
 
     private static Partner NewPartner(string name = "Kestrel Labs") =>
-        new(name, "kestrel.example", "Venue", Lead, "Nadia", null, null, null);
+        new(name, "kestrel.example", "Venue", Lead, "Nadia", null, null, null, TestStages.Lead);
 
     [Fact]
     public void Every_edit_move_merge_archive_and_restore_moves_the_version_on()
@@ -19,9 +19,9 @@ public class PartnerMergeTests
 
         partner.Update("Kestrel", null, null, null, null, null, null, null);
         versions.Add(partner.Version);
-        partner.MoveTo(PartnerStage.Confirmed, Lead, Now, null);
+        partner.MoveTo(TestStages.Confirmed, Lead, Now, null);
         versions.Add(partner.Version);
-        partner.AbsorbMerge(new PartnerMergeValues("Kestrel", PartnerStage.Lead, null, null, null, null, null, null), null);
+        partner.AbsorbMerge(new PartnerMergeValues("Kestrel", TestStages.Lead, null, null, null, null, null, null), null);
         versions.Add(partner.Version);
         partner.ArchiveAsMergedInto(Guid.NewGuid(), Lead, Now);
         versions.Add(partner.Version);
@@ -38,9 +38,9 @@ public class PartnerMergeTests
     {
         var partner = NewPartner();
 
-        partner.AbsorbMerge(new PartnerMergeValues("Kestrel Labs Inc.", PartnerStage.Confirmed, "N.", "n@k.example", "555", "k.example", "Space", null), "A\n\nB");
+        partner.AbsorbMerge(new PartnerMergeValues("Kestrel Labs Inc.", TestStages.Confirmed, "N.", "n@k.example", "555", "k.example", "Space", null), "A\n\nB");
 
-        Assert.Equal(("Kestrel Labs Inc.", PartnerStage.Confirmed, "A\n\nB", (Guid?)null), (partner.Name, partner.Stage, partner.Notes, partner.OwnerId));
+        Assert.Equal(("Kestrel Labs Inc.", TestStages.Confirmed, "A\n\nB", (Guid?)null), (partner.Name, partner.Stage, partner.Notes, partner.OwnerId));
         Assert.Empty(partner.StageChanges);
     }
 
@@ -82,7 +82,7 @@ public class PartnerMergeTests
     public void A_moved_stage_change_moves_back_to_its_first_record()
     {
         var a = NewPartner("A");
-        a.MoveTo(PartnerStage.InFunnel, Lead, Now, null);
+        a.MoveTo(TestStages.InFunnel, Lead, Now, null);
         var change = a.StageChanges.Single();
         var b = Guid.NewGuid();
 

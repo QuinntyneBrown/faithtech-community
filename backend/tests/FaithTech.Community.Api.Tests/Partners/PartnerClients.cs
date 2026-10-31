@@ -26,7 +26,8 @@ public static class PartnerClients
         bool CanLogActivity,
         int Version = 0,
         Archived? Archived = null,
-        bool CanRestore = false);
+        bool CanRestore = false,
+        string? StageName = null);
 
     /// <summary>Who merged an archived partner, when and into which partner (L2-114 AC7).</summary>
     public sealed record Archived(
@@ -39,7 +40,8 @@ public static class PartnerClients
 
     public sealed record Card(Guid Id, string Name, string? ContactName, string? Offering, string? NextStep, DateOnly? NextStepDue);
 
-    public sealed record Column(string Stage, int Count, Card[] Cards);
+    public sealed record Column(
+        string Stage, int Count, Card[] Cards, Guid StageId = default, string Name = "", string Kind = "", bool Archived = false);
 
     public sealed record Board(Column[] Columns, bool CanEdit);
 

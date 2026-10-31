@@ -89,14 +89,14 @@ public class MergePartnersHandler(IApplicationDbContext db, PartnerAccess access
         T Pick<T>(string? choice, T keep, T theirs) => choice == "other" ? theirs : keep;
         var values = new PartnerMergeValues(
             Pick(choices.Name, kept.Name, other.Name),
-            Pick(choices.Stage, kept.Stage, other.Stage),
+            Pick(choices.Stage, kept.Stage!, other.Stage!),
             Pick(choices.ContactName, kept.ContactName, other.ContactName),
             Pick(choices.Email, kept.Email, other.Email),
             Pick(choices.Phone, kept.Phone, other.Phone),
             Pick(choices.Website, kept.Website, other.Website),
             Pick(choices.Offering, kept.Offering, other.Offering),
             Pick(choices.Owner, kept.OwnerId, other.OwnerId));
-        var fromStage = kept.Stage;
+        var fromStage = kept.Stage!.Key;
         kept.AbsorbMerge(values, notes);
 
         // Both timelines and both stage histories end on the kept record (AC3).
@@ -112,9 +112,9 @@ public class MergePartnersHandler(IApplicationDbContext db, PartnerAccess access
 
         var actor = await access.CallerProfileIdAsync(cancellationToken);
         var nowUtc = time.GetUtcNow().UtcDateTime;
-        var stageChanged = fromStage != kept.Stage;
+        var stageChanged = fromStage != kept.Stage!.Key;
         db.PartnerActivities.Add(PartnerActivity.Merged(
-            kept, other, actor, nowUtc, stageChanged ? fromStage : null, stageChanged ? kept.Stage : null));
+            kept, other, actor, nowUtc, stageChanged ? fromStage : null, stageChanged ? kept.Stage.Key : null));
         other.ArchiveAsMergedInto(kept.Id, actor, nowUtc);
         access.Audit(actor, kept, "partners.merged", before, new
         {
@@ -123,7 +123,7 @@ public class MergePartnersHandler(IApplicationDbContext db, PartnerAccess access
             Values = new
             {
                 values.Name,
-                Stage = values.Stage.ToString(),
+                Stage = values.Stage.Key,
                 values.ContactName,
                 values.Email,
                 values.Phone,

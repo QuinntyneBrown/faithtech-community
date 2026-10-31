@@ -98,10 +98,10 @@ public class ReportFiguresTests : IAsyncLifetime
         var grace = await factory.AddCityMemberAsync("Grace Okonkwo", "Toronto");
         var suspended = await factory.AddCityMemberAsync("Suspended Sid", "Toronto", suspended: true);
         var homeless = await factory.AddCityMemberAsync("Lee Park", null);
-        var kept = await factory.AddReportPartnerAsync("Kestrel Labs", grace.ProfileId, PartnerStage.Confirmed);
-        await factory.AddReportPartnerAsync("Kestrel Labs Inc", grace.ProfileId, PartnerStage.Confirmed, mergedInto: kept.Id);
-        await factory.AddReportPartnerAsync("Maple Church", suspended.ProfileId, PartnerStage.InFunnel);
-        await factory.AddReportPartnerAsync("Orphan Co", null, PartnerStage.Confirmed);
+        var kept = await factory.AddReportPartnerAsync("Kestrel Labs", grace.ProfileId, "confirmed");
+        await factory.AddReportPartnerAsync("Kestrel Labs Inc", grace.ProfileId, "confirmed", mergedInto: kept.Id);
+        await factory.AddReportPartnerAsync("Maple Church", suspended.ProfileId, "in-funnel");
+        await factory.AddReportPartnerAsync("Orphan Co", null, "confirmed");
         await factory.AddReportPartnerAsync("Nomad Studio", homeless.ProfileId);
 
         var all = await staff.ReportAsync("?period=last-30-days");

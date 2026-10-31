@@ -85,6 +85,8 @@ public class CommunityDbContext : IdentityDbContext<CommunityUser, IdentityRole<
 
     public DbSet<PartnerStageChange> PartnerStageChanges => Set<PartnerStageChange>();
 
+    public DbSet<PartnerStage> PartnerStages => Set<PartnerStage>();
+
     public DbSet<PartnerActivity> PartnerActivities => Set<PartnerActivity>();
 
     public DbSet<PartnerDuplicateDismissal> PartnerDuplicateDismissals => Set<PartnerDuplicateDismissal>();
@@ -340,8 +342,8 @@ public class CommunityDbContext : IdentityDbContext<CommunityUser, IdentityRole<
             partner.Property(p => p.Email).HasMaxLength(256);
             partner.Property(p => p.Phone).HasMaxLength(200);
             partner.Property(p => p.Notes).HasMaxLength(2000);
-            partner.Property(p => p.Stage).HasConversion<string>().HasMaxLength(16);
-            partner.HasIndex(p => p.Stage);
+            partner.HasOne(p => p.Stage).WithMany().HasForeignKey(p => p.StageId).OnDelete(DeleteBehavior.Restrict);
+            partner.Navigation(p => p.Stage).AutoInclude();
             // Merge and restore compare versions; a race the check misses fails at SaveChanges (ADR 0028).
             partner.Property(p => p.Version).IsConcurrencyToken();
             partner.HasIndex(p => p.ArchivedAtUtc);
@@ -350,12 +352,24 @@ public class CommunityDbContext : IdentityDbContext<CommunityUser, IdentityRole<
             partner.Navigation(p => p.StageChanges).UsePropertyAccessMode(PropertyAccessMode.Field);
         });
 
+        // An organisation's partner stages (L2-144); the key is stable and unique within the organisation.
+        builder.Entity<PartnerStage>(stage =>
+        {
+            stage.ToTable("PartnerStages");
+            stage.Property(s => s.Id).ValueGeneratedNever();
+            stage.Property(s => s.Key).HasMaxLength(PartnerStage.MaxName);
+            stage.Property(s => s.Name).HasMaxLength(PartnerStage.MaxName);
+            stage.Property(s => s.Kind).HasConversion<string>().HasMaxLength(16);
+            stage.HasIndex(nameof(IOrganisationScoped.OrganisationId), nameof(PartnerStage.Key)).IsUnique();
+            stage.Ignore(s => s.IsArchived);
+        });
+
         builder.Entity<PartnerStageChange>(change =>
         {
             change.ToTable("PartnerStageChanges");
             change.Property(c => c.Id).ValueGeneratedNever();
-            change.Property(c => c.From).HasConversion<string>().HasMaxLength(16);
-            change.Property(c => c.To).HasConversion<string>().HasMaxLength(16);
+            change.Property(c => c.From).HasMaxLength(PartnerStage.MaxName);
+            change.Property(c => c.To).HasMaxLength(PartnerStage.MaxName);
             change.Property(c => c.Note).HasMaxLength(500);
             change.HasIndex(c => new { c.PartnerId, c.MovedAtUtc });
             change.HasIndex(c => c.MergedFromPartnerId);
@@ -366,8 +380,8 @@ public class CommunityDbContext : IdentityDbContext<CommunityUser, IdentityRole<
             activity.ToTable("PartnerActivities");
             activity.Property(a => a.Id).ValueGeneratedNever();
             activity.Property(a => a.Kind).HasConversion<string>().HasMaxLength(16);
-            activity.Property(a => a.FromStage).HasConversion<string>().HasMaxLength(16);
-            activity.Property(a => a.ToStage).HasConversion<string>().HasMaxLength(16);
+            activity.Property(a => a.FromStage).HasMaxLength(PartnerStage.MaxName);
+            activity.Property(a => a.ToStage).HasMaxLength(PartnerStage.MaxName);
             activity.Property(a => a.Summary).HasMaxLength(2000);
             activity.Property(a => a.NextStep).HasMaxLength(200);
             activity.HasIndex(a => new { a.PartnerId, a.OccurredOn, a.OccurredAt, a.LoggedAtUtc });

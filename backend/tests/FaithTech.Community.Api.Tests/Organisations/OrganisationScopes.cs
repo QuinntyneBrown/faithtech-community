@@ -64,6 +64,14 @@ public static class OrganisationScopes
                 await db.SaveChangesAsync();
             }
 
+            // And of FaithTech's partner stages, with new ids (L2-144).
+            if (!await db.PartnerStages.AnyAsync())
+            {
+                db.PartnerStages.AddRange(FaithTechSeed.Stages.Select((stage, index) =>
+                    new PartnerStage(Guid.NewGuid(), stage.Key, stage.Name, index + 1, stage.IsInitial, stage.Kind)));
+                await db.SaveChangesAsync();
+            }
+
             return 0;
         });
         return new OtherOrganisation(id, $"https://{host}");

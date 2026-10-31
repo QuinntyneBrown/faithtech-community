@@ -2,6 +2,7 @@ using System.Globalization;
 using FaithTech.Community.Application.Common;
 using FaithTech.Community.Application.Organisations;
 using FaithTech.Community.Domain.Events;
+using FaithTech.Community.Domain.Organisations;
 using FaithTech.Community.Domain.Partners;
 using FaithTech.Community.Domain.Profiles;
 using Microsoft.EntityFrameworkCore;
@@ -64,8 +65,13 @@ public class GetReportHandler(IApplicationDbContext db, ReportAccess access, Tim
         var membersFigure = await MembersAsync(members, window, cancellationToken);
         var (eventsHeld, rsvps) = await EventFiguresAsync(events, window, cancellationToken);
         var noChapter = label is null ? WholePipeline : $"No {label.ToLowerInvariant()}";
-        var pipeline = await PartnerPipelineAsync(chapter, chapters, noChapter, cancellationToken);
-        var partners = new PartnersFigureDto(pipeline.Sum(r => r.Confirmed), pipeline.Sum(r => r.Lead + r.InFunnel + r.Confirmed));
+        var stages = await db.PartnerStages.AsNoTracking().Where(s => s.ArchivedAtUtc == null)
+            .OrderBy(s => s.SortOrder).ThenBy(s => s.Name).ToListAsync(cancellationToken);
+        var pipeline = await PartnerPipelineAsync(chapter, chapters, noChapter, stages, cancellationToken);
+        // Confirmed counts the stages of kind Confirmed, never a stage by name (L2-144 AC5).
+        var confirmed = stages.Select((s, i) => (s, i)).Where(x => x.s.Kind == PartnerStageKind.Confirmed).Select(x => x.i).ToList();
+        var partners = new PartnersFigureDto(
+            pipeline.Sum(r => confirmed.Sum(i => r.Counts[i])), pipeline.Sum(r => r.Counts.Sum()));
         var announcements = new AnnouncementsFigureDto(await AnnouncementsAsync(chapter?.Id, window, cancellationToken));
         List<ReportChartRowDto> membersByChapter = label is null
             ? []
@@ -85,7 +91,8 @@ public class GetReportHandler(IApplicationDbContext db, ReportAccess access, Tim
             membersByChapter,
             newMembersByMonth,
             pipeline,
-            eventRows));
+            eventRows,
+            [.. stages.Select(s => s.Name)]));
     }
 
     /// <summary>Profiles whose account has a verified email and is not suspended.</summary>
@@ -135,12 +142,13 @@ public class GetReportHandler(IApplicationDbContext db, ReportAccess access, Tim
     }
 
     /// <summary>
-    /// Lead, In funnel and Confirmed per owner's home chapter; the period does not apply (ADR 0030). Under All
+    /// One count per active stage per owner's home chapter; the period does not apply (ADR 0030). Under All
     /// {chapters}: every active chapter in order, then any archived owner chapter by name, then "No {chapter}" when it
     /// has partners. While chapters are off (every owner then has no visible chapter) the one row is the whole pipeline.
     /// </summary>
     private async Task<List<PartnerPipelineRowDto>> PartnerPipelineAsync(
-        ReportChapterDto? chapter, List<ReportChapterDto> chapters, string noChapter, CancellationToken cancellationToken)
+        ReportChapterDto? chapter, List<ReportChapterDto> chapters, string noChapter, List<PartnerStage> stages,
+        CancellationToken cancellationToken)
     {
         var groups = await (
                 from p in db.Partners.AsNoTracking()
@@ -151,16 +159,15 @@ public class GetReportHandler(IApplicationDbContext db, ReportAccess access, Tim
                 {
                     ChapterId = o == null || o.Chapter == null ? (Guid?)null : o.Chapter.Id,
                     Name = o == null || o.Chapter == null ? null : o.Chapter.Name,
-                    p.Stage,
+                    p.StageId,
                 } into g
-                select new { g.Key.ChapterId, g.Key.Name, g.Key.Stage, Count = g.Count() })
+                select new { g.Key.ChapterId, g.Key.Name, g.Key.StageId, Count = g.Count() })
             .ToListAsync(cancellationToken);
 
         PartnerPipelineRowDto Row(string name, Guid? id)
         {
-            var stages = groups.Where(g => g.ChapterId == id).ToList();
-            int Count(PartnerStage stage) => stages.Where(s => s.Stage == stage).Sum(s => s.Count);
-            return new PartnerPipelineRowDto(name, Count(PartnerStage.Lead), Count(PartnerStage.InFunnel), Count(PartnerStage.Confirmed));
+            var counts = groups.Where(g => g.ChapterId == id).ToList();
+            return new PartnerPipelineRowDto(name, [.. stages.Select(s => counts.Where(c => c.StageId == s.Id).Sum(c => c.Count))]);
         }
 
         if (chapter is not null)

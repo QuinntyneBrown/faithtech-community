@@ -96,6 +96,23 @@ public static class FaithTechSeed
         ];
     }
 
+    /// <summary>A seeded partner stage: its fixed id, the key the migration maps the former stage value to, and its settings.</summary>
+    public sealed record SeedStage(Guid Id, string Key, string Name, bool IsInitial, PartnerStageKind Kind);
+
+    /// <summary>
+    /// FaithTech's partner stages in order (L2-151 AC3). The keys are what the TaxonomiesFromEnumerations migration maps
+    /// the former Lead, InFunnel and Confirmed values to.
+    /// </summary>
+    public static readonly IReadOnlyList<SeedStage> Stages =
+    [
+        new(new("5b8e0f3a-7c1d-4a2e-9f60-1a2b3c4d5e01"), "lead", "Lead", IsInitial: true, PartnerStageKind.Open),
+        new(new("5b8e0f3a-7c1d-4a2e-9f60-1a2b3c4d5e02"), "in-funnel", "In Funnel", IsInitial: false, PartnerStageKind.Open),
+        new(new("5b8e0f3a-7c1d-4a2e-9f60-1a2b3c4d5e03"), "confirmed", "Confirmed", IsInitial: false, PartnerStageKind.Confirmed),
+    ];
+
+    public static IReadOnlyList<PartnerStage> PartnerStages() =>
+        [.. Stages.Select((s, index) => new PartnerStage(s.Id, s.Key, s.Name, index + 1, s.IsInitial, s.Kind))];
+
     public static Organisation Organisation()
     {
         var organisation = new Organisation(OrganisationId, Slug, Host, Name, ShortName, CreatedAtUtc);
