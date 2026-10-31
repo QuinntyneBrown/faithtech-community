@@ -24,7 +24,10 @@ public record AuditEntryDto(
     string? After,
     string IpAddress);
 
-/// <summary>Reads the audit log; System Admin only. Newest first, the last 90 days unless a range is given.</summary>
+/// <summary>
+/// Reads the audit log under the caller's <see cref="AuditReadScope"/> (L2-041 AC4, L2-152 AC3). Newest first, the last
+/// 90 days unless a range is given.
+/// </summary>
 public class GetAuditEntriesHandler(IApplicationDbContext db, ICurrentUser current, ICurrentOrganisation organisation, TimeProvider time)
 {
     public const int PageSize = 50;
@@ -33,13 +36,13 @@ public class GetAuditEntriesHandler(IApplicationDbContext db, ICurrentUser curre
 
     public async Task<PagedResult<AuditEntryDto>?> HandleAsync(GetAuditEntriesQuery query, CancellationToken cancellationToken = default)
     {
-        if (!current.Has(Capability.AdministerOrganisation))
+        if (Scope(query) is not { } scope)
         {
             return null;
         }
 
         var request = new PageRequest(query.Page, PageSize);
-        var filtered = Filter(query);
+        var filtered = Filter(query, scope);
         var total = await filtered.CountAsync(cancellationToken);
         var entries = await filtered.Skip(request.Skip).Take(request.PageSize).ToListAsync(cancellationToken);
         return new PagedResult<AuditEntryDto>(await ToDtosAsync(entries, cancellationToken), request.Page, request.PageSize, total);
@@ -48,16 +51,22 @@ public class GetAuditEntriesHandler(IApplicationDbContext db, ICurrentUser curre
     /// <summary>Every filtered entry, up to <see cref="MaxExportRows"/>, for the CSV export (L2-041 AC5).</summary>
     public async Task<IReadOnlyList<AuditEntryDto>?> HandleAllAsync(GetAuditEntriesQuery query, CancellationToken cancellationToken = default)
     {
-        if (!current.Has(Capability.AdministerOrganisation))
+        if (Scope(query) is not { } scope)
         {
             return null;
         }
 
-        var entries = await Filter(query).Take(MaxExportRows).ToListAsync(cancellationToken);
+        var entries = await Filter(query, scope).Take(MaxExportRows).ToListAsync(cancellationToken);
         return await ToDtosAsync(entries, cancellationToken);
     }
 
-    private IQueryable<AuditEntry> Filter(GetAuditEntriesQuery query)
+    // The caller's scope when it allows the chosen category, else null for a 403 (L2-152 AC3).
+    private AuditReadScope? Scope(GetAuditEntriesQuery query) =>
+        AuditReadScope.For(current) is { } scope && scope.Allows(Category(query)) ? scope : null;
+
+    private static string? Category(GetAuditEntriesQuery query) => string.IsNullOrWhiteSpace(query.Category) ? null : query.Category;
+
+    private IQueryable<AuditEntry> Filter(GetAuditEntriesQuery query, AuditReadScope scope)
     {
         var from = query.From ?? time.GetUtcNow().UtcDateTime - DefaultRange;
         var entries = db.AuditEntries.AsNoTracking().Where(e => e.OccurredAtUtc >= from);
@@ -71,14 +80,14 @@ public class GetAuditEntriesHandler(IApplicationDbContext db, ICurrentUser curre
             entries = entries.Where(e => e.ActorId == actor);
         }
 
-        entries = query.Category switch
+        entries = Category(query) switch
         {
             "roles" => entries.Where(e => e.Action.StartsWith("role.")),
             "suspensions" => entries.Where(e => e.Action == "user.suspended" || e.Action == "user.reinstated"),
             "contacts" => entries.Where(e => e.Action.StartsWith("contact.")),
             "deletions" => entries.Where(e => e.Action.EndsWith(".deleted")),
             { } category => OrganisationAuditCategories.Filter(entries, category) ?? entries,
-            _ => entries,
+            _ => scope.Limit(entries),
         };
         return entries.OrderByDescending(e => e.OccurredAtUtc).ThenBy(e => e.Id);
     }

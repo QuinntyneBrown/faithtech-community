@@ -118,15 +118,27 @@ public class OrganisationAuditTests(CommunityApiFactory factory) : IClassFixture
         var fresh = await FreshAsync();
         var role = await CreateAsync(fresh.Admin, "/api/organisation/roles", new
         {
-            Name = "Meet-up Lead", Description = "Runs meet-ups.", Capabilities = new[] { Capability.ManageEvents }, ShowOnTeam = true, IsOversight = false,
+            Name = "Meet-up Lead",
+            Description = "Runs meet-ups.",
+            Capabilities = new[] { Capability.ManageEvents },
+            ShowOnTeam = true,
+            IsOversight = false,
         });
         var helper = await CreateAsync(fresh.Admin, "/api/organisation/roles", new
         {
-            Name = "Greeter", Description = "", Capabilities = Array.Empty<string>(), ShowOnTeam = false, IsOversight = false,
+            Name = "Greeter",
+            Description = "",
+            Capabilities = Array.Empty<string>(),
+            ShowOnTeam = false,
+            IsOversight = false,
         });
         await DoAsync(() => fresh.Admin.PutAsJsonAsync($"/api/organisation/roles/{role}", new
         {
-            Name = "Meetup Lead", Description = "Runs meet-ups.", Capabilities = new[] { Capability.ManageEvents }, ShowOnTeam = true, IsOversight = false,
+            Name = "Meetup Lead",
+            Description = "Runs meet-ups.",
+            Capabilities = new[] { Capability.ManageEvents },
+            ShowOnTeam = true,
+            IsOversight = false,
         }));
         await DoAsync(() => fresh.Admin.PutAsJsonAsync($"/api/organisation/roles/{role}/grants", new { GrantableRoleIds = new[] { helper } }));
         await DoAsync(() => fresh.Admin.PutAsJsonAsync($"/api/organisation/roles/{role}/grants", new { GrantableRoleIds = Array.Empty<Guid>() }));
@@ -194,5 +206,88 @@ public class OrganisationAuditTests(CommunityApiFactory factory) : IClassFixture
         var lines = csv.TrimEnd().Split('\n');
         Assert.Equal(2, lines.Length);
         Assert.Contains("chapter.added,Added the campus Eastgate", lines[1]);
+    }
+    // A settings history with one entry per category, plus a suspension only an administrator may read.
+    private async Task<Fresh> HistoryAsync()
+    {
+        var fresh = await FreshAsync();
+        await CreateAsync(fresh.Admin, "/api/organisation/chapters", new { Name = "Eastgate" });
+        await CreateAsync(fresh.Admin, "/api/organisation/event-types", new { Name = "Outreach" });
+        await CreateAsync(fresh.Admin, "/api/organisation/roles", new
+        {
+            Name = "Meet-up Lead",
+            Description = "",
+            Capabilities = Array.Empty<string>(),
+            ShowOnTeam = false,
+            IsOversight = false,
+        });
+        await factory.WithDbAsync(fresh.Organisation.Id, async db =>
+        {
+            db.AuditEntries.Add(new FaithTech.Community.Domain.Admin.AuditEntry(
+                Guid.Empty, "user.suspended", "Profile", Guid.NewGuid().ToString(), null, "{\"Reason\":\"Spam\"}", factory.Time.GetUtcNow().UtcDateTime, "10.0.0.1"));
+            return await db.SaveChangesAsync();
+        });
+        return fresh;
+    }
+
+    private static async Task<List<string>> ActionsAsync(HttpClient client, string query = "") =>
+        [.. (await client.GetFromJsonAsync<Page>($"/api/admin/audit{query}"))!.Items.Select(i => i.Action).Distinct().Order()];
+
+    [Fact]
+    public async Task A_settings_manager_reads_organisation_chapters_and_taxonomies_only()
+    {
+        var fresh = await HistoryAsync();
+        var settings = await HolderAsync(fresh, "Abena Owusu", Capability.ManageOrganisationSettings);
+
+        Assert.Equal(["chapter.added", "organisation.updated", "taxonomy.updated"], await ActionsAsync(settings));
+        Assert.Equal(["chapter.added"], await ActionsAsync(settings, "?category=chapters"));
+        Assert.Equal(HttpStatusCode.Forbidden, (await settings.GetAsync("/api/admin/audit?category=roles")).StatusCode);
+        Assert.Equal(HttpStatusCode.Forbidden, (await settings.GetAsync("/api/admin/audit?category=suspensions")).StatusCode);
+    }
+
+    [Fact]
+    public async Task A_roles_manager_reads_the_roles_category_only()
+    {
+        var fresh = await HistoryAsync();
+        var roles = await HolderAsync(fresh, "Joel Mwangi", Capability.ManageRoles);
+
+        Assert.Equal(["role.defined"], await ActionsAsync(roles));
+        Assert.Equal(["role.defined"], await ActionsAsync(roles, "?category=roles"));
+        Assert.Equal(HttpStatusCode.Forbidden, (await roles.GetAsync("/api/admin/audit?category=organisation")).StatusCode);
+        Assert.Equal(HttpStatusCode.Forbidden, (await roles.GetAsync("/api/admin/audit?category=deletions")).StatusCode);
+    }
+
+    [Fact]
+    public async Task Holding_both_reads_the_union_and_an_administrator_reads_everything()
+    {
+        var fresh = await HistoryAsync();
+        var both = await HolderAsync(fresh, "Ama Boateng", Capability.ManageRoles, Capability.ManageOrganisationSettings);
+
+        Assert.Equal(["chapter.added", "organisation.updated", "role.defined", "taxonomy.updated"], await ActionsAsync(both));
+        Assert.Contains("user.suspended", await ActionsAsync(fresh.Admin));
+    }
+
+    [Fact]
+    public async Task The_export_is_scoped_the_same_way()
+    {
+        var fresh = await HistoryAsync();
+        var settings = await HolderAsync(fresh, "Abena Owusu", Capability.ManageOrganisationSettings);
+
+        var csv = await (await settings.GetAsync("/api/admin/audit/export")).Content.ReadAsStringAsync();
+
+        Assert.Contains("chapter.added", csv);
+        Assert.DoesNotContain("role.defined", csv);
+        Assert.DoesNotContain("user.suspended", csv);
+        Assert.Equal(HttpStatusCode.Forbidden, (await settings.GetAsync("/api/admin/audit/export?category=roles")).StatusCode);
+    }
+
+    [Fact]
+    public async Task Anyone_without_a_settings_capability_gets_403()
+    {
+        var fresh = await HistoryAsync();
+        var other = await HolderAsync(fresh, "Kofi Mensah", Capability.ManageEvents, Capability.ViewReports);
+
+        Assert.Equal(HttpStatusCode.Forbidden, (await other.GetAsync("/api/admin/audit")).StatusCode);
+        Assert.Equal(HttpStatusCode.Forbidden, (await other.GetAsync("/api/admin/audit/export")).StatusCode);
     }
 }
