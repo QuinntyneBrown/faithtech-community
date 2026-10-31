@@ -11,8 +11,9 @@ public sealed record OrganisationRoleDto(Guid Id, string Key, string Name, strin
 
 /// <summary>
 /// GET /api/organisation: the names, the chapter label with the active chapters in order (none while chapters are off,
-/// L2-140 AC2), the roles and the active partner stages in order, which every stage picker reads (L2-144 AC3). Event and
-/// resource types join it in their slices (organisation-settings design).
+/// L2-140 AC2), the roles, the active partner stages in order, which every stage picker reads (L2-144 AC3), and the active
+/// event types in order, which the event form and the events type filter read (L2-145 AC2, AC3). Resource types join it
+/// in their slice (organisation-settings design).
 /// </summary>
 public sealed record OrganisationDto(
     string Name,
@@ -20,7 +21,8 @@ public sealed record OrganisationDto(
     ChapterLabelDto? ChapterLabel,
     IReadOnlyList<ChapterOptionDto> Chapters,
     IReadOnlyList<OrganisationRoleDto> Roles,
-    IReadOnlyList<PartnerStageOptionDto> PartnerStages);
+    IReadOnlyList<PartnerStageOptionDto> PartnerStages,
+    IReadOnlyList<EventTypeOptionDto> EventTypes);
 
 /// <summary>The host's organisation for any of its members: its names and its roles that are not archived (ADR 0032).</summary>
 public class GetOrganisationHandler(IApplicationDbContext db, ICurrentOrganisation organisation)
@@ -48,6 +50,12 @@ public class GetOrganisationHandler(IApplicationDbContext db, ICurrentOrganisati
             .ThenBy(s => s.Name)
             .Select(s => new PartnerStageOptionDto(s.Id, s.Key, s.Name, s.IsInitial, s.Kind.ToString()))
             .ToListAsync(cancellationToken);
-        return new OrganisationDto(organisation.Name, organisation.ShortName, label, chapters, roles, stages);
+        var types = await db.EventTypes
+            .Where(t => t.ArchivedAtUtc == null)
+            .OrderBy(t => t.SortOrder)
+            .ThenBy(t => t.Name)
+            .Select(t => new EventTypeOptionDto(t.Id, t.Key, t.Name))
+            .ToListAsync(cancellationToken);
+        return new OrganisationDto(organisation.Name, organisation.ShortName, label, chapters, roles, stages, types);
     }
 }
