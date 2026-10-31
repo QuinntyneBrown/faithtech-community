@@ -43,6 +43,24 @@ public static class ProfileClients
     private static readonly ConditionalWeakTable<CommunityApiFactory, WebApplicationFactory<Program>> TestAuthServers = new();
 
     /// <summary>
+    /// A client authenticated as the member, who holds a role defined for this test that carries exactly
+    /// <paramref name="capabilities"/>, so a rule is proven without any FaithTech role name (L2-135, ADR 0033).
+    /// </summary>
+    public static HttpClient ClientWithCapabilities(this CommunityApiFactory factory, Member member, params string[] capabilities)
+    {
+        factory.WithDbAsync(async db =>
+        {
+            var definition = new Domain.Organisations.RoleDefinition(
+                Guid.NewGuid(), $"test-{Guid.NewGuid():N}", $"Test role {Guid.NewGuid():N}"[..20], "Defined by a test.", capabilities, 100);
+            db.RoleDefinitions.Add(definition);
+            var profile = await db.Profiles.SingleAsync(p => p.Id == member.ProfileId);
+            profile.AddRole(definition, Guid.Empty, DateTime.UtcNow);
+            return await db.SaveChangesAsync();
+        }).GetAwaiter().GetResult();
+        return factory.ClientFor(member);
+    }
+
+    /// <summary>
     /// A client authenticated as the member, who holds the given roles: they are granted on the profile,
     /// because the server authorizes with the profile's current roles, not the token's.
     /// </summary>
