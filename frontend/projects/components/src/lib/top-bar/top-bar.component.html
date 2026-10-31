@@ -1,7 +1,7 @@
 <header class="top-bar">
   <a class="top-bar__brand" [attr.href]="homeHref()">
     <ft-logo-mark class="top-bar__mark" label="" />
-    <span>FaithTech</span>
+    <span>{{ organisation.shortName() }}</span>
   </a>
   @if (!anonymous()) {
     <nav class="top-bar__nav" [attr.aria-label]="navLabel()">
@@ -29,7 +29,7 @@
   <span class="top-bar__spacer"></span>
   @if (!anonymous()) {
     <form class="top-bar__search" role="search" (submit)="onSearch($event)">
-      <label class="top-bar__hidden" [attr.for]="searchId">{{ searchLabel() }}</label>
+      <label class="top-bar__hidden" [attr.for]="searchId">{{ search() }}</label>
       <ft-text-field
         size="sm"
         type="search"

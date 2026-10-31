@@ -44,6 +44,7 @@ export * from './notice-list';
 export * from './page-links';
 export * from './notification-bell';
 export * from './notification-panel';
+export * from './organisation-names';
 export * from './person-card';
 export * from './person-picker';
 export * from './photo';

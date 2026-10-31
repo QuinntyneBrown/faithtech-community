@@ -3,6 +3,7 @@ import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@a
 import { toSignal } from '@angular/core/rxjs-interop';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
 import { AlertComponent } from '../alert/alert.component';
+import { ORGANISATION_NAMES } from '../organisation-names/organisation-names';
 import { ButtonComponent } from '../button/button.component';
 import { DialogComponent } from '../dialog/dialog.component';
 import { RadioGroupComponent } from '../radio-group/radio-group.component';
@@ -49,6 +50,7 @@ export interface RoleDialogData {
 export class RoleDialogComponent {
   protected readonly ref = inject<DialogRef<string>>(DialogRef);
   protected readonly data = inject<RoleDialogData>(DIALOG_DATA);
+  protected readonly organisation = inject(ORGANISATION_NAMES);
 
   protected readonly adding = this.data.mode === 'add';
   /** One role to remove is no choice: the title names it and no radio group is shown. */

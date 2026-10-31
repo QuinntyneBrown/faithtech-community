@@ -3,6 +3,7 @@ import {
   Component,
   computed,
   ElementRef,
+  inject,
   input,
   output,
   signal,
@@ -10,6 +11,7 @@ import {
   viewChildren,
 } from '@angular/core';
 import { FormsModule } from '@angular/forms';
+import { ORGANISATION_NAMES } from '../organisation-names/organisation-names';
 import { BadgeComponent } from '../badge/badge.component';
 import { ButtonComponent } from '../button/button.component';
 import { FormFieldComponent } from '../form-field/form-field.component';
@@ -46,7 +48,7 @@ const COPY: Record<
 > = {
   profile: {
     empty: 'No photos yet. Add one so people recognise you at events.',
-    note: 'JPEG, PNG or WebP up to 5 MB. Your featured photo is your picture everywhere on FaithTech.',
+    note: 'JPEG, PNG or WebP up to 5 MB. Your featured photo is your picture everywhere on {shortName}.',
     missingAlt: 'Describe what’s in the photo for people using screen readers.',
     pending: 'Not saved yet. It uploads when you save your profile.',
     storing: 'Saved. It shows on your profile once it finishes storing.',
@@ -105,7 +107,11 @@ export class PictureListComponent {
   protected readonly rejections = signal<string[]>([]);
   protected readonly full = computed(() => this.photos().length >= this.max());
   protected readonly accept = ACCEPTED_TYPES.join(',');
-  protected readonly copy = computed(() => COPY[this.subject()]);
+  private readonly organisation = inject(ORGANISATION_NAMES);
+  protected readonly copy = computed(() => {
+    const copy = COPY[this.subject()];
+    return { ...copy, note: copy.note.replace('{shortName}', this.organisation.shortName()) };
+  });
   protected readonly pendingText = computed(() => this.pendingNote() ?? this.copy().pending);
 
   /** Id of photo `index`'s description field, so an error summary can link to it. */

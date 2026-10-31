@@ -8,7 +8,7 @@
   <ft-stack>
     @if (failed()) {
       <ft-alert status="danger" [heading]="adding ? 'Role not added' : 'Role not removed'">
-        We couldn’t reach FaithTech. Nothing was changed — try again.
+        We couldn’t reach {{ organisation.shortName() }}. Nothing was changed — try again.
       </ft-alert>
     }
     @if (refusal(); as message) {

@@ -1,7 +1,9 @@
-import { ChangeDetectionStrategy, Component, input } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject, input } from '@angular/core';
+
+import { ORGANISATION_NAMES } from '../organisation-names/organisation-names';
 
 /**
- * The FaithTech mark tile for the auth screens. Named "FaithTech" by default; pass an empty `label`
+ * The mark tile for the auth screens. Named after the organisation's short name by default; pass an empty `label`
  * when a visible brand name sits next to it so the name is not read twice.
  */
 @Component({
@@ -11,5 +13,7 @@ import { ChangeDetectionStrategy, Component, input } from '@angular/core';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class LogoMarkComponent {
-  readonly label = input('FaithTech');
+  readonly label = input<string | null>(null);
+  private readonly organisation = inject(ORGANISATION_NAMES);
+  protected readonly name = computed(() => this.label() ?? this.organisation.shortName());
 }
