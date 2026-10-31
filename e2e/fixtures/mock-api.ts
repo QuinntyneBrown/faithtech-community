@@ -1249,19 +1249,22 @@ export class MockApi {
     if (!holds(caller, 'ViewPeopleDirectory')) return route.fulfill({ status: 403 });
     const term = (url.searchParams.get('q') ?? '').trim().toLowerCase();
     const page = Number(url.searchParams.get('page') ?? '1');
+    // L2-142: chapter={id} narrows to a home chapter; ignored while chapters are off.
+    const chapter = this.chapters.filterId(url.searchParams.get('chapter'));
     const all = [...this.accounts.values()]
       .map((a) => ({ account: a, profile: this.profiles.get(a.profileId)! }))
       .filter(
         ({ account, profile }) =>
-          !term ||
-          profile.name.toLowerCase().includes(term) ||
-          account.email.toLowerCase().includes(term),
+          (!chapter || profile.chapterId === chapter) &&
+          (!term ||
+            profile.name.toLowerCase().includes(term) ||
+            account.email.toLowerCase().includes(term)),
       )
       .sort((a, b) => a.profile.name.localeCompare(b.profile.name))
       .map(({ profile }) => ({
         id: profile.id,
         name: profile.name,
-        homeCity: this.chapters.nameOf(profile.chapterId),
+        chapterName: this.chapters.nameOf(profile.chapterId),
         photoUrl: profile.photos.find((photo) => photo.isFeatured)?.url ?? null,
         roles: profileRolesOf(profile.roles),
       }));

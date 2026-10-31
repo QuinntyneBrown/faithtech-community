@@ -14,9 +14,13 @@ export class HttpPeopleService implements PeopleService {
   // The people page shows its own forbidden state.
   private readonly context = new HttpContext().set(HANDLES_FORBIDDEN, true);
 
-  search(term: string, page = 1): Observable<PagedResult<PersonSummary>> {
+  search(
+    term: string,
+    page = 1,
+    chapterId: string | null = null,
+  ): Observable<PagedResult<PersonSummary>> {
     return this.http.get<PagedResult<PersonSummary>>(this.base, {
-      params: toHttpParams({ q: term, page }),
+      params: toHttpParams({ q: term, page, chapter: chapterId }),
       context: this.context,
     });
   }

@@ -11,9 +11,11 @@ import {
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
 import {
   AUTH_SERVICE,
+  ORGANISATION_SERVICE,
   PEOPLE_SERVICE,
   PersonSummary,
   ROLES_SERVICE,
+  chapterFilterOptions,
   hasAny,
 } from '@faithtech-community/api';
 import {
@@ -24,10 +26,13 @@ import {
   ClusterComponent,
   DialogService,
   EmptyStateComponent,
+  FormFieldComponent,
   IconComponent,
   LinkComponent,
   ListSkeletonComponent,
   PageHeaderComponent,
+  SelectComponent,
+  SelectOption,
   TableColumn,
   TableComponent,
   TextFieldComponent,
@@ -54,7 +59,8 @@ interface PersonRow extends PersonSummary {
 
 /**
  * The people directory for City Leads, Staff and System Admins (L2-053), matching
- * docs/mocks/pages/people. Role changes go through the shared role dialog (ADR 0005).
+ * docs/mocks/pages/people. Role changes go through the shared role dialog (ADR 0005). The chapter filter and column
+ * follow the organisation's chapter label, and are absent while chapters are off (L2-142, chapters-off mock).
  */
 @Component({
   selector: 'ft-people-page',
@@ -65,10 +71,12 @@ interface PersonRow extends PersonSummary {
     ButtonComponent,
     ClusterComponent,
     EmptyStateComponent,
+    FormFieldComponent,
     IconComponent,
     LinkComponent,
     ListSkeletonComponent,
     PageHeaderComponent,
+    SelectComponent,
     TableComponent,
     TextFieldComponent,
   ],
@@ -81,6 +89,7 @@ export class PeoplePage {
   private readonly rolesService = inject(ROLES_SERVICE);
   private readonly dialogs = inject(DialogService);
   private readonly capabilities = inject(AUTH_SERVICE).capabilities;
+  private readonly organisations = inject(ORGANISATION_SERVICE);
   /** The roles the caller may change (L2-137 AC5). */
   private readonly choices = injectRoleChoices();
 
@@ -88,12 +97,27 @@ export class PeoplePage {
   private readonly rolesCell = viewChild.required<TemplateRef<unknown>>('rolesCell');
   private readonly actionCell = viewChild.required<TemplateRef<unknown>>('actionCell');
 
+  /** "All {chapters}" and the chapters, or none while chapters are off. */
+  protected readonly chapterOptions = signal<SelectOption[]>([]);
+  protected readonly chapterLabel = signal('');
+  protected readonly chapter = new FormControl('', { nonNullable: true });
+  private readonly selectedChapter = signal<string | null>(null);
+
   protected readonly columns = computed<TableColumn[]>(() => [
     { key: 'name', header: 'Member', template: this.memberCell() },
     { key: 'roles', header: 'Roles', template: this.rolesCell() },
-    { key: 'homeCity', header: 'City' },
+    ...(this.chapterLabel() ? [{ key: 'chapterName', header: this.chapterLabel() }] : []),
     { key: 'actions', header: 'Actions', hideHeader: true, template: this.actionCell() },
   ]);
+
+  /** "No one matches “x”", "No one in Toronto yet" or both, as the no-results mock words it (L2-142 AC5). */
+  protected readonly noResultsHeading = computed(() => {
+    const id = this.selectedChapter();
+    const chapter = id && this.chapterOptions().find((o) => o.value === id)?.label;
+    const term = this.term();
+    if (chapter && !term) return `No one in ${chapter} yet`;
+    return chapter ? `No one matches “${term}” in ${chapter}` : `No one matches “${term}”`;
+  });
 
   protected readonly query = new FormControl('', { nonNullable: true });
   protected readonly term = signal('');
@@ -136,6 +160,17 @@ export class PeoplePage {
   protected readonly hasMore = computed(() => this.list().length < this.total());
 
   constructor() {
+    this.chapter.valueChanges.subscribe((value) => {
+      this.selectedChapter.set(value || null);
+      void this.load();
+    });
+    this.organisations.get().subscribe({
+      next: (organisation) => {
+        this.chapterOptions.set(chapterFilterOptions(organisation));
+        this.chapterLabel.set(organisation.chapterLabel?.singular ?? '');
+      },
+      error: () => this.chapterOptions.set([]),
+    });
     void this.load();
   }
 
@@ -163,7 +198,9 @@ export class PeoplePage {
     this.loadingMore.set(true);
     try {
       const next = this.page() + 1;
-      const result = await firstValueFrom(this.people.search(this.term(), next));
+      const result = await firstValueFrom(
+        this.people.search(this.term(), next, this.selectedChapter()),
+      );
       this.list.update((list) => [...list, ...result.items]);
       this.total.set(result.totalCount);
       this.page.set(next);
@@ -179,7 +216,9 @@ export class PeoplePage {
     const request = ++this.request;
     this.state.set('loading');
     try {
-      const result = await firstValueFrom(this.people.search(this.term(), 1));
+      const result = await firstValueFrom(
+        this.people.search(this.term(), 1, this.selectedChapter()),
+      );
       if (request !== this.request) return;
       this.list.set(result.items);
       this.total.set(result.totalCount);

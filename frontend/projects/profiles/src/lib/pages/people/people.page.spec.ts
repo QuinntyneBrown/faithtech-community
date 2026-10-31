@@ -56,7 +56,7 @@ function person(overrides: Partial<PersonSummary>): PersonSummary {
   return {
     id: 'p1',
     name: 'Grace Okonkwo',
-    homeCity: 'Toronto',
+    chapterName: 'Toronto',
     photoUrl: null,
     roles: [held('City Lead')],
     ...overrides,
@@ -77,10 +77,15 @@ function page(items: PersonSummary[], totalCount = items.length): PagedResult<Pe
 }
 
 async function setup(
-  search: (term: string, page?: number) => Observable<PagedResult<PersonSummary>>,
+  search: (
+    term: string,
+    page?: number,
+    chapterId?: string | null,
+  ) => Observable<PagedResult<PersonSummary>>,
   // L2-137 AC5: the server says which roles the caller may grant; the page offers exactly those.
   grantableRoleIds: string[] = CITY_LEAD_GRANTS,
   capabilities: Capability[] = ['AssignRoles', 'ViewPeopleDirectory'],
+  chaptersOn = true,
 ) {
   const service = { search: vi.fn(search) };
   const roles = {
@@ -110,7 +115,24 @@ async function setup(
           currentUser: signal({ roles: [{ name: 'City Lead' }] }),
         },
       },
-      { provide: ORGANISATION_SERVICE, useValue: { get: () => of({ roles: ROLES }) } },
+      {
+        provide: ORGANISATION_SERVICE,
+        useValue: {
+          get: () =>
+            of({
+              name: 'FaithTech Community',
+              shortName: 'FaithTech',
+              chapterLabel: chaptersOn ? { singular: 'City', plural: 'Cities' } : null,
+              chapters: chaptersOn
+                ? [
+                    { id: 'c-toronto', name: 'Toronto' },
+                    { id: 'c-austin', name: 'Austin' },
+                  ]
+                : [],
+              roles: ROLES,
+            }),
+        },
+      },
       { provide: DialogService, useValue: dialogs },
     ],
   });
@@ -154,7 +176,10 @@ describe('PeoplePage', () => {
   it('lists members with a profile link, photo, role badges and city', async () => {
     const { host, row, service } = await setup(() => of(page([grace, marcus, leah])));
 
-    expect(service.search).toHaveBeenCalledWith('', 1);
+    expect(service.search).toHaveBeenCalledWith('', 1, null);
+    expect(Array.from(host.querySelectorAll('th')).map((th) => th.textContent!.trim())).toContain(
+      'City',
+    );
     expect(host.querySelector('h1')!.textContent).toContain('People and roles');
     expect(host.querySelector('caption')!.textContent).toContain('Members and their roles');
     const link = row('Marcus Lee').querySelector('a')!;
@@ -165,6 +190,43 @@ describe('PeoplePage', () => {
     expect(row('Marcus Lee').textContent).toContain('Event Lead');
     expect(row('Marcus Lee').textContent).toContain('Toronto');
     expect(row('Leah Thompson').textContent).toContain('No role yet');
+  });
+
+  // Traces to: L2-142 AC1, AC2, AC5
+  it('filters by a chapter from the organisation’s list and names it when no one matches', async () => {
+    let answer = page([grace, marcus, leah]);
+    const { host, service, fixture } = await setup(() => of(answer));
+    const select = host.querySelector('select') as HTMLSelectElement;
+    expect(Array.from(select.options).map((o) => o.textContent!.trim())).toEqual([
+      'All cities',
+      'Toronto',
+      'Austin',
+    ]);
+
+    answer = page([]);
+    select.value = 'c-austin';
+    select.dispatchEvent(new Event('change'));
+    fixture.detectChanges();
+    await fixture.whenStable();
+    fixture.detectChanges();
+
+    expect(service.search).toHaveBeenLastCalledWith('', 1, 'c-austin');
+    expect(host.textContent).toContain('No one in Austin yet');
+  });
+
+  // Traces to: L2-142 AC3
+  it('has no chapter filter or column while chapters are off', async () => {
+    const { host } = await setup(
+      () => of(page([grace, marcus, leah])),
+      CITY_LEAD_GRANTS,
+      ['AssignRoles', 'ViewPeopleDirectory'],
+      false,
+    );
+
+    expect(host.querySelector('select')).toBeNull();
+    expect(
+      Array.from(host.querySelectorAll('th')).map((th) => th.textContent!.trim()),
+    ).not.toContain('City');
   });
 
   it('gives a City Lead the actions their grant rule allows on each row', async () => {
@@ -250,7 +312,7 @@ describe('PeoplePage', () => {
 
     await searchFor(' xavier ');
 
-    expect(service.search).toHaveBeenLastCalledWith('xavier', 1);
+    expect(service.search).toHaveBeenLastCalledWith('xavier', 1, null);
     expect(host.textContent).toContain('No one matches “xavier”');
     expect(host.textContent).toContain('They may not have joined yet.');
     expect(
@@ -268,7 +330,7 @@ describe('PeoplePage', () => {
     button(host, 'Show more people')!.click();
     await settle();
 
-    expect(service.search).toHaveBeenLastCalledWith('', 2);
+    expect(service.search).toHaveBeenLastCalledWith('', 2, null);
     expect(rows()).toHaveLength(26);
     expect(button(host, 'Show more people')).toBeUndefined();
   });

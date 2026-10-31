@@ -7,9 +7,21 @@ ft-page-header {
   margin-block-end: var(--space-4);
 }
 
+.filters {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: end;
+  gap: var(--space-3);
+  margin-block-end: var(--space-4);
+}
+
 .search {
   display: block;
-  margin-block-end: var(--space-4);
+  flex: 1 1 16rem;
+}
+
+.chapter {
+  flex: 0 1 12rem;
 }
 
 .more {

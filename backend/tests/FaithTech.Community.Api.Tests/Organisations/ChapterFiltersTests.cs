@@ -82,6 +82,37 @@ public class ChapterFiltersTests(CommunityApiFactory factory) : IClassFixture<Co
         Assert.Contains(tagged, byNone);
     }
 
+    // L2-142 AC2: People lists only members whose home chapter it is, and each row names its chapter.
+    [Fact]
+    public async Task People_filter_by_chapter_id()
+    {
+        var toronto = await factory.AddChapterAsync($"Toronto {Guid.NewGuid():N}"[..14]);
+        var grace = await TeamMemberAsync("Grace Okonkwo", toronto.Id);
+        var marcus = await factory.AddMemberAsync("Marcus Lee");
+        var lead = factory.ClientFor(await factory.AddMemberAsync("Priya Patel"), Role.SystemAdmin);
+
+        var people = await lead.GetFromJsonAsync<JsonElement>($"/api/people?chapter={toronto.Id}");
+
+        var items = people.GetProperty("items").EnumerateArray().ToList();
+        var row = Assert.Single(items);
+        Assert.Equal(grace.ProfileId, row.GetProperty("id").GetGuid());
+        Assert.Equal(toronto.Name, row.GetProperty("chapterName").GetString());
+        Assert.DoesNotContain(items, i => i.GetProperty("id").GetGuid() == marcus.ProfileId);
+    }
+
+    // L2-142 AC3: with chapters off People ignores the chapter filter.
+    [Fact]
+    public async Task With_chapters_off_people_ignore_the_chapter_filter()
+    {
+        var (client, organisation, downtown) = await CampusesAsync();
+        var other = await factory.AddMemberAsync(organisation, "Ruth Alvarez");
+        await TurnChaptersOffAsync(client);
+
+        var people = await client.GetFromJsonAsync<JsonElement>($"/api/people?chapter={downtown}");
+
+        Assert.Contains(people.GetProperty("items").EnumerateArray(), i => i.GetProperty("id").GetGuid() == other.ProfileId);
+    }
+
     private static List<Guid> Ids(JsonElement list) =>
         [.. list.GetProperty("events").EnumerateArray().Select(e => e.GetProperty("id").GetGuid())];
 

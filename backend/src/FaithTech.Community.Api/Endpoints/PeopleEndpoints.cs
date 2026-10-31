@@ -7,8 +7,8 @@ public static class PeopleEndpoints
 {
     public static IEndpointRouteBuilder MapPeopleEndpoints(this IEndpointRouteBuilder app)
     {
-        app.MapGet("/api/people", async (string? q, int? page, ListPeopleHandler handler, CancellationToken cancellationToken) =>
-            await handler.HandleAsync(q, page ?? 1, cancellationToken) is { } result ? Results.Ok(result) : Results.Forbid());
+        app.MapGet("/api/people", async (string? q, int? page, Guid? chapter, ListPeopleHandler handler, CancellationToken cancellationToken) =>
+            await handler.HandleAsync(q, page ?? 1, chapter, cancellationToken) is { } result ? Results.Ok(result) : Results.Forbid());
 
         return app;
     }
