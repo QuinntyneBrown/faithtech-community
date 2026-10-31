@@ -12,12 +12,13 @@ import { FormControl, ReactiveFormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import {
   AUTH_SERVICE,
+  ORGANISATION_SERVICE,
   OrganisationNames,
-  RESOURCE_TYPES,
   ResourceDto,
   RESOURCES_SERVICE,
   ResourceSummary,
   ResourceType,
+  ResourceTypeOption,
   hasAny,
 } from '@faithtech-community/api';
 import {
@@ -95,7 +96,15 @@ export class ResourcesPage {
   private readonly router = inject(Router);
   protected readonly thumbnails = inject(ThumbnailCache);
 
-  protected readonly types = RESOURCE_TYPES;
+  private readonly organisations = inject(ORGANISATION_SERVICE);
+  private readonly activeTypes = signal<ResourceTypeOption[]>([]);
+  private readonly archivedTypes = signal<ResourceTypeOption[]>([]);
+  /** "Show archived types" adds the archived types to the chips under their own names (L2-146 AC4). */
+  protected readonly showArchived = signal(false);
+  protected readonly hasArchivedTypes = computed(() => this.archivedTypes().length > 0);
+  protected readonly types = computed(() =>
+    this.showArchived() ? [...this.activeTypes(), ...this.archivedTypes()] : this.activeTypes(),
+  );
   protected readonly search = new FormControl(
     inject(ActivatedRoute).snapshot.queryParamMap.get('q') ?? '',
     { nonNullable: true },
@@ -127,7 +136,7 @@ export class ResourcesPage {
   });
   protected readonly filterLine = computed(() => {
     const n = this.count();
-    const type = this.type() ? ` of type ${this.type()}` : '';
+    const type = this.type() ? ` of type ${this.typeName(this.type()!)}` : '';
     const tag = this.tagChoice() ? ` tagged “${this.tagChoice()}”` : '';
     const term = this.term() ? ` matching “${this.term()}”` : '';
     return `${n} ${plural(n)}${type}${tag}${term}`;
@@ -154,6 +163,28 @@ export class ResourcesPage {
     });
     void this.load();
     void this.loadTags();
+    void this.loadTypes();
+  }
+
+  /** Hiding the archived types again drops a filter on one of them. */
+  protected toggleArchived(): void {
+    const show = !this.showArchived();
+    this.showArchived.set(show);
+    if (!show && this.archivedTypes().some((t) => t.key === this.type())) this.chooseType(null);
+  }
+
+  private typeName(key: ResourceType): string {
+    return [...this.activeTypes(), ...this.archivedTypes()].find((t) => t.key === key)?.name ?? key;
+  }
+
+  private async loadTypes(): Promise<void> {
+    try {
+      const organisation = await firstValueFrom(this.organisations.get());
+      this.activeTypes.set(organisation.resourceTypes);
+      this.archivedTypes.set(organisation.archivedResourceTypes);
+    } catch {
+      this.activeTypes.set([]);
+    }
   }
 
   protected chooseType(type: ResourceType | null): void {

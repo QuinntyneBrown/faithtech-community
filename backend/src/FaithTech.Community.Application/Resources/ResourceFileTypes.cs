@@ -1,5 +1,5 @@
-using System.Text;
-using FaithTech.Community.Domain.Resources;
+﻿using System.Text;
+using FaithTech.Community.Domain.Organisations;
 
 namespace FaithTech.Community.Application.Resources;
 
@@ -15,28 +15,29 @@ public static class ResourceFileTypes
     /// <summary>How many leading bytes the signature check reads.</summary>
     public const int SniffLength = 64 * 1024;
 
-    private record FileKind(string ContentType, ResourceType Type, Func<byte[], bool> Matches);
+    /// <summary>An allowed file: its content type, the resource type key it is guessed as (L2-146 AC3), its signature.</summary>
+    private record FileKind(string ContentType, string TypeKey, Func<byte[], bool> Matches);
 
     private static readonly byte[] ZipHeader = [0x50, 0x4B, 0x03, 0x04];
     private static readonly byte[] OleHeader = [0xD0, 0xCF, 0x11, 0xE0, 0xA1, 0xB1, 0x1A, 0xE1];
 
     private static readonly Dictionary<string, FileKind> Kinds = new(StringComparer.OrdinalIgnoreCase)
     {
-        ["pptx"] = new("application/vnd.openxmlformats-officedocument.presentationml.presentation", ResourceType.Deck, IsZip),
-        ["ppt"] = new("application/vnd.ms-powerpoint", ResourceType.Deck, b => StartsWith(b, OleHeader)),
-        ["key"] = new("application/vnd.apple.keynote", ResourceType.Deck, IsZip),
-        ["pdf"] = new("application/pdf", ResourceType.Document, b => StartsWith(b, "%PDF-"u8.ToArray())),
-        ["docx"] = new("application/vnd.openxmlformats-officedocument.wordprocessingml.document", ResourceType.Document, IsZip),
-        ["doc"] = new("application/msword", ResourceType.Document, b => StartsWith(b, OleHeader)),
-        ["xlsx"] = new("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", ResourceType.Document, IsZip),
-        ["csv"] = new("text/csv", ResourceType.Document, IsText),
-        ["png"] = new("image/png", ResourceType.Image, b => StartsWith(b, [0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A])),
-        ["jpg"] = new("image/jpeg", ResourceType.Image, b => StartsWith(b, [0xFF, 0xD8, 0xFF])),
-        ["svg"] = new("image/svg+xml", ResourceType.Logo, b => IsText(b) && Encoding.UTF8.GetString(b).Contains("<svg", StringComparison.OrdinalIgnoreCase)),
-        ["gif"] = new("image/gif", ResourceType.Image, b => StartsWith(b, "GIF87a"u8.ToArray()) || StartsWith(b, "GIF89a"u8.ToArray())),
-        ["webp"] = new("image/webp", ResourceType.Image, b => StartsWith(b, "RIFF"u8.ToArray()) && b.Length >= 12 && Encoding.ASCII.GetString(b, 8, 4) == "WEBP"),
-        ["mp4"] = new("video/mp4", ResourceType.Other, b => b.Length >= 8 && Encoding.ASCII.GetString(b, 4, 4) == "ftyp"),
-        ["zip"] = new("application/zip", ResourceType.Other, IsZip),
+        ["pptx"] = new("application/vnd.openxmlformats-officedocument.presentationml.presentation", "deck", IsZip),
+        ["ppt"] = new("application/vnd.ms-powerpoint", "deck", b => StartsWith(b, OleHeader)),
+        ["key"] = new("application/vnd.apple.keynote", "deck", IsZip),
+        ["pdf"] = new("application/pdf", "document", b => StartsWith(b, "%PDF-"u8.ToArray())),
+        ["docx"] = new("application/vnd.openxmlformats-officedocument.wordprocessingml.document", "document", IsZip),
+        ["doc"] = new("application/msword", "document", b => StartsWith(b, OleHeader)),
+        ["xlsx"] = new("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", "document", IsZip),
+        ["csv"] = new("text/csv", "document", IsText),
+        ["png"] = new("image/png", "image", b => StartsWith(b, [0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A])),
+        ["jpg"] = new("image/jpeg", "image", b => StartsWith(b, [0xFF, 0xD8, 0xFF])),
+        ["svg"] = new("image/svg+xml", "logo", b => IsText(b) && Encoding.UTF8.GetString(b).Contains("<svg", StringComparison.OrdinalIgnoreCase)),
+        ["gif"] = new("image/gif", "image", b => StartsWith(b, "GIF87a"u8.ToArray()) || StartsWith(b, "GIF89a"u8.ToArray())),
+        ["webp"] = new("image/webp", "image", b => StartsWith(b, "RIFF"u8.ToArray()) && b.Length >= 12 && Encoding.ASCII.GetString(b, 8, 4) == "WEBP"),
+        ["mp4"] = new("video/mp4", "other", b => b.Length >= 8 && Encoding.ASCII.GetString(b, 4, 4) == "ftyp"),
+        ["zip"] = new("application/zip", "other", IsZip),
     };
 
     public const string AllowedList = "PPTX, PPT, KEY, PDF, DOCX, DOC, XLSX, CSV, PNG, JPG, SVG, GIF, WEBP, MP4 or ZIP";
@@ -57,8 +58,9 @@ public static class ResourceFileTypes
     public static bool Accepts(string fileName, long length, byte[] leadingBytes) =>
         length is > 0 and <= MaxBytes && Kinds.TryGetValue(ExtensionOf(fileName), out var kind) && kind.Matches(leadingBytes);
 
-    public static ResourceType GuessType(string fileName) =>
-        Kinds.TryGetValue(ExtensionOf(fileName), out var kind) ? kind.Type : ResourceType.Other;
+    /// <summary>The resource type key guessed from the extension; <see cref="ResourceTypeResolver"/> maps it to a type.</summary>
+    public static string GuessType(string fileName) =>
+        Kinds.TryGetValue(ExtensionOf(fileName), out var kind) ? kind.TypeKey : ResourceType.OtherKey;
 
     public static string ContentTypeOf(string fileName) =>
         Kinds.TryGetValue(ExtensionOf(fileName), out var kind) ? kind.ContentType : "application/octet-stream";

@@ -472,6 +472,14 @@ export class MockApi {
       this.caller(authorization),
     );
     if (eventTypes) return eventTypes;
+    const resourceTypes = this.resources.types.handle(
+      route,
+      method,
+      url,
+      body,
+      this.caller(authorization),
+    );
+    if (resourceTypes) return resourceTypes;
     const search = this.search.handle(route, method, url, this.caller(authorization));
     if (search) return search;
     const profileRoute = /^\/api\/profiles\/([^/]+)$/.exec(url.pathname);
@@ -888,6 +896,8 @@ export class MockApi {
         chapters: this.chapters.options(),
         partnerStages: this.partners.stages.options(),
         eventTypes: this.events.types.options(),
+        resourceTypes: this.resources.types.options(),
+        archivedResourceTypes: this.resources.types.archivedOptions(),
         roles: roleDefinitions()
           .filter((d) => !d.archived)
           .map((d) => ({

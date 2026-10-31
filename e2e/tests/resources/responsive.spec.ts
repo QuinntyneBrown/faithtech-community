@@ -18,7 +18,7 @@ for (const name of Object.keys(BREAKPOINTS) as BreakpointName[]) {
     const deck = api.resources.add({
       title: 'City launch deck with a long title that wraps on phones',
       ownerId: grace.profileId,
-      type: 'Deck',
+      type: 'deck',
       fileName: 'city-launch-deck-final-version.pptx',
       tags: ['launch'],
       visibility: 'Shared',
@@ -27,7 +27,7 @@ for (const name of Object.keys(BREAKPOINTS) as BreakpointName[]) {
     api.resources.add({
       title: 'Judging rubric',
       ownerId: grace.profileId,
-      type: 'Template',
+      type: 'template',
       linkUrl: 'https://docs.google.com/d/1',
     });
     api.resources.add({

@@ -15,7 +15,7 @@ test.describe('Archive, restore and transfer resources', () => {
     const deck = api.resources.add({
       title: 'City launch deck',
       ownerId: grace.profileId,
-      type: 'Deck',
+      type: 'deck',
       fileName: 'deck.pptx',
       size: 25_794_970,
     });

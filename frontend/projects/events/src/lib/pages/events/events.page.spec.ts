@@ -86,6 +86,8 @@ async function setup(
       { id: 't-gathering', key: 'gathering', name: 'Gathering' },
       { id: 't-hackathon', key: 'hackathon', name: 'Hackathon' },
     ],
+    resourceTypes: [],
+    archivedResourceTypes: [],
   };
   TestBed.configureTestingModule({
     providers: [

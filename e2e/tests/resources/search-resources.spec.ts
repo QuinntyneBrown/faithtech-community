@@ -21,13 +21,13 @@ test('global search has a Resources group with only what the member may open', a
   api.resources.add({
     title: 'City launch deck',
     ownerId: grace.profileId,
-    type: 'Deck',
+    type: 'deck',
     fileName: 'deck.pptx',
   });
   api.resources.add({
     title: 'Austin retro',
     ownerId: marcus.profileId,
-    type: 'Deck',
+    type: 'deck',
     fileName: 'retro.key',
     tags: ['launch'],
     visibility: 'Shared',

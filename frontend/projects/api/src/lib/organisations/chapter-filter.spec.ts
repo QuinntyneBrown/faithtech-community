@@ -13,6 +13,8 @@ const faithTech: OrganisationDto = {
   roles: [],
   partnerStages: [],
   eventTypes: [],
+  resourceTypes: [],
+  archivedResourceTypes: [],
 };
 
 describe('chapterFilterOptions', () => {

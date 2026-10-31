@@ -64,7 +64,7 @@ export class ArchivedResourcesPage {
     const days = Math.ceil((new Date(resource.purgeAt).getTime() - Date.now()) / DAY);
     const soon = days >= 0 && days <= 7 ? `, in ${days} ${days === 1 ? 'day' : 'days'}` : '';
     return [
-      resource.type,
+      resource.typeName,
       fileOrHost(resource),
       `archived ${formatDay(resource.archivedAt)}`,
       `deleted for good ${formatDay(resource.purgeAt)}${soon}`,

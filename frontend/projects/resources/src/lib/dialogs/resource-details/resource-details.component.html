@@ -18,12 +18,12 @@
     #typeField
     required
     label="Type"
-    [help]="typeHint()"
+    [help]="typeHelp()"
     [error]="errors()['type'] ?? ''"
   >
     <ft-select
       placeholder="Choose a type"
-      [options]="typeOptions"
+      [options]="typeOptions()"
       [formControl]="f.controls.type"
     />
   </ft-form-field>

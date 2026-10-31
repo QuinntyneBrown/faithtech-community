@@ -23,8 +23,11 @@
 </div>
 <ft-chip-group label="Type" class="types">
   <ft-chip [pressed]="!type()" (click)="chooseType(null)">All types</ft-chip>
-  @for (t of types; track t) {
-    <ft-chip [pressed]="type() === t" (click)="chooseType(t)">{{ t }}</ft-chip>
+  @for (t of types(); track t.key) {
+    <ft-chip [pressed]="type() === t.key" (click)="chooseType(t.key)">{{ t.name }}</ft-chip>
+  }
+  @if (hasArchivedTypes()) {
+    <ft-chip [pressed]="showArchived()" (click)="toggleArchived()">Show archived types</ft-chip>
   }
 </ft-chip-group>
 

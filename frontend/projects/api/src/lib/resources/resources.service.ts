@@ -3,16 +3,11 @@ import { Observable } from 'rxjs';
 
 import { PagedResult, Role } from '../shared';
 
-export const RESOURCE_TYPES = [
-  'Deck',
-  'Logo',
-  'Image',
-  'Training',
-  'Template',
-  'Document',
-  'Other',
-] as const;
-export type ResourceType = (typeof RESOURCE_TYPES)[number];
+/** A resource type key of the organisation's (L2-146), as GET /api/organisation lists them; never shown. */
+export type ResourceType = string;
+
+/** The key of the type every organisation keeps, which an unguessable upload gets (L2-146 AC1, AC3). */
+export const OTHER_RESOURCE_TYPE = 'other';
 
 export type ResourceVisibility = 'Private' | 'Shared' | 'Global';
 
@@ -32,6 +27,8 @@ export interface ResourceSummary {
   id: string;
   title: string;
   type: ResourceType;
+  /** The type's current name, kept once the type is archived (L2-146 AC4). */
+  typeName: string;
   fileName: string | null;
   extension: string | null;
   size: number | null;
@@ -84,6 +81,7 @@ export interface ArchivedResource {
   id: string;
   title: string;
   type: ResourceType;
+  typeName: string;
   extension: string | null;
   size: number | null;
   linkHost: string | null;

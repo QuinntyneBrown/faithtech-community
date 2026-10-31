@@ -43,6 +43,7 @@ public static class DependencyInjection
         services.AddScoped<Organisations.ManageChaptersHandler>();
         services.AddScoped<Organisations.ManagePartnerStagesHandler>();
         services.AddScoped<Organisations.ManageEventTypesHandler>();
+        services.AddScoped<Organisations.ManageResourceTypesHandler>();
         services.AddScoped<Organisations.ArchiveRoleDefinitionHandler>();
         services.AddScoped<Organisations.ProfileCapabilities>();
         services.AddScoped<Organisations.Memberships>();
@@ -134,6 +135,7 @@ public static class DependencyInjection
         services.AddScoped<ResourceAccess>();
         services.AddScoped<ResourceViews>();
         services.AddScoped<ResourceFieldRules>();
+        services.AddScoped<ResourceTypeResolver>();
         services.AddScoped<ResourceFileStore>();
         services.AddScoped<ShareNotifier>();
         services.AddScoped<ResourceMembersHandler>();

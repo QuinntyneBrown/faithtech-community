@@ -17,7 +17,7 @@ test.describe('The resource page', () => {
     const deck = api.resources.add({
       title: 'City launch deck',
       ownerId: grace.profileId,
-      type: 'Deck',
+      type: 'deck',
       description: 'The deck we use to launch a new FaithTech city.',
       fileName: 'city-launch-deck.pptx',
       size: 25_794_970,
@@ -54,13 +54,13 @@ test.describe('The resource page', () => {
     const link = api.resources.add({
       title: 'Judging rubric',
       ownerId: marcus.profileId,
-      type: 'Template',
+      type: 'template',
       linkUrl: 'https://docs.google.com/d/1',
     });
     const image = api.resources.add({
       title: 'Pairing at the whiteboard',
       ownerId: marcus.profileId,
-      type: 'Image',
+      type: 'image',
       fileName: 'pairing.jpg',
       description: 'Two builders at a whiteboard',
     });
@@ -122,7 +122,7 @@ test.describe('The resource page', () => {
     const retro = api.resources.add({
       title: 'Austin launch retro',
       ownerId: esther.profileId,
-      type: 'Deck',
+      type: 'deck',
     });
     await api.signInAs(priya, `/resources/${retro.id}`);
     const resource = new ResourcePage(page);
@@ -145,7 +145,7 @@ test.describe('The resource page', () => {
     const deck = api.resources.add({
       title: 'City launch deck',
       ownerId: grace.profileId,
-      type: 'Deck',
+      type: 'deck',
       fileName: 'city-launch-deck.pptx',
     });
     await api.freezeBrowserClock();

@@ -143,7 +143,7 @@ public class ResourcesSearchSource(IApplicationDbContext db, IFullTextSearch tex
                 r.Id,
                 r.Title,
                 r.Description,
-                r.Type,
+                TypeName = r.Type!.Name,
                 r.Visibility,
                 r.OwnerId,
                 Extension = r.File == null ? null : r.File.Extension,
@@ -157,7 +157,7 @@ public class ResourcesSearchSource(IApplicationDbContext db, IFullTextSearch tex
         return [.. rows.Select(r => new SearchResultItem(
             r.Id,
             r.Title,
-            Snippets.Join(r.Type.ToString(), r.Extension?.ToUpperInvariant() ?? r.LinkHost, r.Owner, Why(term, r.Title, r.Tags, r.Description, r.FileName)),
+            Snippets.Join(r.TypeName, r.Extension?.ToUpperInvariant() ?? r.LinkHost, r.Owner, Why(term, r.Title, r.Tags, r.Description, r.FileName)),
             $"/resources/{r.Id}",
             Badge: r.Visibility switch
             {

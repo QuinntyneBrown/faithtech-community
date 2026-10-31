@@ -15,6 +15,10 @@ export class OrganisationTaxonomiesPage {
   readonly typesCaption: Locator;
   readonly archivedTypes: Locator;
   readonly addType: Locator;
+  readonly resourceTypes: Locator;
+  readonly resourceTypesCaption: Locator;
+  readonly archivedResourceTypes: Locator;
+  readonly addResourceType: Locator;
 
   constructor(private readonly page: Page) {
     this.tab = page
@@ -34,6 +38,15 @@ export class OrganisationTaxonomiesPage {
     );
     this.archivedTypes = page.getByRole('list', { name: 'Archived event types' });
     this.addType = page.getByRole('button', { name: 'Add an event type', exact: true });
+    this.resourceTypes = page.getByRole('list', { name: 'Resource types', exact: true });
+    this.resourceTypesCaption = page.getByText(
+      'Offered on the add and edit resource dialogs. An upload’s type is guessed from its extension.',
+    );
+    this.archivedResourceTypes = page.getByRole('list', { name: 'Archived resource types' });
+    this.addResourceType = page.getByRole('button', {
+      name: 'Add a resource type',
+      exact: true,
+    });
   }
 
   async open(): Promise<void> {
@@ -54,6 +67,16 @@ export class OrganisationTaxonomiesPage {
   async typeNames(): Promise<string[]> {
     return (
       await this.types
+        .getByRole('listitem')
+        .locator('.ft-reorderable-list__title')
+        .allTextContents()
+    ).map((t) => t.trim());
+  }
+
+  /** The active resource type names, in the order the list shows them. */
+  async resourceTypeNames(): Promise<string[]> {
+    return (
+      await this.resourceTypes
         .getByRole('listitem')
         .locator('.ft-reorderable-list__title')
         .allTextContents()

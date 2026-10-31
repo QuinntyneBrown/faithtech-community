@@ -14,6 +14,8 @@ import {
   problemDetails,
   ResourceDto,
   RESOURCES_SERVICE,
+  ORGANISATION_SERVICE,
+  ResourceTypeOption,
 } from '@faithtech-community/api';
 import {
   AlertComponent,
@@ -38,6 +40,7 @@ import {
   MAX_FILES,
   extensionOf,
   guessType,
+  resolveGuess,
   isAllowed,
   refusal,
   titleFrom,
@@ -97,6 +100,9 @@ export class AddResourceDialog {
   protected readonly organisation = inject(OrganisationNames);
   protected readonly ref = inject<DialogRef<AddResourceResult>>(DialogRef);
   private readonly resources = inject(RESOURCES_SERVICE);
+  private readonly organisations = inject(ORGANISATION_SERVICE);
+  /** The organisation's active resource types, which the guess maps onto. */
+  private readonly types = signal<ResourceTypeOption[]>([]);
   private readonly details = viewChild(ResourceDetailsComponent);
   private readonly urlField = viewChild<FormFieldComponent>('urlField');
 
@@ -155,13 +161,23 @@ export class AddResourceDialog {
 
   constructor() {
     this.form.controls.visibility.valueChanges.subscribe((v) => this.visibility.set(v));
+    void this.loadTypes();
+  }
+
+  /** The organisation's active resource types, which the guess maps onto (L2-146 AC3). */
+  private async loadTypes(): Promise<void> {
+    try {
+      this.types.set((await firstValueFrom(this.organisations.get())).resourceTypes);
+    } catch {
+      this.types.set([]);
+    }
   }
 
   protected rowMeta(row: Row): string {
     const size = formatFileSize(row.file.size);
-    return this.rows().length > 1
-      ? `${guessType(row.file.name)} · ${size}`
-      : `${extensionOf(row.file.name).toUpperCase()} · ${size}`;
+    if (this.rows().length <= 1) return `${extensionOf(row.file.name).toUpperCase()} · ${size}`;
+    const key = resolveGuess(row.file.name, this.types());
+    return `${this.types().find((t) => t.key === key)?.name ?? key} · ${size}`;
   }
 
   protected rowIcon(row: Row): string {
@@ -187,7 +203,7 @@ export class AddResourceDialog {
     if (wasEmpty && this.single()) {
       const file = this.rows()[0].file;
       if (!this.form.controls.title.value) this.form.controls.title.setValue(titleFrom(file.name));
-      this.form.controls.type.setValue(guessType(file.name));
+      this.form.controls.type.setValue(resolveGuess(file.name, this.types()));
     }
   }
 

@@ -71,6 +71,8 @@ async function setup(id: string | undefined, overrides: Overrides = {}) {
       { id: 't-builders', key: 'builders-night', name: 'Builders night' },
       { id: 't-panel', key: 'panel', name: 'Panel' },
     ],
+    resourceTypes: [],
+    archivedResourceTypes: [],
   };
   TestBed.configureTestingModule({
     providers: [

@@ -132,6 +132,27 @@ public static class FaithTechSeed
     public static IReadOnlyList<EventType> EventTypes() =>
         [.. Types.Select((t, index) => new EventType(t.Id, t.Key, t.Name, index + 1))];
 
+    /// <summary>A seeded resource type: its fixed id, the key the upload guess maps to, and the former value's name.</summary>
+    public sealed record SeedResourceType(Guid Id, string Key, string Name, string FormerValue);
+
+    /// <summary>
+    /// FaithTech's resource types in order (L2-151 AC3). The keys are what the ResourceTypesFromEnumeration migration maps
+    /// the former values to and what <c>ResourceFileTypes.GuessType</c> answers; <c>other</c> is the fallback.
+    /// </summary>
+    public static readonly IReadOnlyList<SeedResourceType> ResourceKinds =
+    [
+        new(new("7c2a4e1b-9d3f-4b6a-8e10-2b3c4d5e6f21"), "deck", "Deck", "Deck"),
+        new(new("7c2a4e1b-9d3f-4b6a-8e10-2b3c4d5e6f22"), "logo", "Logo", "Logo"),
+        new(new("7c2a4e1b-9d3f-4b6a-8e10-2b3c4d5e6f23"), "image", "Image", "Image"),
+        new(new("7c2a4e1b-9d3f-4b6a-8e10-2b3c4d5e6f24"), "training", "Training", "Training"),
+        new(new("7c2a4e1b-9d3f-4b6a-8e10-2b3c4d5e6f25"), "template", "Template", "Template"),
+        new(new("7c2a4e1b-9d3f-4b6a-8e10-2b3c4d5e6f26"), "document", "Document", "Document"),
+        new(new("7c2a4e1b-9d3f-4b6a-8e10-2b3c4d5e6f27"), ResourceType.OtherKey, "Other", "Other"),
+    ];
+
+    public static IReadOnlyList<ResourceType> ResourceTypes() =>
+        [.. ResourceKinds.Select((t, index) => new ResourceType(t.Id, t.Key, t.Name, index + 1))];
+
     public static Organisation Organisation()
     {
         var organisation = new Organisation(OrganisationId, Slug, Host, Name, ShortName, CreatedAtUtc);

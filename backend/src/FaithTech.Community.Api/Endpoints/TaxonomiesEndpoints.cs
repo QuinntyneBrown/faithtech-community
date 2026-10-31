@@ -74,6 +74,38 @@ public static class TaxonomiesEndpoints
             return result.ToHttp(() => Results.Ok(type));
         });
 
+        var resourceTypes = app.MapGroup("/api/organisation/resource-types");
+
+        resourceTypes.MapGet("", async (bool? archived, ManageResourceTypesHandler handler, CancellationToken cancellationToken) =>
+        {
+            var (result, list) = await handler.ListAsync(archived ?? false, cancellationToken);
+            return result.ToHttp(() => Results.Ok(list));
+        });
+
+        resourceTypes.MapPost("", async (TaxonomyNameCommand command, ManageResourceTypesHandler handler, CancellationToken cancellationToken) =>
+        {
+            var (result, type) = await handler.AddAsync(command, cancellationToken);
+            return result.ToHttp(() => Results.Created($"/api/organisation/resource-types/{type!.Id}", type));
+        }).Validate<TaxonomyNameCommand>();
+
+        resourceTypes.MapPut("/order", async (ReorderTaxonomyCommand command, ManageResourceTypesHandler handler, CancellationToken cancellationToken) =>
+        {
+            var (result, list) = await handler.ReorderAsync(command, cancellationToken);
+            return result.ToHttp(() => Results.Ok(list));
+        });
+
+        resourceTypes.MapPut("/{id:guid}", async (Guid id, TaxonomyNameCommand command, ManageResourceTypesHandler handler, CancellationToken cancellationToken) =>
+        {
+            var (result, type) = await handler.RenameAsync(id, command, cancellationToken);
+            return result.ToHttp(() => Results.Ok(type));
+        }).Validate<TaxonomyNameCommand>();
+
+        resourceTypes.MapPost("/{id:guid}/archive", async (Guid id, ManageResourceTypesHandler handler, CancellationToken cancellationToken) =>
+        {
+            var (result, type) = await handler.ArchiveAsync(id, cancellationToken);
+            return result.ToHttp(() => Results.Ok(type));
+        });
+
         return app;
     }
 }

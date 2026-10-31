@@ -37,7 +37,10 @@ public class Resource : IOrganisationScoped
 
     public string? Description { get; private set; }
 
-    public ResourceType Type { get; private set; }
+    /// <summary>The organisation's resource type (L2-146).</summary>
+    public Guid TypeId { get; private set; }
+
+    public ResourceType? Type { get; private set; }
 
     public ResourceVisibility Visibility { get; private set; }
 
@@ -100,6 +103,8 @@ public class Resource : IOrganisationScoped
         ArgumentException.ThrowIfNullOrWhiteSpace(title);
         Title = title.Trim();
         Description = string.IsNullOrWhiteSpace(description) ? null : description.Trim();
+        ArgumentNullException.ThrowIfNull(type);
+        TypeId = type.Id;
         Type = type;
     }
 

@@ -80,6 +80,14 @@ public static class OrganisationScopes
                 await db.SaveChangesAsync();
             }
 
+            // And of FaithTech's resource types, with new ids (L2-146).
+            if (!await db.ResourceTypes.AnyAsync())
+            {
+                db.ResourceTypes.AddRange(FaithTechSeed.ResourceKinds.Select((type, index) =>
+                    new ResourceType(Guid.NewGuid(), type.Key, type.Name, index + 1)));
+                await db.SaveChangesAsync();
+            }
+
             return 0;
         });
         return new OtherOrganisation(id, $"https://{host}");

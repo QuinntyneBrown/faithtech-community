@@ -3,6 +3,7 @@ import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@a
 import {
   AUTH_SERVICE,
   EventTypeDto,
+  ResourceTypeDto,
   ORGANISATION_SERVICE,
   OrganisationNames,
   PartnerStageDto,
@@ -43,9 +44,10 @@ type Filter = 'active' | 'archived';
 /**
  * The Stages & types tab at /organisation/taxonomies (L2-144 AC1, L2-145 AC1, L2-147 AC1), matching docs/mocks/pages/
  * organisation-taxonomies: the organisation's partner stages in board order with their partner counts, which is the
- * initial stage and each stage's kind, and its event types in form order with their event counts; add, rename,
+ * initial stage and each stage's kind, its event types in form order with their event counts, and its resource types
+ * with their resource counts (L2-146 AC1); add, rename,
  * reorder and archive (plus set as initial and set the kind for stages) for holders of ManageOrganisationSettings,
- * read-only with ManageRoles (L2-147 AC2), and an Archived filter. Resource types join it in their slice.
+ * read-only with ManageRoles (L2-147 AC2), and an Archived filter. The resource type keyed other is never archived.
  */
 @Component({
   selector: 'ft-taxonomies-page',
@@ -82,6 +84,7 @@ export class TaxonomiesPage {
   protected readonly filter = signal<Filter>('active');
   protected readonly stages = signal<PartnerStageDto[]>([]);
   protected readonly types = signal<EventTypeDto[]>([]);
+  protected readonly resourceTypes = signal<ResourceTypeDto[]>([]);
   protected readonly canEdit = computed(() =>
     hasAny(this.auth.capabilities(), 'ManageOrganisationSettings'),
   );
@@ -129,6 +132,124 @@ export class TaxonomiesPage {
       ? `Archived ${this.dates.transform(t.archivedAtUtc, 'EEE d MMM')}`
       : 'Archived';
     return `${on} · ${t.eventCount === 0 ? 'no events' : `${events(t.eventCount)} keep it`}`;
+  }
+
+  protected readonly resourceTypeRows = computed<ReorderableItem[]>(() =>
+    this.resourceTypes().map((t) => ({
+      id: t.id,
+      title: t.name,
+      meta: t.canArchive
+        ? resources(t.resourceCount)
+        : `${resources(t.resourceCount)} · Used when no other type fits; it can’t be archived`,
+    })),
+  );
+
+  /** The other type's row menu: Rename only, as uploads fall back to it (L2-146 AC1). */
+  protected readonly renameOnlyMenu: MenuEntry[] = [
+    { kind: 'item', id: 'rename', label: 'Rename' },
+  ];
+
+  protected resourceTypeMenu(id: string): MenuEntry[] {
+    return this.resourceTypes().find((t) => t.id === id)?.canArchive === false
+      ? this.renameOnlyMenu
+      : this.typeMenu;
+  }
+
+  protected archivedResourceTypeMeta(t: ResourceTypeDto): string {
+    const on = t.archivedAtUtc
+      ? `Archived ${this.dates.transform(t.archivedAtUtc, 'EEE d MMM')}`
+      : 'Archived';
+    if (t.resourceCount === 0) return `${on} · no resources`;
+    return `${on} · ${resources(t.resourceCount)} ${t.resourceCount === 1 ? 'keeps' : 'keep'} it`;
+  }
+
+  protected actOnResourceType(item: ReorderableItem, action: string): void {
+    const type = this.resourceTypes().find((t) => t.id === item.id);
+    if (!type) return;
+    if (action === 'rename') this.renameResourceType(type);
+    if (action === 'archive') this.archiveResourceType(type);
+  }
+
+  protected addResourceType(): void {
+    const data: ListEntryNameData<ResourceTypeDto> = {
+      heading: 'Add a resource type',
+      description:
+        'It’s added at the end of the list and offered on the add and edit dialogs at once.',
+      addLabel: 'Add type',
+      save: (name) => this.organisations.addResourceType(name),
+    };
+    this.dialogs.open<ResourceTypeDto>(ListEntryNameDialog, { data }).closed.subscribe((added) => {
+      if (!added) return;
+      this.toasts.show({
+        variant: 'success',
+        heading: `${added.name} added`,
+        text: 'It’s the last type on the add and edit dialogs.',
+      });
+      void this.load();
+    });
+  }
+
+  /** Saved after each move; a failed save puts the order back. */
+  protected async reorderResourceTypes(ids: string[]): Promise<void> {
+    try {
+      this.resourceTypes.set(await firstValueFrom(this.organisations.reorderResourceTypes(ids)));
+    } catch {
+      this.toasts.show({
+        variant: 'danger',
+        heading: 'Order not saved',
+        text: this.names.unreachable('The order is as it was.'),
+      });
+      void this.load();
+    }
+  }
+
+  private renameResourceType(type: ResourceTypeDto): void {
+    const data: ListEntryNameData<ResourceTypeDto> = {
+      heading: `Rename ${type.name}`,
+      description:
+        'Its resources, the add and edit dialogs and the Resources type filter show the new name.',
+      name: type.name,
+      save: (name) => this.organisations.renameResourceType(type.id, name),
+    };
+    this.dialogs
+      .open<ResourceTypeDto>(ListEntryNameDialog, { data })
+      .closed.subscribe((renamed) => {
+        if (!renamed) return;
+        this.toasts.show({
+          variant: 'success',
+          heading: `Renamed to ${renamed.name}`,
+          text: 'Its resources and the dialogs show the new name.',
+        });
+        void this.load();
+      });
+  }
+
+  private archiveResourceType(type: ResourceTypeDto): void {
+    const n = type.resourceCount;
+    const data: ArchiveListEntryData = {
+      name: type.name,
+      description: `Resources of type ${type.name} keep it, but it leaves the add and edit dialogs and the type filter.`,
+      body:
+        n === 0
+          ? `No resources are of type ${type.name}.`
+          : n === 1
+            ? `1 resource is of type ${type.name}.`
+            : `${n} resources are of type ${type.name}.`,
+      archiveLabel: 'Archive type',
+      archive: () => this.organisations.archiveResourceType(type.id),
+    };
+    this.dialogs.open<boolean>(ArchiveListEntryDialog, { data }).closed.subscribe((done) => {
+      if (!done) return;
+      this.toasts.show({
+        variant: 'success',
+        heading: `${type.name} archived`,
+        text:
+          n === 0
+            ? 'It’s listed under Archived.'
+            : `Its ${resources(n)} ${n === 1 ? 'keeps' : 'keep'} the type. It’s listed under Archived.`,
+      });
+      void this.load();
+    });
   }
 
   /** An event type's row menu: Rename and Archive (docs/mocks/pages/organisation-taxonomies). */
@@ -374,12 +495,14 @@ export class TaxonomiesPage {
     this.state.set('loading');
     const archived = this.filter() === 'archived';
     try {
-      const [stages, types] = await Promise.all([
+      const [stages, types, resourceTypes] = await Promise.all([
         firstValueFrom(this.organisations.listPartnerStages(archived)),
         firstValueFrom(this.organisations.listEventTypes(archived)),
+        firstValueFrom(this.organisations.listResourceTypes(archived)),
       ]);
       this.stages.set(stages);
       this.types.set(types);
+      this.resourceTypes.set(resourceTypes);
       this.state.set('loaded');
     } catch {
       this.state.set('error');
@@ -393,4 +516,8 @@ function partners(count: number): string {
 
 function events(count: number): string {
   return count === 1 ? '1 event' : `${count} events`;
+}
+
+function resources(count: number): string {
+  return count === 1 ? '1 resource' : `${count} resources`;
 }

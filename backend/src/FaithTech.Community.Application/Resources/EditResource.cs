@@ -38,7 +38,7 @@ public class EditResourceHandler(
             return (resource.IsArchived && access.CanChange(resource, caller) ? Result.Conflict("Restore it before you edit it.") : Result.Forbidden(), null);
         }
 
-        var (fields, errors) = await rules.CheckAsync(command.Fields, titleRequired: true, cancellationToken);
+        var (fields, errors) = await rules.CheckAsync(command.Fields, titleRequired: true, cancellationToken, resource.TypeId);
         Uri? link = null;
         if (resource.IsLink && !ResourceLinks.TryParse(command.Url, out link))
         {
@@ -52,7 +52,7 @@ public class EditResourceHandler(
 
         var before = ResourceAudit.Snapshot(resource);
         var reached = await share.RecipientsAsync(resource, cancellationToken);
-        resource.SetDetails(fields.Title!, fields.Description, fields.Type!.Value);
+        resource.SetDetails(fields.Title!, fields.Description, fields.Type!);
         resource.SetTags(fields.Tags);
         if (link is not null)
         {

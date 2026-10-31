@@ -64,7 +64,23 @@ export interface EventTypeDto extends EventTypeOption {
   eventCount: number;
 }
 
-/** GET /api/organisation. Resource types join it in their slice (organisation-settings design). */
+/** An active resource type as the resource dialogs and the Resources type filter offer it (L2-146 AC2, AC4). */
+export interface ResourceTypeOption {
+  id: string;
+  key: string;
+  name: string;
+}
+
+/** A resource type as Stages & types lists it, with its resource count; `other` can't be archived (L2-146 AC1). */
+export interface ResourceTypeDto extends ResourceTypeOption {
+  sortOrder: number;
+  archived: boolean;
+  archivedAtUtc: string | null;
+  resourceCount: number;
+  canArchive: boolean;
+}
+
+/** GET /api/organisation. */
 export interface OrganisationDto {
   name: string;
   shortName: string;
@@ -78,6 +94,10 @@ export interface OrganisationDto {
   partnerStages: PartnerStageOption[];
   /** The active event types in order. */
   eventTypes: EventTypeOption[];
+  /** The active resource types in order. */
+  resourceTypes: ResourceTypeOption[];
+  /** The archived resource types, for the Resources page's "Show archived types" (L2-146 AC4). */
+  archivedResourceTypes: ResourceTypeOption[];
 }
 
 /** PUT /api/organisation: the General settings (L2-147). */
@@ -118,6 +138,14 @@ export interface OrganisationService {
   reorderEventTypes(ids: string[]): Observable<EventTypeDto[]>;
   /** Its events keep it; 409 for the last active type (L2-145 AC2, AC4). */
   archiveEventType(id: string): Observable<EventTypeDto>;
+  /** Readable with ManageOrganisationSettings or ManageRoles (L2-147 AC2). */
+  listResourceTypes(archived?: boolean): Observable<ResourceTypeDto[]>;
+  /** A new type goes at the end; 400 keyed Name. */
+  addResourceType(name: string): Observable<ResourceTypeDto>;
+  renameResourceType(id: string, name: string): Observable<ResourceTypeDto>;
+  reorderResourceTypes(ids: string[]): Observable<ResourceTypeDto[]>;
+  /** Its resources keep it; 409 for the type keyed other (L2-146 AC1, AC4). */
+  archiveResourceType(id: string): Observable<ResourceTypeDto>;
 }
 
 export const ORGANISATION_SERVICE = new InjectionToken<OrganisationService>('ORGANISATION_SERVICE');

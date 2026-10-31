@@ -79,6 +79,7 @@ export class EditResourceDialog implements AfterViewInit {
 
   protected readonly resource = this.data.resource;
   protected readonly form = detailsForm(this.resource);
+  protected readonly currentType = { key: this.resource.type, name: this.resource.typeName };
   protected readonly url = new FormControl(this.resource.linkUrl ?? '', { nonNullable: true });
   protected readonly replacement = signal<File | null>(null);
   protected readonly choosing = signal(false);

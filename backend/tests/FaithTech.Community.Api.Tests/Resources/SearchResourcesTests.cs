@@ -62,7 +62,7 @@ public class SearchResourcesTests(CommunityApiFactory factory) : IClassFixture<C
         var client = factory.ClientFor(grace, Role.CityLead);
         var response = await client.PostAsJsonAsync("/api/resources/links", new
         {
-            Url = "https://canva.com/d/1", Title = "Poster template", Description = $"For the {word} night", Type = "Template", Visibility = "Global",
+            Url = "https://canva.com/d/1", Title = "Poster template", Description = $"For the {word} night", Type = "template", Visibility = "Global",
         });
         var link = (await response.Content.ReadFromJsonAsync<Detail>())!;
 

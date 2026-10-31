@@ -52,6 +52,8 @@ public interface IApplicationDbContext
 
     DbSet<EventType> EventTypes { get; }
 
+    DbSet<ResourceType> ResourceTypes { get; }
+
     DbSet<PartnerActivity> PartnerActivities { get; }
 
     DbSet<PartnerDuplicateDismissal> PartnerDuplicateDismissals { get; }
