@@ -66,6 +66,10 @@ The host decides the organisation, nothing else does. A token, a header, a cooki
 
 ### Open questions
 
+- **Decided (slice 01): loopback hosts.** `L2-131` AC4's `localhost` rule covers every loopback name (`localhost`, `*.localhost`, `127.0.0.1`, `::1`) and applies in the Development environment and in the API test host's `Testing` environment, so the compose smoke test (`app.localhost:8080`) and every existing test keep resolving to the default organisation. In any other environment a loopback host is an unknown host.
+- **Decided (slice 01): default slug.** `Platform:DefaultOrganisationSlug` defaults to `faithtech` and is validated on start as a slug. Until slice 05 configures public hosts in `Marketing:Sites`, the host of `Marketing:Origin` is the default organisation's public host.
+- **Decided (slice 01): no body from status code pages.** The middleware sits after `UseStatusCodePages`, so it turns status code pages off for its own 404 and 503, keeping the non-navigation answer an empty body.
+- **Decided (slice 01): hosts in lower case.** `Organisation` stores its host in lower case and the resolver lowers the request host, so a plain unique index makes hosts unique case-insensitively without a database collation.
 - Caching the organisation row in the API process, invalidated on suspend and lift, is deferred; v1 runs one indexed query per request.
 - `<TO SUPPLY>`: where a brochure video is stored once an organisation other than FaithTech supplies one (the proposal defers organisation-level branding; `BrochureUrl` is a URL in configuration until then).
 

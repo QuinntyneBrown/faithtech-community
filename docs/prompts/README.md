@@ -27,7 +27,7 @@ its own branch and ends with a pull request. Merge a slice before you start the 
 | # | Prompt | Slice | Requirements | Status |
 |---|---|---|---|---|
 | 00 | [00-mocks-design-system-and-estimate.md](00-mocks-design-system-and-estimate.md) | Mocks, design system, screen composition, estimate | `L2-147` AC4 and every screen the subsystem changes | Done |
-| 01 | [01-organisation-record-and-host-resolution.md](01-organisation-record-and-host-resolution.md) | Organisation record, host resolution, unknown-host and suspended pages | `L2-131` AC1 to AC5, `L2-151` AC1 (row) | To do |
+| 01 | [01-organisation-record-and-host-resolution.md](01-organisation-record-and-host-resolution.md) | Organisation record, host resolution, unknown-host and suspended pages | `L2-131` AC1 to AC5, `L2-151` AC1 (row) | Done |
 | 02 | [02-scope-every-record.md](02-scope-every-record.md) | `OrganisationId`, global filter, stamping, per-organisation unique indexes | `L2-130` AC1 to AC4, AC7 | To do |
 | 03 | [03-scope-files-search-and-live-updates.md](03-scope-files-search-and-live-updates.md) | Blob prefixes, search, SignalR groups | `L2-130` AC2, AC5 | To do |
 | 04 | [04-organisation-name-in-copy-titles-and-email.md](04-organisation-name-in-copy-titles-and-email.md) | `/api/site`, short name in shell and titles, email, `.ics` | `L2-134` AC1, AC2, AC4, AC5, `L2-130` AC6 | To do |

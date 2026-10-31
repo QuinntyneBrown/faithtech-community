@@ -7,6 +7,7 @@ using FaithTech.Community.Domain.Contacts;
 using FaithTech.Community.Domain.Events;
 using FaithTech.Community.Domain.Invites;
 using FaithTech.Community.Domain.Notifications;
+using FaithTech.Community.Domain.Organisations;
 using FaithTech.Community.Domain.Partners;
 using FaithTech.Community.Domain.Profiles;
 using FaithTech.Community.Domain.Notes;
@@ -24,6 +25,8 @@ namespace FaithTech.Community.Infrastructure.Persistence;
 public class CommunityDbContext(DbContextOptions<CommunityDbContext> options)
     : IdentityDbContext<CommunityUser, IdentityRole<Guid>, Guid>(options), IApplicationDbContext
 {
+    public DbSet<Organisation> Organisations => Set<Organisation>();
+
     public DbSet<Profile> Profiles => Set<Profile>();
 
     public DbSet<VerificationResend> VerificationResends => Set<VerificationResend>();
@@ -81,6 +84,22 @@ public class CommunityDbContext(DbContextOptions<CommunityDbContext> options)
     {
         base.OnModelCreating(builder);
         builder.UseOpenIddict();
+
+        builder.Entity<Organisation>(organisation =>
+        {
+            organisation.Property(o => o.Id).ValueGeneratedNever();
+            organisation.Property(o => o.Slug).HasMaxLength(Organisation.MaxSlugLength);
+            organisation.HasIndex(o => o.Slug).IsUnique();
+            // Hosts are stored in lower case, so this index makes them unique case-insensitively (L2-131).
+            organisation.Property(o => o.Host).HasMaxLength(Organisation.MaxHostLength);
+            organisation.HasIndex(o => o.Host).IsUnique();
+            organisation.Property(o => o.Name).HasMaxLength(Organisation.MaxNameLength);
+            organisation.Property(o => o.ShortName).HasMaxLength(Organisation.MaxShortNameLength);
+            organisation.Property(o => o.ChapterLabelSingular).HasMaxLength(Organisation.MaxChapterLabelLength);
+            organisation.Property(o => o.ChapterLabelPlural).HasMaxLength(Organisation.MaxChapterLabelLength);
+            organisation.Property(o => o.Status).HasConversion<string>().HasMaxLength(16);
+            organisation.Property(o => o.SuspendedReason).HasMaxLength(500);
+        });
 
         builder.Entity<Profile>(profile =>
         {

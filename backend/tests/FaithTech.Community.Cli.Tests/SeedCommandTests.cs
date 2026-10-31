@@ -26,6 +26,37 @@ public class SeedCommandTests
         Assert.Contains("ft:pkce", client.Requirements);
     }
 
+    // Traces to: L2-151 AC1
+    [Fact]
+    public async Task Seed_creates_the_FaithTech_organisation_once_and_keeps_its_later_edits()
+    {
+        Assert.Equal(0, await Run("seed"));
+        await using (var edit = Db())
+        {
+            (await edit.Organisations.SingleAsync()).Rename("FaithTech Global", "FT");
+            await edit.SaveChangesAsync();
+        }
+
+        Assert.Equal(0, await Run("seed"));
+
+        await using var db = Db();
+        var organisation = await db.Organisations.SingleAsync();
+        Assert.Equal(
+            ("faithtech", "app.faithtech.community", "City", "Cities", FaithTech.Community.Domain.Organisations.OrganisationStatus.Active),
+            (organisation.Slug, organisation.Host, organisation.ChapterLabelSingular, organisation.ChapterLabelPlural, organisation.Status));
+        Assert.Equal(("FaithTech Global", "FT"), (organisation.Name, organisation.ShortName));
+    }
+
+    [Fact]
+    public async Task Seed_names_the_FaithTech_organisation()
+    {
+        Assert.Equal(0, await Run("seed"));
+
+        await using var db = Db();
+        var organisation = await db.Organisations.SingleAsync();
+        Assert.Equal(("FaithTech Community", "FaithTech"), (organisation.Name, organisation.ShortName));
+    }
+
     // Traces to: L2-055
     [Fact]
     public async Task Seed_adds_the_starter_resources_once_owned_by_the_first_system_admin()
