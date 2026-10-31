@@ -44,7 +44,7 @@ for (const name of Object.keys(BREAKPOINTS) as BreakpointName[]) {
       name: 'Samuel Mensah',
       roles: ['CreateLead', 'ProductEngineer', 'Volunteer'],
     });
-    api.profiles.get(samuel.profileId)!.homeCity = 'Toronto';
+    api.profiles.get(samuel.profileId)!.chapterId = api.chapters.named('Toronto').id;
 
     await api.signInAs(grace, '/people');
     const people = new PeoplePage(page);

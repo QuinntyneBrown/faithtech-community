@@ -25,7 +25,8 @@ export interface MockEvent {
   type: 'Gathering' | 'BuildersNight' | 'Hackathon' | 'PrayerAndPlanning' | 'Panel';
   startsAt: string;
   endsAt: string;
-  city: string;
+  /** The chapter tag (L2-141); null for an organisation-wide event. */
+  chapterId: string | null;
   format: 'InPerson' | 'Online';
   venue: string | null;
   onlineLink: string | null;
@@ -48,6 +49,14 @@ export interface EventsCaller {
 }
 
 /** A member's profile as the events fake reads it (name for RSVP lists, roles for the host line). */
+/** What the events fake reads from the chapters fake. */
+export interface EventsChapters {
+  nameOf(id: string | null | undefined): string | null;
+  pick(chosen: unknown, current: string | null): { chapterId: string | null } | { error: string };
+  /** The tag an event a spec adds without one gets: FaithTech's Toronto while chapters are on. */
+  defaultId(): string | null;
+}
+
 export interface EventsProfile {
   name: string;
   roles: string[];
@@ -81,7 +90,7 @@ const utc = (iso: string) =>
     .replace(/\.\d{3}/, '');
 
 /** IcsCalendarWriter's file, unfolded: what a calendar app reads. */
-export function ics(event: MockEvent, isPublic = false): string {
+export function ics(event: MockEvent, isPublic = false, chapterName: string | null = null): string {
   const lines = [
     'BEGIN:VCALENDAR',
     'VERSION:2.0',
@@ -91,7 +100,9 @@ export function ics(event: MockEvent, isPublic = false): string {
     `DTSTART:${utc(event.startsAt)}`,
     `DTEND:${utc(event.endsAt)}`,
     `SUMMARY:${event.title}`,
-    event.format === 'InPerson' ? `LOCATION:${event.venue}, ${event.city}` : '',
+    event.format === 'InPerson'
+      ? `LOCATION:${[event.venue, chapterName].filter(Boolean).join(', ')}`
+      : '',
     isPublic
       ? `URL:/public/events/${event.id}`
       : event.format === 'Online'
@@ -130,7 +141,6 @@ function validate(body: Record<string, unknown>): Record<string, string[]> {
   if (!(String(body['endsAt']) > String(body['startsAt']))) {
     errors['EndsAt'] = ['The end time must be after the start time.'];
   }
-  if (!text(body['city'])) errors['City'] = ['Enter the city the event is in.'];
   if (!online && !text(body['venue']))
     errors['Venue'] = ['Enter a venue address, or choose Online.'];
   if (online && !text(body['onlineLink'])) {
@@ -154,7 +164,6 @@ function fields(body: Record<string, unknown>): Partial<MockEvent> {
     type: body['type'] as MockEvent['type'],
     startsAt: new Date(String(body['startsAt'])).toISOString(),
     endsAt: new Date(String(body['endsAt'])).toISOString(),
-    city: text(body['city']),
     format: online ? 'Online' : 'InPerson',
     venue: online ? null : text(body['venue']),
     onlineLink: online ? text(body['onlineLink']) : null,
@@ -188,6 +197,11 @@ export class MockEvents {
     private readonly profile: (id: string) => EventsProfile | undefined = () => undefined,
     /** The profile of the verified account with this email, as AddWalkInHandler looks it up. */
     private readonly verifiedMember: (email: string) => string | undefined = () => undefined,
+    private readonly chapters: EventsChapters = {
+      nameOf: () => null,
+      pick: () => ({ chapterId: null }),
+      defaultId: () => null,
+    },
   ) {}
 
   /** An event as a lead would create it; give `startsInDays` relative to the fake's "now". */
@@ -199,7 +213,7 @@ export class MockEvents {
       type: 'Gathering',
       startsAt: starts.toISOString(),
       endsAt: new Date(starts.getTime() + hours * 60 * 60 * 1000).toISOString(),
-      city: 'Toronto',
+      chapterId: 'chapterId' in event ? (event.chapterId ?? null) : this.chapters.defaultId(),
       format: 'InPerson',
       venue: 'Kestrel Labs, 220 King St W',
       onlineLink: null,
@@ -326,7 +340,7 @@ export class MockEvents {
         eventId: event.id,
         title: event.title,
         startsAt: event.startsAt,
-        city: event.city,
+        chapterName: this.chapters.nameOf(event.chapterId),
         format: event.format,
         venue: event.venue,
         isCancelled: event.isCancelled,
@@ -583,7 +597,7 @@ export class MockEvents {
       status: 200,
       contentType: 'text/calendar',
       headers: { 'content-disposition': `attachment; filename=${slug(event.title)}.ics` },
-      body: ics(event, isPublic),
+      body: ics(event, isPublic, this.chapters.nameOf(event.chapterId)),
     });
   }
 
@@ -607,7 +621,7 @@ export class MockEvents {
         type: event.type,
         startsAt: event.startsAt,
         endsAt: event.endsAt,
-        city: event.city,
+        chapterName: this.chapters.nameOf(event.chapterId),
         format: event.format,
         venue: event.venue,
         rsvpCount: rsvped(event).length,
@@ -757,10 +771,17 @@ export class MockEvents {
   ): Promise<void> {
     if (!caller) return route.fulfill({ status: 401 });
     const errors = validate(body);
+    const chapter = this.chapters.pick(body['chapterId'], null);
+    if ('error' in chapter) errors['ChapterId'] = [chapter.error];
     if (Object.keys(errors).length)
       return route.fulfill({ status: 400, json: { status: 400, errors } });
     if (!canManage(caller)) return route.fulfill({ status: 403 });
-    const event = this.add({ title: '', ...fields(body), createdById: caller.profileId });
+    const event = this.add({
+      title: '',
+      ...fields(body),
+      chapterId: 'chapterId' in chapter ? chapter.chapterId : null,
+      createdById: caller.profileId,
+    });
     return route.fulfill({
       status: 201,
       headers: { location: `/api/events/${event.id}` },
@@ -777,10 +798,13 @@ export class MockEvents {
   ): Promise<void> {
     if (!caller) return route.fulfill({ status: 401 });
     const errors = validate(body);
+    const existing = this.events.find((e) => e.id === id);
+    const chapter = this.chapters.pick(body['chapterId'], existing?.chapterId ?? null);
+    if ('error' in chapter) errors['ChapterId'] = [chapter.error];
     if (Object.keys(errors).length)
       return route.fulfill({ status: 400, json: { status: 400, errors } });
     if (!canManage(caller)) return route.fulfill({ status: 403 });
-    const event = this.events.find((e) => e.id === id);
+    const event = existing;
     if (!event) return route.fulfill({ status: 404 });
     if (event.isCancelled) {
       return route.fulfill({
@@ -788,7 +812,9 @@ export class MockEvents {
         json: { status: 409, detail: 'This event is cancelled, so it can’t be edited.' },
       });
     }
-    Object.assign(event, fields(body));
+    Object.assign(event, fields(body), {
+      chapterId: 'chapterId' in chapter ? chapter.chapterId : null,
+    });
     event.sequence++;
     for (const rsvp of event.rsvps) {
       if (rsvp.profileId && rsvp.profileId !== caller.profileId) {
@@ -812,7 +838,8 @@ export class MockEvents {
       type: event.type,
       startsAt: event.startsAt,
       endsAt: event.endsAt,
-      city: event.city,
+      chapterId: event.chapterId,
+      chapterName: this.chapters.nameOf(event.chapterId),
       format: event.format,
       venue: event.venue,
       onlineLink: event.onlineLink,
@@ -874,7 +901,8 @@ export class MockEvents {
             (filter !== 'hackathons' || e.type === 'Hackathon') &&
             (filter !== 'online' || e.format === 'Online'),
       )
-      .filter((e) => !city || e.city.trim().toLowerCase() === city)
+      // Until slice 20 the filter names a chapter, as ListEventsHandler matches it.
+      .filter((e) => !city || this.chapters.nameOf(e.chapterId)?.toLowerCase() === city)
       .sort((a, b) =>
         filter === 'past'
           ? b.startsAt.localeCompare(a.startsAt)
@@ -886,15 +914,17 @@ export class MockEvents {
         type: e.type,
         startsAt: e.startsAt,
         endsAt: e.endsAt,
-        city: e.city,
+        chapterId: e.chapterId,
+        chapterName: this.chapters.nameOf(e.chapterId),
         format: e.format,
         venue: e.venue,
         visibility: e.visibility,
         rsvpCount: rsvped(e).length,
         isCancelled: e.isCancelled,
       }));
-    const cities = [...new Set(this.events.map((e) => e.city.trim()).filter((c) => c))].sort(
-      (a, b) => a.localeCompare(b, undefined, { sensitivity: 'base' }),
+    const names = this.events.map((e) => this.chapters.nameOf(e.chapterId));
+    const cities = [...new Set(names.filter((c): c is string => !!c))].sort((a, b) =>
+      a.localeCompare(b, undefined, { sensitivity: 'base' }),
     );
     return route.fulfill({ status: 200, json: { events: matching, cities } });
   }

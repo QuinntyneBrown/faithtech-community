@@ -9,7 +9,8 @@ import { fieldError } from './sign-in.page';
 export class EditProfilePage {
   readonly heading: Locator;
   readonly name: Locator;
-  readonly homeCity: Locator;
+  /** The home chapter picker, labelled with the organisation's chapter label. */
+  readonly chapter: Locator;
   readonly bio: Locator;
   readonly save: Locator;
   readonly cancel: Locator;
@@ -39,7 +40,7 @@ export class EditProfilePage {
   constructor(private readonly page: Page) {
     this.heading = page.getByRole('heading', { level: 1, name: 'Edit profile' });
     this.name = page.getByLabel('Name', { exact: true });
-    this.homeCity = page.getByLabel('Home city');
+    this.chapter = page.getByRole('combobox', { name: /^Home / });
     this.bio = page.getByRole('textbox', { name: /Bio/ });
     this.save = page.getByRole('button', { name: /Save profile|Saving/ });
     this.cancel = page.getByRole('link', { name: 'Cancel' });
@@ -123,9 +124,15 @@ export class EditProfilePage {
     return this.photosGroup.getByText(text);
   }
 
-  async fill(details: { name?: string; homeCity?: string; bio?: string }): Promise<void> {
+  /** The picker's options as the member reads them. */
+  async chapterOptions(): Promise<string[]> {
+    return (await this.chapter.locator('option').allTextContents()).map((o) => o.trim());
+  }
+
+  /** Types the name and bio; picks the chapter by its name. */
+  async fill(details: { name?: string; chapter?: string; bio?: string }): Promise<void> {
     if (details.name !== undefined) await this.name.fill(details.name);
-    if (details.homeCity !== undefined) await this.homeCity.fill(details.homeCity);
+    if (details.chapter !== undefined) await this.chapter.selectOption({ label: details.chapter });
     if (details.bio !== undefined) await this.bio.fill(details.bio);
   }
 }

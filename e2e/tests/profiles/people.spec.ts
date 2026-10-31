@@ -18,7 +18,7 @@ function addPeople(api: MockApi) {
     roles: ['EventLead'],
   });
   const profile = api.profiles.get(marcus.profileId)!;
-  profile.homeCity = 'Toronto';
+  profile.chapterId = api.chapters.named('Toronto').id;
   profile.photos.push({
     id: 'photo-1',
     url: photoUrl('#0b7285'),

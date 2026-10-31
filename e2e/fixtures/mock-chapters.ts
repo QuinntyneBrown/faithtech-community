@@ -16,6 +16,8 @@ export interface MockChapter {
 export interface ChaptersContext {
   readonly now: Date;
   readonly host: { organisation: MockOrganisation };
+  /** Profiles by id, for each chapter's member count. */
+  readonly profiles: Map<string, { chapterId: string | null }>;
   addAuditEntry(entry: {
     action: string;
     summary: string;
@@ -33,7 +35,8 @@ const MAX_NAME = 60;
 /**
  * ChaptersEndpoints in the browser (backend/src/FaithTech.Community.Api/Endpoints/ChaptersEndpoints.cs): the list
  * for ManageOrganisationSettings or ManageRoles; add, rename, reorder and archive for ManageOrganisationSettings while
- * chapters are on, with ChapterRules and the audit (L2-140 AC3 to AC5, AC7). Member counts join in slice 19.
+ * chapters are on, with ChapterRules and the audit (L2-140 AC3 to AC5, AC7), and the tags profiles and events carry
+ * (L2-141).
  */
 export class MockChapters {
   readonly chapters: MockChapter[] = [];
@@ -51,6 +54,30 @@ export class MockChapters {
     };
     this.chapters.push(chapter);
     return chapter;
+  }
+
+  /** The chapter called `name`, added at the end when the organisation has none; for arranging tags. */
+  named(name: string): MockChapter {
+    return this.chapters.find((c) => c.name.toUpperCase() === name.toUpperCase()) ?? this.add(name);
+  }
+
+  /** The tag's name as DTOs carry it: null for no tag, and for every tag while chapters are off. */
+  nameOf(id: string | null | undefined): string | null {
+    if (!id || !this.context.host.organisation.chapterLabel) return null;
+    return this.chapters.find((c) => c.id === id)?.name ?? null;
+  }
+
+  /**
+   * The tag a profile or event save keeps (L2-141): the current one while chapters are off; otherwise the pick,
+   * which must be active unless it is the current tag (L2-140 AC5).
+   */
+  pick(chosen: unknown, current: string | null): { chapterId: string | null } | { error: string } {
+    const label = this.context.host.organisation.chapterLabel;
+    if (!label) return { chapterId: current };
+    const id = typeof chosen === 'string' && chosen ? chosen : null;
+    if (id && id !== current && !this.active().some((c) => c.id === id))
+      return { error: `Choose a ${label.singular.toLowerCase()} from the list.` };
+    return { chapterId: id };
   }
 
   /** The active chapters in order, as every picker reads them from GET /api/organisation. */
@@ -179,7 +206,7 @@ export class MockChapters {
       name: c.name,
       sortOrder: c.sortOrder,
       archived: !!c.archivedAt,
-      memberCount: 0,
+      memberCount: [...this.context.profiles.values()].filter((p) => p.chapterId === c.id).length,
     };
   }
 }

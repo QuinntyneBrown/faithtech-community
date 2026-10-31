@@ -10,6 +10,7 @@ test.describe('Edit own profile', () => {
     axe,
   }) => {
     const grace = api.addAccount({ email: 'grace@example.org', name: 'Grace Okonkwo' });
+    const toronto = api.chapters.named('Toronto');
     const edit = new EditProfilePage(page);
     await api.signInAs(grace, '/people/me');
     await new ProfilePage(page).editProfile.click();
@@ -19,7 +20,7 @@ test.describe('Edit own profile', () => {
     await axe.check();
     await edit.fill({
       name: 'Grace O.',
-      homeCity: 'Toronto',
+      chapter: 'Toronto',
       bio: 'City Lead for FaithTech Toronto.',
     });
     await edit.save.click();
@@ -27,7 +28,7 @@ test.describe('Edit own profile', () => {
     await expect(edit.savedToast).toBeVisible();
     expect(api.callsTo('PUT', `/api/profiles/${grace.profileId}`)[0].body).toEqual({
       name: 'Grace O.',
-      homeCity: 'Toronto',
+      chapterId: toronto.id,
       bio: 'City Lead for FaithTech Toronto.',
     });
     await axe.check();
@@ -88,7 +89,7 @@ test.describe('Edit own profile', () => {
     const edit = new EditProfilePage(page);
     await api.signInAs(grace, '/people/me/edit');
 
-    await edit.fill({ homeCity: 'Toronto' });
+    await edit.fill({ bio: 'Builder in Toronto.' });
     await edit.save.click();
 
     await expect(edit.nameError).toHaveText('Use 100 characters or fewer for your name.');
@@ -144,17 +145,18 @@ test.describe('Edit own profile', () => {
       await held;
       await route.fulfill({ status: 503 });
     });
+    const austin = api.chapters.named('Austin');
     const edit = new EditProfilePage(page);
     await api.signInAs(grace, '/people/me/edit');
 
-    await edit.fill({ homeCity: 'Austin' });
+    await edit.fill({ chapter: 'Austin' });
     await edit.save.click();
 
     await expect(edit.save).toHaveText(/Saving/);
     await expect(edit.save).toHaveAttribute('aria-busy', 'true');
     release();
     await expect(edit.failedAlert).toBeVisible();
-    await expect(edit.homeCity).toHaveValue('Austin');
+    await expect(edit.chapter).toHaveValue(austin.id);
   });
 
   test('shows skeletons while loading and a retryable error when loading fails', async ({

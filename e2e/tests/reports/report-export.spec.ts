@@ -14,7 +14,7 @@ test.describe('Export a report', () => {
   // again.
   test('Staff export the report for the filters shown', async ({ page, api, axe }) => {
     const { staff } = seedReportData(api);
-    api.events.add({ title: '=SUM(A1)', city: 'Toronto' }, -1);
+    api.events.add({ title: '=SUM(A1)', chapterId: api.chapters.named('Toronto').id }, -1);
     const reports = new ReportsPage(page);
     let release!: () => void;
     const held = new Promise<void>((resolve) => (release = resolve));

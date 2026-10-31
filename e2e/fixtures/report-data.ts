@@ -8,6 +8,11 @@ function daysAgo(api: MockApi, days: number): string {
   return new Date(api.now.getTime() - days * DAY).toISOString();
 }
 
+/** The chapter tag for a seeded city name; blank for none. */
+function chapterOf(api: MockApi, city: string | null | undefined): string | null {
+  return city?.trim() ? api.chapters.named(city.trim()).id : null;
+}
+
 /** An event with `rsvps` RSVPs, the first `checkedIn` of them checked in, and checked-in walk-ins. */
 function event(
   api: MockApi,
@@ -16,7 +21,10 @@ function event(
   startsInDays: number,
   { rsvps = 0, checkedIn = 0, walkIns = 0, cancelled = false } = {},
 ): MockEvent {
-  const e = api.events.add({ title, city, isCancelled: cancelled }, startsInDays);
+  const e = api.events.add(
+    { title, chapterId: chapterOf(api, city), isCancelled: cancelled },
+    startsInDays,
+  );
   api.events.addRsvps(e, rsvps);
   e.rsvps.slice(0, checkedIn).forEach((r) => (r.checkedInAt = e.startsAt));
   for (let i = 0; i < walkIns; i++) {
@@ -63,7 +71,7 @@ export function seedReportData(api: MockApi): ReportData {
       ...extra,
     });
     const profile = api.profiles.get(account.profileId)!;
-    profile.homeCity = city;
+    profile.chapterId = chapterOf(api, city);
     profile.joinedAtUtc = joinedDaysAgo === null ? null : daysAgo(api, joinedDaysAgo);
     return account;
   };

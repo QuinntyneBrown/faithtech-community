@@ -11,6 +11,7 @@ import { holds } from './role-definitions';
 
 /** What the search fake reads from the rest of the fake backend. */
 export interface SearchContext {
+  readonly chapters: { nameOf(id: string | null | undefined): string | null };
   readonly accounts: Map<string, MockAccount>;
   readonly profiles: Map<string, MockProfile>;
   readonly events: MockEvents;
@@ -70,17 +71,29 @@ export class MockSearch {
 
     const people = [...this.context.profiles.values()]
       .filter((p) => accounts.some((a) => a.profileId === p.id && !a.suspended))
-      .filter((p) => matches(p.name, p.homeCity, p.bio))
+      // A member's chapter is not searched (L2-141); it still heads the subtitle.
+      .filter((p) => matches(p.name, p.bio))
       .map((p) =>
-        item(p.id, p.name, [p.homeCity, p.bio].filter(Boolean).join(' · '), `/people/${p.id}`),
+        item(
+          p.id,
+          p.name,
+          [this.context.chapters.nameOf(p.chapterId), p.bio].filter(Boolean).join(' · '),
+          `/people/${p.id}`,
+        ),
       );
     const events = this.context.events.events
-      .filter((e) => matches(e.title, e.description, e.city, e.venue))
+      .filter((e) => matches(e.title, e.description, e.venue))
       .map((e) =>
-        item(e.id, e.title, [e.city, e.venue].filter(Boolean).join(' · '), `/events/${e.id}`, {
-          startsAt: e.startsAt,
-          badge: e.isCancelled ? 'Cancelled' : e.visibility === 'Public' ? 'Public' : undefined,
-        }),
+        item(
+          e.id,
+          e.title,
+          [this.context.chapters.nameOf(e.chapterId), e.venue].filter(Boolean).join(' · '),
+          `/events/${e.id}`,
+          {
+            startsAt: e.startsAt,
+            badge: e.isCancelled ? 'Cancelled' : e.visibility === 'Public' ? 'Public' : undefined,
+          },
+        ),
       );
     const partners =
       holds(caller, 'ViewPartners') || holds(caller, 'ManagePartners')

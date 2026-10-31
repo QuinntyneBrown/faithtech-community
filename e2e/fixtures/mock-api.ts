@@ -70,7 +70,8 @@ export interface MockPhoto {
 export interface MockProfile {
   id: string;
   name: string;
-  homeCity: string | null;
+  /** The home chapter tag (L2-141); null for none. */
+  chapterId: string | null;
   bio: string | null;
   roles: string[];
   photos: MockPhoto[];
@@ -161,6 +162,12 @@ export class MockApi {
     (email) => {
       const account = this.accounts.get(email.toLowerCase());
       return account?.verified ? account.profileId : undefined;
+    },
+    {
+      nameOf: (id) => this.chapters.nameOf(id),
+      pick: (chosen, current) => this.chapters.pick(chosen, current),
+      defaultId: () =>
+        this.host.organisation.chapterLabel ? this.chapters.named('Toronto').id : null,
     },
   );
   /** In-app notifications (L2-027) for the bell, the notifications page and home's Recent activity. */
@@ -262,7 +269,7 @@ export class MockApi {
   addProfile(profile: Partial<MockProfile> & { name: string }): MockProfile {
     const full: MockProfile = {
       id: `profile-${this.profiles.size + 100}`,
-      homeCity: null,
+      chapterId: null,
       bio: null,
       roles: [],
       photos: [],
@@ -644,12 +651,20 @@ export class MockApi {
         // The roles every picker offers, by RoleGrantPolicy's rule (L2-137 AC5).
         grantableRoleIds: grantableKeys(account).map((key) => definitionOf(key)!.id),
         organisation: this.host.organisation,
+        // The caller's home chapter, for pickers that default to it (L2-141).
+        chapter: this.chapterOption(account.profileId),
         // The account's other memberships, for the switcher (L2-133 AC1).
         memberships: (account.organisations ?? [])
           .filter((o) => o.slug !== this.host.organisation.slug)
           .map((o) => ({ name: o.name, host: o.host })),
       },
     });
+  }
+
+  private chapterOption(profileId: string) {
+    const id = this.profiles.get(profileId)?.chapterId ?? null;
+    const name = this.chapters.nameOf(id);
+    return id && name ? { id, name } : null;
   }
 
   /** Whether the account has a profile in the organisation the host serves. */
@@ -717,13 +732,15 @@ export class MockApi {
     if (!name) errors['Name'] = ['Enter your name as you’d like people to see it.'];
     else if (name.length > 100) errors['Name'] = ['Use 100 characters or fewer for your name.'];
     if (bio.length > 400) errors['Bio'] = ['Use 400 characters or fewer for your bio.'];
+    const chapter = this.chapters.pick(body['chapterId'], profile.chapterId);
+    if ('error' in chapter) errors['ChapterId'] = [chapter.error];
     if (Object.keys(errors).length)
       return route.fulfill({ status: 400, json: { status: 400, errors } });
-    const before = { Name: profile.name, HomeCity: profile.homeCity, Bio: profile.bio };
+    const before = { Name: profile.name, ChapterId: profile.chapterId, Bio: profile.bio };
     profile.name = name;
-    profile.homeCity = String(body['homeCity'] ?? '').trim() || null;
+    profile.chapterId = 'chapterId' in chapter ? chapter.chapterId : profile.chapterId;
     profile.bio = bio || null;
-    const after = { Name: profile.name, HomeCity: profile.homeCity, Bio: profile.bio };
+    const after = { Name: profile.name, ChapterId: profile.chapterId, Bio: profile.bio };
     this.auditOverride(caller, profile, 'profile.updated', before, after);
     return route.fulfill({ status: 204 });
   }
@@ -1242,7 +1259,7 @@ export class MockApi {
       .map(({ profile }) => ({
         id: profile.id,
         name: profile.name,
-        homeCity: profile.homeCity,
+        homeCity: this.chapters.nameOf(profile.chapterId),
         photoUrl: profile.photos.find((photo) => photo.isFeatured)?.url ?? null,
         roles: profileRolesOf(profile.roles),
       }));
@@ -1393,7 +1410,8 @@ export class MockApi {
             ? teamRoles(p).some((d) => !d.capabilities.includes('InviteMembers'))
             : true,
       )
-      .filter((p) => !city || p.homeCity?.trim().toLowerCase() === city)
+      // Until slice 20 the filter names a chapter, as ListTeamHandler matches it.
+      .filter((p) => !city || this.chapters.nameOf(p.chapterId)?.toLowerCase() === city)
       .sort((a, b) => key(a).localeCompare(key(b)));
     // Pages as ListTeamHandler does (ADR 0015): by lower-cased name then id, 50 a page, at most 100.
     const size = Math.min(100, Math.max(1, Number(url.searchParams.get('pageSize') ?? 50) || 50));
@@ -1403,12 +1421,14 @@ export class MockApi {
     const members = page.map((p) => ({
       profileId: p.id,
       name: p.name,
-      homeCity: p.homeCity,
+      homeCity: this.chapters.nameOf(p.chapterId),
       photoUrl: p.photos.find((photo) => photo.isFeatured)?.url ?? null,
       roles: p.roles,
     }));
     const cities = [
-      ...new Set(team.map((p) => p.homeCity?.trim()).filter((c): c is string => !!c)),
+      ...new Set(
+        team.map((p) => this.chapters.nameOf(p.chapterId)).filter((c): c is string => !!c),
+      ),
     ].sort((a, b) => a.localeCompare(b));
     return route.fulfill({
       status: 200,
@@ -1527,7 +1547,7 @@ export class MockApi {
         status: this.inviteStatus(invite),
         email: invite.email,
         inviterName: inviter?.name ?? 'A FaithTech lead',
-        inviterCity: inviter?.homeCity ?? null,
+        inviterCity: this.chapters.nameOf(inviter?.chapterId),
         preassignedRole: invite.preassignedRole,
         hasAccount: this.accounts.has(invite.email.toLowerCase()),
       },
@@ -1597,6 +1617,7 @@ export class MockApi {
       .map((p) => ({ ...p, isStored: p.isStored ?? true }));
     return {
       ...profile,
+      chapterName: this.chapters.nameOf(profile.chapterId),
       roles: profileRolesOf(profile.roles),
       photos,
       featuredPhoto: photos.find((p) => p.isFeatured) ?? null,
