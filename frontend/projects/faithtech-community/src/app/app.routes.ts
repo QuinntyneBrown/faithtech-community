@@ -1,6 +1,6 @@
 import { Routes } from '@angular/router';
 
-import { authGuard, notAMemberGuard } from './guards';
+import { authGuard, capabilityGuard, notAMemberGuard } from './guards';
 import {
   AuthCallbackPage,
   AuthContinuePage,
@@ -115,6 +115,12 @@ export const routes: Routes = [
       {
         path: 'invites',
         loadChildren: () => import('@faithtech-community/invites').then((m) => m.INVITES_ROUTES),
+      },
+      {
+        path: 'organisation',
+        canActivate: [capabilityGuard('ManageRoles', 'ManageOrganisationSettings')],
+        loadChildren: () =>
+          import('@faithtech-community/organisations').then((m) => m.ORGANISATION_ROUTES),
       },
       {
         path: 'admin',

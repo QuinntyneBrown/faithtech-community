@@ -83,6 +83,14 @@ export const SECTIONS: readonly Section[] = [
     secondary: true,
     opens: any('ViewReports'),
   },
+  // The organisation's settings for whoever manages its roles or its settings (L2-147 AC1).
+  {
+    label: 'Organisation',
+    href: '/organisation',
+    icon: 'organisation',
+    secondary: true,
+    opens: any('ManageRoles', 'ManageOrganisationSettings'),
+  },
   // Only administrators see the admin area (L2-040).
   {
     label: 'Admin',

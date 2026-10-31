@@ -41,6 +41,21 @@ describe('AlertComponent', () => {
     expect(host.querySelector('.alert__actions button')?.textContent).toBe('Try again');
   });
 
+  it('leaves out the title when the alert has only text', () => {
+    @Component({
+      imports: [AlertComponent],
+      template: `<ft-alert>You can view these settings but not change them.</ft-alert>`,
+    })
+    class TextOnlyHostComponent {}
+    const fixture = TestBed.createComponent(TextOnlyHostComponent);
+    fixture.detectChanges();
+    const host: HTMLElement = fixture.nativeElement;
+    expect(host.querySelector('.alert__title')).toBeNull();
+    expect(host.querySelector('.alert__text')?.textContent).toContain(
+      'You can view these settings',
+    );
+  });
+
   it('announces danger alerts assertively with role=alert', () => {
     const { alert } = setup();
     expect(alert().getAttribute('role')).toBe('alert');

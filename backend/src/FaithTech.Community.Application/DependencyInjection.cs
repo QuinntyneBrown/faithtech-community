@@ -34,6 +34,7 @@ public static class DependencyInjection
         services.AddScoped<VerificationEmails>();
         services.AddScoped<Organisations.MeHandler>();
         services.AddScoped<Organisations.GetOrganisationHandler>();
+        services.AddScoped<Organisations.UpdateOrganisationHandler>();
         services.AddScoped<Organisations.ProfileCapabilities>();
         services.AddScoped<Organisations.Memberships>();
         services.AddScoped<SignUpHandler>();

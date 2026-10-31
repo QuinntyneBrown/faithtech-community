@@ -217,6 +217,13 @@ export class MockApi {
     return defineRole(role);
   }
 
+  private failOrganisationUpdate = false;
+
+  /** The next PUT /api/organisation answers 500, as a lost connection would. */
+  failNextOrganisationUpdate(): void {
+    this.failOrganisationUpdate = true;
+  }
+
   /** The id of the host organisation's role keyed `key`, as the API and the pickers name it. */
   roleId(key: string): string {
     const definition = definitionOf(key);
@@ -476,6 +483,8 @@ export class MockApi {
         return this.me(route, request.headers()['authorization']);
       case 'GET /api/organisation':
         return this.organisation(route, request.headers()['authorization']);
+      case 'PUT /api/organisation':
+        return this.updateOrganisation(route, body, request.headers()['authorization']);
       case 'GET /api/site':
         // The marketing dev server stands in for the public host (Marketing:Origin), the app's for the community host.
         return route.fulfill({
@@ -795,11 +804,7 @@ export class MockApi {
   /** OrganisationEndpoints: GET /api/organisation, its names and roles not archived, for any member (L2-136 AC8). */
   private organisation(route: Route, authorization: string | undefined) {
     if (!this.caller(authorization)) return route.fulfill({ status: 401 });
-    const { name, shortName, chapterLabel } = this.host.organisation as {
-      name: string;
-      shortName: string;
-      chapterLabel?: unknown;
-    };
+    const { name, shortName, chapterLabel } = this.host.organisation;
     return route.fulfill({
       status: 200,
       json: {
@@ -817,6 +822,50 @@ export class MockApi {
           })),
       },
     });
+  }
+
+  /**
+   * OrganisationEndpoints: PUT /api/organisation, the General settings, for ManageOrganisationSettings; audited as
+   * organisation.updated (L2-147 AC3, L2-152 AC1). The host serves a copy, so the rename never outlives the test.
+   */
+  private updateOrganisation(
+    route: Route,
+    body: Record<string, unknown>,
+    authorization: string | undefined,
+  ) {
+    const caller = this.caller(authorization);
+    if (!caller) return route.fulfill({ status: 401 });
+    if (!holds(caller, 'ManageOrganisationSettings')) return route.fulfill({ status: 403 });
+    const name = String(body['name'] ?? '').trim();
+    const shortName = String(body['shortName'] ?? '').trim();
+    const errors: Record<string, string[]> = {};
+    if (!name) errors['Name'] = ['Enter a name.'];
+    else if (name.length > 100) errors['Name'] = ['Use 100 characters or fewer for the name.'];
+    if (!shortName) errors['ShortName'] = ['Enter a short name.'];
+    else if (shortName.length > 30)
+      errors['ShortName'] = ['Use 30 characters or fewer for the short name.'];
+    if (Object.keys(errors).length)
+      return route.fulfill({ status: 400, json: { title: 'Invalid', status: 400, errors } });
+    if (this.failOrganisationUpdate) {
+      this.failOrganisationUpdate = false;
+      return route.fulfill({ status: 500 });
+    }
+    const before = {
+      name: this.host.organisation.name,
+      shortName: this.host.organisation.shortName,
+    };
+    this.host.organisation = { ...this.host.organisation, name, shortName };
+    this.addAuditEntry({
+      action: 'organisation.updated',
+      summary: `Renamed ${before.name} to ${name}`,
+      actorId: caller.profileId,
+      actorName: this.profiles.get(caller.profileId)?.name ?? caller.name,
+      targetType: 'Organisation',
+      targetId: this.host.organisation.slug,
+      before: JSON.stringify(before),
+      after: JSON.stringify({ name, shortName }),
+    });
+    return route.fulfill({ status: 200 });
   }
 
   /** RolesEndpoints: roles by definition id under the grant rules, and the last administrator guard (L2-138). */

@@ -15,6 +15,10 @@ public static class OrganisationEndpoints
         // The organisation's names and its roles that are not archived, for every member's pickers (L2-136 AC8).
         app.MapGet("/api/organisation", async (GetOrganisationHandler handler, CancellationToken cancellationToken) =>
             Results.Ok(await handler.HandleAsync(cancellationToken)));
+        // The General settings, for ManageOrganisationSettings (L2-147 AC3).
+        app.MapPut("/api/organisation", async (UpdateOrganisationCommand command, UpdateOrganisationHandler handler, CancellationToken cancellationToken) =>
+                (await handler.HandleAsync(command, cancellationToken)).ToHttp(() => Results.Ok()))
+            .Validate<UpdateOrganisationCommand>();
         return app;
     }
 }
