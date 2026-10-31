@@ -1,3 +1,4 @@
+using FaithTech.Community.Domain.Organisations;
 using System.Text.Json;
 using FaithTech.Community.Application.Common;
 using FaithTech.Community.Domain.Admin;
@@ -31,7 +32,7 @@ public class GetAuditEntriesHandler(IApplicationDbContext db, ICurrentUser curre
 
     public async Task<PagedResult<AuditEntryDto>?> HandleAsync(GetAuditEntriesQuery query, CancellationToken cancellationToken = default)
     {
-        if (!current.HasRole(Role.SystemAdmin))
+        if (!current.Has(Capability.AdministerOrganisation))
         {
             return null;
         }
@@ -46,7 +47,7 @@ public class GetAuditEntriesHandler(IApplicationDbContext db, ICurrentUser curre
     /// <summary>Every filtered entry, up to <see cref="MaxExportRows"/>, for the CSV export (L2-041 AC5).</summary>
     public async Task<IReadOnlyList<AuditEntryDto>?> HandleAllAsync(GetAuditEntriesQuery query, CancellationToken cancellationToken = default)
     {
-        if (!current.HasRole(Role.SystemAdmin))
+        if (!current.Has(Capability.AdministerOrganisation))
         {
             return null;
         }

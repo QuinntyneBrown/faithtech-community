@@ -64,4 +64,30 @@ public class CapabilityAccessTests(CommunityApiFactory factory) : IClassFixture<
         Assert.Equal(HttpStatusCode.OK, (await As("Grace Okonkwo", Capability.ViewReports).GetAsync("/api/reports")).StatusCode);
         Assert.Equal(HttpStatusCode.Forbidden, (await As("Jonah Bell", Capability.ManageEvents).GetAsync("/api/reports")).StatusCode);
     }
+
+    // Each read is gated by exactly one capability; the holder gets 200 and a member holding something else gets 403.
+    [Theory]
+    [InlineData(Capability.AdministerOrganisation, "/api/admin/audit")]
+    [InlineData(Capability.AdministerOrganisation, "/api/admin/users")]
+    [InlineData(Capability.ViewPeopleDirectory, "/api/people")]
+    [InlineData(Capability.InviteMembers, "/api/invites")]
+    [InlineData(Capability.ConnectLink, "/api/connect/link")]
+    [InlineData(Capability.AddResources, "/api/resources/members?q=gr")]
+    public async Task A_read_answers_its_capability_and_refuses_others(string capability, string path)
+    {
+        var holder = As("Grace Okonkwo", capability);
+        var other = As("Jonah Bell", Capability.ViewReports);
+
+        Assert.Equal(HttpStatusCode.OK, (await holder.GetAsync(path)).StatusCode);
+        Assert.Equal(HttpStatusCode.Forbidden, (await other.GetAsync(path)).StatusCode);
+    }
+
+    [Fact]
+    public async Task SendAnnouncements_counts_recipients_and_without_it_the_answer_is_403()
+    {
+        var everyone = new { Kind = "Everyone" };
+
+        Assert.Equal(HttpStatusCode.OK, (await As("Grace Okonkwo", Capability.SendAnnouncements).PostAsJsonAsync("/api/announcements/recipient-count", everyone)).StatusCode);
+        Assert.Equal(HttpStatusCode.Forbidden, (await As("Jonah Bell", Capability.ManageEvents).PostAsJsonAsync("/api/announcements/recipient-count", everyone)).StatusCode);
+    }
 }

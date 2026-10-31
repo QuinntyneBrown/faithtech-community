@@ -1,3 +1,4 @@
+using FaithTech.Community.Domain.Organisations;
 using FaithTech.Community.Application.Admin;
 using FaithTech.Community.Application.Common;
 using FaithTech.Community.Application.Organisations;
@@ -37,9 +38,8 @@ public class InviteSender(
     public const int MaxPerDay = 50;
     public const string RateLimitMessage = "You’ve sent 50 invites in the last 24 hours. Try again tomorrow.";
 
-    private static readonly Role[] InvitingRoles = [Role.CityLead, Role.EventLead, Role.CreateLead, Role.CommunicationsLead, Role.SystemAdmin];
 
-    public bool CanInvite => InvitingRoles.Any(current.HasRole);
+    public bool CanInvite => current.Has(Capability.InviteMembers);
 
     public async Task<(Result Result, InviteDto? Invite)> SendAsync(SendInviteCommand command, CancellationToken cancellationToken = default)
     {

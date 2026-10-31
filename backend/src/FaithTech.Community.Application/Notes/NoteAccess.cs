@@ -1,3 +1,4 @@
+using FaithTech.Community.Domain.Organisations;
 using FaithTech.Community.Application.Common;
 using FaithTech.Community.Domain.Notes;
 using FaithTech.Community.Domain.Profiles;
@@ -18,7 +19,7 @@ public class NoteAccess(IApplicationDbContext db, ICurrentUser current)
 
     private Guid? _caller;
 
-    public bool IsSystemAdmin => current.HasRole(Role.SystemAdmin);
+    public bool IsSystemAdmin => current.Has(Capability.AdministerOrganisation);
 
     /// <summary>The caller's roles now, for matching role audiences inside a query.</summary>
     /// <summary>The held role definitions' ids, which a shared audience names.</summary>

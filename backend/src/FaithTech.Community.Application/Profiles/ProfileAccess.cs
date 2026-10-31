@@ -1,3 +1,4 @@
+using FaithTech.Community.Domain.Organisations;
 using FaithTech.Community.Application.Common;
 using FaithTech.Community.Domain.Profiles;
 using Microsoft.EntityFrameworkCore;
@@ -19,14 +20,14 @@ public class ProfileAccess(ICurrentUser current)
         await Task.FromResult(current.ProfileId);
 
     public bool CanEdit(Guid profileId, Guid? callerProfileId) =>
-        profileId == callerProfileId || current.HasRole(Role.SystemAdmin);
+        profileId == callerProfileId || current.Has(Capability.AdministerOrganisation);
 
     /// <summary>Decides how the caller may change the profile, and returns the caller's profile id as the actor.</summary>
     public async Task<(EditAccess Access, Guid Actor)> AuthorizeEditAsync(Guid profileId, CancellationToken cancellationToken = default)
     {
         var caller = await CallerProfileIdAsync(cancellationToken);
         var access = profileId == caller ? EditAccess.Owner
-            : current.HasRole(Role.SystemAdmin) ? EditAccess.AdminOverride
+            : current.Has(Capability.AdministerOrganisation) ? EditAccess.AdminOverride
             : EditAccess.Forbidden;
         return (access, caller ?? Guid.Empty);
     }

@@ -1,3 +1,4 @@
+using FaithTech.Community.Domain.Organisations;
 using FaithTech.Community.Application.Common;
 using FaithTech.Community.Domain.Profiles;
 using FaithTech.Community.Domain.Resources;
@@ -11,19 +12,16 @@ namespace FaithTech.Community.Application.Resources;
 /// </summary>
 public class ResourceAccess(IApplicationDbContext db, ICurrentUser current)
 {
-    /// <summary>The roles that may add and own resources. Staff is the deliberate carve-out from read-only (ADR 0017).</summary>
-    public static readonly IReadOnlyList<Role> ContributorRoles =
-        [Role.CityLead, Role.EventLead, Role.CreateLead, Role.CommunicationsLead, Role.Staff, Role.SystemAdmin];
-
     /// <summary>The roles a resource can be shared with (L2-061 AC1).</summary>
     public static readonly IReadOnlyList<Role> ShareableRoles =
         [Role.CityLead, Role.EventLead, Role.CreateLead, Role.CommunicationsLead, Role.Volunteer, Role.ProductEngineer, Role.Staff];
 
     private Guid? _caller;
 
-    public bool CanContribute => ContributorRoles.Any(current.HasRole);
+    /// <summary>AddResources adds and owns resources; Staff's is the deliberate carve-out from read-only (ADR 0017).</summary>
+    public bool CanContribute => current.Has(Capability.AddResources);
 
-    public bool IsSystemAdmin => current.HasRole(Role.SystemAdmin);
+    public bool IsSystemAdmin => current.Has(Capability.AdministerOrganisation);
 
     /// <summary>The caller's roles now, for matching role audiences inside a query.</summary>
     /// <summary>The held role definitions' ids, which a shared audience names.</summary>

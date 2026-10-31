@@ -1,3 +1,4 @@
+using FaithTech.Community.Domain.Organisations;
 using FaithTech.Community.Application.Common;
 using FaithTech.Community.Application.Notifications;
 using FaithTech.Community.Application.Organisations;
@@ -66,7 +67,7 @@ public class SendAnnouncementValidator : AbstractValidator<SendAnnouncementComma
 /// <summary>Communications Leads and System Admins send announcements; everyone else gets 403 (L2-029 AC3).</summary>
 public class AnnouncementAccess(ICurrentUser current)
 {
-    public bool CanSend => current.HasRole(Role.CommunicationsLead) || current.HasRole(Role.SystemAdmin);
+    public bool CanSend => current.Has(Capability.SendAnnouncements);
 }
 
 /// <summary>
