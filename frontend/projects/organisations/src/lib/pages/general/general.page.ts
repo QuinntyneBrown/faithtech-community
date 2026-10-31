@@ -21,7 +21,7 @@ import {
 } from '@faithtech-community/components';
 import { firstValueFrom } from 'rxjs';
 
-import { EditGeneralSettingsDialog } from '../../dialogs';
+import { EditGeneralSettingsDialog, GeneralSettingsOutcome } from '../../dialogs';
 
 type State = 'loading' | 'loaded' | 'error';
 
@@ -78,15 +78,26 @@ export class GeneralPage {
   protected edit(): void {
     const organisation = this.organisation();
     if (!organisation) return;
-    const ref = this.dialogs.open<boolean>(EditGeneralSettingsDialog, { data: organisation });
-    ref.closed.subscribe((saved) => {
-      if (saved) void this.saved();
+    const ref = this.dialogs.open<GeneralSettingsOutcome>(EditGeneralSettingsDialog, {
+      data: organisation,
+    });
+    ref.closed.subscribe((outcome) => {
+      if (outcome) void this.saved(outcome, organisation);
     });
   }
 
-  /** The new names reach this page, the shell and every title at once (L2-134). */
-  private async saved(): Promise<void> {
-    this.toasts.show({ variant: 'success', heading: 'Settings saved' });
+  /** The new names and label reach this page, the shell and every title at once (L2-134, L2-140 AC1). */
+  private async saved(outcome: GeneralSettingsOutcome, before: OrganisationDto): Promise<void> {
+    const label = before.chapterLabel;
+    this.toasts.show(
+      outcome === 'chapters-off' && label
+        ? {
+            variant: 'success',
+            heading: `${label.plural} turned off`,
+            text: `Every ${label.singular.toLowerCase()} and tag is kept. Turn them back on in General.`,
+          }
+        : { variant: 'success', heading: 'Settings saved' },
+    );
     await Promise.all([
       this.load(),
       firstValueFrom(this.auth.loadCurrentUser()).catch(() => null),
