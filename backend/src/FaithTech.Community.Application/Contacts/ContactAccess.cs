@@ -1,3 +1,4 @@
+using FaithTech.Community.Domain.Organisations;
 using FaithTech.Community.Application.Admin;
 using FaithTech.Community.Application.Common;
 using FaithTech.Community.Domain.Contacts;
@@ -18,8 +19,8 @@ public enum ContactAccessKind
 /// <summary>Private contact visibility (L2-012, ADR 0014): the owning lead and System Admin, nobody else.</summary>
 public class ContactAccess(IApplicationDbContext db, ICurrentUser current, IAuditLog audit)
 {
-    /// <summary>Lead roles and System Admin keep contacts; everyone else gets 403 for the list and create.</summary>
-    public bool CanKeepContacts => current.HoldsLeadRole() || current.HasRole(Role.SystemAdmin);
+    /// <summary>KeepContacts keeps contacts; everyone else gets 403 for the list and create.</summary>
+    public bool CanKeepContacts => current.Has(Capability.KeepContacts);
 
     public async Task<Guid?> CallerProfileIdAsync(CancellationToken cancellationToken = default) =>
         await Task.FromResult(current.ProfileId);
@@ -37,7 +38,7 @@ public class ContactAccess(IApplicationDbContext db, ICurrentUser current, IAudi
         }
 
         var access = contact.OwnerId == actor ? ContactAccessKind.Owner
-            : current.HasRole(Role.SystemAdmin) ? ContactAccessKind.AdminOverride
+            : current.Has(Capability.AdministerOrganisation) ? ContactAccessKind.AdminOverride
             : ContactAccessKind.NotFound;
         return access == ContactAccessKind.NotFound ? (access, null, Guid.Empty) : (access, contact, actor);
     }

@@ -1,3 +1,4 @@
+using FaithTech.Community.Domain.Organisations;
 using FaithTech.Community.Application.Agile;
 using FaithTech.Community.Application.Common;
 using FaithTech.Community.Application.Profiles;
@@ -36,22 +37,18 @@ public class ChangeRolesHandler(
             return (Result.Forbidden(), null);
         }
 
-        if (!Enum.TryParse<Role>(roleName, ignoreCase: false, out var role) || !Enum.IsDefined(role))
-        {
-            return (Result.Invalid("Role", "Choose a role."), null);
-        }
-
-        if (!policy.CanChange(role))
-        {
-            return (Result.Forbidden(), null);
-        }
-
-        // The organisation's definition whose key is the former role value (L2-151 AC4); slice 14 takes a definition id.
-        var key = LegacyRoles.Key(role);
-        var definition = await db.RoleDefinitions.SingleOrDefaultAsync(d => d.Key == key && d.ArchivedAtUtc == null, cancellationToken);
+        // The organisation's definition with that key; slice 14 takes a definition id.
+        var definition = string.IsNullOrEmpty(roleName)
+            ? null
+            : await db.RoleDefinitions.SingleOrDefaultAsync(d => d.Key == roleName && d.ArchivedAtUtc == null, cancellationToken);
         if (definition is null)
         {
             return (Result.Invalid("Role", "Choose a role."), null);
+        }
+
+        if (!await policy.CanChangeAsync(definition, cancellationToken))
+        {
+            return (Result.Forbidden(), null);
         }
 
         var profile = await db.Profiles.SingleOrDefaultAsync(p => p.Id == profileId, cancellationToken);
@@ -66,7 +63,8 @@ public class ChangeRolesHandler(
         }
 
         SystemAdminRoster? roster = null;
-        if (!add && role == Role.SystemAdmin)
+        if (!add && definition.Capabilities.Contains(Capability.AdministerOrganisation)
+            && !profile.Roles.Any(r => r.RoleDefinitionId != definition.Id && r.Definition?.Capabilities.Contains(Capability.AdministerOrganisation) == true))
         {
             // Take the roster lease in a save of its own, so no other removal can count the admins until
             // this one has saved its change; only then is the count safe to trust.
@@ -76,7 +74,7 @@ public class ChangeRolesHandler(
                 return (Result.Conflict(ConcurrentSystemAdminChangeMessage), null);
             }
 
-            if (await db.Profiles.CountAsync(p => p.Roles.Any(r => r.Definition!.Key == nameof(Role.SystemAdmin)), cancellationToken) <= 1)
+            if (await db.Profiles.Where(ProfileHolding.Capability(Capability.AdministerOrganisation)).CountAsync(p => !p.IsSuspended, cancellationToken) <= 1)
             {
                 roster.Release();
                 await db.SaveChangesAsync(cancellationToken);
@@ -105,8 +103,8 @@ public class ChangeRolesHandler(
         {
             var actorName = await db.Profiles.Where(p => p.Id == actor).Select(p => p.Name).SingleOrDefaultAsync(cancellationToken) ?? "A City Lead";
             title = add
-                ? $"{actorName} added the {RoleLabels.Of(role)} role to your profile"
-                : $"{actorName} removed the {RoleLabels.Of(role)} role from your profile";
+                ? $"{actorName} added the {definition.Name} role to your profile"
+                : $"{actorName} removed the {definition.Name} role from your profile";
             notifier.Notify(profileId, title);
             await notifier.QueueEmailAsync(profileId, title, cancellationToken);
         }

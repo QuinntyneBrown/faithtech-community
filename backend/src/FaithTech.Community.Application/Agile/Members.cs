@@ -1,7 +1,7 @@
+using FaithTech.Community.Domain.Organisations;
 using FaithTech.Community.Application.Common;
 using FaithTech.Community.Domain.Agile;
 using FaithTech.Community.Domain.Profiles;
-using FaithTech.Community.Domain.Team;
 using FluentValidation;
 using Microsoft.EntityFrameworkCore;
 
@@ -162,7 +162,7 @@ public class WorkspaceSettingsHandler(
         }
         else
         {
-            if (!current.HasRole(Role.CityLead) && !current.HasRole(Role.SystemAdmin))
+            if (!current.Has(Capability.OwnWorkspaces))
             {
                 return (Result.Forbidden(), null);
             }
@@ -170,9 +170,9 @@ public class WorkspaceSettingsHandler(
             excluded = await policy.CallerProfileIdAsync(cancellationToken) is { } me ? [me] : [];
         }
 
-        var teamRoles = LegacyRoles.Keys(TeamRoles.All);
         var profiles = await db.Profiles.AsNoTracking()
-            .Where(p => !p.IsSuspended && p.Roles.Any(r => teamRoles.Contains(r.Definition!.Key)))
+            .Where(ProfileHolding.Capability(Capability.JoinWorkspaces))
+            .Where(p => !p.IsSuspended)
             .OrderBy(p => p.Name)
             .ToListAsync(cancellationToken);
         return (Result.Ok(), [.. profiles

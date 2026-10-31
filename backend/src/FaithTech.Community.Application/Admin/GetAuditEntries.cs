@@ -1,3 +1,4 @@
+using FaithTech.Community.Domain.Organisations;
 using System.Text.Json;
 using FaithTech.Community.Application.Common;
 using FaithTech.Community.Domain.Admin;
@@ -31,7 +32,7 @@ public class GetAuditEntriesHandler(IApplicationDbContext db, ICurrentUser curre
 
     public async Task<PagedResult<AuditEntryDto>?> HandleAsync(GetAuditEntriesQuery query, CancellationToken cancellationToken = default)
     {
-        if (!current.HasRole(Role.SystemAdmin))
+        if (!current.Has(Capability.AdministerOrganisation))
         {
             return null;
         }
@@ -46,7 +47,7 @@ public class GetAuditEntriesHandler(IApplicationDbContext db, ICurrentUser curre
     /// <summary>Every filtered entry, up to <see cref="MaxExportRows"/>, for the CSV export (L2-041 AC5).</summary>
     public async Task<IReadOnlyList<AuditEntryDto>?> HandleAllAsync(GetAuditEntriesQuery query, CancellationToken cancellationToken = default)
     {
-        if (!current.HasRole(Role.SystemAdmin))
+        if (!current.Has(Capability.AdministerOrganisation))
         {
             return null;
         }
@@ -90,6 +91,9 @@ public class GetAuditEntriesHandler(IApplicationDbContext db, ICurrentUser curre
             .Where(p => profileIds.Contains(p.Id))
             .ToDictionaryAsync(p => p.Id, p => p.Name, cancellationToken);
 
+        // Roles are recorded by key; an archived definition still names its role.
+        var roleNames = await db.RoleDefinitions.AsNoTracking().ToDictionaryAsync(d => d.Key, d => d.Name, cancellationToken);
+
         // Guid.Empty is the command line, e.g. the first System Admin grant.
         string NameOf(Guid id) => id == Guid.Empty ? "System" : names.GetValueOrDefault(id, "Unknown member");
         string TargetName(AuditEntry e) =>
@@ -97,13 +101,13 @@ public class GetAuditEntriesHandler(IApplicationDbContext db, ICurrentUser curre
 
         return [.. entries.Select(e => new AuditEntryDto(
             e.Id, e.OccurredAtUtc, e.ActorId, NameOf(e.ActorId), e.Action, e.TargetType, e.TargetId,
-            Summarize(e, TargetName(e)), e.BeforeJson, e.AfterJson, e.IpAddress))];
+            Summarize(e, TargetName(e), roleNames), e.BeforeJson, e.AfterJson, e.IpAddress))];
     }
 
-    private static string Summarize(AuditEntry entry, string target) => entry.Action switch
+    private static string Summarize(AuditEntry entry, string target, IReadOnlyDictionary<string, string> roleNames) => entry.Action switch
     {
-        "role.granted" => $"Granted {ChangedRoles(entry.AfterJson, entry.BeforeJson)} to {target}",
-        "role.removed" => $"Removed {ChangedRoles(entry.BeforeJson, entry.AfterJson)} from {target}",
+        "role.granted" => $"Granted {ChangedRoles(entry.AfterJson, entry.BeforeJson, roleNames)} to {target}",
+        "role.removed" => $"Removed {ChangedRoles(entry.BeforeJson, entry.AfterJson, roleNames)} from {target}",
         "user.suspended" => $"Suspended {target} — reason: {Read(entry.AfterJson, "Reason")}",
         "user.reinstated" => $"Reinstated {target}",
         "profile.updated" => $"Edited the profile of {target}",
@@ -123,10 +127,10 @@ public class GetAuditEntriesHandler(IApplicationDbContext db, ICurrentUser curre
     };
 
     // Roles present in one snapshot and missing from the other, as labels.
-    private static string ChangedRoles(string? withRole, string? withoutRole)
+    private static string ChangedRoles(string? withRole, string? withoutRole, IReadOnlyDictionary<string, string> roleNames)
     {
         var changed = RolesIn(withRole).Except(RolesIn(withoutRole)).ToList();
-        return changed.Count == 0 ? "a role" : string.Join(", ", changed.Select(r => Enum.TryParse<Role>(r, out var role) ? RoleLabels.Of(role) : r));
+        return changed.Count == 0 ? "a role" : string.Join(", ", changed.Select(r => roleNames.GetValueOrDefault(r, r)));
     }
 
     private static IEnumerable<string> RolesIn(string? json)

@@ -214,7 +214,7 @@ public class JoiningTests(CommunityApiFactory factory) : IClassFixture<Community
         OrganisationScopes.OtherOrganisation organisation, ProfileClients.Member inviter, string email, Role? role)
     {
         var token = Guid.NewGuid().ToString("N");
-        var invite = new Invite(email, InviteClients.Hash(token), role, inviter.ProfileId, factory.Time.GetUtcNow());
+        var invite = new Invite(email, InviteClients.Hash(token), role?.ToString(), inviter.ProfileId, factory.Time.GetUtcNow());
         await factory.WithDbAsync(organisation.Id, async db =>
         {
             db.Invites.Add(invite);

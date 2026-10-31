@@ -1,3 +1,4 @@
+using FaithTech.Community.Domain.Organisations;
 using FaithTech.Community.Application.Admin;
 using FaithTech.Community.Application.Common;
 using FaithTech.Community.Domain.Partners;
@@ -7,25 +8,25 @@ using Microsoft.EntityFrameworkCore;
 namespace FaithTech.Community.Application.Partners;
 
 /// <summary>
-/// The shared partner pipeline (L2-017, ADR 0014): lead roles, Staff and System Admin read it; lead
-/// roles and System Admin change it. Everyone else gets 403.
+/// The shared partner pipeline (L2-017, ADR 0014): ViewPartners or ManagePartners read it; ManagePartners changes
+/// it. Everyone else gets 403.
 /// </summary>
 public class PartnerAccess(IApplicationDbContext db, ICurrentUser current, IAuditLog audit)
 {
-    public bool CanRead => CanWrite || current.HasRole(Role.Staff);
+    public bool CanRead => current.Has(Capability.ViewPartners) || CanWrite;
 
-    public bool CanWrite => current.HoldsLeadRole() || current.HasRole(Role.SystemAdmin);
+    public bool CanWrite => current.Has(Capability.ManagePartners);
 
-    /// <summary>Only a System Admin restores a merged partner (L2-115 AC5).</summary>
-    public bool CanRestore => current.HasRole(Role.SystemAdmin);
+    /// <summary>Only AdministerOrganisation restores a merged partner (L2-115 AC5).</summary>
+    public bool CanRestore => current.Has(Capability.AdministerOrganisation);
 
     public async Task<Guid> CallerProfileIdAsync(CancellationToken cancellationToken = default) =>
         await Task.FromResult(current.ProfileId ?? Guid.Empty);
 
-    /// <summary>A System Admin acting without a lead role changes the pipeline by admin right, so it is audited.</summary>
+    /// <summary>Changing the pipeline only because of AdministerOrganisation is an override, so it is audited.</summary>
     public void AuditAdminWrite(Guid actor, Partner partner, string action, object? before, object? after)
     {
-        if (current.HasRole(Role.SystemAdmin) && !current.HoldsLeadRole())
+        if (AuthorizationRules.IsOverride(current, Capability.ManagePartners))
         {
             audit.Record(actor, action, "Partner", partner.Id.ToString(), before, after);
         }

@@ -1,3 +1,4 @@
+using FaithTech.Community.Domain.Organisations;
 using FaithTech.Community.Application.Admin;
 using FaithTech.Community.Application.Common;
 using FaithTech.Community.Application.Organisations;
@@ -34,7 +35,7 @@ public class ConnectLinkHandler(
     ICurrentOrganisation organisation,
     TimeProvider time)
 {
-    public bool CanHaveLink => current.HasRole(Role.CityLead) || current.HasRole(Role.SystemAdmin);
+    public bool CanHaveLink => current.Has(Capability.ConnectLink);
 
     public async Task<(Result Result, ConnectLinkDto? Link)> GetOrIssueAsync(CancellationToken cancellationToken = default)
     {
@@ -86,9 +87,8 @@ public class ConnectLinkHandler(
         }
 
         var featured = lead.Photos.FirstOrDefault(p => p.IsFeatured && p.IsStored);
-        var role = lead.HasRole(Role.CityLead) ? Role.CityLead : Role.SystemAdmin;
         return new ConnectLookupDto(
-            lead.Id, lead.Name, featured is null ? null : storage.GetReadUrl(featured.BlobName), lead.HomeCity, RoleLabels.Of(role));
+            lead.Id, lead.Name, featured is null ? null : storage.GetReadUrl(featured.BlobName), lead.HomeCity, LinkRoleName(lead));
     }
 
     /// <summary>The profile id of the link's owner while they may still have a link, or null.</summary>
@@ -110,12 +110,19 @@ public class ConnectLinkHandler(
             return null;
         }
 
-        // A suspended owner, or one who no longer holds City Lead or System Admin, has no working link (ADR 0021).
+        // A suspended owner, or one whose current roles no longer give ConnectLink, has no working link (ADR 0021, L2-139 AC5).
         var profile = await db.Profiles.AsNoTracking().SingleOrDefaultAsync(p => p.Id == owner, cancellationToken);
-        return profile is { IsSuspended: false } && (profile.HasRole(Role.CityLead) || profile.HasRole(Role.SystemAdmin))
-            ? profile
-            : null;
+        return profile is { IsSuspended: false } && LinkRole(profile) is not null ? profile : null;
     }
+
+    /// <summary>The owner's first held role that gives ConnectLink, AdministerOrganisation standing in for it.</summary>
+    private static RoleDefinition? LinkRole(Profile profile) =>
+        profile.Roles.Select(r => r.Definition).OfType<RoleDefinition>()
+            .Where(d => d.ArchivedAtUtc is null)
+            .OrderBy(d => d.SortOrder)
+            .FirstOrDefault(d => d.Capabilities.Contains(Capability.ConnectLink) || d.Capabilities.Contains(Capability.AdministerOrganisation));
+
+    private static string LinkRoleName(Profile profile) => LinkRole(profile)!.Name;
 
     private async Task<Guid?> CallerAsync(CancellationToken cancellationToken)
     {

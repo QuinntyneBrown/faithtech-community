@@ -33,6 +33,8 @@ public static class TestRoles
         /// <summary>Grants FaithTech's definition of <paramref name="role"/>.</summary>
         public void AddRole(Role role, Guid grantedBy, DateTime nowUtc) => profile.AddRole(DefinitionId(role), grantedBy, nowUtc);
 
+        public bool HasRole(Role role) => profile.HasRole(DefinitionId(role));
+
         public void RemoveRole(Role role) => profile.RemoveRole(profile.Roles.Single(r => r.Role == role).RoleDefinitionId);
     }
 

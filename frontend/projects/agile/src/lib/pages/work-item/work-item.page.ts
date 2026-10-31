@@ -120,7 +120,7 @@ export class WorkItemPage {
   protected readonly activeSprint = signal<SprintDto | null>(null);
   protected readonly joining = signal(false);
 
-  protected readonly readOnly = computed(() => this.workspace()?.access === 'Staff');
+  protected readonly readOnly = computed(() => this.workspace()?.access === 'Reader');
   protected readonly canWork = computed(() => this.workspace()?.canEdit ?? false);
   protected readonly doneCount = computed(
     () => this.item()?.tasks.filter((t) => t.isDone).length ?? 0,

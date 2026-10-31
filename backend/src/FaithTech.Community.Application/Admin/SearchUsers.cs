@@ -1,3 +1,4 @@
+using FaithTech.Community.Domain.Organisations;
 using FaithTech.Community.Application.Common;
 using FaithTech.Community.Domain.Profiles;
 using Microsoft.EntityFrameworkCore;
@@ -21,7 +22,7 @@ public class SearchUsersHandler(IApplicationDbContext db, ICurrentUser current)
 
     public async Task<PagedResult<AdminUserSummary>?> HandleAsync(string? term, int page, CancellationToken cancellationToken = default)
     {
-        if (!current.HasRole(Role.SystemAdmin))
+        if (!current.Has(Capability.AdministerOrganisation))
         {
             return null;
         }

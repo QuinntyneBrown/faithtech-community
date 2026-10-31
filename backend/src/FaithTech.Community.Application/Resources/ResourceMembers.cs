@@ -1,3 +1,4 @@
+using FaithTech.Community.Domain.Organisations;
 using FaithTech.Community.Application.Common;
 using FaithTech.Community.Domain.Profiles;
 using Microsoft.EntityFrameworkCore;
@@ -35,8 +36,8 @@ public class ResourceMembersHandler(IApplicationDbContext db, ResourceAccess acc
 
         if (ownersOnly)
         {
-            var roles = LegacyRoles.Keys(ResourceAccess.ContributorRoles);
-            members = members.Where(p => p.Roles.Any(r => roles.Contains(r.Definition!.Key)));
+            members = members.Where(p => p.Roles.Any(r => r.Definition!.ArchivedAtUtc == null
+                && (r.Definition.Capabilities.Contains(Capability.AddResources) || r.Definition.Capabilities.Contains(Capability.AdministerOrganisation))));
         }
 
         var rows = await members.OrderBy(p => p.Name).ThenBy(p => p.Id).Take(Limit)

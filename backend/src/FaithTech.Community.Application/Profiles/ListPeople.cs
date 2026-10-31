@@ -1,3 +1,4 @@
+using FaithTech.Community.Domain.Organisations;
 using FaithTech.Community.Application.Common;
 using FaithTech.Community.Domain.Profiles;
 using Microsoft.EntityFrameworkCore;
@@ -15,8 +16,7 @@ public class ListPeopleHandler(IApplicationDbContext db, ICurrentUser current, I
 {
     public const int PageSize = 25;
 
-    public bool CanBrowse =>
-        current.HasRole(Role.CityLead) || current.HasRole(Role.Staff) || current.HasRole(Role.SystemAdmin);
+    public bool CanBrowse => current.Has(Capability.ViewPeopleDirectory);
 
     /// <summary>A page of members by name, or null when the caller may not browse people.</summary>
     public async Task<PagedResult<PersonSummary>?> HandleAsync(string? term, int page, CancellationToken cancellationToken = default)

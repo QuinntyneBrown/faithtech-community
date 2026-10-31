@@ -43,15 +43,10 @@ public class ShareNoteHandler(IApplicationDbContext db, NoteAccess access, NoteV
         }
 
         var members = visibility == NoteVisibility.Shared ? (command.MemberIds ?? []).Distinct().ToList() : [];
-        var roles = new List<Role>();
-        foreach (var value in visibility == NoteVisibility.Shared ? command.Roles ?? [] : [])
+        var roles = await RoleKeys.DefinitionsAsync(db, visibility == NoteVisibility.Shared ? command.Roles ?? [] : [], cancellationToken);
+        if (roles is null || !roles.All(RoleKeys.IsShareable))
         {
-            if (!Enum.TryParse<Role>(value, out var role) || int.TryParse(value, out _) || !NoteAccess.ShareableRoles.Contains(role))
-            {
-                return (Result.Invalid("Roles", "Choose roles from the list."), null);
-            }
-
-            roles.Add(role);
+            return (Result.Invalid("Roles", "Choose roles from the list."), null);
         }
 
         if (members.Count > 0 && await db.Profiles.CountAsync(p => members.Contains(p.Id), cancellationToken) != members.Count)
@@ -66,7 +61,7 @@ public class ShareNoteHandler(IApplicationDbContext db, NoteAccess access, NoteV
 
         var reached = await notifier.RecipientsAsync(page, cancellationToken);
         var before = Audience(page);
-        page.SetAudience(visibility, members, await LegacyRoles.DefinitionsAsync(db, roles, cancellationToken));
+        page.SetAudience(visibility, members, roles);
         if (access.IsOverride(page, caller))
         {
             audit.Record(caller, "note.shared", nameof(NotePage), page.Id.ToString(), before, Audience(page));
@@ -121,7 +116,7 @@ public class NoteShareNotifier(IApplicationDbContext db, INotificationPublisher 
         var owner = await db.Profiles.Where(p => p.Id == page.OwnerId).Select(p => p.Name).SingleAsync(cancellationToken);
         var title = NoteRefs.TitleOf(page.Title);
         var held = await db.Profiles.Where(p => recipients.Contains(p.Id))
-            .Select(p => new { p.Id, Roles = p.Roles.Select(r => new HeldShareRole(r.RoleDefinitionId, r.Definition!.Key)).ToList() })
+            .Select(p => new { p.Id, Roles = p.Roles.Select(r => new HeldShareRole(r.RoleDefinitionId, r.Definition!.Name)).ToList() })
             .ToDictionaryAsync(p => p.Id, p => p.Roles, cancellationToken);
         var heading = $"{owner} shared {title} with you";
         await publisher.PublishAsync(
