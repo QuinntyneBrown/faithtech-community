@@ -284,10 +284,10 @@ describe('PeoplePage', () => {
       'Product Engineer',
       'Attendee',
     ]);
-    expect(await data.submit(held('Volunteer').id)).toBeNull();
+    expect(await data.submit(held('Volunteer').id, null)).toBeNull();
     await settle();
 
-    expect(roles.addRole).toHaveBeenCalledWith('p2', held('Volunteer').id);
+    expect(roles.addRole).toHaveBeenCalledWith('p2', held('Volunteer').id, null);
     expect(row('Marcus Lee').textContent).toContain('Volunteer');
     expect(service.search).toHaveBeenCalledTimes(1);
   });
@@ -297,11 +297,11 @@ describe('PeoplePage', () => {
 
     button(row('Marcus Lee'), 'Remove a role from Marcus Lee')!.click();
     expect(opened().mode).toBe('remove');
-    expect(opened().options.map((o) => o.value)).toEqual([held('Event Lead').id]);
-    await opened().submit(held('Event Lead').id);
+    expect(opened().options.map((o) => o.value)).toEqual([`${held('Event Lead').id}|`]);
+    await opened().submit(`${held('Event Lead').id}|`, null);
     await settle();
 
-    expect(roles.removeRole).toHaveBeenCalledWith('p2', held('Event Lead').id);
+    expect(roles.removeRole).toHaveBeenCalledWith('p2', held('Event Lead').id, null);
     expect(row('Marcus Lee').textContent).toContain('No role yet');
   });
 

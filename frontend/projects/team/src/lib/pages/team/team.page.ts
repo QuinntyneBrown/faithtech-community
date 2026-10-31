@@ -5,7 +5,6 @@ import {
   ORGANISATION_SERVICE,
   ROLE_LABELS,
   chapterFilterOptions,
-  Role,
   TEAM_SERVICE,
   TeamMemberDto,
   TeamRoleFilter,
@@ -128,8 +127,9 @@ export class TeamPage {
     void this.load();
   }
 
-  protected labels(roles: Role[]): string[] {
-    return roles.map((r) => ROLE_LABELS[r]);
+  /** Each role as its badge reads, "{role} · {chapter}" when tagged (L2-141 AC3). */
+  protected labels(member: TeamMemberDto): string[] {
+    return member.roleBadges ?? member.roles.map((r) => ROLE_LABELS[r]);
   }
 
   protected chooseRole(value: TeamRoleFilter | null): void {

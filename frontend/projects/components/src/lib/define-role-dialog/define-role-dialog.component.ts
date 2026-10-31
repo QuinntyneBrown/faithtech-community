@@ -27,6 +27,8 @@ export interface RoleDefinitionValue {
   capabilities: string[];
   showOnTeam: boolean;
   isOversight: boolean;
+  /** "Can be held for a {chapter}" (L2-136 AC1). */
+  chapterScopable: boolean;
 }
 
 /** Why a save was refused: a message for the whole form, or errors on its fields. */
@@ -40,6 +42,8 @@ export interface DefineRoleDialogData {
   role?: RoleDefinitionValue & { holderCount: number };
   /** The capability catalogue, in order. */
   capabilities: readonly ChecklistEntry[];
+  /** The singular chapter label, e.g. "City"; null while chapters are off, which hides the chapter switch. */
+  chapterLabel?: string | null;
   /** Saves: resolves to null on success or to a refusal to show; rejects when unreachable. */
   submit: (value: RoleDefinitionValue) => Promise<DefineRoleRefusal | null>;
 }
@@ -89,7 +93,9 @@ export class DefineRoleDialogComponent {
     capabilities: [[...(this.data.role?.capabilities ?? [])]],
     showOnTeam: [this.data.role?.showOnTeam ?? false],
     isOversight: [this.data.role?.isOversight ?? false],
+    chapterScopable: [this.data.role?.chapterScopable ?? false],
   });
+  protected readonly chapter = this.data.chapterLabel?.toLowerCase() ?? null;
   protected readonly busy = signal(false);
   protected readonly failed = signal(false);
   protected readonly refusal = signal<string | null>(null);

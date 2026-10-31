@@ -12,8 +12,10 @@ export interface ConnectLookupDto {
   leadName: string;
   leadPhotoUrl: string | null;
   leadChapterName: string | null;
-  /** "City Lead" or "System Admin". */
+  /** The name of the lead's role that gives them a link. */
   leadRole: string;
+  /** The chapter that role is held for, or null when untagged (L2-141 AC3). */
+  leadRoleChapterName?: string | null;
 }
 
 /** Connected now, waiting for the member's email to be verified, or the lead's own code. */

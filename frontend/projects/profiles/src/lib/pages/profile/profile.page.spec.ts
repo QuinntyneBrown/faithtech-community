@@ -211,10 +211,10 @@ describe('ProfilePage', () => {
     expect(data.caption).toBe(
       'These are the roles your City Lead role may grant. An administrator can grant any role.',
     );
-    expect(await data.submit(held('Volunteer').id)).toBeNull();
+    expect(await data.submit(held('Volunteer').id, null)).toBeNull();
     fixture.detectChanges();
 
-    expect(roles.addRole).toHaveBeenCalledWith('p1', held('Volunteer').id);
+    expect(roles.addRole).toHaveBeenCalledWith('p1', held('Volunteer').id, null);
     expect(host.textContent).toContain('Volunteer');
   });
 
@@ -225,11 +225,11 @@ describe('ProfilePage', () => {
 
     button('Remove a role')!.click();
     expect(opened().mode).toBe('remove');
-    expect(opened().options.map((o) => o.value)).toEqual([held('Create Lead').id]);
-    await opened().submit(held('Create Lead').id);
+    expect(opened().options.map((o) => o.value)).toEqual([`${held('Create Lead').id}|`]);
+    await opened().submit(`${held('Create Lead').id}|`, null);
     fixture.detectChanges();
 
-    expect(roles.removeRole).toHaveBeenCalledWith('p1', held('Create Lead').id);
+    expect(roles.removeRole).toHaveBeenCalledWith('p1', held('Create Lead').id, null);
     expect(host.textContent).toContain('No role yet');
   });
 
@@ -248,7 +248,7 @@ describe('ProfilePage', () => {
     fixture.detectChanges();
 
     button('Remove a role')!.click();
-    expect(await opened().submit(held('Create Lead').id)).toBe(
+    expect(await opened().submit(held('Create Lead').id, null)).toBe(
       'There must always be at least one administrator.',
     );
   });

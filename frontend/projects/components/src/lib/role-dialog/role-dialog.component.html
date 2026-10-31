@@ -27,6 +27,16 @@
         }
       </ft-radio-group>
     }
+    @if (showChapter() && picker; as p) {
+      <ft-form-field
+        [label]="p.label"
+        [optional]="!p.required"
+        [required]="p.required"
+        [help]="chapterHelp()"
+      >
+        <ft-select [options]="chapterOptions" [formControl]="chapter" />
+      </ft-form-field>
+    }
     @if (data.caption) {
       <p class="caption">{{ data.caption }}</p>
     }

@@ -11,8 +11,8 @@
 </ng-template>
 <ng-template #rolesCell let-person>
   <ft-cluster gap="1">
-    @for (role of person.roles; track role.id) {
-      <ft-badge variant="role">{{ role.name }}</ft-badge>
+    @for (role of person.roles; track role.id + '|' + role.chapterId) {
+      <ft-badge variant="role">{{ badge(role) }}</ft-badge>
     } @empty {
       <span class="text-muted">No role yet</span>
     }

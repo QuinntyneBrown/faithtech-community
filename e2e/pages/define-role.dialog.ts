@@ -8,6 +8,8 @@ export class DefineRoleDialog {
   readonly capabilities: Locator;
   readonly showOnTeam: Locator;
   readonly oversight: Locator;
+  /** "Can be held for a {chapter}", shown only while chapters are on (L2-136 AC1). */
+  readonly chapterScopable: Locator;
   readonly save: Locator;
   readonly cancel: Locator;
   readonly refusal: Locator;
@@ -19,6 +21,7 @@ export class DefineRoleDialog {
     this.capabilities = this.dialog.getByRole('group', { name: 'Capabilities' });
     this.showOnTeam = this.dialog.getByRole('switch', { name: 'Show on the team list' });
     this.oversight = this.dialog.getByRole('switch', { name: /^Oversight role/ });
+    this.chapterScopable = this.dialog.getByRole('switch', { name: /^Can be held for a/ });
     this.save = this.dialog.getByRole('button', {
       name: /^(Define role|Save changes|Saving…|Try again)$/,
     });
