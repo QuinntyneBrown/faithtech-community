@@ -79,7 +79,9 @@ public class InviteSender(
             return (Result.Forbidden("Verify your email before sending invites."), null);
         }
 
-        if (role is { } r && !policy.CanChange(r))
+        var key = role is { } r ? LegacyRoles.Key(r) : null;
+        var definition = key is null ? null : await db.RoleDefinitions.SingleOrDefaultAsync(d => d.Key == key && d.ArchivedAtUtc == null, cancellationToken);
+        if (key is not null && (definition is null || !await policy.CanChangeAsync(definition, cancellationToken)))
         {
             return (Result.Forbidden("You can’t give that role."), null);
         }
