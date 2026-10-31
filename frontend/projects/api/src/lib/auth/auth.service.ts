@@ -11,7 +11,7 @@
 import { InjectionToken, Signal } from '@angular/core';
 import { Observable } from 'rxjs';
 
-import { Role } from '../shared';
+import { Capability, HeldRole, Role } from '../shared';
 import type { ChapterLabel } from '../site/site.service';
 
 export interface CurrentUser {
@@ -21,7 +21,10 @@ export interface CurrentUser {
   name: string | null;
   email: string | null;
   emailVerified: boolean;
-  roles: Role[];
+  /** The roles held here, named by the organisation (L2-133 AC1). */
+  roles: HeldRole[];
+  /** What the roles allow, computed by the server on every request (L2-135 AC2). */
+  capabilities: Capability[];
   /** The organisation of the host, from /api/me (L2-133 AC1). */
   organisation?: MeOrganisation;
   /** The account's other active memberships, for the switcher (L2-133 AC1, AC3). */
@@ -72,7 +75,10 @@ export interface SignUpRequest {
 /** Contract for the auth API. Pages depend on AUTH_SERVICE, never on HttpAuthService. */
 export interface AuthService {
   readonly isAuthenticated: Signal<boolean>;
+  /** The held roles' keys, which role pickers send until they use ids (slice 14). Decide with `capabilities`. */
   readonly roles: Signal<Role[]>;
+  /** The caller's capabilities; every show-or-hide decision reads these, never a role name (L2-135 AC7). */
+  readonly capabilities: Signal<Capability[]>;
   /** The signed-in member, loaded from /api/me; null until loaded or when signed out. */
   readonly currentUser: Signal<CurrentUser | null>;
   /** Set when /api/me says the signed-in account has no profile here; the app then shows only the not-a-member page. */

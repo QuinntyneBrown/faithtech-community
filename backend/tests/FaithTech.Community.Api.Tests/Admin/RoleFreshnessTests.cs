@@ -63,7 +63,7 @@ public class RoleFreshnessTests(CommunityApiFactory factory) : IClassFixture<Com
         var refreshed = await _flow.RefreshAsync(tokens.RefreshToken);
         refreshed.EnsureSuccessStatusCode();
         var api = _flow.Api((await refreshed.Content.ReadFromJsonAsync<TokenResponse>())!.AccessToken);
-        var roles = (await api.GetFromJsonAsync<JsonElement>("/api/me")).GetProperty("roles").EnumerateArray().Select(r => r.GetString());
+        var roles = (await api.GetFromJsonAsync<JsonElement>("/api/me")).GetProperty("roles").EnumerateArray().Select(r => r.GetProperty("key").GetString());
         Assert.Equal(["CityLead"], roles);
         Assert.Equal(HttpStatusCode.OK, (await api.GetAsync("/api/invites")).StatusCode);
     }

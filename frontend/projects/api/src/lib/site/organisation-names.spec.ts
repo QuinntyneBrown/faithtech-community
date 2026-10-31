@@ -41,6 +41,7 @@ describe('OrganisationNames', () => {
         email: 'ana@example.org',
         emailVerified: true,
         roles: [],
+        capabilities: [],
         organisation: {
           slug: 'harbour',
           name: 'Harbour Builders',

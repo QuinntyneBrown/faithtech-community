@@ -2,7 +2,7 @@ import { HttpErrorResponse } from '@angular/common/http';
 import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { NavigationEnd, Router, RouterOutlet } from '@angular/router';
-import { AUTH_SERVICE, ROLE_LABELS } from '@faithtech-community/api';
+import { AUTH_SERVICE } from '@faithtech-community/api';
 import {
   avatarColorFor,
   AvatarComponent,
@@ -84,11 +84,8 @@ export class AppShellComponent {
     {
       kind: 'header',
       title: this.user()?.name ?? '',
-      caption:
-        this.auth
-          .roles()
-          .map((r) => ROLE_LABELS[r] ?? r)
-          .join(', ') || 'No role yet',
+      // The organisation names its roles (L2-133 AC1).
+      caption: (this.user()?.roles ?? []).map((r) => r.name).join(', ') || 'No role yet',
     },
     { kind: 'divider' },
     { kind: 'item', id: 'profile', label: 'Your profile', icon: 'team', href: '/people/me' },

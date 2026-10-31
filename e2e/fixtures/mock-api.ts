@@ -1,5 +1,5 @@
 import { Page, Route } from '@playwright/test';
-import { capabilitiesOf } from './role-definitions';
+import { capabilitiesOf, heldRolesOf } from './role-definitions';
 
 import { MockAgile } from './mock-agile';
 import { MockAnnouncements } from './mock-announcements';
@@ -577,7 +577,7 @@ export class MockApi {
         name: account.name,
         email: account.email,
         emailVerified: account.verified,
-        roles: account.roles,
+        roles: heldRolesOf(account.roles),
         // Computed from the role definitions held, as the API does (L2-135 AC2, L2-133 AC1).
         capabilities: capabilitiesOf(account.roles),
         organisation: this.host.organisation,

@@ -27,6 +27,8 @@ export const CAPABILITIES = [
 export type Capability = (typeof CAPABILITIES)[number];
 
 export interface RoleDefinition {
+  /** The seed's fixed id, as the API's FaithTechSeed gives it. */
+  id: string;
   key: string;
   name: string;
   capabilities: Capability[];
@@ -47,9 +49,10 @@ const CREATE_LEAD: Capability[] = [
   'AddResources',
 ];
 
-/** FaithTech's nine roles in display order; each key is the role value the app still reads until slice 12. */
+/** FaithTech's nine roles in display order, with the seed's ids and keys (L2-151 AC2). */
 export const FAITHTECH_ROLES: RoleDefinition[] = [
   {
+    id: '0f7a1c2e-5b4d-4e8a-9c61-2d3f4a5b7001',
     key: 'CityLead',
     name: 'City Lead',
     capabilities: [
@@ -80,6 +83,7 @@ export const FAITHTECH_ROLES: RoleDefinition[] = [
     ],
   },
   {
+    id: '0f7a1c2e-5b4d-4e8a-9c61-2d3f4a5b7002',
     key: 'EventLead',
     name: 'Event Lead',
     capabilities: [
@@ -99,6 +103,7 @@ export const FAITHTECH_ROLES: RoleDefinition[] = [
     grants: [],
   },
   {
+    id: '0f7a1c2e-5b4d-4e8a-9c61-2d3f4a5b7003',
     key: 'CreateLead',
     name: 'Create Lead',
     capabilities: CREATE_LEAD,
@@ -108,6 +113,7 @@ export const FAITHTECH_ROLES: RoleDefinition[] = [
     grants: [],
   },
   {
+    id: '0f7a1c2e-5b4d-4e8a-9c61-2d3f4a5b7004',
     key: 'CommunicationsLead',
     name: 'Communications Lead',
     capabilities: [...CREATE_LEAD, 'SendAnnouncements'],
@@ -117,6 +123,7 @@ export const FAITHTECH_ROLES: RoleDefinition[] = [
     grants: [],
   },
   {
+    id: '0f7a1c2e-5b4d-4e8a-9c61-2d3f4a5b7005',
     key: 'Staff',
     name: 'Staff',
     capabilities: [
@@ -133,6 +140,7 @@ export const FAITHTECH_ROLES: RoleDefinition[] = [
     grants: [],
   },
   {
+    id: '0f7a1c2e-5b4d-4e8a-9c61-2d3f4a5b7006',
     key: 'Volunteer',
     name: 'Volunteer',
     capabilities: ['JoinWorkspaces'],
@@ -142,6 +150,7 @@ export const FAITHTECH_ROLES: RoleDefinition[] = [
     grants: [],
   },
   {
+    id: '0f7a1c2e-5b4d-4e8a-9c61-2d3f4a5b7007',
     key: 'ProductEngineer',
     name: 'Product Engineer',
     capabilities: [],
@@ -151,6 +160,7 @@ export const FAITHTECH_ROLES: RoleDefinition[] = [
     grants: [],
   },
   {
+    id: '0f7a1c2e-5b4d-4e8a-9c61-2d3f4a5b7008',
     key: 'Attendee',
     name: 'Attendee',
     capabilities: [],
@@ -160,6 +170,7 @@ export const FAITHTECH_ROLES: RoleDefinition[] = [
     grants: [],
   },
   {
+    id: '0f7a1c2e-5b4d-4e8a-9c61-2d3f4a5b7009',
     key: 'SystemAdmin',
     name: 'System Admin',
     capabilities: ['AdministerOrganisation'],
@@ -179,4 +190,24 @@ export function capabilitiesOf(
     definitions.filter((d) => roles.includes(d.key)).flatMap((d) => d.capabilities),
   );
   return CAPABILITIES.filter((c) => held.has(c));
+}
+
+/** A role a member holds, as /api/me answers it (L2-133 AC1). */
+export interface HeldRole {
+  id: string;
+  key: string;
+  name: string;
+  chapterId: string | null;
+  isOversight: boolean;
+}
+
+/** The held roles, in display order, as /api/me answers them. */
+export function heldRolesOf(roles: readonly string[]): HeldRole[] {
+  return FAITHTECH_ROLES.filter((d) => roles.includes(d.key)).map((d) => ({
+    id: d.id,
+    key: d.key,
+    name: d.name,
+    chapterId: null,
+    isOversight: d.isOversight,
+  }));
 }
