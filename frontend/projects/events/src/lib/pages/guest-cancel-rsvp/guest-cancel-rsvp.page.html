@@ -11,7 +11,7 @@
         <ft-stack>
           @if (failed()) {
             <ft-alert status="danger" heading="RSVP not cancelled">
-              We couldn’t reach FaithTech. Nothing was changed — try again.
+              We couldn’t reach {{ organisation.shortName() }}. Nothing was changed — try again.
             </ft-alert>
           }
           <p class="text">

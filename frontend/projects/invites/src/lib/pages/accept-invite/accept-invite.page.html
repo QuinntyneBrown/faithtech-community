@@ -60,7 +60,7 @@
             </ft-cluster>
             @if (failed()) {
               <ft-alert status="danger" heading="That didn’t work">
-                We couldn’t reach FaithTech. Nothing was changed — try again.
+                We couldn’t reach {{ organisation.shortName() }}. Nothing was changed — try again.
               </ft-alert>
             }
 
@@ -86,8 +86,8 @@
               }
               @case ('sign-in') {
                 <p>
-                  <strong>{{ i.email }}</strong> already has a FaithTech account. Sign in to accept
-                  the invite.
+                  <strong>{{ i.email }}</strong> already has a
+                  {{ organisation.shortName() }} account. Sign in to accept the invite.
                 </p>
                 <ft-button variant="primary" size="lg" [block]="true" (click)="signInToAccept()"
                   >Sign in to accept</ft-button

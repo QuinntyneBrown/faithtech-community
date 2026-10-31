@@ -7,7 +7,7 @@
 >
   @if (failed()) {
     <ft-alert status="danger" heading="Not restored">
-      We couldn’t reach FaithTech. It’s still archived — try again.
+      We couldn’t reach {{ organisation.shortName() }}. It’s still archived — try again.
     </ft-alert>
   }
   <ft-button ftDialogFooter [disabled]="busy()" (click)="ref.close()">Cancel</ft-button>

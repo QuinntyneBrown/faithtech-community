@@ -5,10 +5,11 @@ import { NonNullableFormBuilder, ReactiveFormsModule } from '@angular/forms';
 import {
   AGILE_SERVICE,
   MemberCandidateDto,
+  OrganisationNames,
+  problemDetails,
   ROLE_LABELS,
   WorkspaceDto,
   WorkspaceMethod,
-  problemDetails,
 } from '@faithtech-community/api';
 import {
   AlertComponent,
@@ -49,6 +50,7 @@ import { firstValueFrom } from 'rxjs';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class CreateWorkspaceDialog {
+  protected readonly organisation = inject(OrganisationNames);
   protected readonly ref = inject<DialogRef<WorkspaceDto>>(DialogRef);
   private readonly agile = inject(AGILE_SERVICE);
   private readonly errorFocus = viewChild.required(FormErrorFocusDirective);

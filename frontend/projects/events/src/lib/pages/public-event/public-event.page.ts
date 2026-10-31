@@ -11,7 +11,12 @@ import {
 } from '@angular/core';
 import { NonNullableFormBuilder, ReactiveFormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
-import { EVENTS_SERVICE, PublicEventDto, problemDetails } from '@faithtech-community/api';
+import {
+  EVENTS_SERVICE,
+  OrganisationNames,
+  problemDetails,
+  PublicEventDto,
+} from '@faithtech-community/api';
 import {
   AlertComponent,
   ButtonComponent,
@@ -74,6 +79,7 @@ const LABELS: Record<Field, string> = { name: 'Your name', email: 'Email' };
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class PublicEventPage {
+  protected readonly organisation = inject(OrganisationNames);
   private readonly events = inject(EVENTS_SERVICE);
   private readonly router = inject(Router);
   private readonly formFields = viewChildren(FormFieldComponent);
@@ -98,7 +104,7 @@ export class PublicEventPage {
     () => `/sign-in?returnUrl=${encodeURIComponent(`/events/${this.id()}`)}`,
   );
   protected readonly overline = computed(
-    () => `FaithTech ${this.event()?.city ?? ''} · Public event`,
+    () => `${this.organisation.shortName()} ${this.event()?.city ?? ''} · Public event`,
   );
   protected readonly subtitle = computed(() => {
     const e = this.event();

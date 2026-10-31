@@ -1,6 +1,11 @@
 import { DIALOG_DATA, DialogRef } from '@angular/cdk/dialog';
 import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
-import { AGILE_SERVICE, WorkspaceDto, WorkspaceMemberDto } from '@faithtech-community/api';
+import {
+  AGILE_SERVICE,
+  OrganisationNames,
+  WorkspaceDto,
+  WorkspaceMemberDto,
+} from '@faithtech-community/api';
 import { AlertComponent, ButtonComponent, DialogComponent } from '@faithtech-community/components';
 import { firstValueFrom } from 'rxjs';
 
@@ -24,6 +29,7 @@ function count(n: number, one: string, many: string): string {
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class RemoveWorkspaceMemberDialog {
+  protected readonly organisation = inject(OrganisationNames);
   protected readonly ref = inject<DialogRef<boolean>>(DialogRef);
   protected readonly data = inject<RemoveWorkspaceMemberData>(DIALOG_DATA);
   private readonly agile = inject(AGILE_SERVICE);

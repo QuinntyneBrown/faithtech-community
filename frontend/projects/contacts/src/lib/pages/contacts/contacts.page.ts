@@ -1,7 +1,12 @@
 import { HttpErrorResponse } from '@angular/common/http';
 import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
-import { CONTACTS_SERVICE, ContactStatus, ContactSummary } from '@faithtech-community/api';
+import {
+  CONTACTS_SERVICE,
+  ContactStatus,
+  ContactSummary,
+  OrganisationNames,
+} from '@faithtech-community/api';
 import {
   AlertComponent,
   avatarColorFor,
@@ -55,6 +60,7 @@ const BADGES: Record<ContactStatus, { variant: BadgeVariant; label: string }> = 
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ContactsPage {
+  protected readonly organisation = inject(OrganisationNames);
   private readonly contacts = inject(CONTACTS_SERVICE);
   private readonly dialogs = inject(DialogService);
   private readonly toasts = inject(ToastService);

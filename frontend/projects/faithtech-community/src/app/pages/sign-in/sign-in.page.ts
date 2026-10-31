@@ -1,5 +1,5 @@
 import { ChangeDetectionStrategy, Component, inject, input, signal } from '@angular/core';
-import { AUTH_SERVICE } from '@faithtech-community/api';
+import { AUTH_SERVICE, OrganisationNames } from '@faithtech-community/api';
 import {
   AuthLayoutComponent,
   CardComponent,
@@ -19,6 +19,7 @@ import { firstValueFrom } from 'rxjs';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class SignInPage {
+  protected readonly organisation = inject(OrganisationNames);
   private readonly auth = inject(AUTH_SERVICE);
 
   /** Where to go after signing in: an app url, or the identity server's /connect/authorize url. */

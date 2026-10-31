@@ -9,7 +9,12 @@ import {
   viewChild,
 } from '@angular/core';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
-import { RESOURCES_SERVICE, ResourceDto, problemDetails } from '@faithtech-community/api';
+import {
+  OrganisationNames,
+  problemDetails,
+  ResourceDto,
+  RESOURCES_SERVICE,
+} from '@faithtech-community/api';
 import {
   AlertComponent,
   ButtonComponent,
@@ -89,6 +94,7 @@ let nextKey = 0;
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class AddResourceDialog {
+  protected readonly organisation = inject(OrganisationNames);
   protected readonly ref = inject<DialogRef<AddResourceResult>>(DialogRef);
   private readonly resources = inject(RESOURCES_SERVICE);
   private readonly details = viewChild(ResourceDetailsComponent);

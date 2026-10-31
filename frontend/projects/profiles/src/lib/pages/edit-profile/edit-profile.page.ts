@@ -11,7 +11,12 @@ import {
   viewChild,
 } from '@angular/core';
 import { NonNullableFormBuilder, ReactiveFormsModule } from '@angular/forms';
-import { PROFILES_SERVICE, PhotoDto, ProfileDto } from '@faithtech-community/api';
+import {
+  OrganisationNames,
+  PhotoDto,
+  ProfileDto,
+  PROFILES_SERVICE,
+} from '@faithtech-community/api';
 import {
   AlertComponent,
   BreadcrumbComponent,
@@ -101,6 +106,7 @@ const LONG_ALT = 'Use 300 characters or fewer to describe this photo.';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class EditProfilePage {
+  protected readonly organisation = inject(OrganisationNames);
   private readonly profiles = inject(PROFILES_SERVICE);
   private readonly toasts = inject(ToastService);
   private readonly dialogs = inject(DialogService);

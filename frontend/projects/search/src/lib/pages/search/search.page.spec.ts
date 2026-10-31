@@ -2,10 +2,21 @@
 import { ComponentRef } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { Router } from '@angular/router';
-import { SEARCH_SERVICE, SearchResultsDto } from '@faithtech-community/api';
+import { SEARCH_SERVICE, SearchResultsDto, SITE_SERVICE } from '@faithtech-community/api';
 import { Observable, Subject, of, throwError } from 'rxjs';
 
 import { SearchPage } from './search.page';
+
+/** The host's organisation the copy names, as GET /api/site answers it on FaithTech's host. */
+const FAITHTECH_SITE = {
+  site: () => ({
+    name: 'FaithTech Community',
+    shortName: 'FaithTech',
+    chapterLabel: { singular: 'City', plural: 'Cities' },
+    communityOrigin: 'http://localhost:4200',
+  }),
+  load: async () => undefined,
+};
 
 const RESULTS: SearchResultsDto = {
   groups: [
@@ -82,7 +93,12 @@ async function setup(
   search: (term: string) => Observable<SearchResultsDto>,
 ) {
   const service = { search: vi.fn(search) };
-  TestBed.configureTestingModule({ providers: [{ provide: SEARCH_SERVICE, useValue: service }] });
+  TestBed.configureTestingModule({
+    providers: [
+      { provide: SITE_SERVICE, useValue: FAITHTECH_SITE },
+      { provide: SEARCH_SERVICE, useValue: service },
+    ],
+  });
   const navigate = vi.spyOn(TestBed.inject(Router), 'navigate').mockResolvedValue(true);
   const fixture = TestBed.createComponent(SearchPage);
   const settle = async () => {

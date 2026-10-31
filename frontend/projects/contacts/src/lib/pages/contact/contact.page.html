@@ -60,7 +60,7 @@
       </ft-page-header>
 
       @if (match(); as member) {
-        <ft-alert status="info" [heading]="member.name + ' has joined FaithTech'">
+        <ft-alert status="info" [heading]="member.name + ' has joined ' + organisation.shortName()">
           Their new profile uses the same email as this contact. Link them to see their profile and
           keep your private notes.
           <ft-button ftAlertActions variant="primary" (click)="link(c)"

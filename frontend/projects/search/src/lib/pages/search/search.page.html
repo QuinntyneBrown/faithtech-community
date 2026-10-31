@@ -21,7 +21,7 @@
   @case ('idle') {
     <ft-empty-state
       icon="search"
-      heading="Search all of FaithTech"
+      [heading]="'Search all of ' + organisation.shortName()"
       text="Find people by name or role, events by title or city, and partners by organisation. Leads also see their own private contacts."
     />
   }

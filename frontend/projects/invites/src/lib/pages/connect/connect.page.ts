@@ -23,6 +23,7 @@ import {
   CONNECT_SERVICE,
   ConnectLookupDto,
   ConnectOutcome,
+  OrganisationNames,
 } from '@faithtech-community/api';
 import {
   AlertComponent,
@@ -83,6 +84,7 @@ const OUTCOME_VIEWS: Record<ConnectOutcome, View> = {
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ConnectPage {
+  protected readonly organisation = inject(OrganisationNames);
   private readonly connect = inject(CONNECT_SERVICE);
   private readonly auth = inject(AUTH_SERVICE);
   private readonly errorFocus = viewChild(FormErrorFocusDirective);

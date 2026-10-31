@@ -12,10 +12,11 @@ import { toSignal } from '@angular/core/rxjs-interop';
 import { NonNullableFormBuilder, ReactiveFormsModule } from '@angular/forms';
 import {
   AGILE_SERVICE,
+  OrganisationNames,
+  problemDetails,
   SprintCandidateDto,
   SprintsDto,
   WorkspaceDto,
-  problemDetails,
 } from '@faithtech-community/api';
 import {
   AlertComponent,
@@ -74,6 +75,7 @@ function isoDay(date: Date): string {
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class StartSprintDialog {
+  protected readonly organisation = inject(OrganisationNames);
   protected readonly ref = inject<DialogRef<string>>(DialogRef);
   protected readonly data = inject<StartSprintData>(DIALOG_DATA);
   private readonly agile = inject(AGILE_SERVICE);

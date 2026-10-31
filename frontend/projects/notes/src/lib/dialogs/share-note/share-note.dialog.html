@@ -1,7 +1,7 @@
 <ft-dialog [heading]="'Share ' + title" icon="shared" [busy]="busy()" (closed)="ref.close()">
   @if (failed()) {
     <ft-alert status="danger" heading="Sharing not changed">
-      We couldn’t reach FaithTech. Nothing changed — try again.
+      We couldn’t reach {{ organisation.shortName() }}. Nothing changed — try again.
     </ft-alert>
   }
   <ft-radio-group

@@ -7,7 +7,7 @@
 >
   @if (failed()) {
     <ft-alert status="danger" heading="That didn’t work">
-      We couldn’t reach FaithTech. Nothing was changed — try again.
+      We couldn’t reach {{ organisation.shortName() }}. Nothing was changed — try again.
     </ft-alert>
   }
   <ft-radio-group legend="Column" [formControl]="status">

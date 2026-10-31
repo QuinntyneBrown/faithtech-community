@@ -24,7 +24,7 @@
     </ft-alert>
   } @else if (failed()) {
     <ft-alert status="danger" heading="Link not added">
-      We couldn’t reach FaithTech. Nothing was saved — try again.
+      We couldn’t reach {{ organisation.shortName() }}. Nothing was saved — try again.
     </ft-alert>
   }
 
