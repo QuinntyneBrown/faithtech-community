@@ -7,6 +7,7 @@ import {
   IconTileComponent,
   ListComponent,
   ListItemComponent,
+  StackComponent,
 } from '@faithtech-community/components';
 import { firstValueFrom } from 'rxjs';
 
@@ -23,6 +24,7 @@ import { firstValueFrom } from 'rxjs';
     IconTileComponent,
     ListComponent,
     ListItemComponent,
+    StackComponent,
   ],
   templateUrl: './not-a-member.page.html',
   styleUrl: './not-a-member.page.scss',
