@@ -4,7 +4,7 @@
 |---|---|---|---|
 | accounts-and-memberships | 6 days | 90% | — |
 | capabilities-and-authorization | 7 days | 95% | — |
-| chapters | 6 days | 65% | — |
+| chapters | 6 days | 85% | — |
 | organisation-settings | 4 days | 55% | — |
 | platform-operations | 4 days | 0% | — |
 | role-definitions-and-grant-rules | 7 days | 90% | — |
