@@ -38,6 +38,8 @@ public static class DependencyInjection
         services.AddScoped<Organisations.ListRoleDefinitionsHandler>();
         services.AddScoped<Organisations.DefineRoleHandler>();
         services.AddScoped<Organisations.UpdateRoleDefinitionHandler>();
+        services.AddScoped<Organisations.SetGrantRulesHandler>();
+        services.AddScoped<Organisations.ArchiveRoleDefinitionHandler>();
         services.AddScoped<Organisations.ProfileCapabilities>();
         services.AddScoped<Organisations.Memberships>();
         services.AddScoped<SignUpHandler>();

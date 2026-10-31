@@ -58,6 +58,8 @@ export * from './qr-code';
 export * from './radio-group';
 export * from './role-dialog';
 export * from './define-role-dialog';
+export * from './edit-grants-dialog';
+export * from './archive-role-dialog';
 export * from './search-results';
 export * from './select';
 export * from './site-footer';

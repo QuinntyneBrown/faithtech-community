@@ -1,0 +1,35 @@
+<ft-dialog
+  [heading]="'Who may grant: ' + data.grantor"
+  description="Grant rules decide which roles a holder of this role may add to people and remove from them."
+  icon="admin"
+  [busy]="busy()"
+  (closed)="ref.close()"
+>
+  <ft-stack>
+    @if (failed()) {
+      <ft-alert status="danger" heading="Grant rules not saved">
+        We couldn’t reach {{ organisation.shortName() }}. Your changes are still here — try again.
+      </ft-alert>
+    }
+    @if (!data.canAssign) {
+      <ft-alert status="info"
+        >This role can’t assign roles until it has the Assign roles capability. The rules are saved
+        and start working when it does.</ft-alert
+      >
+    }
+    <ft-capability-checklist
+      [legend]="'Holders of ' + data.grantor + ' may add and remove:'"
+      [single]="true"
+      [entries]="data.roles"
+      [error]="refusal()"
+      [formControl]="granted"
+    />
+    <p class="text-caption">
+      Holders of Administer the organisation can add and remove every role without a rule.
+    </p>
+  </ft-stack>
+  <ft-button ftDialogFooter [disabled]="busy()" (click)="ref.close()">Cancel</ft-button>
+  <ft-button ftDialogFooter variant="primary" [loading]="busy()" (click)="save()">
+    {{ busy() ? 'Saving…' : failed() ? 'Try again' : 'Save rules' }}
+  </ft-button>
+</ft-dialog>

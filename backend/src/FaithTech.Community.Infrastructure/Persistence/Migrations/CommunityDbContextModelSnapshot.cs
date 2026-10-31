@@ -2415,7 +2415,6 @@ namespace FaithTech.Community.Infrastructure.Persistence.Migrations
                                 .HasColumnType("uuid");
 
                             b1.Property<Guid>("GrantableRoleId")
-                                .ValueGeneratedOnAdd()
                                 .HasColumnType("uuid");
 
                             b1.HasKey("GrantorRoleId", "GrantableRoleId");

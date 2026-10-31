@@ -12,6 +12,8 @@ import {
 } from '@faithtech-community/api';
 import {
   AlertComponent,
+  ArchiveRoleDialogComponent,
+  ArchiveRoleDialogData,
   BadgeComponent,
   ButtonComponent,
   ChecklistEntry,
@@ -22,6 +24,8 @@ import {
   DefineRoleDialogData,
   DefineRoleRefusal,
   DialogService,
+  EditGrantsDialogComponent,
+  EditGrantsDialogData,
   EmptyStateComponent,
   ListComponent,
   ListItemComponent,
@@ -37,8 +41,8 @@ type Filter = 'active' | 'archived';
 /**
  * The Roles tab (L2-136 AC6), matching docs/mocks/pages/organisation-roles: every role in the organisation's order with
  * its holders, a capability summary and its flags, and the archived ones read-only. Holders of ManageRoles define and
- * edit roles (L2-136 AC1, AC2); a holder of only ManageOrganisationSettings reads them (L2-147 AC2). Archive and
- * Who may grant join in slice 17.
+ * edit roles (L2-136 AC1, AC2), set who each may grant (L2-137) and archive an unused one (L2-136 AC4, AC5); a holder of
+ * only ManageOrganisationSettings reads them (L2-147 AC2).
  */
 @Component({
   selector: 'ft-roles-page',
@@ -154,6 +158,73 @@ export class RolesPage {
       );
       void this.load();
     });
+  }
+
+  /** Who may grant: every other active role, administration out of reach for a grantor that lacks it (L2-137). */
+  protected grants(definition: RoleDefinitionDto): void {
+    const administers = (d: RoleDefinitionDto) => d.capabilities.includes('AdministerOrganisation');
+    const data: EditGrantsDialogData = {
+      grantor: definition.name,
+      canAssign: definition.capabilities.some(
+        (c) => c === 'AssignRoles' || c === 'AdministerOrganisation',
+      ),
+      roles: this.definitions()
+        .filter((d) => d.id !== definition.id)
+        .map((d) => ({
+          value: d.id,
+          label: d.name,
+          description: d.description,
+          disabledReason:
+            administers(d) && !administers(definition)
+              ? 'Only administrators can grant administration'
+              : undefined,
+        })),
+      granted: definition.grantableRoleIds,
+      submit: (ids) => this.refusal(this.roles.setGrants(definition.id, ids)),
+    };
+    this.dialogs.open<string[]>(EditGrantsDialogComponent, { data }).closed.subscribe((saved) => {
+      if (!saved) return;
+      const count = saved.length === 1 ? '1 role' : `${saved.length} roles`;
+      this.toasts.show({
+        variant: 'success',
+        heading: 'Grant rules saved',
+        text: `${definition.name} holders can add and remove ${count}.`,
+      });
+      void this.load();
+    });
+  }
+
+  /** Archive {role}?: refused with the reason while anything still uses it (L2-136 AC4, AC5). */
+  protected archive(definition: RoleDefinitionDto): void {
+    const data: ArchiveRoleDialogData = {
+      role: definition.name,
+      submit: () => this.refusal(this.roles.archive(definition.id)),
+    };
+    this.dialogs.open<boolean>(ArchiveRoleDialogComponent, { data }).closed.subscribe((done) => {
+      if (!done) return;
+      this.toasts.show({
+        variant: 'success',
+        heading: `${definition.name} archived`,
+        text: 'It’s listed under Archived, read-only.',
+      });
+      void this.load();
+    });
+  }
+
+  /** A grants or archive refusal: a 400's first field error or a 403 or 409 detail; throws when unreachable. */
+  private async refusal(request: ReturnType<typeof this.roles.archive>): Promise<string | null> {
+    try {
+      await firstValueFrom(request);
+      return null;
+    } catch (error) {
+      if (!(error instanceof HttpErrorResponse)) throw error;
+      const problem = problemDetails(error);
+      const field = problem?.errors && Object.values(problem.errors)[0]?.[0];
+      if (error.status === 400 && field) return field;
+      if (error.status === 403 || error.status === 409)
+        return problem?.detail ?? 'You can’t change roles.';
+      throw error;
+    }
   }
 
   /** Maps the API's answer onto the dialog: null when saved, a refusal to show, or a throw when unreachable. */

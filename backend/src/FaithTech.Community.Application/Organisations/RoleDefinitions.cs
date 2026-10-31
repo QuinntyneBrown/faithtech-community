@@ -2,6 +2,7 @@ using System.Text.RegularExpressions;
 using FaithTech.Community.Application.Admin;
 using FaithTech.Community.Application.Agile;
 using FaithTech.Community.Application.Common;
+using FaithTech.Community.Domain.Announcements;
 using FaithTech.Community.Domain.Organisations;
 using FaithTech.Community.Domain.Profiles;
 using FluentValidation;
@@ -20,7 +21,8 @@ public sealed record RoleDefinitionDto(
     bool ChapterScopable,
     bool IsOversight,
     int HolderCount,
-    bool Archived);
+    bool Archived,
+    IReadOnlyList<Guid> GrantableRoleIds);
 
 /// <summary>
 /// POST and PUT /api/organisation/roles: a definition's name, description, capabilities and flags. The chapter-scopable
@@ -210,6 +212,156 @@ public class UpdateRoleDefinitionHandler(
     }
 }
 
+/// <summary>PUT /api/organisation/roles/{id}/grants: the roles the grantor's holders may add and remove.</summary>
+public record GrantRulesCommand(Guid[]? GrantableRoleIds);
+
+/// <summary>
+/// Saves a role's grant rules for a holder of ManageRoles, audited as role.grants.updated (L2-137 AC1). Rules for a
+/// grantor without AssignRoles are stored and inactive (AC2); a grantable carrying AdministerOrganisation under a grantor
+/// that does not is refused (AC3). The rules reach every holder's grantable roles on their next request.
+/// </summary>
+public class SetGrantRulesHandler(IApplicationDbContext db, ICurrentUser current, IAuditLog audit)
+{
+    public async Task<(Result Result, RoleDefinitionDto? Definition)> HandleAsync(
+        Guid id, GrantRulesCommand command, CancellationToken cancellationToken = default)
+    {
+        if (!current.Has(Capability.ManageRoles) || current.Membership is not { } membership)
+        {
+            return (Result.Forbidden(), null);
+        }
+
+        var definition = await db.RoleDefinitions.SingleOrDefaultAsync(d => d.Id == id && d.ArchivedAtUtc == null, cancellationToken);
+        if (definition is null)
+        {
+            return (Result.NotFound(), null);
+        }
+
+        var ids = (command.GrantableRoleIds ?? []).Where(g => g != id).Distinct().ToList();
+        var grantables = await db.RoleDefinitions.AsNoTracking()
+            .Where(d => ids.Contains(d.Id) && d.ArchivedAtUtc == null)
+            .OrderBy(d => d.SortOrder)
+            .ToListAsync(cancellationToken);
+        if (grantables.Count != ids.Count)
+        {
+            return (Result.Invalid(nameof(GrantRulesCommand.GrantableRoleIds), "Choose roles from the list."), null);
+        }
+
+        if (!definition.Carries(Capability.AdministerOrganisation)
+            && grantables.FirstOrDefault(g => g.Carries(Capability.AdministerOrganisation)) is { } administration)
+        {
+            return (Result.Invalid(
+                nameof(GrantRulesCommand.GrantableRoleIds),
+                $"Only administrators can grant administration. Untick {administration.Name} to save."), null);
+        }
+
+        var before = definition.Grants.Select(g => g.GrantableRoleId).ToList();
+        definition.SetGrantableRoles(ids);
+        audit.Record(
+            membership.ProfileId, "role.grants.updated", "RoleDefinition", id.ToString(),
+            new { GrantableRoleIds = before }, new { GrantableRoleIds = ids, Names = grantables.Select(g => g.Name) });
+        await db.SaveChangesAsync(cancellationToken);
+        var count = await db.Profiles.CountAsync(p => p.Roles.Any(r => r.RoleDefinitionId == id), cancellationToken);
+        return (Result.Ok(), RoleDefinitions.Dto(definition, count));
+    }
+}
+
+/// <summary>
+/// Archives a role for a holder of ManageRoles once nothing uses it, audited as role.archived (L2-136 AC4): refused while
+/// any profile holds it, or a grant rule, a share audience or an announcement audience names it, and while it is the
+/// last administrators' role (AC5, L2-139 AC1). An archived role leaves every picker.
+/// </summary>
+public class ArchiveRoleDefinitionHandler(
+    IApplicationDbContext db,
+    ICurrentUser current,
+    IAuditLog audit,
+    LastAdministratorGuard lastAdministrator,
+    TimeProvider time)
+{
+    public async Task<(Result Result, RoleDefinitionDto? Definition)> HandleAsync(Guid id, CancellationToken cancellationToken = default)
+    {
+        if (!current.Has(Capability.ManageRoles) || current.Membership is not { } membership)
+        {
+            return (Result.Forbidden(), null);
+        }
+
+        var definition = await db.RoleDefinitions.SingleOrDefaultAsync(d => d.Id == id && d.ArchivedAtUtc == null, cancellationToken);
+        if (definition is null)
+        {
+            return (Result.NotFound(), null);
+        }
+
+        var holders = await db.Profiles.CountAsync(p => p.Roles.Any(r => r.RoleDefinitionId == id), cancellationToken);
+        if (holders > 0)
+        {
+            var who = holders == 1 ? "1 member holds" : $"{holders} members hold";
+            return (Result.Conflict($"{who} this role. Remove it from them first."), null);
+        }
+
+        var users = await UsersAsync(id, cancellationToken);
+        if (users.Count > 0)
+        {
+            var verb = users.Count > 1 || users[0].EndsWith("grant rules", StringComparison.Ordinal) ? "use" : "uses";
+            return (Result.Conflict($"{RoleDefinitions.Join(users)} still {verb} this role. Remove it from them first."), null);
+        }
+
+        if (definition.Carries(Capability.AdministerOrganisation))
+        {
+            if (!await lastAdministrator.TakeLeaseAsync(cancellationToken))
+            {
+                return (Result.Conflict(LastAdministratorGuard.ConcurrentChangeMessage), null);
+            }
+
+            var wouldLeaveNone = await lastAdministrator.WouldLeaveNoneAsync(excludingDefinition: id, cancellationToken: cancellationToken);
+            lastAdministrator.Release();
+            if (wouldLeaveNone)
+            {
+                await db.SaveChangesAsync(cancellationToken);
+                return (Result.Conflict(LastAdministratorGuard.LastAdministratorMessage), null);
+            }
+        }
+
+        definition.Archive(time.GetUtcNow().UtcDateTime);
+        audit.Record(membership.ProfileId, "role.archived", "RoleDefinition", id.ToString(), RoleDefinitions.State(definition), new { Archived = true });
+        await db.SaveChangesAsync(cancellationToken);
+        return (Result.Ok(), RoleDefinitions.Dto(definition, 0));
+    }
+
+    /// <summary>What still names the role: grantors' rules, share audiences and announcement audiences, in that order.</summary>
+    private async Task<List<string>> UsersAsync(Guid id, CancellationToken cancellationToken)
+    {
+        var grantors = await db.RoleDefinitions.AsNoTracking()
+            .Where(d => d.ArchivedAtUtc == null && d.Id != id && d.Grants.Any(g => g.GrantableRoleId == id))
+            .OrderBy(d => d.SortOrder)
+            .Select(d => d.Name)
+            .ToListAsync(cancellationToken);
+        var resources = await db.Resources.AsNoTracking()
+            .Where(r => r.SharedRoles.Any(s => s.RoleDefinitionId == id))
+            .OrderBy(r => r.Title)
+            .Select(r => r.Title)
+            .ToListAsync(cancellationToken);
+        var pages = await db.NotePages.AsNoTracking()
+            .Where(p => p.SharedRoles.Any(s => s.RoleDefinitionId == id))
+            .OrderBy(p => p.Title)
+            .Select(p => p.Title)
+            .ToListAsync(cancellationToken);
+        // The audience's role ids are stored as text, so the role audiences are read and matched here.
+        var announcements = (await db.Announcements.AsNoTracking()
+                .Where(a => a.Audience.Kind == AudienceKind.Roles)
+                .Select(a => new { a.Subject, a.Audience.RoleIds })
+                .ToListAsync(cancellationToken))
+            .Where(a => a.RoleIds.Contains(id))
+            .Select(a => a.Subject)
+            .Order(StringComparer.Ordinal);
+        return
+        [
+            .. grantors.Select(name => $"{name}’s grant rules"),
+            .. resources.Select(title => $"the resource “{title}”"),
+            .. pages.Select(title => $"the page “{title}”"),
+            .. announcements.Select(subject => $"the announcement audience “{subject}”"),
+        ];
+    }
+}
+
 /// <summary>Rules the role definition handlers share.</summary>
 public static partial class RoleDefinitions
 {
@@ -227,7 +379,12 @@ public static partial class RoleDefinitions
         d.ChapterScopable,
         d.IsOversight,
         holderCount,
-        d.IsArchived);
+        d.IsArchived,
+        [.. d.Grants.Select(g => g.GrantableRoleId)]);
+
+    /// <summary>"a", "a and b", "a, b and c".</summary>
+    public static string Join(IReadOnlyList<string> items) =>
+        items.Count == 1 ? items[0] : $"{string.Join(", ", items.Take(items.Count - 1))} and {items[^1]}";
 
     /// <summary>What the audit records before and after (L2-152).</summary>
     public static object State(RoleDefinition d) =>

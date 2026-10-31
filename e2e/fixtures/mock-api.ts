@@ -445,7 +445,12 @@ export class MockApi {
     );
     if (photos) return this.photos(route, method, photos, body, authorization);
 
-    const definitionRoute = /^\/api\/organisation\/roles(?:\/([^/]+))?$/.exec(url.pathname);
+    const definitionRoute =
+      /^\/api\/organisation\/roles(?:\/([^/]+)(?:\/(grants|archive))?)?$/.exec(url.pathname);
+    if (definitionRoute?.[2] === 'grants')
+      return this.setGrantRules(route, method, definitionRoute[1], body, authorization);
+    if (definitionRoute?.[2] === 'archive')
+      return this.archiveRole(route, method, definitionRoute[1], authorization);
     if (definitionRoute)
       return this.roleDefinitionRoutes(route, method, definitionRoute[1], url, body, authorization);
     const roleRoute = /^\/api\/profiles\/([^/]+)\/roles(?:\/([^/]+))?$/.exec(url.pathname);
@@ -1013,6 +1018,110 @@ export class MockApi {
     return route.fulfill({ status: 201, json: this.definitionDto(defined) });
   }
 
+  /**
+   * SetGrantRulesHandler (L2-137): the rules of a grantor for ManageRoles, refusing an administration role under a
+   * grantor that does not carry it. Rules for a grantor without AssignRoles are stored and grant nothing.
+   */
+  private setGrantRules(
+    route: Route,
+    method: string,
+    id: string,
+    body: Record<string, unknown>,
+    authorization: string | undefined,
+  ) {
+    const caller = this.caller(authorization);
+    if (!caller) return route.fulfill({ status: 401 });
+    if (method !== 'PUT') return route.fulfill({ status: 405 });
+    if (!holds(caller, 'ManageRoles')) return route.fulfill({ status: 403 });
+    const grantor = roleDefinitions().find((d) => d.id === id && !d.archived);
+    if (!grantor) return route.fulfill({ status: 404 });
+    const ids = ((body['grantableRoleIds'] as string[] | undefined) ?? []).filter((g) => g !== id);
+    const grantables = roleDefinitions().filter((d) => !d.archived && ids.includes(d.id));
+    const invalid = (message: string) =>
+      route.fulfill({
+        status: 400,
+        json: { title: 'Invalid', status: 400, errors: { GrantableRoleIds: [message] } },
+      });
+    if (grantables.length !== new Set(ids).size) return invalid('Choose roles from the list.');
+    const administration = grantables.find((g) =>
+      g.capabilities.includes('AdministerOrganisation'),
+    );
+    if (administration && !grantor.capabilities.includes('AdministerOrganisation'))
+      return invalid(
+        `Only administrators can grant administration. Untick ${administration.name} to save.`,
+      );
+    const before = JSON.stringify(this.definitionDto(grantor).grantableRoleIds);
+    grantor.grants = grantables.map((g) => g.key);
+    this.addAuditEntry({
+      action: 'role.grants.updated',
+      summary: `Changed who ${grantor.name} may grant`,
+      targetType: 'RoleDefinition',
+      targetId: grantor.id,
+      before,
+      after: JSON.stringify(this.definitionDto(grantor).grantableRoleIds),
+      actorId: caller.profileId,
+      actorName: caller.name,
+    });
+    return route.fulfill({ status: 200, json: this.definitionDto(grantor) });
+  }
+
+  /**
+   * ArchiveRoleDefinitionHandler (L2-136 AC4, AC5): refused while members hold the role or a grant rule, a share
+   * audience or an announcement audience names it; archived, it leaves every picker.
+   */
+  private archiveRole(route: Route, method: string, id: string, authorization: string | undefined) {
+    const caller = this.caller(authorization);
+    if (!caller) return route.fulfill({ status: 401 });
+    if (method !== 'POST') return route.fulfill({ status: 405 });
+    if (!holds(caller, 'ManageRoles')) return route.fulfill({ status: 403 });
+    const definition = roleDefinitions().find((d) => d.id === id && !d.archived);
+    if (!definition) return route.fulfill({ status: 404 });
+    const holders = this.definitionDto(definition).holderCount;
+    if (holders > 0)
+      return conflict(
+        route,
+        `${holders === 1 ? '1 member holds' : `${holders} members hold`} this role. Remove it from them first.`,
+      );
+    const names = (roles: readonly string[] | undefined) =>
+      (roles ?? []).includes(definition.key) || (roles ?? []).includes(definition.id);
+    const users = [
+      ...roleDefinitions()
+        .filter((d) => !d.archived && d !== definition && d.grants.includes(definition.key))
+        .map((d) => `${d.name}’s grant rules`),
+      ...this.resources.resources
+        .filter((r) => names(r.roles))
+        .map((r) => `the resource “${r.title}”`)
+        .sort(),
+      ...this.notes.pages
+        .filter((p) => names(p.roles))
+        .map((p) => `the page “${p.title}”`)
+        .sort(),
+      ...this.announcements.announcements
+        .filter((a) => a.audience.kind === 'Roles' && names(a.audience.roles))
+        .map((a) => `the announcement audience “${a.subject}”`)
+        .sort(),
+    ];
+    if (users.length) {
+      const list =
+        users.length === 1 ? users[0] : `${users.slice(0, -1).join(', ')} and ${users.at(-1)}`;
+      const verb = users.length > 1 || users[0].endsWith('grant rules') ? 'use' : 'uses';
+      return conflict(route, `${list} still ${verb} this role. Remove it from them first.`);
+    }
+    const before = JSON.stringify(this.definitionDto(definition));
+    definition.archived = true;
+    this.addAuditEntry({
+      action: 'role.archived',
+      summary: `Archived ${definition.name}`,
+      targetType: 'RoleDefinition',
+      targetId: definition.id,
+      before,
+      after: JSON.stringify({ archived: true }),
+      actorId: caller.profileId,
+      actorName: caller.name,
+    });
+    return route.fulfill({ status: 200, json: this.definitionDto(definition) });
+  }
+
   /** A definition as GET /api/organisation/roles answers it, with how many profiles hold it. */
   private definitionDto(d: RoleDefinition) {
     return {
@@ -1026,6 +1135,9 @@ export class MockApi {
       isOversight: d.isOversight,
       holderCount: [...this.profiles.values()].filter((p) => p.roles.includes(d.key)).length,
       archived: !!d.archived,
+      grantableRoleIds: d.grants
+        .map((key) => roleDefinitions().find((g) => g.key === key && !g.archived)?.id)
+        .filter((g): g is string => !!g),
     };
   }
 

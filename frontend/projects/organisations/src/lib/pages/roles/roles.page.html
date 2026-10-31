@@ -67,14 +67,29 @@
                 }
               </ft-cluster>
               @if (canEdit() && filter() === 'active') {
-                <ft-button
-                  trailing
-                  variant="ghost"
-                  size="sm"
-                  [object]="definition.name"
-                  (click)="edit(definition)"
-                  >Edit</ft-button
-                >
+                <ft-cluster trailing gap="1">
+                  <ft-button
+                    variant="ghost"
+                    size="sm"
+                    [object]="definition.name"
+                    (click)="edit(definition)"
+                    >Edit</ft-button
+                  >
+                  <ft-button
+                    variant="ghost"
+                    size="sm"
+                    [object]="definition.name"
+                    (click)="grants(definition)"
+                    >Who may grant</ft-button
+                  >
+                  <ft-button
+                    variant="ghost"
+                    size="sm"
+                    [object]="definition.name"
+                    (click)="archive(definition)"
+                    >Archive</ft-button
+                  >
+                </ft-cluster>
               }
             </ft-list-item>
           }
