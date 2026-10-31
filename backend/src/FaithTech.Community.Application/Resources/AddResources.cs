@@ -19,6 +19,7 @@ public record AddResourcesCommand(IReadOnlyList<ResourceUpload> Files, ResourceF
 /// </summary>
 public class AddResourcesHandler(
     IApplicationDbContext db,
+    ResourceTypeResolver types,
     ResourceAccess access,
     ResourceFieldRules rules,
     ResourceFileStore files,
@@ -78,7 +79,9 @@ public class AddResourcesHandler(
             var id = Guid.NewGuid();
             var file = await files.StoreAsync(id, upload, cancellationToken);
             var title = single && fields.Title is not null ? fields.Title : TitleFrom(upload.FileName);
-            var type = single && fields.Type is { } chosen ? chosen : ResourceFileTypes.GuessType(upload.FileName);
+            var type = single && fields.Type is { } chosen
+                ? chosen
+                : await types.ResolveGuessAsync(ResourceFileTypes.GuessType(upload.FileName), cancellationToken);
             var resource = Resource.ForFile(id, title, fields.Description, type, caller, file, now);
             resource.SetOwner(caller, ownerRole);
             resource.SetTags(fields.Tags);
@@ -162,7 +165,7 @@ public class AddLinkHandler(
         }
 
         var caller = await access.CallerAsync(cancellationToken);
-        var resource = Resource.ForLink(fields.Title!, fields.Description, fields.Type!.Value, caller, link!, time.GetUtcNow());
+        var resource = Resource.ForLink(fields.Title!, fields.Description, fields.Type!, caller, link!, time.GetUtcNow());
         resource.SetOwner(caller, await contributors.OwnerRoleAsync(caller, cancellationToken));
         resource.SetTags(fields.Tags);
         resource.SetAudience(fields.Audience);

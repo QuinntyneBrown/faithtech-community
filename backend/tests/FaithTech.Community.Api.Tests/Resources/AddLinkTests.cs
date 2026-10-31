@@ -10,7 +10,7 @@ namespace FaithTech.Community.Api.Tests.Resources;
 
 public class AddLinkTests(CommunityApiFactory factory) : IClassFixture<CommunityApiFactory>
 {
-    private static object Link(string? url, string? title = "Event poster template", string type = "Template") =>
+    private static object Link(string? url, string? title = "Event poster template", string type = "template") =>
         new { Url = url, Title = title, Description = "Canva template", Type = type, Tags = new[] { "Events" }, Visibility = "Global" };
 
     [Fact]
@@ -22,7 +22,7 @@ public class AddLinkTests(CommunityApiFactory factory) : IClassFixture<Community
 
         Assert.Equal(HttpStatusCode.Created, response.StatusCode);
         var link = (await response.Content.ReadFromJsonAsync<Detail>())!;
-        Assert.Equal(("https://www.canva.com/design/DAF123/edit", "canva.com", "Template", "events"), (link.LinkUrl, link.LinkHost, link.Type, link.Tags.Single()));
+        Assert.Equal(("https://www.canva.com/design/DAF123/edit", "canva.com", "template", "events"), (link.LinkUrl, link.LinkHost, link.Type, link.Tags.Single()));
         Assert.Null(link.FileName);
         var row = (await factory.ClientFor(await factory.AddMemberAsync("Samuel Mensah")).ListResourcesAsync()).Items.Single(r => r.Id == link.Id);
         Assert.Equal(("canva.com", null), (row.LinkHost, row.Extension));

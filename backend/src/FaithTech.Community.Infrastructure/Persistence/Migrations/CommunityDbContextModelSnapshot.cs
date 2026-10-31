@@ -1112,6 +1112,40 @@ namespace FaithTech.Community.Infrastructure.Persistence.Migrations
                     b.ToTable("PartnerStages", (string)null);
                 });
 
+            modelBuilder.Entity("FaithTech.Community.Domain.Organisations.ResourceType", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime?>("ArchivedAtUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Key")
+                        .IsRequired()
+                        .HasMaxLength(40)
+                        .HasColumnType("character varying(40)");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(40)
+                        .HasColumnType("character varying(40)");
+
+                    b.Property<Guid>("OrganisationId")
+                        .HasColumnType("uuid");
+
+                    b.Property<int>("SortOrder")
+                        .HasColumnType("integer");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("OrganisationId");
+
+                    b.HasIndex("OrganisationId", "Key")
+                        .IsUnique();
+
+                    b.ToTable("ResourceTypes", (string)null);
+                });
+
             modelBuilder.Entity("FaithTech.Community.Domain.Organisations.RoleDefinition", b =>
                 {
                     b.Property<Guid>("Id")
@@ -1561,10 +1595,8 @@ namespace FaithTech.Community.Infrastructure.Persistence.Migrations
                         .HasMaxLength(120)
                         .HasColumnType("character varying(120)");
 
-                    b.Property<string>("Type")
-                        .IsRequired()
-                        .HasMaxLength(16)
-                        .HasColumnType("character varying(16)");
+                    b.Property<Guid>("TypeId")
+                        .HasColumnType("uuid");
 
                     b.Property<DateTimeOffset?>("UpdatedAt")
                         .HasColumnType("timestamp with time zone");
@@ -1586,6 +1618,8 @@ namespace FaithTech.Community.Infrastructure.Persistence.Migrations
                     b.HasIndex("SearchVector");
 
                     NpgsqlIndexBuilderExtensions.HasMethod(b.HasIndex("SearchVector"), "GIN");
+
+                    b.HasIndex("TypeId");
 
                     b.HasIndex("ArchivedAt", "AddedAt");
 
@@ -2551,6 +2585,15 @@ namespace FaithTech.Community.Infrastructure.Persistence.Migrations
                         .IsRequired();
                 });
 
+            modelBuilder.Entity("FaithTech.Community.Domain.Organisations.ResourceType", b =>
+                {
+                    b.HasOne("FaithTech.Community.Domain.Organisations.Organisation", null)
+                        .WithMany()
+                        .HasForeignKey("OrganisationId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+                });
+
             modelBuilder.Entity("FaithTech.Community.Domain.Organisations.RoleDefinition", b =>
                 {
                     b.HasOne("FaithTech.Community.Domain.Organisations.Organisation", null)
@@ -2805,6 +2848,12 @@ namespace FaithTech.Community.Infrastructure.Persistence.Migrations
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
+                    b.HasOne("FaithTech.Community.Domain.Organisations.ResourceType", "Type")
+                        .WithMany()
+                        .HasForeignKey("TypeId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
                     b.OwnsOne("FaithTech.Community.Domain.Resources.ResourceFile", "File", b1 =>
                         {
                             b1.Property<Guid>("ResourceId")
@@ -2919,6 +2968,8 @@ namespace FaithTech.Community.Infrastructure.Persistence.Migrations
                     b.Navigation("SharedRoles");
 
                     b.Navigation("Tags");
+
+                    b.Navigation("Type");
                 });
 
             modelBuilder.Entity("FaithTech.Community.Domain.Resources.ResourceBlobTask", b =>

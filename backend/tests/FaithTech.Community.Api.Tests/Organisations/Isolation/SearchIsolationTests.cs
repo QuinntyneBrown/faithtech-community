@@ -28,7 +28,7 @@ public class SearchIsolationTests(CommunityApiFactory factory) : IClassFixture<C
                 title = $"Builders {word}", description = "An evening.", type = "builders-night", startsAt = start, endsAt = start.AddHours(2),
                 city = "Toronto", format = "InPerson", venue = "Kestrel Labs", capacity = 60, visibility = "Public",
             }),
-            ("/api/resources/links", new { Url = "https://www.canva.com/design/DAF123/edit", Title = $"Poster {word}", Description = "Template", Type = "Template", Tags = new[] { "events" }, Visibility = "Global" }),
+            ("/api/resources/links", new { Url = "https://www.canva.com/design/DAF123/edit", Title = $"Poster {word}", Description = "Template", Type = "template", Tags = new[] { "events" }, Visibility = "Global" }),
         })
         {
             (await lead.PostAsJsonAsync(path, body)).EnsureSuccessStatusCode();

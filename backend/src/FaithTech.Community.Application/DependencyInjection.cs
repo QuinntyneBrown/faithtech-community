@@ -134,6 +134,7 @@ public static class DependencyInjection
         services.AddScoped<ResourceAccess>();
         services.AddScoped<ResourceViews>();
         services.AddScoped<ResourceFieldRules>();
+        services.AddScoped<ResourceTypeResolver>();
         services.AddScoped<ResourceFileStore>();
         services.AddScoped<ShareNotifier>();
         services.AddScoped<ResourceMembersHandler>();

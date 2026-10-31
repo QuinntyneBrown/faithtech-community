@@ -115,7 +115,7 @@ public class FeatureIsolationTests(CommunityApiFactory factory) : IClassFixture<
         var marker = Isolation.Marker();
         var id = await (await northside.PostAsync("/api/resources/links", new
         {
-            Url = "https://www.canva.com/design/DAF123/edit", Title = marker, Description = "Canva template", Type = "Template",
+            Url = "https://www.canva.com/design/DAF123/edit", Title = marker, Description = "Canva template", Type = "template",
             Tags = new[] { "events" }, Visibility = "Global",
         })).CreatedIdAsync();
         var admin = await factory.FaithTechAdminAsync();

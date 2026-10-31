@@ -20,11 +20,11 @@ public class EditResourceTests(CommunityApiFactory factory) : IClassFixture<Comm
         factory.Time.Advance(TimeSpan.FromHours(2));
 
         var response = await client.PutAsJsonAsync($"/api/resources/{deck.Id}",
-            EditBody(deck, title: "City launch deck", description: "Use this first.", type: "Template", tags: ["Launch", "launch"], visibility: "Private"));
+            EditBody(deck, title: "City launch deck", description: "Use this first.", type: "template", tags: ["Launch", "launch"], visibility: "Private"));
 
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
         var edited = (await response.Content.ReadFromJsonAsync<Detail>())!;
-        Assert.Equal(("City launch deck", "Use this first.", "Template", "Private"), (edited.Title, edited.Description, edited.Type, edited.Visibility));
+        Assert.Equal(("City launch deck", "Use this first.", "template", "Private"), (edited.Title, edited.Description, edited.Type, edited.Visibility));
         Assert.Equal(["launch"], edited.Tags);
         Assert.Equal((factory.Time.GetUtcNow(), "Grace Okonkwo"), (edited.UpdatedAt!.Value, edited.UpdatedByName));
         Assert.Null(edited.FileReplacedAt);
@@ -32,12 +32,12 @@ public class EditResourceTests(CommunityApiFactory factory) : IClassFixture<Comm
 
     public static TheoryData<string, object> Invalid() => new()
     {
-        { "Title", new { Title = "   ", Type = "Deck", Visibility = "Global" } },
-        { "Title", new { Title = new string('a', 121), Type = "Deck", Visibility = "Global" } },
-        { "Description", new { Title = "Deck", Description = new string('a', 1001), Type = "Deck", Visibility = "Global" } },
+        { "Title", new { Title = "   ", Type = "deck", Visibility = "Global" } },
+        { "Title", new { Title = new string('a', 121), Type = "deck", Visibility = "Global" } },
+        { "Description", new { Title = "Deck", Description = new string('a', 1001), Type = "deck", Visibility = "Global" } },
         { "Type", new { Title = "Deck", Type = "Spreadsheet", Visibility = "Global" } },
-        { "Visibility", new { Title = "Deck", Type = "Deck", Visibility = "City" } },
-        { "Visibility", new { Title = "Deck", Type = "Deck", Visibility = "Shared" } },
+        { "Visibility", new { Title = "Deck", Type = "deck", Visibility = "City" } },
+        { "Visibility", new { Title = "Deck", Type = "deck", Visibility = "Shared" } },
     };
 
     [Theory]

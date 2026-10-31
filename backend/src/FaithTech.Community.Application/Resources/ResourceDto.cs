@@ -11,6 +11,7 @@ public record ResourceSummaryDto(
     Guid Id,
     string Title,
     string Type,
+    string TypeName,
     string? FileName,
     string? Extension,
     long? Size,
@@ -41,6 +42,7 @@ public record ResourceDto(
     string Title,
     string? Description,
     string Type,
+    string TypeName,
     IReadOnlyList<string> Tags,
     string? FileName,
     string? Extension,
@@ -102,7 +104,8 @@ public class ResourceViews(IApplicationDbContext db, ICurrentUser current, Resou
             r.Id,
             r.Title,
             r.Description,
-            r.Type.ToString(),
+            r.Type!.Key,
+            r.Type.Name,
             [.. r.Tags.Select(t => t.Tag)],
             r.File?.FileName,
             r.File?.Extension,
@@ -142,7 +145,8 @@ public class ResourceViews(IApplicationDbContext db, ICurrentUser current, Resou
             {
                 r.Id,
                 r.Title,
-                r.Type,
+                TypeKey = r.Type!.Key,
+                TypeName = r.Type.Name,
                 FileName = r.File == null ? null : r.File.FileName,
                 Extension = r.File == null ? null : r.File.Extension,
                 Size = r.File == null ? (long?)null : r.File.Size,
@@ -159,7 +163,7 @@ public class ResourceViews(IApplicationDbContext db, ICurrentUser current, Resou
             })
             .ToListAsync(cancellationToken);
         return [.. rows.Select(r => new ResourceSummaryDto(
-            r.Id, r.Title, r.Type.ToString(), r.FileName, r.Extension, r.Size, r.LinkUrl, r.LinkHost, r.OwnerId,
+            r.Id, r.Title, r.TypeKey, r.TypeName, r.FileName, r.Extension, r.Size, r.LinkUrl, r.LinkHost, r.OwnerId,
             r.OwnerName ?? "A former member", r.OwnerId == caller, r.Visibility.ToString(), r.SharedWithYou, r.HasThumbnail, r.IsStored, r.AddedAt))];
     }
 

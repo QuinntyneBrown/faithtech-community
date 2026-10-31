@@ -19,12 +19,14 @@ public class ListResourcesHandler(IApplicationDbContext db, ResourceAccess acces
         var resources = access.Visible(db.Resources.AsNoTracking(), caller);
         if (!string.IsNullOrWhiteSpace(query.Type))
         {
-            if (!Enum.TryParse<ResourceType>(query.Type, out var type) || int.TryParse(query.Type, out _))
+            // Any of the organisation's types, archived ones included, so "Show archived types" can list them (L2-146 AC4).
+            var key = query.Type.Trim();
+            if (!await db.ResourceTypes.AnyAsync(t => t.Key == key, cancellationToken))
             {
                 return (Result.Invalid("type", "Choose a type from the list."), null);
             }
 
-            resources = resources.Where(r => r.Type == type);
+            resources = resources.Where(r => r.Type!.Key == key);
         }
 
         if (!string.IsNullOrWhiteSpace(query.Tag))
@@ -145,7 +147,7 @@ internal static class ResourceAudit
     {
         r.Title,
         r.Description,
-        Type = r.Type.ToString(),
+        Type = r.Type?.Key,
         Tags = r.Tags.Select(t => t.Tag).ToList(),
         Visibility = r.Visibility.ToString(),
         Members = r.SharedMembers.Select(m => m.ProfileId).ToList(),

@@ -86,8 +86,8 @@ public static class ResourceDescriptions
 {
     /// <summary>"Document, PDF, 3.1 MB" for a file, "Template, canva.com" for a link.</summary>
     public static string What(Resource resource) => resource.File is { } file
-        ? $"{resource.Type}, {file.Extension.ToUpperInvariant()}, {Size(file.Size)}"
-        : $"{resource.Type}, {resource.LinkHost}";
+        ? $"{resource.Type?.Name}, {file.Extension.ToUpperInvariant()}, {Size(file.Size)}"
+        : $"{resource.Type?.Name}, {resource.LinkHost}";
 
     /// <summary>"640 KB" under a megabyte, else "24.6 MB", as the mocks print sizes.</summary>
     public static string Size(long bytes) => bytes < 1024 * 1024

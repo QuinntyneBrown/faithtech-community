@@ -42,7 +42,7 @@ public class WorkerIsolationTests(CommunityApiFactory factory) : IClassFixture<C
         var northside = await factory.NorthsideClientAsync(Role.CityLead);
         var id = await (await northside.PostAsync("/api/resources/links", new
         {
-            Url = "https://www.canva.com/design/DAF123/edit", Title = Isolation.Marker(), Description = "Old poster", Type = "Template",
+            Url = "https://www.canva.com/design/DAF123/edit", Title = Isolation.Marker(), Description = "Old poster", Type = "template",
             Tags = new[] { "events" }, Visibility = "Global",
         })).CreatedIdAsync();
         (await northside.PostAsJsonAsync($"/api/resources/{id}/archive", new { })).EnsureSuccessStatusCode();

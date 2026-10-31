@@ -7,7 +7,7 @@ namespace FaithTech.Community.Application.Resources;
 
 /// <summary>An archived resource as the Archived page lists it (L2-063 AC3).</summary>
 public record ArchivedResourceDto(
-    Guid Id, string Title, string Type, string? Extension, long? Size, string? LinkHost, DateTimeOffset ArchivedAt, DateTimeOffset PurgeAt);
+    Guid Id, string Title, string Type, string TypeName, string? Extension, long? Size, string? LinkHost, DateTimeOffset ArchivedAt, DateTimeOffset PurgeAt);
 
 /// <summary>
 /// Archive and restore (L2-063): the owner or a System Admin, the admin's action audited. An archived resource is
@@ -30,11 +30,11 @@ public class ArchiveResourceHandler(IApplicationDbContext db, ResourceAccess acc
             .OrderByDescending(r => r.ArchivedAt)
             .Select(r => new
             {
-                r.Id, r.Title, r.Type, Extension = r.File == null ? null : r.File.Extension, Size = r.File == null ? (long?)null : r.File.Size, r.LinkHost, r.ArchivedAt,
+                r.Id, r.Title, TypeKey = r.Type!.Key, TypeName = r.Type.Name, Extension = r.File == null ? null : r.File.Extension, Size = r.File == null ? (long?)null : r.File.Size, r.LinkHost, r.ArchivedAt,
             })
             .ToListAsync(cancellationToken);
         return [.. rows.Select(r => new ArchivedResourceDto(
-            r.Id, r.Title, r.Type.ToString(), r.Extension, r.Size, r.LinkHost, r.ArchivedAt!.Value, r.ArchivedAt.Value + Resource.PurgeAfter))];
+            r.Id, r.Title, r.TypeKey, r.TypeName, r.Extension, r.Size, r.LinkHost, r.ArchivedAt!.Value, r.ArchivedAt.Value + Resource.PurgeAfter))];
     }
 
     private async Task<Result> ChangeAsync(Guid id, bool archive, CancellationToken cancellationToken)

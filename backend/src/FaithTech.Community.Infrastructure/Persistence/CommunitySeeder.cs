@@ -59,6 +59,7 @@ public class CommunitySeeder(IOpenIddictApplicationManager applications, Communi
         await SeedRoleDefinitionsAsync(cancellationToken);
         await SeedPartnerStagesAsync(cancellationToken);
         await SeedEventTypesAsync(cancellationToken);
+        await SeedResourceTypesAsync(cancellationToken);
 
         // The concurrency token that guards FaithTech's last administrator (LastAdministratorGuard).
         if (!await db.OrganisationAdminRosters.AnyAsync(cancellationToken))
@@ -133,17 +134,34 @@ public class CommunitySeeder(IOpenIddictApplicationManager applications, Communi
         return await db.EventTypes.Where(t => t.ArchivedAtUtc == null).OrderBy(t => t.SortOrder).FirstAsync(cancellationToken);
     }
 
-    public record StarterResource(Guid Id, string Title, string Description, ResourceType Type, string Url, string[] Tags);
+    /// <summary>FaithTech's resource types, found by key and inserted only when missing, so later edits survive (L2-151 AC3).</summary>
+    private async Task SeedResourceTypesAsync(CancellationToken cancellationToken)
+    {
+        var ids = FaithTechSeed.ResourceKinds.Select(t => t.Id).ToList();
+        var existing = await db.ResourceTypes.IgnoreQueryFilters()
+            .Where(t => t.OrganisationId == FaithTechSeed.OrganisationId || ids.Contains(t.Id))
+            .Select(t => new { t.Id, t.Key })
+            .ToListAsync(cancellationToken);
+        var missing = FaithTechSeed.ResourceTypes().Where(t => !existing.Any(e => e.Id == t.Id || e.Key == t.Key)).ToList();
+        if (missing.Count > 0)
+        {
+            db.ResourceTypes.AddRange(missing);
+            await db.SaveChangesAsync(cancellationToken);
+        }
+    }
+
+    /// <summary>A starter link: its type is a resource type key of FaithTech's (L2-151 AC4).</summary>
+    public record StarterResource(Guid Id, string Title, string Description, string TypeKey, string Url, string[] Tags);
 
     /// <summary>Links every member can use from day one (L2-055); fixed ids keep the seed idempotent.</summary>
     public static readonly IReadOnlyList<StarterResource> StarterResources =
     [
         new(new Guid("6f1d1b8e-3c55-4a43-9a41-3f6f0a9d0001"), "FaithTech brand guidelines", "Logos, colours and type for anything that carries the FaithTech name.",
-            ResourceType.Logo, "https://faithtech.com/brand", ["brand", "logo"]),
+            "logo", "https://faithtech.com/brand", ["brand", "logo"]),
         new(new Guid("6f1d1b8e-3c55-4a43-9a41-3f6f0a9d0002"), "Starting a FaithTech city", "The playbook for launching a new city team.",
-            ResourceType.Training, "https://faithtech.com/start-a-city", ["city-team", "launch", "training"]),
+            "training", "https://faithtech.com/start-a-city", ["city-team", "launch", "training"]),
         new(new Guid("6f1d1b8e-3c55-4a43-9a41-3f6f0a9d0003"), "Hackathon planning guide", "How to plan, run and follow up a FaithTech hackathon.",
-            ResourceType.Document, "https://faithtech.com/hackathons", ["hackathon", "events"]),
+            "document", "https://faithtech.com/hackathons", ["hackathon", "events"]),
     ];
 
     /// <summary>Adds the starter links once, owned by the first System Admin; until there is one, nothing is added.</summary>
@@ -160,9 +178,12 @@ public class CommunitySeeder(IOpenIddictApplicationManager applications, Communi
         var existing = await db.Resources.Where(r => ids.Contains(r.Id)).Select(r => r.Id).ToListAsync(cancellationToken);
         var ownerRole = await db.RoleDefinitions.Where(d => d.Capabilities.Contains(Capability.AdministerOrganisation))
             .OrderBy(d => d.SortOrder).Select(d => d.Key).FirstAsync(cancellationToken);
+        await SeedResourceTypesAsync(cancellationToken);
+        var types = await db.ResourceTypes.ToDictionaryAsync(t => t.Key, cancellationToken);
         foreach (var starter in StarterResources.Where(r => !existing.Contains(r.Id)))
         {
-            var resource = Resource.ForLink(starter.Title, starter.Description, starter.Type, ownerId, new Uri(starter.Url), time.GetUtcNow(), starter.Id);
+            var type = types.GetValueOrDefault(starter.TypeKey) ?? types[ResourceType.OtherKey];
+            var resource = Resource.ForLink(starter.Title, starter.Description, type, ownerId, new Uri(starter.Url), time.GetUtcNow(), starter.Id);
             resource.SetOwner(ownerId, ownerRole);
             resource.SetTags(starter.Tags);
             resource.SetAudience(ResourceAudience.Global());

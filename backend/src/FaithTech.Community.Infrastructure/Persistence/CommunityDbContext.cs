@@ -89,6 +89,8 @@ public class CommunityDbContext : IdentityDbContext<CommunityUser, IdentityRole<
 
     public DbSet<EventType> EventTypes => Set<EventType>();
 
+    public DbSet<ResourceType> ResourceTypes => Set<ResourceType>();
+
     public DbSet<PartnerActivity> PartnerActivities => Set<PartnerActivity>();
 
     public DbSet<PartnerDuplicateDismissal> PartnerDuplicateDismissals => Set<PartnerDuplicateDismissal>();
@@ -376,6 +378,17 @@ public class CommunityDbContext : IdentityDbContext<CommunityUser, IdentityRole<
             type.HasIndex(nameof(IOrganisationScoped.OrganisationId), nameof(EventType.Key)).IsUnique();
         });
 
+        builder.Entity<ResourceType>(type =>
+        {
+            type.ToTable("ResourceTypes");
+            type.Property(t => t.Id).ValueGeneratedNever();
+            type.Property(t => t.Key).HasMaxLength(ResourceType.MaxName);
+            type.Property(t => t.Name).HasMaxLength(ResourceType.MaxName);
+            type.Ignore(t => t.IsArchived);
+            type.Ignore(t => t.CanArchive);
+            type.HasIndex(nameof(IOrganisationScoped.OrganisationId), nameof(ResourceType.Key)).IsUnique();
+        });
+
         builder.Entity<PartnerStageChange>(change =>
         {
             change.ToTable("PartnerStageChanges");
@@ -549,7 +562,8 @@ public class CommunityDbContext : IdentityDbContext<CommunityUser, IdentityRole<
             resource.Property(r => r.Id).ValueGeneratedNever();
             resource.Property(r => r.Title).HasMaxLength(Resource.MaxTitle);
             resource.Property(r => r.Description).HasMaxLength(Resource.MaxDescription);
-            resource.Property(r => r.Type).HasConversion<string>().HasMaxLength(16);
+            resource.HasOne(r => r.Type).WithMany().HasForeignKey(r => r.TypeId).OnDelete(DeleteBehavior.Restrict);
+            resource.Navigation(r => r.Type).AutoInclude();
             resource.Property(r => r.Visibility).HasConversion<string>().HasMaxLength(16);
             resource.Property(r => r.OwnerRole).HasMaxLength(32);
             resource.Property(r => r.LinkUrl).HasMaxLength(2000);
