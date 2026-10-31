@@ -71,7 +71,7 @@ test.describe('Sign in', () => {
     await signIn.open();
     await signIn.signIn(account.email, account.password);
 
-    await expect(signIn.alert).toContainText('This account is suspended');
+    await expect(signIn.alert).toContainText('Your membership of FaithTech Community is suspended');
     await axe.check();
   });
 

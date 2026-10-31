@@ -73,7 +73,9 @@ test.describe('Sign in with Google from the marketing page', () => {
 
     await marketing.signInWithGoogle.click();
 
-    await expect(marketing.alert).toContainText('This account is suspended');
+    await expect(marketing.alert).toContainText(
+      'Your membership of FaithTech Community is suspended',
+    );
   });
 
   test('cancelling at Google returns to the page with the failure message', async ({
