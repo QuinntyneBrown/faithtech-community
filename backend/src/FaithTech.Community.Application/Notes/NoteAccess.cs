@@ -13,10 +13,6 @@ namespace FaithTech.Community.Application.Notes;
 /// </summary>
 public class NoteAccess(IApplicationDbContext db, ICurrentUser current)
 {
-    /// <summary>The roles a page can be shared with, as for resources (L2-093).</summary>
-    public static readonly IReadOnlyList<Role> ShareableRoles =
-        [Role.CityLead, Role.EventLead, Role.CreateLead, Role.CommunicationsLead, Role.Volunteer, Role.ProductEngineer, Role.Staff];
-
     private Guid? _caller;
 
     public bool IsSystemAdmin => current.Has(Capability.AdministerOrganisation);

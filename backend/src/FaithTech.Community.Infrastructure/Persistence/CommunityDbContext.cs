@@ -250,7 +250,7 @@ public class CommunityDbContext : IdentityDbContext<CommunityUser, IdentityRole<
             invite.Property(i => i.Email).HasMaxLength(256);
             invite.Property(i => i.TokenHash).HasMaxLength(64);
             invite.HasIndex(i => new { i.OrganisationId, i.TokenHash }).IsUnique();
-            invite.Property(i => i.PreassignedRole).HasConversion<string>().HasMaxLength(32);
+            invite.Property(i => i.PreassignedRole).HasMaxLength(32);
             invite.Property(i => i.Note).HasMaxLength(500);
             invite.HasIndex(i => new { i.InvitedBy, i.CreatedAt });
         });
@@ -489,7 +489,7 @@ public class CommunityDbContext : IdentityDbContext<CommunityUser, IdentityRole<
             resource.Property(r => r.Description).HasMaxLength(Resource.MaxDescription);
             resource.Property(r => r.Type).HasConversion<string>().HasMaxLength(16);
             resource.Property(r => r.Visibility).HasConversion<string>().HasMaxLength(16);
-            resource.Property(r => r.OwnerRole).HasConversion<string>().HasMaxLength(32);
+            resource.Property(r => r.OwnerRole).HasMaxLength(32);
             resource.Property(r => r.LinkUrl).HasMaxLength(2000);
             resource.Property(r => r.LinkHost).HasMaxLength(255);
             resource.Property(r => r.TagText).HasMaxLength(2000);

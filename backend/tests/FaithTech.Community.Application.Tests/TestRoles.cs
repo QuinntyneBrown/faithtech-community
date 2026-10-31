@@ -48,6 +48,8 @@ public static class TestRoles
     {
         public void AddRole(Role role, Guid grantedBy, DateTime nowUtc) => profile.AddRole(Definition(role), grantedBy, nowUtc);
 
+        public bool HasRole(Role role) => profile.HasRole(Definition(role).Id);
+
         public void RemoveRole(Role role) => profile.RemoveRole(Definition(role).Id);
     }
 

@@ -12,10 +12,6 @@ namespace FaithTech.Community.Application.Resources;
 /// </summary>
 public class ResourceAccess(IApplicationDbContext db, ICurrentUser current)
 {
-    /// <summary>The roles a resource can be shared with (L2-061 AC1).</summary>
-    public static readonly IReadOnlyList<Role> ShareableRoles =
-        [Role.CityLead, Role.EventLead, Role.CreateLead, Role.CommunicationsLead, Role.Volunteer, Role.ProductEngineer, Role.Staff];
-
     private Guid? _caller;
 
     /// <summary>AddResources adds and owns resources; Staff's is the deliberate carve-out from read-only (ADR 0017).</summary>

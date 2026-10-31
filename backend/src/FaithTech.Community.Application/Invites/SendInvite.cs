@@ -43,23 +43,14 @@ public class InviteSender(
 
     public async Task<(Result Result, InviteDto? Invite)> SendAsync(SendInviteCommand command, CancellationToken cancellationToken = default)
     {
-        Role? role = null;
-        if (!string.IsNullOrEmpty(command.PreassignedRole))
-        {
-            if (!Enum.TryParse<Role>(command.PreassignedRole, ignoreCase: false, out var parsed) || !Enum.IsDefined(parsed))
-            {
-                return (Result.Invalid("PreassignedRole", "Choose a role from the list."), null);
-            }
-
-            role = parsed;
-        }
+        var role = string.IsNullOrEmpty(command.PreassignedRole) ? null : command.PreassignedRole;
 
         var note = string.IsNullOrWhiteSpace(command.Note) ? null : command.Note.Trim();
         return await CreateAsync(command.Email!.Trim(), role, note, cancellationToken);
     }
 
     /// <summary>Checks the sender and sends a new invite; shared by send and resend.</summary>
-    public async Task<(Result Result, InviteDto? Invite)> CreateAsync(string address, Role? role, string? note, CancellationToken cancellationToken)
+    public async Task<(Result Result, InviteDto? Invite)> CreateAsync(string address, string? role, string? note, CancellationToken cancellationToken)
     {
         if (!CanInvite)
         {
@@ -79,9 +70,13 @@ public class InviteSender(
             return (Result.Forbidden("Verify your email before sending invites."), null);
         }
 
-        var key = role is { } r ? LegacyRoles.Key(r) : null;
-        var definition = key is null ? null : await db.RoleDefinitions.SingleOrDefaultAsync(d => d.Key == key && d.ArchivedAtUtc == null, cancellationToken);
-        if (key is not null && (definition is null || !await policy.CanChangeAsync(definition, cancellationToken)))
+        var definition = role is null ? null : await db.RoleDefinitions.SingleOrDefaultAsync(d => d.Key == role && d.ArchivedAtUtc == null, cancellationToken);
+        if (role is not null && definition is null)
+        {
+            return (Result.Invalid("PreassignedRole", "Choose a role from the list."), null);
+        }
+
+        if (definition is not null && !await policy.CanChangeAsync(definition, cancellationToken))
         {
             return (Result.Forbidden("You can’t give that role."), null);
         }
@@ -97,7 +92,7 @@ public class InviteSender(
         db.Invites.Add(invite);
 
         // The invite and its email are saved together, so neither exists without the other (L2-028, L2-047).
-        var asRole = role is { } granted ? $" as a {RoleLabels.Of(granted)}" : string.Empty;
+        var asRole = definition is null ? string.Empty : $" as a {definition.Name}";
         var personal = note is null ? string.Empty : $"\n\n“{note}”\n— {sender.Name}";
         emails.Enqueue(new EmailMessage(
             address,

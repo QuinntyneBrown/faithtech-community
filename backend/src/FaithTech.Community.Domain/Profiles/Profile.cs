@@ -142,12 +142,6 @@ public class Profile : IOrganisationScoped
     public bool HoldsCapability(string capability) =>
         _roles.Any(r => r.Definition is { ArchivedAtUtc: null } d && d.Capabilities.Contains(capability));
 
-    /// <summary>
-    /// Temporary adapter (removed in slice 11, organisations prompt 11): whether a held definition's key is the former role
-    /// value. Reads the definitions loaded with the profile.
-    /// </summary>
-    public bool HasRole(Role role) => _roles.Any(r => r.Definition?.Key == role.ToString());
-
     public void AddRole(RoleDefinition definition, Guid grantedBy, DateTime nowUtc)
     {
         AddRole(definition.Id, grantedBy, nowUtc);

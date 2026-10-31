@@ -43,8 +43,10 @@ public class Resource : IOrganisationScoped
 
     public Guid OwnerId { get; private set; }
 
-    /// <summary>The contributing role the owner held when they became the owner, named if they later lose it (L2-064 AC2).</summary>
-    public Role? OwnerRole { get; private set; }
+    /// <summary>
+    /// The key of the contributing role the owner held when they became the owner, named if they later lose it (L2-064 AC2).
+    /// </summary>
+    public string? OwnerRole { get; private set; }
 
     public DateTimeOffset AddedAt { get; private set; }
 
@@ -159,7 +161,7 @@ public class Resource : IOrganisationScoped
 
     public bool IsPurgeDue(DateTimeOffset now) => ArchivedAt is { } at && now >= at + PurgeAfter;
 
-    public void SetOwner(Guid ownerId, Role? ownerRole)
+    public void SetOwner(Guid ownerId, string? ownerRole)
     {
         OwnerId = ownerId;
         OwnerRole = ownerRole;

@@ -1,6 +1,5 @@
 using FaithTech.Community.Domain.Organisations;
 using FaithTech.Community.Domain.Profiles;
-using FaithTech.Community.Domain.Team;
 
 namespace FaithTech.Community.Domain.Agile;
 

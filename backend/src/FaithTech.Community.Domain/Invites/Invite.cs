@@ -12,7 +12,7 @@ public class Invite : IOrganisationScoped
 
     private Invite() { }
 
-    public Invite(string email, string tokenHash, Role? preassignedRole, Guid invitedBy, DateTimeOffset createdAt, string? note = null)
+    public Invite(string email, string tokenHash, string? preassignedRole, Guid invitedBy, DateTimeOffset createdAt, string? note = null)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(email);
         ArgumentException.ThrowIfNullOrWhiteSpace(tokenHash);
@@ -32,7 +32,8 @@ public class Invite : IOrganisationScoped
 
     public string TokenHash { get; private set; } = string.Empty;
 
-    public Role? PreassignedRole { get; private set; }
+    /// <summary>The key of the role definition the invitee is given on accepting, if any (ADR 0033).</summary>
+    public string? PreassignedRole { get; private set; }
 
     public Guid InvitedBy { get; private set; }
 

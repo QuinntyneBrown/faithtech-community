@@ -3,7 +3,6 @@ using FaithTech.Community.Application.Common;
 using FaithTech.Community.Domain.Agile;
 using FaithTech.Community.Domain.Notifications;
 using FaithTech.Community.Domain.Profiles;
-using FaithTech.Community.Domain.Team;
 using FluentValidation;
 using Microsoft.EntityFrameworkCore;
 

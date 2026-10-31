@@ -3,7 +3,6 @@ using System.Text;
 using FaithTech.Community.Application.Common;
 using FaithTech.Community.Application.Profiles;
 using FaithTech.Community.Domain.Profiles;
-using FaithTech.Community.Domain.Team;
 using Microsoft.EntityFrameworkCore;
 
 namespace FaithTech.Community.Application.Team;

@@ -118,10 +118,12 @@ public class CommunitySeeder(IOpenIddictApplicationManager applications, Communi
 
         var ids = StarterResources.Select(r => r.Id).ToList();
         var existing = await db.Resources.Where(r => ids.Contains(r.Id)).Select(r => r.Id).ToListAsync(cancellationToken);
+        var ownerRole = await db.RoleDefinitions.Where(d => d.Capabilities.Contains(Capability.AdministerOrganisation))
+            .OrderBy(d => d.SortOrder).Select(d => d.Key).FirstAsync(cancellationToken);
         foreach (var starter in StarterResources.Where(r => !existing.Contains(r.Id)))
         {
             var resource = Resource.ForLink(starter.Title, starter.Description, starter.Type, ownerId, new Uri(starter.Url), time.GetUtcNow(), starter.Id);
-            resource.SetOwner(ownerId, Role.SystemAdmin);
+            resource.SetOwner(ownerId, ownerRole);
             resource.SetTags(starter.Tags);
             resource.SetAudience(ResourceAudience.Global());
             db.Resources.Add(resource);

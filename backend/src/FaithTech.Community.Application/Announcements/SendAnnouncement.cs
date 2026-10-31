@@ -27,7 +27,8 @@ public static class AnnouncementRules
     public const string RolesMessage = "Choose at least one role.";
     public const string EventMessage = "Choose an event.";
 
-    public static bool IsRole(string? value) => Enum.TryParse<Role>(value, ignoreCase: false, out _) && !int.TryParse(value, out _);
+    /// <summary>A role key; whether the organisation defines it is checked against its definitions.</summary>
+    public static bool IsRole(string? value) => !string.IsNullOrWhiteSpace(value);
 }
 
 public class AudienceRequestValidator : AbstractValidator<AudienceRequest>
@@ -94,14 +95,16 @@ public class AudienceResolver(IApplicationDbContext db)
         };
     }
 
-    /// <summary>The domain audience for a validated request, or null when its event does not exist.</summary>
+    /// <summary>The domain audience for a validated request, or null when a role or its event does not exist.</summary>
     public async Task<AnnouncementAudience?> FromRequestAsync(AudienceRequest request, CancellationToken cancellationToken = default)
     {
         var kind = Enum.Parse<AudienceKind>(request.Kind!);
         return kind switch
         {
             AudienceKind.Everyone => AnnouncementAudience.Everyone(),
-            AudienceKind.Roles => AnnouncementAudience.ForRoles([.. (await LegacyRoles.DefinitionsAsync(db, request.Roles!.Select(Enum.Parse<Role>), cancellationToken)).Select(d => d.Id)]),
+            AudienceKind.Roles => await RoleKeys.DefinitionsAsync(db, request.Roles!, cancellationToken) is { } roles
+                ? AnnouncementAudience.ForRoles([.. roles.Select(d => d.Id)])
+                : null,
             _ => await db.Events.AnyAsync(e => e.Id == request.EventId, cancellationToken)
                 ? AnnouncementAudience.ForEventRsvps(request.EventId!.Value)
                 : null,
@@ -134,7 +137,9 @@ public class SendAnnouncementHandler(
 
         var audience = await audiences.FromRequestAsync(request, cancellationToken);
         return audience is null
-            ? (Result.Invalid("EventId", AnnouncementRules.EventMessage), 0)
+            ? (request.Kind == nameof(AudienceKind.Roles)
+                ? Result.Invalid("Roles", AnnouncementRules.RolesMessage)
+                : Result.Invalid("EventId", AnnouncementRules.EventMessage), 0)
             : (Result.Ok(), await audiences.RecipientIds(audience).CountAsync(cancellationToken));
     }
 
@@ -148,7 +153,9 @@ public class SendAnnouncementHandler(
         var audience = await audiences.FromRequestAsync(command.Audience!, cancellationToken);
         if (audience is null)
         {
-            return (Result.Invalid("Audience.EventId", AnnouncementRules.EventMessage), null);
+            return (command.Audience!.Kind == nameof(AudienceKind.Roles)
+                ? Result.Invalid("Audience.Roles", AnnouncementRules.RolesMessage)
+                : Result.Invalid("Audience.EventId", AnnouncementRules.EventMessage), null);
         }
 
         var sender = current.ProfileId ?? throw new InvalidOperationException("The caller has no profile in this organisation.");

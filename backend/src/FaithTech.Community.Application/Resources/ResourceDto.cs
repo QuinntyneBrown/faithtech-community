@@ -86,12 +86,11 @@ public class ResourceViews(IApplicationDbContext db, ICurrentUser current, Resou
                     && (x.Definition.Capabilities.Contains(Capability.AddResources) || x.Definition.Capabilities.Contains(Capability.AdministerOrganisation))),
             })
             .ToDictionaryAsync(p => p.Id, cancellationToken);
-        var roles = LegacyRoles.Parse(r.SharedRoles.Select(x => x.Definition!.Key));
         var roleCounts = new List<AudienceRoleDto>();
-        foreach (var role in ResourceAccess.ShareableRoles.Where(roles.Contains))
+        foreach (var role in r.SharedRoles.Select(x => x.Definition!).OrderBy(d => d.SortOrder))
         {
-            var count = await db.Profiles.CountAsync(p => !p.IsSuspended && p.Roles.Any(x => x.Definition!.Key == LegacyRoles.Key(role)), cancellationToken);
-            roleCounts.Add(new AudienceRoleDto(role.ToString(), count));
+            var count = await db.Profiles.CountAsync(p => !p.IsSuspended && p.Roles.Any(x => x.RoleDefinitionId == role.Id), cancellationToken);
+            roleCounts.Add(new AudienceRoleDto(role.Key, count));
         }
 
         var owner = profiles.GetValueOrDefault(r.OwnerId);
@@ -131,7 +130,7 @@ public class ResourceViews(IApplicationDbContext db, ICurrentUser current, Resou
             r.PurgeAt,
             access.CanChange(r, caller),
             access.IsSystemAdmin,
-            ownerContributes ? null : r.OwnerRole?.ToString());
+            ownerContributes ? null : r.OwnerRole);
     }
 
     /// <summary>The list rows, newest first, with owner names in one query.</summary>
@@ -176,6 +175,6 @@ public class ResourceViews(IApplicationDbContext db, ICurrentUser current, Resou
             return "you";
         }
 
-        return LegacyRoles.Parse(r.SharedRoles.Select(x => x.Definition!.Key)).Where(current.HasRole).Select(x => (Role?)x).FirstOrDefault()?.ToString();
+        return r.SharedRoles.Select(x => x.Definition!).OrderBy(d => d.SortOrder).FirstOrDefault(d => current.HeldRoleIds.Contains(d.Id))?.Key;
     }
 }
