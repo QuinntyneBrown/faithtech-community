@@ -6,12 +6,26 @@ export interface ChapterLabel {
   plural: string;
 }
 
+/** A public host's brochure video (Marketing:Sites, L2-134 AC3). */
+export interface Brochure {
+  url: string;
+  posterUrl: string | null;
+  captionsUrl: string | null;
+  /** The video's accessible name. */
+  title: string | null;
+  posterAlt: string | null;
+}
+
 /** GET /api/site: the organisation of the host the app is served on, readable before sign-in (L2-133 AC1). */
 export interface Site {
   name: string;
   shortName: string;
   chapterLabel: ChapterLabel | null;
   communityOrigin: string;
+  /** On a public host, its marketing content (L2-134 AC3); null or absent on a community host. */
+  headline?: string | null;
+  brochure?: Brochure | null;
+  footer?: string | null;
 }
 
 /** Contract for the site API. Pages depend on SITE_SERVICE, never on HttpSiteService. */

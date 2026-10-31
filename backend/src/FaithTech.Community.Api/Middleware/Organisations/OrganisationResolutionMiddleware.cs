@@ -29,6 +29,9 @@ public class OrganisationResolutionMiddleware(
     public const string OrganisationItem = "Organisation";
     public const string HostKindItem = "HostKind";
 
+    /// <summary>On a public host, its <see cref="PublicSite"/>: the marketing content and the public origin.</summary>
+    public const string PublicSiteItem = "PublicSite";
+
     public async Task InvokeAsync(HttpContext context, IOrganisationResolver resolver, OrganisationScope scope)
     {
         var request = context.Request;
@@ -38,7 +41,7 @@ public class OrganisationResolutionMiddleware(
             return;
         }
 
-        var (organisation, kind) = await ResolveAsync(request, resolver, context.RequestAborted);
+        var (organisation, kind, site) = await ResolveAsync(request, resolver, context.RequestAborted);
         if (organisation is null || organisation.Status == OrganisationStatus.Provisioning)
         {
             await RefuseAsync(context, SystemPage.UnknownHost);
@@ -55,30 +58,31 @@ public class OrganisationResolutionMiddleware(
         scope.Set(organisation);
         context.Items[OrganisationItem] = organisation;
         context.Items[HostKindItem] = kind;
+        if (site is not null)
+        {
+            context.Items[PublicSiteItem] = site;
+        }
+
         await next(context);
     }
 
-    private async Task<(Organisation? Organisation, HostKind Kind)> ResolveAsync(
+    private async Task<(Organisation? Organisation, HostKind Kind, PublicSite? Site)> ResolveAsync(
         HttpRequest request, IOrganisationResolver resolver, CancellationToken cancellationToken)
     {
-        // The marketing page's host belongs to the default organisation until public hosts are configured per site.
-        if (IsMarketingHost(request))
+        // A public host is one with a Marketing:Sites entry, or Marketing:Origin's host for the default organisation.
+        if (marketing.Value.Find(request.Host.Value ?? string.Empty, platform.Value.DefaultOrganisationSlug) is { } site)
         {
-            return (await resolver.ResolveBySlugAsync(platform.Value.DefaultOrganisationSlug, cancellationToken), HostKind.Public);
+            return (await resolver.ResolveBySlugAsync(site.OrganisationSlug, cancellationToken), HostKind.Public, site);
         }
 
         // Development (and the test host) serve the default organisation on loopback names (L2-131 AC4).
         if (IsLocal() && IsLoopback(request.Host.Host))
         {
-            return (await resolver.ResolveBySlugAsync(platform.Value.DefaultOrganisationSlug, cancellationToken), HostKind.Community);
+            return (await resolver.ResolveBySlugAsync(platform.Value.DefaultOrganisationSlug, cancellationToken), HostKind.Community, null);
         }
 
-        return (await resolver.ResolveByHostAsync(request.Host.Host, cancellationToken), HostKind.Community);
+        return (await resolver.ResolveByHostAsync(request.Host.Host, cancellationToken), HostKind.Community, null);
     }
-
-    private bool IsMarketingHost(HttpRequest request) =>
-        Uri.TryCreate(marketing.Value.Origin, UriKind.Absolute, out var origin)
-        && string.Equals(origin.Authority, request.Host.Value, StringComparison.OrdinalIgnoreCase);
 
     private bool IsLocal() => environment.IsDevelopment() || environment.IsEnvironment("Testing");
 

@@ -17,6 +17,8 @@ import { Router } from '@angular/router';
 import {
   AUTH_SERVICE,
   BROWSER_REDIRECT,
+  OrganisationNames,
+  SITE_SERVICE,
   SignUpFieldErrors,
   signUpFieldErrors,
 } from '@faithtech-community/api';
@@ -72,6 +74,13 @@ export class LandingPage implements OnInit {
   private readonly auth = inject(AUTH_SERVICE);
   private readonly redirect = inject(BROWSER_REDIRECT);
   protected readonly communityOrigin = inject(COMMUNITY_ORIGIN);
+  protected readonly organisation = inject(OrganisationNames);
+  private readonly site = inject(SITE_SERVICE).site;
+
+  /** The public host's headline (Marketing:Sites, L2-134 AC3); its organisation's name when there is none. */
+  protected readonly headline = computed(() => this.site()?.headline ?? this.organisation.name());
+  /** The public host's brochure video; the hero shows none when the host has no brochure. */
+  protected readonly brochure = computed(() => this.site()?.brochure ?? null);
 
   /** The community app page to land on after signing in (`?returnUrl=/events`). */
   readonly returnUrl = input<string>();
