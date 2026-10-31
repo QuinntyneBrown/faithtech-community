@@ -108,7 +108,7 @@ export class MockSearch {
                 [p.contactName, p.offering].filter(Boolean).join(' · '),
                 `/partners/${p.id}`,
                 {
-                  badge: p.stage,
+                  badge: this.context.partners.stages.byKey(p.stage)?.name,
                 },
               ),
             )

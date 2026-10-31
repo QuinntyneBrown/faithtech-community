@@ -17,7 +17,7 @@ test.describe('Restore a merged partner', () => {
     });
     const kept = api.partners.add({
       name: 'Kestrel Labs',
-      stage: 'InFunnel',
+      stage: 'in-funnel',
       website: 'kestrel.example',
     });
     const other = api.partners.add({ name: 'Kestrel Labs Inc.', website: 'kestrel.example' });

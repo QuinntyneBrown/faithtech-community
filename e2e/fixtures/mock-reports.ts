@@ -3,6 +3,7 @@ import { Route } from '@playwright/test';
 import type { MockAccount, MockProfile } from './mock-api';
 import type { MockAnnouncement } from './mock-announcements';
 import type { MockEvent } from './mock-events';
+import type { MockPartnerStages } from './mock-partner-stages';
 import type { MockPartner } from './mock-partners';
 import { holds } from './role-definitions';
 
@@ -11,7 +12,7 @@ export interface ReportsContext {
   readonly accounts: Map<string, MockAccount>;
   readonly profiles: Map<string, MockProfile>;
   readonly events: { readonly events: MockEvent[] };
-  readonly partners: { readonly partners: MockPartner[] };
+  readonly partners: { readonly partners: MockPartner[]; readonly stages: MockPartnerStages };
   readonly announcements: { readonly announcements: MockAnnouncement[] };
   readonly now: Date;
   readonly chapters: {
@@ -67,7 +68,8 @@ export interface MockReport {
   };
   membersByChapter: { label: string; value: number }[];
   newMembersByMonth: { month: string; label: string; value: number; soFar: boolean }[];
-  partnerPipeline: { chapter: string; lead: number; inFunnel: number; confirmed: number }[];
+  /** One count per active stage, in the order of `stages` (L2-144 AC5). */
+  partnerPipeline: { chapter: string; counts: number[] }[];
   events: {
     id: string;
     title: string;
@@ -78,7 +80,11 @@ export interface MockReport {
     checkedIn: number | null;
     checkedInPercent: number | null;
   }[];
+  /** The active partner stages' names in order: the pipeline's columns. */
+  stages: string[];
 }
+
+const add = (a: number, b: number) => a + b;
 
 /** Ordinal-ignore-case, as the server sorts names. */
 const byName = (a: string, b: string) => {
@@ -200,13 +206,8 @@ export class MockReports {
       ]),
       [],
       [singular ? `Partner pipeline by ${lower}` : 'Partner pipeline'],
-      [singular ?? 'Pipeline', 'Lead', 'In funnel', 'Confirmed'],
-      ...report.partnerPipeline.map((r) => [
-        r.chapter,
-        text(r.lead),
-        text(r.inFunnel),
-        text(r.confirmed),
-      ]),
+      [singular ?? 'Pipeline', ...report.stages],
+      ...report.partnerPipeline.map((r) => [r.chapter, ...r.counts.map((c) => text(c))]),
       [],
       ['Events and attendance'],
       singular
@@ -271,6 +272,7 @@ export class MockReports {
     const rsvps = held.flatMap((e) => e.rsvps).filter((r) => !r.isWalkIn);
     const checkedIn = rsvps.filter((r) => r.checkedInAt).length;
     const noChapter = label ? `No ${label.singular.toLowerCase()}` : WHOLE_PIPELINE;
+    const stages = this.context.partners.stages.active();
     const pipeline = this.pipeline(
       city,
       chapters.map((c) => c.name),
@@ -302,9 +304,12 @@ export class MockReports {
           checkedIn,
           checkedInPercent: percent(checkedIn, rsvps.length),
         },
+        // Confirmed counts the stages of kind Confirmed, never a stage by name (L2-144 AC5).
         partnersConfirmed: {
-          value: sum((r) => r.confirmed),
-          inPipeline: sum((r) => r.lead + r.inFunnel + r.confirmed),
+          value: sum((r) =>
+            r.counts.filter((_, i) => stages[i].kind === 'Confirmed').reduce(add, 0),
+          ),
+          inPipeline: sum((r) => r.counts.reduce(add, 0)),
         },
         announcements: { value: announcements.length },
       },
@@ -312,6 +317,7 @@ export class MockReports {
       newMembersByMonth: this.months(members, from, now),
       partnerPipeline: pipeline,
       events: table,
+      stages: stages.map((s) => s.name),
     };
   }
 
@@ -395,25 +401,22 @@ export class MockReports {
   }
 
   /**
-   * Lead, In funnel and Confirmed per owner home chapter; the period does not apply. Under All {chapters}: the
+   * One count per active stage per owner home chapter; the period does not apply. Under All {chapters}: the
    * active chapters in order, then archived owner chapters by name, then "No {chapter}" when it has partners; while
    * chapters are off, one "Partner pipeline" row.
    */
   private pipeline(city: string | null, chapters: string[], noChapter: string) {
-    const rows = new Map<
-      string,
-      { chapter: string; lead: number; inFunnel: number; confirmed: number }
-    >();
+    const stages = this.context.partners.stages.active();
+    const rows = new Map<string, { chapter: string; counts: number[] }>();
     const row = (name: string) => {
-      if (!rows.has(name)) rows.set(name, { chapter: name, lead: 0, inFunnel: 0, confirmed: 0 });
+      if (!rows.has(name)) rows.set(name, { chapter: name, counts: stages.map(() => 0) });
       return rows.get(name)!;
     };
     for (const p of this.context.partners.partners.filter((x) => !x.archivedAtUtc)) {
       const ownerCity = p.ownerId ? this.homeOf(p.ownerId) : null;
       const r = row(blank(ownerCity) ? noChapter : ownerCity!);
-      if (p.stage === 'Lead') r.lead++;
-      else if (p.stage === 'InFunnel') r.inFunnel++;
-      else r.confirmed++;
+      const index = stages.findIndex((s) => s.key === p.stage);
+      if (index >= 0) r.counts[index]++;
     }
     if (city !== null) return [row(city)];
     const archived = [...rows.keys()]

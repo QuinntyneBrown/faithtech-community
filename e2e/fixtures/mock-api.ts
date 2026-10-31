@@ -455,6 +455,14 @@ export class MockApi {
     if (notes) return notes;
     const chapters = this.chapters.handle(route, method, url, body, this.caller(authorization));
     if (chapters) return chapters;
+    const stages = this.partners.stages.handle(
+      route,
+      method,
+      url,
+      body,
+      this.caller(authorization),
+    );
+    if (stages) return stages;
     const search = this.search.handle(route, method, url, this.caller(authorization));
     if (search) return search;
     const profileRoute = /^\/api\/profiles\/([^/]+)$/.exec(url.pathname);
@@ -869,6 +877,7 @@ export class MockApi {
         shortName,
         chapterLabel: chapterLabel ?? null,
         chapters: this.chapters.options(),
+        partnerStages: this.partners.stages.options(),
         roles: roleDefinitions()
           .filter((d) => !d.archived)
           .map((d) => ({

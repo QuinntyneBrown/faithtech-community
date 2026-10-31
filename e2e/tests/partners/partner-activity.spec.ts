@@ -11,7 +11,7 @@ test.describe('Partner activity timeline', () => {
   test.beforeEach(async ({ api }) => {
     api.partners.add({
       name: 'Kestrel Labs',
-      stage: 'InFunnel',
+      stage: 'in-funnel',
       offering: 'Venue for Builders Night',
     });
     // "Today" is the fake's 21 Oct 2026 in the browser too, so the date rules are fixed.

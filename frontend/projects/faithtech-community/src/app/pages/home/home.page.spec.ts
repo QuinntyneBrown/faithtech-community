@@ -6,11 +6,12 @@ import {
   AUTH_SERVICE,
   EVENTS_SERVICE,
   EventSummaryDto,
+  ORGANISATION_SERVICE,
   PARTNERS_SERVICE,
   PartnerBoardDto,
   Capability,
 } from '@faithtech-community/api';
-import { of, throwError } from 'rxjs';
+import { NEVER, Observable, of, throwError } from 'rxjs';
 
 import { HomePage } from './home.page';
 
@@ -72,10 +73,11 @@ async function setup(
   roles: { name: string; isOversight: boolean }[] = capabilities.length
     ? [{ name: 'A role', isOversight: false }]
     : [],
+  getBoard: () => Observable<PartnerBoardDto> = () => of(board),
 ) {
   const services = {
     events: { listEvents: vi.fn(() => of({ events, cities: [] })) },
-    partners: { getBoard: vi.fn(() => of(board)) },
+    partners: { getBoard: vi.fn(getBoard) },
     activity: { recent: vi.fn(() => of([])) },
   };
   TestBed.configureTestingModule({
@@ -90,6 +92,21 @@ async function setup(
       { provide: EVENTS_SERVICE, useValue: services.events },
       { provide: PARTNERS_SERVICE, useValue: services.partners },
       { provide: ACTIVITY_SERVICE, useValue: services.activity },
+      {
+        provide: ORGANISATION_SERVICE,
+        useValue: {
+          get: () =>
+            of({
+              partnerStages: board.columns.map((c) => ({
+                id: c.stageId,
+                key: c.stage,
+                name: c.name,
+                isInitial: c.stage === 'lead',
+                kind: c.kind,
+              })),
+            }),
+        },
+      },
     ],
   });
   const fixture = TestBed.createComponent(HomePage);
@@ -118,6 +135,19 @@ describe('HomePage', () => {
       ['In Funnel', '3'],
       ['Confirmed', '5'],
     ]);
+  });
+
+  it('names the organisation stages in the pipeline skeleton while the board loads', async () => {
+    const { el } = await setup(['ViewPartners'], undefined, undefined, () => NEVER);
+
+    expect(
+      [...el.querySelectorAll('ft-stat')].map(
+        (s) => s.querySelector('.ft-stat__label')?.textContent,
+      ),
+    ).toEqual(['Lead', 'In Funnel', 'Confirmed']);
+    expect(
+      el.querySelector('ft-stat [aria-busy="true"], ft-stat[aria-busy="true"]'),
+    ).not.toBeNull();
   });
 
   it('greets a member with no role and never asks for events or partners', async () => {

@@ -1,6 +1,6 @@
 import { Locator, Page } from '@playwright/test';
 
-export type PipelineStage = 'Lead' | 'In funnel' | 'Confirmed';
+export type PipelineStage = string;
 
 /** Home at / (docs/mocks/pages/home): greeting, Coming up, Partner pipeline and Recent activity. */
 export class HomePage {

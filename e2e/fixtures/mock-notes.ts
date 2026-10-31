@@ -424,7 +424,9 @@ export class MockNotes {
       .map((a) => ({
         id: a.profileId,
         name: a.name,
-        chapterName: this.context.chapters.nameOf(this.context.profiles.get(a.profileId)?.chapterId),
+        chapterName: this.context.chapters.nameOf(
+          this.context.profiles.get(a.profileId)?.chapterId,
+        ),
         roles: [...a.roles].sort(),
       }));
     return this.json(route, 200, people);

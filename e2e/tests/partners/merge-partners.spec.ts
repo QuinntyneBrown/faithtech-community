@@ -21,7 +21,7 @@ test.describe('Merge partners', () => {
     });
     api.partners.add({
       name: 'Kestrel Labs',
-      stage: 'InFunnel',
+      stage: 'in-funnel',
       website: 'kestrel.example',
       offering: 'Venue for Builders Night',
       ownerId: grace.profileId,

@@ -7,6 +7,7 @@ import {
   canManageEvents,
   EVENTS_SERVICE,
   EventSummaryDto,
+  ORGANISATION_SERVICE,
   OrganisationNames,
   PARTNERS_SERVICE,
   hasAny,
@@ -109,6 +110,7 @@ export class HomePage {
   private readonly auth = inject(AUTH_SERVICE);
   private readonly events = inject(EVENTS_SERVICE);
   private readonly partners = inject(PARTNERS_SERVICE);
+  private readonly settings = inject(ORGANISATION_SERVICE);
   private readonly activity = inject(ACTIVITY_SERVICE);
 
   /** Notifications carry no actor yet (PR #335), so the organisation speaks for them. */
@@ -210,7 +212,17 @@ export class HomePage {
   }
 
   private async loadPipeline(showSkeleton = true): Promise<void> {
-    if (showSkeleton) this.pipelineState.set('loading');
+    if (showSkeleton) {
+      this.pipelineState.set('loading');
+      // The skeleton names the organisation's stages until the board's counts arrive.
+      this.settings.get().subscribe({
+        next: (o) => {
+          if (this.pipelineState() === 'loading')
+            this.stats.set(o.partnerStages.map((s) => ({ label: s.name, count: 0 })));
+        },
+        error: () => undefined,
+      });
+    }
     try {
       const board = await firstValueFrom(this.partners.getBoard());
       this.stats.set(
