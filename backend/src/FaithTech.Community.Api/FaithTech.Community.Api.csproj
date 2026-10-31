@@ -14,6 +14,8 @@
 
   <ItemGroup>
     <EmbeddedResource Include="Middleware\PrivatePreview\wall.html" />
+    <EmbeddedResource Include="Middleware\Organisations\unknown-host.html" />
+    <EmbeddedResource Include="Middleware\Organisations\suspended.html" />
   </ItemGroup>
 
 </Project>

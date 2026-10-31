@@ -37,6 +37,9 @@ public partial class ServerAuthorizationTests(CommunityApiFactory factory) : ICl
         "api/public/events/{id:guid}/rsvps/cancel",
         "api/public/events/{id:guid}/calendar.ics",
         "api/announcements/unsubscribe",
+        // Google sign-in (L2-078) redirects to Google without a session; the client follows it to Google's host, which
+        // the API does not serve (L2-131 AC2).
+        "api/account/google/start",
     ];
 
     [Fact]

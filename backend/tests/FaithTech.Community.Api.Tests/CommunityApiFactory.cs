@@ -9,6 +9,7 @@ using FaithTech.Community.Application.Resources;
 using FaithTech.Community.Application.Search;
 using FaithTech.Community.Infrastructure.Email;
 using FaithTech.Community.Infrastructure.Persistence;
+using FaithTech.Community.Infrastructure.Persistence.Seed;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.AspNetCore.TestHost;
@@ -56,6 +57,13 @@ public class CommunityApiFactory : WebApplicationFactory<Program>, IAsyncLifetim
     {
         await using var scope = Services.CreateAsyncScope();
         await scope.ServiceProvider.GetRequiredService<CommunitySeeder>().SeedAsync(WebAppOrigin);
+
+        // FaithTech's community host is the test web app's host, so requests on it resolve as they do in production;
+        // localhost resolves to FaithTech as the default organisation (L2-131 AC4).
+        var db = scope.ServiceProvider.GetRequiredService<CommunityDbContext>();
+        var faithTech = await db.Organisations.SingleAsync(o => o.Id == FaithTechSeed.OrganisationId);
+        db.Entry(faithTech).Property(o => o.Host).CurrentValue = new Uri(WebAppOrigin).Host;
+        await db.SaveChangesAsync();
     }
 
     protected override void ConfigureWebHost(IWebHostBuilder builder)

@@ -58,6 +58,8 @@ The slice runs from the Cli commands through `CommunitySeeder` and one EF Core m
   7. Moves the `SystemAdminRosters` singleton to an `OrganisationAdminRosters` row for FaithTech and drops the old table.
   8. Leaves the OpenIddict tables untouched: the `web` client keeps `https://app.faithtech.community/auth/callback` and gains no other host; provisioning adds hosts later (`L2-151` AC4).
 
+  **Delivered as several migrations.** The slice plan (`docs/prompts/README.md`) lands this work in one migration per slice that changes the schema rather than one `OrganisationsAndCapabilities` migration, so each slice ships and merges on its own. Slice 01 adds `Organisations` and inserts the FaithTech row (`Organisations` migration); later slices add the rest of the steps above in order. The FaithTech ids in `FaithTechSeed` keep every migration and the seeder in agreement.
+
   `AspNetUsers.ProfileId` becoming `Profiles.UserId` with a unique index on (`OrganisationId`, `UserId`) is owned by `docs/detailed-designs/organisations/accounts-and-memberships` and runs in the same migration. Running the migration twice is prevented by the EF migrations history, as for every migration.
 
 ### Cli

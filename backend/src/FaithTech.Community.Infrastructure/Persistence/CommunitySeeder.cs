@@ -4,6 +4,7 @@ using FaithTech.Community.Domain.Admin;
 using FaithTech.Community.Domain.Events;
 using FaithTech.Community.Domain.Profiles;
 using FaithTech.Community.Domain.Resources;
+using FaithTech.Community.Infrastructure.Persistence.Seed;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using OpenIddict.Abstractions;
@@ -53,6 +54,8 @@ public class CommunitySeeder(IOpenIddictApplicationManager applications, Communi
             await applications.UpdateAsync(existing, descriptor, cancellationToken);
         }
 
+        await SeedOrganisationAsync(cancellationToken);
+
         // The concurrency token that guards the last System Admin (ChangeRolesHandler).
         if (!await db.SystemAdminRosters.AnyAsync(r => r.Id == SystemAdminRoster.SingletonId, cancellationToken))
         {
@@ -61,6 +64,16 @@ public class CommunitySeeder(IOpenIddictApplicationManager applications, Communi
         }
 
         await SeedStarterResourcesAsync(cancellationToken);
+    }
+
+    /// <summary>The FaithTech organisation, found by slug and inserted only when missing, so its later edits survive (L2-151 AC1).</summary>
+    private async Task SeedOrganisationAsync(CancellationToken cancellationToken)
+    {
+        if (!await db.Organisations.AnyAsync(o => o.Slug == FaithTechSeed.Slug, cancellationToken))
+        {
+            db.Organisations.Add(FaithTechSeed.Organisation());
+            await db.SaveChangesAsync(cancellationToken);
+        }
     }
 
     public record StarterResource(Guid Id, string Title, string Description, ResourceType Type, string Url, string[] Tags);

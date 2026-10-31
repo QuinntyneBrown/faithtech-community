@@ -108,6 +108,7 @@ public static class DependencyInjection
         services.AddSingleton<IFullTextSearch, PostgresFullTextSearch>();
 
         services.AddScoped<CommunitySeeder>();
+        services.AddScoped<Application.Organisations.IOrganisationResolver, Organisations.OrganisationResolver>();
 
         services.AddHealthChecks()
             .AddDbContextCheck<CommunityDbContext>("database", tags: [ReadyTag])
