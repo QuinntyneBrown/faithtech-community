@@ -18,7 +18,8 @@ public sealed record MeDto(
     bool EmailVerified,
     IReadOnlyCollection<string> Roles,
     MeOrganisationDto Organisation,
-    IReadOnlyList<MembershipDto> Memberships);
+    IReadOnlyList<MembershipDto> Memberships,
+    IReadOnlyCollection<string> Capabilities);
 
 public sealed record NotAMemberOrganisationDto(string Name);
 
@@ -52,9 +53,10 @@ public class MeHandler(IApplicationDbContext db, ICurrentUser current, ICurrentO
             name,
             user.Email,
             user.EmailConfirmed,
-            [.. membership.Roles.Select(r => r.ToString())],
+            [.. membership.Roles.Select(r => r.Key)],
             MeOrganisationDto.Of(organisation),
-            memberships), null);
+            memberships,
+            [.. membership.Capabilities.Order(StringComparer.Ordinal)]), null);
     }
 
     /// <summary>The account's active, unsuspended profiles in other active organisations, by name and host.</summary>
