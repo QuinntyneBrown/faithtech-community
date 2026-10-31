@@ -141,26 +141,6 @@ namespace FaithTech.Community.Infrastructure.Persistence.Migrations
                     b.ToTable("AuditEntries");
                 });
 
-            modelBuilder.Entity("FaithTech.Community.Domain.Admin.SystemAdminRoster", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .HasColumnType("uuid");
-
-                    b.Property<DateTimeOffset?>("LeaseExpiresAt")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<Guid?>("LeaseHolder")
-                        .HasColumnType("uuid");
-
-                    b.Property<Guid>("Version")
-                        .IsConcurrencyToken()
-                        .HasColumnType("uuid");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("SystemAdminRosters");
-                });
-
             modelBuilder.Entity("FaithTech.Community.Domain.Agile.PokerSession", b =>
                 {
                     b.Property<Guid>("Id")
@@ -993,6 +973,32 @@ namespace FaithTech.Community.Infrastructure.Persistence.Migrations
                         .IsUnique();
 
                     b.ToTable("Organisations");
+                });
+
+            modelBuilder.Entity("FaithTech.Community.Domain.Organisations.OrganisationAdminRoster", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTimeOffset?>("LeaseExpiresAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid?>("LeaseHolder")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("OrganisationId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("Version")
+                        .IsConcurrencyToken()
+                        .HasColumnType("uuid");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("OrganisationId")
+                        .IsUnique();
+
+                    b.ToTable("OrganisationAdminRosters");
                 });
 
             modelBuilder.Entity("FaithTech.Community.Domain.Organisations.RoleDefinition", b =>
@@ -2378,6 +2384,15 @@ namespace FaithTech.Community.Infrastructure.Persistence.Migrations
                 });
 
             modelBuilder.Entity("FaithTech.Community.Domain.Notifications.Notification", b =>
+                {
+                    b.HasOne("FaithTech.Community.Domain.Organisations.Organisation", null)
+                        .WithMany()
+                        .HasForeignKey("OrganisationId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("FaithTech.Community.Domain.Organisations.OrganisationAdminRoster", b =>
                 {
                     b.HasOne("FaithTech.Community.Domain.Organisations.Organisation", null)
                         .WithMany()

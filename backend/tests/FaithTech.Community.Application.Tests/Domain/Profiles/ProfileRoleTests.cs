@@ -1,4 +1,5 @@
 // Traces to: L2-008, L2-037
+using FaithTech.Community.Domain.Organisations;
 using FaithTech.Community.Domain.Profiles;
 
 namespace FaithTech.Community.Application.Tests.Domain.Profiles;
@@ -67,24 +68,44 @@ public class ProfileRoleTests
         Assert.Throws<InvalidOperationException>(() => new Profile("Ada").RemoveRole(Role.Staff));
     }
 
+    // L2-139 AC3: one CapabilityLost per capability the removed role gave that no remaining role still gives.
     [Fact]
-    public void Removing_the_city_lead_role_raises_city_lead_role_removed()
+    public void Removing_a_role_raises_capability_lost_for_each_capability_no_other_role_gives()
     {
         var profile = new Profile("Ada");
         profile.AddRole(Role.CityLead, Granter, Now);
+        profile.AddRole(Role.Volunteer, Granter, Now);
 
         profile.RemoveRole(Role.CityLead);
 
-        Assert.Equal([new CityLeadRoleRemoved(profile.Id)], profile.DomainEvents);
+        var lost = profile.DomainEvents.OfType<CapabilityLost>().ToList();
+        Assert.All(lost, e => Assert.Equal(profile.Id, e.ProfileId));
+        Assert.Contains(lost, e => e.Capability == Capability.OwnWorkspaces);
+        Assert.Contains(lost, e => e.Capability == Capability.ConnectLink);
+        // The Volunteer role still gives JoinWorkspaces.
+        Assert.DoesNotContain(lost, e => e.Capability == Capability.JoinWorkspaces);
+        Assert.Equal(lost.Count, lost.Select(e => e.Capability).Distinct().Count());
     }
 
     [Fact]
-    public void Removing_another_role_raises_no_event()
+    public void Removing_a_role_whose_capabilities_another_role_still_gives_raises_nothing()
     {
         var profile = new Profile("Ada");
+        profile.AddRole(Role.CityLead, Granter, Now);
         profile.AddRole(Role.EventLead, Granter, Now);
 
         profile.RemoveRole(Role.EventLead);
+
+        Assert.Empty(profile.DomainEvents);
+    }
+
+    // L2-139 AC6: gaining a capability raises nothing; the holder simply has it on their next request.
+    [Fact]
+    public void Adding_a_role_raises_no_event()
+    {
+        var profile = new Profile("Ada");
+
+        profile.AddRole(Role.CityLead, Granter, Now);
 
         Assert.Empty(profile.DomainEvents);
     }

@@ -76,7 +76,7 @@ test.describe('Assign roles', () => {
     const dialog = new RoleDialog(page, 'Remove System Admin from Priya Shah?');
     await dialog.confirm.click();
 
-    await expect(dialog.refusal).toContainText('There must always be at least one System Admin.');
+    await expect(dialog.refusal).toContainText('There must always be at least one administrator.');
     await expect(dialog.dialog).toBeVisible();
   });
 });

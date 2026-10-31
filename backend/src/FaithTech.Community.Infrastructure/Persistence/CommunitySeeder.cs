@@ -58,10 +58,10 @@ public class CommunitySeeder(IOpenIddictApplicationManager applications, Communi
         await SeedOrganisationAsync(cancellationToken);
         await SeedRoleDefinitionsAsync(cancellationToken);
 
-        // The concurrency token that guards the last System Admin (ChangeRolesHandler).
-        if (!await db.SystemAdminRosters.AnyAsync(r => r.Id == SystemAdminRoster.SingletonId, cancellationToken))
+        // The concurrency token that guards FaithTech's last administrator (LastAdministratorGuard).
+        if (!await db.OrganisationAdminRosters.AnyAsync(cancellationToken))
         {
-            db.SystemAdminRosters.Add(new SystemAdminRoster());
+            db.OrganisationAdminRosters.Add(new OrganisationAdminRoster());
             await db.SaveChangesAsync(cancellationToken);
         }
 

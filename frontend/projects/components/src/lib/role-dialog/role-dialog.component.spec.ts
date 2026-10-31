@@ -81,13 +81,13 @@ describe('RoleDialogComponent', () => {
 
   it('shows the server’s reason and stays open when the change is refused', async () => {
     const { host, ref, button, choose, settle } = setup({
-      submit: async () => 'There must always be at least one System Admin.',
+      submit: async () => 'There must always be at least one administrator.',
     });
     choose('Volunteer');
     button('Add role').click();
     await settle();
     expect(ref.close).not.toHaveBeenCalled();
-    expect(host.textContent).toContain('There must always be at least one System Admin.');
+    expect(host.textContent).toContain('There must always be at least one administrator.');
   });
 
   it('says it didn’t work when the request fails', async () => {

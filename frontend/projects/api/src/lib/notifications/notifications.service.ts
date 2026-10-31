@@ -11,7 +11,7 @@ export type NotificationKind =
   | 'RoleChanged'
   | 'WorkItemAssigned'
   | 'WorkspaceMemberAdded'
-  | 'WorkspaceOwnerLostCityLead'
+  | 'WorkspaceOwnerLostCapability'
   | 'PlanningPokerInvite'
   | 'Announcement'
   | 'ResourceShared'

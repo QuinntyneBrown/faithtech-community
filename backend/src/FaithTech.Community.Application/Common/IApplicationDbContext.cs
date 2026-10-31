@@ -7,6 +7,7 @@ using FaithTech.Community.Domain.Events;
 using FaithTech.Community.Domain.Invites;
 using FaithTech.Community.Domain.Notes;
 using FaithTech.Community.Domain.Notifications;
+using FaithTech.Community.Domain.Organisations;
 using FaithTech.Community.Domain.Partners;
 using FaithTech.Community.Domain.Profiles;
 using FaithTech.Community.Domain.Resources;
@@ -27,7 +28,7 @@ public interface IApplicationDbContext
 
     DbSet<AuditEntry> AuditEntries { get; }
 
-    DbSet<SystemAdminRoster> SystemAdminRosters { get; }
+    DbSet<OrganisationAdminRoster> OrganisationAdminRosters { get; }
 
     DbSet<Notification> Notifications { get; }
 

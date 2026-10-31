@@ -58,6 +58,7 @@ public static class DependencyInjection
         services.AddScoped<RoleAssignmentPolicy>();
         services.AddScoped<RoleChangeNotifier>();
         services.AddScoped<ChangeRolesHandler>();
+        services.AddScoped<Organisations.LastAdministratorGuard>();
         services.AddScoped<SuspensionHandler>();
         services.AddScoped<SearchUsersHandler>();
         services.AddScoped<InviteSender>();
@@ -95,7 +96,7 @@ public static class DependencyInjection
         services.AddScoped<BoardHandler>();
         services.AddScoped<SprintsHandler>();
         services.AddScoped<ArchiveHandler>();
-        services.AddScoped<CityLeadRoleRemovedHandler>();
+        services.AddScoped<CapabilityLostHandler>();
         services.AddScoped<PlanningPokerHandler>();
         services.AddScoped<EventPermissions>();
         services.AddScoped<ListEventsHandler>();

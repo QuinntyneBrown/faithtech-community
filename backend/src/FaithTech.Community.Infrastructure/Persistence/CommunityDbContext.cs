@@ -59,7 +59,7 @@ public class CommunityDbContext : IdentityDbContext<CommunityUser, IdentityRole<
 
     public DbSet<AuditEntry> AuditEntries => Set<AuditEntry>();
 
-    public DbSet<SystemAdminRoster> SystemAdminRosters => Set<SystemAdminRoster>();
+    public DbSet<OrganisationAdminRoster> OrganisationAdminRosters => Set<OrganisationAdminRoster>();
 
     public DbSet<Notification> Notifications => Set<Notification>();
 
@@ -194,10 +194,12 @@ public class CommunityDbContext : IdentityDbContext<CommunityUser, IdentityRole<
             resend.HasIndex(r => new { r.NormalizedEmail, r.RequestedAt });
         });
 
-        builder.Entity<SystemAdminRoster>(roster =>
+        builder.Entity<OrganisationAdminRoster>(roster =>
         {
             roster.Property(r => r.Id).ValueGeneratedNever();
             roster.Property(r => r.Version).IsConcurrencyToken();
+            // One roster per organisation (L2-139 AC2).
+            roster.HasIndex(r => r.OrganisationId).IsUnique();
         });
 
         builder.Entity<OutboxMessage>(message =>

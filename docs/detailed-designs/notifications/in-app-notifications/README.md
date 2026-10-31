@@ -101,5 +101,5 @@ The panel lists notifications newest first (`L2-027`). Opening one marks it read
 Decisions recorded while building the Domain layer (`FaithTech.Community.Domain`):
 
 - `NotificationKind` adds `InviteAccepted` (inviter notified, `L2-011` AC4) and `WorkspaceOwnerLostCapability` (every administrator notified, `L2-037` AC2, `L2-139` AC4), which are in-app occurrences not listed in `L2-028`.
-- Capabilities: the kind `WorkspaceOwnerLostCityLead` is renamed `WorkspaceOwnerLostCapability` and is raised when a workspace owner loses `OwnWorkspaces` (ADR 0033).
+- Capabilities: the kind `WorkspaceOwnerLostCityLead` is renamed `WorkspaceOwnerLostCapability` and is raised when a workspace owner loses `OwnWorkspaces` (ADR 0033): one notification per administrator, "{Name} no longer holds a role that can own workspaces: {workspace list}", linking to the workspace's settings, or to `/workspaces` when several are listed; the email subject is "{Workspace} needs a new owner" or "{N} workspaces need a new owner". A data migration renames the kind on stored notifications.
 - `NotificationKind` adds `NotePageShared` ("{Owner} shared {title} with you", linking to `/notes/{id}`), published in-app and by email through `INotificationPublisher.PublishAsync` by `NoteShareNotifier`; the email cannot be turned off (`L2-093`, `notes/share-and-visibility`).

@@ -180,39 +180,49 @@ public class ArchiveHandler(IApplicationDbContext db, WorkspaceAccessPolicy poli
 }
 
 /// <summary>
-/// When an owner loses the City Lead role, tells every System Admin which of their workspaces needs a new owner
-/// (L2-037 AC2). The actor is a System Admin too and is told as well: they are the one who can reassign it.
+/// When an owner loses <c>OwnWorkspaces</c>, tells every administrator which of their workspaces need a new owner, in
+/// one notification each (L2-037 AC2, L2-139 AC4). The actor is an administrator too and is told as well: they are the
+/// one who can reassign them. An archived workspace is not listed until it is restored (ADR 0011).
 /// </summary>
-public class CityLeadRoleRemovedHandler(IApplicationDbContext db, AgileNotifier notifier)
+public class CapabilityLostHandler(IApplicationDbContext db, AgileNotifier notifier)
 {
-    public async Task HandleAsync(CityLeadRoleRemoved removed, CancellationToken cancellationToken = default)
+    public async Task HandleAsync(CapabilityLost lost, CancellationToken cancellationToken = default)
     {
-        var workspaces = await db.Workspaces.AsNoTracking().Where(w => w.OwnerId == removed.ProfileId).ToListAsync(cancellationToken);
+        if (lost.Capability != Capability.OwnWorkspaces)
+        {
+            return;
+        }
+
+        var workspaces = await db.Workspaces.AsNoTracking()
+            .Where(w => w.OwnerId == lost.ProfileId)
+            .OrderBy(w => w.Name)
+            .ToListAsync(cancellationToken);
         if (workspaces.Count == 0)
         {
             return;
         }
 
-        var name = await db.Profiles.Where(p => p.Id == removed.ProfileId).Select(p => p.Name).SingleAsync(cancellationToken);
+        var name = await db.Profiles.Where(p => p.Id == lost.ProfileId).Select(p => p.Name).SingleAsync(cancellationToken);
         var admins = await db.Profiles.AsNoTracking()
             .Where(ProfileHolding.Capability(Capability.AdministerOrganisation))
             .Where(p => !p.IsSuspended)
             .Select(p => p.Id)
             .ToListAsync(cancellationToken);
-        foreach (var workspace in workspaces)
+        var title = $"{name} no longer holds a role that can own workspaces: {string.Join(", ", workspaces.Select(w => w.Name))}";
+        // One workspace opens its settings; several open the list, where each is flagged as needing a new owner.
+        var (link, subject, open) = workspaces.Count == 1
+            ? ($"/workspaces/{workspaces[0].Id}/settings", $"{workspaces[0].Name} needs a new owner", "Open the workspace settings:")
+            : ("/workspaces", $"{workspaces.Count} workspaces need a new owner", "Open the workspaces:");
+        foreach (var admin in admins)
         {
-            var title = $"{name} no longer holds the City Lead role but owns {workspace.Name}";
-            foreach (var admin in admins)
-            {
-                notifier.Notify(
-                    Guid.Empty,
-                    admin,
-                    NotificationKind.WorkspaceOwnerLostCityLead,
-                    title,
-                    $"/workspaces/{workspace.Id}/settings",
-                    $"{workspace.Name} needs a new owner",
-                    $"{title}. A workspace owner must be a City Lead, so choose a new owner.\n\nOpen the workspace settings:");
-            }
+            notifier.Notify(
+                Guid.Empty,
+                admin,
+                NotificationKind.WorkspaceOwnerLostCapability,
+                title,
+                link,
+                subject,
+                $"{title}. A workspace owner must hold a role that can own workspaces, so choose a new owner.\n\n{open}");
         }
     }
 
