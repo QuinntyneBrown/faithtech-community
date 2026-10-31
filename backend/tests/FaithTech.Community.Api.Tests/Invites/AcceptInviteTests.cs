@@ -1,4 +1,5 @@
 // Traces to: L2-011, L2-041
+using FaithTech.Community.Api.Tests.Organisations;
 using System.Net;
 using System.Net.Http.Json;
 using System.Text.Json;
@@ -17,7 +18,8 @@ public class AcceptInviteTests(CommunityApiFactory factory) : IClassFixture<Comm
     [Fact]
     public async Task Anyone_with_the_link_sees_who_invited_them_and_with_which_role()
     {
-        var grace = await factory.AddMemberAsync("Grace Okonkwo", p => p.Update("Grace Okonkwo", "Toronto", null));
+        var toronto = await factory.ChapterIdAsync("Toronto");
+        var grace = await factory.AddMemberAsync("Grace Okonkwo", p => p.Update("Grace Okonkwo", toronto, null));
         var (_, token) = await factory.AddInviteAsync(grace, "ruth.alvarez@example.org", Role.Volunteer);
 
         var lookup = await LookUpAsync(factory.CreateClient(), token);

@@ -45,7 +45,7 @@ public class EventDetailTests(CommunityApiFactory factory) : IClassFixture<Commu
         Assert.Equal("PrayerAndPlanning", json.GetProperty("type").GetString());
         Assert.Equal(existing.StartsAt, json.GetProperty("startsAt").GetDateTimeOffset());
         Assert.Equal(existing.EndsAt, json.GetProperty("endsAt").GetDateTimeOffset());
-        Assert.Equal("Austin", json.GetProperty("city").GetString());
+        Assert.Equal("Austin", json.GetProperty("chapterName").GetString());
         Assert.Equal("Online", json.GetProperty("format").GetString());
         Assert.Equal(JsonValueKind.Null, json.GetProperty("venue").ValueKind);
         Assert.Equal("https://meet.example.org/ft", json.GetProperty("onlineLink").GetString());

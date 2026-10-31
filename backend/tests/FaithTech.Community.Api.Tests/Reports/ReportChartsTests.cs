@@ -1,4 +1,5 @@
 // Traces to: L2-126, L2-127 AC2 (docs/detailed-designs/reports/reports-dashboard, ADR 0030)
+using FaithTech.Community.Api.Tests.Organisations;
 using FaithTech.Community.Domain.Partners;
 using static FaithTech.Community.Api.Tests.Reports.ReportClients;
 
@@ -49,7 +50,7 @@ public class ReportChartsTests : IAsyncLifetime
         await factory.WithDbAsync(async db =>
         {
             var me = db.Profiles.Single();
-            me.Update(me.Name, "Toronto", null);
+            me.Update(me.Name, await db.ChapterIdAsync("Toronto"), null);
             return await db.SaveChangesAsync();
         });
 

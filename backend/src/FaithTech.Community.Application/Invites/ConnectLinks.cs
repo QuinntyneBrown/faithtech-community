@@ -88,7 +88,7 @@ public class ConnectLinkHandler(
 
         var featured = lead.Photos.FirstOrDefault(p => p.IsFeatured && p.IsStored);
         return new ConnectLookupDto(
-            lead.Id, lead.Name, featured is null ? null : storage.GetReadUrl(featured.BlobName), lead.HomeCity, LinkRoleName(lead));
+            lead.Id, lead.Name, featured is null ? null : storage.GetReadUrl(featured.BlobName), lead.Chapter?.Name, LinkRoleName(lead));
     }
 
     /// <summary>The profile id of the link's owner while they may still have a link, or null.</summary>

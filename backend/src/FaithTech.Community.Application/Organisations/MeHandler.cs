@@ -27,7 +27,8 @@ public sealed record MeDto(
     MeOrganisationDto Organisation,
     IReadOnlyList<MembershipDto> Memberships,
     IReadOnlyCollection<string> Capabilities,
-    IReadOnlyCollection<Guid> GrantableRoleIds);
+    IReadOnlyCollection<Guid> GrantableRoleIds,
+    ChapterOptionDto? Chapter);
 
 public sealed record NotAMemberOrganisationDto(string Name);
 
@@ -55,11 +56,14 @@ public class MeHandler(
             return (null, new NotAMemberDto(NotAMemberDto.NotAMemberReason, new NotAMemberOrganisationDto(organisation.Name), user?.Email, memberships));
         }
 
-        var name = await db.Profiles.Where(p => p.Id == membership.ProfileId).Select(p => p.Name).SingleAsync(cancellationToken);
+        // The caller's home chapter, or none, and none while chapters are off (L2-133 AC1, L2-140 AC2).
+        var profile = await db.Profiles.Where(p => p.Id == membership.ProfileId)
+            .Select(p => new { p.Name, Chapter = p.Chapter == null ? null : new ChapterOptionDto(p.Chapter.Id, p.Chapter.Name) })
+            .SingleAsync(cancellationToken);
         return (new MeDto(
             userId,
             membership.ProfileId,
-            name,
+            profile.Name,
             user.Email,
             user.EmailConfirmed,
             [.. membership.Roles.Select(r => new HeldRoleDto(r.Id, r.Key, r.Name, null, r.IsOversight))],
@@ -67,7 +71,8 @@ public class MeHandler(
             memberships,
             [.. membership.Capabilities.Order(StringComparer.Ordinal)],
             // The roles every picker offers: exactly those the caller may add and remove (L2-137 AC5).
-            [.. await grants.GrantableAsync(cancellationToken)]), null);
+            [.. await grants.GrantableAsync(cancellationToken)],
+            profile.Chapter), null);
     }
 
     /// <summary>The account's active, unsuspended profiles in other active organisations, by name and host.</summary>

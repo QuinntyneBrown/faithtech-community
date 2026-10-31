@@ -1,5 +1,6 @@
 using System.Globalization;
 using FaithTech.Community.Application.Common;
+using FaithTech.Community.Application.Organisations;
 using FaithTech.Community.Domain.Events;
 using FaithTech.Community.Domain.Partners;
 using FaithTech.Community.Domain.Profiles;
@@ -16,7 +17,7 @@ public record GetReportQuery(string? City, string? Period);
 /// no query runs per row and no entity is loaded to be counted (L2-129 AC2). Shaping runs in memory over at most one
 /// row per city, stage or month. Private contacts, their notes and pending connections are never read (L2-125 AC6).
 /// </summary>
-public class GetReportHandler(IApplicationDbContext db, ReportAccess access, TimeProvider time)
+public class GetReportHandler(IApplicationDbContext db, ReportAccess access, TimeProvider time, ICurrentOrganisation organisation)
 {
     public const string NoCity = "No city";
     public const string Other = "Other";
@@ -47,8 +48,8 @@ public class GetReportHandler(IApplicationDbContext db, ReportAccess access, Tim
         var events = db.Events.AsNoTracking();
         if (city is not null)
         {
-            members = members.Where(p => p.HomeCity == city);
-            events = events.Where(e => e.City == city);
+            members = members.Where(p => p.Chapter != null && p.Chapter.Name == city);
+            events = events.Where(e => e.Chapter != null && e.Chapter.Name == city);
         }
 
         var membersFigure = await MembersAsync(members, window, cancellationToken);
@@ -58,7 +59,7 @@ public class GetReportHandler(IApplicationDbContext db, ReportAccess access, Tim
         var announcements = new AnnouncementsFigureDto(await AnnouncementsAsync(city, window, cancellationToken));
         var membersByCity = await MembersByCityAsync(members, city, membersFigure.Value, cancellationToken);
         var newMembersByMonth = await NewMembersByMonthAsync(members, window, cancellationToken);
-        var eventRows = await EventRowsAsync(events, window, cancellationToken);
+        var eventRows = await EventRowsAsync(events, window, $"{organisation.ShortName}-wide", cancellationToken);
 
         return (Result.Ok(), new ReportDto(
             city,
@@ -81,13 +82,16 @@ public class GetReportHandler(IApplicationDbContext db, ReportAccess access, Tim
         where u.EmailConfirmed && !p.IsSuspended
         select p;
 
-    /// <summary>The non-blank home cities of members and every event's city, ordinal-ignore-case sorted.</summary>
+    /// <summary>
+    /// The chapters that tag a member or an event, by name, ordinal-ignore-case sorted; the city filter matches these
+    /// names until the chapter filter replaces it (slice 20).
+    /// </summary>
     private async Task<List<string>> CitiesAsync(CancellationToken cancellationToken)
     {
-        var homeCities = await Members().Where(p => p.HomeCity != null && p.HomeCity.Trim() != string.Empty)
-            .Select(p => p.HomeCity!).Distinct().ToListAsync(cancellationToken);
-        var eventCities = await db.Events.Where(e => e.City.Trim() != string.Empty)
-            .Select(e => e.City).Distinct().ToListAsync(cancellationToken);
+        var homeCities = await Members().Where(p => p.Chapter != null)
+            .Select(p => p.Chapter!.Name).Distinct().ToListAsync(cancellationToken);
+        var eventCities = await db.Events.Where(e => e.Chapter != null)
+            .Select(e => e.Chapter!.Name).Distinct().ToListAsync(cancellationToken);
         return homeCities.Union(eventCities, StringComparer.Ordinal).Order(StringComparer.OrdinalIgnoreCase).ToList();
     }
 
@@ -122,7 +126,7 @@ public class GetReportHandler(IApplicationDbContext db, ReportAccess access, Tim
         return (new EventsHeldFigureDto(heldCount, cancelled), new RsvpsFigureDto(rsvpCount, checkedIn, Percent(checkedIn, rsvpCount)));
     }
 
-    /// <summary>Lead, In funnel and Confirmed per owner home city; the period does not apply (ADR 0030).</summary>
+    /// <summary>Lead, In funnel and Confirmed per owner's chapter; the period does not apply (ADR 0030).</summary>
     private async Task<List<PartnerPipelineRowDto>> PartnerPipelineAsync(string? city, List<string> cities, CancellationToken cancellationToken)
     {
         var groups = await (
@@ -130,7 +134,7 @@ public class GetReportHandler(IApplicationDbContext db, ReportAccess access, Tim
                 where p.ArchivedAtUtc == null
                 join o in db.Profiles on p.OwnerId equals (Guid?)o.Id into owners
                 from o in owners.DefaultIfEmpty()
-                group p by new { City = o == null ? null : o.HomeCity, p.Stage } into g
+                group p by new { City = o == null || o.Chapter == null ? null : o.Chapter.Name, p.Stage } into g
                 select new { g.Key.City, g.Key.Stage, Count = g.Count() })
             .ToListAsync(cancellationToken);
         var byCity = groups
@@ -159,7 +163,7 @@ public class GetReportHandler(IApplicationDbContext db, ReportAccess access, Tim
         return rows;
     }
 
-    /// <summary>Announcements sent in the window; one city means the sender's home city.</summary>
+    /// <summary>Announcements sent in the window; one chapter means the sender's chapter.</summary>
     private Task<int> AnnouncementsAsync(string? city, ReportWindow window, CancellationToken cancellationToken)
     {
         var announcements = db.Announcements.AsNoTracking().Where(a => a.SentAt <= window.To);
@@ -170,7 +174,7 @@ public class GetReportHandler(IApplicationDbContext db, ReportAccess access, Tim
 
         if (city is not null)
         {
-            announcements = announcements.Where(a => db.Profiles.Any(s => s.Id == a.SenderId && s.HomeCity == city));
+            announcements = announcements.Where(a => db.Profiles.Any(s => s.Id == a.SenderId && s.Chapter != null && s.Chapter.Name == city));
         }
 
         return announcements.CountAsync(cancellationToken);
@@ -185,7 +189,7 @@ public class GetReportHandler(IApplicationDbContext db, ReportAccess access, Tim
             return [new ReportChartRowDto(city, total)];
         }
 
-        var groups = await members.GroupBy(p => p.HomeCity).Select(g => new { City = g.Key, Count = g.Count() }).ToListAsync(cancellationToken);
+        var groups = await members.GroupBy(p => p.Chapter == null ? null : p.Chapter.Name).Select(g => new { City = g.Key, Count = g.Count() }).ToListAsync(cancellationToken);
         var top = groups
             .Where(g => !string.IsNullOrWhiteSpace(g.City))
             .OrderByDescending(g => g.Count)
@@ -243,7 +247,8 @@ public class GetReportHandler(IApplicationDbContext db, ReportAccess access, Tim
     }
 
     /// <summary>Events from the start of the window to 30 days after now, newest first, at most 50.</summary>
-    private static async Task<List<ReportEventRowDto>> EventRowsAsync(IQueryable<Event> events, ReportWindow window, CancellationToken cancellationToken)
+    private static async Task<List<ReportEventRowDto>> EventRowsAsync(
+        IQueryable<Event> events, ReportWindow window, string organisationWide, CancellationToken cancellationToken)
     {
         var until = window.To + UpcomingHorizon;
         var listed = window.From is { } from ? events.Where(e => e.StartsAt >= from) : events;
@@ -256,7 +261,7 @@ public class GetReportHandler(IApplicationDbContext db, ReportAccess access, Tim
                 e.Id,
                 e.Title,
                 e.StartsAt,
-                e.City,
+                City = e.Chapter == null ? organisationWide : e.Chapter.Name,
                 e.IsCancelled,
                 Going = e.Rsvps.Count(r => !r.IsWalkIn),
                 CheckedIn = e.Rsvps.Count(r => !r.IsWalkIn && r.CheckedInAt != null),

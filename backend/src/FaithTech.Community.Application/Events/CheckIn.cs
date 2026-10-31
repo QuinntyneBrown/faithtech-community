@@ -27,7 +27,7 @@ public record CheckInDto(
     Guid EventId,
     string Title,
     DateTimeOffset StartsAt,
-    string City,
+    string? ChapterName,
     string Format,
     string? Venue,
     bool IsCancelled,
@@ -88,7 +88,7 @@ public class CheckInHandler(IApplicationDbContext db, EventPermissions permissio
             .Select(r => Attendee(r, names))
             .ToList();
         return (Result.Ok(), new CheckInDto(
-            e.Id, e.Title, e.StartsAt, e.City, e.Format.ToString(), e.Venue, e.IsCancelled, e.CancellationReason,
+            e.Id, e.Title, e.StartsAt, e.Chapter?.Name, e.Format.ToString(), e.Venue, e.IsCancelled, e.CancellationReason,
             e.CheckInOpensAt, e.IsCheckInOpen(time.GetUtcNow()), permissions.CanCheckIn, permissions.CanCheckIn,
             e.AttendeeCount, e.CheckedInCount, e.Rsvps.Count(r => r.IsWalkIn), attendees));
     }

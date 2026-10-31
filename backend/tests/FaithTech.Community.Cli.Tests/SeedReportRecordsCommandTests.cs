@@ -27,7 +27,7 @@ public class SeedReportRecordsCommandTests
         Assert.All(members, m => Assert.True(m.EmailConfirmed));
         var profiles = await db.Profiles.Where(p => p.Name.StartsWith(CommunitySeeder.ReportRecordPrefix)).ToListAsync();
         Assert.Equal(60, profiles.Count);
-        Assert.Equal(6, profiles.Select(p => p.HomeCity).Distinct().Count());
+        Assert.Equal(6, profiles.Select(p => p.ChapterId).Distinct().Count());
         Assert.All(profiles, p => Assert.NotNull(p.JoinedAtUtc));
         var events = await db.Events.Include(e => e.Rsvps).Where(e => e.Title.StartsWith(CommunitySeeder.ReportRecordPrefix)).ToListAsync();
         Assert.Equal(6, events.Count);

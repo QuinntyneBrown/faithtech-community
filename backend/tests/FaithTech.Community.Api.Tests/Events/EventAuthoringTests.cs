@@ -1,4 +1,5 @@
 // Traces to: L2-020
+using FaithTech.Community.Api.Tests.Organisations;
 using System.Net;
 using System.Net.Http.Json;
 using System.Text.Json;
@@ -24,14 +25,14 @@ public class EventAuthoringTests(CommunityApiFactory factory) : IClassFixture<Co
         int? capacity = 60,
         string type = "BuildersNight",
         string visibility = "Public",
-        string city = "Toronto") => new
+        Guid? chapterId = null) => new
         {
             title,
             description = "An evening for Christians who build.",
             type,
             startsAt = starts ?? Start,
             endsAt = ends ?? (starts ?? Start).AddHours(2.5),
-            city,
+            chapterId,
             format,
             venue,
             onlineLink,
@@ -63,8 +64,8 @@ public class EventAuthoringTests(CommunityApiFactory factory) : IClassFixture<Co
         Assert.Equal($"/api/events/{id}", response.Headers.Location?.OriginalString);
         var saved = await factory.LoadEventAsync(id);
         Assert.Equal(
-            ("Toronto Builders Night", "An evening for Christians who build.", EventType.Hackathon, Start, Start.AddHours(2.5), "Toronto"),
-            (saved.Title, saved.Description, saved.Type, saved.StartsAt, saved.EndsAt, saved.City));
+            ("Toronto Builders Night", "An evening for Christians who build.", EventType.Hackathon, Start, Start.AddHours(2.5)),
+            (saved.Title, saved.Description, saved.Type, saved.StartsAt, saved.EndsAt));
         Assert.Equal(
             (EventFormat.InPerson, (string?)"Kestrel Labs, 220 King St W", (string?)null, (int?)60, EventVisibility.MembersOnly, lead.ProfileId),
             (saved.Format, saved.Venue, saved.OnlineLink, saved.Capacity, saved.Visibility, saved.CreatedById));
@@ -111,12 +112,11 @@ public class EventAuthoringTests(CommunityApiFactory factory) : IClassFixture<Co
     }
 
     [Fact]
-    public async Task Blank_title_and_city_unknown_type_and_a_capacity_below_one_are_400()
+    public async Task Blank_title_unknown_type_and_a_capacity_below_one_are_400()
     {
-        var errors = await PostInvalidAsync(Request(title: " ", city: "", type: "Party", capacity: 0));
+        var errors = await PostInvalidAsync(Request(title: " ", type: "Party", capacity: 0));
 
         Assert.Equal(["Give the event a title people will recognise."], errors["Title"]);
-        Assert.Equal(["Enter the city the event is in."], errors["City"]);
         Assert.Equal(["Choose a type from the list."], errors["Type"]);
         Assert.Equal(["Capacity must be at least 1, or leave it empty for no limit."], errors["Capacity"]);
     }

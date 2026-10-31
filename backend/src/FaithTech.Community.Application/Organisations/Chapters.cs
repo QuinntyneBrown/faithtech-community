@@ -44,12 +44,14 @@ public class ListChaptersHandler(IApplicationDbContext db, ICurrentUser current)
             return (Result.Forbidden(), null);
         }
 
-        var chapters = await db.Chapters
+        // Readable while chapters are off too, so turning them back on finds them (L2-140 AC6).
+        var chapters = await db.Chapters.IgnoreQueryFilters(QueryFilters.ChaptersOnOnly)
             .Where(c => (c.ArchivedAtUtc != null) == archived)
             .OrderBy(c => c.SortOrder)
             .ThenBy(c => c.Name)
             .ToListAsync(cancellationToken);
-        return (Result.Ok(), [.. chapters.Select(Chapters.Dto)]);
+        var members = await Chapters.MemberCountsAsync(db, cancellationToken);
+        return (Result.Ok(), [.. chapters.Select(c => Chapters.Dto(c, members.GetValueOrDefault(c.Id)))]);
     }
 }
 
@@ -137,7 +139,8 @@ public class ManageChaptersHandler(
 
         audit.Record(current.Membership!.ProfileId, "chapter.reordered", "Organisation", organisation.Id.ToString(), new { Order = before }, new { Order = ids });
         await db.SaveChangesAsync(cancellationToken);
-        return (Result.Ok(), [.. chapters.OrderBy(c => c.SortOrder).Select(Chapters.Dto)]);
+        var members = await Chapters.MemberCountsAsync(db, cancellationToken);
+        return (Result.Ok(), [.. chapters.OrderBy(c => c.SortOrder).Select(c => Chapters.Dto(c, members.GetValueOrDefault(c.Id)))]);
     }
 
     public async Task<(Result Result, ChapterDto? Chapter)> ArchiveAsync(Guid id, CancellationToken cancellationToken = default)
@@ -181,5 +184,18 @@ public class ManageChaptersHandler(
 
 public static class Chapters
 {
-    public static ChapterDto Dto(Chapter c) => new(c.Id, c.Name, c.SortOrder, c.IsArchived, 0);
+    public static ChapterDto Dto(Chapter c) => Dto(c, 0);
+
+    public static ChapterDto Dto(Chapter c, int members) => new(c.Id, c.Name, c.SortOrder, c.IsArchived, members);
+
+    /// <summary>How many members each chapter tags, by chapter id.</summary>
+    public static Task<Dictionary<Guid, int>> MemberCountsAsync(IApplicationDbContext db, CancellationToken cancellationToken) =>
+        db.Profiles.Where(p => p.ChapterId != null)
+            .GroupBy(p => p.ChapterId!.Value)
+            .Select(g => new { g.Key, Count = g.Count() })
+            .ToDictionaryAsync(g => g.Key, g => g.Count, cancellationToken);
+
+    /// <summary>The refusal for a chapter that is not one of the active ones, such as "Choose a city from the list."</summary>
+    public static string ChooseFromList(ICurrentOrganisation organisation) =>
+        $"Choose a {organisation.ChapterLabelSingular?.ToLowerInvariant() ?? "chapter"} from the list.";
 }

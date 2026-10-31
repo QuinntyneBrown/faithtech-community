@@ -1,4 +1,5 @@
 // Traces to: L2-019, L2-046
+using FaithTech.Community.Api.Tests.Organisations;
 using System.Net;
 using System.Net.Http.Json;
 using FaithTech.Community.Api.Tests.Profiles;
@@ -93,9 +94,10 @@ public class TeamPagingTests(CommunityApiFactory factory) : IClassFixture<Commun
             var name = $"Member {i / sameNameEvery:000}";
             var volunteer = i % 2 == 0;
             var home = city(i);
+            var chapterId = await factory.ChapterIdAsync(home);
             var member = await factory.AddMemberAsync(name, p =>
             {
-                p.Update(name, home, null);
+                p.Update(name, chapterId, null);
                 p.AddRole(volunteer ? Role.Volunteer : Role.EventLead, Guid.Empty, DateTime.UtcNow);
             });
             added.Add(new Added(member.ProfileId, home, volunteer));

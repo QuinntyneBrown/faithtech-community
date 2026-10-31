@@ -195,6 +195,7 @@ public class CommunitySeeder(IOpenIddictApplicationManager applications, Communi
     public async Task<int> SeedReportRecordsAsync(int members, CancellationToken cancellationToken = default)
     {
         var now = time.GetUtcNow();
+        var chapters = await ChapterIdsAsync(ReportCities, cancellationToken);
         var existing = (await db.Profiles.Where(p => p.Name.StartsWith(ReportRecordPrefix)).Select(p => p.Name).ToListAsync(cancellationToken))
             .ToHashSet();
         var created = 0;
@@ -208,7 +209,7 @@ public class CommunitySeeder(IOpenIddictApplicationManager applications, Communi
 
             var email = $"report-{i:00000}@{LoadTestDomain}";
             var profile = new Profile(name, now.UtcDateTime.AddDays(-(i * 540L / members)));
-            profile.Update(name, ReportCities[i % ReportCities.Length], null);
+            profile.Update(name, chapters[ReportCities[i % ReportCities.Length]], null);
             var user = new CommunityUser
             {
                 Id = Guid.NewGuid(),
@@ -246,7 +247,7 @@ public class CommunitySeeder(IOpenIddictApplicationManager applications, Communi
 
             var starts = now.AddDays(30 - (i * 365.0 / events));
             var e = new Event(
-                title, "A Reports load-test evening.", EventType.Gathering, starts, starts.AddHours(2), ReportCities[i % ReportCities.Length],
+                title, "A Reports load-test evening.", EventType.Gathering, starts, starts.AddHours(2), chapters[ReportCities[i % ReportCities.Length]],
                 EventFormat.InPerson, "Load venue", null, null, EventVisibility.MembersOnly, Guid.Empty);
             var rsvps = Enumerable.Range(0, 50).Select(r => e.Rsvp(Guid.NewGuid(), starts.AddDays(-7).AddMinutes(r))).ToList();
             if (starts <= now)
@@ -274,6 +275,28 @@ public class CommunitySeeder(IOpenIddictApplicationManager applications, Communi
         return created;
     }
 
+    /// <summary>The ids of the chapters with these names, adding at the end of the list any the organisation lacks.</summary>
+    private async Task<Dictionary<string, Guid>> ChapterIdsAsync(IEnumerable<string> names, CancellationToken cancellationToken)
+    {
+        var active = await db.Chapters.Where(c => c.ArchivedAtUtc == null).ToListAsync(cancellationToken);
+        var ids = new Dictionary<string, Guid>(StringComparer.Ordinal);
+        foreach (var name in names)
+        {
+            var chapter = active.FirstOrDefault(c => c.NormalizedName == Chapter.Normalize(name));
+            if (chapter is null)
+            {
+                chapter = new Chapter(name, active.Count);
+                active.Add(chapter);
+                db.Chapters.Add(chapter);
+            }
+
+            ids[name] = chapter.Id;
+        }
+
+        await db.SaveChangesAsync(cancellationToken);
+        return ids;
+    }
+
     public const int MaxSearchRecords = 1_000_000;
 
     /// <summary>The title prefix of the events seed-search-records creates, so they are easy to find and remove.</summary>
@@ -292,6 +315,7 @@ public class CommunitySeeder(IOpenIddictApplicationManager applications, Communi
         var existing = (await db.Events.Where(e => e.Title.StartsWith(SearchRecordPrefix)).Select(e => e.Title).ToListAsync(cancellationToken))
             .ToHashSet();
         var starts = time.GetUtcNow().AddDays(30);
+        var chapters = await ChapterIdsAsync(Enumerable.Range(0, 50).Select(i => $"City {i:00}"), cancellationToken);
         var created = 0;
         for (var i = 1; i <= count; i++)
         {
@@ -303,7 +327,7 @@ public class CommunitySeeder(IOpenIddictApplicationManager applications, Communi
 
             var words = $"{SearchWords[i % SearchWords.Length]} {SearchWords[i / SearchWords.Length % SearchWords.Length]}";
             db.Events.Add(new Event(
-                title, $"A {words} evening.", EventType.Gathering, starts, starts.AddHours(2), $"City {i % 50:00}",
+                title, $"A {words} evening.", EventType.Gathering, starts, starts.AddHours(2), chapters[$"City {i % 50:00}"],
                 EventFormat.InPerson, "Load venue", null, null, EventVisibility.MembersOnly, Guid.Empty));
             created++;
             if (created % 1000 == 0)

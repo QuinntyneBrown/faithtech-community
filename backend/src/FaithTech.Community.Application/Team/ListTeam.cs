@@ -52,7 +52,7 @@ public class ListTeamHandler(IApplicationDbContext db, IPhotoStorage storage)
         var city = query.City?.Trim().ToLower();
         if (!string.IsNullOrEmpty(city))
         {
-            matching = matching.Where(p => p.HomeCity != null && p.HomeCity.Trim().ToLower() == city);
+            matching = matching.Where(p => p.Chapter != null && p.Chapter.Name.ToLower() == city);
         }
 
         var total = await matching.CountAsync(cancellationToken);
@@ -72,8 +72,9 @@ public class ListTeamHandler(IApplicationDbContext db, IPhotoStorage storage)
         var members = rows.Take(size).ToList();
         var next = rows.Count > size ? new TeamCursor(members[^1].Name.ToLower(), members[^1].Id).ToString() : null;
 
-        // Every team member's city, whatever the filters and the page, so the city select keeps its options.
-        var cities = (await team.Select(p => p.HomeCity).Where(h => h != null).Distinct().ToListAsync(cancellationToken))
+        // Every team member's chapter name, whatever the filters and the page, so the city select keeps its options
+        // until the chapter filter replaces it (slice 20).
+        var cities = (await team.Where(p => p.Chapter != null).Select(p => p.Chapter!.Name).Distinct().ToListAsync(cancellationToken))
             .Select(h => h!.Trim())
             .Where(h => h.Length > 0)
             .Distinct(StringComparer.OrdinalIgnoreCase)
@@ -85,7 +86,7 @@ public class ListTeamHandler(IApplicationDbContext db, IPhotoStorage storage)
     private TeamMemberDto ToDto(Profile profile) => new(
         profile.Id,
         profile.Name,
-        profile.HomeCity,
+        profile.Chapter?.Name,
         profile.Photos.FirstOrDefault(p => p.IsFeatured) is { } featured ? storage.GetReadUrl(featured.BlobName) : null,
         [.. profile.Roles.OrderBy(r => r.Definition!.SortOrder).Select(r => r.Definition!.Key)]);
 }

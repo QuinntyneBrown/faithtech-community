@@ -161,7 +161,7 @@ public class NoteMembersHandler(IApplicationDbContext db)
         }
 
         var rows = await members.OrderBy(p => p.Name).ThenBy(p => p.Id).Take(Limit)
-            .Select(p => new { p.Id, p.Name, p.HomeCity, Roles = p.Roles.OrderBy(r => r.Definition!.SortOrder).Select(r => r.Definition!.Key).ToList() })
+            .Select(p => new { p.Id, p.Name, HomeCity = p.Chapter == null ? null : p.Chapter.Name, Roles = p.Roles.OrderBy(r => r.Definition!.SortOrder).Select(r => r.Definition!.Key).ToList() })
             .ToListAsync(cancellationToken);
         return [.. rows.Select(r => new NoteMemberDto(r.Id, r.Name, r.HomeCity, [.. r.Roles.Order().Select(x => x.ToString())]))];
     }

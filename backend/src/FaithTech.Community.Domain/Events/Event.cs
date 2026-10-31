@@ -17,7 +17,7 @@ public class Event : IOrganisationScoped
         EventType type,
         DateTimeOffset startsAt,
         DateTimeOffset endsAt,
-        string city,
+        Guid? chapterId,
         EventFormat format,
         string? venue,
         string? onlineLink,
@@ -27,7 +27,7 @@ public class Event : IOrganisationScoped
     {
         Id = Guid.NewGuid();
         CreatedById = createdById;
-        Apply(title, description, type, startsAt, endsAt, city, format, venue, onlineLink, capacity, visibility);
+        Apply(title, description, type, startsAt, endsAt, chapterId, format, venue, onlineLink, capacity, visibility);
     }
 
     public Guid Id { get; private set; }
@@ -42,7 +42,10 @@ public class Event : IOrganisationScoped
 
     public DateTimeOffset EndsAt { get; private set; }
 
-    public string City { get; private set; } = string.Empty;
+    /// <summary>The event's chapter; none means organisation-wide (L2-141 AC2).</summary>
+    public Guid? ChapterId { get; private set; }
+
+    public Chapter? Chapter { get; private set; }
 
     public EventFormat Format { get; private set; }
 
@@ -79,14 +82,14 @@ public class Event : IOrganisationScoped
         EventType type,
         DateTimeOffset startsAt,
         DateTimeOffset endsAt,
-        string city,
+        Guid? chapterId,
         EventFormat format,
         string? venue,
         string? onlineLink,
         int? capacity,
         EventVisibility visibility)
     {
-        Apply(title, description, type, startsAt, endsAt, city, format, venue, onlineLink, capacity, visibility);
+        Apply(title, description, type, startsAt, endsAt, chapterId, format, venue, onlineLink, capacity, visibility);
         Sequence++;
     }
 
@@ -239,7 +242,7 @@ public class Event : IOrganisationScoped
         EventType type,
         DateTimeOffset startsAt,
         DateTimeOffset endsAt,
-        string city,
+        Guid? chapterId,
         EventFormat format,
         string? venue,
         string? onlineLink,
@@ -247,7 +250,6 @@ public class Event : IOrganisationScoped
         EventVisibility visibility)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(title);
-        ArgumentException.ThrowIfNullOrWhiteSpace(city);
         if (endsAt < startsAt)
         {
             throw new ArgumentException("An event cannot end before it starts.", nameof(endsAt));
@@ -273,7 +275,7 @@ public class Event : IOrganisationScoped
         Type = type;
         StartsAt = startsAt;
         EndsAt = endsAt;
-        City = city;
+        ChapterId = chapterId;
         Format = format;
         Venue = venue;
         OnlineLink = onlineLink;

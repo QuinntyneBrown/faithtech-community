@@ -44,7 +44,7 @@ public class ListPeopleHandler(IApplicationDbContext db, ICurrentUser current, I
             {
                 a.profile.Id,
                 a.profile.Name,
-                a.profile.HomeCity,
+                HomeCity = a.profile.Chapter == null ? null : a.profile.Chapter.Name,
                 Featured = a.profile.Photos.Where(p => p.IsFeatured).Select(p => p.BlobName).FirstOrDefault(),
                 Roles = a.profile.Roles.OrderBy(r => r.Definition!.SortOrder).Select(r => new ProfileRoleDto(r.RoleDefinitionId, r.Definition!.Name, null)).ToList(),
             })

@@ -42,7 +42,7 @@ public class ProfileIsolationTests(CommunityApiFactory factory) : IClassFixture<
 
         await Assert.ThrowsAsync<InvalidOperationException>(() => factory.WithDbAsync(async db =>
         {
-            profile.Update("Ana Lima-Souza", profile.HomeCity, profile.Bio);
+            profile.Update("Ana Lima-Souza", profile.ChapterId, profile.Bio);
             db.Profiles.Update(profile);
             return await db.SaveChangesAsync();
         }));
