@@ -54,6 +54,7 @@ export const ICONS: Readonly<Record<string, string>> = {
   photo:
     "<rect x='3' y='3' width='18' height='18' rx='2'/><circle cx='9' cy='9' r='2'/><path d='m21 15-5-5L5 21'/>",
   'sign-out': "<path d='M15 4h4v16h-4M10 17l5-5-5-5M15 12H3'/>",
+  switch: "<path d='M7 7h13l-3-3M17 17H4l3 3'/>",
   organisation:
     "<path d='M4 21V5a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v16M16 9h2a2 2 0 0 1 2 2v10M2 21h20M8 7h4M8 11h4M8 15h4'/>",
   resources: "<path d='M4 4h6l2 2h8v14H4z'/><path d='M8 12h8M8 16h5'/>",

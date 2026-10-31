@@ -3,9 +3,21 @@ import { ChangeDetectionStrategy, Component, input, output } from '@angular/core
 import { MenuItemComponent } from './menu-item.component';
 
 export type MenuEntry =
-  | { kind: 'header'; title: string; caption?: string }
+  /** `id` lets the items of a group (such as "Switch organisation") name it with `describedBy`. */
+  | { kind: 'header'; title: string; caption?: string; id?: string }
   | { kind: 'divider' }
-  | { kind: 'item'; id: string; label: string; icon?: string; href?: string; disabled?: boolean };
+  | {
+      kind: 'item';
+      id: string;
+      label: string;
+      icon?: string;
+      href?: string;
+      disabled?: boolean;
+      /** A second, muted line under the label, such as an organisation's host. */
+      caption?: string;
+      /** The id of the header of the group the item belongs to. */
+      describedBy?: string;
+    };
 
 /**
  * Account-style menu button (APG Menu Button) on the CDK Menu. The projected content is the
