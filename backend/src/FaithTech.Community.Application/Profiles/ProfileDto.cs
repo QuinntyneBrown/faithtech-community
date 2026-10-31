@@ -22,6 +22,9 @@ public record ProfileRoleDto(Guid Id, string Name, Guid? ChapterId, string? Chap
     public static IReadOnlyList<ProfileRoleDto> Of(Profile profile) =>
         [.. profile.Roles.OrderBy(r => r.Definition!.SortOrder).ThenBy(r => r.Chapter == null ? null : r.Chapter.Name)
             .Select(r => new ProfileRoleDto(r.RoleDefinitionId, r.Definition!.Name, r.ChapterId, r.Chapter?.Name))];
+
+    /// <summary>"{role} · {chapter}" for a tagged assignment, "{role}" otherwise (L2-141 AC3).</summary>
+    public static string Badge(string name, string? chapterName) => chapterName is null ? name : $"{name} · {chapterName}";
 }
 
 /// <summary>

@@ -21,7 +21,9 @@ public interface IConnectTokenProtector
 public record ConnectLinkDto(string Url);
 
 /// <summary>Who an anonymous visitor is connecting with (L2-082 AC2).</summary>
-public record ConnectLookupDto(Guid LeadProfileId, string LeadName, string? LeadPhotoUrl, string? LeadChapterName, string LeadRole);
+/// <remarks>`LeadRoleChapterName` is the chapter the link role is held for, so the page reads "{role} · {chapter}" (L2-141 AC3).</remarks>
+public record ConnectLookupDto(
+    Guid LeadProfileId, string LeadName, string? LeadPhotoUrl, string? LeadChapterName, string LeadRole, string? LeadRoleChapterName = null);
 
 /// <summary>The body of <c>POST /api/connect/lookup</c>: the link's token, kept out of the URL.</summary>
 public record ConnectLookupRequest(string? Token);
@@ -88,7 +90,7 @@ public class ConnectLinkHandler(
 
         var featured = lead.Photos.FirstOrDefault(p => p.IsFeatured && p.IsStored);
         return new ConnectLookupDto(
-            lead.Id, lead.Name, featured is null ? null : storage.GetReadUrl(featured.BlobName), lead.Chapter?.Name, LinkRoleName(lead));
+            lead.Id, lead.Name, featured is null ? null : storage.GetReadUrl(featured.BlobName), lead.Chapter?.Name, LinkRoleName(lead), LinkAssignment(lead)!.Chapter?.Name);
     }
 
     /// <summary>The profile id of the link's owner while they may still have a link, or null.</summary>
@@ -116,11 +118,16 @@ public class ConnectLinkHandler(
     }
 
     /// <summary>The owner's first held role that gives ConnectLink, AdministerOrganisation standing in for it.</summary>
-    private static RoleDefinition? LinkRole(Profile profile) =>
-        profile.Roles.Select(r => r.Definition).OfType<RoleDefinition>()
-            .Where(d => d.ArchivedAtUtc is null)
-            .OrderBy(d => d.SortOrder)
-            .FirstOrDefault(d => d.Capabilities.Contains(Capability.ConnectLink) || d.Capabilities.Contains(Capability.AdministerOrganisation));
+    private static RoleDefinition? LinkRole(Profile profile) => LinkAssignment(profile)?.Definition;
+
+    /// <summary>The assignment of <see cref="LinkRole"/>: an untagged one first, then by chapter name.</summary>
+    private static ProfileRole? LinkAssignment(Profile profile) =>
+        profile.Roles.Where(r => r.Definition is { ArchivedAtUtc: null } d
+                && (d.Capabilities.Contains(Capability.ConnectLink) || d.Capabilities.Contains(Capability.AdministerOrganisation)))
+            .OrderBy(r => r.Definition!.SortOrder)
+            .ThenBy(r => r.Chapter != null)
+            .ThenBy(r => r.Chapter == null ? null : r.Chapter.Name)
+            .FirstOrDefault();
 
     private static string LinkRoleName(Profile profile) => LinkRole(profile)!.Name;
 
