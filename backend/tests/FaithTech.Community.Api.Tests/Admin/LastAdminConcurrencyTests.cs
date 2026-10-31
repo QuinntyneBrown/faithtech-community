@@ -2,7 +2,7 @@
 using System.Net;
 using System.Net.Http.Json;
 using FaithTech.Community.Api.Tests.Profiles;
-using FaithTech.Community.Domain.Admin;
+using FaithTech.Community.Domain.Organisations;
 using FaithTech.Community.Domain.Profiles;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -25,7 +25,7 @@ public class LastAdminConcurrencyTests(CommunityApiFactory factory) : IClassFixt
         // System Admin roster that guards those removals.
         factory.SaveGate.HoldUntil(2, db =>
             db.ChangeTracker.Entries<ProfileRole>().Any(e => e.State == EntityState.Deleted)
-            || db.ChangeTracker.Entries<SystemAdminRoster>().Any(e => e.State == EntityState.Modified));
+            || db.ChangeTracker.Entries<OrganisationAdminRoster>().Any(e => e.State == EntityState.Modified));
         var responses = await Task.WhenAll(
             asPriya.DeleteAsync($"/api/profiles/{samuel.ProfileId}/roles/SystemAdmin"),
             asSamuel.DeleteAsync($"/api/profiles/{priya.ProfileId}/roles/SystemAdmin"));
@@ -65,13 +65,13 @@ public class LastAdminConcurrencyTests(CommunityApiFactory factory) : IClassFixt
         var samuel = await factory.AddMemberAsync("Samuel Osei", p => p.AddRole(Role.SystemAdmin, Guid.Empty, DateTime.UtcNow));
         await factory.WithDbAsync(async db =>
         {
-            (await db.SystemAdminRosters.SingleAsync()).TryTake(Guid.NewGuid(), factory.Time.GetUtcNow());
+            (await db.OrganisationAdminRosters.SingleAsync()).TryTake(Guid.NewGuid(), factory.Time.GetUtcNow());
             return await db.SaveChangesAsync();
         });
         var client = factory.ClientFor(priya, Role.SystemAdmin);
 
         var blocked = await client.DeleteAsync($"/api/profiles/{samuel.ProfileId}/roles/SystemAdmin");
-        factory.Time.Advance(SystemAdminRoster.LeaseLength + TimeSpan.FromSeconds(1));
+        factory.Time.Advance(OrganisationAdminRoster.LeaseLength + TimeSpan.FromSeconds(1));
         var allowed = await client.DeleteAsync($"/api/profiles/{samuel.ProfileId}/roles/SystemAdmin");
 
         Assert.Equal(HttpStatusCode.Conflict, blocked.StatusCode);

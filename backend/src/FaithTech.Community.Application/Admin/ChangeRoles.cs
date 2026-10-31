@@ -62,7 +62,7 @@ public class ChangeRolesHandler(
             return (Result.Conflict(add ? "They already hold that role." : "They don’t hold that role."), null);
         }
 
-        SystemAdminRoster? roster = null;
+        OrganisationAdminRoster? roster = null;
         if (!add && definition.Capabilities.Contains(Capability.AdministerOrganisation)
             && !profile.Roles.Any(r => r.RoleDefinitionId != definition.Id && r.Definition?.Capabilities.Contains(Capability.AdministerOrganisation) == true))
         {
@@ -123,12 +123,13 @@ public class ChangeRolesHandler(
     }
 
     /// <summary>The roster with its lease taken by this request, or null when another removal holds it.</summary>
-    private async Task<SystemAdminRoster?> TakeRosterLeaseAsync(CancellationToken cancellationToken)
+    private async Task<OrganisationAdminRoster?> TakeRosterLeaseAsync(CancellationToken cancellationToken)
     {
-        var roster = await db.SystemAdminRosters.SingleOrDefaultAsync(r => r.Id == SystemAdminRoster.SingletonId, cancellationToken);
+        // The current organisation's roster; an organisation provisioned without one gets it on its first guarded change.
+        var roster = await db.OrganisationAdminRosters.SingleOrDefaultAsync(cancellationToken);
         if (roster is null)
         {
-            db.SystemAdminRosters.Add(roster = new SystemAdminRoster());
+            db.OrganisationAdminRosters.Add(roster = new OrganisationAdminRoster());
         }
 
         if (!roster.TryTake(Guid.NewGuid(), time.GetUtcNow()))
