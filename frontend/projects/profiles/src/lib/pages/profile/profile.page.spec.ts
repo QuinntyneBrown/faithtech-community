@@ -76,7 +76,8 @@ const NO_GRANTS = { grantable: [] as string[], capabilities: [] as string[], hel
 const samuel: ProfileDto = {
   id: 'p1',
   name: 'Samuel Mensah',
-  homeCity: 'Toronto',
+  chapterId: 'c-toronto',
+  chapterName: 'Toronto',
   bio: null,
   featuredPhoto: null,
   photos: [],

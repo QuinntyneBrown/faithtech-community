@@ -12,10 +12,10 @@ for (const name of Object.keys(BREAKPOINTS) as BreakpointName[]) {
   test(`the team page fits and keeps 24px targets at ${name}`, async ({ page, api }) => {
     await page.setViewportSize(BREAKPOINTS[name]);
     const grace = api.addAccount({ email: 'grace@example.org', roles: ['CityLead'] });
-    api.profiles.get(grace.profileId)!.homeCity = 'Toronto';
+    api.profiles.get(grace.profileId)!.chapterId = api.chapters.named('Toronto').id;
     api.addProfile({
       name: 'Samuel Mensah',
-      homeCity: 'Toronto',
+      chapterId: api.chapters.named('Toronto').id,
       roles: ['CreateLead', 'ProductEngineer', 'Volunteer'],
     });
 

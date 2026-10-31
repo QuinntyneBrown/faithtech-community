@@ -14,7 +14,7 @@ public class NoteViews(IApplicationDbContext db, ICurrentUser current, NoteAcces
     {
         var people = new[] { page.OwnerId, page.UpdatedById }.Concat(page.SharedMembers.Select(m => m.ProfileId)).Distinct().ToList();
         var profiles = await db.Profiles.AsNoTracking().Where(p => people.Contains(p.Id))
-            .Select(p => new { p.Id, p.Name, p.HomeCity })
+            .Select(p => new { p.Id, p.Name, HomeCity = p.Chapter == null ? null : p.Chapter.Name })
             .ToDictionaryAsync(p => p.Id, cancellationToken);
         var roleCounts = new List<NoteAudienceRoleDto>();
         foreach (var role in page.SharedRoles.Select(x => x.Definition!).OrderBy(d => d.SortOrder))

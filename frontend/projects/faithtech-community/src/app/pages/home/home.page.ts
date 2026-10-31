@@ -200,7 +200,11 @@ export class HomePage {
       const list = await firstValueFrom(this.events.listEvents({ filter: 'Upcoming' }));
       const upcoming = list.events.filter((e) => !e.isCancelled);
       this.upcomingCount.set(upcoming.length);
-      this.comingUp.set(upcoming.slice(0, COMING_UP).map(toRow));
+      this.comingUp.set(
+        upcoming
+          .slice(0, COMING_UP)
+          .map((e) => toRow(e, this.organisation.chapterPlace(e.chapterName))),
+      );
       this.eventsState.set('loaded');
     } catch {
       this.eventsState.set('error');
@@ -240,10 +244,10 @@ function greetingFor(now: Date): string {
 }
 
 /** "Fri 6 Nov · 6:30 pm · Kestrel Labs, 220 King St W · 34 going", as the home mock words it. */
-function toRow(event: EventSummaryDto): EventRow {
+function toRow(event: EventSummaryDto, chapter: string | null): EventRow {
   const start = new Date(event.startsAt);
   const oneDay = start.toDateString() === new Date(event.endsAt).toDateString();
-  const place = event.format === 'Online' ? 'Online' : (event.venue ?? event.city);
+  const place = event.format === 'Online' ? 'Online' : (event.venue ?? chapter);
   const meta = [
     formatDayRange(event.startsAt, event.endsAt),
     oneDay ? formatTime(start) : null,

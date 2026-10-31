@@ -26,7 +26,7 @@ public partial class PublicEventTests(CommunityApiFactory factory) : IClassFixtu
         Assert.Equal("Toronto Builders Night", json.GetProperty("title").GetString());
         Assert.Equal("About Toronto Builders Night.", json.GetProperty("description").GetString());
         Assert.Equal(existing.StartsAt, json.GetProperty("startsAt").GetDateTimeOffset());
-        Assert.Equal("Toronto", json.GetProperty("city").GetString());
+        Assert.Equal("Toronto", json.GetProperty("chapterName").GetString());
         Assert.Equal("Kestrel Labs, 220 King St W", json.GetProperty("venue").GetString());
         Assert.Equal(3, json.GetProperty("rsvpCount").GetInt32());
         Assert.False(json.GetProperty("isFull").GetBoolean());

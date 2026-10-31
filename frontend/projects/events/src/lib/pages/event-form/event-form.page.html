@@ -78,9 +78,22 @@
                 >Online</ft-radio
               >
             </ft-radio-group>
-            <ft-form-field required label="City" [error]="error('city')">
-              <ft-text-field formControlName="city" autocomplete="address-level2" />
-            </ft-form-field>
+            @if (chapterOptions().length) {
+              <ft-form-field
+                [label]="chapterLabel()"
+                [optional]="true"
+                [help]="
+                  'Leave it ' +
+                  organisation.shortName() +
+                  '-wide for an event open to every ' +
+                  chapterLabel().toLowerCase() +
+                  '.'
+                "
+                [error]="error('chapterId')"
+              >
+                <ft-select formControlName="chapterId" [options]="chapterOptions()" />
+              </ft-form-field>
+            }
             @if (online()) {
               <ft-form-field required label="Joining link" [error]="error('onlineLink')">
                 <ft-text-field type="url" formControlName="onlineLink" autocomplete="off" />

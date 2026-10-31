@@ -1,4 +1,5 @@
 // Traces to: L2-129 (docs/detailed-designs/reports/reports-dashboard, ADR 0030)
+using FaithTech.Community.Api.Tests.Organisations;
 using FaithTech.Community.Application.Identity;
 using FaithTech.Community.Domain.Events;
 using FaithTech.Community.Domain.Profiles;
@@ -28,6 +29,20 @@ public class ReportVolumeTests : IAsyncLifetime
         var profiles = Enumerable.Range(0, 10_000)
             .Select(i => (Profile: Member($"Member {i:00000}", Cities[i % Cities.Length], Now.AddDays(-(i % 540))), Verified: i % 50 != 0))
             .ToList();
+        await factory.WithDbAsync(async db =>
+        {
+            foreach (var city in Cities)
+            {
+                ChapterIds[city] = (await db.ChapterIdAsync(city))!.Value;
+            }
+
+            return await db.SaveChangesAsync();
+        });
+        foreach (var (profile, _) in profiles)
+        {
+            profile.Update(profile.Name, ChapterIds[HomeCities[profile]], null);
+        }
+
         var events = Enumerable.Range(0, 1_000).Select(i => Event(i)).ToList();
         await factory.WithDbAsync(async db =>
         {
@@ -50,7 +65,7 @@ public class ReportVolumeTests : IAsyncLifetime
         var from = Now.AddDays(-90);
         var held = events.Where(e => !e.IsCancelled && e.StartsAt >= from && e.StartsAt <= Now).ToList();
         var rsvps = held.SelectMany(e => e.Rsvps).Where(r => !r.IsWalkIn).ToList();
-        var toronto = profiles.Where(p => p.Verified && p.Profile.HomeCity == "Toronto").ToList();
+        var toronto = profiles.Where(p => p.Verified && HomeCities[p.Profile] == "Toronto").ToList();
 
         var all = await staff.ReportAsync("?period=last-90-days");
         var city = await staff.ReportAsync("?city=Toronto&period=all-time");
@@ -70,19 +85,23 @@ public class ReportVolumeTests : IAsyncLifetime
         Assert.Equal(System.Net.HttpStatusCode.OK, export.StatusCode);
     }
 
-    private static Profile Member(string name, string city, DateTimeOffset joinedAt)
+    private readonly Dictionary<string, Guid> ChapterIds = [];
+
+    private readonly Dictionary<Profile, string> HomeCities = [];
+
+    private Profile Member(string name, string city, DateTimeOffset joinedAt)
     {
         var profile = new Profile(name, joinedAt.UtcDateTime);
-        profile.Update(name, city, null);
+        HomeCities[profile] = city;
         return profile;
     }
 
     /// <summary>Events over the last 400 days and the next 30, every 20th cancelled, 3 RSVPs each, 2 checked in.</summary>
-    private static Event Event(int i)
+    private Event Event(int i)
     {
         var starts = Now.AddDays(30 - (i * 430 / 1_000.0));
         var e = new Event(
-            $"Night {i:0000}", "About the night.", EventType.Gathering, starts, starts.AddHours(2), Cities[i % Cities.Length],
+            $"Night {i:0000}", "About the night.", EventType.Gathering, starts, starts.AddHours(2), ChapterIds[Cities[i % Cities.Length]],
             EventFormat.InPerson, "Kestrel Labs", null, null, EventVisibility.MembersOnly, Guid.NewGuid());
         var taken = Enumerable.Range(0, 3).Select(r => e.Rsvp(Guid.NewGuid(), starts.AddDays(-2).AddMinutes(r))).ToList();
         if (starts <= Now)

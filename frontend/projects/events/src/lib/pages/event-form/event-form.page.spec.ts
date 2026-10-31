@@ -2,7 +2,13 @@
 import { HttpErrorResponse } from '@angular/common/http';
 import { TestBed } from '@angular/core/testing';
 import { Router } from '@angular/router';
-import { EVENTS_SERVICE, EventDetailDto } from '@faithtech-community/api';
+import { signal } from '@angular/core';
+import {
+  EVENTS_SERVICE,
+  EventDetailDto,
+  ORGANISATION_SERVICE,
+  SITE_SERVICE,
+} from '@faithtech-community/api';
 import { Observable, of, throwError } from 'rxjs';
 
 import { EventFormPage } from './event-form.page';
@@ -14,7 +20,8 @@ const existing: EventDetailDto = {
   type: 'BuildersNight',
   startsAt: new Date(2026, 10, 6, 18, 30).toISOString(),
   endsAt: new Date(2026, 10, 6, 21, 0).toISOString(),
-  city: 'Toronto',
+  chapterId: 'c-toronto',
+  chapterName: 'Toronto',
   format: 'InPerson',
   venue: 'Kestrel Labs, 220 King St W',
   onlineLink: null,
@@ -49,7 +56,33 @@ async function setup(id: string | undefined, overrides: Overrides = {}) {
     updateEvent: vi.fn(overrides.updateEvent ?? (() => of(undefined))),
     getEvent: vi.fn(overrides.getEvent ?? (() => of(existing))),
   };
-  TestBed.configureTestingModule({ providers: [{ provide: EVENTS_SERVICE, useValue: service }] });
+  const organisation = {
+    name: 'FaithTech Community',
+    shortName: 'FaithTech',
+    chapterLabel: { singular: 'City', plural: 'Cities' },
+    chapters: [
+      { id: 'c-toronto', name: 'Toronto' },
+      { id: 'c-austin', name: 'Austin' },
+    ],
+    roles: [],
+  };
+  TestBed.configureTestingModule({
+    providers: [
+      { provide: EVENTS_SERVICE, useValue: service },
+      { provide: ORGANISATION_SERVICE, useValue: { get: () => of(organisation) } },
+      {
+        provide: SITE_SERVICE,
+        useValue: {
+          site: signal({
+            name: 'FaithTech Community',
+            shortName: 'FaithTech',
+            chapterLabel: { singular: 'City', plural: 'Cities' },
+            communityOrigin: 'https://app.faithtech.test',
+          }),
+        },
+      },
+    ],
+  });
   const router = TestBed.inject(Router);
   const navigate = vi.spyOn(router, 'navigateByUrl').mockResolvedValue(true);
   const fixture = TestBed.createComponent(EventFormPage);
@@ -95,7 +128,7 @@ async function fillValid(page: Awaited<ReturnType<typeof setup>>) {
   page.type('Description', 'An evening for Christians who build.');
   page.type('Starts', '2026-11-06T18:30');
   page.type('Ends', '2026-11-06T21:00');
-  page.type('City', 'Toronto');
+  page.type('City', 'c-toronto');
   page.type('Venue address', 'Kestrel Labs, 220 King St W');
   page.type('Capacity', '60');
   await page.settle();
@@ -116,7 +149,7 @@ describe('EventFormPage', () => {
       type: 'BuildersNight',
       startsAt: new Date(2026, 10, 6, 18, 30).toISOString(),
       endsAt: new Date(2026, 10, 6, 21, 0).toISOString(),
-      city: 'Toronto',
+      chapterId: 'c-toronto',
       format: 'InPerson',
       venue: 'Kestrel Labs, 220 King St W',
       onlineLink: null,
@@ -124,6 +157,30 @@ describe('EventFormPage', () => {
       visibility: 'MembersOnly',
     });
     expect(page.navigate).toHaveBeenCalledWith('/events/new-1');
+  });
+
+  // Traces to: L2-141 AC2
+  it('offers the organisation-wide option and the chapters, and keeps an archived one the event has', async () => {
+    const page = await setup('e1', {
+      getEvent: () => of({ ...existing, chapterId: 'c-regina', chapterName: 'Regina' }),
+    });
+    await page.settle();
+    const select = page.control<HTMLSelectElement>('City');
+
+    expect(Array.from(select.options).map((o) => o.textContent!.trim())).toEqual([
+      'FaithTech-wide',
+      'Toronto',
+      'Austin',
+      'Regina',
+    ]);
+    expect(select.value).toBe('c-regina');
+
+    page.type('City', '');
+    await page.submit();
+    expect(page.service.updateEvent).toHaveBeenCalledWith(
+      'e1',
+      expect.objectContaining({ chapterId: null }),
+    );
   });
 
   it('swaps the venue for a joining link when Online is chosen, and leaves capacity optional', async () => {

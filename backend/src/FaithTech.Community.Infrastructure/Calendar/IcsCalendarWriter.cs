@@ -42,7 +42,8 @@ public class IcsCalendarWriter(TimeProvider time, ICurrentOrganisation organisat
 
         if (e.Format == EventFormat.InPerson && e.Venue is { } venue)
         {
-            lines.Add($"LOCATION:{Text($"{venue}, {e.City}")}");
+            // The chapter's name follows the venue; an organisation-wide event gives the venue alone (L2-141 AC2).
+            lines.Add($"LOCATION:{Text(e.Chapter is { } chapter ? $"{venue}, {chapter.Name}" : venue)}");
         }
 
         if (publicPageUrl is not null)

@@ -7,7 +7,7 @@ import { SignInPage } from '../../pages/sign-in.page';
 test.describe('Accept an invite', () => {
   test('a newcomer joins with the invited email and gets the role', async ({ page, api, axe }) => {
     const grace = api.addAccount({ email: 'grace@example.org', name: 'Grace Okonkwo' });
-    api.profiles.get(grace.profileId)!.homeCity = 'Toronto';
+    api.profiles.get(grace.profileId)!.chapterId = api.chapters.named('Toronto').id;
     const invite = api.addInvite({
       email: 'ruth.alvarez@example.org',
       invitedBy: grace.profileId,

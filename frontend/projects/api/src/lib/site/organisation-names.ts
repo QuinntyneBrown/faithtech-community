@@ -37,6 +37,14 @@ export class OrganisationNames {
       : (this.site?.site()?.chapterLabel ?? null);
   });
 
+  /**
+   * Where a record's chapter tag puts it: the chapter's name, "{Organisation}-wide" for none, or null while chapters
+   * are off so nothing shows a chapter (L2-141 AC2, L2-140 AC2).
+   */
+  chapterPlace(chapterName: string | null): string | null {
+    return this.chapterLabel() ? (chapterName ?? `${this.shortName()}-wide`) : null;
+  }
+
   /** "We couldn’t reach {short name}." followed by what happened, for failures the server never answered. */
   unreachable(then = 'Try again.'): string {
     return `We couldn’t reach ${this.shortName()}. ${then}`;

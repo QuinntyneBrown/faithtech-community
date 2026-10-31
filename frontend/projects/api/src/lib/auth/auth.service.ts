@@ -27,6 +27,8 @@ export interface CurrentUser {
   capabilities: Capability[];
   /** The role definition ids the caller may add and remove; every picker offers exactly these (L2-137 AC5). */
   grantableRoleIds?: string[];
+  /** The caller's home chapter, or none, and none while chapters are off (L2-133 AC1). */
+  chapter?: { id: string; name: string } | null;
   /** The organisation of the host, from /api/me (L2-133 AC1). */
   organisation?: MeOrganisation;
   /** The account's other active memberships, for the switcher (L2-133 AC1, AC3). */

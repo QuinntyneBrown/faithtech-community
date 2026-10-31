@@ -47,6 +47,12 @@ public class CommunityDbContext : IdentityDbContext<CommunityUser, IdentityRole<
     /// <summary>The current organisation's id, read by every query filter when the query runs.</summary>
     private Guid CurrentOrganisationId => _organisation.Id;
 
+    /// <summary>
+    /// Whether the current organisation has chapters, read by the chapters filter when the query runs. Work scoped by
+    /// id only (the Cli, workers) never hides them: it shows no one anything, and must find them to keep names unique.
+    /// </summary>
+    private bool ChaptersOn => _organisation is OrganisationScope { IsLoaded: false } || _organisation.ChapterLabelSingular != null;
+
     public DbSet<Organisation> Organisations => Set<Organisation>();
 
     public DbSet<Profile> Profiles => Set<Profile>();
@@ -137,6 +143,7 @@ public class CommunityDbContext : IdentityDbContext<CommunityUser, IdentityRole<
                 .IsUnique()
                 .HasFilter("\"ArchivedAtUtc\" IS NULL");
             chapter.Ignore(c => c.IsArchived);
+            chapter.HasQueryFilter(QueryFilters.ChaptersOn, c => ChaptersOn);
         });
 
         builder.Entity<RoleDefinition>(definition =>
@@ -162,9 +169,11 @@ public class CommunityDbContext : IdentityDbContext<CommunityUser, IdentityRole<
         builder.Entity<Profile>(profile =>
         {
             profile.Property(p => p.Name).HasMaxLength(200);
-            profile.Property(p => p.HomeCity).HasMaxLength(100);
-            // Reports group and filter members by home city (ADR 0030).
-            profile.HasIndex(p => p.HomeCity);
+            // Reports and the team filter group members by chapter (ADR 0030, ADR 0034); a chapter is never deleted.
+            profile.HasOne(p => p.Chapter).WithMany().HasForeignKey(p => p.ChapterId).OnDelete(DeleteBehavior.Restrict);
+            profile.HasIndex(p => p.ChapterId);
+            // Every view of a member shows the chapter's current name, so it comes with the profile.
+            profile.Navigation(p => p.Chapter).AutoInclude();
             profile.Property(p => p.Bio).HasMaxLength(400);
             profile.Property(p => p.SuspendedReason).HasMaxLength(500);
             profile.Ignore(p => p.DomainEvents);
@@ -380,7 +389,9 @@ public class CommunityDbContext : IdentityDbContext<CommunityUser, IdentityRole<
             ev.Property(e => e.Title).HasMaxLength(200);
             ev.Property(e => e.Description).HasMaxLength(4000);
             ev.Property(e => e.Type).HasConversion<string>().HasMaxLength(32);
-            ev.Property(e => e.City).HasMaxLength(100);
+            ev.HasOne(e => e.Chapter).WithMany().HasForeignKey(e => e.ChapterId).OnDelete(DeleteBehavior.Restrict);
+            ev.HasIndex(e => e.ChapterId);
+            ev.Navigation(e => e.Chapter).AutoInclude();
             ev.Property(e => e.Format).HasConversion<string>().HasMaxLength(16);
             ev.Property(e => e.Venue).HasMaxLength(300);
             ev.Property(e => e.OnlineLink).HasMaxLength(500);

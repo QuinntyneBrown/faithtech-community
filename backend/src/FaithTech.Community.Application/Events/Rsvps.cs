@@ -125,7 +125,7 @@ public class RsvpHandler(
         $"You’re going to {e.Title}",
         $"You’re going to {e.Title}.\n\n" +
         $"{e.StartsAt.UtcDateTime.ToString("dddd d MMMM yyyy, HH:mm", CultureInfo.InvariantCulture)} UTC\n" +
-        $"{(e.Format == EventFormat.Online ? e.OnlineLink : $"{e.Venue}, {e.City}")}\n\n" +
+        $"{(e.Format == EventFormat.Online ? e.OnlineLink : e.Chapter is { } chapter ? $"{e.Venue}, {chapter.Name}" : e.Venue)}\n\n" +
         $"The calendar invite is attached. See the event: {pageUrl}" +
         (extra is null ? string.Empty : $"\n\n{extra}"),
         [new EmailAttachment(EventFileNames.Calendar(e.Title), "text/calendar", calendar.Write(e))]);

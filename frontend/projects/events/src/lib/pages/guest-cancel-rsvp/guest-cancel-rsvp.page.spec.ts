@@ -13,7 +13,7 @@ const event: PublicEventDto = {
   type: 'BuildersNight',
   startsAt: new Date(2026, 10, 6, 18, 30).toISOString(),
   endsAt: new Date(2026, 10, 6, 21, 0).toISOString(),
-  city: 'Toronto',
+  chapterName: 'Toronto',
   format: 'InPerson',
   venue: 'Kestrel Labs, 220 King St W',
   rsvpCount: 34,

@@ -57,7 +57,8 @@ export class GuestCancelRsvpPage {
   protected readonly eventHref = computed(() => `/public/events/${this.id()}`);
   protected readonly overline = computed(() => {
     const e = this.event();
-    return e ? `${this.organisation.shortName()} ${e.city} · Public event` : 'Public event';
+    if (!e) return 'Public event';
+    return `${[this.organisation.shortName(), e.chapterName].filter(Boolean).join(' ')} · Public event`;
   });
   protected readonly subtitle = computed(() => {
     const e = this.event();

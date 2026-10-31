@@ -82,8 +82,9 @@ test.describe('The organisation’s name in the app', () => {
 
     await publicPage.open(event.id);
 
-    await expect(publicPage.overline).toHaveText('Northside Toronto · Public event');
-    await expect(publicPage.hostedBy).toContainText('Northside Toronto');
+    // Northside has chapters off, so the event names no chapter (L2-141).
+    await expect(publicPage.overline).toHaveText('Northside · Public event');
+    await expect(publicPage.hostedBy).toHaveText(/Hosted by\s*Northside$/);
     await expect(new DocumentText(page).body).not.toContainText('FaithTech');
     await axe.check();
   });

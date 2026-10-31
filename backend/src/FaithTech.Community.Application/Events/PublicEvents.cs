@@ -19,7 +19,7 @@ public record PublicEventDto(
     string Type,
     DateTimeOffset StartsAt,
     DateTimeOffset EndsAt,
-    string City,
+    string? ChapterName,
     string Format,
     string? Venue,
     int RsvpCount,
@@ -79,7 +79,7 @@ public class PublicEventsHandler(
         return e is null
             ? null
             : new PublicEventDto(
-                e.Id, e.Title, e.Description, e.Type.ToString(), e.StartsAt, e.EndsAt, e.City, e.Format.ToString(), e.Venue,
+                e.Id, e.Title, e.Description, e.Type.ToString(), e.StartsAt, e.EndsAt, e.Chapter?.Name, e.Format.ToString(), e.Venue,
                 e.RsvpCount, e.IsFull, e.IsCancelled, e.CancellationReason);
     }
 

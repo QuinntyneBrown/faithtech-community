@@ -6,7 +6,7 @@ import { TeamPage } from '../../pages/team.page';
 function addTeam(api: MockApi) {
   const grace = api.addAccount({ email: 'grace@example.org', roles: ['CityLead'] });
   const profile = api.profiles.get(grace.profileId)!;
-  profile.homeCity = 'Toronto';
+  profile.chapterId = api.chapters.named('Toronto').id;
   profile.photos.push({
     id: 'photo-1',
     url: photoUrl('#0b7285'),
@@ -14,14 +14,26 @@ function addTeam(api: MockApi) {
     isFeatured: true,
     uploadedAt: '2026-10-01T09:00:00Z',
   });
-  api.addProfile({ name: 'Marcus Lee', homeCity: 'Austin', roles: ['EventLead'] });
+  api.addProfile({
+    name: 'Marcus Lee',
+    chapterId: api.chapters.named('Austin').id,
+    roles: ['EventLead'],
+  });
   api.addProfile({
     name: 'Samuel Mensah',
-    homeCity: 'Toronto',
+    chapterId: api.chapters.named('Toronto').id,
     roles: ['CreateLead', 'ProductEngineer'],
   });
-  const ruth = api.addProfile({ name: 'Ruth Alvarez', homeCity: 'Toronto', roles: ['Volunteer'] });
-  api.addProfile({ name: 'Nate Oyelaran', homeCity: 'Vancouver', roles: ['ProductEngineer'] });
+  const ruth = api.addProfile({
+    name: 'Ruth Alvarez',
+    chapterId: api.chapters.named('Toronto').id,
+    roles: ['Volunteer'],
+  });
+  api.addProfile({
+    name: 'Nate Oyelaran',
+    chapterId: api.chapters.named('Vancouver').id,
+    roles: ['ProductEngineer'],
+  });
   return { grace, ruth };
 }
 
@@ -139,7 +151,9 @@ test.describe('Team list', () => {
         name: `Member ${String(i).padStart(3, '0')}`,
         roles: [i % 2 === 0 ? 'Volunteer' : 'EventLead'],
       });
-      api.profiles.get(account.profileId)!.homeCity = i < 60 ? 'Toronto' : 'Halifax';
+      api.profiles.get(account.profileId)!.chapterId = api.chapters.named(
+        i < 60 ? 'Toronto' : 'Halifax',
+      ).id;
     }
     const viewer = api.addAccount({ email: 'leah@example.org', name: 'Leah Thompson' });
     const team = new TeamPage(page);

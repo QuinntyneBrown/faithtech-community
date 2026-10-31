@@ -113,7 +113,9 @@ export class EventPage {
   protected readonly where = computed(() => {
     const e = this.event();
     if (!e) return '';
-    return e.format === 'Online' ? 'Online' : `${e.venue}, ${e.city}`;
+    if (e.format === 'Online') return 'Online';
+    // The chapter's name follows the venue; an organisation-wide event gives the venue alone (L2-141 AC2).
+    return e.chapterName ? `${e.venue}, ${e.chapterName}` : (e.venue ?? '');
   });
   protected readonly host = computed(() => {
     const e = this.event();

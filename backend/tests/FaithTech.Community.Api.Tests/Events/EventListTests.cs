@@ -38,7 +38,7 @@ public class EventListTests(CommunityApiFactory factory) : IClassFixture<Communi
         Assert.Equal(soon.StartsAt, first.StartsAt);
         Assert.Equal(soon.EndsAt, first.EndsAt);
         Assert.Equal((city, "InPerson", "Kestrel Labs, 220 King St W", 3, "Gathering", "MembersOnly"),
-            (first.City, first.Format, first.Venue, first.RsvpCount, first.Type, first.Visibility));
+            (first.ChapterName, first.Format, first.Venue, first.RsvpCount, first.Type, first.Visibility));
         Assert.Equal(("Online", 0, "Public"), (list.Events[1].Format, list.Events[1].RsvpCount, list.Events[1].Visibility));
         Assert.Equal(later.Id, list.Events[1].Id);
     }
@@ -142,7 +142,8 @@ public class EventListTests(CommunityApiFactory factory) : IClassFixture<Communi
         string Type,
         DateTimeOffset StartsAt,
         DateTimeOffset EndsAt,
-        string City,
+        Guid? ChapterId,
+        string? ChapterName,
         string Format,
         string? Venue,
         string Visibility,

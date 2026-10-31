@@ -14,6 +14,8 @@ export interface ReportsContext {
   readonly partners: { readonly partners: MockPartner[] };
   readonly announcements: { readonly announcements: MockAnnouncement[] };
   readonly now: Date;
+  readonly chapters: { nameOf(id: string | null | undefined): string | null };
+  readonly host: { organisation: { shortName: string } };
 }
 
 export type ReportPeriod = 'last-30-days' | 'last-90-days' | 'this-year' | 'all-time';
@@ -223,8 +225,8 @@ export class MockReports {
     const events = this.context.events.events;
     const cities = [
       ...new Set([
-        ...allMembers.filter((p) => !blank(p.homeCity)).map((p) => p.homeCity!),
-        ...events.filter((e) => !blank(e.city)).map((e) => e.city),
+        ...allMembers.map((p) => this.home(p)).filter((c): c is string => !blank(c)),
+        ...events.map((e) => this.place(e)).filter((c): c is string => !blank(c)),
       ]),
     ].sort(byName);
     const city = cityParam || null;
@@ -232,8 +234,9 @@ export class MockReports {
       return { field: 'city', message: 'Choose a city from the list.' };
     }
 
-    const members = city === null ? allMembers : allMembers.filter((p) => p.homeCity === city);
-    const cityEvents = city === null ? events : events.filter((e) => e.city === city);
+    // Until slice 20 the filter names a chapter, as GetReportHandler matches it.
+    const members = city === null ? allMembers : allMembers.filter((p) => this.home(p) === city);
+    const cityEvents = city === null ? events : events.filter((e) => this.place(e) === city);
     const started = cityEvents.filter((e) => inWindow(e.startsAt));
     const held = started.filter((e) => !e.isCancelled);
     const rsvps = held.flatMap((e) => e.rsvps).filter((r) => !r.isWalkIn);
@@ -242,9 +245,7 @@ export class MockReports {
     const sum = (pick: (r: (typeof pipeline)[number]) => number) =>
       pipeline.reduce((total, r) => total + pick(r), 0);
     const announcements = this.context.announcements.announcements.filter(
-      (a) =>
-        inWindow(a.sentAt) &&
-        (city === null || this.context.profiles.get(a.senderId)?.homeCity === city),
+      (a) => inWindow(a.sentAt) && (city === null || this.homeOf(a.senderId) === city),
     );
     const table = this.eventRows(cityEvents, from, now);
 
@@ -292,6 +293,18 @@ export class MockReports {
     }
   }
 
+  private home(p: MockProfile): string | null {
+    return this.context.chapters.nameOf(p.chapterId);
+  }
+
+  private homeOf(profileId: string): string | null {
+    return this.context.chapters.nameOf(this.context.profiles.get(profileId)?.chapterId);
+  }
+
+  private place(e: MockEvent): string | null {
+    return this.context.chapters.nameOf(e.chapterId);
+  }
+
   /** Profiles whose account has a verified email and is not suspended. */
   private members(): MockProfile[] {
     const accounts = [...this.context.accounts.values()];
@@ -303,8 +316,8 @@ export class MockReports {
   private membersByCity(members: MockProfile[], city: string | null) {
     if (city !== null) return [{ label: city, value: members.length }];
     const counts = new Map<string, number>();
-    for (const p of members.filter((m) => !blank(m.homeCity))) {
-      counts.set(p.homeCity!, (counts.get(p.homeCity!) ?? 0) + 1);
+    for (const home of members.map((m) => this.home(m)).filter((c): c is string => !blank(c))) {
+      counts.set(home, (counts.get(home) ?? 0) + 1);
     }
     const top = [...counts]
       .sort(([a, x], [b, y]) => y - x || byName(a, b))
@@ -357,7 +370,7 @@ export class MockReports {
       return rows.get(name)!;
     };
     for (const p of this.context.partners.partners.filter((x) => !x.archivedAtUtc)) {
-      const ownerCity = p.ownerId ? this.context.profiles.get(p.ownerId)?.homeCity : null;
+      const ownerCity = p.ownerId ? this.homeOf(p.ownerId) : null;
       const r = row(blank(ownerCity) ? NO_CITY : ownerCity!);
       if (p.stage === 'Lead') r.lead++;
       else if (p.stage === 'InFunnel') r.inFunnel++;
@@ -383,7 +396,8 @@ export class MockReports {
       .map((e) => {
         const going = e.rsvps.filter((r) => !r.isWalkIn).length;
         const checkedIn = e.rsvps.filter((r) => !r.isWalkIn && r.checkedInAt).length;
-        const base = { id: e.id, title: e.title, startsAt: e.startsAt, city: e.city };
+        const city = this.place(e) ?? `${this.context.host.organisation.shortName}-wide`;
+        const base = { id: e.id, title: e.title, startsAt: e.startsAt, city };
         if (e.isCancelled) {
           return {
             ...base,

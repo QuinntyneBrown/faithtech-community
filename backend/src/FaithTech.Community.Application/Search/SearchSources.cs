@@ -18,10 +18,10 @@ public class PeopleSearchSource(IApplicationDbContext db, IFullTextSearch text) 
     public async Task<IReadOnlyList<SearchResultItem>> SearchAsync(string term, Guid caller, int limit, CancellationToken cancellationToken = default)
     {
         var rows = await text
-            .Match(db.Profiles.AsNoTracking(), term, p => p.Name + " " + (p.HomeCity ?? "") + " " + (p.Bio ?? ""))
+            .Match(db.Profiles.AsNoTracking(), term, p => p.Name + " " + (p.Bio ?? ""))
             .Where(p => !p.IsSuspended && p.UserId != null)
             .Take(limit)
-            .Select(p => new { p.Id, p.Name, p.HomeCity, p.Bio, Roles = p.Roles.OrderBy(r => r.Definition!.SortOrder).Select(r => r.Definition!.Name).ToList() })
+            .Select(p => new { p.Id, p.Name, HomeCity = p.Chapter == null ? null : p.Chapter.Name, p.Bio, Roles = p.Roles.OrderBy(r => r.Definition!.SortOrder).Select(r => r.Definition!.Name).ToList() })
             .ToListAsync(cancellationToken);
         return [.. rows.Select(p => new SearchResultItem(
             p.Id,
@@ -39,9 +39,9 @@ public class EventsSearchSource(IApplicationDbContext db, IFullTextSearch text) 
     public async Task<IReadOnlyList<SearchResultItem>> SearchAsync(string term, Guid caller, int limit, CancellationToken cancellationToken = default)
     {
         var rows = await text
-            .Match(db.Events.AsNoTracking(), term, e => e.Title + " " + e.Description + " " + e.City + " " + (e.Venue ?? ""))
+            .Match(db.Events.AsNoTracking(), term, e => e.Title + " " + e.Description + " " + (e.Venue ?? ""))
             .Take(limit)
-            .Select(e => new { e.Id, e.Title, e.City, e.Venue, e.Format, e.StartsAt, e.Visibility, e.IsCancelled })
+            .Select(e => new { e.Id, e.Title, City = e.Chapter == null ? null : e.Chapter.Name, e.Venue, e.Format, e.StartsAt, e.Visibility, e.IsCancelled })
             .ToListAsync(cancellationToken);
         return [.. rows.Select(e => new SearchResultItem(
             e.Id,

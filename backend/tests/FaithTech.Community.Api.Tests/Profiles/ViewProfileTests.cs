@@ -1,4 +1,5 @@
 // Traces to: L2-005
+using FaithTech.Community.Api.Tests.Organisations;
 using System.Net;
 using System.Net.Http.Json;
 using FaithTech.Community.Api.Tests.Fakes;
@@ -25,9 +26,10 @@ public class ViewProfileTests(CommunityApiFactory factory) : IClassFixture<Commu
     public async Task Member_sees_another_members_name_featured_photo_photos_and_roles()
     {
         var grace = await factory.AddMemberAsync("Grace Okonkwo");
+        var toronto = await factory.ChapterIdAsync("Toronto");
         var samuel = await factory.AddMemberAsync("Samuel Mensah", p =>
         {
-            p.Update("Samuel Mensah", "Toronto", "Backend engineer.");
+            p.Update("Samuel Mensah", toronto, "Backend engineer.");
             p.AddRole(Role.CreateLead, Guid.Empty, DateTime.UtcNow);
             p.AddRole(Role.ProductEngineer, Guid.Empty, DateTime.UtcNow);
             p.AddPhoto(new ProfilePhoto($"profiles/{p.Id}/a.jpg", "Samuel at Builders Night", Earlier));
@@ -38,7 +40,7 @@ public class ViewProfileTests(CommunityApiFactory factory) : IClassFixture<Commu
 
         Assert.Equal(samuel.ProfileId, profile!.Id);
         Assert.Equal("Samuel Mensah", profile.Name);
-        Assert.Equal("Toronto", profile.HomeCity);
+        Assert.Equal((toronto, "Toronto"), (profile.ChapterId, profile.ChapterName));
         Assert.Equal("Backend engineer.", profile.Bio);
         Assert.Equal(["Create Lead", "Product Engineer"], profile.Roles.Select(r => r.Name));
         Assert.Equal([factory.RoleIdOf(Role.CreateLead), factory.RoleIdOf(Role.ProductEngineer)], profile.Roles.Select(r => r.Id));
@@ -98,7 +100,8 @@ public class ViewProfileTests(CommunityApiFactory factory) : IClassFixture<Commu
     public sealed record ProfileResponse(
         Guid Id,
         string Name,
-        string? HomeCity,
+        Guid? ChapterId,
+        string? ChapterName,
         string? Bio,
         PhotoResponse? FeaturedPhoto,
         PhotoResponse[] Photos,

@@ -1,3 +1,4 @@
+using FaithTech.Community.Api.Tests.Organisations;
 using FaithTech.Community.Api.Tests.Profiles;
 using FaithTech.Community.Domain.Events;
 using Microsoft.EntityFrameworkCore;
@@ -11,7 +12,7 @@ public static class EventClients
         this CommunityApiFactory factory,
         string title,
         TimeSpan startsIn,
-        string city = "Toronto",
+        string? city = "Toronto",
         EventType type = EventType.Gathering,
         EventFormat format = EventFormat.InPerson,
         EventVisibility visibility = EventVisibility.MembersOnly,
@@ -23,6 +24,7 @@ public static class EventClients
         IEnumerable<Guid>? members = null,
         IEnumerable<(string Name, string Email)>? guests = null)
     {
+        var chapterId = await factory.ChapterIdAsync(city);
         var now = factory.Time.GetUtcNow();
         var starts = now + startsIn;
         var created = new Event(
@@ -31,7 +33,7 @@ public static class EventClients
             type,
             starts,
             starts + (lasts ?? TimeSpan.FromHours(2)),
-            city,
+            chapterId,
             format,
             format == EventFormat.InPerson ? "Kestrel Labs, 220 King St W" : null,
             format == EventFormat.Online ? "https://meet.example.org/ft" : null,

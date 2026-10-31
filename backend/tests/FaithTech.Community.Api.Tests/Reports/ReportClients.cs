@@ -1,3 +1,4 @@
+using FaithTech.Community.Api.Tests.Organisations;
 using System.Net.Http.Json;
 using FaithTech.Community.Api.Tests.Profiles;
 using FaithTech.Community.Domain.Announcements;
@@ -84,7 +85,7 @@ public static class ReportClients
         factory.WithDbAsync(async db =>
         {
             var profile = new Profile(name, joinedAt?.UtcDateTime);
-            profile.Update(name, city, null);
+            profile.Update(name, await db.ChapterIdAsync(city), null);
             if (suspended)
             {
                 profile.Suspend("Spam", Now.UtcDateTime);
@@ -115,7 +116,7 @@ public static class ReportClients
         this CommunityApiFactory factory,
         string title,
         DateTimeOffset startsAt,
-        string city = "Toronto",
+        string? city = "Toronto",
         int rsvps = 0,
         int checkedIn = 0,
         int walkIns = 0,
@@ -123,7 +124,7 @@ public static class ReportClients
         factory.WithDbAsync(async db =>
         {
             var e = new Event(
-                title, $"About {title}.", EventType.Gathering, startsAt, startsAt.AddHours(2), city, EventFormat.InPerson,
+                title, $"About {title}.", EventType.Gathering, startsAt, startsAt.AddHours(2), await db.ChapterIdAsync(city), EventFormat.InPerson,
                 "Kestrel Labs", null, null, EventVisibility.MembersOnly, Guid.NewGuid());
             var taken = new List<Rsvp>();
             for (var i = 0; i < rsvps; i++)

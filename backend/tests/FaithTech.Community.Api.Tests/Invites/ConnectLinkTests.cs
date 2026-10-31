@@ -1,4 +1,5 @@
 // Traces to: L2-080, L2-081, L2-082; L2-139 AC5
+using FaithTech.Community.Api.Tests.Organisations;
 using System.Net;
 using System.Net.Http.Json;
 using FaithTech.Community.Api.Tests.Fakes;
@@ -57,9 +58,10 @@ public class ConnectLinkTests(CommunityApiFactory factory) : IClassFixture<Commu
     [Fact]
     public async Task Anyone_with_the_link_sees_who_they_are_connecting_with()
     {
+        var toronto = await factory.ChapterIdAsync("Toronto");
         var grace = await factory.AddMemberAsync("Grace Okonkwo", p =>
         {
-            p.Update("Grace Okonkwo", "Toronto", null);
+            p.Update("Grace Okonkwo", toronto, null);
             p.AddPhoto(new ProfilePhoto($"profiles/{p.Id}/grace.jpg", "Grace at Builders Night", DateTime.UtcNow));
         });
         var token = await factory.ConnectTokenOfAsync(grace);

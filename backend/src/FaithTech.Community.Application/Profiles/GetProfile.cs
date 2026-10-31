@@ -9,7 +9,7 @@ public class GetProfileHandler(IApplicationDbContext db, ProfileAccess access, I
     /// <summary>Reads profiles only, so an unlinked private contact is never found (ADR 0003).</summary>
     public async Task<ProfileDto?> HandleAsync(Guid profileId, CancellationToken cancellationToken = default)
     {
-        var profile = await db.Profiles.AsNoTracking().SingleOrDefaultAsync(p => p.Id == profileId, cancellationToken);
+        var profile = await db.Profiles.AsNoTracking().Include(p => p.Chapter).SingleOrDefaultAsync(p => p.Id == profileId, cancellationToken);
         if (profile is null)
         {
             return null;
@@ -31,7 +31,8 @@ public class GetProfileHandler(IApplicationDbContext db, ProfileAccess access, I
         return new ProfileDto(
             profile.Id,
             profile.Name,
-            profile.HomeCity,
+            profile.Chapter?.Id,
+            profile.Chapter?.Name,
             profile.Bio,
             photos.FirstOrDefault(p => p.IsFeatured),
             photos,

@@ -39,7 +39,7 @@ describe('HttpProfilesService', () => {
   });
 
   it('updates the details with PUT', () => {
-    const details = { name: 'Ada L', homeCity: 'Toronto', bio: '' };
+    const details = { name: 'Ada L', chapterId: 'c-toronto', bio: '' };
     service.updateProfile('p1', details).subscribe();
 
     const req = controller.expectOne('/api/profiles/p1');

@@ -49,6 +49,7 @@ export interface MockNote {
 
 /** What the notes fake reads from the rest of the fake backend. */
 export interface NotesContext {
+  readonly chapters: { nameOf(id: string | null | undefined): string | null };
   readonly accounts: Map<string, MockAccount>;
   readonly profiles: Map<string, MockProfile>;
   readonly notifications: MockNotifications;
@@ -423,7 +424,7 @@ export class MockNotes {
       .map((a) => ({
         id: a.profileId,
         name: a.name,
-        city: this.context.profiles.get(a.profileId)?.homeCity ?? null,
+        city: this.context.chapters.nameOf(this.context.profiles.get(a.profileId)?.chapterId),
         roles: [...a.roles].sort(),
       }));
     return this.json(route, 200, people);
@@ -567,7 +568,7 @@ export class MockNotes {
         members: n.memberIds.map((id) => ({
           id,
           name: this.name(id),
-          city: this.context.profiles.get(id)?.homeCity ?? null,
+          city: this.context.chapters.nameOf(this.context.profiles.get(id)?.chapterId),
         })),
         roles: n.roles.map((role) => ({
           role,

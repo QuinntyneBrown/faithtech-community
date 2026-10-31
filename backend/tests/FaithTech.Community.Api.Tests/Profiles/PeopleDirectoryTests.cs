@@ -1,4 +1,5 @@
 // Traces to: L2-053
+using FaithTech.Community.Api.Tests.Organisations;
 using System.Net;
 using System.Net.Http.Json;
 using FaithTech.Community.Api.Tests.Fakes;
@@ -43,9 +44,10 @@ public class PeopleDirectoryTests(CommunityApiFactory factory) : IClassFixture<C
     public async Task Permitted_callers_see_members_by_name_with_photo_roles_and_city(Role role)
     {
         var tag = Guid.NewGuid().ToString("N")[..8];
+        var toronto = await factory.ChapterIdAsync("Toronto");
         var samuel = await factory.AddMemberAsync($"Samuel {tag}", p =>
         {
-            p.Update(p.Name, "Toronto", null);
+            p.Update(p.Name, toronto, null);
             p.AddRole(Role.ProductEngineer, Guid.Empty, DateTime.UtcNow);
             p.AddRole(Role.CreateLead, Guid.Empty, DateTime.UtcNow);
             p.AddPhoto(new ProfilePhoto($"profiles/{p.Id}/featured.jpg", "Samuel at Builders Night", Earlier));

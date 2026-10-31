@@ -25,7 +25,8 @@ public record EventDetailDto(
     string Type,
     DateTimeOffset StartsAt,
     DateTimeOffset EndsAt,
-    string City,
+    Guid? ChapterId,
+    string? ChapterName,
     string Format,
     string? Venue,
     string? OnlineLink,
@@ -87,7 +88,7 @@ public class GetEventHandler(IApplicationDbContext db, EventPermissions permissi
         }
 
         return new EventDetailDto(
-            e.Id, e.Title, e.Description, e.Type.ToString(), e.StartsAt, e.EndsAt, e.City, e.Format.ToString(), e.Venue,
+            e.Id, e.Title, e.Description, e.Type.ToString(), e.StartsAt, e.EndsAt, e.Chapter?.Id, e.Chapter?.Name, e.Format.ToString(), e.Venue,
             e.OnlineLink, e.Capacity, e.Visibility.ToString(), e.RsvpCount, e.IsFull, e.IsCancelled, e.CancellationReason,
             cancelledBy, e.CancelledAt, host?.Name, hostRole,
             caller is { } me && e.Rsvps.Any(r => r.ProfileId == me),

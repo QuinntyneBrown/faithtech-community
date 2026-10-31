@@ -80,7 +80,7 @@ public class ResourceViews(IApplicationDbContext db, ICurrentUser current, Resou
             {
                 p.Id,
                 p.Name,
-                p.HomeCity,
+                HomeCity = p.Chapter == null ? null : p.Chapter.Name,
                 Roles = p.Roles.OrderBy(x => x.Definition!.SortOrder).Select(x => x.Definition!.Key).ToList(),
                 Contributes = p.Roles.Any(x => x.Definition!.ArchivedAtUtc == null
                     && (x.Definition.Capabilities.Contains(Capability.AddResources) || x.Definition.Capabilities.Contains(Capability.AdministerOrganisation))),

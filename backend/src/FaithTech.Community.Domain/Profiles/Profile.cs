@@ -40,7 +40,10 @@ public class Profile : IOrganisationScoped
     /// <summary>Serializes writes to <see cref="Photos"/> across requests.</summary>
     public PhotoLease PhotoLease { get; private set; } = new();
 
-    public string? HomeCity { get; private set; }
+    /// <summary>The member's home chapter, or none (ADR 0034); it tags and filters, it never hides.</summary>
+    public Guid? ChapterId { get; private set; }
+
+    public Chapter? Chapter { get; private set; }
 
     public string? Bio { get; private set; }
 
@@ -68,11 +71,11 @@ public class Profile : IOrganisationScoped
         UserId = userId;
     }
 
-    public void Update(string name, string? homeCity, string? bio)
+    public void Update(string name, Guid? chapterId, string? bio)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(name);
         Name = name;
-        HomeCity = homeCity;
+        ChapterId = chapterId;
         Bio = bio;
     }
 

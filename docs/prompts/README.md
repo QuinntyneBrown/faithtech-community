@@ -45,7 +45,7 @@ its own branch and ends with a pull request. Merge a slice before you start the 
 | 16 | [16-roles-page-define-and-edit.md](16-roles-page-define-and-edit.md) | Roles tab: list, define, edit | `L2-136` AC1 to AC3, AC5 to AC8 | Done |
 | 17 | [17-archive-roles-and-grant-rules.md](17-archive-roles-and-grant-rules.md) | Archive roles, Who may grant | `L2-136` AC4, AC5, `L2-137` AC1 to AC3 | Done |
 | 18 | [18-chapter-label-and-chapters-page.md](18-chapter-label-and-chapters-page.md) | Chapter label on General, Chapters tab | `L2-140` | Done |
-| 19 | [19-chapters-on-profiles-and-events.md](19-chapters-on-profiles-and-events.md) | Home chapter, event chapter, migration from city text | `L2-141` AC1, AC2, AC4 to AC6 | To do |
+| 19 | [19-chapters-on-profiles-and-events.md](19-chapters-on-profiles-and-events.md) | Home chapter, event chapter, migration from city text | `L2-141` AC1, AC2, AC4 to AC6 | Done |
 | 20 | [20-chapter-filters-and-picker-suffixes.md](20-chapter-filters-and-picker-suffixes.md) | Team, events, People and Reports chapter filters, picker suffixes | `L2-142` | To do |
 | 21 | [21-chapter-tagged-roles-and-scoped-granting.md](21-chapter-tagged-roles-and-scoped-granting.md) | "{role} · {chapter}", chapter-scoped grantors | `L2-141` AC3, `L2-138` AC6, `L2-143` | To do |
 | 22 | [22-partner-stages.md](22-partner-stages.md) | Stages list, board columns, counting by kind, Stages & types tab | `L2-144` | To do |

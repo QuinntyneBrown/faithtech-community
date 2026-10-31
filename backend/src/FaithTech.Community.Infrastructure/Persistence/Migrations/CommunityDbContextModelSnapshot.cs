@@ -525,10 +525,8 @@ namespace FaithTech.Community.Infrastructure.Persistence.Migrations
                     b.Property<int?>("Capacity")
                         .HasColumnType("integer");
 
-                    b.Property<string>("City")
-                        .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("character varying(100)");
+                    b.Property<Guid?>("ChapterId")
+                        .HasColumnType("uuid");
 
                     b.Property<Guid>("CreatedById")
                         .HasColumnType("uuid");
@@ -559,7 +557,7 @@ namespace FaithTech.Community.Infrastructure.Persistence.Migrations
                     b.Property<NpgsqlTsVector>("SearchVector")
                         .ValueGeneratedOnAddOrUpdate()
                         .HasColumnType("tsvector")
-                        .HasComputedColumnSql("to_tsvector('english', coalesce(\"Title\", '') || ' ' || coalesce(\"Description\", '') || ' ' || coalesce(\"City\", '') || ' ' || coalesce(\"Venue\", ''))", true);
+                        .HasComputedColumnSql("to_tsvector('english', coalesce(\"Title\", '') || ' ' || coalesce(\"Description\", '') || ' ' || coalesce(\"Venue\", ''))", true);
 
                     b.Property<int>("Sequence")
                         .HasColumnType("integer");
@@ -587,6 +585,8 @@ namespace FaithTech.Community.Infrastructure.Persistence.Migrations
                         .HasColumnType("character varying(16)");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("ChapterId");
 
                     b.HasIndex("OrganisationId");
 
@@ -1382,9 +1382,8 @@ namespace FaithTech.Community.Infrastructure.Persistence.Migrations
                         .HasMaxLength(400)
                         .HasColumnType("character varying(400)");
 
-                    b.Property<string>("HomeCity")
-                        .HasMaxLength(100)
-                        .HasColumnType("character varying(100)");
+                    b.Property<Guid?>("ChapterId")
+                        .HasColumnType("uuid");
 
                     b.Property<bool>("IsSuspended")
                         .HasColumnType("boolean");
@@ -1403,7 +1402,7 @@ namespace FaithTech.Community.Infrastructure.Persistence.Migrations
                     b.Property<NpgsqlTsVector>("SearchVector")
                         .ValueGeneratedOnAddOrUpdate()
                         .HasColumnType("tsvector")
-                        .HasComputedColumnSql("to_tsvector('english', coalesce(\"Name\", '') || ' ' || coalesce(\"HomeCity\", '') || ' ' || coalesce(\"Bio\", ''))", true);
+                        .HasComputedColumnSql("to_tsvector('english', coalesce(\"Name\", '') || ' ' || coalesce(\"Bio\", ''))", true);
 
                     b.Property<DateTime?>("SuspendedAtUtc")
                         .HasColumnType("timestamp with time zone");
@@ -1417,7 +1416,7 @@ namespace FaithTech.Community.Infrastructure.Persistence.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("HomeCity");
+                    b.HasIndex("ChapterId");
 
                     b.HasIndex("OrganisationId");
 
@@ -2291,11 +2290,18 @@ namespace FaithTech.Community.Infrastructure.Persistence.Migrations
 
             modelBuilder.Entity("FaithTech.Community.Domain.Events.Event", b =>
                 {
+                    b.HasOne("FaithTech.Community.Domain.Organisations.Chapter", "Chapter")
+                        .WithMany()
+                        .HasForeignKey("ChapterId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
                     b.HasOne("FaithTech.Community.Domain.Organisations.Organisation", null)
                         .WithMany()
                         .HasForeignKey("OrganisationId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
+
+                    b.Navigation("Chapter");
                 });
 
             modelBuilder.Entity("FaithTech.Community.Domain.Events.Rsvp", b =>
@@ -2545,6 +2551,11 @@ namespace FaithTech.Community.Infrastructure.Persistence.Migrations
 
             modelBuilder.Entity("FaithTech.Community.Domain.Profiles.Profile", b =>
                 {
+                    b.HasOne("FaithTech.Community.Domain.Organisations.Chapter", "Chapter")
+                        .WithMany()
+                        .HasForeignKey("ChapterId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
                     b.HasOne("FaithTech.Community.Domain.Organisations.Organisation", null)
                         .WithMany()
                         .HasForeignKey("OrganisationId")
@@ -2647,6 +2658,8 @@ namespace FaithTech.Community.Infrastructure.Persistence.Migrations
 
                             b1.Navigation("Definition");
                         });
+
+                    b.Navigation("Chapter");
 
                     b.Navigation("PhotoLease")
                         .IsRequired();

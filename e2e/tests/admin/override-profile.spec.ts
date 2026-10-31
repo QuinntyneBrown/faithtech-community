@@ -21,7 +21,7 @@ function addMembers(api: MockApi) {
     name: 'Samuel Mensah',
     roles: ['CreateLead'],
   });
-  api.profiles.get(samuel.profileId)!.homeCity = 'Toronto';
+  api.profiles.get(samuel.profileId)!.chapterId = api.chapters.named('Toronto').id;
   return { priya, samuel };
 }
 
@@ -96,16 +96,17 @@ test.describe('System Admin profile override', () => {
 
   test('a member still edits their own profile at me/edit', async ({ page, api }) => {
     const { samuel } = addMembers(api);
+    const hamilton = api.chapters.named('Hamilton');
     const edit = new EditProfilePage(page);
     await api.signInAs(samuel, '/people/me/edit');
 
     await expect(edit.heading).toHaveText('Edit profile');
     await expect(edit.adminNote).toHaveCount(0);
-    await edit.fill({ homeCity: 'Hamilton' });
+    await edit.fill({ chapter: 'Hamilton' });
     await edit.save.click();
 
     await expect(edit.savedToast).toBeVisible();
-    expect(api.profiles.get(samuel.profileId)!.homeCity).toBe('Hamilton');
+    expect(api.profiles.get(samuel.profileId)!.chapterId).toBe(hamilton.id);
     expect(api.audit).toHaveLength(0);
   });
 });

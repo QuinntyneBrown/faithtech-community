@@ -13,24 +13,31 @@ public enum EventListFilter
     Online,
 }
 
-/// <summary>The city is a filter on where the event is held, never a permission boundary.</summary>
+/// <summary>
+/// The city filter matches the chapter's name until the chapter filter replaces it (slice 20); a filter, never a
+/// permission boundary.
+/// </summary>
 public record ListEventsQuery(EventListFilter Filter = EventListFilter.Upcoming, string? City = null);
 
-/// <summary>An event as the events list shows it (L2-021): date, city, format, RSVP count and the cancelled flag.</summary>
+/// <summary>
+/// An event as the events list shows it (L2-021): date, chapter (none is organisation-wide), format, RSVP count and the
+/// cancelled flag.
+/// </summary>
 public record EventSummaryDto(
     Guid Id,
     string Title,
     string Type,
     DateTimeOffset StartsAt,
     DateTimeOffset EndsAt,
-    string City,
+    Guid? ChapterId,
+    string? ChapterName,
     string Format,
     string? Venue,
     string Visibility,
     int RsvpCount,
     bool IsCancelled);
 
-/// <summary>The matching events, and every city that has an event whatever the filters.</summary>
+/// <summary>The matching events, and every chapter name that has an event whatever the filters.</summary>
 public record EventListDto(IReadOnlyList<EventSummaryDto> Events, IReadOnlyList<string> Cities);
 
 /// <summary>Lists events for signed-in members (L2-021). Upcoming means not yet ended, soonest first; past is newest first.</summary>
@@ -51,7 +58,7 @@ public class ListEventsHandler(IApplicationDbContext db, TimeProvider time)
         var city = query.City?.Trim().ToLowerInvariant();
         if (!string.IsNullOrEmpty(city))
         {
-            events = events.Where(e => e.City.Trim().ToLower() == city);
+            events = events.Where(e => e.Chapter != null && e.Chapter.Name.ToLower() == city);
         }
 
         events = query.Filter == EventListFilter.Past
@@ -59,13 +66,13 @@ public class ListEventsHandler(IApplicationDbContext db, TimeProvider time)
             : events.OrderBy(e => e.StartsAt);
         // Enums leave the database as values and become names here, so the query stays translatable.
         var rows = await events
-            .Select(e => new { e.Id, e.Title, e.Type, e.StartsAt, e.EndsAt, e.City, e.Format, e.Venue, e.Visibility, Rsvps = e.Rsvps.Count(r => !r.IsWalkIn), e.IsCancelled })
+            .Select(e => new { e.Id, e.Title, e.Type, e.StartsAt, e.EndsAt, ChapterId = e.Chapter == null ? (Guid?)null : e.Chapter.Id, ChapterName = e.Chapter == null ? null : e.Chapter.Name, e.Format, e.Venue, e.Visibility, Rsvps = e.Rsvps.Count(r => !r.IsWalkIn), e.IsCancelled })
             .ToListAsync(cancellationToken);
 
-        var cities = await db.Events.AsNoTracking().Select(e => e.City).Distinct().ToListAsync(cancellationToken);
+        var cities = await db.Events.AsNoTracking().Where(e => e.Chapter != null).Select(e => e.Chapter!.Name).Distinct().ToListAsync(cancellationToken);
         return new EventListDto(
             [.. rows.Select(e => new EventSummaryDto(
-                e.Id, e.Title, e.Type.ToString(), e.StartsAt, e.EndsAt, e.City, e.Format.ToString(), e.Venue,
+                e.Id, e.Title, e.Type.ToString(), e.StartsAt, e.EndsAt, e.ChapterId, e.ChapterName, e.Format.ToString(), e.Venue,
                 e.Visibility.ToString(), e.Rsvps, e.IsCancelled))],
             [.. cities
                 .Select(c => c.Trim())

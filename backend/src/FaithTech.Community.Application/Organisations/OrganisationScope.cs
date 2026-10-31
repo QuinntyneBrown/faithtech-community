@@ -20,6 +20,9 @@ public class OrganisationScope(IOptions<PlatformOptions> platform) : ICurrentOrg
 
     public bool IsSet => _id is not null;
 
+    /// <summary>Whether the organisation itself is known, not only its id (<see cref="RunAs"/>).</summary>
+    public bool IsLoaded => _organisation is not null;
+
     public Guid Id => _id ?? throw new InvalidOperationException("No organisation is in scope.");
 
     public string Slug => Loaded.Slug;

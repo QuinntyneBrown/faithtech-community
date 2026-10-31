@@ -21,6 +21,7 @@ import {
   EVENTS_SERVICE,
   EventType,
   EventVisibility,
+  ORGANISATION_SERVICE,
   OrganisationNames,
 } from '@faithtech-community/api';
 import {
@@ -54,7 +55,7 @@ type Field =
   | 'type'
   | 'startsAt'
   | 'endsAt'
-  | 'city'
+  | 'chapterId'
   | 'format'
   | 'venue'
   | 'onlineLink'
@@ -68,7 +69,7 @@ const FIELDS: Field[] = [
   'type',
   'startsAt',
   'endsAt',
-  'city',
+  'chapterId',
   'format',
   'venue',
   'onlineLink',
@@ -81,7 +82,6 @@ const MESSAGES = {
   title: 'Give the event a title people will recognise.',
   startsAt: 'Enter the date and time the event starts.',
   endsAt: 'The end time must be after the start time.',
-  city: 'Enter the city the event is in.',
   venue: 'Enter a venue address, or choose Online.',
   onlineLink: 'Enter the joining link, or choose In person.',
   capacity: 'Capacity must be at least 1, or leave it empty for no limit.',
@@ -91,7 +91,6 @@ const SUMMARY: Record<string, string> = {
   [MESSAGES.title]: 'Enter a title',
   [MESSAGES.startsAt]: 'Enter a start',
   [MESSAGES.endsAt]: 'End must be after start',
-  [MESSAGES.city]: 'Enter a city',
   [MESSAGES.venue]: 'Enter a venue or choose Online',
   [MESSAGES.onlineLink]: 'Enter a joining link or choose In person',
   [MESSAGES.capacity]: 'Enter a capacity of at least 1',
@@ -103,7 +102,8 @@ const LABELS: Record<Field, string> = {
   type: 'Type',
   startsAt: 'Starts',
   endsAt: 'Ends',
-  city: 'City',
+  // The chapter picker is labelled with the organisation's singular label; see labelOf.
+  chapterId: '',
   format: 'Format',
   venue: 'Venue address',
   onlineLink: 'Joining link',
@@ -151,6 +151,7 @@ const TYPE_OPTIONS: SelectOption[] = (Object.keys(EVENT_TYPE_LABELS) as EventTyp
 export class EventFormPage {
   protected readonly organisation = inject(OrganisationNames);
   private readonly events = inject(EVENTS_SERVICE);
+  private readonly organisations = inject(ORGANISATION_SERVICE);
   private readonly router = inject(Router);
   private readonly errorFocus = viewChild(FormErrorFocusDirective);
   private readonly formFields = viewChildren(FormFieldComponent);
@@ -165,7 +166,7 @@ export class EventFormPage {
     type: ['Gathering' as EventType],
     startsAt: [''],
     endsAt: [''],
-    city: [''],
+    chapterId: [''],
     format: ['InPerson' as EventFormat],
     venue: [''],
     onlineLink: [''],
@@ -182,6 +183,11 @@ export class EventFormPage {
   protected readonly busy = signal(false);
   protected readonly failed = signal(false);
   protected readonly event = signal<EventDetailDto | null>(null);
+  /** "{Organisation}-wide" and the chapters, or none while chapters are off (L2-141 AC2, L2-140 AC2). */
+  protected readonly chapterOptions = signal<SelectOption[]>([]);
+  protected readonly chapterLabel = computed(
+    () => this.organisation.chapterLabel()?.singular ?? '',
+  );
   private readonly submitted = signal(false);
   private readonly serverErrors = signal<Partial<Record<Field, string>>>({});
   // Re-evaluated on submit; the form's own state is not a signal.
@@ -201,7 +207,7 @@ export class EventFormPage {
       message: SUMMARY[e.message] ?? e.message,
       fieldId:
         this.formFields()
-          .find((f) => f.label() === LABELS[e.field])
+          .find((f) => f.label() === this.labelOf(e.field))
           ?.controlId() ?? e.field,
     })),
   );
@@ -211,6 +217,7 @@ export class EventFormPage {
     effect(() => {
       const id = this.id();
       if (id) void this.load(id);
+      else void this.loadChapters(null);
     });
   }
 
@@ -260,7 +267,7 @@ export class EventFormPage {
       type: v.type,
       startsAt: new Date(v.startsAt).toISOString(),
       endsAt: new Date(v.endsAt).toISOString(),
-      city: v.city.trim(),
+      chapterId: v.chapterId || null,
       format: v.format,
       venue: online ? null : v.venue.trim(),
       onlineLink: online ? v.onlineLink.trim() : null,
@@ -274,13 +281,14 @@ export class EventFormPage {
     try {
       const event = await firstValueFrom(this.events.getEvent(id));
       this.event.set(event);
+      void this.loadChapters(event);
       this.form.setValue({
         title: event.title,
         description: event.description,
         type: event.type,
         startsAt: toLocalInput(event.startsAt),
         endsAt: toLocalInput(event.endsAt),
-        city: event.city,
+        chapterId: event.chapterId ?? '',
         format: event.format,
         venue: event.venue ?? '',
         onlineLink: event.onlineLink ?? '',
@@ -290,6 +298,32 @@ export class EventFormPage {
       this.state.set('loaded');
     } catch {
       this.state.set('error');
+    }
+  }
+
+  private labelOf(field: Field): string {
+    return field === 'chapterId' ? this.chapterLabel() : LABELS[field];
+  }
+
+  /** The active chapters in order, plus the event's own if it was archived (L2-140 AC5). */
+  private async loadChapters(event: EventDetailDto | null): Promise<void> {
+    try {
+      const organisation = await firstValueFrom(this.organisations.get());
+      if (!organisation.chapterLabel) {
+        this.chapterOptions.set([]);
+        return;
+      }
+      const chapters = [...organisation.chapters];
+      if (event?.chapterId && !chapters.some((c) => c.id === event.chapterId)) {
+        chapters.push({ id: event.chapterId, name: event.chapterName ?? '' });
+      }
+      this.chapterOptions.set([
+        { value: '', label: `${this.organisation.shortName()}-wide` },
+        ...chapters.map((c) => ({ value: c.id, label: c.name })),
+      ]);
+    } catch {
+      // Without the list the event stays organisation-wide, or keeps its chapter when edited.
+      this.chapterOptions.set([]);
     }
   }
 
@@ -304,8 +338,6 @@ export class EventFormPage {
         return v.startsAt ? '' : MESSAGES.startsAt;
       case 'endsAt':
         return v.startsAt && (!v.endsAt || v.endsAt <= v.startsAt) ? MESSAGES.endsAt : '';
-      case 'city':
-        return v.city.trim() ? '' : MESSAGES.city;
       case 'venue':
         return !online && !v.venue.trim() ? MESSAGES.venue : '';
       case 'onlineLink':

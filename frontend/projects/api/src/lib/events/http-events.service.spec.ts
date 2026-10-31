@@ -12,7 +12,7 @@ const event: EventRequest = {
   type: 'BuildersNight',
   startsAt: '2026-11-01T18:00:00Z',
   endsAt: '2026-11-01T20:00:00Z',
-  city: 'Toronto',
+  chapterId: 'c-toronto',
   format: 'InPerson',
   venue: 'HQ',
   onlineLink: null,

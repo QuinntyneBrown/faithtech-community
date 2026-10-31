@@ -102,7 +102,7 @@ public class CalendarExportTests(CommunityApiFactory factory) : IClassFixture<Co
             type = "Gathering",
             startsAt = existing.StartsAt,
             endsAt = existing.EndsAt,
-            city = "Toronto",
+            chapterId = existing.ChapterId,
             format = "InPerson",
             venue = "Trinity Community Centre",
             visibility = "Public",

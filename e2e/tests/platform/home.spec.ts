@@ -26,7 +26,7 @@ async function arrange(api: MockApi) {
     title: 'Austin Faith & AI Panel',
     startsAt: '2026-10-30T23:00:00Z',
     endsAt: '2026-10-31T01:00:00Z',
-    city: 'Austin',
+    chapterId: api.chapters.named('Austin').id,
     isCancelled: true,
     cancellationReason: 'Our panelists are ill.',
   });
@@ -50,7 +50,7 @@ async function arrange(api: MockApi) {
     title: 'Vancouver Advent Build Night',
     startsAt: '2026-12-05T03:00:00Z',
     endsAt: '2026-12-05T04:30:00Z',
-    city: 'Vancouver',
+    chapterId: api.chapters.named('Vancouver').id,
   });
   api.events.add({
     title: 'Spring retreat',

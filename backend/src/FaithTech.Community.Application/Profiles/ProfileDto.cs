@@ -19,11 +19,15 @@ public record ProfileRoleDto(Guid Id, string Name, Guid? ChapterId)
         [.. profile.Roles.OrderBy(r => r.Definition!.SortOrder).Select(r => new ProfileRoleDto(r.RoleDefinitionId, r.Definition!.Name, null))];
 }
 
-/// <summary>A profile as a signed-in member sees it (L2-005). Photos are newest first.</summary>
+/// <summary>
+/// A profile as a signed-in member sees it (L2-005). Photos are newest first. The chapter is null when there is none or
+/// chapters are off (L2-141 AC1, L2-140 AC2).
+/// </summary>
 public record ProfileDto(
     Guid Id,
     string Name,
-    string? HomeCity,
+    Guid? ChapterId,
+    string? ChapterName,
     string? Bio,
     PhotoDto? FeaturedPhoto,
     IReadOnlyList<PhotoDto> Photos,

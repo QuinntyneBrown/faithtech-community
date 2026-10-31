@@ -3,6 +3,7 @@ import { firstRoleCarrying, holds } from './role-definitions';
 
 /** What MockApi shares with the connect fake. */
 export interface ConnectContext {
+  readonly chapters: { nameOf(id: string | null | undefined): string | null };
   now: Date;
   accounts: Map<string, { email: string; name: string; verified: boolean; profileId: string }>;
   addAccount(account: { email: string; name: string; password: string; verified: boolean }): {
@@ -34,7 +35,7 @@ export interface ConnectContext {
     {
       id: string;
       name: string;
-      homeCity: string | null;
+      chapterId: string | null;
       roles: string[];
       photos: { url: string | null; isFeatured: boolean }[];
     }
@@ -196,7 +197,7 @@ export class MockConnect {
         leadProfileId: owner.id,
         leadName: owner.name,
         leadPhotoUrl: featured?.url ?? null,
-        leadCity: owner.homeCity,
+        leadCity: this.context.chapters.nameOf(owner.chapterId),
         leadRole: firstRoleCarrying(owner.roles, 'ConnectLink', 'AdministerOrganisation'),
       },
     });

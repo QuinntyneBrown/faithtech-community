@@ -24,7 +24,7 @@ export interface CheckInDto {
   eventId: string;
   title: string;
   startsAt: string;
-  city: string;
+  chapterName: string | null;
   format: EventFormat;
   venue: string | null;
   isCancelled: boolean;

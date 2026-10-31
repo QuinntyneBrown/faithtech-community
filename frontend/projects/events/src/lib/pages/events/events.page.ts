@@ -5,6 +5,7 @@ import {
   EVENTS_SERVICE,
   EventListFilter,
   EventSummaryDto,
+  OrganisationNames,
   canManageEvents,
 } from '@faithtech-community/api';
 import {
@@ -72,6 +73,7 @@ interface EventRow {
 })
 export class EventsPage {
   private readonly events = inject(EVENTS_SERVICE);
+  private readonly organisationNames = inject(OrganisationNames);
   private readonly capabilities = inject(AUTH_SERVICE).capabilities;
 
   protected readonly chips = CHIPS;
@@ -134,7 +136,9 @@ export class EventsPage {
         this.events.listEvents({ filter: this.filter(), city: this.selectedCity() }),
       );
       if (request !== this.request) return;
-      this.rows.set(list.events.map(toRow));
+      this.rows.set(
+        list.events.map((e) => toRow(e, this.organisationNames.chapterPlace(e.chapterName))),
+      );
       this.cities.set(list.cities);
       this.state.set('loaded');
     } catch {
@@ -143,19 +147,16 @@ export class EventsPage {
   }
 }
 
-/** "Fri 6 Nov · 6:30 pm · Toronto · Kestrel Labs, 220 King St W · 34 going"; multi-day events skip the time. */
-function toRow(event: EventSummaryDto): EventRow {
+/**
+ * "Fri 6 Nov · 6:30 pm · Toronto · Kestrel Labs, 220 King St W · 34 going"; multi-day events skip the time. The
+ * chapter is "{Organisation}-wide" for none, and left out while chapters are off (L2-141 AC2).
+ */
+function toRow(event: EventSummaryDto, chapter: string | null): EventRow {
   const start = new Date(event.startsAt);
   const when = formatDayRange(event.startsAt, event.endsAt);
   const oneDay = start.toDateString() === new Date(event.endsAt).toDateString();
   const place = event.format === 'Online' ? 'Online' : (event.venue ?? 'In person');
-  const meta = [
-    when,
-    oneDay ? formatTime(start) : null,
-    event.city,
-    place,
-    `${event.rsvpCount} going`,
-  ]
+  const meta = [when, oneDay ? formatTime(start) : null, chapter, place, `${event.rsvpCount} going`]
     .filter((part): part is string => !!part)
     .join(' · ');
   return {

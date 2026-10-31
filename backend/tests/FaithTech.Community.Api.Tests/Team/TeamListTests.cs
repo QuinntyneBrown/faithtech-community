@@ -1,4 +1,5 @@
 // Traces to: L2-019
+using FaithTech.Community.Api.Tests.Organisations;
 using System.Net;
 using System.Net.Http.Json;
 using FaithTech.Community.Api.Tests.Fakes;
@@ -126,9 +127,10 @@ public class TeamListTests(CommunityApiFactory factory) : IClassFixture<Communit
 
         public async Task<ProfileClients.Member> AddAsync(string name, string? city, params Role[] roles)
         {
+            var chapterId = await factory.ChapterIdAsync(city);
             var member = await factory.AddMemberAsync(name, p =>
             {
-                p.Update(name, city, null);
+                p.Update(name, chapterId, null);
                 foreach (var role in roles)
                 {
                     p.AddRole(role, Guid.Empty, DateTime.UtcNow);

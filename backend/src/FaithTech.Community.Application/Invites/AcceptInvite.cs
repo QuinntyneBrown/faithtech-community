@@ -62,7 +62,7 @@ public class AcceptInviteHandler(
         }
 
         var inviter = await db.Profiles.AsNoTracking().Where(p => p.Id == invite.InvitedBy)
-            .Select(p => new { p.Name, p.HomeCity }).SingleOrDefaultAsync(cancellationToken);
+            .Select(p => new { p.Name, HomeCity = p.Chapter == null ? null : p.Chapter.Name }).SingleOrDefaultAsync(cancellationToken);
         return new InviteLookupDto(
             invite.Status(time.GetUtcNow()).ToString(),
             invite.Email,
