@@ -37,12 +37,13 @@ public static class FaithTechSeed
     ];
 
     /// <summary>
-    /// FaithTech's nine roles in display order (L2-151 AC2). Each key is the former role value, so the migrations map a
-    /// former value to the definition of the same name.
+    /// FaithTech's nine roles in display order, described as the web app's role list describes them (L2-151 AC2). Each key
+    /// is the former role value, so the migrations map a former value to the definition of the same name and the role
+    /// names the API returns stay the same until the app reads definitions (slice 12).
     /// </summary>
     public static readonly IReadOnlyList<SeedRole> Roles =
     [
-        new(new("0f7a1c2e-5b4d-4e8a-9c61-2d3f4a5b7001"), "CityLead", "City Lead", "Leads a city team: events, partners, people and roles.",
+        new(new("0f7a1c2e-5b4d-4e8a-9c61-2d3f4a5b7001"), "CityLead", "City Lead", "Leads a city team and manages its roles",
             [
                 Capability.ManageEvents, Capability.ViewAttendees, Capability.ManageAttendance, Capability.KeepContacts,
                 Capability.ViewPartners, Capability.ManagePartners, Capability.InviteMembers, Capability.ConnectLink,
@@ -51,31 +52,31 @@ public static class FaithTechSeed
             ],
             ShowOnTeam: true, ChapterScopable: true, IsOversight: false,
             Grants: ["EventLead", "CreateLead", "CommunicationsLead", "Volunteer", "ProductEngineer", "Attendee"]),
-        new(new("0f7a1c2e-5b4d-4e8a-9c61-2d3f4a5b7002"), "EventLead", "Event Lead", "Runs a city's events.",
+        new(new("0f7a1c2e-5b4d-4e8a-9c61-2d3f4a5b7002"), "EventLead", "Event Lead", "Creates and manages events",
             [
                 Capability.ManageEvents, Capability.ViewAttendees, Capability.ManageAttendance, Capability.KeepContacts,
                 Capability.ViewPartners, Capability.ManagePartners, Capability.InviteMembers, Capability.JoinWorkspaces,
                 Capability.AddResources,
             ],
             ShowOnTeam: true, ChapterScopable: true, IsOversight: false, Grants: []),
-        new(new("0f7a1c2e-5b4d-4e8a-9c61-2d3f4a5b7003"), "CreateLead", "Create Lead", "Leads a city's builders.",
+        new(new("0f7a1c2e-5b4d-4e8a-9c61-2d3f4a5b7003"), "CreateLead", "Create Lead", "Runs hackathon builders and projects",
             CreateLeadCapabilities, ShowOnTeam: true, ChapterScopable: true, IsOversight: false, Grants: []),
-        new(new("0f7a1c2e-5b4d-4e8a-9c61-2d3f4a5b7004"), "CommunicationsLead", "Communications Lead", "Tells a city's story and sends announcements.",
+        new(new("0f7a1c2e-5b4d-4e8a-9c61-2d3f4a5b7004"), "CommunicationsLead", "Communications Lead", "Sends announcements",
             [.. CreateLeadCapabilities, Capability.SendAnnouncements],
             ShowOnTeam: true, ChapterScopable: true, IsOversight: false, Grants: []),
-        new(new("0f7a1c2e-5b4d-4e8a-9c61-2d3f4a5b7005"), "Staff", "Staff", "Sees across every city without changing it.",
+        new(new("0f7a1c2e-5b4d-4e8a-9c61-2d3f4a5b7005"), "Staff", "Staff", "Read-only oversight across FaithTech",
             [
                 Capability.ViewAttendees, Capability.ViewPartners, Capability.ReadAllWorkspaces, Capability.ViewPeopleDirectory,
                 Capability.ViewReports, Capability.AddResources,
             ],
             ShowOnTeam: false, ChapterScopable: false, IsOversight: true, Grants: []),
-        new(new("0f7a1c2e-5b4d-4e8a-9c61-2d3f4a5b7006"), "Volunteer", "Volunteer", "Helps a city team.",
+        new(new("0f7a1c2e-5b4d-4e8a-9c61-2d3f4a5b7006"), "Volunteer", "Volunteer", "Joins the city team",
             [Capability.JoinWorkspaces], ShowOnTeam: true, ChapterScopable: true, IsOversight: false, Grants: []),
-        new(new("0f7a1c2e-5b4d-4e8a-9c61-2d3f4a5b7007"), "ProductEngineer", "Product Engineer", "Builds with the community.",
+        new(new("0f7a1c2e-5b4d-4e8a-9c61-2d3f4a5b7007"), "ProductEngineer", "Product Engineer", "Builds at hackathons",
             [], ShowOnTeam: false, ChapterScopable: false, IsOversight: false, Grants: []),
-        new(new("0f7a1c2e-5b4d-4e8a-9c61-2d3f4a5b7008"), "Attendee", "Attendee", "Comes to events.",
+        new(new("0f7a1c2e-5b4d-4e8a-9c61-2d3f4a5b7008"), "Attendee", "Attendee", "Comes to events",
             [], ShowOnTeam: false, ChapterScopable: false, IsOversight: false, Grants: []),
-        new(new("0f7a1c2e-5b4d-4e8a-9c61-2d3f4a5b7009"), "SystemAdmin", "System Admin", "Administers the organisation.",
+        new(new("0f7a1c2e-5b4d-4e8a-9c61-2d3f4a5b7009"), "SystemAdmin", "System Admin", "Full administration and the audit log",
             [Capability.AdministerOrganisation], ShowOnTeam: false, ChapterScopable: false, IsOversight: false, Grants: []),
     ];
 

@@ -6,7 +6,7 @@ FaithTech Community becomes a platform that hosts many organisations, each defin
 
 - **seed** — idempotent routine in `CommunitySeeder` that inserts the records a deployment needs and changes nothing on a second run
 - **production seed** — the subset of seeding that runs in production: the `web` OpenIddict client, the organisation seed, the administrator roster and the starter resources, and nothing else (`L2-109` AC4)
-- **definition key** — stable slug on a role definition, partner stage, event type or resource type that the seed and the migration use to find a record; the name may change, the key never does
+- **definition key** — stable key on a role definition, partner stage, event type or resource type that the seed and the migration use to find a record; the name may change, the key never does. FaithTech's role keys are the former `Role` values (`CityLead`, `SystemAdmin`), so the migration maps each value to the key of the same spelling and the role names the API returns stay the same until the web app reads definitions
 - **regression property** — the condition that every existing acceptance test naming a FaithTech role still passes with the seed in place, because the seeded definitions and grant rules reproduce the former `Role` enumeration, `RoleAssignmentPolicy` and access-class rules exactly
 
 The seed is the only place in requirements, designs and code where the FaithTech role names City Lead, Event Lead, Create Lead, Communications Lead, Staff, Volunteer, Product Engineer, Attendee and System Admin appear. Every rule elsewhere names a capability.
@@ -25,23 +25,23 @@ The slice runs from the Cli commands through `CommunitySeeder` and one EF Core m
 
 | Key | Name | Capabilities | Team | Chapter-scopable | Oversight |
 |-----|------|--------------|------|------------------|-----------|
-| `city-lead` | City Lead | `ManageEvents`, `ViewAttendees`, `ManageAttendance`, `KeepContacts`, `ViewPartners`, `ManagePartners`, `InviteMembers`, `ConnectLink`, `OwnWorkspaces`, `JoinWorkspaces`, `ViewPeopleDirectory`, `AssignRoles`, `AddResources` | yes | yes | no |
-| `event-lead` | Event Lead | `ManageEvents`, `ViewAttendees`, `ManageAttendance`, `KeepContacts`, `ViewPartners`, `ManagePartners`, `InviteMembers`, `JoinWorkspaces`, `AddResources` | yes | yes | no |
-| `create-lead` | Create Lead | `ViewAttendees`, `ManageAttendance`, `KeepContacts`, `ViewPartners`, `ManagePartners`, `InviteMembers`, `JoinWorkspaces`, `AddResources` | yes | yes | no |
-| `communications-lead` | Communications Lead | Create Lead's set plus `SendAnnouncements` | yes | yes | no |
-| `staff` | Staff | `ViewAttendees`, `ViewPartners`, `ReadAllWorkspaces`, `ViewPeopleDirectory`, `ViewReports`, `AddResources` | no | no | yes |
-| `volunteer` | Volunteer | `JoinWorkspaces` | yes | yes | no |
-| `product-engineer` | Product Engineer | none | no | no | no |
-| `attendee` | Attendee | none | no | no | no |
-| `system-admin` | System Admin | `AdministerOrganisation` | no | no | no |
+| `CityLead` | City Lead | `ManageEvents`, `ViewAttendees`, `ManageAttendance`, `KeepContacts`, `ViewPartners`, `ManagePartners`, `InviteMembers`, `ConnectLink`, `OwnWorkspaces`, `JoinWorkspaces`, `ViewPeopleDirectory`, `AssignRoles`, `AddResources` | yes | yes | no |
+| `EventLead` | Event Lead | `ManageEvents`, `ViewAttendees`, `ManageAttendance`, `KeepContacts`, `ViewPartners`, `ManagePartners`, `InviteMembers`, `JoinWorkspaces`, `AddResources` | yes | yes | no |
+| `CreateLead` | Create Lead | `ViewAttendees`, `ManageAttendance`, `KeepContacts`, `ViewPartners`, `ManagePartners`, `InviteMembers`, `JoinWorkspaces`, `AddResources` | yes | yes | no |
+| `CommunicationsLead` | Communications Lead | Create Lead's set plus `SendAnnouncements` | yes | yes | no |
+| `Staff` | Staff | `ViewAttendees`, `ViewPartners`, `ReadAllWorkspaces`, `ViewPeopleDirectory`, `ViewReports`, `AddResources` | no | no | yes |
+| `Volunteer` | Volunteer | `JoinWorkspaces` | yes | yes | no |
+| `ProductEngineer` | Product Engineer | none | no | no | no |
+| `Attendee` | Attendee | none | no | no | no |
+| `SystemAdmin` | System Admin | `AdministerOrganisation` | no | no | no |
 
-  - Grant rules: `city-lead` may grant `event-lead`, `create-lead`, `communications-lead`, `volunteer`, `product-engineer` and `attendee`; no other definition has rules; `system-admin` grants implicitly (`L2-151` AC2).
+  - Grant rules: `CityLead` may grant `EventLead`, `CreateLead`, `CommunicationsLead`, `Volunteer`, `ProductEngineer` and `Attendee`; no other definition has rules; `SystemAdmin` grants implicitly (`L2-151` AC2).
   - Partner stages in order: `lead` "Lead" (initial, kind Open), `in-funnel` "In Funnel" (Open), `confirmed` "Confirmed" (Confirmed). Event types: `gathering` "Gathering", `builders-night` "Builders night", `hackathon` "Hackathon", `prayer-and-planning` "Prayer & planning", `panel` "Panel". Resource types: `deck`, `logo`, `image`, `training`, `template`, `document`, `other` with the names Deck, Logo, Image, Training, Template, Document and Other (`L2-151` AC3).
   - The descriptions of the nine definitions are today's `ROLE_DESCRIPTIONS` from `role.ts`, with "FaithTech" in the Staff line replaced by the organisation's short name at display time.
 
 ### Seeder
 
-- **`CommunitySeeder.SeedAsync(webAppOrigin)`** (`Infrastructure/Persistence/CommunitySeeder.cs`) — the production seed, in order: the `web` OpenIddict client with `{webAppOrigin}/auth/callback` as its only redirect URI, as today; `SeedOrganisationAsync(FaithTechSeed)`; the `OrganisationAdminRoster` row for FaithTech, replacing the `SystemAdminRoster` singleton; `SeedStarterResourcesAsync`, whose owner is the first profile holding the definition keyed `system-admin` and whose types are the entries keyed `logo`, `training` and `document` (`L2-151` AC6, `L2-109` AC4). Every step finds its record by key or id and inserts only what is missing, so a second run changes nothing and an organisation's later edits survive (`L2-151` AC1).
+- **`CommunitySeeder.SeedAsync(webAppOrigin)`** (`Infrastructure/Persistence/CommunitySeeder.cs`) — the production seed, in order: the `web` OpenIddict client with `{webAppOrigin}/auth/callback` as its only redirect URI, as today; `SeedOrganisationAsync(FaithTechSeed)`; the `OrganisationAdminRoster` row for FaithTech, replacing the `SystemAdminRoster` singleton; `SeedStarterResourcesAsync`, whose owner is the first profile holding a definition that carries `AdministerOrganisation` and whose types are the entries keyed `logo`, `training` and `document` (`L2-151` AC6, `L2-109` AC4). Every step finds its record by key or id and inserts only what is missing, so a second run changes nothing and an organisation's later edits survive (`L2-151` AC1).
 - **`SeedOrganisationAsync(OrganisationSeed)`** (new, on `CommunitySeeder`) — inserts the organisation by slug, then each definition, grant rule, stage, event type and resource type by key within that organisation. Provisioning (`docs/detailed-designs/organisations/platform-operations`) reuses it with the two-role Administrator and Member seed, so there is one way to seed an organisation.
 - **`GrantAdministratorAsync(email, organisationSlug)`** (renaming `GrantSystemAdminAsync`) — finds the account by normalised email, then its profile in the named organisation; answers false when either is missing. It grants the organisation's lowest-sorted non-archived definition carrying `AdministerOrganisation` (System Admin for FaithTech, Administrator for a provisioned organisation), already held being a no-op, and writes `role.granted` with an empty actor id and IP address `cli`, as today.
 - **Demo and load data** — `SeedLoadTestUsersAsync`, `SeedSearchRecordsAsync` and `SeedReportRecordsAsync` stay separate commands; their "City NN" values become seeded chapters of FaithTech and their events reference the `gathering` event type (ADR 0034). They never run in production.
@@ -52,7 +52,7 @@ The slice runs from the Cli commands through `CommunitySeeder` and one EF Core m
   1. Creates `Organisations`, `RoleDefinitions`, `RoleCapabilities`, `RoleGrantRules`, `Chapters`, `PartnerStages`, `EventTypes`, `ResourceTypes` and `OrganisationAdminRosters`.
   2. Inserts the FaithTech organisation, its definitions, grant rules, stages, event types and resource types with the fixed ids from `FaithTechSeed`, so the backfill below has targets without depending on the seeder.
   3. Adds `OrganisationId` to every scoped table (profiles, contacts, partners, events, invites, connect links, announcements, resources, note pages, workspaces, notifications, audit entries and the rest), backfills it with the FaithTech id, makes it non-null, and recreates every unique index with the organisation first (`L2-130` AC4).
-  4. `ProfileRoles`: adds `RoleDefinitionId` and `ChapterId`, maps each former `Role` enumeration value to the definition of the same name (`CityLead` to `city-lead` and so on), then drops `Role`. `ResourceShareRoles`, `NoteShareRoles` and role audiences on announcements map the same way.
+  4. `ProfileRoles`: adds `RoleDefinitionId` and `ChapterId`, maps each former `Role` enumeration value to the definition whose key is that value, then drops `Role`. `ResourceShareRoles`, `NoteShareRoles` and role audiences on announcements map the same way.
   5. `Partners.Stage`, `Events.Type` and `Resources.Type`: adds the list-entry foreign key, maps each enumeration value to the entry of the same name (`InFunnel` to `in-funnel`, `BuildersNight` to `builders-night`, `PrayerAndPlanning` to `prayer-and-planning`), then drops the enumeration column. `PartnerStageChanges` records stage keys.
   6. Chapters: one chapter per distinct trimmed, case-folded `Profiles.HomeCity` and `Events.City` value, named by its first-seen spelling; sets `Profiles.ChapterId` and `Events.ChapterId` for exact matches; values that match no chapter after folding are set to none and written to the migration log; drops `HomeCity` and `City` (`L2-141` AC6). `IX_Profiles_HomeCity` becomes an index on `ChapterId` (ADR 0034).
   7. Moves the `SystemAdminRosters` singleton to an `OrganisationAdminRosters` row for FaithTech and drops the old table.
@@ -68,7 +68,7 @@ The slice runs from the Cli commands through `CommunitySeeder` and one EF Core m
 
 ### Tests and the e2e fake
 
-- **`CommunityApiFactory`** (`backend/tests/FaithTech.Community.Api.Tests/`) — seeds `FaithTechSeed` into each fixture's in-memory database and resolves `localhost` to FaithTech, so a test that grants "CityLead" grants the definition keyed `city-lead` and every existing test that names a FaithTech role runs unchanged. The regression property is this suite: `AssignRolesTests`, `LastAdminConcurrencyTests`, `RoleFreshnessTests` and every authorisation test in the feature folders pass against the seed (`L2-151` AC5).
+- **`CommunityApiFactory`** (`backend/tests/FaithTech.Community.Api.Tests/`) — seeds `FaithTechSeed` into each fixture's in-memory database and resolves `localhost` to FaithTech, so a test that grants "CityLead" grants the definition keyed `CityLead` and every existing test that names a FaithTech role runs unchanged. The regression property is this suite: `AssignRolesTests`, `LastAdminConcurrencyTests`, `RoleFreshnessTests` and every authorisation test in the feature folders pass against the seed (`L2-151` AC5).
 - **`mock-api.ts`** (`e2e/fixtures/`) — holds the same definitions, grant rules, stages and types as data, so specs keep signing in as a FaithTech role while the app sees only capabilities (ADR 0033).
 
 ## Requirements
