@@ -53,6 +53,8 @@ public class CommunityDbContext : IdentityDbContext<CommunityUser, IdentityRole<
 
     public DbSet<RoleDefinition> RoleDefinitions => Set<RoleDefinition>();
 
+    public DbSet<Chapter> Chapters => Set<Chapter>();
+
     public DbSet<VerificationResend> VerificationResends => Set<VerificationResend>();
 
     public DbSet<OutboxMessage> OutboxMessages => Set<OutboxMessage>();
@@ -123,6 +125,18 @@ public class CommunityDbContext : IdentityDbContext<CommunityUser, IdentityRole<
             organisation.Property(o => o.ChapterLabelPlural).HasMaxLength(Organisation.MaxChapterLabelLength);
             organisation.Property(o => o.Status).HasConversion<string>().HasMaxLength(16);
             organisation.Property(o => o.SuspendedReason).HasMaxLength(500);
+        });
+
+        builder.Entity<Chapter>(chapter =>
+        {
+            chapter.Property(c => c.Id).ValueGeneratedNever();
+            chapter.Property(c => c.Name).HasMaxLength(Chapter.MaxNameLength);
+            chapter.Property(c => c.NormalizedName).HasMaxLength(Chapter.MaxNameLength);
+            // An active chapter's name is unique in its organisation ignoring case; archived ones free theirs (L2-140 AC4).
+            chapter.HasIndex(nameof(IOrganisationScoped.OrganisationId), nameof(Chapter.NormalizedName))
+                .IsUnique()
+                .HasFilter("\"ArchivedAtUtc\" IS NULL");
+            chapter.Ignore(c => c.IsArchived);
         });
 
         builder.Entity<RoleDefinition>(definition =>
