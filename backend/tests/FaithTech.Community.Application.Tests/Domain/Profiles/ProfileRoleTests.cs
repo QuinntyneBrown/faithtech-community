@@ -99,6 +99,17 @@ public class ProfileRoleTests
         Assert.Empty(profile.DomainEvents);
     }
 
+    // L2-139 AC6: gaining a capability raises nothing; the holder simply has it on their next request.
+    [Fact]
+    public void Adding_a_role_raises_no_event()
+    {
+        var profile = new Profile("Ada");
+
+        profile.AddRole(Role.CityLead, Granter, Now);
+
+        Assert.Empty(profile.DomainEvents);
+    }
+
     [Fact]
     public void Clearing_domain_events_empties_them()
     {
