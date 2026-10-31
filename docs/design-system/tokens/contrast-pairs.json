@@ -696,6 +696,24 @@
       "bg": "--color-bg-subtle",
       "min": 3,
       "note": "notes block handle icon on a hovered row"
+    },
+    {
+      "fg": "--color-fg-subtle",
+      "bg": "--color-accent-subtle",
+      "min": 3,
+      "note": "reorderable list drag handle on a just-moved row"
+    },
+    {
+      "fg": "--color-fg-muted",
+      "bg": "--color-bg-surface-raised",
+      "min": 4.5,
+      "note": "disabled capability-checklist reason and the host line in Switch organisation"
+    },
+    {
+      "fg": "--color-accent",
+      "bg": "--color-bg-surface-raised",
+      "min": 3,
+      "note": "checked menuitemradio mark (Counts as)"
     }
   ]
 }

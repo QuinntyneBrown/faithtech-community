@@ -106,6 +106,6 @@ Decisions recorded for this design (ADR 0032, ADR 0033 and the proposal):
 - The Organisation section is a secondary section before Admin, opened by `ManageRoles` or `ManageOrganisationSettings`; Admin is opened by `AdministerOrganisation`. Resolved.
 - The existing `roles` audit category keeps its `role.` prefix rule, so role definitions and grant rules fall under it; the category label becomes "Roles". A `ManageRoles` holder therefore also reads `role.granted` and `role.removed`. Proposed here; a separate `role-definitions` category would be a spec change to `L2-152`.
 - A non-administrator reaches the audit page through `/organisation/audit`, a shell route to the `admin` library's `AuditLogPage`, linked from General; the four tabs of `L2-147` AC1 are unchanged. Proposed here, pending the mocks.
-- Maximum lengths of the organisation name and short name: `<TO SUPPLY>` (not fixed by `L2-130` or `L2-149`).
+- Maximum lengths of the organisation name and short name: 100 and 30 characters, as `Organisation` (tenancy design) and `ProvisionOrganisationValidator` say and the mocks show (`dialogs/edit-general-settings`; `docs/mocks/README.md` open question 25). Not fixed by `L2-130` or `L2-149`.
 - Changing the host or slug is not a setting; it belongs to the platform operator (`organisations/platform-operations`).
 - Organisation-level branding (logo, colours) is deferred (proposal).

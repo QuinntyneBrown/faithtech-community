@@ -1,0 +1,201 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Archive role dialog — FaithTech Community design system</title>
+<meta name="description" content="Confirm archiving a role; when the API refuses with 409 the reason is shown inside the dialog and only Close is offered.">
+<link rel="stylesheet" href="../tokens/tokens.css">
+<link rel="stylesheet" href="../assets/components.css">
+<link rel="stylesheet" href="../assets/ds.css">
+</head>
+<body id="top">
+<a class="skip-link" href="#main">Skip to content</a>
+<div class="ds-shell">
+  <nav class="ds-nav" aria-label="Design system">
+    <div class="ds-nav__brand"><a href="../index.html">FaithTech DS</a><button class="ds-theme-toggle" type="button" aria-pressed="false">☾ Dark</button></div>
+    <details open><summary>Foundations</summary><ul>
+      <li><a href="../foundations/color.html">Color</a></li>
+      <li><a href="../foundations/typography.html">Typography</a></li>
+      <li><a href="../foundations/spacing.html">Spacing</a></li>
+      <li><a href="../foundations/layout.html">Layout</a></li>
+      <li><a href="../foundations/elevation.html">Elevation</a></li>
+      <li><a href="../foundations/shape.html">Shape</a></li>
+      <li><a href="../foundations/motion.html">Motion</a></li>
+      <li><a href="../foundations/iconography.html">Iconography</a></li>
+      <li><a href="../foundations/theming.html">Theming</a></li>
+      <li><a href="../foundations/responsive.html">Responsive</a></li>
+      <li><a href="../foundations/accessibility.html">Accessibility</a></li>
+      <li><a href="../foundations/content.html">Content</a></li>
+    </ul></details>
+    <details open><summary>Components</summary><ul>
+      <li><a href="../components/button.html">Button</a></li>
+      <li><a href="../components/link.html">Link</a></li>
+      <li><a href="../components/menu.html">Menu</a></li>
+      <li><a href="../components/form-field.html">Form field</a></li>
+      <li><a href="../components/text-field.html">Text field</a></li>
+      <li><a href="../components/copy-field.html">Copy field</a></li>
+      <li><a href="../components/textarea.html">Textarea</a></li>
+      <li><a href="../components/select.html">Select</a></li>
+      <li><a href="../components/radio-group.html">Radio group</a></li><li><a href="../components/checkbox-group.html">Checkbox group</a></li><li><a href="../components/capability-checklist.html">Capability checklist</a></li>
+      <li><a href="../components/switch.html">Switch</a></li>
+      <li><a href="../components/form-layout.html">Form layout</a></li>
+      <li><a href="../components/picture-list.html">Picture list</a></li>
+      <li><a href="../components/photo-gallery.html">Photo gallery</a></li>
+      <li><a href="../components/file-dropzone.html">File drop zone</a></li>
+      <li><a href="../components/file-row.html">File row</a></li>
+      <li><a href="../components/tag-input.html">Tag input</a></li>
+      <li><a href="../components/person-picker.html">Person picker</a></li>
+      <li><a href="../components/type-icon.html">Type icon</a></li>
+      <li><a href="../components/sticker-picker.html">Estimate card picker</a></li>
+      <li><a href="../components/emoji-picker.html">Emoji picker</a></li>
+      <li><a href="../components/top-bar.html">Top bar</a></li>
+      <li><a href="../components/tab-bar.html">Tab bar</a></li>
+      <li><a href="../components/tabs.html">Tabs</a></li>
+      <li><a href="../components/breadcrumb.html">Breadcrumb</a></li>
+      <li><a href="../components/skip-link.html">Skip link</a></li>
+      <li><a href="../components/layout.html">Layout primitives</a></li>
+      <li><a href="../components/card.html">Card</a></li>
+      <li><a href="../components/dialog.html">Dialog</a></li><li><a href="../components/define-role-dialog.html">Define role dialog</a></li><li><a href="../components/edit-grants-dialog.html">Edit grants dialog</a></li><li><a href="../components/archive-role-dialog.html">Archive role dialog</a></li>
+      <li><a href="../components/notification-panel.html">Notification panel</a></li>
+      <li><a href="../components/list.html">List</a></li><li><a href="../components/reorderable-list.html">Reorderable list</a></li>
+      <li><a href="../components/table.html">Table</a></li>
+      <li><a href="../components/description-list.html">Description list</a></li>
+      <li><a href="../components/feed.html">Activity feed</a></li>
+      <li><a href="../components/tree.html">Backlog tree</a></li>
+      <li><a href="../components/kanban.html">Kanban board</a></li>
+      <li><a href="../components/event-card.html">Event card</a></li>
+      <li><a href="../components/person-card.html">Person card</a></li>
+      <li><a href="../components/profile-header.html">Profile header</a></li>
+      <li><a href="../components/person-summary.html">Person summary</a></li>
+      <li><a href="../components/search-results.html">Search results</a></li>
+      <li><a href="../components/note.html">Note</a></li>
+      <li><a href="../components/block-editor.html">Block editor</a></li>
+      <li><a href="../components/slash-menu.html">Slash menu</a></li>
+      <li><a href="../components/format-toolbar.html">Formatting toolbar</a></li>
+      <li><a href="../components/save-status.html">Save status</a></li>
+      <li><a href="../components/page-links.html">Page links</a></li>
+      <li><a href="../components/avatar.html">Avatar</a></li>
+      <li><a href="../components/qr-code.html">QR code</a></li>
+      <li><a href="../components/logo-mark.html">Logo mark</a></li>
+      <li><a href="../components/badge.html">Badge</a></li>
+      <li><a href="../components/chip.html">Chip</a></li>
+      <li><a href="../components/stat.html">Stat</a></li>
+      <li><a href="../components/sticker.html">Estimate card</a></li>
+      <li><a href="../components/toast.html">Toast</a></li>
+      <li><a href="../components/alert.html">Alert and banner</a></li>
+      <li><a href="../components/inline-message.html">Inline message</a></li>
+      <li><a href="../components/progress.html">Progress</a></li>
+      <li><a href="../components/skeleton.html">Skeleton</a></li>
+      <li><a href="../components/empty-state.html">Empty state</a></li>
+      <li><a href="../components/error-page.html">Error page</a></li>
+      <li><a href="../components/landing-hero.html">Landing hero</a></li>
+      <li><a href="../components/video-player.html">Video player</a></li>
+      <li><a href="../components/auth-forms.html">Sign-in and sign-up forms</a></li>
+      <li><a href="../components/site-footer.html">Site footer</a></li>
+    </ul></details>
+    <details open><summary>Patterns</summary><ul>
+      <li><a href="../patterns/forms.html">Forms</a></li>
+      <li><a href="../patterns/feedback-and-loading.html">Feedback and loading</a></li>
+      <li><a href="../patterns/empty-and-error-states.html">Empty and error states</a></li>
+      <li><a href="../patterns/navigation.html">Navigation and page structure</a></li>
+      <li><a href="../patterns/dialogs-and-overlays.html">Dialogs and overlays</a></li>
+      <li><a href="../patterns/lists-and-tables.html">Lists and tables</a></li>
+      <li><a href="../patterns/notifications.html">Notifications</a></li>
+      <li><a href="../patterns/content-and-tone.html">Content and tone</a></li>
+      <li><a href="../patterns/private-preview-wall.html">Private preview wall</a></li>
+    </ul></details>
+  </nav>
+
+  <main id="main" class="ds-main">
+    <header class="ds-header">
+      <p class="ds-kicker">Component · Overlays</p>
+      <h1>Archive role dialog</h1>
+      <p class="ds-lead">Confirm archiving a role; when the API refuses with 409 the reason is shown inside the dialog and only Close is offered.</p>
+      <div class="ds-meta"><span class="ds-pill ds-pill--ok">WCAG 2.2 AA</span><span class="ds-pill">Status: designed, not built</span><span class="ds-pill">CDK Dialog</span></div>
+      <ul class="ds-toc">
+        <li><a href="#overview">Overview</a></li><li><a href="#anatomy">Anatomy</a></li><li><a href="#variants">Variants</a></li><li><a href="#sizes">Sizes</a></li><li><a href="#states">States</a></li><li><a href="#responsive">Responsive</a></li><li><a href="#theming">Theming</a></li><li><a href="#accessibility">Accessibility</a></li><li><a href="#content">Content</a></li><li><a href="#do-dont">Do and don't</a></li><li><a href="#tokens">Tokens</a></li><li><a href="#code">Code</a></li><li><a href="#sources">Sources</a></li>
+      </ul>
+    </header>
+
+    <section class="ds-section" id="overview"><h2><a href="#overview">Overview</a></h2>
+      <p>A destructive confirmation for one role. Archiving is refused while members hold the role, while a grant rule, share audience or announcement audience names it, and when it would leave no administrator; the dialog shows that 409 reason as a danger alert in place of the confirmation and swaps the footer for Close.</p>
+    </section>
+
+    <section class="ds-section" id="anatomy"><h2><a href="#anatomy">Anatomy</a></h2>
+      <div class="ds-anatomy">
+        <figure class="ds-anatomy__figure" style="max-width: 36rem;">
+          <div class="dialog dialog--static" role="dialog" aria-label="Archive Mentor?"><div class="dialog__panel"><div class="dialog__header"><div class="dialog__icon dialog__icon--danger" aria-hidden="true"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><path d="M3 4h18v4H3zM5 8v12h14V8M10 12h4"/></svg></div><div class="dialog__heading"><h3 class="dialog__title">Archive Mentor?</h3><p class="dialog__description">It leaves every role picker. Its history stays in the audit log.</p></div><button class="btn btn--ghost btn--icon" type="button" aria-label="Close"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18"/></svg></button></div><div class="dialog__body stack"><p>No one holds Mentor and nothing uses it.</p></div><div class="dialog__footer"><button class="btn" type="button">Cancel</button><button class="btn btn--danger" type="button">Archive role</button></div></div></div>
+          <span class="ds-callout" style="left: 4%; top: 3%;" aria-hidden="true">1</span><span class="ds-callout" style="left: 6%; top: 45%;" aria-hidden="true">2</span><span class="ds-callout" style="left: 60%; top: 85%;" aria-hidden="true">3</span>
+        </figure>
+        <ol class="ds-anatomy__list"><li><div><b>Header</b><small>Danger archive icon, “Archive {role}?” and what archiving does.</small></div></li><li><div><b>Body</b><small>What uses the role, or the refusal.</small></div></li><li><div><b>Footer</b><small>Cancel and a danger Archive role.</small></div></li></ol>
+      </div>
+    </section>
+
+    <section class="ds-section" id="variants"><h2><a href="#variants">Variants</a></h2>
+      <div class="ds-example">
+        <div class="ds-example__canvas ds-example__canvas--stack" style="max-width: 40rem;">
+          <div class="dialog dialog--static" role="dialog" aria-label="Archive Mentor?"><div class="dialog__panel"><div class="dialog__header"><div class="dialog__icon dialog__icon--danger" aria-hidden="true"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><path d="M3 4h18v4H3zM5 8v12h14V8M10 12h4"/></svg></div><div class="dialog__heading"><h3 class="dialog__title">Archive Mentor?</h3><p class="dialog__description">It leaves every role picker. Its history stays in the audit log.</p></div><button class="btn btn--ghost btn--icon" type="button" aria-label="Close"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18"/></svg></button></div><div class="dialog__body stack"><p>No one holds Mentor and nothing uses it.</p></div><div class="dialog__footer"><button class="btn" type="button">Cancel</button><button class="btn btn--danger" type="button">Archive role</button></div></div></div>
+        </div>
+        <div class="ds-example__caption"><span>Default: nothing uses the role.</span></div>
+      </div>
+      <div class="ds-example">
+        <div class="ds-example__canvas ds-example__canvas--stack" style="max-width: 40rem;">
+          <div class="dialog dialog--static" role="dialog" aria-label="Archive Volunteer?"><div class="dialog__panel"><div class="dialog__header"><div class="dialog__icon dialog__icon--danger" aria-hidden="true"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><path d="M3 4h18v4H3zM5 8v12h14V8M10 12h4"/></svg></div><div class="dialog__heading"><h3 class="dialog__title">Archive Volunteer?</h3><p class="dialog__description">It leaves every role picker.</p></div><button class="btn btn--ghost btn--icon" type="button" aria-label="Close"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18"/></svg></button></div><div class="dialog__body stack"><div class="alert alert--danger" role="alert"><div class="alert__body"><div class="alert__title">Can’t archive Volunteer</div><div class="alert__text">18 members hold this role. Remove it from them first.</div></div></div></div><div class="dialog__footer"><button class="btn btn--primary" type="button">Close</button></div></div></div>
+        </div>
+        <div class="ds-example__caption"><span>Refused: members hold the role (409).</span></div>
+      </div>
+
+    </section>
+
+    <section class="ds-section" id="sizes" data-na="Follows the dialog's single size."><h2><a href="#sizes">Sizes</a></h2>
+      <p>Not applicable. A bottom sheet below 40rem and a centred panel above, as every dialog.</p>
+    </section>
+
+    <section class="ds-section" id="states"><h2><a href="#states">States</a></h2>
+      <ul><li><b>In use</b>: “City Lead’s grant rules and the announcement audience “Hackathon builders” still use this role. Remove it from them first.”</li><li><b>Busy</b>: “Archiving…”.</li><li><b>Failed</b>: “Role not archived”, “Try again”.</li><li><b>Success</b>: toast “{role} archived”.</li></ul>
+    </section>
+
+    <section class="ds-section" id="responsive"><h2><a href="#responsive">Responsive behaviour</a></h2>
+      <ul><li>Below 40rem it is a bottom sheet with the footer pinned; the body scrolls.</li><li>From 40rem it is a centred panel; see <a href="dialog.html#responsive">Dialog</a>.</li></ul>
+    </section>
+
+    <section class="ds-section" id="theming"><h2><a href="#theming">Theming</a></h2>
+      <p>Raised surface <code>--color-bg-surface-raised</code> on the backdrop in both themes, as every dialog.</p>
+    </section>
+
+    <section class="ds-section" id="accessibility"><h2><a href="#accessibility">Accessibility</a></h2>
+      <h3>Role and pattern</h3><p>WAI-ARIA modal dialog through Angular CDK Dialog: focus trapped, the page behind inert, <kbd>Esc</kbd> closes unless busy, focus returns to the button that opened it.</p>
+      <table class="ds-table ds-keys"><thead><tr><th scope="col">Key</th><th scope="col">Action</th></tr></thead><tbody><tr><td><kbd>Tab</kbd></td><td>Moves through fields, checkboxes and footer buttons.</td></tr><tr><td><kbd>Esc</kbd></td><td>Closes without saving (not while busy).</td></tr><tr><td><kbd>Enter</kbd> on the primary button</td><td>Saves.</td></tr></tbody></table>
+    </section>
+
+    <section class="ds-section" id="content"><h2><a href="#content">Content</a></h2>
+      <ul><li>Refusals say what to do next: “Remove it from them first.”</li></ul>
+    </section>
+
+    <section class="ds-section" id="do-dont"><h2><a href="#do-dont">Do and don't</a></h2>
+      <div class="ds-dodont">
+        <figure class="ds-do"><div class="ds-example__canvas"><div class="dialog dialog--static" role="dialog" aria-label="Archive Volunteer?"><div class="dialog__panel"><div class="dialog__header"><div class="dialog__icon dialog__icon--danger" aria-hidden="true"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><path d="M3 4h18v4H3zM5 8v12h14V8M10 12h4"/></svg></div><div class="dialog__heading"><h3 class="dialog__title">Archive Volunteer?</h3><p class="dialog__description">It leaves every role picker.</p></div><button class="btn btn--ghost btn--icon" type="button" aria-label="Close"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18"/></svg></button></div><div class="dialog__body stack"><div class="alert alert--danger" role="alert"><div class="alert__body"><div class="alert__title">Can’t archive Volunteer</div><div class="alert__text">18 members hold this role. Remove it from them first.</div></div></div></div><div class="dialog__footer"><button class="btn btn--primary" type="button">Close</button></div></div></div></div><figcaption>Show the reason and offer Close.</figcaption></figure>
+        <figure class="ds-dont"><div class="ds-example__canvas"><div class="dialog dialog--static" role="dialog" aria-label="Archive Volunteer?"><div class="dialog__panel"><div class="dialog__header"><div class="dialog__icon dialog__icon--danger" aria-hidden="true"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><path d="M3 4h18v4H3zM5 8v12h14V8M10 12h4"/></svg></div><div class="dialog__heading"><h3 class="dialog__title">Archive Volunteer?</h3><p class="dialog__description"></p></div><button class="btn btn--ghost btn--icon" type="button" aria-label="Close"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18"/></svg></button></div><div class="dialog__body stack"><p>Something went wrong.</p></div><div class="dialog__footer"><button class="btn" type="button">Cancel</button><button class="btn btn--danger" type="button">Archive role</button></div></div></div></div><figcaption>A vague error that still offers Archive.</figcaption></figure>
+      </div>
+    </section>
+
+    <section class="ds-section" id="tokens"><h2><a href="#tokens">Tokens</a></h2>
+      <p>The <a href="dialog.html#tokens">dialog</a> tokens.</p>
+    </section>
+
+    <section class="ds-section" id="code"><h2><a href="#code">Code</a></h2>
+      <p>In Angular: <code>&lt;ft-archive-role-dialog&gt; (ArchiveRoleDialogComponent, data: role, submit)</code>, opened through <code>DialogService</code> (ADR 0005). Its <code>submit</code> callback resolves to <code>null</code> on success or to a message the dialog shows (a 400 field error, a 403 or 409 reason, or the failure with Try again).</p>
+    </section>
+
+    <section class="ds-section" id="sources"><h2><a href="#sources">Sources</a></h2>
+      <p>Extracted from these mocks:</p>
+      <ul><li><a href="../../mocks/dialogs/archive-role/default.html">dialogs/archive-role/default</a></li><li><a href="../../mocks/dialogs/archive-role/holders.html">dialogs/archive-role/holders</a></li><li><a href="../../mocks/dialogs/archive-role/in-use.html">dialogs/archive-role/in-use</a></li><li><a href="../../mocks/dialogs/archive-role/busy.html">dialogs/archive-role/busy</a></li><li><a href="../../mocks/dialogs/archive-role/failed.html">dialogs/archive-role/failed</a></li><li><a href="../../mocks/dialogs/archive-role/success.html">dialogs/archive-role/success</a></li></ul>
+    </section>
+
+    <footer class="ds-footer"><span>FaithTech Community design system · extracted from <a href="../../mocks/index.html">docs/mocks</a> on 2026-10-30</span><a href="#top">Back to top</a></footer>
+  </main>
+</div>
+<script src="../assets/ds.js"></script>
+</body>
+</html>

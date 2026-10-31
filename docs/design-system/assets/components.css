@@ -1245,3 +1245,28 @@ a.page-link:hover, a.page-link[data-state="hover"] { background: var(--color-acc
 .drop-indicator .block--preview { top: var(--space-1); left: var(--space-8); }
 .block-editor__more-menu { position: fixed; inset: calc(var(--layout-topbar-height) + var(--space-16)) var(--layout-margin) auto auto; margin: 0; transform-origin: top right; }
 .dialog__footer-start { margin-right: auto; }
+
+/* Organisations: reorderable lists (Chapters, Stages & types). A drag handle, move up / move down buttons and
+   a row menu sit at the end of each row; a polite live region announces each keyboard move (L2-089 pattern). */
+.list__handle { flex: none; display: grid; place-items: center; width: var(--size-icon-md); color: var(--color-fg-subtle); cursor: grab; }
+.list__actions { display: flex; flex-wrap: wrap; align-items: center; justify-content: flex-end; gap: var(--space-1); flex: none; }
+.list__item--moved { background: var(--color-accent-subtle); box-shadow: inset 0 0 0 var(--focus-ring-width) var(--color-focus-ring); animation: fade-in var(--duration-slow) var(--ease-enter); }
+@media (max-width: 39.99rem) {
+  .list__item:has(.list__actions) { flex-wrap: wrap; }
+  .list__item:has(.list__actions) .list__actions { width: 100%; justify-content: flex-start; padding-inline-start: calc(var(--size-avatar-md) + var(--space-3)); }
+}
+@media (prefers-reduced-motion: reduce) { .list__item--moved { animation: none; } }
+/* A row menu anchored to its trigger. */
+.menu-anchor { position: relative; }
+.menu--row { right: 0; top: 100%; }
+.menu__item[role="menuitemradio"]::before { content: ""; flex: none; width: var(--size-icon-sm); height: var(--size-icon-sm); border-radius: var(--radius-full); border: var(--border-width-hairline) solid var(--color-border-strong); }
+.menu__item[role="menuitemradio"][aria-checked="true"]::before { background: var(--color-accent); border-color: var(--color-accent); box-shadow: inset 0 0 0 var(--space-0-5) var(--color-bg-surface-raised); }
+/* Two-line menu item: the organisation name with its host underneath (Switch organisation). */
+.menu__text { display: flex; flex-direction: column; min-width: 0; padding-block: var(--space-1); }
+/* Capability checklist: one checkbox per catalogue entry with its description; two columns from 48rem. */
+.capability-checklist { display: grid; gap: var(--space-1) var(--space-6); margin: 0; padding: 0; border: 0; min-width: 0; }
+.capability-checklist > legend { margin-bottom: var(--space-2); padding: 0; }
+@media (min-width: 48rem) { .capability-checklist:not(.capability-checklist--single) { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+.choice input:disabled + .choice__text small { color: var(--color-fg-muted); }
+/* A wider dialog for long checklists (Define a role). */
+.dialog--wide .dialog__panel { max-width: 44rem; }
