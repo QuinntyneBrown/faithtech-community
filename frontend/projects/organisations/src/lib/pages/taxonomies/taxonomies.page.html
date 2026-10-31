@@ -71,6 +71,27 @@
             }
           </ft-stack>
         </section>
+        <section aria-labelledby="resource-types-heading">
+          <ft-stack gap="3">
+            <h2 class="section-title" id="resource-types-heading">Resource types</h2>
+            <p class="text-caption">
+              Resources of an archived type keep it and are listed under “Show archived types” on
+              Resources.
+            </p>
+            @if (resourceTypes().length === 0) {
+              <ft-empty-state
+                heading="No archived resource types"
+                text="Types you archive are listed here."
+              />
+            } @else {
+              <ft-list label="Archived resource types">
+                @for (type of resourceTypes(); track type.id) {
+                  <ft-list-item [label]="type.name" [meta]="archivedResourceTypeMeta(type)" />
+                }
+              </ft-list>
+            }
+          </ft-stack>
+        </section>
       } @else {
         <section aria-labelledby="stages-heading">
           <ft-stack gap="3">
@@ -124,6 +145,36 @@
                   [label]="'More actions for ' + item.title"
                   [entries]="typeMenu"
                   (itemSelected)="actOnType(item, $event)"
+                >
+                  <ft-icon name="more" />
+                </ft-menu>
+              </ng-template>
+            </ft-reorderable-list>
+          </ft-stack>
+        </section>
+        <section aria-labelledby="resource-types-heading">
+          <ft-stack gap="3">
+            <ft-cluster [between]="true">
+              <h2 class="section-title" id="resource-types-heading">Resource types</h2>
+              @if (canEdit()) {
+                <ft-button (click)="addResourceType()">Add a resource type</ft-button>
+              }
+            </ft-cluster>
+            <p class="text-caption">
+              Offered on the add and edit resource dialogs. An upload’s type is guessed from its
+              extension.
+            </p>
+            <ft-reorderable-list
+              label="Resource types"
+              [items]="resourceTypeRows()"
+              [readonly]="!canEdit()"
+              (reordered)="reorderResourceTypes($event)"
+            >
+              <ng-template ftReorderableActions let-item>
+                <ft-menu
+                  [label]="'More actions for ' + item.title"
+                  [entries]="resourceTypeMenu(item.id)"
+                  (itemSelected)="actOnResourceType(item, $event)"
                 >
                   <ft-icon name="more" />
                 </ft-menu>
