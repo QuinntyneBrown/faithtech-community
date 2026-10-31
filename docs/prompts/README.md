@@ -41,7 +41,7 @@ its own branch and ends with a pull request. Merge a slice before you start the 
 | 12 | [12-frontend-and-fake-by-capability.md](12-frontend-and-fake-by-capability.md) | Navigation and features by capability, fake computes capabilities | `L2-135` AC7, `L2-133` AC2, AC5 | Done |
 | 13 | [13-last-administrator-and-capability-loss.md](13-last-administrator-and-capability-loss.md) | Organisation admin roster, last-administrator guard, `CapabilityLost` | `L2-139` | Done |
 | 14 | [14-assign-roles-under-grant-rules.md](14-assign-roles-under-grant-rules.md) | `RoleGrantPolicy`, role routes by id, `grantableRoleIds`, `GET /api/organisation` | `L2-137` AC4, AC5, `L2-138` | Done |
-| 15 | [15-organisation-section-and-general-settings.md](15-organisation-section-and-general-settings.md) | `organisations` library, Organisation section, General | `L2-147` AC1 to AC5 | To do |
+| 15 | [15-organisation-section-and-general-settings.md](15-organisation-section-and-general-settings.md) | `organisations` library, Organisation section, General | `L2-147` AC1 to AC5 | Done |
 | 16 | [16-roles-page-define-and-edit.md](16-roles-page-define-and-edit.md) | Roles tab: list, define, edit | `L2-136` AC1 to AC3, AC5 to AC8 | To do |
 | 17 | [17-archive-roles-and-grant-rules.md](17-archive-roles-and-grant-rules.md) | Archive roles, Who may grant | `L2-136` AC4, AC5, `L2-137` AC1 to AC3 | To do |
 | 18 | [18-chapter-label-and-chapters-page.md](18-chapter-label-and-chapters-page.md) | Chapter label on General, Chapters tab | `L2-140` | To do |
