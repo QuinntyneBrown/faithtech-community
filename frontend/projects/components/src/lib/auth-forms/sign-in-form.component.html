@@ -14,9 +14,13 @@
         </ft-alert>
       }
       @case ('suspended') {
-        <ft-alert status="danger" heading="This account is suspended" [focusable]="true">
-          A System Admin has suspended this account, so you can’t sign in. If you think this is a
-          mistake, email support&#64;faithtech.example.
+        <ft-alert
+          status="danger"
+          [heading]="'Your membership of ' + organisation.name() + ' is suspended'"
+          [focusable]="true"
+        >
+          An administrator of {{ organisation.name() }} has suspended your membership, so you can’t
+          sign in here. Your other organisations aren’t affected.
         </ft-alert>
       }
       @case ('unreachable') {

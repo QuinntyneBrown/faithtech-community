@@ -78,7 +78,7 @@ describe('SignInFormComponent', () => {
   it.each<[SignInFormFailure, string]>([
     ['invalid_credentials', 'We couldn’t sign you in'],
     ['locked_out', 'Too many attempts'],
-    ['suspended', 'This account is suspended'],
+    ['suspended', 'Your membership of Northside Makers is suspended'],
     ['unreachable', 'We couldn’t reach Northside'],
     ['google_failed', 'Google sign-in didn’t finish'],
   ])('shows the %s failure', (failure, heading) => {

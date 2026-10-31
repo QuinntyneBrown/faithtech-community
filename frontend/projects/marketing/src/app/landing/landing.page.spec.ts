@@ -4,9 +4,11 @@ import { provideRouter } from '@angular/router';
 import {
   AUTH_SERVICE,
   BROWSER_REDIRECT,
+  OrganisationNames,
   SignInOutcome,
   provideLoadedSite,
 } from '@faithtech-community/api';
+import { ORGANISATION_NAMES } from '@faithtech-community/components';
 import { Observable, of } from 'rxjs';
 
 import { COMMUNITY_ORIGIN } from '../community-origin';
@@ -44,6 +46,7 @@ describe('LandingPage', () => {
       providers: [
         provideRouter([]),
         provideLoadedSite(FAITHTECH_PUBLIC_SITE),
+        { provide: ORGANISATION_NAMES, useExisting: OrganisationNames },
         { provide: COMMUNITY_ORIGIN, useValue: 'https://app.faithtech.test' },
         { provide: BROWSER_REDIRECT, useValue: (url: string) => redirects.push(url) },
         {
@@ -151,7 +154,7 @@ describe('LandingPage', () => {
     await fixture.whenStable();
 
     expect((fixture.nativeElement as HTMLElement).textContent).toContain(
-      'This account is suspended',
+      'Your membership of FaithTech Community is suspended',
     );
   });
 

@@ -80,7 +80,9 @@ test.describe('Sign in from the marketing page', () => {
 
     await marketing.signIn(account.email, account.password);
 
-    await expect(marketing.alert).toContainText('This account is suspended');
+    await expect(marketing.alert).toContainText(
+      'Your membership of FaithTech Community is suspended',
+    );
     await axe.check();
   });
 
