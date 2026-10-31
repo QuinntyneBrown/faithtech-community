@@ -52,12 +52,18 @@ The code lives in `FaithTech.Community.Application/Organisations/Platform/`, wit
 
 ### Configuration in production
 
-`Platform__Operators__0`, `Platform__Operators__1`, … on the container app and the Cli jobs, next to the existing settings in `docs/detailed-designs/platform/private-preview-wall`. The operator's own account is created by signing up on any organisation's host or by a seeded account; `<TO SUPPLY>`: whether the first operator account is seeded in production or created by sign-up before the first `org create`.
+`Platform__Operators__0`, `Platform__Operators__1`, … on the container app and the Cli jobs, next to the existing settings in `docs/detailed-designs/platform/private-preview-wall`. The operator's own account is created by signing up on any organisation's host before the first `org create`; production seeds no operator account (decided in slice 26). The Cli reads the same `Platform:Operators` list from its configuration and passes it to `CliApp.RunAsync`.
 
 ### Open questions
 
 - A new organisation's community host is a custom domain on the container app with a managed certificate; creating the DNS record and binding the host are the owner's steps until automation is built (proposal, deferred).
-- The operator API is reachable on any host, including a suspended organisation's, only when the resolution middleware admits the request; on a suspended host it does not (`L2-131` AC3). Operators act from an active host or the Cli. `<TO SUPPLY>`: whether a dedicated platform host should exist for the operator API.
+- The operator API is reachable on any host, including a suspended organisation's, only when the resolution middleware admits the request; on a suspended host it does not (`L2-131` AC3). Operators act from an active host or the Cli. There is no dedicated platform host in v1 (decided in slice 26); one would be a new host kind in the resolution middleware.
+- Slice 26 decisions:
+  - `ICurrentUser.OperatorEmail` and `IsPlatformOperator` are computed by `CurrentRolesMiddleware`, and only for requests under `/api/platform`, by reading the signed-in account's email and comparing it with the list. Other requests never pay for the lookup and never see an operator.
+  - `RequireOperator` sets `PlatformActor` (operator email, source `Api`); the Cli's `org` commands set it from `--operator` with source `Cli`. `PlatformAuditLog`, which writes `PlatformAuditEntry` from that actor, lives in `Application/Organisations/Platform/` beside its interface, since it needs nothing beyond `IApplicationDbContext`.
+  - The group is `AllowAnonymous` at the policy level, so the fallback policy never answers 401. `RequireOperator` answers 404 with the status code pages turned off for that response, so the body is empty. The endpoint sweep in `ServerAuthorizationTests` expects that 404 for every `/api/platform` route.
+  - Lock and unlock answer 204. A lock needs a reason of 1 to 500 characters (400 "Enter a reason."), and an unknown email answers 404. The account is found by normalised email, so the path's case does not matter.
+  - The `PlatformOperatorsAuditAndAccountLock` migration adds `AspNetUsers.IsLocked`, `LockedReason` (500) and `LockedAtUtc`, and the `PlatformAuditEntries` table.
 
 ## Requirements
 
