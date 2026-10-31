@@ -72,7 +72,9 @@ public static class AuthenticationSetup
         services.AddAuthorizationBuilder()
             .SetFallbackPolicy(new Microsoft.AspNetCore.Authorization.AuthorizationPolicyBuilder()
                 .RequireAuthenticatedUser()
+                .AddRequirements(new MembershipRequirement())
                 .Build());
+        services.AddScoped<Microsoft.AspNetCore.Authorization.IAuthorizationHandler, MembershipHandler>();
 
         services.AddHttpContextAccessor();
         services.AddScoped<ICurrentUser, HttpCurrentUser>();

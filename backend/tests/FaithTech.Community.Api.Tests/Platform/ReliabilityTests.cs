@@ -1,3 +1,4 @@
+using FaithTech.Community.Api.Tests.Profiles;
 using System.Net;
 using System.Net.Http.Json;
 using Microsoft.AspNetCore.Authentication;
@@ -65,7 +66,9 @@ public class ReliabilityTests(CommunityApiFactory factory) : IClassFixture<Commu
             b.ConfigureServices(s => s.AddTransient<IStartupFilter, ThrowingStartupFilter>()
                 .AddAuthentication(TestAuthHandler.SchemeName)
                 .AddScheme<AuthenticationSchemeOptions, TestAuthHandler>(TestAuthHandler.SchemeName, null))).CreateClient();
-        client.DefaultRequestHeaders.Add(TestAuthHandler.Header, Guid.NewGuid().ToString());
+        // A member of the host's organisation, so the request gets past authorization to the failure (L2-132 AC3).
+        var member = await factory.AddMemberAsync("Grace Okonkwo");
+        client.DefaultRequestHeaders.Add(TestAuthHandler.Header, member.UserId.ToString());
 
         var response = await client.GetAsync("/boom");
 

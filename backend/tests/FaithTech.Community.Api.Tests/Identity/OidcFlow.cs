@@ -10,7 +10,7 @@ using Microsoft.EntityFrameworkCore;
 namespace FaithTech.Community.Api.Tests.Identity;
 
 /// <summary>Drives the browser side of the authorization code + PKCE flow against the test server.</summary>
-public class OidcFlow(CommunityApiFactory factory)
+public class OidcFlow(CommunityApiFactory factory, string origin = "https://localhost")
 {
     public static readonly string RedirectUri = $"{CommunityApiFactory.WebAppOrigin}/auth/callback";
 
@@ -20,7 +20,7 @@ public class OidcFlow(CommunityApiFactory factory)
     {
         AllowAutoRedirect = false,
         HandleCookies = true,
-        BaseAddress = new Uri("https://localhost"),
+        BaseAddress = new Uri(origin),
     });
 
     public async Task<string> CreateAccountAsync(bool verified = true)
