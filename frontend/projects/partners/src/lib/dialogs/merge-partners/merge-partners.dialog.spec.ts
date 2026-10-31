@@ -12,7 +12,8 @@ const kept = partnerDto({ id: 'x1', phone: null, version: 3 });
 const other = partnerDto({
   id: 'x2',
   name: 'Kestrel Labs Inc.',
-  stage: 'Lead',
+  stage: 'lead',
+  stageName: 'Lead',
   contactName: 'N. Petrov',
   ownerId: 'p2',
   ownerName: 'Esther Nakamura',

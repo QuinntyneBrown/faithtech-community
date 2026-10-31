@@ -11,6 +11,7 @@ const faithTech: OrganisationDto = {
     { id: 'c-austin', name: 'Austin' },
   ],
   roles: [],
+  partnerStages: [],
 };
 
 describe('chapterFilterOptions', () => {

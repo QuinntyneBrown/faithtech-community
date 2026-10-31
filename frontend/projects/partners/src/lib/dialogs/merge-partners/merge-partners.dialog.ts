@@ -6,7 +6,6 @@ import {
   MergeChoice,
   MergeField,
   OrganisationNames,
-  PARTNER_STAGE_LABELS,
   PartnerDto,
   PartnerDuplicateDto,
   PARTNERS_SERVICE,
@@ -48,7 +47,7 @@ function raw(partner: PartnerDto, field: MergeField): string | null {
 
 /** A field's value as the dialog writes it; "Not set" when empty. */
 function shown(partner: PartnerDto, field: MergeField): string {
-  if (field === 'stage') return PARTNER_STAGE_LABELS[partner.stage];
+  if (field === 'stage') return partner.stageName;
   return (field === 'owner' ? partner.ownerName : partner[field]) || 'Not set';
 }
 

@@ -28,7 +28,28 @@ export interface ChapterDto {
   memberCount: number;
 }
 
-/** GET /api/organisation. The taxonomies join it in their slice (organisation-settings design). */
+/** An active partner stage as every stage picker offers it (L2-144 AC3). */
+export interface PartnerStageOption {
+  id: string;
+  key: string;
+  name: string;
+  isInitial: boolean;
+  kind: 'Open' | 'Confirmed';
+}
+
+/** A partner stage as Stages & types lists it, with its partner count (L2-144 AC1). */
+export interface PartnerStageDto extends PartnerStageOption {
+  sortOrder: number;
+  archived: boolean;
+  archivedAtUtc: string | null;
+  partnerCount: number;
+}
+
+/** PUT /api/organisation/partner-stages/{id}: one change at a time from the row menu or the rename dialog. */
+export type PartnerStageChange =
+  { name: string } | { isInitial: true } | { kind: 'Open' | 'Confirmed' };
+
+/** GET /api/organisation. Event and resource types join it in their slices (organisation-settings design). */
 export interface OrganisationDto {
   name: string;
   shortName: string;
@@ -38,6 +59,8 @@ export interface OrganisationDto {
   chapters: ChapterOption[];
   /** The roles not archived, in the organisation's order. */
   roles: OrganisationRole[];
+  /** The active partner stages in order. */
+  partnerStages: PartnerStageOption[];
 }
 
 /** PUT /api/organisation: the General settings (L2-147). */
@@ -62,6 +85,14 @@ export interface OrganisationService {
   renameChapter(id: string, name: string): Observable<ChapterDto>;
   reorderChapters(ids: string[]): Observable<ChapterDto[]>;
   archiveChapter(id: string): Observable<ChapterDto>;
+  /** Readable with ManageOrganisationSettings or ManageRoles (L2-147 AC2). */
+  listPartnerStages(archived?: boolean): Observable<PartnerStageDto[]>;
+  /** A new stage is Open, not initial, at the end; 400 keyed Name. */
+  addPartnerStage(name: string): Observable<PartnerStageDto>;
+  updatePartnerStage(id: string, change: PartnerStageChange): Observable<PartnerStageDto>;
+  reorderPartnerStages(ids: string[]): Observable<PartnerStageDto[]>;
+  /** 409 while partners are on it, while it is initial, or for the last stage (L2-144 AC2, AC7). */
+  archivePartnerStage(id: string): Observable<PartnerStageDto>;
 }
 
 export const ORGANISATION_SERVICE = new InjectionToken<OrganisationService>('ORGANISATION_SERVICE');

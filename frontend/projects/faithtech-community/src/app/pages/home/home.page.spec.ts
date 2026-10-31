@@ -35,9 +35,33 @@ function event(id: string, overrides: Partial<EventSummaryDto> = {}): EventSumma
 const board: PartnerBoardDto = {
   canEdit: true,
   columns: [
-    { stage: 'Lead', count: 4, cards: [] },
-    { stage: 'InFunnel', count: 3, cards: [] },
-    { stage: 'Confirmed', count: 5, cards: [] },
+    {
+      stage: 'lead',
+      stageId: 's1',
+      name: 'Lead',
+      kind: 'Open',
+      archived: false,
+      count: 4,
+      cards: [],
+    },
+    {
+      stage: 'in-funnel',
+      stageId: 's2',
+      name: 'In Funnel',
+      kind: 'Open',
+      archived: false,
+      count: 3,
+      cards: [],
+    },
+    {
+      stage: 'confirmed',
+      stageId: 's3',
+      name: 'Confirmed',
+      kind: 'Confirmed',
+      archived: false,
+      count: 5,
+      cards: [],
+    },
   ],
 };
 
@@ -91,7 +115,7 @@ describe('HomePage', () => {
       ]),
     ).toEqual([
       ['Lead', '4'],
-      ['In funnel', '3'],
+      ['In Funnel', '3'],
       ['Confirmed', '5'],
     ]);
   });

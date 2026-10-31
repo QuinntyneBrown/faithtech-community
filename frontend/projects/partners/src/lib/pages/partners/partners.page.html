@@ -61,9 +61,10 @@
         <ft-kanban-board label="Partner pipeline" [announcement]="announcement()">
           @for (column of b.columns; track column.stage) {
             <ft-kanban-column
-              [title]="stageLabel(column.stage)"
+              [title]="title(column)"
               [stage]="column.stage"
               [count]="column.count"
+              [droppable]="!column.archived"
               emptyText="No partners at this stage yet"
               (cardDropped)="dropped($event)"
             >

@@ -33,7 +33,8 @@ function report(overrides: Partial<ReportDto> = {}): ReportDto {
       { month: '2026-09', label: 'Sep', value: 5, soFar: false },
       { month: '2026-10', label: 'Oct', value: 13, soFar: true },
     ],
-    partnerPipeline: [{ chapter: 'Toronto', lead: 3, inFunnel: 2, confirmed: 4 }],
+    partnerPipeline: [{ chapter: 'Toronto', counts: [3, 2, 4] }],
+    stages: ['Lead', 'In Funnel', 'Confirmed'],
     events: [
       {
         id: 'e1',

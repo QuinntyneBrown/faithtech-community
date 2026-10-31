@@ -2,9 +2,9 @@ import { HttpErrorResponse } from '@angular/common/http';
 import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
 import {
   OrganisationNames,
-  PARTNER_STAGE_LABELS,
   PartnerBoardDto,
   PartnerCardDto,
+  PartnerColumnDto,
   PartnerDto,
   PARTNERS_SERVICE,
   PartnerStage,
@@ -33,7 +33,11 @@ import { localDate } from '../partner/partner-timeline';
 
 type State = 'loading' | 'loaded' | 'error' | 'forbidden';
 
-/** The shared partner pipeline as a Kanban board (L2-017, L2-018), matching docs/mocks/pages/partners. */
+/**
+ * The shared partner pipeline as a Kanban board (L2-017, L2-018), matching docs/mocks/pages/partners: one column per
+ * active stage of the organisation, then "Archived stage: {name}" for an archived stage that still holds partners,
+ * which cards may leave but not enter (L2-144 AC3, AC4).
+ */
 @Component({
   selector: 'ft-partners-page',
   imports: [
@@ -61,7 +65,6 @@ export class PartnersPage {
 
   protected readonly state = signal<State>('loading');
   protected readonly board = signal<PartnerBoardDto | null>(null);
-  protected readonly labels = PARTNER_STAGE_LABELS;
   /** Read out after each move (L2-018 AC3). */
   protected readonly announcement = signal('');
 
@@ -78,8 +81,8 @@ export class PartnersPage {
     void this.load();
   }
 
-  protected stageLabel(stage: PartnerStage): string {
-    return this.labels[stage];
+  protected title(column: PartnerColumnDto): string {
+    return column.archived ? `Archived stage: ${column.name}` : column.name;
   }
 
   protected caption(card: PartnerCardDto): string {
@@ -151,18 +154,21 @@ export class PartnersPage {
       board
         ? {
             ...board,
-            columns: board.columns.map((column) => {
-              const cards = column.cards.filter((c) => c.id !== moved.id);
-              if (column.stage === moved.stage) {
-                cards.push(toCard(moved));
-                cards.sort((a, b) => a.name.localeCompare(b.name));
-              }
-              return { ...column, count: cards.length, cards };
-            }),
+            columns: board.columns
+              .map((column) => {
+                const cards = column.cards.filter((c) => c.id !== moved.id);
+                if (column.stage === moved.stage) {
+                  cards.push(toCard(moved));
+                  cards.sort((a, b) => a.name.localeCompare(b.name));
+                }
+                return { ...column, count: cards.length, cards };
+              })
+              // An archived stage's column stays only while it holds partners.
+              .filter((column) => !column.archived || column.count > 0),
           }
         : board,
     );
-    this.announcement.set(`${moved.name} moved to ${this.labels[moved.stage]}`);
+    this.announcement.set(`${moved.name} moved to ${moved.stageName}`);
   }
 
   private async load(): Promise<void> {

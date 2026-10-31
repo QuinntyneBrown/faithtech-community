@@ -4,10 +4,10 @@ import { TestBed } from '@angular/core/testing';
 import { PARTNERS_SERVICE, PartnerDto } from '@faithtech-community/api';
 import { Observable, of, throwError } from 'rxjs';
 
-import { partnerDto } from '../../testing';
+import { organisationWithStages, partnerDto } from '../../testing';
 import { MovePartnerData, MovePartnerDialog } from './move-partner.dialog';
 
-const data: MovePartnerData = { partnerId: 'x1', name: 'Kestrel Labs', stage: 'InFunnel' };
+const data: MovePartnerData = { partnerId: 'x1', name: 'Kestrel Labs', stage: 'in-funnel' };
 
 function setup(move: () => Observable<PartnerDto>) {
   const ref = { close: vi.fn(), disableClose: false };
@@ -17,6 +17,7 @@ function setup(move: () => Observable<PartnerDto>) {
       { provide: DIALOG_DATA, useValue: data },
       { provide: DialogRef, useValue: ref },
       { provide: PARTNERS_SERVICE, useValue: service },
+      organisationWithStages(),
     ],
   });
   const fixture = TestBed.createComponent(MovePartnerDialog);
@@ -47,7 +48,7 @@ function setup(move: () => Observable<PartnerDto>) {
 }
 
 describe('MovePartnerDialog', () => {
-  it('lists every stage, marks the current one and preselects the next', () => {
+  it('lists the organisation stages, marks the current one and preselects the next', () => {
     const { host, radios, primary } = setup(() => of(partnerDto()));
 
     expect(host.textContent).toContain('Move Kestrel Labs');
@@ -59,7 +60,7 @@ describe('MovePartnerDialog', () => {
   });
 
   it('moves the partner with the note and closes with it', async () => {
-    const moved = partnerDto({ stage: 'Lead' });
+    const moved = partnerDto({ stage: 'lead' });
     const { service, ref, choose, note, confirm, primary } = setup(() => of(moved));
 
     choose('Lead');
@@ -67,14 +68,14 @@ describe('MovePartnerDialog', () => {
     note(' Back to the start. ');
     await confirm();
 
-    expect(service.move).toHaveBeenCalledWith('x1', 'Lead', 'Back to the start.');
+    expect(service.move).toHaveBeenCalledWith('x1', 'lead', 'Back to the start.');
     expect(ref.close).toHaveBeenCalledWith(moved);
   });
 
   it('cannot move to the stage the partner is already at', () => {
     const { choose, primary } = setup(() => of(partnerDto()));
 
-    choose('In funnel');
+    choose('In Funnel');
 
     expect(primary().disabled).toBe(true);
   });

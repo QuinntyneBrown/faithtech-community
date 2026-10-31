@@ -19,7 +19,7 @@
         <ft-text-field formControlName="website" autocomplete="off" />
       </ft-form-field>
       <ft-form-field required label="Stage">
-        <ft-select [formControl]="stage" [options]="stageOptions" />
+        <ft-select [formControl]="stage" [options]="stageOptions()" />
       </ft-form-field>
       <ft-form-field label="Main contact" [optional]="true" [error]="error('contactName')">
         <ft-text-field formControlName="contactName" autocomplete="off" />

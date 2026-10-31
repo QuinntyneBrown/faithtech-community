@@ -52,7 +52,7 @@
           @if (p.archived) {
             <ft-badge variant="neutral">Archived</ft-badge>
           } @else {
-            <ft-badge [variant]="badges[p.stage]">{{ labels[p.stage] }}</ft-badge>
+            <ft-badge [variant]="badges[p.stageKind]">{{ p.stageName }}</ft-badge>
           }
           @if (p.offering) {
             · {{ p.offering }}

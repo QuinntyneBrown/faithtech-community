@@ -11,7 +11,8 @@ import { RestorePartnerData, RestorePartnerDialog } from './restore-partner.dial
 const archived = partnerDto({
   id: 'x2',
   name: 'Kestrel Labs Inc.',
-  stage: 'Lead',
+  stage: 'lead',
+  stageName: 'Lead',
   version: 2,
   archived: {
     mergedIntoId: 'x1',

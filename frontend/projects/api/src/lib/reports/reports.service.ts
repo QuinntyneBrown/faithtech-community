@@ -24,12 +24,13 @@ export interface ReportMonthRowDto {
   soFar: boolean;
 }
 
-/** `chapter` names the row: a chapter, "No {chapter}", or "Partner pipeline" while chapters are off. */
+/**
+ * `chapter` names the row: a chapter, "No {chapter}", or "Partner pipeline" while chapters are off. `counts` holds one
+ * count per active stage, in the order of the report's `stages` (L2-144 AC5).
+ */
 export interface PartnerPipelineRowDto {
   chapter: string;
-  lead: number;
-  inFunnel: number;
-  confirmed: number;
+  counts: number[];
 }
 
 /**
@@ -73,6 +74,8 @@ export interface ReportDto {
   newMembersByMonth: ReportMonthRowDto[];
   partnerPipeline: PartnerPipelineRowDto[];
   events: ReportEventRowDto[];
+  /** The active partner stages' names in order: the pipeline's columns. */
+  stages: string[];
 }
 
 /**
