@@ -1,3 +1,4 @@
+using FaithTech.Community.Domain.Organisations;
 using System.Text;
 using FaithTech.Community.Application.Common;
 using FaithTech.Community.Application.Profiles;
@@ -37,14 +38,16 @@ public class ListTeamHandler(IApplicationDbContext db, IPhotoStorage storage)
             return null;
         }
 
-        var teamRoles = LegacyRoles.Keys(TeamRoles.All);
-        var leads = LegacyRoles.Keys(TeamRoles.Leads);
-        var team = db.Profiles.AsNoTracking().Where(p => p.Roles.Any(r => teamRoles.Contains(r.Definition!.Key)));
+        // The team is everyone holding a role shown on the team (ADR 0033). Until the role filter lists the
+        // organisation's team roles (slice 12), a lead is a team member whose team role invites members.
+        var team = db.Profiles.AsNoTracking().Where(p => p.Roles.Any(r => r.Definition!.ArchivedAtUtc == null && r.Definition.ShowOnTeam));
 
         var matching = query.Role switch
         {
-            TeamRoleFilter.Leads => team.Where(p => p.Roles.Any(r => leads.Contains(r.Definition!.Key))),
-            TeamRoleFilter.Volunteers => team.Where(p => p.Roles.Any(r => r.Definition!.Key == nameof(Role.Volunteer))),
+            TeamRoleFilter.Leads => team.Where(p => p.Roles.Any(r => r.Definition!.ArchivedAtUtc == null && r.Definition.ShowOnTeam
+                && r.Definition.Capabilities.Contains(Capability.InviteMembers))),
+            TeamRoleFilter.Volunteers => team.Where(p => p.Roles.Any(r => r.Definition!.ArchivedAtUtc == null && r.Definition.ShowOnTeam
+                && !r.Definition.Capabilities.Contains(Capability.InviteMembers))),
             _ => team,
         };
         var city = query.City?.Trim().ToLower();
