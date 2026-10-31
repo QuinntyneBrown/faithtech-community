@@ -10,4 +10,4 @@
 | role-definitions-and-grant-rules | 7 days | 0% | — |
 | seed-faithtech | 4 days | 15% | — |
 | taxonomies | 6 days | 0% | — |
-| tenancy-and-host-resolution | 8 days | 45% | — |
+| tenancy-and-host-resolution | 8 days | 65% | — |
