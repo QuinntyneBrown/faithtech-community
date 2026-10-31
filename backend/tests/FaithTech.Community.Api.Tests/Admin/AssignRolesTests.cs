@@ -148,7 +148,7 @@ public class AssignRolesTests(CommunityApiFactory factory) : IClassFixture<Commu
 
         Assert.Equal(HttpStatusCode.Conflict, response.StatusCode);
         var problem = await response.Content.ReadFromJsonAsync<ProblemDetails>();
-        Assert.Equal("There must always be at least one System Admin.", problem!.Detail);
+        Assert.Equal("There must always be at least one administrator.", problem!.Detail);
         Assert.True((await LoadAsync(priya.ProfileId)).HasRole(Role.SystemAdmin));
 
         var second = await factory.AddMemberAsync("Second Admin", p => p.AddRole(Role.SystemAdmin, Granter, DateTime.UtcNow));

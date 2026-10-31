@@ -1,4 +1,4 @@
-// Traces to: L2-080, L2-081, L2-082
+// Traces to: L2-080, L2-081, L2-082; L2-139 AC5
 using System.Net;
 using System.Net.Http.Json;
 using FaithTech.Community.Api.Tests.Fakes;
@@ -105,6 +105,34 @@ public class ConnectLinkTests(CommunityApiFactory factory) : IClassFixture<Commu
 
         Assert.Equal(HttpStatusCode.NotFound, (await anonymous.PostAsJsonAsync("/api/connect/lookup", new { token = graceToken })).StatusCode);
         Assert.Equal(HttpStatusCode.NotFound, (await anonymous.PostAsJsonAsync("/api/connect/lookup", new { token = estherToken })).StatusCode);
+    }
+
+    // L2-139 AC5, L2-082 AC3: the link follows ConnectLink, whichever role gives it: unknown while the owner lacks it,
+    // the same link working again once a role gives it back.
+    [Fact]
+    public async Task A_link_answers_unknown_while_its_owner_lacks_ConnectLink_and_works_again_when_it_returns()
+    {
+        var ruth = await factory.AddMemberAsync("Ruth Alvarez");
+        var link = await factory.ClientWithCapabilities(ruth, "ConnectLink").GetFromJsonAsync<LinkBody>("/api/connect/link");
+        var token = TokenFrom(link!.Url);
+        var anonymous = factory.CreateClient();
+        await factory.WithDbAsync(async db =>
+        {
+            var profile = await db.Profiles.Include(p => p.Roles).ThenInclude(r => r.Definition).SingleAsync(p => p.Id == ruth.ProfileId);
+            foreach (var held in profile.Roles.ToList())
+            {
+                profile.RemoveRole(held.RoleDefinitionId);
+            }
+
+            return await db.SaveChangesAsync();
+        });
+
+        var whileLacking = await anonymous.PostAsJsonAsync("/api/connect/lookup", new { token });
+        factory.ClientWithCapabilities(ruth, "ConnectLink", "InviteMembers");
+        var once = await LookUpAsync(anonymous, token);
+
+        Assert.Equal(HttpStatusCode.NotFound, whileLacking.StatusCode);
+        Assert.NotNull(once);
     }
 
     private static async Task<LookupBody?> LookUpAsync(HttpClient client, string token)
