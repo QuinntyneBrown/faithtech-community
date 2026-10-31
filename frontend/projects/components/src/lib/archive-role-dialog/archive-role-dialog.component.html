@@ -1,0 +1,30 @@
+<ft-dialog
+  [heading]="'Archive ' + data.role + '?'"
+  description="It leaves every role picker. Its history stays in the audit log."
+  icon="archive"
+  tone="danger"
+  [busy]="busy()"
+  (closed)="ref.close()"
+>
+  @if (refusal(); as message) {
+    <ft-alert status="danger" [heading]="'Can’t archive ' + data.role">{{ message }}</ft-alert>
+    <ft-button ftDialogFooter initialFocus (click)="ref.close()">Close</ft-button>
+  } @else {
+    @if (failed()) {
+      <ft-alert status="danger" heading="Role not archived">
+        We couldn’t reach {{ organisation.shortName() }}. Nothing was changed — try again.
+      </ft-alert>
+    } @else {
+      <p>
+        No one holds {{ data.role }} and nothing uses it. Archived roles are read-only and listed
+        under Archived.
+      </p>
+    }
+    <ft-button ftDialogFooter initialFocus [disabled]="busy()" (click)="ref.close()"
+      >Cancel</ft-button
+    >
+    <ft-button ftDialogFooter variant="danger" [loading]="busy()" (click)="archive()">
+      {{ busy() ? 'Archiving…' : failed() ? 'Try again' : 'Archive role' }}
+    </ft-button>
+  }
+</ft-dialog>
