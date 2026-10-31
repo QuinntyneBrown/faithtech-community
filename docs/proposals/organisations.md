@@ -4,7 +4,7 @@ Make the platform organisation-agnostic: one deployment that hosts many organisa
 
 - Status: agreed; requirements written as `L1-025` to `L1-029` and `L2-130` to `L2-152` in `docs/specs/`, designs in `docs/detailed-designs/organisations/`, ADRs 0032 to 0035. Mocks, estimate, prompt and code follow in later changes.
 - Date: 2026-10-30
-- Next step: mocks for the organisation settings pages, the switcher and the two new system pages, then `docs/estimates/organisations.md`, then an implementation prompt in `docs/prompts/`, then one acceptance-test-driven slice at a time.
+- Next step: run the prompts in `docs/prompts/` in order (`docs/prompts/README.md`). Prompt `00` writes the mocks, the design-system pages and `docs/estimates/organisations.md`; prompts `01` to `29` build one acceptance-test-driven slice each.
 
 ## Problem
 
