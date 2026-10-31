@@ -12,7 +12,7 @@ public sealed record MembershipDto(string Name, string Host);
 
 /// <summary>
 /// A role the caller holds, as the organisation names it (L2-133 AC1). `Key` names it in requests until role pickers use
-/// ids (slice 14); `ChapterId` is the chapter it is tagged with, once chapters exist (slice 21).
+/// ids (slice 14); `ChapterId` is the chapter it is tagged with, if any (L2-141 AC3).
 /// </summary>
 public sealed record HeldRoleDto(Guid Id, string Key, string Name, Guid? ChapterId, bool IsOversight);
 
@@ -28,7 +28,8 @@ public sealed record MeDto(
     IReadOnlyList<MembershipDto> Memberships,
     IReadOnlyCollection<string> Capabilities,
     IReadOnlyCollection<Guid> GrantableRoleIds,
-    ChapterOptionDto? Chapter);
+    ChapterOptionDto? Chapter,
+    IReadOnlyCollection<Guid>? GrantChapterIds = null);
 
 public sealed record NotAMemberOrganisationDto(string Name);
 
@@ -66,13 +67,15 @@ public class MeHandler(
             profile.Name,
             user.Email,
             user.EmailConfirmed,
-            [.. membership.Roles.Select(r => new HeldRoleDto(r.Id, r.Key, r.Name, null, r.IsOversight))],
+            [.. membership.Roles.Select(r => new HeldRoleDto(r.Id, r.Key, r.Name, r.ChapterId, r.IsOversight))],
             MeOrganisationDto.Of(organisation),
             memberships,
             [.. membership.Capabilities.Order(StringComparer.Ordinal)],
             // The roles every picker offers: exactly those the caller may add and remove (L2-137 AC5).
             [.. await grants.GrantableAsync(cancellationToken)],
-            profile.Chapter), null);
+            profile.Chapter,
+            // The chapters a scoped grantor may tag a grant with; null when the caller is never scoped (L2-143).
+            await grants.GrantChapterIdsAsync(cancellationToken)), null);
     }
 
     /// <summary>The account's active, unsuspended profiles in other active organisations, by name and host.</summary>

@@ -13,10 +13,15 @@ public record PhotoDto(Guid Id, string? Url, string AltText, bool IsFeatured, Da
 /// A role a profile holds, by the organisation's definition: what the profile, People and the role routes answer
 /// (L2-138 AC1). <c>ChapterId</c> is its chapter tag, once chapters exist (slice 21).
 /// </summary>
-public record ProfileRoleDto(Guid Id, string Name, Guid? ChapterId)
+/// <summary>
+/// A held role: the definition, and the chapter it is tagged with. ChapterName is null when untagged and while chapters
+/// are off, so the badge reads "{role}"; otherwise "{role} · {chapter}" (L2-141 AC3).
+/// </summary>
+public record ProfileRoleDto(Guid Id, string Name, Guid? ChapterId, string? ChapterName = null)
 {
     public static IReadOnlyList<ProfileRoleDto> Of(Profile profile) =>
-        [.. profile.Roles.OrderBy(r => r.Definition!.SortOrder).Select(r => new ProfileRoleDto(r.RoleDefinitionId, r.Definition!.Name, null))];
+        [.. profile.Roles.OrderBy(r => r.Definition!.SortOrder).ThenBy(r => r.Chapter == null ? null : r.Chapter.Name)
+            .Select(r => new ProfileRoleDto(r.RoleDefinitionId, r.Definition!.Name, r.ChapterId, r.Chapter?.Name))];
 }
 
 /// <summary>

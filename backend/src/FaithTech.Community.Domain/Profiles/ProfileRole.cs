@@ -29,6 +29,9 @@ public class ProfileRole
 
     public Guid RoleDefinitionId { get; private set; }
 
+    /// <summary>The chapter, loaded with the profile; null when untagged and while chapters are off.</summary>
+    public Chapter? Chapter { get; internal set; }
+
     /// <summary>The definition, loaded with the profile.</summary>
     public RoleDefinition? Definition { get; internal set; }
 

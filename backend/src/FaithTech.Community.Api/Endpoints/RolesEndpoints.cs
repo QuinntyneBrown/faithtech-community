@@ -15,9 +15,10 @@ public static class RolesEndpoints
             return result.ToHttp(() => Results.Ok(updated));
         });
 
-        roles.MapDelete("/{roleId:guid}", async (Guid id, Guid roleId, ChangeRolesHandler handler, CancellationToken cancellationToken) =>
+        // ?chapterId= names the tagged assignment to remove; without it the untagged one (L2-143 AC2).
+        roles.MapDelete("/{roleId:guid}", async (Guid id, Guid roleId, Guid? chapterId, ChangeRolesHandler handler, CancellationToken cancellationToken) =>
         {
-            var (result, updated) = await handler.RemoveAsync(id, roleId, cancellationToken);
+            var (result, updated) = await handler.RemoveAsync(id, roleId, chapterId, cancellationToken);
             return result.ToHttp(() => Results.Ok(updated));
         });
 

@@ -23,16 +23,18 @@ public class ChangeRolesHandler(
     RoleChangeNotifier notifier,
     CapabilityLostHandler capabilityLost,
     LastAdministratorGuard lastAdministrator,
+    ICurrentOrganisation organisation,
     TimeProvider time)
 {
 
     public Task<(Result Result, IReadOnlyList<ProfileRoleDto>? Roles)> AssignAsync(Guid profileId, AssignRoleCommand command, CancellationToken cancellationToken = default) =>
-        ChangeAsync(profileId, command.RoleId, add: true, cancellationToken);
+        ChangeAsync(profileId, command.RoleId, command.ChapterId, add: true, cancellationToken);
 
-    public Task<(Result Result, IReadOnlyList<ProfileRoleDto>? Roles)> RemoveAsync(Guid profileId, Guid roleId, CancellationToken cancellationToken = default) =>
-        ChangeAsync(profileId, roleId, add: false, cancellationToken);
+    /// <summary>Removes the assignment of the role with exactly this chapter tag; none removes the untagged one.</summary>
+    public Task<(Result Result, IReadOnlyList<ProfileRoleDto>? Roles)> RemoveAsync(Guid profileId, Guid roleId, Guid? chapterId = null, CancellationToken cancellationToken = default) =>
+        ChangeAsync(profileId, roleId, chapterId, add: false, cancellationToken);
 
-    private async Task<(Result, IReadOnlyList<ProfileRoleDto>?)> ChangeAsync(Guid profileId, Guid? roleId, bool add, CancellationToken cancellationToken)
+    private async Task<(Result, IReadOnlyList<ProfileRoleDto>?)> ChangeAsync(Guid profileId, Guid? roleId, Guid? chapterId, bool add, CancellationToken cancellationToken)
     {
         if (!policy.CanChangeRoles)
         {
@@ -48,7 +50,40 @@ public class ChangeRolesHandler(
             return (Result.Invalid("Role", "Choose a role."), null);
         }
 
+        // While chapters are off a new grant carries no tag (L2-140 AC6); a removal still names the tag it removes.
+        var label = organisation.ChapterLabelSingular?.ToLowerInvariant();
+        if (add && label is null)
+        {
+            chapterId = null;
+        }
+
+        if (add && chapterId is { } id)
+        {
+            if (!definition.ChapterScopable)
+            {
+                return (Result.Invalid("ChapterId", "That role can’t be held for a chapter."), null);
+            }
+
+            // Loaded, not just checked, so the new assignment answers with the chapter's name.
+            if (await db.Chapters.FirstOrDefaultAsync(c => c.Id == id && c.ArchivedAtUtc == null, cancellationToken) is null)
+            {
+                return (Result.Invalid("ChapterId", $"Choose a {label} from the list."), null);
+            }
+        }
+
         if (!await policy.CanGrantAsync(definition, cancellationToken))
+        {
+            return (Result.Forbidden(), null);
+        }
+
+        // A grantor whose grantor role is tagged works within those chapters only (L2-143 AC1, AC2).
+        var scope = await policy.ScopeAsync(definition, cancellationToken);
+        if (add && chapterId is null && !scope.IsAnywhere)
+        {
+            return (Result.Invalid("ChapterId", $"Choose a {label}."), null);
+        }
+
+        if (!scope.Allows(chapterId))
         {
             return (Result.Forbidden(), null);
         }
@@ -59,7 +94,7 @@ public class ChangeRolesHandler(
             return (Result.NotFound(), null);
         }
 
-        if (profile.HasRole(definition.Id) == add)
+        if (profile.HasRole(definition.Id, chapterId) == add)
         {
             return (Result.Conflict(add ? "They already hold that role." : "They don’t hold that role."), null);
         }
@@ -87,16 +122,16 @@ public class ChangeRolesHandler(
         var before = RoleNames(profile);
         if (add)
         {
-            profile.AddRole(definition, actor, time.GetUtcNow().UtcDateTime);
+            profile.AddRole(definition, actor, time.GetUtcNow().UtcDateTime, chapterId);
         }
         else
         {
-            profile.RemoveRole(definition.Id);
+            profile.RemoveRole(definition.Id, chapterId);
         }
 
         var after = RoleNames(profile);
-        // The role and its chapter tag beside both role sets (L2-138 AC5); chapter tags arrive with chapters (slice 21).
-        audit.Record(actor, add ? "role.granted" : "role.removed", "Profile", profileId.ToString(), new { Roles = before }, new { Roles = after, Role = definition.Key, ChapterId = (Guid?)null });
+        // The role and its chapter tag beside both role sets (L2-138 AC5).
+        audit.Record(actor, add ? "role.granted" : "role.removed", "Profile", profileId.ToString(), new { Roles = before }, new { Roles = after, Role = definition.Key, ChapterId = chapterId });
 
         string? title = null;
         if (actor != profileId && await policy.NotifiesOwnerAsync(definition, cancellationToken))
