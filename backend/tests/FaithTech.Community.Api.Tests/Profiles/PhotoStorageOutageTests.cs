@@ -2,6 +2,7 @@
 using System.Net;
 using System.Net.Http.Headers;
 using System.Net.Http.Json;
+using FaithTech.Community.Api.Tests.Organisations;
 using FaithTech.Community.Application.Profiles;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.DependencyInjection;
@@ -117,7 +118,7 @@ public class PhotoStorageOutageTests(CommunityApiFactory factory) : IClassFixtur
 
     private async Task RetryAsync()
     {
-        await using var scope = factory.Services.CreateAsyncScope();
+        await using var scope = factory.Services.CreateFaithTechScope();
         await scope.ServiceProvider.GetRequiredService<PhotoStorageRetryHandler>().RunAsync();
     }
 

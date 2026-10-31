@@ -1,6 +1,7 @@
 // Traces to: L2-071, L2-047
 using System.Net;
 using System.Net.Http.Json;
+using FaithTech.Community.Api.Tests.Organisations;
 using FaithTech.Community.Application.Profiles;
 using FaithTech.Community.Api.Tests.Profiles;
 using FaithTech.Community.Domain.Profiles;
@@ -97,7 +98,7 @@ public class ContactPhotoOutageTests(CommunityApiFactory factory) : IClassFixtur
 
     private async Task RetryAsync()
     {
-        await using var scope = factory.Services.CreateAsyncScope();
+        await using var scope = factory.Services.CreateFaithTechScope();
         await scope.ServiceProvider.GetRequiredService<PhotoStorageRetryHandler>().RunAsync();
     }
 

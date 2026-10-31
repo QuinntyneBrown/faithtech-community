@@ -74,7 +74,7 @@ public class WorkspaceAccessPolicy(IApplicationDbContext db, ICurrentUser curren
         Guid workspaceId, CancellationToken cancellationToken = default, bool includeArchived = false)
     {
         var caller = await CallerProfileIdAsync(cancellationToken);
-        var workspaces = includeArchived ? db.Workspaces.IgnoreQueryFilters() : db.Workspaces;
+        var workspaces = includeArchived ? db.Workspaces.IgnoreQueryFilters(QueryFilters.ArchivedOnly) : db.Workspaces;
         var workspace = await workspaces.SingleOrDefaultAsync(w => w.Id == workspaceId, cancellationToken);
         return workspace is null
             ? (null, new WorkspaceCaller(caller ?? Guid.Empty, WorkspaceAccess.Outsider))

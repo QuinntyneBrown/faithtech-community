@@ -1,6 +1,7 @@
 // Traces to: L2-082, L2-084
 using System.Net;
 using System.Net.Http.Json;
+using FaithTech.Community.Api.Tests.Organisations;
 using FaithTech.Community.Api.Tests.Events;
 using FaithTech.Community.Api.Tests.Profiles;
 using FaithTech.Community.Application.Identity;
@@ -82,7 +83,7 @@ public class ConnectMemberTests(CommunityApiFactory factory) : IClassFixture<Com
     // Members added straight to the database have no security stamp, so the token is issued here.
     private async Task<(Guid UserId, string Token)> VerificationTokenAsync(ProfileClients.Member member)
     {
-        await using var scope = factory.Services.CreateAsyncScope();
+        await using var scope = factory.Services.CreateFaithTechScope();
         var users = scope.ServiceProvider.GetRequiredService<UserManager<CommunityUser>>();
         var user = (await users.FindByIdAsync(member.UserId.ToString()))!;
         await users.UpdateSecurityStampAsync(user);

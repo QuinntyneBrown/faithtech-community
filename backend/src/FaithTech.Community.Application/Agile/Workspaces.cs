@@ -71,7 +71,7 @@ public class WorkspacesHandler(
         var caller = await policy.CallerProfileIdAsync(cancellationToken);
         var admin = policy.IsSystemAdmin;
         var live = await policy.Visible(db.Workspaces.AsNoTracking(), caller).ToListAsync(cancellationToken);
-        var archived = await db.Workspaces.IgnoreQueryFilters().AsNoTracking()
+        var archived = await db.Workspaces.IgnoreQueryFilters(QueryFilters.ArchivedOnly).AsNoTracking()
             .Where(w => w.IsArchived && (admin || w.OwnerId == caller))
             .ToListAsync(cancellationToken);
         var workspaces = live.Concat(archived).OrderBy(w => w.Name).ToList();

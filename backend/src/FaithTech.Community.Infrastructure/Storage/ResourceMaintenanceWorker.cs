@@ -1,4 +1,5 @@
 using FaithTech.Community.Application.Resources;
+using FaithTech.Community.Infrastructure.Organisations;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -10,7 +11,7 @@ namespace FaithTech.Community.Infrastructure.Storage;
 /// Retries resource blob work and purges resources archived 30 days ago (ADR 0017), on the outbox interval;
 /// disabled with the email outbox.
 /// </summary>
-public class ResourceMaintenanceWorker(IServiceScopeFactory scopes, IConfiguration configuration, ILogger<ResourceMaintenanceWorker> logger)
+public class ResourceMaintenanceWorker(OrganisationWork work, IConfiguration configuration, ILogger<ResourceMaintenanceWorker> logger)
     : BackgroundService
 {
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
@@ -25,9 +26,13 @@ public class ResourceMaintenanceWorker(IServiceScopeFactory scopes, IConfigurati
         {
             try
             {
-                await using var scope = scopes.CreateAsyncScope();
-                await scope.ServiceProvider.GetRequiredService<ResourceStorageRetryHandler>().RunAsync(stoppingToken);
-                await scope.ServiceProvider.GetRequiredService<PurgeArchivedResourcesHandler>().RunAsync(stoppingToken);
+                await work.ForEachAsync(
+                    async (services, cancellationToken) =>
+                    {
+                        await services.GetRequiredService<ResourceStorageRetryHandler>().RunAsync(cancellationToken);
+                        await services.GetRequiredService<PurgeArchivedResourcesHandler>().RunAsync(cancellationToken);
+                    },
+                    stoppingToken);
             }
             catch (Exception exception) when (exception is not OperationCanceledException)
             {

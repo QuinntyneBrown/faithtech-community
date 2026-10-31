@@ -89,7 +89,7 @@ public class WorkspaceSettingsHandler(
             return Result.NotFound();
         }
 
-        var assigned = await db.WorkItems.IgnoreQueryFilters()
+        var assigned = await db.WorkItems.IgnoreQueryFilters(QueryFilters.ArchivedOnly)
             .Where(i => i.WorkspaceId == workspaceId && i.AssigneeId == profileId)
             .ToListAsync(cancellationToken);
         workspace.RemoveMember(profileId, assigned);
@@ -133,7 +133,7 @@ public class WorkspaceSettingsHandler(
 
         var before = workspace.Method;
         var sprints = await db.Sprints.Where(s => s.WorkspaceId == workspaceId).ToListAsync(cancellationToken);
-        var stories = await db.WorkItems.IgnoreQueryFilters()
+        var stories = await db.WorkItems.IgnoreQueryFilters(QueryFilters.ArchivedOnly)
             .Where(i => i.WorkspaceId == workspaceId && i.Kind == WorkItemKind.Story)
             .ToListAsync(cancellationToken);
         workspace.SwitchMethod(target, sprints, stories);
