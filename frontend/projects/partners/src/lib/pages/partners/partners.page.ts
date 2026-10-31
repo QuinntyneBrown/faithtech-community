@@ -1,11 +1,12 @@
 import { HttpErrorResponse } from '@angular/common/http';
 import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
 import {
-  PARTNERS_SERVICE,
+  OrganisationNames,
   PARTNER_STAGE_LABELS,
   PartnerBoardDto,
   PartnerCardDto,
   PartnerDto,
+  PARTNERS_SERVICE,
   PartnerStage,
 } from '@faithtech-community/api';
 import {
@@ -53,6 +54,7 @@ type State = 'loading' | 'loaded' | 'error' | 'forbidden';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class PartnersPage {
+  protected readonly organisation = inject(OrganisationNames);
   private readonly partners = inject(PARTNERS_SERVICE);
   private readonly dialogs = inject(DialogService);
   private readonly toasts = inject(ToastService);
@@ -138,7 +140,7 @@ export class PartnersPage {
       this.toasts.show({
         variant: 'danger',
         heading: 'Partner not moved',
-        text: 'We couldn’t reach FaithTech, so the partner stays where it was. Try again.',
+        text: `We couldn’t reach ${this.organisation.shortName()}, so the partner stays where it was. Try again.`,
       });
     }
   }

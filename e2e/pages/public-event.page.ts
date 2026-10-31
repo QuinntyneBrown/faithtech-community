@@ -4,6 +4,8 @@ import { Locator, Page } from '@playwright/test';
 export class PublicEventPage {
   readonly heading: Locator;
   readonly overline: Locator;
+  /** The "Hosted by" fact: the organisation's short name and the event's city (L2-023 AC1). */
+  readonly hostedBy: Locator;
   readonly name: Locator;
   readonly email: Locator;
   readonly imGoing: Locator;
@@ -21,6 +23,7 @@ export class PublicEventPage {
   constructor(private readonly page: Page) {
     this.heading = page.getByRole('heading', { level: 1 });
     this.overline = page.getByText(/· Public event$/);
+    this.hostedBy = page.locator('ft-description-list-item').filter({ hasText: 'Hosted by' });
     this.name = page.getByLabel('Your name');
     this.email = page.getByLabel('Email', { exact: true });
     this.imGoing = page.getByRole('button', { name: 'I’m going' });

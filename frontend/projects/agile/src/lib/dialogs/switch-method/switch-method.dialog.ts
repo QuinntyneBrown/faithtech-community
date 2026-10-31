@@ -2,7 +2,12 @@ import { DIALOG_DATA, DialogRef } from '@angular/cdk/dialog';
 import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
-import { AGILE_SERVICE, WorkspaceDto, WorkspaceMethod } from '@faithtech-community/api';
+import {
+  AGILE_SERVICE,
+  OrganisationNames,
+  WorkspaceDto,
+  WorkspaceMethod,
+} from '@faithtech-community/api';
 import {
   AlertComponent,
   ButtonComponent,
@@ -36,6 +41,7 @@ export interface SwitchMethodData {
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class SwitchMethodDialog {
+  protected readonly organisation = inject(OrganisationNames);
   protected readonly ref = inject<DialogRef<WorkspaceMethod>>(DialogRef);
   protected readonly data = inject<SwitchMethodData>(DIALOG_DATA);
   private readonly agile = inject(AGILE_SERVICE);

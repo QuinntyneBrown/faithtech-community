@@ -102,7 +102,7 @@ public static class DependencyInjection
 
         services.AddHttpContextAccessor();
         services.AddScoped<IAuditLog, AuditLog>();
-        services.AddSingleton<IIcsCalendarWriter, IcsCalendarWriter>();
+        services.AddScoped<IIcsCalendarWriter, IcsCalendarWriter>();
         services.AddSingleton<ICsvWriter, CsvWriter>();
 
         services.AddSingleton<IFullTextSearch, PostgresFullTextSearch>();

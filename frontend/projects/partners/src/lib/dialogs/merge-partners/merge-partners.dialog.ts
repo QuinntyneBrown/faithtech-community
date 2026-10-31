@@ -5,10 +5,11 @@ import {
   MERGE_FIELDS,
   MergeChoice,
   MergeField,
-  PARTNERS_SERVICE,
+  OrganisationNames,
   PARTNER_STAGE_LABELS,
   PartnerDto,
   PartnerDuplicateDto,
+  PARTNERS_SERVICE,
   problemDetails,
 } from '@faithtech-community/api';
 import {
@@ -80,6 +81,7 @@ function listed(labels: string[]): string {
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class MergePartnersDialog {
+  protected readonly organisation = inject(OrganisationNames);
   protected readonly ref = inject<DialogRef<PartnerDto>>(DialogRef);
   protected readonly data = inject<MergePartnersData>(DIALOG_DATA);
   private readonly partners = inject(PARTNERS_SERVICE);
@@ -151,7 +153,7 @@ export class MergePartnersDialog {
       this.failure.set(
         problem?.detail ??
           Object.values(problem?.errors ?? {})[0]?.[0] ??
-          'We couldn’t reach FaithTech. Nothing was changed.',
+          `We couldn’t reach ${this.organisation.shortName()}. Nothing was changed.`,
       );
     } finally {
       this.busy.set(false);

@@ -102,7 +102,9 @@
               >
               <ft-radio
                 value="MembersOnly"
-                description="Only people signed in to FaithTech can see and RSVP"
+                [description]="
+                  'Only people signed in to ' + organisation.shortName() + ' can see and RSVP'
+                "
                 >Members only</ft-radio
               >
             </ft-radio-group>

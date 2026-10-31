@@ -18,7 +18,7 @@ export interface Notice {
 }
 
 /**
- * The `.notice` rows of FaithTech notifications: initials, a sentence linking to the item and a meta line
+ * The `.notice` rows of notifications: initials, a sentence linking to the item and a meta line
  * with the time and "Unread". The bell panel and the Notifications page both list notices with it.
  */
 @Component({

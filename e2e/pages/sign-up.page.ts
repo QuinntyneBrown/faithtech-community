@@ -27,6 +27,11 @@ export class SignUpPage {
     this.checkInbox = page.getByRole('heading', { level: 1, name: 'Check your inbox' });
   }
 
+  /** The heading as another organisation's host shows it (L2-134 AC1). */
+  headingFor(shortName: string): Locator {
+    return this.page.getByRole('heading', { level: 1, name: `Join ${shortName}` });
+  }
+
   async open(): Promise<void> {
     await this.page.goto('/sign-up');
   }

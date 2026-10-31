@@ -2,10 +2,21 @@
 import { DIALOG_DATA, DialogRef } from '@angular/cdk/dialog';
 import { HttpErrorResponse } from '@angular/common/http';
 import { TestBed } from '@angular/core/testing';
-import { EVENTS_SERVICE } from '@faithtech-community/api';
+import { EVENTS_SERVICE, SITE_SERVICE } from '@faithtech-community/api';
 import { Observable, Subject, of, throwError } from 'rxjs';
 
 import { CancelRsvpData, CancelRsvpDialog } from './cancel-rsvp.dialog';
+
+/** The host's organisation the copy names, as GET /api/site answers it on FaithTech's host. */
+const FAITHTECH_SITE = {
+  site: () => ({
+    name: 'FaithTech Community',
+    shortName: 'FaithTech',
+    chapterLabel: { singular: 'City', plural: 'Cities' },
+    communityOrigin: 'http://localhost:4200',
+  }),
+  load: async () => undefined,
+};
 
 const data: CancelRsvpData = { eventId: 'e1', hostName: 'Marcus Lee' };
 
@@ -14,6 +25,7 @@ function setup(cancelRsvp: (id: string) => Observable<void>, dialogData = data) 
   const service = { cancelRsvp: vi.fn(cancelRsvp) };
   TestBed.configureTestingModule({
     providers: [
+      { provide: SITE_SERVICE, useValue: FAITHTECH_SITE },
       { provide: DIALOG_DATA, useValue: dialogData },
       { provide: DialogRef, useValue: ref },
       { provide: EVENTS_SERVICE, useValue: service },

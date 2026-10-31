@@ -10,10 +10,11 @@ import {
 } from '@angular/core';
 import {
   AUTH_SERVICE,
-  PROFILES_SERVICE,
+  OrganisationNames,
   ProfileDto,
-  ROLES_SERVICE,
+  PROFILES_SERVICE,
   ROLE_LABELS,
+  ROLES_SERVICE,
 } from '@faithtech-community/api';
 import {
   avatarColorFor,
@@ -39,6 +40,7 @@ type State = 'loading' | 'loaded' | 'not-found' | 'error';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ProfilePage {
+  protected readonly organisation = inject(OrganisationNames);
   private readonly profiles = inject(PROFILES_SERVICE);
   private readonly rolesService = inject(ROLES_SERVICE);
   private readonly dialogs = inject(DialogService);

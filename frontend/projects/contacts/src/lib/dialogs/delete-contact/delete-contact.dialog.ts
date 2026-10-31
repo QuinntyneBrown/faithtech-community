@@ -2,7 +2,7 @@ import { DIALOG_DATA, DialogRef } from '@angular/cdk/dialog';
 import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
-import { CONTACTS_SERVICE } from '@faithtech-community/api';
+import { CONTACTS_SERVICE, OrganisationNames } from '@faithtech-community/api';
 import {
   AlertComponent,
   ButtonComponent,
@@ -36,6 +36,7 @@ const CONFIRMATION = 'DELETE';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class DeleteContactDialog {
+  protected readonly organisation = inject(OrganisationNames);
   protected readonly ref = inject<DialogRef<boolean>>(DialogRef);
   protected readonly data = inject<ContactRef>(DIALOG_DATA);
   private readonly contacts = inject(CONTACTS_SERVICE);

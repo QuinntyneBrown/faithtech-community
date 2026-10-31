@@ -3,13 +3,14 @@ import { HttpErrorResponse } from '@angular/common/http';
 import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
 import { NonNullableFormBuilder, ReactiveFormsModule } from '@angular/forms';
 import {
-  AUTH_SERVICE,
-  INVITES_SERVICE,
-  InviteDto,
-  ROLE_LABELS,
-  Role,
   assignableRoles,
+  AUTH_SERVICE,
+  InviteDto,
+  INVITES_SERVICE,
+  OrganisationNames,
   problemDetails,
+  Role,
+  ROLE_LABELS,
 } from '@faithtech-community/api';
 import {
   AlertComponent,
@@ -60,6 +61,7 @@ const EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class SendInviteDialog {
+  protected readonly organisation = inject(OrganisationNames);
   protected readonly ref = inject<DialogRef<InviteDto>>(DialogRef);
   private readonly invites = inject(INVITES_SERVICE);
   private readonly callerRoles = inject(AUTH_SERVICE).roles;

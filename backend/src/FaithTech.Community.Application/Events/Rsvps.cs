@@ -2,10 +2,10 @@ using System.Globalization;
 using System.Text;
 using FaithTech.Community.Application.Common;
 using FaithTech.Community.Application.Notifications;
+using FaithTech.Community.Application.Organisations;
 using FaithTech.Community.Domain.Events;
 using FaithTech.Community.Domain.Notifications;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Options;
 
 namespace FaithTech.Community.Application.Events;
 
@@ -19,7 +19,7 @@ public class RsvpHandler(
     INotificationPublisher notifications,
     IIcsCalendarWriter calendar,
     IEmailQueue emails,
-    IOptions<WebAppOptions> webApp,
+    ICurrentOrganisation organisation,
     TimeProvider time)
 {
     public const string Cancelled = "This event was cancelled.";
@@ -57,7 +57,7 @@ public class RsvpHandler(
         var address = await db.Users.Where(u => u.ProfileId == me).Select(u => u.Email).SingleOrDefaultAsync(cancellationToken);
         if (address is not null)
         {
-            emails.Enqueue(Confirmation(e, address, $"{webApp.Value.Origin}{link}"));
+            emails.Enqueue(Confirmation(e, address, $"{organisation.Origin}{link}"));
         }
 
         // The RSVP, its notification and its confirmation commit together (L2-028).

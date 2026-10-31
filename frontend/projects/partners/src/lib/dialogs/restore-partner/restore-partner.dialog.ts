@@ -1,9 +1,10 @@
 import { DIALOG_DATA, DialogRef } from '@angular/cdk/dialog';
 import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
 import {
-  PARTNERS_SERVICE,
+  OrganisationNames,
   PARTNER_STAGE_LABELS,
   PartnerDto,
+  PARTNERS_SERVICE,
   problemDetails,
 } from '@faithtech-community/api';
 import {
@@ -32,6 +33,7 @@ export interface RestorePartnerData {
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class RestorePartnerDialog {
+  protected readonly organisation = inject(OrganisationNames);
   protected readonly ref = inject<DialogRef<PartnerDto>>(DialogRef);
   protected readonly data = inject<RestorePartnerData>(DIALOG_DATA);
   private readonly partners = inject(PARTNERS_SERVICE);
@@ -61,7 +63,8 @@ export class RestorePartnerDialog {
       );
     } catch (error) {
       this.failure.set(
-        problemDetails(error)?.detail ?? 'We couldn’t reach FaithTech. Nothing was changed.',
+        problemDetails(error)?.detail ??
+          `We couldn’t reach ${this.organisation.shortName()}. Nothing was changed.`,
       );
     } finally {
       this.busy.set(false);

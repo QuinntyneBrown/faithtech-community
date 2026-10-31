@@ -2,6 +2,8 @@
 import { Component, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 
+import { ORGANISATION_NAMES } from '../organisation-names/organisation-names';
+
 import {
   SignInCredentials,
   SignInFormComponent,
@@ -26,6 +28,14 @@ class HostComponent {
 
 describe('SignInFormComponent', () => {
   function setup() {
+    TestBed.configureTestingModule({
+      providers: [
+        {
+          provide: ORGANISATION_NAMES,
+          useValue: { name: signal('Northside Makers'), shortName: signal('Northside') },
+        },
+      ],
+    });
     const fixture = TestBed.createComponent(HostComponent);
     document.body.appendChild(fixture.nativeElement);
     fixture.detectChanges();
@@ -69,7 +79,7 @@ describe('SignInFormComponent', () => {
     ['invalid_credentials', 'We couldn’t sign you in'],
     ['locked_out', 'Too many attempts'],
     ['suspended', 'This account is suspended'],
-    ['unreachable', 'We couldn’t reach FaithTech'],
+    ['unreachable', 'We couldn’t reach Northside'],
     ['google_failed', 'Google sign-in didn’t finish'],
   ])('shows the %s failure', (failure, heading) => {
     const { fixture, el, host } = setup();

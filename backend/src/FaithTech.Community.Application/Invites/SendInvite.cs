@@ -1,10 +1,10 @@
 using FaithTech.Community.Application.Admin;
 using FaithTech.Community.Application.Common;
+using FaithTech.Community.Application.Organisations;
 using FaithTech.Community.Domain.Invites;
 using FaithTech.Community.Domain.Profiles;
 using FluentValidation;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Options;
 
 namespace FaithTech.Community.Application.Invites;
 
@@ -31,7 +31,7 @@ public class InviteSender(
     ICurrentUser current,
     RoleAssignmentPolicy policy,
     IEmailQueue emails,
-    IOptions<WebAppOptions> webApp,
+    ICurrentOrganisation organisation,
     TimeProvider time)
 {
     public const int MaxPerDay = 50;
@@ -99,9 +99,9 @@ public class InviteSender(
         var personal = note is null ? string.Empty : $"\n\n“{note}”\n— {sender.Name}";
         emails.Enqueue(new EmailMessage(
             address,
-            $"{sender.Name} invited you to FaithTech Community",
-            $"{sender.Name} invited you to join FaithTech Community{asRole}.{personal}\n\n" +
-            $"Accept the invite:\n\n{webApp.Value.Origin}/accept-invite/{token}\n\n" +
+            $"{sender.Name} invited you to {organisation.Name}",
+            $"{sender.Name} invited you to join {organisation.Name}{asRole}.{personal}\n\n" +
+            $"Accept the invite:\n\n{organisation.Origin}/accept-invite/{token}\n\n" +
             "This link works once and expires in 14 days."));
         await db.SaveChangesAsync(cancellationToken);
         return (Result.Ok(), InviteDto.From(invite, sender.Name, now));

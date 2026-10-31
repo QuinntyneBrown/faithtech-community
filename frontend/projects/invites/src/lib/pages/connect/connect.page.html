@@ -22,7 +22,7 @@
       @case ('unreachable') {
         <ft-stack>
           <h1 class="text-center">We couldn’t load this page</h1>
-          <ft-alert status="danger" heading="FaithTech didn’t answer">
+          <ft-alert status="danger" [heading]="organisation.shortName() + ' didn’t answer'">
             Check your connection and try again. Nothing was changed.
           </ft-alert>
           <ft-button variant="primary" size="lg" [block]="true" (click)="retry()"
@@ -35,7 +35,7 @@
           <h1 class="text-center">This code no longer works</h1>
           <ft-alert status="warning" heading="Link not recognised">
             The person who shared it may have made a new code. Ask them for the new one, or join
-            FaithTech on your own.
+            {{ organisation.shortName() }} on your own.
           </ft-alert>
           <ft-button variant="primary" size="lg" [block]="true" href="/sign-up"
             >Create an account</ft-button
@@ -51,7 +51,7 @@
             about your role changed.
           </ft-alert>
           <ft-button variant="primary" size="lg" [block]="true" href="/"
-            >Go to FaithTech Community</ft-button
+            >Go to {{ organisation.name() }}</ft-button
           >
         </ft-stack>
       }
@@ -64,7 +64,7 @@
             Didn’t get it? <ft-link href="/verify-email">Send it again</ft-link>.
           </ft-alert>
           <ft-button variant="primary" size="lg" [block]="true" href="/"
-            >Go to FaithTech Community</ft-button
+            >Go to {{ organisation.name() }}</ft-button
           >
         </ft-stack>
       }
@@ -77,7 +77,7 @@
             Nothing was changed.
           </ft-alert>
           <ft-button variant="primary" size="lg" [block]="true" href="/"
-            >Go to FaithTech Community</ft-button
+            >Go to {{ organisation.name() }}</ft-button
           >
         </ft-stack>
       }
@@ -102,8 +102,8 @@
             <h1 class="text-center">Connect with {{ firstName() }}</h1>
             <ng-container *ngTemplateOutlet="leadSummary" />
             <p class="text-center text-muted">
-              Join FaithTech Community — builders, leads, volunteers, partners and anyone curious
-              about faith and technology.
+              Join {{ organisation.name() }} — builders, leads, volunteers, partners and anyone
+              curious about faith and technology.
             </p>
             <form [formGroup]="form" (ngSubmit)="signUp()" ftFormErrorFocus novalidate>
               <ft-stack>
@@ -158,8 +158,8 @@
             </form>
             <p class="text-caption text-center">
               When your account is ready, {{ firstName() }} is told and you’re added to
-              {{ firstName() }}’s contacts at FaithTech, linked to your profile. You won’t be given
-              a role.
+              {{ firstName() }}’s contacts at {{ organisation.shortName() }}, linked to your
+              profile. You won’t be given a role.
             </p>
           </ft-stack>
         }

@@ -3,11 +3,12 @@ import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/cor
 import { FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';
 import {
   NOTE_SHAREABLE_ROLES,
-  NOTES_SERVICE,
   NotePageDto,
+  NOTES_SERVICE,
   NoteVisibility,
-  ROLE_LABELS,
+  OrganisationNames,
   Role,
+  ROLE_LABELS,
 } from '@faithtech-community/api';
 import {
   AlertComponent,
@@ -48,6 +49,7 @@ const AUDIENCE_MESSAGE = 'Choose at least one person or role, or pick another vi
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ShareNoteDialog {
+  protected readonly organisation = inject(OrganisationNames);
   protected readonly ref = inject<DialogRef<NotePageDto>>(DialogRef);
   protected readonly page = inject<NotePageDto>(DIALOG_DATA);
   private readonly notes = inject(NOTES_SERVICE);

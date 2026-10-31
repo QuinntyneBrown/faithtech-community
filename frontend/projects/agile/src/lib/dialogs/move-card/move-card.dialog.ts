@@ -1,7 +1,7 @@
 import { DIALOG_DATA, DialogRef } from '@angular/cdk/dialog';
 import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
-import { AGILE_SERVICE, WorkItemStatus } from '@faithtech-community/api';
+import { AGILE_SERVICE, OrganisationNames, WorkItemStatus } from '@faithtech-community/api';
 import {
   AlertComponent,
   ButtonComponent,
@@ -37,6 +37,7 @@ export interface MoveCardData {
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class MoveCardDialog {
+  protected readonly organisation = inject(OrganisationNames);
   protected readonly ref = inject<DialogRef<WorkItemStatus>>(DialogRef);
   protected readonly data = inject<MoveCardData>(DIALOG_DATA);
   private readonly agile = inject(AGILE_SERVICE);

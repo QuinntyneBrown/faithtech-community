@@ -1,6 +1,6 @@
 import { DIALOG_DATA, DialogRef } from '@angular/cdk/dialog';
 import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
-import { CONTACTS_SERVICE } from '@faithtech-community/api';
+import { CONTACTS_SERVICE, OrganisationNames } from '@faithtech-community/api';
 import { AlertComponent, ButtonComponent, DialogComponent } from '@faithtech-community/components';
 import { firstValueFrom } from 'rxjs';
 
@@ -21,6 +21,7 @@ export interface ContactRef {
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ArchiveContactDialog {
+  protected readonly organisation = inject(OrganisationNames);
   protected readonly ref = inject<DialogRef<boolean>>(DialogRef);
   protected readonly data = inject<ContactRef>(DIALOG_DATA);
   private readonly contacts = inject(CONTACTS_SERVICE);

@@ -17,7 +17,18 @@ public static class OrganisationScopes
     public static AsyncServiceScope CreateOrganisationScope(this IServiceProvider services, Guid organisationId)
     {
         var scope = services.CreateAsyncScope();
-        scope.ServiceProvider.GetRequiredService<OrganisationScope>().RunAs(organisationId);
+        var organisation = scope.ServiceProvider.GetRequiredService<Infrastructure.Persistence.CommunityDbContext>().Organisations
+            .AsNoTracking().SingleOrDefault(o => o.Id == organisationId);
+        var current = scope.ServiceProvider.GetRequiredService<OrganisationScope>();
+        // Before the database is seeded (the fixture's own set-up) there is no row yet to read the names from.
+        if (organisation is null)
+        {
+            current.RunAs(organisationId);
+        }
+        else
+        {
+            current.Set(organisation);
+        }
         return scope;
     }
 

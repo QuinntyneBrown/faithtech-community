@@ -1,13 +1,24 @@
 // Traces to: L2-012, L2-013, L2-072, L2-073
 import { HttpErrorResponse } from '@angular/common/http';
 import { TestBed } from '@angular/core/testing';
-import { CONTACTS_SERVICE, ContactSummary } from '@faithtech-community/api';
+import { CONTACTS_SERVICE, ContactSummary, SITE_SERVICE } from '@faithtech-community/api';
 import { DialogService, ToastService } from '@faithtech-community/components';
 import { Observable, of, throwError } from 'rxjs';
 
 import { ArchiveContactDialog } from '../../dialogs';
 
 import { ContactsPage } from './contacts.page';
+
+/** The host's organisation the copy names, as GET /api/site answers it on FaithTech's host. */
+const FAITHTECH_SITE = {
+  site: () => ({
+    name: 'FaithTech Community',
+    shortName: 'FaithTech',
+    chapterLabel: { singular: 'City', plural: 'Cities' },
+    communityOrigin: 'http://localhost:4200',
+  }),
+  load: async () => undefined,
+};
 
 function contact(overrides: Partial<ContactSummary>): ContactSummary {
   return {
@@ -56,6 +67,7 @@ async function setup(
   const toasts = { show: vi.fn() };
   TestBed.configureTestingModule({
     providers: [
+      { provide: SITE_SERVICE, useValue: FAITHTECH_SITE },
       { provide: CONTACTS_SERVICE, useValue: service },
       { provide: DialogService, useValue: dialogs },
       { provide: ToastService, useValue: toasts },

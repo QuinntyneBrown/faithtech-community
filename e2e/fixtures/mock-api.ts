@@ -432,6 +432,8 @@ export class MockApi {
         return this.token(route, body);
       case 'GET /api/me':
         return this.me(route, request.headers()['authorization']);
+      case 'GET /api/site':
+        return route.fulfill({ status: 200, json: this.host.site(ALLOWED_ORIGINS[0]) });
       case 'POST /api/account/sign-out':
         this.signedIn = null;
         return route.fulfill({ status: 204 });
@@ -529,6 +531,7 @@ export class MockApi {
         email: account.email,
         emailVerified: account.verified,
         roles: account.roles,
+        organisation: this.host.organisation,
       },
     });
   }

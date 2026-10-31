@@ -80,7 +80,7 @@ public static class CliApp
     private static OrganisationScope FaithTechScope()
     {
         var scope = new OrganisationScope();
-        scope.RunAs(FaithTechSeed.OrganisationId);
+        scope.Set(FaithTechSeed.Organisation());
         return scope;
     }
 

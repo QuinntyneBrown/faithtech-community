@@ -1,6 +1,7 @@
 using System.Security.Claims;
 using FaithTech.Community.Application.Common;
 using FaithTech.Community.Application.Identity;
+using FaithTech.Community.Application.Organisations;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using OpenIddict.Abstractions;
@@ -12,7 +13,7 @@ public static class MeEndpoints
     public static IEndpointRouteBuilder MapMeEndpoints(this IEndpointRouteBuilder app)
     {
         // Name, email and verification come from the database so they stay current for the token's lifetime.
-        app.MapGet("/api/me", async (ICurrentUser current, ClaimsPrincipal principal, UserManager<CommunityUser> users, IApplicationDbContext db) =>
+        app.MapGet("/api/me", async (ICurrentUser current, ICurrentOrganisation organisation, ClaimsPrincipal principal, UserManager<CommunityUser> users, IApplicationDbContext db) =>
         {
             var user = current.UserId is { } id ? await users.FindByIdAsync(id.ToString()) : null;
             var name = user is null
@@ -28,6 +29,7 @@ public static class MeEndpoints
                 Email = user?.Email ?? principal.FindFirst(OpenIddictConstants.Claims.Email)?.Value,
                 EmailVerified = user?.EmailConfirmed ?? false,
                 Roles = current.Roles.Select(r => r.ToString()),
+                Organisation = MeOrganisationDto.Of(organisation),
             });
         });
         return app;

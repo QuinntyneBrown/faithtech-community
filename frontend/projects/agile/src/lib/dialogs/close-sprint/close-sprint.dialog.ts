@@ -4,6 +4,7 @@ import {
   AGILE_SERVICE,
   BoardCardDto,
   BoardSprintDto,
+  OrganisationNames,
   WorkItemStatus,
 } from '@faithtech-community/api';
 import {
@@ -45,6 +46,7 @@ export interface CloseSprintData {
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class CloseSprintDialog {
+  protected readonly organisation = inject(OrganisationNames);
   protected readonly ref = inject<DialogRef<boolean>>(DialogRef);
   protected readonly data = inject<CloseSprintData>(DIALOG_DATA);
   private readonly agile = inject(AGILE_SERVICE);

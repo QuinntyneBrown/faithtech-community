@@ -1,6 +1,6 @@
 import { HttpErrorResponse } from '@angular/common/http';
 import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
-import { CONTACTS_SERVICE, ContactSummary } from '@faithtech-community/api';
+import { CONTACTS_SERVICE, ContactSummary, OrganisationNames } from '@faithtech-community/api';
 import {
   AvatarComponent,
   BreadcrumbComponent,
@@ -44,6 +44,7 @@ type State = 'loading' | 'loaded' | 'error' | 'forbidden';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ArchivedContactsPage {
+  protected readonly organisation = inject(OrganisationNames);
   private readonly contacts = inject(CONTACTS_SERVICE);
   private readonly dialogs = inject(DialogService);
   private readonly toasts = inject(ToastService);
@@ -80,7 +81,7 @@ export class ArchivedContactsPage {
       this.toasts.show({
         variant: 'danger',
         heading: 'Contact not restored',
-        text: `We couldn’t reach FaithTech, so ${contact.name} is still archived. Try again.`,
+        text: `We couldn’t reach ${this.organisation.shortName()}, so ${contact.name} is still archived. Try again.`,
       });
     } finally {
       this.restoring.set(null);

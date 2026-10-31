@@ -18,7 +18,7 @@
   </ft-page-header>
 
   @if (joined(); as person) {
-    <ft-alert status="info" [heading]="person.name + ' just joined FaithTech'">
+    <ft-alert status="info" [heading]="person.name + ' just joined ' + organisation.shortName()">
       They’re one of your contacts. Link them to their new profile and keep your notes.
       <ft-button ftAlertActions [href]="'/contacts/' + person.id">Review</ft-button>
     </ft-alert>

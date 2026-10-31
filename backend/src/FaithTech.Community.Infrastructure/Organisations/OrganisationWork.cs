@@ -14,20 +14,20 @@ public class OrganisationWork(IServiceScopeFactory scopes)
 {
     public async Task ForEachAsync(Func<IServiceProvider, CancellationToken, Task> work, CancellationToken cancellationToken = default)
     {
-        List<Guid> organisations;
+        List<Organisation> organisations;
         await using (var lookup = scopes.CreateAsyncScope())
         {
             organisations = await lookup.ServiceProvider.GetRequiredService<CommunityDbContext>().Organisations
                 .Where(o => o.Status != OrganisationStatus.Provisioning)
                 .OrderBy(o => o.CreatedAtUtc)
-                .Select(o => o.Id)
+                .AsNoTracking()
                 .ToListAsync(cancellationToken);
         }
 
-        foreach (var organisationId in organisations)
+        foreach (var organisation in organisations)
         {
             await using var scope = scopes.CreateAsyncScope();
-            scope.ServiceProvider.GetRequiredService<OrganisationScope>().RunAs(organisationId);
+            scope.ServiceProvider.GetRequiredService<OrganisationScope>().Set(organisation);
             await work(scope.ServiceProvider, cancellationToken);
         }
     }

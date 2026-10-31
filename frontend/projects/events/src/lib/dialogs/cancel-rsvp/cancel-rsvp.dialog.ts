@@ -1,7 +1,7 @@
 import { DIALOG_DATA, DialogRef } from '@angular/cdk/dialog';
 import { HttpErrorResponse } from '@angular/common/http';
 import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
-import { EVENTS_SERVICE } from '@faithtech-community/api';
+import { EVENTS_SERVICE, OrganisationNames } from '@faithtech-community/api';
 import { AlertComponent, ButtonComponent, DialogComponent } from '@faithtech-community/components';
 import { firstValueFrom } from 'rxjs';
 
@@ -21,6 +21,7 @@ export interface CancelRsvpData {
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class CancelRsvpDialog {
+  protected readonly organisation = inject(OrganisationNames);
   protected readonly ref = inject<DialogRef<boolean>>(DialogRef);
   protected readonly data = inject<CancelRsvpData>(DIALOG_DATA);
   private readonly events = inject(EVENTS_SERVICE);

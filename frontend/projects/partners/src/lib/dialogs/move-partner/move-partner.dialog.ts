@@ -3,10 +3,11 @@ import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@a
 import { toSignal } from '@angular/core/rxjs-interop';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
 import {
-  PARTNERS_SERVICE,
-  PARTNER_STAGES,
+  OrganisationNames,
   PARTNER_STAGE_LABELS,
+  PARTNER_STAGES,
   PartnerDto,
+  PARTNERS_SERVICE,
   PartnerStage,
 } from '@faithtech-community/api';
 import {
@@ -49,6 +50,7 @@ export interface MovePartnerData {
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class MovePartnerDialog {
+  protected readonly organisation = inject(OrganisationNames);
   protected readonly ref = inject<DialogRef<PartnerDto>>(DialogRef);
   protected readonly data = inject<MovePartnerData>(DIALOG_DATA);
   private readonly partners = inject(PARTNERS_SERVICE);

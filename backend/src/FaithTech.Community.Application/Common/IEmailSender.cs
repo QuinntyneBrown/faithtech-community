@@ -5,7 +5,8 @@ public record EmailAttachment(string FileName, string ContentType, string Conten
 
 /// <summary>An email with its plain-text <see cref="Body"/>; <see cref="HtmlBody"/> is rendered from it when queued.</summary>
 public record EmailMessage(
-    string To, string Subject, string Body, IReadOnlyList<EmailAttachment>? Attachments = null, string? HtmlBody = null);
+    string To, string Subject, string Body, IReadOnlyList<EmailAttachment>? Attachments = null, string? HtmlBody = null,
+    string? FromName = null);
 
 /// <summary>
 /// Queues one email and saves at once. Only the identity flows use it: Identity has already saved the account before a

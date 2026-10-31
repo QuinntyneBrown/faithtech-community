@@ -11,7 +11,8 @@
 >
   @if (failed()) {
     <ft-alert status="danger" heading="Ownership not transferred">
-      We couldn’t reach FaithTech. {{ resource.ownerName }} is still the owner — try again.
+      We couldn’t reach {{ organisation.shortName() }}. {{ resource.ownerName }} is still the owner
+      — try again.
     </ft-alert>
   }
   <ft-form-field

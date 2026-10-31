@@ -1,5 +1,6 @@
 import { Component, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
+import { ORGANISATION_NAMES } from '../organisation-names/organisation-names';
 import { TopBarComponent, TopBarLink } from './top-bar.component';
 
 const LINKS: TopBarLink[] = [
@@ -28,6 +29,14 @@ class HostComponent {
 }
 
 function setup() {
+  TestBed.configureTestingModule({
+    providers: [
+      {
+        provide: ORGANISATION_NAMES,
+        useValue: { name: signal('Northside Makers'), shortName: signal('Northside') },
+      },
+    ],
+  });
   const fixture = TestBed.createComponent(HostComponent);
   fixture.detectChanges();
   const host: HTMLElement = fixture.nativeElement;
@@ -41,7 +50,7 @@ describe('TopBarComponent', () => {
     expect(q('header')).toBeTruthy();
     const brand = q<HTMLAnchorElement>('.top-bar__brand');
     expect(brand.getAttribute('href')).toBe('/');
-    expect(brand.textContent).toContain('FaithTech');
+    expect(brand.textContent).toContain('Northside');
   });
 
   it('renders a labelled primary nav with aria-current on the current link', () => {
@@ -62,7 +71,7 @@ describe('TopBarComponent', () => {
     const { fixture, cmp, q } = setup();
     expect(q('form').getAttribute('role')).toBe('search');
     const input = q<HTMLInputElement>('input[type=search]');
-    expect(q<HTMLLabelElement>('label').textContent).toContain('Search FaithTech');
+    expect(q<HTMLLabelElement>('label').textContent).toContain('Search Northside');
     expect(q<HTMLLabelElement>('label').htmlFor).toBe(input.id);
     input.value = 'toronto';
     q<HTMLFormElement>('form').dispatchEvent(new Event('submit', { cancelable: true }));

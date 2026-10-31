@@ -1,6 +1,6 @@
 import { DIALOG_DATA, DialogRef } from '@angular/cdk/dialog';
 import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
-import { PROFILES_SERVICE } from '@faithtech-community/api';
+import { OrganisationNames, PROFILES_SERVICE } from '@faithtech-community/api';
 import {
   AlertComponent,
   ButtonComponent,
@@ -26,6 +26,7 @@ export interface DeletePhotoData {
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class DeletePhotoDialog {
+  protected readonly organisation = inject(OrganisationNames);
   protected readonly ref = inject<DialogRef<boolean>>(DialogRef);
   protected readonly data = inject<DeletePhotoData>(DIALOG_DATA);
   private readonly profiles = inject(PROFILES_SERVICE);

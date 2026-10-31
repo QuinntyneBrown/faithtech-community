@@ -1,7 +1,7 @@
 import { HttpErrorResponse } from '@angular/common/http';
 import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { RESOURCES_SERVICE, ResourceDto } from '@faithtech-community/api';
+import { OrganisationNames, ResourceDto, RESOURCES_SERVICE } from '@faithtech-community/api';
 import {
   AvatarComponent,
   BannerComponent,
@@ -66,6 +66,7 @@ type State = 'loading' | 'loaded' | 'missing' | 'error';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ResourcePage {
+  protected readonly organisation = inject(OrganisationNames);
   private readonly resources = inject(RESOURCES_SERVICE);
   private readonly dialogs = inject(DialogService);
   private readonly toasts = inject(ToastService);
@@ -123,7 +124,7 @@ export class ResourcePage {
         text:
           error instanceof HttpErrorResponse && error.status === 409
             ? 'This file is still uploading. Try again in a minute.'
-            : 'We couldn’t reach FaithTech. Try again.',
+            : `We couldn’t reach ${this.organisation.shortName()}. Try again.`,
       });
     }
   }
@@ -186,7 +187,7 @@ export class ResourcePage {
       this.toasts.show({
         variant: 'danger',
         heading: `${r.title} wasn’t restored`,
-        text: 'We couldn’t reach FaithTech. It’s still archived.',
+        text: `We couldn’t reach ${this.organisation.shortName()}. It’s still archived.`,
         actionLabel: 'Try again',
         onAction: () => void this.restore(),
       });

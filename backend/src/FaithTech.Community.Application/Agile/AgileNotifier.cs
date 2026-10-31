@@ -1,7 +1,7 @@
 using FaithTech.Community.Application.Common;
+using FaithTech.Community.Application.Organisations;
 using FaithTech.Community.Domain.Notifications;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Options;
 
 namespace FaithTech.Community.Application.Agile;
 
@@ -10,7 +10,7 @@ namespace FaithTech.Community.Application.Agile;
 /// <see cref="Notify"/> adds the notification to the unit of work; call <see cref="QueueEmailsAsync"/> before saving, so
 /// the emails commit with the change they report (L2-028). Nobody is notified about their own action (ADR 0011).
 /// </summary>
-public class AgileNotifier(IApplicationDbContext db, IEmailQueue emails, IOptions<WebAppOptions> webApp, TimeProvider time)
+public class AgileNotifier(IApplicationDbContext db, IEmailQueue emails, ICurrentOrganisation organisation, TimeProvider time)
 {
     private readonly List<(Guid Recipient, string Subject, string Body)> _emails = [];
 
@@ -22,7 +22,7 @@ public class AgileNotifier(IApplicationDbContext db, IEmailQueue emails, IOption
         }
 
         db.Notifications.Add(new Notification(recipient, kind, title, linkPath, time.GetUtcNow()));
-        _emails.Add((recipient, subject, $"{body}\n\n{webApp.Value.Origin}{linkPath}"));
+        _emails.Add((recipient, subject, $"{body}\n\n{organisation.Origin}{linkPath}"));
     }
 
     /// <summary>Queues the collected emails in the unit of work; the caller saves.</summary>
