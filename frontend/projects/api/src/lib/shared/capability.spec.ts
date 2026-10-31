@@ -1,6 +1,14 @@
-import { CAPABILITIES, hasAny } from './capability';
+import { CAPABILITIES, CAPABILITY_LABELS, hasAny } from './capability';
 
 // L2-135 AC1, AC7: the app reads the platform's capabilities, never role names.
+describe('CAPABILITY_LABELS', () => {
+  it('names each capability as the define-role dialog shows it', () => {
+    expect(CAPABILITY_LABELS.ManageEvents).toBe('Manage events');
+    expect(CAPABILITY_LABELS.ViewPeopleDirectory).toBe('View people directory');
+    expect(CAPABILITY_LABELS.AdministerOrganisation).toBe('Administer the organisation');
+  });
+});
+
 describe('capabilities', () => {
   it('lists the platform catalogue', () => {
     expect(CAPABILITIES).toContain('ManageEvents');

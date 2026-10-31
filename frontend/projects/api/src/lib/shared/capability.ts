@@ -26,6 +26,29 @@ export const CAPABILITIES = [
 
 export type Capability = (typeof CAPABILITIES)[number];
 
+/** Each capability's name, as the define-role dialog and the Roles page show it (docs/mocks/dialogs/define-role). */
+export const CAPABILITY_LABELS: Record<Capability, string> = {
+  ManageEvents: 'Manage events',
+  ViewAttendees: 'View attendees',
+  ManageAttendance: 'Manage attendance',
+  KeepContacts: 'Keep contacts',
+  ViewPartners: 'View partners',
+  ManagePartners: 'Manage partners',
+  InviteMembers: 'Invite members',
+  ConnectLink: 'Connect link',
+  OwnWorkspaces: 'Own workspaces',
+  JoinWorkspaces: 'Join workspaces',
+  ReadAllWorkspaces: 'Read all workspaces',
+  ViewPeopleDirectory: 'View people directory',
+  AssignRoles: 'Assign roles',
+  SendAnnouncements: 'Send announcements',
+  AddResources: 'Add resources',
+  ViewReports: 'View reports',
+  ManageRoles: 'Manage roles',
+  ManageOrganisationSettings: 'Manage organisation settings',
+  AdministerOrganisation: 'Administer the organisation',
+};
+
 /** Whether `held` includes any of `wanted`; AdministerOrganisation holds every capability (L2-135 AC3). */
 export function hasAny(held: readonly Capability[], ...wanted: Capability[]): boolean {
   return held.includes('AdministerOrganisation') || wanted.some((c) => held.includes(c));
