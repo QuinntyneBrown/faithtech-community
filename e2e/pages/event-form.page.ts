@@ -20,6 +20,8 @@ export class EventFormPage {
   readonly heading: Locator;
   readonly title: Locator;
   readonly type: Locator;
+  /** The type's help, shown while the event keeps an archived type (L2-145 AC4). */
+  readonly typeHelp: Locator;
   readonly description: Locator;
   readonly starts: Locator;
   readonly ends: Locator;
@@ -41,6 +43,7 @@ export class EventFormPage {
     this.heading = page.getByRole('heading', { level: 1 });
     this.title = page.getByLabel('Title', { exact: true });
     this.type = page.getByLabel('Type', { exact: true });
+    this.typeHelp = page.getByText(/was archived\. It stays on this event/);
     this.description = page.getByLabel('Description');
     this.starts = page.getByLabel('Starts');
     this.ends = page.getByLabel('Ends');

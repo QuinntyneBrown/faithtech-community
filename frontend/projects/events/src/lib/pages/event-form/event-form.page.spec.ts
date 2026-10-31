@@ -17,7 +17,8 @@ const existing: EventDetailDto = {
   id: 'e1',
   title: 'Toronto Builders Night',
   description: 'An evening for Christians who build.',
-  type: 'BuildersNight',
+  type: 'builders-night',
+  typeName: 'Builders night',
   startsAt: new Date(2026, 10, 6, 18, 30).toISOString(),
   endsAt: new Date(2026, 10, 6, 21, 0).toISOString(),
   chapterId: 'c-toronto',
@@ -65,6 +66,11 @@ async function setup(id: string | undefined, overrides: Overrides = {}) {
       { id: 'c-austin', name: 'Austin' },
     ],
     roles: [],
+    eventTypes: [
+      { id: 't-gathering', key: 'gathering', name: 'Gathering' },
+      { id: 't-builders', key: 'builders-night', name: 'Builders night' },
+      { id: 't-panel', key: 'panel', name: 'Panel' },
+    ],
   };
   TestBed.configureTestingModule({
     providers: [
@@ -124,7 +130,7 @@ async function setup(id: string | undefined, overrides: Overrides = {}) {
 
 async function fillValid(page: Awaited<ReturnType<typeof setup>>) {
   page.type('Title', 'Toronto Builders Night');
-  page.type('Type', 'BuildersNight');
+  page.type('Type', 'builders-night');
   page.type('Description', 'An evening for Christians who build.');
   page.type('Starts', '2026-11-06T18:30');
   page.type('Ends', '2026-11-06T21:00');
@@ -146,7 +152,7 @@ describe('EventFormPage', () => {
     expect(page.service.createEvent).toHaveBeenCalledWith({
       title: 'Toronto Builders Night',
       description: 'An evening for Christians who build.',
-      type: 'BuildersNight',
+      type: 'builders-night',
       startsAt: new Date(2026, 10, 6, 18, 30).toISOString(),
       endsAt: new Date(2026, 10, 6, 21, 0).toISOString(),
       chapterId: 'c-toronto',
@@ -157,6 +163,43 @@ describe('EventFormPage', () => {
       visibility: 'MembersOnly',
     });
     expect(page.navigate).toHaveBeenCalledWith('/events/new-1');
+  });
+
+  // Traces to: L2-145 AC2
+  it('offers the organisation’s types in order and starts a new event on the first', async () => {
+    const page = await setup(undefined);
+    await page.settle();
+    const select = page.control<HTMLSelectElement>('Type');
+
+    expect(Array.from(select.options).map((o) => o.textContent!.trim())).toEqual([
+      'Gathering',
+      'Builders night',
+      'Panel',
+    ]);
+    expect(select.value).toBe('gathering');
+  });
+
+  // Traces to: L2-145 AC2, AC4
+  it('keeps an event’s archived type, marked archived, until another is chosen', async () => {
+    const page = await setup('e1', {
+      getEvent: () => of({ ...existing, type: 'workshop', typeName: 'Workshop' }),
+    });
+    await page.settle();
+    const select = page.control<HTMLSelectElement>('Type');
+
+    expect(Array.from(select.options).map((o) => o.textContent!.trim())).toEqual([
+      'Gathering',
+      'Builders night',
+      'Panel',
+      'Workshop (archived)',
+    ]);
+    expect(select.value).toBe('workshop');
+    expect(page.host.textContent).toContain(
+      'Workshop was archived. It stays on this event until you choose another type.',
+    );
+    page.type('Type', 'panel');
+    await page.settle();
+    expect(page.host.textContent).not.toContain('Workshop was archived.');
   });
 
   // Traces to: L2-141 AC2

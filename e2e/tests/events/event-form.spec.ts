@@ -37,7 +37,7 @@ test.describe('Create and edit events', () => {
     expect(saved).toMatchObject({
       title: 'Toronto Builders Night',
       description: 'An evening for Christians who build.',
-      type: 'BuildersNight',
+      type: 'builders-night',
       startsAt: '2026-11-06T23:30:00.000Z',
       endsAt: '2026-11-07T02:00:00.000Z',
       chapterId: api.chapters.named('Toronto').id,
@@ -98,6 +98,48 @@ test.describe('Create and edit events', () => {
     await form.publish.click();
     expect(await form.error(form.link)).toContain('Enter the joining link, or choose In person.');
     expect(api.callsTo('POST', '/api/events')).toHaveLength(0);
+  });
+
+  // Traces to: L2-145 AC2
+  test('the type picker offers the organisation’s active types in order', async ({ page, api }) => {
+    api.events.types.add('Retreat');
+    api.events.types.add('Workshop', { archived: true });
+    const grace = api.addAccount({ email: 'grace@example.org', roles: ['EventLead'] });
+    const form = new EventFormPage(page);
+    await api.signInAs(grace, '/events/new');
+
+    await expect(form.type.locator('option')).toHaveText([
+      'Gathering',
+      'Builders night',
+      'Hackathon',
+      'Prayer & planning',
+      'Panel',
+      'Retreat',
+    ]);
+    await expect(form.type).toHaveValue('gathering');
+  });
+
+  // Traces to: L2-145 AC2, AC4
+  test('an event of an archived type keeps it, marked archived, until another is chosen', async ({
+    page,
+    api,
+    axe,
+  }) => {
+    api.events.types.add('Workshop', { archived: true });
+    const grace = api.addAccount({ email: 'grace@example.org', roles: ['EventLead'] });
+    const event = api.events.add({ title: 'Toronto Builders Night', type: 'workshop' });
+    const form = new EventFormPage(page);
+    await api.signInAs(grace, `/events/${event.id}/edit`);
+
+    await expect(form.type.locator('option:checked')).toHaveText('Workshop (archived)');
+    await expect(form.typeHelp).toHaveText(
+      'Workshop was archived. It stays on this event until you choose another type.',
+    );
+    await axe.check();
+    await form.fill({ venue: 'Trinity Community Centre' });
+    await form.saveChanges.click();
+    await expect(page).toHaveURL(new RegExp(`/events/${event.id}$`));
+    expect(event).toMatchObject({ type: 'workshop', venue: 'Trinity Community Centre' });
   });
 
   test('a lead edits an event and the members who RSVP’d are notified', async ({

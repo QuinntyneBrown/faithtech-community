@@ -49,7 +49,22 @@ export interface PartnerStageDto extends PartnerStageOption {
 export type PartnerStageChange =
   { name: string } | { isInitial: true } | { kind: 'Open' | 'Confirmed' };
 
-/** GET /api/organisation. Event and resource types join it in their slices (organisation-settings design). */
+/** An active event type as the event form and the events type filter offer it (L2-145 AC2, AC3). */
+export interface EventTypeOption {
+  id: string;
+  key: string;
+  name: string;
+}
+
+/** An event type as Stages & types lists it, with its event count (L2-145 AC1). */
+export interface EventTypeDto extends EventTypeOption {
+  sortOrder: number;
+  archived: boolean;
+  archivedAtUtc: string | null;
+  eventCount: number;
+}
+
+/** GET /api/organisation. Resource types join it in their slice (organisation-settings design). */
 export interface OrganisationDto {
   name: string;
   shortName: string;
@@ -61,6 +76,8 @@ export interface OrganisationDto {
   roles: OrganisationRole[];
   /** The active partner stages in order. */
   partnerStages: PartnerStageOption[];
+  /** The active event types in order. */
+  eventTypes: EventTypeOption[];
 }
 
 /** PUT /api/organisation: the General settings (L2-147). */
@@ -93,6 +110,14 @@ export interface OrganisationService {
   reorderPartnerStages(ids: string[]): Observable<PartnerStageDto[]>;
   /** 409 while partners are on it, while it is initial, or for the last stage (L2-144 AC2, AC7). */
   archivePartnerStage(id: string): Observable<PartnerStageDto>;
+  /** Readable with ManageOrganisationSettings or ManageRoles (L2-147 AC2). */
+  listEventTypes(archived?: boolean): Observable<EventTypeDto[]>;
+  /** A new type goes at the end; 400 keyed Name. */
+  addEventType(name: string): Observable<EventTypeDto>;
+  renameEventType(id: string, name: string): Observable<EventTypeDto>;
+  reorderEventTypes(ids: string[]): Observable<EventTypeDto[]>;
+  /** Its events keep it; 409 for the last active type (L2-145 AC2, AC4). */
+  archiveEventType(id: string): Observable<EventTypeDto>;
 }
 
 export const ORGANISATION_SERVICE = new InjectionToken<OrganisationService>('ORGANISATION_SERVICE');

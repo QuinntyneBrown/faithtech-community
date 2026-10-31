@@ -20,7 +20,8 @@ function event(overrides: Partial<EventSummaryDto>): EventSummaryDto {
   return {
     id: 'e1',
     title: 'Toronto Builders Night',
-    type: 'BuildersNight',
+    type: 'builders-night',
+    typeName: 'Builders night',
     startsAt: new Date(2026, 10, 6, 18, 30).toISOString(),
     endsAt: new Date(2026, 10, 6, 21, 0).toISOString(),
     chapterId: 'c-toronto',
@@ -38,7 +39,8 @@ const builders = event({});
 const panel = event({
   id: 'e2',
   title: 'Austin Faith & AI Panel',
-  type: 'Panel',
+  type: 'panel',
+  typeName: 'Panel',
   startsAt: new Date(2026, 9, 30, 19, 0).toISOString(),
   endsAt: new Date(2026, 9, 30, 21, 0).toISOString(),
   chapterId: 'c-austin',
@@ -52,7 +54,8 @@ const panel = event({
 const hackathon = event({
   id: 'e3',
   title: 'Hackathon: Tech for Shelters',
-  type: 'Hackathon',
+  type: 'hackathon',
+  typeName: 'Hackathon',
   startsAt: new Date(2026, 10, 14, 9, 0).toISOString(),
   endsAt: new Date(2026, 10, 15, 17, 0).toISOString(),
   venue: 'Trinity Community Centre',
@@ -79,6 +82,10 @@ async function setup(
         ]
       : [],
     roles: [],
+    eventTypes: [
+      { id: 't-gathering', key: 'gathering', name: 'Gathering' },
+      { id: 't-hackathon', key: 'hackathon', name: 'Hackathon' },
+    ],
   };
   TestBed.configureTestingModule({
     providers: [
@@ -111,20 +118,39 @@ async function setup(
   const link = (label: string) =>
     Array.from(host.querySelectorAll('a')).find((a) => a.textContent?.trim() === label);
   const cards = () => Array.from(host.querySelectorAll('ft-event-card'));
-  const select = () => host.querySelector('select') as HTMLSelectElement;
-  const choose = async (city: string) => {
-    select().value = city;
-    select().dispatchEvent(new Event('change'));
+  const select = () => host.querySelector('.city select') as HTMLSelectElement;
+  const typeSelect = () => host.querySelector('.type select') as HTMLSelectElement;
+  const pick = async (control: HTMLSelectElement, value: string) => {
+    control.value = value;
+    control.dispatchEvent(new Event('change'));
     await settle();
   };
-  return { fixture, host, service, button, link, cards, select, choose, settle };
+  const choose = (city: string) => pick(select(), city);
+  const chooseType = (type: string) => pick(typeSelect(), type);
+  return {
+    fixture,
+    host,
+    service,
+    button,
+    link,
+    cards,
+    select,
+    typeSelect,
+    choose,
+    chooseType,
+    settle,
+  };
 }
 
 describe('EventsPage', () => {
   it('lists events with a date badge, a link and a meta line of date, time, city, place and RSVPs', async () => {
     const { host, cards, service } = await setup(() => of(all));
 
-    expect(service.listEvents).toHaveBeenCalledWith({ filter: 'Upcoming', chapterId: null });
+    expect(service.listEvents).toHaveBeenCalledWith({
+      filter: 'Upcoming',
+      chapterId: null,
+      type: null,
+    });
     expect(host.querySelector('h1')!.textContent).toContain('Events');
     const [first, second, third] = cards();
     expect(cards()).toHaveLength(3);
@@ -167,23 +193,62 @@ describe('EventsPage', () => {
     const { button, choose, service } = await setup(() => of(all));
     expect(button('Upcoming')!.getAttribute('aria-pressed')).toBe('true');
 
-    button('Hackathons')!.click();
+    expect(button('Hackathons')).toBeUndefined();
+    button('Online')!.click();
     await new Promise((r) => setTimeout(r));
-    expect(service.listEvents).toHaveBeenLastCalledWith({ filter: 'Hackathons', chapterId: null });
-    expect(button('Hackathons')!.getAttribute('aria-pressed')).toBe('true');
+    expect(service.listEvents).toHaveBeenLastCalledWith({
+      filter: 'Online',
+      chapterId: null,
+      type: null,
+    });
+    expect(button('Online')!.getAttribute('aria-pressed')).toBe('true');
     expect(button('Upcoming')!.getAttribute('aria-pressed')).toBe('false');
 
     await choose('c-austin');
     expect(service.listEvents).toHaveBeenLastCalledWith({
-      filter: 'Hackathons',
+      filter: 'Online',
       chapterId: 'c-austin',
+      type: null,
     });
 
     await choose('none');
     expect(service.listEvents).toHaveBeenLastCalledWith({
-      filter: 'Hackathons',
+      filter: 'Online',
       chapterId: 'none',
+      type: null,
     });
+  });
+
+  // Traces to: L2-145 AC3
+  it('offers All types and the organisation’s types, and filters by the chosen key', async () => {
+    const { typeSelect, chooseType, service } = await setup(() => of(all));
+
+    expect(Array.from(typeSelect().options).map((o) => o.textContent!.trim())).toEqual([
+      'All types',
+      'Gathering',
+      'Hackathon',
+    ]);
+    await chooseType('hackathon');
+    expect(service.listEvents).toHaveBeenLastCalledWith({
+      filter: 'Upcoming',
+      chapterId: null,
+      type: 'hackathon',
+    });
+  });
+
+  // Traces to: L2-145 AC3
+  it('says no upcoming events of the chosen type and offers to show all types', async () => {
+    let answer = all;
+    const { host, button, chooseType, typeSelect } = await setup(() => of(answer));
+    answer = { events: [] };
+
+    await chooseType('hackathon');
+    expect(host.textContent).toContain('No upcoming Hackathon events');
+
+    answer = all;
+    button('Show all types')!.click();
+    await new Promise((r) => setTimeout(r));
+    expect(typeSelect().value).toBe('');
   });
 
   // Traces to: L2-142 AC1
@@ -203,7 +268,11 @@ describe('EventsPage', () => {
     const { select, service, host } = await setup(() => of(all), ['ManageEvents'], null);
 
     expect(select()).toBeNull();
-    expect(service.listEvents).toHaveBeenLastCalledWith({ filter: 'Upcoming', chapterId: null });
+    expect(service.listEvents).toHaveBeenLastCalledWith({
+      filter: 'Upcoming',
+      chapterId: null,
+      type: null,
+    });
     expect(host.textContent).not.toContain('city');
   });
 

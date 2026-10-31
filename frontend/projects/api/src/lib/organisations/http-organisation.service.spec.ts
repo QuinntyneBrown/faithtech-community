@@ -16,6 +16,7 @@ const ORGANISATION: OrganisationDto = {
     { id: 'r1', key: 'Volunteer', name: 'Volunteer', description: '', chapterScopable: true },
   ],
   partnerStages: [],
+  eventTypes: [],
 };
 
 describe('HttpOrganisationService', () => {
@@ -99,6 +100,49 @@ describe('HttpOrganisationService', () => {
       expect(request.request.context.get(HANDLES_FORBIDDEN)).toBe(true);
       expect(request.request.context.get(HANDLES_SERVER_ERROR)).toBe(true);
       request.flush(chapter);
+      service.get().subscribe();
+      controller.expectOne('/api/organisation').flush(ORGANISATION);
+    });
+  });
+
+  it('lists, adds, renames, reorders and archives event types, each write reading the organisation afresh', () => {
+    const type = {
+      id: 't1',
+      key: 'panel',
+      name: 'Panel',
+      sortOrder: 5,
+      archived: false,
+      archivedAtUtc: null,
+      eventCount: 2,
+    };
+    const lists: unknown[] = [];
+    service.listEventTypes().subscribe((l) => lists.push(l));
+    service.listEventTypes(true).subscribe((l) => lists.push(l));
+    controller.expectOne('/api/organisation/event-types').flush([type]);
+    controller.expectOne('/api/organisation/event-types?archived=true').flush([]);
+    expect(lists).toEqual([[type], []]);
+
+    const writes: (() => Observable<unknown>)[] = [
+      () => service.addEventType('Prayer walk'),
+      () => service.renameEventType('t1', 'Panel discussion'),
+      () => service.reorderEventTypes(['t2', 't1']),
+      () => service.archiveEventType('t1'),
+    ];
+    const base = '/api/organisation/event-types';
+    const expected = [
+      { method: 'POST', url: base, body: { name: 'Prayer walk' } },
+      { method: 'PUT', url: `${base}/t1`, body: { name: 'Panel discussion' } },
+      { method: 'PUT', url: `${base}/order`, body: { ids: ['t2', 't1'] } },
+      { method: 'POST', url: `${base}/t1/archive`, body: null },
+    ];
+    writes.forEach((write, i) => {
+      service.get().subscribe();
+      controller.match('/api/organisation').forEach((r) => r.flush(ORGANISATION));
+      write().subscribe();
+      const request = controller.expectOne({ method: expected[i].method, url: expected[i].url });
+      expect(request.request.body).toEqual(expected[i].body);
+      expect(request.request.context.get(HANDLES_FORBIDDEN)).toBe(true);
+      request.flush(type);
       service.get().subscribe();
       controller.expectOne('/api/organisation').flush(ORGANISATION);
     });
