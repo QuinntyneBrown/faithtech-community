@@ -1,8 +1,8 @@
 using FaithTech.Community.Application.Common;
+using FaithTech.Community.Application.Organisations;
 using FaithTech.Community.Domain.Contacts;
 using FaithTech.Community.Domain.Notifications;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Options;
 
 namespace FaithTech.Community.Application.Contacts;
 
@@ -18,7 +18,7 @@ public enum ConnectOutcome
 /// Makes a person who used a lead's connect link that lead's contact, without the lead confirming
 /// (L2-084, ADR 0022): at once when their email is verified, otherwise when it becomes verified.
 /// </summary>
-public class ContactConnector(IApplicationDbContext db, IEmailQueue emails, IOptions<WebAppOptions> webApp, TimeProvider time)
+public class ContactConnector(IApplicationDbContext db, IEmailQueue emails, ICurrentOrganisation organisation, TimeProvider time)
 {
     public async Task<ConnectOutcome> RequestAsync(Guid leadId, Guid profileId, CancellationToken cancellationToken = default)
     {
@@ -96,8 +96,8 @@ public class ContactConnector(IApplicationDbContext db, IEmailQueue emails, IOpt
             emails.Enqueue(new EmailMessage(
                 address,
                 title,
-                $"{person.Name} used your QR code and joined FaithTech Community. They’re now in your private contacts, " +
-                $"linked to their profile, so you can add notes and follow up:\n\n{webApp.Value.Origin}/contacts/{contact.Id}\n\n" +
+                $"{person.Name} used your QR code and joined {organisation.Name}. They’re now in your private contacts, " +
+                $"linked to their profile, so you can add notes and follow up:\n\n{organisation.Origin}/contacts/{contact.Id}\n\n" +
                 "Your notes stay private to you."));
         }
 

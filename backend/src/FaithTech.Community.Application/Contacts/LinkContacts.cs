@@ -1,8 +1,8 @@
 using FaithTech.Community.Application.Common;
+using FaithTech.Community.Application.Organisations;
 using FaithTech.Community.Domain.Identity;
 using FaithTech.Community.Domain.Notifications;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Options;
 
 namespace FaithTech.Community.Application.Contacts;
 
@@ -14,7 +14,7 @@ public record LinkContactCommand(Guid ProfileId, bool DiscardNotes = false);
 /// leads whose connect link the person used.
 /// </summary>
 public class ContactSignedUpHandler(
-    IApplicationDbContext db, ContactConnector connector, IEmailQueue emails, IOptions<WebAppOptions> webApp, TimeProvider time)
+    IApplicationDbContext db, ContactConnector connector, IEmailQueue emails, ICurrentOrganisation organisation, TimeProvider time)
 {
     public async Task HandleAsync(EmailVerified verified, CancellationToken cancellationToken = default)
     {
@@ -52,8 +52,8 @@ public class ContactSignedUpHandler(
             emails.Enqueue(new EmailMessage(
                 address,
                 Title(contact.Name),
-                $"{contact.Name}, one of your private contacts, just joined FaithTech Community.\n\n" +
-                $"Link them to their new profile and keep your notes:\n\n{webApp.Value.Origin}/contacts/{contact.Id}\n\n" +
+                $"{contact.Name}, one of your private contacts, just joined {organisation.Name}.\n\n" +
+                $"Link them to their new profile and keep your notes:\n\n{organisation.Origin}/contacts/{contact.Id}\n\n" +
                 "Your notes stay private to you."));
         }
 
@@ -61,7 +61,7 @@ public class ContactSignedUpHandler(
         await db.SaveChangesAsync(cancellationToken);
     }
 
-    private static string Title(string name) => $"{name} just joined FaithTech";
+    private string Title(string name) => $"{name} just joined {organisation.ShortName}";
 }
 
 /// <summary>Links a private contact to the member's real profile (L2-015 AC2, AC5); notes stay private.</summary>

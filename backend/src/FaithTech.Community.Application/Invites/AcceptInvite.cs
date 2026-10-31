@@ -1,3 +1,4 @@
+using FaithTech.Community.Application.Organisations;
 using FaithTech.Community.Application.Admin;
 using FaithTech.Community.Application.Common;
 using FaithTech.Community.Application.Contacts;
@@ -48,7 +49,8 @@ public class AcceptInviteHandler(
     ICurrentUser current,
     IAuditLog audit,
     ContactSignedUpHandler contactSignedUp,
-    TimeProvider time)
+    TimeProvider time,
+    ICurrentOrganisation organisation)
 {
     public async Task<InviteLookupDto?> LookUpAsync(string token, CancellationToken cancellationToken = default)
     {
@@ -63,7 +65,7 @@ public class AcceptInviteHandler(
         return new InviteLookupDto(
             invite.Status(time.GetUtcNow()).ToString(),
             invite.Email,
-            inviter?.Name ?? "A FaithTech lead",
+            inviter?.Name ?? $"A {organisation.ShortName} lead",
             inviter?.HomeCity,
             invite.PreassignedRole?.ToString(),
             await users.FindByEmailAsync(invite.Email) is not null);
