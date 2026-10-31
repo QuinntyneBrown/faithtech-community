@@ -35,7 +35,7 @@ public class GetProfileHandler(IApplicationDbContext db, ProfileAccess access, I
             profile.Bio,
             photos.FirstOrDefault(p => p.IsFeatured),
             photos,
-            [.. profile.Roles.OrderBy(r => r.Definition!.SortOrder).Select(r => r.Definition!.Key)],
+            ProfileRoleDto.Of(profile),
             isOwn,
             canEdit);
     }

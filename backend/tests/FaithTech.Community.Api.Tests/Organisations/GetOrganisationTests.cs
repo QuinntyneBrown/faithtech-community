@@ -9,7 +9,7 @@ namespace FaithTech.Community.Api.Tests.Organisations;
 // Every member reads the organisation's name and its roles that are not archived, for the role pickers.
 public class GetOrganisationTests(CommunityApiFactory factory) : IClassFixture<CommunityApiFactory>
 {
-    public sealed record RoleDto(Guid Id, string Name, string Description, bool ChapterScopable);
+    public sealed record RoleDto(Guid Id, string Key, string Name, string Description, bool ChapterScopable);
 
     public sealed record OrganisationDto(string Name, string ShortName, RoleDto[] Roles);
 
@@ -24,7 +24,7 @@ public class GetOrganisationTests(CommunityApiFactory factory) : IClassFixture<C
         Assert.Equal(
             ["City Lead", "Event Lead", "Create Lead", "Communications Lead", "Staff", "Volunteer", "Product Engineer", "Attendee", "System Admin"],
             organisation.Roles.Select(r => r.Name).Where(n => !n.StartsWith("Test ", StringComparison.Ordinal)));
-        Assert.Equal(factory.RoleIdOf(Role.CityLead), organisation.Roles[0].Id);
+        Assert.Equal((factory.RoleIdOf(Role.CityLead), "CityLead"), (organisation.Roles[0].Id, organisation.Roles[0].Key));
     }
 
     [Fact]

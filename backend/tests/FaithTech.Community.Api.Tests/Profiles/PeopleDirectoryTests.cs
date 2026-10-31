@@ -65,7 +65,8 @@ public class PeopleDirectoryTests(CommunityApiFactory factory) : IClassFixture<C
         var row = page.Items[1];
         Assert.Equal(samuel.ProfileId, row.Id);
         Assert.Equal("Toronto", row.HomeCity);
-        Assert.Equal(["CreateLead", "ProductEngineer"], row.Roles);
+        Assert.Equal(["Create Lead", "Product Engineer"], row.Roles.Select(r => r.Name));
+        Assert.Equal([factory.RoleIdOf(Role.CreateLead), factory.RoleIdOf(Role.ProductEngineer)], row.Roles.Select(r => r.Id));
         Assert.Equal($"{FakePhotoStorage.BaseUrl}profiles/{samuel.ProfileId}/featured.jpg", row.PhotoUrl);
         Assert.DoesNotContain("@example.org", await response.Content.ReadAsStringAsync());
     }
@@ -115,7 +116,9 @@ public class PeopleDirectoryTests(CommunityApiFactory factory) : IClassFixture<C
         Assert.Equal([$"Member {tag} 25"], second!.Items.Select(p => p.Name));
     }
 
-    private sealed record Person(Guid Id, string Name, string? HomeCity, string? PhotoUrl, string[] Roles);
+    private sealed record Person(Guid Id, string Name, string? HomeCity, string? PhotoUrl, HeldRole[] Roles);
+
+    private sealed record HeldRole(Guid Id, string Name, Guid? ChapterId);
 
     private sealed record PeoplePage(List<Person> Items, int Page, int PageSize, int TotalCount);
 }

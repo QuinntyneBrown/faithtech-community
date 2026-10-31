@@ -11,9 +11,6 @@ namespace FaithTech.Community.Application.Admin;
 
 public record AssignRoleCommand(Guid? RoleId, Guid? ChapterId = null);
 
-/// <summary>A role a profile holds, as both role routes answer it (L2-138 AC1).</summary>
-public record AssignedRoleDto(Guid Id, string Name, Guid? ChapterId);
-
 /// <summary>
 /// Adds or removes one of the organisation's roles on a profile under its grant rules (L2-138), audited (L2-041) and
 /// notified when a grantor acts under a rule.
@@ -29,13 +26,13 @@ public class ChangeRolesHandler(
     TimeProvider time)
 {
 
-    public Task<(Result Result, IReadOnlyList<AssignedRoleDto>? Roles)> AssignAsync(Guid profileId, AssignRoleCommand command, CancellationToken cancellationToken = default) =>
+    public Task<(Result Result, IReadOnlyList<ProfileRoleDto>? Roles)> AssignAsync(Guid profileId, AssignRoleCommand command, CancellationToken cancellationToken = default) =>
         ChangeAsync(profileId, command.RoleId, add: true, cancellationToken);
 
-    public Task<(Result Result, IReadOnlyList<AssignedRoleDto>? Roles)> RemoveAsync(Guid profileId, Guid roleId, CancellationToken cancellationToken = default) =>
+    public Task<(Result Result, IReadOnlyList<ProfileRoleDto>? Roles)> RemoveAsync(Guid profileId, Guid roleId, CancellationToken cancellationToken = default) =>
         ChangeAsync(profileId, roleId, add: false, cancellationToken);
 
-    private async Task<(Result, IReadOnlyList<AssignedRoleDto>?)> ChangeAsync(Guid profileId, Guid? roleId, bool add, CancellationToken cancellationToken)
+    private async Task<(Result, IReadOnlyList<ProfileRoleDto>?)> ChangeAsync(Guid profileId, Guid? roleId, bool add, CancellationToken cancellationToken)
     {
         if (!policy.CanChangeRoles)
         {
@@ -120,11 +117,8 @@ public class ChangeRolesHandler(
         // The role change, its audit entry, the notifications and the emails commit together (L2-028, L2-047).
         await db.SaveChangesAsync(cancellationToken);
 
-        return (Result.Ok(), Held(profile));
+        return (Result.Ok(), ProfileRoleDto.Of(profile));
     }
-
-    private static AssignedRoleDto[] Held(Profile profile) =>
-        [.. profile.Roles.OrderBy(r => r.Definition!.SortOrder).Select(r => new AssignedRoleDto(r.RoleDefinitionId, r.Definition!.Name, null))];
 
     private static string[] RoleNames(Profile profile) => [.. profile.Roles.OrderBy(r => r.Definition!.SortOrder).Select(r => r.Definition!.Key)];
 }

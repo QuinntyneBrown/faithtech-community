@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore;
 namespace FaithTech.Community.Application.Profiles;
 
 /// <summary>A member as the people directory lists them (L2-053). The email is matched, never returned.</summary>
-public record PersonSummary(Guid Id, string Name, string? HomeCity, string? PhotoUrl, IReadOnlyList<string> Roles);
+public record PersonSummary(Guid Id, string Name, string? HomeCity, string? PhotoUrl, IReadOnlyList<ProfileRoleDto> Roles);
 
 /// <summary>
 /// The people directory for City Leads, Staff and System Admins (L2-053). Not the System Admin users search:
@@ -46,7 +46,7 @@ public class ListPeopleHandler(IApplicationDbContext db, ICurrentUser current, I
                 a.profile.Name,
                 a.profile.HomeCity,
                 Featured = a.profile.Photos.Where(p => p.IsFeatured).Select(p => p.BlobName).FirstOrDefault(),
-                Roles = a.profile.Roles.OrderBy(r => r.Definition!.SortOrder).Select(r => r.Definition!.Key).ToList(),
+                Roles = a.profile.Roles.OrderBy(r => r.Definition!.SortOrder).Select(r => new ProfileRoleDto(r.RoleDefinitionId, r.Definition!.Name, null)).ToList(),
             })
             .ToListAsync(cancellationToken);
 
@@ -55,7 +55,7 @@ public class ListPeopleHandler(IApplicationDbContext db, ICurrentUser current, I
             r.Name,
             r.HomeCity,
             r.Featured is null ? null : storage.GetReadUrl(r.Featured),
-            [.. r.Roles.Order().Select(role => role.ToString())])).ToList();
+            r.Roles)).ToList();
         return new PagedResult<PersonSummary>(items, request.Page, request.PageSize, total);
     }
 }
