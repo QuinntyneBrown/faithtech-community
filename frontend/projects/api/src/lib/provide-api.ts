@@ -22,6 +22,7 @@ import { TEAM_SERVICE, HttpTeamService } from './team';
 import { ACTIVITY_SERVICE, HttpActivityService } from './activity';
 import { CHECK_IN_SERVICE, EVENTS_SERVICE, HttpCheckInService, HttpEventsService } from './events';
 import { SEARCH_SERVICE, HttpSearchService } from './search';
+import { SITE_SERVICE, HttpSiteService } from './site';
 import { RESOURCES_SERVICE, HttpResourcesService } from './resources';
 import { REPORTS_SERVICE, HttpReportsService } from './reports';
 import { NOTES_SERVICE, HttpNotesService } from './notes';
@@ -69,6 +70,7 @@ export function provideApi(baseUrl: string, auth: Partial<AuthConfig> = {}): Env
     { provide: EVENTS_SERVICE, useClass: HttpEventsService },
     { provide: CHECK_IN_SERVICE, useClass: HttpCheckInService },
     { provide: SEARCH_SERVICE, useClass: HttpSearchService },
+    { provide: SITE_SERVICE, useClass: HttpSiteService },
     { provide: RESOURCES_SERVICE, useClass: HttpResourcesService },
     { provide: REPORTS_SERVICE, useClass: HttpReportsService },
     { provide: NOTES_SERVICE, useClass: HttpNotesService },
