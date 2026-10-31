@@ -1,0 +1,86 @@
+@startuml
+title UML sequence behaviour — Change the general settings
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+actor "Settings holder" as actor
+box "Frontend — Community web app (app shell)" #E0F2FE
+  participant "navigation.ts" as nav
+end box
+box "Frontend — Community web app (organisations library)" #E0F2FE
+  participant "OrganisationPage / GeneralPage" as page
+  participant "EditGeneralSettingsDialog" as dlg
+end box
+box "Frontend — Community web app (api library)" #E0F2FE
+  participant "HttpOrganisationService" as svc
+end box
+box "Backend — FaithTech.Community.Api" #D1FADF
+  participant "OrganisationEndpoints" as ep
+  participant "UpdateOrganisationValidator" as v
+end box
+box "Backend — FaithTech.Community.Application and Domain" #ECFDF3
+  participant "UpdateOrganisationHandler" as h
+  participant "Organisation" as org
+end box
+box "Backend — FaithTech.Community.Infrastructure" #FFF4E5
+  participant "AuditLog" as audit
+  database "Community database" as db
+end box
+actor -> nav : Open More and choose Organisation (ManageRoles or ManageOrganisationSettings) (L2-147 AC1)
+nav -> page : Route /organisation
+page -> svc : get()
+svc --> page : OrganisationDto
+alt caller lacks ManageOrganisationSettings and AdministerOrganisation
+  page --> actor : General read-only; "You can view these settings but not change them." (L2-147 AC2)
+else may edit
+  actor -> page : Choose Edit
+  page -> dlg : Open with name, short name and the chapter switch
+  actor -> dlg : Change the fields; turn chapters on with a singular and plural label
+  opt turning chapters off while chapters exist
+    dlg --> actor : TurnChaptersOffDialog "Members and events keep their {chapter}…" (L2-140 AC6)
+    actor -> dlg : Confirm
+  end
+  actor -> dlg : Save
+  dlg -> svc : update({ name, shortName, chapterLabelSingular?, chapterLabelPlural? })
+  svc -> ep : PUT /api/organisation (HANDLES_FORBIDDEN)
+  ep -> v : Validate name, short name; labels both or neither, at most 30 (L2-140 AC1)
+  alt invalid
+    ep --> svc : 400 ValidationProblem
+    svc --> dlg : Field errors
+    dlg --> actor : Inline errors; nothing saved
+  else valid
+    ep -> h : HandleAsync(UpdateOrganisationCommand)
+    alt caller lacks ManageOrganisationSettings
+      h --> ep : Forbidden
+      ep --> svc : 403 (L2-140 AC7, L2-147 AC3)
+      svc --> dlg : Error
+      dlg --> actor : Forbidden message
+    else permitted
+      h -> db : Load the current organisation (ICurrentOrganisation)
+      db --> h : Organisation
+      h -> org : Rename(name, shortName); SetChapterLabel(label or null)
+      h -> audit : Record(actor, "organisation.updated", "Organisation", id, before, after) (L2-152 AC1)
+      h -> db : Save organisation and audit entry in one unit of work
+      db --> h : Committed
+      h --> ep : OrganisationDto
+      ep --> svc : 200 OK
+      svc -> svc : Refresh the cached OrganisationDto
+      svc --> dlg : Saved
+      dlg --> page : Close
+      page --> actor : Toast "Settings saved"; the {Chapters} tab and every chapter control use the new label at once
+    end
+  end
+end
+note over dlg : A network failure keeps the dialog open with the input and offers "Try again" (L2-147 AC5)
+@enduml

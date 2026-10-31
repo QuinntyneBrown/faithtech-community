@@ -27,7 +27,8 @@ class GoogleSignInResult {
 enum GoogleSignInError {
   InvalidToken
   UnverifiedEmail
-  Suspended
+  MembershipSuspended
+  AccountLocked
 }
 interface IGoogleIdentityProvider {
   +BuildAuthorizationUrl(state, nonce, redirectUri): string?
@@ -48,12 +49,18 @@ class GoogleIdTokenValidator {
   +ValidateAsync(idToken, nonce): Task<GoogleIdentity?>
 }
 class AccountStatus <<static>> {
-  +IsSuspendedAsync(db, user): Task<bool>
+  +IsLockedAsync(db, user): Task<bool>
+  +IsSuspendedAsync(db, user, organisation): Task<bool>
+}
+interface ICurrentOrganisation {
+  +Guid Id
+  +string Name
+  +string Host
 }
 class CommunityUser {
-  +Guid ProfileId
   +bool EmailConfirmed
   +string? PasswordHash
+  +bool IsLockedByOperator
 }
 class "IdentityUserLogin<Guid>" as Login {
   +string LoginProvider = "Google"
@@ -61,6 +68,8 @@ class "IdentityUserLogin<Guid>" as Login {
   +Guid UserId
 }
 class Profile {
+  +Guid OrganisationId
+  +Guid UserId
   +string Name
   +bool IsSuspended
 }
@@ -69,10 +78,11 @@ GoogleSignInHandler ..> GoogleSignInResult
 GoogleSignInResult --> GoogleSignInError
 GoogleSignInHandler --> IGoogleIdentityProvider
 GoogleSignInHandler ..> AccountStatus
+GoogleSignInHandler ..> ICurrentOrganisation : profile created or checked in
 IGoogleIdentityProvider <|.. GoogleIdentityProvider
 GoogleIdentityProvider --> GoogleIdTokenValidator
 GoogleIdentityProvider --> GoogleOptions
 IGoogleIdentityProvider ..> GoogleIdentity
 CommunityUser "1" --> "0..*" Login
-CommunityUser "1" --> "1" Profile
+CommunityUser "1" --> "0..*" Profile : one per organisation
 @enduml

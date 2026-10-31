@@ -1,0 +1,52 @@
+@startuml
+title UML sequence behaviour — System-written timeline entries
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+actor "Member with ManagePartners" as actor
+box "Backend — FaithTech.Community.Cli" #FEF3F2
+  participant "Cli" as cli
+end box
+box "Backend — FaithTech.Community.Api" #D1FADF
+  participant "PartnersEndpoints" as ep
+end box
+box "Backend — FaithTech.Community.Application and Domain" #ECFDF3
+  participant "ManagePartnersHandler" as mh
+  participant "MovePartnerHandler" as mv
+  participant "Partner" as ent
+end box
+box "Backend — FaithTech.Community.Infrastructure" #FFF4E5
+  database "Community database" as db
+end box
+group Migration PartnerActivitiesAndMerge
+  cli -> db : Create PartnerActivities, PartnerDuplicateDismissals; add Partner.Version and merge columns
+  cli -> db : INSERT a StageMoved activity per PartnerStageChange\nWHERE NOT EXISTS (StageChangeId) (L2-110 AC7)
+end
+group Add a partner
+  actor -> ep : POST /api/partners
+  ep -> mh : CreateAsync(command)
+  mh -> ent : new Partner(..., stage)
+  mh -> mh : PartnerActivity.Added(partner, caller, nowUtc)\n"Added {name} on {initial stage name}" (L2-110 AC6, L2-144 AC6)
+  mh -> db : Insert Partner and the Added activity in one SaveChanges
+  ep --> actor : 201 PartnerDto
+end
+group Move a partner (drag or Move to)
+  actor -> ep : POST /api/partners/{id}/stage
+  ep -> mv : MoveAsync(id, command)
+  mv -> ent : MoveTo(to, caller, nowUtc, note); Version + 1
+  mv -> mv : PartnerActivity.StageMoved(change) with from, to and note (L2-110 AC7)
+  mv -> db : Insert PartnerStageChange and StageMoved activity in one SaveChanges
+  ep --> actor : 200 PartnerDto
+end
+@enduml

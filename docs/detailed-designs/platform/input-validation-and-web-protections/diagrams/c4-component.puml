@@ -4,7 +4,7 @@ LAYOUT_WITH_LEGEND()
 title Components — Input validation and web protections
 Container_Boundary(api, "Community API") {
   Component(hdr, "SecurityHeadersMiddleware", "ASP.NET Core middleware", "HSTS, CSP, nosniff, frame protection")
-  Component(cors, "CORS policy", "ASP.NET Core middleware", "Web app origin only")
+  Component(cors, "CORS policy", "ASP.NET Core middleware", "Current organisation's community and public origins only (L2-131 AC6)")
   Component(rl, "Rate limiter", "ASP.NET Core middleware", "100/min per user, 20/min per IP on auth")
   Component(vf, "ValidationEndpointFilter", "Endpoint filter", "400 problem details per field")
   Component(val, "Feature validators", "Application validators", "Field rules per command")

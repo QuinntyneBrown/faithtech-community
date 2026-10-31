@@ -14,8 +14,8 @@ skinparam package {
   FontColor #101828
   BackgroundColor #F9FAFB
 }
-actor "Workspace member or Staff" as actor
-box "Frontend — FaithTech Community web app (agile library)" #E0F2FE
+actor "Workspace member or Reader" as actor
+box "Frontend — Community platform web app (agile library)" #E0F2FE
   participant "BoardPage" as page
   participant "AgileService (AGILE_SERVICE)" as svc
   participant "SignalRAgileLiveService (AGILE_LIVE_SERVICE)" as live

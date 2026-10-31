@@ -12,10 +12,11 @@ import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
 import { NonNullableFormBuilder, ReactiveFormsModule } from '@angular/forms';
 import {
   AGILE_SERVICE,
+  OrganisationNames,
+  problemDetails,
   WorkItemDto,
   WorkItemKind,
   WorkspaceDto,
-  problemDetails,
 } from '@faithtech-community/api';
 import {
   AlertComponent,
@@ -82,6 +83,7 @@ const TASK_NEEDS_STORY = 'A task must belong to a story.';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class WorkItemDialog {
+  protected readonly organisation = inject(OrganisationNames);
   protected readonly ref = inject<DialogRef<WorkItemDto | true>>(DialogRef);
   protected readonly data = inject<WorkItemDialogData>(DIALOG_DATA);
   private readonly agile = inject(AGILE_SERVICE);

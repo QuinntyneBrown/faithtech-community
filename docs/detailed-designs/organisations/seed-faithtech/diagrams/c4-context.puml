@@ -1,0 +1,10 @@
+@startuml
+!include <C4/C4_Context>
+LAYOUT_WITH_LEGEND()
+title System Context — Seed FaithTech
+Person(operator, "Deployment operator", "Runs migrate, seed and grant-admin at deployment time")
+Person(member, "FaithTech member", "Uses the platform exactly as before the seed")
+System(platform, "Community platform", "Hosts organisations; FaithTech is the first, provisioned by seed")
+Rel(operator, platform, "Runs the Cli against")
+Rel(member, platform, "Holds seeded FaithTech roles in")
+@enduml

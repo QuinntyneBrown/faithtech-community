@@ -1,7 +1,15 @@
 import { Route } from '@playwright/test';
+import {
+  firstRoleCarrying,
+  holds,
+  roleDefinitions,
+  tagsOf,
+  type RoleChapters,
+} from './role-definitions';
 
 /** What MockApi shares with the connect fake. */
 export interface ConnectContext {
+  readonly chapters: { nameOf(id: string | null | undefined): string | null };
   now: Date;
   accounts: Map<string, { email: string; name: string; verified: boolean; profileId: string }>;
   addAccount(account: { email: string; name: string; password: string; verified: boolean }): {
@@ -33,8 +41,9 @@ export interface ConnectContext {
     {
       id: string;
       name: string;
-      homeCity: string | null;
+      chapterId: string | null;
       roles: string[];
+      roleChapters?: RoleChapters;
       photos: { url: string | null; isFeatured: boolean }[];
     }
   >;
@@ -74,7 +83,7 @@ export class MockConnect {
   ownerOf(token: string) {
     const link = this.links.find((l) => l.token === token);
     const owner = link && this.context.profiles.get(link.ownerId);
-    return owner && (owner.roles.includes('CityLead') || owner.roles.includes('SystemAdmin'))
+    return owner && firstRoleCarrying(owner.roles, 'ConnectLink', 'AdministerOrganisation')
       ? owner
       : undefined;
   }
@@ -94,9 +103,7 @@ export class MockConnect {
       return this.connectCaller(route, String(body['token'] ?? ''), caller);
     if (url.pathname !== '/api/connect/link') return false;
     if (!caller) return route.fulfill({ status: 401 });
-    if (!caller.roles.includes('CityLead') && !caller.roles.includes('SystemAdmin')) {
-      return route.fulfill({ status: 403 });
-    }
+    if (!holds(caller, 'ConnectLink')) return route.fulfill({ status: 403 });
     let link = this.links.find((l) => l.ownerId === caller.profileId);
     if (method === 'POST') {
       // A new token on the same link: the old one stops working (L2-081 AC3).
@@ -197,10 +204,25 @@ export class MockConnect {
         leadProfileId: owner.id,
         leadName: owner.name,
         leadPhotoUrl: featured?.url ?? null,
-        leadCity: owner.homeCity,
-        leadRole: owner.roles.includes('CityLead') ? 'City Lead' : 'System Admin',
+        leadChapterName: this.context.chapters.nameOf(owner.chapterId),
+        leadRole: firstRoleCarrying(owner.roles, 'ConnectLink', 'AdministerOrganisation'),
+        // The link role's chapter tag, an untagged assignment preferred (L2-141 AC3).
+        leadRoleChapterName: this.linkRoleChapterName(owner),
       },
     });
+  }
+
+  private linkRoleChapterName(owner: {
+    roles: string[];
+    roleChapters?: RoleChapters;
+  }): string | null {
+    const role = firstRoleCarrying(owner.roles, 'ConnectLink', 'AdministerOrganisation');
+    const key = roleDefinitions().find((d) => d.name === role)?.key;
+    if (!key) return null;
+    const tags = tagsOf(owner.roles, key, owner.roleChapters);
+    if (tags.includes(null)) return null;
+    const names = tags.map((t) => this.context.chapters.nameOf(t)).filter((n): n is string => !!n);
+    return names.sort((a, b) => a.localeCompare(b))[0] ?? null;
   }
 
   private newToken(): string {

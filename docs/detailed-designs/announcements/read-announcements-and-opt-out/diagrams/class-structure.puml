@@ -25,6 +25,9 @@ class AnnouncementRecipient {
   +Guid AnnouncementId
   +Guid ProfileId
 }
+interface ICurrentOrganisation {
+  +Guid Id
+}
 class ListMyAnnouncementsHandler {
   +ListAsync(page: int): Task<PagedResult<AnnouncementListItem>>
 }
@@ -46,6 +49,7 @@ class DataProtectionUnsubscribeTokens
 Announcement "1" *-- "*" AnnouncementRecipient
 AnnouncementRecipient --> Profile
 ListMyAnnouncementsHandler ..> AnnouncementRecipient : queries
+ListMyAnnouncementsHandler ..> ICurrentOrganisation : scoped by the global filter
 AnnouncementEmailOptOutHandler --> Profile : reads / mutates
 UnsubscribeHandler ..> UnsubscribeCommand : handles
 UnsubscribeHandler --> Profile : mutates

@@ -14,9 +14,11 @@
       }}</ft-chip>
     }
   </ft-cluster>
-  <ft-form-field label="City" class="city">
-    <ft-select [options]="cityOptions()" [formControl]="city" />
-  </ft-form-field>
+  @if (chapterOptions().length) {
+    <ft-form-field [label]="chapterLabel()" class="city">
+      <ft-select [options]="chapterOptions()" [formControl]="chapter" />
+    </ft-form-field>
+  }
 </div>
 
 @switch (state()) {
@@ -35,7 +37,7 @@
   @case ('loaded') {
     @if (members().length === 0) {
       @if (filtered()) {
-        <ft-empty-state [heading]="noResultsHeading()" text="Try a different role or city.">
+        <ft-empty-state [heading]="noResultsHeading()" [text]="noResultsText()">
           <ft-button actions (click)="showEveryone()">Show everyone</ft-button>
         </ft-empty-state>
       } @else {
@@ -55,7 +57,7 @@
             <ft-list-item [label]="member.name" [href]="'/people/' + member.profileId">
               <ft-avatar leading size="sm" [name]="member.name" [src]="member.photoUrl" />
               <ft-cluster meta gap="1">
-                @for (label of labels(member.roles); track label) {
+                @for (label of labels(member); track label) {
                   <ft-badge variant="role">{{ label }}</ft-badge>
                 }
               </ft-cluster>

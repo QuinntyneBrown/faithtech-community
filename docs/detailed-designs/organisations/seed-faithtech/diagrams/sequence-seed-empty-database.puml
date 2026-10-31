@@ -1,0 +1,65 @@
+@startuml
+title UML sequence behaviour — Seed on an empty database
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+actor "Deployment operator" as actor
+box "Backend — FaithTech.Community.Cli" #D1FADF
+  participant "CliApp" as cli
+end box
+box "Backend — FaithTech.Community.Infrastructure" #FFF4E5
+  participant "CommunitySeeder" as seeder
+  participant "FaithTechSeed" as seed
+  participant "OpenIddictApplicationManager" as oidc
+  database "Community database" as db
+end box
+actor -> cli : faithtech-community seed
+cli -> seeder : SeedAsync(webAppOrigin)
+seeder -> oidc : FindByClientIdAsync("web")
+alt missing
+  seeder -> oidc : CreateAsync(descriptor with {webAppOrigin}/auth/callback)
+else present
+  seeder -> oidc : UpdateAsync(existing, descriptor) (L2-151 AC4: no other host)
+end
+seeder -> seed : Organisation
+seeder -> seeder : SeedOrganisationAsync(FaithTechSeed.Organisation)
+seeder -> db : Organisation by slug "faithtech"
+alt missing
+  seeder -> db : Insert FaithTech: host, name, short name, City/Cities, Active (L2-151 AC1)
+end
+loop each of the nine role definitions
+  seeder -> db : RoleDefinition by organisation and key
+  opt missing
+    seeder -> db : Insert with capabilities, ShowOnTeam, ChapterScopable, IsOversight, sort order (L2-151 AC2)
+  end
+end
+loop each grant rule
+  seeder -> db : Insert RoleGrantRule (city-lead grants six roles) when missing (L2-151 AC2)
+end
+loop partner stages, event types, resource types
+  seeder -> db : Insert entry by key when missing, in seed order (L2-151 AC3)
+end
+seeder -> db : OrganisationAdminRoster for FaithTech when missing (L2-139 AC2)
+seeder -> seeder : SeedStarterResourcesAsync(FaithTech id)
+seeder -> db : Owner: first profile holding system-admin; insert the three starter resources when missing (L2-109 AC4)
+seeder -> db : Save changes
+seeder --> cli : Done
+cli --> actor : Exit 0
+== Second run ==
+actor -> cli : faithtech-community seed
+cli -> seeder : SeedAsync(webAppOrigin)
+seeder -> db : Every record found by slug, key or id
+seeder --> cli : Nothing inserted or changed (L2-151 AC1, AC6)
+cli --> actor : Exit 0
+@enduml

@@ -1,0 +1,14 @@
+@startuml
+!include <C4/C4_Context>
+LAYOUT_WITH_LEGEND()
+title System Context — Role definitions and grant rules
+Person(manager, "Holder of ManageRoles", "Defines the organisation's roles and grant rules")
+Person(grantor, "Holder of AssignRoles", "Adds and removes roles under the grant rules")
+Person(member, "Member", "Profile whose roles change")
+System(platform, "Community platform", "Hosts organisations; roles are each organisation's data")
+System_Ext(email, "Email provider", "Delivers role-change email")
+Rel(manager, platform, "Defines roles and grant rules using")
+Rel(grantor, platform, "Assigns roles using")
+Rel(member, platform, "Holds roles in")
+Rel(platform, email, "Sends role-change email via", "SMTP/SendGrid")
+@enduml

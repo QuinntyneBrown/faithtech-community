@@ -12,6 +12,7 @@ skinparam class {
 title Class structure — Audit log
 class AuditEntry {
   +Guid Id
+  +Guid OrganisationId
   +Guid ActorId
   +string Action
   +string TargetType
@@ -51,11 +52,17 @@ class GetAuditEntriesHandler {
   +PageSize: int = 50
   +MaxExportRows: int = 10000
   +DefaultRange: TimeSpan = 90 days
+  +ReadableCategories(user: ICurrentUser): IReadOnlySet<string>
   +HandleAsync(query: GetAuditEntriesQuery): Task<PagedResult<AuditEntryDto>?>
   +HandleAllAsync(query: GetAuditEntriesQuery): Task<IReadOnlyList<AuditEntryDto>?>
 }
+interface ICurrentOrganisation {
+  +Guid Id
+  +string Name
+}
 interface ICurrentUser {
-  +HasRole(role: Role): bool
+  +IReadOnlySet<string> Capabilities
+  +Has(capability: string): bool
 }
 interface IApplicationDbContext {
   +DbSet<AuditEntry> AuditEntries
@@ -65,10 +72,12 @@ class CommunityDbContext {
 }
 AuditLog ..|> IAuditLog
 AuditLog --> CommunityDbContext
+AuditLog ..> ICurrentOrganisation : stamps OrganisationId
 CommunityDbContext ..|> IApplicationDbContext
+CommunityDbContext ..> ICurrentOrganisation : global query filter
 GetAuditEntriesHandler ..> GetAuditEntriesQuery : handles
 GetAuditEntriesHandler ..> AuditEntryDto : returns
 GetAuditEntriesHandler --> IApplicationDbContext
-GetAuditEntriesHandler ..> ICurrentUser : requires System Admin
+GetAuditEntriesHandler ..> ICurrentUser : AdministerOrganisation, ManageRoles or ManageOrganisationSettings (L2-152 AC3)
 CommunityDbContext "1" o-- "*" AuditEntry
 @enduml

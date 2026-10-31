@@ -22,7 +22,7 @@ test.describe('Manage partners', () => {
 
     await dialog.name.fill('Lantern Foundation');
     await dialog.website.fill('lantern.example');
-    await dialog.stage.selectOption({ label: 'In funnel' });
+    await dialog.stage.selectOption({ label: 'In Funnel' });
     await dialog.contact.fill('Ada Mwangi');
     await dialog.email.fill('ada@lantern.example');
     await dialog.offering.fill('Grant funding for shelter technology.');
@@ -30,7 +30,7 @@ test.describe('Manage partners', () => {
     await dialog.add.click();
 
     await expect(dialog.dialog).toBeHidden();
-    await expect(partners.column('In funnel')).toContainText('Lantern Foundation');
+    await expect(partners.column('In Funnel')).toContainText('Lantern Foundation');
     await expect(partners.card('Lantern Foundation')).toContainText(
       'Ada Mwangi · Grant funding for shelter technology.',
     );
@@ -50,14 +50,14 @@ test.describe('Manage partners', () => {
     api.addAccount({ email: 'marcus@example.org', name: 'Marcus Lee', roles: ['EventLead'] });
     const kestrel = api.partners.add({
       name: 'Kestrel Labs',
-      stage: 'InFunnel',
+      stage: 'in-funnel',
       contactName: 'Nadia Petrov',
       offering: 'Venue for Builders Night',
       ownerId: grace.profileId,
     });
     const partner = new PartnerPage(page);
     await api.signInAs(grace, `/partners/${kestrel.id}`);
-    await expect(partner.stage).toHaveText('In funnel');
+    await expect(partner.stage).toHaveText('In Funnel');
     await expect(partner.detail('Owner')).toHaveText('Grace Okonkwo');
     await axe.check();
 
@@ -77,7 +77,7 @@ test.describe('Manage partners', () => {
 
     await expect(partner.detail('Owner')).toHaveText('Marcus Lee');
     await expect(partner.detail('Email')).toHaveText('nadia@kestrel.example');
-    await expect(partner.stage).toHaveText('In funnel');
+    await expect(partner.stage).toHaveText('In Funnel');
   });
 
   test('Staff see the shared pipeline read-only', async ({ page, api, axe }) => {
@@ -86,7 +86,7 @@ test.describe('Manage partners', () => {
       name: 'Daniel Reyes',
       roles: ['Staff'],
     });
-    const kestrel = api.partners.add({ name: 'Kestrel Labs', stage: 'InFunnel' });
+    const kestrel = api.partners.add({ name: 'Kestrel Labs', stage: 'in-funnel' });
     const partners = new PartnersPage(page);
     await api.signInAs(daniel, '/partners');
 

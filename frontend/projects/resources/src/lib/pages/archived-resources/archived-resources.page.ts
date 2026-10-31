@@ -1,6 +1,6 @@
 import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
 import { Router } from '@angular/router';
-import { ArchivedResource, RESOURCES_SERVICE } from '@faithtech-community/api';
+import { ArchivedResource, OrganisationNames, RESOURCES_SERVICE } from '@faithtech-community/api';
 import {
   BreadcrumbComponent,
   BreadcrumbItemComponent,
@@ -45,6 +45,7 @@ const DAY = 24 * 60 * 60 * 1000;
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ArchivedResourcesPage {
+  protected readonly organisation = inject(OrganisationNames);
   private readonly resources = inject(RESOURCES_SERVICE);
   private readonly toasts = inject(ToastService);
   private readonly router = inject(Router);
@@ -63,7 +64,7 @@ export class ArchivedResourcesPage {
     const days = Math.ceil((new Date(resource.purgeAt).getTime() - Date.now()) / DAY);
     const soon = days >= 0 && days <= 7 ? `, in ${days} ${days === 1 ? 'day' : 'days'}` : '';
     return [
-      resource.type,
+      resource.typeName,
       fileOrHost(resource),
       `archived ${formatDay(resource.archivedAt)}`,
       `deleted for good ${formatDay(resource.purgeAt)}${soon}`,
@@ -91,7 +92,7 @@ export class ArchivedResourcesPage {
       this.toasts.show({
         variant: 'danger',
         heading: `${resource.title} wasn’t restored`,
-        text: 'We couldn’t reach FaithTech. It’s still archived.',
+        text: `We couldn’t reach ${this.organisation.shortName()}. It’s still archived.`,
         actionLabel: 'Try again',
         onAction: () => void this.restore(resource),
       });

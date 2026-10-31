@@ -75,7 +75,7 @@ test.describe('Notes: inline formatting and hyperlinks', () => {
     await note.toolbarButton('Remove link').click();
     await expect(note.textBlock(0).getByRole('link')).toHaveCount(0);
     await expect(note.saveStatus).toHaveText('Saved');
-    expect(sheet.blocks[0].text).toEqual([{ text: 'Our public page' }]);
+    await expect.poll(() => sheet.blocks[0].text).toEqual([{ text: 'Our public page' }]);
   });
 
   test('readers open a hyperlink in a new tab', async ({ page, api, axe }) => {

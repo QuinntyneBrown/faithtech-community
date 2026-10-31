@@ -1,11 +1,12 @@
 using FaithTech.Community.Application.Common;
+using FaithTech.Community.Domain.Organisations;
 using FaithTech.Community.Domain.Profiles;
 using FaithTech.Community.Domain.Resources;
 using Microsoft.EntityFrameworkCore;
 
 namespace FaithTech.Community.Application.Resources;
 
-/// <summary>The fields a resource is added or edited with, as the client sent them.</summary>
+/// <summary>The fields a resource is added or edited with, as the client sent them; <c>Type</c> is a resource type key.</summary>
 public record ResourceFieldsInput(
     string? Title,
     string? Description,
@@ -19,14 +20,15 @@ public record ResourceFieldsInput(
 public record ResourceFields(string? Title, string? Description, ResourceType? Type, IReadOnlyList<string> Tags, ResourceAudience Audience);
 
 /// <summary>The field rules shared by the add and edit dialogs and the API (L2-059).</summary>
-public class ResourceFieldRules(IApplicationDbContext db)
+public class ResourceFieldRules(IApplicationDbContext db, ResourceTypeResolver types)
 {
     public const string TitleMessage = "Give it a title so people can find it.";
     public const string AudienceMessage = "Choose at least one person or role, or pick another visibility.";
 
     /// <param name="titleRequired">False for uploads, where a missing title comes from the file name.</param>
+    /// <param name="currentTypeId">On edit, the resource's type, which it may keep once archived (L2-146 AC2).</param>
     public async Task<(ResourceFields? Fields, Dictionary<string, string[]> Errors)> CheckAsync(
-        ResourceFieldsInput input, bool titleRequired, CancellationToken cancellationToken = default)
+        ResourceFieldsInput input, bool titleRequired, CancellationToken cancellationToken = default, Guid? currentTypeId = null)
     {
         var errors = new Dictionary<string, string[]>();
         var title = input.Title?.Trim();
@@ -53,11 +55,8 @@ public class ResourceFieldRules(IApplicationDbContext db)
         ResourceType? type = null;
         if (!string.IsNullOrWhiteSpace(input.Type) || titleRequired)
         {
-            if (IsName<ResourceType>(input.Type, out var parsed))
-            {
-                type = parsed;
-            }
-            else
+            type = await types.ChosenAsync(input.Type, currentTypeId, cancellationToken);
+            if (type is null)
             {
                 errors["Type"] = ["Choose a type."];
             }
@@ -87,16 +86,11 @@ public class ResourceFieldRules(IApplicationDbContext db)
             return parsed == ResourceVisibility.Private ? ResourceAudience.Private() : ResourceAudience.Global();
         }
 
-        var roles = new List<Role>();
-        foreach (var value in input.Roles ?? [])
+        var roles = await RoleKeys.DefinitionsAsync(db, input.Roles ?? [], cancellationToken);
+        if (roles is null || !roles.All(RoleKeys.IsShareable))
         {
-            if (!IsName<Role>(value, out var role) || !ResourceAccess.ShareableRoles.Contains(role))
-            {
-                errors["Roles"] = ["Choose roles from the list."];
-                return null;
-            }
-
-            roles.Add(role);
+            errors["Roles"] = ["Choose roles from the list."];
+            return null;
         }
 
         var members = (input.MemberIds ?? []).Distinct().ToList();

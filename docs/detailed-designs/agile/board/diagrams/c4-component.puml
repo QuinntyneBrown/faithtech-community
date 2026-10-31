@@ -16,7 +16,7 @@ Container_Boundary(api, "Community API") {
   Component(bc, "SignalRAgileNotifier", "Api, IBoardNotifier", "Sends CardMoved(itemId, status) to the group")
   Component(h, "BoardHandler", "Application", "GetAsync (board query, filters) and MoveAsync")
   Component(wi, "WorkItemsHandler", "Application", "UpdateAsync broadcasts a status change too")
-  Component(pol, "WorkspaceAccessPolicy", "Application", "Member, Staff, System Admin and outsider checks; audits overrides")
+  Component(pol, "WorkspaceAccessPolicy", "Application", "Member, Reader, Admin (AdministerOrganisation) and outsider checks; audits overrides")
   Component(ent, "WorkItem", "Domain entity", "Story status")
   ComponentDb(db, "Community database", "PostgreSQL", "Agile tables")
 }

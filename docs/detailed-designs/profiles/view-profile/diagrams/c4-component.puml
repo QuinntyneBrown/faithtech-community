@@ -7,7 +7,7 @@ Container(spa, "Web app", "Angular", "profiles feature library and api client")
 Container_Boundary(api, "Community API") {
   Component(ep, "ProfilesEndpoints", "Minimal API", "GET /api/profiles/{id}, authenticated")
   Component(h, "GetProfileHandler", "Application handler", "Loads profile, applies visibility")
-  Component(cu, "ICurrentUser", "Application abstraction", "Caller identity and roles")
+  Component(cu, "ICurrentUser", "Application abstraction", "Caller identity and capabilities")
   ComponentDb(db, "CommunityDbContext", "EF Core / PostgreSQL", "Profiles, photos, roles, contacts")
 }
 Rel(spa, ep, "GET profile")

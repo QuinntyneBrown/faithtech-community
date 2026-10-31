@@ -15,7 +15,7 @@ skinparam package {
   BackgroundColor #F9FAFB
 }
 actor "Member" as actor
-box "Frontend — FaithTech Community web app (feature library)" #E0F2FE
+box "Frontend — Community web app (feature library)" #E0F2FE
   participant "Http<Feature>Service" as client
 end box
 box "Backend — FaithTech.Community.Api" #D1FADF
@@ -29,7 +29,7 @@ box "Backend — FaithTech.Community.Application and Domain" #ECFDF3
 end box
 actor -> client : Act
 client -> cid : HTTPS request
-cid -> cid : Assign correlation ID (L2-047 #2)
+cid -> cid : Assign correlation ID (L2-047 #2); organisation slug joins the scope after host resolution
 cid -> log : Next
 log -> exc : Next
 exc -> ep : Next

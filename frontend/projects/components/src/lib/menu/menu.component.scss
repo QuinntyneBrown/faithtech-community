@@ -69,3 +69,14 @@
     animation: none;
   }
 }
+
+/* An item with a second line, such as an organisation and its host in "Switch organisation". */
+.menu__item-text {
+  display: flex;
+  flex-direction: column;
+}
+
+.menu__item-caption {
+  color: var(--color-fg-muted);
+  font: var(--text-caption);
+}

@@ -3,10 +3,11 @@ import { HttpErrorResponse } from '@angular/common/http';
 import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
 import {
+  OrganisationNames,
+  problemDetails,
+  ResourceDto,
   RESOURCES_SERVICE,
   ROLE_LABELS,
-  ResourceDto,
-  problemDetails,
 } from '@faithtech-community/api';
 import {
   AlertComponent,
@@ -36,6 +37,7 @@ import { firstValueFrom } from 'rxjs';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class TransferOwnershipDialog {
+  protected readonly organisation = inject(OrganisationNames);
   protected readonly ref = inject<DialogRef<ResourceDto>>(DialogRef);
   protected readonly resource = inject<ResourceDto>(DIALOG_DATA);
   private readonly resources = inject(RESOURCES_SERVICE);
@@ -73,7 +75,7 @@ export class TransferOwnershipDialog {
           .map((m) => ({
             id: m.id,
             name: m.name,
-            detail: [m.roles.map((r) => ROLE_LABELS[r]).join(', '), m.city]
+            detail: [m.roles.map((r) => ROLE_LABELS[r]).join(', '), m.chapterName]
               .filter(Boolean)
               .join(' · '),
           })),

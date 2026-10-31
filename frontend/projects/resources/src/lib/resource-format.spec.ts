@@ -8,13 +8,16 @@ import {
   isAllowed,
   metaLine,
   openLabel,
+  resolveGuess,
   titleFrom,
+  typeIcon,
 } from './resource-format';
 
 const deck: ResourceSummary = {
   id: 'r1',
   title: 'City launch deck',
-  type: 'Deck',
+  type: 'deck',
+  typeName: 'Deck',
   fileName: 'city-launch-deck.pptx',
   extension: 'pptx',
   size: 24.6 * 1024 * 1024,
@@ -38,7 +41,8 @@ describe('resource formatting', () => {
   it('shows a link’s host in place of the file type and size', () => {
     const link = {
       ...deck,
-      type: 'Template' as const,
+      type: 'template',
+      typeName: 'Template',
       extension: null,
       size: null,
       linkHost: 'docs.google.com',
@@ -68,7 +72,22 @@ describe('resource formatting', () => {
       guessType('c.svg'),
       guessType('d.csv'),
       guessType('e.mp4'),
-    ]).toEqual(['Deck', 'Image', 'Logo', 'Document', 'Other']);
+    ]).toEqual(['deck', 'image', 'logo', 'document', 'other']);
+  });
+
+  // L2-146 AC3: the guess maps by key onto the organisation's active types, else to other.
+  it('maps the guess onto the active types, or to other', () => {
+    const active = [{ key: 'deck' }, { key: 'document' }, { key: 'other' }];
+    expect([
+      resolveGuess('pitch.pptx', active),
+      resolveGuess('notes.pdf', active),
+      resolveGuess('logo.svg', active),
+    ]).toEqual(['deck', 'document', 'other']);
+  });
+
+  it('shows a file icon for a type the guess never answers', () => {
+    expect(typeIcon({ type: 'poster', extension: 'pdf' })).toBe('file');
+    expect(typeIcon({ type: 'deck', extension: 'pptx' })).toBe('deck');
   });
 
   it('allows only the listed extensions up to 100 MB', () => {

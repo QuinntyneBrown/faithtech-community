@@ -12,13 +12,14 @@ import {
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, Router } from '@angular/router';
 import {
-  NOTES_SERVICE,
   NoteBlock,
   NoteConflict,
   NotePageDto,
   NotePageRef,
-  ROLE_LABELS,
+  NOTES_SERVICE,
+  OrganisationNames,
   Role,
+  ROLE_LABELS,
 } from '@faithtech-community/api';
 import {
   BannerComponent,
@@ -93,6 +94,7 @@ type State = 'loading' | 'loaded' | 'missing' | 'error';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class NotePage {
+  protected readonly organisation = inject(OrganisationNames);
   private readonly notes = inject(NOTES_SERVICE);
   private readonly toasts = inject(ToastService);
   private readonly dialogs = inject(DialogService);
@@ -292,7 +294,7 @@ export class NotePage {
       this.toasts.show({
         variant: 'danger',
         heading: `${title} wasn’t restored`,
-        text: 'We couldn’t reach FaithTech. It’s still archived.',
+        text: `We couldn’t reach ${this.organisation.shortName()}. It’s still archived.`,
       });
     }
   }
@@ -355,7 +357,7 @@ export class NotePage {
       this.toasts.show({
         variant: 'danger',
         heading: 'Page not created',
-        text: createRefusal(error),
+        text: createRefusal(error, this.organisation.shortName()),
       });
     } finally {
       this.creating.set(false);

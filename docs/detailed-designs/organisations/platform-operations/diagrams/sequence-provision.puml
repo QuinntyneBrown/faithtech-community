@@ -1,0 +1,73 @@
+@startuml
+title UML sequence behaviour — Provision an organisation
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+actor "Platform operator" as actor
+box "Frontend — operator's HTTP client or terminal (no app bundle)" #E0F2FE
+  participant "curl or faithtech-community org create" as client
+end box
+box "Backend — FaithTech.Community.Api or Cli" #D1FADF
+  participant "PlatformEndpoints with RequireOperator / CliApp org" as ep
+end box
+box "Backend — FaithTech.Community.Application/Organisations/Platform" #ECFDF3
+  participant "IPlatformOperators" as ops
+  participant "ProvisionOrganisationHandler" as h
+  participant "OrganisationScope" as scope
+  participant "IPlatformAuditLog" as audit
+end box
+box "Backend — FaithTech.Community.Infrastructure" #FFF4E5
+  database "Community database" as db
+  participant "OutboxEmailQueue" as outbox
+end box
+participant "Email provider" as mail
+actor -> client : slug, host, name, short name, chapter label, admin email
+client -> ep : POST /api/platform/organisations, or org create --operator
+ep -> ops : IsOperator(caller email)
+alt not an operator
+  ep --> client : Empty 404 (API) or refused, exit 1 (Cli) (L2-148 #2)
+else operator
+  ep -> h : ProvisionOrganisationCommand
+  h -> h : Validate slug 3 to 40 [a-z0-9-], host, names, labels, email
+  alt invalid
+    h --> ep : Invalid
+    ep --> client : 400, nothing created (L2-149 #3)
+  else valid
+    h -> db : Organisation by slug or host
+    db --> h : Existing or none
+    alt same slug and same fields
+      h --> ep : Exists
+      ep --> client : 200 "Organisation {slug} exists", nothing changed (L2-149 #4)
+    else slug or host taken with different fields
+      h --> ep : Conflict
+      ep --> client : 409 (L2-149 #3, #4)
+    else free
+      h -> db : Add Organisation (status Provisioning)
+      h -> scope : RunAs(organisation.Id)
+      h -> db : RoleDefinitions Administrator (AdministerOrganisation, not on team) and Member (none) (L2-149 #1)
+      h -> db : Stages New (initial, Open) and Confirmed; event type Gathering; resource types Deck, Image, Document, Other (L2-149 #1)
+      h -> db : OrganisationAdminRoster row
+      h -> db : Invite to admin email pre-assigned Administrator (L2-149 #2, L2-010)
+      h -> audit : organisation.provisioned, target slug, details { adminEmail } (L2-148 #4)
+      h -> db : Status Active; SaveChanges (one unit of work)
+      db --> h : Committed
+      h --> ep : Created { slug, host, name, shortName, status, administratorCount: 0 }
+      ep --> client : 201 summary, or "Organisation {slug} created"
+      outbox -> db : Due outbox row with the new OrganisationId
+      outbox -> mail : Invite under "{name}" with a link on https://{host} (L2-134 #5)
+    end
+  end
+end
+client --> actor : Result
+@enduml

@@ -1,31 +1,34 @@
 using FaithTech.Community.Application.Common;
-using FaithTech.Community.Domain.Profiles;
+using FaithTech.Community.Application.Organisations;
 using Microsoft.EntityFrameworkCore;
 using OpenIddict.Abstractions;
 
 namespace FaithTech.Community.Api.Authentication;
 
 /// <summary>
-/// Loads the signed-in caller's roles from their profile on every request, so a role added or removed
-/// takes effect at once, even on a token issued before the change (L2-009, L2-042). The role claims in
-/// a token are only a hint for clients; the server never authorizes with them.
+/// Loads the signed-in caller's membership of the current organisation on every request: the profile their account
+/// holds there, found through the organisation-filtered context, and its roles, so a role added or removed takes effect
+/// at once, even on a token issued before the change (L2-009, L2-042). A suspended profile counts as no membership
+/// (L2-132). The role claims in a token are only a hint for clients; the server never authorizes with them.
 /// </summary>
 public class CurrentRolesMiddleware(RequestDelegate next)
 {
-    public const string ItemKey = "FaithTech.CurrentRoles";
+    public const string ItemKey = "FaithTech.CurrentMembership";
 
-    public async Task InvokeAsync(HttpContext context, IApplicationDbContext db)
+    public async Task InvokeAsync(HttpContext context, IApplicationDbContext db, ProfileCapabilities capabilitiesOf)
     {
         if (context.User.Identity?.IsAuthenticated == true
             && Guid.TryParse(context.User.FindFirst(OpenIddictConstants.Claims.Subject)?.Value, out var userId))
         {
-            var profileId = await db.Users.Where(u => u.Id == userId).Select(u => (Guid?)u.ProfileId).SingleOrDefaultAsync(context.RequestAborted);
-            Role[] roles = profileId is null
-                ? []
-                : await db.Profiles.Where(p => p.Id == profileId)
-                    .SelectMany(p => p.Roles.Select(r => r.Role))
-                    .ToArrayAsync(context.RequestAborted);
-            context.Items[ItemKey] = roles;
+            var profileId = await db.Profiles.AsNoTracking()
+                .Where(p => p.UserId == userId && !p.IsSuspended)
+                .Select(p => (Guid?)p.Id)
+                .SingleOrDefaultAsync(context.RequestAborted);
+            if (profileId is { } id)
+            {
+                var (roles, capabilities) = await capabilitiesOf.OfAsync(id, context.RequestAborted);
+                context.Items[ItemKey] = new CurrentMembership(id, roles, capabilities);
+            }
         }
 
         await next(context);

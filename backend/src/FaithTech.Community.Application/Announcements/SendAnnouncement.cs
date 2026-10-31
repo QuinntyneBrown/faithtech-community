@@ -1,11 +1,12 @@
+using FaithTech.Community.Domain.Organisations;
 using FaithTech.Community.Application.Common;
 using FaithTech.Community.Application.Notifications;
+using FaithTech.Community.Application.Organisations;
 using FaithTech.Community.Domain.Announcements;
 using FaithTech.Community.Domain.Notifications;
 using FaithTech.Community.Domain.Profiles;
 using FluentValidation;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Options;
 
 namespace FaithTech.Community.Application.Announcements;
 
@@ -26,7 +27,8 @@ public static class AnnouncementRules
     public const string RolesMessage = "Choose at least one role.";
     public const string EventMessage = "Choose an event.";
 
-    public static bool IsRole(string? value) => Enum.TryParse<Role>(value, ignoreCase: false, out _) && !int.TryParse(value, out _);
+    /// <summary>A role key; whether the organisation defines it is checked against its definitions.</summary>
+    public static bool IsRole(string? value) => !string.IsNullOrWhiteSpace(value);
 }
 
 public class AudienceRequestValidator : AbstractValidator<AudienceRequest>
@@ -66,7 +68,7 @@ public class SendAnnouncementValidator : AbstractValidator<SendAnnouncementComma
 /// <summary>Communications Leads and System Admins send announcements; everyone else gets 403 (L2-029 AC3).</summary>
 public class AnnouncementAccess(ICurrentUser current)
 {
-    public bool CanSend => current.HasRole(Role.CommunicationsLead) || current.HasRole(Role.SystemAdmin);
+    public bool CanSend => current.Has(Capability.SendAnnouncements);
 }
 
 /// <summary>
@@ -78,14 +80,14 @@ public class AudienceResolver(IApplicationDbContext db)
     public IQueryable<Guid> RecipientIds(AnnouncementAudience audience)
     {
         var members = from user in db.Users
-                      join profile in db.Profiles on user.ProfileId equals profile.Id
+                      join profile in db.Profiles on (Guid?)user.Id equals profile.UserId
                       where !profile.IsSuspended
                       select profile;
-        var roles = audience.Roles.ToList();
+        var roles = audience.RoleIds.ToList();
         return audience.Kind switch
         {
             AudienceKind.Everyone => members.Select(p => p.Id),
-            AudienceKind.Roles => members.Where(p => p.Roles.Any(r => roles.Contains(r.Role))).Select(p => p.Id),
+            AudienceKind.Roles => members.Where(p => p.Roles.Any(r => roles.Contains(r.RoleDefinitionId))).Select(p => p.Id),
             AudienceKind.EventRsvps => members
                 .Where(p => db.Events.Where(e => e.Id == audience.EventId).SelectMany(e => e.Rsvps).Any(r => r.ProfileId == p.Id))
                 .Select(p => p.Id),
@@ -93,14 +95,16 @@ public class AudienceResolver(IApplicationDbContext db)
         };
     }
 
-    /// <summary>The domain audience for a validated request, or null when its event does not exist.</summary>
+    /// <summary>The domain audience for a validated request, or null when a role or its event does not exist.</summary>
     public async Task<AnnouncementAudience?> FromRequestAsync(AudienceRequest request, CancellationToken cancellationToken = default)
     {
         var kind = Enum.Parse<AudienceKind>(request.Kind!);
         return kind switch
         {
             AudienceKind.Everyone => AnnouncementAudience.Everyone(),
-            AudienceKind.Roles => AnnouncementAudience.ForRoles([.. request.Roles!.Select(Enum.Parse<Role>).Distinct()]),
+            AudienceKind.Roles => await RoleKeys.DefinitionsAsync(db, request.Roles!, cancellationToken) is { } roles
+                ? AnnouncementAudience.ForRoles([.. roles.Select(d => d.Id)])
+                : null,
             _ => await db.Events.AnyAsync(e => e.Id == request.EventId, cancellationToken)
                 ? AnnouncementAudience.ForEventRsvps(request.EventId!.Value)
                 : null,
@@ -119,7 +123,7 @@ public class SendAnnouncementHandler(
     AudienceResolver audiences,
     INotificationPublisher publisher,
     IUnsubscribeTokens unsubscribe,
-    IOptions<WebAppOptions> webApp,
+    ICurrentOrganisation organisation,
     TimeProvider time)
 {
     public const string LinkPath = "/announcements";
@@ -133,7 +137,9 @@ public class SendAnnouncementHandler(
 
         var audience = await audiences.FromRequestAsync(request, cancellationToken);
         return audience is null
-            ? (Result.Invalid("EventId", AnnouncementRules.EventMessage), 0)
+            ? (request.Kind == nameof(AudienceKind.Roles)
+                ? Result.Invalid("Roles", AnnouncementRules.RolesMessage)
+                : Result.Invalid("EventId", AnnouncementRules.EventMessage), 0)
             : (Result.Ok(), await audiences.RecipientIds(audience).CountAsync(cancellationToken));
     }
 
@@ -147,10 +153,12 @@ public class SendAnnouncementHandler(
         var audience = await audiences.FromRequestAsync(command.Audience!, cancellationToken);
         if (audience is null)
         {
-            return (Result.Invalid("Audience.EventId", AnnouncementRules.EventMessage), null);
+            return (command.Audience!.Kind == nameof(AudienceKind.Roles)
+                ? Result.Invalid("Audience.Roles", AnnouncementRules.RolesMessage)
+                : Result.Invalid("Audience.EventId", AnnouncementRules.EventMessage), null);
         }
 
-        var sender = await db.Users.Where(u => u.Id == userId).Select(u => u.ProfileId).SingleAsync(cancellationToken);
+        var sender = current.ProfileId ?? throw new InvalidOperationException("The caller has no profile in this organisation.");
         var subject = command.Subject!.Trim();
         var body = command.Body!.Trim();
         var recipients = await audiences.RecipientIds(audience).ToListAsync(cancellationToken);
@@ -173,5 +181,5 @@ public class SendAnnouncementHandler(
     /// <summary>The message with each recipient's own unsubscribe link (L2-030 AC3).</summary>
     private string EmailBody(string body, Guid recipient) =>
         $"{body}\n\nUnsubscribe from announcement emails (no sign-in needed): "
-        + $"{webApp.Value.Origin}/unsubscribe?token={Uri.EscapeDataString(unsubscribe.Issue(recipient))}";
+        + $"{organisation.Origin}/unsubscribe?token={Uri.EscapeDataString(unsubscribe.Issue(recipient))}";
 }

@@ -14,11 +14,11 @@ skinparam package {
   FontColor #101828
   BackgroundColor #F9FAFB
 }
-actor "System Admin" as actor
-box "Frontend — FaithTech Community web app (admin library)" #E0F2FE
+actor "Administrator (or holder of ManageRoles / ManageOrganisationSettings)" as actor
+box "Frontend — Community web app (admin library)" #E0F2FE
   participant "AuditLogPage" as page
 end box
-box "Frontend — FaithTech Community web app (api library)" #E0F2FE
+box "Frontend — Community web app (api library)" #E0F2FE
   participant "HttpAuditLogService" as svc
 end box
 box "Backend — FaithTech.Community.Api" #D1FADF
@@ -34,13 +34,14 @@ actor -> page : Choose a category
 page -> svc : getEntries({ category }, page)
 svc -> ep : GET /api/admin/audit?category&actor&from&to&page (HANDLES_FORBIDDEN)
 ep -> q : HandleAsync(GetAuditEntriesQuery)
-alt not System Admin
+alt caller lacks AdministerOrganisation, ManageRoles and ManageOrganisationSettings
   q --> ep : null
   ep --> svc : 403 (L2-041 AC4)
   svc --> page : HttpErrorResponse 403
   page --> actor : Show the page's forbidden state
-else System Admin
-  q -> db : Filter from 90 days ago by default, order by OccurredAtUtc desc, take 50 (L2-041 AC2)
+else caller may read
+  q -> q : Limit categories to those the caller may change unless AdministerOrganisation (L2-152 AC3)
+  q -> db : Filter from 90 days ago by default, order by OccurredAtUtc desc, take 50 (L2-041 AC2); scoped by ICurrentOrganisation
   db --> q : Entries
   q -> db : Load actor and target profile names
   q --> ep : PagedResult<AuditEntryDto> with summaries

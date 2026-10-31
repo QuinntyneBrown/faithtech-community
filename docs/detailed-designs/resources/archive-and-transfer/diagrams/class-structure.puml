@@ -28,11 +28,19 @@ class ResourceBlobTask {
   +{static} Delete(resourceId, blobName, now): ResourceBlobTask
 }
 class ResourceAccess <<static>> {
-  +{static} Contributors: IReadOnlyList<Role>
+  +{static} CanContribute(current: ICurrentUser): bool
   +{static} CanEdit(resource, caller): bool
   +{static} IsAdminOverride(resource, caller): bool
   +{static} VisibleOrOwnArchived(query, caller): IQueryable<Resource>
 }
+interface ICurrentUser {
+  +Has(capability: string): bool
+}
+interface ICurrentOrganisation {
+  +Guid Id
+}
+ResourceAccess ..> ICurrentUser : Has(AdministerOrganisation)
+ResourceAccess ..> ICurrentOrganisation : query filter
 class ArchiveResourceHandler {
   +ArchiveAsync(id): Task<(Result, ResourceDto?)>
   +RestoreAsync(id): Task<(Result, ResourceDto?)>
@@ -56,7 +64,7 @@ class ResourceMaintenanceWorker <<BackgroundService>> {
 class ArchivedResourceDto <<record>> {
   +Guid Id
   +string Title
-  +ResourceType Type
+  +string Type
   +string? Extension
   +long? Size
   +DateTimeOffset ArchivedAt
@@ -75,7 +83,7 @@ ArchiveResourceHandler --> ResourceAccess
 ArchiveResourceHandler --> IAuditLog : override
 ArchiveResourceHandler ..> ArchivedResourceDto
 ArchiveResourceHandler ..> Resource : Archive, Restore
-TransferOwnershipHandler --> ResourceAccess : Contributors
+TransferOwnershipHandler --> ResourceAccess : target Has(AddResources)
 TransferOwnershipHandler --> IAuditLog : resource.owner.transferred
 TransferOwnershipHandler --> INotificationPublisher : ResourceOwnershipTransferred
 TransferOwnershipHandler ..> TransferOwnershipCommand

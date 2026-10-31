@@ -45,7 +45,7 @@ public class ListResourcesTests : IAsyncLifetime
         var client = factory.ClientFor(await factory.AddMemberAsync("Samuel Mensah"));
 
         Assert.Equal(["judging-rubric", "hackathon-kickoff"], (await client.ListResourcesAsync("?tag=hackathon")).Items.Select(i => i.Title));
-        Assert.Equal(["hackathon-kickoff"], (await client.ListResourcesAsync("?tag=hackathon&type=Deck")).Items.Select(i => i.Title));
+        Assert.Equal(["hackathon-kickoff"], (await client.ListResourcesAsync("?tag=hackathon&type=deck")).Items.Select(i => i.Title));
         Assert.Equal(["judging-rubric"], (await client.ListResourcesAsync("?q=judges")).Items.Select(i => i.Title));
         Assert.Equal(["city-launch"], (await client.ListResourcesAsync("?q=launch.pptx")).Items.Select(i => i.Title));
         Assert.Equal(2, (await client.ListResourcesAsync("?q=hackathon")).TotalCount);

@@ -1,6 +1,7 @@
 // Traces to: L2-021 (docs/detailed-designs/events/event-list-and-filter)
 import { expect, test } from '../../fixtures/app';
 import { MockApi } from '../../fixtures/mock-api';
+import { NORTHSIDE } from '../../fixtures/mock-host';
 import { EventsPage } from '../../pages/events.page';
 
 test.use({ timezoneId: 'America/Toronto' });
@@ -8,7 +9,7 @@ test.use({ timezoneId: 'America/Toronto' });
 function addEvents(api: MockApi) {
   const builders = api.events.add({
     title: 'Toronto Builders Night',
-    type: 'BuildersNight',
+    type: 'builders-night',
     startsAt: '2026-11-06T23:30:00Z',
     endsAt: '2026-11-07T02:00:00Z',
     visibility: 'Public',
@@ -16,10 +17,10 @@ function addEvents(api: MockApi) {
   api.events.addRsvps(builders, 34);
   api.events.add({
     title: 'Austin Faith & AI Panel',
-    type: 'Panel',
+    type: 'panel',
     startsAt: '2026-10-30T23:00:00Z',
     endsAt: '2026-10-31T01:00:00Z',
-    city: 'Austin',
+    chapterId: api.chapters.named('Austin').id,
     format: 'Online',
     venue: null,
     onlineLink: 'https://meet.example.org/panel',
@@ -28,7 +29,7 @@ function addEvents(api: MockApi) {
   });
   const hackathon = api.events.add({
     title: 'Hackathon: Tech for Shelters',
-    type: 'Hackathon',
+    type: 'hackathon',
     startsAt: '2026-11-14T14:00:00Z',
     endsAt: '2026-11-15T22:00:00Z',
     venue: 'Trinity Community Centre',
@@ -39,7 +40,7 @@ function addEvents(api: MockApi) {
     title: 'Vancouver Advent Build Night',
     startsAt: '2026-12-05T03:00:00Z',
     endsAt: '2026-12-05T04:30:00Z',
-    city: 'Vancouver',
+    chapterId: api.chapters.named('Vancouver').id,
     format: 'Online',
     venue: null,
     onlineLink: 'https://meet.example.org/advent',
@@ -47,7 +48,7 @@ function addEvents(api: MockApi) {
   });
   api.events.add({
     title: 'Spring hackathon',
-    type: 'Hackathon',
+    type: 'hackathon',
     startsAt: '2026-04-11T14:00:00Z',
     endsAt: '2026-04-12T22:00:00Z',
   });
@@ -123,16 +124,13 @@ test.describe('Event list', () => {
     await expect.poll(() => events.titles()).toEqual(['Spring hackathon']);
     await expect(events.filter('Upcoming')).toHaveAttribute('aria-pressed', 'false');
 
-    await events.filter('Hackathons').click();
-    await expect.poll(() => events.titles()).toEqual(['Hackathon: Tech for Shelters']);
-
     await events.filter('Online').click();
     await expect
       .poll(() => events.titles())
       .toEqual(['Austin Faith & AI Panel', 'Vancouver Advent Build Night']);
 
     await events.filter('Upcoming').click();
-    await events.city.selectOption('Toronto');
+    await events.chapter.selectOption('Toronto');
     await expect
       .poll(() => events.titles())
       .toEqual(['Toronto Builders Night', 'Hackathon: Tech for Shelters']);
@@ -140,9 +138,80 @@ test.describe('Event list', () => {
     await events.filter('Online').click();
     await expect(events.noResults('No upcoming online events in Toronto')).toBeVisible();
     await axe.check();
-    await events.showAllCities.click();
-    await expect(events.city).toHaveValue('');
+    await events.showAllChapters.click();
+    await expect(events.chapter).toHaveValue('');
     await expect(events.events).toHaveCount(2);
+  });
+
+  // Traces to: L2-145 AC3
+  test('the type filter offers the organisation’s types and narrows the list to one', async ({
+    page,
+    api,
+    axe,
+  }) => {
+    addEvents(api);
+    api.events.types.add('Retreat');
+    api.events.types.add('Workshop', { archived: true });
+    const leah = api.addAccount({ email: 'leah@example.org', roles: ['Attendee'] });
+    const events = new EventsPage(page);
+    await api.signInAs(leah, '/events');
+
+    await expect(events.type.locator('option')).toHaveText([
+      'All types',
+      'Gathering',
+      'Builders night',
+      'Hackathon',
+      'Prayer & planning',
+      'Panel',
+      'Retreat',
+    ]);
+    await events.type.selectOption({ label: 'Hackathon' });
+    await expect.poll(() => events.titles()).toEqual(['Hackathon: Tech for Shelters']);
+    await axe.check();
+
+    await events.type.selectOption({ label: 'Retreat' });
+    await expect(events.noResults('No upcoming Retreat events')).toBeVisible();
+    await events.showAllTypes.click();
+    await expect(events.type).toHaveValue('');
+    await expect(events.events).toHaveCount(4);
+  });
+
+  // Traces to: L2-142 AC1, AC2
+  test('the city filter offers the FaithTech-wide events and the cities in order', async ({
+    page,
+    api,
+    axe,
+  }) => {
+    addEvents(api);
+    api.events.add({ title: 'Prayer and Planning', chapterId: null });
+    const leah = api.addAccount({ email: 'leah@example.org', roles: ['Attendee'] });
+    const events = new EventsPage(page);
+    await api.signInAs(leah, '/events');
+
+    await expect(events.chapter).toHaveAccessibleName('City');
+    await expect(events.chapter.locator('option')).toHaveText([
+      'All cities',
+      'FaithTech-wide',
+      'Toronto',
+      'Austin',
+      'Vancouver',
+    ]);
+    await events.chapter.selectOption('FaithTech-wide');
+    await expect.poll(() => events.titles()).toEqual(['Prayer and Planning']);
+    await axe.check();
+  });
+
+  // Traces to: L2-142 AC3
+  test('with chapters off there is no city filter', async ({ page, api, axe }) => {
+    api.host.serve(NORTHSIDE);
+    addEvents(api);
+    const leah = api.addAccount({ email: 'leah@example.org', roles: ['Attendee'] });
+    const events = new EventsPage(page);
+    await api.signInAs(leah, '/events');
+
+    await expect(events.events).toHaveCount(4);
+    await expect(events.chapter).toHaveCount(0);
+    await axe.check();
   });
 
   test('with no events at all a lead sees the empty state with New event', async ({

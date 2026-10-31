@@ -7,7 +7,7 @@ import { SignInPage } from '../../pages/sign-in.page';
 test.describe('Accept an invite', () => {
   test('a newcomer joins with the invited email and gets the role', async ({ page, api, axe }) => {
     const grace = api.addAccount({ email: 'grace@example.org', name: 'Grace Okonkwo' });
-    api.profiles.get(grace.profileId)!.homeCity = 'Toronto';
+    api.profiles.get(grace.profileId)!.chapterId = api.chapters.named('Toronto').id;
     const invite = api.addInvite({
       email: 'ruth.alvarez@example.org',
       invitedBy: grace.profileId,
@@ -79,7 +79,7 @@ test.describe('Accept an invite', () => {
     await accept.acceptInvite.click();
 
     await expect(page).toHaveURL(/\/people\/me$/);
-    await expect(new ProfilePage(page).roles).toHaveText(['Attendee', 'Volunteer']);
+    await expect(new ProfilePage(page).roles).toHaveText(['Volunteer', 'Attendee']);
   });
 
   test('a signed-in member with another email cannot take the invite', async ({

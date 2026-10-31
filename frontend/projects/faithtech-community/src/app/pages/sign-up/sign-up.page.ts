@@ -1,5 +1,10 @@
 import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
-import { AUTH_SERVICE, SignUpFieldErrors, signUpFieldErrors } from '@faithtech-community/api';
+import {
+  AUTH_SERVICE,
+  OrganisationNames,
+  signUpFieldErrors,
+  SignUpFieldErrors,
+} from '@faithtech-community/api';
 import {
   AuthLayoutComponent,
   CardComponent,
@@ -18,6 +23,7 @@ import { firstValueFrom } from 'rxjs';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class SignUpPage {
+  protected readonly organisation = inject(OrganisationNames);
   private readonly auth = inject(AUTH_SERVICE);
 
   protected readonly busy = signal(false);

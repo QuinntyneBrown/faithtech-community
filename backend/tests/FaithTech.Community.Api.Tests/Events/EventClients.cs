@@ -1,5 +1,7 @@
+using FaithTech.Community.Api.Tests.Organisations;
 using FaithTech.Community.Api.Tests.Profiles;
 using FaithTech.Community.Domain.Events;
+using FaithTech.Community.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 
 namespace FaithTech.Community.Api.Tests.Events;
@@ -11,8 +13,8 @@ public static class EventClients
         this CommunityApiFactory factory,
         string title,
         TimeSpan startsIn,
-        string city = "Toronto",
-        EventType type = EventType.Gathering,
+        string? city = "Toronto",
+        string type = "gathering",
         EventFormat format = EventFormat.InPerson,
         EventVisibility visibility = EventVisibility.MembersOnly,
         int rsvps = 0,
@@ -23,15 +25,17 @@ public static class EventClients
         IEnumerable<Guid>? members = null,
         IEnumerable<(string Name, string Email)>? guests = null)
     {
+        var chapterId = await factory.ChapterIdAsync(city);
+        var eventType = await factory.WithDbAsync(db => db.EventTypeAsync(type));
         var now = factory.Time.GetUtcNow();
         var starts = now + startsIn;
         var created = new Event(
             title,
             $"About {title}.",
-            type,
+            eventType,
             starts,
             starts + (lasts ?? TimeSpan.FromHours(2)),
-            city,
+            chapterId,
             format,
             format == EventFormat.InPerson ? "Kestrel Labs, 220 King St W" : null,
             format == EventFormat.Online ? "https://meet.example.org/ft" : null,
@@ -39,20 +43,22 @@ public static class EventClients
             visibility,
             createdBy ?? Guid.NewGuid());
 
-        // RSVPs can only be taken before the start, so take them "earlier" than any start in the tests.
+        // RSVPs can only be taken before the start, so take them "earlier" than any start in the tests, a minute
+        // apart so the RSVP order is the order given: anonymous RSVPs, then members, then guests.
+        var at = starts.AddDays(-30);
         for (var i = 0; i < rsvps; i++)
         {
-            created.Rsvp(Guid.NewGuid(), starts.AddDays(-30));
+            created.Rsvp(Guid.NewGuid(), at = at.AddMinutes(1));
         }
 
         foreach (var member in members ?? [])
         {
-            created.Rsvp(member, starts.AddDays(-30));
+            created.Rsvp(member, at = at.AddMinutes(1));
         }
 
         foreach (var (name, email) in guests ?? [])
         {
-            created.GuestRsvp(name, email, starts.AddDays(-30));
+            created.GuestRsvp(name, email, at = at.AddMinutes(1));
         }
 
         if (cancelledBecause is not null)
@@ -62,11 +68,16 @@ public static class EventClients
 
         await factory.WithDbAsync(async db =>
         {
+            db.EventTypes.Attach(eventType);
             db.Events.Add(created);
             return await db.SaveChangesAsync();
         });
         return created;
     }
+
+    /// <summary>The organisation's event type with this key, such as FaithTech's "gathering" (L2-151 AC3).</summary>
+    public static Task<FaithTech.Community.Domain.Organisations.EventType> EventTypeAsync(this CommunityDbContext db, string key = "gathering") =>
+        db.EventTypes.AsNoTracking().SingleAsync(t => t.Key == key);
 
     /// <summary>Cancels an event straight in the database, as the cancel handler would.</summary>
     public static Task CancelEventAsync(this CommunityApiFactory factory, Guid id, string reason) =>

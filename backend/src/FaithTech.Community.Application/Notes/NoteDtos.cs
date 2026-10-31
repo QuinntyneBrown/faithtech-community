@@ -19,7 +19,7 @@ public record NotePageSummaryDto(
 /// <summary>A page named in a breadcrumb, a child list, backlinks or link suggestions. A page the viewer cannot open has no id and reads "Private page".</summary>
 public record NotePageRefDto(Guid? Id, string Title, string? Icon);
 
-public record NoteAudienceMemberDto(Guid Id, string Name, string? City);
+public record NoteAudienceMemberDto(Guid Id, string Name, string? ChapterName);
 
 public record NoteAudienceRoleDto(string Role, int Count);
 

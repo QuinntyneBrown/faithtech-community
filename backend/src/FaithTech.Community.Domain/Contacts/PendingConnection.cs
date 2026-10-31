@@ -1,11 +1,16 @@
+using FaithTech.Community.Domain.Organisations;
+
 namespace FaithTech.Community.Domain.Contacts;
 
 /// <summary>
 /// A person who asked, through a lead's connect link, to become that lead's contact before their email was
 /// verified (ADR 0022). Verifying the email turns it into a linked contact.
 /// </summary>
-public class PendingConnection
+public class PendingConnection : IOrganisationScoped
 {
+    /// <summary>The organisation the record belongs to, stamped when it is saved (ADR 0032).</summary>
+    public Guid OrganisationId { get; private set; }
+
     private PendingConnection() { }
 
     public PendingConnection(Guid profileId, Guid leadId, DateTimeOffset createdAt)

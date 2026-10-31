@@ -1,5 +1,8 @@
 using System.Text.Json;
 using FaithTech.Community.Application.Common;
+using FaithTech.Community.Application.Organisations;
+using FaithTech.Community.Domain.Organisations;
+using FaithTech.Community.Infrastructure.Organisations;
 using FaithTech.Community.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -15,8 +18,11 @@ public interface IEmailTransport
     Task SendAsync(EmailMessage message, CancellationToken cancellationToken = default);
 }
 
-public class OutboxMessage
+public class OutboxMessage : IOrganisationScoped
 {
+    /// <summary>The organisation the record belongs to, stamped when it is saved (ADR 0032).</summary>
+    public Guid OrganisationId { get; private set; }
+
     public Guid Id { get; set; } = Guid.NewGuid();
 
     public string To { get; set; } = string.Empty;
@@ -56,7 +62,7 @@ public class OutboxEmailSender(OutboxEmailQueue queue, CommunityDbContext db) : 
 }
 
 /// <summary>Adds the message, with its HTML part, to the caller's unit of work; it is queued when the caller saves.</summary>
-public class OutboxEmailQueue(CommunityDbContext db, TimeProvider time) : IEmailQueue
+public class OutboxEmailQueue(CommunityDbContext db, TimeProvider time, ICurrentOrganisation organisation) : IEmailQueue
 {
     public void Enqueue(EmailMessage message)
     {
@@ -67,7 +73,7 @@ public class OutboxEmailQueue(CommunityDbContext db, TimeProvider time) : IEmail
             Subject = message.Subject,
             Body = message.Body,
             AttachmentsJson = message.Attachments is { Count: > 0 } attachments ? JsonSerializer.Serialize(attachments) : null,
-            HtmlBody = message.HtmlBody ?? EmailTemplateRenderer.Render(message.Subject, message.Body),
+            HtmlBody = message.HtmlBody ?? EmailTemplateRenderer.Render(message.Subject, message.Body, organisation.Name, organisation.ShortName),
             CreatedAt = now,
             NextAttemptAt = now,
         });
@@ -75,7 +81,7 @@ public class OutboxEmailQueue(CommunityDbContext db, TimeProvider time) : IEmail
 }
 
 public class EmailOutboxDispatcher(
-    CommunityDbContext db, IEmailTransport transport, TimeProvider time, ILogger<EmailOutboxDispatcher> logger)
+    CommunityDbContext db, IEmailTransport transport, TimeProvider time, ICurrentOrganisation organisation, ILogger<EmailOutboxDispatcher> logger)
 {
     private const int BatchSize = 20;
 
@@ -98,7 +104,8 @@ public class EmailOutboxDispatcher(
             {
                 var attachments = message.AttachmentsJson is { } json ? JsonSerializer.Deserialize<List<EmailAttachment>>(json) : null;
                 await transport.SendAsync(
-                    new EmailMessage(message.To, message.Subject, message.Body, attachments, message.HtmlBody), cancellationToken);
+                    // Sent under the organisation's name over the platform's address (L2-130 AC6).
+                    new EmailMessage(message.To, message.Subject, message.Body, attachments, message.HtmlBody, organisation.Name), cancellationToken);
                 message.SentAt = time.GetUtcNow();
             }
             catch (Exception exception) when (exception is not OperationCanceledException)
@@ -127,7 +134,7 @@ public class EmailOutboxDispatcher(
     }
 }
 
-public class EmailOutboxWorker(IServiceScopeFactory scopes, IConfiguration configuration, ILogger<EmailOutboxWorker> logger)
+public class EmailOutboxWorker(OrganisationWork work, IConfiguration configuration, ILogger<EmailOutboxWorker> logger)
     : BackgroundService
 {
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
@@ -142,8 +149,9 @@ public class EmailOutboxWorker(IServiceScopeFactory scopes, IConfiguration confi
         {
             try
             {
-                await using var scope = scopes.CreateAsyncScope();
-                await scope.ServiceProvider.GetRequiredService<EmailOutboxDispatcher>().DispatchPendingAsync(stoppingToken);
+                await work.ForEachAsync(
+                    (services, cancellationToken) => services.GetRequiredService<EmailOutboxDispatcher>().DispatchPendingAsync(cancellationToken),
+                    stoppingToken);
             }
             catch (Exception exception) when (exception is not OperationCanceledException)
             {

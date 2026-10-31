@@ -15,7 +15,7 @@ Container_Boundary(api, "Community API") {
   Component(dl, "DownloadResourceHandler", "Application handler", "File and thumbnail streams; 409 while not stored")
   Component(tags, "ResourceTagsHandler", "Application handler", "Tags in use on visible resources, with counts")
   Component(src, "ResourcesSearchSource", "ISearchSource", "Kind Resource, max 10, visibility in the base query")
-  Component(acc, "ResourceAccess", "Application permission rule", "CanContribute, Visible, VisibleOrOwnArchived, CanEdit")
+  Component(acc, "ResourceAccess", "Application permission rule", "Has(AddResources), Visible, VisibleOrOwnArchived, CanEdit, IsOverride")
   Component(fts, "PostgresFullTextSearch", "Implements IFullTextSearch", "tsvector over Title, Description, TagText, FileName")
   Component(store, "AzureBlobFileStorage", "Implements IFileStorage", "resources container, no read URL")
   Component(audit, "AuditLog", "Infrastructure service", "Implements IAuditLog")

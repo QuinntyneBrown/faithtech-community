@@ -8,3 +8,4 @@
 | event-list-and-filter | 3 days | 100% | B- |
 | public-events-and-guest-rsvp | 4 days | 100% | B- |
 | rsvp | 5 days | 100% | B- |
+| event-check-in | 6 days | 100% | B+ |

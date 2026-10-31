@@ -1,3 +1,4 @@
+using FaithTech.Community.Domain.Organisations;
 using FaithTech.Community.Application.Common;
 using FaithTech.Community.Domain.Profiles;
 using Microsoft.EntityFrameworkCore;
@@ -21,13 +22,13 @@ public class SearchUsersHandler(IApplicationDbContext db, ICurrentUser current)
 
     public async Task<PagedResult<AdminUserSummary>?> HandleAsync(string? term, int page, CancellationToken cancellationToken = default)
     {
-        if (!current.HasRole(Role.SystemAdmin))
+        if (!current.Has(Capability.AdministerOrganisation))
         {
             return null;
         }
 
         var accounts = from user in db.Users.AsNoTracking()
-                       join profile in db.Profiles.AsNoTracking() on user.ProfileId equals profile.Id
+                       join profile in db.Profiles.AsNoTracking() on (Guid?)user.Id equals profile.UserId
                        select new { user, profile };
         if (!string.IsNullOrWhiteSpace(term))
         {
@@ -45,7 +46,7 @@ public class SearchUsersHandler(IApplicationDbContext db, ICurrentUser current)
                 a.profile.Id,
                 a.profile.Name,
                 a.user.Email,
-                Roles = a.profile.Roles.Select(r => r.Role).ToList(),
+                Roles = a.profile.Roles.OrderBy(r => r.Definition!.SortOrder).Select(r => r.Definition!.Key).ToList(),
                 a.profile.IsSuspended,
                 a.user.EmailConfirmed,
             })

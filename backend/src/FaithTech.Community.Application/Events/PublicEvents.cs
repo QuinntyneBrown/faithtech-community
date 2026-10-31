@@ -1,10 +1,10 @@
 using System.Security.Cryptography;
 using System.Text;
 using FaithTech.Community.Application.Common;
+using FaithTech.Community.Application.Organisations;
 using FaithTech.Community.Domain.Events;
 using FluentValidation;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Options;
 
 namespace FaithTech.Community.Application.Events;
 
@@ -17,9 +17,10 @@ public record PublicEventDto(
     string Title,
     string Description,
     string Type,
+    string TypeName,
     DateTimeOffset StartsAt,
     DateTimeOffset EndsAt,
-    string City,
+    string? ChapterName,
     string Format,
     string? Venue,
     int RsvpCount,
@@ -70,7 +71,7 @@ public class PublicEventsHandler(
     IApplicationDbContext db,
     RsvpHandler rsvps,
     IEmailQueue emails,
-    IOptions<WebAppOptions> webApp,
+    ICurrentOrganisation organisation,
     TimeProvider time)
 {
     public async Task<PublicEventDto?> GetAsync(Guid id, CancellationToken cancellationToken = default)
@@ -79,7 +80,7 @@ public class PublicEventsHandler(
         return e is null
             ? null
             : new PublicEventDto(
-                e.Id, e.Title, e.Description, e.Type.ToString(), e.StartsAt, e.EndsAt, e.City, e.Format.ToString(), e.Venue,
+                e.Id, e.Title, e.Description, e.Type!.Key, e.Type.Name, e.StartsAt, e.EndsAt, e.Chapter?.Name, e.Format.ToString(), e.Venue,
                 e.RsvpCount, e.IsFull, e.IsCancelled, e.CancellationReason);
     }
 
@@ -105,7 +106,7 @@ public class PublicEventsHandler(
         rsvp.IssueCancelToken(GuestRsvpTokens.Hash(token));
 
         // The RSVP and its confirmation commit together (L2-028).
-        var origin = webApp.Value.Origin;
+        var origin = organisation.Origin;
         emails.Enqueue(rsvps.Confirmation(e, rsvp.GuestEmail!, $"{origin}/public/events/{e.Id}",
             $"Can’t come after all? Cancel your RSVP: {origin}/public/events/{e.Id}/cancel-rsvp?token={token}"));
         await db.SaveChangesAsync(cancellationToken);

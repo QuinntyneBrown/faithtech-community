@@ -19,7 +19,7 @@ for (const name of Object.keys(BREAKPOINTS) as BreakpointName[]) {
     const grace = api.addAccount({ email: 'grace@example.org', roles: ['EventLead'] });
     const builders = api.events.add({
       title: 'Hackathon: Tech for Shelters, a weekend of building for the city',
-      type: 'Hackathon',
+      type: 'hackathon',
       venue: 'Trinity Community Centre, 155 Crawford St',
     });
     api.events.addRsvps(builders, 52);

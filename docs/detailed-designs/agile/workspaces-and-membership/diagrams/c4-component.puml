@@ -5,7 +5,7 @@ title Components — Agile workspaces and membership
 
 Container_Boundary(web, "Web app") {
   Component(page, "WorkspacesPage / WorkspaceSettingsPage", "Angular pages (agile library)", "List and create workspaces; name, method and members")
-  Component(frame, "WorkspaceFrameComponent", "Angular component (agile library)", "Header, tabs and the Read-only for Staff alert")
+  Component(frame, "WorkspaceFrameComponent", "Angular component (agile library)", "Header, tabs and the read-only alert for a Reader")
   Component(dlg, "CreateWorkspaceDialog / AddWorkspaceMembersDialog / RemoveWorkspaceMemberDialog", "CDK Dialogs", "Create, add-members and remove forms")
   Component(svc, "AgileService", "api library", "AGILE_SERVICE token, HttpAgileService")
 }
@@ -13,7 +13,7 @@ Container_Boundary(api, "Community API") {
   Component(ep, "WorkspacesEndpoints", "Minimal API", "Maps /api/workspaces routes, validates request records")
   Component(h, "WorkspacesHandler / WorkspaceSettingsHandler", "Application", "Create, list, get; add and remove members, rename, switch method, candidates")
   Component(mem, "WorkspaceMembership", "Application", "Adds eligible profiles and notifies them")
-  Component(pol, "WorkspaceAccessPolicy", "Application", "Owner → Admin → Member → Staff → Outsider; audits Admin overrides")
+  Component(pol, "WorkspaceAccessPolicy", "Application", "Owner → Admin → Member → Reader → Outsider; audits Admin (AdministerOrganisation) overrides")
   Component(ent, "Workspace", "Domain entity", "Owner, method, members")
   Component(ntf, "AgileNotifier", "Application", "In-app notification plus queued email")
   Component(audit, "IAuditLog", "Application (Admin)", "Audit log abstraction")

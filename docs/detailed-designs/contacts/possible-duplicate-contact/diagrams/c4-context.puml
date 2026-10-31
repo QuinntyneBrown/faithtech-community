@@ -1,0 +1,11 @@
+@startuml
+!include <C4/C4_Context>
+LAYOUT_WITH_LEGEND()
+title System Context — Possible duplicate contact
+
+Person(lead, "Member with KeepContacts", "Holder of the KeepContacts capability who keeps private contacts")
+Person(admin, "Administrator", "Holder of AdministerOrganisation; checked against their own contacts only")
+System(ftc, "Community platform", "Community site for an organisation's members and partners")
+Rel(lead, ftc, "Is warned of a contact they already keep with the same email in", "HTTPS")
+Rel(admin, ftc, "Is warned only about their own contacts in", "HTTPS")
+@enduml

@@ -13,7 +13,7 @@
     @for (entry of entries(); track $index) {
       @switch (entry.kind) {
         @case ('header') {
-          <li role="none" class="menu__header">
+          <li role="none" class="menu__header" [attr.id]="entry.id ?? null">
             <div class="menu__title">{{ entry.title }}</div>
             @if (entry.caption) {
               <div class="menu__caption">{{ entry.caption }}</div>
@@ -30,16 +30,28 @@
                 ft-menu-item
                 [icon]="entry.icon ?? null"
                 [attr.href]="entry.href"
+                [attr.aria-describedby]="entry.describedBy ?? null"
                 [disabled]="entry.disabled ?? false"
                 (click)="itemSelected.emit(entry.id)"
-                >{{ entry.label }}</a
               >
+                @if (entry.caption) {
+                  <span class="menu__item-text"
+                    >{{ entry.label
+                    }}<span class="menu__item-caption">{{ entry.caption }}</span></span
+                  >
+                } @else {
+                  {{ entry.label }}
+                }
+              </a>
             } @else {
               <button
                 ft-menu-item
                 type="button"
                 [icon]="entry.icon ?? null"
                 [disabled]="entry.disabled ?? false"
+                [danger]="entry.danger ?? false"
+                [attr.role]="entry.checked === undefined ? 'menuitem' : 'menuitemradio'"
+                [attr.aria-checked]="entry.checked === undefined ? null : entry.checked"
                 (click)="itemSelected.emit(entry.id)"
               >
                 {{ entry.label }}

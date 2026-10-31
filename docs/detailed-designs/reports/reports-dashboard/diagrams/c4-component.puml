@@ -1,0 +1,31 @@
+@startuml
+!include <C4/C4_Component>
+LAYOUT_WITH_LEGEND()
+title Components — Reports dashboard
+Container_Boundary(web, "Web app") {
+  Component(shell, "App shell navigation", "Angular (faithtech-community app)", "Lists Reports for holders of ViewReports; lazy-loads /reports")
+  Component(page, "ReportsPage", "Angular page (reports library)", "Filters, figures, charts, tables, states, Export CSV")
+  Component(ui, "Components library", "Angular (components library)", "ft-stat with context, ft-progress-chart, ft-filter-bar, ft-table, ft-empty-state")
+  Component(svc, "HttpReportsService", "Angular service (api library)", "Implements ReportsService behind REPORTS_SERVICE; sets HANDLES_FORBIDDEN")
+}
+Container_Boundary(api, "Community API") {
+  Component(ep, "ReportsEndpoints", "ASP.NET Core minimal API", "GET /api/reports and /api/reports/export.csv")
+  Component(access, "ReportAccess", "Application service", "ICurrentUser.Has(ViewReports)")
+  Component(get, "GetReportHandler", "Application handler", "Resolves the period with TimeProvider; runs the aggregates")
+  Component(export, "ExportReportHandler", "Application handler", "Lays the report out as CSV sections")
+  Component(csv, "CsvWriter", "Infrastructure service", "Implements ICsvWriter: RFC 4180 and the formula guard")
+  Component(signup, "SignUp, GoogleSignIn and AcceptInvite handlers", "Application handlers", "Create profiles with JoinedAtUtc")
+  ComponentDb(db, "CommunityDbContext", "PostgreSQL", "EF Core context over the Community database")
+}
+Rel(shell, page, "Lazy-loads REPORTS_ROUTES")
+Rel(page, ui, "Composes")
+Rel(page, svc, "getReport, exportCsv")
+Rel(svc, ep, "GET", "JSON or CSV over HTTPS")
+Rel(ep, get, "Sends GetReportQuery")
+Rel(ep, export, "Sends GetReportQuery")
+Rel(get, access, "CanRead")
+Rel(export, get, "Builds the ReportDto")
+Rel(export, csv, "Write(rows)")
+Rel(get, db, "Counts and groups within the organisation (global filter); never reads contacts", "EF Core, AsNoTracking")
+Rel(signup, db, "Adds Profile with JoinedAtUtc", "EF Core")
+@enduml

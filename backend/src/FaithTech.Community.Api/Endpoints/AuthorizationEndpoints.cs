@@ -1,5 +1,6 @@
 using System.Security.Claims;
 using FaithTech.Community.Application.Common;
+using FaithTech.Community.Application.Organisations;
 using FaithTech.Community.Application.Identity;
 using Microsoft.AspNetCore;
 using Microsoft.AspNetCore.Authentication;
@@ -26,30 +27,52 @@ public static class AuthorizationEndpoints
         HttpContext context,
         UserManager<CommunityUser> users,
         IApplicationDbContext db,
-        IOptions<WebAppOptions> webApp)
+        ICurrentOrganisation organisation,
+        IOpenIddictApplicationManager applications,
+        IOpenIddictAuthorizationManager authorizations)
     {
         var request = context.GetOpenIddictServerRequest()
             ?? throw new InvalidOperationException("The OpenID Connect request cannot be retrieved.");
 
         var session = await context.AuthenticateAsync(IdentityConstants.ApplicationScheme);
         var user = session.Succeeded ? await users.GetUserAsync(session.Principal) : null;
-        var profile = user is null ? null : await db.Profiles.AsNoTracking().SingleOrDefaultAsync(p => p.Id == user.ProfileId);
+        var profile = user is null ? null : await db.Profiles.AsNoTracking().SingleOrDefaultAsync(p => p.UserId == user.Id);
 
-        if (user is null || profile is null || profile.IsSuspended)
+        // An account with no profile here still gets a session, because the account is global; the app shows it the
+        // not-a-member page and the API refuses it (L2-132 AC3). A suspended membership gets none.
+        if (user is null || profile is { IsSuspended: true })
         {
-            // No usable session: send the browser to the web app's sign-in page, which comes back here.
+            // No usable session: send the browser to this host's sign-in page, which comes back here.
             await context.SignOutAsync(IdentityConstants.ApplicationScheme);
             var returnUrl = context.Request.PathBase + context.Request.Path + context.Request.QueryString;
-            return Results.Redirect($"{webApp.Value.Origin}/sign-in?returnUrl={Uri.EscapeDataString(returnUrl)}");
+            return Results.Redirect($"{organisation.Origin}/sign-in?returnUrl={Uri.EscapeDataString(returnUrl)}");
         }
 
         var identity = new ClaimsIdentity(OpenIddictServerAspNetCoreDefaults.AuthenticationScheme, Claims.Name, Claims.Role);
         identity.SetClaim(Claims.Subject, user.Id.ToString())
             .SetClaim(Claims.Email, user.Email)
             .SetClaim(Claims.EmailVerified, user.EmailConfirmed)
-            .SetClaim(Claims.Name, profile.Name)
-            .SetClaims(Claims.Role, [.. profile.Roles.Select(r => r.Role.ToString())]);
+            .SetClaim(Claims.Name, profile?.Name ?? user.Email)
+            .SetClaims(Claims.Role, [.. profile?.Roles.Select(r => r.Definition!.Key) ?? []]);
         identity.SetScopes(request.GetScopes());
+
+        // Each session is stamped with the organisation whose host issued it, so suspending a membership revokes that
+        // organisation's sessions only (L2-132 AC5). The stamp is for revocation; the host still decides the organisation.
+        var application = await applications.FindByClientIdAsync(request.ClientId!)
+            ?? throw new InvalidOperationException("The client application cannot be found.");
+        var descriptor = new OpenIddictAuthorizationDescriptor
+        {
+            ApplicationId = await applications.GetIdAsync(application),
+            CreationDate = DateTimeOffset.UtcNow,
+            Principal = new ClaimsPrincipal(identity),
+            Status = Statuses.Valid,
+            Subject = user.Id.ToString(),
+            Type = AuthorizationTypes.AdHoc,
+        };
+        descriptor.Scopes.UnionWith(request.GetScopes());
+        descriptor.Properties[TokenRevocationProperties.OrganisationId] = System.Text.Json.JsonSerializer.SerializeToElement(organisation.Id);
+        var authorization = await authorizations.CreateAsync(descriptor);
+        identity.SetAuthorizationId(await authorizations.GetIdAsync(authorization));
         identity.SetDestinations(_ => [Destinations.AccessToken, Destinations.IdentityToken]);
 
         return Results.SignIn(new ClaimsPrincipal(identity), authenticationScheme: OpenIddictServerAspNetCoreDefaults.AuthenticationScheme);

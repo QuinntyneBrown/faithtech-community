@@ -26,7 +26,7 @@ test.describe('View a profile', () => {
     api.addProfile({
       id: 'samuel',
       name: 'Samuel Mensah',
-      homeCity: 'Toronto',
+      chapterId: api.chapters.named('Toronto').id,
       bio: 'Backend engineer at a health-tech start-up.',
       roles: ['CreateLead', 'ProductEngineer'],
       photos: [

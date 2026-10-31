@@ -7,3 +7,4 @@
  * skill + ATDD), then delete this comment.
  */
 export * from './auth.guard';
+export * from './capability.guard';

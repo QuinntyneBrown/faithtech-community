@@ -2,15 +2,12 @@ using System.Globalization;
 using System.Text;
 using FaithTech.Community.Application.Common;
 using FaithTech.Community.Application.Notifications;
+using FaithTech.Community.Application.Organisations;
 using FaithTech.Community.Domain.Events;
 using FaithTech.Community.Domain.Notifications;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Options;
 
 namespace FaithTech.Community.Application.Events;
-
-/// <summary>A CSV download: the file name and its text.</summary>
-public record CsvFile(string FileName, string Content);
 
 /// <summary>
 /// Member RSVPs (L2-022): RSVP with an in-app and email confirmation carrying the .ics, cancel and RSVP again before
@@ -22,7 +19,7 @@ public class RsvpHandler(
     INotificationPublisher notifications,
     IIcsCalendarWriter calendar,
     IEmailQueue emails,
-    IOptions<WebAppOptions> webApp,
+    ICurrentOrganisation organisation,
     TimeProvider time)
 {
     public const string Cancelled = "This event was cancelled.";
@@ -57,10 +54,10 @@ public class RsvpHandler(
         var link = $"/events/{e.Id}";
         notifications.Publish(me, NotificationKind.RsvpConfirmed, title, link);
 
-        var address = await db.Users.Where(u => u.ProfileId == me).Select(u => u.Email).SingleOrDefaultAsync(cancellationToken);
+        var address = await db.Users.Where(u => db.Profiles.Any(p => p.Id == me && p.UserId == u.Id)).Select(u => u.Email).SingleOrDefaultAsync(cancellationToken);
         if (address is not null)
         {
-            emails.Enqueue(Confirmation(e, address, $"{webApp.Value.Origin}{link}"));
+            emails.Enqueue(Confirmation(e, address, $"{organisation.Origin}{link}"));
         }
 
         // The RSVP, its notification and its confirmation commit together (L2-028).
@@ -100,11 +97,13 @@ public class RsvpHandler(
             return (Result.NotFound(), null);
         }
 
-        var memberIds = e.Rsvps.Select(r => r.ProfileId).OfType<Guid>().ToList();
+        // Walk-ins did not RSVP; the attendance export lists them (L2-121 AC3, L2-122).
+        var rsvped = e.Rsvps.Where(r => !r.IsWalkIn).ToList();
+        var memberIds = rsvped.Select(r => r.ProfileId).OfType<Guid>().ToList();
         var names = await db.Profiles.AsNoTracking().Where(p => memberIds.Contains(p.Id))
             .ToDictionaryAsync(p => p.Id, p => p.Name, cancellationToken);
         var csv = new StringBuilder("Name,Member or guest,Guest email,RSVP'd (UTC)\r\n");
-        foreach (var r in e.Rsvps.OrderBy(r => r.CreatedAt))
+        foreach (var r in rsvped.OrderBy(r => r.CreatedAt))
         {
             var name = r.IsGuest ? r.GuestName! : names.GetValueOrDefault(r.ProfileId!.Value, "A former member");
             csv.Append(Cell(name)).Append(',')
@@ -126,7 +125,7 @@ public class RsvpHandler(
         $"You’re going to {e.Title}",
         $"You’re going to {e.Title}.\n\n" +
         $"{e.StartsAt.UtcDateTime.ToString("dddd d MMMM yyyy, HH:mm", CultureInfo.InvariantCulture)} UTC\n" +
-        $"{(e.Format == EventFormat.Online ? e.OnlineLink : $"{e.Venue}, {e.City}")}\n\n" +
+        $"{(e.Format == EventFormat.Online ? e.OnlineLink : e.Chapter is { } chapter ? $"{e.Venue}, {chapter.Name}" : e.Venue)}\n\n" +
         $"The calendar invite is attached. See the event: {pageUrl}" +
         (extra is null ? string.Empty : $"\n\n{extra}"),
         [new EmailAttachment(EventFileNames.Calendar(e.Title), "text/calendar", calendar.Write(e))]);

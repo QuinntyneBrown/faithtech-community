@@ -3,9 +3,9 @@
 LAYOUT_WITH_LEGEND()
 title Containers — Send an invite
 
-Person(lead, "Lead", "Holder of a lead role")
-Person(admin, "System Admin", "Holder of the System Admin role")
-System_Boundary(ftc, "FaithTech Community") {
+Person(lead, "Member with InviteMembers", "Holder of the InviteMembers capability")
+Person(admin, "Administrator", "Holder of AdministerOrganisation")
+System_Boundary(ftc, "Community platform") {
   Container(spa, "Web app", "Angular", "Shell, invites feature library, api and components libraries")
   Container(api, "Community API", "ASP.NET Core", "FaithTech.Community.Api with Application, Domain and Infrastructure")
   ContainerDb(db, "Community database", "PostgreSQL", "Accounts, profiles, invites and audit log")

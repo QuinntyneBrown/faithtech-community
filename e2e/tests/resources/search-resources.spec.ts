@@ -21,13 +21,13 @@ test('global search has a Resources group with only what the member may open', a
   api.resources.add({
     title: 'City launch deck',
     ownerId: grace.profileId,
-    type: 'Deck',
+    type: 'deck',
     fileName: 'deck.pptx',
   });
   api.resources.add({
     title: 'Austin retro',
     ownerId: marcus.profileId,
-    type: 'Deck',
+    type: 'deck',
     fileName: 'retro.key',
     tags: ['launch'],
     visibility: 'Shared',
@@ -42,7 +42,7 @@ test('global search has a Resources group with only what the member may open', a
   const search = new SearchPage(page);
   await search.searchFor('launch');
 
-  expect(await search.groupHeadings()).toEqual(['Resources (2)']);
+  await expect.poll(() => search.groupHeadings()).toEqual(['Resources (2)']);
   await expect(search.groups).toContainText('Deck · KEY · Marcus Lee · tagged launch');
   await expect(search.groups).toContainText('Shared with you');
   await expect(search.result('Marcus launch notes')).toHaveCount(0);

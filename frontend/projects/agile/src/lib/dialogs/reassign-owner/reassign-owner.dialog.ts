@@ -9,7 +9,12 @@ import {
   viewChild,
 } from '@angular/core';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
-import { AGILE_SERVICE, WorkspaceDto, problemDetails } from '@faithtech-community/api';
+import {
+  AGILE_SERVICE,
+  OrganisationNames,
+  problemDetails,
+  WorkspaceDto,
+} from '@faithtech-community/api';
 import {
   AlertComponent,
   ButtonComponent,
@@ -46,6 +51,7 @@ export interface ReassignOwnerData {
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ReassignOwnerDialog implements OnInit {
+  protected readonly organisation = inject(OrganisationNames);
   protected readonly ref = inject<DialogRef<string>>(DialogRef);
   protected readonly data = inject<ReassignOwnerData>(DIALOG_DATA);
   private readonly agile = inject(AGILE_SERVICE);

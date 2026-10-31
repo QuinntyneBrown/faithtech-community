@@ -1,12 +1,13 @@
 import { Routes } from '@angular/router';
 
-import { authGuard } from './guards';
+import { authGuard, capabilityGuard, notAMemberGuard } from './guards';
 import {
   AuthCallbackPage,
   AuthContinuePage,
   ForbiddenPage,
   ForgotPasswordPage,
   HomePage,
+  NotAMemberPage,
   NotFoundPage,
   ResetPasswordPage,
   ServerErrorPage,
@@ -45,6 +46,8 @@ export const routes: Routes = [
     loadChildren: () =>
       import('@faithtech-community/announcements').then((m) => m.UNSUBSCRIBE_ROUTES),
   },
+  // A signed-in account with no profile on this host sees only this page (L2-132 AC3).
+  { path: 'not-a-member', component: NotAMemberPage, canActivate: [notAMemberGuard] },
   { path: 'forbidden', component: ForbiddenPage },
   { path: 'error', component: ServerErrorPage },
   {
@@ -102,12 +105,22 @@ export const routes: Routes = [
           import('@faithtech-community/resources').then((m) => m.RESOURCES_ROUTES),
       },
       {
+        path: 'reports',
+        loadChildren: () => import('@faithtech-community/reports').then((m) => m.REPORTS_ROUTES),
+      },
+      {
         path: 'notes',
         loadChildren: () => import('@faithtech-community/notes').then((m) => m.NOTES_ROUTES),
       },
       {
         path: 'invites',
         loadChildren: () => import('@faithtech-community/invites').then((m) => m.INVITES_ROUTES),
+      },
+      {
+        path: 'organisation',
+        canActivate: [capabilityGuard('ManageRoles', 'ManageOrganisationSettings')],
+        loadChildren: () =>
+          import('@faithtech-community/organisations').then((m) => m.ORGANISATION_ROUTES),
       },
       {
         path: 'admin',

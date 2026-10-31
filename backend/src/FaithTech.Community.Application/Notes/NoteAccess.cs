@@ -1,3 +1,4 @@
+using FaithTech.Community.Domain.Organisations;
 using FaithTech.Community.Application.Common;
 using FaithTech.Community.Domain.Notes;
 using FaithTech.Community.Domain.Profiles;
@@ -12,22 +13,17 @@ namespace FaithTech.Community.Application.Notes;
 /// </summary>
 public class NoteAccess(IApplicationDbContext db, ICurrentUser current)
 {
-    /// <summary>The roles a page can be shared with, as for resources (L2-093).</summary>
-    public static readonly IReadOnlyList<Role> ShareableRoles =
-        [Role.CityLead, Role.EventLead, Role.CreateLead, Role.CommunicationsLead, Role.Volunteer, Role.ProductEngineer, Role.Staff];
-
     private Guid? _caller;
 
-    public bool IsSystemAdmin => current.HasRole(Role.SystemAdmin);
+    public bool IsSystemAdmin => current.Has(Capability.AdministerOrganisation);
 
     /// <summary>The caller's roles now, for matching role audiences inside a query.</summary>
-    public List<Role> Roles => [.. current.Roles];
+    /// <summary>The held role definitions' ids, which a shared audience names.</summary>
+    public List<Guid> Roles => [.. current.HeldRoleIds];
 
     /// <summary>The caller's profile id, or <see cref="Guid.Empty"/> when there is none.</summary>
     public async Task<Guid> CallerAsync(CancellationToken cancellationToken = default) =>
-        _caller ??= current.UserId is { } userId
-            ? await db.Users.Where(u => u.Id == userId).Select(u => u.ProfileId).SingleOrDefaultAsync(cancellationToken)
-            : Guid.Empty;
+        _caller ??= await Task.FromResult(current.ProfileId ?? Guid.Empty);
 
     /// <summary>The active pages the caller may open: Global, their own, or Shared with them or a role they hold now.</summary>
     public IQueryable<NotePage> Visible(IQueryable<NotePage> pages, Guid caller)
@@ -38,12 +34,12 @@ public class NoteAccess(IApplicationDbContext db, ICurrentUser current)
             return active;
         }
 
-        var roles = current.Roles.ToList();
+        var roles = current.HeldRoleIds.ToList();
         return active.Where(p =>
             p.Visibility == NoteVisibility.Global
             || p.OwnerId == caller
             || (p.Visibility == NoteVisibility.Shared
-                && (p.SharedMembers.Any(m => m.ProfileId == caller) || p.SharedRoles.Any(x => roles.Contains(x.Role)))));
+                && (p.SharedMembers.Any(m => m.ProfileId == caller) || p.SharedRoles.Any(x => roles.Contains(x.RoleDefinitionId)))));
     }
 
     /// <summary>One page the caller may open; archived ones only for their owner and System Admin (L2-095).</summary>
@@ -67,7 +63,7 @@ public class NoteAccess(IApplicationDbContext db, ICurrentUser current)
     /// <summary>Refuses a caller whose email is not verified (L2-085, as L2-002 AC3).</summary>
     public async Task<Result?> VerifiedAsync(Guid caller, CancellationToken cancellationToken)
     {
-        var verified = await db.Users.Where(u => u.ProfileId == caller).Select(u => u.EmailConfirmed).SingleOrDefaultAsync(cancellationToken);
+        var verified = await db.Users.Where(u => db.Profiles.Any(p => p.Id == caller && p.UserId == u.Id)).Select(u => u.EmailConfirmed).SingleOrDefaultAsync(cancellationToken);
         return verified ? null : Result.Forbidden("Verify your email before creating pages.");
     }
 }

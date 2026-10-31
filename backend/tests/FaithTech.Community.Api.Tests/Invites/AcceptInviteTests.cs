@@ -1,4 +1,5 @@
 // Traces to: L2-011, L2-041
+using FaithTech.Community.Api.Tests.Organisations;
 using System.Net;
 using System.Net.Http.Json;
 using System.Text.Json;
@@ -17,7 +18,8 @@ public class AcceptInviteTests(CommunityApiFactory factory) : IClassFixture<Comm
     [Fact]
     public async Task Anyone_with_the_link_sees_who_invited_them_and_with_which_role()
     {
-        var grace = await factory.AddMemberAsync("Grace Okonkwo", p => p.Update("Grace Okonkwo", "Toronto", null));
+        var toronto = await factory.ChapterIdAsync("Toronto");
+        var grace = await factory.AddMemberAsync("Grace Okonkwo", p => p.Update("Grace Okonkwo", toronto, null));
         var (_, token) = await factory.AddInviteAsync(grace, "ruth.alvarez@example.org", Role.Volunteer);
 
         var lookup = await LookUpAsync(factory.CreateClient(), token);
@@ -62,7 +64,7 @@ public class AcceptInviteTests(CommunityApiFactory factory) : IClassFixture<Comm
         var (user, profile) = await factory.WithDbAsync(async db =>
         {
             var u = await db.Users.AsNoTracking().SingleAsync(x => x.Email == email);
-            return (u, await db.Profiles.AsNoTracking().SingleAsync(p => p.Id == u.ProfileId));
+            return (u, await db.Profiles.AsNoTracking().SingleAsync(p => p.UserId == u.Id));
         });
         Assert.True(user.EmailConfirmed);
         Assert.Equal("Ruth Alvarez", profile.Name);
@@ -79,6 +81,25 @@ public class AcceptInviteTests(CommunityApiFactory factory) : IClassFixture<Comm
         var signIn = await new OidcFlow(factory).SignInAsync(email);
         Assert.Equal(HttpStatusCode.OK, signIn.StatusCode);
         Assert.True((await signIn.Content.ReadFromJsonAsync<JsonElement>()).GetProperty("emailVerified").GetBoolean());
+    }
+
+    // Traces to: L2-125 AC1 (docs/detailed-designs/reports/reports-dashboard): a new account from an invite records
+    // the join time.
+    [Fact]
+    public async Task Signing_up_from_an_invite_records_the_join_time()
+    {
+        var grace = await factory.AddMemberAsync("Grace Okonkwo");
+        var email = $"{Guid.NewGuid():N}@example.org";
+        var (_, token) = await factory.AddInviteAsync(grace, email, Role.Volunteer);
+
+        await factory.CreateClient().PostAsJsonAsync("/api/invites/accept", new { Token = token, Name = "Ruth Alvarez", Password = OidcFlow.Password });
+
+        var joined = await factory.WithDbAsync(async db =>
+        {
+            var user = await db.Users.AsNoTracking().SingleAsync(u => u.Email == email);
+            return (await db.Profiles.AsNoTracking().SingleAsync(p => p.UserId == user.Id)).JoinedAtUtc;
+        });
+        Assert.Equal(factory.Time.GetUtcNow().UtcDateTime, joined);
     }
 
     [Fact]
@@ -167,5 +188,5 @@ public class AcceptInviteTests(CommunityApiFactory factory) : IClassFixture<Comm
     private Task<string> EmailOfAsync(ProfileClients.Member member) =>
         factory.WithDbAsync(db => db.Users.Where(u => u.Id == member.UserId).Select(u => u.Email!).SingleAsync());
 
-    private sealed record Lookup(string Status, string Email, string InviterName, string? InviterCity, string? PreassignedRole, bool HasAccount);
+    private sealed record Lookup(string Status, string Email, string InviterName, string? InviterChapterName, string? PreassignedRole, bool HasAccount);
 }

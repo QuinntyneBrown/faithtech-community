@@ -7,7 +7,8 @@ export interface EventDetails {
   starts?: string;
   ends?: string;
   format?: 'In person' | 'Online';
-  city?: string;
+  /** The chapter's name, or "{Organisation}-wide". */
+  chapter?: string;
   venue?: string;
   link?: string;
   visibility?: 'Public' | 'Members only';
@@ -19,10 +20,13 @@ export class EventFormPage {
   readonly heading: Locator;
   readonly title: Locator;
   readonly type: Locator;
+  /** The type's help, shown while the event keeps an archived type (L2-145 AC4). */
+  readonly typeHelp: Locator;
   readonly description: Locator;
   readonly starts: Locator;
   readonly ends: Locator;
-  readonly city: Locator;
+  /** The chapter picker, labelled with the organisation's singular chapter label. */
+  readonly chapter: Locator;
   readonly venue: Locator;
   readonly link: Locator;
   readonly capacity: Locator;
@@ -39,10 +43,14 @@ export class EventFormPage {
     this.heading = page.getByRole('heading', { level: 1 });
     this.title = page.getByLabel('Title', { exact: true });
     this.type = page.getByLabel('Type', { exact: true });
+    this.typeHelp = page.getByText(/was archived\. It stays on this event/);
     this.description = page.getByLabel('Description');
     this.starts = page.getByLabel('Starts');
     this.ends = page.getByLabel('Ends');
-    this.city = page.getByLabel('City', { exact: true });
+    // Whatever the organisation calls a chapter, its picker is the one offering the organisation-wide option.
+    this.chapter = page
+      .getByRole('combobox')
+      .filter({ has: page.locator('option', { hasText: '-wide' }) });
     this.venue = page.getByLabel('Venue address');
     this.link = page.getByLabel('Joining link', { exact: true });
     this.capacity = page.getByLabel('Capacity');
@@ -83,6 +91,11 @@ export class EventFormPage {
     );
   }
 
+  /** The chapter picker's options as the lead reads them. */
+  async chapterOptions(): Promise<string[]> {
+    return (await this.chapter.locator('option').allTextContents()).map((o) => o.trim());
+  }
+
   async fill(details: EventDetails): Promise<void> {
     if (details.title !== undefined) await this.title.fill(details.title);
     if (details.type !== undefined) await this.type.selectOption({ label: details.type });
@@ -90,7 +103,7 @@ export class EventFormPage {
     if (details.starts !== undefined) await this.starts.fill(details.starts);
     if (details.ends !== undefined) await this.ends.fill(details.ends);
     if (details.format !== undefined) await this.format(details.format).check();
-    if (details.city !== undefined) await this.city.fill(details.city);
+    if (details.chapter !== undefined) await this.chapter.selectOption({ label: details.chapter });
     if (details.venue !== undefined) await this.venue.fill(details.venue);
     if (details.link !== undefined) await this.link.fill(details.link);
     if (details.visibility !== undefined) await this.visibility(details.visibility).check();

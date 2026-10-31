@@ -1,0 +1,12 @@
+@startuml
+!include <C4/C4_Context>
+LAYOUT_WITH_LEGEND()
+title System Context — Duplicate detection and merge
+Person(lead, "Member with ManagePartners", "Works the partner pipeline")
+Person(admin, "Administrator", "Holds AdministerOrganisation; the only capability that restores a merged partner")
+Person(staff, "Member with view capabilities", "Holds ViewPartners without ManagePartners; sees warnings read-only")
+System(community, "Community platform", "Hosts each organisation's members, events, partners and resources")
+Rel(lead, community, "Sees possible duplicates, dismisses and merges partners using")
+Rel(admin, community, "Merges and restores partners using")
+Rel(staff, community, "Sees duplicate warnings and archived partners read-only using")
+@enduml

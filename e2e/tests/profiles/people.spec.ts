@@ -1,6 +1,7 @@
 // Traces to: L2-053, L2-009 (docs/detailed-designs/profiles/people-directory)
 import { expect, test } from '../../fixtures/app';
 import { MockApi, photoUrl } from '../../fixtures/mock-api';
+import { NORTHSIDE } from '../../fixtures/mock-host';
 import { AppShell } from '../../pages/app-shell.page';
 import { PeoplePage } from '../../pages/people.page';
 import { RoleDialog } from '../../pages/role.dialog';
@@ -18,7 +19,7 @@ function addPeople(api: MockApi) {
     roles: ['EventLead'],
   });
   const profile = api.profiles.get(marcus.profileId)!;
-  profile.homeCity = 'Toronto';
+  profile.chapterId = api.chapters.named('Toronto').id;
   profile.photos.push({
     id: 'photo-1',
     url: photoUrl('#0b7285'),
@@ -32,6 +33,41 @@ function addPeople(api: MockApi) {
 }
 
 test.describe('People and roles', () => {
+  // Traces to: L2-142 AC1, AC2, AC5
+  test('a City Lead narrows People to a city and sees it named when no one is there', async ({
+    page,
+    api,
+    axe,
+  }) => {
+    const { grace } = addPeople(api);
+    api.chapters.named('Austin');
+    const people = new PeoplePage(page);
+    await api.signInAs(grace, '/people');
+    await expect(people.rows).toHaveCount(4);
+    expect(await people.headers()).toContain('City');
+
+    await people.chapter.selectOption('Toronto');
+    await expect.poll(() => people.names()).toEqual(['Marcus Lee']);
+    await axe.check();
+
+    await people.chapter.selectOption('Austin');
+    await expect(people.noOneIn('Austin')).toBeVisible();
+    await axe.check();
+  });
+
+  // Traces to: L2-142 AC3
+  test('with chapters off People has no city filter or column', async ({ page, api, axe }) => {
+    api.host.serve(NORTHSIDE);
+    const { grace } = addPeople(api);
+    const people = new PeoplePage(page);
+    await api.signInAs(grace, '/people');
+
+    await expect(people.rows).toHaveCount(4);
+    await expect(people.chapter).toHaveCount(0);
+    expect(await people.headers()).not.toContain('City');
+    await axe.check();
+  });
+
   test('a City Lead finds members and adds a role from a row without a reload', async ({
     page,
     api,
@@ -43,7 +79,7 @@ test.describe('People and roles', () => {
 
     await expect(people.heading).toHaveText('People and roles');
     await expect(people.subtitle).toHaveText(
-      'You can add or remove Lead, Volunteer, Product Engineer and Attendee roles.',
+      'You can add or remove Event Lead, Create Lead, Communications Lead, Volunteer, Product Engineer and Attendee.',
     );
     await expect
       .poll(() => people.names())
@@ -56,7 +92,7 @@ test.describe('People and roles', () => {
     await expect(people.row('Marcus Lee')).toContainText('Event Lead');
     await expect(people.row('Marcus Lee')).toContainText('Toronto');
     await expect(people.row('Leah Thompson')).toContainText('No role yet');
-    await expect(people.row('Daniel Reyes')).toContainText('Only System Admin can change');
+    await expect(people.row('Daniel Reyes')).toContainText('Only an administrator can change');
     await expect(people.removeRole('Daniel Reyes')).toHaveCount(0);
     await expect(people.inviteSomeone).toHaveAttribute('href', '/invites');
     await axe.check();
@@ -112,9 +148,35 @@ test.describe('People and roles', () => {
     const people = new PeoplePage(page);
     await api.signInAs(priya, '/people');
 
-    await expect(people.subtitle).toContainText('As System Admin you can assign any role');
+    await expect(people.subtitle).toHaveText('As an administrator you can assign any role.');
     await expect(people.removeRole('Daniel Reyes')).toBeVisible();
-    await expect(people.row('Daniel Reyes')).not.toContainText('Only System Admin can change');
+    await expect(people.row('Daniel Reyes')).not.toContainText('Only an administrator can change');
+  });
+
+  test('a grantor of a test-defined organisation may change only the roles their rule names', async ({
+    page,
+    api,
+  }) => {
+    api.defineRole({ key: 'Helper', name: 'Helper' });
+    api.defineRole({
+      key: 'Coordinator',
+      name: 'Coordinator',
+      capabilities: ['AssignRoles', 'ViewPeopleDirectory'],
+      grants: ['Helper'],
+    });
+    const cora = api.addAccount({
+      email: 'cora@example.org',
+      name: 'Cora Diaz',
+      roles: ['Coordinator'],
+    });
+    api.addAccount({ email: 'hana@example.org', name: 'Hana Ito', roles: ['Helper'] });
+    const people = new PeoplePage(page);
+    await api.signInAs(cora, '/people');
+
+    await expect(people.subtitle).toHaveText('You can add or remove Helper.');
+    await expect(people.removeRole('Hana Ito')).toBeVisible();
+    await expect(people.removeRole('Cora Diaz')).toHaveCount(0);
+    await expect(people.row('Cora Diaz')).toContainText('Only an administrator can change');
   });
 
   test('Staff see the list read-only, in light and dark', async ({ page, api, axe }) => {

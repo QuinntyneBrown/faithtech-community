@@ -46,6 +46,9 @@ public record ContactDto(
     DateTime CreatedAtUtc,
     IReadOnlyList<ContactPhotoDto> Photos);
 
+/// <summary>The caller's own contact with the same email as the contact form (L2-116): the oldest, active or archived.</summary>
+public record DuplicateContactDto(Guid Id, string Name, string? Organization, string Email, DateTime AddedAtUtc, int NoteCount, bool IsArchived);
+
 /// <summary>Builds contact DTOs: the linked profile's name and photo, and any verified member with the same email.</summary>
 public class ContactViews(IApplicationDbContext db, IPhotoStorage storage)
 {
@@ -88,7 +91,7 @@ public class ContactViews(IApplicationDbContext db, IPhotoStorage storage)
 
         var normalized = email.Trim().ToUpperInvariant();
         return await db.Users.Where(u => u.EmailConfirmed && u.NormalizedEmail == normalized)
-            .Join(db.Profiles, u => u.ProfileId, p => p.Id, (u, p) => new ContactMatchDto(p.Id, p.Name))
+            .Join(db.Profiles, u => (Guid?)u.Id, p => p.UserId, (u, p) => new ContactMatchDto(p.Id, p.Name))
             .FirstOrDefaultAsync(cancellationToken);
     }
 }

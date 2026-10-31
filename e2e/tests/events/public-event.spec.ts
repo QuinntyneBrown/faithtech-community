@@ -150,7 +150,7 @@ test.describe('Public events and guest RSVP', () => {
     full.capacity = 34;
     const cancelled = api.events.add({
       title: 'Austin Faith & AI Panel',
-      city: 'Austin',
+      chapterId: api.chapters.named('Austin').id,
       visibility: 'Public',
       isCancelled: true,
       cancellationReason: 'Our venue fell through. We’ll reschedule for January.',

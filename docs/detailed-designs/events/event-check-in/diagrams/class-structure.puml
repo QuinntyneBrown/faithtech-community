@@ -1,0 +1,157 @@
+@startuml
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 8
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam class {
+  BorderColor #344054
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+title Class structure — Event check-in
+
+class Event <<Domain entity>> {
+  +Guid Id
+  +string Title
+  +DateTimeOffset StartsAt
+  +int? Capacity
+  +bool IsCancelled
+  +{static} TimeSpan CheckInOpensBefore = 24h
+  +DateTimeOffset CheckInOpensAt
+  +int RsvpCount «excludes walk-ins»
+  +bool IsFull «excludes walk-ins»
+  +int AttendeeCount
+  +int CheckedInCount
+  +IsCheckInOpen(now: DateTimeOffset): bool
+  +CheckIn(rsvpId: Guid, byId: Guid, now: DateTimeOffset): Rsvp
+  +UndoCheckIn(rsvpId: Guid, now: DateTimeOffset): Rsvp
+  +AddWalkIn(name: string, email: string?, profileId: Guid?, checkInNow: bool, byId: Guid, now: DateTimeOffset): (Rsvp, bool)
+}
+class Rsvp <<Domain entity>> {
+  +Guid Id
+  +Guid EventId
+  +Guid? ProfileId
+  +string? GuestName
+  +string? GuestEmail
+  +DateTimeOffset CreatedAt
+  +DateTimeOffset? CheckedInAt «new»
+  +Guid? CheckedInById «new»
+  +bool IsWalkIn «new»
+  +bool IsGuest
+  +bool IsCheckedIn
+  ~CheckIn(byId: Guid, at: DateTimeOffset): void
+  ~UndoCheckIn(): void
+}
+Event "1" *-- "*" Rsvp : rsvps
+
+class EventPermissions <<Application service>> {
+  +bool CanSeeRsvpList
+  +bool CanSeeGuestEmails
+  +bool CanCheckIn «new»
+  +bool CanViewCheckIn «new»
+  +bool IsCheckInOverride «new»
+  +CallerProfileIdAsync(): Task<Guid?>
+}
+interface ICurrentUser {
+  +IReadOnlySet<string> Capabilities
+  +Has(capability: string): bool
+}
+interface ICurrentOrganisation {
+  +Guid Id
+}
+class AuthorizationRules <<static>> {
+  +{static} IsOverride(actor: ICurrentUser, capability: string): bool
+}
+EventPermissions ..> ICurrentUser : Has(ManageAttendance), Has(ViewAttendees)
+EventPermissions ..> AuthorizationRules : IsCheckInOverride
+EventPermissions ..> ICurrentOrganisation
+class CheckInHandler <<Application handler>> {
+  +GetAsync(eventId: Guid): Task<(Result, CheckInDto?)>
+  +CheckInAsync(eventId: Guid, rsvpId: Guid): Task<(Result, CheckInAttendeeDto?)>
+  +UndoAsync(eventId: Guid, rsvpId: Guid): Task<Result>
+  +{static} Refusal(e: Event, now: DateTimeOffset): string?
+}
+class AddWalkInCommand {
+  +string? Name
+  +string? Email
+  +bool CheckInNow = true
+}
+class AddWalkInValidator
+class AddWalkInHandler <<Application handler>> {
+  +HandleAsync(eventId: Guid, command: AddWalkInCommand): Task<(Result, WalkInResultDto?)>
+}
+class ExportCheckInsHandler <<Application handler>> {
+  +ExportAsync(eventId: Guid): Task<(Result, CsvFile?)>
+}
+interface ICsvWriter <<Application/Common>> {
+  +Write(rows: IEnumerable<IReadOnlyList<string?>>): string
+}
+class CsvWriter <<Infrastructure/Csv>>
+interface IAuditLog {
+  +Record(actorId, action, targetType, targetId, before, after): void
+}
+class CsvFile {
+  +string FileName
+  +string Content
+}
+class CheckInDto {
+  +Guid EventId
+  +string Title
+  +DateTimeOffset StartsAt
+  +bool IsCancelled
+  +DateTimeOffset CheckInOpensAt
+  +bool IsOpen
+  +bool CanEdit
+  +bool CanExport
+  +int Going
+  +int CheckedIn
+  +int WalkIns
+}
+class CheckInAttendeeDto {
+  +Guid RsvpId
+  +Guid? ProfileId
+  +string Name
+  +bool IsGuest
+  +bool IsWalkIn
+  +string? Email
+  +DateTimeOffset RsvpedAt
+  +DateTimeOffset? CheckedInAt
+}
+class WalkInResultDto {
+  +CheckInAttendeeDto Attendee
+  +bool Reused
+}
+CheckInDto "1" *-- "*" CheckInAttendeeDto : attendees
+WalkInResultDto --> CheckInAttendeeDto
+CsvWriter ..|> ICsvWriter
+AddWalkInValidator ..> AddWalkInCommand : validates
+AddWalkInHandler ..> AddWalkInCommand : handles
+CheckInHandler ..> EventPermissions
+AddWalkInHandler ..> EventPermissions
+ExportCheckInsHandler ..> EventPermissions
+CheckInHandler ..> Event
+AddWalkInHandler ..> Event
+AddWalkInHandler ..> CheckInHandler : Refusal
+CheckInHandler ..> IAuditLog
+AddWalkInHandler ..> IAuditLog
+ExportCheckInsHandler ..> ICsvWriter
+ExportCheckInsHandler ..> CsvFile : returns
+CheckInHandler ..> CheckInDto : returns
+AddWalkInHandler ..> WalkInResultDto : returns
+
+interface CheckInService <<api library>> {
+  +getCheckIn(eventId): Observable<CheckInDto>
+  +checkIn(eventId, rsvpId): Observable<CheckInAttendeeDto>
+  +undoCheckIn(eventId, rsvpId): Observable<void>
+  +addWalkIn(eventId, request: WalkInRequest): Observable<WalkInResultDto>
+  +exportAttendance(eventId): Observable<Blob>
+}
+class HttpCheckInService
+class EventCheckInPage <<events library>>
+class AddWalkInDialog <<events library>>
+HttpCheckInService ..|> CheckInService
+EventCheckInPage ..> CheckInService : CHECK_IN_SERVICE
+AddWalkInDialog ..> CheckInService : CHECK_IN_SERVICE
+EventCheckInPage ..> AddWalkInDialog : opens
+@enduml

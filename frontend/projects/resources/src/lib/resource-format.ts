@@ -1,4 +1,5 @@
 import {
+  OTHER_RESOURCE_TYPE,
   ResourceSummary,
   ResourceType,
   ResourceVisibility,
@@ -52,28 +53,37 @@ export function titleFrom(fileName: string): string {
   return (dot > 0 ? fileName.slice(0, dot) : fileName).trim().slice(0, 120);
 }
 
-/** The type guessed from an extension, as the server guesses it. */
+/** The type key guessed from an extension, as ResourceFileTypes.GuessType answers it (L2-146 AC3). */
 export function guessType(fileName: string): ResourceType {
   const ext = extensionOf(fileName);
-  if (['pptx', 'ppt', 'key'].includes(ext)) return 'Deck';
-  if (['png', 'jpg', 'gif', 'webp'].includes(ext)) return 'Image';
-  if (ext === 'svg') return 'Logo';
-  if (['pdf', 'docx', 'doc', 'xlsx', 'csv'].includes(ext)) return 'Document';
-  return 'Other';
+  if (['pptx', 'ppt', 'key'].includes(ext)) return 'deck';
+  if (['png', 'jpg', 'gif', 'webp'].includes(ext)) return 'image';
+  if (ext === 'svg') return 'logo';
+  if (['pdf', 'docx', 'doc', 'xlsx', 'csv'].includes(ext)) return 'document';
+  return OTHER_RESOURCE_TYPE;
 }
 
-const TYPE_ICONS: Record<ResourceType, string> = {
-  Deck: 'deck',
-  Logo: 'logo',
-  Image: 'image',
-  Training: 'training',
-  Template: 'template',
-  Document: 'document',
-  Other: 'file',
+/**
+ * The guess mapped onto the organisation's active types, as ResourceTypeResolver maps it: the type with the guessed
+ * key, or other when the organisation has no active type with that key (L2-146 AC3).
+ */
+export function resolveGuess(fileName: string, active: readonly { key: string }[]): ResourceType {
+  const key = guessType(fileName);
+  return active.some((t) => t.key === key) ? key : OTHER_RESOURCE_TYPE;
+}
+
+/** Icons for the keys the upload guess answers; any other type shows a file. */
+const TYPE_ICONS: Partial<Record<ResourceType, string>> = {
+  deck: 'deck',
+  logo: 'logo',
+  image: 'image',
+  training: 'training',
+  template: 'template',
+  document: 'document',
 };
 
 export function typeIcon(resource: Pick<ResourceSummary, 'type' | 'extension'>): string {
-  return resource.extension === 'mp4' ? 'video' : TYPE_ICONS[resource.type];
+  return resource.extension === 'mp4' ? 'video' : (TYPE_ICONS[resource.type] ?? 'file');
 }
 
 /** "PPTX · 24.6 MB" for a file, the host for a link. */
@@ -89,7 +99,7 @@ export function fileOrHost(
 /** "Deck · PPTX · 24.6 MB · you · Mon 20 Oct" (L2-055 AC2). */
 export function metaLine(resource: ResourceSummary): string {
   return [
-    resource.type,
+    resource.typeName,
     fileOrHost(resource),
     resource.isOwn ? 'you' : resource.ownerName,
     formatDay(resource.addedAt),

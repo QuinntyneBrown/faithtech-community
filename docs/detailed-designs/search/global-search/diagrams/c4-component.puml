@@ -11,9 +11,9 @@ Container_Boundary(spa, "Web app") {
 Container_Boundary(api, "Community API") {
   Component(ep, "SearchEndpoints", "ASP.NET Core minimal API", "Maps /api/search; no business logic")
   Component(h, "GlobalSearchHandler", "Application handler", "Validates 2 to 200 characters; groups results")
-  Component(src, "ISearchSource x5", "Application services", "People, events, partners, contacts, work items; each applies the caller's access rules")
+  Component(src, "ISearchSource x5", "Application services", "People, events, partners, contacts, work items; each starts from the organisation-scoped query and applies the caller's capabilities")
   Component(fts, "PostgresFullTextSearch", "Infrastructure IFullTextSearch", "Prefix to_tsquery over GIN-indexed tsvector, ts_rank")
-  Component(ctx, "CommunityDbContext", "EF Core DbContext", "Searchable tables")
+  Component(ctx, "CommunityDbContext", "EF Core DbContext", "Searchable tables, scoped by the global filter on ICurrentOrganisation")
 }
 ContainerDb(db, "Community database", "PostgreSQL", "Profiles, events, partners, contacts, work items and full-text indexes")
 Rel(page, svc, "Calls search")

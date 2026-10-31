@@ -15,7 +15,7 @@ skinparam package {
   BackgroundColor #F9FAFB
 }
 actor "Account holder" as actor
-box "Frontend — FaithTech Community web app (faithtech-community library)" #E0F2FE
+box "Frontend — Community web app (faithtech-community library)" #E0F2FE
   participant "ForgotPasswordPage" as page
   participant "AuthService" as client
 end box
@@ -35,7 +35,7 @@ client -> ep : POST /api/account/forgot-password
 ep -> h : Send RequestPasswordResetCommand
 h -> db : Find user by email
 opt account exists
-  h -> mail : Send reset link valid for 1 hour (L2-004)
+  h -> mail : Send reset link valid for 1 hour, in the organisation's name (L2-004, L2-134)
 end
 h --> ep : Accepted
 ep --> client : 202 Accepted

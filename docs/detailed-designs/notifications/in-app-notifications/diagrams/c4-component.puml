@@ -6,11 +6,11 @@ Container_Boundary(api, "Community API") {
   Component(ep, "NotificationsEndpoints", "Minimal API", "Maps /api/notifications routes")
   Component(h, "InAppNotificationsHandler", "Application handler", "Lists, counts and marks the caller's notifications read")
   Component(pub, "INotificationPublisher", "Application service", "Publish / PublishAsync for other features")
-  Component(cu, "ICurrentUser", "Application abstraction", "Identifies the caller")
+  Component(cu, "ICurrentUser / ICurrentOrganisation", "Application abstractions", "Identify the caller and the current organisation")
   ComponentDb(db, "CommunityDbContext", "EF Core", "notifications table")
 }
 Rel(ep, h, "ListAsync / UnreadCountAsync / MarkReadAsync / MarkAllReadAsync")
 Rel(h, cu, "Reads caller id")
-Rel(h, db, "Queries by recipient, updates ReadAt")
+Rel(h, db, "Queries by recipient within the organisation (global filter), updates ReadAt")
 Rel(pub, db, "Inserts Notification")
 @enduml

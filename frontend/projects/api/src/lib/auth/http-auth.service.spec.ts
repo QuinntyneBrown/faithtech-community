@@ -11,6 +11,9 @@
 import { HttpTestingController } from '@angular/common/http/testing';
 import { TestBed } from '@angular/core/testing';
 
+import { firstValueFrom } from 'rxjs';
+
+import { HANDLES_FORBIDDEN } from '../errors';
 import { AUTH_SERVICE } from './auth.service';
 import { HttpAuthService } from './http-auth.service';
 import { authTestProviders } from './test-helpers';
@@ -44,6 +47,12 @@ describe('HttpAuthService', () => {
       () => service.confirmEmail('u1', 'tok'),
       '/api/account/verify-email',
       { userId: 'u1', token: 'tok' },
+    ],
+    [
+      'confirmEmail joining this organisation (L2-132 AC1)',
+      () => service.confirmEmail('u1', 'tok', { name: 'Grace O.', join: 'j1' }),
+      '/api/account/verify-email',
+      { userId: 'u1', token: 'tok', name: 'Grace O.', join: 'j1' },
     ],
     [
       'resendVerification',
@@ -124,29 +133,68 @@ describe('HttpAuthService', () => {
     await expect(service.restoreSession()).resolves.toBe(false);
   });
 
-  it('loads the current user and exposes the roles', () => {
+  // L2-133 AC1, L2-135 AC7: the held roles come named by the organisation, with the capabilities they allow.
+  it('loads the current user and exposes the held roles and capabilities', () => {
     const me = {
       id: 'u1',
       profileId: 'p1',
       name: 'Ada',
       email: 'a@b.c',
       emailVerified: false,
-      roles: ['Lead', 'Volunteer'],
+      roles: [
+        { id: 'r1', key: 'EventLead', name: 'Event Lead', chapterId: null, isOversight: false },
+        { id: 'r2', key: 'Volunteer', name: 'Volunteer', chapterId: null, isOversight: false },
+      ],
+      capabilities: ['ManageEvents', 'JoinWorkspaces'],
     };
     service.loadCurrentUser().subscribe();
 
     controller.expectOne('/api/me').flush(me);
 
     expect(service.currentUser()).toEqual(me);
-    expect(service.roles()).toEqual(['Lead', 'Volunteer']);
+    expect(service.roles()).toEqual(['EventLead', 'Volunteer']);
+    expect(service.capabilities()).toEqual(['ManageEvents', 'JoinWorkspaces']);
   });
 
   // Traces to: L2-078
+  it('tells a signed-in account with no profile here that it is not a member (L2-132 AC3)', async () => {
+    const loaded = firstValueFrom(service.loadCurrentUser());
+
+    const request = controller.expectOne('/api/me');
+    expect(request.request.context.get(HANDLES_FORBIDDEN)).toBe(true);
+    request.flush(
+      {
+        reason: 'not-a-member',
+        organisation: { name: 'Northside Makers' },
+        email: 'grace@example.org',
+        memberships: [{ name: 'FaithTech Community', host: 'app.faithtech.community' }],
+      },
+      { status: 403, statusText: 'Forbidden' },
+    );
+
+    expect(await loaded).toBeNull();
+    expect(service.currentUser()).toBeNull();
+    expect(service.notAMember()).toEqual({
+      reason: 'not-a-member',
+      organisation: { name: 'Northside Makers' },
+      email: 'grace@example.org',
+      memberships: [{ name: 'FaithTech Community', host: 'app.faithtech.community' }],
+    });
+  });
+
   it('sends the browser to the API to start Google sign-in with where to land', () => {
     service.signInWithGoogle('/events', true);
 
     expect(redirect).toHaveBeenCalledWith(
       '/api/account/google/start?returnUrl=%2Fevents&keepSignedIn=true',
+    );
+  });
+
+  it('marks a Google start from the sign-up form as a sign-up (L2-132 AC7)', () => {
+    service.signInWithGoogle('/', false, true);
+
+    expect(redirect).toHaveBeenCalledWith(
+      '/api/account/google/start?returnUrl=%2F&keepSignedIn=false&signUp=true',
     );
   });
 });

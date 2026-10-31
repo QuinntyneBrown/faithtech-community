@@ -5,8 +5,8 @@ skinparam shadowing false
 skinparam roundcorner 12
 skinparam defaultFontName Arial
 skinparam ArrowColor #344054
-actor "City Lead, Staff or System Admin" as actor
-box "Frontend — FaithTech Community web app (profiles library)" #E0F2FE
+actor "Member with ViewPeopleDirectory" as actor
+box "Frontend — Community web app (profiles library)" #E0F2FE
   participant "PeoplePage" as page
   participant "HttpPeopleService" as svc
   participant "RoleDialogComponent" as dialog
@@ -21,22 +21,22 @@ box "Backend — FaithTech.Community.Application" #ECFDF3
   participant "ChangeRolesHandler" as ch
 end box
 database "Community database" as db
-actor -> page : Open /people, optionally search by name or email
-page -> svc : search(term, page)
-svc -> ep : GET /api/people?q=&page=
+actor -> page : Open /people, optionally search by name or email or filter by {chapter}
+page -> svc : search(term, chapter, page)
+svc -> ep : GET /api/people?q=&chapter=&page=
 ep -> h : HandleAsync(term, page) (401 anonymous)
-h -> h : Caller holds City Lead, Staff or System Admin? (403 otherwise, L2-053 AC3, AC6)
-h -> db : Profiles joined to accounts, name or email matches, by name, 25 per page
+h -> h : Caller holds ViewPeopleDirectory? (403 otherwise, L2-053 AC3, AC6)
+h -> db : Organisation's profiles joined to accounts, name or email matches, chapter filter (L2-142 AC2), by name, 25 per page
 db --> h : Rows
 h --> ep : PagedResult<PersonSummary> (no email)
 ep --> svc : 200 OK
 svc --> page : Page of people
 page --> actor : Table, or the no-results state offering an invite (L2-053 AC4)
-opt City Lead or System Admin chooses Add role or Remove on a row
-  page -> dialog : open(roles the caller may change, L2-009 AC2)
+opt holder of AssignRoles chooses Add role or Remove on a row
+  page -> dialog : open(grantableRoleIds from /api/me, L2-137 AC5)
   dialog -> roles : addRole / removeRole
   roles -> rep : POST or DELETE /api/profiles/{id}/roles
-  rep -> ch : RoleAssignmentPolicy enforces the limits (403)
+  rep -> ch : RoleGrantPolicy enforces grant rules and chapter scoping (403, L2-138, L2-143)
   ch --> rep : New role set
   rep --> roles : 200 OK
   roles --> page : Roles

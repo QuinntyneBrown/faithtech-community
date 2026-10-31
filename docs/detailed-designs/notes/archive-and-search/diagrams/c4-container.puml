@@ -3,7 +3,7 @@
 LAYOUT_WITH_LEGEND()
 title Containers — Archive, restore and search pages
 Person(member, "Member", "Owner or searcher")
-System_Boundary(community, "FaithTech Community") {
+System_Boundary(community, "Community platform") {
   Container(web, "Web app", "Angular", "notes library (archive-note, restore-note dialogs, ArchivedNotesPage); search library (Notes group)")
   Container(api, "Community API", "ASP.NET Core", "ArchiveNoteHandler, GlobalSearchHandler with NotesSearchSource")
   ContainerDb(db, "Community database", "PostgreSQL", "NotePages.ArchivedAt, generated SearchVector (Title, BodyText) with GIN index")

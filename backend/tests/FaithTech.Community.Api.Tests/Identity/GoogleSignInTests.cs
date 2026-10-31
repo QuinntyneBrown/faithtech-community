@@ -4,6 +4,7 @@ using System.Net.Http.Json;
 using System.Text.Json;
 using System.Web;
 using FaithTech.Community.Api.Tests.Fakes;
+using FaithTech.Community.Api.Tests.Organisations;
 using FaithTech.Community.Api.Tests.Profiles;
 using FaithTech.Community.Application.Identity;
 using FaithTech.Community.Domain.Notifications;
@@ -60,6 +61,20 @@ public class GoogleSignInTests(CommunityApiFactory factory) : IClassFixture<Comm
         Assert.True(await factory.WithDbAsync(db => db.UserLogins.AnyAsync(l => l.UserId == user.Id && l.LoginProvider == "Google")));
     }
 
+    // Traces to: L2-125 AC1 (docs/detailed-designs/reports/reports-dashboard): a new Google account records the
+    // join time.
+    [Fact]
+    public async Task A_new_Google_account_records_the_join_time()
+    {
+        var email = NewEmail();
+
+        await SignInWithGoogleAsync(Identity(email, name: "Leah Thompson"));
+
+        var user = await factory.WithDbAsync(db => db.Users.SingleAsync(u => u.Email == email));
+        var profile = await factory.WithDbAsync(db => db.Profiles.SingleAsync(p => p.UserId == user.Id));
+        Assert.Equal(factory.Time.GetUtcNow().UtcDateTime, profile.JoinedAtUtc);
+    }
+
     [Fact]
     public async Task A_verified_matching_email_signs_into_the_existing_account_and_links_Google_to_it()
     {
@@ -109,7 +124,7 @@ public class GoogleSignInTests(CommunityApiFactory factory) : IClassFixture<Comm
         var email = await _flow.CreateAccountAsync();
         await factory.WithDbAsync(async db =>
         {
-            var profileId = await db.Users.Where(u => u.Email == email).Select(u => u.ProfileId).SingleAsync();
+            var profileId = await db.Users.Where(u => u.Email == email).Join(db.Profiles, u => (Guid?)u.Id, p => p.UserId, (u, p) => p.Id).SingleAsync();
             (await db.Profiles.SingleAsync(p => p.Id == profileId)).Suspend("Misuse", DateTime.UtcNow);
             return await db.SaveChangesAsync();
         });
@@ -217,23 +232,52 @@ public class GoogleSignInTests(CommunityApiFactory factory) : IClassFixture<Comm
         Assert.Equal(HttpStatusCode.TooManyRequests, (await client.GetAsync("/api/account/google/callback?code=x&state=y")).StatusCode);
     }
 
+    // Traces to: L2-132 AC7, L2-078 AC2. Google sign-in applies to the account; only the sign-up form's button makes
+    // the account a member of the host's organisation.
+    [Fact]
+    public async Task A_plain_Google_sign_in_where_the_account_has_no_profile_ends_not_a_member()
+    {
+        var northside = await factory.AddOrganisationAsync();
+        var ana = await factory.AddMemberAsync(northside, "Ana Lima");
+        var email = await factory.WithDbAsync(db => db.Users.Where(u => u.Id == ana.UserId).Select(u => u.Email!).SingleAsync());
+
+        await SignInWithGoogleAsync(Identity(email));
+
+        Assert.False(await factory.WithDbAsync(db => db.Profiles.AnyAsync(p => p.UserId == ana.UserId)));
+    }
+
+    [Fact]
+    public async Task Google_from_the_sign_up_form_makes_an_existing_account_a_member_here()
+    {
+        var northside = await factory.AddOrganisationAsync();
+        var ana = await factory.AddMemberAsync(northside, "Ana Lima");
+        var email = await factory.WithDbAsync(db => db.Users.Where(u => u.Id == ana.UserId).Select(u => u.Email!).SingleAsync());
+
+        await SignInWithGoogleAsync(Identity(email), signUp: true);
+
+        var profile = await factory.WithDbAsync(db => db.Profiles.AsNoTracking().SingleAsync(p => p.UserId == ana.UserId));
+        Assert.Equal("Ana Lima", profile.Name);
+        Assert.Empty(profile.Roles);
+    }
+
     private static string NewEmail() => $"{Guid.NewGuid():N}@gmail.example";
 
     private static GoogleIdentity Identity(string email, bool verified = true, string? name = "Google Person") =>
         new(Guid.NewGuid().ToString("N"), email, verified, name);
 
-    private async Task<(string State, string Nonce)> StartAsync(string? returnUrl = null, bool keepSignedIn = false)
+    private async Task<(string State, string Nonce)> StartAsync(string? returnUrl = null, bool keepSignedIn = false, bool signUp = false)
     {
-        var query = $"keepSignedIn={(keepSignedIn ? "true" : "false")}" + (returnUrl is null ? string.Empty : $"&returnUrl={Uri.EscapeDataString(returnUrl)}");
+        var query = $"keepSignedIn={(keepSignedIn ? "true" : "false")}" + (returnUrl is null ? string.Empty : $"&returnUrl={Uri.EscapeDataString(returnUrl)}")
+            + (signUp ? "&signUp=true" : string.Empty);
         var response = await _flow.Browser.GetAsync($"/api/account/google/start?{query}");
         Assert.Equal(HttpStatusCode.Redirect, response.StatusCode);
         return FakeGoogleIdentityProvider.ReadAuthorizationUrl(response.Headers.Location!);
     }
 
     /// <summary>Start, consent at "Google" and return to the callback; answers where the browser is sent.</summary>
-    private async Task<string> SignInWithGoogleAsync(GoogleIdentity identity, string? returnUrl = null, bool keepSignedIn = false)
+    private async Task<string> SignInWithGoogleAsync(GoogleIdentity identity, string? returnUrl = null, bool keepSignedIn = false, bool signUp = false)
     {
-        var (state, nonce) = await StartAsync(returnUrl, keepSignedIn);
+        var (state, nonce) = await StartAsync(returnUrl, keepSignedIn, signUp);
         var code = factory.Google.IssueCode(identity, nonce);
         var response = await _flow.Browser.GetAsync($"/api/account/google/callback?code={code}&state={Uri.EscapeDataString(state)}");
         Assert.Equal(HttpStatusCode.Redirect, response.StatusCode);

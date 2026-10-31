@@ -1,8 +1,8 @@
+using FaithTech.Community.Domain.Organisations;
 using FaithTech.Community.Application.Common;
 using FaithTech.Community.Domain.Agile;
 using FaithTech.Community.Domain.Notifications;
 using FaithTech.Community.Domain.Profiles;
-using FaithTech.Community.Domain.Team;
 using FluentValidation;
 using Microsoft.EntityFrameworkCore;
 
@@ -38,7 +38,7 @@ public class WorkspacesHandler(
     /// <summary>A City Lead (or System Admin) creates a workspace and owns it; a City Lead may own several.</summary>
     public async Task<(Result Result, WorkspaceDto? Workspace)> CreateAsync(CreateWorkspaceCommand command, CancellationToken cancellationToken = default)
     {
-        if (!current.HasRole(Role.CityLead) && !current.HasRole(Role.SystemAdmin))
+        if (!current.Has(Capability.OwnWorkspaces))
         {
             return (Result.Forbidden(), null);
         }
@@ -71,7 +71,7 @@ public class WorkspacesHandler(
         var caller = await policy.CallerProfileIdAsync(cancellationToken);
         var admin = policy.IsSystemAdmin;
         var live = await policy.Visible(db.Workspaces.AsNoTracking(), caller).ToListAsync(cancellationToken);
-        var archived = await db.Workspaces.IgnoreQueryFilters().AsNoTracking()
+        var archived = await db.Workspaces.IgnoreQueryFilters(QueryFilters.ArchivedOnly).AsNoTracking()
             .Where(w => w.IsArchived && (admin || w.OwnerId == caller))
             .ToListAsync(cancellationToken);
         var workspaces = live.Concat(archived).OrderBy(w => w.Name).ToList();
@@ -118,7 +118,7 @@ public class WorkspacesHandler(
             .Select(pid => new WorkspaceMemberDto(
                 pid,
                 profiles.GetValueOrDefault(pid)?.Name ?? "A former member",
-                profiles.GetValueOrDefault(pid) is { } p ? [.. p.Roles.Select(r => r.Role).Order().Select(r => r.ToString())] : [],
+                profiles.GetValueOrDefault(pid) is { } p ? [.. p.Roles.OrderBy(r => r.Definition!.SortOrder).Select(r => r.Definition!.Key)] : [],
                 pid == workspace.OwnerId,
                 Count(pid, tasks: false),
                 Count(pid, tasks: true),
@@ -142,11 +142,11 @@ public class WorkspacesHandler(
     }
 
     /// <summary>
-    /// An owner must hold City Lead (or be a System Admin); otherwise System Admin reassigns it (L2-037 AC2). An archived
+    /// An owner must hold OwnWorkspaces (or AdministerOrganisation); otherwise System Admin reassigns it (L2-037 AC2). An archived
     /// workspace is not flagged: nobody can act on it until it is restored, and then it is (ADR 0011).
     /// </summary>
     private static bool NeedsNewOwner(Profile? owner) =>
-        owner is null || (!owner.HasRole(Role.CityLead) && !owner.HasRole(Role.SystemAdmin));
+        owner is null || (!owner.HoldsCapability(Capability.OwnWorkspaces) && !owner.HoldsCapability(Capability.AdministerOrganisation));
 }
 
 /// <summary>Adds members to a workspace and notifies each of them (L2-031 AC2).</summary>
@@ -157,7 +157,7 @@ public class WorkspaceMembership(IApplicationDbContext db, AgileNotifier notifie
     {
         var ids = profileIds.Distinct().Where(id => !workspace.IsMember(id)).ToList();
         var profiles = await db.Profiles.Where(p => ids.Contains(p.Id)).ToListAsync(cancellationToken);
-        if (profiles.Count != ids.Count || !profiles.All(p => TeamRoles.IsTeamMember(p) && !p.IsSuspended))
+        if (profiles.Count != ids.Count || !profiles.All(p => p.HoldsCapability(Capability.JoinWorkspaces) && !p.IsSuspended))
         {
             return null;
         }

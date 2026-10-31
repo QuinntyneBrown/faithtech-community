@@ -26,7 +26,7 @@ async function arrange(api: MockApi) {
     title: 'Austin Faith & AI Panel',
     startsAt: '2026-10-30T23:00:00Z',
     endsAt: '2026-10-31T01:00:00Z',
-    city: 'Austin',
+    chapterId: api.chapters.named('Austin').id,
     isCancelled: true,
     cancellationReason: 'Our panelists are ill.',
   });
@@ -39,7 +39,7 @@ async function arrange(api: MockApi) {
   api.events.addRsvps(builders, 34);
   const hackathon = api.events.add({
     title: 'Hackathon: Tech for Shelters',
-    type: 'Hackathon',
+    type: 'hackathon',
     startsAt: '2026-11-14T14:00:00Z',
     endsAt: '2026-11-15T22:00:00Z',
     venue: 'Trinity Community Centre',
@@ -50,7 +50,7 @@ async function arrange(api: MockApi) {
     title: 'Vancouver Advent Build Night',
     startsAt: '2026-12-05T03:00:00Z',
     endsAt: '2026-12-05T04:30:00Z',
-    city: 'Vancouver',
+    chapterId: api.chapters.named('Vancouver').id,
   });
   api.events.add({
     title: 'Spring retreat',
@@ -58,10 +58,10 @@ async function arrange(api: MockApi) {
     endsAt: '2026-04-11T20:00:00Z',
   });
   for (const [name, stage] of [
-    ['Kestrel Labs', 'Lead'],
-    ['Northwind Church', 'Lead'],
-    ['Maple Grants', 'InFunnel'],
-    ['Harbour Trust', 'Confirmed'],
+    ['Kestrel Labs', 'lead'],
+    ['Northwind Church', 'lead'],
+    ['Maple Grants', 'in-funnel'],
+    ['Harbour Trust', 'confirmed'],
   ] as const) {
     api.partners.add({ name, stage });
   }
@@ -140,7 +140,7 @@ test.describe('Home', () => {
     await expect(home.staffBanner).toHaveCount(0);
 
     await expect(home.stat('Lead')).toContainText('2');
-    await expect(home.stat('In funnel')).toContainText('1');
+    await expect(home.stat('In Funnel')).toContainText('1');
     await expect(home.stat('Confirmed')).toContainText('1');
     await expect(home.openBoard).toHaveAttribute('href', '/partners');
 
@@ -307,7 +307,7 @@ test.describe('Home', () => {
     await expect(home.nothingComingUp).toBeVisible();
     await expect(home.allEvents).toBeVisible();
     await expect(home.stat('Lead')).toContainText('0');
-    await expect(home.stat('In funnel')).toContainText('0');
+    await expect(home.stat('In Funnel')).toContainText('0');
     await expect(home.stat('Confirmed')).toContainText('0');
     await expect(home.noPartners).toBeVisible();
     await axe.check();

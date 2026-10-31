@@ -15,7 +15,7 @@ skinparam package {
   BackgroundColor #F9FAFB
 }
 actor "Signed-in member" as actor
-box "Frontend — FaithTech Community web app (search library)" #E0F2FE
+box "Frontend — Community web app (search library)" #E0F2FE
   participant "SearchPage" as page
   participant "HttpSearchService" as svc
 end box
@@ -42,7 +42,7 @@ else valid term
   h -> h : Trim; 2 to 200 characters, else 400 (L2-026)
   loop each source in order: people, events, partners, contacts, work items
     h -> src : SearchAsync(term, caller, 10)
-    src -> src : Start from what the caller may open (L2-026 permission filters):\nown contacts only; partners for leads, Staff, System Admin;\nwork items for workspace members, Staff, System Admin
+    src -> src : Start from the organisation-scoped query (L2-130 AC2) and what the caller may open (L2-026 AC2):\nown contacts (KeepContacts); partners for ViewPartners;\nwork items for workspace members and ReadAllWorkspaces
     src -> idx : Match(filtered query, term, document)
     idx -> db : SearchVector @@ to_tsquery('english', 'gra:* & she:*'),\norder by ts_rank, permission filter in the same SQL (L2-026)
     db --> src : Ranked rows (at most 10)

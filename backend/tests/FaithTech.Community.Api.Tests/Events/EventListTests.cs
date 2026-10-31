@@ -1,4 +1,5 @@
 // Traces to: L2-021
+using FaithTech.Community.Api.Tests.Organisations;
 using System.Net;
 using System.Net.Http.Json;
 using FaithTech.Community.Api.Tests.Profiles;
@@ -27,18 +28,18 @@ public class EventListTests(CommunityApiFactory factory) : IClassFixture<Communi
         var city = UniqueCity();
         var later = await factory.AddEventAsync("Advent Build Night", 40 * Day, city, format: EventFormat.Online, visibility: EventVisibility.Public);
         var soon = await factory.AddEventAsync("Builders Night", 10 * Day, city, rsvps: 3);
-        await factory.AddEventAsync("Last month's panel", -30 * Day, city, type: EventType.Panel);
+        await factory.AddEventAsync("Last month's panel", -30 * Day, city, type: "panel");
         var member = await factory.AddMemberAsync("Leah Thompson");
 
-        var list = await factory.ClientFor(member, Role.Attendee).GetFromJsonAsync<EventListResponse>($"/api/events?city={city}");
+        var list = await factory.ClientFor(member, Role.Attendee).GetFromJsonAsync<EventListResponse>($"/api/events?chapter={await factory.ChapterIdAsync(city)}");
 
         Assert.Equal(["Builders Night", "Advent Build Night"], list!.Events.Select(e => e.Title));
         var first = list.Events[0];
         Assert.Equal(soon.Id, first.Id);
         Assert.Equal(soon.StartsAt, first.StartsAt);
         Assert.Equal(soon.EndsAt, first.EndsAt);
-        Assert.Equal((city, "InPerson", "Kestrel Labs, 220 King St W", 3, "Gathering", "MembersOnly"),
-            (first.City, first.Format, first.Venue, first.RsvpCount, first.Type, first.Visibility));
+        Assert.Equal((city, "InPerson", "Kestrel Labs, 220 King St W", 3, "gathering", "Gathering", "MembersOnly"),
+            (first.ChapterName, first.Format, first.Venue, first.RsvpCount, first.Type, first.TypeName, first.Visibility));
         Assert.Equal(("Online", 0, "Public"), (list.Events[1].Format, list.Events[1].RsvpCount, list.Events[1].Visibility));
         Assert.Equal(later.Id, list.Events[1].Id);
     }
@@ -47,59 +48,54 @@ public class EventListTests(CommunityApiFactory factory) : IClassFixture<Communi
     public async Task An_event_that_has_started_but_not_ended_is_still_upcoming()
     {
         var city = UniqueCity();
-        await factory.AddEventAsync("Hackathon weekend", -Day, city, type: EventType.Hackathon, lasts: 2 * Day);
+        await factory.AddEventAsync("Hackathon weekend", -Day, city, type: "hackathon", lasts: 2 * Day);
         var member = await factory.AddMemberAsync("Leah Thompson");
 
-        var list = await factory.ClientFor(member).GetFromJsonAsync<EventListResponse>($"/api/events?city={city}");
+        var list = await factory.ClientFor(member).GetFromJsonAsync<EventListResponse>($"/api/events?chapter={await factory.ChapterIdAsync(city)}");
 
         Assert.Equal(["Hackathon weekend"], list!.Events.Select(e => e.Title));
     }
 
-    // AC2: Given a city filter, or one of the filters Upcoming, Past, Hackathons or Online, when it is applied,
-    // then only matching events are listed.
+    // AC2: Given a city filter, or one of the filters Upcoming, Past or Online, when it is applied, then only matching
+    // events are listed. L2-145 AC3: type= carries an event type key and combines with them.
     [Theory]
     [InlineData("", new[] { "Builders Night", "Hackathon: Tech for Shelters", "Advent Build Night" })]
     [InlineData("&filter=Upcoming", new[] { "Builders Night", "Hackathon: Tech for Shelters", "Advent Build Night" })]
     [InlineData("&filter=Past", new[] { "Last week's prayer", "Spring hackathon" })]
-    [InlineData("&filter=hackathons", new[] { "Hackathon: Tech for Shelters" })]
+    [InlineData("&type=hackathon", new[] { "Hackathon: Tech for Shelters" })]
+    [InlineData("&filter=Past&type=hackathon", new[] { "Spring hackathon" })]
+    [InlineData("&type=no-such-type", new[] { "Builders Night", "Hackathon: Tech for Shelters", "Advent Build Night" })]
     [InlineData("&filter=Online", new[] { "Advent Build Night" })]
-    public async Task The_upcoming_past_hackathon_and_online_filters_narrow_the_list(string query, string[] expected)
+    public async Task The_upcoming_past_online_and_type_filters_narrow_the_list(string query, string[] expected)
     {
         var city = UniqueCity();
         await factory.AddEventAsync("Builders Night", 5 * Day, city);
-        await factory.AddEventAsync("Hackathon: Tech for Shelters", 20 * Day, city, type: EventType.Hackathon);
+        await factory.AddEventAsync("Hackathon: Tech for Shelters", 20 * Day, city, type: "hackathon");
         await factory.AddEventAsync("Advent Build Night", 40 * Day, city, format: EventFormat.Online);
-        await factory.AddEventAsync("Spring hackathon", -200 * Day, city, type: EventType.Hackathon);
-        await factory.AddEventAsync("Last week's prayer", -7 * Day, city, type: EventType.PrayerAndPlanning, format: EventFormat.Online);
+        await factory.AddEventAsync("Spring hackathon", -200 * Day, city, type: "hackathon");
+        await factory.AddEventAsync("Last week's prayer", -7 * Day, city, type: "prayer-and-planning", format: EventFormat.Online);
         var member = await factory.AddMemberAsync("Leah Thompson");
 
-        var list = await factory.ClientFor(member).GetFromJsonAsync<EventListResponse>($"/api/events?city={city}{query}");
+        var list = await factory.ClientFor(member).GetFromJsonAsync<EventListResponse>($"/api/events?chapter={await factory.ChapterIdAsync(city)}{query}");
 
         Assert.Equal(expected, list!.Events.Select(e => e.Title));
     }
 
+    // L2-142 AC1: the filter takes a chapter's id; anything else is a validation error.
     [Fact]
-    public async Task The_city_filter_ignores_case_and_spaces_and_cities_list_every_event_city()
+    public async Task A_chapter_that_is_not_an_id_is_400()
     {
-        var city = UniqueCity();
-        var other = UniqueCity();
-        await factory.AddEventAsync("Builders Night", 5 * Day, city);
-        await factory.AddEventAsync("Elsewhere", 5 * Day, other);
-        await factory.AddEventAsync("Old one", -50 * Day, other);
         var member = await factory.AddMemberAsync("Leah Thompson");
-        var client = factory.ClientFor(member);
 
-        var list = await client.GetFromJsonAsync<EventListResponse>($"/api/events?city=%20{city.ToLowerInvariant()}%20");
+        var response = await factory.ClientFor(member).GetAsync("/api/events?chapter=Toronto");
 
-        Assert.Equal(["Builders Night"], list!.Events.Select(e => e.Title));
-        Assert.Contains(city, list.Cities);
-        Assert.Single(list.Cities, c => c == other);
-        Assert.Equal(list.Cities.Order(StringComparer.OrdinalIgnoreCase), list.Cities);
+        Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
     }
 
     [Theory]
     [InlineData("Staff")]
     [InlineData("7")]
+    [InlineData("Hackathons")]
     public async Task Unknown_filter_is_400(string filter)
     {
         var member = await factory.AddMemberAsync("Leah Thompson");
@@ -115,7 +111,7 @@ public class EventListTests(CommunityApiFactory factory) : IClassFixture<Communi
     {
         var member = await factory.AddMemberAsync("Leah Thompson");
 
-        var list = await factory.ClientFor(member).GetFromJsonAsync<EventListResponse>($"/api/events?city={UniqueCity()}");
+        var list = await factory.ClientFor(member).GetFromJsonAsync<EventListResponse>($"/api/events?chapter={await factory.ChapterIdAsync(UniqueCity())}");
 
         Assert.Empty(list!.Events);
     }
@@ -129,7 +125,7 @@ public class EventListTests(CommunityApiFactory factory) : IClassFixture<Communi
         await factory.AddEventAsync("Builders Night", 5 * Day, city);
         var member = await factory.AddMemberAsync("Leah Thompson");
 
-        var list = await factory.ClientFor(member).GetFromJsonAsync<EventListResponse>($"/api/events?city={city}");
+        var list = await factory.ClientFor(member).GetFromJsonAsync<EventListResponse>($"/api/events?chapter={await factory.ChapterIdAsync(city)}");
 
         Assert.Equal([true, false], list!.Events.Select(e => e.IsCancelled));
     }
@@ -140,14 +136,16 @@ public class EventListTests(CommunityApiFactory factory) : IClassFixture<Communi
         Guid Id,
         string Title,
         string Type,
+        string TypeName,
         DateTimeOffset StartsAt,
         DateTimeOffset EndsAt,
-        string City,
+        Guid? ChapterId,
+        string? ChapterName,
         string Format,
         string? Venue,
         string Visibility,
         int RsvpCount,
         bool IsCancelled);
 
-    public sealed record EventListResponse(EventSummaryResponse[] Events, string[] Cities);
+    public sealed record EventListResponse(EventSummaryResponse[] Events);
 }

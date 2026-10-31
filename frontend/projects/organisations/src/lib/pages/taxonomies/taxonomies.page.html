@@ -1,0 +1,188 @@
+@switch (state()) {
+  @case ('loading') {
+    <ft-stack gap="3" aria-busy="true">
+      <ft-skeleton shape="text" />
+      <ft-skeleton shape="text" />
+      <ft-skeleton shape="text" />
+    </ft-stack>
+  }
+  @case ('error') {
+    <ft-empty-state
+      variant="error"
+      heading="We couldn’t load the stages and types"
+      text="Check your connection and try again."
+    >
+      <ft-button actions variant="primary" (click)="retry()">Try again</ft-button>
+    </ft-empty-state>
+  }
+  @default {
+    <ft-stack>
+      @if (!canEdit()) {
+        <ft-alert status="info">You can view these settings but not change them.</ft-alert>
+      }
+      <ft-chip-group label="Show entries">
+        <ft-chip [pressed]="filter() === 'active'" (pressedChange)="show('active')">Active</ft-chip>
+        <ft-chip [pressed]="filter() === 'archived'" (pressedChange)="show('archived')"
+          >Archived</ft-chip
+        >
+      </ft-chip-group>
+
+      @if (filter() === 'archived') {
+        <p class="text-caption">
+          Archived entries are read-only. Records that use them keep showing their name.
+        </p>
+        <section aria-labelledby="stages-heading">
+          <ft-stack gap="3">
+            <h2 class="section-title" id="stages-heading">Partner stages</h2>
+            <p class="text-caption">
+              An archived stage holds no partners; its moves show “(archived)” in partner history.
+            </p>
+            @if (stages().length === 0) {
+              <ft-empty-state
+                heading="No archived partner stages"
+                text="Stages you archive are listed here."
+              />
+            } @else {
+              <ft-list label="Archived partner stages">
+                @for (stage of stages(); track stage.id) {
+                  <ft-list-item [label]="stage.name" [meta]="archivedMeta(stage)" />
+                }
+              </ft-list>
+            }
+          </ft-stack>
+        </section>
+        <section aria-labelledby="types-heading">
+          <ft-stack gap="3">
+            <h2 class="section-title" id="types-heading">Event types</h2>
+            <p class="text-caption">
+              Events of an archived type keep it; it left the event form and the type filter.
+            </p>
+            @if (types().length === 0) {
+              <ft-empty-state
+                heading="No archived event types"
+                text="Types you archive are listed here."
+              />
+            } @else {
+              <ft-list label="Archived event types">
+                @for (type of types(); track type.id) {
+                  <ft-list-item [label]="type.name" [meta]="archivedTypeMeta(type)" />
+                }
+              </ft-list>
+            }
+          </ft-stack>
+        </section>
+        <section aria-labelledby="resource-types-heading">
+          <ft-stack gap="3">
+            <h2 class="section-title" id="resource-types-heading">Resource types</h2>
+            <p class="text-caption">
+              Resources of an archived type keep it and are listed under “Show archived types” on
+              Resources.
+            </p>
+            @if (resourceTypes().length === 0) {
+              <ft-empty-state
+                heading="No archived resource types"
+                text="Types you archive are listed here."
+              />
+            } @else {
+              <ft-list label="Archived resource types">
+                @for (type of resourceTypes(); track type.id) {
+                  <ft-list-item [label]="type.name" [meta]="archivedResourceTypeMeta(type)" />
+                }
+              </ft-list>
+            }
+          </ft-stack>
+        </section>
+      } @else {
+        <section aria-labelledby="stages-heading">
+          <ft-stack gap="3">
+            <ft-cluster [between]="true">
+              <h2 class="section-title" id="stages-heading">Partner stages</h2>
+              @if (canEdit()) {
+                <ft-button (click)="add()">Add a stage</ft-button>
+              }
+            </ft-cluster>
+            <p class="text-caption">
+              One column per stage on the partner board, in this order. New partners start on the
+              initial stage; Confirmed stages count as confirmed on Home and in Reports.
+            </p>
+            <ft-reorderable-list
+              label="Partner stages"
+              [items]="rows()"
+              [readonly]="!canEdit()"
+              (reordered)="reorder($event)"
+            >
+              <ng-template ftReorderableActions let-item>
+                <ft-menu
+                  [label]="'More actions for ' + item.title"
+                  [entries]="menu(item)"
+                  (itemSelected)="act(item, $event)"
+                >
+                  <ft-icon name="more" />
+                </ft-menu>
+              </ng-template>
+            </ft-reorderable-list>
+          </ft-stack>
+        </section>
+        <section aria-labelledby="types-heading">
+          <ft-stack gap="3">
+            <ft-cluster [between]="true">
+              <h2 class="section-title" id="types-heading">Event types</h2>
+              @if (canEdit()) {
+                <ft-button (click)="addType()">Add an event type</ft-button>
+              }
+            </ft-cluster>
+            <p class="text-caption">
+              Offered in this order on the event form and the Events type filter.
+            </p>
+            <ft-reorderable-list
+              label="Event types"
+              [items]="typeRows()"
+              [readonly]="!canEdit()"
+              (reordered)="reorderTypes($event)"
+            >
+              <ng-template ftReorderableActions let-item>
+                <ft-menu
+                  [label]="'More actions for ' + item.title"
+                  [entries]="typeMenu"
+                  (itemSelected)="actOnType(item, $event)"
+                >
+                  <ft-icon name="more" />
+                </ft-menu>
+              </ng-template>
+            </ft-reorderable-list>
+          </ft-stack>
+        </section>
+        <section aria-labelledby="resource-types-heading">
+          <ft-stack gap="3">
+            <ft-cluster [between]="true">
+              <h2 class="section-title" id="resource-types-heading">Resource types</h2>
+              @if (canEdit()) {
+                <ft-button (click)="addResourceType()">Add a resource type</ft-button>
+              }
+            </ft-cluster>
+            <p class="text-caption">
+              Offered on the add and edit resource dialogs. An upload’s type is guessed from its
+              extension.
+            </p>
+            <ft-reorderable-list
+              label="Resource types"
+              [items]="resourceTypeRows()"
+              [readonly]="!canEdit()"
+              (reordered)="reorderResourceTypes($event)"
+            >
+              <ng-template ftReorderableActions let-item>
+                <ft-menu
+                  [label]="'More actions for ' + item.title"
+                  [entries]="resourceTypeMenu(item.id)"
+                  (itemSelected)="actOnResourceType(item, $event)"
+                >
+                  <ft-icon name="more" />
+                </ft-menu>
+              </ng-template>
+            </ft-reorderable-list>
+          </ft-stack>
+        </section>
+      }
+    </ft-stack>
+  }
+}

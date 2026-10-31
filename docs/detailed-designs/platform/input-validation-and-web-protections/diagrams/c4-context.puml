@@ -2,7 +2,7 @@
 !include <C4/C4_Context>
 LAYOUT_WITH_LEGEND()
 title System Context — Input validation and web protections
-Person(user, "Any caller", "Member, Staff, lead, System Admin or anonymous visitor")
-System(ftc, "FaithTech Community", "Community site for FaithTech staff, leads, volunteers, builders and partners")
+Person(user, "Any caller", "Member with any capabilities, administrator or anonymous visitor")
+System(ftc, "Community platform", "Community site for an organisation's members and partners")
 Rel(user, ftc, "Sends requests to")
 @enduml

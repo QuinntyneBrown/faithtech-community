@@ -14,8 +14,8 @@ skinparam package {
   FontColor #101828
   BackgroundColor #F9FAFB
 }
-actor "System Admin" as actor
-box "Frontend — FaithTech Community web app" #E0F2FE
+actor "Administrator" as actor
+box "Frontend — Community platform web app" #E0F2FE
   participant "AdminUsersPage\n(admin library)" as adminpage
   participant "WorkspaceSettingsPage\n(agile library)" as page
   participant "ReassignOwnerDialog" as dlg
@@ -26,7 +26,7 @@ box "Backend — FaithTech.Community.Api" #D1FADF
 end box
 box "Backend — FaithTech.Community.Application and Domain" #ECFDF3
   participant "ChangeRolesHandler\n(Admin)" as roles
-  participant "CityLeadRoleRemovedHandler" as evt
+  participant "CapabilityLostHandler" as evt
   participant "AgileNotifier" as ntf
   participant "WorkspacesHandler" as list
   participant "ArchiveHandler" as h
@@ -39,19 +39,19 @@ box "Backend — FaithTech.Community.Infrastructure" #FFF4E5
   participant "OutboxEmailQueue" as email
   database "Community\ndatabase" as db
 end box
-== City Lead role removed from a workspace owner ==
-actor -> adminpage : Remove City Lead\nfrom a user
+== Workspace owner loses OwnWorkspaces ==
+actor -> adminpage : Remove the role that\ngave OwnWorkspaces
 adminpage -> roles : DELETE role\n(admin endpoints)
-roles -> roles : Profile.RemoveRole(CityLead)\nraises CityLeadRoleRemoved
-roles -> evt : HandleAsync(removed)
+roles -> roles : Profile.RemoveRole(definition, lost)\nraises CapabilityLost(OwnWorkspaces)\n(L2-139 AC3)
+roles -> evt : HandleAsync(lost)
 evt -> ctx : Workspaces WHERE OwnerId = profile\n(query filter: live only)
 ctx -> db : SELECT
 db --> ctx : Live workspaces
-evt -> ctx : System Admin profiles,\nnot suspended
-evt -> ntf : Notify(WorkspaceOwnerLostCityLead,\n/workspaces/{id}/settings)\nper workspace per System Admin\n(L2-037 AC2)
+evt -> ctx : Administrator profiles\n(AdministerOrganisation), not suspended
+evt -> ntf : Notify(WorkspaceOwnerLostCapability,\n/workspaces/{id}/settings)\nper workspace per administrator\n(L2-037 AC2, L2-139 AC4)
 roles -> evt : QueueEmailsAsync()
 evt -> ntf : QueueEmailsAsync()
-ntf -> email : Enqueue per\nSystem Admin (outbox row)
+ntf -> email : Enqueue per\nadministrator (outbox row)
 roles -> ctx : SaveChanges
 ctx -> db : UPDATE profile_roles,\nINSERT notifications and outbox\nin one transaction
 ntf --> actor : In-app notification and email
@@ -69,20 +69,20 @@ page -> dlg : Open dialog
 dlg -> svc : listOwnerCandidates(workspaceId)
 svc -> ep : GET /api/workspaces/{id}/owner-candidates
 ep -> h : OwnerCandidatesAsync(id)
-h -> pol : LoadAsync(id); IsSystemAdmin
-h --> dlg : Non-suspended City Leads\nother than the current owner
-actor -> dlg : Choose a City Lead
+h -> pol : LoadAsync(id); Has(AdministerOrganisation)
+h --> dlg : Non-suspended holders of\nOwnWorkspaces other than the current owner
+actor -> dlg : Choose a new owner
 dlg -> svc : reassignOwner(workspaceId, ownerId)
 svc -> ep : PUT /api/workspaces/{id}/owner
 ep -> ep : Validate ReassignOwnerCommand
 ep -> h : ReassignOwnerAsync(id, command)
-h -> pol : LoadAsync(id); IsSystemAdmin
+h -> pol : LoadAsync(id); Has(AdministerOrganisation)
 alt caller cannot read the workspace
 h --> ep : 404
-else caller is not System Admin
+else caller lacks AdministerOrganisation
 h --> ep : 403
-else chosen profile is suspended or not a City Lead
-h --> ep : Invalid (OwnerId)\n"Choose a City Lead."
+else chosen profile is suspended or lacks OwnWorkspaces
+h --> ep : Invalid (OwnerId)\n(L2-037 AC2)
 ep --> dlg : 400 ValidationProblem
 else valid
 h -> ent : ReassignOwner(newOwner, now)\nformer owner stays a member (L2-037 AC2)

@@ -9,7 +9,12 @@ import {
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
-import { NOTES_SERVICE, NotePageSummary, NoteQuery } from '@faithtech-community/api';
+import {
+  NotePageSummary,
+  NoteQuery,
+  NOTES_SERVICE,
+  OrganisationNames,
+} from '@faithtech-community/api';
 import {
   BadgeComponent,
   ButtonComponent,
@@ -62,6 +67,7 @@ type Owner = NonNullable<NoteQuery['owner']>;
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class NotesPage {
+  protected readonly organisation = inject(OrganisationNames);
   private readonly notes = inject(NOTES_SERVICE);
   private readonly toasts = inject(ToastService);
   private readonly router = inject(Router);
@@ -137,7 +143,7 @@ export class NotesPage {
       this.toasts.show({
         variant: 'danger',
         heading: 'Page not created',
-        text: createRefusal(error),
+        text: createRefusal(error, this.organisation.shortName()),
       });
     } finally {
       this.creating.set(false);

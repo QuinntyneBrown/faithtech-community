@@ -7,6 +7,7 @@ using FaithTech.Community.Domain.Events;
 using FaithTech.Community.Domain.Invites;
 using FaithTech.Community.Domain.Notes;
 using FaithTech.Community.Domain.Notifications;
+using FaithTech.Community.Domain.Organisations;
 using FaithTech.Community.Domain.Partners;
 using FaithTech.Community.Domain.Profiles;
 using FaithTech.Community.Domain.Resources;
@@ -16,13 +17,20 @@ namespace FaithTech.Community.Application.Common;
 
 public interface IApplicationDbContext
 {
+    /// <summary>The platform's organisations, which are not scoped (ADR 0032).</summary>
+    DbSet<Domain.Organisations.Organisation> Organisations { get; }
+
     DbSet<Profile> Profiles { get; }
+
+    DbSet<Domain.Organisations.RoleDefinition> RoleDefinitions { get; }
+
+    DbSet<Domain.Organisations.Chapter> Chapters { get; }
 
     DbSet<CommunityUser> Users { get; }
 
     DbSet<AuditEntry> AuditEntries { get; }
 
-    DbSet<SystemAdminRoster> SystemAdminRosters { get; }
+    DbSet<OrganisationAdminRoster> OrganisationAdminRosters { get; }
 
     DbSet<Notification> Notifications { get; }
 
@@ -39,6 +47,16 @@ public interface IApplicationDbContext
     DbSet<Partner> Partners { get; }
 
     DbSet<PartnerStageChange> PartnerStageChanges { get; }
+
+    DbSet<PartnerStage> PartnerStages { get; }
+
+    DbSet<EventType> EventTypes { get; }
+
+    DbSet<ResourceType> ResourceTypes { get; }
+
+    DbSet<PartnerActivity> PartnerActivities { get; }
+
+    DbSet<PartnerDuplicateDismissal> PartnerDuplicateDismissals { get; }
 
     DbSet<Workspace> Workspaces { get; }
 

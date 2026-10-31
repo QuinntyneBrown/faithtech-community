@@ -1,4 +1,5 @@
 // Traces to: L2-026, L2-042
+using FaithTech.Community.Api.Tests.Organisations;
 using System.Net;
 using System.Net.Http.Json;
 using FaithTech.Community.Api.Tests.Agile;
@@ -146,9 +147,10 @@ public class GlobalSearchTests(CommunityApiFactory factory) : IClassFixture<Comm
     public async Task A_member_gets_people_and_events_grouped_and_nothing_they_may_not_open()
     {
         var word = Word();
+        var toronto = await factory.ChapterIdAsync("Toronto");
         var ruth = await factory.AddMemberAsync($"Ruth {word}", p =>
         {
-            p.Update(p.Name, "Toronto", "Led the intake team.");
+            p.Update(p.Name, toronto, "Led the intake team.");
             p.AddRole(Role.Volunteer, Guid.Empty, DateTime.UtcNow);
         });
         var ev = await factory.AddEventAsync($"Hackathon: Tech for {word}", TimeSpan.FromDays(20));
@@ -188,7 +190,8 @@ public class GlobalSearchTests(CommunityApiFactory factory) : IClassFixture<Comm
     public async Task Search_matches_every_word_ignoring_case_across_the_searchable_fields()
     {
         var word = Word();
-        var ruth = await factory.AddMemberAsync("Ruth Alvarez", p => p.Update(p.Name, "Toronto", $"Runs the {word} intake team."));
+        var toronto = await factory.ChapterIdAsync("Toronto");
+        var ruth = await factory.AddMemberAsync("Ruth Alvarez", p => p.Update(p.Name, toronto, $"Runs the {word} intake team."));
         var jonah = await factory.AddMemberAsync("Jonah Bell");
 
         var both = await SearchAsync(factory.ClientFor(jonah), $"{word.ToUpperInvariant()} intake");

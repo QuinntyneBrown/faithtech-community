@@ -15,7 +15,7 @@ skinparam package {
   BackgroundColor #F9FAFB
 }
 actor "Member" as actor
-box "Frontend — FaithTech Community web app (team library)" #E0F2FE
+box "Frontend — Community web app (team library)" #E0F2FE
   participant "TeamPage" as page
   participant "HttpTeamService" as svc
 end box
@@ -28,17 +28,17 @@ end box
 box "Backend — FaithTech.Community.Infrastructure" #FFF4E5
   database "Community database" as db
 end box
-actor -> page : Open team, optionally choose a role or city filter
-page -> svc : list({ role?, city? })
-svc -> ep : GET /api/team?role=&city=
+actor -> page : Open team, optionally choose a role or {chapter} filter
+page -> svc : list({ roleId?, chapterId? })
+svc -> ep : GET /api/team?role=&chapter=
 ep -> ep : Require signed-in member (401 anonymous)
 ep -> h : Send ListTeamQuery
-h -> db : Select profiles with any TeamRoles role (L2-019 AC1, AC3)
+h -> db : Select the organisation's profiles holding a non-archived role flagged ShowOnTeam (L2-019 AC1, AC3)
 db --> h : Profiles with roles and photos
-opt role or city filter
-  h -> h : Narrow to Leads or Volunteers and to the home city (L2-019 AC2)
+opt role or {chapter} filter
+  h -> h : Narrow to the chosen role and home {chapter} (L2-019 AC2, L2-142 AC2)
 end
-h --> ep : TeamListDto: members by name with photo and roles, all cities
+h --> ep : TeamListDto: members by name with photo and roles with {chapter} tags
 ep --> svc : 200 OK
 svc --> page : Team list
 page --> actor : Team list rows, or the empty or no-results state

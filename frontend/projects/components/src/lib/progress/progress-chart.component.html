@@ -1,0 +1,23 @@
+<ul
+  class="ft-progress-chart"
+  [attr.aria-label]="label()"
+  [attr.aria-busy]="loading() ? 'true' : null"
+>
+  @if (loading()) {
+    @for (row of skeletonRows; track row) {
+      <li class="ft-progress-chart__row">
+        <ft-skeleton class="ft-progress-chart__skeleton" />
+      </li>
+    }
+  } @else {
+    @for (bar of bars(); track bar.label) {
+      <li class="ft-progress-chart__row">
+        <span class="ft-progress-chart__label">{{ bar.label }}</span>
+        <div class="ft-progress-chart__track" aria-hidden="true">
+          <div class="ft-progress-chart__bar" [style.--value]="bar.percent + '%'"></div>
+        </div>
+        <span class="ft-progress-chart__label ft-progress-chart__value">{{ bar.text }}</span>
+      </li>
+    }
+  }
+</ul>

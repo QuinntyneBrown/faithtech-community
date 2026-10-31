@@ -1,10 +1,10 @@
 using FaithTech.Community.Application.Admin;
 using FaithTech.Community.Application.Common;
 using FaithTech.Community.Application.Notifications;
+using FaithTech.Community.Application.Organisations;
 using FaithTech.Community.Domain.Notifications;
 using FluentValidation;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Options;
 
 namespace FaithTech.Community.Application.Events;
 
@@ -33,7 +33,7 @@ public class CancelEventHandler(
     IIcsCalendarWriter calendar,
     IEmailQueue emails,
     IAuditLog audit,
-    IOptions<WebAppOptions> webApp,
+    ICurrentOrganisation organisation,
     TimeProvider time)
 {
     public async Task<Result> HandleAsync(Guid id, CancelEventCommand command, CancellationToken cancellationToken = default)
@@ -69,9 +69,11 @@ public class CancelEventHandler(
         }
 
         // Everyone who RSVP'd hears why, the person who cancelled included, since their RSVP is cancelled too.
-        var addresses = await db.Users.Where(u => members.Contains(u.ProfileId)).Select(u => u.Email!).ToListAsync(cancellationToken);
-        addresses.AddRange(e.Rsvps.Where(r => r.IsGuest).Select(r => r.GuestEmail!));
-        var origin = webApp.Value.Origin;
+        var addresses = await db.Profiles.Where(p => members.Contains(p.Id))
+            .Join(db.Users, p => p.UserId, u => (Guid?)u.Id, (p, u) => u.Email!).ToListAsync(cancellationToken);
+        // A walk-in may have given no email.
+        addresses.AddRange(e.Rsvps.Where(r => r.IsGuest && r.GuestEmail is not null).Select(r => r.GuestEmail!));
+        var origin = organisation.Origin;
         foreach (var address in addresses.Distinct(StringComparer.OrdinalIgnoreCase))
         {
             emails.Enqueue(new EmailMessage(

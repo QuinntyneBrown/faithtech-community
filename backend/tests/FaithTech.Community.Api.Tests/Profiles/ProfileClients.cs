@@ -29,8 +29,9 @@ public static class ProfileClients
                 NormalizedEmail = email.ToUpperInvariant(),
                 NormalizedUserName = email.ToUpperInvariant(),
                 EmailConfirmed = true,
-                ProfileId = profile.Id,
+                SecurityStamp = Guid.NewGuid().ToString(),
             };
+            profile.LinkAccount(user.Id);
             db.Profiles.Add(profile);
             db.Users.Add(user);
             await db.SaveChangesAsync();
@@ -40,6 +41,24 @@ public static class ProfileClients
 
     // One test-auth server per fixture: building a server per client made every test pay for a host start.
     private static readonly ConditionalWeakTable<CommunityApiFactory, WebApplicationFactory<Program>> TestAuthServers = new();
+
+    /// <summary>
+    /// A client authenticated as the member, who holds a role defined for this test that carries exactly
+    /// <paramref name="capabilities"/>, so a rule is proven without any FaithTech role name (L2-135, ADR 0033).
+    /// </summary>
+    public static HttpClient ClientWithCapabilities(this CommunityApiFactory factory, Member member, params string[] capabilities)
+    {
+        factory.WithDbAsync(async db =>
+        {
+            var definition = new Domain.Organisations.RoleDefinition(
+                Guid.NewGuid(), $"test-{Guid.NewGuid():N}", $"Test role {Guid.NewGuid():N}"[..20], "Defined by a test.", capabilities, 100);
+            db.RoleDefinitions.Add(definition);
+            var profile = await db.Profiles.SingleAsync(p => p.Id == member.ProfileId);
+            profile.AddRole(definition, Guid.Empty, DateTime.UtcNow);
+            return await db.SaveChangesAsync();
+        }).GetAwaiter().GetResult();
+        return factory.ClientFor(member);
+    }
 
     /// <summary>
     /// A client authenticated as the member, who holds the given roles: they are granted on the profile,
@@ -69,4 +88,14 @@ public static class ProfileClients
         client.DefaultRequestHeaders.Add(TestAuthHandler.Header, $"{member.UserId};{string.Join(',', roles)}");
         return client;
     }
+
+    /// <summary>The id of the role definition keyed <paramref name="key"/> in FaithTech, or in <paramref name="organisationId"/>.</summary>
+    public static Guid RoleIdOf(this CommunityApiFactory factory, string key, Guid? organisationId = null) =>
+        factory.WithDbAsync(
+            organisationId ?? Infrastructure.Persistence.Seed.FaithTechSeed.OrganisationId,
+            db => db.RoleDefinitions.Where(d => d.Key == key).Select(d => d.Id).SingleAsync())
+            .GetAwaiter().GetResult();
+
+    public static Guid RoleIdOf(this CommunityApiFactory factory, Role role, Guid? organisationId = null) =>
+        factory.RoleIdOf(role.ToString(), organisationId);
 }

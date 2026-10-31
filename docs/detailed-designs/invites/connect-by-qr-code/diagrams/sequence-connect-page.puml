@@ -24,12 +24,12 @@ p -> page : Open /meet/{token}
 page -> svc : lookUp(token)
 svc -> ep : POST /api/connect/lookup { token } (anonymous, rate-limited)
 ep -> links : LookUpAsync(token)
-links -> db : ConnectLink by SHA-256 hash; owner profile, roles, featured photo
-alt unknown, replaced, owner suspended or no longer City Lead / System Admin
+links -> db : ConnectLink by SHA-256 hash (organisation filter); owner profile, capabilities, featured photo
+alt unknown, replaced, owner suspended or no longer holds ConnectLink (L2-139 AC5)
   ep --> svc : 404
   page --> p : This code no longer works · Create an account (L2-082 AC3)
 else valid
-  ep --> svc : 200 { leadName, leadPhotoUrl, leadCity, leadRole }
+  ep --> svc : 200 { leadName, leadPhotoUrl, leadChapter, leadRole }
   alt visitor is signed in
     page -> svc : connect(token)
     svc -> ep : POST /api/connect { token }
@@ -48,7 +48,7 @@ else valid
     h -> su : CreateAsync(name, email, password)
     alt email already has an account
       su --> h : null
-    else created (no role, verification email sent)
+    else created (profile in owner's organisation, no role, verification email sent)
       su --> h : user
       h -> db : Add PendingConnection(profile, lead)
     end

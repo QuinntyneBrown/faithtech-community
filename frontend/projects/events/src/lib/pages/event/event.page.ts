@@ -9,7 +9,13 @@ import {
   signal,
 } from '@angular/core';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
-import { EVENTS_SERVICE, EventDetailDto, RsvpDto, problemDetails } from '@faithtech-community/api';
+import {
+  EventDetailDto,
+  EVENTS_SERVICE,
+  OrganisationNames,
+  problemDetails,
+  RsvpDto,
+} from '@faithtech-community/api';
 import {
   AlertComponent,
   AvatarComponent,
@@ -35,10 +41,12 @@ import {
   ToastService,
   avatarColorFor,
   formatDay,
+  formatTime,
   formatTimeRange,
 } from '@faithtech-community/components';
 import { firstValueFrom } from 'rxjs';
 
+import { fileSlug as slug, saveFile as save } from '../../download';
 import {
   CancelEventData,
   CancelEventDialog,
@@ -82,6 +90,7 @@ type State = 'loading' | 'loaded' | 'error';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class EventPage {
+  protected readonly organisation = inject(OrganisationNames);
   private readonly events = inject(EVENTS_SERVICE);
   private readonly dialogs = inject(DialogService);
   private readonly toasts = inject(ToastService);
@@ -104,7 +113,9 @@ export class EventPage {
   protected readonly where = computed(() => {
     const e = this.event();
     if (!e) return '';
-    return e.format === 'Online' ? 'Online' : `${e.venue}, ${e.city}`;
+    if (e.format === 'Online') return 'Online';
+    // The chapter's name follows the venue; an organisation-wide event gives the venue alone (L2-141 AC2).
+    return e.chapterName ? `${e.venue}, ${e.chapterName}` : (e.venue ?? '');
   });
   protected readonly host = computed(() => {
     const e = this.event();
@@ -123,6 +134,23 @@ export class EventPage {
     const when = e.cancelledAt ? ` on ${formatDay(e.cancelledAt)}` : '';
     const why = e.cancellationReason ? `: “${e.cancellationReason}”` : '.';
     return `${who} cancelled it${when}${why} Everyone who RSVP’d was emailed.`;
+  });
+  /** "34 people of 40", then "· 36 checked in" for leads and Staff once anyone is checked in. */
+  protected readonly going = computed(() => {
+    const e = this.event();
+    if (!e) return '';
+    const people = `${e.rsvpCount} ${e.rsvpCount === 1 ? 'person' : 'people'}`;
+    const capacity = e.capacity ? ` of ${e.capacity}` : '';
+    const checkedIn = e.checkedInCount ? ` · ${e.checkedInCount} checked in` : '';
+    return `${people}${capacity}${checkedIn}`;
+  });
+  /** "Going (34)", then "Going (34) · 36 checked in" once anyone is checked in (L2-121 AC1). */
+  protected readonly goingHeading = computed(() => {
+    const e = this.event();
+    if (!e) return '';
+    return e.checkedInCount
+      ? `Going (${e.rsvpCount}) · ${e.checkedInCount} checked in`
+      : `Going (${e.rsvpCount})`;
   });
   protected readonly started = computed(() => {
     const e = this.event();
@@ -147,7 +175,9 @@ export class EventPage {
   }
 
   protected meta(rsvp: RsvpDto): string {
-    const day = `RSVP’d ${formatDay(rsvp.rsvpedAt)}`;
+    const day = rsvp.checkedInAt
+      ? `Checked in ${formatTime(rsvp.checkedInAt)}`
+      : `RSVP’d ${formatDay(rsvp.rsvpedAt)}`;
     if (!rsvp.isGuest) return `Member · ${day}`;
     return rsvp.guestEmail ? `Guest · ${rsvp.guestEmail} · ${day}` : `Guest · ${day}`;
   }
@@ -162,7 +192,7 @@ export class EventPage {
       this.refusal.set(
         error instanceof HttpErrorResponse && error.status === 409
           ? (problemDetails(error)?.detail ?? 'This event isn’t taking RSVPs.')
-          : 'We couldn’t reach FaithTech, so you’re not on the list yet. Try again.',
+          : `We couldn’t reach ${this.organisation.shortName()}, so you’re not on the list yet. Try again.`,
       );
     } finally {
       this.rsvping.set(false);
@@ -279,23 +309,4 @@ export class EventPage {
       if (id === this.id()) this.state.set('error');
     }
   }
-}
-
-/** Hands a downloaded file to the browser under the given name. */
-function save(blob: Blob, fileName: string): void {
-  const url = URL.createObjectURL(blob);
-  const link = document.createElement('a');
-  link.href = url;
-  link.download = fileName;
-  link.click();
-  URL.revokeObjectURL(url);
-}
-
-/** The same file-name slug as the server's EventFileNames. */
-function slug(title: string): string {
-  const words = title
-    .toLowerCase()
-    .replace(/[^a-z0-9]+/g, '-')
-    .replace(/^-+|-+$/g, '');
-  return words.slice(0, 60).replace(/-+$/, '') || 'event';
 }

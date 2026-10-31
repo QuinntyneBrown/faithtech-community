@@ -23,8 +23,8 @@ class InviteLookupDto <<record>> {
   +string Status
   +string Email
   +string InviterName
-  +string? InviterCity
-  +string? PreassignedRole
+  +string? InviterChapter
+  +string? PreassignedRoleName
   +bool HasAccount
 }
 class AcceptInviteHandler {
@@ -37,7 +37,8 @@ class InviteTokens <<static>> {
 class Invite {
   +string Email
   +string TokenHash
-  +Role? PreassignedRole
+  +Guid OrganisationId
+  +Guid? PreassignedRoleId
   +Guid InvitedBy
   +Guid? AcceptedBy
   +Status(now: DateTimeOffset): InviteStatus
@@ -47,13 +48,19 @@ class CommunityUser {
   +Guid Id
   +string Email
   +bool EmailConfirmed
-  +Guid ProfileId
 }
 class Profile {
   +Guid Id
+  +Guid OrganisationId
+  +Guid UserId
   +string Name
-  +HasRole(role: Role): bool
-  +AddRole(role: Role, grantedBy: Guid, nowUtc: DateTime): void
+  +HoldsRole(roleDefinitionId: Guid): bool
+  +AddRole(roleDefinitionId: Guid, chapterId: Guid?, grantedBy: Guid, nowUtc: DateTime): void
+}
+class RoleDefinition {
+  +Guid Id
+  +string Name
+  +IReadOnlySet<string> Capabilities
 }
 class Notification {
   +Guid RecipientId
@@ -68,15 +75,20 @@ interface ICurrentUser {
   +Guid? UserId
   +bool IsAuthenticated
 }
+interface ICurrentOrganisation {
+  +Guid Id
+}
 AcceptInviteValidator ..> AcceptInviteCommand : validates
 AcceptInviteHandler ..> AcceptInviteCommand : handles
 AcceptInviteHandler ..> InviteLookupDto : returns
 AcceptInviteHandler ..> InviteTokens : hashes token
 AcceptInviteHandler --> Invite : accepts
 AcceptInviteHandler --> CommunityUser : creates or loads
-AcceptInviteHandler --> Profile : grants role
+AcceptInviteHandler --> Profile : creates in inviter's organisation; grants role
+Profile --> RoleDefinition : holds
 AcceptInviteHandler ..> IAuditLog : role.granted, inviter as actor
 AcceptInviteHandler ..> Notification : InviteAccepted for inviter
 AcceptInviteHandler ..> ICurrentUser
-CommunityUser "1" --> "1" Profile
+AcceptInviteHandler ..> ICurrentOrganisation
+CommunityUser "1" --> "*" Profile : one per organisation
 @enduml

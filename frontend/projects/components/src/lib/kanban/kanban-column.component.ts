@@ -39,6 +39,7 @@ let nextId = 0;
     '[attr.id]': 'panelId',
     '[attr.role]': 'labelledBy() ? "tabpanel" : null',
     '[attr.aria-labelledby]': 'labelledBy()',
+    '[class.ft-kanban__column--closed]': '!droppable()',
   },
 })
 export class KanbanColumnComponent implements OnInit {
@@ -49,6 +50,8 @@ export class KanbanColumnComponent implements OnInit {
   readonly stage = input.required<unknown>();
   readonly count = input(0);
   readonly emptyText = input('Nothing at this stage yet');
+  /** False for a column cards may leave but not enter, such as an archived stage (L2-144 AC4). */
+  readonly droppable = input(true);
 
   readonly cardDropped = output<KanbanCardDrop>();
 
@@ -65,6 +68,12 @@ export class KanbanColumnComponent implements OnInit {
       this.dropList.data = this.stage();
     });
     this.dropList.sortingDisabled = true;
+    this.dropList.enterPredicate = () => this.droppable();
+  }
+
+  /** Whether a card dragged from another column may be dropped here. */
+  acceptsDrops(): boolean {
+    return this.dropList.enterPredicate(undefined as never, this.dropList);
   }
 
   ngOnInit(): void {

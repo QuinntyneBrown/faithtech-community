@@ -14,8 +14,8 @@ skinparam package {
   FontColor #101828
   BackgroundColor #F9FAFB
 }
-actor "Event Lead / City Lead" as actor
-box "Frontend — FaithTech Community web app (events library)" #E0F2FE
+actor "Member with ManageEvents" as actor
+box "Frontend — Community platform web app (events library)" #E0F2FE
   participant "EventFormPage" as page
   participant "HttpEventsService" as svc
 end box
@@ -36,11 +36,14 @@ actor -> page : Edit fields and save
 page -> svc : updateEvent(id, request)
 svc -> ep : PUT /api/events/{id}
 ep -> h : Send UpdateEventCommand
-h -> perm : CanManageEvents(currentUser) (L2-020)
+h -> perm : CanManageEvents: Has(ManageEvents) (L2-020 AC3)
 perm --> h : true
 h -> db : Load event with member RSVPs
 db --> h : Event
 h -> ev : Update(...); Sequence += 1
+opt allowed only by AdministerOrganisation
+  h -> db : Record audit entry event.updated (L2-135 AC5)
+end
 h -> notif : Publish EventChanged to each RSVP'd member (L2-020)
 h -> db : Save event and notifications in one unit of work
 db --> h : Committed

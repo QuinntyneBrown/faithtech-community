@@ -14,28 +14,28 @@ skinparam package {
   FontColor #101828
   BackgroundColor #F9FAFB
 }
-actor "System Admin" as admin
-actor "Member (Volunteer)" as m
+actor "Role grantor (AssignRoles)" as admin
+actor "Member holding role R" as m
 participant "RolesHandler" as roles
 participant "ResourcesEndpoints" as ep
 participant "ListResourcesHandler" as h
 participant "ResourceAccess" as acc
 database "Community database" as db
-note over db: "Volunteer kit" is Shared with the Volunteer role
+note over db: "Team kit" is Shared with role definition R
 m -> ep : GET /api/resources
 ep -> h : ListAsync(...)
-h -> acc : Visible(Resources, caller roles = {Volunteer})
-acc -> db : ... OR EXISTS ResourceShareRole WHERE Role IN (Volunteer)
-db --> m : "Volunteer kit" listed
-admin -> roles : Remove Volunteer from the member
+h -> acc : Visible(Resources, caller held roles = {R})
+acc -> db : ... OR EXISTS ResourceShareRole WHERE RoleDefinitionId IN (R)
+db --> m : "Team kit" listed
+admin -> roles : Remove role R from the member (L2-138)
 roles -> db : Profile roles updated (no resource changes)
 m -> ep : GET /api/resources/{kit id}
-ep -> acc : VisibleOrOwnArchived(caller roles = {})
+ep -> acc : VisibleOrOwnArchived(caller held roles = {})
 acc -> db : No matching share row
 ep --> m : 404 (L2-060 AC8)
-admin -> roles : Grant Volunteer to another member
+admin -> roles : Grant role R to another member
 note right of roles
-  The new Volunteer can open the kit on their next request
+  The new holder of R can open the kit on their next request
   and gets no ResourceShared notification (L2-061 AC3)
 end note
 @enduml

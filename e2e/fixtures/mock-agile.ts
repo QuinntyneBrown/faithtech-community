@@ -1,9 +1,10 @@
 import { Route, WebSocketRoute } from '@playwright/test';
 
 import type { MockAccount, MockProfile } from './mock-api';
+import { carries, holds } from './role-definitions';
 
 export type MockMethod = 'Scrum' | 'Kanban';
-export type MockAccess = 'Owner' | 'Member' | 'Admin' | 'Staff' | 'Outsider';
+export type MockAccess = 'Owner' | 'Member' | 'Admin' | 'Reader' | 'Outsider';
 
 export interface MockWorkspace {
   id: string;
@@ -85,8 +86,6 @@ const PARENT_PROBLEM: Record<MockKind, string> = {
   Task: 'A task must belong to a story.',
 };
 const KIND_ORDER: MockKind[] = ['Initiative', 'Epic', 'Story', 'Task'];
-
-const TEAM_ROLES = ['CityLead', 'EventLead', 'CreateLead', 'CommunicationsLead', 'Volunteer'];
 
 /** The request the agile fake answers, already parsed by MockApi. */
 export interface AgileRequest {
@@ -409,19 +408,19 @@ export class MockAgile {
         if (!manage) return route.fulfill({ status: 403 });
         return route.fulfill({ status: 200, json: this.archivedItems(workspace) });
       case 'GET /owner-candidates':
-        if (!caller.roles.includes('SystemAdmin')) return route.fulfill({ status: 403 });
+        if (!holds(caller, 'AdministerOrganisation')) return route.fulfill({ status: 403 });
         return route.fulfill({
           status: 200,
           json: [...this.profiles.values()]
-            .filter((p) => p.id !== workspace.ownerId && p.roles.includes('CityLead'))
+            .filter((p) => p.id !== workspace.ownerId && carries(p.roles, 'OwnWorkspaces'))
             .sort((a, b) => a.name.localeCompare(b.name))
             .map((p) => ({ profileId: p.id, name: p.name, roles: p.roles })),
         });
       case 'PUT /owner': {
-        if (!caller.roles.includes('SystemAdmin')) return route.fulfill({ status: 403 });
+        if (!holds(caller, 'AdministerOrganisation')) return route.fulfill({ status: 403 });
         const ownerId = request.body['ownerId'] as string | null;
         if (!ownerId) return invalid(route, 'OwnerId', 'Choose who will own this workspace.');
-        if (!this.profiles.get(ownerId)?.roles.includes('CityLead'))
+        if (!carries(this.profiles.get(ownerId)?.roles ?? [], 'OwnWorkspaces'))
           return invalid(route, 'OwnerId', 'Choose a City Lead.');
         workspace.memberIds = [
           ...workspace.memberIds.filter((id) => id !== ownerId),
@@ -439,7 +438,7 @@ export class MockAgile {
       );
       if (!sprint) return route.fulfill({ status: 404 });
       if (sprintAction[2] === 'stories') {
-        if (access === 'Staff') return route.fulfill({ status: 403 });
+        if (access === 'Reader') return route.fulfill({ status: 403 });
         for (const id of (request.body['storyIds'] as string[]) ?? [])
           this.items.find((i) => i.id === id)!.sprintId = sprint.id;
         return route.fulfill({ status: 204 });
@@ -473,7 +472,7 @@ export class MockAgile {
   ) {
     const kind = body['kind'] as MockKind;
     const planning = kind === 'Initiative' || kind === 'Epic';
-    if (access === 'Staff' || (planning && access === 'Member'))
+    if (access === 'Reader' || (planning && access === 'Member'))
       return route.fulfill({ status: 403 });
     const title = String(body['title'] ?? '').trim();
     if (!title) return invalid(route, 'Title', 'Give it a title.');
@@ -514,7 +513,7 @@ export class MockAgile {
     const access = workspace ? this.access(workspace, caller!) : 'Outsider';
     if (!item || !workspace || access === 'Outsider') return route.fulfill({ status: 404 });
     const planning = item.kind === 'Initiative' || item.kind === 'Epic';
-    const canEdit = access !== 'Staff' && !(planning && access === 'Member');
+    const canEdit = access !== 'Reader' && !(planning && access === 'Member');
 
     switch (`${method} ${rest}`) {
       case 'GET ':
@@ -544,11 +543,11 @@ export class MockAgile {
         return route.fulfill({ status: 204 });
       }
       case 'PUT /done':
-        if (access === 'Staff') return route.fulfill({ status: 403 });
+        if (access === 'Reader') return route.fulfill({ status: 403 });
         item.isDone = Boolean(body['done']);
         return route.fulfill({ status: 204 });
       case 'POST /comments': {
-        if (access === 'Staff') return route.fulfill({ status: 403 });
+        if (access === 'Reader') return route.fulfill({ status: 403 });
         const text = String(body['body'] ?? '').trim();
         if (!text) return invalid(route, 'Body', 'Write a comment first.');
         const createdAt = new Date(Date.UTC(2026, 9, 21, 12, ++this.comments)).toISOString();
@@ -582,7 +581,7 @@ export class MockAgile {
     workspace: MockWorkspace,
     access: MockAccess,
   ) {
-    if (access === 'Staff') return route.fulfill({ status: 403 });
+    if (access === 'Reader') return route.fulfill({ status: 403 });
     const storyIds = (body['storyIds'] as string[] | undefined) ?? [];
     if (!storyIds.length)
       return invalid(route, 'StoryIds', 'Choose at least one story to estimate.');
@@ -614,7 +613,7 @@ export class MockAgile {
         ? route.fulfill({ status: 404 })
         : route.fulfill({ status: 200, json: this.pokerDto(session, caller!) });
     }
-    if (access === 'Staff') return route.fulfill({ status: 403 });
+    if (access === 'Reader') return route.fulfill({ status: 403 });
     if (session.isClosed) return problem(route, 409, 'This session has ended.');
     const me = caller!.profileId;
     const facilitator = me === session.facilitatorId;
@@ -679,7 +678,7 @@ export class MockAgile {
       facilitatorId: session.facilitatorId,
       facilitatorName: this.nameOf(session.facilitatorId),
       isFacilitator: me === session.facilitatorId,
-      canVote: access !== 'Staff' && ids.includes(me),
+      canVote: access !== 'Reader' && ids.includes(me),
       storyNumber: session.index + 1,
       storyCount: session.storyIds.length,
       story: {
@@ -801,7 +800,7 @@ export class MockAgile {
       comments: [...item.comments]
         .sort((a, b) => b.createdAt.localeCompare(a.createdAt))
         .map((c) => ({ ...c, authorName: this.nameOf(c.authorId) })),
-      canEdit: access !== 'Staff' && !(planning && access === 'Member'),
+      canEdit: access !== 'Reader' && !(planning && access === 'Member'),
       canManage: access === 'Owner' || access === 'Admin',
     };
   }
@@ -996,18 +995,18 @@ export class MockAgile {
 
   access(workspace: MockWorkspace, caller: MockAccount): MockAccess {
     if (workspace.ownerId === caller.profileId) return 'Owner';
-    if (caller.roles.includes('SystemAdmin')) return 'Admin';
+    if (holds(caller, 'AdministerOrganisation')) return 'Admin';
     if (workspace.memberIds.includes(caller.profileId)) return 'Member';
-    if (caller.roles.includes('Staff')) return 'Staff';
+    if (holds(caller, 'ReadAllWorkspaces')) return 'Reader';
     return 'Outsider';
   }
 
   private list({ route, caller }: AgileRequest) {
-    const all = caller!.roles.some((r) => r === 'Staff' || r === 'SystemAdmin');
+    const all = holds(caller!, 'ReadAllWorkspaces');
     const visible = this.workspaces
       .filter((w) =>
         w.isArchived
-          ? w.ownerId === caller!.profileId || caller!.roles.includes('SystemAdmin')
+          ? w.ownerId === caller!.profileId || holds(caller!, 'AdministerOrganisation')
           : all || this.access(w, caller!) !== 'Outsider',
       )
       .sort((a, b) => a.name.localeCompare(b.name));
@@ -1045,7 +1044,9 @@ export class MockAgile {
         null,
       memberCount: new Set([workspace.ownerId, ...workspace.memberIds]).size,
       isArchived: workspace.isArchived,
-      needsNewOwner: !owner?.roles.some((r) => r === 'CityLead' || r === 'SystemAdmin'),
+      needsNewOwner:
+        !owner ||
+        (!carries(owner.roles, 'OwnWorkspaces') && !carries(owner.roles, 'AdministerOrganisation')),
     };
   }
 
@@ -1076,7 +1077,7 @@ export class MockAgile {
       members,
       isArchived: workspace.isArchived,
       access,
-      canEdit: access !== 'Staff',
+      canEdit: access !== 'Reader',
       canManage: access === 'Owner' || access === 'Admin',
       needsNewOwner: summary.needsNewOwner,
     };
@@ -1090,11 +1091,11 @@ export class MockAgile {
   }
 
   private onTeam(profileId: string): boolean {
-    return this.profiles.get(profileId)?.roles.some((r) => TEAM_ROLES.includes(r)) ?? false;
+    return carries(this.profiles.get(profileId)?.roles ?? [], 'JoinWorkspaces');
   }
 
   private isLeadOrAdmin(caller: MockAccount): boolean {
-    return caller.roles.includes('CityLead') || caller.roles.includes('SystemAdmin');
+    return holds(caller, 'OwnWorkspaces');
   }
 
   private unknown({ route, method, path }: AgileRequest) {

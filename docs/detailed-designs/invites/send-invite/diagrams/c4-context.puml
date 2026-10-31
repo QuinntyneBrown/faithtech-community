@@ -3,9 +3,9 @@
 LAYOUT_WITH_LEGEND()
 title System Context — Send an invite
 
-Person(lead, "Lead", "Holder of a lead role")
-Person(admin, "System Admin", "Holder of the System Admin role")
-System(ftc, "FaithTech Community", "Community site for FaithTech staff, leads, volunteers, builders and partners")
+Person(lead, "Member with InviteMembers", "Holder of the InviteMembers capability")
+Person(admin, "Administrator", "Holder of AdministerOrganisation")
+System(ftc, "Community platform", "Community site for an organisation's members, builders and partners")
 System_Ext(email, "Email provider", "SMTP or SendGrid")
 Rel(lead, ftc, "Sends invites from", "HTTPS")
 Rel(admin, ftc, "Sends invites from", "HTTPS")

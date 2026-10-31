@@ -3,11 +3,11 @@
 LAYOUT_WITH_LEGEND()
 title System Context — Cancel events
 
-Person(lead, "Event Lead / City Lead", "Creates, edits and cancels events")
-Person(admin, "System Admin", "Overrides any event action")
+Person(lead, "Member with ManageEvents", "Creates, edits and cancels events")
+Person(admin, "Administrator", "Overrides any event action by AdministerOrganisation, audited")
 Person(member, "Member", "Signed-in user who browses and RSVPs to events")
 Person_Ext(guest, "Anonymous visitor / Guest", "Opens a public event share link without an account")
-System(ftc, "FaithTech Community", "Community site for FaithTech members, leads and partners")
+System(ftc, "Community platform", "Hosts an organisation's members, events and partners")
 System_Ext(email, "Email provider", "SMTP/SendGrid delivery")
 Rel(lead, ftc, "Cancels events in", "HTTPS")
 Rel(admin, ftc, "Cancels any event in", "HTTPS")

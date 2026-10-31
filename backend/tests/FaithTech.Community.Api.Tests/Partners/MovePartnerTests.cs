@@ -18,7 +18,7 @@ public class MovePartnerTests(CommunityApiFactory factory) : IClassFixture<Commu
 
         var board = (await factory.ClientFor(grace, Role.CityLead).GetFromJsonAsync<Board>("/api/partners"))!;
 
-        Assert.Equal(["Lead", "InFunnel", "Confirmed"], board.Columns.Select(c => c.Stage));
+        Assert.Equal(["lead", "in-funnel", "confirmed"], board.Columns.Select(c => c.Stage));
         Assert.All(board.Columns, c => Assert.Equal(c.Cards.Length, c.Count));
     }
 
@@ -26,38 +26,40 @@ public class MovePartnerTests(CommunityApiFactory factory) : IClassFixture<Commu
     public async Task A_lead_moves_a_partner_and_the_move_is_recorded_with_who_when_and_the_note()
     {
         var grace = await factory.AddMemberAsync("Grace Okonkwo");
-        var partner = await factory.CreatePartnerAsync(grace, "Kestrel Labs", "InFunnel");
+        var partner = await factory.CreatePartnerAsync(grace, "Kestrel Labs", "in-funnel");
         var marcus = await factory.AddMemberAsync("Marcus Lee");
         var movedAt = factory.Time.GetUtcNow().UtcDateTime;
 
         var response = await factory.ClientFor(marcus, Role.EventLead)
-            .PostAsJsonAsync($"/api/partners/{partner.Id}/stage", new { To = "Confirmed", Note = " Contract signed. " });
+            .PostAsJsonAsync($"/api/partners/{partner.Id}/stage", new { To = "confirmed", Note = " Contract signed. " });
 
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
         var moved = (await response.Content.ReadFromJsonAsync<Partner>())!;
-        Assert.Equal("Confirmed", moved.Stage);
-        var change = Assert.Single(moved.History);
+        Assert.Equal("confirmed", moved.Stage);
+        var change = (await factory.ClientFor(grace, Role.CityLead).ActivitiesAsync(partner.Id, "?kind=Stage")).Items
+            .Single(a => a.Kind == "StageMoved");
         Assert.Equal(
-            new StageChange("InFunnel", "Confirmed", marcus.ProfileId, "Marcus Lee", movedAt, "Contract signed."),
-            change);
+            ("in-funnel", "confirmed", marcus.ProfileId, "Marcus Lee", movedAt, "Contract signed."),
+            (change.FromStage, change.ToStage, change.LoggedById, change.LoggedByName, change.LoggedAtUtc, change.Summary));
         var board = (await factory.ClientFor(grace, Role.CityLead).GetFromJsonAsync<Board>("/api/partners"))!;
-        Assert.Contains(board.Columns.Single(c => c.Stage == "Confirmed").Cards, c => c.Id == partner.Id);
+        Assert.Contains(board.Columns.Single(c => c.Stage == "confirmed").Cards, c => c.Id == partner.Id);
     }
 
     [Fact]
-    public async Task Any_stage_can_move_to_any_other_and_history_is_newest_first()
+    public async Task Any_stage_can_move_to_any_other_and_the_moves_are_newest_first()
     {
         var grace = await factory.AddMemberAsync("Grace Okonkwo");
         var partner = await factory.CreatePartnerAsync(grace, "Summit Cloud");
         var client = factory.ClientFor(grace, Role.CityLead);
 
-        await client.PostAsJsonAsync($"/api/partners/{partner.Id}/stage", new { To = "Confirmed" });
+        await client.PostAsJsonAsync($"/api/partners/{partner.Id}/stage", new { To = "confirmed" });
         factory.Time.Advance(TimeSpan.FromMinutes(5));
-        var response = await client.PostAsJsonAsync($"/api/partners/{partner.Id}/stage", new { To = "Lead" });
+        var response = await client.PostAsJsonAsync($"/api/partners/{partner.Id}/stage", new { To = "lead" });
 
-        var moved = (await response.Content.ReadFromJsonAsync<Partner>())!;
-        Assert.Equal(["Confirmed→Lead", "Lead→Confirmed"], moved.History.Select(h => $"{h.From}→{h.To}"));
-        Assert.Null(moved.History[0].Note);
+        Assert.Equal("lead", (await response.Content.ReadFromJsonAsync<Partner>())!.Stage);
+        var moves = (await client.ActivitiesAsync(partner.Id, "?kind=Stage")).Items.Where(a => a.Kind == "StageMoved").ToList();
+        Assert.Equal(["confirmed→lead", "lead→confirmed"], moves.Select(h => $"{h.FromStage}→{h.ToStage}"));
+        Assert.Null(moves[0].Summary);
     }
 
     [Fact]
@@ -66,7 +68,7 @@ public class MovePartnerTests(CommunityApiFactory factory) : IClassFixture<Commu
         var grace = await factory.AddMemberAsync("Grace Okonkwo");
         var partner = await factory.CreatePartnerAsync(grace, "Summit Cloud");
 
-        var response = await factory.ClientFor(grace, Role.CityLead).PostAsJsonAsync($"/api/partners/{partner.Id}/stage", new { To = "Lead" });
+        var response = await factory.ClientFor(grace, Role.CityLead).PostAsJsonAsync($"/api/partners/{partner.Id}/stage", new { To = "lead" });
 
         Assert.Equal(HttpStatusCode.Conflict, response.StatusCode);
         Assert.Equal(0, await factory.WithDbAsync(db => db.Partners.Where(p => p.Id == partner.Id).SelectMany(p => p.StageChanges).CountAsync()));
@@ -94,7 +96,7 @@ public class MovePartnerTests(CommunityApiFactory factory) : IClassFixture<Commu
         var partner = await factory.CreatePartnerAsync(grace, "Summit Cloud");
 
         var response = await factory.ClientFor(await factory.AddMemberAsync("Daniel Reyes"), role)
-            .PostAsJsonAsync($"/api/partners/{partner.Id}/stage", new { To = "Confirmed" });
+            .PostAsJsonAsync($"/api/partners/{partner.Id}/stage", new { To = "confirmed" });
 
         Assert.Equal(HttpStatusCode.Forbidden, response.StatusCode);
     }
@@ -104,7 +106,7 @@ public class MovePartnerTests(CommunityApiFactory factory) : IClassFixture<Commu
     {
         var grace = await factory.AddMemberAsync("Grace Okonkwo");
 
-        var response = await factory.ClientFor(grace, Role.CityLead).PostAsJsonAsync($"/api/partners/{Guid.NewGuid()}/stage", new { To = "Confirmed" });
+        var response = await factory.ClientFor(grace, Role.CityLead).PostAsJsonAsync($"/api/partners/{Guid.NewGuid()}/stage", new { To = "confirmed" });
 
         Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
     }
@@ -116,7 +118,7 @@ public class MovePartnerTests(CommunityApiFactory factory) : IClassFixture<Commu
         var partner = await factory.CreatePartnerAsync(grace, "Summit Cloud");
 
         await factory.ClientFor(await factory.AddMemberAsync("Priya Shah"), Role.SystemAdmin)
-            .PostAsJsonAsync($"/api/partners/{partner.Id}/stage", new { To = "Confirmed" });
+            .PostAsJsonAsync($"/api/partners/{partner.Id}/stage", new { To = "confirmed" });
 
         Assert.True(await factory.WithDbAsync(db => db.AuditEntries.AnyAsync(e => e.TargetId == partner.Id.ToString() && e.Action == "partner.moved")));
     }

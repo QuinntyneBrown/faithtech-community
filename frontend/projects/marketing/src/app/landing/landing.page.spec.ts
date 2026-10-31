@@ -1,16 +1,40 @@
 // Traces to: L2-074, L2-076
 import { TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
-import { AUTH_SERVICE, BROWSER_REDIRECT, SignInOutcome } from '@faithtech-community/api';
+import {
+  AUTH_SERVICE,
+  BROWSER_REDIRECT,
+  OrganisationNames,
+  SignInOutcome,
+  provideLoadedSite,
+} from '@faithtech-community/api';
+import { ORGANISATION_NAMES } from '@faithtech-community/components';
 import { Observable, of } from 'rxjs';
 
 import { COMMUNITY_ORIGIN } from '../community-origin';
 import { LandingPage } from './landing.page';
 
+/** GET /api/site on FaithTech's public host: its Marketing:DefaultSite entry (L2-134 AC3). */
+const FAITHTECH_PUBLIC_SITE = {
+  name: 'FaithTech Community',
+  shortName: 'FaithTech',
+  chapterLabel: { singular: 'City', plural: 'Cities' },
+  communityOrigin: 'https://app.faithtech.test',
+  headline: 'Build with people who share your faith',
+  brochure: {
+    url: '/brochure/brochure.webm',
+    posterUrl: '/brochure/brochure-poster.jpg',
+    captionsUrl: '/brochure/brochure.en.vtt',
+    title: 'FaithTech Community in 21 seconds',
+    posterAlt: 'FaithTech builders pairing at a hackathon table',
+  },
+  footer: '© 2026 FaithTech',
+};
+
 describe('LandingPage', () => {
   let redirects: string[];
   let outcome: Observable<SignInOutcome>;
-  let google: [string | undefined, boolean | undefined][];
+  let google: [string | undefined, boolean | undefined, boolean | undefined][];
   let kept: boolean;
 
   beforeEach(() => {
@@ -21,13 +45,16 @@ describe('LandingPage', () => {
     TestBed.configureTestingModule({
       providers: [
         provideRouter([]),
+        provideLoadedSite(FAITHTECH_PUBLIC_SITE),
+        { provide: ORGANISATION_NAMES, useExisting: OrganisationNames },
         { provide: COMMUNITY_ORIGIN, useValue: 'https://app.faithtech.test' },
         { provide: BROWSER_REDIRECT, useValue: (url: string) => redirects.push(url) },
         {
           provide: AUTH_SERVICE,
           useValue: {
             signInWithPassword: () => outcome,
-            signInWithGoogle: (url?: string, keep?: boolean) => google.push([url, keep]),
+            signInWithGoogle: (url?: string, keep?: boolean, signUp?: boolean) =>
+              google.push([url, keep, signUp]),
             hasKeptSession: () => kept,
           },
         },
@@ -102,8 +129,23 @@ describe('LandingPage', () => {
     button().click();
     await fixture.whenStable();
 
-    expect(google).toEqual([['/events', false]]);
+    expect(google).toEqual([['/events', false, false]]);
     expect(button().getAttribute('aria-busy')).toBe('true');
+  });
+
+  // Traces to: L2-132 AC1, AC7. Only the sign-up form's button makes an existing account a member here.
+  it('starts Google from the sign-up form as a sign-up', async () => {
+    const fixture = TestBed.createComponent(LandingPage);
+    fixture.componentRef.setInput('join', '');
+    await fixture.whenStable();
+    const el = fixture.nativeElement as HTMLElement;
+
+    [...el.querySelectorAll('button')]
+      .find((b) => b.textContent?.includes('Sign up with Google'))!
+      .click();
+    await fixture.whenStable();
+
+    expect(google).toEqual([['/', false, true]]);
   });
 
   it('shows how Google sign-in ended when the visitor comes back', async () => {
@@ -112,7 +154,7 @@ describe('LandingPage', () => {
     await fixture.whenStable();
 
     expect((fixture.nativeElement as HTMLElement).textContent).toContain(
-      'This account is suspended',
+      'Your membership of FaithTech Community is suspended',
     );
   });
 

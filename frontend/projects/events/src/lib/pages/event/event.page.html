@@ -36,6 +36,17 @@
         <ft-breadcrumb-item>{{ e.title }}</ft-breadcrumb-item>
       </ft-breadcrumb>
       <ft-page-header [title]="e.title" [subtitle]="when()">
+        <!-- Check in comes first for leads (docs/mocks/pages/event/lead); Staff view it read-only. -->
+        @if (e.canCheckIn) {
+          <ft-button ftPageHeaderActions variant="primary" [href]="'/events/' + e.id + '/check-in'">
+            <ft-icon name="done" /> Check in
+          </ft-button>
+        }
+        @if (!e.canCheckIn && e.canViewCheckIn) {
+          <ft-button ftPageHeaderActions [href]="'/events/' + e.id + '/check-in'">
+            View check-in
+          </ft-button>
+        }
         @if (canRsvp()) {
           <ft-button ftPageHeaderActions variant="primary" [loading]="rsvping()" (click)="rsvp()">
             <ft-icon name="done" /> {{ rsvping() ? 'RSVPing…' : 'RSVP' }}
@@ -96,18 +107,13 @@
                       ? 'Public · anyone can register'
                       : 'Members only · signed-in members can RSVP'
                   }}</ft-description-list-item>
-                  <ft-description-list-item label="Going"
-                    >{{ e.rsvpCount }} {{ e.rsvpCount === 1 ? 'person' : 'people' }}
-                    @if (e.capacity) {
-                      of {{ e.capacity }}
-                    }
-                  </ft-description-list-item>
+                  <ft-description-list-item label="Going">{{ going() }}</ft-description-list-item>
                 </ft-description-list>
               </ft-stack>
             </ft-card>
 
             @if (e.rsvps; as rsvps) {
-              <ft-card variant="flush" [heading]="'Going (' + e.rsvpCount + ')'">
+              <ft-card variant="flush" [heading]="goingHeading()">
                 @if (e.canExportRsvps) {
                   <ft-button
                     ftCardActions

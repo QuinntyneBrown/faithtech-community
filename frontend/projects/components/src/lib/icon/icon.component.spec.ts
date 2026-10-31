@@ -47,8 +47,24 @@ describe('IconComponent', () => {
     expect(svg.querySelector('path, circle, rect')).toBeNull();
   });
 
-  it('ships the full 59 icon set', () => {
-    expect(ICON_NAMES.length).toBe(59);
+  // Traces to: Dynamics adoptions (docs/screen-composition.md, foundations/iconography.html).
+  // Given the iconography sheet's Call, Merge, Reports and Add walk-in glyphs,
+  // When each is rendered by name, Then its sheet path is drawn.
+  it.each([
+    [
+      'call',
+      'M5 4h4l2 5-2.5 1.5a11 11 0 0 0 5 5L15 13l5 2v4a2 2 0 0 1-2 2A16 16 0 0 1 3 6a2 2 0 0 1 2-2z',
+    ],
+    ['merge', 'M7 3v6a5 5 0 0 0 5 5 5 5 0 0 1 5 5v2M7 21v-6M17 3v3'],
+    ['reports', 'M4 20V10M10 20V4M16 20v-7M22 20H2'],
+    ['walk-in', 'M3 21a7 7 0 0 1 14 0M19 8v6M16 11h6'],
+  ])('draws the %s icon from the sheet', (name, d) => {
+    const { svg } = setup({ name });
+    expect(svg.querySelector('path')?.getAttribute('d')).toBe(d);
+  });
+
+  it('ships the full 68 icon set', () => {
+    expect(ICON_NAMES.length).toBe(68);
     for (const name of ICON_NAMES) {
       expect(setup({ name }).svg.innerHTML.length).toBeGreaterThan(0);
     }

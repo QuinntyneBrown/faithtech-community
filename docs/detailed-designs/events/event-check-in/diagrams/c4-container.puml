@@ -1,0 +1,17 @@
+@startuml
+!include <C4/C4_Container>
+LAYOUT_WITH_LEGEND()
+title Containers — Event check-in
+
+Person(lead, "Member with ManageAttendance", "Checks attendees in at the door")
+Person(staff, "Member with view capabilities", "Holds ViewAttendees: read-only")
+System_Boundary(ftc, "Community platform") {
+  Container(spa, "Web app", "Angular", "Shell, events feature library, api and components libraries")
+  Container(api, "Community API", "ASP.NET Core", "FaithTech.Community.Api with Application, Domain and Infrastructure")
+  ContainerDb(db, "Community database", "PostgreSQL", "Events, RSVPs with check-ins and walk-ins, audit log")
+}
+Rel(lead, spa, "Uses on a phone", "HTTPS")
+Rel(staff, spa, "Uses", "HTTPS")
+Rel(spa, api, "Calls /api/events/{id}/check-in, check-ins, walk-ins", "JSON/HTTPS, OAuth2 bearer token")
+Rel(api, db, "Reads and writes RSVP rows; writes audit entries", "EF Core")
+@enduml

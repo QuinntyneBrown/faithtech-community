@@ -56,9 +56,9 @@
       <li><a href="../components/skip-link.html">Skip link</a></li>
       <li><a href="../components/layout.html">Layout primitives</a></li>
       <li><a href="../components/card.html">Card</a></li>
-      <li><a href="../components/dialog.html">Dialog</a></li>
+      <li><a href="../components/dialog.html">Dialog</a></li><li><a href="../components/define-role-dialog.html">Define role dialog</a></li><li><a href="../components/edit-grants-dialog.html">Edit grants dialog</a></li><li><a href="../components/archive-role-dialog.html">Archive role dialog</a></li>
       <li><a href="../components/notification-panel.html">Notification panel</a></li>
-      <li><a href="../components/list.html">List</a></li>
+      <li><a href="../components/list.html">List</a></li><li><a href="../components/reorderable-list.html">Reorderable list</a></li>
       <li><a href="../components/table.html">Table</a></li>
       <li><a href="../components/description-list.html">Description list</a></li>
       <li><a href="../components/feed.html">Activity feed</a></li>
@@ -169,6 +169,25 @@
         <div class="ds-example__caption"><span>In a dialog, with a note under the group about the options that are left out (add role). City Leads only see the roles they are allowed to grant.</span></div>
         <details class="ds-example__code"><summary>HTML</summary><pre><code>&lt;fieldset class="stack"&gt;&lt;legend class="field__label"&gt;Role&lt;/legend&gt;&lt;label class="choice"&gt;&lt;input type="radio" name="role"&gt;&lt;span class="choice__text"&gt;Event Lead&lt;small&gt;Creates and manages events&lt;/small&gt;&lt;/span&gt;&lt;/label&gt;&lt;label class="choice"&gt;&lt;input type="radio" name="role"&gt;&lt;span class="choice__text"&gt;Volunteer&lt;small&gt;Joins the city team&lt;/small&gt;&lt;/span&gt;&lt;/label&gt;&lt;label class="choice"&gt;&lt;input type="radio" name="role"&gt;&lt;span class="choice__text"&gt;Product Engineer&lt;small&gt;Builds at hackathons&lt;/small&gt;&lt;/span&gt;&lt;/label&gt;&lt;label class="choice"&gt;&lt;input type="radio" name="role"&gt;&lt;span class="choice__text"&gt;Attendee&lt;small&gt;Comes to events&lt;/small&gt;&lt;/span&gt;&lt;/label&gt;&lt;/fieldset&gt;&lt;p class="text-caption"&gt;City Lead, Staff and System Admin can only be granted by a System Admin.&lt;/p&gt;</code></pre></details>
       </div>
+      <h3>Choose a value per field (merge)</h3>
+      <div class="ds-example">
+        <div class="ds-example__canvas ds-example__canvas--stack" style="max-width: 30rem;">
+          <fieldset class="stack"><legend class="field__label">Contact name</legend><label class="choice"><input type="radio" name="mp-ex-contact" value="a" checked><span class="choice__text">Nadia Petrov <small>Kestrel Labs</small></span></label><label class="choice"><input type="radio" name="mp-ex-contact" value="b"><span class="choice__text">N. Petrov (studio director) <small>Kestrel Labs Inc.</small></span></label></fieldset>
+          <fieldset class="stack"><legend class="field__label">Owner</legend><label class="choice"><input type="radio" name="mp-ex-owner" value="a" checked><span class="choice__text">Grace Okonkwo <small>Kestrel Labs</small></span></label><label class="choice"><input type="radio" name="mp-ex-owner" value="b"><span class="choice__text">Esther Nakamura <small>Kestrel Labs Inc.</small></span></label></fieldset>
+        </div>
+        <div class="ds-example__caption"><span>From <code>dialogs/merge-partners</code>. One group per field that differs, with the choices stacked: the label is the value and the description names the record it comes from. The kept record’s value is checked. Stacked rows keep a long value ("N. Petrov (studio director)") from crowding the next radio. In Angular, <code>ft-radio-group</code> with <code>ft-radio</code> children whose <code>description</code> is the record name.</span></div>
+        <details class="ds-example__code"><summary>HTML</summary><pre><code>&lt;fieldset class="stack"&gt;&lt;legend class="field__label"&gt;Contact name&lt;/legend&gt;
+  &lt;label class="choice"&gt;&lt;input type="radio" name="mp-main-contact" value="a" checked&gt;&lt;span class="choice__text"&gt;Nadia Petrov &lt;small&gt;Kestrel Labs&lt;/small&gt;&lt;/span&gt;&lt;/label&gt;
+  &lt;label class="choice"&gt;&lt;input type="radio" name="mp-main-contact" value="b"&gt;&lt;span class="choice__text"&gt;N. Petrov (studio director) &lt;small&gt;Kestrel Labs Inc.&lt;/small&gt;&lt;/span&gt;&lt;/label&gt;
+&lt;/fieldset&gt;</code></pre></details>
+      </div>
+      <h3>Inline row of short choices</h3>
+      <div class="ds-example">
+        <div class="ds-example__canvas ds-example__canvas--stack" style="max-width: 30rem;">
+          <fieldset class="stack"><legend class="field__label">Type</legend><div class="choice-row"><label class="choice"><input type="radio" name="la-ex" value="call" checked><span class="choice__text">Call</span></label><label class="choice"><input type="radio" name="la-ex" value="email"><span class="choice__text">Email</span></label><label class="choice"><input type="radio" name="la-ex" value="meeting"><span class="choice__text">Meeting</span></label><label class="choice"><input type="radio" name="la-ex" value="note"><span class="choice__text">Note</span></label></div></fieldset>
+        </div>
+        <div class="ds-example__caption"><span>From <code>dialogs/log-activity</code>. Up to four one-word choices with no descriptions may sit in a <code>.choice-row</code>: <code>--space-4</code> (16px) between choices and <code>--space-2</code> (8px) between wrapped lines, so it wraps on a phone without the choices touching. In Angular: <code>&lt;ft-radio-group orientation="inline"&gt;</code> (the default <code>stack</code> puts one choice per line). Anything longer, or with a description, stacks. The confirm button follows the choice ("Log call", "Log meeting").</span></div>
+      </div>
       <h3>Checkbox group (several choices)</h3>
       <div class="ds-example">
         <div class="ds-example__canvas ds-example__canvas--stack" style="max-width: 30rem;">
@@ -246,6 +265,8 @@
 
     <section class="ds-section" id="do-dont"><h2><a href="#do-dont">Do and don't</a></h2>
       <div class="ds-dodont">
+        <figure class="ds-do"><div class="ds-example__canvas"><fieldset class="stack"><legend class="field__label">Contact name</legend><label class="choice"><input type="radio" name="dd-m1" checked><span class="choice__text">Nadia Petrov <small>Kestrel Labs</small></span></label><label class="choice"><input type="radio" name="dd-m1"><span class="choice__text">N. Petrov (studio director) <small>Kestrel Labs Inc.</small></span></label></fieldset></div><figcaption>Stack choices whose values are long or carry a description.</figcaption></figure>
+        <figure class="ds-dont"><div class="ds-example__canvas"><fieldset class="stack"><legend class="field__label">Contact name</legend><div class="choice-row"><label class="choice"><input type="radio" name="dd-m2" checked><span class="choice__text">Nadia Petrov <small>Kestrel Labs</small></span></label><label class="choice"><input type="radio" name="dd-m2"><span class="choice__text">N. Petrov (studio director) <small>Kestrel Labs Inc.</small></span></label></div></fieldset></div><figcaption>A row of long choices: each radio crowds the previous label (the first merge-partners mocks).</figcaption></figure>
         <figure class="ds-do"><div class="ds-example__canvas"><fieldset class="stack"><legend class="field__label">Visibility</legend><label class="choice"><input type="radio" name="dd1" checked><span class="choice__text">Public<small>Anyone with the link can see it and RSVP, even without an account</small></span></label><label class="choice"><input type="radio" name="dd1"><span class="choice__text">Members only<small>Only people signed in to FaithTech can see and RSVP</small></span></label></fieldset></div><figcaption>Descriptions say what each choice means for who can see the event.</figcaption></figure>
         <figure class="ds-dont"><div class="ds-example__canvas"><fieldset class="stack"><legend class="field__label">Visibility</legend><label class="choice"><input type="radio" name="dd2"><span class="choice__text">Public</span></label><label class="choice"><input type="radio" name="dd2"><span class="choice__text">Private</span></label><label class="choice"><input type="radio" name="dd2"><span class="choice__text">Unlisted</span></label></fieldset></div><figcaption>Labels with no explanation, and an option ("Unlisted") the product does not have.</figcaption></figure>
         <figure class="ds-do"><div class="ds-example__canvas"><fieldset class="stack"><legend class="field__label">Role</legend><label class="choice"><input type="radio" name="dd3"><span class="choice__text">Volunteer<small>Joins the city team</small></span></label><label class="choice"><input type="radio" name="dd3"><span class="choice__text">Attendee<small>Comes to events</small></span></label></fieldset><p class="text-caption">City Lead, Staff and System Admin can only be granted by a System Admin.</p></div><figcaption>Leave out what a City Lead cannot grant, and say why.</figcaption></figure>
@@ -281,6 +302,7 @@
       <table class="ds-table"><thead><tr><th scope="col">Class / attribute</th><th scope="col">Effect</th></tr></thead><tbody>
         <tr><td><code>.choice</code></td><td>Row: radio plus label, at least <code>--target-min</code> tall.</td></tr>
         <tr><td><code>.choice__text</code></td><td>Label, with an optional <code>small</code> description.</td></tr>
+        <tr><td><code>.choice-row</code></td><td>Wrapping row of short choices: <code>--space-4</code> column gap, <code>--space-2</code> row gap (<code>orientation="inline"</code>).</td></tr>
         <tr><td><code>.choice input[type="checkbox"]</code></td><td>Square box (<code>--radius-xs</code>) with a check mark in <code>--color-fg-on-accent</code> on <code>--color-accent</code> when checked.</td></tr>
         <tr><td><code>aria-invalid="true"</code> on each radio</td><td>Danger border.</td></tr>
         <tr><td><code>data-state="hover|focus|checked|disabled"</code></td><td>Documentation only.</td></tr>
@@ -295,7 +317,9 @@
         <li><a href="../../mocks/dialogs/add-role/default.html">dialogs/add-role/default</a> and <a href="../../mocks/dialogs/add-role/invalid.html">invalid</a> (Role, with error)</li>
         <li><a href="../../mocks/dialogs/switch-method/default.html">dialogs/switch-method/default</a>, <a href="../../mocks/dialogs/move-partner/default.html">dialogs/move-partner/default</a> and <a href="../../mocks/dialogs/new-work-item/default.html">dialogs/new-work-item/default</a></li>
         <li><a href="../../mocks/dialogs/add-workspace-member/default.html">dialogs/add-workspace-member/default</a> (checkboxes in <code>.choice</code> rows)</li>
+        <li><a href="../../mocks/dialogs/merge-partners/default.html">dialogs/merge-partners/default</a> and <a href="../../mocks/dialogs/merge-partners/conflict.html">conflict</a> (a value per field, stacked); <a href="../../mocks/dialogs/log-activity/default.html">dialogs/log-activity/default</a> (inline row of short choices)</li>
       </ul>
+      <p>Resolved 2026-10-22: the merge-partners mocks put each field’s choices in a <code>.cluster--tight</code> row, so each radio crowded the previous label at 1280px; they now stack.</p>
     </section>
 
     <footer class="ds-footer"><span>FaithTech Community design system · extracted from <a href="../../mocks/index.html">docs/mocks</a> on 2026-10-21</span><a href="#top">Back to top</a></footer>

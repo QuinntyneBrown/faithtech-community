@@ -11,13 +11,13 @@ import { FormControl, ReactiveFormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import {
   MIN_SEARCH_LENGTH,
+  OrganisationNames,
   SEARCH_SERVICE,
   SearchResultGroup,
   SearchResultItem,
   SearchResultKind,
 } from '@faithtech-community/api';
 import {
-  BadgeVariant,
   ButtonComponent,
   ClusterComponent,
   EmptyStateComponent,
@@ -54,11 +54,6 @@ const RESOURCE_ICONS: Record<string, string> = {
   Document: 'document',
   Other: 'file',
 };
-const STAGES: Record<string, { label: string; variant: BadgeVariant }> = {
-  Lead: { label: 'Lead', variant: 'neutral' },
-  InFunnel: { label: 'In funnel', variant: 'warning' },
-  Confirmed: { label: 'Confirmed', variant: 'success' },
-};
 const STATUSES: Record<string, string> = { ToDo: 'To do', InProgress: 'In progress', Done: 'Done' };
 
 /**
@@ -84,6 +79,7 @@ const STATUSES: Record<string, string> = { ToDo: 'To do', InProgress: 'In progre
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class SearchPage {
+  protected readonly organisation = inject(OrganisationNames);
   private readonly service = inject(SEARCH_SERVICE);
   private readonly router = inject(Router);
 
@@ -169,16 +165,15 @@ function toView(kind: SearchResultKind, item: SearchResultItem): ResultView {
         badge: item.badge ?? undefined,
         badgeVariant: item.badge === 'Cancelled' ? 'danger' : 'info',
       };
-    case 'Partner': {
-      const stage = STAGES[item.badge ?? ''];
+    // The badge is the stage's name as the organisation defines it (L2-144).
+    case 'Partner':
       return {
         ...base,
         avatarName: item.title,
         avatarColor: avatarColorFor(item.id),
-        badge: stage?.label,
-        badgeVariant: stage?.variant,
+        badge: item.badge ?? undefined,
+        badgeVariant: 'neutral',
       };
-    }
     case 'Contact':
       return {
         ...base,

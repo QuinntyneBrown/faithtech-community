@@ -4,7 +4,7 @@ LAYOUT_WITH_LEGEND()
 title Containers — Google sign-in
 
 Person(visitor, "Visitor")
-System_Boundary(ftc, "FaithTech Community") {
+System_Boundary(ftc, "Community platform") {
   Container(mkt, "Marketing app", "Angular", "Sign in with Google button; shows ?google=failed|suspended")
   Container(spa, "Community app", "Angular", "/auth/continue starts PKCE")
   Container(api, "Community API", "ASP.NET Core", "/api/account/google/start and /callback; GoogleSignInHandler")

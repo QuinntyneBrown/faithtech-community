@@ -42,6 +42,46 @@ public static class PartnersEndpoints
             })
             .Validate<MovePartnerCommand>();
 
+        // The shared activity timeline (L2-110, L2-111). Logged entries are never edited or deleted.
+        partners.MapGet("/{id:guid}/activities", async (Guid id, string? kind, string? before, PartnerTimelineHandler handler, CancellationToken cancellationToken) =>
+        {
+            var (result, page) = await handler.ListAsync(id, kind, before, cancellationToken);
+            return result.ToHttp(() => Results.Ok(page));
+        });
+
+        partners.MapPost("/{id:guid}/activities", async (Guid id, LogPartnerActivityCommand command, LogPartnerActivityHandler handler, CancellationToken cancellationToken) =>
+            {
+                var (result, activity) = await handler.LogAsync(id, command, cancellationToken);
+                return result.ToHttp(() => Results.Created($"/api/partners/{id}/activities/{activity!.Id}", activity));
+            })
+            .Validate<LogPartnerActivityCommand>();
+
+        // Possible duplicates and "Not the same" (L2-113, ADR 0027).
+        partners.MapGet("/{id:guid}/duplicates", async (Guid id, PartnerDuplicatesHandler handler, CancellationToken cancellationToken) =>
+        {
+            var (result, duplicates) = await handler.ListAsync(id, cancellationToken);
+            return result.ToHttp(() => Results.Ok(duplicates));
+        });
+
+        partners.MapPost("/{id:guid}/duplicates/{otherId:guid}/dismissal", async (Guid id, Guid otherId, PartnerDuplicatesHandler handler, CancellationToken cancellationToken) =>
+            (await handler.DismissAsync(id, otherId, cancellationToken)).ToHttp(Results.NoContent));
+
+        // Merge keeps one partner and archives the other (L2-114, L2-115, ADR 0028).
+        partners.MapPost("/{keepId:guid}/merge", async (Guid keepId, MergePartnersCommand command, MergePartnersHandler handler, CancellationToken cancellationToken) =>
+            {
+                var (result, partner) = await handler.MergeAsync(keepId, command, cancellationToken);
+                return result.ToHttp(() => Results.Ok(partner));
+            })
+            .Validate<MergePartnersCommand>();
+
+        // Only a System Admin restores a merged partner (L2-115 AC4 to AC6).
+        partners.MapPost("/{id:guid}/restore", async (Guid id, RestorePartnerCommand command, RestorePartnerHandler handler, CancellationToken cancellationToken) =>
+            {
+                var (result, partner) = await handler.RestoreAsync(id, command, cancellationToken);
+                return result.ToHttp(() => Results.Ok(partner));
+            })
+            .Validate<RestorePartnerCommand>();
+
         return app;
     }
 }

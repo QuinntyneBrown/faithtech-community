@@ -2,9 +2,9 @@
 !include <C4/C4_Container>
 LAYOUT_WITH_LEGEND()
 title Containers — Archive, restore, purge and transfer resources
-Person(owner, "Owner", "Contributor")
-Person(admin, "System Admin", "Full override")
-System_Boundary(community, "FaithTech Community") {
+Person(owner, "Owner", "Member with AddResources")
+Person(admin, "Administrator", "AdministerOrganisation override")
+System_Boundary(community, "Community platform") {
   Container(web, "Web app", "Angular", "resources library: archive and transfer dialogs, Archived page")
   Container(api, "Community API", "ASP.NET Core", "Endpoints, handlers and ResourceMaintenanceWorker (purge and storage retry)")
   ContainerDb(db, "Community database", "PostgreSQL", "Resources, AuditEntries, Notifications, ResourceBlobTasks")

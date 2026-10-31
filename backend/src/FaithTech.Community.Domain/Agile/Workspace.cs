@@ -1,10 +1,13 @@
+using FaithTech.Community.Domain.Organisations;
 using FaithTech.Community.Domain.Profiles;
-using FaithTech.Community.Domain.Team;
 
 namespace FaithTech.Community.Domain.Agile;
 
-public class Workspace
+public class Workspace : IOrganisationScoped
 {
+    /// <summary>The organisation the record belongs to, stamped when it is saved (ADR 0032).</summary>
+    public Guid OrganisationId { get; private set; }
+
     private readonly List<WorkspaceMember> _members = [];
 
     private Workspace() { }
@@ -39,9 +42,9 @@ public class Workspace
 
     public void AddMember(Profile profile, DateTimeOffset now)
     {
-        if (!TeamRoles.IsTeamMember(profile))
+        if (!profile.HoldsCapability(Capability.JoinWorkspaces))
         {
-            throw new InvalidOperationException("Only a profile holding a lead or volunteer role can join a workspace.");
+            throw new InvalidOperationException("Only a profile holding JoinWorkspaces can join a workspace.");
         }
 
         if (IsMember(profile.Id))
@@ -137,7 +140,7 @@ public class Workspace
     /// </summary>
     public void ReassignOwner(Profile newOwner, DateTimeOffset now)
     {
-        if (!newOwner.HasRole(Role.CityLead))
+        if (!newOwner.HoldsCapability(Capability.OwnWorkspaces))
         {
             throw new InvalidOperationException("A workspace owner must hold the City Lead role.");
         }

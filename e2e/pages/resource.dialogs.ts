@@ -87,6 +87,7 @@ export class AddResourceDialog {
 export class EditResourceDialog {
   readonly dialog: Locator;
   readonly title: Locator;
+  readonly type: Locator;
   readonly replace: Locator;
   readonly fileInput: Locator;
   readonly warning: Locator;
@@ -96,6 +97,7 @@ export class EditResourceDialog {
   constructor(page: Page) {
     this.dialog = page.getByRole('dialog', { name: /^Edit / });
     this.title = this.dialog.getByRole('textbox', { name: 'Title' });
+    this.type = this.dialog.getByRole('combobox', { name: 'Type' });
     this.replace = this.dialog.getByRole('button', { name: 'Replace file' });
     this.fileInput = this.dialog.locator('input[type=file]');
     this.warning = this.dialog.locator('ft-alert').filter({ hasText: 'This replaces' });

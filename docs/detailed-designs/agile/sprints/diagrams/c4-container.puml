@@ -3,9 +3,9 @@
 LAYOUT_WITH_LEGEND()
 title Containers — Sprints
 
-Person(lead, "City Lead", "Owns Agile workspaces")
-Person(member, "Workspace member", "Lead or volunteer added to a workspace")
-System_Boundary(ftc, "FaithTech Community") {
+Person(lead, "Member with OwnWorkspaces", "Holds OwnWorkspaces; owns Agile workspaces")
+Person(member, "Workspace member", "Member with JoinWorkspaces added to a workspace")
+System_Boundary(ftc, "Community platform") {
   Container(web, "Web app", "Angular", "Shell, agile feature library, api and components libraries")
   Container(api, "Community API", "ASP.NET Core", "FaithTech.Community.Api with Application, Domain and Infrastructure")
   ContainerDb(db, "Community database", "PostgreSQL", "Workspaces, work items, sprints, poker sessions")

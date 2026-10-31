@@ -2,8 +2,8 @@
 !include <C4/C4_Container>
 LAYOUT_WITH_LEGEND()
 title Containers — Send an announcement
-Person(comms, "Communications Lead", "Sends announcements")
-System_Boundary(ftc, "FaithTech Community") {
+Person(comms, "Member with SendAnnouncements", "Sends announcements")
+System_Boundary(ftc, "Community platform") {
   Container(web, "Web app", "Angular", "Shell, announcements feature library, api and components libraries")
   Container(api, "Community API", "ASP.NET Core", "FaithTech.Community.Api with Application, Domain and Infrastructure")
   ContainerDb(db, "Community database", "PostgreSQL", "Persistent community data")

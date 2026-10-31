@@ -26,12 +26,112 @@ public class SeedCommandTests
         Assert.Contains("ft:pkce", client.Requirements);
     }
 
+    // Traces to: L2-151 AC1
+    [Fact]
+    public async Task Seed_creates_the_FaithTech_organisation_once_and_keeps_its_later_edits()
+    {
+        Assert.Equal(0, await Run("seed"));
+        await using (var edit = Db())
+        {
+            (await edit.Organisations.SingleAsync()).Rename("FaithTech Global", "FT");
+            await edit.SaveChangesAsync();
+        }
+
+        Assert.Equal(0, await Run("seed"));
+
+        await using var db = Db();
+        var organisation = await db.Organisations.SingleAsync();
+        Assert.Equal(
+            ("faithtech", "app.faithtech.community", "City", "Cities", FaithTech.Community.Domain.Organisations.OrganisationStatus.Active),
+            (organisation.Slug, organisation.Host, organisation.ChapterLabelSingular, organisation.ChapterLabelPlural, organisation.Status));
+        Assert.Equal(("FaithTech Global", "FT"), (organisation.Name, organisation.ShortName));
+    }
+
+    [Fact]
+    public async Task Seed_names_the_FaithTech_organisation()
+    {
+        Assert.Equal(0, await Run("seed"));
+
+        await using var db = Db();
+        var organisation = await db.Organisations.SingleAsync();
+        Assert.Equal(("FaithTech Community", "FaithTech"), (organisation.Name, organisation.ShortName));
+    }
+
+    // Traces to: L2-151 AC2
+    [Fact]
+    public async Task Seed_defines_FaithTechs_nine_roles_and_the_City_Lead_grant_rules_once()
+    {
+        Assert.Equal(0, await Run("seed"));
+        Assert.Equal(0, await Run("seed"));
+
+        await using var db = Db();
+        var definitions = await db.RoleDefinitions.OrderBy(d => d.SortOrder).ToListAsync();
+        Assert.Equal(
+            [
+                ("City Lead", "AddResources AssignRoles ConnectLink InviteMembers JoinWorkspaces KeepContacts ManageAttendance ManageEvents ManagePartners OwnWorkspaces ViewAttendees ViewPartners ViewPeopleDirectory", true, true, false),
+                ("Event Lead", "AddResources InviteMembers JoinWorkspaces KeepContacts ManageAttendance ManageEvents ManagePartners ViewAttendees ViewPartners", true, true, false),
+                ("Create Lead", "AddResources InviteMembers JoinWorkspaces KeepContacts ManageAttendance ManagePartners ViewAttendees ViewPartners", true, true, false),
+                ("Communications Lead", "AddResources InviteMembers JoinWorkspaces KeepContacts ManageAttendance ManagePartners SendAnnouncements ViewAttendees ViewPartners", true, true, false),
+                ("Staff", "AddResources ReadAllWorkspaces ViewAttendees ViewPartners ViewPeopleDirectory ViewReports", false, false, true),
+                ("Volunteer", "JoinWorkspaces", true, true, false),
+                ("Product Engineer", "", false, false, false),
+                ("Attendee", "", false, false, false),
+                ("System Admin", "AdministerOrganisation", false, false, false),
+            ],
+            definitions.Select(d => (d.Name, string.Join(' ', d.Capabilities.Order(StringComparer.Ordinal)), d.ShowOnTeam, d.ChapterScopable, d.IsOversight)));
+
+        var names = definitions.ToDictionary(d => d.Id, d => d.Name);
+        Assert.Equal(
+            ["Attendee", "Communications Lead", "Create Lead", "Event Lead", "Product Engineer", "Volunteer"],
+            definitions.Single(d => d.Name == "City Lead").Grants.Select(g => names[g.GrantableRoleId]).Order());
+        Assert.All(definitions.Where(d => d.Name != "City Lead"), d => Assert.Empty(d.Grants));
+    }
+
+    // Traces to: L2-151 AC3
+    [Fact]
+    public async Task Seed_defines_FaithTechs_partner_stages_once_and_keeps_their_later_edits()
+    {
+        Assert.Equal(0, await Run("seed"));
+        await using (var db = Db())
+        {
+            (await db.PartnerStages.SingleAsync(s => s.Key == "in-funnel")).Rename("Proposal sent");
+            await db.SaveChangesAsync();
+        }
+
+        Assert.Equal(0, await Run("seed"));
+
+        await using var check = Db();
+        Assert.Equal(
+            [("lead", "Lead", true, "Open"), ("in-funnel", "Proposal sent", false, "Open"), ("confirmed", "Confirmed", false, "Confirmed")],
+            (await check.PartnerStages.OrderBy(s => s.SortOrder).ToListAsync()).Select(s => (s.Key, s.Name, s.IsInitial, s.Kind.ToString())));
+    }
+
+    // Traces to: L2-151 AC3
+    [Fact]
+    public async Task Seed_defines_FaithTechs_event_types_once_and_keeps_their_later_edits()
+    {
+        Assert.Equal(0, await Run("seed"));
+        await using (var db = Db())
+        {
+            (await db.EventTypes.SingleAsync(t => t.Key == "panel")).Rename("Panel discussion");
+            await db.SaveChangesAsync();
+        }
+
+        Assert.Equal(0, await Run("seed"));
+
+        await using var check = Db();
+        Assert.Equal(
+            [("gathering", "Gathering"), ("builders-night", "Builders night"), ("hackathon", "Hackathon"),
+                ("prayer-and-planning", "Prayer & planning"), ("panel", "Panel discussion")],
+            (await check.EventTypes.OrderBy(t => t.SortOrder).ToListAsync()).Select(t => (t.Key, t.Name)));
+    }
+
     // Traces to: L2-055
     [Fact]
     public async Task Seed_adds_the_starter_resources_once_owned_by_the_first_system_admin()
     {
         var admin = new FaithTech.Community.Domain.Profiles.Profile("Priya Shah");
-        admin.AddRole(FaithTech.Community.Domain.Profiles.Role.SystemAdmin, Guid.Empty, DateTime.UtcNow);
+        admin.AddRole(FaithTech.Community.Infrastructure.Persistence.Seed.FaithTechSeed.Roles.Single(r => r.Key == "SystemAdmin").Id, Guid.Empty, DateTime.UtcNow);
         await using (var setup = Db())
         {
             setup.Profiles.Add(admin);

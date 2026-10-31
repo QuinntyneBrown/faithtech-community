@@ -1,13 +1,21 @@
 import { DIALOG_DATA, DialogRef } from '@angular/cdk/dialog';
-import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  computed,
+  effect,
+  inject,
+  signal,
+} from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
 import {
-  PARTNERS_SERVICE,
-  PARTNER_STAGES,
-  PARTNER_STAGE_LABELS,
+  ORGANISATION_SERVICE,
+  OrganisationNames,
   PartnerDto,
+  PARTNERS_SERVICE,
   PartnerStage,
+  PartnerStageOption,
 } from '@faithtech-community/api';
 import {
   AlertComponent,
@@ -19,18 +27,19 @@ import {
   StackComponent,
   TextareaComponent,
 } from '@faithtech-community/components';
-import { firstValueFrom } from 'rxjs';
+import { firstValueFrom, map } from 'rxjs';
 
 export interface MovePartnerData {
   partnerId: string;
   name: string;
+  /** The partner's stage key. */
   stage: PartnerStage;
 }
 
 /**
  * Moves a partner to another stage with an optional note for its history (L2-018 AC2, AC3),
  * matching docs/mocks/dialogs/move-partner. It is the keyboard and screen-reader path for the
- * board's drag. Closes with the moved partner.
+ * board's drag. It offers the organisation's active stages (L2-144 AC3, AC4). Closes with the moved partner.
  */
 @Component({
   selector: 'ft-move-partner-dialog',
@@ -49,23 +58,36 @@ export interface MovePartnerData {
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class MovePartnerDialog {
+  protected readonly organisation = inject(OrganisationNames);
   protected readonly ref = inject<DialogRef<PartnerDto>>(DialogRef);
   protected readonly data = inject<MovePartnerData>(DIALOG_DATA);
   private readonly partners = inject(PARTNERS_SERVICE);
 
-  protected readonly stages = PARTNER_STAGES;
-  protected readonly labels = PARTNER_STAGE_LABELS;
-  protected readonly to = new FormControl<PartnerStage>(nextStage(this.data.stage), {
-    nonNullable: true,
-  });
+  protected readonly stages = toSignal(
+    inject(ORGANISATION_SERVICE)
+      .get()
+      .pipe(map((o) => o.partnerStages)),
+    { initialValue: [] as PartnerStageOption[] },
+  );
+  protected readonly to = new FormControl<PartnerStage>('', { nonNullable: true });
   protected readonly note = new FormControl('', { nonNullable: true });
   private readonly chosen = toSignal(this.to.valueChanges, { initialValue: this.to.value });
-  protected readonly unchanged = computed(() => this.chosen() === this.data.stage);
+  protected readonly unchanged = computed(
+    () => !this.chosen() || this.chosen() === this.data.stage,
+  );
+
+  constructor() {
+    // The stage after the current one is chosen once the stages arrive.
+    effect(() => {
+      const stages = this.stages();
+      if (stages.length && !this.to.value) this.to.setValue(nextStage(stages, this.data.stage));
+    });
+  }
   protected readonly busy = signal(false);
   protected readonly failed = signal(false);
 
   protected label(stage: PartnerStage): string {
-    return this.labels[stage];
+    return this.stages().find((s) => s.key === stage)?.name ?? '';
   }
 
   protected async move(): Promise<void> {
@@ -86,8 +108,8 @@ export class MovePartnerDialog {
   }
 }
 
-/** The stage after the current one, or the first stage from Confirmed. */
-function nextStage(stage: PartnerStage): PartnerStage {
-  const index = PARTNER_STAGES.indexOf(stage);
-  return PARTNER_STAGES[index === PARTNER_STAGES.length - 1 ? 0 : index + 1];
+/** The stage after the current one, or the first stage from the last one or from an archived stage. */
+function nextStage(stages: readonly PartnerStageOption[], stage: PartnerStage): PartnerStage {
+  const index = stages.findIndex((s) => s.key === stage);
+  return stages[index < 0 || index === stages.length - 1 ? 0 : index + 1].key;
 }

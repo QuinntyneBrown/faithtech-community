@@ -1,5 +1,5 @@
 @startuml
-title UML sequence behaviour — Visibility on the server, Staff and the System Admin override
+title UML sequence behaviour — Visibility on the server and the administrator override
 skinparam backgroundColor #FFFFFF
 skinparam shadowing false
 skinparam roundcorner 12
@@ -15,7 +15,7 @@ skinparam package {
   BackgroundColor #F9FAFB
 }
 actor "Caller" as actor
-box "Frontend — FaithTech Community web app (notes library)" #E0F2FE
+box "Frontend — Community web app (notes library)" #E0F2FE
   participant "NotePage" as page
 end box
 box "Backend — FaithTech.Community.Api" #D1FADF
@@ -36,25 +36,25 @@ alt anonymous
 else signed in
   ep -> h : HandleAsync(id)
   h -> acc : FindAsync(id, caller)
-  acc -> db : WHERE ArchivedAt IS NULL AND (Global OR OwnerId = caller\nOR member row for caller OR role row in caller's roles now)\n— System Admin skips the predicate (L2-092)
-  alt no row (Staff and City Leads included: no read-all)
+  acc -> db : WHERE ArchivedAt IS NULL AND (Global OR OwnerId = caller\nOR member row for caller OR role row in caller's roles now)\n— Has(AdministerOrganisation) skips the predicate (L2-092)
+  alt no row (no capability but AdministerOrganisation reads all, L2-092 AC10)
     ep --> page : 404
   else row
-    opt System Admin, not owner, page Private, Shared or archived
+    opt AdministerOrganisation override: not owner, page Private, Shared or archived
       h -> audit : note.opened
     end
-    ep --> page : 200 NotePageDto { canEdit = owner or System Admin, isAdminView }
+    ep --> page : 200 NotePageDto { canEdit = owner or Has(AdministerOrganisation), isAdminView }
   end
 end
-actor -> page : Edits (owner, or System Admin on someone else's page)
+actor -> page : Edits (owner, or an administrator on someone else's page)
 page -> ep : PUT /api/notes/{id}
 ep -> h : SaveNoteHandler
 h -> acc : CanChange(page, caller)
-alt Staff, City Lead or reader who is not the owner (L2-098)
+alt reader who is not the owner, whatever capabilities (L2-098 AC2)
   ep --> page : 403
 else owner
   h -> db : Save
-else System Admin override
+else AdministerOrganisation override (IsOverride, L2-135 AC5)
   h -> audit : note.edited { before version, after version, title }
   h -> db : Save with the audit entry
 end

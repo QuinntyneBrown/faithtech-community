@@ -10,6 +10,7 @@ import { ProgressComponent } from './progress.component';
     [label]="label()"
     [size]="size()"
     [caption]="caption()"
+    [heading]="heading()"
   />`,
 })
 class HostComponent {
@@ -18,6 +19,7 @@ class HostComponent {
   label = signal('Sprint 7: 6 of 24 points done');
   size = signal<'md' | 'lg'>('md');
   caption = signal<string | null>('6 of 24 points');
+  heading = signal<string | null>(null);
 }
 
 function setup() {
@@ -90,5 +92,37 @@ describe('ProgressComponent', () => {
     cmp.caption.set(null);
     fixture.detectChanges();
     expect(q('.ft-progress-label')).toBeNull();
+  });
+
+  // Traces to: event check-in attendance meter (components/progress.html, Attendance meter).
+  // Given an attendance meter, When it has a heading, Then "Checked in" leads the row,
+  // the count trails it, and the bar keeps its own words as its name.
+  it('leads the row with the heading and trails it with the caption', () => {
+    const { fixture, cmp, q } = setup();
+    cmp.heading.set('Checked in');
+    cmp.caption.set('12 of 34');
+    cmp.label.set('12 of 34 checked in');
+    fixture.detectChanges();
+    const row = q('.ft-progress-row');
+    const children = Array.from(row.children);
+    expect(children[0].classList.contains('ft-progress-heading')).toBe(true);
+    expect(children[0].textContent?.trim()).toBe('Checked in');
+    expect(children[1].getAttribute('role')).toBe('progressbar');
+    expect(children[2].textContent?.trim()).toBe('12 of 34');
+    expect(children[1].getAttribute('aria-label')).toBe('12 of 34 checked in');
+  });
+
+  it('omits the heading when none is given', () => {
+    const { q } = setup();
+    expect(q('.ft-progress-heading')).toBeNull();
+  });
+
+  it('takes the complete variant on a full attendance meter', () => {
+    const { fixture, cmp, q } = setup();
+    cmp.heading.set('Checked in');
+    cmp.value.set(36);
+    cmp.max.set(36);
+    fixture.detectChanges();
+    expect(q('.ft-progress').classList.contains('ft-progress--complete')).toBe(true);
   });
 });

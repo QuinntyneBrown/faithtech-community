@@ -1,0 +1,13 @@
+@startuml
+!include <C4/C4_Context>
+LAYOUT_WITH_LEGEND()
+title System Context — Event check-in
+
+Person(lead, "Member with ManageAttendance", "Checks attendees in at the door")
+Person(admin, "Administrator", "Checks in by AdministerOrganisation override, audited when lacking ManageAttendance")
+Person(staff, "Member with view capabilities", "Holds ViewAttendees: views attendance read-only, without guest emails")
+System(ftc, "Community platform", "Hosts an organisation's members, events and partners")
+Rel(lead, ftc, "Checks attendees in, adds walk-ins and exports attendance in", "HTTPS")
+Rel(admin, ftc, "Checks attendees in and exports attendance in", "HTTPS")
+Rel(staff, ftc, "Views who came in", "HTTPS")
+@enduml

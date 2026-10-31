@@ -8,15 +8,19 @@
  *   - docs/detailed-designs/identity/email-verification
  *   - docs/detailed-designs/identity/password-reset
  */
-import { HttpClient, HttpErrorResponse } from '@angular/common/http';
+import { HttpClient, HttpContext, HttpErrorResponse } from '@angular/common/http';
 import { Injectable, computed, inject, signal } from '@angular/core';
 import { Observable, catchError, firstValueFrom, map, of, switchMap, tap, throwError } from 'rxjs';
 
 import { API_BASE_URL } from '../config';
+import type { Role } from '../shared';
+import { HANDLES_FORBIDDEN } from '../errors';
 import { BROWSER_REDIRECT } from './browser-redirect';
 import {
   AuthService,
   CurrentUser,
+  JoinLink,
+  NotAMember,
   SignInError,
   SignInOutcome,
   SignUpRequest,
@@ -33,10 +37,14 @@ export class HttpAuthService implements AuthService {
   private readonly redirect = inject(BROWSER_REDIRECT);
 
   private readonly user = signal<CurrentUser | null>(null);
+  private readonly refused = signal<NotAMember | null>(null);
 
   readonly isAuthenticated = this.oidc.isAuthenticated;
   readonly currentUser = this.user.asReadonly();
-  readonly roles = computed(() => this.user()?.roles ?? []);
+  readonly notAMember = this.refused.asReadonly();
+  readonly roles = computed(() => (this.user()?.roles ?? []).map((r) => r.key as Role));
+  readonly capabilities = computed(() => this.user()?.capabilities ?? []);
+  readonly grantableRoleIds = computed(() => this.user()?.grantableRoleIds ?? []);
 
   signIn(returnUrl?: string, keepSignedIn?: boolean): Promise<void> {
     return this.oidc.signIn(returnUrl, keepSignedIn);
@@ -64,8 +72,9 @@ export class HttpAuthService implements AuthService {
       );
   }
 
-  signInWithGoogle(returnUrl = '/', keepSignedIn = false): void {
+  signInWithGoogle(returnUrl = '/', keepSignedIn = false, signUp = false): void {
     const query = new URLSearchParams({ returnUrl, keepSignedIn: String(keepSignedIn) });
+    if (signUp) query.set('signUp', 'true');
     this.redirect(`${this.base}/account/google/start?${query}`);
   }
 
@@ -74,7 +83,12 @@ export class HttpAuthService implements AuthService {
   }
 
   signOut(): Observable<void> {
-    return this.oidc.signOut().pipe(tap(() => this.user.set(null)));
+    return this.oidc.signOut().pipe(
+      tap(() => {
+        this.user.set(null);
+        this.refused.set(null);
+      }),
+    );
   }
 
   restoreSession(): Promise<boolean> {
@@ -87,16 +101,39 @@ export class HttpAuthService implements AuthService {
     );
   }
 
-  loadCurrentUser(): Observable<CurrentUser> {
-    return this.http.get<CurrentUser>(`${this.base}/me`).pipe(tap((u) => this.user.set(u)));
+  loadCurrentUser(): Observable<CurrentUser | null> {
+    return this.http
+      .get<CurrentUser>(`${this.base}/me`, {
+        // A 403 here is the not-a-member answer, which the app shows itself (L2-132 AC3).
+        context: new HttpContext().set(HANDLES_FORBIDDEN, true),
+      })
+      .pipe(
+        tap((u) => {
+          this.user.set(u);
+          this.refused.set(null);
+        }),
+        catchError((error: unknown) => {
+          const body = (error as HttpErrorResponse).error as NotAMember | null;
+          if (
+            error instanceof HttpErrorResponse &&
+            error.status === 403 &&
+            body?.reason === 'not-a-member'
+          ) {
+            this.user.set(null);
+            this.refused.set(body);
+            return of(null);
+          }
+          return throwError(() => error);
+        }),
+      );
   }
 
   signUp(request: SignUpRequest): Observable<void> {
     return this.post('sign-up', request);
   }
 
-  confirmEmail(userId: string, token: string): Observable<void> {
-    return this.post('verify-email', { userId, token });
+  confirmEmail(userId: string, token: string, joining?: JoinLink): Observable<void> {
+    return this.post('verify-email', { userId, token, ...joining });
   }
 
   resendVerification(email: string): Observable<void> {

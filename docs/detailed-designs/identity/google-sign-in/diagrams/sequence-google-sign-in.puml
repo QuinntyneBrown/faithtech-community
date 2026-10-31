@@ -5,7 +5,7 @@ skinparam shadowing false
 skinparam defaultFontName Arial
 skinparam ArrowColor #344054
 actor "Visitor" as actor
-box "Marketing app" #FEF3C7
+box "Marketing app (organisation's public host)" #FEF3C7
   participant "LandingPage" as page
 end box
 box "Community API" #D1FADF
@@ -14,11 +14,11 @@ box "Community API" #D1FADF
   participant "GoogleIdentityProvider" as prov
 end box
 participant "Google" as google
-box "Community app" #E0F2FE
+box "Community app (organisation's community host)" #E0F2FE
   participant "AuthContinuePage" as cont
 end box
 actor -> page : Sign in with Google
-page -> ep : GET /api/account/google/start?returnUrl&keepSignedIn
+page -> ep : GET /api/account/google/start?returnUrl&keepSignedIn (host resolved to ICurrentOrganisation, L2-131)
 ep -> ep : state, nonce -> ftc.google cookie (protected, 10 min)
 ep --> google : 302 authorize (client_id, redirect_uri, scope openid email profile, state, nonce)
 actor -> google : Choose account, consent
@@ -35,14 +35,14 @@ else email not verified
   h --> ep : UnverifiedEmail (L2-078 AC4)
   ep --> page : 302 /?google=failed
 else found by login or verified email, or created
-  h -> h : Link login; confirm email, drop unproven password; or create profile with no role (AC1-AC3)
-  alt suspended
-    h --> ep : Suspended (AC5)
+  h -> h : Link login; confirm email, drop unproven password; create the account, or add the missing profile in the host's organisation, with no role (AC1-AC3, L2-132 #1)
+  alt account locked by an operator or membership suspended here
+    h --> ep : AccountLocked or MembershipSuspended (AC5)
     ep --> page : 302 /?google=suspended
   else
     h --> ep : User
     ep -> ep : Sign in ftc.session cookie
-    ep --> cont : 302 /auth/continue?returnUrl&keepSignedIn
+    ep --> cont : 302 /auth/continue?returnUrl&keepSignedIn on the organisation's community host
     cont --> actor : PKCE, then home (ADR 0018)
   end
 end

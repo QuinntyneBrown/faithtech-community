@@ -1,5 +1,5 @@
 @startuml
-title UML sequence behaviour — Notify the lead after verification
+title UML sequence behaviour — Notify the owner after verification
 skinparam backgroundColor #FFFFFF
 skinparam shadowing false
 skinparam roundcorner 12
@@ -15,7 +15,7 @@ skinparam package {
   BackgroundColor #F9FAFB
 }
 actor "New member" as actor
-box "Frontend — FaithTech Community web app (app shell — email verification)" #E0F2FE
+box "Frontend — Community web app (app shell — email verification)" #E0F2FE
   participant "VerifyEmailPage" as page
   participant "HttpAuthService" as svc
 end box
@@ -45,12 +45,12 @@ else verified
   db --> evt : Matching contacts
   opt any match
     loop each matching contact
-      evt -> db : Add Notification(owner, ContactSignedUp, "{name} just joined FaithTech", /contacts/{id})
+      evt -> db : Add Notification(owner, ContactSignedUp, "{name} just joined {organisation name}", /contacts/{id})
     end
     evt -> db : Save changes
     evt -> db : Owners' email addresses
     loop each matching contact
-      evt -> mail : SendAsync(email to the owning lead with the contact link) (L2-015 AC1)
+      evt -> mail : SendAsync(email to the owning member with the contact link) (L2-015 AC1)
     end
   end
   v --> ep : Ok
@@ -58,5 +58,5 @@ else verified
   svc --> page : Done
   page --> actor : Email verified
 end
-note over evt : An unverified sign-up never reaches this handler,\nso no lead is told (L2-015 AC3)
+note over evt : An unverified sign-up never reaches this handler,\nso no owner is told (L2-015 AC3)
 @enduml

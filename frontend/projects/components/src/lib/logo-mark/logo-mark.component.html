@@ -2,9 +2,9 @@
   xmlns="http://www.w3.org/2000/svg"
   viewBox="0 0 64 64"
   focusable="false"
-  [attr.role]="label() ? 'img' : null"
-  [attr.aria-label]="label() || null"
-  [attr.aria-hidden]="label() ? null : 'true'"
+  [attr.role]="name() ? 'img' : null"
+  [attr.aria-label]="name() || null"
+  [attr.aria-hidden]="name() ? null : 'true'"
 >
   <!-- Brand artwork: fixed colours by design, identical in light and dark. -->
   <rect width="64" height="64" rx="16" fill="#6d28d9" />

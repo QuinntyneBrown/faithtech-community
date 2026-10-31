@@ -24,6 +24,8 @@ export class AppShell {
   readonly bell: Locator;
   /** The panel the bell opens. */
   readonly notificationPanel: Locator;
+  /** The top bar's brand link, named with the organisation's short name (L2-134 AC1). */
+  readonly brand: Locator;
 
   constructor(private readonly page: Page) {
     this.verifyBanner = page.locator('ft-banner').filter({ hasText: 'Verify your email' });
@@ -42,6 +44,7 @@ export class AppShell {
     this.main = page.getByRole('main');
     this.bell = page.locator('header').getByRole('button', { name: /^Notifications/ });
     this.notificationPanel = page.getByRole('dialog', { name: 'Notifications' });
+    this.brand = page.getByRole('banner').locator('.top-bar__brand');
   }
 
   /** The top bar's search box (wider screens). */
@@ -82,6 +85,16 @@ export class AppShell {
   /** An item of the open account menu, such as "Your profile", "Settings" or "Sign out". */
   menuItem(name: string): Locator {
     return this.page.getByRole('menu').getByRole('menuitem', { name, exact: true });
+  }
+
+  /** The open account menu's "Switch organisation" group header (L2-133 AC3). */
+  get switchOrganisation(): Locator {
+    return this.page.getByRole('menu').getByText('Switch organisation', { exact: true });
+  }
+
+  /** An organisation offered in the open account menu's "Switch organisation" group, by name. */
+  organisationToSwitchTo(name: string): Locator {
+    return this.page.getByRole('menuitem', { name: new RegExp(`^${name}`) });
   }
 
   /** Opens the account menu and follows "Your profile". */

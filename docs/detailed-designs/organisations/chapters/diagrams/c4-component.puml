@@ -1,0 +1,42 @@
+@startuml
+!include <C4/C4_Component>
+LAYOUT_WITH_LEGEND()
+title Components — Chapters
+Container_Boundary(web, "Web app") {
+  Component(chapters, "ChaptersPage", "Angular page (organisations library)", "Lists, adds, renames, reorders and archives chapters")
+  Component(dlg, "AddChapterDialog / RenameChapterDialog / ArchiveChapterDialog", "Angular CDK Dialogs (organisations library)", "One field each; inline errors; Try again")
+  Component(filters, "TeamPage, EventsPage, PeoplePage, ReportsPage", "Angular pages (feature libraries)", "Chapter filter in place of the city select")
+  Component(badges, "Person picker, person summary, role badge", "components library", "Render '· {chapter}' as data")
+  Component(svc, "HttpOrganisationService", "Angular service (api library)", "get(), listChapters(), addChapter(), renameChapter(), reorderChapters(), archiveChapter()")
+}
+Container_Boundary(api, "Community API") {
+  Component(ep, "OrganisationEndpoints", "ASP.NET Core minimal API", "GET /api/organisation; /api/organisation/chapters routes")
+  Component(get, "GetOrganisationHandler", "Application handler", "OrganisationDto: label, active chapters, taxonomies, role names")
+  Component(manage, "ManageChaptersHandler", "Application handler", "Add, rename, reorder, archive under ManageOrganisationSettings")
+  Component(rules, "ChapterRules", "Application rule", "Name required, at most 60, unique among active ignoring case")
+  Component(lists, "ListTeamHandler, ListEventsHandler, ListPeopleHandler, GetReportHandler", "Application handlers", "Filter on ChapterId before paging")
+  Component(grant, "RoleGrantPolicy", "Application permission check", "GrantorScope: chapter-scoped granting")
+  Component(change, "ChangeRolesHandler", "Application handler", "POST /api/profiles/{id}/roles { roleId, chapterId? }")
+  Component(chapter, "Chapter / Organisation.ChapterLabel", "Domain", "Name, sort order, archived; singular and plural label")
+  Component(audit, "AuditLog", "Infrastructure service", "chapter.added, chapter.updated, chapter.archived")
+  ComponentDb(db, "CommunityDbContext", "PostgreSQL", "Chapters, Profiles.ChapterId, Events.ChapterId, ProfileRoles.ChapterId")
+}
+Rel(chapters, dlg, "Opens")
+Rel(dlg, svc, "Chapter writes")
+Rel(chapters, svc, "listChapters, reorderChapters")
+Rel(filters, svc, "get() for chapter options")
+Rel(filters, badges, "Composes")
+Rel(svc, ep, "Sends request", "JSON/HTTPS")
+Rel(ep, get, "GET /api/organisation")
+Rel(ep, manage, "Chapter commands")
+Rel(manage, rules, "Validates (400)")
+Rel(manage, chapter, "Creates and mutates")
+Rel(manage, audit, "Record")
+Rel(ep, lists, "List queries with ChapterId")
+Rel(ep, change, "Role commands")
+Rel(change, grant, "CanGrant / CanRemove")
+Rel(get, db, "Reads", "EF Core")
+Rel(manage, db, "Saves", "EF Core")
+Rel(lists, db, "Queries", "EF Core")
+Rel(audit, db, "Adds AuditEntry", "EF Core")
+@enduml

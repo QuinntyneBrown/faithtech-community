@@ -4,6 +4,7 @@ import {
   DestroyRef,
   ElementRef,
   OnInit,
+  computed,
   inject,
   input,
   signal,
@@ -12,7 +13,7 @@ import {
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ReactiveFormsModule } from '@angular/forms';
 import {
-  RESOURCE_TYPES,
+  ORGANISATION_SERVICE,
   RESOURCES_SERVICE,
   ROLE_LABELS,
   SHAREABLE_ROLES,
@@ -61,6 +62,7 @@ import { ResourceDetailsForm } from './resource-details';
 })
 export class ResourceDetailsComponent implements OnInit {
   private readonly resources = inject(RESOURCES_SERVICE);
+  private readonly organisation = inject(ORGANISATION_SERVICE);
   private readonly host = inject<ElementRef<HTMLElement>>(ElementRef).nativeElement;
   private readonly destroyRef = inject(DestroyRef);
 
@@ -69,14 +71,22 @@ export class ResourceDetailsComponent implements OnInit {
   readonly showTitleAndType = input(true);
   /** "Guessed from .pdf — change it if it’s wrong." under the type, for one uploaded file. */
   readonly typeHint = input('');
+  /** On edit, the resource's type: offered even once archived, until another is chosen (L2-146 AC2). */
+  readonly currentType = input<{ key: string; name: string } | null>(null);
 
   private readonly titleField = viewChild<FormFieldComponent>('titleField');
   private readonly typeField = viewChild<FormFieldComponent>('typeField');
 
-  protected readonly typeOptions: SelectOption[] = RESOURCE_TYPES.map((t) => ({
-    value: t,
-    label: t,
-  }));
+  protected readonly typeOptions = signal<SelectOption[]>([]);
+  /** The resource's type when the organisation has archived it. */
+  private readonly archivedType = signal<{ key: string; name: string } | null>(null);
+  private readonly chosenType = signal('');
+  protected readonly typeHelp = computed(() => {
+    const archived = this.archivedType();
+    return archived && this.chosenType() === archived.key
+      ? `${archived.name} was archived. It stays on this resource until you choose another type.`
+      : this.typeHint();
+  });
   protected readonly roles = SHAREABLE_ROLES.map((r) => ({ value: r, label: ROLE_LABELS[r] }));
   protected readonly tagSuggestions = signal<TagSuggestion[]>([]);
   protected readonly people = signal<PersonOption[]>([]);
@@ -86,7 +96,11 @@ export class ResourceDetailsComponent implements OnInit {
   protected readonly titleLength = signal(0);
 
   ngOnInit(): void {
-    const { visibility, title } = this.form().controls;
+    const { visibility, title, type } = this.form().controls;
+    type.valueChanges
+      .pipe(startWith(type.value), takeUntilDestroyed(this.destroyRef))
+      .subscribe((v) => this.chosenType.set(v));
+    void this.loadTypes();
     visibility.valueChanges
       .pipe(startWith(visibility.value), takeUntilDestroyed(this.destroyRef))
       .subscribe((v) => this.visibility.set(v));
@@ -94,6 +108,21 @@ export class ResourceDetailsComponent implements OnInit {
       .pipe(startWith(title.value), takeUntilDestroyed(this.destroyRef))
       .subscribe((v) => this.titleLength.set(v.trim().length));
     void this.searchTags('');
+  }
+
+  private async loadTypes(): Promise<void> {
+    try {
+      const { resourceTypes } = await firstValueFrom(this.organisation.get());
+      const options: SelectOption[] = resourceTypes.map((t) => ({ value: t.key, label: t.name }));
+      const current = this.currentType();
+      if (current && !resourceTypes.some((t) => t.key === current.key)) {
+        options.push({ value: current.key, label: `${current.name} (archived)` });
+        this.archivedType.set(current);
+      }
+      this.typeOptions.set(options);
+    } catch {
+      this.typeOptions.set([]);
+    }
   }
 
   /** Ids of the fields the error summary links to. */
@@ -126,7 +155,7 @@ export class ResourceDetailsComponent implements OnInit {
         members.map((m) => ({
           id: m.id,
           name: m.name,
-          detail: [m.roles.map((r) => ROLE_LABELS[r]).join(', '), m.city]
+          detail: [m.roles.map((r) => ROLE_LABELS[r]).join(', '), m.chapterName]
             .filter(Boolean)
             .join(' · '),
         })),

@@ -1,5 +1,5 @@
 <ft-dialog
-  heading="Invite someone to FaithTech"
+  [heading]="'Invite someone to ' + organisation.shortName()"
   description="They’ll get an email with a link to create their account."
   icon="invite"
   [busy]="busy()"
@@ -9,7 +9,7 @@
     <ft-stack>
       @if (failed()) {
         <ft-alert status="danger" heading="Invite not sent">
-          We couldn’t reach FaithTech. Nothing was changed — try again.
+          We couldn’t reach {{ organisation.shortName() }}. Nothing was changed — try again.
         </ft-alert>
       }
       @if (refusal(); as message) {

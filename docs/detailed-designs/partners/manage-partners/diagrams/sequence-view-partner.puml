@@ -14,8 +14,8 @@ skinparam package {
   FontColor #101828
   BackgroundColor #F9FAFB
 }
-actor "Lead or Staff" as actor
-box "Frontend — FaithTech Community web app (partners library)" #E0F2FE
+actor "Member with ViewPartners" as actor
+box "Frontend — Community web app (partners library)" #E0F2FE
   participant "PartnerPage" as page
   participant "PartnerFormPage" as form
   participant "HttpPartnersService" as svc
@@ -35,12 +35,12 @@ actor -> page : Open /partners/{id}
 page -> svc : get(id)
 svc -> ep : GET /api/partners/{id}
 ep -> h : GetAsync(id)
-h -> acc : CanRead
-alt not a lead, Staff or System Admin
+h -> acc : CanRead: Has(ViewPartners) or Has(ManagePartners)
+alt lacks ViewPartners
   h --> ep : Forbidden (L2-017 AC4)
   ep --> svc : 403
 else permitted
-  h -> db : Load the shared Partner with StageChanges (L2-017 AC2)
+  h -> db : Load the shared Partner (L2-017 AC2)
   alt unknown id
     h --> ep : NotFound
     ep --> svc : 404
@@ -48,11 +48,11 @@ else permitted
     page --> actor : Not-found state
   else found
     h -> views : ToDtoAsync(partner)
-    views -> db : Owner and mover names
-    h --> ep : PartnerDto with history, newest first, and CanEdit
+    views -> db : Owner name, last activity and next step
+    h --> ep : PartnerDto with Version, LastActivityOn, NextStep and CanEdit
     ep --> svc : 200 OK
     svc --> page : Partner
-    page --> actor : Details and history; Edit and Move hidden when CanEdit is false (Staff)
+    page --> actor : Details and the activity timeline (partner-activity-timeline);\nEdit and Move hidden when CanEdit is false (no ManagePartners, archived)
   end
 end
 opt Edit (CanEdit)
@@ -63,7 +63,7 @@ opt Edit (CanEdit)
   form -> svc : update(id, request)
   svc -> ep : PUT /api/partners/{id}
   ep -> h : UpdateAsync(id, command)
-  h -> acc : CanWrite, then AuditAdminWrite(..., "partner.updated")
+  h -> acc : CanWrite, then AuditAdminWrite(..., "partner.updated") when IsOverride
   h -> db : Save Partner (stage unchanged)
   ep --> svc : 200 PartnerDto (400, 403 or 404 otherwise)
   form --> actor : Navigate back to /partners/{id}

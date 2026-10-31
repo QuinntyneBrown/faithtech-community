@@ -1,8 +1,8 @@
+using FaithTech.Community.Domain.Organisations;
 using System.Text;
 using FaithTech.Community.Application.Common;
 using FaithTech.Community.Application.Profiles;
 using FaithTech.Community.Domain.Profiles;
-using FaithTech.Community.Domain.Team;
 using Microsoft.EntityFrameworkCore;
 
 namespace FaithTech.Community.Application.Team;
@@ -14,10 +14,11 @@ public enum TeamRoleFilter
 }
 
 /// <summary>
-/// Optional filters and paging. The city is a filter on home city, never a permission boundary (ADR 0007).
+/// Optional filters and paging. The chapter is a filter on the home chapter, never a permission boundary (ADR 0034),
+/// and is ignored while chapters are off or when the organisation has no such chapter (L2-142 AC3).
 /// <c>After</c> is the previous page's <see cref="TeamListDto.Next"/>.
 /// </summary>
-public record ListTeamQuery(TeamRoleFilter? Role = null, string? City = null, string? After = null, int? PageSize = null);
+public record ListTeamQuery(TeamRoleFilter? Role = null, Guid? ChapterId = null, string? After = null, int? PageSize = null);
 
 /// <summary>
 /// Derives the team from current roles on every request, so role changes show at once (L2-019). Filters
@@ -37,20 +38,22 @@ public class ListTeamHandler(IApplicationDbContext db, IPhotoStorage storage)
             return null;
         }
 
-        var teamRoles = TeamRoles.All.ToList();
-        var leads = TeamRoles.Leads.ToList();
-        var team = db.Profiles.AsNoTracking().Where(p => p.Roles.Any(r => teamRoles.Contains(r.Role)));
+        // The team is everyone holding a role shown on the team (ADR 0033). Until the role filter lists the
+        // organisation's team roles (slice 12), a lead is a team member whose team role invites members.
+        var team = db.Profiles.AsNoTracking().Where(p => p.Roles.Any(r => r.Definition!.ArchivedAtUtc == null && r.Definition.ShowOnTeam));
 
         var matching = query.Role switch
         {
-            TeamRoleFilter.Leads => team.Where(p => p.Roles.Any(r => leads.Contains(r.Role))),
-            TeamRoleFilter.Volunteers => team.Where(p => p.Roles.Any(r => r.Role == Role.Volunteer)),
+            TeamRoleFilter.Leads => team.Where(p => p.Roles.Any(r => r.Definition!.ArchivedAtUtc == null && r.Definition.ShowOnTeam
+                && r.Definition.Capabilities.Contains(Capability.InviteMembers))),
+            TeamRoleFilter.Volunteers => team.Where(p => p.Roles.Any(r => r.Definition!.ArchivedAtUtc == null && r.Definition.ShowOnTeam
+                && !r.Definition.Capabilities.Contains(Capability.InviteMembers))),
             _ => team,
         };
-        var city = query.City?.Trim().ToLower();
-        if (!string.IsNullOrEmpty(city))
+        // The chapter query filter hides every chapter while chapters are off, so the filter then lapses.
+        if (query.ChapterId is { } chapterId && await db.Chapters.AnyAsync(c => c.Id == chapterId, cancellationToken))
         {
-            matching = matching.Where(p => p.HomeCity != null && p.HomeCity.Trim().ToLower() == city);
+            matching = matching.Where(p => p.ChapterId == chapterId);
         }
 
         var total = await matching.CountAsync(cancellationToken);
@@ -69,23 +72,17 @@ public class ListTeamHandler(IApplicationDbContext db, IPhotoStorage storage)
             .ToListAsync(cancellationToken);
         var members = rows.Take(size).ToList();
         var next = rows.Count > size ? new TeamCursor(members[^1].Name.ToLower(), members[^1].Id).ToString() : null;
-
-        // Every team member's city, whatever the filters and the page, so the city select keeps its options.
-        var cities = (await team.Select(p => p.HomeCity).Where(h => h != null).Distinct().ToListAsync(cancellationToken))
-            .Select(h => h!.Trim())
-            .Where(h => h.Length > 0)
-            .Distinct(StringComparer.OrdinalIgnoreCase)
-            .Order(StringComparer.OrdinalIgnoreCase)
-            .ToList();
-        return new TeamListDto([.. members.Select(ToDto)], cities, next, total);
+        return new TeamListDto([.. members.Select(ToDto)], next, total);
     }
 
     private TeamMemberDto ToDto(Profile profile) => new(
         profile.Id,
         profile.Name,
-        profile.HomeCity,
+        profile.Chapter?.Name,
         profile.Photos.FirstOrDefault(p => p.IsFeatured) is { } featured ? storage.GetReadUrl(featured.BlobName) : null,
-        [.. profile.Roles.OrderBy(r => r.Role).Select(r => r.Role.ToString())]);
+        [.. profile.Roles.OrderBy(r => r.Definition!.SortOrder).Select(r => r.Definition!.Key)],
+        [.. profile.Roles.OrderBy(r => r.Definition!.SortOrder).ThenBy(r => r.Chapter?.Name)
+            .Select(r => ProfileRoleDto.Badge(r.Definition!.Name, r.Chapter?.Name))]);
 }
 
 /// <summary>The position after the last member of a page: their lower-cased name and profile id.</summary>

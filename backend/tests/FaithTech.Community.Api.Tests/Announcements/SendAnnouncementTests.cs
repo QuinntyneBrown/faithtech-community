@@ -34,9 +34,9 @@ public class SendAnnouncementTests(CommunityApiFactory factory) : IClassFixture<
         var ruth = await factory.AddMemberAsync("Ruth Alvarez");
         var jonah = await factory.AddMemberAsync("Jonah Bell");
         var client = factory.ClientFor(hannah, Role.CommunicationsLead);
-        var members = await factory.WithDbAsync(db => db.Users.CountAsync(u => db.Profiles.Any(p => p.Id == u.ProfileId && !p.IsSuspended)));
+        var members = await factory.WithDbAsync(db => db.Users.CountAsync(u => db.Profiles.Any(p => p.UserId == u.Id && !p.IsSuspended)));
         var emailable = await factory.WithDbAsync(db =>
-            db.Users.CountAsync(u => db.Profiles.Any(p => p.Id == u.ProfileId && !p.IsSuspended && !p.AnnouncementEmailsOptedOut)));
+            db.Users.CountAsync(u => db.Profiles.Any(p => p.UserId == u.Id && !p.IsSuspended && !p.AnnouncementEmailsOptedOut)));
 
         // When she sends an announcement to everyone
         var response = await client.PostAsJsonAsync("/api/announcements", Announcement(Everyone));
@@ -67,7 +67,7 @@ public class SendAnnouncementTests(CommunityApiFactory factory) : IClassFixture<
         var volunteer = await factory.AddMemberAsync("Ruth Alvarez", p => p.AddRole(Role.Volunteer, Guid.Empty, DateTime.UtcNow));
         var attendee = await factory.AddMemberAsync("Jonah Bell", p => p.AddRole(Role.Attendee, Guid.Empty, DateTime.UtcNow));
         var client = factory.ClientFor(admin, Role.SystemAdmin);
-        var holders = await factory.WithDbAsync(db => db.Profiles.CountAsync(p => !p.IsSuspended && p.Roles.Any(r => r.Role == Role.ProductEngineer || r.Role == Role.Volunteer)));
+        var holders = await factory.WithDbAsync(db => db.Profiles.CountAsync(p => !p.IsSuspended && p.Roles.Any(r => r.Definition!.Key == nameof(Role.ProductEngineer) || r.Definition!.Key == nameof(Role.Volunteer))));
 
         var response = await client.PostAsJsonAsync("/api/announcements", Announcement(ToRoles("ProductEngineer", "Volunteer")));
 
@@ -226,7 +226,7 @@ public class SendAnnouncementTests(CommunityApiFactory factory) : IClassFixture<
         var hannah = await factory.AddMemberAsync("Hannah Kim");
         await factory.AddMemberAsync("Esther Nakamura", p => p.AddRole(Role.EventLead, Guid.Empty, DateTime.UtcNow));
         var client = factory.ClientFor(hannah, Role.CommunicationsLead);
-        var holders = await factory.WithDbAsync(db => db.Profiles.CountAsync(p => !p.IsSuspended && p.Roles.Any(r => r.Role == Role.EventLead)));
+        var holders = await factory.WithDbAsync(db => db.Profiles.CountAsync(p => !p.IsSuspended && p.Roles.Any(r => r.Definition!.Key == nameof(Role.EventLead))));
         var announcements = await factory.WithDbAsync(db => db.Announcements.CountAsync());
 
         var response = await client.PostAsJsonAsync("/api/announcements/recipient-count", ToRoles("EventLead"));

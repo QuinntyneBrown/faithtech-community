@@ -12,12 +12,14 @@ import { FormControl, ReactiveFormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import {
   AUTH_SERVICE,
-  RESOURCE_CONTRIBUTOR_ROLES,
-  RESOURCE_TYPES,
-  RESOURCES_SERVICE,
+  ORGANISATION_SERVICE,
+  OrganisationNames,
   ResourceDto,
+  RESOURCES_SERVICE,
   ResourceSummary,
   ResourceType,
+  ResourceTypeOption,
+  hasAny,
 } from '@faithtech-community/api';
 import {
   BadgeComponent,
@@ -86,14 +88,23 @@ type State = 'loading' | 'loaded' | 'error';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ResourcesPage {
+  protected readonly organisation = inject(OrganisationNames);
   private readonly resources = inject(RESOURCES_SERVICE);
-  private readonly roles = inject(AUTH_SERVICE).roles;
+  private readonly capabilities = inject(AUTH_SERVICE).capabilities;
   private readonly dialogs = inject(DialogService);
   private readonly toasts = inject(ToastService);
   private readonly router = inject(Router);
   protected readonly thumbnails = inject(ThumbnailCache);
 
-  protected readonly types = RESOURCE_TYPES;
+  private readonly organisations = inject(ORGANISATION_SERVICE);
+  private readonly activeTypes = signal<ResourceTypeOption[]>([]);
+  private readonly archivedTypes = signal<ResourceTypeOption[]>([]);
+  /** "Show archived types" adds the archived types to the chips under their own names (L2-146 AC4). */
+  protected readonly showArchived = signal(false);
+  protected readonly hasArchivedTypes = computed(() => this.archivedTypes().length > 0);
+  protected readonly types = computed(() =>
+    this.showArchived() ? [...this.activeTypes(), ...this.archivedTypes()] : this.activeTypes(),
+  );
   protected readonly search = new FormControl(
     inject(ActivatedRoute).snapshot.queryParamMap.get('q') ?? '',
     { nonNullable: true },
@@ -112,9 +123,8 @@ export class ResourcesPage {
   protected readonly page = signal(1);
   protected readonly loadingMore = signal(false);
 
-  protected readonly canAdd = computed(() =>
-    this.roles().some((r) => RESOURCE_CONTRIBUTOR_ROLES.includes(r)),
-  );
+  /** AddResources adds and owns resources; Staff hold it as the carve-out from read-only (L2-057, ADR 0017). */
+  protected readonly canAdd = computed(() => hasAny(this.capabilities(), 'AddResources'));
   protected readonly filtered = computed(
     () => !!this.type() || !!this.tagChoice() || !!this.term(),
   );
@@ -126,7 +136,7 @@ export class ResourcesPage {
   });
   protected readonly filterLine = computed(() => {
     const n = this.count();
-    const type = this.type() ? ` of type ${this.type()}` : '';
+    const type = this.type() ? ` of type ${this.typeName(this.type()!)}` : '';
     const tag = this.tagChoice() ? ` tagged “${this.tagChoice()}”` : '';
     const term = this.term() ? ` matching “${this.term()}”` : '';
     return `${n} ${plural(n)}${type}${tag}${term}`;
@@ -153,6 +163,28 @@ export class ResourcesPage {
     });
     void this.load();
     void this.loadTags();
+    void this.loadTypes();
+  }
+
+  /** Hiding the archived types again drops a filter on one of them. */
+  protected toggleArchived(): void {
+    const show = !this.showArchived();
+    this.showArchived.set(show);
+    if (!show && this.archivedTypes().some((t) => t.key === this.type())) this.chooseType(null);
+  }
+
+  private typeName(key: ResourceType): string {
+    return [...this.activeTypes(), ...this.archivedTypes()].find((t) => t.key === key)?.name ?? key;
+  }
+
+  private async loadTypes(): Promise<void> {
+    try {
+      const organisation = await firstValueFrom(this.organisations.get());
+      this.activeTypes.set(organisation.resourceTypes);
+      this.archivedTypes.set(organisation.archivedResourceTypes);
+    } catch {
+      this.activeTypes.set([]);
+    }
   }
 
   protected chooseType(type: ResourceType | null): void {
@@ -202,7 +234,7 @@ export class ResourcesPage {
         text:
           error instanceof HttpErrorResponse && error.status === 409
             ? 'This file is still uploading. Try again in a minute.'
-            : 'We couldn’t reach FaithTech. Try again.',
+            : `We couldn’t reach ${this.organisation.shortName()}. Try again.`,
       });
     }
   }

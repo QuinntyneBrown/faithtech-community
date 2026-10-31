@@ -1,4 +1,6 @@
+using FaithTech.Community.Domain.Organisations;
 using FaithTech.Community.Application.Common;
+using FaithTech.Community.Application.Organisations;
 using FaithTech.Community.Domain.Profiles;
 using FaithTech.Community.Domain.Resources;
 using Microsoft.EntityFrameworkCore;
@@ -17,6 +19,7 @@ public record AddResourcesCommand(IReadOnlyList<ResourceUpload> Files, ResourceF
 /// </summary>
 public class AddResourcesHandler(
     IApplicationDbContext db,
+    ResourceTypeResolver types,
     ResourceAccess access,
     ResourceFieldRules rules,
     ResourceFileStore files,
@@ -76,7 +79,9 @@ public class AddResourcesHandler(
             var id = Guid.NewGuid();
             var file = await files.StoreAsync(id, upload, cancellationToken);
             var title = single && fields.Title is not null ? fields.Title : TitleFrom(upload.FileName);
-            var type = single && fields.Type is { } chosen ? chosen : ResourceFileTypes.GuessType(upload.FileName);
+            var type = single && fields.Type is { } chosen
+                ? chosen
+                : await types.ResolveGuessAsync(ResourceFileTypes.GuessType(upload.FileName), cancellationToken);
             var resource = Resource.ForFile(id, title, fields.Description, type, caller, file, now);
             resource.SetOwner(caller, ownerRole);
             resource.SetTags(fields.Tags);
@@ -105,14 +110,20 @@ public class AddResourcesHandler(
         }
 
         var caller = await access.CallerAsync(cancellationToken);
-        var verified = await db.Users.Where(u => u.ProfileId == caller).Select(u => u.EmailConfirmed).SingleOrDefaultAsync(cancellationToken);
+        var verified = await db.Users.Where(u => db.Profiles.Any(p => p.Id == caller && p.UserId == u.Id)).Select(u => u.EmailConfirmed).SingleOrDefaultAsync(cancellationToken);
         return verified ? null : Result.Forbidden("Verify your email before adding resources.");
     }
 
-    public async Task<Role?> OwnerRoleAsync(Guid profileId, CancellationToken cancellationToken)
+    public async Task<string?> OwnerRoleAsync(Guid profileId, CancellationToken cancellationToken)
     {
-        var roles = await db.Profiles.Where(p => p.Id == profileId).SelectMany(p => p.Roles.Select(r => r.Role)).ToListAsync(cancellationToken);
-        return ResourceAccess.ContributorRoles.Where(roles.Contains).Select(r => (Role?)r).FirstOrDefault();
+        // The owner's first held role that adds resources, AdministerOrganisation standing in for it.
+        return await db.Profiles.Where(p => p.Id == profileId)
+            .SelectMany(p => p.Roles.Select(r => r.Definition!))
+            .Where(d => d.ArchivedAtUtc == null
+                && (d.Capabilities.Contains(Capability.AddResources) || d.Capabilities.Contains(Capability.AdministerOrganisation)))
+            .OrderBy(d => d.SortOrder)
+            .Select(d => d.Key)
+            .FirstOrDefaultAsync(cancellationToken);
     }
 
     private static string TitleFrom(string fileName)
@@ -154,7 +165,7 @@ public class AddLinkHandler(
         }
 
         var caller = await access.CallerAsync(cancellationToken);
-        var resource = Resource.ForLink(fields.Title!, fields.Description, fields.Type!.Value, caller, link!, time.GetUtcNow());
+        var resource = Resource.ForLink(fields.Title!, fields.Description, fields.Type!, caller, link!, time.GetUtcNow());
         resource.SetOwner(caller, await contributors.OwnerRoleAsync(caller, cancellationToken));
         resource.SetTags(fields.Tags);
         resource.SetAudience(fields.Audience);
@@ -169,7 +180,13 @@ public class AddLinkHandler(
 /// Stores an upload's blob and thumbnail. When storage is down the file is kept in a retry task and the resource is
 /// saved as storing (ADR 0013, ADR 0017).
 /// </summary>
-public class ResourceFileStore(IApplicationDbContext db, IFileStorage storage, Profiles.IImageProcessor images, TimeProvider time, ILogger<ResourceFileStore> logger)
+public class ResourceFileStore(
+    IApplicationDbContext db,
+    IFileStorage storage,
+    Profiles.IImageProcessor images,
+    TimeProvider time,
+    ILogger<ResourceFileStore> logger,
+    ICurrentOrganisation organisation)
 {
     public const int ThumbnailEdge = 480;
 
@@ -190,10 +207,10 @@ public class ResourceFileStore(IApplicationDbContext db, IFileStorage storage, P
     {
         var blobId = Guid.NewGuid();
         var extension = ResourceFileTypes.ExtensionOf(upload.FileName);
-        var key = $"resources/{resourceId}/{blobId}.{extension}";
+        var key = $"{organisation.Id}/resources/{resourceId}/{blobId}.{extension}";
         var contentType = ResourceFileTypes.ContentTypeOf(upload.FileName);
         var thumbnail = ResourceFileTypes.HasThumbnail(upload.FileName) ? await ThumbnailAsync(upload, cancellationToken) : null;
-        var thumbnailKey = thumbnail is null ? null : $"resources/{resourceId}/{blobId}-thumb.png";
+        var thumbnailKey = thumbnail is null ? null : $"{organisation.Id}/resources/{resourceId}/{blobId}-thumb.png";
         var file = new ResourceFile(upload.FileName, upload.Length, contentType, key, thumbnailKey);
         try
         {

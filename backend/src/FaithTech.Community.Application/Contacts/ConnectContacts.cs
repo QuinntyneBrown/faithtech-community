@@ -1,8 +1,8 @@
 using FaithTech.Community.Application.Common;
+using FaithTech.Community.Application.Organisations;
 using FaithTech.Community.Domain.Contacts;
 using FaithTech.Community.Domain.Notifications;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Options;
 
 namespace FaithTech.Community.Application.Contacts;
 
@@ -18,7 +18,7 @@ public enum ConnectOutcome
 /// Makes a person who used a lead's connect link that lead's contact, without the lead confirming
 /// (L2-084, ADR 0022): at once when their email is verified, otherwise when it becomes verified.
 /// </summary>
-public class ContactConnector(IApplicationDbContext db, IEmailQueue emails, IOptions<WebAppOptions> webApp, TimeProvider time)
+public class ContactConnector(IApplicationDbContext db, IEmailQueue emails, ICurrentOrganisation organisation, TimeProvider time)
 {
     public async Task<ConnectOutcome> RequestAsync(Guid leadId, Guid profileId, CancellationToken cancellationToken = default)
     {
@@ -27,7 +27,7 @@ public class ContactConnector(IApplicationDbContext db, IEmailQueue emails, IOpt
             return ConnectOutcome.OwnCode;
         }
 
-        if (await db.Users.AnyAsync(u => u.ProfileId == profileId && u.EmailConfirmed, cancellationToken))
+        if (await db.Users.AnyAsync(u => db.Profiles.Any(p => p.Id == profileId && p.UserId == u.Id) && u.EmailConfirmed, cancellationToken))
         {
             await ConnectAsync(leadId, profileId, cancellationToken);
             return ConnectOutcome.Connected;
@@ -66,8 +66,8 @@ public class ContactConnector(IApplicationDbContext db, IEmailQueue emails, IOpt
             return false;
         }
 
-        var person = await db.Users.Where(u => u.ProfileId == profileId)
-            .Join(db.Profiles, u => u.ProfileId, p => p.Id, (u, p) => new { p.Name, u.Email })
+        var person = await db.Profiles.Where(p => p.Id == profileId)
+            .Join(db.Users, p => p.UserId, u => (Guid?)u.Id, (p, u) => new { p.Name, u.Email })
             .SingleAsync(cancellationToken);
         var email = person.Email!;
         var normalized = email.Trim().ToUpperInvariant();
@@ -91,13 +91,13 @@ public class ContactConnector(IApplicationDbContext db, IEmailQueue emails, IOpt
         contact.LinkTo(profileId);
         var title = $"{person.Name} connected with you";
         db.Notifications.Add(new Notification(leadId, NotificationKind.ContactSignedUp, title, $"/contacts/{contact.Id}", now));
-        if (await db.Users.Where(u => u.ProfileId == leadId).Select(u => u.Email).SingleOrDefaultAsync(cancellationToken) is { } address)
+        if (await db.Users.Where(u => db.Profiles.Any(p => p.Id == leadId && p.UserId == u.Id)).Select(u => u.Email).SingleOrDefaultAsync(cancellationToken) is { } address)
         {
             emails.Enqueue(new EmailMessage(
                 address,
                 title,
-                $"{person.Name} used your QR code and joined FaithTech Community. They’re now in your private contacts, " +
-                $"linked to their profile, so you can add notes and follow up:\n\n{webApp.Value.Origin}/contacts/{contact.Id}\n\n" +
+                $"{person.Name} used your QR code and joined {organisation.Name}. They’re now in your private contacts, " +
+                $"linked to their profile, so you can add notes and follow up:\n\n{organisation.Origin}/contacts/{contact.Id}\n\n" +
                 "Your notes stay private to you."));
         }
 

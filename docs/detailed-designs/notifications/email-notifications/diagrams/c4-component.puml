@@ -4,7 +4,7 @@ LAYOUT_WITH_LEGEND()
 title Components — Email notifications
 Container_Boundary(api, "Community API") {
   Component(src, "Triggering handler", "Application handler", "Any feature command that notifies, e.g. CancelEventHandler")
-  Component(pub, "INotificationPublisher", "Application service", "PublishAsync: notification and email per recipient")
+  Component(pub, "INotificationPublisher", "Application service", "PublishAsync: notification and email per recipient, named and linked for the organisation")
   Component(queue, "OutboxEmailQueue", "Infrastructure IEmailQueue", "Enqueue adds email to the outbox")
   Component(render, "EmailTemplateRenderer", "Infrastructure service", "HTML part from the plain-text body")
   Component(worker, "EmailOutboxWorker", "Hosted service", "Polls every 10 seconds")

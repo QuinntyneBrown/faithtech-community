@@ -3,7 +3,7 @@ import { HttpErrorResponse } from '@angular/common/http';
 import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
-import { ADMIN_USERS_SERVICE, problemDetails } from '@faithtech-community/api';
+import { ADMIN_USERS_SERVICE, OrganisationNames, problemDetails } from '@faithtech-community/api';
 import {
   AlertComponent,
   ButtonComponent,
@@ -39,6 +39,7 @@ export interface SuspendUserData {
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class SuspendUserDialog {
+  protected readonly organisation = inject(OrganisationNames);
   protected readonly ref = inject<DialogRef<boolean>>(DialogRef);
   protected readonly data = inject<SuspendUserData>(DIALOG_DATA);
   private readonly users = inject(ADMIN_USERS_SERVICE);

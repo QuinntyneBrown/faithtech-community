@@ -38,28 +38,19 @@ export const ROLE_DESCRIPTIONS: Record<Role, string> = {
   SystemAdmin: 'Full administration and the audit log',
 };
 
-const CITY_LEAD_ROLES: readonly Role[] = [
-  'EventLead',
-  'CreateLead',
-  'CommunicationsLead',
-  'Volunteer',
-  'ProductEngineer',
-  'Attendee',
-];
-
-const LEAD_ROLES: readonly Role[] = ['CityLead', 'EventLead', 'CreateLead', 'CommunicationsLead'];
-
 /**
- * The roles a caller holding `callerRoles` may grant or remove (L2-009), mirroring the server's
- * RoleAssignmentPolicy (ADR 0005). The server stays the authority and answers 403 for the rest.
+ * A role assignment a profile holds, by the organisation's definition: what the profile, People and the role routes
+ * answer (L2-138 AC1). `chapterId` is its chapter tag; `chapterName` names it, null when untagged and while chapters
+ * are off (L2-141 AC3).
  */
-export function assignableRoles(callerRoles: readonly Role[]): Role[] {
-  if (callerRoles.includes('SystemAdmin')) return [...ROLES];
-  if (callerRoles.includes('CityLead')) return [...CITY_LEAD_ROLES];
-  return [];
+export interface ProfileRole {
+  id: string;
+  name: string;
+  chapterId: string | null;
+  chapterName?: string | null;
 }
 
-/** Leads and System Admins may send invites (L2-010). */
-export function isLead(callerRoles: readonly Role[]): boolean {
-  return callerRoles.some((r) => r === 'SystemAdmin' || LEAD_ROLES.includes(r));
+/** A role badge: "{role} · {chapter}" for a tagged assignment, "{role}" otherwise (L2-141 AC3). */
+export function roleBadge(role: { name: string; chapterName?: string | null }): string {
+  return role.chapterName ? `${role.name} · ${role.chapterName}` : role.name;
 }

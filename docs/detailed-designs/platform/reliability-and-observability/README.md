@@ -2,23 +2,23 @@
 
 ## Overview
 
-This design describes how FaithTech Community stays available when a dependency fails and how operators see what happens in production.
+This design describes how the Community platform stays available when a dependency fails and how operators see what happens in production.
 
 - **liveness probe** — `/health/live`, reporting whether the API process runs
 - **readiness probe** — `/health/ready`, reporting whether the database and blob storage are reachable
 - **correlation ID** — identifier assigned to each request and attached to every log entry, response and error page for that request
 - **side effect** — work that follows a core action, such as sending email or resizing a photo, and that may be retried separately
 
-The middleware order is fixed: request logging sits outside the exception-handling middleware, so the logged status is the status the client receives.
+The middleware order is fixed: request logging sits outside the exception-handling middleware, so the logged status is the status the client receives; the private-preview wall and `OrganisationResolutionMiddleware` sit between the request log and the exception handler, so an unknown or suspended host is logged with its 404 or 503 and nothing more (`L2-131` AC2).
 
 ## Description
 
-- **`CorrelationIdMiddleware`** — reads `X-Correlation-ID` or generates one, stores it in `HttpContext.TraceIdentifier` and the log scope, and echoes it in the response header.
+- **`CorrelationIdMiddleware`** — reads `X-Correlation-ID` or generates one, stores it in `HttpContext.TraceIdentifier` and the log scope, and echoes it in the response header. Once `OrganisationResolutionMiddleware` has run, the log scope also carries the organisation slug, so an operator can filter one organisation's requests.
 - **Request logging** — `UseSerilogRequestLogging` registered before `UseExceptionHandler`, so it observes the final status. It writes through this host's Serilog logger and logs `RequestMethod`, the redacted `RequestPath`, `StatusCode`, `Elapsed` and the `CorrelationId` from the log context (see `LogRedaction` in the input-validation design).
 - **`UseExceptionHandler`** with **`ProblemDetailsExceptionHandler`** — converts unhandled exceptions to a 500 problem details body that includes the correlation ID as `traceId`.
 - **Log redaction** — structured log enrichers exclude personal data such as names, emails and request bodies.
 - **Health checks** — `AddHealthChecks()` with a `live` check (no dependencies) and `ready` checks for PostgreSQL and Azure Blob storage, mapped to `/health/live` and `/health/ready` as anonymous endpoints.
-- **Outbox-based side effects** — email (see email notifications design) and photo blob writes and deletes are queued and retried, so the core action commits even when the email provider or blob storage is down. Photos are resized and validated in the request, which needs no external service. If the blob write fails, the photo commits as storing and a `PhotoBlobTask` carries the processed image until `PhotoStorageRetryWorker` stores it (ADR 0013, manage-profile-photos design).
+- **Outbox-based side effects** — email (see email notifications design) and photo blob writes and deletes are queued and retried, so the core action commits even when the email provider or blob storage is down. Each queued item carries its organisation, so emails use that organisation's name and host (`L2-130` AC6) and the work of a suspended organisation is skipped, not failed, until it is lifted (`L2-150` AC4). Photos are resized and validated in the request, which needs no external service. If the blob write fails, the photo commits as storing and a `PhotoBlobTask` carries the processed image until `PhotoStorageRetryWorker` stores it (ADR 0013, manage-profile-photos design).
 - **Migrations** — the API does not call `Database.Migrate()`. `FaithTech.Community.Cli` runs `migrate`.
 
 ## Requirements
@@ -42,7 +42,7 @@ The feature realizes the following level-2 (L2) requirements. Each L2 requiremen
 
 ### System context
 
-An operator probes FaithTech Community health and reads its logs.
+An operator probes the Community platform's health and reads its logs.
 
 ![C4 system context for reliability and observability](diagrams/c4-context.png)
 

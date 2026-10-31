@@ -1,0 +1,15 @@
+<ft-checkbox-group
+  [legend]="legend()"
+  [columns]="single() ? 1 : 2"
+  [error]="error()"
+  [formControl]="chosen"
+>
+  @for (entry of entries(); track entry.value) {
+    <ft-checkbox
+      [value]="entry.value"
+      [disabled]="!!entry.disabledReason"
+      [description]="entry.disabledReason ?? entry.description"
+      >{{ entry.label }}</ft-checkbox
+    >
+  }
+</ft-checkbox-group>

@@ -1,3 +1,4 @@
+using FaithTech.Community.Domain.Organisations;
 using FaithTech.Community.Domain.Profiles;
 
 namespace FaithTech.Community.Domain.Resources;
@@ -6,8 +7,11 @@ namespace FaithTech.Community.Domain.Resources;
 /// A deck, logo, image, training or template (L1-020): an uploaded file or an https link, with a type, tags and a
 /// visibility. Only the owner (or a System Admin) changes it; archiving starts a 30-day wait before the purge.
 /// </summary>
-public class Resource
+public class Resource : IOrganisationScoped
 {
+    /// <summary>The organisation the record belongs to, stamped when it is saved (ADR 0032).</summary>
+    public Guid OrganisationId { get; private set; }
+
     public const int MaxTitle = 120;
     public const int MaxDescription = 1000;
     public const int MaxTag = 40;
@@ -33,14 +37,19 @@ public class Resource
 
     public string? Description { get; private set; }
 
-    public ResourceType Type { get; private set; }
+    /// <summary>The organisation's resource type (L2-146).</summary>
+    public Guid TypeId { get; private set; }
+
+    public ResourceType? Type { get; private set; }
 
     public ResourceVisibility Visibility { get; private set; }
 
     public Guid OwnerId { get; private set; }
 
-    /// <summary>The contributing role the owner held when they became the owner, named if they later lose it (L2-064 AC2).</summary>
-    public Role? OwnerRole { get; private set; }
+    /// <summary>
+    /// The key of the contributing role the owner held when they became the owner, named if they later lose it (L2-064 AC2).
+    /// </summary>
+    public string? OwnerRole { get; private set; }
 
     public DateTimeOffset AddedAt { get; private set; }
 
@@ -94,6 +103,8 @@ public class Resource
         ArgumentException.ThrowIfNullOrWhiteSpace(title);
         Title = title.Trim();
         Description = string.IsNullOrWhiteSpace(description) ? null : description.Trim();
+        ArgumentNullException.ThrowIfNull(type);
+        TypeId = type.Id;
         Type = type;
     }
 
@@ -114,9 +125,9 @@ public class Resource
     {
         Visibility = audience.Visibility;
         _members.RemoveAll(m => !audience.Members.Contains(m.ProfileId));
-        _roles.RemoveAll(r => !audience.Roles.Contains(r.Role));
+        _roles.RemoveAll(r => !audience.RoleIds.Contains(r.RoleDefinitionId));
         _members.AddRange(audience.Members.Where(m => _members.All(x => x.ProfileId != m)).Select(m => new ResourceShareMember(Id, m)));
-        _roles.AddRange(audience.Roles.Where(r => _roles.All(x => x.Role != r)).Select(r => new ResourceShareRole(Id, r)));
+        _roles.AddRange(audience.Roles.Where(r => _roles.All(x => x.RoleDefinitionId != r.Id)).Select(r => new ResourceShareRole(Id, r)));
     }
 
     public void SetLink(Uri link)
@@ -155,7 +166,7 @@ public class Resource
 
     public bool IsPurgeDue(DateTimeOffset now) => ArchivedAt is { } at && now >= at + PurgeAfter;
 
-    public void SetOwner(Guid ownerId, Role? ownerRole)
+    public void SetOwner(Guid ownerId, string? ownerRole)
     {
         OwnerId = ownerId;
         OwnerRole = ownerRole;

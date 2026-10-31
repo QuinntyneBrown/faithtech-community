@@ -9,8 +9,8 @@ import {
   AnnouncementAudience,
   EVENTS_SERVICE,
   EventSummaryDto,
-  Role,
   SendAnnouncementRequest,
+  Capability,
 } from '@faithtech-community/api';
 import { Observable, of, throwError } from 'rxjs';
 
@@ -19,10 +19,12 @@ import { ComposeAnnouncementPage } from './compose-announcement.page';
 const builders: EventSummaryDto = {
   id: 'e1',
   title: 'Toronto Builders Night',
-  type: 'BuildersNight',
+  type: 'builders-night',
+  typeName: 'Builders night',
   startsAt: '2026-11-06T18:00:00Z',
   endsAt: '2026-11-06T21:00:00Z',
-  city: 'Toronto',
+  chapterId: 'c-toronto',
+  chapterName: 'Toronto',
   format: 'InPerson',
   venue: 'Kestrel Labs',
   visibility: 'MembersOnly',
@@ -34,7 +36,7 @@ const COUNTS: Record<string, number> = { Everyone: 612, Roles: 41, EventRsvps: 3
 
 async function setup(
   options: {
-    roles?: Role[];
+    capabilities?: Capability[];
     send?: (r: SendAnnouncementRequest) => Observable<unknown>;
   } = {},
 ) {
@@ -52,7 +54,7 @@ async function setup(
       { provide: EVENTS_SERVICE, useValue: events },
       {
         provide: AUTH_SERVICE,
-        useValue: { roles: signal(options.roles ?? ['CommunicationsLead']) },
+        useValue: { capabilities: signal(options.capabilities ?? ['SendAnnouncements']) },
       },
     ],
   });
@@ -241,7 +243,7 @@ describe('ComposeAnnouncementPage', () => {
   });
 
   it('sends anyone who may not send announcements to the forbidden page', async () => {
-    const { navigate } = await setup({ roles: ['CityLead'] });
+    const { navigate } = await setup({ capabilities: ['ManageEvents'] });
 
     expect(navigate).toHaveBeenCalledWith('/forbidden');
   });

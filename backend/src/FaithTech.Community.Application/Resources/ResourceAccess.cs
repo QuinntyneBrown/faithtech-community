@@ -1,3 +1,4 @@
+using FaithTech.Community.Domain.Organisations;
 using FaithTech.Community.Application.Common;
 using FaithTech.Community.Domain.Profiles;
 using FaithTech.Community.Domain.Resources;
@@ -11,28 +12,20 @@ namespace FaithTech.Community.Application.Resources;
 /// </summary>
 public class ResourceAccess(IApplicationDbContext db, ICurrentUser current)
 {
-    /// <summary>The roles that may add and own resources. Staff is the deliberate carve-out from read-only (ADR 0017).</summary>
-    public static readonly IReadOnlyList<Role> ContributorRoles =
-        [Role.CityLead, Role.EventLead, Role.CreateLead, Role.CommunicationsLead, Role.Staff, Role.SystemAdmin];
-
-    /// <summary>The roles a resource can be shared with (L2-061 AC1).</summary>
-    public static readonly IReadOnlyList<Role> ShareableRoles =
-        [Role.CityLead, Role.EventLead, Role.CreateLead, Role.CommunicationsLead, Role.Volunteer, Role.ProductEngineer, Role.Staff];
-
     private Guid? _caller;
 
-    public bool CanContribute => ContributorRoles.Any(current.HasRole);
+    /// <summary>AddResources adds and owns resources; Staff's is the deliberate carve-out from read-only (ADR 0017).</summary>
+    public bool CanContribute => current.Has(Capability.AddResources);
 
-    public bool IsSystemAdmin => current.HasRole(Role.SystemAdmin);
+    public bool IsSystemAdmin => current.Has(Capability.AdministerOrganisation);
 
     /// <summary>The caller's roles now, for matching role audiences inside a query.</summary>
-    public List<Role> Roles => [.. current.Roles];
+    /// <summary>The held role definitions' ids, which a shared audience names.</summary>
+    public List<Guid> Roles => [.. current.HeldRoleIds];
 
     /// <summary>The caller's profile id, or <see cref="Guid.Empty"/> when there is none.</summary>
     public async Task<Guid> CallerAsync(CancellationToken cancellationToken = default) =>
-        _caller ??= current.UserId is { } userId
-            ? await db.Users.Where(u => u.Id == userId).Select(u => u.ProfileId).SingleOrDefaultAsync(cancellationToken)
-            : Guid.Empty;
+        _caller ??= await Task.FromResult(current.ProfileId ?? Guid.Empty);
 
     /// <summary>The active resources the caller may open: Global, their own, or Shared with them or a role they hold now.</summary>
     public IQueryable<Resource> Visible(IQueryable<Resource> resources, Guid caller)
@@ -43,12 +36,12 @@ public class ResourceAccess(IApplicationDbContext db, ICurrentUser current)
             return active;
         }
 
-        var roles = current.Roles.ToList();
+        var roles = current.HeldRoleIds.ToList();
         return active.Where(r =>
             r.Visibility == ResourceVisibility.Global
             || r.OwnerId == caller
             || (r.Visibility == ResourceVisibility.Shared
-                && (r.SharedMembers.Any(m => m.ProfileId == caller) || r.SharedRoles.Any(x => roles.Contains(x.Role)))));
+                && (r.SharedMembers.Any(m => m.ProfileId == caller) || r.SharedRoles.Any(x => roles.Contains(x.RoleDefinitionId)))));
     }
 
     /// <summary>One resource the caller may open; archived ones only for their owner and System Admin (L2-063 AC2).</summary>

@@ -3,13 +3,15 @@
 LAYOUT_WITH_LEGEND()
 title Components — Responsive layout and theming
 Container_Boundary(web, "Web app") {
-  Component(shell, "AppShellComponent", "Angular app", "Header, navigation, outlet")
+  Component(shell, "AppShellComponent", "Angular app", "Header, navigation, outlet; organisation short name in the top bar")
+  Component(nav2, "navigation.ts", "Angular app", "Sections keyed on capabilities from /api/me")
   Component(bp, "BreakpointService", "components library", "Current breakpoint signal")
   Component(nav, "NavDrawerComponent", "components library", "Collapsed navigation at XS")
   Component(theme, "ThemeService", "components library", "Applies data-theme")
   Component(tok, "Design tokens", "CSS custom properties", "Light and dark values, layout grid")
 }
 Rel(shell, bp, "Observes")
+Rel(shell, nav2, "sectionsFor(capabilities), tabsFor(capabilities)")
 Rel(shell, nav, "Renders at XS")
 Rel(shell, theme, "Initializes")
 Rel(theme, tok, "Selects theme values of")

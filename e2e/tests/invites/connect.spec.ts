@@ -13,7 +13,7 @@ test.describe('Connect page', () => {
   }) => {
     const grace = api.addAccount({ email: 'grace@example.org', roles: ['CityLead'] });
     const profile = api.profiles.get(grace.profileId)!;
-    profile.homeCity = 'Toronto';
+    profile.chapterId = api.chapters.named('Toronto').id;
     profile.photos = [
       {
         id: 'p1',

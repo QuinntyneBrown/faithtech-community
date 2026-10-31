@@ -54,8 +54,8 @@
             <ft-form-field required label="Title" [error]="error('title')">
               <ft-text-field formControlName="title" autocomplete="off" />
             </ft-form-field>
-            <ft-form-field label="Type" [error]="error('type')">
-              <ft-select formControlName="type" [options]="typeOptions" />
+            <ft-form-field label="Type" [help]="typeHelp()" [error]="error('type')">
+              <ft-select formControlName="type" [options]="typeOptions()" />
             </ft-form-field>
             <ft-form-field label="Description" [optional]="true" [error]="error('description')">
               <ft-textarea formControlName="description" [rows]="4" />
@@ -78,9 +78,22 @@
                 >Online</ft-radio
               >
             </ft-radio-group>
-            <ft-form-field required label="City" [error]="error('city')">
-              <ft-text-field formControlName="city" autocomplete="address-level2" />
-            </ft-form-field>
+            @if (chapterOptions().length) {
+              <ft-form-field
+                [label]="chapterLabel()"
+                [optional]="true"
+                [help]="
+                  'Leave it ' +
+                  organisation.shortName() +
+                  '-wide for an event open to every ' +
+                  chapterLabel().toLowerCase() +
+                  '.'
+                "
+                [error]="error('chapterId')"
+              >
+                <ft-select formControlName="chapterId" [options]="chapterOptions()" />
+              </ft-form-field>
+            }
             @if (online()) {
               <ft-form-field required label="Joining link" [error]="error('onlineLink')">
                 <ft-text-field type="url" formControlName="onlineLink" autocomplete="off" />
@@ -102,7 +115,9 @@
               >
               <ft-radio
                 value="MembersOnly"
-                description="Only people signed in to FaithTech can see and RSVP"
+                [description]="
+                  'Only people signed in to ' + organisation.shortName() + ' can see and RSVP'
+                "
                 >Members only</ft-radio
               >
             </ft-radio-group>

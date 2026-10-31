@@ -4,7 +4,7 @@ LAYOUT_WITH_LEGEND()
 title Containers — Event list and filter
 
 Person(member, "Member", "Signed-in user who browses and RSVPs to events")
-System_Boundary(ftc, "FaithTech Community") {
+System_Boundary(ftc, "Community platform") {
   Container(spa, "Web app", "Angular", "Shell, events feature library, api and components libraries")
   Container(api, "Community API", "ASP.NET Core", "FaithTech.Community.Api with Application, Domain and Infrastructure")
   ContainerDb(db, "Community database", "PostgreSQL", "Events, RSVPs, notifications and outbox")

@@ -11,7 +11,12 @@ import {
 } from '@angular/core';
 import { NonNullableFormBuilder, ReactiveFormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
-import { EVENTS_SERVICE, PublicEventDto, problemDetails } from '@faithtech-community/api';
+import {
+  EVENTS_SERVICE,
+  OrganisationNames,
+  problemDetails,
+  PublicEventDto,
+} from '@faithtech-community/api';
 import {
   AlertComponent,
   ButtonComponent,
@@ -74,6 +79,7 @@ const LABELS: Record<Field, string> = { name: 'Your name', email: 'Email' };
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class PublicEventPage {
+  protected readonly organisation = inject(OrganisationNames);
   private readonly events = inject(EVENTS_SERVICE);
   private readonly router = inject(Router);
   private readonly formFields = viewChildren(FormFieldComponent);
@@ -97,13 +103,16 @@ export class PublicEventPage {
   protected readonly signInHref = computed(
     () => `/sign-in?returnUrl=${encodeURIComponent(`/events/${this.id()}`)}`,
   );
-  protected readonly overline = computed(
-    () => `FaithTech ${this.event()?.city ?? ''} · Public event`,
+  /** "FaithTech Toronto", or the organisation alone for an organisation-wide event (L2-141 AC2). */
+  protected readonly hostedBy = computed(() =>
+    [this.organisation.shortName(), this.event()?.chapterName].filter(Boolean).join(' '),
   );
+  protected readonly overline = computed(() => `${this.hostedBy()} · Public event`);
   protected readonly subtitle = computed(() => {
     const e = this.event();
     if (!e) return '';
-    if (e.isCancelled) return `Was ${formatDay(e.startsAt)} · ${e.city}`;
+    if (e.isCancelled)
+      return [`Was ${formatDay(e.startsAt)}`, e.chapterName].filter(Boolean).join(' · ');
     const place = e.format === 'Online' ? 'Online' : e.venue;
     return `${formatTimeRange(e.startsAt, e.endsAt)} · ${place}`;
   });
@@ -112,7 +121,9 @@ export class PublicEventPage {
     if (!e) return '';
     return e.format === 'Online'
       ? 'Online — the link comes with your confirmation'
-      : `${e.venue}, ${e.city}`;
+      : e.chapterName
+        ? `${e.venue}, ${e.chapterName}`
+        : (e.venue ?? '');
   });
   protected readonly errors = computed(() => {
     this.version();

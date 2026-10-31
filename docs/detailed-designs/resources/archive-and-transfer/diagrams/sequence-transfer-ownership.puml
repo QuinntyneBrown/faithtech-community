@@ -14,8 +14,8 @@ skinparam package {
   FontColor #101828
   BackgroundColor #F9FAFB
 }
-actor "System Admin" as actor
-box "Frontend — FaithTech Community web app (resources library)" #E0F2FE
+actor "Administrator" as actor
+box "Frontend — Community web app (resources library)" #E0F2FE
   participant "TransferOwnershipDialog" as dlg
   participant "HttpResourcesService" as svc
 end box
@@ -37,23 +37,23 @@ actor -> dlg : Type "da"
 dlg -> svc : ownerCandidates("da")
 svc -> ep : GET /api/resources/owner-candidates?q=da
 ep -> mem : OwnerCandidatesAsync("da")
-alt not System Admin
+alt caller lacks AdministerOrganisation
   ep --> svc : 403 (AC7)
-else System Admin
-  mem -> db : Active members holding a contributing role
+else allowed
+  mem -> db : Active members of the organisation whose roles carry AddResources
   ep --> svc : 200 [ResourceMemberDto]
 end
-dlg --> actor : "Members who can own resources": Daniel Reyes · City Lead · Austin
+dlg --> actor : "Members who can own resources": Daniel Reyes · {role} · Austin (L2-142 AC4)
 actor -> dlg : Pick Daniel; Transfer to Daniel Reyes
 dlg --> actor : "Transferring…"
 dlg -> svc : transfer(id, danielId)
 svc -> ep : PUT /api/resources/{id}/owner {ownerId}
 ep -> h : TransferAsync(id, command)
-alt caller is not System Admin
+alt caller lacks AdministerOrganisation
   ep --> svc : 403 (AC7)
 else no owner chosen
   ep --> svc : 400 "Choose who should own it." (AC4)
-else target is not an active contributor
+else target does not hold AddResources, or is of another organisation
   ep --> svc : 400 (AC4)
 else resource missing
   ep --> svc : 404

@@ -1,13 +1,21 @@
 import { DialogRef } from '@angular/cdk/dialog';
-import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  computed,
+  effect,
+  inject,
+  signal,
+} from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { FormBuilder, FormControl, ReactiveFormsModule } from '@angular/forms';
 import {
-  PARTNERS_SERVICE,
-  PARTNER_STAGES,
-  PARTNER_STAGE_LABELS,
+  ORGANISATION_SERVICE,
+  OrganisationNames,
   PartnerDto,
+  PARTNERS_SERVICE,
   PartnerStage,
+  PartnerStageOption,
 } from '@faithtech-community/api';
 import {
   AlertComponent,
@@ -20,7 +28,7 @@ import {
   TextFieldComponent,
   TextareaComponent,
 } from '@faithtech-community/components';
-import { firstValueFrom } from 'rxjs';
+import { firstValueFrom, map } from 'rxjs';
 
 import {
   PartnerField,
@@ -52,15 +60,29 @@ import {
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class AddPartnerDialog {
+  protected readonly organisation = inject(OrganisationNames);
   protected readonly ref = inject<DialogRef<PartnerDto>>(DialogRef);
   private readonly partners = inject(PARTNERS_SERVICE);
 
   protected readonly form = partnerForm(inject(FormBuilder));
-  protected readonly stage = new FormControl<PartnerStage>('Lead', { nonNullable: true });
-  protected readonly stageOptions: SelectOption[] = PARTNER_STAGES.map((s) => ({
-    value: s,
-    label: PARTNER_STAGE_LABELS[s],
-  }));
+  // The organisation's active stages, the initial one chosen (L2-144 AC3).
+  private readonly stages = toSignal(
+    inject(ORGANISATION_SERVICE)
+      .get()
+      .pipe(map((o) => o.partnerStages)),
+    { initialValue: [] as PartnerStageOption[] },
+  );
+  protected readonly stage = new FormControl<PartnerStage>('', { nonNullable: true });
+  protected readonly stageOptions = computed<SelectOption[]>(() =>
+    this.stages().map((s) => ({ value: s.key, label: s.name })),
+  );
+
+  constructor() {
+    effect(() => {
+      const initial = this.stages().find((s) => s.isInitial) ?? this.stages()[0];
+      if (initial && !this.stage.value) this.stage.setValue(initial.key);
+    });
+  }
   protected readonly owners = toSignal(this.partners.owners(), { initialValue: [] });
   protected readonly ownerOptions = computed(() => ownerOptions(this.owners()));
   protected readonly errors = signal<Partial<Record<PartnerField, string>>>({});
@@ -82,7 +104,7 @@ export class AddPartnerDialog {
     try {
       this.ref.close(
         await firstValueFrom(
-          this.partners.create({ ...toRequest(value), stage: this.stage.value }),
+          this.partners.create({ ...toRequest(value), stage: this.stage.value || undefined }),
         ),
       );
     } catch (error) {

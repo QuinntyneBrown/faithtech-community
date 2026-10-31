@@ -1,0 +1,26 @@
+<ft-dialog
+  [heading]="'Turn ' + plural + ' off?'"
+  [description]="
+    'Members and events keep their ' +
+    singular +
+    ', but nothing will show it until you turn ' +
+    plural +
+    ' back on.'
+  "
+  tone="danger"
+  [busy]="busy()"
+  (closed)="ref.close()"
+>
+  @if (failed()) {
+    <ft-alert status="danger" [heading]="data.label.plural + ' are still on'">
+      We couldn’t reach {{ names.shortName() }}. Nothing was changed — try again.
+    </ft-alert>
+  }
+  <p>{{ kept }}</p>
+  <ft-button ftDialogFooter initialFocus [disabled]="busy()" (click)="ref.close()"
+    >Keep {{ plural }} on</ft-button
+  >
+  <ft-button ftDialogFooter variant="danger" [loading]="busy()" (click)="turnOff()">
+    {{ busy() ? 'Saving…' : failed() ? 'Try again' : 'Turn ' + plural + ' off' }}
+  </ft-button>
+</ft-dialog>

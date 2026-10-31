@@ -1,3 +1,4 @@
+using FaithTech.Community.Domain.Organisations;
 using FaithTech.Community.Application.Common;
 using FaithTech.Community.Domain.Profiles;
 using FaithTech.Community.Domain.Resources;
@@ -10,6 +11,7 @@ public record ResourceSummaryDto(
     Guid Id,
     string Title,
     string Type,
+    string TypeName,
     string? FileName,
     string? Extension,
     long? Size,
@@ -24,7 +26,7 @@ public record ResourceSummaryDto(
     bool IsStored,
     DateTimeOffset AddedAt);
 
-public record AudienceMemberDto(Guid Id, string Name, string? City);
+public record AudienceMemberDto(Guid Id, string Name, string? ChapterName);
 
 /// <summary>A role in the audience, with how many members hold it today (L2-056 AC4).</summary>
 public record AudienceRoleDto(string Role, int Count);
@@ -40,6 +42,7 @@ public record ResourceDto(
     string Title,
     string? Description,
     string Type,
+    string TypeName,
     IReadOnlyList<string> Tags,
     string? FileName,
     string? Extension,
@@ -75,18 +78,25 @@ public class ResourceViews(IApplicationDbContext db, ICurrentUser current, Resou
     {
         var people = new[] { r.OwnerId, r.UpdatedById, r.FileReplacedById }.OfType<Guid>().Concat(r.SharedMembers.Select(m => m.ProfileId)).Distinct().ToList();
         var profiles = await db.Profiles.AsNoTracking().Where(p => people.Contains(p.Id))
-            .Select(p => new { p.Id, p.Name, p.HomeCity, Roles = p.Roles.Select(x => x.Role).ToList() })
+            .Select(p => new
+            {
+                p.Id,
+                p.Name,
+                HomeCity = p.Chapter == null ? null : p.Chapter.Name,
+                Roles = p.Roles.OrderBy(x => x.Definition!.SortOrder).Select(x => x.Definition!.Key).ToList(),
+                Contributes = p.Roles.Any(x => x.Definition!.ArchivedAtUtc == null
+                    && (x.Definition.Capabilities.Contains(Capability.AddResources) || x.Definition.Capabilities.Contains(Capability.AdministerOrganisation))),
+            })
             .ToDictionaryAsync(p => p.Id, cancellationToken);
-        var roles = r.SharedRoles.Select(x => x.Role).ToList();
         var roleCounts = new List<AudienceRoleDto>();
-        foreach (var role in ResourceAccess.ShareableRoles.Where(roles.Contains))
+        foreach (var role in r.SharedRoles.Select(x => x.Definition!).OrderBy(d => d.SortOrder))
         {
-            var count = await db.Profiles.CountAsync(p => !p.IsSuspended && p.Roles.Any(x => x.Role == role), cancellationToken);
-            roleCounts.Add(new AudienceRoleDto(role.ToString(), count));
+            var count = await db.Profiles.CountAsync(p => !p.IsSuspended && p.Roles.Any(x => x.RoleDefinitionId == role.Id), cancellationToken);
+            roleCounts.Add(new AudienceRoleDto(role.Key, count));
         }
 
         var owner = profiles.GetValueOrDefault(r.OwnerId);
-        var ownerContributes = owner is not null && owner.Roles.Any(ResourceAccess.ContributorRoles.Contains);
+        var ownerContributes = owner is { Contributes: true };
         var isOwn = r.OwnerId == caller;
         var sharedVia = SharedVia(r, caller, isOwn);
         string? Name(Guid? id) => id is { } x && profiles.TryGetValue(x, out var p) ? p.Name : null;
@@ -94,7 +104,8 @@ public class ResourceViews(IApplicationDbContext db, ICurrentUser current, Resou
             r.Id,
             r.Title,
             r.Description,
-            r.Type.ToString(),
+            r.Type!.Key,
+            r.Type.Name,
             [.. r.Tags.Select(t => t.Tag)],
             r.File?.FileName,
             r.File?.Extension,
@@ -122,19 +133,20 @@ public class ResourceViews(IApplicationDbContext db, ICurrentUser current, Resou
             r.PurgeAt,
             access.CanChange(r, caller),
             access.IsSystemAdmin,
-            ownerContributes ? null : r.OwnerRole?.ToString());
+            ownerContributes ? null : r.OwnerRole);
     }
 
     /// <summary>The list rows, newest first, with owner names in one query.</summary>
     public async Task<IReadOnlyList<ResourceSummaryDto>> SummariesAsync(IQueryable<Resource> resources, Guid caller, CancellationToken cancellationToken = default)
     {
-        var roles = current.Roles.ToList();
+        var roles = current.HeldRoleIds.ToList();
         var rows = await resources
             .Select(r => new
             {
                 r.Id,
                 r.Title,
-                r.Type,
+                TypeKey = r.Type!.Key,
+                TypeName = r.Type.Name,
                 FileName = r.File == null ? null : r.File.FileName,
                 Extension = r.File == null ? null : r.File.Extension,
                 Size = r.File == null ? (long?)null : r.File.Size,
@@ -144,14 +156,14 @@ public class ResourceViews(IApplicationDbContext db, ICurrentUser current, Resou
                 OwnerName = db.Profiles.Where(p => p.Id == r.OwnerId).Select(p => p.Name).FirstOrDefault(),
                 r.Visibility,
                 SharedWithYou = r.Visibility == ResourceVisibility.Shared && r.OwnerId != caller
-                    && (r.SharedMembers.Any(m => m.ProfileId == caller) || r.SharedRoles.Any(x => roles.Contains(x.Role))),
+                    && (r.SharedMembers.Any(m => m.ProfileId == caller) || r.SharedRoles.Any(x => roles.Contains(x.RoleDefinitionId))),
                 HasThumbnail = r.File != null && r.File.ThumbnailBlobName != null,
                 IsStored = r.File == null || r.File.IsStored,
                 r.AddedAt,
             })
             .ToListAsync(cancellationToken);
         return [.. rows.Select(r => new ResourceSummaryDto(
-            r.Id, r.Title, r.Type.ToString(), r.FileName, r.Extension, r.Size, r.LinkUrl, r.LinkHost, r.OwnerId,
+            r.Id, r.Title, r.TypeKey, r.TypeName, r.FileName, r.Extension, r.Size, r.LinkUrl, r.LinkHost, r.OwnerId,
             r.OwnerName ?? "A former member", r.OwnerId == caller, r.Visibility.ToString(), r.SharedWithYou, r.HasThumbnail, r.IsStored, r.AddedAt))];
     }
 
@@ -167,6 +179,6 @@ public class ResourceViews(IApplicationDbContext db, ICurrentUser current, Resou
             return "you";
         }
 
-        return r.SharedRoles.Select(x => x.Role).Where(current.HasRole).Select(x => (Role?)x).FirstOrDefault()?.ToString();
+        return r.SharedRoles.Select(x => x.Definition!).OrderBy(d => d.SortOrder).FirstOrDefault(d => current.HeldRoleIds.Contains(d.Id))?.Key;
     }
 }

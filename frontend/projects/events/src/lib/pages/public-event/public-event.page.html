@@ -47,9 +47,9 @@
               }
               <ft-description-list>
                 <ft-description-list-item label="Where">{{ where() }}</ft-description-list-item>
-                <ft-description-list-item label="Hosted by"
-                  >FaithTech {{ e.city }}</ft-description-list-item
-                >
+                <ft-description-list-item label="Hosted by">{{
+                  hostedBy()
+                }}</ft-description-list-item>
               </ft-description-list>
             </ft-stack>
           </ft-card>
@@ -66,7 +66,7 @@
                       <ft-icon name="export" /> Add to calendar (.ics)
                     </ft-button>
                     <ft-button variant="ghost" href="/sign-up"
-                      >Create a FaithTech account</ft-button
+                      >Create a {{ organisation.shortName() }} account</ft-button
                     >
                   </div>
                 </ft-stack>
@@ -77,8 +77,7 @@
                   @if (e.isFull) {
                     <p class="muted">{{ e.rsvpCount }} people are going.</p>
                     <ft-alert status="info" heading="This event is full">
-                      Everyone it has room for has RSVP’d. Watch FaithTech {{ e.city }} for the next
-                      one.
+                      Everyone it has room for has RSVP’d. Watch {{ hostedBy() }} for the next one.
                     </ft-alert>
                   } @else {
                     <p class="muted">

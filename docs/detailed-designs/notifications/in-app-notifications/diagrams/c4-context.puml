@@ -3,6 +3,6 @@
 LAYOUT_WITH_LEGEND()
 title System Context — In-app notifications
 Person(member, "Member", "Signed-in community member")
-System(ftc, "FaithTech Community", "Community site for FaithTech staff, leads, volunteers, builders and partners")
+System(ftc, "Community platform", "Hosts each organisation's members, events, partners and resources")
 Rel(member, ftc, "Reads notifications using")
 @enduml

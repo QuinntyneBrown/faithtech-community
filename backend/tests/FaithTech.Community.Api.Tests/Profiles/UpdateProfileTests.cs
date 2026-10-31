@@ -1,4 +1,5 @@
 // Traces to: L2-006, L2-041
+using FaithTech.Community.Api.Tests.Organisations;
 using System.Net;
 using System.Net.Http.Json;
 using System.Text.Json;
@@ -11,30 +12,32 @@ namespace FaithTech.Community.Api.Tests.Profiles;
 public class UpdateProfileTests(CommunityApiFactory factory) : IClassFixture<CommunityApiFactory>
 {
     [Fact]
-    public async Task Owner_changes_name_home_city_and_bio()
+    public async Task Owner_changes_name_home_chapter_and_bio()
     {
         var grace = await factory.AddMemberAsync("Grace Okonkwo");
+        var toronto = await factory.ChapterIdAsync("Toronto");
 
         var response = await factory.ClientFor(grace).PutAsJsonAsync($"/api/profiles/{grace.ProfileId}",
-            new { Name = "  Grace O. ", HomeCity = "Toronto", Bio = "City Lead for FaithTech Toronto." });
+            new { Name = "  Grace O. ", ChapterId = toronto, Bio = "City Lead for FaithTech Toronto." });
 
         Assert.Equal(HttpStatusCode.NoContent, response.StatusCode);
         var profile = await LoadAsync(grace.ProfileId);
         Assert.Equal("Grace O.", profile.Name);
-        Assert.Equal("Toronto", profile.HomeCity);
+        Assert.Equal(toronto, profile.ChapterId);
         Assert.Equal("City Lead for FaithTech Toronto.", profile.Bio);
     }
 
     [Fact]
-    public async Task Blank_home_city_and_bio_are_cleared()
+    public async Task No_home_chapter_and_a_blank_bio_are_cleared()
     {
-        var grace = await factory.AddMemberAsync("Grace Okonkwo", p => p.Update("Grace Okonkwo", "Toronto", "Old bio"));
+        var toronto = await factory.ChapterIdAsync("Toronto");
+        var grace = await factory.AddMemberAsync("Grace Okonkwo", p => p.Update("Grace Okonkwo", toronto, "Old bio"));
 
         await factory.ClientFor(grace).PutAsJsonAsync($"/api/profiles/{grace.ProfileId}",
-            new { Name = "Grace Okonkwo", HomeCity = " ", Bio = "" });
+            new { Name = "Grace Okonkwo", ChapterId = (Guid?)null, Bio = "" });
 
         var profile = await LoadAsync(grace.ProfileId);
-        Assert.Null(profile.HomeCity);
+        Assert.Null(profile.ChapterId);
         Assert.Null(profile.Bio);
     }
 
@@ -48,13 +51,13 @@ public class UpdateProfileTests(CommunityApiFactory factory) : IClassFixture<Com
         var value = name is int length ? new string('a', length) : (string)name;
 
         var response = await factory.ClientFor(grace).PutAsJsonAsync($"/api/profiles/{grace.ProfileId}",
-            new { Name = value, HomeCity = "Austin", Bio = "" });
+            new { Name = value, ChapterId = await factory.ChapterIdAsync("Austin"), Bio = "" });
 
         var problem = await AssertValidationProblem(response);
         Assert.Equal([message], problem.Errors[field]);
         var profile = await LoadAsync(grace.ProfileId);
         Assert.Equal("Grace Okonkwo", profile.Name);
-        Assert.Null(profile.HomeCity);
+        Assert.Null(profile.ChapterId);
     }
 
     [Fact]
@@ -89,10 +92,11 @@ public class UpdateProfileTests(CommunityApiFactory factory) : IClassFixture<Com
     public async Task System_admin_edit_of_another_profile_succeeds_and_is_audited()
     {
         var priya = await factory.AddMemberAsync("Priya Shah");
-        var samuel = await factory.AddMemberAsync("Samuel Mensah", p => p.Update("Samuel Mensah", "Toronto", null));
+        var toronto = await factory.ChapterIdAsync("Toronto");
+        var samuel = await factory.AddMemberAsync("Samuel Mensah", p => p.Update("Samuel Mensah", toronto, null));
 
         var response = await factory.ClientFor(priya, Role.SystemAdmin).PutAsJsonAsync(
-            $"/api/profiles/{samuel.ProfileId}", new { Name = "Samuel K. Mensah", HomeCity = "Toronto" });
+            $"/api/profiles/{samuel.ProfileId}", new { Name = "Samuel K. Mensah", ChapterId = toronto });
 
         Assert.Equal(HttpStatusCode.NoContent, response.StatusCode);
         Assert.Equal("Samuel K. Mensah", (await LoadAsync(samuel.ProfileId)).Name);

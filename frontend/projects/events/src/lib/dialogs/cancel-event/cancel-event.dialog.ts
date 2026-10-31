@@ -3,7 +3,7 @@ import { HttpErrorResponse } from '@angular/common/http';
 import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
-import { EVENTS_SERVICE, problemDetails } from '@faithtech-community/api';
+import { EVENTS_SERVICE, OrganisationNames, problemDetails } from '@faithtech-community/api';
 import {
   AlertComponent,
   ButtonComponent,
@@ -44,6 +44,7 @@ const MAX_REASON = 500;
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class CancelEventDialog {
+  protected readonly organisation = inject(OrganisationNames);
   protected readonly ref = inject<DialogRef<boolean>>(DialogRef);
   protected readonly data = inject<CancelEventData>(DIALOG_DATA);
   private readonly events = inject(EVENTS_SERVICE);

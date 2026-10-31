@@ -5,11 +5,12 @@ import { NonNullableFormBuilder, ReactiveFormsModule } from '@angular/forms';
 import {
   AGILE_SERVICE,
   BacklogNodeDto,
+  OrganisationNames,
   PokerSessionDto,
+  problemDetails,
   ROLE_LABELS,
   WorkspaceDto,
   WorkspaceMemberDto,
-  problemDetails,
 } from '@faithtech-community/api';
 import {
   AlertComponent,
@@ -23,8 +24,6 @@ import {
 import { firstValueFrom } from 'rxjs';
 
 import { points } from '../../work-item-labels';
-
-const GENERIC_FAILURE = 'We couldn’t reach FaithTech. Nothing was changed — try again.';
 
 export interface StartPokerData {
   workspace: WorkspaceDto;
@@ -52,6 +51,7 @@ export interface StartPokerData {
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class StartPokerDialog {
+  protected readonly organisation = inject(OrganisationNames);
   protected readonly ref = inject<DialogRef<PokerSessionDto>>(DialogRef);
   protected readonly data = inject<StartPokerData>(DIALOG_DATA);
   private readonly agile = inject(AGILE_SERVICE);
@@ -106,9 +106,12 @@ export class StartPokerDialog {
         this.errorFocus().focusFirstError();
       } else if (error instanceof HttpErrorResponse && error.status === 409) {
         // Someone else started a session first (L2-038, ADR 0012).
-        this.failed.set(problemDetails(error)?.detail ?? GENERIC_FAILURE);
+        this.failed.set(
+          problemDetails(error)?.detail ??
+            this.organisation.unreachable('Nothing was changed — try again.'),
+        );
       } else {
-        this.failed.set(GENERIC_FAILURE);
+        this.failed.set(this.organisation.unreachable('Nothing was changed — try again.'));
       }
     } finally {
       this.busy.set(false);

@@ -1,4 +1,5 @@
 // Traces to: L2-019, L2-046
+using FaithTech.Community.Api.Tests.Organisations;
 using System.Net;
 using System.Net.Http.Json;
 using FaithTech.Community.Api.Tests.Profiles;
@@ -11,7 +12,7 @@ namespace FaithTech.Community.Api.Tests.Team;
 public class TeamPagingTests(CommunityApiFactory factory) : IClassFixture<CommunityApiFactory>
 {
     [Fact]
-    public async Task Pages_hold_50_by_default_and_never_more_than_100_while_every_city_stays_listed()
+    public async Task Pages_hold_50_by_default_and_never_more_than_100()
     {
         await AddTeamAsync(130, i => i % 2 == 0 ? "Toronto" : $"City {i:000}");
         var client = await ViewerAsync();
@@ -23,9 +24,6 @@ public class TeamPagingTests(CommunityApiFactory factory) : IClassFixture<Commun
         Assert.NotNull(first.Next);
         Assert.True(first.TotalCount >= 130);
         Assert.Equal(100, oversized.Members.Count);
-        // The city select lists every team member's city, not only those on the page.
-        Assert.Contains("City 129", first.Cities);
-        Assert.Contains("Toronto", first.Cities);
     }
 
     [Fact]
@@ -36,11 +34,12 @@ public class TeamPagingTests(CommunityApiFactory factory) : IClassFixture<Commun
         var expected = added.Where(m => m.City == "Halifax" && m.Volunteer).Select(m => m.ProfileId).ToHashSet();
 
         var seen = new List<Member>();
-        var page = await PageAsync(client, "/api/team?role=Volunteers&city=halifax&pageSize=7");
+        var halifax = await factory.ChapterIdAsync("Halifax");
+        var page = await PageAsync(client, $"/api/team?role=Volunteers&chapter={halifax}&pageSize=7");
         seen.AddRange(page.Members);
         while (page.Next is { } next)
         {
-            page = await PageAsync(client, $"/api/team?role=Volunteers&city=halifax&pageSize=7&after={Uri.EscapeDataString(next)}");
+            page = await PageAsync(client, $"/api/team?role=Volunteers&chapter={halifax}&pageSize=7&after={Uri.EscapeDataString(next)}");
             seen.AddRange(page.Members);
         }
 
@@ -66,7 +65,7 @@ public class TeamPagingTests(CommunityApiFactory factory) : IClassFixture<Commun
             return await db.SaveChangesAsync();
         });
 
-        var page = await PageAsync(client, "/api/team?city=Regina");
+        var page = await PageAsync(client, $"/api/team?chapter={await factory.ChapterIdAsync("Regina")}");
 
         Assert.DoesNotContain(page.Members, m => m.ProfileId == added[0].ProfileId);
         Assert.Equal(2, page.TotalCount);
@@ -93,9 +92,10 @@ public class TeamPagingTests(CommunityApiFactory factory) : IClassFixture<Commun
             var name = $"Member {i / sameNameEvery:000}";
             var volunteer = i % 2 == 0;
             var home = city(i);
+            var chapterId = await factory.ChapterIdAsync(home);
             var member = await factory.AddMemberAsync(name, p =>
             {
-                p.Update(name, home, null);
+                p.Update(name, chapterId, null);
                 p.AddRole(volunteer ? Role.Volunteer : Role.EventLead, Guid.Empty, DateTime.UtcNow);
             });
             added.Add(new Added(member.ProfileId, home, volunteer));
@@ -115,5 +115,5 @@ public class TeamPagingTests(CommunityApiFactory factory) : IClassFixture<Commun
 
     private sealed record Member(Guid ProfileId, string Name);
 
-    private sealed record TeamPage(List<Member> Members, List<string> Cities, string? Next, int TotalCount);
+    private sealed record TeamPage(List<Member> Members, string? Next, int TotalCount);
 }

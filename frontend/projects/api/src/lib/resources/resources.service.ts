@@ -3,16 +3,11 @@ import { Observable } from 'rxjs';
 
 import { PagedResult, Role } from '../shared';
 
-export const RESOURCE_TYPES = [
-  'Deck',
-  'Logo',
-  'Image',
-  'Training',
-  'Template',
-  'Document',
-  'Other',
-] as const;
-export type ResourceType = (typeof RESOURCE_TYPES)[number];
+/** A resource type key of the organisation's (L2-146), as GET /api/organisation lists them; never shown. */
+export type ResourceType = string;
+
+/** The key of the type every organisation keeps, which an unguessable upload gets (L2-146 AC1, AC3). */
+export const OTHER_RESOURCE_TYPE = 'other';
 
 export type ResourceVisibility = 'Private' | 'Shared' | 'Global';
 
@@ -27,21 +22,13 @@ export const SHAREABLE_ROLES: Role[] = [
   'Staff',
 ];
 
-/** The roles that may add and own resources (L2-057, ADR 0017: Staff is the carve-out). */
-export const RESOURCE_CONTRIBUTOR_ROLES: Role[] = [
-  'CityLead',
-  'EventLead',
-  'CreateLead',
-  'CommunicationsLead',
-  'Staff',
-  'SystemAdmin',
-];
-
 /** A row of the Resources list (L2-055). A link has `linkUrl` and `linkHost`; a file the rest. */
 export interface ResourceSummary {
   id: string;
   title: string;
   type: ResourceType;
+  /** The type's current name, kept once the type is archived (L2-146 AC4). */
+  typeName: string;
   fileName: string | null;
   extension: string | null;
   size: number | null;
@@ -61,7 +48,8 @@ export interface ResourceSummary {
 export interface ResourceAudienceMember {
   id: string;
   name: string;
-  city: string | null;
+  /** The home chapter's name; null for none and while chapters are off. */
+  chapterName: string | null;
 }
 
 export interface ResourceAudienceRole {
@@ -93,6 +81,7 @@ export interface ArchivedResource {
   id: string;
   title: string;
   type: ResourceType;
+  typeName: string;
   extension: string | null;
   size: number | null;
   linkHost: string | null;
@@ -109,7 +98,8 @@ export interface ResourceTagDto {
 export interface ResourceMember {
   id: string;
   name: string;
-  city: string | null;
+  /** The home chapter's name; null for none and while chapters are off. */
+  chapterName: string | null;
   roles: Role[];
 }
 

@@ -7,7 +7,11 @@
     <h1 class="visually-hidden">Profile</h1>
     <ft-empty-state
       heading="We can’t find that profile"
-      text="The link may be wrong, or the person may not have joined FaithTech yet."
+      [text]="
+        'The link may be wrong, or the person may not have joined ' +
+        organisation.shortName() +
+        ' yet.'
+      "
     >
       <ft-button actions variant="primary" href="/">Go home</ft-button>
     </ft-empty-state>
@@ -28,7 +32,7 @@
         [name]="p.name"
         [avatarColor]="avatarColor()"
         [roles]="roles()"
-        [location]="p.homeCity ?? ''"
+        [location]="p.chapterName ?? ''"
         [bio]="p.bio ?? ''"
         [emptyBio]="p.isOwn ? 'You haven’t written a bio yet.' : null"
         [photoUrl]="p.featuredPhoto?.url ?? null"
@@ -54,7 +58,11 @@
         <div class="photos-empty">
           <ft-empty-state
             heading="No photos yet"
-            text="Add up to 10 photos. The one you feature becomes your picture across FaithTech."
+            [text]="
+              'Add up to 10 photos. The one you feature becomes your picture across ' +
+              organisation.shortName() +
+              '.'
+            "
           >
             <ft-button actions variant="primary" href="/people/me/edit">
               <ft-icon name="add" /> Add photos

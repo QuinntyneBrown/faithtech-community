@@ -15,7 +15,7 @@ skinparam package {
   BackgroundColor #F9FAFB
 }
 actor "Member or guest" as actor
-box "Frontend — FaithTech Community web app (events library)" #E0F2FE
+box "Frontend — Community platform web app (events library)" #E0F2FE
   participant "EventPage" as page
   participant "HttpEventsService" as svc
 end box
@@ -43,6 +43,7 @@ alt caller may not see event
 else visible
   h -> ics : Write(event)
   ics -> ics : UID from Event.Id; DTSTART/DTEND in UTC; LOCATION or URL (L2-024)
+  ics -> ics : PRODID and ORGANIZER carry the organisation's name (L2-134 AC4)
   ics -> ics : SEQUENCE = Event.Sequence; STATUS:CANCELLED if cancelled (L2-024)
   ics --> h : .ics text
   h --> ep : CalendarFile

@@ -6,11 +6,11 @@ skinparam roundcorner 12
 skinparam defaultFontName Arial
 skinparam ArrowColor #344054
 actor "Member" as actor
-box "Frontend — FaithTech Community web app (app shell)" #E0F2FE
+box "Frontend — Community web app (app shell)" #E0F2FE
   participant "HomePage" as page
 end box
 box "Backend — FaithTech.Community.Api" #D1FADF
-  participant "Events, Partners and Activity endpoints" as ep
+  participant "Events, Partners, Organisation and Activity endpoints" as ep
 end box
 box "Backend — FaithTech.Community.Application" #ECFDF3
   participant "ListActivityHandler" as h
@@ -19,18 +19,20 @@ box "Backend — FaithTech.Community.Infrastructure" #FFF4E5
   database "Community database" as db
 end box
 actor -> page : Sign in, land on /
-page --> actor : Greeting and skeletons (loading)
+page --> actor : Greeting and skeletons (loading); "You're viewing as {role}" when a held role is oversight (L2-049 AC4)
 alt member holds a role
   page -> ep : GET /api/events?filter=Upcoming
   ep --> page : Upcoming events (cancelled ones skipped, first three shown)
-  opt lead, Staff or System Admin
+  opt capabilities include ViewPartners (L2-049 AC2)
+    page -> ep : GET /api/organisation
+    ep --> page : Active partner stages in order (L2-144 AC5)
     page -> ep : GET /api/partners
-    ep --> page : Board columns: Lead, In funnel, Confirmed counts
+    ep --> page : Board columns: one count per active stage
   end
 end
 page -> ep : GET /api/activity
 ep -> h : List the caller's activity
-h -> db : Ten newest notifications addressed to the caller
+h -> db : Ten newest notifications addressed to the caller (scoped by ICurrentOrganisation)
 db --> h : Notifications
 h --> ep : ActivityItemDto[]
 ep --> page : 200 OK

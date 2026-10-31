@@ -65,8 +65,57 @@ describe('RoleDialogComponent', () => {
     choose('Attendee');
     button('Add role').click();
     await settle();
-    expect(data.submit).toHaveBeenCalledWith('Attendee');
+    expect(data.submit).toHaveBeenCalledWith('Attendee', null);
     expect(ref.close).toHaveBeenCalledWith('Attendee');
+  });
+
+  it('asks for a chapter only for a chapter-scopable role, with "No city" when optional', async () => {
+    const { host, data, button, choose, settle } = setup({
+      chapter: {
+        label: 'City',
+        roleIds: ['Volunteer'],
+        options: [
+          { value: 't', label: 'Toronto' },
+          { value: 'a', label: 'Austin' },
+        ],
+        required: false,
+        help: (role) => `${role} can be held for a city.`,
+      },
+    });
+    choose('Attendee');
+    expect(host.querySelector('select')).toBeNull();
+    choose('Volunteer');
+    const select = host.querySelector('select')!;
+    expect(Array.from(select.options).map((o) => o.text.trim())).toEqual([
+      'No city',
+      'Toronto',
+      'Austin',
+    ]);
+    expect(host.textContent).toContain('Volunteer can be held for a city.');
+    select.value = 'a';
+    select.dispatchEvent(new Event('change'));
+    button('Add role').click();
+    await settle();
+    expect(data.submit).toHaveBeenCalledWith('Volunteer', 'a');
+  });
+
+  it('a required chapter picker offers only the given chapters and starts on the first', async () => {
+    const { host, data, button, choose, settle } = setup({
+      chapter: {
+        label: 'City',
+        roleIds: ['Volunteer'],
+        options: [{ value: 't', label: 'Toronto' }],
+        required: true,
+        help: () => '',
+      },
+    });
+    choose('Volunteer');
+    expect(Array.from(host.querySelector('select')!.options).map((o) => o.text.trim())).toEqual([
+      'Toronto',
+    ]);
+    button('Add role').click();
+    await settle();
+    expect(data.submit).toHaveBeenCalledWith('Volunteer', 't');
   });
 
   it('names the role being removed and preselects the first', async () => {
@@ -76,18 +125,18 @@ describe('RoleDialogComponent', () => {
     expect(host.querySelector('h2')!.textContent).toContain('Remove Attendee from Ruth Alvarez?');
     button('Remove role').click();
     await settle();
-    expect(data.submit).toHaveBeenCalledWith('Attendee');
+    expect(data.submit).toHaveBeenCalledWith('Attendee', null);
   });
 
   it('shows the server’s reason and stays open when the change is refused', async () => {
     const { host, ref, button, choose, settle } = setup({
-      submit: async () => 'There must always be at least one System Admin.',
+      submit: async () => 'There must always be at least one administrator.',
     });
     choose('Volunteer');
     button('Add role').click();
     await settle();
     expect(ref.close).not.toHaveBeenCalled();
-    expect(host.textContent).toContain('There must always be at least one System Admin.');
+    expect(host.textContent).toContain('There must always be at least one administrator.');
   });
 
   it('says it didn’t work when the request fails', async () => {
@@ -122,7 +171,7 @@ describe('RoleDialogComponent', () => {
     expect(host.querySelector('input[type="radio"]')).toBeNull();
     button('Remove role').click();
     await settle();
-    expect(data.submit).toHaveBeenCalledWith('Volunteer');
+    expect(data.submit).toHaveBeenCalledWith('Volunteer', null);
   });
 
   it('reads Adding role… while an addition is in flight', async () => {

@@ -3,9 +3,9 @@
 LAYOUT_WITH_LEGEND()
 title Containers — Planning Poker
 
-Person(member, "Workspace member", "Lead or volunteer added to a workspace")
-Person(staff, "Staff", "Read-only across workspaces")
-System_Boundary(ftc, "FaithTech Community") {
+Person(member, "Workspace member", "Member with JoinWorkspaces added to a workspace")
+Person(staff, "Member with view capabilities", "Holds ReadAllWorkspaces; read-only across workspaces")
+System_Boundary(ftc, "Community platform") {
   Container(web, "Web app", "Angular", "Shell, agile feature library, api and components libraries")
   Container(api, "Community API", "ASP.NET Core", "FaithTech.Community.Api with Application, Domain and Infrastructure")
   ContainerDb(db, "Community database", "PostgreSQL", "Workspaces, work items, sprints, poker sessions")

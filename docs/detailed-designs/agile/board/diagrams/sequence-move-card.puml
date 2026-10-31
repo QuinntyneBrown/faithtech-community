@@ -15,7 +15,7 @@ skinparam package {
   BackgroundColor #F9FAFB
 }
 actor "Workspace member" as actor
-box "Frontend — FaithTech Community web app (agile library)" #E0F2FE
+box "Frontend — Community platform web app (agile library)" #E0F2FE
   participant "BoardPage" as page
   participant "MoveCardDialog" as dlg
   participant "AgileService (AGILE_SERVICE)" as svc
@@ -50,19 +50,19 @@ ep -> ep : MoveCardValidator (To Do, In Progress or Done)
 ep -> h : MoveAsync(itemId, command)
 h -> ctx : Load work item (404 when missing)
 h -> pol : AuthorizeAsync(workspaceId, manage: false)
-alt Staff or outsider
+alt Reader or outsider
 pol --> h : 403 Forbidden or 404 Not Found
 h --> ep : Refusal
 ep --> svc : ProblemDetails
 svc --> page : Error
 page --> actor : Danger toast, reload the board
-else member (or System Admin override)
+else member (or AdministerOrganisation override)
 pol --> h : Caller
 alt item is a task
 h --> ep : 409 "A task is ticked off on its story, not moved on the board."
 else story
 h -> ent : SetStatus(status) (L2-034 AC2)
-h -> pol : AuditOverride(caller, "workitem.moved") for a System Admin
+h -> pol : AuditOverride(caller, "workitem.moved") for an administrator (L2-135 AC5)
 h -> ctx : SaveChangesAsync
 ctx -> db : UPDATE work_item
 h -> bc : CardMovedAsync(workspaceId, itemId, status) via IBoardNotifier

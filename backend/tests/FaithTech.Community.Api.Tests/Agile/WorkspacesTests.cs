@@ -163,7 +163,7 @@ public class WorkspacesTests(CommunityApiFactory factory) : IClassFixture<Commun
     [Theory]
     [InlineData("owner", "Owner", true, true)]
     [InlineData("member", "Member", true, false)]
-    [InlineData("staff", "Staff", false, false)]
+    [InlineData("staff", "Reader", false, false)]
     [InlineData("admin", "Admin", true, true)]
     public async Task Given_anyone_who_may_read_when_they_open_the_workspace_then_they_see_it_with_their_access(string who, string access, bool canEdit, bool canManage)
     {

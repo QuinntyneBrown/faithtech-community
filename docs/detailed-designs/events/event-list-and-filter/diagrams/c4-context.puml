@@ -4,6 +4,6 @@ LAYOUT_WITH_LEGEND()
 title System Context — Event list and filter
 
 Person(member, "Member", "Signed-in user who browses and RSVPs to events")
-System(ftc, "FaithTech Community", "Community site for FaithTech members, leads and partners")
+System(ftc, "Community platform", "Hosts an organisation's members, events and partners")
 Rel(member, ftc, "Browses events in", "HTTPS")
 @enduml

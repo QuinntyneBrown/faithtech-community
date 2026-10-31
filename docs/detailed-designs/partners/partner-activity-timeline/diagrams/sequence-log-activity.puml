@@ -1,0 +1,80 @@
+@startuml
+title UML sequence behaviour — Log a partner activity
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+actor "Member with ManagePartners" as actor
+box "Frontend — Community web app (partners library)" #E0F2FE
+  participant "PartnerPage" as page
+  participant "LogActivityDialog" as dlg
+  participant "HttpPartnersService" as svc
+end box
+box "Backend — FaithTech.Community.Api" #D1FADF
+  participant "PartnersEndpoints" as ep
+  participant "LogPartnerActivityValidator" as v
+end box
+box "Backend — FaithTech.Community.Application and Domain" #ECFDF3
+  participant "LogPartnerActivityHandler" as h
+  participant "PartnerAccess" as acc
+  participant "PartnerTimelineViews" as views
+end box
+box "Backend — FaithTech.Community.Infrastructure" #FFF4E5
+  participant "AuditLog" as audit
+  database "Community database" as db
+end box
+actor -> page : Choose Log activity (shown when canLogActivity)
+page -> dlg : Open with {partnerId, name}
+dlg --> actor : Type Call, date today, optional time, next step and due (L2-110 AC1)
+actor -> dlg : Fill in and choose Log {type}
+dlg -> dlg : Client rules: summary 1-2000, date not after today,\nnext step <= 200, due only with a next step
+alt client errors
+  dlg --> actor : Inline errors, nothing sent (L2-110 AC3-AC5)
+else valid
+  dlg -> svc : logActivity(id, request)
+  svc -> ep : POST /api/partners/{id}/activities
+  ep -> v : Validate
+  alt invalid
+    ep --> svc : 400 ValidationProblem (L2-043 AC1)
+    svc --> dlg : Field errors
+  else valid body
+    ep -> h : LogAsync(id, command)
+    h -> acc : CanWrite: Has(ManagePartners)
+    alt lacks ManagePartners
+      h --> ep : Forbidden (L2-112 AC2, AC3)
+      ep --> svc : 403
+    else permitted
+      h -> db : Load Partner
+      alt unknown
+        ep --> svc : 404
+      else archived (merged)
+        ep --> svc : 409 "{name} was merged into {kept}. Log it there." (L2-112 AC6)
+      else active
+        h -> h : PartnerActivity.Log(..., caller, nowUtc) (L2-110 AC2)
+        h -> acc : AuditAdminWrite(actor, partner, "partner.activity.logged")
+        acc -> audit : Record, only on override by AdministerOrganisation without ManagePartners (L2-112 AC5)
+        h -> db : Insert PartnerActivity (and audit entry) in one SaveChanges
+        h -> views : ToDto(activity)
+        ep --> svc : 201 PartnerActivityDto
+        svc --> dlg : Activity
+        dlg --> page : Close with the activity
+        page -> svc : get(id), activities(id, kind)
+        page --> actor : Toast "{Type} logged for {name}"; entry on the timeline;\nNext step and Last activity updated (L2-111 AC6, AC7)
+      end
+    end
+  end
+  opt 403, 409, 5xx or network failure
+    dlg --> actor : Danger alert "Activity not logged", input kept, Try again (L2-110 AC9)
+  end
+end
+@enduml

@@ -29,7 +29,7 @@ public class NotesSearchSource(IApplicationDbContext db, IFullTextSearch text, N
                 p.OwnerId,
                 p.UpdatedAt,
                 Owner = db.Profiles.Where(x => x.Id == p.OwnerId).Select(x => x.Name).FirstOrDefault(),
-                SharedWithCaller = p.SharedMembers.Any(m => m.ProfileId == caller) || p.SharedRoles.Any(x => roles.Contains(x.Role)),
+                SharedWithCaller = p.SharedMembers.Any(m => m.ProfileId == caller) || p.SharedRoles.Any(x => roles.Contains(x.RoleDefinitionId)),
             })
             .ToListAsync(cancellationToken);
         return [.. rows.Select(r => new SearchResultItem(

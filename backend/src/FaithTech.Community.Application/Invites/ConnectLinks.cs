@@ -1,10 +1,11 @@
+using FaithTech.Community.Domain.Organisations;
 using FaithTech.Community.Application.Admin;
 using FaithTech.Community.Application.Common;
+using FaithTech.Community.Application.Organisations;
 using FaithTech.Community.Application.Profiles;
 using FaithTech.Community.Domain.Invites;
 using FaithTech.Community.Domain.Profiles;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Options;
 
 namespace FaithTech.Community.Application.Invites;
 
@@ -20,7 +21,9 @@ public interface IConnectTokenProtector
 public record ConnectLinkDto(string Url);
 
 /// <summary>Who an anonymous visitor is connecting with (L2-082 AC2).</summary>
-public record ConnectLookupDto(Guid LeadProfileId, string LeadName, string? LeadPhotoUrl, string? LeadCity, string LeadRole);
+/// <remarks>`LeadRoleChapterName` is the chapter the link role is held for, so the page reads "{role} · {chapter}" (L2-141 AC3).</remarks>
+public record ConnectLookupDto(
+    Guid LeadProfileId, string LeadName, string? LeadPhotoUrl, string? LeadChapterName, string LeadRole, string? LeadRoleChapterName = null);
 
 /// <summary>The body of <c>POST /api/connect/lookup</c>: the link's token, kept out of the URL.</summary>
 public record ConnectLookupRequest(string? Token);
@@ -31,10 +34,10 @@ public class ConnectLinkHandler(
     ICurrentUser current,
     IConnectTokenProtector protector,
     IPhotoStorage storage,
-    IOptions<WebAppOptions> webApp,
+    ICurrentOrganisation organisation,
     TimeProvider time)
 {
-    public bool CanHaveLink => current.HasRole(Role.CityLead) || current.HasRole(Role.SystemAdmin);
+    public bool CanHaveLink => current.Has(Capability.ConnectLink);
 
     public async Task<(Result Result, ConnectLinkDto? Link)> GetOrIssueAsync(CancellationToken cancellationToken = default)
     {
@@ -86,9 +89,8 @@ public class ConnectLinkHandler(
         }
 
         var featured = lead.Photos.FirstOrDefault(p => p.IsFeatured && p.IsStored);
-        var role = lead.HasRole(Role.CityLead) ? Role.CityLead : Role.SystemAdmin;
         return new ConnectLookupDto(
-            lead.Id, lead.Name, featured is null ? null : storage.GetReadUrl(featured.BlobName), lead.HomeCity, RoleLabels.Of(role));
+            lead.Id, lead.Name, featured is null ? null : storage.GetReadUrl(featured.BlobName), lead.Chapter?.Name, LinkRoleName(lead), LinkAssignment(lead)!.Chapter?.Name);
     }
 
     /// <summary>The profile id of the link's owner while they may still have a link, or null.</summary>
@@ -110,12 +112,24 @@ public class ConnectLinkHandler(
             return null;
         }
 
-        // A suspended owner, or one who no longer holds City Lead or System Admin, has no working link (ADR 0021).
+        // A suspended owner, or one whose current roles no longer give ConnectLink, has no working link (ADR 0021, L2-139 AC5).
         var profile = await db.Profiles.AsNoTracking().SingleOrDefaultAsync(p => p.Id == owner, cancellationToken);
-        return profile is { IsSuspended: false } && (profile.HasRole(Role.CityLead) || profile.HasRole(Role.SystemAdmin))
-            ? profile
-            : null;
+        return profile is { IsSuspended: false } && LinkRole(profile) is not null ? profile : null;
     }
+
+    /// <summary>The owner's first held role that gives ConnectLink, AdministerOrganisation standing in for it.</summary>
+    private static RoleDefinition? LinkRole(Profile profile) => LinkAssignment(profile)?.Definition;
+
+    /// <summary>The assignment of <see cref="LinkRole"/>: an untagged one first, then by chapter name.</summary>
+    private static ProfileRole? LinkAssignment(Profile profile) =>
+        profile.Roles.Where(r => r.Definition is { ArchivedAtUtc: null } d
+                && (d.Capabilities.Contains(Capability.ConnectLink) || d.Capabilities.Contains(Capability.AdministerOrganisation)))
+            .OrderBy(r => r.Definition!.SortOrder)
+            .ThenBy(r => r.Chapter != null)
+            .ThenBy(r => r.Chapter == null ? null : r.Chapter.Name)
+            .FirstOrDefault();
+
+    private static string LinkRoleName(Profile profile) => LinkRole(profile)!.Name;
 
     private async Task<Guid?> CallerAsync(CancellationToken cancellationToken)
     {
@@ -124,8 +138,8 @@ public class ConnectLinkHandler(
             return null;
         }
 
-        return await db.Users.Where(u => u.Id == current.UserId).Select(u => (Guid?)u.ProfileId).SingleOrDefaultAsync(cancellationToken);
+        return await Task.FromResult(current.ProfileId);
     }
 
-    private ConnectLinkDto ToDto(string token) => new($"{webApp.Value.Origin}/meet/{token}");
+    private ConnectLinkDto ToDto(string token) => new($"{organisation.Origin}/meet/{token}");
 }

@@ -4,7 +4,7 @@ LAYOUT_WITH_LEGEND()
 title System Context — Sign up
 
 Person(visitor, "Anonymous visitor", "Person without a signed-in session")
-System(ftc, "FaithTech Community", "Community site for FaithTech staff, leads, volunteers, builders and partners")
+System(ftc, "Community platform", "Community site for an organisation's members and partners")
 System_Ext(email, "Email provider", "SMTP or SendGrid")
 Rel(visitor, ftc, "Creates an account in", "HTTPS")
 Rel(ftc, email, "Sends email via", "SMTP/HTTPS")

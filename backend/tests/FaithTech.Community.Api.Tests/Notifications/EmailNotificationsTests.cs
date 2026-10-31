@@ -1,5 +1,6 @@
 // Traces to: L2-028
 using System.Text.RegularExpressions;
+using FaithTech.Community.Api.Tests.Organisations;
 using FaithTech.Community.Api.Tests.Profiles;
 using FaithTech.Community.Application.Common;
 using FaithTech.Community.Application.Notifications;
@@ -122,7 +123,7 @@ public partial class EmailNotificationsTests(CommunityApiFactory factory) : ICla
     private static async Task PublishAsync(
         WebApplicationFactory<Program> app, ProfileClients.Member recipient, NotificationKind kind, NotificationEmail email, string link = "/announcements")
     {
-        await using var scope = app.Services.CreateAsyncScope();
+        await using var scope = app.Services.CreateFaithTechScope();
         var publisher = scope.ServiceProvider.GetRequiredService<INotificationPublisher>();
         await publisher.PublishAsync([recipient.ProfileId], kind, email.Subject, link, actorId: null, _ => email);
         await scope.ServiceProvider.GetRequiredService<IApplicationDbContext>().SaveChangesAsync();
@@ -130,7 +131,7 @@ public partial class EmailNotificationsTests(CommunityApiFactory factory) : ICla
 
     private static async Task DispatchAsync(WebApplicationFactory<Program> app)
     {
-        await using var scope = app.Services.CreateAsyncScope();
+        await using var scope = app.Services.CreateFaithTechScope();
         await scope.ServiceProvider.GetRequiredService<EmailOutboxDispatcher>().DispatchPendingAsync();
     }
 

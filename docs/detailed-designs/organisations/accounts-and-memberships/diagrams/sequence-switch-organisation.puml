@@ -1,0 +1,59 @@
+@startuml
+title UML sequence behaviour — Switch organisation
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+actor "Member of A and B" as actor
+box "Frontend — community app on app.{organisation A}" #E0F2FE
+  participant "AppShellComponent" as shellA
+  participant "HttpAuthService (A)" as authA
+end box
+box "Frontend — community app on app.{organisation B}" #E0F2FE
+  participant "/auth/continue" as cont
+  participant "HttpAuthService (B)" as authB
+end box
+box "Backend — FaithTech.Community.Api" #D1FADF
+  participant "MeEndpoints" as meep
+  participant "AuthorizationEndpoints" as authz
+end box
+box "Backend — FaithTech.Community.Application" #ECFDF3
+  participant "MeHandler" as me
+end box
+box "Backend — FaithTech.Community.Infrastructure" #FFF4E5
+  database "Community database" as db
+end box
+actor -> shellA : Open the account menu
+shellA -> authA : currentUser().memberships
+authA -> meep : GET /api/me (on app load)
+meep -> me : Handle
+me -> db : Other active, unsuspended profiles of the account
+db --> me : [{ name: B, host: app.b... }]
+me --> authA : memberships (L2-133 #1)
+alt memberships empty
+  shellA --> actor : No "Switch organisation" entry (L2-133 #4)
+else one or more
+  shellA --> actor : "Switch organisation": B (L2-133 #3)
+  actor -> cont : Choose B: https://app.b.../auth/continue?returnUrl=/
+  cont -> authB : signIn(returnUrl)
+  authB -> authz : /connect/authorize on host B, PKCE (no tokens in B's storage)
+  alt identity cookie reaches host B and the session is kept
+    authz --> authB : Code without credentials; authorization stamped with organisation B
+  else cookie absent or session not kept
+    authz --> authB : Sign-in page on host B (L2-133 #3, L2-003 #8)
+  end
+  authB -> meep : GET /api/me on host B
+  meep --> authB : Organisation B, B's profile, roles and capabilities only (L2-132 #4)
+  authB --> actor : Home on organisation B's host
+end
+@enduml

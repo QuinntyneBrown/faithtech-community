@@ -15,7 +15,7 @@ skinparam package {
   BackgroundColor #F9FAFB
 }
 actor "Member" as actor
-box "Frontend — FaithTech Community web app (profiles library)" #E0F2FE
+box "Frontend — Community web app (profiles library)" #E0F2FE
   participant "EditProfilePage" as page
   participant "ProfilesService" as client
 end box
@@ -47,7 +47,7 @@ else ready
     page --> actor : Error on that photo
   else valid
     h -> ip : Resize and strip metadata (L2-007)
-    h -> ps : Store blob
+    h -> ps : Store blob under {organisationId}/profiles/... (L2-130 AC5)
     h -> db : Add ProfilePhoto
     h --> ep : PhotoDto
     ep --> client : 201 Created

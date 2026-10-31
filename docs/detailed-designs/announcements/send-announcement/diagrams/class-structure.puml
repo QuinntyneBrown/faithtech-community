@@ -17,10 +17,10 @@ enum AudienceKind {
 }
 class AnnouncementAudience {
   +AudienceKind Kind
-  +IReadOnlySet<Role> Roles
+  +IReadOnlySet<Guid> RoleIds
   +Guid? EventId
   +{static} Everyone(): AnnouncementAudience
-  +{static} ForRoles(roles: Role[]): AnnouncementAudience
+  +{static} ForRoles(roleIds: Guid[]): AnnouncementAudience
   +{static} ForEventRsvps(eventId: Guid): AnnouncementAudience
 }
 class Announcement {
@@ -37,9 +37,14 @@ class AnnouncementRecipient {
   +Guid AnnouncementId
   +Guid ProfileId
 }
+class RoleDefinition {
+  +Guid Id
+  +string Name
+  +bool IsArchived
+}
 class AudienceRequest <<record>> {
   +string? Kind
-  +IReadOnlyList<string>? Roles
+  +IReadOnlyList<Guid>? Roles
   +Guid? EventId
 }
 class SendAnnouncementCommand <<record>> {
@@ -68,16 +73,22 @@ interface IUnsubscribeTokens {
   +Issue(profileId: Guid): string
 }
 interface ICurrentUser {
-  +bool HasRole(role: Role)
+  +IReadOnlySet<string> Capabilities
+  +Has(capability: string): bool
+}
+interface ICurrentOrganisation {
+  +Guid Id
 }
 AnnouncementAudience --> AudienceKind
+AnnouncementAudience "*" --> "*" RoleDefinition : RoleIds, resolved live
 Announcement *-- AnnouncementAudience
 Announcement "1" *-- "*" AnnouncementRecipient
 SendAnnouncementCommand *-- AudienceRequest
 SendAnnouncementHandler ..> SendAnnouncementCommand : handles
 SendAnnouncementValidator ..> SendAnnouncementCommand : validates
 SendAnnouncementValidator ..> AudienceRequestValidator : uses
-AnnouncementAccess ..> ICurrentUser : reads roles
+AnnouncementAccess ..> ICurrentUser : Has(SendAnnouncements)
+AudienceResolver ..> ICurrentOrganisation : members and definitions scoped by the global filter
 SendAnnouncementHandler ..> AnnouncementAccess : authorizes
 SendAnnouncementHandler ..> AudienceResolver : resolves
 AudienceResolver ..> AnnouncementAudience : builds

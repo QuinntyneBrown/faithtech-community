@@ -2,7 +2,7 @@
 
 ## Overview
 
-Leads remove contacts they no longer track in two stages. **Archive** — soft delete that hides a contact from the main list while keeping it and its notes for restoration. **Permanent delete** — irreversible removal of an archived contact and all of its notes. Only an archived contact may be permanently deleted, and the lead confirms by typing `DELETE`.
+Holders of `KeepContacts` remove contacts they no longer track in two stages. **Archive** — soft delete that hides a contact from the main list while keeping it and its notes for restoration. **Permanent delete** — irreversible removal of an archived contact and all of its notes. Only an archived contact may be permanently deleted, and the owner confirms by typing `DELETE`.
 
 The archived contacts page lists the caller's archived contacts and offers Restore and Delete permanently. All operations follow the private-contact visibility rule (`L2-012`).
 
@@ -13,7 +13,7 @@ The archived contacts page lists the caller's archived contacts and offers Resto
 - **`DeleteContactDialog`** — CDK dialog with a text field; the Delete button stays disabled until the input equals `DELETE` exactly (case-sensitive), and leaving the field with other text shows "Type DELETE in capitals to confirm." It calls `CONTACTS_SERVICE.delete` and closes with `true`.
 - **`ContactsService`** / **`HttpContactsService`** — `archive`, `restore`, `listArchived` and `delete`, calling `POST /api/contacts/{id}/archive`, `POST /api/contacts/{id}/restore`, `GET /api/contacts/archived` and `DELETE /api/contacts/{id}`.
 - **`ContactsEndpoints`** — archive, restore and delete answer `204`, `404` or `409`; the archived list answers `200` or `403`.
-- **`ArchiveContactsHandler`** — Application handler in `Contacts/ArchiveContacts.cs` with `ArchiveAsync`, `RestoreAsync` and `DeleteAsync`. Each calls `ContactAccess.AuthorizeAsync` (`404` for anyone but the owner and System Admin), checks the contact's state (`409` "The contact is already archived.", "The contact is not archived." or "Archive the contact before deleting it."), applies the change, audits a System Admin override (`contact.archived`, `contact.restored`, `contact.deleted`) and saves once.
+- **`ArchiveContactsHandler`** — Application handler in `Contacts/ArchiveContacts.cs` with `ArchiveAsync`, `RestoreAsync` and `DeleteAsync`. Each calls `ContactAccess.AuthorizeAsync` (`404` for anyone but the owner and a holder of `AdministerOrganisation`), checks the contact's state (`409` "The contact is already archived.", "The contact is not archived." or "Archive the contact before deleting it."), applies the change, audits an `AdministerOrganisation` override (`contact.archived`, `contact.restored`, `contact.deleted`; `L2-135` AC5) and saves once. Every query is scoped by the DbContext's global filter on `ICurrentOrganisation`.
 - **`ManageContactsHandler.ListArchivedAsync`** — the caller's own archived contacts as `ContactSummaryDto` rows, newest archive first; `null` (`403`) when the caller may not keep contacts.
 - **`Contact.Archive(nowUtc)`** sets `ArchivedAtUtc`; **`Contact.Restore()`** clears it. Each rejects a contact already in the target state. **`Contact.CanBeDeleted`** is true only for an archived contact, and `DeleteAsync` checks it. Active queries filter on `ArchivedAtUtc IS NULL`.
 - **Cascade** — `CommunityDbContext` maps `Contact.Notes` and `Contact.Photos` with `OnDelete(Cascade)`, so deleting a `Contact` deletes its `ContactNote` and `ContactPhoto` rows. After the save, `DeleteAsync` deletes each photo's blob through `IPhotoStorage`; a delete that fails, and the queued write of a photo still storing, are handled as in [contact photos](../contact-photos/README.md) (`L2-070` AC6, `L2-071` AC2). Archive and restore keep the photos (`L2-070` AC5).
@@ -33,16 +33,16 @@ The feature realizes the following level-2 (L2) requirements. Each L2 requiremen
 
 **`L2-016` — Archive, restore and delete contacts**
 
-1. Given a contact, when the lead archives it after confirming, then it disappears from the main list and appears in archived contacts.
-2. Given an archived contact, when the lead restores it, then it returns to the main list with its notes.
-3. Given an archived contact, when the lead types DELETE and confirms permanent deletion, then the contact and its notes are removed permanently.
+1. Given a contact, when the owning member archives it after confirming, then it disappears from the main list and appears in archived contacts.
+2. Given an archived contact, when the owner restores it, then it returns to the main list with its notes.
+3. Given an archived contact, when the owner types DELETE and confirms permanent deletion, then the contact and its notes are removed permanently.
 4. Given the delete dialog, when the typed text is not exactly DELETE, then the delete button stays disabled.
 
 ## Diagrams
 
 ### System context
 
-The owning lead archives, restores and deletes contacts within FaithTech Community; no external system participates.
+The owning member archives, restores and deletes contacts within the Community platform; no external system participates.
 
 ![C4 system context for archive, restore and delete contacts](diagrams/c4-context.png)
 
@@ -86,4 +86,5 @@ Decisions recorded while building the feature ([ADR 0014](../../../adr/0014-cont
 
 - Restoring shows the "Contact restored" toast without the mock's Undo action; archiving again from the contact page undoes a restore.
 - Archive is offered from the contact page; the contacts list has no per-row archive action.
-- A System Admin's archive, restore and delete of another lead's contact are audited (`contact.archived`, `contact.restored`, `contact.deleted`).
+- An administrator's archive, restore and delete of another member's contact are audited (`contact.archived`, `contact.restored`, `contact.deleted`).
+- Capabilities: the owner was any lead role and the override a role name; they are now `KeepContacts` and `AdministerOrganisation` (ADR 0033).

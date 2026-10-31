@@ -16,13 +16,14 @@ public class ProfileTests
     }
 
     [Fact]
-    public void Updating_changes_the_name_home_city_and_bio()
+    public void Updating_changes_the_name_home_chapter_and_bio()
     {
         var profile = new Profile("Ada");
+        var london = Guid.NewGuid();
 
-        profile.Update("Ada Lovelace", "London", "Builds analytical engines.");
+        profile.Update("Ada Lovelace", london, "Builds analytical engines.");
 
-        Assert.Equal(("Ada Lovelace", "London", "Builds analytical engines."), (profile.Name, profile.HomeCity, profile.Bio));
+        Assert.Equal(("Ada Lovelace", (Guid?)london, "Builds analytical engines."), (profile.Name, profile.ChapterId, profile.Bio));
     }
 
     [Fact]
@@ -30,8 +31,8 @@ public class ProfileTests
     {
         var profile = new Profile("Ada");
 
-        Assert.Throws<ArgumentException>(() => profile.Update(" ", "London", null));
-        Assert.Equal(("Ada", (string?)null), (profile.Name, profile.HomeCity));
+        Assert.Throws<ArgumentException>(() => profile.Update(" ", Guid.NewGuid(), null));
+        Assert.Equal(("Ada", (Guid?)null), (profile.Name, profile.ChapterId));
     }
 
     [Fact]

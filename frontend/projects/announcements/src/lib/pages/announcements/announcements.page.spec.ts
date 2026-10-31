@@ -2,15 +2,27 @@
 import { signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import {
+  AnnouncementDto,
   ANNOUNCEMENTS_SERVICE,
   AUTH_SERVICE,
-  AnnouncementDto,
   PagedResult,
-  Role,
+  SITE_SERVICE,
+  Capability,
 } from '@faithtech-community/api';
 import { Observable, of, throwError } from 'rxjs';
 
 import { AnnouncementsPage } from './announcements.page';
+
+/** The host's organisation the copy names, as GET /api/site answers it on FaithTech's host. */
+const FAITHTECH_SITE = {
+  site: () => ({
+    name: 'FaithTech Community',
+    shortName: 'FaithTech',
+    chapterLabel: { singular: 'City', plural: 'Cities' },
+    communityOrigin: 'http://localhost:4200',
+  }),
+  load: async () => undefined,
+};
 
 function announcement(id: string, overrides: Partial<AnnouncementDto> = {}): AnnouncementDto {
   return {
@@ -33,13 +45,14 @@ function page(items: AnnouncementDto[], extra: Partial<PagedResult<AnnouncementD
 
 async function setup(
   list: (page: number) => Observable<PagedResult<AnnouncementDto>>,
-  roles: Role[] = [],
+  capabilities: Capability[] = [],
 ) {
   const service = { list: vi.fn(list) };
   TestBed.configureTestingModule({
     providers: [
+      { provide: SITE_SERVICE, useValue: FAITHTECH_SITE },
       { provide: ANNOUNCEMENTS_SERVICE, useValue: service },
-      { provide: AUTH_SERVICE, useValue: { roles: signal(roles) } },
+      { provide: AUTH_SERVICE, useValue: { capabilities: signal(capabilities) } },
     ],
   });
   const fixture = TestBed.createComponent(AnnouncementsPage);
@@ -94,7 +107,7 @@ describe('AnnouncementsPage', () => {
     expect(member.host.querySelector('a[href="/announcements/new"]')).toBeNull();
     TestBed.resetTestingModule();
 
-    const lead = await setup(() => of(page([announcement('a')])), ['CommunicationsLead']);
+    const lead = await setup(() => of(page([announcement('a')])), ['SendAnnouncements']);
     expect(lead.host.querySelector('a[href="/announcements/new"]')).not.toBeNull();
   });
 

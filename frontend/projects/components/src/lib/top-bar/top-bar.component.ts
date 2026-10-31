@@ -1,5 +1,6 @@
-import { ChangeDetectionStrategy, Component, input, output } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject, input, output } from '@angular/core';
 import { LogoMarkComponent } from '../logo-mark';
+import { ORGANISATION_NAMES } from '../organisation-names/organisation-names';
 import { TextFieldComponent } from '../text-field';
 
 export interface TopBarLink {
@@ -30,7 +31,8 @@ export class TopBarComponent {
   readonly homeHref = input('/');
   readonly anonymous = input(false);
   readonly navLabel = input('Primary');
-  readonly searchLabel = input('Search FaithTech');
+  /** The search field's label; "Search {short name}" when not given. */
+  readonly searchLabel = input<string | null>(null);
   readonly searchPlaceholder = input('Search people, events, partners');
   /** Emits the trimmed query when the search form is submitted. */
   readonly searchSubmit = output<string>();
@@ -42,6 +44,11 @@ export class TopBarComponent {
   /** Emits when More is pressed, to open the menu of every section. */
   readonly more = output<void>();
 
+  /** The organisation's short name is the product name in the brand (L2-134 AC1). */
+  protected readonly organisation = inject(ORGANISATION_NAMES);
+  protected readonly search = computed(
+    () => this.searchLabel() ?? `Search ${this.organisation.shortName()}`,
+  );
   protected readonly searchId = `ft-top-bar-search-${nextId++}`;
 
   protected onSearch(event: Event): void {

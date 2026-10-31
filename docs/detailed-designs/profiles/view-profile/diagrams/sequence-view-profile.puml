@@ -15,7 +15,7 @@ skinparam package {
   BackgroundColor #F9FAFB
 }
 actor "Member" as actor
-box "Frontend — FaithTech Community web app (profiles library)" #E0F2FE
+box "Frontend — Community web app (profiles library)" #E0F2FE
   participant "ProfilePage" as page
   participant "ProfilesService" as client
 end box
@@ -36,7 +36,7 @@ else signed-in member
   client -> ep : GET /api/profiles/{id}
   ep -> ep : Require authenticated caller; 401 if none (L2-005)
   ep -> h : HandleAsync(id)
-  h -> db : Load profile, photos and roles
+  h -> db : Load profile, photos, chapter and roles with their definitions
   alt no such profile, including an unlinked private contact (ADR 0003)
     h --> ep : Not found (L2-005)
     ep --> client : 404
@@ -44,7 +44,7 @@ else signed-in member
   else profile
     h --> ep : ProfileDto
     ep --> client : 200 ProfileDto
-    page --> actor : Name, featured photo, photos and roles (L2-005)
+    page --> actor : Name, featured photo, photos, home {chapter} and roles (L2-005)
   end
 end
 @enduml

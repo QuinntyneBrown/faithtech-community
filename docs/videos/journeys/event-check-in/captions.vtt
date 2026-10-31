@@ -1,0 +1,35 @@
+WEBVTT
+
+00:00:00.000 --> 00:00:11.000
+In this video an Event Lead checks people in at the door of tonight's event. The app is real; the server is a local stand-in, and the people and events are made up.
+
+00:00:11.000 --> 00:00:18.000
+On the event page, leads see a Check in button first. Check-in opens a day before the event starts.
+
+00:00:18.000 --> 00:00:27.000
+The check-in page lists everyone who RSVP'd, members and guests, in the order they signed up. The meter counts how many are here.
+
+00:00:27.000 --> 00:00:37.000
+Type a few letters of a name or email and the list narrows as you type. Turn on the switch, and the check-in is saved at once with the time.
+
+00:00:37.000 --> 00:00:43.000
+Checked in the wrong person? The message has an Undo button, and turning the switch off works too.
+
+00:00:43.000 --> 00:00:49.000
+As people arrive, turn on their switches one by one. The meter climbs with each one.
+
+00:00:49.000 --> 00:00:58.000
+Someone who didn't RSVP turns up. Add walk-in asks for their name and, if you like, an email. Check them in now is on already.
+
+00:00:58.000 --> 00:01:06.000
+The walk-in joins the end of the list, checked in. Walk-ins are counted as here but not as RSVPs.
+
+00:01:06.000 --> 00:01:15.000
+Export CSV downloads the attendance, one row per person, with when they RSVP'd and when they were checked in.
+
+00:01:15.000 --> 00:01:22.000
+Back on the event page, leads and Staff now see how many people were checked in, beside the RSVP count.
+
+00:01:22.000 --> 00:01:31.000
+That is check-in: find someone, one switch, undo when needed, walk-ins at the door, and attendance you can export.
+

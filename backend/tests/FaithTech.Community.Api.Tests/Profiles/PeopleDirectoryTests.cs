@@ -1,4 +1,5 @@
 // Traces to: L2-053
+using FaithTech.Community.Api.Tests.Organisations;
 using System.Net;
 using System.Net.Http.Json;
 using FaithTech.Community.Api.Tests.Fakes;
@@ -43,9 +44,10 @@ public class PeopleDirectoryTests(CommunityApiFactory factory) : IClassFixture<C
     public async Task Permitted_callers_see_members_by_name_with_photo_roles_and_city(Role role)
     {
         var tag = Guid.NewGuid().ToString("N")[..8];
+        var toronto = await factory.ChapterIdAsync("Toronto");
         var samuel = await factory.AddMemberAsync($"Samuel {tag}", p =>
         {
-            p.Update(p.Name, "Toronto", null);
+            p.Update(p.Name, toronto, null);
             p.AddRole(Role.ProductEngineer, Guid.Empty, DateTime.UtcNow);
             p.AddRole(Role.CreateLead, Guid.Empty, DateTime.UtcNow);
             p.AddPhoto(new ProfilePhoto($"profiles/{p.Id}/featured.jpg", "Samuel at Builders Night", Earlier));
@@ -64,8 +66,9 @@ public class PeopleDirectoryTests(CommunityApiFactory factory) : IClassFixture<C
         Assert.Null(page.Items[0].PhotoUrl);
         var row = page.Items[1];
         Assert.Equal(samuel.ProfileId, row.Id);
-        Assert.Equal("Toronto", row.HomeCity);
-        Assert.Equal(["CreateLead", "ProductEngineer"], row.Roles);
+        Assert.Equal("Toronto", row.ChapterName);
+        Assert.Equal(["Create Lead", "Product Engineer"], row.Roles.Select(r => r.Name));
+        Assert.Equal([factory.RoleIdOf(Role.CreateLead), factory.RoleIdOf(Role.ProductEngineer)], row.Roles.Select(r => r.Id));
         Assert.Equal($"{FakePhotoStorage.BaseUrl}profiles/{samuel.ProfileId}/featured.jpg", row.PhotoUrl);
         Assert.DoesNotContain("@example.org", await response.Content.ReadAsStringAsync());
     }
@@ -115,7 +118,9 @@ public class PeopleDirectoryTests(CommunityApiFactory factory) : IClassFixture<C
         Assert.Equal([$"Member {tag} 25"], second!.Items.Select(p => p.Name));
     }
 
-    private sealed record Person(Guid Id, string Name, string? HomeCity, string? PhotoUrl, string[] Roles);
+    private sealed record Person(Guid Id, string Name, string? ChapterName, string? PhotoUrl, HeldRole[] Roles);
+
+    private sealed record HeldRole(Guid Id, string Name, Guid? ChapterId);
 
     private sealed record PeoplePage(List<Person> Items, int Page, int PageSize, int TotalCount);
 }

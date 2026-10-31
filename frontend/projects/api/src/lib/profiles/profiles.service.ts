@@ -1,7 +1,7 @@
 import { InjectionToken } from '@angular/core';
 import { Observable } from 'rxjs';
 
-import { Role } from '../shared';
+import { ProfileRole } from '../shared';
 
 export interface PhotoDto {
   id: string;
@@ -14,25 +14,29 @@ export interface PhotoDto {
   isStored: boolean;
 }
 
-/** A profile as a signed-in member sees it (L2-005). Photos are newest first. */
+/**
+ * A profile as a signed-in member sees it (L2-005). Photos are newest first. The chapter is null when there is none, and
+ * while chapters are off (L2-141 AC1).
+ */
 export interface ProfileDto {
   id: string;
   name: string;
-  homeCity: string | null;
+  chapterId: string | null;
+  chapterName: string | null;
   bio: string | null;
   featuredPhoto: PhotoDto | null;
   photos: PhotoDto[];
-  roles: Role[];
+  roles: ProfileRole[];
   /** The caller owns this profile. */
   isOwn: boolean;
   /** The caller may change it: the owner, or a System Admin. */
   canEdit: boolean;
 }
 
-/** The details a member edits on their own profile (L2-006). Blank home city or bio clears it. */
+/** The details a member edits on their own profile (L2-006). No home chapter, or a blank bio, clears it. */
 export interface ProfileDetails {
   name: string;
-  homeCity: string;
+  chapterId: string | null;
   bio: string;
 }
 

@@ -16,12 +16,15 @@ namespace FaithTech.Community.Infrastructure.Email;
 /// </remarks>
 public static partial class EmailTemplateRenderer
 {
-    public const string ActionLabel = "Open in FaithTech";
-
     private static readonly Lazy<IReadOnlyDictionary<string, string>> Tokens = new(LoadTokens);
 
-    public static string Render(string subject, string textBody)
+    /// <summary>
+    /// The HTML part, in the name of the organisation the email is sent in: the button reads "Open in {short name}" and the
+    /// footer carries the organisation's name (L2-134 AC5).
+    /// </summary>
+    public static string Render(string subject, string textBody, string organisationName, string organisationShortName)
     {
+        var actionLabel = WebUtility.HtmlEncode($"Open in {organisationShortName}");
         var email = Style(("background", "--color-bg-surface"), ("color", "--color-fg-default"), ("padding", "--space-8"), ("font", "--text-body"));
         var title = Style(("font", "--text-h4"), ("margin", "0 0 {--space-4}"));
         var text = Style(("margin", "0 0 {--space-6}"));
@@ -40,7 +43,7 @@ public static partial class EmailTemplateRenderer
         {
             if (WholeUrl().IsMatch(paragraph))
             {
-                html.Append($"<p class=\"email__action\" style=\"{text}\"><a class=\"email__button\" style=\"{button}\" href=\"{WebUtility.HtmlEncode(paragraph)}\">{ActionLabel}</a></p>");
+                html.Append($"<p class=\"email__action\" style=\"{text}\"><a class=\"email__button\" style=\"{button}\" href=\"{WebUtility.HtmlEncode(paragraph)}\">{actionLabel}</a></p>");
             }
             else
             {
@@ -49,7 +52,7 @@ public static partial class EmailTemplateRenderer
             }
         }
 
-        html.Append($"<p class=\"email__footer\" style=\"{footer}\">FaithTech Community</p></div></body></html>");
+        html.Append($"<p class=\"email__footer\" style=\"{footer}\">{WebUtility.HtmlEncode(organisationName)}</p></div></body></html>");
         return html.ToString();
     }
 

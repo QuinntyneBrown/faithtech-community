@@ -8,7 +8,7 @@ Every account created through sign-up shall prove ownership of its email before 
 
 **unverified account** — account whose `EmailConfirmed` flag is false
 
-An unverified account that signs in sees only the verify-email page with a resend action. Resends are limited to 3 per hour per account. Invite acceptance verifies the email by a different route (see the accept-invite feature).
+An unverified account that signs in sees only the verify-email page with a resend action. Resends are limited to 3 per hour per account. Invite acceptance verifies the email by a different route (see the accept-invite feature). Verification applies to the global account everywhere (`L2-132` AC7); when the sign-up that requested it was for an organisation the account has no profile in, confirming the link gives the account a profile in that organisation (`L2-001` AC2, `L2-132` AC1).
 
 ## Description
 
@@ -16,8 +16,8 @@ An unverified account that signs in sees only the verify-email page with a resen
 - **`AuthService`** — contract in the `api` library, provided through the `AUTH_SERVICE` injection token and implemented by `HttpAuthService`. It wraps the account endpoints and the OIDC + PKCE client.
 - **`AccountEndpoints`** — minimal API route group in `FaithTech.Community.Api`. It maps the account routes, opts each one into anonymous access explicitly, and forwards the request to the Application handler. It holds no business logic.
 - **`CommunityDbContext`** — EF Core context in `FaithTech.Community.Infrastructure`. It stores ASP.NET Identity users alongside community data in PostgreSQL.
-- **`ConfirmEmailCommand`** / **`ConfirmEmailHandler`** — Application request and handler. The handler validates the token through `UserManager.ConfirmEmailAsync`, rejects tokens older than 24 hours or already used, and sets `EmailConfirmed`.
-- **`ResendVerificationCommand`** / **`ResendVerificationHandler`** — Application request and handler. The handler counts resends in the last hour and rejects the fourth with a "try again later" result.
+- **`ConfirmEmailCommand`** / **`ConfirmEmailHandler`** — Application request and handler. The handler validates the token through `UserManager.ConfirmEmailAsync`, rejects tokens older than 24 hours or already used, sets `EmailConfirmed`, and creates a profile with no role in `ICurrentOrganisation` when the account has none there (`L2-132` AC1). Every query on `Profiles` is scoped by the DbContext's global filter on `ICurrentOrganisation`.
+- **`ResendVerificationCommand`** / **`ResendVerificationHandler`** — Application request and handler. The handler counts resends in the last hour and rejects the fourth with a "try again later" result. The email is sent in the organisation's name with a link to its community host (`L2-134` AC5).
 - **`VerificationResendLog`** — Infrastructure record of resend timestamps per account. Its storage form (table or cache) is `<TO SUPPLY>`.
 - **`EmailVerified`** — Domain event (`Domain/Identity`) naming the profile and the verified email. `ConfirmEmailHandler` raises it once the email is confirmed; the contacts subsystem handles it (`contacts/link-contact-on-sign-up`).
 - **`RequireVerifiedEmail`** — authorization policy applied by default to API endpoints. It refuses any call from an unverified account except the resend endpoint.
@@ -43,7 +43,7 @@ The feature realizes the following level-2 (L2) requirements. Each L2 requiremen
 
 ### System context
 
-The account holder confirms an email address in FaithTech Community, which sends verification links through the email provider.
+The account holder confirms an email address in the Community platform, which sends verification links through the email provider in the organisation's name.
 
 ![C4 system context for email verification](diagrams/c4-context.png)
 
@@ -82,3 +82,4 @@ The handler sends a fresh link unless more than 3 resends occurred in the last h
 Decisions recorded while building the Domain layer (`FaithTech.Community.Domain`):
 
 - `EmailVerified` is a Domain record because `CommunityUser` is an Infrastructure Identity type; the Application handler raises it rather than an entity.
+- Capabilities: verification is global to the account, and confirming a link opened on an organisation's host adds the missing profile there (ADR 0032).

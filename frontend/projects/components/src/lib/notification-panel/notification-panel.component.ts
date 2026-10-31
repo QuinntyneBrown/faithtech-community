@@ -4,7 +4,7 @@ import { LinkComponent } from '../link/link.component';
 import { Notice, NoticeListComponent } from '../notice-list/notice-list.component';
 
 /**
- * The popover half of FaithTech notifications: latest notices with a "Mark all read" action and a
+ * The popover half of notifications: latest notices with a "Mark all read" action and a
  * link to the full page. A non-modal dialog; the bell (ft-notification-bell) opens it.
  */
 @Component({

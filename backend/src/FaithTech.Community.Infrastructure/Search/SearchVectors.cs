@@ -20,8 +20,8 @@ public static class SearchVectors
 
     public static void Configure(ModelBuilder builder)
     {
-        Add<Profile>(builder, "Name", "HomeCity", "Bio");
-        Add<Event>(builder, "Title", "Description", "City", "Venue");
+        Add<Profile>(builder, "Name", "Bio");
+        Add<Event>(builder, "Title", "Description", "Venue");
         Add<Partner>(builder, "Name", "Offering", "ContactName", "Notes");
         Add<Contact>(builder, "Name", "Email", "Organization", "City");
         Add<WorkItem>(builder, "Title", "Description");

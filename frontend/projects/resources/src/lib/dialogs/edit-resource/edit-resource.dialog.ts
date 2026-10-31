@@ -10,7 +10,12 @@ import {
   viewChild,
 } from '@angular/core';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
-import { RESOURCES_SERVICE, ResourceDto, problemDetails } from '@faithtech-community/api';
+import {
+  OrganisationNames,
+  problemDetails,
+  ResourceDto,
+  RESOURCES_SERVICE,
+} from '@faithtech-community/api';
 import {
   AlertComponent,
   ButtonComponent,
@@ -65,6 +70,7 @@ export interface EditResourceData {
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class EditResourceDialog implements AfterViewInit {
+  protected readonly organisation = inject(OrganisationNames);
   protected readonly ref = inject<DialogRef<ResourceDto>>(DialogRef);
   protected readonly data = inject<EditResourceData>(DIALOG_DATA);
   private readonly resources = inject(RESOURCES_SERVICE);
@@ -73,6 +79,7 @@ export class EditResourceDialog implements AfterViewInit {
 
   protected readonly resource = this.data.resource;
   protected readonly form = detailsForm(this.resource);
+  protected readonly currentType = { key: this.resource.type, name: this.resource.typeName };
   protected readonly url = new FormControl(this.resource.linkUrl ?? '', { nonNullable: true });
   protected readonly replacement = signal<File | null>(null);
   protected readonly choosing = signal(false);

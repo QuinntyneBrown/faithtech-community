@@ -77,6 +77,12 @@ export class ShareNoteDialog {
       .getByRole('checkbox', { name, exact: true });
   }
 
+  /** The picker's suggestion for `name` after searching for `query`: "{name}" then "{role} · {chapter}". */
+  async suggestion(query: string, name: string): Promise<Locator> {
+    await this.people.fill(query);
+    return this.peopleSuggestions.getByRole('option', { name: new RegExp(name) });
+  }
+
   async sharePerson(query: string, name: string): Promise<void> {
     await this.people.fill(query);
     await this.peopleSuggestions.getByRole('option', { name: new RegExp(name) }).click();

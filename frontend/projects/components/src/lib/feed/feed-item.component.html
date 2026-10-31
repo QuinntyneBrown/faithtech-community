@@ -1,4 +1,8 @@
-<ft-avatar [name]="actor()" [color]="color()" size="sm" />
+@if (icon(); as name) {
+  <ft-icon-tile [name]="name" size="sm" />
+} @else {
+  <ft-avatar [name]="actor()" [color]="color()" size="sm" />
+}
 <div class="ft-feed-item__body">
   <ng-content />
   @if (meta(); as m) {

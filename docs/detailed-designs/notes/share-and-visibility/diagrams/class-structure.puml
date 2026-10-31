@@ -17,6 +17,7 @@ enum NoteVisibility {
 }
 class NotePage {
   +Guid Id
+  +Guid OrganisationId
   +Guid OwnerId
   +NoteVisibility Visibility
   +IReadOnlyList<NoteShareMember> SharedMembers
@@ -31,24 +32,40 @@ class NoteShareMember {
 class NoteShareRole {
   -int Id (generated key)
   +Guid PageId
-  +Role Role
+  +Guid RoleDefinitionId
 }
+class RoleDefinition {
+  +Guid Id
+  +Guid OrganisationId
+  +string Name
+  +bool IsArchived
+}
+NoteShareRole --> RoleDefinition
 NotePage "1" *-- "*" NoteShareMember
 NotePage "1" *-- "*" NoteShareRole
 NotePage --> NoteVisibility
 class NoteAccess {
-  +{static} ShareableRoles: CityLead, EventLead, CreateLead, CommunicationsLead, Volunteer, ProductEngineer, Staff
-  +bool IsSystemAdmin
+  +ShareableRolesAsync(): Task<IReadOnlyList<RoleDefinition>>
+  +bool IsAdministrator
   +Visible(pages, caller): IQueryable<NotePage>
   +FindAsync(id, caller): Task<NotePage?>
   +CanChange(page, caller): bool
   +IsOverride(page, caller): bool
   +VerifiedAsync(caller): Task<Result?>
 }
+interface ICurrentUser {
+  +IReadOnlySet<string> Capabilities
+  +Has(capability: string): bool
+}
+interface ICurrentOrganisation {
+  +Guid Id
+}
+NoteAccess ..> ICurrentUser : Has(AdministerOrganisation), held roles
+NoteAccess ..> ICurrentOrganisation : query filter
 class ShareNoteCommand <<record>> {
   +string? Visibility
   +IReadOnlyList<Guid>? MemberIds
-  +IReadOnlyList<string>? Roles
+  +IReadOnlyList<Guid>? RoleIds
 }
 class ShareNoteHandler {
   +AudienceMessage = "Choose at least one person or role, or pick another visibility."
@@ -78,7 +95,7 @@ class NoteAudienceDto <<record>> {
 class NoteMemberDto <<record>> {
   +Guid Id
   +string Name
-  +string? City
+  +string? Chapter
   +IReadOnlyList<string> Roles
 }
 class NotePageDto <<record>> {

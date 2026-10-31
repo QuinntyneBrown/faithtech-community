@@ -1,0 +1,15 @@
+@startuml
+!include <C4/C4_Container>
+LAYOUT_WITH_LEGEND()
+title Containers — Possible duplicate contact
+
+Person(lead, "Member with KeepContacts", "Adds or edits a private contact")
+System_Boundary(ftc, "Community platform") {
+  Container(spa, "Web app", "Angular", "Shell, contacts feature library, api and components libraries")
+  Container(api, "Community API", "ASP.NET Core", "FaithTech.Community.Api with Application, Domain and Infrastructure")
+  ContainerDb(db, "Community database", "PostgreSQL", "Contacts and contact notes")
+}
+Rel(lead, spa, "Types an email on the contact form", "HTTPS")
+Rel(spa, api, "GET /api/contacts/duplicates", "JSON/HTTPS, OAuth2 bearer token")
+Rel(api, db, "Reads the caller's own contacts", "EF Core")
+@enduml

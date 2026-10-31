@@ -37,7 +37,7 @@ public class TransferOwnershipHandler(
             return (Result.Invalid("OwnerId", ChooseMessage), null);
         }
 
-        var candidate = await db.Profiles.Where(p => p.Id == ownerId && !p.IsSuspended && db.Users.Any(u => u.ProfileId == p.Id))
+        var candidate = await db.Profiles.Where(p => p.Id == ownerId && !p.IsSuspended && p.UserId != null)
             .Select(p => new { p.Name }).SingleOrDefaultAsync(cancellationToken);
         var role = candidate is null ? null : await contributors.OwnerRoleAsync(ownerId, cancellationToken);
         if (role is null)

@@ -1,0 +1,185 @@
+@switch (state()) {
+  @case ('loading') {
+    <ft-breadcrumb>
+      <ft-breadcrumb-item href="/events">Events</ft-breadcrumb-item>
+      <ft-breadcrumb-item [href]="'/events/' + id()">Event</ft-breadcrumb-item>
+      <ft-breadcrumb-item>Check-in</ft-breadcrumb-item>
+    </ft-breadcrumb>
+    <ft-page-header title="Check-in" />
+    <ft-card variant="flush">
+      <ft-list-skeleton label="Loading attendees" [rows]="6" />
+    </ft-card>
+  }
+  @case ('error') {
+    <ft-breadcrumb>
+      <ft-breadcrumb-item href="/events">Events</ft-breadcrumb-item>
+      <ft-breadcrumb-item [href]="'/events/' + id()">Event</ft-breadcrumb-item>
+      <ft-breadcrumb-item>Check-in</ft-breadcrumb-item>
+    </ft-breadcrumb>
+    <h1 class="visually-hidden">Check-in</h1>
+    <ft-empty-state
+      variant="error"
+      heading="We couldn’t load the attendee list"
+      text="Check your connection and try again. Check-ins you already saved are safe."
+    >
+      <ft-button actions variant="primary" (click)="retry()">
+        <ft-icon name="try-again" /> Try again
+      </ft-button>
+      <ft-button actions variant="ghost" [href]="'/events/' + id()">Back to the event</ft-button>
+    </ft-empty-state>
+  }
+  @case ('forbidden') {
+    <h1 class="visually-hidden">Check-in</h1>
+    <ft-empty-state
+      icon="locked"
+      heading="Check-in is for event leads"
+      text="City, Event, Create and Communications Leads check people in at the door. Your RSVP is safe on the event page."
+    >
+      <ft-button actions variant="primary" [href]="'/events/' + id()">Back to the event</ft-button>
+    </ft-empty-state>
+  }
+  @case ('not-found') {
+    <h1 class="visually-hidden">Check-in</h1>
+    <ft-empty-state heading="We couldn’t find that event" text="It may have been removed.">
+      <ft-button actions variant="primary" href="/events">Back to events</ft-button>
+    </ft-empty-state>
+  }
+  @case ('loaded') {
+    @if (checkIn(); as c) {
+      <ft-breadcrumb>
+        <ft-breadcrumb-item href="/events">Events</ft-breadcrumb-item>
+        <ft-breadcrumb-item [href]="'/events/' + c.eventId">{{ c.title }}</ft-breadcrumb-item>
+        <ft-breadcrumb-item>Check-in</ft-breadcrumb-item>
+      </ft-breadcrumb>
+      <ft-page-header
+        [title]="'Check-in · ' + c.title"
+        [subtitle]="c.isCancelled ? null : subtitle()"
+      >
+        <span ftPageHeaderSubtitle
+          >{{ subtitle() }} · <ft-badge variant="danger">Cancelled</ft-badge></span
+        >
+        @if (c.canEdit && !c.isCancelled) {
+          <ft-button
+            ftPageHeaderActions
+            variant="primary"
+            [disabled]="!editable()"
+            (click)="addWalkIn()"
+          >
+            <ft-icon name="walk-in" /> Add walk-in
+          </ft-button>
+        }
+        <!-- One element per block: a block with several roots cannot project into the actions slot. -->
+        @if (c.canExport) {
+          <ft-button
+            ftPageHeaderActions
+            variant="ghost"
+            [loading]="exporting()"
+            (click)="exportCsv()"
+          >
+            <ft-icon name="export" /> {{ exporting() ? 'Exporting…' : 'Export CSV' }}
+          </ft-button>
+        }
+      </ft-page-header>
+
+      <ft-stack>
+        @if (c.isCancelled) {
+          <ft-alert
+            status="danger"
+            polite
+            heading="This event was cancelled, so no one can be checked in"
+          >
+            The RSVP list stays here for reference.
+            <ft-button ftAlertActions variant="ghost" [href]="'/events/' + c.eventId">
+              Open the event
+            </ft-button>
+          </ft-alert>
+        } @else if (!c.isOpen) {
+          <ft-alert status="info" [heading]="opens()" />
+        }
+        @if (!c.canEdit) {
+          <ft-alert status="info" heading="Read-only for Staff">
+            You can see who’s here. Leads check people in, add walk-ins and export the list, which
+            carries guest emails.
+          </ft-alert>
+        }
+        <ft-card>
+          <ft-progress
+            heading="Checked in"
+            [value]="checkedIn()"
+            [max]="going()"
+            [caption]="checkedIn() + ' of ' + going()"
+            [label]="checkedIn() + ' of ' + going() + ' checked in'"
+          />
+        </ft-card>
+
+        @if (everyone(); as text) {
+          <ft-alert status="success" heading="Everyone’s here">{{ text }}</ft-alert>
+        }
+
+        @if (attendees().length) {
+          <form class="search" role="search" (submit)="$event.preventDefault()">
+            <ft-text-field
+              type="search"
+              label="Find an attendee"
+              [placeholder]="c.canEdit ? 'Find by name or email' : 'Find by name'"
+              autocomplete="off"
+              [formControl]="query"
+            />
+          </form>
+
+          @if (shown().length) {
+            <ft-card variant="flush">
+              <ft-list label="Attendees">
+                @for (a of shown(); track a.rsvpId) {
+                  <ft-list-item [label]="a.name" [meta]="meta(a)">
+                    <ft-avatar leading size="sm" [name]="a.name" [color]="color(a)" />
+                    @if (a.isWalkIn) {
+                      <ft-badge trailing variant="info">Walk-in</ft-badge>
+                    }
+                    <ft-switch
+                      trailing
+                      labelHidden
+                      [ngModel]="!!a.checkedInAt"
+                      [disabled]="!editable()"
+                      (ngModelChange)="toggle(a, $event)"
+                      >Check in {{ a.name }}</ft-switch
+                    >
+                  </ft-list-item>
+                }
+              </ft-list>
+            </ft-card>
+            <p class="caption">
+              @if (searchTerm()) {
+                Showing {{ shown().length }} of {{ going() }}.
+              }
+              Members and guests who RSVP’d are listed in RSVP order; walk-ins follow at the end.
+            </p>
+          } @else {
+            <ft-empty-state
+              [heading]="'Nobody called “' + searchTerm() + '” has RSVP’d'"
+              text="They may have come with a friend or RSVP’d under another email. Add them as a walk-in and they’re checked in at once."
+            >
+              @if (editable()) {
+                <ft-button actions variant="primary" (click)="addWalkIn(termAsName())">
+                  Add “{{ termAsName() }}” as a walk-in
+                </ft-button>
+              }
+              <ft-button actions variant="ghost" (click)="clearSearch()">Clear search</ft-button>
+            </ft-empty-state>
+          }
+        } @else {
+          <ft-empty-state
+            heading="Nobody has RSVP’d yet"
+            text="When people RSVP they appear here. Anyone who turns up anyway can be added as a walk-in."
+          >
+            @if (editable()) {
+              <ft-button actions variant="primary" (click)="addWalkIn()">
+                <ft-icon name="walk-in" /> Add walk-in
+              </ft-button>
+            }
+          </ft-empty-state>
+        }
+      </ft-stack>
+    }
+  }
+}

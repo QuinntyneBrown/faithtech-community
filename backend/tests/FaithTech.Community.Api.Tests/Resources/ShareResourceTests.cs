@@ -1,4 +1,5 @@
 // Traces to: L2-060, L2-061, L2-066
+using FaithTech.Community.Api.Tests.Organisations;
 using System.Net;
 using System.Net.Http.Json;
 using FaithTech.Community.Api.Tests.Profiles;
@@ -182,7 +183,8 @@ public class ShareResourceTests : IAsyncLifetime
     public async Task The_people_picker_lists_members_by_name_with_roles_and_city_for_contributors_only()
     {
         var grace = await factory.AddMemberAsync("Grace Okonkwo");
-        await factory.AddMemberAsync("Daniel Reyes", p => p.Update("Daniel Reyes", "Austin", null));
+        var austin = await factory.ChapterIdAsync("Austin");
+        await factory.AddMemberAsync("Daniel Reyes", p => p.Update("Daniel Reyes", austin, null));
         var away = await factory.AddMemberAsync("Daniel Away");
         await factory.WithDbAsync(async db =>
         {
@@ -193,9 +195,9 @@ public class ShareResourceTests : IAsyncLifetime
         var people = (await factory.ClientFor(grace, Role.CityLead).GetFromJsonAsync<Person[]>("/api/resources/members?q=dan"))!;
         var refused = await factory.ClientFor(await factory.AddMemberAsync("Samuel Mensah"), Role.Volunteer).GetAsync("/api/resources/members?q=dan");
 
-        Assert.Equal([("Daniel Reyes", "Austin")], people.Select(p => (p.Name, p.City)));
+        Assert.Equal([("Daniel Reyes", "Austin")], people.Select(p => (p.Name, p.ChapterName)));
         Assert.Equal(HttpStatusCode.Forbidden, refused.StatusCode);
     }
 
-    public sealed record Person(Guid Id, string Name, string? City, string[] Roles);
+    public sealed record Person(Guid Id, string Name, string? ChapterName, string[] Roles);
 }

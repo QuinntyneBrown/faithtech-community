@@ -1,5 +1,8 @@
 import { Route } from '@playwright/test';
 
+import { EventTypesContext, MockEventTypes } from './mock-event-types';
+import { firstRoleCarrying, holds } from './role-definitions';
+
 /** An RSVP as the Rsvps table holds it: a member's profile id, or a guest's name and email. */
 export interface MockRsvp {
   id: string;
@@ -9,6 +12,11 @@ export interface MockRsvp {
   createdAt: string;
   /** The secret in a guest's cancel link (the server keeps only its hash). */
   cancelToken?: string;
+  /** When the attendee was checked in at the door (ADR 0029); null until then. */
+  checkedInAt?: string | null;
+  checkedInById?: string | null;
+  /** Added at the door rather than RSVP'd. */
+  isWalkIn?: boolean;
 }
 
 /** An event as the Events table holds it (FaithTech.Community.Domain.Events.Event). */
@@ -16,10 +24,12 @@ export interface MockEvent {
   id: string;
   title: string;
   description: string;
-  type: 'Gathering' | 'BuildersNight' | 'Hackathon' | 'PrayerAndPlanning' | 'Panel';
+  /** An event type key of the organisation's (L2-145), such as "builders-night". */
+  type: string;
   startsAt: string;
   endsAt: string;
-  city: string;
+  /** The chapter tag (L2-141); null for an organisation-wide event. */
+  chapterId: string | null;
   format: 'InPerson' | 'Online';
   venue: string | null;
   onlineLink: string | null;
@@ -42,6 +52,18 @@ export interface EventsCaller {
 }
 
 /** A member's profile as the events fake reads it (name for RSVP lists, roles for the host line). */
+/** What the events fake reads from the chapters fake. */
+export interface EventsChapters {
+  nameOf(id: string | null | undefined): string | null;
+  pick(chosen: unknown, current: string | null): { chapterId: string | null } | { error: string };
+  /** The tag an event a spec adds without one gets: FaithTech's Toronto while chapters are on. */
+  defaultId(): string | null;
+  /** The chapter a list filter names; null for none, an unknown id or chapters off (L2-142 AC3). */
+  filterId(value: string | null): string | null;
+  /** Whether chapters are on, so chapter=none narrows to the organisation-wide events. */
+  on(): boolean;
+}
+
 export interface EventsProfile {
   name: string;
   roles: string[];
@@ -55,20 +77,18 @@ export interface MockEmail {
   attachment: { fileName: string; contentType: string } | null;
 }
 
-const LIST_FILTERS = ['upcoming', 'past', 'hackathons', 'online'];
-const MANAGERS = ['EventLead', 'CityLead', 'SystemAdmin'];
-const LEADS = ['CityLead', 'EventLead', 'CreateLead', 'CommunicationsLead'];
-const HOST_ROLES: [string, string][] = [
-  ['EventLead', 'Event Lead'],
-  ['CityLead', 'City Lead'],
-  ['SystemAdmin', 'System Admin'],
-];
+const LIST_FILTERS = ['upcoming', 'past', 'online'];
 
 /** EventPermissions: who sees the RSVP list, guest emails and the CSV export (L2-022). */
-const seesList = (c: EventsCaller) =>
-  c.roles.some((r) => LEADS.includes(r) || r === 'Staff' || r === 'SystemAdmin');
-const seesEmails = (c: EventsCaller) =>
-  c.roles.some((r) => LEADS.includes(r) || r === 'SystemAdmin');
+const seesList = (c: EventsCaller) => holds(c, 'ViewAttendees') || holds(c, 'ManageAttendance');
+const seesEmails = (c: EventsCaller) => holds(c, 'ManageAttendance');
+
+/** Walk-ins did not RSVP: RSVP counts, lists and the RSVP export leave them out (L2-121 AC3). */
+const rsvped = (event: MockEvent) => event.rsvps.filter((r) => !r.isWalkIn);
+
+/** Event.CheckInOpensAt: a day before the start. */
+const checkInOpensAt = (event: MockEvent) =>
+  new Date(new Date(event.startsAt).getTime() - 24 * 60 * 60 * 1000).toISOString();
 
 const utc = (iso: string) =>
   new Date(iso)
@@ -77,7 +97,7 @@ const utc = (iso: string) =>
     .replace(/\.\d{3}/, '');
 
 /** IcsCalendarWriter's file, unfolded: what a calendar app reads. */
-export function ics(event: MockEvent, isPublic = false): string {
+export function ics(event: MockEvent, isPublic = false, chapterName: string | null = null): string {
   const lines = [
     'BEGIN:VCALENDAR',
     'VERSION:2.0',
@@ -87,7 +107,9 @@ export function ics(event: MockEvent, isPublic = false): string {
     `DTSTART:${utc(event.startsAt)}`,
     `DTEND:${utc(event.endsAt)}`,
     `SUMMARY:${event.title}`,
-    event.format === 'InPerson' ? `LOCATION:${event.venue}, ${event.city}` : '',
+    event.format === 'InPerson'
+      ? `LOCATION:${[event.venue, chapterName].filter(Boolean).join(', ')}`
+      : '',
     isPublic
       ? `URL:/public/events/${event.id}`
       : event.format === 'Online'
@@ -109,24 +131,25 @@ export function slug(title: string): string {
     .replace(/^-+|-+$/g, '');
   return words.slice(0, 60).replace(/-+$/, '') || 'event';
 }
-const TYPES = ['Gathering', 'BuildersNight', 'Hackathon', 'PrayerAndPlanning', 'Panel'];
-
 function canManage(caller: EventsCaller): boolean {
-  return caller.roles.some((r) => MANAGERS.includes(r));
+  return holds(caller, 'ManageEvents');
 }
 
 const text = (value: unknown) => (typeof value === 'string' ? value.trim() : '');
 
-/** SaveEventValidator's rules and words. */
-function validate(body: Record<string, unknown>): Record<string, string[]> {
+/** SaveEventValidator's rules and words; the type is an active one, or the event's own on edit (L2-145 AC2). */
+function validate(
+  body: Record<string, unknown>,
+  types: MockEventTypes,
+  current: string | null = null,
+): Record<string, string[]> {
   const errors: Record<string, string[]> = {};
   const online = body['format'] === 'Online';
   if (!text(body['title'])) errors['Title'] = ['Give the event a title people will recognise.'];
-  if (!TYPES.includes(String(body['type']))) errors['Type'] = ['Choose a type from the list.'];
+  if (!types.allows(body['type'], current)) errors['Type'] = ['Choose a type from the list.'];
   if (!(String(body['endsAt']) > String(body['startsAt']))) {
     errors['EndsAt'] = ['The end time must be after the start time.'];
   }
-  if (!text(body['city'])) errors['City'] = ['Enter the city the event is in.'];
   if (!online && !text(body['venue']))
     errors['Venue'] = ['Enter a venue address, or choose Online.'];
   if (online && !text(body['onlineLink'])) {
@@ -147,10 +170,9 @@ function fields(body: Record<string, unknown>): Partial<MockEvent> {
   return {
     title: text(body['title']),
     description: text(body['description']),
-    type: body['type'] as MockEvent['type'],
+    type: String(body['type']),
     startsAt: new Date(String(body['startsAt'])).toISOString(),
     endsAt: new Date(String(body['endsAt'])).toISOString(),
-    city: text(body['city']),
     format: online ? 'Online' : 'InPerson',
     venue: online ? null : text(body['venue']),
     onlineLink: online ? text(body['onlineLink']) : null,
@@ -176,10 +198,35 @@ export class MockEvents {
   /** Emails the events endpoints sent (confirmations with the .ics, cancellations). */
   readonly emails: MockEmail[] = [];
 
+  /** The next check-in or undo answers 500, to drive the reverted switch and danger toast. */
+  private failCheckIn = false;
+
+  /** The organisation's event types, seeded with FaithTech's (L2-145, L2-151). */
+  readonly types: MockEventTypes;
+
   constructor(
     private readonly now: () => Date,
     private readonly profile: (id: string) => EventsProfile | undefined = () => undefined,
-  ) {}
+    /** The profile of the verified account with this email, as AddWalkInHandler looks it up. */
+    private readonly verifiedMember: (email: string) => string | undefined = () => undefined,
+    private readonly chapters: EventsChapters = {
+      nameOf: () => null,
+      pick: () => ({ chapterId: null }),
+      defaultId: () => null,
+      filterId: () => null,
+      on: () => false,
+    },
+    addAuditEntry: EventTypesContext['addAuditEntry'] = () => undefined,
+  ) {
+    const events = this.events;
+    this.types = new MockEventTypes({
+      get now() {
+        return now();
+      },
+      eventsOf: (key) => events.filter((e) => e.type === key).length,
+      addAuditEntry,
+    });
+  }
 
   /** An event as a lead would create it; give `startsInDays` relative to the fake's "now". */
   add(event: Partial<MockEvent> & { title: string }, startsInDays = 7, hours = 2): MockEvent {
@@ -187,10 +234,10 @@ export class MockEvents {
     const full: MockEvent = {
       id: `event-${this.events.length + 1}`,
       description: `About ${event.title}.`,
-      type: 'Gathering',
+      type: 'gathering',
       startsAt: starts.toISOString(),
       endsAt: new Date(starts.getTime() + hours * 60 * 60 * 1000).toISOString(),
-      city: 'Toronto',
+      chapterId: 'chapterId' in event ? (event.chapterId ?? null) : this.chapters.defaultId(),
       format: 'InPerson',
       venue: 'Kestrel Labs, 220 King St W',
       onlineLink: null,
@@ -281,7 +328,222 @@ export class MockEvents {
       return this.cancelRsvp(route, rsvps[1], caller);
     if (rsvps && method === 'GET' && rsvps[2] === '.csv')
       return this.exportRsvps(route, rsvps[1], caller);
+    const checkIn = /^\/api\/events\/([^/]+)\/check-in$/.exec(url.pathname);
+    if (checkIn && method === 'GET') return this.getCheckIn(route, checkIn[1], caller);
+    const checkIns = /^\/api\/events\/([^/]+)\/check-ins\/([^/]+)$/.exec(url.pathname);
+    if (checkIns && (method === 'PUT' || method === 'DELETE'))
+      return this.checkIn(route, checkIns[1], checkIns[2], method === 'PUT', caller);
+    const csv = /^\/api\/events\/([^/]+)\/check-ins\.csv$/.exec(url.pathname);
+    if (csv && method === 'GET') return this.exportAttendance(route, csv[1], caller);
+    const walkIns = /^\/api\/events\/([^/]+)\/walk-ins$/.exec(url.pathname);
+    if (walkIns && method === 'POST') return this.addWalkIn(route, walkIns[1], body, caller);
     return false;
+  }
+
+  /** Makes the next check-in or undo fail with 500. */
+  failNextCheckIn(): void {
+    this.failCheckIn = true;
+  }
+
+  /** CheckInHandler.GetAsync (L2-117, L2-118): leads, Staff and System Admins; emails for leads and admins. */
+  private getCheckIn(route: Route, id: string, caller: EventsCaller | null): Promise<void> {
+    if (!caller) return route.fulfill({ status: 401 });
+    if (!seesList(caller)) return route.fulfill({ status: 403 });
+    const event = this.events.find((e) => e.id === id);
+    if (!event) return route.fulfill({ status: 404 });
+    const opensAt = checkInOpensAt(event);
+    const attendees = [...event.rsvps]
+      .sort(
+        (a, b) =>
+          Number(!!a.isWalkIn) - Number(!!b.isWalkIn) || a.createdAt.localeCompare(b.createdAt),
+      )
+      .map((r) => this.attendee(r, caller));
+    return route.fulfill({
+      status: 200,
+      json: {
+        eventId: event.id,
+        title: event.title,
+        startsAt: event.startsAt,
+        chapterName: this.chapters.nameOf(event.chapterId),
+        format: event.format,
+        venue: event.venue,
+        isCancelled: event.isCancelled,
+        cancellationReason: event.cancellationReason,
+        checkInOpensAt: opensAt,
+        isOpen: !event.isCancelled && this.now().toISOString() >= opensAt,
+        canEdit: seesEmails(caller),
+        canExport: seesEmails(caller),
+        going: attendees.length,
+        checkedIn: attendees.filter((a) => a.checkedInAt).length,
+        walkIns: attendees.filter((a) => a.isWalkIn).length,
+        attendees,
+      },
+    });
+  }
+
+  /** The attendance CSV the export last wrote for an event, for assertions. */
+  attendanceCsv(eventId: string): string {
+    const written = this.attendance.get(eventId);
+    if (written === undefined) throw new Error(`No attendance was exported for ${eventId}`);
+    return written;
+  }
+
+  private readonly attendance = new Map<string, string>();
+
+  /**
+   * GET /api/events/{id}/check-ins.csv (L2-122): lead roles and System Admins. CsvWriter's rules: every cell
+   * quoted, CRLF, and a formula guard on cells starting with =, +, -, @, a tab or a carriage return.
+   */
+  private exportAttendance(route: Route, id: string, caller: EventsCaller | null): Promise<void> {
+    if (!caller) return route.fulfill({ status: 401 });
+    if (!seesEmails(caller)) return route.fulfill({ status: 403 });
+    const event = this.events.find((e) => e.id === id);
+    if (!event) return route.fulfill({ status: 404 });
+    const minute = (iso: string) => iso.slice(0, 16).replace('T', ' ');
+    const cell = (value: string | null) => {
+      const guarded = /^[=+\-@\t\r]/.test(value ?? '') ? `'${value}` : (value ?? '');
+      return `"${guarded.replace(/"/g, '""')}"`;
+    };
+    const rows = [...event.rsvps]
+      .sort(
+        (a, b) =>
+          Number(!!a.isWalkIn) - Number(!!b.isWalkIn) || a.createdAt.localeCompare(b.createdAt),
+      )
+      .map((r) => [
+        this.rsvpName(r),
+        r.isWalkIn ? 'Walk-in' : r.profileId ? 'Member' : 'Guest',
+        r.guestEmail,
+        minute(r.createdAt),
+        r.checkedInAt ? minute(r.checkedInAt) : null,
+      ]);
+    const body = [['Name', 'Type', 'Email', "RSVP'd (UTC)", 'Checked in (UTC)'], ...rows]
+      .map((row) => row.map(cell).join(',') + '\r\n')
+      .join('');
+    this.attendance.set(id, body);
+    return route.fulfill({
+      status: 200,
+      headers: {
+        'content-disposition': `attachment; filename=${slug(event.title)}-attendance.csv`,
+      },
+      contentType: 'text/csv',
+      body,
+    });
+  }
+
+  /** CheckInHandler.Refusal (L2-119 AC5, AC6): a cancelled or not yet open event takes no check-in writes. */
+  private checkInRefusal(route: Route, event: MockEvent): Promise<void> | null {
+    if (event.isCancelled)
+      return route.fulfill({
+        status: 409,
+        json: { status: 409, detail: 'This event was cancelled.' },
+      });
+    const opensAt = checkInOpensAt(event);
+    if (this.now().toISOString() < opensAt) {
+      return route.fulfill({
+        status: 409,
+        json: { status: 409, detail: 'Check-in hasn’t opened yet.', opensAt },
+      });
+    }
+    return null;
+  }
+
+  /** CheckInAttendeeDto: guest emails only for leads and System Admins. */
+  private attendee(r: MockRsvp, caller: EventsCaller) {
+    return {
+      rsvpId: r.id,
+      profileId: r.profileId,
+      name: this.rsvpName(r),
+      isGuest: r.profileId === null,
+      isWalkIn: !!r.isWalkIn,
+      email: r.profileId === null && seesEmails(caller) ? r.guestEmail : null,
+      rsvpedAt: r.createdAt,
+      checkedInAt: r.checkedInAt ?? null,
+    };
+  }
+
+  /**
+   * POST /api/events/{id}/walk-ins (L2-120): AddWalkInValidator's rules and words; a verified member's email
+   * links the row; an existing RSVP is reused (200); no capacity or start check and no confirmation email.
+   */
+  private addWalkIn(
+    route: Route,
+    id: string,
+    body: Record<string, unknown>,
+    caller: EventsCaller | null,
+  ): Promise<void> {
+    if (!caller) return route.fulfill({ status: 401 });
+    const name = text(body['name']);
+    const email = text(body['email']);
+    const errors: Record<string, string[]> = {};
+    if (!name) errors['Name'] = ['Enter their name so the list shows who came.'];
+    else if (name.length > 100) errors['Name'] = ['Use 100 characters or fewer for the name.'];
+    if (email && (email.length > 256 || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)))
+      errors['Email'] = ['Enter an email like name@example.com, or leave it empty.'];
+    if (Object.keys(errors).length)
+      return route.fulfill({ status: 400, json: { status: 400, errors } });
+    if (!seesEmails(caller)) return route.fulfill({ status: 403 });
+    const event = this.events.find((e) => e.id === id);
+    if (!event) return route.fulfill({ status: 404 });
+    const refused = this.checkInRefusal(route, event);
+    if (refused) return refused;
+    const member = email ? this.verifiedMember(email) : undefined;
+    let rsvp = member
+      ? event.rsvps.find((r) => r.profileId === member)
+      : email
+        ? event.rsvps.find((r) => r.guestEmail?.toLowerCase() === email.toLowerCase())
+        : undefined;
+    const reused = !!rsvp;
+    if (!rsvp) {
+      rsvp = {
+        id: `${event.id}-rsvp-${event.rsvps.length + 1}`,
+        profileId: member ?? null,
+        guestName: member ? null : name,
+        guestEmail: member ? null : email || null,
+        createdAt: this.now().toISOString(),
+        isWalkIn: true,
+      };
+      event.rsvps.push(rsvp);
+    }
+    if (body['checkInNow'] !== false && !rsvp.checkedInAt) {
+      rsvp.checkedInAt = this.now().toISOString();
+      rsvp.checkedInById = caller.profileId;
+    }
+    return route.fulfill({
+      status: reused ? 200 : 201,
+      json: { attendee: this.attendee(rsvp, caller), reused },
+    });
+  }
+
+  /** PUT and DELETE /api/events/{id}/check-ins/{rsvpId} (L2-119): leads and System Admins. */
+  private checkIn(
+    route: Route,
+    id: string,
+    rsvpId: string,
+    on: boolean,
+    caller: EventsCaller | null,
+  ): Promise<void> {
+    if (!caller) return route.fulfill({ status: 401 });
+    if (!seesEmails(caller)) return route.fulfill({ status: 403 });
+    const event = this.events.find((e) => e.id === id);
+    const rsvp = event?.rsvps.find((r) => r.id === rsvpId);
+    if (!event || !rsvp) return route.fulfill({ status: 404 });
+    const refused = this.checkInRefusal(route, event);
+    if (refused) return refused;
+    if (this.failCheckIn) {
+      this.failCheckIn = false;
+      return route.fulfill({ status: 500 });
+    }
+    if (!on) {
+      rsvp.checkedInAt = null;
+      rsvp.checkedInById = null;
+      return route.fulfill({ status: 204 });
+    }
+    // Saving again keeps the first time (L2-119 AC4).
+    if (!rsvp.checkedInAt) {
+      rsvp.checkedInAt = this.now().toISOString();
+      rsvp.checkedInById = caller.profileId;
+    }
+    return route.fulfill({ status: 200, json: this.attendee(rsvp, caller) });
   }
 
   /** POST /api/events/{id}/cancel (L2-025): event managers, a required reason, everyone who RSVP'd told. */
@@ -359,7 +621,7 @@ export class MockEvents {
       status: 200,
       contentType: 'text/calendar',
       headers: { 'content-disposition': `attachment; filename=${slug(event.title)}.ics` },
-      body: ics(event, isPublic),
+      body: ics(event, isPublic, this.chapters.nameOf(event.chapterId)),
     });
   }
 
@@ -381,13 +643,14 @@ export class MockEvents {
         title: event.title,
         description: event.description,
         type: event.type,
+        typeName: this.types.nameOf(event.type),
         startsAt: event.startsAt,
         endsAt: event.endsAt,
-        city: event.city,
+        chapterName: this.chapters.nameOf(event.chapterId),
         format: event.format,
         venue: event.venue,
-        rsvpCount: event.rsvps.length,
-        isFull: event.capacity !== null && event.rsvps.length >= event.capacity,
+        rsvpCount: rsvped(event).length,
+        isFull: event.capacity !== null && rsvped(event).length >= event.capacity,
         isCancelled: event.isCancelled,
         cancellationReason: event.cancellationReason,
       },
@@ -449,7 +712,7 @@ export class MockEvents {
   refusal(event: MockEvent): string | null {
     if (event.isCancelled) return 'This event was cancelled.';
     if (this.now().toISOString() >= event.startsAt) return 'This event has already started.';
-    if (event.capacity !== null && event.rsvps.length >= event.capacity)
+    if (event.capacity !== null && rsvped(event).length >= event.capacity)
       return 'This event is full.';
     return null;
   }
@@ -500,7 +763,7 @@ export class MockEvents {
     if (!seesEmails(caller)) return route.fulfill({ status: 403 });
     const event = this.events.find((e) => e.id === id);
     if (!event) return route.fulfill({ status: 404 });
-    const rows = event.rsvps.map((r) =>
+    const rows = rsvped(event).map((r) =>
       [this.rsvpName(r), r.profileId ? 'Member' : 'Guest', r.guestEmail ?? '', r.createdAt].join(
         ',',
       ),
@@ -532,11 +795,18 @@ export class MockEvents {
     caller: EventsCaller | null,
   ): Promise<void> {
     if (!caller) return route.fulfill({ status: 401 });
-    const errors = validate(body);
+    const errors = validate(body, this.types);
+    const chapter = this.chapters.pick(body['chapterId'], null);
+    if ('error' in chapter) errors['ChapterId'] = [chapter.error];
     if (Object.keys(errors).length)
       return route.fulfill({ status: 400, json: { status: 400, errors } });
     if (!canManage(caller)) return route.fulfill({ status: 403 });
-    const event = this.add({ title: '', ...fields(body), createdById: caller.profileId });
+    const event = this.add({
+      title: '',
+      ...fields(body),
+      chapterId: 'chapterId' in chapter ? chapter.chapterId : null,
+      createdById: caller.profileId,
+    });
     return route.fulfill({
       status: 201,
       headers: { location: `/api/events/${event.id}` },
@@ -552,11 +822,14 @@ export class MockEvents {
     caller: EventsCaller | null,
   ): Promise<void> {
     if (!caller) return route.fulfill({ status: 401 });
-    const errors = validate(body);
+    const existing = this.events.find((e) => e.id === id);
+    const errors = validate(body, this.types, existing?.type ?? null);
+    const chapter = this.chapters.pick(body['chapterId'], existing?.chapterId ?? null);
+    if ('error' in chapter) errors['ChapterId'] = [chapter.error];
     if (Object.keys(errors).length)
       return route.fulfill({ status: 400, json: { status: 400, errors } });
     if (!canManage(caller)) return route.fulfill({ status: 403 });
-    const event = this.events.find((e) => e.id === id);
+    const event = existing;
     if (!event) return route.fulfill({ status: 404 });
     if (event.isCancelled) {
       return route.fulfill({
@@ -564,7 +837,9 @@ export class MockEvents {
         json: { status: 409, detail: 'This event is cancelled, so it can’t be edited.' },
       });
     }
-    Object.assign(event, fields(body));
+    Object.assign(event, fields(body), {
+      chapterId: 'chapterId' in chapter ? chapter.chapterId : null,
+    });
     event.sequence++;
     for (const rsvp of event.rsvps) {
       if (rsvp.profileId && rsvp.profileId !== caller.profileId) {
@@ -586,16 +861,18 @@ export class MockEvents {
       title: event.title,
       description: event.description,
       type: event.type,
+      typeName: this.types.nameOf(event.type),
       startsAt: event.startsAt,
       endsAt: event.endsAt,
-      city: event.city,
+      chapterId: event.chapterId,
+      chapterName: this.chapters.nameOf(event.chapterId),
       format: event.format,
       venue: event.venue,
       onlineLink: event.onlineLink,
       capacity: event.capacity,
       visibility: event.visibility,
-      rsvpCount: event.rsvps.length,
-      isFull: event.capacity !== null && event.rsvps.length >= event.capacity,
+      rsvpCount: rsvped(event).length,
+      isFull: event.capacity !== null && rsvped(event).length >= event.capacity,
       isCancelled: event.isCancelled,
       cancellationReason: event.cancellationReason,
       cancelledByName: event.cancelledById
@@ -603,12 +880,17 @@ export class MockEvents {
         : null,
       cancelledAt: event.cancelledAt ?? null,
       hostName: host?.name ?? null,
-      hostRole: HOST_ROLES.find(([role]) => host?.roles.includes(role))?.[1] ?? null,
+      hostRole: host
+        ? firstRoleCarrying(host.roles, 'ManageEvents', 'AdministerOrganisation')
+        : null,
       callerHasRsvp: event.rsvps.some((r) => r.profileId === caller.profileId),
       canManage: canManage(caller),
       canExportRsvps: seesEmails(caller),
+      checkedInCount: seesList(caller) ? event.rsvps.filter((r) => r.checkedInAt).length : null,
+      canCheckIn: seesEmails(caller),
+      canViewCheckIn: seesList(caller),
       rsvps: seesList(caller)
-        ? [...event.rsvps]
+        ? rsvped(event)
             .sort((a, b) => b.createdAt.localeCompare(a.createdAt))
             .map((r) => ({
               profileId: r.profileId,
@@ -616,12 +898,16 @@ export class MockEvents {
               isGuest: r.profileId === null,
               guestEmail: r.profileId === null && seesEmails(caller) ? r.guestEmail : null,
               rsvpedAt: r.createdAt,
+              checkedInAt: r.checkedInAt ?? null,
             }))
         : null,
     };
   }
 
-  /** GET /api/events?filter=&city= (L2-021). */
+  /**
+   * GET /api/events?filter=&chapter=&type= (L2-021, L2-142, L2-145 AC3): a chapter's id, or none for the
+   * organisation-wide events, and a type key.
+   */
   private list(route: Route, url: URL, caller: EventsCaller | null): Promise<void> {
     if (!caller) return route.fulfill({ status: 401 });
     const filter = (url.searchParams.get('filter') ?? 'upcoming').toLowerCase();
@@ -630,21 +916,25 @@ export class MockEvents {
         status: 400,
         json: {
           status: 400,
-          errors: { filter: ['Filter by Upcoming, Past, Hackathons or Online.'] },
+          errors: { filter: ['Filter by Upcoming, Past or Online.'] },
         },
       });
     }
     const now = this.now().toISOString();
-    const city = url.searchParams.get('city')?.trim().toLowerCase();
+    const chapterParam = url.searchParams.get('chapter');
+    const wide = chapterParam === 'none' && this.chapters.on();
+    const chapter = wide ? null : this.chapters.filterId(chapterParam);
+    // type= narrows to one of the organisation's types; a key it does not have is ignored (L2-145 AC3).
+    const typeParam = url.searchParams.get('type');
+    const type = typeParam && this.types.byKey(typeParam) ? typeParam : null;
     const matching = this.events
       .filter((e) =>
         filter === 'past'
           ? e.endsAt <= now
-          : e.endsAt > now &&
-            (filter !== 'hackathons' || e.type === 'Hackathon') &&
-            (filter !== 'online' || e.format === 'Online'),
+          : e.endsAt > now && (filter !== 'online' || e.format === 'Online'),
       )
-      .filter((e) => !city || e.city.trim().toLowerCase() === city)
+      .filter((e) => (wide ? e.chapterId === null : !chapter || e.chapterId === chapter))
+      .filter((e) => !type || e.type === type)
       .sort((a, b) =>
         filter === 'past'
           ? b.startsAt.localeCompare(a.startsAt)
@@ -654,18 +944,17 @@ export class MockEvents {
         id: e.id,
         title: e.title,
         type: e.type,
+        typeName: this.types.nameOf(e.type),
         startsAt: e.startsAt,
         endsAt: e.endsAt,
-        city: e.city,
+        chapterId: e.chapterId,
+        chapterName: this.chapters.nameOf(e.chapterId),
         format: e.format,
         venue: e.venue,
         visibility: e.visibility,
-        rsvpCount: e.rsvps.length,
+        rsvpCount: rsvped(e).length,
         isCancelled: e.isCancelled,
       }));
-    const cities = [...new Set(this.events.map((e) => e.city.trim()).filter((c) => c))].sort(
-      (a, b) => a.localeCompare(b, undefined, { sensitivity: 'base' }),
-    );
-    return route.fulfill({ status: 200, json: { events: matching, cities } });
+    return route.fulfill({ status: 200, json: { events: matching } });
   }
 }

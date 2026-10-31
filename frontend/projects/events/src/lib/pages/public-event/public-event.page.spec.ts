@@ -2,20 +2,32 @@
 import { HttpErrorResponse } from '@angular/common/http';
 import { TestBed } from '@angular/core/testing';
 import { Router } from '@angular/router';
-import { EVENTS_SERVICE, PublicEventDto } from '@faithtech-community/api';
+import { EVENTS_SERVICE, PublicEventDto, SITE_SERVICE } from '@faithtech-community/api';
 import { Observable, of, throwError } from 'rxjs';
 
 import { PublicEventPage } from './public-event.page';
+
+/** The host's organisation the copy names, as GET /api/site answers it on FaithTech's host. */
+const FAITHTECH_SITE = {
+  site: () => ({
+    name: 'FaithTech Community',
+    shortName: 'FaithTech',
+    chapterLabel: { singular: 'City', plural: 'Cities' },
+    communityOrigin: 'http://localhost:4200',
+  }),
+  load: async () => undefined,
+};
 
 function publicEvent(overrides: Partial<PublicEventDto> = {}): PublicEventDto {
   return {
     id: 'e1',
     title: 'Toronto Builders Night',
     description: 'An evening for Christians who build.',
-    type: 'BuildersNight',
+    type: 'builders-night',
+    typeName: 'Builders night',
     startsAt: new Date(2026, 10, 6, 18, 30).toISOString(),
     endsAt: new Date(2026, 10, 6, 21, 0).toISOString(),
-    city: 'Toronto',
+    chapterName: 'Toronto',
     format: 'InPerson',
     venue: 'Kestrel Labs, 220 King St W',
     rsvpCount: 34,
@@ -40,7 +52,12 @@ async function setup(overrides: Overrides = {}) {
         `/api/${options?.isPublic ? 'public/' : ''}events/${id}/calendar.ics`,
     ),
   };
-  TestBed.configureTestingModule({ providers: [{ provide: EVENTS_SERVICE, useValue: service }] });
+  TestBed.configureTestingModule({
+    providers: [
+      { provide: SITE_SERVICE, useValue: FAITHTECH_SITE },
+      { provide: EVENTS_SERVICE, useValue: service },
+    ],
+  });
   const navigate = vi.spyOn(TestBed.inject(Router), 'navigateByUrl').mockResolvedValue(true);
   const fixture = TestBed.createComponent(PublicEventPage);
   fixture.componentRef.setInput('id', 'e1');

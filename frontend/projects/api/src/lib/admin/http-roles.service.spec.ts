@@ -17,21 +17,22 @@ describe('HttpRolesService', () => {
     controller = TestBed.inject(HttpTestingController);
   });
 
-  it('adds a role and returns the updated role set', () => {
-    let roles: string[] = [];
-    service.addRole('p1', 'Volunteer').subscribe((r) => (roles = r));
+  it('adds a role by id and returns the held roles', () => {
+    const held = [{ id: 'r6', name: 'Volunteer', chapterId: null }];
+    let roles: unknown[] = [];
+    service.addRole('p1', 'r6').subscribe((r) => (roles = r));
 
     const req = controller.expectOne('/api/profiles/p1/roles');
     expect(req.request.method).toBe('POST');
-    expect(req.request.body).toEqual({ role: 'Volunteer' });
-    req.flush(['Volunteer']);
-    expect(roles).toEqual(['Volunteer']);
+    expect(req.request.body).toEqual({ roleId: 'r6' });
+    req.flush(held);
+    expect(roles).toEqual(held);
   });
 
-  it('removes a role', () => {
-    service.removeRole('p1', 'Volunteer').subscribe();
+  it('removes a role by id', () => {
+    service.removeRole('p1', 'r6').subscribe();
 
-    const req = controller.expectOne('/api/profiles/p1/roles/Volunteer');
+    const req = controller.expectOne('/api/profiles/p1/roles/r6');
     expect(req.request.method).toBe('DELETE');
     req.flush([]);
   });

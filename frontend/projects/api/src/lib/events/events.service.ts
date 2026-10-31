@@ -1,21 +1,24 @@
 import { InjectionToken } from '@angular/core';
 import { Observable } from 'rxjs';
 
-import { Role } from '../shared/role';
+import { Capability, hasAny } from '../shared/capability';
 
-// "Hackathon" is only an event type in v1; teams, projects and judging are v2.
-export type EventType = 'Gathering' | 'BuildersNight' | 'Hackathon' | 'PrayerAndPlanning' | 'Panel';
+/**
+ * An event type key of the organisation's (L2-145), such as FaithTech's "hackathon". Hackathon is only an event type in
+ * v1; teams, projects and judging are v2.
+ */
+export type EventType = string;
 export type EventFormat = 'InPerson' | 'Online';
 export type EventVisibility = 'MembersOnly' | 'Public';
 
-/** The event form's fields, for create and edit (L2-020). */
+/** The event form's fields, for create and edit (L2-020). No chapter means organisation-wide (L2-141 AC2). */
 export interface EventRequest {
   title: string;
   description: string;
   type: EventType;
   startsAt: string;
   endsAt: string;
-  city: string;
+  chapterId: string | null;
   format: EventFormat;
   venue: string | null;
   onlineLink: string | null;
@@ -29,9 +32,13 @@ export interface EventSummaryDto {
   id: string;
   title: string;
   type: EventType;
+  /** The type's current name, shown even once it is archived (L2-145 AC4). */
+  typeName: string;
   startsAt: string;
   endsAt: string;
-  city: string;
+  chapterId: string | null;
+  /** Null for an organisation-wide event, and while chapters are off. */
+  chapterName: string | null;
   format: EventFormat;
   venue: string | null;
   visibility: EventVisibility;
@@ -39,10 +46,9 @@ export interface EventSummaryDto {
   isCancelled: boolean;
 }
 
-/** The matching events, and every city that has an event whatever the filters. */
+/** The matching events. The chapter filter's options come from the organisation (L2-142 AC1). */
 export interface EventListDto {
   events: EventSummaryDto[];
-  cities: string[];
 }
 
 /** Someone who RSVP'd. `guestEmail` is null for members, and for Staff (L2-022 AC4). */
@@ -52,6 +58,8 @@ export interface RsvpDto {
   isGuest: boolean;
   guestEmail: string | null;
   rsvpedAt: string;
+  /** When they were checked in at the door, if they were (L2-121). */
+  checkedInAt: string | null;
 }
 
 /** One event as its page and the edit form show it, with whether the caller may manage it. */
@@ -60,9 +68,11 @@ export interface EventDetailDto {
   title: string;
   description: string;
   type: EventType;
+  typeName: string;
   startsAt: string;
   endsAt: string;
-  city: string;
+  chapterId: string | null;
+  chapterName: string | null;
   format: EventFormat;
   venue: string | null;
   onlineLink: string | null;
@@ -82,6 +92,11 @@ export interface EventDetailDto {
   canExportRsvps: boolean;
   /** Null unless the caller is a lead, Staff or System Admin; attendees see only the count. */
   rsvps: RsvpDto[] | null;
+  /** Everyone checked in, walk-ins included; null for callers who don't see the RSVP list (L2-121). */
+  checkedInCount: number | null;
+  /** Lead roles and System Admins check people in; Staff only view the check-in page (L2-117). */
+  canCheckIn: boolean;
+  canViewCheckIn: boolean;
 }
 
 /** A public event as anyone with the link sees it: no RSVP list and no joining link (L2-023). */
@@ -90,9 +105,10 @@ export interface PublicEventDto {
   title: string;
   description: string;
   type: EventType;
+  typeName: string;
   startsAt: string;
   endsAt: string;
-  city: string;
+  chapterName: string | null;
   format: EventFormat;
   venue: string | null;
   rsvpCount: number;
@@ -106,12 +122,15 @@ export interface GuestRsvpRequest {
   email: string;
 }
 
-/** The list's chips (L2-021 AC2): one at a time; Hackathons and Online keep to upcoming events. */
-export type EventListFilter = 'Upcoming' | 'Past' | 'Hackathons' | 'Online';
+/** The list's chips (L2-021 AC2): one at a time; Online keeps to upcoming events. */
+export type EventListFilter = 'Upcoming' | 'Past' | 'Online';
 
 export interface EventFilter {
   filter?: EventListFilter;
-  city?: string | null;
+  /** A chapter's id, or ORGANISATION_WIDE for events with no chapter; ignored while chapters are off (L2-142). */
+  chapterId?: string | null;
+  /** An event type key; combines with the chips (L2-145 AC3). */
+  type?: string | null;
 }
 
 /**
@@ -143,20 +162,9 @@ export interface EventsService {
   calendarUrl(id: string, options?: { isPublic?: boolean }): string;
 }
 
-/** The event types in the form's order, with the words people read (L2-020 AC1). */
-export const EVENT_TYPE_LABELS: Record<EventType, string> = {
-  Gathering: 'Gathering',
-  BuildersNight: 'Builders night',
-  Hackathon: 'Hackathon',
-  PrayerAndPlanning: 'Prayer & planning',
-  Panel: 'Panel',
-};
-
-const EVENT_MANAGERS: readonly Role[] = ['EventLead', 'CityLead', 'SystemAdmin'];
-
-/** Event Leads, City Leads and System Admins create, edit and cancel events (L2-020, L2-025). */
-export function canManageEvents(callerRoles: readonly Role[]): boolean {
-  return callerRoles.some((r) => EVENT_MANAGERS.includes(r));
+/** ManageEvents creates, edits and cancels events (L2-020, L2-025, L2-135 AC7). */
+export function canManageEvents(capabilities: readonly Capability[]): boolean {
+  return hasAny(capabilities, 'ManageEvents');
 }
 
 export const EVENTS_SERVICE = new InjectionToken<EventsService>('EVENTS_SERVICE');

@@ -3,6 +3,10 @@ export const ICONS: Readonly<Record<string, string>> = {
   brand: "<path d='M12 2v20M5 8h14'/><circle cx='12' cy='8' r='9' fill='none' opacity='.35'/>",
   notifications: "<path d='M6 16V11a6 6 0 0 1 12 0v5l2 2H4zM10 20a2 2 0 0 0 4 0'/>",
   move: "<path d='M5 12h14M13 6l6 6-6 6'/>",
+  'move-up': "<path d='M12 19V5M6 11l6-6 6 6'/>",
+  'move-down': "<path d='M12 5v14M6 13l6 6 6-6'/>",
+  'drag-handle':
+    "<circle cx='9' cy='6' r='1'/><circle cx='15' cy='6' r='1'/><circle cx='9' cy='12' r='1'/><circle cx='15' cy='12' r='1'/><circle cx='9' cy='18' r='1'/><circle cx='15' cy='18' r='1'/>",
   home: "<path d='M3 12 12 3l9 9M5 10v10h14V10'/>",
   events: "<rect x='3' y='5' width='18' height='16' rx='2'/><path d='M3 10h18M8 3v4M16 3v4'/>",
   search: "<circle cx='11' cy='11' r='7'/><path d='m20 20-3.5-3.5'/>",
@@ -54,6 +58,9 @@ export const ICONS: Readonly<Record<string, string>> = {
   photo:
     "<rect x='3' y='3' width='18' height='18' rx='2'/><circle cx='9' cy='9' r='2'/><path d='m21 15-5-5L5 21'/>",
   'sign-out': "<path d='M15 4h4v16h-4M10 17l5-5-5-5M15 12H3'/>",
+  switch: "<path d='M7 7h13l-3-3M17 17H4l3 3'/>",
+  organisation:
+    "<path d='M4 21V5a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v16M16 9h2a2 2 0 0 1 2 2v10M2 21h20M8 7h4M8 11h4M8 15h4'/>",
   resources: "<path d='M4 4h6l2 2h8v14H4z'/><path d='M8 12h8M8 16h5'/>",
   notes: "<path d='M5 3h10l4 4v14H5z'/><path d='M9 9h6M9 13h6M9 17h4'/>",
   deck: "<rect x='3' y='4' width='18' height='12' rx='1'/><path d='M12 16v4M8 20h8'/>",
@@ -71,6 +78,10 @@ export const ICONS: Readonly<Record<string, string>> = {
     "<circle cx='9' cy='8' r='4'/><path d='M2 21a7 7 0 0 1 14 0M16 3.5a4 4 0 0 1 0 7.5M22 21a7 7 0 0 0-4-6.3'/>",
   transfer: "<path d='M4 8h14l-4-4M20 16H6l4 4'/>",
   suspended: "<circle cx='12' cy='12' r='9'/><path d='M5.6 5.6l12.8 12.8'/>",
+  call: "<path d='M5 4h4l2 5-2.5 1.5a11 11 0 0 0 5 5L15 13l5 2v4a2 2 0 0 1-2 2A16 16 0 0 1 3 6a2 2 0 0 1 2-2z'/>",
+  merge: "<path d='M7 3v6a5 5 0 0 0 5 5 5 5 0 0 1 5 5v2M7 21v-6M17 3v3'/>",
+  reports: "<path d='M4 20V10M10 20V4M16 20v-7M22 20H2'/>",
+  'walk-in': "<circle cx='10' cy='8' r='4'/><path d='M3 21a7 7 0 0 1 14 0M19 8v6M16 11h6'/>",
 };
 
 export const ICON_NAMES = Object.keys(ICONS);

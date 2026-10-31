@@ -45,7 +45,7 @@
       [subtitle]="
         other()
           ? 'You’re editing as System Admin. Every change is recorded in the audit log.'
-          : 'Visible to everyone signed in to FaithTech.'
+          : 'Visible to everyone signed in to ' + organisation.shortName() + '.'
       "
     />
     <form [formGroup]="form" (ngSubmit)="save()" ftFormErrorFocus novalidate>
@@ -66,14 +66,17 @@
             <ft-form-field #nameField required label="Name" [error]="error('name')">
               <ft-text-field formControlName="name" autocomplete="name" />
             </ft-form-field>
-            <ft-form-field
-              #homeCityField
-              label="Home city"
-              [optional]="true"
-              [error]="error('homeCity')"
-            >
-              <ft-text-field formControlName="homeCity" autocomplete="address-level2" />
-            </ft-form-field>
+            @if (chapterOptions().length) {
+              <ft-form-field
+                #chapterField
+                [label]="'Home ' + chapterLabel()"
+                [optional]="true"
+                [help]="'Tags you to a ' + chapterLabel() + '. It never hides anything from you.'"
+                [error]="error('chapterId')"
+              >
+                <ft-select formControlName="chapterId" [options]="chapterOptions()" />
+              </ft-form-field>
+            }
             <ft-form-field
               #bioField
               label="Bio"

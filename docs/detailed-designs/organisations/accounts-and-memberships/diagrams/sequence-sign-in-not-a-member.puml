@@ -1,0 +1,62 @@
+@startuml
+title UML sequence behaviour — Sign in on a host without membership
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+actor "Verified account holder" as actor
+box "Frontend — community app on app.{organisation B}" #E0F2FE
+  participant "SignInPage" as page
+  participant "HttpAuthService" as auth
+  participant "AppShellComponent / NotAMemberPage" as shell
+end box
+box "Backend — FaithTech.Community.Api" #D1FADF
+  participant "AuthorizationEndpoints" as authz
+  participant "CurrentRolesMiddleware" as roles
+  participant "MembershipRequirement" as policy
+  participant "MeEndpoints" as meep
+end box
+box "Backend — FaithTech.Community.Application" #ECFDF3
+  participant "SignInHandler" as signin
+  participant "MeHandler" as me
+end box
+box "Backend — FaithTech.Community.Infrastructure" #FFF4E5
+  database "Community database" as db
+end box
+actor -> page : Email and password on organisation B's host
+page -> auth : signInWithPassword(email, password)
+auth -> signin : POST /api/account/sign-in
+signin -> db : Account by email; profile where UserId = account and OrganisationId = B (filtered)
+db --> signin : Account; no profile
+alt account IsLocked
+  signin --> auth : Refused, "This account is suspended" (L2-132 #6, L2-003 #4)
+else membership in B IsSuspended
+  signin --> auth : Refused, "Your membership of {organisation B} is suspended" (L2-132 #5)
+else no membership in B
+  signin --> auth : Session started; the account is global (L2-132 #3)
+  auth -> authz : /connect/authorize, PKCE
+  authz --> auth : Code, then tokens for this host
+  auth -> meep : GET /api/me
+  meep -> roles : (after authentication)
+  roles -> db : Profile where UserId = subject in organisation B
+  db --> roles : none
+  roles -> policy : Membership = null
+  policy -> meep : /api/me is exempt; every other endpoint answers 403 (L2-132 #3)
+  meep -> me : Handle
+  me -> db : Account's other active memberships
+  db --> me : [{ name: organisation A, host: app.a... }]
+  me --> auth : 403 { reason: "not-a-member", organisation: { name }, memberships } (L2-132 #3)
+  auth -> shell : notAMember set
+  shell --> actor : "You're not a member of {organisation B}", Sign out, link to organisation A
+end
+@enduml

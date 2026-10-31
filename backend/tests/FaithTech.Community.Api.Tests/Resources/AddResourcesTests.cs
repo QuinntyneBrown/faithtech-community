@@ -23,7 +23,7 @@ public class AddResourcesTests(CommunityApiFactory factory) : IClassFixture<Comm
 
         Assert.Equal(HttpStatusCode.Created, response.StatusCode);
         var added = Assert.Single((await response.Content.ReadFromJsonAsync<Detail[]>())!);
-        Assert.Equal(("city-launch-deck", "Deck", "Global", grace.ProfileId), (added.Title, added.Type, added.Visibility, added.OwnerId));
+        Assert.Equal(("city-launch-deck", "deck", "Global", grace.ProfileId), (added.Title, added.Type, added.Visibility, added.OwnerId));
         Assert.Equal(("city-launch-deck.pptx", "pptx", (long)Zip.Length), (added.FileName, added.Extension, added.Size));
         Assert.Equal(["launch", "brand"], added.Tags);
         Assert.Equal(factory.Time.GetUtcNow(), added.AddedAt);
@@ -53,10 +53,10 @@ public class AddResourcesTests(CommunityApiFactory factory) : IClassFixture<Comm
 
         var added = await factory.AddFileAsync(grace, Deck(), new Dictionary<string, string>
         {
-            ["title"] = "  City launch deck ", ["description"] = "The deck for a first city launch.", ["type"] = "Template", ["visibility"] = "Private",
+            ["title"] = "  City launch deck ", ["description"] = "The deck for a first city launch.", ["type"] = "template", ["visibility"] = "Private",
         });
 
-        Assert.Equal(("City launch deck", "The deck for a first city launch.", "Template", "Private"),
+        Assert.Equal(("City launch deck", "The deck for a first city launch.", "template", "Private"),
             (added.Title, added.Description, added.Type, added.Visibility));
     }
 
@@ -73,7 +73,7 @@ public class AddResourcesTests(CommunityApiFactory factory) : IClassFixture<Comm
 
         Assert.Equal(HttpStatusCode.Created, response.StatusCode);
         var added = (await response.Content.ReadFromJsonAsync<Detail[]>())!;
-        Assert.Equal([("retro", "Document"), ("logo", "Image"), ("pitch", "Deck")], added.Select(a => (a.Title, a.Type)));
+        Assert.Equal([("retro", "document"), ("logo", "image"), ("pitch", "deck")], added.Select(a => (a.Title, a.Type)));
         Assert.All(added, a => Assert.Equal(("Private", "launch"), (a.Visibility, a.Tags.Single())));
     }
 

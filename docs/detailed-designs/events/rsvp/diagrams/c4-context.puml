@@ -4,9 +4,9 @@ LAYOUT_WITH_LEGEND()
 title System Context — RSVP
 
 Person(member, "Member", "Signed-in user who browses and RSVPs to events")
-Person(lead, "Event Lead / City Lead", "Creates, edits and cancels events")
-Person(staff, "Staff", "Read-only across events, sees full RSVP lists")
-System(ftc, "FaithTech Community", "Community site for FaithTech members, leads and partners")
+Person(lead, "Member with ManageAttendance", "Sees the full RSVP list with guest emails and exports it")
+Person(staff, "Member with view capabilities", "Holds ViewAttendees: sees the full RSVP list without guest emails")
+System(ftc, "Community platform", "Hosts an organisation's members, events and partners")
 System_Ext(email, "Email provider", "SMTP/SendGrid delivery")
 Rel(member, ftc, "RSVPs to events in", "HTTPS")
 Rel(lead, ftc, "Views full RSVP lists in", "HTTPS")

@@ -7,17 +7,17 @@ Container(spa, "Web app", "Angular", "faithtech-community feature library and ap
 Container_Boundary(api, "Community API") {
   Component(ep, "AccountEndpoints", "Minimal API", "POST /api/account/sign-up, anonymous")
   Component(val, "SignUpValidator", "Validator", "Field and password rules")
-  Component(h, "SignUpHandler", "Application handler", "Creates account and profile")
+  Component(h, "SignUpHandler", "Application handler", "Creates the account and a profile in the current organisation")
   Component(bp, "IBreachedPasswordChecker", "Infrastructure service", "Breached-password lookup")
   Component(es, "IEmailSender", "Infrastructure service", "Sends verification email")
-  ComponentDb(db, "CommunityDbContext", "EF Core / PostgreSQL", "Identity users and profiles")
+  ComponentDb(db, "CommunityDbContext", "EF Core / PostgreSQL", "Global Identity users; profiles filtered by ICurrentOrganisation")
 }
 System_Ext(email, "Email provider", "SMTP or SendGrid")
 Rel(spa, ep, "Posts sign-up form")
 Rel(ep, h, "Sends SignUpCommand")
 Rel(h, val, "Validates with")
 Rel(h, bp, "Checks password")
-Rel(h, db, "Creates user and profile")
+Rel(h, db, "Creates user and the organisation's profile")
 Rel(es, email, "Delivers via")
 Rel(h, es, "Queues verification email")
 @enduml

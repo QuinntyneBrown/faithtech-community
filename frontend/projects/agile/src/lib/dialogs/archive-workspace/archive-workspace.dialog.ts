@@ -1,6 +1,6 @@
 import { DIALOG_DATA, DialogRef } from '@angular/cdk/dialog';
 import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
-import { AGILE_SERVICE, WorkspaceDto } from '@faithtech-community/api';
+import { AGILE_SERVICE, OrganisationNames, WorkspaceDto } from '@faithtech-community/api';
 import { AlertComponent, ButtonComponent, DialogComponent } from '@faithtech-community/components';
 import { firstValueFrom } from 'rxjs';
 
@@ -19,6 +19,7 @@ export interface ArchiveWorkspaceData {
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ArchiveWorkspaceDialog {
+  protected readonly organisation = inject(OrganisationNames);
   protected readonly ref = inject<DialogRef<boolean>>(DialogRef);
   protected readonly data = inject<ArchiveWorkspaceData>(DIALOG_DATA);
   private readonly agile = inject(AGILE_SERVICE);

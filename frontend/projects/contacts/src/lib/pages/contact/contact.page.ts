@@ -11,10 +11,11 @@ import {
 import { Location } from '@angular/common';
 import { Router } from '@angular/router';
 import {
-  CONTACTS_SERVICE,
   ContactDto,
   ContactNoteDto,
   ContactPhoto,
+  CONTACTS_SERVICE,
+  OrganisationNames,
 } from '@faithtech-community/api';
 import {
   AlertComponent,
@@ -91,6 +92,7 @@ type State = 'loading' | 'loaded' | 'not-found' | 'error';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ContactPage {
+  protected readonly organisation = inject(OrganisationNames);
   private readonly contacts = inject(CONTACTS_SERVICE);
   private readonly dialogs = inject(DialogService);
   private readonly toasts = inject(ToastService);

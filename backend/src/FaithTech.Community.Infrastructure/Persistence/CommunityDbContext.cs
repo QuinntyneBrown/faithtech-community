@@ -1,4 +1,6 @@
+using System.Linq.Expressions;
 using FaithTech.Community.Application.Common;
+using FaithTech.Community.Application.Organisations;
 using FaithTech.Community.Application.Identity;
 using FaithTech.Community.Domain.Admin;
 using FaithTech.Community.Domain.Agile;
@@ -7,12 +9,14 @@ using FaithTech.Community.Domain.Contacts;
 using FaithTech.Community.Domain.Events;
 using FaithTech.Community.Domain.Invites;
 using FaithTech.Community.Domain.Notifications;
+using FaithTech.Community.Domain.Organisations;
 using FaithTech.Community.Domain.Partners;
 using FaithTech.Community.Domain.Profiles;
 using FaithTech.Community.Domain.Notes;
 using FaithTech.Community.Domain.Resources;
 using FaithTech.Community.Infrastructure.Email;
 using FaithTech.Community.Infrastructure.Identity;
+using FaithTech.Community.Infrastructure.Persistence.Seed;
 using FaithTech.Community.Infrastructure.Search;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
@@ -21,10 +25,41 @@ using Microsoft.EntityFrameworkCore.ChangeTracking;
 
 namespace FaithTech.Community.Infrastructure.Persistence;
 
-public class CommunityDbContext(DbContextOptions<CommunityDbContext> options)
-    : IdentityDbContext<CommunityUser, IdentityRole<Guid>, Guid>(options), IApplicationDbContext
+public class CommunityDbContext : IdentityDbContext<CommunityUser, IdentityRole<Guid>, Guid>, IApplicationDbContext
 {
+    private readonly ICurrentOrganisation _organisation;
+
+    public CommunityDbContext(DbContextOptions<CommunityDbContext> options, ICurrentOrganisation organisation)
+        : base(options)
+    {
+        _organisation = organisation;
+    }
+
+    /// <summary>
+    /// A context with no organisation scope of its own works as the FaithTech organisation, the platform's first and
+    /// default one: design-time tooling and tests that open the database directly.
+    /// </summary>
+    public CommunityDbContext(DbContextOptions<CommunityDbContext> options)
+        : this(options, DefaultScope())
+    {
+    }
+
+    /// <summary>The current organisation's id, read by every query filter when the query runs.</summary>
+    private Guid CurrentOrganisationId => _organisation.Id;
+
+    /// <summary>
+    /// Whether the current organisation has chapters, read by the chapters filter when the query runs. Work scoped by
+    /// id only (the Cli, workers) never hides them: it shows no one anything, and must find them to keep names unique.
+    /// </summary>
+    private bool ChaptersOn => _organisation is OrganisationScope { IsLoaded: false } || _organisation.ChapterLabelSingular != null;
+
+    public DbSet<Organisation> Organisations => Set<Organisation>();
+
     public DbSet<Profile> Profiles => Set<Profile>();
+
+    public DbSet<RoleDefinition> RoleDefinitions => Set<RoleDefinition>();
+
+    public DbSet<Chapter> Chapters => Set<Chapter>();
 
     public DbSet<VerificationResend> VerificationResends => Set<VerificationResend>();
 
@@ -32,7 +67,7 @@ public class CommunityDbContext(DbContextOptions<CommunityDbContext> options)
 
     public DbSet<AuditEntry> AuditEntries => Set<AuditEntry>();
 
-    public DbSet<SystemAdminRoster> SystemAdminRosters => Set<SystemAdminRoster>();
+    public DbSet<OrganisationAdminRoster> OrganisationAdminRosters => Set<OrganisationAdminRoster>();
 
     public DbSet<Notification> Notifications => Set<Notification>();
 
@@ -49,6 +84,16 @@ public class CommunityDbContext(DbContextOptions<CommunityDbContext> options)
     public DbSet<Partner> Partners => Set<Partner>();
 
     public DbSet<PartnerStageChange> PartnerStageChanges => Set<PartnerStageChange>();
+
+    public DbSet<PartnerStage> PartnerStages => Set<PartnerStage>();
+
+    public DbSet<EventType> EventTypes => Set<EventType>();
+
+    public DbSet<ResourceType> ResourceTypes => Set<ResourceType>();
+
+    public DbSet<PartnerActivity> PartnerActivities => Set<PartnerActivity>();
+
+    public DbSet<PartnerDuplicateDismissal> PartnerDuplicateDismissals => Set<PartnerDuplicateDismissal>();
 
     public DbSet<Workspace> Workspaces => Set<Workspace>();
 
@@ -78,10 +123,63 @@ public class CommunityDbContext(DbContextOptions<CommunityDbContext> options)
         base.OnModelCreating(builder);
         builder.UseOpenIddict();
 
+        builder.Entity<Organisation>(organisation =>
+        {
+            organisation.Property(o => o.Id).ValueGeneratedNever();
+            organisation.Property(o => o.Slug).HasMaxLength(Organisation.MaxSlugLength);
+            organisation.HasIndex(o => o.Slug).IsUnique();
+            // Hosts are stored in lower case, so this index makes them unique case-insensitively (L2-131).
+            organisation.Property(o => o.Host).HasMaxLength(Organisation.MaxHostLength);
+            organisation.HasIndex(o => o.Host).IsUnique();
+            organisation.Property(o => o.Name).HasMaxLength(Organisation.MaxNameLength);
+            organisation.Property(o => o.ShortName).HasMaxLength(Organisation.MaxShortNameLength);
+            organisation.Property(o => o.ChapterLabelSingular).HasMaxLength(Organisation.MaxChapterLabelLength);
+            organisation.Property(o => o.ChapterLabelPlural).HasMaxLength(Organisation.MaxChapterLabelLength);
+            organisation.Property(o => o.Status).HasConversion<string>().HasMaxLength(16);
+            organisation.Property(o => o.SuspendedReason).HasMaxLength(500);
+        });
+
+        builder.Entity<Chapter>(chapter =>
+        {
+            chapter.Property(c => c.Id).ValueGeneratedNever();
+            chapter.Property(c => c.Name).HasMaxLength(Chapter.MaxNameLength);
+            chapter.Property(c => c.NormalizedName).HasMaxLength(Chapter.MaxNameLength);
+            // An active chapter's name is unique in its organisation ignoring case; archived ones free theirs (L2-140 AC4).
+            chapter.HasIndex(nameof(IOrganisationScoped.OrganisationId), nameof(Chapter.NormalizedName))
+                .IsUnique()
+                .HasFilter("\"ArchivedAtUtc\" IS NULL");
+            chapter.Ignore(c => c.IsArchived);
+            chapter.HasQueryFilter(QueryFilters.ChaptersOn, c => ChaptersOn);
+        });
+
+        builder.Entity<RoleDefinition>(definition =>
+        {
+            definition.Property(d => d.Id).ValueGeneratedNever();
+            definition.Property(d => d.Key).HasMaxLength(RoleDefinition.MaxKeyLength);
+            definition.HasIndex(nameof(IOrganisationScoped.OrganisationId), nameof(RoleDefinition.Key)).IsUnique();
+            definition.Property(d => d.Name).HasMaxLength(RoleDefinition.MaxNameLength);
+            definition.Property(d => d.Description).HasMaxLength(RoleDefinition.MaxDescriptionLength);
+            definition.PrimitiveCollection(d => d.Capabilities);
+            definition.OwnsMany(d => d.Grants, grant =>
+            {
+                grant.ToTable("RoleGrantRules");
+                grant.WithOwner().HasForeignKey(g => g.GrantorRoleId);
+                grant.HasKey(g => new { g.GrantorRoleId, g.GrantableRoleId });
+                // Set by the caller, never generated, so a new rule on a loaded definition is inserted.
+                grant.Property(g => g.GrantableRoleId).ValueGeneratedNever();
+                grant.HasIndex(g => g.GrantableRoleId);
+            });
+            definition.Navigation(d => d.Grants).UsePropertyAccessMode(PropertyAccessMode.Field);
+        });
+
         builder.Entity<Profile>(profile =>
         {
             profile.Property(p => p.Name).HasMaxLength(200);
-            profile.Property(p => p.HomeCity).HasMaxLength(100);
+            // Reports and the team filter group members by chapter (ADR 0030, ADR 0034); a chapter is never deleted.
+            profile.HasOne(p => p.Chapter).WithMany().HasForeignKey(p => p.ChapterId).OnDelete(DeleteBehavior.Restrict);
+            profile.HasIndex(p => p.ChapterId);
+            // Every view of a member shows the chapter's current name, so it comes with the profile.
+            profile.Navigation(p => p.Chapter).AutoInclude();
             profile.Property(p => p.Bio).HasMaxLength(400);
             profile.Property(p => p.SuspendedReason).HasMaxLength(500);
             profile.Ignore(p => p.DomainEvents);
@@ -89,8 +187,16 @@ public class CommunityDbContext(DbContextOptions<CommunityDbContext> options)
             {
                 role.ToTable("ProfileRoles");
                 role.WithOwner().HasForeignKey(r => r.ProfileId);
-                role.HasKey(r => new { r.ProfileId, r.Role });
-                role.Property(r => r.Role).HasConversion<string>().HasMaxLength(32);
+                role.HasKey(r => r.Id);
+                role.Property(r => r.Id).ValueGeneratedNever();
+                // A definition once per chapter tag and once untagged (L2-138 AC7): null tags count as equal.
+                role.HasIndex(r => new { r.ProfileId, r.RoleDefinitionId, r.ChapterId }).IsUnique().AreNullsDistinct(false);
+                role.HasIndex(r => r.ChapterId);
+                role.HasOne(r => r.Chapter).WithMany().HasForeignKey(r => r.ChapterId).OnDelete(DeleteBehavior.Restrict);
+                role.Navigation(r => r.Chapter).AutoInclude();
+                role.HasOne(r => r.Definition).WithMany().HasForeignKey(r => r.RoleDefinitionId).OnDelete(DeleteBehavior.Restrict);
+                // Loaded with every profile, so the held roles' names, flags and capabilities are at hand (ADR 0033).
+                role.Navigation(r => r.Definition).AutoInclude();
             });
             profile.OwnsMany(p => p.Photos, photo =>
             {
@@ -125,10 +231,12 @@ public class CommunityDbContext(DbContextOptions<CommunityDbContext> options)
             resend.HasIndex(r => new { r.NormalizedEmail, r.RequestedAt });
         });
 
-        builder.Entity<SystemAdminRoster>(roster =>
+        builder.Entity<OrganisationAdminRoster>(roster =>
         {
             roster.Property(r => r.Id).ValueGeneratedNever();
             roster.Property(r => r.Version).IsConcurrencyToken();
+            // One roster per organisation (L2-139 AC2).
+            roster.HasIndex(r => r.OrganisationId).IsUnique();
         });
 
         builder.Entity<OutboxMessage>(message =>
@@ -159,18 +267,19 @@ public class CommunityDbContext(DbContextOptions<CommunityDbContext> options)
             notification.HasIndex(n => new { n.RecipientId, n.CreatedAt });
         });
 
+        // Every unique rule holds within one organisation, so two organisations may each hold the same value (L2-130 AC4).
         builder.Entity<PendingConnection>(pending =>
         {
             pending.Property(p => p.Id).ValueGeneratedNever();
-            pending.HasIndex(p => new { p.ProfileId, p.LeadId }).IsUnique();
+            pending.HasIndex(p => new { p.OrganisationId, p.ProfileId, p.LeadId }).IsUnique();
         });
 
         builder.Entity<ConnectLink>(link =>
         {
             link.Property(l => l.Id).ValueGeneratedNever();
-            link.HasIndex(l => l.OwnerId).IsUnique();
+            link.HasIndex(l => new { l.OrganisationId, l.OwnerId }).IsUnique();
             link.Property(l => l.TokenHash).HasMaxLength(64);
-            link.HasIndex(l => l.TokenHash).IsUnique();
+            link.HasIndex(l => new { l.OrganisationId, l.TokenHash }).IsUnique();
             link.Property(l => l.ProtectedToken).HasMaxLength(1024);
         });
 
@@ -179,8 +288,8 @@ public class CommunityDbContext(DbContextOptions<CommunityDbContext> options)
             invite.Property(i => i.Id).ValueGeneratedNever();
             invite.Property(i => i.Email).HasMaxLength(256);
             invite.Property(i => i.TokenHash).HasMaxLength(64);
-            invite.HasIndex(i => i.TokenHash).IsUnique();
-            invite.Property(i => i.PreassignedRole).HasConversion<string>().HasMaxLength(32);
+            invite.HasIndex(i => new { i.OrganisationId, i.TokenHash }).IsUnique();
+            invite.Property(i => i.PreassignedRole).HasMaxLength(32);
             invite.Property(i => i.Note).HasMaxLength(500);
             invite.HasIndex(i => new { i.InvitedBy, i.CreatedAt });
         });
@@ -237,20 +346,84 @@ public class CommunityDbContext(DbContextOptions<CommunityDbContext> options)
             partner.Property(p => p.Email).HasMaxLength(256);
             partner.Property(p => p.Phone).HasMaxLength(200);
             partner.Property(p => p.Notes).HasMaxLength(2000);
-            partner.Property(p => p.Stage).HasConversion<string>().HasMaxLength(16);
-            partner.HasIndex(p => p.Stage);
+            partner.HasOne(p => p.Stage).WithMany().HasForeignKey(p => p.StageId).OnDelete(DeleteBehavior.Restrict);
+            partner.Navigation(p => p.Stage).AutoInclude();
+            // Merge and restore compare versions; a race the check misses fails at SaveChanges (ADR 0028).
+            partner.Property(p => p.Version).IsConcurrencyToken();
+            partner.HasIndex(p => p.ArchivedAtUtc);
+            partner.Ignore(p => p.IsArchived);
             partner.HasMany(p => p.StageChanges).WithOne().HasForeignKey(c => c.PartnerId).OnDelete(DeleteBehavior.Cascade);
             partner.Navigation(p => p.StageChanges).UsePropertyAccessMode(PropertyAccessMode.Field);
+        });
+
+        // An organisation's partner stages (L2-144); the key is stable and unique within the organisation.
+        builder.Entity<PartnerStage>(stage =>
+        {
+            stage.ToTable("PartnerStages");
+            stage.Property(s => s.Id).ValueGeneratedNever();
+            stage.Property(s => s.Key).HasMaxLength(PartnerStage.MaxName);
+            stage.Property(s => s.Name).HasMaxLength(PartnerStage.MaxName);
+            stage.Property(s => s.Kind).HasConversion<string>().HasMaxLength(16);
+            stage.HasIndex(nameof(IOrganisationScoped.OrganisationId), nameof(PartnerStage.Key)).IsUnique();
+            stage.Ignore(s => s.IsArchived);
+        });
+
+        builder.Entity<EventType>(type =>
+        {
+            type.ToTable("EventTypes");
+            type.Property(t => t.Id).ValueGeneratedNever();
+            type.Property(t => t.Key).HasMaxLength(EventType.MaxName);
+            type.Property(t => t.Name).HasMaxLength(EventType.MaxName);
+            type.Ignore(t => t.IsArchived);
+            type.HasIndex(nameof(IOrganisationScoped.OrganisationId), nameof(EventType.Key)).IsUnique();
+        });
+
+        builder.Entity<ResourceType>(type =>
+        {
+            type.ToTable("ResourceTypes");
+            type.Property(t => t.Id).ValueGeneratedNever();
+            type.Property(t => t.Key).HasMaxLength(ResourceType.MaxName);
+            type.Property(t => t.Name).HasMaxLength(ResourceType.MaxName);
+            type.Ignore(t => t.IsArchived);
+            type.Ignore(t => t.CanArchive);
+            type.HasIndex(nameof(IOrganisationScoped.OrganisationId), nameof(ResourceType.Key)).IsUnique();
         });
 
         builder.Entity<PartnerStageChange>(change =>
         {
             change.ToTable("PartnerStageChanges");
             change.Property(c => c.Id).ValueGeneratedNever();
-            change.Property(c => c.From).HasConversion<string>().HasMaxLength(16);
-            change.Property(c => c.To).HasConversion<string>().HasMaxLength(16);
+            change.Property(c => c.From).HasMaxLength(PartnerStage.MaxName);
+            change.Property(c => c.To).HasMaxLength(PartnerStage.MaxName);
             change.Property(c => c.Note).HasMaxLength(500);
             change.HasIndex(c => new { c.PartnerId, c.MovedAtUtc });
+            change.HasIndex(c => c.MergedFromPartnerId);
+        });
+
+        builder.Entity<PartnerActivity>(activity =>
+        {
+            activity.ToTable("PartnerActivities");
+            activity.Property(a => a.Id).ValueGeneratedNever();
+            activity.Property(a => a.Kind).HasConversion<string>().HasMaxLength(16);
+            activity.Property(a => a.FromStage).HasMaxLength(PartnerStage.MaxName);
+            activity.Property(a => a.ToStage).HasMaxLength(PartnerStage.MaxName);
+            activity.Property(a => a.Summary).HasMaxLength(2000);
+            activity.Property(a => a.NextStep).HasMaxLength(200);
+            activity.HasIndex(a => new { a.PartnerId, a.OccurredOn, a.OccurredAt, a.LoggedAtUtc });
+            activity.HasIndex(a => a.PartnerId, "IX_PartnerActivities_PartnerId_NextStep").HasFilter("\"NextStep\" IS NOT NULL");
+            activity.HasIndex(a => a.StageChangeId);
+            activity.HasIndex(a => a.MergedFromPartnerId);
+            activity.HasOne<Partner>().WithMany().HasForeignKey(a => a.PartnerId).OnDelete(DeleteBehavior.Cascade);
+        });
+
+        builder.Entity<PartnerDuplicateDismissal>(dismissal =>
+        {
+            dismissal.ToTable("PartnerDuplicateDismissals");
+            dismissal.Property(d => d.Id).ValueGeneratedNever();
+            dismissal.HasIndex(d => new { d.OrganisationId, d.LowerPartnerId, d.HigherPartnerId }).IsUnique();
+            dismissal.HasIndex(d => d.HigherPartnerId);
+            dismissal.HasOne<Partner>().WithMany().HasForeignKey(d => d.LowerPartnerId).OnDelete(DeleteBehavior.Cascade);
+            dismissal.HasOne<Partner>().WithMany().HasForeignKey(d => d.HigherPartnerId).OnDelete(DeleteBehavior.Cascade);
         });
 
         ConfigureAgile(builder);
@@ -260,8 +433,11 @@ public class CommunityDbContext(DbContextOptions<CommunityDbContext> options)
             ev.Property(e => e.Id).ValueGeneratedNever();
             ev.Property(e => e.Title).HasMaxLength(200);
             ev.Property(e => e.Description).HasMaxLength(4000);
-            ev.Property(e => e.Type).HasConversion<string>().HasMaxLength(32);
-            ev.Property(e => e.City).HasMaxLength(100);
+            ev.HasOne(e => e.Type).WithMany().HasForeignKey(e => e.TypeId).OnDelete(DeleteBehavior.Restrict);
+            ev.Navigation(e => e.Type).AutoInclude();
+            ev.HasOne(e => e.Chapter).WithMany().HasForeignKey(e => e.ChapterId).OnDelete(DeleteBehavior.Restrict);
+            ev.HasIndex(e => e.ChapterId);
+            ev.Navigation(e => e.Chapter).AutoInclude();
             ev.Property(e => e.Format).HasConversion<string>().HasMaxLength(16);
             ev.Property(e => e.Venue).HasMaxLength(300);
             ev.Property(e => e.OnlineLink).HasMaxLength(500);
@@ -269,6 +445,9 @@ public class CommunityDbContext(DbContextOptions<CommunityDbContext> options)
             ev.Property(e => e.CancellationReason).HasMaxLength(500);
             ev.Ignore(e => e.RsvpCount);
             ev.Ignore(e => e.IsFull);
+            ev.Ignore(e => e.CheckedInCount);
+            ev.Ignore(e => e.AttendeeCount);
+            ev.Ignore(e => e.CheckInOpensAt);
             ev.HasIndex(e => e.StartsAt);
             ev.HasMany(e => e.Rsvps).WithOne().HasForeignKey(r => r.EventId).OnDelete(DeleteBehavior.Cascade);
             ev.Navigation(e => e.Rsvps).HasField("_rsvps").UsePropertyAccessMode(PropertyAccessMode.Field);
@@ -281,6 +460,7 @@ public class CommunityDbContext(DbContextOptions<CommunityDbContext> options)
             rsvp.Property(r => r.GuestName).HasMaxLength(200);
             rsvp.Property(r => r.GuestEmail).HasMaxLength(256);
             rsvp.Ignore(r => r.IsGuest);
+            rsvp.Ignore(r => r.IsCheckedIn);
             rsvp.Property(r => r.CancelTokenHash).HasMaxLength(64);
             rsvp.HasIndex(r => r.CancelTokenHash).IsUnique().HasFilter("\"CancelTokenHash\" IS NOT NULL");
             rsvp.HasIndex(r => new { r.EventId, r.ProfileId }).IsUnique().HasFilter("\"ProfileId\" IS NOT NULL");
@@ -297,10 +477,82 @@ public class CommunityDbContext(DbContextOptions<CommunityDbContext> options)
             SearchVectors.Configure(builder);
         }
 
-        builder.Entity<CommunityUser>()
-            .HasOne<Profile>()
-            .WithOne()
-            .HasForeignKey<CommunityUser>(u => u.ProfileId);
+        // A profile is an account's membership of one organisation: at most one per account per organisation (ADR 0032).
+        builder.Entity<Profile>()
+            .HasOne<CommunityUser>()
+            .WithMany()
+            .HasForeignKey(p => p.UserId)
+            .OnDelete(DeleteBehavior.Restrict);
+        builder.Entity<Profile>()
+            .HasIndex(p => new { p.OrganisationId, p.UserId })
+            .IsUnique()
+            .HasFilter("\"UserId\" IS NOT NULL");
+
+        ScopeToOrganisation(builder);
+    }
+
+    /// <summary>
+    /// Every organisation-scoped record gets a required, indexed OrganisationId that references its organisation, and a
+    /// named query filter on the current organisation, so every query runs the predicate in SQL (L2-130 AC2) and an id
+    /// from another organisation is not found (AC3). Named, so lifting the archived filter never lifts this one.
+    /// </summary>
+    private void ScopeToOrganisation(ModelBuilder builder)
+    {
+        foreach (var entity in builder.Model.GetEntityTypes()
+            .Where(e => !e.IsOwned() && typeof(IOrganisationScoped).IsAssignableFrom(e.ClrType)).ToList())
+        {
+            var type = builder.Entity(entity.ClrType);
+            type.HasOne(typeof(Organisation)).WithMany().HasForeignKey(nameof(IOrganisationScoped.OrganisationId)).OnDelete(DeleteBehavior.Restrict);
+            type.HasIndex(nameof(IOrganisationScoped.OrganisationId));
+
+            var record = Expression.Parameter(entity.ClrType, "record");
+            var filter = Expression.Lambda(
+                Expression.Equal(
+                    Expression.Property(record, nameof(IOrganisationScoped.OrganisationId)),
+                    Expression.Property(Expression.Constant(this), nameof(CurrentOrganisationId))),
+                record);
+            type.HasQueryFilter(QueryFilters.Organisation, filter);
+        }
+    }
+
+    public override int SaveChanges(bool acceptAllChangesOnSuccess)
+    {
+        StampOrganisation();
+        return base.SaveChanges(acceptAllChangesOnSuccess);
+    }
+
+    public override Task<int> SaveChangesAsync(bool acceptAllChangesOnSuccess, CancellationToken cancellationToken = default)
+    {
+        StampOrganisation();
+        return base.SaveChangesAsync(acceptAllChangesOnSuccess, cancellationToken);
+    }
+
+    /// <summary>
+    /// Stamps every added record with the current organisation, and refuses one that names another, so no request can
+    /// write into an organisation it is not on (L2-130 AC1).
+    /// </summary>
+    private void StampOrganisation()
+    {
+        foreach (var entry in ChangeTracker.Entries<IOrganisationScoped>())
+        {
+            var property = entry.Property(e => e.OrganisationId);
+            if (entry.State == EntityState.Added && property.CurrentValue == Guid.Empty)
+            {
+                property.CurrentValue = _organisation.Id;
+            }
+            else if (entry.State is EntityState.Added or EntityState.Modified && property.CurrentValue != _organisation.Id)
+            {
+                throw new InvalidOperationException(
+                    $"A {entry.Metadata.ClrType.Name} of another organisation cannot be written in this one.");
+            }
+        }
+    }
+
+    private static OrganisationScope DefaultScope()
+    {
+        var scope = new OrganisationScope();
+        scope.RunAs(FaithTechSeed.OrganisationId);
+        return scope;
     }
 
     private static void ConfigureResources(ModelBuilder builder)
@@ -310,9 +562,10 @@ public class CommunityDbContext(DbContextOptions<CommunityDbContext> options)
             resource.Property(r => r.Id).ValueGeneratedNever();
             resource.Property(r => r.Title).HasMaxLength(Resource.MaxTitle);
             resource.Property(r => r.Description).HasMaxLength(Resource.MaxDescription);
-            resource.Property(r => r.Type).HasConversion<string>().HasMaxLength(16);
+            resource.HasOne(r => r.Type).WithMany().HasForeignKey(r => r.TypeId).OnDelete(DeleteBehavior.Restrict);
+            resource.Navigation(r => r.Type).AutoInclude();
             resource.Property(r => r.Visibility).HasConversion<string>().HasMaxLength(16);
-            resource.Property(r => r.OwnerRole).HasConversion<string>().HasMaxLength(32);
+            resource.Property(r => r.OwnerRole).HasMaxLength(32);
             resource.Property(r => r.LinkUrl).HasMaxLength(2000);
             resource.Property(r => r.LinkHost).HasMaxLength(255);
             resource.Property(r => r.TagText).HasMaxLength(2000);
@@ -350,8 +603,9 @@ public class CommunityDbContext(DbContextOptions<CommunityDbContext> options)
             {
                 role.ToTable("ResourceShareRoles");
                 role.WithOwner().HasForeignKey(x => x.ResourceId);
-                role.HasKey(x => new { x.ResourceId, x.Role });
-                role.Property(x => x.Role).HasConversion<string>().HasMaxLength(32);
+                role.HasKey(x => new { x.ResourceId, x.RoleDefinitionId });
+                role.HasOne(x => x.Definition).WithMany().HasForeignKey(x => x.RoleDefinitionId).OnDelete(DeleteBehavior.Restrict);
+                role.Navigation(x => x.Definition).AutoInclude();
             });
             resource.Navigation(r => r.SharedRoles).HasField("_roles").UsePropertyAccessMode(PropertyAccessMode.Field);
         });
@@ -396,8 +650,9 @@ public class CommunityDbContext(DbContextOptions<CommunityDbContext> options)
                 role.WithOwner().HasForeignKey(x => x.PageId);
                 role.Property<int>("Id").ValueGeneratedOnAdd();
                 role.HasKey("Id");
-                role.Property(x => x.Role).HasConversion<string>().HasMaxLength(32);
-                role.HasIndex(x => new { x.PageId, x.Role }).IsUnique();
+                role.HasIndex(x => new { x.PageId, x.RoleDefinitionId }).IsUnique();
+                role.HasOne(x => x.Definition).WithMany().HasForeignKey(x => x.RoleDefinitionId).OnDelete(DeleteBehavior.Restrict);
+                role.Navigation(x => x.Definition).AutoInclude();
             });
             page.Navigation(p => p.SharedRoles).HasField("_roles").UsePropertyAccessMode(PropertyAccessMode.Field);
         });
@@ -430,12 +685,12 @@ public class CommunityDbContext(DbContextOptions<CommunityDbContext> options)
             {
                 audience.Property(x => x.Kind).HasColumnName("AudienceKind").HasConversion<string>().HasMaxLength(16);
                 audience.Property(x => x.EventId).HasColumnName("AudienceEventId");
-                // The chosen roles, stored as "Volunteer,ProductEngineer".
-                audience.Property(x => x.Roles).HasColumnName("AudienceRoles").HasMaxLength(300)
+                // The chosen role definitions, stored as their ids separated by commas.
+                audience.Property(x => x.RoleIds).HasColumnName("AudienceRoles").HasMaxLength(2000)
                     .HasConversion(
                         roles => string.Join(',', roles.Select(r => r.ToString()).Order()),
-                        value => value.Split(',', StringSplitOptions.RemoveEmptyEntries).Select(Enum.Parse<Role>).ToHashSet(),
-                        new ValueComparer<IReadOnlySet<Role>>(
+                        value => value.Split(',', StringSplitOptions.RemoveEmptyEntries).Select(Guid.Parse).ToHashSet(),
+                        new ValueComparer<IReadOnlySet<Guid>>(
                             (a, b) => a!.SetEquals(b!),
                             roles => roles.Aggregate(0, (hash, role) => hash ^ role.GetHashCode()),
                             roles => roles.ToHashSet()));
@@ -461,7 +716,7 @@ public class CommunityDbContext(DbContextOptions<CommunityDbContext> options)
             workspace.Property(w => w.Name).HasMaxLength(100);
             workspace.Property(w => w.Method).HasConversion<string>().HasMaxLength(16);
             workspace.HasIndex(w => w.OwnerId);
-            workspace.HasQueryFilter(w => !w.IsArchived);
+            workspace.HasQueryFilter(QueryFilters.Archived, w => !w.IsArchived);
             workspace.OwnsMany(w => w.Members, member =>
             {
                 member.ToTable("WorkspaceMembers");
@@ -485,7 +740,7 @@ public class CommunityDbContext(DbContextOptions<CommunityDbContext> options)
             item.HasIndex(i => i.ParentId);
             item.HasIndex(i => i.SprintId);
             item.HasIndex(i => i.AssigneeId);
-            item.HasQueryFilter(i => !i.IsArchived);
+            item.HasQueryFilter(QueryFilters.Archived, i => !i.IsArchived);
             item.OwnsMany(i => i.Comments, comment =>
             {
                 comment.ToTable("WorkItemComments");

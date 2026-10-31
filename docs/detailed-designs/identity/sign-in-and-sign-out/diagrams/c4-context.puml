@@ -4,6 +4,6 @@ LAYOUT_WITH_LEGEND()
 title System Context — Sign in and sign out
 
 Person(member, "Member", "Signed-in user with a profile")
-System(ftc, "FaithTech Community", "Community site for FaithTech staff, leads, volunteers, builders and partners")
+System(ftc, "Community platform", "Community site for an organisation's members and partners")
 Rel(member, ftc, "Signs in to", "HTTPS")
 @enduml

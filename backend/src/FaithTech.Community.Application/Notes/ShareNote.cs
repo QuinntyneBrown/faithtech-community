@@ -43,15 +43,10 @@ public class ShareNoteHandler(IApplicationDbContext db, NoteAccess access, NoteV
         }
 
         var members = visibility == NoteVisibility.Shared ? (command.MemberIds ?? []).Distinct().ToList() : [];
-        var roles = new List<Role>();
-        foreach (var value in visibility == NoteVisibility.Shared ? command.Roles ?? [] : [])
+        var roles = await RoleKeys.DefinitionsAsync(db, visibility == NoteVisibility.Shared ? command.Roles ?? [] : [], cancellationToken);
+        if (roles is null || !roles.All(RoleKeys.IsShareable))
         {
-            if (!Enum.TryParse<Role>(value, out var role) || int.TryParse(value, out _) || !NoteAccess.ShareableRoles.Contains(role))
-            {
-                return (Result.Invalid("Roles", "Choose roles from the list."), null);
-            }
-
-            roles.Add(role);
+            return (Result.Invalid("Roles", "Choose roles from the list."), null);
         }
 
         if (members.Count > 0 && await db.Profiles.CountAsync(p => members.Contains(p.Id), cancellationToken) != members.Count)
@@ -81,7 +76,7 @@ public class ShareNoteHandler(IApplicationDbContext db, NoteAccess access, NoteV
     {
         Visibility = page.Visibility.ToString(),
         Members = page.SharedMembers.Select(m => m.ProfileId).ToList(),
-        Roles = page.SharedRoles.Select(r => r.Role.ToString()).ToList(),
+        Roles = page.SharedRoles.OrderBy(r => r.Definition!.SortOrder).Select(r => r.Definition!.Key).ToList(),
     };
 }
 
@@ -99,12 +94,12 @@ public class NoteShareNotifier(IApplicationDbContext db, INotificationPublisher 
         }
 
         var members = page.SharedMembers.Select(m => m.ProfileId).ToList();
-        var roles = page.SharedRoles.Select(r => r.Role).ToList();
+        var roles = page.SharedRoles.Select(r => r.RoleDefinitionId).ToList();
         var ids = await (
                 from user in db.Users
-                join profile in db.Profiles on user.ProfileId equals profile.Id
+                join profile in db.Profiles on (Guid?)user.Id equals profile.UserId
                 where !profile.IsSuspended && profile.Id != page.OwnerId
-                where members.Contains(profile.Id) || profile.Roles.Any(r => roles.Contains(r.Role))
+                where members.Contains(profile.Id) || profile.Roles.Any(r => roles.Contains(r.RoleDefinitionId))
                 select profile.Id)
             .ToListAsync(cancellationToken);
         return ids.ToHashSet();
@@ -121,7 +116,7 @@ public class NoteShareNotifier(IApplicationDbContext db, INotificationPublisher 
         var owner = await db.Profiles.Where(p => p.Id == page.OwnerId).Select(p => p.Name).SingleAsync(cancellationToken);
         var title = NoteRefs.TitleOf(page.Title);
         var held = await db.Profiles.Where(p => recipients.Contains(p.Id))
-            .Select(p => new { p.Id, Roles = p.Roles.Select(r => r.Role).ToList() })
+            .Select(p => new { p.Id, Roles = p.Roles.Select(r => new HeldShareRole(r.RoleDefinitionId, r.Definition!.Name)).ToList() })
             .ToDictionaryAsync(p => p.Id, p => p.Roles, cancellationToken);
         var heading = $"{owner} shared {title} with you";
         await publisher.PublishAsync(
@@ -134,15 +129,14 @@ public class NoteShareNotifier(IApplicationDbContext db, INotificationPublisher 
             cancellationToken);
     }
 
-    private static string Via(NotePage page, Guid recipient, Dictionary<Guid, List<Role>> held)
+    private static string Via(NotePage page, Guid recipient, Dictionary<Guid, List<HeldShareRole>> held)
     {
         if (page.SharedMembers.Any(m => m.ProfileId == recipient))
         {
             return "you";
         }
 
-        var role = page.SharedRoles.Select(r => r.Role).First(r => held.GetValueOrDefault(recipient)?.Contains(r) == true);
-        return $"everyone who has the {RoleLabels.Of(role)} role, which includes you";
+        return HeldShareRole.Via(page.SharedRoles.Select(r => r.RoleDefinitionId), held.GetValueOrDefault(recipient) ?? []);
     }
 
     private static string Body(string owner, string title, string via) =>
@@ -157,7 +151,7 @@ public class NoteMembersHandler(IApplicationDbContext db)
     public async Task<IReadOnlyList<NoteMemberDto>> HandleAsync(string? q, CancellationToken cancellationToken = default)
     {
         var members = from user in db.Users.AsNoTracking()
-                      join profile in db.Profiles.AsNoTracking() on user.ProfileId equals profile.Id
+                      join profile in db.Profiles.AsNoTracking() on (Guid?)user.Id equals profile.UserId
                       where !profile.IsSuspended
                       select profile;
         if (!string.IsNullOrWhiteSpace(q))
@@ -167,10 +161,10 @@ public class NoteMembersHandler(IApplicationDbContext db)
         }
 
         var rows = await members.OrderBy(p => p.Name).ThenBy(p => p.Id).Take(Limit)
-            .Select(p => new { p.Id, p.Name, p.HomeCity, Roles = p.Roles.Select(r => r.Role).ToList() })
+            .Select(p => new { p.Id, p.Name, HomeCity = p.Chapter == null ? null : p.Chapter.Name, Roles = p.Roles.OrderBy(r => r.Definition!.SortOrder).Select(r => r.Definition!.Key).ToList() })
             .ToListAsync(cancellationToken);
         return [.. rows.Select(r => new NoteMemberDto(r.Id, r.Name, r.HomeCity, [.. r.Roles.Order().Select(x => x.ToString())]))];
     }
 }
 
-public record NoteMemberDto(Guid Id, string Name, string? City, IReadOnlyList<string> Roles);
+public record NoteMemberDto(Guid Id, string Name, string? ChapterName, IReadOnlyList<string> Roles);

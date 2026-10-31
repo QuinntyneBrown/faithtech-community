@@ -1,3 +1,4 @@
+using FaithTech.Community.Domain.Organisations;
 using FaithTech.Community.Application.Common;
 using FaithTech.Community.Domain.Profiles;
 using Microsoft.EntityFrameworkCore;
@@ -5,7 +6,7 @@ using Microsoft.EntityFrameworkCore;
 namespace FaithTech.Community.Application.Resources;
 
 /// <summary>A member a resource can be shared with or handed to: name, roles and city (L2-061 AC1, L2-064 AC3).</summary>
-public record ResourceMemberDto(Guid Id, string Name, string? City, IReadOnlyList<string> Roles);
+public record ResourceMemberDto(Guid Id, string Name, string? ChapterName, IReadOnlyList<string> Roles);
 
 /// <summary>
 /// The people picker for sharing (contributors only) and the new-owner picker for a transfer (System Admin only,
@@ -24,7 +25,7 @@ public class ResourceMembersHandler(IApplicationDbContext db, ResourceAccess acc
     private async Task<IReadOnlyList<ResourceMemberDto>> FindAsync(string? q, bool ownersOnly, CancellationToken cancellationToken)
     {
         var members = from user in db.Users.AsNoTracking()
-                      join profile in db.Profiles.AsNoTracking() on user.ProfileId equals profile.Id
+                      join profile in db.Profiles.AsNoTracking() on (Guid?)user.Id equals profile.UserId
                       where !profile.IsSuspended
                       select profile;
         if (!string.IsNullOrWhiteSpace(q))
@@ -35,12 +36,12 @@ public class ResourceMembersHandler(IApplicationDbContext db, ResourceAccess acc
 
         if (ownersOnly)
         {
-            var roles = ResourceAccess.ContributorRoles.ToList();
-            members = members.Where(p => p.Roles.Any(r => roles.Contains(r.Role)));
+            members = members.Where(p => p.Roles.Any(r => r.Definition!.ArchivedAtUtc == null
+                && (r.Definition.Capabilities.Contains(Capability.AddResources) || r.Definition.Capabilities.Contains(Capability.AdministerOrganisation))));
         }
 
         var rows = await members.OrderBy(p => p.Name).ThenBy(p => p.Id).Take(Limit)
-            .Select(p => new { p.Id, p.Name, p.HomeCity, Roles = p.Roles.Select(r => r.Role).ToList() })
+            .Select(p => new { p.Id, p.Name, HomeCity = p.Chapter == null ? null : p.Chapter.Name, Roles = p.Roles.OrderBy(r => r.Definition!.SortOrder).Select(r => r.Definition!.Key).ToList() })
             .ToListAsync(cancellationToken);
         return [.. rows.Select(r => new ResourceMemberDto(r.Id, r.Name, r.HomeCity, [.. r.Roles.Order().Select(x => x.ToString())]))];
     }

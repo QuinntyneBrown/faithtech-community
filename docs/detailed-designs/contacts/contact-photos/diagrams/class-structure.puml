@@ -13,6 +13,7 @@ title Class structure — Contact photos
 class Contact {
   +{static} int MaxPhotos = 10
   +Guid Id
+  +Guid OrganisationId
   +Guid OwnerId
   +IReadOnlyCollection<ContactPhoto> Photos
   +PhotoLease PhotoLease

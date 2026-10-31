@@ -17,6 +17,8 @@ import { Router } from '@angular/router';
 import {
   AUTH_SERVICE,
   BROWSER_REDIRECT,
+  OrganisationNames,
+  SITE_SERVICE,
   SignUpFieldErrors,
   signUpFieldErrors,
 } from '@faithtech-community/api';
@@ -72,6 +74,13 @@ export class LandingPage implements OnInit {
   private readonly auth = inject(AUTH_SERVICE);
   private readonly redirect = inject(BROWSER_REDIRECT);
   protected readonly communityOrigin = inject(COMMUNITY_ORIGIN);
+  protected readonly organisation = inject(OrganisationNames);
+  private readonly site = inject(SITE_SERVICE).site;
+
+  /** The public host's headline (Marketing:Sites, L2-134 AC3); its organisation's name when there is none. */
+  protected readonly headline = computed(() => this.site()?.headline ?? this.organisation.name());
+  /** The public host's brochure video; the hero shows none when the host has no brochure. */
+  protected readonly brochure = computed(() => this.site()?.brochure ?? null);
 
   /** The community app page to land on after signing in (`?returnUrl=/events`). */
   readonly returnUrl = input<string>();
@@ -128,13 +137,17 @@ export class LandingPage implements OnInit {
     }
   }
 
-  /** One flow for "Sign in with Google" and "Sign up with Google": the browser leaves for Google. */
-  protected continueWithGoogle(): void {
+  /**
+   * One flow for "Sign in with Google" and "Sign up with Google": the browser leaves for Google. From the sign-up
+   * form it is a sign-up, which makes an existing account a member of this organisation (L2-132 AC1, AC7).
+   */
+  protected continueWithGoogle(signUp = false): void {
     if (this.googleBusy()) return;
     this.googleBusy.set(true);
     this.auth.signInWithGoogle(
       appPath(this.returnUrl()),
       this.signInForm()?.keepSignedIn() ?? false,
+      signUp,
     );
   }
 

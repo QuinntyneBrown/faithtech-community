@@ -15,7 +15,7 @@ skinparam package {
   BackgroundColor #F9FAFB
 }
 actor "Member" as actor
-box "Frontend — FaithTech Community web app (events library)" #E0F2FE
+box "Frontend — Community platform web app (events library)" #E0F2FE
   participant "EventPage" as page
   participant "HttpEventsService" as svc
 end box

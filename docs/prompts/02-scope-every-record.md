@@ -1,0 +1,149 @@
+# Feature: Scope every record to the organisation
+
+Slice 02 of the organisations plan (`docs/prompts/README.md`).
+
+## Goal
+
+Every scoped aggregate gains `OrganisationId`, backfilled to FaithTech, stamped on save from `ICurrentOrganisation`
+and filtered by a global query filter, and every unique index starts with the organisation. A second organisation's
+records are invisible on FaithTech's host and an id from it answers 404. Accounts and the identity tables stay global.
+
+## Before you start
+
+- Depends on: Prompts `00` to `01` in `docs/prompts/` are merged to `main`. If one is not, stop and say which.
+- `git fetch origin && git switch main && git pull`, then `git switch -c feature/organisations-02-scope-every-record`.
+- Read `AGENTS.md`, `docs/proposals/organisations.md`, `docs/prompts/README.md` (the slice plan and what each earlier
+  slice left in place) and the documents listed under "Read first".
+- Run the suites once before you change anything, so you know the starting state:
+  `dotnet test backend/FaithTech.Community.sln`, `cd frontend && npm run lint && npx prettier --check .` and the
+  Angular unit tests, and `cd e2e && npx playwright test`. Fix nothing that is unrelated; note any failure that was
+  already there.
+
+## Read first
+
+- `docs/detailed-designs/organisations/tenancy-and-host-resolution/README.md` (`IOrganisationScoped`, global query filter, stamping, unique indexes, audit, migration)
+- `docs/detailed-designs/organisations/seed-faithtech/README.md` (migration step 3)
+- `backend/src/FaithTech.Community.Infrastructure/Persistence/CommunityDbContext.cs` (the existing archived filters on `Workspace` and `WorkItem`, every `IgnoreQueryFilters()` call), `IApplicationDbContext`
+- `docs/detailed-designs/platform/server-authorization/README.md` (`NotFoundOrForbidden`, `L2-042` AC2, AC3)
+
+## Finish the whole slice in one run. Do not stop. (CRITICAL)
+
+- You are authorised to take this slice all the way: checking the design artefacts, incremental ATDD implementation, the estimate update, green tests and a pull request.
+  Go through every phase and every step in one continuous run. Do not pause between phases to report, ask
+  for approval, or wait for "continue".
+- Do not end your turn until the "Done means" list at the bottom is fully true. A partial result, a plan, or
+  "the next steps would be..." is not done.
+- Where `AGENTS.md` says "stop and ask", treat this prompt as the confirmation in advance for everything in
+  scope here. Choose the simplest option that fits the existing architecture, record it (an architecture
+  decision record or the detailed design's open-questions section), and keep going.
+- If the `components` library lacks something, that is not a reason to stop. Update the design system and the
+  library first, as the project rules require, then go on.
+- When a test, build or command fails, find the root cause and fix it, then go on. Never weaken a test to make
+  it pass, and never skip a step quietly.
+- Only stop for a real blocker you cannot resolve yourself, such as missing credentials, or an action outside
+  this repository that can't be undone, such as production deploys or data changes. If that happens, finish
+  everything else first, then report the blocker clearly.
+- Keep track of progress (a todo list), so that nothing gets left out after context is summarised.
+
+## Rules (read first, binding)
+
+- Follow `AGENTS.md` exactly, especially:
+  - **Repository layout is a mandate.** Every file goes in the folder the tree assigns it. Organisations code goes in
+    `Domain/Organisations/`, `Application/Organisations/` (operator code in its `Platform/` sub-folder),
+    `frontend/projects/organisations/`, `e2e/tests/organisations/`. Do not add top-level folders or projects.
+  - **The `components` library is mandatory.** Every design-system component is built once in
+    `frontend/projects/components/` and reused. A missing component or variant is added there first, matching
+    `docs/design-system/`. Feature libraries depend only on `components` and `api`, never on each other, and never call
+    `HttpClient`.
+  - **Permissions are capabilities, never role names** (ADR 0033). Handlers check `ICurrentUser.Has(capability)`
+    once slice 10 has added it; before then, add no new role-name check. FaithTech's role names, its "City" label, its
+    stages and its types end up only in the seed (`L2-151`); never add a new use of them elsewhere.
+  - **The host decides the organisation** (ADR 0032). Never resolve it from a token, header, cookie, query or body.
+    Every scoped query filters through the DbContext's global query filter. An id from another organisation is 404.
+  - Business rules live in Application handlers and Domain, never in endpoints. Endpoints require authentication by
+    default; anonymous access is opted into per endpoint.
+  - EF Core migrations live only in `backend/src/FaithTech.Community.Infrastructure/Persistence/Migrations/` and are
+    applied by the Cli, never by the API. Seed data is idempotent.
+  - Backend tests live under `backend/tests/`, use the EF Core in-memory provider with a uniquely named database per
+    fixture, and never need Docker, PostgreSQL or any external service. Arrange callers by capability set once
+    capabilities exist (slice 10 on), and use the FaithTech seed as the regression case. Test organisation isolation for
+    every new query.
+  - Playwright: Chromium only, Page Object Model (selectors only in `e2e/pages/`), fake backend only (fake behaviour in
+    `e2e/fixtures/`, an unrouted request fails the test), axe checks on every screen. Keep the fake in step with every
+    endpoint, DTO and permission rule you change, in the same change.
+  - Frontend: Prettier and angular-eslint must pass; WCAG 2.2 AA; tokens by role, never hex; CDK Dialog for modals;
+    no inline forms in pages; API services have a contract and an injection token.
+  - Never write architecture tests (structure, naming, banned-API or traceability tests).
+- If something seems to need more scope, leave it out, note it as deferred, and continue.
+- Work through the phases below **in order**, using the skill each phase names.
+- Copy the house style of each folder. Read the existing neighbours before you write anything new.
+
+## Scope
+
+In scope, by acceptance criterion:
+
+- `L2-130` AC1 (stamped, no request can set another organisation), AC2 for lists, exports, notifications and reports (the filter runs in SQL), AC3 (another organisation's id by id, link, `.ics`, public event page, connect link, invite token or share answers 404 or the feature's unknown outcome), AC4 (unique rules per organisation), AC7 (audit entries belong to the organisation)
+- `L2-151` AC4, the stamping part: every existing row is FaithTech's after `migrate`
+
+Deferred (do not build here; a later slice owns it):
+
+- Blob paths, search and SignalR groups (slice 03)
+- Email sender and links (slice 04)
+- Profile-to-account link and memberships (slice 06); `AspNetUsers.ProfileId` stays for now
+- Role definitions, chapters and taxonomies tables (later slices create them already scoped)
+
+## Phase 1: Check the design artefacts
+
+The requirements, designs and ADRs already exist, and prompt `00` added the mocks, the design-system changes and
+`docs/estimates/organisations.md`. Do not rewrite them. Check that they cover this slice:
+
+- The tenancy design's list of scoped roots (`Profile`, `Invite`, `ConnectLink`, `Contact`, `Partner`, `Event`, `Announcement`, `Notification`, `Resource`, `NotePage`, `Workspace`, `WorkItem`, `AuditEntry`, the outbox email, …) matches the aggregates in the code today. Add any root the design missed (for example partner activities or duplicate dismissals if they are roots) to the design and scope it too.
+- Every `IgnoreQueryFilters()` use is listed; each needs the organisation predicate by hand.
+- Where something this slice needs is missing or contradicts the code, fix the artefact first with its skill
+  (`writing-html-mocks`, `extracting-design-systems`, `writing-screen-composition`, `writing-requirements`,
+  `writing-design-documents`), and record any decision in the design's open questions or a new ADR.
+
+## Phase 2: Incremental implementation (ATDD)
+
+- Invoke the `implementing-incrementally` skill before writing any code, and follow it with ATDD.
+- Plan the thin steps below (adjust them if the code says otherwise). For each step:
+  - Write the Given-When-Then criteria, taken from the cited acceptance criteria.
+  - Write the acceptance test first: an Api integration test in `backend/tests/FaithTech.Community.Api.Tests/` (or an
+    Application or Infrastructure test where the behaviour lives there), and a Playwright spec through page objects
+    when the step changes what a member sees. Name the requirement and criterion in the test name or a comment.
+  - Run it and show that it fails for the expected reason.
+  - Implement the minimum that makes it pass, and refactor while the tests are green.
+  - Run the regression checks (the whole backend suite, lint and format, the Angular unit tests, and the Playwright
+    specs for every feature the step touched), then commit with a message that says what changed and why.
+
+  1. `IOrganisationScoped` in `Domain/Organisations/`; `Profile` implements it first; the context's filter and stamping for profiles; a migration adding `OrganisationId` to `Profiles`, backfilled, non-null; an Api test with two organisations proving a profile id from the other one is 404 and the team list excludes it.
+  2. Stamping guard: an entity added with a different `OrganisationId` throws; no public setter in Domain.
+  3. Repeat feature by feature, one commit each, with an isolation test per feature: contacts (and private-contact visibility still holds), partners, events (including the public event page and `.ics` by id), invites (token from the other organisation is unknown), connect links, announcements, notifications, resources, notes, workspaces and work items (filter composed with the archived filter), reports, audit entries, the email outbox.
+  4. Unique indexes recreated with `OrganisationId` first (connect link per owner, one pending connection, and every other unique index), with a test that two organisations may hold the same value.
+  5. Every `IgnoreQueryFilters()` query adds the organisation predicate by hand, each with a test.
+  6. Workers and the Cli: `OrganisationScope` with `RunAs(organisationId)` realises `ICurrentOrganisation` outside a request; the outbox, photo retry and resource purge workers set it per row from the row's `OrganisationId`; the Cli commands default to FaithTech.
+
+Notes for the implementer:
+
+- EF Core keeps one filter expression per entity: compose the organisation predicate with the archived predicate where both apply.
+- Child entities (photos, RSVPs, blocks, comments) are not stamped; they reach the organisation through their parent.
+- Arrange the second organisation in tests through a small helper in the Api test project, not by duplicating the seed.
+
+## Phase 3: Estimate and alignment (`estimating-designs`)
+
+- Update `docs/estimates/organisations.md` (and the subsystem tables of the features this slice changed) to the true
+  percent complete of each design this slice touched, and refresh the root `docs/estimates/README.md`.
+- Keep the mocks, design system, `docs/screen-composition.md`, the designs and the e2e fake aligned with what was
+  built. Tick this slice in the status column of `docs/prompts/README.md`.
+
+## Done means
+
+- Every scoped table has a non-null `OrganisationId`; the filter and the stamping apply to every scoped root; every unique index is per organisation.
+- For every feature, an Api test proves a record of a second organisation is invisible in lists and 404 by id, and the workers process rows under their own organisation.
+- FaithTech behaves exactly as before for every role: every existing backend test and Playwright spec passes
+  unchanged, except where this slice's requirements rewrite the behaviour.
+- All new and existing tests pass, lint and format are clean, and the documentation agrees with the code.
+- The work is on the branch above with a pull request to `main`, and its checks are green. Fetch and rebase
+  first.
+- Only then end the run, with a short summary of what was built, the decisions made along the way, and anything
+  deferred.

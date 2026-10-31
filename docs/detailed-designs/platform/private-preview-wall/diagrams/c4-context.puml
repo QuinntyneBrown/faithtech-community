@@ -2,15 +2,15 @@
 !include <C4/C4_Context>
 LAYOUT_WITH_LEGEND()
 title System Context — Private preview wall and deployment
-Person(owner, "Owner", "Holds the passphrase; unlocks both hosts")
+Person(owner, "Owner", "Holds the passphrase; one unlock covers every host under the cookie domain")
 Person(visitor, "Any other visitor", "Sees only the wall page")
-System(ftc, "FaithTech Community", "app.faithtech.community and www.faithtech.community behind the wall")
-System_Ext(dns, "DNS for faithtech.community", "CNAME and asuid TXT records the owner creates")
+System(ftc, "Community platform", "Every organisation's community and public host behind the wall (app.faithtech.community and www.faithtech.community configured first)")
+System_Ext(dns, "DNS for each organisation's domain", "CNAME and asuid TXT records the owner creates (faithtech.community first)")
 System_Ext(azure, "Microsoft Azure", "Container Apps, PostgreSQL, Blob storage, Key Vault, managed certificates")
 System_Ext(gh, "GitHub Actions", "Builds, tests and deploys")
 Rel(owner, ftc, "Unlocks, then uses", "HTTPS")
 Rel(visitor, ftc, "Is refused by", "HTTPS")
 Rel(ftc, azure, "Runs on")
-Rel(dns, azure, "Points both hosts at")
+Rel(dns, azure, "Points each organisation's hosts at")
 Rel(gh, azure, "Deploys to", "OIDC")
 @enduml

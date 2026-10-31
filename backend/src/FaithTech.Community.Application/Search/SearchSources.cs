@@ -18,15 +18,15 @@ public class PeopleSearchSource(IApplicationDbContext db, IFullTextSearch text) 
     public async Task<IReadOnlyList<SearchResultItem>> SearchAsync(string term, Guid caller, int limit, CancellationToken cancellationToken = default)
     {
         var rows = await text
-            .Match(db.Profiles.AsNoTracking(), term, p => p.Name + " " + (p.HomeCity ?? "") + " " + (p.Bio ?? ""))
-            .Where(p => !p.IsSuspended && db.Users.Any(u => u.ProfileId == p.Id))
+            .Match(db.Profiles.AsNoTracking(), term, p => p.Name + " " + (p.Bio ?? ""))
+            .Where(p => !p.IsSuspended && p.UserId != null)
             .Take(limit)
-            .Select(p => new { p.Id, p.Name, p.HomeCity, p.Bio, Roles = p.Roles.Select(r => r.Role).ToList() })
+            .Select(p => new { p.Id, p.Name, HomeCity = p.Chapter == null ? null : p.Chapter.Name, p.Bio, Roles = p.Roles.OrderBy(r => r.Definition!.SortOrder).Select(r => r.Definition!.Name).ToList() })
             .ToListAsync(cancellationToken);
         return [.. rows.Select(p => new SearchResultItem(
             p.Id,
             p.Name,
-            Snippets.Join(string.Join(", ", p.Roles.Order().Select(RoleLabels.Of)), p.HomeCity, Snippets.Short(p.Bio)),
+            Snippets.Join(string.Join(", ", p.Roles), p.HomeCity, Snippets.Short(p.Bio)),
             $"/people/{p.Id}"))];
     }
 }
@@ -39,9 +39,9 @@ public class EventsSearchSource(IApplicationDbContext db, IFullTextSearch text) 
     public async Task<IReadOnlyList<SearchResultItem>> SearchAsync(string term, Guid caller, int limit, CancellationToken cancellationToken = default)
     {
         var rows = await text
-            .Match(db.Events.AsNoTracking(), term, e => e.Title + " " + e.Description + " " + e.City + " " + (e.Venue ?? ""))
+            .Match(db.Events.AsNoTracking(), term, e => e.Title + " " + e.Description + " " + (e.Venue ?? ""))
             .Take(limit)
-            .Select(e => new { e.Id, e.Title, e.City, e.Venue, e.Format, e.StartsAt, e.Visibility, e.IsCancelled })
+            .Select(e => new { e.Id, e.Title, City = e.Chapter == null ? null : e.Chapter.Name, e.Venue, e.Format, e.StartsAt, e.Visibility, e.IsCancelled })
             .ToListAsync(cancellationToken);
         return [.. rows.Select(e => new SearchResultItem(
             e.Id,
@@ -66,13 +66,14 @@ public class PartnersSearchSource(IApplicationDbContext db, IFullTextSearch text
         }
 
         var rows = await text
-            .Match(db.Partners.AsNoTracking(), term,
+            // Merged (archived) partners are never found (L2-114 AC4).
+            .Match(db.Partners.AsNoTracking().Where(p => p.ArchivedAtUtc == null), term,
                 p => p.Name + " " + (p.Offering ?? "") + " " + (p.ContactName ?? "") + " " + (p.Notes ?? ""))
             .Take(limit)
-            .Select(p => new { p.Id, p.Name, p.ContactName, p.Offering, p.Stage })
+            .Select(p => new { p.Id, p.Name, p.ContactName, p.Offering, Stage = p.Stage!.Name })
             .ToListAsync(cancellationToken);
         return [.. rows.Select(p => new SearchResultItem(
-            p.Id, p.Name, Snippets.Join(p.ContactName, p.Offering), $"/partners/{p.Id}", Badge: p.Stage.ToString()))];
+            p.Id, p.Name, Snippets.Join(p.ContactName, p.Offering), $"/partners/{p.Id}", Badge: p.Stage))];
     }
 }
 
@@ -142,7 +143,7 @@ public class ResourcesSearchSource(IApplicationDbContext db, IFullTextSearch tex
                 r.Id,
                 r.Title,
                 r.Description,
-                r.Type,
+                TypeName = r.Type!.Name,
                 r.Visibility,
                 r.OwnerId,
                 Extension = r.File == null ? null : r.File.Extension,
@@ -150,13 +151,13 @@ public class ResourcesSearchSource(IApplicationDbContext db, IFullTextSearch tex
                 r.LinkHost,
                 Tags = r.Tags.Select(t => t.Tag).ToList(),
                 Owner = db.Profiles.Where(p => p.Id == r.OwnerId).Select(p => p.Name).FirstOrDefault(),
-                SharedWithCaller = r.SharedMembers.Any(m => m.ProfileId == caller) || r.SharedRoles.Any(x => roles.Contains(x.Role)),
+                SharedWithCaller = r.SharedMembers.Any(m => m.ProfileId == caller) || r.SharedRoles.Any(x => roles.Contains(x.RoleDefinitionId)),
             })
             .ToListAsync(cancellationToken);
         return [.. rows.Select(r => new SearchResultItem(
             r.Id,
             r.Title,
-            Snippets.Join(r.Type.ToString(), r.Extension?.ToUpperInvariant() ?? r.LinkHost, r.Owner, Why(term, r.Title, r.Tags, r.Description, r.FileName)),
+            Snippets.Join(r.TypeName, r.Extension?.ToUpperInvariant() ?? r.LinkHost, r.Owner, Why(term, r.Title, r.Tags, r.Description, r.FileName)),
             $"/resources/{r.Id}",
             Badge: r.Visibility switch
             {

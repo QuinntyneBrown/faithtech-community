@@ -5,24 +5,44 @@ import { Router, provideRouter } from '@angular/router';
 import {
   AUTH_SERVICE,
   CurrentUser,
-  INVITES_SERVICE,
   InviteLookupDto,
+  INVITES_SERVICE,
+  SITE_SERVICE,
 } from '@faithtech-community/api';
 import { Observable, Subject, of, throwError } from 'rxjs';
 
 import { AcceptInvitePage } from './accept-invite.page';
 
+/** The host's organisation the copy names, as GET /api/site answers it on FaithTech's host. */
+const FAITHTECH_SITE = {
+  site: () => ({
+    name: 'FaithTech Community',
+    shortName: 'FaithTech',
+    chapterLabel: { singular: 'City', plural: 'Cities' },
+    communityOrigin: 'http://localhost:4200',
+  }),
+  load: async () => undefined,
+};
+
 const invite: InviteLookupDto = {
   status: 'Pending',
   email: 'ruth.alvarez@example.org',
   inviterName: 'Grace Okonkwo',
-  inviterCity: 'Toronto',
+  inviterChapterName: 'Toronto',
   preassignedRole: 'Volunteer',
   hasAccount: false,
 };
 
 function user(email: string): CurrentUser {
-  return { id: 'u1', profileId: 'p1', name: 'Jonah Bell', email, emailVerified: true, roles: [] };
+  return {
+    id: 'u1',
+    profileId: 'p1',
+    name: 'Jonah Bell',
+    email,
+    emailVerified: true,
+    roles: [],
+    capabilities: [],
+  };
 }
 
 async function setup(
@@ -38,6 +58,7 @@ async function setup(
   };
   TestBed.configureTestingModule({
     providers: [
+      { provide: SITE_SERVICE, useValue: FAITHTECH_SITE },
       provideRouter([]),
       { provide: INVITES_SERVICE, useValue: invites },
       { provide: AUTH_SERVICE, useValue: auth },

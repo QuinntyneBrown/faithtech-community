@@ -1,0 +1,59 @@
+@startuml
+title UML sequence behaviour — Sign up on an organisation host
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+actor "Visitor" as actor
+box "Frontend — community or marketing app on {organisation host}" #E0F2FE
+  participant "SignUpPage (SignUpFormComponent)" as page
+  participant "HttpAuthService" as auth
+end box
+box "Backend — FaithTech.Community.Api" #D1FADF
+  participant "OrganisationResolutionMiddleware" as resolve
+  participant "AccountEndpoints" as ep
+end box
+box "Backend — FaithTech.Community.Application" #ECFDF3
+  participant "SignUpHandler" as signup
+  participant "EmailVerificationHandler" as verify
+end box
+box "Backend — FaithTech.Community.Infrastructure" #FFF4E5
+  database "Community database" as db
+end box
+participant "Email provider" as mail
+actor -> page : Name, email, password
+page -> auth : signUp(request)
+auth -> resolve : POST /api/account/sign-up on {organisation host}
+resolve -> ep : Current organisation = host's (L2-131 #1)
+ep -> signup : SignUpCommand
+signup -> db : Account by email
+alt email unused
+  signup -> db : Create account (no role) and Profile { OrganisationId = current, UserId } (L2-132 #1)
+  signup -> mail : Verification email on this host, "{organisation name}" (L2-134 #5)
+else email already has an account
+  signup -> db : Issue a verification token for the existing account; create nothing yet (L2-001 #2)
+  signup -> mail : Same verification email
+end
+signup --> ep : Accepted
+ep --> auth : 202, identical either way (L2-132 #1)
+auth --> page : Verify-email page
+== Later, from the email link on the same host ==
+actor -> verify : GET confirmation link
+verify -> db : Confirm email if not confirmed (applies everywhere, L2-132 #7)
+alt account has no profile in the current organisation
+  verify -> db : Create Profile { OrganisationId = current, UserId } (L2-132 #1)
+else profile exists
+  verify -> verify : Nothing to create
+end
+verify --> actor : Signed-in landing on the organisation's host
+@enduml

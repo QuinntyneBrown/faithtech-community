@@ -15,7 +15,7 @@ skinparam package {
   BackgroundColor #F9FAFB
 }
 actor "Member" as actor
-box "Frontend — FaithTech Community web app (announcements and notifications libraries)" #E0F2FE
+box "Frontend — Community web app (announcements and notifications libraries)" #E0F2FE
   participant "AnnouncementsPage / SettingsPage" as page
   participant "HttpAnnouncementsService" as client
 end box
@@ -33,7 +33,7 @@ actor -> page : Open announcements
 page -> client : list()
 client -> ep : GET /api/announcements?page=1
 ep -> list : ListAsync(page)
-list -> db : Recipients include caller or caller sent it, order by SentAt desc, 25 a page (L2-030 #1)
+list -> db : Recipients include caller or caller sent it, within the organisation (global filter),\norder by SentAt desc, 25 a page (L2-030 #1)
 db --> list : Page
 list --> ep : PagedResult<AnnouncementListItem>
 ep --> client : 200

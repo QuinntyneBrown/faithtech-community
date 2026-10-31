@@ -23,7 +23,7 @@ public class SignUpTests(CommunityApiFactory factory) : IClassFixture<CommunityA
         var (user, profile) = await factory.WithDbAsync(async db =>
         {
             var u = await db.Users.SingleAsync(x => x.Email == email);
-            return (u, await db.Profiles.SingleAsync(p => p.Id == u.ProfileId));
+            return (u, await db.Profiles.SingleAsync(p => p.UserId == u.Id));
         });
         Assert.False(user.EmailConfirmed);
         Assert.Equal("Grace Hopper", profile.Name);
@@ -88,7 +88,7 @@ public class SignUpTests(CommunityApiFactory factory) : IClassFixture<CommunityA
         var name = new string('a', 100);
         (await SignUp(name, email, OidcFlow.Password)).EnsureSuccessStatusCode();
         var member = await factory.WithDbAsync(db => db.Users.Where(u => u.Email == email)
-            .Select(u => new ProfileClients.Member(u.Id, u.ProfileId)).SingleAsync());
+            .Join(db.Profiles, u => (Guid?)u.Id, p => p.UserId, (u, p) => new ProfileClients.Member(u.Id, p.Id)).SingleAsync());
 
         var response = await factory.ClientFor(member).PutAsJsonAsync($"/api/profiles/{member.ProfileId}",
             new { Name = name, HomeCity = "Toronto", Bio = "" });
@@ -109,6 +109,25 @@ public class SignUpTests(CommunityApiFactory factory) : IClassFixture<CommunityA
         var response = await client.PostAsJsonAsync("/api/account/sign-up", new { Name = "", Email = "", Password = "" });
         Assert.Equal(HttpStatusCode.TooManyRequests, response.StatusCode);
     }
+
+    // Traces to: L2-125 AC1 (docs/detailed-designs/reports/reports-dashboard): the account's creation time is the
+    // member's join time, which Reports counts as new members.
+    [Fact]
+    public async Task Sign_up_records_the_join_time()
+    {
+        var email = UniqueEmail();
+
+        await SignUp("Grace Hopper", email, ValidPassword);
+
+        Assert.Equal(factory.Time.GetUtcNow().UtcDateTime, await JoinedAtOfAsync(email));
+    }
+
+    private Task<DateTime?> JoinedAtOfAsync(string email) =>
+        factory.WithDbAsync(async db =>
+        {
+            var user = await db.Users.AsNoTracking().SingleAsync(u => u.Email == email);
+            return (await db.Profiles.AsNoTracking().SingleAsync(p => p.UserId == user.Id)).JoinedAtUtc;
+        });
 
     private Task<HttpResponseMessage> SignUp(string name, string email, string password) =>
         factory.CreateClient().PostAsJsonAsync("/api/account/sign-up", new { name, email, password });

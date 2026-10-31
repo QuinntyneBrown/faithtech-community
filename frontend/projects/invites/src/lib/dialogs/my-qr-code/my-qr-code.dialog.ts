@@ -1,6 +1,6 @@
 import { DialogRef } from '@angular/cdk/dialog';
 import { ChangeDetectionStrategy, Component, inject, signal, viewChild } from '@angular/core';
-import { CONNECT_SERVICE } from '@faithtech-community/api';
+import { CONNECT_SERVICE, OrganisationNames } from '@faithtech-community/api';
 import {
   AlertComponent,
   ButtonComponent,
@@ -38,6 +38,7 @@ type Step = 'code' | 'confirm';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class MyQrCodeDialog {
+  protected readonly organisation = inject(OrganisationNames);
   protected readonly ref = inject<DialogRef<void>>(DialogRef);
   private readonly connect = inject(CONNECT_SERVICE);
   private readonly toasts = inject(ToastService);

@@ -15,7 +15,7 @@ skinparam package {
   BackgroundColor #F9FAFB
 }
 actor "Owner" as actor
-box "Frontend — FaithTech Community web app (resources library)" #E0F2FE
+box "Frontend — Community web app (resources library)" #E0F2FE
   participant "ResourcePage" as page
   participant "ArchiveResourceDialog" as dlg
   participant "ArchivedResourcesPage" as arch
@@ -42,11 +42,11 @@ ep -> h : ArchiveAsync(id)
 h -> acc : Visible; CanEdit
 alt not visible
   ep --> svc : 404
-else not owner or System Admin
+else not owner or AdministerOrganisation
   ep --> svc : 403 (AC8)
 else allowed
   h -> h : Archive(now); Touch
-  opt System Admin override
+  opt AdministerOrganisation override (IsOverride, L2-135 AC5)
     h -> audit : resource.archived
   end
   h -> db : Save
@@ -61,7 +61,7 @@ actor -> arch : Open /resources/archived
 arch -> svc : archived()
 svc -> ep : GET /api/resources/archived
 ep -> h : ListArchivedAsync()
-h -> db : OwnerId = caller (all for System Admin) AND ArchivedAt IS NOT NULL, newest first
+h -> db : OwnerId = caller (all for AdministerOrganisation) AND ArchivedAt IS NOT NULL, newest first
 ep --> svc : 200 [ArchivedResourceDto with PurgeAt]
 arch --> actor : "{title} · … · archived {date} · deleted for good {date}" (AC3)
 actor -> arch : Restore {title}

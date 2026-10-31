@@ -28,6 +28,14 @@ describe('HttpPeopleService', () => {
     req.flush({ items: [], page: 2, pageSize: 25, totalCount: 0 });
   });
 
+  it('narrows to a chapter', () => {
+    service.search('', 1, 'c-toronto').subscribe();
+
+    controller
+      .expectOne('/api/people?page=1&chapter=c-toronto')
+      .flush({ items: [], page: 1, pageSize: 25, totalCount: 0 });
+  });
+
   it('leaves out an empty term and starts on page 1', () => {
     service.search('').subscribe();
 

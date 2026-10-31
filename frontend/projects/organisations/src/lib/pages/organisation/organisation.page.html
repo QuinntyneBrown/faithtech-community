@@ -1,0 +1,18 @@
+<ft-stack>
+  <ft-page-header [title]="names.name()" [subtitle]="subtitle()" />
+  <ft-tabs label="Organisation settings">
+    <ft-tab label="General" href="/organisation" [current]="tab() === 'general'" />
+    <ft-tab label="Roles" href="/organisation/roles" [current]="tab() === 'roles'" />
+    <ft-tab
+      [label]="names.chapterLabel()?.plural ?? 'Chapters'"
+      href="/organisation/chapters"
+      [current]="tab() === 'chapters'"
+    />
+    <ft-tab
+      label="Stages &amp; types"
+      href="/organisation/taxonomies"
+      [current]="tab() === 'taxonomies'"
+    />
+  </ft-tabs>
+  <router-outlet />
+</ft-stack>

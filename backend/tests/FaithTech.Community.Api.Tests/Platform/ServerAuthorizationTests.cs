@@ -37,6 +37,11 @@ public partial class ServerAuthorizationTests(CommunityApiFactory factory) : ICl
         "api/public/events/{id:guid}/rsvps/cancel",
         "api/public/events/{id:guid}/calendar.ics",
         "api/announcements/unsubscribe",
+        // Google sign-in (L2-078) redirects to Google without a session; the client follows it to Google's host, which
+        // the API does not serve (L2-131 AC2).
+        "api/account/google/start",
+        // The organisation's names, read by the pages that render before sign-in (L2-134 AC1).
+        "api/site",
     ];
 
     [Fact]
@@ -76,10 +81,12 @@ public partial class ServerAuthorizationTests(CommunityApiFactory factory) : ICl
         var me = await client.GetFromJsonAsync<MeResponse>("/api/me");
 
         Assert.Equal(member.UserId, me!.Id);
-        Assert.Equal(["CityLead", "Staff"], me.Roles);
+        Assert.Equal(["City Lead", "Staff"], me.Roles.Select(r => r.Name));
     }
 
-    private sealed record MeResponse(Guid Id, string[] Roles);
+    private sealed record HeldRole(string Name);
+
+    private sealed record MeResponse(Guid Id, HeldRole[] Roles);
 
     [GeneratedRegex(@"\{[^}]+\}")]
     private static partial Regex RouteParameter();

@@ -59,3 +59,6 @@
   background: var(--color-info-bg); color: var(--color-info-fg); border: 1px dashed var(--color-info-border); font: var(--text-label); }
 .mock-live::before { content: "Screen reader hears:"; font-weight: var(--font-weight-regular); }
 [data-chrome="off"] .mock-live { position: absolute !important; width: 1px !important; height: 1px !important; overflow: hidden; clip-path: inset(50%) !important; padding: 0; border: 0; }
+
+/* An open row menu is drawn inline in the mock; the product renders it in a CDK overlay, so the card never clips it. */
+.mock-overflow-visible { overflow: visible !important; }

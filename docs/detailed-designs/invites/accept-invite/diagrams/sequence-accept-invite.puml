@@ -15,10 +15,10 @@ skinparam package {
   BackgroundColor #F9FAFB
 }
 actor "Invitee" as actor
-box "Frontend — FaithTech Community web app (invites library)" #E0F2FE
+box "Frontend — Community web app (invites library)" #E0F2FE
   participant "AcceptInvitePage" as page
 end box
-box "Frontend — FaithTech Community web app (api library)" #E0F2FE
+box "Frontend — Community web app (api library)" #E0F2FE
   participant "HttpInvitesService" as client
 end box
 box "Backend — FaithTech.Community.Api" #D1FADF
@@ -51,16 +51,16 @@ else invite found
     client -> ep : POST /api/invites/accept (anonymous)
     ep -> ep : AcceptInviteValidator
     ep -> h : AcceptAsync(command)
-    h -> db : Create profile and user with EmailConfirmed = true (L2-011 AC1)
+    h -> db : Create user with EmailConfirmed = true and profile in inviter's organisation (L2-011 AC1, L2-132 AC2)
   else Pending, signed in with the invited email
     actor -> page : Accept invite
     page -> client : acceptInvite(token)
     client -> ep : POST /api/invites/accept
     ep -> h : AcceptAsync(command)
-    h -> db : Load caller's account; email must match (else 409) (L2-011 AC3)
+    h -> db : Load caller's account; email must match (else 409); create profile in inviter's organisation if none (L2-011 AC3)
   end
   h -> audit : Record(inviter, "role.granted", ...) when a role is pre-assigned (L2-041)
-  h -> db : Grant role, mark invite accepted, add InviteAccepted notification (L2-011 AC4)
+  h -> db : Grant RoleDefinition, mark invite accepted, add InviteAccepted notification (L2-011 AC4)
   h -> db : SaveChanges in one unit of work
   h --> ep : Ok
   ep --> client : 204 No Content

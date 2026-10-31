@@ -24,7 +24,7 @@ public class RoleFreshnessTests(CommunityApiFactory factory) : IClassFixture<Com
         var api = _flow.Api((await _flow.SignInAndGetTokensAsync(email)).AccessToken);
         Assert.Equal(HttpStatusCode.OK, (await api.GetAsync("/api/invites")).StatusCode);
 
-        var removed = await (await AdminClientAsync()).DeleteAsync($"/api/profiles/{profileId}/roles/CityLead");
+        var removed = await (await AdminClientAsync()).DeleteAsync($"/api/profiles/{profileId}/roles/{factory.RoleIdOf("CityLead")}");
         Assert.Equal(HttpStatusCode.OK, removed.StatusCode);
 
         Assert.Equal(HttpStatusCode.Forbidden, (await api.GetAsync("/api/invites")).StatusCode);
@@ -40,7 +40,7 @@ public class RoleFreshnessTests(CommunityApiFactory factory) : IClassFixture<Com
         var api = _flow.Api(tokens.AccessToken);
         Assert.Equal(HttpStatusCode.OK, (await api.GetAsync("/api/admin/users")).StatusCode);
 
-        var removed = await (await AdminClientAsync()).DeleteAsync($"/api/profiles/{profileId}/roles/SystemAdmin");
+        var removed = await (await AdminClientAsync()).DeleteAsync($"/api/profiles/{profileId}/roles/{factory.RoleIdOf("SystemAdmin")}");
         Assert.Equal(HttpStatusCode.OK, removed.StatusCode);
 
         Assert.Equal(HttpStatusCode.Forbidden, (await api.GetAsync("/api/admin/users")).StatusCode);
@@ -57,13 +57,13 @@ public class RoleFreshnessTests(CommunityApiFactory factory) : IClassFixture<Com
         var (email, profileId) = await AccountWithRolesAsync();
         var tokens = await _flow.SignInAndGetTokensAsync(email);
 
-        var added = await (await AdminClientAsync()).PostAsJsonAsync($"/api/profiles/{profileId}/roles", new { Role = "CityLead" });
+        var added = await (await AdminClientAsync()).PostAsJsonAsync($"/api/profiles/{profileId}/roles", new { RoleId = factory.RoleIdOf("CityLead") });
         Assert.Equal(HttpStatusCode.OK, added.StatusCode);
 
         var refreshed = await _flow.RefreshAsync(tokens.RefreshToken);
         refreshed.EnsureSuccessStatusCode();
         var api = _flow.Api((await refreshed.Content.ReadFromJsonAsync<TokenResponse>())!.AccessToken);
-        var roles = (await api.GetFromJsonAsync<JsonElement>("/api/me")).GetProperty("roles").EnumerateArray().Select(r => r.GetString());
+        var roles = (await api.GetFromJsonAsync<JsonElement>("/api/me")).GetProperty("roles").EnumerateArray().Select(r => r.GetProperty("key").GetString());
         Assert.Equal(["CityLead"], roles);
         Assert.Equal(HttpStatusCode.OK, (await api.GetAsync("/api/invites")).StatusCode);
     }
@@ -73,7 +73,7 @@ public class RoleFreshnessTests(CommunityApiFactory factory) : IClassFixture<Com
         var email = await _flow.CreateAccountAsync();
         var profileId = await factory.WithDbAsync(async db =>
         {
-            var id = await db.Users.Where(u => u.Email == email).Select(u => u.ProfileId).SingleAsync();
+            var id = await db.Users.Where(u => u.Email == email).Join(db.Profiles, u => (Guid?)u.Id, p => p.UserId, (u, p) => p.Id).SingleAsync();
             var profile = await db.Profiles.SingleAsync(p => p.Id == id);
             foreach (var role in roles)
             {

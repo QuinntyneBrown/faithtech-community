@@ -23,7 +23,7 @@ public class GrantAdminCommandTests
 
         await using var db = Db();
         var profile = await db.Profiles.SingleAsync(p => p.Id == profileId);
-        Assert.Equal([Role.SystemAdmin], profile.Roles.Select(r => r.Role));
+        Assert.Equal(["SystemAdmin"], profile.Roles.Select(r => r.Definition!.Key));
         var entry = await db.AuditEntries.SingleAsync();
         Assert.Equal(("role.granted", profileId.ToString(), "cli"), (entry.Action, entry.TargetId, entry.IpAddress));
     }
@@ -39,16 +39,17 @@ public class GrantAdminCommandTests
     {
         await using var db = Db();
         var profile = new Profile("Priya Shah");
-        db.Profiles.Add(profile);
-        db.Users.Add(new CommunityUser
+        var user = new CommunityUser
         {
             Id = Guid.NewGuid(),
             UserName = email,
             Email = email,
             NormalizedEmail = email.ToUpperInvariant(),
             NormalizedUserName = email.ToUpperInvariant(),
-            ProfileId = profile.Id,
-        });
+        };
+        profile.LinkAccount(user.Id);
+        db.Profiles.Add(profile);
+        db.Users.Add(user);
         await db.SaveChangesAsync();
         return profile.Id;
     }

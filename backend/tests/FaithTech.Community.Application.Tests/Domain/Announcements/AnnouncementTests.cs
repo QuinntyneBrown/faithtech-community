@@ -14,16 +14,17 @@ public class AnnouncementTests
     {
         var audience = AnnouncementAudience.Everyone();
 
-        Assert.Equal((AudienceKind.Everyone, 0, (Guid?)null), (audience.Kind, audience.Roles.Count, audience.EventId));
+        Assert.Equal((AudienceKind.Everyone, 0, (Guid?)null), (audience.Kind, audience.RoleIds.Count, audience.EventId));
     }
 
     [Fact]
     public void An_audience_can_be_the_holders_of_one_or_more_roles()
     {
-        var audience = AnnouncementAudience.ForRoles(Role.Volunteer, Role.EventLead, Role.Volunteer);
+        var (volunteer, eventLead) = (TestRoles.Definition(Role.Volunteer).Id, TestRoles.Definition(Role.EventLead).Id);
+        var audience = AnnouncementAudience.ForRoles(volunteer, eventLead, volunteer);
 
         Assert.Equal(AudienceKind.Roles, audience.Kind);
-        Assert.Equal(new HashSet<Role> { Role.Volunteer, Role.EventLead }, audience.Roles);
+        Assert.Equal(new HashSet<Guid> { volunteer, eventLead }, audience.RoleIds);
     }
 
     [Fact]

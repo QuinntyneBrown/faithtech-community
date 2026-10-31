@@ -80,6 +80,8 @@ a:hover, a[data-state="hover"] { color: var(--color-fg-link-hover); text-decorat
 /* Filter row above a list: chip group and select, spaced from the list below. */
 .filter-bar { align-items: flex-end; margin-bottom: var(--space-4); }
 .filter-bar > .select { width: auto; flex: 0 1 14rem; }
+/* An action pushed to the end of the filter row, such as Export CSV (ftFilterBarEnd). */
+.filter-bar__end { margin-inline-start: auto; }
 .grid { display: grid; gap: var(--layout-gutter); grid-template-columns: repeat(var(--layout-columns), minmax(0, 1fr)); }
 .grid--auto { grid-template-columns: repeat(auto-fill, minmax(min(100%, 18rem), 1fr)); }
 /* Two equal columns at every width: a Starts/Ends or start/end date pair in a form (<ft-grid [columns]="2">). */
@@ -200,6 +202,8 @@ fieldset.card > legend { display: contents; }
 .choice input[aria-invalid="true"] { border-color: var(--color-danger-solid); }
 .choice__text { display: flex; flex-direction: column; gap: var(--space-0-5); }
 .choice__text small { color: var(--color-fg-muted); }
+/* A wrapping row of short choices (ft-radio-group orientation="inline"): 16px between choices, 8px between wrapped lines. */
+.choice-row { display: flex; flex-wrap: wrap; column-gap: var(--space-4); row-gap: var(--space-2); }
 
 /* ---------- Form layout ------------------------------------------------------ */
 .form-actions { display: flex; flex-wrap: wrap; gap: var(--space-3); justify-content: flex-end; padding-top: var(--space-4); }
@@ -628,6 +632,7 @@ label.bubble__text { cursor: pointer; }
 .switch input:checked:hover, .switch input[data-state="checked"]:hover { background: var(--color-accent-hover); }
 .switch input:checked::before, .switch input[data-state="checked"]::before { translate: calc(var(--size-icon-md) * 0.75) 0; }
 .switch input:focus-visible, .switch input[data-state="focus"] { outline: var(--focus-ring-width) solid var(--color-focus-ring); outline-offset: var(--space-0-5); }
+.switch__description { margin: 0; padding-inline-start: calc(var(--size-icon-md) * 1.75 + var(--space-3)); }
 .switch input:disabled, .switch input[data-state="disabled"] { background: var(--color-border-default); cursor: not-allowed; }
 .switch input:disabled + * { color: var(--color-fg-disabled); }
 .switch__text { display: flex; flex-direction: column; gap: var(--space-0-5); }
@@ -1240,3 +1245,28 @@ a.page-link:hover, a.page-link[data-state="hover"] { background: var(--color-acc
 .drop-indicator .block--preview { top: var(--space-1); left: var(--space-8); }
 .block-editor__more-menu { position: fixed; inset: calc(var(--layout-topbar-height) + var(--space-16)) var(--layout-margin) auto auto; margin: 0; transform-origin: top right; }
 .dialog__footer-start { margin-right: auto; }
+
+/* Organisations: reorderable lists (Chapters, Stages & types). A drag handle, move up / move down buttons and
+   a row menu sit at the end of each row; a polite live region announces each keyboard move (L2-089 pattern). */
+.list__handle { flex: none; display: grid; place-items: center; width: var(--size-icon-md); color: var(--color-fg-subtle); cursor: grab; }
+.list__actions { display: flex; flex-wrap: wrap; align-items: center; justify-content: flex-end; gap: var(--space-1); flex: none; }
+.list__item--moved { background: var(--color-accent-subtle); box-shadow: inset 0 0 0 var(--focus-ring-width) var(--color-focus-ring); animation: fade-in var(--duration-slow) var(--ease-enter); }
+@media (max-width: 39.99rem) {
+  .list__item:has(.list__actions) { flex-wrap: wrap; }
+  .list__item:has(.list__actions) .list__actions { width: 100%; justify-content: flex-start; padding-inline-start: calc(var(--size-avatar-md) + var(--space-3)); }
+}
+@media (prefers-reduced-motion: reduce) { .list__item--moved { animation: none; } }
+/* A row menu anchored to its trigger. */
+.menu-anchor { position: relative; }
+.menu--row { right: 0; top: 100%; }
+.menu__item[role="menuitemradio"]::before { content: ""; flex: none; width: var(--size-icon-sm); height: var(--size-icon-sm); border-radius: var(--radius-full); border: var(--border-width-hairline) solid var(--color-border-strong); }
+.menu__item[role="menuitemradio"][aria-checked="true"]::before { background: var(--color-accent); border-color: var(--color-accent); box-shadow: inset 0 0 0 var(--space-0-5) var(--color-bg-surface-raised); }
+/* Two-line menu item: the organisation name with its host underneath (Switch organisation). */
+.menu__text { display: flex; flex-direction: column; min-width: 0; padding-block: var(--space-1); }
+/* Capability checklist: one checkbox per catalogue entry with its description; two columns from 48rem. */
+.capability-checklist { display: grid; gap: var(--space-1) var(--space-6); margin: 0; padding: 0; border: 0; min-width: 0; }
+.capability-checklist > legend { margin-bottom: var(--space-2); padding: 0; }
+@media (min-width: 48rem) { .capability-checklist:not(.capability-checklist--single) { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+.choice input:disabled + .choice__text small { color: var(--color-fg-muted); }
+/* A wider dialog for long checklists (Define a role). */
+.dialog--wide .dialog__panel { max-width: 44rem; }

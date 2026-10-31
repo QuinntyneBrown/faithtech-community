@@ -1,0 +1,67 @@
+<ft-dialog
+  [heading]="heading"
+  [description]="description"
+  icon="admin"
+  [busy]="busy()"
+  (closed)="ref.close()"
+>
+  <form [formGroup]="form" (submit)="$event.preventDefault(); save()" ftFormErrorFocus>
+    <ft-stack>
+      @if (failed()) {
+        <ft-alert status="danger" heading="Role not saved">
+          We couldn’t reach {{ organisation.shortName() }}. Your changes are still here — try again.
+        </ft-alert>
+      }
+      @if (refusal(); as message) {
+        <ft-alert status="danger" heading="Not saved">{{ message }}</ft-alert>
+      }
+      <ft-form-field label="Name" [error]="nameError()">
+        <ft-text-field
+          formControlName="name"
+          autocomplete="off"
+          initialFocus
+          [maxlength]="maxName"
+          [readonly]="busy()"
+        />
+      </ft-form-field>
+      <ft-form-field label="Description" [optional]="true" [error]="descriptionError()">
+        <ft-textarea
+          formControlName="description"
+          [rows]="2"
+          [maxlength]="maxDescription"
+          [readonly]="busy()"
+        />
+      </ft-form-field>
+      <ft-capability-checklist
+        legend="Capabilities"
+        formControlName="capabilities"
+        [entries]="data.capabilities"
+        [error]="capabilitiesError()"
+      />
+      <fieldset class="options">
+        <legend>Options</legend>
+        <ft-stack gap="3">
+          <ft-switch formControlName="showOnTeam">Show on the team list</ft-switch>
+          @if (chapter) {
+            <ft-switch
+              formControlName="chapterScopable"
+              [description]="
+                'Each assignment can be tagged with a ' +
+                chapter +
+                '. It never limits what the holder sees.'
+              "
+              >Can be held for a {{ chapter }}</ft-switch
+            >
+          }
+          <ft-switch formControlName="isOversight"
+            >Oversight role (shows a viewing-as banner)</ft-switch
+          >
+        </ft-stack>
+      </fieldset>
+    </ft-stack>
+  </form>
+  <ft-button ftDialogFooter [disabled]="busy()" (click)="ref.close()">Cancel</ft-button>
+  <ft-button ftDialogFooter variant="primary" [loading]="busy()" (click)="save()">
+    {{ busy() ? 'Saving…' : failed() ? 'Try again' : editing ? 'Save changes' : 'Define role' }}
+  </ft-button>
+</ft-dialog>

@@ -1,10 +1,11 @@
 import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
 import {
+  AnnouncementDto,
   ANNOUNCEMENTS_SERVICE,
   AUTH_SERVICE,
-  AnnouncementDto,
+  OrganisationNames,
   ROLE_LABELS,
-  Role,
+  hasAny,
 } from '@faithtech-community/api';
 import {
   ButtonComponent,
@@ -21,8 +22,6 @@ import {
 import { firstValueFrom } from 'rxjs';
 
 type State = 'loading' | 'loaded' | 'error';
-
-const SENDERS: Role[] = ['CommunicationsLead', 'SystemAdmin'];
 
 /**
  * The announcements sent to the member, newest first (L2-030, mock `pages/announcements`). Communications
@@ -46,14 +45,16 @@ const SENDERS: Role[] = ['CommunicationsLead', 'SystemAdmin'];
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class AnnouncementsPage {
+  protected readonly organisation = inject(OrganisationNames);
   private readonly service = inject(ANNOUNCEMENTS_SERVICE);
-  private readonly roles = inject(AUTH_SERVICE).roles;
+  private readonly capabilities = inject(AUTH_SERVICE).capabilities;
 
   protected readonly state = signal<State>('loading');
   protected readonly items = signal<AnnouncementDto[]>([]);
   protected readonly hasMore = signal(false);
   protected readonly loadingMore = signal(false);
-  protected readonly canSend = computed(() => this.roles().some((r) => SENDERS.includes(r)));
+  /** SendAnnouncements composes and sends (L2-034, L2-135 AC7). */
+  protected readonly canSend = computed(() => hasAny(this.capabilities(), 'SendAnnouncements'));
   private page = 1;
 
   constructor() {

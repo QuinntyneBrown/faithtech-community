@@ -8,7 +8,7 @@
   <ft-stack>
     @if (failed()) {
       <ft-alert status="danger" [heading]="adding ? 'Role not added' : 'Role not removed'">
-        We couldn’t reach FaithTech. Nothing was changed — try again.
+        We couldn’t reach {{ organisation.shortName() }}. Nothing was changed — try again.
       </ft-alert>
     }
     @if (refusal(); as message) {
@@ -26,6 +26,16 @@
           >
         }
       </ft-radio-group>
+    }
+    @if (showChapter() && picker; as p) {
+      <ft-form-field
+        [label]="p.label"
+        [optional]="!p.required"
+        [required]="p.required"
+        [help]="chapterHelp()"
+      >
+        <ft-select [options]="chapterOptions" [formControl]="chapter" />
+      </ft-form-field>
     }
     @if (data.caption) {
       <p class="caption">{{ data.caption }}</p>

@@ -2,7 +2,12 @@ import { DIALOG_DATA, DialogRef } from '@angular/cdk/dialog';
 import { ChangeDetectionStrategy, Component, DestroyRef, inject, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
-import { NOTES_SERVICE, NotePageDto, NotePageRef } from '@faithtech-community/api';
+import {
+  NotePageDto,
+  NotePageRef,
+  NOTES_SERVICE,
+  OrganisationNames,
+} from '@faithtech-community/api';
 import {
   AlertComponent,
   ButtonComponent,
@@ -42,6 +47,7 @@ const TOP = '';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class MoveNoteDialog {
+  protected readonly organisation = inject(OrganisationNames);
   protected readonly ref = inject<DialogRef<MoveResult>>(DialogRef);
   protected readonly page = inject<NotePageDto>(DIALOG_DATA);
   private readonly notes = inject(NOTES_SERVICE);

@@ -2,10 +2,10 @@
 !include <C4/C4_Context>
 LAYOUT_WITH_LEGEND()
 title System Context — Page visibility and sharing
-Person(owner, "Page owner", "Any verified member, Staff included")
+Person(owner, "Page owner", "Any verified member, whatever capabilities")
 Person(recipient, "Recipient", "Named member, or current holder of a named role")
-Person(admin, "System Admin", "Opens and changes any page; audited")
-System(community, "FaithTech Community", "Applies page visibility in every query")
+Person(admin, "Administrator", "Holds AdministerOrganisation: opens and changes any page; audited")
+System(community, "Community platform", "Applies page visibility in every query")
 System_Ext(mail, "Email provider", "SMTP / SendGrid")
 Rel(owner, community, "Shares a page with members and roles using")
 Rel(community, recipient, "Shows the NotePageShared notice to")

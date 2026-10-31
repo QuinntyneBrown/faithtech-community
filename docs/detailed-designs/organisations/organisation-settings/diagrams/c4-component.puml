@@ -1,0 +1,44 @@
+@startuml
+!include <C4/C4_Component>
+LAYOUT_WITH_LEGEND()
+title Components — Organisation settings
+Container_Boundary(web, "Web app") {
+  Component(nav, "navigation.ts", "App shell", "Organisation section for ManageRoles or ManageOrganisationSettings; Admin for AdministerOrganisation")
+  Component(orgpage, "OrganisationPage", "Angular page (organisations library)", "Tabs General, Roles, {Chapters}, Stages & types; canEditSettings, canEditRoles")
+  Component(general, "GeneralPage", "Angular page (organisations library)", "Name, short name, chapter label; View audit log link")
+  Component(dlg, "EditGeneralSettingsDialog / TurnChaptersOffDialog", "Angular CDK Dialogs (organisations library)", "Fields, inline errors, Try again")
+  Component(auditpage, "AuditLogPage", "Angular page (admin library)", "Category filter with organisation, roles, chapters, taxonomies")
+  Component(svc, "HttpOrganisationService", "Angular service (api library)", "get(), update(settings); cached OrganisationDto")
+  Component(asvc, "HttpAuditLogService", "Angular service (api library)", "getEntries, exportCsv")
+}
+Container_Boundary(api, "Community API") {
+  Component(ep, "OrganisationEndpoints", "ASP.NET Core minimal API", "GET and PUT /api/organisation")
+  Component(get, "GetOrganisationHandler", "Application handler", "OrganisationDto for every member")
+  Component(val, "UpdateOrganisationValidator", "FluentValidation", "Name, short name; labels at most 30, both or neither")
+  Component(upd, "UpdateOrganisationHandler", "Application handler", "Requires ManageOrganisationSettings; audits organisation.updated")
+  Component(org, "Organisation", "Domain aggregate", "Rename, SetChapterLabel")
+  Component(aep, "AuditLogEndpoints", "ASP.NET Core minimal API", "GET /api/admin/audit and /export")
+  Component(aq, "GetAuditEntriesHandler", "Application handler", "AuditReadScope; OrganisationAuditCategories")
+  Component(audit, "AuditLog", "Infrastructure service", "Implements IAuditLog; stamps OrganisationId, UTC time, IP")
+  ComponentDb(db, "CommunityDbContext", "PostgreSQL", "Organisations, AuditEntries (filtered by organisation), PlatformAuditEntries")
+}
+Rel(nav, orgpage, "Routes /organisation")
+Rel(orgpage, general, "Tab")
+Rel(general, dlg, "Opens Edit")
+Rel(general, auditpage, "Links /organisation/audit")
+Rel(dlg, svc, "update(settings)")
+Rel(orgpage, svc, "get()")
+Rel(auditpage, asvc, "getEntries, exportCsv")
+Rel(svc, ep, "Sends request", "JSON/HTTPS")
+Rel(asvc, aep, "GET", "JSON or CSV over HTTPS")
+Rel(ep, get, "GET")
+Rel(ep, val, "Validates PUT (400)")
+Rel(ep, upd, "PUT")
+Rel(upd, org, "Rename, SetChapterLabel")
+Rel(upd, audit, "Record organisation.updated")
+Rel(aep, aq, "Sends GetAuditEntriesQuery")
+Rel(get, db, "Reads", "EF Core")
+Rel(upd, db, "Saves", "EF Core")
+Rel(aq, db, "Reads AuditEntries", "EF Core")
+Rel(audit, db, "Adds AuditEntry", "EF Core")
+@enduml

@@ -1,7 +1,9 @@
 @if (!hasRole()) {
   <ft-page-header
     [title]="title()"
-    subtitle="You’re part of the FaithTech community. Here’s how to get started."
+    [subtitle]="
+      'You’re part of the ' + organisation.shortName() + ' community. Here’s how to get started.'
+    "
   />
   <ft-stack>
     <ft-grid [auto]="true">
@@ -61,7 +63,7 @@
   </ft-page-header>
 
   @if (isStaffOnly()) {
-    <ft-alert class="staff" status="info" heading="You’re viewing as Staff">
+    <ft-alert class="staff" status="info" [heading]="'You’re viewing as ' + oversightRole()">
       You can see everything across every city but can’t make changes. Private contacts stay with
       the lead who created them.
     </ft-alert>
@@ -144,7 +146,7 @@
       (retry)="retryFeed()"
     >
       @for (item of feed(); track item.id) {
-        <ft-feed-item [actor]="actor" [meta]="item.meta">
+        <ft-feed-item [actor]="actor()" [meta]="item.meta">
           <ft-link [href]="item.href">{{ item.text }}</ft-link>
         </ft-feed-item>
       }

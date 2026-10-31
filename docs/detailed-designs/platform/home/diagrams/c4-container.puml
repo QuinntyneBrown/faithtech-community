@@ -3,7 +3,7 @@
 LAYOUT_WITH_LEGEND()
 title Containers — Home
 Person(member, "Member", "Signed-in profile holder")
-System_Boundary(community, "FaithTech Community") {
+System_Boundary(community, "Community platform") {
   Container(web, "Web app", "Angular", "App shell with the home route; feature libraries lazy-loaded")
   Container(api, "Community API", "ASP.NET Core", "Events, partners and activity endpoints")
   ContainerDb(db, "Community database", "PostgreSQL", "Events, partners, notifications")

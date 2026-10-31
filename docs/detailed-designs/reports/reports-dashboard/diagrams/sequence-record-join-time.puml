@@ -1,0 +1,41 @@
+@startuml
+title UML sequence behaviour — Record the join time
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+actor "New member" as actor
+box "Frontend — Community web app or marketing app" #E0F2FE
+  participant "Sign-up, Google, invite or connect page" as page
+end box
+box "Backend — FaithTech.Community.Api" #D1FADF
+  participant "Account, invite or connect endpoints" as ep
+end box
+box "Backend — FaithTech.Community.Application and Domain" #ECFDF3
+  participant "SignUpHandler, GoogleSignInHandler\nor AcceptInviteHandler" as h
+  participant "Profile" as profile
+end box
+box "Backend — FaithTech.Community.Infrastructure" #FFF4E5
+  database "Community database" as db
+end box
+actor -> page : Create an account
+page -> ep : HTTPS request
+ep -> h : Handle command
+h -> h : now = TimeProvider.GetUtcNow().UtcDateTime
+h -> profile : new Profile(name, joinedAtUtc: now)
+h -> db : Add Profile and CommunityUser in one save
+db --> h : Commit
+h --> ep : Result
+ep --> page : Response
+note over profile, db : JoinedAtUtc is set once and never changed. Profiles from before the migration keep null and are never counted as new (L2-125 AC1).
+@enduml

@@ -15,7 +15,7 @@ skinparam package {
   BackgroundColor #F9FAFB
 }
 actor "Account holder" as actor
-box "Frontend — FaithTech Community web app (faithtech-community library)" #E0F2FE
+box "Frontend — Community web app (faithtech-community library)" #E0F2FE
   participant "VerifyEmailPage" as page
   participant "AuthService" as client
 end box

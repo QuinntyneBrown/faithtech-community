@@ -1,0 +1,176 @@
+@if (state() === 'forbidden') {
+  <h1 class="visually-hidden">Reports</h1>
+  <ft-empty-state
+    icon="team"
+    heading="Reports are for Staff and System Admin"
+    text="City Leads see their own numbers on Home and on each board. Ask Staff if you need a city report."
+  >
+    <ft-button actions variant="primary" href="/">Go to Home</ft-button>
+  </ft-empty-state>
+} @else {
+  <ft-page-header title="Reports" [subtitle]="subtitle()">
+    <ft-skeleton ftPageHeaderSubtitle shape="text" width="16rem" />
+  </ft-page-header>
+
+  <ft-stack>
+    @if (fellBack()) {
+      <ft-alert status="warning" polite [heading]="fallbackHeading()" />
+    }
+
+    <form (submit)="$event.preventDefault(); apply()">
+      <ft-filter-bar label="Report filters">
+        @if (chapterSingular()) {
+          <ft-form-field [label]="chapterLabel()">
+            <ft-select
+              [placeholder]="allChapters()"
+              [options]="chapterOptions()"
+              [formControl]="chapterControl"
+            />
+          </ft-form-field>
+        }
+        <ft-form-field label="Period">
+          <ft-select [options]="periods" [formControl]="periodControl" />
+        </ft-form-field>
+        <ft-button type="submit">Apply</ft-button>
+        <ft-button
+          ftFilterBarEnd
+          variant="ghost"
+          [loading]="exporting()"
+          [disabled]="!report()"
+          (click)="exportCsv()"
+        >
+          <ft-icon name="export" /> {{ exporting() ? 'Exporting…' : 'Export CSV' }}
+        </ft-button>
+      </ft-filter-bar>
+    </form>
+
+    @switch (state()) {
+      @case ('loading') {
+        <div role="status" aria-busy="true" aria-label="Loading reports">
+          <ft-stack>
+            <ng-container
+              [ngTemplateOutlet]="figureRow"
+              [ngTemplateOutletContext]="{ $implicit: null }"
+            />
+          </ft-stack>
+        </div>
+      }
+      @case ('error') {
+        <ft-empty-state
+          variant="error"
+          heading="We couldn’t load the reports"
+          text="Check your connection and try again. If it keeps happening, we’ve already been told about it."
+        >
+          <ft-button actions variant="primary" (click)="retry()">
+            <ft-icon name="try-again" /> Try again
+          </ft-button>
+        </ft-empty-state>
+      }
+      @case ('loaded') {
+        @if (report()?.isEmpty) {
+          <ft-empty-state icon="reports" [heading]="emptyHeading()" [text]="emptyText()">
+            @if (chapterSingular()) {
+              <ft-button actions variant="primary" (click)="showChapter(null)">
+                {{ allChapters() }}
+              </ft-button>
+            }
+            <ft-button actions variant="ghost" (click)="showPeriod('last-90-days')">
+              Last 90 days
+            </ft-button>
+          </ft-empty-state>
+        } @else {
+          <div>
+            <ft-stack>
+              <ng-container
+                [ngTemplateOutlet]="figureRow"
+                [ngTemplateOutletContext]="{ $implicit: figures() }"
+              />
+            </ft-stack>
+          </div>
+        }
+      }
+    }
+  </ft-stack>
+}
+
+<!-- The figures, charts and tables; `null` draws their loading skeletons. -->
+<ng-template #figureRow let-figures>
+  @if (wide()) {
+    <ft-cluster gap="8">
+      <ng-container [ngTemplateOutlet]="stats" [ngTemplateOutletContext]="{ $implicit: figures }" />
+    </ft-cluster>
+  } @else {
+    <ft-stack>
+      <ng-container [ngTemplateOutlet]="stats" [ngTemplateOutletContext]="{ $implicit: figures }" />
+    </ft-stack>
+  }
+  <ft-split>
+    <ft-stack ftSplitMain>
+      <ft-card variant="flush" [heading]="pipelineHeading()">
+        <ft-table
+          [caption]="pipelineCaption()"
+          [columns]="pipelineColumns()"
+          [rows]="pipelineRows()"
+          [loading]="!figures"
+        />
+        <ft-card-footer>
+          <p class="text-caption">{{ pipelineFooter() }}</p>
+        </ft-card-footer>
+      </ft-card>
+      <ft-card variant="flush" heading="Events and attendance">
+        <ft-table
+          caption="Events in the period and the next 30 days, newest first, with RSVPs and check-ins"
+          [columns]="eventColumns()"
+          [rows]="eventRows()"
+          [loading]="!figures"
+        />
+        <ft-card-footer>
+          <p class="text-caption">
+            Events in the period and the next 30 days. Walk-ins aren’t counted as RSVPs or
+            check-ins.
+          </p>
+        </ft-card-footer>
+      </ft-card>
+    </ft-stack>
+    <ft-stack ftSplitAside>
+      @if (chapterSingular()) {
+        <ft-card [heading]="membersHeading()">
+          <ft-progress-chart
+            [label]="membersHeading()"
+            [rows]="membersByChapter()"
+            [loading]="!figures"
+          />
+          <ft-card-footer>
+            <p class="text-caption">
+              Members with a verified email, by home {{ chapterSingular() }}. Private contacts are
+              never counted.
+            </p>
+          </ft-card-footer>
+        </ft-card>
+      }
+      <ft-card heading="New members by month">
+        <ft-progress-chart
+          label="New members by month"
+          [rows]="newMembersByMonth()"
+          [loading]="!figures"
+        />
+      </ft-card>
+    </ft-stack>
+  </ft-split>
+</ng-template>
+
+<ng-template #stats let-figures>
+  @if (figures) {
+    @for (f of figures; track f.label) {
+      <ft-stat [label]="f.label" [value]="f.value" [context]="f.context" />
+    }
+  } @else {
+    @for (label of loadingFigures; track label) {
+      <ft-stat [label]="label" value="" context=" " [loading]="true" />
+    }
+  }
+</ng-template>
+
+<ng-template #eventCell let-row>
+  <ft-link [href]="'/events/' + row.id">{{ row.title }}</ft-link>
+</ng-template>

@@ -1,0 +1,100 @@
+<ft-stack>
+  @if (!canEdit()) {
+    <ft-alert status="info">You can view these settings but not change them.</ft-alert>
+  }
+  <ft-cluster [between]="true">
+    <ft-chip-group label="Show roles">
+      <ft-chip [pressed]="filter() === 'active'" (pressedChange)="show('active')">Active</ft-chip>
+      <ft-chip [pressed]="filter() === 'archived'" (pressedChange)="show('archived')"
+        >Archived</ft-chip
+      >
+    </ft-chip-group>
+    @if (canEdit()) {
+      <ft-button variant="primary" (click)="define()">Define a role</ft-button>
+    }
+  </ft-cluster>
+
+  @switch (state()) {
+    @case ('loading') {
+      <ft-stack gap="3" aria-busy="true">
+        <ft-skeleton shape="text" />
+        <ft-skeleton shape="text" />
+        <ft-skeleton shape="text" />
+      </ft-stack>
+    }
+    @case ('error') {
+      <ft-empty-state
+        variant="error"
+        heading="We couldn’t load the roles"
+        text="Check your connection and try again."
+      >
+        <ft-button actions variant="primary" (click)="retry()">Try again</ft-button>
+      </ft-empty-state>
+    }
+    @default {
+      @if (filter() === 'archived') {
+        <p class="text-caption">
+          Archived roles are read-only. They left every picker; their history stays in the audit
+          log.
+        </p>
+      }
+      @if (definitions().length === 0) {
+        <ft-empty-state
+          [heading]="filter() === 'archived' ? 'No archived roles' : 'No roles yet'"
+          [text]="
+            filter() === 'archived'
+              ? 'Roles you archive are listed here.'
+              : 'Define a role to give members capabilities.'
+          "
+        />
+      } @else {
+        <ft-list [label]="filter() === 'archived' ? 'Archived roles' : 'Roles'">
+          @for (definition of definitions(); track definition.id) {
+            <ft-list-item [label]="definition.name" [meta]="meta(definition)">
+              <span meta>{{ summary(definition) }}</span>
+              <ft-cluster meta gap="1">
+                @if (definition.capabilities.includes('AdministerOrganisation')) {
+                  <ft-badge variant="warning">Administrator</ft-badge>
+                }
+                @if (definition.showOnTeam) {
+                  <ft-badge>Team list</ft-badge>
+                }
+                @if (definition.chapterScopable && heldFor(); as held) {
+                  <ft-badge>{{ held }}</ft-badge>
+                }
+                @if (definition.isOversight) {
+                  <ft-badge>Oversight</ft-badge>
+                }
+              </ft-cluster>
+              @if (canEdit() && filter() === 'active') {
+                <ft-cluster trailing gap="1">
+                  <ft-button
+                    variant="ghost"
+                    size="sm"
+                    [object]="definition.name"
+                    (click)="edit(definition)"
+                    >Edit</ft-button
+                  >
+                  <ft-button
+                    variant="ghost"
+                    size="sm"
+                    [object]="definition.name"
+                    (click)="grants(definition)"
+                    >Who may grant</ft-button
+                  >
+                  <ft-button
+                    variant="ghost"
+                    size="sm"
+                    [object]="definition.name"
+                    (click)="archive(definition)"
+                    >Archive</ft-button
+                  >
+                </ft-cluster>
+              }
+            </ft-list-item>
+          }
+        </ft-list>
+      }
+    }
+  }
+</ft-stack>

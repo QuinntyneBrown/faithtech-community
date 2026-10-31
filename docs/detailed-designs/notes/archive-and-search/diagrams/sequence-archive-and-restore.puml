@@ -14,8 +14,8 @@ skinparam package {
   FontColor #101828
   BackgroundColor #F9FAFB
 }
-actor "Owner or System Admin" as actor
-box "Frontend — FaithTech Community web app (notes library)" #E0F2FE
+actor "Owner or administrator" as actor
+box "Frontend — Community web app (notes library)" #E0F2FE
   participant "NotePage / ArchivedNotesPage" as page
   participant "ArchiveNoteDialog / RestoreNoteDialog" as dlg
   participant "HttpNotesService" as svc
@@ -38,7 +38,7 @@ svc -> ep : POST /api/notes/{id}/archive
 ep -> h : ArchiveAsync(id)
 alt not visible
   ep --> svc : 404
-else not owner or System Admin
+else not owner or AdministerOrganisation
   ep --> svc : 403
 else already archived
   ep --> svc : 409 "It’s already archived."

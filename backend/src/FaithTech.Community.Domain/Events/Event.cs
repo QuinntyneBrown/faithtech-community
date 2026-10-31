@@ -1,7 +1,12 @@
+using FaithTech.Community.Domain.Organisations;
+
 namespace FaithTech.Community.Domain.Events;
 
-public class Event
+public class Event : IOrganisationScoped
 {
+    /// <summary>The organisation the record belongs to, stamped when it is saved (ADR 0032).</summary>
+    public Guid OrganisationId { get; private set; }
+
     private readonly List<Rsvp> _rsvps = [];
 
     private Event() { }
@@ -12,7 +17,7 @@ public class Event
         EventType type,
         DateTimeOffset startsAt,
         DateTimeOffset endsAt,
-        string city,
+        Guid? chapterId,
         EventFormat format,
         string? venue,
         string? onlineLink,
@@ -22,7 +27,7 @@ public class Event
     {
         Id = Guid.NewGuid();
         CreatedById = createdById;
-        Apply(title, description, type, startsAt, endsAt, city, format, venue, onlineLink, capacity, visibility);
+        Apply(title, description, type, startsAt, endsAt, chapterId, format, venue, onlineLink, capacity, visibility);
     }
 
     public Guid Id { get; private set; }
@@ -31,13 +36,19 @@ public class Event
 
     public string Description { get; private set; } = string.Empty;
 
-    public EventType Type { get; private set; }
+    /// <summary>The organisation's event type; an archived one stays on its events (L2-145 AC4).</summary>
+    public Guid TypeId { get; private set; }
+
+    public EventType? Type { get; private set; }
 
     public DateTimeOffset StartsAt { get; private set; }
 
     public DateTimeOffset EndsAt { get; private set; }
 
-    public string City { get; private set; } = string.Empty;
+    /// <summary>The event's chapter; none means organisation-wide (L2-141 AC2).</summary>
+    public Guid? ChapterId { get; private set; }
+
+    public Chapter? Chapter { get; private set; }
 
     public EventFormat Format { get; private set; }
 
@@ -63,9 +74,10 @@ public class Event
 
     public IReadOnlyCollection<Rsvp> Rsvps => _rsvps;
 
-    public int RsvpCount => _rsvps.Count;
+    /// <summary>People who RSVP'd. Walk-ins did not, so they are left out and never take a seat (L2-121 AC3).</summary>
+    public int RsvpCount => _rsvps.Count(r => !r.IsWalkIn);
 
-    public bool IsFull => Capacity is not null && _rsvps.Count >= Capacity;
+    public bool IsFull => Capacity is not null && RsvpCount >= Capacity;
 
     public void Update(
         string title,
@@ -73,14 +85,14 @@ public class Event
         EventType type,
         DateTimeOffset startsAt,
         DateTimeOffset endsAt,
-        string city,
+        Guid? chapterId,
         EventFormat format,
         string? venue,
         string? onlineLink,
         int? capacity,
         EventVisibility visibility)
     {
-        Apply(title, description, type, startsAt, endsAt, city, format, venue, onlineLink, capacity, visibility);
+        Apply(title, description, type, startsAt, endsAt, chapterId, format, venue, onlineLink, capacity, visibility);
         Sequence++;
     }
 
@@ -112,6 +124,83 @@ public class Event
         var existing = _rsvps.FirstOrDefault(r => string.Equals(r.GuestEmail, email, StringComparison.OrdinalIgnoreCase));
         return existing ?? AddRsvp(new Rsvp(Id, null, name, email, now), now);
     }
+
+    /// <summary>Check-in opens a day before the start and does not close (L2-119 AC6).</summary>
+    public static readonly TimeSpan CheckInOpensBefore = TimeSpan.FromHours(24);
+
+    public DateTimeOffset CheckInOpensAt => StartsAt - CheckInOpensBefore;
+
+    /// <summary>A cancelled event has no check-in window.</summary>
+    public bool IsCheckInOpen(DateTimeOffset now) => !IsCancelled && now >= CheckInOpensAt;
+
+    /// <summary>Everyone who checked in, walk-ins included.</summary>
+    public int CheckedInCount => _rsvps.Count(r => r.IsCheckedIn);
+
+    /// <summary>Everyone on the check-in list: every RSVP and every walk-in.</summary>
+    public int AttendeeCount => _rsvps.Count;
+
+    /// <summary>Marks an attendee of this event present at the door (L2-119).</summary>
+    public Rsvp CheckIn(Guid rsvpId, Guid byId, DateTimeOffset now)
+    {
+        EnsureCheckInOpen(now);
+        var rsvp = Attendee(rsvpId);
+        rsvp.CheckIn(byId, now);
+        return rsvp;
+    }
+
+    /// <summary>Clears an attendee's check-in (L2-119 AC2).</summary>
+    public Rsvp UndoCheckIn(Guid rsvpId, DateTimeOffset now)
+    {
+        EnsureCheckInOpen(now);
+        var rsvp = Attendee(rsvpId);
+        rsvp.UndoCheckIn();
+        return rsvp;
+    }
+
+    /// <summary>
+    /// Adds someone at the door (L2-120). It skips the capacity and has-started rules that close RSVPs, and reuses
+    /// the member's RSVP, or a guest RSVP with the same email, rather than adding a second row.
+    /// </summary>
+    public (Rsvp Rsvp, bool Reused) AddWalkIn(
+        string name, string? email, Guid? profileId, bool checkInNow, Guid byId, DateTimeOffset now)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(name);
+        EnsureCheckInOpen(now);
+        email = string.IsNullOrWhiteSpace(email) ? null : email.Trim();
+        var existing = profileId is { } member
+            ? _rsvps.FirstOrDefault(r => r.ProfileId == member)
+            : email is null ? null : _rsvps.FirstOrDefault(r => string.Equals(r.GuestEmail, email, StringComparison.OrdinalIgnoreCase));
+        var rsvp = existing ?? (profileId is not null
+            ? new Rsvp(Id, profileId, null, null, now, isWalkIn: true)
+            : new Rsvp(Id, null, name.Trim(), email, now, isWalkIn: true));
+        if (existing is null)
+        {
+            _rsvps.Add(rsvp);
+        }
+
+        if (checkInNow)
+        {
+            rsvp.CheckIn(byId, now);
+        }
+
+        return (rsvp, existing is not null);
+    }
+
+    private void EnsureCheckInOpen(DateTimeOffset now)
+    {
+        if (IsCancelled)
+        {
+            throw new InvalidOperationException("The event is cancelled.");
+        }
+
+        if (now < CheckInOpensAt)
+        {
+            throw new InvalidOperationException("Check-in has not opened yet.");
+        }
+    }
+
+    private Rsvp Attendee(Guid rsvpId) =>
+        _rsvps.FirstOrDefault(r => r.Id == rsvpId) ?? throw new InvalidOperationException("There is no such RSVP.");
 
     public void CancelRsvp(Guid profileId) =>
         RemoveRsvp(_rsvps.FirstOrDefault(r => r.ProfileId == profileId));
@@ -156,7 +245,7 @@ public class Event
         EventType type,
         DateTimeOffset startsAt,
         DateTimeOffset endsAt,
-        string city,
+        Guid? chapterId,
         EventFormat format,
         string? venue,
         string? onlineLink,
@@ -164,7 +253,7 @@ public class Event
         EventVisibility visibility)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(title);
-        ArgumentException.ThrowIfNullOrWhiteSpace(city);
+        ArgumentNullException.ThrowIfNull(type);
         if (endsAt < startsAt)
         {
             throw new ArgumentException("An event cannot end before it starts.", nameof(endsAt));
@@ -187,10 +276,11 @@ public class Event
 
         Title = title;
         Description = description;
+        TypeId = type.Id;
         Type = type;
         StartsAt = startsAt;
         EndsAt = endsAt;
-        City = city;
+        ChapterId = chapterId;
         Format = format;
         Venue = venue;
         OnlineLink = onlineLink;

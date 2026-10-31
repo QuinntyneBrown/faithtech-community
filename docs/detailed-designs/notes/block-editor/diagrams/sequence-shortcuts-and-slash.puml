@@ -15,13 +15,13 @@ skinparam package {
   BackgroundColor #F9FAFB
 }
 actor "Owner" as actor
-box "Frontend — FaithTech Community web app (components library)" #E0F2FE
+box "Frontend — Community web app (components library)" #E0F2FE
   participant "BlockEditorComponent" as ed
   participant "editor-model.ts" as md
   participant "SlashMenuComponent" as slash
   participant "rich-text.ts" as ser
 end box
-box "Frontend — FaithTech Community web app (notes library)" #E0F2FE
+box "Frontend — Community web app (notes library)" #E0F2FE
   participant "NotePage" as page
 end box
 actor -> ed : Types "## " at the start of a Text block

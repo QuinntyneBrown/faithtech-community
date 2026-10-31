@@ -1,3 +1,5 @@
+using Microsoft.AspNetCore.Identity;
+using FaithTech.Community.Application.Organisations;
 using FaithTech.Community.Application.Common;
 using FaithTech.Community.Application.Contacts;
 using FaithTech.Community.Application.Identity;
@@ -34,7 +36,9 @@ public class ConnectHandler(
     ConnectLinkHandler links,
     SignUpHandler signUp,
     ContactConnector connector,
-    TimeProvider time)
+    TimeProvider time,
+    UserManager<CommunityUser> users,
+    Memberships memberships)
 {
     /// <summary>Connects the signed-in member to the link's owner, now or once their email is verified.</summary>
     public async Task<(Result Result, ConnectResultDto? Connection)> ConnectAsync(string token, CancellationToken cancellationToken = default)
@@ -44,9 +48,23 @@ public class ConnectHandler(
             return (Result.NotFound(), null);
         }
 
-        var profileId = await db.Users.Where(u => u.Id == current.UserId).Select(u => u.ProfileId).SingleAsync(cancellationToken);
+        if (current.UserId is not { } userId || await users.FindByIdAsync(userId.ToString()) is not { } user)
+        {
+            return (Result.NotFound(), null);
+        }
+
+        // The link is its owner's organisation's, so an account that is not a member yet joins it (L2-132 AC2).
+        var profileId = current.ProfileId ?? await JoinAsync(user, cancellationToken);
+
         var outcome = await connector.RequestAsync(lead.LeadProfileId, profileId, cancellationToken);
         return (Result.Ok(), new ConnectResultDto(outcome.ToString(), lead.LeadName));
+    }
+
+    private async Task<Guid> JoinAsync(CommunityUser user, CancellationToken cancellationToken)
+    {
+        var profile = await memberships.JoinAsync(user.Id, user.Email!, cancellationToken);
+        await db.SaveChangesAsync(cancellationToken);
+        return profile.Id;
     }
 
     public async Task<Result> SignUpAsync(ConnectSignUpCommand command, CancellationToken cancellationToken = default)
@@ -62,7 +80,8 @@ public class ConnectHandler(
         // A new account waits for its email to be verified before the lead's contact is made (AC3, AC4).
         if (user is not null)
         {
-            db.PendingConnections.Add(new Domain.Contacts.PendingConnection(user.ProfileId, leadId, time.GetUtcNow()));
+            var profileId = await db.Profiles.Where(p => p.UserId == user.Id).Select(p => p.Id).SingleAsync(cancellationToken);
+            db.PendingConnections.Add(new Domain.Contacts.PendingConnection(profileId, leadId, time.GetUtcNow()));
             await db.SaveChangesAsync(cancellationToken);
         }
 

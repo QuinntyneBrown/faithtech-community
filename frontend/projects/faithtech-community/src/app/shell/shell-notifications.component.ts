@@ -9,7 +9,11 @@ import {
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { NavigationEnd, Router } from '@angular/router';
-import { NOTIFICATIONS_SERVICE, NotificationDto } from '@faithtech-community/api';
+import {
+  NotificationDto,
+  NOTIFICATIONS_SERVICE,
+  OrganisationNames,
+} from '@faithtech-community/api';
 import {
   Notice,
   NotificationBellComponent,
@@ -33,6 +37,7 @@ export const NOTIFICATIONS_REFRESH_MS = 60_000;
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ShellNotificationsComponent {
+  protected readonly organisation = inject(OrganisationNames);
   private readonly service = inject(NOTIFICATIONS_SERVICE);
   private readonly router = inject(Router);
   private readonly document = inject(DOCUMENT);
@@ -40,7 +45,9 @@ export class ShellNotificationsComponent {
   protected readonly open = signal(false);
   protected readonly unread = signal(0);
   private readonly items = signal<NotificationDto[]>([]);
-  protected readonly notices = computed<Notice[]>(() => this.items().map(toNotice));
+  protected readonly notices = computed<Notice[]>(() =>
+    this.items().map((n) => toNotice(n, this.organisation.shortName())),
+  );
 
   constructor() {
     this.router.events
@@ -95,10 +102,10 @@ export class ShellNotificationsComponent {
   }
 }
 
-function toNotice(n: NotificationDto): Notice {
+function toNotice(n: NotificationDto, organisation: string): Notice {
   return {
     id: n.id,
-    name: n.actorName ?? 'FaithTech',
+    name: n.actorName ?? organisation,
     color: avatarColorFor(n.actorId),
     text: '',
     linkText: n.title,

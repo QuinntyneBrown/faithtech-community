@@ -15,7 +15,7 @@ skinparam package {
   BackgroundColor #F9FAFB
 }
 actor "Account holder" as actor
-box "Frontend — FaithTech Community web app (faithtech-community library)" #E0F2FE
+box "Frontend — Community web app (faithtech-community library)" #E0F2FE
   participant "SignInPage" as page
   participant "OidcAuthClient" as client
 end box
@@ -28,20 +28,23 @@ end box
 box "Backend — FaithTech.Community.Infrastructure" #FFF4E5
   database "Community database" as db
 end box
-actor -> client : Open protected page
+actor -> client : Open protected page on the organisation's host
 client -> client : Create code verifier and challenge
 client -> ep : GET /connect/authorize (code_challenge)
 ep --> page : Redirect to sign-in page
 actor -> page : Submit email and password
 page -> ep : POST credentials
 ep -> h : Send SignInCommand
-h -> db : Load user, lockout and suspension state
+h -> db : Load user, lockout, operator lock and the profile in ICurrentOrganisation
 alt 5 failures in 15 minutes
   h --> ep : LockedOut (L2-003)
   ep --> page : Locked out for 15 minutes
-else suspended
-  h --> ep : Suspended (L2-003)
+else account locked by a platform operator
+  h --> ep : AccountLocked (L2-003 #4, L2-132 #6)
   ep --> page : "Your account is suspended"
+else membership suspended in this organisation
+  h --> ep : MembershipSuspended (L2-003 #4, L2-132 #5)
+  ep --> page : "Your membership of {organisation name} is suspended"
 else wrong password
   h -> db : Increment failed count
   h --> ep : InvalidCredentials
@@ -53,6 +56,13 @@ else succeeded
   ep -> ep : Validate PKCE verifier (L2-003)
   ep -> db : Store tokens
   ep --> client : Access and refresh tokens
-  client --> actor : Land on requested page or home (L2-003)
+  client -> ep : GET /api/me
+  alt no profile in this organisation
+    ep --> client : 403 reason not-a-member (L2-132 #3)
+    client --> actor : Not-a-member page
+  else member
+    ep --> client : Organisation, profile, capabilities, memberships (L2-133)
+    client --> actor : Land on requested page or home (L2-003)
+  end
 end
 @enduml

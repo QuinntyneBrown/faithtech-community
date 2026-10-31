@@ -16,7 +16,7 @@ class Workspace {
   +bool IsArchived
   +Archive(): void
   +Restore(): void
-  +ReassignOwner(newOwner: Profile, now: DateTimeOffset): void
+  +ReassignOwner(newOwner: Profile, capabilities: IReadOnlySet<string>, now: DateTimeOffset): void
 }
 class WorkItem {
   +Guid? ParentId
@@ -36,8 +36,9 @@ class ArchivedItemDto <<record>> {
 class ReassignOwnerCommand <<record>> {
   +Guid? OwnerId
 }
-class CityLeadRoleRemoved <<record>> {
+class CapabilityLost <<record>> {
   +Guid ProfileId
+  +string Capability
 }
 class ArchiveHandler {
   +ArchiveWorkspaceAsync(workspaceId: Guid): Task<Result>
@@ -53,14 +54,14 @@ class WorkspacesHandler {
   -NeedsNewOwner(owner: Profile?): bool
 }
 class ChangeRolesHandler <<Application/Admin>> {
-  +RemoveAsync(profileId: Guid, role: string?): Task
+  +RemoveAsync(profileId: Guid, roleId: Guid): Task
 }
-class CityLeadRoleRemovedHandler {
-  +HandleAsync(removed: CityLeadRoleRemoved): Task
+class CapabilityLostHandler {
+  +HandleAsync(lost: CapabilityLost): Task
   +SendEmailsAsync(): Task
 }
 class WorkspaceAccessPolicy {
-  +bool IsSystemAdmin
+  +bool IsAdministrator
   +LoadAsync(workspaceId: Guid, includeArchived: bool): Task<(Workspace?, WorkspaceCaller)>
   +AuthorizeAsync(workspaceId: Guid, manage: bool, includeArchived: bool): Task<(Workspace, WorkspaceCaller, Result?)>
   +Audit(caller, action, targetType, targetId, before, after): void
@@ -81,9 +82,9 @@ ArchiveHandler ..> ArchivedItemDto : returns
 ArchiveHandler ..> WorkspaceAccessPolicy : AuthorizeAsync, AuditOverride, Audit
 WorkspaceAccessPolicy ..> IAuditLog
 WorkspacesHandler --> Workspace : lists archived to owner and Admin
-ChangeRolesHandler ..> CityLeadRoleRemoved : reads from Profile.DomainEvents
-ChangeRolesHandler ..> CityLeadRoleRemovedHandler : HandleAsync, SendEmailsAsync
-CityLeadRoleRemovedHandler ..> CityLeadRoleRemoved : handles
-CityLeadRoleRemovedHandler --> Workspace : live workspaces of the former owner
-CityLeadRoleRemovedHandler ..> AgileNotifier
+ChangeRolesHandler ..> CapabilityLost : reads from Profile.DomainEvents
+ChangeRolesHandler ..> CapabilityLostHandler : HandleAsync, SendEmailsAsync
+CapabilityLostHandler ..> CapabilityLost : handles OwnWorkspaces
+CapabilityLostHandler --> Workspace : live workspaces of the former owner
+CapabilityLostHandler ..> AgileNotifier
 @enduml

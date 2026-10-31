@@ -1,0 +1,190 @@
+@startuml
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 8
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam class {
+  BorderColor #344054
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+title Class structure — Reports dashboard
+class Profile {
+  +Guid Id
+  +Guid UserId
+  +Guid? ChapterId
+  +bool IsSuspended
+  +DateTime? JoinedAtUtc
+  +Profile(name: string, joinedAtUtc: DateTime? = null)
+}
+class CommunityUser {
+  +Guid Id
+  +bool EmailConfirmed
+}
+class Chapter {
+  +Guid Id
+  +string Name
+  +int SortOrder
+  +bool IsArchived
+}
+class PartnerStage {
+  +string Key
+  +string Name
+  +int SortOrder
+  +PartnerStageKind Kind
+}
+class Event {
+  +DateTimeOffset StartsAt
+  +Guid? ChapterId
+  +bool IsCancelled
+  +IReadOnlyCollection<Rsvp> Rsvps
+}
+class Rsvp {
+  +Guid EventId
+  +DateTimeOffset? CheckedInAt
+  +bool IsWalkIn
+}
+class Partner {
+  +Guid? OwnerId
+  +string StageKey
+  +bool IsArchived
+}
+class Announcement {
+  +Guid SenderId
+  +DateTimeOffset SentAt
+}
+interface IApplicationDbContext {
+  +DbSet<Profile> Profiles
+  +DbSet<CommunityUser> Users
+  +DbSet<Event> Events
+  +DbSet<Partner> Partners
+  +DbSet<Announcement> Announcements
+  +DbSet<Chapter> Chapters
+  +DbSet<PartnerStage> PartnerStages
+}
+interface ICurrentUser {
+  +Has(capability: string): bool
+}
+interface ICurrentOrganisation {
+  +Guid Id
+}
+class ReportAccess {
+  +CanRead: bool
+}
+class ReportPeriod <<static>> {
+  +Default: string = "last-30-days"
+  +Keys: IReadOnlyList<string>
+  +Resolve(key: string?, time: TimeProvider): ReportWindow?
+}
+class ReportWindow <<record>> {
+  +string Key
+  +DateTimeOffset? From
+  +DateTimeOffset To
+}
+class GetReportQuery <<record>> {
+  +Guid? Chapter
+  +string? Period
+}
+class GetReportHandler {
+  +MaxEvents: int = 50
+  +MaxMonths: int = 12
+  +NamedChapters: int = 4
+  +HandleAsync(query: GetReportQuery): Task<(Result, ReportDto?)>
+}
+class ExportReportHandler {
+  +HandleAsync(query: GetReportQuery): Task<(Result, CsvFile?)>
+}
+class ReportDto <<record>> {
+  +Guid? Chapter
+  +string Period
+  +DateTimeOffset? From
+  +DateTimeOffset To
+  +ChapterLabelDto? ChapterLabel
+  +IReadOnlyList<ChapterOptionDto> Chapters
+  +bool IsEmpty
+  +ReportFiguresDto Figures
+  +IReadOnlyList<ChartRowDto> MembersByChapter
+  +IReadOnlyList<MonthRowDto> NewMembersByMonth
+  +IReadOnlyList<PipelineRowDto> PartnerPipeline
+  +IReadOnlyList<EventRowDto> Events
+}
+class ReportFiguresDto <<record>> {
+  +MembersFigure Members
+  +EventsHeldFigure EventsHeld
+  +RsvpsFigure Rsvps
+  +PartnersFigure PartnersConfirmed
+  +CountFigure Announcements
+}
+class ChartRowDto <<record>> {
+  +string Label
+  +int Value
+}
+class MonthRowDto <<record>> {
+  +string Month
+  +string Label
+  +int Value
+  +bool SoFar
+}
+class PipelineRowDto <<record>> {
+  +string Chapter
+  +IReadOnlyList<StageCountDto> Stages
+}
+class StageCountDto <<record>> {
+  +string Key
+  +string Name
+  +int Count
+}
+class EventRowDto <<record>> {
+  +Guid Id
+  +string Title
+  +DateTimeOffset StartsAt
+  +string? Chapter
+  +string Status
+  +int? Going
+  +int? CheckedIn
+  +int? CheckedInPercent
+}
+interface ICsvWriter {
+  +Write(rows: IEnumerable<IReadOnlyList<string?>>): string
+}
+class CsvWriter {
+  +Write(rows: IEnumerable<IReadOnlyList<string?>>): string
+}
+class CsvFile <<record>> {
+  +string FileName
+  +string Content
+}
+GetReportHandler --> IApplicationDbContext
+GetReportHandler --> ReportAccess
+GetReportHandler ..> ReportPeriod : resolves
+ReportPeriod ..> ReportWindow : returns
+GetReportHandler ..> GetReportQuery : handles
+GetReportHandler ..> ReportDto : returns
+ReportAccess --> ICurrentUser
+GetReportHandler --> ICurrentOrganisation : queries scoped by the global filter
+ExportReportHandler --> GetReportHandler
+ExportReportHandler --> ICsvWriter
+ExportReportHandler ..> CsvFile : returns
+CsvWriter ..|> ICsvWriter
+ReportDto *-- ReportFiguresDto
+ReportDto *-- "*" ChartRowDto
+ReportDto *-- "*" MonthRowDto
+ReportDto *-- "*" PipelineRowDto
+PipelineRowDto *-- "*" StageCountDto : one per active stage
+ReportDto *-- "*" EventRowDto
+IApplicationDbContext ..> Profile
+IApplicationDbContext ..> CommunityUser
+IApplicationDbContext ..> Event
+IApplicationDbContext ..> Partner
+IApplicationDbContext ..> Announcement
+IApplicationDbContext ..> Chapter
+IApplicationDbContext ..> PartnerStage
+Profile "*" --> "1" CommunityUser : UserId (one profile per organisation)
+Profile "*" --> "0..1" Chapter : ChapterId
+Event "*" --> "0..1" Chapter : ChapterId
+Partner --> PartnerStage : StageKey
+Event "1" *-- "*" Rsvp
+Partner "*" --> "0..1" Profile : OwnerId (chapter)
+Announcement "*" --> "1" Profile : SenderId (chapter)
+@enduml

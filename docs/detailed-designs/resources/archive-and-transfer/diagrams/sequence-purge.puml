@@ -28,7 +28,7 @@ end box
 loop every Outbox:IntervalSeconds while Outbox:Enabled
   w -> r : RetryDueAsync()
   w -> p : PurgeDueAsync()
-  p -> db : Resources WHERE ArchivedAt <= now - 30 days
+  p -> db : Resources WHERE ArchivedAt <= now - 30 days, in active organisations (L2-150 AC4)
   alt none due
     p --> w : 0 (safe to run again, L2-063 AC7)
   else due resources

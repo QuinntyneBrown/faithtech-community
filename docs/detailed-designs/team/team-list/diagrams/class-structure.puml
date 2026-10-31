@@ -10,44 +10,57 @@ skinparam class {
   BackgroundColor #F9FAFB
 }
 title Class structure — Team list
-class TeamRoles {
-  +{static} IReadOnlySet<Role> All
-  +{static} IReadOnlySet<Role> Leads
-  +{static} IsTeamMember(profile: Profile): bool
+class RoleDefinition {
+  +Guid Id
+  +Guid OrganisationId
+  +string Name
+  +bool ShowOnTeam
+  +bool IsArchived
 }
-enum TeamRoleFilter {
-  Leads
-  Volunteers
+class ProfileRole {
+  +Guid RoleDefinitionId
+  +Guid? ChapterId
+}
+interface ICurrentOrganisation {
+  +Guid Id
 }
 class ListTeamQuery {
-  +TeamRoleFilter? Role
-  +string? City
+  +Guid? RoleId
+  +Guid? ChapterId
 }
 class ListTeamHandler {
   +HandleAsync(query: ListTeamQuery): Task<TeamListDto>
 }
 class TeamListDto {
   +IReadOnlyList<TeamMemberDto> Members
-  +IReadOnlyList<string> Cities
 }
 class TeamMemberDto {
   +Guid ProfileId
   +string Name
-  +string? HomeCity
+  +string? Chapter
   +string? PhotoUrl
-  +IReadOnlyList<string> Roles
+  +IReadOnlyList<HeldRole> Roles
+}
+class HeldRole {
+  +Guid RoleDefinitionId
+  +string Name
+  +string? Chapter
 }
 class Profile {
   +Guid Id
+  +Guid OrganisationId
   +string Name
-  +string? HomeCity
+  +Guid? ChapterId
   +IReadOnlyCollection<ProfilePhoto> Photos
   +IReadOnlyCollection<ProfileRole> Roles
 }
 ListTeamHandler ..> ListTeamQuery : handles
-ListTeamHandler --> TeamRoles
+ListTeamHandler --> RoleDefinition : ShowOnTeam, not archived
+ListTeamHandler --> ICurrentOrganisation : scopes
 ListTeamHandler --> Profile : reads
 ListTeamHandler ..> TeamListDto : returns
-ListTeamQuery --> TeamRoleFilter
+Profile "1" *-- "*" ProfileRole
+ProfileRole --> RoleDefinition : references
 TeamListDto *-- TeamMemberDto
+TeamMemberDto *-- HeldRole
 @enduml

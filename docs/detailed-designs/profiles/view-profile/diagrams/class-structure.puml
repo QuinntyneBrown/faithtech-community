@@ -20,13 +20,21 @@ class GetProfileHandler {
 class ProfileDto {
   +Guid Id
   +string Name
+  +string? Chapter
   +PhotoDto? FeaturedPhoto
   +IReadOnlyList<PhotoDto> Photos
-  +IReadOnlyList<string> Roles
+  +IReadOnlyList<HeldRole> Roles
+}
+class HeldRole {
+  +Guid RoleDefinitionId
+  +string Name
+  +string? Chapter
 }
 class Profile {
   +Guid Id
+  +Guid OrganisationId
   +string Name
+  +Guid? ChapterId
 }
 class ProfilePhoto {
   +Guid Id
@@ -34,25 +42,31 @@ class ProfilePhoto {
   +string AltText
   +bool IsFeatured
 }
-enum Role {
-  CityLead
-  EventLead
-  CreateLead
-  CommunicationsLead
-  Staff
-  Volunteer
-  ProductEngineer
-  Attendee
-  SystemAdmin
+class ProfileRole {
+  +Guid RoleDefinitionId
+  +Guid? ChapterId
+}
+class RoleDefinition {
+  +Guid Id
+  +string Name
+  +IReadOnlySet<string> Capabilities
 }
 interface ICurrentUser {
   +Guid UserId
-  +IReadOnlySet<Role> Roles
+  +IReadOnlySet<string> Capabilities
+  +Has(capability: string): bool
 }
+interface ICurrentOrganisation {
+  +Guid Id
+}
+
 GetProfileHandler ..> GetProfileQuery : handles
 GetProfileHandler ..> ICurrentUser : uses
+GetProfileHandler ..> ICurrentOrganisation : scopes
 GetProfileHandler --> Profile : reads
 GetProfileHandler ..> ProfileDto : returns
 Profile "1" *-- "0..10" ProfilePhoto
-Profile "1" --> "*" Role
+Profile "1" *-- "*" ProfileRole
+ProfileRole --> RoleDefinition : references
+ProfileDto *-- HeldRole
 @enduml

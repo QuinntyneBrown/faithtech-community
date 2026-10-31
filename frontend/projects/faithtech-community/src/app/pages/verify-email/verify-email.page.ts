@@ -47,6 +47,9 @@ export class VerifyEmailPage implements OnInit {
 
   readonly userId = input<string>();
   readonly token = input<string>();
+  /** Set on a link that also makes an existing account a member of this organisation (L2-132 AC1). */
+  readonly name = input<string>();
+  readonly join = input<string>();
   /** The address the link went to, when the app knows it (after sign-up). */
   readonly email = input<string>();
 
@@ -73,7 +76,11 @@ export class VerifyEmailPage implements OnInit {
 
     this.state.set('verifying');
     try {
-      await firstValueFrom(this.auth.confirmEmail(userId, token));
+      const name = this.name();
+      const join = this.join();
+      await firstValueFrom(
+        this.auth.confirmEmail(userId, token, name && join ? { name, join } : undefined),
+      );
       this.state.set('verified');
       if (this.auth.isAuthenticated()) await firstValueFrom(this.auth.loadCurrentUser());
     } catch {

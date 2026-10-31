@@ -5,9 +5,10 @@ import { FormControl, ReactiveFormsModule } from '@angular/forms';
 import {
   AGILE_SERVICE,
   MemberCandidateDto,
+  OrganisationNames,
+  problemDetails,
   ROLE_LABELS,
   WorkspaceDto,
-  problemDetails,
 } from '@faithtech-community/api';
 import {
   AlertComponent,
@@ -36,6 +37,7 @@ import { firstValueFrom } from 'rxjs';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class AddWorkspaceMembersDialog {
+  protected readonly organisation = inject(OrganisationNames);
   protected readonly ref = inject<DialogRef<string[]>>(DialogRef);
   protected readonly workspace = inject<WorkspaceDto>(DIALOG_DATA);
   private readonly agile = inject(AGILE_SERVICE);

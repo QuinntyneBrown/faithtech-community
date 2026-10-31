@@ -1,0 +1,18 @@
+@startuml
+!include <C4/C4_Container>
+LAYOUT_WITH_LEGEND()
+title Containers — Partner activity timeline
+Person(lead, "Member with ManagePartners", "Logs activities on partners")
+Person(staff, "Member with view capabilities", "Holds ViewPartners without ManagePartners; reads timelines")
+System_Boundary(community, "Community platform") {
+  Container(web, "Web app", "Angular", "Shell, partners feature library, api and components libraries")
+  Container(api, "Community API", "ASP.NET Core", "FaithTech.Community.Api with Application, Domain and Infrastructure")
+  Container(cli, "Cli", ".NET console", "Applies the PartnerActivitiesAndMerge migration and its backfill")
+  ContainerDb(db, "Community database", "PostgreSQL", "Partners, PartnerStageChanges, PartnerActivities and audit log")
+}
+Rel(lead, web, "Uses", "HTTPS")
+Rel(staff, web, "Uses", "HTTPS")
+Rel(web, api, "GET and POST /api/partners/{id}/activities", "JSON/HTTPS, OAuth2 bearer token")
+Rel(api, db, "Reads and writes", "EF Core")
+Rel(cli, db, "Migrates and backfills StageMoved activities", "EF Core migrations")
+@enduml

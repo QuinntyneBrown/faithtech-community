@@ -7,9 +7,11 @@ import type { MockEvents } from './mock-events';
 import type { MockPartners } from './mock-partners';
 import type { MockResources } from './mock-resources';
 import type { MockNotes } from './mock-notes';
+import { holds } from './role-definitions';
 
 /** What the search fake reads from the rest of the fake backend. */
 export interface SearchContext {
+  readonly chapters: { nameOf(id: string | null | undefined): string | null };
   readonly accounts: Map<string, MockAccount>;
   readonly profiles: Map<string, MockProfile>;
   readonly events: MockEvents;
@@ -20,7 +22,6 @@ export interface SearchContext {
   readonly notes: MockNotes;
 }
 
-const LEADS = ['CityLead', 'EventLead', 'CreateLead', 'CommunicationsLead'];
 const LIMIT = 10;
 
 /**
@@ -66,27 +67,39 @@ export class MockSearch {
       startsAt: extra.startsAt ?? null,
       badge: extra.badge ?? null,
     });
-    const roles = caller.roles;
-    const readsAll = roles.includes('Staff') || roles.includes('SystemAdmin');
     const accounts = [...this.context.accounts.values()];
 
     const people = [...this.context.profiles.values()]
       .filter((p) => accounts.some((a) => a.profileId === p.id && !a.suspended))
-      .filter((p) => matches(p.name, p.homeCity, p.bio))
+      // A member's chapter is not searched (L2-141); it still heads the subtitle.
+      .filter((p) => matches(p.name, p.bio))
       .map((p) =>
-        item(p.id, p.name, [p.homeCity, p.bio].filter(Boolean).join(' · '), `/people/${p.id}`),
+        item(
+          p.id,
+          p.name,
+          [this.context.chapters.nameOf(p.chapterId), p.bio].filter(Boolean).join(' · '),
+          `/people/${p.id}`,
+        ),
       );
     const events = this.context.events.events
-      .filter((e) => matches(e.title, e.description, e.city, e.venue))
+      .filter((e) => matches(e.title, e.description, e.venue))
       .map((e) =>
-        item(e.id, e.title, [e.city, e.venue].filter(Boolean).join(' · '), `/events/${e.id}`, {
-          startsAt: e.startsAt,
-          badge: e.isCancelled ? 'Cancelled' : e.visibility === 'Public' ? 'Public' : undefined,
-        }),
+        item(
+          e.id,
+          e.title,
+          [this.context.chapters.nameOf(e.chapterId), e.venue].filter(Boolean).join(' · '),
+          `/events/${e.id}`,
+          {
+            startsAt: e.startsAt,
+            badge: e.isCancelled ? 'Cancelled' : e.visibility === 'Public' ? 'Public' : undefined,
+          },
+        ),
       );
     const partners =
-      roles.some((r) => LEADS.includes(r)) || readsAll
+      holds(caller, 'ViewPartners') || holds(caller, 'ManagePartners')
         ? this.context.partners.partners
+            // Merged (archived) partners are never found (L2-114 AC4).
+            .filter((p) => !p.archivedAtUtc)
             .filter((p) => matches(p.name, p.offering, p.contactName, p.notes))
             .map((p) =>
               item(
@@ -95,32 +108,33 @@ export class MockSearch {
                 [p.contactName, p.offering].filter(Boolean).join(' · '),
                 `/partners/${p.id}`,
                 {
-                  badge: p.stage,
+                  badge: this.context.partners.stages.byKey(p.stage)?.name,
                 },
               ),
             )
         : [];
-    const contacts =
-      roles.some((r) => LEADS.includes(r)) || roles.includes('SystemAdmin')
-        ? this.context.contacts.contacts
-            .filter((c) => c.ownerId === caller.profileId && !c.archivedAtUtc)
-            .filter((c) => matches(c.name, c.email, c.organization, c.city))
-            .map((c) =>
-              item(
-                c.id,
-                c.name,
-                [c.organization, c.city].filter(Boolean).join(' · '),
-                `/contacts/${c.id}`,
-                {
-                  badge: 'Private',
-                },
-              ),
-            )
-        : [];
+    const contacts = holds(caller, 'KeepContacts')
+      ? this.context.contacts.contacts
+          .filter((c) => c.ownerId === caller.profileId && !c.archivedAtUtc)
+          .filter((c) => matches(c.name, c.email, c.organization, c.city))
+          .map((c) =>
+            item(
+              c.id,
+              c.name,
+              [c.organization, c.city].filter(Boolean).join(' · '),
+              `/contacts/${c.id}`,
+              {
+                badge: 'Private',
+              },
+            ),
+          )
+      : [];
     const visible = this.context.agile.workspaces.filter(
       (w) =>
         !w.isArchived &&
-        (readsAll || w.ownerId === caller.profileId || w.memberIds.includes(caller.profileId)),
+        (holds(caller, 'ReadAllWorkspaces') ||
+          w.ownerId === caller.profileId ||
+          w.memberIds.includes(caller.profileId)),
     );
     const workItems = this.context.agile.items
       .filter((i) => !i.isArchived && visible.some((w) => w.id === i.workspaceId))

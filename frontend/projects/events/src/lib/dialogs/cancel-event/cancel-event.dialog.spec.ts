@@ -2,10 +2,21 @@
 import { DIALOG_DATA, DialogRef } from '@angular/cdk/dialog';
 import { HttpErrorResponse } from '@angular/common/http';
 import { TestBed } from '@angular/core/testing';
-import { EVENTS_SERVICE } from '@faithtech-community/api';
+import { EVENTS_SERVICE, SITE_SERVICE } from '@faithtech-community/api';
 import { Observable, Subject, of, throwError } from 'rxjs';
 
 import { CancelEventData, CancelEventDialog } from './cancel-event.dialog';
+
+/** The host's organisation the copy names, as GET /api/site answers it on FaithTech's host. */
+const FAITHTECH_SITE = {
+  site: () => ({
+    name: 'FaithTech Community',
+    shortName: 'FaithTech',
+    chapterLabel: { singular: 'City', plural: 'Cities' },
+    communityOrigin: 'http://localhost:4200',
+  }),
+  load: async () => undefined,
+};
 
 const data: CancelEventData = {
   eventId: 'e1',
@@ -19,6 +30,7 @@ function setup(cancelEvent: (id: string, reason: string) => Observable<void>, di
   const service = { cancelEvent: vi.fn(cancelEvent) };
   TestBed.configureTestingModule({
     providers: [
+      { provide: SITE_SERVICE, useValue: FAITHTECH_SITE },
       { provide: DIALOG_DATA, useValue: dialogData },
       { provide: DialogRef, useValue: ref },
       { provide: EVENTS_SERVICE, useValue: service },

@@ -5,7 +5,9 @@
 >
   <ft-icon class="alert__icon" [name]="icon()" />
   <div class="alert__body">
-    <div class="alert__title">{{ heading() }}</div>
+    @if (heading(); as title) {
+      <div class="alert__title">{{ title }}</div>
+    }
     <div class="alert__text"><ng-content /></div>
     <div class="alert__actions"><ng-content select="[ftAlertActions]" /></div>
   </div>

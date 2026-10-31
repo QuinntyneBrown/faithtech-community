@@ -3,11 +3,12 @@ import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/cor
 import { FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';
 import {
   NOTE_SHAREABLE_ROLES,
-  NOTES_SERVICE,
   NotePageDto,
+  NOTES_SERVICE,
   NoteVisibility,
-  ROLE_LABELS,
+  OrganisationNames,
   Role,
+  ROLE_LABELS,
 } from '@faithtech-community/api';
 import {
   AlertComponent,
@@ -48,6 +49,7 @@ const AUDIENCE_MESSAGE = 'Choose at least one person or role, or pick another vi
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ShareNoteDialog {
+  protected readonly organisation = inject(OrganisationNames);
   protected readonly ref = inject<DialogRef<NotePageDto>>(DialogRef);
   protected readonly page = inject<NotePageDto>(DIALOG_DATA);
   private readonly notes = inject(NOTES_SERVICE);
@@ -57,7 +59,11 @@ export class ShareNoteDialog {
   protected readonly form = new FormGroup({
     visibility: new FormControl<NoteVisibility>(this.page.visibility, { nonNullable: true }),
     members: new FormControl<PersonOption[]>(
-      this.page.audience.members.map((m) => ({ id: m.id, name: m.name, detail: m.city ?? '' })),
+      this.page.audience.members.map((m) => ({
+        id: m.id,
+        name: m.name,
+        detail: m.chapterName ?? '',
+      })),
       { nonNullable: true },
     ),
     roles: new FormControl<Role[]>(
@@ -86,7 +92,7 @@ export class ShareNoteDialog {
         members.map((m) => ({
           id: m.id,
           name: m.name,
-          detail: [m.roles.map((r) => ROLE_LABELS[r]).join(', '), m.city]
+          detail: [m.roles.map((r) => ROLE_LABELS[r]).join(', '), m.chapterName]
             .filter(Boolean)
             .join(' · '),
         })),

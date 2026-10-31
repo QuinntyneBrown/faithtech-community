@@ -41,6 +41,21 @@ describe('AlertComponent', () => {
     expect(host.querySelector('.alert__actions button')?.textContent).toBe('Try again');
   });
 
+  it('leaves out the title when the alert has only text', () => {
+    @Component({
+      imports: [AlertComponent],
+      template: `<ft-alert>You can view these settings but not change them.</ft-alert>`,
+    })
+    class TextOnlyHostComponent {}
+    const fixture = TestBed.createComponent(TextOnlyHostComponent);
+    fixture.detectChanges();
+    const host: HTMLElement = fixture.nativeElement;
+    expect(host.querySelector('.alert__title')).toBeNull();
+    expect(host.querySelector('.alert__text')?.textContent).toContain(
+      'You can view these settings',
+    );
+  });
+
   it('announces danger alerts assertively with role=alert', () => {
     const { alert } = setup();
     expect(alert().getAttribute('role')).toBe('alert');
@@ -80,5 +95,27 @@ describe('AlertComponent', () => {
     fixture.detectChanges();
     (host.querySelector('button[aria-label="Dismiss"]') as HTMLButtonElement).click();
     expect(fixture.componentInstance.dismissals).toBe(1);
+  });
+});
+
+// Traces to: record-state alerts (components/alert.html, Record state).
+// Given a cancelled event whose check-in page loads with a danger alert describing that state,
+// When the alert is polite, Then it uses role="status" and keeps the danger look, because
+// nothing just failed.
+@Component({
+  imports: [AlertComponent],
+  template: `<ft-alert status="danger" heading="This event was cancelled" polite>
+    Check-in is closed.
+  </ft-alert>`,
+})
+class RecordStateHostComponent {}
+
+describe('AlertComponent polite', () => {
+  it('gives a danger record-state alert role=status', () => {
+    const fixture = TestBed.createComponent(RecordStateHostComponent);
+    fixture.detectChanges();
+    const alert = (fixture.nativeElement as HTMLElement).querySelector('.alert')!;
+    expect(alert.getAttribute('role')).toBe('status');
+    expect(alert.classList).toContain('alert--danger');
   });
 });

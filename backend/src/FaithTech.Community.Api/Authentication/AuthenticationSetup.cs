@@ -69,10 +69,22 @@ public static class AuthenticationSetup
                     return Task.CompletedTask;
                 };
             });
+        // The sign-in cookie reaches every host under Identity:CookieDomain (the platform's parent domain), so switching
+        // organisation finds the session; unset, it stays host-only and the target host asks to sign in (L2-133 AC3).
+        services.AddOptions<Microsoft.AspNetCore.Authentication.Cookies.CookieAuthenticationOptions>(IdentityConstants.ApplicationScheme)
+            .Configure<IConfiguration>((options, configuration) =>
+            {
+                if (configuration["Identity:CookieDomain"] is { Length: > 0 } domain)
+                {
+                    options.Cookie.Domain = domain;
+                }
+            });
         services.AddAuthorizationBuilder()
             .SetFallbackPolicy(new Microsoft.AspNetCore.Authorization.AuthorizationPolicyBuilder()
                 .RequireAuthenticatedUser()
+                .AddRequirements(new MembershipRequirement())
                 .Build());
+        services.AddScoped<Microsoft.AspNetCore.Authorization.IAuthorizationHandler, MembershipHandler>();
 
         services.AddHttpContextAccessor();
         services.AddScoped<ICurrentUser, HttpCurrentUser>();

@@ -7,7 +7,7 @@
 >
   @if (failed()) {
     <ft-alert status="danger" heading="Not archived">
-      We couldn’t reach FaithTech. Nothing changed — try again.
+      We couldn’t reach {{ organisation.shortName() }}. Nothing changed — try again.
     </ft-alert>
   }
   <p>

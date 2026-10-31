@@ -1,0 +1,12 @@
+@startuml
+!include <C4/C4_Context>
+LAYOUT_WITH_LEGEND()
+title System Context — Reports dashboard
+Person(staff, "Member with ViewReports", "Reads and exports the report")
+Person(admin, "Administrator", "Holds AdministerOrganisation, which includes ViewReports")
+Person(lead, "Member without ViewReports", "Refused with 403, whatever other capabilities they hold")
+System(community, "Community platform", "Hosts each organisation's members, events, partners and resources")
+Rel(staff, community, "Reads and exports the report using", "HTTPS")
+Rel(admin, community, "Reads and exports the report using", "HTTPS")
+Rel(lead, community, "Is answered 403 by")
+@enduml

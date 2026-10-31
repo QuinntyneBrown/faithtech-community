@@ -4,7 +4,7 @@ LAYOUT_WITH_LEGEND()
 title System Context — Public events and guest RSVP
 
 Person_Ext(guest, "Anonymous visitor / Guest", "Opens a public event share link without an account")
-System(ftc, "FaithTech Community", "Community site for FaithTech members, leads and partners")
+System(ftc, "Community platform", "Hosts an organisation's members, events and partners")
 System_Ext(email, "Email provider", "SMTP/SendGrid delivery")
 Rel(guest, ftc, "Views public events and RSVPs as a guest in", "HTTPS")
 Rel(ftc, email, "Sends guest confirmation with .ics via", "SMTP")

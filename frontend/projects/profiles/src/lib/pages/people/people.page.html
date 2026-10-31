@@ -11,8 +11,8 @@
 </ng-template>
 <ng-template #rolesCell let-person>
   <ft-cluster gap="1">
-    @for (role of person.roles; track role) {
-      <ft-badge variant="role">{{ roleLabel(role) }}</ft-badge>
+    @for (role of person.roles; track role.id + '|' + role.chapterId) {
+      <ft-badge variant="role">{{ badge(role) }}</ft-badge>
     } @empty {
       <span class="text-muted">No role yet</span>
     }
@@ -34,7 +34,7 @@
       >
     }
     @if (person.locked) {
-      <span class="text-caption">Only System Admin can change</span>
+      <span class="text-caption">Only an administrator can change</span>
     }
   </ft-cluster>
 </ng-template>
@@ -55,14 +55,21 @@
       </ft-button>
     }
   </ft-page-header>
-  <form class="search" role="search" (submit)="$event.preventDefault(); search()">
-    <ft-text-field
-      type="search"
-      label="Search people"
-      placeholder="Search members by name or email"
-      [formControl]="query"
-    />
-  </form>
+  <div class="filters">
+    <form class="search" role="search" (submit)="$event.preventDefault(); search()">
+      <ft-text-field
+        type="search"
+        label="Search people"
+        placeholder="Search members by name or email"
+        [formControl]="query"
+      />
+    </form>
+    @if (chapterOptions().length) {
+      <ft-form-field [label]="chapterLabel()" class="chapter">
+        <ft-select [options]="chapterOptions()" [formControl]="chapter" />
+      </ft-form-field>
+    }
+  </div>
 
   @switch (state()) {
     @case ('loading') {
@@ -80,7 +87,7 @@
     @case ('loaded') {
       @if (list().length === 0) {
         <ft-empty-state
-          [heading]="'No one matches “' + term() + '”'"
+          [heading]="noResultsHeading()"
           text="They may not have joined yet. You can invite them by email."
         >
           @if (canManage()) {

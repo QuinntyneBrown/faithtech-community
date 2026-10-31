@@ -3,7 +3,7 @@
 LAYOUT_WITH_LEGEND()
 title Containers — List and find resources
 Person(member, "Signed-in member", "Finds, opens and downloads visible resources")
-System_Boundary(community, "FaithTech Community") {
+System_Boundary(community, "Community platform") {
   Container(web, "Web app", "Angular", "Shell with the Resources nav item, resources and search feature libraries, api and components libraries")
   Container(api, "Community API", "ASP.NET Core", "FaithTech.Community.Api with Application, Domain and Infrastructure")
   ContainerDb(db, "Community database", "PostgreSQL", "Resources, tags, share members and roles; tsvector search column")

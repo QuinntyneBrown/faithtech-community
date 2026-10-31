@@ -9,16 +9,16 @@
     <ft-stack>
       @if (failed()) {
         <ft-alert status="danger" heading="Partner not moved">
-          We couldn’t reach FaithTech. Nothing was changed — try again.
+          We couldn’t reach {{ organisation.shortName() }}. Nothing was changed — try again.
         </ft-alert>
       }
       <ft-radio-group required legend="Stage" [formControl]="to">
-        @for (stage of stages; track stage) {
+        @for (stage of stages(); track stage.key) {
           <ft-radio
-            [value]="stage"
-            [description]="stage === data.stage ? 'Current stage' : ''"
+            [value]="stage.key"
+            [description]="stage.key === data.stage ? 'Current stage' : ''"
             [disabled]="busy()"
-            >{{ label(stage) }}</ft-radio
+            >{{ stage.name }}</ft-radio
           >
         }
       </ft-radio-group>

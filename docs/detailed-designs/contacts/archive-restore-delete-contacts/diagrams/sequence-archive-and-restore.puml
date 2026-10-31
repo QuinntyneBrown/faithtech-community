@@ -14,8 +14,8 @@ skinparam package {
   FontColor #101828
   BackgroundColor #F9FAFB
 }
-actor "Lead" as actor
-box "Frontend — FaithTech Community web app (contacts library)" #E0F2FE
+actor "Member with KeepContacts" as actor
+box "Frontend — Community web app (contacts library)" #E0F2FE
   participant "ContactPage" as page
   participant "ArchiveContactDialog" as dlg
   participant "ArchivedContactsPage" as arch
@@ -56,7 +56,7 @@ end
 actor -> arch : Open /contacts/archived
 arch -> svc : listArchived()
 svc -> ep : GET /api/contacts/archived
-ep --> svc : 200 own archived contacts, newest first (403 without a lead role)
+ep --> svc : 200 own archived contacts, newest first (403 without KeepContacts)
 actor -> arch : Choose Restore
 arch -> svc : restore(id)
 svc -> ep : POST /api/contacts/{id}/restore

@@ -3,34 +3,96 @@ import { signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import {
   AUTH_SERVICE,
-  PROFILES_SERVICE,
+  ORGANISATION_SERVICE,
+  OrganisationRole,
   ProfileDto,
+  ProfileRole,
+  PROFILES_SERVICE,
   ProfilesService,
   ROLES_SERVICE,
-  Role,
+  SITE_SERVICE,
 } from '@faithtech-community/api';
 import { avatarColorFor, DialogService, RoleDialogData } from '@faithtech-community/components';
 import { Observable, of, throwError } from 'rxjs';
 
 import { ProfilePage } from './profile.page';
 
+/** The host's organisation the copy names, as GET /api/site answers it on FaithTech's host. */
+const FAITHTECH_SITE = {
+  site: () => ({
+    name: 'FaithTech Community',
+    shortName: 'FaithTech',
+    chapterLabel: { singular: 'City', plural: 'Cities' },
+    communityOrigin: 'http://localhost:4200',
+  }),
+  load: async () => undefined,
+};
+
+const NAMES = [
+  'City Lead',
+  'Event Lead',
+  'Create Lead',
+  'Communications Lead',
+  'Staff',
+  'Volunteer',
+  'Product Engineer',
+  'Attendee',
+  'System Admin',
+];
+const ROLES: OrganisationRole[] = NAMES.map((name, i) => ({
+  id: `r${i + 1}`,
+  key: name.replace(' ', ''),
+  name,
+  description: `What a ${name} does`,
+  chapterScopable: false,
+}));
+const held = (name: string): ProfileRole => ({
+  id: ROLES.find((r) => r.name === name)!.id,
+  name,
+  chapterId: null,
+});
+const ids = (...names: string[]) => names.map((n) => held(n).id);
+
+/** The callers by what the server says they may grant (L2-137 AC5). */
+const CITY_LEAD = {
+  grantable: ids(
+    'Event Lead',
+    'Create Lead',
+    'Communications Lead',
+    'Volunteer',
+    'Product Engineer',
+    'Attendee',
+  ),
+  capabilities: ['AssignRoles'],
+  held: ['City Lead'],
+};
+const ADMIN = {
+  grantable: ROLES.map((r) => r.id),
+  capabilities: ['AdministerOrganisation'],
+  held: ['System Admin'],
+};
+const NO_GRANTS = { grantable: [] as string[], capabilities: [] as string[], held: ['Event Lead'] };
+
 const samuel: ProfileDto = {
   id: 'p1',
   name: 'Samuel Mensah',
-  homeCity: 'Toronto',
+  chapterId: 'c-toronto',
+  chapterName: 'Toronto',
   bio: null,
   featuredPhoto: null,
   photos: [],
-  roles: ['CreateLead'],
+  roles: [held('Create Lead')],
   isOwn: false,
   canEdit: false,
 };
 
-function setup(getProfile: (id: string) => Observable<ProfileDto>, callerRoles: Role[] = []) {
+function setup(getProfile: (id: string) => Observable<ProfileDto>, caller = NO_GRANTS) {
   const service: Partial<ProfilesService> = { getProfile: vi.fn(getProfile) };
   const roles = {
-    addRole: vi.fn((_id: string, role: Role) => of<Role[]>(['CreateLead', role])),
-    removeRole: vi.fn(() => of<Role[]>([])),
+    addRole: vi.fn((_id: string, roleId: string) =>
+      of<ProfileRole[]>([held('Create Lead'), held(ROLES.find((r) => r.id === roleId)!.name)]),
+    ),
+    removeRole: vi.fn(() => of<ProfileRole[]>([])),
   };
   let opened: RoleDialogData | null = null;
   const dialogs = {
@@ -41,9 +103,18 @@ function setup(getProfile: (id: string) => Observable<ProfileDto>, callerRoles: 
   };
   TestBed.configureTestingModule({
     providers: [
+      { provide: SITE_SERVICE, useValue: FAITHTECH_SITE },
       { provide: PROFILES_SERVICE, useValue: service },
       { provide: ROLES_SERVICE, useValue: roles },
-      { provide: AUTH_SERVICE, useValue: { roles: signal(callerRoles) } },
+      {
+        provide: AUTH_SERVICE,
+        useValue: {
+          grantableRoleIds: signal(caller.grantable),
+          capabilities: signal(caller.capabilities),
+          currentUser: signal({ roles: caller.held.map((name) => ({ name })) }),
+        },
+      },
+      { provide: ORGANISATION_SERVICE, useValue: { get: () => of({ roles: ROLES }) } },
       { provide: DialogService, useValue: dialogs },
     ],
   });
@@ -58,6 +129,18 @@ function setup(getProfile: (id: string) => Observable<ProfileDto>, callerRoles: 
 }
 
 describe('ProfilePage', () => {
+  it('tells an administrator the owner is not notified', async () => {
+    const { fixture, button, opened } = setup(() => of(samuel), ADMIN);
+    await fixture.whenStable();
+    fixture.detectChanges();
+
+    button('Add a role')!.click();
+    expect(opened().options).toHaveLength(8);
+    expect(opened().caption).toBe(
+      'As an administrator you can grant any role. The change is recorded in the audit log, and Samuel isn’t notified.',
+    );
+  });
+
   it('shows role labels and no bio prompt on someone else’s profile', async () => {
     const { fixture, host } = setup(() => of(samuel));
     await fixture.whenStable();
@@ -70,7 +153,7 @@ describe('ProfilePage', () => {
 
   it('offers a System Admin Edit profile for another member, opening that member’s editor', async () => {
     // Traces to: L2-040 AC3
-    const { fixture, button } = setup(() => of({ ...samuel, canEdit: true }), ['SystemAdmin']);
+    const { fixture, button } = setup(() => of({ ...samuel, canEdit: true }), ADMIN);
     await fixture.whenStable();
     fixture.detectChanges();
     expect(button('Edit profile')!.getAttribute('href')).toBe('/people/p1/edit');
@@ -100,8 +183,8 @@ describe('ProfilePage', () => {
     expect(host.textContent).not.toContain('We couldn’t load this profile');
   });
 
-  it('offers no role changes to a member without City Lead or System Admin', async () => {
-    const { fixture, button } = setup(() => of(samuel), ['EventLead']);
+  it('offers no role changes to a member who may grant nothing', async () => {
+    const { fixture, button } = setup(() => of(samuel), NO_GRANTS);
     await fixture.whenStable();
     fixture.detectChanges();
     expect(button('Add a role')).toBeUndefined();
@@ -109,7 +192,7 @@ describe('ProfilePage', () => {
   });
 
   it('lets a City Lead add a role they may grant and updates the badges without a reload', async () => {
-    const { fixture, host, roles, dialogs, button, opened } = setup(() => of(samuel), ['CityLead']);
+    const { fixture, host, roles, dialogs, button, opened } = setup(() => of(samuel), CITY_LEAD);
     await fixture.whenStable();
     fixture.detectChanges();
 
@@ -117,43 +200,47 @@ describe('ProfilePage', () => {
     const data = opened();
     expect(dialogs.open).toHaveBeenCalled();
     expect(data.mode).toBe('add');
-    expect(data.options.map((o) => o.value)).toEqual([
-      'EventLead',
-      'CommunicationsLead',
+    expect(data.options.map((o) => o.label)).toEqual([
+      'Event Lead',
+      'Communications Lead',
       'Volunteer',
-      'ProductEngineer',
+      'Product Engineer',
       'Attendee',
     ]);
-    expect(await data.submit('Volunteer')).toBeNull();
+    expect(data.options[0].description).toBe('What a Event Lead does');
+    expect(data.caption).toBe(
+      'These are the roles your City Lead role may grant. An administrator can grant any role.',
+    );
+    expect(await data.submit(held('Volunteer').id, null)).toBeNull();
     fixture.detectChanges();
 
-    expect(roles.addRole).toHaveBeenCalledWith('p1', 'Volunteer');
+    expect(roles.addRole).toHaveBeenCalledWith('p1', held('Volunteer').id, null);
     expect(host.textContent).toContain('Volunteer');
   });
 
   it('lets a City Lead remove a role they may change', async () => {
-    const { fixture, host, roles, button, opened } = setup(() => of(samuel), ['CityLead']);
+    const { fixture, host, roles, button, opened } = setup(() => of(samuel), CITY_LEAD);
     await fixture.whenStable();
     fixture.detectChanges();
 
     button('Remove a role')!.click();
     expect(opened().mode).toBe('remove');
-    expect(opened().options.map((o) => o.value)).toEqual(['CreateLead']);
-    await opened().submit('CreateLead');
+    expect(opened().options.map((o) => o.value)).toEqual([`${held('Create Lead').id}|`]);
+    await opened().submit(`${held('Create Lead').id}|`, null);
     fixture.detectChanges();
 
-    expect(roles.removeRole).toHaveBeenCalledWith('p1', 'CreateLead');
+    expect(roles.removeRole).toHaveBeenCalledWith('p1', held('Create Lead').id, null);
     expect(host.textContent).toContain('No role yet');
   });
 
   it('passes the server’s refusal back to the dialog', async () => {
-    const { fixture, roles, button, opened } = setup(() => of(samuel), ['SystemAdmin']);
+    const { fixture, roles, button, opened } = setup(() => of(samuel), ADMIN);
     roles.removeRole.mockReturnValue(
       throwError(
         () =>
           new HttpErrorResponse({
             status: 409,
-            error: { detail: 'There must always be at least one System Admin.' },
+            error: { detail: 'There must always be at least one administrator.' },
           }),
       ),
     );
@@ -161,8 +248,8 @@ describe('ProfilePage', () => {
     fixture.detectChanges();
 
     button('Remove a role')!.click();
-    expect(await opened().submit('CreateLead')).toBe(
-      'There must always be at least one System Admin.',
+    expect(await opened().submit(held('Create Lead').id, null)).toBe(
+      'There must always be at least one administrator.',
     );
   });
 });

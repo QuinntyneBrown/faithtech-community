@@ -1,6 +1,6 @@
 import { DIALOG_DATA, DialogRef } from '@angular/cdk/dialog';
 import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
-import { RESOURCES_SERVICE, ResourceDto } from '@faithtech-community/api';
+import { OrganisationNames, ResourceDto, RESOURCES_SERVICE } from '@faithtech-community/api';
 import {
   AlertComponent,
   ButtonComponent,
@@ -22,6 +22,7 @@ const PURGE_DAYS = 30;
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ArchiveResourceDialog {
+  protected readonly organisation = inject(OrganisationNames);
   protected readonly ref = inject<DialogRef<string>>(DialogRef);
   protected readonly resource = inject<ResourceDto>(DIALOG_DATA);
   private readonly resources = inject(RESOURCES_SERVICE);

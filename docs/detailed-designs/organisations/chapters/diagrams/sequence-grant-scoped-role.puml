@@ -1,0 +1,71 @@
+@startuml
+title UML sequence behaviour — Grant a chapter-scoped role
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 12
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam rectangle {
+  BorderColor #344054
+  FontColor #101828
+}
+skinparam package {
+  BorderColor #667085
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+actor "Grantor" as actor
+box "Frontend — Community web app (profiles library)" #E0F2FE
+  participant "ProfilePage" as page
+  participant "Add-role dialog (components)" as dlg
+end box
+box "Frontend — Community web app (api library)" #E0F2FE
+  participant "HttpProfilesService" as svc
+end box
+box "Backend — FaithTech.Community.Api" #D1FADF
+  participant "ProfilesEndpoints" as ep
+end box
+box "Backend — FaithTech.Community.Application and Domain" #ECFDF3
+  participant "ChangeRolesHandler" as h
+  participant "RoleGrantPolicy" as policy
+  participant "Profile" as ent
+end box
+box "Backend — FaithTech.Community.Infrastructure" #FFF4E5
+  participant "AuditLog" as audit
+  database "Community database" as db
+end box
+actor -> page : Choose "Add role"
+page -> dlg : Open with the organisation's definitions and the caller's GrantorScope from /api/me
+alt caller is chapter-scoped and the definition is chapter-scopable
+  dlg --> actor : Chapter picker required, offering only the caller's chapters (L2-143 AC1, AC5)
+else caller is untagged or an administrator
+  dlg --> actor : Chapter picker optional, offering every active chapter (L2-143 AC3, AC4)
+end
+actor -> dlg : Choose the role and a chapter, then confirm
+dlg -> svc : addRole(profileId, { roleId, chapterId })
+svc -> ep : POST /api/profiles/{id}/roles { roleId, chapterId? }
+ep -> h : HandleAsync(profileId, AssignRoleCommand)
+h -> db : Load the target profile, the definition and the caller's assignments
+db --> h : Profile, RoleDefinition, caller's ProfileRoles
+h -> policy : Resolve GrantorScope (Anywhere when AdministerOrganisation, chapters off, or any untagged grantor assignment) (L2-143 AC4, AC6)
+h -> policy : CanGrant(definition, chapterId)
+alt no grant rule lets a caller role grant this definition
+  ep --> svc : 403 (L2-138)
+else chapter on a non-scopable definition
+  ep --> svc : 400 (L2-138 AC6)
+else scoped caller and chapterId not in their scope
+  ep --> svc : 403 (L2-143 AC1, AC2)
+else permitted
+  h -> ent : AddRole(definition, chapterId, caller, nowUtc)
+  h -> audit : Record(actor, "role.granted", "Profile", id, { Roles before }, { Roles after with chapter tag }) (L2-138 AC5)
+  h -> h : Notify the owner unless the actor changed their own profile
+  h -> db : Save role, audit entry and notification in one unit of work
+  db --> h : Committed
+  h --> ep : ProfileDto
+  ep --> svc : 200 OK
+  svc --> dlg : Updated roles
+  dlg --> page : Close
+  page --> actor : Badge "{role} · {chapter}" shown (L2-141 AC3)
+end
+note over policy : Removing follows CanRemove(assignment): a scoped caller may remove only\nassignments tagged with one of their chapters; the option is hidden and the API answers 403 (L2-143 AC2)
+@enduml

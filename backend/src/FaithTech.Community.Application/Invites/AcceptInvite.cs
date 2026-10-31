@@ -1,3 +1,4 @@
+using FaithTech.Community.Application.Organisations;
 using FaithTech.Community.Application.Admin;
 using FaithTech.Community.Application.Common;
 using FaithTech.Community.Application.Contacts;
@@ -14,7 +15,7 @@ using Microsoft.EntityFrameworkCore;
 namespace FaithTech.Community.Application.Invites;
 
 /// <summary>What the invite link shows before anyone signs in (ADR 0006).</summary>
-public record InviteLookupDto(string Status, string Email, string InviterName, string? InviterCity, string? PreassignedRole, bool HasAccount);
+public record InviteLookupDto(string Status, string Email, string InviterName, string? InviterChapterName, string? PreassignedRole, bool HasAccount);
 
 /// <summary>Accepts an invite: with a name and password as a new account, or without them as the signed-in account.</summary>
 /// <summary>The body of <c>POST /api/invites/lookup</c>: the invite link's token, kept out of the URL.</summary>
@@ -48,7 +49,9 @@ public class AcceptInviteHandler(
     ICurrentUser current,
     IAuditLog audit,
     ContactSignedUpHandler contactSignedUp,
-    TimeProvider time)
+    TimeProvider time,
+    ICurrentOrganisation organisation,
+    Memberships memberships)
 {
     public async Task<InviteLookupDto?> LookUpAsync(string token, CancellationToken cancellationToken = default)
     {
@@ -59,11 +62,11 @@ public class AcceptInviteHandler(
         }
 
         var inviter = await db.Profiles.AsNoTracking().Where(p => p.Id == invite.InvitedBy)
-            .Select(p => new { p.Name, p.HomeCity }).SingleOrDefaultAsync(cancellationToken);
+            .Select(p => new { p.Name, HomeCity = p.Chapter == null ? null : p.Chapter.Name }).SingleOrDefaultAsync(cancellationToken);
         return new InviteLookupDto(
             invite.Status(time.GetUtcNow()).ToString(),
             invite.Email,
-            inviter?.Name ?? "A FaithTech lead",
+            inviter?.Name ?? $"A {organisation.ShortName} lead",
             inviter?.HomeCity,
             invite.PreassignedRole?.ToString(),
             await users.FindByEmailAsync(invite.Email) is not null);
@@ -102,11 +105,12 @@ public class AcceptInviteHandler(
                 return Result.Conflict("An account already uses this email. Sign in to accept the invite.");
             }
 
-            profile = new Profile(command.Name!.Trim());
+            profile = new Profile(command.Name!.Trim(), now.UtcDateTime);
             db.Profiles.Add(profile);
             // The invite reached this address, so the email counts as verified (L2-011 AC1).
-            var user = new CommunityUser { UserName = invite.Email, Email = invite.Email, EmailConfirmed = true, ProfileId = profile.Id };
-            Grant(invite, profile, now);
+            var user = new CommunityUser { Id = Guid.NewGuid(), UserName = invite.Email, Email = invite.Email, EmailConfirmed = true };
+            profile.LinkAccount(user.Id);
+            Grant(invite, profile, await PreassignedDefinitionAsync(invite, cancellationToken), now);
             var created = await users.CreateAsync(user, command.Password!);
             if (!created.Succeeded)
             {
@@ -121,8 +125,9 @@ public class AcceptInviteHandler(
                 return Result.Conflict("This invite is for another email.");
             }
 
-            profile = await db.Profiles.SingleAsync(p => p.Id == user.ProfileId, cancellationToken);
-            Grant(invite, profile, now);
+            // The invite is this organisation's, so the account joins it if it is not a member yet (L2-132 AC2).
+            profile = await memberships.JoinAsync(user.Id, user.Email!, cancellationToken);
+            Grant(invite, profile, await PreassignedDefinitionAsync(invite, cancellationToken), now);
         }
 
         await db.SaveChangesAsync(cancellationToken);
@@ -136,19 +141,30 @@ public class AcceptInviteHandler(
     }
 
     // Grants the pre-assigned role, audited with the inviter as actor, marks the invite used and tells the inviter.
-    private void Grant(Invite invite, Profile profile, DateTimeOffset now)
+    private void Grant(Invite invite, Profile profile, Domain.Organisations.RoleDefinition? definition, DateTimeOffset now)
     {
-        if (invite.PreassignedRole is { } role && !profile.HasRole(role))
+        if (definition is not null && !profile.HasRole(definition.Id))
         {
-            var before = profile.Roles.Select(r => r.Role).Order().Select(r => r.ToString()).ToArray();
-            profile.AddRole(role, invite.InvitedBy, now.UtcDateTime);
-            var after = profile.Roles.Select(r => r.Role).Order().Select(r => r.ToString()).ToArray();
+            var before = profile.Roles.OrderBy(r => r.Definition!.SortOrder).Select(r => r.Definition!.Key).ToArray();
+            profile.AddRole(definition, invite.InvitedBy, now.UtcDateTime);
+            var after = profile.Roles.OrderBy(r => r.Definition!.SortOrder).Select(r => r.Definition!.Key).ToArray();
             audit.Record(invite.InvitedBy, "role.granted", "Profile", profile.Id.ToString(), new { Roles = before }, new { Roles = after });
         }
 
         invite.MarkAccepted(profile.Id, now);
         db.Notifications.Add(new Notification(
             invite.InvitedBy, NotificationKind.InviteAccepted, $"{profile.Name} accepted your invite", $"/people/{profile.Id}", now));
+    }
+
+    // The organisation's definition of the invite's pre-assigned role (L2-151 AC4); slice 14 stores a definition id.
+    private async Task<Domain.Organisations.RoleDefinition?> PreassignedDefinitionAsync(Invite invite, CancellationToken cancellationToken)
+    {
+        if (invite.PreassignedRole is not { } key)
+        {
+            return null;
+        }
+
+        return await db.RoleDefinitions.SingleOrDefaultAsync(d => d.Key == key && d.ArchivedAtUtc == null, cancellationToken);
     }
 
     private Task<Invite?> FindAsync(string token, CancellationToken cancellationToken, bool tracked = false)

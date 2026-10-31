@@ -1,0 +1,143 @@
+@startuml
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 8
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam class {
+  BorderColor #344054
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+title Class structure — Role definitions and grant rules
+class RoleDefinition {
+  +Guid Id
+  +Guid OrganisationId
+  +string Key
+  +string Name
+  +string? Description
+  +IReadOnlySet<string> Capabilities
+  +bool ShowOnTeam
+  +bool ChapterScopable
+  +bool IsOversight
+  +int SortOrder
+  +DateTimeOffset? ArchivedAt
+  +IReadOnlyCollection<RoleGrantRule> Grants
+  +Rename(name: string): void
+  +Describe(description: string?): void
+  +SetCapabilities(keys: IEnumerable<string>): void
+  +SetFlags(showOnTeam: bool, chapterScopable: bool, isOversight: bool): void
+  +SetGrantableRoles(ids: IEnumerable<Guid>): void
+  +Archive(now: DateTimeOffset): void
+  +Carries(capability: string): bool
+}
+class RoleGrantRule {
+  +Guid GrantorRoleId
+  +Guid GrantableRoleId
+}
+class Profile {
+  +Guid Id
+  +Guid OrganisationId
+  +IReadOnlyCollection<ProfileRole> Roles
+  +IReadOnlyList<object> DomainEvents
+  +AddRole(definitionId: Guid, chapterId: Guid?, grantedBy: Guid, nowUtc: DateTime): void
+  +RemoveRole(definitionId: Guid, chapterId: Guid?, lost: IEnumerable<string>): void
+  +HasRole(definitionId: Guid, chapterId: Guid?): bool
+}
+class ProfileRole {
+  +Guid ProfileId
+  +Guid RoleDefinitionId
+  +Guid? ChapterId
+  +Guid GrantedBy
+  +DateTime GrantedAtUtc
+}
+class AssignRoleCommand <<record>> {
+  +Guid? RoleId
+  +Guid? ChapterId
+}
+class DefineRoleCommand <<record>> {
+  +string? Name
+  +string? Description
+  +string[] Capabilities
+  +bool ShowOnTeam
+  +bool ChapterScopable
+  +bool IsOversight
+}
+class SetGrantRulesCommand <<record>> {
+  +Guid[] GrantableRoleIds
+}
+class RoleGrantPolicy {
+  +bool CanChangeRoles
+  +IReadOnlyList<Guid>? GrantChapterIds
+  +GrantableAsync(): Task<IReadOnlySet<Guid>>
+  +CanGrant(definition: RoleDefinition, chapterId: Guid?): bool
+  +ActsAsAdministrator(definition: RoleDefinition): bool
+  +bool NotifiesOwner
+}
+class ChangeRolesHandler {
+  +AssignAsync(profileId: Guid, command: AssignRoleCommand): Task<(Result, IReadOnlyList<HeldRole>?)>
+  +RemoveAsync(profileId: Guid, roleId: Guid, chapterId: Guid?): Task<(Result, IReadOnlyList<HeldRole>?)>
+}
+class DefineRoleHandler {
+  +HandleAsync(command: DefineRoleCommand): Task<(Result, RoleDefinitionDto?)>
+}
+class UpdateRoleDefinitionHandler {
+  +HandleAsync(id: Guid, command: DefineRoleCommand): Task<(Result, RoleDefinitionDto?)>
+}
+class ArchiveRoleDefinitionHandler {
+  +HandleAsync(id: Guid): Task<Result>
+}
+class SetGrantRulesHandler {
+  +HandleAsync(id: Guid, command: SetGrantRulesCommand): Task<Result>
+}
+class RoleDefinitionValidator {
+  +ValidateAsync(command: DefineRoleCommand, existingId: Guid?): Task<Result>
+}
+class LastAdministratorGuard {
+  +TakeLeaseAsync(): Task<OrganisationAdminRoster?>
+  +WouldLeaveNoneAsync(excludingProfile: Guid?, excludingDefinition: Guid?): Task<bool>
+}
+class CapabilityLossDetector {
+  +LostAsync(profileIds: IEnumerable<Guid>, removed: IEnumerable<string>): Task<IReadOnlyList<CapabilityLost>>
+}
+class RoleChangeNotifier {
+  +Notify(ownerProfileId: Guid, title: string): void
+  +QueueEmailAsync(ownerProfileId: Guid, title: string): Task
+}
+interface ICurrentUser {
+  +IReadOnlyCollection<HeldRole> Roles
+  +IReadOnlySet<string> Capabilities
+  +Has(capability: string): bool
+}
+interface IAuditLog {
+  +Record(actorId: Guid, action: string, targetType: string, targetId: string, before: object?, after: object?): void
+}
+RoleDefinition "1" *-- "*" RoleGrantRule : grantor of
+RoleGrantRule --> RoleDefinition : grantable
+Profile "1" *-- "*" ProfileRole
+ProfileRole --> RoleDefinition
+RoleGrantPolicy ..> ICurrentUser
+RoleGrantPolicy ..> RoleDefinition : reads rules
+ChangeRolesHandler ..> AssignRoleCommand
+ChangeRolesHandler --> RoleGrantPolicy
+ChangeRolesHandler --> Profile : mutates
+ChangeRolesHandler ..> LastAdministratorGuard
+ChangeRolesHandler ..> CapabilityLossDetector
+ChangeRolesHandler ..> RoleChangeNotifier
+ChangeRolesHandler ..> IAuditLog
+DefineRoleHandler ..> DefineRoleCommand
+DefineRoleHandler ..> RoleDefinitionValidator
+DefineRoleHandler --> RoleDefinition : creates
+UpdateRoleDefinitionHandler ..> RoleDefinitionValidator
+UpdateRoleDefinitionHandler --> RoleDefinition : mutates
+UpdateRoleDefinitionHandler ..> LastAdministratorGuard
+UpdateRoleDefinitionHandler ..> CapabilityLossDetector
+ArchiveRoleDefinitionHandler --> RoleDefinition : archives
+ArchiveRoleDefinitionHandler ..> LastAdministratorGuard
+SetGrantRulesHandler ..> SetGrantRulesCommand
+SetGrantRulesHandler --> RoleDefinition : SetGrantableRoles
+DefineRoleHandler ..> IAuditLog
+UpdateRoleDefinitionHandler ..> IAuditLog
+ArchiveRoleDefinitionHandler ..> IAuditLog
+SetGrantRulesHandler ..> IAuditLog
+@enduml

@@ -23,6 +23,7 @@ import {
   CONNECT_SERVICE,
   ConnectLookupDto,
   ConnectOutcome,
+  OrganisationNames,
 } from '@faithtech-community/api';
 import {
   AlertComponent,
@@ -83,6 +84,7 @@ const OUTCOME_VIEWS: Record<ConnectOutcome, View> = {
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ConnectPage {
+  protected readonly organisation = inject(OrganisationNames);
   private readonly connect = inject(CONNECT_SERVICE);
   private readonly auth = inject(AUTH_SERVICE);
   private readonly errorFocus = viewChild(FormErrorFocusDirective);
@@ -120,7 +122,10 @@ export class ConnectPage {
   protected readonly firstName = computed(() => this.lead()?.leadName.split(/\s+/)[0] ?? '');
   protected readonly meta = computed(() => {
     const lead = this.lead();
-    return lead ? [lead.leadRole, lead.leadCity].filter(Boolean).join(' · ') : '';
+    if (!lead) return '';
+    // A tagged link role reads "{role} · {chapter}" (L2-141 AC3); otherwise the role and the home chapter.
+    if (lead.leadRoleChapterName) return `${lead.leadRole} · ${lead.leadRoleChapterName}`;
+    return [lead.leadRole, lead.leadChapterName].filter(Boolean).join(' · ');
   });
   protected readonly color = computed(() => avatarColorFor(this.lead()?.leadProfileId));
   protected readonly signInLink = computed(

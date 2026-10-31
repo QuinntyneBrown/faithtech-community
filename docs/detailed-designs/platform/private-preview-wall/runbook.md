@@ -1,13 +1,13 @@
 # Runbook: deploy behind the private-preview wall
 
-What the owner runs and supplies to put FaithTech Community on `app.faithtech.community` and `www.faithtech.community` behind the private-preview wall (ADR 0026, `README.md` in this folder). Nothing here is automated from the repository: it creates Azure resources, DNS records and production secrets, which cannot be undone from a pull request. Every command is for Bash (Azure Cloud Shell, macOS, Linux or WSL) with the Azure CLI signed in (`az login`) and, for step 1, the GitHub CLI signed in (`gh auth login`). Azure Cloud Shell has no Docker: there, build the images with `az acr build --registry <registry> --image <name:tag> --file <Dockerfile> .` instead of `docker build`/`docker push`, and make the wall's hash with `dotnet run --project backend/src/FaithTech.Community.Cli -- wall-hash`.
+What the owner runs and supplies to put the Community platform behind the private-preview wall on its first organisation's hosts, `app.faithtech.community` and `www.faithtech.community` (the FaithTech seed, `L2-151`; ADR 0026, ADR 0032, `README.md` in this folder), and to provision further organisations (`L2-149`). Nothing here is automated from the repository: it creates Azure resources, DNS records and production secrets, which cannot be undone from a pull request. Every command is for Bash (Azure Cloud Shell, macOS, Linux or WSL) with the Azure CLI signed in (`az login`) and, for step 1, the GitHub CLI signed in (`gh auth login`). Azure Cloud Shell has no Docker: there, build the images with `az acr build --registry <registry> --image <name:tag> --file <Dockerfile> .` instead of `docker build`/`docker push`, and make the wall's hash with `dotnet run --project backend/src/FaithTech.Community.Cli -- wall-hash`.
 
 ## What the owner supplies
 
 | Item | Where it goes |
 |------|---------------|
 | An Azure subscription and a region (for example `canadacentral`) | Steps 1 and 2 |
-| Control of DNS for `faithtech.community` | Step 6 |
+| Control of DNS for `faithtech.community`, and for each further organisation's domain | Steps 6 and 8 |
 | A long private-preview passphrase (at least 16 characters; five or more random words is better) | Step 4, only its hash is stored |
 | SMTP credentials (SendGrid: user name `apikey` and an API key) | Step 4 |
 | A PostgreSQL administrator password (32+ random characters) | Step 2, GitHub secret |
@@ -70,7 +70,7 @@ az keyvault secret set --vault-name "$KV" --name wall-signing-key --output none 
 # OpenIddict signing and encryption certificates (production loads them as base64 PFX, no password).
 for use in signing:digitalSignature encryption:keyEncipherment; do
   name=${use%%:*}; usage=${use#*:}
-  openssl req -x509 -newkey rsa:2048 -nodes -days 730 -subj "/CN=FaithTech Community $name" \
+  openssl req -x509 -newkey rsa:2048 -nodes -days 730 -subj "/CN=Community platform $name" \
     -addext "keyUsage=critical,$usage" -keyout "$name.key" -out "$name.crt"
   openssl pkcs12 -export -inkey "$name.key" -in "$name.crt" -passout pass: -out "$name.pfx"
   az keyvault secret set --vault-name "$KV" --name "identity-$name-certificate" --output none --value "$(base64 -w0 "$name.pfx")"
@@ -92,11 +92,11 @@ The Google OAuth client's redirect URI is `https://app.faithtech.community/api/a
 
 ## 5. First full deploy
 
-**Actions → Deploy → Run workflow** (box unticked). It tests the backend, pushes both images, runs `migrate` then `seed` as Container Apps jobs (the API never migrates on startup; `seed` is the production seed only: the `web` OpenIddict client for `https://app.faithtech.community`, the System Admin roster and the starter resources), and then rolls out the API. The log ends with the container app's address and the DNS verification ID. `https://<address>/health/live` answers `Healthy`; any other path answers 403 with the wall page. The wall cannot be unlocked on that address, because the unlock cookie is for `faithtech.community`.
+**Actions → Deploy → Run workflow** (box unticked). It tests the backend, pushes both images, runs `migrate` then `seed` as Container Apps jobs (the API never migrates on startup; `seed` is the production seed only: the `web` OpenIddict client with every organisation's community host as a redirect URI, the first organisation with its roles, chapters, stages and types (`L2-151`), its administrator roster and the starter resources), and then rolls out the API. The log ends with the container app's address and the DNS verification ID. `https://<address>/health/live` answers `Healthy`; any other path answers 403 with the wall page. The wall cannot be unlocked on that address, because the unlock cookie is for `faithtech.community`.
 
 ## 6. DNS and certificates
 
-At the DNS provider for `faithtech.community`:
+Each organisation has a community host and a public host (`L2-131`); these records are for the first organisation. At the DNS provider for `faithtech.community`:
 
 | Type | Name | Value |
 |------|------|-------|
@@ -113,9 +113,20 @@ When the records resolve (`dig +short CNAME app.faithtech.community`), set the G
 2. `curl -sI https://app.faithtech.community/api/me` → `403`, `X-Robots-Tag: noindex, nofollow`, no `Server` header.
 3. Set the variable `DEPLOY_ENABLED` = `true` to deploy every push to `main`.
 
-## Make yourself System Admin
+## 8. Provision an organisation
 
-Sign up on `app.faithtech.community` and verify the email, then run the Cli's `grant-admin` from your machine through a temporary firewall opening:
+A platform operator (an account listed in `Platform:Operators`, `L2-148`) provisions each further organisation with the Cli image through the same temporary firewall opening as below (`L2-149`):
+
+```bash
+docker run --rm -e ConnectionStrings__Community="$(az keyvault secret show --vault-name "$KV" --name community-db-connection --query value -o tsv)" ftc-cli \
+  org create --slug acme --host app.acme.example --name "Acme Community" --short-name Acme --chapter-label Campus/Campuses --admin-email admin@acme.example
+```
+
+The command is idempotent: run again with the same fields it reports that the organisation exists. It creates the organisation with the Administrator and Member roles and the default stages and types, and sends the first administrator an invite pre-assigned Administrator, recorded in the platform audit log (`org audit`). Then, at the DNS provider for the organisation's domain, create the same CNAME and `asuid` TXT records as step 6 for its community host and its public host (`www.` plus the host, or the host the organisation chose), add both hosts to the custom domains parameter in `eng/infra/main.bicepparam` and the organisation's host entry to the API configuration, set `CUSTOM_DOMAINS_STAGE` = `issue`, run **Deploy**, then set it back to `bound` and deploy once more. A host outside the cookie domain `faithtech.community` needs its own unlock while the wall is on (`L2-104` AC2). `org suspend <slug> --reason "..."` and `org lift <slug>` suspend and lift an organisation (`L2-150`).
+
+## Make yourself an administrator
+
+Sign up on `app.faithtech.community` and verify the email, then run the Cli's `grant-admin` from your machine through a temporary firewall opening. It grants the role carrying `AdministerOrganisation` (seeded as System Admin in FaithTech):
 
 ```bash
 PG=$(az postgres flexible-server list --resource-group "$RG" --query "[0].name" --output tsv)
@@ -149,7 +160,7 @@ A restart also clears lockouts, which live in memory.
 
 ## Lift the wall
 
-Set the GitHub variable `PRIVATE_PREVIEW_ENABLED` = `false` and run **Deploy**. The site is then open to everyone, `X-Robots-Tag` and the wall's `robots.txt` stop, and sign-in and every permission rule apply exactly as before. To put the wall back, set it to `true` and deploy.
+Set the GitHub variable `PRIVATE_PREVIEW_ENABLED` = `false` and run **Deploy**. Every organisation's hosts are then open to everyone, `X-Robots-Tag` and the wall's `robots.txt` stop, and organisation resolution, sign-in and every permission rule apply exactly as before. To put the wall back, set it to `true` and deploy.
 
 ## Known limits
 

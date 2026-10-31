@@ -14,8 +14,8 @@ skinparam package {
   FontColor #101828
   BackgroundColor #F9FAFB
 }
-actor "City Lead" as actor
-box "Frontend — FaithTech Community web app (agile library)" #E0F2FE
+actor "Member with OwnWorkspaces" as actor
+box "Frontend — Community platform web app (agile library)" #E0F2FE
   participant "WorkspacesPage" as page
   participant "CreateWorkspaceDialog" as dlg
   participant "AgileService (AGILE_SERVICE)" as svc
@@ -41,14 +41,14 @@ page -> dlg : Open dialog
 dlg -> svc : listMemberCandidates()
 svc -> ep : GET /api/workspaces/candidates
 ep -> sh : CandidatesAsync(null)
-sh --> ep : Team members but the caller (City Lead or System Admin only)
+sh --> ep : Profiles holding JoinWorkspaces but the caller (OwnWorkspaces holders only)
 ep --> dlg : 200 MemberCandidateDto[]
 actor -> dlg : Enter name, method (Scrum or Kanban), optional members
 dlg -> svc : createWorkspace({ name, method, memberIds })
 svc -> ep : POST /api/workspaces
 ep -> ep : Validate CreateWorkspaceCommand (CreateWorkspaceValidator)
 ep -> h : CreateAsync(command)
-alt caller holds City Lead or System Admin
+alt caller Has(OwnWorkspaces)
 h -> pol : CallerProfileIdAsync()
 pol --> h : owner profile id
 h -> ent : new Workspace(name, method, owner) (L2-031 AC1)
@@ -56,7 +56,7 @@ h -> mem : AddMembersAsync(workspace, owner, memberIds)
 mem -> ctx : Load profiles
 ctx -> db : SELECT
 db --> ctx : Rows
-alt every profile holds a lead or volunteer role and is not suspended
+alt every profile holds JoinWorkspaces and is not suspended
 mem -> ent : AddMember(profile, now) for each
 mem -> ntf : Notify(WorkspaceMemberAdded, /workspaces/{id}) for each
 mem --> h : added ids
@@ -76,8 +76,8 @@ h --> ep : Invalid (MemberIds)
 ep --> dlg : 400 ValidationProblem
 dlg --> actor : Show field error
 end
-else any other role
-h --> ep : Forbidden
+else caller lacks OwnWorkspaces
+h --> ep : Forbidden (L2-031 AC1, L2-135 AC4)
 ep --> svc : 403 ProblemDetails
 svc --> dlg : Error
 dlg --> actor : Show error

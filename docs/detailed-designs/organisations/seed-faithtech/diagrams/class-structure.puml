@@ -1,0 +1,139 @@
+@startuml
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam roundcorner 8
+skinparam defaultFontName Arial
+skinparam ArrowColor #344054
+skinparam class {
+  BorderColor #344054
+  FontColor #101828
+  BackgroundColor #F9FAFB
+}
+title Class structure — Seed FaithTech
+class OrganisationSeed <<record>> {
+  +Guid Id
+  +string Slug
+  +string Host
+  +string Name
+  +string ShortName
+  +string? ChapterLabelSingular
+  +string? ChapterLabelPlural
+  +IReadOnlyList<RoleDefinitionSeed> Roles
+  +IReadOnlyList<GrantRuleSeed> GrantRules
+  +IReadOnlyList<ListEntrySeed> PartnerStages
+  +IReadOnlyList<ListEntrySeed> EventTypes
+  +IReadOnlyList<ListEntrySeed> ResourceTypes
+}
+class RoleDefinitionSeed <<record>> {
+  +Guid Id
+  +string Key
+  +string Name
+  +string Description
+  +string[] Capabilities
+  +bool ShowOnTeam
+  +bool ChapterScopable
+  +bool IsOversight
+}
+class GrantRuleSeed <<record>> {
+  +string GrantorKey
+  +string GrantableKey
+}
+class ListEntrySeed <<record>> {
+  +Guid Id
+  +string Key
+  +string Name
+  +bool IsInitial
+  +PartnerStageKind? Kind
+}
+class FaithTechSeed <<static>> {
+  +{static} Organisation: OrganisationSeed
+  +{static} OrganisationId: Guid
+}
+class CommunitySeeder {
+  +{static} WebClientId: string
+  +SeedAsync(webAppOrigin: string): Task
+  +SeedOrganisationAsync(seed: OrganisationSeed): Task<Organisation>
+  +GrantAdministratorAsync(email: string, organisationSlug: string): Task<bool>
+  -SeedStarterResourcesAsync(organisationId: Guid): Task
+}
+class Organisation {
+  +Guid Id
+  +string Slug
+  +string Host
+  +string Name
+  +string ShortName
+  +OrganisationStatus Status
+  +string? ChapterLabelSingular
+  +string? ChapterLabelPlural
+}
+class RoleDefinition {
+  +Guid Id
+  +Guid OrganisationId
+  +string Key
+  +string Name
+  +IReadOnlySet<string> Capabilities
+  +bool ShowOnTeam
+  +bool ChapterScopable
+  +bool IsOversight
+  +IReadOnlyCollection<RoleGrantRule> Grants
+}
+class PartnerStage {
+  +Guid Id
+  +Guid OrganisationId
+  +string Key
+  +string Name
+  +int SortOrder
+  +bool IsInitial
+  +PartnerStageKind Kind
+}
+class EventType {
+  +Guid Id
+  +Guid OrganisationId
+  +string Key
+  +string Name
+  +int SortOrder
+}
+class ResourceType {
+  +Guid Id
+  +Guid OrganisationId
+  +string Key
+  +string Name
+  +int SortOrder
+}
+class Chapter {
+  +Guid Id
+  +Guid OrganisationId
+  +string Name
+  +int SortOrder
+  +DateTimeOffset? ArchivedAt
+}
+class OrganisationAdminRoster {
+  +Guid OrganisationId
+  +Guid Version
+  +Guid? LeaseHolder
+  +DateTimeOffset? LeaseExpiresAt
+}
+class "OrganisationsAndCapabilities" as mig <<Migration>> {
+  +Up(builder: MigrationBuilder): void
+  +Down(builder: MigrationBuilder): void
+}
+class CliApp {
+  +RunAsync(args: string[]): Task<int>
+}
+FaithTechSeed --> OrganisationSeed
+OrganisationSeed "1" *-- "9" RoleDefinitionSeed
+OrganisationSeed "1" *-- "*" GrantRuleSeed
+OrganisationSeed "1" *-- "*" ListEntrySeed
+CliApp ..> CommunitySeeder : seed, grant-admin
+CliApp ..> mig : migrate
+CommunitySeeder ..> FaithTechSeed : reads
+CommunitySeeder --> Organisation : creates
+CommunitySeeder --> RoleDefinition : creates
+CommunitySeeder --> PartnerStage : creates
+CommunitySeeder --> EventType : creates
+CommunitySeeder --> ResourceType : creates
+CommunitySeeder --> OrganisationAdminRoster : creates
+mig ..> FaithTechSeed : fixed ids and keys
+mig --> Chapter : creates from city text
+mig --> OrganisationAdminRoster : moves SystemAdminRoster
+@enduml

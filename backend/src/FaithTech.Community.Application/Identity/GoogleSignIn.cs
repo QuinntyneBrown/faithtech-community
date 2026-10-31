@@ -1,3 +1,4 @@
+using FaithTech.Community.Application.Organisations;
 using FaithTech.Community.Application.Common;
 using FaithTech.Community.Application.Contacts;
 using FaithTech.Community.Application.Profiles;
@@ -24,7 +25,8 @@ public interface IGoogleIdentityProvider
     Task<GoogleIdentity?> ExchangeCodeAsync(string code, string redirectUri, string nonce, CancellationToken cancellationToken = default);
 }
 
-public record GoogleSignInCommand(string Code, string RedirectUri, string Nonce);
+/// <summary>Joining: started from the sign-up form, so an existing account gains a profile here (L2-132 AC1, AC7).</summary>
+public record GoogleSignInCommand(string Code, string RedirectUri, string Nonce, bool Joining = false);
 
 public enum GoogleSignInError
 {
@@ -46,7 +48,9 @@ public class GoogleSignInHandler(
     UserManager<CommunityUser> users,
     IApplicationDbContext db,
     IGoogleIdentityProvider google,
-    ContactSignedUpHandler contactSignedUp)
+    ContactSignedUpHandler contactSignedUp,
+    TimeProvider time,
+    Memberships memberships)
 {
     public const string LoginProvider = "Google";
 
@@ -67,11 +71,29 @@ public class GoogleSignInHandler(
         var user = await users.FindByLoginAsync(LoginProvider, identity.Subject)
             ?? await LinkByEmailAsync(identity, cancellationToken)
             ?? await CreateAsync(identity, cancellationToken);
+        if (command.Joining)
+        {
+            await JoinAsync(user, identity, cancellationToken);
+        }
 
         // The same rule and outcome as password sign-in, reported only now the person has proven who they are.
         return await AccountStatus.IsSuspendedAsync(db, user, cancellationToken)
             ? new(null, GoogleSignInError.Suspended)
             : new(user, null);
+    }
+
+    // Signing in applies to the account everywhere and joins nothing; only the sign-up form's button makes an account
+    // with no profile here a member (L2-132 AC7).
+    private async Task JoinAsync(CommunityUser user, GoogleIdentity identity, CancellationToken cancellationToken)
+    {
+        if (await db.Profiles.AnyAsync(p => p.UserId == user.Id, cancellationToken))
+        {
+            return;
+        }
+
+        var profile = await memberships.JoinAsync(user.Id, ProfileName(identity), cancellationToken);
+        await db.SaveChangesAsync(cancellationToken);
+        await contactSignedUp.HandleAsync(new EmailVerified(profile.Id, user.Email!), cancellationToken);
     }
 
     private async Task<CommunityUser?> LinkByEmailAsync(GoogleIdentity identity, CancellationToken cancellationToken)
@@ -93,7 +115,10 @@ public class GoogleSignInHandler(
             }
 
             Ensure(await users.UpdateAsync(user));
-            await contactSignedUp.HandleAsync(new EmailVerified(user.ProfileId, user.Email!), cancellationToken);
+            if (await db.Profiles.Where(p => p.UserId == user.Id).Select(p => (Guid?)p.Id).SingleOrDefaultAsync(cancellationToken) is { } profileId)
+            {
+                await contactSignedUp.HandleAsync(new EmailVerified(profileId, user.Email!), cancellationToken);
+            }
         }
 
         return user;
@@ -101,14 +126,15 @@ public class GoogleSignInHandler(
 
     private async Task<CommunityUser> CreateAsync(GoogleIdentity identity, CancellationToken cancellationToken)
     {
-        var profile = new Profile(ProfileName(identity));
+        var profile = new Profile(ProfileName(identity), time.GetUtcNow().UtcDateTime);
         db.Profiles.Add(profile);
-        var user = new CommunityUser { UserName = identity.Email, Email = identity.Email, EmailConfirmed = true, ProfileId = profile.Id };
+        var user = new CommunityUser { Id = Guid.NewGuid(), UserName = identity.Email, Email = identity.Email, EmailConfirmed = true };
+        profile.LinkAccount(user.Id);
 
         // The user store shares the context, so the profile and the account commit together. No role is granted.
         Ensure(await users.CreateAsync(user));
         Ensure(await users.AddLoginAsync(user, new UserLoginInfo(LoginProvider, identity.Subject, "Google")));
-        await contactSignedUp.HandleAsync(new EmailVerified(user.ProfileId, user.Email!), cancellationToken);
+        await contactSignedUp.HandleAsync(new EmailVerified(profile.Id, user.Email!), cancellationToken);
         return user;
     }
 
@@ -132,5 +158,5 @@ public class GoogleSignInHandler(
 public static class AccountStatus
 {
     public static Task<bool> IsSuspendedAsync(IApplicationDbContext db, CommunityUser user, CancellationToken cancellationToken = default) =>
-        db.Profiles.AnyAsync(p => p.Id == user.ProfileId && p.IsSuspended, cancellationToken);
+        db.Profiles.AnyAsync(p => p.UserId == user.Id && p.IsSuspended, cancellationToken);
 }

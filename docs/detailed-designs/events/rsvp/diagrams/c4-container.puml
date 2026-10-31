@@ -4,9 +4,9 @@ LAYOUT_WITH_LEGEND()
 title Containers — RSVP
 
 Person(member, "Member", "Signed-in user who browses and RSVPs to events")
-Person(lead, "Event Lead / City Lead", "Creates, edits and cancels events")
-Person(staff, "Staff", "Read-only across events, sees full RSVP lists")
-System_Boundary(ftc, "FaithTech Community") {
+Person(lead, "Member with ManageAttendance", "Sees the full RSVP list with guest emails and exports it")
+Person(staff, "Member with view capabilities", "Holds ViewAttendees: sees the full RSVP list without guest emails")
+System_Boundary(ftc, "Community platform") {
   Container(spa, "Web app", "Angular", "Shell, events feature library, api and components libraries")
   Container(api, "Community API", "ASP.NET Core", "FaithTech.Community.Api with Application, Domain and Infrastructure")
   ContainerDb(db, "Community database", "PostgreSQL", "Events, RSVPs, notifications and outbox")

@@ -2,14 +2,15 @@ import { NgTemplateOutlet } from '@angular/common';
 import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
 import {
   ACTIVITY_SERVICE,
-  AUTH_SERVICE,
   ActivityItemDto,
+  AUTH_SERVICE,
+  canManageEvents,
   EVENTS_SERVICE,
   EventSummaryDto,
+  ORGANISATION_SERVICE,
+  OrganisationNames,
   PARTNERS_SERVICE,
-  PARTNER_STAGE_LABELS,
-  canManageEvents,
-  isLead,
+  hasAny,
 } from '@faithtech-community/api';
 import {
   AlertComponent,
@@ -65,8 +66,6 @@ interface FeedRow {
 
 /** Coming up shows the next three events (docs/mocks/pages/home). */
 const COMING_UP = 3;
-/** Notifications carry no actor yet (PR #335), so the community speaks for them. */
-const SYSTEM_ACTOR = 'FaithTech Community';
 const LONG_DATE = new Intl.DateTimeFormat('en-GB', {
   weekday: 'long',
   day: 'numeric',
@@ -107,26 +106,34 @@ const LONG_DATE = new Intl.DateTimeFormat('en-GB', {
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class HomePage {
+  protected readonly organisation = inject(OrganisationNames);
   private readonly auth = inject(AUTH_SERVICE);
   private readonly events = inject(EVENTS_SERVICE);
   private readonly partners = inject(PARTNERS_SERVICE);
+  private readonly settings = inject(ORGANISATION_SERVICE);
   private readonly activity = inject(ACTIVITY_SERVICE);
 
-  protected readonly actor = SYSTEM_ACTOR;
-  private readonly roles = this.auth.roles;
+  /** Notifications carry no actor yet (PR #335), so the organisation speaks for them. */
+  protected readonly actor = computed(() => this.organisation.name());
+  private readonly capabilities = this.auth.capabilities;
+  private readonly heldRoles = computed(() => this.auth.currentUser()?.roles ?? []);
   private readonly firstName = computed(
     () => (this.auth.currentUser()?.name ?? '').trim().split(/\s+/)[0] ?? '',
   );
 
-  protected readonly hasRole = computed(() => this.roles().length > 0);
-  protected readonly canCreateEvents = computed(() => canManageEvents(this.roles()));
-  protected readonly canAddContacts = computed(() => isLead(this.roles()));
-  protected readonly isStaffOnly = computed(
-    () => this.roles().includes('Staff') && !isLead(this.roles()),
+  protected readonly hasRole = computed(() => this.heldRoles().length > 0);
+  protected readonly canCreateEvents = computed(() => canManageEvents(this.capabilities()));
+  protected readonly canAddContacts = computed(() => hasAny(this.capabilities(), 'KeepContacts'));
+  /** The oversight role the banner names, while the member holds nothing that writes (L2-135 AC7). */
+  protected readonly oversightRole = computed(() =>
+    this.canCreateEvents() || this.canAddContacts()
+      ? null
+      : (this.heldRoles().find((r) => r.isOversight)?.name ?? null),
   );
-  /** Leads, Staff and System Admin may open partners (ADR 0009). */
-  protected readonly seesPipeline = computed(
-    () => isLead(this.roles()) || this.roles().includes('Staff'),
+  protected readonly isStaffOnly = computed(() => this.oversightRole() !== null);
+  /** ViewPartners or ManagePartners open the pipeline (ADR 0009). */
+  protected readonly seesPipeline = computed(() =>
+    hasAny(this.capabilities(), 'ViewPartners', 'ManagePartners'),
   );
 
   protected readonly title = computed(() => {
@@ -150,9 +157,8 @@ export class HomePage {
   });
 
   protected readonly pipelineState = signal<Load>('loading');
-  protected readonly stats = signal<StatRow[]>(
-    Object.values(PARTNER_STAGE_LABELS).map((label) => ({ label, count: 0 })),
-  );
+  /** One count per active stage of the organisation, in its order (L2-144 AC5). */
+  protected readonly stats = signal<StatRow[]>([]);
   protected readonly noPartners = computed(() => this.stats().every((s) => s.count === 0));
   protected readonly retryingPipeline = signal(false);
 
@@ -194,7 +200,11 @@ export class HomePage {
       const list = await firstValueFrom(this.events.listEvents({ filter: 'Upcoming' }));
       const upcoming = list.events.filter((e) => !e.isCancelled);
       this.upcomingCount.set(upcoming.length);
-      this.comingUp.set(upcoming.slice(0, COMING_UP).map(toRow));
+      this.comingUp.set(
+        upcoming
+          .slice(0, COMING_UP)
+          .map((e) => toRow(e, this.organisation.chapterPlace(e.chapterName))),
+      );
       this.eventsState.set('loaded');
     } catch {
       this.eventsState.set('error');
@@ -202,11 +212,21 @@ export class HomePage {
   }
 
   private async loadPipeline(showSkeleton = true): Promise<void> {
-    if (showSkeleton) this.pipelineState.set('loading');
+    if (showSkeleton) {
+      this.pipelineState.set('loading');
+      // The skeleton names the organisation's stages until the board's counts arrive.
+      this.settings.get().subscribe({
+        next: (o) => {
+          if (this.pipelineState() === 'loading')
+            this.stats.set(o.partnerStages.map((s) => ({ label: s.name, count: 0 })));
+        },
+        error: () => undefined,
+      });
+    }
     try {
       const board = await firstValueFrom(this.partners.getBoard());
       this.stats.set(
-        board.columns.map((c) => ({ label: PARTNER_STAGE_LABELS[c.stage], count: c.count })),
+        board.columns.filter((c) => !c.archived).map((c) => ({ label: c.name, count: c.count })),
       );
       this.pipelineState.set('loaded');
     } catch {
@@ -234,10 +254,10 @@ function greetingFor(now: Date): string {
 }
 
 /** "Fri 6 Nov · 6:30 pm · Kestrel Labs, 220 King St W · 34 going", as the home mock words it. */
-function toRow(event: EventSummaryDto): EventRow {
+function toRow(event: EventSummaryDto, chapter: string | null): EventRow {
   const start = new Date(event.startsAt);
   const oneDay = start.toDateString() === new Date(event.endsAt).toDateString();
-  const place = event.format === 'Online' ? 'Online' : (event.venue ?? event.city);
+  const place = event.format === 'Online' ? 'Online' : (event.venue ?? chapter);
   const meta = [
     formatDayRange(event.startsAt, event.endsAt),
     oneDay ? formatTime(start) : null,

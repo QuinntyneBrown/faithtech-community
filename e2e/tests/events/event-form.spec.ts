@@ -11,7 +11,7 @@ const builders = {
   description: 'An evening for Christians who build.',
   starts: '2026-11-06T18:30',
   ends: '2026-11-06T21:00',
-  city: 'Toronto',
+  chapter: 'Toronto',
   venue: 'Kestrel Labs, 220 King St W',
   capacity: '60',
 };
@@ -23,6 +23,7 @@ test.describe('Create and edit events', () => {
     axe,
   }) => {
     const grace = api.addAccount({ email: 'grace@example.org', roles: ['EventLead'] });
+    api.chapters.named('Toronto');
     const form = new EventFormPage(page);
     await api.signInAs(grace, '/events/new');
 
@@ -36,10 +37,10 @@ test.describe('Create and edit events', () => {
     expect(saved).toMatchObject({
       title: 'Toronto Builders Night',
       description: 'An evening for Christians who build.',
-      type: 'BuildersNight',
+      type: 'builders-night',
       startsAt: '2026-11-06T23:30:00.000Z',
       endsAt: '2026-11-07T02:00:00.000Z',
-      city: 'Toronto',
+      chapterId: api.chapters.named('Toronto').id,
       format: 'InPerson',
       venue: 'Kestrel Labs, 220 King St W',
       onlineLink: null,
@@ -55,6 +56,7 @@ test.describe('Create and edit events', () => {
 
   test('an online event takes a joining link instead of a venue', async ({ page, api }) => {
     const grace = api.addAccount({ email: 'grace@example.org', roles: ['CityLead'] });
+    api.chapters.named('Toronto');
     const form = new EventFormPage(page);
     await api.signInAs(grace, '/events/new');
 
@@ -78,6 +80,7 @@ test.describe('Create and edit events', () => {
     axe,
   }) => {
     const grace = api.addAccount({ email: 'grace@example.org', roles: ['EventLead'] });
+    api.chapters.named('Toronto');
     const form = new EventFormPage(page);
     await api.signInAs(grace, '/events/new');
 
@@ -97,6 +100,48 @@ test.describe('Create and edit events', () => {
     expect(api.callsTo('POST', '/api/events')).toHaveLength(0);
   });
 
+  // Traces to: L2-145 AC2
+  test('the type picker offers the organisation’s active types in order', async ({ page, api }) => {
+    api.events.types.add('Retreat');
+    api.events.types.add('Workshop', { archived: true });
+    const grace = api.addAccount({ email: 'grace@example.org', roles: ['EventLead'] });
+    const form = new EventFormPage(page);
+    await api.signInAs(grace, '/events/new');
+
+    await expect(form.type.locator('option')).toHaveText([
+      'Gathering',
+      'Builders night',
+      'Hackathon',
+      'Prayer & planning',
+      'Panel',
+      'Retreat',
+    ]);
+    await expect(form.type).toHaveValue('gathering');
+  });
+
+  // Traces to: L2-145 AC2, AC4
+  test('an event of an archived type keeps it, marked archived, until another is chosen', async ({
+    page,
+    api,
+    axe,
+  }) => {
+    api.events.types.add('Workshop', { archived: true });
+    const grace = api.addAccount({ email: 'grace@example.org', roles: ['EventLead'] });
+    const event = api.events.add({ title: 'Toronto Builders Night', type: 'workshop' });
+    const form = new EventFormPage(page);
+    await api.signInAs(grace, `/events/${event.id}/edit`);
+
+    await expect(form.type.locator('option:checked')).toHaveText('Workshop (archived)');
+    await expect(form.typeHelp).toHaveText(
+      'Workshop was archived. It stays on this event until you choose another type.',
+    );
+    await axe.check();
+    await form.fill({ venue: 'Trinity Community Centre' });
+    await form.saveChanges.click();
+    await expect(page).toHaveURL(new RegExp(`/events/${event.id}$`));
+    expect(event).toMatchObject({ type: 'workshop', venue: 'Trinity Community Centre' });
+  });
+
   test('a lead edits an event and the members who RSVP’d are notified', async ({
     page,
     api,
@@ -111,6 +156,7 @@ test.describe('Create and edit events', () => {
       visibility: 'Public',
     });
     api.events.addRsvps(event, 2);
+    api.chapters.named('Toronto');
     const form = new EventFormPage(page);
     await api.signInAs(grace, `/events/${event.id}/edit`);
 
@@ -145,6 +191,7 @@ test.describe('Create and edit events', () => {
     api.on('GET', `/api/events/${event.id}`, (route) =>
       fail ? route.fulfill({ status: 503 }) : api.fallback(route),
     );
+    api.chapters.named('Toronto');
     const form = new EventFormPage(page);
     await api.signInAs(grace, `/events/${event.id}/edit`);
 
@@ -157,6 +204,7 @@ test.describe('Create and edit events', () => {
 
   test('a member without an event role is refused by the server', async ({ page, api }) => {
     const leah = api.addAccount({ email: 'leah@example.org', roles: ['Volunteer'] });
+    api.chapters.named('Toronto');
     const form = new EventFormPage(page);
     await api.signInAs(leah, '/events/new');
 

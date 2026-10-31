@@ -1,3 +1,4 @@
+using FaithTech.Community.Application.Organisations;
 using System.Security.Claims;
 using FaithTech.Community.Api.Authentication;
 using FaithTech.Community.Api.Middleware;
@@ -55,7 +56,7 @@ public static class AccountEndpoints
     }
 
     private static async Task<IResult> SignInAsync(
-        SignInCommand command, SignInHandler handler, HttpContext context, CancellationToken ct)
+        SignInCommand command, SignInHandler handler, HttpContext context, ICurrentOrganisation organisation, CancellationToken ct)
     {
         var result = await handler.HandleAsync(command, ct);
         if (!result.Succeeded)
@@ -63,7 +64,8 @@ public static class AccountEndpoints
             var (code, detail) = result.Error switch
             {
                 SignInError.LockedOut => ("locked_out", "Too many failed attempts. Try again in 15 minutes."),
-                SignInError.Suspended => ("suspended", "Your account is suspended."),
+                // Suspension is of this organisation's membership (L2-132 AC5, L2-003 AC4).
+                SignInError.Suspended => ("suspended", $"Your membership of {organisation.Name} is suspended."),
                 _ => ("invalid_credentials", "Email or password is incorrect."),
             };
             return Results.Problem(detail, statusCode: StatusCodes.Status400BadRequest,
@@ -90,7 +92,8 @@ public static class AccountEndpoints
         IOptions<WebAppOptions> webApp,
         IOptions<MarketingOptions> marketing,
         string? returnUrl,
-        bool? keepSignedIn)
+        bool? keepSignedIn,
+        bool? signUp)
     {
         var state = GoogleCorrelation.NewSecret();
         var nonce = GoogleCorrelation.NewSecret();
@@ -100,7 +103,7 @@ public static class AccountEndpoints
             return Results.Redirect(GoogleOutcome(marketing.Value, "failed"));
         }
 
-        correlation.Write(context, new GoogleCorrelation.Pending(state, nonce, AppPath(returnUrl), keepSignedIn ?? false));
+        correlation.Write(context, new GoogleCorrelation.Pending(state, nonce, AppPath(returnUrl), keepSignedIn ?? false, signUp ?? false));
         return Results.Redirect(authorizationUrl);
     }
 
@@ -120,7 +123,7 @@ public static class AccountEndpoints
             return Results.Redirect(GoogleOutcome(marketing.Value, "failed"));
         }
 
-        var result = await handler.HandleAsync(new GoogleSignInCommand(code, GoogleRedirectUri(webApp.Value), pending.Nonce), ct);
+        var result = await handler.HandleAsync(new GoogleSignInCommand(code, GoogleRedirectUri(webApp.Value), pending.Nonce, pending.SignUp), ct);
         if (!result.Succeeded)
         {
             return Results.Redirect(GoogleOutcome(marketing.Value, result.Error == GoogleSignInError.Suspended ? "suspended" : "failed"));

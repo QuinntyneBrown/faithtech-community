@@ -1,4 +1,5 @@
 // Traces to: L2-019
+using FaithTech.Community.Api.Tests.Organisations;
 using System.Net;
 using System.Net.Http.Json;
 using FaithTech.Community.Api.Tests.Fakes;
@@ -37,20 +38,20 @@ public class TeamListTests(CommunityApiFactory factory) : IClassFixture<Communit
         Assert.Equal(["Grace Okonkwo", "Ruth Alvarez", "Samuel Mensah"], team.Mine(list!).Select(m => m.Name));
         var samuelRow = list!.Members.Single(m => m.ProfileId == samuel.ProfileId);
         Assert.Equal(["CreateLead", "ProductEngineer"], samuelRow.Roles);
-        Assert.Equal("Toronto", samuelRow.HomeCity);
+        Assert.Equal("Toronto", samuelRow.ChapterName);
         Assert.Equal($"{FakePhotoStorage.BaseUrl}profiles/{samuel.ProfileId}/featured.jpg", samuelRow.PhotoUrl);
         Assert.Null(list.Members.Single(m => m.Name.StartsWith("Ruth") && team.Owns(m)).PhotoUrl);
     }
 
-    // AC2: Given a role filter (Leads or Volunteers) or a city filter, when it is applied, then only matching
-    // team members are listed.
+    // AC2: Given a role filter (Leads or Volunteers) or a chapter filter (L2-142 AC2), when it is applied, then
+    // only matching team members are listed. "{Name}" in the query stands for that chapter's id.
     [Theory]
     [InlineData("?role=Leads", new[] { "Grace Okonkwo", "Hannah Kim", "Marcus Lee" })]
     [InlineData("?role=Volunteers", new[] { "Ruth Alvarez", "Tomasz Nowak" })]
-    [InlineData("?city=vancouver", new[] { "Hannah Kim", "Tomasz Nowak" })]
-    [InlineData("?role=Volunteers&city=Toronto", new[] { "Ruth Alvarez" })]
-    [InlineData("?role=leads&city=%20Austin%20", new[] { "Marcus Lee" })]
-    public async Task Role_and_city_filters_narrow_the_team(string query, string[] expected)
+    [InlineData("?chapter={Vancouver}", new[] { "Hannah Kim", "Tomasz Nowak" })]
+    [InlineData("?role=Volunteers&chapter={Toronto}", new[] { "Ruth Alvarez" })]
+    [InlineData("?role=leads&chapter={Austin}", new[] { "Marcus Lee" })]
+    public async Task Role_and_chapter_filters_narrow_the_team(string query, string[] expected)
     {
         var team = new TeamFactory(factory);
         await team.AddAsync("Grace Okonkwo", "Toronto", Role.CityLead);
@@ -60,26 +61,14 @@ public class TeamListTests(CommunityApiFactory factory) : IClassFixture<Communit
         await team.AddAsync("Tomasz Nowak", "Vancouver", Role.Volunteer);
         var viewer = await factory.AddMemberAsync("Leah Thompson");
 
+        foreach (var name in new[] { "Vancouver", "Toronto", "Austin" })
+        {
+            query = query.Replace($"{{{name}}}", (await factory.ChapterIdAsync(name)).ToString());
+        }
+
         var list = await factory.ClientFor(viewer).GetFromJsonAsync<TeamListResponse>(team.Url(query));
 
         Assert.Equal(expected, team.Mine(list!).Select(m => m.Name));
-        Assert.Superset(new HashSet<string> { "Austin", "Toronto", "Vancouver" }, list!.Cities.ToHashSet());
-        Assert.Equal(list.Cities.Order(StringComparer.OrdinalIgnoreCase), list.Cities);
-    }
-
-    [Fact]
-    public async Task Cities_list_every_team_members_home_city_once_whatever_the_filters()
-    {
-        var team = new TeamFactory(factory);
-        await team.AddAsync("Grace Okonkwo", "Halifax", Role.CityLead);
-        await team.AddAsync("Ruth Alvarez", "halifax ", Role.Volunteer);
-        await team.AddAsync("Nate Oyelaran", "Regina", Role.ProductEngineer);
-        var viewer = await factory.AddMemberAsync("Leah Thompson");
-
-        var list = await factory.ClientFor(viewer).GetFromJsonAsync<TeamListResponse>(team.Url("?role=Volunteers&city=Halifax"));
-
-        Assert.Single(list!.Cities, c => c.Equals("Halifax", StringComparison.OrdinalIgnoreCase));
-        Assert.DoesNotContain("Regina", list.Cities);
     }
 
     // AC3: Given a profile that loses its last lead or volunteer role, when the team page is viewed, then that
@@ -94,8 +83,8 @@ public class TeamListTests(CommunityApiFactory factory) : IClassFixture<Communit
         var lead = factory.ClientFor(grace, Role.CityLead);
         Assert.Equal(["Marcus Lee", "Ruth Alvarez"], team.Mine((await lead.GetFromJsonAsync<TeamListResponse>(team.Url()))!).Select(m => m.Name));
 
-        (await lead.DeleteAsync($"/api/profiles/{ruth.ProfileId}/roles/Volunteer")).EnsureSuccessStatusCode();
-        (await lead.DeleteAsync($"/api/profiles/{marcus.ProfileId}/roles/Volunteer")).EnsureSuccessStatusCode();
+        (await lead.DeleteAsync($"/api/profiles/{ruth.ProfileId}/roles/{factory.RoleIdOf("Volunteer")}")).EnsureSuccessStatusCode();
+        (await lead.DeleteAsync($"/api/profiles/{marcus.ProfileId}/roles/{factory.RoleIdOf("Volunteer")}")).EnsureSuccessStatusCode();
 
         var list = await lead.GetFromJsonAsync<TeamListResponse>(team.Url());
         var marcusRow = Assert.Single(team.Mine(list!));
@@ -115,9 +104,9 @@ public class TeamListTests(CommunityApiFactory factory) : IClassFixture<Communit
         Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
     }
 
-    public sealed record TeamMemberResponse(Guid ProfileId, string Name, string? HomeCity, string? PhotoUrl, string[] Roles);
+    public sealed record TeamMemberResponse(Guid ProfileId, string Name, string? ChapterName, string? PhotoUrl, string[] Roles);
 
-    public sealed record TeamListResponse(TeamMemberResponse[] Members, string[] Cities);
+    public sealed record TeamListResponse(TeamMemberResponse[] Members);
 
     /// <summary>Adds team members and remembers them, so tests sharing one database only look at their own.</summary>
     private sealed class TeamFactory(CommunityApiFactory factory)
@@ -126,9 +115,10 @@ public class TeamListTests(CommunityApiFactory factory) : IClassFixture<Communit
 
         public async Task<ProfileClients.Member> AddAsync(string name, string? city, params Role[] roles)
         {
+            var chapterId = await factory.ChapterIdAsync(city);
             var member = await factory.AddMemberAsync(name, p =>
             {
-                p.Update(name, city, null);
+                p.Update(name, chapterId, null);
                 foreach (var role in roles)
                 {
                     p.AddRole(role, Guid.Empty, DateTime.UtcNow);

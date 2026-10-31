@@ -7,16 +7,28 @@ import {
   CONNECT_SERVICE,
   ConnectLookupDto,
   ConnectOutcome,
+  SITE_SERVICE,
 } from '@faithtech-community/api';
 import { Observable, of, throwError } from 'rxjs';
 
 import { ConnectPage } from './connect.page';
 
+/** The host's organisation the copy names, as GET /api/site answers it on FaithTech's host. */
+const FAITHTECH_SITE = {
+  site: () => ({
+    name: 'FaithTech Community',
+    shortName: 'FaithTech',
+    chapterLabel: { singular: 'City', plural: 'Cities' },
+    communityOrigin: 'http://localhost:4200',
+  }),
+  load: async () => undefined,
+};
+
 const lead: ConnectLookupDto = {
   leadProfileId: 'p1',
   leadName: 'Grace Okonkwo',
   leadPhotoUrl: 'https://photos.example/grace.jpg',
-  leadCity: 'Toronto',
+  leadChapterName: 'Toronto',
   leadRole: 'City Lead',
 };
 
@@ -31,6 +43,7 @@ async function setup(
   };
   TestBed.configureTestingModule({
     providers: [
+      { provide: SITE_SERVICE, useValue: FAITHTECH_SITE },
       provideRouter([]),
       { provide: CONNECT_SERVICE, useValue: connect },
       {
