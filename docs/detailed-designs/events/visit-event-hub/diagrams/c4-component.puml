@@ -1,0 +1,28 @@
+@startuml
+!include <C4/C4_Component>
+LAYOUT_WITH_LEGEND()
+title Components — Visit an event hub
+Container_Boundary(spa, "Web app") {
+  Component(pub, "PublicEventPage", "Angular page (events)", "Open the event hub when hubLink is set")
+  Component(evt, "EventPage", "Angular page (events)", "Open the event hub for members")
+  Component(page, "HubPage", "Angular page (events, public routes)", "Banner only for managers; title and meta; not available with Sign in")
+  Component(agenda, "HubAgendaComponent", "Angular (events)", "live: Finished, Happening now, Up next; polite announcements")
+  Component(states, "agendaStates", "Function (events)", "Row states from items, event end and now")
+  Component(svc, "EventHubsService / EVENT_HUBS_SERVICE", "Contract and token (api)", "page(eventId)")
+}
+Container_Boundary(api, "Community API") {
+  Component(ep, "EventsEndpoints", "Minimal API", "GET /hub/page with AllowAnonymous")
+  Component(get, "GetEventHubHandler", "Application", "PageAsync: visibility, shown sections, no profile ids for anonymous")
+  Component(user, "ICurrentUser / EventPermissions", "Application", "Membership, CanManageHubs")
+  Component(ctx, "CommunityDbContext", "EF Core", "Filtered by organisation")
+}
+Rel(pub, page, "Link")
+Rel(evt, page, "Link")
+Rel(page, svc, "page")
+Rel(page, agenda, "Renders with live on")
+Rel(agenda, states, "Uses")
+Rel(svc, ep, "HTTPS")
+Rel(ep, get, "Dispatches")
+Rel(get, user, "Asks")
+Rel(get, ctx, "Reads")
+@enduml

@@ -1,0 +1,45 @@
+@startuml
+title Class structure — Visit an event hub
+class GetEventHubHandler {
+  +HandleAsync(eventId) : (Result, EventHubDto)
+  +PageAsync(eventId) : EventHubDto?
+  -BuildAsync(event, hub, visitor, withProfileIds)
+}
+class EventHubDto {
+  +Status : string
+  +Sections : HubSectionDto[]
+  +CanManage : bool
+}
+class HubPersonDto {
+  +ProfileId : Guid?
+  +Name : string
+}
+class PublicEventDto {
+  +HubLink : string?
+}
+class EventDetailDto {
+  +HubLink : string?
+}
+class HubPage <<Angular>> {
+  hub : EventHubDto
+  preview : boolean
+  anonymous : boolean
+}
+class HubAgendaComponent <<Angular>> {
+  items : AgendaItem[]
+  eventEnd : string
+  live : boolean
+  now : Date
+}
+enum AgendaRowState {
+  Finished
+  Now
+  Next
+  Later
+}
+GetEventHubHandler --> EventHubDto
+EventHubDto --> HubPersonDto
+HubPage --> EventHubDto
+HubPage --> HubAgendaComponent
+HubAgendaComponent --> AgendaRowState
+@enduml
