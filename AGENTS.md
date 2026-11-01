@@ -106,6 +106,8 @@ faithtech-community/
     ├── mocks/                        # Static HTML mocks: the design reference
     ├── design-system/                # Tokens, components and patterns taken from the mocks
     ├── estimates/                    # Effort and percent-complete per design
+    ├── events/                       # Real event material kept for the record: one folder per event
+    │                                 # (hub page, slides, maps). Not design artifacts; no tests
     ├── videos/
     │   └── journeys/                 # One folder per journey: video.webm, poster.png, captions.vtt, narration.md
     ├── adr/                          # Architecture decision records (NNNN-title.md)
