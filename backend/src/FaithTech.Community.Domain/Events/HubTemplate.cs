@@ -45,4 +45,11 @@ public class HubTemplate : IOrganisationScoped
         Name = name.Trim();
         Description = description?.Trim() ?? string.Empty;
     }
+
+    /// <summary>Replaces the sections the template starts a hub with.</summary>
+    public void ReplaceSections(string sections)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(sections);
+        Sections = sections;
+    }
 }

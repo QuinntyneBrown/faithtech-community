@@ -1,4 +1,5 @@
 using FaithTech.Community.Infrastructure.Persistence;
+using FaithTech.Community.Infrastructure.Persistence.Seed;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Storage;
 using OpenIddict.EntityFrameworkCore.Models;
@@ -144,6 +145,36 @@ public class SeedCommandTests
             [("Hackathon", "A day of building in teams, with demos at the end."), ("Evening meetup", "Talks, then conversation."),
                 ("Workshop", "A hands-on session with one facilitator.")],
             (await check.HubTemplates.OrderBy(t => t.SortOrder).ToListAsync()).Select(t => (t.Name, t.Description)));
+    }
+
+    // Traces to: L2-183 AC1: a Hackathon template as slice 45 seeded it gains the hackathon sections; an edited one keeps its edits.
+    [Fact]
+    public async Task Seed_gives_an_untouched_hackathon_template_the_hackathon_sections_and_leaves_an_edited_one_alone()
+    {
+        Assert.Equal(0, await Run("seed"));
+        await using (var db = Db())
+        {
+            var hackathon = await db.HubTemplates.SingleAsync(t => t.Name == "Hackathon");
+            hackathon.ReplaceSections(FaithTechHubTemplates.CoreOnlySections(hackathon.Id));
+            await db.SaveChangesAsync();
+        }
+
+        Assert.Equal(0, await Run("seed"));
+
+        await using (var check = Db())
+        {
+            var sections = (await check.HubTemplates.SingleAsync(t => t.Name == "Hackathon")).Sections;
+            Assert.Contains("\"Judging\"", sections);
+            Assert.Contains("Redemptive potential", sections);
+            var edited = await check.HubTemplates.SingleAsync(t => t.Name == "Hackathon");
+            edited.ReplaceSections("[{\"kind\":\"Hero\",\"visible\":true}]");
+            await check.SaveChangesAsync();
+        }
+
+        Assert.Equal(0, await Run("seed"));
+
+        await using var after = Db();
+        Assert.Equal("[{\"kind\":\"Hero\",\"visible\":true}]", (await after.HubTemplates.SingleAsync(t => t.Name == "Hackathon")).Sections);
     }
 
     // Traces to: L2-055

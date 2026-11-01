@@ -77,7 +77,7 @@ public class StartEventHubTests(CommunityApiFactory factory) : IClassFixture<Com
     public async Task Applying_another_starting_point_replaces_the_last_one()
     {
         var (eventId, _, lead) = await HubAsync();
-        Assert.Equal(HttpStatusCode.OK, (await lead.PostAsJsonAsync(Start(eventId), new { templateId = await TemplateIdAsync(lead, "Hackathon") })).StatusCode);
+        Assert.Equal(HttpStatusCode.OK, (await lead.PostAsJsonAsync(Start(eventId), new { templateId = await TemplateIdAsync(lead, "Meetup") })).StatusCode);
         Assert.Equal(HttpStatusCode.NoContent, (await lead.PutAsJsonAsync($"{Hub(eventId)}/sections/order", new
         {
             kinds = new[] { "Giving", "Hero", "Agenda", "Venue", "People", "Links", "UpcomingEvents" },
