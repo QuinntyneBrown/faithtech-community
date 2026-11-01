@@ -20,6 +20,7 @@ internal static class Program
             args,
             options => options.UseNpgsql(connectionString),
             configuration["WebApp:Origin"] ?? "http://localhost:4200",
-            operators: [.. configuration.GetSection("Platform:Operators").GetChildren().Select(c => c.Value ?? string.Empty)]);
+            operators: [.. configuration.GetSection("Platform:Operators").GetChildren().Select(c => c.Value ?? string.Empty)],
+            defaultOrganisationSlug: configuration["Platform:DefaultOrganisationSlug"]);
     }
 }
