@@ -1,0 +1,265 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Event hub sections — FaithTech Community design system</title>
+<meta name="description" content="The seven event hub section displays (Hero, Agenda, Venue, People, Submission and feedback, Giving, Upcoming events): anatomy, states, responsive behaviour, accessibility, tokens and how each is composed from the components library.">
+<link rel="stylesheet" href="../tokens/tokens.css">
+<link rel="stylesheet" href="../assets/components.css">
+<link rel="stylesheet" href="../assets/ds.css">
+</head>
+<body id="top">
+<a class="skip-link" href="#main">Skip to content</a>
+<div class="ds-shell">
+  <nav class="ds-nav" aria-label="Design system">
+    <div class="ds-nav__brand"><a href="../index.html">FaithTech DS</a><button class="ds-theme-toggle" type="button" aria-pressed="false">☾ Dark</button></div>
+    <details open><summary>Foundations</summary><ul>
+      <li><a href="../foundations/color.html">Color</a></li>
+      <li><a href="../foundations/typography.html">Typography</a></li>
+      <li><a href="../foundations/spacing.html">Spacing</a></li>
+      <li><a href="../foundations/layout.html">Layout</a></li>
+      <li><a href="../foundations/elevation.html">Elevation</a></li>
+      <li><a href="../foundations/shape.html">Shape</a></li>
+      <li><a href="../foundations/motion.html">Motion</a></li>
+      <li><a href="../foundations/iconography.html">Iconography</a></li>
+      <li><a href="../foundations/theming.html">Theming</a></li>
+      <li><a href="../foundations/responsive.html">Responsive</a></li>
+      <li><a href="../foundations/accessibility.html">Accessibility</a></li>
+      <li><a href="../foundations/content.html">Content</a></li>
+    </ul></details>
+    <details open><summary>Components</summary><ul>
+      <li><a href="../components/button.html">Button</a></li>
+      <li><a href="../components/link.html">Link</a></li>
+      <li><a href="../components/menu.html">Menu</a></li>
+      <li><a href="../components/form-field.html">Form field</a></li>
+      <li><a href="../components/text-field.html">Text field</a></li>
+      <li><a href="../components/copy-field.html">Copy field</a></li>
+      <li><a href="../components/textarea.html">Textarea</a></li>
+      <li><a href="../components/select.html">Select</a></li>
+      <li><a href="../components/radio-group.html">Radio group</a></li><li><a href="../components/checkbox-group.html">Checkbox group</a></li><li><a href="../components/capability-checklist.html">Capability checklist</a></li>
+      <li><a href="../components/switch.html">Switch</a></li>
+      <li><a href="../components/form-layout.html">Form layout</a></li>
+      <li><a href="../components/picture-list.html">Picture list</a></li>
+      <li><a href="../components/photo-gallery.html">Photo gallery</a></li>
+      <li><a href="../components/file-dropzone.html">File drop zone</a></li>
+      <li><a href="../components/file-row.html">File row</a></li>
+      <li><a href="../components/tag-input.html">Tag input</a></li>
+      <li><a href="../components/person-picker.html">Person picker</a></li>
+      <li><a href="../components/type-icon.html">Type icon</a></li>
+      <li><a href="../components/sticker-picker.html">Estimate card picker</a></li>
+      <li><a href="../components/emoji-picker.html">Emoji picker</a></li>
+      <li><a href="../components/top-bar.html">Top bar</a></li>
+      <li><a href="../components/tab-bar.html">Tab bar</a></li>
+      <li><a href="../components/tabs.html">Tabs</a></li>
+      <li><a href="../components/breadcrumb.html">Breadcrumb</a></li>
+      <li><a href="../components/skip-link.html">Skip link</a></li>
+      <li><a href="../components/layout.html">Layout primitives</a></li>
+      <li><a href="../components/card.html">Card</a></li>
+      <li><a href="../components/dialog.html">Dialog</a></li><li><a href="../components/define-role-dialog.html">Define role dialog</a></li><li><a href="../components/edit-grants-dialog.html">Edit grants dialog</a></li><li><a href="../components/archive-role-dialog.html">Archive role dialog</a></li>
+      <li><a href="../components/notification-panel.html">Notification panel</a></li>
+      <li><a href="../components/list.html">List</a></li><li><a href="../components/checklist-row.html">Checklist row</a></li><li><a href="../components/reorderable-list.html">Reorderable list</a></li>
+      <li><a href="../components/table.html">Table</a></li>
+      <li><a href="../components/description-list.html">Description list</a></li>
+      <li><a href="../components/feed.html">Activity feed</a></li>
+      <li><a href="../components/tree.html">Backlog tree</a></li>
+      <li><a href="../components/kanban.html">Kanban board</a></li>
+      <li><a href="../components/event-card.html">Event card</a></li>
+      <li><a href="../components/person-card.html">Person card</a></li>
+      <li><a href="../components/profile-header.html">Profile header</a></li>
+      <li><a href="../components/person-summary.html">Person summary</a></li>
+      <li><a href="../components/search-results.html">Search results</a></li>
+      <li><a href="../components/note.html">Note</a></li>
+      <li><a href="../components/block-editor.html">Block editor</a></li>
+      <li><a href="../components/slash-menu.html">Slash menu</a></li>
+      <li><a href="../components/format-toolbar.html">Formatting toolbar</a></li>
+      <li><a href="../components/save-status.html">Save status</a></li>
+      <li><a href="../components/page-links.html">Page links</a></li>
+      <li><a href="../components/avatar.html">Avatar</a></li>
+      <li><a href="../components/qr-code.html">QR code</a></li>
+      <li><a href="../components/logo-mark.html">Logo mark</a></li>
+      <li><a href="../components/badge.html">Badge</a></li>
+      <li><a href="../components/chip.html">Chip</a></li>
+      <li><a href="../components/stat.html">Stat</a></li>
+      <li><a href="../components/sticker.html">Estimate card</a></li>
+      <li><a href="../components/toast.html">Toast</a></li>
+      <li><a href="../components/alert.html">Alert and banner</a></li>
+      <li><a href="../components/inline-message.html">Inline message</a></li>
+      <li><a href="../components/progress.html">Progress</a></li><li><a href="../components/stepper.html">Stepper</a></li>
+      <li><a href="../components/skeleton.html">Skeleton</a></li>
+      <li><a href="../components/empty-state.html">Empty state</a></li>
+      <li><a href="../components/error-page.html">Error page</a></li>
+      <li><a href="../components/landing-hero.html">Landing hero</a></li>
+      <li><a href="../components/video-player.html">Video player</a></li>
+      <li><a href="../components/auth-forms.html">Sign-in and sign-up forms</a></li>
+      <li><a href="../components/site-footer.html">Site footer</a></li>
+    </ul></details>
+    <details open><summary>Patterns</summary><ul>
+      <li><a href="../patterns/forms.html">Forms</a></li>
+      <li><a href="../patterns/feedback-and-loading.html">Feedback and loading</a></li>
+      <li><a href="../patterns/empty-and-error-states.html">Empty and error states</a></li>
+      <li><a href="../patterns/navigation.html">Navigation and page structure</a></li>
+      <li><a href="../patterns/dialogs-and-overlays.html">Dialogs and overlays</a></li>
+      <li><a href="../patterns/lists-and-tables.html">Lists and tables</a></li>
+      <li><a href="../patterns/notifications.html">Notifications</a></li>
+      <li><a href="../patterns/content-and-tone.html">Content and tone</a></li>
+      <li><a href="../patterns/private-preview-wall.html">Private preview wall</a></li>
+      <li><a href="../patterns/event-hub-sections.html">Event hub sections</a></li>
+    </ul></details>
+  </nav>
+
+  <main id="main" class="ds-main">
+    <header class="ds-header">
+      <p class="ds-kicker">Pattern · Events</p>
+      <h1>Event hub sections</h1>
+      <p class="ds-lead">An event hub is made of sections, each with a fixed shape and a fixed layout. Every section has one display that renders it on the hub, in the section preview and on a wizard’s review step. The displays are composition in the events library, built only from components-library primitives; there is no page builder and no styling panel.</p>
+      <div class="ds-meta"><span class="ds-pill ds-pill--ok">WCAG 2.2 AA</span><span class="ds-pill">Status: new</span><span class="ds-pill">Pattern</span></div>
+      <ul class="ds-toc">
+        <li><a href="#overview">Overview</a></li><li><a href="#when">When to use</a></li><li><a href="#structure">Structure</a></li><li><a href="#displays">The seven displays</a></li><li><a href="#states">States</a></li><li><a href="#responsive">Responsive</a></li><li><a href="#accessibility">Accessibility</a></li><li><a href="#tokens">Tokens</a></li><li><a href="#code">Code</a></li><li><a href="#content">Content</a></li><li><a href="#do-dont">Do and don't</a></li><li><a href="#sources">Sources</a></li>
+      </ul>
+    </header>
+
+    <section class="ds-section" id="overview"><h2><a href="#overview">Overview</a></h2>
+      <p>The hub home lists the sections as <a href="../components/checklist-row.html">checklist rows</a>. <b>Fill in</b> or <b>Edit</b> opens that section’s wizard (a <a href="../components/dialog.html">dialog</a>, with a <a href="../components/stepper.html">stepper</a> for the two-step Agenda and People); the row’s “More for {Section}” <a href="../components/menu.html">menu</a> offers <b>Preview</b> and <b>Hide section</b>; <b>Reorder</b> on the Sections card opens “Reorder sections”, a <a href="../components/reorderable-list.html">reorderable list</a>.</p>
+      <p>The seven display components (<code>hub-hero</code>, <code>hub-agenda</code>, <code>hub-venue</code>, <code>hub-people</code>, <code>hub-links</code>, <code>hub-giving</code>, <code>hub-upcoming</code>) live in <code>frontend/projects/events</code>. They add no new library component. The only new rules are the agenda’s time column and its out-of-hours warning, <code>.hub-section__time</code> and <code>.hub-section__warning</code> in <code>assets/components.css</code>.</p>
+    </section>
+
+    <section class="ds-section" id="when"><h2><a href="#when">When to use</a></h2>
+      <ul>
+        <li>For every section of an event hub: on the hub itself, in the "{Section} preview" dialog and on the review step of the Agenda and People wizards.</li>
+        <li>Not for the hub home: that is the checklist of <a href="../components/checklist-row.html">checklist rows</a>, which shows each section's state, not its content.</li>
+        <li>A new section kind (Phase 2: Parking, Tracks, Judging and others) gets a display of its own, documented here, composed the same way.</li>
+      </ul>
+    </section>
+
+    <section class="ds-section" id="structure"><h2><a href="#structure">Structure</a></h2>
+      <ol>
+        <li><b>Section</b>: <code>&lt;section class="hub-section"&gt;</code> labelled by its heading; a column with <code>--space-3</code> between parts.</li>
+        <li><b>Heading</b>: <code>h3.section-title</code> on the hub (the hub page owns the <code>h1</code> and <code>h2</code>s). In the preview dialog and a review step the dialog title names the section, so the display drops its heading.</li>
+        <li><b>Body</b>: library primitives only: list, avatar, badge, description list, event card, card, button and link.</li>
+        <li><b>Live values</b>: anything the system knows (event, organisation, members, upcoming events) is read when the hub is read, never copied into the section (design rule 4).</li>
+      </ol>
+    </section>
+
+    <section class="ds-section" id="displays"><h2><a href="#displays">The seven displays</a></h2>
+      <h3 id="display-hero">Hero <code>hub-hero</code></h3><p>Organisation name as the eyebrow, the event’s title, the subtitle when there is one, date and time, place, and an <b>RSVP</b> link to the public event page. Composes a <a href="../components/card.html">card</a> with an overline and a primary <a href="../components/button.html">button</a> link.</p><div class="ds-example"><div class="ds-example__canvas ds-example__canvas--stack"><div style="width: 100%; max-width: 40rem;"><section class="hub-section" aria-labelledby="hs-hero"><div class="card stack"><span class="overline">FaithTech Community</span><h3 id="hs-hero">Toronto Builders Night</h3><p>A night of building for the city</p><p class="text-muted">Thu 6 Nov 2026 · 6:30 – 9:00 pm · Kestrel Labs, 220 King St W, Toronto</p><div class="cluster"><a class="btn btn--primary" href="../../mocks/pages/public-event/default.html">RSVP</a></div></div></section></div></div><div class="ds-example__caption"><span>Hero: always Ready; everything but the subtitle is read live from the event.</span></div><details class="ds-example__code"><summary>HTML</summary><pre><code>&lt;section class="hub-section" aria-labelledby="hs-hero"&gt;&lt;div class="card stack"&gt;&lt;span class="overline"&gt;FaithTech Community&lt;/span&gt;&lt;h3 id="hs-hero"&gt;Toronto Builders Night&lt;/h3&gt;&lt;p&gt;A night of building for the city&lt;/p&gt;&lt;p class="text-muted"&gt;Thu 6 Nov 2026 · 6:30 – 9:00 pm · Kestrel Labs, 220 King St W, Toronto&lt;/p&gt;&lt;div class="cluster"&gt;&lt;a class="btn btn--primary" href="../../mocks/pages/public-event/default.html"&gt;RSVP&lt;/a&gt;&lt;/div&gt;&lt;/div&gt;&lt;/section&gt;</code></pre></details></div><h3 id="display-agenda">Agenda <code>hub-agenda</code></h3><p>One <a href="../components/list.html">list</a> item per row: the time in the <code>.hub-section__time</code> column, the title and an optional detail. During the event the current row carries a success <a href="../components/badge.html">badge</a> “Now” and <code>aria-current="time"</code>.</p><div class="ds-example"><div class="ds-example__canvas ds-example__canvas--stack"><div style="width: 100%; max-width: 40rem;"><section class="hub-section" aria-labelledby="hs-agenda-now"><h3 class="section-title" id="hs-agenda-now">Agenda</h3><ul class="list card card--flush" aria-label="Agenda"><li class="list__item"><span class="hub-section__time">6:30 PM</span><div class="list__body"><div class="list__title">Doors open</div><div class="list__meta">Grab a coffee and find a table.</div></div></li><li class="list__item" aria-current="time"><span class="hub-section__time">7:00 PM</span><div class="list__body"><div class="list__title">Build time <span class="badge badge--success">Now</span></div><div class="list__meta">Pair up on the shelter check-in app.</div></div></li><li class="list__item"><span class="hub-section__time">8:00 PM</span><div class="list__body"><div class="list__title">Code freeze</div></div></li><li class="list__item"><span class="hub-section__time">8:15 PM</span><div class="list__body"><div class="list__title">Demos and feedback</div><div class="list__meta">Three minutes per team, then questions.</div></div></li><li class="list__item"><span class="hub-section__time">9:00 PM</span><div class="list__body"><div class="list__title">Wrap up and prayer</div><div class="list__meta">Grace Okonkwo closes the night.</div></div></li></ul></section></div></div><div class="ds-example__caption"><span>Agenda during the event: Build time is happening now.</span></div><details class="ds-example__code"><summary>HTML</summary><pre><code>&lt;section class="hub-section" aria-labelledby="hs-agenda-now"&gt;&lt;h3 class="section-title" id="hs-agenda-now"&gt;Agenda&lt;/h3&gt;&lt;ul class="list card card--flush" aria-label="Agenda"&gt;&lt;li class="list__item"&gt;&lt;span class="hub-section__time"&gt;6:30 PM&lt;/span&gt;&lt;div class="list__body"&gt;&lt;div class="list__title"&gt;Doors open&lt;/div&gt;&lt;div class="list__meta"&gt;Grab a coffee and find a table.&lt;/div&gt;&lt;/div&gt;&lt;/li&gt;&lt;li class="list__item" aria-current="time"&gt;&lt;span class="hub-section__time"&gt;7:00 PM&lt;/span&gt;&lt;div class="list__body"&gt;&lt;div class="list__title"&gt;Build time &lt;span class="badge badge--success"&gt;Now&lt;/span&gt;&lt;/div&gt;&lt;div class="list__meta"&gt;Pair up on the shelter check-in app.&lt;/div&gt;&lt;/div&gt;&lt;/li&gt;&lt;li class="list__item"&gt;&lt;span class="hub-section__time"&gt;8:00 PM&lt;/span&gt;&lt;div class="list__body"&gt;&lt;div class="list__title"&gt;Code freeze&lt;/div&gt;&lt;/div&gt;&lt;/li&gt;&lt;li class="list__item"&gt;&lt;span class="hub-section__time"&gt;8:15 PM&lt;/span&gt;&lt;div class="list__body"&gt;&lt;div class="list__title"&gt;Demos and feedback&lt;/div&gt;&lt;div class="list__meta"&gt;Three minutes per team, then questions.&lt;/div&gt;&lt;/div&gt;&lt;/li&gt;&lt;li class="list__item"&gt;&lt;span class="hub-section__time"&gt;9:00 PM&lt;/span&gt;&lt;div class="list__body"&gt;&lt;div class="list__title"&gt;Wrap up and prayer&lt;/div&gt;&lt;div class="list__meta"&gt;Grace Okonkwo closes the night.&lt;/div&gt;&lt;/div&gt;&lt;/li&gt;&lt;/ul&gt;&lt;/section&gt;</code></pre></details></div><h3 id="display-venue">Venue <code>hub-venue</code></h3><p>The venue from the event in a <a href="../components/description-list.html">description list</a>, the directions, and an “Open in maps” <a href="../components/link.html">link</a> built from the venue, opening in a new tab.</p><div class="ds-example"><div class="ds-example__canvas ds-example__canvas--stack"><div style="width: 100%; max-width: 40rem;"><section class="hub-section" aria-labelledby="hs-venue"><h3 class="section-title" id="hs-venue">Where</h3><div class="card stack"><dl class="facts"><div><dt>Venue</dt><dd>Kestrel Labs, 220 King St W, Toronto</dd></div></dl><p>Enter from Spadina; we’re on the 4th floor. Take the lift by the café.</p><p><a href="https://www.google.com/maps/search/?api=1&amp;query=Kestrel%20Labs%2C%20220%20King%20St%20W%2C%20Toronto" target="_blank" rel="noopener"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><path d="M12 21s-7-6.2-7-11a7 7 0 0 1 14 0c0 4.8-7 11-7 11z"/><circle cx="12" cy="10" r="2.5"/></svg>Open in maps<span class="visually-hidden"> (new tab)</span></a></p></div></section></div></div><div class="ds-example__caption"><span>Venue: the place and map link come from the event; the directions from the wizard.</span></div><details class="ds-example__code"><summary>HTML</summary><pre><code>&lt;section class="hub-section" aria-labelledby="hs-venue"&gt;&lt;h3 class="section-title" id="hs-venue"&gt;Where&lt;/h3&gt;&lt;div class="card stack"&gt;&lt;dl class="facts"&gt;&lt;div&gt;&lt;dt&gt;Venue&lt;/dt&gt;&lt;dd&gt;Kestrel Labs, 220 King St W, Toronto&lt;/dd&gt;&lt;/div&gt;&lt;/dl&gt;&lt;p&gt;Enter from Spadina; we’re on the 4th floor. Take the lift by the café.&lt;/p&gt;&lt;p&gt;&lt;a href="https://www.google.com/maps/search/?api=1&amp;amp;query=Kestrel%20Labs%2C%20220%20King%20St%20W%2C%20Toronto" target="_blank" rel="noopener"&gt;&lt;svg class="icon" aria-hidden="true" viewBox="0 0 24 24"&gt;&lt;path d="M12 21s-7-6.2-7-11a7 7 0 0 1 14 0c0 4.8-7 11-7 11z"/&gt;&lt;circle cx="12" cy="10" r="2.5"/&gt;&lt;/svg&gt;Open in maps&lt;span class="visually-hidden"&gt; (new tab)&lt;/span&gt;&lt;/a&gt;&lt;/p&gt;&lt;/div&gt;&lt;/section&gt;</code></pre></details></div><h3 id="display-people">People <code>hub-people</code></h3><p>Groups under Speakers, Mentors and Judges (empty groups are left out), each a <a href="../components/list.html">list</a> of <a href="../components/avatar.html">avatars</a> (photo for members, initials for guests) with the name and one line.</p><div class="ds-example"><div class="ds-example__canvas ds-example__canvas--stack"><div style="width: 100%; max-width: 40rem;"><section class="hub-section" aria-labelledby="hs-people"><h3 class="section-title" id="hs-people">People</h3><div class="stack"><h4 class="overline" id="hs-people-speakers">Speakers</h4><ul class="list card card--flush" aria-labelledby="hs-people-speakers"><li class="list__item"><span class="avatar avatar--sm avatar--lilac" aria-hidden="true">HK<img class="avatar__img" src="../assets/photos/people/hannah-kim.jpg" alt=""></span><div class="list__body"><div class="list__title">Hannah Kim</div><div class="list__meta">Communications Lead · Toronto</div></div></li></ul></div><div class="stack"><h4 class="overline" id="hs-people-mentors">Mentors</h4><ul class="list card card--flush" aria-labelledby="hs-people-mentors"><li class="list__item"><span class="avatar avatar--sm avatar--sage" aria-hidden="true">SM<img class="avatar__img" src="../assets/photos/people/samuel-mensah.jpg" alt=""></span><div class="list__body"><div class="list__title">Samuel Mensah</div><div class="list__meta">Product Engineer · Toronto</div></div></li><li class="list__item"><span class="avatar avatar--sm avatar--sky" aria-hidden="true">EN<img class="avatar__img" src="../assets/photos/people/esther-nakamura.jpg" alt=""></span><div class="list__body"><div class="list__title">Esther Nakamura</div><div class="list__meta">Volunteer · Toronto</div></div></li></ul></div><div class="stack"><h4 class="overline" id="hs-people-judges">Judges</h4><ul class="list card card--flush" aria-labelledby="hs-people-judges"><li class="list__item"><span class="avatar avatar--sm avatar--peach" aria-hidden="true">NF</span><div class="list__body"><div class="list__title">Nadia Farouk</div><div class="list__meta">Founder, Kestrel Labs</div></div></li></ul></div></section></div></div><div class="ds-example__caption"><span>People: members show their current name, featured photo and role; guests their initials and line.</span></div><details class="ds-example__code"><summary>HTML</summary><pre><code>&lt;section class="hub-section" aria-labelledby="hs-people"&gt;&lt;h3 class="section-title" id="hs-people"&gt;People&lt;/h3&gt;&lt;div class="stack"&gt;&lt;h4 class="overline" id="hs-people-speakers"&gt;Speakers&lt;/h4&gt;&lt;ul class="list card card--flush" aria-labelledby="hs-people-speakers"&gt;&lt;li class="list__item"&gt;&lt;span class="avatar avatar--sm avatar--lilac" aria-hidden="true"&gt;HK&lt;img class="avatar__img" src="../assets/photos/people/hannah-kim.jpg" alt=""&gt;&lt;/span&gt;&lt;div class="list__body"&gt;&lt;div class="list__title"&gt;Hannah Kim&lt;/div&gt;&lt;div class="list__meta"&gt;Communications Lead · Toronto&lt;/div&gt;&lt;/div&gt;&lt;/li&gt;&lt;/ul&gt;&lt;/div&gt;&lt;div class="stack"&gt;&lt;h4 class="overline" id="hs-people-mentors"&gt;Mentors&lt;/h4&gt;&lt;ul class="list card card--flush" aria-labelledby="hs-people-mentors"&gt;&lt;li class="list__item"&gt;&lt;span class="avatar avatar--sm avatar--sage" aria-hidden="true"&gt;SM&lt;img class="avatar__img" src="../assets/photos/people/samuel-mensah.jpg" alt=""&gt;&lt;/span&gt;&lt;div class="list__body"&gt;&lt;div class="list__title"&gt;Samuel Mensah&lt;/div&gt;&lt;div class="list__meta"&gt;Product Engineer · Toronto&lt;/div&gt;&lt;/div&gt;&lt;/li&gt;&lt;li class="list__item"&gt;&lt;span class="avatar avatar--sm avatar--sky" aria-hidden="true"&gt;EN&lt;img class="avatar__img" src="../assets/photos/people/esther-nakamura.jpg" alt=""&gt;&lt;/span&gt;&lt;div class="list__body"&gt;&lt;div class="list__title"&gt;Esther Nakamura&lt;/div&gt;&lt;div class="list__meta"&gt;Volunteer · Toronto&lt;/div&gt;&lt;/div&gt;&lt;/li&gt;&lt;/ul&gt;&lt;/div&gt;&lt;div class="stack"&gt;&lt;h4 class="overline" id="hs-people-judges"&gt;Judges&lt;/h4&gt;&lt;ul class="list card card--flush" aria-labelledby="hs-people-judges"&gt;&lt;li class="list__item"&gt;&lt;span class="avatar avatar--sm avatar--peach" aria-hidden="true"&gt;NF&lt;/span&gt;&lt;div class="list__body"&gt;&lt;div class="list__title"&gt;Nadia Farouk&lt;/div&gt;&lt;div class="list__meta"&gt;Founder, Kestrel Labs&lt;/div&gt;&lt;/div&gt;&lt;/li&gt;&lt;/ul&gt;&lt;/div&gt;&lt;/section&gt;</code></pre></details></div><h3 id="display-links">Submission and feedback <code>hub-links</code></h3><p>A <a href="../components/card.html">card</a> with <a href="../components/button.html">button</a> links “Submit your project” (primary) and “Give feedback” (only the ones set) and “Code freeze at {time}” when one is picked.</p><div class="ds-example"><div class="ds-example__canvas ds-example__canvas--stack"><div style="width: 100%; max-width: 40rem;"><section class="hub-section" aria-labelledby="hs-links"><h3 class="section-title" id="hs-links">Submission and feedback</h3><div class="card stack"><div class="cluster"><a class="btn btn--primary" href="https://forms.faithtech.com/toronto-builders-night/submit">Submit your project<svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><path d="M14 4h6v6M20 4l-9 9M18 14v6H4V6h6"/></svg></a><a class="btn" href="https://forms.faithtech.com/toronto-builders-night/feedback">Give feedback<svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><path d="M14 4h6v6M20 4l-9 9M18 14v6H4V6h6"/></svg></a></div><p class="text-muted">Code freeze at 8:00 PM</p></div></section></div></div><div class="ds-example__caption"><span>Submission and feedback: the two links and the code-freeze line.</span></div><details class="ds-example__code"><summary>HTML</summary><pre><code>&lt;section class="hub-section" aria-labelledby="hs-links"&gt;&lt;h3 class="section-title" id="hs-links"&gt;Submission and feedback&lt;/h3&gt;&lt;div class="card stack"&gt;&lt;div class="cluster"&gt;&lt;a class="btn btn--primary" href="https://forms.faithtech.com/toronto-builders-night/submit"&gt;Submit your project&lt;svg class="icon" aria-hidden="true" viewBox="0 0 24 24"&gt;&lt;path d="M14 4h6v6M20 4l-9 9M18 14v6H4V6h6"/&gt;&lt;/svg&gt;&lt;/a&gt;&lt;a class="btn" href="https://forms.faithtech.com/toronto-builders-night/feedback"&gt;Give feedback&lt;svg class="icon" aria-hidden="true" viewBox="0 0 24 24"&gt;&lt;path d="M14 4h6v6M20 4l-9 9M18 14v6H4V6h6"/&gt;&lt;/svg&gt;&lt;/a&gt;&lt;/div&gt;&lt;p class="text-muted"&gt;Code freeze at 8:00 PM&lt;/p&gt;&lt;/div&gt;&lt;/section&gt;</code></pre></details></div><h3 id="display-giving">Giving <code>hub-giving</code></h3><p>A <a href="../components/card.html">card</a> with the event line, the organisation’s giving text and a primary <b>Give</b> link to the organisation’s giving link.</p><div class="ds-example"><div class="ds-example__canvas ds-example__canvas--stack"><div style="width: 100%; max-width: 40rem;"><section class="hub-section" aria-labelledby="hs-giving"><h3 class="section-title" id="hs-giving">Giving</h3><div class="card stack"><p>Tonight’s gifts fund the Toronto shelters build.</p><p class="text-muted">Help us build the next one.</p><div class="cluster"><a class="btn btn--primary" href="https://faithtech.com/donate">Give<svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><path d="M14 4h6v6M20 4l-9 9M18 14v6H4V6h6"/></svg><span class="visually-hidden"> to FaithTech</span></a></div></div></section></div></div><div class="ds-example__caption"><span>Giving: the event line from the wizard; the text and link from Organisation settings.</span></div><details class="ds-example__code"><summary>HTML</summary><pre><code>&lt;section class="hub-section" aria-labelledby="hs-giving"&gt;&lt;h3 class="section-title" id="hs-giving"&gt;Giving&lt;/h3&gt;&lt;div class="card stack"&gt;&lt;p&gt;Tonight’s gifts fund the Toronto shelters build.&lt;/p&gt;&lt;p class="text-muted"&gt;Help us build the next one.&lt;/p&gt;&lt;div class="cluster"&gt;&lt;a class="btn btn--primary" href="https://faithtech.com/donate"&gt;Give&lt;svg class="icon" aria-hidden="true" viewBox="0 0 24 24"&gt;&lt;path d="M14 4h6v6M20 4l-9 9M18 14v6H4V6h6"/&gt;&lt;/svg&gt;&lt;span class="visually-hidden"&gt; to FaithTech&lt;/span&gt;&lt;/a&gt;&lt;/div&gt;&lt;/div&gt;&lt;/section&gt;</code></pre></details></div><h3 id="display-upcoming">Upcoming events <code>hub-upcoming</code></h3><p>Up to the chosen number (1 to 6, default 3) of the {chapter}’s next public events as <a href="../components/event-card.html">event cards</a>, excluding this event, earliest first.</p><div class="ds-example"><div class="ds-example__canvas ds-example__canvas--stack"><div style="width: 100%; max-width: 40rem;"><section class="hub-section" aria-labelledby="hs-upcoming"><h3 class="section-title" id="hs-upcoming">Upcoming events</h3><ul class="list card card--flush" aria-label="Upcoming events"><li class="list__item event-card"><span class="date-badge" aria-hidden="true"><span class="date-badge__month">Nov</span><span class="date-badge__day">14</span></span><div class="event-card__body"><a class="event-card__title" href="../../mocks/pages/public-event/default.html">Hackathon: Tech for Shelters</a><span class="event-card__meta">Sat 14 – Sun 15 Nov · Trinity Community Centre</span></div></li><li class="list__item event-card"><span class="date-badge" aria-hidden="true"><span class="date-badge__month">Nov</span><span class="date-badge__day">21</span></span><div class="event-card__body"><a class="event-card__title" href="../../mocks/pages/public-event/default.html">Prayer and Code Breakfast</a><span class="event-card__meta">Sat 21 Nov · 9:00 am · St Lawrence Hall</span></div></li><li class="list__item event-card"><span class="date-badge" aria-hidden="true"><span class="date-badge__month">Dec</span><span class="date-badge__day">4</span></span><div class="event-card__body"><a class="event-card__title" href="../../mocks/pages/public-event/default.html">Toronto Builders Night: Advent</a><span class="event-card__meta">Fri 4 Dec · 6:30 pm · Kestrel Labs, 220 King St W</span></div></li></ul></section></div></div><div class="ds-example__caption"><span>Upcoming events: filled by the system; the lead only picks how many.</span></div><details class="ds-example__code"><summary>HTML</summary><pre><code>&lt;section class="hub-section" aria-labelledby="hs-upcoming"&gt;&lt;h3 class="section-title" id="hs-upcoming"&gt;Upcoming events&lt;/h3&gt;&lt;ul class="list card card--flush" aria-label="Upcoming events"&gt;&lt;li class="list__item event-card"&gt;&lt;span class="date-badge" aria-hidden="true"&gt;&lt;span class="date-badge__month"&gt;Nov&lt;/span&gt;&lt;span class="date-badge__day"&gt;14&lt;/span&gt;&lt;/span&gt;&lt;div class="event-card__body"&gt;&lt;a class="event-card__title" href="../../mocks/pages/public-event/default.html"&gt;Hackathon: Tech for Shelters&lt;/a&gt;&lt;span class="event-card__meta"&gt;Sat 14 – Sun 15 Nov · Trinity Community Centre&lt;/span&gt;&lt;/div&gt;&lt;/li&gt;&lt;li class="list__item event-card"&gt;&lt;span class="date-badge" aria-hidden="true"&gt;&lt;span class="date-badge__month"&gt;Nov&lt;/span&gt;&lt;span class="date-badge__day"&gt;21&lt;/span&gt;&lt;/span&gt;&lt;div class="event-card__body"&gt;&lt;a class="event-card__title" href="../../mocks/pages/public-event/default.html"&gt;Prayer and Code Breakfast&lt;/a&gt;&lt;span class="event-card__meta"&gt;Sat 21 Nov · 9:00 am · St Lawrence Hall&lt;/span&gt;&lt;/div&gt;&lt;/li&gt;&lt;li class="list__item event-card"&gt;&lt;span class="date-badge" aria-hidden="true"&gt;&lt;span class="date-badge__month"&gt;Dec&lt;/span&gt;&lt;span class="date-badge__day"&gt;4&lt;/span&gt;&lt;/span&gt;&lt;div class="event-card__body"&gt;&lt;a class="event-card__title" href="../../mocks/pages/public-event/default.html"&gt;Toronto Builders Night: Advent&lt;/a&gt;&lt;span class="event-card__meta"&gt;Fri 4 Dec · 6:30 pm · Kestrel Labs, 220 King St W&lt;/span&gt;&lt;/div&gt;&lt;/li&gt;&lt;/ul&gt;&lt;/section&gt;</code></pre></details></div>
+    </section>
+
+    <section class="ds-section" id="states"><h2><a href="#states">States</a></h2>
+      <p>A display renders only a <b>Ready</b> section. A <b>Needs info</b> section is never published: the hub leaves it out and its checklist row says what is missing. A <b>Hidden</b> section is not rendered at all, and its content is kept until it is shown again.</p>
+      <div class="ds-table-wrap"><table class="ds-table">
+        <thead><tr><th scope="col">Section</th><th scope="col">Ready (rendered)</th><th scope="col">Needs info (not rendered; the checklist row says)</th></tr></thead>
+        <tbody>
+          <tr><td>Hero</td><td>Always</td><td>Never</td></tr>
+          <tr><td>Agenda</td><td>At least one row</td><td>“Add the day’s schedule.”</td></tr>
+          <tr><td>Venue</td><td>In person with a venue</td><td>“Add a venue to the event.” (online, or no venue)</td></tr>
+          <tr><td>People</td><td>At least one person</td><td>“Add mentors, judges or speakers.”</td></tr>
+          <tr><td>Submission and feedback</td><td>A submission or a feedback link</td><td>“Add a submission or feedback link.”</td></tr>
+          <tr><td>Giving</td><td>The organisation has a giving link</td><td>“Add your organisation’s giving link in Organisation settings.”</td></tr>
+          <tr><td>Upcoming events</td><td>Always; with no events it says “No upcoming public events yet. They’ll appear here automatically.”</td><td>Never</td></tr>
+        </tbody>
+      </table></div>
+      <h3>Empty</h3>
+      <div class="ds-example"><div class="ds-example__canvas ds-example__canvas--stack"><div style="width: 100%; max-width: 40rem;"><section class="hub-section" aria-labelledby="hs-upcoming-empty"><h3 class="section-title" id="hs-upcoming-empty">Upcoming events</h3><p class="text-muted">No upcoming public events yet. They’ll appear here automatically.</p></section></div></div><div class="ds-example__caption"><span>Upcoming events with nothing to show: the only display with an empty message, because it is filled by the system.</span></div></div>
+      <h3>Out of hours (Agenda wizard)</h3>
+      <div class="ds-example"><div class="ds-example__canvas ds-example__canvas--stack"><div style="width: 100%; max-width: 40rem;"><ul class="list card card--flush" aria-label="Agenda rows"><li class="list__item"><span class="hub-section__time">9:30 PM</span><div class="list__body"><div class="list__title">Clean up</div><div class="list__meta">Stack the chairs and take the recycling out.</div><p class="hub-section__warning"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><path d="M12 3 2 20h20zM12 10v4M12 17h.01"/></svg>Outside the event’s times (6:30 PM to 9:00 PM)</p></div></li></ul></div></div><div class="ds-example__caption"><span>A row outside the event’s times is flagged in the wizard with <code>.hub-section__warning</code>. It is a warning, not an error: the row can still be saved, and the display shows it like any other row.</span></div><details class="ds-example__code"><summary>HTML</summary><pre><code>&lt;ul class="list card card--flush" aria-label="Agenda rows"&gt;&lt;li class="list__item"&gt;&lt;span class="hub-section__time"&gt;9:30 PM&lt;/span&gt;&lt;div class="list__body"&gt;&lt;div class="list__title"&gt;Clean up&lt;/div&gt;&lt;div class="list__meta"&gt;Stack the chairs and take the recycling out.&lt;/div&gt;&lt;p class="hub-section__warning"&gt;&lt;svg class="icon" aria-hidden="true" viewBox="0 0 24 24"&gt;&lt;path d="M12 3 2 20h20zM12 10v4M12 17h.01"/&gt;&lt;/svg&gt;Outside the event’s times (6:30 PM to 9:00 PM)&lt;/p&gt;&lt;/div&gt;&lt;/li&gt;&lt;/ul&gt;</code></pre></details></div>
+      <h3>Both themes</h3>
+      <div class="ds-themes">
+        <div data-theme="light"><section class="hub-section" aria-labelledby="hs-giving"><h3 class="section-title" id="hs-giving">Giving</h3><div class="card stack"><p>Tonight’s gifts fund the Toronto shelters build.</p><p class="text-muted">Help us build the next one.</p><div class="cluster"><a class="btn btn--primary" href="https://faithtech.com/donate">Give<svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><path d="M14 4h6v6M20 4l-9 9M18 14v6H4V6h6"/></svg><span class="visually-hidden"> to FaithTech</span></a></div></div></section></div>
+        <div data-theme="dark"><section class="hub-section" aria-labelledby="hs-giving-dark"><h3 class="section-title" id="hs-giving-dark">Giving</h3><div class="card stack"><p>Tonight’s gifts fund the Toronto shelters build.</p><p class="text-muted">Help us build the next one.</p><div class="cluster"><a class="btn btn--primary" href="https://faithtech.com/donate">Give<svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><path d="M14 4h6v6M20 4l-9 9M18 14v6H4V6h6"/></svg><span class="visually-hidden"> to FaithTech</span></a></div></div></section></div>
+      </div>
+    </section>
+
+    <section class="ds-section" id="responsive"><h2><a href="#responsive">Responsive behaviour</a></h2>
+      <ul>
+        <li>Every display is one column at every width and fills the hub’s content column; nothing scrolls sideways at 360px.</li>
+        <li>The agenda time column narrows from 4.5rem to 3.75rem under 40rem; titles and details wrap beside it.</li>
+        <li>Hero: the body wraps under the eyebrow; the RSVP button stays at least 44px tall.</li>
+        <li>People and Upcoming events stay lists, not grids, so names and meta lines never truncate.</li>
+        <li>In a dialog (preview, review step) the display uses the wide dialog on tablet and desktop and the bottom sheet on a phone.</li>
+      </ul>
+    </section>
+
+    <section class="ds-section" id="accessibility"><h2><a href="#accessibility">Accessibility</a></h2>
+      <ul>
+        <li>Each display is a <code>&lt;section&gt;</code> named by its <code>h3</code>; People’s groups are lists named by their group headings.</li>
+        <li>The current agenda row has <code>aria-current="time"</code> and the visible word “Now”; colour is never the only signal.</li>
+        <li>Links say where they go: “Submit your project”, “Give feedback”, “Open in maps”, “RSVP”, “Give”. Links that open a new tab say so to screen readers.</li>
+        <li>Avatars are decorative (<code>aria-hidden</code>); the name next to them is the text.</li>
+        <li>In the wizards, every move in a reorderable list is announced politely (“Doors open moved to position 2 of 5”, “Agenda moved to position 3 of 7”), and every field error is tied to its field with <code>aria-describedby</code>.</li>
+        <li>Light and dark come from the tokens; there are no fixed colours.</li>
+      </ul>
+      <h3>Contrast</h3>
+      <div class="ds-example__canvas ds-example__canvas--stack" style="padding: 0; gap: var(--space-2);">
+        <div class="ds-pair"><span>Agenda time on card</span><span class="ds-pair__ratio" data-contrast="--color-fg-muted|--color-bg-surface" data-min="4.5"></span></div>
+        <div class="ds-pair"><span>Out-of-hours warning in a dialog</span><span class="ds-pair__ratio" data-contrast="--color-warning-fg|--color-bg-surface-raised" data-min="4.5"></span></div>
+        <div class="ds-pair"><span>Warning icon in a dialog</span><span class="ds-pair__ratio" data-contrast="--color-warning-icon|--color-bg-surface-raised" data-min="3"></span></div>
+        <div class="ds-pair"><span>Give label on accent</span><span class="ds-pair__ratio" data-contrast="--color-fg-on-accent|--color-accent" data-min="4.5"></span></div>
+      </div>
+    </section>
+
+    <section class="ds-section" id="tokens"><h2><a href="#tokens">Tokens</a></h2>
+      <div class="ds-table-wrap"><table class="ds-table"><thead><tr><th scope="col">Part</th><th scope="col">Token</th><th scope="col">Light</th><th scope="col">Dark</th></tr></thead><tbody><tr><td>Agenda time, detail lines, giving text</td><td><code>--color-fg-muted</code></td><td><span class="ds-swatch-cell" data-theme="light"><i data-token="--color-fg-muted" data-swatch></i><span data-token="--color-fg-muted"></span></span></td><td><span class="ds-swatch-cell" data-theme="dark"><i data-token="--color-fg-muted" data-swatch></i><span data-token="--color-fg-muted"></span></span></td></tr><tr><td>“Now” badge dot</td><td><code>--color-success-icon</code></td><td><span class="ds-swatch-cell" data-theme="light"><i data-token="--color-success-icon" data-swatch></i><span data-token="--color-success-icon"></span></span></td><td><span class="ds-swatch-cell" data-theme="dark"><i data-token="--color-success-icon" data-swatch></i><span data-token="--color-success-icon"></span></span></td></tr><tr><td>Out-of-hours warning text (agenda wizard)</td><td><code>--color-warning-fg</code></td><td><span class="ds-swatch-cell" data-theme="light"><i data-token="--color-warning-fg" data-swatch></i><span data-token="--color-warning-fg"></span></span></td><td><span class="ds-swatch-cell" data-theme="dark"><i data-token="--color-warning-fg" data-swatch></i><span data-token="--color-warning-fg"></span></span></td></tr><tr><td>Out-of-hours warning icon</td><td><code>--color-warning-icon</code></td><td><span class="ds-swatch-cell" data-theme="light"><i data-token="--color-warning-icon" data-swatch></i><span data-token="--color-warning-icon"></span></span></td><td><span class="ds-swatch-cell" data-theme="dark"><i data-token="--color-warning-icon" data-swatch></i><span data-token="--color-warning-icon"></span></span></td></tr><tr><td>RSVP and Give buttons</td><td><code>--color-accent</code></td><td><span class="ds-swatch-cell" data-theme="light"><i data-token="--color-accent" data-swatch></i><span data-token="--color-accent"></span></span></td><td><span class="ds-swatch-cell" data-theme="dark"><i data-token="--color-accent" data-swatch></i><span data-token="--color-accent"></span></span></td></tr><tr><td>List dividers and card edges</td><td><code>--color-border-default</code></td><td><span class="ds-swatch-cell" data-theme="light"><i data-token="--color-border-default" data-swatch></i><span data-token="--color-border-default"></span></span></td><td><span class="ds-swatch-cell" data-theme="dark"><i data-token="--color-border-default" data-swatch></i><span data-token="--color-border-default"></span></span></td></tr><tr><td>Time column</td><td><code>--text-label</code>, 4.5rem (3.75rem under 40rem)</td><td colspan="2">tabular figures</td></tr><tr><td>Gaps</td><td><code>--space-3</code> between parts, <code>--space-1</code> before a warning</td><td colspan="2"><span data-token="--space-3"></span> / <span data-token="--space-1"></span></td></tr></tbody></table></div>
+    </section>
+
+    <section class="ds-section" id="code"><h2><a href="#code">Code</a></h2>
+      <pre><code>&lt;!-- events library: hub-agenda.component.html (local composition, no new library component) --&gt;
+&lt;section class="hub-section" [attr.aria-labelledby]="headingId"&gt;
+  @if (showHeading) { &lt;h3 class="section-title" [id]="headingId"&gt;Agenda&lt;/h3&gt; }
+  &lt;ft-list label="Agenda" flush&gt;
+    @for (row of agenda.items; track row.id) {
+      &lt;ft-list-item [title]="row.title" [meta]="row.detail" [attr.aria-current]="row.id === nowId ? 'time' : null"&gt;
+        &lt;span leading class="hub-section__time"&gt;{{ row.startsAt | ftTime }}&lt;/span&gt;
+        @if (row.id === nowId) { &lt;ft-badge variant="success"&gt;Now&lt;/ft-badge&gt; }
+      &lt;/ft-list-item&gt;
+    }
+  &lt;/ft-list&gt;
+&lt;/section&gt;
+
+&lt;!-- hub-people: ft-list + ft-avatar per group; hub-links: ft-card + ft-button [href]; hub-upcoming: ft-event-card;
+     hub-hero and hub-giving: ft-card + ft-button [href]; hub-venue: ft-description-list + ft-link [external] --&gt;</code></pre>
+      <table class="ds-table"><thead><tr><th scope="col">Display</th><th scope="col">Composed from</th></tr></thead><tbody>
+        <tr><td><code>hub-hero</code></td><td><code>CardComponent</code> with an overline eyebrow, <code>ButtonComponent</code> <code>href</code> primary “RSVP”</td></tr>
+        <tr><td><code>hub-agenda</code></td><td><code>ListComponent</code>, <code>ListItemComponent</code>, <code>BadgeComponent</code> success “Now”; <code>.hub-section__time</code></td></tr>
+        <tr><td><code>hub-venue</code></td><td><code>CardComponent</code>, <code>DescriptionListComponent</code>, <code>LinkComponent</code> external “Open in maps”</td></tr>
+        <tr><td><code>hub-people</code></td><td><code>ListComponent</code> per group, <code>AvatarComponent</code> (photo or initials)</td></tr>
+        <tr><td><code>hub-links</code></td><td><code>CardComponent</code>, <code>ButtonComponent</code> <code>href</code> (primary “Submit your project”, secondary “Give feedback”), the code-freeze line</td></tr>
+        <tr><td><code>hub-giving</code></td><td><code>CardComponent</code>, <code>ButtonComponent</code> <code>href</code> primary “Give”</td></tr>
+        <tr><td><code>hub-upcoming</code></td><td><code>ListComponent</code> <code>flush</code> of <code>EventCardComponent</code></td></tr>
+      </tbody></table>
+      <p>Each display takes the section’s content plus the live values the hub read (<code>@Input() section</code>, <code>@Input() showHeading = true</code>) and has no outputs. The same component renders the hub, the preview dialog and the review steps, so what the lead reviews is what visitors see.</p>
+    </section>
+
+    <section class="ds-section" id="content"><h2><a href="#content">Content</a></h2>
+      <ul>
+        <li>Headings are the section names: Agenda, Where, People, Submission and feedback, Giving, Upcoming events. People’s groups: Speakers, Mentors, Judges.</li>
+        <li>Times follow the app’s convention in the member’s time zone: “6:30 PM”. The code freeze reads “Code freeze at 8:00 PM”.</li>
+        <li>Actions are verbs: “RSVP”, “Submit your project”, “Give feedback”, “Open in maps”, “Give”.</li>
+        <li>Empty: “No upcoming public events yet. They’ll appear here automatically.”</li>
+      </ul>
+    </section>
+
+    <section class="ds-section" id="do-dont"><h2><a href="#do-dont">Do and don't</a></h2>
+      <div class="ds-dodont">
+        <figure class="ds-do"><div class="ds-example__canvas"><p>Compose a display from list, avatar, badge and card.</p></div><figcaption>Reuse the library; add only a narrow <code>hub-section-</code> rule when nothing fits.</figcaption></figure>
+        <figure class="ds-dont"><div class="ds-example__canvas"><p>A styling panel with colours, fonts and columns.</p></div><figcaption>Don't let a lead restyle a section; the fixed layout keeps every hub accessible.</figcaption></figure>
+        <figure class="ds-do"><div class="ds-example__canvas"><p>Leave a Needs info section off the hub.</p></div><figcaption>An empty section is never published; the checklist says what is missing.</figcaption></figure>
+        <figure class="ds-dont"><div class="ds-example__canvas"><p>“Agenda coming soon” on the public hub.</p></div><figcaption>Don't publish a placeholder for a section with nothing in it.</figcaption></figure>
+      </div>
+    </section>
+
+    <section class="ds-section" id="sources"><h2><a href="#sources">Sources</a></h2>
+      <ul>
+        <li>Mocks: <a href="../../mocks/pages/event-hub/default.html">event-hub/default</a>, <a href="../../mocks/pages/event-hub/all-ready.html">all-ready</a>, <a href="../../mocks/pages/event-hub/section-hidden.html">section-hidden</a>, <a href="../../mocks/dialogs/hub-section-preview/default.html">hub-section-preview</a>, <a href="../../mocks/dialogs/reorder-hub-sections/moved.html">reorder-hub-sections/moved</a>, <a href="../../mocks/dialogs/hub-hero/default.html">hub-hero</a>, <a href="../../mocks/dialogs/hub-agenda/review.html">hub-agenda/review</a>, <a href="../../mocks/dialogs/hub-agenda/out-of-range.html">hub-agenda/out-of-range</a>, <a href="../../mocks/dialogs/hub-venue/default.html">hub-venue</a>, <a href="../../mocks/dialogs/hub-people/review.html">hub-people/review</a>, <a href="../../mocks/dialogs/hub-links/default.html">hub-links</a>, <a href="../../mocks/dialogs/hub-giving/default.html">hub-giving</a>, <a href="../../mocks/dialogs/hub-upcoming/default.html">hub-upcoming</a>.</li>
+        <li>Content reference: the SoCal hackathon hub (<code>docs/events/socal-hackathon-2026/index.html</code>).</li>
+        <li>Requirements L2-156 to L2-162; proposal <code>docs/proposals/event-hubs.md</code>; ADR 0036.</li>
+      </ul>
+      <p>Drift: none. New in this update: <code>.hub-section</code>, <code>.hub-section__time</code> and <code>.hub-section__warning</code>.</p>
+    </section>
+
+    <footer class="ds-footer"><span>FaithTech Community design system · extracted from <a href="../../mocks/index.html">docs/mocks</a> on 2026-11-01</span><a href="#top">Back to top</a></footer>
+  </main>
+</div>
+<script src="../assets/ds.js"></script>
+</body>
+</html>
