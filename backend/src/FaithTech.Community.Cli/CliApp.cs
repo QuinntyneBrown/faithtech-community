@@ -3,6 +3,8 @@ using FaithTech.Community.Application.Common;
 using FaithTech.Community.Application.Organisations;
 using FaithTech.Community.Application.Organisations.Platform;
 using FaithTech.Community.Domain.Organisations;
+using FaithTech.Community.Infrastructure.Email;
+using FaithTech.Community.Infrastructure.Identity;
 using FaithTech.Community.Infrastructure.Persistence;
 using FaithTech.Community.Infrastructure.Persistence.Seed;
 using FaithTech.Community.Infrastructure.PrivatePreview;
@@ -46,6 +48,11 @@ public static class CliApp
             .AddScoped<IPlatformAuditLog, PlatformAuditLog>()
             .AddScoped<GetPlatformAuditHandler>()
             .AddScoped<OrganisationSeeder>()
+            .AddScoped<GetOrganisationSummaryHandler>()
+            .AddScoped<ProvisionOrganisationHandler>()
+            .AddScoped<IClientRedirects, ClientRedirects>()
+            .AddScoped<OutboxEmailQueue>()
+            .AddScoped<IEmailQueue>(sp => sp.GetRequiredService<OutboxEmailQueue>())
             .AddOpenIddict().AddCore(options => options.UseEntityFrameworkCore().UseDbContext<CommunityDbContext>()).Services
             .BuildServiceProvider();
         await using var scope = services.CreateAsyncScope();
@@ -107,6 +114,8 @@ public static class CliApp
         services.GetRequiredService<PlatformActor>().Set(email!.Trim(), PlatformAuditSource.Cli);
         switch (args.ElementAtOrDefault(1))
         {
+            case "create":
+                return await CreateAsync(args, services, output);
             case "audit":
                 var take = GetPlatformAuditHandler.DefaultPageSize;
                 if (Option(args, "--take") is { } value && (!int.TryParse(value, out take) || take < 1))
@@ -124,9 +133,44 @@ public static class CliApp
 
                 return 0;
             default:
-                Console.Error.WriteLine("Usage: faithtech-community org audit [--take <n>] --operator <email>");
+                Console.Error.WriteLine(
+                    "Usage: faithtech-community org create --slug <slug> --host <host> --name <name> --short-name <short> " +
+                    "[--chapter-label <Singular/Plural>] --admin-email <email> --operator <email> | org audit [--take <n>] --operator <email>");
                 return 1;
         }
+    }
+
+    /// <summary>org create: provisions an organisation as POST /api/platform/organisations does (L2-149).</summary>
+    private static async Task<int> CreateAsync(string[] args, IServiceProvider services, TextWriter output)
+    {
+        var label = Option(args, "--chapter-label")?.Split('/', 2);
+        var command = new ProvisionOrganisationCommand(
+            Option(args, "--slug"),
+            Option(args, "--host"),
+            Option(args, "--name"),
+            Option(args, "--short-name"),
+            Option(args, "--admin-email"),
+            label is null ? null : new ChapterLabelCommand(label[0], label.ElementAtOrDefault(1)));
+        var validation = await new ProvisionOrganisationValidator().ValidateAsync(command);
+        if (!validation.IsValid)
+        {
+            foreach (var error in validation.Errors)
+            {
+                Console.Error.WriteLine($"{error.PropertyName}: {error.ErrorMessage}");
+            }
+
+            return 1;
+        }
+
+        var (result, outcome, summary) = await services.GetRequiredService<ProvisionOrganisationHandler>().HandleAsync(command);
+        if (result.Status != ResultStatus.Ok)
+        {
+            Console.Error.WriteLine(result.Detail ?? string.Join(" ", result.Errors?.SelectMany(e => e.Value) ?? []));
+            return 1;
+        }
+
+        await output.WriteLineAsync($"Organisation {summary!.Slug} {(outcome == ProvisionOutcome.Created ? "created" : "exists")}");
+        return 0;
     }
 
     // The value after an option such as --operator, or null when the option or its value is missing.
