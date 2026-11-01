@@ -25,7 +25,9 @@ public sealed record OrganisationDto(
     IReadOnlyList<PartnerStageOptionDto> PartnerStages,
     IReadOnlyList<EventTypeOptionDto> EventTypes,
     IReadOnlyList<ResourceTypeOptionDto> ResourceTypes,
-    IReadOnlyList<ResourceTypeOptionDto> ArchivedResourceTypes);
+    IReadOnlyList<ResourceTypeOptionDto> ArchivedResourceTypes,
+    string? GivingLink = null,
+    string? GivingText = null);
 
 /// <summary>The host's organisation for any of its members: its names and its roles that are not archived (ADR 0032).</summary>
 public class GetOrganisationHandler(IApplicationDbContext db, ICurrentOrganisation organisation)
@@ -64,9 +66,13 @@ public class GetOrganisationHandler(IApplicationDbContext db, ICurrentOrganisati
             .ThenBy(t => t.Name)
             .Select(t => new { Option = new ResourceTypeOptionDto(t.Id, t.Key, t.Name), Archived = t.ArchivedAtUtc != null })
             .ToListAsync(cancellationToken);
+        var giving = await db.Organisations.Where(o => o.Id == organisation.Id)
+            .Select(o => new { o.GivingLink, o.GivingText }).SingleOrDefaultAsync(cancellationToken);
         return new OrganisationDto(
             organisation.Name, organisation.ShortName, label, chapters, roles, stages, types,
             [.. resourceTypes.Where(t => !t.Archived).Select(t => t.Option)],
-            [.. resourceTypes.Where(t => t.Archived).Select(t => t.Option)]);
+            [.. resourceTypes.Where(t => t.Archived).Select(t => t.Option)],
+            giving?.GivingLink,
+            giving?.GivingText);
     }
 }

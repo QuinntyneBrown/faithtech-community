@@ -141,6 +141,8 @@ public class CommunityDbContext : IdentityDbContext<CommunityUser, IdentityRole<
             organisation.Property(o => o.ShortName).HasMaxLength(Organisation.MaxShortNameLength);
             organisation.Property(o => o.ChapterLabelSingular).HasMaxLength(Organisation.MaxChapterLabelLength);
             organisation.Property(o => o.ChapterLabelPlural).HasMaxLength(Organisation.MaxChapterLabelLength);
+            organisation.Property(o => o.GivingLink).HasMaxLength(Organisation.MaxGivingLinkLength);
+            organisation.Property(o => o.GivingText).HasMaxLength(Organisation.MaxGivingTextLength);
             organisation.Property(o => o.Status).HasConversion<string>().HasMaxLength(16);
             organisation.Property(o => o.SuspendedReason).HasMaxLength(500);
         });

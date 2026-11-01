@@ -1,4 +1,5 @@
 using System.Text;
+using System.Text.Json;
 using FaithTech.Community.Api.Middleware;
 using FaithTech.Community.Application.Events;
 
@@ -81,6 +82,16 @@ public static class EventsEndpoints
         events.MapPut("/{id:guid}/hub", async (Guid id, SaveEventHubCommand command, SaveEventHubHandler handler, CancellationToken cancellationToken) =>
                 (await handler.HandleAsync(id, command, cancellationToken)).ToHttp(Results.NoContent))
             .Validate<SaveEventHubCommand>();
+
+        // Hub sections (L2-156, L2-157, ADR 0038): the order, then one section's content validated against its kind's schema.
+        events.MapPut("/{id:guid}/hub/sections/order", async (
+                Guid id, ReorderHubSectionsCommand command, ReorderHubSectionsHandler handler, CancellationToken cancellationToken) =>
+                (await handler.HandleAsync(id, command, cancellationToken)).ToHttp(Results.NoContent))
+            .Validate<ReorderHubSectionsCommand>();
+
+        events.MapPut("/{id:guid}/hub/sections/{kind}", async (
+                Guid id, string kind, JsonElement content, SaveHubSectionHandler handler, CancellationToken cancellationToken) =>
+            (await handler.HandleAsync(id, kind, content, cancellationToken)).ToHttp(Results.NoContent));
 
         events.MapPost("/{id:guid}/rsvps", async (Guid id, RsvpHandler handler, CancellationToken cancellationToken) =>
             (await handler.RsvpAsync(id, cancellationToken)).ToHttp(Results.NoContent));

@@ -4,7 +4,13 @@ import { Observable } from 'rxjs';
 
 import { API_BASE_URL } from '../config';
 import { HANDLES_FORBIDDEN, HANDLES_SERVER_ERROR } from '../errors';
-import { EventHubDto, EventHubsService, SaveEventHubRequest } from './event-hubs.service';
+import {
+  EventHubDto,
+  EventHubsService,
+  HubContentInputByKind,
+  HubSectionKind,
+  SaveEventHubRequest,
+} from './event-hubs.service';
 
 @Injectable()
 export class HttpEventHubsService implements EventHubsService {
@@ -33,5 +39,23 @@ export class HttpEventHubsService implements EventHubsService {
     return this.http.put<void>(`${this.api}/events/${eventId}/hub`, request, {
       context: this.wizard,
     });
+  }
+
+  saveSection<K extends HubSectionKind>(
+    eventId: string,
+    kind: K,
+    content: HubContentInputByKind[K],
+  ): Observable<void> {
+    return this.http.put<void>(`${this.api}/events/${eventId}/hub/sections/${kind}`, content, {
+      context: this.wizard,
+    });
+  }
+
+  reorder(eventId: string, kinds: HubSectionKind[]): Observable<void> {
+    return this.http.put<void>(
+      `${this.api}/events/${eventId}/hub/sections/order`,
+      { kinds },
+      { context: this.wizard },
+    );
   }
 }

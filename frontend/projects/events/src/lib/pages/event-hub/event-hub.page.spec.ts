@@ -23,10 +23,17 @@ const hub: EventHubDto = {
     isCancelled: false,
   },
   sections: [
-    { kind: 'Hero', visible: true, state: 'Ready' },
-    { kind: 'Agenda', visible: true, state: 'NeedsInfo' },
-    { kind: 'Giving', visible: false, state: 'Hidden' },
+    { kind: 'Hero', visible: true, state: 'Ready', content: { subtitle: null } },
+    { kind: 'Agenda', visible: true, state: 'NeedsInfo', content: { items: [] } },
+    { kind: 'Giving', visible: false, state: 'Hidden', content: { line: null } },
   ],
+  organisation: {
+    name: 'FaithTech Community',
+    shortName: 'FaithTech',
+    givingLink: 'https://faithtech.com/donate',
+    givingText: 'Help us build the next one.',
+  },
+  upcomingEvents: [],
 };
 
 async function setup(get: () => Observable<EventHubDto> = () => of(hub)) {
