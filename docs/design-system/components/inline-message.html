@@ -91,6 +91,7 @@
       <li><a href="../components/error-page.html">Error page</a></li>
       <li><a href="../components/landing-hero.html">Landing hero</a></li>
       <li><a href="../components/video-player.html">Video player</a></li>
+      <li><a href="../components/slide-viewer.html">Slide viewer</a></li>
       <li><a href="../components/auth-forms.html">Sign-in and sign-up forms</a></li>
       <li><a href="../components/site-footer.html">Site footer</a></li>
     </ul></details>
@@ -163,6 +164,13 @@
   …radios with aria-invalid="true"…
   &lt;div class="field__error" id="role-error"&gt;Choose a role to add.&lt;/div&gt;
 &lt;/fieldset&gt;</code></pre></details>
+      </div>
+      <h3 id="live-total">Live total (slice 46)</h3>
+      <div class="ds-example">
+        <div class="ds-example__canvas ds-example__canvas--stack"><div class="stack" style="width: 100%; max-width: 28rem;"><p class="field__total" role="status"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="m8 12 3 3 5-6"/></svg>Weights total 100%</p><p class="field__total field__total--off" role="status"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 8v4M12 16h.01"/></svg>Weights add up to 90%</p><div class="field__error">Weights add up to 90%. Make them total 100%.</div><p class="field__total" role="status"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="m8 12 3 3 5-6"/></svg>Segments: 3:00 of 3:00</p></div></div>
+        <div class="ds-example__caption"><span>A running sum under a list of rows in a wizard step: the Judging weights and the Demo format segments. <code>.field__total</code> is label type with tabular numbers in <code>--color-fg-muted</code>, led by a success check when the sum is right; <code>.field__total--off</code> turns the text <code>--color-danger-fg</code> and the icon to an exclamation. It is a polite <code>role="status"</code>, so it is read when it changes, not on every keystroke’s focus. It never blocks on its own: when the person presses Next or Save with the sum off, the step shows the <code>.field__error</code> sentence (“Weights add up to 90%. Make them total 100%.”, “The segments run 3:30. Make them fit in 3 minutes.”) and the error summary links to it. <code>ft-field-total</code> with <code>[ok]</code> and the text as content.</span></div>
+        <details class="ds-example__code"><summary>HTML</summary><pre><code>&lt;p class="field__total" id="ju-total" role="status"&gt;&lt;svg class="icon" aria-hidden="true" …&gt;&lt;/svg&gt;Weights total 100%&lt;/p&gt;
+&lt;p class="field__total field__total--off" id="ju-total" role="status"&gt;&lt;svg …&gt;&lt;/svg&gt;Weights add up to 90%&lt;/p&gt;</code></pre></details>
       </div>
     </section>
 
@@ -270,6 +278,7 @@
         <li><a href="../../mocks/pages/event-form/invalid.html">pages/event-form/invalid</a>, <a href="../../mocks/pages/edit-profile/invalid.html">edit-profile/invalid</a>, <a href="../../mocks/pages/sign-in/invalid.html">sign-in/invalid</a>, <a href="../../mocks/pages/sign-up/invalid.html">sign-up/invalid</a></li>
         <li><a href="../../mocks/pages/reset-password/invalid.html">pages/reset-password/invalid</a>, <a href="../../mocks/pages/settings/invalid.html">settings/invalid</a>, <a href="../../mocks/pages/public-event/invalid.html">public-event/invalid</a>, <a href="../../mocks/pages/accept-invite/invalid.html">accept-invite/invalid</a></li>
         <li><a href="../../mocks/dialogs/add-role/invalid.html">dialogs/add-role/invalid</a> (group error), <a href="../../mocks/dialogs/delete-contact/invalid.html">dialogs/delete-contact/invalid</a>, <a href="../../mocks/dialogs/send-invite/invalid.html">dialogs/send-invite/invalid</a>, <a href="../../mocks/dialogs/new-work-item/invalid.html">dialogs/new-work-item/invalid</a>, <a href="../../mocks/dialogs/start-poker/invalid.html">dialogs/start-poker/invalid</a></li>
+        <li><a href="../../mocks/dialogs/hub-judging/default.html">dialogs/hub-judging/default</a>, <a href="../../mocks/dialogs/hub-judging/weights-off.html">weights-off</a>, <a href="../../mocks/dialogs/hub-demo-format/default.html">dialogs/hub-demo-format/default</a> and <a href="../../mocks/dialogs/hub-demo-format/over-time.html">over-time</a> (slice 46, the live total; those mocks draw it as <code>.field__help</code> with bold text, logged as drift)</li>
       </ul>
     </section>
 

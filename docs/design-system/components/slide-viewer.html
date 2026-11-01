@@ -1,0 +1,317 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Slide viewer — FaithTech Community design system</title>
+<meta name="description" content="Slide viewer (ft-slide-viewer): one slide at a time with Previous and Next, Slide n of m, thumbnails to jump, arrow keys, and a PDF slide that opens in a new tab.">
+<link rel="stylesheet" href="../tokens/tokens.css">
+<link rel="stylesheet" href="../assets/components.css">
+<link rel="stylesheet" href="../assets/ds.css">
+</head>
+<body id="top">
+<a class="skip-link" href="#main">Skip to content</a>
+<div class="ds-shell">
+  <nav class="ds-nav" aria-label="Design system">
+    <div class="ds-nav__brand"><a href="../index.html">FaithTech DS</a><button class="ds-theme-toggle" type="button" aria-pressed="false">☾ Dark</button></div>
+    <details open><summary>Foundations</summary><ul>
+      <li><a href="../foundations/color.html">Color</a></li>
+      <li><a href="../foundations/typography.html">Typography</a></li>
+      <li><a href="../foundations/spacing.html">Spacing</a></li>
+      <li><a href="../foundations/layout.html">Layout</a></li>
+      <li><a href="../foundations/elevation.html">Elevation</a></li>
+      <li><a href="../foundations/shape.html">Shape</a></li>
+      <li><a href="../foundations/motion.html">Motion</a></li>
+      <li><a href="../foundations/iconography.html">Iconography</a></li>
+      <li><a href="../foundations/theming.html">Theming</a></li>
+      <li><a href="../foundations/responsive.html">Responsive</a></li>
+      <li><a href="../foundations/accessibility.html">Accessibility</a></li>
+      <li><a href="../foundations/content.html">Content</a></li>
+    </ul></details>
+    <details open><summary>Components</summary><ul>
+      <li><a href="../components/button.html">Button</a></li>
+      <li><a href="../components/link.html">Link</a></li>
+      <li><a href="../components/menu.html">Menu</a></li>
+      <li><a href="../components/form-field.html">Form field</a></li>
+      <li><a href="../components/text-field.html">Text field</a></li>
+      <li><a href="../components/copy-field.html">Copy field</a></li>
+      <li><a href="../components/textarea.html">Textarea</a></li>
+      <li><a href="../components/select.html">Select</a></li>
+      <li><a href="../components/radio-group.html">Radio group</a></li><li><a href="../components/checkbox-group.html">Checkbox group</a></li><li><a href="../components/capability-checklist.html">Capability checklist</a></li>
+      <li><a href="../components/switch.html">Switch</a></li>
+      <li><a href="../components/form-layout.html">Form layout</a></li>
+      <li><a href="../components/picture-list.html">Picture list</a></li>
+      <li><a href="../components/photo-gallery.html">Photo gallery</a></li>
+      <li><a href="../components/file-dropzone.html">File drop zone</a></li>
+      <li><a href="../components/file-row.html">File row</a></li>
+      <li><a href="../components/tag-input.html">Tag input</a></li>
+      <li><a href="../components/person-picker.html">Person picker</a></li>
+      <li><a href="../components/type-icon.html">Type icon</a></li>
+      <li><a href="../components/sticker-picker.html">Estimate card picker</a></li>
+      <li><a href="../components/emoji-picker.html">Emoji picker</a></li>
+      <li><a href="../components/top-bar.html">Top bar</a></li>
+      <li><a href="../components/tab-bar.html">Tab bar</a></li>
+      <li><a href="../components/tabs.html">Tabs</a></li>
+      <li><a href="../components/breadcrumb.html">Breadcrumb</a></li>
+      <li><a href="../components/skip-link.html">Skip link</a></li>
+      <li><a href="../components/layout.html">Layout primitives</a></li>
+      <li><a href="../components/card.html">Card</a></li>
+      <li><a href="../components/dialog.html">Dialog</a></li><li><a href="../components/define-role-dialog.html">Define role dialog</a></li><li><a href="../components/edit-grants-dialog.html">Edit grants dialog</a></li><li><a href="../components/archive-role-dialog.html">Archive role dialog</a></li>
+      <li><a href="../components/notification-panel.html">Notification panel</a></li>
+      <li><a href="../components/list.html">List</a></li><li><a href="../components/checklist-row.html">Checklist row</a></li><li><a href="../components/reorderable-list.html">Reorderable list</a></li>
+      <li><a href="../components/table.html">Table</a></li>
+      <li><a href="../components/description-list.html">Description list</a></li>
+      <li><a href="../components/feed.html">Activity feed</a></li>
+      <li><a href="../components/tree.html">Backlog tree</a></li>
+      <li><a href="../components/kanban.html">Kanban board</a></li>
+      <li><a href="../components/event-card.html">Event card</a></li>
+      <li><a href="../components/person-card.html">Person card</a></li>
+      <li><a href="../components/profile-header.html">Profile header</a></li>
+      <li><a href="../components/person-summary.html">Person summary</a></li>
+      <li><a href="../components/search-results.html">Search results</a></li>
+      <li><a href="../components/note.html">Note</a></li>
+      <li><a href="../components/block-editor.html">Block editor</a></li>
+      <li><a href="../components/slash-menu.html">Slash menu</a></li>
+      <li><a href="../components/format-toolbar.html">Formatting toolbar</a></li>
+      <li><a href="../components/save-status.html">Save status</a></li>
+      <li><a href="../components/page-links.html">Page links</a></li>
+      <li><a href="../components/avatar.html">Avatar</a></li>
+      <li><a href="../components/qr-code.html">QR code</a></li>
+      <li><a href="../components/logo-mark.html">Logo mark</a></li>
+      <li><a href="../components/badge.html">Badge</a></li>
+      <li><a href="../components/chip.html">Chip</a></li>
+      <li><a href="../components/stat.html">Stat</a></li>
+      <li><a href="../components/sticker.html">Estimate card</a></li>
+      <li><a href="../components/toast.html">Toast</a></li>
+      <li><a href="../components/alert.html">Alert and banner</a></li>
+      <li><a href="../components/inline-message.html">Inline message</a></li>
+      <li><a href="../components/progress.html">Progress</a></li><li><a href="../components/stepper.html">Stepper</a></li>
+      <li><a href="../components/skeleton.html">Skeleton</a></li>
+      <li><a href="../components/empty-state.html">Empty state</a></li>
+      <li><a href="../components/error-page.html">Error page</a></li>
+      <li><a href="../components/landing-hero.html">Landing hero</a></li>
+      <li><a href="../components/video-player.html">Video player</a></li>
+      <li><a href="../components/slide-viewer.html">Slide viewer</a></li>
+      <li><a href="../components/auth-forms.html">Sign-in and sign-up forms</a></li>
+      <li><a href="../components/site-footer.html">Site footer</a></li>
+    </ul></details>
+    <details open><summary>Patterns</summary><ul>
+      <li><a href="../patterns/forms.html">Forms</a></li>
+      <li><a href="../patterns/feedback-and-loading.html">Feedback and loading</a></li>
+      <li><a href="../patterns/empty-and-error-states.html">Empty and error states</a></li>
+      <li><a href="../patterns/navigation.html">Navigation and page structure</a></li>
+      <li><a href="../patterns/dialogs-and-overlays.html">Dialogs and overlays</a></li>
+      <li><a href="../patterns/lists-and-tables.html">Lists and tables</a></li>
+      <li><a href="../patterns/notifications.html">Notifications</a></li>
+      <li><a href="../patterns/content-and-tone.html">Content and tone</a></li>
+      <li><a href="../patterns/private-preview-wall.html">Private preview wall</a></li>
+      <li><a href="../patterns/event-hub-sections.html">Event hub sections</a></li>
+    </ul></details>
+  </nav>
+
+  <main id="main" class="ds-main">
+    <header class="ds-header">
+      <p class="ds-kicker">Component · Media</p>
+      <h1>Slide viewer</h1>
+      <p class="ds-lead">Shows a deck one slide at a time, with Previous and Next, a “Slide n of m” line and a strip of thumbnails to jump to any slide. The left and right arrow keys move when the viewer has focus. A slide that is a PDF shows its first-page thumbnail and one link, “Open the slides (PDF)”.</p>
+      <div class="ds-meta"><span class="ds-pill ds-pill--ok">WCAG 2.2 AA</span><span class="ds-pill">Status: new (slice 46)</span><span class="ds-pill"><code>ft-slide-viewer</code></span><span class="ds-pill">WAI-ARIA carousel</span></div>
+      <ul class="ds-toc">
+        <li><a href="#overview">Overview</a></li><li><a href="#anatomy">Anatomy</a></li><li><a href="#variants">Variants</a></li><li><a href="#sizes">Sizes</a></li><li><a href="#states">States</a></li><li><a href="#responsive">Responsive</a></li><li><a href="#theming">Theming</a></li><li><a href="#accessibility">Accessibility</a></li><li><a href="#content">Content</a></li><li><a href="#do-dont">Do and don't</a></li><li><a href="#tokens">Tokens</a></li><li><a href="#code">Code</a></li><li><a href="#sources">Sources</a></li>
+      </ul>
+    </header>
+
+    <section class="ds-section" id="overview"><h2><a href="#overview">Overview</a></h2>
+      <p>Use the slide viewer when people page through an ordered set of images that belong together: the event hub’s Slides section (L2-182). Each slide is a resource the hub names; visitors load it through the hub’s file link, never through Resources.</p>
+      <ul>
+        <li>In use: the Slides section of the hub page (<code>pages/hub-page/hackathon</code>, <code>slides-viewer</code>, <code>slides-pdf</code>) and the Slides wizard’s preview.</li>
+        <li>For photos someone manages (feature, describe, delete), use the <a href="photo-gallery.html">photo gallery</a>. For choosing photos to upload, use the <a href="picture-list.html">picture list</a>.</li>
+        <li>It never advances by itself: no autoplay, no timer.</li>
+      </ul>
+    </section>
+
+    <section class="ds-section" id="anatomy"><h2><a href="#anatomy">Anatomy</a></h2>
+      <div class="ds-anatomy">
+        <figure class="ds-anatomy__figure">
+          <div class="slide-viewer" role="region" aria-roledescription="carousel" aria-label="Slides, anatomy" style="width: 100%; max-width: 32rem;">
+            <figure class="slide-viewer__stage" role="group" aria-roledescription="slide" aria-label="18 of 52"><img src="../../events/socal-hackathon-2026/slides/19.jpg" alt="Slide 18: Meet Baptize The World" width="1280" height="720"></figure>
+            <div class="slide-viewer__bar"><button class="btn btn--icon" type="button" aria-label="Previous slide"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><path d="M15 18l-6-6 6-6"/></svg></button><p class="slide-viewer__status"><span class="slide-viewer__count">Slide 18 of 52</span><span class="slide-viewer__title">Meet Baptize The World</span></p><button class="btn btn--icon" type="button" aria-label="Next slide"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></svg></button></div>
+            <div class="slide-viewer__thumbs" role="toolbar" aria-label="Jump to a slide, anatomy"><button class="slide-viewer__thumb" type="button" aria-label="Slide 17: The Create Cycle" tabindex="-1"><img src="../../events/socal-hackathon-2026/slides/t/18.jpg" alt="" width="320" height="180"></button><button class="slide-viewer__thumb" type="button" aria-label="Slide 18: Meet Baptize The World" aria-current="true"><img src="../../events/socal-hackathon-2026/slides/t/19.jpg" alt="" width="320" height="180"></button><button class="slide-viewer__thumb" type="button" aria-label="Slide 19: Three tracks" tabindex="-1"><img src="../../events/socal-hackathon-2026/slides/t/20.jpg" alt="" width="320" height="180"></button><button class="slide-viewer__thumb" type="button" aria-label="Slide 20: Track 1" tabindex="-1"><img src="../../events/socal-hackathon-2026/slides/t/21.jpg" alt="" width="320" height="180"></button></div>
+          </div>
+          <span class="ds-callout" style="left: 4%; top: 6%;" aria-hidden="true">1</span>
+          <span class="ds-callout" style="left: 4%; top: 64%;" aria-hidden="true">2</span>
+          <span class="ds-callout" style="left: 46%; top: 64%;" aria-hidden="true">3</span>
+          <span class="ds-callout" style="left: 4%; top: 86%;" aria-hidden="true">4</span>
+        </figure>
+        <ol class="ds-anatomy__list">
+          <li><div><b>Stage</b><small><code>.slide-viewer__stage</code>: a 16:9 figure that holds the current slide, letterboxed (<code>object-fit: contain</code>) so nothing is cropped.</small></div></li>
+          <li><div><b>Previous and Next</b><small>Icon <a href="button.html">buttons</a> (<code>.btn--icon</code>), named “Previous slide” and “Next slide”.</small></div></li>
+          <li><div><b>Status</b><small><code>.slide-viewer__status</code>: “Slide 18 of 52” (label type, tabular numbers) over the slide’s title (muted, one line, truncated). A polite live region.</small></div></li>
+          <li><div><b>Thumbnails</b><small><code>.slide-viewer__thumbs</code>: a toolbar of <code>.slide-viewer__thumb</code> buttons that scrolls sideways; the current one has <code>aria-current="true"</code> and an accent ring.</small></div></li>
+        </ol>
+      </div>
+    </section>
+
+    <section class="ds-section" id="variants"><h2><a href="#variants">Variants</a></h2>
+      <h3>Deck (default)</h3>
+      <p>Images, one per slide, in the order the organiser set.</p>
+      <div class="ds-example">
+        <div class="ds-example__canvas ds-example__canvas--stack">
+          <div style="width: 100%; max-width: 40rem;"><div class="slide-viewer" role="region" aria-roledescription="carousel" aria-label="Slides, deck example" tabindex="0">
+            <figure class="slide-viewer__stage" role="group" aria-roledescription="slide" aria-label="1 of 52"><img src="../../events/socal-hackathon-2026/slides/01.jpg" alt="Slide 1: FaithTech SoCal × Baptize The World Hackathon" width="1280" height="720"></figure>
+            <div class="slide-viewer__bar"><button class="btn btn--icon" type="button" aria-label="Previous slide" disabled><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><path d="M15 18l-6-6 6-6"/></svg></button><p class="slide-viewer__status" role="status" aria-live="polite" aria-atomic="true"><span class="slide-viewer__count">Slide 1 of 52</span><span class="slide-viewer__title">FaithTech SoCal × Baptize The World Hackathon</span></p><button class="btn btn--icon" type="button" aria-label="Next slide"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></svg></button></div>
+            <div class="slide-viewer__thumbs" role="toolbar" aria-label="Jump to a slide"><button class="slide-viewer__thumb" type="button" aria-label="Slide 1: FaithTech SoCal × Baptize The World Hackathon" aria-current="true"><img src="../../events/socal-hackathon-2026/slides/t/01.jpg" alt="" width="320" height="180"></button><button class="slide-viewer__thumb" type="button" aria-label="Slide 2: Before we build" tabindex="-1"><img src="../../events/socal-hackathon-2026/slides/t/02.jpg" alt="" width="320" height="180"></button><button class="slide-viewer__thumb" type="button" aria-label="Slide 3: Worship" tabindex="-1"><img src="../../events/socal-hackathon-2026/slides/t/03.jpg" alt="" width="320" height="180"></button><button class="slide-viewer__thumb" type="button" aria-label="Slide 4: Create" tabindex="-1"><img src="../../events/socal-hackathon-2026/slides/t/05.jpg" alt="" width="320" height="180"></button><button class="slide-viewer__thumb" type="button" aria-label="Slide 5: The people behind this event" tabindex="-1"><img src="../../events/socal-hackathon-2026/slides/t/06.jpg" alt="" width="320" height="180"></button><button class="slide-viewer__thumb" type="button" aria-label="Slide 6: Plan for the day" tabindex="-1"><img src="../../events/socal-hackathon-2026/slides/t/07.jpg" alt="" width="320" height="180"></button></div>
+          </div></div>
+        </div>
+        <div class="ds-example__caption"><span>On slide 1 Previous is disabled; on the last slide Next is.</span></div>
+        <details class="ds-example__code"><summary>HTML</summary><pre><code>&lt;div class="slide-viewer" role="region" aria-roledescription="carousel" aria-label="Slides" tabindex="0"&gt;
+  &lt;figure class="slide-viewer__stage" role="group" aria-roledescription="slide" aria-label="1 of 52"&gt;
+    &lt;img src="…/hub/files/{resourceId}" alt="Slide 1: FaithTech SoCal × Baptize The World Hackathon" width="1280" height="720"&gt;
+  &lt;/figure&gt;
+  &lt;div class="slide-viewer__bar"&gt;
+    &lt;button class="btn btn--icon" type="button" aria-label="Previous slide" disabled&gt;…&lt;/button&gt;
+    &lt;p class="slide-viewer__status" role="status" aria-live="polite" aria-atomic="true"&gt;
+      &lt;span class="slide-viewer__count"&gt;Slide 1 of 52&lt;/span&gt;&lt;span class="slide-viewer__title"&gt;FaithTech SoCal × Baptize The World Hackathon&lt;/span&gt;
+    &lt;/p&gt;
+    &lt;button class="btn btn--icon" type="button" aria-label="Next slide"&gt;…&lt;/button&gt;
+  &lt;/div&gt;
+  &lt;div class="slide-viewer__thumbs" role="toolbar" aria-label="Jump to a slide"&gt;
+    &lt;button class="slide-viewer__thumb" type="button" aria-label="Slide 1: …" aria-current="true"&gt;&lt;img src="…/thumbnail" alt=""&gt;&lt;/button&gt;
+    &lt;button class="slide-viewer__thumb" type="button" aria-label="Slide 2: …" tabindex="-1"&gt;…&lt;/button&gt;
+  &lt;/div&gt;
+&lt;/div&gt;</code></pre></details>
+      </div>
+      <h3 id="file">File (a PDF)</h3>
+      <p><code>.slide-viewer--file</code>: a PDF is not paged inside the viewer. The stage shows its first-page thumbnail and a primary link opens the file in a new tab. A deck of one PDF leaves out the bar and the thumbnails; a PDF among image slides shows the same stage and link at its place in the deck, with the bar and thumbnails as usual.</p>
+      <div class="ds-example">
+        <div class="ds-example__canvas ds-example__canvas--stack">
+          <div style="width: 100%; max-width: 40rem;"><div class="slide-viewer slide-viewer--file"><figure class="slide-viewer__stage"><img src="../../events/socal-hackathon-2026/slides/01.jpg" alt="First page of SoCal Hackathon slides: FaithTech SoCal × Baptize The World Hackathon" width="1280" height="720"></figure>
+            <div class="cluster"><a class="btn btn--primary" href="https://community.faithtech.example/api/events/7c1d2e3f-4a5b-4c6d-8e9f-0a1b2c3d4e5f/hub/files/9d8c7b6a-5f4e-4d3c-2b1a-0f9e8d7c6b5a" target="_blank" rel="noopener"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><path d="M14 3v6h6"/></svg>Open the slides (PDF)<span class="visually-hidden"> (new tab)</span></a><span class="text-muted">SoCal Hackathon slides · PDF · 18.4 MB</span></div></div></div>
+        </div>
+        <div class="ds-example__caption"><span>The file’s title, type and size sit beside the link, muted.</span></div>
+      </div>
+    </section>
+
+    <section class="ds-section" id="sizes"><h2><a href="#sizes">Sizes</a></h2>
+      <p>One size: the viewer fills its column, and the stage keeps 16:9. Thumbnails are 6rem wide (16:9), with 8px (<code>--space-2</code>) between them. Previous and Next are 44px icon buttons.</p>
+    </section>
+
+    <section class="ds-section" id="states"><h2><a href="#states">States</a></h2>
+      <div class="ds-matrix"><table>
+        <thead><tr><th scope="col">Part</th><th scope="col">Default</th><th scope="col">Hover</th><th scope="col">Focus</th><th scope="col">Current / disabled</th></tr></thead>
+        <tbody>
+          <tr><th scope="row">Viewer</th><td><div class="slide-viewer" style="width: 8rem;"><figure class="slide-viewer__stage"><img src="../../events/socal-hackathon-2026/slides/t/19.jpg" alt="Default viewer" width="320" height="180"></figure></div></td><td>None</td><td><div class="slide-viewer" data-state="focus" style="width: 8rem;"><figure class="slide-viewer__stage"><img src="../../events/socal-hackathon-2026/slides/t/19.jpg" alt="Focused viewer" width="320" height="180"></figure></div></td><td>None</td></tr>
+          <tr><th scope="row">Thumbnail</th><td><button class="slide-viewer__thumb" type="button" aria-label="Slide 19: Three tracks, default"><img src="../../events/socal-hackathon-2026/slides/t/20.jpg" alt="" width="320" height="180"></button></td><td><button class="slide-viewer__thumb" type="button" data-state="hover" aria-label="Slide 19: Three tracks, hover"><img src="../../events/socal-hackathon-2026/slides/t/20.jpg" alt="" width="320" height="180"></button></td><td><button class="slide-viewer__thumb" type="button" data-state="focus" aria-label="Slide 19: Three tracks, focus"><img src="../../events/socal-hackathon-2026/slides/t/20.jpg" alt="" width="320" height="180"></button></td><td><button class="slide-viewer__thumb" type="button" aria-current="true" aria-label="Slide 18: Meet Baptize The World, current"><img src="../../events/socal-hackathon-2026/slides/t/19.jpg" alt="" width="320" height="180"></button></td></tr>
+          <tr><th scope="row">Previous / Next</th><td><button class="btn btn--icon" type="button" aria-label="Next slide, default"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></svg></button></td><td><button class="btn btn--icon" type="button" data-state="hover" aria-label="Next slide, hover"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></svg></button></td><td><button class="btn btn--icon" type="button" data-state="focus" aria-label="Next slide, focus"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></svg></button></td><td><button class="btn btn--icon" type="button" disabled aria-label="Previous slide, disabled"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><path d="M15 18l-6-6 6-6"/></svg></button></td></tr>
+        </tbody>
+      </table></div>
+      <ul>
+        <li><b>Loading:</b> the stage shows a <a href="skeleton.html">skeleton</a> block at 16:9 until the slide’s image arrives; the thumbnails load lazily.</li>
+        <li><b>A slide fails to load:</b> the stage shows the slide’s title in muted text on <code>--color-bg-subtle</code>; Previous, Next and the thumbnails still work.</li>
+        <li><b>One slide:</b> the bar and thumbnails are left out.</li>
+      </ul>
+      <h3>Both themes</h3>
+      <div class="ds-themes">
+        <div data-theme="light"><div class="slide-viewer" role="region" aria-roledescription="carousel" aria-label="Slides, light"><figure class="slide-viewer__stage"><img src="../../events/socal-hackathon-2026/slides/19.jpg" alt="Slide 18: Meet Baptize The World" width="1280" height="720"></figure><div class="slide-viewer__bar"><button class="btn btn--icon" type="button" aria-label="Previous slide, light"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><path d="M15 18l-6-6 6-6"/></svg></button><p class="slide-viewer__status"><span class="slide-viewer__count">Slide 18 of 52</span><span class="slide-viewer__title">Meet Baptize The World</span></p><button class="btn btn--icon" type="button" aria-label="Next slide, light"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></svg></button></div></div></div>
+        <div data-theme="dark"><div class="slide-viewer" role="region" aria-roledescription="carousel" aria-label="Slides, dark"><figure class="slide-viewer__stage"><img src="../../events/socal-hackathon-2026/slides/19.jpg" alt="Slide 18: Meet Baptize The World" width="1280" height="720"></figure><div class="slide-viewer__bar"><button class="btn btn--icon" type="button" aria-label="Previous slide, dark"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><path d="M15 18l-6-6 6-6"/></svg></button><p class="slide-viewer__status"><span class="slide-viewer__count">Slide 18 of 52</span><span class="slide-viewer__title">Meet Baptize The World</span></p><button class="btn btn--icon" type="button" aria-label="Next slide, dark"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></svg></button></div></div></div>
+      </div>
+    </section>
+
+    <section class="ds-section" id="responsive"><h2><a href="#responsive">Responsive behaviour</a></h2>
+      <ul>
+        <li>Phone (360px): the stage fills the column; the strip shows about three thumbnails and scrolls sideways inside itself, never the page. The current thumbnail is scrolled into view.</li>
+        <li>Tablet and desktop: the viewer stays inside the hub’s reading column (<code>form-width--lg</code>), so a slide never grows past 40rem wide.</li>
+        <li>Touch: a horizontal swipe on the stage moves one slide. The title truncates to one line; the count never does.</li>
+      </ul>
+    </section>
+
+    <section class="ds-section" id="theming"><h2><a href="#theming">Theming</a></h2>
+      <p>The stage and thumbnails sit on <code>--color-bg-subtle</code> with a <code>--color-border-default</code> hairline, so a slide with a white background still has an edge in the light theme. The current thumbnail ring is <code>--color-accent</code>; hover darkens the border to <code>--color-border-strong</code>. Slide images are never tinted in the dark theme.</p>
+    </section>
+
+    <section class="ds-section" id="accessibility"><h2><a href="#accessibility">Accessibility</a></h2>
+      <h3>Role and pattern</h3>
+      <p>The WAI-ARIA carousel pattern without rotation: the viewer is a <code>region</code> with <code>aria-roledescription="carousel"</code> and a name (“Slides”); the stage is a <code>group</code> with <code>aria-roledescription="slide"</code> named “18 of 52”. Each slide image’s alt is “Slide 18: ” plus the resource’s title. The status line is a polite live region, so moving says “Slide 19 of 52, Three tracks” once. Thumbnails are a <code>toolbar</code> (“Jump to a slide”) of buttons with a roving tab stop; each thumbnail’s image is decorative and the button is named “Slide 19: Three tracks”.</p>
+      <h3>Keyboard</h3>
+      <table class="ds-table ds-keys"><thead><tr><th scope="col">Key</th><th scope="col">Action</th></tr></thead><tbody>
+        <tr><td><kbd>Tab</kbd></td><td>The viewer, then Previous, Next and the current thumbnail: four stops however long the deck.</td></tr>
+        <tr><td><kbd>←</kbd> / <kbd>→</kbd> on the viewer</td><td>Previous and next slide. Nothing happens past either end.</td></tr>
+        <tr><td><kbd>Home</kbd> / <kbd>End</kbd> on the viewer</td><td>First and last slide.</td></tr>
+        <tr><td><kbd>←</kbd> / <kbd>→</kbd> in the thumbnails</td><td>Move focus along the strip; <kbd>Enter</kbd> or <kbd>Space</kbd> shows that slide.</td></tr>
+      </tbody></table>
+      <p>Disabling Previous on slide 1 keeps focus on the viewer, never on a disabled button: when a button becomes disabled while focused, focus moves to the viewer.</p>
+      <h3>Contrast</h3>
+      <div class="ds-example__canvas ds-example__canvas--stack" style="padding: 0; gap: var(--space-2);">
+        <div class="ds-pair"><span>Count on the page</span><span class="ds-pair__ratio" data-contrast="--color-fg-default|--color-bg-canvas" data-min="4.5"></span></div>
+        <div class="ds-pair"><span>Slide title on the page</span><span class="ds-pair__ratio" data-contrast="--color-fg-muted|--color-bg-canvas" data-min="4.5"></span></div>
+        <div class="ds-pair"><span>Current thumbnail ring on the page</span><span class="ds-pair__ratio" data-contrast="--color-accent|--color-bg-canvas" data-min="3"></span></div>
+        <div class="ds-pair"><span>Focus ring on the page</span><span class="ds-pair__ratio" data-contrast="--color-focus-ring|--color-bg-canvas" data-min="3"></span></div>
+      </div>
+      <h3>Motion</h3>
+      <p>Slides change without a transition. The strip scrolls smoothly to the current thumbnail only when <code>prefers-reduced-motion</code> is not set.</p>
+    </section>
+
+    <section class="ds-section" id="content"><h2><a href="#content">Content</a></h2>
+      <ul>
+        <li>Count: “Slide 18 of 52”, never “18/52”.</li>
+        <li>Title: the resource’s title, as the organiser wrote it.</li>
+        <li>PDF link: exactly “Open the slides (PDF)”.</li>
+        <li>Help line above the viewer: “Use the left and right arrow keys, or pick a thumbnail.”</li>
+      </ul>
+    </section>
+
+    <section class="ds-section" id="do-dont"><h2><a href="#do-dont">Do and don't</a></h2>
+      <div class="ds-dodont">
+        <figure class="ds-do"><div class="ds-example__canvas ds-example__canvas--stack"><p class="slide-viewer__status"><span class="slide-viewer__count">Slide 18 of 52</span><span class="slide-viewer__title">Meet Baptize The World</span></p></div><figcaption>Say where the person is in words, with the slide’s title.</figcaption></figure>
+        <figure class="ds-dont"><div class="ds-example__canvas ds-example__canvas--stack"><p>A row of 52 dots, the current one filled.</p></div><figcaption>Dots are too small to tap, mean nothing to a screen reader and don’t scale to 52.</figcaption></figure>
+        <figure class="ds-do"><div class="ds-example__canvas ds-example__canvas--stack"><p>Thumbnails as one toolbar with a roving tab stop.</p></div><figcaption>Four tab stops for the whole viewer.</figcaption></figure>
+        <figure class="ds-dont"><div class="ds-example__canvas ds-example__canvas--stack"><p>Every thumbnail in the tab order.</p></div><figcaption>52 stops before reaching Giving.</figcaption></figure>
+        <figure class="ds-do"><div class="ds-example__canvas ds-example__canvas--stack"><p>A PDF opens in a new tab from “Open the slides (PDF)”.</p></div><figcaption>The browser’s own PDF viewer pages, zooms and prints it.</figcaption></figure>
+        <figure class="ds-dont"><div class="ds-example__canvas ds-example__canvas--stack"><p>Auto-advancing slides every 5 seconds.</p></div><figcaption>Moving content needs a pause control (WCAG 2.2.2); people read at their own pace.</figcaption></figure>
+      </div>
+    </section>
+
+    <section class="ds-section" id="tokens"><h2><a href="#tokens">Tokens</a></h2>
+      <div class="ds-table-wrap"><table class="ds-table">
+        <thead><tr><th scope="col">Part</th><th scope="col">Token</th><th scope="col">Light</th><th scope="col">Dark</th></tr></thead>
+        <tbody>
+          <tr><td>Stage and thumbnail fill</td><td><code>--color-bg-subtle</code></td><td><span class="ds-swatch-cell" data-theme="light"><i data-token="--color-bg-subtle" data-swatch></i><span data-token="--color-bg-subtle"></span></span></td><td><span class="ds-swatch-cell" data-theme="dark"><i data-token="--color-bg-subtle" data-swatch></i><span data-token="--color-bg-subtle"></span></span></td></tr>
+          <tr><td>Edge</td><td><code>--color-border-default</code></td><td><span class="ds-swatch-cell" data-theme="light"><i data-token="--color-border-default" data-swatch></i><span data-token="--color-border-default"></span></span></td><td><span class="ds-swatch-cell" data-theme="dark"><i data-token="--color-border-default" data-swatch></i><span data-token="--color-border-default"></span></span></td></tr>
+          <tr><td>Thumbnail hover edge</td><td><code>--color-border-strong</code></td><td><span class="ds-swatch-cell" data-theme="light"><i data-token="--color-border-strong" data-swatch></i><span data-token="--color-border-strong"></span></span></td><td><span class="ds-swatch-cell" data-theme="dark"><i data-token="--color-border-strong" data-swatch></i><span data-token="--color-border-strong"></span></span></td></tr>
+          <tr><td>Current thumbnail ring</td><td><code>--color-accent</code></td><td><span class="ds-swatch-cell" data-theme="light"><i data-token="--color-accent" data-swatch></i><span data-token="--color-accent"></span></span></td><td><span class="ds-swatch-cell" data-theme="dark"><i data-token="--color-accent" data-swatch></i><span data-token="--color-accent"></span></span></td></tr>
+          <tr><td>Slide title</td><td><code>--color-fg-muted</code></td><td><span class="ds-swatch-cell" data-theme="light"><i data-token="--color-fg-muted" data-swatch></i><span data-token="--color-fg-muted"></span></span></td><td><span class="ds-swatch-cell" data-theme="dark"><i data-token="--color-fg-muted" data-swatch></i><span data-token="--color-fg-muted"></span></span></td></tr>
+          <tr><td>Stage radius / thumbnail radius</td><td><code>--radius-lg</code> / <code>--radius-sm</code></td><td colspan="2"><span data-token="--radius-lg"></span> / <span data-token="--radius-sm"></span></td></tr>
+          <tr><td>Ring width</td><td><code>--border-width-thick</code></td><td colspan="2"><span data-token="--border-width-thick"></span></td></tr>
+          <tr><td>Gaps</td><td><code>--space-3</code> / <code>--space-2</code></td><td colspan="2"><span data-token="--space-3"></span> / <span data-token="--space-2"></span></td></tr>
+        </tbody>
+      </table></div>
+    </section>
+
+    <section class="ds-section" id="code"><h2><a href="#code">Code</a></h2>
+      <pre><code>&lt;ft-slide-viewer
+  label="Slides"
+  [slides]="slides"            &lt;!-- { src, thumbnailSrc, title, kind: 'image' | 'pdf' }[] --&gt;
+  [(index)]="current"
+  pdfLabel="Open the slides (PDF)" /&gt;</code></pre>
+      <table class="ds-table"><thead><tr><th scope="col">Input / output</th><th scope="col">Effect</th></tr></thead><tbody>
+        <tr><td><code>label</code></td><td>Accessible name of the region (required).</td></tr>
+        <tr><td><code>slides: SlideViewerSlide[]</code></td><td>The deck in order: image URL, thumbnail URL, title (the alt and the status line) and kind. A <code>'pdf'</code> slide renders the file variant at its place (required).</td></tr>
+        <tr><td><code>index</code> (model)</td><td>The current slide, zero-based; two-way bindable. Defaults to 0.</td></tr>
+        <tr><td><code>pdfLabel</code></td><td>The PDF link’s text. Defaults to “Open the slides (PDF)”.</td></tr>
+        <tr><td><code>pdfMeta</code></td><td>Optional muted line beside the link (“SoCal Hackathon slides · PDF · 18.4 MB”).</td></tr>
+      </tbody></table>
+      <p>The component owns the keyboard map, the roving tab stop in the strip, scrolling the current thumbnail into view, the live status and swipe. It makes no HTTP calls: the events library passes hub file URLs.</p>
+    </section>
+
+    <section class="ds-section" id="sources"><h2><a href="#sources">Sources</a></h2>
+      <ul>
+        <li><a href="../../mocks/pages/hub-page/hackathon.html">pages/hub-page/hackathon</a>, <a href="../../mocks/pages/hub-page/slides-viewer.html">slides-viewer</a> and <a href="../../mocks/pages/hub-page/slides-pdf.html">slides-pdf</a></li>
+        <li>The hand-made viewer in <a href="../../events/socal-hackathon-2026/index.html">docs/events/socal-hackathon-2026</a>, which this replaces; its chapter select (“Jump to a section”) is not carried over.</li>
+      </ul>
+    </section>
+
+    <footer class="ds-footer"><span>FaithTech Community design system · added for event hubs (slice 46) on 2026-11-01</span><a href="#top">Back to top</a></footer>
+  </main>
+</div>
+<script src="../assets/ds.js"></script>
+</body>
+</html>

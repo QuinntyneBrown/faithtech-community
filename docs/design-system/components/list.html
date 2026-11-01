@@ -91,6 +91,7 @@
       <li><a href="../components/error-page.html">Error page</a></li>
       <li><a href="../components/landing-hero.html">Landing hero</a></li>
       <li><a href="../components/video-player.html">Video player</a></li>
+      <li><a href="../components/slide-viewer.html">Slide viewer</a></li>
       <li><a href="../components/auth-forms.html">Sign-in and sign-up forms</a></li>
       <li><a href="../components/site-footer.html">Site footer</a></li>
     </ul></details>
@@ -199,6 +200,27 @@
       </div>
 
       <p><code>.list</code> on its own sits inside a card that already has a heading (Home "Coming up", Search groups); <code>.list.card.card--flush</code> is the list as its own card.</p>
+      <h3 id="numbered">Numbered list (slice 46)</h3>
+      <div class="ds-example">
+        <div class="ds-example__canvas ds-example__canvas--stack"><div style="width: 100%; max-width: 32rem;"><ol class="list list--numbered card card--flush" aria-label="Rules"><li class="list__item"><span class="list__number" aria-hidden="true">01</span><div class="list__body"><div class="list__title">Start fresh</div><div class="list__meta">The code starts today.</div></div></li><li class="list__item"><span class="list__number" aria-hidden="true">02</span><div class="list__body"><div class="list__title">Any stack</div><div class="list__meta">Open source, APIs and AI tools welcome.</div></div></li><li class="list__item"><span class="list__number" aria-hidden="true">03</span><div class="list__body"><div class="list__title">Test data only</div><div class="list__meta">No real personal data from churches.</div></div></li></ol></div></div>
+        <div class="ds-example__caption"><span>The hub’s Rules (“01”, “02”…) and Worship songs (“1”, “2”…). <code>.list--numbered</code> on an <code>&lt;ol&gt;</code> tops-aligns the rows; each leads with <code>.list__number</code> (h4 type, tabular, <code>--color-fg-accent</code>, at least <code>--size-avatar-sm</code> wide so one- and two-digit numbers line up). The number is <code>aria-hidden</code> because the ordered list already announces the position. A trailing link (Worship’s “Listen ahead”) sits at the row’s end like any list action. <code>ft-list numbered</code> renders the <code>&lt;ol&gt;</code>; <code>ft-list-item</code>’s <code>number</code> input sets the text (“01” or “1”: the caller pads).</span></div>
+        <details class="ds-example__code"><summary>HTML</summary><pre><code>&lt;ol class="list list--numbered card card--flush" aria-label="Rules"&gt;
+  &lt;li class="list__item"&gt;&lt;span class="list__number" aria-hidden="true"&gt;01&lt;/span&gt;
+    &lt;div class="list__body"&gt;&lt;div class="list__title"&gt;Start fresh&lt;/div&gt;&lt;div class="list__meta"&gt;The code starts today.&lt;/div&gt;&lt;/div&gt;&lt;/li&gt;
+&lt;/ol&gt;
+&lt;!-- Angular --&gt;
+&lt;ft-list numbered label="Rules"&gt;
+  @for (rule of rules; track $index) { &lt;ft-list-item [number]="pad($index + 1)" [label]="rule.title" [meta]="rule.detail" /&gt; }
+&lt;/ft-list&gt;</code></pre></details>
+      </div>
+      <h3 id="icon-tile-initials">Initials icon tile (slice 46)</h3>
+      <div class="ds-example">
+        <div class="ds-example__canvas ds-example__canvas--stack"><div style="width: 100%; max-width: 32rem;"><ul class="list card card--flush" aria-label="Partners"><li class="list__item"><span class="icon-tile icon-tile--initials" aria-hidden="true">BW</span><div class="list__body"><div class="list__title">Baptize The World</div><div class="list__meta">Challenge statements and test data for three tracks</div><div class="list__meta"><a href="https://baptizetheworld.com">baptizetheworld.com</a></div></div></li></ul></div></div>
+        <div class="ds-example__caption"><span>The hub’s Partners section: partners have no logo yet, so <code>ft-icon-tile</code>’s <code>initials</code> input shows up to two letters (the first letters of the name’s first and last words) in label type, <code>--color-fg-accent</code> on <code>--color-accent-subtle</code> (<code>.icon-tile--initials</code>). It is square, so it reads as an organisation, not a person (people use the round <a href="avatar.html">avatar</a>). Decorative: the row’s title names the partner. When logos arrive, <code>src</code> replaces the initials.</span></div>
+        <details class="ds-example__code"><summary>HTML</summary><pre><code>&lt;span class="icon-tile icon-tile--initials" aria-hidden="true"&gt;BW&lt;/span&gt;
+&lt;!-- Angular --&gt;
+&lt;ft-icon-tile name="partners" initials="BW" /&gt;</code></pre></details>
+      </div>
     </section>
 
     <section class="ds-section" id="sizes" data-na="One density: rows are always padded by --space-3 and --space-4."><h2><a href="#sizes">Sizes</a></h2>
@@ -348,6 +370,7 @@
         <li><a href="../../mocks/pages/event-check-in/default.html">pages/event-check-in/default</a>, <a href="../../mocks/pages/event-check-in/checked-in.html">checked-in</a>, <a href="../../mocks/pages/event-check-in/no-results.html">no-results</a> and <a href="../../mocks/pages/event-check-in/loading.html">loading</a>, <a href="../../mocks/pages/event-check-in/save-failed.html">save-failed</a>, <a href="../../mocks/pages/event-check-in/read-only.html">read-only</a>, <a href="../../mocks/pages/event-check-in/cancelled.html">cancelled</a> and <a href="../../mocks/pages/event-check-in/done.html">done</a> (check-in rows); <a href="../../mocks/pages/event/attendance.html">pages/event/attendance</a> (attendance rows)</li>
         <li><a href="../../mocks/pages/hub-page/visitor.html">pages/hub-page/visitor</a>, <a href="../../mocks/pages/hub-page/finished.html">finished</a> (row states)</li>
         <li><a href="../../mocks/pages/archived-contacts/default.html">pages/archived-contacts/default</a> and <a href="../../mocks/pages/search/default.html">pages/search/default</a></li>
+        <li><a href="../../mocks/pages/hub-page/hackathon.html">pages/hub-page/hackathon</a> (slice 46, numbered Rules and Worship, the partner’s initials tile)</li>
       </ul>
       <p>A skeleton row uses the same <code>.list__body</code>, which already grows; it needs no inline <code>flex</code>.</p>
     </section>

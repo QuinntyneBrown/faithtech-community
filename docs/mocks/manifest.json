@@ -387,7 +387,19 @@
         "L2-164",
         "L2-165",
         "L2-169",
-        "L2-171"
+        "L2-171",
+        "L2-172",
+        "L2-173",
+        "L2-174",
+        "L2-175",
+        "L2-176",
+        "L2-177",
+        "L2-178",
+        "L2-179",
+        "L2-180",
+        "L2-181",
+        "L2-182",
+        "L2-183"
       ],
       "states": [
         "default",
@@ -405,7 +417,8 @@
         "published",
         "published-toast",
         "publish-failed",
-        "unpublished-toast"
+        "unpublished-toast",
+        "hackathon"
       ],
       "not_applicable": {
         "empty": "A hub always has its seven sections; an event with no hub is the no-hub state."
@@ -477,7 +490,19 @@
         "L2-164",
         "L2-166",
         "L2-167",
-        "L2-168"
+        "L2-168",
+        "L2-172",
+        "L2-173",
+        "L2-174",
+        "L2-175",
+        "L2-176",
+        "L2-177",
+        "L2-178",
+        "L2-179",
+        "L2-180",
+        "L2-181",
+        "L2-182",
+        "L2-183"
       ],
       "states": [
         "preview-draft",
@@ -491,7 +516,10 @@
         "loading",
         "error",
         "not-available",
-        "not-available-anonymous"
+        "not-available-anonymous",
+        "hackathon",
+        "slides-viewer",
+        "slides-pdf"
       ],
       "not_applicable": {
         "default": "The page has two defaults: visitor (an anonymous visitor on a published hub of a public event, slice 44) and preview-draft (someone who manages hubs, slice 43); member is the signed-in member's view."
@@ -1355,7 +1383,9 @@
         "L2-153",
         "L2-169",
         "L2-170",
-        "L2-171"
+        "L2-171",
+        "L2-172",
+        "L2-183"
       ],
       "states": [
         "default",
@@ -1377,7 +1407,8 @@
         "busy",
         "failed",
         "invalid",
-        "saved"
+        "saved",
+        "sections-from-hackathon"
       ],
       "not_applicable": {}
     },
@@ -1457,6 +1488,249 @@
         "failed"
       ],
       "not_applicable": {}
+    },
+    {
+      "id": "hub-parking",
+      "kind": "dialog",
+      "title": "Parking",
+      "opens_from": "event-hub",
+      "requirements": [
+        "L2-157",
+        "L2-163",
+        "L2-172",
+        "L2-173",
+        "L2-182"
+      ],
+      "states": [
+        "default",
+        "empty",
+        "busy",
+        "failed",
+        "invalid",
+        "no-options",
+        "options",
+        "uploading"
+      ],
+      "not_applicable": {}
+    },
+    {
+      "id": "hub-what-to-bring",
+      "kind": "dialog",
+      "title": "What to bring",
+      "opens_from": "event-hub",
+      "requirements": [
+        "L2-157",
+        "L2-163",
+        "L2-172",
+        "L2-174",
+        "L2-183"
+      ],
+      "states": [
+        "default",
+        "empty",
+        "busy",
+        "failed",
+        "invalid",
+        "on-the-day"
+      ],
+      "not_applicable": {}
+    },
+    {
+      "id": "hub-partners",
+      "kind": "dialog",
+      "title": "Partners",
+      "opens_from": "event-hub",
+      "requirements": [
+        "L2-157",
+        "L2-163",
+        "L2-172",
+        "L2-175"
+      ],
+      "states": [
+        "default",
+        "empty",
+        "busy",
+        "failed",
+        "invalid",
+        "no-partners",
+        "no-results",
+        "search-results"
+      ],
+      "not_applicable": {}
+    },
+    {
+      "id": "hub-tracks",
+      "kind": "dialog",
+      "title": "Tracks",
+      "opens_from": "event-hub",
+      "requirements": [
+        "L2-157",
+        "L2-163",
+        "L2-172",
+        "L2-176"
+      ],
+      "states": [
+        "default",
+        "empty",
+        "busy",
+        "failed",
+        "good-looks-like",
+        "invalid"
+      ],
+      "not_applicable": {}
+    },
+    {
+      "id": "hub-process",
+      "kind": "dialog",
+      "title": "Process",
+      "opens_from": "event-hub",
+      "requirements": [
+        "L2-157",
+        "L2-163",
+        "L2-172",
+        "L2-177",
+        "L2-183"
+      ],
+      "states": [
+        "default",
+        "empty",
+        "busy",
+        "failed",
+        "invalid",
+        "stages"
+      ],
+      "not_applicable": {}
+    },
+    {
+      "id": "hub-rules",
+      "kind": "dialog",
+      "title": "Rules",
+      "opens_from": "event-hub",
+      "requirements": [
+        "L2-157",
+        "L2-163",
+        "L2-172",
+        "L2-178",
+        "L2-183"
+      ],
+      "states": [
+        "default",
+        "empty",
+        "busy",
+        "failed",
+        "invalid"
+      ],
+      "not_applicable": {}
+    },
+    {
+      "id": "hub-demo-format",
+      "kind": "dialog",
+      "title": "Demo format",
+      "opens_from": "event-hub",
+      "requirements": [
+        "L2-157",
+        "L2-163",
+        "L2-172",
+        "L2-179",
+        "L2-183"
+      ],
+      "states": [
+        "default",
+        "empty",
+        "busy",
+        "failed",
+        "invalid",
+        "over-time"
+      ],
+      "not_applicable": {}
+    },
+    {
+      "id": "hub-judging",
+      "kind": "dialog",
+      "title": "Judging and honors",
+      "opens_from": "event-hub",
+      "requirements": [
+        "L2-157",
+        "L2-163",
+        "L2-172",
+        "L2-180",
+        "L2-183"
+      ],
+      "states": [
+        "default",
+        "empty",
+        "busy",
+        "failed",
+        "honors",
+        "invalid",
+        "weights-off"
+      ],
+      "not_applicable": {}
+    },
+    {
+      "id": "hub-worship",
+      "kind": "dialog",
+      "title": "Worship",
+      "opens_from": "event-hub",
+      "requirements": [
+        "L2-157",
+        "L2-163",
+        "L2-172",
+        "L2-181"
+      ],
+      "states": [
+        "default",
+        "empty",
+        "busy",
+        "failed",
+        "invalid"
+      ],
+      "not_applicable": {}
+    },
+    {
+      "id": "hub-slides",
+      "kind": "dialog",
+      "title": "Slides",
+      "opens_from": "event-hub",
+      "requirements": [
+        "L2-157",
+        "L2-163",
+        "L2-172",
+        "L2-182"
+      ],
+      "states": [
+        "default",
+        "empty",
+        "busy",
+        "failed",
+        "invalid",
+        "pdf",
+        "uploading",
+        "wrong-type"
+      ],
+      "not_applicable": {}
+    },
+    {
+      "id": "hub-resource-picker",
+      "kind": "dialog",
+      "title": "Choose from Resources",
+      "opens_from": "hub-parking",
+      "requirements": [
+        "L2-172",
+        "L2-173",
+        "L2-182"
+      ],
+      "states": [
+        "default",
+        "empty",
+        "failed",
+        "loading",
+        "slides"
+      ],
+      "not_applicable": {
+        "busy": "Choosing a resource saves nothing: the picker hands the choice back to the open wizard, which shows its own Saving… state.",
+        "invalid": "Only resources of the right kind are listed, so nothing can be chosen that the wizard would refuse; Choose stays disabled until one is picked."
+      }
     },
     {
       "id": "hub-venue",

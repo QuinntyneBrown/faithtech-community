@@ -714,6 +714,18 @@
       "bg": "--color-bg-surface-raised",
       "min": 3,
       "note": "checked menuitemradio mark (Counts as)"
+    },
+    {
+      "fg": "--color-success-icon",
+      "bg": "--color-bg-surface-raised",
+      "min": 3,
+      "note": "live total check icon in a wizard step (Weights total 100%)"
+    },
+    {
+      "fg": "--color-danger-icon",
+      "bg": "--color-bg-surface-raised",
+      "min": 3,
+      "note": "live total exclamation icon when the sum is off (Weights add up to 90%)"
     }
   ]
 }
