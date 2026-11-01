@@ -217,6 +217,37 @@ export function resetRoleDefinitions(): void {
   definitions = FAITHTECH_ROLES.map((d) => ({ ...d, grants: [...d.grants] }));
 }
 
+/**
+ * The two roles provisioning gives a new organisation (L2-149 AC1): Administrator, carrying AdministerOrganisation,
+ * and Member, carrying nothing, in place of FaithTech's seed.
+ */
+export function useProvisionedRoles(): void {
+  const base = {
+    showOnTeam: false,
+    chapterScopable: false,
+    isOversight: false,
+    grants: [] as string[],
+  };
+  definitions = [
+    {
+      ...base,
+      id: 'role-administrator',
+      key: 'administrator',
+      name: 'Administrator',
+      description: 'Runs the organisation and its settings',
+      capabilities: ['AdministerOrganisation'],
+    },
+    {
+      ...base,
+      id: 'role-member',
+      key: 'member',
+      name: 'Member',
+      description: 'Belongs to the organisation',
+      capabilities: [],
+    },
+  ];
+}
+
 /** Every definition, archived ones included, in display order. */
 export function roleDefinitions(): readonly RoleDefinition[] {
   return definitions;

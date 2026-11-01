@@ -83,6 +83,7 @@ public static class DependencyInjection
         services.AddHttpClient<IGoogleIdentityProvider, GoogleIdentityProvider>(client => client.Timeout = TimeSpan.FromSeconds(10));
         services.AddScoped<IVerificationResendLog, VerificationResendLog>();
         services.AddScoped<ITokenRevocation, TokenRevocation>();
+        services.AddScoped<Application.Organisations.Platform.IClientRedirects, ClientRedirects>();
         services.Configure<SmtpOptions>(configuration.GetSection(SmtpOptions.Section));
         services.AddScoped<OutboxEmailQueue>();
         services.AddScoped<IEmailQueue>(sp => sp.GetRequiredService<OutboxEmailQueue>());

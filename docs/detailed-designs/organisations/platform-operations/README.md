@@ -64,6 +64,13 @@ The code lives in `FaithTech.Community.Application/Organisations/Platform/`, wit
   - The group is `AllowAnonymous` at the policy level, so the fallback policy never answers 401. `RequireOperator` answers 404 with the status code pages turned off for that response, so the body is empty. The endpoint sweep in `ServerAuthorizationTests` expects that 404 for every `/api/platform` route.
   - Lock and unlock answer 204. A lock needs a reason of 1 to 500 characters (400 "Enter a reason."), and an unknown email answers 404. The account is found by normalised email, so the path's case does not matter.
   - The `PlatformOperatorsAuditAndAccountLock` migration adds `AspNetUsers.IsLocked`, `LockedReason` (500) and `LockedAtUtc`, and the `PlatformAuditEntries` table.
+- Slice 27 decisions:
+  - `L2-149` AC3 and AC4 overlap on a slug in use. A slug that exists answers 200 ("exists") when every field matches the earlier command, including the first administrator's email, and 409 when any differs. A host another organisation uses answers 400 on `Host`. Field errors answer 400 from `ProvisionOrganisationValidator`, shared by the endpoint and `org create`.
+  - `ProvisionOrganisationHandler` saves the organisation as `Provisioning` first, then calls `OrganisationScope.Set` with it, so the defaults, the roster row, the invite and its outbox email are stamped with the new organisation and the email names its name and origin. It then makes the organisation `Active` and records `organisation.provisioned`. A run that stopped while `Provisioning` is finished by the same command, since `OrganisationSeeder` adds only what is missing by key.
+  - `OrganisationSeeder.SeedOrganisationAsync(OrganisationSeed)` in `Application/Organisations/Platform/` is shared by provisioning (`OrganisationSeed.Default()`) and the FaithTech seed (`CommunitySeeder`).
+  - Provisioning's invite has no inviter (`InvitedBy` is empty): accepting it notifies no one, and the lookup names "A {short name} lead".
+  - `IClientRedirects` (OpenIddict in Infrastructure) adds `https://{host}/auth/callback` and `https://{host}/` to the `web` client. `CommunitySeeder` keeps redirect URIs it did not write, so a re-seed never removes a provisioned host.
+  - `POST /api/platform/organisations` answers 201 with `Location` and the organisation summary, or 200 with the summary when it exists. `org create` prints "Organisation {slug} created" or "Organisation {slug} exists" and exits 1 with the message otherwise. `--chapter-label` takes `Singular/Plural`.
 
 ## Requirements
 
