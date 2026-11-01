@@ -646,6 +646,32 @@ export class MockResources {
     }
   }
 
+  /** A file a hub may show (ADR 0042): an active image or PDF; for a caller, only one they may open in Resources. */
+  hubFile(
+    id: string,
+    caller: MockAccount | null,
+  ): { id: string; title: string; kind: 'Image' | 'Pdf' } | undefined {
+    const r = this.resources.find((x) => x.id === id && !x.archivedAt && !!x.fileName);
+    if (!r || (caller && !this.mayOpen(r, caller))) return undefined;
+    const kind = this.hasThumbnail(r)
+      ? 'Image'
+      : extensionOf(r.fileName!) === 'pdf'
+        ? 'Pdf'
+        : undefined;
+    return kind ? { id: r.id, title: r.title, kind } : undefined;
+  }
+
+  /** The bytes the hub's file route serves: the file, or its thumbnail for an image. */
+  hubFileBody(id: string, thumbnail: boolean): { body: Buffer; contentType: string } | undefined {
+    const r = this.resources.find((x) => x.id === id && !x.archivedAt && !!x.fileName);
+    if (!r) return undefined;
+    if (thumbnail) return this.hasThumbnail(r) ? { body: THUMBNAIL, contentType: 'image/png' } : undefined;
+    const ext = extensionOf(r.fileName!);
+    const contentType =
+      ext === 'pdf' ? 'application/pdf' : ext === 'jpg' ? 'image/jpeg' : `image/${ext}`;
+    return { body: r.content && r.content.length ? r.content : THUMBNAIL, contentType };
+  }
+
   private hasThumbnail(r: MockResource): boolean {
     return !!r.fileName && ['png', 'jpg', 'gif', 'webp'].includes(extensionOf(r.fileName));
   }

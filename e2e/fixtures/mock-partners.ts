@@ -154,6 +154,11 @@ export class MockPartners {
     });
   }
 
+  /** An active partner, as a hub reads it live (L2-175 AC3). */
+  active(id: string): MockPartner | undefined {
+    return this.partners.find((p) => p.id === id && !p.archivedAtUtc);
+  }
+
   add(partner: Partial<MockPartner> & { name: string }): MockPartner {
     const full: MockPartner = {
       id: `partner-${this.partners.length + 1}`,

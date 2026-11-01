@@ -3,9 +3,39 @@ import { Observable } from 'rxjs';
 
 import { EventFormat } from './events.service';
 
-/** The hub's section kinds, in the order a new hub lists them (docs/detailed-designs/events/create-event-hub). */
+/**
+ * The hub's section kinds in catalogue order (L2-172 AC1). Hero, Agenda, Venue, People, Links, Giving and UpcomingEvents
+ * are core: every hub holds them. The rest are optional: a hub holds them when its starting point names them (ADR 0042).
+ */
 export type HubSectionKind =
-  'Hero' | 'Agenda' | 'Venue' | 'People' | 'Links' | 'Giving' | 'UpcomingEvents';
+  | 'Hero'
+  | 'Agenda'
+  | 'Venue'
+  | 'Parking'
+  | 'WhatToBring'
+  | 'Partners'
+  | 'Tracks'
+  | 'Process'
+  | 'Rules'
+  | 'People'
+  | 'Links'
+  | 'DemoFormat'
+  | 'Judging'
+  | 'Worship'
+  | 'Slides'
+  | 'Giving'
+  | 'UpcomingEvents';
+
+/** The kinds every hub holds. */
+export const CORE_HUB_SECTION_KINDS: readonly HubSectionKind[] = [
+  'Hero',
+  'Agenda',
+  'Venue',
+  'People',
+  'Links',
+  'Giving',
+  'UpcomingEvents',
+];
 
 export type HubSectionState = 'Ready' | 'NeedsInfo' | 'Hidden';
 
@@ -81,19 +111,175 @@ export interface UpcomingEventsContent {
   count: number;
 }
 
+/** A title with an optional line: an on-the-day item, a rule, a process point or what good looks like. */
+export interface HubTitledItem {
+  title: string;
+  detail: string | null;
+}
+
+/** A parking option; its map is an image from Resources, read with its title (L2-173). */
+export interface ParkingOptionDto {
+  title: string;
+  notes: string | null;
+  mapResourceId: string | null;
+  mapTitle: string | null;
+}
+
+export interface ParkingContent {
+  note: string | null;
+  options: ParkingOptionDto[];
+}
+
+export interface ParkingInput {
+  note: string | null;
+  options: { title: string; notes: string | null; mapResourceId: string | null }[];
+}
+
+export interface WhatToBringContent {
+  bring: string[];
+  onTheDay: HubTitledItem[];
+}
+
+/** A partner read live from Partners (L2-175 AC3). */
+export interface HubPartnerDto {
+  id: string;
+  name: string;
+  offering: string | null;
+  website: string | null;
+}
+
+export interface PartnersContent {
+  partners: HubPartnerDto[];
+  meet: string | null;
+}
+
+export interface PartnersInput {
+  partnerIds: string[];
+  meet: string | null;
+}
+
+export interface HubTrack {
+  title: string;
+  brief: string | null;
+  linkUrl: string | null;
+  linkText: string | null;
+  /** At most one track is the primary focus (L2-176). */
+  primary: boolean;
+}
+
+export interface TracksContent {
+  tracks: HubTrack[];
+  goodLooksLike: HubTitledItem[];
+}
+
+export interface ProcessStage {
+  title: string;
+  when: string | null;
+  summary: string | null;
+  points: HubTitledItem[];
+}
+
+export interface ProcessContent {
+  name: string | null;
+  intro: string | null;
+  stages: ProcessStage[];
+}
+
+export interface RulesContent {
+  rules: HubTitledItem[];
+  note: string | null;
+}
+
+export interface DemoSegment {
+  title: string;
+  detail: string | null;
+  seconds: number;
+}
+
+export interface DemoFormatContent {
+  minutes: number | null;
+  questionMinutes: number | null;
+  segments: DemoSegment[];
+  tips: string[];
+}
+
+export type HonorChosenBy = 'TopScore' | 'JudgesPick' | 'MentorsPick' | 'Vote';
+
+export interface JudgingCriterion {
+  title: string;
+  question: string | null;
+  topMark: string | null;
+  weight: number;
+}
+
+export interface JudgingHonor {
+  title: string;
+  line: string | null;
+  chosenBy: HonorChosenBy;
+}
+
+export interface JudgingContent {
+  topScore: number | null;
+  criteria: JudgingCriterion[];
+  honors: JudgingHonor[];
+  note: string | null;
+}
+
+export interface WorshipSong {
+  title: string;
+  artist: string | null;
+  url: string | null;
+}
+
+export interface WorshipContent {
+  note: string | null;
+  songs: WorshipSong[];
+}
+
+/** A slide from Resources: an image or a PDF, read with its title (L2-182). */
+export interface HubSlideDto {
+  resourceId: string;
+  title: string;
+  kind: 'Image' | 'Pdf';
+}
+
+export interface SlidesContent {
+  slides: HubSlideDto[];
+}
+
+export interface SlidesInput {
+  slides: { resourceId: string }[];
+}
+
 export interface HubContentByKind {
   Hero: HeroContent;
   Agenda: AgendaContent;
   Venue: VenueContent;
+  Parking: ParkingContent;
+  WhatToBring: WhatToBringContent;
+  Partners: PartnersContent;
+  Tracks: TracksContent;
+  Process: ProcessContent;
+  Rules: RulesContent;
   People: PeopleContent;
   Links: LinksContent;
+  DemoFormat: DemoFormatContent;
+  Judging: JudgingContent;
+  Worship: WorshipContent;
+  Slides: SlidesContent;
   Giving: GivingContent;
   UpcomingEvents: UpcomingEventsContent;
 }
 
-/** What each kind's wizard saves; People sends inputs, not resolved people. */
-export interface HubContentInputByKind extends Omit<HubContentByKind, 'People'> {
+/** What each kind's wizard saves; kinds that read other features' values send ids, not what is read. */
+export interface HubContentInputByKind extends Omit<
+  HubContentByKind,
+  'People' | 'Parking' | 'Partners' | 'Slides'
+> {
   People: { people: HubPersonInput[] };
+  Parking: ParkingInput;
+  Partners: PartnersInput;
+  Slides: SlidesInput;
 }
 
 export interface HubSectionDto<K extends HubSectionKind = HubSectionKind> {
@@ -197,7 +383,7 @@ export interface EventHubsService {
     kind: K,
     content: HubContentInputByKind[K],
   ): Observable<void>;
-  /** Puts the sections in this order (L2-156 AC4); 400 unless it names every kind exactly once. */
+  /** Puts the sections in this order (L2-156 AC4); 400 unless it names each of the hub's kinds exactly once. */
   reorder(eventId: string, kinds: HubSectionKind[]): Observable<void>;
   /**
    * The hub page's read (L2-166): open to anyone, answering only the shown sections; 404 for a hub the caller may not see.
@@ -207,6 +393,11 @@ export interface EventHubsService {
   publish(eventId: string): Observable<void>;
   /** Returns the hub to Draft and keeps its sections (L2-164 AC3). */
   unpublish(eventId: string): Observable<void>;
+  /**
+   * Where the hub page reads a map or slide (L2-182 AC3): served only for a resource a shown section names, to whoever may
+   * see the page. `thumbnail` asks for the image's small version.
+   */
+  fileUrl(eventId: string, resourceId: string, thumbnail?: boolean): string;
 }
 
 export const EVENT_HUBS_SERVICE = new InjectionToken<EventHubsService>('EVENT_HUBS_SERVICE');

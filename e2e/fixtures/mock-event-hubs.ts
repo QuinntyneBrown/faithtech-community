@@ -1,6 +1,15 @@
 import { Route } from '@playwright/test';
 
 import { faithTechHubTemplates, MockHubTemplate } from './hub-templates';
+import {
+  HackathonDirectory,
+  OPTIONAL_HUB_SECTION_KINDS,
+  OptionalHubSectionKind,
+  optionalContent,
+  optionalReady,
+  resourceIds,
+  validateOptional,
+} from './mock-hackathon-sections';
 import type { EventsCaller, MockEvent } from './mock-events';
 import { holds, isOverride } from './role-definitions';
 
@@ -14,13 +23,37 @@ export const HUB_SECTION_KINDS = [
   'Hero',
   'Agenda',
   'Venue',
+  'Parking',
+  'WhatToBring',
+  'Partners',
+  'Tracks',
+  'Process',
+  'Rules',
   'People',
   'Links',
+  'DemoFormat',
+  'Judging',
+  'Worship',
+  'Slides',
   'Giving',
   'UpcomingEvents',
 ] as const;
 
 export type HubSectionKind = (typeof HUB_SECTION_KINDS)[number];
+
+/** The kinds every hub holds; the optional ones come with a template or a copy (ADR 0042). */
+export const CORE_HUB_SECTION_KINDS: readonly HubSectionKind[] = [
+  'Hero',
+  'Agenda',
+  'Venue',
+  'People',
+  'Links',
+  'Giving',
+  'UpcomingEvents',
+];
+
+const isOptional = (kind: string): kind is OptionalHubSectionKind =>
+  (OPTIONAL_HUB_SECTION_KINDS as readonly string[]).includes(kind);
 
 export interface MockHubSection {
   kind: HubSectionKind;
@@ -63,7 +96,9 @@ export interface EventHubsContext {
 }
 
 /** What only the MockApi knows, connected after it builds the events fake. */
-export interface EventHubsDirectory {
+export interface EventHubsDirectory extends HackathonDirectory {
+  /** The bytes of a hub file, or its thumbnail. */
+  fileBody(id: string, thumbnail: boolean): { body: Buffer; contentType: string } | undefined;
   organisation(): HubOrganisation;
   /** A member of the organisation, by profile id: name and featured photo. */
   member(profileId: string): { name: string; photoUrl: string | null } | undefined;
@@ -108,6 +143,9 @@ export class MockEventHubs {
   private directory: EventHubsDirectory = {
     organisation: () => ({ name: 'FaithTech Community', shortName: 'FaithTech' }),
     member: () => undefined,
+    partner: () => undefined,
+    file: () => undefined,
+    fileBody: () => undefined,
   };
 
   constructor(private readonly context: EventHubsContext) {}
@@ -116,8 +154,12 @@ export class MockEventHubs {
     this.directory = directory;
   }
 
-  /** A hub as the wizard would leave it, for specs that start from one. */
-  add(event: MockEvent, hidden: HubSectionKind[] = []): MockEventHub {
+  /** A hub as the wizard would leave it, for specs that start from one: the core kinds plus any optional ones named. */
+  add(
+    event: MockEvent,
+    hidden: HubSectionKind[] = [],
+    optional: OptionalHubSectionKind[] = [],
+  ): MockEventHub {
     const now = this.context.now().toISOString();
     const hub: MockEventHub = {
       id: `hub-${this.hubs.length + 1}`,
@@ -125,7 +167,9 @@ export class MockEventHubs {
       status: 'Draft',
       publishedAt: null,
       templateKey: 'blank',
-      sections: HUB_SECTION_KINDS.map((kind) => ({
+      sections: HUB_SECTION_KINDS.filter(
+        (kind) => CORE_HUB_SECTION_KINDS.includes(kind) || (optional as string[]).includes(kind),
+      ).map((kind) => ({
         kind,
         visible: !hidden.includes(kind),
         content: {},
@@ -256,6 +300,8 @@ export class MockEventHubs {
       if (!canManageHubs(caller)) return route.fulfill({ status: 403 });
       return this.listTemplates(route);
     }
+    const file = /^\/api\/events\/([^/]+)\/hub\/files\/([^/]+)(\/thumbnail)?$/.exec(url.pathname);
+    if (file) return method === 'GET' && this.file(route, file[1], file[2], !!file[3], caller);
     const match =
       /^\/api\/events\/([^/]+)\/hub(?:\/sections\/([^/]+)|\/(publish|unpublish|page|start))?$/.exec(
         url.pathname,
@@ -309,6 +355,40 @@ export class MockEventHubs {
       return route.fulfill({ status: 500 });
     }
     return route.fulfill({ status: 200, json: this.body(hub, event, origin) });
+  }
+
+  /** Whoever may see the hub page (L2-166, ADR 0040). */
+  private readable(hub: MockEventHub, event: MockEvent, caller: EventsCaller | null): boolean {
+    return (
+      (!!caller && canManageHubs(caller)) ||
+      (hub.status === 'Published' && (event.visibility === 'Public' || !!caller))
+    );
+  }
+
+  /**
+   * GET /api/events/{id}/hub/files/{resourceId} (L2-182 AC3, ADR 0042): only a resource a shown section names, to whoever
+   * may see the hub page; 404 otherwise.
+   */
+  private file(
+    route: Route,
+    eventId: string,
+    resourceId: string,
+    thumbnail: boolean,
+    caller: EventsCaller | null,
+  ): Promise<void> {
+    const event = this.context.event(eventId);
+    const hub = this.of(eventId);
+    if (!event || !hub || !this.readable(hub, event, caller)) return route.fulfill({ status: 404 });
+    const organisation = this.directory.organisation();
+    const named = hub.sections.some(
+      (s) =>
+        this.state(s, event, organisation) === 'Ready' &&
+        resourceIds(s.kind, s.content).includes(resourceId),
+    );
+    const body = named ? this.directory.fileBody(resourceId, thumbnail) : undefined;
+    return body
+      ? route.fulfill({ status: 200, body: body.body, contentType: body.contentType })
+      : route.fulfill({ status: 404 });
   }
 
   /**
@@ -403,13 +483,14 @@ export class MockEventHubs {
       errors['TemplateKey'] = ['Choose a starting point from the list.'];
     const sections = list(body['sections']);
     const kinds = sections.map((s) => String(s['kind'] ?? '').toLowerCase());
-    const known = HUB_SECTION_KINDS.map((k) => k.toLowerCase());
+    const hub = this.of(event.id);
+    // L2-172 AC4: only the hub's own sections.
+    const known = (hub?.sections ?? []).map((s) => s.kind.toLowerCase());
     if (kinds.some((k) => !known.includes(k)) || new Set(kinds).size !== kinds.length)
       errors['Sections'] = ['Choose sections from the list.'];
+    if (!hub) return route.fulfill({ status: 404 });
     if (Object.keys(errors).length)
       return route.fulfill({ status: 400, json: { status: 400, errors } });
-    const hub = this.of(event.id);
-    if (!hub) return route.fulfill({ status: 404 });
     if (this.takeFailure()) return route.fulfill({ status: 500 });
     for (const s of sections) {
       const section = hub.sections.find(
@@ -437,7 +518,7 @@ export class MockEventHubs {
     const hub = this.of(event.id);
     if (!hub) return route.fulfill({ status: 404 });
     let key = 'blank';
-    let sections: MockHubSection[] = HUB_SECTION_KINDS.map((kind) => ({
+    let sections: MockHubSection[] = CORE_HUB_SECTION_KINDS.map((kind) => ({
       kind,
       visible: true,
       content: {},
@@ -499,7 +580,7 @@ export class MockEventHubs {
     return route.fulfill({ status: 200, json: this.body(hub, event, origin) });
   }
 
-  /** PUT /hub/sections/order (L2-156 AC4): every kind exactly once. */
+  /** PUT /hub/sections/order (L2-156 AC4, L2-172 AC4): each of the hub's kinds exactly once. */
   private reorder(
     route: Route,
     event: MockEvent,
@@ -507,7 +588,7 @@ export class MockEventHubs {
     caller: EventsCaller,
   ): Promise<void> {
     const kinds = Array.isArray(body['kinds']) ? (body['kinds'] as unknown[]).map(String) : [];
-    const known = HUB_SECTION_KINDS.map((k) => k.toLowerCase());
+    const known = (this.of(event.id)?.sections ?? []).map((s) => s.kind.toLowerCase());
     const lower = kinds.map((k) => k.toLowerCase());
     if (
       lower.length !== known.length ||
@@ -537,9 +618,11 @@ export class MockEventHubs {
     caller: EventsCaller,
   ): Promise<void> {
     const hub = this.of(event.id);
-    const kind = HUB_SECTION_KINDS.find((k) => k.toLowerCase() === kindPath.toLowerCase());
+    const kind = hub?.sections.find((s) => s.kind.toLowerCase() === kindPath.toLowerCase())?.kind;
     if (!hub || !kind) return route.fulfill({ status: 404 });
-    const { content, errors } = this.validate(kind, body, hub);
+    const { content, errors } = isOptional(kind)
+      ? validateOptional(kind, body, this.directory, caller.profileId)
+      : this.validate(kind, body, hub);
     if (errors) return route.fulfill({ status: 400, json: { status: 400, errors } });
     if (this.takeFailure()) return route.fulfill({ status: 500 });
     hub.sections.find((s) => s.kind === kind)!.content = content!;
@@ -649,6 +732,7 @@ export class MockEventHubs {
   /** The section's content as the API returns it: defaults filled, People members read live (L2-161 AC2). */
   private contentOf(section: MockHubSection): Record<string, unknown> {
     const c = section.content;
+    if (isOptional(section.kind)) return optionalContent(section.kind, c, this.directory);
     switch (section.kind) {
       case 'Hero':
         return { subtitle: c['subtitle'] ?? null };
@@ -704,6 +788,7 @@ export class MockEventHubs {
   ): 'Ready' | 'NeedsInfo' | 'Hidden' {
     if (!section.visible) return 'Hidden';
     const c = section.content;
+    if (isOptional(section.kind)) return optionalReady(section.kind, c) ? 'Ready' : 'NeedsInfo';
     const ready = {
       Hero: true,
       UpcomingEvents: true,
