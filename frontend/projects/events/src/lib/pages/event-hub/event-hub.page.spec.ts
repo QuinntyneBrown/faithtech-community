@@ -11,6 +11,7 @@ const hub: EventHubDto = {
   id: 'h1',
   eventId: 'e1',
   status: 'Draft',
+  publishedAt: null,
   templateKey: 'blank',
   link: 'http://localhost/public/events/e1/hub',
   event: {

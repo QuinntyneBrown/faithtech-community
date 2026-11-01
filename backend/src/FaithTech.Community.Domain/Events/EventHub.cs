@@ -88,6 +88,31 @@ public class EventHub : IOrganisationScoped
         UpdatedAt = now;
     }
 
+    /// <summary>
+    /// Publishes the hub (L2-164 AC1, ADR 0039): refuses nothing, because empty sections are left out of the page; publishing
+    /// a published hub refreshes the time.
+    /// </summary>
+    public void Publish(DateTimeOffset now)
+    {
+        Status = EventHubStatus.Published;
+        PublishedAt = now;
+        UpdatedAt = now;
+    }
+
+    /// <summary>Returns the hub to Draft and keeps its sections (L2-164 AC3); false when it was already a draft.</summary>
+    public bool Unpublish(DateTimeOffset now)
+    {
+        if (Status == EventHubStatus.Draft)
+        {
+            return false;
+        }
+
+        Status = EventHubStatus.Draft;
+        PublishedAt = null;
+        UpdatedAt = now;
+        return true;
+    }
+
     /// <summary>Puts the sections in the given order (L2-156 AC4); it must name every kind exactly once.</summary>
     public void Reorder(IReadOnlyList<HubSectionKind> kinds, DateTimeOffset now)
     {

@@ -127,6 +127,8 @@ export interface EventHubDto {
   id: string;
   eventId: string;
   status: 'Draft' | 'Published';
+  /** When it was last published; null for a draft (L2-164 AC2). */
+  publishedAt: string | null;
   templateKey: string;
   link: string;
   event: HubEventFactsDto;
@@ -166,6 +168,10 @@ export interface EventHubsService {
   ): Observable<void>;
   /** Puts the sections in this order (L2-156 AC4); 400 unless it names every kind exactly once. */
   reorder(eventId: string, kinds: HubSectionKind[]): Observable<void>;
+  /** Publishes the hub, refusing nothing (L2-164 AC1); publishing a published hub refreshes `publishedAt`. */
+  publish(eventId: string): Observable<void>;
+  /** Returns the hub to Draft and keeps its sections (L2-164 AC3). */
+  unpublish(eventId: string): Observable<void>;
 }
 
 export const EVENT_HUBS_SERVICE = new InjectionToken<EventHubsService>('EVENT_HUBS_SERVICE');

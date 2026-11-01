@@ -58,4 +58,16 @@ export class HttpEventHubsService implements EventHubsService {
       { context: this.wizard },
     );
   }
+
+  publish(eventId: string): Observable<void> {
+    return this.http.post<void>(`${this.api}/events/${eventId}/hub/publish`, null, {
+      context: this.wizard,
+    });
+  }
+
+  unpublish(eventId: string): Observable<void> {
+    return this.http.post<void>(`${this.api}/events/${eventId}/hub/unpublish`, null, {
+      context: this.wizard,
+    });
+  }
 }
