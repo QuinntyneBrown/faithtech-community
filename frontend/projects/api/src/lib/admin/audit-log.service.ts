@@ -3,8 +3,12 @@ import { Observable } from 'rxjs';
 
 import { PagedResult } from '../shared';
 
-/** Audit log categories (L2-041 AC2); each maps onto a set of actions on the server. */
-export type AuditCategory = 'roles' | 'suspensions' | 'contacts' | 'deletions';
+/**
+ * Audit log categories (L2-041 AC2, L2-152 AC2); each maps onto a set of actions on the server. `roles` holds role
+ * changes, role definitions and grant rules.
+ */
+export type AuditCategory =
+  'roles' | 'suspensions' | 'contacts' | 'deletions' | 'organisation' | 'chapters' | 'taxonomies';
 
 export interface AuditEntry {
   id: string;
@@ -31,7 +35,10 @@ export interface AuditFilters {
 
 /** Contract for the read-only audit log. Pages depend on AUDIT_LOG_SERVICE, never on HttpAuditLogService. */
 export interface AuditLogService {
-  /** 50 entries per page, newest first. 403 unless the caller is a System Admin. */
+  /**
+   * 50 entries per page, newest first. An administrator reads everything; a holder of ManageRoles or
+   * ManageOrganisationSettings only the categories they may change; anyone else, or a category outside that, is 403.
+   */
   getEntries(filters: AuditFilters, page?: number): Observable<PagedResult<AuditEntry>>;
   /** Every filtered entry as CSV (L2-041 AC5). */
   exportCsv(filters: AuditFilters): Observable<Blob>;

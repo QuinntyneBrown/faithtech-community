@@ -32,6 +32,9 @@ public interface IApplicationDbContext
 
     DbSet<OrganisationAdminRoster> OrganisationAdminRosters { get; }
 
+    /// <summary>Platform operator actions; not organisation-scoped (L2-148 AC4, L2-152 AC4).</summary>
+    DbSet<PlatformAuditEntry> PlatformAuditEntries { get; }
+
     DbSet<Notification> Notifications { get; }
 
     DbSet<Invite> Invites { get; }

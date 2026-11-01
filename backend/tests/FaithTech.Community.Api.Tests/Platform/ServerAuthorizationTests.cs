@@ -60,7 +60,12 @@ public partial class ServerAuthorizationTests(CommunityApiFactory factory) : ICl
             var path = "/" + RouteParameter().Replace(route, Guid.NewGuid().ToString());
             var response = await client.SendAsync(new HttpRequestMessage(new HttpMethod(method), path));
 
-            if (AnonymousRoutes.Contains(route))
+            if (route.StartsWith("api/platform/", StringComparison.Ordinal))
+            {
+                // The operator API hides itself: an empty 404, never 401 (L2-148 AC2).
+                Assert.True(response.StatusCode == HttpStatusCode.NotFound, $"{method} {route} returned {response.StatusCode}");
+            }
+            else if (AnonymousRoutes.Contains(route))
             {
                 Assert.True(response.StatusCode != HttpStatusCode.Unauthorized, $"{method} {route} should be anonymous");
             }

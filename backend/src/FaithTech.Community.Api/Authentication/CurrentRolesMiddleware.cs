@@ -1,5 +1,6 @@
 using FaithTech.Community.Application.Common;
 using FaithTech.Community.Application.Organisations;
+using FaithTech.Community.Application.Organisations.Platform;
 using Microsoft.EntityFrameworkCore;
 using OpenIddict.Abstractions;
 
@@ -15,11 +16,24 @@ public class CurrentRolesMiddleware(RequestDelegate next)
 {
     public const string ItemKey = "FaithTech.CurrentMembership";
 
-    public async Task InvokeAsync(HttpContext context, IApplicationDbContext db, ProfileCapabilities capabilitiesOf)
+    /// <summary>The operator's email, on an operator API request from an account in Platform:Operators (L2-148 AC1).</summary>
+    public const string OperatorKey = "FaithTech.PlatformOperator";
+
+    public async Task InvokeAsync(
+        HttpContext context, IApplicationDbContext db, ProfileCapabilities capabilitiesOf, IPlatformOperators operators)
     {
         if (context.User.Identity?.IsAuthenticated == true
             && Guid.TryParse(context.User.FindFirst(OpenIddictConstants.Claims.Subject)?.Value, out var userId))
         {
+            if (context.Request.Path.StartsWithSegments("/api/platform"))
+            {
+                var email = await db.Users.AsNoTracking().Where(u => u.Id == userId).Select(u => u.Email).SingleOrDefaultAsync(context.RequestAborted);
+                if (operators.IsOperator(email))
+                {
+                    context.Items[OperatorKey] = email;
+                }
+            }
+
             var profileId = await db.Profiles.AsNoTracking()
                 .Where(p => p.UserId == userId && !p.IsSuspended)
                 .Select(p => (Guid?)p.Id)

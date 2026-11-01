@@ -47,6 +47,16 @@ namespace FaithTech.Community.Infrastructure.Persistence.Migrations
                     b.Property<DateTimeOffset?>("FailedAccessWindowStartedAt")
                         .HasColumnType("timestamp with time zone");
 
+                    b.Property<bool>("IsLocked")
+                        .HasColumnType("boolean");
+
+                    b.Property<DateTime?>("LockedAtUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("LockedReason")
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)");
+
                     b.Property<bool>("LockoutEnabled")
                         .HasColumnType("boolean");
 
@@ -1110,6 +1120,48 @@ namespace FaithTech.Community.Infrastructure.Persistence.Migrations
                         .IsUnique();
 
                     b.ToTable("PartnerStages", (string)null);
+                });
+
+            modelBuilder.Entity("FaithTech.Community.Domain.Organisations.PlatformAuditEntry", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Action")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<string>("DetailsJson")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime>("OccurredAtUtc")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("OperatorEmail")
+                        .IsRequired()
+                        .HasMaxLength(256)
+                        .HasColumnType("character varying(256)");
+
+                    b.Property<string>("OrganisationSlug")
+                        .HasMaxLength(40)
+                        .HasColumnType("character varying(40)");
+
+                    b.Property<string>("Source")
+                        .IsRequired()
+                        .HasMaxLength(8)
+                        .HasColumnType("character varying(8)");
+
+                    b.Property<string>("Target")
+                        .IsRequired()
+                        .HasMaxLength(256)
+                        .HasColumnType("character varying(256)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("OccurredAtUtc");
+
+                    b.ToTable("PlatformAuditEntries");
                 });
 
             modelBuilder.Entity("FaithTech.Community.Domain.Organisations.ResourceType", b =>

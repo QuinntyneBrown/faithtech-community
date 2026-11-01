@@ -2,11 +2,11 @@
 
 | Design | Effort | Complete | Visual conformance |
 |---|---|---|---|
-| accounts-and-memberships | 6 days | 90% | — |
+| accounts-and-memberships | 6 days | 95% | — |
 | capabilities-and-authorization | 7 days | 95% | — |
 | chapters | 6 days | 95% | — |
-| organisation-settings | 4 days | 55% | — |
-| platform-operations | 4 days | 0% | — |
+| organisation-settings | 4 days | 100% | — |
+| platform-operations | 4 days | 40% | — |
 | role-definitions-and-grant-rules | 7 days | 100% | — |
 | seed-faithtech | 4 days | 75% | — |
 | taxonomies | 6 days | 95% | — |

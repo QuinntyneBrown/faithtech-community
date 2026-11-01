@@ -1,9 +1,16 @@
 import { Locator, Page } from '@playwright/test';
 
-/** The audit log at /admin/audit-log (docs/mocks/pages/audit-log). */
+/**
+ * The audit log at /admin/audit-log, and at /organisation/audit for a holder of ManageRoles or
+ * ManageOrganisationSettings (docs/mocks/pages/audit-log, partial).
+ */
 export class AuditLogPage {
   readonly heading: Locator;
+  readonly subtitle: Locator;
+  readonly breadcrumb: Locator;
+  readonly adminTabs: Locator;
   readonly category: Locator;
+  readonly categoryOptions: Locator;
   readonly rows: Locator;
   readonly exportCsv: Locator;
   readonly showAll: Locator;
@@ -14,7 +21,11 @@ export class AuditLogPage {
 
   constructor(private readonly page: Page) {
     this.heading = page.getByRole('heading', { level: 1 });
+    this.subtitle = page.getByRole('main').locator('ft-page-header p').first();
+    this.breadcrumb = page.getByRole('navigation', { name: 'Breadcrumb' });
+    this.adminTabs = page.getByRole('navigation', { name: 'Admin sections' });
     this.category = page.getByLabel('Action');
+    this.categoryOptions = this.category.locator('option');
     this.rows = page.getByRole('table', { name: 'Audit log' }).locator('tbody tr');
     this.exportCsv = page.getByRole('button', { name: /^(Export CSV|Exporting)/ });
     this.showAll = page.getByRole('button', { name: 'Show all actions' });
@@ -26,6 +37,10 @@ export class AuditLogPage {
 
   async open(): Promise<void> {
     await this.page.goto('/admin/audit-log');
+  }
+
+  async openForOrganisation(): Promise<void> {
+    await this.page.goto('/organisation/audit');
   }
 
   noResults(category: string): Locator {

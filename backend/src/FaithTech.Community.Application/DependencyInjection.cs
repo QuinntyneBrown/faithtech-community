@@ -67,6 +67,12 @@ public static class DependencyInjection
         services.AddScoped<DeletePhotoHandler>();
         services.AddScoped<PhotoStorageRetryHandler>();
         services.AddScoped<GetAuditEntriesHandler>();
+        services.AddSingleton<Organisations.Platform.IPlatformOperators, Organisations.Platform.PlatformOperators>();
+        services.AddScoped<Organisations.Platform.PlatformActor>();
+        services.AddScoped<Organisations.Platform.IPlatformAuditLog, Organisations.Platform.PlatformAuditLog>();
+        services.AddScoped<Organisations.Platform.GetPlatformAuditHandler>();
+        services.AddScoped<Organisations.Platform.GetOrganisationSummaryHandler>();
+        services.AddScoped<Organisations.Platform.LockAccountHandler>();
         services.AddScoped<RoleGrantPolicy>();
         services.AddScoped<RoleChangeNotifier>();
         services.AddScoped<ChangeRolesHandler>();

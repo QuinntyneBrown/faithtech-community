@@ -17,5 +17,10 @@ public class HttpCurrentUser(IHttpContextAccessor accessor) : ICurrentUser
 
     public bool IsMember => Membership is not null;
 
+    /// <summary>Set by <see cref="CurrentRolesMiddleware"/> on an operator API request from a listed account.</summary>
+    public string? OperatorEmail => accessor.HttpContext?.Items[CurrentRolesMiddleware.OperatorKey] as string;
+
+    public bool IsPlatformOperator => OperatorEmail is not null;
+
     public bool IsAuthenticated => accessor.HttpContext?.User.Identity?.IsAuthenticated == true;
 }

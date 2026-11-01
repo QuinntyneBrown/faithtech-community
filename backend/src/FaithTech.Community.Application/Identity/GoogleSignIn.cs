@@ -157,6 +157,10 @@ public class GoogleSignInHandler(
 /// <summary>Account rules every way of signing in shares.</summary>
 public static class AccountStatus
 {
-    public static Task<bool> IsSuspendedAsync(IApplicationDbContext db, CommunityUser user, CancellationToken cancellationToken = default) =>
-        db.Profiles.AnyAsync(p => p.UserId == user.Id && p.IsSuspended, cancellationToken);
+    /// <summary>
+    /// Whether sign-in refuses the account with the suspended-account message: an operator locked it on the whole
+    /// platform (L2-132 AC6), or its membership here is suspended (L2-039).
+    /// </summary>
+    public static async Task<bool> IsSuspendedAsync(IApplicationDbContext db, CommunityUser user, CancellationToken cancellationToken = default) =>
+        user.IsLocked || await db.Profiles.AnyAsync(p => p.UserId == user.Id && p.IsSuspended, cancellationToken);
 }

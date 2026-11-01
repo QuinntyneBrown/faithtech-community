@@ -15,4 +15,10 @@ public class PlatformOptions
     /// email links and the community origin keep working on localhost.
     /// </summary>
     public string? DefaultOrganisationOrigin { get; set; }
+
+    /// <summary>
+    /// The platform operators' account emails (L2-148 AC1): an operator is recognised by this list, never by a role.
+    /// Validated on start as well-formed addresses.
+    /// </summary>
+    public List<string> Operators { get; set; } = [];
 }

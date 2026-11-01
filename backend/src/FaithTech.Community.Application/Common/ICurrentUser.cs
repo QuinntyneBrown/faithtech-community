@@ -27,6 +27,14 @@ public interface ICurrentUser
 
     bool IsAuthenticated { get; }
 
+    /// <summary>
+    /// The signed-in account's email when it is listed in <c>Platform:Operators</c> and the request is for the operator
+    /// API; null otherwise (L2-148 AC1). Never a role in any organisation.
+    /// </summary>
+    string? OperatorEmail => null;
+
+    bool IsPlatformOperator => OperatorEmail is not null;
+
     /// <summary>Whether the caller holds <paramref name="capability"/>; a holder of AdministerOrganisation holds every one (L2-135 AC3).</summary>
     bool Has(string capability) =>
         Capabilities.Contains(capability) || Capabilities.Contains(Domain.Organisations.Capability.AdministerOrganisation);
