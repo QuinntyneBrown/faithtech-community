@@ -123,7 +123,8 @@ WebVTT caption file, a poster frame and the narration text it was spoken from.
 | [Admin users and profile override](admin-users-and-override/video.webm) · [poster](admin-users-and-override/poster.png) · [captions](admin-users-and-override/captions.vtt) · [narration](admin-users-and-override/narration.md) | 1:11 | `pwsh eng/videos/Record-JourneyVideos.ps1 -Journey admin-users-and-override` |
 | [Assign roles](assign-roles/video.webm) · [poster](assign-roles/poster.png) · [captions](assign-roles/captions.vtt) · [narration](assign-roles/narration.md) | 1:09 | `pwsh eng/videos/Record-JourneyVideos.ps1 -Journey assign-roles` |
 | [Suspend and reinstate users](suspend-users/video.webm) · [poster](suspend-users/poster.png) · [captions](suspend-users/captions.vtt) · [narration](suspend-users/narration.md) | 1:02 | `pwsh eng/videos/Record-JourneyVideos.ps1 -Journey suspend-users` |
-| [The audit log](audit-log/video.webm) · [poster](audit-log/poster.png) · [captions](audit-log/captions.vtt) · [narration](audit-log/narration.md) | 0:56 | `pwsh eng/videos/Record-JourneyVideos.ps1 -Journey audit-log` |
+| [The audit log](audit-log/video.webm) · [poster](audit-log/poster.png) · [captions](audit-log/captions.vtt) · [narration](audit-log/narration.md) | 0:57 | `pwsh eng/videos/Record-JourneyVideos.ps1 -Journey audit-log` |
+| [Organisation settings](organisation-settings/video.webm) · [poster](organisation-settings/poster.png) · [captions](organisation-settings/captions.vtt) · [narration](organisation-settings/narration.md) | 1:08 | `pwsh eng/videos/Record-JourneyVideos.ps1 -Journey organisation-settings` |
 
 ### Agile
 

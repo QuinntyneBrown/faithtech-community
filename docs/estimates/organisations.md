@@ -6,8 +6,8 @@
 | capabilities-and-authorization | 7 days | 95% | — |
 | chapters | 6 days | 95% | — |
 | organisation-settings | 4 days | 100% | — |
-| platform-operations | 4 days | 95% | — |
+| platform-operations | 4 days | 100% | — |
 | role-definitions-and-grant-rules | 7 days | 100% | — |
-| seed-faithtech | 4 days | 75% | — |
+| seed-faithtech | 4 days | 95% | — |
 | taxonomies | 6 days | 95% | — |
 | tenancy-and-host-resolution | 8 days | 95% | — |
