@@ -1,11 +1,13 @@
-# Prompts: organisations
+# Prompts
+
+## Organisations
 
 These prompts implement the organisations subsystem (`docs/proposals/organisations.md`, `L1-025` to `L1-029`,
 `L2-130` to `L2-152`, ADRs 0032 to 0035, `docs/detailed-designs/organisations/`). They make the platform
 organisation-agnostic. Each prompt is one slice, and you run them in number order. Each one starts from `main`, works on
 its own branch and ends with a pull request. Merge a slice before you start the next.
 
-## How the plan is sliced
+### How the plan is sliced
 
 - **Design artefacts come first.** Prompt `00` writes the mocks, design-system pages, screen composition and estimate
   that `AGENTS.md` requires before any implementation. It writes no production code.
@@ -22,7 +24,7 @@ its own branch and ends with a pull request. Merge a slice before you start the 
 - **Vertical slices.** Each slice ships the Domain, Application, Api, frontend and e2e fake for its acceptance criteria.
   Each one is built with ATDD through the `implementing-incrementally` skill.
 
-## Order
+### Order
 
 | # | Prompt | Slice | Requirements | Status |
 |---|---|---|---|---|
@@ -60,8 +62,51 @@ its own branch and ends with a pull request. Merge a slice before you start the 
 Every acceptance criterion from `L2-130` to `L2-152` is assigned to at least one slice. If a criterion is split, each
 slice says which half it owns. When a slice merges, its prompt changes its row to "Done".
 
-## Deferred
+### Deferred
 
 Everything in the proposal's "Deferred" list is out of scope for every slice. That includes chapter-targeted
 announcement audiences, a per-organisation private-preview wall, branding, automated custom hosts, an audited operator
 read of organisation data, self-service sign-up, role templates, chapter hierarchies and renaming the repository.
+
+## Event hubs
+
+These prompts implement the event hubs feature (`docs/proposals/event-hubs.md`), one prompt per user journey 41 to
+50 in `docs/journeys.md`. Event hubs extend the `events` feature; they are not a new subsystem. Run the prompts in
+number order. Each one starts from `main` and works on its own branch. It writes its own mocks, design-system pages,
+requirements, detailed design and estimate entry, then builds the journey with ATDD. It also records a narrated
+demo video with music and without captions, and ends by merging its pull request. Every push to `main` deploys, so
+each merged slice ships.
+
+### How the plan is sliced
+
+- **Phases follow the proposal.** Prompts `41` to `44` are phase 1 (a useful hub), `45` to `47` phase 2
+  (hackathon-ready) and `48` to `50` phase 3 (the day and after).
+- **Slice 41 lays the foundations.** It adds the `EventHub` and `HubSection` entities, the `ManageEventHubs`
+  capability, the hub API and its e2e fake. It also adds the `-NoCaptions` and `-Music` switches to
+  `eng/videos/Record-JourneyVideos.ps1`, which every later video uses.
+- **One open question per owning slice.** `41` answers question 1 (chapter-tagged leads), `43` question 5 (notify
+  RSVPs), `46` question 2 (Custom text) and `47` question 3 (who edits templates). Question 4 (multi-language)
+  stays deferred.
+- **FaithTech is the regression case.** Its templates and default text are seed data. Every existing backend test
+  and Playwright spec passes after each slice.
+
+### Order
+
+| # | Prompt | Journey | Video | Status |
+|---|---|---|---|---|
+| 41 | [41-create-an-event-hub.md](41-create-an-event-hub.md) | Create an event hub | `create-event-hub` | To do |
+| 42 | [42-fill-in-hub-sections.md](42-fill-in-hub-sections.md) | Fill in hub sections | `fill-in-hub-sections` | To do |
+| 43 | [43-preview-and-publish-a-hub.md](43-preview-and-publish-a-hub.md) | Preview and publish a hub | `preview-and-publish-hub` | To do |
+| 44 | [44-visit-an-event-hub.md](44-visit-an-event-hub.md) | Visit an event hub | `visit-event-hub` | To do |
+| 45 | [45-start-a-hub-from-a-template.md](45-start-a-hub-from-a-template.md) | Start a hub from a template | `start-hub-from-template` | To do |
+| 46 | [46-build-a-hackathon-hub.md](46-build-a-hackathon-hub.md) | Build a hackathon hub | `build-hackathon-hub` | To do |
+| 47 | [47-edit-hub-templates.md](47-edit-hub-templates.md) | Edit hub templates | `edit-hub-templates` | To do |
+| 48 | [48-run-the-day-from-a-phone.md](48-run-the-day-from-a-phone.md) | Run the day from a phone | `run-the-day-from-a-phone` | To do |
+| 49 | [49-share-a-hub-by-qr-code.md](49-share-a-hub-by-qr-code.md) | Share a hub by QR code | `share-hub-by-qr-code` | To do |
+| 50 | [50-download-a-hub-archive.md](50-download-a-hub-archive.md) | Download a hub archive | `download-hub-archive` | To do |
+
+### Deferred
+
+Hackathon team registration, project submissions and judging scores inside the app (v2 in `AGENTS.md`). Also
+multi-language hubs, notifying RSVPs when a hub is published or changed, and sharing templates between
+organisations.
