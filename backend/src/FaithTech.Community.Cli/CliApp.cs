@@ -1,5 +1,6 @@
 using System.Security.Cryptography;
 using FaithTech.Community.Application.Common;
+using FaithTech.Community.Application.Identity;
 using FaithTech.Community.Application.Organisations;
 using FaithTech.Community.Application.Organisations.Platform;
 using FaithTech.Community.Domain.Organisations;
@@ -50,6 +51,8 @@ public static class CliApp
             .AddScoped<OrganisationSeeder>()
             .AddScoped<GetOrganisationSummaryHandler>()
             .AddScoped<ProvisionOrganisationHandler>()
+            .AddScoped<SuspendOrganisationHandler>()
+            .AddScoped<ITokenRevocation, TokenRevocation>()
             .AddScoped<IClientRedirects, ClientRedirects>()
             .AddScoped<OutboxEmailQueue>()
             .AddScoped<IEmailQueue>(sp => sp.GetRequiredService<OutboxEmailQueue>())
@@ -116,6 +119,13 @@ public static class CliApp
         {
             case "create":
                 return await CreateAsync(args, services, output);
+            case "suspend" when Slug(args) is { } slug:
+                return await Report(
+                    await services.GetRequiredService<SuspendOrganisationHandler>().SuspendAsync(slug, new SuspendOrganisationCommand(Option(args, "--reason"))),
+                    $"Organisation {slug} suspended",
+                    output);
+            case "lift" when Slug(args) is { } slug:
+                return await Report(await services.GetRequiredService<SuspendOrganisationHandler>().LiftAsync(slug), $"Organisation {slug} lifted", output);
             case "audit":
                 var take = GetPlatformAuditHandler.DefaultPageSize;
                 if (Option(args, "--take") is { } value && (!int.TryParse(value, out take) || take < 1))
@@ -135,7 +145,8 @@ public static class CliApp
             default:
                 Console.Error.WriteLine(
                     "Usage: faithtech-community org create --slug <slug> --host <host> --name <name> --short-name <short> " +
-                    "[--chapter-label <Singular/Plural>] --admin-email <email> --operator <email> | org audit [--take <n>] --operator <email>");
+                    "[--chapter-label <Singular/Plural>] --admin-email <email> --operator <email> | org suspend <slug> --reason <reason> --operator <email> | " +
+                    "org lift <slug> --operator <email> | org audit [--take <n>] --operator <email>");
                 return 1;
         }
     }
@@ -170,6 +181,24 @@ public static class CliApp
         }
 
         await output.WriteLineAsync($"Organisation {summary!.Slug} {(outcome == ProvisionOutcome.Created ? "created" : "exists")}");
+        return 0;
+    }
+
+    // The slug of org suspend and org lift: the argument after the subcommand, when it is not an option.
+    private static string? Slug(string[] args) => args.Length > 2 && !args[2].StartsWith("--", StringComparison.Ordinal) ? args[2] : null;
+
+    // Prints the success line, or the error and exit code 1.
+    private static async Task<int> Report(Result result, string success, TextWriter output)
+    {
+        if (result.Status != ResultStatus.Ok)
+        {
+            Console.Error.WriteLine(result.Status == ResultStatus.NotFound
+                ? "No organisation has that slug."
+                : result.Detail ?? string.Join(" ", result.Errors?.SelectMany(e => e.Value) ?? []));
+            return 1;
+        }
+
+        await output.WriteLineAsync(success);
         return 0;
     }
 

@@ -8,7 +8,9 @@ namespace FaithTech.Community.Infrastructure.Organisations;
 
 /// <summary>
 /// Runs a worker's unit of work once per organisation, each in its own service scope with that organisation in
-/// scope, so the work sees and writes only that organisation's rows (ADR 0032).
+/// scope, so the work sees and writes only that organisation's rows (ADR 0032). Only Active organisations get a turn:
+/// a suspended organisation's rows wait, neither processed nor marked failed, until it is lifted (L2-150 AC4), and one
+/// being provisioned has no work yet.
 /// </summary>
 public class OrganisationWork(IServiceScopeFactory scopes)
 {
@@ -18,7 +20,7 @@ public class OrganisationWork(IServiceScopeFactory scopes)
         await using (var lookup = scopes.CreateAsyncScope())
         {
             organisations = await lookup.ServiceProvider.GetRequiredService<CommunityDbContext>().Organisations
-                .Where(o => o.Status != OrganisationStatus.Provisioning)
+                .Where(o => o.Status == OrganisationStatus.Active)
                 .OrderBy(o => o.CreatedAtUtc)
                 .AsNoTracking()
                 .ToListAsync(cancellationToken);

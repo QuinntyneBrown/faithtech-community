@@ -109,11 +109,17 @@ export class MockHost {
     return this.answerWith('suspended', 503);
   }
 
+  /** The suspension is lifted: the hosts resolve to the organisation again on the next request (L2-150 AC3). */
+  async lift(): Promise<void> {
+    if (this.closed) await this.page.unroute(this.closed);
+    this.closed = null;
+  }
+
+  private closed: ((url: URL) => boolean) | null = null;
+
   private async answerWith(systemPage: SystemPage, status: number): Promise<void> {
-    await this.page.route(
-      (url) => this.origins.includes(url.origin),
-      (route) => this.handle(route, systemPage, status),
-    );
+    this.closed = (url) => this.origins.includes(url.origin);
+    await this.page.route(this.closed, (route) => this.handle(route, systemPage, status));
   }
 
   private handle(route: Route, systemPage: SystemPage, status: number): Promise<void> {

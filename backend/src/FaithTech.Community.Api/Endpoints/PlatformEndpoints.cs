@@ -30,6 +30,12 @@ public static class PlatformEndpoints
         platform.MapGet("/organisations/{slug}", async (string slug, GetOrganisationSummaryHandler handler, CancellationToken cancellationToken) =>
             await handler.HandleAsync(slug, cancellationToken) is { } summary ? Results.Ok(summary) : EmptyNotFound());
 
+        platform.MapPost("/organisations/{slug}/suspend", async (string slug, SuspendOrganisationCommand command, SuspendOrganisationHandler handler, CancellationToken cancellationToken) =>
+            (await handler.SuspendAsync(slug, command, cancellationToken)).ToHttp(Results.NoContent));
+
+        platform.MapPost("/organisations/{slug}/lift", async (string slug, SuspendOrganisationHandler handler, CancellationToken cancellationToken) =>
+            (await handler.LiftAsync(slug, cancellationToken)).ToHttp(Results.NoContent));
+
         platform.MapPost("/accounts/{email}/lock", async (string email, LockAccountCommand command, LockAccountHandler handler, CancellationToken cancellationToken) =>
             (await handler.LockAsync(email, command, cancellationToken)).ToHttp(Results.NoContent));
 
