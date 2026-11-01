@@ -40,6 +40,9 @@ const REPO = join(__dirname, '..', '..');
  */
 const SHOTS = process.env['DEMO_SCREENSHOTS'];
 
+/** Set by `Record-JourneyVideos.ps1 -NoCaptions`: no caption is drawn; the cards and chapters stay. */
+const NO_CAPTIONS = process.env['DEMO_NO_CAPTIONS'] === '1';
+
 /**
  * Shows the opening card, captions and closing card over the app, holds each narration paragraph
  * for at least its synthesized length, and logs when each caption appeared so the audio track can
@@ -124,7 +127,7 @@ export class Presenter {
       if (!change.card) await this.capture(id);
       return;
     }
-    await this.render({ ...change, caption: clip.text });
+    await this.render({ ...change, caption: NO_CAPTIONS ? null : clip.text });
     const shownAt = Date.now();
     this.timeline.push({
       id,
