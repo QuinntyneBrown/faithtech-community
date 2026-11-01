@@ -97,7 +97,7 @@ each merged slice ships.
 | 41 | [41-create-an-event-hub.md](41-create-an-event-hub.md) | Create an event hub | `create-event-hub` | Done |
 | 42 | [42-fill-in-hub-sections.md](42-fill-in-hub-sections.md) | Fill in hub sections | `fill-in-hub-sections` | Done |
 | 43 | [43-preview-and-publish-a-hub.md](43-preview-and-publish-a-hub.md) | Preview and publish a hub | `preview-and-publish-hub` | Done |
-| 44 | [44-visit-an-event-hub.md](44-visit-an-event-hub.md) | Visit an event hub | `visit-event-hub` | To do |
+| 44 | [44-visit-an-event-hub.md](44-visit-an-event-hub.md) | Visit an event hub | `visit-event-hub` | Done |
 | 45 | [45-start-a-hub-from-a-template.md](45-start-a-hub-from-a-template.md) | Start a hub from a template | `start-hub-from-template` | To do |
 | 46 | [46-build-a-hackathon-hub.md](46-build-a-hackathon-hub.md) | Build a hackathon hub | `build-hackathon-hub` | To do |
 | 47 | [47-edit-hub-templates.md](47-edit-hub-templates.md) | Edit hub templates | `edit-hub-templates` | To do |

@@ -12,4 +12,4 @@
 | create-event-hub | 4 days | 100% | B+ |
 | fill-in-hub-sections | 12 days | 100% | B+ |
 | preview-and-publish-hub | 3 days | 100% | B+ |
-| visit-event-hub | 5 days | 0% | — |
+| visit-event-hub | 5 days | 100% | B+ |
