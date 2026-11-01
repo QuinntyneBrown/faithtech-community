@@ -37,6 +37,15 @@ export class HubSectionDialog {
     return this.dialog.getByRole('textbox', { name: new RegExp(`^${label}`) });
   }
 
+  /** A select by its label, with or without "(optional)". */
+  select(label: string): Locator {
+    return this.dialog.getByRole('combobox', { name: new RegExp(`^${label}`) });
+  }
+
+  button(name: string): Locator {
+    return this.dialog.getByRole('button', { name, exact: true });
+  }
+
   /** A fact the wizard reads from elsewhere, such as the event's "When", by its term. */
   fact(term: string): Locator {
     return this.dialog
@@ -49,7 +58,7 @@ export class HubSectionDialog {
     return this.dialog.getByText(text, { exact: true });
   }
 
-  link(name: string): Locator {
+  link(name: string | RegExp): Locator {
     return this.dialog.getByRole('link', { name });
   }
 }

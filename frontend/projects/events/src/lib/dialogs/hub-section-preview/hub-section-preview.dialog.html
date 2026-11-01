@@ -10,6 +10,12 @@
     @case ('Agenda') {
       <ft-hub-agenda [items]="agenda" />
     }
+    @case ('Venue') {
+      <ft-hub-venue [hub]="data.hub" />
+    }
+    @case ('Links') {
+      <ft-hub-links [hub]="data.hub" />
+    }
     @case ('Giving') {
       <ft-hub-giving [hub]="data.hub" />
     }

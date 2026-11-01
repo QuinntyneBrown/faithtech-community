@@ -45,6 +45,8 @@ import {
   HubAgendaDialog,
   HubGivingDialog,
   HubHeroDialog,
+  HubLinksDialog,
+  HubVenueDialog,
   HubSectionPreviewData,
   HubSectionPreviewDialog,
   PREVIEWABLE,
@@ -71,6 +73,8 @@ const BADGES = {
 const WIZARDS: Partial<Record<HubSectionKind, Type<unknown>>> = {
   Hero: HubHeroDialog,
   Agenda: HubAgendaDialog,
+  Venue: HubVenueDialog,
+  Links: HubLinksDialog,
   Giving: HubGivingDialog,
 };
 

@@ -7,6 +7,8 @@ import {
   HubAgendaComponent,
   HubGivingComponent,
   HubHeroComponent,
+  HubLinksComponent,
+  HubVenueComponent,
   hubSection,
   sectionContent,
 } from '../../hub-sections';
@@ -17,7 +19,13 @@ export interface HubSectionPreviewData {
 }
 
 /** The kinds whose display the preview can show; each joins as its display lands. */
-export const PREVIEWABLE: readonly HubSectionKind[] = ['Hero', 'Agenda', 'Giving'];
+export const PREVIEWABLE: readonly HubSectionKind[] = [
+  'Hero',
+  'Agenda',
+  'Venue',
+  'Links',
+  'Giving',
+];
 
 /**
  * "{Section} preview" (L2-156 AC5), matching docs/mocks/dialogs/hub-section-preview: the section rendered by its
@@ -31,6 +39,8 @@ export const PREVIEWABLE: readonly HubSectionKind[] = ['Hero', 'Agenda', 'Giving
     HubAgendaComponent,
     HubGivingComponent,
     HubHeroComponent,
+    HubLinksComponent,
+    HubVenueComponent,
   ],
   templateUrl: './hub-section-preview.dialog.html',
   changeDetection: ChangeDetectionStrategy.OnPush,

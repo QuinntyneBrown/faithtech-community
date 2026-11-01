@@ -1,0 +1,48 @@
+<ft-dialog
+  heading="Submission and feedback"
+  [describedBy]="questionId"
+  [busy]="saver.busy()"
+  (closed)="ref.close(false)"
+>
+  <form [formGroup]="form" (submit)="$event.preventDefault(); save()" ftFormErrorFocus>
+    <ft-stack>
+      @if (saver.failed()) {
+        <ft-alert status="danger" heading="We couldn’t save this section">
+          Check your connection and try again.
+          <ft-button ftAlertActions (click)="save()">Try again</ft-button>
+        </ft-alert>
+      }
+      <h3 class="section-title" [id]="questionId">
+        Where do teams submit, and where do people give feedback?
+      </h3>
+      <ft-form-field
+        label="Submission link"
+        [optional]="true"
+        help="Shown as ‘Submit your project’"
+        [error]="saver.error('submissionUrl')"
+      >
+        <ft-text-field formControlName="submissionUrl" type="url" autocomplete="off" />
+      </ft-form-field>
+      <ft-form-field
+        label="Feedback link"
+        [optional]="true"
+        help="Shown as ‘Give feedback’"
+        [error]="saver.error('feedbackUrl')"
+      >
+        <ft-text-field formControlName="feedbackUrl" type="url" autocomplete="off" />
+      </ft-form-field>
+      <ft-form-field
+        label="Code freeze"
+        [optional]="true"
+        [help]="codeFreezeHelp"
+        [error]="saver.error('codeFreezeAt')"
+      >
+        <ft-select formControlName="codeFreezeAt" [options]="rows" placeholder="None" />
+      </ft-form-field>
+    </ft-stack>
+  </form>
+  <ft-button ftDialogFooter [disabled]="saver.busy()" (click)="ref.close(false)">Cancel</ft-button>
+  <ft-button ftDialogFooter variant="primary" [loading]="saver.busy()" (click)="save()">{{
+    saver.busy() ? 'Saving…' : 'Save'
+  }}</ft-button>
+</ft-dialog>
