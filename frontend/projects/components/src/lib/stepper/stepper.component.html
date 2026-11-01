@@ -1,0 +1,15 @@
+<p class="ft-stepper__status" [attr.id]="statusId()">
+  <span class="ft-stepper__count">Step {{ current() }} of {{ steps().length }}</span>
+  <span class="ft-stepper__name">{{ name() }}</span>
+</p>
+<ol class="ft-stepper__steps" [attr.aria-label]="label()">
+  @for (step of steps(); track $index) {
+    <li
+      class="ft-stepper__step"
+      [class.ft-stepper__step--done]="$index + 1 < current()"
+      [attr.aria-current]="$index + 1 === current() ? 'step' : null"
+    >
+      <span class="ft-visually-hidden">{{ step }}{{ $index + 1 < current() ? ', done' : '' }}</span>
+    </li>
+  }
+</ol>

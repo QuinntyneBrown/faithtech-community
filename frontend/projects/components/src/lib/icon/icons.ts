@@ -82,6 +82,10 @@ export const ICONS: Readonly<Record<string, string>> = {
   merge: "<path d='M7 3v6a5 5 0 0 0 5 5 5 5 0 0 1 5 5v2M7 21v-6M17 3v3'/>",
   reports: "<path d='M4 20V10M10 20V4M16 20v-7M22 20H2'/>",
   'walk-in': "<circle cx='10' cy='8' r='4'/><path d='M3 21a7 7 0 0 1 14 0M19 8v6M16 11h6'/>",
+  hub: "<rect x='3' y='3' width='18' height='18' rx='2'/><path d='M3 9h18M9 21V9'/>",
+  save: "<path d='M5 3h11l3 3v15H5zM8 3v5h8V3M8 21v-7h8v7'/>",
+  hidden:
+    "<path d='M3 3l18 18M10.6 6.1A9.7 9.7 0 0 1 12 6c5 0 9 6 9 6a15 15 0 0 1-2.6 3.2M6.6 6.6C4.4 8 3 12 3 12s4 6 9 6a9 9 0 0 0 4.4-1.1M9.9 9.9a3 3 0 0 0 4.2 4.2'/>",
 };
 
 export const ICON_NAMES = Object.keys(ICONS);
