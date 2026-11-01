@@ -1,4 +1,4 @@
-// Traces to: L2-164 AC3, L2-165 AC3 (docs/detailed-designs/events/preview-and-publish-hub)
+// Traces to: L2-164 AC3 (docs/detailed-designs/events/preview-and-publish-hub)
 import { DIALOG_DATA, DialogRef } from '@angular/cdk/dialog';
 import { HttpErrorResponse } from '@angular/common/http';
 import { TestBed } from '@angular/core/testing';

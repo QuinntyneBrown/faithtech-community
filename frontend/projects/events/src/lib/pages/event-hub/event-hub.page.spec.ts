@@ -137,7 +137,7 @@ describe('EventHubPage', () => {
     );
   });
 
-  // L2-164 AC1, AC2, L2-165 AC1: Publish says so and the page shows the published time.
+  // L2-164 AC1, AC2: Publish says so and the page shows the published time.
   it('publishes the hub and says visitors can open it', async () => {
     const host = await setup();
     service.publish.mockReturnValue(of(undefined));
@@ -156,7 +156,7 @@ describe('EventHubPage', () => {
     );
   });
 
-  // L2-165 AC2: a failed publish offers Try again on its toast.
+  // L2-164 AC1: a failed publish offers Try again on its toast.
   it('offers Try again when publishing fails', async () => {
     const host = await setup();
     service.publish.mockReturnValue(throwError(() => new HttpErrorResponse({ status: 500 })));

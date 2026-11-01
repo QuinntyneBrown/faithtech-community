@@ -72,7 +72,7 @@ test.describe('Preview and publish a hub', () => {
     }
   });
 
-  // L2-164 AC1, AC2, L2-165 AC1: Publish makes it published now, with a toast, and refuses nothing.
+  // L2-164 AC1, AC2: Publish makes it published now, with a toast, and refuses nothing.
   test('publishing a draft hub makes it published, with the time and a toast', async ({
     page,
     api,
@@ -95,7 +95,7 @@ test.describe('Preview and publish a hub', () => {
     await axe.check();
   });
 
-  // L2-165 AC2: a failed publish says so and Try again publishes.
+  // L2-164 AC1: a failed publish says so and Try again publishes.
   test('a failed publish keeps the draft and Try again publishes it', async ({ page, api }) => {
     const { event, grace } = arrange(api);
     const home = new EventHubPage(page);
@@ -112,7 +112,7 @@ test.describe('Preview and publish a hub', () => {
     await expect(home.status).toHaveText('Published');
   });
 
-  // L2-164 AC3, L2-165 AC3: Unpublish asks first, then returns the hub to a draft.
+  // L2-164 AC3: Unpublish asks first, then returns the hub to a draft.
   test('unpublishing asks first and returns the hub to a draft', async ({ page, api, axe }) => {
     const { event, grace } = arrange(api);
     api.events.hubs.publish(event.id);
@@ -140,7 +140,7 @@ test.describe('Preview and publish a hub', () => {
     await expect(home.publish).toBeVisible();
   });
 
-  // L2-165 AC3: a failed unpublish keeps the dialog open with Try again.
+  // L2-164 AC3: a failed unpublish keeps the dialog open with Try again.
   test('a failed unpublish keeps the dialog open and Try again unpublishes', async ({
     page,
     api,
@@ -161,7 +161,7 @@ test.describe('Preview and publish a hub', () => {
     await expect(home.status).toHaveText('Draft');
   });
 
-  // L2-165 AC4: Copy link copies the hub's link and says so.
+  // L2-165 AC1: Copy link copies the hub's link and says so.
   test('Copy link copies the hub link and says to share it', async ({ page, api, context }) => {
     await context.grantPermissions(['clipboard-read', 'clipboard-write']);
     const { event, grace } = arrange(api);

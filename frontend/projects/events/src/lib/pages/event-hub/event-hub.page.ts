@@ -248,7 +248,7 @@ export class EventHubPage {
     return `${formatDay(at)} · ${formatTime(at)}`;
   }
 
-  /** Copy link (L2-165 AC4): the copy field copies, or selects the link when the browser refuses. */
+  /** Copy link (L2-165 AC1): the copy field copies, or selects the link when the browser refuses. */
   protected linkCopied(): void {
     this.toasts.show({
       variant: 'success',
@@ -257,7 +257,7 @@ export class EventHubPage {
     });
   }
 
-  /** Publish (L2-164 AC1, L2-165 AC1): refuses nothing; a failure offers Try again on its toast (AC2). */
+  /** Publish (L2-164 AC1): refuses nothing; a failure offers Try again on its toast. */
   protected async publish(): Promise<void> {
     if (this.publishing()) return;
     this.publishing.set(true);
@@ -283,7 +283,7 @@ export class EventHubPage {
     await this.load(this.id(), true);
   }
 
-  /** Unpublish (L2-164 AC3, L2-165 AC3): asks first in its dialog. */
+  /** Unpublish (L2-164 AC3): asks first in its dialog. */
   protected async unpublish(): Promise<void> {
     const ref = this.dialogs.open<boolean, UnpublishHubData>(UnpublishHubDialog, {
       data: { eventId: this.id() },

@@ -9,7 +9,7 @@ export interface UnpublishHubData {
 }
 
 /**
- * Confirms unpublishing a hub (L2-164 AC3, L2-165 AC3), matching docs/mocks/dialogs/unpublish-hub. Closes with true once
+ * Confirms unpublishing a hub (L2-164 AC3), matching docs/mocks/dialogs/unpublish-hub. Closes with true once
  * the hub is a draft again; a failure keeps it open with Try again.
  */
 @Component({
