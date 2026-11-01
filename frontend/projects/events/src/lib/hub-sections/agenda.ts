@@ -111,3 +111,30 @@ export function agendaSummary(rows: readonly AgendaItem[]): string {
   if (rows.length === 1) return `1 row, ${formatTime(rows[0].startsAt)}`;
   return `${rows.length} rows, ${formatTime(rows[0].startsAt)} to ${formatTime(rows[rows.length - 1].startsAt)}`;
 }
+
+/** Where an agenda row stands at a moment (L2-168). */
+export type AgendaRowState = 'finished' | 'now' | 'next' | 'later';
+
+/**
+ * Each row runs from its time to the next row's time, the last to the event's end; rows that have ended are finished, the
+ * row whose span holds `now` is in progress and the row after it is up next. Before the first row starts, the first is up
+ * next. Instants are compared, so the answer is the same in every time zone (L2-168 AC1, AC2, AC4; ADR 0040).
+ */
+export function agendaStates(
+  items: readonly { startsAt: string }[],
+  eventEnd: string,
+  now: Date,
+): AgendaRowState[] {
+  const at = now.getTime();
+  const starts = items.map((item) => new Date(item.startsAt).getTime());
+  const ends = starts.map((_, i) =>
+    i + 1 < starts.length ? starts[i + 1] : new Date(eventEnd).getTime(),
+  );
+  const states: AgendaRowState[] = starts.map((start, i) =>
+    at >= ends[i] ? 'finished' : at >= start ? 'now' : 'later',
+  );
+  const current = states.indexOf('now');
+  const upNext = current >= 0 ? current + 1 : states.every((s) => s === 'later') ? 0 : -1;
+  if (upNext >= 0 && upNext < states.length) states[upNext] = 'next';
+  return states;
+}

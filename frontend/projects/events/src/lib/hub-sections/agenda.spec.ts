@@ -1,6 +1,7 @@
 // Traces to: L2-159 AC2, AC3, AC5 to AC7 (docs/detailed-designs/events/fill-in-hub-sections)
 import {
   agendaInstant,
+  agendaStates,
   agendaSummary,
   inTimeOrder,
   outsideWarning,
@@ -82,5 +83,40 @@ describe('parseSchedule', () => {
   it('reads 12-hour times as close to the start as it can when none is within the event', () => {
     const { rows } = parseSchedule('5:00 Setup', evening);
     expect(rows[0].startsAt).toBe(local(6, 17));
+  });
+});
+
+// L2-168 AC1, AC2, AC4: each row runs to the next row's time, the last to the event's end, comparing instants.
+describe('agendaStates', () => {
+  const rows = [
+    { startsAt: local(6, 18, 30) },
+    { startsAt: local(6, 19) },
+    { startsAt: local(6, 20) },
+  ];
+  const end = local(6, 21);
+  const at = (h: number, m = 0) => new Date(local(6, h, m));
+
+  it('marks the first row up next before the event starts, with nothing in progress', () => {
+    expect(agendaStates(rows, end, at(18))).toEqual(['next', 'later', 'later']);
+  });
+
+  it('marks finished rows, the row in progress and the row after it', () => {
+    expect(agendaStates(rows, end, at(19, 30))).toEqual(['finished', 'now', 'next']);
+  });
+
+  it('starts a row at its own time', () => {
+    expect(agendaStates(rows, end, at(19))).toEqual(['finished', 'now', 'next']);
+  });
+
+  it('keeps the last row in progress until the event ends, with nothing up next', () => {
+    expect(agendaStates(rows, end, at(20, 59))).toEqual(['finished', 'finished', 'now']);
+  });
+
+  it('finishes every row once the event has ended', () => {
+    expect(agendaStates(rows, end, at(21))).toEqual(['finished', 'finished', 'finished']);
+  });
+
+  it('has no states for an empty agenda', () => {
+    expect(agendaStates([], end, at(19))).toEqual([]);
   });
 });

@@ -15,6 +15,10 @@ export class HubPage {
   readonly tryAgain: Locator;
   readonly signIn: Locator;
   readonly rsvp: Locator;
+  readonly agendaRows: Locator;
+  readonly currentAgendaRow: Locator;
+  readonly agendaAnnouncement: Locator;
+  readonly agendaFinished: Locator;
 
   constructor(private readonly page: Page) {
     this.main = page.getByRole('main');
@@ -27,10 +31,23 @@ export class HubPage {
     this.tryAgain = page.getByRole('button', { name: 'Try again' });
     this.signIn = page.getByRole('main').getByRole('link', { name: 'Sign in' });
     this.rsvp = page.getByRole('main').getByRole('link', { name: 'RSVP' });
+    const agenda = this.main.getByRole('region', { name: 'Agenda' });
+    this.agendaRows = agenda.getByRole('listitem');
+    this.currentAgendaRow = agenda.locator('[aria-current="time"]');
+    this.agendaAnnouncement = agenda.getByRole('status');
+    // The visible line, not the live region that may say the same.
+    this.agendaFinished = agenda
+      .getByText('This event has finished.', { exact: true })
+      .and(agenda.locator(':not([role="status"])'));
   }
 
   async open(eventId: string): Promise<void> {
     await this.page.goto(`/public/events/${eventId}/hub`);
+  }
+
+  /** The Agenda row whose title is `title`. */
+  agendaRow(title: string): Locator {
+    return this.agendaRows.filter({ hasText: title });
   }
 
   /** The page's meta description. */

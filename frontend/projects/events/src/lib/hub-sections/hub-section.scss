@@ -29,3 +29,8 @@ p {
   font-variant-numeric: tabular-nums;
   color: var(--color-fg-muted);
 }
+
+/* The agenda's "This event has finished." line (L2-168 AC2). */
+.hub-section__muted {
+  color: var(--color-fg-muted);
+}

@@ -63,7 +63,7 @@
               <ft-hub-hero [hub]="h" />
             }
             @case ('Agenda') {
-              <ft-hub-agenda [items]="agenda()" />
+              <ft-hub-agenda [items]="agenda()" [live]="true" [eventEnd]="h.event.endsAt" />
             }
             @case ('Venue') {
               <ft-hub-venue [hub]="h" />

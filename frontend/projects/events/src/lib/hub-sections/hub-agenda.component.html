@@ -1,10 +1,34 @@
 <section class="hub-section" [attr.aria-labelledby]="id">
   <h3 [id]="id">Agenda</h3>
+  @if (finished()) {
+    <p class="hub-section__muted">This event has finished.</p>
+  }
   <ft-list label="Agenda">
     @for (row of rows(); track $index) {
-      <ft-list-item [label]="row.title" [description]="row.detail">
+      <ft-list-item
+        [label]="row.title"
+        [description]="row.detail"
+        [state]="
+          row.state === 'now' ? 'current' : row.state === 'finished' ? 'finished' : 'default'
+        "
+        [attr.aria-current]="row.state === 'now' ? 'time' : null"
+      >
         <span leading class="hub-section__time">{{ row.time }}</span>
+        @switch (row.state) {
+          @case ('now') {
+            <ft-badge meta variant="success">Happening now</ft-badge>
+          }
+          @case ('next') {
+            <ft-badge meta>Up next</ft-badge>
+          }
+          @case ('finished') {
+            <span meta class="visually-hidden">Finished</span>
+          }
+        }
       </ft-list-item>
     }
   </ft-list>
+  @if (live()) {
+    <p class="visually-hidden" role="status" aria-live="polite">{{ announcement() }}</p>
+  }
 </section>
