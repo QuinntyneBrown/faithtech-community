@@ -135,6 +135,7 @@ public static class DependencyInjection
         services.AddScoped<CancelEventHandler>();
         services.AddScoped<CreateEventHubHandler>();
         services.AddScoped<GetEventHubHandler>();
+        services.AddScoped<HubFileHandler>();
         services.AddScoped<SaveEventHubHandler>();
         services.AddScoped<SaveHubSectionHandler>();
         services.AddScoped<PublishEventHubHandler>();

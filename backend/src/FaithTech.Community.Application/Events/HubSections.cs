@@ -2,6 +2,7 @@ using System.Text.Json;
 using System.Text.RegularExpressions;
 using FaithTech.Community.Application.Admin;
 using FaithTech.Community.Application.Common;
+using FaithTech.Community.Application.Resources;
 using FaithTech.Community.Domain.Events;
 using FaithTech.Community.Domain.Organisations;
 using FluentValidation;
@@ -273,7 +274,8 @@ public static partial class HubContent
 /// Saves one section's content (L2-157 AC2, AC3, AC5, AC6): validated against its kind's schema, then checked against the
 /// database (members of this organisation, a code freeze that is an agenda row's time). Audited on override.
 /// </summary>
-public class SaveHubSectionHandler(IApplicationDbContext db, EventPermissions permissions, IAuditLog audit, TimeProvider time)
+public class SaveHubSectionHandler(
+    IApplicationDbContext db, EventPermissions permissions, ResourceAccess resources, IAuditLog audit, TimeProvider time)
 {
     public async Task<Result> HandleAsync(Guid eventId, string kindName, JsonElement body, CancellationToken cancellationToken = default)
     {
@@ -295,7 +297,7 @@ public class SaveHubSectionHandler(IApplicationDbContext db, EventPermissions pe
             return new Result(ResultStatus.Invalid, errors);
         }
 
-        if (await CheckAsync(hub, content!, cancellationToken) is { } refusal)
+        if (await CheckAsync(hub, content!, actor, cancellationToken) is { } refusal)
         {
             return refusal;
         }
@@ -311,7 +313,7 @@ public class SaveHubSectionHandler(IApplicationDbContext db, EventPermissions pe
         return Result.Ok();
     }
 
-    private async Task<Result?> CheckAsync(EventHub hub, object content, CancellationToken cancellationToken)
+    private async Task<Result?> CheckAsync(EventHub hub, object content, Guid actor, CancellationToken cancellationToken)
     {
         switch (content)
         {
@@ -325,9 +327,31 @@ public class SaveHubSectionHandler(IApplicationDbContext db, EventPermissions pe
                 return (agenda.Items ?? []).Any(i => i.StartsAt == freeze)
                     ? null
                     : Result.Invalid("codeFreezeAt", "Pick a time from the agenda.");
+            case PartnersContent partners:
+                var partnerIds = (partners.PartnerIds ?? []).Distinct().ToList();
+                var active = await db.Partners.CountAsync(p => partnerIds.Contains(p.Id) && p.ArchivedAtUtc == null, cancellationToken);
+                return active == partnerIds.Count ? null : Result.Invalid("partnerIds", "Choose a partner from the list.");
+            case ParkingContent parking:
+                return await FileRefusalAsync(
+                    (parking.Options ?? []).Select((o, i) => (o.MapResourceId, $"options[{i}].mapResourceId")), [HubFiles.Image],
+                    "Choose an image.", actor, cancellationToken);
+            case SlidesContent slides:
+                return await FileRefusalAsync(
+                    (slides.Slides ?? []).Select((s, i) => (s.ResourceId, $"slides[{i}].resourceId")), [HubFiles.Image, HubFiles.Pdf],
+                    "Choose a PDF or an image.", actor, cancellationToken);
             default:
                 return null;
         }
+    }
+
+    /// <summary>Each named resource must be a file of an allowed kind the caller may open in Resources (L2-173 AC2, L2-182 AC2).</summary>
+    private async Task<Result?> FileRefusalAsync(
+        IEnumerable<(Guid? Id, string Field)> named, string[] kinds, string message, Guid actor, CancellationToken cancellationToken)
+    {
+        var refs = named.Where(n => n.Id is not null).ToList();
+        var found = await HubFiles.FindAsync(resources.Visible(db.Resources, actor), [.. refs.Select(r => r.Id!.Value).Distinct()], cancellationToken);
+        var bad = refs.FirstOrDefault(r => !found.TryGetValue(r.Id!.Value, out var x) || !kinds.Contains(x.Kind));
+        return bad.Field is null ? null : Result.Invalid(bad.Field, message);
     }
 }
 

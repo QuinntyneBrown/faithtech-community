@@ -85,6 +85,19 @@ public static class EventsEndpoints
                 await handler.PageAsync(id, cancellationToken) is { } hub ? Results.Ok(hub) : Results.NotFound())
             .AllowAnonymous();
 
+        // A hub's maps and slides (L2-182 AC3, ADR 0042): to whoever may see the page, for resources its shown sections name.
+        events.MapGet("/{id:guid}/hub/files/{resourceId:guid}", async (Guid id, Guid resourceId, HubFileHandler handler, CancellationToken cancellationToken) =>
+                await handler.FileAsync(id, resourceId, cancellationToken) is { } file
+                    ? Results.File(file.Content, file.ContentType, file.FileName)
+                    : Results.NotFound())
+            .AllowAnonymous();
+
+        events.MapGet("/{id:guid}/hub/files/{resourceId:guid}/thumbnail", async (Guid id, Guid resourceId, HubFileHandler handler, CancellationToken cancellationToken) =>
+                await handler.ThumbnailAsync(id, resourceId, cancellationToken) is { } file
+                    ? Results.File(file.Content, file.ContentType)
+                    : Results.NotFound())
+            .AllowAnonymous();
+
         events.MapPut("/{id:guid}/hub", async (Guid id, SaveEventHubCommand command, SaveEventHubHandler handler, CancellationToken cancellationToken) =>
                 (await handler.HandleAsync(id, command, cancellationToken)).ToHttp(Results.NoContent))
             .Validate<SaveEventHubCommand>();
