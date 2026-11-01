@@ -17,6 +17,17 @@ class HostComponent {
   level = signal<1 | 2 | 3>(2);
 }
 
+@Component({
+  imports: [EmptyStateComponent],
+  template: `<ft-empty-state
+    size="sm"
+    icon="search"
+    [headingLevel]="3"
+    heading="No hubs match “Builders”."
+  />`,
+})
+class SmallHostComponent {}
+
 function setup() {
   const fixture = TestBed.createComponent(HostComponent);
   fixture.detectChanges();
@@ -66,5 +77,22 @@ describe('EmptyStateComponent', () => {
     fixture.detectChanges();
     expect(el.querySelector('h3')).not.toBeNull();
     expect(el.querySelector('h2')).toBeNull();
+  });
+
+  // docs/design-system/components/empty-state.html, Small: stands in for a short list inside a dialog step.
+  it('has a small size that is announced as a status and draws a smaller icon', () => {
+    const fixture = TestBed.createComponent(SmallHostComponent);
+    fixture.detectChanges();
+    const host = (fixture.nativeElement as HTMLElement).querySelector('ft-empty-state')!;
+    expect(host.classList).toContain('ft-empty--sm');
+    expect(host.getAttribute('role')).toBe('status');
+    expect(host.querySelector('ft-icon')?.classList).toContain('ft-icon--md');
+  });
+
+  it('is medium by default', () => {
+    const { el } = setup();
+    const host = el.querySelector('ft-empty-state')!;
+    expect(host.classList).not.toContain('ft-empty--sm');
+    expect(host.querySelector('ft-icon')?.classList).toContain('ft-icon--lg');
   });
 });
